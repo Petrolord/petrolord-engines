@@ -1,0 +1,86 @@
+{
+  "curves": [
+    {
+      "descr": "DEPTH (BOREHOLE)",
+      "first_finite": 1500.0,
+      "last_finite": 1540.0,
+      "mnemonic": "DEPT",
+      "n_samples": 81,
+      "null_count": 0,
+      "sum_finite_f64": 123120.0,
+      "unit": "M"
+    },
+    {
+      "descr": "TOTAL",
+      "first_finite": 43.135101318359375,
+      "last_finite": 97.32710266113281,
+      "mnemonic": "GR",
+      "n_samples": 81,
+      "null_count": 3,
+      "sum_finite_f64": 5809.674282073975,
+      "unit": "GAPI"
+    },
+    {
+      "descr": "BULK DENSITY",
+      "first_finite": 2.189300060272217,
+      "last_finite": 2.5048000812530518,
+      "mnemonic": "RHOB",
+      "n_samples": 81,
+      "null_count": 9,
+      "sum_finite_f64": 168.74200081825256,
+      "unit": "G/C3"
+    },
+    {
+      "descr": "SANDSTONE MATRIX",
+      "first_finite": 0.2337999939918518,
+      "last_finite": 0.34940001368522644,
+      "mnemonic": "NPHI",
+      "n_samples": 81,
+      "null_count": 0,
+      "sum_finite_f64": 18.325600028038025,
+      "unit": "V/V"
+    },
+    {
+      "descr": "DELTA-T",
+      "first_finite": 399.7369079589844,
+      "last_finite": 266.4984130859375,
+      "mnemonic": "DT",
+      "n_samples": 81,
+      "null_count": 0,
+      "sum_finite_f64": 27840.793029785156,
+      "unit": "US/M"
+    }
+  ],
+  "depth_unit": "M",
+  "fixture": "quirks_20.las",
+  "null_value": -999.25,
+  "version": 2.0,
+  "well": {
+    "STEP": {
+      "descr": "STEP",
+      "unit": "M",
+      "value": 0.5
+    },
+    "STOP": {
+      "descr": "STOP DEPTH",
+      "unit": "M",
+      "value": 1540.0
+    },
+    "STRT": {
+      "descr": "START DEPTH",
+      "unit": "M",
+      "value": 1500.0
+    },
+    "UWI": {
+      "descr": "UNIQUE WELL ID",
+      "unit": "",
+      "value": "KETA-G1-QUIRKS"
+    },
+    "WELL": {
+      "descr": "WELL NAME",
+      "unit": "",
+      "value": "KETA G1-3: THE \"QUIRKY\" ONE"
+    }
+  },
+  "wrap": "NO"
+}

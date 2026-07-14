@@ -1,0 +1,106 @@
+{
+  "curves": [
+    {
+      "descr": "1  DEPTH",
+      "first_finite": 4900.0,
+      "last_finite": 5200.0,
+      "mnemonic": "DEPT",
+      "n_samples": 151,
+      "null_count": 0,
+      "sum_finite_f64": 762550.0,
+      "unit": "F"
+    },
+    {
+      "descr": "2  GAMMA RAY",
+      "first_finite": 47.36349868774414,
+      "last_finite": 43.36880111694336,
+      "mnemonic": "GR",
+      "n_samples": 151,
+      "null_count": 6,
+      "sum_finite_f64": 8777.040187835693,
+      "unit": "GAPI"
+    },
+    {
+      "descr": "3  BULK DENSITY",
+      "first_finite": 2.1617000102996826,
+      "last_finite": 2.3922998905181885,
+      "mnemonic": "RHOB",
+      "n_samples": 151,
+      "null_count": 0,
+      "sum_finite_f64": 364.25899958610535,
+      "unit": "G/C3"
+    },
+    {
+      "descr": "4  NEUTRON POROSITY",
+      "first_finite": 0.3028999865055084,
+      "last_finite": 0.2676999866962433,
+      "mnemonic": "NPHI",
+      "n_samples": 151,
+      "null_count": 0,
+      "sum_finite_f64": 35.08170010149479,
+      "unit": "V/V"
+    },
+    {
+      "descr": "5  SONIC TRANSIT TIME",
+      "first_finite": 120.97799682617188,
+      "last_finite": 99.6969985961914,
+      "mnemonic": "DT",
+      "n_samples": 151,
+      "null_count": 0,
+      "sum_finite_f64": 14221.815727233887,
+      "unit": "US/F"
+    }
+  ],
+  "depth_unit": "F",
+  "fixture": "feet_20.las",
+  "null_value": -999.25,
+  "version": 2.0,
+  "well": {
+    "COMP": {
+      "descr": "COMPANY",
+      "unit": "",
+      "value": "PETROLORD"
+    },
+    "DATE": {
+      "descr": "LOG DATE",
+      "unit": "",
+      "value": "2026-07-12"
+    },
+    "FLD": {
+      "descr": "FIELD",
+      "unit": "",
+      "value": "KETA"
+    },
+    "LOC": {
+      "descr": "LOCATION",
+      "unit": "",
+      "value": "ONSHORE GHANA"
+    },
+    "STEP": {
+      "descr": "STEP",
+      "unit": "F",
+      "value": 2.0
+    },
+    "STOP": {
+      "descr": "STOP DEPTH",
+      "unit": "F",
+      "value": 5200.0
+    },
+    "STRT": {
+      "descr": "START DEPTH",
+      "unit": "F",
+      "value": 4900.0
+    },
+    "UWI": {
+      "descr": "UNIQUE WELL ID",
+      "unit": "",
+      "value": "KETA-G1-FEET"
+    },
+    "WELL": {
+      "descr": "WELL",
+      "unit": "",
+      "value": "KETA G1-1"
+    }
+  },
+  "wrap": "NO"
+}

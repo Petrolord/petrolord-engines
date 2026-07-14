@@ -1,0 +1,116 @@
+{
+ "archie_basic": {
+  "in": {
+   "a": 1.0,
+   "m": 2.0,
+   "n": 2.0,
+   "phi": 0.2,
+   "rt": 10.0,
+   "rw": 0.04
+  },
+  "out": 0.3162277660168379
+ },
+ "arps_75_to_150": {
+  "in": {
+   "rw1": 0.1,
+   "t1_f": 75.0,
+   "t2_f": 150.0
+  },
+  "out": 0.052159214135357526
+ },
+ "clavier_igr0": {
+  "in": {
+   "igr": 0.0
+  },
+  "out": 0.0
+ },
+ "clavier_igr1": {
+  "in": {
+   "igr": 1.0
+  },
+  "out": 0.9999999999999998
+ },
+ "indonesia_vsh0_equals_archie": {
+  "archie": 0.4392052305789416,
+  "in": {
+   "phi": 0.18,
+   "rt": 8.0,
+   "rw": 0.05
+  },
+  "indonesia": 0.43920523057894156
+ },
+ "larionov_older_igr1": {
+  "in": {
+   "igr": 1.0
+  },
+  "out": 0.99
+ },
+ "larionov_tertiary_igr1": {
+  "in": {
+   "igr": 1.0
+  },
+  "out": 0.9956711823610809
+ },
+ "phid_fluid": {
+  "in": {
+   "rho_fl": 1.0,
+   "rho_ma": 2.65,
+   "rhob": 1.0
+  },
+  "out": 1.0
+ },
+ "phid_matrix": {
+  "in": {
+   "rho_fl": 1.0,
+   "rho_ma": 2.65,
+   "rhob": 2.65
+  },
+  "out": 0.0
+ },
+ "rhg_matrix": {
+  "in": {
+   "dt": 182.0,
+   "dt_ma": 182.0
+  },
+  "out": 0.0
+ },
+ "simandoux_vsh0_equals_archie": {
+  "archie_n2": 0.4392052305789416,
+  "in": {
+   "phi": 0.18,
+   "rt": 8.0,
+   "rw": 0.05
+  },
+  "simandoux": 0.43920523057894156
+ },
+ "sp_quicklook": {
+  "in": {
+   "rmfe": 0.5,
+   "ssp_mv": -100.0,
+   "temp_f": 150.0
+  },
+  "out": 0.029083023447818827
+ },
+ "steiber_igr_half": {
+  "in": {
+   "igr": 0.5
+  },
+  "out": 0.25
+ },
+ "wyllie_fluid": {
+  "in": {
+   "dt": 656.0,
+   "dt_fl": 656.0,
+   "dt_ma": 182.0
+  },
+  "out": 1.0
+ },
+ "wyllie_matrix": {
+  "in": {
+   "dt": 182.0,
+   "dt_fl": 656.0,
+   "dt_ma": 182.0
+  },
+  "out": 0.0
+ }
+}
