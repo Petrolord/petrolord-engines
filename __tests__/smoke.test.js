@@ -61,8 +61,25 @@ describe('golden anchors', () => {
     expect(close(Math.max(...w), 1, 1e-9)).toBe(true);
   });
 
+  test('basin: Easy%Ro weights and the reference-basin anchors hold', async () => {
+    const { EasyRoWeights } = await import('../engines/basin/KerogenLibrary.js');
+    const G = goldens('basin');
+    const wsum = EasyRoWeights.reduce((s, w) => s + w, 0);
+    expect(close(wsum, 0.85, 1e-9)).toBe(true);
+    // Erosion signature (oracle anchor A10): the reference run's final
+    // source-rock Ro exceeds the committed no-erosion control; charge
+    // (A11): expelled stays below generated, both positive at the end.
+    const rb = G.reference_basin;
+    const src = rb.series.source_shale;
+    const last = src.ro.length - 1;
+    expect(src.ro[last]).toBeGreaterThan(rb.final_source_ro_no_erosion);
+    expect(src.generated_kg_m2[last]).toBeGreaterThan(0);
+    expect(src.expelled_kg_m2[last]).toBeGreaterThan(0);
+    expect(src.expelled_kg_m2[last]).toBeLessThan(src.generated_kg_m2[last]);
+  });
+
   test('goldens exist for every extracted domain', () => {
-    for (const d of ['wells', 'petrophysics', 'rockphysics', 'earthmodel', 'porepressure']) {
+    for (const d of ['wells', 'petrophysics', 'rockphysics', 'earthmodel', 'porepressure', 'basin']) {
       const dir = path.join(root, 'test-data', d);
       expect(fs.existsSync(dir)).toBe(true);
       expect(fs.readdirSync(dir).length).toBeGreaterThan(0);
