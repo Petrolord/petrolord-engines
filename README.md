@@ -17,9 +17,14 @@ and its consumers.
   `porepressure`, `basin`, `dca` (decline-curve analysis: Arps
   fits/EUR/forecast, type curves, group roll-up, EUR Monte Carlo;
   goldens are published literature fixtures — SPEE REP #6 Table 1,
-  CED P03-004, Ahmed REH Ch. 16 — rather than a Python oracle).
+  CED P03-004, Ahmed REH Ch. 16 — rather than a Python oracle),
+  `aquifer` (vEH / Fetkovich / Carter-Tracy water influx with finite-reD
+  pD; golden = the Dake Exercise 9.2 server cross-validation history,
+  regenerated Suite-side via tools/validation/gen-dake92-client-golden.ts).
 - `lib/` — shared math the engines depend on (`waveform.js`,
-  `gridding/`). The ONLY cross-directory imports in the package are
+  `gridding/`, `welltest/` — Stehfest inversion + radial Laplace
+  models used by the aquifer engine's finite-reD pD; the full welltest
+  domain extraction will build on these). The ONLY cross-directory imports in the package are
   `engines/* -> ../../lib/*`.
 - `test-data/<domain>/` — committed goldens (byte-identical
   regeneration required).
@@ -66,6 +71,9 @@ package, so app code and tests import exactly what they always did.
 | `engines/dca/groupRollup.js` | `src/utils/declineCurve/dcaGroupRollup.js` |
 | `engines/dca/monteCarlo.js` | `src/utils/dcaMonteCarlo.js` |
 | `test-data/dca/dca-literature-fixtures.json` | `src/utils/declineCurve/__tests__/fixtures/` |
+| `engines/aquifer/aquiferInflux.js` | `src/utils/aquiferInfluxCalculations.js` |
+| `lib/welltest/{numerics.js,models/radial.js,models/dualPorosity.js}` | `src/utils/welltest/` (same names) |
+| `test-data/aquifer/dake92-we.json` | `src/utils/__tests__/goldens/dake92-we.json` (generator stays in the Suite: `tools/validation/gen-dake92-client-golden.ts`) |
 | `tools/validation/{wells,petrophysics,rockphysics,earthmodel,porepressure}` | same paths in suite |
 
 Import rewrites at extraction: `engines/seismolord/synthetics.js` and
