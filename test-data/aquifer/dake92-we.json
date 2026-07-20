@@ -1,0 +1,83 @@
+{
+  "source": "Server mbal-engine computeCarterTracyWe on Dake Exercise 9.2 (tools/validation/fixtures/dake-9-2.ts). Regenerate with: npx tsx tools/validation/gen-dake92-client-golden.ts",
+  "generated": "MB2 2026-07-18",
+  "aquifer_params": {
+    "aquifer_radius_ft": 9200,
+    "radius_ratio": 5,
+    "aquifer_thickness_ft": 100,
+    "aquifer_permeability_md": 200,
+    "aquifer_porosity": 0.25,
+    "aquifer_water_viscosity_cp": 0.55,
+    "theta_degrees": 140,
+    "aquifer_total_compressibility_psi": 0.000007
+  },
+  "dake_final_we_hve_mmrb": 89.2,
+  "series": [
+    {
+      "yr": 0,
+      "t_days": 0,
+      "p_psia": 2740,
+      "We_rb": 0
+    },
+    {
+      "yr": 1,
+      "t_days": 365,
+      "p_psia": 2620,
+      "We_rb": 3113295.017003757
+    },
+    {
+      "yr": 2,
+      "t_days": 730,
+      "p_psia": 2395,
+      "We_rb": 11673528.345097192
+    },
+    {
+      "yr": 3,
+      "t_days": 1095,
+      "p_psia": 2199,
+      "We_rb": 22485662.72744803
+    },
+    {
+      "yr": 4,
+      "t_days": 1460,
+      "p_psia": 2029,
+      "We_rb": 34024629.90983537
+    },
+    {
+      "yr": 5,
+      "t_days": 1825,
+      "p_psia": 1883,
+      "We_rb": 45470465.63000748
+    },
+    {
+      "yr": 6,
+      "t_days": 2190,
+      "p_psia": 1760,
+      "We_rb": 56230698.01121428
+    },
+    {
+      "yr": 7,
+      "t_days": 2555,
+      "p_psia": 1655,
+      "We_rb": 66054827.51144024
+    },
+    {
+      "yr": 8,
+      "t_days": 2920,
+      "p_psia": 1571,
+      "We_rb": 74698707.95186317
+    },
+    {
+      "yr": 9,
+      "t_days": 3285,
+      "p_psia": 1507,
+      "We_rb": 82032242.41989408
+    },
+    {
+      "yr": 10,
+      "t_days": 3650,
+      "p_psia": 1460,
+      "We_rb": 88053808.05029325
+    }
+  ]
+}
