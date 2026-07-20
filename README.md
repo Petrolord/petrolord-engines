@@ -20,11 +20,15 @@ and its consumers.
   CED P03-004, Ahmed REH Ch. 16 — rather than a Python oracle),
   `aquifer` (vEH / Fetkovich / Carter-Tracy water influx with finite-reD
   pD; golden = the Dake Exercise 9.2 server cross-validation history,
-  regenerated Suite-side via tools/validation/gen-dake92-client-golden.ts).
+  regenerated Suite-side via tools/validation/gen-dake92-client-golden.ts),
+  `scal` (Corey/tabular rel-perm + Buckley-Leverett/Welge fractional
+  flow and displacement, Leverett J-function Pc with LM fitting;
+  golden = Leverett 1941 via the Ahmed reproduction, embedded in the
+  test suites).
 - `lib/` — shared math the engines depend on (`waveform.js`,
-  `gridding/`, `welltest/` — Stehfest inversion + radial Laplace
-  models used by the aquifer engine's finite-reD pD; the full welltest
-  domain extraction will build on these). The ONLY cross-directory imports in the package are
+  `gridding/`, `welltest/` — Stehfest inversion, radial Laplace
+  models, and Levenberg-Marquardt fitting used by the aquifer and scal
+  engines; the full welltest domain extraction will build on these). The ONLY cross-directory imports in the package are
   `engines/* -> ../../lib/*`.
 - `test-data/<domain>/` — committed goldens (byte-identical
   regeneration required).
@@ -74,6 +78,9 @@ package, so app code and tests import exactly what they always did.
 | `engines/aquifer/aquiferInflux.js` | `src/utils/aquiferInfluxCalculations.js` |
 | `lib/welltest/{numerics.js,models/radial.js,models/dualPorosity.js}` | `src/utils/welltest/` (same names) |
 | `test-data/aquifer/dake92-we.json` | `src/utils/__tests__/goldens/dake92-we.json` (generator stays in the Suite: `tools/validation/gen-dake92-client-golden.ts`) |
+| `engines/scal/fractionalFlow.js` | `src/utils/fractionalFlowCalculations.js` |
+| `engines/scal/scal.js` | `src/utils/scalCalculations.js` |
+| `lib/welltest/lmFit.js` | `src/utils/welltest/lmFit.js` |
 | `tools/validation/{wells,petrophysics,rockphysics,earthmodel,porepressure}` | same paths in suite |
 
 Import rewrites at extraction: `engines/seismolord/synthetics.js` and
