@@ -24,11 +24,18 @@ and its consumers.
   `scal` (Corey/tabular rel-perm + Buckley-Leverett/Welge fractional
   flow and displacement, Leverett J-function Pc with LM fitting;
   golden = Leverett 1941 via the Ahmed reproduction, embedded in the
-  test suites).
+  test suites), `waterflood` (VRR series/classification, surveillance
+  analytics — Hall plots, Chan diagnostics, cross-correlation lags,
+  injection recommendations — plus layered sweep and pattern
+  forecasting).
+- Cross-directory imports: `engines/* -> ../../lib/*`, plus ONE
+  sanctioned cross-domain edge: `engines/waterflood/patternForecast.js
+  -> ../scal/fractionalFlow.js` (Buckley-Leverett displacement is the
+  shared physics between the two domains).
 - `lib/` — shared math the engines depend on (`waveform.js`,
   `gridding/`, `welltest/` — Stehfest inversion, radial Laplace
   models, and Levenberg-Marquardt fitting used by the aquifer and scal
-  engines; the full welltest domain extraction will build on these). The ONLY cross-directory imports in the package are
+  engines; the full welltest domain extraction will build on these). Historic note (see cross-directory rule above):
   `engines/* -> ../../lib/*`.
 - `test-data/<domain>/` — committed goldens (byte-identical
   regeneration required).
@@ -81,6 +88,10 @@ package, so app code and tests import exactly what they always did.
 | `engines/scal/fractionalFlow.js` | `src/utils/fractionalFlowCalculations.js` |
 | `engines/scal/scal.js` | `src/utils/scalCalculations.js` |
 | `lib/welltest/lmFit.js` | `src/utils/welltest/lmFit.js` |
+| `engines/waterflood/vrr.js` | `src/utils/vrrCalculations.js` |
+| `engines/waterflood/waterflood.js` | `src/utils/waterfloodCalculations.js` (pure math; `parseWaterfloodCSV` stays in the Suite — papaparse) |
+| `engines/waterflood/layeredSweep.js` | `src/utils/layeredSweepCalculations.js` |
+| `engines/waterflood/patternForecast.js` | `src/utils/patternForecastCalculations.js` |
 | `tools/validation/{wells,petrophysics,rockphysics,earthmodel,porepressure}` | same paths in suite |
 
 Import rewrites at extraction: `engines/seismolord/synthetics.js` and
