@@ -1,0 +1,868 @@
+{
+  "_notes": [
+    "Published-literature fixtures for dcaEngine.literature.test.js (SC1, the",
+    "ReservoirEngineering-Module.md paragraph 3 oracle gate). Repo fixture",
+    "doctrine: values are typed from the source document (never recalled);",
+    "each case names its source, page and access date; known rounding",
+    "quirks are documented next to the numbers they affect.",
+    "",
+    "Source for the four armed cases: Weaver, James R., P.E., 'Forecasting",
+    "Oil and Gas Using Decline Curves', CED Engineering continuing-education",
+    "course No. P03-004 (Continuing Education and Development, Inc.),",
+    "publicly served at",
+    "https://www.cedengineering.com/userfiles/Forecasting%20Oil%20and%20Gas%20Using%20Decline%20Curves.pdf",
+    "fetched and read page-by-page on 2026-07-18. The document works every",
+    "example in the Arps nominal-decline forms the engine implements",
+    "(rate q = qi/(1+b*di*t)^(1/b); cumulative between rates",
+    "Np = qi^b/(di*(1-b))*(qi^(1-b) - q^(1-b)); harmonic and exponential",
+    "limits), with EFFECTIVE annual declines de converted to nominal via",
+    "di = -ln(1 - de). Nominal declines scale linearly with time units, so",
+    "the engine's per-day Di is di_per_year / 365 and engine cumulative",
+    "volumes equal the document's printed 365-multiplied Np directly.",
+    "",
+    "Rounding doctrine per case: printed RATES are rounded (e.g. 99 bbl/d",
+    "for 98.73), while printed CUMULATIVES come from the author's unrounded",
+    "spreadsheet. Tests therefore recompute the unrounded end rate from the",
+    "rate equation and compare cumulatives against the printed Np with a",
+    "tolerance stated in the case, and compare printed rates with an",
+    "absolute rounding allowance.",
+    "",
+    "PENDING (the two references paragraph 3 names; suite lists them as",
+    "jest todo entries and SC2 notes the gate in SCALStudio-STATUS.md):",
+    "SPEE Recommended Evaluation Practice #6 and Poston & Poe, 'Analysis of",
+    "Production Decline Curves' (SPE, 2008) are paid documents. When the",
+    "owner supplies the PDFs, their example problems are typed here as",
+    "additional cases with the same provenance discipline.",
+    "",
+    "SC7b (2026-07-18) sourcing update: SPEE REP #6 turned out to be an",
+    "openly reproducible document ('Copyright by Society of Petroleum",
+    "Evaluation Engineers 2000 - Reproduction with Attribution Granted'),",
+    "publicly served at",
+    "https://manual.whitson.com/files/dca/REP06-DeclineCurves.pdf",
+    "(Version 1.0, adopted Spring 2002; fetched 2026-07-18). Its Table 1",
+    "(p. 7) is typed below in full - 37 rows of tangent- and secant-",
+    "effective decline as a function of nominal decline for b = 0..2 - by",
+    "mechanical extraction from the PDF text layer, then verified row-by-",
+    "row against the REP's own closed forms (De = 1 - e^-D and",
+    "Desi = 1 - (1 + b*Di)^(-1/b)) before committing.",
+    "",
+    "Three further worked examples are typed from Ahmed, Reservoir",
+    "Engineering Handbook, 4th ed. (Gulf Professional / Elsevier, 2010,",
+    "ISBN 978-1-85617-803-7), Chapter 16, pp. 1244-1257 - the same library",
+    "copy (irmat-ucan.com, accessed 2026-07-18) the well-test Earlougher",
+    "fixture was typed from. Misprints found while typing are flagged next",
+    "to the rows they affect and excluded from assertions.",
+    "",
+    "Poston & Poe (SPE 2008) remains pending: every located channel is",
+    "paid (SPE store digital rental, Perlego subscription); the jest todo",
+    "stays visible until the owner supplies the PDF."
+  ],
+  "armed": true,
+  "pending_references": [
+    "Poston & Poe, Analysis of Production Decline Curves, SPE 2008 - owner to supply PDF"
+  ],
+  "cases": [
+    {
+      "id": "ced-p03-004-exponential-oil",
+      "reference": "Weaver P03-004, p. 11 (exponential oil example)",
+      "model": "exponential",
+      "given": {
+        "qi_bbl_d": 150,
+        "effective_decline_per_year": 0.15,
+        "note": "nominal di = -ln(1 - 0.15) = 0.16252 per year; the document's Np formula 365*(qi-q)/(-ln(1-d)) is the Arps exponential cumulative with per-day Di"
+      },
+      "published": {
+        "t_years": 3,
+        "q_end_bbl_d": 92.1,
+        "np_bbl": 129995
+      },
+      "tolerances": {
+        "rate_abs": 0.05,
+        "np_rel": 0.0002
+      }
+    },
+    {
+      "id": "ced-p03-004-shale-gas-hyperbolic",
+      "reference": "Weaver P03-004, p. 14 (shale gas hyperbolic example)",
+      "model": "hyperbolic",
+      "given": {
+        "qi_mscf_d": 2500,
+        "b": 1.2,
+        "effective_decline_per_year": 0.65,
+        "note": "document prints di = -ln(1-0.65) = 1.0498 per year; b > 1 exercises the (1-b) < 0 branch of the cumulative formula (the branch the pre-SC1 sign bug inverted)"
+      },
+      "published": {
+        "t_years": 2,
+        "q_end_mscf_d": 876,
+        "np_mscf_rate_form": 1014165,
+        "np_mscf_time_form": 1014083,
+        "note": "the document prints both cumulative forms and attributes their 82 Mscf spread to round-off of the 876 rate; tests compare against the time form, whose inputs are unrounded"
+      },
+      "tolerances": {
+        "rate_abs": 0.5,
+        "np_rel": 0.0005
+      }
+    },
+    {
+      "id": "ced-p03-004-harmonic-rate-cumulative-table",
+      "reference": "Weaver P03-004, pp. 21-22 (harmonic rate-cumulative example, daily-rate table)",
+      "model": "harmonic",
+      "given": {
+        "qi_bbl_d": 120,
+        "effective_decline_per_year": 0.35,
+        "note": "document prints yearly di = -ln(1-0.35) = 0.4308; the 11-row table below is typed verbatim from the printed daily-rate table (Qo rounded to whole bbl/d, Np from the author's unrounded spreadsheet)"
+      },
+      "published_table": [
+        {
+          "t_years": 0.0,
+          "q_bbl_d": 120,
+          "np_bbl": 0
+        },
+        {
+          "t_years": 0.5,
+          "q_bbl_d": 99,
+          "np_bbl": 19833
+        },
+        {
+          "t_years": 1.0,
+          "q_bbl_d": 84,
+          "np_bbl": 36422
+        },
+        {
+          "t_years": 1.5,
+          "q_bbl_d": 73,
+          "np_bbl": 50680
+        },
+        {
+          "t_years": 2.0,
+          "q_bbl_d": 64,
+          "np_bbl": 63183
+        },
+        {
+          "t_years": 2.5,
+          "q_bbl_d": 58,
+          "np_bbl": 74315
+        },
+        {
+          "t_years": 3.0,
+          "q_bbl_d": 52,
+          "np_bbl": 84348
+        },
+        {
+          "t_years": 3.5,
+          "q_bbl_d": 48,
+          "np_bbl": 93478
+        },
+        {
+          "t_years": 4.0,
+          "q_bbl_d": 44,
+          "np_bbl": 101857
+        },
+        {
+          "t_years": 4.5,
+          "q_bbl_d": 41,
+          "np_bbl": 109597
+        },
+        {
+          "t_years": 5.0,
+          "q_bbl_d": 38,
+          "np_bbl": 116789
+        }
+      ],
+      "tolerances": {
+        "rate_abs": 0.6,
+        "np_rel": 0.0002,
+        "np_abs": 25
+      }
+    },
+    {
+      "id": "ced-p03-004-hyperbolic-b115-cumulative",
+      "reference": "Weaver P03-004, pp. 18-19 (hyperbolic-to-exponential example, hyperbolic leg)",
+      "model": "hyperbolic",
+      "given": {
+        "qi_bbl_m": 4563,
+        "b": 1.15,
+        "di_per_month": 0.0545,
+        "note": "monthly-rate form; the document derives qi = 150 bbl/d * 365/12 = 4563 bbl/m and monthly di = -ln(1-0.0530) = 0.0545. Nominal declines convert linearly, so the engine runs qi = 4563 volume/month-units with Di per month directly (t in months)"
+      },
+      "published": {
+        "t_months": 109,
+        "q_bbl_m": 762,
+        "np_bbl": 171883
+      },
+      "tolerances": {
+        "rate_abs": 1.0,
+        "np_rel": 0.001
+      }
+    },
+    {
+      "id": "spee-rep6-table1-effective-nominal",
+      "reference": "SPEE REP #6, 'Definition of Decline Curve Parameters', v1.0 Spring 2002, Table 1, p. 7",
+      "model": "decline-rate conversions",
+      "given": {
+        "note": "Consistent units, qi = 1, t = 1 period. Tangent effective De = 1 - q_exp(1); secant effective Desi(b) = 1 - q_hyp(1; b, Di) - i.e. the table IS the engine's Arps rate forms evaluated at one time unit. The b = 0 column is the exponential limit. Tangent column printed to 14 decimal digits of percent; secant columns to 6."
+      },
+      "published_table": [
+        {
+          "nominal_pct": 1,
+          "tangent_effective_pct": "0.99501662508319",
+          "secant_effective_pct": {
+            "0": "0.995017",
+            "0.5": "0.992550",
+            "1": "0.990099",
+            "1.5": "0.987664",
+            "2": "0.985246"
+          }
+        },
+        {
+          "nominal_pct": 2,
+          "tangent_effective_pct": "1.98013266932447",
+          "secant_effective_pct": {
+            "0": "1.980133",
+            "0.5": "1.970395",
+            "1": "1.960784",
+            "1.5": "1.951298",
+            "2": "1.941932"
+          }
+        },
+        {
+          "nominal_pct": 3,
+          "tangent_effective_pct": "2.95544664514918",
+          "secant_effective_pct": {
+            "0": "2.955447",
+            "0.5": "2.933825",
+            "1": "2.912621",
+            "1.5": "2.891822",
+            "2": "2.871414"
+          }
+        },
+        {
+          "nominal_pct": 4,
+          "tangent_effective_pct": "3.92105608476768",
+          "secant_effective_pct": {
+            "0": "3.921056",
+            "0.5": "3.883122",
+            "1": "3.846154",
+            "1.5": "3.810111",
+            "2": "3.774955"
+          }
+        },
+        {
+          "nominal_pct": 5,
+          "tangent_effective_pct": "4.87705754992860",
+          "secant_effective_pct": {
+            "0": "4.877058",
+            "0.5": "4.818560",
+            "1": "4.761905",
+            "1.5": "4.706995",
+            "2": "4.653741"
+          }
+        },
+        {
+          "nominal_pct": 6,
+          "tangent_effective_pct": "5.82354664157513",
+          "secant_effective_pct": {
+            "0": "5.823547",
+            "0.5": "5.740409",
+            "1": "5.660377",
+            "1.5": "5.583260",
+            "2": "5.508882"
+          }
+        },
+        {
+          "nominal_pct": 7,
+          "tangent_effective_pct": "6.76061800940517",
+          "secant_effective_pct": {
+            "0": "6.760618",
+            "0.5": "6.648930",
+            "1": "6.542056",
+            "1.5": "6.439655",
+            "2": "6.341419"
+          }
+        },
+        {
+          "nominal_pct": 8,
+          "tangent_effective_pct": "7.68836536133642",
+          "secant_effective_pct": {
+            "0": "7.688365",
+            "0.5": "7.544379",
+            "1": "7.407407",
+            "1.5": "7.276891",
+            "2": "7.152331"
+          }
+        },
+        {
+          "nominal_pct": 9,
+          "tangent_effective_pct": "8.60688147287718",
+          "secant_effective_pct": {
+            "0": "8.606881",
+            "0.5": "8.427005",
+            "1": "8.256881",
+            "1.5": "8.095645",
+            "2": "7.942538"
+          }
+        },
+        {
+          "nominal_pct": 10,
+          "tangent_effective_pct": "9.51625819640405",
+          "secant_effective_pct": {
+            "0": "9.516258",
+            "0.5": "9.297052",
+            "1": "9.090909",
+            "1.5": "8.896561",
+            "2": "8.712907"
+          }
+        },
+        {
+          "nominal_pct": 20,
+          "tangent_effective_pct": "18.12692469220180",
+          "secant_effective_pct": {
+            "0": "18.126925",
+            "0.5": "17.355372",
+            "1": "16.666667",
+            "1.5": "16.046701",
+            "2": "15.484575"
+          }
+        },
+        {
+          "nominal_pct": 30,
+          "tangent_effective_pct": "25.91817793182820",
+          "secant_effective_pct": {
+            "0": "25.918178",
+            "0.5": "24.385633",
+            "1": "23.076923",
+            "1.5": "21.941297",
+            "2": "20.943058"
+          }
+        },
+        {
+          "nominal_pct": 40,
+          "tangent_effective_pct": "32.96799539643610",
+          "secant_effective_pct": {
+            "0": "32.967995",
+            "0.5": "30.555556",
+            "1": "28.571429",
+            "1.5": "26.899557",
+            "2": "25.464401"
+          }
+        },
+        {
+          "nominal_pct": 50,
+          "tangent_effective_pct": "39.34693402873670",
+          "secant_effective_pct": {
+            "0": "39.346934",
+            "0.5": "36.000000",
+            "1": "33.333333",
+            "1.5": "31.138792",
+            "2": "29.289322"
+          }
+        },
+        {
+          "nominal_pct": 60,
+          "tangent_effective_pct": "45.11883639059740",
+          "secant_effective_pct": {
+            "0": "45.118836",
+            "0.5": "40.828402",
+            "1": "37.500000",
+            "1.5": "34.812509",
+            "2": "32.580014"
+          }
+        },
+        {
+          "nominal_pct": 70,
+          "tangent_effective_pct": "50.34146962085910",
+          "secant_effective_pct": {
+            "0": "50.341470",
+            "0.5": "45.130316",
+            "1": "41.176471",
+            "1.5": "38.032483",
+            "2": "35.450278"
+          }
+        },
+        {
+          "nominal_pct": 80,
+          "tangent_effective_pct": "55.06710358827780",
+          "secant_effective_pct": {
+            "0": "55.067104",
+            "0.5": "48.979592",
+            "1": "44.444444",
+            "1.5": "40.882207",
+            "2": "37.982633"
+          }
+        },
+        {
+          "nominal_pct": 90,
+          "tangent_effective_pct": "59.34303402594010",
+          "secant_effective_pct": {
+            "0": "59.343034",
+            "0.5": "52.437574",
+            "1": "47.368421",
+            "1.5": "43.425409",
+            "2": "40.238570"
+          }
+        },
+        {
+          "nominal_pct": 100,
+          "tangent_effective_pct": "63.21205588285580",
+          "secant_effective_pct": {
+            "0": "63.212056",
+            "0.5": "55.555556",
+            "1": "50.000000",
+            "1.5": "45.711648",
+            "2": "42.264973"
+          }
+        },
+        {
+          "nominal_pct": 200,
+          "tangent_effective_pct": "86.46647167633870",
+          "secant_effective_pct": {
+            "0": "86.466472",
+            "0.5": "75.000000",
+            "1": "66.666667",
+            "1.5": "60.314974",
+            "2": "55.278640"
+          }
+        },
+        {
+          "nominal_pct": 300,
+          "tangent_effective_pct": "95.02129316321360",
+          "secant_effective_pct": {
+            "0": "95.021293",
+            "0.5": "84.000000",
+            "1": "75.000000",
+            "1.5": "67.905924",
+            "2": "62.203553"
+          }
+        },
+        {
+          "nominal_pct": 400,
+          "tangent_effective_pct": "98.16843611112660",
+          "secant_effective_pct": {
+            "0": "98.168436",
+            "0.5": "88.888889",
+            "1": "80.000000",
+            "1.5": "72.672412",
+            "2": "66.666667"
+          }
+        },
+        {
+          "nominal_pct": 500,
+          "tangent_effective_pct": "99.32620530009150",
+          "secant_effective_pct": {
+            "0": "99.326205",
+            "0.5": "91.836735",
+            "1": "83.333333",
+            "1.5": "75.990264",
+            "2": "69.848866"
+          }
+        },
+        {
+          "nominal_pct": 600,
+          "tangent_effective_pct": "99.75212478233340",
+          "secant_effective_pct": {
+            "0": "99.752125",
+            "0.5": "93.750000",
+            "1": "85.714286",
+            "1.5": "78.455653",
+            "2": "72.264990"
+          }
+        },
+        {
+          "nominal_pct": 700,
+          "tangent_effective_pct": "99.90881180344460",
+          "secant_effective_pct": {
+            "0": "99.908812",
+            "0.5": "95.061728",
+            "1": "87.500000",
+            "1.5": "80.372359",
+            "2": "74.180111"
+          }
+        },
+        {
+          "nominal_pct": 800,
+          "tangent_effective_pct": "99.96645373720970",
+          "secant_effective_pct": {
+            "0": "99.966454",
+            "0.5": "96.000000",
+            "1": "88.888889",
+            "1.5": "81.912810",
+            "2": "75.746437"
+          }
+        },
+        {
+          "nominal_pct": 900,
+          "tangent_effective_pct": "99.98765901959130",
+          "secant_effective_pct": {
+            "0": "99.987659",
+            "0.5": "96.694215",
+            "1": "90.000000",
+            "1.5": "83.182762",
+            "2": "77.058427"
+          }
+        },
+        {
+          "nominal_pct": 1000,
+          "tangent_effective_pct": "99.99546000702380",
+          "secant_effective_pct": {
+            "0": "99.995460",
+            "0.5": "97.222222",
+            "1": "90.909091",
+            "1.5": "84.250987",
+            "2": "78.178211"
+          }
+        },
+        {
+          "nominal_pct": 2000,
+          "tangent_effective_pct": "99.99999979388460",
+          "secant_effective_pct": {
+            "0": "100.000000",
+            "0.5": "99.173554",
+            "1": "95.238095",
+            "1.5": "89.866514",
+            "2": "84.382624"
+          }
+        },
+        {
+          "nominal_pct": 3000,
+          "tangent_effective_pct": "99.99999999999060",
+          "secant_effective_pct": {
+            "0": "100.000000",
+            "0.5": "99.609375",
+            "1": "96.774194",
+            "1.5": "92.210765",
+            "2": "87.196312"
+          }
+        },
+        {
+          "nominal_pct": 4000,
+          "tangent_effective_pct": "100.00000000000000",
+          "secant_effective_pct": {
+            "0": "100.000000",
+            "0.5": "99.773243",
+            "1": "97.560976",
+            "1.5": "93.546726",
+            "2": "88.888889"
+          }
+        },
+        {
+          "nominal_pct": 5000,
+          "tangent_effective_pct": "100.00000000000000",
+          "secant_effective_pct": {
+            "0": "100.000000",
+            "0.5": "99.852071",
+            "1": "98.039216",
+            "1.5": "94.426548",
+            "2": "90.049628"
+          }
+        },
+        {
+          "nominal_pct": 6000,
+          "tangent_effective_pct": "100.00000000000000",
+          "secant_effective_pct": {
+            "0": "100.000000",
+            "0.5": "99.895942",
+            "1": "98.360656",
+            "1.5": "95.057207",
+            "2": "90.909091"
+          }
+        },
+        {
+          "nominal_pct": 7000,
+          "tangent_effective_pct": "100.00000000000000",
+          "secant_effective_pct": {
+            "0": "100.000000",
+            "0.5": "99.922840",
+            "1": "98.591549",
+            "1.5": "95.535261",
+            "2": "91.578481"
+          }
+        },
+        {
+          "nominal_pct": 8000,
+          "tangent_effective_pct": "100.00000000000000",
+          "secant_effective_pct": {
+            "0": "100.000000",
+            "0.5": "99.940512",
+            "1": "98.765432",
+            "1.5": "95.912324",
+            "2": "92.118896"
+          }
+        },
+        {
+          "nominal_pct": 9000,
+          "tangent_effective_pct": "100.00000000000000",
+          "secant_effective_pct": {
+            "0": "100.000000",
+            "0.5": "99.952741",
+            "1": "98.901099",
+            "1.5": "96.218704",
+            "2": "92.567059"
+          }
+        },
+        {
+          "nominal_pct": 10000,
+          "tangent_effective_pct": "100.00000000000000",
+          "secant_effective_pct": {
+            "0": "100.000000",
+            "0.5": "99.961553",
+            "1": "99.009901",
+            "1.5": "96.473461",
+            "2": "92.946544"
+          }
+        }
+      ],
+      "tolerances": {
+        "tangent_frac_abs": 1e-13,
+        "secant_frac_abs": 1e-08
+      }
+    },
+    {
+      "id": "ahmed-reh-16-1-exponential-rate-cum",
+      "reference": "Ahmed REH 4th ed., Example 16-1, pp. 1244-1246 (dry gas field, rate-cumulative)",
+      "model": "exponential",
+      "given": {
+        "qi_mmscf_d": 344,
+        "di_graph_per_day": 0.000418,
+        "di_lsq_per_day": 0.000401,
+        "note": "qi read from the Gp-vs-q straight-line intercept; the book prints a graph-point Di (Eq. 16-11, (344-197)/352000 = 0.000418) and a least-squares Di (0.000401). Part-b time answers use the LSQ value; the part-a cumulative at 80 MMscf/day (633,600 MMscf) is the book's graph read."
+      },
+      "published": {
+        "q_last_mmscf_d": 184,
+        "t_to_last_days": 1560,
+        "q_econ_mmscf_d": 80,
+        "t_to_econ_days": 3637,
+        "gp_at_econ_mmscf": 633600
+      },
+      "tolerances": {
+        "rate_abs": 0.05,
+        "gp_rel": 0.005
+      }
+    },
+    {
+      "id": "ahmed-reh-16-2-exponential-monthly-forecast",
+      "reference": "Ahmed REH 4th ed., Example 16-2, pp. 1246-1249 (gas well, monthly exponential forecast)",
+      "model": "exponential",
+      "given": {
+        "qi_mmscf_m": 1240,
+        "di_per_month": 0.0383,
+        "note": "Di from the book's least-squares fit of the first six months (3.48325/91). Forecast table typed from the printed Part-b table; 'calculated qt' rows are the book's own model column (integers), Gp rows are (qi - qt)/Di."
+      },
+      "published_table": [
+        {
+          "t_months": 1,
+          "q_mmscf_m": 1193,
+          "gp_mmscf": 1217
+        },
+        {
+          "t_months": 2,
+          "q_mmscf_m": 1149,
+          "gp_mmscf": 2387
+        },
+        {
+          "t_months": 3,
+          "q_mmscf_m": 1105,
+          "gp_mmscf": 3514
+        },
+        {
+          "t_months": 4,
+          "q_mmscf_m": 1064,
+          "gp_mmscf": 4599
+        },
+        {
+          "t_months": 5,
+          "q_mmscf_m": 1026,
+          "gp_mmscf": 4643,
+          "misprint": "printed 4643 breaks the monotone cumulative progression; (qi-q)/Di gives 5642 - a dropped-digit misprint, row excluded from Gp assertions"
+        },
+        {
+          "t_months": 6,
+          "q_mmscf_m": 986,
+          "gp_mmscf": 6647
+        },
+        {
+          "t_months": 7,
+          "q_mmscf_m": 949,
+          "gp_mmscf": 7614
+        },
+        {
+          "t_months": 8,
+          "q_mmscf_m": 913,
+          "gp_mmscf": 8545
+        },
+        {
+          "t_months": 9,
+          "q_mmscf_m": 879,
+          "gp_mmscf": 9441
+        },
+        {
+          "t_months": 10,
+          "q_mmscf_m": 846,
+          "gp_mmscf": 10303
+        },
+        {
+          "t_months": 11,
+          "q_mmscf_m": 814,
+          "gp_mmscf": 11132
+        },
+        {
+          "t_months": 12,
+          "q_mmscf_m": 783,
+          "gp_mmscf": 11931
+        }
+      ],
+      "published": {
+        "q_econ_mmscf_m": 30,
+        "t_econ_months": 97,
+        "gp_econ_mmscf": 31600
+      },
+      "tolerances": {
+        "rate_abs": 3,
+        "gp_abs": 6,
+        "t_econ_abs": 0.5,
+        "gp_econ_rel": 0.001
+      }
+    },
+    {
+      "id": "ahmed-reh-16-3-ikoku-hyperbolic-forecast",
+      "reference": "Ahmed REH 4th ed., Example 16-3, pp. 1253-1256 (Ikoku 1984 gas-well data, hyperbolic fit + 20-year forecast)",
+      "model": "hyperbolic",
+      "given": {
+        "qi_mmscf_d": 10,
+        "b": 0.5195,
+        "di_per_year": 0.3668,
+        "note": "b from the book's Newton iteration (converged 0.519514, printed 0.5195); Di from Eq. 16-21. The text shows a daily Di rounded to 0.001 but the printed cumulative table was computed with the unrounded 0.3668/365 (verified while typing: the rounded value is 0.5% off every row, the unrounded reproduces the table to 3e-5). Cumulative column header says MMscf but the values are MMMscf (the Step-7 formula yields scf; 8.44669e9 scf at year 4)."
+      },
+      "published_table": [
+        {
+          "t_years": 0,
+          "q_mmscf_d": 10,
+          "gp_mmmscf": 0
+        },
+        {
+          "t_years": 0.5,
+          "q_mmscf_d": 8.392971,
+          "gp_mmmscf": 1.671857
+        },
+        {
+          "t_years": 1,
+          "q_mmscf_d": 7.147962,
+          "gp_mmmscf": 3.08535
+        },
+        {
+          "t_years": 1.5,
+          "q_mmscf_d": 6.163401,
+          "gp_mmmscf": 4.296641
+        },
+        {
+          "t_years": 2,
+          "q_mmscf_d": 5.37108,
+          "gp_mmmscf": 5.346644
+        },
+        {
+          "t_years": 2.5,
+          "q_mmscf_d": 4.723797,
+          "gp_mmmscf": 6.265881
+        },
+        {
+          "t_years": 3,
+          "q_mmscf_d": 4.188031,
+          "gp_mmmscf": 7.077596
+        },
+        {
+          "t_years": 3.5,
+          "q_mmscf_d": 3.739441,
+          "gp_mmmscf": 7.799804
+        },
+        {
+          "t_years": 4,
+          "q_mmscf_d": 3.36,
+          "gp_mmmscf": 8.44669
+        },
+        {
+          "t_years": 5,
+          "q_mmscf_d": 2.757413,
+          "gp_mmmscf": 9.557617
+        },
+        {
+          "t_years": 6,
+          "q_mmscf_d": 2.304959,
+          "gp_mmmscf": 10.477755
+        },
+        {
+          "t_years": 7,
+          "q_mmscf_d": 1.956406,
+          "gp_mmmscf": 11.252814
+        },
+        {
+          "t_years": 8,
+          "q_mmscf_d": 1.68208,
+          "gp_mmmscf": 11.914924
+        },
+        {
+          "t_years": 9,
+          "q_mmscf_d": 1.462215,
+          "gp_mmmscf": 12.487334
+        },
+        {
+          "t_years": 10,
+          "q_mmscf_d": 1.283229,
+          "gp_mmmscf": 12.987298
+        },
+        {
+          "t_years": 11,
+          "q_mmscf_d": 1.135536,
+          "gp_mmmscf": 13.427888
+        },
+        {
+          "t_years": 12,
+          "q_mmscf_d": 1.012209,
+          "gp_mmmscf": 13.819197
+        },
+        {
+          "t_years": 13,
+          "q_mmscf_d": 0.908144,
+          "gp_mmmscf": 14.169139
+        },
+        {
+          "t_years": 14,
+          "q_mmscf_d": 0.819508,
+          "gp_mmmscf": 14.484015
+        },
+        {
+          "t_years": 15,
+          "q_mmscf_d": 0.743381,
+          "gp_mmmscf": 14.768899
+        },
+        {
+          "t_years": 16,
+          "q_mmscf_d": 0.677503,
+          "gp_mmmscf": 15.027928
+        },
+        {
+          "t_years": 17,
+          "q_mmscf_d": 0.620105,
+          "gp_mmmscf": 15.264506
+        },
+        {
+          "t_years": 18,
+          "q_mmscf_d": 0.569783,
+          "gp_mmmscf": 15.481464
+        },
+        {
+          "t_years": 19,
+          "q_mmscf_d": 0.525414,
+          "gp_mmmscf": 15.681171
+        },
+        {
+          "t_years": 20,
+          "q_mmscf_d": 0.486091,
+          "gp_mmmscf": 15.86563
+        }
+      ],
+      "tolerances": {
+        "rate_rel": 0.0002,
+        "gp_rel": 0.0005
+      }
+    }
+  ]
+}

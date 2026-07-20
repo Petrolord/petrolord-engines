@@ -14,7 +14,10 @@ and its consumers.
 - `engines/<domain>/` — the engine modules (named exports only):
   `seismolord`, `welldata` (LAS parse/import), `petrophysics`,
   `wellcorrelation`, `mapping`, `rockphysics`, `earthmodeling`,
-  `porepressure`.
+  `porepressure`, `basin`, `dca` (decline-curve analysis: Arps
+  fits/EUR/forecast, type curves, group roll-up, EUR Monte Carlo;
+  goldens are published literature fixtures — SPEE REP #6 Table 1,
+  CED P03-004, Ahmed REH Ch. 16 — rather than a Python oracle).
 - `lib/` — shared math the engines depend on (`waveform.js`,
   `gridding/`). The ONLY cross-directory imports in the package are
   `engines/* -> ../../lib/*`.
@@ -58,6 +61,11 @@ package, so app code and tests import exactly what they always did.
 | `engines/porepressure/` | `src/pages/apps/PorePressureStudio/engine/` |
 | `lib/waveform.js`, `lib/gridding/` | `src/lib/waveform.js`, `src/lib/gridding/` |
 | `test-data/{wells,petrophysics,rockphysics,earthmodel,porepressure}` | same paths in suite |
+| `engines/dca/arps.js` | `src/utils/declineCurve/dcaEngine.js` (pure math; `exportToLAS`/`exportToCSV` stayed in the Suite) |
+| `engines/dca/typeCurve.js` | `src/utils/declineCurve/typeCurveEngine.js` (`fitTypeCurve` two-array call fixed — it never fit pre-extraction, zero consumers) |
+| `engines/dca/groupRollup.js` | `src/utils/declineCurve/dcaGroupRollup.js` |
+| `engines/dca/monteCarlo.js` | `src/utils/dcaMonteCarlo.js` |
+| `test-data/dca/dca-literature-fixtures.json` | `src/utils/declineCurve/__tests__/fixtures/` |
 | `tools/validation/{wells,petrophysics,rockphysics,earthmodel,porepressure}` | same paths in suite |
 
 Import rewrites at extraction: `engines/seismolord/synthetics.js` and
