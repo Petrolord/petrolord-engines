@@ -1,0 +1,37 @@
+{
+  "source": "Ahmed, Tarek: Reservoir Engineering Handbook, 4th ed. (Elsevier, 2010), Chapter 11 'Oil Recovery Mechanisms and the Material Balance Equation', Example 11-1, pp. 764-766. A combination-drive reservoir with a gas cap (m = 0.25) AND water influx: the published truth for the oil + gas cap + aquifer combined MBE path. Typed verbatim from the book PDF (irmat-ucan.com library copy) on 2026-07-18.",
+  "notes": [
+    "Book solves Eq. 11-17 for We with N given (10 MMSTB), then computes the primary driving indexes. The Efw term carries the (1+m) factor; the printed 'neglecting rock and fluid expansion' variant (We = 417,700 bbl) minus the full solution (411,281 bbl) isolates N*(1+m)*Efw' = 6,419 bbl, confirming the engine's (1+m) convention and the (Swi*cw + cf) bracket.",
+    "Book drive-index convention: denominator A = Np[Bt + (Rp - Rsi)Bg] = 1,710,000 rb EXCLUDES the Wp*Bw term (water production is netted inside WDI's numerator instead). The engine's runtime convention divides by F = A + Wp*Bw; CASE 9 asserts the printed indices by recomputing them in the book's convention from the engine's per-timestep terms.",
+    "Book labels: DDI = depletion (oil expansion), SDI = segregation/gas-cap drive (engine gdi), WDI = water drive, EDI = expansion (rock+connate water, engine sdi)."
+  ],
+  "given": {
+    "N_stb": 1e7,
+    "m": 0.25,
+    "pi_psia": 3000,
+    "temp_f": 150,
+    "p2_psia": 2800,
+    "Np_stb": 1e6,
+    "Gp_scf": 1.1e9,
+    "Wp_stb": 50000,
+    "gas_sg": 0.8,
+    "Swi": 0.20,
+    "cw_psi": 1.5e-6,
+    "cf_psi": 1e-6,
+    "pvt": {
+      "at_3000": { "Bo": 1.58, "Rs": 1040, "Bg_rb_scf": 0.00080, "Bt": 1.58,  "Bw": 1.0 },
+      "at_2800": { "Bo": 1.48, "Rs": 850,  "Bg_rb_scf": 0.00092, "Bt": 1.655, "Bw": 1.0 }
+    }
+  },
+  "printed": {
+    "Rp_scf_stb": 1100,
+    "We_bbl": 411281,
+    "We_neglecting_efw_bbl": 417700,
+    "net_influx_bbl": 361281,
+    "A_rb": 1710000,
+    "DDI": 0.4385,
+    "SDI_gascap": 0.3465,
+    "WDI": 0.2112,
+    "EDI": 0.0038
+  }
+}

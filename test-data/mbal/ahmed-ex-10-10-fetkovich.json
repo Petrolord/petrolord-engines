@@ -1,0 +1,43 @@
+{
+  "source": "Ahmed, Tarek: Reservoir Engineering Handbook, 4th ed. (Elsevier, 2010), Chapter 10 'Water Influx', Example 10-10, pp. 726-729. The example's footnote credits the data to L.P. Dake, Fundamentals of Reservoir Engineering (Elsevier, 1978) - the same wedge reservoir-aquifer system as Dake Exercise 9.2 (validation CASE 2C), here worked with Fetkovich's method and a printed step-by-step We table. Typed verbatim from the book PDF (irmat-ucan.com library copy) on 2026-07-18.",
+  "notes": [
+    "The printed solution shows the p_r-bar convention explicitly: (p_r-bar)_n = (p_(n-1) + p_n)/2, the step midpoint of reservoir pressures, driving dp_n = (p_a-bar)_(n-1) - (p_r-bar)_n. This ARBITRATES the Fetkovich dp-bar convention question paused in ReservoirBalance-STATUS: the engine's midpoint convention is the published one.",
+    "Book J formula for the radial aquifer with a no-flow outer boundary carries the -3/4 term: J = 0.00708 k h f / (mu_w (ln reD - 0.75)); the printed 116.5 bbl/day/psi is reproduced only with the -0.75 included (the PDF's equation rendering drops it, the arithmetic confirms it).",
+    "Printed intermediate constants: Wei = 211.9 MM bbl, J pi/Wei = 1.506e-3, decay term (1 - exp(-J pi dt/Wei)) = 0.4229 for dt = 365 days, reduced marching constant Wei/pi * 0.4229 = 32,705 bbl/psi.",
+    "Book rounds the average aquifer pressures to whole psi (2689, 2565, 2409) and dWe to 3-4 significant figures; per-step tolerances in CASE 8 allow for that rounding."
+  ],
+  "given": {
+    "h_ft": 100,
+    "phi": 0.25,
+    "ct_psi": 7e-6,
+    "pi_psia": 2740,
+    "k_md": 200,
+    "theta_deg": 140,
+    "muw_cp": 0.55,
+    "re_ft": 9200,
+    "ra_ft": 46000,
+    "reD": 5,
+    "dt_days": 365
+  },
+  "printed_derived": {
+    "Wi_bbl": 28.41e9,
+    "Wei_bbl": 211.9e6,
+    "J_bbl_d_psi": 116.5,
+    "J_pi_over_Wei_per_day": 1.506e-3,
+    "decay_term_365d": 0.4229,
+    "reduced_constant_bbl_psi": 32705
+  },
+  "pressure_history": [
+    { "t_days": 0,    "p_psia": 2740 },
+    { "t_days": 365,  "p_psia": 2500 },
+    { "t_days": 730,  "p_psia": 2290 },
+    { "t_days": 1095, "p_psia": 2109 },
+    { "t_days": 1460, "p_psia": 1949 }
+  ],
+  "printed_table": [
+    { "n": 1, "pr_bar_psia": 2620, "pa_bar_prev_psia": 2740, "dp_psi": 120, "dWe_MMbbl": 3.925,  "We_MMbbl": 3.925 },
+    { "n": 2, "pr_bar_psia": 2395, "pa_bar_prev_psia": 2689, "dp_psi": 294, "dWe_MMbbl": 9.615,  "We_MMbbl": 13.540 },
+    { "n": 3, "pr_bar_psia": 2199, "pa_bar_prev_psia": 2565, "dp_psi": 366, "dWe_MMbbl": 11.970, "We_MMbbl": 25.510 },
+    { "n": 4, "pr_bar_psia": 2029, "pa_bar_prev_psia": 2409, "dp_psi": 381, "dWe_MMbbl": 12.461, "We_MMbbl": 37.971 }
+  ]
+}
