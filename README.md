@@ -63,6 +63,18 @@ In the Suite, the original engine paths
 `src/lib/gridding/*`) are one-line re-export shims into the vendored
 package, so app code and tests import exactly what they always did.
 
+## TypeScript engines
+
+`engines/mbal/` is the package's first TypeScript domain (the MBAL server
+engine, 2026-08-06). Imports keep explicit `.ts` extensions so the same
+files load under Deno (Supabase edge functions), jest (babel
+preset-typescript, see jest.config.cjs) and Vite consumers without a build
+step. The full tiered MBAL validation harness (14+ literature cases, tier
+promotion) remains Suite-side at tools/validation/mbal-validation.ts and
+runs against this vendored engine through the Suite shim; __tests__/mbal
+carries the portable literature anchors (Pletcher SPE 75354, Ahmed
+Ex. 10-10 and 11-1).
+
 ## Moved from petrolord-suite (N1 log)
 
 | Here | Was |
@@ -88,6 +100,10 @@ package, so app code and tests import exactly what they always did.
 | `engines/scal/fractionalFlow.js` | `src/utils/fractionalFlowCalculations.js` |
 | `engines/scal/scal.js` | `src/utils/scalCalculations.js` |
 | `lib/welltest/lmFit.js` | `src/utils/welltest/lmFit.js` |
+| `engines/mbal/mbalEngine.ts` | `supabase/functions/_shared/mbal-engine.ts` (server engine; the Suite path is now a re-export shim bundled into the calculate-mbal edge function) |
+| `engines/mbal/lm.ts` | `supabase/functions/_shared/lm.ts` (mbal's own Levenberg-Marquardt; coexists with lib/welltest/lmFit.js for now, unification is a later cleanup) |
+| `test-data/mbal/dake-9-2.ts` | `tools/validation/fixtures/dake-9-2.ts` |
+| `test-data/mbal/ahmed-ex-*.json` | `tools/validation/mbal-fixtures/` |
 | `engines/waterflood/vrr.js` | `src/utils/vrrCalculations.js` |
 | `engines/waterflood/waterflood.js` | `src/utils/waterfloodCalculations.js` (pure math; `parseWaterfloodCSV` stays in the Suite — papaparse) |
 | `engines/waterflood/layeredSweep.js` | `src/utils/layeredSweepCalculations.js` |
