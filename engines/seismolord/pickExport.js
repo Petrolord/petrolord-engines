@@ -89,3 +89,55 @@ export function writeXyzPoints(rows) {
   const lines = rows.map((r) => `${pyFixed(r.x, 2)} ${pyFixed(r.y, 2)} ${pyFixed(r.z, 4)}`);
   return `${lines.join('\n')}\n`;
 }
+
+/**
+ * Stored fault sticks -> labeled rows (world XY through the survey
+ * affine, real line NUMBERS — fractional when a stick point sits
+ * between lines, which Charisma readers accept).
+ *
+ * @param {Array<{points: {il, xl, s}[]}>} sticks stored stick shape
+ *   (lattice indices; bare point arrays tolerated like the viewers)
+ * @param {Object} affine resolved survey affine
+ * @param {(sample: number) => number} sampleToZ
+ * @param {{il0, ilStep, xl0, xlStep}} lines survey line numbering
+ * @returns {Array<{il, xl, x, y, z, stick: number}>}
+ */
+export function faultSticksToRows(sticks, affine, sampleToZ, lines) {
+  if (!affine?.origin) throw new Error('Volume has no usable survey coordinates.');
+  const out = [];
+  sticks.forEach((stick, k) => {
+    const pts = stick.points || stick;
+    for (const q of pts) {
+      out.push({
+        il: lines.il0 + q.il * lines.ilStep,
+        xl: lines.xl0 + q.xl * lines.xlStep,
+        x: affine.origin.x + q.il * affine.ilVec.x + q.xl * affine.xlVec.x,
+        y: affine.origin.y + q.il * affine.ilVec.y + q.xl * affine.xlVec.y,
+        z: sampleToZ(q.s),
+        stick: k + 1,
+      });
+    }
+  });
+  return out;
+}
+
+/**
+ * Charisma fault sticks ASCII (Petrel "Charisma fault sticks", the
+ * seismiqb FAULT_STICKS column layout): 8 whitespace tokens per row —
+ * `INLINE- <il> <xl> <x> <y> <z> <name> <stick#>`. Whitespace in the
+ * fault name is flattened to underscores so every reader tokenizes the
+ * row the same way.
+ * @param {Array<{name: string, rows: Array<{il, xl, x, y, z, stick}>}>} faults
+ */
+export function writeCharismaFaultSticks(faults) {
+  const out = [];
+  for (const f of faults) {
+    const name = String(f.name || 'fault').trim().replace(/\s+/g, '_') || 'fault';
+    for (const r of f.rows) {
+      out.push(`INLINE-${pad(pyFixed(r.il, 2), 12)}${pad(pyFixed(r.xl, 2), 12)}`
+        + `${pad(pyFixed(r.x, 2), 12)}${pad(pyFixed(r.y, 2), 12)}${pad(pyFixed(r.z, 4), 12)}`
+        + ` ${name} ${r.stick}`);
+    }
+  }
+  return `${out.join('\n')}\n`;
+}
