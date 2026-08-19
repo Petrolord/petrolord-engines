@@ -72,3 +72,50 @@ export function latticeSampleSurface(g, affine, geom) {
   }
   return { values, live };
 }
+
+/**
+ * Physical lattice values -> fractional SAMPLE indices, so a stored
+ * surface can draw on section/traverse/time windows exactly like a
+ * horizon pick grid (the SliceView overlay contract).
+ *
+ * `values` is latticeSampleSurface output after the display sign flip:
+ * positive-down ms (time surfaces) or positive-down depth in the
+ * surface's own unit. Time surfaces convert directly by the sample
+ * rate; depth surfaces go unit -> TVDss metres -> TWT ms through the
+ * caller's toTwtMs (makeTvdssToTwt's model branch — cell-dependent for
+ * layer cakes, hence the cell argument). A cell whose time falls
+ * outside the volume window [0, ns-1] goes null — the section cannot
+ * display it and nulls pen-break honestly.
+ *
+ * @param {Float32Array} values nIl x nXl positive-down physical values,
+ *   1e30 nulls
+ * @param {{nIl: number, nXl: number, ns: number}} geom
+ * @param {Object} p
+ * @param {number} p.dtMs sample interval, ms
+ * @param {?{toTwtMs: (tvdssM: number, cell?: number) => ?number}}
+ *   [p.timeConv] REQUIRED for depth surfaces; null for time surfaces
+ * @param {number} [p.mPerUnit] metres per depth unit (0.3048 for ft,
+ *   1 for m); ignored for time surfaces
+ * @returns {{grid: Float32Array, live: number}} sample indices, 1e30
+ *   nulls
+ */
+export function latticeValuesToSamples(values, geom, { dtMs, timeConv = null, mPerUnit = 1 }) {
+  const grid = new Float32Array(geom.nIl * geom.nXl).fill(NULL_F32);
+  let live = 0;
+  for (let cell = 0; cell < values.length; cell++) {
+    const v = values[cell];
+    if (isNull(v)) continue;
+    let twtMs;
+    if (timeConv) {
+      twtMs = timeConv.toTwtMs(v * mPerUnit, cell);
+      if (twtMs == null) continue;
+    } else {
+      twtMs = v;
+    }
+    const s = twtMs / dtMs;
+    if (!Number.isFinite(s) || s < 0 || s > geom.ns - 1) continue;
+    grid[cell] = s;
+    live += 1;
+  }
+  return { grid, live };
+}
