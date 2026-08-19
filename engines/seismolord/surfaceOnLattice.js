@@ -7,7 +7,7 @@
 // null holes), as does a cell outside the surface extent.
 
 import { NULL_VALUE } from './manifest';
-import { ilxlToWorld } from './surveyGeometry';
+import { ilxlToWorld, worldToIlxl } from './surveyGeometry';
 
 const NULL_F32 = Math.fround(NULL_VALUE);
 const isNull = (v) => v === NULL_F32 || !Number.isFinite(v) || Math.abs(v) > 1.0e29;
@@ -99,6 +99,83 @@ export function latticeSampleSurface(g, affine, geom) {
  * @returns {{grid: Float32Array, live: number}} sample indices, 1e30
  *   nulls
  */
+/**
+ * Bilinear sample of a lattice-value grid at fractional (il, xl)
+ * indices — the lattice-side twin of sampleSurfaceAt, with the same
+ * contributing-corner null policy: outside the lattice is null, and a
+ * sample is null when any support node with bilinear weight > 0 is
+ * null, so a point landing exactly on a live node beside a null hole
+ * keeps that node's value while anything genuinely between live and
+ * null stays null.
+ *
+ * @param {Float32Array} values nIl x nXl lattice values, 1e30 nulls
+ * @param {{nIl: number, nXl: number}} geom
+ * @param {number} i fractional inline index
+ * @param {number} j fractional crossline index
+ */
+export function sampleLatticeAt(values, geom, i, j) {
+  if (i < 0 || j < 0 || i > geom.nIl - 1 || j > geom.nXl - 1) return NULL_VALUE;
+  const i0 = Math.min(Math.floor(i), geom.nIl - 2);
+  const j0 = Math.min(Math.floor(j), geom.nXl - 2);
+  const fi = i - i0;
+  const fj = j - j0;
+  const corners = [
+    [values[i0 * geom.nXl + j0], (1 - fi) * (1 - fj)],
+    [values[i0 * geom.nXl + j0 + 1], (1 - fi) * fj],
+    [values[(i0 + 1) * geom.nXl + j0], fi * (1 - fj)],
+    [values[(i0 + 1) * geom.nXl + j0 + 1], fi * fj],
+  ];
+  let sum = 0;
+  for (const [v, w] of corners) {
+    if (w <= W_EPS) continue;
+    if (isNull(v)) return NULL_VALUE;
+    sum += v * w;
+  }
+  return sum;
+}
+
+/**
+ * Resample lattice values onto an axis-aligned world export grid — the
+ * inverse direction of latticeSampleSurface, used by the horizon
+ * amplitude-map export (attribute values already live at bin
+ * resolution, so this is a resample, never a TPS fit: gridSurface's
+ * control-point decimation would smooth away exactly the amplitude
+ * detail the map exists to show). Each export node resolves to
+ * fractional (il, xl) through the inverse survey affine and bilinearly
+ * samples the lattice under sampleLatticeAt's null policy — nodes
+ * outside the (possibly rotated) survey or across null holes stay
+ * null, never invented.
+ *
+ * @param {Float32Array} values nIl x nXl lattice values, 1e30 nulls
+ * @param {Object} affine survey affine (surveyAffine(geometry))
+ * @param {{nIl: number, nXl: number}} geom
+ * @param {{x0, y0, dx, dy, nx, ny}} spec export grid (exportGridSpec;
+ *   row-major, row 0 = southernmost Y — the writers' convention)
+ * @returns {{z: Float32Array, live: number, vMin: ?number, vMax: ?number}}
+ */
+export function latticeToWorldGrid(values, affine, geom, spec) {
+  if (!affine?.origin || !worldToIlxl(affine, spec.x0, spec.y0)) {
+    throw new Error('Volume has no usable survey coordinates for resampling.');
+  }
+  const z = new Float32Array(spec.nx * spec.ny).fill(NULL_F32);
+  let live = 0;
+  let vMin = Infinity;
+  let vMax = -Infinity;
+  for (let r = 0; r < spec.ny; r++) {
+    for (let c = 0; c < spec.nx; c++) {
+      const p = worldToIlxl(affine, spec.x0 + c * spec.dx, spec.y0 + r * spec.dy);
+      const v = sampleLatticeAt(values, geom, p.i, p.j);
+      if (isNull(v)) continue;
+      const v32 = Math.fround(v); // stats describe the STORED f32 grid
+      z[r * spec.nx + c] = v32;
+      live += 1;
+      if (v32 < vMin) vMin = v32;
+      if (v32 > vMax) vMax = v32;
+    }
+  }
+  return { z, live, vMin: live ? vMin : null, vMax: live ? vMax : null };
+}
+
 export function latticeValuesToSamples(values, geom, { dtMs, timeConv = null, mPerUnit = 1 }) {
   const grid = new Float32Array(geom.nIl * geom.nXl).fill(NULL_F32);
   let live = 0;
