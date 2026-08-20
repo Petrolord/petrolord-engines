@@ -58,6 +58,42 @@ function checkStations(stations) {
 }
 
 /**
+ * Rotate survey azimuths to GRID north (the convention every function
+ * below assumes). Deviation surveys are recorded against grid, true or
+ * magnetic north; treating one as another is a classic silent
+ * misplacement (CRS program, Phase 4).
+ *
+ * Convention: convergenceDeg is the GRID AZIMUTH OF TRUE NORTH at the
+ * wellhead (lib/crs/convergence — negative east of a TM central
+ * meridian in the northern hemisphere), so
+ *   gridAz = trueAz + convergenceDeg
+ * declinationDeg is magnetic declination, positive east:
+ *   trueAz = magneticAz + declinationDeg
+ *
+ * @param {{md, inc, azi}[]} stations
+ * @param {{azimuthRef?: 'grid'|'true'|'magnetic', convergenceDeg?: number,
+ *   declinationDeg?: number}} [opts] default 'grid' = no rotation
+ * @returns {{md, inc, azi}[]} new array; azi normalized to [0, 360)
+ */
+export function toGridAzimuths(stations, {
+  azimuthRef = 'grid', convergenceDeg = 0, declinationDeg = 0,
+} = {}) {
+  let delta;
+  if (azimuthRef === 'grid') delta = 0;
+  else if (azimuthRef === 'true') delta = convergenceDeg;
+  else if (azimuthRef === 'magnetic') delta = declinationDeg + convergenceDeg;
+  else throw new Error(`Unknown azimuth reference "${azimuthRef}".`);
+  if (!Number.isFinite(delta)) {
+    throw new Error('Azimuth conversion needs finite convergence/declination values.');
+  }
+  if (delta === 0) return stations.slice();
+  return stations.map((s) => ({
+    ...s,
+    azi: ((s.azi + delta) % 360 + 360) % 360,
+  }));
+}
+
+/**
  * Minimum-curvature path through the stations.
  *
  * @param {{md:number, inc:number, azi:number}[]} stations ascending MD
