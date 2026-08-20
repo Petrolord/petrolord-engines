@@ -5,6 +5,42 @@ import { affineToManifest } from './surveyGeometry';
 
 export const MANIFEST_VERSION = 1;
 
+/** Highest manifest_version this reader understands. Bump ONLY together
+ *  with reader support for the new schema. */
+export const MANIFEST_READ_MAX = 1;
+
+/** Named refusal: a manifest this reader must not attempt to decode.
+ *  Catch by `e.name === 'UNSUPPORTED_MANIFEST'`. */
+export class UnsupportedManifestError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'UNSUPPORTED_MANIFEST';
+  }
+}
+
+/**
+ * Refuse manifests written by a newer schema or with a brick payload
+ * encoding this reader cannot decode. A stale cached client decoding a
+ * future int16/v2 brick store as raw float32 would render garbage
+ * silently; refusing loudly here is the only safe behaviour. Pre-gate
+ * manifests (missing version / dtype fields) are v1-era by construction
+ * and pass unchanged.
+ */
+export function assertManifestSupported(manifest) {
+  const version = manifest?.manifest_version ?? MANIFEST_VERSION;
+  if (version > MANIFEST_READ_MAX) {
+    throw new UnsupportedManifestError(
+      `Manifest version ${version} is newer than this reader supports (max ${MANIFEST_READ_MAX}).`,
+    );
+  }
+  const dtype = manifest?.brick?.dtype ?? 'float32le';
+  if (dtype !== 'float32le') {
+    throw new UnsupportedManifestError(
+      `Unsupported brick dtype "${dtype}"; this reader decodes float32le only.`,
+    );
+  }
+}
+
 /** Playbook null: propagates everywhere, never enters statistics. */
 export const NULL_VALUE = 1.0e30;
 

@@ -3,7 +3,7 @@
 // Layouts match the segyio golden slices exactly, which is what the
 // bit-identity tests assert.
 
-import { NULL_VALUE } from './manifest';
+import { NULL_VALUE, assertManifestSupported } from './manifest';
 
 const NULL_F32 = Math.fround(NULL_VALUE);
 
@@ -16,8 +16,11 @@ const NULL_F32 = Math.fround(NULL_VALUE);
  * @property {[number, number, number]} grid brick grid [ni, nj, nk]
  */
 
-/** Extract the geometry the assembler needs from a v1 manifest. */
+/** Extract the geometry the assembler needs from a v1 manifest.
+ *  This is the single reader choke point: every display and compute
+ *  path derives its geometry here, so the version gate lives here. */
 export function geomFromManifest(manifest) {
+  assertManifestSupported(manifest);
   return {
     nIl: manifest.geometry.il.count,
     nXl: manifest.geometry.xl.count,
