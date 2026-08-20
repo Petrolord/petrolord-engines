@@ -14,6 +14,101 @@ const isNull = (v) => !Number.isFinite(v) || Math.abs(v) > 1.0e29;
 
 export const SNAP_MODES = ['peak', 'trough', 'zero_pos', 'zero_neg'];
 
+// ---- Tracker 2.0 (W3.2): normalized cross-correlation mode ------------
+//
+// 'ncc' tracks the WAVEFORM, not an event kind: the previous trace's
+// window around its pick is the reference, correlated against the
+// candidate trace over a lag search window; the correlation peak
+// (parabolic sub-sample refinement) is the new pick and the peak
+// coefficient is the pick's CONFIDENCE (stored in the companion layer).
+// Picks below corrThreshold are rejected — the classic guided-tracker
+// stop rule.
+
+/**
+ * Extract a clean reference window (2·half+1 samples) centred at the
+ * rounded sample; null when it would leave the trace or touch a null.
+ */
+export function refWindow(trace, sample, half) {
+  const c = Math.round(sample);
+  if (c - half < 0 || c + half >= trace.length) return null;
+  const out = new Float32Array(2 * half + 1);
+  for (let k = -half; k <= half; k++) {
+    const v = trace[c + k];
+    if (isNull(v)) return null;
+    out[k + half] = v;
+  }
+  return out;
+}
+
+/** Normalized cross-correlation of a reference window against the
+ *  candidate window centred at c (same length); null on nulls/flat. */
+function nccAt(ref, trace, c) {
+  const half = (ref.length - 1) / 2;
+  if (c - half < 0 || c + half >= trace.length) return null;
+  let sr = 0; let sc = 0;
+  for (let k = -half; k <= half; k++) {
+    const v = trace[c + k];
+    if (isNull(v)) return null;
+    sr += ref[k + half];
+    sc += v;
+  }
+  const n = ref.length;
+  const mr = sr / n;
+  const mc = sc / n;
+  let num = 0; let dr = 0; let dc = 0;
+  for (let k = -half; k <= half; k++) {
+    const a = ref[k + half] - mr;
+    const b = trace[c + k] - mc;
+    num += a * b;
+    dr += a * a;
+    dc += b * b;
+  }
+  const denom = Math.sqrt(dr * dc);
+  if (denom < 1e-20) return null; // flat window has no correlation
+  return num / denom;
+}
+
+/**
+ * Correlation pick: slide the reference over the candidate trace within
+ * ±search samples of `center`, take the best NCC lag, refine the peak
+ * parabolically, and gate on the threshold.
+ *
+ * @param {Float32Array} ref reference window (refWindow)
+ * @param {Float32Array} trace candidate trace
+ * @param {number} center expected sample on the candidate (float ok)
+ * @param {{search?: number, threshold?: number}} [opts]
+ * @returns {{sample: number, coeff: number}|null}
+ */
+export function correlatePick(ref, trace, center, { search = 5, threshold = 0.7 } = {}) {
+  const c0 = Math.round(center);
+  let bestLag = null;
+  let bestVal = -Infinity;
+  const vals = new Map();
+  for (let lag = -search; lag <= search; lag++) {
+    const v = nccAt(ref, trace, c0 + lag);
+    if (v === null) continue;
+    vals.set(lag, v);
+    if (v > bestVal) { bestVal = v; bestLag = lag; }
+  }
+  if (bestLag === null || bestVal < threshold) return null;
+  // parabolic refinement over the correlation peak
+  const vm = vals.get(bestLag - 1);
+  const vp = vals.get(bestLag + 1);
+  let refine = 0;
+  let coeff = bestVal;
+  if (vm !== undefined && vp !== undefined) {
+    const denom = vm - 2 * bestVal + vp;
+    if (denom !== 0) {
+      const d = (0.5 * (vm - vp)) / denom;
+      if (Math.abs(d) <= 1) {
+        refine = d;
+        coeff = bestVal - 0.25 * (vm - vp) * d;
+      }
+    }
+  }
+  return { sample: c0 + bestLag + refine, coeff: Math.min(1, coeff) };
+}
+
 /**
  * Zero-crossing snap: the crossing of the requested direction NEAREST to
  * the requested sample (extrema snap to the strongest, crossings to the
@@ -111,82 +206,176 @@ export function snapPick(trace, sample, { mode = 'peak', window = 3 } = {}) {
  *   (float) or NULL_VALUE where the event was lost
  */
 export function autotrack2D(slice, startTrace, startSample, opts = {}) {
-  const { maxJump = 3, minAbsAmp = 0 } = opts;
+  const {
+    maxJump = 3, minAbsAmp = 0, mode = 'peak',
+    corrHalf = 8, corrSearch = 5, corrThreshold = 0.7,
+  } = opts;
   const ns = slice.width;
   const nTraces = slice.height;
   const picks = new Float32Array(nTraces).fill(NULL_F32);
+  const confidence = new Float32Array(nTraces).fill(NULL_F32);
   const traceAt = (t) => slice.data.subarray(t * ns, (t + 1) * ns);
+  const ncc = mode === 'ncc';
 
-  const seedSnap = snapPick(traceAt(startTrace), startSample, opts);
-  if (!seedSnap) return { picks, tracked: 0 };
+  const seedSnap = ncc
+    ? (refWindow(traceAt(startTrace), startSample, corrHalf)
+      ? { sample: startSample } : null)
+    : snapPick(traceAt(startTrace), startSample, opts);
+  if (!seedSnap) return { picks, tracked: 0, confidence };
   picks[startTrace] = seedSnap.sample;
+  if (ncc) confidence[startTrace] = 1;
   let tracked = 1;
 
   for (const dir of [1, -1]) {
     let prev = seedSnap.sample;
+    let prevTrace = startTrace;
     for (let t = startTrace + dir; t >= 0 && t < nTraces; t += dir) {
-      const hit = snapPick(traceAt(t), prev, opts);
-      if (!hit || Math.abs(hit.sample - prev) > maxJump
-        || Math.abs(hit.amp) < minAbsAmp) break;
-      picks[t] = hit.sample;
-      prev = hit.sample;
+      if (ncc) {
+        // rolling reference: the previous trace's window at its pick.
+        // The window is cut at round(prev), so the aligned position is
+        // corrected by the sub-sample residual (prev − round(prev)) —
+        // without it a dipping event accumulates a half-sample bias.
+        const ref = refWindow(traceAt(prevTrace), prev, corrHalf);
+        const hit = ref && correlatePick(ref, traceAt(t), prev, {
+          search: corrSearch, threshold: corrThreshold,
+        });
+        const pick = hit ? hit.sample + (prev - Math.round(prev)) : null;
+        if (!hit || Math.abs(pick - prev) > maxJump) break;
+        picks[t] = pick;
+        confidence[t] = hit.coeff;
+        prev = pick;
+        prevTrace = t;
+      } else {
+        const hit = snapPick(traceAt(t), prev, opts);
+        if (!hit || Math.abs(hit.sample - prev) > maxJump
+          || Math.abs(hit.amp) < minAbsAmp) break;
+        picks[t] = hit.sample;
+        prev = hit.sample;
+      }
       tracked += 1;
     }
   }
-  return { picks, tracked };
+  return { picks, tracked, confidence };
 }
 
 /**
- * 3D seeded region-grow over the volume.
+ * 3D seeded region-grow over the volume. Tracker 2.0 (W3.2) additions,
+ * all opt-in and default-off so pre-W3.2 behavior is bit-identical:
+ *
+ *  - mode 'ncc': each accepted cell's own trace window becomes the
+ *    reference for its neighbours (rolling reference), the correlation
+ *    peak is the pick and its coefficient the confidence;
+ *  - opts.seeds: additional seeds beyond the primary (multi-seed);
+ *  - opts.initialPicks: grow FROM an existing horizon — every live cell
+ *    seeds the queue and keeps its value exactly (confidence stays null
+ *    on pre-existing picks);
+ *  - opts.barriers: nIl x nXl mask (rasterizeTraces) — growth never
+ *    assigns a pick on a barrier cell, so faults stop the tracker the
+ *    same way they stop gridding.
  *
  * @param {(ilIdx: number, xlIdx: number) => Promise<Float32Array>} getTrace
  * @param {{nIl: number, nXl: number, ns: number}} geom
- * @param {{ilIdx: number, xlIdx: number, sample: number}} seed
+ * @param {{ilIdx: number, xlIdx: number, sample: number}|null} seed
  * @param {{mode?: string, window?: number, maxJump?: number,
- *          minAbsAmp?: number,
+ *          minAbsAmp?: number, corrHalf?: number, corrSearch?: number,
+ *          corrThreshold?: number,
+ *          seeds?: {ilIdx:number, xlIdx:number, sample:number}[],
+ *          initialPicks?: Float32Array, barriers?: Uint8Array,
  *          onProgress?: (tracked: number, total: number) => void,
  *          shouldCancel?: () => boolean}} [opts]
- * @returns {Promise<{picks: Float32Array, tracked: number}>}
- *   picks[ilIdx * nXl + xlIdx] = sample (float) or NULL_VALUE
+ * @returns {Promise<{picks: Float32Array, tracked: number,
+ *   confidence: Float32Array}>} picks[ilIdx * nXl + xlIdx] = sample
+ *   (float) or NULL_VALUE; confidence carries NCC coefficients (1e30
+ *   where absent)
  */
 export async function regionGrow3D(getTrace, geom, seed, opts = {}) {
   const {
-    maxJump = 3, minAbsAmp = 0, onProgress, shouldCancel,
+    maxJump = 3, minAbsAmp = 0, mode = 'peak',
+    corrHalf = 8, corrSearch = 5, corrThreshold = 0.7,
+    seeds = null, initialPicks = null, barriers = null,
+    onProgress, shouldCancel,
   } = opts;
   const { nIl, nXl } = geom;
   const total = nIl * nXl;
   const picks = new Float32Array(total).fill(NULL_F32);
+  const confidence = new Float32Array(total).fill(NULL_F32);
+  const ncc = mode === 'ncc';
 
-  const seedSnap = snapPick(await getTrace(seed.ilIdx, seed.xlIdx), seed.sample, opts);
-  if (!seedSnap) return { picks, tracked: 0 };
+  const queue = [];
+  let tracked = 0;
 
-  picks[seed.ilIdx * nXl + seed.xlIdx] = seedSnap.sample;
-  let tracked = 1;
+  const admitSeed = async (s) => {
+    if (!s) return;
+    const idx = s.ilIdx * nXl + s.xlIdx;
+    if (picks[idx] !== NULL_F32) return;
+    if (barriers && barriers[idx]) return;
+    const trace = await getTrace(s.ilIdx, s.xlIdx);
+    if (ncc) {
+      if (!refWindow(trace, s.sample, corrHalf)) return;
+      picks[idx] = s.sample;
+      confidence[idx] = 1;
+    } else {
+      const hit = snapPick(trace, s.sample, opts);
+      if (!hit) return;
+      picks[idx] = hit.sample;
+    }
+    tracked += 1;
+    queue.push([s.ilIdx, s.xlIdx]);
+  };
+
+  if (initialPicks) {
+    for (let c = 0; c < total; c++) {
+      const v = initialPicks[c];
+      if (v === NULL_F32 || !Number.isFinite(v)) continue;
+      if (barriers && barriers[c]) continue;
+      picks[c] = v;               // existing interpretation kept exactly
+      tracked += 1;
+      queue.push([Math.floor(c / nXl), c % nXl]);
+    }
+  }
+  await admitSeed(seed);
+  for (const s of seeds || []) await admitSeed(s);
+  if (tracked === 0) return { picks, tracked: 0, confidence };
+
   // FIFO breadth-first growth so the pick propagates evenly outward
-  const queue = [[seed.ilIdx, seed.xlIdx]];
   const NEIGHBOURS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
   while (queue.length > 0) {
     if (shouldCancel && shouldCancel()) throw new Error('Horizon tracking cancelled.');
     const [il, xl] = queue.shift();
     const from = picks[il * nXl + xl];
+    const ref = ncc ? refWindow(await getTrace(il, xl), from, corrHalf) : null;
+    if (ncc && !ref) continue;    // e.g. an initial pick too near the edge
     for (const [di, dx] of NEIGHBOURS) {
       const ni = il + di;
       const nx = xl + dx;
       if (ni < 0 || ni >= nIl || nx < 0 || nx >= nXl) continue;
       const idx = ni * nXl + nx;
       if (picks[idx] !== NULL_F32) continue;
-      const hit = snapPick(await getTrace(ni, nx), from, opts);
-      if (!hit || Math.abs(hit.sample - from) > maxJump
-        || Math.abs(hit.amp) < minAbsAmp) continue;
-      picks[idx] = hit.sample;
+      if (barriers && barriers[idx]) continue;
+      if (ncc) {
+        const hit = correlatePick(ref, await getTrace(ni, nx), from, {
+          search: corrSearch, threshold: corrThreshold,
+        });
+        // sub-sample residual correction: the reference window is cut
+        // at round(from) (see autotrack2D for the derivation)
+        const pick = hit ? hit.sample + (from - Math.round(from)) : null;
+        if (!hit || Math.abs(pick - from) > maxJump) continue;
+        picks[idx] = pick;
+        confidence[idx] = hit.coeff;
+      } else {
+        const hit = snapPick(await getTrace(ni, nx), from, opts);
+        if (!hit || Math.abs(hit.sample - from) > maxJump
+          || Math.abs(hit.amp) < minAbsAmp) continue;
+        picks[idx] = hit.sample;
+      }
       tracked += 1;
       queue.push([ni, nx]);
       if (onProgress && tracked % 256 === 0) onProgress(tracked, total);
     }
   }
   if (onProgress) onProgress(tracked, total);
-  return { picks, tracked };
+  return { picks, tracked, confidence };
 }
 
 /**
