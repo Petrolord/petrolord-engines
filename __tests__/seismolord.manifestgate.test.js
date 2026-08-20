@@ -74,16 +74,19 @@ describe('assertManifestSupported', () => {
     }
   });
 
-  test('a non-float32le brick dtype is refused even at version 1', () => {
+  test('a foreign brick dtype is refused even at version 1 (int16le-scaled joined the accepted set in W4.4)', () => {
+    const ok = v1Manifest();
+    ok.brick.dtype = 'int16le-scaled';
+    expect(() => assertManifestSupported(ok)).not.toThrow();
     const m = v1Manifest();
-    m.brick.dtype = 'int16le-scaled';
+    m.brick.dtype = 'int8le';
     expect(() => assertManifestSupported(m)).toThrow(UnsupportedManifestError);
     try {
       assertManifestSupported(m);
       throw new Error('should have thrown');
     } catch (e) {
       expect(e.name).toBe('UNSUPPORTED_MANIFEST');
-      expect(e.message).toMatch(/int16le-scaled/);
+      expect(e.message).toMatch(/int8le/);
     }
   });
 });

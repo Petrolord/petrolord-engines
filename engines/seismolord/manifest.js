@@ -41,9 +41,11 @@ export function assertManifestSupported(manifest) {
     );
   }
   const dtype = manifest?.brick?.dtype ?? 'float32le';
-  if (dtype !== 'float32le') {
+  // W4.4: 'int16le-scaled' joins float32le (decoded in BrickCache via
+  // brickCodec). Anything else is still a future encoding — refuse.
+  if (dtype !== 'float32le' && dtype !== 'int16le-scaled') {
     throw new UnsupportedManifestError(
-      `Unsupported brick dtype "${dtype}"; this reader decodes float32le only.`,
+      `Unsupported brick dtype "${dtype}"; this reader decodes float32le and int16le-scaled only.`,
     );
   }
 }
