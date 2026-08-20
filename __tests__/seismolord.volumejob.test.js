@@ -241,3 +241,33 @@ describe('manifest v2', () => {
       .toThrow(expect.objectContaining({ name: 'UNSUPPORTED_MANIFEST' }));
   });
 });
+
+describe('sameLattice (W2.4 co-render gate)', () => {
+  const { sameLattice } = require('../engines/seismolord/surveyGeometry');
+  const geom = {
+    il: { min: 100, max: 104, step: 1, count: 5 },
+    xl: { min: 200, max: 205, step: 1, count: 6 },
+    ns: 10,
+    dt_us: 4000,
+  };
+  const m = (g) => ({ geometry: g });
+
+  test('a derived manifest (geometry verbatim) matches its parent', () => {
+    expect(sameLattice(m(geom), m(JSON.parse(JSON.stringify(geom))))).toBe(true);
+  });
+
+  test('any axis/sampling difference refuses', () => {
+    expect(sameLattice(m(geom), m({ ...geom, ns: 12 }))).toBe(false);
+    expect(sameLattice(m(geom), m({ ...geom, dt_us: 2000 }))).toBe(false);
+    expect(sameLattice(m(geom), m({ ...geom, il: { ...geom.il, min: 101 } }))).toBe(false);
+    expect(sameLattice(m(geom), m({ ...geom, xl: { ...geom.xl, count: 7 } }))).toBe(false);
+    expect(sameLattice(m(geom), null)).toBe(false);
+  });
+
+  test('world placement differences do NOT refuse (lattice only)', () => {
+    expect(sameLattice(
+      { geometry: { ...geom, affine: { a: 1 } } },
+      { geometry: { ...geom, affine: { a: 2 }, crs: { project: 'EPSG:32631' } } },
+    )).toBe(true);
+  });
+});
