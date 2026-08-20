@@ -383,3 +383,35 @@ export function applyPolygonMask(grid, mask) {
 export function profileStepMeters(dir, ilSpacingM, xlSpacingM) {
   return Math.hypot(dir[0] * ilSpacingM, dir[1] * xlSpacingM);
 }
+
+/**
+ * The fault surface's map trace at a constant time level: one (i, j)
+ * point per rail whose s-span brackets `s` (linear interpolation between
+ * the bracketing samples along the rail). This is how fault-aware
+ * tracking gets its barriers BEFORE a horizon exists — the surface knows
+ * where the fault lives at the seed's level; no picks required.
+ *
+ * @param {{samples:number, rails:number[][][]}} surface loftFaultSurface
+ * @param {number} s time level (sample index, float)
+ * @returns {Array<{i:number, j:number}>|null} rasterizeTraces-ready
+ *   polyline; null when fewer than two rails reach the level
+ */
+export function surfaceLevelTrace(surface, s) {
+  if (!surface || !Array.isArray(surface.rails)) return null;
+  const pts = [];
+  for (const rail of surface.rails) {
+    let found = null;
+    for (let k = 0; k + 1 < rail.length; k++) {
+      const [ilA, xlA, sA] = rail[k];
+      const [ilB, xlB, sB] = rail[k + 1];
+      if ((s >= sA && s <= sB) || (s >= sB && s <= sA)) {
+        const span = sB - sA;
+        const t = span !== 0 ? (s - sA) / span : 0;
+        found = { i: ilA + t * (ilB - ilA), j: xlA + t * (xlB - xlA) };
+        break;
+      }
+    }
+    if (found) pts.push(found);
+  }
+  return pts.length >= 2 ? pts : null;
+}

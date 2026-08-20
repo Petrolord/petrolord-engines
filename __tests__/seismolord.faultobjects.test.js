@@ -239,3 +239,43 @@ describe('profileStepMeters', () => {
       .toBeCloseTo(20, 9);
   });
 });
+
+describe('surfaceLevelTrace', () => {
+  const { loftFaultSurface: loft, surfaceLevelTrace } = require('../engines/seismolord/faultObjects');
+
+  test('dipping fault: analytic xl at the level, one point per rail', () => {
+    const beta = 0.5;
+    const sticks = [8, 24, 40, 56].map((il) => ({
+      points: Array.from({ length: 13 }, (_, n) => {
+        const s = 20 + n * 5;
+        return { il, xl: 32 + beta * (s - 50), s };
+      }),
+    }));
+    const surf = loft(sticks, { samples: 16 });
+    const trace = surfaceLevelTrace(surf, 44);
+    expect(trace).toHaveLength(4);
+    trace.forEach((p, k) => {
+      expect(p.i).toBeCloseTo([8, 24, 40, 56][k], 6);
+      expect(p.j).toBeCloseTo(32 + beta * (44 - 50), 6);
+    });
+  });
+
+  test('level outside every rail span -> null', () => {
+    const sticks = [0, 10].map((il) => ({
+      points: [{ il, xl: 5, s: 30 }, { il, xl: 5, s: 60 }],
+    }));
+    const surf = loft(sticks, { samples: 4 });
+    expect(surfaceLevelTrace(surf, 90)).toBeNull();
+    expect(surfaceLevelTrace(surf, 10)).toBeNull();
+    expect(surfaceLevelTrace(null, 40)).toBeNull();
+  });
+
+  test('a single rail reaching the level is not a trace', () => {
+    const sticks = [
+      { points: [{ il: 0, xl: 5, s: 30 }, { il: 0, xl: 5, s: 60 }] },
+      { points: [{ il: 10, xl: 5, s: 70 }, { il: 10, xl: 5, s: 90 }] },
+    ];
+    const surf = loft(sticks, { samples: 4 });
+    expect(surfaceLevelTrace(surf, 40)).toBeNull();
+  });
+});
