@@ -234,10 +234,12 @@ describe('manifest v2', () => {
     })).toThrow(/must be identical/);
   });
 
-  test('the gate still refuses newer versions and foreign dtypes', () => {
+  test('the gate still refuses newer versions and foreign dtypes (int16le-scaled accepted since W4.4)', () => {
     expect(() => assertManifestSupported({ manifest_version: 3, brick: { dtype: 'float32le' } }))
       .toThrow(expect.objectContaining({ name: 'UNSUPPORTED_MANIFEST' }));
     expect(() => assertManifestSupported({ manifest_version: 2, brick: { dtype: 'int16le-scaled' } }))
+      .not.toThrow();
+    expect(() => assertManifestSupported({ manifest_version: 2, brick: { dtype: 'int8le' } }))
       .toThrow(expect.objectContaining({ name: 'UNSUPPORTED_MANIFEST' }));
   });
 });
