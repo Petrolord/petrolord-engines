@@ -39,12 +39,10 @@ export class BrickCache {
     this.stats = { hits: 0, misses: 0, evictions: 0, aborts: 0 };
   }
 
-  /** Acquire a fetch slot (resolves immediately when uncapped). */
-  #acquireSlot(signal) {
-    if (!this.maxConcurrent || this.activeFetches < this.maxConcurrent) {
-      this.activeFetches += 1;
-      return Promise.resolve();
-    }
+  /** Wait for a fetch slot (queued case only — callers with a free slot
+   *  must start their fetch SYNCHRONOUSLY, or an abort racing the start
+   *  hands the fetcher an already-aborted signal it never listens to). */
+  #queueSlot(signal) {
     return new Promise((resolve, reject) => {
       const waiter = () => {
         this.activeFetches += 1;
@@ -93,9 +91,22 @@ export class BrickCache {
     // fetch for the same path may already occupy the slot by the time the
     // old promise settles.
     const entry = { promise: null, controller };
-    entry.promise = this.#acquireSlot(controller.signal)
-      .then(() => this.fetcher(path, controller.signal)
-        .finally(() => this.#releaseSlot()))
+    const startFetch = () => this.fetcher(path, controller.signal)
+      .finally(() => this.#releaseSlot());
+    let fetchPromise;
+    if (!this.maxConcurrent || this.activeFetches < this.maxConcurrent) {
+      this.activeFetches += 1;
+      fetchPromise = startFetch();               // synchronous start
+    } else {
+      fetchPromise = this.#queueSlot(controller.signal).then(() => {
+        if (controller.signal.aborted) {         // aborted while queued
+          this.#releaseSlot();
+          throw new Error(ABORTED);
+        }
+        return startFetch();
+      });
+    }
+    entry.promise = fetchPromise
       .then((buffer) => {
         const data = decodeBrickPayload(buffer, this.dtype);
         if (this.inflight.get(path) === entry) this.inflight.delete(path);
