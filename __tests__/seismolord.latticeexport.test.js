@@ -158,3 +158,19 @@ describe('latticeToWorldGrid', () => {
       { x0: 0, y0: 0, dx: 1, dy: 1, nx: 2, ny: 2 })).toThrow(/survey coordinates/);
   });
 });
+
+describe('ZMAP CRS stamp (CRS program, Phase 8)', () => {
+  test('a crsLabel adds one comment line; absent label leaves output byte-identical', async () => {
+    const { writeZMAP, NULL_VALUE } = await import('../lib/gridding/surfaceExport');
+    const g = {
+      name: 'top_x', nx: 2, ny: 2, dx: 25, dy: 25,
+      x: [0, 25], y: [0, 25],
+      z: Float32Array.from([1, 2, 3, NULL_VALUE ?? 1.0e30]),
+    };
+    const plain = writeZMAP(g);
+    const stamped = writeZMAP({ ...g, crsLabel: 'EPSG:32631 (WGS 84 / UTM zone 31N)' });
+    expect(stamped).toContain('!  CRS: EPSG:32631 (WGS 84 / UTM zone 31N)');
+    expect(stamped.split('\n').filter((l) => !l.startsWith('!  CRS:')).join('\n')).toBe(plain);
+    expect(plain).not.toContain('!  CRS:');
+  });
+});
