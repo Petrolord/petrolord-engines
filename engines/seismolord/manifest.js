@@ -12,9 +12,13 @@ export const MANIFEST_VERSION = 1;
  *  at fields they were never written against. */
 export const DERIVED_MANIFEST_VERSION = 2;
 
+/** 2D line manifests (W5.1) are version 3, kind '2d_line' — the version
+ *  bump rides the aged gate exactly like Wave 2's derived volumes. */
+export const LINE_MANIFEST_VERSION = 3;
+
 /** Highest manifest_version this reader understands. Bump ONLY together
  *  with reader support for the new schema. */
-export const MANIFEST_READ_MAX = 2;
+export const MANIFEST_READ_MAX = 3;
 
 /** Named refusal: a manifest this reader must not attempt to decode.
  *  Catch by `e.name === 'UNSUPPORTED_MANIFEST'`. */

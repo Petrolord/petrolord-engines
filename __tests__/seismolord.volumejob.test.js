@@ -209,8 +209,8 @@ describe('manifest v2', () => {
     expect(m.stats).toBe(job.stats);
     expect(m.trace_count).toBe(30);
 
-    // the reader accepts v2 through the choke point
-    expect(MANIFEST_READ_MAX).toBe(2);
+    // the reader accepts v2 through the choke point (ceiling is 3 since W5.1)
+    expect(MANIFEST_READ_MAX).toBeGreaterThanOrEqual(2);
     expect(() => assertManifestSupported(m)).not.toThrow();
     expect(geomFromManifest(m)).toEqual({
       nIl: NIL, nXl: NXL, ns: NS, brickSize: B, grid: GRID,
@@ -235,7 +235,8 @@ describe('manifest v2', () => {
   });
 
   test('the gate still refuses newer versions and foreign dtypes (int16le-scaled accepted since W4.4)', () => {
-    expect(() => assertManifestSupported({ manifest_version: 3, brick: { dtype: 'float32le' } }))
+    // v3 = 2D lines (W5.1); v4 is the next future version
+    expect(() => assertManifestSupported({ manifest_version: 4, brick: { dtype: 'float32le' } }))
       .toThrow(expect.objectContaining({ name: 'UNSUPPORTED_MANIFEST' }));
     expect(() => assertManifestSupported({ manifest_version: 2, brick: { dtype: 'int16le-scaled' } }))
       .not.toThrow();
