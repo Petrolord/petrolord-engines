@@ -132,3 +132,149 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
     traceCount,
   };
 }
+
+/**
+ * Neighborhood variant (W2.3 discontinuity): like runVolumeJob, but the
+ * compute for each output trace may read the (2·radius+1)^2 trace
+ * neighborhood around it, so every output column fetches the one-brick
+ * ring of parent columns around its own ((3x3 brick columns interior;
+ * radius must stay below brickSize)). Callers wanting fetch reuse across
+ * neighboring output columns pass a caching fetchBrick — the engine
+ * itself keeps only one column pass in memory (assembled traces of the
+ * ring, ~(brickSize + 2·radius)^2 · ns floats).
+ *
+ * @param {Object} p
+ * @param {import('./sliceAssembly').VolumeGeom} p.geom
+ * @param {number} p.radius lateral neighborhood radius in traces (>= 1)
+ * @param {(getTrace: (il:number, xl:number) => ?Float32Array,
+ *          il: number, xl: number, out: Float32Array) => void} p.compute
+ *   getTrace returns null outside the survey; traces carry NULL_VALUE
+ *   nulls exactly as stored
+ * @param {(i:number,j:number,k:number) => Promise<Float32Array>} p.fetchBrick
+ * @param {Function} p.onBrick @param {Function} [p.onProgress]
+ * @param {() => boolean} [p.shouldCancel]
+ */
+export async function runNeighborhoodJob({
+  geom, radius, compute, fetchBrick, onBrick, onProgress, shouldCancel,
+}) {
+  const { nIl, nXl, ns, brickSize: b } = geom;
+  const [ni, nj, nk] = geom.grid;
+  if (!compute) throw new Error('A neighborhood compute is required.');
+  if (!onBrick) throw new Error('onBrick callback is required.');
+  if (!(radius >= 1) || radius >= b) {
+    throw new Error(`Neighborhood radius ${radius} must be >= 1 and below the brick size ${b}.`);
+  }
+
+  const brickFloats = b * b * b;
+  const outTrace = new Float32Array(ns);
+  const NULL_F32 = Math.fround(NULL_VALUE);
+
+  let min = Infinity;
+  let max = -Infinity;
+  let sum = 0;
+  let sumSq = 0;
+  let nLive = 0;
+  let traceCount = 0;
+
+  const totalBricks = ni * nj * nk;
+  let bricksDone = 0;
+
+  for (let bi = 0; bi < ni; bi++) {
+    for (let bj = 0; bj < nj; bj++) {
+      if (shouldCancel && shouldCancel()) throw new VolumeJobCancelledError();
+
+      // fetch the one-brick ring of parent columns around this column
+      const ring = new Map();
+      const fetches = [];
+      for (let di = -1; di <= 1; di++) {
+        for (let dj = -1; dj <= 1; dj++) {
+          const ri = bi + di;
+          const rj = bj + dj;
+          if (ri < 0 || ri >= ni || rj < 0 || rj >= nj) continue;
+          for (let bk = 0; bk < nk; bk++) {
+            const key = `${ri}-${rj}-${bk}`;
+            fetches.push(fetchBrick(ri, rj, bk).then((data) => ring.set(key, data)));
+          }
+        }
+      }
+      await Promise.all(fetches);
+
+      // assembled-trace cache for this column pass
+      const traceCache = new Map();
+      const getTrace = (il, xl) => {
+        if (il < 0 || il >= nIl || xl < 0 || xl >= nXl) return null;
+        const key = il * nXl + xl;
+        let tr = traceCache.get(key);
+        if (tr) return tr;
+        const ti = Math.floor(il / b);
+        const tj = Math.floor(xl / b);
+        const base = ((il % b) * b + (xl % b)) * b;
+        tr = new Float32Array(ns);
+        for (let k = 0; k < ns; k++) {
+          const bk = Math.floor(k / b);
+          tr[k] = ring.get(`${ti}-${tj}-${bk}`)[base + (k - bk * b)];
+        }
+        traceCache.set(key, tr);
+        return tr;
+      };
+
+      const outs = [];
+      for (let bk = 0; bk < nk; bk++) {
+        outs.push(new Float32Array(brickFloats).fill(NULL_VALUE));
+      }
+
+      const liMax = Math.min(b, nIl - bi * b);
+      const ljMax = Math.min(b, nXl - bj * b);
+      for (let li = 0; li < liMax; li++) {
+        for (let lj = 0; lj < ljMax; lj++) {
+          const il = bi * b + li;
+          const xl = bj * b + lj;
+          const center = getTrace(il, xl);
+          let anyLive = false;
+          for (let k = 0; k < ns; k++) {
+            if (Math.abs(center[k]) <= NULL_LIM) { anyLive = true; break; }
+          }
+          if (!anyLive) continue;       // dead / padding trace stays null
+          traceCount += 1;
+
+          compute(getTrace, il, xl, outTrace);
+
+          const base = (li * b + lj) * b;
+          for (let k = 0; k < ns; k++) {
+            const v = outTrace[k];
+            const bk = Math.floor(k / b);
+            outs[bk][base + (k - bk * b)] = v;
+            // stats describe the STORED float32 payload
+            const f = Math.fround(v);
+            if (f !== NULL_F32 && Math.abs(f) <= NULL_LIM) {
+              if (f < min) min = f;
+              if (f > max) max = f;
+              sum += f;
+              sumSq += f * f;
+              nLive += 1;
+            }
+          }
+        }
+      }
+
+      for (let bk = 0; bk < nk; bk++) {
+        await onBrick({ i: bi, j: bj, k: bk, data: outs[bk] });
+        outs[bk] = null; // released
+        bricksDone += 1;
+        if (onProgress) onProgress(bricksDone, totalBricks, 'compute');
+      }
+    }
+  }
+
+  return {
+    brickGrid: { ni, nj, nk, brickSize: b },
+    stats: {
+      min: nLive > 0 ? min : 0,
+      max: nLive > 0 ? max : 0,
+      mean: nLive > 0 ? sum / nLive : 0,
+      rms: nLive > 0 ? Math.sqrt(sumSq / nLive) : 0,
+      live_samples: nLive,
+    },
+    traceCount,
+  };
+}
