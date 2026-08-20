@@ -127,7 +127,9 @@ export function buildWellLatticePath(well, { affine, timeConv, geom, dtUs, stepM
       const twt = timeConv.toTwtMs(pos.tvdss, cell);
       if (twt != null && twt >= 0 && twt / dtMs < geom.ns) s = twt / dtMs;
     }
-    return { il: ij.i, xl: ij.j, s };
+    // tvdss rides along (W3.4): depth sections plot wells at their
+    // NATIVE depth, not through the velocity model round trip
+    return { il: ij.i, xl: ij.j, s, tvdss: pos.tvdss };
   };
 
   const md0 = stations[0].md;
