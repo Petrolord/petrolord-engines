@@ -21,6 +21,11 @@ const NULL_F32 = Math.fround(NULL_VALUE);
  *  path derives its geometry here, so the version gate lives here. */
 export function geomFromManifest(manifest) {
   assertManifestSupported(manifest);
+  // W5.1: a 2D line manifest passes the version gate but has NO lattice —
+  // 3D readers must refuse the KIND loudly rather than guess one
+  if (manifest?.kind === '2d_line') {
+    throw new Error('This is a 2D line, not a 3D volume — open it in the 2D Line window.');
+  }
   return {
     nIl: manifest.geometry.il.count,
     nXl: manifest.geometry.xl.count,
