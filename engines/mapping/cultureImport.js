@@ -114,7 +114,9 @@ export function parseGeoJSON(input) {
  * @returns {{features: Array, skipped: number, bbox: {x0,y0,x1,y1}}}
  */
 export function parseShapefile(shpBuf, dbfBuf = null) {
-  const buf = shpBuf instanceof Uint8Array
+  // ArrayBuffer.isView is realm-safe (a Node Buffer under jsdom fails
+  // `instanceof Uint8Array` across realms)
+  const buf = ArrayBuffer.isView(shpBuf)
     ? shpBuf.buffer.slice(shpBuf.byteOffset, shpBuf.byteOffset + shpBuf.byteLength)
     : shpBuf;
   const dv = new DataView(buf);
@@ -195,7 +197,7 @@ export function parseShapefile(shpBuf, dbfBuf = null) {
 
 /** Minimal dBASE III attribute reader: character and numeric fields. */
 export function parseDbf(dbfBuf) {
-  const buf = dbfBuf instanceof Uint8Array
+  const buf = ArrayBuffer.isView(dbfBuf)
     ? dbfBuf.buffer.slice(dbfBuf.byteOffset, dbfBuf.byteOffset + dbfBuf.byteLength)
     : dbfBuf;
   const dv = new DataView(buf);
