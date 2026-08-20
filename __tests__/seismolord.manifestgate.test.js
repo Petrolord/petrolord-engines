@@ -7,6 +7,7 @@
 
 import {
   MANIFEST_VERSION,
+  DERIVED_MANIFEST_VERSION,
   MANIFEST_READ_MAX,
   assertManifestSupported,
   UnsupportedManifestError,
@@ -34,12 +35,19 @@ const v1Manifest = (overrides = {}) => ({
 });
 
 describe('assertManifestSupported', () => {
-  test('the read ceiling matches the writer version today', () => {
-    expect(MANIFEST_READ_MAX).toBe(MANIFEST_VERSION);
+  test('the read ceiling covers both writer versions today', () => {
+    // v1 = ingested seismic, v2 = derived (attribute) volumes (W2.1)
+    expect(MANIFEST_READ_MAX).toBe(DERIVED_MANIFEST_VERSION);
+    expect(MANIFEST_READ_MAX).toBeGreaterThanOrEqual(MANIFEST_VERSION);
   });
 
   test('a v1 manifest passes unchanged', () => {
     expect(() => assertManifestSupported(v1Manifest())).not.toThrow();
+  });
+
+  test('a v2 (derived-volume) manifest passes', () => {
+    expect(() => assertManifestSupported(v1Manifest({ manifest_version: 2 })))
+      .not.toThrow();
   });
 
   test('a pre-versioning manifest (no manifest_version) passes', () => {
@@ -88,7 +96,7 @@ describe('geomFromManifest gate wiring', () => {
   });
 
   test('the choke point refuses a future manifest', () => {
-    expect(() => geomFromManifest(v1Manifest({ manifest_version: 2 })))
+    expect(() => geomFromManifest(v1Manifest({ manifest_version: MANIFEST_READ_MAX + 1 })))
       .toThrow(UnsupportedManifestError);
   });
 
