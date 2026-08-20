@@ -224,3 +224,25 @@ export function northDirInGrid(aff) {
   if (!len) return null;
   return { di: g.i / len, dj: g.j / len };
 }
+
+/**
+ * True when two manifests describe the IDENTICAL sample lattice — same
+ * inline/crossline ranges and steps, same trace length and sample rate
+ * (W2.4 co-rendering: only same-lattice volumes may share texture
+ * coordinates; derived volumes copy the parent geometry verbatim, so a
+ * parent and its attributes always pass). World placement (affine/CRS)
+ * is deliberately NOT compared: the lattice is the indexing contract,
+ * and a reprojection never moves samples between (il, xl, k) cells.
+ *
+ * @param {Object} a manifest @param {Object} b manifest
+ */
+export function sameLattice(a, b) {
+  const ga = a?.geometry;
+  const gb = b?.geometry;
+  if (!ga || !gb) return false;
+  const axis = (p, q) => p && q && p.min === q.min && p.step === q.step && p.count === q.count;
+  return axis(ga.il, gb.il)
+    && axis(ga.xl, gb.xl)
+    && ga.ns === gb.ns
+    && ga.dt_us === gb.dt_us;
+}
