@@ -68,6 +68,9 @@ export function readBinaryHeader(view) {
     dtUs: view.getInt16(16, false),        // bytes 3217-3218
     ns: view.getInt16(20, false),          // bytes 3221-3222
     formatCode: view.getInt16(24, false),  // bytes 3225-3226
+    // 1 = metres, 2 = feet, anything else = unstated. A HINT for the
+    // CRS import step, never a decision: wild files carry 0 or garbage.
+    measurementSystem: view.getInt16(54, false), // bytes 3255-3256
   };
 }
 

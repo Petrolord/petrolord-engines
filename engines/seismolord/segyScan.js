@@ -172,6 +172,12 @@ export async function scanGeometry(reader, mapping = {}, opts = {}) {
   let prevIl = null; let prevXl = null;
   let ilChanges = 0;
   let firstCoords = null; let lastCoords = null; let scalar = null;
+  // CRS-step evidence: per-trace scalar spread (trace 0 alone can lie),
+  // the byte-89 coordinate-units word, and first-trace source X/Y
+  // (bytes 73/77) as an independent cross-check on the CDP mapping.
+  const scalarsSeen = new Set();
+  let coordUnits = null; let coordUnitsVaried = false;
+  let firstSourceCoords = null;
   const coordFit = makeAffineFit();
 
   const readHeaderAt = async (traceIndex) => {
@@ -198,10 +204,21 @@ export async function scanGeometry(reader, mapping = {}, opts = {}) {
     prevIl = il;
     prevXl = xl;
     const s = readHeaderInt16(th, map.scalarByte);
+    if (scalarsSeen.size < 16) scalarsSeen.add(s);
+    const units = readHeaderInt16(th, 89);
+    if (coordUnits === null) coordUnits = units;
+    else if (units !== coordUnits) coordUnitsVaried = true;
     const cx = applyCoordScalar(readHeaderInt32(th, map.xByte), s);
     const cy = applyCoordScalar(readHeaderInt32(th, map.yByte), s);
     affineFitAdd(coordFit, il, xl, cx, cy);
-    if (isFirst) { firstCoords = { x: cx, y: cy }; scalar = s; }
+    if (isFirst) {
+      firstCoords = { x: cx, y: cy };
+      scalar = s;
+      firstSourceCoords = {
+        x: applyCoordScalar(readHeaderInt32(th, 73), s),
+        y: applyCoordScalar(readHeaderInt32(th, 77), s),
+      };
+    }
     if (isLast) lastCoords = { x: cx, y: cy };
   };
 
@@ -263,6 +280,17 @@ export async function scanGeometry(reader, mapping = {}, opts = {}) {
       + 'maps and exports will assume an unrotated survey.');
   }
 
+  if (coordUnits === 2) {
+    warnings.push('Trace headers declare coordinates in ARC-SECONDS (byte 89 = 2). '
+      + 'The measured geometry assumes projected length units; assign a projected '
+      + 'CRS only if the header word is wrong, which is common.');
+  }
+  const distinctScalars = [...scalarsSeen];
+  if (distinctScalars.length > 1) {
+    warnings.push(`Coordinate scalar varies across traces (${distinctScalars.slice(0, 6).join(', ')}). `
+      + 'Each trace was scaled by its own value; verify the X/Y preview looks sane.');
+  }
+
   return {
     ...header,
     mapping: map,
@@ -272,6 +300,10 @@ export async function scanGeometry(reader, mapping = {}, opts = {}) {
     regular,
     inlineSorted,
     coordScalar: scalar,
+    scalarStats: { first: scalar, distinct: distinctScalars, varied: distinctScalars.length > 1 },
+    coordUnits,
+    coordUnitsVaried,
+    sourceCoords: firstSourceCoords,
     corners: { first: firstCoords, last: lastCoords },
     affine,
     warnings,
