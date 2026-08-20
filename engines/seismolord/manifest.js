@@ -27,8 +27,13 @@ export const brickPath = (userId, volumeId, i, j, k) =>
  * @param {Object} p.transcode transcodeToBricks() result
  * @param {string} p.sourceFileName
  * @param {number} p.sourceFileSize
+ * @param {Object} [p.crs] CRS block from the import step's decision:
+ *   {project, native, native_affine, native_xy_unit, transform,
+ *   max_residual_m} — geometry.affine is IN the project CRS when this is
+ *   present; native_affine preserves the as-scanned placement so any
+ *   later reprojection restarts from native, never chains.
  */
-export function buildManifest({ volumeId, name, scan, transcode, sourceFileName, sourceFileSize }) {
+export function buildManifest({ volumeId, name, scan, transcode, sourceFileName, sourceFileSize, crs }) {
   return {
     manifest_version: MANIFEST_VERSION,
     app: 'seismolord',
@@ -40,6 +45,9 @@ export function buildManifest({ volumeId, name, scan, transcode, sourceFileName,
       sample_format: scan.formatCode,
       il_byte: scan.mapping.ilByte,
       xl_byte: scan.mapping.xlByte,
+      x_byte: scan.mapping.xByte,
+      y_byte: scan.mapping.yByte,
+      scalar_byte: scan.mapping.scalarByte,
     },
     geometry: {
       il: scan.il,
@@ -51,6 +59,7 @@ export function buildManifest({ volumeId, name, scan, transcode, sourceFileName,
       // measured survey affine (rotation + rectangular bins); additive
       // field — pre-affine manifests fall back to the corner assumption
       affine: affineToManifest(scan.affine),
+      ...(crs ? { crs } : {}),
     },
     brick: {
       size: transcode.brickGrid.brickSize,
