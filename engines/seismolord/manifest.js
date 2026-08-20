@@ -5,9 +5,16 @@ import { affineToManifest } from './surveyGeometry';
 
 export const MANIFEST_VERSION = 1;
 
+/** Derived (attribute) volumes are written as manifest v2: same geometry
+ *  and brick schema as v1 plus `kind` / `parent` / `attribute`
+ *  provenance. The version bump rides W0.1's aged gate — pre-Wave-2
+ *  clients refuse derived volumes with upgrade copy instead of guessing
+ *  at fields they were never written against. */
+export const DERIVED_MANIFEST_VERSION = 2;
+
 /** Highest manifest_version this reader understands. Bump ONLY together
  *  with reader support for the new schema. */
-export const MANIFEST_READ_MAX = 1;
+export const MANIFEST_READ_MAX = 2;
 
 /** Named refusal: a manifest this reader must not attempt to decode.
  *  Catch by `e.name === 'UNSUPPORTED_MANIFEST'`. */
@@ -110,5 +117,51 @@ export function buildManifest({ volumeId, name, scan, transcode, sourceFileName,
     },
     stats: transcode.stats,
     trace_count: transcode.traceCount,
+  };
+}
+
+/**
+ * Build the manifest.json content for a DERIVED (attribute) volume —
+ * manifest v2. Geometry and the brick block are copied VERBATIM from
+ * the parent manifest: lattice identity is the contract that lets
+ * derived volumes co-render against their parent with no resampling.
+ *
+ * @param {Object} p
+ * @param {string} p.volumeId new volume id
+ * @param {string} p.name display name
+ * @param {Object} p.parentManifest the parent volume's (effective) manifest
+ * @param {{name: string, params?: Object}} p.attribute registry attribute + params
+ * @param {Object} p.job runVolumeJob() result ({brickGrid, stats, traceCount})
+ */
+export function buildDerivedManifest({ volumeId, name, parentManifest, attribute, job }) {
+  const pb = parentManifest.brick;
+  const g = job.brickGrid;
+  if (pb.dtype !== 'float32le') {
+    throw new Error(`Derived volumes require a float32le parent, got "${pb.dtype}".`);
+  }
+  if (g.ni !== pb.grid[0] || g.nj !== pb.grid[1] || g.nk !== pb.grid[2] || g.brickSize !== pb.size) {
+    throw new Error(
+      `Job brick grid ${g.ni}x${g.nj}x${g.nk}@${g.brickSize} does not match the parent `
+      + `${pb.grid.join('x')}@${pb.size} — the derived lattice must be identical.`,
+    );
+  }
+  return {
+    manifest_version: DERIVED_MANIFEST_VERSION,
+    app: 'seismolord',
+    volume_id: volumeId,
+    name,
+    kind: 'attribute',
+    parent: {
+      volume_id: parentManifest.volume_id,
+      name: parentManifest.name,
+    },
+    attribute: {
+      name: attribute.name,
+      params: attribute.params ?? {},
+    },
+    geometry: JSON.parse(JSON.stringify(parentManifest.geometry)),
+    brick: JSON.parse(JSON.stringify(pb)),
+    stats: job.stats,
+    trace_count: job.traceCount,
   };
 }
