@@ -102,11 +102,11 @@ export async function scanLine2d(reader, mapping = {}, opts = {}) {
     throw new Error('No usable coordinates in the trace headers — check the X/Y byte positions and the scalar byte.');
   }
   if (deadCoords > 0) {
-    warnings.push(`${deadCoords} trace(s) carry zero/invalid coordinates — the navigation interpolates across them.`);
+    warnings.push(`${deadCoords} trace(s) carry zero/invalid coordinates; the navigation interpolates across them.`);
     repairDeadCoords(x, y);
   }
   if (cdpNonMonotonic > 0) {
-    warnings.push(`CDP numbers are not strictly increasing at ${cdpNonMonotonic} trace(s) — trace order stays the line parameterization.`);
+    warnings.push(`CDP numbers are not strictly increasing at ${cdpNonMonotonic} trace(s); trace order stays the line parameterization.`);
   }
 
   let lengthM = 0;
