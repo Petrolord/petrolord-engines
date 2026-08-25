@@ -1,0 +1,79 @@
+{
+ "cases": [
+  {
+   "expected": {
+    "arc1DoglegDeg": 35.0,
+    "arc1Len": 420.0,
+    "arc2DoglegDeg": 56.355912619,
+    "arc2Len": 483.050679593,
+    "holdAzi": 60.0,
+    "holdInc": 35.0,
+    "holdLen": 900.0
+   },
+   "landing": {
+    "aziDeg": 75.0,
+    "dE": 939.546378342,
+    "dN": 463.821907372,
+    "dTvd": 1347.106279321,
+    "incDeg": 90.0
+   },
+   "mdUnit": "m",
+   "rate1": 2.5,
+   "rate2": 3.5,
+   "tieOn": {
+    "azi": 0.0,
+    "inc": 0.0
+   }
+  },
+  {
+   "expected": {
+    "arc1DoglegDeg": 36.653928311,
+    "arc1Len": 366.539283114,
+    "arc2DoglegDeg": 36.224539551,
+    "arc2Len": 271.684046635,
+    "holdAzi": 320.0,
+    "holdInc": 55.0,
+    "holdLen": 500.0
+   },
+   "landing": {
+    "aziDeg": 310.0,
+    "dE": -601.095343173,
+    "dN": 643.848288212,
+    "dTvd": 654.606095528,
+    "incDeg": 90.0
+   },
+   "mdUnit": "m",
+   "rate1": 3.0,
+   "rate2": 4.0,
+   "tieOn": {
+    "azi": 300.0,
+    "inc": 20.0
+   }
+  },
+  {
+   "expected": {
+    "arc1DoglegDeg": 38.718512977,
+    "arc1Len": 1935.925648848,
+    "arc2DoglegDeg": 40.251258689,
+    "arc2Len": 1341.708622976,
+    "holdAzi": 100.0,
+    "holdInc": 48.0,
+    "holdLen": 2500.0
+   },
+   "landing": {
+    "aziDeg": 95.0,
+    "dE": 3926.66425189,
+    "dN": -691.178315026,
+    "dTvd": 3830.353648664,
+    "incDeg": 88.0
+   },
+   "mdUnit": "ft",
+   "rate1": 2.0,
+   "rate2": 3.0,
+   "tieOn": {
+    "azi": 120.0,
+    "inc": 10.0
+   }
+  }
+ ]
+}

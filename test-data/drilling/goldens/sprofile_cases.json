@@ -1,0 +1,61 @@
+{
+ "cases": [
+  {
+   "aziDeg": 140.0,
+   "buildRate": 2.5,
+   "dropRate": 2.0,
+   "expected": {
+    "buildLen": 576.0,
+    "dropLen": 720.0,
+    "holdIncDeg": 48.0,
+    "holdLen": 700.0
+   },
+   "finalIncDeg": 0.0,
+   "kopLen": 400.0,
+   "mdUnit": "m",
+   "target": {
+    "dE": 663.390053754,
+    "dN": -790.597479853,
+    "dTvd": 2018.026100256
+   }
+  },
+  {
+   "aziDeg": 20.0,
+   "buildRate": 3.0,
+   "dropRate": 1.5,
+   "expected": {
+    "buildLen": 620.0,
+    "dropLen": 940.0,
+    "holdIncDeg": 62.0,
+    "holdLen": 450.0
+   },
+   "finalIncDeg": 15.0,
+   "kopLen": 600.0,
+   "mdUnit": "m",
+   "target": {
+    "dE": 434.431079164,
+    "dN": 1193.589580312,
+    "dTvd": 2032.352542476
+   }
+  },
+  {
+   "aziDeg": 250.0,
+   "buildRate": 2.0,
+   "dropRate": 2.5,
+   "expected": {
+    "buildLen": 2000.0,
+    "dropLen": 1400.0,
+    "holdIncDeg": 40.0,
+    "holdLen": 2000.0
+   },
+   "finalIncDeg": 5.0,
+   "kopLen": 1500.0,
+   "mdUnit": "ft",
+   "target": {
+    "dE": -2333.514300241,
+    "dN": -849.329746522,
+    "dTvd": 6146.954181698
+   }
+  }
+ ]
+}
