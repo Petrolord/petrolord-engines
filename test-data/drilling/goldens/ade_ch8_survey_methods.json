@@ -1,0 +1,82 @@
+{
+ "description": "Applied Drilling Engineering (Bourgoyne, Millheim, Chenevert, Young; SPE Textbook Series Vol. 2, 1991) chapter 8 survey-calculation example: due-north build at 3 deg/100 ft from vertical to 60 deg at 2,000 ft MD. Published results (minimum curvature and radius of curvature, exact for this planar constant-build well): TVD 1,653.99 ft, north displacement 954.93 ft at TD; balanced tangential 1,653.61 / 954.72; tangential 1,628.61 / 998.02; angle-averaging 1,654.18 / 955.04. Values as republished with attribution in Amorin & Broni-Bediako, Research Journal of Applied Sciences, Engineering and Technology 2(7):679-686, 2010 (open access; archived at /root/wds-literature/minimum_curvature_wellpath_maxwellsci.pdf), Tables 1/4/B and Fig. A. Closed-form check: R = 100/(3 pi/180) ft; TVD = R sin 60; ND = R (1 - cos 60).",
+ "mdUnit": "ft",
+ "survey": {
+  "md": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900,
+   2000
+  ],
+  "inc": [
+   0,
+   3,
+   6,
+   9,
+   12,
+   15,
+   18,
+   21,
+   24,
+   27,
+   30,
+   33,
+   36,
+   39,
+   42,
+   45,
+   48,
+   51,
+   54,
+   57,
+   60
+  ],
+  "azi": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "expected": {
+  "minimumCurvature": {
+   "tvd": 1653.99,
+   "northDisplacement": 954.93
+  },
+  "tolerance": 0.01
+ }
+}
