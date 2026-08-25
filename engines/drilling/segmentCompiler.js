@@ -108,8 +108,14 @@ export function compileSegments({
     if (kind === 'hold') {
       const L = seg.length;
       if (!(L > 0)) fail('length must be positive.');
-      cur = { md: cur.md + L, inc: cur.inc, azi: cur.azi };
-      stations.push({ ...cur });
+      // A hold is exact with the endpoint alone, but emit intermediate
+      // stations so MD-axis strip charts stay dense across long holds
+      // (WD3 polish; the trajectory itself is unchanged).
+      const inc0 = cur.inc;
+      const azi0 = cur.azi;
+      cur = emitSubdivided(stations, cur, L, subdivideMd, () => ({
+        inc: inc0, azi: azi0,
+      }));
     } else if (kind === 'build') {
       const rate = seg.rate;
       if (!(Math.abs(rate) > 0)) fail('rate must be nonzero.');

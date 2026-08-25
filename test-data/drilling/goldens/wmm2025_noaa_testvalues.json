@@ -1,0 +1,32 @@
+{
+  "source": "NOAA/NCEI, Test Values for WMM2025 (WMM2025testvalues.pdf, downloaded 2026-08-25 from ncei.noaa.gov). Official double-precision test points for the WMM2025 release of 11/13/2024. Heights are km above the WGS84 ellipsoid; GV is with respect to UPS grid north.",
+  "units": { "field": "nT", "angles": "deg", "rates": "nT/yr and deg/yr" },
+  "mainField": [
+    { "date": 2025.0, "heightKm": 0,   "latDeg": 80,  "lonDeg": 0,   "x": 6521.6,  "y": 145.9,   "z": 54791.5,  "h": 6523.2,  "f": 55178.5, "i": 83.21,  "d": 1.28,  "gv": 1.28 },
+    { "date": 2025.0, "heightKm": 0,   "latDeg": 0,   "lonDeg": 120, "x": 39677.8, "y": -109.6,  "z": -10580.2, "h": 39677.9, "f": 41064.3, "i": -14.93, "d": -0.16, "gv": null },
+    { "date": 2025.0, "heightKm": 0,   "latDeg": -80, "lonDeg": 240, "x": 6117.5,  "y": 15751.9, "z": -52022.5, "h": 16898.1, "f": 54698.2, "i": -72.0,  "d": 68.78, "gv": -51.22 },
+    { "date": 2025.0, "heightKm": 100, "latDeg": 80,  "lonDeg": 0,   "x": 6216.0,  "y": 92.4,    "z": 52598.8,  "h": 6216.7,  "f": 52964.9, "i": 83.26,  "d": 0.85,  "gv": 0.85 },
+    { "date": 2025.0, "heightKm": 100, "latDeg": 0,   "lonDeg": 120, "x": 37688.6, "y": -96.2,   "z": -10152.1, "h": 37688.7, "f": 39032.1, "i": -15.08, "d": -0.15, "gv": null },
+    { "date": 2025.0, "heightKm": 100, "latDeg": -80, "lonDeg": 240, "x": 5907.6,  "y": 14780.3, "z": -49540.7, "h": 15917.1, "f": 52035.0, "i": -72.19, "d": 68.21, "gv": -51.79 },
+    { "date": 2027.5, "heightKm": 0,   "latDeg": 80,  "lonDeg": 0,   "x": 6500.8,  "y": 294.5,   "z": 54869.4,  "h": 6507.5,  "f": 55253.9, "i": 83.24,  "d": 2.59,  "gv": 2.59 },
+    { "date": 2027.5, "heightKm": 0,   "latDeg": 0,   "lonDeg": 120, "x": 39701.6, "y": -167.4,  "z": -10381.8, "h": 39702.0, "f": 41036.9, "i": -14.65, "d": -0.24, "gv": null },
+    { "date": 2027.5, "heightKm": 0,   "latDeg": -80, "lonDeg": 240, "x": 6200.7,  "y": 15730.3, "z": -51783.7, "h": 16908.3, "f": 54474.2, "i": -71.92, "d": 68.49, "gv": -51.51 },
+    { "date": 2027.5, "heightKm": 100, "latDeg": 80,  "lonDeg": 0,   "x": 6196.7,  "y": 233.8,   "z": 52670.5,  "h": 6201.1,  "f": 53034.3, "i": 83.29,  "d": 2.16,  "gv": 2.16 },
+    { "date": 2027.5, "heightKm": 100, "latDeg": 0,   "lonDeg": 120, "x": 37711.5, "y": -148.7,  "z": -9969.8,  "h": 37711.8, "f": 39007.4, "i": -14.81, "d": -0.23, "gv": null },
+    { "date": 2027.5, "heightKm": 100, "latDeg": -80, "lonDeg": 240, "x": 5984.0,  "y": 14760.1, "z": -49317.7, "h": 15927.0, "f": 51825.7, "i": -72.10, "d": 67.93, "gv": -52.07 }
+  ],
+  "secularVariation": [
+    { "date": 2025.0, "heightKm": 0,   "latDeg": 80,  "lonDeg": 0,   "xDot": -8.3, "yDot": 59.5,  "zDot": 31.1, "hDot": -7.0, "fDot": 30.1,  "iDot": 0.01, "dDot": 0.52 },
+    { "date": 2025.0, "heightKm": 0,   "latDeg": 0,   "lonDeg": 120, "xDot": 9.5,  "yDot": -23.1, "zDot": 79.4, "hDot": 9.6,  "fDot": -11.2, "iDot": 0.11, "dDot": -0.03 },
+    { "date": 2025.0, "heightKm": 0,   "latDeg": -80, "lonDeg": 240, "xDot": 33.3, "yDot": -8.6,  "zDot": 95.5, "hDot": 4.0,  "fDot": -89.6, "iDot": 0.03, "dDot": -0.12 },
+    { "date": 2025.0, "heightKm": 100, "latDeg": 80,  "lonDeg": 0,   "xDot": -7.7, "yDot": 56.5,  "zDot": 28.7, "hDot": -6.9, "fDot": 27.6,  "iDot": 0.01, "dDot": 0.52 },
+    { "date": 2025.0, "heightKm": 100, "latDeg": 0,   "lonDeg": 120, "xDot": 9.2,  "yDot": -21.0, "zDot": 72.9, "hDot": 9.2,  "fDot": -10.0, "iDot": 0.11, "dDot": -0.03 },
+    { "date": 2025.0, "heightKm": 100, "latDeg": -80, "lonDeg": 240, "xDot": 30.6, "yDot": -8.0,  "zDot": 89.2, "hDot": 3.9,  "fDot": -83.8, "iDot": 0.03, "dDot": -0.11 },
+    { "date": 2027.5, "heightKm": 0,   "latDeg": 80,  "lonDeg": 0,   "xDot": -8.3, "yDot": 59.5,  "zDot": 31.1, "hDot": -5.6, "fDot": 30.3,  "iDot": 0.01, "dDot": 0.53 },
+    { "date": 2027.5, "heightKm": 0,   "latDeg": 0,   "lonDeg": 120, "xDot": 9.5,  "yDot": -23.1, "zDot": 79.4, "hDot": 9.6,  "fDot": -10.7, "iDot": 0.11, "dDot": -0.03 },
+    { "date": 2027.5, "heightKm": 0,   "latDeg": -80, "lonDeg": 240, "xDot": 33.3, "yDot": -8.6,  "zDot": 95.5, "hDot": 4.2,  "fDot": -89.5, "iDot": 0.04, "dDot": -0.12 },
+    { "date": 2027.5, "heightKm": 100, "latDeg": 80,  "lonDeg": 0,   "xDot": -7.7, "yDot": 56.5,  "zDot": 28.7, "hDot": -5.6, "fDot": 27.8,  "iDot": 0.01, "dDot": 0.52 },
+    { "date": 2027.5, "heightKm": 100, "latDeg": 0,   "lonDeg": 120, "xDot": 9.2,  "yDot": -21.0, "zDot": 72.9, "hDot": 9.3,  "fDot": -9.7,  "iDot": 0.11, "dDot": -0.03 },
+    { "date": 2027.5, "heightKm": 100, "latDeg": -80, "lonDeg": 240, "xDot": 30.6, "yDot": -8.0,  "zDot": 89.2, "hDot": 4.0,  "fDot": -83.7, "iDot": 0.03, "dDot": -0.11 }
+  ]
+}

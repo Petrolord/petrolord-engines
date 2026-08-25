@@ -139,4 +139,33 @@ describe('compiler semantics and QA', () => {
       expect(row.tvd).toBeCloseTo(p2[i].tvd, 9);
     });
   });
+
+  test('holds are subdivided for strip-chart density without changing the trajectory (WD3)', () => {
+    const spec = {
+      mdUnit: 'm',
+      subdivideMd: 10,
+      segments: [
+        { kind: 'build', rate: 3, targetInc: 45 },
+        { kind: 'hold', length: 1000 },
+      ],
+    };
+    const { stations, table } = compileSegments(spec);
+    // Every subdivided hold station carries the exact hold attitude and
+    // zero dogleg, and the hold contributes 100 intervals at 10 m.
+    const holdRows = table.filter((r) => r.md > 450 + 1e-9);
+    expect(holdRows.length).toBe(100);
+    for (const r of holdRows) {
+      expect(r.inc).toBeCloseTo(45, 9);
+      expect(r.dls30m).toBeCloseTo(0, 9);
+    }
+    // Endpoint identical to a coarse compile (the hold is exact math).
+    const coarse = compileSegments({ ...spec, subdivideMd: 1e9 });
+    const a = table[table.length - 1];
+    const b = coarse.table[coarse.table.length - 1];
+    expect(a.md).toBeCloseTo(b.md, 9);
+    expect(a.tvd).toBeCloseTo(b.tvd, 9);
+    expect(a.n).toBeCloseTo(b.n, 9);
+    expect(a.e).toBeCloseTo(b.e, 9);
+    expect(stations[stations.length - 1].inc).toBeCloseTo(45, 9);
+  });
 });
