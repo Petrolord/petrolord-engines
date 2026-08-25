@@ -1,0 +1,32 @@
+{
+ "cases": [
+  {
+   "aziDeg": 150.0,
+   "buildLen": 400.0,
+   "endE": 324.138373889,
+   "endInc": 40.0,
+   "endMd": 1700.0,
+   "endN": -561.424132259,
+   "endTvd": 1481.125726079,
+   "holdLen": 800.0,
+   "kop": 500.0,
+   "mdUnit": "m",
+   "rate": 3.0,
+   "targetInc": 40.0
+  },
+  {
+   "aziDeg": 60.0,
+   "buildLen": 1000.0,
+   "endE": 1087.617602223,
+   "endInc": 30.0,
+   "endMd": 4000.0,
+   "endN": 627.936315419,
+   "endTvd": 3686.98046612,
+   "holdLen": 2000.0,
+   "kop": 1000.0,
+   "mdUnit": "ft",
+   "rate": 3.0,
+   "targetInc": 30.0
+  }
+ ]
+}
