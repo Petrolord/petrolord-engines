@@ -239,5 +239,189 @@ export function interpolateFvfTrack(fvfTable, pressures) {
   });
 }
 
+// ============================================================================
+// V4: injector->producer allocation factors + pattern-level VRR + advice
+// ============================================================================
+//
+// allocation shape: { [injectorWell]: { [producerWell]: fraction } }.
+// Each injector row should sum to <= 1.0; the shortfall is out-of-zone /
+// unallocated injection (a real, reportable quantity, not an error).
+// Fractions are the operator's judgement (streamline/CRM/geometric) — this
+// module never invents them: with no allocation defined, pattern analyses
+// are WITHHELD with a reason, never faked as even splits.
+
+// Validate an allocation matrix. Row sums above 1 (beyond float noise) are
+// errors; below 1 is a warning (out-of-zone remainder), negative or
+// non-finite fractions are errors.
+export function validateAllocation(allocation) {
+  const errors = [];
+  const warnings = [];
+  const rowSums = {};
+  Object.entries(allocation || {}).forEach(([inj, row]) => {
+    let sum = 0;
+    Object.entries(row || {}).forEach(([prod, frac]) => {
+      const f = parseFloat(frac);
+      if (!Number.isFinite(f) || f < 0) {
+        errors.push(`${inj} -> ${prod}: fraction "${frac}" is not a number >= 0.`);
+        return;
+      }
+      sum += f;
+    });
+    rowSums[inj] = sum;
+    if (sum > 1 + 1e-9) errors.push(`${inj}: allocation fractions sum to ${sum.toFixed(3)} (> 1).`);
+    else if (sum > 0 && sum < 1 - 1e-9) warnings.push(`${inj}: fractions sum to ${sum.toFixed(3)}; the remaining ${(1 - sum).toFixed(3)} counts as out-of-zone.`);
+  });
+  return { ok: errors.length === 0, errors, warnings, rowSums };
+}
+
+const allocFrac = (allocation, inj, prod) => {
+  const f = parseFloat(allocation?.[inj]?.[prod]);
+  return Number.isFinite(f) && f > 0 ? f : 0;
+};
+
+// Total allocated injection per producer (whole record) plus the
+// unallocated remainder — the conservation audit behind the matrix editor:
+// sum(perProducer) + unallocated == total injected, exactly.
+export function allocateInjection(rows, allocation) {
+  const validation = validateAllocation(allocation);
+  const perProducer = {};
+  const unallocated = { winj_stb: 0, ginj_mscf: 0 };
+  rows.forEach((r) => {
+    const wi = num(r.winj_stb);
+    const gi = num(r.ginj_mscf);
+    if (wi <= 0 && gi <= 0) return;
+    const injRow = allocation?.[String(r.well ?? '').trim()] || {};
+    let allocatedFrac = 0;
+    Object.keys(injRow).forEach((prod) => {
+      const f = allocFrac(allocation, String(r.well).trim(), prod);
+      if (f <= 0) return;
+      allocatedFrac += f;
+      if (!perProducer[prod]) perProducer[prod] = { winj_stb: 0, ginj_mscf: 0 };
+      perProducer[prod].winj_stb += wi * f;
+      perProducer[prod].ginj_mscf += gi * f;
+    });
+    const rest = Math.max(0, 1 - allocatedFrac);
+    unallocated.winj_stb += wi * rest;
+    unallocated.ginj_mscf += gi * rest;
+  });
+  return { perProducer, unallocated, validation };
+}
+
+// Does any allocation fraction land on this pattern's producers?
+export function patternHasAllocation(pattern, allocation) {
+  const producers = new Set(pattern?.producers || []);
+  return Object.values(allocation || {}).some((row) =>
+    Object.entries(row || {}).some(([prod, frac]) => producers.has(prod) && parseFloat(frac) > 0));
+}
+
+// Monthly periods for one pattern: production summed over the pattern's
+// producers; injection = allocation-weighted share of every injector's
+// volumes landing on those producers. Same shape as buildFieldPeriods, so
+// the untouched computeVRRSeries consumes it directly. When every
+// injector row sums to 1 and one pattern holds all producers, the pattern
+// periods equal the field periods exactly (jest-pinned invariant).
+export function buildPatternPeriods(rows, pattern, allocation) {
+  const producers = new Set(pattern?.producers || []);
+  const byMonth = new Map();
+  const ensure = (key) => {
+    if (!byMonth.has(key)) byMonth.set(key, { label: key, Np: 0, Wp: 0, Gp: 0, Wi: 0, Gi: 0 });
+    return byMonth.get(key);
+  };
+  rows.forEach((r) => {
+    const key = monthKeyOf(r.date);
+    if (!key) return;
+    const well = String(r.well ?? '').trim();
+    if (producers.has(well)) {
+      const p = ensure(key);
+      p.Np += num(r.oil_stb);
+      p.Wp += num(r.water_stb);
+      p.Gp += num(r.gas_mscf);
+    }
+    const wi = num(r.winj_stb);
+    const gi = num(r.ginj_mscf);
+    if (wi > 0 || gi > 0) {
+      let intoPattern = 0;
+      producers.forEach((prod) => { intoPattern += allocFrac(allocation, well, prod); });
+      if (intoPattern > 0) {
+        const p = ensure(key);
+        p.Wi += wi * intoPattern;
+        p.Gi += gi * intoPattern;
+      }
+    }
+  });
+  return Array.from(byMonth.values()).sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+}
+
+// Recommendation scale caps: a suggested step change beyond these is
+// operationally implausible — the scale is clamped and the clamp reported.
+const SCALE_MIN = 0.5;
+const SCALE_MAX = 2.0;
+
+// Water-injection advice for one pattern: scale recent allocated injection
+// by target/current rolling VRR (the recommendInjection philosophy at
+// monthly, allocation-aware resolution). Gas injection is reported but not
+// scaled — gas-injection targets are compression-constrained decisions the
+// ledger cannot see. Withheld (never faked) when the pattern has no
+// allocation or no produced voidage in the window.
+export function recommendPatternInjection(rows, pattern, allocation, fvf, opts = {}) {
+  const targetVRR = num(opts.targetVRR) > 0 ? num(opts.targetVRR) : 1.0;
+  const windowPeriods = Math.max(1, Math.floor(num(opts.windowPeriods) || 3));
+
+  if (!patternHasAllocation(pattern, allocation)) {
+    return { withheld: true, reason: `No allocation factors route injection to "${pattern?.name ?? 'this pattern'}" — define the injector-producer split first; even splits are never assumed.` };
+  }
+  const periods = buildPatternPeriods(rows, pattern, allocation);
+  if (!periods.length) {
+    return { withheld: true, reason: 'No dated rows fall in this pattern.' };
+  }
+  const series = computeVRRSeries(periods, fvf);
+  const rolling = computeRollingVRR(series, windowPeriods);
+  const currentVRR = rolling[rolling.length - 1];
+  if (currentVRR == null || currentVRR <= 0) {
+    return { withheld: true, reason: 'No produced voidage (or no injection) in the rolling window — nothing to scale against.' };
+  }
+
+  const rawScale = targetVRR / currentVRR;
+  const scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, rawScale));
+  const clamped = scale !== rawScale;
+
+  const start = Math.max(0, series.length - windowPeriods);
+  const windowLabels = new Set(series.slice(start).map((p) => p.label));
+  const nWindow = windowLabels.size || 1;
+  const producers = new Set(pattern?.producers || []);
+
+  const byInjector = new Map();
+  rows.forEach((r) => {
+    const key = monthKeyOf(r.date);
+    if (!key || !windowLabels.has(key)) return;
+    const well = String(r.well ?? '').trim();
+    const wi = num(r.winj_stb);
+    if (wi <= 0) return;
+    let intoPattern = 0;
+    producers.forEach((prod) => { intoPattern += allocFrac(allocation, well, prod); });
+    if (intoPattern <= 0) return;
+    byInjector.set(well, (byInjector.get(well) || 0) + wi * intoPattern);
+  });
+
+  const perInjector = Array.from(byInjector.entries()).map(([well, total]) => {
+    const currentWi = total / nWindow; // allocated bbl/period into this pattern
+    return { well, currentWi, recommendedWi: currentWi * scale, deltaWi: currentWi * (scale - 1) };
+  }).sort((a, b) => b.currentWi - a.currentWi);
+
+  const avgWi = series.slice(start).reduce((s, p) => s + p.Wi, 0) / nWindow;
+
+  return {
+    withheld: false,
+    currentVRR,
+    targetVRR,
+    scale,
+    clamped,
+    windowPeriods: nWindow,
+    currentWi: avgWi,
+    recommendedWi: avgWi * scale,
+    perInjector,
+  };
+}
+
 // Re-exported so ledger consumers keep a single import surface.
 export { computePeriodVoidage, computeVRRSeries };
