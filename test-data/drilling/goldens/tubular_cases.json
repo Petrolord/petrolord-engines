@@ -1,22 +1,25 @@
 {
+ "bendingDlsDegPer30m": 2.0,
+ "breakMdM": 1650.0,
+ "breakTvdM": 1473.759701091,
  "cases": [
   {
    "kind": "gasKickBurst",
    "profileCheckpoints": [
     {
-     "faN": 1404660.268090301,
+     "faN": 1492077.954987411,
      "piPa": 38501507.98608063,
      "poPa": 0.0,
      "tvdM": 0.0
     },
     {
-     "faN": 1123728.214472241,
+     "faN": 1193662.363989929,
      "piPa": 39655151.04775917,
      "poPa": 5066423.888145282,
      "tvdM": 501.58393986
     },
     {
-     "faN": 702330.134045151,
+     "faN": 746038.977493705,
      "piPa": 41385615.640276976,
      "poPa": 12666059.720363203,
      "tvdM": 1253.959849651
@@ -38,20 +41,20 @@
      "collapseRegime": null,
      "collapseSF": null,
      "status": "PASS",
-     "tensionSF": 4.727843784,
-     "triaxSF": 2.110262095
+     "tensionSF": 4.450849431,
+     "triaxSF": 2.113069627
     },
     {
      "bodyYieldN": 4702486.244765741,
-     "burstAtTvdM": 1404.435031609,
+     "burstAtTvdM": 1504.751819581,
      "burstRatingPa": 54656619.12727273,
-     "burstSF": 1.984214455,
+     "burstSF": 2.042232976,
      "collapseAtTvdM": null,
      "collapseRegime": null,
      "collapseSF": null,
      "status": "PASS",
-     "tensionSF": 7.608579086,
-     "triaxSF": 2.398580465
+     "tensionSF": 7.879089409,
+     "triaxSF": 2.469283899
     }
    ]
   },
@@ -59,19 +62,19 @@
    "kind": "pressureTestBurst",
    "profileCheckpoints": [
     {
-     "faN": 1404660.268090301,
+     "faN": 1492077.954987411,
      "piPa": 35000000.0,
      "poPa": 0.0,
      "tvdM": 0.0
     },
     {
-     "faN": 1123728.214472241,
+     "faN": 1193662.363989929,
      "piPa": 42083155.727115735,
      "poPa": 5066423.888145282,
      "tvdM": 501.58393986
     },
     {
-     "faN": 702330.134045151,
+     "faN": 746038.977493705,
      "piPa": 52707889.31778933,
      "poPa": 12666059.720363203,
      "tvdM": 1253.959849651
@@ -86,15 +89,15 @@
    "sections": [
     {
      "bodyYieldN": 6641014.317138586,
-     "burstAtTvdM": 1354.276637623,
+     "burstAtTvdM": 1454.593425595,
      "burstRatingPa": 65086506.08,
-     "burstSF": 1.609252637,
+     "burstSF": 1.593362559,
      "collapseAtTvdM": null,
      "collapseRegime": null,
      "collapseSF": null,
      "status": "PASS",
-     "tensionSF": 4.727843784,
-     "triaxSF": 1.926183968
+     "tensionSF": 4.450849431,
+     "triaxSF": 1.904571745
     },
     {
      "bodyYieldN": 4702486.244765741,
@@ -105,7 +108,7 @@
      "collapseRegime": null,
      "collapseSF": null,
      "status": "WARNING",
-     "tensionSF": 7.608579086,
+     "tensionSF": 7.879089409,
      "triaxSF": 1.368476257
     }
    ]
@@ -114,19 +117,19 @@
    "kind": "fullEvacuationCollapse",
    "profileCheckpoints": [
     {
-     "faN": 1404660.268090301,
+     "faN": 1492077.954987411,
      "piPa": 0.0,
      "poPa": 0.0,
      "tvdM": 0.0
     },
     {
-     "faN": 1123728.214472241,
+     "faN": 1193662.363989929,
      "piPa": 0.0,
      "poPa": 7083155.727115734,
      "tvdM": 501.58393986
     },
     {
-     "faN": 702330.134045151,
+     "faN": 746038.977493705,
      "piPa": 0.0,
      "poPa": 17707889.31778933,
      "tvdM": 1253.959849651
@@ -144,12 +147,12 @@
      "burstAtTvdM": null,
      "burstRatingPa": 65086506.08,
      "burstSF": null,
-     "collapseAtTvdM": 1354.276637623,
+     "collapseAtTvdM": 1454.593425595,
      "collapseRegime": "plastic",
-     "collapseSF": 1.886986953,
+     "collapseSF": 1.757625,
      "status": "PASS",
-     "tensionSF": 4.727843784,
-     "triaxSF": 2.790697672
+     "tensionSF": 4.450849431,
+     "triaxSF": 2.665792412
     },
     {
      "bodyYieldN": 4702486.244765741,
@@ -160,7 +163,7 @@
      "collapseRegime": "plastic",
      "collapseSF": 1.28824431,
      "status": "PASS",
-     "tensionSF": 7.608579086,
+     "tensionSF": 7.879089409,
      "triaxSF": 1.58890905
     }
    ]
@@ -169,19 +172,19 @@
    "kind": "partialEvacuationCollapse",
    "profileCheckpoints": [
     {
-     "faN": 1404660.268090301,
+     "faN": 1492077.954987411,
      "piPa": 0.0,
      "poPa": 0.0,
      "tvdM": 0.0
     },
     {
-     "faN": 1123728.214472241,
+     "faN": 1193662.363989929,
      "piPa": 0.0,
      "poPa": 7083155.727115734,
      "tvdM": 501.58393986
     },
     {
-     "faN": 702330.134045151,
+     "faN": 746038.977493705,
      "piPa": 0.0,
      "poPa": 17707889.31778933,
      "tvdM": 1253.959849651
@@ -199,12 +202,12 @@
      "burstAtTvdM": null,
      "burstRatingPa": 65086506.08,
      "burstSF": null,
-     "collapseAtTvdM": 1354.276637623,
+     "collapseAtTvdM": 1454.593425595,
      "collapseRegime": "plastic",
-     "collapseSF": 1.886986953,
+     "collapseSF": 1.757625,
      "status": "PASS",
-     "tensionSF": 4.727843784,
-     "triaxSF": 2.790697672
+     "tensionSF": 4.450849431,
+     "triaxSF": 2.665792412
     },
     {
      "bodyYieldN": 4702486.244765741,
@@ -215,8 +218,8 @@
      "collapseRegime": "plastic",
      "collapseSF": 1.892930414,
      "status": "PASS",
-     "tensionSF": 7.608579086,
-     "triaxSF": 2.182827727
+     "tensionSF": 7.879089409,
+     "triaxSF": 2.160920164
     }
    ]
   },
@@ -224,19 +227,19 @@
    "kind": "cementingCollapse",
    "profileCheckpoints": [
     {
-     "faN": 1404660.268090301,
+     "faN": 1492077.954987411,
      "piPa": 0.0,
      "poPa": 0.0,
      "tvdM": 0.0
     },
     {
-     "faN": 1123728.214472241,
+     "faN": 1193662.363989929,
      "piPa": 5066423.888145282,
      "poPa": 9345830.473277703,
      "tvdM": 501.58393986
     },
     {
-     "faN": 702330.134045151,
+     "faN": 746038.977493705,
      "piPa": 12666059.720363203,
      "poPa": 23364576.183194257,
      "tvdM": 1253.959849651
@@ -254,12 +257,12 @@
      "burstAtTvdM": null,
      "burstRatingPa": 65086506.08,
      "burstSF": null,
-     "collapseAtTvdM": 1354.276637623,
+     "collapseAtTvdM": 1454.593425595,
      "collapseRegime": "plastic",
-     "collapseSF": 3.12328875,
+     "collapseSF": 2.909172413,
      "status": "PASS",
-     "tensionSF": 4.727843784,
-     "triaxSF": 3.636822559
+     "tensionSF": 4.450849431,
+     "triaxSF": 3.517978223
     },
     {
      "bodyYieldN": 4702486.244765741,
@@ -270,7 +273,7 @@
      "collapseRegime": "plastic",
      "collapseSF": 2.132266443,
      "status": "PASS",
-     "tensionSF": 7.608579086,
+     "tensionSF": 7.879089409,
      "triaxSF": 2.37198765
     }
    ]
@@ -279,19 +282,19 @@
    "kind": "runningAxial",
    "profileCheckpoints": [
     {
-     "faN": 1849660.268090301,
+     "faN": 1937077.954987411,
      "piPa": 0.0,
      "poPa": 0.0,
      "tvdM": 0.0
     },
     {
-     "faN": 1568728.214472241,
+     "faN": 1638662.363989929,
      "piPa": 7083155.727115734,
      "poPa": 7083155.727115734,
      "tvdM": 501.58393986
     },
     {
-     "faN": 1147330.134045151,
+     "faN": 1191038.977493705,
      "piPa": 17707889.31778933,
      "poPa": 17707889.31778933,
      "tvdM": 1253.959849651
@@ -313,8 +316,8 @@
      "collapseRegime": null,
      "collapseSF": null,
      "status": "PASS",
-     "tensionSF": 3.590396805,
-     "triaxSF": 3.151564935
+     "tensionSF": 3.428367093,
+     "triaxSF": 3.02603006
     },
     {
      "bodyYieldN": 4702486.244765741,
@@ -325,8 +328,8 @@
      "collapseRegime": null,
      "collapseSF": null,
      "status": "PASS",
-     "tensionSF": 4.423577399,
-     "triaxSF": 3.553234725
+     "tensionSF": 4.513673929,
+     "triaxSF": 3.569306071
     }
    ]
   },
@@ -334,19 +337,19 @@
    "kind": "customGradient",
    "profileCheckpoints": [
     {
-     "faN": 1404660.268090301,
+     "faN": 1492077.954987411,
      "piPa": 5000000.0,
      "poPa": 0.0,
      "tvdM": 0.0
     },
     {
-     "faN": 1123728.214472241,
+     "faN": 1193662.363989929,
      "piPa": 7459429.071915185,
      "poPa": 7870173.030128593,
      "tvdM": 501.58393986
     },
     {
-     "faN": 702330.134045151,
+     "faN": 746038.977493705,
      "piPa": 11148572.679787964,
      "poPa": 19675432.57532148,
      "tvdM": 1253.959849651
@@ -364,12 +367,12 @@
      "burstAtTvdM": 0.0,
      "burstRatingPa": 65086506.08,
      "burstSF": 13.017301216,
-     "collapseAtTvdM": 1354.276637623,
+     "collapseAtTvdM": 1454.593425595,
      "collapseRegime": "plastic",
-     "collapseSF": 3.755613277,
+     "collapseSF": 3.376962846,
      "status": "PASS",
-     "tensionSF": 4.727843784,
-     "triaxSF": 4.017626453
+     "tensionSF": 4.450849431,
+     "triaxSF": 3.845350715
     },
     {
      "bodyYieldN": 4702486.244765741,
@@ -380,7 +383,7 @@
      "collapseRegime": "plastic",
      "collapseSF": 2.068774598,
      "status": "PASS",
-     "tensionSF": 7.608579086,
+     "tensionSF": 7.879089409,
      "triaxSF": 2.364074101
     }
    ]
@@ -1340,7 +1343,7 @@
  ],
  "sections": [
   {
-   "bottomTvdM": 1379.355834616,
+   "bottomTvdM": 1473.759701091,
    "connectionEfficiency": 1.0,
    "odM": 0.244475,
    "topTvdM": 0.0,
@@ -1351,14 +1354,33 @@
    "bottomTvdM": 2507.919699301,
    "connectionEfficiency": 0.85,
    "odM": 0.244475,
-   "topTvdM": 1379.355834616,
+   "topTvdM": 1473.759701091,
    "wallM": 0.013843,
    "yieldPa": 551580560.0
   }
  ],
+ "sectionsMd": [
+  {
+   "bottomMdM": 1650.0,
+   "connection": "BTC",
+   "grade": "P-110",
+   "odIn": 9.625,
+   "topMdM": 0.0,
+   "weightLbFt": 47
+  },
+  {
+   "bottomMdM": 3000.0,
+   "connection": "LTC",
+   "grade": "L-80",
+   "odIn": 9.625,
+   "topMdM": 1650.0,
+   "weightLbFt": 53.5
+  }
+ ],
+ "shoeMdM": 3000.0,
  "shoeTvdM": 2507.919699301,
  "string": {
-  "weightKgM": 69.9437033
+  "weightKgM": 74.296582707
  },
  "tubing": [
   {
