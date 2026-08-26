@@ -1,0 +1,366 @@
+{
+ "casing": {
+  "irM": 0.1102487,
+  "shoeMd": 1200.0,
+  "wallM": 0.0119888
+ },
+ "description": "Casing wear oracle on the horizontal well rotate-on-bottom side forces: V = WF*N*L, crescent groove inversion by bisection. JS must agree rtol 1e-3.",
+ "grooveGeometry": [
+  {
+   "areaM2": 0.0,
+   "depthM": 0.0
+  },
+  {
+   "areaM2": 3.4929e-05,
+   "depthM": 0.001
+  },
+  {
+   "areaM2": 0.000175586,
+   "depthM": 0.003
+  },
+  {
+   "areaM2": 0.00047427,
+   "depthM": 0.006
+  },
+  {
+   "areaM2": 0.000965012,
+   "depthM": 0.01
+  }
+ ],
+ "intervalM": 30.0,
+ "rows": [
+  {
+   "fromMd": 0.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 30.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 30.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 60.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 60.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 90.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 90.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 120.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 120.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 150.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 150.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 180.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 180.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 210.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 210.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 240.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 240.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 270.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 270.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 300.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 300.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 330.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 330.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 360.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 360.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 390.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 390.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 420.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 420.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 450.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 450.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 480.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 480.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 510.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 510.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 540.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 540.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 570.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 570.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 600.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 600.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 630.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 630.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 660.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 660.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 690.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 690.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 720.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 720.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 750.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 750.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 780.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 780.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 810.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 810.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 840.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 840.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 870.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 870.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 900.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 900.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 930.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 930.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 960.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 960.0,
+   "remainingWallM": 0.0119888,
+   "sideForceN": 0.0,
+   "toMd": 990.0,
+   "wearDepthM": 0.0,
+   "wearVolumeM3": 0.0
+  },
+  {
+   "fromMd": 990.0,
+   "remainingWallM": 0.010520857,
+   "sideForceN": 4857.566850176,
+   "toMd": 1020.0,
+   "wearDepthM": 0.001467943,
+   "wearVolumeM3": 0.001848931
+  },
+  {
+   "fromMd": 1020.0,
+   "remainingWallM": 0.010094869,
+   "sideForceN": 7068.211991839,
+   "toMd": 1050.0,
+   "wearDepthM": 0.001893931,
+   "wearVolumeM3": 0.002690367
+  },
+  {
+   "fromMd": 1050.0,
+   "remainingWallM": 0.009716968,
+   "sideForceN": 9228.260633138,
+   "toMd": 1080.0,
+   "wearDepthM": 0.002271832,
+   "wearVolumeM3": 0.003512544
+  },
+  {
+   "fromMd": 1080.0,
+   "remainingWallM": 0.009379657,
+   "sideForceN": 11295.669884444,
+   "toMd": 1110.0,
+   "wearDepthM": 0.002609143,
+   "wearVolumeM3": 0.00429946
+  },
+  {
+   "fromMd": 1110.0,
+   "remainingWallM": 0.009080308,
+   "sideForceN": 13230.199976282,
+   "toMd": 1140.0,
+   "wearDepthM": 0.002908492,
+   "wearVolumeM3": 0.005035799
+  },
+  {
+   "fromMd": 1140.0,
+   "remainingWallM": 0.00881835,
+   "sideForceN": 14994.197480947,
+   "toMd": 1170.0,
+   "wearDepthM": 0.00317045,
+   "wearVolumeM3": 0.005707228
+  },
+  {
+   "fromMd": 1170.0,
+   "remainingWallM": 0.008594152,
+   "sideForceN": 16553.328193488,
+   "toMd": 1200.0,
+   "wearDepthM": 0.003394648,
+   "wearVolumeM3": 0.006300678
+  }
+ ],
+ "schedule": [
+  {
+   "hours": 50.0,
+   "rpm": 120.0
+  }
+ ],
+ "summary": {
+  "maxWearDepthM": 0.003394648,
+  "minRemainingWallM": 0.008594152
+ },
+ "tjRadiusM": 0.0841375,
+ "totalSlidingDistanceM": 190314.541361816,
+ "wearFactorMm3PerKNm": 2.0
+}
