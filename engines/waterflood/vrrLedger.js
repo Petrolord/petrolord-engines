@@ -124,5 +124,120 @@ export function analyzeLedger(rows, fvf, settings = {}) {
   return { injectors, producers, periods, series, rolling, flags };
 }
 
+// ============================================================================
+// V3: pressure track + fill-up + correlation-free FVF interpolation
+// ============================================================================
+
+// Fractional month coordinate of a date string: whole months since year 0
+// plus a deterministic within-month fraction of (day-1)/31. Pure string
+// arithmetic (no Date parsing) so locale/timezone can never move a survey.
+// Returns null when unparseable.
+export function monthCoordOf(date) {
+  const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(String(date ?? ''));
+  if (!m) return null;
+  const month = parseInt(m[2], 10);
+  if (month < 1 || month > 12) return null;
+  const day = m[3] ? parseInt(m[3], 10) : 1;
+  return parseInt(m[1], 10) * 12 + (month - 1) + (day - 1) / 31;
+}
+
+// Attach reservoir pressure to monthly periods by linear interpolation of
+// survey points onto each period's mid-month coordinate, clamped flat
+// outside the survey range. Also computes dp/dt in psi/month (central
+// difference over the attached pressures; one-sided at the ends).
+//
+// `periods` needs only YYYY-MM labels (works on buildFieldPeriods output
+// or a computeVRRSeries result); `surveys` is [{date, p_psia}]. Periods
+// whose label is not a YYYY-MM month, or an empty/invalid survey set,
+// yield pressure: null / dpdt: null — the UI gates on that, honestly.
+export function attachPressure(periods, surveys) {
+  const pts = (surveys || [])
+    .map((s) => ({ t: monthCoordOf(s.date), p: parseFloat(s.p_psia) }))
+    .filter((s) => s.t != null && Number.isFinite(s.p))
+    .sort((a, b) => a.t - b.t);
+
+  const pressureAt = (t) => {
+    if (t == null || !pts.length) return null;
+    if (t <= pts[0].t) return pts[0].p;
+    if (t >= pts[pts.length - 1].t) return pts[pts.length - 1].p;
+    for (let i = 1; i < pts.length; i++) {
+      if (t <= pts[i].t) {
+        const a = pts[i - 1];
+        const b = pts[i];
+        return b.t === a.t ? b.p : a.p + ((b.p - a.p) * (t - a.t)) / (b.t - a.t);
+      }
+    }
+    return pts[pts.length - 1].p;
+  };
+
+  const coords = periods.map((p) => {
+    const c = monthCoordOf(p.label);
+    return c == null ? null : c - (c % 1) + 0.5; // mid-month
+  });
+  const pressures = coords.map((c) => pressureAt(c));
+
+  return periods.map((p, i) => {
+    let dpdt = null;
+    if (pressures[i] != null) {
+      const prev = i > 0 && pressures[i - 1] != null ? i - 1 : i;
+      const next = i < pressures.length - 1 && pressures[i + 1] != null ? i + 1 : i;
+      if (next !== prev && coords[next] != null && coords[prev] != null && coords[next] !== coords[prev]) {
+        dpdt = (pressures[next] - pressures[prev]) / (coords[next] - coords[prev]);
+      }
+    }
+    return { ...p, pressure: pressures[i], dpdt };
+  });
+}
+
+// Fill-up marker: the first period whose cumulative VRR reaches 1.0.
+// Returns { index, label, startedAbove } — startedAbove is true when the
+// record's first defined cumulative VRR is already >= 1 (data begins
+// mid-flood, so the crossing itself is not in the record) — or null when
+// cumulative VRR never reaches 1.
+export function findFillUp(series) {
+  let firstDefined = -1;
+  for (let i = 0; i < series.length; i++) {
+    const v = series[i].cumulativeVRR;
+    if (v == null || !Number.isFinite(v)) continue;
+    if (firstDefined === -1) firstDefined = i;
+    if (v >= 1) {
+      return { index: i, label: series[i].label, startedAbove: i === firstDefined };
+    }
+  }
+  return null;
+}
+
+// Correlation-free FVF track: linearly interpolate a caller-supplied PVT
+// table [{p, Bo, Bw, Bg, Rs}] onto an array of pressures (clamped flat
+// outside the table range). Null pressures map to null entries. This keeps
+// the engine free of black-oil correlations — the Suite derives tables
+// from its PVT kit and hands only numbers across.
+export function interpolateFvfTrack(fvfTable, pressures) {
+  const table = (fvfTable || [])
+    .map((r) => ({ p: parseFloat(r.p), Bo: parseFloat(r.Bo), Bw: parseFloat(r.Bw), Bg: parseFloat(r.Bg), Rs: parseFloat(r.Rs) }))
+    .filter((r) => Number.isFinite(r.p))
+    .sort((a, b) => a.p - b.p);
+  if (!table.length) return (pressures || []).map(() => null);
+
+  const lerp = (a, b, f) => (Number.isFinite(a) && Number.isFinite(b) ? a + (b - a) * f : Number.isFinite(a) ? a : b);
+  const pick = ({ Bo, Bw, Bg, Rs }) => ({ Bo, Bw, Bg, Rs });
+
+  return (pressures || []).map((pRaw) => {
+    const p = parseFloat(pRaw);
+    if (!Number.isFinite(p)) return null;
+    if (p <= table[0].p) return pick(table[0]);
+    if (p >= table[table.length - 1].p) return pick(table[table.length - 1]);
+    for (let i = 1; i < table.length; i++) {
+      if (p <= table[i].p) {
+        const a = table[i - 1];
+        const b = table[i];
+        const f = b.p === a.p ? 0 : (p - a.p) / (b.p - a.p);
+        return { Bo: lerp(a.Bo, b.Bo, f), Bw: lerp(a.Bw, b.Bw, f), Bg: lerp(a.Bg, b.Bg, f), Rs: lerp(a.Rs, b.Rs, f) };
+      }
+    }
+    return pick(table[table.length - 1]);
+  });
+}
+
 // Re-exported so ledger consumers keep a single import surface.
 export { computePeriodVoidage, computeVRRSeries };
