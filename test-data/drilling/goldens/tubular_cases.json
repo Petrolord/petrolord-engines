@@ -1,0 +1,1482 @@
+{
+ "cases": [
+  {
+   "kind": "gasKickBurst",
+   "profileCheckpoints": [
+    {
+     "faN": 1404660.268090301,
+     "piPa": 38501507.98608063,
+     "poPa": 0.0,
+     "tvdM": 0.0
+    },
+    {
+     "faN": 1123728.214472241,
+     "piPa": 39655151.04775917,
+     "poPa": 5066423.888145282,
+     "tvdM": 501.58393986
+    },
+    {
+     "faN": 702330.134045151,
+     "piPa": 41385615.640276976,
+     "poPa": 12666059.720363203,
+     "tvdM": 1253.959849651
+    },
+    {
+     "faN": 0.0,
+     "piPa": 44269723.29447333,
+     "poPa": 25332119.440726407,
+     "tvdM": 2507.919699301
+    }
+   ],
+   "sections": [
+    {
+     "bodyYieldN": 6641014.317138586,
+     "burstAtTvdM": 0.0,
+     "burstRatingPa": 65086506.08,
+     "burstSF": 1.690492385,
+     "collapseAtTvdM": null,
+     "collapseRegime": null,
+     "collapseSF": null,
+     "status": "PASS",
+     "tensionSF": 4.727843784,
+     "triaxSF": 2.110262095
+    },
+    {
+     "bodyYieldN": 4702486.244765741,
+     "burstAtTvdM": 1404.435031609,
+     "burstRatingPa": 54656619.12727273,
+     "burstSF": 1.984214455,
+     "collapseAtTvdM": null,
+     "collapseRegime": null,
+     "collapseSF": null,
+     "status": "PASS",
+     "tensionSF": 7.608579086,
+     "triaxSF": 2.398580465
+    }
+   ]
+  },
+  {
+   "kind": "pressureTestBurst",
+   "profileCheckpoints": [
+    {
+     "faN": 1404660.268090301,
+     "piPa": 35000000.0,
+     "poPa": 0.0,
+     "tvdM": 0.0
+    },
+    {
+     "faN": 1123728.214472241,
+     "piPa": 42083155.727115735,
+     "poPa": 5066423.888145282,
+     "tvdM": 501.58393986
+    },
+    {
+     "faN": 702330.134045151,
+     "piPa": 52707889.31778933,
+     "poPa": 12666059.720363203,
+     "tvdM": 1253.959849651
+    },
+    {
+     "faN": 0.0,
+     "piPa": 70415778.63557866,
+     "poPa": 25332119.440726407,
+     "tvdM": 2507.919699301
+    }
+   ],
+   "sections": [
+    {
+     "bodyYieldN": 6641014.317138586,
+     "burstAtTvdM": 1354.276637623,
+     "burstRatingPa": 65086506.08,
+     "burstSF": 1.609252637,
+     "collapseAtTvdM": null,
+     "collapseRegime": null,
+     "collapseSF": null,
+     "status": "PASS",
+     "tensionSF": 4.727843784,
+     "triaxSF": 1.926183968
+    },
+    {
+     "bodyYieldN": 4702486.244765741,
+     "burstAtTvdM": 2507.919699301,
+     "burstRatingPa": 54656619.12727273,
+     "burstSF": 1.212337687,
+     "collapseAtTvdM": null,
+     "collapseRegime": null,
+     "collapseSF": null,
+     "status": "WARNING",
+     "tensionSF": 7.608579086,
+     "triaxSF": 1.368476257
+    }
+   ]
+  },
+  {
+   "kind": "fullEvacuationCollapse",
+   "profileCheckpoints": [
+    {
+     "faN": 1404660.268090301,
+     "piPa": 0.0,
+     "poPa": 0.0,
+     "tvdM": 0.0
+    },
+    {
+     "faN": 1123728.214472241,
+     "piPa": 0.0,
+     "poPa": 7083155.727115734,
+     "tvdM": 501.58393986
+    },
+    {
+     "faN": 702330.134045151,
+     "piPa": 0.0,
+     "poPa": 17707889.31778933,
+     "tvdM": 1253.959849651
+    },
+    {
+     "faN": 0.0,
+     "piPa": 0.0,
+     "poPa": 35415778.63557866,
+     "tvdM": 2507.919699301
+    }
+   ],
+   "sections": [
+    {
+     "bodyYieldN": 6641014.317138586,
+     "burstAtTvdM": null,
+     "burstRatingPa": 65086506.08,
+     "burstSF": null,
+     "collapseAtTvdM": 1354.276637623,
+     "collapseRegime": "plastic",
+     "collapseSF": 1.886986953,
+     "status": "PASS",
+     "tensionSF": 4.727843784,
+     "triaxSF": 2.790697672
+    },
+    {
+     "bodyYieldN": 4702486.244765741,
+     "burstAtTvdM": null,
+     "burstRatingPa": 54656619.12727273,
+     "burstSF": null,
+     "collapseAtTvdM": 2507.919699301,
+     "collapseRegime": "plastic",
+     "collapseSF": 1.28824431,
+     "status": "PASS",
+     "tensionSF": 7.608579086,
+     "triaxSF": 1.58890905
+    }
+   ]
+  },
+  {
+   "kind": "partialEvacuationCollapse",
+   "profileCheckpoints": [
+    {
+     "faN": 1404660.268090301,
+     "piPa": 0.0,
+     "poPa": 0.0,
+     "tvdM": 0.0
+    },
+    {
+     "faN": 1123728.214472241,
+     "piPa": 0.0,
+     "poPa": 7083155.727115734,
+     "tvdM": 501.58393986
+    },
+    {
+     "faN": 702330.134045151,
+     "piPa": 0.0,
+     "poPa": 17707889.31778933,
+     "tvdM": 1253.959849651
+    },
+    {
+     "faN": 0.0,
+     "piPa": 11313373.73080985,
+     "poPa": 35415778.63557866,
+     "tvdM": 2507.919699301
+    }
+   ],
+   "sections": [
+    {
+     "bodyYieldN": 6641014.317138586,
+     "burstAtTvdM": null,
+     "burstRatingPa": 65086506.08,
+     "burstSF": null,
+     "collapseAtTvdM": 1354.276637623,
+     "collapseRegime": "plastic",
+     "collapseSF": 1.886986953,
+     "status": "PASS",
+     "tensionSF": 4.727843784,
+     "triaxSF": 2.790697672
+    },
+    {
+     "bodyYieldN": 4702486.244765741,
+     "burstAtTvdM": null,
+     "burstRatingPa": 54656619.12727273,
+     "burstSF": null,
+     "collapseAtTvdM": 2507.919699301,
+     "collapseRegime": "plastic",
+     "collapseSF": 1.892930414,
+     "status": "PASS",
+     "tensionSF": 7.608579086,
+     "triaxSF": 2.182827727
+    }
+   ]
+  },
+  {
+   "kind": "cementingCollapse",
+   "profileCheckpoints": [
+    {
+     "faN": 1404660.268090301,
+     "piPa": 0.0,
+     "poPa": 0.0,
+     "tvdM": 0.0
+    },
+    {
+     "faN": 1123728.214472241,
+     "piPa": 5066423.888145282,
+     "poPa": 9345830.473277703,
+     "tvdM": 501.58393986
+    },
+    {
+     "faN": 702330.134045151,
+     "piPa": 12666059.720363203,
+     "poPa": 23364576.183194257,
+     "tvdM": 1253.959849651
+    },
+    {
+     "faN": 0.0,
+     "piPa": 25332119.440726407,
+     "poPa": 46729152.366388515,
+     "tvdM": 2507.919699301
+    }
+   ],
+   "sections": [
+    {
+     "bodyYieldN": 6641014.317138586,
+     "burstAtTvdM": null,
+     "burstRatingPa": 65086506.08,
+     "burstSF": null,
+     "collapseAtTvdM": 1354.276637623,
+     "collapseRegime": "plastic",
+     "collapseSF": 3.12328875,
+     "status": "PASS",
+     "tensionSF": 4.727843784,
+     "triaxSF": 3.636822559
+    },
+    {
+     "bodyYieldN": 4702486.244765741,
+     "burstAtTvdM": null,
+     "burstRatingPa": 54656619.12727273,
+     "burstSF": null,
+     "collapseAtTvdM": 2507.919699301,
+     "collapseRegime": "plastic",
+     "collapseSF": 2.132266443,
+     "status": "PASS",
+     "tensionSF": 7.608579086,
+     "triaxSF": 2.37198765
+    }
+   ]
+  },
+  {
+   "kind": "runningAxial",
+   "profileCheckpoints": [
+    {
+     "faN": 1849660.268090301,
+     "piPa": 0.0,
+     "poPa": 0.0,
+     "tvdM": 0.0
+    },
+    {
+     "faN": 1568728.214472241,
+     "piPa": 7083155.727115734,
+     "poPa": 7083155.727115734,
+     "tvdM": 501.58393986
+    },
+    {
+     "faN": 1147330.134045151,
+     "piPa": 17707889.31778933,
+     "poPa": 17707889.31778933,
+     "tvdM": 1253.959849651
+    },
+    {
+     "faN": 445000.0,
+     "piPa": 35415778.63557866,
+     "poPa": 35415778.63557866,
+     "tvdM": 2507.919699301
+    }
+   ],
+   "sections": [
+    {
+     "bodyYieldN": 6641014.317138586,
+     "burstAtTvdM": null,
+     "burstRatingPa": 65086506.08,
+     "burstSF": null,
+     "collapseAtTvdM": null,
+     "collapseRegime": null,
+     "collapseSF": null,
+     "status": "PASS",
+     "tensionSF": 3.590396805,
+     "triaxSF": 3.151564935
+    },
+    {
+     "bodyYieldN": 4702486.244765741,
+     "burstAtTvdM": null,
+     "burstRatingPa": 54656619.12727273,
+     "burstSF": null,
+     "collapseAtTvdM": null,
+     "collapseRegime": null,
+     "collapseSF": null,
+     "status": "PASS",
+     "tensionSF": 4.423577399,
+     "triaxSF": 3.553234725
+    }
+   ]
+  },
+  {
+   "kind": "customGradient",
+   "profileCheckpoints": [
+    {
+     "faN": 1404660.268090301,
+     "piPa": 5000000.0,
+     "poPa": 0.0,
+     "tvdM": 0.0
+    },
+    {
+     "faN": 1123728.214472241,
+     "piPa": 7459429.071915185,
+     "poPa": 7870173.030128593,
+     "tvdM": 501.58393986
+    },
+    {
+     "faN": 702330.134045151,
+     "piPa": 11148572.679787964,
+     "poPa": 19675432.57532148,
+     "tvdM": 1253.959849651
+    },
+    {
+     "faN": 0.0,
+     "piPa": 17297145.359575927,
+     "poPa": 39350865.15064296,
+     "tvdM": 2507.919699301
+    }
+   ],
+   "sections": [
+    {
+     "bodyYieldN": 6641014.317138586,
+     "burstAtTvdM": 0.0,
+     "burstRatingPa": 65086506.08,
+     "burstSF": 13.017301216,
+     "collapseAtTvdM": 1354.276637623,
+     "collapseRegime": "plastic",
+     "collapseSF": 3.755613277,
+     "status": "PASS",
+     "tensionSF": 4.727843784,
+     "triaxSF": 4.017626453
+    },
+    {
+     "bodyYieldN": 4702486.244765741,
+     "burstAtTvdM": null,
+     "burstRatingPa": 54656619.12727273,
+     "burstSF": null,
+     "collapseAtTvdM": 2507.919699301,
+     "collapseRegime": "plastic",
+     "collapseSF": 2.068774598,
+     "status": "PASS",
+     "tensionSF": 7.608579086,
+     "triaxSF": 2.364074101
+    }
+   ]
+  }
+ ],
+ "description": "Tubular design oracle: independent implementation of API Bull 5C3 four-regime collapse (regime-boundary continuity self-asserted per grade), Barlow burst, Lame/VME triaxial, canonical load-case profiles on the D1 slant well, string evaluation, and Lubinski tubing-packer forces. JS engine must agree rtol 1e-6.",
+ "designFactors": {
+  "burst": 1.1,
+  "collapse": 1.0,
+  "tension": 1.6,
+  "triaxial": 1.25
+ },
+ "env": {
+  "cementKgM3": 1900.0,
+  "evacuationFraction": 0.4,
+  "externalKgM3": 1600.0,
+  "fracEmwAtShoeKgM3": 1800.0,
+  "gasGradPaPerM": 2300.0,
+  "internalKgM3": 500.0,
+  "mudKgM3": 1440.0,
+  "overpullN": 445000.0,
+  "packerFluidKgM3": 1150.0,
+  "seawaterKgM3": 1030.0,
+  "surfacePressurePa": 5000000.0,
+  "testPressurePa": 35000000.0
+ },
+ "erosional": {
+  "cFactor": 100.0,
+  "mixtureKgM3": 700.0,
+  "veMs": 4.610800843
+ },
+ "ratings": [
+  {
+   "bodyYieldN": 6585463.165207142,
+   "burstPa": 14533285.911375001,
+   "collapseAt40pctTensionPa": 3554024.408995863,
+   "collapsePa": 3554024.408995863,
+   "grade": "K-55",
+   "odIn": 20,
+   "regime": "elastic",
+   "regimeAt40pctTension": "elastic",
+   "weightLbFt": 94
+  },
+  {
+   "bodyYieldN": 9578855.51302857,
+   "burstPa": 21139324.961999997,
+   "collapseAt40pctTensionPa": 3554024.408995863,
+   "collapsePa": 3554024.408995863,
+   "grade": "L-80",
+   "odIn": 20,
+   "regime": "elastic",
+   "regimeAt40pctTension": "elastic",
+   "weightLbFt": 94
+  },
+  {
+   "bodyYieldN": 13170926.330414284,
+   "burstPa": 29066571.822750002,
+   "collapseAt40pctTensionPa": 3554024.408995863,
+   "collapsePa": 3554024.408995863,
+   "grade": "P-110",
+   "odIn": 20,
+   "regime": "elastic",
+   "regimeAt40pctTension": "elastic",
+   "weightLbFt": 94
+  },
+  {
+   "bodyYieldN": 7493825.492996336,
+   "burstPa": 16590509.031249998,
+   "collapseAt40pctTensionPa": 5269406.261747506,
+   "collapsePa": 5320658.364796804,
+   "grade": "K-55",
+   "odIn": 20,
+   "regime": "elastic",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 106.5
+  },
+  {
+   "bodyYieldN": 10900109.807994671,
+   "burstPa": 24131649.499999996,
+   "collapseAt40pctTensionPa": 5320658.364796804,
+   "collapsePa": 5320658.364796804,
+   "grade": "L-80",
+   "odIn": 20,
+   "regime": "elastic",
+   "regimeAt40pctTension": "elastic",
+   "weightLbFt": 106.5
+  },
+  {
+   "bodyYieldN": 14987650.985992672,
+   "burstPa": 33181018.062499996,
+   "collapseAt40pctTensionPa": 5320658.364796804,
+   "collapsePa": 5320658.364796804,
+   "grade": "P-110",
+   "odIn": 20,
+   "regime": "elastic",
+   "regimeAt40pctTension": "elastic",
+   "weightLbFt": 106.5
+  },
+  {
+   "bodyYieldN": 9451270.356578456,
+   "burstPa": 21069946.4696875,
+   "collapseAt40pctTensionPa": 9157045.899712816,
+   "collapsePa": 10313129.625925248,
+   "grade": "K-55",
+   "odIn": 20,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 133
+  },
+  {
+   "bodyYieldN": 13747302.33684139,
+   "burstPa": 30647194.865000002,
+   "collapseAt40pctTensionPa": 10548481.713304099,
+   "collapsePa": 11051233.548654662,
+   "grade": "L-80",
+   "odIn": 20,
+   "regime": "elastic",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 133
+  },
+  {
+   "bodyYieldN": 18902540.713156912,
+   "burstPa": 42139892.939375,
+   "collapseAt40pctTensionPa": 11051233.548654662,
+   "collapsePa": 11051233.548654662,
+   "grade": "P-110",
+   "odIn": 20,
+   "regime": "elastic",
+   "regimeAt40pctTension": "elastic",
+   "weightLbFt": 133
+  },
+  {
+   "bodyYieldN": 3795411.247893862,
+   "burstPa": 18854260.73084112,
+   "collapseAt40pctTensionPa": 7234083.960407715,
+   "collapsePa": 7794284.116918846,
+   "grade": "K-55",
+   "odIn": 13.375,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 54.5
+  },
+  {
+   "bodyYieldN": 5520598.178754709,
+   "burstPa": 27424379.24485981,
+   "collapseAt40pctTensionPa": 7851928.814635605,
+   "collapsePa": 7864280.783253678,
+   "grade": "L-80",
+   "odIn": 13.375,
+   "regime": "elastic",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 54.5
+  },
+  {
+   "bodyYieldN": 7590822.495787725,
+   "burstPa": 37708521.46168224,
+   "collapseAt40pctTensionPa": 7864280.783253678,
+   "collapsePa": 7864280.783253678,
+   "grade": "P-110",
+   "odIn": 13.375,
+   "regime": "elastic",
+   "regimeAt40pctTension": "elastic",
+   "weightLbFt": 54.5
+  },
+  {
+   "bodyYieldN": 4278282.618763085,
+   "burstPa": 21335084.511214953,
+   "collapseAt40pctTensionPa": 9387155.410994248,
+   "collapsePa": 10614545.008738462,
+   "grade": "K-55",
+   "odIn": 13.375,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 61
+  },
+  {
+   "bodyYieldN": 6222956.536382669,
+   "burstPa": 31032850.198130842,
+   "collapseAt40pctTensionPa": 10871162.291101368,
+   "collapsePa": 11483176.655654926,
+   "grade": "L-80",
+   "odIn": 13.375,
+   "regime": "elastic",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 61
+  },
+  {
+   "bodyYieldN": 8556565.237526169,
+   "burstPa": 42670169.022429906,
+   "collapseAt40pctTensionPa": 11483176.655654926,
+   "collapsePa": 11483176.655654926,
+   "grade": "P-110",
+   "odIn": 13.375,
+   "regime": "elastic",
+   "regimeAt40pctTension": "elastic",
+   "weightLbFt": 61
+  },
+  {
+   "bodyYieldN": 4757311.00220001,
+   "burstPa": 23815908.291588787,
+   "collapseAt40pctTensionPa": 11540226.86158078,
+   "collapsePa": 13434805.90055808,
+   "grade": "K-55",
+   "odIn": 13.375,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 68
+  },
+  {
+   "bodyYieldN": 6919725.094109106,
+   "burstPa": 34641321.15140187,
+   "collapseAt40pctTensionPa": 13890395.76756714,
+   "collapsePa": 15601761.291993912,
+   "grade": "L-80",
+   "odIn": 13.375,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 68
+  },
+  {
+   "bodyYieldN": 9514622.00440002,
+   "burstPa": 47631816.583177574,
+   "collapseAt40pctTensionPa": 15663550.45177677,
+   "collapsePa": 16096883.762984866,
+   "grade": "P-110",
+   "odIn": 13.375,
+   "regime": "elastic",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 68
+  },
+  {
+   "bodyYieldN": 5080855.188515777,
+   "burstPa": 25502868.46224299,
+   "collapseAt40pctTensionPa": 13325042.912602117,
+   "collapsePa": 15352583.306995424,
+   "grade": "K-55",
+   "odIn": 13.375,
+   "regime": "transition",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 72
+  },
+  {
+   "bodyYieldN": 7390334.819659312,
+   "burstPa": 37095081.39962617,
+   "collapseAt40pctTensionPa": 15943474.531563858,
+   "collapsePa": 18402602.459065452,
+   "grade": "L-80",
+   "odIn": 13.375,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 72
+  },
+  {
+   "bodyYieldN": 10161710.377031554,
+   "burstPa": 51005736.92448598,
+   "collapseAt40pctTensionPa": 18508960.525327716,
+   "collapsePa": 19866330.02898781,
+   "grade": "P-110",
+   "odIn": 13.375,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 72
+  },
+  {
+   "bodyYieldN": 2508775.981167936,
+   "burstPa": 24269544.639999997,
+   "collapseAt40pctTensionPa": 11933931.355402315,
+   "collapsePa": 13950510.74934795,
+   "grade": "K-55",
+   "odIn": 9.625,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 36
+  },
+  {
+   "bodyYieldN": 3649128.699880634,
+   "burstPa": 35301155.839999996,
+   "collapseAt40pctTensionPa": 14442484.174692297,
+   "collapsePa": 16354928.664651796,
+   "grade": "L-80",
+   "odIn": 9.625,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 36
+  },
+  {
+   "bodyYieldN": 5017551.962335872,
+   "burstPa": 48539089.279999994,
+   "collapseAt40pctTensionPa": 16428702.740462732,
+   "collapsePa": 17058518.553892866,
+   "grade": "P-110",
+   "odIn": 9.625,
+   "regime": "elastic",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 36
+  },
+  {
+   "bodyYieldN": 2802191.146014422,
+   "burstPa": 27234290.150000002,
+   "collapseAt40pctTensionPa": 15480075.609820591,
+   "collapsePa": 17720343.916889917,
+   "grade": "K-55",
+   "odIn": 9.625,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 40
+  },
+  {
+   "bodyYieldN": 4075914.394202795,
+   "burstPa": 39613512.945454545,
+   "collapseAt40pctTensionPa": 18165721.24034064,
+   "collapsePa": 21277262.5873776,
+   "grade": "L-80",
+   "odIn": 9.625,
+   "regime": "transition",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 40
+  },
+  {
+   "bodyYieldN": 5604382.292028843,
+   "burstPa": 54468580.300000004,
+   "collapseAt40pctTensionPa": 21429364.218082257,
+   "collapsePa": 23954090.90282594,
+   "grade": "P-110",
+   "odIn": 9.625,
+   "regime": "transition",
+   "regimeAt40pctTension": "transition",
+   "weightLbFt": 40
+  },
+  {
+   "bodyYieldN": 3072583.741751461,
+   "burstPa": 29992192.950000003,
+   "collapseAt40pctTensionPa": 18912729.105948273,
+   "collapsePa": 22433253.380580526,
+   "grade": "K-55",
+   "odIn": 9.625,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 43.5
+  },
+  {
+   "bodyYieldN": 4469212.715274853,
+   "burstPa": 43625007.92727273,
+   "collapseAt40pctTensionPa": 23245778.971246995,
+   "collapsePa": 26266819.244625952,
+   "grade": "L-80",
+   "odIn": 9.625,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 43.5
+  },
+  {
+   "bodyYieldN": 6145167.483502923,
+   "burstPa": 59984385.900000006,
+   "collapseAt40pctTensionPa": 26379905.154151533,
+   "collapsePa": 30465299.14250856,
+   "grade": "P-110",
+   "odIn": 9.625,
+   "regime": "transition",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 43.5
+  },
+  {
+   "bodyYieldN": 3320507.158569297,
+   "burstPa": 32543253.04,
+   "collapseAt40pctTensionPa": 22087933.58986638,
+   "collapsePa": 26792694.634494346,
+   "grade": "K-55",
+   "odIn": 9.625,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 47
+  },
+  {
+   "bodyYieldN": 4829828.594282614,
+   "burstPa": 47335640.78545454,
+   "collapseAt40pctTensionPa": 27944832.372335374,
+   "collapsePa": 32777929.916653514,
+   "grade": "L-80",
+   "odIn": 9.625,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 47
+  },
+  {
+   "bodyYieldN": 6641014.317138594,
+   "burstPa": 65086506.08,
+   "collapseAt40pctTensionPa": 32996668.340731632,
+   "collapsePa": 36517506.40324334,
+   "grade": "P-110",
+   "odIn": 9.625,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 47
+  },
+  {
+   "bodyYieldN": 3803481.521501707,
+   "burstPa": 37576425.650000006,
+   "collapseAt40pctTensionPa": 28352526.220299408,
+   "collapsePa": 35393754.405729726,
+   "grade": "K-55",
+   "odIn": 9.625,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 53.5
+  },
+  {
+   "bodyYieldN": 5532336.758547937,
+   "burstPa": 54656619.12727273,
+   "collapseAt40pctTensionPa": 37215937.73123948,
+   "collapsePa": 45624175.296599805,
+   "grade": "L-80",
+   "odIn": 9.625,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 53.5
+  },
+  {
+   "bodyYieldN": 7606963.043003414,
+   "burstPa": 75152851.30000001,
+   "collapseAt40pctTensionPa": 46051363.2764167,
+   "collapsePa": 54813476.48178581,
+   "grade": "P-110",
+   "odIn": 9.625,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 53.5
+  },
+  {
+   "bodyYieldN": 1628282.229640322,
+   "burstPa": 30052522.073750004,
+   "collapseAt40pctTensionPa": 18987818.401176076,
+   "collapsePa": 22536348.275098767,
+   "grade": "K-55",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 23
+  },
+  {
+   "bodyYieldN": 2368410.515840468,
+   "burstPa": 43712759.38,
+   "collapseAt40pctTensionPa": 23356905.23411058,
+   "collapsePa": 26420798.213221207,
+   "grade": "L-80",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 23
+  },
+  {
+   "bodyYieldN": 3256564.459280644,
+   "burstPa": 60105044.14750001,
+   "collapseAt40pctTensionPa": 26536382.661942303,
+   "collapsePa": 30607731.822751634,
+   "grade": "P-110",
+   "odIn": 7,
+   "regime": "transition",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 23
+  },
+  {
+   "bodyYieldN": 1846905.941676768,
+   "burstPa": 34318652.9675,
+   "collapseAt40pctTensionPa": 24297704.277998578,
+   "collapsePa": 29826630.101745173,
+   "grade": "K-55",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 26
+  },
+  {
+   "bodyYieldN": 2686408.642438935,
+   "burstPa": 49918040.68,
+   "collapseAt40pctTensionPa": 31215119.536606345,
+   "collapsePa": 37309310.99245647,
+   "grade": "L-80",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 26
+  },
+  {
+   "bodyYieldN": 3693811.883353536,
+   "burstPa": 68637305.935,
+   "collapseAt40pctTensionPa": 37601577.85571643,
+   "collapsePa": 42971221.87615386,
+   "grade": "P-110",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 26
+  },
+  {
+   "bodyYieldN": 2067170.609346806,
+   "burstPa": 38679586.77,
+   "collapseAt40pctTensionPa": 29725587.61875047,
+   "collapsePa": 37278918.191205956,
+   "grade": "K-55",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 29
+  },
+  {
+   "bodyYieldN": 3006793.613595354,
+   "burstPa": 56261217.12,
+   "collapseAt40pctTensionPa": 39247960.82360202,
+   "collapsePa": 48439790.72234143,
+   "grade": "L-80",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 29
+  },
+  {
+   "bodyYieldN": 4134341.218693612,
+   "burstPa": 77359173.54,
+   "collapseAt40pctTensionPa": 48912666.2760189,
+   "collapsePa": 58823552.115438946,
+   "grade": "P-110",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 29
+  },
+  {
+   "bodyYieldN": 2279499.507969134,
+   "burstPa": 42945717.66375,
+   "collapseAt40pctTensionPa": 33881404.45209175,
+   "collapsePa": 44569200.01785237,
+   "grade": "K-55",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 32
+  },
+  {
+   "bodyYieldN": 3315635.647955104,
+   "burstPa": 62466498.42,
+   "collapseAt40pctTensionPa": 47106175.12609778,
+   "collapsePa": 59328303.50157672,
+   "grade": "L-80",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 32
+  },
+  {
+   "bodyYieldN": 4558999.015938268,
+   "burstPa": 85891435.3275,
+   "collapseAt40pctTensionPa": 59977861.469793044,
+   "collapsePa": 74331266.47995694,
+   "grade": "P-110",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 32
+  },
+  {
+   "bodyYieldN": 2488715.586771296,
+   "burstPa": 47211848.5575,
+   "collapseAt40pctTensionPa": 36991093.46891109,
+   "collapsePa": 50117786.01156979,
+   "grade": "K-55",
+   "odIn": 7,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 35
+  },
+  {
+   "bodyYieldN": 3619949.944394612,
+   "burstPa": 68671779.72,
+   "collapseAt40pctTensionPa": 53805226.863870665,
+   "collapsePa": 70216816.280812,
+   "grade": "L-80",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 35
+  },
+  {
+   "bodyYieldN": 4977431.173542592,
+   "burstPa": 94423697.115,
+   "collapseAt40pctTensionPa": 71043056.6635672,
+   "collapsePa": 89838980.84447494,
+   "grade": "P-110",
+   "odIn": 7,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 35
+  },
+  {
+   "bodyYieldN": 1214064.292054267,
+   "burstPa": 36680107.239999995,
+   "collapseAt40pctTensionPa": 27236913.834057905,
+   "collapsePa": 33862058.83003026,
+   "grade": "K-55",
+   "odIn": 5.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 17
+  },
+  {
+   "bodyYieldN": 1765911.697533479,
+   "burstPa": 53352883.25818182,
+   "collapseAt40pctTensionPa": 35564918.96869491,
+   "collapsePa": 43336487.7631847,
+   "grade": "L-80",
+   "odIn": 5.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 17
+  },
+  {
+   "bodyYieldN": 2428128.584108533,
+   "burstPa": 73360214.47999999,
+   "collapseAt40pctTensionPa": 43726554.5892399,
+   "collapsePa": 51555290.029442616,
+   "grade": "P-110",
+   "odIn": 5.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 17
+  },
+  {
+   "bodyYieldN": 1425885.916335531,
+   "burstPa": 43557627.347500004,
+   "collapseAt40pctTensionPa": 34330282.887628,
+   "collapsePa": 45614876.805108726,
+   "grade": "K-55",
+   "odIn": 5.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 20
+  },
+  {
+   "bodyYieldN": 2074015.878306227,
+   "burstPa": 63356548.86909091,
+   "collapseAt40pctTensionPa": 48233312.93514264,
+   "collapsePa": 60890090.183042794,
+   "grade": "L-80",
+   "odIn": 5.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 20
+  },
+  {
+   "bodyYieldN": 2851771.832671063,
+   "burstPa": 87115254.69500001,
+   "collapseAt40pctTensionPa": 61564990.47738489,
+   "collapsePa": 76555605.30799893,
+   "grade": "P-110",
+   "odIn": 5.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 20
+  },
+  {
+   "bodyYieldN": 1621952.060741828,
+   "burstPa": 50073172.7125,
+   "collapseAt40pctTensionPa": 39050861.248800874,
+   "collapsePa": 52908484.82972726,
+   "grade": "K-55",
+   "odIn": 5.5,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 23
+  },
+  {
+   "bodyYieldN": 2359202.997442659,
+   "burstPa": 72833705.76363637,
+   "collapseAt40pctTensionPa": 56801252.725528546,
+   "collapsePa": 76957796.11596693,
+   "grade": "L-80",
+   "odIn": 5.5,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 23
+  },
+  {
+   "bodyYieldN": 3243904.121483657,
+   "burstPa": 100146345.425,
+   "collapseAt40pctTensionPa": 78101722.49760175,
+   "collapsePa": 100240114.51926273,
+   "grade": "P-110",
+   "odIn": 5.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 23
+  },
+  {
+   "bodyYieldN": 816634.829364984,
+   "burstPa": 36867797.84722222,
+   "collapseAt40pctTensionPa": 27470524.97476659,
+   "collapsePa": 34182798.50186476,
+   "grade": "K-55",
+   "odIn": 4.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 11.6
+  },
+  {
+   "bodyYieldN": 1187832.479076341,
+   "burstPa": 53625887.77777777,
+   "collapseAt40pctTensionPa": 35910645.11982604,
+   "collapsePa": 43815533.44325879,
+   "grade": "L-80",
+   "odIn": 4.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 11.6
+  },
+  {
+   "bodyYieldN": 1633269.658729969,
+   "burstPa": 73735595.69444443,
+   "collapseAt40pctTensionPa": 44213373.50236668,
+   "collapsePa": 52237559.84211276,
+   "grade": "P-110",
+   "odIn": 4.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 11.6
+  },
+  {
+   "bodyYieldN": 938380.671220433,
+   "burstPa": 42766645.50277778,
+   "collapseAt40pctTensionPa": 33749862.48991292,
+   "collapsePa": 44263188.1880919,
+   "grade": "K-55",
+   "odIn": 4.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 13.5
+  },
+  {
+   "bodyYieldN": 1364917.339956993,
+   "burstPa": 62206029.82222222,
+   "collapseAt40pctTensionPa": 46776324.155375734,
+   "collapsePa": 58871254.8170162,
+   "grade": "L-80",
+   "odIn": 4.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 13.5
+  },
+  {
+   "bodyYieldN": 1876761.342440866,
+   "burstPa": 85533291.00555556,
+   "collapseAt40pctTensionPa": 59513396.48635065,
+   "collapsePa": 73680325.38317467,
+   "grade": "P-110",
+   "odIn": 4.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 13.5
+  },
+  {
+   "bodyYieldN": 319083.246504351,
+   "burstPa": 53089628.9,
+   "collapseAt40pctTensionPa": 41199766.61066936,
+   "collapsePa": 55819952.672,
+   "grade": "K-55",
+   "odIn": 2.375,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 4.7
+  },
+  {
+   "bodyYieldN": 464121.085824511,
+   "burstPa": 77221278.4,
+   "collapseAt40pctTensionPa": 59926933.25188269,
+   "collapsePa": 81192658.432,
+   "grade": "L-80",
+   "odIn": 2.375,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 4.7
+  },
+  {
+   "bodyYieldN": 638166.493008702,
+   "burstPa": 106179257.8,
+   "collapseAt40pctTensionPa": 82399533.22133872,
+   "collapsePa": 111205165.08003308,
+   "grade": "P-110",
+   "odIn": 2.375,
+   "regime": "plastic",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 4.7
+  },
+  {
+   "bodyYieldN": 443316.269825988,
+   "burstPa": 50088910.74478261,
+   "collapseAt40pctTensionPa": 39062132.95685303,
+   "collapsePa": 52923756.42618919,
+   "grade": "K-55",
+   "odIn": 2.875,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 6.5
+  },
+  {
+   "bodyYieldN": 644823.665201437,
+   "burstPa": 72856597.44695653,
+   "collapseAt40pctTensionPa": 56817647.937240764,
+   "collapsePa": 76980009.34718429,
+   "grade": "L-80",
+   "odIn": 2.875,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 6.5
+  },
+  {
+   "bodyYieldN": 886632.539651976,
+   "burstPa": 100177821.48956522,
+   "collapseAt40pctTensionPa": 78124265.91370606,
+   "collapsePa": 100297323.4787103,
+   "grade": "P-110",
+   "odIn": 2.875,
+   "regime": "plastic",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 6.5
+  },
+  {
+   "bodyYieldN": 633696.330027444,
+   "burstPa": 48159877.645,
+   "collapseAt40pctTensionPa": 37675852.23406291,
+   "collapsePa": 51045538.88511674,
+   "grade": "K-55",
+   "odIn": 3.5,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 9.3
+  },
+  {
+   "bodyYieldN": 921740.116403555,
+   "burstPa": 70050731.12,
+   "collapseAt40pctTensionPa": 54801239.6131824,
+   "collapsePa": 72636485.78730874,
+   "grade": "L-80",
+   "odIn": 3.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 9.3
+  },
+  {
+   "bodyYieldN": 1267392.660054888,
+   "burstPa": 96319755.29,
+   "collapseAt40pctTensionPa": 73501988.92885035,
+   "collapsePa": 93285139.59214562,
+   "grade": "P-110",
+   "odIn": 3.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 9.3
+  },
+  {
+   "bodyYieldN": 900700.179446674,
+   "burstPa": 71102181.5625,
+   "collapseAt40pctTensionPa": 53550328.85634222,
+   "collapsePa": 72553246.49234693,
+   "grade": "K-55",
+   "odIn": 3.5,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 12.95
+  },
+  {
+   "bodyYieldN": 1310109.351922435,
+   "burstPa": 103421354.99999999,
+   "collapseAt40pctTensionPa": 77891387.42740685,
+   "collapsePa": 105531994.89795916,
+   "grade": "L-80",
+   "odIn": 3.5,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 12.95
+  },
+  {
+   "bodyYieldN": 1801400.358893348,
+   "burstPa": 142204363.125,
+   "collapseAt40pctTensionPa": 107100657.71268444,
+   "collapsePa": 145106492.98469386,
+   "grade": "P-110",
+   "odIn": 3.5,
+   "regime": "yield",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 12.95
+  },
+  {
+   "bodyYieldN": 752730.559950658,
+   "burstPa": 43467133.661875,
+   "collapseAt40pctTensionPa": 34263959.43338884,
+   "collapsePa": 45460234.463331364,
+   "grade": "K-55",
+   "odIn": 4,
+   "regime": "plastic",
+   "regimeAt40pctTension": "yield",
+   "weightLbFt": 11
+  },
+  {
+   "bodyYieldN": 1094880.814473684,
+   "burstPa": 63224921.69,
+   "collapseAt40pctTensionPa": 48066623.54084727,
+   "collapsePa": 60659121.73014991,
+   "grade": "L-80",
+   "odIn": 4,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 11
+  },
+  {
+   "bodyYieldN": 1505461.119901316,
+   "burstPa": 86934267.32375,
+   "collapseAt40pctTensionPa": 61330274.215698764,
+   "collapsePa": 76226653.7911758,
+   "grade": "P-110",
+   "odIn": 4,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 11
+  },
+  {
+   "bodyYieldN": 880858.066736192,
+   "burstPa": 39964692.86638889,
+   "collapseAt40pctTensionPa": 31325108.796459977,
+   "collapsePa": 39475003.087134026,
+   "grade": "K-55",
+   "odIn": 4.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 12.75
+  },
+  {
+   "bodyYieldN": 1281248.097070826,
+   "burstPa": 58130462.35111112,
+   "collapseAt40pctTensionPa": 41615126.613489635,
+   "collapsePa": 51719787.164481446,
+   "grade": "L-80",
+   "odIn": 4.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 12.75
+  },
+  {
+   "bodyYieldN": 1761716.133472385,
+   "burstPa": 79929385.73277777,
+   "collapseAt40pctTensionPa": 52245885.568958275,
+   "collapsePa": 63495011.751170315,
+   "grade": "P-110",
+   "odIn": 4.5,
+   "regime": "plastic",
+   "regimeAt40pctTension": "plastic",
+   "weightLbFt": 12.75
+  }
+ ],
+ "sections": [
+  {
+   "bottomTvdM": 1379.355834616,
+   "connectionEfficiency": 1.0,
+   "odM": 0.244475,
+   "topTvdM": 0.0,
+   "wallM": 0.0119888,
+   "yieldPa": 758423270.0
+  },
+  {
+   "bottomTvdM": 2507.919699301,
+   "connectionEfficiency": 0.85,
+   "odM": 0.244475,
+   "topTvdM": 1379.355834616,
+   "wallM": 0.013843,
+   "yieldPa": 551580560.0
+  }
+ ],
+ "shoeTvdM": 2507.919699301,
+ "string": {
+  "weightKgM": 69.9437033
+ },
+ "tubing": [
+  {
+   "case": {
+    "dPiPa": 10000000.0,
+    "dPoPa": 0.0,
+    "externalKgM3": 1150.0
+   },
+   "name": "production-heating",
+   "result": {
+    "buckling": {
+     "compressionN": 123684.94705448,
+     "helicalN": 115872.968894131,
+     "sinusoidalN": 63373.031019881,
+     "state": "helical"
+    },
+    "forces": {
+     "ballooningN": 27216.466692957,
+     "pistonN": 35712.418834005,
+     "thermalN": -186613.832581442,
+     "totalN": -123684.94705448
+    },
+    "lengthChanges": {
+     "ballooningM": -0.196889103,
+     "pistonM": -0.258350438,
+     "thermalM": 1.35,
+     "totalM": 0.894760459
+    },
+    "meta": {
+     "dTC": 45.0
+    },
+    "packer": {
+     "ratingN": 670000.0,
+     "sf": 5.416989019,
+     "strokeOk": true
+    }
+   },
+   "temp": {
+    "deltaOpC": 45.0
+   }
+  },
+  {
+   "case": {
+    "dPiPa": 20000000.0,
+    "dPoPa": 0.0,
+    "externalKgM3": 1150.0
+   },
+   "name": "injection-cooling",
+   "result": {
+    "buckling": {
+     "compressionN": 0.0,
+     "helicalN": 115872.968894131,
+     "sinusoidalN": 63373.031019881,
+     "state": "none"
+    },
+    "forces": {
+     "ballooningN": 54432.933385914,
+     "pistonN": 71424.83766801,
+     "thermalN": 124409.221720961,
+     "totalN": 250266.992774885
+    },
+    "lengthChanges": {
+     "ballooningM": -0.393778205,
+     "pistonM": -0.516700876,
+     "thermalM": -0.9,
+     "totalM": -1.810479082
+    },
+    "meta": {
+     "dTC": -30.0
+    },
+    "packer": {
+     "ratingN": 670000.0,
+     "sf": 2.677140891,
+     "strokeOk": false
+    }
+   },
+   "temp": {
+    "deltaOpC": -30.0
+   }
+  },
+  {
+   "case": {
+    "dPiPa": 45000000.0,
+    "dPoPa": 5000000.0,
+    "externalKgM3": 1150.0
+   },
+   "name": "stimulation",
+   "result": {
+    "buckling": {
+     "compressionN": 0.0,
+     "helicalN": 115872.968894131,
+     "sinusoidalN": 63373.031019881,
+     "state": "none"
+    },
+    "forces": {
+     "ballooningN": 103852.600261472,
+     "pistonN": 151205.119519944,
+     "thermalN": 207348.702868268,
+     "totalN": 462406.422649685
+    },
+    "lengthChanges": {
+     "ballooningM": -0.751289486,
+     "pistonM": -1.093846627,
+     "thermalM": -1.5,
+     "totalM": -3.345136113
+    },
+    "meta": {
+     "dTC": -50.0
+    },
+    "packer": {
+     "ratingN": 670000.0,
+     "sf": 1.448941812,
+     "strokeOk": false
+    }
+   },
+   "temp": {
+    "deltaOpC": -50.0
+   }
+  }
+ ]
+}

@@ -89,4 +89,83 @@ export const CASING_QUICK = [
   { designation: '5-1/2" 17 P-110', odM: 5.5 * IN, idM: 4.892 * IN, weightKgM: 17 * LBFT, wallM: 0.304 * IN },
 ];
 
+// ---- casing & tubing design catalog (D6) -----------------------------------
+// Rows per (OD, nominal weight) with the REAL published API 5CT wall/ID —
+// one wall per weight, unlike the legacy single id_ref-per-OD shortcut.
+// Ratings are NOT stored here: they are computed at load by the validated
+// tubularDesign engine per selected grade.
+
+export const CASING_GRADES = [
+  { name: 'H-40', yieldPa: 40 * KSI },
+  { name: 'J-55', yieldPa: 55 * KSI },
+  { name: 'K-55', yieldPa: 55 * KSI },
+  { name: 'M-65', yieldPa: 65 * KSI },
+  { name: 'L-80', yieldPa: 80 * KSI },
+  { name: 'N-80', yieldPa: 80 * KSI },
+  { name: 'C-90', yieldPa: 90 * KSI },
+  { name: 'T-95', yieldPa: 95 * KSI },
+  { name: 'P-110', yieldPa: 110 * KSI },
+  { name: 'Q-125', yieldPa: 125 * KSI },
+];
+
+export function casingGradeYieldPa(name) {
+  const g = CASING_GRADES.find((x) => x.name === name);
+  return g ? g.yieldPa : null;
+}
+
+const ct = (odIn, wLbFt, wallIn, idIn, kind) => ({
+  designation: `${odIn}" ${wLbFt}#`, kind,
+  odM: odIn * IN, wallM: wallIn * IN, idM: idIn * IN,
+  weightKgM: wLbFt * LBFT, odIn, weightLbFt: wLbFt,
+});
+
+// API 5CT casing dimensional rows (published wall/ID per weight).
+export const CASING_CATALOG = [
+  ct(20, 94, 0.438, 19.124, 'casing'),
+  ct(20, 106.5, 0.500, 19.000, 'casing'),
+  ct(20, 133, 0.635, 18.730, 'casing'),
+  ct(13.375, 54.5, 0.380, 12.615, 'casing'),
+  ct(13.375, 61, 0.430, 12.515, 'casing'),
+  ct(13.375, 68, 0.480, 12.415, 'casing'),
+  ct(13.375, 72, 0.514, 12.347, 'casing'),
+  ct(9.625, 36, 0.352, 8.921, 'casing'),
+  ct(9.625, 40, 0.395, 8.835, 'casing'),
+  ct(9.625, 43.5, 0.435, 8.755, 'casing'),
+  ct(9.625, 47, 0.472, 8.681, 'casing'),
+  ct(9.625, 53.5, 0.545, 8.535, 'casing'),
+  ct(7, 23, 0.317, 6.366, 'casing'),
+  ct(7, 26, 0.362, 6.276, 'casing'),
+  ct(7, 29, 0.408, 6.184, 'casing'),
+  ct(7, 32, 0.453, 6.094, 'casing'),
+  ct(7, 35, 0.498, 6.004, 'casing'),
+  ct(5.5, 17, 0.304, 4.892, 'casing'),
+  ct(5.5, 20, 0.361, 4.778, 'casing'),
+  ct(5.5, 23, 0.415, 4.670, 'casing'),
+  ct(4.5, 11.6, 0.250, 4.000, 'casing'),
+  ct(4.5, 13.5, 0.290, 3.920, 'casing'),
+];
+
+// API 5CT tubing dimensional rows.
+export const TUBING_CATALOG = [
+  ct(2.375, 4.7, 0.190, 1.995, 'tubing'),
+  ct(2.875, 6.5, 0.217, 2.441, 'tubing'),
+  ct(3.5, 9.3, 0.254, 2.992, 'tubing'),
+  ct(3.5, 12.95, 0.375, 2.750, 'tubing'),
+  ct(4, 11, 0.262, 3.476, 'tubing'),
+  ct(4.5, 12.75, 0.271, 3.958, 'tubing'),
+];
+
+// Nominal planning-level joint-strength efficiencies (fraction of pipe body
+// yield). These are customary screening values, NOT connection-specific
+// ratings — real designs verify against the manufacturer data sheet.
+export const CONNECTION_EFFICIENCIES = [
+  { name: 'BTC', efficiency: 1.0, note: 'buttress thread and coupling' },
+  { name: 'LTC', efficiency: 0.85, note: 'long thread and coupling' },
+  { name: 'STC', efficiency: 0.75, note: 'short thread and coupling' },
+  { name: 'Premium', efficiency: 1.0, note: 'metal-to-metal seal premium' },
+  { name: 'EUE', efficiency: 1.0, note: 'external upset tubing' },
+  { name: 'NUE', efficiency: 0.75, note: 'non-upset tubing' },
+];
+
 export const TUBULAR_CATALOG = { GRADES, DRILL_PIPE, HWDP, DRILL_COLLARS, CASING_QUICK };
+export const CT_CATALOG = { CASING_GRADES, CASING_CATALOG, TUBING_CATALOG, CONNECTION_EFFICIENCIES };
