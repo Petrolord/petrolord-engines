@@ -1,0 +1,30 @@
+{
+  "description": "Hand-computed 3-month, 4-well monthly ledger for vrrLedger.js gates. Voidage oracle derived by hand with the vrr.js free-gas physics; see waterflood.vrrledger.test.js for the arithmetic.",
+  "fvf": { "Bo": 1.2, "Bw": 1.0, "Bg": 0.9, "Rs": 500 },
+  "rows": [
+    { "date": "2025-01-01", "well": "P-1", "oil_stb": 10000, "water_stb": 2000, "gas_mscf": 6000, "winj_stb": 0, "ginj_mscf": 0 },
+    { "date": "2025-01-01", "well": "P-2", "oil_stb": 5000, "water_stb": 1000, "gas_mscf": 2000, "winj_stb": 0, "ginj_mscf": 0 },
+    { "date": "2025-01-01", "well": "I-1", "oil_stb": 0, "water_stb": 0, "gas_mscf": 0, "winj_stb": 15000, "ginj_mscf": 0 },
+    { "date": "2025-01-01", "well": "I-2", "oil_stb": 0, "water_stb": 0, "gas_mscf": 0, "winj_stb": 0, "ginj_mscf": 3000 },
+    { "date": "2025-02-01", "well": "P-1", "oil_stb": 9000, "water_stb": 2500, "gas_mscf": 5000, "winj_stb": 0, "ginj_mscf": 0 },
+    { "date": "2025-02-01", "well": "P-2", "oil_stb": 4500, "water_stb": 1500, "gas_mscf": 1800, "winj_stb": 0, "ginj_mscf": 0 },
+    { "date": "2025-02-01", "well": "I-1", "oil_stb": 0, "water_stb": 0, "gas_mscf": 0, "winj_stb": 18000, "ginj_mscf": 0 },
+    { "date": "2025-02-01", "well": "I-2", "oil_stb": 0, "water_stb": 0, "gas_mscf": 0, "winj_stb": 0, "ginj_mscf": 2000 },
+    { "date": "2025-03-01", "well": "P-1", "oil_stb": 8000, "water_stb": 3000, "gas_mscf": 4200, "winj_stb": 0, "ginj_mscf": 0 },
+    { "date": "2025-03-01", "well": "P-2", "oil_stb": 4000, "water_stb": 2000, "gas_mscf": 1500, "winj_stb": 0, "ginj_mscf": 0 },
+    { "date": "2025-03-01", "well": "I-1", "oil_stb": 0, "water_stb": 0, "gas_mscf": 0, "winj_stb": 20000, "ginj_mscf": 0 },
+    { "date": "2025-03-01", "well": "I-2", "oil_stb": 0, "water_stb": 0, "gas_mscf": 0, "winj_stb": 0, "ginj_mscf": 1000 }
+  ],
+  "oracle": {
+    "periods": [
+      { "label": "2025-01", "Np": 15000, "Wp": 3000, "Gp": 8000, "Wi": 15000, "Gi": 3000 },
+      { "label": "2025-02", "Np": 13500, "Wp": 4000, "Gp": 6800, "Wi": 18000, "Gi": 2000 },
+      { "label": "2025-03", "Np": 12000, "Wp": 5000, "Gp": 5700, "Wi": 20000, "Gi": 1000 }
+    ],
+    "producedVoidage": [21450, 20245, 19400],
+    "injectedVoidage": [17700, 19800, 20900],
+    "cumulativeVRR_last": 0.9558883705704231,
+    "injectors": ["I-1", "I-2"],
+    "producers": ["P-1", "P-2"]
+  }
+}
