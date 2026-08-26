@@ -375,21 +375,34 @@ def main():
                 'bodyYieldN': body_yield(od, id_, yp),
             })
 
-    # Golden 9-5/8 design on the D1 slant well: shoe at TD 3000 m MD.
+    # Golden 9-5/8 design on the D1 slant well: shoe at TD 3000 m MD, section
+    # break at 1650 m MD (the case-doc convention is MD; TVDs derive through
+    # the exact minimum-curvature tvd_of, matching the suite ctRun mapping).
+    # The axial-profile string weight is the MD-length-weighted mean of the
+    # section weights — exactly what ctRun feeds loadCaseProfiles.
     stations, _, td = WELLS['slant']
     shoe_tvd = tvd_of(stations, td)
+    break_md = 1650.0
+    break_tvd = tvd_of(stations, break_md)
     env = {'mudKgM3': 1440.0, 'cementKgM3': 1900.0, 'gasGradPaPerM': 2300.0,
            'fracEmwAtShoeKgM3': 1800.0, 'testPressurePa': 35e6,
            'evacuationFraction': 0.4, 'packerFluidKgM3': 1150.0,
            'seawaterKgM3': 1030.0, 'overpullN': 4.45e5,
            'internalKgM3': 500.0, 'externalKgM3': 1600.0,
            'surfacePressurePa': 5e6}
-    string = {'weightKgM': 47 * LBFT}
+    w_mean_lbft = (47.0 * break_md + 53.5 * (td - break_md)) / td
+    string = {'weightKgM': w_mean_lbft * LBFT}
+    sections_md = [
+        {'topMdM': 0.0, 'bottomMdM': break_md, 'odIn': 9.625, 'weightLbFt': 47,
+         'grade': 'P-110', 'connection': 'BTC'},
+        {'topMdM': break_md, 'bottomMdM': td, 'odIn': 9.625, 'weightLbFt': 53.5,
+         'grade': 'L-80', 'connection': 'LTC'},
+    ]
     sections = [
-        {'topTvdM': 0.0, 'bottomTvdM': 0.55 * shoe_tvd,
+        {'topTvdM': 0.0, 'bottomTvdM': break_tvd,
          'odM': 9.625 * IN, 'wallM': 0.472 * IN, 'yieldPa': 110 * KSI,
          'connectionEfficiency': 1.0},
-        {'topTvdM': 0.55 * shoe_tvd, 'bottomTvdM': shoe_tvd,
+        {'topTvdM': break_tvd, 'bottomTvdM': shoe_tvd,
          'odM': 9.625 * IN, 'wallM': 0.545 * IN, 'yieldPa': 80 * KSI,
          'connectionEfficiency': 0.85},
     ]
@@ -431,8 +444,13 @@ def main():
                        'the D1 slant well, string evaluation, and Lubinski '
                        'tubing-packer forces. JS engine must agree rtol 1e-6.',
         'shoeTvdM': shoe_tvd,
+        'shoeMdM': td,
+        'breakMdM': break_md,
+        'breakTvdM': break_tvd,
+        'bendingDlsDegPer30m': 2.0,
         'env': env,
         'string': string,
+        'sectionsMd': sections_md,
         'sections': sections,
         'designFactors': dfs,
         'ratings': ratings,
