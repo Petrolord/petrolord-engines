@@ -1,0 +1,1633 @@
+{
+ "cases": [
+  {
+   "casing": {
+    "floatCollarMd": 2960.0,
+    "hangerMd": 0,
+    "idM": 0.1570736,
+    "odM": 0.1778,
+    "shoeMd": 3000.0,
+    "weightKgM": 43.16
+   },
+   "centralizer": {
+    "restoringForceN": 8900.0,
+    "spacingM": 12.0,
+    "standoffAtRestoringForce": 0.67,
+    "type": "bow"
+   },
+   "excessOpenHolePct": 15.0,
+   "expected": {
+    "programs": {
+     "lead_tail": {
+      "achievedTocMd": 1200.0,
+      "checkpoints": [
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 5517762.999844819,
+        "pumpedM3": 0.0,
+        "uTubePa": 5517762.999844819
+       },
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 3503168.075851262,
+        "pumpedM3": 14.413431152,
+        "uTubePa": 3503168.075851262
+       },
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 589724.851016693,
+        "pumpedM3": 28.826862305,
+        "uTubePa": 589724.851016693
+       },
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 1296026.123524323,
+        "pumpedM3": 43.240293457,
+        "uTubePa": 1296026.123524323
+       },
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 1485615.302855141,
+        "pumpedM3": 57.65372461,
+        "uTubePa": 1485615.302855141
+       },
+       {
+        "ecdAtShoeKgM3": 1768.374620817,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 5923331.832541376,
+        "pumpedM3": 72.067155762,
+        "uTubePa": 5923331.832541376
+       },
+       {
+        "ecdAtShoeKgM3": 1985.332126886,
+        "ecdPrevShoeKgM3": 1657.67382348,
+        "freeFall": false,
+        "pumpPressurePa": 13712451.131697342,
+        "pumpedM3": 86.480586914,
+        "uTubePa": 13712451.131697342
+       }
+      ],
+      "endPumpPressurePa": 13712451.131697342,
+      "floatDiffPa": 5714040.269964002,
+      "freeFall": false,
+      "maxEcdPrevShoeKgM3": 1657.67382348
+     },
+     "neat": {
+      "achievedTocMd": 1200.0,
+      "checkpoints": [
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 5517762.999844819,
+        "pumpedM3": 0.0,
+        "uTubePa": 5517762.999844819
+       },
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 2438635.055962808,
+        "pumpedM3": 13.746764486,
+        "uTubePa": 2438635.055962808
+       },
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 424429.331160888,
+        "pumpedM3": 27.493528971,
+        "uTubePa": 424429.331160888
+       },
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 1136259.225627132,
+        "pumpedM3": 41.240293457,
+        "uTubePa": 1136259.225627132
+       },
+       {
+        "ecdAtShoeKgM3": 1646.773401667,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 1241698.479382396,
+        "pumpedM3": 54.987057943,
+        "uTubePa": 1241698.479382396
+       },
+       {
+        "ecdAtShoeKgM3": 1805.907410859,
+        "ecdPrevShoeKgM3": 1631.901009954,
+        "freeFall": false,
+        "pumpPressurePa": 6959892.576045804,
+        "pumpedM3": 68.733822429,
+        "uTubePa": 6959892.576045804
+       },
+       {
+        "ecdAtShoeKgM3": 2013.17028183,
+        "ecdPrevShoeKgM3": 1712.121812507,
+        "freeFall": false,
+        "pumpPressurePa": 14397110.807469234,
+        "pumpedM3": 82.480586914,
+        "uTubePa": 14397110.807469234
+       }
+      ],
+      "endPumpPressurePa": 14397110.807469234,
+      "floatDiffPa": 6081982.155976057,
+      "freeFall": false,
+      "maxEcdPrevShoeKgM3": 1712.121812507
+     }
+    },
+    "requiredSpacingM": 13.055238926,
+    "standoff": {
+     "minStandoff": 0.742357202,
+     "rows10": [
+      {
+       "fromMd": 0.0,
+       "incDeg": 0.0,
+       "standoff": 1.0,
+       "toMd": 30.0
+      },
+      {
+       "fromMd": 300.0,
+       "incDeg": 0.0,
+       "standoff": 1.0,
+       "toMd": 330.0
+      },
+      {
+       "fromMd": 600.0,
+       "incDeg": 7.666666667,
+       "standoff": 0.950075317,
+       "toMd": 630.0
+      },
+      {
+       "fromMd": 900.0,
+       "incDeg": 27.666666667,
+       "standoff": 0.826239145,
+       "toMd": 930.0
+      },
+      {
+       "fromMd": 1200.0,
+       "incDeg": 40.0,
+       "standoff": 0.75945539,
+       "toMd": 1230.0
+      },
+      {
+       "fromMd": 1490.0,
+       "incDeg": 40.0,
+       "standoff": 0.742357202,
+       "toMd": 1520.0
+      },
+      {
+       "fromMd": 1790.0,
+       "incDeg": 40.0,
+       "standoff": 0.742357202,
+       "toMd": 1820.0
+      },
+      {
+       "fromMd": 2090.0,
+       "incDeg": 40.0,
+       "standoff": 0.742357202,
+       "toMd": 2120.0
+      },
+      {
+       "fromMd": 2390.0,
+       "incDeg": 40.0,
+       "standoff": 0.742357202,
+       "toMd": 2420.0
+      },
+      {
+       "fromMd": 2690.0,
+       "incDeg": 40.0,
+       "standoff": 0.742357202,
+       "toMd": 2720.0
+      },
+      {
+       "fromMd": 2990.0,
+       "incDeg": 40.0,
+       "standoff": 0.742357202,
+       "toMd": 3000.0
+      }
+     ]
+    },
+    "volumes": {
+     "annularSlurryM3": 24.348283565,
+     "displacementM3": 57.357205971,
+     "jobTimeS": 4324.029345714,
+     "leadM3": 2.671337609,
+     "sacks": 657.680129397,
+     "shoeTrackM3": 0.775097378,
+     "slurryM3": 25.123380943,
+     "spacerVolM3": 4.0,
+     "tailM3": 22.452043334,
+     "totalPumpedM3": 86.480586914,
+     "tvdShoeM": 2507.919699301,
+     "tvdTocM": 1129.039701687
+    }
+   },
+   "holeSections": [
+    {
+     "cased": true,
+     "casing_id_m": 0.2204974,
+     "from_md_m": 0.0,
+     "hole_id_m": 0.31115,
+     "to_md_m": 1400.0
+    },
+    {
+     "cased": false,
+     "from_md_m": 1400.0,
+     "hole_id_m": 0.2159,
+     "to_md_m": 3000.0
+    }
+   ],
+   "leadFann": {
+    "theta3": 8,
+    "theta300": 50,
+    "theta6": 10,
+    "theta600": 80
+   },
+   "leadTailSplitMd": 1400.0,
+   "mudFann": {
+    "theta3": 6,
+    "theta300": 38,
+    "theta6": 7,
+    "theta600": 64
+   },
+   "pumpRateM3s": 0.02,
+   "slurryYieldM3PerSack": 0.0382,
+   "spacerFann": {
+    "theta3": 3,
+    "theta300": 24,
+    "theta6": 4,
+    "theta600": 40
+   },
+   "stations": [
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 0.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 30.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 60.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 90.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 120.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 150.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 180.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 210.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 240.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 270.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 300.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 330.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 360.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 390.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 420.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 450.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 480.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 0.0,
+     "md": 500.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 2.0,
+     "md": 530.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 4.0,
+     "md": 560.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 6.0,
+     "md": 590.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 8.0,
+     "md": 620.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 10.0,
+     "md": 650.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 12.0,
+     "md": 680.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 14.0,
+     "md": 710.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 16.0,
+     "md": 740.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 18.0,
+     "md": 770.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 20.0,
+     "md": 800.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 22.0,
+     "md": 830.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 24.0,
+     "md": 860.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 26.0,
+     "md": 890.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 28.0,
+     "md": 920.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 30.0,
+     "md": 950.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 32.0,
+     "md": 980.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 34.0,
+     "md": 1010.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 36.0,
+     "md": 1040.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 38.0,
+     "md": 1070.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1100.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1130.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1160.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1190.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1220.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1250.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1280.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1310.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1340.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1370.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1400.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1430.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1460.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1490.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1520.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1550.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1580.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1610.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1640.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1670.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1700.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1730.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1760.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1790.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1820.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1850.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1880.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1910.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1940.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 1970.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2000.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2030.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2060.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2090.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2120.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2150.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2180.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2210.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2240.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2270.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2300.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2330.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2360.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2390.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2420.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2450.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2480.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2510.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2540.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2570.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2600.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2630.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2660.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2690.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2720.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2750.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2780.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2810.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2840.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2870.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2900.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2930.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2960.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 2990.0
+    },
+    {
+     "azi": 45.0,
+     "inc": 40.0,
+     "md": 3000.0
+    }
+   ],
+   "tailFann": {
+    "theta3": 12,
+    "theta300": 70,
+    "theta6": 15,
+    "theta600": 110
+   },
+   "tocMd": 1200.0,
+   "well": "slant"
+  },
+  {
+   "casing": {
+    "floatCollarMd": 2760.0,
+    "hangerMd": 0,
+    "idM": 0.1570736,
+    "odM": 0.1778,
+    "shoeMd": 2800.0,
+    "weightKgM": 43.16
+   },
+   "centralizer": {
+    "restoringForceN": 8900.0,
+    "spacingM": 12.0,
+    "standoffAtRestoringForce": 0.67,
+    "type": "bow"
+   },
+   "excessOpenHolePct": 15.0,
+   "expected": {
+    "programs": {
+     "lead_tail": {
+      "achievedTocMd": 1000.0,
+      "checkpoints": [
+       {
+        "ecdAtShoeKgM3": 1837.921819907,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 5144217.329245426,
+        "pumpedM3": 0.0,
+        "uTubePa": 5144217.329245426
+       },
+       {
+        "ecdAtShoeKgM3": 1837.921819907,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 3272814.529884014,
+        "pumpedM3": 13.767516671,
+        "uTubePa": 3272814.529884014
+       },
+       {
+        "ecdAtShoeKgM3": 1837.921819907,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 326344.718051281,
+        "pumpedM3": 27.535033341,
+        "uTubePa": 326344.718051281
+       },
+       {
+        "ecdAtShoeKgM3": 1837.921819907,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 2688376.070204727,
+        "pumpedM3": 41.302550012,
+        "uTubePa": 2688376.070204727
+       },
+       {
+        "ecdAtShoeKgM3": 1835.878705478,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 5309367.760596283,
+        "pumpedM3": 55.070066683,
+        "uTubePa": 5309367.760596283
+       },
+       {
+        "ecdAtShoeKgM3": 1913.53960498,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 6163369.008020304,
+        "pumpedM3": 68.837583354,
+        "uTubePa": 6163369.008020304
+       },
+       {
+        "ecdAtShoeKgM3": 2093.52335962,
+        "ecdPrevShoeKgM3": 1652.952197745,
+        "freeFall": false,
+        "pumpPressurePa": 8195680.348859996,
+        "pumpedM3": 82.605100024,
+        "uTubePa": 8195680.348859996
+       }
+      ],
+      "endPumpPressurePa": 8195680.348859996,
+      "floatDiffPa": 570815.157726038,
+      "freeFall": false,
+      "maxEcdPrevShoeKgM3": 1652.952197745
+     },
+     "neat": {
+      "achievedTocMd": 1000.0,
+      "checkpoints": [
+       {
+        "ecdAtShoeKgM3": 1837.921819907,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 5144217.329245426,
+        "pumpedM3": 0.0,
+        "uTubePa": 5144217.329245426
+       },
+       {
+        "ecdAtShoeKgM3": 1837.921819907,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 2200884.066038683,
+        "pumpedM3": 13.100850004,
+        "uTubePa": 2200884.066038683
+       },
+       {
+        "ecdAtShoeKgM3": 1837.921819907,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 119257.779773064,
+        "pumpedM3": 26.201700008,
+        "uTubePa": 119257.779773064
+       },
+       {
+        "ecdAtShoeKgM3": 1837.921819907,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 3169130.42785963,
+        "pumpedM3": 39.302550012,
+        "uTubePa": 3169130.42785963
+       },
+       {
+        "ecdAtShoeKgM3": 1837.921819907,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 5348526.938998725,
+        "pumpedM3": 52.403400016,
+        "uTubePa": 5348526.938998725
+       },
+       {
+        "ecdAtShoeKgM3": 1945.645893908,
+        "ecdPrevShoeKgM3": 1619.906896405,
+        "freeFall": false,
+        "pumpPressurePa": 6540452.161162432,
+        "pumpedM3": 65.50425002,
+        "uTubePa": 6540452.161162432
+       },
+       {
+        "ecdAtShoeKgM3": 2153.550481028,
+        "ecdPrevShoeKgM3": 1715.156233905,
+        "freeFall": false,
+        "pumpPressurePa": 8910825.387773175,
+        "pumpedM3": 78.605100024,
+        "uTubePa": 8910825.387773175
+       }
+      ],
+      "endPumpPressurePa": 8910825.387773175,
+      "floatDiffPa": 969242.40687938,
+      "freeFall": true,
+      "maxEcdPrevShoeKgM3": 1715.156233905
+     }
+    },
+    "requiredSpacingM": 11.18755858,
+    "standoff": {
+     "minStandoff": 0.599178961,
+     "rows10": [
+      {
+       "fromMd": 0.0,
+       "incDeg": 0.0,
+       "standoff": 1.0,
+       "toMd": 30.0
+      },
+      {
+       "fromMd": 300.0,
+       "incDeg": 0.0,
+       "standoff": 1.0,
+       "toMd": 330.0
+      },
+      {
+       "fromMd": 600.0,
+       "incDeg": 0.0,
+       "standoff": 1.0,
+       "toMd": 630.0
+      },
+      {
+       "fromMd": 900.0,
+       "incDeg": 0.0,
+       "standoff": 1.0,
+       "toMd": 930.0
+      },
+      {
+       "fromMd": 1200.0,
+       "incDeg": 57.333333333,
+       "standoff": 0.662578853,
+       "toMd": 1230.0
+      },
+      {
+       "fromMd": 1500.0,
+       "incDeg": 90.0,
+       "standoff": 0.599178961,
+       "toMd": 1530.0
+      },
+      {
+       "fromMd": 1800.0,
+       "incDeg": 90.0,
+       "standoff": 0.599178961,
+       "toMd": 1830.0
+      },
+      {
+       "fromMd": 2100.0,
+       "incDeg": 90.0,
+       "standoff": 0.599178961,
+       "toMd": 2130.0
+      },
+      {
+       "fromMd": 2400.0,
+       "incDeg": 90.0,
+       "standoff": 0.599178961,
+       "toMd": 2430.0
+      },
+      {
+       "fromMd": 2700.0,
+       "incDeg": 90.0,
+       "standoff": 0.599178961,
+       "toMd": 2730.0
+      }
+     ]
+    },
+    "volumes": {
+     "annularSlurryM3": 24.348283565,
+     "displacementM3": 53.481719081,
+     "jobTimeS": 4130.255001217,
+     "leadM3": 2.671337609,
+     "sacks": 657.680129397,
+     "shoeTrackM3": 0.775097378,
+     "slurryM3": 25.123380943,
+     "spacerVolM3": 4.0,
+     "tailM3": 22.452043334,
+     "totalPumpedM3": 82.605100024,
+     "tvdShoeM": 1214.859173174,
+     "tvdTocM": 1000.0
+    }
+   },
+   "holeSections": [
+    {
+     "cased": true,
+     "casing_id_m": 0.2204974,
+     "from_md_m": 0.0,
+     "hole_id_m": 0.31115,
+     "to_md_m": 1200.0
+    },
+    {
+     "cased": false,
+     "from_md_m": 1200.0,
+     "hole_id_m": 0.2159,
+     "to_md_m": 2800.0
+    }
+   ],
+   "leadFann": {
+    "theta3": 8,
+    "theta300": 50,
+    "theta6": 10,
+    "theta600": 80
+   },
+   "leadTailSplitMd": 1200.0,
+   "mudFann": {
+    "theta3": 6,
+    "theta300": 38,
+    "theta6": 7,
+    "theta600": 64
+   },
+   "pumpRateM3s": 0.02,
+   "slurryYieldM3PerSack": 0.0382,
+   "spacerFann": {
+    "theta3": 3,
+    "theta300": 24,
+    "theta6": 4,
+    "theta600": 40
+   },
+   "stations": [
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 0.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 30.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 60.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 90.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 120.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 150.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 180.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 210.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 240.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 270.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 300.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 330.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 360.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 390.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 420.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 450.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 480.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 510.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 540.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 570.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 600.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 630.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 660.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 690.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 720.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 750.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 780.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 810.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 840.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 870.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 900.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 930.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 960.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 990.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 0.0,
+     "md": 1000.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 8.0,
+     "md": 1030.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 16.0,
+     "md": 1060.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 24.0,
+     "md": 1090.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 32.0,
+     "md": 1120.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 40.0,
+     "md": 1150.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 48.0,
+     "md": 1180.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 56.0,
+     "md": 1210.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 64.0,
+     "md": 1240.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 72.0,
+     "md": 1270.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 80.0,
+     "md": 1300.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 88.0,
+     "md": 1330.0
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1337.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1367.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1397.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1427.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1457.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1487.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1517.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1547.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1577.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1607.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1637.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1667.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1697.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1727.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1757.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1787.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1817.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1847.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1877.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1907.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1937.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1967.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 1997.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2027.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2057.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2087.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2117.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2147.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2177.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2207.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2237.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2267.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2297.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2327.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2357.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2387.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2417.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2447.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2477.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2507.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2537.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2567.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2597.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2627.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2657.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2687.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2717.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2747.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2777.5
+    },
+    {
+     "azi": 270.0,
+     "inc": 90.0,
+     "md": 2800.0
+    }
+   ],
+   "tailFann": {
+    "theta3": 12,
+    "theta300": 70,
+    "theta6": 15,
+    "theta600": 110
+   },
+   "tocMd": 1000.0,
+   "well": "horizontal"
+  }
+ ],
+ "description": "Cementing oracle: independent plug-flow volume-interval bookkeeping, exact-TVD hydrostatics, D2 loss kernel friction, API 10D standoff. JS engine must agree rtol 1e-6. verticalFixture closed forms are self-asserted.",
+ "verticalFixture": {
+  "casing": {
+   "floatCollarMd": 1960.0,
+   "hangerMd": 0,
+   "idM": 0.1570736,
+   "odM": 0.1778,
+   "shoeMd": 2000.0,
+   "weightKgM": 43.16
+  },
+  "fluids": [
+   {
+    "densityKgM3": 1500.0,
+    "kind": "spacer",
+    "volumeM3": 3.0
+   },
+   {
+    "densityKgM3": 1900.0,
+    "kind": "tail",
+    "volumeM3": 15.227383876
+   },
+   {
+    "densityKgM3": 1440.0,
+    "kind": "displacement",
+    "volumeM3": 37.979771522
+   }
+  ],
+  "holeSections": [
+   {
+    "cased": true,
+    "casing_id_m": 0.2204974,
+    "from_md_m": 0.0,
+    "hole_id_m": 0.31115,
+    "to_md_m": 1000.0
+   },
+   {
+    "cased": false,
+    "from_md_m": 1000.0,
+    "hole_id_m": 0.2159,
+    "to_md_m": 2000.0
+   }
+  ],
+  "mudInHole": {
+   "densityKgM3": 1440.0,
+   "kind": "mud"
+  },
+  "placement": {
+   "achievedTocMd": 800.0,
+   "endPumpPressurePa": 5364986.726090904,
+   "floatDiffPa": 5364986.726090904,
+   "freeFall": true
+  },
+  "pumpRateM3s": 0.02,
+  "stations": [
+   {
+    "azi": 0.0,
+    "inc": 0.0,
+    "md": 0.0
+   },
+   {
+    "azi": 0.0,
+    "inc": 0.0,
+    "md": 2000.0
+   }
+  ],
+  "tocMd": 800.0,
+  "volumes": {
+   "annularSlurryM3": 14.452286498,
+   "displacementM3": 37.979771522,
+   "leadM3": 0.0,
+   "shoeTrackM3": 0.775097378,
+   "slurryM3": 15.227383876,
+   "spacerVolM3": 3.0,
+   "tailM3": 15.227383876,
+   "totalPumpedM3": 56.207155398,
+   "tvdShoeM": 2000.0,
+   "tvdTocM": 800.0
+  }
+ }
+}

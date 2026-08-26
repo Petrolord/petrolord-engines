@@ -35,8 +35,10 @@ const DEG = Math.PI / 180;
 // TVD at an arbitrary MD: exact partial minimum-curvature increment from the
 // bracketing station (linear interpolation between stations is NOT exact on
 // an arc and misses by decimetres at kill-sheet-relevant depths).
-export function tvdAt(stations, md) {
+export function tvdAt(stations, mdRaw) {
   const table = computeSurveyTable(stations, { mdUnit: 'm' });
+  // Clamp float-arithmetic overshoot at the path boundaries.
+  const md = Math.min(Math.max(mdRaw, table[0].md), table[table.length - 1].md);
   if (md <= table[0].md) return table[0].tvd;
   for (let i = 1; i < table.length; i += 1) {
     if (md <= table[i].md + 1e-12) {
