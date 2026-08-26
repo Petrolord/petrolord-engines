@@ -1,0 +1,498 @@
+{
+ "description": "3-1/2\" completion in the D6 golden 9-5/8\" casing + 7\" liner on the slant well; oracle_completion.py",
+ "driftTable": [
+  {
+   "driftIn": 8.52475,
+   "idIn": 8.681,
+   "kind": "casing",
+   "odIn": 9.625
+  },
+  {
+   "driftIn": 8.37875,
+   "idIn": 8.535,
+   "kind": "casing",
+   "odIn": 9.625
+  },
+  {
+   "driftIn": 6.059,
+   "idIn": 6.184,
+   "kind": "casing",
+   "odIn": 7.0
+  },
+  {
+   "driftIn": 12.25875,
+   "idIn": 12.415,
+   "kind": "casing",
+   "odIn": 13.375
+  },
+  {
+   "driftIn": 18.9365,
+   "idIn": 19.124,
+   "kind": "casing",
+   "odIn": 20.0
+  },
+  {
+   "driftIn": 2.34725,
+   "idIn": 2.441,
+   "kind": "tubing",
+   "odIn": 2.875
+  },
+  {
+   "driftIn": 2.89825,
+   "idIn": 2.992,
+   "kind": "tubing",
+   "odIn": 3.5
+  }
+ ],
+ "packerMdM": 2600.5,
+ "program": {
+  "strings": [
+   {
+    "name": "9-5/8\" production casing",
+    "sections": [
+     {
+      "bottomMdM": 1650.0,
+      "idM": 0.2204974,
+      "odM": 0.244475,
+      "topMdM": 0.0
+     },
+     {
+      "bottomMdM": 3000.0,
+      "idM": 0.216789,
+      "odM": 0.244475,
+      "topMdM": 1650.0
+     }
+    ]
+   },
+   {
+    "name": "7\" liner",
+    "sections": [
+     {
+      "bottomMdM": 3000.0,
+      "idM": 0.1570736,
+      "odM": 0.1778,
+      "topMdM": 2400.0
+     }
+    ]
+   }
+  ]
+ },
+ "results": {
+  "bottomMdM": 2606.25,
+  "clearance": [
+   {
+    "bottomMdM": 150.0,
+    "clearanceM": 0.10222865,
+    "controlling": "9-5/8\" production casing",
+    "governingDriftM": 0.21652865,
+    "name": "Tubing 3-1/2\" EUE",
+    "odM": 0.1143,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 150.9,
+    "clearanceM": 0.10222865,
+    "controlling": "9-5/8\" production casing",
+    "governingDriftM": 0.21652865,
+    "name": "Flow coupling 3-1/2\"",
+    "odM": 0.1143,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 153.1,
+    "clearanceM": 0.07047865,
+    "controlling": "9-5/8\" production casing",
+    "governingDriftM": 0.21652865,
+    "name": "TRSV safety valve 3-1/2\"",
+    "odM": 0.14605,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 154.0,
+    "clearanceM": 0.10222865,
+    "controlling": "9-5/8\" production casing",
+    "governingDriftM": 0.21652865,
+    "name": "Flow coupling 3-1/2\"",
+    "odM": 0.1143,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 2449.9,
+    "clearanceM": 0.0395986,
+    "controlling": "7\" liner",
+    "governingDriftM": 0.1538986,
+    "name": "Tubing 3-1/2\" EUE",
+    "odM": 0.1143,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 2452.3,
+    "clearanceM": 0.0078486,
+    "controlling": "7\" liner",
+    "governingDriftM": 0.1538986,
+    "name": "Side pocket mandrel 3-1/2\"",
+    "odM": 0.14605,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 2597.5,
+    "clearanceM": 0.0395986,
+    "controlling": "7\" liner",
+    "governingDriftM": 0.1538986,
+    "name": "Tubing 3-1/2\" EUE",
+    "odM": 0.1143,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 2599.0,
+    "clearanceM": 0.0380746,
+    "controlling": "7\" liner",
+    "governingDriftM": 0.1538986,
+    "name": "Sliding sleeve 3-1/2\"",
+    "odM": 0.115824,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 2600.5,
+    "clearanceM": 0.0046736,
+    "controlling": "7\" liner",
+    "governingDriftM": 0.1538986,
+    "name": "Production packer 7\" casing",
+    "odM": 0.149225,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 2602.5,
+    "clearanceM": 0.0395986,
+    "controlling": "7\" liner",
+    "governingDriftM": 0.1538986,
+    "name": "Tubing 3-1/2\" EUE",
+    "odM": 0.1143,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 2602.95,
+    "clearanceM": 0.0395986,
+    "controlling": "7\" liner",
+    "governingDriftM": 0.1538986,
+    "name": "XN no-go nipple 3-1/2\"",
+    "odM": 0.1143,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 2605.95,
+    "clearanceM": 0.0649986,
+    "controlling": "7\" liner",
+    "governingDriftM": 0.1538986,
+    "name": "Perforated joint 3-1/2\"",
+    "odM": 0.0889,
+    "status": "PASS"
+   },
+   {
+    "bottomMdM": 2606.25,
+    "clearanceM": 0.0395986,
+    "controlling": "7\" liner",
+    "governingDriftM": 0.1538986,
+    "name": "Wireline entry guide 3-1/2\"",
+    "odM": 0.1143,
+    "status": "PASS"
+   }
+  ],
+  "profile": [
+   {
+    "bottomMdM": 1650.0,
+    "driftM": 0.21652865,
+    "idM": 0.2204974,
+    "label": "9-5/8\" production casing",
+    "odM": 0.244475,
+    "topMdM": 0.0
+   },
+   {
+    "bottomMdM": 2400.0,
+    "driftM": 0.21282025,
+    "idM": 0.216789,
+    "label": "9-5/8\" production casing",
+    "odM": 0.244475,
+    "topMdM": 1650.0
+   },
+   {
+    "bottomMdM": 3000.0,
+    "driftM": 0.1538986,
+    "idM": 0.1570736,
+    "label": "7\" liner",
+    "odM": 0.1778,
+    "topMdM": 2400.0
+   }
+  ],
+  "spaceOut": [
+   {
+    "expectedDLM": 1.2,
+    "insertLengthM": 3.0,
+    "marginM": 0.5,
+    "name": "heating-elongation",
+    "pbrLengthM": 6.1,
+    "result": {
+     "availableM": 3.1,
+     "remainingM": 1.9,
+     "status": "PASS",
+     "usedM": 1.2
+    }
+   },
+   {
+    "expectedDLM": -2.8,
+    "insertLengthM": 3.0,
+    "marginM": 0.5,
+    "name": "stimulation-contraction",
+    "pbrLengthM": 6.1,
+    "result": {
+     "availableM": 3.0,
+     "remainingM": 0.2,
+     "status": "WARN",
+     "usedM": 2.8
+    }
+   }
+  ],
+  "stackRows": [
+   {
+    "bottomMdM": 150.0,
+    "name": "Tubing 3-1/2\" EUE",
+    "topMdM": 0.0
+   },
+   {
+    "bottomMdM": 150.9,
+    "name": "Flow coupling 3-1/2\"",
+    "topMdM": 150.0
+   },
+   {
+    "bottomMdM": 153.1,
+    "name": "TRSV safety valve 3-1/2\"",
+    "topMdM": 150.9
+   },
+   {
+    "bottomMdM": 154.0,
+    "name": "Flow coupling 3-1/2\"",
+    "topMdM": 153.1
+   },
+   {
+    "bottomMdM": 2449.9,
+    "name": "Tubing 3-1/2\" EUE",
+    "topMdM": 154.0
+   },
+   {
+    "bottomMdM": 2452.3,
+    "name": "Side pocket mandrel 3-1/2\"",
+    "topMdM": 2449.9
+   },
+   {
+    "bottomMdM": 2597.5,
+    "name": "Tubing 3-1/2\" EUE",
+    "topMdM": 2452.3
+   },
+   {
+    "bottomMdM": 2599.0,
+    "name": "Sliding sleeve 3-1/2\"",
+    "topMdM": 2597.5
+   },
+   {
+    "bottomMdM": 2600.5,
+    "name": "Production packer 7\" casing",
+    "topMdM": 2599.0
+   },
+   {
+    "bottomMdM": 2602.5,
+    "name": "Tubing 3-1/2\" EUE",
+    "topMdM": 2600.5
+   },
+   {
+    "bottomMdM": 2602.95,
+    "name": "XN no-go nipple 3-1/2\"",
+    "topMdM": 2602.5
+   },
+   {
+    "bottomMdM": 2605.95,
+    "name": "Perforated joint 3-1/2\"",
+    "topMdM": 2602.95
+   },
+   {
+    "bottomMdM": 2606.25,
+    "name": "Wireline entry guide 3-1/2\"",
+    "topMdM": 2605.95
+   }
+  ],
+  "throughBore": {
+   "controlling": "XN no-go nipple 3-1/2\"",
+   "minIdM": 0.066929,
+   "rows": [
+    {
+     "controlling": "Tubing 3-1/2\" EUE",
+     "cumMinIdM": 0.0759968,
+     "name": "Tubing 3-1/2\" EUE"
+    },
+    {
+     "controlling": "Tubing 3-1/2\" EUE",
+     "cumMinIdM": 0.0759968,
+     "name": "Flow coupling 3-1/2\""
+    },
+    {
+     "controlling": "TRSV safety valve 3-1/2\"",
+     "cumMinIdM": 0.06985,
+     "name": "TRSV safety valve 3-1/2\""
+    },
+    {
+     "controlling": "TRSV safety valve 3-1/2\"",
+     "cumMinIdM": 0.06985,
+     "name": "Flow coupling 3-1/2\""
+    },
+    {
+     "controlling": "TRSV safety valve 3-1/2\"",
+     "cumMinIdM": 0.06985,
+     "name": "Tubing 3-1/2\" EUE"
+    },
+    {
+     "controlling": "TRSV safety valve 3-1/2\"",
+     "cumMinIdM": 0.06985,
+     "name": "Side pocket mandrel 3-1/2\""
+    },
+    {
+     "controlling": "TRSV safety valve 3-1/2\"",
+     "cumMinIdM": 0.06985,
+     "name": "Tubing 3-1/2\" EUE"
+    },
+    {
+     "controlling": "TRSV safety valve 3-1/2\"",
+     "cumMinIdM": 0.06985,
+     "name": "Sliding sleeve 3-1/2\""
+    },
+    {
+     "controlling": "TRSV safety valve 3-1/2\"",
+     "cumMinIdM": 0.06985,
+     "name": "Production packer 7\" casing"
+    },
+    {
+     "controlling": "TRSV safety valve 3-1/2\"",
+     "cumMinIdM": 0.06985,
+     "name": "Tubing 3-1/2\" EUE"
+    },
+    {
+     "controlling": "XN no-go nipple 3-1/2\"",
+     "cumMinIdM": 0.066929,
+     "name": "XN no-go nipple 3-1/2\""
+    },
+    {
+     "controlling": "XN no-go nipple 3-1/2\"",
+     "cumMinIdM": 0.066929,
+     "name": "Perforated joint 3-1/2\""
+    },
+    {
+     "controlling": "XN no-go nipple 3-1/2\"",
+     "cumMinIdM": 0.066929,
+     "name": "Wireline entry guide 3-1/2\""
+    }
+   ]
+  },
+  "volumes": {
+   "annulusAbovePackerM3": 67.850406664,
+   "belowPackerM3": 7.69444629,
+   "stringCapacityM3": 11.818033335,
+   "stringDisplacementM3": 26.77123795
+  }
+ },
+ "stack": {
+  "components": [
+   {
+    "idM": 0.0759968,
+    "lengthM": 150.0,
+    "name": "Tubing 3-1/2\" EUE",
+    "odM": 0.1143,
+    "type": "tubing"
+   },
+   {
+    "idM": 0.0759968,
+    "lengthM": 0.9,
+    "name": "Flow coupling 3-1/2\"",
+    "odM": 0.1143,
+    "type": "flow-coupling"
+   },
+   {
+    "idM": 0.06985,
+    "lengthM": 2.2,
+    "name": "TRSV safety valve 3-1/2\"",
+    "odM": 0.14605,
+    "type": "sssv"
+   },
+   {
+    "idM": 0.0759968,
+    "lengthM": 0.9,
+    "name": "Flow coupling 3-1/2\"",
+    "odM": 0.1143,
+    "type": "flow-coupling"
+   },
+   {
+    "idM": 0.0759968,
+    "lengthM": 2295.9,
+    "name": "Tubing 3-1/2\" EUE",
+    "odM": 0.1143,
+    "type": "tubing"
+   },
+   {
+    "idM": 0.0759968,
+    "lengthM": 2.4,
+    "name": "Side pocket mandrel 3-1/2\"",
+    "odM": 0.14605,
+    "type": "spm"
+   },
+   {
+    "idM": 0.0759968,
+    "lengthM": 145.2,
+    "name": "Tubing 3-1/2\" EUE",
+    "odM": 0.1143,
+    "type": "tubing"
+   },
+   {
+    "idM": 0.06985,
+    "lengthM": 1.5,
+    "name": "Sliding sleeve 3-1/2\"",
+    "odM": 0.115824,
+    "type": "sliding-sleeve"
+   },
+   {
+    "idM": 0.06985,
+    "lengthM": 1.5,
+    "name": "Production packer 7\" casing",
+    "odM": 0.149225,
+    "type": "packer"
+   },
+   {
+    "idM": 0.0759968,
+    "lengthM": 2.0,
+    "name": "Tubing 3-1/2\" EUE",
+    "odM": 0.1143,
+    "type": "tubing"
+   },
+   {
+    "idM": 0.066929,
+    "lengthM": 0.45,
+    "name": "XN no-go nipple 3-1/2\"",
+    "odM": 0.1143,
+    "type": "nipple-xn"
+   },
+   {
+    "idM": 0.0759968,
+    "lengthM": 3.0,
+    "name": "Perforated joint 3-1/2\"",
+    "odM": 0.0889,
+    "type": "perforated-joint"
+   },
+   {
+    "idM": 0.0759968,
+    "lengthM": 0.3,
+    "name": "Wireline entry guide 3-1/2\"",
+    "odM": 0.1143,
+    "type": "weg"
+   }
+  ],
+  "hangerMdM": 0.0
+ },
+ "tdMdM": 3000.0,
+ "warnMarginM": 0.003
+}
