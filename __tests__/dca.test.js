@@ -214,11 +214,12 @@ describe('satellite modules', () => {
       // Zero confidence intervals bypass the sampler entirely, so every
       // realisation is identical and P50 is the deterministic answer.
       expect(closedForm).toBeCloseTo(91666.67, 1);
-      // Two known biases, both small and both documented: the 30-day
-      // left-rectangle sum over a falling rate runs about 1.8 percent high,
-      // and the unconditional +/- 20 percent economic-limit sampling adds
-      // about +/- 1.8 percent of scatter. Anything near the old behaviour is
-      // orders of magnitude outside this band.
+      // One source of scatter is left: the +-20 percent economic-limit draw,
+      // worth about +/- 1.8 percent of EUR, which the caller can now switch
+      // off with economicLimitUncertainty: 0. (The 30-day left-rectangle bias
+      // this band also used to allow for is gone; volume is integrated in
+      // closed form.) Anything near the old behaviour is orders of magnitude
+      // outside this band.
       expect(results.p50 / closedForm).toBeGreaterThan(0.97);
       expect(results.p50 / closedForm).toBeLessThan(1.06);
     });
@@ -229,12 +230,11 @@ describe('satellite modules', () => {
         // to the economic limit, EUR scaled with durationDays (4.8x, 25x, 45x
         // at these three caps). Now every cap must land in the same band.
         //
-        // Exact equality is not available: runMonteCarloSimulation samples the
-        // economic limit uniformly over +/- 20 percent on every realisation,
-        // unconditionally and from a non-injectable Math.random, so even a
-        // zero-spread run is stochastic. That sampling moves EUR by about
-        // +/- 1.8 percent, on top of the 30-day rectangle bias of about the
-        // same size.
+        // Exact equality is not asserted here because this run leaves the
+        // economic-limit draw at its default +-20 percent, which moves EUR by
+        // about +-1.8 percent. Passing economicLimitUncertainty: 0 and a seed
+        // makes the run deterministic, which
+        // dca.montecarlo.quadrature.test.js relies on.
         const runs = await Promise.all([3650, 20000, 36500].map(runAt));
         for (const r of runs) {
           expect(r.p50 / closedForm).toBeGreaterThan(0.97);
