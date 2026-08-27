@@ -1,0 +1,845 @@
+{
+ "annulus": {
+  "maaspFixtureAllowPa": 20585228.211031675,
+  "mawop": {
+   "governing": "4-1/2 tubing collapse",
+   "mawopPa": 11905664.170969129,
+   "rows": [
+    {
+     "allowSurfacePa": 17606905.05541501,
+     "name": "9-5/8 production casing burst",
+     "tvdM": 1435.457478935
+    },
+    {
+     "allowSurfacePa": 26855228.63225454,
+     "name": "7 in production liner burst",
+     "tvdM": 1167.341923843
+    },
+    {
+     "allowSurfacePa": 11905664.170969129,
+     "name": "4-1/2 tubing collapse",
+     "tvdM": 997.040030276
+    }
+   ]
+  }
+ },
+ "barrier": {
+  "category": "yellow",
+  "elements": [
+   {
+    "envelope": "primary",
+    "kind": "casing-cement",
+    "name": "Casing cement (production)",
+    "status": "verified"
+   },
+   {
+    "envelope": "primary",
+    "kind": "casing",
+    "name": "Production casing below packer",
+    "status": "verified"
+   },
+   {
+    "envelope": "primary",
+    "kind": "production-packer",
+    "name": "Production packer",
+    "status": "verified"
+   },
+   {
+    "envelope": "primary",
+    "kind": "completion-string",
+    "name": "Completion string",
+    "status": "verified"
+   },
+   {
+    "envelope": "primary",
+    "kind": "dhsv",
+    "name": "DHSV",
+    "status": "degraded"
+   },
+   {
+    "envelope": "secondary",
+    "kind": "casing-cement",
+    "name": "Casing cement (intermediate)",
+    "status": "verified"
+   },
+   {
+    "envelope": "secondary",
+    "kind": "casing",
+    "name": "Production casing",
+    "status": "verified"
+   },
+   {
+    "envelope": "secondary",
+    "kind": "wellhead",
+    "name": "Wellhead",
+    "status": "verified"
+   },
+   {
+    "envelope": "secondary",
+    "kind": "tubing-hanger",
+    "name": "Tubing hanger",
+    "status": "verified"
+   },
+   {
+    "envelope": "secondary",
+    "kind": "xmas-tree",
+    "name": "Christmas tree",
+    "status": "verified"
+   }
+  ],
+  "primaryStatus": "degraded",
+  "secondaryStatus": "intact"
+ },
+ "categoryTable": [
+  {
+   "category": "yellow",
+   "primary": "degraded",
+   "secondary": "degraded"
+  },
+  {
+   "category": "orange",
+   "primary": "degraded",
+   "secondary": "empty"
+  },
+  {
+   "category": "red",
+   "primary": "degraded",
+   "secondary": "failed"
+  },
+  {
+   "category": "yellow",
+   "primary": "degraded",
+   "secondary": "intact"
+  },
+  {
+   "category": "orange",
+   "primary": "empty",
+   "secondary": "degraded"
+  },
+  {
+   "category": "orange",
+   "primary": "empty",
+   "secondary": "empty"
+  },
+  {
+   "category": "red",
+   "primary": "empty",
+   "secondary": "failed"
+  },
+  {
+   "category": "orange",
+   "primary": "empty",
+   "secondary": "intact"
+  },
+  {
+   "category": "red",
+   "primary": "failed",
+   "secondary": "degraded"
+  },
+  {
+   "category": "red",
+   "primary": "failed",
+   "secondary": "empty"
+  },
+  {
+   "category": "red",
+   "primary": "failed",
+   "secondary": "failed"
+  },
+  {
+   "category": "orange",
+   "primary": "failed",
+   "secondary": "intact"
+  },
+  {
+   "category": "yellow",
+   "primary": "intact",
+   "secondary": "degraded"
+  },
+  {
+   "category": "orange",
+   "primary": "intact",
+   "secondary": "empty"
+  },
+  {
+   "category": "orange",
+   "primary": "intact",
+   "secondary": "failed"
+  },
+  {
+   "category": "green",
+   "primary": "intact",
+   "secondary": "intact"
+  }
+ ],
+ "description": "Well integrity & P&A oracle: NORSOK D-010-style barrier categorization truth table, element-governed MAASP / API RP 90 MAWOP in the differential hydrostatic form on the D1 slant well, balanced cement plug closed forms, D-010 permanent-barrier rule checks and the 2-zone program compliance fixture. JS engine must agree rtol 1e-9 (rule tables exact).",
+ "params": {
+  "annulusFluidDensityKgM3": 1200.0,
+  "maaspFixture": {
+   "backupDensityKgM3": 1030.0,
+   "factor": 0.8,
+   "limitPa": 30000000.0,
+   "mdM": 2400.0,
+   "tvdM": 2048.29303343
+  },
+  "mawopCandidates": [
+   {
+    "backupDensityKgM3": 1030.0,
+    "limitPa": 40000000.0,
+    "mdM": 1600.0,
+    "name": "9-5/8 production casing burst",
+    "role": "outer-casing-burst"
+   },
+   {
+    "backupDensityKgM3": 1100.0,
+    "limitPa": 35000000.0,
+    "mdM": 1250.0,
+    "name": "7 in production liner burst",
+    "role": "inner-casing-burst"
+   },
+   {
+    "backupDensityKgM3": 500.0,
+    "limitPa": 25000000.0,
+    "mdM": 1030.0,
+    "name": "4-1/2 tubing collapse",
+    "role": "inner-tubing-collapse"
+   }
+  ],
+  "plugFixture": {
+   "excessFrac": 0.2,
+   "holeIdM": 0.216,
+   "plugBaseMdM": 2000.0,
+   "plugTopMdM": 1850.0,
+   "spacerAheadM3": 1.0,
+   "stingerIdM": 0.1086,
+   "stingerOdM": 0.127
+  },
+  "rules": {
+   "annularCementUnverifiedMinM": 100.0,
+   "annularCementVerifiedMinM": 30.0,
+   "plugAboveSourceMinM": 50.0,
+   "plugMinLengthM": 100.0,
+   "plugMinLengthOnFoundationM": 50.0,
+   "surfacePlugMinLengthM": 50.0
+  }
+ },
+ "plug": {
+  "asPumpedTopMdM": 1801.56215738,
+  "balancedHeightM": 198.43784262,
+  "cAnnM2": 0.02397585,
+  "cHoleM2": 0.036643537,
+  "cInM2": 0.009262955,
+  "displacementM3": 16.301443132,
+  "lengthM": 150.0,
+  "pluggedTopMdM": 1820.0,
+  "slurryM3": 6.595836608,
+  "spacerBehindM3": 0.386345203
+ },
+ "program": {
+  "p1Placement": {
+   "asPumpedTopMdM": 2334.791346888,
+   "balancedHeightM": 185.208653112,
+   "cAnnM2": 0.02397585,
+   "cHoleM2": 0.036643537,
+   "cInM2": 0.009262955,
+   "displacementM3": 21.240720865,
+   "lengthM": 140.0,
+   "pluggedTopMdM": 2352.0,
+   "slurryM3": 6.156114168,
+   "spacerBehindM3": 0.386345203
+  },
+  "plugs": [
+   {
+    "bottomMdM": 2520.0,
+    "foundation": "mechanical",
+    "geometry": {
+     "excessFrac": 0.2,
+     "holeIdM": 0.216,
+     "spacerAheadM3": 1.0,
+     "stingerIdM": 0.1086,
+     "stingerOdM": 0.127
+    },
+    "isSurfacePlug": false,
+    "name": "P1 reservoir primary",
+    "topMdM": 2380.0
+   },
+   {
+    "bottomMdM": 2510.0,
+    "foundation": "none",
+    "geometry": null,
+    "isSurfacePlug": false,
+    "name": "P2 reservoir secondary",
+    "topMdM": 2350.0
+   },
+   {
+    "bottomMdM": 1810.0,
+    "foundation": "none",
+    "geometry": null,
+    "isSurfacePlug": false,
+    "name": "P3 intermediate",
+    "topMdM": 1700.0
+   },
+   {
+    "bottomMdM": 60.0,
+    "foundation": "none",
+    "geometry": null,
+    "isSurfacePlug": true,
+    "name": "S1 surface plug",
+    "topMdM": 0.0
+   }
+  ],
+  "programPass": false,
+  "surfacePlugPass": true,
+  "zoneCompliance": [
+   {
+    "passZone": true,
+    "primaryQualifying": [
+     "P1 reservoir primary",
+     "P2 reservoir secondary"
+    ],
+    "required": 2,
+    "secondaryQualifying": [
+     "P3 intermediate"
+    ],
+    "topMdM": 2500.0,
+    "zone": "Reservoir sand"
+   },
+   {
+    "passZone": false,
+    "primaryQualifying": [
+     "P3 intermediate"
+    ],
+    "required": 2,
+    "secondaryQualifying": [],
+    "topMdM": 1800.0,
+    "zone": "Intermediate gas stringer"
+   }
+  ],
+  "zones": [
+   {
+    "bottomMdM": 2600.0,
+    "flowPotential": true,
+    "name": "Reservoir sand",
+    "topMdM": 2500.0
+   },
+   {
+    "bottomMdM": 1850.0,
+    "flowPotential": true,
+    "name": "Intermediate gas stringer",
+    "topMdM": 1800.0
+   }
+  ]
+ },
+ "stations": [
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 0.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 30.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 60.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 90.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 120.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 150.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 180.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 210.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 240.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 270.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 300.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 330.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 360.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 390.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 420.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 450.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 480.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 0.0,
+   "md": 500.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 2.0,
+   "md": 530.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 4.0,
+   "md": 560.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 6.0,
+   "md": 590.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 8.0,
+   "md": 620.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 10.0,
+   "md": 650.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 12.0,
+   "md": 680.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 14.0,
+   "md": 710.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 16.0,
+   "md": 740.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 18.0,
+   "md": 770.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 20.0,
+   "md": 800.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 22.0,
+   "md": 830.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 24.0,
+   "md": 860.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 26.0,
+   "md": 890.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 28.0,
+   "md": 920.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 30.0,
+   "md": 950.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 32.0,
+   "md": 980.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 34.0,
+   "md": 1010.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 36.0,
+   "md": 1040.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 38.0,
+   "md": 1070.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1100.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1130.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1160.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1190.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1220.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1250.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1280.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1310.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1340.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1370.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1400.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1430.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1460.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1490.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1520.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1550.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1580.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1610.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1640.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1670.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1700.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1730.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1760.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1790.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1820.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1850.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1880.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1910.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1940.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 1970.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2000.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2030.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2060.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2090.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2120.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2150.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2180.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2210.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2240.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2270.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2300.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2330.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2360.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2390.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2420.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2450.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2480.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2510.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2540.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2570.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2600.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2630.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2660.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2690.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2720.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2750.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2780.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2810.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2840.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2870.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2900.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2930.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2960.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 2990.0
+  },
+  {
+   "azi": 45.0,
+   "inc": 40.0,
+   "md": 3000.0
+  }
+ ]
+}
