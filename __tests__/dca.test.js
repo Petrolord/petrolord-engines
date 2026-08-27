@@ -183,4 +183,80 @@ describe('satellite modules', () => {
     const hist = createEURHistogram(results.distribution, 20);
     expect(hist.reduce((s, bin) => s + bin.count, 0)).toBe(400);
   });
+
+  // Regression gate for the decline-unit defect fixed 2026-08-27.
+  //
+  // generateForecastCurve used to call the Arps rate with `time / 365` while
+  // stepping time in days, so it consumed the per-day Di that fitArpsModel
+  // produces as though it were per-year. The decline then ran about 365x too
+  // slowly, the economic limit was never reached, every realisation ran to the
+  // duration cap, and EUR came back high by a factor that GREW with that cap
+  // (about 5x at 3650 d, 25x at 20000 d, 45x at 36500 d).
+  //
+  // The pre-existing percentile-ordering and histogram-count assertions above
+  // both passed throughout, which is why the defect survived. These do not.
+  describe('monteCarlo: decline is consumed per day', () => {
+    // Ekene-1's real fitted parameters. Di is per DAY.
+    const qi = 120;
+    const Di = 0.0012;
+    const b = 0;
+    const economicLimit = 10;
+    const NO_SPREAD = { qi: 0, Di: 0, b: 0 };
+    const closedForm = calculateEUR(qi, Di, b, economicLimit, 'exponential');
+
+    const runAt = (durationDays) => runMonteCarloSimulation(
+      { qi, Di, b }, NO_SPREAD,
+      { durationDays, economicLimit, stopAtLimit: true },
+      50);
+
+    test('a zero-spread run reproduces the closed-form EUR', async () => {
+      const results = await runAt(3650);
+      // Zero confidence intervals bypass the sampler entirely, so every
+      // realisation is identical and P50 is the deterministic answer.
+      expect(closedForm).toBeCloseTo(91666.67, 1);
+      // One source of scatter is left: the +-20 percent economic-limit draw,
+      // worth about +/- 1.8 percent of EUR, which the caller can now switch
+      // off with economicLimitUncertainty: 0. (The 30-day left-rectangle bias
+      // this band also used to allow for is gone; volume is integrated in
+      // closed form.) Anything near the old behaviour is orders of magnitude
+      // outside this band.
+      expect(results.p50 / closedForm).toBeGreaterThan(0.97);
+      expect(results.p50 / closedForm).toBeLessThan(1.06);
+    });
+
+    test('EUR does not depend on the duration cap once the limit is reachable',
+      async () => {
+        // The clearest symptom of the old defect: because the rate never fell
+        // to the economic limit, EUR scaled with durationDays (4.8x, 25x, 45x
+        // at these three caps). Now every cap must land in the same band.
+        //
+        // Exact equality is not asserted here because this run leaves the
+        // economic-limit draw at its default +-20 percent, which moves EUR by
+        // about +-1.8 percent. Passing economicLimitUncertainty: 0 and a seed
+        // makes the run deterministic, which
+        // dca.montecarlo.quadrature.test.js relies on.
+        const runs = await Promise.all([3650, 20000, 36500].map(runAt));
+        for (const r of runs) {
+          expect(r.p50 / closedForm).toBeGreaterThan(0.97);
+          expect(r.p50 / closedForm).toBeLessThan(1.06);
+        }
+      });
+
+    test('the forecast reaches the economic limit well inside the cap',
+      async () => {
+        const results = await runAt(3650);
+        // sampleCurves holds the point arrays directly, one per 50th run.
+        const curve = results.sampleCurves[0];
+        expect(Array.isArray(curve)).toBe(true);
+        expect(curve.length).toBeGreaterThan(1);
+        // ln(120/10)/0.0012 is about 2071 days, so the last retained point
+        // sits near there and comfortably inside the 3650 day cap. Under the
+        // old defect the rate never fell to the limit and the curve ran to
+        // the cap instead.
+        expect(curve[curve.length - 1].time).toBeLessThan(2400);
+        // And a cap below the limit time must truncate the volume.
+        const truncated = await runAt(900);
+        expect(truncated.p50).toBeLessThan(results.p50);
+      });
+  });
 });
