@@ -1,0 +1,563 @@
+{
+ "afe": {
+  "baseUsd": 5380000.0,
+  "byItem": [
+   {
+    "amountUsd": 1800000.0,
+    "id": "c1"
+   },
+   {
+    "amountUsd": 1080000.0,
+    "id": "c2"
+   },
+   {
+    "amountUsd": 450000.0,
+    "id": "c3"
+   },
+   {
+    "amountUsd": 800000.0,
+    "id": "c4"
+   },
+   {
+    "amountUsd": 250000.0,
+    "id": "c5"
+   },
+   {
+    "amountUsd": 300000.0,
+    "id": "c6"
+   },
+   {
+    "amountUsd": 200000.0,
+    "id": "c7"
+   },
+   {
+    "amountUsd": 500000.0,
+    "id": "c8"
+   }
+  ],
+  "contingencyUsd": 538000.0,
+  "intangibleUsd": 4330000.0,
+  "tangibleUsd": 1050000.0,
+  "totalUsd": 5918000.0
+ },
+ "benchmark": {
+  "inputs": {
+   "mdM": 3000,
+   "region": "Gulf of Mexico",
+   "wellType": "Offshore shelf"
+  },
+  "suggestion": {
+   "bestInClassDays": 8,
+   "dryHoleDays": 9,
+   "indicative": true,
+   "rigRateUsdPerDay": 450000,
+   "spreadRateUsdPerDay": 200000
+  }
+ },
+ "caseDoc": {
+  "costs": {
+   "contingencyFrac": 0.1,
+   "items": [
+    {
+     "basis": "per-day",
+     "category": "intangible",
+     "id": "c1",
+     "label": "Rig dayrate",
+     "rate": 100000
+    },
+    {
+     "basis": "per-day",
+     "category": "intangible",
+     "id": "c2",
+     "label": "Integrated services spread",
+     "rate": 60000
+    },
+    {
+     "basis": "per-meter",
+     "category": "intangible",
+     "id": "c3",
+     "label": "Mud and consumables",
+     "rate": 150
+    },
+    {
+     "atActivityId": "a9",
+     "basis": "lump",
+     "category": "tangible",
+     "id": "c4",
+     "label": "Casing and accessories",
+     "value": 800000
+    },
+    {
+     "atActivityId": "a3",
+     "basis": "lump",
+     "category": "tangible",
+     "id": "c5",
+     "label": "Wellhead",
+     "value": 250000
+    },
+    {
+     "atActivityId": "a6",
+     "basis": "lump",
+     "category": "intangible",
+     "id": "c6",
+     "label": "Cementing services",
+     "value": 300000
+    },
+    {
+     "atActivityId": "a8",
+     "basis": "lump",
+     "category": "intangible",
+     "id": "c7",
+     "label": "Wireline logging",
+     "value": 200000
+    },
+    {
+     "atActivityId": "a10",
+     "basis": "lump",
+     "category": "intangible",
+     "id": "c8",
+     "label": "Completion services",
+     "value": 500000
+    }
+   ]
+  },
+  "name": "Golden Cost & Time",
+  "program": {
+   "activities": [
+    {
+     "durationHr": 24,
+     "id": "a1",
+     "kind": "flat",
+     "label": "Rig move and spud"
+    },
+    {
+     "fromMdM": 0,
+     "id": "a2",
+     "kind": "drill",
+     "label": "Drill 26in surface hole",
+     "ropMPerHr": 25,
+     "toMdM": 500
+    },
+    {
+     "flatHr": 11,
+     "id": "a3",
+     "kind": "casing",
+     "label": "Run and cement 20in casing",
+     "mdM": 500,
+     "runSpeedMPerHr": 500
+    },
+    {
+     "fromMdM": 500,
+     "id": "a4",
+     "kind": "drill",
+     "label": "Drill 17.5in intermediate hole",
+     "ropMPerHr": 15,
+     "toMdM": 2000
+    },
+    {
+     "id": "a5",
+     "kind": "trip",
+     "label": "Round trip at 2000 m",
+     "mdM": 2000,
+     "tripSpeedMPerHr": 500
+    },
+    {
+     "flatHr": 19,
+     "id": "a6",
+     "kind": "casing",
+     "label": "Run and cement 13-3/8in casing",
+     "mdM": 2000,
+     "runSpeedMPerHr": 400
+    },
+    {
+     "fromMdM": 2000,
+     "id": "a7",
+     "kind": "drill",
+     "label": "Drill 12.25in production hole",
+     "ropMPerHr": 10,
+     "toMdM": 3000
+    },
+    {
+     "id": "a8",
+     "kind": "trip",
+     "label": "Round trip at TD",
+     "mdM": 3000,
+     "tripSpeedMPerHr": 500
+    },
+    {
+     "flatHr": 14,
+     "id": "a9",
+     "kind": "casing",
+     "label": "Run and cement 9-5/8in casing",
+     "mdM": 3000,
+     "runSpeedMPerHr": 300
+    },
+    {
+     "durationHr": 60,
+     "id": "a10",
+     "kind": "flat",
+     "label": "Completion and handover"
+    }
+   ],
+   "nptFrac": 0.125
+  },
+  "risk": {
+   "iterations": 2000,
+   "seed": 42,
+   "uncertainties": [
+    {
+     "dist": {
+      "max": 22,
+      "min": 10,
+      "mode": 15,
+      "type": "triangular"
+     },
+     "field": "ropMPerHr",
+     "id": "a4",
+     "target": "activity"
+    },
+    {
+     "dist": {
+      "max": 14,
+      "min": 6,
+      "mode": 10,
+      "type": "triangular"
+     },
+     "field": "ropMPerHr",
+     "id": "a7",
+     "target": "activity"
+    },
+    {
+     "dist": {
+      "max": 130000,
+      "min": 85000,
+      "mode": 100000,
+      "type": "triangular"
+     },
+     "field": "rate",
+     "id": "c1",
+     "target": "item"
+    },
+    {
+     "dist": {
+      "max": 800000,
+      "min": 350000,
+      "mode": 500000,
+      "type": "triangular"
+     },
+     "field": "value",
+     "id": "c8",
+     "target": "item"
+    }
+   ]
+  }
+ },
+ "costCurve": [
+  {
+   "tHr": 0.0,
+   "usd": 0.0
+  },
+  {
+   "tHr": 27.0,
+   "usd": 180000.0
+  },
+  {
+   "tHr": 49.5,
+   "usd": 405000.0
+  },
+  {
+   "tHr": 63.0,
+   "usd": 745000.0
+  },
+  {
+   "tHr": 175.5,
+   "usd": 1720000.0
+  },
+  {
+   "tHr": 184.5,
+   "usd": 1780000.0
+  },
+  {
+   "tHr": 211.5,
+   "usd": 2260000.0
+  },
+  {
+   "tHr": 324.0,
+   "usd": 3160000.0
+  },
+  {
+   "tHr": 337.5,
+   "usd": 3450000.0
+  },
+  {
+   "tHr": 364.5,
+   "usd": 4430000.0
+  },
+  {
+   "tHr": 432.0,
+   "usd": 5380000.0
+  }
+ ],
+ "costCurveCheckpoint": {
+  "tHr": 211.5,
+  "usd": 2260000.0
+ },
+ "costPerMeter": {
+  "inputs": {
+   "bitCostUsd": 50000,
+   "connectionHr": 4,
+   "drillingHr": 100,
+   "intervalM": 1000,
+   "rigRateUsdPerHr": 6000,
+   "tripHr": 16
+  },
+  "usdPerM": 770.0
+ },
+ "curve": [
+  {
+   "mdM": 0.0,
+   "tHr": 0.0
+  },
+  {
+   "mdM": 0.0,
+   "tHr": 27.0
+  },
+  {
+   "mdM": 500.0,
+   "tHr": 49.5
+  },
+  {
+   "mdM": 500.0,
+   "tHr": 63.0
+  },
+  {
+   "mdM": 2000.0,
+   "tHr": 175.5
+  },
+  {
+   "mdM": 2000.0,
+   "tHr": 184.5
+  },
+  {
+   "mdM": 2000.0,
+   "tHr": 211.5
+  },
+  {
+   "mdM": 3000.0,
+   "tHr": 324.0
+  },
+  {
+   "mdM": 3000.0,
+   "tHr": 337.5
+  },
+  {
+   "mdM": 3000.0,
+   "tHr": 364.5
+  },
+  {
+   "mdM": 3000.0,
+   "tHr": 432.0
+  }
+ ],
+ "description": "Well cost & time oracle: activity schedule / time-depth curve on the 3-section hand well (384 productive h, 12.5% NPT -> 18.000 days), the exact AFE rollup (base 5,380,000 / total 5,918,000 USD), the cost-time accrual curve with its endpoint identity, the ADE ch.1 cost per metre (770 USD/m), the WellCostIQ-salvage benchmark suggestion, and analytic mean/var for the linear MC gate fixture. JS engine must agree rtol 1e-9; MC via the canonical suite sampler within CLT tolerance.",
+ "mc": {
+  "analytic": {
+   "meanDays": 6.75,
+   "meanUsd": 1530000.0,
+   "sdUsd": 63868.354187866,
+   "varDays": 0.084201389,
+   "varUsd": 4079166666.6666665
+  },
+  "costs": {
+   "contingencyFrac": 0,
+   "items": [
+    {
+     "basis": "per-day",
+     "category": "intangible",
+     "id": "mc1",
+     "label": "Spread rate",
+     "rate": 120000
+    },
+    {
+     "basis": "lump",
+     "category": "intangible",
+     "id": "mc2",
+     "label": "Uncertain lump",
+     "value": 200000
+    },
+    {
+     "basis": "lump",
+     "category": "tangible",
+     "id": "mc3",
+     "label": "Fixed lump",
+     "value": 500000
+    }
+   ]
+  },
+  "program": {
+   "activities": [
+    {
+     "durationHr": 100,
+     "id": "m1",
+     "kind": "flat",
+     "label": "Fixed operations"
+    },
+    {
+     "durationHr": 30,
+     "id": "m2",
+     "kind": "flat",
+     "label": "Uncertain phase 1"
+    },
+    {
+     "durationHr": 20,
+     "id": "m3",
+     "kind": "flat",
+     "label": "Uncertain phase 2"
+    },
+    {
+     "durationHr": 10,
+     "id": "m4",
+     "kind": "flat",
+     "label": "Uncertain phase 3"
+    }
+   ],
+   "nptFrac": 0
+  },
+  "uncertainties": [
+   {
+    "dist": {
+     "max": 46,
+     "min": 20,
+     "mode": 30,
+     "type": "triangular"
+    },
+    "field": "durationHr",
+    "id": "m2",
+    "target": "activity"
+   },
+   {
+    "dist": {
+     "max": 24,
+     "min": 10,
+     "mode": 20,
+     "type": "triangular"
+    },
+    "field": "durationHr",
+    "id": "m3",
+    "target": "activity"
+   },
+   {
+    "dist": {
+     "max": 21,
+     "min": 5,
+     "mode": 10,
+     "type": "triangular"
+    },
+    "field": "durationHr",
+    "id": "m4",
+    "target": "activity"
+   },
+   {
+    "dist": {
+     "max": 360000,
+     "min": 100000,
+     "mode": 200000,
+     "type": "triangular"
+    },
+    "field": "value",
+    "id": "mc2",
+    "target": "item"
+   }
+  ]
+ },
+ "rows": [
+  {
+   "drilledToM": 0.0,
+   "durationHr": 27.0,
+   "endHr": 27.0,
+   "endMdM": 0.0,
+   "id": "a1",
+   "productiveHr": 24.0
+  },
+  {
+   "drilledToM": 500.0,
+   "durationHr": 22.5,
+   "endHr": 49.5,
+   "endMdM": 500.0,
+   "id": "a2",
+   "productiveHr": 20.0
+  },
+  {
+   "drilledToM": 500.0,
+   "durationHr": 13.5,
+   "endHr": 63.0,
+   "endMdM": 500.0,
+   "id": "a3",
+   "productiveHr": 12.0
+  },
+  {
+   "drilledToM": 2000.0,
+   "durationHr": 112.5,
+   "endHr": 175.5,
+   "endMdM": 2000.0,
+   "id": "a4",
+   "productiveHr": 100.0
+  },
+  {
+   "drilledToM": 2000.0,
+   "durationHr": 9.0,
+   "endHr": 184.5,
+   "endMdM": 2000.0,
+   "id": "a5",
+   "productiveHr": 8.0
+  },
+  {
+   "drilledToM": 2000.0,
+   "durationHr": 27.0,
+   "endHr": 211.5,
+   "endMdM": 2000.0,
+   "id": "a6",
+   "productiveHr": 24.0
+  },
+  {
+   "drilledToM": 3000.0,
+   "durationHr": 112.5,
+   "endHr": 324.0,
+   "endMdM": 3000.0,
+   "id": "a7",
+   "productiveHr": 100.0
+  },
+  {
+   "drilledToM": 3000.0,
+   "durationHr": 13.5,
+   "endHr": 337.5,
+   "endMdM": 3000.0,
+   "id": "a8",
+   "productiveHr": 12.0
+  },
+  {
+   "drilledToM": 3000.0,
+   "durationHr": 27.0,
+   "endHr": 364.5,
+   "endMdM": 3000.0,
+   "id": "a9",
+   "productiveHr": 24.0
+  },
+  {
+   "drilledToM": 3000.0,
+   "durationHr": 67.5,
+   "endHr": 432.0,
+   "endMdM": 3000.0,
+   "id": "a10",
+   "productiveHr": 60.0
+  }
+ ],
+ "totals": {
+  "drilledM": 3000.0,
+  "nptHr": 48.0,
+  "productiveHr": 384.0,
+  "tdMdM": 3000.0,
+  "totalDays": 18.0,
+  "totalHr": 432.0
+ }
+}
