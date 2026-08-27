@@ -24,6 +24,16 @@ import { fileURLToPath } from 'url';
 import { fitArpsModel, calculateEUR } from '../../engines/dca/arps.js';
 import { computeMaterialBalance } from '../../engines/mbal/mbalEngine.ts';
 import { analyzeDisplacement, mobilityRatio } from '../../engines/scal/fractionalFlow.js';
+import {
+  computeJTable,
+  averageJCurves,
+  fitJPowerLaw,
+  pcFromJ,
+  swVsHeight,
+  heightFromPc,
+  LEVERETT_C,
+  PSI_PER_FT_WATER,
+} from '../../engines/scal/scal.js';
 import { computeVRRSeries, summarizeVRR } from '../../engines/waterflood/vrr.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -133,6 +143,49 @@ const SCAL_DESIGN = {
   krSpec: { type: 'corey', Swc: 0.35, Sor: 0.25, krwMax: 0.3, kroMax: 0.9, nw: 2.5, no: 2.0 },
   muW_cp: 0.5,
   muO_cp: 1.8, // reservoir oil viscosity at flood-era pressure (see PVT table)
+};
+
+// ============================================================================
+// 4b. Capillary / J-function design (Ekene sand, RC3)
+// ============================================================================
+// The capillary half of the SCAL fixture. One designed drainage J curve
+// (power law) generates three core plugs' lab Pc tables through the engine's
+// own pcFromJ, so the Leverett collapse back to the single curve is EXACT:
+// the collapse exercise recovers the plant the way the DCA fits recover the
+// planted Arps parameters.
+//
+// Design intent (assertions below hold the generator to it):
+// - Swirr 0.25 sits deliberately BELOW the kr table's Swc 0.35. The Pc
+//   asymptote is the true irreducible saturation; connate water in the kr
+//   set is what the crest zone drains to. Both are real conventions and the
+//   gap between them is course material, not an inconsistency.
+// - The free water level is placed so Sw reaches 1.0 exactly at the mapped
+//   1560 m contact: FWL = 1560 + entry height. The contact the geoscience
+//   ladder mapped is the TOP of the water-saturated rock, not the FWL.
+// - With a 0.25 / b 1.0 the crest of the structure (max oil column
+//   20.2818603515625 m above the contact) drains to Sw 0.3506: the NG5
+//   booking's flat Sw 0.35 is true AT THE CREST ONLY, and every metre below
+//   it is wetter. The height-averaged Sw over the crest column is the
+//   honest number the flat booking replaces.
+const CAP_DESIGN = {
+  // Ekene sand average rock + reservoir oil-brine system for J scaling
+  // (field units; k is a NEW design constant, nothing upstream fixed it).
+  reservoir: { k_md: 250, phi: 0.2, sigma_dyncm: 26, thetaDeg: 30 },
+  // Height conversion: design brine SG 1.03; oil SG follows from the locked
+  // API 32 (141.5 / (131.5 + API)).
+  gammaW: 1.03,
+  // The designed field drainage curve: J = a * Sw*^-b on
+  // Sw* = (Sw - Swirr)/(1 - Swirr).
+  jTrue: { type: 'power', a: 0.25, b: 1.0, Swirr: 0.25 },
+  // Three plugs, three lab fluid systems, k/phi spread around the field
+  // average. Lab Pc tables are GENERATED from jTrue.
+  plugs: [
+    { name: 'EK1-P', well: 'Ekene-1', system: 'air-brine', k_md: 420, phi: 0.23, sigma_dyncm: 72, thetaDeg: 0 },
+    { name: 'EK3-P', well: 'Ekene-3', system: 'mercury-air', k_md: 250, phi: 0.2, sigma_dyncm: 480, thetaDeg: 40 },
+    { name: 'EK5-P', well: 'Ekene-5', system: 'oil-brine', k_md: 95, phi: 0.16, sigma_dyncm: 48, thetaDeg: 30 },
+  ],
+  // Lab saturation grid: 0.30 to 1.00 in 0.05 steps (15 rows).
+  swGrid: { SwMin: 0.3, SwMax: 1.0, n: 14 },
 };
 
 // ============================================================================
@@ -432,6 +485,112 @@ say(`SCAL: M=${M}, Swf=${displacement.bl.Swf}, fw@front=${displacement.bl.fwf ??
 const pvBbl = STATIC_FIELD.pore_m3 * STATIC_FIELD.stb_per_m3;
 
 // ============================================================================
+// C2. Capillary / J-function fixture (RC3)
+// ============================================================================
+
+const M_TO_FT = 1 / 0.3048;
+const gammaO = 141.5 / (131.5 + MBAL_DESIGN.api); // from the locked API 32
+const capFluids = { gammaW: CAP_DESIGN.gammaW, gammaHc: gammaO };
+const gradPsiPerFt = PSI_PER_FT_WATER * (CAP_DESIGN.gammaW - gammaO);
+const sigmaCosOf = (s) => s.sigma_dyncm * Math.cos((s.thetaDeg * Math.PI) / 180);
+// psi of Pc per unit J on a given rock/fluid pair (the pcFromJ scaling factor).
+const psiPerJ = (s) => sigmaCosOf(s) / (LEVERETT_C * Math.sqrt(s.k_md / s.phi));
+const jTrueAt = (Sw) => {
+  const { a, b, Swirr } = CAP_DESIGN.jTrue;
+  return a * Math.pow((Sw - Swirr) / (1 - Swirr), -b);
+};
+
+// Lab Pc per plug, generated from the designed J curve through the engine.
+const labPlugs = CAP_DESIGN.plugs.map((plug) => {
+  const pc = pcFromJ(CAP_DESIGN.jTrue, plug, CAP_DESIGN.swGrid);
+  if (!pc.ok) throw new Error(`pcFromJ failed for ${plug.name}: ${pc.errors.join('; ')}`);
+  return { ...plug, rows: pc.rows };
+});
+
+// The collapse: each plug's lab table reduces back to the ONE designed curve.
+const plugJTables = labPlugs.map((plug) => {
+  const jt = computeJTable(plug.rows.map((r) => ({ Sw: r.Sw, Pc_psi: r.Pc_psi })), plug);
+  if (!jt.ok) throw new Error(`computeJTable failed for ${plug.name}: ${jt.errors.join('; ')}`);
+  return jt.rows;
+});
+let collapseMaxSpread = 0;
+for (let i = 0; i < plugJTables[0].length; i++) {
+  const values = plugJTables.map((rows) => rows[i].J);
+  collapseMaxSpread = Math.max(collapseMaxSpread, Math.max(...values) - Math.min(...values));
+  assertClose(`J collapse row ${i}`, values[0], jTrueAt(plugJTables[0][i].Sw), 1e-9);
+}
+if (!(collapseMaxSpread < 1e-9)) throw new Error(`J collapse spread ${collapseMaxSpread} not < 1e-9`);
+
+// Power-law fit on one plug recovers the plant; averaging over all three
+// returns the source curve (its refit runs on the Sw* axis, same a and b).
+const capFitSingle = fitJPowerLaw(
+  plugJTables[1].map((r) => ({ Sw: r.Sw, J: r.J })),
+  { Swirr: CAP_DESIGN.jTrue.Swirr },
+);
+assertClose('J fit a', capFitSingle.a, CAP_DESIGN.jTrue.a, 1e-6);
+assertClose('J fit b', capFitSingle.b, CAP_DESIGN.jTrue.b, 1e-6);
+const capAverage = averageJCurves(
+  labPlugs.map((plug, i) => ({ name: plug.name, jRows: plugJTables[i].map((r) => ({ Sw: r.Sw, J: r.J })) })),
+  { Swirr: CAP_DESIGN.jTrue.Swirr },
+);
+if (!capAverage.ok) throw new Error(`averageJCurves failed: ${capAverage.errors.join('; ')}`);
+// The average refit is NOT exact: averageJCurves resamples each plug through
+// its log-linear tabulated evaluator before refitting, so a and b drift a
+// few tenths of a percent while the direct fit on raw points recovers the
+// plant to 1e-6. Engine behavior worth teaching, recorded as a golden.
+assertClose('J average refit a (interpolation drift)', capAverage.fit.a, CAP_DESIGN.jTrue.a, 2e-2);
+assertClose('J average refit b (interpolation drift)', capAverage.fit.b, CAP_DESIGN.jTrue.b, 2e-2);
+
+// Reservoir Pc and the saturation-height profile on the Ekene sand rock.
+const reservoirPc = pcFromJ(CAP_DESIGN.jTrue, CAP_DESIGN.reservoir, CAP_DESIGN.swGrid);
+if (!reservoirPc.ok) throw new Error(`reservoir pcFromJ failed: ${reservoirPc.errors.join('; ')}`);
+const capHeight = swVsHeight(CAP_DESIGN.jTrue, CAP_DESIGN.reservoir, capFluids, CAP_DESIGN.swGrid);
+if (!capHeight.ok) throw new Error(`swVsHeight failed: ${capHeight.errors.join('; ')}`);
+
+// Entry pressure (Sw = 1, J = a) and the FWL placement: Sw reaches 1.0
+// exactly at the mapped 1560 m contact, so FWL = contact + entry height.
+const pcEntryPsi = CAP_DESIGN.jTrue.a * psiPerJ(CAP_DESIGN.reservoir);
+const hEntryFt = heightFromPc(pcEntryPsi, capFluids);
+const hEntryM = hEntryFt * 0.3048;
+const fwlM = STATIC_FIELD.owc_m_tvd + hEntryM;
+assertClose('entry height round trip', hEntryFt, pcEntryPsi / gradPsiPerFt, 1e-12);
+
+// Crest saturation: the highest point of the oil column sits
+// max_oil_column_m above the contact, entry height + that above the FWL.
+const hCrestFt = (STATIC_FIELD.max_oil_column_m + hEntryM) * M_TO_FT;
+const jAtCrest = (hCrestFt * gradPsiPerFt) / psiPerJ(CAP_DESIGN.reservoir);
+const swAtCrest =
+  CAP_DESIGN.jTrue.Swirr +
+  Math.pow(jAtCrest / CAP_DESIGN.jTrue.a, -1 / CAP_DESIGN.jTrue.b) * (1 - CAP_DESIGN.jTrue.Swirr);
+// Design intent: the booking's flat Sw 0.35 is what the crest drains to.
+assertClose('Sw at crest vs the NG5 booking Swi', swAtCrest, STATIC_FIELD.swi, 0.002);
+
+// Height-averaged Sw over the crest column (composite trapezoid, 2000
+// intervals from the contact h = hEntry to the crest): the honest number
+// the flat 0.35 booking replaces for THIS column.
+const N_TRAPZ = 2000;
+let swSum = 0;
+for (let i = 0; i <= N_TRAPZ; i++) {
+  const h = hEntryFt + ((hCrestFt - hEntryFt) * i) / N_TRAPZ;
+  const j = (h * gradPsiPerFt) / psiPerJ(CAP_DESIGN.reservoir);
+  const sw = Math.min(
+    1,
+    CAP_DESIGN.jTrue.Swirr +
+      Math.pow(j / CAP_DESIGN.jTrue.a, -1 / CAP_DESIGN.jTrue.b) * (1 - CAP_DESIGN.jTrue.Swirr),
+  );
+  swSum += i === 0 || i === N_TRAPZ ? sw / 2 : sw;
+}
+const swAvgCrestColumn = swSum / N_TRAPZ;
+if (!(swAvgCrestColumn > STATIC_FIELD.swi)) {
+  throw new Error(`column-average Sw ${swAvgCrestColumn} should exceed the flat booking ${STATIC_FIELD.swi}`);
+}
+
+say(
+  `SCAL capillary: collapse spread=${collapseMaxSpread}, fit a=${capFitSingle.a} b=${capFitSingle.b}, ` +
+    `entry ${pcEntryPsi} psi = ${hEntryM} m, FWL ${fwlM} m, Sw@crest ${swAtCrest}, colAvg ${swAvgCrestColumn}`,
+);
+
+// ============================================================================
 // D. Waterflood ledger + surveillance fixture (RC4)
 // ============================================================================
 
@@ -568,6 +727,48 @@ const files = {
       bl: displacement.bl,
       recovery: displacement.recovery,
       warnings: displacement.warnings,
+    },
+    capillary: {
+      design: {
+        ...CAP_DESIGN,
+        gammaO_from_api32: gammaO,
+        fwl_convention:
+          'Sw reaches 1.0 exactly at the mapped 1560 m contact; FWL = contact + entry height. Swirr 0.25 sits below the kr Swc 0.35 on purpose (Pc asymptote vs crest-zone connate).',
+      },
+      factors: {
+        leverett_c: LEVERETT_C,
+        psi_per_ft_water: PSI_PER_FT_WATER,
+        sigma_cos_reservoir: sigmaCosOf(CAP_DESIGN.reservoir),
+        psi_per_j_reservoir: psiPerJ(CAP_DESIGN.reservoir),
+        grad_psi_per_ft: gradPsiPerFt,
+      },
+      lab_pc: labPlugs.map((plug) => ({
+        name: plug.name,
+        well: plug.well,
+        system: plug.system,
+        sample: { k_md: plug.k_md, phi: plug.phi, sigma_dyncm: plug.sigma_dyncm, thetaDeg: plug.thetaDeg },
+        rows: plug.rows,
+      })),
+      expected: {
+        collapse_max_spread: collapseMaxSpread,
+        j_table_ek1p: plugJTables[0],
+        fit_single_plug: {
+          a: capFitSingle.a,
+          b: capFitSingle.b,
+          Swirr: capFitSingle.Swirr,
+          r2Log: capFitSingle.r2Log,
+        },
+        average_refit: { a: capAverage.fit.a, b: capAverage.fit.b, r2Log: capAverage.fit.r2Log },
+        reservoir_pc: reservoirPc.rows,
+        sw_vs_height: capHeight.rows,
+        pc_entry_psi: pcEntryPsi,
+        h_entry_ft: hEntryFt,
+        h_entry_m: hEntryM,
+        fwl_m_tvd: fwlM,
+        h_crest_ft: hCrestFt,
+        sw_at_crest: swAtCrest,
+        sw_avg_crest_column_trapz2000: swAvgCrestColumn,
+      },
     },
   },
   'waterflood.json': {

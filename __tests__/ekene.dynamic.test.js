@@ -18,6 +18,15 @@ import * as path from 'path';
 import { fitArpsModel, calculateEUR } from '../engines/dca/arps.js';
 import { computeMaterialBalance } from '../engines/mbal/mbalEngine.ts';
 import { analyzeDisplacement, mobilityRatio } from '../engines/scal/fractionalFlow.js';
+import {
+  computeJTable,
+  averageJCurves,
+  fitJPowerLaw,
+  pcFromJ,
+  swVsHeight,
+  heightFromPc,
+  LEVERETT_C,
+} from '../engines/scal/scal.js';
 import { computeVRRSeries, summarizeVRR } from '../engines/waterflood/vrr.js';
 
 // __dirname is available here because babel-jest transforms this file to CJS
@@ -144,6 +153,106 @@ describe('SCAL: the Welge construction matches the recorded goldens', () => {
 
   it('endpoints are consistent with the field description', () => {
     expect(scal.design.krSpec.Swc).toBe(field.static.swi);
+  });
+});
+
+describe('SCAL capillary: the Leverett plant collapses back through the engine', () => {
+  const cap = () => scal.capillary;
+  const jTrueAt = (Sw) => {
+    const { a, b, Swirr } = cap().design.jTrue;
+    return a * Math.pow((Sw - Swirr) / (1 - Swirr), -b);
+  };
+
+  it('regenerates each plug lab Pc table from the designed J curve', () => {
+    for (const plug of cap().lab_pc) {
+      const pc = pcFromJ(cap().design.jTrue, plug.sample, cap().design.swGrid);
+      expect(pc.ok).toBe(true);
+      expect(pc.rows.length).toBe(plug.rows.length);
+      for (let i = 0; i < pc.rows.length; i++) {
+        expectRel(pc.rows[i].Sw, plug.rows[i].Sw, 1e-12);
+        expectRel(pc.rows[i].Pc_psi, plug.rows[i].Pc_psi, 1e-12);
+      }
+    }
+  });
+
+  it('collapses all three plugs to the one designed curve (the 1941 claim, exact)', () => {
+    const jTables = cap().lab_pc.map((plug) => {
+      const jt = computeJTable(plug.rows.map((r) => ({ Sw: r.Sw, Pc_psi: r.Pc_psi })), plug.sample);
+      expect(jt.ok).toBe(true);
+      return jt.rows;
+    });
+    for (let i = 0; i < jTables[0].length; i++) {
+      const values = jTables.map((rows) => rows[i].J);
+      expect(Math.max(...values) - Math.min(...values)).toBeLessThan(1e-9);
+      expectRel(values[0], jTrueAt(jTables[0][i].Sw), 1e-9);
+      expectRel(values[0], cap().expected.j_table_ek1p[i].J, 1e-12);
+    }
+  });
+
+  it('the direct power-law fit recovers the plant exactly; the average refit carries the recorded interpolation drift', () => {
+    const jt = computeJTable(
+      cap().lab_pc[1].rows.map((r) => ({ Sw: r.Sw, Pc_psi: r.Pc_psi })),
+      cap().lab_pc[1].sample,
+    );
+    const fit = fitJPowerLaw(jt.rows.map((r) => ({ Sw: r.Sw, J: r.J })), {
+      Swirr: cap().design.jTrue.Swirr,
+    });
+    expect(fit.ok).toBe(true);
+    expectRel(fit.a, cap().design.jTrue.a, 1e-6);
+    expectRel(fit.b, cap().design.jTrue.b, 1e-6);
+    expectRel(fit.a, cap().expected.fit_single_plug.a, 1e-12);
+    expectRel(fit.b, cap().expected.fit_single_plug.b, 1e-12);
+
+    const avg = averageJCurves(
+      cap().lab_pc.map((plug) => {
+        const rows = computeJTable(
+          plug.rows.map((r) => ({ Sw: r.Sw, Pc_psi: r.Pc_psi })),
+          plug.sample,
+        ).rows;
+        return { name: plug.name, jRows: rows.map((r) => ({ Sw: r.Sw, J: r.J })) };
+      }),
+      { Swirr: cap().design.jTrue.Swirr },
+    );
+    expect(avg.ok).toBe(true);
+    // Resampling through the log-linear tabulated evaluator drifts the refit
+    // off the plant (a ~0.34%, b ~1.03%); the recorded goldens pin the drift.
+    expectRel(avg.fit.a, cap().expected.average_refit.a, 1e-9);
+    expectRel(avg.fit.b, cap().expected.average_refit.b, 1e-9);
+    expect(Math.abs(avg.fit.a - cap().design.jTrue.a)).toBeGreaterThan(1e-4);
+  });
+
+  it('reservoir Pc and the saturation-height profile match the recorded goldens', () => {
+    const pc = pcFromJ(cap().design.jTrue, cap().design.reservoir, cap().design.swGrid);
+    expect(pc.ok).toBe(true);
+    for (let i = 0; i < pc.rows.length; i++) {
+      expectRel(pc.rows[i].Pc_psi, cap().expected.reservoir_pc[i].Pc_psi, 1e-12);
+    }
+    const fluids = { gammaW: cap().design.gammaW, gammaHc: cap().design.gammaO_from_api32 };
+    const sh = swVsHeight(cap().design.jTrue, cap().design.reservoir, fluids, cap().design.swGrid);
+    expect(sh.ok).toBe(true);
+    for (let i = 0; i < sh.rows.length; i++) {
+      expectRel(sh.rows[i].h_ft, cap().expected.sw_vs_height[i].h_ft, 1e-12);
+    }
+  });
+
+  it('entry pressure, FWL placement and the crest saturation reproduce the design story', () => {
+    const e = cap().expected;
+    const d = cap().design;
+    const sigmaCos = d.reservoir.sigma_dyncm * Math.cos((d.reservoir.thetaDeg * Math.PI) / 180);
+    const psiPerJ = sigmaCos / (LEVERETT_C * Math.sqrt(d.reservoir.k_md / d.reservoir.phi));
+    expectRel(d.jTrue.a * psiPerJ, e.pc_entry_psi, 1e-12);
+    const fluids = { gammaW: d.gammaW, gammaHc: d.gammaO_from_api32 };
+    expectRel(heightFromPc(e.pc_entry_psi, fluids), e.h_entry_ft, 1e-12);
+    expectRel(e.h_entry_ft * 0.3048, e.h_entry_m, 1e-12);
+    expectRel(field.static.owc_m_tvd + e.h_entry_m, e.fwl_m_tvd, 1e-12);
+    // The crest drains to the NG5 booking saturation: flat 0.35 is the
+    // crest value, every metre below it is wetter.
+    expect(Math.abs(e.sw_at_crest - field.static.swi)).toBeLessThan(0.002);
+    expect(e.sw_avg_crest_column_trapz2000).toBeGreaterThan(field.static.swi);
+    // Recompute the crest saturation from the recorded factors alone.
+    const j = (e.h_crest_ft * cap().factors.grad_psi_per_ft) / psiPerJ;
+    const sw = d.jTrue.Swirr + Math.pow(j / d.jTrue.a, -1 / d.jTrue.b) * (1 - d.jTrue.Swirr);
+    expectRel(sw, e.sw_at_crest, 1e-12);
   });
 });
 
