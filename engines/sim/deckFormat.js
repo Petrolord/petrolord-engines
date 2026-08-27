@@ -64,3 +64,25 @@ export function wrap(text, width = 70) {
   if (line.trim()) lines.push(line);
   return lines.join('\n');
 }
+
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+/** '2026-01-01' -> "1 'JAN' 2026" (shared by START and DATES). */
+export function eclDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+  if (!m) throw new Error(`deckFormat.eclDate: date must be YYYY-MM-DD, got '${iso}'`);
+  const month = MONTHS[Number(m[2]) - 1];
+  const day = Number(m[3]);
+  if (!month || day < 1 || day > 31) throw new Error(`deckFormat.eclDate: invalid date '${iso}'`);
+  return `${day} '${month}' ${m[1]}`;
+}
+
+/** Whole days between two YYYY-MM-DD dates (UTC, order-checked). */
+export function daysBetween(fromIso, toIso) {
+  const parse = (iso) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (!m) throw new Error(`deckFormat.daysBetween: date must be YYYY-MM-DD, got '${iso}'`);
+    return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  };
+  return Math.round((parse(toIso) - parse(fromIso)) / 86400000);
+}
