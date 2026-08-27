@@ -9,15 +9,17 @@
 // probabilistic P10/P50/P90 came back about 25x high.
 //
 // The gate below is the cheapest thing that would have caught it: with the
-// parameter spread set to zero, a Monte Carlo EUR must land near the
-// closed-form EUR for the same parameters. It cannot land exactly, for two
-// reasons that are properties of the sampler rather than bugs:
-//   1. the curve is a 30-day LEFT-endpoint rectangular sum, which overstates a
-//      declining rate by a couple of percent, and
-//   2. runMonteCarloSimulation samples the economic limit +-20 percent, which
-//      moves where the curve stops.
-// A 10 percent band is therefore loose enough to be stable across runs and
-// tight enough that the 25x defect fails it by two orders of magnitude.
+// parameter spread set to zero, a Monte Carlo EUR must land on the closed-form
+// EUR for the same parameters. The band here allows for the one stochastic
+// ingredient left in a default run, the +-20 percent economic-limit draw,
+// which moves where the curve stops by a couple of percent. With that draw
+// switched off (economicLimitUncertainty: 0) the two agree to floating-point
+// precision, which dca.montecarlo.quadrature.test.js pins instead; the 25x
+// defect fails either by orders of magnitude.
+//
+// Originally this band was 10 percent, because the curve was also a 30-day
+// LEFT-endpoint rectangular sum that ran about 1.8 percent high. That
+// approximation is gone: volume is now integrated in closed form.
 
 import { runMonteCarloSimulation } from '../engines/dca/monteCarlo.js';
 import { calculateEUR } from '../engines/dca/arps.js';
@@ -41,8 +43,8 @@ describe('dca monteCarlo: the decline constant is per DAY', () => {
         { qi: c.qi, Di: c.Di, b: c.b }, ZERO_SPREAD, CONFIG, 40,
       );
       const ratio = r.p50 / closed;
-      expect(ratio).toBeGreaterThan(0.9);
-      expect(ratio).toBeLessThan(1.1);
+      expect(ratio).toBeGreaterThan(0.97);
+      expect(ratio).toBeLessThan(1.03);
     });
   }
 
@@ -68,7 +70,7 @@ describe('dca monteCarlo: the decline constant is per DAY', () => {
     );
     expect(fast.p50).toBeLessThan(slow.p50);
     // ...and both stay within reach of their closed forms.
-    expect(slow.p50 / calculateEUR(120, 0.0006, 0, 10, 'exponential')).toBeLessThan(1.1);
-    expect(fast.p50 / calculateEUR(120, 0.0024, 0, 10, 'exponential')).toBeLessThan(1.1);
+    expect(slow.p50 / calculateEUR(120, 0.0006, 0, 10, 'exponential')).toBeLessThan(1.03);
+    expect(fast.p50 / calculateEUR(120, 0.0024, 0, 10, 'exponential')).toBeLessThan(1.03);
   });
 });
