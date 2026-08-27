@@ -54,7 +54,14 @@ function generateForecastCurve(parameters, config, startTime = 0) {
   let cumulative = 0;
   
   while (time <= durationDays) {
-    let rate = calculateArpsRate(qi, Di, b, time / 365); // Convert days to years for Arps equation
+    // Di is PER DAY and `time` is in days, so no unit conversion belongs here.
+    // This previously divided by 365, which silently required a per-year Di
+    // while every other member of the dca domain produces per-day: fitArpsModel
+    // builds t in days and returns Di per day, computeConfidenceIntervals
+    // reports its half-widths in the same units, and generateForecast in
+    // arps.js steps day by day with no conversion. The Suite fed fit.Di
+    // straight in, so probabilistic EUR came back ~25x high.
+    let rate = calculateArpsRate(qi, Di, b, time);
     
     // Apply facility limit if specified
     if (facilityLimit && rate > facilityLimit) {
