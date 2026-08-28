@@ -385,3 +385,96 @@ describe('heel/toe alignment sets the landing azimuth', () => {
     expect(sol.error).toMatch(/same vertical line/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Landing inclination: horizontals are not all flat. A lateral planned to
+// nose up or down is an override; a lateral that must run straight from the
+// heel to a toe at a different TVD takes the inclination that vector implies.
+// ---------------------------------------------------------------------------
+
+describe('landing inclination', () => {
+  const heel = { dN: 1200, dE: 0, dTvd: 2500 };
+  const solve = (landing) => solveHorizontalLanding({
+    tieOn: { inc: 0, azi: 0 },
+    landing: { ...heel, ...landing },
+    rate1: 3, rate2: 3, mdUnit: 'm',
+  });
+
+  test('defaults to horizontal with no override and no toe', () => {
+    const sol = solve({});
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landInc).toBeCloseTo(90, 9);
+    expect(sol.report.landIncSource).toBe('default');
+  });
+
+  for (const inc of [88, 89, 91, 92]) {
+    test(`lands at ${inc} deg when asked to nose ${inc < 90 ? 'up' : 'down'}`, () => {
+      const sol = solve({ incDeg: inc });
+      expect(sol.feasible).toBe(true);
+      expect(sol.report.landInc).toBeCloseTo(inc, 9);
+      expect(sol.report.landIncSource).toBe('override');
+      // The compiled well actually arrives at that attitude.
+      const { end, endStation } = compileTo(sol.segments, { inc: 0, azi: 0, mdUnit: 'm' });
+      expect(endStation.inc).toBeCloseTo(inc, 3);
+      expect(end.y).toBeCloseTo(heel.dN, 2);
+      expect(end.tvd).toBeCloseTo(heel.dTvd, 2);
+    });
+  }
+
+  test('a toe deeper than the heel noses the landing down', () => {
+    // 900 m of lateral for 30 m of TVD: atan2(900, 30) = 88.09 deg.
+    const sol = solve({ alignOn: { dN: 1200 + 900, dE: 0, dTvd: 2530 } });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landIncSource).toBe('alignOn');
+    expect(sol.report.landInc).toBeCloseTo(Math.atan2(900, 30) * 180 / Math.PI, 9);
+    expect(sol.report.landInc).toBeGreaterThan(88);
+    expect(sol.report.landInc).toBeLessThan(89);
+    const { endStation } = compileTo(sol.segments, { inc: 0, azi: 0, mdUnit: 'm' });
+    expect(endStation.inc).toBeCloseTo(sol.report.landInc, 3);
+  });
+
+  test('a toe shallower than the heel noses the landing up', () => {
+    const sol = solve({ alignOn: { dN: 1200 + 900, dE: 0, dTvd: 2470 } });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landInc).toBeCloseTo(Math.atan2(900, -30) * 180 / Math.PI, 9);
+    expect(sol.report.landInc).toBeGreaterThan(90);
+  });
+
+  test('a toe at the heel TVD still lands horizontal', () => {
+    const sol = solve({ alignOn: { dN: 1200 + 900, dE: 0, dTvd: 2500 } });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landInc).toBeCloseTo(90, 9);
+    expect(sol.report.landIncSource).toBe('alignOn');
+  });
+
+  test('an explicit inclination overrides the heel-to-toe angle', () => {
+    const sol = solve({ incDeg: 91, alignOn: { dN: 1200 + 900, dE: 0, dTvd: 2530 } });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landInc).toBeCloseTo(91, 9);
+    expect(sol.report.landIncSource).toBe('override');
+    // The heel-to-toe azimuth is still adopted, and still reported.
+    expect(sol.report.landAziSource).toBe('alignOn');
+    expect(sol.report.alignment.incDeg).toBeCloseTo(Math.atan2(900, 30) * 180 / Math.PI, 9);
+  });
+
+  test('inclination and azimuth can be overridden independently', () => {
+    const sol = solve({ incDeg: 89, aziDeg: 33, alignOn: { dN: 2100, dE: 0, dTvd: 2530 } });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landIncSource).toBe('override');
+    expect(sol.report.landAziSource).toBe('override');
+    expect(sol.report.landInc).toBeCloseTo(89, 9);
+    expect(sol.report.landAzi).toBeCloseTo(33, 9);
+  });
+
+  test('an inclination outside 0 to 180 is refused', () => {
+    expect(solve({ incDeg: -1 }).feasible).toBe(false);
+    expect(solve({ incDeg: 181 }).error).toMatch(/between 0 and 180/);
+  });
+
+  test('a non-finite inclination falls back rather than poisoning the solve', () => {
+    const sol = solve({ incDeg: NaN });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landInc).toBeCloseTo(90, 9);
+    expect(sol.report.landIncSource).toBe('default');
+  });
+});

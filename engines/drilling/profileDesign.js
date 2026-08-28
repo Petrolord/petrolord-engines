@@ -375,6 +375,14 @@ export function landingFromTargets(heel, toe, { minSeparation = 1e-6 } = {}) {
  *   3. the bearing from the tie-on to the landing point.
  * `report.landAziSource` says which one was used.
  *
+ * The landing inclination resolves the same way:
+ *   1. `landing.incDeg`, when finite — the way a lateral planned to
+ *      nose up or down (89 or 91 degrees, say) is specified;
+ *   2. the heel-to-toe angle from vertical, when `alignOn` is supplied,
+ *      so the lateral runs straight from the heel to the toe;
+ *   3. horizontal, 90 degrees.
+ * `report.landIncSource` says which one was used.
+ *
  * The iteration is capped at `maxIter` (clamped to 1..1000) and the
  * emitted geometry is length-checked, so a degenerate request returns
  * { feasible: false, error } rather than a runaway hold.
@@ -393,29 +401,33 @@ export function solveHorizontalLanding({
     return { feasible: false, error: 'Both curve rates must be positive.' };
   }
 
-  // Landing azimuth: manual override, else heel-to-toe alignment, else
-  // the bearing from the tie-on to the landing point.
-  let landAzi;
-  let landAziSource;
+  // Heel-to-toe alignment, resolved once: it can set both the landing
+  // azimuth and the landing inclination.
   let alignment = null;
-  if (Number.isFinite(landing.aziDeg)) {
-    landAzi = normalizeAzi(landing.aziDeg);
-    landAziSource = 'override';
-    if (landing.alignOn) {
-      alignment = landingFromTargets(landing, landing.alignOn);
-      if (!alignment.ok) alignment = null;
-    }
-  } else if (landing.alignOn) {
+  let alignError = null;
+  if (landing.alignOn) {
     const alignBad = finiteError({
       'alignment target north': landing.alignOn.dN,
       'alignment target east': landing.alignOn.dE,
       'alignment target TVD': landing.alignOn.dTvd,
     });
     if (alignBad) return { feasible: false, error: alignBad };
-    alignment = landingFromTargets(landing, landing.alignOn);
-    if (!alignment.ok) return { feasible: false, error: alignment.error };
+    const a = landingFromTargets(landing, landing.alignOn);
+    if (a.ok) alignment = a; else alignError = a.error;
+  }
+
+  // Landing azimuth: manual override, else heel-to-toe alignment, else
+  // the bearing from the tie-on to the landing point.
+  let landAzi;
+  let landAziSource;
+  if (Number.isFinite(landing.aziDeg)) {
+    landAzi = normalizeAzi(landing.aziDeg);
+    landAziSource = 'override';
+  } else if (alignment) {
     landAzi = alignment.aziDeg;
     landAziSource = 'alignOn';
+  } else if (alignError) {
+    return { feasible: false, error: alignError };
   } else {
     const reachAzi = bearingBetween({ dE: 0, dN: 0 }, landing);
     if (reachAzi == null) {
@@ -433,7 +445,23 @@ export function solveHorizontalLanding({
   const r2 = radiusFor(rate2, mdUnit);
   const interval = intervalFor(mdUnit);
   const t1 = tangent(tieOn.inc || 0, tieOn.azi || 0);
-  const landInc = Number.isFinite(landing.incDeg) ? landing.incDeg : 90;
+  // Landing inclination: manual override, else the heel-to-toe angle
+  // from vertical, else horizontal. A lateral planned to nose up or
+  // down (89 or 91 degrees, say) is an override; a lateral that has to
+  // run straight from the heel to a toe at a different TVD gets the
+  // inclination that vector implies.
+  let landInc;
+  let landIncSource;
+  if (Number.isFinite(landing.incDeg)) {
+    landInc = landing.incDeg;
+    landIncSource = 'override';
+  } else if (alignment) {
+    landInc = alignment.incDeg;
+    landIncSource = 'alignOn';
+  } else {
+    landInc = 90;
+    landIncSource = 'default';
+  }
   if (landInc < 0 || landInc > 180) {
     return { feasible: false, error: 'Landing inclination must be between 0 and 180 degrees.' };
   }
@@ -521,6 +549,7 @@ export function solveHorizontalLanding({
   report.holdInc = holdAtt.inc;
   report.holdAzi = holdAtt.azi;
   report.landInc = landInc;
+  report.landIncSource = landIncSource;
   report.landAzi = landAzi;
   report.landAziSource = landAziSource;
   if (alignment && alignment.ok) {
