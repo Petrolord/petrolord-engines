@@ -193,6 +193,18 @@ export const predictCard = ({
   cardSamples = 180,
 }) => {
   const warnings = [];
+  // Damping is a precondition, not a numerical detail. With none, a
+  // periodically driven string never settles: the transient from every
+  // valve transfer survives to the next one, the plunger stroke grows
+  // without bound and the loads come out confident and meaningless. So
+  // a non-positive ratio is refused here rather than marched.
+  if (!(Number(dampingRatio) > 0)) {
+    return {
+      ok: false,
+      error: `A damping ratio of ${dampingRatio} cannot be solved: with no damping the string never settles into a repeating stroke. Field strings sit between about 0.05 and 0.15 of critical.`,
+      warnings: [],
+    };
+  }
   const grid = buildGrid({ string, nodes });
   const { n, dx, eaFace, massNode, aMax, L } = grid;
   const period = 60 / spm;                       // s

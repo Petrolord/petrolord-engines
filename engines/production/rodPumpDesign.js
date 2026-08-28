@@ -194,6 +194,7 @@ export const runRodPumpDesign = ({
     fillage,
     dampingRatio,
   });
+  if (!dyn.ok) return { ok: false, errors: [dyn.error], design: null };
 
   const prhp = polishedRodHp({ workInLbPerCycle: dyn.workInLbPerCycle, spm });
 

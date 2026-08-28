@@ -622,3 +622,28 @@ describe('the design chain', () => {
     expect(out[1].maxStressPsi).toBeCloseTo(12000 / s.sections[1].areaIn2, 6);
   });
 });
+
+describe('damping is a precondition', () => {
+  test('a string with no damping is refused, not marched into nonsense', () => {
+    // Without damping the transient from every valve transfer survives
+    // to the next one: the plunger stroke grows past the surface
+    // stroke, the minimum load goes negative, and none of it is
+    // flagged unless the solver refuses up front. A caller reaching
+    // this by passing a zero default is exactly how it happens.
+    const s = buildRodString({ sections: TAPER, fluidSg: 1, gradeId: 'D' });
+    const r = predictCard({
+      string: s, surfacePosition: simpleHarmonicPosition(64 / 12), strokeFt: 64 / 12,
+      spm: 8, fluidLoadLb: 5000, fillage: 1, dampingRatio: 0,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/never settles/);
+    const res = runRodPumpDesign({
+      string: s, frequency: naturalFrequency({ string: s }),
+      kin: unitKinematics(genericConventionalGeometry({ strokeIn: 64 }).geometry, { steps: 180 }),
+      surfacePosition: simpleHarmonicPosition(64 / 12), strokeIn: 64, spm: 8,
+      plungerDIn: 1.75, pDischargePsi: 2265, pIntakePsi: 150, dampingRatio: 0,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.errors.join(' ')).toMatch(/never settles/);
+  });
+});
