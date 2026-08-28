@@ -7,6 +7,7 @@ import path from 'path';
 import {
   solveSlant, solveSProfile, solveContinuousBuild,
   solveHorizontalLanding, solveNudge, solveNudgeInverse, toolfaceForTarget,
+  bearingBetween, landingFromTargets,
 } from '../engines/drilling/profileDesign';
 import { compileSegments, attitudeAfterArc } from '../engines/drilling/segmentCompiler';
 
@@ -205,5 +206,182 @@ describe('toolfaceForTarget inverts attitudeAfterArc', () => {
       const dTau = ((inv.toolfaceDeg - tau) % 360 + 540) % 360 - 180;
       expect(Math.abs(dTau)).toBeLessThan(1e-7);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Totality: no solver throws, none runs unbounded, and none returns geometry
+// a compiler would expand into a stack-blowing station list. These are the
+// guards behind the Well Design Studio "Solve" crash (RangeError: maximum
+// call stack size exceeded, raised downstream on a runaway station array).
+// ---------------------------------------------------------------------------
+
+describe('solvers are total: never throw, never emit runaway geometry', () => {
+  const solverCalls = (v) => [
+    ['slant', () => solveSlant({ target: { dN: v, dE: v, dTvd: v }, buildRate: v, mdUnit: 'ft' })],
+    ['sProfile', () => solveSProfile({ kopLen: v, buildRate: v, dropRate: v, finalIncDeg: v, target: { dN: v, dE: v, dTvd: v }, mdUnit: 'ft' })],
+    ['continuous', () => solveContinuousBuild({ tieOn: { inc: v, azi: v }, delta: { dN: v, dE: v, dTvd: v }, mdUnit: 'ft' })],
+    ['horizontal', () => solveHorizontalLanding({ tieOn: { inc: v, azi: v }, landing: { dN: v, dE: v, dTvd: v, incDeg: 90, aziDeg: v }, rate1: v, rate2: v, mdUnit: 'ft' })],
+    ['nudge', () => solveNudge({ nudgeIncDeg: v, nudgeAziDeg: v, holdLen: v, buildRate: v, dropRate: v, mdUnit: 'ft' })],
+    ['nudgeInverse', () => solveNudgeInverse({ offset: v, verticalLen: v, buildRate: v, dropRate: v, mdUnit: 'ft' })],
+  ];
+
+  for (const v of [NaN, Infinity, -Infinity, undefined, null]) {
+    for (const [name, call] of solverCalls(v)) {
+      test(`${name} rejects ${String(v)} without throwing`, () => {
+        let out;
+        expect(() => { out = call(); }).not.toThrow();
+        expect(out.feasible).toBe(false);
+        expect(typeof out.error).toBe('string');
+        expect(out.error.length).toBeGreaterThan(0);
+      });
+    }
+  }
+
+  test('missing target objects are refused, not dereferenced', () => {
+    expect(solveSlant({ buildRate: 3, mdUnit: 'm' }).feasible).toBe(false);
+    expect(solveSProfile({ buildRate: 3, dropRate: 2, mdUnit: 'm' }).feasible).toBe(false);
+    expect(solveContinuousBuild({ tieOn: { inc: 0, azi: 0 }, mdUnit: 'm' }).feasible).toBe(false);
+    expect(solveHorizontalLanding({ tieOn: { inc: 0, azi: 0 }, rate1: 3, rate2: 3, mdUnit: 'm' }).feasible).toBe(false);
+  });
+
+  test('every feasible solution compiles to a bounded station list', () => {
+    // 20k randomised calls across both depth units; any feasible answer
+    // must compile and stay far below the array size that overflows a
+    // spread call (Math.max(...rows)) in the app's chart and KPI code.
+    let seed = 20260828;
+    const rnd = (a, b) => {
+      seed = (seed * 1103515245 + 12345) % 2147483648;
+      return a + (seed / 2147483648) * (b - a);
+    };
+    let checked = 0;
+    for (let i = 0; i < 20000; i++) {
+      const mdUnit = rnd(0, 1) < 0.5 ? 'ft' : 'm';
+      const delta = { dN: rnd(-9000, 9000), dE: rnd(-9000, 9000), dTvd: rnd(-3000, 12000) };
+      const calls = [
+        () => solveSlant({ target: delta, buildRate: rnd(0.01, 20), mdUnit }),
+        () => solveSProfile({ kopLen: rnd(0, 4000), buildRate: rnd(0.01, 20), dropRate: rnd(0.01, 20), finalIncDeg: rnd(0, 80), target: delta, mdUnit }),
+        () => solveContinuousBuild({ tieOn: { inc: rnd(0, 95), azi: rnd(0, 360) }, delta, mdUnit }),
+        () => solveHorizontalLanding({ tieOn: { inc: rnd(0, 95), azi: rnd(0, 360) }, landing: { ...delta, incDeg: 90, aziDeg: rnd(0, 360) }, rate1: rnd(0.01, 20), rate2: rnd(0.01, 20), mdUnit }),
+        () => solveNudgeInverse({ offset: rnd(0, 3000), verticalLen: rnd(0, 6000), buildRate: rnd(0.01, 20), dropRate: rnd(0.01, 20), mdUnit }),
+      ];
+      const sol = calls[Math.floor(rnd(0, calls.length)) % calls.length]();
+      expect(() => sol).not.toThrow();
+      if (!sol.feasible) continue;
+      checked += 1;
+      const total = sol.segments.reduce((a, x) => a + x.length, 0);
+      expect(Number.isFinite(total)).toBe(true);
+      // subdivideMd 10 is what the Suite compiles with.
+      expect(Math.ceil(total / 10)).toBeLessThan(50000);
+    }
+    expect(checked).toBeGreaterThan(1000);
+  });
+
+  test('the curve-hold-curve iteration cap is honoured and reported', () => {
+    // A landing that cannot settle: the cap must return, not spin.
+    const sol = solveHorizontalLanding({
+      tieOn: { inc: 0, azi: 0 },
+      landing: { dN: 3000, dE: 0, dTvd: 8300, incDeg: 90, aziDeg: 0 },
+      rate1: 0.1, rate2: 0.1, mdUnit: 'ft', maxIter: 7,
+    });
+    expect(sol.feasible).toBe(false);
+    expect(sol.iterations).toBe(7);
+    expect(sol.error).toMatch(/did not settle in 7 passes/);
+  });
+
+  test('a converging landing reports how many passes it took', () => {
+    const sol = solveHorizontalLanding({
+      tieOn: { inc: 0, azi: 0 },
+      landing: { dN: 2000, dE: 0, dTvd: 3000, incDeg: 90, aziDeg: 0 },
+      rate1: 3, rate2: 3, mdUnit: 'm',
+    });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.iterations).toBeGreaterThan(0);
+    expect(sol.report.iterations).toBeLessThanOrEqual(100);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Two-target landing: heel ("Final Target") plus toe ("Align on Target").
+// ---------------------------------------------------------------------------
+
+describe('heel/toe alignment sets the landing azimuth', () => {
+  test('bearingBetween is the compass bearing heel to toe', () => {
+    expect(bearingBetween({ dE: 0, dN: 0 }, { dE: 0, dN: 100 })).toBeCloseTo(0, 9);
+    expect(bearingBetween({ dE: 0, dN: 0 }, { dE: 100, dN: 0 })).toBeCloseTo(90, 9);
+    expect(bearingBetween({ dE: 100, dN: 100 }, { dE: 0, dN: 0 })).toBeCloseTo(225, 9);
+    // Vertically stacked targets have no bearing.
+    expect(bearingBetween({ dE: 10, dN: 10 }, { dE: 10, dN: 10 })).toBe(null);
+  });
+
+  test('landingFromTargets returns bearing, reach and the implied inclination', () => {
+    const a = landingFromTargets({ dE: 0, dN: 0, dTvd: 2000 }, { dE: 1000, dN: 0, dTvd: 2000 });
+    expect(a.ok).toBe(true);
+    expect(a.aziDeg).toBeCloseTo(90, 9);
+    expect(a.horizontal).toBeCloseTo(1000, 9);
+    expect(a.tvdRise).toBeCloseTo(0, 9);
+    expect(a.incDeg).toBeCloseTo(90, 9);
+    // A toe 100 deeper than the heel tilts the implied landing below 90.
+    const b = landingFromTargets({ dE: 0, dN: 0, dTvd: 2000 }, { dE: 1000, dN: 0, dTvd: 2100 });
+    expect(b.incDeg).toBeCloseTo(Math.atan2(1000, 100) * 180 / Math.PI, 9);
+    expect(b.incDeg).toBeLessThan(90);
+  });
+
+  test('alignOn drives the landing azimuth and the compiled well lands on it', () => {
+    const heel = { dN: 800, dE: 800, dTvd: 2500 };
+    const toe = { dN: 800 + 900, dE: 800 + 900, dTvd: 2500 };
+    const sol = solveHorizontalLanding({
+      tieOn: { inc: 0, azi: 0 },
+      landing: { ...heel, incDeg: 90, alignOn: toe },
+      rate1: 3, rate2: 3, mdUnit: 'm',
+    });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landAziSource).toBe('alignOn');
+    expect(sol.report.landAzi).toBeCloseTo(45, 6);
+    expect(sol.report.alignment.horizontal).toBeCloseTo(Math.hypot(900, 900), 6);
+    const { end, endStation } = compileTo(sol.segments, { inc: 0, azi: 0, mdUnit: 'm' });
+    expect(end.x).toBeCloseTo(heel.dE, 2);
+    expect(end.y).toBeCloseTo(heel.dN, 2);
+    expect(end.tvd).toBeCloseTo(heel.dTvd, 2);
+    expect(endStation.inc).toBeCloseTo(90, 3);
+    const dAzi = ((endStation.azi - 45) % 360 + 540) % 360 - 180;
+    expect(Math.abs(dAzi)).toBeLessThan(1e-3);
+  });
+
+  test('an explicit azimuth overrides the heel/toe bearing', () => {
+    const heel = { dN: 800, dE: 800, dTvd: 2500 };
+    const toe = { dN: 1700, dE: 1700, dTvd: 2500 };
+    const sol = solveHorizontalLanding({
+      tieOn: { inc: 0, azi: 0 },
+      landing: { ...heel, incDeg: 90, aziDeg: 10, alignOn: toe },
+      rate1: 3, rate2: 3, mdUnit: 'm',
+    });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landAziSource).toBe('override');
+    expect(sol.report.landAzi).toBeCloseTo(10, 9);
+    // The heel/toe bearing is still reported so the UI can flag the gap.
+    expect(sol.report.alignment.aziDeg).toBeCloseTo(45, 6);
+  });
+
+  test('with neither azimuth nor toe the bearing falls back to the tie-on vector', () => {
+    const sol = solveHorizontalLanding({
+      tieOn: { inc: 0, azi: 0 },
+      landing: { dN: 1000, dE: 1000, dTvd: 2500, incDeg: 90 },
+      rate1: 3, rate2: 3, mdUnit: 'm',
+    });
+    expect(sol.feasible).toBe(true);
+    expect(sol.report.landAziSource).toBe('tieOnToLanding');
+    expect(sol.report.landAzi).toBeCloseTo(45, 6);
+  });
+
+  test('coincident heel and toe are refused with a readable message', () => {
+    const heel = { dN: 800, dE: 800, dTvd: 2500 };
+    const sol = solveHorizontalLanding({
+      tieOn: { inc: 0, azi: 0 },
+      landing: { ...heel, incDeg: 90, alignOn: { ...heel, dTvd: 2600 } },
+      rate1: 3, rate2: 3, mdUnit: 'm',
+    });
+    expect(sol.feasible).toBe(false);
+    expect(sol.error).toMatch(/same vertical line/);
   });
 });
