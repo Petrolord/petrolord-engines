@@ -1,0 +1,27 @@
+{
+  "_sources": [
+    "Whitson & Brule, Phase Behavior, SPE Monograph 20 (2000), Appendix A (Tc/Pc/omega/Vc/MW/parachor)",
+    "Jhaveri & Youngren, SPE 13118 (1988), Table 2 (PR volume-shift s = c/b, hydrocarbons)",
+    "Whitson & Brule Monograph 20 Table 4-3 (non-hydrocarbon shift), Table 4-2 (PR BIP defaults)",
+    "Cross-checked against NIST WebBook critical constants and GPSA Engineering Data Book"
+  ],
+  "_units": { "tcR": "degR", "pcPsia": "psia", "vcFt3PerLbmol": "ft3/lb-mol", "mw": "lb/lb-mol" },
+  "components": {
+    "N2": { "mw": 28.013, "tcR": 227.16, "pcPsia": 492.84, "omega": 0.0403, "vcFt3PerLbmol": 1.4417, "parachor": 41.0, "shift": -0.1927 },
+    "CO2": { "mw": 44.010, "tcR": 547.42, "pcPsia": 1069.51, "omega": 0.2276, "vcFt3PerLbmol": 1.5057, "parachor": 78.0, "shift": -0.0817 },
+    "H2S": { "mw": 34.082, "tcR": 672.12, "pcPsia": 1299.97, "omega": 0.0827, "vcFt3PerLbmol": 1.5698, "parachor": 80.1, "shift": -0.1288 },
+    "C1": { "mw": 16.043, "tcR": 343.01, "pcPsia": 667.03, "omega": 0.0115, "vcFt3PerLbmol": 1.5794, "parachor": 77.0, "shift": -0.1595 },
+    "C2": { "mw": 30.070, "tcR": 549.58, "pcPsia": 706.62, "omega": 0.0995, "vcFt3PerLbmol": 2.3707, "parachor": 108.0, "shift": -0.1134 },
+    "C3": { "mw": 44.097, "tcR": 665.69, "pcPsia": 616.12, "omega": 0.1523, "vcFt3PerLbmol": 3.2037, "parachor": 150.3, "shift": -0.0863 },
+    "iC4": { "mw": 58.123, "tcR": 734.13, "pcPsia": 527.94, "omega": 0.1770, "vcFt3PerLbmol": 4.2129, "parachor": 181.5, "shift": -0.0844 },
+    "nC4": { "mw": 58.123, "tcR": 765.29, "pcPsia": 550.60, "omega": 0.2002, "vcFt3PerLbmol": 4.0817, "parachor": 189.9, "shift": -0.0675 },
+    "iC5": { "mw": 72.150, "tcR": 828.77, "pcPsia": 490.37, "omega": 0.2275, "vcFt3PerLbmol": 4.9337, "parachor": 225.0, "shift": -0.0608 },
+    "nC5": { "mw": 72.150, "tcR": 845.47, "pcPsia": 488.79, "omega": 0.2515, "vcFt3PerLbmol": 4.9817, "parachor": 231.5, "shift": -0.0390 },
+    "nC6": { "mw": 86.177, "tcR": 913.27, "pcPsia": 436.62, "omega": 0.3013, "vcFt3PerLbmol": 5.9226, "parachor": 271.0, "shift": -0.0080 }
+  },
+  "sanityBandsK": {
+    "_note": "Independent physical sanity band: Tc converted to Kelvin must sit within +/-0.5 K of the NIST WebBook value listed here.",
+    "N2": 126.2, "CO2": 304.13, "H2S": 373.4, "C1": 190.56, "C2": 305.32,
+    "C3": 369.83, "iC4": 407.85, "nC4": 425.13, "iC5": 460.4, "nC5": 469.7, "nC6": 507.4
+  }
+}

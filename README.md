@@ -28,6 +28,33 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
+  The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
+  layers that are deliberately not merged. `blackOil.ts` carries the
+  correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
+  Hall-Yarborough and Dranchuk-Abou-Kassem for gas z, McCain for water,
+  Beal + Beggs-Robinson + Vasquez-Beggs for oil viscosity and
+  Lee-Gonzalez-Eakin for gas -- each with the published training range
+  attached, so a number produced outside the range a correlation was
+  fitted over is reported as such rather than quietly used. Everything
+  else is the Peng-Robinson (1978) compositional engine the Suite's
+  Fluid Systems Studio was built on: `components` (Whitson & Brule
+  Monograph 20 library with Jhaveri & Youngren shifts and BIPs), `pr78`,
+  `flash` (Michelsen stability + SS/GDEM with a safeguarded
+  Rachford-Rice), `characterization` (single C7+ pseudo: Soreide,
+  Kesler-Lee, Lee-Kesler, Firoozabadi, modified Chueh-Prausnitz),
+  `envelope`, `separator` (sequential per-stage flash to stock tank),
+  `experiments` (CCE, differential liberation, and the Amyx composite
+  black-oil table an EOS fluid hands to a simulator), `transport` (LBC
+  viscosity + Weinaug-Katz IFT) and `tuning`/`labTune` (four bounded
+  C7+ knobs regressed to lab targets on the shared LM kernel).
+  Goldens are an independent Python oracle (`tools/validation/fluid/`,
+  which reaches the same numbers by different routes -- bisection rather
+  than Cardano for the cubic, residual-Helmholtz quadrature rather than
+  closed-form fugacity, Maxwell equal areas rather than successive
+  substitution for Psat) plus NIST vapor pressures and three published
+  anchors: Whitson & Brule Monograph 20 App. B Problem 18, the eight
+  Coats & Smart SPE 11197 fluids, and Good Oil Well No. 4 (Core Labs
+  RFL 88001).
   The `production` domain (2026-08-28) holds eight families. Well
   intervention diagnostics (P12), whose organising idea is that THE
   DIAGNOSIS DECIDES THE TREATMENT: water channelling is a plumbing
@@ -193,6 +220,11 @@ Ex. 10-10 and 11-1).
 | `engines/waterflood/layeredSweep.js` | `src/utils/layeredSweepCalculations.js` |
 | `engines/waterflood/patternForecast.js` | `src/utils/patternForecastCalculations.js` |
 | `tools/validation/{wells,petrophysics,rockphysics,earthmodel,porepressure}` | same paths in suite |
+| `engines/fluid/blackOil.ts` | `engines/mbal/mbalEngine.ts` (private helpers; mbal now imports them, and its own gates still pin every one) |
+| `engines/fluid/{units,components,pr78,flash,characterization,envelope,transport,separator,experiments,tuning,labTune}.js` | `src/utils/fluidstudio/eos/` (same names; `envelope.worker.js` and `eosAnalysis.js` stay in the Suite -- they are worker and UI plumbing, not physics) |
+| `test-data/fluid/{goldens,componentReference,characterizationReference,nistVaporPressure}.json` | `src/utils/fluidstudio/eos/__tests__/` |
+| `test-data/fluid/literature-fixtures.json` | `tools/validation/fluidstudio/` |
+| `tools/validation/fluid/` | `tools/validation/fluidstudio/` |
 
 Import rewrites at extraction: `engines/seismolord/synthetics.js` and
 all `@/lib/*` imports became `../../lib/*` (the package has no `@/`
