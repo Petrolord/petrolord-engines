@@ -28,7 +28,18 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
-  The `production` domain (2026-08-28) holds six families. Flow
+  The `production` domain (2026-08-28) holds seven families. The
+  gathering-network solver (P11), which is the one module here with no
+  petroleum in it at all: nodes, branches, a Newton solve on nodal mass
+  balance, and the branch relations supplied as CALLBACKS. That is
+  deliberate, and it is what makes it checkable without judgement --
+  hand it linear resistances and the network collapses to a weighted
+  graph Laplacian whose answer is a matrix inverse, so Newton iteration
+  and Gaussian elimination have to agree to machine precision. They do.
+  Mass is the currency throughout, because surface volumes do not add
+  across pressures. Plus line pipe geometry, whose schedule table
+  carries od, wall AND bore so that it can catch its own transcription
+  errors. Flow
   assurance thermal-hydraulics (P10), which contains no correlation at
   all: the overall heat transfer coefficient as series resistances
   including the classical buried-pipe shape factor acosh(2H/D)/(2 pi k),
