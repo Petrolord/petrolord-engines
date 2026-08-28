@@ -141,12 +141,13 @@
   {
    "gas": {
     "gvfThroughPump": 0.031413612565,
+    "mixtureDensityLbFt3": 53.801047120419,
     "pumpIntakeBpd": 2750.4,
     "throughPumpGasResBpd": 86.4,
     "ventedResBpd": 201.6,
     "verdict": "standard"
    },
-   "gradientPsiPerFt": 0.350948509485,
+   "gradientPsiPerFt": 0.373618382781,
    "id": "gassyOffshore",
    "inputs": {
     "annulusGradPsiPerFt": 0.32,
@@ -174,12 +175,12 @@
    },
    "intakePressurePsia": 1340.0,
    "sized": {
-    "headMadeFt": 5317.402780569601,
+    "headMadeFt": 4980.201628631041,
     "hydraulicHp": 87.105699216595,
     "loadFraction": 0.50279086348,
     "shaftHp": 125.697715870033,
     "stage": {
-     "bhpPerStage": 0.61518188889,
+     "bhpPerStage": 0.654920184104,
      "efficiency": 0.69297758208,
      "headFt": 25.93855014912,
      "inRange": true,
@@ -187,12 +188,14 @@
      "ratio": 1.0,
      "region": "recommended"
     },
-    "stages": 205
+    "stages": 192
    },
    "stream": {
     "freeGasResBpd": 288.0,
     "freeGasScfd": 240000.0,
+    "gasDensityLbFt3": 6.0,
     "gvf": 0.09756097561,
+    "liquidDensityLbFt3": 55.351351351351,
     "liquidResBpd": 2664.0,
     "mixtureDensityLbFt3": 50.536585365854,
     "qoResBpd": 1440.0,
@@ -200,11 +203,12 @@
     "qwStbd": 1200.0,
     "totalResBpd": 2952.0
    },
-   "tdhFt": 5299.922779922779
+   "tdhFt": 4978.341767224601
   },
   {
    "gas": {
     "gvfThroughPump": 0.00351356627,
+    "mixtureDensityLbFt3": 63.25602186219,
     "pumpIntakeBpd": 4098.400000000001,
     "throughPumpGasResBpd": 14.4,
     "ventedResBpd": 0.0,
@@ -256,7 +260,9 @@
    "stream": {
     "freeGasResBpd": 14.4,
     "freeGasScfd": 8000.0,
+    "gasDensityLbFt3": 4.2,
     "gvf": 0.00351356627,
+    "liquidDensityLbFt3": 63.464250734574,
     "liquidResBpd": 4084.000000000001,
     "mixtureDensityLbFt3": 63.25602186219,
     "qoResBpd": 448.0,

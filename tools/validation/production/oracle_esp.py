@@ -160,10 +160,13 @@ def intake_stream(qo, wct, gor, pvt):
     liquid = qo_res + qw_res
     total = liquid + gas_res
     gvf = gas_res / total if total > 0 else 0.0
-    mass = qo_res * pvt['rhoO'] + qw_res * pvt['rhoW'] + gas_res * pvt['rhoG']
+    mass_liquid = qo_res * pvt['rhoO'] + qw_res * pvt['rhoW']
+    mass = mass_liquid + gas_res * pvt['rhoG']
     return {'qwStbd': qw, 'qoResBpd': qo_res, 'qwResBpd': qw_res,
             'freeGasScfd': free_gas_scfd, 'freeGasResBpd': gas_res,
             'liquidResBpd': liquid, 'totalResBpd': total, 'gvf': gvf,
+            'liquidDensityLbFt3': mass_liquid / liquid if liquid > 0 else 0.0,
+            'gasDensityLbFt3': pvt['rhoG'],
             'mixtureDensityLbFt3': mass / total if total > 0 else 0.0}
 
 
@@ -173,13 +176,17 @@ def gas_handling(stream, sep_eff, standard_max=0.10, handler_max=0.25):
     through = stream['freeGasResBpd'] - vented
     intake = stream['liquidResBpd'] + through
     gvf = through / intake if intake > 0 else 0.0
+    mass_through = (stream['liquidResBpd'] * stream['liquidDensityLbFt3']
+                    + through * stream['gasDensityLbFt3'])
+    density = mass_through / intake if intake > 0 else 0.0
     verdict = 'standard'
     if gvf > handler_max:
         verdict = 'separatorRequired'
     elif gvf > standard_max:
         verdict = 'gasHandler'
     return {'ventedResBpd': vented, 'throughPumpGasResBpd': through,
-            'pumpIntakeBpd': intake, 'gvfThroughPump': gvf, 'verdict': verdict}
+            'pumpIntakeBpd': intake, 'gvfThroughPump': gvf,
+            'mixtureDensityLbFt3': density, 'verdict': verdict}
 
 
 def size_pump(curve, q_bpd, tdh_ft, hz, sg, nameplate_hp):
@@ -320,7 +327,7 @@ def build():
         stream = intake_stream(d['qoStbd'], d['wct'], d['gorScfStb'], d['pvt'])
         gas = gas_handling(stream, d['separatorEfficiency'])
         pip = d['pwfPsia'] - d['annulusGradPsiPerFt'] * max(d['perfTvdFt'] - d['pumpTvdFt'], 0.0)
-        grad = stream['mixtureDensityLbFt3'] / 144.0
+        grad = gas['mixtureDensityLbFt3'] / 144.0
         tdh = (d['pDischargePsia'] - pip) / grad
         sized = size_pump(curve, gas['pumpIntakeBpd'], tdh, d['hz'],
                           grad / 0.433, d['nameplateHp'])

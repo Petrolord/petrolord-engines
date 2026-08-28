@@ -83,6 +83,8 @@ export const intakeStream = ({ qoStbd, wct = 0, gorScfStb, pvt }) => {
   const gvf = totalResBpd > 0 ? freeGasResBpd / totalResBpd : 0;
   const massLiquid = qoResBpd * (pvt.rhoO ?? 0) + qwResBpd * (pvt.rhoW ?? 0);
   const massGas = freeGasResBpd * (pvt.rhoG ?? 0);
+  const liquidDensityLbFt3 = liquidResBpd > 0 ? massLiquid / liquidResBpd : 0;
+  const gasDensityLbFt3 = pvt.rhoG ?? 0;
   const mixtureDensityLbFt3 = totalResBpd > 0 ? (massLiquid + massGas) / totalResBpd : 0;
   return {
     qwStbd,
@@ -93,6 +95,8 @@ export const intakeStream = ({ qoStbd, wct = 0, gorScfStb, pvt }) => {
     liquidResBpd,
     totalResBpd,
     gvf,
+    liquidDensityLbFt3,
+    gasDensityLbFt3,
     mixtureDensityLbFt3,
   };
 };
@@ -121,6 +125,13 @@ export const gasHandling = ({
   const throughPumpGasResBpd = stream.freeGasResBpd - ventedResBpd;
   const pumpIntakeBpd = stream.liquidResBpd + throughPumpGasResBpd;
   const gvfThroughPump = pumpIntakeBpd > 0 ? throughPumpGasResBpd / pumpIntakeBpd : 0;
+  // Density of what the pump actually swallows, which is heavier than
+  // the full stream once a separator has taken gas out. This is the
+  // gradient the head conversion has to use, so it is computed here
+  // rather than left to the caller to get subtly wrong.
+  const massThrough = stream.liquidResBpd * stream.liquidDensityLbFt3
+    + throughPumpGasResBpd * stream.gasDensityLbFt3;
+  const mixtureDensityLbFt3 = pumpIntakeBpd > 0 ? massThrough / pumpIntakeBpd : 0;
   let verdict = 'standard';
   if (gvfThroughPump > limits.handlerMax) verdict = 'separatorRequired';
   else if (gvfThroughPump > limits.standardMax) verdict = 'gasHandler';
@@ -130,6 +141,7 @@ export const gasHandling = ({
     throughPumpGasResBpd,
     pumpIntakeBpd,
     gvfThroughPump,
+    mixtureDensityLbFt3,
     verdict,
     limits,
   };

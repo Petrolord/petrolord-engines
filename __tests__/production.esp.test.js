@@ -195,6 +195,7 @@ describe('intake conditions and gas', () => {
       const gas = gasHandling({ stream, separatorEfficiency: g.inputs.separatorEfficiency });
       expect(rel(gas.pumpIntakeBpd, g.gas.pumpIntakeBpd)).toBeLessThan(1e-10);
       expect(rel(gas.gvfThroughPump, g.gas.gvfThroughPump)).toBeLessThan(1e-9);
+      expect(rel(gas.mixtureDensityLbFt3, g.gas.mixtureDensityLbFt3)).toBeLessThan(1e-10);
       expect(gas.verdict).toBe(g.gas.verdict);
     });
   });
@@ -204,6 +205,23 @@ describe('intake conditions and gas', () => {
     const stream = intakeStream({ qoStbd: 1000, wct: 0.3, gorScfStb: 500, pvt });
     expect(stream.freeGasScfd).toBe(0);
     expect(stream.gvf).toBe(0);
+  });
+
+  test('what the pump swallows is denser than the full stream once gas is vented', () => {
+    // The head conversion has to use the density of the fluid IN the
+    // pump: vent gas to the annulus and the same pressure rise is fewer
+    // feet of head, so a design that used the full-stream density would
+    // over-stage.
+    const pvt = { rs: 300, bo: 1.2, bw: 1.02, bg: 0.0012, rhoO: 48, rhoW: 64, rhoG: 6 };
+    const stream = intakeStream({ qoStbd: 1200, wct: 0.5, gorScfStb: 500, pvt });
+    const none = gasHandling({ stream, separatorEfficiency: 0 });
+    const most = gasHandling({ stream, separatorEfficiency: 0.7 });
+    expect(rel(none.mixtureDensityLbFt3, stream.mixtureDensityLbFt3)).toBeLessThan(1e-12);
+    expect(most.mixtureDensityLbFt3).toBeGreaterThan(none.mixtureDensityLbFt3);
+    expect(most.mixtureDensityLbFt3).toBeLessThan(stream.liquidDensityLbFt3);
+    // with every drop of free gas gone the pump sees the liquid itself
+    const all = gasHandling({ stream, separatorEfficiency: 1 });
+    expect(rel(all.mixtureDensityLbFt3, stream.liquidDensityLbFt3)).toBeLessThan(1e-12);
   });
 
   test('a separator moves the verdict, and the thresholds are the ones stated', () => {
