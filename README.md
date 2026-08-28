@@ -28,7 +28,21 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
-  The `production` domain (2026-08-28) holds seven families. The
+  The `production` domain (2026-08-28) holds eight families. Well
+  intervention diagnostics (P12), whose organising idea is that THE
+  DIAGNOSIS DECIDES THE TREATMENT: water channelling is a plumbing
+  problem and a squeeze has something to seal, while water coning is
+  not and the cone simply re-forms above whatever was plugged. Every
+  screening rule is therefore gated by the diagnosis, and a candidate
+  the diagnostic argues against comes back as a refusal with the reason
+  rather than quietly scored lower. Chan's published type curves are
+  NOT transcribed; what is here reads the same two things Chan reads,
+  the trend of the ratio and the sign and steepness of its derivative,
+  with every threshold a named input. The derivative itself is passed
+  in, because the consumer already has a validated Bourdet one and a
+  second would be a second thing to be wrong. Plus the skin group
+  ln(re/rw) - 3/4 + S, which refuses the skin at which the productivity
+  index goes infinite instead of returning a spectacular uplift. The
   gathering-network solver (P11), which is the one module here with no
   petroleum in it at all: nodes, branches, a Newton solve on nodal mass
   balance, and the branch relations supplied as CALLBACKS. That is
