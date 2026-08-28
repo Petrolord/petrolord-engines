@@ -1,0 +1,436 @@
+{
+ "affinity": [
+  {
+   "bhpPerStage": 0.190598407413,
+   "efficiency": 0.738525714286,
+   "headFt": 11.785396825397,
+   "hz": 40.0,
+   "inRange": true,
+   "qBpd": 1800.0,
+   "qRefBpd": 2700.0,
+   "region": "recommended",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.198470643715,
+   "efficiency": 0.594160714286,
+   "headFt": 7.10873015873,
+   "hz": 40.0,
+   "inRange": false,
+   "qBpd": 2500.0,
+   "qRefBpd": 3750.0,
+   "region": "upthrust",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.004290703685,
+   "efficiency": 0.257645714285,
+   "headFt": 0.052063492058,
+   "hz": 40.0,
+   "inRange": false,
+   "qBpd": 3200.0,
+   "qRefBpd": 4800.0,
+   "region": "upthrust",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.349754092166,
+   "efficiency": 0.707726994286,
+   "headFt": 20.724682539682,
+   "hz": 50.0,
+   "inRange": true,
+   "qBpd": 1800.0,
+   "qRefBpd": 2160.0,
+   "region": "recommended",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.383690204545,
+   "efficiency": 0.722285714286,
+   "headFt": 16.706349206349,
+   "hz": 50.0,
+   "inRange": true,
+   "qBpd": 2500.0,
+   "qRefBpd": 3000.0,
+   "region": "recommended",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.382959060436,
+   "efficiency": 0.571532434286,
+   "headFt": 10.308015873015,
+   "hz": 50.0,
+   "inRange": false,
+   "qBpd": 3200.0,
+   "qRefBpd": 3840.0,
+   "region": "upthrust",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.584437270842,
+   "efficiency": 0.639131428571,
+   "headFt": 31.274285714285,
+   "hz": 60.0,
+   "inRange": true,
+   "qBpd": 1800.0,
+   "qRefBpd": 1800.0,
+   "region": "downthrust",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.62866579698,
+   "efficiency": 0.736571428571,
+   "headFt": 27.914285714286,
+   "hz": 60.0,
+   "inRange": true,
+   "qBpd": 2500.0,
+   "qRefBpd": 2500.0,
+   "region": "recommended",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.672993540155,
+   "efficiency": 0.699611428571,
+   "headFt": 22.174285714286,
+   "hz": 60.0,
+   "inRange": true,
+   "qBpd": 3200.0,
+   "qRefBpd": 3200.0,
+   "region": "recommended",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.919563594929,
+   "efficiency": 0.564145072886,
+   "headFt": 43.434206349207,
+   "hz": 70.0,
+   "inRange": true,
+   "qBpd": 1800.0,
+   "qRefBpd": 1542.857142857143,
+   "region": "downthrust",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 0.957919325621,
+   "efficiency": 0.705376093294,
+   "headFt": 40.732539682539,
+   "hz": 70.0,
+   "inRange": true,
+   "qBpd": 2500.0,
+   "qRefBpd": 2142.857142857143,
+   "region": "recommended",
+   "sg": 0.9
+  },
+  {
+   "bhpPerStage": 1.026313513805,
+   "efficiency": 0.737578542274,
+   "headFt": 35.650873015873,
+   "hz": 70.0,
+   "inRange": true,
+   "qBpd": 3200.0,
+   "qRefBpd": 2742.857142857143,
+   "region": "recommended",
+   "sg": 0.9
+  }
+ ],
+ "constants": {
+  "hpHeadDivisor": 135635.8008312392
+ },
+ "description": "Production P5 ESP goldens. Independent stdlib oracle (QR least squares against the engine normal-equations solve, hydraulic power constant rebuilt from the pressure form) against the engine method spec: stage curves, affinity scaling, intake stream and gas handling, TDH and staging, motor current, cable drop and surface power.",
+ "designs": [
+  {
+   "gas": {
+    "gvfThroughPump": 0.031413612565,
+    "mixtureDensityLbFt3": 53.801047120419,
+    "pumpIntakeBpd": 2750.4,
+    "throughPumpGasResBpd": 86.4,
+    "ventedResBpd": 201.6,
+    "verdict": "standard"
+   },
+   "gradientPsiPerFt": 0.373618382781,
+   "id": "gassyOffshore",
+   "inputs": {
+    "annulusGradPsiPerFt": 0.32,
+    "curve": "ref-540-2500",
+    "gorScfStb": 500.0,
+    "hz": 60.0,
+    "id": "gassyOffshore",
+    "nameplateHp": 250.0,
+    "pDischargePsia": 3200.0,
+    "perfTvdFt": 7500.0,
+    "pumpTvdFt": 7000.0,
+    "pvt": {
+     "bg": 0.0012,
+     "bo": 1.2,
+     "bw": 1.02,
+     "rhoG": 6.0,
+     "rhoO": 48.0,
+     "rhoW": 64.0,
+     "rs": 300.0
+    },
+    "pwfPsia": 1500.0,
+    "qoStbd": 1200.0,
+    "separatorEfficiency": 0.7,
+    "wct": 0.5
+   },
+   "intakePressurePsia": 1340.0,
+   "sized": {
+    "headMadeFt": 4980.201628631041,
+    "hydraulicHp": 87.105699216595,
+    "loadFraction": 0.50279086348,
+    "shaftHp": 125.697715870033,
+    "stage": {
+     "bhpPerStage": 0.654920184104,
+     "efficiency": 0.69297758208,
+     "headFt": 25.93855014912,
+     "inRange": true,
+     "qRefBpd": 2750.4,
+     "ratio": 1.0,
+     "region": "recommended"
+    },
+    "stages": 192
+   },
+   "stream": {
+    "freeGasResBpd": 288.0,
+    "freeGasScfd": 240000.0,
+    "gasDensityLbFt3": 6.0,
+    "gvf": 0.09756097561,
+    "liquidDensityLbFt3": 55.351351351351,
+    "liquidResBpd": 2664.0,
+    "mixtureDensityLbFt3": 50.536585365854,
+    "qoResBpd": 1440.0,
+    "qwResBpd": 1224.0,
+    "qwStbd": 1200.0,
+    "totalResBpd": 2952.0
+   },
+   "tdhFt": 4978.341767224601
+  },
+  {
+   "gas": {
+    "gvfThroughPump": 0.00351356627,
+    "mixtureDensityLbFt3": 63.25602186219,
+    "pumpIntakeBpd": 4098.400000000001,
+    "throughPumpGasResBpd": 14.4,
+    "ventedResBpd": 0.0,
+    "verdict": "standard"
+   },
+   "gradientPsiPerFt": 0.439277929599,
+   "id": "highWaterCut",
+   "inputs": {
+    "annulusGradPsiPerFt": 0.42,
+    "curve": "ref-675-7000",
+    "gorScfStb": 200.0,
+    "hz": 50.0,
+    "id": "highWaterCut",
+    "nameplateHp": 200.0,
+    "pDischargePsia": 2600.0,
+    "perfTvdFt": 6200.0,
+    "pumpTvdFt": 5800.0,
+    "pvt": {
+     "bg": 0.0018,
+     "bo": 1.12,
+     "bw": 1.01,
+     "rhoG": 4.2,
+     "rhoO": 51.0,
+     "rhoW": 65.0,
+     "rs": 180.0
+    },
+    "pwfPsia": 1100.0,
+    "qoStbd": 400.0,
+    "separatorEfficiency": 0.0,
+    "wct": 0.9
+   },
+   "intakePressurePsia": 932.0,
+   "sized": {
+    "headMadeFt": 3801.313555560488,
+    "hydraulicHp": 116.398707228583,
+    "loadFraction": 0.862798260014,
+    "shaftHp": 172.559652002799,
+    "stage": {
+     "bhpPerStage": 0.654353396823,
+     "efficiency": 0.67454185192,
+     "headFt": 14.398914983184,
+     "inRange": true,
+     "qRefBpd": 4918.080000000001,
+     "ratio": 0.833333333333,
+     "region": "downthrust"
+    },
+    "stages": 264
+   },
+   "stream": {
+    "freeGasResBpd": 14.4,
+    "freeGasScfd": 8000.0,
+    "gasDensityLbFt3": 4.2,
+    "gvf": 0.00351356627,
+    "liquidDensityLbFt3": 63.464250734574,
+    "liquidResBpd": 4084.000000000001,
+    "mixtureDensityLbFt3": 63.25602186219,
+    "qoResBpd": 448.0,
+    "qwResBpd": 3636.000000000001,
+    "qwStbd": 3600.000000000001,
+    "totalResBpd": 4098.400000000001
+   },
+   "tdhFt": 3797.140460765671
+  }
+ ],
+ "electrical": [
+  {
+   "amps": 33.5,
+   "dropPct": 3.396543572245,
+   "dropV": 81.517045733882,
+   "inputs": {
+    "cableTempF": 180.0,
+    "lengthFt": 7200.0,
+    "nameplateAmps": 67.0,
+    "nameplateHp": 250.0,
+    "nameplateVolts": 2400.0,
+    "ohmsPer1000FtAt77F": 0.1593,
+    "powerFactor": 0.85,
+    "shaftHp": 125.0
+   },
+   "kva": 143.986805702487,
+   "kw": 122.388784847114,
+   "loadFraction": 0.5,
+   "lossKw": 4.729920773949,
+   "resistanceOhmsPer1000Ft": 0.195123915,
+   "surfaceVolts": 2481.517045733882
+  },
+  {
+   "amps": 38.22,
+   "dropPct": 15.880618582666,
+   "dropV": 206.448041574658,
+   "inputs": {
+    "cableTempF": 210.0,
+    "lengthFt": 6000.0,
+    "nameplateAmps": 49.0,
+    "nameplateHp": 100.0,
+    "nameplateVolts": 1300.0,
+    "ohmsPer1000FtAt77F": 0.4028,
+    "powerFactor": 0.88,
+    "shaftHp": 78.0
+   },
+   "kva": 99.725326585191,
+   "kw": 87.758287394968,
+   "loadFraction": 0.78,
+   "lossKw": 13.666650160324,
+   "resistanceOhmsPer1000Ft": 0.519766406667,
+   "surfaceVolts": 1506.448041574658
+  }
+ ],
+ "generator": "tools/validation/production/oracle_esp.py",
+ "referenceCurves": [
+  {
+   "bep": {
+    "efficiency": 0.699999825,
+    "headFt": 28.00979755,
+    "qBpd": 2498.75
+   },
+   "headAtBep": 28.0,
+   "id": "ref-540-2500",
+   "samples": [
+    {
+     "headFt": 35.35,
+     "qBpd": 1250
+    },
+    {
+     "headFt": 28.0,
+     "qBpd": 2500
+    },
+    {
+     "headFt": 18.592,
+     "qBpd": 3500
+    }
+   ],
+   "spec": {
+    "bepBpd": 2500,
+    "bepEfficiency": 0.7,
+    "bepHeadFt": 28,
+    "id": "ref-540-2500",
+    "qMax": 3500,
+    "qMin": 1250,
+    "shutoffRatio": 1.35
+   }
+  },
+  {
+   "bep": {
+    "efficiency": 0.73999996602,
+    "headFt": 17.997685466327,
+    "qBpd": 7001.5
+   },
+   "headAtBep": 18.0,
+   "id": "ref-675-7000",
+   "samples": [
+    {
+     "headFt": 21.636734693878,
+     "qBpd": 4000
+    },
+    {
+     "headFt": 18.0,
+     "qBpd": 7000
+    },
+    {
+     "headFt": 12.816,
+     "qBpd": 9800
+    }
+   ],
+   "spec": {
+    "bepBpd": 7000,
+    "bepEfficiency": 0.74,
+    "bepHeadFt": 18,
+    "id": "ref-675-7000",
+    "qMax": 9800,
+    "qMin": 4000,
+    "shutoffRatio": 1.3
+   }
+  }
+ ],
+ "vendorCurve": {
+  "bep": {
+   "efficiency": 0.739054805,
+   "headFt": 26.992525,
+   "qBpd": 2635.0
+  },
+  "effCoeffs": [
+   -0.420571428571,
+   3.403333333331,
+   -2.904999999996,
+   0.571666666665
+  ],
+  "effScale": 3500,
+  "headCoeffs": [
+   28.985714285732,
+   19.74999999992,
+   -29.749999999884,
+   -5.3e-11
+  ],
+  "headRmse": 0.053452248382,
+  "headScale": 3500,
+  "points": [
+   {
+    "efficiencyPct": 55.0,
+    "headFt": 32.0,
+    "qBpd": 1500
+   },
+   {
+    "efficiencyPct": 68.0,
+    "headFt": 30.5,
+    "qBpd": 2000
+   },
+   {
+    "efficiencyPct": 74.0,
+    "headFt": 28.0,
+    "qBpd": 2500
+   },
+   {
+    "efficiencyPct": 72.0,
+    "headFt": 24.0,
+    "qBpd": 3000
+   },
+   {
+    "efficiencyPct": 65.0,
+    "headFt": 19.0,
+    "qBpd": 3500
+   }
+  ]
+ }
+}
