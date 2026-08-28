@@ -28,8 +28,15 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
-  The `production` domain (2026-08-28, Production P4) holds the gas-lift
-  installation engines: gas properties (Sutton pseudo-criticals,
+  The `production` domain (2026-08-28) holds two families. ESP sizing
+  (P5): stage curves fitted from vendor points or built as transparent
+  reference MODELS with named parameters (never invented vendor curves),
+  affinity scaling, intake stream and gas handling from a supplied
+  black-oil PVT set, total dynamic head as the pressure the pump adds,
+  staging and shaft power, operating diagnostics, and the electrical
+  side (motor current, copper cable drop, surface voltage and kVA). And
+  the gas-lift
+  installation engines (P4): gas properties (Sutton pseudo-criticals,
   Wichert-Aziz, DAK z, real-gas static casing column), bellows-valve
   mechanics (nitrogen dome charge across the test-rack/valve temperature
   step, the IPO/PPO force balance, test-rack settings, spread,
