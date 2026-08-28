@@ -1,0 +1,249 @@
+{
+ "burialAtHalfDiameter": 1.6148921379622259e-09,
+ "constants": {
+  "hammerschmidtKfromMetric": 2334.6,
+  "nielsenBucklinFfromMetric": 129.6
+ },
+ "cooldown": {
+  "hours": 4.6627250326042144,
+  "timeConstantHr": 3.5886909084131804,
+  "uBtuHrFt2F": 1.334879072039534
+ },
+ "inhibition": [
+  {
+   "hammerschmidtF": 3.835008870490834,
+   "inhibitor": "methanol",
+   "molecularWeight": 32.04,
+   "nielsenBucklinF": 3.7795926052957785,
+   "weightPct": 5.0
+  },
+  {
+   "hammerschmidtF": 8.096129837702872,
+   "inhibitor": "methanol",
+   "molecularWeight": 32.04,
+   "nielsenBucklinF": 7.853778443622078,
+   "weightPct": 10.0
+  },
+  {
+   "hammerschmidtF": 18.216292134831463,
+   "inhibitor": "methanol",
+   "molecularWeight": 32.04,
+   "nielsenBucklinF": 17.045646576122383,
+   "weightPct": 20.0
+  },
+  {
+   "hammerschmidtF": 31.227929373996794,
+   "inhibitor": "methanol",
+   "molecularWeight": 32.04,
+   "nielsenBucklinF": 27.979891476965186,
+   "weightPct": 30.0
+  },
+  {
+   "hammerschmidtF": 48.57677902621723,
+   "inhibitor": "methanol",
+   "molecularWeight": 32.04,
+   "nielsenBucklinF": 41.256893831591086,
+   "weightPct": 40.0
+  },
+  {
+   "hammerschmidtF": 72.86516853932584,
+   "inhibitor": "methanol",
+   "molecularWeight": 32.04,
+   "nielsenBucklinF": 57.81939131579898,
+   "weightPct": 50.0
+  },
+  {
+   "hammerschmidtF": 1.979598585637608,
+   "inhibitor": "meg",
+   "molecularWeight": 62.07,
+   "nielsenBucklinF": 1.9647521986762464,
+   "weightPct": 5.0
+  },
+  {
+   "hammerschmidtF": 4.1791525696793945,
+   "inhibitor": "meg",
+   "molecularWeight": 62.07,
+   "nielsenBucklinF": 4.1134350659860415,
+   "weightPct": 10.0
+  },
+  {
+   "hammerschmidtF": 9.403093281778636,
+   "inhibitor": "meg",
+   "molecularWeight": 62.07,
+   "nielsenBucklinF": 9.078165756471867,
+   "weightPct": 20.0
+  },
+  {
+   "hammerschmidtF": 16.119588483049096,
+   "inhibitor": "meg",
+   "molecularWeight": 62.07,
+   "nielsenBucklinF": 15.194069078890038,
+   "weightPct": 30.0
+  },
+  {
+   "hammerschmidtF": 25.07491541807637,
+   "inhibitor": "meg",
+   "molecularWeight": 62.07,
+   "nielsenBucklinF": 22.92401216464219,
+   "weightPct": 40.0
+  },
+  {
+   "hammerschmidtF": 37.612373127114545,
+   "inhibitor": "meg",
+   "molecularWeight": 62.07,
+   "nielsenBucklinF": 33.02542240923286,
+   "weightPct": 50.0
+  },
+  {
+   "hammerschmidtF": 1.1578748983276133,
+   "inhibitor": "deg",
+   "molecularWeight": 106.12,
+   "nielsenBucklinF": 1.1528039324013215,
+   "weightPct": 5.0
+  },
+  {
+   "hammerschmidtF": 2.444402563136072,
+   "inhibitor": "deg",
+   "molecularWeight": 106.12,
+   "nielsenBucklinF": 2.421784266023018,
+   "weightPct": 10.0
+  },
+  {
+   "hammerschmidtF": 5.499905767056163,
+   "inhibitor": "deg",
+   "molecularWeight": 106.12,
+   "nielsenBucklinF": 5.386729982935473,
+   "weightPct": 20.0
+  },
+  {
+   "hammerschmidtF": 9.428409886381992,
+   "inhibitor": "deg",
+   "molecularWeight": 106.12,
+   "nielsenBucklinF": 9.101768985579964,
+   "weightPct": 30.0
+  },
+  {
+   "hammerschmidtF": 14.666415378816431,
+   "inhibitor": "deg",
+   "molecularWeight": 106.12,
+   "nielsenBucklinF": 13.895087806339292,
+   "weightPct": 40.0
+  },
+  {
+   "hammerschmidtF": 21.99962306822465,
+   "inhibitor": "deg",
+   "molecularWeight": 106.12,
+   "nielsenBucklinF": 20.321170332263648,
+   "weightPct": 50.0
+  },
+  {
+   "hammerschmidtF": 0.8182305667611794,
+   "inhibitor": "teg",
+   "molecularWeight": 150.17,
+   "nielsenBucklinF": 0.8157085872768214,
+   "weightPct": 5.0
+  },
+  {
+   "hammerschmidtF": 1.7273756409402676,
+   "inhibitor": "teg",
+   "molecularWeight": 150.17,
+   "nielsenBucklinF": 1.7160703859810154,
+   "weightPct": 10.0
+  },
+  {
+   "hammerschmidtF": 3.886595192115603,
+   "inhibitor": "teg",
+   "molecularWeight": 150.17,
+   "nielsenBucklinF": 3.8296896203479363,
+   "weightPct": 20.0
+  },
+  {
+   "hammerschmidtF": 6.662734615055319,
+   "inhibitor": "teg",
+   "molecularWeight": 150.17,
+   "nielsenBucklinF": 6.497512365449572,
+   "weightPct": 30.0
+  },
+  {
+   "hammerschmidtF": 10.364253845641608,
+   "inhibitor": "teg",
+   "molecularWeight": 150.17,
+   "nielsenBucklinF": 9.971274159619165,
+   "weightPct": 40.0
+  },
+  {
+   "hammerschmidtF": 15.546380768462411,
+   "inhibitor": "teg",
+   "molecularWeight": 150.17,
+   "nielsenBucklinF": 14.68323655050127,
+   "weightPct": 50.0
+  }
+ ],
+ "overallU": {
+  "bare": 105.97993083555583,
+  "buried4ft": 0.7132000155945687,
+  "insulated": 1.334879072039534,
+  "layers": [
+   {
+    "idIn": 6.065,
+    "k": 26,
+    "odIn": 6.625
+   },
+   {
+    "idIn": 6.625,
+    "k": 0.09,
+    "odIn": 8.625
+   }
+  ],
+  "totalResistanceSI": 0.27260144546176646
+ },
+ "profile": {
+  "ambientTempF": 40.0,
+  "cpBtuLbF": 0.5,
+  "idIn": 6.065,
+  "inletTempF": 180.0,
+  "massRateLbHr": 120000.0,
+  "points": [
+   {
+    "arrivalTempF": 156.17794402818063,
+    "lengthFt": 5280.0,
+    "ntu": 0.1865194066365108
+   },
+   {
+    "arrivalTempF": 95.09425189690589,
+    "lengthFt": 26400.0,
+    "ntu": 0.932597033182554
+   },
+   {
+    "arrivalTempF": 43.35769353343494,
+    "lengthFt": 105600.0,
+    "ntu": 3.730388132730216
+   }
+  ],
+  "relaxationLengthFt": 28308.04630581776,
+  "uBtuHrFt2F": 1.334879072039534
+ },
+ "relaxation": [
+  {
+   "cpBtuLbF": 0.5,
+   "idIn": 6.065,
+   "lengthFt": 14154.02315290888,
+   "massRateLbHr": 60000.0,
+   "uBtuHrFt2F": 1.334879072039534
+  },
+  {
+   "cpBtuLbF": 0.5,
+   "idIn": 6.065,
+   "lengthFt": 28308.04630581776,
+   "massRateLbHr": 120000.0,
+   "uBtuHrFt2F": 1.334879072039534
+  },
+  {
+   "cpBtuLbF": 0.6,
+   "idIn": 6.065,
+   "lengthFt": 33969.65556698131,
+   "massRateLbHr": 120000.0,
+   "uBtuHrFt2F": 1.334879072039534
+  }
+ ]
+}
