@@ -63,7 +63,7 @@ function lengthGuard(segments, reach) {
     total += s.length;
   }
   if (total > budget) {
-    return `The solved profile is ${total.toFixed(0)} long against a reach of ${Math.abs(reach).toFixed(0)} — the curves have almost cancelled and the hold has run away. Raise the curve rates or move the target.`;
+    return `The solved profile is ${total.toFixed(0)} long against a reach of only ${Math.abs(reach).toFixed(0)}. The curves have almost cancelled and the hold has run away. Raise the curve rates or move the target.`;
   }
   return null;
 }
