@@ -28,7 +28,17 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
-  The `production` domain (2026-08-28) holds three families. Sucker-rod
+  The `production` domain (2026-08-28) holds four families. Gas-well
+  performance (P7): liquid loading by the Turner/Coleman droplet
+  balance, DERIVED from drag against weight plus a critical Weber
+  number rather than quoted, so the 1.593 constant falls out of Cd and
+  We instead of being remembered; the critical rate profile down the
+  whole string, because critical rate rises with pressure and it is the
+  shoe that controls, not the wellhead; tubing sizing for a loading
+  well; and plunger lift as a static force balance with the required
+  gas-liquid ratio computed from the work the gas actually does, with
+  the industry screening rule of thumb reported alongside as a labelled
+  cross-check and never as the verdict. Sucker-rod
   pumping (P6): rod string mechanics with the fractions read as
   fractions and Archimedes buoyancy, the tapered-string natural
   frequency solved as an eigenvalue problem rather than read off a
