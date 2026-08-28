@@ -247,8 +247,15 @@ export const solveNetwork = ({
     p.set(node.id, given > 0 ? given : sinkP);
   }
 
+  const pinned = new Set();
   const evaluate = (pv) => residuals({ network, p: pv, branchFlow, wellInflow });
-  const normOf = (net) => Math.max(...unknowns.map((id) => Math.abs(net.get(id))), 0);
+  // A pinned node's residual cannot be driven anywhere, because nothing
+  // that flows depends on its pressure. Including it in the norm would
+  // mean the solve never converged, on a network that is in fact solved.
+  const normOf = (net) => Math.max(
+    ...unknowns.filter((id) => !pinned.has(id)).map((id) => Math.abs(net.get(id))),
+    0,
+  );
 
   let state = evaluate(p);
   let norm = normOf(state.net);
@@ -295,11 +302,47 @@ export const solveNetwork = ({
       }
     }
 
-    const step = solveLinear(jac, base.map((v) => -v));
+    // A node whose ROW is entirely zero is a node whose pressure changes
+    // nothing that flows. That is not always a mistake: it is exactly
+    // what a shut-in well on a dead flowline looks like, and the
+    // physical answer there is obvious -- it sits where it sits and
+    // contributes nothing either way. So such a node is PINNED at its
+    // current pressure and taken out of the system, rather than
+    // dragging a perfectly good network down with it. Which nodes were
+    // pinned is reported, because a pinned node is a fact about the
+    // answer and not an implementation detail.
+    const live = [];
+    for (let i = 0; i < n; i += 1) {
+      const rowDead = jac[i].every((v) => Math.abs(v) < 1e-12);
+      const colDead = jac.every((row) => Math.abs(row[i]) < 1e-12);
+      if (rowDead && colDead) {
+        if (!pinned.has(unknowns[i])) pinned.add(unknowns[i]);
+      } else {
+        live.push(i);
+      }
+    }
+
+    let step;
+    if (live.length === n) {
+      step = solveLinear(jac, base.map((v) => -v));
+    } else if (live.length === 0) {
+      step = new Array(n).fill(0);
+    } else {
+      const sub = live.map((i) => live.map((j) => jac[i][j]));
+      const rhs = live.map((i) => -base[i]);
+      const partial = solveLinear(sub, rhs);
+      if (partial) {
+        step = new Array(n).fill(0);
+        live.forEach((i, k) => { step[i] = partial[k]; });
+      } else {
+        step = null;
+      }
+    }
+
     if (!step) {
       return {
         ok: false,
-        error: 'The system is singular: some node\'s pressure does not affect anything that flows. That is usually a branch that is not connected the way the drawing suggests, or a well with a flat inflow.',
+        error: 'The system is singular: two or more nodes move together, so their pressures are not separately determined. That is usually a branch connected differently from the way the drawing suggests.',
         pressures: Object.fromEntries(p),
         iterations,
       };
@@ -349,7 +392,10 @@ export const solveNetwork = ({
     imbalance: Object.fromEntries(unknowns.map((id) => [id, state.net.get(id)])),
     residualLbD: norm,
     iterations,
-    warnings,
+    pinned: [...pinned],
+    warnings: pinned.size
+      ? [...warnings, `${pinned.size === 1 ? 'One node' : `${pinned.size} nodes`} carried nothing and nothing depended on ${pinned.size === 1 ? 'its' : 'their'} pressure, so ${pinned.size === 1 ? 'it was' : 'they were'} left where ${pinned.size === 1 ? 'it sits' : 'they sit'}: ${[...pinned].join(', ')}. That is what a shut-in well on a dead line looks like.`]
+      : warnings,
   };
 };
 
