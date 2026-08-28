@@ -63,8 +63,20 @@ export const CONDUCTIVITIES = [
   { id: 'soilDry', label: 'Dry soil', k: 0.5 },
 ];
 
-export const conductivity = (id) =>
-  CONDUCTIVITIES.find((c) => c.id === id) || CONDUCTIVITIES[0];
+/**
+ * Thermal conductivity, Btu/(hr ft degF), for a catalog id.
+ *
+ * Returns NaN for an id that is not in the catalog, and DELIBERATELY
+ * does not fall back to anything. An earlier version returned the first
+ * entry -- carbon steel -- for an unknown id, so a typo in an
+ * insulation id quietly turned aerogel into steel and made a line look
+ * two thousand times better insulated than it is. A NaN propagates into
+ * a refusal; a plausible wrong number does not.
+ */
+export const conductivity = (id) => {
+  const rec = CONDUCTIVITIES.find((c) => c.id === id);
+  return rec ? rec.k : NaN;
+};
 
 /**
  * External film coefficients, Btu/(hr ft2 degF). These are the one
@@ -80,8 +92,35 @@ export const FILM_COEFFICIENTS = [
   { id: 'airStill', label: 'Air, sheltered', h: 2 },
 ];
 
-export const filmCoefficient = (id) =>
-  FILM_COEFFICIENTS.find((f) => f.id === id) || FILM_COEFFICIENTS[0];
+/**
+ * Bore-side film coefficients, Btu/(hr ft2 degF).
+ *
+ * Kept in their OWN catalog rather than mixed into the outside list,
+ * because they are an order of magnitude apart and offering a seabed
+ * coefficient for the inside of a pipe is an invitation to pick one.
+ *
+ * For a flowing liquid the inside film is so large that it is very
+ * nearly a short circuit -- it is in the stack for completeness and
+ * because it stops mattering only while the line is flowing. A shut-in
+ * line has a stagnant bore, and then it matters.
+ */
+export const INSIDE_FILMS = [
+  { id: 'liquidFlowing', label: 'Flowing liquid', h: 300 },
+  { id: 'multiphaseFlowing', label: 'Flowing multiphase', h: 200 },
+  { id: 'gasFlowing', label: 'Flowing gas', h: 25 },
+  { id: 'stagnant', label: 'Shut in / stagnant', h: 5 },
+];
+
+/**
+ * Film coefficient, Btu/(hr ft2 degF), for a catalog id. Looks in both
+ * the outside and the inside catalogs, and returns NaN for an id in
+ * neither -- same reasoning as conductivity: no silent fallback.
+ */
+export const filmCoefficient = (id) => {
+  const rec = FILM_COEFFICIENTS.find((f) => f.id === id)
+    || INSIDE_FILMS.find((f) => f.id === id);
+  return rec ? rec.h : NaN;
+};
 
 const inToFt = (v) => v / 12;
 

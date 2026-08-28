@@ -104,11 +104,23 @@ describe('thermal resistances', () => {
   });
 
   test('the material and film tables are properties, not products', () => {
-    expect(conductivity('steel').k).toBe(26);
-    expect(conductivity('aerogel').k).toBeLessThan(conductivity('polyurethane').k);
-    expect(conductivity('nonsense').id).toBe('steel');
-    expect(filmCoefficient('seawaterCurrent').h)
-      .toBeGreaterThan(filmCoefficient('airStill').h);
+    expect(conductivity('steel')).toBe(26);
+    expect(conductivity('aerogel')).toBeLessThan(conductivity('polyurethane'));
+    expect(filmCoefficient('seawaterCurrent'))
+      .toBeGreaterThan(filmCoefficient('airStill'));
+    // The inside catalog is separate but the same lookup reaches it.
+    expect(filmCoefficient('liquidFlowing'))
+      .toBeGreaterThan(filmCoefficient('gasFlowing'));
+    // No silent fallback. An unknown id used to return the FIRST entry,
+    // carbon steel, so a typo turned aerogel into steel and made a line
+    // look two thousand times better insulated than it is. NaN
+    // propagates into a refusal; a plausible wrong number does not.
+    expect(conductivity('nonsense')).toBeNaN();
+    expect(filmCoefficient('nonsense')).toBeNaN();
+    expect(overallU({
+      layers: [{ idIn: 6, odIn: 7, k: conductivity('nonsense') }],
+      insideFilmH: 300, outsideFilmH: 200,
+    }).ok).toBe(false);
     expect(CONDUCTIVITIES.every((c) => c.k > 0)).toBe(true);
     expect(FILM_COEFFICIENTS.every((f) => f.h > 0)).toBe(true);
   });
