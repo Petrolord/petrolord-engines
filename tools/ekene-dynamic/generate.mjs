@@ -1673,12 +1673,20 @@ if (simKeywordCount('WCONHIST') !== simHistoryPeriods.length) {
 // --- what the validator refuses ---------------------------------------------
 // Each broken spec isolates ONE rule, so the count is a fact about the
 // validator rather than about how badly a spec can be mangled.
+// Mutating ONE well must keep the others, or the history's well-name check
+// fires for every remaining period and the case stops isolating anything.
+const withOneWellChanged = (patch) => ({
+  ...simSpec,
+  wells: simSpec.wells.map((w, idx) => (idx === 0 ? { ...w, ...patch } : w)),
+});
 const simRejections = [
   ['no title', { ...simSpec, title: '' }],
   ['no start date', { ...simSpec, startDate: '' }],
-  ['layer count disagrees with nz', { ...simSpec, grid: { ...simGrid, nz: 4 } }],
-  ['well outside the grid', { ...simSpec, wells: [{ ...simVerticalWells[0], i: SIM_DESIGN.nx + 1 }] }],
-  ['completion below the deepest layer', { ...simSpec, wells: [{ ...simVerticalWells[0], k2: simGrid.nz + 1 }] }],
+  // Keep nz at 5 and drop a layer entry, so the completions stay valid and the
+  // only broken rule is the layer count itself.
+  ['layer count disagrees with nz', { ...simSpec, grid: { ...simGrid, layers: simLayers.slice(0, 4) } }],
+  ['well outside the grid', withOneWellChanged({ i: SIM_DESIGN.nx + 1 })],
+  ['completion below the deepest layer', withOneWellChanged({ k2: simGrid.nz + 1 })],
   ['single-node PVT', { ...simSpec, pvt: { ...simSpec.pvt, pvtoRecords: [simPvtoRecords[0]] } }],
   ['history starting off the deck start date', {
     ...simSpec,
@@ -1688,6 +1696,13 @@ const simRejections = [
   const v = validateSpec(spec);
   if (v.ok) throw new Error(`sim: the validator should have refused "${label}"`);
   return { case: label, errors: v.errors };
+});
+// The whole point of the set is that each case isolates ONE rule. Assert it,
+// because a case that cascades into 180 errors teaches the opposite lesson.
+simRejections.forEach((r) => {
+  if (r.errors.length > 2) {
+    throw new Error(`sim: rejection case "${r.case}" raised ${r.errors.length} errors; it should isolate one rule`);
+  }
 });
 say(
   `sim deck: ${gridCellCount(simGrid)} cells, ${simSpec.wells.length} wells ` +

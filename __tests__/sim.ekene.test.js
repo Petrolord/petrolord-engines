@@ -270,6 +270,17 @@ describe('RC5 history and the composed deck', () => {
     });
   });
 
+  it('keeps each broken spec isolated to ONE rule', () => {
+    // A case that cascades teaches the opposite of what it is for. Removing a
+    // well from the spec used to raise 180 errors, because the history then
+    // named five wells the model no longer had.
+    E.validation.rejections.forEach((r) => {
+      expect(r.errors.length).toBeLessThanOrEqual(2);
+    });
+    const single = E.validation.rejections.filter((r) => r.errors.length === 1);
+    expect(single.length).toBeGreaterThanOrEqual(6);
+  });
+
   it('still refuses a spec with a well outside the grid, run live', () => {
     const broken = { ...spec, wells: [{ ...spec.wells[0], i: D.nx + 5, connections: undefined }] };
     const v = validateSpec(broken);
