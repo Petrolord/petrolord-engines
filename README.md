@@ -28,7 +28,17 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
-  The `production` domain (2026-08-28) holds four families. Gas-well
+  The `production` domain (2026-08-28) holds five families. Wellhead
+  limits (P8): the API RP 14E erosional velocity with its C factor as an
+  INPUT rather than a baked-in 100 (RP 14E is explicit that its own
+  values are conservative), fitting the Gilbert-family choke
+  coefficients to a well's OWN test data by the log-linear least
+  squares the power law admits -- the five published sets span a factor
+  of twelve in their leading constant and are not interchangeable --
+  and a labelled Hammerschmidt hydrate SCREENING on the Joule-Thomson
+  cooling across a bean. The choke physics itself is deliberately NOT
+  here: the Gilbert family and the single-phase gas choke are the
+  consumer's already-validated nodal layer. Gas-well
   performance (P7): liquid loading by the Turner/Coleman droplet
   balance, DERIVED from drag against weight plus a critical Weber
   number rather than quoted, so the 1.593 constant falls out of Cd and
