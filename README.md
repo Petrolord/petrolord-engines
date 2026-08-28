@@ -28,7 +28,17 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
-  The `production` domain (2026-08-28) holds five families. Wellhead
+  The `production` domain (2026-08-28) holds six families. Flow
+  assurance thermal-hydraulics (P10), which contains no correlation at
+  all: the overall heat transfer coefficient as series resistances
+  including the classical buried-pipe shape factor acosh(2H/D)/(2 pi k),
+  the steady-state exponential approach to ambient that an energy
+  balance on a pipe element integrates to, and the lumped-capacitance
+  cooldown that gives a no-touch time. Plus hydrate inhibition:
+  Hammerschmidt and Nielsen-Bucklin computed side by side with the gap
+  between them reported rather than resolved, since they agree when
+  dilute and separate badly when not. Where the hydrate boundary IS
+  stays with the consumer's fluid model. Wellhead
   limits (P8): the API RP 14E erosional velocity with its C factor as an
   INPUT rather than a baked-in 100 (RP 14E is explicit that its own
   values are conservative), fitting the Gilbert-family choke
