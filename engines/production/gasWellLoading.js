@@ -240,7 +240,18 @@ export const loadingProfile = ({
       dragCoefficient, criticalWeber,
     });
     if (!at.ok) return { ok: false, error: at.error };
-    points.push({ depthFt: s.depthFt, ...at });
+    // The station's own conditions travel with the result. A profile
+    // point that does not say what pressure and temperature it was
+    // computed at cannot be plotted, and cannot be handed to the tubing
+    // sizing that has to be evaluated at the controlling station.
+    points.push({
+      depthFt: s.depthFt,
+      pPsia: s.pPsia,
+      tempR: s.tempR,
+      z: s.z,
+      idIn: s.idIn,
+      ...at,
+    });
   }
   if (!points.length) {
     return { ok: false, error: 'The loading profile needs at least one station from the flowing traverse.' };

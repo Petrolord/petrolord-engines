@@ -227,6 +227,20 @@ describe('the loading profile down the string', () => {
     p.points.forEach((x) => expect(x.ratio).toBeGreaterThan(1));
   });
 
+  test('each profile point carries the conditions it was computed at', () => {
+    // Without them the point cannot be plotted, and the controlling
+    // station cannot be handed to the tubing sizing that has to be
+    // evaluated there.
+    const p = loadingProfile({ stations, qMscfd: 1200, ...args });
+    p.points.forEach((pt, i) => {
+      expect(pt.pPsia).toBe(stations[i].pPsia);
+      expect(pt.tempR).toBe(stations[i].tempR);
+      expect(pt.z).toBe(stations[i].z);
+      expect(pt.idIn).toBe(stations[i].idIn);
+    });
+    expect(p.controlling.pPsia).toBe(1100);
+  });
+
   test('an empty traverse is refused, not treated as a passing well', () => {
     expect(loadingProfile({ stations: [], qMscfd: 900, ...args }).ok).toBe(false);
     expect(loadingProfile({ stations: [], qMscfd: 900, ...args }).error)
