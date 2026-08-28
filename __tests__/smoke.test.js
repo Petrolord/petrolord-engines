@@ -55,6 +55,27 @@ describe('golden anchors', () => {
     }
   });
 
+  test('production: gas-lift dome charge and spacing anchors reproduce', async () => {
+    const { domePressureAtTemp } = await import('../engines/production/gasLiftValves.js');
+    const { spaceValves, linearTemperature } = await import('../engines/production/gasLiftDesign.js');
+    const G = JSON.parse(fs.readFileSync(
+      path.join(root, 'test-data', 'production', 'goldens', 'gaslift_cases.json'), 'utf8',
+    ));
+    const n = G.nitrogen[1];
+    expect(close(domePressureAtTemp({ pd60Psia: n.pd60Psia, tF: n.tF }), n.domeAtTempPsia, 1e-8))
+      .toBe(true);
+    const d = G.designs[0];
+    const spacing = spaceValves({
+      ...d.inputs,
+      tempAtDepthF: linearTemperature({
+        whtF: d.inputs.wht, bhtF: d.inputs.bht, refDepthFt: d.inputs.refDepth,
+      }),
+      ports: d.inputs.ports.map((idIn) => ({ idIn, label: `${idIn}` })),
+    });
+    expect(spacing.depths).toHaveLength(d.depths.length);
+    expect(Math.abs(spacing.depths[0] - d.depths[0])).toBeLessThan(0.05);
+  });
+
   test('waveform: ricker peaks at 1 at t=0', async () => {
     const { rickerWavelet } = await import('../lib/waveform.js');
     const w = rickerWavelet(25, 1, 60);

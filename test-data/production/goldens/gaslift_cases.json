@@ -1,0 +1,690 @@
+{
+ "columns": [
+  {
+   "bhtF": 190.0,
+   "gasSg": 0.65,
+   "pBottomPsia": 1215.716705320418,
+   "pSurfPsia": 1014.7,
+   "surfaceFromBottom": 1014.699999999807,
+   "tvdFt": 8000.0,
+   "whtF": 100.0
+  },
+  {
+   "bhtF": 240.0,
+   "gasSg": 0.7,
+   "pBottomPsia": 1841.23980445219,
+   "pSurfPsia": 1414.7,
+   "surfaceFromBottom": 1414.699999999718,
+   "tvdFt": 11000.0,
+   "whtF": 110.0
+  },
+  {
+   "bhtF": 140.0,
+   "gasSg": 0.6,
+   "pBottomPsia": 668.597603196289,
+   "pSurfPsia": 614.7,
+   "surfaceFromBottom": 614.699999999706,
+   "tvdFt": 4000.0,
+   "whtF": 90.0
+  }
+ ],
+ "description": "Production P4 gas-lift goldens. Independent stdlib oracle (RK4 column, bisection roots) against the engine method spec: gas properties, nitrogen dome charge, valve force balance, Thornhill-Craver throughput, spacing recursion, valve settings and the deepest injection point.",
+ "designs": [
+  {
+   "depths": [
+    2119.249994721031,
+    3682.716497768941,
+    4901.841136177378,
+    5834.735588961765,
+    6530.440469862167,
+    7030.204796211578,
+    7368.624567624072,
+    7500.0
+   ],
+   "id": "westTexasOil",
+   "inputs": {
+    "bellowsAreaIn2": 0.77,
+    "bht": 190.0,
+    "bottomOrifice": true,
+    "dpPerValvePsi": 25.0,
+    "dpTransferPsi": 50.0,
+    "gasSg": 0.65,
+    "id": "westTexasOil",
+    "killGradPsiPerFt": 0.45,
+    "maxDepthFt": 7500.0,
+    "maxValves": 12,
+    "method": "surfaceClose",
+    "minSpacingFt": 250.0,
+    "orificeIdIn": 0.25,
+    "pKickoffPsia": 1014.7,
+    "pOperatingPsia": 914.7,
+    "pWhUnloadPsia": 114.7,
+    "ports": [
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75
+    ],
+    "qgiTargetMscfd": 500.0,
+    "refDepth": 8000.0,
+    "unloadGradPsiPerFt": 0.1,
+    "valveType": "IPO",
+    "wht": 100.0
+   },
+   "note": "8000 ft oil well, 1000 psig kickoff, 1.5 in valves, 25 psi per valve.",
+   "stopReason": "targetDepth",
+   "surfacePressures": [
+    1014.7,
+    989.7,
+    964.7,
+    939.7,
+    914.7,
+    889.7,
+    864.7,
+    839.7
+   ],
+   "valves": [
+    {
+     "closingSurfacePressurePsia": 970.055863944623,
+     "depthFt": 2119.249994721031,
+     "dome60Psia": 895.736722295687,
+     "domeAtTempPsia": 1021.076842602586,
+     "pInjAtDepthPsia": 1068.362497529302,
+     "pProdAtDepthPsia": 326.624999472103,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 47.285654926716,
+     "tempF": 123.841562440612,
+     "testRackOpeningPsia": 956.727988968304,
+     "throughputMscfd": 1359.54850599065,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 955.145099347184,
+     "depthFt": 3682.716497768941,
+     "dome60Psia": 884.56144549781,
+     "domeAtTempPsia": 1042.112668649653,
+     "pInjAtDepthPsia": 1080.184925977973,
+     "pProdAtDepthPsia": 482.971649776894,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 38.07225732832,
+     "tempF": 141.430560599901,
+     "testRackOpeningPsia": 944.791780670853,
+     "throughputMscfd": 1354.332658593132,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 937.910304600681,
+     "depthFt": 4901.841136177378,
+     "dome60Psia": 870.463855621961,
+     "domeAtTempPsia": 1051.188589741167,
+     "pInjAtDepthPsia": 1081.57773718023,
+     "pProdAtDepthPsia": 604.884113617738,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 30.389147439063,
+     "tempF": 155.145712781995,
+     "testRackOpeningPsia": 929.734277192986,
+     "throughputMscfd": 1340.666375573681,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 918.986491276738,
+     "depthFt": 5834.735588961765,
+     "dome60Psia": 854.265989239789,
+     "domeAtTempPsia": 1050.683966026707,
+     "pInjAtDepthPsia": 1074.686617376167,
+     "pProdAtDepthPsia": 698.173558896177,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 24.002651349459,
+     "tempF": 165.64077537582,
+     "testRackOpeningPsia": 912.433488084245,
+     "throughputMscfd": 1290.498730846014,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 898.798123393467,
+     "depthFt": 6530.440469862167,
+     "dome60Psia": 836.510382915953,
+     "domeAtTempPsia": 1042.530383853126,
+     "pInjAtDepthPsia": 1061.240755252088,
+     "pProdAtDepthPsia": 767.744046986217,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 18.710371398962,
+     "tempF": 173.467455285949,
+     "testRackOpeningPsia": 893.468891559074,
+     "throughputMscfd": 1200.950885673861,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 877.641314875669,
+     "depthFt": 7030.204796211578,
+     "dome60Psia": 817.570604430533,
+     "domeAtTempPsia": 1028.299535707054,
+     "pInjAtDepthPsia": 1042.63799370003,
+     "pProdAtDepthPsia": 817.720479621158,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 14.338457992976,
+     "tempF": 179.08980395738,
+     "testRackOpeningPsia": 873.239491858433,
+     "throughputMscfd": 1089.130655659694,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 855.729763419659,
+     "depthFt": 7368.624567624072,
+     "dome60Psia": 797.713205958104,
+     "domeAtTempPsia": 1009.270910717498,
+     "pInjAtDepthPsia": 1020.009376755877,
+     "pProdAtDepthPsia": 851.562456762407,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 10.738466038379,
+     "tempF": 182.897026385771,
+     "testRackOpeningPsia": 852.029990859101,
+     "throughputMscfd": 964.942352460272,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": null,
+     "depthFt": 7500.0,
+     "dome60Psia": null,
+     "domeAtTempPsia": null,
+     "pInjAtDepthPsia": 992.754993570164,
+     "pProdAtDepthPsia": 864.7,
+     "portIdIn": 0.25,
+     "spreadPsi": null,
+     "tempF": 184.375,
+     "testRackOpeningPsia": null,
+     "throughputMscfd": 850.310310797192,
+     "valveType": "orifice"
+    }
+   ]
+  },
+  {
+   "depths": [
+    2606.192995401216,
+    4493.061051145492,
+    5941.091920800633,
+    7022.551471839695,
+    7799.602298221536,
+    8325.302541711062,
+    8644.662255375952
+   ],
+   "id": "deepHighPressure",
+   "inputs": {
+    "bellowsAreaIn2": 0.31,
+    "bht": 240.0,
+    "bottomOrifice": true,
+    "dpPerValvePsi": 40.0,
+    "dpTransferPsi": 75.0,
+    "gasSg": 0.7,
+    "id": "deepHighPressure",
+    "killGradPsiPerFt": 0.5,
+    "maxDepthFt": 10500.0,
+    "maxValves": 14,
+    "method": "surfaceClose",
+    "minSpacingFt": 300.0,
+    "orificeIdIn": 0.1875,
+    "pKickoffPsia": 1414.7,
+    "pOperatingPsia": 1314.7,
+    "pWhUnloadPsia": 214.7,
+    "ports": [
+     0.125,
+     0.15625,
+     0.1875,
+     0.21875,
+     0.25,
+     0.3125
+    ],
+    "qgiTargetMscfd": 250.0,
+    "refDepth": 11000.0,
+    "unloadGradPsiPerFt": 0.12,
+    "valveType": "IPO",
+    "wht": 110.0
+   },
+   "note": "11000 ft, 1400 psig kickoff, 1 in valves, 40 psi per valve, heavier kill fluid.",
+   "stopReason": "minSpacing",
+   "surfacePressures": [
+    1414.7,
+    1374.7,
+    1334.7,
+    1294.7,
+    1254.7,
+    1214.7,
+    1174.7
+   ],
+   "valves": [
+    {
+     "closingSurfacePressurePsia": 1378.504197315833,
+     "depthFt": 2606.192995401216,
+     "dome60Psia": 1246.61292378364,
+     "domeAtTempPsia": 1478.591775361432,
+     "pInjAtDepthPsia": 1517.796497793434,
+     "pProdAtDepthPsia": 527.443159448146,
+     "portIdIn": 0.125,
+     "r": 0.039586600978,
+     "spreadPsi": 39.204722432002,
+     "tempF": 140.800462672923,
+     "testRackOpeningPsia": 1297.996180657915,
+     "throughputMscfd": 458.686749156053,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1347.221790203474,
+     "depthFt": 4493.061051145492,
+     "dome60Psia": 1224.763080105205,
+     "domeAtTempPsia": 1514.524208925818,
+     "pInjAtDepthPsia": 1545.877187268824,
+     "pProdAtDepthPsia": 753.867326137459,
+     "portIdIn": 0.125,
+     "r": 0.039586600978,
+     "spreadPsi": 31.352978343006,
+     "tempF": 163.099812422629,
+     "testRackOpeningPsia": 1275.245723718562,
+     "throughputMscfd": 458.732684169243,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1313.798877081367,
+     "depthFt": 5941.091920800633,
+     "dome60Psia": 1198.775203373003,
+     "domeAtTempPsia": 1528.131170100363,
+     "pInjAtDepthPsia": 1552.882760860929,
+     "pProdAtDepthPsia": 927.631030496076,
+     "portIdIn": 0.125,
+     "r": 0.039586600978,
+     "spreadPsi": 24.751590760566,
+     "tempF": 180.212904518553,
+     "testRackOpeningPsia": 1248.186671066176,
+     "throughputMscfd": 452.337571205628,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1278.876482612623,
+     "depthFt": 7022.551471839695,
+     "dome60Psia": 1170.022107045923,
+     "domeAtTempPsia": 1524.123514057206,
+     "pInjAtDepthPsia": 1543.360806066331,
+     "pProdAtDepthPsia": 1057.406176620763,
+     "portIdIn": 0.125,
+     "r": 0.039586600978,
+     "spreadPsi": 19.237292009125,
+     "tempF": 192.993790121742,
+     "testRackOpeningPsia": 1218.248421187165,
+     "throughputMscfd": 427.875440704317,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1242.858225423625,
+     "depthFt": 7799.602298221536,
+     "dome60Psia": 1139.316621862285,
+     "domeAtTempPsia": 1506.273490446403,
+     "pInjAtDepthPsia": 1520.931589904691,
+     "pProdAtDepthPsia": 1150.652275786584,
+     "portIdIn": 0.125,
+     "r": 0.039586600978,
+     "spreadPsi": 14.658099458288,
+     "tempF": 202.177118069891,
+     "testRackOpeningPsia": 1186.277308315462,
+     "throughputMscfd": 390.896868567703,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1206.014139099306,
+     "depthFt": 8325.302541711062,
+     "dome60Psia": 1107.172187055368,
+     "domeAtTempPsia": 1477.625341945821,
+     "pInjAtDepthPsia": 1488.502397616208,
+     "pProdAtDepthPsia": 1213.736305005327,
+     "portIdIn": 0.125,
+     "r": 0.039586600978,
+     "spreadPsi": 10.877055670387,
+     "tempF": 208.389939129313,
+     "testRackOpeningPsia": 1152.807934773153,
+     "throughputMscfd": 346.816063892877,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": null,
+     "depthFt": 8644.662255375952,
+     "dome60Psia": null,
+     "domeAtTempPsia": null,
+     "pInjAtDepthPsia": 1448.416161730984,
+     "pProdAtDepthPsia": 1252.059470645114,
+     "portIdIn": 0.1875,
+     "spreadPsi": null,
+     "tempF": 212.164190290807,
+     "testRackOpeningPsia": null,
+     "throughputMscfd": 671.927441963523,
+     "valveType": "orifice"
+    }
+   ]
+  },
+  {
+   "depths": [
+    2410.595757100964,
+    4236.835773841176,
+    5812.830048117987,
+    7173.012800195899,
+    8347.04379108076,
+    8500.0
+   ],
+   "id": "constantPressurePPO",
+   "inputs": {
+    "bellowsAreaIn2": 0.77,
+    "bht": 175.0,
+    "bottomOrifice": false,
+    "dpPerValvePsi": 0.0,
+    "dpTransferPsi": 100.0,
+    "gasSg": 0.6,
+    "id": "constantPressurePPO",
+    "killGradPsiPerFt": 0.42,
+    "maxDepthFt": 8500.0,
+    "maxValves": 10,
+    "method": "constantPressure",
+    "minSpacingFt": 200.0,
+    "orificeIdIn": null,
+    "pKickoffPsia": 1114.7,
+    "pOperatingPsia": 1114.7,
+    "pWhUnloadPsia": 164.7,
+    "ports": [
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75
+    ],
+    "qgiTargetMscfd": 800.0,
+    "refDepth": 9000.0,
+    "unloadGradPsiPerFt": 0.08,
+    "valveType": "PPO",
+    "wht": 95.0
+   },
+   "note": "Constant surface pressure design with production-operated valves.",
+   "stopReason": "targetDepth",
+   "surfacePressures": [
+    1114.7,
+    1114.7,
+    1114.7,
+    1114.7,
+    1114.7,
+    1114.7
+   ],
+   "valves": [
+    {
+     "closingSurfacePressurePsia": 389.713022538392,
+     "depthFt": 2410.595757100964,
+     "dome60Psia": 367.697480115405,
+     "domeAtTempPsia": 409.797201414459,
+     "pInjAtDepthPsia": 1177.150217878459,
+     "pProdAtDepthPsia": 357.547660568077,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": -52.249540846382,
+     "tempF": 116.427517840897,
+     "testRackOpeningPsia": 392.734228644695,
+     "throughputMscfd": 1569.154634335068,
+     "valveType": "PPO"
+    },
+    {
+     "closingSurfacePressurePsia": 503.252041656287,
+     "depthFt": 4236.835773841176,
+     "dome60Psia": 478.003888148805,
+     "domeAtTempPsia": 549.605506794818,
+     "pInjAtDepthPsia": 1224.568467535956,
+     "pProdAtDepthPsia": 503.646861907294,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": -45.958644887524,
+     "tempF": 132.660762434144,
+     "testRackOpeningPsia": 510.551468131808,
+     "throughputMscfd": 1609.840268570406,
+     "valveType": "PPO"
+    },
+    {
+     "closingSurfacePressurePsia": 594.189075960448,
+     "depthFt": 5812.830048117987,
+     "dome60Psia": 567.544879519078,
+     "domeAtTempPsia": 670.260984966417,
+     "pInjAtDepthPsia": 1265.564457252759,
+     "pProdAtDepthPsia": 629.726403849439,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": -40.534581116979,
+     "tempF": 146.669600427715,
+     "testRackOpeningPsia": 606.189360909448,
+     "throughputMscfd": 1644.402624498648,
+     "valveType": "PPO"
+    },
+    {
+     "closingSurfacePressurePsia": 667.810672042919,
+     "depthFt": 7173.012800195899,
+     "dome60Psia": 640.843524721672,
+     "domeAtTempPsia": 774.397901321726,
+     "pInjAtDepthPsia": 1301.003159780857,
+     "pProdAtDepthPsia": 738.541024015672,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": -35.856877306054,
+     "tempF": 158.760113779519,
+     "testRackOpeningPsia": 684.478956136772,
+     "throughputMscfd": 1672.788992759355,
+     "valveType": "PPO"
+    },
+    {
+     "closingSurfacePressurePsia": 727.979552800704,
+     "depthFt": 8347.04379108076,
+     "dome60Psia": 701.291461720726,
+     "domeAtTempPsia": 864.285550600786,
+     "pInjAtDepthPsia": 1331.634040198064,
+     "pProdAtDepthPsia": 832.463503286461,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": -31.822047314326,
+     "tempF": 169.195944809607,
+     "testRackOpeningPsia": 749.04283050174,
+     "throughputMscfd": 1676.997005186452,
+     "valveType": "PPO"
+    },
+    {
+     "closingSurfacePressurePsia": 735.598939784062,
+     "depthFt": 8500.0,
+     "dome60Psia": 708.980951786963,
+     "domeAtTempPsia": 875.996561503405,
+     "pInjAtDepthPsia": 1335.627602954982,
+     "pProdAtDepthPsia": 844.7,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": -31.296561503405,
+     "tempF": 170.555555555556,
+     "testRackOpeningPsia": 757.255902695998,
+     "throughputMscfd": 1675.579092500623,
+     "valveType": "PPO"
+    }
+   ]
+  }
+ ],
+ "gasProperties": [
+  {
+   "gasSg": 0.65,
+   "gradPsiPerFt": 0.011670184559,
+   "pPsia": 500.0,
+   "tF": 100.0,
+   "z": 0.9325726758
+  },
+  {
+   "gasSg": 0.65,
+   "gradPsiPerFt": 0.031855542283,
+   "pPsia": 1500.0,
+   "tF": 180.0,
+   "z": 0.89675273086
+  },
+  {
+   "gasSg": 0.7,
+   "gradPsiPerFt": 0.053952003417,
+   "pPsia": 2500.0,
+   "tF": 220.0,
+   "z": 0.894419892159
+  },
+  {
+   "gasSg": 0.6,
+   "gradPsiPerFt": 0.002112418126,
+   "pPsia": 100.0,
+   "tF": 80.0,
+   "z": 0.986397962372
+  },
+  {
+   "gasSg": 0.8,
+   "gradPsiPerFt": 0.080711503711,
+   "pPsia": 3500.0,
+   "tF": 250.0,
+   "z": 0.916168222376
+  }
+ ],
+ "gasPropertiesAcid": [
+  {
+   "gasSg": 0.75,
+   "pPsia": 2000.0,
+   "tF": 160.0,
+   "yCo2": 0.08,
+   "yH2s": 0.04,
+   "z": 0.849475578742
+  }
+ ],
+ "generator": "tools/validation/production/oracle_gaslift.py",
+ "injectionPoint": {
+  "bhtF": 190.0,
+  "dpTransferPsi": 100.0,
+  "expected": {
+   "depthFt": 7739.814701036302,
+   "limitedBy": "pressure",
+   "pInjPsia": 1209.23820600567,
+   "pProdPsia": 1109.233316949227
+  },
+  "gasSg": 0.65,
+  "maxDepthFt": 8000.0,
+  "pSurfPsia": 1014.7,
+  "refDepthFt": 8000.0,
+  "traverse": [
+   {
+    "pPsia": 164.7,
+    "tvdFt": 0
+   },
+   {
+    "pPsia": 264.7,
+    "tvdFt": 1000
+   },
+   {
+    "pPsia": 372.7,
+    "tvdFt": 2000
+   },
+   {
+    "pPsia": 486.7,
+    "tvdFt": 3000
+   },
+   {
+    "pPsia": 606.7,
+    "tvdFt": 4000
+   },
+   {
+    "pPsia": 732.7,
+    "tvdFt": 5000
+   },
+   {
+    "pPsia": 864.7,
+    "tvdFt": 6000
+   },
+   {
+    "pPsia": 1002.7,
+    "tvdFt": 7000
+   },
+   {
+    "pPsia": 1146.7,
+    "tvdFt": 8000
+   }
+  ],
+  "whtF": 100.0
+ },
+ "nitrogen": [
+  {
+   "ct": 0.888133808125,
+   "domeAtTempPsia": 675.573876943861,
+   "pd60Psia": 600.0,
+   "tF": 120.0,
+   "z60": 0.979414628292,
+   "zT": 0.988632777981
+  },
+  {
+   "ct": 0.794246947579,
+   "domeAtTempPsia": 1007.243405138602,
+   "pd60Psia": 800.0,
+   "tF": 180.0,
+   "z60": 0.975498920876,
+   "zT": 0.997798626791
+  },
+  {
+   "ct": 0.737880243603,
+   "domeAtTempPsia": 1355.233465958038,
+   "pd60Psia": 1000.0,
+   "tF": 220.0,
+   "z60": 0.973136858756,
+   "zT": 1.008364586652
+  },
+  {
+   "ct": 0.697487186654,
+   "domeAtTempPsia": 1720.461713075824,
+   "pd60Psia": 1200.0,
+   "tF": 250.0,
+   "z60": 0.972338202124,
+   "zT": 1.020827391748
+  }
+ ],
+ "thornhillCraver": [
+  {
+   "criticalRatio": 0.551208317714,
+   "gasSg": 0.65,
+   "pDnPsia": 300.0,
+   "pUpPsia": 1000.0,
+   "portIdIn": 0.25,
+   "qMscfd": 1255.291661609494,
+   "tF": 140.0
+  },
+  {
+   "criticalRatio": 0.551208317714,
+   "gasSg": 0.65,
+   "pDnPsia": 900.0,
+   "pUpPsia": 1000.0,
+   "portIdIn": 0.25,
+   "qMscfd": 796.940795075232,
+   "tF": 140.0
+  },
+  {
+   "criticalRatio": 0.551208317714,
+   "gasSg": 0.7,
+   "pDnPsia": 700.0,
+   "pUpPsia": 1400.0,
+   "portIdIn": 0.1875,
+   "qMscfd": 908.229615247342,
+   "tF": 200.0
+  },
+  {
+   "criticalRatio": 0.551208317714,
+   "gasSg": 0.6,
+   "pDnPsia": 850.0,
+   "pUpPsia": 900.0,
+   "portIdIn": 0.5,
+   "qMscfd": 2329.53542311409,
+   "tF": 120.0
+  }
+ ]
+}

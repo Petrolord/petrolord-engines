@@ -28,6 +28,16 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
+  The `production` domain (2026-08-28, Production P4) holds the gas-lift
+  installation engines: gas properties (Sutton pseudo-criticals,
+  Wichert-Aziz, DAK z, real-gas static casing column), bellows-valve
+  mechanics (nitrogen dome charge across the test-rack/valve temperature
+  step, the IPO/PPO force balance, test-rack settings, spread,
+  Thornhill-Craver port throughput) and the top-down design itself
+  (valve spacing, per-valve settings, the unloading sequence and the
+  deepest point of gas injection). The flowing production traverse it
+  needs is passed in as a depth-pressure table, so the well's inflow and
+  multiphase outflow stay with the consumer's validated nodal model.
 - Cross-directory imports: `engines/* -> ../../lib/*`, plus ONE
   sanctioned cross-domain edge: `engines/waterflood/patternForecast.js
   -> ../scal/fractionalFlow.js` (Buckley-Leverett displacement is the
