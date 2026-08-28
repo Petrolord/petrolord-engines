@@ -476,20 +476,35 @@ describe('a network that is not a network is refused, with a reason', () => {
     expect(r.error).toMatch(/K-1/);
   });
 
-  test('a singular system is diagnosed rather than returned as infinities', () => {
+  test('a node nothing depends on is PINNED and reported, not refused', () => {
     // A well whose inflow does not depend on its own pressure, on a
     // branch whose flow does not either: nothing determines that node.
+    // That is not a broken network -- it is exactly what a shut-in well
+    // on a dead line looks like -- and the physical answer is that the
+    // node sits where it sits and contributes nothing. Refusing the
+    // whole network over it would throw away every other node's answer.
     const net = buildNetwork({
       nodes: [well, sink], branches: [{ id: 'a', from: 'w', to: 's' }],
     });
-    // The rates have to DISAGREE as well as be constant. Two constants
-    // that happen to balance are a converged network with a flat
-    // Jacobian that is never asked for, which is a different thing.
     const r = solveNetwork({
       network: net, branchFlow: () => 1000, wellInflow: () => 2000,
     });
-    expect(r.ok).toBe(false);
-    expect(r.error).toMatch(/singular/);
+    expect(r.ok).toBe(true);
+    expect(r.pinned).toEqual(['w']);
+    expect(r.warnings.join(' ')).toMatch(/shut-in well on a dead line/);
+  });
+
+  test('a live network reports nothing pinned', () => {
+    const net = buildNetwork({
+      nodes: [well, sink], branches: [{ id: 'a', from: 'w', to: 's' }],
+    });
+    const r = solveNetwork({
+      network: net,
+      branchFlow: (b, pIn, pOut) => 300 * (pIn - pOut),
+      wellInflow: (nd, p) => linearWell({ qmax: 20000, prPsia: 800 })(nd, p),
+    });
+    expect(r.pinned).toEqual([]);
+    expect(r.warnings).toEqual([]);
   });
 
   test('the solver never puts a node below atmospheric', () => {
