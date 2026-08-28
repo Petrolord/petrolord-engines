@@ -28,7 +28,19 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
-  The `production` domain (2026-08-28) holds two families. ESP sizing
+  The `production` domain (2026-08-28) holds three families. Sucker-rod
+  pumping (P6): rod string mechanics with the fractions read as
+  fractions and Archimedes buoyancy, the tapered-string natural
+  frequency solved as an eigenvalue problem rather than read off a
+  table, the DAMPED WAVE EQUATION itself in both directions (a
+  finite-difference predictive march for design and the Gibbs harmonic
+  solution for reading a measured dynamometer card), exact four-bar
+  pumping-unit kinematics with the torque factor as ds/dtheta,
+  counterbalancing, and the rod stress check against modified Goodman.
+  API RP 11L's dimensionless GROUPS are reported because they are how
+  the answer is read, but its published CHARTS are not reproduced from
+  memory: the equation those charts solve is solved directly instead,
+  and the charts stay a literature gate. ESP sizing
   (P5): stage curves fitted from vendor points or built as transparent
   reference MODELS with named parameters (never invented vendor curves),
   affinity scaling, intake stream and gas handling from a supplied
