@@ -1,0 +1,160 @@
+{
+ "airCooler": [
+  {
+   "acfm": 664784.2066477002,
+   "airDensityLbFt3": 0.06964108929385388,
+   "airRiseF": 30,
+   "ambientF": 95,
+   "areaFt2": 52125.749337767,
+   "fanBhp": 96.54609187893209,
+   "fanEfficiency": 0.65,
+   "lmtdF": 85.263895500957,
+   "processInF": 250,
+   "processOutF": 150,
+   "qBtuHr": 20000000.0,
+   "staticPressureInH2O": 0.6,
+   "uBtuHrFt2F": 4.5
+  },
+  {
+   "acfm": 314895.3498982675,
+   "airDensityLbFt3": 0.07057018221895466,
+   "airRiseF": 25,
+   "ambientF": 90,
+   "areaFt2": 35345.82346210202,
+   "fanBhp": 35.387861851374126,
+   "fanEfficiency": 0.7,
+   "lmtdF": 45.26701723940676,
+   "processInF": 180,
+   "processOutF": 120,
+   "qBtuHr": 8000000.0,
+   "staticPressureInH2O": 0.5,
+   "uBtuHrFt2F": 5.0
+  }
+ ],
+ "epsNtu": [
+  {
+   "cr": 0.5,
+   "epsClosed": 0.5647334016064162,
+   "epsOde": 0.5647334016064169,
+   "ntu": 1.0
+  },
+  {
+   "cr": 0.8,
+   "epsClosed": 0.7109094244800938,
+   "epsOde": 0.7109094244800895,
+   "ntu": 2.0
+  },
+  {
+   "cr": 1.0,
+   "epsClosed": 0.75,
+   "epsOde": 0.7499999999999174,
+   "ntu": 3.0
+  },
+  {
+   "cr": 0.25,
+   "epsClosed": 0.37758892644257075,
+   "epsOde": 0.3775889264425758,
+   "ntu": 0.5
+  }
+ ],
+ "fCorrection": [
+  {
+   "f": 0.9453530344296889,
+   "p": 0.4,
+   "r": 0.8
+  },
+  {
+   "f": 0.9386595996941426,
+   "p": 0.3,
+   "r": 1.5
+  },
+  {
+   "f": 0.8022781617244772,
+   "p": 0.5,
+   "r": 1.0
+  },
+  {
+   "f": 0.900869707465639,
+   "p": 0.25,
+   "r": 2.5
+  },
+  {
+   "f": 0.8828892132798523,
+   "p": 0.6,
+   "r": 0.5
+  }
+ ],
+ "lmtd": [
+  {
+   "lmtdF": 109.69629895494906,
+   "tcIn": 100,
+   "tcOut": 180,
+   "thIn": 300,
+   "thOut": 200
+  },
+  {
+   "lmtdF": 88.49848788996275,
+   "tcIn": 80,
+   "tcOut": 140,
+   "thIn": 250,
+   "thOut": 150
+  },
+  {
+   "lmtdF": 279.9999999992606,
+   "tcIn": 100,
+   "tcOut": 120,
+   "thIn": 400,
+   "thOut": 380
+  }
+ ],
+ "tubeFilm": [
+  {
+   "cpBtuLbF": 0.5,
+   "diIn": 0.62,
+   "hBtuHrFt2F": 309.84430584470766,
+   "kBtuHrFtF": 0.08,
+   "mLbHr": 150000,
+   "muCp": 0.5,
+   "nTubes": 200,
+   "passes": 2,
+   "pr": 7.559649513068147,
+   "re": 30561.115838738442
+  },
+  {
+   "cpBtuLbF": 1.0,
+   "diIn": 0.834,
+   "hBtuHrFt2F": 1129.7698494034219,
+   "kBtuHrFtF": 0.35,
+   "mLbHr": 400000,
+   "muCp": 1.2,
+   "nTubes": 300,
+   "passes": 4,
+   "pr": 8.294015465766197,
+   "re": 33658.21444181159
+  }
+ ],
+ "u": [
+  {
+   "diIn": 0.62,
+   "doIn": 0.75,
+   "foulingIn": 0.002,
+   "foulingOut": 0.001,
+   "hiBtuHrFt2F": 800,
+   "hoBtuHrFt2F": 200,
+   "kWallBtuHrFtF": 26,
+   "uCleanBtuHrFt2F": 148.34842389616,
+   "uDirtyBtuHrFt2F": 98.42285161491795
+  },
+  {
+   "diIn": 0.834,
+   "doIn": 1.0,
+   "foulingIn": 0.001,
+   "foulingOut": 0.0005,
+   "hiBtuHrFt2F": 300,
+   "hoBtuHrFt2F": 1200,
+   "kWallBtuHrFtF": 26,
+   "uCleanBtuHrFt2F": 195.27297777744604,
+   "uDirtyBtuHrFt2F": 146.6259099173906
+  }
+ ]
+}
