@@ -1,0 +1,162 @@
+{
+ "curves": [
+  {
+   "c0": 520.8042553191463,
+   "c1": -35.0244680851058,
+   "c2": -307.0053191489307,
+   "maxOrthogonalityResidual": 3.4354741274000844e-12,
+   "points": [
+    {
+     "headFt": 520.0,
+     "qGpm": 0.0
+    },
+    {
+     "headFt": 470.0,
+     "qGpm": 800.0
+    },
+    {
+     "headFt": 330.0,
+     "qGpm": 1600.0
+    },
+    {
+     "headFt": 180.0,
+     "qGpm": 2200.0
+    }
+   ],
+   "scale": 2200.0,
+   "shutoffHeadFt": 520.8042553191463
+  },
+  {
+   "c0": 180.06257760119195,
+   "c1": 1.1403029550548585,
+   "c2": -99.28979389123656,
+   "maxOrthogonalityResidual": 9.908462939023366e-13,
+   "points": [
+    {
+     "headFt": 180.0,
+     "qGpm": 0.0
+    },
+    {
+     "headFt": 168.0,
+     "qGpm": 500.0
+    },
+    {
+     "headFt": 130.0,
+     "qGpm": 1000.0
+    },
+    {
+     "headFt": 82.0,
+     "qGpm": 1400.0
+    }
+   ],
+   "scale": 1400.0,
+   "shutoffHeadFt": 180.06257760119195
+  }
+ ],
+ "duty": [
+  {
+   "atFlowGpm": 1500.0,
+   "frictionHeadFt": 200.0,
+   "headFt": 352.37125329205264,
+   "points": [
+    {
+     "headFt": 520.0,
+     "qGpm": 0.0
+    },
+    {
+     "headFt": 470.0,
+     "qGpm": 800.0
+    },
+    {
+     "headFt": 330.0,
+     "qGpm": 1600.0
+    },
+    {
+     "headFt": 180.0,
+     "qGpm": 2200.0
+    }
+   ],
+   "qGpm": 1508.8659978724395,
+   "staticHeadFt": 150.0
+  },
+  {
+   "atFlowGpm": 900.0,
+   "frictionHeadFt": 60.0,
+   "headFt": 123.69244260100196,
+   "points": [
+    {
+     "headFt": 180.0,
+     "qGpm": 0.0
+    },
+    {
+     "headFt": 168.0,
+     "qGpm": 500.0
+    },
+    {
+     "headFt": 130.0,
+     "qGpm": 1000.0
+    },
+    {
+     "headFt": 82.0,
+     "qGpm": 1400.0
+    }
+   ],
+   "qGpm": 1062.9430723766568,
+   "staticHeadFt": 40.0
+  }
+ ],
+ "npsh": [
+  {
+   "npshaFt": 43.573342645082704,
+   "sg": 0.85,
+   "staticSuctionLiftFt": 8.0,
+   "suctionFrictionFt": 3.0,
+   "suctionPressurePsia": 14.7,
+   "vapourPressurePsia": 0.5
+  },
+  {
+   "npshaFt": 62.75869021042321,
+   "sg": 0.72,
+   "staticSuctionLiftFt": -5.0,
+   "suctionFrictionFt": 6.0,
+   "suctionPressurePsia": 35.0,
+   "vapourPressurePsia": 12.0
+  }
+ ],
+ "power": [
+  {
+   "brakeHp": 123.88986347583011,
+   "efficiency": 0.78,
+   "headFt": 300.0,
+   "qGpm": 1500.0,
+   "sg": 0.85
+  },
+  {
+   "brakeHp": 25.769091602972672,
+   "efficiency": 0.72,
+   "headFt": 120.0,
+   "qGpm": 600.0,
+   "sg": 1.02
+  }
+ ],
+ "viscosity": [
+  {
+   "B": 3.168144585671778,
+   "cEta": 0.8695545318654296,
+   "cQ": 0.9814907164989674,
+   "headBepFt": 300.0,
+   "qBepGpm": 1500.0,
+   "speedRpm": 3560.0,
+   "viscosityCSt": 100.0
+  },
+  {
+   "B": 10.397220821266522,
+   "cEta": 0.5249727447361024,
+   "cQ": 0.840335810109233,
+   "headBepFt": 200.0,
+   "qBepGpm": 800.0,
+   "speedRpm": 1780.0,
+   "viscosityCSt": 500.0
+  }
+ ]
+}
