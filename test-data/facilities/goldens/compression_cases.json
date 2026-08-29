@@ -1,0 +1,81 @@
+{
+ "stages": [
+  {
+   "gasHp": 1725.563159069044,
+   "gasSg": 0.65,
+   "headPolyFtLbfLbm": 61985.41203737853,
+   "k": 1.28,
+   "massLbHr": 41339.74764376751,
+   "pSuctionPsia": 100.0,
+   "polytropicEfficiency": 0.75,
+   "qMMscfd": 20.0,
+   "ratio": 3.16,
+   "tDischargeF": 323.1719567350222,
+   "tSuctionF": 100.0,
+   "zAvg": 0.9868689785338047
+  },
+  {
+   "gasHp": 3105.1876444579007,
+   "gasSg": 0.7,
+   "headPolyFtLbfLbm": 43087.88025966139,
+   "k": 1.26,
+   "massLbHr": 111299.32057937405,
+   "pSuctionPsia": 300.0,
+   "polytropicEfficiency": 0.78,
+   "qMMscfd": 50.0,
+   "ratio": 2.5,
+   "tDischargeF": 266.2662501961399,
+   "tSuctionF": 110.0,
+   "zAvg": 0.9569861441882238
+  },
+  {
+   "gasHp": 567.1935296881803,
+   "gasSg": 0.6,
+   "headPolyFtLbfLbm": 84758.49391242179,
+   "k": 1.3,
+   "massLbHr": 9539.941763946348,
+   "pSuctionPsia": 60.0,
+   "polytropicEfficiency": 0.72,
+   "qMMscfd": 5.0,
+   "ratio": 4.0,
+   "tDischargeF": 397.5059561308862,
+   "tSuctionF": 90.0,
+   "zAvg": 0.9934266964619575
+  }
+ ],
+ "staging": [
+  {
+   "k": 1.28,
+   "maxDischargeF": 300.0,
+   "maxRatioPerStage": 4.0,
+   "overallRatio": 10.0,
+   "pDischargePsia": 1000.0,
+   "pSuctionPsia": 100.0,
+   "polytropicEfficiency": 0.75,
+   "stages": 3,
+   "tSuctionF": 100.0
+  },
+  {
+   "k": 1.3,
+   "maxDischargeF": 250.0,
+   "maxRatioPerStage": 4.0,
+   "overallRatio": 24.0,
+   "pDischargePsia": 1200.0,
+   "pSuctionPsia": 50.0,
+   "polytropicEfficiency": 0.72,
+   "stages": 4,
+   "tSuctionF": 90.0
+  },
+  {
+   "k": 1.25,
+   "maxDischargeF": 300.0,
+   "maxRatioPerStage": 4.0,
+   "overallRatio": 3.0,
+   "pDischargePsia": 600.0,
+   "pSuctionPsia": 200.0,
+   "polytropicEfficiency": 0.78,
+   "stages": 1,
+   "tSuctionF": 110.0
+  }
+ ]
+}
