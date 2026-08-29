@@ -1,0 +1,159 @@
+{
+ "fingerSlug": [
+  {
+   "fillFraction": 0.8,
+   "fingerIdIn": 24,
+   "fingerLengthFt": 558.4929318133567,
+   "nFingers": 6,
+   "slugBbl": 1500,
+   "totalVolumeFt3": 10527.343749999998
+  },
+  {
+   "fillFraction": 0.75,
+   "fingerIdIn": 16,
+   "fingerLengthFt": 670.1915181760281,
+   "nFingers": 4,
+   "slugBbl": 500,
+   "totalVolumeFt3": 3743.055555555555
+  }
+ ],
+ "horizontal": [
+  {
+   "areaGasFt2": 25.132741197910804,
+   "areaLiquidFt2": 25.132741259525886,
+   "diameterFt": 8.0,
+   "lengthFt": 2.246893316992749,
+   "lengthGasFt": 2.246893316992749,
+   "lengthLiquidFt": 1.3962323278218998,
+   "liquidLevelFrac": 0.5,
+   "qGasActFt3S": 12.0,
+   "qLiquidBpd": 3000,
+   "retentionMin": 3,
+   "vTerminalFtS": 0.85
+  },
+  {
+   "areaGasFt2": 49.202835640759105,
+   "areaLiquidFt2": 29.336980698985727,
+   "diameterFt": 10.0,
+   "lengthFt": 7.9742688800388475,
+   "lengthGasFt": 3.3257506707765643,
+   "lengthLiquidFt": 7.9742688800388475,
+   "liquidLevelFrac": 0.4,
+   "qGasActFt3S": 30.0,
+   "qLiquidBpd": 12000,
+   "retentionMin": 5,
+   "vTerminalFtS": 1.1
+  }
+ ],
+ "segments": [
+  {
+   "areaLiquidFt2": 25.132741239610322,
+   "diameterFt": 8.0,
+   "liquidLevelFrac": 0.5
+  },
+  {
+   "areaLiquidFt2": 19.816835636181626,
+   "diameterFt": 10.0,
+   "liquidLevelFrac": 0.3
+  },
+  {
+   "areaLiquidFt2": 22.74667024983058,
+   "diameterFt": 6.0,
+   "liquidLevelFrac": 0.75
+  },
+  {
+   "areaLiquidFt2": 56.54866778912258,
+   "diameterFt": 12.0,
+   "liquidLevelFrac": 0.5
+  }
+ ],
+ "soudersBrown": [
+  {
+   "k": 0.35,
+   "rhoGLbFt3": 2.5,
+   "rhoLLbFt3": 52.0,
+   "vFtS": 1.557401682290089
+  },
+  {
+   "k": 0.45,
+   "rhoGLbFt3": 5.0,
+   "rhoLLbFt3": 55.0,
+   "vFtS": 1.4230249470757705
+  },
+  {
+   "k": 0.18,
+   "rhoGLbFt3": 0.8,
+   "rhoLLbFt3": 62.4,
+   "vFtS": 1.5794935897305817
+  }
+ ],
+ "stokes": [
+  {
+   "dropletMicron": 500,
+   "muCp": 2.0,
+   "sgHeavy": 1.05,
+   "sgLight": 0.85,
+   "vFtS": 0.04468617855059785
+  },
+  {
+   "dropletMicron": 150,
+   "muCp": 5.0,
+   "sgHeavy": 1.02,
+   "sgLight": 0.8,
+   "vFtS": 0.0017695726706036742
+  },
+  {
+   "dropletMicron": 1000,
+   "muCp": 1.0,
+   "sgHeavy": 1.08,
+   "sgLight": 0.9,
+   "vFtS": 0.3217404855643045
+  }
+ ],
+ "vertical": [
+  {
+   "allowanceFt": 6,
+   "diameterFt": 4.239710663937833,
+   "hLiquidFt": 2.485622829861111,
+   "heightFt": 8.48562282986111,
+   "qGasActFt3S": 12.0,
+   "qLiquidBpd": 3000,
+   "retentionMin": 3,
+   "vTerminalFtS": 0.85
+  },
+  {
+   "allowanceFt": 7,
+   "diameterFt": 5.6418958354775635,
+   "hLiquidFt": 2.4953703703703702,
+   "heightFt": 9.49537037037037,
+   "qGasActFt3S": 30.0,
+   "qLiquidBpd": 8000,
+   "retentionMin": 2,
+   "vTerminalFtS": 1.2
+  }
+ ],
+ "vesselSlug": [
+  {
+   "diameterFt": 8.650995474707157,
+   "fillFraction": 0.6,
+   "holdMin": 5,
+   "ldRatio": 4,
+   "lengthFt": 34.60398189882863,
+   "normalBbl": 17.36111111111111,
+   "qLiquidBpd": 5000,
+   "slugBbl": 200,
+   "totalVolumeFt3": 2033.986786265432
+  },
+  {
+   "diameterFt": 13.98410623712808,
+   "fillFraction": 0.7,
+   "holdMin": 10,
+   "ldRatio": 5,
+   "lengthFt": 69.9205311856404,
+   "normalBbl": 138.88888888888889,
+   "qLiquidBpd": 20000,
+   "slugBbl": 1200,
+   "totalVolumeFt3": 10739.004629629628
+  }
+ ]
+}
