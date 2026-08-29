@@ -1,0 +1,130 @@
+{
+ "cd": [
+  {
+   "beta": 0.3,
+   "cd": 0.5995030733092139,
+   "pipeIdIn": 6.065,
+   "reynolds": 100000.0
+  },
+  {
+   "beta": 0.5,
+   "cd": 0.6037702963266368,
+   "pipeIdIn": 10.02,
+   "reynolds": 500000.0
+  },
+  {
+   "beta": 0.65,
+   "cd": 0.6038772372478071,
+   "pipeIdIn": 10.02,
+   "reynolds": 2000000.0
+  },
+  {
+   "beta": 0.4,
+   "cd": 0.609865466895758,
+   "pipeIdIn": 4.026,
+   "reynolds": 10000.0
+  }
+ ],
+ "orifice": [
+  {
+   "beta": 0.49464138499587795,
+   "cd": 0.6024094421123884,
+   "densityLbFt3": 2.5,
+   "dpInH2O": 100.0,
+   "expansibility": 0.9979437067391491,
+   "k": 1.3,
+   "massLbHr": 31696.517389441873,
+   "orificeIdIn": 3.0,
+   "p1Psia": 500.0,
+   "pipeIdIn": 6.065,
+   "reynolds": 2750674.098041855,
+   "viscosityCp": 0.012
+  },
+  {
+   "beta": 0.49900199600798406,
+   "cd": 0.6023952555608697,
+   "densityLbFt3": 4.0,
+   "dpInH2O": 50.0,
+   "expansibility": 0.9994190008350915,
+   "k": 1.28,
+   "massLbHr": 78955.06487575136,
+   "orificeIdIn": 5.0,
+   "p1Psia": 900.0,
+   "pipeIdIn": 10.02,
+   "reynolds": 3828322.9129132153,
+   "viscosityCp": 0.013
+  },
+  {
+   "beta": 0.37257824143070045,
+   "cd": 0.5994724557412456,
+   "densityLbFt3": 1.8,
+   "dpInH2O": 200.0,
+   "expansibility": 0.9933807685136724,
+   "k": 1.3,
+   "massLbHr": 9222.328551838107,
+   "orificeIdIn": 1.5,
+   "p1Psia": 300.0,
+   "pipeIdIn": 4.026,
+   "reynolds": 1315266.5532289378,
+   "viscosityCp": 0.011
+  }
+ ],
+ "shell": [
+  {
+   "corrosionAllowanceIn": 0.0625,
+   "designStressPsi": 23200.0,
+   "diameterFt": 120.0,
+   "liquidLevelFt": 40.0,
+   "sg": 0.85,
+   "tDesignIn": 0.5085101062714015,
+   "tTestIn": 0.4888936671626039,
+   "testStressPsi": 24900.0
+  },
+  {
+   "corrosionAllowanceIn": 0.0,
+   "designStressPsi": 23200.0,
+   "diameterFt": 60.0,
+   "liquidLevelFt": 32.0,
+   "sg": 0.7,
+   "tDesignIn": 0.14597917505413893,
+   "tTestIn": 0.1943038933594964,
+   "testStressPsi": 24900.0
+  },
+  {
+   "corrosionAllowanceIn": 0.125,
+   "designStressPsi": 23200.0,
+   "diameterFt": 150.0,
+   "liquidLevelFt": 48.0,
+   "sg": 1.0,
+   "tDesignIn": 0.9154402335880796,
+   "tTestIn": 0.7364744345077688,
+   "testStressPsi": 24900.0
+  }
+ ],
+ "uncertainty": [
+  {
+   "beta": 0.5,
+   "monteCarloPct": 0.6230763867594361,
+   "uncertainties": {
+    "bore": 0.05,
+    "cd": 0.5,
+    "dp": 0.5,
+    "eps": 0.2,
+    "pipe": 0.1,
+    "rho": 0.3
+   }
+  },
+  {
+   "beta": 0.65,
+   "monteCarloPct": 1.1550888148039336,
+   "uncertainties": {
+    "bore": 0.05,
+    "cd": 0.5,
+    "dp": 2.0,
+    "eps": 0.2,
+    "pipe": 0.1,
+    "rho": 0.3
+   }
+  }
+ ]
+}
