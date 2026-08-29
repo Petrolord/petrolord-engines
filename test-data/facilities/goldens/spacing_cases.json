@@ -1,0 +1,102 @@
+{
+ "distances": [
+  {
+   "chordM": 89.40986537483325,
+   "lat1": 4.8156,
+   "lat2": 4.816,
+   "lon1": 7.0498,
+   "lon2": 7.0505,
+   "vincentyM": 89.4098653747303
+  },
+  {
+   "chordM": 489.25835302778285,
+   "lat1": 4.8156,
+   "lat2": 4.82,
+   "lon1": 7.0498,
+   "lon2": 7.0498,
+   "vincentyM": 489.25835302771907
+  },
+  {
+   "chordM": 55.59754011633493,
+   "lat1": 60.0,
+   "lat2": 60.0,
+   "lon1": 5.0,
+   "lon2": 5.001,
+   "vincentyM": 55.59754011625579
+  },
+  {
+   "chordM": 1111.9508023353294,
+   "lat1": 0.0,
+   "lat2": 0.0,
+   "lon1": 0.0,
+   "lon2": 0.01,
+   "vincentyM": 1111.9508023353292
+  }
+ ],
+ "flare": [
+  {
+   "allowableKwM2": 4.73,
+   "distanceM": 68.14265310846025,
+   "fractionRadiated": 0.3,
+   "intensityAtDistance": 4.730000000000001,
+   "lhvKjKg": 46000.0,
+   "qKw": 920000.0,
+   "reliefRateKgS": 20.0,
+   "transmissivity": 1.0
+  },
+  {
+   "allowableKwM2": 1.58,
+   "distanceM": 49.36021168401372,
+   "fractionRadiated": 0.25,
+   "intensityAtDistance": 1.5799999999999998,
+   "lhvKjKg": 43000.0,
+   "qKw": 215000.0,
+   "reliefRateKgS": 5.0,
+   "transmissivity": 0.9
+  }
+ ],
+ "poolFire": [
+  {
+   "allowableKwM2": 4.73,
+   "areaM2": 314.1592653589793,
+   "burnRateKgM2S": 0.055,
+   "burnRateKgS": 17.278759594743864,
+   "flameHeightM": 25.607784821372782,
+   "fractionRadiated": 0.35,
+   "lhvKjKg": 43000.0,
+   "poolDiameterM": 20.0,
+   "qKw": 742986.6625739861,
+   "radiusFromCentreM": 66.14378277661476,
+   "setbackFromEdgeM": 56.143782776614756,
+   "transmissivity": 1.0
+  },
+  {
+   "allowableKwM2": 1.58,
+   "areaM2": 28.274333882308138,
+   "burnRateKgM2S": 0.055,
+   "burnRateKgS": 1.5550883635269477,
+   "flameHeightM": 11.09101477559392,
+   "fractionRadiated": 0.35,
+   "lhvKjKg": 43000.0,
+   "poolDiameterM": 6.0,
+   "qKw": 66868.79963165875,
+   "radiusFromCentreM": 34.3330440158225,
+   "setbackFromEdgeM": 31.3330440158225,
+   "transmissivity": 1.0
+  },
+  {
+   "allowableKwM2": 4.73,
+   "areaM2": 1256.6370614359173,
+   "burnRateKgM2S": 0.062,
+   "burnRateKgS": 77.91149780902687,
+   "flameHeightM": 44.59904392860395,
+   "fractionRadiated": 0.35,
+   "lhvKjKg": 44000.0,
+   "poolDiameterM": 40.0,
+   "qKw": 3428105.903597182,
+   "radiusFromCentreM": 134.7866531243547,
+   "setbackFromEdgeM": 114.7866531243547,
+   "transmissivity": 0.9
+  }
+ ]
+}
