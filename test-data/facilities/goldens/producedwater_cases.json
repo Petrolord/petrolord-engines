@@ -1,0 +1,179 @@
+{
+ "apiSeparator": [
+  {
+   "d50cMicron": 188.08064304382347,
+   "depthM": 1.2,
+   "flowM3S": 0.09,
+   "horizontalVelocityMS": 0.0375,
+   "lengthM": 12.0,
+   "muPaS": 0.0005784420855434671,
+   "overflowRateMS": 0.00375,
+   "residenceS": 320.0,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705,
+   "shortCircuitF": 1.5,
+   "widthM": 2.0
+  },
+  {
+   "d50cMicron": 271.4755745619202,
+   "depthM": 1.0,
+   "flowM3S": 0.03,
+   "horizontalVelocityMS": 0.02,
+   "lengthM": 8.0,
+   "muPaS": 0.0008904389816146542,
+   "overflowRateMS": 0.0025,
+   "residenceS": 400.0,
+   "rhoOil": 897.2805305559106,
+   "rhoWater": 997.0751176664442,
+   "shortCircuitF": 1.8,
+   "widthM": 1.5
+  }
+ ],
+ "cdf": [
+  {
+   "cdf": 0.05827201160206724,
+   "d": 10,
+   "d50": 30,
+   "sigma": 0.7
+  },
+  {
+   "cdf": 0.5,
+   "d": 30,
+   "d50": 30,
+   "sigma": 0.7
+  },
+  {
+   "cdf": 0.9572802480440363,
+   "d": 100,
+   "d50": 30,
+   "sigma": 0.7
+  },
+  {
+   "cdf": 0.11110354081470253,
+   "d": 5,
+   "d50": 15,
+   "sigma": 0.9
+  },
+  {
+   "cdf": 0.9382596754816009,
+   "d": 60,
+   "d50": 15,
+   "sigma": 0.9
+  }
+ ],
+ "mediaFilter": [
+  {
+   "areaM2": 6.0,
+   "bedDepthM": 0.9,
+   "filterCoefficientPerM": 3.5,
+   "flowM3S": 0.05,
+   "lambdaPerM": 2.02072594216369,
+   "loadingMHr": 30.0,
+   "removalFraction": 0.8377693255922852
+  },
+  {
+   "areaM2": 4.0,
+   "bedDepthM": 1.2,
+   "filterCoefficientPerM": 3.5,
+   "flowM3S": 0.09,
+   "lambdaPerM": 1.2297746456210363,
+   "loadingMHr": 81.0,
+   "removalFraction": 0.7714005701839403
+  }
+ ],
+ "properties": [
+  {
+   "muPaS": 0.0008904389816146542,
+   "rhoWater": 997.0751176664442,
+   "tC": 25,
+   "tdsPpm": 0
+  },
+  {
+   "muPaS": 0.0005784420855434671,
+   "rhoWater": 1012.5633428732705,
+   "tC": 50,
+   "tdsPpm": 35000
+  },
+  {
+   "muPaS": 0.0005881413395490372,
+   "rhoWater": 1088.2106423795603,
+   "tC": 60,
+   "tdsPpm": 150000
+  },
+  {
+   "muPaS": 0.000356145206843525,
+   "rhoWater": 1021.163325485853,
+   "tC": 90,
+   "tdsPpm": 80000
+  }
+ ],
+ "removal": [
+  {
+   "d50": 30,
+   "d50cMicron": 15,
+   "removalFraction": 0.7773483787650809,
+   "sharpness": 3,
+   "sigma": 0.7
+  },
+  {
+   "d50": 30,
+   "d50cMicron": 30,
+   "removalFraction": 0.49981006769701636,
+   "sharpness": 3,
+   "sigma": 0.7
+  },
+  {
+   "d50": 30,
+   "d50cMicron": 60,
+   "removalFraction": 0.22218178031660027,
+   "sharpness": 3,
+   "sigma": 0.7
+  },
+  {
+   "d50": 15,
+   "d50cMicron": 20,
+   "removalFraction": 0.4079620674354397,
+   "sharpness": 2,
+   "sigma": 0.9
+  },
+  {
+   "d50": 50,
+   "d50cMicron": 10,
+   "removalFraction": 0.9831044058275114,
+   "sharpness": 4,
+   "sigma": 0.6
+  }
+ ],
+ "stokes": [
+  {
+   "apiGravity": 32,
+   "dMicron": 30,
+   "muPaS": 0.0005784420855434671,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705,
+   "tC": 50,
+   "tdsPpm": 35000,
+   "vMS": 0.00014311225809902084
+  },
+  {
+   "apiGravity": 25,
+   "dMicron": 10,
+   "muPaS": 0.0008904389816146542,
+   "rhoOil": 897.2805305559106,
+   "rhoWater": 997.0751176664442,
+   "tC": 25,
+   "tdsPpm": 0,
+   "vMS": 6.105918340991914e-06
+  },
+  {
+   "apiGravity": 40,
+   "dMicron": 100,
+   "muPaS": 0.00039537099011475237,
+   "rhoOil": 781.2979083498542,
+   "rhoWater": 1070.163325485853,
+   "tC": 90,
+   "tdsPpm": 150000,
+   "vMS": 0.003980511853681962
+  }
+ ]
+}
