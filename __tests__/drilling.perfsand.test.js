@@ -269,4 +269,70 @@ describe('oracle golden agreement', () => {
       ucsPa: fx.inputs.ucsPa, boostFactor: fx.inputs.boostFactor,
     }).pwfCritPa, fx.expected.pwfCritPa, 1e-9);
   });
+
+  test('CDP sweep screens the interval BOTTOM at a step that does not divide it', () => {
+    // The regression this guards: a `md <= bottomMdM` loop guard exits before
+    // the clamp can fire, so 2450 to 2550 at 30 m stopped at 2540 and the
+    // deepest ten metres of the interval were never screened. The golden's own
+    // 10 m step divides 100 m evenly and cannot tell the two shapes apart.
+    const curves = {
+      tvdM: golden.profile.tvdM, svPa: golden.profile.svPa,
+      shmaxPa: golden.profile.shmaxPa, shminPa: golden.profile.shminPa,
+      ppPa: golden.profile.ppPa, ucsPa: golden.profile.ucsPa,
+    };
+    const rg = golden.sanding.cdpRagged;
+    const res = cdpAlongInterval({
+      stations: golden.stations, curves,
+      topMdM: rg.interval.topMdM, bottomMdM: rg.interval.bottomMdM,
+      geometry: rg.geometry, boostFactor: p.boostFactor, stepMdM: rg.stepMdM,
+    });
+    expect(res.rows).toHaveLength(rg.rows.length);
+    res.rows.forEach((row, i) => {
+      expectClose(row.mdM, rg.rows[i].mdM, 1e-9);
+      expectClose(row.cdpPa, rg.rows[i].cdpPa, 1e-9);
+    });
+    expectClose(res.rows[res.rows.length - 1].mdM, rg.interval.bottomMdM, 1e-9);
+    // and at every step size, divisor or not, and never past the bottom
+    for (const stepMdM of [7, 10, 13, 25, 30, 40, 99, 100, 150]) {
+      const r = cdpAlongInterval({
+        stations: golden.stations, curves,
+        topMdM: 2450, bottomMdM: 2550, geometry: 'perf-tunnel', stepMdM,
+      });
+      expect(r.rows[0].mdM).toBeCloseTo(2450, 9);
+      expect(r.rows[r.rows.length - 1].mdM).toBeCloseTo(2550, 9);
+      for (const row of r.rows) expect(row.mdM).toBeLessThanOrEqual(2550 + 1e-9);
+      for (let i = 1; i < r.rows.length; i += 1) {
+        expect(r.rows[i].mdM).toBeGreaterThan(r.rows[i - 1].mdM);
+      }
+    }
+  });
+
+  test('a weak interval base is what the missing bottom row was hiding', () => {
+    // Sign, not digits: on a profile whose rock weakens towards the base, the
+    // truncated sweep reported a POSITIVE drawdown margin where the interval
+    // bottom sands at any drawdown. The governing row must be the bottom and
+    // its margin must be negative at both step sizes.
+    const P = golden.profile;
+    const ucsPa = P.ucsPa.map((u, i) => {
+      const z = P.tvdM[i];
+      if (z < 2130) return u;
+      return u * (1 - 0.55 * Math.min(1, (z - 2130) / 60));
+    });
+    const curves = {
+      tvdM: P.tvdM, svPa: P.svPa, shmaxPa: P.shmaxPa, shminPa: P.shminPa,
+      ppPa: P.ppPa, ucsPa,
+    };
+    const base = {
+      stations: golden.stations, curves, topMdM: 2450, bottomMdM: 2550,
+      geometry: 'perf-tunnel',
+    };
+    for (const stepMdM of [10, 30]) {
+      const r = cdpAlongInterval({ ...base, stepMdM });
+      expect(r.governing.mdM).toBeCloseTo(2550, 9);
+      expect(r.governing.cdpPa).toBeLessThan(0);
+    }
+    const fine = cdpAlongInterval({ ...base, stepMdM: 10 }).governing.cdpPa;
+    const coarse = cdpAlongInterval({ ...base, stepMdM: 30 }).governing.cdpPa;
+    expectClose(coarse, fine, 1e-9);
+  });
 });
