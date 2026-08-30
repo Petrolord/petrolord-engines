@@ -150,9 +150,18 @@ export function runInClearance({ stack, profile, warnMarginM = 0.003 }) {
       governingDriftM: gov.driftM, controlling: gov.label, clearanceM, status,
     };
   });
+  // The single row a reader is shown as "the worst". Rank by STATUS first,
+  // because a FAIL anywhere outranks any PASS, and then by the TIGHTEST
+  // clearance within that status. Ranking by status alone made `worst`
+  // degenerate to rows[0] on a string where every row shares a status, which
+  // is every string that passes: the golden completion reported the first
+  // tubing joint at 102 mm where the production packer has 4.7 mm.
+  const rank = (s) => ({ FAIL: 3, UNKNOWN: 2, WARN: 1, PASS: 0 }[s.status]);
   const worst = rows.reduce((a, b) => {
-    const rank = (s) => ({ FAIL: 3, UNKNOWN: 2, WARN: 1, PASS: 0 }[s.status]);
-    return rank(b) > rank(a) ? b : a;
+    if (rank(b) !== rank(a)) return rank(b) > rank(a) ? b : a;
+    if (b.clearanceM === null) return a;
+    if (a.clearanceM === null) return b;
+    return b.clearanceM < a.clearanceM ? b : a;
   }, rows[0]);
   return { rows, worst };
 }
