@@ -142,6 +142,47 @@ describe('run-in clearance', () => {
     });
   });
 
+  test('the worst row is the TIGHTEST clearance, not the first row of its status', () => {
+    // The regression this guards. Ranking by status alone made `worst`
+    // degenerate to rows[0] whenever every row shared a status, which is
+    // every string that passes. On the golden completion that reported the
+    // first tubing joint at 102 mm where the packer has 4.7 mm.
+    const { rows, worst } = runInClearance({
+      stack: goldenStack(), profile: goldenProfile(), warnMarginM: golden.warnMarginM,
+    });
+    expect(rows.every((r) => r.status === 'PASS')).toBe(true);
+    const tightest = rows.reduce((a, b) => (b.clearanceM < a.clearanceM ? b : a));
+    expect(worst.name).toBe(tightest.name);
+    expect(worst.name).not.toBe(rows[0].name);
+    expect(worst).toMatchObject({ name: golden.results.clearanceWorst.name,
+      status: golden.results.clearanceWorst.status });
+    expectClose(worst.clearanceM, golden.results.clearanceWorst.clearanceM, 1e-9, 1e-12);
+    // and it really is more than twenty times tighter than rows[0]
+    expect(rows[0].clearanceM / worst.clearanceM).toBeGreaterThan(20);
+  });
+
+  test('within one status class the tighter row wins, and a FAIL still outranks', () => {
+    const two = buildStack({
+      components: [
+        { type: 'tubing', name: 'loose', lengthM: 2500, odM: 0.1143, idM: 0.0759968 },
+        { type: 'packer', name: 'warn A', lengthM: 1.5, odM: 0.152, idM: 0.06985 },
+        { type: 'spm', name: 'warn B tighter', lengthM: 2.4, odM: 0.1528, idM: 0.0759968 },
+      ],
+    });
+    const w = runInClearance({ stack: two, profile: goldenProfile() }).worst;
+    expect(w.name).toBe('warn B tighter');
+    // adding a FAIL anywhere takes precedence over any WARN, however tight
+    const three = buildStack({
+      components: [
+        ...two.components.map(({ type, name, lengthM, odM, idM }) => ({ type, name, lengthM, odM, idM })),
+        { type: 'sssv', name: 'fails', lengthM: 2.2, odM: 0.17, idM: 0.06985 },
+      ],
+    });
+    const w3 = runInClearance({ stack: three, profile: goldenProfile() }).worst;
+    expect(w3.name).toBe('fails');
+    expect(w3.status).toBe('FAIL');
+  });
+
   test('an oversized component through the liner FAILs and is the worst row', () => {
     const stack = buildStack({
       components: [
