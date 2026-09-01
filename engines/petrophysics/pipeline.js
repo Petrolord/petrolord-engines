@@ -90,7 +90,7 @@ export const PIPELINE_VERSION = 1;
  *  math so reports and UI never carry their own citation copies. */
 export const METHOD_CITATIONS = {
   vsh: {
-    igr: 'Linear gamma-ray index (IGR), standard quicklook.',
+    linear: 'Linear gamma-ray index (Vsh = IGR), standard quicklook.',
     'larionov-tertiary': 'Larionov (1969), tertiary/unconsolidated rocks: Vsh = 0.083*(2^(3.7*IGR) - 1).',
     'larionov-older': 'Larionov (1969), older/consolidated rocks: Vsh = 0.33*(2^(2*IGR) - 1).',
     clavier: 'Clavier, Hoyle & Meunier (1971): Vsh = 1.7 - sqrt(3.38 - (IGR + 0.7)^2).',
