@@ -84,6 +84,34 @@ export function computeWell(curves, params) {
  *  tell recipe generations apart. */
 export const PIPELINE_VERSION = 1;
 
+/** Literature references for each selectable method, keyed the way the
+ *  parameter set spells them — the same sources the validation oracle
+ *  cites (tools/validation/petrophysics/oracle.py). Lives beside the
+ *  math so reports and UI never carry their own citation copies. */
+export const METHOD_CITATIONS = {
+  vsh: {
+    igr: 'Linear gamma-ray index (IGR), standard quicklook.',
+    'larionov-tertiary': 'Larionov (1969), tertiary/unconsolidated rocks: Vsh = 0.083*(2^(3.7*IGR) - 1).',
+    'larionov-older': 'Larionov (1969), older/consolidated rocks: Vsh = 0.33*(2^(2*IGR) - 1).',
+    clavier: 'Clavier, Hoyle & Meunier (1971): Vsh = 1.7 - sqrt(3.38 - (IGR + 0.7)^2).',
+    steiber: 'Steiber (1970): Vsh = IGR / (3 - 2*IGR).',
+  },
+  phi: {
+    density: 'Density porosity: phi = (rho_ma - rho_b) / (rho_ma - rho_fl).',
+    sonic: 'Sonic porosity, per the sonicMethod parameter (Wyllie or RHG).',
+    nd: 'Neutron-density combination, per the ndMethod parameter (avg or rms gas form).',
+  },
+  sonic: {
+    wyllie: 'Wyllie, Gregory & Gardner (1956) time-average equation.',
+    rhg: 'Raymer, Hunt & Gardner (1980) field-observation form.',
+  },
+  sw: {
+    archie: 'Archie (1942): Sw = ((a*Rw)/(phi^m * Rt))^(1/n).',
+    simandoux: 'Simandoux (1963), classic quadratic form (n = 2); reduces to Archie at Vsh = 0.',
+    indonesia: 'Poupon & Leveaux (1971) "Indonesia" equation; reduces to Archie at Vsh = 0.',
+  },
+};
+
 const PUBLISH_SPECS = {
   VSH: { unit: 'V/V', description: (p) => `Shale volume (${p.vshMethod})` },
   PHIE: { unit: 'V/V', description: (p) => `Effective porosity (${p.phiSource})` },
