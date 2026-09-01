@@ -198,9 +198,11 @@ def run_oracle(tw):
                 for z, r, f in zip(depth, rt, phi)]
     sw_zc = [None if s is None else min(1.0, max(0.0, s)) for s in sw_zoned]
     pay_zoned = []
+    # net_pay semantics: a sample with any missing input is NOT pay
+    # (flag 0), never null — null is reserved for outside-the-window
     for z, f, v, s in zip(depth, phi, vsh, sw_zc):
         if f is None or v is None or s is None:
-            pay_zoned.append(None)
+            pay_zoned.append(0)
         else:
             pay_zoned.append(1 if (f >= p["cut_phi"] and v <= p["cut_vsh"]
                                    and s <= cutsw_of[zone_of(z)]) else 0)
