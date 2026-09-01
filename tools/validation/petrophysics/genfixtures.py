@@ -174,6 +174,43 @@ def run_oracle(tw):
     pts = [(f, p["a"] * p["rw"] / f ** p["m"]) for f in (0.05, 0.08, 0.12, 0.18, 0.25, 0.30)]
     m_fit, arw_fit = oracle.pickett_fit(pts)
     out["PICKETT"] = {"points": pts, "m": m_fit, "a_rw": arw_fit}
+
+    # ---- zoned compute golden (PS3): per-zone parameter overrides ---------
+    # The golden records ENGINE-spelled patches so the JS test consumes
+    # them verbatim; the oracle applies their snake equivalents per depth
+    # window. SAND_A overrides the water leg (rw, m), SAND_B loosens the
+    # Sw cutoff; everything outside both zones uses the base set. No new
+    # physics — the zoned driver composes the already-validated scalars.
+    zoned_patches = {"SAND_A": {"rw": 0.03, "m": 1.9}, "SAND_B": {"cutSw": 0.7}}
+    zone_windows = [(name, p["zones"][name]) for name in ("SAND_A", "SAND_B")]
+
+    def zone_of(z):
+        for name, (top, base) in zone_windows:
+            if top <= z <= base:
+                return name
+        return None
+
+    rw_of = {"SAND_A": 0.03, "SAND_B": p["rw"], None: p["rw"]}
+    m_of = {"SAND_A": 1.9, "SAND_B": p["m"], None: p["m"]}
+    cutsw_of = {"SAND_A": p["cut_sw"], "SAND_B": 0.7, None: p["cut_sw"]}
+
+    sw_zoned = [oracle.sw_archie(r, f, rw_of[zone_of(z)], p["a"], m_of[zone_of(z)], p["n"])
+                for z, r, f in zip(depth, rt, phi)]
+    sw_zc = [None if s is None else min(1.0, max(0.0, s)) for s in sw_zoned]
+    pay_zoned = []
+    for z, f, v, s in zip(depth, phi, vsh, sw_zc):
+        if f is None or v is None or s is None:
+            pay_zoned.append(None)
+        else:
+            pay_zoned.append(1 if (f >= p["cut_phi"] and v <= p["cut_vsh"]
+                                   and s <= cutsw_of[zone_of(z)]) else 0)
+    zoned_zones = {}
+    for name, (top, base) in zone_windows:
+        _, summary = oracle.net_pay(depth, phi, vsh, sw_zc,
+                                    p["cut_phi"], p["cut_vsh"], cutsw_of[name], top, base)
+        zoned_zones[name] = {"summary": summary}
+    out["ZONED"] = {"zone_params": zoned_patches, "SW": sw_zoned,
+                    "PAY": pay_zoned, "zones": zoned_zones}
     return out
 
 
