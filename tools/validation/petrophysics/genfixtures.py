@@ -245,6 +245,33 @@ def run_oracle(tw):
         "SW_ARCHIE_T": [oracle.sw_archie(r, f, w, p["a"], p["m"], p["n"])
                         for r, f, w in zip(rt, phi, rw_t)],
     }
+
+    # ---- permeability + BVW goldens (PS6) ---------------------------------
+    # Swirr from the Buckles constant (clamped to 1), the four cited k
+    # correlations, BVW on the display-clamped Archie Sw, and the
+    # thickness-weighted geometric-mean k per zone over the base pay
+    # flags. phi = PHID throughout (the pipeline's default phiSource).
+    pp = {"bucklesConst": 0.04, "wrC": 79.0, "wrQ": 3.0}
+    swirr = [oracle.swirr_from_buckles(f, pp["bucklesConst"]) for f in phi]
+    th = oracle.sample_thickness(depth)
+    perm = {
+        "params": pp,
+        "SWIRR": swirr,
+        "K_TIMUR": [oracle.k_timur(f, si) for f, si in zip(phi, swirr)],
+        "K_TIXIER": [oracle.k_tixier(f, si) for f, si in zip(phi, swirr)],
+        "K_COATES": [oracle.k_coates(f, si) for f, si in zip(phi, swirr)],
+        "K_WR_GAS": [oracle.k_wyllie_rose(f, si, pp["wrC"], pp["wrQ"])
+                     for f, si in zip(phi, swirr)],
+        "BVW": [oracle.bvw(f, s_) for f, s_ in zip(phi, sw_c)],
+        "zones": {},
+    }
+    for name, (top, base) in p["zones"].items():
+        flags, _ = oracle.net_pay(depth, phi, vsh, sw_c,
+                                  p["cut_phi"], p["cut_vsh"], p["cut_sw"], top, base)
+        perm["zones"][name] = {
+            "k_gm_timur": oracle.k_geom_mean(perm["K_TIMUR"], flags, th),
+        }
+    out["PERM"] = perm
     return out
 
 
@@ -269,6 +296,16 @@ def analytic_cases():
             "in": {"rt": 8.0, "phi": 0.18, "rw": 0.05},
             "simandoux": oracle.sw_simandoux(8.0, 0.18, 0.05, 0.0, 2.0),
             "archie_n2": oracle.sw_archie(8.0, 0.18, 0.05, 1.0, 2.0, 2.0)},
+        "timur_02_02": {"in": {"phi": 0.2, "swirr": 0.2},
+                        "out": oracle.k_timur(0.2, 0.2)},
+        "tixier_02_02": {"in": {"phi": 0.2, "swirr": 0.2},
+                         "out": oracle.k_tixier(0.2, 0.2)},
+        "coates_02_02": {"in": {"phi": 0.2, "swirr": 0.2},
+                         "out": oracle.k_coates(0.2, 0.2)},
+        "wyllie_rose_gas_02_02": {"in": {"phi": 0.2, "swirr": 0.2, "c": 79.0, "q": 3.0},
+                                  "out": oracle.k_wyllie_rose(0.2, 0.2, 79.0, 3.0)},
+        "swirr_buckles_clamp": {"in": {"phi": 0.03, "const": 0.04},
+                                "out": oracle.swirr_from_buckles(0.03, 0.04)},
         "waxman_smits_basic": {
             "in": {"rt": 8.0, "phi": 0.18, "rw": 0.05, "qv": 0.1, "b": 3.0},
             "out": oracle.sw_waxman_smits(8.0, 0.18, 0.05, 0.1, 3.0)},
