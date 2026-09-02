@@ -326,6 +326,70 @@ def sw_mod_simandoux(rt, phi, rw, vsh, rsh, a=1.0, m=2.0, n=2.0):
 
 
 
+# ---- Permeability + BVW (PS6) ---------------------------------------------
+# Constants are pinned to ONE cited form each (fraction inputs, mD out)
+# because every published "Timur" differs by unit convention:
+#   Timur (1968, SPWLA 9th): k = 0.136*phi%^4.4/Swi%^2  ->  fractions:
+#     k = 8581*phi^4.4/Swirr^2
+#   Tixier (1949): k^0.5 = 250*phi^3/Swirr  ->  k = 62500*phi^6/Swirr^2
+#   Coates & Denoo (1981): k^0.5 = c*phi^2*(1-Swirr)/Swirr, c = 100
+#   Wyllie & Rose (1950) generalized k^0.5 = c*phi^q/Swirr with the
+#     Morris & Biggs (1967) presets c = 250 (oil), 79 (gas), q = 3
+
+
+def k_timur(phi, swirr):
+    if phi is None or swirr is None or phi <= 0.0 or swirr <= 0.0:
+        return None
+    return 8581.0 * phi ** 4.4 / swirr ** 2
+
+
+def k_tixier(phi, swirr):
+    if phi is None or swirr is None or phi <= 0.0 or swirr <= 0.0:
+        return None
+    return (250.0 * phi ** 3 / swirr) ** 2
+
+
+def k_coates(phi, swirr, c=100.0):
+    if phi is None or swirr is None or phi <= 0.0 or swirr <= 0.0 or swirr > 1.0:
+        return None
+    return (c * phi ** 2 * (1.0 - swirr) / swirr) ** 2
+
+
+def k_wyllie_rose(phi, swirr, c, q):
+    if phi is None or swirr is None or phi <= 0.0 or swirr <= 0.0:
+        return None
+    return (c * phi ** q / swirr) ** 2
+
+
+def bvw(phi, sw):
+    """Bulk volume water phi*Sw (Buckles 1965 diagnostic)."""
+    if phi is None or sw is None:
+        return None
+    return phi * sw
+
+
+def swirr_from_buckles(phi, buckles_const):
+    """Swirr from the constant-BVW rule, CLAMPED to 1 (an over-unity
+    Swirr means the rock is at or past irreducible everywhere; the
+    perm correlations need a physical saturation)."""
+    if phi is None or phi <= 0.0:
+        return None
+    return min(1.0, buckles_const / phi)
+
+
+def k_geom_mean(ks, flags, thickness):
+    """Thickness-weighted geometric mean of k over flagged pay samples
+    (None when no valid pay sample carries a positive k)."""
+    s = 0.0
+    w = 0.0
+    for k, f, th in zip(ks, flags, thickness):
+        if not f or k is None or k <= 0.0:
+            continue
+        s += math.log(k) * th
+        w += th
+    return math.exp(s / w) if w > 0.0 else None
+
+
 # ---- Cutoffs / net pay ----------------------------------------------------
 
 

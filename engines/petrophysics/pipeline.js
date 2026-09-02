@@ -13,7 +13,8 @@ import { phiDensity, phiSonicWyllie, phiSonicRhg, phiNd, clampDisplay } from './
 import { swArchie, swSimandoux, swIndonesia } from './sw';
 import { swWaxmanSmits, swDualWater, swModSimandoux, bJuhasz } from './swClay';
 import { tempCurve, rwAtTemp } from './temperature';
-import { netPay } from './netpay';
+import { netPay, sampleThickness } from './netpay';
+import { kTimur, kTixier, kCoates, kWyllieRose, bvw, swirrFromBuckles, kGeomMean } from './perm';
 
 /** The workstation's default parameter set — shown in the panel,
  *  never silently assumed by the engines themselves. */
@@ -31,6 +32,13 @@ export const DEFAULT_PARAMS = {
   // waxman-smits the m and n fields carry m* and n* (shaly-rock
   // exponents — the UI labels them distinctly)
   qv: 0.1, bMode: 'juhasz', bValue: 3, rwb: 0.02, swb: 0.25,
+  // PS6 permeability: 'none' computes no KPERM (zero behaviour change
+  // for existing recipes); constants are pinned to the cited forms in
+  // perm.js and shown as formulas in the panel
+  permMethod: 'none',             // none | timur | tixier | coates | wyllie-rose
+  swirrSource: 'buckles',         // buckles | manual
+  bucklesConst: 0.04, swirrManual: 0.15,
+  wrC: 79, wrQ: 3,                // Wyllie-Rose constants (Morris & Biggs gas preset)
   cutPhi: 0.08, cutVsh: 0.5, cutSw: 0.6,
 };
 
@@ -105,6 +113,24 @@ export function computeWell(curves, params) {
     outputs.SW = sw;
   } else if (!curves.RT) missing.push('RT (Sw)');
 
+  if (p.permMethod !== 'none' && outputs.PHIE) {
+    const phi = outputs.PHIE;
+    const kperm = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      const si = p.swirrSource === 'manual' ? p.swirrManual : swirrFromBuckles(phi[i], p.bucklesConst);
+      switch (p.permMethod) {
+        case 'tixier': kperm[i] = kTixier(phi[i], si); break;
+        case 'coates': kperm[i] = kCoates(phi[i], si); break;
+        case 'wyllie-rose': kperm[i] = kWyllieRose(phi[i], si, p.wrC, p.wrQ); break;
+        default: kperm[i] = kTimur(phi[i], si);
+      }
+    }
+    outputs.KPERM = kperm;
+  }
+  if (outputs.PHIE && outputs.SW) {
+    outputs.BVW = Float64Array.from(outputs.PHIE, (f, i) => bvw(f, clampDisplay(outputs.SW[i])));
+  }
+
   if (outputs.PHIE && outputs.VSH && outputs.SW) {
     const swClamped = Float64Array.from(outputs.SW, (s) => clampDisplay(s));
     const { flags } = netPay(
@@ -175,8 +201,9 @@ export function computeWellZoned(curves, baseParams, zoneParamList = []) {
  *  recorded in every published curve's provenance so consumers can
  *  tell recipe generations apart. v2 (PS3): zoned compute; provenance
  *  gains zone_params and interpretation_name. v3 (PS5): temperature
- *  model + Waxman-Smits / dual-water / modified Simandoux. */
-export const PIPELINE_VERSION = 3;
+ *  model + Waxman-Smits / dual-water / modified Simandoux. v4 (PS6):
+ *  permeability (KPERM, mD) + BVW; zone summaries gain k_gm_md. */
+export const PIPELINE_VERSION = 4;
 
 /** Literature references for each selectable method, keyed the way the
  *  parameter set spells them — the same sources the validation oracle
@@ -211,6 +238,12 @@ export const METHOD_CITATIONS = {
     none: 'Rw used as entered at all depths.',
     linear: 'Linear geothermal profile from surface temperature and BHT; Rw converted per depth via Arps (degF inside the formula).',
   },
+  perm: {
+    timur: 'Timur (1968, SPWLA 9th): k = 8581*phi^4.4/Swirr^2 (fractions, mD).',
+    tixier: 'Tixier (1949): k = (250*phi^3/Swirr)^2 (fractions, mD).',
+    coates: 'Coates & Denoo (1981): k = (100*phi^2*(1-Swirr)/Swirr)^2 (fractions, mD).',
+    'wyllie-rose': 'Wyllie & Rose (1950) generalized k = (c*phi^q/Swirr)^2; Morris & Biggs (1967) presets c = 250 (oil), 79 (gas), q = 3.',
+  },
 };
 
 const PUBLISH_SPECS = {
@@ -218,6 +251,8 @@ const PUBLISH_SPECS = {
   PHIE: { unit: 'V/V', description: (p) => `Effective porosity (${p.phiSource})` },
   SW: { unit: 'V/V', description: (p) => `Water saturation (${p.swMethod})` },
   PAY: { unit: 'FLAG', description: () => 'Net-pay flag (1 = pay)' },
+  // documented units exception (see perm.js): mD, never m^2
+  KPERM: { unit: 'MD', description: (p) => `Permeability (${p.permMethod}, mD)` },
 };
 
 /**
@@ -294,9 +329,12 @@ export function zoneSummary(curves, outputs, params, zone) {
   const p = { ...DEFAULT_PARAMS, ...params };
   if (!outputs.PHIE || !outputs.VSH || !outputs.SW) return null;
   const swClamped = Float64Array.from(outputs.SW, (s) => clampDisplay(s));
-  const { summary } = netPay(
+  const { flags, summary } = netPay(
     { depth: curves.DEPT, phi: outputs.PHIE, vsh: outputs.VSH, sw: swClamped },
     { cutPhi: p.cutPhi, cutVsh: p.cutVsh, cutSw: p.cutSw, top: zone.top_md_m, base: zone.base_md_m },
   );
+  if (outputs.KPERM) {
+    summary.k_gm_md = kGeomMean(outputs.KPERM, flags, sampleThickness(curves.DEPT));
+  }
   return summary;
 }
