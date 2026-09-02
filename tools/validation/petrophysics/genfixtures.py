@@ -289,6 +289,33 @@ def run_oracle(tw):
         "mean_std": {"shift": ms_shift, "scale": ms_scale},
         "GR_RESTORED": oracle.apply_normalization(gr_target, tp_shift, tp_scale),
     }
+
+    # ---- conditioning goldens (PS8) ---------------------------------------
+    # Inputs are DERIVED deterministically here and stored in the golden
+    # (the typewell itself never changes): fixed spikes on GR, a
+    # synthetic DRHO with one washout window, a +1.5 m block shift.
+    spikes = {30: 220.0, 75: -80.0, 140: 300.0}
+    gr_spiked = [(spikes[i] if i in spikes else g) for i, g in enumerate(gr)]
+    drho_syn = [0.3 if 2040.0 <= z <= 2044.0 else 0.02 for z in depth]
+    cali_syn = [12.5 if 2060.0 <= z <= 2062.0 else 8.6 for z in depth]
+    cnd = {"halfWindow": 5, "nSigma": 3.0, "shiftM": 1.5,
+           "bitSize": 8.5, "washoutOver": 2.0, "drhoMax": 0.15,
+           "maxGapSamples": 6}
+    flags = oracle.bad_hole_flag(cali_syn, cnd["bitSize"], drho_syn,
+                                 cnd["washoutOver"], cnd["drhoMax"])
+    out["COND"] = {
+        "params": cnd,
+        "GR_SPIKED": gr_spiked,
+        "GR_DESPIKED": oracle.despike_hampel(gr_spiked, cnd["halfWindow"], cnd["nSigma"]),
+        "GR_SMOOTH_MEAN": oracle.smooth_mean(gr, 2),
+        "GR_SMOOTH_MEDIAN": oracle.smooth_median(gr, 2),
+        "GR_SHIFTED": oracle.depth_shift_block(depth, gr, cnd["shiftM"]),
+        "DRHO_SYN": drho_syn,
+        "CALI_SYN": cali_syn,
+        "BADHOLE": flags,
+        "RHOB_NULLED": oracle.apply_bad_hole(rhob, flags, "null", cnd["maxGapSamples"]),
+        "RHOB_INTERP": oracle.apply_bad_hole(rhob, flags, "interp", cnd["maxGapSamples"]),
+    }
     return out
 
 
@@ -363,6 +390,15 @@ def assert_anchors(tw, goldens):
     m_fit, arw_fit = oracle.pickett_fit(pts)
     assert abs(m_fit - p["m"]) < 1e-9, f"water-leg fit m = {m_fit}"
     assert abs(arw_fit - p["a"] * p["rw"]) < 1e-9, f"water-leg fit a*Rw = {arw_fit}"
+    spikes_a = {30: 220.0, 75: -80.0, 140: 300.0}
+    gr_base = tw["curves"]["GR"]
+    gr_sp = [(spikes_a[i] if i in spikes_a else g) for i, g in enumerate(gr_base)]
+    desp = oracle.despike_hampel(gr_sp, 5, 3.0)
+    for i in spikes_a:
+        assert abs(desp[i] - gr_sp[i]) > 10.0, f"spike at {i} survived despiking"
+    shifted = oracle.depth_shift_block(tw["curves"]["DEPT"], gr_base, 1.5)
+    i_chk = 100  # grid step 0.5 -> exactly 3 samples of shift
+    assert abs(shifted[i_chk] - gr_base[i_chk - 3]) < 1e-12, "block shift misaligned"
     gr_c = tw["curves"]["GR"]
     gt = [None if g is None else 1.1 * g + 5.0 for g in gr_c]
     for shift, scale in (oracle.fit_normalization_two_point(gr_c, gt),
