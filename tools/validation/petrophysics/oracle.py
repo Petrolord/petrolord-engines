@@ -326,6 +326,92 @@ def sw_mod_simandoux(rt, phi, rw, vsh, rsh, a=1.0, m=2.0, n=2.0):
 
 
 
+# ---- Matrix ID + Hingle (PS10) --------------------------------------------
+
+
+def hingle_y(rt, m):
+    """Hingle (1959) transform y = Rt^(-1/m) — the Sw=1 locus becomes a
+    line through the origin on a phi (x) vs y plot."""
+    if rt is None or rt <= 0.0:
+        return None
+    return rt ** (-1.0 / m)
+
+
+def hingle_fit(depth, phi, rt, top, base, a=1.0, m=2.0):
+    """Least-squares slope THROUGH THE ORIGIN of y = Rt^(-1/m) vs phi
+    over the window, inverted for Rw = slope^(-m)/a."""
+    sxy = sxx = 0.0
+    n = 0
+    for z, f, r in zip(depth, phi, rt):
+        if z < top or z > base:
+            continue
+        if f is None or r is None or f <= 0.0 or r <= 0.0:
+            continue
+        y = hingle_y(r, m)
+        sxy += f * y
+        sxx += f * f
+        n += 1
+    slope = sxy / sxx
+    return slope ** (-m) / a, slope, n
+
+
+def rho_maa(rhob, phi, rho_fl):
+    """Doveton (1994): rho_maa = (rho_b - phi*rho_fl)/(1 - phi)."""
+    if rhob is None or phi is None or phi >= 1.0:
+        return None
+    return (rhob - phi * rho_fl) / (1.0 - phi)
+
+
+def u_maa(pef, rhob, phi, u_fl=0.398):
+    """Doveton (1994): U = Pe*rho_e, rho_e = (rho_b + 0.1883)/1.0704;
+    U_maa = (U - phi*U_fl)/(1 - phi)."""
+    if pef is None or rhob is None or phi is None or phi >= 1.0:
+        return None
+    rho_e = (rhob + 0.1883) / 1.0704
+    return (pef * rho_e - phi * u_fl) / (1.0 - phi)
+
+
+def thomas_stieber(phit, vsh, phi_sand, phi_sh):
+    """Thomas & Stieber (1975, SPE 4271) end-member porosities at this
+    Vsh, and the nearest model to the measured porosity."""
+    if vsh is None:
+        return None
+    models = {
+        "laminated": phi_sand * (1.0 - vsh) + phi_sh * vsh,
+        "dispersed": phi_sand - vsh * (1.0 - phi_sh),
+        "structural": phi_sand + vsh * phi_sh,
+    }
+    nearest = None
+    if phit is not None:
+        best = float("inf")
+        for name, value in models.items():
+            d = abs(phit - value)
+            if d < best:
+                best = d
+                nearest = name
+    models["nearest"] = nearest
+    return models
+
+
+def two_mineral_solve(rhob, nphi, rho1, n1, rho2, n2, rho_fl, n_fl):
+    """Exact 2-mineral density-neutron solve (v1 + v2 + phi = 1),
+    UNCLAMPED — negative volumes are information."""
+    if rhob is None or nphi is None:
+        return None
+    a11 = rho1 - rho_fl
+    a12 = rho2 - rho_fl
+    a21 = n1 - n_fl
+    a22 = n2 - n_fl
+    det = a11 * a22 - a12 * a21
+    if abs(det) < 1e-12:
+        return None
+    b1 = rhob - rho_fl
+    b2 = nphi - n_fl
+    v1 = (b1 * a22 - b2 * a12) / det
+    v2 = (a11 * b2 - a21 * b1) / det
+    return {"v1": v1, "v2": v2, "phi": 1.0 - v1 - v2}
+
+
 # ---- Curve normalization (PS7) --------------------------------------------
 
 

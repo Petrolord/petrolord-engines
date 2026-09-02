@@ -316,6 +316,20 @@ def run_oracle(tw):
         "RHOB_NULLED": oracle.apply_bad_hole(rhob, flags, "null", cnd["maxGapSamples"]),
         "RHOB_INTERP": oracle.apply_bad_hole(rhob, flags, "interp", cnd["maxGapSamples"]),
     }
+
+    # ---- matrix ID + Hingle goldens (PS10) --------------------------------
+    ts_p = {"phiSand": 0.28, "phiSh": 0.1}
+    hingle_rw, hingle_slope, hingle_n = oracle.hingle_fit(
+        depth, phi, rt, p["water_leg"][0], p["water_leg"][1], p["a"], p["m"])
+    out["MATRIX"] = {
+        "params": ts_p,
+        "RHOMAA": [oracle.rho_maa(r, f, p["rho_fl"]) for r, f in zip(rhob, out["PHIND_AVG"])],
+        "TS_NEAREST": [None if (t := oracle.thomas_stieber(f, v, ts_p["phiSand"], ts_p["phiSh"])) is None
+                       else t["nearest"]
+                       for f, v in zip(out["PHIND_AVG"], vsh)],
+        "HINGLE_Y": [oracle.hingle_y(r, p["m"]) for r in rt],
+        "hingle_fit": {"rw": hingle_rw, "slope": hingle_slope, "n": hingle_n},
+    }
     return out
 
 
@@ -340,6 +354,15 @@ def analytic_cases():
             "in": {"rt": 8.0, "phi": 0.18, "rw": 0.05},
             "simandoux": oracle.sw_simandoux(8.0, 0.18, 0.05, 0.0, 2.0),
             "archie_n2": oracle.sw_archie(8.0, 0.18, 0.05, 1.0, 2.0, 2.0)},
+        "two_mineral_ss_dol": {
+            "in": {"rhob": 2.71, "nphi": 0.0, "m1": [2.65, -0.02], "m2": [2.87, 0.02],
+                   "fluid": [1.0, 1.0]},
+            "out": oracle.two_mineral_solve(2.71, 0.0, 2.65, -0.02, 2.87, 0.02, 1.0, 1.0)},
+        "thomas_stieber_clean": {
+            "in": {"phit": 0.28, "vsh": 0.0, "phi_sand": 0.28, "phi_sh": 0.1},
+            "out": oracle.thomas_stieber(0.28, 0.0, 0.28, 0.1)},
+        "u_maa_quartz": {"in": {"pef": 1.81, "rhob": 2.65, "phi": 0.0},
+                         "out": oracle.u_maa(1.81, 2.65, 0.0)},
         "timur_02_02": {"in": {"phi": 0.2, "swirr": 0.2},
                         "out": oracle.k_timur(0.2, 0.2)},
         "tixier_02_02": {"in": {"phi": 0.2, "swirr": 0.2},
@@ -390,6 +413,19 @@ def assert_anchors(tw, goldens):
     m_fit, arw_fit = oracle.pickett_fit(pts)
     assert abs(m_fit - p["m"]) < 1e-9, f"water-leg fit m = {m_fit}"
     assert abs(arw_fit - p["a"] * p["rw"]) < 1e-9, f"water-leg fit a*Rw = {arw_fit}"
+    # Hingle on the exact water leg must recover the construction Rw,
+    # and rho_maa with the DENSITY porosity must return the matrix
+    # density exactly (the typewell inverts that equation)
+    h_rw, _, _ = oracle.hingle_fit(tw["curves"]["DEPT"],
+                                   [oracle.phi_density(r, p["rho_ma"], p["rho_fl"]) for r in tw["curves"]["RHOB"]],
+                                   tw["curves"]["RT"], p["water_leg"][0], p["water_leg"][1], p["a"], p["m"])
+    assert abs(h_rw - p["rw"]) < 1e-9, f"Hingle water-leg fit rw = {h_rw}"
+    for r in tw["curves"]["RHOB"][:50]:
+        f = oracle.phi_density(r, p["rho_ma"], p["rho_fl"])
+        if r is None:
+            continue
+        rm = oracle.rho_maa(r, f, p["rho_fl"])
+        assert abs(rm - p["rho_ma"]) < 1e-9, f"rho_maa round-trip {rm}"
     spikes_a = {30: 220.0, 75: -80.0, 140: 300.0}
     gr_base = tw["curves"]["GR"]
     gr_sp = [(spikes_a[i] if i in spikes_a else g) for i, g in enumerate(gr_base)]

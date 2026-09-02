@@ -107,3 +107,41 @@ export function pickettFitDepthWindow(depth, phi, rt, topM, baseM) {
   const fit = pickettFit(pts);
   return { ...fit, nPoints: pts.length };
 }
+
+/** Hingle (1959) transform: y = Rt^(-1/m), which makes the Sw = 1
+ *  locus a straight line THROUGH THE ORIGIN, y = phi / (a*Rw)^(1/m),
+ *  on a phi (x) vs y plot. */
+export function hingleY(rt, m) {
+  return rt > 0 ? rt ** (-1 / m) : NaN;
+}
+
+/** Water line for the Hingle plot at given (a, m, rw): two points
+ *  through the origin in (phi, y) space. */
+export function hingleWaterLine({ a, m, rw }, phiMax) {
+  const s = (a * rw) ** (-1 / m);
+  return { pts: [{ x: 0, y: 0 }, { x: phiMax, y: s * phiMax }] };
+}
+
+/**
+ * Depth-windowed Hingle water-line fit: least-squares slope THROUGH
+ * THE ORIGIN of y = Rt^(-1/m) vs phi over the presumed water leg,
+ * inverted for Rw = s^(-m) / a. m is taken as given (the Pickett fit
+ * recovers m; Hingle recovers Rw at a chosen m).
+ * @returns {{rw: number, slope: number, nPoints: number}}
+ */
+export function hingleFitDepthWindow(depth, phi, rt, topM, baseM, { a = 1, m = 2 } = {}) {
+  let sxy = 0;
+  let sxx = 0;
+  let n = 0;
+  for (let i = 0; i < depth.length; i++) {
+    if (depth[i] < topM || depth[i] > baseM) continue;
+    if (!(phi[i] > 0) || !(rt[i] > 0)) continue;
+    const y = hingleY(rt[i], m);
+    sxy += phi[i] * y;
+    sxx += phi[i] * phi[i];
+    n += 1;
+  }
+  if (n < 2 || sxx === 0) throw new Error('Hingle fit needs at least two valid points in the window.');
+  const slope = sxy / sxx;
+  return { rw: slope ** (-m) / a, slope, nPoints: n };
+}
