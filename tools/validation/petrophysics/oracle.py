@@ -374,6 +374,148 @@ def apply_normalization(values, shift, scale):
     return [None if v is None else shift + scale * v for v in values]
 
 
+# ---- Log conditioning (PS8) -----------------------------------------------
+# SCOPE GUARD: depth_shift_block is a CONSTANT block shift resampled
+# back onto the original grid — deliberately NOT interval-wise
+# stretch/squeeze correlation (a Techlog-class interactive depth match
+# is a program of its own).
+
+
+def despike_hampel(x, half_window, n_sigma):
+    """Hampel filter (Hampel 1974; Pearson et al. 2016 review):
+    replace x[i] with the window median where
+    |x[i] - median| > n_sigma * 1.4826 * MAD. A zero-MAD window (at
+    least half the samples identical) treats ANY deviation from the
+    median as a spike — the strict inequality handles it. None passes
+    through and never enters a window."""
+    out = list(x)
+    n = len(x)
+    for i in range(n):
+        if x[i] is None:
+            continue
+        w = [x[j] for j in range(max(0, i - half_window), min(n, i + half_window + 1))
+             if x[j] is not None]
+        if len(w) < 3:
+            continue
+        w.sort()
+        med = w[len(w) // 2] if len(w) % 2 else 0.5 * (w[len(w) // 2 - 1] + w[len(w) // 2])
+        mad_list = sorted(abs(v - med) for v in w)
+        mad = mad_list[len(mad_list) // 2] if len(mad_list) % 2 else 0.5 * (
+            mad_list[len(mad_list) // 2 - 1] + mad_list[len(mad_list) // 2])
+        if abs(x[i] - med) > n_sigma * 1.4826 * mad:
+            out[i] = med
+    return out
+
+
+def smooth_mean(x, half_window):
+    """Centred moving mean of the finite window values; a None centre
+    stays None (smoothing never fabricates samples)."""
+    out = []
+    n = len(x)
+    for i in range(n):
+        if x[i] is None:
+            out.append(None)
+            continue
+        w = [x[j] for j in range(max(0, i - half_window), min(n, i + half_window + 1))
+             if x[j] is not None]
+        out.append(sum(w) / len(w))
+    return out
+
+
+def smooth_median(x, half_window):
+    """Centred moving median; a None centre stays None."""
+    out = []
+    n = len(x)
+    for i in range(n):
+        if x[i] is None:
+            out.append(None)
+            continue
+        w = sorted(x[j] for j in range(max(0, i - half_window), min(n, i + half_window + 1))
+                   if x[j] is not None)
+        m = w[len(w) // 2] if len(w) % 2 else 0.5 * (w[len(w) // 2 - 1] + w[len(w) // 2])
+        out.append(m)
+    return out
+
+
+def depth_shift_block(depth, x, shift_m):
+    """Constant block shift: the shifted curve at depth z reads the
+    original at z - shift, linearly interpolated on the original grid.
+    Outside the original extent, or bracketed by a None, -> None (gaps
+    are never bridged)."""
+    out = []
+    n = len(depth)
+    for i in range(n):
+        zq = depth[i] - shift_m
+        if zq < depth[0] or zq > depth[n - 1]:
+            out.append(None)
+            continue
+        lo = 0
+        hi = n - 1
+        while hi - lo > 1:
+            mid = (lo + hi) // 2
+            if depth[mid] <= zq:
+                lo = mid
+            else:
+                hi = mid
+        if x[lo] is None or x[hi] is None:
+            out.append(None)
+            continue
+        if depth[hi] == depth[lo]:
+            out.append(x[lo])
+            continue
+        t = (zq - depth[lo]) / (depth[hi] - depth[lo])
+        out.append(x[lo] + t * (x[hi] - x[lo]))
+    return out
+
+
+def bad_hole_flag(cali, bit_size, drho, washout_over, drho_max):
+    """Per-sample bad-hole flag: caliper reads more than washout_over
+    over bit size (same units as the caliper curve), OR |DRHO| exceeds
+    drho_max (g/cc). A missing curve skips its criterion; a sample
+    with both inputs missing is not flagged."""
+    n = len(cali) if cali is not None else len(drho)
+    out = []
+    for i in range(n):
+        f = False
+        if cali is not None and cali[i] is not None and cali[i] - bit_size > washout_over:
+            f = True
+        if drho is not None and drho[i] is not None and abs(drho[i]) > drho_max:
+            f = True
+        out.append(1 if f else 0)
+    return out
+
+
+def apply_bad_hole(x, flags, mode, max_gap_samples):
+    """Null or bridge flagged samples. 'null' -> None. 'interp' ->
+    linear bridge across flagged runs of length <= max_gap_samples
+    with finite neighbours on both sides; longer or unbounded runs
+    -> None (a visible cap, never silent fabrication)."""
+    n = len(x)
+    out = list(x)
+    i = 0
+    while i < n:
+        if not flags[i]:
+            i += 1
+            continue
+        j = i
+        while j < n and flags[j]:
+            j += 1
+        run = j - i
+        lo = i - 1
+        hi = j
+        can_bridge = (mode == "interp" and run <= max_gap_samples
+                      and lo >= 0 and hi < n
+                      and x[lo] is not None and x[hi] is not None)
+        for k in range(i, j):
+            if can_bridge:
+                t = (k - lo) / (hi - lo)
+                out[k] = x[lo] + t * (x[hi] - x[lo])
+            else:
+                out[k] = None
+        i = j
+    return out
+
+
 # ---- Permeability + BVW (PS6) ---------------------------------------------
 # Constants are pinned to ONE cited form each (fraction inputs, mD out)
 # because every published "Timur" differs by unit convention:
