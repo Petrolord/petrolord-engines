@@ -213,6 +213,38 @@ def run_oracle(tw):
         zoned_zones[name] = {"summary": summary}
     out["ZONED"] = {"zone_params": zoned_patches, "SW": sw_zoned,
                     "PAY": pay_zoned, "zones": zoned_zones}
+
+    # ---- shaly-sand + temperature goldens (PS5) ---------------------------
+    # Documented clay parameter set (b fixed manually so the clay golden
+    # decouples from the temperature model; the TEMP golden covers the
+    # coupled path with Archie).
+    clay = {"qv": 0.1, "b": 3.0, "mStar": 2.0, "nStar": 2.0,
+            "rwb": 0.02, "swb": 0.25}
+    out["CLAY"] = {
+        "params": clay,
+        "SW_WS": [oracle.sw_waxman_smits(r, f, p["rw"], clay["qv"], clay["b"],
+                                         p["a"], clay["mStar"], clay["nStar"])
+                  for r, f in zip(rt, phi)],
+        "SW_DW": [oracle.sw_dual_water(r, f, p["rw"], clay["rwb"], clay["swb"],
+                                       p["a"], p["m"], p["n"])
+                  for r, f in zip(rt, phi)],
+        "SW_MS": [oracle.sw_mod_simandoux(r, f, p["rw"], v, p["rsh"],
+                                          p["a"], p["m"], p["n"])
+                  for r, f, v in zip(rt, phi, vsh)],
+    }
+    tp = {"surfaceTempC": 25.0, "bhtC": 90.0, "bhtDepthM": 2100.0,
+          "rwRefTempC": 25.0}
+    temp_c = [oracle.temp_at_depth(z, tp["surfaceTempC"], tp["bhtC"],
+                                   tp["bhtDepthM"]) for z in depth]
+    rw_t = [oracle.rw_at_temp(p["rw"], tp["rwRefTempC"], t) for t in temp_c]
+    out["TEMP"] = {
+        "params": tp,
+        "TEMP": temp_c,
+        "RW_T": rw_t,
+        "B_JUHASZ": [oracle.b_juhasz(t) for t in temp_c],
+        "SW_ARCHIE_T": [oracle.sw_archie(r, f, w, p["a"], p["m"], p["n"])
+                        for r, f, w in zip(rt, phi, rw_t)],
+    }
     return out
 
 
@@ -237,6 +269,22 @@ def analytic_cases():
             "in": {"rt": 8.0, "phi": 0.18, "rw": 0.05},
             "simandoux": oracle.sw_simandoux(8.0, 0.18, 0.05, 0.0, 2.0),
             "archie_n2": oracle.sw_archie(8.0, 0.18, 0.05, 1.0, 2.0, 2.0)},
+        "waxman_smits_basic": {
+            "in": {"rt": 8.0, "phi": 0.18, "rw": 0.05, "qv": 0.1, "b": 3.0},
+            "out": oracle.sw_waxman_smits(8.0, 0.18, 0.05, 0.1, 3.0)},
+        "dual_water_basic": {
+            "in": {"rt": 8.0, "phit": 0.18, "rwf": 0.05, "rwb": 0.02, "swb": 0.25},
+            "out": oracle.sw_dual_water(8.0, 0.18, 0.05, 0.02, 0.25)},
+        "mod_simandoux_basic": {
+            "in": {"rt": 8.0, "phi": 0.18, "rw": 0.05, "vsh": 0.3, "rsh": 2.0},
+            "out": oracle.sw_mod_simandoux(8.0, 0.18, 0.05, 0.3, 2.0)},
+        "b_juhasz_80c": {"in": {"t_c": 80.0}, "out": oracle.b_juhasz(80.0)},
+        "qv_from_cec": {"in": {"cec": 10.0, "phit": 0.2, "rho_grain": 2.65},
+                        "out": oracle.qv_from_cec(10.0, 0.2, 2.65)},
+        "temp_linear": {"in": {"z": 2050.0, "surface_c": 25.0, "bht_c": 90.0, "bht_depth_m": 2100.0},
+                        "out": oracle.temp_at_depth(2050.0, 25.0, 90.0, 2100.0)},
+        "rw_at_temp_25_to_88": {"in": {"rw_ref": 0.05, "ref_c": 25.0, "t_c": 88.452380952380952},
+                                "out": oracle.rw_at_temp(0.05, 25.0, 88.452380952380952)},
         "indonesia_vsh0_equals_archie": {
             "in": {"rt": 8.0, "phi": 0.18, "rw": 0.05},
             "indonesia": oracle.sw_indonesia(8.0, 0.18, 0.05, 0.0, 2.0),
@@ -261,8 +309,12 @@ def assert_anchors(tw, goldens):
     m_fit, arw_fit = oracle.pickett_fit(pts)
     assert abs(m_fit - p["m"]) < 1e-9, f"water-leg fit m = {m_fit}"
     assert abs(arw_fit - p["a"] * p["rw"]) < 1e-9, f"water-leg fit a*Rw = {arw_fit}"
+    a0 = oracle.sw_archie(8.0, 0.18, 0.05)
+    assert abs(oracle.sw_waxman_smits(8.0, 0.18, 0.05, 0.0, 3.0) - a0) < 1e-12, "WS(qv=0) != Archie"
+    assert abs(oracle.sw_dual_water(8.0, 0.18, 0.05, 0.02, 0.0) - a0) < 1e-12, "DW(swb=0) != Archie"
+    assert abs(oracle.sw_mod_simandoux(8.0, 0.18, 0.05, 0.0, 2.0) - a0) < 1e-12, "MS(vsh=0) != Archie"
     print(f"anchors: {len(clean)} clean samples, round-trip exact, "
-          f"water-leg fit m={m_fit:.12f} aRw={arw_fit:.12f}")
+          f"water-leg fit m={m_fit:.12f} aRw={arw_fit:.12f}; clay reductions exact")
 
 
 def main():

@@ -198,6 +198,134 @@ def sw_indonesia(rt, phi, rw, vsh, rsh, a=1.0, m=2.0, n=2.0):
     return ((1.0 / math.sqrt(rt)) / (term_sh + term_phi)) ** (2.0 / n)
 
 
+# ---- Formation temperature (PS5) ------------------------------------------
+
+
+def temp_at_depth(z_m, surface_c, bht_c, bht_depth_m):
+    """Linear geothermal profile: T(z) = Ts + (BHT - Ts)*z/z_bht (degC).
+    Depths below the BHT station extrapolate on the same gradient."""
+    if z_m is None:
+        return None
+    return surface_c + (bht_c - surface_c) * (z_m / bht_depth_m)
+
+
+def c_to_f(t_c):
+    """degC -> degF (the Arps/SP formulas are defined in degF)."""
+    return t_c * 9.0 / 5.0 + 32.0
+
+
+def rw_at_temp(rw_ref, ref_c, t_c):
+    """Rw at formation temperature: Arps conversion, degC in, degF
+    inside (rw_arps owns the 6.77 offset)."""
+    if t_c is None:
+        return None
+    return rw_arps(rw_ref, c_to_f(ref_c), c_to_f(t_c))
+
+
+# ---- Shaly-sand Sw (PS5) --------------------------------------------------
+
+
+def b_juhasz(t_c):
+    """Juhasz (1981, SPWLA 22nd Annual Logging Symposium, paper Z),
+    polynomial fit for the Waxman-Smits equivalent counterion
+    conductance: B = -1.28 + 0.225*T - 0.0004059*T^2 (T degC,
+    B in (S/m)/(meq/cm3))."""
+    return -1.28 + 0.225 * t_c - 0.0004059 * t_c * t_c
+
+
+def qv_from_cec(cec_meq_100g, phit, rho_grain):
+    """Waxman & Smits (1968): Qv = CEC*(1-phit)*rho_grain/(100*phit),
+    CEC in meq/100 g, rho_grain g/cc -> Qv in meq/cm3."""
+    if phit is None or phit <= 0.0 or phit >= 1.0:
+        return None
+    return cec_meq_100g * (1.0 - phit) * rho_grain / (100.0 * phit)
+
+
+def _bisect(f, lo, hi, iters=200):
+    """Pure bisection (deliberately DIFFERENT numerics from the JS
+    Newton solvers, per the independence rule)."""
+    flo = f(lo)
+    fhi = f(hi)
+    if flo == 0.0:
+        return lo
+    if fhi == 0.0:
+        return hi
+    if flo * fhi > 0.0:
+        return None
+    for _ in range(iters):
+        mid = 0.5 * (lo + hi)
+        fm = f(mid)
+        if fm == 0.0:
+            return mid
+        if flo * fm < 0.0:
+            hi = mid
+        else:
+            lo = mid
+            flo = fm
+    return 0.5 * (lo + hi)
+
+
+def sw_waxman_smits(rt, phi, rw, qv, b, a=1.0, m_star=2.0, n_star=2.0):
+    """Waxman & Smits (1968, SPE Journal 8(2), "Electrical
+    Conductivities in Oil-Bearing Shaly Sands"):
+    1/Rt = (phi^m* * Sw^n* / a) * (1/Rw + B*Qv/Sw).
+    NOTE m*/n* are the shaly-rock exponents, NOT Archie's m/n.
+    Implicit in Sw; bisection on [1e-9, 10]. Reduces exactly to
+    Archie at Qv = 0. UNCLAMPED."""
+    if rt is None or phi is None:
+        return None
+    if rt <= 0.0 or phi <= 0.0:
+        return None
+    target = 1.0 / rt
+    k = phi ** m_star / a
+
+    def f(sw):
+        return k * sw ** n_star * (1.0 / rw + b * qv / sw) - target
+
+    return _bisect(f, 1e-9, 10.0)
+
+
+def sw_dual_water(rt, phit, rwf, rwb, swb, a=1.0, m0=2.0, n0=2.0):
+    """Clavier, Coates & Dumanoir (1984, SPE Journal 24(2),
+    "Theoretical and Experimental Bases for the Dual-Water Model"):
+    1/Rt = (phit^m0 * Swt^n0 / a) * (1/Rwf + (Swb/Swt)*(1/Rwb - 1/Rwf)).
+    Implicit in Swt; bisection on [1e-9, 10]. Reduces exactly to
+    Archie (Rw = Rwf) at Swb = 0. UNCLAMPED."""
+    if rt is None or phit is None:
+        return None
+    if rt <= 0.0 or phit <= 0.0:
+        return None
+    target = 1.0 / rt
+    k = phit ** m0 / a
+    dc = 1.0 / rwb - 1.0 / rwf
+
+    def f(swt):
+        return k * swt ** n0 * (1.0 / rwf + swb * dc / swt) - target
+
+    return _bisect(f, 1e-9, 10.0)
+
+
+def sw_mod_simandoux(rt, phi, rw, vsh, rsh, a=1.0, m=2.0, n=2.0):
+    """Bardon & Pied (1969) modified Simandoux:
+    1/Rt = phi^m*Sw^n/(a*Rw*(1-Vsh)) + Vsh*Sw/Rsh.
+    Implicit for general n; bisection on [1e-9, 10]. Reduces exactly
+    to Archie at Vsh = 0. UNCLAMPED; Vsh >= 1 has no clean term and
+    returns None."""
+    if rt is None or phi is None or vsh is None:
+        return None
+    if rt <= 0.0 or phi <= 0.0 or vsh >= 1.0:
+        return None
+    target = 1.0 / rt
+    c = phi ** m / (a * rw * (1.0 - vsh))
+    d = vsh / rsh
+
+    def f(sw):
+        return c * sw ** n + d * sw - target
+
+    return _bisect(f, 1e-9, 10.0)
+
+
+
 # ---- Cutoffs / net pay ----------------------------------------------------
 
 

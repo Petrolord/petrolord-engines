@@ -10,7 +10,9 @@
 
 import { vshFromGr } from './vsh';
 import { phiDensity, phiSonicWyllie, phiSonicRhg, phiNd, clampDisplay } from './porosity';
-import { swCurve } from './sw';
+import { swArchie, swSimandoux, swIndonesia } from './sw';
+import { swWaxmanSmits, swDualWater, swModSimandoux, bJuhasz } from './swClay';
+import { tempCurve, rwAtTemp } from './temperature';
 import { netPay } from './netpay';
 
 /** The workstation's default parameter set — shown in the panel,
@@ -22,6 +24,13 @@ export const DEFAULT_PARAMS = {
   ndMethod: 'avg',
   phiSource: 'density',           // density | sonic | nd
   swMethod: 'archie', a: 1, m: 2, n: 2, rw: 0.05, rsh: 2.0,
+  // PS5 temperature model: 'none' keeps rw as entered at all depths;
+  // 'linear' builds a TEMP curve and converts rw per sample via Arps
+  tempMode: 'none', surfaceTempC: 25, bhtC: 90, bhtDepthM: 2100, rwRefTempC: 25,
+  // PS5 shaly-sand parameters (waxman-smits / dual-water); for
+  // waxman-smits the m and n fields carry m* and n* (shaly-rock
+  // exponents — the UI labels them distinctly)
+  qv: 0.1, bMode: 'juhasz', bValue: 3, rwb: 0.02, swb: 0.25,
   cutPhi: 0.08, cutVsh: 0.5, cutSw: 0.6,
 };
 
@@ -60,11 +69,40 @@ export function computeWell(curves, params) {
   if (phiE) outputs.PHIE = phiE;
   else missing.push(`${p.phiSource} porosity inputs`);
 
-  if (curves.RT && outputs.PHIE && (p.swMethod === 'archie' || outputs.VSH)) {
-    outputs.SW = swCurve(
-      { rt: curves.RT, phi: outputs.PHIE, vsh: outputs.VSH },
-      { method: p.swMethod, rw: p.rw, rsh: p.rsh, a: p.a, m: p.m, n: p.n },
-    );
+  if (p.tempMode === 'linear') outputs.TEMP = tempCurve(curves.DEPT, p);
+
+  const needsVsh = p.swMethod === 'simandoux' || p.swMethod === 'indonesia' || p.swMethod === 'mod-simandoux';
+  if (curves.RT && outputs.PHIE && (!needsVsh || outputs.VSH)) {
+    const rt = curves.RT;
+    const phi = outputs.PHIE;
+    const vsh = outputs.VSH;
+    const temp = outputs.TEMP || null;
+    const sw = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      const rwI = temp ? rwAtTemp(p.rw, p.rwRefTempC, temp[i]) : p.rw;
+      switch (p.swMethod) {
+        case 'simandoux':
+          sw[i] = swSimandoux(rt[i], phi[i], rwI, vsh[i], p.rsh, p.a, p.m);
+          break;
+        case 'indonesia':
+          sw[i] = swIndonesia(rt[i], phi[i], rwI, vsh[i], p.rsh, p.a, p.m, p.n);
+          break;
+        case 'waxman-smits': {
+          const b = p.bMode === 'manual' ? p.bValue : bJuhasz(temp ? temp[i] : p.rwRefTempC);
+          sw[i] = swWaxmanSmits(rt[i], phi[i], rwI, p.qv, b, p.a, p.m, p.n);
+          break;
+        }
+        case 'dual-water':
+          sw[i] = swDualWater(rt[i], phi[i], rwI, p.rwb, p.swb, p.a, p.m, p.n);
+          break;
+        case 'mod-simandoux':
+          sw[i] = swModSimandoux(rt[i], phi[i], rwI, vsh[i], p.rsh, p.a, p.m, p.n);
+          break;
+        default:
+          sw[i] = swArchie(rt[i], phi[i], rwI, p.a, p.m, p.n);
+      }
+    }
+    outputs.SW = sw;
   } else if (!curves.RT) missing.push('RT (Sw)');
 
   if (outputs.PHIE && outputs.VSH && outputs.SW) {
@@ -136,8 +174,9 @@ export function computeWellZoned(curves, baseParams, zoneParamList = []) {
 /** Bumped whenever a formula or the publish payload shape changes —
  *  recorded in every published curve's provenance so consumers can
  *  tell recipe generations apart. v2 (PS3): zoned compute; provenance
- *  gains zone_params and interpretation_name. */
-export const PIPELINE_VERSION = 2;
+ *  gains zone_params and interpretation_name. v3 (PS5): temperature
+ *  model + Waxman-Smits / dual-water / modified Simandoux. */
+export const PIPELINE_VERSION = 3;
 
 /** Literature references for each selectable method, keyed the way the
  *  parameter set spells them — the same sources the validation oracle
@@ -164,6 +203,13 @@ export const METHOD_CITATIONS = {
     archie: 'Archie (1942): Sw = ((a*Rw)/(phi^m * Rt))^(1/n).',
     simandoux: 'Simandoux (1963), classic quadratic form (n = 2); reduces to Archie at Vsh = 0.',
     indonesia: 'Poupon & Leveaux (1971) "Indonesia" equation; reduces to Archie at Vsh = 0.',
+    'waxman-smits': 'Waxman & Smits (1968), SPE Journal 8(2); B(T) per Juhasz (1981, SPWLA 22nd) unless set manually. m* and n* are shaly-rock exponents.',
+    'dual-water': 'Clavier, Coates & Dumanoir (1984), SPE Journal 24(2) dual-water model; returns total Swt.',
+    'mod-simandoux': 'Bardon & Pied (1969) modified Simandoux; reduces to Archie at Vsh = 0.',
+  },
+  temp: {
+    none: 'Rw used as entered at all depths.',
+    linear: 'Linear geothermal profile from surface temperature and BHT; Rw converted per depth via Arps (degF inside the formula).',
   },
 };
 
