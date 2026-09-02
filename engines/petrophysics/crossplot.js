@@ -61,6 +61,26 @@ export const ND_LITHOLOGY_LINES = [
   { name: 'Dolomite', pts: [{ x: 0.02, y: 2.87 }, { x: 0.46, y: 2.2 }] },
 ];
 
+/**
+ * One iso-BVW line for the Buckles plot (x = phi v/v, y = Sw v/v,
+ * linear axes): Buckles (1965) observed that bulk volume water
+ * BVW = phi*Sw is roughly constant at irreducible saturation, so each
+ * constant-BVW locus Sw = bvw/phi is a hyperbola. Sampled (a curve,
+ * not two endpoints); samples with Sw > swMax or phi <= 0 are dropped
+ * so the locus enters the frame cleanly.
+ * @returns {{bvw: number, pts: Array<{x: number, y: number}>}}
+ */
+export function bucklesIsoBvwLine(bvw, phiMin, phiMax, swMax = 1, nPts = 64) {
+  const pts = [];
+  for (let k = 0; k < nPts; k++) {
+    const phi = phiMin + (k / (nPts - 1)) * (phiMax - phiMin);
+    if (phi <= 0) continue;
+    const sw = bvw / phi;
+    if (sw <= swMax) pts.push({ x: phi, y: sw });
+  }
+  return { bvw, pts };
+}
+
 /** One Pickett iso-Sw line (straight in log-log): Archie inverted,
  *  Rt = a*Rw/(phi^m * Sw^n). x = RT, y = phi (the Asquith layout).
  *  Two endpoints suffice. */
