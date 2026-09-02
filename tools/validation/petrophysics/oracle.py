@@ -326,6 +326,54 @@ def sw_mod_simandoux(rt, phi, rw, vsh, rsh, a=1.0, m=2.0, n=2.0):
 
 
 
+# ---- Curve normalization (PS7) --------------------------------------------
+
+
+def percentile(values, p):
+    """p-th percentile (0-100) of the finite values, linear
+    interpolation on rank (n-1)*p/100 (the numpy 'linear' method)."""
+    finite = sorted(v for v in values if v is not None)
+    if not finite:
+        return None
+    rank = (len(finite) - 1) * p / 100.0
+    lo = int(math.floor(rank))
+    hi = int(math.ceil(rank))
+    if lo == hi:
+        return finite[lo]
+    return finite[lo] + (finite[hi] - finite[lo]) * (rank - lo)
+
+
+def _mean_std(values):
+    finite = [v for v in values if v is not None]
+    if not finite:
+        return None, None
+    mean = sum(finite) / len(finite)
+    var = sum((v - mean) ** 2 for v in finite) / len(finite)   # population
+    return mean, math.sqrt(var)
+
+
+def fit_normalization_two_point(ref, target, p_low=5.0, p_high=95.0):
+    """Two-point (percentile-anchor) field normalization: match the
+    target's pLow/pHigh percentiles to the reference's. Returns
+    (shift, scale) for v' = shift + scale*v."""
+    r_lo, r_hi = percentile(ref, p_low), percentile(ref, p_high)
+    t_lo, t_hi = percentile(target, p_low), percentile(target, p_high)
+    scale = (r_hi - r_lo) / (t_hi - t_lo)
+    return r_lo - t_lo * scale, scale
+
+
+def fit_normalization_meanstd(ref, target):
+    """Mean/population-std matching normalization -> (shift, scale)."""
+    r_mean, r_std = _mean_std(ref)
+    t_mean, t_std = _mean_std(target)
+    scale = r_std / t_std
+    return r_mean - t_mean * scale, scale
+
+
+def apply_normalization(values, shift, scale):
+    return [None if v is None else shift + scale * v for v in values]
+
+
 # ---- Permeability + BVW (PS6) ---------------------------------------------
 # Constants are pinned to ONE cited form each (fraction inputs, mD out)
 # because every published "Timur" differs by unit convention:
