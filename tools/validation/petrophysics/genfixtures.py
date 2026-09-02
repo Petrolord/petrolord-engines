@@ -272,6 +272,23 @@ def run_oracle(tw):
             "k_gm_timur": oracle.k_geom_mean(perm["K_TIMUR"], flags, th),
         }
     out["PERM"] = perm
+
+    # ---- normalization golden (PS7) ---------------------------------------
+    # The target is an exact affine distortion of GR (1.1*GR + 5), so
+    # both fits must recover it and applying the fit must give GR back
+    # (asserted in assert_anchors before writing).
+    gr_target = [None if g is None else 1.1 * g + 5.0 for g in gr]
+    tp_shift, tp_scale = oracle.fit_normalization_two_point(gr, gr_target)
+    ms_shift, ms_scale = oracle.fit_normalization_meanstd(gr, gr_target)
+    out["NORM"] = {
+        "target_transform": {"a": 1.1, "b": 5.0},
+        "GR_TARGET": gr_target,
+        "two_point": {"shift": tp_shift, "scale": tp_scale,
+                      "refP": [oracle.percentile(gr, 5.0), oracle.percentile(gr, 95.0)],
+                      "targetP": [oracle.percentile(gr_target, 5.0), oracle.percentile(gr_target, 95.0)]},
+        "mean_std": {"shift": ms_shift, "scale": ms_scale},
+        "GR_RESTORED": oracle.apply_normalization(gr_target, tp_shift, tp_scale),
+    }
     return out
 
 
@@ -346,6 +363,13 @@ def assert_anchors(tw, goldens):
     m_fit, arw_fit = oracle.pickett_fit(pts)
     assert abs(m_fit - p["m"]) < 1e-9, f"water-leg fit m = {m_fit}"
     assert abs(arw_fit - p["a"] * p["rw"]) < 1e-9, f"water-leg fit a*Rw = {arw_fit}"
+    gr_c = tw["curves"]["GR"]
+    gt = [None if g is None else 1.1 * g + 5.0 for g in gr_c]
+    for shift, scale in (oracle.fit_normalization_two_point(gr_c, gt),
+                         oracle.fit_normalization_meanstd(gr_c, gt)):
+        back = oracle.apply_normalization(gt, shift, scale)
+        worst_n = max(abs(b - g) for b, g in zip(back, gr_c) if b is not None)
+        assert worst_n < 1e-9, f"normalization round-trip error {worst_n}"
     a0 = oracle.sw_archie(8.0, 0.18, 0.05)
     assert abs(oracle.sw_waxman_smits(8.0, 0.18, 0.05, 0.0, 3.0) - a0) < 1e-12, "WS(qv=0) != Archie"
     assert abs(oracle.sw_dual_water(8.0, 0.18, 0.05, 0.02, 0.0) - a0) < 1e-12, "DW(swb=0) != Archie"
