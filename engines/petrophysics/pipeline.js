@@ -79,10 +79,65 @@ export function computeWell(curves, params) {
   return { outputs, missing };
 }
 
+/**
+ * Zone-aware compute (PS3): per-zone parameter override patches merged
+ * over the base set. zoneParamList = [{top, base, params}] in metres
+ * MD; entries are sorted by top and the FIRST zone containing a sample
+ * wins (overlaps are the caller's to warn about); samples outside
+ * every zone use the base parameters. Implemented as contiguous
+ * same-parameter runs sliced through computeWell itself, so the zoned
+ * path inherits the validated pipeline verbatim — with an empty
+ * zoneParamList the result is computeWell exactly (tested invariant).
+ *
+ * Outputs are the union across segments (a per-zone phiSource switch
+ * can make a product exist in one zone only); absent stretches are
+ * NaN. PAY inside each zone honours that zone's cutoffs.
+ *
+ * @param {Parameters<typeof computeWell>[0]} curves
+ * @param {typeof DEFAULT_PARAMS} baseParams
+ * @param {Array<{top: number, base: number, params: Object}>} zoneParamList
+ * @returns {{outputs: Object<string, Float64Array>, missing: string[]}}
+ */
+export function computeWellZoned(curves, baseParams, zoneParamList = []) {
+  const base = { ...DEFAULT_PARAMS, ...baseParams };
+  const depth = curves.DEPT;
+  const n = depth.length;
+  const zonesSorted = [...zoneParamList].sort((a, b) => a.top - b.top);
+
+  const zi = new Int32Array(n).fill(-1);
+  for (let i = 0; i < n; i++) {
+    for (let k = 0; k < zonesSorted.length; k++) {
+      if (depth[i] >= zonesSorted[k].top && depth[i] <= zonesSorted[k].base) { zi[i] = k; break; }
+    }
+  }
+
+  const outputs = {};
+  const missing = new Set();
+  let i0 = 0;
+  while (i0 < n) {
+    let i1 = i0;
+    while (i1 + 1 < n && zi[i1 + 1] === zi[i0]) i1 += 1;
+    const p = zi[i0] < 0 ? base : { ...base, ...zonesSorted[zi[i0]].params };
+    const seg = {};
+    for (const [key, arr] of Object.entries(curves)) {
+      if (arr) seg[key] = arr.slice(i0, i1 + 1);
+    }
+    const r = computeWell(seg, p);
+    for (const [key, arr] of Object.entries(r.outputs)) {
+      if (!outputs[key]) outputs[key] = new Float64Array(n).fill(NaN);
+      outputs[key].set(arr, i0);
+    }
+    for (const m of r.missing) missing.add(m);
+    i0 = i1 + 1;
+  }
+  return { outputs, missing: [...missing] };
+}
+
 /** Bumped whenever a formula or the publish payload shape changes —
  *  recorded in every published curve's provenance so consumers can
- *  tell recipe generations apart. */
-export const PIPELINE_VERSION = 1;
+ *  tell recipe generations apart. v2 (PS3): zoned compute; provenance
+ *  gains zone_params and interpretation_name. */
+export const PIPELINE_VERSION = 2;
 
 /** Literature references for each selectable method, keyed the way the
  *  parameter set spells them — the same sources the validation oracle
@@ -130,7 +185,8 @@ const PUBLISH_SPECS = {
  * @param {{curves: Object, inventory: Array<{key, log}>}} wellData
  * @param {Object<string, Float64Array>} outputs computeWell outputs
  * @param {typeof DEFAULT_PARAMS} params
- * @param {{projectId: string, sourceFile?: string}} meta
+ * @param {{projectId: string, interpretationName?: string,
+ *          zoneParams?: Object, sourceFile?: string}} meta
  */
 export function preparePublishLogs(wellData, outputs, params, meta) {
   const depth = wellData.curves.DEPT;
@@ -161,7 +217,9 @@ export function preparePublishLogs(wellData, outputs, params, meta) {
         engine: 'petrophysics-studio',
         pipeline_version: PIPELINE_VERSION,
         project_id: meta.projectId,
+        interpretation_name: meta.interpretationName ?? null,
         params: { ...params },
+        zone_params: meta.zoneParams ? { ...meta.zoneParams } : {},
         input_log_ids: inputLogIds,
       },
     });
@@ -179,6 +237,7 @@ export function zonePropertiesSnapshot(summary, params, meta) {
     methods: { vsh: params.vshMethod, phi: params.phiSource, sw: params.swMethod },
     pipeline_version: PIPELINE_VERSION,
     project_id: meta.projectId,
+    interpretation_name: meta.interpretationName ?? null,
     published_at: meta.publishedAt,
   };
 }
