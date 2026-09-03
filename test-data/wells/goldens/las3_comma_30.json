@@ -1,0 +1,112 @@
+{
+  "curves": [
+    {
+      "descr": "DEPTH",
+      "first_finite": 1500.0,
+      "last_finite": 1509.5,
+      "mnemonic": "DEPT",
+      "n_samples": 20,
+      "null_count": 0,
+      "sum_finite_f64": 30095.0,
+      "unit": "M"
+    },
+    {
+      "descr": "GAMMA RAY",
+      "first_finite": 43.135101318359375,
+      "last_finite": 58.01890182495117,
+      "mnemonic": "GR",
+      "n_samples": 20,
+      "null_count": 3,
+      "sum_finite_f64": 766.4556999206543,
+      "unit": "GAPI"
+    },
+    {
+      "descr": "ARRAY RESISTIVITY 34IN",
+      "first_finite": 5.216899871826172,
+      "last_finite": 5.785099983215332,
+      "mnemonic": "A34H",
+      "n_samples": 20,
+      "null_count": 1,
+      "sum_finite_f64": 99.2620005607605,
+      "unit": "OHMM"
+    },
+    {
+      "descr": "PHASE RESISTIVITY 40IN",
+      "first_finite": 16.524999618530273,
+      "last_finite": 12.73900032043457,
+      "mnemonic": "P40H",
+      "n_samples": 20,
+      "null_count": 0,
+      "sum_finite_f64": 294.98700046539307,
+      "unit": "OHMM"
+    },
+    {
+      "descr": "BULK DENSITY PASS 1",
+      "first_finite": 2.189300060272217,
+      "last_finite": 2.2539000511169434,
+      "mnemonic": "RHOB[1]",
+      "n_samples": 20,
+      "null_count": 0,
+      "sum_finite_f64": 44.39300036430359,
+      "unit": "G/C3"
+    },
+    {
+      "descr": "BULK DENSITY PASS 2",
+      "first_finite": 2.1993000507354736,
+      "last_finite": 2.2639000415802,
+      "mnemonic": "RHOB[2]",
+      "n_samples": 20,
+      "null_count": 1,
+      "sum_finite_f64": 42.37920022010803,
+      "unit": "G/C3"
+    }
+  ],
+  "depth_unit": "M",
+  "fixture": "las3_comma_30.las",
+  "null_value": -999.25,
+  "oracle": "genfixtures.py closed-form arrays (lasio 0.32 misreads LAS 3.0)",
+  "version": 3.0,
+  "well": {
+    "COMP": {
+      "descr": "COMPANY",
+      "unit": "",
+      "value": "PETROLORD TEST"
+    },
+    "DATE": {
+      "descr": "LOG DATE",
+      "unit": "",
+      "value": "2026-09-03 12:30:00"
+    },
+    "FLD": {
+      "descr": "FIELD",
+      "unit": "",
+      "value": "KETA"
+    },
+    "STEP": {
+      "descr": "STEP",
+      "unit": "M",
+      "value": 0.5
+    },
+    "STOP": {
+      "descr": "STOP DEPTH",
+      "unit": "M",
+      "value": 1509.5
+    },
+    "STRT": {
+      "descr": "START DEPTH",
+      "unit": "M",
+      "value": 1500.0
+    },
+    "UWI": {
+      "descr": "UNIQUE WELL ID",
+      "unit": "",
+      "value": "0123456789"
+    },
+    "WELL": {
+      "descr": "WELL",
+      "unit": "",
+      "value": "KETA L3-1"
+    }
+  },
+  "wrap": "NO"
+}
