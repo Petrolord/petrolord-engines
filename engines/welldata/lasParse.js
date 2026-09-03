@@ -19,9 +19,28 @@
 //   - data reads as a flat token stream reshaped by curve count, which
 //     makes WRAP YES and unwrapped files the same code path
 //
-// LAS 3.0 is out of v1 scope and is rejected with a clear message,
-// never half-parsed. All errors are plain, line-numbered domain Errors
-// (the wellImport / malformedSegy philosophy) — never a raw TypeError.
+// LAS 3.0 (2026-09-03, tester files): the same reader with the 3.0
+// rules layered on, and the 1.2/2.0 path left byte-identical:
+//   - DLM in ~Version selects the data delimiter (SPACE, COMMA, TAB);
+//     rows are one line per depth step (WRAP must be NO), quote-aware,
+//     an EMPTY field is a null
+//   - ~Log_Definition / ~Log_Parameter / ~Log_Data are the curve,
+//     parameter and data sections (~Curve / ~Parameter / ~Ascii still
+//     accepted); every other *_Definition / *_Data pair (Core, Tops,
+//     Inclinometry, Drilling, Test, Perforation ...) is IGNORED and named
+//     in `ignoredSections`, never mixed into the log data
+//   - header lines carry a trailing {FORMAT} and an optional
+//     "| association"; both are stripped from the description and the
+//     format is kept per curve
+//   - columns whose format is text ({S}, {D}, {DT}, {T}) or whose values
+//     are not numbers are SKIPPED and listed in `skippedCurves`; only
+//     numeric curves become float32 objects. The depth column must be
+//     numeric. Array channels (RHOB[1], RHOB[2]) are ordinary curves.
+// lasio 0.32 misreads LAS 3.0 (ignores DLM, swallows the other data
+// blocks), so the 3.0 goldens are produced by the fixture generator's
+// own closed-form arrays, not by lasio (test-data/wells/README.md).
+// All errors are plain, line-numbered domain Errors (the wellImport /
+// malformedSegy philosophy) — never a raw TypeError.
 //
 // Pure functions, worker-safe, no I/O. Curve samples come back as
 // Float32Array (little-endian on every platform we ship to) with LAS
@@ -81,11 +100,52 @@ export function parseHeaderLine(line) {
   };
 }
 
+/** LAS 3.0 header line: parseHeaderLine, then peel the trailing
+ *  "{FORMAT}" and "| association" off the description. */
+export function parseHeaderLine3(line) {
+  const raw = parseHeaderLine(line);
+  if (!raw) return null;
+  let descr = raw.descr;
+  let association = '';
+  const bar = descr.indexOf('|');
+  if (bar >= 0) { association = descr.slice(bar + 1).trim(); descr = descr.slice(0, bar); }
+  let format = '';
+  const fm = descr.match(/\{([^}]*)\}\s*$/);
+  if (fm) { format = fm[1].trim().toUpperCase(); descr = descr.slice(0, fm.index); }
+  return { ...raw, descr: descr.trim(), format, association };
+}
+
+const TEXT_FORMAT = /^(S|D|DT|T)\d*$/;
+
+/** Quote-aware split of one LAS 3.0 data row. SPACE collapses runs of
+ *  whitespace; COMMA and TAB keep empty fields (they are nulls). */
+export function splitDelimited(line, delimiter) {
+  const out = [];
+  let cur = '';
+  let inQ = false;
+  let hadQ = false;
+  const push = () => { out.push(cur); cur = ''; hadQ = false; };
+  for (const ch of line) {
+    if (inQ) { if (ch === '"') inQ = false; else cur += ch; continue; }
+    if (ch === '"') { inQ = true; hadQ = true; continue; }
+    const isDelim = delimiter === 'comma' ? ch === ','
+      : delimiter === 'tab' ? ch === '\t'
+        : /\s/.test(ch);
+    if (isDelim) {
+      if (delimiter === 'space') { if (cur !== '' || hadQ) push(); } else push();
+      continue;
+    }
+    cur += ch;
+  }
+  if (delimiter === 'space') { if (cur !== '' || hadQ) push(); } else push();
+  return out;
+}
+
 /** Split raw text into ~sections: [{title, lines, lineNo}] where lineNo
  *  is the 1-based line number of the section title. Blank and #-comment
  *  lines are dropped from header sections here; the ~A data section
  *  keeps everything (tokenised later). */
-function splitSections(text) {
+function splitSections(text, { v3 = false } = {}) {
   const lines = String(text || '').split(/\r\n|\r|\n/);
   const sections = [];
   let current = null;
@@ -93,11 +153,13 @@ function splitSections(text) {
     const line = lines[i];
     const t = line.trim();
     if (t.startsWith('~')) {
-      // everything after ~A is data regardless of later tildes
-      if (current && current.isData) { current.lines.push(line); continue; }
+      // 1.2/2.0: everything after ~A is data regardless of later tildes.
+      // 3.0: several *_Data blocks may follow each other, so a tilde
+      // always opens a new section.
+      if (current && current.isData && !v3) { current.lines.push(line); continue; }
       current = {
         title: t, lineNo: i + 1, lines: [],
-        isData: /^~A/i.test(t),
+        isData: /^~A/i.test(t) || /^~[A-Z0-9_]*_DATA\b/i.test(t),
       };
       sections.push(current);
       continue;
@@ -119,7 +181,7 @@ function splitSections(text) {
 function parseHeaderSection(section, { isWell = false, version = 2.0 } = {}) {
   const items = {};
   for (const { text, lineNo } of section.lines) {
-    const raw = parseHeaderLine(text);
+    const raw = version >= 3 ? parseHeaderLine3(text) : parseHeaderLine(text);
     if (!raw || !raw.name) {
       throw new Error(`Line ${lineNo}: cannot parse header line "${text.trim()}" in ${section.title}.`);
     }
@@ -154,7 +216,7 @@ function readDataSection(section, nullValue) {
 }
 
 /**
- * Parse a LAS 1.2 / 2.0 file.
+ * Parse a LAS 1.2 / 2.0 / 3.0 file.
  *
  * @param {string} text raw file text
  * @returns {{
@@ -167,25 +229,41 @@ function readDataSection(section, nullValue) {
  *     mnemonic: string, unit: string, descr: string, apiValue: string,
  *     data: Float32Array, nSamples: number, nullCount: number,
  *     firstFinite: ?number, lastFinite: ?number, sumFiniteF64: ?number,
+ *     format?: string,
  *   }>,
+ *   delimiter?: 'space'|'comma'|'tab',
+ *   skippedCurves?: Array<{mnemonic, unit, descr, format, reason}>,
+ *   ignoredSections?: string[],
  * }}
  */
 export function parseLas(text) {
-  const sections = splitSections(text);
+  // cheap pre-scan: 3.0 files split their data blocks differently
+  const v3 = /^\s*VERS\s*\.[^:\n]*\b3\.\d/m.test(String(text || ''));
+  const sections = splitSections(text, { v3 });
 
   const find = (prefix) => sections.filter((s) => s.title.toUpperCase().startsWith(prefix));
 
   const vSec = find('~V')[0];
   if (!vSec) throw new Error('No ~Version section — LAS files must declare VERS and WRAP.');
-  const versionItems = parseHeaderSection(vSec);
+  const versionItems = parseHeaderSection(vSec, { version: v3 ? 3.0 : 2.0 });
   const vers = versionItems.VERS ? versionItems.VERS.value : null;
   if (typeof vers !== 'number') {
     throw new Error('The ~Version section has no readable VERS line.');
   }
-  if (vers >= 3.0) {
-    throw new Error(`LAS ${vers} is not supported — export the file as LAS 2.0 and re-import.`);
+  if (vers >= 4.0) {
+    throw new Error(`LAS ${vers} is not supported — export the file as LAS 2.0 or 3.0 and re-import.`);
   }
+  const isV3 = vers >= 3.0;
   const wrap = versionItems.WRAP ? String(versionItems.WRAP.value).toUpperCase() : 'NO';
+  if (isV3 && wrap === 'YES') {
+    throw new Error('LAS 3.0 files must be unwrapped (WRAP NO): one line per depth step.');
+  }
+  let delimiter = 'space';
+  if (isV3) {
+    const dlm = versionItems.DLM ? String(versionItems.DLM.value).toUpperCase() : 'SPACE';
+    delimiter = { SPACE: 'space', COMMA: 'comma', TAB: 'tab' }[dlm];
+    if (!delimiter) throw new Error(`Line ${vSec.lineNo}: DLM "${dlm}" is not SPACE, COMMA or TAB.`);
+  }
 
   const wSec = find('~W')[0];
   if (!wSec) throw new Error('No ~Well section.');
@@ -193,11 +271,15 @@ export function parseLas(text) {
   const nullValue = (well.NULL && typeof well.NULL.value === 'number')
     ? well.NULL.value : null;
 
-  const cSec = find('~C')[0];
-  if (!cSec) throw new Error('No ~Curve section — cannot tell which curves the data columns are.');
+  const cSec = (isV3 && find('~LOG_DEFINITION')[0]) || find('~C')[0];
+  if (!cSec) {
+    throw new Error(isV3
+      ? 'No ~Log_Definition (or ~Curve) section — cannot tell which curves the log data columns are.'
+      : 'No ~Curve section — cannot tell which curves the data columns are.');
+  }
   const curveDefs = [];
   for (const { text: lineText, lineNo } of cSec.lines) {
-    const raw = parseHeaderLine(lineText);
+    const raw = isV3 ? parseHeaderLine3(lineText) : parseHeaderLine(lineText);
     if (!raw || !raw.name) {
       throw new Error(`Line ${lineNo}: cannot parse curve definition "${lineText.trim()}".`);
     }
@@ -206,6 +288,7 @@ export function parseLas(text) {
       unit: raw.unit,
       descr: raw.descr,
       apiValue: raw.value,
+      ...(isV3 ? { format: raw.format || '' } : {}),
     });
   }
   if (!curveDefs.length) throw new Error('The ~Curve section defines no curves.');
@@ -221,28 +304,99 @@ export function parseLas(text) {
     }
   }
 
-  const pSec = find('~P')[0];
-  const params = pSec ? parseHeaderSection(pSec) : {};
+  const pSecs = isV3 ? [...find('~P'), ...find('~LOG_PARAMETER')] : find('~P').slice(0, 1);
+  const params = {};
+  for (const sec of pSecs) Object.assign(params, parseHeaderSection(sec, { version: vers }));
   const oSec = find('~O')[0];
   const other = oSec
     ? oSec.lines.map((l) => l.text.trim()).join('\n')
     : '';
 
-  const aSecs = find('~A');
-  if (!aSecs.length) throw new Error('No ~ASCII data section.');
-  if (aSecs.length > 1) throw new Error('More than one ~ASCII data section — file is corrupt or concatenated.');
-  const flat = readDataSection(aSecs[0], nullValue);
   const nCurves = curveDefs.length;
-  if (flat.length === 0) throw new Error('The ~ASCII data section has no samples.');
-  if (flat.length % nCurves !== 0) {
-    throw new Error(`The data section has ${flat.length} values, not a multiple of the `
-      + `${nCurves} curves declared in ~Curve — a ragged or truncated file.`);
-  }
-  const nSamples = flat.length / nCurves;
+  let nSamples;
+  let columns;                 // ci -> Float64 values (or null for a skipped text column)
+  const skippedCurves = [];
+  const ignoredSections = [];
 
-  const curves = curveDefs.map((def, ci) => {
+  if (!isV3) {
+    const aSecs = find('~A');
+    if (!aSecs.length) throw new Error('No ~ASCII data section.');
+    if (aSecs.length > 1) throw new Error('More than one ~ASCII data section — file is corrupt or concatenated.');
+    const flat = readDataSection(aSecs[0], nullValue);
+    if (flat.length === 0) throw new Error('The ~ASCII data section has no samples.');
+    if (flat.length % nCurves !== 0) {
+      throw new Error(`The data section has ${flat.length} values, not a multiple of the `
+        + `${nCurves} curves declared in ~Curve — a ragged or truncated file.`);
+    }
+    nSamples = flat.length / nCurves;
+    columns = curveDefs.map((_, ci) => {
+      const col = new Float64Array(nSamples);
+      for (let r = 0; r < nSamples; r++) col[r] = flat[r * nCurves + ci];
+      return col;
+    });
+  } else {
+    const dSec = find('~LOG_DATA')[0] || find('~A')[0];
+    if (!dSec) throw new Error('No ~Log_Data (or ~Ascii) section — the file carries no log samples.');
+    for (const sec of sections) {
+      if (sec === dSec || sec === cSec || sec === vSec || sec === wSec || pSecs.includes(sec) || sec === oSec) continue;
+      const m = sec.title.match(/^~([A-Za-z0-9_]+?)_(DEFINITION|DATA|PARAMETER)\b/i);
+      if (m && m[1].toUpperCase() !== 'LOG') {
+        const name = m[1];
+        if (!ignoredSections.includes(name)) ignoredSections.push(name);
+      }
+    }
+    const rows = [];
+    for (let i = 0; i < dSec.lines.length; i++) {
+      const line = dSec.lines[i];
+      const t = line.trim();
+      if (t === '' || t.startsWith('#')) continue;
+      const toks = splitDelimited(delimiter === 'space' ? t : line, delimiter);
+      if (toks.length !== nCurves) {
+        throw new Error(`Line ${dSec.lineNo + 1 + i}: ${toks.length} value${toks.length === 1 ? '' : 's'} but `
+          + `${nCurves} curves are defined — LAS 3.0 data is one complete row per depth step (DLM ${delimiter.toUpperCase()}).`);
+      }
+      rows.push({ toks, lineNo: dSec.lineNo + 1 + i });
+    }
+    if (!rows.length) throw new Error('The ~Log_Data section has no samples.');
+    nSamples = rows.length;
+    const isNumericTok = (tok) => { const v = tok.trim(); return v === '' || Number.isFinite(Number(v)); };
+    columns = curveDefs.map((def, ci) => {
+      const declaredText = TEXT_FORMAT.test(def.format || '');
+      const declaredNumeric = !!def.format && !declaredText;
+      if (ci === 0 && declaredText) {
+        throw new Error(`Depth curve ${def.mnemonic} is declared as text ({${def.format}}) — the first column must be numeric depth.`);
+      }
+      if (declaredText || (!declaredNumeric && rows.some((r) => !isNumericTok(r.toks[ci])))) {
+        if (ci === 0) {
+          const bad = rows.find((r) => !isNumericTok(r.toks[ci]));
+          throw new Error(`Line ${bad.lineNo}: "${bad.toks[ci]}" in the depth column is not a number.`);
+        }
+        skippedCurves.push({
+          mnemonic: def.mnemonic, unit: def.unit, descr: def.descr, format: def.format || '',
+          reason: declaredText ? `text column {${def.format}}` : 'non-numeric values',
+        });
+        return null;
+      }
+      const col = new Float64Array(nSamples);
+      for (let r = 0; r < nSamples; r++) {
+        const tok = rows[r].toks[ci].trim();
+        if (tok === '') { col[r] = NaN; continue; }
+        const v = Number(tok);
+        if (!Number.isFinite(v)) {
+          throw new Error(`Line ${rows[r].lineNo}: "${tok}" in column ${def.mnemonic} is not a number.`);
+        }
+        col[r] = v === nullValue ? NaN : v;
+      }
+      return col;
+    });
+  }
+
+  const keptDefs = curveDefs.filter((_, ci) => columns[ci]);
+  const keptCols = columns.filter(Boolean);
+  const curves = keptDefs.map((def, ci) => {
     const data = new Float32Array(nSamples);
-    for (let r = 0; r < nSamples; r++) data[r] = flat[r * nCurves + ci];
+    const col = keptCols[ci];
+    for (let r = 0; r < nSamples; r++) data[r] = col[r];
     let nullCount = 0;
     let firstFinite = null;
     let lastFinite = null;
@@ -274,5 +428,6 @@ export function parseLas(text) {
     other,
     depthUnit: curves[0].unit || '',
     curves,
+    ...(isV3 ? { delimiter, skippedCurves, ignoredSections } : {}),
   };
 }
