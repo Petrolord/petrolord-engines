@@ -478,3 +478,35 @@ describe('landing inclination', () => {
     expect(sol.report.landIncSource).toBe('default');
   });
 });
+
+// ---- target frame assertion (Well Design fix 2026-09-03) ----------------
+describe('target frame assertion', () => {
+  const { targetFrameError, MAX_TARGET_REACH_M } = require('../engines/drilling/profileDesign.js');
+  const good = { dN: 300, dE: 300, dTvd: 2500 };
+
+  test('a plain, reachable displacement passes; tagged displacements must match the solver unit and be local', () => {
+    expect(targetFrameError(good, 'm')).toBeNull();
+    expect(targetFrameError({ ...good, unit: 'm', frame: 'local' }, 'm')).toBeNull();
+    expect(targetFrameError({ ...good, unit: 'ft' }, 'm')).toMatch(/in ft but the solver runs in m/);
+    expect(targetFrameError({ ...good, frame: 'grid' }, 'm')).toMatch(/grid frame/);
+  });
+
+  test('absolute grid coordinates passed as offsets are refused as a frame mismatch, in both units', () => {
+    const utm = { dN: 4_700_000, dE: 269_000, dTvd: 5000 };
+    expect(targetFrameError(utm, 'm')).toMatch(/beyond any well/);
+    const ftOffsets = { dN: 1000, dE: MAX_TARGET_REACH_M / 0.3048 + 10, dTvd: 0 };
+    expect(targetFrameError(ftOffsets, 'ft')).toMatch(/beyond any well/);
+    expect(targetFrameError({ dN: 0, dE: 0, dTvd: 40_000 }, 'm')).toBeNull(); // deep but real
+  });
+
+  test('every target solver fails loudly instead of returning degenerate geometry', () => {
+    const utm = { dN: 4_700_000, dE: 269_000, dTvd: 5000 };
+    expect(solveSlant({ target: utm, buildRate: 3, mdUnit: 'm' })).toMatchObject({ feasible: false, error: expect.stringMatching(/beyond any well/) });
+    expect(solveSProfile({ kopLen: 300, buildRate: 3, dropRate: 2, target: utm, mdUnit: 'm' })).toMatchObject({ feasible: false, error: expect.stringMatching(/beyond any well/) });
+    expect(solveContinuousBuild({ tieOn: { inc: 10, azi: 45 }, delta: utm, mdUnit: 'm' })).toMatchObject({ feasible: false, error: expect.stringMatching(/beyond any well/) });
+    expect(solveHorizontalLanding({ tieOn: { inc: 0, azi: 0 }, landing: { ...utm }, rate1: 3, rate2: 3, mdUnit: 'm' })).toMatchObject({ feasible: false, error: expect.stringMatching(/beyond any well/) });
+    expect(solveHorizontalLanding({ tieOn: { inc: 0, azi: 0 }, landing: { ...good, alignOn: { ...utm } }, rate1: 3, rate2: 3, mdUnit: 'm' })).toMatchObject({ feasible: false, error: expect.stringMatching(/Alignment target/) });
+    // a feet target solved in metres is refused by unit before any geometry runs
+    expect(solveSlant({ target: { ...good, unit: 'ft' }, buildRate: 3, mdUnit: 'm' })).toMatchObject({ feasible: false, error: expect.stringMatching(/solver runs in m/) });
+  });
+});
