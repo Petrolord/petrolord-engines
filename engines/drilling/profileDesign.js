@@ -51,6 +51,34 @@ const finiteError = (values) => {
     : null;
 };
 
+// ---- target frame assertion (Well Design fix, 2026-09-03) ---------------
+// The solvers take DISPLACEMENTS from the tie-on in the solver's own depth
+// unit. A caller that hands them absolute grid coordinates, or metres
+// while solving in feet, gets geometry that is technically solvable and
+// completely wrong (a plan that autoscales to 800,000 ft and a "750,253
+// ft of hole" refusal). So the boundary fails loudly instead: a
+// displacement may carry {unit, frame}; when it does they must match, and
+// any displacement beyond MAX_TARGET_REACH_M is a frame mismatch, not a
+// well (the longest extended-reach wells are about 15 km).
+export const MAX_TARGET_REACH_M = 50000;
+
+export function targetFrameError(t, mdUnit = 'm', label = 'Target') {
+  if (!t) return null;
+  if (t.unit != null && t.unit !== mdUnit) {
+    return `${label} displacement is in ${t.unit} but the solver runs in ${mdUnit}. Convert the target to the wellbore depth unit before solving.`;
+  }
+  if (t.frame != null && t.frame !== 'local') {
+    return `${label} is in the ${t.frame} frame; the solver needs wellhead-relative (local) offsets.`;
+  }
+  const reach = Math.hypot(t.dE || 0, t.dN || 0, t.dTvd || 0);
+  const max = mdUnit === 'ft' ? MAX_TARGET_REACH_M / M_PER_FT_LOCAL : MAX_TARGET_REACH_M;
+  if (Number.isFinite(reach) && reach > max) {
+    return `${label} is ${reach.toFixed(0)} ${mdUnit} from the tie-on, beyond any well (limit ${Math.round(max).toLocaleString()} ${mdUnit}). Absolute coordinates have been passed as offsets: convert the target to wellhead-relative offsets in ${mdUnit}.`;
+  }
+  return null;
+}
+const M_PER_FT_LOCAL = 0.3048;
+
 /** Reject a solution whose emitted geometry has run away. `reach` is the
  *  straight-line distance the profile has to cover. */
 function lengthGuard(segments, reach) {
@@ -134,6 +162,8 @@ export function toolfaceForTarget(from, to) {
  */
 export function solveSlant({ tieOn = { inc: 0, azi: null }, target, buildRate, mdUnit = 'm' }) {
   if (!target) return { feasible: false, error: 'No target displacement was supplied.' };
+  const frameBad = targetFrameError(target, mdUnit);
+  if (frameBad) return { feasible: false, error: frameBad };
   const bad = finiteError({
     'target north': target.dN, 'target east': target.dE, 'target TVD': target.dTvd,
     'build rate': buildRate, 'tie-on inclination': tieOn.inc ?? 0,
@@ -214,6 +244,8 @@ export function solveSProfile({
   kopLen = 0, buildRate, dropRate, finalIncDeg = 0, target, mdUnit = 'm',
 }) {
   if (!target) return { feasible: false, error: 'No target displacement was supplied.' };
+  const frameBad = targetFrameError(target, mdUnit);
+  if (frameBad) return { feasible: false, error: frameBad };
   const bad = finiteError({
     'target north': target.dN, 'target east': target.dE, 'target TVD': target.dTvd,
     'kickoff length': kopLen, 'build rate': buildRate, 'drop rate': dropRate,
@@ -276,6 +308,8 @@ export function solveSProfile({
  */
 export function solveContinuousBuild({ tieOn = {}, delta, mdUnit = 'm', maxDls = null }) {
   if (!delta) return { feasible: false, error: 'No target displacement was supplied.' };
+  const frameBad = targetFrameError(delta, mdUnit);
+  if (frameBad) return { feasible: false, error: frameBad };
   const bad = finiteError({
     'target north': delta.dN, 'target east': delta.dE, 'target TVD': delta.dTvd,
     'tie-on inclination': tieOn.inc || 0, 'tie-on azimuth': tieOn.azi || 0,
@@ -391,6 +425,9 @@ export function solveHorizontalLanding({
   tieOn = {}, landing, rate1, rate2, mdUnit = 'm', maxIter = 100,
 }) {
   if (!landing) return { feasible: false, error: 'No landing point was supplied.' };
+  const frameBad = targetFrameError(landing, mdUnit, 'Landing')
+    || (landing.alignOn ? targetFrameError(landing.alignOn, mdUnit, 'Alignment target') : null);
+  if (frameBad) return { feasible: false, error: frameBad };
   const bad = finiteError({
     'landing north': landing.dN, 'landing east': landing.dE, 'landing TVD': landing.dTvd,
     'curve 1 rate': rate1, 'curve 2 rate': rate2,
