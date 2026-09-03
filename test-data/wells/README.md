@@ -51,3 +51,13 @@ DLM and swallows the other data blocks), so `genfixtures.py` writes those
 goldens directly from the closed-form arrays it generated the files from
 (`"oracle"` field in the JSON says so) and `oracle.py` skips `*_30.las`.
 The independence rule holds: the goldens never come from the JS parser.
+
+**Checkshot conventions (PT0, 2026-09-03).** `goldens/checkshots_cases.json`
+validates `engines/welldata/checkshots.js` (MD | TVD | TVDSS, OWT | TWT,
+m | ft entered at the door and converted to the stored `{tvdss_m, twt_ms}`
+through the survey and KB). Written by `oracle_checkshots.py` from
+closed-form vertical and build-and-hold trajectories (analytic TVD and
+inverse), so the JS minimum-curvature result must agree to 1e-6 m; cases
+cover both units, all three references, extrapolation past TD, an uphill
+ambiguity, the flat-lateral refusal, non-monotonic input, and KB and survey
+rebases. The goldens never come from the JS code.
