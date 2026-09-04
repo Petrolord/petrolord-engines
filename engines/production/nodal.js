@@ -671,7 +671,7 @@ const csStepHalf = (p1, i1, rhsHalf, evalI, tolPsi = CS_TOL_PSI) => {
  * integrates the SAME defining integral to step convergence, and the
  * gap it exposes is not small: on an 8000 ft, 2.441 in string at
  * 9 MMscf/d the two-station answer is 1.3 psi low, and by 13 MMscf/d it
- * is 11.6 psi low, which moves the nodal operating point of that well
+ * is 10.5 psi low, which moves the nodal operating point of that well
  * by about half a per cent of rate. Marching the same construction over
  * more sub-intervals removes it, and the error falls roughly with the
  * square of the count: on that same well at 13.3 MMscf/d the two-station
