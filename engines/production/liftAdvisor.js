@@ -55,7 +55,9 @@
  * engines/production. They are not converted internally and they are
  * not optional:
  *
- *   targetRate            stb/d of OIL (see the seam note below)
+ *   targetLiquidRateBpd   bbl/d of LIQUID at the door, oil plus water
+ *                         (see decision 1 below: this module still
+ *                         CONSUMES it as oil stb/d until Wave 2)
  *   wctPct                PER CENT, 0 to 100
  *   gorScfStb             scf/stb
  *   whp                   psia at the wellhead
@@ -67,15 +69,28 @@
  *   depths                ft (tvd unless a name says md)
  *   shaft power           hp
  *
- * SEAMS FOUND ON EXTRACTION, RECORDED AND NOT CHANGED.
+ * SEAMS FOUND ON EXTRACTION. 1 AND 4 ARE NOW OWNER DECISIONS.
  *
- *  1. `targetRate` IS OIL HERE AND WAS DOCUMENTED AS LIQUID THERE. This
- *     module compares `targetRate` against the inflow's OIL absolute
- *     open flow and hands it to each chain as the oil design rate with
- *     the water cut supplied separately. ./liftScreening.js documented
- *     the same input as liquid bbl/d, and the shipped studio passes one
- *     number to both. See seam 1 in that module's header. Behaviour
- *     preserved; owner decision.
+ *  1. ITEM 19, DECIDED 4 SEPTEMBER 2026: THE TARGET RATE MEANS LIQUID.
+ *     The door parameter is `targetLiquidRateBpd`, oil plus water in
+ *     bbl/d, which is what ./liftScreening.js always documented and
+ *     what the shipped studio's one number is.
+ *
+ *     THIS MODULE STILL CONSUMES IT AS OIL. It compares the number
+ *     against the inflow's OIL absolute open flow and hands it to every
+ *     chain as the oil design rate, with the water cut supplied
+ *     separately. Reconciling the two means deriving
+ *     oil = liquid x (1 - water cut) at the door, and THAT MOVES EVERY
+ *     PUBLISHED NUMBER this module produces: the ESP stage count and
+ *     head, the gas lift operating point, which rung of the rod ladder
+ *     is the answer, and the absolute open flow refusal threshold. It
+ *     is therefore a WAVE 2 change with a golden refresh, and
+ *     `oilDesignRate` below is the one place it lands. Wave 1 renamed
+ *     the door and moved nothing.
+ *
+ *     Until Wave 2, a rate that reaches both modules is screened as
+ *     liquid and designed as oil, which on a 70 per cent water cut well
+ *     is the same number standing for three times the liquid.
  *
  *  2. `pickReferenceStage` IS CATALOG-ORDER DEPENDENT IN THE OVERLAP
  *     BANDS. The reference stage ranges overlap (1250-1450, 2200-3500,
@@ -98,15 +113,20 @@
  *     the `equipment` string still reads as a clean pick. Behaviour
  *     preserved; the fallback is now stated.
  *
- *  4. THE ROD LOADING GUARD FAILS OPEN. `designRodPump` rejects a trial
- *     whose worst rod section runs over 100 per cent of its allowable.
- *     If the chain returns a design with NO worst section, the loading
- *     is NaN, `NaN > 100` is false, and the trial is accepted as
- *     workable with its loading reported as "NaN %". A guard that lets
- *     an unknown through as a pass is the trusting half of a
- *     disagreeing function. Preserved because changing it would change
- *     which rung of the ladder a shipped studio reports; gated so the
- *     behaviour is visible.
+ *  4. ITEM 21, FIXED 4 SEPTEMBER 2026: THE ROD LOADING GUARD NO LONGER
+ *     FAILS OPEN. It used to reject a trial only when the worst rod
+ *     section ran over 100 per cent of its allowable, so a design that
+ *     came back with NO worst section made the loading NaN, `NaN > 100`
+ *     false, and the trial was accepted as workable with its loading
+ *     PRINTED TO THE USER as "NaN % of Goodman". A guard that lets an
+ *     unknown through as a pass is the trusting half of a disagreeing
+ *     function. A rung is now accepted only when its loading was read
+ *     and is at or under the allowable, `Number.isFinite(loading) &&
+ *     loading <= 100`; anything else is a refused rung with its reason
+ *     stated in `attempts`. On the golden scenario that turns on this,
+ *     the answer moves from a reported success at 3000 bbl/d to the
+ *     shortfall at 1100 the golden already carries as
+ *     `resultIfUnknownLoadingWereAFailure`.
  *
  * VALIDATION NOTE. Gated against
  * tools/validation/production/oracle_liftadvisor.py through
@@ -196,6 +216,25 @@ export const ROD_TRIALS = [
 export const RATE_TOLERANCE = 0.9;
 
 /**
+ * ITEM 19, THE LIQUID TO OIL SEAM, AND THE ONE PLACE WAVE 2 CHANGES.
+ *
+ * The door takes `targetLiquidRateBpd`, oil plus water, because that is
+ * what the owner decided the shared number means and what
+ * ./liftScreening.js scores. Every design chain below wants the OIL
+ * rate, with the water cut handed to it separately.
+ *
+ * WAVE 1 RETURNS THE RATE UNCHANGED, so not one number moved with the
+ * rename. WAVE 2 makes this `targetLiquidRateBpd * (1 - wctPct / 100)`
+ * and refreshes the goldens, which is why the water cut is already a
+ * parameter here. Nothing else in this module reads the target rate
+ * directly, so this function is the whole of the change.
+ */
+export const oilDesignRate = (targetLiquidRateBpd, wctPct) => {
+  void wctPct;
+  return targetLiquidRateBpd;
+};
+
+/**
  * The reference stage whose published range covers the duty, else the
  * nearest best-efficiency point. In an overlap band the FIRST covering
  * stage wins, which is always the smaller housing -- see seam 2 in the
@@ -242,13 +281,16 @@ const noChain = (id, what) => outcome(id, {
  * that rate deserves, and the third re-runs with the motor that
  * second pass's shaft load calls for.
  */
-export const designEsp = ({ model, targetRate, wctPct, gorScfStb, whp, facility, chain }) => {
+export const designEsp = ({
+  model, targetLiquidRateBpd, wctPct, gorScfStb, whp, facility, chain,
+}) => {
   const runEspDesign = chain?.runEspDesign;
   if (!runEspDesign) return noChain('esp', 'ESP');
+  const oilRateStbd = oilDesignRate(targetLiquidRateBpd, wctPct);
   const perfTvdFt = model.tvdMax;
   const pumpTvdFt = Math.round(perfTvdFt * 0.94);
   const baseForm = {
-    designRateStbd: String(targetRate),
+    designRateStbd: String(oilRateStbd),
     wctPct: String(wctPct),
     gorScfStb: String(gorScfStb),
     pumpTvdFt: String(pumpTvdFt),
@@ -299,7 +341,7 @@ export const designEsp = ({ model, targetRate, wctPct, gorScfStb, whp, facility,
   const d = final.design;
   return outcome('esp', {
     ok: true,
-    rateStbd: targetRate,
+    rateStbd: oilRateStbd,
     equipment: `${stage.label}, ${d.sized.stages} stages, ${motor.hp} hp motor`,
     figures: [
       { label: 'Stages', value: d.sized.stages },
@@ -325,11 +367,14 @@ export const designEsp = ({ model, targetRate, wctPct, gorScfStb, whp, facility,
  * the valve afterwards would place it against a gradient that no longer
  * exists.
  */
-export const designGasLift = ({ model, targetRate, wctPct, gorScfStb, whp, facility, chain }) => {
+export const designGasLift = ({
+  model, targetLiquidRateBpd, wctPct, gorScfStb, whp, facility, chain,
+}) => {
   const { liftedTraverse, injectionPointFromTraverse, solveLiftedOperatingPoint } = chain || {};
   if (!liftedTraverse || !injectionPointFromTraverse || !solveLiftedOperatingPoint) {
     return noChain('gasLift', 'gas lift');
   }
+  const oilRateStbd = oilDesignRate(targetLiquidRateBpd, wctPct);
   const operatingPsig = num(facility?.injectionPsig, 900);
   const qgiMscfd = num(facility?.injectionMscfd, 500);
   const vlp = {
@@ -341,7 +386,7 @@ export const designGasLift = ({ model, targetRate, wctPct, gorScfStb, whp, facil
   let traverse;
   try {
     traverse = liftedTraverse({
-      ...vlp, qo: targetRate, injectionMd: vlp.nodeMd, qgiMscfd,
+      ...vlp, qo: oilRateStbd, injectionMd: vlp.nodeMd, qgiMscfd,
     });
   } catch (e) {
     return outcome('gasLift', { ok: false, reason: `The lifted traverse could not be built: ${e.message}` });
@@ -408,10 +453,12 @@ export const designGasLift = ({ model, targetRate, wctPct, gorScfStb, whp, facil
  * Rod pump. Walk the equipment ladder and take the SMALLEST rung that
  * MEETS the target, not the first that merely designs.
  *
- * A rung is discarded when the chain refuses it outright, or when the
- * worst rod section runs over 100 per cent of its Goodman allowable.
- * (That guard fails open on a design with no worst section -- seam 4 in
- * the module header.) Of the rungs that survive, the ones producing at
+ * A rung is discarded when the chain refuses it outright, when the
+ * worst rod section runs over 100 per cent of its Goodman allowable, or
+ * when that loading could not be read at all: a rung is kept only on
+ * `Number.isFinite(loading) && loading <= 100`, so an unknown loading is
+ * a refusal with its reason stated and never a silent pass (item 21,
+ * seam 4 in the module header). Of the rungs that survive, the ones producing at
  * least RATE_TOLERANCE of the target are the answer and the first of
  * them is reported, because the ladder ascends in displacement. If none
  * reach the target, the rung that got CLOSEST is reported as a
@@ -419,9 +466,12 @@ export const designGasLift = ({ model, targetRate, wctPct, gorScfStb, whp, facil
  * rod pumping is rate-limited by the plunger it can swing at this
  * depth.
  */
-export const designRodPump = ({ model, targetRate, wctPct, gorScfStb, whp, chain }) => {
+export const designRodPump = ({
+  model, targetLiquidRateBpd, wctPct, gorScfStb, whp, chain,
+}) => {
   const runRodDesign = chain?.runRodDesign;
   if (!runRodDesign) return noChain('rodPump', 'rod pump');
+  const oilRateStbd = oilDesignRate(targetLiquidRateBpd, wctPct);
   const perfTvdFt = model.tvdMax;
   const pumpTvdFt = Math.round(perfTvdFt * 0.96);
   const liquidSg = liquidGravity({ api: model.fluidModel?.api ?? 32, wct: wctPct / 100 });
@@ -430,7 +480,7 @@ export const designRodPump = ({ model, targetRate, wctPct, gorScfStb, whp, chain
 
   for (const trial of ROD_TRIALS) {
     const form = {
-      designRateStbd: String(targetRate),
+      designRateStbd: String(oilRateStbd),
       wctPct: String(wctPct),
       whp: String(whp),
       pumpTvdFt: String(pumpTvdFt),
@@ -459,6 +509,21 @@ export const designRodPump = ({ model, targetRate, wctPct, gorScfStb, whp, chain
     }
     const d = res.design;
     const loading = d.worstSection ? d.worstSection.loadingPct : NaN;
+    // ITEM 21. A guard that cannot evaluate its condition refuses. This
+    // used to be `loading > 100`, which is FALSE for a NaN, so a design
+    // whose rod loading could not be read was accepted as workable and
+    // its loading printed to the user as "NaN % of Goodman". A rung is
+    // now kept only when the loading was read AND is at or under the
+    // allowable, and nothing unreadable reaches a formatter.
+    if (!Number.isFinite(loading)) {
+      attempts.push({
+        trial,
+        reason: d.worstSection
+          ? `the rod loading came back as ${d.worstSection.loadingPct}, which is not a number, so the rods could not be checked against their allowable`
+          : 'the design came back with no worst rod section, so there is no rod loading to check against the allowable',
+      });
+      continue;
+    }
     if (loading > 100) {
       // Fires strictly above 100, so the rejected trial has to print
       // above 100: rounded whole, 100.3 read as a trial thrown out for
@@ -472,7 +537,7 @@ export const designRodPump = ({ model, targetRate, wctPct, gorScfStb, whp, chain
   // The smallest workable unit that MEETS the target, or failing that
   // the one that gets closest to it. Taking the first that merely
   // designs would report a third of the asked-for rate as a success.
-  const meets = workable.filter((x) => x.design.producedBpd >= targetRate * RATE_TOLERANCE);
+  const meets = workable.filter((x) => x.design.producedBpd >= oilRateStbd * RATE_TOLERANCE);
   const best = meets.length
     ? meets[0]
     : workable.reduce(
@@ -491,7 +556,9 @@ export const designRodPump = ({ model, targetRate, wctPct, gorScfStb, whp, chain
         { label: 'Plunger stroke', value: `${d.plungerStrokeIn.toFixed(1)} in of ${trial.strokeIn}` },
         { label: 'Peak rod load', value: `${Math.round(d.pprlLb).toLocaleString()} lb` },
         { label: 'Peak torque', value: d.balance ? `${Math.round(d.balance.peakTorqueInLb).toLocaleString()} in-lb` : '--' },
-        { label: 'Rod loading', value: `${loading.toFixed(0)} % of Goodman` },
+        // One decimal, the same precision the rejection reason states it
+        // at, and reachable only for a loading the guard above has read.
+        { label: 'Rod loading', value: `${loading.toFixed(1)} % of Goodman` },
         { label: 'Barrel fillage', value: `${(d.gas.fillage * 100).toFixed(0)} %` },
       ],
       warnings: d.warnings,
@@ -504,8 +571,8 @@ export const designRodPump = ({ model, targetRate, wctPct, gorScfStb, whp, chain
   if (best) {
     return outcome('rodPump', {
       ok: false,
-      reason: `The largest unit tried (${best.trial.plungerDIn} in plunger, ${best.trial.strokeIn} in stroke at ${best.trial.spm} spm) makes ${best.design.producedBpd.toFixed(0)} bbl/d against a target of ${Math.round(targetRate).toLocaleString()}. Rod pumping is rate-limited by the plunger it can swing at this depth, and this well is past it.`,
-      shortfall: { achievedBpd: best.design.producedBpd, targetBpd: targetRate },
+      reason: `The largest unit tried (${best.trial.plungerDIn} in plunger, ${best.trial.strokeIn} in stroke at ${best.trial.spm} spm) makes ${best.design.producedBpd.toFixed(0)} bbl/d against a target of ${Math.round(oilRateStbd).toLocaleString()}. Rod pumping is rate-limited by the plunger it can swing at this depth, and this well is past it.`,
+      shortfall: { achievedBpd: best.design.producedBpd, targetBpd: oilRateStbd },
       design: best.design,
       attempts,
       triedCount: ROD_TRIALS.length,
@@ -534,13 +601,14 @@ export const designRodPump = ({ model, targetRate, wctPct, gorScfStb, whp, chain
  * because at exactly 1 there is no oil to carry the gas and the ratio
  * is not defined.
  */
-export const plungerWellGlr = ({ targetRate, gorScfStb, wctPct }) => {
+export const plungerWellGlr = ({ targetLiquidRateBpd, gorScfStb, wctPct }) => {
   const wctFrac = Math.min(Math.max(wctPct / 100, 0), 0.999);
-  const liquidBpd = wctFrac > 0 ? targetRate / (1 - wctFrac) : targetRate;
+  const oilRateStbd = oilDesignRate(targetLiquidRateBpd, wctPct);
+  const liquidBpd = wctFrac > 0 ? oilRateStbd / (1 - wctFrac) : oilRateStbd;
   return {
     wctFrac,
     liquidBpd,
-    glrScfBbl: liquidBpd > 0 ? (gorScfStb * targetRate) / liquidBpd : gorScfStb,
+    glrScfBbl: liquidBpd > 0 ? (gorScfStb * oilRateStbd) / liquidBpd : gorScfStb,
   };
 };
 
@@ -550,10 +618,12 @@ export const plungerWellGlr = ({ targetRate, gorScfStb, wctPct }) => {
  * than screened. This is the one method whose whole chain lives in this
  * package, so nothing is injected and the pass runs end to end.
  */
-export const designPlunger = ({ model, targetRate, wctPct, gorScfStb, whp, facility }) => {
+export const designPlunger = ({
+  model, targetLiquidRateBpd, wctPct, gorScfStb, whp, facility,
+}) => {
   const depthFt = model.tvdMax;
   const liquidSg = liquidGravity({ api: model.fluidModel?.api ?? 32, wct: wctPct / 100 });
-  const { glrScfBbl: wellGlr } = plungerWellGlr({ targetRate, gorScfStb, wctPct });
+  const { glrScfBbl: wellGlr } = plungerWellGlr({ targetLiquidRateBpd, gorScfStb, wctPct });
 
   const res = screenPlungerLift({
     depthFt,
@@ -614,7 +684,9 @@ const DESIGNERS = {
  * target at or above the inflow's absolute open flow (no lift method
  * makes a well produce more than it can deliver).
  */
-export const runDesignPass = ({ model, targetRate, wctPct, gorScfStb, whp, facility, chain }) => {
+export const runDesignPass = ({
+  model, targetLiquidRateBpd, wctPct, gorScfStb, whp, facility, chain,
+}) => {
   if (!model) return { ok: false, results: [], errors: ['The well model is incomplete.'] };
   if (model.phase !== 'oil') {
     return {
@@ -624,18 +696,19 @@ export const runDesignPass = ({ model, targetRate, wctPct, gorScfStb, whp, facil
     };
   }
   const qMax = model.ipr.qmax ?? rateAtPwf(model.ipr, 0);
-  if (!(targetRate > 0)) {
+  const oilRateStbd = oilDesignRate(targetLiquidRateBpd, wctPct);
+  if (!(oilRateStbd > 0)) {
     return { ok: false, results: [], errors: ['A target rate is needed before anything can be designed.'] };
   }
-  if (targetRate >= qMax) {
+  if (oilRateStbd >= qMax) {
     return {
       ok: false,
       results: [],
-      errors: [`The target of ${Math.round(targetRate).toLocaleString()} stb/d is at or above this inflow's absolute open flow (${Math.round(qMax).toLocaleString()} stb/d). No lift method makes a well produce more than it can deliver.`],
+      errors: [`The target of ${Math.round(oilRateStbd).toLocaleString()} stb/d is at or above this inflow's absolute open flow (${Math.round(qMax).toLocaleString()} stb/d). No lift method makes a well produce more than it can deliver.`],
     };
   }
 
-  const args = { model, targetRate, wctPct, gorScfStb, whp, facility, chain };
+  const args = { model, targetLiquidRateBpd, wctPct, gorScfStb, whp, facility, chain };
   const results = Object.keys(DESIGNERS).map((id) => {
     try {
       return DESIGNERS[id](args);

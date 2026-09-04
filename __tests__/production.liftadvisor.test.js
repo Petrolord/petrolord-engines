@@ -23,9 +23,17 @@
  *   - the motor pick falls back to the largest frame in the catalog
  *     above 320 hp of shaft, which does not meet its own headroom rule,
  *     and is outright overloaded above 400;
- *   - the rod loading guard FAILS OPEN on an unknown loading, and on
- *     the golden scenario that turns a shortfall at 1100 bbl/d into a
- *     reported success at 3000 with its loading printed as NaN.
+ *   - the reference-stage and motor-frame findings above are still
+ *     BEHAVIOUR, gated as they behave.
+ *
+ * THE THIRD FINDING IS NOW FIXED. The rod loading guard used to FAIL
+ * OPEN on an unknown loading, which on the golden scenario turned a
+ * shortfall at 1100 bbl/d into a reported success at 3000 with its
+ * loading printed to the user as "NaN % of Goodman". Item 21 makes the
+ * guard refuse what it cannot read, so the ladder is now walked against
+ * the golden's own `resultIfUnknownLoadingWereAFailure`, which it
+ * carries for every case and which differs from `result` on exactly the
+ * one scenario the finding was about. No golden value was touched.
  */
 import fs from 'fs';
 import path from 'path';
@@ -33,7 +41,7 @@ import {
   ROD_TRIALS, RATE_TOLERANCE, ATM_PSIA, psigToPsia, num, liquidGravity,
   mdAtTvd, pickReferenceStage, pickMotorFrame, plungerWellGlr,
   designEsp, designGasLift, designRodPump, designPlunger,
-  runDesignPass, reconcile,
+  runDesignPass, reconcile, oilDesignRate,
 } from '../engines/production/liftAdvisor';
 import { REFERENCE_STAGES, MOTOR_FRAMES } from '../engines/production/data/espCatalog';
 import { screenPlungerLift } from '../engines/production/plungerLift';
@@ -187,7 +195,7 @@ describe('the gas-liquid ratio a plunger cycle actually sees', () => {
   test('is GOR x (1 - water cut), by mass balance', () => {
     G.plungerGlr.forEach((c) => {
       const got = plungerWellGlr({
-        targetRate: c.targetRate, gorScfStb: c.gorScfStb, wctPct: c.wctPct,
+        targetLiquidRateBpd: c.targetRate, gorScfStb: c.gorScfStb, wctPct: c.wctPct,
       });
       expect(rel(got.glrScfBbl, c.glrScfBbl)).toBeLessThan(1e-12);
       expect(rel(got.glrScfBbl, c.glrByRatio)).toBeLessThan(1e-12);
@@ -197,17 +205,17 @@ describe('the gas-liquid ratio a plunger cycle actually sees', () => {
   });
 
   test('every point of water cut is gas the cycle no longer has per barrel it must lift', () => {
-    const dry = plungerWellGlr({ targetRate: 100, gorScfStb: 3000, wctPct: 0 });
-    const wet = plungerWellGlr({ targetRate: 100, gorScfStb: 3000, wctPct: 90 });
+    const dry = plungerWellGlr({ targetLiquidRateBpd: 100, gorScfStb: 3000, wctPct: 0 });
+    const wet = plungerWellGlr({ targetLiquidRateBpd: 100, gorScfStb: 3000, wctPct: 90 });
     expect(dry.glrScfBbl).toBe(3000);
     expect(wet.glrScfBbl).toBeCloseTo(300, 9);
   });
 
   test('the water cut is clamped just under one, so the ratio stays defined', () => {
-    const all = plungerWellGlr({ targetRate: 100, gorScfStb: 3000, wctPct: 100 });
+    const all = plungerWellGlr({ targetLiquidRateBpd: 100, gorScfStb: 3000, wctPct: 100 });
     expect(all.wctFrac).toBe(0.999);
     expect(Number.isFinite(all.glrScfBbl)).toBe(true);
-    const negative = plungerWellGlr({ targetRate: 100, gorScfStb: 3000, wctPct: -10 });
+    const negative = plungerWellGlr({ targetLiquidRateBpd: 100, gorScfStb: 3000, wctPct: -10 });
     expect(negative.wctFrac).toBe(0);
   });
 });
@@ -242,10 +250,14 @@ const ladderChain = (outcomes) => ({
 describe('walking the rod ladder', () => {
   test.each(G.rodLadder.map((s) => [s.id, s]))('%s', (_id, s) => {
     const out = designRodPump({
-      model: makeModel(), targetRate: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
+      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
       chain: ladderChain(s.outcomes),
     });
-    const g = s.result;
+    // ITEM 21: an unreadable loading is a refused rung, so the golden's
+    // second column is the one the engine must now reproduce. For six of
+    // the seven scenarios the two columns are identical.
+    const g = s.resultIfUnknownLoadingWereAFailure;
+    if (s.id !== 'loadingUnknownFailsOpen') expect(g).toEqual(s.result);
     expect(out.ok).toBe(g.ok);
     if (g.ok) {
       expect(rel(out.rateStbd, g.producedBpd)).toBeLessThan(1e-12);
@@ -267,7 +279,7 @@ describe('walking the rod ladder', () => {
   test('a design that MISSES the target is a shortfall, never a success', () => {
     const s = G.rodLadder.find((x) => x.id === 'shortfall');
     const out = designRodPump({
-      model: makeModel(), targetRate: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
+      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
       chain: ladderChain(s.outcomes),
     });
     expect(out.ok).toBe(false);
@@ -278,30 +290,108 @@ describe('walking the rod ladder', () => {
   test('the smallest unit that MEETS the target wins, not the first that designs', () => {
     const s = G.rodLadder.find((x) => x.id === 'firstThatDesignsIsNotTheAnswer');
     const out = designRodPump({
-      model: makeModel(), targetRate: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
+      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
       chain: ladderChain(s.outcomes),
     });
     expect(out.rateStbd).toBe(290);      // rung 4, not rung 0's 100
     expect(out.rateStbd / s.target).toBeGreaterThanOrEqual(RATE_TOLERANCE);
   });
 
-  test('FINDING: the loading guard FAILS OPEN, and it changes the answer', () => {
+  test('ITEM 21: an unreadable rod loading is REFUSED, not accepted', () => {
     const s = G.rodLadder.find((x) => x.id === 'loadingUnknownFailsOpen');
     const out = designRodPump({
-      model: makeModel(), targetRate: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
+      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
       chain: ladderChain(s.outcomes),
     });
-    // As shipped: the rung with an UNKNOWN rod loading is accepted, is
-    // the answer, and prints its loading as NaN.
-    expect(out.ok).toBe(true);
-    expect(out.rateStbd).toBe(3000);
-    expect(out.figures.find((f) => f.label === 'Rod loading').value).toBe('NaN % of Goodman');
-    // Had the unknown been read as a failure, the answer would have been
-    // a SHORTFALL at 1100 bbl/d against a 2000 target.
+    // The rung whose design came back with NO worst rod section used to
+    // be accepted as the answer at 3000 bbl/d, with its loading printed
+    // as NaN. It is now a refused rung, and the honest answer is the
+    // shortfall the golden already carried as the alternative.
     const alt = s.resultIfUnknownLoadingWereAFailure;
     expect(alt.ok).toBe(false);
     expect(alt.shortfall).toBe(true);
     expect(alt.producedBpd).toBe(1100);
+    expect(out.ok).toBe(false);
+    expect(out.shortfall.achievedBpd).toBe(alt.producedBpd);
+    expect(out.shortfall.targetBpd).toBe(alt.targetBpd);
+    expect(out.attempts).toHaveLength(alt.attempts);
+    // The old answer is gone, and so is the string it printed.
+    expect(out.rateStbd).toBeUndefined();
+    expect(out.figures).toBeUndefined();
+    expect(s.result.ok).toBe(true);
+    expect(s.result.producedBpd).toBe(3000);
+  });
+
+  test('ITEM 21: the refused rung says WHY it could not be checked', () => {
+    const s = G.rodLadder.find((x) => x.id === 'loadingUnknownFailsOpen');
+    const out = designRodPump({
+      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
+      chain: ladderChain(s.outcomes),
+    });
+    expect(out.attempts).toHaveLength(1);
+    expect(out.attempts[0].reason)
+      .toBe('the design came back with no worst rod section, so there is no rod loading to check against the allowable');
+    expect(out.attempts[0].trial).toEqual(ROD_TRIALS[5]);
+    expect(out.attempts[0].reason).not.toMatch(/NaN/);
+    expect(out.attempts[0].reason).not.toMatch(/--|\u2014|\u2013/);
+  });
+
+  test('ITEM 21: a loading that is present but not a number is refused too', () => {
+    const withLoading = (loadingPct) => designRodPump({
+      model: makeModel(), targetLiquidRateBpd: 100, wctPct: 40, gorScfStb: 300, whp: 150,
+      chain: {
+        runRodDesign: () => ({
+          ok: true,
+          errors: [],
+          design: {
+            producedBpd: 500,
+            plungerStrokeIn: 50,
+            pprlLb: 12000,
+            balance: { peakTorqueInLb: 320000 },
+            gas: { fillage: 0.85 },
+            warnings: [],
+            worstSection: { loadingPct, label: '7/8 in' },
+          },
+        }),
+      },
+    });
+    ['not a number', undefined, null, NaN, Infinity].forEach((bad) => {
+      const out = withLoading(bad);
+      expect(out.ok).toBe(false);
+      expect(out.attempts).toHaveLength(ROD_TRIALS.length);
+      expect(out.attempts[0].reason).toMatch(/is not a number, so the rods could not be checked/);
+    });
+    // And a loading that IS a number still designs, exactly as before.
+    const good = withLoading(88);
+    expect(good.ok).toBe(true);
+    expect(good.rateStbd).toBe(500);
+  });
+
+  test('ITEM 21: nothing unreadable ever reaches the loading formatter', () => {
+    const out = designRodPump({
+      model: makeModel(), targetLiquidRateBpd: 100, wctPct: 40, gorScfStb: 300, whp: 150,
+      chain: {
+        runRodDesign: () => ({
+          ok: true,
+          errors: [],
+          design: {
+            producedBpd: 500,
+            plungerStrokeIn: 50,
+            pprlLb: 12000,
+            balance: { peakTorqueInLb: 320000 },
+            gas: { fillage: 0.85 },
+            warnings: [],
+            worstSection: { loadingPct: 87.62, label: '7/8 in' },
+          },
+        }),
+      },
+    });
+    const shown = out.figures.find((f) => f.label === 'Rod loading').value;
+    // Item 17 family: the figure used to be rounded whole, so 87.62 and
+    // 88.4 printed as the same number. One decimal, and never a NaN.
+    expect(shown).toBe('87.6 % of Goodman');
+    expect(shown).not.toMatch(/NaN/);
+    expect(out.figures.every((f) => !/NaN/.test(String(f.value)))).toBe(true);
   });
 });
 
@@ -336,7 +426,7 @@ describe('the ESP pass and its three runs', () => {
   test('probes with a mid-range stage, sizes on the stage the duty deserves, then hangs the motor the shaft needs', () => {
     const calls = [];
     const out = designEsp({
-      model: makeModel(), targetRate: 900, wctPct: 55, gorScfStb: 300, whp: 200,
+      model: makeModel(), targetLiquidRateBpd: 900, wctPct: 55, gorScfStb: 300, whp: 200,
       facility: {}, chain: espChain(calls),
     });
     expect(calls).toHaveLength(3);
@@ -356,7 +446,7 @@ describe('the ESP pass and its three runs', () => {
   test('the screening-grade defaults are stated and are reported with the answer', () => {
     const calls = [];
     designEsp({
-      model: makeModel({ tvdMax: 8000 }), targetRate: 900, wctPct: 55, gorScfStb: 300,
+      model: makeModel({ tvdMax: 8000 }), targetLiquidRateBpd: 900, wctPct: 55, gorScfStb: 300,
       whp: 200, facility: { separatorEfficiencyPct: 80 }, chain: espChain(calls),
     });
     // pump at 94 per cent of the perforations, cable 3 per cent longer
@@ -369,7 +459,7 @@ describe('the ESP pass and its three runs', () => {
   test('a chain that refuses is a refusal with the chain reason, at any of the three runs', () => {
     let n = 0;
     const out = designEsp({
-      model: makeModel(), targetRate: 900, wctPct: 55, gorScfStb: 300, whp: 200, facility: {},
+      model: makeModel(), targetLiquidRateBpd: 900, wctPct: 55, gorScfStb: 300, whp: 200, facility: {},
       chain: {
         runEspDesign: () => {
           n += 1;
@@ -391,7 +481,7 @@ describe('the ESP pass and its three runs', () => {
   });
 
   test('with no chain at all it refuses rather than throwing', () => {
-    const out = designEsp({ model: makeModel(), targetRate: 900, wctPct: 55, gorScfStb: 300, whp: 200, chain: {} });
+    const out = designEsp({ model: makeModel(), targetLiquidRateBpd: 900, wctPct: 55, gorScfStb: 300, whp: 200, chain: {} });
     expect(out.ok).toBe(false);
     expect(out.reason).toMatch(/No ESP design chain/);
   });
@@ -412,7 +502,7 @@ describe('the gas lift pass', () => {
   test('builds the flowing gradient FIRST, places the injection point on it, then solves the node', () => {
     const log = [];
     const out = designGasLift({
-      model: makeModel(), targetRate: 700, wctPct: 55, gorScfStb: 400, whp: 200,
+      model: makeModel(), targetLiquidRateBpd: 700, wctPct: 55, gorScfStb: 400, whp: 200,
       facility: { injectionPsig: 900, injectionMscfd: 500 }, chain: gasChain(log),
     });
     expect(log.map((x) => x[0])).toEqual(['traverse', 'point', 'solve']);
@@ -429,7 +519,7 @@ describe('the gas lift pass', () => {
   test('nowhere to put the gas in is a refusal that says why', () => {
     const log = [];
     const out = designGasLift({
-      model: makeModel(), targetRate: 700, wctPct: 55, gorScfStb: 400, whp: 200,
+      model: makeModel(), targetLiquidRateBpd: 700, wctPct: 55, gorScfStb: 400, whp: 200,
       facility: { injectionPsig: 250 },
       chain: gasChain(log, { injectionPointFromTraverse: () => ({ depthFt: 0 }) }),
     });
@@ -441,7 +531,7 @@ describe('the gas lift pass', () => {
   test('a node that does not cross is a refusal, not a zero rate reported as a design', () => {
     const log = [];
     const out = designGasLift({
-      model: makeModel(), targetRate: 700, wctPct: 55, gorScfStb: 400, whp: 200,
+      model: makeModel(), targetLiquidRateBpd: 700, wctPct: 55, gorScfStb: 400, whp: 200,
       facility: { injectionMscfd: 500 },
       chain: gasChain(log, { solveLiftedOperatingPoint: () => ({ q: 0, pwf: 0, status: 'dead' }) }),
     });
@@ -452,7 +542,7 @@ describe('the gas lift pass', () => {
 
   test('a chain that throws is a refusal carrying the message, not an exception', () => {
     const out = designGasLift({
-      model: makeModel(), targetRate: 700, wctPct: 55, gorScfStb: 400, whp: 200, facility: {},
+      model: makeModel(), targetLiquidRateBpd: 700, wctPct: 55, gorScfStb: 400, whp: 200, facility: {},
       chain: gasChain([], { liftedTraverse: () => { throw new Error('no PVT'); } }),
     });
     expect(out.ok).toBe(false);
@@ -462,7 +552,7 @@ describe('the gas lift pass', () => {
   test('the facility defaults are the stated ones', () => {
     const log = [];
     designGasLift({
-      model: makeModel(), targetRate: 700, wctPct: 55, gorScfStb: 400, whp: 200,
+      model: makeModel(), targetLiquidRateBpd: 700, wctPct: 55, gorScfStb: 400, whp: 200,
       facility: {}, chain: gasChain(log),
     });
     expect(log[1][1].pSurfPsia).toBeCloseTo(psigToPsia(900), 9);  // 900 psig
@@ -484,7 +574,7 @@ describe('the plunger pass, end to end through the real chain', () => {
       tAt: (tvd) => w.whtF + (w.bhtF - w.whtF) * (tvd / w.tvdMax),
     });
     const out = designPlunger({
-      model, targetRate: w.targetRate, wctPct: w.wctPct,
+      model, targetLiquidRateBpd: w.targetRate, wctPct: w.wctPct,
       gorScfStb: w.gorScfStb, whp: w.whp, facility: w.facility,
     });
     // The gate on the ASSEMBLY: running the chain directly on the
@@ -513,7 +603,7 @@ describe('the plunger pass, end to end through the real chain', () => {
       tAt: (tvd) => w.whtF + (w.bhtF - w.whtF) * (tvd / w.tvdMax),
     });
     const out = designPlunger({
-      model, targetRate: w.targetRate, wctPct: w.wctPct,
+      model, targetLiquidRateBpd: w.targetRate, wctPct: w.wctPct,
       gorScfStb: w.gorScfStb, whp: w.whp, facility: w.facility,
     });
     expect(out.ok).toBe(true);
@@ -530,7 +620,7 @@ describe('the plunger pass, end to end through the real chain', () => {
       tAt: (tvd) => w.whtF + (w.bhtF - w.whtF) * (tvd / w.tvdMax),
     });
     const out = designPlunger({
-      model, targetRate: w.targetRate, wctPct: w.wctPct,
+      model, targetLiquidRateBpd: w.targetRate, wctPct: w.wctPct,
       gorScfStb: w.gorScfStb, whp: w.whp, facility: w.facility,
     });
     expect(out.ok).toBe(false);
@@ -561,7 +651,7 @@ describe('the pass-level refusals, before any chain is run', () => {
       phase: c.phase, ipr: { qmax: c.qmax },
     });
     const out = runDesignPass({
-      model, targetRate: c.targetRate, wctPct: 40, gorScfStb: 400, whp: 200,
+      model, targetLiquidRateBpd: c.targetRate, wctPct: 40, gorScfStb: 400, whp: 200,
       facility: {}, chain: c.expect === 'runs' ? {} : chainThatMustNotRun,
     });
     if (c.expect === 'runs') {
@@ -581,7 +671,7 @@ describe('the pass-level refusals, before any chain is run', () => {
 
   test('only the four engine-backed methods are in the pass at all', () => {
     const out = runDesignPass({
-      model: makeModel(), targetRate: 500, wctPct: 40, gorScfStb: 400, whp: 200,
+      model: makeModel(), targetLiquidRateBpd: 500, wctPct: 40, gorScfStb: 400, whp: 200,
       facility: {}, chain: {},
     });
     expect(out.results.map((r) => r.id).sort()).toEqual(['esp', 'gasLift', 'plunger', 'rodPump']);
@@ -590,7 +680,7 @@ describe('the pass-level refusals, before any chain is run', () => {
 
   test('a chain that throws inside a designer is one failed method, not a failed pass', () => {
     const out = runDesignPass({
-      model: makeModel(), targetRate: 500, wctPct: 40, gorScfStb: 400, whp: 200, facility: {},
+      model: makeModel(), targetLiquidRateBpd: 500, wctPct: 40, gorScfStb: 400, whp: 200, facility: {},
       chain: { runEspDesign: () => { throw new Error('PVT blew up'); } },
     });
     expect(out.ok).toBe(true);
@@ -680,7 +770,7 @@ describe('a rejected rod trial prints a loading above its own limit', () => {
     const loadingPct = 100.3;
     const out = designRodPump({
       model: makeModel(),
-      targetRate: 400,
+      targetLiquidRateBpd: 400,
       wctPct: 40,
       gorScfStb: 300,
       whp: 150,
@@ -712,5 +802,61 @@ describe('a rejected rod trial prints a loading above its own limit', () => {
       expect(a.reason).toContain('run at 100.3 percent of their allowable');
       expect(a.reason).not.toMatch(/run at 100 percent/);
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ITEM 19: the door says LIQUID, the chains still want OIL, and the seam
+// between them is one exported function.
+// ---------------------------------------------------------------------------
+
+describe('ITEM 19: the target rate is named for the phase it carries', () => {
+  test('the door takes targetLiquidRateBpd, and the old name is not read', () => {
+    const withOldKey = runDesignPass({
+      model: makeModel(), targetRate: 500, wctPct: 40, gorScfStb: 400, whp: 200,
+      facility: {}, chain: {},
+    });
+    // Fails closed: an unrecognised key is no target at all, not a zero.
+    expect(withOldKey.ok).toBe(false);
+    expect(withOldKey.errors[0]).toMatch(/target rate is needed/);
+    const withNewKey = runDesignPass({
+      model: makeModel(), targetLiquidRateBpd: 500, wctPct: 40, gorScfStb: 400, whp: 200,
+      facility: {}, chain: {},
+    });
+    expect(withNewKey.ok).toBe(true);
+  });
+
+  test('WAVE 1: the liquid to oil derivation has NOT happened yet', () => {
+    // oilDesignRate is the one place Wave 2 changes. Today it returns the
+    // rate unchanged, which is what makes the rename free of moved
+    // numbers, and this test is what fails when Wave 2 lands.
+    expect(oilDesignRate(1000, 70)).toBe(1000);
+    expect(oilDesignRate(1000, 0)).toBe(1000);
+    expect(oilDesignRate(1000, 70)).not.toBe(1000 * (1 - 0.7));
+  });
+
+  test('so a water cut does not yet change what the chains are asked for', () => {
+    const asked = [];
+    const chain = {
+      runEspDesign: ({ form }) => {
+        asked.push(Number(form.designRateStbd));
+        return { ok: false, errors: ['probe only'] };
+      },
+    };
+    [0, 40, 90].forEach((wctPct) => {
+      designEsp({
+        model: makeModel(), targetLiquidRateBpd: 800, wctPct, gorScfStb: 300, whp: 200, chain,
+      });
+    });
+    expect(asked).toEqual([800, 800, 800]);
+  });
+
+  test('and the plunger ratio still reads the number as oil', () => {
+    // liquid = oil / (1 - wct) is the Wave 1 arithmetic. Under Wave 2 the
+    // liquid would BE the input, so this 1000 becomes 100. The ratio
+    // itself does not move either way: it is GOR x (1 - wct).
+    const wet = plungerWellGlr({ targetLiquidRateBpd: 100, gorScfStb: 3000, wctPct: 90 });
+    expect(wet.liquidBpd).toBeCloseTo(1000, 9);
+    expect(wet.glrScfBbl).toBeCloseTo(300, 9);
   });
 });
