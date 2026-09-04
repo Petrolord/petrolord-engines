@@ -148,3 +148,45 @@ describe('linear MC fixture (analytic identities used by suite gate A33)', () =>
     expect(golden.mc.analytic.meanUsd).toBe(1530000);
   });
 });
+
+// ---------------------------------------------------------------------------
+// nptFrac IS A FRACTION OF PRODUCTIVE TIME, NOT OF TOTAL TIME.
+//
+// The module header used to say "NPT fraction of total time", which is the
+// reading a planner would act on, and acting on it understates the well: a
+// planner wanting 20 % of elapsed time as NPT enters 0.20 and gets 16.7 %.
+// The arithmetic is the definition and the prose was wrong, so the prose was
+// corrected. These tests pin the definition so it cannot drift back.
+// ---------------------------------------------------------------------------
+describe('the NPT convention', () => {
+  const acts = G('wellcost_cases.json').caseDoc.program.activities;
+
+  test('nptHr is exactly nptFrac times productiveHr', () => {
+    for (const nptFrac of [0, 0.05, 0.125, 0.25, 0.5, 1]) {
+      const t = evaluateProgram({ activities: acts, nptFrac }).totals;
+      expect(t.nptHr).toBeCloseTo(nptFrac * t.productiveHr, 9);
+    }
+  });
+
+  test('the share of ELAPSED time is nptFrac / (1 + nptFrac), which is smaller', () => {
+    for (const nptFrac of [0.05, 0.125, 0.25, 0.5, 1]) {
+      const t = evaluateProgram({ activities: acts, nptFrac }).totals;
+      expect(t.nptHr / t.totalHr).toBeCloseTo(nptFrac / (1 + nptFrac), 9);
+      expect(t.nptHr / t.totalHr).toBeLessThan(nptFrac);
+    }
+  });
+
+  test('productive hours do NOT move as the allowance changes', () => {
+    const base = evaluateProgram({ activities: acts, nptFrac: 0 }).totals.productiveHr;
+    for (const nptFrac of [0.125, 0.5, 1]) {
+      expect(evaluateProgram({ activities: acts, nptFrac }).totals.productiveHr)
+        .toBeCloseTo(base, 9);
+    }
+  });
+
+  test('the worked case: 0.125 gives 12.5 % of productive and 11.1 % of elapsed', () => {
+    const t = evaluateProgram({ activities: acts, nptFrac: 0.125 }).totals;
+    expect(t.nptHr / t.productiveHr).toBeCloseTo(0.125, 9);
+    expect(t.nptHr / t.totalHr).toBeCloseTo(1 / 9, 9);
+  });
+});
