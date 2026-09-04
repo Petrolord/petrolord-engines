@@ -43,6 +43,22 @@
  *
  * Field units: sigma dyne/cm, densities lb/ft3, velocity ft/s,
  * pressure psia, temperature degR, area ft2, rate Mscf/d.
+ *
+ * ONE DOOR CONVENTION FOR TEMPERATURE: degR AT EVERY BOUNDARY.
+ *
+ * Every temperature this module accepts or returns is absolute, in
+ * degrees Rankine, and every parameter that carries one is named with a
+ * trailing `R` so the unit is visible at the call site: `tempR`,
+ * `T_STANDARD_R`, `stationTempR`. Nothing here takes degF and nothing
+ * here converts, so a Fahrenheit reading handed to any function in this
+ * file is silently wrong by 459.67 rather than refused.
+ *
+ * The one place in this domain that takes degF at its door is
+ * `gasProperties.js`, whose `tF` and `tempAtDepthF` arguments are
+ * Fahrenheit by name and which converts with its own `toRankine` before
+ * any gas law sees them. That module's header says so. Callers crossing
+ * between the two convert at the boundary; nothing in this file does it
+ * for them.
  */
 
 /** Standard conditions the gas industry meters at. */
@@ -72,12 +88,50 @@ export const TURNER_FLUIDS = [
   { id: 'condensate', label: 'Condensate (Turner)', sigmaDyneCm: 20, densityLbFt3: 45 },
 ];
 
-export const turnerFluid = (id) =>
-  TURNER_FLUIDS.find((f) => f.id === id) || TURNER_FLUIDS[0];
+/**
+ * The labelled fluid behind an id, or a refusal.
+ *
+ * An unknown id is refused the way `criticalVelocity` refuses an
+ * unknown correlation, and for the same reason. This used to fall back
+ * to `TURNER_FLUIDS[0]`, which is water, so a caller asking for a fluid
+ * this module does not carry was handed water's 60 dyne/cm and 67 lb/ft3
+ * without being told. Water and condensate differ by a factor of three
+ * in interfacial tension, so that silent substitution moved every
+ * critical rate computed after it. A default is not an answer to a
+ * question about a fluid nobody described.
+ *
+ * On success the fluid's own fields are returned as before, with
+ * `ok: true` added so a caller can test the result rather than inspect
+ * it.
+ */
+export const turnerFluid = (id) => {
+  const fluid = TURNER_FLUIDS.find((f) => f.id === id);
+  if (!fluid) {
+    return {
+      ok: false,
+      code: 'unknownFluid',
+      error: `Unknown fluid id "${id}". Use ${TURNER_FLUIDS.map((f) => f.id).join(' or ')}, or pass the interfacial tension and liquid density directly.`,
+    };
+  }
+  return { ...fluid, ok: true };
+};
 
 /**
  * Real-gas density, lb/ft3.
  *   rho = p M / (z R T),  M = 28.9647 SG
+ *
+ * `tempR` is degR at the door, per the module header. There is no degF
+ * path into this function.
+ *
+ * ON THIS FILE'S `AIR_MW` AND `gasProperties.js`'s. They are not the
+ * same number: 28.9647 here, 28.9625 there. Both are published values
+ * for the molecular weight of dry air and the difference is about 8
+ * parts in 100,000, so unifying them MOVES every gas well density and
+ * every number downstream of one. That is a Wave 2 change with a golden
+ * refresh behind it, and it is deliberately not made here. Neither
+ * constant is imported from the other, and this note exists so the
+ * divergence is a recorded decision rather than an accident waiting to
+ * be tidied up by someone who notices it.
  */
 export const AIR_MW = 28.9647;
 export const R_PSIA_FT3_LBMOL_R = 10.7316;
@@ -145,6 +199,8 @@ export const describeUnusableNumber = (value) => {
  *
  * `correlation` is 'turner' or 'coleman'; anything else is refused
  * rather than silently treated as one of them.
+ *
+ * `tempR` is degR at the door, per the module header.
  */
 export const criticalVelocity = ({
   correlation = 'turner', sigmaDyneCm, rhoLiquidLbFt3, pPsia, tempR, z, gasSg,
@@ -152,14 +208,14 @@ export const criticalVelocity = ({
 }) => {
   const adjustment = LOADING_ADJUSTMENT[correlation];
   if (!adjustment) {
-    return { ok: false, error: `Unknown loading correlation "${correlation}". Use turner or coleman.` };
+    return { ok: false, code: 'unknownCorrelation', error: `Unknown loading correlation "${correlation}". Use turner or coleman.` };
   }
   const rhoGasLbFt3 = gasDensityLbFt3({ pPsia, tempR, z, gasSg });
   const terminal = terminalDropletVelocity({
     sigmaDyneCm, rhoLiquidLbFt3, rhoGasLbFt3, dragCoefficient, criticalWeber,
   });
   if (!terminal.ok) {
-    return { ok: false, error: 'The droplet balance needs a positive gas density, liquid density above it, and an interfacial tension.' };
+    return { ok: false, code: 'dropletBalanceNotFormed', error: 'The droplet balance needs a positive gas density, liquid density above it, and an interfacial tension.' };
   }
   return {
     ok: true,
@@ -182,11 +238,11 @@ export const criticalVelocity = ({
  */
 export const RATE_CONSTANT_MSCFD = (86400 * T_STANDARD_R) / (P_STANDARD_PSIA * 1000);
 
-/** Gas rate, Mscf/d, that flows at a given velocity. */
+/** Gas rate, Mscf/d, that flows at a given velocity. `tempR` is degR. */
 export const rateAtVelocity = ({ velocityFtS, areaFt2, pPsia, tempR, z }) =>
   (RATE_CONSTANT_MSCFD * velocityFtS * areaFt2 * pPsia) / (tempR * z);
 
-/** Velocity, ft/s, at a given gas rate. The inverse of the above. */
+/** Velocity, ft/s, at a given gas rate, `tempR` in degR. The inverse of the above. */
 export const velocityAtRate = ({ qMscfd, areaFt2, pPsia, tempR, z }) => {
   if (!(areaFt2 > 0) || !(pPsia > 0)) return NaN;
   return (qMscfd * tempR * z) / (RATE_CONSTANT_MSCFD * areaFt2 * pPsia);
@@ -198,9 +254,29 @@ export const tubingAreaFt2 = (idIn) => (Math.PI * idIn * idIn) / (4 * 144);
 /**
  * The loading check at ONE point in the well.
  *
- * returns { ok, criticalVelocityFtS, criticalRateMscfd, actualVelocityFtS,
- *           ratio, loaded, ... }
+ * `tempR` is degR at the door, per the module header.
+ *
+ * returns { ok, valid, criticalVelocityFtS, criticalRateMscfd,
+ *           actualVelocityFtS, ratio, loaded, ... }
  * `ratio` is actual over critical: below 1 the well is loading up.
+ *
+ * TWO FIELDS, BECAUSE THERE ARE TWO QUESTIONS AND `ok` ONLY ANSWERS ONE.
+ *
+ * `ok` says whether the CRITICAL side could be computed: the correlation
+ * was known and the droplet balance closed. Two callers in this file
+ * branch on it, `loadingProfile` and `sizeTubingForRate`, and both were
+ * written against that meaning, so it keeps it.
+ *
+ * `valid` says whether the WELL side could be read, which until now
+ * nothing checked. `qMscfd` reached the arithmetic unvalidated, and
+ * because `'900' / 1200` is a number in JavaScript, a rate handed in as
+ * a string produced a confident `ratio` and a confident `loaded`
+ * verdict from a value nobody had established was a rate at all. An
+ * undefined one produced NaN and `loaded: false`, which reads as a
+ * healthy well. Both are now refused at the door: `valid: false` with a
+ * code and an error, `ratio` and `actualVelocityFtS` left NaN rather
+ * than coerced, and the critical rate still reported because it does not
+ * depend on the rate and remains a true reading of the station.
  */
 export const loadingAt = ({
   correlation, sigmaDyneCm, rhoLiquidLbFt3, pPsia, tempR, z, gasSg, idIn,
@@ -210,19 +286,34 @@ export const loadingAt = ({
     correlation, sigmaDyneCm, rhoLiquidLbFt3, pPsia, tempR, z, gasSg,
     dragCoefficient, criticalWeber,
   });
-  if (!vc.ok) return { ok: false, error: vc.error };
+  if (!vc.ok) return { ok: false, valid: false, code: vc.code, error: vc.error };
   const areaFt2 = tubingAreaFt2(idIn);
   const criticalRateMscfd = rateAtVelocity({
     velocityFtS: vc.velocityFtS, areaFt2, pPsia, tempR, z,
   });
-  const actualVelocityFtS = velocityAtRate({ qMscfd, areaFt2, pPsia, tempR, z });
-  const ratio = criticalRateMscfd > 0 ? qMscfd / criticalRateMscfd : NaN;
-  return {
+  const common = {
     ok: true,
     ...vc,
     areaFt2,
     criticalVelocityFtS: vc.velocityFtS,
     criticalRateMscfd,
+  };
+  if (!Number.isFinite(qMscfd)) {
+    return {
+      ...common,
+      valid: false,
+      code: 'unreadableRate',
+      error: `No gas rate could be read here: ${describeUnusableNumber(qMscfd)}. Whether this station is loading is a comparison against a rate, so it cannot be answered without one. Hand a numeric rate in Mscf/d.`,
+      actualVelocityFtS: NaN,
+      ratio: NaN,
+      loaded: false,
+    };
+  }
+  const actualVelocityFtS = velocityAtRate({ qMscfd, areaFt2, pPsia, tempR, z });
+  const ratio = criticalRateMscfd > 0 ? qMscfd / criticalRateMscfd : NaN;
+  return {
+    ...common,
+    valid: true,
     actualVelocityFtS,
     ratio,
     loaded: Number.isFinite(ratio) ? ratio < 1 : false,
@@ -242,7 +333,8 @@ export const loadingAt = ({
  * wellhead and hoping.
  *
  * `stations` is [{ depthFt, pPsia, tempR, z, idIn }] from the caller's
- * flowing traverse, top first.
+ * flowing traverse, top first. `tempR` on every station is degR at the
+ * door, per the module header.
  *
  * returns { ok, points, controlling, loaded, marginPct }
  */
@@ -257,7 +349,11 @@ export const loadingProfile = ({
       pPsia: s.pPsia, tempR: s.tempR, z: s.z, idIn: s.idIn,
       dragCoefficient, criticalWeber,
     });
-    if (!at.ok) return { ok: false, error: at.error };
+    if (!at.ok) return { ok: false, code: at.code, error: at.error };
+    // The rate is the same at every station, so an unreadable one is a
+    // property of the profile and not of this point: it is reported once
+    // here rather than as a finding against every station in turn.
+    if (at.valid === false) return { ok: false, code: at.code, error: at.error };
     // The station's own conditions travel with the result. A profile
     // point that does not say what pressure and temperature it was
     // computed at cannot be plotted, and cannot be handed to the tubing
@@ -359,6 +455,9 @@ export const loadingProfile = ({
  * a false `ok`. Returning null there would break callers that read the
  * field directly, and that remains the owner's call; the gates pin both
  * halves so a later change to it cannot pass unnoticed.
+ *
+ * `code` is `unreadablePressure` on the refusal, so the refusal is
+ * machine-readable as well as testable.
  */
 export const recommendCorrelation = (pPsia, station = 'wellhead') => {
   const belowLimit = pPsia < COLEMAN_PRESSURE_LIMIT_PSIA;
@@ -367,6 +466,7 @@ export const recommendCorrelation = (pPsia, station = 'wellhead') => {
   if (!Number.isFinite(pPsia)) {
     return {
       ok: false,
+      code: 'unreadablePressure',
       correlation,
       adjustment,
       reason: `No ${station} pressure could be read here: ${describeUnusableNumber(pPsia)}. Which correlation these conditions call for cannot be said without one, so the name above is only where the comparison against ${COLEMAN_PRESSURE_LIMIT_PSIA} psia happens to land and is not a reading of this well. This result carries ok: false for that reason; test it rather than reading the correlation. Hand a numeric ${station} pressure in psia.`,
@@ -408,10 +508,28 @@ export const recommendCorrelation = (pPsia, station = 'wellhead') => {
  * is not a finding about this well. `rows` and `largestUnloaded` are
  * computed exactly as before and are untouched by this, so every
  * existing caller keeps working unchanged.
+ *
+ * A ROW SAYS WHERE IT WAS EVALUATED, NOT ONLY WHICH CORRELATION IT USED.
+ *
+ * Critical rate goes as roughly the square root of pressure, so it is a
+ * different number at every station in the well, and the whole point of
+ * `loadingProfile` is that the CONTROLLING station is usually the shoe
+ * rather than the wellhead. A sizing row recorded its correlation and
+ * its adjustment but not the conditions behind them, so two runs of this
+ * function at two stations produced two tables that looked
+ * interchangeable and were not. `stationDepthFt`, `stationPressurePsia`
+ * and `stationTempR` travel on every row, refusal rows included, so a
+ * table can be read months later without the call that produced it.
+ * `stationDepthFt` is the caller's label for the station and is null
+ * when the caller did not give one; the pressure and the temperature are
+ * the ones the row was actually computed at.
+ *
+ * `tempR` is degR at the door, per the module header.
  */
 export const sizeTubingForRate = ({
   candidatesIdIn, qMscfd, correlation, sigmaDyneCm, rhoLiquidLbFt3,
   pPsia, tempR, z, gasSg, dragCoefficient, criticalWeber,
+  stationDepthFt = null,
 }) => {
   const rows = [...(candidatesIdIn || [])]
     .sort((a, b) => b - a)
@@ -420,27 +538,44 @@ export const sizeTubingForRate = ({
         correlation, sigmaDyneCm, rhoLiquidLbFt3, pPsia, tempR, z, gasSg,
         idIn, qMscfd, dragCoefficient, criticalWeber,
       });
-      return { idIn, ...at, ok: at.ok !== false };
+      return {
+        idIn,
+        stationDepthFt: Number.isFinite(stationDepthFt) ? stationDepthFt : null,
+        stationPressurePsia: pPsia,
+        stationTempR: tempR,
+        ...at,
+        ok: at.ok !== false,
+      };
     });
-  const usable = rows.filter((r) => r.ok && r.ratio >= 1);
+  const usable = rows.filter((r) => r.ok && r.valid !== false && r.ratio >= 1);
   const result = {
     rows,
     largestUnloaded: usable.length ? usable[0] : null,
   };
+  // ROOT FIRST, AND ONLY THE ROOT. The three refusals below are ordered
+  // by cause, and they return rather than accumulate, because the second
+  // and third are what the first LOOKS like from further down. An
+  // unreadable rate makes every ratio unreadable, so "none of the
+  // candidate sizes could be evaluated" is true and is not a finding: it
+  // is the missing rate, reported a second time in the language of the
+  // consequence. A reader handed both would go and check the pressure,
+  // the temperature and the z factor, none of which is wrong.
   if (!rows.length) {
-    return { ...result, ok: false, reason: 'No candidate tubing sizes were given, so there was nothing to size.' };
+    return { ...result, ok: false, code: 'noCandidates', reason: 'No candidate tubing sizes were given, so there was nothing to size.' };
   }
   if (!Number.isFinite(qMscfd)) {
     return {
       ...result,
       ok: false,
+      code: 'unreadableRate',
       reason: `No gas rate could be read here: ${describeUnusableNumber(qMscfd)}. Which tubing keeps a well unloaded is a question about a rate, so it cannot be answered without one. Hand a numeric rate in Mscf/d.`,
     };
   }
-  if (!rows.some((r) => r.ok && Number.isFinite(r.ratio))) {
+  if (!rows.some((r) => r.ok && r.valid !== false && Number.isFinite(r.ratio))) {
     return {
       ...result,
       ok: false,
+      code: 'conditionsNotEvaluable',
       reason: 'None of the candidate sizes could be evaluated at these conditions, so no size was ruled in or out. Check the pressure, temperature, z factor and fluid properties.',
     };
   }

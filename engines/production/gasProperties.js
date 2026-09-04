@@ -26,19 +26,51 @@
  * the NIST nitrogen isotherms is a separate ARMED gate; nothing here
  * asserts agreement with numbers this repo has not verified.
  *
- * Field units throughout: pressure psia, temperature degF (converted to
- * degR internally), depth ft.
+ * Field units throughout: pressure psia, depth ft.
+ *
+ * TEMPERATURE: THIS MODULE IS THE ONE degF DOOR IN THE DOMAIN.
+ *
+ * The convention everywhere else in the production engines is degR at
+ * every boundary, with the unit carried in the parameter name:
+ * `tempR`, `avgTempR`, `stationTempR`. This module is the deliberate
+ * exception and takes DEGREES FAHRENHEIT at its door, because a gas-lift
+ * valve is set and quoted in degF and a wellbore temperature survey
+ * arrives in degF. Every parameter that carries a temperature says so
+ * in its name, and there are exactly two spellings:
+ *
+ *   `tF`             degF, a temperature
+ *   `tempAtDepthF`   degF, or a function of TVD returning degF
+ *
+ * Every one of them is converted with `toRankine` before any gas law
+ * sees it, and nothing in this file consumes a Rankine value handed in
+ * from outside. A degR value passed to any `tF` argument here is
+ * silently wrong by 459.67 rather than refused, which is why the naming
+ * is the contract. `toRankine` is exported so a caller working in the
+ * domain's degR convention can see exactly where the boundary is.
+ *
+ * Nothing returned by this module is a temperature except the `tF`
+ * column of `gasColumnPressure`'s profile, which is degF as its name
+ * says and is the caller's own temperature echoed back.
  */
 
-/** Rankine offset. */
+/** Rankine offset, degF to degR. */
 export const R_OFFSET = 459.67;
 
 /** Molecular weight of dry air, lbm/lbmol, and the gas constant in
  *  psia ft3 / (lbmol degR). Exported so the closed-form gate builds its
- *  exponent from the same numbers the gradient uses. */
+ *  exponent from the same numbers the gradient uses.
+ *
+ *  NOT THE SAME CONSTANT AS `gasWellLoading.js`'s `AIR_MW`. That file
+ *  carries 28.9647 and this one carries 28.9625. Both are published
+ *  values for dry air and they differ by about 8 parts in 100,000, so
+ *  importing one from the other MOVES every gas well density and
+ *  everything downstream of one. That is a Wave 2 change with a golden
+ *  refresh behind it and is deliberately not made here. The divergence
+ *  is a recorded decision, not an oversight to be tidied away. */
 export const AIR_MW = 28.9625;
 export const R_UNIVERSAL = 10.7316;
 
+/** degF to degR. The conversion at this module's door. */
 export const toRankine = (tF) => tF + R_OFFSET;
 
 /** Dranchuk & Abou-Kassem (1975) coefficients. */
@@ -103,7 +135,7 @@ export const dakZ = ({ ppr, tpr, tol = 1e-10, maxIter = 60 }) => {
   return { z: zOf(r), rhoR: r, iterations: i, converged };
 };
 
-/** z of a hydrocarbon injection gas. */
+/** z of a hydrocarbon injection gas. `tF` is degF at the door. */
 export const naturalGasZ = ({ pPsia, tF, gasSg, yCo2 = 0, yH2s = 0 }) => {
   const base = suttonPseudoCriticals(gasSg);
   const { tpcR, ppcPsia } = wichertAziz({ ...base, yCo2, yH2s });
@@ -114,7 +146,8 @@ export const naturalGasZ = ({ pPsia, tF, gasSg, yCo2 = 0, yH2s = 0 }) => {
 /** Nitrogen criticals (NIST/CODATA values, converted to field units). */
 export const N2_CRITICALS = { tpcR: 227.16, ppcPsia: 492.5 };
 
-/** z of the nitrogen dome charge. See the module header on the basis. */
+/** z of the nitrogen dome charge, `tF` in degF at the door. See the
+ *  module header on the basis. */
 export const nitrogenZ = ({ pPsia, tF }) => dakZ({
   ppr: pPsia / N2_CRITICALS.ppcPsia,
   tpr: toRankine(tF) / N2_CRITICALS.tpcR,
@@ -124,6 +157,9 @@ export const nitrogenZ = ({ pPsia, tF }) => dakZ({
  * Static gas gradient, psi/ft, from the real-gas density:
  *   rho = 28.9625 * gammaG * p / (z R T),  R = 10.7316 psia ft3 / (lbmol degR)
  *   dp/dD = rho / 144
+ *
+ * `tF` is degF at the door and is converted to the degR the gas law
+ * needs by `toRankine` inside.
  */
 export const gasGradient = ({ pPsia, tF, gasSg, z }) => {
   const zz = z ?? naturalGasZ({ pPsia, tF, gasSg });
@@ -144,6 +180,8 @@ export const gasGradient = ({ pPsia, tF, gasSg, z }) => {
  *
  * inputs: { pSurfPsia, tvdFt, gasSg, tempAtDepthF(tvd) -> degF,
  *           steps = 40, zOverride }
+ * `tempAtDepthF` is degF at the door, either a number or a function of
+ * TVD, and the `tF` column of the profile is degF for the same reason.
  * returns { pBottomPsia, profile: [{ tvdFt, pPsia, tF, z, gradPsiPerFt }] }
  */
 export const gasColumnPressure = ({
@@ -188,6 +226,7 @@ export const gasColumnPressure = ({
  * Inverse of gasColumnPressure: the surface injection pressure whose
  * static column reads `pAtDepthPsia` at `tvdFt`. Secant iteration on
  * the forward march, which is monotone in the surface pressure.
+ * `tempAtDepthF` is degF at the door, as in the forward march.
  */
 export const gasColumnSurfacePressure = ({
   pAtDepthPsia, tvdFt, gasSg, tempAtDepthF, steps = 40, zOverride,
