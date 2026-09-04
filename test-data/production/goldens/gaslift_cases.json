@@ -28,7 +28,7 @@
    "whtF": 90.0
   }
  ],
- "description": "Production P4 gas-lift goldens. Independent stdlib oracle (RK4 column, bisection roots) against the engine method spec: gas properties, nitrogen dome charge, valve force balance, Thornhill-Craver throughput, spacing recursion, valve settings and the deepest injection point.",
+ "description": "Production P4 gas-lift goldens. Independent stdlib oracle (RK4 column, bisection roots) against the engine method spec: gas properties, nitrogen dome charge, valve force balance, Thornhill-Craver throughput, spacing recursion, valve settings, the unloading verdict with the closing margin it turns on, and the deepest injection point.",
  "designs": [
   {
    "depths": [
@@ -85,6 +85,441 @@
     889.7,
     864.7,
     839.7
+   ],
+   "unloading": [
+    {
+     "closingMargins": [],
+     "depthFt": 2119.249994721031,
+     "fluidLevelFt": 2119.249994721031,
+     "gasRateMscfd": 1359.54850599065,
+     "injectionAtDepthPsia": 1068.362497529302,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 326.624999472103,
+     "stage": 1,
+     "surfaceInjectionPsia": 1014.7,
+     "upperValvesOpen": [],
+     "valve": 1
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1041.880502654677,
+       "casingDropPsi": 26.481994874626,
+       "domeAtTempPsia": 1021.076842602586,
+       "family": "IPO",
+       "marginPsi": 20.803660052091,
+       "open": true,
+       "spreadPsi": 47.285654926716,
+       "valve": 1
+      }
+     ],
+     "depthFt": 3682.716497768941,
+     "fluidLevelFt": 3682.716497768941,
+     "gasRateMscfd": 1354.332658593132,
+     "injectionAtDepthPsia": 1080.184925977973,
+     "multipointing": true,
+     "passesTarget": true,
+     "productionAtDepthPsia": 482.971649776894,
+     "stage": 2,
+     "surfaceInjectionPsia": 989.7,
+     "upperValvesOpen": [
+      1
+     ],
+     "valve": 2
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1015.40561228022,
+       "casingDropPsi": 52.956885249083,
+       "domeAtTempPsia": 1021.076842602586,
+       "family": "IPO",
+       "marginPsi": -5.671230322367,
+       "open": false,
+       "spreadPsi": 47.285654926716,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1052.637914927499,
+       "casingDropPsi": 27.547011050474,
+       "domeAtTempPsia": 1042.112668649653,
+       "family": "IPO",
+       "marginPsi": 10.525246277846,
+       "open": true,
+       "spreadPsi": 38.07225732832,
+       "valve": 2
+      }
+     ],
+     "depthFt": 4901.841136177378,
+     "fluidLevelFt": 4901.841136177378,
+     "gasRateMscfd": 1340.666375573681,
+     "injectionAtDepthPsia": 1081.57773718023,
+     "multipointing": true,
+     "passesTarget": true,
+     "productionAtDepthPsia": 604.884113617738,
+     "stage": 3,
+     "surfaceInjectionPsia": 964.7,
+     "upperValvesOpen": [
+      2
+     ],
+     "valve": 3
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 988.937985377771,
+       "casingDropPsi": 79.424512151532,
+       "domeAtTempPsia": 1021.076842602586,
+       "family": "IPO",
+       "marginPsi": -32.138857224816,
+       "open": false,
+       "spreadPsi": 47.285654926716,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1025.102742624523,
+       "casingDropPsi": 55.08218335345,
+       "domeAtTempPsia": 1042.112668649653,
+       "family": "IPO",
+       "marginPsi": -17.00992602513,
+       "open": false,
+       "spreadPsi": 38.07225732832,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1053.218201647457,
+       "casingDropPsi": 28.359535532773,
+       "domeAtTempPsia": 1051.188589741167,
+       "family": "IPO",
+       "marginPsi": 2.02961190629,
+       "open": true,
+       "spreadPsi": 30.389147439063,
+       "valve": 3
+      }
+     ],
+     "depthFt": 5834.735588961765,
+     "fluidLevelFt": 5834.735588961765,
+     "gasRateMscfd": 1290.498730846014,
+     "injectionAtDepthPsia": 1074.686617376167,
+     "multipointing": true,
+     "passesTarget": true,
+     "productionAtDepthPsia": 698.173558896177,
+     "stage": 4,
+     "surfaceInjectionPsia": 939.7,
+     "upperValvesOpen": [
+      3
+     ],
+     "valve": 4
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 962.477770085034,
+       "casingDropPsi": 105.884727444269,
+       "domeAtTempPsia": 1021.076842602586,
+       "family": "IPO",
+       "marginPsi": -58.599072517553,
+       "open": false,
+       "spreadPsi": 47.285654926716,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 997.579680339569,
+       "casingDropPsi": 82.605245638404,
+       "domeAtTempPsia": 1042.112668649653,
+       "family": "IPO",
+       "marginPsi": -44.532988310084,
+       "open": false,
+       "spreadPsi": 38.07225732832,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1024.874037710571,
+       "casingDropPsi": 56.703699469659,
+       "domeAtTempPsia": 1051.188589741167,
+       "family": "IPO",
+       "marginPsi": -26.314552030596,
+       "open": false,
+       "spreadPsi": 30.389147439063,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1045.718349382227,
+       "casingDropPsi": 28.968267993939,
+       "domeAtTempPsia": 1050.683966026707,
+       "family": "IPO",
+       "marginPsi": -4.96561664448,
+       "open": false,
+       "spreadPsi": 24.002651349459,
+       "valve": 4
+      }
+     ],
+     "depthFt": 6530.440469862167,
+     "fluidLevelFt": 6530.440469862167,
+     "gasRateMscfd": 1200.950885673861,
+     "injectionAtDepthPsia": 1061.240755252088,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 767.744046986217,
+     "stage": 5,
+     "surfaceInjectionPsia": 914.7,
+     "upperValvesOpen": [],
+     "valve": 5
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 936.025103894881,
+       "casingDropPsi": 132.337393634421,
+       "domeAtTempPsia": 1021.076842602586,
+       "family": "IPO",
+       "marginPsi": -85.051738707705,
+       "open": false,
+       "spreadPsi": 47.285654926716,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 970.068981595533,
+       "casingDropPsi": 110.11594438244,
+       "domeAtTempPsia": 1042.112668649653,
+       "family": "IPO",
+       "marginPsi": -72.04368705412,
+       "open": false,
+       "spreadPsi": 38.07225732832,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 996.545596111062,
+       "casingDropPsi": 85.032141069167,
+       "domeAtTempPsia": 1051.188589741167,
+       "family": "IPO",
+       "marginPsi": -54.642993630104,
+       "open": false,
+       "spreadPsi": 30.389147439063,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1016.768158485889,
+       "casingDropPsi": 57.918458890278,
+       "domeAtTempPsia": 1050.683966026707,
+       "family": "IPO",
+       "marginPsi": -33.915807540818,
+       "open": false,
+       "spreadPsi": 24.002651349459,
+       "valve": 4
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1031.829038649961,
+       "casingDropPsi": 29.411716602127,
+       "domeAtTempPsia": 1042.530383853126,
+       "family": "IPO",
+       "marginPsi": -10.701345203165,
+       "open": false,
+       "spreadPsi": 18.710371398962,
+       "valve": 5
+      }
+     ],
+     "depthFt": 7030.204796211578,
+     "fluidLevelFt": 7030.204796211578,
+     "gasRateMscfd": 1089.130655659694,
+     "injectionAtDepthPsia": 1042.63799370003,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 817.720479621158,
+     "stage": 6,
+     "surfaceInjectionPsia": 889.7,
+     "upperValvesOpen": [],
+     "valve": 6
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 909.580113869458,
+       "casingDropPsi": 158.782383659844,
+       "domeAtTempPsia": 1021.076842602586,
+       "family": "IPO",
+       "marginPsi": -111.496728733128,
+       "open": false,
+       "spreadPsi": 47.285654926716,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 942.570882457363,
+       "casingDropPsi": 137.61404352061,
+       "domeAtTempPsia": 1042.112668649653,
+       "family": "IPO",
+       "marginPsi": -99.54178619229,
+       "open": false,
+       "spreadPsi": 38.07225732832,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 968.233205040661,
+       "casingDropPsi": 113.344532139569,
+       "domeAtTempPsia": 1051.188589741167,
+       "family": "IPO",
+       "marginPsi": -82.955384700506,
+       "open": false,
+       "spreadPsi": 30.389147439063,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 987.836446937751,
+       "casingDropPsi": 86.850170438416,
+       "domeAtTempPsia": 1050.683966026707,
+       "family": "IPO",
+       "marginPsi": -62.847519088956,
+       "open": false,
+       "spreadPsi": 24.002651349459,
+       "valve": 4
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1002.437499901574,
+       "casingDropPsi": 58.803255350515,
+       "domeAtTempPsia": 1042.530383853126,
+       "family": "IPO",
+       "marginPsi": -40.092883951552,
+       "open": false,
+       "spreadPsi": 18.710371398962,
+       "valve": 5
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1012.917166332713,
+       "casingDropPsi": 29.720827367317,
+       "domeAtTempPsia": 1028.299535707054,
+       "family": "IPO",
+       "marginPsi": -15.382369374341,
+       "open": false,
+       "spreadPsi": 14.338457992976,
+       "valve": 6
+      }
+     ],
+     "depthFt": 7368.624567624072,
+     "fluidLevelFt": 7368.624567624072,
+     "gasRateMscfd": 964.942352460272,
+     "injectionAtDepthPsia": 1020.009376755877,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 851.562456762407,
+     "stage": 7,
+     "surfaceInjectionPsia": 864.7,
+     "upperValvesOpen": [],
+     "valve": 7
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 883.142916876342,
+       "casingDropPsi": 185.21958065296,
+       "domeAtTempPsia": 1021.076842602586,
+       "family": "IPO",
+       "marginPsi": -137.933925726244,
+       "open": false,
+       "spreadPsi": 47.285654926716,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 915.085601861928,
+       "casingDropPsi": 165.099324116045,
+       "domeAtTempPsia": 1042.112668649653,
+       "family": "IPO",
+       "marginPsi": -127.027066787725,
+       "open": false,
+       "spreadPsi": 38.07225732832,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 939.9371705057,
+       "casingDropPsi": 141.64056667453,
+       "domeAtTempPsia": 1051.188589741167,
+       "family": "IPO",
+       "marginPsi": -111.251419235467,
+       "open": false,
+       "spreadPsi": 30.389147439063,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 958.923591137592,
+       "casingDropPsi": 115.763026238575,
+       "domeAtTempPsia": 1050.683966026707,
+       "family": "IPO",
+       "marginPsi": -91.760374889115,
+       "open": false,
+       "spreadPsi": 24.002651349459,
+       "valve": 4
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 973.066569785806,
+       "casingDropPsi": 88.174185466282,
+       "domeAtTempPsia": 1042.530383853126,
+       "family": "IPO",
+       "marginPsi": -69.46381406732,
+       "open": false,
+       "spreadPsi": 18.710371398962,
+       "valve": 5
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 983.218150676043,
+       "casingDropPsi": 59.419843023986,
+       "domeAtTempPsia": 1028.299535707054,
+       "family": "IPO",
+       "marginPsi": -45.08138503101,
+       "open": false,
+       "spreadPsi": 14.338457992976,
+       "valve": 6
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 990.08864627123,
+       "casingDropPsi": 29.920730484647,
+       "domeAtTempPsia": 1009.270910717498,
+       "family": "IPO",
+       "marginPsi": -19.182264446268,
+       "open": false,
+       "spreadPsi": 10.738466038379,
+       "valve": 7
+      }
+     ],
+     "depthFt": 7500.0,
+     "fluidLevelFt": 7500.0,
+     "gasRateMscfd": 850.310310797192,
+     "injectionAtDepthPsia": 992.754993570164,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 864.7,
+     "stage": 8,
+     "surfaceInjectionPsia": 839.7,
+     "upperValvesOpen": [],
+     "valve": 8
+    }
    ],
    "valves": [
     {
@@ -261,6 +696,343 @@
     1214.7,
     1174.7
    ],
+   "unloading": [
+    {
+     "closingMargins": [],
+     "depthFt": 2606.192995401216,
+     "fluidLevelFt": 2606.192995401216,
+     "gasRateMscfd": 458.686749156053,
+     "injectionAtDepthPsia": 1517.796497793434,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 527.443159448146,
+     "stage": 1,
+     "surfaceInjectionPsia": 1414.7,
+     "upperValvesOpen": [],
+     "valve": 1
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1474.47182009336,
+       "casingDropPsi": 43.324677700074,
+       "domeAtTempPsia": 1478.591775361432,
+       "family": "IPO",
+       "marginPsi": -4.119955268072,
+       "open": false,
+       "spreadPsi": 39.204722432002,
+       "valve": 1
+      }
+     ],
+     "depthFt": 4493.061051145492,
+     "fluidLevelFt": 4493.061051145492,
+     "gasRateMscfd": 458.732684169243,
+     "injectionAtDepthPsia": 1545.877187268824,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 753.867326137459,
+     "stage": 2,
+     "surfaceInjectionPsia": 1374.7,
+     "upperValvesOpen": [],
+     "valve": 2
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1431.158006282599,
+       "casingDropPsi": 86.638491510834,
+       "domeAtTempPsia": 1478.591775361432,
+       "family": "IPO",
+       "marginPsi": -47.433769078832,
+       "open": false,
+       "spreadPsi": 39.204722432002,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1500.23935897794,
+       "casingDropPsi": 45.637828290884,
+       "domeAtTempPsia": 1514.524208925818,
+       "family": "IPO",
+       "marginPsi": -14.284849947878,
+       "open": false,
+       "spreadPsi": 31.352978343006,
+       "valve": 2
+      }
+     ],
+     "depthFt": 5941.091920800633,
+     "fluidLevelFt": 5941.091920800633,
+     "gasRateMscfd": 452.337571205628,
+     "injectionAtDepthPsia": 1552.882760860929,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 927.631030496076,
+     "stage": 3,
+     "surfaceInjectionPsia": 1334.7,
+     "upperValvesOpen": [],
+     "valve": 3
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1387.857060176186,
+       "casingDropPsi": 129.939437617247,
+       "domeAtTempPsia": 1478.591775361432,
+       "family": "IPO",
+       "marginPsi": -90.734715185245,
+       "open": false,
+       "spreadPsi": 39.204722432002,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1454.620032245343,
+       "casingDropPsi": 91.25715502348,
+       "domeAtTempPsia": 1514.524208925818,
+       "family": "IPO",
+       "marginPsi": -59.904176680474,
+       "open": false,
+       "spreadPsi": 31.352978343006,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1505.519395626263,
+       "casingDropPsi": 47.363365234666,
+       "domeAtTempPsia": 1528.131170100363,
+       "family": "IPO",
+       "marginPsi": -22.6117744741,
+       "open": false,
+       "spreadPsi": 24.751590760566,
+       "valve": 3
+      }
+     ],
+     "depthFt": 7022.551471839695,
+     "fluidLevelFt": 7022.551471839695,
+     "gasRateMscfd": 427.875440704317,
+     "injectionAtDepthPsia": 1543.360806066331,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 1057.406176620763,
+     "stage": 4,
+     "surfaceInjectionPsia": 1294.7,
+     "upperValvesOpen": [],
+     "valve": 4
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1344.570894638904,
+       "casingDropPsi": 173.22560315453,
+       "domeAtTempPsia": 1478.591775361432,
+       "family": "IPO",
+       "marginPsi": -134.020880722528,
+       "open": false,
+       "spreadPsi": 39.204722432002,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1409.022452347146,
+       "casingDropPsi": 136.854734921678,
+       "domeAtTempPsia": 1514.524208925818,
+       "family": "IPO",
+       "marginPsi": -105.501756578672,
+       "open": false,
+       "spreadPsi": 31.352978343006,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1458.181355015039,
+       "casingDropPsi": 94.70140584589,
+       "domeAtTempPsia": 1528.131170100363,
+       "family": "IPO",
+       "marginPsi": -69.949815085324,
+       "open": false,
+       "spreadPsi": 24.751590760566,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1494.740058200355,
+       "casingDropPsi": 48.620747865976,
+       "domeAtTempPsia": 1524.123514057206,
+       "family": "IPO",
+       "marginPsi": -29.383455856851,
+       "open": false,
+       "spreadPsi": 19.237292009125,
+       "valve": 4
+      }
+     ],
+     "depthFt": 7799.602298221536,
+     "fluidLevelFt": 7799.602298221536,
+     "gasRateMscfd": 390.896868567703,
+     "injectionAtDepthPsia": 1520.931589904691,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 1150.652275786584,
+     "stage": 5,
+     "surfaceInjectionPsia": 1254.7,
+     "upperValvesOpen": [],
+     "valve": 5
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1301.301323307802,
+       "casingDropPsi": 216.495174485632,
+       "domeAtTempPsia": 1478.591775361432,
+       "family": "IPO",
+       "marginPsi": -177.29045205363,
+       "open": false,
+       "spreadPsi": 39.204722432002,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1363.449715598339,
+       "casingDropPsi": 182.427471670485,
+       "domeAtTempPsia": 1514.524208925818,
+       "family": "IPO",
+       "marginPsi": -151.074493327479,
+       "open": false,
+       "spreadPsi": 31.352978343006,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1410.872698430797,
+       "casingDropPsi": 142.010062430133,
+       "domeAtTempPsia": 1528.131170100363,
+       "family": "IPO",
+       "marginPsi": -117.258471669566,
+       "open": false,
+       "spreadPsi": 24.751590760566,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1446.151187792784,
+       "casingDropPsi": 97.209618273547,
+       "domeAtTempPsia": 1524.123514057206,
+       "family": "IPO",
+       "marginPsi": -77.972326264423,
+       "open": false,
+       "spreadPsi": 19.237292009125,
+       "valve": 4
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1471.430883776056,
+       "casingDropPsi": 49.500706128635,
+       "domeAtTempPsia": 1506.273490446403,
+       "family": "IPO",
+       "marginPsi": -34.842606670348,
+       "open": false,
+       "spreadPsi": 14.658099458288,
+       "valve": 5
+      }
+     ],
+     "depthFt": 8325.302541711062,
+     "fluidLevelFt": 8325.302541711062,
+     "gasRateMscfd": 346.816063892877,
+     "injectionAtDepthPsia": 1488.502397616208,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 1213.736305005327,
+     "stage": 6,
+     "surfaceInjectionPsia": 1214.7,
+     "upperValvesOpen": [],
+     "valve": 6
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1258.050053831311,
+       "casingDropPsi": 259.746443962123,
+       "domeAtTempPsia": 1478.591775361432,
+       "family": "IPO",
+       "marginPsi": -220.541721530121,
+       "open": false,
+       "spreadPsi": 39.204722432002,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1317.904756974399,
+       "casingDropPsi": 227.972430294425,
+       "domeAtTempPsia": 1514.524208925818,
+       "family": "IPO",
+       "marginPsi": -196.619451951419,
+       "open": false,
+       "spreadPsi": 31.352978343006,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1363.597291102229,
+       "casingDropPsi": 189.2854697587,
+       "domeAtTempPsia": 1528.131170100363,
+       "family": "IPO",
+       "marginPsi": -164.533878998134,
+       "open": false,
+       "spreadPsi": 24.751590760566,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1397.598746507635,
+       "casingDropPsi": 145.762059558696,
+       "domeAtTempPsia": 1524.123514057206,
+       "family": "IPO",
+       "marginPsi": -126.524767549571,
+       "open": false,
+       "spreadPsi": 19.237292009125,
+       "valve": 4
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1421.968451217683,
+       "casingDropPsi": 98.963138687008,
+       "domeAtTempPsia": 1506.273490446403,
+       "family": "IPO",
+       "marginPsi": -84.30503922872,
+       "open": false,
+       "spreadPsi": 14.658099458288,
+       "valve": 5
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1438.42776262516,
+       "casingDropPsi": 50.074634991048,
+       "domeAtTempPsia": 1477.625341945821,
+       "family": "IPO",
+       "marginPsi": -39.197579320661,
+       "open": false,
+       "spreadPsi": 10.877055670387,
+       "valve": 6
+      }
+     ],
+     "depthFt": 8644.662255375952,
+     "fluidLevelFt": 8644.662255375952,
+     "gasRateMscfd": 671.927441963523,
+     "injectionAtDepthPsia": 1448.416161730984,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 1252.059470645114,
+     "stage": 7,
+     "surfaceInjectionPsia": 1174.7,
+     "upperValvesOpen": [],
+     "valve": 7
+    }
+   ],
    "valves": [
     {
      "closingSurfacePressurePsia": 1378.504197315833,
@@ -420,6 +1192,262 @@
     1114.7,
     1114.7
    ],
+   "unloading": [
+    {
+     "closingMargins": [],
+     "depthFt": 2410.595757100964,
+     "fluidLevelFt": 2410.595757100964,
+     "gasRateMscfd": 1569.154634335068,
+     "injectionAtDepthPsia": 1177.150217878459,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 357.547660568077,
+     "stage": 1,
+     "surfaceInjectionPsia": 1114.7,
+     "upperValvesOpen": [],
+     "valve": 1
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 357.547660568077,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 409.797201414459,
+       "family": "PPO",
+       "marginPsi": -52.249540846382,
+       "open": false,
+       "spreadPsi": -52.249540846382,
+       "valve": 1
+      }
+     ],
+     "depthFt": 4236.835773841176,
+     "fluidLevelFt": 4236.835773841176,
+     "gasRateMscfd": 1609.840268570406,
+     "injectionAtDepthPsia": 1224.568467535956,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 503.646861907294,
+     "stage": 2,
+     "surfaceInjectionPsia": 1114.7,
+     "upperValvesOpen": [],
+     "valve": 2
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 357.547660568077,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 409.797201414459,
+       "family": "PPO",
+       "marginPsi": -52.249540846382,
+       "open": false,
+       "spreadPsi": -52.249540846382,
+       "valve": 1
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 503.646861907294,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 549.605506794818,
+       "family": "PPO",
+       "marginPsi": -45.958644887524,
+       "open": false,
+       "spreadPsi": -45.958644887524,
+       "valve": 2
+      }
+     ],
+     "depthFt": 5812.830048117987,
+     "fluidLevelFt": 5812.830048117987,
+     "gasRateMscfd": 1644.402624498648,
+     "injectionAtDepthPsia": 1265.564457252759,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 629.726403849439,
+     "stage": 3,
+     "surfaceInjectionPsia": 1114.7,
+     "upperValvesOpen": [],
+     "valve": 3
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 357.547660568077,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 409.797201414459,
+       "family": "PPO",
+       "marginPsi": -52.249540846382,
+       "open": false,
+       "spreadPsi": -52.249540846382,
+       "valve": 1
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 503.646861907294,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 549.605506794818,
+       "family": "PPO",
+       "marginPsi": -45.958644887524,
+       "open": false,
+       "spreadPsi": -45.958644887524,
+       "valve": 2
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 629.726403849439,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 670.260984966417,
+       "family": "PPO",
+       "marginPsi": -40.534581116979,
+       "open": false,
+       "spreadPsi": -40.534581116979,
+       "valve": 3
+      }
+     ],
+     "depthFt": 7173.012800195899,
+     "fluidLevelFt": 7173.012800195899,
+     "gasRateMscfd": 1672.788992759355,
+     "injectionAtDepthPsia": 1301.003159780857,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 738.541024015672,
+     "stage": 4,
+     "surfaceInjectionPsia": 1114.7,
+     "upperValvesOpen": [],
+     "valve": 4
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 357.547660568077,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 409.797201414459,
+       "family": "PPO",
+       "marginPsi": -52.249540846382,
+       "open": false,
+       "spreadPsi": -52.249540846382,
+       "valve": 1
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 503.646861907294,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 549.605506794818,
+       "family": "PPO",
+       "marginPsi": -45.958644887524,
+       "open": false,
+       "spreadPsi": -45.958644887524,
+       "valve": 2
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 629.726403849439,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 670.260984966417,
+       "family": "PPO",
+       "marginPsi": -40.534581116979,
+       "open": false,
+       "spreadPsi": -40.534581116979,
+       "valve": 3
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 738.541024015672,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 774.397901321726,
+       "family": "PPO",
+       "marginPsi": -35.856877306054,
+       "open": false,
+       "spreadPsi": -35.856877306054,
+       "valve": 4
+      }
+     ],
+     "depthFt": 8347.04379108076,
+     "fluidLevelFt": 8347.04379108076,
+     "gasRateMscfd": 1676.997005186452,
+     "injectionAtDepthPsia": 1331.634040198064,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 832.463503286461,
+     "stage": 5,
+     "surfaceInjectionPsia": 1114.7,
+     "upperValvesOpen": [],
+     "valve": 5
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 357.547660568077,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 409.797201414459,
+       "family": "PPO",
+       "marginPsi": -52.249540846382,
+       "open": false,
+       "spreadPsi": -52.249540846382,
+       "valve": 1
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 503.646861907294,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 549.605506794818,
+       "family": "PPO",
+       "marginPsi": -45.958644887524,
+       "open": false,
+       "spreadPsi": -45.958644887524,
+       "valve": 2
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 629.726403849439,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 670.260984966417,
+       "family": "PPO",
+       "marginPsi": -40.534581116979,
+       "open": false,
+       "spreadPsi": -40.534581116979,
+       "valve": 3
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 738.541024015672,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 774.397901321726,
+       "family": "PPO",
+       "marginPsi": -35.856877306054,
+       "open": false,
+       "spreadPsi": -35.856877306054,
+       "valve": 4
+      },
+      {
+       "actingOn": "production",
+       "actingPressurePsia": 832.463503286461,
+       "casingDropPsi": null,
+       "domeAtTempPsia": 864.285550600786,
+       "family": "PPO",
+       "marginPsi": -31.822047314326,
+       "open": false,
+       "spreadPsi": -31.822047314326,
+       "valve": 5
+      }
+     ],
+     "depthFt": 8500.0,
+     "fluidLevelFt": 8500.0,
+     "gasRateMscfd": 1675.579092500623,
+     "injectionAtDepthPsia": 1335.627602954982,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 844.7,
+     "stage": 6,
+     "surfaceInjectionPsia": 1114.7,
+     "upperValvesOpen": [],
+     "valve": 6
+    }
+   ],
    "valves": [
     {
      "closingSurfacePressurePsia": 389.713022538392,
@@ -510,6 +1538,512 @@
      "testRackOpeningPsia": 757.255902695998,
      "throughputMscfd": 1675.579092500623,
      "valveType": "PPO"
+    }
+   ]
+  },
+  {
+   "depths": [
+    2354.019705700921,
+    4173.145461555156,
+    5665.107234706147,
+    6871.141344247482,
+    7828.279404428304,
+    8569.583132872242,
+    9000.0
+   ],
+   "id": "midDecrementKnifeEdge",
+   "inputs": {
+    "bellowsAreaIn2": 0.77,
+    "bht": 215.0,
+    "bottomOrifice": true,
+    "dpPerValvePsi": 26.75,
+    "dpTransferPsi": 60.0,
+    "gasSg": 0.68,
+    "id": "midDecrementKnifeEdge",
+    "killGradPsiPerFt": 0.46,
+    "maxDepthFt": 9000.0,
+    "maxValves": 12,
+    "method": "surfaceClose",
+    "minSpacingFt": 275.0,
+    "orificeIdIn": 0.3125,
+    "pKickoffPsia": 1164.7,
+    "pOperatingPsia": 1064.7,
+    "pWhUnloadPsia": 154.7,
+    "ports": [
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75
+    ],
+    "qgiTargetMscfd": 600.0,
+    "refDepth": 9600.0,
+    "unloadGradPsiPerFt": 0.09,
+    "valveType": "IPO",
+    "wht": 105.0
+   },
+   "note": "9000 ft, 1150 psig kickoff, 26.75 psi per valve: a decrement in the middle of the usual 20-50 psi band, where the unloading verdict is neither all-open nor all-shut. Valves 1 to 3 stay open one stage each and the string is clean from stage 6 down, and the stage-5 verdict on valve 4 hangs on a fraction of a psi of closing margin. It is here because the two extremes (a decrement far below every spread, and one far above) only test the direction of the rule, not the rule.",
+   "stopReason": "targetDepth",
+   "surfacePressures": [
+    1164.7,
+    1137.95,
+    1111.2,
+    1084.45,
+    1057.7,
+    1030.95,
+    1004.2
+   ],
+   "unloading": [
+    {
+     "closingMargins": [],
+     "depthFt": 2354.019705700921,
+     "fluidLevelFt": 2354.019705700921,
+     "gasRateMscfd": 1529.098759721561,
+     "injectionAtDepthPsia": 1237.549064732165,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 366.561773513083,
+     "stage": 1,
+     "surfaceInjectionPsia": 1164.7,
+     "upperValvesOpen": [],
+     "valve": 1
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1208.896267275323,
+       "casingDropPsi": 28.652797456842,
+       "domeAtTempPsia": 1182.023754759277,
+       "family": "IPO",
+       "marginPsi": 26.872512516047,
+       "open": true,
+       "spreadPsi": 55.525309972888,
+       "valve": 1
+      }
+     ],
+     "depthFt": 4173.145461555156,
+     "fluidLevelFt": 4173.145461555156,
+     "gasRateMscfd": 1534.198233514971,
+     "injectionAtDepthPsia": 1263.359621226448,
+     "multipointing": true,
+     "passesTarget": true,
+     "productionAtDepthPsia": 530.283091539964,
+     "stage": 2,
+     "surfaceInjectionPsia": 1137.95,
+     "upperValvesOpen": [
+      1
+     ],
+     "valve": 2
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1180.251805285313,
+       "casingDropPsi": 57.297259446852,
+       "domeAtTempPsia": 1182.023754759277,
+       "family": "IPO",
+       "marginPsi": -1.771949473963,
+       "open": false,
+       "spreadPsi": 55.525309972888,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1233.281275967864,
+       "casingDropPsi": 30.078345258584,
+       "domeAtTempPsia": 1216.626101742232,
+       "family": "IPO",
+       "marginPsi": 16.655174225631,
+       "open": true,
+       "spreadPsi": 46.733519484216,
+       "valve": 2
+      }
+     ],
+     "depthFt": 5665.107234706147,
+     "fluidLevelFt": 5665.107234706147,
+     "gasRateMscfd": 1529.067116143801,
+     "injectionAtDepthPsia": 1276.585507116892,
+     "multipointing": true,
+     "passesTarget": true,
+     "productionAtDepthPsia": 664.559651123553,
+     "stage": 3,
+     "surfaceInjectionPsia": 1111.2,
+     "upperValvesOpen": [
+      2
+     ],
+     "valve": 3
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1151.616030358325,
+       "casingDropPsi": 85.93303437384,
+       "domeAtTempPsia": 1182.023754759277,
+       "family": "IPO",
+       "marginPsi": -30.407724400952,
+       "open": false,
+       "spreadPsi": 55.525309972888,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1203.2169258945,
+       "casingDropPsi": 60.142695331948,
+       "domeAtTempPsia": 1216.626101742232,
+       "family": "IPO",
+       "marginPsi": -13.409175847733,
+       "open": false,
+       "spreadPsi": 46.733519484216,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1245.365960493619,
+       "casingDropPsi": 31.219546623273,
+       "domeAtTempPsia": 1237.568950034999,
+       "family": "IPO",
+       "marginPsi": 7.79701045862,
+       "open": true,
+       "spreadPsi": 39.016557081893,
+       "valve": 3
+      }
+     ],
+     "depthFt": 6871.141344247482,
+     "fluidLevelFt": 6871.141344247482,
+     "gasRateMscfd": 1505.775891085945,
+     "injectionAtDepthPsia": 1279.335341476648,
+     "multipointing": true,
+     "passesTarget": true,
+     "productionAtDepthPsia": 773.102720982273,
+     "stage": 4,
+     "surfaceInjectionPsia": 1084.45,
+     "upperValvesOpen": [
+      3
+     ],
+     "valve": 4
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1122.989274256516,
+       "casingDropPsi": 114.559790475649,
+       "domeAtTempPsia": 1182.023754759277,
+       "family": "IPO",
+       "marginPsi": -59.03448050276,
+       "open": false,
+       "spreadPsi": 55.525309972888,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1173.167174188047,
+       "casingDropPsi": 90.192447038401,
+       "domeAtTempPsia": 1216.626101742232,
+       "family": "IPO",
+       "marginPsi": -43.458927554185,
+       "open": false,
+       "spreadPsi": 46.733519484216,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1214.164810252179,
+       "casingDropPsi": 62.420696864713,
+       "domeAtTempPsia": 1237.568950034999,
+       "family": "IPO",
+       "marginPsi": -23.40413978282,
+       "open": false,
+       "spreadPsi": 39.016557081893,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1247.212879022158,
+       "casingDropPsi": 32.12246245449,
+       "domeAtTempPsia": 1247.0630873867,
+       "family": "IPO",
+       "marginPsi": 0.149791635458,
+       "open": true,
+       "spreadPsi": 32.272254089948,
+       "valve": 4
+      }
+     ],
+     "depthFt": 7828.279404428304,
+     "fluidLevelFt": 7828.279404428304,
+     "gasRateMscfd": 1440.849796778118,
+     "injectionAtDepthPsia": 1273.386228666644,
+     "multipointing": true,
+     "passesTarget": true,
+     "productionAtDepthPsia": 859.245146398547,
+     "stage": 5,
+     "surfaceInjectionPsia": 1057.7,
+     "upperValvesOpen": [
+      4
+     ],
+     "valve": 5
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1094.3718488925,
+       "casingDropPsi": 143.177215839665,
+       "domeAtTempPsia": 1182.023754759277,
+       "family": "IPO",
+       "marginPsi": -87.651905866777,
+       "open": false,
+       "spreadPsi": 55.525309972888,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1143.132591365118,
+       "casingDropPsi": 120.22702986133,
+       "domeAtTempPsia": 1216.626101742232,
+       "family": "IPO",
+       "marginPsi": -73.493510377114,
+       "open": false,
+       "spreadPsi": 46.733519484216,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1182.98284661499,
+       "casingDropPsi": 93.602660501901,
+       "domeAtTempPsia": 1237.568950034999,
+       "family": "IPO",
+       "marginPsi": -54.586103420009,
+       "open": false,
+       "spreadPsi": 39.016557081893,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1215.112394838631,
+       "casingDropPsi": 64.222946638017,
+       "domeAtTempPsia": 1247.0630873867,
+       "family": "IPO",
+       "marginPsi": -31.950692548069,
+       "open": false,
+       "spreadPsi": 32.272254089948,
+       "valve": 4
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1240.562115604842,
+       "casingDropPsi": 32.824113061802,
+       "domeAtTempPsia": 1246.984796410086,
+       "family": "IPO",
+       "marginPsi": -6.422680805244,
+       "open": false,
+       "spreadPsi": 26.401432256558,
+       "valve": 5
+      }
+     ],
+     "depthFt": 8569.583132872242,
+     "fluidLevelFt": 8569.583132872242,
+     "gasRateMscfd": 1347.108582683316,
+     "injectionAtDepthPsia": 1260.244861595257,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 925.962481958502,
+     "stage": 6,
+     "surfaceInjectionPsia": 1030.95,
+     "upperValvesOpen": [],
+     "valve": 6
+    },
+    {
+     "closingMargins": [
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1065.764046402758,
+       "casingDropPsi": 171.785018329407,
+       "domeAtTempPsia": 1182.023754759277,
+       "family": "IPO",
+       "marginPsi": -116.259708356519,
+       "open": false,
+       "spreadPsi": 55.525309972888,
+       "valve": 1
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1113.113715217214,
+       "casingDropPsi": 150.245906009234,
+       "domeAtTempPsia": 1216.626101742232,
+       "family": "IPO",
+       "marginPsi": -103.512386525018,
+       "open": false,
+       "spreadPsi": 46.733519484216,
+       "valve": 2
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1151.82081781008,
+       "casingDropPsi": 124.764689306812,
+       "domeAtTempPsia": 1237.568950034999,
+       "family": "IPO",
+       "marginPsi": -85.748132224919,
+       "open": false,
+       "spreadPsi": 39.016557081893,
+       "valve": 3
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1183.034811625972,
+       "casingDropPsi": 96.300529850676,
+       "domeAtTempPsia": 1247.0630873867,
+       "family": "IPO",
+       "marginPsi": -64.028275760728,
+       "open": false,
+       "spreadPsi": 32.272254089948,
+       "valve": 4
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1207.762991913288,
+       "casingDropPsi": 65.623236753356,
+       "domeAtTempPsia": 1246.984796410086,
+       "family": "IPO",
+       "marginPsi": -39.221804496798,
+       "open": false,
+       "spreadPsi": 26.401432256558,
+       "valve": 5
+      },
+      {
+       "actingOn": "injection",
+       "actingPressurePsia": 1226.889832073472,
+       "casingDropPsi": 33.355029521785,
+       "domeAtTempPsia": 1238.934409726521,
+       "family": "IPO",
+       "marginPsi": -12.044577653048,
+       "open": false,
+       "spreadPsi": 21.310451868737,
+       "valve": 6
+      }
+     ],
+     "depthFt": 9000.0,
+     "fluidLevelFt": 9000.0,
+     "gasRateMscfd": 1946.971134441519,
+     "injectionAtDepthPsia": 1237.985650689566,
+     "multipointing": false,
+     "passesTarget": true,
+     "productionAtDepthPsia": 964.7,
+     "stage": 7,
+     "surfaceInjectionPsia": 1004.2,
+     "upperValvesOpen": [],
+     "valve": 7
+    }
+   ],
+   "valves": [
+    {
+     "closingSurfacePressurePsia": 1112.854990002315,
+     "depthFt": 2354.019705700921,
+     "dome60Psia": 1018.515425001907,
+     "domeAtTempPsia": 1182.023754759277,
+     "pInjAtDepthPsia": 1237.549064732165,
+     "pProdAtDepthPsia": 366.561773513083,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 55.525309972888,
+     "tempF": 131.973142461156,
+     "testRackOpeningPsia": 1087.866769376018,
+     "throughputMscfd": 1529.098759721561,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1096.382496722523,
+     "depthFt": 4173.145461555156,
+     "dome60Psia": 1008.297339252141,
+     "domeAtTempPsia": 1216.626101742232,
+     "pInjAtDepthPsia": 1263.359621226448,
+     "pProdAtDepthPsia": 530.283091539964,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 46.733519484216,
+     "tempF": 152.817291746986,
+     "testRackOpeningPsia": 1076.952927856352,
+     "throughputMscfd": 1534.198233514971,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1077.766814639015,
+     "depthFt": 5665.107234706147,
+     "dome60Psia": 994.753485822951,
+     "domeAtTempPsia": 1237.568950034999,
+     "pInjAtDepthPsia": 1276.585507116892,
+     "pProdAtDepthPsia": 664.559651123553,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 39.016557081893,
+     "tempF": 169.912687064341,
+     "testRackOpeningPsia": 1062.486865081811,
+     "throughputMscfd": 1529.067116143801,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1057.575218651361,
+     "depthFt": 6871.141344247482,
+     "dome60Psia": 978.799098994637,
+     "domeAtTempPsia": 1247.0630873867,
+     "pInjAtDepthPsia": 1279.335341476648,
+     "pProdAtDepthPsia": 773.102720982273,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 32.272254089948,
+     "tempF": 183.731827902836,
+     "testRackOpeningPsia": 1045.446134200136,
+     "throughputMscfd": 1505.775891085945,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1036.185737940334,
+     "depthFt": 7828.279404428304,
+     "dome60Psia": 961.037313826352,
+     "domeAtTempPsia": 1246.984796410086,
+     "pInjAtDepthPsia": 1273.386228666644,
+     "pProdAtDepthPsia": 859.245146398547,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 26.401432256558,
+     "tempF": 194.699034842408,
+     "testRackOpeningPsia": 1026.474938109181,
+     "throughputMscfd": 1440.849796778118,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": 1013.861991357158,
+     "depthFt": 8569.583132872242,
+     "dome60Psia": 941.882396808138,
+     "domeAtTempPsia": 1238.934409726521,
+     "pInjAtDepthPsia": 1260.244861595257,
+     "pProdAtDepthPsia": 925.962481958502,
+     "portIdIn": 0.25,
+     "r": 0.063749850925,
+     "spreadPsi": 21.310451868737,
+     "tempF": 203.193140064161,
+     "testRackOpeningPsia": 1006.015750960169,
+     "throughputMscfd": 1347.108582683316,
+     "valveType": "IPO"
+    },
+    {
+     "closingSurfacePressurePsia": null,
+     "depthFt": 9000.0,
+     "dome60Psia": null,
+     "domeAtTempPsia": null,
+     "pInjAtDepthPsia": 1237.985650689566,
+     "pProdAtDepthPsia": 964.7,
+     "portIdIn": 0.3125,
+     "spreadPsi": null,
+     "tempF": 208.125,
+     "testRackOpeningPsia": null,
+     "throughputMscfd": 1946.971134441519,
+     "valveType": "orifice"
     }
    ]
   }

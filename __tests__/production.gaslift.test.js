@@ -5,6 +5,12 @@
 // engine's step count and brackets every root by bisection where the
 // engine iterates a fixed point, so agreement here is two
 // discretizations of the same physics meeting, not code echoing itself.
+//
+// The unloading verdict is gated as a verdict, per stage and per valve,
+// together with the closing margin it turns on, including a design whose
+// stage-5 answer sits on 0.15 psi. Asserting only that 10 psi per valve
+// multipoints and 90 psi per valve does not tests the direction of the
+// rule and leaves the whole band a real design sits in untested.
 
 import fs from 'fs';
 import path from 'path';
@@ -240,16 +246,16 @@ describe('Thornhill-Craver throughput', () => {
   });
 });
 
-describe('valve spacing and settings', () => {
-  const caseCfg = (g) => {
-    const i = g.inputs;
-    return {
-      ...i,
-      tempAtDepthF: tempFn(i.wht, i.bht, i.refDepth),
-      ports: i.ports.map((idIn) => ({ idIn, label: `${idIn}` })),
-    };
+const caseCfg = (g) => {
+  const i = g.inputs;
+  return {
+    ...i,
+    tempAtDepthF: tempFn(i.wht, i.bht, i.refDepth),
+    ports: i.ports.map((idIn) => ({ idIn, label: `${idIn}` })),
   };
+};
 
+describe('valve spacing and settings', () => {
   test('the top valve balances a full kill-fluid column against the injection line', () => {
     const temp = tempFn(100, 190, 8000);
     const d = topValveDepth({
@@ -351,6 +357,162 @@ describe('valve spacing and settings', () => {
     expect(design.depths[design.depths.length - 1]).toBeLessThan(8000);
     expect(['injectionPressure', 'minSpacing', 'maxValves']).toContain(design.stopReason);
     expect(design.warnings.length).toBeGreaterThan(0);
+  });
+});
+
+describe('unloading and the multipointing verdict', () => {
+  // The verdict is what designGasLift exists to tell a user: at the stage
+  // the point of injection reaches valve i, is every valve above it shut?
+  // The oracle answers it from the published closing rule (a bellows valve
+  // closes when the pressure acting on the FULL bellows area falls back to
+  // the dome charge at valve temperature), evaluated AT VALVE DEPTH off its
+  // forward RK4 column. The engine answers it at SURFACE, by inverting a
+  // 20-step column to turn each dome pressure into the casing surface
+  // pressure that would produce it. For a casing-operated valve those are
+  // the same test read from opposite ends of the same monotone column, so
+  // the goldens gate the boolean AND the margin it turns on.
+  const ipoDesigns = G.designs.filter((g) => g.inputs.valveType !== 'PPO');
+
+  test.each(ipoDesigns.map((g) => [g.id, g]))(
+    'design %s: every stage verdict matches the oracle',
+    (_id, g) => {
+      const design = designGasLift(caseCfg(g));
+      expect(design.unloading).toHaveLength(g.unloading.length);
+      design.unloading.forEach((s, i) => {
+        const e = g.unloading[i];
+        expect(s.stage).toBe(e.stage);
+        expect(s.upperValvesOpen).toEqual(e.upperValvesOpen);
+        expect(s.multipointing).toBe(e.multipointing);
+      });
+      // and the warning list is the verdict, not a separate opinion
+      const flagged = g.unloading.filter((s) => s.multipointing).length;
+      expect(design.warnings.filter((w) => w.code === 'multipointing')).toHaveLength(flagged);
+    },
+  );
+
+  test.each(ipoDesigns.map((g) => [g.id, g]))(
+    'design %s: the closing margin behind each verdict matches the oracle',
+    (_id, g) => {
+      const i = g.inputs;
+      const temp = tempFn(i.wht, i.bht, i.refDepth);
+      const design = designGasLift(caseCfg(g));
+      let checked = 0;
+      g.unloading.forEach((e, si) => {
+        e.closingMargins.forEach((m) => {
+          if (m.marginPsi === null) return;
+          const u = design.valves[m.valve - 1];
+          // casing pressure at the upper valve's own depth, at this stage
+          const pCas = gasColumnPressure({
+            pSurfPsia: design.unloading[si].surfaceInjectionPsia, tvdFt: u.depthFt,
+            gasSg: i.gasSg, tempAtDepthF: temp, steps: 20,
+          }).pBottomPsia;
+          expect(Math.abs((pCas - u.domeAtTempPsia) - m.marginPsi)).toBeLessThan(5e-3);
+          // and the sign of that margin is the verdict the engine published
+          expect(pCas - u.domeAtTempPsia > 0).toBe(m.open);
+          checked += 1;
+        });
+      });
+      expect(checked).toBeGreaterThan(0);
+    },
+  );
+
+  test('the closing margin is the valve spread less the casing drop at its depth', () => {
+    // margin_j(i) = Pc(d_j; p_surf_i) - Pd_j
+    //             = S_j - [Pc(d_j; p_surf_j) - Pc(d_j; p_surf_i)]
+    // an identity of the force balance, so it holds exactly or the dome
+    // charge and the spread disagree about the same valve.
+    const i = G.designs[0].inputs;
+    const temp = tempFn(i.wht, i.bht, i.refDepth);
+    const design = designGasLift(caseCfg(G.designs[0]));
+    design.unloading.forEach((s) => {
+      for (let j = 0; j < s.stage - 1; j += 1) {
+        const u = design.valves[j];
+        const pCas = gasColumnPressure({
+          pSurfPsia: s.surfaceInjectionPsia, tvdFt: u.depthFt, gasSg: i.gasSg,
+          tempAtDepthF: temp, steps: 20,
+        }).pBottomPsia;
+        const margin = pCas - u.domeAtTempPsia;
+        const drop = u.pInjAtDepthPsia - pCas;
+        expect(Math.abs(margin - (u.spreadPsi - drop))).toBeLessThan(1e-9);
+      }
+    });
+  });
+
+  test('the mid-decrement design multipoints in the middle and is clean at both ends', () => {
+    // 26.75 psi per valve sits in the middle of the usual 20-50 psi band,
+    // which is where every real design sits and where a rule that is only
+    // gated at 10 and 90 psi per valve is not gated at all. Valves 1 to 3
+    // hang open for one stage each, valve 4 hangs open at stage 5, and the
+    // string is clean from stage 6 down. A verdict that is monotone in the
+    // stage number, in either direction, is wrong here.
+    const g = G.designs.find((d) => d.id === 'midDecrementKnifeEdge');
+    expect(g).toBeDefined();
+    const design = designGasLift(caseCfg(g));
+    expect(design.unloading.map((s) => s.upperValvesOpen))
+      .toEqual([[], [1], [2], [3], [4], [], []]);
+  });
+
+  test('the stage-5 verdict of that design turns on a fraction of a psi', () => {
+    const g = G.designs.find((d) => d.id === 'midDecrementKnifeEdge');
+    const i = g.inputs;
+    const temp = tempFn(i.wht, i.bht, i.refDepth);
+    const cfg = caseCfg(g);
+    const design = designGasLift(cfg);
+    const v4 = design.valves[3];
+    const pCas = gasColumnPressure({
+      pSurfPsia: design.unloading[4].surfaceInjectionPsia, tvdFt: v4.depthFt,
+      gasSg: i.gasSg, tempAtDepthF: temp, steps: 20,
+    }).pBottomPsia;
+    const margin = pCas - v4.domeAtTempPsia;
+    // the oracle's margin, gated to the fifth decimal of a psi
+    const golden = g.unloading[4].closingMargins.find((m) => m.valve === 4).marginPsi;
+    expect(Math.abs(margin - golden)).toBeLessThan(5e-3);
+    expect(margin).toBeGreaterThan(0);
+    expect(margin).toBeLessThan(0.25);
+    // and it flips on a quarter of a psi of decrement, both ways
+    const looser = designGasLift({ ...cfg, dpPerValvePsi: 26.5 });
+    const tighter = designGasLift({ ...cfg, dpPerValvePsi: 27.0 });
+    expect(looser.unloading[4].upperValvesOpen).toEqual([4]);
+    expect(tighter.unloading[4].upperValvesOpen).toEqual([]);
+    expect(tighter.unloading[3].upperValvesOpen).toEqual([3]);
+  });
+
+  test('KNOWN DIVERGENCE: a production-operated string is closed on the wrong pressure', () => {
+    // gasLiftValves.js states the closing rule as "the pressure acting on
+    // the full bellows area falls back to the dome pressure". For a PPO
+    // valve that pressure is the TUBING pressure: shut, the tubing acts on
+    // Ab - Ap and the casing on Ap; open, the port discharges into the
+    // tubing and the tubing acts on all of Ab. gasLiftDesign.js instead
+    // converts every dome charge into a CASING surface pressure through the
+    // injection gas column and compares it with the casing, for every
+    // family, so a PPO string is judged on the wrong fluid.
+    //
+    // The oracle applies the tubing-side rule and the goldens carry its
+    // answer: no upper valve open at any stage. The engine answers every
+    // upper valve open at every stage. This gate pins both, so that fixing
+    // the engine trips it and the fix is not merged silently.
+    const g = G.designs.find((d) => d.id === 'constantPressurePPO');
+    const design = designGasLift(caseCfg(g));
+
+    // what the published rule says, straight off the engine's own numbers:
+    // for a PPO valve Pt - Pd is exactly the (negative) spread, so no valve
+    // is open and the oracle's goldens say so
+    design.valves.forEach((v) => {
+      expect(rel(v.pProdAtDepthPsia - v.domeAtTempPsia, v.spreadPsi)).toBeLessThan(1e-9);
+      expect(v.spreadPsi).toBeLessThan(0);
+    });
+    g.unloading.forEach((e) => expect(e.upperValvesOpen).toEqual([]));
+
+    // what the engine currently answers instead
+    design.unloading.forEach((s, i) => {
+      expect(s.upperValvesOpen).toEqual(Array.from({ length: i }, (_, j) => j + 1));
+    });
+    // and it is not close: the casing-side test clears the wrong threshold
+    // by hundreds of psi where the tubing-side test misses by tens
+    design.valves.forEach((v) => {
+      expect(g.inputs.pKickoffPsia - v.closingSurfacePressurePsia).toBeGreaterThan(300);
+      expect(v.pProdAtDepthPsia - v.domeAtTempPsia).toBeLessThan(-30);
+    });
   });
 });
 
