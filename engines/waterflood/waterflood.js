@@ -526,9 +526,9 @@ export function computeHallPlots(wellSeries, injectors, config = {}) {
     hall_plots.push({ injector: inj, hall_integral, cum_injection, slope_last: slope_recent, slope_baseline, slope_ratio: ratio });
 
     if (ratio != null && ratio >= hiThreshold) {
-      injectivity_alerts.push({ injector: inj, message: `Injector ${inj}: Hall slope up ${(ratio).toFixed(2)}× vs baseline — declining injectivity (rising skin / near-well plugging).` });
+      injectivity_alerts.push({ injector: inj, message: `Injector ${inj}: Hall slope up ${(ratio).toFixed(2)}× vs baseline, declining injectivity (rising skin / near-well plugging).` });
     } else if (ratio != null && ratio <= loThreshold) {
-      injectivity_alerts.push({ injector: inj, message: `Injector ${inj}: Hall slope down ${(ratio).toFixed(2)}× vs baseline — improving injectivity (possible fracturing or thief-zone channeling).` });
+      injectivity_alerts.push({ injector: inj, message: `Injector ${inj}: Hall slope down ${(ratio).toFixed(2)}× vs baseline, improving injectivity (possible fracturing or thief-zone channeling).` });
     }
   });
 

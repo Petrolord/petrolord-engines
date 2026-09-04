@@ -376,7 +376,7 @@ export function recommendPatternInjection(rows, pattern, allocation, fvf, opts =
   const windowPeriods = Math.max(1, Math.floor(num(opts.windowPeriods) || 3));
 
   if (!patternHasAllocation(pattern, allocation)) {
-    return { withheld: true, reason: `No allocation factors route injection to "${pattern?.name ?? 'this pattern'}" — define the injector-producer split first; even splits are never assumed.` };
+    return { withheld: true, reason: `No allocation factors route injection to "${pattern?.name ?? 'this pattern'}" , so define the injector-producer split first; even splits are never assumed.` };
   }
   const periods = buildPatternPeriods(rows, pattern, allocation);
   if (!periods.length) {
@@ -386,7 +386,7 @@ export function recommendPatternInjection(rows, pattern, allocation, fvf, opts =
   const rolling = computeRollingVRR(series, windowPeriods);
   const currentVRR = rolling[rolling.length - 1];
   if (currentVRR == null || currentVRR <= 0) {
-    return { withheld: true, reason: 'No produced voidage (or no injection) in the rolling window — nothing to scale against.' };
+    return { withheld: true, reason: 'No produced voidage, or no injection, in the rolling window, so there is nothing to scale against.' };
   }
 
   const rawScale = targetVRR / currentVRR;
