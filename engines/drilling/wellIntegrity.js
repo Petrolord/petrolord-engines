@@ -78,13 +78,44 @@ export function envelopeStatus(elements) {
   return degraded ? 'degraded' : 'intact';
 }
 
+// The vocabulary an ENVELOPE is described in, which is deliberately NOT the
+// vocabulary an ELEMENT is described in. An element is verified, degraded,
+// failed or not-verified; an envelope is intact, degraded, failed or empty.
+export const ENVELOPE_STATUSES = ['intact', 'degraded', 'failed', 'empty'];
+
 // Traffic-light category from the two envelope statuses (decision table
 // above). A missing secondary envelope counts as 'empty'.
+//
+// THE INPUT IS VALIDATED, AND IT HAS TO BE. This function used to accept any
+// string and fall through to GREEN for anything it did not recognise, which is
+// the one direction an integrity function must never fail in. Passing an
+// ELEMENT status here, which is an easy mistake because the two vocabularies
+// are adjacent and both describe "how healthy is this", returned a clean bill
+// of health: wellCategory({ primary: 'not-verified', secondary: 'intact' })
+// answered GREEN for a well whose primary envelope nobody had checked.
+// envelopeStatus already refused an unknown element status, so the two halves
+// of the same boundary disagreed about whether to trust their caller.
 export function wellCategory({ primary, secondary, flowPotential = true }) {
+  for (const [label, s] of [['primary', primary], ['secondary', secondary]]) {
+    if (!ENVELOPE_STATUSES.includes(s)) {
+      throw new Error(
+        `Unknown ${label} envelope status "${s}". Expected one of `
+        + `${ENVELOPE_STATUSES.join(', ')}. Note that element statuses `
+        + `(${ELEMENT_STATUSES.join(', ')}) are a DIFFERENT vocabulary; roll `
+        + 'elements up with envelopeStatus() first.',
+      );
+    }
+  }
   const bad = (s) => s === 'failed' || s === 'empty';
   if (!flowPotential) {
     // No pressure differential toward surface: one qualified envelope
-    // suffices; failures still flag.
+    // suffices; failures still flag. But ONE is not NONE. This branch used to
+    // fall through to green for an EMPTY primary, so a well with nothing
+    // recorded in it at all came back clean, with the reason "Qualified
+    // barrier" naming a barrier that did not exist. The flowing branch has
+    // always treated empty as a finding; this one did not, and the two halves
+    // of the same function disagreed about whether absence is a problem.
+    if (primary === 'empty') return { category: 'orange', reason: 'No barrier envelope recorded, even on a well without flow potential.' };
     if (primary === 'failed') return { category: 'orange', reason: 'Barrier failure on a well without flow potential.' };
     if (primary === 'degraded') return { category: 'yellow', reason: 'Barrier degradation on a well without flow potential.' };
     return { category: 'green', reason: 'Qualified barrier; no flow potential.' };
@@ -139,7 +170,7 @@ export function verifyBarriers({ elements, flowPotential = true }) {
       label: 'No element shared between envelopes (common WBE)',
       pass: shared.length === 0,
       level: 'warn',
-      detail: shared.length ? `Common WBE: ${shared.join(', ')} — requires explicit acceptance.` : null,
+      detail: shared.length ? `Common WBE: ${shared.join(', ')}. Requires explicit acceptance.` : null,
     },
     {
       id: 'all-verified',

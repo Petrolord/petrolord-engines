@@ -5,7 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  ELEMENT_STATUSES, envelopeStatus, wellCategory, verifyBarriers,
+  ELEMENT_STATUSES, ENVELOPE_STATUSES, envelopeStatus, wellCategory, verifyBarriers,
   maaspRows, mawop, RP90_MAWOP_FACTORS,
 } from '../engines/drilling/wellIntegrity.js';
 import {
@@ -201,5 +201,99 @@ describe('rule checks + program', () => {
     // Steps: deepest barrier plug first, surface phase last.
     expect(out.steps[0].plugName).toBe('P1 reservoir primary');
     expect(out.steps[out.steps.length - 1].phase).toBe(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The two vocabularies, and the direction an integrity function must not fail
+// in. An ELEMENT is verified / degraded / failed / not-verified. An ENVELOPE is
+// intact / degraded / failed / empty. They are adjacent, they both answer "how
+// healthy is this", and mixing them is the obvious mistake.
+//
+// wellCategory used to accept any string and fall through to GREEN for
+// anything it did not recognise. So passing an element status returned a clean
+// bill of health for a well nobody had checked. envelopeStatus already refused
+// an unknown element status, so the two halves of the same boundary disagreed
+// about whether to trust their caller. Now both refuse.
+// ---------------------------------------------------------------------------
+describe('wellCategory validates the envelope vocabulary', () => {
+  test('accepts every envelope status', () => {
+    for (const primary of ENVELOPE_STATUSES) {
+      for (const secondary of ENVELOPE_STATUSES) {
+        expect(typeof wellCategory({ primary, secondary }).category).toBe('string');
+      }
+    }
+  });
+
+  test('REFUSES an element status, which used to answer green', () => {
+    for (const s of ELEMENT_STATUSES) {
+      // 'degraded' and 'failed' are members of BOTH vocabularies and stay legal
+      if (ENVELOPE_STATUSES.includes(s)) continue;
+      expect(() => wellCategory({ primary: s, secondary: 'intact' })).toThrow(/Unknown primary envelope status/);
+      expect(() => wellCategory({ primary: 'intact', secondary: s })).toThrow(/Unknown secondary envelope status/);
+    }
+  });
+
+  test('REFUSES a missing or nonsense status rather than defaulting to green', () => {
+    expect(() => wellCategory({ primary: undefined, secondary: 'intact' })).toThrow();
+    expect(() => wellCategory({ primary: 'intact', secondary: null })).toThrow();
+    expect(() => wellCategory({ primary: 'ok', secondary: 'intact' })).toThrow();
+  });
+
+  test('the error names the other vocabulary, because that is the likely mistake', () => {
+    expect(() => wellCategory({ primary: 'not-verified', secondary: 'intact' }))
+      .toThrow(/envelopeStatus/);
+  });
+
+  test('verifyBarriers still works end to end, since it rolls up first', () => {
+    const out = verifyBarriers({
+      elements: [
+        { name: 'A', kind: 'casing', envelope: 'primary', status: 'not-verified' },
+        { name: 'B', kind: 'wellhead', envelope: 'secondary', status: 'verified' },
+      ],
+      flowPotential: true,
+    });
+    expect(out.primary.status).toBe('degraded');
+    expect(out.secondary.status).toBe('intact');
+    expect(out.category).toBe('yellow');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ONE qualified envelope is not NONE. The no-flow branch used to fall through
+// to green for an EMPTY primary, so a well with nothing recorded in it came
+// back clean, and the reason string named a "Qualified barrier" that did not
+// exist. The flowing branch had always treated empty as a finding. The two
+// halves of one function disagreed about whether absence is a problem, and the
+// half that said it was not is the half a decommissioned well would be judged
+// by.
+// ---------------------------------------------------------------------------
+describe('an empty envelope is never green', () => {
+  test('empty primary on a well WITHOUT flow potential is not green', () => {
+    const out = wellCategory({ primary: 'empty', secondary: 'empty', flowPotential: false });
+    expect(out.category).not.toBe('green');
+    expect(out.category).toBe('orange');
+    expect(out.reason).toMatch(/No barrier envelope recorded/);
+  });
+
+  test('empty primary on a well WITH flow potential is not green either', () => {
+    expect(wellCategory({ primary: 'empty', secondary: 'intact', flowPotential: true }).category)
+      .not.toBe('green');
+  });
+
+  test('an intact single envelope on a non-flowing well IS still green', () => {
+    // The relaxation is real and must survive: one qualified envelope suffices
+    // when there is no pressure differential toward surface.
+    expect(wellCategory({ primary: 'intact', secondary: 'empty', flowPotential: false }).category)
+      .toBe('green');
+  });
+
+  test('no envelope status yields green on an empty primary, either way', () => {
+    for (const flowPotential of [true, false]) {
+      for (const secondary of ENVELOPE_STATUSES) {
+        expect(wellCategory({ primary: 'empty', secondary, flowPotential }).category)
+          .not.toBe('green');
+      }
+    }
   });
 });
