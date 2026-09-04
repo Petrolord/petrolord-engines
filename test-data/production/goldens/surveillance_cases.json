@@ -1,0 +1,4853 @@
+{
+ "decimate": {
+  "firstIndices": [
+   0,
+   3,
+   6,
+   9,
+   12
+  ],
+  "lastIndex": 3199,
+  "maxPoints": 1500,
+  "n": 3200,
+  "outLength": 1068,
+  "stride": 3
+ },
+ "deferments": {
+  "asOf": "2025-06-30",
+  "events": [
+   {
+    "category": "Facility",
+    "end_date": "2025-06-04",
+    "gas_deferred_mscf": 1900.0,
+    "oil_deferred_stb": 3200.0,
+    "start_date": "2025-06-01",
+    "water_deferred_stb": 800.0
+   },
+   {
+    "category": "Facility",
+    "end_date": "2025-06-21",
+    "gas_deferred_mscf": 800.0,
+    "oil_deferred_stb": 1400.0,
+    "start_date": "2025-06-20",
+    "water_deferred_stb": 300.0
+   },
+   {
+    "category": "Well integrity",
+    "end_date": "2025-06-06",
+    "gas_deferred_mscf": 2600.0,
+    "oil_deferred_stb": 5100.0,
+    "start_date": "2025-05-28",
+    "water_deferred_stb": 1200.0
+   },
+   {
+    "category": "Power",
+    "end_date": null,
+    "gas_deferred_mscf": 500.0,
+    "oil_deferred_stb": 900.0,
+    "start_date": "2025-06-27",
+    "water_deferred_stb": 200.0
+   },
+   {
+    "category": "Power",
+    "end_date": "2025-06-15",
+    "gas_deferred_mscf": 140.0,
+    "oil_deferred_stb": 250.0,
+    "start_date": "2025-06-15",
+    "water_deferred_stb": 60.0
+   }
+  ],
+  "summary": {
+   "byCategory": [
+    {
+     "category": "Well integrity",
+     "days": 10,
+     "events": 1,
+     "gas": 2600.0,
+     "oil": 5100.0,
+     "water": 1200.0
+    },
+    {
+     "category": "Facility",
+     "days": 6,
+     "events": 2,
+     "gas": 2700.0,
+     "oil": 4600.0,
+     "water": 1100.0
+    },
+    {
+     "category": "Power",
+     "days": 5,
+     "events": 2,
+     "gas": 640.0,
+     "oil": 1150.0,
+     "water": 260.0
+    }
+   ],
+   "openCount": 1,
+   "totals": {
+    "days": 21,
+    "events": 5,
+    "gas": 5940.0,
+    "oil": 10850.0,
+    "water": 2560.0
+   }
+  }
+ },
+ "derivePoint": {
+  "points": [
+   {
+    "date": "2025-01-01",
+    "gas": 400.0,
+    "gasPd": 400.0,
+    "ginj": 0.0,
+    "gor": 500.0,
+    "hoursOn": 24.0,
+    "liquid": 1000.0,
+    "liquidPd": 1000.0,
+    "oil": 800.0,
+    "oilPd": 800.0,
+    "water": 200.0,
+    "waterPd": 200.0,
+    "watercut": 0.2,
+    "winj": 0.0
+   },
+   {
+    "date": "2025-01-02",
+    "gas": 250.0,
+    "gasPd": 500.0,
+    "ginj": 0.0,
+    "gor": 500.0,
+    "hoursOn": 12.0,
+    "liquid": 600.0,
+    "liquidPd": 1200.0,
+    "oil": 500.0,
+    "oilPd": 1000.0,
+    "water": 100.0,
+    "waterPd": 200.0,
+    "watercut": 0.16666666666666666,
+    "winj": 0.0
+   },
+   {
+    "date": "2025-01-03",
+    "gas": 0.0,
+    "gasPd": null,
+    "ginj": 0.0,
+    "gor": null,
+    "hoursOn": 0.0,
+    "liquid": 0.0,
+    "liquidPd": null,
+    "oil": 0.0,
+    "oilPd": null,
+    "water": 0.0,
+    "waterPd": null,
+    "watercut": null,
+    "winj": 0.0
+   },
+   {
+    "date": "2025-01-04",
+    "gas": 225.0,
+    "gasPd": 225.0,
+    "ginj": 0.0,
+    "gor": 500.0,
+    "hoursOn": null,
+    "liquid": 540.0,
+    "liquidPd": 540.0,
+    "oil": 450.0,
+    "oilPd": 450.0,
+    "water": 90.0,
+    "waterPd": 90.0,
+    "watercut": 0.16666666666666666,
+    "winj": 0.0
+   },
+   {
+    "date": "2025-01-05",
+    "gas": 120.0,
+    "gasPd": 120.0,
+    "ginj": 0.0,
+    "gor": null,
+    "hoursOn": 24.0,
+    "liquid": 0.0,
+    "liquidPd": 0.0,
+    "oil": 0.0,
+    "oilPd": 0.0,
+    "water": 0.0,
+    "waterPd": 0.0,
+    "watercut": null,
+    "winj": 0.0
+   }
+  ],
+  "rows": [
+   {
+    "gas_mscf": 400.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 800.0,
+    "prod_date": "2025-01-01",
+    "water_stb": 200.0,
+    "well_id": "w-x",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 250.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 12.0,
+    "oil_stb": 500.0,
+    "prod_date": "2025-01-02",
+    "water_stb": 100.0,
+    "well_id": "w-x",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 0.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-01-03",
+    "water_stb": 0.0,
+    "well_id": "w-x",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 225.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 450.0,
+    "prod_date": "2025-01-04",
+    "water_stb": 90.0,
+    "well_id": "w-x",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 120.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-01-05",
+    "water_stb": 0.0,
+    "well_id": "w-x",
+    "winj_stb": 0.0
+   }
+  ]
+ },
+ "description": "Production surveillance goldens: producing-day derivation, per-well and field series, ledger cadence, trailing moving averages, exception surveillance against a baseline window, deferment roll-up, field KPIs and the effective decline of an Arps fit. Independent stdlib oracle (tools/validation/production/oracle_surveillance.py) written from the method statement: all date arithmetic on the calendar where the engine counts epoch days, every window taken as the CLOSED interval the method states rather than the inequality the engine implements, effective decline measured as 1 - q(365)/q(0) through the rate law where the engine evaluates a closed form, and the decline fit gated against a series SYNTHESISED from known parameters rather than against a second fitter. Also carries the RATIO SEAM: the same windows read as a mean of daily ratios (what detectExceptions does) and volumetrically (what computeKpis does), with the gap and the severity it changes. Field units: stb, Mscf, stb/d, Mscf/d, scf/stb, hours 0-24, watercut a 0-1 fraction, Di per DAY, dates ISO yyyy-mm-dd.",
+ "effectiveDecline": [
+  {
+   "Di": 0.0015,
+   "b": 0.0,
+   "effectivePct": 42.16060106219916,
+   "modelType": "Exponential"
+  },
+  {
+   "Di": 0.0015,
+   "b": 1.0,
+   "effectivePct": 35.37964458804523,
+   "modelType": "Harmonic"
+  },
+  {
+   "Di": 0.0015,
+   "b": 0.5,
+   "effectivePct": 38.36440313147354,
+   "modelType": "Hyperbolic"
+  },
+  {
+   "Di": 0.003,
+   "b": 0.8,
+   "effectivePct": 54.45308595113839,
+   "modelType": "Hyperbolic"
+  },
+  {
+   "Di": 0.0005,
+   "b": 0.0,
+   "effectivePct": 16.681535607166953,
+   "modelType": "Exponential"
+  }
+ ],
+ "exceptions": {
+  "asOf": "2025-06-30",
+  "exceptions": [
+   {
+    "baseline": 0.35251798561151076,
+    "severity": "high",
+    "type": "watercut_rise",
+    "value": 0.5619047619047619,
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   },
+   {
+    "baseline": 800.0,
+    "severity": "high",
+    "type": "gor_rise",
+    "value": 1360.267857142857,
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   },
+   {
+    "baseline": 400.0,
+    "severity": "high",
+    "type": "shut_in",
+    "value": 0,
+    "wellId": "w-p2",
+    "wellName": "P-2"
+   },
+   {
+    "baseline": 300.0,
+    "severity": "high",
+    "type": "rate_drop",
+    "value": 100.0,
+    "wellId": "w-p5",
+    "wellName": "P-5"
+   },
+   {
+    "baseline": 3000.0,
+    "severity": "medium",
+    "type": "injection_drop",
+    "value": 1900.0,
+    "wellId": "w-i1",
+    "wellName": "I-1"
+   },
+   {
+    "baseline": 900.0,
+    "severity": "medium",
+    "type": "rate_drop",
+    "value": 555.7142857142857,
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   },
+   {
+    "baseline": 15000.0,
+    "severity": "medium",
+    "type": "rate_drop",
+    "value": 12000.0,
+    "wellId": "w-p3",
+    "wellName": "P-3"
+   },
+   {
+    "baseline": 7,
+    "severity": "medium",
+    "type": "stale_data",
+    "value": 20,
+    "wellId": "w-p4",
+    "wellName": "P-4"
+   },
+   {
+    "baseline": 12,
+    "severity": "medium",
+    "type": "downtime",
+    "value": 8.0,
+    "wellId": "w-p5",
+    "wellName": "P-5"
+   }
+  ]
+ },
+ "exceptionsStrictDrop": {
+  "asOf": "2025-06-30",
+  "exceptions": [
+   {
+    "baseline": 0.35251798561151076,
+    "severity": "high",
+    "type": "watercut_rise",
+    "value": 0.5619047619047619,
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   },
+   {
+    "baseline": 800.0,
+    "severity": "high",
+    "type": "gor_rise",
+    "value": 1360.267857142857,
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   },
+   {
+    "baseline": 400.0,
+    "severity": "high",
+    "type": "shut_in",
+    "value": 0,
+    "wellId": "w-p2",
+    "wellName": "P-2"
+   },
+   {
+    "baseline": 7,
+    "severity": "medium",
+    "type": "stale_data",
+    "value": 20,
+    "wellId": "w-p4",
+    "wellName": "P-4"
+   },
+   {
+    "baseline": 300.0,
+    "severity": "medium",
+    "type": "rate_drop",
+    "value": 100.0,
+    "wellId": "w-p5",
+    "wellName": "P-5"
+   },
+   {
+    "baseline": 12,
+    "severity": "medium",
+    "type": "downtime",
+    "value": 8.0,
+    "wellId": "w-p5",
+    "wellName": "P-5"
+   }
+  ]
+ },
+ "fieldSeries": [
+  {
+   "date": "2025-01-31",
+   "gas": 9000.0,
+   "ginj": 0.0,
+   "gor": 600.0,
+   "liquid": 18750.0,
+   "oil": 15000.0,
+   "water": 3750.0,
+   "watercut": 0.2,
+   "wellsOn": 1,
+   "winj": 0.0
+  },
+  {
+   "date": "2025-02-28",
+   "gas": 9000.0,
+   "ginj": 0.0,
+   "gor": 600.0,
+   "liquid": 18750.0,
+   "oil": 15000.0,
+   "water": 3750.0,
+   "watercut": 0.2,
+   "wellsOn": 1,
+   "winj": 0.0
+  },
+  {
+   "date": "2025-03-31",
+   "gas": 9000.0,
+   "ginj": 0.0,
+   "gor": 600.0,
+   "liquid": 18750.0,
+   "oil": 15000.0,
+   "water": 3750.0,
+   "watercut": 0.2,
+   "wellsOn": 1,
+   "winj": 0.0
+  },
+  {
+   "date": "2025-04-30",
+   "gas": 9000.0,
+   "ginj": 0.0,
+   "gor": 600.0,
+   "liquid": 18750.0,
+   "oil": 15000.0,
+   "water": 3750.0,
+   "watercut": 0.2,
+   "wellsOn": 1,
+   "winj": 0.0
+  },
+  {
+   "date": "2025-05-15",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-16",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-17",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-18",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-19",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-20",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-21",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-22",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-23",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-24",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-25",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-26",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-27",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-28",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-29",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-30",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-05-31",
+   "gas": 10330.0,
+   "ginj": 0.0,
+   "gor": 604.093567251462,
+   "liquid": 21620.0,
+   "oil": 17100.0,
+   "water": 4520.0,
+   "watercut": 0.20906567992599445,
+   "wellsOn": 5,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-01",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-02",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-03",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-04",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-05",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-06",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-07",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-08",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-09",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-10",
+   "gas": 1330.0,
+   "ginj": 0.0,
+   "gor": 633.3333333333334,
+   "liquid": 2870.0,
+   "oil": 2100.0,
+   "water": 770.0,
+   "watercut": 0.2682926829268293,
+   "wellsOn": 4,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-11",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-12",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-13",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-14",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-15",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-16",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-17",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-18",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-19",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-20",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-21",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-22",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-23",
+   "gas": 1070.0,
+   "ginj": 0.0,
+   "gor": 668.75,
+   "liquid": 2250.0,
+   "oil": 1600.0,
+   "water": 650.0,
+   "watercut": 0.28888888888888886,
+   "wellsOn": 3,
+   "winj": 3000.0
+  },
+  {
+   "date": "2025-06-24",
+   "gas": 767.0,
+   "ginj": 0.0,
+   "gor": 1036.4864864864865,
+   "liquid": 1400.0,
+   "oil": 740.0,
+   "water": 660.0,
+   "watercut": 0.4714285714285714,
+   "wellsOn": 2,
+   "winj": 1900.0
+  },
+  {
+   "date": "2025-06-25",
+   "gas": 767.0,
+   "ginj": 0.0,
+   "gor": 1036.4864864864865,
+   "liquid": 1400.0,
+   "oil": 740.0,
+   "water": 660.0,
+   "watercut": 0.4714285714285714,
+   "wellsOn": 2,
+   "winj": 1900.0
+  },
+  {
+   "date": "2025-06-26",
+   "gas": 767.0,
+   "ginj": 0.0,
+   "gor": 1036.4864864864865,
+   "liquid": 1400.0,
+   "oil": 740.0,
+   "water": 660.0,
+   "watercut": 0.4714285714285714,
+   "wellsOn": 2,
+   "winj": 1900.0
+  },
+  {
+   "date": "2025-06-27",
+   "gas": 190.0,
+   "ginj": 0.0,
+   "gor": 1266.6666666666667,
+   "liquid": 870.0,
+   "oil": 150.0,
+   "water": 720.0,
+   "watercut": 0.8275862068965517,
+   "wellsOn": 2,
+   "winj": 1900.0
+  },
+  {
+   "date": "2025-06-28",
+   "gas": 767.0,
+   "ginj": 0.0,
+   "gor": 1036.4864864864865,
+   "liquid": 1400.0,
+   "oil": 740.0,
+   "water": 660.0,
+   "watercut": 0.4714285714285714,
+   "wellsOn": 2,
+   "winj": 1900.0
+  },
+  {
+   "date": "2025-06-29",
+   "gas": 767.0,
+   "ginj": 0.0,
+   "gor": 1036.4864864864865,
+   "liquid": 1400.0,
+   "oil": 740.0,
+   "water": 660.0,
+   "watercut": 0.4714285714285714,
+   "wellsOn": 2,
+   "winj": 1900.0
+  },
+  {
+   "date": "2025-06-30",
+   "gas": 6167.0,
+   "ginj": 0.0,
+   "gor": 633.1622176591376,
+   "liquid": 12650.0,
+   "oil": 9740.0,
+   "water": 2910.0,
+   "watercut": 0.2300395256916996,
+   "wellsOn": 3,
+   "winj": 1900.0
+  }
+ ],
+ "kpis": {
+  "asOf": "2025-06-30",
+  "gas": 1456.0,
+  "gor": 749.963208241354,
+  "liquid": 2931.4285714285716,
+  "oil": 1941.4285714285713,
+  "producerCount": 6,
+  "uptimePct": 44.44444444444444,
+  "water": 990.0,
+  "watercut": 0.33771929824561403,
+  "wellCount": 7,
+  "windowDays": 7,
+  "winj": 1900.0
+ },
+ "kpis30": {
+  "asOf": "2025-06-30",
+  "gas": 1246.7333333333333,
+  "gor": 675.2482397544683,
+  "liquid": 2615.6666666666665,
+  "oil": 1846.3333333333333,
+  "producerCount": 6,
+  "uptimePct": 88.33333333333333,
+  "water": 769.3333333333334,
+  "watercut": 0.29412514336689183,
+  "wellCount": 7,
+  "windowDays": 30,
+  "winj": 2743.3333333333335
+ },
+ "ledger": [
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-15",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-15",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-15",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-15",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-15",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-15",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-16",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-16",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-16",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-16",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-16",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-16",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-17",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-17",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-17",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-17",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-17",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-17",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-18",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-18",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-18",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-18",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-18",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-18",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-19",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-19",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-19",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-19",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-19",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-19",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-20",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-20",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-20",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-20",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-20",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-20",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-21",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-21",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-21",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-21",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-21",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-21",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-22",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-22",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-22",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-22",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-22",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-22",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-23",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-23",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-23",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-23",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-23",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-23",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-24",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-24",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-24",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-24",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-24",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-24",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-25",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-25",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-25",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-25",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-25",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-25",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-26",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-26",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-26",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-26",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-26",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-26",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-27",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-27",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-27",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-27",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-27",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-27",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-28",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-28",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-28",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-28",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-28",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-28",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-29",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-29",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-29",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-29",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-29",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-29",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-30",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-30",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-30",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-30",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-30",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-30",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-05-31",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-05-31",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-05-31",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-05-31",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-31",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-05-31",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-01",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-01",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-01",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-01",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-01",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-01",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-02",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-02",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-02",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-02",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-02",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-02",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-03",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-03",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-03",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-03",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-03",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-03",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-04",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-04",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-04",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-04",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-04",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-04",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-05",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-05",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-05",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-05",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-05",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-05",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-06",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-06",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-06",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-06",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-06",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-06",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-07",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-07",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-07",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-07",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-07",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-07",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-08",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-08",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-08",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-08",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-08",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-08",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-09",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-09",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-09",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-09",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-09",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-09",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-10",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-10",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-10",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 260.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 500.0,
+   "prod_date": "2025-06-10",
+   "water_stb": 120.0,
+   "well_id": "w-p4",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-10",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-10",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-11",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-11",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-11",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-11",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-11",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-12",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-12",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-12",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-12",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-12",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-13",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-13",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-13",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-13",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-13",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-14",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-14",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-14",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-14",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-14",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-15",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-15",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-15",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-15",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-15",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-16",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-16",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-16",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-16",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-16",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-17",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-17",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-17",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-17",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-17",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-18",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-18",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-18",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-18",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-18",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-19",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-19",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-19",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-19",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-19",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-20",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-20",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-20",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-20",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-20",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-21",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-21",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-21",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-21",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-21",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-22",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-22",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-22",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-22",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-22",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 720.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 900.0,
+   "prod_date": "2025-06-23",
+   "water_stb": 490.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 200.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 400.0,
+   "prod_date": "2025-06-23",
+   "water_stb": 100.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 150.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 300.0,
+   "prod_date": "2025-06-23",
+   "water_stb": 60.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-23",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 3000.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-23",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 717.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 640.0,
+   "prod_date": "2025-06-24",
+   "water_stb": 640.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 0.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-24",
+   "water_stb": 0.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 50.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 8.0,
+   "oil_stb": 100.0,
+   "prod_date": "2025-06-24",
+   "water_stb": 20.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-24",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 1900.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-24",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 717.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 640.0,
+   "prod_date": "2025-06-25",
+   "water_stb": 640.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 0.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-25",
+   "water_stb": 0.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 50.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 8.0,
+   "oil_stb": 100.0,
+   "prod_date": "2025-06-25",
+   "water_stb": 20.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-25",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 1900.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-25",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 717.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 640.0,
+   "prod_date": "2025-06-26",
+   "water_stb": 640.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 0.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-26",
+   "water_stb": 0.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 50.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 8.0,
+   "oil_stb": 100.0,
+   "prod_date": "2025-06-26",
+   "water_stb": 20.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-26",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 1900.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-26",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 140.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 50.0,
+   "prod_date": "2025-06-27",
+   "water_stb": 700.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 0.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-27",
+   "water_stb": 0.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 50.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 8.0,
+   "oil_stb": 100.0,
+   "prod_date": "2025-06-27",
+   "water_stb": 20.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-27",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 1900.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-27",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 717.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 640.0,
+   "prod_date": "2025-06-28",
+   "water_stb": 640.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 0.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-28",
+   "water_stb": 0.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 50.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 8.0,
+   "oil_stb": 100.0,
+   "prod_date": "2025-06-28",
+   "water_stb": 20.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-28",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 1900.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-28",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 717.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 640.0,
+   "prod_date": "2025-06-29",
+   "water_stb": 640.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 0.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-29",
+   "water_stb": 0.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 50.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 8.0,
+   "oil_stb": 100.0,
+   "prod_date": "2025-06-29",
+   "water_stb": 20.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-29",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 1900.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-29",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 717.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 640.0,
+   "prod_date": "2025-06-30",
+   "water_stb": 640.0,
+   "well_id": "w-p1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 0.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-30",
+   "water_stb": 0.0,
+   "well_id": "w-p2",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 50.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 8.0,
+   "oil_stb": 100.0,
+   "prod_date": "2025-06-30",
+   "water_stb": 20.0,
+   "well_id": "w-p5",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": 24.0,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-30",
+   "water_stb": 0.0,
+   "well_id": "w-i1",
+   "winj_stb": 1900.0
+  },
+  {
+   "gas_mscf": 0.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 0.0,
+   "prod_date": "2025-06-30",
+   "water_stb": 0.0,
+   "well_id": "w-o1",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 9000.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 15000.0,
+   "prod_date": "2025-01-31",
+   "water_stb": 3750.0,
+   "well_id": "w-p3",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 9000.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 15000.0,
+   "prod_date": "2025-02-28",
+   "water_stb": 3750.0,
+   "well_id": "w-p3",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 9000.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 15000.0,
+   "prod_date": "2025-03-31",
+   "water_stb": 3750.0,
+   "well_id": "w-p3",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 9000.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 15000.0,
+   "prod_date": "2025-04-30",
+   "water_stb": 3750.0,
+   "well_id": "w-p3",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 9000.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 15000.0,
+   "prod_date": "2025-05-31",
+   "water_stb": 3750.0,
+   "well_id": "w-p3",
+   "winj_stb": 0.0
+  },
+  {
+   "gas_mscf": 5400.0,
+   "ginj_mscf": 0.0,
+   "hours_on": null,
+   "oil_stb": 9000.0,
+   "prod_date": "2025-06-30",
+   "water_stb": 2250.0,
+   "well_id": "w-p3",
+   "winj_stb": 0.0
+  }
+ ],
+ "movingAverage": {
+  "key": "oil",
+  "values": [
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   900.0,
+   862.8571428571429,
+   825.7142857142857,
+   788.5714285714286,
+   667.1428571428571,
+   630.0,
+   592.8571428571429,
+   555.7142857142857
+  ],
+  "wellId": "w-p1",
+  "windowDays": 7
+ },
+ "movingAverageWatercut": {
+  "key": "watercut",
+  "values": [
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.35251798561151076,
+   0.3630524152106886,
+   0.37358684480986637,
+   0.3841212744090442,
+   0.42560808496060293,
+   0.43614251455978076,
+   0.44667694415895853,
+   0.45721137375813636
+  ],
+  "wellId": "w-p1",
+  "windowDays": 14
+ },
+ "ratioSeam": {
+  "gor": {
+   "baselineMeanOfRatios": 800.0,
+   "baselineVolumetric": 800.0,
+   "overstatementPct": 19.12296182543254,
+   "recentMeanOfRatios": 1360.267857142857,
+   "recentVolumetric": 1141.9023136246788,
+   "riseByMeanOfRatiosPct": 70.03348214285714,
+   "riseByVolumetricPct": 42.737789203084844,
+   "severityByMeanOfRatios": "high",
+   "severityByVolumetric": "medium"
+  },
+  "watercut": {
+   "baselineMeanOfRatios": 0.35251798561151076,
+   "baselineVolumetric": 0.35251798561151076,
+   "recentMeanOfRatios": 0.5619047619047619,
+   "recentVolumetric": 0.538552787663108,
+   "riseByMeanOfRatiosPts": 20.938677629325113,
+   "riseByVolumetricPts": 18.603480205159723,
+   "severityByMeanOfRatios": "high",
+   "severityByVolumetric": "medium"
+  },
+  "well": "P-1",
+  "window": {
+   "baselineFrom": "2025-05-25",
+   "baselineTo": "2025-06-23",
+   "recentFrom": "2025-06-24",
+   "recentTo": "2025-06-30"
+  }
+ },
+ "syntheticDecline": {
+  "effectivePct": 42.16060106219916,
+  "firstRate": 1200.0,
+  "lastRate": 1050.0329627731398,
+  "rows": [
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1200.0,
+    "prod_date": "2025-01-01",
+    "water_stb": 240.0,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 599.1006746626265,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1198.201349325253,
+    "prod_date": "2025-01-02",
+    "water_stb": 239.6402698650506,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 598.2026973020238,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1196.4053946040476,
+    "prod_date": "2025-01-03",
+    "water_stb": 239.28107892080953,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 597.3060658977423,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1194.6121317954846,
+    "prod_date": "2025-01-04",
+    "water_stb": 238.92242635909693,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 596.4107784323612,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1192.8215568647224,
+    "prod_date": "2025-01-05",
+    "water_stb": 238.5643113729445,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 595.5168328914831,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1191.0336657829662,
+    "prod_date": "2025-01-06",
+    "water_stb": 238.20673315659326,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 594.6242272637302,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1189.2484545274604,
+    "prod_date": "2025-01-07",
+    "water_stb": 237.84969090549208,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 593.7329595407396,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1187.4659190814791,
+    "prod_date": "2025-01-08",
+    "water_stb": 237.49318381629584,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 592.8430277171583,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1185.6860554343166,
+    "prod_date": "2025-01-09",
+    "water_stb": 237.13721108686332,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 591.9544297906396,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1183.908859581279,
+    "prod_date": "2025-01-10",
+    "water_stb": 236.78177191625582,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 591.0671637618376,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1182.1343275236752,
+    "prod_date": "2025-01-11",
+    "water_stb": 236.42686550473505,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 590.1812276344034,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1180.3624552688068,
+    "prod_date": "2025-01-12",
+    "water_stb": 236.07249105376138,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 589.2966194149805,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1178.593238829961,
+    "prod_date": "2025-01-13",
+    "water_stb": 235.7186477659922,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 588.4133371131998,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1176.8266742263995,
+    "prod_date": "2025-01-14",
+    "water_stb": 235.3653348452799,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 587.5313787416758,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1175.0627574833516,
+    "prod_date": "2025-01-15",
+    "water_stb": 235.0125514966703,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 586.6507423160018,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1173.3014846320036,
+    "prod_date": "2025-01-16",
+    "water_stb": 234.66029692640075,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 585.7714258547455,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1171.542851709491,
+    "prod_date": "2025-01-17",
+    "water_stb": 234.30857034189822,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 584.8934273794447,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1169.7868547588894,
+    "prod_date": "2025-01-18",
+    "water_stb": 233.95737095177788,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 584.0167449146021,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1168.0334898292042,
+    "prod_date": "2025-01-19",
+    "water_stb": 233.60669796584085,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 583.141376487682,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1166.282752975364,
+    "prod_date": "2025-01-20",
+    "water_stb": 233.2565505950728,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 582.2673201291049,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1164.5346402582097,
+    "prod_date": "2025-01-21",
+    "water_stb": 232.90692805164196,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 581.3945738722438,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1162.7891477444875,
+    "prod_date": "2025-01-22",
+    "water_stb": 232.55782954889753,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 580.5231357534192,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1161.0462715068384,
+    "prod_date": "2025-01-23",
+    "water_stb": 232.20925430136768,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 579.6530038118949,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1159.3060076237898,
+    "prod_date": "2025-01-24",
+    "water_stb": 231.86120152475797,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 578.7841760898739,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1157.5683521797478,
+    "prod_date": "2025-01-25",
+    "water_stb": 231.51367043594956,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 577.9166506324931,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1155.8333012649862,
+    "prod_date": "2025-01-26",
+    "water_stb": 231.16666025299725,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 577.05042548782,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1154.10085097564,
+    "prod_date": "2025-01-27",
+    "water_stb": 230.82017019512801,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 576.1854987068479,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1152.3709974136957,
+    "prod_date": "2025-01-28",
+    "water_stb": 230.47419948273915,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 575.3218683434907,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.6437366869814,
+    "prod_date": "2025-01-29",
+    "water_stb": 230.12874733739628,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 574.4595324545802,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1148.9190649091604,
+    "prod_date": "2025-01-30",
+    "water_stb": 229.78381298183209,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 573.59848909986,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1147.19697819972,
+    "prod_date": "2025-01-31",
+    "water_stb": 229.439395639944,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 572.7387363419822,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1145.4774726839644,
+    "prod_date": "2025-02-01",
+    "water_stb": 229.0954945367929,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 571.8802722465028,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1143.7605444930057,
+    "prod_date": "2025-02-02",
+    "water_stb": 228.75210889860114,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 571.0230948818773,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1142.0461897637547,
+    "prod_date": "2025-02-03",
+    "water_stb": 228.40923795275094,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 570.1672023194562,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1140.3344046389125,
+    "prod_date": "2025-02-04",
+    "water_stb": 228.0668809277825,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 569.3125926334808,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1138.6251852669616,
+    "prod_date": "2025-02-05",
+    "water_stb": 227.72503705339233,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 568.459263901079,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1136.918527802158,
+    "prod_date": "2025-02-06",
+    "water_stb": 227.38370556043162,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 567.6072142022608,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1135.2144284045216,
+    "prod_date": "2025-02-07",
+    "water_stb": 227.04288568090433,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 566.756441619914,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1133.512883239828,
+    "prod_date": "2025-02-08",
+    "water_stb": 226.7025766479656,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 565.9069442397999,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1131.8138884795999,
+    "prod_date": "2025-02-09",
+    "water_stb": 226.36277769592,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 565.0587201505492,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1130.1174403010984,
+    "prod_date": "2025-02-10",
+    "water_stb": 226.0234880602197,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 564.2117674436572,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1128.4235348873144,
+    "prod_date": "2025-02-11",
+    "water_stb": 225.6847069774629,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 563.3660842134799,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1126.7321684269598,
+    "prod_date": "2025-02-12",
+    "water_stb": 225.34643368539196,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 562.5216685572299,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1125.0433371144597,
+    "prod_date": "2025-02-13",
+    "water_stb": 225.00866742289196,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 561.6785185749713,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1123.3570371499427,
+    "prod_date": "2025-02-14",
+    "water_stb": 224.67140742998856,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 560.8366323696165,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1121.673264739233,
+    "prod_date": "2025-02-15",
+    "water_stb": 224.33465294784662,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 559.9960080469211,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1119.9920160938423,
+    "prod_date": "2025-02-16",
+    "water_stb": 223.99840321876846,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 559.1566437154802,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1118.3132874309604,
+    "prod_date": "2025-02-17",
+    "water_stb": 223.66265748619207,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 558.3185374867235,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1116.637074973447,
+    "prod_date": "2025-02-18",
+    "water_stb": 223.3274149946894,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 557.4816874749116,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1114.9633749498232,
+    "prod_date": "2025-02-19",
+    "water_stb": 222.99267498996466,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 556.6460917971317,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1113.2921835942634,
+    "prod_date": "2025-02-20",
+    "water_stb": 222.6584367188527,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 555.8117485732932,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1111.6234971465865,
+    "prod_date": "2025-02-21",
+    "water_stb": 222.32469942931732,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 554.9786559261236,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1109.9573118522471,
+    "prod_date": "2025-02-22",
+    "water_stb": 221.99146237044943,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 554.1468119811639,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1108.2936239623277,
+    "prod_date": "2025-02-23",
+    "water_stb": 221.65872479246556,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 553.3162148667649,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1106.6324297335298,
+    "prod_date": "2025-02-24",
+    "water_stb": 221.32648594670596,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 552.4868627140827,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1104.9737254281654,
+    "prod_date": "2025-02-25",
+    "water_stb": 220.9947450856331,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 551.6587536570748,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1103.3175073141497,
+    "prod_date": "2025-02-26",
+    "water_stb": 220.66350146282994,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 550.8318858324953,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1101.6637716649907,
+    "prod_date": "2025-02-27",
+    "water_stb": 220.33275433299815,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 550.0062573798914,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1100.0125147597828,
+    "prod_date": "2025-02-28",
+    "water_stb": 220.00250295195656,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 549.1818664415986,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1098.3637328831971,
+    "prod_date": "2025-03-01",
+    "water_stb": 219.67274657663944,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 548.3587111627369,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1096.7174223254738,
+    "prod_date": "2025-03-02",
+    "water_stb": 219.34348446509478,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 547.5367896912068,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1095.0735793824135,
+    "prod_date": "2025-03-03",
+    "water_stb": 219.0147158764827,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 546.7161001776843,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1093.4322003553686,
+    "prod_date": "2025-03-04",
+    "water_stb": 218.68644007107375,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 545.8966407756179,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1091.7932815512359,
+    "prod_date": "2025-03-05",
+    "water_stb": 218.35865631024717,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 545.0784096412237,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1090.1568192824475,
+    "prod_date": "2025-03-06",
+    "water_stb": 218.03136385648952,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 544.261404933481,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1088.522809866962,
+    "prod_date": "2025-03-07",
+    "water_stb": 217.7045619733924,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 543.4456248141291,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1086.8912496282583,
+    "prod_date": "2025-03-08",
+    "water_stb": 217.37824992565166,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 542.6310674476623,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1085.2621348953246,
+    "prod_date": "2025-03-09",
+    "water_stb": 217.05242697906493,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 541.817731001326,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1083.635462002652,
+    "prod_date": "2025-03-10",
+    "water_stb": 216.7270924005304,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 541.0056136451133,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1082.0112272902265,
+    "prod_date": "2025-03-11",
+    "water_stb": 216.40224545804531,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 540.1947135517594,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1080.3894271035188,
+    "prod_date": "2025-03-12",
+    "water_stb": 216.07788542070375,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 539.3850288967388,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1078.7700577934777,
+    "prod_date": "2025-03-13",
+    "water_stb": 215.75401155869554,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 538.5765578582609,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1077.1531157165218,
+    "prod_date": "2025-03-14",
+    "water_stb": 215.4306231433044,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 537.7692986172653,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1075.5385972345307,
+    "prod_date": "2025-03-15",
+    "water_stb": 215.10771944690615,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 536.9632493574186,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1073.9264987148372,
+    "prod_date": "2025-03-16",
+    "water_stb": 214.78529974296745,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 536.1584082651094,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1072.3168165302188,
+    "prod_date": "2025-03-17",
+    "water_stb": 214.4633633060438,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 535.354773529445,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1070.70954705889,
+    "prod_date": "2025-03-18",
+    "water_stb": 214.141909411778,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 534.5523433422469,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1069.1046866844938,
+    "prod_date": "2025-03-19",
+    "water_stb": 213.82093733689877,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 533.7511158980468,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1067.5022317960936,
+    "prod_date": "2025-03-20",
+    "water_stb": 213.50044635921873,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 532.9510893940827,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1065.9021787881654,
+    "prod_date": "2025-03-21",
+    "water_stb": 213.1804357576331,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 532.1522620302945,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1064.304524060589,
+    "prod_date": "2025-03-22",
+    "water_stb": 212.86090481211784,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 531.3546320093204,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1062.7092640186409,
+    "prod_date": "2025-03-23",
+    "water_stb": 212.54185280372818,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 530.5581975364926,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1061.1163950729851,
+    "prod_date": "2025-03-24",
+    "water_stb": 212.22327901459704,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 529.7629568198329,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1059.5259136396658,
+    "prod_date": "2025-03-25",
+    "water_stb": 211.90518272793315,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 528.9689080700497,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1057.9378161400994,
+    "prod_date": "2025-03-26",
+    "water_stb": 211.5875632280199,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 528.1760495005327,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1056.3520990010654,
+    "prod_date": "2025-03-27",
+    "water_stb": 211.2704198002131,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 527.3843793273498,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1054.7687586546997,
+    "prod_date": "2025-03-28",
+    "water_stb": 210.95375173093996,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 526.5938957692431,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1053.1877915384862,
+    "prod_date": "2025-03-29",
+    "water_stb": 210.63755830769725,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 525.8045970476239,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1051.6091940952479,
+    "prod_date": "2025-03-30",
+    "water_stb": 210.3218388190496,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 525.0164813865699,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1050.0329627731398,
+    "prod_date": "2025-03-31",
+    "water_stb": 210.00659255462799,
+    "well_id": "w-dec",
+    "winj_stb": 0.0
+   }
+  ],
+  "truth": {
+   "Di": 0.0015,
+   "b": 0.0,
+   "nDays": 90,
+   "qi": 1200.0,
+   "start": "2025-01-01"
+  }
+ },
+ "wellSeries": [
+  {
+   "cadenceDays": 1.0,
+   "n": 47,
+   "name": "I-1",
+   "wellId": "w-i1"
+  },
+  {
+   "cadenceDays": 1.0,
+   "n": 47,
+   "name": "O-1",
+   "wellId": "w-o1"
+  },
+  {
+   "cadenceDays": 1.0,
+   "n": 47,
+   "name": "P-1",
+   "wellId": "w-p1"
+  },
+  {
+   "cadenceDays": 1.0,
+   "n": 47,
+   "name": "P-2",
+   "wellId": "w-p2"
+  },
+  {
+   "cadenceDays": 30,
+   "n": 6,
+   "name": "P-3",
+   "wellId": "w-p3"
+  },
+  {
+   "cadenceDays": 1.0,
+   "n": 27,
+   "name": "P-4",
+   "wellId": "w-p4"
+  },
+  {
+   "cadenceDays": 1.0,
+   "n": 47,
+   "name": "P-5",
+   "wellId": "w-p5"
+  }
+ ],
+ "wells": {
+  "w-i1": {
+   "id": "w-i1",
+   "name": "I-1",
+   "well_type": "injector"
+  },
+  "w-o1": {
+   "id": "w-o1",
+   "name": "O-1",
+   "well_type": "observation"
+  },
+  "w-p1": {
+   "id": "w-p1",
+   "name": "P-1",
+   "well_type": "producer"
+  },
+  "w-p2": {
+   "id": "w-p2",
+   "name": "P-2",
+   "well_type": "producer"
+  },
+  "w-p3": {
+   "id": "w-p3",
+   "name": "P-3",
+   "well_type": "producer"
+  },
+  "w-p4": {
+   "id": "w-p4",
+   "name": "P-4",
+   "well_type": "producer"
+  },
+  "w-p5": {
+   "id": "w-p5",
+   "name": "P-5",
+   "well_type": "producer"
+  }
+ }
+}
