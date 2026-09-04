@@ -109,7 +109,13 @@ export function wellCategory({ primary, secondary, flowPotential = true }) {
   const bad = (s) => s === 'failed' || s === 'empty';
   if (!flowPotential) {
     // No pressure differential toward surface: one qualified envelope
-    // suffices; failures still flag.
+    // suffices; failures still flag. But ONE is not NONE. This branch used to
+    // fall through to green for an EMPTY primary, so a well with nothing
+    // recorded in it at all came back clean, with the reason "Qualified
+    // barrier" naming a barrier that did not exist. The flowing branch has
+    // always treated empty as a finding; this one did not, and the two halves
+    // of the same function disagreed about whether absence is a problem.
+    if (primary === 'empty') return { category: 'orange', reason: 'No barrier envelope recorded, even on a well without flow potential.' };
     if (primary === 'failed') return { category: 'orange', reason: 'Barrier failure on a well without flow potential.' };
     if (primary === 'degraded') return { category: 'yellow', reason: 'Barrier degradation on a well without flow potential.' };
     return { category: 'green', reason: 'Qualified barrier; no flow potential.' };
@@ -164,7 +170,7 @@ export function verifyBarriers({ elements, flowPotential = true }) {
       label: 'No element shared between envelopes (common WBE)',
       pass: shared.length === 0,
       level: 'warn',
-      detail: shared.length ? `Common WBE: ${shared.join(', ')} — requires explicit acceptance.` : null,
+      detail: shared.length ? `Common WBE: ${shared.join(', ')}. Requires explicit acceptance.` : null,
     },
     {
       id: 'all-verified',

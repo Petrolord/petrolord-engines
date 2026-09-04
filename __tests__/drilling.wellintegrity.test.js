@@ -258,3 +258,42 @@ describe('wellCategory validates the envelope vocabulary', () => {
     expect(out.category).toBe('yellow');
   });
 });
+
+// ---------------------------------------------------------------------------
+// ONE qualified envelope is not NONE. The no-flow branch used to fall through
+// to green for an EMPTY primary, so a well with nothing recorded in it came
+// back clean, and the reason string named a "Qualified barrier" that did not
+// exist. The flowing branch had always treated empty as a finding. The two
+// halves of one function disagreed about whether absence is a problem, and the
+// half that said it was not is the half a decommissioned well would be judged
+// by.
+// ---------------------------------------------------------------------------
+describe('an empty envelope is never green', () => {
+  test('empty primary on a well WITHOUT flow potential is not green', () => {
+    const out = wellCategory({ primary: 'empty', secondary: 'empty', flowPotential: false });
+    expect(out.category).not.toBe('green');
+    expect(out.category).toBe('orange');
+    expect(out.reason).toMatch(/No barrier envelope recorded/);
+  });
+
+  test('empty primary on a well WITH flow potential is not green either', () => {
+    expect(wellCategory({ primary: 'empty', secondary: 'intact', flowPotential: true }).category)
+      .not.toBe('green');
+  });
+
+  test('an intact single envelope on a non-flowing well IS still green', () => {
+    // The relaxation is real and must survive: one qualified envelope suffices
+    // when there is no pressure differential toward surface.
+    expect(wellCategory({ primary: 'intact', secondary: 'empty', flowPotential: false }).category)
+      .toBe('green');
+  });
+
+  test('no envelope status yields green on an empty primary, either way', () => {
+    for (const flowPotential of [true, false]) {
+      for (const secondary of ENVELOPE_STATUSES) {
+        expect(wellCategory({ primary: 'empty', secondary, flowPotential }).category)
+          .not.toBe('green');
+      }
+    }
+  });
+});
