@@ -1,0 +1,1520 @@
+{
+ "catalog": {
+  "headroom": 1.25,
+  "motorCatalogIsHpAscending": true,
+  "motorFrames": [
+   {
+    "hp": 60,
+    "id": "m-60-1000"
+   },
+   {
+    "hp": 100,
+    "id": "m-100-1300"
+   },
+   {
+    "hp": 150,
+    "id": "m-150-2000"
+   },
+   {
+    "hp": 250,
+    "id": "m-250-2400"
+   },
+   {
+    "hp": 400,
+    "id": "m-400-3300"
+   }
+  ],
+  "rateTolerance": 0.9,
+  "referenceStages": [
+   {
+    "bepBpd": 1000,
+    "housingOdIn": 4.0,
+    "id": "ref-400-1000",
+    "qMax": 1450,
+    "qMin": 500
+   },
+   {
+    "bepBpd": 2500,
+    "housingOdIn": 5.13,
+    "id": "ref-540-2500",
+    "qMax": 3500,
+    "qMin": 1250
+   },
+   {
+    "bepBpd": 4000,
+    "housingOdIn": 5.62,
+    "id": "ref-562-4000",
+    "qMax": 5600,
+    "qMin": 2200
+   },
+   {
+    "bepBpd": 7000,
+    "housingOdIn": 6.75,
+    "id": "ref-675-7000",
+    "qMax": 9800,
+    "qMin": 4000
+   }
+  ],
+  "rodDisplacements": [
+   353.4291735288517,
+   667.9811379695298,
+   1385.4423602330987,
+   2324.7785636564467,
+   3761.3699792808043,
+   8552.985999398212
+  ],
+  "rodLadderIsAscending": true,
+  "rodTrials": [
+   {
+    "plungerDIn": 1.25,
+    "spm": 6,
+    "strokeIn": 48
+   },
+   {
+    "plungerDIn": 1.5,
+    "spm": 7,
+    "strokeIn": 54
+   },
+   {
+    "plungerDIn": 1.75,
+    "spm": 9,
+    "strokeIn": 64
+   },
+   {
+    "plungerDIn": 2.0,
+    "spm": 10,
+    "strokeIn": 74
+   },
+   {
+    "plungerDIn": 2.25,
+    "spm": 11,
+    "strokeIn": 86
+   },
+   {
+    "plungerDIn": 2.75,
+    "spm": 12,
+    "strokeIn": 120
+   }
+  ]
+ },
+ "description": "Artificial lift advisor goldens: the screening-grade equipment picks (reference stage, motor frame, rod ladder rung), the plunger design pass end to end, the pass-level refusals, and the reconciliation of a screening opinion against a design. Independent stdlib oracle (tools/validation/production/oracle_liftadvisor.py) written from the policy statement: the reference stage taken as a COVERING SET plus a separate BEP-distance ranking so the catalog overlap is measured rather than inherited, the motor found by MINIMISING over the satisfying set (with the catalog order asserted separately), the rod rung chosen by a SET SELECTION over all six rungs where the engine scans and takes the first match, the plunger gas-liquid ratio derived from a MASS BALANCE, and the reconciliation enumerated as a full four-way TRUTH TABLE. Field units: stb/d of OIL for the target rate, per cent water cut, scf/stb, psia, ft, hp, degF.",
+ "liquidGravity": [
+  {
+   "api": 32.0,
+   "sg": 0.8654434250764526,
+   "wct": 0.0
+  },
+  {
+   "api": 32.0,
+   "sg": 0.9327217125382263,
+   "wct": 0.5
+  },
+  {
+   "api": 32.0,
+   "sg": 1.0,
+   "wct": 1.0
+  },
+  {
+   "api": 14.0,
+   "sg": 0.9807560137457043,
+   "wct": 0.3
+  },
+  {
+   "api": 45.0,
+   "sg": 0.9603399433427762,
+   "wct": 0.8
+  },
+  {
+   "api": 10.0,
+   "sg": 1.0,
+   "wct": 0.0
+  }
+ ],
+ "mdAtTvd": {
+  "cases": [
+   {
+    "md": 0.0,
+    "tvd": 0
+   },
+   {
+    "md": 0.0,
+    "tvd": -50
+   },
+   {
+    "md": 1500.0,
+    "tvd": 1500
+   },
+   {
+    "md": 3000.0,
+    "tvd": 3000
+   },
+   {
+    "md": 4000.0,
+    "tvd": 3800
+   },
+   {
+    "md": 5000.0,
+    "tvd": 4600
+   },
+   {
+    "md": 6500.0,
+    "tvd": 5500
+   },
+   {
+    "md": 8000.0,
+    "tvd": 6400
+   },
+   {
+    "md": 9500.0,
+    "tvd": 6700
+   },
+   {
+    "md": 11000.0,
+    "tvd": 7000
+   },
+   {
+    "md": 11000.0,
+    "tvd": 9000
+   }
+  ],
+  "emptyTrajectoryMd": 0.0,
+  "trajectory": [
+   {
+    "md": 0.0,
+    "tvd": 0.0
+   },
+   {
+    "md": 3000.0,
+    "tvd": 3000.0
+   },
+   {
+    "md": 5000.0,
+    "tvd": 4600.0
+   },
+   {
+    "md": 8000.0,
+    "tvd": 6400.0
+   },
+   {
+    "md": 11000.0,
+    "tvd": 7000.0
+   }
+  ]
+ },
+ "motorFrame": {
+  "headroomLostAboveShaftHp": 320.0,
+  "largestFrameHp": 400,
+  "overloadedAboveShaftHp": 400,
+  "sweep": [
+   {
+    "actualHeadroom": 6.0,
+    "hp": 60,
+    "id": "m-60-1000",
+    "meetsHeadroom": true,
+    "shaftHp": 10
+   },
+   {
+    "actualHeadroom": 1.5,
+    "hp": 60,
+    "id": "m-60-1000",
+    "meetsHeadroom": true,
+    "shaftHp": 40
+   },
+   {
+    "actualHeadroom": 1.25,
+    "hp": 60,
+    "id": "m-60-1000",
+    "meetsHeadroom": true,
+    "shaftHp": 48
+   },
+   {
+    "actualHeadroom": 2.079002079002079,
+    "hp": 100,
+    "id": "m-100-1300",
+    "meetsHeadroom": true,
+    "shaftHp": 48.1
+   },
+   {
+    "actualHeadroom": 1.25,
+    "hp": 100,
+    "id": "m-100-1300",
+    "meetsHeadroom": true,
+    "shaftHp": 80
+   },
+   {
+    "actualHeadroom": 1.25,
+    "hp": 150,
+    "id": "m-150-2000",
+    "meetsHeadroom": true,
+    "shaftHp": 120
+   },
+   {
+    "actualHeadroom": 1.25,
+    "hp": 250,
+    "id": "m-250-2400",
+    "meetsHeadroom": true,
+    "shaftHp": 200
+   },
+   {
+    "actualHeadroom": 1.3333333333333333,
+    "hp": 400,
+    "id": "m-400-3300",
+    "meetsHeadroom": true,
+    "shaftHp": 300
+   },
+   {
+    "actualHeadroom": 1.2539184952978057,
+    "hp": 400,
+    "id": "m-400-3300",
+    "meetsHeadroom": true,
+    "shaftHp": 319
+   },
+   {
+    "actualHeadroom": 1.25,
+    "hp": 400,
+    "id": "m-400-3300",
+    "meetsHeadroom": true,
+    "shaftHp": 320
+   },
+   {
+    "actualHeadroom": 1.2461059190031152,
+    "hp": 400,
+    "id": "m-400-3300",
+    "meetsHeadroom": false,
+    "overloaded": false,
+    "shaftHp": 321
+   },
+   {
+    "actualHeadroom": 1.1428571428571428,
+    "hp": 400,
+    "id": "m-400-3300",
+    "meetsHeadroom": false,
+    "overloaded": false,
+    "shaftHp": 350
+   },
+   {
+    "actualHeadroom": 1.0,
+    "hp": 400,
+    "id": "m-400-3300",
+    "meetsHeadroom": false,
+    "overloaded": false,
+    "shaftHp": 400
+   },
+   {
+    "actualHeadroom": 0.9975062344139651,
+    "hp": 400,
+    "id": "m-400-3300",
+    "meetsHeadroom": false,
+    "overloaded": true,
+    "shaftHp": 401
+   },
+   {
+    "actualHeadroom": 0.8,
+    "hp": 400,
+    "id": "m-400-3300",
+    "meetsHeadroom": false,
+    "overloaded": true,
+    "shaftHp": 500
+   }
+  ]
+ },
+ "passRefusals": [
+  {
+   "expect": "incomplete",
+   "id": "noModel",
+   "model": null,
+   "targetRate": 500.0,
+   "why": "Nothing to design against."
+  },
+  {
+   "expect": "gas",
+   "id": "gasWell",
+   "phase": "gas",
+   "qmax": 5000.0,
+   "targetRate": 500.0,
+   "why": "This pass designs lift for an OIL well."
+  },
+  {
+   "expect": "noTarget",
+   "id": "noTarget",
+   "phase": "oil",
+   "qmax": 5000.0,
+   "targetRate": 0.0,
+   "why": "A target rate is needed before anything can be designed."
+  },
+  {
+   "expect": "aboveAof",
+   "id": "aboveAof",
+   "phase": "oil",
+   "qmax": 1200.0,
+   "targetRate": 1200.0,
+   "why": "No lift method makes a well produce more than it can deliver, so running four design chains to say so would be theatre."
+  },
+  {
+   "expect": "aboveAof",
+   "id": "atAof",
+   "phase": "oil",
+   "qmax": 1200.0,
+   "targetRate": 1200.0,
+   "why": "AT the absolute open flow is also refused, not just above it."
+  },
+  {
+   "expect": "runs",
+   "id": "justBelowAof",
+   "phase": "oil",
+   "qmax": 1200.0,
+   "targetRate": 1199.0,
+   "why": "Just below it the pass runs."
+  }
+ ],
+ "plungerGlr": [
+  {
+   "glrByRatio": 3000.0,
+   "glrScfBbl": 3000.0,
+   "gorScfStb": 3000.0,
+   "liquidBpd": 100.0,
+   "targetRate": 100.0,
+   "wctFrac": 0.0,
+   "wctPct": 0.0
+  },
+  {
+   "glrByRatio": 1500.0,
+   "glrScfBbl": 1500.0,
+   "gorScfStb": 3000.0,
+   "liquidBpd": 200.0,
+   "targetRate": 100.0,
+   "wctFrac": 0.5,
+   "wctPct": 50.0
+  },
+  {
+   "glrByRatio": 299.99999999999994,
+   "glrScfBbl": 299.99999999999994,
+   "gorScfStb": 3000.0,
+   "liquidBpd": 1000.0000000000002,
+   "targetRate": 100.0,
+   "wctFrac": 0.9,
+   "wctPct": 90.0
+  },
+  {
+   "glrByRatio": 3.0000000000000027,
+   "glrScfBbl": 3.0000000000000027,
+   "gorScfStb": 3000.0,
+   "liquidBpd": 99999.99999999991,
+   "targetRate": 100.0,
+   "wctFrac": 0.999,
+   "wctPct": 100.0
+  },
+  {
+   "glrByRatio": 3000.0,
+   "glrScfBbl": 3000.0,
+   "gorScfStb": 3000.0,
+   "liquidBpd": 100.0,
+   "targetRate": 100.0,
+   "wctFrac": 0.0,
+   "wctPct": -10.0
+  },
+  {
+   "glrByRatio": 3000.0,
+   "glrScfBbl": 3000.0,
+   "gorScfStb": 3000.0,
+   "liquidBpd": 0.0,
+   "targetRate": 0.0,
+   "wctFrac": 0.5,
+   "wctPct": 50.0
+  }
+ ],
+ "plungerPass": [
+  {
+   "api": 45.0,
+   "bhtF": 210.0,
+   "chainInputs": {
+    "afterflowMin": 20,
+    "avgTempR": 610.0,
+    "casingPressurePsia": 300.0,
+    "depthFt": 7000.0,
+    "gasSg": 0.62,
+    "idIn": 2.441,
+    "linePressurePsia": 120.0,
+    "liquidSg": 0.8611898016997166,
+    "plungerWeightLb": 6.0,
+    "shutInMin": 30,
+    "slugLengthFt": 150.0,
+    "wellGlrScfBbl": 8400.0,
+    "z": 0.9
+   },
+   "facility": {
+    "plungerWeightLb": 6.0,
+    "slugLengthFt": 150.0
+   },
+   "gasSg": 0.62,
+   "gorScfStb": 12000.0,
+   "id": "gassyStripper",
+   "idIn": 2.441,
+   "targetRate": 20.0,
+   "tvdMax": 7000.0,
+   "wctPct": 30.0,
+   "whp": 120.0,
+   "whtF": 90.0,
+   "why": "A gas well making twenty barrels a day with twelve thousand scf behind each one. There is far more gas than a cycle needs and the plunger runs."
+  },
+  {
+   "api": 32.0,
+   "bhtF": 210.0,
+   "chainInputs": {
+    "afterflowMin": 20,
+    "avgTempR": 610.0,
+    "casingPressurePsia": 300.0,
+    "depthFt": 7000.0,
+    "gasSg": 0.65,
+    "idIn": 2.441,
+    "linePressurePsia": 120.0,
+    "liquidSg": 0.9058103975535168,
+    "plungerWeightLb": 6.0,
+    "shutInMin": 30,
+    "slugLengthFt": 150.0,
+    "wellGlrScfBbl": 140.0,
+    "z": 0.9
+   },
+   "facility": {
+    "plungerWeightLb": 6.0,
+    "slugLengthFt": 150.0
+   },
+   "gasSg": 0.65,
+   "gorScfStb": 200.0,
+   "id": "notEnoughGas",
+   "idIn": 2.441,
+   "targetRate": 60.0,
+   "tvdMax": 7000.0,
+   "wctPct": 30.0,
+   "whp": 120.0,
+   "whtF": 90.0,
+   "why": "The same depth and the same slug, but two hundred scf per barrel. There is no external energy source in plunger lift, so this well cannot be plunged and the answer is a refusal with the number in it."
+  },
+  {
+   "api": 38.0,
+   "bhtF": 190.0,
+   "chainInputs": {
+    "afterflowMin": 20,
+    "avgTempR": 600.0,
+    "casingPressurePsia": 300.0,
+    "depthFt": 6000.0,
+    "gasSg": 0.65,
+    "idIn": 2.441,
+    "linePressurePsia": 120.0,
+    "liquidSg": 0.983480825958702,
+    "plungerWeightLb": 6.0,
+    "shutInMin": 30,
+    "slugLengthFt": 150.0,
+    "wellGlrScfBbl": 899.9999999999998,
+    "z": 0.9
+   },
+   "facility": {
+    "plungerWeightLb": 6.0,
+    "slugLengthFt": 150.0
+   },
+   "gasSg": 0.65,
+   "gorScfStb": 9000.0,
+   "id": "wateredOutCutsTheGlr",
+   "idIn": 2.441,
+   "targetRate": 15.0,
+   "tvdMax": 6000.0,
+   "wctPct": 90.0,
+   "whp": 120.0,
+   "whtF": 90.0,
+   "why": "Nine thousand scf per barrel of OIL, but ninety per cent water: every point of water cut is gas the cycle no longer has per barrel it must lift, so the ratio the cycle actually sees is nine hundred."
+  }
+ ],
+ "reconcile": {
+  "design": {
+   "esp": false,
+   "gasLift": true,
+   "plunger": true,
+   "rodPump": false
+  },
+  "expected": {
+   "disagreements": [
+    "rodPump",
+    "plunger"
+   ],
+   "ranked": [
+    "gasLift",
+    "plunger",
+    "rodPump",
+    "esp",
+    "pcp",
+    "jetPump"
+   ],
+   "rows": [
+    {
+     "designOk": true,
+     "id": "gasLift",
+     "score": 100,
+     "verdict": "agreeYes"
+    },
+    {
+     "designOk": false,
+     "id": "rodPump",
+     "score": 90,
+     "verdict": "designNo"
+    },
+    {
+     "designOk": false,
+     "id": "esp",
+     "score": 60,
+     "verdict": "agreeNo"
+    },
+    {
+     "designOk": null,
+     "id": "pcp",
+     "score": 55,
+     "verdict": "noEngine"
+    },
+    {
+     "designOk": true,
+     "id": "plunger",
+     "score": 45,
+     "verdict": "designYes"
+    },
+    {
+     "designOk": null,
+     "id": "jetPump",
+     "score": 40,
+     "verdict": "noEngine"
+    }
+   ],
+   "workable": [
+    "gasLift",
+    "plunger"
+   ]
+  },
+  "screening": [
+   {
+    "hasEngine": true,
+    "id": "gasLift",
+    "recommended": true,
+    "score": 100
+   },
+   {
+    "hasEngine": true,
+    "id": "rodPump",
+    "recommended": true,
+    "score": 90
+   },
+   {
+    "hasEngine": true,
+    "id": "esp",
+    "recommended": false,
+    "score": 60
+   },
+   {
+    "hasEngine": false,
+    "id": "pcp",
+    "recommended": false,
+    "score": 55
+   },
+   {
+    "hasEngine": true,
+    "id": "plunger",
+    "recommended": false,
+    "score": 45
+   },
+   {
+    "hasEngine": false,
+    "id": "jetPump",
+    "recommended": false,
+    "score": 40
+   }
+  ],
+  "why": "One well, four engine-backed methods and two screened-only ones. The matrix liked the rod pump and the design refuses it; it was lukewarm about plunger lift and the design runs it cleanly. Both are disagreements and both are resolved in favour of the design, which solved the well."
+ },
+ "referenceStage": {
+  "overlapBands": [
+   {
+    "from": 1250,
+    "nearestBepAtTop": "ref-400-1000",
+    "picked": "ref-400-1000",
+    "stages": [
+     "ref-400-1000",
+     "ref-540-2500"
+    ],
+    "to": 1450
+   },
+   {
+    "from": 2200,
+    "nearestBepAtTop": "ref-562-4000",
+    "picked": "ref-540-2500",
+    "stages": [
+     "ref-540-2500",
+     "ref-562-4000"
+    ],
+    "to": 3500
+   },
+   {
+    "from": 4000,
+    "nearestBepAtTop": "ref-675-7000",
+    "picked": "ref-562-4000",
+    "stages": [
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "to": 5600
+   }
+  ],
+  "sweep": [
+   {
+    "bepRanking": [
+     "ref-400-1000",
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [],
+    "picked": "ref-400-1000",
+    "pickedIsNearestBep": true,
+    "q": 100
+   },
+   {
+    "bepRanking": [
+     "ref-400-1000",
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [],
+    "picked": "ref-400-1000",
+    "pickedIsNearestBep": true,
+    "q": 400
+   },
+   {
+    "bepRanking": [
+     "ref-400-1000",
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-400-1000"
+    ],
+    "picked": "ref-400-1000",
+    "pickedIsNearestBep": true,
+    "q": 500
+   },
+   {
+    "bepRanking": [
+     "ref-400-1000",
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-400-1000"
+    ],
+    "picked": "ref-400-1000",
+    "pickedIsNearestBep": true,
+    "q": 900
+   },
+   {
+    "bepRanking": [
+     "ref-400-1000",
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-400-1000",
+     "ref-540-2500"
+    ],
+    "picked": "ref-400-1000",
+    "pickedIsNearestBep": true,
+    "q": 1250
+   },
+   {
+    "bepRanking": [
+     "ref-400-1000",
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-400-1000",
+     "ref-540-2500"
+    ],
+    "picked": "ref-400-1000",
+    "pickedIsNearestBep": true,
+    "q": 1300
+   },
+   {
+    "bepRanking": [
+     "ref-400-1000",
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-400-1000",
+     "ref-540-2500"
+    ],
+    "picked": "ref-400-1000",
+    "pickedIsNearestBep": true,
+    "q": 1449
+   },
+   {
+    "bepRanking": [
+     "ref-400-1000",
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-400-1000",
+     "ref-540-2500"
+    ],
+    "picked": "ref-400-1000",
+    "pickedIsNearestBep": true,
+    "q": 1450
+   },
+   {
+    "bepRanking": [
+     "ref-400-1000",
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-540-2500"
+    ],
+    "picked": "ref-540-2500",
+    "pickedIsNearestBep": false,
+    "q": 1451
+   },
+   {
+    "bepRanking": [
+     "ref-540-2500",
+     "ref-400-1000",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-540-2500",
+     "ref-562-4000"
+    ],
+    "picked": "ref-540-2500",
+    "pickedIsNearestBep": true,
+    "q": 2200
+   },
+   {
+    "bepRanking": [
+     "ref-540-2500",
+     "ref-400-1000",
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-540-2500",
+     "ref-562-4000"
+    ],
+    "picked": "ref-540-2500",
+    "pickedIsNearestBep": true,
+    "q": 2500
+   },
+   {
+    "bepRanking": [
+     "ref-540-2500",
+     "ref-562-4000",
+     "ref-400-1000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-540-2500",
+     "ref-562-4000"
+    ],
+    "picked": "ref-540-2500",
+    "pickedIsNearestBep": true,
+    "q": 3000
+   },
+   {
+    "bepRanking": [
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-400-1000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-540-2500",
+     "ref-562-4000"
+    ],
+    "picked": "ref-540-2500",
+    "pickedIsNearestBep": false,
+    "q": 3499
+   },
+   {
+    "bepRanking": [
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-400-1000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-540-2500",
+     "ref-562-4000"
+    ],
+    "picked": "ref-540-2500",
+    "pickedIsNearestBep": false,
+    "q": 3500
+   },
+   {
+    "bepRanking": [
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-400-1000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-562-4000"
+    ],
+    "picked": "ref-562-4000",
+    "pickedIsNearestBep": true,
+    "q": 3501
+   },
+   {
+    "bepRanking": [
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-400-1000",
+     "ref-675-7000"
+    ],
+    "coveringSet": [
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "picked": "ref-562-4000",
+    "pickedIsNearestBep": true,
+    "q": 4000
+   },
+   {
+    "bepRanking": [
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-675-7000",
+     "ref-400-1000"
+    ],
+    "coveringSet": [
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "picked": "ref-562-4000",
+    "pickedIsNearestBep": true,
+    "q": 4500
+   },
+   {
+    "bepRanking": [
+     "ref-675-7000",
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-400-1000"
+    ],
+    "coveringSet": [
+     "ref-562-4000",
+     "ref-675-7000"
+    ],
+    "picked": "ref-562-4000",
+    "pickedIsNearestBep": false,
+    "q": 5600
+   },
+   {
+    "bepRanking": [
+     "ref-675-7000",
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-400-1000"
+    ],
+    "coveringSet": [
+     "ref-675-7000"
+    ],
+    "picked": "ref-675-7000",
+    "pickedIsNearestBep": true,
+    "q": 5601
+   },
+   {
+    "bepRanking": [
+     "ref-675-7000",
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-400-1000"
+    ],
+    "coveringSet": [
+     "ref-675-7000"
+    ],
+    "picked": "ref-675-7000",
+    "pickedIsNearestBep": true,
+    "q": 7000
+   },
+   {
+    "bepRanking": [
+     "ref-675-7000",
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-400-1000"
+    ],
+    "coveringSet": [
+     "ref-675-7000"
+    ],
+    "picked": "ref-675-7000",
+    "pickedIsNearestBep": true,
+    "q": 9800
+   },
+   {
+    "bepRanking": [
+     "ref-675-7000",
+     "ref-562-4000",
+     "ref-540-2500",
+     "ref-400-1000"
+    ],
+    "coveringSet": [],
+    "picked": "ref-675-7000",
+    "pickedIsNearestBep": true,
+    "q": 12000
+   }
+  ]
+ },
+ "rodLadder": [
+  {
+   "id": "smallestThatMeets",
+   "outcomes": [
+    {
+     "loadingPct": 40.0,
+     "producedBpd": 120.0
+    },
+    {
+     "loadingPct": 55.0,
+     "producedBpd": 210.0
+    },
+    {
+     "loadingPct": 70.0,
+     "producedBpd": 340.0
+    },
+    {
+     "loadingPct": 80.0,
+     "producedBpd": 500.0
+    },
+    {
+     "loadingPct": 88.0,
+     "producedBpd": 700.0
+    },
+    {
+     "loadingPct": 95.0,
+     "producedBpd": 1100.0
+    }
+   ],
+   "result": {
+    "attempts": 0,
+    "index": 2,
+    "loadingKnown": true,
+    "loadingPct": 70.0,
+    "meetsIndices": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "ok": true,
+    "producedBpd": 340.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 0,
+    "index": 2,
+    "loadingKnown": true,
+    "loadingPct": 70.0,
+    "meetsIndices": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "ok": true,
+    "producedBpd": 340.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "target": 300.0,
+   "why": "Four rungs meet the target. The answer is the SMALLEST of them, because the ladder ascends in displacement and a bigger unit costs money."
+  },
+  {
+   "id": "firstThatDesignsIsNotTheAnswer",
+   "outcomes": [
+    {
+     "loadingPct": 30.0,
+     "producedBpd": 100.0
+    },
+    {
+     "loadingPct": 42.0,
+     "producedBpd": 150.0
+    },
+    {
+     "loadingPct": 55.0,
+     "producedBpd": 200.0
+    },
+    {
+     "loadingPct": 66.0,
+     "producedBpd": 250.0
+    },
+    {
+     "loadingPct": 74.0,
+     "producedBpd": 290.0
+    },
+    {
+     "loadingPct": 90.0,
+     "producedBpd": 400.0
+    }
+   ],
+   "result": {
+    "attempts": 0,
+    "index": 4,
+    "loadingKnown": true,
+    "loadingPct": 74.0,
+    "meetsIndices": [
+     4,
+     5
+    ],
+    "ok": true,
+    "producedBpd": 290.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 0,
+    "index": 4,
+    "loadingKnown": true,
+    "loadingPct": 74.0,
+    "meetsIndices": [
+     4,
+     5
+    ],
+    "ok": true,
+    "producedBpd": 290.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "target": 300.0,
+   "why": "Every rung designs cleanly, but the first one makes a THIRD of what was asked. Reporting it as a success would be the most misleading thing the advisor could do."
+  },
+  {
+   "id": "toleranceBites",
+   "outcomes": [
+    {
+     "loadingPct": 30.0,
+     "producedBpd": 100.0
+    },
+    {
+     "loadingPct": 42.0,
+     "producedBpd": 150.0
+    },
+    {
+     "loadingPct": 55.0,
+     "producedBpd": 200.0
+    },
+    {
+     "loadingPct": 66.0,
+     "producedBpd": 250.0
+    },
+    {
+     "loadingPct": 74.0,
+     "producedBpd": 269.0
+    },
+    {
+     "loadingPct": 90.0,
+     "producedBpd": 271.0
+    }
+   ],
+   "result": {
+    "attempts": 0,
+    "index": 5,
+    "loadingKnown": true,
+    "loadingPct": 90.0,
+    "meetsIndices": [
+     5
+    ],
+    "ok": true,
+    "producedBpd": 271.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 0,
+    "index": 5,
+    "loadingKnown": true,
+    "loadingPct": 90.0,
+    "meetsIndices": [
+     5
+    ],
+    "ok": true,
+    "producedBpd": 271.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "target": 300.0,
+   "why": "The best rung makes 271 against a target of 300, which is 90.3 per cent and just inside the tolerance. At 269 it would be a shortfall."
+  },
+  {
+   "id": "overloadedRungsDiscarded",
+   "outcomes": [
+    {
+     "loadingPct": 40.0,
+     "producedBpd": 120.0
+    },
+    {
+     "loadingPct": 55.0,
+     "producedBpd": 210.0
+    },
+    {
+     "loadingPct": 70.0,
+     "producedBpd": 340.0
+    },
+    {
+     "loadingPct": 105.0,
+     "producedBpd": 900.0
+    },
+    {
+     "loadingPct": 88.0,
+     "producedBpd": 700.0
+    },
+    {
+     "loadingPct": 130.0,
+     "producedBpd": 1400.0
+    }
+   ],
+   "result": {
+    "attempts": 2,
+    "index": 4,
+    "loadingKnown": true,
+    "loadingPct": 88.0,
+    "meetsIndices": [
+     4
+    ],
+    "ok": true,
+    "producedBpd": 700.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     4
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 2,
+    "index": 4,
+    "loadingKnown": true,
+    "loadingPct": 88.0,
+    "meetsIndices": [
+     4
+    ],
+    "ok": true,
+    "producedBpd": 700.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     4
+    ]
+   },
+   "target": 600.0,
+   "why": "Two rungs design but run their rods past the Goodman allowable. They are not answers, and the largest of them is not the fallback either."
+  },
+  {
+   "id": "shortfall",
+   "outcomes": [
+    {
+     "loadingPct": 40.0,
+     "producedBpd": 120.0
+    },
+    {
+     "loadingPct": 55.0,
+     "producedBpd": 210.0
+    },
+    {
+     "loadingPct": 70.0,
+     "producedBpd": 340.0
+    },
+    {
+     "loadingPct": 80.0,
+     "producedBpd": 500.0
+    },
+    {
+     "loadingPct": 88.0,
+     "producedBpd": 700.0
+    },
+    {
+     "loadingPct": 95.0,
+     "producedBpd": 1100.0
+    }
+   ],
+   "result": {
+    "attempts": 0,
+    "index": 5,
+    "meetsIndices": [],
+    "ok": false,
+    "producedBpd": 1100.0,
+    "shortfall": true,
+    "targetBpd": 1400.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 0,
+    "index": 5,
+    "meetsIndices": [],
+    "ok": false,
+    "producedBpd": 1100.0,
+    "shortfall": true,
+    "targetBpd": 1400.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "target": 1400.0,
+   "why": "Rod pumping is rate-limited by the plunger it can swing at this depth, and this well is past it. The honest answer is the achieved rate, not a refusal with no number in it."
+  },
+  {
+   "id": "loadingUnknownFailsOpen",
+   "outcomes": [
+    {
+     "loadingPct": 40.0,
+     "producedBpd": 120.0
+    },
+    {
+     "loadingPct": 55.0,
+     "producedBpd": 210.0
+    },
+    {
+     "loadingPct": 70.0,
+     "producedBpd": 340.0
+    },
+    {
+     "loadingPct": 80.0,
+     "producedBpd": 500.0
+    },
+    {
+     "loadingPct": 95.0,
+     "producedBpd": 1100.0
+    },
+    {
+     "loadingPct": null,
+     "producedBpd": 3000.0
+    }
+   ],
+   "result": {
+    "attempts": 0,
+    "index": 5,
+    "loadingKnown": false,
+    "loadingPct": null,
+    "meetsIndices": [
+     5
+    ],
+    "ok": true,
+    "producedBpd": 3000.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 1,
+    "index": 4,
+    "meetsIndices": [],
+    "ok": false,
+    "producedBpd": 1100.0,
+    "shortfall": true,
+    "targetBpd": 2000.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "target": 2000.0,
+   "why": "FINDING. One rung comes back with no worst rod section, so its loading is unknown. The guard compares an unknown against 100 and lets it through, so the rung becomes the ANSWER and its loading is reported as NaN. Had the unknown been treated as a failure the answer would have been a shortfall at 1100 bbl/d instead."
+  },
+  {
+   "id": "nothingDesigns",
+   "outcomes": [
+    {
+     "refused": "no inflow"
+    },
+    {
+     "refused": "no inflow"
+    },
+    {
+     "refused": "no inflow"
+    },
+    {
+     "refused": "no inflow"
+    },
+    {
+     "refused": "no inflow"
+    },
+    {
+     "refused": "no inflow"
+    }
+   ],
+   "result": {
+    "attempts": 6,
+    "index": null,
+    "meetsIndices": [],
+    "ok": false,
+    "shortfall": false,
+    "workableIndices": []
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 6,
+    "index": null,
+    "meetsIndices": [],
+    "ok": false,
+    "shortfall": false,
+    "workableIndices": []
+   },
+   "target": 500.0,
+   "why": "The chain refuses every rung. There is no design and no shortfall to report, only the reason the last attempt failed."
+  }
+ ],
+ "truthTable": [
+  {
+   "designOk": true,
+   "hasDesign": true,
+   "hasEngine": true,
+   "recommended": true,
+   "verdict": "agreeYes"
+  },
+  {
+   "designOk": true,
+   "hasDesign": true,
+   "hasEngine": true,
+   "recommended": false,
+   "verdict": "designYes"
+  },
+  {
+   "designOk": false,
+   "hasDesign": true,
+   "hasEngine": true,
+   "recommended": true,
+   "verdict": "designNo"
+  },
+  {
+   "designOk": false,
+   "hasDesign": true,
+   "hasEngine": true,
+   "recommended": false,
+   "verdict": "agreeNo"
+  },
+  {
+   "designOk": false,
+   "hasDesign": false,
+   "hasEngine": true,
+   "recommended": true,
+   "verdict": "notRun"
+  },
+  {
+   "designOk": false,
+   "hasDesign": false,
+   "hasEngine": true,
+   "recommended": false,
+   "verdict": "notRun"
+  },
+  {
+   "designOk": true,
+   "hasDesign": true,
+   "hasEngine": false,
+   "recommended": true,
+   "verdict": "noEngine"
+  },
+  {
+   "designOk": true,
+   "hasDesign": true,
+   "hasEngine": false,
+   "recommended": false,
+   "verdict": "noEngine"
+  },
+  {
+   "designOk": false,
+   "hasDesign": true,
+   "hasEngine": false,
+   "recommended": true,
+   "verdict": "noEngine"
+  },
+  {
+   "designOk": false,
+   "hasDesign": true,
+   "hasEngine": false,
+   "recommended": false,
+   "verdict": "noEngine"
+  },
+  {
+   "designOk": false,
+   "hasDesign": false,
+   "hasEngine": false,
+   "recommended": true,
+   "verdict": "noEngine"
+  },
+  {
+   "designOk": false,
+   "hasDesign": false,
+   "hasEngine": false,
+   "recommended": false,
+   "verdict": "noEngine"
+  }
+ ]
+}

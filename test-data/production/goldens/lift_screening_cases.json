@@ -1,0 +1,5546 @@
+{
+ "archetypes": [
+  {
+   "expectTop": [
+    "esp",
+    "gasLift"
+   ],
+   "id": "deepWateredOutOffshore",
+   "inputs": {
+    "api": 33,
+    "bhtF": 210,
+    "depthFt": 9500,
+    "gor": 350,
+    "isDeviated": true,
+    "isOffshore": true,
+    "targetRate": 4500,
+    "wctPct": 78
+   },
+   "result": [
+    {
+     "catalogIndex": 0,
+     "fired": [],
+     "hasEngine": true,
+     "id": "gasLift",
+     "label": "Gas lift",
+     "raw": 100,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro",
+      "pro"
+     ],
+     "recommended": true,
+     "score": 100
+    },
+    {
+     "catalogIndex": 1,
+     "fired": [],
+     "hasEngine": true,
+     "id": "esp",
+     "label": "ESP",
+     "raw": 100,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro",
+      "pro"
+     ],
+     "recommended": true,
+     "score": 100
+    },
+    {
+     "catalogIndex": 5,
+     "fired": [
+      "poorEfficiency"
+     ],
+     "hasEngine": false,
+     "id": "jetPump",
+     "label": "Jet pump",
+     "raw": 80,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "con"
+     ],
+     "recommended": false,
+     "score": 80
+    },
+    {
+     "catalogIndex": 4,
+     "fired": [
+      "elastomer",
+      "rateRange",
+      "rodTorque"
+     ],
+     "hasEngine": false,
+     "id": "pcp",
+     "label": "Progressing cavity pump",
+     "raw": 25,
+     "reasonKinds": [
+      "con",
+      "con",
+      "con"
+     ],
+     "recommended": false,
+     "score": 25
+    },
+    {
+     "catalogIndex": 2,
+     "fired": [
+      "dutyIndex",
+      "rodWear",
+      "offshoreDeck"
+     ],
+     "hasEngine": true,
+     "id": "rodPump",
+     "label": "Rod pump",
+     "raw": 20,
+     "reasonKinds": [
+      "con",
+      "pro",
+      "pro",
+      "con",
+      "con"
+     ],
+     "recommended": false,
+     "score": 20
+    },
+    {
+     "catalogIndex": 3,
+     "fired": [
+      "rateCeiling",
+      "gasPerBarrel"
+     ],
+     "hasEngine": true,
+     "id": "plunger",
+     "label": "Plunger lift",
+     "raw": 0,
+     "reasonKinds": [
+      "con",
+      "con",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 0
+    }
+   ],
+   "why": "Deep, high liquid rate, watered out, offshore with power on the platform. This is the well ESPs and gas lift exist for, and no beam unit belongs on a deck."
+  },
+  {
+   "expectTop": [
+    "rodPump"
+   ],
+   "id": "shallowStripper",
+   "inputs": {
+    "api": 34,
+    "bhtF": 130,
+    "depthFt": 3200,
+    "gor": 180,
+    "targetRate": 110,
+    "wctPct": 55
+   },
+   "result": [
+    {
+     "catalogIndex": 2,
+     "fired": [],
+     "hasEngine": true,
+     "id": "rodPump",
+     "label": "Rod pump",
+     "raw": 100,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro"
+     ],
+     "recommended": true,
+     "score": 100
+    },
+    {
+     "catalogIndex": 0,
+     "fired": [
+      "rateRange"
+     ],
+     "hasEngine": true,
+     "id": "gasLift",
+     "label": "Gas lift",
+     "raw": 90,
+     "reasonKinds": [
+      "pro",
+      "neutral"
+     ],
+     "recommended": true,
+     "score": 90
+    },
+    {
+     "catalogIndex": 5,
+     "fired": [
+      "poorEfficiency"
+     ],
+     "hasEngine": false,
+     "id": "jetPump",
+     "label": "Jet pump",
+     "raw": 80,
+     "reasonKinds": [
+      "pro",
+      "con"
+     ],
+     "recommended": false,
+     "score": 80
+    },
+    {
+     "catalogIndex": 4,
+     "fired": [
+      "elastomer"
+     ],
+     "hasEngine": false,
+     "id": "pcp",
+     "label": "Progressing cavity pump",
+     "raw": 75,
+     "reasonKinds": [
+      "con",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 75
+    },
+    {
+     "catalogIndex": 1,
+     "fired": [
+      "rateRange"
+     ],
+     "hasEngine": true,
+     "id": "esp",
+     "label": "ESP",
+     "raw": 65,
+     "reasonKinds": [
+      "pro",
+      "con",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 65
+    },
+    {
+     "catalogIndex": 3,
+     "fired": [
+      "gasPerBarrel"
+     ],
+     "hasEngine": true,
+     "id": "plunger",
+     "label": "Plunger lift",
+     "raw": 45,
+     "reasonKinds": [
+      "pro",
+      "con",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 45
+    }
+   ],
+   "why": "A shallow onshore stripper making a hundred barrels a day. Rod pumping is the cheapest thing in the world to run and every field hand knows one."
+  },
+  {
+   "expectTop": [
+    "plunger"
+   ],
+   "id": "gassyLowLiquid",
+   "inputs": {
+    "api": 48,
+    "bhtF": 190,
+    "depthFt": 7800,
+    "gor": 12000,
+    "targetRate": 25,
+    "wctPct": 40
+   },
+   "result": [
+    {
+     "catalogIndex": 3,
+     "fired": [],
+     "hasEngine": true,
+     "id": "plunger",
+     "label": "Plunger lift",
+     "raw": 100,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro"
+     ],
+     "recommended": true,
+     "score": 100
+    },
+    {
+     "catalogIndex": 0,
+     "fired": [
+      "rateRange"
+     ],
+     "hasEngine": true,
+     "id": "gasLift",
+     "label": "Gas lift",
+     "raw": 90,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "neutral"
+     ],
+     "recommended": true,
+     "score": 90
+    },
+    {
+     "catalogIndex": 2,
+     "fired": [
+      "gasInterference"
+     ],
+     "hasEngine": true,
+     "id": "rodPump",
+     "label": "Rod pump",
+     "raw": 80,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro",
+      "con"
+     ],
+     "recommended": false,
+     "score": 80
+    },
+    {
+     "catalogIndex": 5,
+     "fired": [
+      "poorEfficiency",
+      "lowRate"
+     ],
+     "hasEngine": false,
+     "id": "jetPump",
+     "label": "Jet pump",
+     "raw": 65,
+     "reasonKinds": [
+      "pro",
+      "con",
+      "neutral"
+     ],
+     "recommended": false,
+     "score": 65
+    },
+    {
+     "catalogIndex": 1,
+     "fired": [
+      "rateRange",
+      "freeGas"
+     ],
+     "hasEngine": true,
+     "id": "esp",
+     "label": "ESP",
+     "raw": 30,
+     "reasonKinds": [
+      "pro",
+      "con",
+      "con"
+     ],
+     "recommended": false,
+     "score": 30
+    },
+    {
+     "catalogIndex": 4,
+     "fired": [
+      "elastomer",
+      "rateRange",
+      "rodTorque",
+      "dryStator"
+     ],
+     "hasEngine": false,
+     "id": "pcp",
+     "label": "Progressing cavity pump",
+     "raw": 25,
+     "reasonKinds": [
+      "con",
+      "neutral",
+      "con",
+      "con"
+     ],
+     "recommended": false,
+     "score": 25
+    }
+   ],
+   "why": "A gas well loading up: barely any liquid and thousands of scf per barrel to drive a plunger with. There is no cheaper lift and no external power needed."
+  },
+  {
+   "expectTop": [
+    "pcp",
+    "rodPump"
+   ],
+   "id": "heavyOilSandy",
+   "inputs": {
+    "api": 14,
+    "bhtF": 105,
+    "depthFt": 2400,
+    "gor": 90,
+    "hasSand": true,
+    "targetRate": 260,
+    "wctPct": 45
+   },
+   "result": [
+    {
+     "catalogIndex": 0,
+     "fired": [],
+     "hasEngine": true,
+     "id": "gasLift",
+     "label": "Gas lift",
+     "raw": 100,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro"
+     ],
+     "recommended": true,
+     "score": 100
+    },
+    {
+     "catalogIndex": 4,
+     "fired": [],
+     "hasEngine": false,
+     "id": "pcp",
+     "label": "Progressing cavity pump",
+     "raw": 100,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro"
+     ],
+     "recommended": true,
+     "score": 100
+    },
+    {
+     "catalogIndex": 2,
+     "fired": [
+      "sandWear"
+     ],
+     "hasEngine": true,
+     "id": "rodPump",
+     "label": "Rod pump",
+     "raw": 85,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro",
+      "con",
+      "pro"
+     ],
+     "recommended": true,
+     "score": 85
+    },
+    {
+     "catalogIndex": 5,
+     "fired": [
+      "poorEfficiency"
+     ],
+     "hasEngine": false,
+     "id": "jetPump",
+     "label": "Jet pump",
+     "raw": 80,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "con"
+     ],
+     "recommended": false,
+     "score": 80
+    },
+    {
+     "catalogIndex": 1,
+     "fired": [
+      "rateRange",
+      "abrasives",
+      "viscous"
+     ],
+     "hasEngine": true,
+     "id": "esp",
+     "label": "ESP",
+     "raw": 40,
+     "reasonKinds": [
+      "pro",
+      "neutral",
+      "pro",
+      "con",
+      "con"
+     ],
+     "recommended": false,
+     "score": 40
+    },
+    {
+     "catalogIndex": 3,
+     "fired": [
+      "rateCeiling",
+      "gasPerBarrel",
+      "sandSticks"
+     ],
+     "hasEngine": true,
+     "id": "plunger",
+     "label": "Plunger lift",
+     "raw": -10,
+     "reasonKinds": [
+      "con",
+      "con",
+      "pro",
+      "neutral"
+     ],
+     "recommended": false,
+     "score": 0
+    }
+   ],
+   "why": "Shallow, heavy, sandy, viscous crude. A progressing cavity pump is the best thing in the world at exactly this and a centrifugal is the worst."
+  },
+  {
+   "expectTop": [
+    "gasLift"
+   ],
+   "id": "noPower",
+   "inputs": {
+    "api": 32,
+    "bhtF": 220,
+    "depthFt": 8000,
+    "gor": 600,
+    "powerAvailable": false,
+    "targetRate": 900,
+    "wctPct": 60
+   },
+   "result": [
+    {
+     "catalogIndex": 0,
+     "fired": [],
+     "hasEngine": true,
+     "id": "gasLift",
+     "label": "Gas lift",
+     "raw": 100,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro"
+     ],
+     "recommended": true,
+     "score": 100
+    },
+    {
+     "catalogIndex": 5,
+     "fired": [
+      "poorEfficiency",
+      "powerFluidPlant"
+     ],
+     "hasEngine": false,
+     "id": "jetPump",
+     "label": "Jet pump",
+     "raw": 55,
+     "reasonKinds": [
+      "pro",
+      "con",
+      "con"
+     ],
+     "recommended": false,
+     "score": 55
+    },
+    {
+     "catalogIndex": 1,
+     "fired": [
+      "powerSupply"
+     ],
+     "hasEngine": true,
+     "id": "esp",
+     "label": "ESP",
+     "raw": 40,
+     "reasonKinds": [
+      "con",
+      "pro",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 40
+    },
+    {
+     "catalogIndex": 2,
+     "fired": [
+      "dutyIndex",
+      "gasInterference"
+     ],
+     "hasEngine": true,
+     "id": "rodPump",
+     "label": "Rod pump",
+     "raw": 40,
+     "reasonKinds": [
+      "con",
+      "pro",
+      "con"
+     ],
+     "recommended": false,
+     "score": 40
+    },
+    {
+     "catalogIndex": 4,
+     "fired": [
+      "elastomer",
+      "rodTorque",
+      "dryStator"
+     ],
+     "hasEngine": false,
+     "id": "pcp",
+     "label": "Progressing cavity pump",
+     "raw": 35,
+     "reasonKinds": [
+      "con",
+      "pro",
+      "con",
+      "con"
+     ],
+     "recommended": false,
+     "score": 35
+    },
+    {
+     "catalogIndex": 3,
+     "fired": [
+      "rateCeiling",
+      "gasPerBarrel"
+     ],
+     "hasEngine": true,
+     "id": "plunger",
+     "label": "Plunger lift",
+     "raw": 0,
+     "reasonKinds": [
+      "con",
+      "con",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 0
+    }
+   ],
+   "why": "No electricity at the wellsite. That single fact removes the ESP from the conversation and makes the answer gas lift."
+  },
+  {
+   "expectTop": [
+    "esp"
+   ],
+   "id": "noGas",
+   "inputs": {
+    "api": 31,
+    "bhtF": 200,
+    "depthFt": 8000,
+    "gasAvailable": false,
+    "gor": 300,
+    "targetRate": 1600,
+    "wctPct": 65
+   },
+   "result": [
+    {
+     "catalogIndex": 1,
+     "fired": [],
+     "hasEngine": true,
+     "id": "esp",
+     "label": "ESP",
+     "raw": 100,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro"
+     ],
+     "recommended": true,
+     "score": 100
+    },
+    {
+     "catalogIndex": 5,
+     "fired": [
+      "poorEfficiency"
+     ],
+     "hasEngine": false,
+     "id": "jetPump",
+     "label": "Jet pump",
+     "raw": 80,
+     "reasonKinds": [
+      "pro",
+      "con"
+     ],
+     "recommended": false,
+     "score": 80
+    },
+    {
+     "catalogIndex": 2,
+     "fired": [
+      "dutyIndex"
+     ],
+     "hasEngine": true,
+     "id": "rodPump",
+     "label": "Rod pump",
+     "raw": 60,
+     "reasonKinds": [
+      "con",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 60
+    },
+    {
+     "catalogIndex": 4,
+     "fired": [
+      "elastomer",
+      "rodTorque"
+     ],
+     "hasEngine": false,
+     "id": "pcp",
+     "label": "Progressing cavity pump",
+     "raw": 55,
+     "reasonKinds": [
+      "con",
+      "pro",
+      "con"
+     ],
+     "recommended": false,
+     "score": 55
+    },
+    {
+     "catalogIndex": 0,
+     "fired": [
+      "gasSupply"
+     ],
+     "hasEngine": true,
+     "id": "gasLift",
+     "label": "Gas lift",
+     "raw": 40,
+     "reasonKinds": [
+      "con",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 40
+    },
+    {
+     "catalogIndex": 3,
+     "fired": [
+      "rateCeiling",
+      "gasPerBarrel"
+     ],
+     "hasEngine": true,
+     "id": "plunger",
+     "label": "Plunger lift",
+     "raw": 0,
+     "reasonKinds": [
+      "con",
+      "con",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 0
+    }
+   ],
+   "why": "No injection gas and no compression. Gas lift is not an option however well the rest of the well suits it, and the ESP takes over."
+  },
+  {
+   "expectTop": [
+    "gasLift"
+   ],
+   "id": "hotDeepSandyHorizontal",
+   "inputs": {
+    "api": 36,
+    "bhtF": 330,
+    "depthFt": 13500,
+    "gor": 900,
+    "hasSand": true,
+    "isHorizontal": true,
+    "targetRate": 1200,
+    "wctPct": 50
+   },
+   "result": [
+    {
+     "catalogIndex": 0,
+     "fired": [
+      "deep"
+     ],
+     "hasEngine": true,
+     "id": "gasLift",
+     "label": "Gas lift",
+     "raw": 90,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro",
+      "pro",
+      "pro",
+      "pro",
+      "neutral"
+     ],
+     "recommended": true,
+     "score": 90
+    },
+    {
+     "catalogIndex": 5,
+     "fired": [
+      "poorEfficiency"
+     ],
+     "hasEngine": false,
+     "id": "jetPump",
+     "label": "Jet pump",
+     "raw": 80,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "pro",
+      "pro",
+      "con"
+     ],
+     "recommended": true,
+     "score": 80
+    },
+    {
+     "catalogIndex": 1,
+     "fired": [
+      "freeGas",
+      "abrasives",
+      "tooHot",
+      "lateral"
+     ],
+     "hasEngine": true,
+     "id": "esp",
+     "label": "ESP",
+     "raw": 30,
+     "reasonKinds": [
+      "pro",
+      "pro",
+      "neutral",
+      "con",
+      "con",
+      "neutral"
+     ],
+     "recommended": false,
+     "score": 30
+    },
+    {
+     "catalogIndex": 2,
+     "fired": [
+      "dutyIndex",
+      "gasInterference",
+      "sandWear",
+      "rodWear"
+     ],
+     "hasEngine": true,
+     "id": "rodPump",
+     "label": "Rod pump",
+     "raw": -5,
+     "reasonKinds": [
+      "con",
+      "pro",
+      "con",
+      "con",
+      "con",
+      "pro"
+     ],
+     "recommended": false,
+     "score": 0
+    },
+    {
+     "catalogIndex": 3,
+     "fired": [
+      "rateCeiling",
+      "gasPerBarrel",
+      "deep",
+      "sandSticks",
+      "lateral"
+     ],
+     "hasEngine": true,
+     "id": "plunger",
+     "label": "Plunger lift",
+     "raw": -35,
+     "reasonKinds": [
+      "con",
+      "con",
+      "neutral",
+      "pro",
+      "neutral",
+      "neutral"
+     ],
+     "recommended": false,
+     "score": 0
+    },
+    {
+     "catalogIndex": 4,
+     "fired": [
+      "elastomer",
+      "tooHot",
+      "rodTorque",
+      "dryStator",
+      "lateral"
+     ],
+     "hasEngine": false,
+     "id": "pcp",
+     "label": "Progressing cavity pump",
+     "raw": -20,
+     "reasonKinds": [
+      "con",
+      "pro",
+      "pro",
+      "con",
+      "con",
+      "con",
+      "con"
+     ],
+     "recommended": false,
+     "score": 0
+    }
+   ],
+   "why": "Hot, deep, sandy and horizontal: everything downhole gets cooked, cut or worn. Gas lift has nothing downhole to lose."
+  }
+ ],
+ "description": "Artificial lift screening goldens: the six-method rules matrix, its scores, reason kinds, recommendation band and ordering. Independent stdlib oracle (tools/validation/production/oracle_liftscreening.py). A rules matrix has no second method to reach its numbers by, and the oracle says so: it re-expresses every rule as a DECLARATIVE PENALTY LEDGER walked by one generic scorer with no branch on a method anywhere, and it gates STRUCTURAL PROPERTIES that a transcription cannot fake -- that no adverse condition ever raises a score, that the clamp holds over a swept input space, that the recommendation band is exactly {score >= top - 15 and score > 50} recomputed from the scores, that ties keep catalog order, and that seven archetype wells rank the way an engineer would argue in one sentence. Also carries the two seams found on extraction: a missing API read as ultra-heavy crude, and the same targetRate documented as liquid here and used as oil by the design pass. Field units: bbl/d, ft, scf/stb, per cent water cut, degrees API, degF.",
+ "emptyInput": [
+  {
+   "catalogIndex": 2,
+   "fired": [],
+   "hasEngine": true,
+   "id": "rodPump",
+   "label": "Rod pump",
+   "raw": 100,
+   "reasonKinds": [
+    "pro",
+    "pro",
+    "pro",
+    "pro"
+   ],
+   "recommended": true,
+   "score": 100
+  },
+  {
+   "catalogIndex": 0,
+   "fired": [
+    "rateRange"
+   ],
+   "hasEngine": true,
+   "id": "gasLift",
+   "label": "Gas lift",
+   "raw": 90,
+   "reasonKinds": [
+    "pro",
+    "neutral"
+   ],
+   "recommended": true,
+   "score": 90
+  },
+  {
+   "catalogIndex": 4,
+   "fired": [
+    "rateRange"
+   ],
+   "hasEngine": false,
+   "id": "pcp",
+   "label": "Progressing cavity pump",
+   "raw": 90,
+   "reasonKinds": [
+    "pro",
+    "neutral"
+   ],
+   "recommended": true,
+   "score": 90
+  },
+  {
+   "catalogIndex": 5,
+   "fired": [
+    "poorEfficiency",
+    "lowRate"
+   ],
+   "hasEngine": false,
+   "id": "jetPump",
+   "label": "Jet pump",
+   "raw": 65,
+   "reasonKinds": [
+    "pro",
+    "con",
+    "neutral"
+   ],
+   "recommended": false,
+   "score": 65
+  },
+  {
+   "catalogIndex": 1,
+   "fired": [
+    "rateRange",
+    "viscous"
+   ],
+   "hasEngine": true,
+   "id": "esp",
+   "label": "ESP",
+   "raw": 45,
+   "reasonKinds": [
+    "pro",
+    "con",
+    "pro",
+    "con"
+   ],
+   "recommended": false,
+   "score": 45
+  },
+  {
+   "catalogIndex": 3,
+   "fired": [
+    "gasPerBarrel"
+   ],
+   "hasEngine": true,
+   "id": "plunger",
+   "label": "Plunger lift",
+   "raw": 45,
+   "reasonKinds": [
+    "pro",
+    "con",
+    "pro"
+   ],
+   "recommended": false,
+   "score": 45
+  }
+ ],
+ "methods": [
+  {
+   "hasEngine": true,
+   "id": "gasLift",
+   "label": "Gas lift"
+  },
+  {
+   "hasEngine": true,
+   "id": "esp",
+   "label": "ESP"
+  },
+  {
+   "hasEngine": true,
+   "id": "rodPump",
+   "label": "Rod pump"
+  },
+  {
+   "hasEngine": true,
+   "id": "plunger",
+   "label": "Plunger lift"
+  },
+  {
+   "hasEngine": false,
+   "id": "pcp",
+   "label": "Progressing cavity pump"
+  },
+  {
+   "hasEngine": false,
+   "id": "jetPump",
+   "label": "Jet pump"
+  }
+ ],
+ "monotonicity": {
+  "base": {
+   "api": 32,
+   "bhtF": 200,
+   "depthFt": 8000,
+   "gor": 600,
+   "targetRate": 800,
+   "wctPct": 50
+  },
+  "baseScores": {
+   "esp": 100,
+   "gasLift": 100,
+   "jetPump": 80,
+   "pcp": 35,
+   "plunger": 0,
+   "rodPump": 40
+  },
+  "cases": [
+   {
+    "condition": "hasSand",
+    "deltas": {
+     "esp": -25,
+     "gasLift": 0,
+     "jetPump": 0,
+     "pcp": 0,
+     "plunger": 0,
+     "rodPump": -15
+    },
+    "turnedOn": true
+   },
+   {
+    "condition": "isHorizontal",
+    "deltas": {
+     "esp": -10,
+     "gasLift": 0,
+     "jetPump": 0,
+     "pcp": -20,
+     "plunger": 0,
+     "rodPump": -30
+    },
+    "turnedOn": true
+   },
+   {
+    "condition": "isDeviated",
+    "deltas": {
+     "esp": 0,
+     "gasLift": 0,
+     "jetPump": 0,
+     "pcp": 0,
+     "plunger": 0,
+     "rodPump": -15
+    },
+    "turnedOn": true
+   },
+   {
+    "condition": "isOffshore",
+    "deltas": {
+     "esp": 0,
+     "gasLift": 0,
+     "jetPump": 0,
+     "pcp": 0,
+     "plunger": 0,
+     "rodPump": -25
+    },
+    "turnedOn": true
+   },
+   {
+    "condition": "reservoirPressureLow",
+    "deltas": {
+     "esp": 0,
+     "gasLift": -25,
+     "jetPump": -25,
+     "pcp": 0,
+     "plunger": 0,
+     "rodPump": 0
+    },
+    "turnedOn": true
+   },
+   {
+    "condition": "powerAvailable",
+    "deltas": {
+     "esp": -60,
+     "gasLift": 0,
+     "jetPump": -25,
+     "pcp": 0,
+     "plunger": 0,
+     "rodPump": 0
+    },
+    "turnedOn": false
+   },
+   {
+    "condition": "gasAvailable",
+    "deltas": {
+     "esp": 0,
+     "gasLift": -60,
+     "jetPump": 0,
+     "pcp": 0,
+     "plunger": 0,
+     "rodPump": 0
+    },
+    "turnedOn": false
+   }
+  ]
+ },
+ "seams": {
+  "missingApiIsHeavy": {
+   "deltas": {
+    "esp": -20,
+    "gasLift": 0,
+    "jetPump": 0,
+    "pcp": 25,
+    "plunger": 0,
+    "rodPump": 0
+   },
+   "known": {
+    "api": 35,
+    "bhtF": 210,
+    "depthFt": 6500,
+    "gor": 400,
+    "targetRate": 700,
+    "wctPct": 60
+   },
+   "knownScores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 0,
+    "rodPump": 85
+   },
+   "missingScores": {
+    "esp": 80,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 85
+   },
+   "note": "An absent API is coerced to zero, and zero reads as heavier than any real crude. The ESP loses its viscosity points and the PCP gains its best reason, on no information at all."
+  },
+  "targetRateOilVersusLiquid": {
+   "asLiquidOrder": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "asLiquidRecommended": [
+    "gasLift",
+    "esp"
+   ],
+   "asLiquidScores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 35,
+    "plunger": 0,
+    "rodPump": 40
+   },
+   "asOilOrder": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "asOilRecommended": [
+    "gasLift",
+    "esp"
+   ],
+   "asOilScores": {
+    "esp": 85,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 35,
+    "plunger": 0,
+    "rodPump": 80
+   },
+   "liquidRate": 999.9999999999999,
+   "note": "The same well, the same duty, one number read two ways. The shipped studio passes the OIL rate; this module documented LIQUID.",
+   "oilRate": 300.0,
+   "wctPct": 70.0
+  }
+ },
+ "sweep": [
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "rodPump",
+    "gasLift",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "rodPump",
+    "gasLift",
+    "pcp"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 90,
+    "plunger": 45,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "rodPump",
+    "gasLift",
+    "pcp",
+    "esp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "rodPump",
+    "gasLift",
+    "pcp"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 90,
+    "plunger": 45,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "rodPump",
+    "gasLift",
+    "esp",
+    "pcp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "rodPump",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 65,
+    "plunger": 45,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 45,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "esp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 45,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "esp",
+    "jetPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 45,
+    "plunger": 45,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "pcp",
+    "jetPump",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "plunger"
+   ],
+   "scores": {
+    "esp": 10,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 80,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "pcp",
+    "jetPump",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "plunger"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 80,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "jetPump",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "plunger"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 45,
+    "plunger": 80,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "plunger",
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp"
+   ],
+   "recommended": [
+    "plunger",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 10,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 100,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "plunger",
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp"
+   ],
+   "recommended": [
+    "plunger",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 100,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "plunger",
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "plunger",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 45,
+    "plunger": 100,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "rodPump",
+    "gasLift",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "rodPump",
+    "gasLift",
+    "pcp"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 90,
+    "plunger": 45,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "rodPump",
+    "gasLift",
+    "pcp",
+    "esp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "rodPump",
+    "gasLift",
+    "pcp"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 90,
+    "plunger": 45,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "rodPump",
+    "gasLift",
+    "esp",
+    "pcp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "rodPump",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 65,
+    "plunger": 45,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 45,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "esp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 45,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "esp",
+    "jetPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 45,
+    "plunger": 45,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "pcp",
+    "jetPump",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "plunger"
+   ],
+   "scores": {
+    "esp": 10,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 80,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "pcp",
+    "jetPump",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "plunger"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 80,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "jetPump",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "plunger"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 45,
+    "plunger": 80,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "plunger",
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp"
+   ],
+   "recommended": [
+    "plunger",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 10,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 100,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "plunger",
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp"
+   ],
+   "recommended": [
+    "plunger",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 100,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "plunger",
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "plunger",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 65,
+    "pcp": 45,
+    "plunger": 100,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "rodPump",
+    "gasLift",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 30,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "rodPump",
+    "gasLift",
+    "pcp",
+    "esp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 70,
+    "plunger": 30,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "rodPump",
+    "gasLift",
+    "esp",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 45,
+    "plunger": 30,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 50,
+    "plunger": 30,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "esp",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "esp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 50,
+    "plunger": 30,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "esp",
+    "jetPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "esp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 25,
+    "plunger": 30,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "jetPump",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 10,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 50,
+    "plunger": 65,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "jetPump",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 50,
+    "plunger": 65,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "jetPump",
+    "esp",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "plunger",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 25,
+    "plunger": 65,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "plunger",
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "plunger",
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 10,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 50,
+    "plunger": 85,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "plunger",
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "plunger",
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 50,
+    "plunger": 85,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 30,
+    "wctPct": 50
+   },
+   "order": [
+    "plunger",
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "esp",
+    "pcp"
+   ],
+   "recommended": [
+    "plunger",
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 80,
+    "jetPump": 65,
+    "pcp": 25,
+    "plunger": 85,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "pcp"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 100,
+    "plunger": 0,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "esp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "esp"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 100,
+    "plunger": 0,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "esp",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "esp"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 75,
+    "plunger": 0,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 0,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 35,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 35,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 35,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 55,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 55,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "plunger",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 55,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "pcp"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 100,
+    "plunger": 0,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "esp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "esp"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 100,
+    "plunger": 0,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "esp",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "esp"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 75,
+    "plunger": 0,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 0,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 35,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 35,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 35,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 55,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 55,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "plunger",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 55,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 85
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "pcp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 85
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 0,
+    "rodPump": 85
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 0,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 0,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 85,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 35,
+    "plunger": 0,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 20,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 20,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "esp",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 35,
+    "plunger": 20,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 30,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 40,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 40,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 300,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "esp",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 50,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 35,
+    "plunger": 40,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "esp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump",
+    "pcp"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 100,
+    "plunger": 0,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "pcp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 100,
+    "plunger": 0,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 75,
+    "plunger": 0,
+    "rodPump": 100
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 0,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 35,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 35,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "esp",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 35,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "plunger",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 55,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "pcp",
+    "jetPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 55,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "jetPump",
+    "esp",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 55,
+    "rodPump": 80
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "pcp",
+    "rodPump",
+    "esp",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "pcp",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 100,
+    "plunger": 0,
+    "rodPump": 85
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "pcp",
+    "rodPump",
+    "jetPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "pcp",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 100,
+    "plunger": 0,
+    "rodPump": 85
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 75,
+    "plunger": 0,
+    "rodPump": 85
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "pcp",
+    "jetPump",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "pcp",
+    "jetPump",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 0,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "pcp",
+    "jetPump",
+    "rodPump",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 35,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "pcp",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 35,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 35,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "pcp",
+    "jetPump",
+    "rodPump",
+    "plunger",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 55,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "pcp",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 55,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 55,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "pcp",
+    "jetPump",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "pcp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 60
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "esp",
+    "gasLift",
+    "pcp",
+    "jetPump",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "esp",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 80,
+    "plunger": 0,
+    "rodPump": 60
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "esp",
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "esp",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 55,
+    "plunger": 0,
+    "rodPump": 60
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "pcp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 0,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "esp",
+    "gasLift",
+    "jetPump",
+    "pcp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "esp",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 0,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "esp",
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "esp",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 35,
+    "plunger": 0,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "pcp",
+    "esp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 20,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "pcp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 20,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 35,
+    "plunger": 20,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "pcp",
+    "esp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 40,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "pcp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 60,
+    "plunger": 40,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 800,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 35,
+    "plunger": 40,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "rodPump",
+    "esp",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 70,
+    "plunger": 0,
+    "rodPump": 85
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 70,
+    "plunger": 0,
+    "rodPump": 85
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 0,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "rodPump",
+    "jetPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "rodPump"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 45,
+    "plunger": 0,
+    "rodPump": 85
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 0,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 0,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 600,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 25,
+    "plunger": 0,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "esp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 35,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 35,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 3000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 25,
+    "plunger": 35,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "plunger",
+    "pcp",
+    "esp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 55,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 55,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 1500,
+    "gor": 9000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 25,
+    "plunger": 55,
+    "rodPump": 65
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "pcp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 70,
+    "plunger": 0,
+    "rodPump": 60
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "pcp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 70,
+    "plunger": 0,
+    "rodPump": 60
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 0,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 45,
+    "plunger": 0,
+    "rodPump": 60
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "pcp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 0,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "pcp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 0,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 600,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 25,
+    "plunger": 0,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "pcp",
+    "esp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 35,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "pcp",
+    "rodPump",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 35,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 3000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 25,
+    "plunger": 35,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "plunger",
+    "pcp",
+    "esp",
+    "rodPump"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 55,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "plunger",
+    "pcp",
+    "rodPump"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 55,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 5000,
+    "gor": 9000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "plunger",
+    "rodPump",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 100,
+    "jetPump": 80,
+    "pcp": 25,
+    "plunger": 55,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 0,
+    "rodPump": 60
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "esp",
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "esp",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 50,
+    "plunger": 0,
+    "rodPump": 60
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 0,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "esp",
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "esp",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 25,
+    "plunger": 0,
+    "rodPump": 60
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "esp",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "esp",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 80,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 30,
+    "plunger": 0,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "esp",
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "esp",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 30,
+    "plunger": 0,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 600,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "esp",
+    "gasLift",
+    "jetPump",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "esp",
+    "gasLift"
+   ],
+   "scores": {
+    "esp": 100,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 5,
+    "plunger": 0,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 30,
+    "plunger": 20,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "pcp",
+    "plunger"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 30,
+    "plunger": 20,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 3000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 5,
+    "plunger": 20,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 14,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 45,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 30,
+    "plunger": 40,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 25,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 30,
+    "plunger": 40,
+    "rodPump": 40
+   }
+  },
+  {
+   "inputs": {
+    "api": 38,
+    "bhtF": 200,
+    "depthFt": 13000,
+    "gor": 9000,
+    "targetRate": 2500,
+    "wctPct": 50
+   },
+   "order": [
+    "gasLift",
+    "jetPump",
+    "esp",
+    "rodPump",
+    "plunger",
+    "pcp"
+   ],
+   "recommended": [
+    "gasLift",
+    "jetPump"
+   ],
+   "scores": {
+    "esp": 65,
+    "gasLift": 90,
+    "jetPump": 80,
+    "pcp": 5,
+    "plunger": 40,
+    "rodPump": 40
+   }
+  }
+ ]
+}
