@@ -643,3 +643,61 @@ describe('the seams between the ESP modules', () => {
     expect(rated.candidates.filter((c) => !c.ampacityOk)).toHaveLength(3);
   });
 });
+
+// The motor warnings are the same defect one step further on: they do not
+// merely round a value onto its threshold, they printed a pair of numbers
+// that argued AGAINST the warning they were attached to. Both fire on
+// `loadFraction`, which is measured against the DERATED rating, and the
+// message printed the shaft power and the PLATE only. On a 12 percent
+// thrust derate a shaft asking 95.1 hp of a 100 hp motor reads as
+// comfortably inside rating, while what fired the flag is 95.1 / (100 x
+// 0.88) = 1.08. The underload message named no numbers at all, so it could
+// not be checked either way. Messages only; no arithmetic moves.
+describe('the motor warnings name the derate that fired them', () => {
+  const curve = curveFor('ref-540-2500');
+
+  test('a plate ratio under 1 and a derated ratio over 1 are both in the message', () => {
+    const sized = sizePump({
+      curve, qBpd: 2500, tdhFt: 3800, hz: 60, specificGravity: 0.95,
+      nameplateHp: 100, thrustDeratePct: 12,
+    });
+    // the two ratios fall on OPPOSITE sides of 1: read against the plate
+    // this motor is fine, and only the derated rating fires the flag
+    expect(sized.shaftHp / 100).toBeLessThan(1);
+    expect(sized.motorLoad.loadFraction).toBeGreaterThan(1);
+    const w = sized.warnings.find((x) => x.code === 'motorOverloaded');
+    expect(w).toBeDefined();
+    expect(w.message).toContain(`${sized.shaftHp.toFixed(1)} hp`);
+    expect(w.message).toContain('100 hp motor');
+    expect(w.message).toContain('derated 12 percent for thrust');
+    expect(w.message).toContain(`a usable ${(100 * 0.88).toFixed(1)} hp`);
+    expect(w.message).toContain(
+      `${(sized.motorLoad.loadFraction * 100).toFixed(1)} percent of what it may carry`);
+  });
+
+  test('with no derate the message says nothing about one', () => {
+    const sized = sizePump({
+      curve, qBpd: 2500, tdhFt: 6000, hz: 60, specificGravity: 0.95, nameplateHp: 60,
+    });
+    const w = sized.warnings.find((x) => x.code === 'motorOverloaded');
+    expect(w).toBeDefined();
+    expect(sized.motorLoad.derate).toBe(1);
+    expect(w.message).toContain('60 hp motor,');
+    expect(w.message).not.toMatch(/derated/);
+    expect(w.message).not.toMatch(/usable/);
+  });
+
+  test('the underload warning names its numbers too, so a reader can check it', () => {
+    const sized = sizePump({
+      curve, qBpd: 2500, tdhFt: 2000, hz: 60, specificGravity: 0.95, nameplateHp: 400,
+    });
+    const w = sized.warnings.find((x) => x.code === 'motorUnderloaded');
+    expect(w).toBeDefined();
+    expect(sized.motorLoad.loadFraction).toBeLessThan(0.5);
+    expect(w.message).toContain(`${sized.shaftHp.toFixed(1)} hp`);
+    expect(w.message).toContain('400 hp motor');
+    expect(w.message).toContain(
+      `${(sized.motorLoad.loadFraction * 100).toFixed(1)} percent of what it may carry`);
+    expect(w.message).toContain('the power factor and the cost both suffer');
+  });
+});

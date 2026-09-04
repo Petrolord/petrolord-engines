@@ -248,3 +248,34 @@ describe('the hydrate screening', () => {
     expect(hydrateScreening({ pDownstreamPsia: 800 }).ok).toBe(false);
   });
 });
+
+// poorFit fires on a strict inequality above 15 percent and then prints the
+// RMS it fired on. At whole percent an RMS of 15.3 rendered as "15 percent"
+// under a flag that never fires there, so a real warning read as a false
+// alarm. One decimal narrows the collision by ten (the 0.05 above 15 still
+// collides); it does not remove it, and the same rounding overstates on the
+// way up. The fixture sits inside the band and clear of the residue.
+describe('the fit-quality warning prints an error off its own threshold', () => {
+  test('poorFit fires above 15 percent and prints above 15 percent', () => {
+    // Six tests generated from a published Gilbert set and then wobbled by a
+    // fixed plus and minus 19.659 percent in turn, which lands the RMS of
+    // the refit at 15.3 percent.
+    const wobble = 0.19659063515885072;
+    const points = [
+      { q: 500, glr: 400, s64: 16 }, { q: 800, glr: 600, s64: 24 },
+      { q: 1200, glr: 900, s64: 32 }, { q: 1500, glr: 500, s64: 40 },
+      { q: 900, glr: 1200, s64: 20 }, { q: 1100, glr: 700, s64: 28 },
+    ].map((p, i) => ({
+      ...p,
+      pwh: ((10 * p.glr ** 0.546 * p.q) / p.s64 ** 1.89) * (1 + (i % 2 ? -wobble : wobble)),
+    }));
+    const f = fitGilbertCoefficients({ points });
+    expect(f.ok).toBe(true);
+    expect(f.rmsePct).toBeGreaterThan(15.05);
+    expect(f.rmsePct).toBeLessThan(15.5);
+    const w = f.warnings.find((x) => x.code === 'poorFit');
+    expect(w).toBeDefined();
+    expect(w.message).toMatch(/misses the tests by 15\.3 percent/);
+    expect(w.message).not.toMatch(/\b15 percent\b/);
+  });
+});

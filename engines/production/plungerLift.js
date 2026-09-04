@@ -235,10 +235,14 @@ export const screenPlungerLift = ({
       message: `A cycle needs ${Math.round(requiredGlr).toLocaleString()} scf of gas per barrel and the well makes ${Math.round(wellGlrScfBbl).toLocaleString()}. There is not enough gas to drive the plunger at this slug size.`,
     });
   }
+  // One decimal on the cycle time: 1440 minutes IS one trip a day, so
+  // at whole minutes a 1440.3 minute cycle read "At 1440 minutes a
+  // cycle this well would make fewer than one trip a day", which is its
+  // own contradiction to any reader who knows how long a day is.
   if (timing.cyclesPerDay < 1) {
     warnings.push({
       code: 'slowCycle',
-      message: `At ${timing.totalMin.toFixed(0)} minutes a cycle this well would make fewer than one trip a day. Check the shut-in and afterflow times.`,
+      message: `At ${timing.totalMin.toFixed(1)} minutes a cycle this well would make fewer than one trip a day. Check the shut-in and afterflow times.`,
     });
   }
 

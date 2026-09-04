@@ -243,10 +243,13 @@ const finish = ({ c, m, n, clean, mode }) => {
       message: `The fitted gas-liquid ratio exponent is ${m.toFixed(2)}, against 0.31 to 0.65 across the published sets. Check that the tests really differ in gas-liquid ratio.`,
     });
   }
+  // Prints the RMS it fired on, at one decimal: at whole percent a
+  // 15.3 percent miss read "15 percent" under a flag that only fires
+  // above 15. The residual collision is the 0.05 either side, not zero.
   if (rmsePct > 15) {
     warnings.push({
       code: 'poorFit',
-      message: `The fit misses the tests by ${rmsePct.toFixed(0)} percent on average. Either these tests were not all in critical flow, or something other than the choke was controlling.`,
+      message: `The fit misses the tests by ${rmsePct.toFixed(1)} percent on average. Either these tests were not all in critical flow, or something other than the choke was controlling.`,
     });
   }
   return {

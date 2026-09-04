@@ -226,3 +226,40 @@ describe('the operating region', () => {
     expect(operatingRegion({ qGpm: 100, qBepGpm: 0 }).error).toBeTruthy();
   });
 });
+
+// Both warnings below fire on a strict inequality and then print the value
+// they fired on. At whole percent a 20.25 percent trim read "a 20 percent
+// trim ... the vendor limit usually sits near 20 percent", a false alarm on
+// the face of it. One decimal narrows the collision to the 0.05 either side
+// of the threshold; it does not close it, and it errs upward as readily as
+// down. The fixtures sit inside each flag's band and clear of that residue.
+describe('the pump warnings print a value off their own threshold', () => {
+  test('a trim past 20 percent prints past 20 percent', () => {
+    const t = impellerTrim({ qGpm: 1000, headFt: 200, brakeHp: 60, diameterRatio: 0.7975 });
+    expect(t.trimPercent).toBeGreaterThan(20.05);
+    expect(t.trimPercent).toBeLessThan(20.5);
+    expect(t.warning).toMatch(/a 20\.3 percent trim/);
+    expect(t.warning).not.toMatch(/\ba 20 percent trim\b/);
+    // the limit the sentence quotes stays exactly as it reads today
+    expect(t.warning).toContain('the vendor limit usually sits near 20 percent');
+  });
+
+  test('a viscosity efficiency correction under 60 percent prints under 60', () => {
+    // B is the HI correlating parameter and its published form is
+    // invertible, so the viscosity is chosen to put B where cEta is 59.75
+    // percent: inside the band the flag fires on, and rendered "60 percent"
+    // by the old whole-number format.
+    const qBepGpm = 900;
+    const headBepFt = 220;
+    const speedRpm = 3560;
+    const B = 8.5355100209;
+    const viscosityCSt = (
+      (B * qBepGpm ** 0.375 * speedRpm ** 0.25) / (26.6 * headBepFt ** 0.0625)
+    ) ** 2;
+    const v = viscosityCorrection({ qBepGpm, headBepFt, viscosityCSt, speedRpm });
+    expect(v.cEta).toBeLessThan(0.5995);
+    expect(v.cEta).toBeGreaterThan(0.595);
+    expect(v.warning).toMatch(/59\.8 percent/);
+    expect(v.warning).not.toMatch(/\b60 percent\b/);
+  });
+});

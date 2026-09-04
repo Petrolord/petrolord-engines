@@ -356,3 +356,36 @@ describe('the screening, with the diagnosis in charge', () => {
     verdicts.slice(1).forEach((v, i) => expect(v).toBeGreaterThanOrEqual(verdicts[i]));
   });
 });
+
+// The scatter note fires on a strict inequality below `minR2` and then
+// prints the r-squared it fired on. At whole percent a fit explaining 84.57
+// percent rendered as "85 percent" against a minR2 of 0.85, that is as the
+// very threshold it fell short of. One decimal narrows the collision by ten
+// rather than closing it, and the fixture sits inside the band and clear of
+// the residual 0.05.
+describe('the scatter note prints an r-squared off its own threshold', () => {
+  const percentIn = (message) => Number(/([\d.]+) percent/.exec(message)[1]);
+  // An irrational stride, so the wobble on the derivative never repeats and
+  // the scatter is deterministic without being periodic.
+  const STRIDE = 2.399963229728653;
+  const series = Array.from({ length: 30 }, (_, i) => {
+    const t = 10 * 300 ** (i / 29);
+    const wor = 0.02 * t ** 0.8;
+    return { t, ratio: wor, derivative: 0.8 * wor * (1 + 0.4 * Math.sin(i * STRIDE)) };
+  });
+
+  test('it fires below minR2 and prints below minR2', () => {
+    const measured = chanDiagnosis({ series, settings: { minR2: 0.999 } }).derivativeR2;
+    // the whole percent a reader would set the threshold at, just above
+    const minR2 = Math.round(measured * 100) / 100;
+    expect(measured).toBeLessThan(minR2);
+    expect((minR2 - measured) * 100).toBeLessThan(0.5);      // old print collided
+    expect((minR2 - measured) * 100).toBeGreaterThan(0.05);  // clear of the residue
+
+    const d = chanDiagnosis({ series, settings: { minR2 } });
+    const note = d.notes.find((n) => n.includes('scatters too much'));
+    expect(note).toBeDefined();
+    expect(percentIn(note)).toBeLessThan(minR2 * 100);
+    expect(note).not.toMatch(new RegExp(`\\b${minR2 * 100} percent\\b`));
+  });
+});

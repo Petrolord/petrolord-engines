@@ -289,10 +289,18 @@ export const travelCheck = ({
   const normal = travelFor(cvRequiredNormal);
   const max = travelFor(cvRequiredMax);
   const warnings = [];
+  // Each travel warning below fires on a strict inequality and prints
+  // the travel it fired on, so the print carries one decimal: at whole
+  // percent a valve 9.7 percent open reported "10 percent open" under a
+  // flag that only fires BELOW 10. One decimal narrows that collision
+  // by ten rather than removing it (anything within 0.05 of the
+  // threshold still prints as the threshold). Gated by `the travel
+  // warnings print a travel off their own threshold` in
+  // __tests__/facilities.controlvalve.test.js.
   if (max === null) warnings.push('the maximum flow needs more Cv than the valve is rated for: it will not pass the design case');
-  if (min !== null && min < 10) warnings.push(`at minimum flow the valve is only ${min.toFixed(0)} percent open: near the seat the characteristic collapses and control is poor. A smaller valve, or a split range, is the answer`);
-  if (max !== null && max > 90) warnings.push(`at maximum flow the valve is ${max.toFixed(0)} percent open: there is no margin left for fouling, wear or a future rate increase`);
-  if (normal !== null && (normal < 20 || normal > 80)) warnings.push(`normal flow sits at ${normal.toFixed(0)} percent travel: the customary target is 20 to 80 percent`);
+  if (min !== null && min < 10) warnings.push(`at minimum flow the valve is only ${min.toFixed(1)} percent open: near the seat the characteristic collapses and control is poor. A smaller valve, or a split range, is the answer`);
+  if (max !== null && max > 90) warnings.push(`at maximum flow the valve is ${max.toFixed(1)} percent open: there is no margin left for fouling, wear or a future rate increase`);
+  if (normal !== null && (normal < 20 || normal > 80)) warnings.push(`normal flow sits at ${normal.toFixed(1)} percent travel: the customary target is 20 to 80 percent`);
   return {
     minTravelPct: min,
     normalTravelPct: normal,

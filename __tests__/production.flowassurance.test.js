@@ -417,3 +417,31 @@ describe('hydrate inhibition', () => {
     }).ok).toBe(true);
   });
 });
+
+// The refusal names `maxWtPct` beside the concentration it computed, and at
+// whole percent a required 70.25 weight percent rendered as "70 weight
+// percent ... past the 70 percent anything is actually run at": a refusal
+// whose own numbers say nothing was exceeded. One decimal narrows that
+// collision by ten rather than closing it (the 0.05 above the limit still
+// prints as the limit), and the fixture sits clear of the residue.
+describe('the inhibitor refusal prints a concentration off its own limit', () => {
+  test('a concentration past the practical maximum does not print as the maximum', () => {
+    const inh = inhibitor('methanol');
+    // Hammerschmidt is invertible, so the subcooling that needs exactly
+    // 70.25 weight percent is a closed form rather than a fitted number.
+    const subcoolingF = hammerschmidtDepression({
+      weightPct: MAX_PRACTICAL_WT_PCT + 0.25,
+      molecularWeight: inh.molecularWeight,
+      k: inh.k,
+    });
+    const r = inhibitionRequirement({
+      subcoolingF, waterRateBpd: 200, inhibitorId: 'methanol',
+    });
+    expect(r.ok).toBe(false);
+    expect(r.weightPct).toBeGreaterThan(MAX_PRACTICAL_WT_PCT + 0.05);
+    expect(r.weightPct).toBeLessThan(MAX_PRACTICAL_WT_PCT + 0.5);
+    expect(r.error).toMatch(/70\.3 weight percent/);
+    expect(r.error).not.toMatch(/\b70 weight percent\b/);
+    expect(r.error).toContain('past the 70 percent');   // the limit is untouched
+  });
+});

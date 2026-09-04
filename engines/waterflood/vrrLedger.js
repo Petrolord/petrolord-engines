@@ -268,8 +268,16 @@ export function validateAllocation(allocation) {
       sum += f;
     });
     rowSums[inj] = sum;
-    if (sum > 1 + 1e-9) errors.push(`${inj}: allocation fractions sum to ${sum.toFixed(3)} (> 1).`);
-    else if (sum > 0 && sum < 1 - 1e-9) warnings.push(`${inj}: fractions sum to ${sum.toFixed(3)}; the remaining ${(1 - sum).toFixed(3)} counts as out-of-zone.`);
+    // Six decimals, not three, because both messages name the threshold
+    // beside the sum: three decimals turned three producers at 0.333333
+    // into "fractions sum to 1.000" in a warning that only fires when
+    // they sum to LESS than 1, with "the remaining 0.000" as the
+    // out-of-zone share. The guard's tolerance is 1e-9, which is float
+    // noise, so no readable precision closes the collision completely;
+    // six decimals covers every allocation a person can actually type,
+    // which is all that reaches this branch.
+    if (sum > 1 + 1e-9) errors.push(`${inj}: allocation fractions sum to ${sum.toFixed(6)} (> 1).`);
+    else if (sum > 0 && sum < 1 - 1e-9) warnings.push(`${inj}: fractions sum to ${sum.toFixed(6)}; the remaining ${(1 - sum).toFixed(6)} counts as out-of-zone.`);
   });
   return { ok: errors.length === 0, errors, warnings, rowSums };
 }

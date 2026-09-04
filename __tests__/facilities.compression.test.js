@@ -217,3 +217,46 @@ describe('machine screening and fuel', () => {
     expect(driverFuel({ brakeHp: 0 }).error).toBeTruthy();
   });
 });
+
+// Both of these name their own threshold in the sentence and then printed
+// the value whole, so a discharge of 300.3 F read "discharge at 300 F:
+// above about 300 F ..." and a suction volume of 499.7 acfm read "only 500
+// acfm at suction: below about 500 acfm ...". Each is a real finding
+// rendered as its own counter-argument. One decimal narrows the collision
+// by ten; it does not remove it, and it errs upward as readily as down.
+describe('the machine warnings print a value off their own threshold', () => {
+  test('a discharge temperature past 300 F does not print as 300 F', () => {
+    const k = 1.28;
+    const polytropicEfficiency = 0.75;
+    const ratio = 3;
+    // the discharge temperature is a closed form in the suction one, so the
+    // suction is chosen to land the discharge at 300.3 F
+    const e = polytropicExponentRatio({ k, polytropicEfficiency });
+    const tSuctionF = (300.3 + 459.67) / ratio ** e - 459.67;
+    const s = compressionStage({
+      qMMscfd: 10, pSuctionPsia: 200, tSuctionF, ratio, gasSg: 0.65, k,
+      polytropicEfficiency,
+    });
+    expect(s.tDischargeF).toBeGreaterThan(300.05);
+    expect(s.tDischargeF).toBeLessThan(300.5);
+    expect(s.warning).toMatch(/discharge at 300\.3 F/);
+    expect(s.warning).not.toMatch(/discharge at 300 F/);
+    expect(s.warning).toContain('above about 300 F');   // the threshold is untouched
+  });
+
+  test('a suction volume under 500 acfm does not print as 500 acfm', () => {
+    const at = { pSuctionPsia: 200, tSuctionF: 90, gasSg: 0.65 };
+    // acfm is linear in rate, so the rate for 499.7 acfm is one division
+    const perMMscfd = actualInletCfm({
+      qMMscfd: 1, pPsia: at.pSuctionPsia, tF: at.tSuctionF, gasSg: at.gasSg,
+    });
+    const m = machineScreen({
+      qMMscfd: 499.7 / perMMscfd, ...at, overallRatio: 3, totalBrakeHp: 500,
+    });
+    expect(m.recommendation).toBe('reciprocating');
+    const r = m.reasons.find((x) => x.includes('acfm at suction'));
+    expect(r).toMatch(/only 499\.7 acfm/);
+    expect(r).not.toMatch(/only 500 acfm/);
+    expect(r).toContain('below about 500 acfm');
+  });
+});
