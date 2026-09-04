@@ -28,8 +28,14 @@ import {
 import {
   linearTemperature, injectionPressureCurve, topValveDepth, spaceValves,
   valveSetting, designGasLift, deepestInjectionPoint, unloadingSequence,
+  SPACING_MAX_ITER, SPACING_TOL_FT,
 } from '../engines/production/gasLiftDesign';
 import { VALVE_FAMILIES, valveFamily } from '../engines/production/data/gasLiftValveCatalog';
+
+const DESIGN_SOURCE = fs.readFileSync(
+  path.join(__dirname, '..', 'engines', 'production', 'gasLiftDesign.js'),
+  'utf8',
+);
 
 const G = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', 'test-data', 'production', 'goldens', 'gaslift_cases.json'),
@@ -360,6 +366,144 @@ describe('valve spacing and settings', () => {
   });
 });
 
+// Item 28: a closing pressure that does not exist is not a closing
+// pressure of zero, and a record that cannot answer a question says so
+// rather than answering it with a false.
+describe('a valve with no closing pressure is skipped, not compared', () => {
+  const temp = tempFn(100, 190, 8000);
+
+  test('an upper valve with a null closing pressure is not reported open', () => {
+    const stages = unloadingSequence({
+      valves: [
+        // no dome charge, so no pressure at which it closes
+        { depthFt: 3000, closingSurfacePressurePsia: null, pInjAtDepthPsia: 1050,
+          pProdAtDepthPsia: 400, pSurfOpenPsia: 1014.7, throughputMscfd: 800 },
+        { depthFt: 5000, closingSurfacePressurePsia: 940, pInjAtDepthPsia: 1010,
+          pProdAtDepthPsia: 600, pSurfOpenPsia: 989.7, throughputMscfd: 700 },
+      ],
+      gasSg: 0.65, tempAtDepthF: temp,
+    });
+    // the comparison cannot be evaluated on valve 1, so valve 1 is not in
+    // the answer either way. Coercing the null to zero put it there.
+    expect(stages[1].upperValvesOpen).toEqual([]);
+    expect(stages[1].multipointing).toBe(false);
+  });
+
+  test('a real closing pressure above the stage pressure still reports open', () => {
+    const stages = unloadingSequence({
+      valves: [
+        { depthFt: 3000, closingSurfacePressurePsia: 900, pInjAtDepthPsia: 1050,
+          pProdAtDepthPsia: 400, pSurfOpenPsia: 1014.7, throughputMscfd: 800 },
+        { depthFt: 5000, closingSurfacePressurePsia: 940, pInjAtDepthPsia: 1010,
+          pProdAtDepthPsia: 600, pSurfOpenPsia: 989.7, throughputMscfd: 700 },
+      ],
+      gasSg: 0.65, tempAtDepthF: temp,
+    });
+    expect(stages[1].upperValvesOpen).toEqual([1]);
+    expect(stages[1].multipointing).toBe(true);
+  });
+
+  test('the bottom orifice says the closing question does not apply', () => {
+    const design = designGasLift(caseCfg(G.designs[0]));
+    const orifice = design.valves[design.valves.length - 1];
+    expect(orifice.valveType).toBe('orifice');
+    expect(orifice.closingSurfacePressurePsia).toBeNull();
+    // not `false`, which is the different and unsupported claim that it
+    // stays open at the operating pressure
+    expect(orifice.closesAtOperating).toBeNull();
+    design.valves.slice(0, -1).forEach((v) => {
+      expect(typeof v.closesAtOperating).toBe('boolean');
+    });
+  });
+
+  test('no published verdict moves when the null is skipped', () => {
+    // the orifice is always the deepest valve, so it is never an UPPER
+    // valve at any stage and the guard cannot reach a published answer
+    G.designs.forEach((g) => {
+      const design = designGasLift(caseCfg(g));
+      design.unloading.forEach((s) => {
+        expect(s.upperValvesOpen).not.toContain(design.valves.length);
+      });
+      // the IPO designs are the ones the goldens gate as verdicts; the
+      // PPO design is the pinned known divergence of item 7, Wave 2
+      if (g.inputs.valveType === 'PPO') return;
+      design.unloading.forEach((s, i) => {
+        expect(s.upperValvesOpen).toEqual(g.unloading[i].upperValvesOpen);
+      });
+    });
+  });
+});
+
+// Item 41: the two decisions the unloading solve was making silently.
+describe('the decisions behind the unloading solve are stated', () => {
+  const temp = tempFn(100, 190, 8000);
+
+  test('a valve exactly at its closing pressure is treated as open', () => {
+    const stages = unloadingSequence({
+      valves: [
+        { depthFt: 3000, closingSurfacePressurePsia: 989.7, pInjAtDepthPsia: 1050,
+          pProdAtDepthPsia: 400, pSurfOpenPsia: 1014.7, throughputMscfd: 800 },
+        { depthFt: 5000, closingSurfacePressurePsia: 940, pInjAtDepthPsia: 1010,
+          pProdAtDepthPsia: 600, pSurfOpenPsia: 989.7, throughputMscfd: 700 },
+      ],
+      gasSg: 0.65, tempAtDepthF: temp,
+    });
+    // exact equality, and the convention calls it open
+    expect(stages[1].surfaceInjectionPsia).toBe(989.7);
+    expect(stages[1].upperValvesOpen).toEqual([1]);
+  });
+
+  test('the header states both conventions rather than leaving them in the code', () => {
+    const header = DESIGN_SOURCE.slice(0, DESIGN_SOURCE.indexOf('import '));
+    expect(header).toMatch(/treated as OPEN/);
+    expect(header).toMatch(/SKIPPED/);
+    expect(header).toMatch(/NO RESIDUAL/);
+  });
+
+  test('a spacing fixed point that does not settle is reported with its iteration count', () => {
+    // A synthetic case, and it has to be: the fixed point only crawls
+    // when the kill fluid is barely heavier than the injection gas
+    // column, which is a 0.08 psi/ft unloading fluid here. A field
+    // design settles in single-figure passes.
+    const cfg = {
+      pKickoffPsia: 3014.7, pWhUnloadPsia: 2700, killGradPsiPerFt: 0.08,
+      unloadGradPsiPerFt: 0.05, dpPerValvePsi: 25, dpTransferPsi: 50,
+      gasSg: 0.65, tempAtDepthF: tempFn(100, 220, 12000), maxDepthFt: 60000,
+      minSpacingFt: 250, maxValves: 12,
+    };
+    const spacing = spaceValves(cfg);
+    const w = spacing.warnings.find((x) => x.code === 'spacingNotConverged');
+    expect(w).toBeDefined();
+    expect(w.iterations).toBe(SPACING_MAX_ITER);
+    expect(w.toleranceFt).toBe(SPACING_TOL_FT);
+    expect(w.valve).toBe(2);
+    expect(w.message).toContain(`after ${SPACING_MAX_ITER} passes`);
+    expect(w.message).toContain(`within ${SPACING_TOL_FT} ft`);
+    expect(w.message).toContain('approximate');
+    expect(w.message).not.toMatch(/--|\u2014|\u2013/);
+  });
+
+  test('the design carries the spacing solve\'s warnings as its own', () => {
+    const design = designGasLift({
+      pKickoffPsia: 3014.7, pWhUnloadPsia: 2700, killGradPsiPerFt: 0.08,
+      unloadGradPsiPerFt: 0.05, dpPerValvePsi: 25, dpTransferPsi: 50,
+      gasSg: 0.65, tempAtDepthF: tempFn(100, 220, 12000), maxDepthFt: 60000,
+      minSpacingFt: 250, maxValves: 12, valveType: 'IPO', bellowsAreaIn2: 0.77,
+      ports: valveFamily('r15').ports, qgiTargetMscfd: 300, bottomOrifice: false,
+    });
+    expect(design.warnings.some((x) => x.code === 'spacingNotConverged')).toBe(true);
+  });
+
+  test('a published design settles and raises no such warning', () => {
+    G.designs.forEach((g) => {
+      const spacing = spaceValves(caseCfg(g));
+      expect(spacing.warnings).toEqual([]);
+      expect(designGasLift(caseCfg(g)).warnings
+        .some((x) => x.code === 'spacingNotConverged')).toBe(false);
+    });
+  });
+});
+
 describe('unloading and the multipointing verdict', () => {
   // The verdict is what designGasLift exists to tell a user: at the stage
   // the point of injection reaches valve i, is every valve above it shut?
@@ -530,12 +674,47 @@ describe('deepest point of injection', () => {
     expect(rel(hit.pInjPsia, gi.expected.pInjPsia)).toBeLessThan(1e-5);
   });
 
-  test('at the crossing the injection line less the transfer drop equals the tubing pressure', () => {
+  // Items 8, 31 and 40, the removal half. What used to stand here was a
+  // 0.5 psi gate on the chord residual pInj - dpTransfer - pProd at the
+  // reported crossing. Both sides of that difference are read off the
+  // same straight line between the same two tabulated rows, so the gate
+  // could not fail whatever the tabulation, and it was passing on a
+  // crossing tens of feet from the converged one. It is replaced by the
+  // two tests below: one that pins the absence of a residual field, one
+  // that shows why no threshold on such a residual could ever have
+  // worked. The replacement measure, a residual against a cubic
+  // interpolation of the tabulated points, is Wave 2 and is not here.
+  test('the crossing carries no residual field to be read as a quality signal', () => {
     const hit = deepestInjectionPoint({
       prodTraverse: gi.traverse, pSurfPsia: gi.pSurfPsia, gasSg: gi.gasSg,
       tempAtDepthF: temp, dpTransferPsi: gi.dpTransferPsi, maxDepthFt: gi.maxDepthFt,
     });
-    expect(Math.abs(hit.pInjPsia - gi.dpTransferPsi - hit.pProdPsia)).toBeLessThan(0.5);
+    expect(Object.keys(hit).sort()).toEqual(['depthFt', 'limitedBy', 'pInjPsia', 'pProdPsia']);
+    expect(hit.residualPsi).toBeUndefined();
+    expect(hit.residual).toBeUndefined();
+  });
+
+  test('a chord residual would say nothing: it stays tiny while the crossing moves tens of feet', () => {
+    // The same well and the same traverse table, read at two row
+    // spacings: every fourth row (4000 ft apart) and every row (1000 ft
+    // apart, which is what the published case ships).
+    const coarse = gi.traverse.filter((_, i) => i % 4 === 0);
+    const fine = gi.traverse;
+    const run = (prodTraverse) => deepestInjectionPoint({
+      prodTraverse, pSurfPsia: gi.pSurfPsia, gasSg: gi.gasSg, tempAtDepthF: temp,
+      dpTransferPsi: gi.dpTransferPsi, maxDepthFt: gi.maxDepthFt,
+    });
+    const a = run(coarse);
+    const b = run(fine);
+    const chordResidual = (h) => Math.abs(h.pInjPsia - gi.dpTransferPsi - h.pProdPsia);
+    // the two crossings are 20 ft and more apart, so at most one of them
+    // can be right
+    expect(Math.abs(a.depthFt - b.depthFt)).toBeGreaterThan(20);
+    // and yet the chord residual of BOTH sits far inside the 0.5 psi the
+    // removed gate allowed, and the coarser, wronger one is not the
+    // larger of the two by anything a threshold could use
+    expect(chordResidual(a)).toBeLessThan(0.05);
+    expect(chordResidual(b)).toBeLessThan(0.05);
   });
 
   test('more injection pressure buys a deeper injection point', () => {
