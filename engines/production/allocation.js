@@ -133,9 +133,18 @@ export function groupTests(tests, { includeInvalid = false } = {}) {
  * before it, within maxTestAgeDays. Returns null when the well has no
  * test in force, which EXCLUDES it from that day's allocation rather
  * than assuming a rate for it.
+ *
+ * ZERO IS A LIMIT, NOT AN EXEMPTION. The age guard used to read
+ * `Number.isFinite(maxTestAgeDays) && maxTestAgeDays > 0`, so setting
+ * the dial to 0 turned the age check OFF and a test years old still
+ * carried its well. A cap of 0 means no test may be older than zero
+ * days, and a test older than that carries nothing. A cap that is not a
+ * finite number, or is negative, cannot be evaluated at all, so no test
+ * is in force under it.
  */
 export function testInForce(wellTests, date, maxTestAgeDays = DEFAULT_ALLOCATION_SETTINGS.maxTestAgeDays) {
   if (!wellTests || !wellTests.length) return null;
+  if (!Number.isFinite(maxTestAgeDays) || maxTestAgeDays < 0) return null;
   const day = dayNumber(date);
   let chosen = null;
   for (const t of wellTests) {
@@ -143,8 +152,7 @@ export function testInForce(wellTests, date, maxTestAgeDays = DEFAULT_ALLOCATION
     chosen = t;
   }
   if (!chosen) return null;
-  if (Number.isFinite(maxTestAgeDays) && maxTestAgeDays > 0
-    && day - dayNumber(chosen.test_date) > maxTestAgeDays) return null;
+  if (day - dayNumber(chosen.test_date) > maxTestAgeDays) return null;
   return chosen;
 }
 

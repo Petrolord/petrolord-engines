@@ -26,6 +26,8 @@ import {
   movingAverage, decimate, detectExceptions, summarizeDeferments,
   computeKpis, rateSeriesForFit, annualEffectiveDecline, fitWellDecline,
   DEFAULT_SURVEILLANCE_SETTINGS, EXCEPTION_TYPES, FIT_STREAMS,
+  classifyWellType, INJECTOR_WELL_TYPES,
+  EXCEPTION_POPULATION_FILTER, KPI_POPULATION_FILTER,
 } from '../engines/production/surveillance';
 
 const G = JSON.parse(fs.readFileSync(
@@ -232,9 +234,18 @@ describe('exception surveillance', () => {
   });
 
   test('an empty field is an empty answer, not a crash', () => {
-    expect(detectExceptions([])).toEqual({ asOf: null, exceptions: [] });
-    expect(detectExceptions([{ well: G.wells['w-p1'], points: [] }]))
-      .toEqual({ asOf: null, exceptions: [] });
+    // The population and its filter are returned even when the
+    // population is empty, so a reader is never left guessing which
+    // wells produced a count of zero (owner item 77).
+    const empty = detectExceptions([]);
+    expect(empty.asOf).toBeNull();
+    expect(empty.exceptions).toEqual([]);
+    expect(empty.population).toEqual([]);
+    expect(empty.dataExceptions).toEqual([]);
+    const noPoints = detectExceptions([{ well: G.wells['w-p1'], points: [] }]);
+    expect(noPoints.asOf).toBeNull();
+    expect(noPoints.exceptions).toEqual([]);
+    expect(noPoints.population).toEqual([]);
   });
 });
 
@@ -438,5 +449,297 @@ describe('the decline overlay through the canonical Arps engine', () => {
     expect(producing.length).toBe(40);
     expect(FIT_STREAMS.oil.key).toBe('oilPd');
     expect(FIT_STREAMS.gas.unit).toBe('Mscf/d');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Owner decisions of 4 September 2026, Wave 1. Every test below fails on the
+// engine as it stood and none of them moves a golden number.
+// ---------------------------------------------------------------------------
+
+describe('74. a broken decline exponent is refused, not read as exponential', () => {
+  // At Di = 0.0015 per day the exponential answer is 42.160601062199, which
+  // is case 1 of the published golden. The old guard was `!b`, and `!NaN` is
+  // true, so a hyperbolic fit with an unreadable b handed back that number.
+  const EXPONENTIAL_ANSWER = G.effectiveDecline
+    .find((c) => c.modelType === 'Exponential' && c.Di === 0.0015).effectivePct;
+
+  test.each([[NaN], [null], [undefined]])(
+    'a hyperbolic call with b = %p refuses instead of returning the exponential answer',
+    (b) => {
+      const got = annualEffectiveDecline(0.0015, b, 'Hyperbolic');
+      expect(got.ok).toBe(false);
+      expect(got.code).toBe('invalidDeclineExponent');
+      expect(got).not.toBe(EXPONENTIAL_ANSWER);
+      expect(typeof got).not.toBe('number');
+    },
+  );
+
+  test('a negative b is refused rather than raised to a power', () => {
+    // -0.3 used to raise a negative bracket to a power and return 31.9375.
+    const got = annualEffectiveDecline(0.0015, -0.3, 'Hyperbolic');
+    expect(got.ok).toBe(false);
+    expect(got.code).toBe('invalidDeclineExponent');
+    expect(got.error).toMatch(/finite b greater than zero/);
+  });
+
+  test('and the published families are unmoved: the family is chosen by modelType', () => {
+    G.effectiveDecline.forEach((c) => {
+      expect(rel(annualEffectiveDecline(c.Di, c.b, c.modelType), c.effectivePct))
+        .toBeLessThan(1e-12);
+    });
+    // Exponential and harmonic never look at b at all now.
+    expect(annualEffectiveDecline(0.0015, NaN, 'Exponential'))
+      .toBeCloseTo(EXPONENTIAL_ANSWER, 12);
+    expect(annualEffectiveDecline(0.0015, NaN, 'Harmonic'))
+      .toBeCloseTo(annualEffectiveDecline(0.0015, 1, 'Harmonic'), 12);
+  });
+});
+
+describe('75. decimate respects the cap its own argument names', () => {
+  const run = (n, cap) => decimate(Array.from({ length: n }, (_, i) => i), cap);
+
+  test('3000 points against a cap of 1500 returns 1500 or fewer, not 1501', () => {
+    const out = run(3000, 1500);
+    expect(out.length).toBeLessThanOrEqual(1500);
+    expect(out[out.length - 1]).toBe(2999);
+  });
+
+  test('the cap holds across the sizes that used to overflow it by one', () => {
+    [[1501, 750], [3000, 1500], [2999, 1499], [101, 50], [1000, 999]].forEach(([n, cap]) => {
+      const out = run(n, cap);
+      expect(out.length).toBeLessThanOrEqual(cap);
+      expect(out[0]).toBe(0);
+      expect(out[out.length - 1]).toBe(n - 1);
+    });
+  });
+
+  test('a cap that is not a finite number is refused, not silently ignored', () => {
+    const got = decimate([1, 2, 3], NaN);
+    expect(got.ok).toBe(false);
+    expect(got.code).toBe('invalidMaxPoints');
+    expect(decimate([1, 2, 3], 0).code).toBe('invalidMaxPoints');
+  });
+
+  test('and the published decimation is unmoved', () => {
+    const pts = Array.from({ length: G.decimate.n }, (_, i) => i);
+    const out = decimate(pts, G.decimate.maxPoints);
+    expect(out).toHaveLength(G.decimate.outLength);
+    expect(out.slice(0, 5)).toEqual(G.decimate.firstIndices);
+  });
+});
+
+describe('76. the deferment roll-up cannot read the wall clock', () => {
+  const EVENTS = [{ category: 'X', start_date: '2025-06-01', oil_deferred_stb: 10 }];
+
+  test('no asOf is a refusal, because an open event has no end date', () => {
+    const got = summarizeDeferments(EVENTS);
+    expect(got.ok).toBe(false);
+    expect(got.code).toBe('missingAsOf');
+    expect(got.error).toMatch(/asOf/);
+    expect(got.byCategory).toBeUndefined();
+    expect(summarizeDeferments(EVENTS, null).code).toBe('missingAsOf');
+    expect(summarizeDeferments(EVENTS, '').code).toBe('missingAsOf');
+  });
+
+  test('an unreadable asOf is refused rather than turned into NaN days', () => {
+    const got = summarizeDeferments(EVENTS, 'last Tuesday');
+    expect(got.ok).toBe(false);
+    expect(got.code).toBe('unreadableAsOf');
+    expect(got.error).toMatch(/last Tuesday/);
+  });
+
+  test('the anchor comes back in the result, so the reader sees what open meant', () => {
+    const got = summarizeDeferments(G.deferments.events, G.deferments.asOf);
+    expect(got.asOf).toBe(G.deferments.asOf);
+    expect(got.ok).toBeUndefined();
+    // and the published roll-up is unmoved
+    expect(got.totals.days).toBe(G.deferments.summary.totals.days);
+    expect(got.openCount).toBe(G.deferments.summary.openCount);
+  });
+});
+
+describe('77. two counts of the same field, and each one now names its seven', () => {
+  const ex = detectExceptions(SERIES);
+  const kpi = computeKpis(SERIES, FIELD, { windowDays: 7 });
+
+  test('detectExceptions returns the wells it surveilled, and names its filter', () => {
+    expect(ex.population).toEqual(expect.arrayContaining(['w-p1', 'w-i1']));
+    expect(ex.population).not.toContain('w-o1');
+    expect(ex.populationFilter).toBe(EXCEPTION_POPULATION_FILTER);
+    expect(ex.populationFilter).toMatch(/Observation wells are excluded/);
+  });
+
+  test('computeKpis returns the wells it counted, and names its filter', () => {
+    expect(kpi.population).toHaveLength(kpi.producerCount);
+    expect(kpi.population).toContain('w-o1');
+    expect(kpi.population).not.toContain('w-i1');
+    expect(kpi.populationFilter).toBe(KPI_POPULATION_FILTER);
+    expect(kpi.populationFilter).toMatch(/Injectors are excluded/);
+  });
+
+  test('THE SAME SIZE, A DIFFERENT SET: one keeps the injector, the other the observer', () => {
+    expect(ex.population).toHaveLength(kpi.population.length);
+    expect([...ex.population].sort()).not.toEqual([...kpi.population].sort());
+    const onlyInExceptions = ex.population.filter((id) => !kpi.population.includes(id));
+    const onlyInKpis = kpi.population.filter((id) => !ex.population.includes(id));
+    expect(onlyInExceptions).toEqual(['w-i1']);
+    expect(onlyInKpis).toEqual(['w-o1']);
+    // the published counts are unmoved
+    expect(kpi.producerCount).toBe(G.kpis.producerCount);
+    expect(kpi.wellCount).toBe(G.kpis.wellCount);
+  });
+});
+
+describe('78. stb/d after a mean of calendar volumes', () => {
+  const ex = detectExceptions(SERIES);
+  const message = (wellId, type) => ex.exceptions.find(
+    (e) => e.wellId === wellId && e.type === type,
+  ).message;
+
+  test('the drop message quotes a PRODUCING DAY rate and says so', () => {
+    const m = message('w-p5', 'rate_drop');
+    expect(m).toMatch(/producing day rate/);
+    expect(m).toMatch(/on calendar volumes/);
+    // P-5 averages 8 hours on stream, so its producing-day rate did not
+    // move at all: 300 stb/d against a 300 stb/d baseline, while the
+    // calendar volumes fell 67 per cent. The old message printed
+    // "100 vs 300 stb/d baseline", a rate the well never flowed at.
+    expect(m).toBe('Oil down 67% on calendar volumes: producing day rate 300 stb/d against a 300 stb/d baseline.');
+    expect(m).not.toMatch(/100 vs 300/);
+  });
+
+  test('an injector quotes its producing day injection rate too', () => {
+    const m = message('w-i1', 'injection_drop');
+    expect(m).toMatch(/producing day rate/);
+    expect(m).toMatch(/stb\/d/);
+  });
+
+  test('the shut-in message quotes the baseline producing day rate', () => {
+    const m = message('w-p2', 'shut_in');
+    expect(m).toBe('Production stopped. Baseline producing day rate 400 stb/d of oil.');
+  });
+
+  test('no engine message carries a double hyphen or a dash character', () => {
+    ex.exceptions.forEach((e) => {
+      expect(e.message).not.toMatch(/--|–|—/);
+    });
+  });
+
+  test('AND THE TRIGGER ITSELF IS UNTOUCHED: value and baseline stay calendar means', () => {
+    ex.exceptions.forEach((e, i) => {
+      const g = G.exceptions.exceptions[i];
+      expect(rel(e.value || 1, g.value || 1)).toBeLessThan(1e-12);
+      expect(rel(e.baseline || 1, g.baseline || 1)).toBeLessThan(1e-12);
+    });
+  });
+});
+
+describe('79. volumes recorded against no well on stream', () => {
+  const P = { id: 'w1', name: 'P-1', well_type: 'producer' };
+  const rows = [
+    { well: P, well_id: 'w1', prod_date: '2025-03-01', oil_stb: 500, water_stb: 0, gas_mscf: 0, hours_on: 0 },
+  ];
+  const series = buildWellSeries(rows);
+  const field = buildFieldSeries(rows);
+
+  test('the field row reports NO per-well rate rather than dividing by zero', () => {
+    expect(field[0].wellsOn).toBe(0);
+    expect(field[0].oil).toBe(500);
+    expect(field[0].oilPerWell).toBeNull();
+    expect(Number.isFinite(field[0].oilPerWell)).toBe(false);
+  });
+
+  test('and the KPIs raise volumesWithoutHours instead of an infinite rate', () => {
+    const k = computeKpis(series, field, { windowDays: 1 });
+    expect(k.oilPerWell).toBeNull();
+    expect(k.dataExceptions.map((d) => d.code)).toContain('volumesWithoutHours');
+    expect(k.dataExceptions.find((d) => d.code === 'volumesWithoutHours').message)
+      .toMatch(/no well counted on stream/);
+  });
+
+  test('a clean field reports the per-well rate and no data exception', () => {
+    const k = computeKpis(SERIES, FIELD, { windowDays: 7 });
+    expect(k.dataExceptions).toEqual([]);
+    expect(k.oilPerWell).toBeCloseTo(k.oil / k.wellsOn, 12);
+    expect(k.oilPerWell).toBeGreaterThan(0);
+  });
+});
+
+describe('80. only the exact string injector is an injector', () => {
+  test('the type is normalised once, at the door', () => {
+    expect(INJECTOR_WELL_TYPES).toEqual(
+      ['injector', 'water_injector', 'gas_injector', 'wag_injector'],
+    );
+    INJECTOR_WELL_TYPES.forEach((t) => {
+      expect(classifyWellType(t).role).toBe('injector');
+      expect(classifyWellType(`  ${t.toUpperCase()}  `).role).toBe('injector');
+    });
+    expect(classifyWellType(' Producer ').role).toBe('producer');
+    expect(classifyWellType('OBSERVATION').role).toBe('observation');
+  });
+
+  test('an unknown or absent type is NOT a producer', () => {
+    ['other', 'water source', 'disposal', ''].forEach((t) => {
+      expect(classifyWellType(t).role).toBeNull();
+    });
+    expect(classifyWellType(undefined).role).toBeNull();
+    expect(classifyWellType(null).role).toBeNull();
+    expect(classifyWellType(7).role).toBeNull();
+  });
+
+  test('a water injector is surveilled on injection, not read as a producer', () => {
+    const WI = { id: 'w-wi', name: 'WI-1', well_type: 'WATER_INJECTOR' };
+    const rows = [];
+    for (let d = 1; d <= 40; d += 1) {
+      const date = `2025-05-${String(d).padStart(2, '0')}`;
+      if (d > 31) continue;
+      rows.push({
+        well: WI, well_id: 'w-wi', prod_date: date,
+        oil_stb: 0, water_stb: 0, gas_mscf: 0, hours_on: 24,
+        winj_stb: d > 24 ? 1000 : 3000,
+      });
+    }
+    const got = detectExceptions(buildWellSeries(rows));
+    expect(got.population).toEqual(['w-wi']);
+    expect(got.exceptions.map((e) => e.type)).toEqual(['injection_drop']);
+    expect(got.dataExceptions).toEqual([]);
+  });
+
+  test('an unrecognised type raises a data exception rather than joining the population', () => {
+    const ODD = { id: 'w-x', name: 'X-1', well_type: 'other' };
+    const rows = [
+      { well: ODD, well_id: 'w-x', prod_date: '2025-05-01', oil_stb: 900, hours_on: 24 },
+      { well: ODD, well_id: 'w-x', prod_date: '2025-05-02', oil_stb: 100, hours_on: 24 },
+    ];
+    const series = buildWellSeries(rows);
+    const got = detectExceptions(series);
+    expect(got.population).toEqual([]);
+    expect(got.exceptions).toEqual([]);
+    expect(got.dataExceptions).toHaveLength(1);
+    expect(got.dataExceptions[0].code).toBe('unknownWellType');
+    expect(got.dataExceptions[0].wellName).toBe('X-1');
+    expect(got.dataExceptions[0].value).toBe('other');
+    expect(got.dataExceptions[0].message).toMatch(/not a recognised producer, injector or observation type/);
+
+    const k = computeKpis(series, buildFieldSeries(rows), { windowDays: 7 });
+    expect(k.producerCount).toBe(0);
+    expect(k.population).toEqual([]);
+    expect(k.dataExceptions[0].code).toBe('unknownWellType');
+  });
+
+  test('a well with no type at all is named in the data exception', () => {
+    const NO = { id: 'w-n', name: 'N-1' };
+    const rows = [{ well: NO, well_id: 'w-n', prod_date: '2025-05-01', oil_stb: 900, hours_on: 24 }];
+    const got = detectExceptions(buildWellSeries(rows));
+    expect(got.dataExceptions[0].code).toBe('unknownWellType');
+    expect(got.dataExceptions[0].value).toBeNull();
+    expect(got.dataExceptions[0].message).toMatch(/no well type recorded/);
+  });
+
+  test('and the published field is unmoved: its types are all recognised', () => {
+    const got = detectExceptions(SERIES);
+    expect(got.dataExceptions).toEqual([]);
+    expect(got.exceptions).toHaveLength(G.exceptions.exceptions.length);
   });
 });

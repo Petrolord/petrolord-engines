@@ -31,6 +31,25 @@
  * in this module, because Infinity propagates into every mean
  * downstream and turns a shut-in day into a fabricated record rate.
  *
+ * WELL TYPE IS CLASSIFIED ONCE, AT THE DOOR. `classifyWellType` is the
+ * only place a `well_type` string is read. It lower-cases and trims,
+ * then matches the injector set {injector, water_injector, gas_injector,
+ * wag_injector}, the observation set and the producer set. A type that
+ * matches none of them, and a well with no type at all, is NOT quietly
+ * read as a producer: it is left out of the population and it raises a
+ * record in `dataExceptions`, because a mistyped injector read as a
+ * producer is surveilled against the wrong rate entirely.
+ *
+ * THE TWO POPULATIONS ARE DIFFERENT, AND BOTH ARE NAMED.
+ * `detectExceptions` surveils every well with points except the
+ * observation wells, so an injector is IN. `computeKpis` counts as a
+ * producer every well except the injectors, so an observation well is
+ * IN. Those are two different sets of the same size on a field with one
+ * injector and one observation well, which is why each function returns
+ * its `population` as a list of well ids and a `populationFilter`
+ * naming the rule that built it. Reconciling the two would move a
+ * number a shipped studio prints and is not done here.
+ *
  * A KNOWN INTERNAL SEAM, STATED RATHER THAN HIDDEN. `computeKpis`
  * forms a period watercut and GOR VOLUMETRICALLY (sum of water over sum
  * of liquid), which is what a period ratio means. `detectExceptions`
@@ -55,6 +74,13 @@
  *                         convention, and why annualEffectiveDecline
  *                         uses t = 365)
  *   dates                 ISO yyyy-mm-dd, read as UTC midnight
+ *
+ * NOTHING HERE READS THE WALL CLOCK. `detectExceptions` and
+ * `computeKpis` anchor on the field's own latest ledger date.
+ * `summarizeDeferments` cannot derive an anchor from the events alone,
+ * because an open event has no end date, so it REQUIRES `asOf` from its
+ * caller and refuses without it. Substituting today's date there made
+ * the same call answer differently tomorrow.
  *
  * DECLINE IS NOT RE-DERIVED HERE. The overlay calls the CANONICAL Arps
  * engine (engines/dca/arps). A second decline implementation would be a
@@ -87,13 +113,56 @@ const mean = (values) => {
   return v.reduce((a, b) => a + b, 0) / v.length;
 };
 
+// ---- well type, classified once at the door --------------------------------
+
+/** The only strings read as an injector. Exact after lower-casing and
+ *  trimming; nothing else is inferred from a substring. */
+export const INJECTOR_WELL_TYPES = Object.freeze([
+  'injector', 'water_injector', 'gas_injector', 'wag_injector',
+]);
+/** Wells that carry no rates of their own to surveil. */
+export const OBSERVATION_WELL_TYPES = Object.freeze(['observation']);
+/** Wells surveilled on their oil rate. */
+export const PRODUCER_WELL_TYPES = Object.freeze(['producer']);
+
+/**
+ * Read a `well_type` once, for every consumer in this module.
+ *
+ * @param {*} wellType the raw value off the well record
+ * @returns {{role: ?string, normalized: ?string}} `role` is one of
+ *   'injector', 'observation', 'producer', or null when the value is
+ *   absent or is not a recognised type. A null role is never treated as
+ *   a producer; the caller raises a data exception instead.
+ */
+export function classifyWellType(wellType) {
+  if (typeof wellType !== 'string') return { role: null, normalized: null };
+  const normalized = wellType.trim().toLowerCase();
+  if (!normalized) return { role: null, normalized: null };
+  if (INJECTOR_WELL_TYPES.includes(normalized)) return { role: 'injector', normalized };
+  if (OBSERVATION_WELL_TYPES.includes(normalized)) return { role: 'observation', normalized };
+  if (PRODUCER_WELL_TYPES.includes(normalized)) return { role: 'producer', normalized };
+  return { role: null, normalized };
+}
+
+const unknownTypeException = (well, normalized) => ({
+  code: 'unknownWellType',
+  wellId: well?.id ?? null,
+  wellName: well?.name ?? null,
+  value: normalized,
+  message: normalized
+    ? `${well?.name ?? 'A well'} is typed "${normalized}", which is not a recognised producer, injector or observation type. It is left out of this population rather than read as a producer.`
+    : `${well?.name ?? 'A well'} has no well type recorded. It is left out of this population rather than read as a producer.`,
+});
+
 // ---- series building -------------------------------------------------------
 
 /**
  * Derived per-row quantities. Producing-day rates honestly reflect
  * hours_on: 0 hours means shut in (rate null, not Infinity); missing
  * hours means uptime is unknown and the producing-day rate equals the
- * calendar-day volume.
+ * calendar-day volume. `winjPd` is the injection equivalent, so an
+ * injector's message can quote a producing-day rate the same way a
+ * producer's does.
  */
 export function derivePoint(row) {
   const oil = row.oil_stb || 0;
@@ -117,6 +186,7 @@ export function derivePoint(row) {
     waterPd: pd(water),
     gasPd: pd(gas),
     liquidPd: pd(liquid),
+    winjPd: pd(winj),
   };
 }
 
@@ -138,7 +208,15 @@ export function buildWellSeries(rows) {
   return series;
 }
 
-/** Field-level daily totals with derived watercut/GOR and an on-count. */
+/**
+ * Field-level daily totals with derived watercut/GOR and an on-count.
+ *
+ * `oilPerWell` is the per-well oil rate for the day, and it is NULL
+ * whenever `wellsOn` is zero. A day carrying volume with no well counted
+ * on is a ledger contradiction (volumes recorded against zero hours),
+ * and dividing by that zero would print Infinity as a record rate.
+ * `computeKpis` raises `volumesWithoutHours` when it meets one.
+ */
 export function buildFieldSeries(rows) {
   const byDate = new Map();
   (rows || []).forEach((r) => {
@@ -162,6 +240,7 @@ export function buildFieldSeries(rows) {
       liquid: d.oil + d.water,
       watercut: d.oil + d.water > 0 ? d.water / (d.oil + d.water) : null,
       gor: d.oil > 0 ? (d.gas * 1000) / d.oil : null,
+      oilPerWell: d.wellsOn > 0 ? d.oil / d.wellsOn : null,
     }))
     .sort((a, b) => (a.date < b.date ? -1 : 1));
 }
@@ -197,11 +276,29 @@ export function movingAverage(points, key, windowDays) {
   });
 }
 
-/** Stride-decimate a long series for charting; always keeps the last
- *  point. Under maxPoints, the input comes back untouched. */
+/**
+ * Stride-decimate a long series for charting; always keeps the last
+ * point. Under maxPoints, the input comes back untouched.
+ *
+ * THE CAP IS A CAP. The stride is taken over the INTERVALS, not the
+ * points, so the slot the last point is always appended into is
+ * reserved before the stride is chosen. Striding on `length / maxPoints`
+ * returned maxPoints + 1 points whenever the appended last point did not
+ * already fall on the stride: 1501 points off a 3000 point series
+ * against a cap of 1500.
+ */
 export function decimate(points, maxPoints = 1500) {
-  if (!points || points.length <= maxPoints) return points || [];
-  const stride = Math.ceil(points.length / maxPoints);
+  if (!points) return [];
+  if (!Number.isFinite(maxPoints) || maxPoints < 1) {
+    return {
+      ok: false,
+      code: 'invalidMaxPoints',
+      error: `decimate needs a finite maxPoints of at least 1, received ${maxPoints}.`,
+    };
+  }
+  if (points.length <= maxPoints) return points;
+  if (maxPoints < 2) return [points[points.length - 1]];
+  const stride = Math.ceil((points.length - 1) / (maxPoints - 1));
   const out = [];
   for (let i = 0; i < points.length; i += stride) out.push(points[i]);
   if (out[out.length - 1] !== points[points.length - 1]) out.push(points[points.length - 1]);
@@ -242,22 +339,52 @@ const windowMean = (points, key, fromDay, toDay) => {
   return { mean: mean(vals), count: vals.filter((v) => Number.isFinite(v)).length };
 };
 
+/** What `detectExceptions` surveils, stated in the return so the count
+ *  can never be confused with the one `computeKpis` reports. */
+export const EXCEPTION_POPULATION_FILTER = 'Every well with ledger points whose type is a recognised producer or injector type. Observation wells are excluded because they carry no rates of their own, so an injector IS surveilled here.';
+
 /**
  * Exception surveillance over a field's well series. All windows anchor
- * on the FIELD's latest ledger date (never the wall clock -- old
+ * on the FIELD's latest ledger date (never the wall clock, so old
  * datasets surveil honestly). Monthly ledgers widen the windows to
  * cover enough points instead of silently comparing single days.
  *
+ * The surveilled set is returned as `population` (well ids) beside
+ * `populationFilter`, which states the rule that built it. It is NOT
+ * the same set `computeKpis` counts as producers.
+ *
  * @returns {{asOf: ?string, exceptions: Array<{wellId, wellName, type,
- *   severity, value, baseline, message}>}}
+ *   severity, value, baseline, message}>, population: Array<string>,
+ *   populationFilter: string, dataExceptions: Array}}
  */
 export function detectExceptions(wellSeries, settings = {}) {
   const s = { ...DEFAULT_SURVEILLANCE_SETTINGS, ...settings };
-  // Observation wells carry no rates of their own to surveil; every
-  // other type is read as a producer unless it is typed as an injector.
-  const all = (wellSeries || [])
-    .filter((w) => w.points.length && w.well.well_type !== 'observation');
-  if (!all.length) return { asOf: null, exceptions: [] };
+  // Well type is read exactly once, here. Observation wells carry no
+  // rates of their own to surveil; a type that is not recognised at all
+  // is NOT read as a producer, because surveilling a mistyped injector
+  // on its oil rate compares it against a rate it never had.
+  const dataExceptions = [];
+  const all = [];
+  (wellSeries || []).forEach((w) => {
+    const { role, normalized } = classifyWellType(w.well?.well_type);
+    if (role === null) {
+      dataExceptions.push(unknownTypeException(w.well, normalized));
+      return;
+    }
+    if (role === 'observation') return;
+    if (!w.points.length) return;
+    all.push({ ...w, isInjector: role === 'injector' });
+  });
+  const population = all.map((w) => w.well.id);
+  if (!all.length) {
+    return {
+      asOf: null,
+      exceptions: [],
+      population,
+      populationFilter: EXCEPTION_POPULATION_FILTER,
+      dataExceptions,
+    };
+  }
 
   const asOf = all.reduce((max, w) => {
     const last = w.points[w.points.length - 1].date;
@@ -271,8 +398,7 @@ export function detectExceptions(wellSeries, settings = {}) {
   };
   const pct = (v) => `${Math.round(v)}%`;
 
-  all.forEach(({ well, points }) => {
-    const isInjector = well.well_type === 'injector';
+  all.forEach(({ well, points, isInjector }) => {
     const cadence = seriesCadenceDays(points) || 1;
     const recentDays = Math.max(s.recentDays, Math.ceil(cadence * 1.5));
     const baselineDays = Math.max(s.baselineDays, Math.ceil(cadence * 4));
@@ -290,16 +416,27 @@ export function detectExceptions(wellSeries, settings = {}) {
     const rateKey = isInjector ? 'winj' : 'oil';
     const recent = windowMean(points, rateKey, asOfDay - recentDays, asOfDay);
     const base = windowMean(points, rateKey, asOfDay - recentDays - baselineDays, asOfDay - recentDays);
+    // The comparison above is a mean of CALENDAR volumes. stb/d is the
+    // unit of a PRODUCING-DAY rate, so the message quotes the
+    // producing-day mean over the same windows and says on which basis
+    // the change was measured. Only the message changes here; what the
+    // trigger compares is an owner decision of its own.
+    const pdKey = isInjector ? 'winjPd' : 'oilPd';
+    const recentPd = windowMean(points, pdKey, asOfDay - recentDays, asOfDay);
+    const basePd = windowMean(points, pdKey, asOfDay - recentDays - baselineDays, asOfDay - recentDays);
+    const rate = (m) => (Number.isFinite(m)
+      ? `${Math.round(m).toLocaleString()} stb/d`
+      : 'no producing day rate on record');
     if (base.count && recent.count && base.mean >= s.minOilRate) {
       if (recent.mean <= 0) {
         push(well, 'shut_in', 'high', 0, base.mean,
-          `${isInjector ? 'Injection' : 'Production'} stopped (baseline ${Math.round(base.mean).toLocaleString()} ${isInjector ? 'stb/d water' : 'stb/d oil'}).`);
+          `${isInjector ? 'Injection' : 'Production'} stopped. Baseline producing day rate ${rate(basePd.mean)} of ${isInjector ? 'water' : 'oil'}.`);
       } else {
         const drop = ((base.mean - recent.mean) / base.mean) * 100;
         if (drop >= s.rateDropPct) {
           push(well, isInjector ? 'injection_drop' : 'rate_drop',
             drop >= s.rateDropPct * 2 ? 'high' : 'medium', recent.mean, base.mean,
-            `${isInjector ? 'Water injection' : 'Oil'} down ${pct(drop)}: ${Math.round(recent.mean).toLocaleString()} vs ${Math.round(base.mean).toLocaleString()} stb/d baseline.`);
+            `${isInjector ? 'Water injection' : 'Oil'} down ${pct(drop)} on calendar volumes: producing day rate ${rate(recentPd.mean)} against a ${rate(basePd.mean)} baseline.`);
         }
       }
     }
@@ -328,6 +465,13 @@ export function detectExceptions(wellSeries, settings = {}) {
         }
       }
 
+      // KNOWN DEFECT, HELD FOR A GOLDEN REFRESH. The `hrs.mean > 0`
+      // clause means a well averaging exactly 0.00 hours on stream is
+      // the one well that can never be reported for downtime. Dropping
+      // it is owner decision 79 and it is correct, but it RAISES A NEW
+      // EXCEPTION on the golden field (P-2, medium, 0.0 hours against
+      // the 12 hour threshold), which moves a published answer. It
+      // therefore ships with the golden refresh, not in this wave.
       const hrs = windowMean(points, 'hoursOn', asOfDay - recentDays, asOfDay);
       if (hrs.count && hrs.mean < s.downtimeHours && hrs.mean > 0) {
         push(well, 'downtime', 'medium', hrs.mean, s.downtimeHours,
@@ -341,7 +485,13 @@ export function detectExceptions(wellSeries, settings = {}) {
     if (r !== 0) return r;
     return String(a.wellName).localeCompare(String(b.wellName));
   });
-  return { asOf, exceptions };
+  return {
+    asOf,
+    exceptions,
+    population,
+    populationFilter: EXCEPTION_POPULATION_FILTER,
+    dataExceptions,
+  };
 }
 
 // ---- deferments and KPIs ---------------------------------------------------
@@ -349,10 +499,31 @@ export function detectExceptions(wellSeries, settings = {}) {
 /**
  * Roll up deferment events: per-category counts, event-days and
  * deferred volumes, worst category first (by oil). Open events accrue
- * days to `asOf` (the field's latest ledger date, or today).
+ * days to `asOf`, which is the field's latest ledger date.
+ *
+ * `asOf` IS REQUIRED. An open event has no end date, so the anchor is
+ * what decides how many days it has run, and reading it off the wall
+ * clock made the same call on the same data answer differently
+ * tomorrow. Refuses with `missingAsOf` when it is absent and
+ * `unreadableAsOf` when it is not an ISO date, and returns the anchor
+ * it used so the reader can see what the roll-up was measured to.
  */
 export function summarizeDeferments(deferments, asOf) {
-  const asOfDay = dayNumber(asOf || new Date().toISOString().slice(0, 10));
+  if (typeof asOf !== 'string' || !asOf.trim()) {
+    return {
+      ok: false,
+      code: 'missingAsOf',
+      error: 'summarizeDeferments needs an asOf date, because an open deferment accrues days up to it. Pass the field ledger\'s latest date as an ISO yyyy-mm-dd string.',
+    };
+  }
+  const asOfDay = dayNumber(asOf);
+  if (!Number.isFinite(asOfDay)) {
+    return {
+      ok: false,
+      code: 'unreadableAsOf',
+      error: `summarizeDeferments could not read the asOf date "${asOf}". It must be an ISO yyyy-mm-dd string.`,
+    };
+  }
   const byCat = new Map();
   let openCount = 0;
   (deferments || []).forEach((d) => {
@@ -377,17 +548,32 @@ export function summarizeDeferments(deferments, asOf) {
     }),
     { events: 0, days: 0, oil: 0, water: 0, gas: 0 },
   );
-  return { byCategory, totals, openCount };
+  return { asOf, byCategory, totals, openCount };
 }
+
+/** What `computeKpis` counts as a producer, stated in the return so the
+ *  count can never be confused with the one `detectExceptions`
+ *  surveils. */
+export const KPI_POPULATION_FILTER = 'Every well in the series whose type is a recognised producer or observation type. Injectors are excluded from the producer count and from uptime, so an observation well IS counted here.';
 
 /**
  * Field KPIs over the trailing `windowDays` of the field series: mean
  * daily rates, watercut, GOR and (where hours_on was reported) uptime.
  *
- * The watercut and GOR here are VOLUMETRIC over the window -- a ratio
- * of the window means -- which is what a period ratio means and is NOT
- * what detectExceptions compares against a baseline. See the seam note
- * in the module header.
+ * The watercut and GOR here are VOLUMETRIC over the window, a ratio of
+ * the window means, which is what a period ratio means and is NOT what
+ * detectExceptions compares against a baseline. See the seam note in
+ * the module header.
+ *
+ * `producerCount` counts the wells in `population`, and
+ * `populationFilter` states the rule that built it. It is NOT the set
+ * `detectExceptions` surveils: this one keeps the observation wells and
+ * drops the injectors, and that one does the reverse.
+ *
+ * `oilPerWell` is the window's mean oil rate per well on stream, and it
+ * is NULL when no well was counted on. A window carrying oil with no
+ * well on raises `volumesWithoutHours` in `dataExceptions` rather than
+ * dividing by that zero.
  */
 export function computeKpis(wellSeries, fieldSeries, { windowDays = 7 } = {}) {
   if (!fieldSeries || !fieldSeries.length) return null;
@@ -395,10 +581,23 @@ export function computeKpis(wellSeries, fieldSeries, { windowDays = 7 } = {}) {
   const fromDay = dayNumber(asOf) - windowDays + 1;
   const window = fieldSeries.filter((d) => dayNumber(d.date) >= fromDay);
 
+  // Well type is read exactly once, here. An unrecognised or absent
+  // type is not counted as a producer; it raises a data exception.
+  const dataExceptions = [];
+  const counted = [];
+  (wellSeries || []).forEach((w) => {
+    const { role, normalized } = classifyWellType(w.well?.well_type);
+    if (role === null) {
+      dataExceptions.push(unknownTypeException(w.well, normalized));
+      return;
+    }
+    if (role === 'injector') return;
+    counted.push(w);
+  });
+
   let hoursSum = 0;
   let hoursSlots = 0;
-  (wellSeries || []).forEach(({ well, points }) => {
-    if (well.well_type === 'injector') return;
+  counted.forEach(({ points }) => {
     points.forEach((p) => {
       if (dayNumber(p.date) >= fromDay && p.hoursOn != null) {
         hoursSum += p.hoursOn;
@@ -410,6 +609,17 @@ export function computeKpis(wellSeries, fieldSeries, { windowDays = 7 } = {}) {
   const oil = mean(window.map((d) => d.oil));
   const water = mean(window.map((d) => d.water));
   const gas = mean(window.map((d) => d.gas));
+  const wellsOn = mean(window.map((d) => d.wellsOn));
+  const volumeInWindow = window.some((d) => (d.oil || 0) + (d.water || 0) + (d.gas || 0) > 0);
+  if (volumeInWindow && !(Number.isFinite(wellsOn) && wellsOn > 0)) {
+    dataExceptions.push({
+      code: 'volumesWithoutHours',
+      wellId: null,
+      wellName: null,
+      value: oil,
+      message: `The ${windowDays} day window to ${asOf} carries produced volume with no well counted on stream, so hours on stream contradict the volumes. The per-well rate is not reported.`,
+    });
+  }
   return {
     asOf,
     windowDays,
@@ -418,9 +628,16 @@ export function computeKpis(wellSeries, fieldSeries, { windowDays = 7 } = {}) {
     liquid: oil != null && water != null ? oil + water : null,
     watercut: oil + water > 0 ? water / (oil + water) : null,
     gor: oil > 0 ? (gas * 1000) / oil : null,
+    wellsOn,
+    oilPerWell: Number.isFinite(wellsOn) && wellsOn > 0 && Number.isFinite(oil)
+      ? oil / wellsOn
+      : null,
     uptimePct: hoursSlots ? (hoursSum / (hoursSlots * 24)) * 100 : null,
     wellCount: (wellSeries || []).length,
-    producerCount: (wellSeries || []).filter((w) => w.well.well_type !== 'injector').length,
+    producerCount: counted.length,
+    population: counted.map((w) => w.well.id),
+    populationFilter: KPI_POPULATION_FILTER,
+    dataExceptions,
   };
 }
 
@@ -448,12 +665,30 @@ export function rateSeriesForFit(points, stream = 'oil', basis = 'producing') {
  * engineer reads off a fit. Di from the Arps engine is NOMINAL PER DAY;
  * exponential and harmonic are the b -> 0 and b = 1 limits of the
  * hyperbolic form. Returns null for a non-declining or unusable Di.
+ *
+ * THE FAMILY IS CHOSEN BY modelType, NEVER BY A BROKEN b. The old guard
+ * was `modelType === 'Exponential' || !b`, and `!NaN` is true, so a
+ * hyperbolic call carrying b as NaN, null or undefined silently
+ * returned the EXPONENTIAL answer: at Di = 0.0015 per day that is
+ * 42.16 per cent, a number a reviewer has seen before and would not
+ * question. A negative b raised a negative bracket to a power and
+ * returned a number too. A hyperbolic fit whose exponent cannot be read
+ * has no answer, so it refuses with `invalidDeclineExponent` rather
+ * than borrowing another family's.
  */
 export function annualEffectiveDecline(Di, b, modelType) {
   if (!Number.isFinite(Di) || Di <= 0) return null;
   const t = 365;
-  if (modelType === 'Exponential' || !b) return (1 - Math.exp(-Di * t)) * 100;
-  if (modelType === 'Harmonic' || b === 1) return (1 - 1 / (1 + Di * t)) * 100;
+  if (modelType === 'Exponential') return (1 - Math.exp(-Di * t)) * 100;
+  if (modelType === 'Harmonic') return (1 - 1 / (1 + Di * t)) * 100;
+  if (!Number.isFinite(b) || b <= 0) {
+    return {
+      ok: false,
+      code: 'invalidDeclineExponent',
+      error: `A ${modelType || 'hyperbolic'} decline needs a finite b greater than zero, received ${b}. The effective decline is not reported.`,
+    };
+  }
+  if (b === 1) return (1 - 1 / (1 + Di * t)) * 100;
   return (1 - (1 + b * Di * t) ** (-1 / b)) * 100;
 }
 
