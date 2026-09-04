@@ -451,6 +451,37 @@ describe('a physical gas node: deliverability against the column', () => {
     for (let i = 1; i < rows.length; i += 1) expect(rows[i].q).toBeLessThan(rows[i - 1].q);
   });
 
+  // The cullenderSmithBhp header states a truncation and a convergence
+  // sequence, and a header is what a consumer acts on. This pins every number
+  // it quotes, on the string it names, so the prose cannot drift away from the
+  // arithmetic. It was added after the header was found attributing 11.6 psi
+  // to 13 MMscf/d when 11.6 psi belongs to 13.3 and 13.0 gives 10.5.
+  test('the header truncation and convergence sequence are the arithmetic', () => {
+    const string = {
+      ptf: 800, gasSg: 0.65, mdFt: 8000, tvdFt: 8000,
+      whtF: 100, bhtF: 200, idIn: 2.441, roughnessIn: 0.0006, muCp: 0.012,
+    };
+    const gapAt = (qMmscfd, steps) => {
+      const converged = cullenderSmithBhp({ ...string, qMmscfd, steps: 4096 }).pwf;
+      return cullenderSmithBhp({ ...string, qMmscfd, steps }).pwf - converged;
+    };
+    // the two-station truncation the header quotes at three rates
+    expect(gapAt(9.0, 2)).toBeCloseTo(-1.3, 1);
+    expect(gapAt(13.0, 2)).toBeCloseTo(-10.5, 1);
+    expect(gapAt(13.3, 2)).toBeCloseTo(-11.6, 1);
+    // and the convergence sequence on the 13.3 MMscf/d column
+    expect(gapAt(13.3, 16)).toBeCloseTo(-0.26, 2);
+    expect(gapAt(13.3, 64)).toBeCloseTo(-0.016, 3);
+    expect(gapAt(13.3, 256)).toBeCloseTo(-0.001, 3);
+    // the header says the error falls roughly with the square of the count,
+    // so quadrupling the stations should cut it by about sixteen
+    const r16to64 = gapAt(13.3, 16) / gapAt(13.3, 64);
+    expect(r16to64).toBeGreaterThan(12);
+    expect(r16to64).toBeLessThan(20);
+    // and every march runs LOW, which is the direction the header claims
+    [2, 16, 64, 256].forEach((n) => expect(gapAt(13.3, n)).toBeLessThan(0));
+  });
+
   test('a deliverability that never pinned down refuses the node', () => {
     const s = solveGasNode({ iprResult: backPressureIpr({ pr: 4000, c: NaN, n: 0.8 }), tubing: {} });
     expect(s.status).toBe('dead');
