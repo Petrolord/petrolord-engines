@@ -294,8 +294,11 @@ export const chanDiagnosis = ({ series, lateFraction = 0.5, settings = {} }) => 
     };
   }
 
+  // One decimal on the r-squared: at whole percent a fit explaining
+  // 84.6 percent read "85 percent" against a `minR2` of 0.85, which is
+  // the threshold it fell short of. Narrowed by ten, not removed.
   if (derFit.r2 < s.minR2) {
-    notes.push(`The derivative scatters too much to carry a slope: the fit explains only ${(derFit.r2 * 100).toFixed(0)} percent of it. Reading a mechanism off this would be reading noise.`);
+    notes.push(`The derivative scatters too much to carry a slope: the fit explains only ${(derFit.r2 * 100).toFixed(1)} percent of it. Reading a mechanism off this would be reading noise.`);
     return {
       ok: true,
       mechanism: mechanism('indeterminate'),

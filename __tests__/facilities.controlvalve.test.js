@@ -232,3 +232,68 @@ describe('noise', () => {
     expect(noiseIndication({ p1Psia: 100, p2Psia: 150, qScfh: 1e5 }).error).toBeTruthy();
   });
 });
+
+// Each travel warning fires on a strict inequality and then prints the
+// travel it fired on. At whole percent, anything within half a point of the
+// threshold rendered AS the threshold: a valve 9.7 percent open reported
+// "only 10 percent open" under a flag that only fires BELOW 10, which reads
+// as a false alarm. One decimal narrows that collision by ten rather than
+// removing it (0.05 of a point still collides), so the fixtures below sit
+// inside each flag's band and clear of that residual neighbourhood.
+describe('the travel warnings print a travel off their own threshold', () => {
+  const percentIn = (message) => Number(/([\d.]+) percent/.exec(message)[1]);
+  // Equal percentage is Cv/Cvmax = R^(h-1), so the Cv for a wanted travel is
+  // the characteristic run backwards, on a valve rated 100 at the module's
+  // default rangeability of 50.
+  const cvAt = (travelPct) => 100 * 50 ** (travelPct / 100 - 1);
+
+  test('near the seat: fires below 10 percent and prints below 10 percent', () => {
+    const r = travelCheck({
+      cvRequiredMin: cvAt(9.7), cvRequiredNormal: cvAt(50), cvRequiredMax: cvAt(70),
+      cvRated: 100,
+    });
+    expect(r.minTravelPct).toBeGreaterThan(9.5);   // the old whole print said "10"
+    expect(r.minTravelPct).toBeLessThan(9.95);     // clear of the residual band
+    const w = r.warnings.find((m) => m.includes('at minimum flow'));
+    expect(w).toBeDefined();
+    expect(percentIn(w)).toBeLessThan(10);
+    expect(w).not.toMatch(/\b10 percent open\b/);
+  });
+
+  test('no margin left: fires above 90 percent and prints above 90 percent', () => {
+    const r = travelCheck({
+      cvRequiredMin: cvAt(30), cvRequiredNormal: cvAt(50), cvRequiredMax: cvAt(90.3),
+      cvRated: 100,
+    });
+    expect(r.maxTravelPct).toBeGreaterThan(90.05);
+    expect(r.maxTravelPct).toBeLessThan(90.5);
+    const w = r.warnings.find((m) => m.includes('at maximum flow'));
+    expect(w).toBeDefined();
+    expect(percentIn(w)).toBeGreaterThan(90);
+    expect(w).not.toMatch(/\b90 percent open\b/);
+  });
+
+  test('outside 20 to 80: both edges print off the edge they crossed', () => {
+    const low = travelCheck({
+      cvRequiredMin: cvAt(15), cvRequiredNormal: cvAt(19.7), cvRequiredMax: cvAt(50),
+      cvRated: 100,
+    });
+    const lowWarning = low.warnings.find((m) => m.includes('normal flow sits'));
+    expect(low.normalTravelPct).toBeGreaterThan(19.5);
+    expect(low.normalTravelPct).toBeLessThan(19.95);
+    expect(percentIn(lowWarning)).toBeLessThan(20);
+    expect(lowWarning).not.toMatch(/\b20 percent travel\b/);
+    // and the target the sentence names is untouched
+    expect(lowWarning).toContain('the customary target is 20 to 80 percent');
+
+    const high = travelCheck({
+      cvRequiredMin: cvAt(30), cvRequiredNormal: cvAt(80.3), cvRequiredMax: cvAt(85),
+      cvRated: 100,
+    });
+    const highWarning = high.warnings.find((m) => m.includes('normal flow sits'));
+    expect(high.normalTravelPct).toBeGreaterThan(80.05);
+    expect(high.normalTravelPct).toBeLessThan(80.5);
+    expect(percentIn(highWarning)).toBeGreaterThan(80);
+    expect(highWarning).not.toMatch(/\b80 percent travel\b/);
+  });
+});

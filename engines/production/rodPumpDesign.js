@@ -236,10 +236,23 @@ export const runRodPumpDesign = ({
   const worst = stresses.reduce(
     (a, s) => (s.loadingPct > a.loadingPct ? s : a), stresses[0],
   );
+  // MESSAGE PRECISION, for every warning below. Each fires on a strict
+  // inequality against a threshold and then prints the value it fired
+  // on, so the printed number has to be able to sit OFF the threshold.
+  // Printed to whole units, a loading of 100.2 percent rendered as
+  // "100 percent" under a flag that only fires above 100, and a peak
+  // load a fifth of a pound over the structure rendered as the
+  // structure's own rating in the same sentence: a real warning that
+  // reads as a false alarm, which invites a reader to dismiss it. The
+  // rounding errs upward as readily as downward (100.55 printed whole
+  // reads as 101). One decimal place does not remove the collision, it
+  // narrows it by ten: a value within 0.05 of the threshold still
+  // prints as the threshold. Gated by `warnings print a value that is
+  // off their own threshold` in __tests__/production.rodpump.test.js.
   if (worst && worst.loadingPct > 100) {
     warnings.push({
       code: 'rodOverstressed',
-      message: `The ${worst.label} section runs at ${worst.loadingPct.toFixed(0)} percent of its modified Goodman allowable. Move up a rod size, change grade, shorten the stroke or slow the unit.`,
+      message: `The ${worst.label} section runs at ${worst.loadingPct.toFixed(1)} percent of its modified Goodman allowable. Move up a rod size, change grade, shorten the stroke or slow the unit.`,
     });
   }
 
@@ -254,13 +267,13 @@ export const runRodPumpDesign = ({
     if (rating.structuralPct > 100) {
       warnings.push({
         code: 'structuralOverload',
-        message: `Peak polished rod load is ${Math.round(dyn.prlPeakLb)} lb against a ${unitRating.structuralCapacityLb} lb structure.`,
+        message: `Peak polished rod load is ${dyn.prlPeakLb.toFixed(1)} lb against a ${unitRating.structuralCapacityLb} lb structure.`,
       });
     }
     if (rating.torquePct != null && rating.torquePct > 100) {
       warnings.push({
         code: 'torqueOverload',
-        message: `Peak gearbox torque is ${Math.round(balance.peakTorqueInLb)} in-lb against a ${unitRating.torqueRatingInLb} in-lb rating.`,
+        message: `Peak gearbox torque is ${balance.peakTorqueInLb.toFixed(1)} in-lb against a ${unitRating.torqueRatingInLb} in-lb rating.`,
       });
     }
     if (rating.strokePct > 100) {
@@ -274,7 +287,7 @@ export const runRodPumpDesign = ({
   if (fillage < 0.85) {
     warnings.push({
       code: 'incompleteFillage',
-      message: `The barrel fills only ${(fillage * 100).toFixed(0)} percent. The load stays on the rods into the downstroke and the unit is pumping air for part of every stroke; slow it down, shorten the stroke or fit a smaller plunger.`,
+      message: `The barrel fills only ${(fillage * 100).toFixed(1)} percent. The load stays on the rods into the downstroke and the unit is pumping air for part of every stroke; slow it down, shorten the stroke or fit a smaller plunger.`,
     });
   }
   dyn.warnings.forEach((w) => warnings.push(w));

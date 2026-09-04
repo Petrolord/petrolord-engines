@@ -171,8 +171,11 @@ export const compressionStage = ({
     gasHp: gasHpPoly,
     gasHpIsentropicRoute: gasHpIsen,
     brakeHp: gasHpPoly / mechanicalEfficiency,
+    // One decimal, because the sentence names its own threshold: at
+    // whole degrees a discharge of 300.3 F read "discharge at 300 F:
+    // above about 300 F ...". Narrowed by ten, not closed.
     warning: tDischargeF > 300
-      ? `discharge at ${tDischargeF.toFixed(0)} F: above about 300 F the valves and the lube oil become the limit, not the thermodynamics`
+      ? `discharge at ${tDischargeF.toFixed(1)} F: above about 300 F the valves and the lube oil become the limit, not the thermodynamics`
       : null,
   };
 };
@@ -267,9 +270,12 @@ export const machineScreen = ({
   if (!Number.isFinite(acfm)) return { error: 'screening needs a rate and suction conditions' };
   const reasons = [];
   let recommendation;
+  // Same as the discharge temperature above: this one names 500 acfm
+  // and at whole acfm a suction volume of 499.7 read "only 500 acfm at
+  // suction: below about 500 acfm ...".
   if (acfm < 500) {
     recommendation = 'reciprocating';
-    reasons.push(`only ${acfm.toFixed(0)} acfm at suction: below about 500 acfm a centrifugal wheel is too small to be efficient`);
+    reasons.push(`only ${acfm.toFixed(1)} acfm at suction: below about 500 acfm a centrifugal wheel is too small to be efficient`);
   } else if (acfm > 20000 && overallRatio < 4) {
     recommendation = 'centrifugal';
     reasons.push(`${acfm.toFixed(0)} acfm at a modest ratio: this is centrifugal territory`);

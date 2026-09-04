@@ -393,3 +393,36 @@ describe('plunger lift: gas, cycle and feasibility', () => {
       .toMatch(/needs a weight/);
   });
 });
+
+// slowCycle fires when the well makes fewer than one trip a day, which is a
+// cycle longer than 1440 minutes, and then prints the cycle time. At whole
+// minutes a 1440.3 minute cycle read "At 1440 minutes a cycle this well
+// would make fewer than one trip a day", which contradicts itself for any
+// reader who knows how long a day is. One decimal narrows the collision to
+// the 0.05 above 1440 rather than closing it.
+describe('the slow-cycle warning prints a cycle that is not exactly a day', () => {
+  test('a cycle just over a day does not print as exactly a day', () => {
+    const well = {
+      depthFt: 8000, idIn: 2.441, linePressurePsia: 100, casingPressurePsia: 900,
+      slugLengthFt: 300, liquidSg: 1.0, plungerWeightLb: 10, gasSg: 0.65,
+      avgTempR: 580, z: 0.9, wellGlrScfBbl: 100000,
+      riseFtMin: 750, fallInGasFtMin: 1000, fallInLiquidFtMin: 200, afterflowMin: 0,
+    };
+    // the rise and the fall are fixed by the well, so the shut-in places the
+    // cycle where the band is wanted
+    const moving = cycleTime({
+      depthFt: well.depthFt, riseFtMin: well.riseFtMin,
+      fallInGasFtMin: well.fallInGasFtMin, fallInLiquidFtMin: well.fallInLiquidFtMin,
+      liquidColumnFt: well.slugLengthFt,
+    });
+    const r = screenPlungerLift({ ...well, shutInMin: 1440.3 - moving.totalMin });
+    expect(r.ok).toBe(true);
+    expect(r.design.timing.cyclesPerDay).toBeLessThan(1);
+    expect(r.design.timing.totalMin).toBeGreaterThan(1440.05);
+    expect(r.design.timing.totalMin).toBeLessThan(1440.5);
+    const w = r.design.warnings.find((x) => x.code === 'slowCycle');
+    expect(w).toBeDefined();
+    expect(w.message).toMatch(/At 1440\.3 minutes a cycle/);
+    expect(w.message).not.toMatch(/\b1440 minutes\b/);
+  });
+});

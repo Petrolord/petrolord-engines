@@ -647,3 +647,111 @@ describe('damping is a precondition', () => {
     expect(res.errors.join(' ')).toMatch(/never settles/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Every warning in this module fires on a STRICT inequality against a
+// threshold and then prints the value it fired on. Printed to whole units,
+// anything within half a unit of the threshold renders AS the threshold, so
+// a real warning reads as a false alarm sitting exactly on its own limit and
+// invites a reader to dismiss it. The rounding errs in both directions: a
+// loading of 100.55 printed whole reads as 101, overstating by the same
+// mechanism that understates 100.2 onto 100.
+//
+// One decimal place does NOT remove the collision. It narrows it by ten: a
+// value within 0.05 of the threshold still prints as the threshold. That is
+// the honest claim, and every fixture below sits inside the band its flag
+// fires on and clear of that residual neighbourhood. Same defect and same
+// fix as espDesign.diagnoseOperation (engines PR #109).
+describe('warnings print a value that is off their own threshold', () => {
+  const percentIn = (message) => Number(/([\d.]+) percent/.exec(message)[1]);
+  const g = genericConventionalGeometry({ strokeIn: 64 });
+  const kin = unitKinematics(g.geometry, { steps: 180 });
+
+  test('rodOverstressed fires above 100 percent and prints above 100 percent', () => {
+    const s = buildRodString({
+      sections: [{ size: '1/2', lengthFt: 5000 }], fluidSg: 1, gradeId: 'K',
+    });
+    const base = {
+      string: s, frequency: naturalFrequency({ string: s }), kin,
+      surfacePosition: surfacePositionFn(kin), strokeIn: 64, spm: 8,
+      plungerDIn: 2.25, pDischargePsi: 0.433 * 5000 + 200, pIntakePsi: 100,
+    };
+    // The Goodman allowable scales with the service factor, so the service
+    // factor places the loading exactly where the band is wanted.
+    const free = runRodPumpDesign({ ...base, serviceFactor: 1 });
+    const r = runRodPumpDesign({
+      ...base, serviceFactor: free.design.worstSection.loadingPct / 100.3,
+    });
+    const loading = r.design.worstSection.loadingPct;
+    expect(loading).toBeGreaterThan(100);
+    expect(loading).toBeLessThan(100.5);              // the old whole print said "100"
+    expect(loading - 100).toBeGreaterThan(0.05);      // clear of the residual band
+    const w = r.design.warnings.find((x) => x.code === 'rodOverstressed');
+    expect(w).toBeDefined();
+    expect(percentIn(w.message)).toBeCloseTo(100.3, 6);
+    expect(w.message).not.toMatch(/\b100 percent\b/);
+  });
+
+  test('incompleteFillage fires below 85 percent and prints below 85 percent', () => {
+    const s = taperString();
+    const r = runRodPumpDesign({
+      string: s, frequency: naturalFrequency({ string: s }), kin,
+      surfacePosition: surfacePositionFn(kin), strokeIn: 64, spm: 9,
+      plungerDIn: 1.75, pDischargePsi: 0.433 * 5000 + 100, pIntakePsi: 150,
+      fillage: 0.8461, pumpEfficiency: 1,
+    });
+    const w = r.design.warnings.find((x) => x.code === 'incompleteFillage');
+    expect(w).toBeDefined();
+    expect(percentIn(w.message)).toBeLessThan(85);
+    expect(percentIn(w.message)).toBeGreaterThanOrEqual(84.5);
+    expect(w.message).not.toMatch(/\b85 percent\b/);
+  });
+
+  test('the unit overloads print a load that is not the rating beside it', () => {
+    // These two are the sharpest form of the defect: the value and the
+    // threshold sit in ONE sentence, so a whole-unit print of a peak load a
+    // fifth of a pound over the structure read as two identical numbers,
+    // one of them said to exceed the other.
+    const s = taperString();
+    const base = {
+      string: s, frequency: naturalFrequency({ string: s }), kin,
+      surfacePosition: surfacePositionFn(kin), strokeIn: 64, spm: 9,
+      plungerDIn: 1.75, pDischargePsi: 2275, pIntakePsi: 150,
+      fillage: 1, pumpEfficiency: 0.9, serviceFactor: 1,
+    };
+    const free = runRodPumpDesign(base);
+    const card = free.design.dynamics.surfaceCard;
+    const cardLoadAt = (f) => card[Math.min(card.length - 1,
+      Math.max(0, Math.round(f * card.length) % card.length))].loadLb;
+    const balance = balanceUnit({ kin, cardLoadAt, aIn: g.geometry.aIn });
+    // Ratings a whisker under what this design makes. The case is chosen so
+    // both quantities land between a twentieth and half a unit above the
+    // whole number below them: inside the old collision band, outside the
+    // one decimal place leaves.
+    const structuralCapacityLb = Math.floor(free.design.pprlLb);
+    const torqueRatingInLb = Math.floor(balance.peakTorqueInLb);
+    expect(free.design.pprlLb - structuralCapacityLb).toBeGreaterThan(0.05);
+    expect(free.design.pprlLb - structuralCapacityLb).toBeLessThan(0.5);
+    expect(balance.peakTorqueInLb - torqueRatingInLb).toBeGreaterThan(0.05);
+    expect(balance.peakTorqueInLb - torqueRatingInLb).toBeLessThan(0.5);
+    // which is to say: rounded whole, both printed the rating itself
+    expect(Math.round(free.design.pprlLb)).toBe(structuralCapacityLb);
+    expect(Math.round(balance.peakTorqueInLb)).toBe(torqueRatingInLb);
+
+    const r = runRodPumpDesign({
+      ...base,
+      balance,
+      unitRating: { structuralCapacityLb, torqueRatingInLb, strokeIn: 100 },
+    });
+    const load = r.design.warnings.find((x) => x.code === 'structuralOverload');
+    const torque = r.design.warnings.find((x) => x.code === 'torqueOverload');
+    expect(load).toBeDefined();
+    expect(torque).toBeDefined();
+    expect(load.message).toContain(
+      `${free.design.pprlLb.toFixed(1)} lb against a ${structuralCapacityLb} lb structure`);
+    expect(torque.message).toContain(
+      `${balance.peakTorqueInLb.toFixed(1)} in-lb against a ${torqueRatingInLb} in-lb rating`);
+    expect(load.message).not.toMatch(new RegExp(`\\b${structuralCapacityLb} lb against`));
+    expect(torque.message).not.toMatch(new RegExp(`\\b${torqueRatingInLb} in-lb against`));
+  });
+});

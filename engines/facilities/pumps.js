@@ -256,6 +256,12 @@ export const impellerTrim = ({ qGpm, headFt, brakeHp, diameterRatio }) => {
   if (!(diameterRatio > 0) || diameterRatio > 1) {
     return { error: 'a trim ratio must be between 0 and 1 (you cannot trim an impeller larger)' };
   }
+  // The trim warning fires above 20 percent and names 20 percent in the
+  // same sentence, so the trim it prints carries a decimal: at whole
+  // percent a 20.25 percent trim read "a 20 percent trim ... the vendor
+  // limit usually sits near 20 percent". One decimal narrows the
+  // collision to 0.05 points rather than closing it. Gated in
+  // __tests__/facilities.pumps.test.js.
   const idealQ = qGpm * diameterRatio;
   const idealH = headFt * diameterRatio ** 2;
   // published shortfall: real trims under-deliver as the cut deepens
@@ -270,7 +276,7 @@ export const impellerTrim = ({ qGpm, headFt, brakeHp, diameterRatio }) => {
     brakeHp: brakeHp * diameterRatio ** 3,
     shortfallPct: shortfall * 100,
     warning: trimPct > 20
-      ? `a ${trimPct.toFixed(0)} percent trim is beyond what most casings tolerate: efficiency falls away and the vendor limit usually sits near 20 percent`
+      ? `a ${trimPct.toFixed(1)} percent trim is beyond what most casings tolerate: efficiency falls away and the vendor limit usually sits near 20 percent`
       : null,
   };
 };
@@ -316,10 +322,13 @@ export const viscosityCorrection = ({
     cEta,
     correctedQGpm: qBepGpm * cQ,
     correctedHeadFt: headBepFt * cH,
+    // One decimal on the efficiency correction for the same reason as
+    // the trim warning above: at whole percent a correction of 59.75
+    // read "60 percent" under a flag that only fires below 60.
     warning: B > 40
       ? 'B above 40 is outside the published correlation: this service needs a positive-displacement pump or vendor viscous test data, not a corrected centrifugal curve'
       : (cEta < 0.6
-        ? `the efficiency correction is ${(cEta * 100).toFixed(0)} percent: a centrifugal pump is a poor choice for a fluid this viscous`
+        ? `the efficiency correction is ${(cEta * 100).toFixed(1)} percent: a centrifugal pump is a poor choice for a fluid this viscous`
         : null),
   };
 };

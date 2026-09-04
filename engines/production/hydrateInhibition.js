@@ -282,13 +282,18 @@ export const inhibitionRequirement = ({
       error: `No concentration of ${inh.label.toLowerCase()} gives ${need.toFixed(1)} F of depression.`,
     };
   }
+  // The concentration prints at one decimal because the sentence names
+  // `maxWtPct` beside it: at whole percent a required 70.3 weight
+  // percent read "70 weight percent ... past the 70 percent anything is
+  // actually run at". One decimal narrows that to the 0.05 above the
+  // limit rather than closing it.
   if (weightPct > maxWtPct) {
     return {
       ok: false,
       required: true,
       neededDepressionF: need,
       weightPct,
-      error: `Killing ${need.toFixed(1)} F of subcooling would take ${weightPct.toFixed(0)} weight percent ${inh.label.toLowerCase()} in the water, past the ${maxWtPct} percent anything is actually run at. This much subcooling is a thermal or a dosing-strategy problem -- insulation, heating, or displacing the line -- not an inhibitor-concentration one.`,
+      error: `Killing ${need.toFixed(1)} F of subcooling would take ${weightPct.toFixed(1)} weight percent ${inh.label.toLowerCase()} in the water, past the ${maxWtPct} percent anything is actually run at. This much subcooling is a thermal or a dosing-strategy problem -- insulation, heating, or displacing the line -- not an inhibitor-concentration one.`,
     };
   }
   const check = depression({ weightPct, inhibitorId });
