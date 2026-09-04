@@ -54,7 +54,18 @@
  * fluids apart; some texts raise it for the glycols. Keeping it per
  * fluid means a user with a different convention can match their own
  * source instead of arguing with a hard-coded number.
+ *
+ * `nielsenBucklinDevelopedFor` says which fluid the Nielsen-Bucklin
+ * relation was developed on. It USED TO SUPPRESS THE CALCULATION for
+ * every other fluid, which threw away the one number that says how far
+ * Hammerschmidt is being pushed; Nielsen-Bucklin is a function of the
+ * water mole fraction and nothing else, so it returns a perfectly
+ * well defined figure for a glycol whether or not it was fitted on
+ * one. It is now computed and reported for every fluid, and this field
+ * only decides which relation the recommendation is taken FROM.
  */
+const show = (v) => (typeof v === 'string' ? `"${v}"` : String(v));
+
 export const INHIBITORS = [
   {
     id: 'methanol',
@@ -62,7 +73,7 @@ export const INHIBITORS = [
     molecularWeight: 32.04,
     k: 2335,
     densityLbGal: 6.6,
-    nielsenBucklin: true,
+    nielsenBucklinDevelopedFor: true,
     note: 'The most effective per pound, and the cheapest to buy. It is lost to the gas and the condensate, which is what makes recovery hard and is usually the reason a project chooses glycol instead.',
   },
   {
@@ -71,7 +82,7 @@ export const INHIBITORS = [
     molecularWeight: 62.07,
     k: 2335,
     densityLbGal: 9.3,
-    nielsenBucklin: false,
+    nielsenBucklinDevelopedFor: false,
     note: 'Stays in the water phase, so it can be recovered and recirculated. Heavier per degree of depression than methanol, which is a bigger line and a bigger pump.',
   },
   {
@@ -80,7 +91,7 @@ export const INHIBITORS = [
     molecularWeight: 106.12,
     k: 2335,
     densityLbGal: 9.3,
-    nielsenBucklin: false,
+    nielsenBucklinDevelopedFor: false,
     note: 'Less effective per pound than MEG because of its higher molecular weight; chosen for reasons other than hydrate depression.',
   },
   {
@@ -89,7 +100,7 @@ export const INHIBITORS = [
     molecularWeight: 150.17,
     k: 2335,
     densityLbGal: 9.4,
-    nielsenBucklin: false,
+    nielsenBucklinDevelopedFor: false,
     note: 'A dehydration fluid rather than a hydrate inhibitor. Its molecular weight makes it poor at this job and it is listed for completeness.',
   },
 ];
@@ -159,32 +170,51 @@ export const nielsenBucklinDepression = ({ weightPct, molecularWeight }) => {
  * Both relations at one concentration, with the disagreement between
  * them reported rather than resolved.
  *
+ * BOTH RELATIONS ARE COMPUTED FOR EVERY FLUID. Nielsen-Bucklin used to
+ * be suppressed for the glycols, which left `nielsenBucklinF` and
+ * `spreadF` null for three of the four inhibitors and removed the only
+ * quantity that says how far past its band Hammerschmidt is being
+ * pushed. The relation is a function of the water mole fraction, so it
+ * returns the same well defined number for a glycol as for methanol,
+ * and it is now reported for all of them. Which fluid it was FITTED on
+ * still decides which relation the recommendation is taken from.
+ *
+ * `withinHammerschmidtRange` is a statement about CONCENTRATION and
+ * nothing else: it says the weight percent is inside the band where
+ * Hammerschmidt is usually trusted. It was called `reliable`, which
+ * read as a claim about the accuracy of the answer, and it never
+ * measured that. `spreadF`, the gap between the two relations, is the
+ * quantity a caller can put a real threshold on, and it comes back
+ * beside it for every fluid.
+ *
  * returns { hammerschmidtF, nielsenBucklinF, recommendedF, basis,
- *           reliable, spreadF, note }
+ *           withinHammerschmidtRange, spreadF, note }
  */
 export const depression = ({ weightPct, inhibitorId = 'methanol' }) => {
   const inh = inhibitor(inhibitorId);
   const ham = hammerschmidtDepression({
     weightPct, molecularWeight: inh.molecularWeight, k: inh.k,
   });
-  const nb = inh.nielsenBucklin
-    ? nielsenBucklinDepression({ weightPct, molecularWeight: inh.molecularWeight })
-    : null;
-  const reliable = Number(weightPct) <= HAMMERSCHMIDT_RELIABLE_WT_PCT;
+  const nb = nielsenBucklinDepression({
+    weightPct, molecularWeight: inh.molecularWeight,
+  });
+  const withinHammerschmidtRange =
+    Number(weightPct) <= HAMMERSCHMIDT_RELIABLE_WT_PCT;
 
-  // Past the Hammerschmidt band, prefer Nielsen-Bucklin where it
-  // applies. Where it does not -- the glycols -- say so rather than
-  // quietly returning a number outside its own validity.
+  // Past the Hammerschmidt band, prefer Nielsen-Bucklin for the fluid
+  // it was developed on. For the others the figure is reported for
+  // comparison but the recommendation stays on Hammerschmidt, rather
+  // than quietly moving to a relation fitted on a different fluid.
   let recommendedF = ham;
   let basis = 'hammerschmidt';
   let note = null;
-  if (!reliable) {
-    if (nb != null && Number.isFinite(nb)) {
+  if (!withinHammerschmidtRange) {
+    if (inh.nielsenBucklinDevelopedFor && Number.isFinite(nb)) {
       recommendedF = nb;
       basis = 'nielsenBucklin';
       note = `Above ${HAMMERSCHMIDT_RELIABLE_WT_PCT} weight percent Hammerschmidt over-predicts, so Nielsen-Bucklin is used here. The two are shown together because the gap between them is the honest measure of how far this is being pushed.`;
     } else {
-      note = `Above ${HAMMERSCHMIDT_RELIABLE_WT_PCT} weight percent Hammerschmidt over-predicts and Nielsen-Bucklin was developed for methanol, not for ${inh.label.toLowerCase()}. Treat this depression as optimistic and confirm it against a flash.`;
+      note = `Above ${HAMMERSCHMIDT_RELIABLE_WT_PCT} weight percent Hammerschmidt over-predicts and Nielsen-Bucklin was developed for methanol, not for ${inh.label.toLowerCase()}. The Nielsen-Bucklin figure is reported beside it for comparison, and the gap between them is the measure of how far this is being pushed. Treat this depression as optimistic and confirm it against a flash.`;
     }
   }
   return {
@@ -195,8 +225,10 @@ export const depression = ({ weightPct, inhibitorId = 'methanol' }) => {
     nielsenBucklinF: nb,
     recommendedF,
     basis,
-    reliable,
-    spreadF: nb != null && Number.isFinite(nb) ? Math.abs(ham - nb) : null,
+    withinHammerschmidtRange,
+    spreadF: Number.isFinite(ham) && Number.isFinite(nb)
+      ? Math.abs(ham - nb)
+      : null,
     note,
   };
 };
@@ -221,11 +253,24 @@ export const injectionRate = ({
   const inh = inhibitor(inhibitorId);
   const w = Number(weightPct);
   const lean = Number(leanWtPct);
-  if (!(waterRateBpd >= 0)) return { ok: false, error: 'A water rate is needed.' };
-  if (!(w > 0) || !(w < 100)) return { ok: false, error: 'The target concentration has to be between 0 and 100 weight percent.' };
+  if (!(waterRateBpd >= 0)) {
+    return {
+      ok: false,
+      code: 'waterRateMissing',
+      error: `A water rate is needed. It was ${show(waterRateBpd)} bbl/d.`,
+    };
+  }
+  if (!(w > 0) || !(w < 100)) {
+    return {
+      ok: false,
+      code: 'concentrationOutOfRange',
+      error: `The target concentration has to be between 0 and 100 weight percent. It was ${show(weightPct)}.`,
+    };
+  }
   if (!(lean > 0) || !(lean > w)) {
     return {
       ok: false,
+      code: 'leanTooWeak',
       error: `The lean inhibitor is ${lean} weight percent, which is not stronger than the ${w} percent it has to produce in the water. It cannot get there however much is injected.`,
     };
   }
@@ -251,24 +296,39 @@ export const injectionRate = ({
  * The whole inhibition question in one call: how much subcooling has
  * to be killed, what concentration does it, and what rate holds that.
  *
- * `subcoolingF` is how far INSIDE the hydrate region the fluid sits --
+ * `subcoolingF` is how far INSIDE the hydrate region the fluid sits:
  * hydrate temperature less fluid temperature. A negative or zero value
  * means the fluid is already outside and nothing is needed, which is a
  * real answer and is returned as one rather than as a rate of zero
  * dressed up as a design.
+ *
+ * A MISSING SUBCOOLING IS NOT A ZERO SUBCOOLING. The two questions,
+ * can the requirement be worked out, and does it come out positive,
+ * are asked separately and in that order. They used to be one test,
+ * `!(need > 0)`, and `!(NaN > 0)` is true, so a call with no subcooling
+ * at all answered "No inhibitor is needed to keep it there" with ok
+ * true and printed the literal string "NaN F" to the user inside it.
+ * That is the answer a hydrate plug is made of.
  */
 export const inhibitionRequirement = ({
   subcoolingF, safetyMarginF = 0, waterRateBpd, inhibitorId = 'methanol',
   leanWtPct = 100, waterDensityLbGal, maxWtPct = MAX_PRACTICAL_WT_PCT,
 }) => {
-  const need = Number(subcoolingF) + Number(safetyMarginF);
   const inh = inhibitor(inhibitorId);
+  if (!Number.isFinite(subcoolingF) || !Number.isFinite(safetyMarginF)) {
+    return {
+      ok: false,
+      code: 'subcoolingNotNumeric',
+      error: `How much depression is needed cannot be worked out, so no verdict is given on whether an inhibitor is needed. The subcooling was ${show(subcoolingF)} and the safety margin was ${show(safetyMarginF)}, and both have to be numbers in degF.`,
+    };
+  }
+  const need = subcoolingF + safetyMarginF;
   if (!(need > 0)) {
     return {
       ok: true,
       required: false,
       neededDepressionF: need,
-      note: `The fluid sits outside the hydrate region by ${Math.abs(Number(subcoolingF)).toFixed(1)} F. No inhibitor is needed to keep it there.`,
+      note: `The fluid sits outside the hydrate region by ${Math.abs(subcoolingF).toFixed(1)} F. No inhibitor is needed to keep it there.`,
     };
   }
   const weightPct = weightPctForDepression({
@@ -279,6 +339,7 @@ export const inhibitionRequirement = ({
       ok: false,
       required: true,
       neededDepressionF: need,
+      code: 'depressionUnreachable',
       error: `No concentration of ${inh.label.toLowerCase()} gives ${need.toFixed(1)} F of depression.`,
     };
   }
@@ -293,7 +354,8 @@ export const inhibitionRequirement = ({
       required: true,
       neededDepressionF: need,
       weightPct,
-      error: `Killing ${need.toFixed(1)} F of subcooling would take ${weightPct.toFixed(1)} weight percent ${inh.label.toLowerCase()} in the water, past the ${maxWtPct} percent anything is actually run at. This much subcooling is a thermal or a dosing-strategy problem -- insulation, heating, or displacing the line -- not an inhibitor-concentration one.`,
+      code: 'pastPracticalCeiling',
+      error: `Killing ${need.toFixed(1)} F of subcooling would take ${weightPct.toFixed(1)} weight percent ${inh.label.toLowerCase()} in the water, past the ${maxWtPct} percent anything is actually run at. This much subcooling is a thermal or a dosing-strategy problem: insulation, heating, or displacing the line. It is not an inhibitor-concentration one.`,
     };
   }
   const check = depression({ weightPct, inhibitorId });
@@ -307,6 +369,10 @@ export const inhibitionRequirement = ({
     weightPct,
     depressionCheck: check,
     rate,
+    // A refusal that comes up from the rate keeps the rate's own code,
+    // so a caller reading the composed answer sees the same code the
+    // inner call refused with rather than a bare message.
+    code: rate.ok ? undefined : rate.code,
     error: rate.ok ? null : rate.error,
   };
 };
