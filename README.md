@@ -139,6 +139,26 @@ and its consumers.
   deepest point of gas injection). The flowing production traverse it
   needs is passed in as a depth-pressure table, so the well's inflow and
   multiphase outflow stay with the consumer's validated nodal model.
+  And nodal analysis itself (2026-09-04), which is the root the other
+  seven hang off: oil inflow (straight-line PI, Vogel, the Standing
+  composite, Fetkovich, Jones-Blount-Glaze, with calibration from a
+  production test and the published depletion rule for each family),
+  gas deliverability (Rawlins-Schellhardt and Houpeurt, both with the
+  closed-form inverse the empirical families admit), the dry-gas
+  Cullender and Smith column, and the operating point where inflow and
+  outflow cross. The solver takes the two curves as FUNCTIONS and knows
+  nothing about what made them, which is what lets a consumer hand it a
+  Beggs-Brill or Hagedorn-Brown traverse from its own PVT stack and what
+  lets the gates hand it curves whose crossing is closed-form algebra.
+  It returns EVERY crossing with its stability, because a J-shaped
+  outflow can cross a falling inflow twice and only the right-hand
+  crossing is a well that stays put; the reported operating point is the
+  rightmost stable one and is gated as its own value. Two results worth
+  knowing came out of the oracle: the published two-station Cullender
+  and Smith construction is 11.6 psi low on a friction-dominated gas
+  well (so `steps` is an input, defaulting to the published two), and a
+  40-point crossing scan stops seeing a well whose two crossings have
+  pinched together as it approaches loading up.
 - Cross-directory imports: `engines/* -> ../../lib/*`, plus ONE
   sanctioned cross-domain edge: `engines/waterflood/patternForecast.js
   -> ../scal/fractionalFlow.js` (Buckley-Leverett displacement is the
