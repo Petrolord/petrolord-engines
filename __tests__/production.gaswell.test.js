@@ -26,6 +26,7 @@ import {
   RULE_OF_THUMB_SCF_PER_BBL_PER_1000FT, ruleOfThumbGlr, screenPlungerLift,
   maxSlugLengthFt,
 } from '../engines/production/plungerLift';
+import { AIR_MW as GAS_PROPERTIES_AIR_MW } from '../engines/production/gasProperties';
 
 const G = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', 'test-data', 'production', 'goldens', 'gaswell_cases.json'),
@@ -170,7 +171,36 @@ describe('Turner and Coleman are one equation and one factor', () => {
     const cond = loadingAt({ correlation: 'turner', ...turnerFluidArgs('condensate'), ...args });
     expect(cond.criticalRateMscfd).toBeLessThan(water.criticalRateMscfd);
     expect(TURNER_FLUIDS).toHaveLength(2);
-    expect(turnerFluid('nonsense').id).toBe('water');
+  });
+
+  // ITEM 34. An unknown fluid id used to fall through to TURNER_FLUIDS[0],
+  // which is water, so a caller asking for a fluid this module does not
+  // carry was handed water's 60 dyne/cm and 67 lb/ft3 and told nothing.
+  // Condensate has about a third of water's interfacial tension, so the
+  // substitution moved every critical rate computed after it. It refuses
+  // now, the way criticalVelocity refuses an unknown correlation.
+  test('an unknown fluid id is refused rather than answered with water', () => {
+    const r = turnerFluid('nonsense');
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('unknownFluid');
+    expect(r.error).toMatch(/Unknown fluid id "nonsense"/);
+    expect(r.error).toMatch(/water or condensate/);
+    // the old silent fallback is gone: no water properties on a refusal
+    expect(r.id).toBeUndefined();
+    expect(r.sigmaDyneCm).toBeUndefined();
+    expect(r.densityLbFt3).toBeUndefined();
+  });
+
+  test('a known fluid id still returns its own properties, with ok true', () => {
+    const water = turnerFluid('water');
+    expect(water.ok).toBe(true);
+    expect(water.id).toBe('water');
+    expect(water.sigmaDyneCm).toBe(60);
+    expect(water.densityLbFt3).toBe(67);
+    const cond = turnerFluid('condensate');
+    expect(cond.ok).toBe(true);
+    expect(cond.sigmaDyneCm).toBe(20);
+    expect(cond.densityLbFt3).toBe(45);
   });
 
   function turnerFluidArgs(id) {
@@ -307,11 +337,27 @@ describe('plunger lift: the force balance', () => {
     const short = liftPressure({ ...base, slugLengthFt: 100 }).requiredPsia;
     const long = liftPressure({ ...base, slugLengthFt: 400 }).requiredPsia;
     expect(long).toBeGreaterThan(short);
-    const max = maxSlugLengthFt(base);
+    const solved = maxSlugLengthFt(base);
+    expect(solved.ok).toBe(true);
+    const max = solved.maxSlugLengthFt;
     // At the maximum slug, the available casing pressure is exactly used up.
     const atMax = liftPressure({ ...base, slugLengthFt: max });
     expect(rel(atMax.requiredPsia, base.casingPressurePsia)).toBeLessThan(1e-6);
     expect(max).toBeLessThanOrEqual(base.depthFt);
+    // ITEM 34, the additive half: the VALUE inside the new shape is the
+    // value the bare-number return always gave, to the last bit. This is
+    // the gate that says no number moved when the shape did.
+    const areaIn2 = tubingAreaIn2(base.idIn);
+    const rhoGas = (base.linePressurePsia * AIR_MW * base.gasSg)
+      / (base.z * 10.7316 * base.avgTempR);
+    const gasPerFt = rhoGas / 144;
+    const available = base.casingPressurePsia - base.linePressurePsia
+      - base.plungerWeightLb / areaIn2 - 0 - gasPerFt * base.depthFt;
+    const asItWas = Math.min(
+      Math.max(available / (PSI_PER_FT_SG * base.liquidSg - gasPerFt), 0),
+      base.depthFt,
+    );
+    expect(max).toBe(asItWas);
   });
 });
 
@@ -592,16 +638,33 @@ describe('a bad pressure is named, not crashed on and not printed as NaN', () =>
     wellGlrScfBbl: 5000,
   };
 
-  test.each([['undefined', undefined], ['null', null], ['NaN', NaN]])(
-    'screenPlungerLift with a %s casing pressure does not throw', (_label, casingPressurePsia) => {
+  // ITEM 44. The guard above stopped the crash and left the deeper thing
+  // alone: the casing pressure was never in this function's refusal list
+  // at all, so an unreadable one produced a DESIGN, with a NaN gas volume
+  // and a NaN required ratio inside it and a warning bolted on the side.
+  // A verdict on an input never read is not a verdict, so it is refused
+  // at the door now and there is no design to inspect.
+  test.each([['undefined', undefined], ['null', null], ['NaN', NaN], ['a numeric string', '600']])(
+    'screenPlungerLift refuses a %s casing pressure at the door', (_label, casingPressurePsia) => {
       expect(() => screenPlungerLift({ ...plungerWell, casingPressurePsia })).not.toThrow();
       const r = screenPlungerLift({ ...plungerWell, casingPressurePsia });
-      const w = r.design.warnings.find((x) => x.code === 'insufficientPressure');
-      expect(w).toBeDefined();
-      expect(w.message).toMatch(/No casing pressure could be read/);
-      expect(w.message).not.toMatch(/builds to NaN psia/);
+      expect(r.ok).toBe(false);
+      expect(r.design).toBeNull();
+      expect(r.errors.join(' ')).toMatch(/The gas expands from the casing pressure/);
+      // the value is NAMED as unreadable rather than printed as a reading
+      expect(r.errors.join(' ')).not.toMatch(/builds to NaN psia/);
+      expect(r.errors.join(' ')).toMatch(/Hand a numeric casing pressure in psia/);
+      // and no design-side verdict is offered on a well never screened
+      expect(r.design).not.toEqual(expect.objectContaining({ feasible: expect.anything() }));
     },
   );
+
+  test('a readable casing pressure still screens as it always did', () => {
+    const r = screenPlungerLift({ ...plungerWell, casingPressurePsia: 600 });
+    expect(r.ok).toBe(true);
+    expect(r.design).not.toBeNull();
+    expect(Number.isFinite(r.design.requiredGlrScfBbl)).toBe(true);
+  });
 
   test('a real casing pressure reads exactly as PR #114 left it', () => {
     const well = {
@@ -768,5 +831,417 @@ describe('a tubing sizing that was never evaluated says so', () => {
     const r = sizeTubingForRate({ ...conditions, qMscfd: 1 });
     expect(r.ok).toBe(true);
     expect(r.largestUnloaded).toBeNull();
+  });
+});
+
+// ===========================================================================
+// WAVE 1, GAS WELL. Items 13 (documentation half), 33, 34, 35, 36, 42, 44.
+//
+// Every gate below fails on the code as it stood before this change and
+// passes after it, and not one of them moves a number: the golden file
+// test-data/production/goldens/gaswell_cases.json is untouched and every
+// gate above still passes against it.
+// ===========================================================================
+
+describe('item 44: a rate that was never read is not a verdict', () => {
+  const station = {
+    correlation: 'turner', sigmaDyneCm: 60, rhoLiquidLbFt3: 67,
+    pPsia: 1100, tempR: 600, z: 0.89, gasSg: 0.65, idIn: 2.441,
+  };
+
+  test.each([['undefined', undefined], ['null', null], ['a numeric string', '900'], ['NaN', NaN]])(
+    'loadingAt with a %s rate reports valid false and a code', (_label, qMscfd) => {
+      const at = loadingAt({ ...station, qMscfd });
+      expect(at.valid).toBe(false);
+      expect(at.code).toBe('unreadableRate');
+      expect(at.error).toMatch(/No gas rate could be read/);
+      // the ratio is left unformed rather than coerced
+      expect(at.ratio).toBeNaN();
+      expect(at.actualVelocityFtS).toBeNaN();
+      // and a well nobody measured is not reported as an unloaded one
+      expect(at.loaded).toBe(false);
+    },
+  );
+
+  test('`ok` is NOT overloaded: it keeps meaning the critical side computed', () => {
+    // Two callers in this file branch on `ok`, so the refusal had to be a
+    // new field rather than a new meaning for an old one. The critical
+    // rate does not depend on the well's rate and is still a true reading
+    // of the station, so it is still reported.
+    const at = loadingAt({ ...station, qMscfd: undefined });
+    expect(at.ok).toBe(true);
+    expect(at.valid).toBe(false);
+    expect(Number.isFinite(at.criticalRateMscfd)).toBe(true);
+    expect(at.correlation).toBe('turner');
+
+    // and `ok` is still false, with `valid` false beside it, when the
+    // critical side is what failed
+    const bad = loadingAt({ ...station, correlation: 'guess', qMscfd: 900 });
+    expect(bad.ok).toBe(false);
+    expect(bad.valid).toBe(false);
+    expect(bad.code).toBe('unknownCorrelation');
+  });
+
+  test('the string rate used to produce a confident answer', () => {
+    // The defect, stated as an assertion so the reason for `valid`
+    // survives. JavaScript divides a numeric string by a number happily,
+    // so '900' produced a ratio, a loaded verdict and a margin from a
+    // value nothing had established was a rate.
+    const at = loadingAt({ ...station, qMscfd: 900 });
+    expect(Number.isFinite('900' / at.criticalRateMscfd)).toBe(true);
+    expect(at.valid).toBe(true);
+    expect(Number.isFinite(at.ratio)).toBe(true);
+  });
+
+  test('caller one, loadingProfile, refuses the profile rather than every station', () => {
+    const stations = [
+      { depthFt: 0, pPsia: 400, tempR: 540, z: 0.94, idIn: 2.441 },
+      { depthFt: 6000, pPsia: 1100, tempR: 600, z: 0.89, idIn: 2.441 },
+    ];
+    const p = loadingProfile({
+      stations, qMscfd: undefined, correlation: 'turner',
+      sigmaDyneCm: 60, rhoLiquidLbFt3: 67, gasSg: 0.65,
+    });
+    expect(p.ok).toBe(false);
+    expect(p.code).toBe('unreadableRate');
+    expect(p.error).toMatch(/No gas rate could be read/);
+    expect(p.points).toBeUndefined();
+  });
+
+  test('caller two, sizeTubingForRate, does not count an unread row as usable', () => {
+    const r = sizeTubingForRate({
+      candidatesIdIn: [2.441, 1.995], qMscfd: '900', correlation: 'turner',
+      sigmaDyneCm: 60, rhoLiquidLbFt3: 67, pPsia: 300, tempR: 560, z: 0.94,
+      gasSg: 0.65,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('unreadableRate');
+    expect(r.rows.every((row) => row.valid === false)).toBe(true);
+    expect(r.largestUnloaded).toBeNull();
+  });
+});
+
+describe('item 33: a sizing row says WHERE it was evaluated', () => {
+  const conditions = {
+    correlation: 'turner', sigmaDyneCm: 60, rhoLiquidLbFt3: 67,
+    pPsia: 1100, tempR: 600, z: 0.89, gasSg: 0.65,
+    candidatesIdIn: [2.992, 2.441, 1.995], qMscfd: 3000,
+  };
+
+  test('every row carries the station depth, pressure and temperature', () => {
+    const r = sizeTubingForRate({ ...conditions, stationDepthFt: 6000 });
+    expect(r.ok).toBe(true);
+    r.rows.forEach((row) => {
+      expect(row.stationDepthFt).toBe(6000);
+      expect(row.stationPressurePsia).toBe(1100);
+      expect(row.stationTempR).toBe(600);
+    });
+  });
+
+  test('a table run at two stations is no longer two tables that look alike', () => {
+    // Critical rate goes as roughly the square root of pressure, so the
+    // same candidate list at the wellhead and at the shoe gives two
+    // different answers. Both used to record only the correlation.
+    const shoe = sizeTubingForRate({ ...conditions, stationDepthFt: 6000 });
+    const wellhead = sizeTubingForRate({
+      ...conditions, pPsia: 400, tempR: 540, z: 0.94, stationDepthFt: 0,
+    });
+    expect(shoe.rows[0].criticalRateMscfd).not.toBeCloseTo(wellhead.rows[0].criticalRateMscfd, 3);
+    expect(shoe.rows[0].stationDepthFt).toBe(6000);
+    expect(wellhead.rows[0].stationDepthFt).toBe(0);
+    expect(shoe.rows[0].stationPressurePsia).toBe(1100);
+    expect(wellhead.rows[0].stationPressurePsia).toBe(400);
+  });
+
+  test('the depth is null when the caller did not name one, never a guess', () => {
+    const r = sizeTubingForRate(conditions);
+    r.rows.forEach((row) => {
+      expect(row.stationDepthFt).toBeNull();
+      expect(row.stationPressurePsia).toBe(1100);
+      expect(row.stationTempR).toBe(600);
+    });
+  });
+
+  test('refusal rows carry the station too', () => {
+    const r = sizeTubingForRate({ ...conditions, qMscfd: NaN, stationDepthFt: 6000 });
+    expect(r.ok).toBe(false);
+    r.rows.forEach((row) => {
+      expect(row.stationDepthFt).toBe(6000);
+      expect(row.stationTempR).toBe(600);
+    });
+  });
+
+  test('the station fields did not disturb the answer the rows always gave', () => {
+    const r = sizeTubingForRate({ ...conditions, stationDepthFt: 6000 });
+    const rates = r.rows.map((row) => row.criticalRateMscfd);
+    for (let i = 1; i < rates.length; i += 1) expect(rates[i]).toBeLessThan(rates[i - 1]);
+    expect(r.rows[0].idIn).toBe(2.992);
+    expect(r.largestUnloaded).not.toBeNull();
+  });
+});
+
+describe('item 34: a clamp is not an answer', () => {
+  const base = {
+    depthFt: 6000, idIn: 2.441, linePressurePsia: 120, casingPressurePsia: 600,
+    liquidSg: 1.02, plungerWeightLb: 6, gasSg: 0.65, avgTempR: 580, z: 0.9,
+  };
+
+  test('a casing that cannot lift a BARE plunger refuses, and used to say 0 ft', () => {
+    // Math.max(L, 0) fired here. Zero feet reads as a very short slug and
+    // an operator takes it as a tuning problem, when the finding is that
+    // this well cannot lift the plunger on its own.
+    const r = maxSlugLengthFt({ ...base, casingPressurePsia: 130 });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('casingBelowLiftPressure');
+    expect(r.error).toMatch(/There is no slug this well can lift, not even a short one/);
+    expect(r.error).toMatch(/The casing builds to 130\.0 psia/);
+    expect(r).not.toBe(0);
+    expect(r.maxSlugLengthFt).toBeUndefined();
+  });
+
+  test('a slug longer than the well refuses, and used to say exactly the depth', () => {
+    // Math.min(L, depthFt) fired here, and the depth is indistinguishable
+    // from a genuine solve that landed on the shoe.
+    const r = maxSlugLengthFt({ ...base, casingPressurePsia: 5000 });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('slugExceedsDepth');
+    expect(r.error).toMatch(/the casing pressure is not what limits the slug here/);
+    expect(r.error).toMatch(/in a well 6000\.0 ft deep/);
+    expect(r.maxSlugLengthFt).toBeUndefined();
+  });
+
+  test('the gradient branch refuses in the same shape it always refused in', () => {
+    // This branch existed and returned a bare NaN, which is a refusal a
+    // caller cannot test for. It is the same object now as the two clamps.
+    const r = maxSlugLengthFt({ ...base, liquidSg: 0 });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('noSlugGradient');
+    expect(r.error).toMatch(/there is no longest slug to find/);
+    expect(Number.isNaN(r)).toBe(false);
+  });
+
+  test('a clamp that cannot be evaluated refuses rather than returning NaN', () => {
+    // The Suite hands this function NaN for an unentered casing pressure
+    // or plunger weight, and Math.min(Math.max(NaN, 0), depth) is NaN,
+    // which the Suite then formatted and displayed.
+    const r = maxSlugLengthFt({ ...base, casingPressurePsia: NaN });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('unreadableInputs');
+    expect(r.error).toMatch(/could not be computed from these inputs/);
+  });
+
+  test('a well with a real answer still gets the number, in the new shape', () => {
+    const r = maxSlugLengthFt(base);
+    expect(r.ok).toBe(true);
+    expect(r.code).toBeUndefined();
+    expect(r.maxSlugLengthFt).toBeGreaterThan(0);
+    expect(r.maxSlugLengthFt).toBeLessThan(base.depthFt);
+  });
+
+  test('the boundaries themselves are answers, not clamps', () => {
+    // Exactly zero and exactly the depth are legitimate solves. Only
+    // values OUTSIDE the band were ever clamped, and only those refuse.
+    const bare = liftPressure({ ...base, slugLengthFt: 0 }).requiredPsia;
+    const atZero = maxSlugLengthFt({ ...base, casingPressurePsia: bare });
+    expect(atZero.ok).toBe(true);
+    expect(atZero.maxSlugLengthFt).toBeCloseTo(0, 9);
+  });
+});
+
+describe('item 35: a consequence is not a second finding', () => {
+  const base = {
+    depthFt: 6000, idIn: 2.441, linePressurePsia: 120, casingPressurePsia: 600,
+    slugLengthFt: 200, liquidSg: 1.02, plungerWeightLb: 6, gasSg: 0.65,
+    avgTempR: 580, z: 0.9, wellGlrScfBbl: 12000,
+  };
+
+  test('a well with no depth is told about the depth and nothing else', () => {
+    // "The slug is longer than the tubing it sits in" is TRUE of a 200 ft
+    // slug in a well of zero depth, and it is not a finding: it is what
+    // the missing depth looks like one line further down. A caller taking
+    // errors[0] and showing it to a user used to get the depth; a caller
+    // showing the list got both, and the second sends the reader to
+    // shorten a slug that is not the problem.
+    const r = screenPlungerLift({ ...base, depthFt: 0 });
+    expect(r.ok).toBe(false);
+    expect(r.errors).toEqual(['The plunger has to travel a depth.']);
+    expect(r.errors.join(' ')).not.toMatch(/longer than the tubing/);
+  });
+
+  test('the same, with a slug that is genuinely absurd against no depth', () => {
+    const r = screenPlungerLift({ ...base, depthFt: undefined, slugLengthFt: 9000 });
+    expect(r.errors).toEqual(['The plunger has to travel a depth.']);
+  });
+
+  test('an unreadable slug does not also report itself as too long', () => {
+    const r = screenPlungerLift({ ...base, slugLengthFt: NaN });
+    expect(r.errors).toEqual(['A cycle lifts a slug, so it needs a slug length.']);
+  });
+
+  test('the root finding still fires when it IS the root', () => {
+    // Both lengths readable, and the slug really is longer than the well.
+    const r = screenPlungerLift({ ...base, slugLengthFt: 9000 });
+    expect(r.ok).toBe(false);
+    expect(r.errors).toEqual(['The slug is longer than the tubing it sits in.']);
+  });
+
+  test('sizeTubingForRate reports the missing rate, not its consequence', () => {
+    // "None of the candidate sizes could be evaluated at these conditions"
+    // is true when the rate is missing, and it sends the reader to check
+    // the pressure, the temperature and the z factor, none of which is
+    // wrong. Only the root is returned.
+    const r = sizeTubingForRate({
+      candidatesIdIn: [2.441, 1.995], qMscfd: undefined, correlation: 'turner',
+      sigmaDyneCm: 60, rhoLiquidLbFt3: 67, pPsia: 1100, tempR: 600, z: 0.89,
+      gasSg: 0.65,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('unreadableRate');
+    expect(r.reason).not.toMatch(/None of the candidate sizes/);
+    expect(r.reason).not.toMatch(/Check the pressure, temperature, z factor/);
+  });
+});
+
+describe('item 36: the refusal carries a code, not only prose', () => {
+  test('an unreadable pressure refuses in a field and names the refusal', () => {
+    const r = recommendCorrelation(undefined);
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('unreadablePressure');
+  });
+
+  test('a readable pressure carries no refusal code', () => {
+    expect(recommendCorrelation(1240.4).ok).toBe(true);
+    expect(recommendCorrelation(1240.4).code).toBeUndefined();
+  });
+
+  test('criticalVelocity names its two refusals', () => {
+    const unknown = criticalVelocity({
+      correlation: 'guess', sigmaDyneCm: 60, rhoLiquidLbFt3: 67,
+      pPsia: 1000, tempR: 600, z: 0.9, gasSg: 0.65,
+    });
+    expect(unknown.code).toBe('unknownCorrelation');
+    const impossible = criticalVelocity({
+      correlation: 'turner', sigmaDyneCm: 60, rhoLiquidLbFt3: 2,
+      pPsia: 1000, tempR: 600, z: 0.9, gasSg: 0.65,
+    });
+    expect(impossible.ok).toBe(false);
+    expect(impossible.code).toBe('dropletBalanceNotFormed');
+  });
+});
+
+describe('item 42: the slug is named WITH a direction', () => {
+  const well = {
+    depthFt: 6000, idIn: 2.441, linePressurePsia: 120, casingPressurePsia: 600,
+    slugLengthFt: 200, liquidSg: 1.02, plungerWeightLb: 6, gasSg: 0.65,
+    avgTempR: 580, z: 0.9, afterflowMin: 20, shutInMin: 35,
+  };
+
+  test('the gas warning says which way the slug moves the ratio', () => {
+    const r = screenPlungerLift({ ...well, wellGlrScfBbl: 500 });
+    const w = r.design.warnings.find((x) => x.code === 'insufficientGas');
+    expect(w).toBeDefined();
+    // the old wording named the lever and not the direction, and the
+    // intuitive reading of it is the wrong one
+    expect(w.message).not.toMatch(/at this slug size/);
+    expect(w.message).toMatch(/A longer slug LOWERS the ratio a cycle needs/);
+    expect(w.message).toMatch(/a shorter slug RAISES it/);
+    expect(w.message).toMatch(/lengthening the slug is the direction that helps/);
+    // and it names the slug it is talking about
+    expect(w.message).toMatch(/at a slug of 200\.0 ft/);
+  });
+
+  test('and the direction it states is the direction the arithmetic takes', () => {
+    // The gas a cycle needs is set by the swept tubing volume, which is
+    // the whole string whatever the slug does; the liquid is proportional
+    // to the slug. So the required ratio falls as the slug lengthens, and
+    // a reader who shortened the slug on the old sentence made it worse.
+    const short = screenPlungerLift({ ...well, slugLengthFt: 100, wellGlrScfBbl: 500 });
+    const long = screenPlungerLift({ ...well, slugLengthFt: 400, wellGlrScfBbl: 500 });
+    expect(long.design.requiredGlrScfBbl).toBeLessThan(short.design.requiredGlrScfBbl);
+  });
+
+  test('a rule of thumb that disagrees with the physics says so, with both figures', () => {
+    // wellGlr 3000 is above the rule of thumb's 2400 and below the 4711
+    // a cycle actually needs, which is exactly where a screening
+    // heuristic misleads. It used to be reported only as a boolean.
+    const r = screenPlungerLift({ ...well, wellGlrScfBbl: 3000 });
+    expect(r.design.ruleOfThumbAgrees).toBe(false);
+    const w = r.design.warnings.find((x) => x.code === 'ruleOfThumbDisagrees');
+    expect(w).toBeDefined();
+    const oneDp = { minimumFractionDigits: 1, maximumFractionDigits: 1 };
+    expect(w.message).toContain(
+      `asks for ${r.design.ruleOfThumbGlrScfBbl.toLocaleString(undefined, oneDp)} scf`,
+    );
+    expect(w.message).toContain(
+      `a cycle actually needs ${r.design.requiredGlrScfBbl.toLocaleString(undefined, oneDp)}`,
+    );
+    expect(w.message).toContain(`the well makes ${(3000).toLocaleString(undefined, oneDp)}`);
+    expect(w.message).toMatch(/The verdict above follows the computed ratio/);
+  });
+
+  test('a well the two agree about gets no such warning', () => {
+    const r = screenPlungerLift({ ...well, wellGlrScfBbl: 12000 });
+    expect(r.design.ruleOfThumbAgrees).toBe(true);
+    expect(r.design.warnings.map((x) => x.code)).not.toContain('ruleOfThumbDisagrees');
+  });
+
+  test('a well with no stated ratio gets neither the boolean nor the warning', () => {
+    const r = screenPlungerLift({ ...well, wellGlrScfBbl: undefined });
+    expect(r.design.ruleOfThumbAgrees).toBeNull();
+    expect(r.design.warnings.map((x) => x.code)).not.toContain('ruleOfThumbDisagrees');
+  });
+});
+
+// Item 13, the WAVE 1 HALF ONLY. The convention is documentation, so the
+// gate is on what the headers say. The second half of item 13, unifying
+// the two molecular weights of air, MOVES gas well densities by about 8
+// parts in 100,000 and belongs to the Wave 2 gas well PR; the gate below
+// pins both constants where they are so that unification cannot arrive as
+// a tidy-up rather than as a decision with a golden refresh behind it.
+describe('item 13: one door convention for temperature', () => {
+  const read = (f) => fs.readFileSync(
+    path.join(__dirname, '..', 'engines', 'production', f), 'utf8',
+  );
+  const loading = read('gasWellLoading.js');
+  const plunger = read('plungerLift.js');
+  const props = read('gasProperties.js');
+
+  test('the degR convention is stated in the two degR modules', () => {
+    expect(loading).toContain('ONE DOOR CONVENTION FOR TEMPERATURE: degR AT EVERY BOUNDARY');
+    expect(plunger).toContain('ONE DOOR CONVENTION FOR TEMPERATURE: degR AT EVERY BOUNDARY');
+    expect(plunger).toMatch(/Field units: depth ft, pressure psia, temperature degR/);
+  });
+
+  test('the one module that takes degF at its door says so unambiguously', () => {
+    expect(props).toContain('THIS MODULE IS THE ONE degF DOOR IN THE DOMAIN');
+    expect(props).toMatch(/takes DEGREES FAHRENHEIT at its door/);
+    expect(props).toMatch(/`tF`\s+degF, a temperature/);
+    expect(props).toMatch(/`tempAtDepthF`\s+degF, or a function of TVD returning degF/);
+    // and the two degR modules point at it rather than leaving the
+    // exception to be discovered
+    expect(loading).toMatch(/takes degF at its door is\n \* `gasProperties\.js`/);
+    expect(plunger).toMatch(/takes degF at its door is\n \* `gasProperties\.js`/);
+  });
+
+  test('every degR parameter still carries its unit in its name', () => {
+    expect(loading).toMatch(/tempR/);
+    expect(loading).not.toMatch(/\btempF\b/);
+    expect(plunger).toMatch(/avgTempR/);
+    expect(plunger).not.toMatch(/\bavgTempF\b/);
+  });
+
+  test('the two molecular weights of air are untouched and NOT unified', () => {
+    expect(AIR_MW).toBe(28.9647);
+    expect(GAS_PROPERTIES_AIR_MW).toBe(28.9625);
+    expect(AIR_MW).not.toBe(GAS_PROPERTIES_AIR_MW);
+    // about 8 parts in 100,000 apart, which is a moved number and a Wave 2
+    // change, and neither file imports the other's constant
+    expect(Math.abs(AIR_MW - GAS_PROPERTIES_AIR_MW) / GAS_PROPERTIES_AIR_MW)
+      .toBeLessThan(1e-4);
+    expect(loading).not.toMatch(/import[\s\S]{0,200}gasProperties/);
+    expect(props).not.toMatch(/import[\s\S]{0,200}gasWellLoading/);
+    // and both divergences are recorded rather than left to be tidied away
+    expect(loading).toContain("ON THIS FILE'S `AIR_MW` AND `gasProperties.js`'s");
+    expect(props).toContain('NOT THE SAME CONSTANT AS `gasWellLoading.js`');
   });
 });

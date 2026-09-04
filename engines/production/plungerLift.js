@@ -36,8 +36,26 @@
  * required gas-liquid ratio is computed from the work the gas actually
  * has to do, and the two are reported side by side.
  *
- * Field units: depth ft, pressure psia, length ft, area in2 and ft2,
- * volume bbl and scf, rate Mscf/d and bbl/d, velocity ft/min, time min.
+ * Field units: depth ft, pressure psia, temperature degR, length ft,
+ * area in2 and ft2, volume bbl and scf, rate Mscf/d and bbl/d, velocity
+ * ft/min, time min.
+ *
+ * ONE DOOR CONVENTION FOR TEMPERATURE: degR AT EVERY BOUNDARY.
+ *
+ * Every temperature this module accepts is absolute, in degrees
+ * Rankine, and the parameter that carries one says so in its name:
+ * `avgTempR`. Nothing here takes degF and nothing here converts, so a
+ * Fahrenheit reading handed to `liftPressure`, `gasPerCycleScf`,
+ * `screenPlungerLift` or `maxSlugLengthFt` is silently wrong by 459.67
+ * rather than refused. It reaches the real gas law through
+ * `gasDensityLbFt3` and `gasPerCycleScf`, both of which are degR at
+ * their own doors too.
+ *
+ * The one place in this domain that takes degF at its door is
+ * `gasProperties.js`, whose `tF` and `tempAtDepthF` arguments are
+ * Fahrenheit by name and which converts with its own `toRankine`. This
+ * module does not call it. Callers crossing between the two convert at
+ * the boundary.
  */
 
 import {
@@ -93,6 +111,8 @@ export const slugLengthForBbl = ({ bbl, idIn }) => {
  *   friction               drag of slug and plunger on the tubing, an
  *                          input because it is measured, not modelled
  *
+ * `avgTempR` is degR at the door, per the module header.
+ *
  * returns { requiredPsia, terms }
  */
 export const liftPressure = ({
@@ -132,6 +152,8 @@ export const liftPressure = ({
  * the end of the rise, the real gas law converts that swept volume to
  * standard conditions. This is the work the gas does, and it is where
  * the feasibility number comes from.
+ *
+ * `avgTempR` is degR at the door, per the module header.
  */
 export const gasPerCycleScf = ({
   depthFt, idIn, pStartPsia, pEndPsia, avgTempR, z,
@@ -191,6 +213,25 @@ export const ruleOfThumbGlr = ({ depthFt, scfPerBblPer1000ft = RULE_OF_THUMB_SCF
  * makes more gas per barrel than that, it can drive the plunger; if
  * not, it cannot, whatever a rule of thumb says.
  *
+ * `avgTempR` is degR at the door, per the module header.
+ *
+ * THE CASING PRESSURE IS AN INPUT THIS FUNCTION READS, SO IT IS AN
+ * INPUT THIS FUNCTION CHECKS. It was not in the refusal list, and it is
+ * the pressure the whole verdict turns on: it sets the start of the gas
+ * expansion, it decides `pressureOk`, and it is printed in the
+ * `insufficientPressure` warning. An undefined one used to walk past
+ * the gate, produce a NaN gas volume and a NaN required ratio, and come
+ * back as a design object with a warning attached rather than as a
+ * refusal. A verdict on an input never read is not a verdict.
+ *
+ * ONLY THE ROOT ERROR IS REPORTED. "The slug is longer than the tubing
+ * it sits in" is a true statement about a well with no depth and a 200
+ * ft slug, and it is not a finding: it is what the missing depth looks
+ * like from one line further down. It is tested only when both lengths
+ * were readable in the first place, so a caller taking `errors[0]` and
+ * showing it to a user gets the thing to fix rather than the loudest
+ * consequence of it.
+ *
  * returns { ok, errors, design }
  */
 export const screenPlungerLift = ({
@@ -205,7 +246,13 @@ export const screenPlungerLift = ({
   if (!(slugLengthFt > 0)) errors.push('A cycle lifts a slug, so it needs a slug length.');
   if (!(plungerWeightLb > 0)) errors.push('The plunger needs a weight.');
   if (!(avgTempR > 0)) errors.push('The gas column needs an average temperature.');
-  if (slugLengthFt > depthFt) errors.push('The slug is longer than the tubing it sits in.');
+  if (!Number.isFinite(casingPressurePsia)) {
+    errors.push(`The gas expands from the casing pressure, so a cycle needs one, and ${describeUnusableNumber(casingPressurePsia)}. Hand a numeric casing pressure in psia.`);
+  }
+  // Consequence, not a finding: only asked once both lengths are real.
+  if (depthFt > 0 && slugLengthFt > 0 && slugLengthFt > depthFt) {
+    errors.push('The slug is longer than the tubing it sits in.');
+  }
   if (errors.length) return { ok: false, errors, design: null };
 
   const lift = liftPressure({
@@ -260,10 +307,21 @@ export const screenPlungerLift = ({
     });
   }
   const glrOk = Number.isFinite(wellGlrScfBbl) && wellGlrScfBbl >= requiredGlr;
+  // THE SLUG NAMED WITHOUT A DIRECTION SENDS THE READER THE WRONG WAY.
+  // "There is not enough gas to drive the plunger at this slug size"
+  // names the lever and says nothing about which way it moves, and the
+  // intuitive reading is the wrong one: a shorter slug looks like less
+  // work. It is not. The gas a cycle needs is set by the swept tubing
+  // volume, which is the whole string whatever the slug does, while the
+  // liquid a cycle brings up is proportional to the slug. So the
+  // required ratio goes roughly as one over the slug length: a LONGER
+  // slug LOWERS it and a SHORTER slug RAISES it, and an operator who
+  // shortened the slug on the strength of the old sentence made the
+  // well less feasible, not more.
   if (Number.isFinite(wellGlrScfBbl) && !glrOk) {
     warnings.push({
       code: 'insufficientGas',
-      message: `A cycle needs ${requiredGlr.toLocaleString(undefined, ONE_DECIMAL)} scf of gas per barrel and the well makes ${wellGlrScfBbl.toLocaleString(undefined, ONE_DECIMAL)}. There is not enough gas to drive the plunger at this slug size.`,
+      message: `A cycle needs ${requiredGlr.toLocaleString(undefined, ONE_DECIMAL)} scf of gas per barrel and the well makes ${wellGlrScfBbl.toLocaleString(undefined, ONE_DECIMAL)}. There is not enough gas to drive the plunger at a slug of ${slugLengthFt.toLocaleString(undefined, ONE_DECIMAL)} ft. A longer slug LOWERS the ratio a cycle needs and a shorter slug RAISES it, so lengthening the slug is the direction that helps here, up to the longest slug this casing pressure can lift.`,
     });
   }
   // One decimal on the cycle time: 1440 minutes IS one trip a day, so
@@ -278,6 +336,21 @@ export const screenPlungerLift = ({
   }
 
   const ruleGlr = ruleOfThumbGlr({ depthFt, scfPerBblPer1000ft });
+  const ruleOfThumbAgrees = Number.isFinite(wellGlrScfBbl)
+    ? (wellGlrScfBbl >= ruleGlr) === glrOk
+    : null;
+  // A well between the two numbers is exactly where a screening
+  // heuristic misleads, and `ruleOfThumbAgrees: false` reported that
+  // only as a boolean nobody renders. It is said in words now, with
+  // both figures in the sentence, because the reader who has to be told
+  // is the one who screened this well on the rule of thumb and is about
+  // to be surprised by the verdict.
+  if (ruleOfThumbAgrees === false) {
+    warnings.push({
+      code: 'ruleOfThumbDisagrees',
+      message: `The screening rule of thumb and the computed ratio disagree about this well. The rule of thumb asks for ${ruleGlr.toLocaleString(undefined, ONE_DECIMAL)} scf of gas per barrel and a cycle actually needs ${requiredGlr.toLocaleString(undefined, ONE_DECIMAL)}, and the well makes ${wellGlrScfBbl.toLocaleString(undefined, ONE_DECIMAL)}. The verdict above follows the computed ratio, which is the work the gas has to do; the rule of thumb is a screen and is reported for comparison only.`,
+    });
+  }
 
   return {
     ok: true,
@@ -290,9 +363,7 @@ export const screenPlungerLift = ({
       wellGlrScfBbl,
       // Reported for comparison only; the verdict above does not use it.
       ruleOfThumbGlrScfBbl: ruleGlr,
-      ruleOfThumbAgrees: Number.isFinite(wellGlrScfBbl)
-        ? (wellGlrScfBbl >= ruleGlr) === glrOk
-        : null,
+      ruleOfThumbAgrees,
       timing,
       liquidPerDayBbl: liquidBbl * timing.cyclesPerDay,
       gasPerDayMscf: (gasScf * timing.cyclesPerDay) / 1000,
@@ -315,6 +386,41 @@ export const screenPlungerLift = ({
  *
  * Solving for L gives the slug at which the available casing pressure
  * is exactly used up.
+ *
+ * `avgTempR` is degR at the door, per the module header.
+ *
+ * A CLAMP IS NOT AN ANSWER, AND THERE WERE TWO OF THEM.
+ *
+ * The solve used to end `Math.min(Math.max(L, 0), depthFt)`, and both
+ * ends of that clamp turned a well this function had just proved
+ * something about into a number that reads as an ordinary answer.
+ *
+ *   Math.max(L, 0) fires when the casing pressure does not even cover
+ *   the line pressure, the plunger's own weight and the gas column,
+ *   which is to say BEFORE any slug at all. The finding is that this
+ *   well cannot lift a bare plunger. It was reported as "0 ft", which a
+ *   reader takes as a very short slug and an operator takes as a
+ *   tuning problem.
+ *
+ *   Math.min(L, depthFt) fires when the balance says the well could
+ *   carry a slug longer than the tubing is deep. The finding is that
+ *   the casing pressure is not the binding constraint here and the
+ *   answer is the well's own liquid, not this equation. It was reported
+ *   as exactly the depth, which is indistinguishable from a genuine
+ *   solve that landed on the shoe.
+ *
+ * Both refuse now, with the same `{ ok: false, code, error }` shape as
+ * the gradient branch, and the third branch below is there because a
+ * clamp cannot be evaluated on a value that is not a number: the Suite
+ * hands this function NaN for an unentered casing pressure or plunger
+ * weight, and `Math.min(Math.max(NaN, 0), depthFt)` is NaN, which the
+ * Suite then formatted and displayed.
+ *
+ * THE RETURN SHAPE CHANGED, AND IT HAD TO. This used to return a bare
+ * number, and a bare number cannot carry `ok`. On success it now returns
+ * `{ ok: true, maxSlugLengthFt }` and the value inside is the value it
+ * always was, unchanged, for every input that produced an answer rather
+ * than a clamp.
  */
 export const maxSlugLengthFt = ({
   casingPressurePsia, linePressurePsia, liquidSg, idIn, plungerWeightLb,
@@ -327,6 +433,44 @@ export const maxSlugLengthFt = ({
   const available = casingPressurePsia - linePressurePsia - plungerPsi
     - frictionPsi - gasPerFt * depthFt;
   const perFt = PSI_PER_FT_SG * liquidSg - gasPerFt;
-  if (!(perFt > 0)) return NaN;
-  return Math.min(Math.max(available / perFt, 0), depthFt);
+  if (!(perFt > 0)) {
+    return {
+      ok: false,
+      code: 'noSlugGradient',
+      error: `The liquid gradient here is ${(PSI_PER_FT_SG * liquidSg).toFixed(4)} psi/ft and the gas gradient is ${gasPerFt.toFixed(4)} psi/ft, so a longer slug adds no net pressure and there is no longest slug to find. Check the liquid gravity and the gas column conditions.`,
+    };
+  }
+  const lengthFt = available / perFt;
+  // The band is [0, depthFt] and its EDGES are answers: a casing pressure
+  // that lifts a bare plunger and no more solves to exactly zero, and one
+  // that solves to exactly the depth is a real solve that landed on the
+  // shoe. Only values OUTSIDE the band were ever clamped, and only those
+  // refuse. The tolerance is there because the two edge cases are reached
+  // by a subtraction of like-sized pressures and land a few parts in 1e16
+  // either side of the edge; at 1e-9 of the depth it is a rounding window,
+  // not a finding, and a value inside it returns the edge exactly as the
+  // old clamp did.
+  const edgeTolFt = 1e-9 * Math.max(Math.abs(depthFt), 1);
+  if (!Number.isFinite(lengthFt)) {
+    return {
+      ok: false,
+      code: 'unreadableInputs',
+      error: 'The longest slug could not be computed from these inputs. Check that the casing pressure, the line pressure, the plunger weight, the tubing diameter and the depth are all numbers.',
+    };
+  }
+  if (lengthFt < -edgeTolFt) {
+    return {
+      ok: false,
+      code: 'casingBelowLiftPressure',
+      error: `The casing builds to ${casingPressurePsia.toFixed(1)} psia and lifting a bare plunger against this line pressure, with its own weight and the gas column above it, already takes ${(casingPressurePsia - available).toFixed(1)} psia. There is no slug this well can lift, not even a short one.`,
+    };
+  }
+  if (lengthFt > depthFt + edgeTolFt) {
+    return {
+      ok: false,
+      code: 'slugExceedsDepth',
+      error: `The balance puts the longest slug at ${lengthFt.toFixed(1)} ft in a well ${depthFt.toFixed(1)} ft deep, so the casing pressure is not what limits the slug here. The limit is the liquid the well makes between cycles, which this function does not know.`,
+    };
+  }
+  return { ok: true, maxSlugLengthFt: Math.min(Math.max(lengthFt, 0), depthFt) };
 };
