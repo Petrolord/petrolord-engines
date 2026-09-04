@@ -271,6 +271,7 @@ export const sizePump = ({
       // 2500 bbl/d)". One decimal on the rate; the bounds read exactly
       // as they did before, because they are the published range and
       // not a number this well is being measured to a fraction of.
+      // copy-lint-allow: the bounds are the published range, decided in 2ed47d5.
       message: `At ${qBpd.toFixed(1)} bbl/d and ${hz} Hz the pump runs outside its published range (${Math.round(curve.qMin)} to ${Math.round(curve.qMax)} bbl/d at ${curve.refHz} Hz). Head and efficiency here are an extrapolation.`,
     });
   }

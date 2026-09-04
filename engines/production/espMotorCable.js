@@ -120,24 +120,36 @@ export const surfaceRequirement = ({
 
 /**
  * Pick a cable: the smallest conductor whose voltage drop stays inside
- * `maxDropPct` and whose ampacity (a manufacturer number, passed in
- * with the candidate) covers the current.
+ * `maxDropPct` and, ONLY where the candidate carries an ampacity (a
+ * manufacturer number, passed in with the candidate), whose rating
+ * covers the current.
  *
  * Returns { cable, requirement, candidates } with `cable` null when
  * none qualifies, rather than returning the least bad one silently.
  *
- * WHAT `ampacityOk` MEANS. It is true when the candidate carries no
- * `ampacityA` at all, because ampacity belongs to the insulation system
- * and the well temperature and this package refuses to invent one (see
- * data/espCatalog.js). The shipped CABLE_SIZES carry conductor
- * resistance only, so on that table `ampacityOk` is true by
- * construction for every candidate and the selection runs on voltage
- * drop alone. That is a real half of the published method going
- * unchecked: PetroWiki, ESP power cable, selects on voltage drop AND on
- * the ampacity chart at the conductor temperature. A caller that wants
- * both halves must pass `ampacityA` on each candidate, and a caller
- * that does not should not describe the result as a cable that carries
- * the current, only as one that keeps the drop inside the limit.
+ * WHAT `ampacityChecked` MEANS. It is true on a candidate that carries
+ * an `ampacityA`, that is on a candidate whose current was actually
+ * compared against a rating, and false on one that does not, because
+ * ampacity belongs to the insulation system and the well temperature
+ * and this package refuses to invent one (see data/espCatalog.js). The
+ * shipped CABLE_SIZES carry conductor resistance only, so on that table
+ * `ampacityChecked` is false for every candidate and the selection runs
+ * on voltage drop alone. That is a real half of the published method
+ * going unchecked: PetroWiki, ESP power cable, selects on voltage drop
+ * AND on the ampacity chart at the conductor temperature. A caller that
+ * wants both halves must pass `ampacityA` on each candidate, and a
+ * caller that does not should not describe the result as a cable that
+ * carries the current, only as one that keeps the drop inside the
+ * limit.
+ *
+ * The field this replaces was `ampacityOk`, which was TRUE on a
+ * candidate with no rating to check against, so on the shipped table
+ * every size reported a passed ampacity check that had never run. A
+ * signal named for a verdict has to carry a verdict; this one reports
+ * only whether the test was performed, and no ampacity column is
+ * invented to make it say more. Where a rating IS supplied, the verdict
+ * remains in `ok`: a candidate with `dropOk` true and `ok` false is one
+ * the ampacity rejected.
  */
 export const selectCable = ({
   cables, maxDropPct = 5, shaftHp, nameplateHp, nameplateAmps, nameplateVolts,
@@ -151,13 +163,20 @@ export const selectCable = ({
         shaftHp, nameplateHp, nameplateAmps, nameplateVolts, powerFactor,
         lengthFt, ohmsPer1000FtAt77F: cable.ohmsPer1000FtAt77F, cableTempF,
       });
-      const ampacityOk = !(cable.ampacityA > 0) || requirement.amps <= cable.ampacityA;
+      // Two different statements, and the old field ran them together.
+      // `ampacityChecked` says whether a rating was there to test
+      // against; `ampacityPass` is the test itself, and a candidate
+      // with no rating cannot fail a test that did not happen, so it
+      // stays selectable on drop alone exactly as before. Only the
+      // reported field changes here, never the pick.
+      const ampacityChecked = cable.ampacityA > 0;
+      const ampacityPass = !ampacityChecked || requirement.amps <= cable.ampacityA;
       return {
         cable,
         requirement,
-        ampacityOk,
+        ampacityChecked,
         dropOk: requirement.dropPct <= maxDropPct,
-        ok: ampacityOk && requirement.dropPct <= maxDropPct,
+        ok: ampacityPass && requirement.dropPct <= maxDropPct,
       };
     });
   const hit = candidates.find((c) => c.ok) || null;
