@@ -620,3 +620,153 @@ describe('a bad pressure is named, not crashed on and not printed as NaN', () =>
     expect(w.message).toContain(`but ${required.toFixed(1)} psia is needed`);
   });
 });
+
+// PR #115 FOLLOW-UP: the guard stopped the crash and left the silence.
+//
+// #115 was right about the crash and right to leave the return shape alone.
+// What it left behind is older and larger. `belowLimit` and `correlation`
+// are computed BEFORE the finiteness check, and the unreadable branch
+// returned that correlation anyway with the entire disclaimer living in
+// `reason`, which is prose. `NaN < 1000` is false and `null < 1000` is
+// true, so the correlation a caller received for unreadable input depended
+// on WHICH KIND of unreadable it was:
+//
+//     NaN -> turner, null -> coleman, undefined -> turner, '900' -> coleman
+//
+// Turner is Coleman plus twenty percent. A caller that reads `.correlation`
+// and ignores `.reason`, which is what both Suite call sites do, therefore
+// applied or declined a twenty percent adjustment to every critical rate in
+// the study according to whether a missing pressure arrived as a null or as
+// a NaN. A guard that changes what a function SAYS without changing what it
+// RETURNS has moved the failure from visible to invisible.
+//
+// `ok` is the fix, and it is purely additive. The gates below pin BOTH
+// halves of that promise on every one of the four inputs: that `ok` is
+// false, so a refusal is something a caller can test for rather than a
+// comment, AND that `correlation` still carries its exact historical value,
+// so the additive promise is itself tested and a later change to
+// `correlation` cannot slip through as an accident.
+describe('an unreadable pressure refuses in a field a caller can test', () => {
+  // The historical value each input produced, from the branch it lands in.
+  // These are pinned, not derived, so that a change to either the branch or
+  // the guard has to come here and be argued for.
+  const historical = [
+    ['NaN', NaN, 'turner'],
+    ['null', null, 'coleman'],
+    ['undefined', undefined, 'turner'],
+    ['a numeric string', '900', 'coleman'],
+  ];
+
+  test.each(historical)('recommendCorrelation(%s) reports ok false', (_label, value) => {
+    expect(recommendCorrelation(value).ok).toBe(false);
+  });
+
+  test.each(historical)(
+    'recommendCorrelation(%s) still returns its historical %s',
+    (_label, value, expected) => {
+      // The additive half. If this ever fails, `correlation` changed type
+      // or value on a refusal, which breaks both Suite call sites that read
+      // the field directly, and that is the owner's decision to make and
+      // not a thing to discover from a production stack trace.
+      const r = recommendCorrelation(value);
+      expect(r.correlation).toBe(expected);
+      expect(typeof r.correlation).toBe('string');
+      expect(r.adjustment).toBe(LOADING_ADJUSTMENT[expected]);
+    },
+  );
+
+  test('the kind of unreadable used to decide a twenty percent adjustment', () => {
+    // The defect itself, stated as an assertion so the reason for `ok`
+    // survives in the record. Two ways of saying the same missing pressure
+    // still name two different correlations, and those two differ by
+    // exactly Turner's adjustment. What changed is that both now say so.
+    const fromNaN = recommendCorrelation(NaN);
+    const fromNull = recommendCorrelation(null);
+    expect(fromNaN.correlation).not.toBe(fromNull.correlation);
+    expect(fromNaN.adjustment / fromNull.adjustment).toBeCloseTo(1.2, 12);
+    expect(fromNaN.ok).toBe(false);
+    expect(fromNull.ok).toBe(false);
+  });
+
+  test('a readable pressure reports ok true on both sides of the limit', () => {
+    const below = recommendCorrelation(COLEMAN_PRESSURE_LIMIT_PSIA - 0.38);
+    expect(below.ok).toBe(true);
+    expect(below.correlation).toBe('coleman');
+    expect(below.adjustment).toBe(1.0);
+    expect(below.reason).toContain('At 999.6 psia wellhead this well');
+
+    const above = recommendCorrelation(1240.4);
+    expect(above.ok).toBe(true);
+    expect(above.correlation).toBe('turner');
+    expect(above.adjustment).toBe(1.2);
+    expect(above.reason).toContain('At 1240.4 psia wellhead this well');
+
+    // The limit itself is not below it, so it takes Turner. Pinned because
+    // the branch is strict and a boundary that moves is worth 20 percent.
+    expect(recommendCorrelation(COLEMAN_PRESSURE_LIMIT_PSIA).ok).toBe(true);
+    expect(recommendCorrelation(COLEMAN_PRESSURE_LIMIT_PSIA).correlation).toBe('turner');
+  });
+
+  test('the refusal points the reader at the field rather than only at prose', () => {
+    expect(recommendCorrelation(undefined).reason).toContain('ok: false');
+  });
+});
+
+// The same defect, second site, same additive fix.
+//
+// `sizeTubingForRate` returned only `rows` and `largestUnloaded`, and a
+// null there said two unrelated things with one value: "no candidate string
+// keeps this well unloaded", which is a finding a reader acts on, and "the
+// rate could not be read, so nothing was evaluated", which is not a finding
+// at all. It had no `ok` of its own, so adding one is additive in exactly
+// the way recommendCorrelation's is.
+describe('a tubing sizing that was never evaluated says so', () => {
+  const conditions = {
+    correlation: 'turner', sigmaDyneCm: 60, rhoLiquidLbFt3: 67,
+    pPsia: 1200, tempR: 580, z: 0.9, gasSg: 0.65,
+    candidatesIdIn: [1.995, 2.441, 2.992],
+  };
+
+  test.each([['undefined', undefined], ['null', null], ['a numeric string', '900'], ['NaN', NaN]])(
+    'an unreadable rate (%s) refuses rather than reporting no size works',
+    (_label, qMscfd) => {
+      const r = sizeTubingForRate({ ...conditions, qMscfd });
+      expect(r.ok).toBe(false);
+      expect(r.reason).toMatch(/No gas rate could be read/);
+      // and the additive half: rows and largestUnloaded are exactly what
+      // they were, so no existing caller sees a different answer.
+      expect(r.rows).toHaveLength(3);
+      expect(r.largestUnloaded).toBeNull();
+    },
+  );
+
+  test('no candidates is refused rather than answered with a null', () => {
+    const r = sizeTubingForRate({ ...conditions, candidatesIdIn: [], qMscfd: 3000 });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/nothing to size/);
+  });
+
+  test('conditions the loading check cannot evaluate are refused', () => {
+    const r = sizeTubingForRate({ ...conditions, qMscfd: 3000, tempR: 0 });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/None of the candidate sizes could be evaluated/);
+  });
+
+  test('a real sizing reports ok true and the answer it always gave', () => {
+    const r = sizeTubingForRate({ ...conditions, qMscfd: 3000 });
+    expect(r.ok).toBe(true);
+    expect(r.reason).toBeUndefined();
+    expect(r.rows).toHaveLength(3);
+    expect(r.largestUnloaded).not.toBeNull();
+    expect(r.largestUnloaded.ratio).toBeGreaterThanOrEqual(1);
+    // largest first, so the chosen size is the largest that still works
+    expect(r.rows[0].idIn).toBe(2.992);
+  });
+
+  test('a rate no candidate can carry is ok true with a null answer', () => {
+    // The distinction the field exists to draw: this IS a finding.
+    const r = sizeTubingForRate({ ...conditions, qMscfd: 1 });
+    expect(r.ok).toBe(true);
+    expect(r.largestUnloaded).toBeNull();
+  });
+});
