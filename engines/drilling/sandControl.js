@@ -229,7 +229,15 @@ export function cdpAlongInterval({
 
   const rows = [];
   let governing = null;
-  for (let md = topMdM; md <= bottomMdM + 1e-9; md += stepMdM) {
+  // The loop runs to the interval BOTTOM and not to the last whole step
+  // before it. A `md <= bottomMdM` guard exits before the clamp below can
+  // fire, so a step that does not divide the interval evenly silently drops
+  // its deepest metres: 2450 to 2550 at 30 m stopped at 2540 and never
+  // screened the bottom. On an interval whose base is the weak rock, that is
+  // the row that governs, and omitting it flips the reported margin positive.
+  // The clamp and the break are what terminate this loop, and stepMdM > 0 is
+  // validated above, so m reaches bottomMdM in finitely many steps.
+  for (let md = topMdM; ; md += stepMdM) {
     const m = Math.min(md, bottomMdM);
     const tvd = tvdAt(stations, m);
     const sv = at(curves.svPa, tvd);
