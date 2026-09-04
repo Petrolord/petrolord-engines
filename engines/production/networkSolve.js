@@ -45,8 +45,24 @@
  * unknown node is zero.
  */
 
-/** Newton stops when the worst nodal imbalance is below this, lb/d. */
-export const DEFAULT_TOLERANCE_LB_D = 1e-6;
+/**
+ * Newton's stopping tolerance. RELATIVE and dimensionless, NOT a mass.
+ *
+ * THE TARGET IS `tolerance * scale`. `scale` is the largest mass rate
+ * any single well in the network can make against the delivery
+ * pressure, in lb/d, and it is never taken below 1. The worst nodal
+ * imbalance, which is a mass in lb/d, is compared against that product
+ * and not against the tolerance itself. So the same 1e-6 asks for an
+ * imbalance under about a pound a day on a system moving a million
+ * pounds a day, and under about a thousandth of a pound on one moving a
+ * thousand: the point of a relative tolerance is that it means the same
+ * thing on both.
+ *
+ * The caller supplies the tolerance and never sees the scale, which is
+ * why the name has to say what the number is. Read as lb/d it is a
+ * false statement about the units.
+ */
+export const DEFAULT_TOLERANCE_RELATIVE = 1e-6;
 export const DEFAULT_MAX_ITER = 200;
 
 /** Pressure floor. Nothing in a gathering system is below atmospheric. */
@@ -224,14 +240,32 @@ const residuals = ({ network, p, branchFlow, wellInflow }) => {
  *   and it is exactly the physics of an inflow curve met against a
  *   tubing curve.
  *
+ * tolerance is RELATIVE, not a mass: the worst nodal imbalance in lb/d
+ *   is compared against `tolerance * scale`, with `scale` formed inside
+ *   this function from the well relations. See
+ *   DEFAULT_TOLERANCE_RELATIVE.
+ *
+ * `ok` is true only when the solve CONVERGED. A solve that ran out of
+ * iterations, or that stopped making progress before it met its
+ * tolerance, did not succeed, and it says so with `ok: false` and a
+ * code. The best pressures it reached are still returned beside the
+ * refusal, because they are worth looking at; they are just not an
+ * answer anyone should quote.
+ *
  * returns { ok, pressures, flows, wellRates, iterations, residualLbD,
- *   converged, warnings, error }
+ *   converged, warnings, code, error }
  */
 export const solveNetwork = ({
   network, branchFlow, wellInflow,
-  initialPressures, tolerance = DEFAULT_TOLERANCE_LB_D, maxIter = DEFAULT_MAX_ITER,
+  initialPressures, tolerance = DEFAULT_TOLERANCE_RELATIVE, maxIter = DEFAULT_MAX_ITER,
 }) => {
-  if (!network?.ok) return { ok: false, error: network?.error || 'The network is not valid.' };
+  if (!network?.ok) {
+    return {
+      ok: false,
+      code: 'invalidNetwork',
+      error: network?.error || 'The network is not valid.',
+    };
+  }
   const unknowns = network.unknownIds;
   const n = unknowns.length;
   const warnings = [];
@@ -264,6 +298,9 @@ export const solveNetwork = ({
 
   // A relative scale so the tolerance means something on a system
   // moving a million pounds a day as well as on one moving a thousand.
+  // THIS is what the tolerance multiplies: the target below is the mass
+  // in lb/d the worst nodal imbalance has to get under, and the caller
+  // never sees it. See DEFAULT_TOLERANCE_RELATIVE.
   const scale = Math.max(
     1,
     ...network.nodes.filter((x) => x.kind === 'well').map((x) => Math.abs(wellInflow(x, sinkP))),
@@ -342,6 +379,7 @@ export const solveNetwork = ({
     if (!step) {
       return {
         ok: false,
+        code: 'singularSystem',
         error: 'The system is singular: two or more nodes move together, so their pressures are not separately determined. That is usually a branch connected differently from the way the drawing suggests.',
         pressures: Object.fromEntries(p),
         iterations,
@@ -380,11 +418,14 @@ export const solveNetwork = ({
   }
 
   if (!converged && !warnings.length) {
-    warnings.push(`The solve ran ${iterations} iterations without meeting its tolerance. The worst nodal imbalance is ${norm.toFixed(3)} lb/d.`);
+    // Both numbers unrounded. Rounding the imbalance to three decimals
+    // beside the target it failed is how a message ends up reading as
+    // though the two were the same number.
+    warnings.push(`The solve ran ${iterations} iterations without meeting its tolerance. The worst nodal imbalance is ${norm} lb/d, against a target of ${target} lb/d.`);
   }
 
-  return {
-    ok: true,
+  const result = {
+    ok: converged,
     converged,
     pressures: Object.fromEntries(p),
     flows: Object.fromEntries(state.flows),
@@ -397,6 +438,16 @@ export const solveNetwork = ({
       ? [...warnings, `${pinned.size === 1 ? 'One node' : `${pinned.size} nodes`} carried nothing and nothing depended on ${pinned.size === 1 ? 'its' : 'their'} pressure, so ${pinned.size === 1 ? 'it was' : 'they were'} left where ${pinned.size === 1 ? 'it sits' : 'they sit'}: ${[...pinned].join(', ')}. That is what a shut-in well on a dead line looks like.`]
       : warnings,
   };
+
+  // A solve that did not converge did not succeed, whether it ran out of
+  // iterations or stopped making progress. Returning ok true with a
+  // warning beside it leaves the caller to notice, and callers do not.
+  if (!converged) {
+    result.code = 'notConverged';
+    result.error = `The network solve did not converge. The worst nodal imbalance is ${norm} lb/d after ${iterations} iterations, against a target of ${target} lb/d. Treat the pressures below as a starting point, not as an answer.`;
+  }
+
+  return result;
 };
 
 // ---------------------------------------------------------------------------
@@ -419,9 +470,48 @@ export const solveNetwork = ({
  * recirculating, which a gathering system does not do, and it is
  * reported rather than iterated on.
  *
- * returns { ok, branchStreams, nodeStreams, error }
+ * THE SPLIT IS RECONCILED AGAINST THE FLOWS BEFORE IT IS RETURNED.
+ * The component rates are carried down the network by the mass shares
+ * in `flows`, but the mass they add up to comes from `wellStreams`, and
+ * nothing in the arithmetic forces the two to be the same mass. If a
+ * caller hands over well streams that do not weigh what the solved well
+ * rates weigh, every branch gets a component split scaled by that ratio
+ * and every water cut and gas-oil ratio downstream is quietly wrong.
+ * So each branch's propagated mass is compared against the mass the
+ * solve put on it, and a disagreement beyond `tolerance` is a refusal.
+ * `tolerance` is relative, as in solveNetwork.
+ *
+ * returns { ok, branchStreams, nodeStreams, code, error }
  */
-export const propagateStreams = ({ network, flows, wellStreams }) => {
+export const propagateStreams = ({
+  network, flows, wellStreams, tolerance = DEFAULT_TOLERANCE_RELATIVE,
+}) => {
+  // Refused at the door, never coerced. A NaN mass that is allowed in
+  // here comes back out as a NaN component rate, and every comparison
+  // that could have caught it is false against a NaN.
+  const streamFields = ['qoStbd', 'qwStbd', 'qgMscfd', 'massLbD'];
+  for (const nd of network.nodes) {
+    const s = wellStreams?.[nd.id];
+    if (!s) continue;
+    const bad = streamFields.filter((f) => !Number.isFinite(s[f]));
+    if (bad.length) {
+      return {
+        ok: false,
+        code: 'invalidStream',
+        error: `The stream for "${nd.label || nd.id}" is missing a readable ${bad.join(', ')}. A component split needs all four of ${streamFields.join(', ')} as numbers.`,
+      };
+    }
+  }
+  for (const b of network.branches) {
+    if (!Number.isFinite(flows?.[b.id])) {
+      return {
+        ok: false,
+        code: 'invalidFlow',
+        error: `Branch "${b.label || b.id}" has no readable flow, so there is no direction to carry a stream along and nothing to reconcile the stream against. Pass the flows the solve returned, one for every branch.`,
+      };
+    }
+  }
+
   const zero = () => ({ qoStbd: 0, qwStbd: 0, qgMscfd: 0, massLbD: 0 });
   const add = (a, b) => ({
     qoStbd: a.qoStbd + b.qoStbd,
@@ -478,8 +568,27 @@ export const propagateStreams = ({ network, flows, wellStreams }) => {
   if (visited !== network.nodes.length) {
     return {
       ok: false,
+      code: 'recirculating',
       error: 'The solved flow directions form a loop, so the network is recirculating. A gathering system does not do that; check for a branch connected backwards.',
     };
+  }
+
+  // Reconcile against the flows. The mass a branch carries is a fact the
+  // solve already established; the split can only redistribute it.
+  for (const b of network.branches) {
+    const s = branchStreams.get(b.id);
+    if (!s) continue;
+    const carriedLbD = Math.abs(flows[b.id]);
+    const splitLbD = s.massLbD;
+    const denom = Math.max(Math.abs(splitLbD), carriedLbD);
+    const relative = denom > 0 ? Math.abs(splitLbD - carriedLbD) / denom : 0;
+    if (!(relative <= tolerance)) {
+      return {
+        ok: false,
+        code: 'streamMassMismatch',
+        error: `The component split does not weigh what the solve put on branch "${b.label || b.id}": the split carries ${splitLbD} lb/d and the flow is ${carriedLbD} lb/d, a relative difference of ${relative} against a tolerance of ${tolerance}. The well streams have to weigh what the solved well rates weigh, or every rate downstream of here is scaled by that ratio.`,
+      };
+    }
   }
 
   return {

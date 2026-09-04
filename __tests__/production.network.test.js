@@ -16,9 +16,11 @@
  */
 import fs from 'fs';
 import path from 'path';
+import * as networkModule from '../engines/production/networkSolve';
 import {
   buildNetwork, solveNetwork, solveLinear, solveLinearNetwork, propagateStreams,
   checkConservation, diagnose, linearBranch, linearWell, MIN_PRESSURE_PSIA,
+  DEFAULT_TOLERANCE_RELATIVE,
 } from '../engines/production/networkSolve';
 import {
   PIPE_SCHEDULE, scheduleRow, equivalentLengthFt, barlowPressurePsi,
@@ -521,6 +523,180 @@ describe('a network that is not a network is refused, with a reason', () => {
   });
 });
 
+describe('the tolerance says what it is, and a solve that failed says so', () => {
+  const sourceOf = (file) => fs.readFileSync(
+    path.join(__dirname, '..', 'engines', 'production', file), 'utf8',
+  );
+
+  test('the tolerance constant is named for what it is, and the old name is gone', () => {
+    // The old name said the constant was a mass in lb/d. It never was:
+    // it is multiplied by a scale the caller never sees.
+    expect(DEFAULT_TOLERANCE_RELATIVE).toBe(1e-6);
+    expect(networkModule.DEFAULT_TOLERANCE_RELATIVE).toBe(1e-6);
+    expect(networkModule.DEFAULT_TOLERANCE_LB_D).toBeUndefined();
+    expect(Object.keys(networkModule)).not.toContain('DEFAULT_TOLERANCE_LB_D');
+  });
+
+  test('and the module says in words what the tolerance is multiplied by', () => {
+    const src = sourceOf('networkSolve.js');
+    expect(src).toMatch(/tolerance \* scale/);
+    expect(src).toMatch(/RELATIVE and dimensionless/);
+  });
+
+  // A network that needs six Newton steps, cut off after two.
+  const cramped = (maxIter) => {
+    const net = buildNetwork({
+      nodes: [
+        { id: 'w1', kind: 'well' }, { id: 'w2', kind: 'well' }, { id: 'w3', kind: 'well' },
+        { id: 'h1', kind: 'junction' }, { id: 'h2', kind: 'junction' },
+        { id: 's', kind: 'sink', pressurePsia: 180 },
+      ],
+      branches: [
+        { id: 'b1', from: 'w1', to: 'h1' }, { id: 'b2', from: 'w2', to: 'h1' },
+        { id: 'b3', from: 'w3', to: 'h2' }, { id: 'b4', from: 'h1', to: 'h2' },
+        { id: 'b5', from: 'h2', to: 's' },
+      ],
+    });
+    const spec = G.turbulent_tree.spec;
+    const wells = {};
+    for (const [id, [qmax, pr]] of Object.entries(spec.wells)) wells[id] = vogel(qmax, pr);
+    return solveNetwork({
+      network: net,
+      branchFlow: (b, pIn, pOut) => turbulent(spec.branches[b.id])(b, pIn, pOut),
+      wellInflow: (nd, p) => wells[nd.id](p),
+      tolerance: 1e-10,
+      maxIter,
+    });
+  };
+
+  test('a solve that ran out of iterations is NOT ok', () => {
+    // It reported ok true with a warning beside it, and a caller that
+    // read the pressures without reading the warnings could not tell
+    // the difference between this and a converged answer.
+    const r = cramped(2);
+    expect(r.converged).toBe(false);
+    expect(r.iterations).toBe(2);
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('notConverged');
+    expect(r.error).toMatch(/did not converge/);
+    // The best it reached is still handed back, because it is worth
+    // looking at even though it is not an answer.
+    expect(Number.isFinite(r.pressures.h1)).toBe(true);
+  });
+
+  test('and the same network converging is ok', () => {
+    const r = cramped(200);
+    expect(r.converged).toBe(true);
+    expect(r.ok).toBe(true);
+    expect(r.code).toBeUndefined();
+    expect(r.error).toBeUndefined();
+  });
+
+  test('the non-convergence warning prints the imbalance unrounded, beside its target', () => {
+    // Item 17 family: a message must not print a rounded number next to
+    // the unrounded threshold it failed. It used to say the imbalance
+    // "is 0.000 lb/d" while the solve was refusing it.
+    const r = cramped(2);
+    const w = r.warnings.join(' ');
+    expect(w).toMatch(/ran 2 iterations without meeting its tolerance/);
+    expect(w).toContain(String(r.residualLbD));
+    expect(w).toMatch(/against a target of/);
+    expect(w).not.toMatch(/\d\.\d{3} lb\/d/);
+    expect(r.error).toContain(String(r.residualLbD));
+    expect(r.error).not.toMatch(/\d\.\d{3} lb\/d/);
+    // The rounded form would have hidden the whole quantity.
+    expect(w).not.toContain(`${r.residualLbD.toFixed(3)} lb/d`);
+  });
+
+  test('an invalid network refuses with a code, not just a sentence', () => {
+    const r = solveNetwork({ network: { ok: false, error: 'nope' } });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('invalidNetwork');
+  });
+});
+
+describe('the component split is reconciled against the flows', () => {
+  const net = buildNetwork({
+    nodes: [
+      { id: 'w1', kind: 'well', label: 'W-1' }, { id: 'w2', kind: 'well' },
+      { id: 'h', kind: 'junction' },
+      { id: 's', kind: 'sink', pressurePsia: 150 },
+    ],
+    branches: [
+      { id: 'b1', from: 'w1', to: 'h', label: 'W-1 flowline' },
+      { id: 'b2', from: 'w2', to: 'h' },
+      { id: 'b3', from: 'h', to: 's', label: 'Trunk' },
+    ],
+  });
+  const goodStreams = {
+    w1: { qoStbd: 2700, qwStbd: 300, qgMscfd: 1600, massLbD: 30000 },
+    w2: { qoStbd: 200, qwStbd: 800, qgMscfd: 90, massLbD: 10000 },
+  };
+
+  test('streams that weigh what the flows carry are accepted', () => {
+    const s = propagateStreams({
+      network: net, flows: { b1: 30000, b2: 10000, b3: 40000 }, wellStreams: goodStreams,
+    });
+    expect(s.ok).toBe(true);
+  });
+
+  test('streams that do not weigh what the flows carry are REFUSED', () => {
+    // The split still adds up internally, so nothing downstream of it
+    // notices. It is just scaled by 30000/24000 against the truth, and
+    // every water cut it produces is wrong by that ratio.
+    const s = propagateStreams({
+      network: net,
+      flows: { b1: 30000, b2: 10000, b3: 40000 },
+      wellStreams: {
+        ...goodStreams,
+        w1: { ...goodStreams.w1, massLbD: 24000 },
+      },
+    });
+    expect(s.ok).toBe(false);
+    expect(s.code).toBe('streamMassMismatch');
+    expect(s.error).toMatch(/W-1 flowline/);
+    expect(s.error).toContain('24000');
+    expect(s.error).toContain('30000');
+    expect(s.branchStreams).toBeUndefined();
+  });
+
+  test('a difference inside the tolerance is not a refusal', () => {
+    const s = propagateStreams({
+      network: net,
+      flows: { b1: 30000, b2: 10000, b3: 40000 },
+      wellStreams: {
+        ...goodStreams,
+        w1: { ...goodStreams.w1, massLbD: 30000 * (1 + 1e-9) },
+      },
+      tolerance: 1e-6,
+    });
+    expect(s.ok).toBe(true);
+    expect(DEFAULT_TOLERANCE_RELATIVE).toBe(1e-6);
+  });
+
+  test('a NaN in a stream is refused at the door, not carried', () => {
+    // A NaN mass sails through every comparison the reconciliation could
+    // make, so it has to be stopped before it gets in.
+    const s = propagateStreams({
+      network: net,
+      flows: { b1: 30000, b2: 10000, b3: 40000 },
+      wellStreams: { ...goodStreams, w2: { qoStbd: 200, qwStbd: 800, qgMscfd: 90, massLbD: NaN } },
+    });
+    expect(s.ok).toBe(false);
+    expect(s.code).toBe('invalidStream');
+    expect(s.error).toMatch(/massLbD/);
+  });
+
+  test('a branch with no readable flow is refused, not silently dropped', () => {
+    const s = propagateStreams({
+      network: net, flows: { b1: 30000, b3: 40000 }, wellStreams: goodStreams,
+    });
+    expect(s.ok).toBe(false);
+    expect(s.code).toBe('invalidFlow');
+    expect(s.error).toMatch(/b2/);
+  });
+});
+
 describe('the dense linear solve underneath it', () => {
   test('solves a small system and refuses a singular one', () => {
     const x = solveLinear([[2, 1], [1, 3]], [5, 10]);
@@ -537,14 +713,32 @@ describe('the dense linear solve underneath it', () => {
 });
 
 describe('line pipe geometry', () => {
-  test('EVERY schedule row is self-consistent: od minus two walls is the bore', () => {
+  test('EVERY schedule row is self-consistent: od minus two walls is the bore, to 1e-12', () => {
     // The table carries all three even though the third is the first
     // two, because that redundancy is the only way it can catch its own
-    // transcription errors.
+    // transcription errors. The gate is 1e-12 inch and not three
+    // decimals: three decimals passes anything within five ten
+    // thousandths of an inch, which is the size of a real transcription
+    // error, so it was a check that could have missed the thing it
+    // exists to catch.
     for (const r of PIPE_SCHEDULE) {
-      expect(r.od - 2 * r.wall).toBeCloseTo(r.id, 3);
+      expect(Math.abs(r.od - 2 * r.wall - r.id)).toBeLessThan(1e-12);
     }
     expect(PIPE_SCHEDULE.length).toBeGreaterThan(10);
+  });
+
+  test('but it is NOT an exact identity, and the header no longer claims one', () => {
+    // 6 inch schedule 40 is the row that fails strict equality in double
+    // precision. The header used to claim `od - 2*wall === id`, which no
+    // gate in here tested and which this row disproves.
+    const six = scheduleRow(6, '40');
+    expect(six.od - 2 * six.wall === six.id).toBe(false);
+    expect(Math.abs(six.od - 2 * six.wall - six.id)).toBeLessThan(1e-12);
+    const src = fs.readFileSync(
+      path.join(__dirname, '..', 'engines', 'production', 'pipeSchedule.js'), 'utf8',
+    );
+    expect(src).toMatch(/HOLDS TO WITHIN 1e-12/);
+    expect(src).not.toMatch(/`od - 2\*wall === id`/);
   });
 
   test('a heavier schedule is a thicker wall and a smaller bore', () => {

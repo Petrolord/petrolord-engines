@@ -3,11 +3,20 @@
  *
  * A WORKING SUBSET of ANSI B36.10, not the whole standard. Every row
  * carries the outside diameter, the wall AND the published inside
- * diameter, even though the third is arithmetically the first two --
+ * diameter, even though the third is arithmetically the first two,
  * because that redundancy is the check. A transcription error in any
- * one of the three makes `od - 2*wall === id` fail, and the gate on
- * that runs over every row. A table that only carried two of the three
- * would be a table with no way of knowing it was wrong.
+ * one of the three makes `od - 2*wall` disagree with `id`, and the gate
+ * on that runs over every row. A table that only carried two of the
+ * three would be a table with no way of knowing it was wrong.
+ *
+ * The identity HOLDS TO WITHIN 1e-12 inch, which is what the gate
+ * tests. It is not an exact identity in double precision and claiming
+ * one would be claiming something no gate could check: 6 inch schedule
+ * 40 is the row that shows it, where 6.625 minus twice 0.28 comes to
+ * 6.064999999999999 and not to the published 6.065. A gap of that size
+ * is about twelve orders of magnitude below the smallest transcription
+ * error a table quoted in thousandths of an inch can carry, so the
+ * check still catches everything it exists to catch.
  *
  * The full standard is ARMED rather than guessed at. Reproducing a
  * hundred rows of a published table from memory is precisely the kind
