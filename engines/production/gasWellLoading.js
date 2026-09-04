@@ -323,25 +323,63 @@ export const loadingProfile = ({
  * it is formatted now, and a pressure that cannot be read is said to be
  * unreadable rather than printed as "NaN psia" or crashing the caller.
  * What this function returns for a good pressure is untouched.
+ *
+ * AND WHAT THAT GUARD STILL LEFT. Stopping the crash left the silence,
+ * and the silence was the older and larger problem. `belowLimit` and
+ * `correlation` are computed BEFORE the finiteness check, and the
+ * unreadable branch returned that correlation anyway with the whole
+ * disclaimer living in `reason`, which is prose. So the correlation a
+ * caller got for an unreadable pressure depended on WHICH KIND of
+ * unreadable it was, because `NaN < 1000` is false and `null < 1000` is
+ * true:
+ *
+ *     recommendCorrelation(NaN)        -> 'turner'
+ *     recommendCorrelation(null)       -> 'coleman'
+ *     recommendCorrelation(undefined)  -> 'turner'
+ *     recommendCorrelation('900')      -> 'coleman'
+ *
+ * Turner IS Coleman plus twenty percent, so a caller that read
+ * `.correlation` and ignored `.reason`, which is what callers do,
+ * silently applied or declined a twenty percent adjustment to every
+ * critical rate in the study according to whether a missing pressure
+ * arrived as a null or as a NaN. A refusal a caller cannot test for is
+ * not a refusal, it is a comment.
+ *
+ * WHAT `ok` MEANS. `ok` is true when the pressure was a finite number
+ * and the correlation named is a reading of this well's conditions.
+ * `ok` is false when no pressure could be read, and then NOTHING else
+ * on the result is a recommendation: `correlation` and `adjustment`
+ * carry only where the comparison against the Coleman limit happened to
+ * land on an unreadable value, and they are returned solely so that
+ * callers written against the older shape keep working. A caller
+ * seeing `ok: false` should ask for a numeric pressure in psia, or
+ * choose the correlation itself, rather than use the one named here.
+ *
+ * `correlation` deliberately keeps its historical value and its type on
+ * a false `ok`. Returning null there would break callers that read the
+ * field directly, and that remains the owner's call; the gates pin both
+ * halves so a later change to it cannot pass unnoticed.
  */
 export const recommendCorrelation = (pPsia, station = 'wellhead') => {
   const belowLimit = pPsia < COLEMAN_PRESSURE_LIMIT_PSIA;
   const correlation = belowLimit ? 'coleman' : 'turner';
+  const adjustment = LOADING_ADJUSTMENT[correlation];
   if (!Number.isFinite(pPsia)) {
     return {
+      ok: false,
       correlation,
-      reason: `No ${station} pressure could be read here: ${describeUnusableNumber(pPsia)}. Which correlation these conditions call for cannot be said without one, so the name above is only where the comparison against ${COLEMAN_PRESSURE_LIMIT_PSIA} psia happens to land and is not a reading of this well. Hand a numeric ${station} pressure in psia.`,
+      adjustment,
+      reason: `No ${station} pressure could be read here: ${describeUnusableNumber(pPsia)}. Which correlation these conditions call for cannot be said without one, so the name above is only where the comparison against ${COLEMAN_PRESSURE_LIMIT_PSIA} psia happens to land and is not a reading of this well. This result carries ok: false for that reason; test it rather than reading the correlation. Hand a numeric ${station} pressure in psia.`,
     };
   }
-  return belowLimit
-    ? {
-      correlation: 'coleman',
-      reason: `At ${pPsia.toFixed(1)} psia ${station} this well sits inside the low-pressure range Coleman's data covered, where the unadjusted equation fitted better.`,
-    }
-    : {
-      correlation: 'turner',
-      reason: `At ${pPsia.toFixed(1)} psia ${station} this well is above the range Coleman studied, so Turner's 20 percent adjustment is the usual choice.`,
-    };
+  return {
+    ok: true,
+    correlation,
+    adjustment,
+    reason: belowLimit
+      ? `At ${pPsia.toFixed(1)} psia ${station} this well sits inside the low-pressure range Coleman's data covered, where the unadjusted equation fitted better.`
+      : `At ${pPsia.toFixed(1)} psia ${station} this well is above the range Coleman studied, so Turner's 20 percent adjustment is the usual choice.`,
+  };
 };
 
 /**
@@ -353,6 +391,23 @@ export const recommendCorrelation = (pPsia, station = 'wellhead') => {
  * returned, along with every candidate and its margin, because a
  * tubing change is a workover and the numbers behind it get argued
  * about.
+ *
+ * THE SAME DEFECT recommendCorrelation HAD, IN ITS OWN SPELLING. This
+ * function used to return only `rows` and `largestUnloaded`, and
+ * `largestUnloaded: null` said two entirely different things with one
+ * value. "No candidate string keeps this well unloaded, so there is no
+ * tubing answer here" is a substantive engineering conclusion that a
+ * reader will act on. "The rate or the conditions could not be read, so
+ * the question was never evaluated" is not a conclusion at all. A
+ * caller had no way to tell them apart, and the first is what a null
+ * reads as.
+ *
+ * `ok` separates them. It is true when the question was answerable:
+ * there were candidates, the rate was a finite number, and at least one
+ * candidate produced a finite ratio. On `ok: false`, `largestUnloaded`
+ * is not a finding about this well. `rows` and `largestUnloaded` are
+ * computed exactly as before and are untouched by this, so every
+ * existing caller keeps working unchanged.
  */
 export const sizeTubingForRate = ({
   candidatesIdIn, qMscfd, correlation, sigmaDyneCm, rhoLiquidLbFt3,
@@ -368,8 +423,26 @@ export const sizeTubingForRate = ({
       return { idIn, ...at, ok: at.ok !== false };
     });
   const usable = rows.filter((r) => r.ok && r.ratio >= 1);
-  return {
+  const result = {
     rows,
     largestUnloaded: usable.length ? usable[0] : null,
   };
+  if (!rows.length) {
+    return { ...result, ok: false, reason: 'No candidate tubing sizes were given, so there was nothing to size.' };
+  }
+  if (!Number.isFinite(qMscfd)) {
+    return {
+      ...result,
+      ok: false,
+      reason: `No gas rate could be read here: ${describeUnusableNumber(qMscfd)}. Which tubing keeps a well unloaded is a question about a rate, so it cannot be answered without one. Hand a numeric rate in Mscf/d.`,
+    };
+  }
+  if (!rows.some((r) => r.ok && Number.isFinite(r.ratio))) {
+    return {
+      ...result,
+      ok: false,
+      reason: 'None of the candidate sizes could be evaluated at these conditions, so no size was ruled in or out. Check the pressure, temperature, z factor and fluid properties.',
+    };
+  }
+  return { ...result, ok: true };
 };
