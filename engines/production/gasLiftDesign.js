@@ -394,7 +394,13 @@ export const designGasLift = (inputs) => {
     if (!pick.port) {
       warnings.push({
         code: 'portTooSmall',
-        message: `Valve ${i + 1} at ${Math.round(depthFt)} ft: the largest port in the catalog passes ${Math.round(pick.qMscfd)} Mscf/d, short of the ${qgiTargetMscfd} Mscf/d target.`,
+        // `selectPort` returns no port only when every candidate passes
+        // STRICTLY less than the target, and the target is printed in
+        // the same sentence, so rounding the port rate whole let the two
+        // render equal: "passes 1000 Mscf/d, short of the 1000 Mscf/d
+        // target". The depth stays whole; it is a location, not a
+        // quantity being compared with anything.
+        message: `Valve ${i + 1} at ${Math.round(depthFt)} ft: the largest port in the catalog passes ${pick.qMscfd.toFixed(1)} Mscf/d, short of the ${qgiTargetMscfd} Mscf/d target.`,
       });
     }
     const portIdIn = (isBottom && bottomOrifice && orificeIdIn)

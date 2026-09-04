@@ -460,7 +460,10 @@ export const designRodPump = ({ model, targetRate, wctPct, gorScfStb, whp, chain
     const d = res.design;
     const loading = d.worstSection ? d.worstSection.loadingPct : NaN;
     if (loading > 100) {
-      attempts.push({ trial, reason: `the ${d.worstSection.label} rods run at ${Math.round(loading)} percent of their allowable` });
+      // Fires strictly above 100, so the rejected trial has to print
+      // above 100: rounded whole, 100.3 read as a trial thrown out for
+      // running at exactly its allowable.
+      attempts.push({ trial, reason: `the ${d.worstSection.label} rods run at ${loading.toFixed(1)} percent of their allowable` });
       continue;
     }
     workable.push({ trial, design: d, loading });

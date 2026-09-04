@@ -44,6 +44,14 @@ import {
   P_STANDARD_PSIA, T_STANDARD_R, gasDensityLbFt3, tubingAreaFt2,
 } from './gasWellLoading.js';
 
+/**
+ * One decimal, with the thousands separators the messages already used.
+ * The gas-liquid ratio warning contrasts what a cycle needs with what
+ * the well makes, and rounded whole the two can print identically while
+ * one is said to fall short of the other.
+ */
+const ONE_DECIMAL = { minimumFractionDigits: 1, maximumFractionDigits: 1 };
+
 export const FT3_PER_BBL = 5.614583;
 export const PSI_PER_FT_SG = 0.433;
 
@@ -219,20 +227,27 @@ export const screenPlungerLift = ({
   });
 
   const warnings = [];
+  // Both warnings below CONTRAST two quantities in one sentence, and
+  // rounded whole the contrast can vanish: a casing at 899.6 psia
+  // against a requirement of 900.2 read "The casing builds to 900 psia
+  // but 900 psia is needed", and a well 0.8 scf/bbl short of what a
+  // cycle needs read as making exactly what it needs. One decimal
+  // narrows that collision by ten; a pair inside 0.05 of each other
+  // still renders equal.
   // The pressure test comes first: without it the gas-liquid ratio is
   // beside the point, because the plunger never moves.
   const pressureOk = casingPressurePsia > lift.requiredPsia;
   if (!pressureOk) {
     warnings.push({
       code: 'insufficientPressure',
-      message: `The casing builds to ${Math.round(casingPressurePsia)} psia but ${Math.round(lift.requiredPsia)} psia is needed to move the plunger and its slug. Shorten the slug, drop the line pressure, or accept that this well will not plunger lift as it stands.`,
+      message: `The casing builds to ${casingPressurePsia.toFixed(1)} psia but ${lift.requiredPsia.toFixed(1)} psia is needed to move the plunger and its slug. Shorten the slug, drop the line pressure, or accept that this well will not plunger lift as it stands.`,
     });
   }
   const glrOk = Number.isFinite(wellGlrScfBbl) && wellGlrScfBbl >= requiredGlr;
   if (Number.isFinite(wellGlrScfBbl) && !glrOk) {
     warnings.push({
       code: 'insufficientGas',
-      message: `A cycle needs ${Math.round(requiredGlr).toLocaleString()} scf of gas per barrel and the well makes ${Math.round(wellGlrScfBbl).toLocaleString()}. There is not enough gas to drive the plunger at this slug size.`,
+      message: `A cycle needs ${requiredGlr.toLocaleString(undefined, ONE_DECIMAL)} scf of gas per barrel and the well makes ${wellGlrScfBbl.toLocaleString(undefined, ONE_DECIMAL)}. There is not enough gas to drive the plunger at this slug size.`,
     });
   }
   // One decimal on the cycle time: 1440 minutes IS one trip a day, so

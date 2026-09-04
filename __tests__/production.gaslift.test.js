@@ -602,3 +602,34 @@ describe('injection pressure curve', () => {
     expect(mid).toBeLessThan(curve.at(4200));
   });
 });
+
+// Second spelling of the defect fixed in PR #113, which was grepped on
+// toFixed(0) and so could not see Math.round in a message string.
+// `selectPort` returns no port only when every candidate passes STRICTLY
+// less than the target, and the target is printed in the same sentence, so
+// rounding the port rate whole let the two render as one number with the
+// first said to fall short of the second. One decimal narrows that by ten
+// rather than closing it.
+describe('the port warning prints a rate that is not the target', () => {
+  test('a largest port a fraction short does not print as the target', () => {
+    const cfg = caseCfg(G.designs[0]);
+    // What the largest port in the catalog actually passes at each valve,
+    // read from the design rather than from the message, by asking for a
+    // rate nothing can meet.
+    const capacity = designGasLift({ ...cfg, qgiTargetMscfd: 1e6 })
+      .valves.map((v) => v.throughputMscfd);
+    // the fifth valve's capacity sits about four tenths under a whole
+    // number, so a target at that whole number is short by a fraction
+    const qgiTargetMscfd = Math.round(capacity[4]);
+    expect(qgiTargetMscfd).toBeGreaterThan(capacity[4]);
+    expect(qgiTargetMscfd - capacity[4]).toBeGreaterThan(0.05);
+
+    const design = designGasLift({ ...cfg, qgiTargetMscfd });
+    const w = design.warnings.find((x) => x.code === 'portTooSmall');
+    expect(w).toBeDefined();
+    const passes = Number(/passes ([\d.]+) Mscf/.exec(w.message)[1]);
+    expect(passes).toBeLessThan(qgiTargetMscfd);
+    expect(w.message).not.toMatch(new RegExp(`passes ${qgiTargetMscfd} Mscf`));
+    expect(w.message).toContain(`short of the ${qgiTargetMscfd} Mscf/d target`);
+  });
+});
