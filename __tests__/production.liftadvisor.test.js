@@ -668,3 +668,49 @@ describe('reconciling the screening against the design', () => {
     expect(out.disagreements).toEqual([]);
   });
 });
+
+// The advisor keeps its own copy of the rod loading message, and it had the
+// second spelling of the defect PR #113 fixed in the engine: it fires
+// strictly above 100 percent and printed the loading rounded whole, so a
+// trial thrown out at 100.3 percent read as thrown out for running at
+// exactly its allowable. One decimal narrows the collision to the 0.05
+// above 100, it does not remove it.
+describe('a rejected rod trial prints a loading above its own limit', () => {
+  test('a trial at 100.3 percent does not print as 100 percent', () => {
+    const loadingPct = 100.3;
+    const out = designRodPump({
+      model: makeModel(),
+      targetRate: 400,
+      wctPct: 40,
+      gorScfStb: 300,
+      whp: 150,
+      // every trial comes back overstressed by the same three tenths of a
+      // point, which is inside the band the flag fires on and clear of the
+      // neighbourhood one decimal leaves
+      chain: {
+        runRodDesign: () => ({
+          ok: true,
+          errors: [],
+          design: {
+            producedBpd: 300,
+            plungerStrokeIn: 50,
+            pprlLb: 12000,
+            balance: { peakTorqueInLb: 320000 },
+            gas: { fillage: 0.85 },
+            warnings: [],
+            worstSection: { loadingPct, label: '7/8 in' },
+          },
+        }),
+      },
+    });
+    expect(loadingPct).toBeGreaterThan(100);
+    expect(loadingPct - 100).toBeGreaterThan(0.05);
+    expect(Math.round(loadingPct)).toBe(100);        // what the old print gave
+    expect(out.ok).toBe(false);
+    expect(out.attempts).toHaveLength(ROD_TRIALS.length);
+    out.attempts.forEach((a) => {
+      expect(a.reason).toContain('run at 100.3 percent of their allowable');
+      expect(a.reason).not.toMatch(/run at 100 percent/);
+    });
+  });
+});

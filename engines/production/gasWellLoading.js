@@ -119,7 +119,7 @@ export const terminalDropletVelocity = ({
  */
 export const LOADING_ADJUSTMENT = { turner: 1.2, coleman: 1.0 };
 
-/** Below this wellhead pressure Coleman's data set is the relevant one. */
+/** Below this pressure Coleman's data set is the relevant one. */
 export const COLEMAN_PRESSURE_LIMIT_PSIA = 1000;
 
 /**
@@ -276,16 +276,34 @@ export const loadingProfile = ({
  * from higher-pressure ones. This reports the guidance rather than
  * silently switching, because which one an operator trusts is theirs
  * to decide and the difference is only 20 percent.
+ *
+ * TWO THINGS THE MESSAGES USED TO GET WRONG.
+ *
+ * The branch is a STRICT comparison against 1000 psia and the reason
+ * then printed the pressure it branched on, rounded whole, so a well at
+ * 999.62 psia read "At 1000 psia wellhead this well sits inside the
+ * low-pressure range" under a branch that only takes wells BELOW 1000.
+ * The reader is shown a number that argues against the recommendation
+ * attached to it, and the recommendation is worth 20 percent of every
+ * critical rate computed after it. One decimal narrows that collision
+ * by ten rather than removing it: a pressure inside 0.05 psi of the
+ * limit still prints as the limit.
+ *
+ * `station` is the label for the pressure being handed in. It defaults
+ * to `wellhead`, which is what the messages always said, but this
+ * function takes ANY station's pressure and callers do hand it others,
+ * so the word is the caller's to set rather than a fact asserted about
+ * a number this function cannot see the origin of.
  */
-export const recommendCorrelation = (pWellheadPsia) => (
-  pWellheadPsia < COLEMAN_PRESSURE_LIMIT_PSIA
+export const recommendCorrelation = (pPsia, station = 'wellhead') => (
+  pPsia < COLEMAN_PRESSURE_LIMIT_PSIA
     ? {
       correlation: 'coleman',
-      reason: `At ${Math.round(pWellheadPsia)} psia wellhead this well sits inside the low-pressure range Coleman's data covered, where the unadjusted equation fitted better.`,
+      reason: `At ${pPsia.toFixed(1)} psia ${station} this well sits inside the low-pressure range Coleman's data covered, where the unadjusted equation fitted better.`,
     }
     : {
       correlation: 'turner',
-      reason: `At ${Math.round(pWellheadPsia)} psia wellhead this well is above the range Coleman studied, so Turner's 20 percent adjustment is the usual choice.`,
+      reason: `At ${pPsia.toFixed(1)} psia ${station} this well is above the range Coleman studied, so Turner's 20 percent adjustment is the usual choice.`,
     }
 );
 

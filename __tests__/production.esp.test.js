@@ -701,3 +701,26 @@ describe('the motor warnings name the derate that fired them', () => {
     expect(w.message).toContain('the power factor and the cost both suffer');
   });
 });
+
+// Second spelling of the same defect (PR #113 was grepped on toFixed(0),
+// and Math.round in a message string does the same thing). Here the rate is
+// said to be OUTSIDE a range printed in the same sentence, so rounding it
+// whole let it print as one of the bounds it is said to be past. One
+// decimal narrows the collision by ten, not to nothing; the bounds keep
+// their old reading because they are the published range.
+describe('the outside-curve warning prints a rate that is not the bound', () => {
+  test('a rate a fraction past qMax does not print as qMax', () => {
+    const curve = curveFor('ref-540-2500');
+    const qBpd = curve.qMax + 0.4;
+    const sized = sizePump({
+      curve, qBpd, tdhFt: 4000, hz: curve.refHz, specificGravity: 0.95,
+    });
+    expect(Math.round(qBpd)).toBe(curve.qMax);        // what the old print gave
+    expect(qBpd - curve.qMax).toBeGreaterThan(0.05);  // clear of the residual band
+    const w = sized.warnings.find((x) => x.code === 'outsideCurve');
+    expect(w).toBeDefined();
+    expect(w.message).toContain(`At ${qBpd.toFixed(1)} bbl/d`);
+    expect(w.message).not.toMatch(new RegExp(`At ${curve.qMax} bbl/d`));
+    expect(w.message).toContain(`(${curve.qMin} to ${curve.qMax} bbl/d`);
+  });
+});

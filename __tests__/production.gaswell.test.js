@@ -426,3 +426,89 @@ describe('the slow-cycle warning prints a cycle that is not exactly a day', () =
     expect(w.message).not.toMatch(/\b1440 minutes\b/);
   });
 });
+
+// The same defect as PR #113, in its second spelling. That sweep was
+// grepped on `toFixed(0)`, and `Math.round` inside a message string does
+// exactly the same thing, so the grep passed here because it could not see
+// rather than because there was nothing to find.
+//
+// Two shapes appear below. `recommendCorrelation` prints the value it
+// branched on: the branch is a strict comparison against 1000 psia, and a
+// well at 999.62 read "At 1000 psia wellhead this well sits inside the
+// low-pressure range" under a branch that only takes wells BELOW 1000. The
+// two plunger-lift warnings CONTRAST two quantities in one sentence, and
+// rounding whole can collapse the contrast so that one number is said to
+// fall short of another it prints as equal to. One decimal narrows both
+// collisions by ten rather than closing them: a value inside 0.05 of the
+// threshold, or a pair inside 0.05 of each other, still renders the same.
+describe('the second spelling of the defect: Math.round inside a message', () => {
+  test('a wellhead just under the Coleman limit does not print as the limit', () => {
+    // 0.38 psi under, which is where a real PD5 well sits, and the choice
+    // of correlation it decides is worth 20 percent of every critical rate
+    // computed after it.
+    const p = COLEMAN_PRESSURE_LIMIT_PSIA - 0.38;
+    const r = recommendCorrelation(p);
+    expect(r.correlation).toBe('coleman');
+    expect(Math.round(p)).toBe(COLEMAN_PRESSURE_LIMIT_PSIA);   // what the old print gave
+    expect(COLEMAN_PRESSURE_LIMIT_PSIA - p).toBeGreaterThan(0.05);
+    expect(r.reason).toContain('At 999.6 psia');
+    expect(r.reason).not.toMatch(/At 1000(\.0)? psia/);
+  });
+
+  test('the station in the sentence is the caller\'s, not a hardcoded wellhead', () => {
+    // The function takes any station's pressure and callers hand it
+    // others, so the label cannot be a fact this function asserts.
+    expect(recommendCorrelation(1240.4).reason).toContain('psia wellhead this well');
+    expect(recommendCorrelation(1240.4, 'at the 5,000 ft station').reason)
+      .toContain('psia at the 5,000 ft station this well');
+  });
+
+  test('a casing short of the lift requirement does not print as the requirement', () => {
+    const well = {
+      depthFt: 8000, idIn: 2.441, linePressurePsia: 100.6, slugLengthFt: 300,
+      liquidSg: 1.0, plungerWeightLb: 10, gasSg: 0.65, avgTempR: 580, z: 0.9,
+    };
+    const required = liftPressure(well).requiredPsia;
+    const casingPressurePsia = required - 0.15;
+    // the old print collapsed the two onto one number
+    expect(Math.round(casingPressurePsia)).toBe(Math.round(required));
+    expect(required - casingPressurePsia).toBeGreaterThan(0.05);
+
+    const r = screenPlungerLift({
+      ...well, casingPressurePsia, wellGlrScfBbl: 1e9,
+      riseFtMin: 750, fallInGasFtMin: 1000, fallInLiquidFtMin: 200,
+      afterflowMin: 0, shutInMin: 30,
+    });
+    const w = r.design.warnings.find((x) => x.code === 'insufficientPressure');
+    expect(w).toBeDefined();
+    expect(w.message).toContain(`builds to ${casingPressurePsia.toFixed(1)} psia`);
+    expect(w.message).toContain(`but ${required.toFixed(1)} psia is needed`);
+    // the two numbers in the sentence are no longer the same number
+    expect(casingPressurePsia.toFixed(1)).not.toBe(required.toFixed(1));
+  });
+
+  test('a well short of the gas a cycle needs does not print as making it', () => {
+    const well = {
+      depthFt: 8000, idIn: 2.441, linePressurePsia: 100, casingPressurePsia: 900,
+      slugLengthFt: 300, liquidSg: 1.0, plungerWeightLb: 10, gasSg: 0.65,
+      avgTempR: 580, z: 0.9, riseFtMin: 750, fallInGasFtMin: 1000,
+      fallInLiquidFtMin: 200, afterflowMin: 0, shutInMin: 30,
+    };
+    const requiredGlr = screenPlungerLift({ ...well, wellGlrScfBbl: 1e9 })
+      .design.requiredGlrScfBbl;
+    const wellGlrScfBbl = requiredGlr - 0.15;
+    expect(Math.round(wellGlrScfBbl)).toBe(Math.round(requiredGlr));
+    expect(requiredGlr - wellGlrScfBbl).toBeGreaterThan(0.05);
+
+    const r = screenPlungerLift({ ...well, wellGlrScfBbl });
+    const w = r.design.warnings.find((x) => x.code === 'insufficientGas');
+    expect(w).toBeDefined();
+    // built the way the message builds them, so the gate does not depend
+    // on the runner's locale
+    const oneDp = { minimumFractionDigits: 1, maximumFractionDigits: 1 };
+    expect(w.message).toContain(`needs ${requiredGlr.toLocaleString(undefined, oneDp)} scf`);
+    expect(w.message).toContain(`makes ${wellGlrScfBbl.toLocaleString(undefined, oneDp)}`);
+    expect(requiredGlr.toLocaleString(undefined, oneDp))
+      .not.toBe(wellGlrScfBbl.toLocaleString(undefined, oneDp));
+  });
+});

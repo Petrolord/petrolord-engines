@@ -265,7 +265,13 @@ export const sizePump = ({
   if (!stage.inRange) {
     warnings.push({
       code: 'outsideCurve',
-      message: `At ${Math.round(qBpd)} bbl/d and ${hz} Hz the pump runs outside its published range (${Math.round(curve.qMin)} to ${Math.round(curve.qMax)} bbl/d at ${curve.refHz} Hz). Head and efficiency here are an extrapolation.`,
+      // The rate is said to be OUTSIDE the range printed next to it, so
+      // rounded whole a rate a fraction past `qMax` read as the bound
+      // itself: "At 2500 bbl/d ... outside its published range (1200 to
+      // 2500 bbl/d)". One decimal on the rate; the bounds read exactly
+      // as they did before, because they are the published range and
+      // not a number this well is being measured to a fraction of.
+      message: `At ${qBpd.toFixed(1)} bbl/d and ${hz} Hz the pump runs outside its published range (${Math.round(curve.qMin)} to ${Math.round(curve.qMax)} bbl/d at ${curve.refHz} Hz). Head and efficiency here are an extrapolation.`,
     });
   }
   if (stage.region === 'downthrust' || stage.region === 'upthrust') {
