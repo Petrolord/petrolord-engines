@@ -123,6 +123,24 @@ export const LOADING_ADJUSTMENT = { turner: 1.2, coleman: 1.0 };
 export const COLEMAN_PRESSURE_LIMIT_PSIA = 1000;
 
 /**
+ * How a message names a value that is not a usable number.
+ *
+ * A formatter is not a validator. `toFixed` and `toLocaleString` are
+ * methods on Number, so applying either to a value that reached the
+ * message unvalidated throws on `undefined`, on `null` and on a
+ * numeric STRING, and prints a bare "NaN" as though it were a reading
+ * on `NaN` itself. Every message in this domain that formats a value
+ * its function did not check goes through here instead, so a bad input
+ * is named rather than crashing or being dressed up as a measurement.
+ */
+export const describeUnusableNumber = (value) => {
+  if (value === undefined) return 'nothing was passed';
+  if (value === null) return 'null was passed';
+  if (typeof value !== 'number') return `a ${typeof value} was passed, not a number`;
+  return `the number passed was ${String(value)}`;
+};
+
+/**
  * Critical gas velocity to keep the tubing unloaded, ft/s.
  *
  * `correlation` is 'turner' or 'coleman'; anything else is refused
@@ -294,9 +312,28 @@ export const loadingProfile = ({
  * function takes ANY station's pressure and callers do hand it others,
  * so the word is the caller's to set rather than a fact asserted about
  * a number this function cannot see the origin of.
+ *
+ * AND THE THING THAT FIX ITSELF GOT WRONG. `Math.round` swallows
+ * anything: it turned `undefined` into NaN and the string '900' into
+ * 900, so a caller handing this function rubbish got a confident
+ * correlation and never knew. `toFixed` is a method on Number, so the
+ * same three inputs THREW instead. The format was display-only in
+ * intent and was not display-only in effect, because nothing had
+ * validated what reached the formatter. The pressure is checked before
+ * it is formatted now, and a pressure that cannot be read is said to be
+ * unreadable rather than printed as "NaN psia" or crashing the caller.
+ * What this function returns for a good pressure is untouched.
  */
-export const recommendCorrelation = (pPsia, station = 'wellhead') => (
-  pPsia < COLEMAN_PRESSURE_LIMIT_PSIA
+export const recommendCorrelation = (pPsia, station = 'wellhead') => {
+  const belowLimit = pPsia < COLEMAN_PRESSURE_LIMIT_PSIA;
+  const correlation = belowLimit ? 'coleman' : 'turner';
+  if (!Number.isFinite(pPsia)) {
+    return {
+      correlation,
+      reason: `No ${station} pressure could be read here: ${describeUnusableNumber(pPsia)}. Which correlation these conditions call for cannot be said without one, so the name above is only where the comparison against ${COLEMAN_PRESSURE_LIMIT_PSIA} psia happens to land and is not a reading of this well. Hand a numeric ${station} pressure in psia.`,
+    };
+  }
+  return belowLimit
     ? {
       correlation: 'coleman',
       reason: `At ${pPsia.toFixed(1)} psia ${station} this well sits inside the low-pressure range Coleman's data covered, where the unadjusted equation fitted better.`,
@@ -304,8 +341,8 @@ export const recommendCorrelation = (pPsia, station = 'wellhead') => (
     : {
       correlation: 'turner',
       reason: `At ${pPsia.toFixed(1)} psia ${station} this well is above the range Coleman studied, so Turner's 20 percent adjustment is the usual choice.`,
-    }
-);
+    };
+};
 
 /**
  * The tubing that would keep a given rate unloaded.

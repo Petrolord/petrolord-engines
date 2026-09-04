@@ -42,6 +42,7 @@
 
 import {
   P_STANDARD_PSIA, T_STANDARD_R, gasDensityLbFt3, tubingAreaFt2,
+  describeUnusableNumber,
 } from './gasWellLoading.js';
 
 /**
@@ -234,13 +235,28 @@ export const screenPlungerLift = ({
   // cycle needs read as making exactly what it needs. One decimal
   // narrows that collision by ten; a pair inside 0.05 of each other
   // still renders equal.
+  //
+  // `casingPressurePsia` is NOT in the refusal list above, so it
+  // reaches this message unvalidated. `Math.round` swallowed that and
+  // printed a bare NaN; `toFixed` is a method on Number, so the same
+  // inputs threw at a caller that used to get an answer. The value is
+  // checked before it is formatted, and a casing pressure that cannot
+  // be read is named as unreadable rather than crashing or being
+  // printed as though it were a gauge reading. `requiredPsia` is a sum
+  // of inputs this function also does not all check, so it is guarded
+  // the same way.
   // The pressure test comes first: without it the gas-liquid ratio is
   // beside the point, because the plunger never moves.
   const pressureOk = casingPressurePsia > lift.requiredPsia;
   if (!pressureOk) {
+    const needed = Number.isFinite(lift.requiredPsia)
+      ? `${lift.requiredPsia.toFixed(1)} psia`
+      : 'a lift pressure these inputs do not allow computing';
     warnings.push({
       code: 'insufficientPressure',
-      message: `The casing builds to ${casingPressurePsia.toFixed(1)} psia but ${lift.requiredPsia.toFixed(1)} psia is needed to move the plunger and its slug. Shorten the slug, drop the line pressure, or accept that this well will not plunger lift as it stands.`,
+      message: Number.isFinite(casingPressurePsia)
+        ? `The casing builds to ${casingPressurePsia.toFixed(1)} psia but ${needed} is needed to move the plunger and its slug. Shorten the slug, drop the line pressure, or accept that this well will not plunger lift as it stands.`
+        : `No casing pressure could be read here: ${describeUnusableNumber(casingPressurePsia)}. Moving the plunger and its slug takes ${needed}, and whether this well builds to it cannot be said until a numeric casing pressure in psia is given.`,
     });
   }
   const glrOk = Number.isFinite(wellGlrScfBbl) && wellGlrScfBbl >= requiredGlr;

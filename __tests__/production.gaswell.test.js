@@ -512,3 +512,111 @@ describe('the second spelling of the defect: Math.round inside a message', () =>
       .not.toBe(wellGlrScfBbl.toLocaleString(undefined, oneDp));
   });
 });
+
+// PR #114 REGRESSION: a display-only fix that was not display-only.
+//
+// #114 replaced `Math.round(pWellheadPsia)` with `pPsia.toFixed(1)` in the
+// reason strings above, and described the change as display only. It was
+// display only in INTENT. `Math.round` swallows anything, so it turned
+// `undefined` into NaN and the string '900' into 900; `toFixed` is a
+// method on Number, so the same values threw. Three of the four inputs
+// below went from a silently wrong answer to a TypeError at a caller in a
+// live Suite app, and the fourth printed "At NaN psia wellhead" as though
+// NaN were a gauge reading.
+//
+// The rule these gates pin: a formatter is not a validator, so a change of
+// format is only safe once something has checked what reaches it. Nothing
+// had. Every case below must return, and must say plainly that the
+// pressure could not be read rather than dressing NaN up as a measurement.
+// The same guard covers plungerLift's insufficientPressure, where
+// `casingPressurePsia` is not in the function's own refusal list and so
+// reaches the message unvalidated too.
+describe('a bad pressure is named, not crashed on and not printed as NaN', () => {
+  const unusable = [
+    ['undefined', undefined],
+    ['null', null],
+    ['a numeric string', '900'],
+    ['NaN', NaN],
+  ];
+
+  test.each(unusable)('recommendCorrelation(%s) does not throw', (_label, value) => {
+    expect(() => recommendCorrelation(value)).not.toThrow();
+  });
+
+  test.each(unusable)('recommendCorrelation(%s) still answers with a correlation', (_label, value) => {
+    // The return SHAPE is unchanged, which is the whole point of the
+    // conservative fix: a caller that read `.correlation` before still
+    // reads one, so nothing downstream has to change to stop crashing.
+    const r = recommendCorrelation(value);
+    expect(['turner', 'coleman']).toContain(r.correlation);
+    expect(typeof r.reason).toBe('string');
+  });
+
+  test.each(unusable)('recommendCorrelation(%s) says the pressure was not a number', (_label, value) => {
+    const r = recommendCorrelation(value);
+    expect(r.reason).toMatch(/No wellhead pressure could be read/);
+    // and does not print the unreadable value as though it were one
+    expect(r.reason).not.toMatch(/At NaN psia/);
+    expect(r.reason).not.toMatch(/\bAt \S+ psia wellhead this well\b/);
+    // nor claim the well sits anywhere relative to Coleman's range
+    expect(r.reason).not.toMatch(/sits inside the low-pressure range/);
+    expect(r.reason).not.toMatch(/is above the range Coleman studied/);
+  });
+
+  test('the station label reaches the unreadable message too', () => {
+    expect(recommendCorrelation(undefined, 'at the 5,000 ft station').reason)
+      .toMatch(/No at the 5,000 ft station pressure could be read/);
+  });
+
+  test('a real pressure reads exactly as PR #114 left it', () => {
+    // The guard must not touch the one-decimal fix or the station label,
+    // which are the things #114 was right about.
+    const p = COLEMAN_PRESSURE_LIMIT_PSIA - 0.38;
+    expect(recommendCorrelation(p).reason).toContain('At 999.6 psia wellhead this well');
+    expect(recommendCorrelation(p).correlation).toBe('coleman');
+    expect(recommendCorrelation(1240.4).reason)
+      .toContain('At 1240.4 psia wellhead this well');
+    expect(recommendCorrelation(1240.4, 'at the 5,000 ft station').reason)
+      .toContain('At 1240.4 psia at the 5,000 ft station this well');
+    expect(recommendCorrelation(1240.4).correlation).toBe('turner');
+  });
+
+  // The same hazard, second site. #114 turned Math.round(casingPressurePsia)
+  // into casingPressurePsia.toFixed(1), and screenPlungerLift's refusal list
+  // checks depth, diameter, slug, plunger weight and temperature but never
+  // the casing pressure, so an undefined one walks past the gate and into
+  // the formatter.
+  const plungerWell = {
+    depthFt: 6000, idIn: 2.441, linePressurePsia: 120, slugLengthFt: 200,
+    liquidSg: 1.05, plungerWeightLb: 6, gasSg: 0.65, avgTempR: 580, z: 0.95,
+    wellGlrScfBbl: 5000,
+  };
+
+  test.each([['undefined', undefined], ['null', null], ['NaN', NaN]])(
+    'screenPlungerLift with a %s casing pressure does not throw', (_label, casingPressurePsia) => {
+      expect(() => screenPlungerLift({ ...plungerWell, casingPressurePsia })).not.toThrow();
+      const r = screenPlungerLift({ ...plungerWell, casingPressurePsia });
+      const w = r.design.warnings.find((x) => x.code === 'insufficientPressure');
+      expect(w).toBeDefined();
+      expect(w.message).toMatch(/No casing pressure could be read/);
+      expect(w.message).not.toMatch(/builds to NaN psia/);
+    },
+  );
+
+  test('a real casing pressure reads exactly as PR #114 left it', () => {
+    const well = {
+      depthFt: 8000, idIn: 2.441, linePressurePsia: 100.6, slugLengthFt: 300,
+      liquidSg: 1.0, plungerWeightLb: 10, gasSg: 0.65, avgTempR: 580, z: 0.9,
+    };
+    const required = liftPressure(well).requiredPsia;
+    const casingPressurePsia = required - 0.15;
+    const r = screenPlungerLift({
+      ...well, casingPressurePsia, wellGlrScfBbl: 1e9,
+      riseFtMin: 750, fallInGasFtMin: 1000, fallInLiquidFtMin: 200,
+      afterflowMin: 0, shutInMin: 30,
+    });
+    const w = r.design.warnings.find((x) => x.code === 'insufficientPressure');
+    expect(w.message).toContain(`The casing builds to ${casingPressurePsia.toFixed(1)} psia`);
+    expect(w.message).toContain(`but ${required.toFixed(1)} psia is needed`);
+  });
+});
