@@ -370,9 +370,9 @@ export function classifyInflux({ cumulativeWe, Wei }) {
   }
   if (Number.isFinite(Wei) && Wei > 0) {
     const frac = cumulativeWe / Wei;
-    if (frac < 0.02) return { level: 'weak', label: 'Weak aquifer', note: 'Cumulative influx is a small fraction of encroachable water — limited pressure support.' };
+    if (frac < 0.02) return { level: 'weak', label: 'Weak aquifer', note: 'Cumulative influx is a small fraction of encroachable water, so pressure support is limited.' };
     if (frac < 0.1) return { level: 'moderate', label: 'Moderate aquifer', note: 'Meaningful influx; the aquifer contributes noticeable pressure support.' };
-    return { level: 'strong', label: 'Strong aquifer', note: 'Large fraction of encroachable water has flowed in — active water drive.' };
+    return { level: 'strong', label: 'Strong aquifer', note: 'A large fraction of the encroachable water has flowed in, which is an active water drive.' };
   }
   return { level: 'active', label: 'Water influx present', note: 'Set aquifer volume (W) to gauge strength relative to encroachable water.' };
 }

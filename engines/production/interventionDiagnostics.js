@@ -157,7 +157,7 @@ export const CHAN_MECHANISMS = [
     id: 'channelling',
     label: 'Channelling',
     treatable: true,
-    note: 'Water is arriving through a path of its own -- behind pipe, a thief zone, a fracture or a high-permeability streak. That is plumbing, and plumbing can be sealed.',
+    note: 'Water is arriving through a path of its own: behind pipe, a thief zone, a fracture or a high-permeability streak. That is plumbing, and plumbing can be sealed.',
   },
   {
     id: 'coning',
