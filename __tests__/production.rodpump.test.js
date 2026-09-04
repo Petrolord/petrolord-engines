@@ -755,3 +755,222 @@ describe('warnings print a value that is off their own threshold', () => {
     expect(torque.message).not.toMatch(new RegExp(`\\b${torqueRatingInLb} in-lb against`));
   });
 });
+
+// ---------------------------------------------------------------------------
+// WAVE 1 of the 4 September 2026 engine decisions: items 16, 39, 43 and 49.
+// Every gate below is a correctness, documentation or wording fix that must
+// leave every published number exactly where it was. Nothing here regenerates
+// a golden, and the goldens above are the proof that nothing moved.
+const engineSource = (file) => fs.readFileSync(
+  path.join(__dirname, '..', 'engines', 'production', file), 'utf8',
+);
+// Comment blocks wrap, so the prose is read with the leading stars and
+// the line breaks flattened out of it.
+const flattened = (text) => text.replace(/^\s*\*/gm, ' ').replace(/\s+/g, ' ');
+
+describe('item 16: the frequency scan keeps to the range it says it scans', () => {
+  test('a window that ends below the fundamental resolves nothing, rather than reaching outside it', () => {
+    // The scan runs from 0.05 N0 to 4 N0, and N0 comes from the wave
+    // speed the caller hands in. `acousticVelocityFtS` sets N0 and
+    // NOTHING ELSE in the eigenvalue problem: the transfer matrix uses
+    // each section's own wave speed. So a deliberately low velocity
+    // moves the window without moving the root, and puts the whole
+    // window below the string's true fundamental.
+    //
+    // A scan that adds its increment to the LOWER BOUND stays inside
+    // that window, finds no sign change and says so. The scan that
+    // added the increment to the running sample walked a quadratic
+    // grid whose last point sat tens of thousands of spm out, so it
+    // reached a root from far outside the range it claimed to scan and
+    // reported it as the fundamental with no tell at all.
+    const s = taperString();
+    const honest = naturalFrequency({ string: s });
+    const windowed = naturalFrequency({ string: s, acousticVelocityFtS: 3000 });
+    expect(windowed.n0Spm * 4).toBeLessThan(honest.nPrimeSpm);   // window below the root
+    expect(windowed.unresolved).toBe(true);
+    expect(windowed.nPrimeSpm).toBe(windowed.n0Spm);
+    expect(windowed.nPrimeSpm).not.toBeCloseTo(honest.nPrimeSpm, 6);
+  });
+
+  test('and the shipped answers do not move: the fundamental is still the FIRST root', () => {
+    // The defect is latent on every shipped case, which is what makes
+    // this a Wave 1 fix. Both halves are asserted: the value is the
+    // golden one, and it is the lowest frequency at which a string
+    // clamped at the surface and free at the pump has a solution, so
+    // no higher mode has been handed back in its place.
+    const endForce = (string, spm) => {
+      // Independent transfer march, written out here rather than
+      // reached for in the engine.
+      let u = 0;
+      let f = 1;
+      const omega = (2 * Math.PI * spm) / 60;
+      for (const sec of string.sections) {
+        const k = omega / sectionWaveSpeedFtS(sec);
+        const kl = k * sec.lengthFt;
+        const z = ((30e6 * sec.areaIn2) / 12) * k;
+        const c = Math.cos(kl);
+        const sn = Math.sin(kl);
+        const uNext = c * u + (sn / z) * f;
+        f = -z * sn * u + c * f;
+        u = uNext;
+      }
+      return f;
+    };
+    [taperString(), buildRodString({
+      sections: designTaper({
+        lengthFt: 5000, sizes: ['7/8', '3/4'], plungerAreaIn2: rodArea(1.75),
+        fluidLoadLb: 5000, fluidSg: 1,
+      }).sections,
+      fluidSg: 1,
+    })].forEach((s) => {
+      const f = naturalFrequency({ string: s });
+      let prev = endForce(s, f.n0Spm * 0.05);
+      for (let i = 1; i <= 4000; i += 1) {
+        const spm = f.n0Spm * 0.05 + ((f.nPrimeSpm * 0.999 - f.n0Spm * 0.05) * i) / 4000;
+        const here = endForce(s, spm);
+        expect(prev * here).toBeGreaterThan(0);      // no root below the one returned
+        prev = here;
+      }
+      expect(Math.abs(endForce(s, f.nPrimeSpm))).toBeLessThan(1e-6 * Math.abs(prev));
+    });
+    // and the taper's fundamental is still the golden value to the digit
+    expect(rel(naturalFrequency({ string: taperString() }).nPrimeSpm,
+      G.strings.taper.n0Spm)).toBeLessThan(1e-4);
+  });
+});
+
+describe('item 39: the march documents its own subsample', () => {
+  const doc = () => {
+    const src = engineSource('rodDynamics.js');
+    const start = src.indexOf(' * Predictive solve');
+    const end = src.indexOf('export const predictCard');
+    return flattened(src.slice(start, end));
+  };
+
+  test('the documented node default is the default the march runs', () => {
+    // The docstring said 60 while the code said 120, so a caller
+    // reading the documentation was told the wrong grid.
+    expect(doc()).toMatch(/nodes\s+spatial nodes \(default 120\)/);
+    expect(doc()).not.toMatch(/default 60/);
+    const s = taperString();
+    const run = (extra) => predictCard({
+      string: s, surfacePosition: simpleHarmonicPosition(64 / 12), strokeFt: 64 / 12,
+      spm: 9, fluidLoadLb: 5000, fillage: 1, dampingRatio: 0.1, ...extra,
+    });
+    const bare = run({});
+    expect(run({ nodes: 120 }).plungerStrokeIn).toBe(bare.plungerStrokeIn);
+    expect(run({ nodes: 120 }).prlPeakLb).toBe(bare.prlPeakLb);
+    expect(run({ nodes: 60 }).plungerStrokeIn).not.toBe(bare.plungerStrokeIn);
+  });
+
+  test('cardSamples and tensionEnvelope are both documented, and named as what they are', () => {
+    // These are the two things that let a caller SEE the decimation:
+    // the input that sets it and the one returned field carried at
+    // full march resolution. Both were missing from the documentation.
+    expect(doc()).toMatch(/cardSamples/);
+    expect(doc()).toMatch(/tensionEnvelope/);
+    expect(doc()).toMatch(/full march/i);
+    expect(doc()).toMatch(/decimated/i);
+    // the return really does carry the envelope at one entry per node
+    const s = taperString();
+    const r = predictCard({
+      string: s, surfacePosition: simpleHarmonicPosition(64 / 12), strokeFt: 64 / 12,
+      spm: 9, fluidLoadLb: 5000, fillage: 1, dampingRatio: 0.1, nodes: 120,
+    });
+    expect(r.tensionEnvelope).toHaveLength(120);
+    expect(r.surfaceCard.length).toBeLessThan(r.tensionEnvelope.length * 4);
+    expect(r.surfaceCard.length).toBeLessThan(r.samples);       // it IS a subsample
+  });
+});
+
+describe('item 43: the displacement constant says what its square inches are', () => {
+  test('the unit comment names a squared diameter, with the pi over four inside the constant', () => {
+    const src = engineSource('rodPumpDesign.js');
+    const block = flattened(src.slice(0, src.indexOf('export const IN3_PER_BBL')));
+    expect(block).toMatch(/squared plunger diameter/i);
+    expect(block).toMatch(/pi over four is already INCLUDED/i);
+    expect(block).toMatch(/not an area/i);
+    // and the arithmetic the comment describes is unchanged
+    expect(rel(PUMP_CONSTANT, G.constants.pumpConstant)).toBeLessThan(1e-12);
+    expect(rel(displacementBpd({ plungerDIn: 2, strokeIn: 64, spm: 10 }),
+      PUMP_CONSTANT * 4 * 64 * 10)).toBeLessThan(1e-12);
+  });
+});
+
+describe('item 49: the non-periodic flag names no remedy, and the user has a real lever', () => {
+  const s = () => taperString();
+  const g = genericConventionalGeometry({ strokeIn: 64 });
+  const kin = unitKinematics(g.geometry, { steps: 180 });
+  const base = () => ({
+    string: s(), frequency: naturalFrequency({ string: s() }), kin,
+    surfacePosition: surfacePositionFn(kin), strokeIn: 64, spm: 9,
+    plungerDIn: 1.75, pDischargePsi: 0.433 * 5000 + 100, pIntakePsi: 150,
+    fillage: 1, pumpEfficiency: 0.9, serviceFactor: 1,
+  });
+
+  test('the warning says what the flag means and nothing else', () => {
+    // It used to say to raise the damping. That advice is not monotone
+    // in the quantity it names: 0.08 clean, 0.10 flagged, 0.12 clean
+    // again, so following it can be exactly what raises the flag.
+    const r = predictCard({
+      string: s(), surfacePosition: simpleHarmonicPosition(64 / 12), strokeFt: 64 / 12,
+      spm: 9, fluidLoadLb: 5000, fillage: 1, dampingRatio: 0.1, maxCycles: 2,
+    });
+    expect(r.converged).toBe(false);
+    const w = r.warnings.find((x) => x.code === 'notPeriodic');
+    expect(w).toBeDefined();
+    expect(w.message).toBe('The march did not settle to a repeating cycle at this resolution.');
+    expect(w.message).not.toMatch(/damping/i);
+    expect(w.message).not.toMatch(/indicative/i);
+    expect(w.message).not.toMatch(/raise|check the inputs/i);
+  });
+
+  test('nodes and maxCycles are exposed on the design run and reach the march', () => {
+    const dflt = runRodPumpDesign(base());
+    const coarse = runRodPumpDesign({ ...base(), nodes: 40 });
+    const short = runRodPumpDesign({ ...base(), maxCycles: 2 });
+    expect(dflt.ok).toBe(true);
+    expect(dflt.design.dynamics.converged).toBe(true);
+    // a coarser grid is a different march, so the input is wired
+    expect(coarse.ok).toBe(true);
+    expect(coarse.design.dynamics.tensionEnvelope).toHaveLength(40);
+    expect(coarse.design.dynamics.plungerStrokeIn)
+      .not.toBe(dflt.design.dynamics.plungerStrokeIn);
+    // and the cycle limit is the second lever, which the warning needs
+    expect(short.design.dynamics.cycles).toBe(2);
+    expect(short.design.warnings.map((w) => w.code)).toContain('notPeriodic');
+    expect(dflt.design.warnings.map((w) => w.code)).not.toContain('notPeriodic');
+  });
+
+  test('leaving the advanced inputs out changes nothing at all', () => {
+    // Adding an optional input must not move a single published value,
+    // so the default run and the run that types the defaults out have
+    // to agree to the last bit, card for card.
+    const a = runRodPumpDesign(base());
+    const b = runRodPumpDesign({ ...base(), nodes: 120, maxCycles: 20 });
+    expect(b.design.pprlLb).toBe(a.design.pprlLb);
+    expect(b.design.mprlLb).toBe(a.design.mprlLb);
+    expect(b.design.plungerStrokeIn).toBe(a.design.plungerStrokeIn);
+    expect(b.design.producedBpd).toBe(a.design.producedBpd);
+    expect(b.design.prhp).toBe(a.design.prhp);
+    expect(b.design.dynamics.surfaceCard).toEqual(a.design.dynamics.surfaceCard);
+    expect(b.design.dynamics.tensionEnvelope).toEqual(a.design.dynamics.tensionEnvelope);
+  });
+
+  test('an advanced input that cannot be read is refused, never coerced', () => {
+    const bad = runRodPumpDesign({ ...base(), nodes: 'sixty' });
+    expect(bad.ok).toBe(false);
+    expect(bad.design).toBeNull();
+    expect(bad.errors.join(' ')).toMatch(/node count must be a number of at least 8/);
+    expect(bad.errors.join(' ')).toContain('"sixty"');
+    const cycles = runRodPumpDesign({ ...base(), maxCycles: NaN });
+    expect(cycles.ok).toBe(false);
+    expect(cycles.errors.join(' ')).toMatch(/cycle limit must be a number of at least 1/);
+    // and the message says what it was actually handed, not a coerced
+    // stand-in for it
+    expect(cycles.errors.join(' ')).toContain('given as NaN');
+    // null is not a default: absent is
+    expect(runRodPumpDesign({ ...base(), nodes: null }).ok).toBe(false);
+    expect(runRodPumpDesign({ ...base(), nodes: undefined }).ok).toBe(true);
+  });
+});

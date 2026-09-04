@@ -31,6 +31,15 @@ import { rodArea } from './data/rodCatalog.js';
  *   to barrels        = / 9702                  (42 gal x 231 in^3/gal)
  *
  * which gives 0.11657, the 0.1166 every rod-pump text quotes.
+ *
+ * UNITS, spelled out because the square inches in them are the whole
+ * trap: bbl per day, per SQUARED PLUNGER DIAMETER in square inches,
+ * per inch of stroke, per stroke a minute. The squared diameter is not
+ * an area. The pi over four is already INCLUDED in the constant, so a
+ * caller who reads that in2 as an area and multiplies by pi d^2 / 4
+ * applies the pi over four twice. That is the predecessor's error
+ * recorded on `displacementBpd` below, and it understated
+ * displacement by 21 percent.
  */
 export const IN3_PER_BBL = 42 * 231;
 export const PUMP_CONSTANT = (Math.PI / 4) * (1440 / IN3_PER_BBL);
@@ -152,6 +161,15 @@ export const dimensionlessGroups = ({
  *   dampingRatio
  *   serviceFactor, structuralUnbalanceLb, crankOffsetDeg
  *   unitRating      parseUnitDesignation result, or null
+ *
+ *   ADVANCED, both optional and both handed straight to
+ *   rodDynamics.predictCard. Omit them and the march runs exactly as
+ *   it always has; they exist so a march that does not settle can be
+ *   re-run at a finer resolution or given more strokes to settle in,
+ *   which is a real lever on the `notPeriodic` warning.
+ *   nodes           spatial nodes on the string, at least 8. Default 120.
+ *   maxCycles       strokes marched before periodicity is given up on.
+ *                   Default 20.
  * }
  *
  * returns { ok, errors, design }
@@ -160,10 +178,21 @@ export const runRodPumpDesign = ({
   string, frequency, kin, surfacePosition, strokeIn, spm,
   plungerDIn, pDischargePsi, pIntakePsi, fillage = 1, pumpEfficiency = 1,
   dampingRatio, serviceFactor = 1, structuralUnbalanceLb = 0, crankOffsetDeg = 0,
-  unitRating = null, balance,
+  unitRating = null, balance, nodes, maxCycles,
 }) => {
   const errors = [];
   const warnings = [];
+  // The two advanced inputs are optional, so ABSENT means the default
+  // and is not an error. Present and unreadable is an error: a node
+  // count that is not a number marches a grid of NaN and returns
+  // confident nonsense, so it is refused here rather than coerced.
+  const asGiven = (v) => (typeof v === 'string' ? JSON.stringify(v) : String(v));
+  if (nodes !== undefined && !(Number.isFinite(nodes) && nodes >= 8)) {
+    errors.push(`The node count must be a number of at least 8 spatial nodes. It was given as ${asGiven(nodes)}.`);
+  }
+  if (maxCycles !== undefined && !(Number.isFinite(maxCycles) && maxCycles >= 1)) {
+    errors.push(`The cycle limit must be a number of at least 1 stroke. It was given as ${asGiven(maxCycles)}.`);
+  }
   const fo = fluidLoadLb({ plungerDIn, pDischargePsi, pIntakePsi });
   if (!(fo > 0)) {
     errors.push('The plunger has no fluid to lift: the discharge pressure does not exceed the intake pressure. Check the fluid level, the tubing pressure and the inflow.');
@@ -193,6 +222,11 @@ export const runRodPumpDesign = ({
     fluidLoadLb: fo,
     fillage,
     dampingRatio,
+    // Undefined here is what predictCard's own defaults are written
+    // against, so an omitted advanced input marches exactly the grid
+    // and the cycle limit it always did.
+    nodes,
+    maxCycles,
   });
   if (!dyn.ok) return { ok: false, errors: [dyn.error], design: null };
 

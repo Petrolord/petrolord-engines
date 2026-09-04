@@ -174,15 +174,40 @@ const PUMP_STATE = {
  *   fluidLoadLb     Fo, the fluid load carried by the plunger
  *   fillage         barrel fill fraction, 1 for a full pump
  *   dampingRatio    fraction of critical for the fundamental
- *   nodes           spatial nodes (default 60)
+ *   nodes           spatial nodes (default 120)
  *   maxCycles       cycles to march before giving up on periodicity
- *   tol             periodicity tolerance, ft
+ *                   (default 20)
+ *   tol             periodicity tolerance, as a fraction of the stroke
+ *   cardSamples     how many points the returned CARDS are decimated
+ *                   to (default 180). It does not change the march:
+ *                   the march runs at the Courant step, which is far
+ *                   finer, and the cards are then sampled down to
+ *                   roughly this many points for plotting and for the
+ *                   Fourier diagnostic.
  * }
+ *
+ * WHICH RETURNS ARE THE FULL MARCH AND WHICH ARE THE SUBSAMPLE. Read
+ * this before using any of them as a load.
+ *
+ *   Full march, every step of the last cycle:
+ *     plungerStrokeIn   from the plunger's own extremes over the cycle
+ *     tensionEnvelope   peak and minimum tension at every node, so the
+ *                       rod stress check sees every step
+ *     converged, cycles, samples, dt, waveSpeedFtS, kappaPerS
+ *
+ *   Read off the DECIMATED card, at `cardSamples` points:
+ *     surfaceCard, pumpCard        the cards themselves
+ *     prlPeakLb, prlMinLb          maximum and minimum of the sampled
+ *                                  surface card, so a peak that falls
+ *                                  between two samples is missed
+ *     workInLbPerCycle             area of that sampled card, and the
+ *                                  polished rod horsepower with it
  *
  * returns {
  *   ok, converged, cycles, samples,
- *   surfaceCard: [{ positionIn, loadLb, tFrac }],
- *   pumpCard:    [{ positionIn, loadLb, tFrac }],
+ *   surfaceCard: [{ positionIn, loadLb, tFrac }],   subsample
+ *   pumpCard:    [{ positionIn, loadLb, tFrac }],   subsample
+ *   tensionEnvelope: [{ depthFt, maxLb, minLb }],   full march
  *   plungerStrokeIn, prlPeakLb, prlMinLb, workInLbPerCycle,
  *   waveSpeedFtS, kappaPerS, dt, warnings
  * }
@@ -230,6 +255,15 @@ export const predictCard = ({
   // Pump-end state, carried across steps.
   let plungerTopFt = 0;
   let pumpState = PUMP_STATE.FALLING;
+  // Seed for the empty part of a partly filled barrel on the FIRST
+  // cycle only. Every cycle after this one is seeded from the previous
+  // cycle's computed plunger stroke, at the foot of the loop below.
+  // This opening seed is the SURFACE stroke, which is longer than any
+  // plunger stroke, so the first cycle's pound-down runs long and the
+  // answer is seed dependent until the march settles. Reseeding it
+  // from the static estimate S - Fo Er MOVES partly filled results, so
+  // it is recorded here and carried as a Wave 2 change rather than
+  // made in a wave that may not move a number.
   let plungerStrokeFtPrev = strokeFt;
 
   // Surface direction, from the prescribed motion rather than from the
@@ -359,9 +393,17 @@ export const predictCard = ({
   }
 
   if (!converged) {
+    // NO REMEDY IS NAMED, deliberately. The message used to say to
+    // raise the damping. That advice is not monotone in the quantity
+    // it names: on one shipped design 0.08 is clean, 0.10 raises this
+    // flag and 0.12 is clean again, so raising the damping is exactly
+    // what triggers the warning that then asks for more of it. A flag
+    // that names no remedy is more useful than one that names a wrong
+    // remedy. The levers are `nodes` and `maxCycles`, which
+    // runRodPumpDesign now exposes.
     warnings.push({
       code: 'notPeriodic',
-      message: `The solution had not settled into a repeating cycle after ${cyclesRun} strokes. Its loads are indicative; raise the damping or check the inputs.`,
+      message: 'The march did not settle to a repeating cycle at this resolution.',
     });
   }
 
