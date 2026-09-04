@@ -223,12 +223,20 @@ export const naturalFrequency = ({ string, acousticVelocityFtS }) => {
   // of the stiffest uniform equivalent and that of the softest, so a
   // scan from just above zero to a few times n0 always brackets it.
   const omegaOf = (spm) => (2 * Math.PI * spm) / 60;
+  const lo0 = n0Spm * 0.05;
   const hi = n0Spm * 4;
   const steps = 400;
-  let prevSpm = n0Spm * 0.05;
+  // The increment is added to the LOWER BOUND, not to the running
+  // sample. Adding it to the running sample compounds the spacing, so
+  // the grid grows without bound: only a couple of dozen of the 400
+  // points land inside the intended range, the widest gap is tens of
+  // spm rather than a fraction of one, and the scan can walk over the
+  // fundamental and hand back a higher mode as though it were the
+  // first root.
+  let prevSpm = lo0;
   let prev = endForce(omegaOf(prevSpm));
   for (let i = 1; i <= steps; i += 1) {
-    const spm = prevSpm + ((hi - n0Spm * 0.05) * i) / steps;
+    const spm = lo0 + ((hi - lo0) * i) / steps;
     const here = endForce(omegaOf(spm));
     if (Number.isFinite(prev) && Number.isFinite(here) && prev * here < 0) {
       let lo = prevSpm;
