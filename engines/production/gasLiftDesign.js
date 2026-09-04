@@ -46,6 +46,28 @@
  *
  * Pressures psia, depths ft TVD, temperatures degF, gradients psi/ft,
  * gas rates Mscf/d.
+ *
+ * DECISIONS THIS MODULE MAKES, stated here because a reader of the
+ * numbers cannot see them in the numbers.
+ *
+ * 1. The closing test in the unloading walk uses `>=`, so a valve
+ *    sitting EXACTLY at its closing pressure is treated as OPEN. The
+ *    equality is a knife edge on which nothing physical can be decided,
+ *    and the consequence of the two readings is not symmetric: calling
+ *    such a valve shut hides a multipointing string, calling it open
+ *    shows a design with no margin as the marginal design it is. A
+ *    design that wants a verdict of shut has to earn it with a margin.
+ *    See `unloadingSequence`.
+ * 2. A valve with no closing pressure at all, which is the bottom
+ *    orifice, is SKIPPED by that test rather than compared. It has no
+ *    dome charge, so there is no pressure at which it closes, and a
+ *    missing closing pressure is not a closing pressure of zero.
+ * 3. This module reports NO RESIDUAL for the deepest injection point.
+ *    A residual formed from what `deepestInjectionPoint` returns is
+ *    evaluated against the module's own straight line between two
+ *    tabulated traverse rows, so it measures whether two chords agree
+ *    with each other and never how far the crossing is from the
+ *    answer. See `deepestInjectionPoint`.
  */
 
 import { gasColumnPressure, gasColumnSurfacePressure } from './gasProperties.js';
@@ -120,6 +142,18 @@ export const topValveDepth = ({
  * returns { depthFt, pInjPsia, pProdPsia, limitedBy }
  *   limitedBy: 'pressure' (the lines cross above the target depth) |
  *              'depth' (gas still wins at the deepest traverse point)
+ *
+ * NO RESIDUAL IS REPORTED, and none should be formed from this return.
+ * The crossing is located on the straight line drawn between the two
+ * traverse rows the caller happened to tabulate, and `pProdPsia` is read
+ * off that same line, so `pInjPsia - dpTransferPsi - pProdPsia` is zero
+ * to rounding by construction whatever the tabulation. It stays small
+ * while the crossing itself moves tens of feet with the row spacing, so
+ * it is anti-correlated with accuracy and not monotone in it: no
+ * threshold on it separates a good run from a bad one, and a caller
+ * ranking runs by it ranks them close to backwards. Accuracy here is a
+ * property of the TABULATION, so the honest measure of it is the
+ * crossing under refinement, not any quantity read off one tabulation.
  */
 export const deepestInjectionPoint = ({
   prodTraverse, pSurfPsia, gasSg, tempAtDepthF, dpTransferPsi = 0,
@@ -156,6 +190,11 @@ export const deepestInjectionPoint = ({
   };
 };
 
+/** Passes allowed to the per-valve spacing fixed point, and the depth
+ *  tolerance that counts as settled. */
+export const SPACING_MAX_ITER = 50;
+export const SPACING_TOL_FT = 0.01;
+
 /**
  * Valve depths, top down.
  *
@@ -174,7 +213,16 @@ export const deepestInjectionPoint = ({
  *   targetDepthFt         deepest injection point, when one is known
  *   minSpacingFt, maxValves
  * }
- * returns { depths: [ft], stopReason, surfacePressures: [psia] }
+ * returns { depths: [ft], stopReason, surfacePressures: [psia],
+ *           warnings: [{ code, message, ... }] }
+ *
+ * Each valve below the first is placed by a fixed point on the weak
+ * depth dependence of the injection gas column, run for at most
+ * SPACING_MAX_ITER passes. When it does not settle the last iterate is
+ * kept, because the checks below it still decide whether that depth is
+ * usable, and a `spacingNotConverged` warning carrying the iteration
+ * count says so rather than letting an unsettled depth pass as a
+ * settled one.
  */
 export const spaceValves = ({
   pKickoffPsia, pOperatingPsia, method = 'surfaceClose', dpPerValvePsi = 25,
@@ -186,6 +234,7 @@ export const spaceValves = ({
   const decrement = method === 'constantPressure' ? 0 : Math.max(dpPerValvePsi, 0);
   const depths = [];
   const surfacePressures = [];
+  const warnings = [];
   let stopReason = 'maxValves';
 
   const d1 = topValveDepth({
@@ -195,7 +244,7 @@ export const spaceValves = ({
   depths.push(d1);
   surfacePressures.push(pKickoffPsia);
   if (d1 >= floor - 1e-6) {
-    return { depths, surfacePressures, stopReason: 'targetDepth' };
+    return { depths, surfacePressures, warnings, stopReason: 'targetDepth' };
   }
 
   for (let n = 2; n <= maxValves; n += 1) {
@@ -206,15 +255,28 @@ export const spaceValves = ({
 
     let d = dPrev + minSpacingFt;
     let converged = false;
-    for (let i = 0; i < 50; i += 1) {
+    let iterations = 0;
+    for (let i = 0; i < SPACING_MAX_ITER; i += 1) {
+      iterations = i + 1;
       const pInj = gasColumnPressure({
         pSurfPsia: pSurfN, tvdFt: d, gasSg, tempAtDepthF, steps: 20,
       }).pBottomPsia;
       const next = dPrev + (pInj - dpTransferPsi - pProdPrev) / killGradPsiPerFt;
-      if (Math.abs(next - d) < 0.01) { d = next; converged = true; break; }
+      if (Math.abs(next - d) < SPACING_TOL_FT) { d = next; converged = true; break; }
       d = next;
     }
-    if (!converged) { /* keep the last iterate; the checks below still apply */ }
+    if (!converged) {
+      // The last iterate is kept, because the checks below still decide
+      // whether it can be used, but it is an unsettled depth and the
+      // caller is told so with the count of passes it was given.
+      warnings.push({
+        code: 'spacingNotConverged',
+        valve: n,
+        iterations,
+        toleranceFt: SPACING_TOL_FT,
+        message: `Valve ${n} depth did not settle within ${SPACING_TOL_FT} ft after ${iterations} passes of the spacing fixed point. The last pass was kept, so this depth and every depth below it are approximate.`,
+      });
+    }
 
     if (!(d > dPrev + 1e-6)) { stopReason = 'injectionPressure'; break; }
     const increment = d - dPrev;
@@ -229,7 +291,7 @@ export const spaceValves = ({
     surfacePressures.push(pSurfN);
   }
 
-  return { depths, surfacePressures, stopReason, pOperatingPsia };
+  return { depths, surfacePressures, warnings, stopReason, pOperatingPsia };
 };
 
 /**
@@ -318,8 +380,16 @@ export const unloadingSequence = ({ valves, gasSg, tempAtDepthF, qgiTargetMscfd 
     const upperOpen = [];
     for (let j = 0; j < i; j += 1) {
       const u = valves[j];
+      // A valve with no closing pressure has no pressure at which it
+      // shuts, so the test cannot be evaluated on it and it is SKIPPED.
+      // Comparing against the raw field would coerce a null to zero and
+      // report such a valve open at every stage on the strength of a
+      // number nobody wrote.
+      if (!Number.isFinite(u.closingSurfacePressurePsia)) continue;
       // upper valve j is still open if the casing pressure at this stage
-      // is above the pressure that closes it
+      // is above the pressure that closes it. `>=`, so a valve exactly
+      // at its closing pressure is treated as OPEN; see decision 1 in
+      // the module header.
       if (pSurf >= u.closingSurfacePressurePsia) upperOpen.push(j + 1);
     }
     stages.push({
@@ -360,7 +430,9 @@ export const designGasLift = (inputs) => {
   const pOperatingPsia = inputs.pOperatingPsia ?? pKickoffPsia - 100;
 
   const spacing = spaceValves(inputs);
-  const warnings = [];
+  // The spacing solve's own warnings are the design's warnings; a depth
+  // that did not settle is not a detail of a sub-call.
+  const warnings = [...(spacing.warnings || [])];
   if (spacing.stopReason === 'injectionPressure') {
     warnings.push({
       code: 'shallowTarget',
@@ -427,7 +499,11 @@ export const designGasLift = (inputs) => {
         testRackOpeningPsia: null,
         spreadPsi: null,
         closingSurfacePressurePsia: null,
-        closesAtOperating: false,
+        // An orifice has no dome charge, so there is no operating
+        // pressure at which it closes and the question does not apply.
+        // `false` here read as "it stays open", which is a different
+        // claim and one this record cannot make.
+        closesAtOperating: null,
         throughputMscfd: throughput.qMscfd,
         throughputRegime: throughput.regime,
         passesTarget: throughput.qMscfd >= qgiTargetMscfd,
