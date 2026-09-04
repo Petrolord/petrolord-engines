@@ -112,6 +112,27 @@ describe('which test carries a well on a date', () => {
     expect(testInForce(grouped.get('w-p2'), '2025-01-13', 120).id).toBe('t-p2-a');
     expect(testInForce(grouped.get('w-p2'), '2025-01-14', 120)).toBeNull();
   });
+
+  // Owner decision 75, Wave 1.
+  test('A CAP OF ZERO IS A LIMIT, NOT AN EXEMPTION', () => {
+    const grouped = groupTests(G.field.tests);
+    // P-2's one test is dated 2024-09-15. Under a cap of 0 days it
+    // carries the well on its own date and on no other. The guard used
+    // to read `maxTestAgeDays > 0`, so a cap of 0 switched the age check
+    // off entirely and this 155 day old test still carried the well.
+    expect(testInForce(grouped.get('w-p2'), '2024-09-15', 0).id).toBe('t-p2-a');
+    expect(testInForce(grouped.get('w-p2'), '2024-09-16', 0)).toBeNull();
+    expect(testInForce(grouped.get('w-p2'), '2025-02-17', 0)).toBeNull();
+  });
+
+  test('a cap that is not a finite number carries nothing, rather than everything', () => {
+    const grouped = groupTests(G.field.tests);
+    [NaN, null, '180', Infinity, -1].forEach((cap) => {
+      expect(testInForce(grouped.get('w-p2'), '2025-02-17', cap)).toBeNull();
+    });
+    // and the default still stands when the argument is simply omitted
+    expect(testInForce(grouped.get('w-p2'), '2025-02-17').id).toBe('t-p2-a');
+  });
 });
 
 describe('the allocation itself', () => {
