@@ -18,9 +18,16 @@
 //     (the classic drilling curve: sloped while drilling, vertical
 //     while flat).
 //   * Non-productive time is a single uniform stretch: every activity
-//     duration is multiplied by (1 + nptFrac). This is the honest
-//     planning convention (NPT fraction of total time); discrete-event
-//     NPT belongs to the risk model, not the deterministic base.
+//     duration is multiplied by (1 + nptFrac), so nptFrac is a fraction
+//     of PRODUCTIVE time, not of total time. The two are different
+//     numbers and the difference is not small: nptHr === nptFrac *
+//     productiveHr exactly, while the share of ELAPSED time is
+//     nptFrac / (1 + nptFrac). A 0.25 allowance is 20 % of the schedule,
+//     not 25 %. This header used to say "fraction of total time", which
+//     is the reading a planner would act on, and acting on it understates
+//     the well: asking for 20 % of elapsed and entering 0.20 gets 16.7 %.
+//     Discrete-event NPT belongs to the risk model, not the
+//     deterministic base.
 //   * AFE items have a basis:
 //       per-day    amount = rate · totalDays   (rig, spread, rentals)
 //       per-meter  amount = rate · drilledM    (bits, mud, consumables)
