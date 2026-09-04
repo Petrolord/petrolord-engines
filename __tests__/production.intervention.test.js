@@ -375,7 +375,11 @@ describe('the scatter note prints an r-squared off its own threshold', () => {
   });
 
   test('it fires below minR2 and prints below minR2', () => {
-    const measured = chanDiagnosis({ series, settings: { minR2: 0.999 } }).derivativeR2;
+    // Read the fit off a reading that is NOT refused. Item 66 nulls
+    // `derivativeR2` on the refusal branches, so the measurement has to
+    // come from a threshold the fit clears; the fit itself does not
+    // depend on `minR2`, so it is the same number either way.
+    const measured = chanDiagnosis({ series, settings: { minR2: 0 } }).derivativeR2;
     // the whole percent a reader would set the threshold at, just above
     const minR2 = Math.round(measured * 100) / 100;
     expect(measured).toBeLessThan(minR2);
@@ -387,5 +391,251 @@ describe('the scatter note prints an r-squared off its own threshold', () => {
     expect(note).toBeDefined();
     expect(percentIn(note)).toBeLessThan(minR2 * 100);
     expect(note).not.toMatch(new RegExp(`\\b${minR2 * 100} percent\\b`));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Item 66. A refused reading must not hand back the slope it refused.
+//
+// The span gate and the scatter gate both decline to name a mechanism, and
+// both used to return `derivativeSlope` anyway. A caller sweeping readings
+// and quoting the range of the slopes then publishes a number no reading
+// stands behind, and because the refused readings are the steep ones it is
+// the TOP of the range that moves.
+// ---------------------------------------------------------------------------
+describe('a refused reading returns no slope, and always returns its span', () => {
+  // A steep power law read over a tenth of a decade: the fit succeeds and
+  // the slope is 1.6, and the span gate refuses it anyway.
+  const shortWindow = Array.from({ length: 20 }, (_, i) => {
+    const t = 100 + i;
+    const wor = 0.02 * t ** 1.6;
+    return { t, ratio: wor, derivative: 1.6 * wor };
+  });
+
+  // Scatter: the fit is made, and the fit quality gate refuses to read it.
+  const STRIDE = 2.399963229728653;
+  const scattered = Array.from({ length: 30 }, (_, i) => {
+    const t = 10 * 300 ** (i / 29);
+    const wor = 0.02 * t ** 0.8;
+    return { t, ratio: wor, derivative: 0.8 * wor * (1 + 0.9 * Math.sin(i * STRIDE)) };
+  });
+
+  test('the span gate refuses without publishing the slope it measured', () => {
+    const d = chanDiagnosis({ series: shortWindow });
+    expect(d.mechanism.id).toBe('indeterminate');
+    expect(d.derivativeSlope).toBeNull();
+    expect(d.derivativeR2).toBeNull();
+    // and the span it fired on IS reported, because that is what the
+    // caller has to act on.
+    expect(typeof d.spanDecades).toBe('number');
+    expect(d.spanDecades).toBeLessThan(CHAN_DEFAULTS.minSpanDecades);
+  });
+
+  test('the fit-quality gate refuses without publishing the slope it measured', () => {
+    const d = chanDiagnosis({ series: scattered });
+    expect(d.mechanism.id).toBe('indeterminate');
+    expect(d.notes.join(' ')).toMatch(/scatters too much/);
+    expect(d.derivativeSlope).toBeNull();
+    expect(d.derivativeR2).toBeNull();
+    expect(typeof d.spanDecades).toBe('number');
+  });
+
+  test('every branch reports spanDecades, including the ones that make no fit', () => {
+    const tooFew = chanDiagnosis({ series: [{ t: 1, ratio: 1, derivative: 1 }] });
+    expect(tooFew.ok).toBe(false);
+    expect(tooFew.code).toBe('insufficientHistory');
+    expect(tooFew).toHaveProperty('spanDecades', null);
+    expect(tooFew).toHaveProperty('derivativeSlope', null);
+    expect(tooFew).toHaveProperty('derivativeR2', null);
+
+    const dry = chanDiagnosis({
+      series: Array.from({ length: 20 }, (_, i) => ({
+        t: 10 * (100 ** (i / 19)), ratio: 0.02, derivative: 0,
+      })),
+    });
+    expect(dry).toHaveProperty('spanDecades', null);
+    expect(dry).toHaveProperty('derivativeSlope', null);
+
+    const flat = chanDiagnosis({ series: G.histories.flat.series });
+    expect(flat).toHaveProperty('spanDecades', null);
+
+    const read = chanDiagnosis({ series: G.histories.channelling.series });
+    expect(typeof read.spanDecades).toBe('number');
+    expect(read.derivativeSlope).toBeCloseTo(G.histories.channelling.lateDerivativeSlope, 6);
+  });
+
+  test('the top of a swept slope range comes from a reading, not from a refusal', () => {
+    // This is the defect in the shape a course hit it: sweep several
+    // histories, take the range of the slopes, and the steepest number in
+    // the sweep came from the one reading that had been refused.
+    const sweep = [
+      chanDiagnosis({ series: G.histories.channelling.series }),
+      chanDiagnosis({ series: G.histories.coning.series }),
+      chanDiagnosis({ series: G.histories.displacement.series }),
+      chanDiagnosis({ series: shortWindow }),
+      chanDiagnosis({ series: scattered }),
+    ];
+    const refused = sweep.filter((d) => d.mechanism.id === 'indeterminate');
+    expect(refused.length).toBeGreaterThan(0);
+    refused.forEach((d) => expect(d.derivativeSlope).toBeNull());
+
+    const quotable = sweep.map((d) => d.derivativeSlope).filter((v) => v !== null);
+    // The refused reading's 1.6 is the steepest thing in the sweep. It must
+    // not be the number that sets the headline.
+    expect(Math.max(...quotable)).toBeCloseTo(G.histories.channelling.lateDerivativeSlope, 6);
+    expect(quotable).toHaveLength(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Item 67. The zero-variance guard fired by accident.
+//
+// `syy` is a sum of squared floating-point deviations, so over a genuinely
+// constant y it lands on EXACT zero only by luck. Whether the rounding
+// cancels depends on the sample count and the value together, which is why
+// the guard fired on the small tidy cases and stopped firing on the real
+// ones.
+// ---------------------------------------------------------------------------
+describe('the zero-variance guard asks about scale, not about exact zero', () => {
+  const constantAt = (value, n) => Array.from({ length: n }, (_, i) => ({
+    x: 10 * 300 ** (i / (n - 1)), y: value,
+  }));
+
+  test('four points identical at 5 return the intended r-squared of 1', () => {
+    // The case the old guard got right, and the reason the defect hid.
+    expect(logLogSlope({ points: constantAt(5, 4) }).r2).toBe(1);
+  });
+
+  test('twenty points identical at 5 return 1 too, where the old guard returned 1e-31', () => {
+    const r = logLogSlope({ points: constantAt(5, 20) });
+    expect(r.ok).toBe(true);
+    expect(r.r2).toBe(1);
+    expect(r.r2).toBeGreaterThan(1e-6);
+  });
+
+  test('a constant derivative is read as displacement, not refused as noise', () => {
+    // A ratio rising logarithmically has a CONSTANT derivative, which is a
+    // real history and not a scatter. The old guard scored its fit at
+    // 1.5e-31 and the classifier threw it out as noise.
+    const series = Array.from({ length: 20 }, (_, i) => {
+      const t = 10 * 300 ** (i / 19);
+      return { t, ratio: 0.5 + 5 * Math.log(t / 10), derivative: 5 };
+    });
+    const d = chanDiagnosis({ series });
+    expect(d.derivativeR2).toBe(1);
+    expect(d.mechanism.id).toBe('displacement');
+    expect(d.notes.join(' ')).not.toMatch(/scatters too much/);
+  });
+
+  test('genuine scatter is still refused: the guard did not become a rubber stamp', () => {
+    const noisy = [1, 2, 4, 8, 16, 32, 64].map((x, i) => ({
+      x, y: [3, 1, 9, 2, 14, 4, 20][i],
+    }));
+    expect(logLogSlope({ points: noisy }).r2).toBeLessThan(0.9);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Item 68. The refusal compared a number against itself.
+// ---------------------------------------------------------------------------
+describe('the skin-floor refusal names both quantities and separates them', () => {
+  const geom = { reFt: 2000, rwFt: 0.35 };
+
+  test('a starting skin below the floor prints both numbers, and they differ', () => {
+    // floor is -7.900724584040761. At one decimal a requested -7.95 and
+    // the floor both printed "-7.9", so the sentence read "a skin of -7.9
+    // is below the -7.9 this geometry allows".
+    const r = skinPiMultiplier({ ...geom, skinBefore: -7.95, skinAfter: 0 });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('skinBeforeBelowFloor');
+    expect(r.error).toMatch(/skin before treatment is -7\.950/);
+    expect(r.error).toMatch(/most negative skin this geometry allows is -7\.901/);
+    expect(r.error).not.toMatch(/is below the -7\.9 this geometry allows/);
+    expect(r.error).not.toMatch(/-7\.9 /);
+  });
+
+  test('a target skin below the floor does the same, and keeps the advice', () => {
+    const r = skinPiMultiplier({ ...geom, skinBefore: 2, skinAfter: -7.95 });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('skinAfterBelowFloor');
+    expect(r.error).toMatch(/Taking the skin to -7\.950/);
+    expect(r.error).toMatch(/most negative skin this geometry allows, which is -7\.901/);
+    expect(r.error).toMatch(/-3 to -5 on acid/);
+    expect(r.error).not.toMatch(/would put it below the -7\.9 this/);
+  });
+
+  test('the printed floor is the number minimumSkin returns, to three decimals', () => {
+    const floor = minimumSkin(geom);
+    const r = skinPiMultiplier({ ...geom, skinBefore: floor - 0.05, skinAfter: 0 });
+    expect(r.error).toContain(floor.toFixed(3));
+  });
+
+  test('a geometry that is not one is refused with a code', () => {
+    const r = skinPiMultiplier({ reFt: 10, rwFt: 40, skinBefore: 1, skinAfter: 0 });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('invalidGeometry');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Item 69. Displacement was called flat.
+//
+// "Water cut is 75 percent and the derivative is flat" was printed on a
+// reading whose derivative slope was 1.25 at a fit quality of 0.995. It
+// contradicted `chanDiagnosis` in the same file, and it is one of the two
+// sentences a planner pastes into a recommendation.
+// ---------------------------------------------------------------------------
+describe('every water reason quotes the number it describes', () => {
+  const find = (rows, id) => rows.find((r) => r.id === id);
+  const water = (diagnosis, wctPct = 75) => find(screenTreatments({
+    well: { skin: 1, wctPct, flowing: true }, diagnosis,
+  }), 'waterShutoff').reasons.join(' ');
+
+  test('a displacement reading is NOT called flat', () => {
+    const d = chanDiagnosis({ series: G.histories.displacement.series });
+    expect(d.mechanism.id).toBe('displacement');
+    expect(d.derivativeSlope).toBeCloseTo(1, 6);
+    const said = water(d);
+    expect(said).toMatch(/climbing at about a proportional rate/);
+    expect(said).not.toMatch(/the derivative is flat/);
+    expect(said).not.toMatch(/\bflat\b/);
+  });
+
+  test('and it quotes the slope that made it a displacement reading', () => {
+    const d = chanDiagnosis({ series: G.histories.displacement.series });
+    const said = water(d);
+    expect(said).toContain(`at a slope of ${d.derivativeSlope.toFixed(2)}`);
+    expect(said).toMatch(/at a slope of 1\.00/);
+  });
+
+  test('the coning sentence quotes its falling slope', () => {
+    const d = chanDiagnosis({ series: G.histories.coning.series });
+    const said = water(d);
+    expect(said).toMatch(/the derivative is falling, at a slope of -0\.54/);
+    expect(said).toContain(`at a slope of ${d.derivativeSlope.toFixed(2)}`);
+  });
+
+  test('the channelling sentence quotes its climbing slope', () => {
+    const d = chanDiagnosis({ series: G.histories.channelling.series });
+    const said = water(d, 62);
+    expect(said).toMatch(/at a slope of 1\.60/);
+    expect(said).toMatch(/path of its own/);
+  });
+
+  test('a reading with no readable slope says the shape and quotes no number', () => {
+    // The derivative has turned negative, so it cannot be read on a
+    // log-log plot: item 66 nulls the slope, and the sentence must not
+    // print "at a slope of NaN" or invent one.
+    const series = Array.from({ length: 20 }, (_, i) => {
+      const t = 10 * 300 ** (i / 19);
+      return { t, ratio: 3 - 0.2 * Math.log(t / 10), derivative: -0.2 };
+    });
+    const d = chanDiagnosis({ series });
+    expect(d.mechanism.id).toBe('coning');
+    expect(d.derivativeSlope).toBeNull();
+    const said = water(d, 62);
+    expect(said).toMatch(/the derivative is falling, which is the coning signature/);
+    expect(said).not.toMatch(/at a slope of/);
+    expect(said).not.toMatch(/NaN|null|undefined/);
   });
 });

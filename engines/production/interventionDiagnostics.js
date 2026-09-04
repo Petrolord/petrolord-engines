@@ -88,7 +88,17 @@ export const logLogSlope = ({ points, xKey = 'x', yKey = 'y', fromX, toX }) => {
   }
   const slope = sxy / sxx;
   const intercept = my - slope * mx;
-  const r2 = syy > 0 ? (sxy * sxy) / (sxx * syy) : 1;
+  // ZERO VARIANCE IS A SCALE QUESTION, NOT AN EXACT-ZERO ONE. `syy` is a
+  // sum of squared floating-point deviations, so over a genuinely
+  // constant y it lands on exact zero only by luck: whether the
+  // rounding cancels depends on the sample count and the value
+  // together. Four points at y = 5 cancel and return the intended
+  // r-squared of 1; twenty points at y = 1.2 leave 6e-32 behind, which
+  // is not zero, so the same constant history scored 2e-31 and was
+  // refused as noise. Comparing against a relative floor asks the
+  // question that was meant all along, which is whether the spread is
+  // negligible NEXT TO THE VALUES IT IS A SPREAD OF.
+  const r2 = syy > 1e-12 * n * my * my ? (sxy * sxy) / (sxx * syy) : 1;
   return { ok: true, slope, intercept, r2, n, spanDecades: (Math.max(...lx) - Math.min(...lx)) / Math.LN10 };
 };
 
@@ -185,7 +195,13 @@ export const mechanism = (id) => CHAN_MECHANISMS.find((m) => m.id === id) || nul
  * history counts as late is an input.
  *
  * returns { ok, mechanism, confidence, worSlope, derivativeSlope,
- *   worR2, derivativeR2, points, notes, error }
+ *   worR2, derivativeR2, spanDecades, points, notes, error }
+ *
+ * `derivativeSlope` and `derivativeR2` are null on EVERY branch that
+ * refuses to read a mechanism, including the ones where the regression
+ * itself succeeded and only the gate refused. A slope attached to a
+ * refusal gets quoted as if it were a reading. `spanDecades` is
+ * present on every branch, with null where no fit was made.
  */
 export const chanDiagnosis = ({ series, lateFraction = 0.5, settings = {} }) => {
   const s = { ...CHAN_DEFAULTS, ...settings };
@@ -201,7 +217,11 @@ export const chanDiagnosis = ({ series, lateFraction = 0.5, settings = {} }) => 
   if (clean.length < 6) {
     return {
       ok: false,
+      code: 'insufficientHistory',
       mechanism: mechanism('indeterminate'),
+      derivativeSlope: null,
+      derivativeR2: null,
+      spanDecades: null,
       error: 'A Chan reading needs a history, not a handful of points. Six producing samples is the bare minimum and a useful reading wants far more.',
     };
   }
@@ -212,6 +232,9 @@ export const chanDiagnosis = ({ series, lateFraction = 0.5, settings = {} }) => 
       ok: true,
       mechanism: mechanism('displacement'),
       confidence: 'n/a',
+      derivativeSlope: null,
+      derivativeR2: null,
+      spanDecades: null,
       notes: [`The ratio is still only ${last.ratio.toFixed(3)}. There is no water problem here to diagnose, and nothing to treat.`],
       points: clean,
     };
@@ -254,6 +277,7 @@ export const chanDiagnosis = ({ series, lateFraction = 0.5, settings = {} }) => 
       worR2: worFit.ok ? worFit.r2 : null,
       derivativeSlope: null,
       derivativeR2: null,
+      spanDecades: null,
       notes: [`The ratio is sitting flat at ${last.ratio.toFixed(2)} and its derivative is zero throughout. Nothing is changing, so there is no mechanism to diagnose and nothing on this well for an intervention to fix. That is a finding, not a failure to reach one.`],
       points: clean,
       lateFromT: lateFrom,
@@ -272,12 +296,21 @@ export const chanDiagnosis = ({ series, lateFraction = 0.5, settings = {} }) => 
       worR2: worFit.ok ? worFit.r2 : null,
       derivativeSlope: null,
       derivativeR2: null,
+      spanDecades: null,
       notes,
       points: clean,
       lateFromT: lateFrom,
     };
   }
 
+  // A REFUSED READING MUST NOT HAND BACK THE SLOPE IT REFUSED TO READ.
+  // The two gates below decline to name a mechanism, and each used to
+  // return `derivativeSlope` anyway. A caller that sweeps readings and
+  // takes the range of the slopes then quotes a number no reading
+  // stands behind, and because the refused readings are the extreme
+  // ones it is usually the end of the range that moves. The span the
+  // gate fired on IS reported, on every branch, because that is the
+  // thing the caller has to act on.
   if (derFit.spanDecades < s.minSpanDecades) {
     notes.push(`The late history spans only ${derFit.spanDecades.toFixed(2)} of a log cycle. Chan's separation between the mechanisms happens over log time, so a window this short cannot show it.`);
     return {
@@ -286,8 +319,9 @@ export const chanDiagnosis = ({ series, lateFraction = 0.5, settings = {} }) => 
       confidence: 'low',
       worSlope: worFit.ok ? worFit.slope : null,
       worR2: worFit.ok ? worFit.r2 : null,
-      derivativeSlope: derFit.slope,
-      derivativeR2: derFit.r2,
+      derivativeSlope: null,
+      derivativeR2: null,
+      spanDecades: derFit.spanDecades,
       notes,
       points: clean,
       lateFromT: lateFrom,
@@ -305,8 +339,9 @@ export const chanDiagnosis = ({ series, lateFraction = 0.5, settings = {} }) => 
       confidence: 'low',
       worSlope: worFit.ok ? worFit.slope : null,
       worR2: worFit.ok ? worFit.r2 : null,
-      derivativeSlope: derFit.slope,
-      derivativeR2: derFit.r2,
+      derivativeSlope: null,
+      derivativeR2: null,
+      spanDecades: derFit.spanDecades,
       notes,
       points: clean,
       lateFromT: lateFrom,
@@ -400,15 +435,22 @@ export const minimumSkin = ({ reFt, rwFt }) => {
 export const skinPiMultiplier = ({ reFt, rwFt, skinBefore, skinAfter }) => {
   const floor = minimumSkin({ reFt, rwFt });
   if (!Number.isFinite(floor)) {
-    return { ok: false, error: 'The drainage and wellbore radii are needed, and the drainage radius has to be the larger one.' };
+    return { ok: false, code: 'invalidGeometry', error: 'The drainage and wellbore radii are needed, and the drainage radius has to be the larger one.' };
   }
   const before = pssDenominator({ reFt, rwFt, skin: skinBefore });
   const after = pssDenominator({ reFt, rwFt, skin: skinAfter });
+  // NAME BOTH QUANTITIES, AND PRINT BOTH AT THE SAME PRECISION. At one
+  // decimal a starting skin of -7.9 and a geometry floor of
+  // -7.900724584040761 both rendered as "-7.9", so the refusal read as
+  // "a skin of -7.9 is below the -7.9 this geometry allows", which is a
+  // number compared against itself. Three decimals separates them, and
+  // saying which is the starting skin and which is the floor says what
+  // the comparison is.
   if (!(before > 0)) {
-    return { ok: false, error: `A skin of ${Number(skinBefore).toFixed(1)} is below the ${floor.toFixed(1)} this geometry allows, where the productivity index goes infinite. That is the equation running out, not a well.` };
+    return { ok: false, code: 'skinBeforeBelowFloor', error: `The skin before treatment is ${Number(skinBefore).toFixed(3)}, and the most negative skin this geometry allows is ${floor.toFixed(3)}. At or below that floor the productivity index goes infinite, which is the equation running out, not a well.` };
   }
   if (!(after > 0)) {
-    return { ok: false, error: `Taking the skin to ${Number(skinAfter).toFixed(1)} would put it below the ${floor.toFixed(1)} this geometry allows, where the productivity index goes infinite. Real treatments reach about -3 to -5 on acid and -5 to -6 on a fracture; ask for less.` };
+    return { ok: false, code: 'skinAfterBelowFloor', error: `Taking the skin to ${Number(skinAfter).toFixed(3)} would put it below the most negative skin this geometry allows, which is ${floor.toFixed(3)}. At or below that floor the productivity index goes infinite. Real treatments reach about -3 to -5 on acid and -5 to -6 on a fracture; ask for less.` };
   }
   return {
     ok: true,
@@ -464,6 +506,16 @@ export const screenTreatments = ({ well, diagnosis }) => {
   const skin = Number(well?.skin);
   const wct = Number(well?.wctPct);
   const mech = diagnosis?.mechanism?.id || null;
+  // THE MECHANISM AND THE SLOPE THAT PRODUCED IT TRAVEL TOGETHER. A
+  // reason string is pasted verbatim into a recommendation, so a
+  // sentence that describes the derivative has to quote the number it
+  // is describing. "The derivative is flat" was printed on a reading
+  // whose slope was 1.25 at a fit quality of 0.995, contradicting the
+  // diagnosis in the same file. The slope is null on a refused
+  // reading, and then the sentence says the shape without a number
+  // rather than inventing one.
+  const derSlope = Number.isFinite(diagnosis?.derivativeSlope) ? diagnosis.derivativeSlope : null;
+  const atSlope = derSlope === null ? '' : `, at a slope of ${derSlope.toFixed(2)}`;
   const out = [];
 
   const push = (id, verdict, reasons, block) => {
@@ -511,15 +563,15 @@ export const screenTreatments = ({ well, diagnosis }) => {
     push('waterShutoff', 'blocked', waterReasons, waterBlock);
   } else if (mech === 'coning') {
     waterBlock = 'The diagnostic says coning. There is nothing to squeeze: the water is coming through the same rock as the oil, and a cone shut off at the bottom perforations re-forms above them. This is one of the two most expensive mistakes in intervention planning.';
-    waterReasons.push(`Water cut is ${wct.toFixed(0)} percent and the derivative is falling, which is the coning signature.`);
+    waterReasons.push(`Water cut is ${wct.toFixed(0)} percent and the derivative is falling${atSlope}, which is the coning signature.`);
     waterReasons.push('What does work: less drawdown, a different completion interval, or accepting the water and sizing the lift and the facilities for it.');
     push('waterShutoff', 'blocked', waterReasons, waterBlock);
   } else if (mech === 'displacement') {
     waterBlock = 'The diagnostic says ordinary displacement. The water is arriving because the reservoir is swept, which is not a well problem and no treatment on this well will change it.';
-    waterReasons.push(`Water cut is ${wct.toFixed(0)} percent and the derivative is flat.`);
+    waterReasons.push(`Water cut is ${wct.toFixed(0)} percent and the derivative is climbing at about a proportional rate${atSlope}. Water arriving steadily is displacement, not a path that can be sealed.`);
     push('waterShutoff', 'blocked', waterReasons, waterBlock);
   } else {
-    waterReasons.push(`Water cut is ${wct.toFixed(0)} percent and the derivative is climbing, which says the water has a path of its own.`);
+    waterReasons.push(`Water cut is ${wct.toFixed(0)} percent and the derivative is climbing${atSlope}, which says the water has a path of its own.`);
     waterReasons.push('That is plumbing, and a squeeze or a gel has somewhere to go and something to seal. This is the case where a shutoff earns its money.');
     if (diagnosis.confidence === 'low') {
       waterReasons.push('The reading is low confidence, so confirm it with a production log before committing to a squeeze.');
