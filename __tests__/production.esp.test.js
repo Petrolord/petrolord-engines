@@ -384,6 +384,51 @@ describe('diagnostics', () => {
     expect(high.flags.map((f) => f.code)).toContain('ampsHigh');
   });
 
+  test('boundary bands print a value off the threshold, not the threshold itself', () => {
+    // Every one of these three flags fires on a STRICT inequality and
+    // then prints the ratio it fired on. Rounded to whole percent, a
+    // ratio anywhere in the first tenth of a percent below (or above)
+    // the threshold renders AS the threshold, so a real warning reads
+    // as a false alarm: "making 85 percent of its head" under a flag
+    // that only fires below 85. One decimal place is the fix, and this
+    // gate pins all three bands.
+    const percentIn = (message) => Number(/([\d.]+) percent/.exec(message)[1]);
+    const expected = stackPerformance({ curve, stages, qBpd: 2500, hz: 60, specificGravity: sg });
+
+    // underCurve fires below 0.85: a ratio in [0.845, 0.85)
+    const worn = diagnoseOperation({
+      curve, stages, hz: 60, specificGravity: sg,
+      measured: { qBpd: 2500, headFt: 0.8461 * expected.headFt },
+    });
+    const under = worn.flags.find((f) => f.code === 'underCurve');
+    expect(under).toBeDefined();
+    expect(percentIn(under.message)).toBeLessThan(85);
+    expect(percentIn(under.message)).toBeGreaterThanOrEqual(84.5);
+    expect(under.message).not.toMatch(/\b85 percent\b/);
+
+    // ampsHigh fires above 1.05: a load in (1.05, 1.055]
+    const high = diagnoseOperation({
+      curve, stages, hz: 60, specificGravity: sg, nameplateAmps: 60,
+      measured: { qBpd: 2500, headFt: expected.headFt, amps: 1.052 * 60 },
+    });
+    const hot = high.flags.find((f) => f.code === 'ampsHigh');
+    expect(hot).toBeDefined();
+    expect(percentIn(hot.message)).toBeGreaterThan(105);
+    expect(percentIn(hot.message)).toBeLessThanOrEqual(105.5);
+    expect(hot.message).not.toMatch(/\b105 percent\b/);
+
+    // ampsLow fires below 0.40: a load in [0.395, 0.40)
+    const low = diagnoseOperation({
+      curve, stages, hz: 60, specificGravity: sg, nameplateAmps: 60,
+      measured: { qBpd: 2500, headFt: expected.headFt, amps: 0.397 * 60 },
+    });
+    const cold = low.flags.find((f) => f.code === 'ampsLow');
+    expect(cold).toBeDefined();
+    expect(percentIn(cold.message)).toBeLessThan(40);
+    expect(percentIn(cold.message)).toBeGreaterThanOrEqual(39.5);
+    expect(cold.message).not.toMatch(/\b40 percent\b/);
+  });
+
   test('the stack curve falls with rate and spans the speed-scaled range', () => {
     const rows = stackCurve({ curve, stages, hz: 50, specificGravity: sg, nPoints: 12 });
     expect(rows).toHaveLength(12);
@@ -492,5 +537,109 @@ describe('motor, cable and surface power', () => {
       expect(c.ohmsPer1000FtAt77F).toBeGreaterThan(0);
       expect(c).not.toHaveProperty('ampacityA');
     });
+  });
+});
+
+// Characterisation gates for four things the ESP modules do that read
+// badly and were adjudicated rather than changed (see the module
+// headers for the sources). None of these tests asserts that the
+// behaviour is right; each pins what it IS, so that a future change to
+// any of it has to be deliberate and has to come with a decision.
+describe('the seams between the ESP modules', () => {
+  test('sizePump returns two powers, and they differ by exactly the stage rounding', () => {
+    const curve = curveFor('ref-540-2500');
+    const tdhFt = 4000;
+    const sized = sizePump({
+      curve, qBpd: 2500, tdhFt, hz: 60, specificGravity: 0.95, nameplateHp: 250,
+    });
+    // shaftHp is brake power at the head REQUIRED; stack.bhpTotal is
+    // brake power at the head the stack actually MAKES. stageCount
+    // rounds up, so the second is always the larger, by exactly the
+    // ratio of the two heads and by at most one stage in the stack.
+    expect(sized.stack.bhpTotal).toBeGreaterThan(sized.shaftHp);
+    expect(rel(sized.stack.bhpTotal / sized.shaftHp, sized.headMadeFt / tdhFt)).toBeLessThan(1e-12);
+    expect((sized.stack.bhpTotal - sized.shaftHp) / sized.stack.bhpTotal)
+      .toBeLessThanOrEqual(1 / sized.stages);
+    // and every electrical number in this package is built on the smaller
+    expect(rel(sized.motorLoad.loadFraction * 250, sized.shaftHp)).toBeLessThan(1e-12);
+  });
+
+  test('the thrust derate is in the sizing check and not in the current', () => {
+    const curve = curveFor('ref-540-2500');
+    const sized = sizePump({
+      curve, qBpd: 2500, tdhFt: 4000, hz: 60, specificGravity: 0.95,
+      nameplateHp: 150, thrustDeratePct: 12,
+    });
+    const drawn = motorCurrent({ shaftHp: sized.shaftHp, nameplateHp: 150, nameplateAmps: 48 });
+    // Same field name, two questions. sizePump asks what fraction of
+    // the motor's USABLE rating the shaft wants (selection); motorCurrent
+    // asks what fraction of the PLATE the shaft is carrying (amps).
+    expect(rel(sized.motorLoad.derate, 0.88)).toBeLessThan(1e-12);
+    expect(rel(sized.motorLoad.loadFraction, drawn.loadFraction / 0.88)).toBeLessThan(1e-12);
+    const gapPoints = sized.motorLoad.loadFraction - drawn.loadFraction;
+    expect(rel(gapPoints, drawn.loadFraction * (1 / 0.88 - 1))).toBeLessThan(1e-12);
+    expect(gapPoints).toBeGreaterThan(0.05);
+    // the amps carry no derate at all: they are the plate scaled by the load
+    expect(rel(drawn.amps, 48 * (sized.shaftHp / 150))).toBeLessThan(1e-12);
+  });
+
+  test('the two gradient conversions differ, and laundering the gravity is what hides it', () => {
+    const densityLbFt3 = 52.57683447823375;
+    const exact = gradientFromDensity(densityLbFt3);          // 62.4 / 144 route
+    const rounded = PSI_PER_FT_SG * (densityLbFt3 / 62.4);    // 0.433 route
+    expect(rel(exact, rounded)).toBeGreaterThan(7e-4);
+    expect(rel(exact, rounded)).toBeLessThan(8e-4);
+    // The convention the consumers and the goldens use: derive the
+    // gravity FROM the design gradient, and the design chain and the
+    // diagnostics chain then agree to the last bit.
+    const laundered = exact / PSI_PER_FT_SG;
+    expect(rel(PSI_PER_FT_SG * laundered, exact)).toBeLessThan(1e-15);
+    const curve = curveFor('ref-540-2500');
+    const dp = 1345.1;
+    const designHeadFt = dp / exact;
+    const d = diagnoseOperation({
+      curve, stages: 166, hz: 60, specificGravity: laundered,
+      measured: { qBpd: 2500, pIntakePsia: 1000, pDischargePsia: 1000 + dp },
+    });
+    expect(rel(d.actualHeadFt, designHeadFt)).toBeLessThan(1e-12);
+    // hand it a true specific gravity instead and the same two
+    // pressures read 0.077 percent, about 2.8 ft, further up
+    const trueSg = densityLbFt3 / 62.4;
+    const naive = diagnoseOperation({
+      curve, stages: 166, hz: 60, specificGravity: trueSg,
+      measured: { qBpd: 2500, pIntakePsia: 1000, pDischargePsia: 1000 + dp },
+    });
+    expect(naive.actualHeadFt - designHeadFt).toBeGreaterThan(2.5);
+    expect(naive.actualHeadFt - designHeadFt).toBeLessThan(3.5);
+  });
+
+  test('on the shipped cable table the ampacity check is inert and drop decides alone', () => {
+    // 192 A down 1000 ft of 6 AWG keeps the drop under five percent of
+    // a 4160 V motor, so selectCable takes the smallest conductor in
+    // the table at a current no 6 AWG cable would be rated for. The
+    // check that should have caught it passes because the shipped table
+    // carries no ampacity to check against.
+    const hot = {
+      cables: CABLE_SIZES, maxDropPct: 5, shaftHp: 192, nameplateHp: 200,
+      nameplateAmps: 200, nameplateVolts: 4160, lengthFt: 1000, cableTempF: 150,
+    };
+    const pick = selectCable(hot);
+    expect(pick.candidates.every((c) => c.ampacityOk)).toBe(true);
+    pick.candidates.forEach((c) => expect(c.ok).toBe(c.dropOk));
+    expect(pick.requirement.amps).toBeGreaterThan(190);
+    expect(pick.cable.awg).toBe('6');
+    // give the same candidates a manufacturer ampacity and the check bites
+    const rated = selectCable({
+      ...hot,
+      cables: [
+        { ...CABLE_SIZES[0], ampacityA: 105 },
+        { ...CABLE_SIZES[1], ampacityA: 140 },
+        { ...CABLE_SIZES[2], ampacityA: 190 },
+        { ...CABLE_SIZES[3], ampacityA: 220 },
+        { ...CABLE_SIZES[4], ampacityA: 255 },
+      ],
+    });
+    expect(rated.cable.awg).toBe('1');
+    expect(rated.candidates.filter((c) => !c.ampacityOk)).toHaveLength(3);
   });
 });

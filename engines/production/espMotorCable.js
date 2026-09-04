@@ -44,6 +44,22 @@ export const conductorResistance = ({ ohmsPer1000FtAt77F, tempF }) =>
  * factor curve. Below about half load the real current flattens out
  * toward the magnetising current, so the estimate is flagged there
  * rather than quietly extrapolated to zero.
+ *
+ * `loadFraction` here is the ELECTRICAL load fraction, shaft hp over
+ * NAMEPLATE hp, and it deliberately carries no derate. A derate for
+ * heat, for low fluid velocity past the motor, for voltage unbalance or
+ * for a thrust rating cuts the shaft power the motor may legally carry;
+ * it does not change the current the machine draws at a shaft load it
+ * is actually carrying, and the published relation for reading load off
+ * measured amps is against the plate (PetroWiki, ESP motors: the motor
+ * current is nearly linear with HP loading, which is why amps are the
+ * usual measure of actual loading).
+ *
+ * `espDesign.sizePump` returns a field of the same name that answers
+ * the OTHER question: shaft hp over the DERATED rating, which is the
+ * selection check. The two are different quantities and can sit many
+ * points apart (12.2 points on a 12 percent derate). Read the field
+ * name with the module it came from.
  */
 export const motorCurrent = ({ shaftHp, nameplateHp, nameplateAmps }) => {
   if (!(nameplateHp > 0) || !(nameplateAmps > 0)) return { amps: NaN, loadFraction: NaN };
@@ -109,6 +125,19 @@ export const surfaceRequirement = ({
  *
  * Returns { cable, requirement, candidates } with `cable` null when
  * none qualifies, rather than returning the least bad one silently.
+ *
+ * WHAT `ampacityOk` MEANS. It is true when the candidate carries no
+ * `ampacityA` at all, because ampacity belongs to the insulation system
+ * and the well temperature and this package refuses to invent one (see
+ * data/espCatalog.js). The shipped CABLE_SIZES carry conductor
+ * resistance only, so on that table `ampacityOk` is true by
+ * construction for every candidate and the selection runs on voltage
+ * drop alone. That is a real half of the published method going
+ * unchecked: PetroWiki, ESP power cable, selects on voltage drop AND on
+ * the ampacity chart at the conductor temperature. A caller that wants
+ * both halves must pass `ampacityA` on each candidate, and a caller
+ * that does not should not describe the result as a cable that carries
+ * the current, only as one that keeps the drop inside the limit.
  */
 export const selectCable = ({
   cables, maxDropPct = 5, shaftHp, nameplateHp, nameplateAmps, nameplateVolts,
