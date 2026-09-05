@@ -478,22 +478,25 @@ describe('a network that is not a network is refused, with a reason', () => {
     expect(r.error).toMatch(/K-1/);
   });
 
-  test('a node nothing depends on is PINNED and reported, not refused', () => {
-    // A well whose inflow does not depend on its own pressure, on a
-    // branch whose flow does not either: nothing determines that node.
-    // That is not a broken network -- it is exactly what a shut-in well
-    // on a dead line looks like -- and the physical answer is that the
-    // node sits where it sits and contributes nothing. Refusing the
-    // whole network over it would throw away every other node's answer.
+  // ITEM 64. A network whose every unknown has a flat row is not a
+  // solved network with a note attached: there is no system left. This
+  // used to return ok true, with `w` pinned, on a network that produced
+  // 2,000 lb/d and delivered 1,000, which is half the mass unaccounted
+  // for under a verdict of converged.
+  test('a network with nothing left to solve is refused, not reported as solved', () => {
     const net = buildNetwork({
       nodes: [well, sink], branches: [{ id: 'a', from: 'w', to: 's' }],
     });
     const r = solveNetwork({
       network: net, branchFlow: () => 1000, wellInflow: () => 2000,
     });
-    expect(r.ok).toBe(true);
-    expect(r.pinned).toEqual(['w']);
-    expect(r.warnings.join(' ')).toMatch(/shut-in well on a dead line/);
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('allNodesPinned');
+    expect(r.error).toMatch(/no live path from a well to a delivery point/);
+    // the pressures it reached are still there to look at
+    expect(Number.isFinite(r.pressures.w)).toBe(true);
+    expect(r.pressureStatus.w).toBe('pinned');
+    expect(r.pressureStatus.s).toBe('boundary');
   });
 
   test('a live network reports nothing pinned', () => {
@@ -797,5 +800,185 @@ describe('line pipe geometry', () => {
     // stress, not somebody else's jurisdiction.
     expect(barlowPressurePsi({ odIn: 6.625, wallIn: 0.28, yieldPsi: 52000 }))
       .toBeCloseTo(base / 0.72, 9);
+  });
+});
+
+// Items 45, 46, 63, 64, 65, 70, 71 and 72: the pinned node, and what a
+// solve is allowed to claim while one exists.
+describe('the pinned node, and what a solve claims', () => {
+  const sink = { id: 's', kind: 'sink', pressurePsia: 150, label: 'Sep' };
+  const wellNode = (id) => ({ id, kind: 'well', label: id.toUpperCase() });
+
+  // one live well and one dead leg: the live half solves, the dead half
+  // cannot be placed by the network
+  const mixed = () => buildNetwork({
+    nodes: [wellNode('w1'), wellNode('w2'), sink],
+    branches: [{ id: 'a', from: 'w1', to: 's' }, { id: 'b', from: 'w2', to: 's' }],
+  });
+  const mixedFlow = (b, pIn, pOut) => (b.id === 'a' ? 300 * (pIn - pOut) : 0);
+  const mixedInflow = (nd, p) => (nd.id === 'w1'
+    ? linearWell({ qmax: 20000, prPsia: 800 })(nd, p)
+    : 0);
+
+  // A well on a rate cap: its inflow is FLAT over the pressures below
+  // the crossing, which is the shape item 65 is about, and its branch
+  // here carries nothing, so nothing in the network can place it.
+  const cappedInflow = (nd, p) => (nd.id === 'w1'
+    ? linearWell({ qmax: 20000, prPsia: 800 })(nd, p)
+    : Math.min(3000, linearWell({ qmax: 20000, prPsia: 800 })(nd, p)));
+
+  test('a well whose row goes flat is settled from its own inflow, not left at the separator', () => {
+    // ITEM 70. w2 is on its cap and its branch carries nothing, so its
+    // Jacobian row is flat and the network cannot place it. Its own
+    // inflow relation can, and where it puts it is not the separator
+    // pressure the guess started it at.
+    const r = solveNetwork({
+      network: mixed(), branchFlow: mixedFlow, wellInflow: cappedInflow,
+    });
+    expect(r.pressureStatus.w2).toBe('settledFromInflow');
+    expect(r.settled).toEqual(['w2']);
+    expect(r.pressures.w2).toBeCloseTo(800, 6);
+    // a settled node is not a pinned one: the answer for it is a number
+    expect(r.pinned).toEqual([]);
+    expect(r.ok).toBe(true);
+    expect(r.converged).toBe(true);
+    // and it is nowhere near where the initial guess put it
+    expect(Math.abs(r.pressures.w2 - 150)).toBeGreaterThan(400);
+    // the live half is unaffected
+    expect(r.pressureStatus.w1).toBe('solved');
+    expect(r.pressures.w1).toBeGreaterThan(150);
+  });
+
+  test('a node whose own relation says nothing is pinned, and the solve does not claim convergence', () => {
+    // ITEM 46. An inflow identically zero has no crossing to find, so
+    // there is no number for this node and the solve says so instead of
+    // converging over the nodes it happened to keep.
+    const r = solveNetwork({
+      network: mixed(),
+      branchFlow: mixedFlow,
+      wellInflow: (nd, p) => (nd.id === 'w1'
+        ? linearWell({ qmax: 20000, prPsia: 800 })(nd, p)
+        : 0),
+    });
+    expect(r.pressureStatus.w2).toBe('pinned');
+    expect(r.converged).toBe(false);
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('pinnedNodes');
+    expect(r.error).toMatch(/could not be placed/);
+    // the residual it did reach is still reported, and the message says
+    // what it was taken over
+    expect(r.error).toMatch(/taken over the nodes that WERE placed/);
+    expect(r.pressureStatus.w1).toBe('solved');
+  });
+
+  test('the initial guess for a well that cannot flow against the separator is its own crossing', () => {
+    // ITEM 65. A well whose inflow is already zero at the separator
+    // pressure starts AT the one pressure where its row is flat, so it
+    // is dead from the first iteration. Read the guess itself by giving
+    // the solve no iterations to move it.
+    const net = buildNetwork({
+      nodes: [wellNode('w1'), sink],
+      branches: [{ id: 'a', from: 'w1', to: 's' }],
+    });
+    const weak = linearWell({ qmax: 4000, prPsia: 120 });   // dies below the 150 psia sink
+    const guess = solveNetwork({
+      network: net, branchFlow: (b, pIn, pOut) => 300 * (pIn - pOut), wellInflow: weak,
+      maxIter: 0,
+    });
+    expect(guess.pressures.w1).toBeCloseTo(120, 6);
+    expect(guess.pressures.w1).toBeLessThan(150);
+    // a well that CAN flow against the separator still starts there
+    const strong = solveNetwork({
+      network: net,
+      branchFlow: (b, pIn, pOut) => 300 * (pIn - pOut),
+      wellInflow: linearWell({ qmax: 20000, prPsia: 800 }),
+      maxIter: 0,
+    });
+    expect(strong.pressures.w1).toBe(150);
+  });
+
+  test('a node that comes back to life is un-pinned', () => {
+    // ITEM 63. The set used to be cumulative: pinned once, out of the
+    // norm forever, and the convergence test then ran over a subset
+    // nobody chose. Here the second well's branch is dead only while the
+    // header sits below 200 psia, and the solve lifts it past that.
+    const net = mixed();
+    let calls = 0;
+    const r = solveNetwork({
+      network: net,
+      branchFlow: (b, pIn, pOut) => {
+        if (b.id === 'a') return 300 * (pIn - pOut);
+        calls += 1;
+        // dead for the first few evaluations, alive after
+        return calls < 12 ? 0 : 200 * (pIn - pOut);
+      },
+      wellInflow: (nd, p) => (nd.id === 'w1'
+        ? linearWell({ qmax: 20000, prPsia: 800 })(nd, p)
+        : linearWell({ qmax: 9000, prPsia: 700 })(nd, p)),
+    });
+    // whatever happened on the way, nothing is left pinned at the end
+    expect(r.pinned).toEqual([]);
+    expect(r.pressureStatus.w2).not.toBe('pinned');
+  });
+
+  test('every solve carries its own conservation check', () => {
+    // ITEM 45. It is the only check that catches a sign error in the
+    // assembly, and it was left for the caller to remember.
+    const net = buildNetwork({
+      nodes: [wellNode('w1'), sink], branches: [{ id: 'a', from: 'w1', to: 's' }],
+    });
+    const r = solveNetwork({
+      network: net,
+      branchFlow: (b, pIn, pOut) => 300 * (pIn - pOut),
+      wellInflow: linearWell({ qmax: 20000, prPsia: 800 }),
+    });
+    expect(r.conservation).toBeDefined();
+    expect(r.conservationGapLbD).toBeCloseTo(0, 6);
+    expect(r.conservationRelative).toBeLessThan(1e-9);
+    // and it is the same number checkConservation gives on the same answer
+    const direct = checkConservation({
+      network: net, flows: r.flows, wellRates: r.wellRates,
+    });
+    expect(r.conservationGapLbD).toBe(direct.gapLbD);
+    expect(r.conservationRelative).toBe(direct.relative);
+  });
+
+  test('the relative gap keys on the larger side, and says null when there is nothing to key on', () => {
+    // ITEM 72. Keyed on what the wells made, a network that produced
+    // nothing and delivered 1,000 lb/d reported a relative gap of zero,
+    // which is the one case where the gap is the whole story.
+    const net = buildNetwork({
+      nodes: [wellNode('w1'), sink], branches: [{ id: 'a', from: 'w1', to: 's' }],
+    });
+    const nothingIn = checkConservation({
+      network: net, flows: { a: 1000 }, wellRates: { w1: 0 },
+    });
+    expect(nothingIn.gapLbD).toBe(-1000);
+    expect(nothingIn.relative).toBe(1);
+    const nothingAtAll = checkConservation({
+      network: net, flows: { a: 0 }, wellRates: { w1: 0 },
+    });
+    expect(nothingAtAll.gapLbD).toBe(0);
+    expect(nothingAtAll.relative).toBeNull();
+  });
+
+  test('the pre-loop check uses the same target the loop does', () => {
+    // N9. It compared against the BARE tolerance, which is stricter than
+    // the in-loop test by the scale factor, so a network handed its own
+    // answer as an initial guess iterated anyway.
+    const net = buildNetwork({
+      nodes: [wellNode('w1'), sink], branches: [{ id: 'a', from: 'w1', to: 's' }],
+    });
+    const args = {
+      network: net,
+      branchFlow: (b, pIn, pOut) => 300 * (pIn - pOut),
+      wellInflow: linearWell({ qmax: 20000, prPsia: 800 }),
+    };
+    const first = solveNetwork(args);
+    expect(first.converged).toBe(true);
+    const again = solveNetwork({ ...args, initialPressures: first.pressures });
+    expect(again.converged).toBe(true);
+    expect(again.iterations).toBe(0);
+    expect(again.pressures.w1).toBeCloseTo(first.pressures.w1, 9);
   });
 });

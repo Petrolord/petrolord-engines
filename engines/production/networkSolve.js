@@ -228,6 +228,56 @@ const residuals = ({ network, p, branchFlow, wellInflow }) => {
 };
 
 /**
+ * The pressure at which a well's own inflow relation reaches zero: its
+ * shut-in pressure, found by bisection on the monotone-decreasing
+ * inflow.
+ *
+ * It is what decides a well node whose Jacobian row has gone flat.
+ * Nothing that flows depends on such a node's pressure, so the system
+ * cannot place it, and it used to be left wherever the initial guess
+ * put it, which is the separator pressure. A shut-in well does not sit
+ * at the separator pressure. It builds to its own shut-in pressure, and
+ * that is a number this function has in its hands: the inflow relation
+ * it was handed. Items 65 and 70.
+ *
+ * Returns NaN when the relation has no zero to find, which is a real
+ * outcome for a node that is not a well or for an inflow that never
+ * reaches zero.
+ */
+export const shutInPressure = ({ node, wellInflow, fromPsia = MIN_PRESSURE_PSIA }) => {
+  if (!node || node.kind !== 'well' || typeof wellInflow !== 'function') return NaN;
+  const at = (x) => {
+    const q = wellInflow(node, x);
+    return Number.isFinite(q) ? q : NaN;
+  };
+  let lo = Math.max(MIN_PRESSURE_PSIA, fromPsia);
+  let qLo = at(lo);
+  if (!Number.isFinite(qLo)) return NaN;
+  // A relation that is already at or below zero at the floor has no
+  // crossing to find here. An inflow that is identically zero is the
+  // clearest case: it says nothing about where the well sits, and
+  // answering with the floor pressure would be inventing a number.
+  if (qLo <= 0) return NaN;
+  let hi = Math.max(lo * 2, lo + 100);
+  let qHi = at(hi);
+  for (let i = 0; i < 60 && Number.isFinite(qHi) && qHi > 0; i += 1) {
+    lo = hi;
+    qLo = qHi;
+    hi *= 2;
+    qHi = at(hi);
+  }
+  if (!Number.isFinite(qHi) || qHi > 0) return NaN;
+  for (let i = 0; i < 200; i += 1) {
+    const mid = 0.5 * (lo + hi);
+    const qMid = at(mid);
+    if (!Number.isFinite(qMid)) return NaN;
+    if (qMid > 0) lo = mid; else hi = mid;
+    if (hi - lo < Math.max(1e-9, hi * 1e-12)) break;
+  }
+  return 0.5 * (lo + hi);
+};
+
+/**
  * Solve the network.
  *
  * branchFlow(branch, pFrom, pTo) -> mass rate lb/d, positive from->to.
@@ -278,23 +328,47 @@ export const solveNetwork = ({
   for (const node of network.nodes) {
     if (node.kind === 'sink') { p.set(node.id, node.pressurePsia); continue; }
     const given = initialPressures?.[node.id];
-    p.set(node.id, given > 0 ? given : sinkP);
+    if (given > 0) { p.set(node.id, given); continue; }
+    // ITEM 65. Starting a well AT the separator pressure is the right
+    // guess for a well that flows against it. For a well that CANNOT,
+    // one already at or past its own crossing, the separator pressure is
+    // the one place the inflow is flat, the Jacobian row is dead from
+    // the first iteration, and the node never gets placed at all. Such a
+    // well starts at its own crossing instead.
+    if (node.kind === 'well') {
+      const q0 = wellInflow(node, sinkP);
+      if (Number.isFinite(q0) && q0 <= 0) {
+        const shutIn = shutInPressure({ node, wellInflow });
+        p.set(node.id, Number.isFinite(shutIn) ? shutIn : sinkP);
+        continue;
+      }
+    }
+    p.set(node.id, sinkP);
   }
 
   const pinned = new Set();
+  // Well nodes whose row went flat and whose own inflow relation placed
+  // them, which is a different thing from a node nothing could place.
+  const settled = new Map();
   const evaluate = (pv) => residuals({ network, p: pv, branchFlow, wellInflow });
   // A pinned node's residual cannot be driven anywhere, because nothing
   // that flows depends on its pressure. Including it in the norm would
   // mean the solve never converged, on a network that is in fact solved.
   const normOf = (net) => Math.max(
-    ...unknowns.filter((id) => !pinned.has(id)).map((id) => Math.abs(net.get(id))),
+    ...unknowns.filter((id) => !pinned.has(id) && !settled.has(id))
+      .map((id) => Math.abs(net.get(id))),
     0,
   );
 
   let state = evaluate(p);
   let norm = normOf(state.net);
   let iterations = 0;
-  let converged = norm <= tolerance;
+  // The target is formed below, from the same scale the in-loop test
+  // uses. This check used to compare against the BARE tolerance, which
+  // is stricter by the scale factor and therefore contradicts the
+  // documentation item 47 wrote: a network that arrives already solved
+  // was made to iterate anyway. N9.
+  let converged = false;
 
   // A relative scale so the tolerance means something on a system
   // moving a million pounds a day as well as on one moving a thousand.
@@ -306,6 +380,7 @@ export const solveNetwork = ({
     ...network.nodes.filter((x) => x.kind === 'well').map((x) => Math.abs(wellInflow(x, sinkP))),
   );
   const target = Math.max(tolerance, tolerance * scale);
+  converged = norm <= target;
 
   while (!converged && iterations < maxIter) {
     iterations += 1;
@@ -350,13 +425,53 @@ export const solveNetwork = ({
     // answer and not an implementation detail.
     const live = [];
     for (let i = 0; i < n; i += 1) {
+      const id = unknowns[i];
       const rowDead = jac[i].every((v) => Math.abs(v) < 1e-12);
       const colDead = jac.every((row) => Math.abs(row[i]) < 1e-12);
       if (rowDead && colDead) {
-        if (!pinned.has(unknowns[i])) pinned.add(unknowns[i]);
+        // ITEM 70. A well whose row has gone flat is not undetermined:
+        // its own inflow relation decides it. It is settled at the
+        // pressure that relation reaches zero at, which is what a
+        // shut-in well actually does, and it is NOT reported as pinned,
+        // because the answer for it is a number and not a shrug.
+        if (!settled.has(id) && !pinned.has(id)) {
+          const node = network.nodeById.get(id);
+          const shutIn = shutInPressure({ node, wellInflow });
+          if (Number.isFinite(shutIn)) {
+            settled.set(id, shutIn);
+            p.set(id, shutIn);
+          } else {
+            pinned.add(id);
+          }
+        }
       } else {
+        // ITEM 63. A node stops being pinned the moment its row stops
+        // being flat. The set used to be cumulative, so a node pinned on
+        // one early iteration stayed out of the norm for the rest of the
+        // solve even after the network came alive around it, and the
+        // convergence test was then taken over a subset nobody chose.
+        pinned.delete(id);
+        settled.delete(id);
         live.push(i);
       }
+    }
+    // ITEM 64. Every unknown flat at once is not a solved network, it is
+    // a network with nothing flowing in it, and a Newton step over an
+    // empty system converges instantly on nothing.
+    if (live.length === 0 && n > 0) {
+      return {
+        ok: false,
+        code: 'allNodesPinned',
+        error: `Every unknown node in this network has a flat Jacobian row, so nothing that flows depends on any pressure and there is no system left to solve. That is a network with no live path from a well to a delivery point: check the branch characteristics and the well inflows before reading the pressures below.`,
+        pressures: Object.fromEntries(p),
+        pressureStatus: Object.fromEntries(network.nodes.map((x) => [
+          x.id,
+          x.kind === 'sink' ? 'boundary' : (settled.has(x.id) ? 'settledFromInflow' : 'pinned'),
+        ])),
+        pinned: [...pinned],
+        settled: [...settled.keys()],
+        iterations,
+      };
     }
 
     let step;
@@ -424,16 +539,46 @@ export const solveNetwork = ({
     warnings.push(`The solve ran ${iterations} iterations without meeting its tolerance. The worst nodal imbalance is ${norm} lb/d, against a target of ${target} lb/d.`);
   }
 
+  // ITEM 46. A convergence taken over a subset of the unknowns is not a
+  // convergence. While any node is pinned, the norm above is a maximum
+  // over the nodes that were LEFT IN, and calling that converged asserts
+  // something about the whole network that was never tested.
+  if (pinned.size) converged = false;
+
+  const flowsOut = Object.fromEntries(state.flows);
+  const wellRatesOut = Object.fromEntries(state.inflows);
+  // ITEM 45. The conservation check is cheap, it is the only thing that
+  // catches a sign error in the assembly, and it was left for the caller
+  // to remember. Every solve carries it now.
+  const conservation = checkConservation({
+    network, flows: flowsOut, wellRates: wellRatesOut,
+  });
+
   const result = {
     ok: converged,
     converged,
     pressures: Object.fromEntries(p),
-    flows: Object.fromEntries(state.flows),
-    wellRates: Object.fromEntries(state.inflows),
+    // ITEM 71. Which of these pressures were solved for, which were
+    // settled from a well's own inflow because nothing else could place
+    // them, and which are boundary conditions. `pressures` stays a map
+    // of numbers, because that is what its name says and what every
+    // consumer indexes it as; the marking travels beside it.
+    pressureStatus: Object.fromEntries(network.nodes.map((x) => {
+      if (x.kind === 'sink') return [x.id, 'boundary'];
+      if (pinned.has(x.id)) return [x.id, 'pinned'];
+      if (settled.has(x.id)) return [x.id, 'settledFromInflow'];
+      return [x.id, 'solved'];
+    })),
+    flows: flowsOut,
+    wellRates: wellRatesOut,
     imbalance: Object.fromEntries(unknowns.map((id) => [id, state.net.get(id)])),
     residualLbD: norm,
+    conservationGapLbD: conservation.gapLbD,
+    conservationRelative: conservation.relative,
+    conservation,
     iterations,
     pinned: [...pinned],
+    settled: [...settled.keys()],
     warnings: pinned.size
       ? [...warnings, `${pinned.size === 1 ? 'One node' : `${pinned.size} nodes`} carried nothing and nothing depended on ${pinned.size === 1 ? 'its' : 'their'} pressure, so ${pinned.size === 1 ? 'it was' : 'they were'} left where ${pinned.size === 1 ? 'it sits' : 'they sit'}: ${[...pinned].join(', ')}. That is what a shut-in well on a dead line looks like.`]
       : warnings,
@@ -442,7 +587,10 @@ export const solveNetwork = ({
   // A solve that did not converge did not succeed, whether it ran out of
   // iterations or stopped making progress. Returning ok true with a
   // warning beside it leaves the caller to notice, and callers do not.
-  if (!converged) {
+  if (!converged && pinned.size) {
+    result.code = 'pinnedNodes';
+    result.error = `${pinned.size === 1 ? 'One node' : `${pinned.size} nodes`} could not be placed by this network and nothing that flows depends on ${pinned.size === 1 ? 'its' : 'their'} pressure: ${[...pinned].join(', ')}. The residual below was taken over the nodes that WERE placed, so it is not a statement about the whole network and this solve does not claim to have converged.`;
+  } else if (!converged) {
     result.code = 'notConverged';
     result.error = `The network solve did not converge. The worst nodal imbalance is ${norm} lb/d after ${iterations} iterations, against a target of ${target} lb/d. Treat the pressures below as a starting point, not as an answer.`;
   }
@@ -621,11 +769,17 @@ export const checkConservation = ({ network, flows, wellRates }) => {
     if (network.nodeById.get(b.from).kind === 'sink') delivered -= q;
   }
   const gap = produced - delivered;
+  // ITEM 72. The relative gap was keyed on what the WELLS made, so a
+  // network that produced nothing and delivered something reported a
+  // relative gap of zero: the one case where the gap is everything. It
+  // keys on the larger of the two now, and when both are zero there is
+  // no ratio to report and it says null rather than a clean zero.
+  const denominator = Math.max(Math.abs(produced), Math.abs(delivered));
   return {
     producedLbD: produced,
     deliveredLbD: delivered,
     gapLbD: gap,
-    relative: produced > 0 ? Math.abs(gap) / produced : 0,
+    relative: denominator > 0 ? Math.abs(gap) / denominator : null,
   };
 };
 
