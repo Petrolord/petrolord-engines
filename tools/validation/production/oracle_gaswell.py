@@ -32,7 +32,12 @@ import os
 # --- SI constants, so nothing field-unit leaks into the derivation ---
 R_SI = 8.31446261815324          # J/(mol K)
 G_SI = 9.80665                   # m/s2
-M_AIR_SI = 0.0289647             # kg/mol
+# Molecular weight of dry air. 0.0289625 kg/mol, which is the engine
+# domain's single constant since item 13; this file carried 0.0289647
+# while gasWellLoading.js did. A physical constant is not a method, so
+# the two sides must use the same one or the comparison measures the
+# constant instead of the physics.
+M_AIR_SI = 0.0289625             # kg/mol
 
 # --- conversions, applied only at the boundary ---
 FT_PER_M = 1.0 / 0.3048

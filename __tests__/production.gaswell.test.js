@@ -15,7 +15,7 @@ import path from 'path';
 import {
   P_STANDARD_PSIA, T_STANDARD_R, GC, DEFAULT_DRAG_COEFFICIENT,
   DEFAULT_CRITICAL_WEBER, DYNE_CM_TO_LBF_FT, TURNER_FLUIDS, turnerFluid,
-  AIR_MW, gasDensityLbFt3, terminalDropletVelocity, LOADING_ADJUSTMENT,
+  AIR_MW, R_PSIA_FT3_LBMOL_R, gasDensityLbFt3, terminalDropletVelocity, LOADING_ADJUSTMENT,
   COLEMAN_PRESSURE_LIMIT_PSIA, criticalVelocity, RATE_CONSTANT_MSCFD,
   rateAtVelocity, velocityAtRate, tubingAreaFt2, loadingAt, loadingProfile,
   recommendCorrelation, sizeTubingForRate,
@@ -26,7 +26,9 @@ import {
   RULE_OF_THUMB_SCF_PER_BBL_PER_1000FT, ruleOfThumbGlr, screenPlungerLift,
   maxSlugLengthFt,
 } from '../engines/production/plungerLift';
-import { AIR_MW as GAS_PROPERTIES_AIR_MW } from '../engines/production/gasProperties';
+import {
+  AIR_MW as GAS_PROPERTIES_AIR_MW, R_UNIVERSAL,
+} from '../engines/production/gasProperties';
 
 const G = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', 'test-data', 'production', 'goldens', 'gaswell_cases.json'),
@@ -91,7 +93,7 @@ describe('gas density and the rate constant', () => {
   test('real-gas density matches the SI oracle', () => {
     const rho = gasDensityLbFt3({ pPsia: 1000, tempR: 600, z: 0.88, gasSg: 0.65 });
     expect(rel(rho, G.constants.gasDensity_1000psia_600R_z088_sg065)).toBeLessThan(1e-4);
-    expect(AIR_MW).toBeCloseTo(28.9647, 4);
+    expect(AIR_MW).toBeCloseTo(28.9625, 4);
     // linear in pressure, inverse in temperature and z
     expect(rel(gasDensityLbFt3({ pPsia: 2000, tempR: 600, z: 0.88, gasSg: 0.65 }), rho * 2))
       .toBeLessThan(1e-12);
@@ -1230,18 +1232,23 @@ describe('item 13: one door convention for temperature', () => {
     expect(plunger).not.toMatch(/\bavgTempF\b/);
   });
 
-  test('the two molecular weights of air are untouched and NOT unified', () => {
-    expect(AIR_MW).toBe(28.9647);
-    expect(GAS_PROPERTIES_AIR_MW).toBe(28.9625);
-    expect(AIR_MW).not.toBe(GAS_PROPERTIES_AIR_MW);
-    // about 8 parts in 100,000 apart, which is a moved number and a Wave 2
-    // change, and neither file imports the other's constant
-    expect(Math.abs(AIR_MW - GAS_PROPERTIES_AIR_MW) / GAS_PROPERTIES_AIR_MW)
-      .toBeLessThan(1e-4);
-    expect(loading).not.toMatch(/import[\s\S]{0,200}gasProperties/);
+  // Item 13, second half. The domain carried two molecular weights of air,
+  // 28.9647 here and 28.9625 in gasProperties.js, both published values
+  // for dry air and about 8 parts in 100,000 apart, and the same well got
+  // one from its loading check and the other from its gas column.
+  test('there is one molecular weight of air in the domain, and it is imported', () => {
+    expect(AIR_MW).toBe(GAS_PROPERTIES_AIR_MW);
+    expect(AIR_MW).toBe(28.9625);
+    // imported, not copied: a second literal is how the divergence comes
+    // back, so the value must not appear as a literal in this file
+    expect(loading).toMatch(/import \{ AIR_MW, R_UNIVERSAL \} from '\.\/gasProperties\.js'/);
+    expect(loading).not.toMatch(/AIR_MW\s*=\s*28\./);
     expect(props).not.toMatch(/import[\s\S]{0,200}gasWellLoading/);
-    // and both divergences are recorded rather than left to be tidied away
-    expect(loading).toContain("ON THIS FILE'S `AIR_MW` AND `gasProperties.js`'s");
-    expect(props).toContain('NOT THE SAME CONSTANT AS `gasWellLoading.js`');
+    // the field gas constant is the same one number too
+    expect(R_PSIA_FT3_LBMOL_R).toBe(R_UNIVERSAL);
+    // and the unification is recorded in both headers, so the next reader
+    // knows the single constant is a decision
+    expect(loading).toContain("`AIR_MW` IS `gasProperties.js`'s, IMPORTED");
+    expect(props).toContain("THIS IS THE DOMAIN'S ONLY `AIR_MW`");
   });
 });

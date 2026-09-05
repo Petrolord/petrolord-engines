@@ -61,6 +61,18 @@
  * for them.
  */
 
+import { AIR_MW, R_UNIVERSAL } from './gasProperties.js';
+
+/** Molecular weight of dry air and the field gas constant, ONE of each
+ *  in this domain, defined by `gasProperties.js` and imported here.
+ *  This file used to carry its own 28.9647 against that module's
+ *  28.9625, and the two were used on the same wells one call apart.
+ *  Item 13. `R_PSIA_FT3_LBMOL_R` keeps its name because it says its
+ *  units, and it is now that module's `R_UNIVERSAL`, which is the same
+ *  number it always was. */
+export { AIR_MW };
+export const R_PSIA_FT3_LBMOL_R = R_UNIVERSAL;
+
 /** Standard conditions the gas industry meters at. */
 export const P_STANDARD_PSIA = 14.7;
 export const T_STANDARD_R = 519.67;
@@ -118,24 +130,19 @@ export const turnerFluid = (id) => {
 
 /**
  * Real-gas density, lb/ft3.
- *   rho = p M / (z R T),  M = 28.9647 SG
+ *   rho = p M / (z R T),  M = AIR_MW SG
  *
  * `tempR` is degR at the door, per the module header. There is no degF
  * path into this function.
  *
- * ON THIS FILE'S `AIR_MW` AND `gasProperties.js`'s. They are not the
- * same number: 28.9647 here, 28.9625 there. Both are published values
- * for the molecular weight of dry air and the difference is about 8
- * parts in 100,000, so unifying them MOVES every gas well density and
- * every number downstream of one. That is a Wave 2 change with a golden
- * refresh behind it, and it is deliberately not made here. Neither
- * constant is imported from the other, and this note exists so the
- * divergence is a recorded decision rather than an accident waiting to
- * be tidied up by someone who notices it.
+ * `AIR_MW` IS `gasProperties.js`'s, IMPORTED. This file used to carry
+ * its own 28.9647 against that module's 28.9625, both published values
+ * for dry air and about 8 parts in 100,000 apart, so the same well got
+ * one molecular weight from its loading check and the other from its
+ * gas column. Item 13 unified them on `gasProperties.js`'s value, which
+ * moved every gas well density in the sixth figure and the goldens with
+ * it.
  */
-export const AIR_MW = 28.9647;
-export const R_PSIA_FT3_LBMOL_R = 10.7316;
-
 export const gasDensityLbFt3 = ({ pPsia, tempR, z, gasSg }) => {
   if (!(tempR > 0) || !(z > 0)) return NaN;
   return (pPsia * AIR_MW * gasSg) / (z * R_PSIA_FT3_LBMOL_R * tempR);
