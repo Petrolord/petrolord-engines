@@ -164,14 +164,28 @@ describe('affinity laws', () => {
   });
 
   test('the whole affinity table matches the oracle', () => {
+    let refused = 0;
     G.affinity.forEach((g) => {
       const s = stagePerformance({ curve, qBpd: g.qBpd, hz: g.hz, specificGravity: g.sg });
+      expect(s.ok).toBe(g.ok);
+      if (g.ok === false) {
+        // item 5: past the band both sides refuse, and for the same reason
+        expect(s.code).toBe(g.code);
+        expect(s.inBand).toBe(false);
+        expect(s.region).toBe(g.region);
+        refused += 1;
+        return;
+      }
       expect(rel(s.headFt, g.headFt)).toBeLessThan(1e-8);
       expect(rel(s.efficiency, g.efficiency)).toBeLessThan(1e-8);
       expect(rel(s.bhpPerStage, g.bhpPerStage)).toBeLessThan(1e-8);
       expect(s.inRange).toBe(g.inRange);
+      expect(s.inBand).toBe(true);
       expect(s.region).toBe(g.region);
     });
+    // the table covers both sides of the band, or it is not gating item 5
+    expect(refused).toBeGreaterThan(0);
+    expect(refused).toBeLessThan(G.affinity.length);
   });
 
   test('running outside the published range is reported, not hidden', () => {
@@ -312,14 +326,43 @@ describe('sizing', () => {
     });
   });
 
-  test('a duty off the end of the curve is refused, not turned into a negative stack', () => {
+  // Item 5. A cubic through five points is not a pump outside the rates
+  // it was fitted to. Inside a tenth of the tested span past either end
+  // the answer is an extrapolation and says so; outside it there is no
+  // answer at all, and a stage count taken from one was the old result.
+  test('a duty off the end of the curve is refused, not turned into a stack', () => {
     const curve = fitStageCurve({ points: G.vendorCurve.points });
     const sized = sizePump({
       curve, qBpd: 4800, tdhFt: 3800, hz: 50, specificGravity: 1.0, nameplateHp: 200,
     });
-    expect(Number.isFinite(sized.stages) && sized.stages > 0).toBe(false);
+    expect(sized.ok).toBe(false);
+    expect(sized.code).toBe('outsideCurve');
+    expect(sized.stages).toBeUndefined();
+    // the message names the rate it was asked for, the rate that implies
+    // on the reference curve, and the range that curve was tested over
+    expect(sized.error).toMatch(/4800\.0 bbl\/d/);
+    expect(sized.error).toMatch(/5760\.0 bbl\/d/);
+    expect(sized.error).toMatch(/1500 to 3500 bbl\/d/);
+  });
+
+  test('inside the band it is an extrapolation, flagged, and still answered', () => {
+    const curve = fitStageCurve({ points: G.vendorCurve.points });
+    // 3600 bbl/d at 60 Hz is 100 bbl/d past a 3500 bbl/d end, which is
+    // half of the 200 bbl/d band on this curve
+    const sized = sizePump({
+      curve, qBpd: 3600, tdhFt: 2000, hz: 60, specificGravity: 1.0, nameplateHp: 200,
+    });
+    expect(sized.ok).toBe(true);
+    expect(sized.stage.inRange).toBe(false);
+    expect(sized.stage.inBand).toBe(true);
     expect(sized.warnings.map((w) => w.code)).toContain('outsideCurve');
-    expect(sized.warnings.map((w) => w.code)).toContain('upthrust');
+    expect(sized.stages).toBeGreaterThan(0);
+    // and one bbl/d past the band there is nothing
+    const past = sizePump({
+      curve, qBpd: 3701, tdhFt: 2000, hz: 60, specificGravity: 1.0, nameplateHp: 200,
+    });
+    expect(past.ok).toBe(false);
+    expect(past.code).toBe('outsideCurve');
   });
 
   test('motor loading is reported at both ends', () => {
@@ -472,7 +515,7 @@ describe('motor, cable and surface power', () => {
   test('the electrical cases match the oracle', () => {
     G.electrical.forEach((g) => {
       const r = surfaceRequirement({
-        shaftHp: g.inputs.shaftHp,
+        motorHp: g.inputs.motorHp,
         nameplateHp: g.inputs.nameplateHp,
         nameplateAmps: g.inputs.nameplateAmps,
         nameplateVolts: g.inputs.nameplateVolts,
@@ -499,18 +542,20 @@ describe('motor, cable and surface power', () => {
   });
 
   test('motor current scales with load and says when the estimate is weak', () => {
-    const half = motorCurrent({ shaftHp: 50, nameplateHp: 100, nameplateAmps: 49 });
+    const half = motorCurrent({ motorHp: 50, nameplateHp: 100, nameplateAmps: 49 });
     expect(rel(half.amps, 24.5)).toBeLessThan(1e-12);
     expect(half.estimateWeakBelowHalfLoad).toBe(false);
-    expect(motorCurrent({ shaftHp: 20, nameplateHp: 100, nameplateAmps: 49 })
+    expect(motorCurrent({ motorHp: 20, nameplateHp: 100, nameplateAmps: 49 })
       .estimateWeakBelowHalfLoad).toBe(true);
-    expect(Number.isNaN(motorCurrent({ shaftHp: 50, nameplateHp: 0, nameplateAmps: 49 }).amps)).toBe(true);
+    expect(Number.isNaN(motorCurrent({ motorHp: 50, nameplateHp: 0, nameplateAmps: 49 }).amps)).toBe(true);
+    // and a power that is not a number is not a load either
+    expect(Number.isNaN(motorCurrent({ nameplateHp: 100, nameplateAmps: 49 }).amps)).toBe(true);
   });
 
   test('cable selection takes the smallest conductor that passes both checks', () => {
     const cables = CABLE_SIZES.map((c) => ({ ...c, ampacityA: 90 }));
     const pick = selectCable({
-      cables, maxDropPct: 5, shaftHp: 125, nameplateHp: 250, nameplateAmps: 67,
+      cables, maxDropPct: 5, motorHp: 125, nameplateHp: 250, nameplateAmps: 67,
       nameplateVolts: 2400, lengthFt: 7200, cableTempF: 180,
     });
     expect(pick.cable).not.toBeNull();
@@ -524,7 +569,7 @@ describe('motor, cable and surface power', () => {
   test('when nothing qualifies it returns nothing rather than the least bad cable', () => {
     const cables = CABLE_SIZES.map((c) => ({ ...c, ampacityA: 10 }));
     const pick = selectCable({
-      cables, maxDropPct: 1, shaftHp: 200, nameplateHp: 250, nameplateAmps: 67,
+      cables, maxDropPct: 1, motorHp: 200, nameplateHp: 250, nameplateAmps: 67,
       nameplateVolts: 1000, lengthFt: 12000, cableTempF: 220,
     });
     expect(pick.cable).toBeNull();
@@ -560,8 +605,48 @@ describe('the seams between the ESP modules', () => {
     expect(rel(sized.stack.bhpTotal / sized.shaftHp, sized.headMadeFt / tdhFt)).toBeLessThan(1e-12);
     expect((sized.stack.bhpTotal - sized.shaftHp) / sized.stack.bhpTotal)
       .toBeLessThanOrEqual(1 / sized.stages);
-    // and every electrical number in this package is built on the smaller
-    expect(rel(sized.motorLoad.loadFraction * 250, sized.shaftHp)).toBeLessThan(1e-12);
+    // ITEM 2. Every electrical number in this package is built on the
+    // LARGER of the two now, which is the published sizing power. It used
+    // to be the smaller, so the load fraction, the amps and the cable
+    // drop were all light by the stage rounding margin.
+    expect(sized.motorSizingHp).toBe(sized.stack.bhpTotal);
+    expect(rel(sized.motorLoad.loadFraction * 250, sized.stack.bhpTotal)).toBeLessThan(1e-12);
+    expect(sized.motorLoad.sizingHp).toBe(sized.stack.bhpTotal);
+    expect(rel(sized.motorLoad.inputKw, (sized.stack.bhpTotal * 0.7457) / 0.85)).toBeLessThan(1e-12);
+    // the gap it closes, on this design
+    expect(sized.motorLoad.loadFraction).toBeGreaterThan(sized.shaftHp / 250);
+  });
+
+  // Item 2, end to end and against the oracle: the same design, the same
+  // motor and cable, read at each of the two powers.
+  test('the electrical chain is taken at the sizing power, not the duty power', () => {
+    const g = G.designs.find((d) => d.electricalAtSizingHp);
+    expect(g).toBeDefined();
+    const sized = sizePump({
+      curve: curveFor(g.inputs.curve),
+      qBpd: g.gas.pumpIntakeBpd,
+      tdhFt: g.tdhFt,
+      hz: g.inputs.hz,
+      specificGravity: g.gradientPsiPerFt / PSI_PER_FT_SG,
+      nameplateHp: g.inputs.nameplateHp,
+    });
+    expect(rel(sized.motorSizingHp, g.sized.motorSizingHp)).toBeLessThan(1e-7);
+    const req = surfaceRequirement({
+      motorHp: sized.motorSizingHp,
+      nameplateHp: g.inputs.nameplateHp,
+      nameplateAmps: g.inputs.nameplateAmps,
+      nameplateVolts: g.inputs.nameplateVolts,
+      powerFactor: g.inputs.powerFactor,
+      lengthFt: g.inputs.lengthFt,
+      ohmsPer1000FtAt77F: g.inputs.ohmsPer1000FtAt77F,
+      cableTempF: g.inputs.cableTempF,
+    });
+    ['amps', 'dropV', 'dropPct', 'kva', 'lossKw']
+      .forEach((k) => expect(rel(req[k], g.electricalAtSizingHp[k])).toBeLessThan(1e-6));
+    // and the golden carries the other reading too, so the size of the
+    // understatement is on the record rather than argued about
+    expect(g.electricalAtShaftHp.amps).toBeLessThan(g.electricalAtSizingHp.amps);
+    expect(g.electricalAtShaftHp.dropPct).toBeLessThan(g.electricalAtSizingHp.dropPct);
   });
 
   test('the thrust derate is in the sizing check and not in the current', () => {
@@ -570,29 +655,53 @@ describe('the seams between the ESP modules', () => {
       curve, qBpd: 2500, tdhFt: 4000, hz: 60, specificGravity: 0.95,
       nameplateHp: 150, thrustDeratePct: 12,
     });
-    const drawn = motorCurrent({ shaftHp: sized.shaftHp, nameplateHp: 150, nameplateAmps: 48 });
+    const drawn = motorCurrent({
+      motorHp: sized.motorSizingHp, nameplateHp: 150, nameplateAmps: 48,
+    });
     // Same field name, two questions. sizePump asks what fraction of
-    // the motor's USABLE rating the shaft wants (selection); motorCurrent
-    // asks what fraction of the PLATE the shaft is carrying (amps).
+    // the motor's USABLE rating the pump wants (selection); motorCurrent
+    // asks what fraction of the PLATE it is carrying (amps). Both are
+    // taken at the same power now, which is the sizing power.
     expect(rel(sized.motorLoad.derate, 0.88)).toBeLessThan(1e-12);
     expect(rel(sized.motorLoad.loadFraction, drawn.loadFraction / 0.88)).toBeLessThan(1e-12);
     const gapPoints = sized.motorLoad.loadFraction - drawn.loadFraction;
     expect(rel(gapPoints, drawn.loadFraction * (1 / 0.88 - 1))).toBeLessThan(1e-12);
     expect(gapPoints).toBeGreaterThan(0.05);
     // the amps carry no derate at all: they are the plate scaled by the load
-    expect(rel(drawn.amps, 48 * (sized.shaftHp / 150))).toBeLessThan(1e-12);
+    expect(rel(drawn.amps, 48 * (sized.motorSizingHp / 150))).toBeLessThan(1e-12);
   });
 
-  test('the two gradient conversions differ, and laundering the gravity is what hides it', () => {
+  // Not one of the 80. A derate that cannot be read is not no derate.
+  test('a thrust derate that is not a number is refused, not treated as none', () => {
+    const curve = curveFor('ref-540-2500');
+    const args = {
+      curve, qBpd: 2500, tdhFt: 4000, hz: 60, specificGravity: 0.95, nameplateHp: 150,
+    };
+    const bad = sizePump({ ...args, thrustDeratePct: NaN });
+    expect(bad.ok).toBe(false);
+    expect(bad.code).toBe('unreadableDerate');
+    // a deliberate zero and an absent one are still no derate
+    expect(sizePump({ ...args, thrustDeratePct: 0 }).motorLoad.derate).toBe(1);
+    expect(sizePump(args).motorLoad.derate).toBe(1);
+    expect(sizePump({ ...args, thrustDeratePct: 12 }).motorLoad.derate).toBeCloseTo(0.88, 12);
+  });
+
+  // Item 3. There is one gradient conversion now, so the convention that
+  // used to be needed to keep the two apart is not needed at all.
+  test('the two gradient routes are one conversion, and a true gravity is enough', () => {
     const densityLbFt3 = 52.57683447823375;
     const exact = gradientFromDensity(densityLbFt3);          // 62.4 / 144 route
-    const rounded = PSI_PER_FT_SG * (densityLbFt3 / 62.4);    // 0.433 route
-    expect(rel(exact, rounded)).toBeGreaterThan(7e-4);
-    expect(rel(exact, rounded)).toBeLessThan(8e-4);
-    // The convention the consumers and the goldens use: derive the
-    // gravity FROM the design gradient, and the design chain and the
-    // diagnostics chain then agree to the last bit.
+    const trueSg = densityLbFt3 / 62.4;
+    expect(rel(exact, PSI_PER_FT_SG * trueSg)).toBeLessThan(1e-15);
+    expect(PSI_PER_FT_SG).toBe(62.4 / 144);
+    // the old rounded constant is 0.077 percent away, which is what the
+    // two routes used to disagree by on one well
+    expect(rel(PSI_PER_FT_SG, 0.433)).toBeGreaterThan(7e-4);
+    expect(rel(PSI_PER_FT_SG, 0.433)).toBeLessThan(8e-4);
+    // laundering the gravity through the constant is now the identity it
+    // always looked like
     const laundered = exact / PSI_PER_FT_SG;
+    expect(rel(laundered, densityLbFt3 / 62.4)).toBeLessThan(1e-15);
     expect(rel(PSI_PER_FT_SG * laundered, exact)).toBeLessThan(1e-15);
     const curve = curveFor('ref-540-2500');
     const dp = 1345.1;
@@ -602,15 +711,19 @@ describe('the seams between the ESP modules', () => {
       measured: { qBpd: 2500, pIntakePsia: 1000, pDischargePsia: 1000 + dp },
     });
     expect(rel(d.actualHeadFt, designHeadFt)).toBeLessThan(1e-12);
-    // hand it a true specific gravity instead and the same two
-    // pressures read 0.077 percent, about 2.8 ft, further up
-    const trueSg = densityLbFt3 / 62.4;
+    // hand it the TRUE specific gravity and it now reads the same head,
+    // which is the whole of item 3: the two chains meet without anyone
+    // knowing a convention
     const naive = diagnoseOperation({
       curve, stages: 166, hz: 60, specificGravity: trueSg,
       measured: { qBpd: 2500, pIntakePsia: 1000, pDischargePsia: 1000 + dp },
     });
-    expect(naive.actualHeadFt - designHeadFt).toBeGreaterThan(2.5);
-    expect(naive.actualHeadFt - designHeadFt).toBeLessThan(3.5);
+    expect(rel(naive.actualHeadFt, designHeadFt)).toBeLessThan(1e-12);
+    // against the old rounded constant those same two pressures read
+    // 0.077 percent, about 2.8 ft, further up
+    const asItWas = dp / (0.433 * trueSg);
+    expect(asItWas - designHeadFt).toBeGreaterThan(2.5);
+    expect(asItWas - designHeadFt).toBeLessThan(3.5);
   });
 
   test('on the shipped cable table the ampacity check is inert and drop decides alone', () => {
@@ -620,7 +733,7 @@ describe('the seams between the ESP modules', () => {
     // check that should have caught it passes because the shipped table
     // carries no ampacity to check against.
     const hot = {
-      cables: CABLE_SIZES, maxDropPct: 5, shaftHp: 192, nameplateHp: 200,
+      cables: CABLE_SIZES, maxDropPct: 5, motorHp: 192, nameplateHp: 200,
       nameplateAmps: 200, nameplateVolts: 4160, lengthFt: 1000, cableTempF: 150,
     };
     const pick = selectCable(hot);
@@ -674,11 +787,11 @@ describe('the motor warnings name the derate that fired them', () => {
     });
     // the two ratios fall on OPPOSITE sides of 1: read against the plate
     // this motor is fine, and only the derated rating fires the flag
-    expect(sized.shaftHp / 100).toBeLessThan(1);
+    expect(sized.motorSizingHp / 100).toBeLessThan(1);
     expect(sized.motorLoad.loadFraction).toBeGreaterThan(1);
     const w = sized.warnings.find((x) => x.code === 'motorOverloaded');
     expect(w).toBeDefined();
-    expect(w.message).toContain(`${sized.shaftHp.toFixed(1)} hp`);
+    expect(w.message).toContain(`${sized.stages} stages absorb ${sized.motorSizingHp.toFixed(1)} hp`);
     expect(w.message).toContain('100 hp motor');
     expect(w.message).toContain('derated 12 percent for thrust');
     expect(w.message).toContain(`a usable ${(100 * 0.88).toFixed(1)} hp`);
@@ -705,7 +818,7 @@ describe('the motor warnings name the derate that fired them', () => {
     const w = sized.warnings.find((x) => x.code === 'motorUnderloaded');
     expect(w).toBeDefined();
     expect(sized.motorLoad.loadFraction).toBeLessThan(0.5);
-    expect(w.message).toContain(`${sized.shaftHp.toFixed(1)} hp`);
+    expect(w.message).toContain(`${sized.stages} stages absorb ${sized.motorSizingHp.toFixed(1)} hp`);
     expect(w.message).toContain('400 hp motor');
     expect(w.message).toContain(
       `${(sized.motorLoad.loadFraction * 100).toFixed(1)} percent of what it may carry`);
@@ -745,7 +858,7 @@ describe('the outside-curve warning prints a rate that is not the bound', () => 
 // ampacity column is invented, and the pick does not move.
 describe('the cable ampacity signal says whether the check ran', () => {
   const hot = {
-    cables: CABLE_SIZES, maxDropPct: 5, shaftHp: 192, nameplateHp: 200,
+    cables: CABLE_SIZES, maxDropPct: 5, motorHp: 192, nameplateHp: 200,
     nameplateAmps: 200, nameplateVolts: 4160, lengthFt: 1000, cableTempF: 150,
   };
 
@@ -815,7 +928,7 @@ describe('both motor warnings carry the four numbers that make them', () => {
 
   const fourNumbers = (w, sized, nameplateHp) => {
     // 1. the shaft power the duty asks for
-    expect(w.message).toContain(`The shaft needs ${sized.shaftHp.toFixed(1)} hp`);
+    expect(w.message).toContain(`The ${sized.stages} stages absorb ${sized.motorSizingHp.toFixed(1)} hp`);
     // 2. the nameplate it is asked of
     expect(w.message).toContain(`${nameplateHp} hp motor`);
     // 4. the load fraction that fired the flag
@@ -824,7 +937,7 @@ describe('both motor warnings carry the four numbers that make them', () => {
     // and the three reconcile: the reader can redo the arithmetic
     expect(rel(
       sized.motorLoad.loadFraction,
-      sized.shaftHp / (nameplateHp * sized.motorLoad.derate),
+      sized.motorSizingHp / (nameplateHp * sized.motorLoad.derate),
     )).toBeLessThan(1e-12);
   };
 
@@ -868,7 +981,7 @@ describe('both motor warnings carry the four numbers that make them', () => {
     // no derate was taken, so none is claimed and the load fraction is
     // read straight against the plate
     expect(over.message).not.toMatch(/derated|usable/);
-    expect(rel(heavy.motorLoad.loadFraction, heavy.shaftHp / 60)).toBeLessThan(1e-12);
+    expect(rel(heavy.motorLoad.loadFraction, heavy.motorSizingHp / 60)).toBeLessThan(1e-12);
 
     const light = sizePump({
       curve, qBpd: 2500, tdhFt: 2000, hz: 60, specificGravity: 0.95, nameplateHp: 400,
@@ -893,5 +1006,73 @@ describe('both motor warnings carry the four numbers that make them', () => {
     sized.warnings.forEach((x) => {
       expect(x.message).not.toMatch(/--|—|–/);
     });
+  });
+});
+
+// Items 23 and 24. An RMSE is an average, and an average hides one bad
+// point among five good ones. The same two percent bar is applied to the
+// worst single residual, and what the head at BEP was read off travels
+// with the BEP.
+describe('items 23 and 24: the fit quality, point by point', () => {
+  const points = G.vendorCurve.points;
+
+  test('the per-point residuals match the oracle', () => {
+    const curve = fitStageCurve({ points });
+    const q = curve.headFitQuality;
+    expect(q.pointResiduals).toHaveLength(G.vendorCurve.headResiduals.length);
+    q.pointResiduals.forEach((r, i) => {
+      const g = G.vendorCurve.headResiduals[i];
+      expect(r.qBpd).toBe(g.qBpd);
+      expect(Math.abs(r.residualFt - g.residualFt)).toBeLessThan(1e-9);
+    });
+    expect(Math.abs(q.maxAbsResidualFt - G.vendorCurve.headMaxAbsResidualFt)).toBeLessThan(1e-9);
+    expect(Math.abs(q.rmseFt - G.vendorCurve.headRmse)).toBeLessThan(1e-9);
+    expect(q.curveHeightFt).toBe(G.vendorCurve.headCurveHeightFt);
+    // the published curve is a clean transcription on both measures
+    expect(q.rmseWithinTwoPercent).toBe(true);
+    expect(q.everyPointWithinTwoPercent).toBe(true);
+    expect(curve.warnings.join(' ')).not.toMatch(/misses the point/);
+  });
+
+  test('one bad point can pass the RMSE bar and fail the point bar', () => {
+    // 1.4 ft on the 2500 bbl/d head, which is the size of a digit
+    // transposed on a vendor sheet
+    const bad = fitStageCurve({
+      points: points.map((p) => (p.qBpd === 2500 ? { ...p, headFt: p.headFt + 1.4 } : p)),
+    });
+    const q = bad.headFitQuality;
+    // the average stays inside the bar, which is how this got through
+    expect(q.rmseWithinTwoPercent).toBe(true);
+    expect(q.rmsePct).toBeLessThan(2);
+    // and the point itself is out by more than it
+    expect(q.everyPointWithinTwoPercent).toBe(false);
+    expect(q.maxAbsResidualPct).toBeGreaterThan(2);
+    expect(q.worstPoint.qBpd).toBe(2500);
+    const w = bad.warnings.find((x) => x.includes('misses the point'));
+    expect(w).toBeDefined();
+    expect(w).toContain('at 2500 bbl/d');
+    expect(w).toContain(`${q.maxAbsResidualPct.toFixed(1)} percent`);
+    expect(w).not.toMatch(/--|—|–/);
+  });
+
+  test('the head at BEP carries the quality of the fit it was read off', () => {
+    const clean = fitStageCurve({ points });
+    expect(clean.bep.headFitQuality).toBe(clean.headFitQuality);
+    expect(clean.bep.headFitQuality.everyPointWithinTwoPercent).toBe(true);
+    const bad = fitStageCurve({
+      points: points.map((p) => (p.qBpd === 2500 ? { ...p, headFt: p.headFt + 1.4 } : p)),
+    });
+    // the BEP is still a rate and still a number; what it now says is
+    // what the head beside it was read off
+    expect(Number.isFinite(bad.bep.headFt)).toBe(true);
+    expect(bad.bep.headFitQuality.everyPointWithinTwoPercent).toBe(false);
+    expect(bad.bep.headFitQuality.worstPoint.qBpd).toBe(2500);
+    // a reference model stage is a fit through its own analytic shape,
+    // so it carries the same quality object and it is clean to machine
+    // precision: the check is not silently absent there either
+    const model = curveFor('ref-540-2500');
+    expect(model.bep.headFitQuality).not.toBeNull();
+    expect(model.bep.headFitQuality.maxAbsResidualPct).toBeLessThan(1e-9);
+    expect(model.bep.headFitQuality.everyPointWithinTwoPercent).toBe(true);
   });
 });

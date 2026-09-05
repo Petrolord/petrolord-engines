@@ -45,7 +45,16 @@ export const conductorResistance = ({ ohmsPer1000FtAt77F, tempF }) =>
  * toward the magnetising current, so the estimate is flagged there
  * rather than quietly extrapolated to zero.
  *
- * `loadFraction` here is the ELECTRICAL load fraction, shaft hp over
+ * `motorHp` IS THE POWER THE PUMP ABSORBS AT THE STAGE COUNT SELECTED,
+ * `espDesign.sizePump`'s `motorSizingHp`, which is `stack.bhpTotal`. It
+ * is not the brake power at the head the duty requires: that is smaller
+ * by the stage rounding margin, and sizing the electrical chain on it
+ * understates the amps, the cable drop and the cable size in the non
+ * conservative direction. The parameter is named `motorHp` rather than
+ * `shaftHp` for exactly that reason, since both are shaft powers and
+ * only one of them is the one the motor carries. Item 2.
+ *
+ * `loadFraction` here is the ELECTRICAL load fraction, motor hp over
  * NAMEPLATE hp, and it deliberately carries no derate. A derate for
  * heat, for low fluid velocity past the motor, for voltage unbalance or
  * for a thrust rating cuts the shaft power the motor may legally carry;
@@ -61,9 +70,11 @@ export const conductorResistance = ({ ohmsPer1000FtAt77F, tempF }) =>
  * points apart (12.2 points on a 12 percent derate). Read the field
  * name with the module it came from.
  */
-export const motorCurrent = ({ shaftHp, nameplateHp, nameplateAmps }) => {
-  if (!(nameplateHp > 0) || !(nameplateAmps > 0)) return { amps: NaN, loadFraction: NaN };
-  const loadFraction = shaftHp / nameplateHp;
+export const motorCurrent = ({ motorHp, nameplateHp, nameplateAmps }) => {
+  if (!(nameplateHp > 0) || !(nameplateAmps > 0) || !Number.isFinite(motorHp)) {
+    return { amps: NaN, loadFraction: NaN };
+  }
+  const loadFraction = motorHp / nameplateHp;
   return {
     amps: nameplateAmps * loadFraction,
     loadFraction,
@@ -95,10 +106,10 @@ export const cablePowerLossKw = ({ amps, lengthFt, ohmsPer1000FtAt77F, cableTemp
  * is the number a cable is actually selected on.
  */
 export const surfaceRequirement = ({
-  shaftHp, nameplateHp, nameplateAmps, nameplateVolts, powerFactor = 0.85,
+  motorHp, nameplateHp, nameplateAmps, nameplateVolts, powerFactor = 0.85,
   lengthFt, ohmsPer1000FtAt77F, cableTempF,
 }) => {
-  const current = motorCurrent({ shaftHp, nameplateHp, nameplateAmps });
+  const current = motorCurrent({ motorHp, nameplateHp, nameplateAmps });
   const { dropV, resistanceOhmsPer1000Ft } = cableVoltageDrop({
     amps: current.amps, lengthFt, ohmsPer1000FtAt77F, cableTempF,
   });
@@ -152,7 +163,7 @@ export const surfaceRequirement = ({
  * the ampacity rejected.
  */
 export const selectCable = ({
-  cables, maxDropPct = 5, shaftHp, nameplateHp, nameplateAmps, nameplateVolts,
+  cables, maxDropPct = 5, motorHp, nameplateHp, nameplateAmps, nameplateVolts,
   powerFactor, lengthFt, cableTempF,
 }) => {
   const candidates = [...(cables || [])]
@@ -160,7 +171,7 @@ export const selectCable = ({
     .reverse() // smallest conductor first: try the cheapest that works
     .map((cable) => {
       const requirement = surfaceRequirement({
-        shaftHp, nameplateHp, nameplateAmps, nameplateVolts, powerFactor,
+        motorHp, nameplateHp, nameplateAmps, nameplateVolts, powerFactor,
         lengthFt, ohmsPer1000FtAt77F: cable.ohmsPer1000FtAt77F, cableTempF,
       });
       // Two different statements, and the old field ran them together.
