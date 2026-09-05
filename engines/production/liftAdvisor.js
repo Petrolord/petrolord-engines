@@ -384,7 +384,7 @@ export const designEsp = ({
       // arbitrary stage the probe happened to run on
       stageTried: stage.id,
       dutyBpd: probeDutyBpd,
-      note: `${stage.label} is the nearest stage in this catalogue to a duty of ${Math.round(probeDutyBpd)} bbl/d at the pump, and it cannot be read there.`,
+      note: `${stage.label} is the nearest stage in this catalogue to a duty of ${probeDutyBpd.toFixed(1)} bbl/d at the pump, and it cannot be read there.`,
     });
   }
   const motor = pickMotorFrame(sized.design.sized.shaftHp);
