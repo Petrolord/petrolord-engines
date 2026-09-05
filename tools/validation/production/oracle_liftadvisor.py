@@ -114,23 +114,30 @@ def bep_ranking(q):
 
 
 def pick_stage(q):
+    """Item 22. The covering set is the candidate set, and the nearest
+    best-efficiency point wins inside it. It used to be cov[0], which is
+    catalog order, which is always the smaller housing."""
     cov = covering_set(q)
     if cov:
-        return cov[0]
+        return next(i for i in bep_ranking(q) if i in cov)
     return bep_ranking(q)[0]
 
 
 def overlap_bands():
-    """Where two published ranges cover the same duty. Inside these the
-    pick is decided by catalog order, which always means the SMALLER
-    housing, and that is not the rule the docstring stated."""
+    """Where two published ranges cover the same duty. Item 22: inside
+    these the pick is now the nearest best-efficiency point of the two,
+    so it moves with the duty across the band instead of being decided
+    by catalog order. `pickedByCatalogOrder` is what it used to be, kept
+    so the size of the change is on the record."""
     bands = []
     for i in range(len(REFERENCE_STAGES) - 1):
         a, b = REFERENCE_STAGES[i], REFERENCE_STAGES[i + 1]
         lo, hi = max(a['qMin'], b['qMin']), min(a['qMax'], b['qMax'])
         if lo <= hi:
             bands.append({'from': lo, 'to': hi, 'stages': [a['id'], b['id']],
-                          'picked': a['id'],
+                          'picked': pick_stage(lo),
+                          'pickedAtTop': pick_stage(hi),
+                          'pickedByCatalogOrder': a['id'],
                           'nearestBepAtTop': bep_ranking(hi)[0]})
     return bands
 
@@ -283,8 +290,10 @@ LADDER_SCENARIOS = [
         'id': 'shortfall',
         'why': 'Rod pumping is rate-limited by the plunger it can swing at this depth, and '
                'this well is past it. The honest answer is the achieved rate, not a refusal '
-               'with no number in it.',
-        'target': 1400.0,
+               'with no number in it. The target is stated in LIQUID and the ladder is '
+               'walked against the oil derived from it, so 2,400 bbl/d at 40 per cent water '
+               'cut is 1,440 stb/d of oil against a best rung of 1,100.',
+        'target': 2400.0,
         'outcomes': [{'producedBpd': 120.0, 'loadingPct': 40.0},
                      {'producedBpd': 210.0, 'loadingPct': 55.0},
                      {'producedBpd': 340.0, 'loadingPct': 70.0},
@@ -298,8 +307,9 @@ LADDER_SCENARIOS = [
                'unknown. The guard compares an unknown against 100 and lets it through, so '
                'the rung becomes the ANSWER and its loading is reported as NaN. Had the '
                'unknown been treated as a failure the answer would have been a shortfall '
-               'at 1100 bbl/d instead.',
-        'target': 2000.0,
+               'at 1100 bbl/d instead. The target is 3,400 bbl/d of liquid, which is 2,040 '
+               'stb/d of oil at 40 per cent water cut.',
+        'target': 3400.0,
         'outcomes': [{'producedBpd': 120.0, 'loadingPct': 40.0},
                      {'producedBpd': 210.0, 'loadingPct': 55.0},
                      {'producedBpd': 340.0, 'loadingPct': 70.0},
@@ -317,6 +327,9 @@ LADDER_SCENARIOS = [
 ]
 
 
+LADDER_WCT_PCT = 40.0
+
+
 def ladder_alternative(scenario):
     """The same scenario with an unknown loading treated as a FAILURE
     rather than a pass, so the golden carries what the fails-open guard
@@ -328,7 +341,7 @@ def ladder_alternative(scenario):
             strict.append({'refused': 'loading unknown'})
         else:
             strict.append(o)
-    return select_rung(strict, scenario['target'])
+    return select_rung(strict, oil_design_rate(scenario['target'], LADDER_WCT_PCT))
 
 
 # ---------------------------------------------------------------------
@@ -367,6 +380,13 @@ TRAJECTORY = [
 ]
 
 
+def oil_design_rate(target_liquid_rate, wct_pct):
+    """Item 19, second half. The rate at the door is LIQUID; every
+    design chain consumes OIL."""
+    wct = min(max(wct_pct, 0.0), 100.0)
+    return target_liquid_rate * (1.0 - wct / 100.0)
+
+
 def plunger_glr(target_rate, gor, wct_pct):
     """GLR from a MASS BALANCE, not from the module's expression.
 
@@ -374,14 +394,23 @@ def plunger_glr(target_rate, gor, wct_pct):
     liquid = oil + water = oil / (1 - wc)
     GLR    = gas / liquid = GOR (1 - wc)
 
+    Since item 19 the rate at the door is the LIQUID rate, so the oil is
+    derived from it and the liquid the cycle sees IS the number that came
+    in. It used to be that number divided by (1 - wc), which on a 40 per
+    cent water cut well is a liquid rate two thirds again too big. The
+    GLR itself is invariant, which is why nothing downstream of it moves.
+
     The water cut is clamped just under one, because at exactly one
     there is no oil to carry the gas and the ratio is not defined.
     """
     wct = min(max(wct_pct / 100.0, 0.0), 0.999)
-    liquid = target_rate / (1.0 - wct) if wct > 0 else target_rate
-    return {'wctFrac': wct, 'liquidBpd': liquid,
+    # the derivation is taken at the SAME clamped water cut, so the two
+    # readings of the ratio agree at 100 per cent water cut as well
+    oil = oil_design_rate(target_rate, wct * 100.0)
+    liquid = oil / (1.0 - wct) if wct > 0 else oil
+    return {'wctFrac': wct, 'oilBpd': oil, 'liquidBpd': liquid,
             'glrScfBbl': gor * (1.0 - wct) if target_rate > 0 else gor,
-            'glrByRatio': (gor * target_rate / liquid) if liquid > 0 else gor}
+            'glrByRatio': (gor * oil / liquid) if liquid > 0 else gor}
 
 
 # ---------------------------------------------------------------------
@@ -520,21 +549,30 @@ def plunger_inputs(w):
 # Pass-level refusals
 # ---------------------------------------------------------------------
 
+# Item 19, second half. The absolute open flow is an OIL rate, and the
+# target at the door is a LIQUID rate, so the comparison is made on the
+# oil derived from it. Every case here carries the water cut it is run
+# at and the oil rate that follows, and the three AOF cases are stated in
+# LIQUID terms that land on the moved boundary: at 40 per cent water cut
+# a 2,000 bbl/d liquid target is exactly the 1,200 stb/d open flow.
 PASS_REFUSALS = [
     {'id': 'noModel', 'why': 'Nothing to design against.',
-     'model': None, 'targetRate': 500.0, 'expect': 'incomplete'},
+     'model': None, 'targetRate': 500.0, 'wctPct': 40.0, 'expect': 'incomplete'},
     {'id': 'gasWell', 'why': 'This pass designs lift for an OIL well.',
-     'phase': 'gas', 'qmax': 5000.0, 'targetRate': 500.0, 'expect': 'gas'},
+     'phase': 'gas', 'qmax': 5000.0, 'targetRate': 500.0, 'wctPct': 40.0, 'expect': 'gas'},
     {'id': 'noTarget', 'why': 'A target rate is needed before anything can be designed.',
-     'phase': 'oil', 'qmax': 5000.0, 'targetRate': 0.0, 'expect': 'noTarget'},
+     'phase': 'oil', 'qmax': 5000.0, 'targetRate': 0.0, 'wctPct': 40.0, 'expect': 'noTarget'},
     {'id': 'aboveAof',
      'why': 'No lift method makes a well produce more than it can deliver, so running four '
-            'design chains to say so would be theatre.',
-     'phase': 'oil', 'qmax': 1200.0, 'targetRate': 1200.0, 'expect': 'aboveAof'},
-    {'id': 'atAof', 'why': 'AT the absolute open flow is also refused, not just above it.',
-     'phase': 'oil', 'qmax': 1200.0, 'targetRate': 1200.0, 'expect': 'aboveAof'},
-    {'id': 'justBelowAof', 'why': 'Just below it the pass runs.',
-     'phase': 'oil', 'qmax': 1200.0, 'targetRate': 1199.0, 'expect': 'runs'},
+            'design chains to say so would be theatre. 2,200 bbl/d of liquid at 40 per cent '
+            'water cut is 1,320 stb/d of oil against an open flow of 1,200.',
+     'phase': 'oil', 'qmax': 1200.0, 'targetRate': 2200.0, 'wctPct': 40.0, 'expect': 'aboveAof'},
+    {'id': 'atAof', 'why': 'AT the absolute open flow is also refused, not just above it. '
+                           '2,000 bbl/d of liquid at 40 per cent water cut is exactly 1,200.',
+     'phase': 'oil', 'qmax': 1200.0, 'targetRate': 2000.0, 'wctPct': 40.0, 'expect': 'aboveAof'},
+    {'id': 'justBelowAof', 'why': 'Just below it the pass runs: 1,998 bbl/d of liquid is '
+                                  '1,198.8 stb/d of oil.',
+     'phase': 'oil', 'qmax': 1200.0, 'targetRate': 1998.0, 'wctPct': 40.0, 'expect': 'runs'},
 ]
 
 
@@ -544,8 +582,18 @@ def emit():
     stage_sweep = []
     for q in (100, 400, 500, 900, 1250, 1300, 1449, 1450, 1451, 2200, 2500,
               3000, 3499, 3500, 3501, 4000, 4500, 5600, 5601, 7000, 9800, 12000):
-        stage_sweep.append({'q': q, 'coveringSet': covering_set(q),
+        cov = covering_set(q)
+        nearest_in_cov = next((i for i in bep_ranking(q) if i in cov), None) if cov \
+            else bep_ranking(q)[0]
+        stage_sweep.append({'q': q, 'coveringSet': cov,
                             'bepRanking': bep_ranking(q), 'picked': pick_stage(q),
+                            # the rule (item 22): nearest BEP among the
+                            # stages that COVER the duty
+                            'nearestBepInCoveringSet': nearest_in_cov,
+                            'pickedIsNearestInCoveringSet': pick_stage(q) == nearest_in_cov,
+                            # and against the whole catalogue, which the
+                            # covering set can legitimately differ from:
+                            # a stage cannot be run outside its range
                             'pickedIsNearestBep': pick_stage(q) == bep_ranking(q)[0]})
 
     motor_sweep = [dict(pick_motor(hp), shaftHp=hp)
@@ -578,9 +626,19 @@ def emit():
                        'largestFrameHp': MOTOR_FRAMES[-1]['hp'],
                        'headroomLostAboveShaftHp': MOTOR_FRAMES[-1]['hp'] / HEADROOM,
                        'overloadedAboveShaftHp': MOTOR_FRAMES[-1]['hp']},
-        'rodLadder': [dict(s, result=select_rung(s['outcomes'], s['target']),
-                           resultIfUnknownLoadingWereAFailure=ladder_alternative(s))
-                      for s in LADDER_SCENARIOS],
+        # Item 19, second half. The ladder is walked against the OIL
+        # rate now. `target` stays the liquid rate at the door, which is
+        # what the scenario states; `oilTargetBpd` is what the chains are
+        # asked for, and `resultAtLiquidTarget` is the selection as it
+        # was, so the golden carries the size of the move.
+        'rodLadder': [dict(
+            s,
+            wctPct=LADDER_WCT_PCT,
+            oilTargetBpd=oil_design_rate(s['target'], LADDER_WCT_PCT),
+            result=select_rung(s['outcomes'], oil_design_rate(s['target'], LADDER_WCT_PCT)),
+            resultIfUnknownLoadingWereAFailure=ladder_alternative(s),
+            resultAtLiquidTarget=select_rung(s['outcomes'], s['target']),
+        ) for s in LADDER_SCENARIOS],
         'liquidGravity': [
             {'api': a, 'wct': w, 'sg': liquid_gravity(a, w)}
             for a, w in ((32.0, 0.0), (32.0, 0.5), (32.0, 1.0),
