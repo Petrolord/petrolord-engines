@@ -294,7 +294,17 @@ describe('valve spacing and settings', () => {
         expect(rel(v.dome60Psia, e.dome60Psia)).toBeLessThan(1e-5);
         expect(rel(v.testRackOpeningPsia, e.testRackOpeningPsia)).toBeLessThan(1e-5);
         expect(rel(v.spreadPsi, e.spreadPsi)).toBeLessThan(1e-5);
-        expect(rel(v.closingSurfacePressurePsia, e.closingSurfacePressurePsia)).toBeLessThan(1e-5);
+        // Item 7. The closing pressure is reported in the fluid that
+        // acts on the bellows: at depth for both families, and as a
+        // casing SURFACE pressure only for a casing-operated valve.
+        expect(v.closingActsOn).toBe(e.closingActsOn);
+        expect(rel(v.closingPressureAtDepthPsia, e.closingPressureAtDepthPsia)).toBeLessThan(1e-5);
+        if (e.closingActsOn === 'injection') {
+          expect(rel(v.closingSurfacePressurePsia, e.closingSurfacePressurePsia)).toBeLessThan(1e-5);
+        } else {
+          expect(v.closingSurfacePressurePsia).toBeNull();
+          expect(e.closingSurfacePressurePsia).toBeNull();
+        }
       }
     });
   });
@@ -372,13 +382,13 @@ describe('valve spacing and settings', () => {
 describe('a valve with no closing pressure is skipped, not compared', () => {
   const temp = tempFn(100, 190, 8000);
 
-  test('an upper valve with a null closing pressure is not reported open', () => {
+  test('an upper valve with no dome charge is not reported open', () => {
     const stages = unloadingSequence({
       valves: [
         // no dome charge, so no pressure at which it closes
-        { depthFt: 3000, closingSurfacePressurePsia: null, pInjAtDepthPsia: 1050,
+        { depthFt: 3000, valveType: 'orifice', domeAtTempPsia: null, pInjAtDepthPsia: 1050,
           pProdAtDepthPsia: 400, pSurfOpenPsia: 1014.7, throughputMscfd: 800 },
-        { depthFt: 5000, closingSurfacePressurePsia: 940, pInjAtDepthPsia: 1010,
+        { depthFt: 5000, valveType: 'IPO', domeAtTempPsia: 1000, pInjAtDepthPsia: 1010,
           pProdAtDepthPsia: 600, pSurfOpenPsia: 989.7, throughputMscfd: 700 },
       ],
       gasSg: 0.65, tempAtDepthF: temp,
@@ -387,20 +397,31 @@ describe('a valve with no closing pressure is skipped, not compared', () => {
     // the answer either way. Coercing the null to zero put it there.
     expect(stages[1].upperValvesOpen).toEqual([]);
     expect(stages[1].multipointing).toBe(false);
+    // and the row says it was not tested rather than leaving the reader
+    // to infer a verdict from an absence
+    const m = stages[1].closingMargins.find((x) => x.valve === 1);
+    expect(m.actingOn).toBe('none');
+    expect(m.marginPsi).toBeNull();
+    expect(m.open).toBeNull();
   });
 
-  test('a real closing pressure above the stage pressure still reports open', () => {
+  test('a valve with a real dome charge is compared, not skipped', () => {
     const stages = unloadingSequence({
       valves: [
-        { depthFt: 3000, closingSurfacePressurePsia: 900, pInjAtDepthPsia: 1050,
+        { depthFt: 3000, valveType: 'IPO', domeAtTempPsia: 1000, pInjAtDepthPsia: 1050,
           pProdAtDepthPsia: 400, pSurfOpenPsia: 1014.7, throughputMscfd: 800 },
-        { depthFt: 5000, closingSurfacePressurePsia: 940, pInjAtDepthPsia: 1010,
+        { depthFt: 5000, valveType: 'IPO', domeAtTempPsia: 1000, pInjAtDepthPsia: 1010,
           pProdAtDepthPsia: 600, pSurfOpenPsia: 989.7, throughputMscfd: 700 },
       ],
       gasSg: 0.65, tempAtDepthF: temp,
     });
+    // the casing column at 3000 ft off this stage's 989.7 psia is about
+    // 1063 psia, above the 1000 psia dome, so valve 1 is still open
     expect(stages[1].upperValvesOpen).toEqual([1]);
     expect(stages[1].multipointing).toBe(true);
+    const m = stages[1].closingMargins.find((x) => x.valve === 1);
+    expect(m.actingOn).toBe('injection');
+    expect(m.marginPsi).toBeGreaterThan(60);
   });
 
   test('the bottom orifice says the closing question does not apply', () => {
@@ -424,9 +445,6 @@ describe('a valve with no closing pressure is skipped, not compared', () => {
       design.unloading.forEach((s) => {
         expect(s.upperValvesOpen).not.toContain(design.valves.length);
       });
-      // the IPO designs are the ones the goldens gate as verdicts; the
-      // PPO design is the pinned known divergence of item 7, Wave 2
-      if (g.inputs.valveType === 'PPO') return;
       design.unloading.forEach((s, i) => {
         expect(s.upperValvesOpen).toEqual(g.unloading[i].upperValvesOpen);
       });
@@ -439,17 +457,23 @@ describe('the decisions behind the unloading solve are stated', () => {
   const temp = tempFn(100, 190, 8000);
 
   test('a valve exactly at its closing pressure is treated as open', () => {
+    // the dome is set to the casing pressure valve 1 sees at stage 2, so
+    // the margin is exactly zero and nothing physical separates the two
+    // readings
+    const pCasAtValve1 = gasColumnPressure({
+      pSurfPsia: 989.7, tvdFt: 3000, gasSg: 0.65, tempAtDepthF: temp, steps: 20,
+    }).pBottomPsia;
     const stages = unloadingSequence({
       valves: [
-        { depthFt: 3000, closingSurfacePressurePsia: 989.7, pInjAtDepthPsia: 1050,
+        { depthFt: 3000, valveType: 'IPO', domeAtTempPsia: pCasAtValve1, pInjAtDepthPsia: 1050,
           pProdAtDepthPsia: 400, pSurfOpenPsia: 1014.7, throughputMscfd: 800 },
-        { depthFt: 5000, closingSurfacePressurePsia: 940, pInjAtDepthPsia: 1010,
+        { depthFt: 5000, valveType: 'IPO', domeAtTempPsia: 940, pInjAtDepthPsia: 1010,
           pProdAtDepthPsia: 600, pSurfOpenPsia: 989.7, throughputMscfd: 700 },
       ],
       gasSg: 0.65, tempAtDepthF: temp,
     });
     // exact equality, and the convention calls it open
-    expect(stages[1].surfaceInjectionPsia).toBe(989.7);
+    expect(stages[1].closingMargins.find((x) => x.valve === 1).marginPsi).toBe(0);
     expect(stages[1].upperValvesOpen).toEqual([1]);
   });
 
@@ -507,17 +531,16 @@ describe('the decisions behind the unloading solve are stated', () => {
 describe('unloading and the multipointing verdict', () => {
   // The verdict is what designGasLift exists to tell a user: at the stage
   // the point of injection reaches valve i, is every valve above it shut?
-  // The oracle answers it from the published closing rule (a bellows valve
-  // closes when the pressure acting on the FULL bellows area falls back to
-  // the dome charge at valve temperature), evaluated AT VALVE DEPTH off its
-  // forward RK4 column. The engine answers it at SURFACE, by inverting a
-  // 20-step column to turn each dome pressure into the casing surface
-  // pressure that would produce it. For a casing-operated valve those are
-  // the same test read from opposite ends of the same monotone column, so
-  // the goldens gate the boolean AND the margin it turns on.
-  const ipoDesigns = G.designs.filter((g) => g.inputs.valveType !== 'PPO');
+  // Both sides now answer it from the published closing rule (a bellows
+  // valve closes when the pressure acting on the FULL bellows area falls
+  // back to the dome charge at valve temperature), evaluated AT VALVE
+  // DEPTH in the fluid that acts on that valve's bellows: the casing for
+  // an IPO valve, the tubing for a PPO one. Item 7 closed the divergence
+  // that used to exempt the PPO design here, so every design is gated,
+  // boolean AND the margin it turns on.
+  const allDesigns = G.designs;
 
-  test.each(ipoDesigns.map((g) => [g.id, g]))(
+  test.each(allDesigns.map((g) => [g.id, g]))(
     'design %s: every stage verdict matches the oracle',
     (_id, g) => {
       const design = designGasLift(caseCfg(g));
@@ -534,29 +557,55 @@ describe('unloading and the multipointing verdict', () => {
     },
   );
 
-  test.each(ipoDesigns.map((g) => [g.id, g]))(
+  test.each(allDesigns.map((g) => [g.id, g]))(
     'design %s: the closing margin behind each verdict matches the oracle',
     (_id, g) => {
-      const i = g.inputs;
-      const temp = tempFn(i.wht, i.bht, i.refDepth);
       const design = designGasLift(caseCfg(g));
       let checked = 0;
       g.unloading.forEach((e, si) => {
-        e.closingMargins.forEach((m) => {
+        const published = design.unloading[si].closingMargins;
+        expect(published).toHaveLength(e.closingMargins.length);
+        e.closingMargins.forEach((m, mi) => {
+          const c = published[mi];
+          expect(c.valve).toBe(m.valve);
+          // the fluid the test was taken in is part of the answer: a PPO
+          // valve judged on the casing is the item 7 defect
+          expect(c.actingOn).toBe(m.actingOn);
           if (m.marginPsi === null) return;
-          const u = design.valves[m.valve - 1];
-          // casing pressure at the upper valve's own depth, at this stage
-          const pCas = gasColumnPressure({
-            pSurfPsia: design.unloading[si].surfaceInjectionPsia, tvdFt: u.depthFt,
-            gasSg: i.gasSg, tempAtDepthF: temp, steps: 20,
-          }).pBottomPsia;
-          expect(Math.abs((pCas - u.domeAtTempPsia) - m.marginPsi)).toBeLessThan(5e-3);
-          // and the sign of that margin is the verdict the engine published
-          expect(pCas - u.domeAtTempPsia > 0).toBe(m.open);
+          expect(Math.abs(c.actingPressurePsia - m.actingPressurePsia)).toBeLessThan(5e-3);
+          expect(Math.abs(c.marginPsi - m.marginPsi)).toBeLessThan(5e-3);
+          expect(c.open).toBe(m.open);
           checked += 1;
         });
       });
       expect(checked).toBeGreaterThan(0);
+    },
+  );
+
+  test.each(allDesigns.map((g) => [g.id, g]))(
+    'design %s: each published margin is its own acting pressure less its own dome',
+    (_id, g) => {
+      // recomputed here from the engine's own valve records, so the
+      // margin cannot drift away from the pressures it claims to be a
+      // difference of
+      const i = g.inputs;
+      const temp = tempFn(i.wht, i.bht, i.refDepth);
+      const design = designGasLift(caseCfg(g));
+      design.unloading.forEach((s) => {
+        s.closingMargins.forEach((m) => {
+          if (m.marginPsi === null) return;
+          const u = design.valves[m.valve - 1];
+          const acting = m.actingOn === 'production'
+            ? u.pProdAtDepthPsia
+            : gasColumnPressure({
+              pSurfPsia: s.surfaceInjectionPsia, tvdFt: u.depthFt,
+              gasSg: i.gasSg, tempAtDepthF: temp, steps: 20,
+            }).pBottomPsia;
+          expect(m.actingPressurePsia).toBeCloseTo(acting, 9);
+          expect(m.marginPsi).toBeCloseTo(acting - u.domeAtTempPsia, 9);
+          expect(m.marginPsi >= 0).toBe(m.open);
+        });
+      });
     },
   );
 
@@ -621,42 +670,86 @@ describe('unloading and the multipointing verdict', () => {
     expect(tighter.unloading[3].upperValvesOpen).toEqual([3]);
   });
 
-  test('KNOWN DIVERGENCE: a production-operated string is closed on the wrong pressure', () => {
-    // gasLiftValves.js states the closing rule as "the pressure acting on
-    // the full bellows area falls back to the dome pressure". For a PPO
-    // valve that pressure is the TUBING pressure: shut, the tubing acts on
-    // Ab - Ap and the casing on Ap; open, the port discharges into the
-    // tubing and the tubing acts on all of Ab. gasLiftDesign.js instead
-    // converts every dome charge into a CASING surface pressure through the
-    // injection gas column and compares it with the casing, for every
-    // family, so a PPO string is judged on the wrong fluid.
-    //
-    // The oracle applies the tubing-side rule and the goldens carry its
-    // answer: no upper valve open at any stage. The engine answers every
-    // upper valve open at every stage. This gate pins both, so that fixing
-    // the engine trips it and the fix is not merged silently.
+  // Item 7. A production-operated valve is closed by the TUBING: shut,
+  // the tubing acts on Ab - Ap and the casing on Ap; open, the port
+  // discharges into the tubing and the tubing acts on all of Ab. The
+  // engine used to convert every dome charge into a CASING surface
+  // pressure through the injection gas column and compare it with the
+  // casing, for every family, so a PPO string was judged on the wrong
+  // fluid and answered every upper valve open at every stage against the
+  // oracle's none. These three tests pin the fix, its size, and the one
+  // thing the fixed verdict is not.
+  test('a production-operated string is closed on the tubing, not the casing', () => {
     const g = G.designs.find((d) => d.id === 'constantPressurePPO');
     const design = designGasLift(caseCfg(g));
 
-    // what the published rule says, straight off the engine's own numbers:
-    // for a PPO valve Pt - Pd is exactly the (negative) spread, so no valve
-    // is open and the oracle's goldens say so
-    design.valves.forEach((v) => {
-      expect(rel(v.pProdAtDepthPsia - v.domeAtTempPsia, v.spreadPsi)).toBeLessThan(1e-9);
-      expect(v.spreadPsi).toBeLessThan(0);
+    design.unloading.forEach((s) => {
+      s.closingMargins.forEach((m) => {
+        expect(m.actingOn).toBe('production');
+        expect(m.casingDropPsi).toBeNull();
+        // the casing at that valve's depth is hundreds of psi above the
+        // dome, which is the answer the old test read
+        const u = design.valves[m.valve - 1];
+        const pCas = gasColumnPressure({
+          pSurfPsia: s.surfaceInjectionPsia, tvdFt: u.depthFt,
+          gasSg: g.inputs.gasSg, tempAtDepthF: tempFn(g.inputs.wht, g.inputs.bht, g.inputs.refDepth),
+          steps: 20,
+        }).pBottomPsia;
+        expect(pCas - u.domeAtTempPsia).toBeGreaterThan(300);
+        expect(m.marginPsi).toBeLessThan(-30);
+      });
     });
-    g.unloading.forEach((e) => expect(e.upperValvesOpen).toEqual([]));
-
-    // what the engine currently answers instead
+    // and the verdict is now the oracle's, at every stage
     design.unloading.forEach((s, i) => {
-      expect(s.upperValvesOpen).toEqual(Array.from({ length: i }, (_, j) => j + 1));
+      expect(s.upperValvesOpen).toEqual(g.unloading[i].upperValvesOpen);
+      expect(s.upperValvesOpen).toEqual([]);
     });
-    // and it is not close: the casing-side test clears the wrong threshold
-    // by hundreds of psi where the tubing-side test misses by tens
+    expect(design.warnings.filter((w) => w.code === 'multipointing')).toHaveLength(0);
+  });
+
+  test('no casing closing pressure and no operating verdict is reported for a PPO valve', () => {
+    const g = G.designs.find((d) => d.id === 'constantPressurePPO');
+    const design = designGasLift(caseCfg(g));
     design.valves.forEach((v) => {
-      expect(g.inputs.pKickoffPsia - v.closingSurfacePressurePsia).toBeGreaterThan(300);
-      expect(v.pProdAtDepthPsia - v.domeAtTempPsia).toBeLessThan(-30);
+      expect(v.closingActsOn).toBe('production');
+      // the casing surface pressure whose column reads the dome is not a
+      // pressure this valve is closed by, so it is not published
+      expect(v.closingSurfacePressurePsia).toBeNull();
+      expect(v.closingPressureAtDepthPsia).toBe(v.domeAtTempPsia);
+      // and the operating verdict needs the flowing tubing pressure at
+      // depth, which this module does not model
+      expect(v.closesAtOperating).toBeNull();
     });
+    // an IPO design still answers both
+    const ipo = designGasLift(caseCfg(G.designs[0]));
+    expect(ipo.valves[0].closingActsOn).toBe('injection');
+    expect(ipo.valves[0].closingSurfacePressurePsia).toBeGreaterThan(0);
+    expect(typeof ipo.valves[0].closesAtOperating).toBe('boolean');
+  });
+
+  test('a clean PPO unloading verdict is the setting rule, and the design says so', () => {
+    // Each PPO valve is set to open at the one unloading production
+    // traverse this module carries, at its own depth, and that traverse
+    // is the same line at every stage. So its tubing-side margin is
+    // identically its own spread, at every stage, for every design: a
+    // verdict that cannot come out any other way is not a measurement of
+    // this design and the warning says exactly that.
+    const g = G.designs.find((d) => d.id === 'constantPressurePPO');
+    const design = designGasLift(caseCfg(g));
+    design.unloading.forEach((s) => {
+      s.closingMargins.forEach((m) => {
+        expect(m.marginPsi).toBeCloseTo(design.valves[m.valve - 1].spreadPsi, 9);
+      });
+    });
+    const w = design.warnings.find((x) => x.code === 'ppoClosingStageInvariant');
+    expect(w).toBeDefined();
+    expect(w.message).toMatch(/close on the tubing pressure/);
+    expect(w.message).toMatch(/single unloading production traverse/);
+    expect(w.message).toMatch(/not a measurement of the design/);
+    expect(w.message).not.toMatch(/--|\u2014|\u2013/);
+    // and it is raised only where it applies
+    expect(designGasLift(caseCfg(G.designs[0])).warnings
+      .some((x) => x.code === 'ppoClosingStageInvariant')).toBe(false);
   });
 });
 

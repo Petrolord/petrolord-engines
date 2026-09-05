@@ -18,12 +18,15 @@ evidence; identical code agreeing with itself would be none.
 
 The unloading verdict, the boolean that says the string will inject at
 two depths at once, is derived here from the published closing rule and
-evaluated AT VALVE DEPTH off the forward column; the engine evaluates
-the same rule at SURFACE, by inverting a column to turn every dome
-charge into the casing surface pressure that would produce it. For a
-casing-operated valve those are the same test read from opposite ends
-of one monotone column. For a tubing-operated valve they are not the
-same test at all, and see unloading() for what that costs.
+evaluated AT VALVE DEPTH off the forward column, in the fluid that acts
+on that valve's bellows. The engine used to evaluate it at SURFACE for
+every family, by inverting a column to turn each dome charge into the
+casing surface pressure that would produce it: the same test for a
+casing-operated valve, the column being monotone in its surface
+pressure, and not the same test at all for a tubing-operated one. That
+was item 7 and the engine now takes the test at depth per family, so
+this file and the engine meet on the rule and still not on the
+arithmetic: RK4 at 20x the resolution against a 20-step trapezoid.
 
 stdlib only. Regenerate:
     python3 tools/validation/production/oracle_gaslift.py
@@ -332,7 +335,9 @@ def valve_settings(cfg, depths, surfs):
                 'depthFt': d, 'tempF': t_f, 'valveType': 'orifice', 'portIdIn': chosen,
                 'pInjAtDepthPsia': p_inj, 'pProdAtDepthPsia': p_prod,
                 'domeAtTempPsia': None, 'dome60Psia': None, 'testRackOpeningPsia': None,
-                'spreadPsi': None, 'closingSurfacePressurePsia': None,
+                'spreadPsi': None, 'closingActsOn': None,
+                'closingPressureAtDepthPsia': None,
+                'closingSurfacePressurePsia': None,
                 'throughputMscfd': q,
             })
             continue
@@ -349,7 +354,17 @@ def valve_settings(cfg, depths, surfs):
             'testRackOpeningPsia': tro_from_dome(pd60, r),
             'spreadPsi': (spread(p_prod, p_inj, r) if vtype == 'PPO'
                           else spread(p_inj, p_prod, r)),
-            'closingSurfacePressurePsia': column_surface(pd_t, d, sg, temp_at),
+            # The valve closes when the pressure acting on the full
+            # bellows falls back to the dome, so the closing pressure AT
+            # DEPTH is pd_t for both families. Only a casing-operated
+            # valve has a casing SURFACE pressure that closes it;
+            # inverting the injection column for a tubing-operated valve
+            # returns a casing pressure the valve is not closed by, and
+            # publishing it invites the comparison item 7 was about.
+            'closingActsOn': 'production' if vtype == 'PPO' else 'injection',
+            'closingPressureAtDepthPsia': pd_t,
+            'closingSurfacePressurePsia': (None if vtype == 'PPO'
+                                           else column_surface(pd_t, d, sg, temp_at)),
             'throughputMscfd': q,
         })
     return out
@@ -407,14 +422,15 @@ def unloading(cfg, surfs, valves):
     verdict turns on and not only the boolean it produced.
 
     INDEPENDENCE. This is evaluated AT DEPTH, from the forward RK4 gas
-    column. The engine goes the other way: it inverts a 20-step column
-    to turn each dome pressure into the surface casing pressure that
-    would produce it, and compares surface pressures. For a
-    casing-operated valve the two are the same test, the column being
-    monotone in its surface pressure, so a forward integration agreeing
-    with the inverse of a coarser different one is evidence. For a
-    tubing-operated valve they are NOT the same test, and the
-    disagreement is the point.
+    column, and since item 7 the engine evaluates the same rule at depth
+    off its own 20-step trapezoid column, so the agreement is still two
+    discretizations of one physics meeting. Until item 7 the engine went
+    the other way for BOTH families: it inverted a 20-step column to turn
+    each dome pressure into the surface casing pressure that would
+    produce it and compared surface pressures. For a casing-operated
+    valve that is the same test, the column being monotone in its
+    surface pressure. For a tubing-operated valve it is not the same
+    test, and that disagreement was the item.
     """
     sg = cfg['gasSg']
     temp_at = cfg['tempAt']
