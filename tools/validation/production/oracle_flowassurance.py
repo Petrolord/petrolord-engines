@@ -123,6 +123,58 @@ def nielsen_bucklin_f(weight_pct, mw):
     return dt_c * DEGF_PER_DEGC
 
 
+def weight_pct_for_depression_hammerschmidt(depression_f, mw, k=2335.0):
+    return 100.0 * depression_f * mw / (k + depression_f * mw)
+
+
+def weight_pct_for_depression_nielsen_bucklin(depression_f, mw):
+    """The inverse of the Nielsen-Bucklin relation, found by BISECTION on
+    the forward relation rather than by algebra.
+
+    The engine inverts it in closed form. Bisecting the forward function
+    is a different route to the same root, so agreement is evidence
+    rather than the same expression written twice.
+    """
+    lo, hi = 1e-12, 99.999999
+    for _ in range(300):
+        mid = 0.5 * (lo + hi)
+        if nielsen_bucklin_f(mid, mw) < depression_f:
+            lo = mid
+        else:
+            hi = mid
+        if hi - lo < 1e-12:
+            break
+    return 0.5 * (lo + hi)
+
+
+def profile_with_jt_rk4(t_in_f, t_amb_f, lc_ft, length_ft, jt_f_per_psi, dp_psi,
+                        steps=200000):
+    """Arrival temperature with Joule-Thomson cooling, by RK4 on
+
+        dT/dx = -(T - Ta)/Lc - jt (dp/L)
+
+    The engine solves the same equation in closed form and reports the
+    damping factor (1 - exp(-NTU))/NTU that falls out of it. Integrating
+    it numerically is the independent route: if the engine had kept the
+    undamped linear term this march would disagree with it by half the
+    JT drop on a line of this length.
+    """
+    grad = jt_f_per_psi * dp_psi / length_ft
+    h = length_ft / steps
+    t = t_in_f
+
+    def f(temp):
+        return -(temp - t_amb_f) / lc_ft - grad
+
+    for _ in range(steps):
+        k1 = f(t)
+        k2 = f(t + h * k1 / 2.0)
+        k3 = f(t + h * k2 / 2.0)
+        k4 = f(t + h * k3)
+        t += h * (k1 + 2 * k2 + 2 * k3 + k4) / 6.0
+    return t
+
+
 def main():
     cases = {}
 
@@ -163,6 +215,27 @@ def main():
         'relaxationLengthFt': lc, 'points': prof,
     }
 
+    # Item 48. The same line with a Joule-Thomson term, integrated
+    # rather than assumed. `undampedArrivalTempF` is what the engine
+    # used to report: the whole jt x dp subtracted at the arrival end,
+    # as though the line gave none of it back to ambient.
+    jt_cases = []
+    for length, jt, dp in ((5280.0, 0.02, 800.0), (26400.0, 0.02, 800.0),
+                           (105600.0, 0.02, 800.0), (26400.0, 0.05, 1500.0)):
+        ntu = length / lc
+        jt_cases.append({
+            'lengthFt': length, 'jtCoeffFPerPsi': jt, 'dpPsi': dp,
+            'ntu': ntu,
+            'dampingFactor': (1.0 - math.exp(-ntu)) / ntu,
+            'arrivalTempF': profile_with_jt_rk4(180.0, 40.0, lc, length, jt, dp),
+            'undampedArrivalTempF': 40.0 + 140.0 * math.exp(-ntu) - jt * dp,
+        })
+    cases['profileWithJt'] = {
+        'inletTempF': 180.0, 'ambientTempF': 40.0, 'massRateLbHr': 120000.0,
+        'cpBtuLbF': 0.5, 'uBtuHrFt2F': u_ins, 'idIn': 6.065,
+        'relaxationLengthFt': lc, 'points': jt_cases,
+    }
+
     hours, tau = cooldown_hours(
         # contents + shell, Btu/(ft degF)
         (math.pi / 4) * (6.065 / 12.0) ** 2 * 55.0 * 0.5
@@ -180,6 +253,34 @@ def main():
                 'nielsenBucklinF': nielsen_bucklin_f(w, mw),
             })
     cases['inhibition'] = inhib
+
+    # Items 48, 53 and 59. The concentration a depression needs, through
+    # BOTH relations. The larger is the one that delivers the depression
+    # on the relation the design is judged by, and it is the number the
+    # practical ceiling has to be applied to.
+    required = []
+    for name, mw in (('methanol', 32.04), ('meg', 62.07), ('deg', 106.12), ('teg', 150.17)):
+        for need in (5.0, 10.0, 20.0, 30.0, 45.0):
+            w_ham = weight_pct_for_depression_hammerschmidt(need, mw)
+            w_nb = weight_pct_for_depression_nielsen_bucklin(need, mw)
+            binding = max(w_ham, w_nb)
+            required.append({
+                'inhibitor': name, 'molecularWeight': mw, 'neededDepressionF': need,
+                'weightPctByHammerschmidt': w_ham,
+                'weightPctByNielsenBucklin': w_nb,
+                'weightPct': binding,
+                'weightPctBasis': 'nielsenBucklin' if w_nb > w_ham else 'hammerschmidt',
+                # what the design is then judged on: the lower of the two
+                # relations at that concentration, which is the number
+                # item 59 makes the recommendation
+                'recommendedFAtThatConcentration': min(
+                    hammerschmidt_f(binding, mw), nielsen_bucklin_f(binding, mw)),
+                # and what the old Hammerschmidt-only inversion would
+                # have delivered, which is the shortfall item 53 refuses
+                'recommendedFAtHammerschmidtConcentration': min(
+                    hammerschmidt_f(w_ham, mw), nielsen_bucklin_f(w_ham, mw)),
+            })
+    cases['requiredConcentration'] = required
     cases['constants'] = {
         'hammerschmidtKfromMetric': HAMMERSCHMIDT_K_C * DEGF_PER_DEGC,
         'nielsenBucklinFfromMetric': NIELSEN_BUCKLIN_C * DEGF_PER_DEGC,
