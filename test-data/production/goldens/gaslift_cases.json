@@ -2170,10 +2170,11 @@
   "expected": {
    "depthFt": 7739.814701036302,
    "limitedBy": "pressure",
-   "pInjPsia": 1209.23820600567,
+   "pInjPsia": 1209.237993859624,
    "pProdPsia": 1109.233316949227
   },
   "gasSg": 0.65,
+  "injectionSamples": 40,
   "maxDepthFt": 8000.0,
   "pSurfPsia": 1014.7,
   "refDepthFt": 8000.0,
