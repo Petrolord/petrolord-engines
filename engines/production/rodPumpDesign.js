@@ -21,6 +21,7 @@
  */
 
 import { predictCard, polishedRodHp, cardArea } from './rodDynamics.js';
+import { balanceUnit } from './pumpingUnit.js';
 import { rodArea } from './data/rodCatalog.js';
 
 /**
@@ -141,7 +142,13 @@ export const dimensionlessGroups = ({
     spOverS: plungerStrokeIn / strokeIn,
     f1OverSkr: (pprlLb - weightFluidLb) / skr,
     f2OverSkr: (weightFluidLb - mprlLb) / skr,
-    torqueGroup: (2 * peakTorqueInLb) / (strokeIn * strokeIn * krLbPerIn),
+    // ITEM 50. Null, not zero, when there is no counterbalance solve
+    // behind it. A torque group of 0 reads as a unit that sees no
+    // gearbox torque, which is a claim; `torquePct` beside it has
+    // always said null in the same case.
+    torqueGroup: Number.isFinite(peakTorqueInLb)
+      ? (2 * peakTorqueInLb) / (strokeIn * strokeIn * krLbPerIn)
+      : null,
     skrLb: skr,
   };
 };
@@ -239,6 +246,27 @@ export const runRodPumpDesign = ({
   const sweptBpd = displacementBpd({ plungerDIn, strokeIn: dyn.plungerStrokeIn, spm });
   const producedBpd = sweptBpd * fillage * pumpEfficiency;
 
+  // ITEMS 15 AND 37. `kin`, `structuralUnbalanceLb` and `crankOffsetDeg`
+  // were accepted at this door and never read: the design took whatever
+  // `balance` the CALLER had already solved, so a unit's crank offset
+  // and structural unbalance reached the torque numbers only if the
+  // caller had remembered to pass them to `balanceUnit` itself. Three
+  // inputs that a design silently ignores are three inputs a user will
+  // set and believe in.
+  //
+  // The balance is solved here now, from the kinematics and the card
+  // this design just produced, unless the caller supplied one. The card
+  // is read off the FULL march (items 14 and 38), so the gearbox
+  // numbers are not taken from the 180 point plotting subsample either.
+  const solvedBalance = balance || (kin
+    ? balanceUnit({
+      kin,
+      cardLoadAt: dyn.surfaceLoadAt,
+      structuralUnbalanceLb,
+      crankOffsetDeg,
+    })
+    : null);
+
   const groups = dimensionlessGroups({
     spm,
     n0Spm: frequency.n0Spm,
@@ -250,7 +278,7 @@ export const runRodPumpDesign = ({
     pprlLb: dyn.prlPeakLb,
     mprlLb: dyn.prlMinLb,
     weightFluidLb: string.weightFluidLb,
-    peakTorqueInLb: balance ? balance.peakTorqueInLb : 0,
+    peakTorqueInLb: solvedBalance ? solvedBalance.peakTorqueInLb : null,
   });
 
   // Rod stress, section by section, against the modified Goodman line.
@@ -294,8 +322,8 @@ export const runRodPumpDesign = ({
   const rating = {};
   if (unitRating) {
     rating.structuralPct = (dyn.prlPeakLb / unitRating.structuralCapacityLb) * 100;
-    rating.torquePct = balance
-      ? (balance.peakTorqueInLb / unitRating.torqueRatingInLb) * 100
+    rating.torquePct = solvedBalance
+      ? (solvedBalance.peakTorqueInLb / unitRating.torqueRatingInLb) * 100
       : null;
     rating.strokePct = (strokeIn / unitRating.strokeIn) * 100;
     if (rating.structuralPct > 100) {
@@ -307,7 +335,7 @@ export const runRodPumpDesign = ({
     if (rating.torquePct != null && rating.torquePct > 100) {
       warnings.push({
         code: 'torqueOverload',
-        message: `Peak gearbox torque is ${balance.peakTorqueInLb.toFixed(1)} in-lb against a ${unitRating.torqueRatingInLb} in-lb rating.`,
+        message: `Peak gearbox torque is ${solvedBalance.peakTorqueInLb.toFixed(1)} in-lb against a ${unitRating.torqueRatingInLb} in-lb rating.`,
       });
     }
     if (rating.strokePct > 100) {
@@ -345,7 +373,7 @@ export const runRodPumpDesign = ({
       stresses,
       worstSection: worst,
       rating,
-      balance,
+      balance: solvedBalance,
       warnings,
     },
   };

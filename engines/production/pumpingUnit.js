@@ -228,19 +228,39 @@ export const netTorque = ({
  * up, which is how a counterbalance is quoted and how it is measured
  * in the field.
  *
- * It is read a quarter turn from the bottom of the stroke, where the
- * counterweight moment is at its maximum M. Balancing the rod load
- * there gives TF x CBE = M, so CBE = M / TF at that crank angle. It is
- * NOT M divided by the beam's front arm: the torque factor at the
- * quarter turn is not the arm length, and using the arm understates
- * the effect by roughly a factor of two.
+ * It is read where the counterweight moment is at its maximum M.
+ * Balancing the rod load there gives TF x CBE = M, so CBE = M / TF at
+ * that crank angle. It is NOT M divided by the beam's front arm: the
+ * torque factor there is not the arm length, and using the arm
+ * understates the effect by roughly a factor of two.
+ *
+ * ITEM 37. WHERE THAT MAXIMUM IS DEPENDS ON THE CRANK OFFSET. The
+ * moment is `M sin(theta - theta_bottom + tau)`, so it peaks a quarter
+ * turn from the bottom of the stroke only when tau is zero. This used
+ * to take the sample a fixed quarter turn from the bottom whatever the
+ * offset, so on a unit with a 15 or 20 degree crank offset it read the
+ * torque factor at the wrong crank angle and reported a counterbalance
+ * effect the field measurement would not reproduce. The peak is found
+ * over the samples now, from the same expression `netTorque` uses, so
+ * the two cannot disagree about where it is.
  */
-export const counterbalanceEffect = ({ kin, momentInLb, structuralUnbalanceLb = 0 }) => {
-  const n = kin.samples.length;
-  const quarter = (kin.bottomIndex + Math.round(n / 4)) % n;
-  const tf = Math.abs(kin.samples[quarter].torqueFactorIn);
-  if (!(tf > 0)) return structuralUnbalanceLb;
-  return momentInLb / tf + structuralUnbalanceLb;
+export const counterbalanceEffect = ({
+  kin, momentInLb, structuralUnbalanceLb = 0, crankOffsetDeg = 0,
+}) => {
+  const tau = (crankOffsetDeg * Math.PI) / 180;
+  const ref = kin.crankAngleAtBottomRad;
+  let best = -Infinity;
+  let tfAtPeak = 0;
+  for (let i = 0; i < kin.samples.length; i += 1) {
+    const s = kin.samples[i];
+    const share = Math.sin(s.thetaRad - ref + tau);
+    if (share > best) {
+      best = share;
+      tfAtPeak = Math.abs(s.torqueFactorIn);
+    }
+  }
+  if (!(tfAtPeak > 0)) return structuralUnbalanceLb;
+  return momentInLb / tfAtPeak + structuralUnbalanceLb;
 };
 
 /**
@@ -299,7 +319,7 @@ export const balanceUnit = ({
     momentInLb: moment,
     peakTorqueInLb: Math.max(p.upPeak, p.downPeak),
     counterbalanceEffectLb: counterbalanceEffect({
-      kin, momentInLb: moment, structuralUnbalanceLb,
+      kin, momentInLb: moment, structuralUnbalanceLb, crankOffsetDeg,
     }),
     balanced: true,
     torque: p.all,

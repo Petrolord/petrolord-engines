@@ -70,6 +70,13 @@ import { sectionWaveSpeedFtS, G_FT_S2 } from './rodString.js';
  *   omega0 = pi a / (2 L)      the quarter-wave fundamental
  *   kappa  = 2 zeta omega0 = zeta pi a / L
  */
+/**
+ * How far apart two periodic states may sit, as a fraction of the
+ * plunger stroke, before a partly filled march is reported as seed
+ * dependent (item 39).
+ */
+export const SEED_INDEPENDENCE_TOL = 0.01;
+
 export const DEFAULT_DAMPING_RATIO = 0.10;
 
 export const dampingCoefficient = ({ dampingRatio, waveSpeedFtS, lengthFt }) =>
@@ -195,13 +202,18 @@ const PUMP_STATE = {
  *                       rod stress check sees every step
  *     converged, cycles, samples, dt, waveSpeedFtS, kappaPerS
  *
+ *     prlPeakLb, prlMinLb          the loads over every step of the
+ *                                  last cycle (items 14 and 38)
+ *     workInLbPerCycle             area of the loop the march actually
+ *                                  traversed, and the polished rod
+ *                                  horsepower with it
+ *
  *   Read off the DECIMATED card, at `cardSamples` points:
- *     surfaceCard, pumpCard        the cards themselves
- *     prlPeakLb, prlMinLb          maximum and minimum of the sampled
- *                                  surface card, so a peak that falls
- *                                  between two samples is missed
- *     workInLbPerCycle             area of that sampled card, and the
- *                                  polished rod horsepower with it
+ *     surfaceCard, pumpCard        the cards themselves, for plotting
+ *     cardPrlPeakLb, cardPrlMinLb, cardWorkInLbPerCycle
+ *                                  what those three used to be, kept so
+ *                                  the size of the subsampling is
+ *                                  visible rather than argued about
  *
  * returns {
  *   ok, converged, cycles, samples,
@@ -215,7 +227,7 @@ const PUMP_STATE = {
 export const predictCard = ({
   string, surfacePosition, strokeFt, spm, fluidLoadLb, fillage = 1,
   dampingRatio = DEFAULT_DAMPING_RATIO, nodes = 120, maxCycles = 20, tol = 1e-4,
-  cardSamples = 180,
+  cardSamples = 180, firstCycleSeedFt, seedCheck,
 }) => {
   const warnings = [];
   // Damping is a precondition, not a numerical detail. With none, a
@@ -258,13 +270,20 @@ export const predictCard = ({
   // Seed for the empty part of a partly filled barrel on the FIRST
   // cycle only. Every cycle after this one is seeded from the previous
   // cycle's computed plunger stroke, at the foot of the loop below.
-  // This opening seed is the SURFACE stroke, which is longer than any
-  // plunger stroke, so the first cycle's pound-down runs long and the
-  // answer is seed dependent until the march settles. Reseeding it
-  // from the static estimate S - Fo Er MOVES partly filled results, so
-  // it is recorded here and carried as a Wave 2 change rather than
-  // made in a wave that may not move a number.
-  let plungerStrokeFtPrev = strokeFt;
+  //
+  // ITEM 39, AND WHAT MEASURING IT SHOWED. The opening seed is the
+  // SURFACE stroke, which is longer than any plunger stroke, so the
+  // first cycle's pound-down runs long. The item asks for a static
+  // estimate, S - Fo/kr, instead. `firstCycleSeedFt` makes that an
+  // input rather than an argument: the golden's partial-fillage block
+  // carries the independent oracle's answer at BOTH seeds and they are
+  // identical to twelve figures, because a march that settles forgets
+  // its seed. What this march does with a different seed is therefore a
+  // measurement of THIS march, and it is gated in
+  // __tests__/production.rodpump.test.js rather than asserted about.
+  let plungerStrokeFtPrev = Number.isFinite(firstCycleSeedFt) && firstCycleSeedFt > 0
+    ? firstCycleSeedFt
+    : strokeFt;
 
   // Surface direction, from the prescribed motion rather than from the
   // solution: exact, and the only robust trigger for a reversal.
@@ -426,9 +445,33 @@ export const predictCard = ({
     loadLb: r.pumpLoadLb,
   }));
 
-  const loads = surfaceCard.map((p) => p.loadLb);
-  const prlPeakLb = Math.max(...loads);
-  const prlMinLb = Math.min(...loads);
+  // ITEMS 14 AND 38. THE LOADS COME OFF THE FULL MARCH, NEVER OFF THE
+  // CARD. The cards are decimated to `cardSamples` points for plotting,
+  // and a peak that falls between two of those samples is simply not in
+  // them: the march runs at the Courant step, which on a 7,000 ft string
+  // is tens of thousands of steps a cycle against 180 samples, so the
+  // stride throws away hundreds of steps between each pair. PPRL and
+  // MPRL are the loads a beam, a gearbox and a rod string are rated
+  // against, and they were being read off a picture of the card.
+  //
+  // Built with a loop rather than `Math.max(...array)`: the last cycle
+  // is tens of thousands of rows and a spread that long throws
+  // RangeError on a real design.
+  let prlPeakLb = -Infinity;
+  let prlMinLb = Infinity;
+  const fullSurface = new Array(lastCycle.length);
+  const surfaceRef = lastCycle[0].surfaceFt;
+  for (let i = 0; i < lastCycle.length; i += 1) {
+    const r = lastCycle[i];
+    const loadLb = wRf + r.prlDynLb;
+    if (loadLb > prlPeakLb) prlPeakLb = loadLb;
+    if (loadLb < prlMinLb) prlMinLb = loadLb;
+    fullSurface[i] = {
+      tFrac: r.tFrac,
+      positionIn: (r.surfaceFt - surfaceRef) * 12,
+      loadLb,
+    };
+  }
   const plungerStrokeIn = plungerStrokeFt * 12;
 
   // Static weight carried at each depth, so the envelope can be
@@ -456,9 +499,72 @@ export const predictCard = ({
     });
   }
 
+  // ITEM 39, THE HALF THAT MATTERS. A partly filled barrel measures its
+  // pound-down against a seed on the first cycle, and a march that
+  // settles is supposed to forget it. On most operating points it does:
+  // the engine and the independent oracle both move by less than a
+  // hundredth of a per cent when the seed is changed. On some it does
+  // not. A 1/2 in string at 3 spm, fillage 0.1 and damping 0.12 settles
+  // to a 14.5 in plunger stroke from the surface-stroke seed and to a
+  // 58.0 in one from the static estimate, and BOTH report converged.
+  //
+  // The answer there is a property of the seed, not of the well, and no
+  // choice of seed fixes that: what fixes it is saying so. When the
+  // barrel is partly filled the march is repeated from the other seed
+  // and the two are compared. The reported numbers do not move, so
+  // nothing here depends on which seed is called the default; what the
+  // caller gains is a warning on the cases where the number is not
+  // determinate. It costs a second march, so it is skipped on a full
+  // pump, which has no pound-down at all, and a caller can turn it off.
+  const wantSeedCheck = seedCheck === undefined ? fillage < 1 : Boolean(seedCheck);
+  let seedIndependence = null;
+  if (wantSeedCheck && firstCycleSeedFt === undefined) {
+    const staticSeedFt = Math.max(
+      strokeFt - fluidLoadLb / Math.max(string.krLbPerIn, 1e-9) / 12,
+      0.1,
+    );
+    const other = predictCard({
+      string,
+      surfacePosition,
+      strokeFt,
+      spm,
+      fluidLoadLb,
+      fillage,
+      dampingRatio,
+      nodes,
+      maxCycles,
+      tol,
+      cardSamples,
+      firstCycleSeedFt: staticSeedFt,
+      seedCheck: false,
+    });
+    if (other.ok) {
+      const rel = Math.abs(other.plungerStrokeIn - plungerStrokeIn)
+        / Math.max(Math.abs(plungerStrokeIn), 1e-9);
+      seedIndependence = {
+        checked: true,
+        seedFt: staticSeedFt,
+        plungerStrokeInFromOtherSeed: other.plungerStrokeIn,
+        prlPeakLbFromOtherSeed: other.prlPeakLb,
+        prlMinLbFromOtherSeed: other.prlMinLb,
+        relativeStrokeDifference: rel,
+        independent: rel <= SEED_INDEPENDENCE_TOL,
+      };
+      if (!seedIndependence.independent) {
+        warnings.push({
+          code: 'seedDependent',
+          message: `This partly filled march settles to a plunger stroke of ${plungerStrokeIn.toFixed(2)} in from one starting assumption and ${other.plungerStrokeIn.toFixed(2)} in from another, and both settle. At this fillage the pound down has more than one repeating cycle available to it, so the stroke and the loads below are a property of where the march started as much as of the well. Treat them as one of the answers this pump can give, not as the answer.`,
+        });
+      }
+    } else {
+      seedIndependence = { checked: false, reason: other.error || 'the second march did not run' };
+    }
+  }
+
   return {
     ok: true,
     converged,
+    seedIndependence,
     cycles: cyclesRun,
     samples: stepsPerCycle,
     tensionEnvelope,
@@ -467,7 +573,31 @@ export const predictCard = ({
     plungerStrokeIn,
     prlPeakLb,
     prlMinLb,
-    workInLbPerCycle: cardArea(surfaceCard),
+    // the same argument as the loads: the work per cycle is the area of
+    // the loop the string actually traversed, not of the polygon 180 of
+    // its points make
+    workInLbPerCycle: cardArea(fullSurface),
+    // The surface load at any point in the cycle, off the FULL march.
+    // The torque and the balance need the load at every crank angle,
+    // and reading it off the 180 point card puts the item 14 defect
+    // straight back into the gearbox numbers.
+    surfaceLoadAt: (tFrac) => {
+      const n = fullSurface.length;
+      if (!n) return NaN;
+      const f = ((tFrac % 1) + 1) % 1;
+      const x = f * n;
+      const i = Math.floor(x);
+      const frac = x - i;
+      const a = fullSurface[i % n].loadLb;
+      const b = fullSurface[(i + 1) % n].loadLb;
+      return a + frac * (b - a);
+    },
+    // what the decimated card would have said, kept so a consumer can
+    // see the size of what it was reading and so the golden can gate it
+    cardPrlPeakLb: surfaceCard.reduce((a, x) => Math.max(a, x.loadLb), -Infinity),
+    cardPrlMinLb: surfaceCard.reduce((a, x) => Math.min(a, x.loadLb), Infinity),
+    cardWorkInLbPerCycle: cardArea(surfaceCard),
+    marchSamplesPerCycle: lastCycle.length,
     waveSpeedFtS: aMax,
     kappaPerS: kappa,
     dt,
