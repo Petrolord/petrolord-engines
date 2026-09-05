@@ -1444,3 +1444,111 @@ describe('item 12: the cycle against the well inflow', () => {
     );
   });
 });
+
+// Item 11. Which of Turner and Coleman applies is decided by pressure,
+// and pressure is what changes down a string. Choosing one correlation
+// from the wellhead and applying it at the shoe is a 20 percent error at
+// the deep end, and the deep end is where the loading verdict is decided.
+describe('item 11: the correlation is a property of the station', () => {
+  // a well inside Coleman's range at the wellhead and well above it at
+  // the shoe, which is an ordinary gas well and not a contrived one
+  const stations = [
+    { depthFt: 0, pPsia: 700, tempR: 560, z: 0.92, idIn: 2.441 },
+    { depthFt: 3000, pPsia: 950, tempR: 590, z: 0.9, idIn: 2.441 },
+    { depthFt: 6000, pPsia: 1250, tempR: 620, z: 0.89, idIn: 2.441 },
+    { depthFt: 9000, pPsia: 1600, tempR: 650, z: 0.88, idIn: 2.441 },
+  ];
+  const args = {
+    stations, qMscfd: 1500, sigmaDyneCm: 60, rhoLiquidLbFt3: 67, gasSg: 0.65,
+  };
+
+  test('auto chooses per station and every point says which it used', () => {
+    const r = loadingProfile({ ...args, correlation: 'auto' });
+    expect(r.ok).toBe(true);
+    expect(r.correlationBasis).toBe('perStation');
+    expect(r.points.map((p) => p.correlation))
+      .toEqual(['coleman', 'coleman', 'turner', 'turner']);
+    expect(r.correlationsUsed.sort()).toEqual(['coleman', 'turner']);
+    // each station's choice is the one its own pressure calls for
+    r.points.forEach((p, i) => {
+      expect(p.correlation).toBe(recommendCorrelation(stations[i].pPsia).correlation);
+    });
+  });
+
+  test('an explicit correlation still applies to every station', () => {
+    const r = loadingProfile({ ...args, correlation: 'coleman' });
+    expect(r.correlationBasis).toBe('fixed');
+    expect(r.correlationsUsed).toEqual(['coleman']);
+    expect(r.points.every((p) => p.correlation === 'coleman')).toBe(true);
+  });
+
+  test('the wellhead choice and the per-station choice give different verdicts', () => {
+    // the wellhead is at 700 psia, so a wellhead choice is Coleman, and
+    // Coleman applied at the shoe understates the critical rate there by
+    // Turner's 20 percent. At 1,700 Mscf/d that is the difference between
+    // a well that is carrying its liquid and one that is not, which is
+    // the difference between leaving it alone and pulling the tubing.
+    const wellheadChoice = recommendCorrelation(stations[0].pPsia).correlation;
+    expect(wellheadChoice).toBe('coleman');
+    const asItWas = loadingProfile({ ...args, qMscfd: 1700, correlation: wellheadChoice });
+    const now = loadingProfile({ ...args, qMscfd: 1700, correlation: 'auto' });
+    expect(asItWas.loaded).toBe(false);
+    expect(now.loaded).toBe(true);
+    // and the controlling station is the shoe either way, so this is the
+    // correlation moving the verdict and not the station
+    expect(asItWas.controlling.depthFt).toBe(9000);
+    expect(now.controlling.depthFt).toBe(9000);
+    expect(now.controlling.criticalRateMscfd / asItWas.controlling.criticalRateMscfd)
+      .toBeCloseTo(1.2, 9);
+  });
+
+  test('a station whose pressure cannot be read refuses rather than guessing', () => {
+    const r = loadingProfile({
+      ...args,
+      correlation: 'auto',
+      stations: [{ depthFt: 0, pPsia: NaN, tempR: 560, z: 0.92, idIn: 2.441 }],
+    });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('unreadablePressure');
+  });
+
+  test('sizing reads the station it is run at, which is usually the shoe', () => {
+    const deep = sizeTubingForRate({
+      candidatesIdIn: [1.995, 2.441, 2.992], qMscfd: 1500, correlation: 'auto',
+      sigmaDyneCm: 60, rhoLiquidLbFt3: 67, pPsia: 1600, tempR: 650, z: 0.88,
+      gasSg: 0.65, stationDepthFt: 9000,
+    });
+    expect(deep.ok).toBe(true);
+    expect(deep.rows.every((r) => r.correlation === 'turner')).toBe(true);
+    const shallow = sizeTubingForRate({
+      candidatesIdIn: [1.995, 2.441, 2.992], qMscfd: 1500, correlation: 'auto',
+      sigmaDyneCm: 60, rhoLiquidLbFt3: 67, pPsia: 700, tempR: 560, z: 0.92,
+      gasSg: 0.65, stationDepthFt: 0,
+    });
+    expect(shallow.rows.every((r) => r.correlation === 'coleman')).toBe(true);
+    // and an auto choice that cannot be made is the root refusal, not the
+    // consequences further down
+    const unreadable = sizeTubingForRate({
+      candidatesIdIn: [2.441], qMscfd: 1500, correlation: 'auto',
+      sigmaDyneCm: 60, rhoLiquidLbFt3: 67, pPsia: NaN, tempR: 650, z: 0.88, gasSg: 0.65,
+    });
+    expect(unreadable.ok).toBe(false);
+    expect(unreadable.code).toBe('unreadablePressure');
+  });
+
+  // Found while wiring item 11, and not one of the 80.
+  test('an absent correlation is refused, not defaulted to Turner', () => {
+    const r = criticalVelocity({
+      sigmaDyneCm: 60, rhoLiquidLbFt3: 67, pPsia: 1000, tempR: 600, z: 0.9, gasSg: 0.65,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('unknownCorrelation');
+    // it used to come back as a Turner answer that said it was one
+    const turner = criticalVelocity({
+      correlation: 'turner',
+      sigmaDyneCm: 60, rhoLiquidLbFt3: 67, pPsia: 1000, tempR: 600, z: 0.9, gasSg: 0.65,
+    });
+    expect(turner.ok).toBe(true);
+    expect(turner.adjustment).toBe(1.2);
+  });
+});

@@ -205,12 +205,19 @@ export const describeUnusableNumber = (value) => {
  * Critical gas velocity to keep the tubing unloaded, ft/s.
  *
  * `correlation` is 'turner' or 'coleman'; anything else is refused
- * rather than silently treated as one of them.
+ * rather than silently treated as one of them, and that includes an
+ * ABSENT one. The parameter carried a default of 'turner', so a caller
+ * that never named a correlation got Turner's 20 percent adjustment and
+ * a result that said `correlation: 'turner'` as though it had been
+ * asked for. The two correlations are the same equation and one factor,
+ * so the difference is not visible in the shape of the answer, only in
+ * its size. Found while wiring item 11; a missing input is not a
+ * neutral one, which is item 20's rule in another module.
  *
  * `tempR` is degR at the door, per the module header.
  */
 export const criticalVelocity = ({
-  correlation = 'turner', sigmaDyneCm, rhoLiquidLbFt3, pPsia, tempR, z, gasSg,
+  correlation, sigmaDyneCm, rhoLiquidLbFt3, pPsia, tempR, z, gasSg,
   dragCoefficient, criticalWeber,
 }) => {
   const adjustment = LOADING_ADJUSTMENT[correlation];
@@ -343,16 +350,49 @@ export const loadingAt = ({
  * flowing traverse, top first. `tempR` on every station is degR at the
  * door, per the module header.
  *
- * returns { ok, points, controlling, loaded, marginPct }
+ * THE CORRELATION IS A PROPERTY OF THE STATION, NOT OF THE WELL. Which
+ * of Turner and Coleman applies is decided by pressure, and pressure is
+ * exactly the thing that changes down a string: the same well can be
+ * inside Coleman's low-pressure data at the wellhead and above it at the
+ * shoe. Choosing one correlation from the wellhead and applying it at
+ * every station is a 20 percent error at the deep end, and the deep end
+ * is where the critical rate is highest and the loading verdict is
+ * decided. Item 11.
+ *
+ * So `correlation: 'auto'` chooses per station, from that station's own
+ * pressure, and every point carries the correlation it was computed
+ * with. An explicit 'turner' or 'coleman' still applies to every
+ * station, because an operator who has decided which correlation this
+ * field is on is entitled to say so, and an absent one still refuses.
+ *
+ * returns { ok, points, controlling, loaded, marginPct, correlationBasis,
+ *           correlationsUsed }
  */
 export const loadingProfile = ({
   stations, qMscfd, correlation, sigmaDyneCm, rhoLiquidLbFt3, gasSg,
   dragCoefficient, criticalWeber,
 }) => {
+  const perStation = correlation === 'auto';
   const points = [];
   for (const s of stations || []) {
+    let stationCorrelation = correlation;
+    if (perStation) {
+      const rec = recommendCorrelation(s.pPsia, 'station');
+      // The choice is a comparison against a pressure, so a station
+      // whose pressure cannot be read has no choice to report. It
+      // refuses here rather than taking the name the comparison happened
+      // to land on.
+      if (!rec.ok) {
+        return {
+          ok: false,
+          code: rec.code,
+          error: rec.reason,
+        };
+      }
+      stationCorrelation = rec.correlation;
+    }
     const at = loadingAt({
-      correlation, sigmaDyneCm, rhoLiquidLbFt3, gasSg, qMscfd,
+      correlation: stationCorrelation, sigmaDyneCm, rhoLiquidLbFt3, gasSg, qMscfd,
       pPsia: s.pPsia, tempR: s.tempR, z: s.z, idIn: s.idIn,
       dragCoefficient, criticalWeber,
     });
@@ -381,12 +421,18 @@ export const loadingProfile = ({
     (worst, p) => (p.criticalRateMscfd > worst.criticalRateMscfd ? p : worst),
     points[0],
   );
+  const correlationsUsed = [...new Set(points.map((p) => p.correlation))];
   return {
     ok: true,
     points,
     controlling,
     loaded: controlling.ratio < 1,
     marginPct: (controlling.ratio - 1) * 100,
+    // how the correlation was decided, and which ones that produced. A
+    // profile that used two of them is a well that straddles Coleman's
+    // limit, which is worth seeing.
+    correlationBasis: perStation ? 'perStation' : 'fixed',
+    correlationsUsed,
   };
 };
 
@@ -538,11 +584,21 @@ export const sizeTubingForRate = ({
   pPsia, tempR, z, gasSg, dragCoefficient, criticalWeber,
   stationDepthFt = null,
 }) => {
+  // `correlation: 'auto'` reads this station's own pressure, the same
+  // rule `loadingProfile` uses per station (item 11). Sizing is normally
+  // run AT the controlling station, which is usually the shoe, and that
+  // is exactly the station a wellhead choice gets wrong.
+  const recommended = correlation === 'auto'
+    ? recommendCorrelation(pPsia, 'station')
+    : null;
+  const stationCorrelation = recommended
+    ? (recommended.ok ? recommended.correlation : undefined)
+    : correlation;
   const rows = [...(candidatesIdIn || [])]
     .sort((a, b) => b - a)
     .map((idIn) => {
       const at = loadingAt({
-        correlation, sigmaDyneCm, rhoLiquidLbFt3, pPsia, tempR, z, gasSg,
+        correlation: stationCorrelation, sigmaDyneCm, rhoLiquidLbFt3, pPsia, tempR, z, gasSg,
         idIn, qMscfd, dragCoefficient, criticalWeber,
       });
       return {
@@ -559,6 +615,13 @@ export const sizeTubingForRate = ({
     rows,
     largestUnloaded: usable.length ? usable[0] : null,
   };
+  // An 'auto' choice that could not be made is the root of every refusal
+  // below it: the rows were computed with no correlation at all.
+  if (recommended && !recommended.ok) {
+    return {
+      ...result, ok: false, code: recommended.code, reason: recommended.reason,
+    };
+  }
   // ROOT FIRST, AND ONLY THE ROOT. The three refusals below are ordered
   // by cause, and they return rather than accumulate, because the second
   // and third are what the first LOOKS like from further down. An
