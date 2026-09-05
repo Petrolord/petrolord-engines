@@ -313,7 +313,7 @@ export const DEFAULT_SURVEILLANCE_SETTINGS = {
   rateDropPct: 20,      // oil (producers) / injection drop trigger, %
   watercutRisePts: 10,  // watercut rise trigger, percentage points
   gorRisePct: 30,       // GOR rise trigger, %
-  downtimeHours: 12,    // mean hours-on below this flags downtime
+  downtimeHours: 20,    // mean hours-on below this flags downtime
   staleDays: 7,         // no data within this of the field's last date
   minOilRate: 5,        // baselines below this skip drop/ratio checks (stb/d)
 };
@@ -337,6 +337,38 @@ const windowMean = (points, key, fromDay, toDay) => {
     if (d > fromDay && d <= toDay) vals.push(p[key]);
   });
   return { mean: mean(vals), count: vals.filter((v) => Number.isFinite(v)).length };
+};
+
+/**
+ * A ratio over a window taken VOLUMETRICALLY: the sum of the numerator
+ * over the sum of the denominator, which is what a period watercut or a
+ * period gas-oil ratio means.
+ *
+ * The mean of the daily ratios is a different quantity and is biased by
+ * low-rate days: a day making 2 stb of oil and 8 of water counts as
+ * heavily in it as a day making 200 and 800, so a well that goes
+ * intermittent looks like a well that has watered out. `computeKpis`
+ * has always been volumetric; `detectExceptions` was not, and the two
+ * disagreed about the same well. Item 18.
+ *
+ * Returns NaN when the denominator over the window is not positive,
+ * which is the same "no answer" a mean of no points gives.
+ */
+const windowVolumetricRatio = (points, numeratorKeys, denominatorKeys, fromDay, toDay) => {
+  let num = 0;
+  let den = 0;
+  let count = 0;
+  points.forEach((p) => {
+    const day = dayNumber(p.date);
+    if (!(day > fromDay && day <= toDay)) return;
+    const n = numeratorKeys.reduce((a, k) => a + (Number.isFinite(p[k]) ? p[k] : 0), 0);
+    const dsum = denominatorKeys.reduce((a, k) => a + (Number.isFinite(p[k]) ? p[k] : 0), 0);
+    if (!denominatorKeys.every((k) => Number.isFinite(p[k]))) return;
+    num += n;
+    den += dsum;
+    count += 1;
+  });
+  return { ratio: den > 0 ? num / den : NaN, count, numerator: num, denominator: den };
 };
 
 /** What `detectExceptions` surveils, stated in the return so the count
@@ -413,67 +445,99 @@ export function detectExceptions(wellSeries, settings = {}) {
       return; // the comparison windows below would be empty
     }
 
+    // TWO BASES, AND EACH TEST TAKES THE ONE THAT ANSWERS ITS QUESTION.
+    // The calendar mean answers "did this well stop": a well that made
+    // nothing all week made nothing, whatever its hours say. The
+    // producing-day rate answers "did this well weaken": a well cut back
+    // to twelve hours a day halves its calendar volume without its rate
+    // moving at all, and reading the change off calendar volumes calls
+    // that a fifty percent decline. That is item 73, and the well the
+    // engineer has to look at is the one whose RATE fell.
     const rateKey = isInjector ? 'winj' : 'oil';
     const recent = windowMean(points, rateKey, asOfDay - recentDays, asOfDay);
     const base = windowMean(points, rateKey, asOfDay - recentDays - baselineDays, asOfDay - recentDays);
-    // The comparison above is a mean of CALENDAR volumes. stb/d is the
-    // unit of a PRODUCING-DAY rate, so the message quotes the
-    // producing-day mean over the same windows and says on which basis
-    // the change was measured. Only the message changes here; what the
-    // trigger compares is an owner decision of its own.
     const pdKey = isInjector ? 'winjPd' : 'oilPd';
     const recentPd = windowMean(points, pdKey, asOfDay - recentDays, asOfDay);
     const basePd = windowMean(points, pdKey, asOfDay - recentDays - baselineDays, asOfDay - recentDays);
     const rate = (m) => (Number.isFinite(m)
       ? `${Math.round(m).toLocaleString()} stb/d`
       : 'no producing day rate on record');
+    const vol = (m) => (Number.isFinite(m)
+      ? `${Math.round(m).toLocaleString()} stb a day`
+      : 'no calendar volume on record');
     if (base.count && recent.count && base.mean >= s.minOilRate) {
       if (recent.mean <= 0) {
         push(well, 'shut_in', 'high', 0, base.mean,
           `${isInjector ? 'Injection' : 'Production'} stopped. Baseline producing day rate ${rate(basePd.mean)} of ${isInjector ? 'water' : 'oil'}.`);
-      } else {
-        const drop = ((base.mean - recent.mean) / base.mean) * 100;
+      } else if (basePd.count && recentPd.count && basePd.mean >= s.minOilRate) {
+        const drop = ((basePd.mean - recentPd.mean) / basePd.mean) * 100;
         if (drop >= s.rateDropPct) {
+          // The calendar clause is added only when the two bases
+          // disagree, because on a well that ran full hours they are the
+          // same number twice and saying it twice reads as two findings.
+          const calendarDrop = ((base.mean - recent.mean) / base.mean) * 100;
+          const bases = Math.abs(calendarDrop - drop) >= 1
+            ? ` Calendar volumes fell ${pct(calendarDrop)} over the same windows, ${vol(recent.mean)} against ${vol(base.mean)}, so part of this is hours and part is rate.`
+            : '';
           push(well, isInjector ? 'injection_drop' : 'rate_drop',
-            drop >= s.rateDropPct * 2 ? 'high' : 'medium', recent.mean, base.mean,
-            `${isInjector ? 'Water injection' : 'Oil'} down ${pct(drop)} on calendar volumes: producing day rate ${rate(recentPd.mean)} against a ${rate(basePd.mean)} baseline.`);
+            drop >= s.rateDropPct * 2 ? 'high' : 'medium', recentPd.mean, basePd.mean,
+            `${isInjector ? 'Water injection' : 'Oil'} down ${pct(drop)} on producing day rates: ${rate(recentPd.mean)} against a ${rate(basePd.mean)} baseline.${bases}`);
         }
+      } else if (!basePd.count || !recentPd.count) {
+        // The rate test cannot be run on a well with no hours recorded,
+        // and the calendar volumes are not a substitute for it. It is
+        // said once, as a data exception, rather than silently skipped
+        // or answered on the other basis.
+        dataExceptions.push({
+          code: 'rateChangeWithoutHours',
+          wellId: well.id,
+          wellName: well.name,
+          value: null,
+          message: `${well.name} has ledger volumes but no hours on stream over one of the comparison windows, so the change in its rate could not be tested. Calendar volumes alone cannot tell a well that weakened from one that was cut back.`,
+        });
       }
     }
 
     if (!isInjector) {
-      const wcRecent = windowMean(points, 'watercut', asOfDay - recentDays, asOfDay);
-      const wcBase = windowMean(points, 'watercut', asOfDay - recentDays - baselineDays, asOfDay - recentDays);
-      if (wcRecent.count && wcBase.count) {
-        const risePts = (wcRecent.mean - wcBase.mean) * 100;
+      // Item 18. Volumetric, total over total, the same way computeKpis
+      // forms it, so the two functions describe the same well the same
+      // way.
+      const wcRecent = windowVolumetricRatio(points, ['water'], ['oil', 'water'], asOfDay - recentDays, asOfDay);
+      const wcBase = windowVolumetricRatio(points, ['water'], ['oil', 'water'], asOfDay - recentDays - baselineDays, asOfDay - recentDays);
+      if (wcRecent.count && wcBase.count
+        && Number.isFinite(wcRecent.ratio) && Number.isFinite(wcBase.ratio)) {
+        const risePts = (wcRecent.ratio - wcBase.ratio) * 100;
         if (risePts >= s.watercutRisePts) {
           push(well, 'watercut_rise', risePts >= s.watercutRisePts * 2 ? 'high' : 'medium',
-            wcRecent.mean, wcBase.mean,
-            `Watercut up ${risePts.toFixed(0)} points: ${(wcRecent.mean * 100).toFixed(0)}% vs ${(wcBase.mean * 100).toFixed(0)}% baseline.`);
+            wcRecent.ratio, wcBase.ratio,
+            `Watercut up ${risePts.toFixed(0)} points on period volumes: ${(wcRecent.ratio * 100).toFixed(0)}% vs ${(wcBase.ratio * 100).toFixed(0)}% baseline.`);
         }
       }
 
-      const gorRecent = windowMean(points, 'gor', asOfDay - recentDays, asOfDay);
-      const gorBase = windowMean(points, 'gor', asOfDay - recentDays - baselineDays, asOfDay - recentDays);
-      if (gorRecent.count && gorBase.count && gorBase.mean > 0
+      // Item 18 again. Gas is Mscf and oil is stb, so the volumetric
+      // ratio carries the same 1000 the per-row one does.
+      const gorRecentVol = windowVolumetricRatio(points, ['gas'], ['oil'], asOfDay - recentDays, asOfDay);
+      const gorBaseVol = windowVolumetricRatio(points, ['gas'], ['oil'], asOfDay - recentDays - baselineDays, asOfDay - recentDays);
+      const gorRecent = { count: gorRecentVol.count, ratio: gorRecentVol.ratio * 1000 };
+      const gorBase = { count: gorBaseVol.count, ratio: gorBaseVol.ratio * 1000 };
+      if (gorRecent.count && gorBase.count && gorBase.ratio > 0
+        && Number.isFinite(gorRecent.ratio)
         && (base.mean == null || base.mean >= s.minOilRate)) {
-        const rise = ((gorRecent.mean - gorBase.mean) / gorBase.mean) * 100;
+        const rise = ((gorRecent.ratio - gorBase.ratio) / gorBase.ratio) * 100;
         if (rise >= s.gorRisePct) {
           push(well, 'gor_rise', rise >= s.gorRisePct * 2 ? 'high' : 'medium',
-            gorRecent.mean, gorBase.mean,
-            `GOR up ${pct(rise)}: ${Math.round(gorRecent.mean).toLocaleString()} vs ${Math.round(gorBase.mean).toLocaleString()} scf/stb baseline.`);
+            gorRecent.ratio, gorBase.ratio,
+            `GOR up ${pct(rise)} on period volumes: ${Math.round(gorRecent.ratio).toLocaleString()} vs ${Math.round(gorBase.ratio).toLocaleString()} scf/stb baseline.`);
         }
       }
 
-      // KNOWN DEFECT, HELD FOR A GOLDEN REFRESH. The `hrs.mean > 0`
-      // clause means a well averaging exactly 0.00 hours on stream is
-      // the one well that can never be reported for downtime. Dropping
-      // it is owner decision 79 and it is correct, but it RAISES A NEW
-      // EXCEPTION on the golden field (P-2, medium, 0.0 hours against
-      // the 12 hour threshold), which moves a published answer. It
-      // therefore ships with the golden refresh, not in this wave.
+      // Item 79, first half. The `hrs.mean > 0` clause meant a well
+      // averaging exactly 0.00 hours on stream was the one well that
+      // could never be reported for downtime: the worst case the check
+      // exists for was the case it excluded. It is gone, and the golden
+      // carries the exception it raises.
       const hrs = windowMean(points, 'hoursOn', asOfDay - recentDays, asOfDay);
-      if (hrs.count && hrs.mean < s.downtimeHours && hrs.mean > 0) {
+      if (hrs.count && hrs.mean < s.downtimeHours) {
         push(well, 'downtime', 'medium', hrs.mean, s.downtimeHours,
           `Averaging ${hrs.mean.toFixed(1)} hours on stream against a ${s.downtimeHours}-hour threshold.`);
       }

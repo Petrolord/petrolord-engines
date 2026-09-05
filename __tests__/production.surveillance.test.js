@@ -194,7 +194,10 @@ describe('exception surveillance', () => {
 
   test('a stopped well is SHUT IN, not a hundred per cent rate drop', () => {
     const p2 = got.exceptions.filter((e) => e.wellId === 'w-p2');
-    expect(p2.map((e) => e.type)).toEqual(['shut_in']);
+    // shut in AND down, which is the same well said twice on purpose:
+    // the well stopped, and the hours say so too. Item 79 dropped the
+    // clause that used to suppress the second one at exactly zero hours.
+    expect(p2.map((e) => e.type).sort()).toEqual(['downtime', 'shut_in']);
     expect(p2[0].severity).toBe('high');
   });
 
@@ -205,8 +208,28 @@ describe('exception surveillance', () => {
   });
 
   test('a well can carry more than one exception, and does', () => {
+    const p2 = got.exceptions.filter((e) => e.wellId === 'w-p2').map((e) => e.type).sort();
+    expect(p2).toEqual(['downtime', 'shut_in']);
+  });
+
+  // Item 73, on the golden field. P-5 runs 8 hours a day against a
+  // baseline of 24, so its CALENDAR volume fell 67 percent while its
+  // producing day rate did not move at all: 300 stb/d against 300. The
+  // old detector read the calendar column and reported a HIGH severity
+  // rate drop on a well whose rate was unchanged. What is true about
+  // P-5 is that it is down on hours, and the downtime exception says
+  // exactly that.
+  test('a well cut back on hours is reported as downtime, not as a rate drop', () => {
     const p5 = got.exceptions.filter((e) => e.wellId === 'w-p5').map((e) => e.type).sort();
-    expect(p5).toEqual(['downtime', 'rate_drop']);
+    expect(p5).toEqual(['downtime']);
+    const points = pointsOf('w-p5');
+    const recent = points.slice(-7);
+    // the two bases, on the same rows: calendar down by two thirds,
+    // producing day rate flat
+    const calendarMean = recent.reduce((a, p) => a + p.oil, 0) / recent.length;
+    const pdMean = recent.reduce((a, p) => a + p.oilPd, 0) / recent.length;
+    expect(calendarMean).toBeCloseTo(100, 6);
+    expect(pdMean).toBeCloseTo(300, 6);
   });
 
   test('A MONTHLY LEDGER WIDENS ITS WINDOWS instead of comparing single months', () => {
@@ -253,13 +276,20 @@ describe('THE RATIO SEAM: the module disagrees with itself about what a period r
   const got = detectExceptions(SERIES);
   const seam = G.ratioSeam;
 
-  test('detectExceptions reads a period ratio as the MEAN OF THE DAILY RATIOS', () => {
+  // Item 18. Both halves read a period ratio the same way now: total
+  // over total. The seam block stays in the golden because the gap it
+  // measures is the reason the change was made.
+  test('detectExceptions reads a period ratio VOLUMETRICALLY, as computeKpis does', () => {
     const wc = got.exceptions.find((e) => e.wellId === 'w-p1' && e.type === 'watercut_rise');
     const gor = got.exceptions.find((e) => e.wellId === 'w-p1' && e.type === 'gor_rise');
-    expect(rel(wc.value, seam.watercut.recentMeanOfRatios)).toBeLessThan(1e-12);
-    expect(rel(wc.baseline, seam.watercut.baselineMeanOfRatios)).toBeLessThan(1e-12);
-    expect(rel(gor.value, seam.gor.recentMeanOfRatios)).toBeLessThan(1e-12);
-    expect(rel(gor.baseline, seam.gor.baselineMeanOfRatios)).toBeLessThan(1e-12);
+    expect(rel(wc.value, seam.watercut.recentVolumetric)).toBeLessThan(1e-12);
+    expect(rel(wc.baseline, seam.watercut.baselineVolumetric)).toBeLessThan(1e-12);
+    expect(rel(gor.value, seam.gor.recentVolumetric)).toBeLessThan(1e-12);
+    expect(rel(gor.baseline, seam.gor.baselineVolumetric)).toBeLessThan(1e-12);
+    // and not the mean of the daily ratios, which is the quantity it
+    // used to report
+    expect(rel(wc.value, seam.watercut.recentMeanOfRatios)).toBeGreaterThan(1e-3);
+    expect(rel(gor.value, seam.gor.recentMeanOfRatios)).toBeGreaterThan(1e-3);
   });
 
   test('computeKpis reads the SAME KIND OF RATIO volumetrically', () => {
@@ -281,14 +311,15 @@ describe('THE RATIO SEAM: the module disagrees with itself about what a period r
     expect(seam.gor.severityByVolumetric).toBe('medium');
     expect(seam.watercut.severityByMeanOfRatios).toBe('high');
     expect(seam.watercut.severityByVolumetric).toBe('medium');
-    // The engine ships the mean-of-ratios reading, and that is what is
-    // gated here. Recording the gap is the finding; changing it would
-    // move a displayed number and belongs to an owner decision.
+    // The engine ships the VOLUMETRIC reading since item 18, so the
+    // studio prints MEDIUM on both where it used to print HIGH.
     const got2 = detectExceptions(SERIES);
     expect(got2.exceptions.find((e) => e.wellId === 'w-p1' && e.type === 'gor_rise').severity)
-      .toBe(seam.gor.severityByMeanOfRatios);
+      .toBe(seam.gor.severityByVolumetric);
     expect(got2.exceptions.find((e) => e.wellId === 'w-p1' && e.type === 'watercut_rise').severity)
-      .toBe(seam.watercut.severityByMeanOfRatios);
+      .toBe(seam.watercut.severityByVolumetric);
+    expect(got2.exceptions.find((e) => e.wellId === 'w-p1' && e.type === 'gor_rise').severity)
+      .toBe('medium');
   });
 
   test('the cause is one near shut-in day whose own ratios are enormous', () => {
@@ -598,15 +629,47 @@ describe('78. stb/d after a mean of calendar volumes', () => {
   ).message;
 
   test('the drop message quotes a PRODUCING DAY rate and says so', () => {
-    const m = message('w-p5', 'rate_drop');
-    expect(m).toMatch(/producing day rate/);
-    expect(m).toMatch(/on calendar volumes/);
-    // P-5 averages 8 hours on stream, so its producing-day rate did not
-    // move at all: 300 stb/d against a 300 stb/d baseline, while the
-    // calendar volumes fell 67 per cent. The old message printed
-    // "100 vs 300 stb/d baseline", a rate the well never flowed at.
-    expect(m).toBe('Oil down 67% on calendar volumes: producing day rate 300 stb/d against a 300 stb/d baseline.');
-    expect(m).not.toMatch(/100 vs 300/);
+    // Since item 73 the TRIGGER is the producing day rate too, so P-5,
+    // whose rate never moved, no longer raises this at all and the
+    // message is read off a well that really did weaken.
+    expect(ex.exceptions.some((e) => e.wellId === 'w-p5' && e.type === 'rate_drop')).toBe(false);
+    const m = message('w-p1', 'rate_drop');
+    expect(m).toMatch(/on producing day rates/);
+    expect(m).toBe('Oil down 38% on producing day rates: 556 stb/d against a 900 stb/d baseline.');
+  });
+
+  test('the calendar basis is quoted only where the two bases disagree', () => {
+    // P-1 ran full hours, so the two readings are the same number and
+    // saying it twice would read as two findings
+    expect(message('w-p1', 'rate_drop')).not.toMatch(/Calendar volumes fell/);
+    // a well on half hours whose rate ALSO fell gets both bases, and the
+    // sentence says which part is which. Built here rather than mutated
+    // out of the golden field so the two windows are unambiguous: 30
+    // days at 1,000 stb on 24 hours, then 7 days at 400 stb on 12 hours,
+    // which is a 20 percent fall in rate and a 60 percent fall in volume.
+    const day = (i) => new Date(Date.UTC(2025, 0, 1 + i)).toISOString().slice(0, 10);
+    const rows = [];
+    for (let i = 0; i < 30; i += 1) {
+      rows.push({
+        well_id: 'w-x', well: { id: 'w-x', name: 'X-1', well_type: 'producer' },
+        prod_date: day(i), oil_stb: 1000, water_stb: 100, gas_mscf: 500,
+        winj_stb: 0, ginj_mscf: 0, hours_on: 24,
+      });
+    }
+    for (let i = 30; i < 37; i += 1) {
+      rows.push({
+        well_id: 'w-x', well: { id: 'w-x', name: 'X-1', well_type: 'producer' },
+        prod_date: day(i), oil_stb: 400, water_stb: 40, gas_mscf: 200,
+        winj_stb: 0, ginj_mscf: 0, hours_on: 12,
+      });
+    }
+    const both = detectExceptions(buildWellSeries(rows)).exceptions.find(
+      (e) => e.wellId === 'w-x' && e.type === 'rate_drop',
+    );
+    expect(both).toBeDefined();
+    expect(both.message).toMatch(/down 20% on producing day rates/);
+    expect(both.message).toMatch(/Calendar volumes fell 60%/);
+    expect(both.message).toMatch(/part of this is hours and part is rate/);
   });
 
   test('an injector quotes its producing day injection rate too', () => {
