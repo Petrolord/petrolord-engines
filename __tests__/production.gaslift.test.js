@@ -309,6 +309,55 @@ describe('valve spacing and settings', () => {
     });
   });
 
+  // Items 9 and 27. The valve that lands at or below the target depth is
+  // placed AT the target depth, and that branch breaks out before the
+  // minimum spacing test, so the last space can be a fraction of the
+  // stated minimum. It is still placed, and now it is said. The oracle
+  // broke out in the same order and published nothing, so the golden
+  // agreed with the engine's silence: it publishes the violation now, and
+  // these gate the engine against it.
+  test.each(G.designs.map((d) => [d.id, d]))(
+    'design %s: a target-depth mandrel short of the minimum is placed and reported',
+    (_id, g) => {
+      const design = designGasLift(caseCfg(g));
+      const raised = design.warnings.filter((w) => w.code === 'minSpacingViolated');
+      const e = g.minSpacingViolation;
+      if (e === null) {
+        expect(raised).toHaveLength(0);
+        return;
+      }
+      expect(raised).toHaveLength(1);
+      const w = raised[0];
+      expect(w.valve).toBe(e.valve);
+      expect(w.minSpacingFt).toBe(e.minSpacingFt);
+      expect(Math.abs(w.spacingFt - e.spacingFt)).toBeLessThan(0.05);
+      // the spacing it reports is short of the minimum it reports, which
+      // is the whole claim
+      expect(w.spacingFt).toBeLessThan(w.minSpacingFt);
+      // and the mandrel is placed anyway: the design still reaches target
+      expect(design.stopReason).toBe('targetDepth');
+      expect(design.depths).toHaveLength(g.depths.length);
+      expect(design.depths[design.depths.length - 1])
+        .toBeCloseTo(Math.min(g.inputs.maxDepthFt, g.inputs.targetDepthFt ?? g.inputs.maxDepthFt), 6);
+      // the message names both numbers, per R5
+      expect(w.message).toMatch(new RegExp(`Valve ${e.valve} is placed at the target depth`));
+      expect(w.message).toMatch(new RegExp(`${e.spacingFt.toFixed(1)} ft below valve ${e.valve - 1}`));
+      expect(w.message).toMatch(new RegExp(`${e.minSpacingFt} ft minimum spacing`));
+      expect(w.message).not.toMatch(/--|\u2014|\u2013/);
+    },
+  );
+
+  test('a design that stops on minimum spacing does not also report a violation', () => {
+    // the two are exclusive: `minSpacing` is the recursion refusing to
+    // place a valve that close, `minSpacingViolated` is the target-depth
+    // mandrel being placed that close on purpose
+    const g = G.designs.find((d) => d.id === 'deepHighPressure');
+    const design = designGasLift(caseCfg(g));
+    expect(design.stopReason).toBe('minSpacing');
+    expect(design.warnings.some((w) => w.code === 'minSpacingViolated')).toBe(false);
+    expect(design.warnings.some((w) => w.code === 'minSpacing')).toBe(true);
+  });
+
   test('valves are spaced strictly downward with shrinking increments', () => {
     const g = G.designs[0];
     const { depths } = spaceValves(caseCfg(g));
@@ -521,7 +570,10 @@ describe('the decisions behind the unloading solve are stated', () => {
   test('a published design settles and raises no such warning', () => {
     G.designs.forEach((g) => {
       const spacing = spaceValves(caseCfg(g));
-      expect(spacing.warnings).toEqual([]);
+      // every published design settles, so the only spacing warning any of
+      // them may carry is the item 9 target-depth mandrel
+      expect(spacing.warnings.map((w) => w.code).filter((c) => c !== 'minSpacingViolated'))
+        .toEqual([]);
       expect(designGasLift(caseCfg(g)).warnings
         .some((x) => x.code === 'spacingNotConverged')).toBe(false);
     });
