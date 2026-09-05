@@ -60,13 +60,12 @@ export const R_OFFSET = 459.67;
  *  psia ft3 / (lbmol degR). Exported so the closed-form gate builds its
  *  exponent from the same numbers the gradient uses.
  *
- *  NOT THE SAME CONSTANT AS `gasWellLoading.js`'s `AIR_MW`. That file
- *  carries 28.9647 and this one carries 28.9625. Both are published
- *  values for dry air and they differ by about 8 parts in 100,000, so
- *  importing one from the other MOVES every gas well density and
- *  everything downstream of one. That is a Wave 2 change with a golden
- *  refresh behind it and is deliberately not made here. The divergence
- *  is a recorded decision, not an oversight to be tidied away. */
+ *  THIS IS THE DOMAIN'S ONLY `AIR_MW`. `gasWellLoading.js` used to
+ *  carry its own 28.9647 against this 28.9625, both published values
+ *  for dry air and about 8 parts in 100,000 apart, and imports it from
+ *  here since item 13. A second molecular weight of air added to this
+ *  file, or to any module that imports from it, puts the divergence
+ *  back. */
 export const AIR_MW = 28.9625;
 export const R_UNIVERSAL = 10.7316;
 
