@@ -62,9 +62,22 @@ describe('golden anchors', () => {
       path.join(root, 'test-data', 'production', 'goldens', 'esp_cases.json'), 'utf8',
     ));
     const curve = fitStageCurve({ points: G.vendorCurve.points });
-    const a = G.affinity[5];
+    // An anchor has to be a row that HAS an answer. Item 5 withdrew the
+    // three affinity rows whose duty sits more than a tenth of the
+    // tested span past the end of the curve, and this test used to
+    // anchor on one of them.
+    const a = G.affinity.find((r) => r.ok !== false && r.hz === 50 && r.qBpd === 2500);
     const s = stagePerformance({ curve, qBpd: a.qBpd, hz: a.hz, specificGravity: a.sg });
     expect(close(s.headFt, a.headFt, 1e-8)).toBe(true);
+    // and the withdrawn ones are an anchor too: they refuse, on both
+    // sides, for the same reason
+    const beyond = G.affinity.filter((r) => r.ok === false);
+    expect(beyond.length).toBeGreaterThan(0);
+    beyond.forEach((r) => {
+      const out = stagePerformance({ curve, qBpd: r.qBpd, hz: r.hz, specificGravity: r.sg });
+      expect(out.ok).toBe(false);
+      expect(out.code).toBe(r.code);
+    });
     const d = G.designs[0];
     const stream = intakeStream({
       qoStbd: d.inputs.qoStbd, wct: d.inputs.wct, gorScfStb: d.inputs.gorScfStb, pvt: d.inputs.pvt,
