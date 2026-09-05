@@ -315,6 +315,7 @@ describe('plunger lift: the force balance', () => {
     expect(rel(lift.terms.slugPsi, o.slugPsi)).toBeLessThan(5e-3);
     expect(rel(lift.terms.plungerPsi, o.plungerPsi)).toBeLessThan(1e-3);
     expect(rel(lift.terms.gasColumnPsi, o.gasColumnPsi)).toBeLessThan(1e-3);
+    expect(rel(lift.gasColumn.densityLbFt3, o.gasColumnDensityLbFt3)).toBeLessThan(1e-3);
     expect(rel(lift.requiredPsia, o.requiredPsia)).toBeLessThan(3e-3);
     expect(PSI_PER_FT_SG).toBe(0.433);
   });
@@ -346,20 +347,61 @@ describe('plunger lift: the force balance', () => {
     const atMax = liftPressure({ ...base, slugLengthFt: max });
     expect(rel(atMax.requiredPsia, base.casingPressurePsia)).toBeLessThan(1e-6);
     expect(max).toBeLessThanOrEqual(base.depthFt);
-    // ITEM 34, the additive half: the VALUE inside the new shape is the
-    // value the bare-number return always gave, to the last bit. This is
-    // the gate that says no number moved when the shape did.
+    // ITEM 32, THE CLOSURE GATE THAT REPLACES THE ITEM 34 PIN. Wave 1
+    // pinned this value bit for bit against the old bare-number return,
+    // computed at a gas density taken once at the line pressure. Item 32
+    // moved that convention, so the pin is replaced by the property it
+    // was standing in for: the longest slug is the slug at which the
+    // casing pressure is exactly used up, and `liftPressure` and
+    // `maxSlugLengthFt` have to agree about that to the last few bits or
+    // one of them is pricing the gas column differently from the other.
+    // The assertion above already checks the closure at 1e-6; this one
+    // checks it at the tolerance the shared fixed point actually holds.
+    expect(Math.abs(atMax.requiredPsia - base.casingPressurePsia)).toBeLessThan(1e-9);
+    // and the old convention is measurably different, so this is a real
+    // constraint and not a tautology: at a density taken at the line
+    // pressure the same well solves about 2 ft longer
     const areaIn2 = tubingAreaIn2(base.idIn);
-    const rhoGas = (base.linePressurePsia * AIR_MW * base.gasSg)
+    const rhoAtLine = (base.linePressurePsia * AIR_MW * base.gasSg)
       / (base.z * 10.7316 * base.avgTempR);
-    const gasPerFt = rhoGas / 144;
-    const available = base.casingPressurePsia - base.linePressurePsia
-      - base.plungerWeightLb / areaIn2 - 0 - gasPerFt * base.depthFt;
-    const asItWas = Math.min(
-      Math.max(available / (PSI_PER_FT_SG * base.liquidSg - gasPerFt), 0),
-      base.depthFt,
-    );
-    expect(max).toBe(asItWas);
+    const gasPerFtAtLine = rhoAtLine / 144;
+    const availableAtLine = base.casingPressurePsia - base.linePressurePsia
+      - base.plungerWeightLb / areaIn2 - 0 - gasPerFtAtLine * base.depthFt;
+    const asItWas = availableAtLine / (PSI_PER_FT_SG * base.liquidSg - gasPerFtAtLine);
+    expect(asItWas).toBeGreaterThan(max);
+    expect(asItWas - max).toBeGreaterThan(1);
+  });
+
+  // Item 32. The column runs from the line pressure at surface to the
+  // line pressure plus its own weight at the slug top, so its density is
+  // taken at the average of the two rather than at the lighter end.
+  test('the gas column above the slug is priced at the average of its two ends', () => {
+    const lift = liftPressure(base);
+    expect(lift.gasColumn.pressurePsia)
+      .toBeCloseTo(base.linePressurePsia + lift.terms.gasColumnPsi / 2, 9);
+    expect(lift.gasColumn.heightFt).toBe(base.depthFt - base.slugLengthFt);
+    expect(lift.gasColumn.converged).toBe(true);
+    // the density it was priced at is the density at that pressure
+    expect(lift.gasColumn.densityLbFt3).toBeCloseTo(gasDensityLbFt3({
+      pPsia: lift.gasColumn.pressurePsia, tempR: base.avgTempR, z: base.z, gasSg: base.gasSg,
+    }), 12);
+    // and it is heavier than the same column priced at the line pressure,
+    // which is what understating it looked like
+    const atLine = gasDensityLbFt3({
+      pPsia: base.linePressurePsia, tempR: base.avgTempR, z: base.z, gasSg: base.gasSg,
+    }) * (base.depthFt - base.slugLengthFt) / 144;
+    expect(lift.terms.gasColumnPsi).toBeGreaterThan(atLine);
+    expect(lift.terms.gasColumnPsi / atLine).toBeGreaterThan(1.05);
+    expect(lift.terms.gasColumnPsi / atLine).toBeLessThan(1.10);
+  });
+
+  test('a gas column that cannot be priced refuses instead of weighing nothing', () => {
+    // the density is the whole term; a NaN one used to become a gas
+    // column of zero psi in the longest-slug solve
+    const r = maxSlugLengthFt({ ...base, avgTempR: NaN });
+    expect(r.ok).toBe(false);
+    expect(r.code).toBe('unreadableGasColumn');
+    expect(r.error).toMatch(/could not be priced/);
   });
 });
 
@@ -378,11 +420,16 @@ describe('plunger lift: gas, cycle and feasibility', () => {
 
   test('the gas a cycle needs matches the oracle', () => {
     const o = G.plunger;
+    // item 12: the two ends of the rise, both read under the plunger.
+    // The casing pressure, 600 psia here, is not one of them.
     const scf = gasPerCycleScf({
-      depthFt: 6000, idIn: 2.441, pStartPsia: 600, pEndPsia: o.requiredPsia,
+      depthFt: 6000, idIn: 2.441, pStartPsia: o.requiredPsia, pEndPsia: o.arrivalPsia,
       avgTempR: 580, z: 0.9,
     });
     expect(rel(scf, o.gasPerCycleScf)).toBeLessThan(1e-6);
+    // and the pressure at arrival is the line pressure plus the plunger's
+    // own weight, with nothing above it
+    expect(rel(o.arrivalPsia, 120 + o.plungerPsi)).toBeLessThan(1e-12);
   });
 
   test('the cycle adds up and turns into trips a day', () => {
@@ -427,9 +474,13 @@ describe('plunger lift: gas, cycle and feasibility', () => {
     // A well between the two numbers is exactly where a screening
     // heuristic misleads, so whether they agree is surfaced rather than
     // hidden.
-    const r = screenPlungerLift({ ...base, wellGlrScfBbl: 3000 });
-    expect(r.design.wellGlrScfBbl).toBeGreaterThan(r.design.ruleOfThumbGlrScfBbl);
-    expect(r.design.glrOk).toBe(false);      // the physics says no
+    // 2000 scf/bbl is BELOW the rule of thumb's 2400 and ABOVE the 1987 a
+    // cycle actually needs, so the heuristic rejects a well the physics
+    // accepts. Before item 12 this well sat the other way round, under a
+    // requirement of 4711 that the casing pressure had inflated.
+    const r = screenPlungerLift({ ...base, wellGlrScfBbl: 2000 });
+    expect(r.design.wellGlrScfBbl).toBeLessThan(r.design.ruleOfThumbGlrScfBbl);
+    expect(r.design.glrOk).toBe(true);       // the physics says yes
     expect(r.design.ruleOfThumbAgrees).toBe(false);
   });
 
@@ -1163,10 +1214,10 @@ describe('item 42: the slug is named WITH a direction', () => {
   });
 
   test('a rule of thumb that disagrees with the physics says so, with both figures', () => {
-    // wellGlr 3000 is above the rule of thumb's 2400 and below the 4711
+    // wellGlr 2000 is below the rule of thumb's 2400 and above the 1987
     // a cycle actually needs, which is exactly where a screening
     // heuristic misleads. It used to be reported only as a boolean.
-    const r = screenPlungerLift({ ...well, wellGlrScfBbl: 3000 });
+    const r = screenPlungerLift({ ...well, wellGlrScfBbl: 2000 });
     expect(r.design.ruleOfThumbAgrees).toBe(false);
     const w = r.design.warnings.find((x) => x.code === 'ruleOfThumbDisagrees');
     expect(w).toBeDefined();
@@ -1177,7 +1228,7 @@ describe('item 42: the slug is named WITH a direction', () => {
     expect(w.message).toContain(
       `a cycle actually needs ${r.design.requiredGlrScfBbl.toLocaleString(undefined, oneDp)}`,
     );
-    expect(w.message).toContain(`the well makes ${(3000).toLocaleString(undefined, oneDp)}`);
+    expect(w.message).toContain(`the well makes ${(2000).toLocaleString(undefined, oneDp)}`);
     expect(w.message).toMatch(/The verdict above follows the computed ratio/);
   });
 
@@ -1250,5 +1301,146 @@ describe('item 13: one door convention for temperature', () => {
     // knows the single constant is a decision
     expect(loading).toContain("`AIR_MW` IS `gasProperties.js`'s, IMPORTED");
     expect(props).toContain("THIS IS THE DOMAIN'S ONLY `AIR_MW`");
+  });
+});
+
+// Item 12. The required gas-liquid ratio used to be taken from the
+// average of the CASING pressure and the lift pressure, so it rose with
+// the casing and therefore FELL as a well weakened. The verdict got
+// easier as the well got worse, which is the wrong direction for the one
+// number this screen exists to produce.
+describe('item 12: the required ratio and the direction it moves', () => {
+  const well = {
+    depthFt: 6000, idIn: 2.441, linePressurePsia: 120, casingPressurePsia: 800,
+    slugLengthFt: 200, liquidSg: 1.02, plungerWeightLb: 6, gasSg: 0.65,
+    avgTempR: 580, z: 0.9,
+  };
+  const casings = [1200, 1000, 800, 700, 650, 620];
+
+  test('the requirement is read under the plunger, so the casing does not move it', () => {
+    const ratios = casings.map((casingPressurePsia) => screenPlungerLift({
+      ...well, casingPressurePsia, wellGlrScfBbl: 5000,
+    }).design.requiredGlrScfBbl);
+    // identical, not merely close: the casing pressure is not in the
+    // expression any more
+    ratios.forEach((r) => expect(r).toBe(ratios[0]));
+    // and the requirement is the average of the two ends of the rise
+    const d = screenPlungerLift({ ...well, wellGlrScfBbl: 5000 }).design;
+    const arrival = well.linePressurePsia + d.lift.terms.plungerPsi;
+    const expected = gasPerCycleScf({
+      depthFt: well.depthFt, idIn: well.idIn, pStartPsia: d.lift.requiredPsia,
+      pEndPsia: arrival, avgTempR: well.avgTempR, z: well.z,
+    }) / slugVolumeBbl({ slugLengthFt: well.slugLengthFt, idIn: well.idIn });
+    expect(d.requiredGlrScfBbl).toBeCloseTo(expected, 9);
+  });
+
+  test('the old expression fell as the well weakened, and by enough to flip a verdict', () => {
+    // recomputed here rather than remembered: the same swept volume at
+    // the average of the CASING and the lift pressure
+    const old = (casingPressurePsia) => {
+      const lift = liftPressure({ ...well, casingPressurePsia });
+      return gasPerCycleScf({
+        depthFt: well.depthFt, idIn: well.idIn, pStartPsia: casingPressurePsia,
+        pEndPsia: lift.requiredPsia, avgTempR: well.avgTempR, z: well.z,
+      }) / slugVolumeBbl({ slugLengthFt: well.slugLengthFt, idIn: well.idIn });
+    };
+    const oldRatios = casings.map(old);
+    for (let i = 1; i < oldRatios.length; i += 1) {
+      expect(oldRatios[i]).toBeLessThan(oldRatios[i - 1]);
+    }
+    // a well making 5,000 scf/bbl was short of the old requirement at
+    // 1,200 psia casing and clear of it at 620, which is a verdict that
+    // improved because the well got weaker
+    expect(oldRatios[0]).toBeGreaterThan(5000);
+    expect(oldRatios[oldRatios.length - 1]).toBeLessThan(5000);
+    // and the old number was 3.4 times the industry heuristic it is
+    // reported next to, where the new one is the same order as it
+    const ruleGlr = ruleOfThumbGlr({ depthFt: well.depthFt });
+    expect(oldRatios[0] / ruleGlr).toBeGreaterThan(3);
+    const now = screenPlungerLift({ ...well, wellGlrScfBbl: 5000 }).design.requiredGlrScfBbl;
+    expect(now / ruleGlr).toBeGreaterThan(0.5);
+    expect(now / ruleGlr).toBeLessThan(1);
+  });
+
+  test('the casing pressure enters the requirement through the slug it can lift', () => {
+    // where it belongs: a weaker casing lifts a shorter slug, and a
+    // shorter slug carries the same tubing fill on fewer barrels
+    const atMax = casings.map((casingPressurePsia) => screenPlungerLift({
+      ...well, casingPressurePsia, wellGlrScfBbl: 5000,
+    }).design.requiredGlrAtMaxSlugScfBbl);
+    for (let i = 1; i < atMax.length; i += 1) {
+      expect(atMax[i]).toBeGreaterThan(atMax[i - 1]);
+    }
+    // and it has no upper bound: at the pressure that lifts a bare
+    // plunger and no more, the best slug is nothing and the requirement
+    // per barrel runs away
+    const bare = liftPressure({ ...well, slugLengthFt: 0 }).requiredPsia;
+    const nearBare = screenPlungerLift({
+      ...well, casingPressurePsia: bare + 1, wellGlrScfBbl: 5000,
+    }).design;
+    expect(nearBare.maxSlugLengthFt).toBeLessThan(5);
+    expect(nearBare.requiredGlrAtMaxSlugScfBbl).toBeGreaterThan(100000);
+  });
+
+  test('a casing that cannot lift a bare plunger reports the refusal, not a null on its own', () => {
+    const d = screenPlungerLift({
+      ...well, casingPressurePsia: 130, wellGlrScfBbl: 5000,
+    }).design;
+    expect(d.maxSlugLengthFt).toBeNull();
+    expect(d.requiredGlrAtMaxSlugScfBbl).toBeNull();
+    expect(d.maxSlugRefusal.code).toBe('casingBelowLiftPressure');
+    expect(d.pressureOk).toBe(false);
+  });
+});
+
+// Item 12, third clause. A cycle cannot lift liquid the well does not
+// make, and until now nothing asked whether it did.
+describe('item 12: the cycle against the well inflow', () => {
+  const well = {
+    depthFt: 6000, idIn: 2.441, linePressurePsia: 120, casingPressurePsia: 800,
+    slugLengthFt: 200, liquidSg: 1.02, plungerWeightLb: 6, gasSg: 0.65,
+    avgTempR: 580, z: 0.9, wellGlrScfBbl: 5000,
+  };
+
+  test('a cycle that outruns the inflow is infeasible and the ratio is printed', () => {
+    const d = screenPlungerLift({ ...well, wellLiquidRateBblD: 5 }).design;
+    expect(d.liquidOk).toBe(false);
+    expect(d.feasible).toBe(false);
+    // it is feasible on both of the conditions that used to be the whole
+    // verdict, so this is the new condition doing the work
+    expect(d.pressureOk).toBe(true);
+    expect(d.glrOk).toBe(true);
+    const oneDp = { minimumFractionDigits: 1, maximumFractionDigits: 1 };
+    const w = d.warnings.find((x) => x.code === 'cycleOutrunsInflow');
+    expect(w).toBeDefined();
+    expect(d.liquidRatio).toBeCloseTo(d.liquidPerDayBbl / 5, 12);
+    expect(w.message).toContain(
+      `a ratio of ${d.liquidRatio.toLocaleString(undefined, oneDp)} to 1`,
+    );
+    expect(w.message).toContain(
+      `${d.liquidPerDayBbl.toLocaleString(undefined, oneDp)} bbl per day`,
+    );
+    expect(w.message).not.toMatch(/--|—|–/);
+  });
+
+  test('a well that makes the liquid passes it', () => {
+    const d = screenPlungerLift({ ...well, wellLiquidRateBblD: 400 }).design;
+    expect(d.liquidOk).toBe(true);
+    expect(d.feasible).toBe(true);
+    expect(d.warnings.map((x) => x.code)).not.toContain('cycleOutrunsInflow');
+  });
+
+  test('no liquid rate means the question was not asked, not answered yes', () => {
+    const d = screenPlungerLift(well).design;
+    expect(d.liquidOk).toBeNull();
+    expect(d.wellLiquidRateBblD).toBeNull();
+    // an untested condition does not make a design infeasible
+    expect(d.feasible).toBe(d.pressureOk && d.glrOk);
+    const w = d.warnings.find((x) => x.code === 'liquidRateNotGiven');
+    expect(w).toBeDefined();
+    expect(w.message).toMatch(/was not tested/);
+    expect(w.message).toContain(
+      `${d.liquidPerDayBbl.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} bbl per day`,
+    );
   });
 });
