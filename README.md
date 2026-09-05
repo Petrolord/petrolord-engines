@@ -218,6 +218,12 @@ and its consumers.
 - `tools/validation/<domain>/` — the Python oracles + `genfixtures.py`
   generators that produce the goldens (stdlib-only except
   `wells/`, which needs a lasio venv — see its README).
+  `mapping/oracle_structure_points.py` (2026-09-05) writes the
+  structure-map goldens: tops placed through the well's depth frame
+  (TVDSS elevation at the borehole position, closed-form build-and-hold
+  wells) and a dipping plane that TPS gridding must reproduce; the
+  elevation convention for every depth surface (negative below datum,
+  m or ft per `z_unit`) is an owner decision recorded there.
 - `__tests__/` — smoke suite: every module imports cleanly and
   per-domain anchors match the goldens. The FULL acceptance suites
   currently run in the Suite's CI against the vendored copy

@@ -82,18 +82,35 @@ export function makeDepthFrame({ deviation = null, kbM = 0, tdMdM = null } = {})
   const lastPath = isVertical ? null : path[path.length - 1];
   const cosLast = isVertical ? 1 : Math.cos(last.inc * DEG);
 
-  const mdToTvdss = (md) => {
+  // Unit tangent of the last station, for the continuation past TD.
+  const sinLast = isVertical ? 0 : Math.sin(last.inc * DEG);
+  const eLast = isVertical ? 0 : sinLast * Math.sin(last.azi * DEG);
+  const nLast = isVertical ? 0 : sinLast * Math.cos(last.azi * DEG);
+
+  /**
+   * Borehole position at an MD: x/y are East/North OFFSETS from the
+   * wellhead in metres (the path is built at the origin), tvd below KB,
+   * tvdss below datum. Past the last station the path continues along
+   * the final tangent in all three components and is flagged.
+   */
+  const mdToPosition = (md) => {
     if (!Number.isFinite(md)) throw new Error('MD must be a number.');
-    if (isVertical) return { tvd: md, tvdss: md - kb, extrapolated: false };
+    if (isVertical) return { x: 0, y: 0, tvd: md, tvdss: md - kb, extrapolated: false };
     if (md < stations[0].md - 1e-9) {
       throw new Error(`MD ${md} m is above the first survey station (${stations[0].md} m).`);
     }
     if (md <= last.md + 1e-9) {
       const p = positionAtMd(stations, path, Math.min(md, last.md));
-      return { tvd: p.tvd, tvdss: p.tvdss, extrapolated: false };
+      return { x: p.x, y: p.y, tvd: p.tvd, tvdss: p.tvdss, extrapolated: false };
     }
-    const tvd = lastPath.tvd + (md - last.md) * cosLast;
-    return { tvd, tvdss: tvd - kb, extrapolated: true };
+    const d = md - last.md;
+    const tvd = lastPath.tvd + d * cosLast;
+    return { x: lastPath.x + d * eLast, y: lastPath.y + d * nLast, tvd, tvdss: tvd - kb, extrapolated: true };
+  };
+
+  const mdToTvdss = (md) => {
+    const p = mdToPosition(md);
+    return { tvd: p.tvd, tvdss: p.tvdss, extrapolated: p.extrapolated };
   };
 
   const tvdssToMd = (tvdss) => {
@@ -116,6 +133,7 @@ export function makeDepthFrame({ deviation = null, kbM = 0, tdMdM = null } = {})
     isVertical,
     assumedVerticalToFirstStation,
     mdRange: isVertical ? null : [stations[0].md, last.md],
+    mdToPosition,
     mdToTvdss,
     tvdssToMd,
   };
