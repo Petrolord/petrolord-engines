@@ -843,6 +843,14 @@ export const tubingCurve = ({ bhpAt, qMax, nPoints = 40, qMinFraction = 1e-3 }) 
 
 const REL_SLOPE_DQ = 5e-3; // central-difference step as a fraction of qMax
 
+/**
+ * How many times each interval of the coarse scan is resampled before a
+ * well is called dead (item 6). Sixteen makes the probe a 640 point scan
+ * on the default grid, and it runs only when the 40 point scan found no
+ * crossing at all.
+ */
+export const DEAD_PROBE_SUBDIVISIONS = 16;
+
 const refineNode = (q, resid, iprPwfAt, qMax) => {
   const dq = qMax * REL_SLOPE_DQ;
   const gPlus = resid(Math.min(q + dq, qMax));
@@ -860,18 +868,46 @@ const refineNode = (q, resid, iprPwfAt, qMax) => {
  *   qMax     upper rate bound (the absolute open flow, or the model qmax)
  *   nGrid    scan resolution, default 40
  * }
- * returns { intersections: [{ q, pwf, stable }], op, status, curve }
+ * returns { intersections: [{ q, pwf, stable }], op, status, curve,
+ *           deadProbe }
  *   status  'flowing'             a stable crossing was found
  *           'no-stable-solution'  crossings exist, none of them holds
- *           'dead'                the outflow is above the inflow at
- *                                 every sampled rate
+ *           'dead'                no crossing exists, and the probe
+ *                                 below looked for one before saying so
  *
  * The reported `op` is the RIGHTMOST STABLE crossing, which is the
  * reduction over the rows and is gated as its own value, not inferred
  * from the rows being right.
+ *
+ * A DEAD VERDICT IS VERIFIED, NOT INFERRED FROM A COARSE SCAN. `nGrid`
+ * samples the residual 40 times across the open flow, and a well whose
+ * inflow and outflow cross twice inside one of those intervals shows no
+ * sign change at any sample: the scan sees a residual that is positive
+ * everywhere and calls the well dead. That is not a rare shape. It is
+ * what a well looks like as it approaches loading up, the two crossings
+ * closing on each other, and it is exactly the well an engineer is
+ * asking about.
+ *
+ * So when the coarse scan finds NOTHING, and only then, every interval
+ * of it is resampled `DEAD_PROBE_SUBDIVISIONS` times and the sign is
+ * checked again. Any bracket found there is solved and refined the same
+ * way a coarse bracket is. The grid count is unchanged at 40 and a
+ * flowing well costs nothing extra; a dead verdict costs one more pass
+ * and is worth what it costs, because dead is the verdict a user acts
+ * on by pulling the well. `deadProbe` reports whether it ran and what it
+ * found. Item 6.
  */
 export const solveNodeCore = ({ iprPwfAt, vlpBhpAt, qMax, nGrid = 40 }) => {
-  if (!(qMax > 0)) return { intersections: [], op: null, status: 'dead', curve: [] };
+  if (!(qMax > 0)) {
+    return {
+      intersections: [],
+      op: null,
+      status: 'dead',
+      curve: [],
+      // there is no rate axis to probe when there is no open flow
+      deadProbe: { ran: false, reason: 'noOpenFlow', subdivisions: 0, crossingsFound: 0 },
+    };
+  }
 
   const qs = linspace(qMax * 1e-3, qMax * 0.999, nGrid);
   const resid = (q) => vlpBhpAt(q) - iprPwfAt(q);
@@ -898,6 +934,43 @@ export const solveNodeCore = ({ iprPwfAt, vlpBhpAt, qMax, nGrid = 40 }) => {
     }
   }
 
+  // Item 6. Nothing on the coarse scan is not the same as nothing.
+  let deadProbe = { ran: false, reason: 'crossingsOnTheScan', subdivisions: 0, crossingsFound: 0 };
+  if (!intersections.length) {
+    deadProbe = {
+      ran: true,
+      reason: 'noCrossingOnTheScan',
+      subdivisions: DEAD_PROBE_SUBDIVISIONS,
+      crossingsFound: 0,
+    };
+    for (let i = 1; i < curve.length; i += 1) {
+      const a = curve[i - 1];
+      const b = curve[i];
+      if (!Number.isFinite(a.g) || !Number.isFinite(b.g)) continue;
+      let prevQ = a.q;
+      let prevG = a.g;
+      for (let k = 1; k <= DEAD_PROBE_SUBDIVISIONS; k += 1) {
+        const q = a.q + ((b.q - a.q) * k) / DEAD_PROBE_SUBDIVISIONS;
+        const g = resid(q);
+        if (!Number.isFinite(g)) { prevQ = q; prevG = g; continue; }
+        if (Number.isFinite(prevG)) {
+          if (prevG === 0) {
+            intersections.push(refineNode(prevQ, resid, iprPwfAt, qMax));
+            deadProbe.crossingsFound += 1;
+          } else if (prevG * g < 0) {
+            const solved = brentSolve(resid, prevQ, q, { tol: Math.max(qMax * 1e-8, 1e-8) });
+            if (solved.converged) {
+              intersections.push(refineNode(solved.root, resid, iprPwfAt, qMax));
+              deadProbe.crossingsFound += 1;
+            }
+          }
+        }
+        prevQ = q;
+        prevG = g;
+      }
+    }
+  }
+
   const stable = intersections.filter((x) => x.stable);
   const op = stable.length > 0 ? stable[stable.length - 1] : null;
   const status = op
@@ -905,7 +978,7 @@ export const solveNodeCore = ({ iprPwfAt, vlpBhpAt, qMax, nGrid = 40 }) => {
     : intersections.length > 0
       ? 'no-stable-solution'
       : 'dead';
-  return { intersections, op, status, curve };
+  return { intersections, op, status, curve, deadProbe };
 };
 
 /**
@@ -916,7 +989,14 @@ export const solveNodeCore = ({ iprPwfAt, vlpBhpAt, qMax, nGrid = 40 }) => {
 export const solveOilNode = ({ ipr, vlpBhpAt, nGrid = 40 }) => {
   const qMax = ipr?.qmax ?? (ipr ? rateAtPwf(ipr, 0) : NaN);
   if (!(qMax > 0)) {
-    return { intersections: [], op: null, status: 'dead', curve: [], qMax: NaN };
+    return {
+      intersections: [],
+      op: null,
+      status: 'dead',
+      curve: [],
+      deadProbe: { ran: false, reason: 'noOpenFlow', subdivisions: 0, crossingsFound: 0 },
+      qMax: NaN,
+    };
   }
   return {
     ...solveNodeCore({
@@ -946,7 +1026,14 @@ export const solveOilNode = ({ ipr, vlpBhpAt, nGrid = 40 }) => {
 export const solveGasNode = ({ iprResult, tubing, bhpAt, nGrid = 40 }) => {
   const qMax = iprResult?.aof;
   if (!(qMax > 0)) {
-    return { intersections: [], op: null, status: 'dead', curve: [], qMax: NaN };
+    return {
+      intersections: [],
+      op: null,
+      status: 'dead',
+      curve: [],
+      deadProbe: { ran: false, reason: 'noOpenFlow', subdivisions: 0, crossingsFound: 0 },
+      qMax: NaN,
+    };
   }
   const vlpBhpAt = bhpAt
     || ((q) => cullenderSmithBhp({ ...tubing, qMmscfd: q / 1000 }).pwf);

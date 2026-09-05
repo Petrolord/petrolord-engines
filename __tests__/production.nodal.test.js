@@ -30,6 +30,7 @@ import {
   gasReynolds, csIntegrand, csFrictionGroup,
   cullenderSmithBhp, averageTzBhp, tubingCurve,
   solveNodeCore, solveOilNode, solveGasNode, operatingPointSweep,
+  DEAD_PROBE_SUBDIVISIONS,
 } from '../engines/production/nodal';
 
 const G = JSON.parse(fs.readFileSync(
@@ -315,7 +316,15 @@ describe('the node solve', () => {
 
   test('a rate bound of zero is dead, not a crash', () => {
     const r = solveNodeCore({ iprPwfAt: () => 1, vlpBhpAt: () => 0, qMax: 0 });
-    expect(r).toEqual({ intersections: [], op: null, status: 'dead', curve: [] });
+    expect(r).toEqual({
+      intersections: [],
+      op: null,
+      status: 'dead',
+      curve: [],
+      // there is no rate axis to probe, and the record says that rather
+      // than implying a probe ran and found nothing
+      deadProbe: { ran: false, reason: 'noOpenFlow', subdivisions: 0, crossingsFound: 0 },
+    });
   });
 
   test('every golden node reproduces the oracle: crossings, stability and the operating point', () => {
@@ -359,19 +368,51 @@ describe('the node solve', () => {
     expect(Math.abs(nearest - c.op.q) / spacing).toBeGreaterThan(0.2);
   });
 
-  test('a scan too coarse for the crossings loses the well entirely', () => {
+  // Item 6. A dead verdict is verified, not inferred from a coarse scan.
+  test('a well whose crossings sit inside one interval is found, not called dead', () => {
     // The pinched instrument puts both crossings inside one interval of
-    // the default 40-point scan. This is not a contrivance: it is the
-    // shape a well takes as it approaches loading up, and it is the
-    // documented limit of a fixed-resolution scan. The golden records
-    // what is TRUE; this test records what the default costs.
+    // the default 40-point scan, 20 stb/d apart against an interval of
+    // about 51. This is not a contrivance: it is the shape a well takes
+    // as it approaches loading up, and it used to come back 'dead' at
+    // the default grid while the golden recorded a flowing well.
     const c = G.nodes.find((x) => x.id === 'analyticResidualPinched');
     const ipr = oilModel(c.ipr);
     const vlp = instrumentOutflow(c.outflow, ipr);
-    expect(solveOilNode({ ipr, vlpBhpAt: vlp, nGrid: 40 }).status).toBe('dead');
+    const coarse = solveOilNode({ ipr, vlpBhpAt: vlp, nGrid: 40 });
+    expect(coarse.status).toBe('flowing');
+    expect(coarse.deadProbe.ran).toBe(true);
+    expect(coarse.deadProbe.crossingsFound).toBe(2);
+    // and it is the oracle's answer, which is exact algebra on a parabola
+    expect(rel(coarse.op.q, c.op.q)).toBeLessThan(1e-9);
+    expect(coarse.intersections).toHaveLength(c.intersections.length);
+    // the finer grid, which used to be the only way to see this well,
+    // now agrees with the default one instead of disagreeing with it
     const fine = solveOilNode({ ipr, vlpBhpAt: vlp, nGrid: c.nGridRequired });
     expect(fine.status).toBe('flowing');
-    expect(rel(fine.op.q, c.op.q)).toBeLessThan(1e-9);
+    expect(rel(fine.op.q, coarse.op.q)).toBeLessThan(1e-9);
+  });
+
+  test('the probe runs only when the scan found nothing, and a flowing well pays for none of it', () => {
+    const c = G.nodes.find((x) => x.id === 'analyticResidualWide');
+    const ipr = oilModel(c.ipr);
+    const vlp = instrumentOutflow(c.outflow, ipr);
+    const s = solveOilNode({ ipr, vlpBhpAt: vlp, nGrid: 40 });
+    expect(s.status).toBe('flowing');
+    expect(s.deadProbe.ran).toBe(false);
+    expect(s.deadProbe.reason).toBe('crossingsOnTheScan');
+  });
+
+  test('a well that really is dead is still dead, and says the probe looked', () => {
+    const c = G.nodes.find((x) => x.id === 'deadWell');
+    expect(c).toBeDefined();
+    const ipr = oilModel(c.ipr);
+    const vlp = instrumentOutflow(c.outflow, ipr);
+    const s = solveOilNode({ ipr, vlpBhpAt: vlp, nGrid: 40 });
+    expect(s.status).toBe('dead');
+    expect(c.status).toBe('dead');
+    expect(s.deadProbe.ran).toBe(true);
+    expect(s.deadProbe.crossingsFound).toBe(0);
+    expect(s.deadProbe.subdivisions).toBe(DEAD_PROBE_SUBDIVISIONS);
   });
 
   test('an inflow that never calibrated makes a dead node, not a NaN one', () => {
