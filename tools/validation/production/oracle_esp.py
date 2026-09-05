@@ -111,9 +111,23 @@ def bep_of(curve):
             'headFt': poly_eval(curve['head']['coeffs'], curve['head']['scale'], best_q)}
 
 
+EXTRAPOLATION_BAND_FRACTION = 0.10
+
+
 def stage_performance(curve, q_bpd, hz, sg=1.0):
+    """Item 5. A stage curve is a cubic through five or six points, and
+    past the ends it is an arbitrary shape: this oracle's own fit put
+    0.05 ft of head at 4,800 bbl/d on a curve tested to 3,500, and the
+    golden gated that number as though it were a reading. Beyond a tenth
+    of the tested span past either end there is no answer, and the row
+    says so instead."""
     ratio = hz / curve['refHz']
     q_ref = q_bpd / ratio
+    band = EXTRAPOLATION_BAND_FRACTION * (curve['qMax'] - curve['qMin'])
+    if q_ref < curve['qMin'] - band or q_ref > curve['qMax'] + band:
+        return {'ok': False, 'code': 'outsideCurve', 'qRefBpd': q_ref,
+                'ratio': ratio, 'inRange': False, 'inBand': False,
+                'region': 'downthrust' if q_ref < curve['qMin'] else 'upthrust'}
     head_ref = poly_eval(curve['head']['coeffs'], curve['head']['scale'], q_ref)
     head = head_ref * ratio * ratio
     eff = (poly_eval(curve['eff']['coeffs'], curve['eff']['scale'], q_ref)
@@ -129,8 +143,9 @@ def stage_performance(curve, q_bpd, hz, sg=1.0):
         region = 'upthrust'
     else:
         region = 'recommended'
-    return {'headFt': head, 'efficiency': eff, 'bhpPerStage': bhp,
-            'qRefBpd': q_ref, 'ratio': ratio, 'inRange': in_range, 'region': region}
+    return {'ok': True, 'headFt': head, 'efficiency': eff, 'bhpPerStage': bhp,
+            'qRefBpd': q_ref, 'ratio': ratio, 'inRange': in_range,
+            'inBand': True, 'region': region}
 
 
 # ------------------------------------------------------------------- design
@@ -196,11 +211,20 @@ def size_pump(curve, q_bpd, tdh_ft, hz, sg, nameplate_hp):
     # negative stage count. The engine refuses the same way.
     stages = math.ceil(tdh_ft / st['headFt']) if st['headFt'] > 0 else None
     shaft = hydraulic_hp(q_bpd, tdh_ft, sg) / st['efficiency']
+    # Item 2. Two powers, and the electrical chain takes the second: the
+    # brake power of the stage count actually selected, which is the
+    # published sizing power (BHP = stages x BHP/stage x SG). The first
+    # is the brake power the duty asks for, smaller by the stage rounding
+    # margin, and sizing amps and cable on it understates both.
+    bhp_total = st['bhpPerStage'] * stages if stages else None
     return {'stages': stages, 'stage': st,
             'hydraulicHp': hydraulic_hp(q_bpd, tdh_ft, sg),
             'shaftHp': shaft,
+            'bhpTotal': bhp_total,
+            'motorSizingHp': bhp_total,
             'headMadeFt': st['headFt'] * stages,
-            'loadFraction': shaft / nameplate_hp if nameplate_hp else None}
+            'loadFraction': bhp_total / nameplate_hp if nameplate_hp else None,
+            'loadFractionOnShaftHp': shaft / nameplate_hp if nameplate_hp else None}
 
 
 # --------------------------------------------------------------- electrical
@@ -209,8 +233,10 @@ def conductor_resistance(r77, temp_f):
     return r77 * (1 + COPPER_ALPHA_PER_F * (temp_f - COPPER_REF_F))
 
 
-def surface_requirement(shaft_hp, np_hp, np_amps, np_volts, pf, length_ft, r77, cable_f):
-    load = shaft_hp / np_hp
+def surface_requirement(motor_hp, np_hp, np_amps, np_volts, pf, length_ft, r77, cable_f):
+    # Item 2. `motor_hp` is the power the pump absorbs at the stage count
+    # selected, not the brake power the duty asks for.
+    load = motor_hp / np_hp
     amps = np_amps * load
     r = conductor_resistance(r77, cable_f)
     drop = math.sqrt(3) * amps * r * length_ft / 1000.0
@@ -249,6 +275,11 @@ DESIGNS = [
         'pwfPsia': 1500.0, 'perfTvdFt': 7500.0, 'pumpTvdFt': 7000.0,
         'annulusGradPsiPerFt': 0.32, 'pDischargePsia': 3200.0,
         'hz': 60.0, 'nameplateHp': 250.0, 'curve': 'ref-540-2500',
+        # the motor and cable this design would be built with, so the
+        # golden gates the electrical chain AT THE DESIGN'S OWN POWER
+        # rather than at a power typed into a separate case
+        'nameplateAmps': 67.0, 'nameplateVolts': 2400.0, 'powerFactor': 0.85,
+        'lengthFt': 7200.0, 'ohmsPer1000FtAt77F': 0.1593, 'cableTempF': 180.0,
     },
     {
         'id': 'highWaterCut',
@@ -263,10 +294,10 @@ DESIGNS = [
 ]
 
 ELECTRICAL = [
-    {'shaftHp': 125.0, 'nameplateHp': 250.0, 'nameplateAmps': 67.0,
+    {'motorHp': 125.0, 'nameplateHp': 250.0, 'nameplateAmps': 67.0,
      'nameplateVolts': 2400.0, 'powerFactor': 0.85, 'lengthFt': 7200.0,
      'ohmsPer1000FtAt77F': 0.1593, 'cableTempF': 180.0},
-    {'shaftHp': 78.0, 'nameplateHp': 100.0, 'nameplateAmps': 49.0,
+    {'motorHp': 78.0, 'nameplateHp': 100.0, 'nameplateAmps': 49.0,
      'nameplateVolts': 1300.0, 'powerFactor': 0.88, 'lengthFt': 6000.0,
      'ohmsPer1000FtAt77F': 0.4028, 'cableTempF': 210.0},
 ]
@@ -292,10 +323,23 @@ def build():
     }
 
     vc = fit_curve(VENDOR_POINTS)
+    # Item 23. The RMSE is an average and an average hides one bad point
+    # among five good ones, so the per-point residuals are published too
+    # and the two percent bar is applied to the worst of them.
+    head_height = max(p['headFt'] for p in VENDOR_POINTS)
+    head_residuals = [{
+        'qBpd': p['qBpd'],
+        'headFt': p['headFt'],
+        'fittedFt': poly_eval(vc['head']['coeffs'], vc['head']['scale'], p['qBpd']),
+        'residualFt': p['headFt'] - poly_eval(vc['head']['coeffs'], vc['head']['scale'], p['qBpd']),
+    } for p in VENDOR_POINTS]
     out['vendorCurve'] = {
         'points': VENDOR_POINTS,
         'headCoeffs': vc['head']['coeffs'], 'headScale': vc['head']['scale'],
         'headRmse': vc['head']['rmse'],
+        'headCurveHeightFt': head_height,
+        'headResiduals': head_residuals,
+        'headMaxAbsResidualFt': max(abs(r['residualFt']) for r in head_residuals),
         'effCoeffs': vc['eff']['coeffs'], 'effScale': vc['eff']['scale'],
         'bep': bep_of(vc),
     }
@@ -317,7 +361,8 @@ def build():
             out['affinity'].append({
                 'hz': hz, 'qBpd': q, 'sg': 0.9,
                 **{k: v for k, v in stage_performance(vc, q, hz, 0.9).items()
-                   if k in ('headFt', 'efficiency', 'bhpPerStage', 'qRefBpd', 'inRange', 'region')},
+                   if k in ('ok', 'code', 'headFt', 'efficiency', 'bhpPerStage',
+                            'qRefBpd', 'inRange', 'inBand', 'region')},
             })
 
     for d in DESIGNS:
@@ -329,18 +374,34 @@ def build():
         pip = d['pwfPsia'] - d['annulusGradPsiPerFt'] * max(d['perfTvdFt'] - d['pumpTvdFt'], 0.0)
         grad = gas['mixtureDensityLbFt3'] / 144.0
         tdh = (d['pDischargePsia'] - pip) / grad
+        # Item 3. One gradient conversion, 62.4/144, so the specific
+        # gravity handed to the power terms is the TRUE one, density
+        # over 62.4, and no longer laundered through a rounded 0.433 to
+        # keep the design and diagnostics chains agreeing.
         sized = size_pump(curve, gas['pumpIntakeBpd'], tdh, d['hz'],
-                          grad / 0.433, d['nameplateHp'])
-        out['designs'].append({
+                          grad / (62.4 / 144.0), d['nameplateHp'])
+        row = {
             'id': d['id'], 'inputs': d,
             'stream': stream, 'gas': gas,
             'intakePressurePsia': pip, 'gradientPsiPerFt': grad, 'tdhFt': tdh,
             'sized': sized,
-        })
+        }
+        if 'nameplateAmps' in d:
+            # the same surface requirement taken at each of the two
+            # powers, so the golden carries the size of the item 2 gap
+            row['electricalAtSizingHp'] = surface_requirement(
+                sized['motorSizingHp'], d['nameplateHp'], d['nameplateAmps'],
+                d['nameplateVolts'], d['powerFactor'], d['lengthFt'],
+                d['ohmsPer1000FtAt77F'], d['cableTempF'])
+            row['electricalAtShaftHp'] = surface_requirement(
+                sized['shaftHp'], d['nameplateHp'], d['nameplateAmps'],
+                d['nameplateVolts'], d['powerFactor'], d['lengthFt'],
+                d['ohmsPer1000FtAt77F'], d['cableTempF'])
+        out['designs'].append(row)
 
     for e in ELECTRICAL:
         out['electrical'].append({'inputs': e, **surface_requirement(
-            e['shaftHp'], e['nameplateHp'], e['nameplateAmps'], e['nameplateVolts'],
+            e['motorHp'], e['nameplateHp'], e['nameplateAmps'], e['nameplateVolts'],
             e['powerFactor'], e['lengthFt'], e['ohmsPer1000FtAt77F'], e['cableTempF'])})
 
     return out

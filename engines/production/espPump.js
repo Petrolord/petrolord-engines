@@ -59,6 +59,19 @@ export const FT_LBF_PER_S_PER_HP = 550;
 export const HP_HEAD_DIVISOR =
   (FT_LBF_PER_S_PER_HP * SEC_PER_DAY) / (WATER_LBF_PER_FT3 * FT3_PER_BBL);
 
+/**
+ * How far past the tested rate span a stage curve may be read at all,
+ * as a fraction of that span. Item 5: inside it an extrapolation is
+ * reported and flagged, outside it there is no answer.
+ */
+export const EXTRAPOLATION_BAND_FRACTION = 0.10;
+
+/**
+ * The bar a head fit has to stay inside, as a fraction of the curve
+ * height, on the RMSE and on every single point (item 23).
+ */
+export const FIT_RESIDUAL_BAR_FRACTION = 0.02;
+
 /** Hydraulic power of a stage stack, hp. */
 export const hydraulicHp = ({ qBpd, headFt, specificGravity }) =>
   (qBpd * headFt * specificGravity) / HP_HEAD_DIVISOR;
@@ -191,8 +204,45 @@ export const fitStageCurve = ({
     bhpFit = polyFit(withBhp.map((p) => p.qBpd), withBhp.map((p) => p.bhpPerStage), headDegree, scale);
   }
 
-  if (headFit.rmse > 0.02 * Math.max(...clean.map((p) => p.headFt))) {
+  // THE FIT QUALITY, POINT BY POINT AS WELL AS IN AGGREGATE. An RMSE is
+  // an average, and an average hides one bad point among five good ones:
+  // a single head digit transposed in a five point curve lifts the RMSE
+  // by about a fifth of the error while the point itself is out by the
+  // whole of it. The same two percent bar is applied to the worst single
+  // residual, which is the transcription check the RMSE was standing in
+  // for. Item 23.
+  const curveHeightFt = Math.max(...clean.map((p) => p.headFt));
+  const pointResiduals = clean.map((p) => {
+    const fittedFt = polyEval(headFit, p.qBpd);
+    return {
+      qBpd: p.qBpd,
+      headFt: p.headFt,
+      fittedFt,
+      residualFt: p.headFt - fittedFt,
+      residualPct: curveHeightFt > 0 ? ((p.headFt - fittedFt) / curveHeightFt) * 100 : NaN,
+    };
+  });
+  const worstPoint = pointResiduals.reduce(
+    (worst, r) => (Math.abs(r.residualFt) > Math.abs(worst.residualFt) ? r : worst),
+    pointResiduals[0],
+  );
+  const headFitQuality = {
+    curveHeightFt,
+    rmseFt: headFit.rmse,
+    rmsePct: curveHeightFt > 0 ? (headFit.rmse / curveHeightFt) * 100 : NaN,
+    maxAbsResidualFt: Math.abs(worstPoint.residualFt),
+    maxAbsResidualPct: Math.abs(worstPoint.residualPct),
+    worstPoint,
+    pointResiduals,
+    rmseWithinTwoPercent: headFit.rmse <= FIT_RESIDUAL_BAR_FRACTION * curveHeightFt,
+    everyPointWithinTwoPercent:
+      Math.abs(worstPoint.residualFt) <= FIT_RESIDUAL_BAR_FRACTION * curveHeightFt,
+  };
+  if (!headFitQuality.rmseWithinTwoPercent) {
     warnings.push('The head fit misses the points by more than two percent of the curve height; check the transcription.');
+  }
+  if (!headFitQuality.everyPointWithinTwoPercent) {
+    warnings.push(`The head fit misses the point at ${worstPoint.qBpd} bbl/d by ${Math.abs(worstPoint.residualPct).toFixed(1)} percent of the curve height, more than the two percent a transcription check allows. The average over all the points can stay inside the bar while one point is out by this much, so check that point against the vendor curve.`);
   }
 
   const curve = {
@@ -202,6 +252,7 @@ export const fitStageCurve = ({
     qMin: qs[0],
     qMax: qs[qs.length - 1],
     headFit,
+    headFitQuality,
     effFit,
     bhpFit,
     points: clean,
@@ -253,10 +304,20 @@ export const referenceStageCurve = ({
   };
 };
 
-/** Best efficiency point of a curve (max of the efficiency fit). */
+/**
+ * Best efficiency point of a curve (max of the efficiency fit).
+ *
+ * `headFt` is the HEAD FIT read at the best efficiency rate, so it is
+ * only as good as that fit. A curve with a transposed head digit still
+ * has a best efficiency rate, and the head reported at it comes off the
+ * corrupted fit without saying so. `headFitQuality` travels with it,
+ * from the point by point check in `fitStageCurve`, so a consumer can
+ * see what the head at BEP was read off. It is null on a reference model
+ * stage, which is an analytic shape with no points to miss. Item 24.
+ */
 export const bepOf = (curve) => {
   if (!curve?.effFit) {
-    return { qBpd: NaN, headFt: NaN, efficiency: NaN };
+    return { qBpd: NaN, headFt: NaN, efficiency: NaN, headFitQuality: curve?.headFitQuality || null };
   }
   let best = { qBpd: curve.qMin, efficiency: -Infinity };
   const steps = 400;
@@ -265,7 +326,11 @@ export const bepOf = (curve) => {
     const e = polyEval(curve.effFit, q);
     if (e > best.efficiency) best = { qBpd: q, efficiency: e };
   }
-  return { ...best, headFt: polyEval(curve.headFit, best.qBpd) };
+  return {
+    ...best,
+    headFt: polyEval(curve.headFit, best.qBpd),
+    headFitQuality: curve.headFitQuality || null,
+  };
 };
 
 /**
@@ -281,17 +346,60 @@ export const bepOf = (curve) => {
  * upthrust, and both wear a pump out. Nothing is extrapolated silently
  * — `inRange` says whether the answer is inside the published curve.
  *
- * returns { headFt, efficiency, bhpPerStage, qRefBpd, ratio, inRange,
- *           region }
+ * AND NOTHING IS EXTRAPOLATED WITHOUT LIMIT EITHER. A stage curve is a
+ * cubic through five or six vendor points, and a cubic leaves the
+ * points it was fitted to very quickly: past the ends it is an
+ * arbitrary shape, and far enough past them it turns and climbs. The
+ * old return simply reported whatever the polynomial evaluated to,
+ * flagged `inRange: false`, and left the caller to decide how far was
+ * too far. Nothing decided.
+ *
+ * The band is `EXTRAPOLATION_BAND_FRACTION` of the tested rate span
+ * past either end. Inside the published range the answer is the curve.
+ * Inside the band and outside the range the answer is an extrapolation,
+ * `inRange` is false, and `sizePump` warns. Outside the band there is
+ * no answer: `{ ok: false, code: 'outsideCurve' }` naming the rate and
+ * the tested range. Item 5.
+ *
+ * returns { ok, headFt, efficiency, bhpPerStage, qRefBpd, ratio,
+ *           inRange, inBand, region } or a refusal
  */
 export const stagePerformance = ({
   curve, qBpd, hz, specificGravity = 1,
 }) => {
   const refHz = curve.refHz || 60;
   const ratio = hz / refHz;
-  if (!(ratio > 0)) return { headFt: NaN, efficiency: NaN, bhpPerStage: NaN, inRange: false, region: 'invalid' };
+  if (!(ratio > 0)) {
+    return {
+      ok: false,
+      code: 'invalidFrequency',
+      error: `A drive frequency of ${hz} Hz against a curve published at ${refHz} Hz gives no affinity ratio to read the curve at. Hand a positive frequency in Hz.`,
+      headFt: NaN,
+      efficiency: NaN,
+      bhpPerStage: NaN,
+      inRange: false,
+      region: 'invalid',
+    };
+  }
   const qRef = qBpd / ratio;
   const inRange = qRef >= curve.qMin && qRef <= curve.qMax;
+  const band = EXTRAPOLATION_BAND_FRACTION * (curve.qMax - curve.qMin);
+  const inBand = qRef >= curve.qMin - band && qRef <= curve.qMax + band;
+  if (!inBand) {
+    return {
+      ok: false,
+      code: 'outsideCurve',
+      error: `At ${qBpd.toFixed(1)} bbl/d and ${hz} Hz this stage is being read at ${qRef.toFixed(1)} bbl/d on a curve tested from ${curve.qMin} to ${curve.qMax} bbl/d at ${curve.refHz || 60} Hz. A curve fit is not a pump outside the rates it was fitted to, and this is more than ${EXTRAPOLATION_BAND_FRACTION * 100} percent of that span past the end of it, so there is no head or efficiency to report here.`,
+      headFt: NaN,
+      efficiency: NaN,
+      bhpPerStage: NaN,
+      qRefBpd: qRef,
+      ratio,
+      inRange: false,
+      inBand: false,
+      region: qRef < curve.qMin ? 'downthrust' : 'upthrust',
+    };
+  }
   const headRef = polyEval(curve.headFit, qRef);
   const eff = curve.effFit ? polyEval(curve.effFit, qRef) : NaN;
   const headFt = headRef * ratio * ratio;
@@ -313,7 +421,10 @@ export const stagePerformance = ({
     else if (qRef > 1.25 * bep.qBpd) region = 'upthrust';
   }
 
-  return { headFt, efficiency: eff, bhpPerStage, qRefBpd: qRef, ratio, inRange, region };
+  return {
+    ok: true, headFt, efficiency: eff, bhpPerStage, qRefBpd: qRef, ratio,
+    inRange, inBand, region,
+  };
 };
 
 /**
@@ -322,6 +433,9 @@ export const stagePerformance = ({
  */
 export const stackPerformance = ({ curve, stages, qBpd, hz, specificGravity = 1 }) => {
   const s = stagePerformance({ curve, qBpd, hz, specificGravity });
+  // A stack of a stage that could not be read is not a stack: the
+  // refusal travels rather than being multiplied by a stage count.
+  if (s.ok === false) return { ...s, stages, headFt: NaN, bhpTotal: NaN };
   return {
     ...s,
     stages,
