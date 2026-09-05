@@ -974,3 +974,275 @@ describe('item 49: the non-periodic flag names no remedy, and the user has a rea
     expect(runRodPumpDesign({ ...base(), nodes: undefined }).ok).toBe(true);
   });
 });
+
+// Items 14 and 38: the loads come off the full march, never off the
+// plotting subsample.
+describe('items 14 and 38: which series the loads are read from', () => {
+  const s = taperString();
+  const S_FT = 64 / 12;
+  const run = (over) => predictCard({
+    string: s, surfacePosition: simpleHarmonicPosition(S_FT), strokeFt: S_FT,
+    spm: 9, fluidLoadLb: 5000, fillage: 1, dampingRatio: 0.1, ...over,
+  });
+
+  test('the reported peak and minimum are the extremes of every step, not of 180 samples', () => {
+    const r = run();
+    // the march is thousands of steps a cycle against 180 card points
+    expect(r.marchSamplesPerCycle).toBeGreaterThan(1000);
+    expect(r.surfaceCard.length).toBeLessThanOrEqual(181);
+    // a maximum over a superset can only be larger, and a minimum only
+    // smaller, so these two inequalities are the whole claim
+    expect(r.prlPeakLb).toBeGreaterThanOrEqual(r.cardPrlPeakLb);
+    expect(r.prlMinLb).toBeLessThanOrEqual(r.cardPrlMinLb);
+    // and on this design the subsample really did miss something
+    expect(r.prlPeakLb - r.cardPrlPeakLb).toBeGreaterThan(1);
+    expect(r.cardPrlMinLb - r.prlMinLb).toBeGreaterThan(1);
+  });
+
+  test('the miss is worst where the card is least smooth, which is a partly filled pump', () => {
+    const full = run({ fillage: 1 });
+    const partial = run({ fillage: 0.6 });
+    const missFull = (full.cardPrlMinLb - full.prlMinLb) / full.prlMinLb;
+    const missPartial = (partial.cardPrlMinLb - partial.prlMinLb) / partial.prlMinLb;
+    expect(missPartial).toBeGreaterThan(missFull);
+    // MPRL sets the counterbalance and half the gearbox torque, and on
+    // the partly filled pump the subsample overstated it by per cent,
+    // not by rounding
+    expect(missPartial).toBeGreaterThan(0.05);
+  });
+
+  test('the work per cycle is the area of the loop the march traversed', () => {
+    const r = run();
+    expect(r.workInLbPerCycle).not.toBe(r.cardWorkInLbPerCycle);
+    // the two agree to better than a per cent, which is what a 180 point
+    // polygon of a smooth loop is worth: it is the LOADS the subsample
+    // hurts, not the area
+    expect(rel(r.workInLbPerCycle, r.cardWorkInLbPerCycle)).toBeLessThan(0.01);
+  });
+
+  test('the cards themselves are still the decimated ones, for plotting', () => {
+    const r = run({ cardSamples: 60 });
+    expect(r.surfaceCard.length).toBeLessThanOrEqual(61);
+    // and changing the card sampling does not move a load any more
+    const coarse = run({ cardSamples: 30 });
+    const fine = run({ cardSamples: 360 });
+    expect(coarse.prlPeakLb).toBe(fine.prlPeakLb);
+    expect(coarse.prlMinLb).toBe(fine.prlMinLb);
+    expect(coarse.workInLbPerCycle).toBe(fine.workInLbPerCycle);
+    // where the card readings do move with it, which is why they were
+    // never the loads
+    expect(coarse.cardPrlMinLb).not.toBe(fine.cardPrlMinLb);
+  });
+});
+
+// The partial-fillage coverage the golden never had, and what it shows.
+describe('partial fillage: the coverage, and the seed', () => {
+  const G_PF = G.partialFillage;
+  const s = buildRodString({
+    sections: G_PF.sections.map(([size, lengthFt]) => ({ size, lengthFt })),
+    fluidSg: 1.0,
+    gradeId: 'D',
+  });
+
+  test('every partly filled row agrees with the independent oracle', () => {
+    // Every `predict` case in this golden was fillage 1, and a full pump
+    // never enters the pound-down branch at all, so the partly filled
+    // half of both implementations was ungated. It is the field normal
+    // case.
+    G_PF.rows.forEach((row) => {
+      const r = predictCard({
+        string: s,
+        surfacePosition: simpleHarmonicPosition(G_PF.strokeIn / 12),
+        strokeFt: G_PF.strokeIn / 12,
+        spm: row.spm,
+        fluidLoadLb: G_PF.fluidLoadLb,
+        fillage: row.fillage,
+        dampingRatio: G_PF.dampingRatio,
+      });
+      expect(r.ok).toBe(true);
+      expect(r.converged).toBe(true);
+      expect(rel(r.plungerStrokeIn, row.plungerStrokeIn)).toBeLessThan(0.01);
+      expect(rel(r.prlPeakLb, row.pprlLb)).toBeLessThan(0.01);
+      expect(rel(r.prlMinLb, row.mprlLb)).toBeLessThan(0.03);
+      // the pump card really is a partly filled one: the pound-down
+      // shortens the plunger's loaded travel as the fillage falls
+      expect(r.plungerStrokeIn).toBeLessThan(G_PF.strokeIn);
+    });
+  });
+
+  test('the oracle forgets its first-cycle seed on every one of them', () => {
+    // which is what a settled march is supposed to do, and it is the
+    // reference the engine is judged against below
+    G_PF.rows.forEach((row) => {
+      // to the seventh figure, which is the march's own step noise and
+      // not a different answer
+      expect(rel(row.plungerStrokeInStaticSeed, row.plungerStrokeIn)).toBeLessThan(1e-7);
+      expect(rel(row.mprlLbStaticSeed, row.mprlLb)).toBeLessThan(1e-7);
+    });
+    expect(G_PF.staticSeedFt).toBeLessThan(G_PF.surfaceStrokeSeedFt);
+  });
+
+  test('so does this march, on the same rows', () => {
+    G_PF.rows.forEach((row) => {
+      const base = {
+        string: s,
+        surfacePosition: simpleHarmonicPosition(G_PF.strokeIn / 12),
+        strokeFt: G_PF.strokeIn / 12,
+        spm: row.spm,
+        fluidLoadLb: G_PF.fluidLoadLb,
+        fillage: row.fillage,
+        dampingRatio: G_PF.dampingRatio,
+      };
+      const a = predictCard(base);
+      const b = predictCard({ ...base, firstCycleSeedFt: G_PF.staticSeedFt });
+      expect(rel(b.plungerStrokeIn, a.plungerStrokeIn)).toBeLessThan(1e-3);
+      // and the check says so on the record
+      if (row.fillage < 1) {
+        expect(a.seedIndependence.checked).toBe(true);
+        expect(a.seedIndependence.independent).toBe(true);
+      } else {
+        expect(a.seedIndependence).toBeNull();
+      }
+    });
+  });
+
+  // ITEM 39. This is the case the seeding half was about, and it is not
+  // a case for choosing a seed.
+  test('one operating point settles to two different cycles, and says so', () => {
+    const half = buildRodString({
+      sections: [{ size: '1/2', lengthFt: 5000 }], fluidSg: 1.0, gradeId: 'D',
+    });
+    const base = {
+      string: half,
+      surfacePosition: simpleHarmonicPosition(64 / 12),
+      strokeFt: 64 / 12,
+      spm: 3,
+      fluidLoadLb: 5000,
+      fillage: 0.1,
+      dampingRatio: 0.12,
+    };
+    const fromSurfaceStroke = predictCard(base);
+    const staticSeedFt = Math.max(64 / 12 - 5000 / half.krLbPerIn / 12, 0.1);
+    const fromStatic = predictCard({ ...base, firstCycleSeedFt: staticSeedFt, seedCheck: false });
+    // both settle
+    expect(fromSurfaceStroke.converged).toBe(true);
+    expect(fromStatic.converged).toBe(true);
+    // to answers a factor of four apart
+    expect(fromSurfaceStroke.plungerStrokeIn).toBeGreaterThan(14);
+    expect(fromSurfaceStroke.plungerStrokeIn).toBeLessThan(15);
+    expect(fromStatic.plungerStrokeIn).toBeGreaterThan(57);
+    expect(fromStatic.plungerStrokeIn).toBeLessThan(59);
+    // and the minimum load with them, which is what sets the
+    // counterbalance
+    expect(fromStatic.prlMinLb / fromSurfaceStroke.prlMinLb).toBeGreaterThan(2);
+    // the answer is reported, and it is reported as one of the answers
+    const w = fromSurfaceStroke.warnings.find((x) => x.code === 'seedDependent');
+    expect(w).toBeDefined();
+    expect(w.message).toMatch(/more than one repeating cycle/);
+    expect(w.message).toMatch(/not as the answer/);
+    expect(fromSurfaceStroke.seedIndependence.independent).toBe(false);
+    expect(fromSurfaceStroke.seedIndependence.relativeStrokeDifference).toBeGreaterThan(1);
+    // a neighbour a fifth of a fillage away is untroubled, so this is a
+    // narrow band and not the whole partly filled range
+    const neighbour = predictCard({ ...base, fillage: 0.3 });
+    expect(neighbour.seedIndependence.independent).toBe(true);
+    expect(neighbour.warnings.map((x) => x.code)).not.toContain('seedDependent');
+  });
+
+  test('a full pump is not charged for the check it does not need', () => {
+    const r = predictCard({
+      string: s,
+      surfacePosition: simpleHarmonicPosition(G_PF.strokeIn / 12),
+      strokeFt: G_PF.strokeIn / 12,
+      spm: 9,
+      fluidLoadLb: G_PF.fluidLoadLb,
+      fillage: 1,
+      dampingRatio: G_PF.dampingRatio,
+    });
+    // no pound-down, no seed, nothing to check
+    expect(r.seedIndependence).toBeNull();
+  });
+});
+
+// Items 15, 37 and 50: the three inputs the design accepted and never
+// read, and the torque group that reported zero for "no answer".
+describe('items 15, 37 and 50: the balance the design solves for itself', () => {
+  const s = taperString();
+  const geom = genericConventionalGeometry({ strokeIn: 64 });
+  const kin = unitKinematics(geom.geometry, { steps: 360 });
+  const design = (over) => runRodPumpDesign({
+    string: s,
+    frequency: naturalFrequency({ string: s }),
+    kin,
+    surfacePosition: surfacePositionFn(kin),
+    strokeIn: 64,
+    spm: 9,
+    plungerDIn: 1.75,
+    pDischargePsi: 0.433 * 5000 + 100,
+    pIntakePsi: 150,
+    fillage: 1,
+    pumpEfficiency: 0.9,
+    unitRating: parseUnitDesignation('C-228D-200-74'),
+    ...over,
+  });
+
+  test('the design solves its own balance from the kinematics it was given', () => {
+    const d = design().design;
+    expect(d.balance).toBeTruthy();
+    expect(d.balance.balanced).toBe(true);
+    expect(d.balance.peakTorqueInLb).toBeGreaterThan(0);
+    // and the torque rating check is taken from it, where it used to be
+    // null unless the caller had solved the balance itself
+    expect(d.rating.torquePct).toBeGreaterThan(0);
+    expect(d.groups.torqueGroup).toBeGreaterThan(0);
+  });
+
+  test('the crank offset and the structural unbalance reach the torque', () => {
+    const straight = design().design;
+    const offset = design({ crankOffsetDeg: 20 }).design;
+    const unbalanced = design({ structuralUnbalanceLb: 800 }).design;
+    // three inputs the door accepted and dropped
+    expect(offset.balance.peakTorqueInLb).not.toBe(straight.balance.peakTorqueInLb);
+    expect(unbalanced.balance.peakTorqueInLb).not.toBe(straight.balance.peakTorqueInLb);
+    expect(offset.balance.counterbalanceEffectLb)
+      .not.toBe(straight.balance.counterbalanceEffectLb);
+    // and a structural unbalance shows up in the counterbalance effect
+    // pound for pound, which is its definition
+    expect(unbalanced.balance.counterbalanceEffectLb - 800)
+      .toBeLessThan(straight.balance.counterbalanceEffectLb + 1);
+  });
+
+  test('the counterbalance effect is read where the counterweight moment peaks', () => {
+    // ITEM 37. The moment is M sin(theta - theta_bottom + tau), so its
+    // peak moves with the crank offset. It used to be read a fixed
+    // quarter turn from the bottom whatever the offset.
+    const tau = (25 * Math.PI) / 180;
+    const ref = kin.crankAngleAtBottomRad;
+    const peakIndex = kin.samples.reduce(
+      (best, x, i) => (Math.sin(x.thetaRad - ref + tau)
+        > Math.sin(kin.samples[best].thetaRad - ref + tau) ? i : best),
+      0,
+    );
+    const tfAtPeak = Math.abs(kin.samples[peakIndex].torqueFactorIn);
+    const cbe = counterbalanceEffect({ kin, momentInLb: 200000, crankOffsetDeg: 25 });
+    // the definition, exactly: CBE x TF = M at the crank angle where the
+    // counterweight moment is largest
+    expect(cbe * tfAtPeak).toBeCloseTo(200000, 6);
+    // and it is a different crank angle from the no-offset one, so the
+    // answer moves
+    const noOffset = counterbalanceEffect({ kin, momentInLb: 200000 });
+    expect(cbe).not.toBe(noOffset);
+    const quarter = (kin.bottomIndex + Math.round(kin.samples.length / 4)) % kin.samples.length;
+    expect(peakIndex).not.toBe(quarter);
+  });
+
+  test('with no counterbalance solved, the torque group is null and not zero', () => {
+    // ITEM 50. A torque group of 0 reads as a unit that sees no gearbox
+    // torque. `torquePct` beside it has always said null in this case.
+    const noKin = design({ kin: undefined, surfacePosition: simpleHarmonicPosition(64 / 12) });
+    expect(noKin.ok).toBe(true);
+    expect(noKin.design.balance).toBeNull();
+    expect(noKin.design.groups.torqueGroup).toBeNull();
+    expect(noKin.design.rating.torquePct).toBeNull();
+  });
+});

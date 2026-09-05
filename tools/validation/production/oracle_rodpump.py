@@ -234,7 +234,8 @@ def unit_cycle(geom, steps=360):
 # ------------------------------------------ wave equation, staggered + RK4
 
 def predict(sections, surface_pos_ft, stroke_ft, spm, fo_lb, fillage,
-            damping_ratio, cells=48, steps_per_cycle=None, cycles=8):
+            damping_ratio, cells=48, steps_per_cycle=None, cycles=8,
+            first_cycle_seed_ft=None):
     """First-order velocity/tension system on a staggered grid, RK4.
 
     v lives at cell centres, T at faces. dv/dt = (dT/dx)/m - kappa v,
@@ -274,7 +275,14 @@ def predict(sections, surface_pos_ft, stroke_ft, spm, fo_lb, fillage,
 
     state = 'falling'
     plunger_top = 0.0
-    sp_prev = stroke_ft
+    # The empty part of a partly filled barrel on the FIRST cycle is
+    # measured against a seed, because the plunger stroke it is a
+    # fraction of has not been computed yet. Every cycle after the first
+    # is seeded from the previous cycle's computed stroke, at the foot
+    # of the loop. The opening seed is the SURFACE stroke unless the
+    # caller names another one, which is what lets the golden carry how
+    # far the answer moves when it is changed. Item 39.
+    sp_prev = stroke_ft if first_cycle_seed_ft is None else first_cycle_seed_ft
     surf_was_down = True
 
     def deriv(u_, v_, T_, u_top, v_top, clamp):
@@ -477,6 +485,44 @@ def main():
         'fluidLoadLb': 5000.0,
         'dampingRatio': 0.10,
         'bySpm': pred,
+    }
+
+    # PARTIAL FILLAGE, WHICH NOTHING IN THIS FILE COVERED. Every predict
+    # case above is fillage 1, and a full pump never enters the pound
+    # down state at all: the whole partly filled branch of both
+    # implementations was ungated. It is the field normal case.
+    #
+    # Each row is computed twice, once with the first cycle's empty
+    # length seeded from the SURFACE stroke, which is what both
+    # implementations ship, and once from the static estimate
+    # S - Fo/k_r, which is what item 39 proposes. The gap between the
+    # two is the seed dependence of the answer, measured by this
+    # implementation rather than argued about.
+    partial = []
+    static_seed_ft = max(stroke_ft - 5000.0 / props['krLbPerIn'] / 12.0, 0.1)
+    for spm in (5, 9):
+        for fillage in (1.0, 0.6, 0.3):
+            r = predict(tap, shm, stroke_ft, spm, 5000.0, fillage, 0.10)
+            rs = predict(tap, shm, stroke_ft, spm, 5000.0, fillage, 0.10,
+                         first_cycle_seed_ft=static_seed_ft)
+            partial.append({
+                'spm': spm,
+                'fillage': fillage,
+                'plungerStrokeIn': r['plungerStrokeIn'],
+                'pprlLb': props['weightFluidLb'] + r['prlDynMaxLb'],
+                'mprlLb': props['weightFluidLb'] + r['prlDynMinLb'],
+                'plungerStrokeInStaticSeed': rs['plungerStrokeIn'],
+                'pprlLbStaticSeed': props['weightFluidLb'] + rs['prlDynMaxLb'],
+                'mprlLbStaticSeed': props['weightFluidLb'] + rs['prlDynMinLb'],
+            })
+    cases['partialFillage'] = {
+        'sections': [[a, b] for a, b in tap],
+        'strokeIn': 64.0,
+        'fluidLoadLb': 5000.0,
+        'dampingRatio': 0.10,
+        'surfaceStrokeSeedFt': stroke_ft,
+        'staticSeedFt': static_seed_ft,
+        'rows': partial,
     }
 
     # A synthetic surface card the diagnostic can be run on: a smooth
