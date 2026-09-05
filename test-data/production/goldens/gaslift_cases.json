@@ -523,6 +523,8 @@
    ],
    "valves": [
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1021.076842602586,
      "closingSurfacePressurePsia": 970.055863944623,
      "depthFt": 2119.249994721031,
      "dome60Psia": 895.736722295687,
@@ -538,6 +540,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1042.112668649653,
      "closingSurfacePressurePsia": 955.145099347184,
      "depthFt": 3682.716497768941,
      "dome60Psia": 884.56144549781,
@@ -553,6 +557,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1051.188589741167,
      "closingSurfacePressurePsia": 937.910304600681,
      "depthFt": 4901.841136177378,
      "dome60Psia": 870.463855621961,
@@ -568,6 +574,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1050.683966026707,
      "closingSurfacePressurePsia": 918.986491276738,
      "depthFt": 5834.735588961765,
      "dome60Psia": 854.265989239789,
@@ -583,6 +591,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1042.530383853126,
      "closingSurfacePressurePsia": 898.798123393467,
      "depthFt": 6530.440469862167,
      "dome60Psia": 836.510382915953,
@@ -598,6 +608,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1028.299535707054,
      "closingSurfacePressurePsia": 877.641314875669,
      "depthFt": 7030.204796211578,
      "dome60Psia": 817.570604430533,
@@ -613,6 +625,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1009.270910717498,
      "closingSurfacePressurePsia": 855.729763419659,
      "depthFt": 7368.624567624072,
      "dome60Psia": 797.713205958104,
@@ -628,6 +642,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": null,
+     "closingPressureAtDepthPsia": null,
      "closingSurfacePressurePsia": null,
      "depthFt": 7500.0,
      "dome60Psia": null,
@@ -1035,6 +1051,8 @@
    ],
    "valves": [
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1478.591775361432,
      "closingSurfacePressurePsia": 1378.504197315833,
      "depthFt": 2606.192995401216,
      "dome60Psia": 1246.61292378364,
@@ -1050,6 +1068,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1514.524208925818,
      "closingSurfacePressurePsia": 1347.221790203474,
      "depthFt": 4493.061051145492,
      "dome60Psia": 1224.763080105205,
@@ -1065,6 +1085,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1528.131170100363,
      "closingSurfacePressurePsia": 1313.798877081367,
      "depthFt": 5941.091920800633,
      "dome60Psia": 1198.775203373003,
@@ -1080,6 +1102,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1524.123514057206,
      "closingSurfacePressurePsia": 1278.876482612623,
      "depthFt": 7022.551471839695,
      "dome60Psia": 1170.022107045923,
@@ -1095,6 +1119,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1506.273490446403,
      "closingSurfacePressurePsia": 1242.858225423625,
      "depthFt": 7799.602298221536,
      "dome60Psia": 1139.316621862285,
@@ -1110,6 +1136,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1477.625341945821,
      "closingSurfacePressurePsia": 1206.014139099306,
      "depthFt": 8325.302541711062,
      "dome60Psia": 1107.172187055368,
@@ -1125,6 +1153,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": null,
+     "closingPressureAtDepthPsia": null,
      "closingSurfacePressurePsia": null,
      "depthFt": 8644.662255375952,
      "dome60Psia": null,
@@ -1450,7 +1480,9 @@
    ],
    "valves": [
     {
-     "closingSurfacePressurePsia": 389.713022538392,
+     "closingActsOn": "production",
+     "closingPressureAtDepthPsia": 409.797201414459,
+     "closingSurfacePressurePsia": null,
      "depthFt": 2410.595757100964,
      "dome60Psia": 367.697480115405,
      "domeAtTempPsia": 409.797201414459,
@@ -1465,7 +1497,9 @@
      "valveType": "PPO"
     },
     {
-     "closingSurfacePressurePsia": 503.252041656287,
+     "closingActsOn": "production",
+     "closingPressureAtDepthPsia": 549.605506794818,
+     "closingSurfacePressurePsia": null,
      "depthFt": 4236.835773841176,
      "dome60Psia": 478.003888148805,
      "domeAtTempPsia": 549.605506794818,
@@ -1480,7 +1514,9 @@
      "valveType": "PPO"
     },
     {
-     "closingSurfacePressurePsia": 594.189075960448,
+     "closingActsOn": "production",
+     "closingPressureAtDepthPsia": 670.260984966417,
+     "closingSurfacePressurePsia": null,
      "depthFt": 5812.830048117987,
      "dome60Psia": 567.544879519078,
      "domeAtTempPsia": 670.260984966417,
@@ -1495,7 +1531,9 @@
      "valveType": "PPO"
     },
     {
-     "closingSurfacePressurePsia": 667.810672042919,
+     "closingActsOn": "production",
+     "closingPressureAtDepthPsia": 774.397901321726,
+     "closingSurfacePressurePsia": null,
      "depthFt": 7173.012800195899,
      "dome60Psia": 640.843524721672,
      "domeAtTempPsia": 774.397901321726,
@@ -1510,7 +1548,9 @@
      "valveType": "PPO"
     },
     {
-     "closingSurfacePressurePsia": 727.979552800704,
+     "closingActsOn": "production",
+     "closingPressureAtDepthPsia": 864.285550600786,
+     "closingSurfacePressurePsia": null,
      "depthFt": 8347.04379108076,
      "dome60Psia": 701.291461720726,
      "domeAtTempPsia": 864.285550600786,
@@ -1525,7 +1565,9 @@
      "valveType": "PPO"
     },
     {
-     "closingSurfacePressurePsia": 735.598939784062,
+     "closingActsOn": "production",
+     "closingPressureAtDepthPsia": 875.996561503405,
+     "closingSurfacePressurePsia": null,
      "depthFt": 8500.0,
      "dome60Psia": 708.980951786963,
      "domeAtTempPsia": 875.996561503405,
@@ -1942,6 +1984,8 @@
    ],
    "valves": [
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1182.023754759277,
      "closingSurfacePressurePsia": 1112.854990002315,
      "depthFt": 2354.019705700921,
      "dome60Psia": 1018.515425001907,
@@ -1957,6 +2001,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1216.626101742232,
      "closingSurfacePressurePsia": 1096.382496722523,
      "depthFt": 4173.145461555156,
      "dome60Psia": 1008.297339252141,
@@ -1972,6 +2018,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1237.568950034999,
      "closingSurfacePressurePsia": 1077.766814639015,
      "depthFt": 5665.107234706147,
      "dome60Psia": 994.753485822951,
@@ -1987,6 +2035,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1247.0630873867,
      "closingSurfacePressurePsia": 1057.575218651361,
      "depthFt": 6871.141344247482,
      "dome60Psia": 978.799098994637,
@@ -2002,6 +2052,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1246.984796410086,
      "closingSurfacePressurePsia": 1036.185737940334,
      "depthFt": 7828.279404428304,
      "dome60Psia": 961.037313826352,
@@ -2017,6 +2069,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": "injection",
+     "closingPressureAtDepthPsia": 1238.934409726521,
      "closingSurfacePressurePsia": 1013.861991357158,
      "depthFt": 8569.583132872242,
      "dome60Psia": 941.882396808138,
@@ -2032,6 +2086,8 @@
      "valveType": "IPO"
     },
     {
+     "closingActsOn": null,
+     "closingPressureAtDepthPsia": null,
      "closingSurfacePressurePsia": null,
      "depthFt": 9000.0,
      "dome60Psia": null,
