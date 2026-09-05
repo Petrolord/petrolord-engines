@@ -245,15 +245,52 @@ export const overallU = ({
   const outerOd = list[list.length - 1].odIn;
   const resistances = [];
 
+  // A FILM OR A BURIAL TERM THAT CANNOT BE READ IS NOT AN OMITTED ONE.
+  // The convention here is that zero means omit, which is fine, but
+  // `> 0` cannot tell an omission from a NaN: a film coefficient that
+  // came through as NaN was dropped exactly the way item 51's masses
+  // were coalesced away, and the U that came back was too high with
+  // nothing in the return countable. A value that was GIVEN and cannot
+  // be read refuses; an absent one still omits the term.
+  const filmSlots = [['insideFilm', insideFilmH], ['outsideFilm', outsideFilmH]];
+  for (let i = 0; i < filmSlots.length; i += 1) {
+    const [name, h] = filmSlots[i];
+    if (h !== undefined && h !== null && !Number.isFinite(h)) {
+      return {
+        ok: false,
+        code: 'filmNotNumeric',
+        error: `The ${name === 'insideFilm' ? 'inside' : 'outside'} film coefficient was given as ${show(h)}, which is not a number, so the resistance it contributes cannot be formed. Leave it out to omit the film, or hand a number in Btu/(hr ft2 F). A film that cannot be read is not a film of zero resistance.`,
+      };
+    }
+  }
   if (insideFilmH > 0) {
     resistances.push({ id: 'insideFilm', r: 1 / (insideFilmH * Math.PI * inToFt(list[0].idIn)) });
   }
   list.forEach((layer, i) => {
     resistances.push({ id: `layer${i}`, label: layer.label, r: layerResistance(layer) });
   });
+  const burialGiven = (burialFt !== undefined && burialFt !== null)
+    || (kSoil !== undefined && kSoil !== null);
+  if (burialGiven && (!Number.isFinite(burialFt) || !Number.isFinite(kSoil))) {
+    return {
+      ok: false,
+      code: 'burialNotNumeric',
+      error: `A buried line needs both a burial depth and a soil conductivity, and both have to be numbers. The depth was ${show(burialFt)} ft and the soil conductivity was ${show(kSoil)} Btu/(hr ft F). Leave both out for a line on the seabed.`,
+    };
+  }
   if (burialFt > 0 && kSoil > 0) {
     const r = burialResistance({ odIn: outerOd, burialFt, kSoil });
-    if (Number.isFinite(r)) resistances.push({ id: 'burial', r });
+    if (!Number.isFinite(r)) {
+      // Item 48. The soil term used to be dropped when it came out
+      // unreadable, which is the largest resistance in a buried line
+      // going missing without a word.
+      return {
+        ok: false,
+        code: 'burialNotResolved',
+        error: `The soil resistance could not be formed from a burial depth of ${burialFt} ft, a soil conductivity of ${kSoil} Btu/(hr ft F) and an outside diameter of ${outerOd} in. On a buried line that is the largest resistance in the stack, so it is refused rather than left out.`,
+      };
+    }
+    resistances.push({ id: 'burial', r });
   }
   if (outsideFilmH > 0) {
     resistances.push({ id: 'outsideFilm', r: 1 / (outsideFilmH * Math.PI * inToFt(outerOd)) });
@@ -333,15 +370,34 @@ export const steadyStateProfile = ({
   const n = Math.max(2, Math.round(nStations));
   const dpKnown = Number.isFinite(inletPsia) && Number.isFinite(outletPsia);
   const dp = dpKnown ? inletPsia - outletPsia : 0;
+  const ntu = lengthFt / lc;
   const stations = [];
   for (let i = 0; i < n; i += 1) {
     const xFt = (lengthFt * i) / (n - 1);
     const frac = xFt / lengthFt;
     // Heat loss to ambient, plus the cooling the pressure drop causes.
-    // The JT term is carried linearly along the line, which is what a
-    // linear pressure profile implies; a consumer with a real pressure
-    // traverse passes its own stations instead.
-    const jtDrop = jtCoeffFPerPsi * dp * frac;
+    //
+    // THE JOULE-THOMSON TERM IS DAMPED BY THE SAME HEAT TRANSFER THAT
+    // PULLS THE LINE BACK TO AMBIENT. Carried linearly, as it was, the
+    // JT cooling generated at the inlet end is still on the fluid at the
+    // outlet, which is only true for a perfectly insulated line. What
+    // the energy balance says is
+    //
+    //   dT/dx = -(T - Ta)/Lc - jt (dp/L)
+    //
+    // and its solution carries the JT drop with the same exponential
+    // memory the inlet temperature has:
+    //
+    //   jtDrop(x) = jt dp (1 - exp(-x/Lc)) / NTU,  NTU = L/Lc
+    //
+    // At the arrival end that is the `(1 - exp(-ntu))/ntu` factor: a
+    // short line (NTU small) recovers none of it and the factor goes to
+    // 1, which is the old linear form, and a long line recovers most of
+    // it. On a line ten relaxation lengths long the undamped form
+    // over-cools the arrival by a factor of ten. Item 48.
+    const jtDrop = ntu > 0
+      ? (jtCoeffFPerPsi * dp * (1 - Math.exp(-ntu * frac))) / ntu
+      : jtCoeffFPerPsi * dp * frac;
     const tempF = ambientTempF + (inletTempF - ambientTempF) * Math.exp(-xFt / lc) - jtDrop;
     stations.push({
       xFt,
@@ -358,7 +414,11 @@ export const steadyStateProfile = ({
     arrivalTempF: stations[stations.length - 1].tempF,
     relaxationLengthFt: lc,
     // Number of transfer units: length measured in relaxation lengths.
-    ntu: lengthFt / lc,
+    ntu,
+    // How much of the Joule-Thomson cooling survives to the arrival end
+    // after the line has traded heat with ambient. 1 on a short line,
+    // small on a long one.
+    jtDampingFactor: ntu > 0 ? (1 - Math.exp(-ntu)) / ntu : 1,
     note: dpKnown ? null : `The pressure drop could not be formed, so the Joule-Thomson term was not applied and the pressure column is not available. It needs both an inlet pressure and an outlet pressure: the inlet was ${show(inletPsia)} and the outlet was ${show(outletPsia)}.`,
   };
 };
@@ -448,6 +508,17 @@ export const cooldownTime = ({
       ok: false,
       code: 'alreadyAtAmbient',
       error: 'The fluid is already at or below ambient, so there is nothing to cool.',
+    };
+  }
+  // Item 48. A line that is already at or below the touch temperature
+  // has no cooldown time: the log below goes to zero or negative and
+  // came back as an answer of 0 hours or less, which reads as "cool
+  // now" and is a different statement from "already there".
+  if (!(startTempF > targetTempF)) {
+    return {
+      ok: false,
+      code: 'startBelowTarget',
+      error: `The line starts at ${startTempF} F and the target is ${targetTempF} F, so it is already at or below the temperature the cooldown is measured to. There is no time to report. Check which of the two is the start.`,
     };
   }
   if (!(targetTempF > ambientTempF)) {

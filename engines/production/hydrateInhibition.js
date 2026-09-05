@@ -125,6 +125,14 @@ export const HAMMERSCHMIDT_RELIABLE_WT_PCT = 25;
  * reason can move it.
  */
 export const MAX_PRACTICAL_WT_PCT = 70;
+
+/**
+ * How far short of the needed depression counts as short (item 53).
+ * The concentration is inverted through the binding relation, so the
+ * delivered depression lands on the requirement to rounding; this is
+ * that rounding and nothing more.
+ */
+export const DEPRESSION_TOL_F = 1e-9;
 export const NIELSEN_BUCKLIN_CONSTANT_F = 129.6;
 export const WATER_MOLECULAR_WEIGHT = 18.015;
 
@@ -167,6 +175,28 @@ export const nielsenBucklinDepression = ({ weightPct, molecularWeight }) => {
 };
 
 /**
+ * The inverse of `nielsenBucklinDepression`: the weight percent that
+ * gives a wanted depression.
+ *
+ *   dT = -C ln(1 - x)  ->  x = 1 - exp(-dT / C)
+ *
+ * and the mole fraction is turned back into a weight percent by the
+ * same aqueous-phase balance `weightPctToMoleFraction` uses. It exists
+ * because the concentration a design needs has to be inverted through
+ * the relation the design is going to be JUDGED on, and above 25 weight
+ * percent that is this one. Item 48.
+ */
+export const weightPctForDepressionNielsenBucklin = ({ depressionF, molecularWeight }) => {
+  const d = Number(depressionF);
+  if (!(d > 0) || !(molecularWeight > 0)) return NaN;
+  const x = 1 - Math.exp(-d / NIELSEN_BUCKLIN_CONSTANT_F);
+  if (!(x > 0) || !(x < 1)) return NaN;
+  // x = (w/M) / (w/M + (100-w)/Mw)  ->  w = 100 x M / (x M + (1-x) Mw)
+  return (100 * x * molecularWeight)
+    / (x * molecularWeight + (1 - x) * WATER_MOLECULAR_WEIGHT);
+};
+
+/**
  * Both relations at one concentration, with the disagreement between
  * them reported rather than resolved.
  *
@@ -201,21 +231,29 @@ export const depression = ({ weightPct, inhibitorId = 'methanol' }) => {
   const withinHammerschmidtRange =
     Number(weightPct) <= HAMMERSCHMIDT_RELIABLE_WT_PCT;
 
-  // Past the Hammerschmidt band, prefer Nielsen-Bucklin for the fluid
-  // it was developed on. For the others the figure is reported for
-  // comparison but the recommendation stays on Hammerschmidt, rather
-  // than quietly moving to a relation fitted on a different fluid.
+  // ITEM 59. THE RECOMMENDATION IS THE LOWER OF THE TWO, AT EVERY
+  // CONCENTRATION. It used to be Hammerschmidt below 25 weight percent
+  // and Nielsen-Bucklin above it, and only for methanol, which put a
+  // step in the recommended depression at 25 percent and made the
+  // recommendation depend on which fluid was asked about rather than on
+  // what the two relations say. A design is a promise about the
+  // depression that will actually be there, so the conservative reading
+  // is the one to design on, and where they disagree that is the lower.
+  //
+  // Below about 20 weight percent the two are within a percent of each
+  // other and the choice hardly matters; above it Hammerschmidt runs
+  // away and the lower reading is Nielsen-Bucklin every time. `basis`
+  // names which relation the number came from and `spreadF` is the gap,
+  // so nothing is hidden by the choice.
   let recommendedF = ham;
   let basis = 'hammerschmidt';
   let note = null;
+  if (Number.isFinite(ham) && Number.isFinite(nb) && nb < ham) {
+    recommendedF = nb;
+    basis = 'nielsenBucklin';
+  }
   if (!withinHammerschmidtRange) {
-    if (inh.nielsenBucklinDevelopedFor && Number.isFinite(nb)) {
-      recommendedF = nb;
-      basis = 'nielsenBucklin';
-      note = `Above ${HAMMERSCHMIDT_RELIABLE_WT_PCT} weight percent Hammerschmidt over-predicts, so Nielsen-Bucklin is used here. The two are shown together because the gap between them is the honest measure of how far this is being pushed.`;
-    } else {
-      note = `Above ${HAMMERSCHMIDT_RELIABLE_WT_PCT} weight percent Hammerschmidt over-predicts and Nielsen-Bucklin was developed for methanol, not for ${inh.label.toLowerCase()}. The Nielsen-Bucklin figure is reported beside it for comparison, and the gap between them is the measure of how far this is being pushed. Treat this depression as optimistic and confirm it against a flash.`;
-    }
+    note = `Above ${HAMMERSCHMIDT_RELIABLE_WT_PCT} weight percent Hammerschmidt over-predicts, so the recommended depression here is the lower of the two relations, which is ${basis === 'nielsenBucklin' ? 'Nielsen-Bucklin' : 'Hammerschmidt'}. Nielsen-Bucklin was developed on methanol data and is written in the mole fraction of water, so it carries across fluids better than Hammerschmidt does, but both are correlations: confirm a deep design against a flash.`;
   }
   return {
     ok: Number.isFinite(ham),
@@ -331,9 +369,27 @@ export const inhibitionRequirement = ({
       note: `The fluid sits outside the hydrate region by ${Math.abs(subcoolingF).toFixed(1)} F. No inhibitor is needed to keep it there.`,
     };
   }
-  const weightPct = weightPctForDepression({
+  // ITEM 48. THE CONCENTRATION IS INVERTED THROUGH BOTH RELATIONS AND
+  // THE BINDING ONE IS TAKEN. Inverting through Hammerschmidt alone
+  // returns the concentration that would give this depression IF
+  // Hammerschmidt were right, and above 25 weight percent it is not:
+  // the design then gets judged, one line later, on the lower of the
+  // two relations and comes up short. The larger of the two inverses is
+  // the concentration that delivers the depression on the relation the
+  // design will be measured by, and the practical ceiling is applied to
+  // THAT number, which is what "measured in Nielsen-Bucklin
+  // coordinates" means.
+  const wtHammerschmidt = weightPctForDepression({
     depressionF: need, molecularWeight: inh.molecularWeight, k: inh.k,
   });
+  const wtNielsenBucklin = weightPctForDepressionNielsenBucklin({
+    depressionF: need, molecularWeight: inh.molecularWeight,
+  });
+  const weightPct = Number.isFinite(wtNielsenBucklin)
+    ? Math.max(wtHammerschmidt, wtNielsenBucklin)
+    : wtHammerschmidt;
+  const weightPctBasis = Number.isFinite(wtNielsenBucklin)
+    && wtNielsenBucklin > wtHammerschmidt ? 'nielsenBucklin' : 'hammerschmidt';
   if (!(weightPct > 0) || !(weightPct < 100)) {
     return {
       ok: false,
@@ -354,11 +410,41 @@ export const inhibitionRequirement = ({
       required: true,
       neededDepressionF: need,
       weightPct,
+      weightPctBasis,
+      weightPctByHammerschmidt: wtHammerschmidt,
+      weightPctByNielsenBucklin: wtNielsenBucklin,
       code: 'pastPracticalCeiling',
       error: `Killing ${need.toFixed(1)} F of subcooling would take ${weightPct.toFixed(1)} weight percent ${inh.label.toLowerCase()} in the water, past the ${maxWtPct} percent anything is actually run at. This much subcooling is a thermal or a dosing-strategy problem: insulation, heating, or displacing the line. It is not an inhibitor-concentration one.`,
     };
   }
   const check = depression({ weightPct, inhibitorId });
+  // ITEM 53. The ceiling above refuses on CONCENTRATION and never on
+  // SHORTFALL: a concentration inside the ceiling whose recommended
+  // depression is still below what was asked for came back as a design,
+  // with the shortfall sitting inside `depressionCheck` where nothing
+  // read it. It is the whole question this function was asked.
+  // Whether it CAN fire, stated so nobody reads its silence as a pass:
+  // with the concentration inverted through the binding relation above,
+  // the delivered depression lands on the requirement exactly, so for
+  // the four inhibitors this module carries this branch is unreachable
+  // by construction and the invariant is gated as an invariant. It stays
+  // because it is the door: it fires the moment a concentration reaches
+  // here that was not inverted through the relation the design is judged
+  // on, which is exactly how the defect got in.
+  if (Number.isFinite(check.recommendedF) && check.recommendedF < need - DEPRESSION_TOL_F) {
+    return {
+      ok: false,
+      required: true,
+      neededDepressionF: need,
+      weightPct,
+      weightPctBasis,
+      weightPctByHammerschmidt: wtHammerschmidt,
+      weightPctByNielsenBucklin: wtNielsenBucklin,
+      depressionCheck: check,
+      code: 'insufficientDepression',
+      error: `At ${weightPct.toFixed(1)} weight percent ${inh.label.toLowerCase()} the depression this design can be relied on for is ${check.recommendedF.toFixed(1)} F, against the ${need.toFixed(1)} F it needs. The concentration is inside the practical ceiling, so nothing here refuses it on concentration, but it does not deliver the depression and it is refused on that.`,
+    };
+  }
   const rate = injectionRate({
     waterRateBpd, weightPct, inhibitorId, leanWtPct, waterDensityLbGal,
   });
@@ -367,6 +453,11 @@ export const inhibitionRequirement = ({
     required: true,
     neededDepressionF: need,
     weightPct,
+    // which relation the concentration was inverted through, and both
+    // inverses, so a reader can see the size of the choice
+    weightPctBasis,
+    weightPctByHammerschmidt: wtHammerschmidt,
+    weightPctByNielsenBucklin: wtNielsenBucklin,
     depressionCheck: check,
     rate,
     // A refusal that comes up from the rate keeps the rate's own code,
