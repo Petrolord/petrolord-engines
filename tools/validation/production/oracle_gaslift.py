@@ -499,12 +499,45 @@ def unloading(cfg, surfs, valves):
     return stages
 
 
-def injection_point(traverse, p_surf, sg, temp_at, dp_transfer, max_depth):
+def injection_curve(p_surf, sg, temp_at, max_depth, samples):
+    """The injection line AS THE ENGINE SHIPS IT: `samples` intervals of
+    the column, read between them by linear interpolation.
+
+    Item 30. This oracle used to evaluate the column exactly at every
+    depth the crossing search asked for, so the golden gated a path the
+    engine does not run: `deepestInjectionPoint` builds a 40-sample curve
+    once and interpolates it, and the chord between two samples is below
+    the curve it cuts. The sample VALUES are still this file's own RK4 at
+    400 steps against the engine's 20-step trapezoid, so the independence
+    is intact; what is shared is the discretization that the shipped
+    answer is a property of.
+    """
+    h = max_depth / samples
+    depths = [i * h for i in range(samples + 1)]
+    pressures = [column(p_surf, d, sg, temp_at) for d in depths]
+
+    def at(d):
+        if d <= 0:
+            return pressures[0]
+        if d >= depths[-1]:
+            return pressures[-1]
+        i = 1
+        while i < len(depths) and depths[i] < d:
+            i += 1
+        f = (d - depths[i - 1]) / (depths[i] - depths[i - 1])
+        return pressures[i - 1] + f * (pressures[i] - pressures[i - 1])
+
+    return at
+
+
+def injection_point(traverse, p_surf, sg, temp_at, dp_transfer, max_depth,
+                    samples=40):
     rows = sorted(traverse, key=lambda r: r[0])
     deepest = min(max_depth, rows[-1][0])
+    inj = injection_curve(p_surf, sg, temp_at, deepest, samples)
 
     def margin(d, p):
-        return column(p_surf, d, sg, temp_at) - dp_transfer - p
+        return inj(d) - dp_transfer - p
 
     prev = (rows[0][0], rows[0][1], margin(rows[0][0], rows[0][1]))
     for d, p in rows[1:]:
@@ -515,10 +548,10 @@ def injection_point(traverse, p_surf, sg, temp_at, dp_transfer, max_depth):
             f = prev[2] / (prev[2] - m)
             depth = prev[0] + f * (d - prev[0])
             pp = prev[1] + f * (p - prev[1])
-            return {'depthFt': depth, 'pInjPsia': column(p_surf, depth, sg, temp_at),
+            return {'depthFt': depth, 'pInjPsia': inj(depth),
                     'pProdPsia': pp, 'limitedBy': 'pressure'}
         prev = (d, p, m)
-    return {'depthFt': prev[0], 'pInjPsia': column(p_surf, prev[0], sg, temp_at),
+    return {'depthFt': prev[0], 'pInjPsia': inj(prev[0]),
             'pProdPsia': prev[1], 'limitedBy': 'depth'}
 
 
@@ -682,7 +715,11 @@ def build():
         'traverse': [{'tvdFt': d, 'pPsia': p} for d, p in TRAVERSE],
         'pSurfPsia': 1014.7, 'gasSg': 0.65, 'whtF': 100.0, 'bhtF': 190.0,
         'refDepthFt': 8000.0, 'dpTransferPsi': 100.0, 'maxDepthFt': 8000.0,
-        'expected': injection_point(TRAVERSE, 1014.7, 0.65, temp_at, 100.0, 8000.0),
+        # a published condition of the answer, not a detail: the crossing
+        # is a property of this sample count, and the engine ships 40
+        'injectionSamples': 40,
+        'expected': injection_point(TRAVERSE, 1014.7, 0.65, temp_at, 100.0, 8000.0,
+                                    samples=40),
     }
     return out
 

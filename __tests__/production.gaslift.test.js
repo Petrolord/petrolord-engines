@@ -813,10 +813,56 @@ describe('deepest point of injection', () => {
     const hit = deepestInjectionPoint({
       prodTraverse: gi.traverse, pSurfPsia: gi.pSurfPsia, gasSg: gi.gasSg,
       tempAtDepthF: temp, dpTransferPsi: gi.dpTransferPsi, maxDepthFt: gi.maxDepthFt,
+      steps: gi.injectionSamples,
     });
     expect(hit.limitedBy).toBe(gi.expected.limitedBy);
     expect(Math.abs(hit.depthFt - gi.expected.depthFt)).toBeLessThan(0.05);
     expect(rel(hit.pInjPsia, gi.expected.pInjPsia)).toBeLessThan(1e-5);
+  });
+
+  // Item 30. The oracle used to read its column exactly at every depth the
+  // crossing search asked for, so the golden gated a path the engine does
+  // not run: the shipped answer comes off a 40-sample curve read by linear
+  // interpolation between the samples. The sample count is a condition of
+  // the answer, so it is published in the golden and gated here.
+  test('the golden publishes the sample count the shipped answer is taken at', () => {
+    expect(gi.injectionSamples).toBe(40);
+    const withDefault = deepestInjectionPoint({
+      prodTraverse: gi.traverse, pSurfPsia: gi.pSurfPsia, gasSg: gi.gasSg,
+      tempAtDepthF: temp, dpTransferPsi: gi.dpTransferPsi, maxDepthFt: gi.maxDepthFt,
+    });
+    const withPublished = deepestInjectionPoint({
+      prodTraverse: gi.traverse, pSurfPsia: gi.pSurfPsia, gasSg: gi.gasSg,
+      tempAtDepthF: temp, dpTransferPsi: gi.dpTransferPsi, maxDepthFt: gi.maxDepthFt,
+      steps: gi.injectionSamples,
+    });
+    // the published condition IS the shipped default, which is the claim
+    // the golden makes by publishing it
+    expect(withPublished).toEqual(withDefault);
+  });
+
+  test('the sample count moves the answer, which is why the golden names it', () => {
+    const run = (steps) => deepestInjectionPoint({
+      prodTraverse: gi.traverse, pSurfPsia: gi.pSurfPsia, gasSg: gi.gasSg,
+      tempAtDepthF: temp, dpTransferPsi: gi.dpTransferPsi, maxDepthFt: gi.maxDepthFt,
+      steps,
+    });
+    const shipped = run(40);
+    const coarse = run(2);
+    const fine = run(400);
+    // the move is small on this well, tenths of a foot and hundredths of a
+    // psi, because the traverse rows are 1000 ft apart and dominate the
+    // error. It is not zero, and it is one sided: every chord cuts under
+    // the curve, so a coarser curve reads the crossing deeper and its
+    // pressure higher.
+    expect(coarse.depthFt).toBeGreaterThan(shipped.depthFt);
+    expect(coarse.pInjPsia).toBeGreaterThan(shipped.pInjPsia);
+    expect(Math.abs(coarse.pInjPsia - shipped.pInjPsia)).toBeGreaterThan(0.02);
+    expect(Math.abs(coarse.depthFt - shipped.depthFt)).toBeGreaterThan(0.2);
+    // and refining past the shipped count moves it far less than coarsening
+    // below it, which is what makes 40 the condition worth publishing
+    expect(Math.abs(fine.depthFt - shipped.depthFt))
+      .toBeLessThan(Math.abs(coarse.depthFt - shipped.depthFt) / 100);
   });
 
   // Items 8, 31 and 40, the removal half. What used to stand here was a
