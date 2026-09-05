@@ -348,16 +348,44 @@ export const designEsp = ({
   };
 
   // A first pass to learn the in-situ duty, then the stage that suits it.
+  // THE PROBE EXISTS TO LEARN THE DUTY, NOT TO BE A DESIGN. It runs on
+  // one arbitrary stage because the in-situ intake rate has to be known
+  // before a stage can be chosen for it, and that rate is a property of
+  // the well and the fluid, not of the stage.
+  //
+  // Since item 5 a stage refuses to be read more than a tenth of its
+  // tested span past its ends, so on a duty far from the probe stage the
+  // PROBE now refuses, and the whole method was being reported as
+  // undesignable because of the stage nobody chose. A chain that can
+  // report the duty alongside such a refusal lets the pick go ahead:
+  // that is what the second reading of `probe.duty` is for. A chain that
+  // cannot still refuses, exactly as before.
   const probe = runEspDesign({
     form: { ...baseForm, referenceStageId: 'ref-540-2500' }, model,
   });
-  if (!probe.ok) {
+  const probeDutyBpd = probe.ok
+    ? probe.design.duty.pumpIntakeBpd
+    : probe.duty?.pumpIntakeBpd;
+  if (!Number.isFinite(probeDutyBpd)) {
     return outcome('esp', { ok: false, reason: probe.errors[0], errors: probe.errors });
   }
-  const stage = pickReferenceStage(probe.design.duty.pumpIntakeBpd);
+  const stage = pickReferenceStage(probeDutyBpd);
   const sized = runEspDesign({ form: { ...baseForm, referenceStageId: stage.id }, model });
   if (!sized.ok) {
-    return outcome('esp', { ok: false, reason: sized.errors[0], errors: sized.errors });
+    // The stage nearest this duty cannot be read at it either, which is
+    // a statement about the catalogue and the well and not about the
+    // probe. It is worth saying which stage was tried.
+    return outcome('esp', {
+      ok: false,
+      reason: sized.errors[0],
+      errors: sized.errors,
+      // which stage was tried and at what duty, so the refusal can be
+      // read as a statement about the catalogue rather than about the
+      // arbitrary stage the probe happened to run on
+      stageTried: stage.id,
+      dutyBpd: probeDutyBpd,
+      note: `${stage.label} is the nearest stage in this catalogue to a duty of ${Math.round(probeDutyBpd)} bbl/d at the pump, and it cannot be read there.`,
+    });
   }
   const motor = pickMotorFrame(sized.design.sized.shaftHp);
   const final = runEspDesign({
