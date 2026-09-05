@@ -56,6 +56,52 @@
  * Fahrenheit by name and which converts with its own `toRankine`. This
  * module does not call it. Callers crossing between the two convert at
  * the boundary.
+ *
+ * DECISIONS THIS MODULE MAKES, stated here because a reader of the
+ * numbers cannot see them in the numbers.
+ *
+ * 1. THE GAS COLUMN ABOVE THE SLUG IS PRICED AT THE AVERAGE OF THE LINE
+ *    PRESSURE AND THE PRESSURE AT THE SLUG TOP, not at the line
+ *    pressure. The column runs between those two pressures, and pricing
+ *    it at the lighter end understates its weight: on a 6,000 ft well at
+ *    120 psia line pressure by about 7 percent of the term. It is a
+ *    fixed point, because the pressure at the slug top is the line
+ *    pressure plus the weight being solved for, and it is shared by
+ *    `liftPressure` and `maxSlugLengthFt` so the two cannot disagree
+ *    about the same well. Item 32.
+ *
+ * 2. THE GAS A CYCLE NEEDS IS READ UNDER THE PLUNGER, AT THE TWO ENDS OF
+ *    THE RISE, AND THE CASING PRESSURE IS NOT ONE OF THEM. The pressure
+ *    under the plunger starts at the lift pressure, with the whole slug
+ *    and gas column above it, and ends at the line pressure plus the
+ *    plunger's weight and friction, with nothing above it. It FALLS
+ *    through the rise.
+ *
+ *    This function used to take the casing pressure as the start of that
+ *    average, which made the gas a cycle needs rise with the casing and
+ *    therefore made the REQUIRED gas-liquid ratio FALL as a well
+ *    weakened. The consequence was a verdict that got easier as the well
+ *    got worse: the same 5,000 scf/bbl well was infeasible at 1,200 psia
+ *    casing, feasible at 650 psia, and stayed feasible all the way down
+ *    to the pressure at which the plunger stops moving at all. It also
+ *    put the requirement at 8,133 scf/bbl against a rule of thumb of
+ *    2,400 for that well; read under the plunger it is 1,987, which is
+ *    the same order as the heuristic it is meant to be compared with.
+ *    Item 12.
+ *
+ * 3. WHERE THE CASING PRESSURE DOES BELONG IN A REQUIREMENT: it sets the
+ *    longest slug the well can lift, and a shorter slug carries the same
+ *    tubing fill on fewer barrels. `requiredGlrAtMaxSlugScfBbl` is that
+ *    number, and it rises as the casing falls, steeply, without limit at
+ *    the pressure that lifts a bare plunger and no more.
+ *
+ * 4. A CYCLE CANNOT LIFT LIQUID THE WELL DOES NOT MAKE. When a liquid
+ *    rate is given, `liquidOk` compares it with the barrels a day this
+ *    slug and this cadence would deliver, and it takes part in
+ *    `feasible`. When none is given `liquidOk` is null, the verdict
+ *    rests on pressure and gas alone, and a warning says the question
+ *    was not asked. An untested condition does not make a design
+ *    infeasible and it does not quietly pass either.
  */
 
 import {
@@ -98,6 +144,67 @@ export const slugLengthForBbl = ({ bbl, idIn }) => {
   return a > 0 ? (bbl * FT3_PER_BBL) / a : NaN;
 };
 
+/** Passes allowed to the gas column fixed point, and the psi change
+ *  that counts as settled. */
+export const GAS_COLUMN_MAX_ITER = 30;
+export const GAS_COLUMN_TOL_PSI = 1e-10;
+
+/**
+ * The tubing gas standing above the slug: its weight in psi, and the
+ * density and pressure that weight was taken at.
+ *
+ * THE COLUMN IS NOT AT THE LINE PRESSURE. It runs from surface, where
+ * it is at the line pressure, down to the top of the slug, where it is
+ * at the line pressure plus its own weight. Evaluating its density at
+ * the line pressure prices the whole column at the lightest gas in it
+ * and understates the weight; on a 6,000 ft well at 120 psia line
+ * pressure that is about 7 percent of the column, which then flows
+ * into the lift pressure, the gas per cycle, the required ratio and the
+ * longest liftable slug. Item 32.
+ *
+ * So the density is taken at the AVERAGE of the two ends, which is the
+ * line pressure plus half the column weight, and that is a fixed point
+ * because the weight is what is being solved for. It settles in a
+ * handful of passes: the correction is a few percent of a term that is
+ * itself small next to the slug.
+ *
+ * `avgTempR` is degR at the door, per the module header.
+ *
+ * returns { gasColumnPsi, rhoGasLbFt3, pressurePsia, iterations,
+ *           converged }
+ */
+export const gasColumnAboveSlug = ({
+  linePressurePsia, gasColumnFt, gasSg, avgTempR, z,
+}) => {
+  const height = Math.max(gasColumnFt, 0);
+  let gasColumnPsi = 0;
+  let rhoGasLbFt3 = NaN;
+  let pressurePsia = linePressurePsia;
+  let iterations = 0;
+  let converged = false;
+  for (let i = 0; i < GAS_COLUMN_MAX_ITER; i += 1) {
+    iterations = i + 1;
+    pressurePsia = linePressurePsia + gasColumnPsi / 2;
+    rhoGasLbFt3 = gasDensityLbFt3({ pPsia: pressurePsia, tempR: avgTempR, z, gasSg });
+    if (!Number.isFinite(rhoGasLbFt3)) {
+      // The density could not be formed, so neither can the column. It
+      // is reported as unreadable rather than as a weightless column,
+      // and the callers below decide what that means for them.
+      return {
+        gasColumnPsi: NaN, rhoGasLbFt3: NaN, pressurePsia, iterations, converged: false,
+      };
+    }
+    const next = (rhoGasLbFt3 * height) / 144;
+    if (Math.abs(next - gasColumnPsi) < GAS_COLUMN_TOL_PSI) {
+      gasColumnPsi = next;
+      converged = true;
+      break;
+    }
+    gasColumnPsi = next;
+  }
+  return { gasColumnPsi, rhoGasLbFt3, pressurePsia, iterations, converged };
+};
+
 /**
  * Pressure required under the plunger to lift it and its slug, psia.
  *
@@ -122,14 +229,18 @@ export const liftPressure = ({
   const areaIn2 = tubingAreaIn2(idIn);
   const slugPsi = PSI_PER_FT_SG * liquidSg * slugLengthFt;
   const plungerPsi = areaIn2 > 0 ? plungerWeightLb / areaIn2 : NaN;
-  // Weight of the tubing gas standing above the slug. Small next to
-  // the slug itself, and it is carried because leaving it out is a
-  // choice rather than an approximation anyone stated.
-  const rhoGas = gasDensityLbFt3({
-    pPsia: linePressurePsia, tempR: avgTempR, z, gasSg,
-  });
+  // Weight of the tubing gas standing above the slug, taken at the
+  // average of the line pressure and the pressure at the slug top. Small
+  // next to the slug itself, and it is carried because leaving it out is
+  // a choice rather than an approximation anyone stated.
   const gasColumnFt = Math.max(depthFt - slugLengthFt, 0);
-  const gasColumnPsi = Number.isFinite(rhoGas) ? (rhoGas * gasColumnFt) / 144 : 0;
+  const column = gasColumnAboveSlug({
+    linePressurePsia, gasColumnFt, gasSg, avgTempR, z,
+  });
+  const gasColumnPsi = Number.isFinite(column.gasColumnPsi) ? column.gasColumnPsi : 0;
+  // `terms` is the pressure balance and nothing else: every value in it
+  // is a psi contribution and they sum to `requiredPsia`. What the gas
+  // column was priced at belongs beside it, not in it.
   const terms = {
     linePressurePsia,
     slugPsi,
@@ -140,6 +251,16 @@ export const liftPressure = ({
   return {
     requiredPsia: linePressurePsia + slugPsi + plungerPsi + gasColumnPsi + frictionPsi,
     terms,
+    // the convention behind the gas column term, visible rather than
+    // inferred: the height it acts over, the pressure its density was
+    // taken at (item 32) and that density
+    gasColumn: {
+      heightFt: gasColumnFt,
+      pressurePsia: column.pressurePsia,
+      densityLbFt3: column.rhoGasLbFt3,
+      iterations: column.iterations,
+      converged: column.converged,
+    },
     areaIn2,
   };
 };
@@ -152,6 +273,15 @@ export const liftPressure = ({
  * the end of the rise, the real gas law converts that swept volume to
  * standard conditions. This is the work the gas does, and it is where
  * the feasibility number comes from.
+ *
+ * `pStartPsia` and `pEndPsia` ARE THE TWO ENDS OF THE RISE, both read
+ * UNDER THE PLUNGER. At the start the plunger is on bottom with the
+ * whole slug and the whole gas column above it, so the pressure under
+ * it is the lift pressure; at the end it is at surface with nothing
+ * above it but the line, so the pressure under it is the line pressure
+ * plus its own weight and its friction. The pressure under the plunger
+ * FALLS through the rise. See the module header for what handing this
+ * function the casing pressure as its start did to the verdict.
  *
  * `avgTempR` is degR at the door, per the module header.
  */
@@ -236,7 +366,8 @@ export const ruleOfThumbGlr = ({ depthFt, scfPerBblPer1000ft = RULE_OF_THUMB_SCF
  */
 export const screenPlungerLift = ({
   depthFt, idIn, linePressurePsia, casingPressurePsia, slugLengthFt, liquidSg,
-  plungerWeightLb, gasSg, avgTempR, z, wellGlrScfBbl, frictionPsi,
+  plungerWeightLb, gasSg, avgTempR, z, wellGlrScfBbl, wellLiquidRateBblD,
+  frictionPsi,
   riseFtMin, fallInGasFtMin, fallInLiquidFtMin, afterflowMin, shutInMin,
   scfPerBblPer1000ft,
 }) => {
@@ -260,14 +391,43 @@ export const screenPlungerLift = ({
     depthFt, gasSg, avgTempR, z, frictionPsi,
   });
 
-  // Gas expands from the casing pressure available down to the
-  // pressure still needed at the top of the rise.
+  // The gas a cycle needs is the tubing fill under the plunger through
+  // the rise, and the two ends of that rise are both read under the
+  // plunger: the lift pressure at the bottom, the line pressure plus the
+  // plunger's own weight and friction at surface. The casing pressure is
+  // NOT one of them. It used to be passed as the start, which made the
+  // requirement rise with the casing and therefore FALL as a well
+  // weakened; see the module header, item 12.
+  const pArrivalPsia = linePressurePsia + lift.terms.plungerPsi + (frictionPsi ?? TYPICAL.frictionPsi);
   const gasScf = gasPerCycleScf({
-    depthFt, idIn, pStartPsia: casingPressurePsia, pEndPsia: lift.requiredPsia,
+    depthFt, idIn, pStartPsia: lift.requiredPsia, pEndPsia: pArrivalPsia,
     avgTempR, z,
   });
   const liquidBbl = slugVolumeBbl({ slugLengthFt, idIn });
   const requiredGlr = liquidBbl > 0 ? gasScf / liquidBbl : NaN;
+
+  // Where the casing pressure DOES belong in a requirement: it sets the
+  // longest slug this well can lift, and a shorter slug carries the same
+  // tubing fill on fewer barrels. So the requirement at the best slug
+  // this casing can manage RISES as the casing falls, steeply, and goes
+  // to infinity at the pressure that lifts a bare plunger and no more.
+  const maxSlug = maxSlugLengthFt({
+    casingPressurePsia, linePressurePsia, liquidSg, idIn, plungerWeightLb,
+    depthFt, gasSg, avgTempR, z, frictionPsi,
+  });
+  let requiredGlrAtMaxSlug = null;
+  if (maxSlug.ok && maxSlug.maxSlugLengthFt > 0) {
+    const bestLift = liftPressure({
+      linePressurePsia, slugLengthFt: maxSlug.maxSlugLengthFt, liquidSg, idIn,
+      plungerWeightLb, depthFt, gasSg, avgTempR, z, frictionPsi,
+    });
+    const bestGas = gasPerCycleScf({
+      depthFt, idIn, pStartPsia: bestLift.requiredPsia, pEndPsia: pArrivalPsia,
+      avgTempR, z,
+    });
+    const bestLiquid = slugVolumeBbl({ slugLengthFt: maxSlug.maxSlugLengthFt, idIn });
+    requiredGlrAtMaxSlug = bestLiquid > 0 ? bestGas / bestLiquid : null;
+  }
 
   const timing = cycleTime({
     depthFt, riseFtMin, fallInGasFtMin, fallInLiquidFtMin,
@@ -335,6 +495,33 @@ export const screenPlungerLift = ({
     });
   }
 
+  // THE CYCLE CANNOT LIFT LIQUID THE WELL DOES NOT MAKE. The timing above
+  // is set by plunger velocities and the operator's shut-in, and it says
+  // how many barrels a day this slug would deliver at that cadence. If
+  // the well makes less than that, the plunger arrives on a short slug or
+  // dry and the real cycle time is set by the inflow, not by any number
+  // here. A design that is feasible on pressure and on gas can still be
+  // infeasible on liquid, and that was not asked before.
+  const liquidPerDayBbl = liquidBbl * timing.cyclesPerDay;
+  const liquidRatio = Number.isFinite(wellLiquidRateBblD) && wellLiquidRateBblD > 0
+    ? liquidPerDayBbl / wellLiquidRateBblD
+    : NaN;
+  const liquidOk = Number.isFinite(wellLiquidRateBblD)
+    ? wellLiquidRateBblD >= liquidPerDayBbl
+    : null;
+  if (liquidOk === false) {
+    warnings.push({
+      code: 'cycleOutrunsInflow',
+      message: `This cycle lifts ${liquidBbl.toLocaleString(undefined, ONE_DECIMAL)} bbl and at ${timing.cyclesPerDay.toLocaleString(undefined, ONE_DECIMAL)} cycles a day that is ${liquidPerDayBbl.toLocaleString(undefined, ONE_DECIMAL)} bbl per day, and the well makes ${wellLiquidRateBblD.toLocaleString(undefined, ONE_DECIMAL)} bbl per day, a ratio of ${liquidRatio.toLocaleString(undefined, ONE_DECIMAL)} to 1. The plunger will arrive on a short slug or dry, so the cycle time here is set by the liquid the well makes and not by the rise, fall and shut-in times above. Lengthen the shut-in or shorten the slug.`,
+    });
+  }
+  if (liquidOk === null) {
+    warnings.push({
+      code: 'liquidRateNotGiven',
+      message: `At these times the cycle would lift ${liquidPerDayBbl.toLocaleString(undefined, ONE_DECIMAL)} bbl per day. Whether the well makes that much was not tested, because no liquid rate was given, so the verdict below is on pressure and gas only. Hand a liquid rate in bbl per day to have it tested.`,
+    });
+  }
+
   const ruleGlr = ruleOfThumbGlr({ depthFt, scfPerBblPer1000ft });
   const ruleOfThumbAgrees = Number.isFinite(wellGlrScfBbl)
     ? (wellGlrScfBbl >= ruleGlr) === glrOk
@@ -360,16 +547,29 @@ export const screenPlungerLift = ({
       gasPerCycleScf: gasScf,
       liquidPerCycleBbl: liquidBbl,
       requiredGlrScfBbl: requiredGlr,
+      // the same requirement at the longest slug this casing can lift,
+      // which is where the casing pressure belongs in a requirement, and
+      // null when there is no such slug (the refusal says why)
+      requiredGlrAtMaxSlugScfBbl: requiredGlrAtMaxSlug,
+      maxSlugLengthFt: maxSlug.ok ? maxSlug.maxSlugLengthFt : null,
+      maxSlugRefusal: maxSlug.ok ? null : { code: maxSlug.code, error: maxSlug.error },
       wellGlrScfBbl,
       // Reported for comparison only; the verdict above does not use it.
       ruleOfThumbGlrScfBbl: ruleGlr,
       ruleOfThumbAgrees,
       timing,
-      liquidPerDayBbl: liquidBbl * timing.cyclesPerDay,
+      liquidPerDayBbl,
       gasPerDayMscf: (gasScf * timing.cyclesPerDay) / 1000,
+      wellLiquidRateBblD: Number.isFinite(wellLiquidRateBblD) ? wellLiquidRateBblD : null,
+      liquidRatio: Number.isFinite(liquidRatio) ? liquidRatio : null,
       pressureOk,
       glrOk,
-      feasible: pressureOk && glrOk,
+      // null when no liquid rate was given: the question was not asked,
+      // which is not the same as answered yes
+      liquidOk,
+      // an untested condition cannot make a design infeasible, and the
+      // warning above says which conditions the verdict rests on
+      feasible: pressureOk && glrOk && liquidOk !== false,
       warnings,
     },
   };
@@ -428,8 +628,48 @@ export const maxSlugLengthFt = ({
 }) => {
   const areaIn2 = tubingAreaIn2(idIn);
   const plungerPsi = areaIn2 > 0 ? plungerWeightLb / areaIn2 : NaN;
-  const rhoGas = gasDensityLbFt3({ pPsia: linePressurePsia, tempR: avgTempR, z, gasSg });
-  const gasPerFt = Number.isFinite(rhoGas) ? rhoGas / 144 : 0;
+  // The gas column above the slug is priced at the average of the line
+  // pressure and the pressure at its own foot (item 32), and its foot is
+  // the top of the slug, so its density depends on the length being
+  // solved for. The linear solve below is run to a fixed point on that
+  // length rather than at a density taken once at the line pressure,
+  // which would leave this function and `liftPressure` disagreeing about
+  // the same well by a few percent of the gas term.
+  let lengthFt = NaN;
+  let gasPerFt = 0;
+  let solved = false;
+  let iterations = 0;
+  let guessFt = 0;
+  for (let i = 0; i < GAS_COLUMN_MAX_ITER; i += 1) {
+    iterations = i + 1;
+    const column = gasColumnAboveSlug({
+      linePressurePsia, gasColumnFt: depthFt - guessFt, gasSg, avgTempR, z,
+    });
+    if (!Number.isFinite(column.rhoGasLbFt3)) {
+      return {
+        ok: false,
+        code: 'unreadableGasColumn',
+        error: 'The gas standing above the slug could not be priced from these inputs, so the balance it appears in cannot be solved. Check the gas gravity, the average temperature, the compressibility factor and the line pressure.',
+      };
+    }
+    gasPerFt = column.rhoGasLbFt3 / 144;
+    const step = PSI_PER_FT_SG * liquidSg - gasPerFt;
+    if (!(step > 0)) break;
+    const avail = casingPressurePsia - linePressurePsia - plungerPsi
+      - frictionPsi - gasPerFt * depthFt;
+    const next = avail / step;
+    if (!Number.isFinite(next)) { lengthFt = next; solved = true; break; }
+    // the column is evaluated over depth - L, so a length outside the
+    // string is clamped for the NEXT density only; the answer itself is
+    // never clamped, it is judged against the band below
+    const nextGuess = Math.min(Math.max(next, 0), depthFt);
+    lengthFt = next;
+    if (Math.abs(nextGuess - guessFt) < 1e-9 * Math.max(depthFt, 1)) {
+      solved = true;
+      break;
+    }
+    guessFt = nextGuess;
+  }
   const available = casingPressurePsia - linePressurePsia - plungerPsi
     - frictionPsi - gasPerFt * depthFt;
   const perFt = PSI_PER_FT_SG * liquidSg - gasPerFt;
@@ -440,7 +680,13 @@ export const maxSlugLengthFt = ({
       error: `The liquid gradient here is ${(PSI_PER_FT_SG * liquidSg).toFixed(4)} psi/ft and the gas gradient is ${gasPerFt.toFixed(4)} psi/ft, so a longer slug adds no net pressure and there is no longest slug to find. Check the liquid gravity and the gas column conditions.`,
     };
   }
-  const lengthFt = available / perFt;
+  if (!solved && Number.isFinite(lengthFt)) {
+    return {
+      ok: false,
+      code: 'slugLengthNotConverged',
+      error: `The longest slug did not settle after ${GAS_COLUMN_MAX_ITER} passes of the gas column fixed point, so no length here is an answer. Check the line pressure, the gas gravity and the average temperature.`,
+    };
+  }
   // The band is [0, depthFt] and its EDGES are answers: a casing pressure
   // that lifts a bare plunger and no more solves to exactly zero, and one
   // that solves to exactly the depth is a real solve that landed on the

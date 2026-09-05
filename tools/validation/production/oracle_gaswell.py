@@ -127,18 +127,42 @@ def tubing_area_ft2(id_in):
 
 # ----------------------------------------------------------- plunger lift
 
+def gas_column_pa(line_pa, height_m, t_k, z, sg):
+    """Weight of the tubing gas above the slug, in pascals.
+
+    Item 32. The column runs from surface, where it is at the line
+    pressure, to the top of the slug, where it is at the line pressure
+    plus its own weight, and its density is taken at the average of the
+    two. That is a fixed point on the weight; it is iterated here to
+    machine tolerance, where the engine iterates the same statement in
+    field units. Pricing the column at the line pressure alone, which is
+    what both sides did before, understates it by about 7 percent on the
+    published case.
+    """
+    col = 0.0
+    for _ in range(200):
+        rho = gas_density_si(line_pa + col / 2.0, t_k, z, sg)
+        nxt = rho * G_SI * max(height_m, 0.0)
+        if abs(nxt - col) < 1e-12:
+            return nxt, rho
+        col = nxt
+    return col, gas_density_si(line_pa + col / 2.0, t_k, z, sg)
+
+
 def lift_pressure_pa(line_pa, slug_m, liquid_rho_si, id_m, plunger_kg,
-                     depth_m, rho_gas_si, friction_pa):
+                     depth_m, friction_pa, t_k, z, sg):
     """The same static balance, in pascals and metres."""
     area_m2 = math.pi * id_m * id_m / 4.0
     slug_pa = liquid_rho_si * G_SI * slug_m
     plunger_pa = plunger_kg * G_SI / area_m2
-    gas_col_pa = rho_gas_si * G_SI * max(depth_m - slug_m, 0.0)
+    gas_col_pa, rho_col_si = gas_column_pa(
+        line_pa, max(depth_m - slug_m, 0.0), t_k, z, sg)
     return {
         'total': line_pa + slug_pa + plunger_pa + gas_col_pa + friction_pa,
         'slug': slug_pa,
         'plunger': plunger_pa,
         'gasColumn': gas_col_pa,
+        'gasColumnDensitySi': rho_col_si,
     }
 
 
@@ -183,7 +207,6 @@ def main():
     depth_ft, id_in, slug_ft = 6000.0, 2.441, 200.0
     line_psia, casing_psia = 120.0, 600.0
     liquid_sg, plunger_lb, gas_sg, temp_r, z = 1.02, 6.0, 0.65, 580.0, 0.9
-    rho_gas_lb = gas_density_lb_ft3(line_psia, temp_r, z, gas_sg)
     terms = lift_pressure_pa(
         line_psia * PA_PER_PSI,
         slug_ft * M_PER_FT,
@@ -191,11 +214,20 @@ def main():
         id_in * 0.0254,
         plunger_lb * 0.45359237,
         depth_ft * M_PER_FT,
-        rho_gas_lb * KGM3_PER_LBFT3,
         0.0,
+        temp_r * K_PER_R,
+        z,
+        gas_sg,
     )
     required_psia = terms['total'] / PA_PER_PSI
-    gas_scf = gas_per_cycle_scf(depth_ft, id_in, casing_psia, required_psia, temp_r, z)
+    # Item 12. The two ends of the RISE, both read UNDER the plunger: the
+    # lift pressure with the plunger on bottom and everything above it,
+    # the line pressure plus the plunger's own weight with the plunger at
+    # surface and nothing above it. The casing pressure is not one of
+    # them; it used to be passed as the start, which made the requirement
+    # fall as a well weakened.
+    arrival_psia = line_psia + terms['plunger'] / PA_PER_PSI
+    gas_scf = gas_per_cycle_scf(depth_ft, id_in, required_psia, arrival_psia, temp_r, z)
     liquid_bbl = tubing_area_ft2(id_in) * slug_ft / 5.614583
     cases['plunger'] = {
         'inputs': {
@@ -205,9 +237,11 @@ def main():
             'gasSg': gas_sg, 'avgTempR': temp_r, 'z': z,
         },
         'requiredPsia': required_psia,
+        'arrivalPsia': arrival_psia,
         'slugPsi': terms['slug'] / PA_PER_PSI,
         'plungerPsi': terms['plunger'] / PA_PER_PSI,
         'gasColumnPsi': terms['gasColumn'] / PA_PER_PSI,
+        'gasColumnDensityLbFt3': terms['gasColumnDensitySi'] / KGM3_PER_LBFT3,
         'gasPerCycleScf': gas_scf,
         'liquidPerCycleBbl': liquid_bbl,
         'requiredGlrScfBbl': gas_scf / liquid_bbl,
