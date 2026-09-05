@@ -893,3 +893,74 @@ describe('ITEM 19: the target rate is named for the phase it carries', () => {
     expect(wet.glrScfBbl).toBeCloseTo(300, 9);
   });
 });
+
+// Found by the Suite port (Wave 4). The probe runs on one arbitrary
+// stage to learn the duty, and since item 5 a stage refuses to be read
+// far outside its tested span, so the probe itself can refuse on a well
+// the catalogue can perfectly well design.
+describe('the ESP probe learns the duty even when it cannot design at the probe stage', () => {
+  const model = makeModel();
+  const duty = { pumpIntakeBpd: 900 };
+
+  test('a chain that reports its duty alongside a refusal still gets a stage picked', () => {
+    const stagesTried = [];
+    const chain = {
+      runEspDesign: ({ form }) => {
+        stagesTried.push(form.referenceStageId);
+        // the probe stage refuses, and says what the duty was
+        if (form.referenceStageId === 'ref-540-2500') {
+          return { ok: false, errors: ['outside the tested rate span'], duty };
+        }
+        return {
+          ok: true,
+          errors: [],
+          design: {
+            duty: { ...duty, tdhFt: 4200, intake: { pipPsia: 800, gas: { gvfThroughPump: 0.1 } } },
+            sized: { stages: 120, shaftHp: 60, motorSizingHp: 61, warnings: [] },
+            electrical: { cable: { label: '4 AWG' } },
+            warnings: [],
+          },
+        };
+      },
+    };
+    const out = designEsp({
+      model, targetLiquidRateBpd: 1000, wctPct: 10, gorScfStb: 200, whp: 150, chain,
+    });
+    expect(out.ok).toBe(true);
+    // the probe stage first, then the stage the DUTY calls for, twice
+    // more for the sizing and the final run
+    expect(stagesTried[0]).toBe('ref-540-2500');
+    expect(stagesTried[1]).toBe(pickReferenceStage(900).id);
+    expect(stagesTried[1]).not.toBe('ref-540-2500');
+  });
+
+  test('a chain that refuses with no duty at all still refuses the method', () => {
+    const chain = {
+      runEspDesign: () => ({ ok: false, errors: ['no inflow'] }),
+    };
+    const out = designEsp({
+      model, targetLiquidRateBpd: 1000, wctPct: 10, gorScfStb: 200, whp: 150, chain,
+    });
+    expect(out.ok).toBe(false);
+    expect(out.reason).toBe('no inflow');
+  });
+
+  test('when the nearest stage cannot be read either, the refusal says which was tried', () => {
+    const chain = {
+      runEspDesign: ({ form }) => (form.referenceStageId === 'ref-540-2500'
+        ? { ok: false, errors: ['probe stage is off the curve'], duty: { pumpIntakeBpd: 120 } }
+        : { ok: false, errors: ['this duty is off every curve'] }),
+    };
+    const out = designEsp({
+      model, targetLiquidRateBpd: 200, wctPct: 10, gorScfStb: 200, whp: 150, chain,
+    });
+    expect(out.ok).toBe(false);
+    // the chain's own sentence is the reason, verbatim
+    expect(out.reason).toBe('this duty is off every curve');
+    // and the context travels beside it
+    expect(out.stageTried).toBe(pickReferenceStage(120).id);
+    expect(out.dutyBpd).toBe(120);
+    expect(out.note).toMatch(/nearest stage in this catalogue/);
+    expect(out.note).toMatch(/120 bbl\/d/);
+  });
+});
