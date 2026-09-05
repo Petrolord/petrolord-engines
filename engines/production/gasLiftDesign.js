@@ -242,6 +242,14 @@ export const SPACING_TOL_FT = 0.01;
  * usable, and a `spacingNotConverged` warning carrying the iteration
  * count says so rather than letting an unsettled depth pass as a
  * settled one.
+ *
+ * `minSpacingFt` stops the recursion when two valves come closer than it
+ * (`stopReason: 'minSpacing'`), with ONE exception: the valve that lands
+ * at or below the target depth is placed AT the target depth, and its
+ * spacing from the valve above can be short of the minimum. That
+ * placement is deliberate, a design that reaches target depth is worth
+ * having, and it carries a `minSpacingViolated` warning naming the
+ * spacing achieved and the minimum stated.
  */
 export const spaceValves = ({
   pKickoffPsia, pOperatingPsia, method = 'surfaceClose', dpPerValvePsi = 25,
@@ -300,9 +308,26 @@ export const spaceValves = ({
     if (!(d > dPrev + 1e-6)) { stopReason = 'injectionPressure'; break; }
     const increment = d - dPrev;
     if (d >= floor) {
+      // The solve wants this valve below the floor, so the mandrel goes ON
+      // the floor. That placement is the one case the minimum spacing test
+      // below never sees, because it breaks out first, and the achieved
+      // spacing floor - dPrev can be a fraction of the stated minimum. The
+      // mandrel is still placed, per item 9: a design that reaches target
+      // depth with a tight last space is a real design and refusing it
+      // would throw away the answer. It is placed and SAID.
+      const achievedFt = floor - dPrev;
       depths.push(floor);
       surfacePressures.push(pSurfN);
       stopReason = 'targetDepth';
+      if (achievedFt < minSpacingFt) {
+        warnings.push({
+          code: 'minSpacingViolated',
+          valve: n,
+          spacingFt: achievedFt,
+          minSpacingFt,
+          message: `Valve ${n} is placed at the target depth, ${achievedFt.toFixed(1)} ft below valve ${n - 1}, which is closer than the ${minSpacingFt} ft minimum spacing this design states. The mandrel is placed where it was asked for; the spacing is not what was asked for.`,
+        });
+      }
       break;
     }
     if (increment < minSpacingFt) { stopReason = 'minSpacing'; break; }

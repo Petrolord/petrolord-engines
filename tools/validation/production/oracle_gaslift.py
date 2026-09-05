@@ -258,8 +258,16 @@ def space_valves(cfg):
     depths = [top_valve_depth(pko, pwh, kill, sg, temp_at, floor)]
     surfs = [pko]
     stop = 'maxValves'
+    # The valve that lands at or below the target depth is placed AT the
+    # target depth, and that placement is the one the minimum spacing test
+    # never sees: it breaks out first. The spacing it achieves can be a
+    # fraction of the stated minimum, and until item 27 this file broke out
+    # in the same order and published nothing, so the golden agreed with the
+    # engine's silence and covered neither. It is detected and published
+    # here, so the golden gates the warning the engine owes the user.
+    violation = None
     if depths[0] >= floor - 1e-6:
-        return depths, surfs, 'targetDepth'
+        return depths, surfs, 'targetDepth', violation
 
     for n in range(2, max_v + 1):
         p_surf = pko - (n - 1) * dec
@@ -290,16 +298,19 @@ def space_valves(cfg):
         d = 0.5 * (lo + hi)
 
         if d >= floor:
+            achieved = floor - d_prev
             depths.append(floor)
             surfs.append(p_surf)
             stop = 'targetDepth'
+            if achieved < min_sp:
+                violation = {'valve': n, 'spacingFt': achieved, 'minSpacingFt': min_sp}
             break
         if d - d_prev < min_sp:
             stop = 'minSpacing'
             break
         depths.append(d)
         surfs.append(p_surf)
-    return depths, surfs, stop
+    return depths, surfs, stop, violation
 
 
 def valve_settings(cfg, depths, surfs):
@@ -645,7 +656,7 @@ def build():
     for c in CASES:
         cfg = dict(c)
         cfg['tempAt'] = linear_temp(c['wht'], c['bht'], c['refDepth'])
-        depths, surfs, stop = space_valves(cfg)
+        depths, surfs, stop, min_spacing_violation = space_valves(cfg)
         valves = valve_settings(cfg, depths, surfs)
         stages = unloading(cfg, surfs, valves)
         # margin = spread - casing drop at depth is an identity of the force
@@ -659,6 +670,7 @@ def build():
             'id': c['id'], 'note': c['note'],
             'inputs': {k: v for k, v in c.items() if k not in ('note',)},
             'stopReason': stop,
+            'minSpacingViolation': min_spacing_violation,
             'depths': depths,
             'surfacePressures': surfs,
             'valves': valves,
