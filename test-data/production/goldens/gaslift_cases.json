@@ -74,6 +74,11 @@
     "valveType": "IPO",
     "wht": 100.0
    },
+   "minSpacingViolation": {
+    "minSpacingFt": 250.0,
+    "spacingFt": 131.375432375928,
+    "valve": 8
+   },
    "note": "8000 ft oil well, 1000 psig kickoff, 1.5 in valves, 25 psi per valve.",
    "stopReason": "targetDepth",
    "surfacePressures": [
@@ -701,6 +706,7 @@
     "valveType": "IPO",
     "wht": 110.0
    },
+   "minSpacingViolation": null,
    "note": "11000 ft, 1400 psig kickoff, 1 in valves, 40 psi per valve, heavier kill fluid.",
    "stopReason": "minSpacing",
    "surfacePressures": [
@@ -1212,6 +1218,11 @@
     "valveType": "PPO",
     "wht": 95.0
    },
+   "minSpacingViolation": {
+    "minSpacingFt": 200.0,
+    "spacingFt": 152.95620891924,
+    "valve": 6
+   },
    "note": "Constant surface pressure design with production-operated valves.",
    "stopReason": "targetDepth",
    "surfacePressures": [
@@ -1626,6 +1637,7 @@
     "valveType": "IPO",
     "wht": 105.0
    },
+   "minSpacingViolation": null,
    "note": "9000 ft, 1150 psig kickoff, 26.75 psi per valve: a decrement in the middle of the usual 20-50 psi band, where the unloading verdict is neither all-open nor all-shut. Valves 1 to 3 stay open one stage each and the string is clean from stage 6 down, and the stage-5 verdict on valve 4 hangs on a fraction of a psi of closing margin. It is here because the two extremes (a decrement far below every spread, and one far above) only test the direction of the rule, not the rule.",
    "stopReason": "targetDepth",
    "surfacePressures": [
