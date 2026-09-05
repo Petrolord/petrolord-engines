@@ -62,7 +62,26 @@
  *    orifice, is SKIPPED by that test rather than compared. It has no
  *    dome charge, so there is no pressure at which it closes, and a
  *    missing closing pressure is not a closing pressure of zero.
- * 3. This module reports NO RESIDUAL for the deepest injection point.
+ * 3. THE CLOSING TEST IS TAKEN IN THE FLUID THAT ACTS ON THE BELLOWS.
+ *    An injection-pressure-operated valve is closed by the casing and
+ *    is tested against the casing column at its own depth; a
+ *    production-pressure-operated valve is closed by the tubing and is
+ *    tested against the tubing pressure at its own depth. The casing
+ *    does not enter a PPO valve's closing test, so no casing surface
+ *    closing pressure and no operating-pressure verdict is reported for
+ *    one.
+ *
+ *    A consequence a PPO design has to be read with: the transfer
+ *    production pressure this module carries is one unloading traverse,
+ *    the same line at every stage, and each PPO valve is set to open at
+ *    that line at its own depth. Its tubing-side margin is therefore its
+ *    own spread at every stage, and a clean unloading verdict on a PPO
+ *    string is a property of the setting rule rather than a measurement
+ *    of the design. Warning `ppoClosingStageInvariant` says so on every
+ *    such design. Resolving it needs the tubing traverse per stage,
+ *    which is a flowing multiphase model and is out of this module's
+ *    scope by the note above.
+ * 4. This module reports NO RESIDUAL for the deepest injection point.
  *    A residual formed from what `deepestInjectionPoint` returns is
  *    evaluated against the module's own straight line between two
  *    tabulated traverse rows, so it measures whether two chords agree
@@ -324,10 +343,19 @@ export const valveSetting = ({
     r,
   });
 
-  // The valve closes when the pressure on its bellows falls back to the
-  // dome pressure; expressed at surface that is the casing pressure
-  // whose column reads pdT at this depth.
-  const pCloseSurfPsia = gasColumnSurfacePressure({
+  // The valve closes when the pressure acting on the FULL bellows area
+  // falls back to the dome pressure at valve temperature. WHICH pressure
+  // that is follows from the family: an injection-pressure-operated
+  // valve is held open by the casing, a production-pressure-operated
+  // valve by the tubing. The closing pressure at valve depth is pdT for
+  // both; it is read in a different fluid.
+  const isPpo = valveType === 'PPO';
+  const closingActsOn = isPpo ? 'production' : 'injection';
+  // Only a casing-operated valve has a casing SURFACE pressure that
+  // closes it. Inverting the injection gas column for a tubing-operated
+  // valve returns a casing pressure the valve is not closed by, so none
+  // is reported for it.
+  const pCloseSurfPsia = isPpo ? null : gasColumnSurfacePressure({
     pAtDepthPsia: pdT, tvdFt: depthFt, gasSg, tempAtDepthF, steps: 20,
   });
 
@@ -353,8 +381,16 @@ export const valveSetting = ({
     dome60Psia: pd60,
     testRackOpeningPsia: tro,
     spreadPsi: spread,
+    closingActsOn,
+    closingPressureAtDepthPsia: pdT,
     closingSurfacePressurePsia: pCloseSurfPsia,
-    closesAtOperating: pOperAtDepth === null ? null : pOperAtDepth < pdT,
+    // `pOperatingSurfPsia` is a CASING pressure, so it can only answer
+    // this question for a casing-operated valve. The tubing pressure at
+    // depth once the well is on its operating point comes from a flowing
+    // traverse, which this module does not model, so a production
+    // operated valve gets no operating verdict rather than one taken on
+    // the wrong fluid.
+    closesAtOperating: (isPpo || pOperAtDepth === null) ? null : pOperAtDepth < pdT,
     throughputMscfd: throughput.qMscfd,
     throughputRegime: throughput.regime,
     passesTarget: qgiTargetMscfd === undefined ? null : throughput.qMscfd >= qgiTargetMscfd,
@@ -371,6 +407,22 @@ export const valveSetting = ({
  * gas splits between two depths, the lift gas is wasted and the well
  * never reaches its design injection depth. It is reported per stage,
  * never silently smoothed over.
+ *
+ * A bellows valve closes when the pressure acting on the FULL bellows
+ * area falls back to its dome charge at valve temperature, so the test
+ * is a comparison at valve depth, in the fluid that acts on that
+ * valve's bellows:
+ *
+ *   IPO   the casing column at that valve's depth, taken from THIS
+ *         stage's surface injection pressure, against its dome
+ *   PPO   the tubing pressure at that valve's depth against its dome;
+ *         the casing does not enter the test at all
+ *
+ * `closingMargins` publishes that comparison per upper valve: the fluid
+ * it was taken in, the acting pressure, the dome, the margin, and for a
+ * casing-operated valve the casing drop the stage has achieved at that
+ * depth. The margin is the valve's own spread less that drop, which is
+ * why a design decrements the surface pressure per valve at all.
  */
 export const unloadingSequence = ({ valves, gasSg, tempAtDepthF, qgiTargetMscfd }) => {
   const stages = [];
@@ -378,19 +430,60 @@ export const unloadingSequence = ({ valves, gasSg, tempAtDepthF, qgiTargetMscfd 
     const v = valves[i];
     const pSurf = v.pSurfOpenPsia;
     const upperOpen = [];
+    const closingMargins = [];
     for (let j = 0; j < i; j += 1) {
       const u = valves[j];
-      // A valve with no closing pressure has no pressure at which it
-      // shuts, so the test cannot be evaluated on it and it is SKIPPED.
-      // Comparing against the raw field would coerce a null to zero and
-      // report such a valve open at every stage on the strength of a
-      // number nobody wrote.
-      if (!Number.isFinite(u.closingSurfacePressurePsia)) continue;
-      // upper valve j is still open if the casing pressure at this stage
-      // is above the pressure that closes it. `>=`, so a valve exactly
-      // at its closing pressure is treated as OPEN; see decision 1 in
-      // the module header.
-      if (pSurf >= u.closingSurfacePressurePsia) upperOpen.push(j + 1);
+      // A valve with no dome charge has no pressure at which it shuts,
+      // so the test cannot be evaluated on it and it is SKIPPED; see
+      // decision 2 in the module header. Its row is still published, so
+      // a reader can see that it was not tested rather than infer a
+      // verdict from a valve missing out of the list.
+      if (!Number.isFinite(u.domeAtTempPsia)) {
+        closingMargins.push({
+          valve: j + 1,
+          family: u.valveType,
+          actingOn: 'none',
+          actingPressurePsia: null,
+          domeAtTempPsia: null,
+          marginPsi: null,
+          spreadPsi: null,
+          casingDropPsi: null,
+          open: null,
+        });
+        continue;
+      }
+      // The closing test, in the fluid that acts on the bellows of THIS
+      // valve, at ITS depth, against ITS dome charge. See decision 4.
+      const isPpo = u.valveType === 'PPO';
+      let actingPsia;
+      let casingDropPsi = null;
+      if (isPpo) {
+        actingPsia = u.pProdAtDepthPsia;
+      } else {
+        actingPsia = gasColumnPressure({
+          pSurfPsia: pSurf, tvdFt: u.depthFt, gasSg, tempAtDepthF, steps: 20,
+        }).pBottomPsia;
+        // how far this stage has taken the casing off the pressure the
+        // valve was set to open on, the quantity a decrement per valve
+        // is chosen to make bigger than the spread
+        casingDropPsi = u.pInjAtDepthPsia - actingPsia;
+      }
+      const marginPsi = actingPsia - u.domeAtTempPsia;
+      // `>=`, so a valve exactly at its closing pressure is treated as
+      // OPEN; see decision 1 in the module header.
+      const open = marginPsi >= 0;
+      closingMargins.push({
+        valve: j + 1,
+        family: u.valveType,
+        actingOn: isPpo ? 'production' : 'injection',
+        actingPressurePsia: actingPsia,
+        domeAtTempPsia: u.domeAtTempPsia,
+        marginPsi,
+        spreadPsi: u.spreadPsi,
+        casingDropPsi,
+        open,
+      });
+      if (open) upperOpen.push(j + 1);
     }
     stages.push({
       stage: i + 1,
@@ -404,6 +497,9 @@ export const unloadingSequence = ({ valves, gasSg, tempAtDepthF, qgiTargetMscfd 
       passesTarget: qgiTargetMscfd === undefined ? null : v.throughputMscfd >= qgiTargetMscfd,
       upperValvesOpen: upperOpen,
       multipointing: upperOpen.length > 0,
+      // the number every verdict above turns on, published so a reader
+      // can see how much margin a clean stage had
+      closingMargins,
     });
   }
   return stages;
@@ -498,6 +594,10 @@ export const designGasLift = (inputs) => {
         dome60Psia: null,
         testRackOpeningPsia: null,
         spreadPsi: null,
+        // No bellows and no dome charge, so there is no pressure at which
+        // it closes and no fluid the closing test acts in.
+        closingActsOn: null,
+        closingPressureAtDepthPsia: null,
         closingSurfacePressurePsia: null,
         // An orifice has no dome charge, so there is no operating
         // pressure at which it closes and the question does not apply.
@@ -517,6 +617,12 @@ export const designGasLift = (inputs) => {
   });
 
   const unloading = unloadingSequence({ valves, gasSg, tempAtDepthF, qgiTargetMscfd });
+  if (valves.some((v) => v.valveType === 'PPO')) {
+    warnings.push({
+      code: 'ppoClosingStageInvariant',
+      message: 'Production operated valves close on the tubing pressure, and this module carries a single unloading production traverse, so each upper valve is compared with the same tubing pressure at every stage and its closing margin is its own spread throughout. The unloading verdict on this design is therefore a property of the setting rule and not a measurement of the design. Testing a production operated string for multipointing needs the tubing traverse stage by stage, from a flowing model this module does not solve.',
+    });
+  }
   unloading.filter((s) => s.multipointing).forEach((s) => {
     warnings.push({
       code: 'multipointing',
