@@ -961,6 +961,6 @@ describe('the ESP probe learns the duty even when it cannot design at the probe 
     expect(out.stageTried).toBe(pickReferenceStage(120).id);
     expect(out.dutyBpd).toBe(120);
     expect(out.note).toMatch(/nearest stage in this catalogue/);
-    expect(out.note).toMatch(/120 bbl\/d/);
+    expect(out.note).toMatch(/120\.0 bbl\/d/);
   });
 });
