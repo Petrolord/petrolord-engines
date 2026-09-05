@@ -5,8 +5,10 @@
   "turnerConstant": 1.5935357894349227
  },
  "plunger": {
-  "gasColumnPsi": 16.242844937581385,
-  "gasPerCycleScf": 5453.626965459756,
+  "arrivalPsia": 121.28211154292696,
+  "gasColumnDensityLbFt3": 0.43254461238092856,
+  "gasColumnPsi": 17.42193577645407,
+  "gasPerCycleScf": 2300.5637871354356,
   "inputs": {
    "avgTempR": 580.0,
    "casingPressurePsia": 600.0,
@@ -21,8 +23,8 @@
   },
   "liquidPerCycleBbl": 1.1576450987936706,
   "plungerPsi": 1.2821115429269605,
-  "requiredGlrScfBbl": 4710.966228892373,
-  "requiredPsia": 225.9645672967132,
+  "requiredGlrScfBbl": 1987.2789938235378,
+  "requiredPsia": 227.1436581355859,
   "slugPsi": 88.43961081620488
  },
  "velocity": [
