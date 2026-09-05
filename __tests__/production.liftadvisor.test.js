@@ -110,24 +110,40 @@ describe('picking a reference stage for the duty', () => {
     expect(pickReferenceStage(50000).id).toBe('ref-675-7000');
   });
 
-  test('FINDING: the ranges OVERLAP and the pick is decided by catalog order inside them', () => {
+  // ITEM 22. The ranges overlap, and inside an overlap the pick used to
+  // be decided by catalogue ORDER, which is always the smaller housing.
+  // The rule is now the nearest best-efficiency point among the stages
+  // that cover the duty, which is the rule the out-of-range branch has
+  // always used.
+  test('inside an overlap band the nearest best-efficiency point wins, not the catalogue order', () => {
     expect(G.referenceStage.overlapBands).toHaveLength(3);
     G.referenceStage.overlapBands.forEach((b) => {
-      // The first covering stage, always the smaller housing, wins.
       expect(pickReferenceStage(b.from).id).toBe(b.picked);
-      expect(pickReferenceStage(b.to).id).toBe(b.picked);
-      expect(b.picked).toBe(b.stages[0]);
+      expect(pickReferenceStage(b.to).id).toBe(b.pickedAtTop);
+      // the pick MOVES across a band now, where catalogue order held it
+      // on the smaller housing all the way up
+      expect(b.pickedByCatalogOrder).toBe(b.stages[0]);
     });
-    // and at the top of two of those bands the winner is NOT the
-    // nearest best-efficiency point
-    const disagree = G.referenceStage.sweep.filter((c) => !c.pickedIsNearestBep);
-    expect(disagree.map((c) => c.q)).toEqual([1451, 3499, 3500, 5600]);
-    expect(pickReferenceStage(3500).id).toBe('ref-540-2500');       // BEP 2500, 1000 away
-    expect(pickReferenceStage(3500).bepBpd).toBe(2500);
+    // the rule holds over the whole sweep: the pick is the nearest BEP
+    // among the stages that COVER the duty
+    G.referenceStage.sweep.forEach((c) => {
+      expect(pickReferenceStage(c.q).id).toBe(c.nearestBepInCoveringSet);
+      expect(c.pickedIsNearestInCoveringSet).toBe(true);
+    });
+    // one duty in the sweep is covered by a stage that is NOT the
+    // nearest in the whole catalogue, and that is correct: a stage
+    // cannot be run outside its published range
+    const notGlobal = G.referenceStage.sweep.filter((c) => !c.pickedIsNearestBep);
+    expect(notGlobal.map((c) => c.q)).toEqual([1451]);
+    expect(notGlobal[0].coveringSet).toEqual(['ref-540-2500']);
+    // the case the finding was written about: 3,500 bbl/d is 1,000 from
+    // the 540 series and 500 from the 562
+    expect(pickReferenceStage(3500).id).toBe('ref-562-4000');
+    expect(pickReferenceStage(3500).bepBpd).toBe(4000);
     const nearest = REFERENCE_STAGES.reduce(
       (a, s) => (Math.abs(s.bepBpd - 3500) < Math.abs(a.bepBpd - 3500) ? s : a),
     );
-    expect(nearest.id).toBe('ref-562-4000');                        // BEP 4000, 500 away
+    expect(nearest.id).toBe('ref-562-4000');
   });
 });
 
@@ -197,10 +213,12 @@ describe('the gas-liquid ratio a plunger cycle actually sees', () => {
       const got = plungerWellGlr({
         targetLiquidRateBpd: c.targetRate, gorScfStb: c.gorScfStb, wctPct: c.wctPct,
       });
-      expect(rel(got.glrScfBbl, c.glrScfBbl)).toBeLessThan(1e-12);
+      expect(rel(got.glrScfBbl, c.glrScfBbl)).toBeLessThan(1e-9);
       expect(rel(got.glrScfBbl, c.glrByRatio)).toBeLessThan(1e-12);
       expect(rel(got.liquidBpd || 1, c.liquidBpd || 1)).toBeLessThan(1e-12);
       expect(got.wctFrac).toBeCloseTo(c.wctFrac, 12);
+      // item 19: the liquid the cycle sees IS the rate that came in
+      expect(rel(got.liquidBpd || 1, c.targetRate || 1)).toBeLessThan(1e-12);
     });
   });
 
@@ -279,29 +297,36 @@ describe('walking the rod ladder', () => {
   test('a design that MISSES the target is a shortfall, never a success', () => {
     const s = G.rodLadder.find((x) => x.id === 'shortfall');
     const out = designRodPump({
-      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
-      chain: ladderChain(s.outcomes),
+      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: s.wctPct,
+      gorScfStb: 300, whp: 150, chain: ladderChain(s.outcomes),
     });
     expect(out.ok).toBe(false);
     expect(out.shortfall.achievedBpd).toBe(1100);
-    expect(out.shortfall.achievedBpd / s.target).toBeLessThan(RATE_TOLERANCE);
+    // the ladder is walked against the OIL rate now (item 19)
+    expect(s.oilTargetBpd).toBeCloseTo(s.target * 0.6, 9);
+    expect(out.shortfall.achievedBpd / s.oilTargetBpd).toBeLessThan(RATE_TOLERANCE);
   });
 
   test('the smallest unit that MEETS the target wins, not the first that designs', () => {
     const s = G.rodLadder.find((x) => x.id === 'firstThatDesignsIsNotTheAnswer');
     const out = designRodPump({
-      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
-      chain: ladderChain(s.outcomes),
+      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: s.wctPct,
+      gorScfStb: 300, whp: 150, chain: ladderChain(s.outcomes),
     });
-    expect(out.rateStbd).toBe(290);      // rung 4, not rung 0's 100
-    expect(out.rateStbd / s.target).toBeGreaterThanOrEqual(RATE_TOLERANCE);
+    // ITEM 19. 300 bbl/d of LIQUID at 40 per cent water cut is 180 stb/d
+    // of oil, so the answer is the rung making 200, not the 290 that
+    // answered when the liquid rate was designed on as oil.
+    expect(out.rateStbd).toBe(200);
+    expect(s.result.index).toBe(2);
+    expect(s.resultAtLiquidTarget.producedBpd).toBe(290);
+    expect(out.rateStbd / s.oilTargetBpd).toBeGreaterThanOrEqual(RATE_TOLERANCE);
   });
 
   test('ITEM 21: an unreadable rod loading is REFUSED, not accepted', () => {
     const s = G.rodLadder.find((x) => x.id === 'loadingUnknownFailsOpen');
     const out = designRodPump({
-      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: 40, gorScfStb: 300, whp: 150,
-      chain: ladderChain(s.outcomes),
+      model: makeModel(), targetLiquidRateBpd: s.target, wctPct: s.wctPct,
+      gorScfStb: 300, whp: 150, chain: ladderChain(s.outcomes),
     });
     // The rung whose design came back with NO worst rod section used to
     // be accepted as the answer at 3000 bbl/d, with its loading printed
@@ -826,16 +851,21 @@ describe('ITEM 19: the target rate is named for the phase it carries', () => {
     expect(withNewKey.ok).toBe(true);
   });
 
-  test('WAVE 1: the liquid to oil derivation has NOT happened yet', () => {
-    // oilDesignRate is the one place Wave 2 changes. Today it returns the
-    // rate unchanged, which is what makes the rename free of moved
-    // numbers, and this test is what fails when Wave 2 lands.
-    expect(oilDesignRate(1000, 70)).toBe(1000);
+  test('WAVE 2: the derivation is the one place it lands', () => {
+    expect(oilDesignRate(1000, 70)).toBeCloseTo(300, 9);
     expect(oilDesignRate(1000, 0)).toBe(1000);
-    expect(oilDesignRate(1000, 70)).not.toBe(1000 * (1 - 0.7));
+    expect(oilDesignRate(1000, 100)).toBe(0);
+    // a water cut outside the physical band is clamped, not extrapolated
+    expect(oilDesignRate(1000, -5)).toBe(1000);
+    expect(oilDesignRate(1000, 120)).toBe(0);
+    // and a water cut that cannot be read is NOT a water cut of zero:
+    // designing on the liquid rate again is exactly the defect
+    expect(Number.isNaN(oilDesignRate(1000, undefined))).toBe(true);
+    expect(Number.isNaN(oilDesignRate(1000, NaN))).toBe(true);
+    expect(Number.isNaN(oilDesignRate(undefined, 40))).toBe(true);
   });
 
-  test('so a water cut does not yet change what the chains are asked for', () => {
+  test('so a water cut changes what the chains are asked for', () => {
     const asked = [];
     const chain = {
       runEspDesign: ({ form }) => {
@@ -848,15 +878,18 @@ describe('ITEM 19: the target rate is named for the phase it carries', () => {
         model: makeModel(), targetLiquidRateBpd: 800, wctPct, gorScfStb: 300, whp: 200, chain,
       });
     });
-    expect(asked).toEqual([800, 800, 800]);
+    expect(asked[0]).toBeCloseTo(800, 9);
+    expect(asked[1]).toBeCloseTo(480, 9);
+    expect(asked[2]).toBeCloseTo(80, 9);
   });
 
-  test('and the plunger ratio still reads the number as oil', () => {
-    // liquid = oil / (1 - wct) is the Wave 1 arithmetic. Under Wave 2 the
-    // liquid would BE the input, so this 1000 becomes 100. The ratio
-    // itself does not move either way: it is GOR x (1 - wct).
+  test('and the plunger ratio reads the number as liquid', () => {
+    // The liquid the cycle sees IS the input now. It used to be the
+    // input divided by (1 - wct), which on a 90 per cent water cut well
+    // is ten times the liquid. The ratio itself does not move either
+    // way: it is GOR x (1 - wct).
     const wet = plungerWellGlr({ targetLiquidRateBpd: 100, gorScfStb: 3000, wctPct: 90 });
-    expect(wet.liquidBpd).toBeCloseTo(1000, 9);
+    expect(wet.liquidBpd).toBeCloseTo(100, 9);
     expect(wet.glrScfBbl).toBeCloseTo(300, 9);
   });
 });

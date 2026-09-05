@@ -230,8 +230,22 @@ export const RATE_TOLERANCE = 0.9;
  * directly, so this function is the whole of the change.
  */
 export const oilDesignRate = (targetLiquidRateBpd, wctPct) => {
-  void wctPct;
-  return targetLiquidRateBpd;
+  // ITEM 19, SECOND HALF. The rate at the door is LIQUID, which is what
+  // the screening half has always read it as and what the parameter now
+  // says. The design chains below consume it as OIL. On a 70 per cent
+  // water cut well that is one number standing for three times the
+  // liquid, and it reaches the ESP intake, the pump stages, the total
+  // dynamic head, the shaft power, the motor frame, the cable, the gas
+  // lift operating point and which rung of the rod ladder is the answer.
+  //
+  // A water cut that cannot be read is NOT a water cut of zero: an
+  // absent one would silently design the whole well on liquid again,
+  // which is the defect. It refuses by returning NaN, and the callers
+  // hand that on as a refusal rather than designing on it.
+  if (!Number.isFinite(targetLiquidRateBpd)) return NaN;
+  if (!Number.isFinite(wctPct)) return NaN;
+  const wct = Math.min(Math.max(wctPct, 0), 100);
+  return targetLiquidRateBpd * (1 - wct / 100);
 };
 
 /**
@@ -241,11 +255,20 @@ export const oilDesignRate = (targetLiquidRateBpd, wctPct) => {
  * module header.
  */
 export const pickReferenceStage = (qBpd) => {
-  const inRange = REFERENCE_STAGES.find((s) => qBpd >= s.qMin && qBpd <= s.qMax);
-  if (inRange) return inRange;
-  return REFERENCE_STAGES.reduce(
+  // ITEM 22. Every stage whose published range covers the duty is a
+  // candidate, and the one whose best efficiency point is nearest the
+  // duty wins. `find` took the FIRST covering stage, which is always the
+  // smaller housing because the catalogue is ordered by size, so at the
+  // top of an overlap band it returned the stage the duty sits at the
+  // very edge of: at 3,500 bbl/d the 540 series, BEP 2,500 and 1,000
+  // bbl/d away, over the 562 series, BEP 4,000 and 500 bbl/d away. The
+  // rule is the same one the out-of-range branch below has always used,
+  // applied to the covering set instead of to the catalogue order.
+  const covering = REFERENCE_STAGES.filter((s) => qBpd >= s.qMin && qBpd <= s.qMax);
+  const pool = covering.length ? covering : REFERENCE_STAGES;
+  return pool.reduce(
     (best, s) => (Math.abs(s.bepBpd - qBpd) < Math.abs(best.bepBpd - qBpd) ? s : best),
-    REFERENCE_STAGES[0],
+    pool[0],
   );
 };
 
@@ -254,8 +277,20 @@ export const pickReferenceStage = (qBpd) => {
  * headroom, or -- when none does -- the largest frame in the catalog,
  * which does NOT meet that rule. See seam 3 in the module header.
  */
-export const pickMotorFrame = (shaftHp) => MOTOR_FRAMES.find((m) => m.hp >= shaftHp * 1.25)
-  || MOTOR_FRAMES[MOTOR_FRAMES.length - 1];
+export const MOTOR_HEADROOM = 1.25;
+
+export const pickMotorFrame = (shaftHp) => {
+  const hit = MOTOR_FRAMES.find((m) => m.hp >= shaftHp * MOTOR_HEADROOM);
+  if (hit) return { ...hit, outOfRange: false };
+  // ITEM 22. The fallback is the largest frame in the catalogue and it
+  // does NOT meet the rule this function states. Above about 320 hp of
+  // shaft it has less than the stated headroom and above 400 hp it is
+  // outright overloaded, and the record it returned read exactly like a
+  // clean pick. It carries `outOfRange` now, and every string built from
+  // it says so.
+  const largest = MOTOR_FRAMES[MOTOR_FRAMES.length - 1];
+  return { ...largest, outOfRange: true };
+};
 
 const outcome = (id, extra) => {
   const method = LIFT_METHODS.find((m) => m.id === id);
@@ -351,7 +386,13 @@ export const designEsp = ({
       { label: 'Shaft power', value: `${d.sized.shaftHp.toFixed(1)} hp` },
       { label: 'Cable', value: d.electrical.cable ? d.electrical.cable.label : 'none qualifies' },
     ],
-    warnings: d.warnings,
+    warnings: motor.outOfRange
+      ? [...d.warnings, {
+        code: 'motorFrameOutOfRange',
+        message: `No frame in this catalogue carries ${d.sized.shaftHp.toFixed(1)} hp of shaft with the ${(MOTOR_HEADROOM - 1) * 100} percent headroom the selection rule asks for, so the largest one, ${motor.hp} hp, was taken. It is a placeholder for a real nameplate, not a recommendation.`,
+      }]
+      : d.warnings,
+    motorOutOfRange: motor.outOfRange,
     design: d,
   });
 };
@@ -602,8 +643,13 @@ export const designRodPump = ({
  * is not defined.
  */
 export const plungerWellGlr = ({ targetLiquidRateBpd, gorScfStb, wctPct }) => {
+  // The water cut is clamped just under one here, because at exactly one
+  // there is no oil to carry the gas and the ratio is not defined. The
+  // derivation is taken at the SAME clamped figure, so the liquid the
+  // cycle sees is the rate that came in at every water cut including
+  // 100 per cent.
   const wctFrac = Math.min(Math.max(wctPct / 100, 0), 0.999);
-  const oilRateStbd = oilDesignRate(targetLiquidRateBpd, wctPct);
+  const oilRateStbd = oilDesignRate(targetLiquidRateBpd, wctFrac * 100);
   const liquidBpd = wctFrac > 0 ? oilRateStbd / (1 - wctFrac) : oilRateStbd;
   return {
     wctFrac,
