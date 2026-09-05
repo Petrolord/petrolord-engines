@@ -61,7 +61,7 @@ from statistics import median
 
 SETTINGS = {
     'recentDays': 7, 'baselineDays': 30, 'rateDropPct': 20,
-    'watercutRisePts': 10, 'gorRisePct': 30, 'downtimeHours': 12,
+    'watercutRisePts': 10, 'gorRisePct': 30, 'downtimeHours': 20,
     'staleDays': 7, 'minOilRate': 5,
 }
 SEVERITY_RANK = {'high': 0, 'medium': 1, 'info': 2}
@@ -187,7 +187,7 @@ def derive(r):
         'watercut': (water / liquid) if liquid > 0 else None,
         'gor': (gas * 1000.0 / oil) if oil > 0 else None,
         'oilPd': pd(oil), 'waterPd': pd(water), 'gasPd': pd(gas),
-        'liquidPd': pd(liquid),
+        'liquidPd': pd(liquid), 'winjPd': pd(r['winj_stb']),
     }
 
 
@@ -272,9 +272,10 @@ def window_stats(points, key, lo, hi):
 
 def window_volumetric(points, num_key, den_keys, lo, hi):
     """The VOLUMETRIC ratio over the same window: sum of the numerator
-    over the sum of the denominator. This is not what detectExceptions
-    computes; it is what computeKpis computes, and the gap between them
-    is the seam this oracle measures."""
+    over the sum of the denominator. Since item 18 this is what BOTH
+    halves compute; the seam block below keeps measuring the gap against
+    the mean of the daily ratios, because that gap is the reason the
+    change was made and it is worth keeping on the record."""
     num = math.fsum(p[num_key] for p in points if lo <= d(p['date']) <= hi)
     den = math.fsum(sum(p[k] for k in den_keys) for p in points
                     if lo <= d(p['date']) <= hi)
@@ -314,41 +315,64 @@ def detect_exceptions(series, settings=None):
         b_hi = r_lo - timedelta(days=1)
         b_lo = b_hi - timedelta(days=baseline_days - 1)
 
+        # Item 73. The calendar mean answers "did this well stop"; the
+        # producing-day rate answers "did this well weaken". A well cut
+        # back to twelve hours a day halves its calendar volume with its
+        # rate unmoved, and the change test used to call that a fifty
+        # percent decline.
         rate_key = 'winj' if injector else 'oil'
+        pd_key = 'winjPd' if injector else 'oilPd'
         recent = window_stats(points, rate_key, r_lo, r_hi)
         base = window_stats(points, rate_key, b_lo, b_hi)
+        recent_pd = window_stats(points, pd_key, r_lo, r_hi)
+        base_pd = window_stats(points, pd_key, b_lo, b_hi)
         if base['count'] and recent['count'] and base['mean'] >= s['minOilRate']:
             if recent['mean'] <= 0:
                 push(well, 'shut_in', 'high', 0, base['mean'])
-            else:
-                drop = (base['mean'] - recent['mean']) / base['mean'] * 100.0
+            elif (base_pd['count'] and recent_pd['count']
+                  and base_pd['mean'] >= s['minOilRate']):
+                drop = (base_pd['mean'] - recent_pd['mean']) / base_pd['mean'] * 100.0
                 if drop >= s['rateDropPct']:
                     push(well, 'injection_drop' if injector else 'rate_drop',
                          'high' if drop >= s['rateDropPct'] * 2 else 'medium',
-                         recent['mean'], base['mean'])
+                         recent_pd['mean'], base_pd['mean'])
 
         if not injector:
-            wc_r = window_stats(points, 'watercut', r_lo, r_hi)
-            wc_b = window_stats(points, 'watercut', b_lo, b_hi)
-            if wc_r['count'] and wc_b['count']:
-                rise = (wc_r['mean'] - wc_b['mean']) * 100.0
+            # Item 18. Volumetric, total over total, the same way the
+            # KPI half has always formed it. The mean of the daily ratios
+            # is a different quantity, biased by low-rate days, and the
+            # ratio seam block below measures by how much.
+            wc_r = window_volumetric(points, 'water', ('oil', 'water'), r_lo, r_hi)
+            wc_b = window_volumetric(points, 'water', ('oil', 'water'), b_lo, b_hi)
+            wc_n_r = window_stats(points, 'watercut', r_lo, r_hi)['count']
+            wc_n_b = window_stats(points, 'watercut', b_lo, b_hi)['count']
+            if wc_n_r and wc_n_b and wc_r is not None and wc_b is not None:
+                rise = (wc_r - wc_b) * 100.0
                 if rise >= s['watercutRisePts']:
                     push(well, 'watercut_rise',
                          'high' if rise >= s['watercutRisePts'] * 2 else 'medium',
-                         wc_r['mean'], wc_b['mean'])
+                         wc_r, wc_b)
 
-            g_r = window_stats(points, 'gor', r_lo, r_hi)
-            g_b = window_stats(points, 'gor', b_lo, b_hi)
-            if g_r['count'] and g_b['count'] and g_b['mean'] > 0 \
+            g_r = window_volumetric(points, 'gas', ('oil',), r_lo, r_hi)
+            g_b = window_volumetric(points, 'gas', ('oil',), b_lo, b_hi)
+            g_r = None if g_r is None else g_r * 1000.0
+            g_b = None if g_b is None else g_b * 1000.0
+            g_n_r = window_stats(points, 'gor', r_lo, r_hi)['count']
+            g_n_b = window_stats(points, 'gor', b_lo, b_hi)['count']
+            if g_n_r and g_n_b and g_b and g_b > 0 \
                     and (base['mean'] is None or base['mean'] >= s['minOilRate']):
-                rise = (g_r['mean'] - g_b['mean']) / g_b['mean'] * 100.0
+                rise = (g_r - g_b) / g_b * 100.0
                 if rise >= s['gorRisePct']:
                     push(well, 'gor_rise',
                          'high' if rise >= s['gorRisePct'] * 2 else 'medium',
-                         g_r['mean'], g_b['mean'])
+                         g_r, g_b)
 
+            # Item 79, first half. A well averaging exactly 0.00 hours on
+            # stream was the one well the downtime check could never
+            # report: the worst case it exists for was the case it
+            # excluded.
             hrs = window_stats(points, 'hoursOn', r_lo, r_hi)
-            if hrs['count'] and hrs['mean'] < s['downtimeHours'] and hrs['mean'] > 0:
+            if hrs['count'] and hrs['mean'] < s['downtimeHours']:
                 push(well, 'downtime', 'medium', hrs['mean'], s['downtimeHours'])
 
     out.sort(key=lambda e: (SEVERITY_RANK[e['severity']], e['wellName']))
