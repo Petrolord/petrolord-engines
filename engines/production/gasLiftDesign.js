@@ -157,7 +157,14 @@ export const topValveDepth = ({
  * inputs: {
  *   prodTraverse [{ tvdFt, pPsia }] ascending in depth (from a nodal
  *     flowing traverse of the lifted well),
- *   pSurfPsia, gasSg, tempAtDepthF, dpTransferPsi, maxDepthFt }
+ *   pSurfPsia, gasSg, tempAtDepthF, dpTransferPsi, maxDepthFt,
+ *   steps (injection curve samples, default 40) }
+ *
+ * The injection line is sampled `steps` times over the depth of interest
+ * and read between samples by linear interpolation, so the answer is a
+ * property of that sample count as much as of the traverse. It is an
+ * input rather than a constant for that reason, and 40 is what the
+ * published case is gated at.
  * returns { depthFt, pInjPsia, pProdPsia, limitedBy }
  *   limitedBy: 'pressure' (the lines cross above the target depth) |
  *              'depth' (gas still wins at the deepest traverse point)
