@@ -48,7 +48,15 @@ and its consumers.
   maps LAS 3.0 core and lithology blocks (which `lasParse.js` now hands
   back as `blocks`) to interval rows through the stratigraphy vocabulary:
   the second sanctioned cross-domain edge, welldata -> stratigraphy, with
-  a generator-written golden (`las3_intervals_30.intervals.json`).
+  a generator-written golden (`las3_intervals_30.intervals.json`). ST2
+  (2026-09-06) added `ageDepth.js` (piecewise-linear age-depth model with
+  hiatuses, ageAt / depthAt / rates), `wheeler.js` (the chronostratigraphic
+  chart: deposition and hiatus cells per well labelled with the tract the
+  bounding surfaces imply), `stretch.js` (stratigraphic flattening between
+  two surfaces as a {fwd, inv} mapping the section engine's
+  `displayedDepth` now accepts) and `sequence.js` (systems tracts from
+  typed surfaces, stacking from motifs). Golden: the hand-derived
+  three-well synthetic in `test-data/stratigraphy/` (README there).
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
