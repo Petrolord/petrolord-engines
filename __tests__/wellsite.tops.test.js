@@ -37,6 +37,13 @@ test('chains, heads, current call and interpretation, competing heads', () => {
   // two finals on different chains for one formation
   const other = row('z1', { status: 'final', at: '2026-09-07T04:00:00Z' });
   expect(topConflicts([v1, v2, v3, b3, r4, other])).toEqual([{ kind: 'dual_final', chainId: null, formationKey: 'agbada', headIds: ['r4', 'z1'] }]);
+  // two writers each called the same formation fresh (two chains, neither final): a conflict too
+  const fresh = row('y1', { status: 'preliminary', at: '2026-09-07T05:00:00Z' });
+  expect(topConflicts([v1, fresh])).toEqual([{ kind: 'dual_call', chainId: null, formationKey: 'agbada', headIds: ['v1', 'y1'].map((x) => (x === 'v1' ? 'a1' : x)) }]);
+  // a withdrawn second call is not a conflict; a resolver citing both closes it
+  expect(topConflicts([v1, row('y2', { status: 'withdrawn' })])).toEqual([]);
+  const res = row('rz', { chain: 'a1', v: 2, prev: 'a1', resolves: ['a1', 'y1'], status: 'confirmed' });
+  expect(topConflicts([v1, fresh, res])).toEqual([]);
   // withdrawn calls are not current
   const w = row('w1', { key: 'benin', status: 'withdrawn' });
   expect(currentCall([w], 'benin')).toEqual({ call: null, competing: [] });
