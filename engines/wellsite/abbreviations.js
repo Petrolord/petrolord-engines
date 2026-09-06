@@ -105,6 +105,7 @@ export function mergeProfile(operator) {
 export function term(profile, table, code, { short = true } = {}) {
   const p = profile || PETROLORD_PROFILE;
   if (!short) return { label: longName(table, code), fallback: false, code };
+  if (code == null || code === '') return { label: '', fallback: false, code: null };
   const own = p.overrides && p.overrides[table] && p.overrides[table][code];
   const label = (p.terms && p.terms[table] && p.terms[table][code]) || longName(table, code) || code;
   return { label, fallback: !!(p.overrides && !own && p.id !== PETROLORD_PROFILE.id), code };
@@ -147,7 +148,8 @@ export function abbreviate(description, profileIn = PETROLORD_PROFILE) {
   const p = profileIn === PETROLORD_PROFILE || profileIn.base ? profileIn : mergeProfile(profileIn);
   const f = p.format;
   const fallbacks = [];
-  const comps = (description.components || []).map((c) => {
+  // a component without a lithology is a draft row: it renders nothing until it has one
+  const comps = (description.components || []).filter((c) => c && c.lithology).map((c) => {
     const lithTerm = term(p, 'lithology', c.lithology);
     if (lithTerm.fallback) fallbacks.push({ table: 'lithology', code: c.lithology });
     const lith = cased(lithTerm.label, f.lithologyCase);
@@ -165,7 +167,7 @@ const ROUND_NARR = { angular: 'angular', subangular: 'subangular', subrounded: '
 
 /** The full sentence form of a description. */
 export function narrative(description) {
-  const sentences = (description.components || []).map((c) => {
+  const sentences = (description.components || []).filter((c) => c && c.lithology).map((c) => {
     const lith = resolveLithology(c.lithology);
     const bits = [];
     if (c.colour && c.colour.hue) bits.push([c.colour.modifier ? longName('colourModifier', c.colour.modifier) : null, longName('colourHue', c.colour.hue)].filter(Boolean).join(' '));

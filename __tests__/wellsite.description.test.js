@@ -107,6 +107,13 @@ describe('abbreviation profiles', () => {
     expect(validateProfile({ terms: {} })).toEqual(['A profile needs an id.']);
     expect(validateProfile({ id: 'x', order: ['smell'] })).toEqual(['Profile order names an unknown attribute smell.']);
   });
+  test('a draft component without a lithology renders nothing and never throws', () => {
+    const d = { components: [emptyComponent(), { ...emptyComponent(), lithology: 'shale', percent: 100, colour: { hue: 'grey', modifier: null } }, emptyComponent()] };
+    expect(abbreviate(d).text).toBe('100% SH: gy');
+    expect(narrative(d).text).toBe('Shale (100 percent), grey.');
+    expect(abbreviate({ components: [emptyComponent()] }).text).toBe('');
+    expect(term(PETROLORD_PROFILE, 'lithology', null)).toEqual({ label: '', fallback: false, code: null });
+  });
   test('a comment rides at the end of both renderings', () => {
     const d = { components: [{ ...emptyComponent(), lithology: 'coal', percent: 100 }], comment: 'stringers throughout' };
     expect(abbreviate(d).text).toBe('100% COAL; stringers throughout');
