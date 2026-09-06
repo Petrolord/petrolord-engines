@@ -49,8 +49,11 @@ export function computeFlattening(wells, datum) {
 }
 
 /** Displayed section depth of a measured depth under a well's shift.
- *  A null shift (well missing the datum top) displays at true MD. */
+ *  A null shift (well missing the datum top) displays at true MD. The
+ *  shift may also be a {fwd, inv} mapping (Stratigraphy ST2 stretch
+ *  between two surfaces, stratigraphy/stretch.js). */
 export function displayedDepth(md, shift) {
+  if (shift && typeof shift === 'object' && typeof shift.fwd === 'function') return shift.fwd(md);
   return md + (shift || 0);
 }
 
