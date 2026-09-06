@@ -66,7 +66,13 @@ and its consumers.
   control points for stratigraphic maps between two tops (gross thickness,
   net thickness of a lithology family from the interval log, net-to-gross)
   and the dominant depositional environment per well, with every skipped
-  well named by reason; thicknesses are measured-depth thicknesses.
+  well named by reason; thicknesses are measured-depth thicknesses. ST5
+  (2026-09-06) reached into the `seismolord` domain: `extractStratalSlice`
+  in `horizonAmplitude.js` (the amplitude at a proportional position
+  between two horizons, ends identical to the single-horizon value
+  extraction, the interval attribute's span walker) and `flatten.js`
+  (per-trace offsets that hang a section on a horizon, a median datum;
+  the renderer applies them in the shader, never to stored data).
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
