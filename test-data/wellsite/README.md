@@ -105,3 +105,25 @@ good. The first case scores 3 + 2 + 3 + 1 + 1 = 10, very good; the
 second 1 + 1 + 1 = 3, poor; the fourth 2 + 2 + 2 + 2 + 1 = 9, good. The
 wording lists indicators and assesses a show; it never says oil or gas
 was determined (spec section 41).
+
+## Report day (WS7 and WS8)
+
+`report-day.json` is written by `gen_report_day.py`: one well, rig offset
++60 min, tours 06:00 to 18:00 and 18:00 to 06:00, report day from 06:00,
+on 2026-09-07. Bit depth is recorded every hour from 10,000 ft at 06:00
+at 40 ft per hour; samples every 10 ft are caught three hours after the
+bit passes, described an hour later, bagged an hour after that. So in
+the day tour (06:00 to 18:00) the samples caught are those cut before
+15:00, k = 0 to 34, 35 of them; described, cut before 14:00, 31; bagged,
+cut before 13:00, 27. The bit at the last record before 18:00 is the
+17:00 reading, 10,440 ft, so the tour made 440 ft; the day made 920 ft
+(05:00 next morning). Gas: total gas every two hours from 06:30 (six per
+tour) plus one connection gas per tour, seven rows each; the peak of the
+day is 1.6 percent at 04:30. Shows at 09:00, 13:00 and 16:00 (day) and
+22:00 (night). Events: six connections of ten minutes per tour (60 min),
+a 30 minute circulation at 17:00 and the top call at 13:00 in the day
+tour (eight events), the six night connections plus an open sweep at
+05:30 (seven); fifteen in the day. Photos at 08:15 and every two hours,
+five in the day tour, three at night. Descriptions hourly from 10:00 for
+24 hours: twenty fall inside the report day. The night narrative has two
+versions; the report cites the head.

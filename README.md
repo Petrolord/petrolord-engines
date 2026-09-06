@@ -324,7 +324,14 @@ and its consumers.
   heads, current call and interpretation with competing heads surfaced,
   conflicts of two heads or two finals, the approach panel with
   distances in MD and TVD on the depth engine, and the registry publish
-  shape of a final call). Analytic in-test goldens.
+  shape of a final call). Analytic in-test goldens. WS7 and WS8
+  (2026-09-07) added `reports.js` (the shift handover and the daily
+  geological report as models generated from records: a JSON-driven
+  template of sections, each fact citing the record ids it came from,
+  narratives read from narrative records, tour and report-day periods,
+  the canonical form a sign-off hashes). Golden: a synthetic report day
+  written by `tools/validation/wellsite/gen_report_day.py` with the
+  expected counts worked by hand in the test-data README.
 
 ## Consumption (git subtree)
 
