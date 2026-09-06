@@ -67,12 +67,19 @@ export function topConflicts(rows) {
     const heads = chainHeads(list);
     if (heads.length > 1) out.push({ kind: 'chain_heads', chainId, formationKey: list[0].formation_key, headIds: heads.map((h) => h.id) });
   }
-  const finals = new Map();
-  for (const h of chainHeads(rows.filter((r) => r.role === 'official' && r.status === 'final'))) {
-    if (!finals.has(h.formation_key)) finals.set(h.formation_key, []);
-    finals.get(h.formation_key).push(h.id);
+  // two open official calls of one formation on different chains (two writers each called it fresh)
+  const open = new Map();
+  for (const h of chainHeads(rows).filter((r) => r.role === 'official' && r.status !== 'withdrawn')) {
+    if (!open.has(h.formation_key)) open.set(h.formation_key, []);
+    open.get(h.formation_key).push(h);
   }
-  for (const [key, ids] of finals) if (ids.length > 1) out.push({ kind: 'dual_final', chainId: null, formationKey: key, headIds: ids });
+  for (const [key, heads] of open) {
+    const chains = new Set(heads.map((h) => h.chain_id));
+    if (chains.size > 1) {
+      const finals = heads.filter((h) => h.status === 'final');
+      out.push({ kind: finals.length > 1 ? 'dual_final' : 'dual_call', chainId: null, formationKey: key, headIds: heads.map((h) => h.id) });
+    }
+  }
   return out;
 }
 
