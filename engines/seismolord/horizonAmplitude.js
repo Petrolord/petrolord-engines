@@ -275,6 +275,41 @@ export async function extractIntervalAttribute(getBrick, geom, picksA, picksB, o
   });
 }
 
+/** Brick keys a stratal slice between two horizons touches (the same
+ *  A-to-B span as the interval attribute). */
+export function bricksForStratalSlice(geom, picksA, picksB) {
+  return bricksForIntervalAttribute(geom, picksA, picksB);
+}
+
+/**
+ * Proportional stratal slice between two horizons (Stratigraphy ST5):
+ * per cell the amplitude at z = zA + fraction * (zB - zA), sub-sample
+ * through amplitudeAt's parabola. fraction 0 is the amplitude on A,
+ * fraction 1 the amplitude on B, so both ends reproduce the single-horizon
+ * 'value' extraction bit for bit. Null where either horizon is untracked.
+ * The span walker is the interval attribute's (order-free).
+ *
+ * @param {(i,j,k) => Promise<Float32Array>} getBrick
+ * @param {import('./sliceAssembly').VolumeGeom} geom
+ * @param {Float32Array} picksA @param {Float32Array} picksB
+ * @param {{fraction?: number}} [opts] 0..1 from A towards B
+ * @returns {Promise<Float32Array>}
+ */
+export async function extractStratalSlice(getBrick, geom, picksA, picksB, opts = {}) {
+  const { fraction = 0.5 } = opts;
+  if (!Number.isFinite(fraction) || fraction < 0 || fraction > 1) {
+    throw new Error(`Stratal slice fraction must be between 0 and 1, got ${fraction}.`);
+  }
+  const blocks = blockRangesFromSpan(geom, intervalSpan(picksA, picksB));
+  return extractOverBlocks(getBrick, geom, blocks, (at, cell) => {
+    const a = picksA[cell];
+    const bz = picksB[cell];
+    if (a === NULL_F32 || !Number.isFinite(a)) return NULL_F32;
+    if (bz === NULL_F32 || !Number.isFinite(bz)) return NULL_F32;
+    return amplitudeAt(at, geom.ns, a + fraction * (bz - a));
+  });
+}
+
 /**
  * Windowed spectral amplitude at one frequency for a single trace
  * position — the isofrequency kernel. Recipe (pinned by the numpy
