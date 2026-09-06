@@ -28,6 +28,17 @@ and its consumers.
   analytics — Hall plots, Chan diagnostics, cross-correlation lags,
   injection recommendations — plus layered sweep and pattern
   forecasting).
+  The `stratigraphy` domain (2026-09-06, Stratigraphy Studio ST0) is
+  vocabulary and time, no numerics: `vocabulary.js` holds the stored
+  Catuneanu surface types and systems tracts (Catuneanu 2006; Catuneanu
+  et al. 2009) with the Exxon terminology as a display-only label map
+  (`displayLabel` flags fallbacks where Exxon has no term; nothing ever
+  stores an Exxon code), marker line styles per surface type, and the
+  tract a pair of surfaces bounds (`expectedTract`); `timescale.js` is
+  the ICS International Chronostratigraphic Chart v2023/09 (CC BY 4.0)
+  with lookups by name and by age; `column.js` orders and validates a
+  lithostratigraphic unit tree. Goldens are analytic (lookup tables and
+  boundary guards pinned from the chart itself).
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
