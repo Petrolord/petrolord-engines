@@ -38,3 +38,18 @@ rounded constant, and the test allows 0.1 percent between them.
 
 7.25 x 14 in duplex, 2.5 in rods, 90 percent: 2 x L x (2 x pi/4 x D^2
 minus pi/4 x d^2) x 0.9 = 0.032 068 5 m3 per stroke (0.2017 bbl).
+
+## Description abbreviations (WS1)
+
+`description-goldens.json` is hand-derived: an abbreviation is a rendering
+rule, not a calculation, so there is no numeric oracle. The sample is a
+two-component cuttings description (60 percent sandstone, 40 percent
+shale). Under the Petrolord default profile the attribute order is
+lithology, percent, colour, hardness, grain size, sorting, rounding,
+texture, cement, accessories, fossils, porosity, porosity type, and the
+abbreviations follow the common mudlogging lists (lt gy, f-m gr, mod srt,
+sbang-sbrnd, calc cmt, tr pyr, fr vis por, dk gy, frm, fis). The
+narrative is the same record in full words. The operator profile
+overrides three tables and the format (percent as a suffix, components
+joined by a slash); every term it does not define is rendered from the
+default and reported as a fallback, which is the list committed here.
