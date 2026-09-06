@@ -62,7 +62,11 @@ and its consumers.
   bounding surfaces, an unconformity's hiatus ending deposition below it,
   erosion events with the amount declared unknown) from a well's dated,
   typed tops and its lithology log; placeholders and flags where a layer
-  is undated, never invented ages.
+  is undated, never invented ages. ST4 (2026-09-06) added `stratMaps.js`:
+  control points for stratigraphic maps between two tops (gross thickness,
+  net thickness of a lithology family from the interval log, net-to-gross)
+  and the dominant depositional environment per well, with every skipped
+  well named by reason; thicknesses are measured-depth thicknesses.
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
