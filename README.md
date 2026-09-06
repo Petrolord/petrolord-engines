@@ -302,6 +302,19 @@ and its consumers.
   operator house-style profiles as display rules over the stored codes
   with fallback reporting, the abbreviation string and the narrative).
   Golden hand-derived (`test-data/wellsite/description-goldens.json`).
+  WS2 and WS3 (2026-09-07) added `events.js` (the seventeen operational
+  event types, start and end-later, overlap validation, period clipping
+  and time by type), `lag.js` (strokes-based lag on the drilling
+  `wellVolumes`: string built to the bit, survey extended to the bit,
+  annulus rows with the casing flag, the piecewise-constant pump log
+  integrated for strokes and for the time strokes take, bit-depth history,
+  arrival prediction and the lagged depth now by bisection on a monotone
+  function) and `sampleProgram.js` (versioned authorised programme,
+  scheduled depths, stage lifecycle with mandatory stages, due and overdue
+  states that never say "missed", in-transit and expected arrivals).
+  Lag goldens from a stdlib oracle (`tools/validation/wellsite/oracle_lag.py`)
+  for the three mandatory reference cases plus a casing-shoe-and-BHA case,
+  with the hand numbers in `test-data/wellsite/README.md`.
 
 ## Consumption (git subtree)
 
