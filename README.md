@@ -56,7 +56,13 @@ and its consumers.
   two surfaces as a {fwd, inv} mapping the section engine's
   `displayedDepth` now accepts) and `sequence.js` (systems tracts from
   typed surfaces, stacking from motifs). Golden: the hand-derived
-  three-well synthetic in `test-data/stratigraphy/` (README there).
+  three-well synthetic in `test-data/stratigraphy/` (README there). ST3
+  (2026-09-06) added `basinLayers.js`: a Basin & Charge Modeling layer
+  table (youngest first, Basin's lithology list, deposition ages from the
+  bounding surfaces, an unconformity's hiatus ending deposition below it,
+  erosion events with the amount declared unknown) from a well's dated,
+  typed tops and its lithology log; placeholders and flags where a layer
+  is undated, never invented ages.
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
