@@ -92,3 +92,16 @@ m2/m x 914.4 m = 59.051 m3; open hole around drillpipe 0.063 370 x
 1950.72 m = 123.617 m3; around the collars 0.043 608 x 182.88 m = 7.975
 m3; total 190.644 m3, 11,782.96 strokes. This proves the cased flag, the
 shoe cut and the BHA cut survive the trip through wellVolumes.
+
+## Shows (WS4)
+
+`show-goldens.json` is hand-derived: the quality is a scoring rule, not
+a measurement. Fluorescence intensity scores none 0, dull 1, moderate 2,
+bright 3; distribution 0 percent 0, up to 10 percent 1, up to 50 percent
+2, above 3; cut speed none 0, slow 1, moderate 2, fast or instant 3;
+stain none 0, spotty or patchy 1, even 2; odour none 0, anything 1.
+Bands: 0 no show, 1 to 3 poor, 4 to 6 fair, 7 to 9 good, 10 to 12 very
+good. The first case scores 3 + 2 + 3 + 1 + 1 = 10, very good; the
+second 1 + 1 + 1 = 3, poor; the fourth 2 + 2 + 2 + 2 + 1 = 9, good. The
+wording lists indicators and assesses a show; it never says oil or gas
+was determined (spec section 41).

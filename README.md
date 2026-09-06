@@ -314,7 +314,11 @@ and its consumers.
   states that never say "missed", in-transit and expected arrivals).
   Lag goldens from a stdlib oracle (`tools/validation/wellsite/oracle_lag.py`)
   for the three mandatory reference cases plus a casing-shoe-and-BHA case,
-  with the hand numbers in `test-data/wellsite/README.md`.
+  with the hand numbers in `test-data/wellsite/README.md`. WS4
+  (2026-09-07) added `shows.js` (controlled show values for fluorescence,
+  cut, stain, odour and residue; the derived quality by a published
+  scoring rule, never typed; indicator wording that never claims a
+  determination). Golden hand-derived (`show-goldens.json`).
 
 ## Consumption (git subtree)
 
