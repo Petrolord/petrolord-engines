@@ -234,6 +234,7 @@ function readDataSection(section, nullValue) {
  *   delimiter?: 'space'|'comma'|'tab',
  *   skippedCurves?: Array<{mnemonic, unit, descr, format, reason}>,
  *   ignoredSections?: string[],
+ *   blocks?: Record<string, {name, columns: Array<{mnemonic, unit, descr, format}>, params: Object, rows: string[][]}>,
  * }}
  */
 export function parseLas(text) {
@@ -317,6 +318,7 @@ export function parseLas(text) {
   let columns;                 // ci -> Float64 values (or null for a skipped text column)
   const skippedCurves = [];
   const ignoredSections = [];
+  const blocks = {};        // LAS 3.0 non-log data blocks by name (Core, Tops, Lithology ...)
 
   if (!isV3) {
     const aSecs = find('~A');
@@ -343,6 +345,29 @@ export function parseLas(text) {
       if (m && m[1].toUpperCase() !== 'LOG') {
         const name = m[1];
         if (!ignoredSections.includes(name)) ignoredSections.push(name);
+        // ST1: the block is parsed too (definition columns + text rows),
+        // never mixed into the log data; the importer maps Core /
+        // Lithology blocks to intervals (lasBlocks.js)
+        const key = name;
+        if (!blocks[key]) blocks[key] = { name: key, columns: [], params: {}, rows: [] };
+        const kind = m[2].toUpperCase();
+        if (kind === 'DEFINITION') {
+          for (const line of sec.lines) {
+            const raw = parseHeaderLine3(line.text);
+            if (!raw) continue;
+            if (!raw.name) continue;
+            blocks[key].columns.push({ mnemonic: raw.name.toUpperCase(), unit: raw.unit, descr: raw.descr, format: raw.format || '' });
+          }
+        } else if (kind === 'PARAMETER') {
+          Object.assign(blocks[key].params, parseHeaderSection(sec, { version: vers }));
+        } else {
+          for (let i = 0; i < sec.lines.length; i++) {
+            const line = sec.lines[i];
+            const t = line.trim();
+            if (t === '' || t.startsWith('#')) continue;
+            blocks[key].rows.push(splitDelimited(delimiter === 'space' ? t : line, delimiter).map((tok) => tok.trim()));
+          }
+        }
       }
     }
     const rows = [];
@@ -428,6 +453,6 @@ export function parseLas(text) {
     other,
     depthUnit: curves[0].unit || '',
     curves,
-    ...(isV3 ? { delimiter, skippedCurves, ignoredSections } : {}),
+    ...(isV3 ? { delimiter, skippedCurves, ignoredSections, blocks } : {}),
   };
 }

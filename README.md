@@ -37,8 +37,18 @@ and its consumers.
   tract a pair of surfaces bounds (`expectedTract`); `timescale.js` is
   the ICS International Chronostratigraphic Chart v2023/09 (CC BY 4.0)
   with lookups by name and by age; `column.js` orders and validates a
-  lithostratigraphic unit tree. Goldens are analytic (lookup tables and
-  boundary guards pinned from the chart itself).
+  lithostratigraphic unit tree. ST1 (2026-09-06) added `lithology.js`
+  (lithology, Wentworth grain size and depositional-environment
+  vocabularies with tolerant resolution of mud-log abbreviations, and the
+  interval kinds the registry stores) and `intervals.js` (interval-log
+  arithmetic: validation per kind, rasterizing onto a depth vector for
+  the strip track, run-length encoding a categorical curve back into
+  intervals). Goldens are analytic (lookup tables and boundary guards
+  pinned from the chart itself). The `welldata` domain's `lasBlocks.js`
+  maps LAS 3.0 core and lithology blocks (which `lasParse.js` now hands
+  back as `blocks`) to interval rows through the stratigraphy vocabulary:
+  the second sanctioned cross-domain edge, welldata -> stratigraphy, with
+  a generator-written golden (`las3_intervals_30.intervals.json`).
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
