@@ -290,7 +290,18 @@ and its consumers.
   boundaries by arithmetic, never the machine timezone) and `pumps.js`
   (triplex and duplex displacement per stroke). Goldens from a stdlib
   oracle (`tools/validation/wellsite/oracle_ws0.py`, longhand minimum
-  curvature for the build section, textbook cylinder geometry).
+  curvature for the build section, textbook cylinder geometry). WS1
+  (2026-09-07) added `descriptionVocabulary.js` (the controlled cuttings
+  vocabulary: colour hue and modifier, hardness, texture, sorting,
+  rounding, cement, accessories, fossils, porosity and its types, amounts,
+  with the lithology and grain-size tables reused from stratigraphy; the
+  ATTRIBUTES order every screen and renderer follows; tolerant term
+  resolution; validation with a percent-sum tolerance; describe by
+  exception through copyPrevious and diffDescriptions; the registry
+  publish shape) and `abbreviations.js` (the Petrolord default profile,
+  operator house-style profiles as display rules over the stored codes
+  with fallback reporting, the abbreviation string and the narrative).
+  Golden hand-derived (`test-data/wellsite/description-goldens.json`).
 
 ## Consumption (git subtree)
 
