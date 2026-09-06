@@ -318,7 +318,13 @@ and its consumers.
   (2026-09-07) added `shows.js` (controlled show values for fluorescence,
   cut, stain, odour and residue; the derived quality by a published
   scoring rule, never typed; indicator wording that never claims a
-  determination). Golden hand-derived (`show-goldens.json`).
+  determination). Golden hand-derived (`show-goldens.json`). WS5
+  (2026-09-07) added `tops.js` (interpretation and official call as
+  separate version chains, the status lifecycle and its transitions,
+  heads, current call and interpretation with competing heads surfaced,
+  conflicts of two heads or two finals, the approach panel with
+  distances in MD and TVD on the depth engine, and the registry publish
+  shape of a final call). Analytic in-test goldens.
 
 ## Consumption (git subtree)
 
