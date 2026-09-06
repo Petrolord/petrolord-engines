@@ -246,8 +246,13 @@ and its consumers.
   is decided by catalog order; the motor pick falls back to a frame that
   does not meet its own headroom rule; and the rod-loading guard fails
   open on an unknown loading.
-- Cross-directory imports: `engines/* -> ../../lib/*`, plus TWO
-  sanctioned cross-domain edges: `engines/waterflood/patternForecast.js
+- Cross-directory imports: `engines/* -> ../../lib/*`, plus the
+  sanctioned cross-domain edges listed here (wellsite -> drilling for
+  `tvdAt`, `mdsAtTvd`, `computeWellPath`, `wellVolumes` and `annulusCapAt`,
+  and wellsite -> stratigraphy for the lithology and grain-size tables,
+  both added 2026-09-06 for the Wellsite Studio WS series: annular volume,
+  minimum curvature and the lithology vocabulary each exist once), TWO
+  older sanctioned cross-domain edges: `engines/waterflood/patternForecast.js
   -> ../scal/fractionalFlow.js` (Buckley-Leverett displacement is the
   shared physics between the two domains) and
   `engines/production/surveillance.js -> ../dca/arps.js` (the decline
@@ -273,6 +278,19 @@ and its consumers.
   per-domain anchors match the goldens. The FULL acceptance suites
   currently run in the Suite's CI against the vendored copy
   (consolidation into this repo is a follow-on).
+
+- `engines/wellsite/` — Wellsite Studio (the WS series, plan of record
+  in the Suite at docs/scope/WellsiteStudio-PLAN.md). WS0 (2026-09-06)
+  added `depth.js` (the mandatory depth structure: value, unit,
+  reference, datum and kind; canonical metres MD below KB with the
+  calculated TVD and subsea depth, the survey version and the method
+  recorded, datum shifts as a length along the vertical surface hole,
+  refusal of ambiguous or unreachable TVD entries; sits on the drilling
+  survey math), `time.js` (UTC plus rig offset, tour and report-day
+  boundaries by arithmetic, never the machine timezone) and `pumps.js`
+  (triplex and duplex displacement per stroke). Goldens from a stdlib
+  oracle (`tools/validation/wellsite/oracle_ws0.py`, longhand minimum
+  curvature for the build section, textbook cylinder geometry).
 
 ## Consumption (git subtree)
 
