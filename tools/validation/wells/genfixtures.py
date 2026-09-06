@@ -431,6 +431,91 @@ def gen_las3_space():
                    ("DT", "US/M", "SONIC", cols["DT"])])
 
 
+def gen_las3_intervals():
+    """LAS 3.0 with interval blocks (Stratigraphy ST1): a ~Core block whose
+    rows are cored INTERVALS (top and base in feet, lithology abbreviations,
+    grain size, description) and a user ~Lithology block in metres, plus a
+    point ~Tops block that must NOT become intervals. The golden is the
+    interval rows the importer must produce (depths in metres, codes
+    resolved through the lithology vocabulary), derived here by hand."""
+    null = -999.25
+    depths = metric_depths(1500.0, 1504.5, 0.5)          # 10 samples
+    head = """~Version
+ VERS.                3.0 : CWLS LOG ASCII STANDARD - VERSION 3.0
+ WRAP.                 NO : ONE LINE PER DEPTH STEP
+ DLM.               COMMA : DELIMITING CHARACTER (SPACE TAB OR COMMA)
+~Well
+ STRT.M            1500.0000 : START DEPTH
+ STOP.M            1504.5000 : STOP DEPTH
+ STEP.M               0.5000 : STEP
+ NULL.              -999.25  : NULL VALUE
+ COMP.        PETROLORD TEST : COMPANY
+ WELL.             KETA L3-2 : WELL
+ FLD.                   KETA : FIELD
+ UWI.             0123456790 : UNIQUE WELL ID
+~Log_Definition
+ DEPT.M                      : DEPTH {F}
+ GR.GAPI                     : GAMMA RAY {F}
+~Log_Data | Log_Definition
+"""
+    rows = [f"{md:.4f},{gr(md):.4f}" for md in depths]
+    tail = """~Core_Parameter
+ CORN.                     1 : CORE NUMBER {I}
+~Core_Definition
+ CORT.F                      : CORE TOP DEPTH {F}
+ CORB.F                      : CORE BASE DEPTH {F}
+ LITH.                       : LITHOLOGY {S}
+ GSIZE.                      : GRAIN SIZE {S}
+ DESC.                       : DESCRIPTION {S}
+~Core_Data | Core_Definition
+4921.26,4924.54,SST,F,"Fine sandstone, cross-bedded"
+4924.54,4926.18,SH,CLY,"Grey shale, laminated"
+4926.18,4929.46,"SST W/ SH STRINGERS",M,Sandstone with shale stringers
+4930.00,4929.00,SST,M,bad row base above top
+~Lithology_Definition
+ LTOP.M                      : INTERVAL TOP {F}
+ LBASE.M                     : INTERVAL BASE {F}
+ ROCK.                       : ROCK TYPE {S}
+ COLOR.                      : COLOUR {S}
+~Lithology_Data | Lithology_Definition
+1500.0,1501.5,LIMESTONE,grey
+1501.5,1503.0,DOL,buff
+1503.0,1504.5,MARBLE,white
+~Tops_Definition
+ TOPT.                       : TOP NAME {S}
+ TOPD.M                      : TOP DEPTH {F}
+~Tops_Data | Tops_Definition
+"Top Sand A",1500.4
+"""
+    write(os.path.join(OUT, "las3_intervals_30.las"), head + "\n".join(rows) + "\n" + tail)
+    ft = 0.3048
+    golden = {
+        "fixture": "las3_intervals_30.las",
+        "blocks": ["Core", "Lithology", "Tops"],
+        "skipped": [
+            {"block": "Core", "reason": "1 row without a numeric top below base were dropped"},
+            {"block": "Tops", "reason": "not an interval block"},
+        ],
+        "intervals": [
+            {"kind": "core_description", "top_md_m": 4921.26 * ft, "base_md_m": 4924.54 * ft, "code": "sandstone", "label": "Sandstone",
+             "properties": {"grain_size": "f_sand", "description": "Fine sandstone, cross-bedded"}, "source": "import"},
+            {"kind": "core_description", "top_md_m": 4924.54 * ft, "base_md_m": 4926.18 * ft, "code": "shale", "label": "Shale",
+             "properties": {"grain_size": "clay", "description": "Grey shale, laminated"}, "source": "import"},
+            {"kind": "core_description", "top_md_m": 4926.18 * ft, "base_md_m": 4929.46 * ft, "code": "sandstone", "label": "Sandstone",
+             "properties": {"grain_size": "m_sand", "description": "Sandstone with shale stringers"}, "source": "import"},
+            {"kind": "lithology", "top_md_m": 1500.0, "base_md_m": 1501.5, "code": "limestone", "label": "Limestone",
+             "properties": {"colour_text": "grey"}, "source": "import"},
+            {"kind": "lithology", "top_md_m": 1501.5, "base_md_m": 1503.0, "code": "dolomite", "label": "Dolomite",
+             "properties": {"colour_text": "buff"}, "source": "import"},
+            {"kind": "lithology", "top_md_m": 1503.0, "base_md_m": 1504.5, "code": "MARBLE", "label": "MARBLE",
+             "properties": {"colour_text": "white", "lithology_text": "MARBLE"}, "source": "import"},
+        ],
+    }
+    with open(os.path.join(GOLD, "las3_intervals_30.intervals.json"), "w", newline="\n") as f:
+        json.dump(golden, f, indent=2)
+        f.write("\n")
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     os.makedirs(GOLD, exist_ok=True)
@@ -442,6 +527,7 @@ def main():
     gen_quirks()
     gen_las3_comma()
     gen_las3_space()
+    gen_las3_intervals()
 
 
 if __name__ == "__main__":
