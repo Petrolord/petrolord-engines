@@ -1,0 +1,30 @@
+{
+  "G1": {
+    "cutMinutesBeforeNow": 40.36405570971786,
+    "lagTimeMin": 198.9666857579229,
+    "laggedDepthFt": 10033.636713091431,
+    "laggedDepthM": 3058.2524701502684
+  },
+  "G2": {
+    "arrivalMin": 268.4500286368844,
+    "lagTimeAt40Min": 298.4500286368844
+  },
+  "G3": {
+    "arrivalMin": 208.9666857579229,
+    "strokesRemainingAt35": 10138.001145475375
+  },
+  "G4": {
+    "annulusVolumeM3": 190.6435485591298,
+    "capCasedM2PerM": 0.06457906203937684,
+    "capCollarsM2PerM": 0.043608512419828396,
+    "lagStrokes": 11782.958447880876,
+    "volCasedM3": 59.05109432880619,
+    "volCollarsM3": 7.975124751338217,
+    "volOpenHoleDpM3": 123.6173294789854
+  },
+  "annulusCapM2PerM": 0.0633701041046308,
+  "annulusVolumeM3_10000ft": 193.15207731091468,
+  "lagStrokesPerFt": 1.1938001145475374,
+  "lagStrokes_10000ft": 11938.001145475375,
+  "m3PerStroke": 0.01617959949552537
+}

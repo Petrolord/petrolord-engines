@@ -53,3 +53,42 @@ narrative is the same record in full words. The operator profile
 overrides three tables and the format (percent as a suffix, components
 joined by a slash); every term it does not define is rendered from the
 default and reported as a fallback, which is the list committed here.
+
+## Lag (WS3)
+
+`lag-goldens.json` is written by `oracle_lag.py`. Common well: 12.25 in
+open hole to 10,000 ft, 5 in drillpipe the full length, 6 x 12 in triplex
+at 97 percent (0.016 179 6 m3 per stroke).
+
+Annular capacity pi/4 x (0.311 15^2 minus 0.127^2) = 0.063 370 m2 per
+metre (0.121 49 bbl/ft, the textbook (12.25^2 minus 5^2)/1029.4 =
+0.121 491). Annular volume at 10,000 ft (3048 m) is 193.152 m3, lag
+strokes 193.152 / 0.016 179 6 = 11,938.0, that is 1.193 80 strokes per
+foot of bit depth.
+
+G1, constant 60 spm: lag time 11,938.0 / 60 = 198.97 min, so a sample
+cut at 10,000 ft at T0 arrives at T0 + 198.97 min. Lagged depth while
+drilling ahead at 50 ft/hr from 10,000 ft at T0 with the pumps steady,
+at T0 + 240 min (bit at 10,200 ft): solve 60 x (240 minus T) = 1.193 80 x
+(10,000 + 0.833 33 T), T = 40.36 min after T0, lagged depth 10,033.6 ft.
+The engine solves it by bisection; the test allows 0.05 ft.
+
+G2, rate change during the lag: 60 spm for 60 min (3,600 strokes) then
+40 spm. Remaining 8,338.0 strokes at 40 spm take 208.45 min, arrival
+T0 + 268.45 min. The readout "lag time at the current rate" after the
+change is 11,938.0 / 40 = 298.45 min and must differ from the arrival:
+that difference is why lag is counted in strokes.
+
+G3, connection then restart: 60 spm for 30 min (1,800 strokes), pumps
+off from T0 + 30 to T0 + 40, 60 spm again. Remaining 10,138.0 strokes take
+168.97 min, arrival T0 + 208.97 min. During the shutdown the strokes
+remaining are 10,138.0 and the lag time is undefined (null) with the
+note that the pumps are off.
+
+G4, casing shoe and BHA: 13.375 in 72 lb/ft casing (ID 12.347 in,
+0.313 614 m) to 3,000 ft, 12.25 in hole from 3,000 to 10,000 ft, 600 ft
+of 8 in collars at the bit, 5 in drillpipe above. Cased annulus 0.064 579
+m2/m x 914.4 m = 59.051 m3; open hole around drillpipe 0.063 370 x
+1950.72 m = 123.617 m3; around the collars 0.043 608 x 182.88 m = 7.975
+m3; total 190.644 m3, 11,782.96 strokes. This proves the cased flag, the
+shoe cut and the BHA cut survive the trip through wellVolumes.
