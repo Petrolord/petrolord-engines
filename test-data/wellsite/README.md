@@ -93,6 +93,32 @@ m2/m x 914.4 m = 59.051 m3; open hole around drillpipe 0.063 370 x
 m3; total 190.644 m3, 11,782.96 strokes. This proves the cased flag, the
 shoe cut and the BHA cut survive the trip through wellVolumes.
 
+G5, a floater (tester note, 2026-09-07): drillships and semi-submersibles
+return through a marine riser above the BOP and run a booster pump into
+the riser base, so the returns travel in two legs. Riser 21 in OD with a
+19.5 in ID (0.4953 m) from the rotary table to the BOP at 5,000 ft; below
+it the G4 casing (ID 12.347 in) from 5,000 to 8,000 ft and 12.25 in hole
+to 15,000 ft, 5 in drillpipe throughout. Main pump the 6 x 12 in triplex
+(0.016 179 6 m3/stk); booster a 5 x 12 in triplex at 97 percent, 3 x pi/4
+x 0.127^2 x 0.3048 x 0.97 = 0.011 235 8 m3/stk. Riser capacity pi/4 x
+(0.4953^2 minus 0.127^2) = 0.180 008 m2/m x 1524 m = 274.332 m3. Well leg
+59.051 (casing) + 0.063 370 x 2133.6 = 135.207 (open hole) = 194.258 m3.
+At main 60 spm the well leg takes 194.258 / 0.970 776 = 200.11 min; with
+the booster at 40 spm the riser flow is 0.970 776 + 0.449 433 = 1.420 209
+m3/min and the riser leg takes 274.332 / 1.420 209 = 193.16 min, arrival
+T0 + 393.27 min. Without the booster the same well is (194.258 +
+274.332) / 0.970 776 = 482.70 min, an hour and a half later: this is the
+tester's point. Counted on the main-pump stroke counter the lag is
+194.258 / 0.016 179 6 + 274.332 / (0.016 179 6 + 0.011 235 8 x 40/60) =
+12,005.9 + 11,590.2 = 23,596.1 strokes, against 28,961.7 with no booster.
+
+G6, the booster switched on during the riser leg: main 60 spm from T0,
+booster off until T0 + 250 min then 40 spm. The well leg ends at T0 +
+200.11 min; the riser leg runs on the main pump alone for 49.89 min
+(48.436 m3), then on both: (274.332 minus 48.436) / 1.420 209 = 159.06
+min, arrival T0 + 409.06 min. With no riser and no booster every formula
+reduces to G1 to G4, which the test asserts through the new integrator.
+
 ## Shows (WS4)
 
 `show-goldens.json` is hand-derived: the quality is a scoring rule, not

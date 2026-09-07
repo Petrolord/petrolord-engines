@@ -56,7 +56,37 @@ def build():
     v_col = cap_col * 600 * FT
     v4 = v_csg + v_oh_dp + v_col
 
+    # G5: FLOATER (tester note 2026-09-07). Marine riser 21 in OD, 19.5 in ID from the rotary table
+    # to the BOP at 5,000 ft; below it 13.375 in casing (ID 12.347 in) to 8,000 ft, 12.25 in hole to
+    # 15,000 ft, 5 in drillpipe throughout. Main pump the same 6 x 12 in triplex; booster pump a
+    # 5 x 12 in triplex at 97 percent. Main 60 spm, booster 40 spm, a sample cut at 15,000 ft at T0.
+    # Leg 1 (bit to BOP) moves on the main pump only; leg 2 (riser) on main plus booster.
+    db = triplex(5, 12, 0.97)
+    cap_riser = cap(19.5 * IN, dp)
+    v_riser = cap_riser * 5000 * FT
+    v_well = cap_csg * 3000 * FT + cap_oh * 7000 * FT
+    q_main = 60 * m3s
+    q_riser = 60 * m3s + 40 * db
+    g5_t1 = v_well / q_main
+    g5_t2 = v_riser / q_riser
+    g5_arrival = g5_t1 + g5_t2
+    g5_no_booster = (v_well + v_riser) / q_main
+    g5_lag_strokes_at_ratio = v_well / m3s + v_riser / (m3s + db * (40.0 / 60.0))
+    g5_lag_strokes_no_booster = (v_well + v_riser) / m3s
+
+    # G6: same well, booster OFF until T0 + 250 min then 40 spm (main 60 throughout). The well leg
+    # ends at g5_t1 (about 200 min) < 250; the riser leg runs on the main pump alone until 250,
+    # then on both.
+    assert g5_t1 < 250.0
+    riser_done_by_250 = q_main * (250.0 - g5_t1)
+    assert riser_done_by_250 < v_riser
+    g6_arrival = 250.0 + (v_riser - riser_done_by_250) / q_riser
+
     return {
+        "G5": {"boosterM3PerStroke": db, "capRiserM2PerM": cap_riser, "volRiserM3": v_riser, "volWellM3": v_well,
+               "wellLegMin": g5_t1, "riserLegMin": g5_t2, "arrivalMin": g5_arrival, "arrivalMinNoBooster": g5_no_booster,
+               "lagStrokesAtRatio": g5_lag_strokes_at_ratio, "lagStrokesNoBooster": g5_lag_strokes_no_booster},
+        "G6": {"boosterOnMin": 250.0, "riserDoneByBoosterOnM3": riser_done_by_250, "arrivalMin": g6_arrival},
         "m3PerStroke": m3s,
         "annulusCapM2PerM": cap_oh,
         "annulusVolumeM3_10000ft": vol,
