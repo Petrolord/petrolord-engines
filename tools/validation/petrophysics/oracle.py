@@ -141,6 +141,28 @@ def rwe_from_ssp(ssp_mv, rmfe, temp_f):
     return rmfe * 10.0 ** (ssp_mv / sp_k(temp_f))
 
 
+def rw_from_salinity(ppm_nacl, t_f):
+    """Bateman & Konen (1977), The Log Analyst 18(5), fit to the
+    Schlumberger Gen-9 resistivity-of-NaCl-solutions chart:
+    Rw(75 degF) = 0.0123 + 3647.5 / ppm^0.955, then Arps to t_f.
+    A chart FIT (about 10 percent over 1,000-300,000 ppm), not a
+    physical law; the UI labels it so."""
+    if ppm_nacl is None or ppm_nacl <= 0:
+        return None
+    rw75 = 0.0123 + 3647.5 / ppm_nacl ** 0.955
+    return rw_arps(rw75, 75.0, t_f)
+
+
+def salinity_from_rw(rw, t_f):
+    """Inverse of rw_from_salinity through the same fit."""
+    if rw is None or rw <= 0:
+        return None
+    rw75 = rw_arps(rw, t_f, 75.0)
+    if rw75 <= 0.0123:
+        return None
+    return (3647.5 / (rw75 - 0.0123)) ** (1.0 / 0.955)
+
+
 def pickett_fit(points):
     """Pickett (1966/1973) water-line fit. points = [(phi, rt), ...] on
     the assumed Sw=1 line. Archie at Sw=1: log10(Rt) = log10(a*Rw)

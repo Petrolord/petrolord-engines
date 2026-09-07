@@ -46,3 +46,30 @@ export function pickettFit(points) {
   const intercept = (sy - slope * sx) / n;
   return { m: -slope, aRw: 10 ** intercept };
 }
+
+/**
+ * Rw of an NaCl solution from its salinity and temperature — the
+ * Bateman & Konen (1977, The Log Analyst 18(5)) fit to the Schlumberger
+ * Gen-9 chart: Rw(75 degF) = 0.0123 + 3647.5 / ppm^0.955, then Arps to
+ * the formation temperature. A CHART FIT: within about 10 percent of
+ * the chart over 1,000 to 300,000 ppm; the UI says so. Non-NaCl waters
+ * need an NaCl-equivalent salinity first (Gen-8 multipliers, not
+ * implemented).
+ * @param {number} ppmNaCl salinity, ppm NaCl (mg/L)
+ * @param {number} tF formation temperature, degF
+ * @returns {number} ohm.m at tF; NaN outside the fit's domain
+ */
+export function rwFromSalinity(ppmNaCl, tF) {
+  if (!(ppmNaCl > 0) || !Number.isFinite(tF)) return NaN;
+  const rw75 = 0.0123 + 3647.5 / ppmNaCl ** 0.955;
+  return rwArps(rw75, 75, tF);
+}
+
+/** The inverse: NaCl salinity (ppm) implied by an Rw at tF, through the
+ *  same fit. NaN when Rw at 75 degF is at or below the fit's floor. */
+export function salinityFromRw(rw, tF) {
+  if (!(rw > 0) || !Number.isFinite(tF)) return NaN;
+  const rw75 = rwArps(rw, tF, 75);
+  if (!(rw75 > 0.0123)) return NaN;
+  return (3647.5 / (rw75 - 0.0123)) ** (1 / 0.955);
+}
