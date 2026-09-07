@@ -40,6 +40,17 @@ that is only a dual implementation while the two sides stay separate.
   classic / Indonesia), zone cutoff flags + net-pay summaries, and a
   Pickett fit on an exact synthetic water line (recovers m = 2,
   a·Rw = 0.05 to f64 noise).
+- `goldens.json.EFFECTIVE` (fixture v3, PT9 2026-09-07) — the same
+  default recipe re-run on the SHALE-CORRECTED effective porosity
+  PHIE = PHID − Vsh·φ_sh with φ_sh = `params.phi_shale` (the density
+  tool's exact shale point (ρ_ma − ρ_sh)/(ρ_ma − ρ_fl)): PHIE,
+  PHIE_LINEAR, Archie / modified-Simandoux / temperature-path Sw,
+  Buckles Swirr, Timur k, BVW, zone summaries (with `k_gm_md`), and the
+  PS3 zoned patches. Every pre-existing key stays on PHID and
+  byte-identical (verified at regeneration). Anchor: GR = 20 + 100·s
+  makes IGR ≡ s, so the LINEAR-Vsh correction recovers the construction
+  `phi_true` at every sample to f64 noise, and the default-recipe PHIE
+  equals PHID wherever the rock is clean — genfixtures.py asserts both.
 - `analytic_cases.json` — hand-derivable scalar cases. Derivations:
   - `archie_basic`: a=1, m=n=2, φ=0.2, Rw=0.04, Rt=10 →
     Sw = √(0.04/(0.04·10)) = √0.1 ≈ 0.316227766…
