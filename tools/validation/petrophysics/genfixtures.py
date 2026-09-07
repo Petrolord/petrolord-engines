@@ -44,6 +44,11 @@ PARAMS = {
     "water_leg": [2075.0, 2078.0],               # clean Sw=1 window (Pickett anchor)
     "cut_phi": 0.08, "cut_vsh": 0.5, "cut_sw": 0.6,
     "zones": {"SAND_A": [2010.0, 2030.0], "SAND_B": [2050.0, 2080.0]},
+    # PT9 (fixture v3): the density tool's apparent porosity in 100 percent
+    # shale, EXACTLY the construction's shale point (rho_ma - rho_sh) /
+    # (rho_ma - rho_fl), so the shale-corrected PHIE anchors hold to f64
+    # noise (see EFFECTIVE in run_oracle and assert_anchors)
+    "phi_shale": (2.65 - 2.55) / (2.65 - 1.0),
 }
 
 NULL_IDX = {"GR": [90], "RHOB": [25], "NPHI": [25], "DT": [60], "RT": [150]}
@@ -273,6 +278,60 @@ def run_oracle(tw):
         }
     out["PERM"] = perm
 
+    # ---- effective porosity goldens (PT9, fixture v3) ---------------------
+    # PHIE = PHID - Vsh*phi_shale (linear shale-point correction). Every
+    # pre-existing golden above is on PHID and stays byte-identical; this
+    # block re-runs the pipeline's DEFAULT recipe (Larionov-tertiary Vsh,
+    # Archie, base cutoffs, Timur k from Buckles Swirr, the PS3 zoned
+    # patches) on PHIE, which is what the v5 pipeline now does. The
+    # anchor lives in PHIE_LINEAR: GR = 20 + 100*s makes IGR == s, so the
+    # LINEAR Vsh correction recovers the construction phi_true exactly.
+    phi_sh = p["phi_shale"]
+    phie = [oracle.phi_shale_corrected(f, v, phi_sh) for f, v in zip(phi, vsh)]
+    phie_lin = [oracle.phi_shale_corrected(f, v, phi_sh) for f, v in zip(phi, out["VSH_LINEAR"])]
+    sw_e = [oracle.sw_archie(r, f, p["rw"], p["a"], p["m"], p["n"]) for r, f in zip(rt, phie)]
+    sw_ec = [None if s_ is None else min(1.0, max(0.0, s_)) for s_ in sw_e]
+    eff_zones = {}
+    swirr_e = [oracle.swirr_from_buckles(f, pp["bucklesConst"]) for f in phie]
+    k_timur_e = [oracle.k_timur(f, si) for f, si in zip(phie, swirr_e)]
+    for name, (top, base) in p["zones"].items():
+        flags_e, summary_e = oracle.net_pay(depth, phie, vsh, sw_ec,
+                                            p["cut_phi"], p["cut_vsh"], p["cut_sw"], top, base)
+        summary_e["k_gm_md"] = oracle.k_geom_mean(k_timur_e, flags_e, th)
+        eff_zones[name] = {"flags": flags_e, "summary": summary_e}
+    sw_zoned_e = [oracle.sw_archie(r, f, rw_of[zone_of(z)], p["a"], m_of[zone_of(z)], p["n"])
+                  for z, r, f in zip(depth, rt, phie)]
+    sw_zec = [None if s_ is None else min(1.0, max(0.0, s_)) for s_ in sw_zoned_e]
+    pay_zoned_e = []
+    for z, f, v, s_ in zip(depth, phie, vsh, sw_zec):
+        if f is None or v is None or s_ is None:
+            pay_zoned_e.append(0)
+        else:
+            pay_zoned_e.append(1 if (f >= p["cut_phi"] and v <= p["cut_vsh"]
+                                     and s_ <= cutsw_of[zone_of(z)]) else 0)
+    zoned_zones_e = {}
+    for name, (top, base) in zone_windows:
+        _, summary_ze = oracle.net_pay(depth, phie, vsh, sw_zec,
+                                       p["cut_phi"], p["cut_vsh"], cutsw_of[name], top, base)
+        zoned_zones_e[name] = {"summary": summary_ze}
+    out["EFFECTIVE"] = {
+        "params": {"phiShale": phi_sh, "bucklesConst": pp["bucklesConst"]},
+        "PHIE": phie,
+        "PHIE_LINEAR": phie_lin,
+        "SW_ARCHIE": sw_e,
+        "SW_MOD_SIMANDOUX": [oracle.sw_mod_simandoux(r, f, p["rw"], v, p["rsh"],
+                                                     p["a"], p["m"], p["n"])
+                             for r, f, v in zip(rt, phie, vsh)],
+        "SW_ARCHIE_T": [oracle.sw_archie(r, f, w, p["a"], p["m"], p["n"])
+                        for r, f, w in zip(rt, phie, rw_t)],
+        "SWIRR": swirr_e,
+        "K_TIMUR": k_timur_e,
+        "BVW": [oracle.bvw(f, s_) for f, s_ in zip(phie, sw_ec)],
+        "ZONES": eff_zones,
+        "ZONED": {"zone_params": zoned_patches, "SW": sw_zoned_e,
+                  "PAY": pay_zoned_e, "zones": zoned_zones_e},
+    }
+
     # ---- normalization golden (PS7) ---------------------------------------
     # The target is an exact affine distortion of GR (1.1*GR + 5), so
     # both fits must recover it and applying the fit must give GR back
@@ -442,6 +501,17 @@ def assert_anchors(tw, goldens):
         back = oracle.apply_normalization(gt, shift, scale)
         worst_n = max(abs(b - g) for b, g in zip(back, gr_c) if b is not None)
         assert worst_n < 1e-9, f"normalization round-trip error {worst_n}"
+    # PT9: the linear-Vsh shale correction recovers phi_true at EVERY
+    # valid sample (IGR == s by construction), and the default-recipe
+    # PHIE is exactly PHID where the rock is clean
+    eff = goldens["EFFECTIVE"]
+    worst_e = max(abs(eff["PHIE_LINEAR"][i] - con["phi_true"][i])
+                  for i in range(len(con["phi_true"])) if eff["PHIE_LINEAR"][i] is not None)
+    assert worst_e < 1e-12, f"linear shale correction misses phi_true by {worst_e}"
+    for i in clean:
+        if eff["PHIE"][i] is not None:
+            assert abs(eff["PHIE"][i] - goldens["PHID"][i]) < 1e-12, f"clean PHIE != PHID at {i}"
+    assert eff["ZONES"]["SAND_A"]["summary"]["net_m"] > 0, "effective SAND_A has no pay"
     a0 = oracle.sw_archie(8.0, 0.18, 0.05)
     assert abs(oracle.sw_waxman_smits(8.0, 0.18, 0.05, 0.0, 3.0) - a0) < 1e-12, "WS(qv=0) != Archie"
     assert abs(oracle.sw_dual_water(8.0, 0.18, 0.05, 0.02, 0.0) - a0) < 1e-12, "DW(swb=0) != Archie"

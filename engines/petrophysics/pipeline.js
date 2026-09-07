@@ -9,7 +9,7 @@
 // optional inputs skip their products (never fabricate).
 
 import { vshFromGr } from './vsh';
-import { phiDensity, phiSonicWyllie, phiSonicRhg, phiNd, clampDisplay } from './porosity';
+import { phiDensity, phiSonicWyllie, phiSonicRhg, phiNd, phiShaleCorrected, clampDisplay } from './porosity';
 import { swArchie, swSimandoux, swIndonesia } from './sw';
 import { swWaxmanSmits, swDualWater, swModSimandoux, bJuhasz } from './swClay';
 import { tempCurve, rwAtTemp } from './temperature';
@@ -24,6 +24,13 @@ export const DEFAULT_PARAMS = {
   dtMa: 182, dtFl: 656, sonicMethod: 'wyllie',
   ndMethod: 'avg',
   phiSource: 'density',           // density | sonic | nd
+  // PT9 effective porosity: PHIT is the selected source's porosity as
+  // read (total); PHIE = PHIT - Vsh*phiShale, phiShale being the
+  // selected tool's apparent porosity in 100 percent shale (read it in
+  // a clean shale; 0.06 is a 2.55 g/cc shale on density with a 2.65
+  // matrix). Sw (Archie family), cutoffs, k and BVW run on PHIE; the
+  // total-porosity models (Waxman-Smits, dual-water) run on PHIT.
+  phiShale: 0.06,
   swMethod: 'archie', a: 1, m: 2, n: 2, rw: 0.05, rsh: 2.0,
   // PS5 temperature model: 'none' keeps rw as entered at all depths;
   // 'linear' builds a TEMP curve and converts rw per sample via Arps
@@ -32,10 +39,11 @@ export const DEFAULT_PARAMS = {
   // waxman-smits the m and n fields carry m* and n* (shaly-rock
   // exponents — the UI labels them distinctly)
   qv: 0.1, bMode: 'juhasz', bValue: 3, rwb: 0.02, swb: 0.25,
-  // PS6 permeability: 'none' computes no KPERM (zero behaviour change
-  // for existing recipes); constants are pinned to the cited forms in
-  // perm.js and shown as formulas in the panel
-  permMethod: 'none',             // none | timur | tixier | coates | wyllie-rose
+  // PS6 permeability: 'none' computes no KPERM; PT9 made Timur the
+  // default (owner decision 2026-09-07: permeability is never off by
+  // default); constants are pinned to the cited forms in perm.js and
+  // shown as formulas in the panel
+  permMethod: 'timur',            // none | timur | tixier | coates | wyllie-rose
   swirrSource: 'buckles',         // buckles | manual
   bucklesConst: 0.04, swirrManual: 0.15,
   wrC: 79, wrQ: 3,                // Wyllie-Rose constants (Morris & Biggs gas preset)
@@ -48,8 +56,11 @@ export const DEFAULT_PARAMS = {
  *          DT?: ArrayLike<number>, RT?: ArrayLike<number>}} curves
  * @param {typeof DEFAULT_PARAMS} params
  * @returns {{outputs: Object<string, Float64Array>, missing: string[]}}
- *   outputs: VSH, PHID, PHIS, PHIND, PHIE (the phiSource pick), SW,
+ *   outputs: VSH, PHID, PHIS, PHIND, PHIT (the phiSource pick, as
+ *   read), PHIE (PHIT shale-corrected through VSH), SW, KPERM, BVW,
  *   PAY (1/0/NaN display flags) — only those whose inputs exist.
+ *   Without GR there is no VSH and no PHIE; Sw, cutoffs and k then run
+ *   on PHIT and `missing` says so.
  */
 export function computeWell(curves, params) {
   const p = { ...DEFAULT_PARAMS, ...params };
@@ -73,16 +84,26 @@ export function computeWell(curves, params) {
     outputs.PHIND = Float64Array.from(outputs.PHID, (d, i) => phiNd(d, curves.NPHI[i], p.ndMethod));
   }
 
-  const phiE = { density: outputs.PHID, sonic: outputs.PHIS, nd: outputs.PHIND }[p.phiSource];
-  if (phiE) outputs.PHIE = phiE;
+  const phiT = { density: outputs.PHID, sonic: outputs.PHIS, nd: outputs.PHIND }[p.phiSource];
+  if (phiT) outputs.PHIT = phiT;
   else missing.push(`${p.phiSource} porosity inputs`);
+  if (phiT && outputs.VSH) {
+    outputs.PHIE = Float64Array.from(phiT, (f, i) => phiShaleCorrected(f, outputs.VSH[i], p.phiShale));
+  } else if (phiT) {
+    missing.push('GR (Vsh; no PHIE, so Sw, cutoffs and k use PHIT)');
+  }
+  // the porosity the Archie-family models, cutoffs, k and BVW consume
+  const phiEff = outputs.PHIE || outputs.PHIT;
 
   if (p.tempMode === 'linear') outputs.TEMP = tempCurve(curves.DEPT, p);
 
   const needsVsh = p.swMethod === 'simandoux' || p.swMethod === 'indonesia' || p.swMethod === 'mod-simandoux';
-  if (curves.RT && outputs.PHIE && (!needsVsh || outputs.VSH)) {
+  // total-porosity models take PHIT (their exponents and Swb / Qv are
+  // defined on total porosity); the Archie family takes PHIE
+  const totalPhiModel = p.swMethod === 'waxman-smits' || p.swMethod === 'dual-water';
+  if (curves.RT && phiEff && (!needsVsh || outputs.VSH)) {
     const rt = curves.RT;
-    const phi = outputs.PHIE;
+    const phi = totalPhiModel ? outputs.PHIT : phiEff;
     const vsh = outputs.VSH;
     const temp = outputs.TEMP || null;
     const sw = new Float64Array(n);
@@ -113,8 +134,8 @@ export function computeWell(curves, params) {
     outputs.SW = sw;
   } else if (!curves.RT) missing.push('RT (Sw)');
 
-  if (p.permMethod !== 'none' && outputs.PHIE) {
-    const phi = outputs.PHIE;
+  if (p.permMethod !== 'none' && phiEff) {
+    const phi = phiEff;
     const kperm = new Float64Array(n);
     for (let i = 0; i < n; i++) {
       const si = p.swirrSource === 'manual' ? p.swirrManual : swirrFromBuckles(phi[i], p.bucklesConst);
@@ -127,8 +148,8 @@ export function computeWell(curves, params) {
     }
     outputs.KPERM = kperm;
   }
-  if (outputs.PHIE && outputs.SW) {
-    outputs.BVW = Float64Array.from(outputs.PHIE, (f, i) => bvw(f, clampDisplay(outputs.SW[i])));
+  if (phiEff && outputs.SW) {
+    outputs.BVW = Float64Array.from(phiEff, (f, i) => bvw(f, clampDisplay(outputs.SW[i])));
   }
 
   if (outputs.PHIE && outputs.VSH && outputs.SW) {
@@ -202,8 +223,12 @@ export function computeWellZoned(curves, baseParams, zoneParamList = []) {
  *  tell recipe generations apart. v2 (PS3): zoned compute; provenance
  *  gains zone_params and interpretation_name. v3 (PS5): temperature
  *  model + Waxman-Smits / dual-water / modified Simandoux. v4 (PS6):
- *  permeability (KPERM, mD) + BVW; zone summaries gain k_gm_md. */
-export const PIPELINE_VERSION = 4;
+ *  permeability (KPERM, mD) + BVW; zone summaries gain k_gm_md.
+ *  v5 (PT9): the curve formerly published as PHIE (the source porosity
+ *  as read) is now PHIT; PHIE is the shale-corrected effective
+ *  porosity and feeds Sw, cutoffs, k and BVW; permeability defaults to
+ *  Timur. */
+export const PIPELINE_VERSION = 5;
 
 /** Literature references for each selectable method, keyed the way the
  *  parameter set spells them — the same sources the validation oracle
@@ -221,6 +246,9 @@ export const METHOD_CITATIONS = {
     density: 'Density porosity: phi = (rho_ma - rho_b) / (rho_ma - rho_fl).',
     sonic: 'Sonic porosity, per the sonicMethod parameter (Wyllie or RHG).',
     nd: 'Neutron-density combination, per the ndMethod parameter (avg or rms gas form).',
+  },
+  phie: {
+    'shale-point': 'Effective porosity by the linear shale-point correction phi_e = phi_t - Vsh * phi_sh (Dresser Atlas 1979 log interpretation charts; Asquith & Krygowski 2004, ch. 4), phi_sh being the selected tool\'s apparent porosity in shale.',
   },
   sonic: {
     wyllie: 'Wyllie, Gregory & Gardner (1956) time-average equation.',
@@ -248,7 +276,8 @@ export const METHOD_CITATIONS = {
 
 const PUBLISH_SPECS = {
   VSH: { unit: 'V/V', description: (p) => `Shale volume (${p.vshMethod})` },
-  PHIE: { unit: 'V/V', description: (p) => `Effective porosity (${p.phiSource})` },
+  PHIT: { unit: 'V/V', description: (p) => `Total porosity (${p.phiSource}, as read)` },
+  PHIE: { unit: 'V/V', description: (p) => `Effective porosity (${p.phiSource}, shale-corrected, phi_sh ${p.phiShale})` },
   SW: { unit: 'V/V', description: (p) => `Water saturation (${p.swMethod})` },
   PAY: { unit: 'FLAG', description: () => 'Net-pay flag (1 = pay)' },
   // documented units exception (see perm.js): mD, never m^2
@@ -315,7 +344,7 @@ export function zonePropertiesSnapshot(summary, params, meta) {
   return {
     ...summary,
     cutoffs: { phi_min: params.cutPhi, vsh_max: params.cutVsh, sw_max: params.cutSw },
-    methods: { vsh: params.vshMethod, phi: params.phiSource, sw: params.swMethod },
+    methods: { vsh: params.vshMethod, phi: params.phiSource, phi_shale: params.phiShale, sw: params.swMethod, perm: params.permMethod },
     pipeline_version: PIPELINE_VERSION,
     project_id: meta.projectId,
     interpretation_name: meta.interpretationName ?? null,
