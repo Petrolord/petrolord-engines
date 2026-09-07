@@ -448,6 +448,13 @@ def analytic_cases():
                         "out": oracle.temp_at_depth(2050.0, 25.0, 90.0, 2100.0)},
         "rw_at_temp_25_to_88": {"in": {"rw_ref": 0.05, "ref_c": 25.0, "t_c": 88.452380952380952},
                                 "out": oracle.rw_at_temp(0.05, 25.0, 88.452380952380952)},
+        # PT9d: Rw from NaCl salinity (Bateman-Konen fit to Gen-9) and back
+        "rw_salinity_30000_75f": {"in": {"ppm": 30000.0, "t_f": 75.0},
+                                  "out": oracle.rw_from_salinity(30000.0, 75.0)},
+        "rw_salinity_100000_150f": {"in": {"ppm": 100000.0, "t_f": 150.0},
+                                    "out": oracle.rw_from_salinity(100000.0, 150.0)},
+        "salinity_from_rw_roundtrip": {"in": {"ppm": 30000.0, "t_f": 120.0},
+                                       "out": oracle.salinity_from_rw(oracle.rw_from_salinity(30000.0, 120.0), 120.0)},
         "indonesia_vsh0_equals_archie": {
             "in": {"rt": 8.0, "phi": 0.18, "rw": 0.05},
             "indonesia": oracle.sw_indonesia(8.0, 0.18, 0.05, 0.0, 2.0),
@@ -512,6 +519,13 @@ def assert_anchors(tw, goldens):
         if eff["PHIE"][i] is not None:
             assert abs(eff["PHIE"][i] - goldens["PHID"][i]) < 1e-12, f"clean PHIE != PHID at {i}"
     assert eff["ZONES"]["SAND_A"]["summary"]["net_m"] > 0, "effective SAND_A has no pay"
+    # PT9d: the salinity fit must sit within 10 percent of the Gen-9
+    # chart at three commonly quoted points (75 degF) and invert exactly
+    for ppm, chart in ((10000.0, 0.55), (30000.0, 0.20), (100000.0, 0.07)):
+        got = oracle.rw_from_salinity(ppm, 75.0)
+        assert abs(got - chart) / chart < 0.10, f"Rw fit at {ppm} ppm: {got} vs chart {chart}"
+        back = oracle.salinity_from_rw(got, 75.0)
+        assert abs(back - ppm) / ppm < 1e-9, f"salinity round trip {back} vs {ppm}"
     a0 = oracle.sw_archie(8.0, 0.18, 0.05)
     assert abs(oracle.sw_waxman_smits(8.0, 0.18, 0.05, 0.0, 3.0) - a0) < 1e-12, "WS(qv=0) != Archie"
     assert abs(oracle.sw_dual_water(8.0, 0.18, 0.05, 0.02, 0.0) - a0) < 1e-12, "DW(swb=0) != Archie"
