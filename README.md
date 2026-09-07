@@ -314,7 +314,12 @@ and its consumers.
   states that never say "missed", in-transit and expected arrivals).
   Lag goldens from a stdlib oracle (`tools/validation/wellsite/oracle_lag.py`)
   for the three mandatory reference cases plus a casing-shoe-and-BHA case,
-  with the hand numbers in `test-data/wellsite/README.md`. WS4
+  with the hand numbers in `test-data/wellsite/README.md`. Floating rigs
+  (2026-09-07, tester note): the lag runs in two legs, bit to BOP on the
+  main pump and the marine riser on main plus booster; the riser is one
+  row above the hole sections, the pump log carries `boosterSpm`, and the
+  land-rig case is the floater with no riser (G5 steady, G6 booster
+  switched on mid-lag). WS4
   (2026-09-07) added `shows.js` (controlled show values for fluorescence,
   cut, stain, odour and residue; the derived quality by a published
   scoring rule, never typed; indicator wording that never claims a

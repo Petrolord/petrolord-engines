@@ -2,12 +2,15 @@
  * WS3 lag engine against test-data/wellsite/lag-goldens.json (stdlib
  * oracle tools/validation/wellsite/oracle_lag.py, hand numbers in the
  * README): G1 constant rate, G2 rate change during the lag, G3 connection
- * then restart, G4 casing shoe and BHA geometry.
+ * then restart, G4 casing shoe and BHA geometry, G5 a floater with a marine
+ * riser and a booster pump (two legs), G6 the booster switched on during
+ * the riser leg.
  */
 import g from '../test-data/wellsite/lag-goldens.json';
 import {
   engineGeometry, stringAtBit, stationsToBit, annulusSections, lagStrokesAt, lagTimeMin, validatePumpLog, spmAt,
   strokesBetween, timeForStrokes, bitDepthAt, cutTimeOf, arrivalPrediction, laggedDepthNow, lagReadout,
+  geometryWithRiser, lagLegsAt, ratesAt, volumeBetween, timeForVolume, legArrival,
 } from '../engines/wellsite/lag';
 
 const FT = 0.3048;
@@ -143,5 +146,107 @@ describe('reference cases', () => {
     expect(l.converged).toBe(false);
     expect(l.laggedMdM).toBeNull();
     expect(l.note).toMatch(/not reached surface yet/);
+  });
+});
+
+describe('floater: marine riser and booster pump (G5, G6)', () => {
+  const bit15 = 15000 * FT;
+  const riser = { toMd: 5000 * FT, idM: 19.5 * IN };
+  const geometry = [
+    { from_md_m: 5000 * FT, to_md_m: 8000 * FT, cased: true, casing_id_m: 12.347 * IN, hole_id_m: 17.5 * IN },
+    { from_md_m: 8000 * FT, to_md_m: 5000, cased: false, hole_id_m: 12.25 * IN },
+  ];
+  const fctx = { geometry, bha: [], drillpipe: dp, stations: null, riser, m3PerStroke: g.m3PerStroke, boosterM3PerStroke: g.G5.boosterM3PerStroke };
+
+  test('the riser sits above the hole sections; sections inside or across the BOP are clipped and reported', () => {
+    const gw = geometryWithRiser(geometry, riser);
+    expect(gw.rows[0]).toMatchObject({ fromMd: 0, toMd: 5000 * FT, holeIdM: 19.5 * IN, cased: true, riser: true });
+    expect(gw.warnings).toEqual([]);
+    const bad = geometryWithRiser([{ from_md_m: 0, to_md_m: 3000 * FT, cased: true, casing_id_m: 0.3, hole_id_m: 0.4 }, { from_md_m: 3000 * FT, to_md_m: 9000 * FT, cased: false, hole_id_m: 0.31 }], riser);
+    expect(bad.rows).toHaveLength(2);
+    expect(bad.rows[1].fromMd).toBeCloseTo(5000 * FT, 9);
+    expect(bad.warnings[0]).toMatch(/inside the riser and is ignored/);
+    expect(bad.warnings[1]).toMatch(/overlaps the riser; clipped/);
+    expect(geometryWithRiser(geometry, null).rows).toHaveLength(2);
+  });
+
+  test('G5 volumes: the riser leg and the well leg are summed separately', () => {
+    const a = annulusSections({ ...fctx, bitMdM: bit15 });
+    expect(a.rows.filter((r) => r.riser)).toHaveLength(1);
+    near(a.rows[0].capM2, g.G5.capRiserM2PerM, 1e-9);
+    near(a.riserVolumeM3, g.G5.volRiserM3, 1e-6);
+    near(a.wellVolumeM3, g.G5.volWellM3, 1e-6);
+    const legs = lagLegsAt(fctx, bit15);
+    near(legs.wellStrokes + legs.riserStrokesNoBooster, g.G5.lagStrokesNoBooster, 1e-6);
+    expect(legs.warnings).toEqual([]);
+  });
+
+  test('G5 steady state: main 60 spm and booster 40 spm; the riser leg runs on both pumps', () => {
+    const log = [{ utcMs: T0 - 600 * MIN, spm: 60, boosterSpm: 40 }];
+    expect(ratesAt(log, T0)).toEqual({ spm: 60, boosterSpm: 40 });
+    const p = arrivalPrediction({ cutUtcMs: T0, cutMdM: bit15, lagCtx: fctx, pumpLog: log, nowUtcMs: T0 });
+    near((p.arrivalUtcMs - T0) / MIN, g.G5.arrivalMin, 1e-6);
+    near(p.lagTimeAtCurrentSpmMin, g.G5.arrivalMin, 1e-6);
+    near(p.lagStrokes, g.G5.lagStrokesAtRatio, 1e-6);
+    expect(p.boosterSpmNow).toBe(40);
+    near(p.legs.riserStartUtcMs - T0, g.G5.wellLegMin * MIN, 100);
+    // the booster shortens the lag against the same main-pump rate alone
+    const noBooster = arrivalPrediction({ cutUtcMs: T0, cutMdM: bit15, lagCtx: fctx, pumpLog: [{ utcMs: T0 - 600 * MIN, spm: 60 }], nowUtcMs: T0 });
+    near((noBooster.arrivalUtcMs - T0) / MIN, g.G5.arrivalMinNoBooster, 1e-6);
+    near(noBooster.lagStrokes, g.G5.lagStrokesNoBooster, 1e-6);
+    expect(g.G5.arrivalMinNoBooster - g.G5.arrivalMin).toBeGreaterThan(30);
+    // the readout carries both rates and the split
+    const r = lagReadout({ nowUtcMs: T0, bitMdM: bit15, bitDepthHistory: [{ utcMs: T0 - 600 * MIN, mdM: bit15 }], pumpLog: log, lagCtx: fctx });
+    expect(r.boosterSpmNow).toBe(40);
+    near(r.lagTimeMin, g.G5.arrivalMin, 1e-6);
+    near(r.riserM3, g.G5.volRiserM3, 1e-6);
+    near((r.bottomsUpUtcMs - T0) / MIN, g.G5.arrivalMin, 1e-6);
+  });
+
+  test('G6 the booster switched on at 250 min, during the riser leg', () => {
+    const log = [{ utcMs: T0, spm: 60 }, { utcMs: T0 + 250 * MIN, spm: 60, boosterSpm: 40 }];
+    const p = arrivalPrediction({ cutUtcMs: T0, cutMdM: bit15, lagCtx: fctx, pumpLog: log, nowUtcMs: T0 + 260 * MIN });
+    near((p.arrivalUtcMs - T0) / MIN, g.G6.arrivalMin, 1e-6);
+    expect(p.legs.wellDoneM3).toBeCloseTo(g.G5.volWellM3, 6);
+    // riser progress by 260: main alone from the end of the well leg to 250, then both for 10 min
+    const both = 60 * g.m3PerStroke + 40 * g.G5.boosterM3PerStroke;
+    near(p.legs.riserDoneM3, g.G6.riserDoneByBoosterOnM3 + 10 * both, 1e-6);
+    // the two-leg walk agrees with the generic volume integrator
+    const legs = lagLegsAt(fctx, bit15);
+    const t1 = timeForVolume(log, fctx, T0, legs.wellM3, 'well');
+    near(volumeBetween(log, fctx, t1.utcMs, T0 + 260 * MIN, 'riser'), p.legs.riserDoneM3, 1e-6);
+    const la = legArrival({ cutUtcMs: T0, legs, lagCtx: fctx, pumpLog: log, nowUtcMs: T0 + 260 * MIN });
+    near((la.arrivalUtcMs - T0) / MIN, g.G6.arrivalMin, 1e-6);
+  });
+
+  test('lagged depth now on a floater: the bisection uses the two-leg arrival', () => {
+    const log = [{ utcMs: T0 - 900 * MIN, spm: 60, boosterSpm: 40 }];
+    const hist = [{ utcMs: T0 - 900 * MIN, mdM: bit15 - 300 * FT }, { utcMs: T0, mdM: bit15 }];
+    const now = T0 + g.G5.arrivalMin * MIN;
+    const l = laggedDepthNow({ nowUtcMs: now, bitDepthHistory: hist, pumpLog: log, lagCtx: fctx });
+    expect(l.converged).toBe(true);
+    // the sample cut at T0 (15,000 ft) arrives exactly now, so the lagged depth is the bit depth at T0
+    near(l.laggedMdM, bit15, 0.02);
+    near(l.cutUtcMs, T0, 200);
+  });
+
+  test('with the booster running but the main pump off, lag time is undefined', () => {
+    const log = [{ utcMs: T0, spm: 0, boosterSpm: 40 }];
+    const p = arrivalPrediction({ cutUtcMs: T0, cutMdM: bit15, lagCtx: fctx, pumpLog: log, nowUtcMs: T0 + 10 * MIN });
+    expect(p.lagTimeAtCurrentSpmMin).toBeNull();
+    expect(p.arrivalUtcMs).toBeNull();
+    expect(p.note).toMatch(/Pumps are off/);
+    expect(validatePumpLog([{ utcMs: T0, spm: 60, boosterSpm: -1 }])).toEqual(['Pump event 1 needs a booster rate of zero or more strokes per minute.']);
+  });
+
+  test('a land rig is the floater with no riser and no booster: G1 numbers unchanged through the new integrator', () => {
+    const log = [{ utcMs: T0 - 600 * MIN, spm: 60 }];
+    const legs = lagLegsAt(ctx, bit);
+    expect(legs.riserM3).toBe(0);
+    near(legs.wellStrokes, g.lagStrokes_10000ft, 1e-6);
+    const p = arrivalPrediction({ cutUtcMs: T0, cutMdM: bit, lagCtx: ctx, pumpLog: log, nowUtcMs: T0 });
+    near((p.arrivalUtcMs - T0) / MIN, g.G1.lagTimeMin, 1e-6);
+    expect(p.boosterSpmNow).toBe(0);
+    expect(p.legs.riserM3).toBe(0);
   });
 });
