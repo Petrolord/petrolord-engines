@@ -1,0 +1,4990 @@
+{
+ "description": "Economics capital portfolio goldens: risked EMV, success-case spread, exact success / failure mixture moments, the normal-approximation portfolio risk summary with an average pairwise correlation, and the 0/1 knapsack over the capex limit with its efficient frontier. Independent stdlib oracle (tools/validation/economics/oracle_portfolio.py): the knapsack is solved by brute force over every subset, both EXACTLY (sum of capex within the limit) and on the engine's documented QUANTISED grid, and every optimize case carries both answers, the gap between them and whether quantisation changed the chosen set; every optimal set is listed so ties are explicit; the frontier is on the grid with every capex a tied set could report. P(loss) is through math.erf, so the gate allows the engine's 1.5e-7 Abramowitz and Stegun error. All money is USD millions ($MM) except rawDollars, which is typed in dollars on purpose. pos is 0 to 1; correlation is 0 to 1; a correlation given as the string NaN means the gate passes NaN. Every case in the Suite's src/utils/__tests__/portfolioOptimizer.test.js is here, plus seeded random sets (mulberry32, seed on the case), ties, a zero-EMV and a negative-EMV project, free projects, and limits below every project.",
+ "optimize": [
+  {
+   "capexLimit": 450,
+   "correlation": 0,
+   "description": "Suite: A(100, 60) B(200, 100) C(300, 120) D(150, 90) at 450: A + B + D, capex 450, EMV 250.",
+   "expected": {
+    "cells": 450,
+    "exact": {
+     "optimalEmv": 250.0,
+     "optimalSets": [
+      {
+       "capex": 450.0,
+       "emv": 250.0,
+       "ids": [
+        "A",
+        "B",
+        "D"
+       ],
+       "npvSuccess": 250.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 250.0,
+        "independentStdDev": 0.0,
+        "p10": 250.0,
+        "p90": 250.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 450.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 60.0,
+       "weight": 100
+      },
+      {
+       "capexCandidates": [
+        150.0
+       ],
+       "emv": 90.0,
+       "weight": 150
+      },
+      {
+       "capexCandidates": [
+        200.0
+       ],
+       "emv": 100.0,
+       "weight": 200
+      },
+      {
+       "capexCandidates": [
+        250.0
+       ],
+       "emv": 150.0,
+       "weight": 250
+      },
+      {
+       "capexCandidates": [
+        300.0
+       ],
+       "emv": 160.0,
+       "weight": 300
+      },
+      {
+       "capexCandidates": [
+        350.0
+       ],
+       "emv": 190.0,
+       "weight": 350
+      },
+      {
+       "capexCandidates": [
+        450.0
+       ],
+       "emv": 250.0,
+       "weight": 450
+      }
+     ],
+     "optimalEmv": 250.0,
+     "optimalSets": [
+      {
+       "capex": 450.0,
+       "emv": 250.0,
+       "ids": [
+        "A",
+        "B",
+        "D"
+       ],
+       "npvSuccess": 250.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 250.0,
+        "independentStdDev": 0.0,
+        "p10": 250.0,
+        "p90": 250.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "A": 100,
+     "B": 200,
+     "C": 300,
+     "D": 150
+    }
+   },
+   "id": "classic450",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": 200,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 100
+    },
+    {
+     "capex": 300,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 120
+    },
+    {
+     "capex": 150,
+     "id": "D",
+     "name": "D",
+     "npv_p50": 90
+    }
+   ]
+  },
+  {
+   "capexLimit": 100,
+   "correlation": 0,
+   "description": "Suite: X (npv 300, pos 0.2, fail 50: EMV 20) loses to sure Y (50) at the same capex.",
+   "expected": {
+    "cells": 100,
+    "exact": {
+     "optimalEmv": 50.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 50.0,
+       "ids": [
+        "Y"
+       ],
+       "npvSuccess": 50.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 50.0,
+        "independentStdDev": 0.0,
+        "p10": 50.0,
+        "p90": 50.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 100.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 50.0,
+       "weight": 100
+      }
+     ],
+     "optimalEmv": 50.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 50.0,
+       "ids": [
+        "Y"
+       ],
+       "npvSuccess": 50.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 50.0,
+        "independentStdDev": 0.0,
+        "p10": 50.0,
+        "p90": 50.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "X": 100,
+     "Y": 100
+    }
+   },
+   "id": "riskedVsSure",
+   "projects": [
+    {
+     "capex": 100,
+     "fail_cost": 50,
+     "id": "X",
+     "name": "X",
+     "npv_p50": 300,
+     "pos": 0.2
+    },
+    {
+     "capex": 100,
+     "id": "Y",
+     "name": "Y",
+     "npv_p50": 50
+    }
+   ]
+  },
+  {
+   "capexLimit": 200,
+   "correlation": 0,
+   "description": "Suite: a negative-EMV project is never taken even with capital to spare.",
+   "expected": {
+    "cells": 200,
+    "exact": {
+     "optimalEmv": 30.0,
+     "optimalSets": [
+      {
+       "capex": 50.0,
+       "emv": 30.0,
+       "ids": [
+        "good"
+       ],
+       "npvSuccess": 30.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 30.0,
+        "independentStdDev": 0.0,
+        "p10": 30.0,
+        "p90": 30.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 200.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        50.0
+       ],
+       "emv": 30.0,
+       "weight": 50
+      }
+     ],
+     "optimalEmv": 30.0,
+     "optimalSets": [
+      {
+       "capex": 50.0,
+       "emv": 30.0,
+       "ids": [
+        "good"
+       ],
+       "npvSuccess": 30.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 30.0,
+        "independentStdDev": 0.0,
+        "p10": 30.0,
+        "p90": 30.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "good": 50
+    }
+   },
+   "id": "negativeNeverForced",
+   "projects": [
+    {
+     "capex": 50,
+     "id": "bad",
+     "name": "bad",
+     "npv_p50": -20
+    },
+    {
+     "capex": 50,
+     "id": "good",
+     "name": "good",
+     "npv_p50": 30
+    }
+   ]
+  },
+  {
+   "capexLimit": 450000000.0,
+   "correlation": 0,
+   "description": "Suite: the classic set typed in dollars (capex times 1e6, limit 450e6); the grid quantises to 225000 per cell and the same set wins.",
+   "expected": {
+    "cells": 2000,
+    "exact": {
+     "optimalEmv": 250.0,
+     "optimalSets": [
+      {
+       "capex": 450000000.0,
+       "emv": 250.0,
+       "ids": [
+        "A",
+        "B",
+        "D"
+       ],
+       "npvSuccess": 250.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 250.0,
+        "independentStdDev": 0.0,
+        "p10": 250.0,
+        "p90": 250.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 450000000.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        100000000.0
+       ],
+       "emv": 60.0,
+       "weight": 444
+      },
+      {
+       "capexCandidates": [
+        150000000.0
+       ],
+       "emv": 90.0,
+       "weight": 667
+      },
+      {
+       "capexCandidates": [
+        200000000.0
+       ],
+       "emv": 100.0,
+       "weight": 889
+      },
+      {
+       "capexCandidates": [
+        250000000.0
+       ],
+       "emv": 150.0,
+       "weight": 1111
+      },
+      {
+       "capexCandidates": [
+        300000000.0
+       ],
+       "emv": 160.0,
+       "weight": 1333
+      },
+      {
+       "capexCandidates": [
+        350000000.0
+       ],
+       "emv": 190.0,
+       "weight": 1556
+      },
+      {
+       "capexCandidates": [
+        450000000.0
+       ],
+       "emv": 250.0,
+       "weight": 2000
+      }
+     ],
+     "optimalEmv": 250.0,
+     "optimalSets": [
+      {
+       "capex": 450000000.0,
+       "emv": 250.0,
+       "ids": [
+        "A",
+        "B",
+        "D"
+       ],
+       "npvSuccess": 250.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 250.0,
+        "independentStdDev": 0.0,
+        "p10": 250.0,
+        "p90": 250.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 225000.0,
+    "setChanged": false,
+    "weights": {
+     "A": 444,
+     "B": 889,
+     "C": 1333,
+     "D": 667
+    }
+   },
+   "id": "rawDollars",
+   "projects": [
+    {
+     "capex": 100000000.0,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": 200000000.0,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 100
+    },
+    {
+     "capex": 300000000.0,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 120
+    },
+    {
+     "capex": 150000000.0,
+     "id": "D",
+     "name": "D",
+     "npv_p50": 90
+    }
+   ]
+  },
+  {
+   "capexLimit": 20,
+   "correlation": 0,
+   "description": "Suite E5: two projects at limit 20, rho 0.",
+   "expected": {
+    "cells": 20,
+    "exact": {
+     "optimalEmv": 180.0,
+     "optimalSets": [
+      {
+       "capex": 20.0,
+       "emv": 180.0,
+       "ids": [
+        "1",
+        "2"
+       ],
+       "npvSuccess": 180.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 180.0,
+        "independentStdDev": 60.94377648867898,
+        "p10": 258.10554394789096,
+        "p90": 101.89445605210902,
+        "probLoss": 0.0015707495770913016,
+        "stdDev": 60.94377648867898
+       }
+      }
+     ]
+    },
+    "limit": 20.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        10.0
+       ],
+       "emv": 100.0,
+       "weight": 10
+      },
+      {
+       "capexCandidates": [
+        20.0
+       ],
+       "emv": 180.0,
+       "weight": 20
+      }
+     ],
+     "optimalEmv": 180.0,
+     "optimalSets": [
+      {
+       "capex": 20.0,
+       "emv": 180.0,
+       "ids": [
+        "1",
+        "2"
+       ],
+       "npvSuccess": 180.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 180.0,
+        "independentStdDev": 60.94377648867898,
+        "p10": 258.10554394789096,
+        "p90": 101.89445605210902,
+        "probLoss": 0.0015707495770913016,
+        "stdDev": 60.94377648867898
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "1": 10,
+     "2": 10
+    }
+   },
+   "id": "threadedCorrelation_0",
+   "projects": [
+    {
+     "capex": 10,
+     "id": "1",
+     "name": "1",
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "capex": 10,
+     "id": "2",
+     "name": "2",
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "capexLimit": 20,
+   "correlation": 0.7,
+   "description": "Suite E5: the same at rho 0.7; same set, same EMV, wider spread.",
+   "expected": {
+    "cells": 20,
+    "exact": {
+     "optimalEmv": 180.0,
+     "optimalSets": [
+      {
+       "capex": 20.0,
+       "emv": 180.0,
+       "ids": [
+        "1",
+        "2"
+       ],
+       "npvSuccess": 180.0,
+       "risk": {
+        "correlation": 0.7,
+        "emv": 180.0,
+        "independentStdDev": 60.94377648867898,
+        "p10": 281.4928752668424,
+        "p90": 78.5071247331576,
+        "probLoss": 0.011514665140424762,
+        "stdDev": 79.19231840421536
+       }
+      }
+     ]
+    },
+    "limit": 20.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        10.0
+       ],
+       "emv": 100.0,
+       "weight": 10
+      },
+      {
+       "capexCandidates": [
+        20.0
+       ],
+       "emv": 180.0,
+       "weight": 20
+      }
+     ],
+     "optimalEmv": 180.0,
+     "optimalSets": [
+      {
+       "capex": 20.0,
+       "emv": 180.0,
+       "ids": [
+        "1",
+        "2"
+       ],
+       "npvSuccess": 180.0,
+       "risk": {
+        "correlation": 0.7,
+        "emv": 180.0,
+        "independentStdDev": 60.94377648867898,
+        "p10": 281.4928752668424,
+        "p90": 78.5071247331576,
+        "probLoss": 0.011514665140424762,
+        "stdDev": 79.19231840421536
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "1": 10,
+     "2": 10
+    }
+   },
+   "id": "threadedCorrelation_0p7",
+   "projects": [
+    {
+     "capex": 10,
+     "id": "1",
+     "name": "1",
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "capex": 10,
+     "id": "2",
+     "name": "2",
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "capexLimit": 100,
+   "correlation": 0,
+   "description": "Tie: two identical projects and room for one; either set is optimal.",
+   "expected": {
+    "cells": 100,
+    "exact": {
+     "optimalEmv": 50.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 50.0,
+       "ids": [
+        "twinA"
+       ],
+       "npvSuccess": 50.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 50.0,
+        "independentStdDev": 0.0,
+        "p10": 50.0,
+        "p90": 50.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      },
+      {
+       "capex": 100.0,
+       "emv": 50.0,
+       "ids": [
+        "twinB"
+       ],
+       "npvSuccess": 50.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 50.0,
+        "independentStdDev": 0.0,
+        "p10": 50.0,
+        "p90": 50.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 100.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 50.0,
+       "weight": 100
+      }
+     ],
+     "optimalEmv": 50.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 50.0,
+       "ids": [
+        "twinA"
+       ],
+       "npvSuccess": 50.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 50.0,
+        "independentStdDev": 0.0,
+        "p10": 50.0,
+        "p90": 50.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      },
+      {
+       "capex": 100.0,
+       "emv": 50.0,
+       "ids": [
+        "twinB"
+       ],
+       "npvSuccess": 50.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 50.0,
+        "independentStdDev": 0.0,
+        "p10": 50.0,
+        "p90": 50.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "twinA": 100,
+     "twinB": 100
+    }
+   },
+   "id": "tieIdenticalProjects",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "twinA",
+     "name": "twinA",
+     "npv_p50": 50
+    },
+    {
+     "capex": 100,
+     "id": "twinB",
+     "name": "twinB",
+     "npv_p50": 50
+    }
+   ]
+  },
+  {
+   "capexLimit": 100,
+   "correlation": 0,
+   "description": "Tie: {A} at capex 100 and {B, C} at capex 100 both reach EMV 80.",
+   "expected": {
+    "cells": 100,
+    "exact": {
+     "optimalEmv": 80.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 80.0,
+       "ids": [
+        "A"
+       ],
+       "npvSuccess": 80.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 80.0,
+        "independentStdDev": 0.0,
+        "p10": 80.0,
+        "p90": 80.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      },
+      {
+       "capex": 100.0,
+       "emv": 80.0,
+       "ids": [
+        "B",
+        "C"
+       ],
+       "npvSuccess": 80.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 80.0,
+        "independentStdDev": 0.0,
+        "p10": 80.0,
+        "p90": 80.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 100.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        40.0
+       ],
+       "emv": 40.0,
+       "weight": 40
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 80.0,
+       "weight": 100
+      }
+     ],
+     "optimalEmv": 80.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 80.0,
+       "ids": [
+        "A"
+       ],
+       "npvSuccess": 80.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 80.0,
+        "independentStdDev": 0.0,
+        "p10": 80.0,
+        "p90": 80.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      },
+      {
+       "capex": 100.0,
+       "emv": 80.0,
+       "ids": [
+        "B",
+        "C"
+       ],
+       "npvSuccess": 80.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 80.0,
+        "independentStdDev": 0.0,
+        "p10": 80.0,
+        "p90": 80.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "A": 100,
+     "B": 40,
+     "C": 60
+    }
+   },
+   "id": "tieDifferentComposition",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 80
+    },
+    {
+     "capex": 40,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 40
+    },
+    {
+     "capex": 60,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 40
+    }
+   ]
+  },
+  {
+   "capexLimit": 500,
+   "correlation": 0,
+   "description": "A project whose risked EMV is exactly 0 (pos 0.5, npv 40, fail 40) is never taken.",
+   "expected": {
+    "cells": 500,
+    "exact": {
+     "optimalEmv": 30.0,
+     "optimalSets": [
+      {
+       "capex": 50.0,
+       "emv": 30.0,
+       "ids": [
+        "good"
+       ],
+       "npvSuccess": 30.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 30.0,
+        "independentStdDev": 0.0,
+        "p10": 30.0,
+        "p90": 30.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 500.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        50.0
+       ],
+       "emv": 30.0,
+       "weight": 50
+      }
+     ],
+     "optimalEmv": 30.0,
+     "optimalSets": [
+      {
+       "capex": 50.0,
+       "emv": 30.0,
+       "ids": [
+        "good"
+       ],
+       "npvSuccess": 30.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 30.0,
+        "independentStdDev": 0.0,
+        "p10": 30.0,
+        "p90": 30.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "good": 50
+    }
+   },
+   "id": "zeroEmvExcluded",
+   "projects": [
+    {
+     "capex": 30,
+     "fail_cost": 40,
+     "id": "zero",
+     "name": "zero",
+     "npv_p50": 40,
+     "pos": 0.5
+    },
+    {
+     "capex": 50,
+     "id": "good",
+     "name": "good",
+     "npv_p50": 30
+    }
+   ]
+  },
+  {
+   "capexLimit": 10000,
+   "correlation": 0,
+   "description": "A negative risked EMV stays out however large the budget.",
+   "expected": {
+    "cells": 2000,
+    "exact": {
+     "optimalEmv": 75.0,
+     "optimalSets": [
+      {
+       "capex": 120.0,
+       "emv": 75.0,
+       "ids": [
+        "good",
+        "better"
+       ],
+       "npvSuccess": 75.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 75.0,
+        "independentStdDev": 0.0,
+        "p10": 75.0,
+        "p90": 75.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 10000.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        50.0
+       ],
+       "emv": 30.0,
+       "weight": 10
+      },
+      {
+       "capexCandidates": [
+        70.0
+       ],
+       "emv": 45.0,
+       "weight": 14
+      },
+      {
+       "capexCandidates": [
+        120.0
+       ],
+       "emv": 75.0,
+       "weight": 24
+      }
+     ],
+     "optimalEmv": 75.0,
+     "optimalSets": [
+      {
+       "capex": 120.0,
+       "emv": 75.0,
+       "ids": [
+        "good",
+        "better"
+       ],
+       "npvSuccess": 75.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 75.0,
+        "independentStdDev": 0.0,
+        "p10": 75.0,
+        "p90": 75.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 5.0,
+    "setChanged": false,
+    "weights": {
+     "better": 14,
+     "good": 10
+    }
+   },
+   "id": "negativeEmvHugeBudget",
+   "projects": [
+    {
+     "capex": 20,
+     "fail_cost": 60,
+     "id": "neg",
+     "name": "neg",
+     "npv_p50": 100,
+     "pos": 0.1
+    },
+    {
+     "capex": 50,
+     "id": "good",
+     "name": "good",
+     "npv_p50": 30
+    },
+    {
+     "capex": 70,
+     "id": "better",
+     "name": "better",
+     "npv_p50": 45
+    }
+   ]
+  },
+  {
+   "capexLimit": 30,
+   "correlation": 0,
+   "description": "Every project costs more than the limit: the empty portfolio, EMV 0, frontier (0, 0).",
+   "expected": {
+    "cells": 30,
+    "exact": {
+     "optimalEmv": 0.0,
+     "optimalSets": [
+      {
+       "capex": 0.0,
+       "emv": 0.0,
+       "ids": [],
+       "npvSuccess": 0.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 0.0,
+        "independentStdDev": 0.0,
+        "p10": 0.0,
+        "p90": 0.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 30.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      }
+     ],
+     "optimalEmv": 0.0,
+     "optimalSets": [
+      {
+       "capex": 0.0,
+       "emv": 0.0,
+       "ids": [],
+       "npvSuccess": 0.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 0.0,
+        "independentStdDev": 0.0,
+        "p10": 0.0,
+        "p90": 0.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "A": 50,
+     "B": 80
+    }
+   },
+   "id": "limitBelowEveryProject",
+   "projects": [
+    {
+     "capex": 50,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": 80,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 100
+    }
+   ]
+  },
+  {
+   "capexLimit": 0,
+   "correlation": 0,
+   "description": "Limit 0: nothing fits.",
+   "expected": {
+    "cells": 0,
+    "exact": {
+     "optimalEmv": 0.0,
+     "optimalSets": [
+      {
+       "capex": 0.0,
+       "emv": 0.0,
+       "ids": [],
+       "npvSuccess": 0.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 0.0,
+        "independentStdDev": 0.0,
+        "p10": 0.0,
+        "p90": 0.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 0.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      }
+     ],
+     "optimalEmv": 0.0,
+     "optimalSets": [
+      {
+       "capex": 0.0,
+       "emv": 0.0,
+       "ids": [],
+       "npvSuccess": 0.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 0.0,
+        "independentStdDev": 0.0,
+        "p10": 0.0,
+        "p90": 0.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "A": 100,
+     "B": 200,
+     "C": 300,
+     "D": 150
+    }
+   },
+   "id": "limitZero",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": 200,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 100
+    },
+    {
+     "capex": 300,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 120
+    },
+    {
+     "capex": 150,
+     "id": "D",
+     "name": "D",
+     "npv_p50": 90
+    }
+   ]
+  },
+  {
+   "capexLimit": -100,
+   "correlation": 0,
+   "description": "A negative limit is 0.",
+   "expected": {
+    "cells": 0,
+    "exact": {
+     "optimalEmv": 0.0,
+     "optimalSets": [
+      {
+       "capex": 0.0,
+       "emv": 0.0,
+       "ids": [],
+       "npvSuccess": 0.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 0.0,
+        "independentStdDev": 0.0,
+        "p10": 0.0,
+        "p90": 0.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 0.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      }
+     ],
+     "optimalEmv": 0.0,
+     "optimalSets": [
+      {
+       "capex": 0.0,
+       "emv": 0.0,
+       "ids": [],
+       "npvSuccess": 0.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 0.0,
+        "independentStdDev": 0.0,
+        "p10": 0.0,
+        "p90": 0.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "A": 100,
+     "B": 200,
+     "C": 300,
+     "D": 150
+    }
+   },
+   "id": "limitNegative",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": 200,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 100
+    },
+    {
+     "capex": 300,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 120
+    },
+    {
+     "capex": 150,
+     "id": "D",
+     "name": "D",
+     "npv_p50": 90
+    }
+   ]
+  },
+  {
+   "capexLimit": 500,
+   "correlation": 0,
+   "description": "The optimum uses the whole budget exactly (A + B + D = 450 at limit 450 is already that; here B + C = 500 at 500).",
+   "expected": {
+    "cells": 500,
+    "exact": {
+     "optimalEmv": 300.0,
+     "optimalSets": [
+      {
+       "capex": 500.0,
+       "emv": 300.0,
+       "ids": [
+        "B",
+        "C"
+       ],
+       "npvSuccess": 300.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 300.0,
+        "independentStdDev": 0.0,
+        "p10": 300.0,
+        "p90": 300.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 500.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 60.0,
+       "weight": 100
+      },
+      {
+       "capexCandidates": [
+        150.0
+       ],
+       "emv": 90.0,
+       "weight": 150
+      },
+      {
+       "capexCandidates": [
+        200.0
+       ],
+       "emv": 130.0,
+       "weight": 200
+      },
+      {
+       "capexCandidates": [
+        250.0
+       ],
+       "emv": 150.0,
+       "weight": 250
+      },
+      {
+       "capexCandidates": [
+        300.0
+       ],
+       "emv": 190.0,
+       "weight": 300
+      },
+      {
+       "capexCandidates": [
+        350.0
+       ],
+       "emv": 220.0,
+       "weight": 350
+      },
+      {
+       "capexCandidates": [
+        400.0
+       ],
+       "emv": 230.0,
+       "weight": 400
+      },
+      {
+       "capexCandidates": [
+        450.0
+       ],
+       "emv": 280.0,
+       "weight": 450
+      },
+      {
+       "capexCandidates": [
+        500.0
+       ],
+       "emv": 300.0,
+       "weight": 500
+      }
+     ],
+     "optimalEmv": 300.0,
+     "optimalSets": [
+      {
+       "capex": 500.0,
+       "emv": 300.0,
+       "ids": [
+        "B",
+        "C"
+       ],
+       "npvSuccess": 300.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 300.0,
+        "independentStdDev": 0.0,
+        "p10": 300.0,
+        "p90": 300.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "A": 100,
+     "B": 200,
+     "C": 300,
+     "D": 150
+    }
+   },
+   "id": "exactFit",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": 200,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 130
+    },
+    {
+     "capex": 300,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 170
+    },
+    {
+     "capex": 150,
+     "id": "D",
+     "name": "D",
+     "npv_p50": 90
+    }
+   ]
+  },
+  {
+   "capexLimit": 0,
+   "correlation": 0,
+   "description": "A free project (capex 0) with positive EMV at limit 0: the exact problem takes it; the grid charges it one cell it does not have.",
+   "expected": {
+    "cells": 0,
+    "exact": {
+     "optimalEmv": 10.0,
+     "optimalSets": [
+      {
+       "capex": 0.0,
+       "emv": 10.0,
+       "ids": [
+        "free"
+       ],
+       "npvSuccess": 10.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 10.0,
+        "independentStdDev": 0.0,
+        "p10": 10.0,
+        "p90": 10.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 0.0,
+    "quantizationGap": -10.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      }
+     ],
+     "optimalEmv": 0.0,
+     "optimalSets": [
+      {
+       "capex": 0.0,
+       "emv": 0.0,
+       "ids": [],
+       "npvSuccess": 0.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 0.0,
+        "independentStdDev": 0.0,
+        "p10": 0.0,
+        "p90": 0.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": true,
+    "weights": {
+     "free": 1
+    }
+   },
+   "id": "freeProjectZeroLimit",
+   "note": "disagreement: see FINDINGS-decision.md, free project on the grid",
+   "projects": [
+    {
+     "capex": 0,
+     "id": "free",
+     "name": "free",
+     "npv_p50": 10
+    }
+   ]
+  },
+  {
+   "capexLimit": 100,
+   "correlation": 0,
+   "description": "A free project beside A(100, 60) at limit 100: exact takes both (70); the grid weighs the free project one cell and must drop something.",
+   "expected": {
+    "cells": 100,
+    "exact": {
+     "optimalEmv": 70.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 70.0,
+       "ids": [
+        "free",
+        "A"
+       ],
+       "npvSuccess": 70.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 70.0,
+        "independentStdDev": 0.0,
+        "p10": 70.0,
+        "p90": 70.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 100.0,
+    "quantizationGap": -10.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 10.0,
+       "weight": 1
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 60.0,
+       "weight": 100
+      }
+     ],
+     "optimalEmv": 60.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 60.0,
+       "ids": [
+        "A"
+       ],
+       "npvSuccess": 60.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 60.0,
+        "independentStdDev": 0.0,
+        "p10": 60.0,
+        "p90": 60.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": true,
+    "weights": {
+     "A": 100,
+     "free": 1
+    }
+   },
+   "id": "freeProjectTightLimit",
+   "note": "disagreement: see FINDINGS-decision.md, free project on the grid",
+   "projects": [
+    {
+     "capex": 0,
+     "id": "free",
+     "name": "free",
+     "npv_p50": 10
+    },
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    }
+   ]
+  },
+  {
+   "capexLimit": 101,
+   "correlation": 0,
+   "description": "The same free project with one cell of slack (limit 101): both problems take both.",
+   "expected": {
+    "cells": 101,
+    "exact": {
+     "optimalEmv": 70.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 70.0,
+       "ids": [
+        "free",
+        "A"
+       ],
+       "npvSuccess": 70.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 70.0,
+        "independentStdDev": 0.0,
+        "p10": 70.0,
+        "p90": 70.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 101.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 10.0,
+       "weight": 1
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 60.0,
+       "weight": 100
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 70.0,
+       "weight": 101
+      }
+     ],
+     "optimalEmv": 70.0,
+     "optimalSets": [
+      {
+       "capex": 100.0,
+       "emv": 70.0,
+       "ids": [
+        "free",
+        "A"
+       ],
+       "npvSuccess": 70.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 70.0,
+        "independentStdDev": 0.0,
+        "p10": 70.0,
+        "p90": 70.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "A": 100,
+     "free": 1
+    }
+   },
+   "id": "freeProjectSlack",
+   "projects": [
+    {
+     "capex": 0,
+     "id": "free",
+     "name": "free",
+     "npv_p50": 10
+    },
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    }
+   ]
+  },
+  {
+   "capexLimit": 6000,
+   "correlation": 0,
+   "description": "Limit 6000 (grid 3 per cell): A(4000) weighs 1333 cells and B(2002) 667, so A + B fits the grid at 2000 cells although its capex is 6002; the exact optimum is A + C at 5995.",
+   "expected": {
+    "cells": 2000,
+    "exact": {
+     "optimalEmv": 780.0,
+     "optimalSets": [
+      {
+       "capex": 5995.0,
+       "emv": 780.0,
+       "ids": [
+        "A",
+        "C"
+       ],
+       "npvSuccess": 780.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 780.0,
+        "independentStdDev": 0.0,
+        "p10": 780.0,
+        "p90": 780.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 6000.0,
+    "quantizationGap": 20.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        1995.0
+       ],
+       "emv": 280.0,
+       "weight": 665
+      },
+      {
+       "capexCandidates": [
+        2002.0
+       ],
+       "emv": 300.0,
+       "weight": 667
+      },
+      {
+       "capexCandidates": [
+        3997.0
+       ],
+       "emv": 580.0,
+       "weight": 1332
+      },
+      {
+       "capexCandidates": [
+        5995.0
+       ],
+       "emv": 780.0,
+       "weight": 1998
+      },
+      {
+       "capexCandidates": [
+        6002.0
+       ],
+       "emv": 800.0,
+       "weight": 2000
+      }
+     ],
+     "optimalEmv": 800.0,
+     "optimalSets": [
+      {
+       "capex": 6002.0,
+       "emv": 800.0,
+       "ids": [
+        "A",
+        "B"
+       ],
+       "npvSuccess": 800.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 800.0,
+        "independentStdDev": 0.0,
+        "p10": 800.0,
+        "p90": 800.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 3.0,
+    "setChanged": true,
+    "weights": {
+     "A": 1333,
+     "B": 667,
+     "C": 665
+    }
+   },
+   "id": "gridOvershoot",
+   "note": "disagreement: see FINDINGS-decision.md, grid overshoot; the engine reports a portfolio 2 $MM over the limit",
+   "projects": [
+    {
+     "capex": 4000,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 500
+    },
+    {
+     "capex": 2002,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 300
+    },
+    {
+     "capex": 1995,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 280
+    }
+   ]
+  },
+  {
+   "capexLimit": 6000,
+   "correlation": 0,
+   "description": "Limit 6000 (grid 3 per cell): three projects of 1499 and one of 1502 total 5999 and fit exactly, but each rounds up to 500 or 501 cells (2001 > 2000), so the grid must drop one.",
+   "expected": {
+    "cells": 2000,
+    "exact": {
+     "optimalEmv": 860.0,
+     "optimalSets": [
+      {
+       "capex": 5999.0,
+       "emv": 860.0,
+       "ids": [
+        "W",
+        "X",
+        "Y",
+        "Z"
+       ],
+       "npvSuccess": 860.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 860.0,
+        "independentStdDev": 0.0,
+        "p10": 860.0,
+        "p90": 860.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 6000.0,
+    "quantizationGap": -200.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        1499.0
+       ],
+       "emv": 220.0,
+       "weight": 500
+      },
+      {
+       "capexCandidates": [
+        1502.0
+       ],
+       "emv": 230.0,
+       "weight": 501
+      },
+      {
+       "capexCandidates": [
+        2998.0
+       ],
+       "emv": 430.0,
+       "weight": 1000
+      },
+      {
+       "capexCandidates": [
+        3001.0
+       ],
+       "emv": 450.0,
+       "weight": 1001
+      },
+      {
+       "capexCandidates": [
+        4497.0
+       ],
+       "emv": 630.0,
+       "weight": 1500
+      },
+      {
+       "capexCandidates": [
+        4500.0
+       ],
+       "emv": 660.0,
+       "weight": 1501
+      }
+     ],
+     "optimalEmv": 660.0,
+     "optimalSets": [
+      {
+       "capex": 4500.0,
+       "emv": 660.0,
+       "ids": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "npvSuccess": 660.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 660.0,
+        "independentStdDev": 0.0,
+        "p10": 660.0,
+        "p90": 660.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 3.0,
+    "setChanged": true,
+    "weights": {
+     "W": 500,
+     "X": 500,
+     "Y": 500,
+     "Z": 501
+    }
+   },
+   "id": "gridUndershoot",
+   "note": "disagreement: see FINDINGS-decision.md, grid undershoot; the engine leaves a feasible project out",
+   "projects": [
+    {
+     "capex": 1499,
+     "id": "W",
+     "name": "W",
+     "npv_p50": 200
+    },
+    {
+     "capex": 1499,
+     "id": "X",
+     "name": "X",
+     "npv_p50": 210
+    },
+    {
+     "capex": 1499,
+     "id": "Y",
+     "name": "Y",
+     "npv_p50": 220
+    },
+    {
+     "capex": 1502,
+     "id": "Z",
+     "name": "Z",
+     "npv_p50": 230
+    }
+   ]
+  },
+  {
+   "capexLimit": 450.5,
+   "correlation": 0,
+   "description": "The classic set at limit 450.5: the grid is 0.22525 per cell and A + B + D still wins.",
+   "expected": {
+    "cells": 2000,
+    "exact": {
+     "optimalEmv": 250.0,
+     "optimalSets": [
+      {
+       "capex": 450.0,
+       "emv": 250.0,
+       "ids": [
+        "A",
+        "B",
+        "D"
+       ],
+       "npvSuccess": 250.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 250.0,
+        "independentStdDev": 0.0,
+        "p10": 250.0,
+        "p90": 250.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "limit": 450.5,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 60.0,
+       "weight": 444
+      },
+      {
+       "capexCandidates": [
+        150.0
+       ],
+       "emv": 90.0,
+       "weight": 666
+      },
+      {
+       "capexCandidates": [
+        200.0
+       ],
+       "emv": 100.0,
+       "weight": 888
+      },
+      {
+       "capexCandidates": [
+        250.0
+       ],
+       "emv": 150.0,
+       "weight": 1110
+      },
+      {
+       "capexCandidates": [
+        300.0
+       ],
+       "emv": 160.0,
+       "weight": 1332
+      },
+      {
+       "capexCandidates": [
+        350.0
+       ],
+       "emv": 190.0,
+       "weight": 1554
+      },
+      {
+       "capexCandidates": [
+        450.0
+       ],
+       "emv": 250.0,
+       "weight": 1998
+      }
+     ],
+     "optimalEmv": 250.0,
+     "optimalSets": [
+      {
+       "capex": 450.0,
+       "emv": 250.0,
+       "ids": [
+        "A",
+        "B",
+        "D"
+       ],
+       "npvSuccess": 250.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 250.0,
+        "independentStdDev": 0.0,
+        "p10": 250.0,
+        "p90": 250.0,
+        "probLoss": 0.0,
+        "stdDev": 0.0
+       }
+      }
+     ]
+    },
+    "resolution": 0.22525,
+    "setChanged": false,
+    "weights": {
+     "A": 444,
+     "B": 888,
+     "C": 1332,
+     "D": 666
+    }
+   },
+   "id": "nonIntegerLimit",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": 200,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 100
+    },
+    {
+     "capex": 300,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 120
+    },
+    {
+     "capex": 150,
+     "id": "D",
+     "name": "D",
+     "npv_p50": 90
+    }
+   ]
+  },
+  {
+   "capexLimit": 330,
+   "correlation": 0.3,
+   "description": "Five risked projects with spreads at rho 0.3, exact grid.",
+   "expected": {
+    "cells": 330,
+    "exact": {
+     "optimalEmv": 181.50000000000003,
+     "optimalSets": [
+      {
+       "capex": 280.0,
+       "emv": 181.50000000000003,
+       "ids": [
+        "R2",
+        "R3"
+       ],
+       "npvSuccess": 350.0,
+       "risk": {
+        "correlation": 0.3,
+        "emv": 181.50000000000003,
+        "independentStdDev": 187.6497444641232,
+        "p10": 438.85693210806494,
+        "p90": -75.85693210806491,
+        "probLoss": 0.18303918596695928,
+        "stdDev": 200.80909184461993
+       }
+      }
+     ]
+    },
+    "limit": 330.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        60.0
+       ],
+       "emv": 40.0,
+       "weight": 60
+      },
+      {
+       "capexCandidates": [
+        80.0
+       ],
+       "emv": 79.0,
+       "weight": 80
+      },
+      {
+       "capexCandidates": [
+        140.0
+       ],
+       "emv": 119.0,
+       "weight": 140
+      },
+      {
+       "capexCandidates": [
+        200.0
+       ],
+       "emv": 123.00000000000001,
+       "weight": 200
+      },
+      {
+       "capexCandidates": [
+        260.0
+       ],
+       "emv": 163.0,
+       "weight": 260
+      },
+      {
+       "capexCandidates": [
+        280.0
+       ],
+       "emv": 181.50000000000003,
+       "weight": 280
+      }
+     ],
+     "optimalEmv": 181.50000000000003,
+     "optimalSets": [
+      {
+       "capex": 280.0,
+       "emv": 181.50000000000003,
+       "ids": [
+        "R2",
+        "R3"
+       ],
+       "npvSuccess": 350.0,
+       "risk": {
+        "correlation": 0.3,
+        "emv": 181.50000000000003,
+        "independentStdDev": 187.6497444641232,
+        "p10": 438.85693210806494,
+        "p90": -75.85693210806491,
+        "probLoss": 0.18303918596695928,
+        "stdDev": 200.80909184461993
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "R1": 120,
+     "R2": 80,
+     "R3": 200,
+     "R4": 60
+    }
+   },
+   "id": "mixedRiskedRho0p3",
+   "projects": [
+    {
+     "capex": 120,
+     "fail_cost": 60,
+     "id": "R1",
+     "name": "R1",
+     "npv_p10": 320,
+     "npv_p50": 200,
+     "npv_p90": 110,
+     "pos": 0.4
+    },
+    {
+     "capex": 80,
+     "fail_cost": 20,
+     "id": "R2",
+     "name": "R2",
+     "npv_p10": 140,
+     "npv_p50": 90,
+     "npv_p90": 50,
+     "pos": 0.9
+    },
+    {
+     "capex": 200,
+     "fail_cost": 90,
+     "id": "R3",
+     "name": "R3",
+     "npv_p50": 260,
+     "npv_stddev": 70,
+     "pos": 0.55
+    },
+    {
+     "capex": 60,
+     "id": "R4",
+     "name": "R4",
+     "npv_p50": 40,
+     "pos": 1
+    },
+    {
+     "capex": 150,
+     "fail_cost": 120,
+     "id": "R5",
+     "name": "R5",
+     "npv_p10": 450,
+     "npv_p50": 300,
+     "npv_p90": 180,
+     "pos": 0.25
+    }
+   ]
+  },
+  {
+   "capexLimit": 320,
+   "correlation": 0,
+   "description": "mulberry32 seed 6001: six integer-capex projects, limit 320, exact grid.",
+   "expected": {
+    "cells": 320,
+    "exact": {
+     "optimalEmv": 436.936,
+     "optimalSets": [
+      {
+       "capex": 293.0,
+       "emv": 436.936,
+       "ids": [
+        "S6001_02",
+        "S6001_03"
+       ],
+       "npvSuccess": 590.6,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 436.936,
+        "independentStdDev": 260.3024390239058,
+        "p10": 770.5396058530376,
+        "p90": 103.33239414696232,
+        "probLoss": 0.04661788815114082,
+        "stdDev": 260.3024390239058
+       }
+      }
+     ]
+    },
+    "limit": 320.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        77.0
+       ],
+       "emv": 36.291000000000004,
+       "weight": 77
+      },
+      {
+       "capexCandidates": [
+        112.0
+       ],
+       "emv": 43.016000000000005,
+       "weight": 112
+      },
+      {
+       "capexCandidates": [
+        166.0
+       ],
+       "emv": 69.35799999999999,
+       "weight": 166
+      },
+      {
+       "capexCandidates": [
+        167.0
+       ],
+       "emv": 85.50800000000001,
+       "weight": 167
+      },
+      {
+       "capexCandidates": [
+        181.0
+       ],
+       "emv": 393.92,
+       "weight": 181
+      },
+      {
+       "capexCandidates": [
+        258.0
+       ],
+       "emv": 430.211,
+       "weight": 258
+      },
+      {
+       "capexCandidates": [
+        293.0
+       ],
+       "emv": 436.936,
+       "weight": 293
+      }
+     ],
+     "optimalEmv": 436.936,
+     "optimalSets": [
+      {
+       "capex": 293.0,
+       "emv": 436.936,
+       "ids": [
+        "S6001_02",
+        "S6001_03"
+       ],
+       "npvSuccess": 590.6,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 436.936,
+        "independentStdDev": 260.3024390239058,
+        "p10": 770.5396058530376,
+        "p90": 103.33239414696232,
+        "probLoss": 0.04661788815114082,
+        "stdDev": 260.3024390239058
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "S6001_01": 127,
+     "S6001_02": 112,
+     "S6001_03": 181,
+     "S6001_04": 167,
+     "S6001_05": 166,
+     "S6001_06": 77
+    }
+   },
+   "id": "seeded6",
+   "projects": [
+    {
+     "capex": 127.0,
+     "fail_cost": 71.1,
+     "id": "S6001_01",
+     "name": "Seed 6001 project 1",
+     "npv_p10": 98.6,
+     "npv_p50": 74.3,
+     "npv_p90": 23.9,
+     "pos": 0.5
+    },
+    {
+     "capex": 112.0,
+     "fail_cost": 32.8,
+     "id": "S6001_02",
+     "name": "Seed 6001 project 2",
+     "npv_p10": 274.1,
+     "npv_p50": 177.8,
+     "npv_p90": 116.8,
+     "pos": 0.36
+    },
+    {
+     "capex": 181.0,
+     "fail_cost": 59.2,
+     "id": "S6001_03",
+     "name": "Seed 6001 project 3",
+     "npv_p10": 723.9,
+     "npv_p50": 412.8,
+     "npv_p90": 153.0,
+     "pos": 0.96
+    },
+    {
+     "capex": 167.0,
+     "fail_cost": 68.5,
+     "id": "S6001_04",
+     "name": "Seed 6001 project 4",
+     "npv_p10": 347.2,
+     "npv_p50": 216.7,
+     "npv_p90": 77.7,
+     "pos": 0.54
+    },
+    {
+     "capex": 166.0,
+     "fail_cost": 107.1,
+     "id": "S6001_05",
+     "name": "Seed 6001 project 5",
+     "npv_p10": 146.0,
+     "npv_p50": 105.5,
+     "npv_p90": 37.4,
+     "pos": 0.83
+    },
+    {
+     "capex": 77.0,
+     "fail_cost": 45.7,
+     "id": "S6001_06",
+     "name": "Seed 6001 project 6",
+     "npv_p10": 62.9,
+     "npv_p50": 44.4,
+     "npv_p90": 13.6,
+     "pos": 0.91
+    }
+   ]
+  },
+  {
+   "capexLimit": 500.5,
+   "correlation": 0.2,
+   "description": "mulberry32 seed 1002: ten one-decimal capex projects, limit 500.5, quantised grid of 0.25025.",
+   "expected": {
+    "cells": 2000,
+    "exact": {
+     "optimalEmv": 430.107,
+     "optimalSets": [
+      {
+       "capex": 493.5,
+       "emv": 430.107,
+       "ids": [
+        "S1002_01",
+        "S1002_02",
+        "S1002_03",
+        "S1002_05",
+        "S1002_07",
+        "S1002_08",
+        "S1002_09"
+       ],
+       "npvSuccess": 730.1,
+       "risk": {
+        "correlation": 0.2,
+        "emv": 430.107,
+        "independentStdDev": 179.1261956744371,
+        "p10": 753.378899577601,
+        "p90": 106.83510042239902,
+        "probLoss": 0.04408378810684288,
+        "stdDev": 252.2408704569296
+       }
+      }
+     ]
+    },
+    "limit": 500.5,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        21.3
+       ],
+       "emv": 14.693999999999999,
+       "weight": 85
+      },
+      {
+       "capexCandidates": [
+        30.1
+       ],
+       "emv": 40.744,
+       "weight": 120
+      },
+      {
+       "capexCandidates": [
+        51.400000000000006
+       ],
+       "emv": 55.438,
+       "weight": 205
+      },
+      {
+       "capexCandidates": [
+        67.3
+       ],
+       "emv": 92.25200000000001,
+       "weight": 269
+      },
+      {
+       "capexCandidates": [
+        88.6
+       ],
+       "emv": 106.94600000000001,
+       "weight": 354
+      },
+      {
+       "capexCandidates": [
+        97.4
+       ],
+       "emv": 132.996,
+       "weight": 389
+      },
+      {
+       "capexCandidates": [
+        114.6
+       ],
+       "emv": 161.735,
+       "weight": 458
+      },
+      {
+       "capexCandidates": [
+        135.9
+       ],
+       "emv": 176.429,
+       "weight": 543
+      },
+      {
+       "capexCandidates": [
+        144.7
+       ],
+       "emv": 202.479,
+       "weight": 578
+      },
+      {
+       "capexCandidates": [
+        166.0
+       ],
+       "emv": 217.173,
+       "weight": 663
+      },
+      {
+       "capexCandidates": [
+        181.89999999999998
+       ],
+       "emv": 253.98700000000002,
+       "weight": 727
+      },
+      {
+       "capexCandidates": [
+        203.2
+       ],
+       "emv": 268.68100000000004,
+       "weight": 812
+      },
+      {
+       "capexCandidates": [
+        212.0
+       ],
+       "emv": 294.731,
+       "weight": 847
+      },
+      {
+       "capexCandidates": [
+        233.29999999999998
+       ],
+       "emv": 309.425,
+       "weight": 932
+      },
+      {
+       "capexCandidates": [
+        278.5
+       ],
+       "emv": 321.771,
+       "weight": 1113
+      },
+      {
+       "capexCandidates": [
+        287.3
+       ],
+       "emv": 347.821,
+       "weight": 1148
+      },
+      {
+       "capexCandidates": [
+        308.59999999999997
+       ],
+       "emv": 362.51500000000004,
+       "weight": 1233
+      },
+      {
+       "capexCandidates": [
+        367.9
+       ],
+       "emv": 372.62100000000004,
+       "weight": 1470
+      },
+      {
+       "capexCandidates": [
+        376.7
+       ],
+       "emv": 398.67100000000005,
+       "weight": 1505
+      },
+      {
+       "capexCandidates": [
+        398.0
+       ],
+       "emv": 413.365,
+       "weight": 1590
+      },
+      {
+       "capexCandidates": [
+        472.2
+       ],
+       "emv": 415.413,
+       "weight": 1887
+      },
+      {
+       "capexCandidates": [
+        493.5
+       ],
+       "emv": 430.107,
+       "weight": 1972
+      }
+     ],
+     "optimalEmv": 430.107,
+     "optimalSets": [
+      {
+       "capex": 493.5,
+       "emv": 430.107,
+       "ids": [
+        "S1002_01",
+        "S1002_02",
+        "S1002_03",
+        "S1002_05",
+        "S1002_07",
+        "S1002_08",
+        "S1002_09"
+       ],
+       "npvSuccess": 730.1,
+       "risk": {
+        "correlation": 0.2,
+        "emv": 430.107,
+        "independentStdDev": 179.1261956744371,
+        "p10": 753.378899577601,
+        "p90": 106.83510042239902,
+        "probLoss": 0.04408378810684288,
+        "stdDev": 252.2408704569296
+       }
+      }
+     ]
+    },
+    "resolution": 0.25025,
+    "setChanged": false,
+    "weights": {
+     "S1002_01": 357,
+     "S1002_02": 301,
+     "S1002_03": 85,
+     "S1002_05": 382,
+     "S1002_06": 647,
+     "S1002_07": 269,
+     "S1002_08": 120,
+     "S1002_09": 458,
+     "S1002_10": 710
+    }
+   },
+   "id": "seeded10decimal",
+   "projects": [
+    {
+     "capex": 89.4,
+     "fail_cost": 39.1,
+     "id": "S1002_01",
+     "name": "Seed 1002 project 1",
+     "npv_p10": 218.1,
+     "npv_p50": 140.8,
+     "npv_p90": 76.3,
+     "pos": 0.5
+    },
+    {
+     "capex": 75.3,
+     "fail_cost": 19.0,
+     "id": "S1002_02",
+     "name": "Seed 1002 project 2",
+     "npv_p10": 104.9,
+     "npv_p50": 61.1,
+     "npv_p90": 28.6,
+     "pos": 0.9
+    },
+    {
+     "capex": 21.3,
+     "fail_cost": 8.7,
+     "id": "S1002_03",
+     "name": "Seed 1002 project 3",
+     "npv_p10": 65.9,
+     "npv_p50": 47.0,
+     "npv_p90": 14.5,
+     "pos": 0.42
+    },
+    {
+     "capex": 82.5,
+     "fail_cost": 59.0,
+     "id": "S1002_04",
+     "name": "Seed 1002 project 4",
+     "npv_p10": 69.7,
+     "npv_p50": 42.2,
+     "npv_p90": 22.6,
+     "pos": 0.45
+    },
+    {
+     "capex": 95.5,
+     "fail_cost": 29.6,
+     "id": "S1002_05",
+     "name": "Seed 1002 project 5",
+     "npv_p10": 201.8,
+     "npv_p50": 130.2,
+     "npv_p90": 53.3,
+     "pos": 0.29
+    },
+    {
+     "capex": 161.9,
+     "fail_cost": 83.8,
+     "id": "S1002_06",
+     "name": "Seed 1002 project 6",
+     "npv_p10": 295.2,
+     "npv_p50": 193.4,
+     "npv_p90": 124.0,
+     "pos": 0.46
+    },
+    {
+     "capex": 67.3,
+     "fail_cost": 36.8,
+     "id": "S1002_07",
+     "name": "Seed 1002 project 7",
+     "npv_p10": 198.5,
+     "npv_p50": 130.8,
+     "npv_p90": 67.5,
+     "pos": 0.77
+    },
+    {
+     "capex": 30.1,
+     "fail_cost": 21.2,
+     "id": "S1002_08",
+     "name": "Seed 1002 project 8",
+     "npv_p10": 73.9,
+     "npv_p50": 48.4,
+     "npv_p90": 19.3,
+     "pos": 0.89
+    },
+    {
+     "capex": 114.6,
+     "fail_cost": 29.5,
+     "id": "S1002_09",
+     "name": "Seed 1002 project 9",
+     "npv_p10": 227.8,
+     "npv_p50": 171.8,
+     "npv_p90": 58.5,
+     "pos": 0.95
+    },
+    {
+     "capex": 177.6,
+     "fail_cost": 44.9,
+     "id": "S1002_10",
+     "name": "Seed 1002 project 10",
+     "npv_p10": 431.5,
+     "npv_p50": 318.7,
+     "npv_p90": 122.0,
+     "pos": 0.17
+    }
+   ]
+  },
+  {
+   "capexLimit": 7200,
+   "correlation": 0.15,
+   "description": "mulberry32 seed 1601: sixteen integer projects with capex 100 to 900, limit 7200 (above 5000, so the grid is 3.6 per cell).",
+   "expected": {
+    "cells": 2000,
+    "exact": {
+     "optimalEmv": 5871.047,
+     "optimalSets": [
+      {
+       "capex": 6876.0,
+       "emv": 5871.047,
+       "ids": [
+        "S1601_02",
+        "S1601_05",
+        "S1601_06",
+        "S1601_07",
+        "S1601_08",
+        "S1601_09",
+        "S1601_10",
+        "S1601_11",
+        "S1601_12",
+        "S1601_13",
+        "S1601_14"
+       ],
+       "npvSuccess": 13011.6,
+       "risk": {
+        "correlation": 0.15,
+        "emv": 5871.047,
+        "independentStdDev": 2841.3876723381586,
+        "p10": 11304.758816775056,
+        "p90": 437.33518322494274,
+        "probLoss": 0.08306442292858501,
+        "stdDev": 4239.7876223276035
+       }
+      }
+     ]
+    },
+    "limit": 7200.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        160.0
+       ],
+       "emv": 177.558,
+       "weight": 44
+      },
+      {
+       "capexCandidates": [
+        394.0
+       ],
+       "emv": 363.8,
+       "weight": 109
+      },
+      {
+       "capexCandidates": [
+        554.0
+       ],
+       "emv": 541.3580000000001,
+       "weight": 153
+      },
+      {
+       "capexCandidates": [
+        694.0
+       ],
+       "emv": 639.3399999999999,
+       "weight": 193
+      },
+      {
+       "capexCandidates": [
+        854.0
+       ],
+       "emv": 816.8979999999999,
+       "weight": 237
+      },
+      {
+       "capexCandidates": [
+        857.0
+       ],
+       "emv": 1793.61,
+       "weight": 238
+      },
+      {
+       "capexCandidates": [
+        1017.0
+       ],
+       "emv": 1971.168,
+       "weight": 282
+      },
+      {
+       "capexCandidates": [
+        1251.0
+       ],
+       "emv": 2157.41,
+       "weight": 347
+      },
+      {
+       "capexCandidates": [
+        1411.0
+       ],
+       "emv": 2334.968,
+       "weight": 391
+      },
+      {
+       "capexCandidates": [
+        1551.0
+       ],
+       "emv": 2432.95,
+       "weight": 431
+      },
+      {
+       "capexCandidates": [
+        1711.0
+       ],
+       "emv": 2610.508,
+       "weight": 475
+      },
+      {
+       "capexCandidates": [
+        1945.0
+       ],
+       "emv": 2796.75,
+       "weight": 540
+      },
+      {
+       "capexCandidates": [
+        2105.0
+       ],
+       "emv": 2974.308,
+       "weight": 584
+      },
+      {
+       "capexCandidates": [
+        2252.0
+       ],
+       "emv": 3058.123,
+       "weight": 626
+      },
+      {
+       "capexCandidates": [
+        2412.0
+       ],
+       "emv": 3235.681,
+       "weight": 670
+      },
+      {
+       "capexCandidates": [
+        2573.0
+       ],
+       "emv": 3239.872,
+       "weight": 714
+      },
+      {
+       "capexCandidates": [
+        2646.0
+       ],
+       "emv": 3421.923,
+       "weight": 735
+      },
+      {
+       "capexCandidates": [
+        2806.0
+       ],
+       "emv": 3599.4809999999998,
+       "weight": 779
+      },
+      {
+       "capexCandidates": [
+        2967.0
+       ],
+       "emv": 3603.672,
+       "weight": 823
+      },
+      {
+       "capexCandidates": [
+        3065.0
+       ],
+       "emv": 3611.933,
+       "weight": 851
+      },
+      {
+       "capexCandidates": [
+        3114.0
+       ],
+       "emv": 3687.4869999999996,
+       "weight": 865
+      },
+      {
+       "capexCandidates": [
+        3154.0
+       ],
+       "emv": 3714.1969999999997,
+       "weight": 876
+      },
+      {
+       "capexCandidates": [
+        3225.0
+       ],
+       "emv": 3789.491,
+       "weight": 895
+      },
+      {
+       "capexCandidates": [
+        3274.0
+       ],
+       "emv": 3865.0449999999996,
+       "weight": 909
+      },
+      {
+       "capexCandidates": [
+        3445.0
+       ],
+       "emv": 3887.3419999999996,
+       "weight": 957
+      },
+      {
+       "capexCandidates": [
+        3475.0
+       ],
+       "emv": 3928.1839999999997,
+       "weight": 965
+      },
+      {
+       "capexCandidates": [
+        3508.0
+       ],
+       "emv": 4051.287,
+       "weight": 974
+      },
+      {
+       "capexCandidates": [
+        3620.0
+       ],
+       "emv": 4063.843,
+       "weight": 1005
+      },
+      {
+       "capexCandidates": [
+        3635.0
+       ],
+       "emv": 4105.742,
+       "weight": 1009
+      },
+      {
+       "capexCandidates": [
+        3668.0
+       ],
+       "emv": 4228.845,
+       "weight": 1018
+      },
+      {
+       "capexCandidates": [
+        3927.0
+       ],
+       "emv": 4241.297,
+       "weight": 1090
+      },
+      {
+       "capexCandidates": [
+        4016.0
+       ],
+       "emv": 4343.561,
+       "weight": 1115
+      },
+      {
+       "capexCandidates": [
+        4087.0
+       ],
+       "emv": 4418.855,
+       "weight": 1134
+      },
+      {
+       "capexCandidates": [
+        4175.0
+       ],
+       "emv": 4422.553,
+       "weight": 1159
+      },
+      {
+       "capexCandidates": [
+        4307.0
+       ],
+       "emv": 4516.706,
+       "weight": 1196
+      },
+      {
+       "capexCandidates": [
+        4337.0
+       ],
+       "emv": 4557.548,
+       "weight": 1204
+      },
+      {
+       "capexCandidates": [
+        4449.0
+       ],
+       "emv": 4570.104,
+       "weight": 1235
+      },
+      {
+       "capexCandidates": [
+        4482.0
+       ],
+       "emv": 4693.206999999999,
+       "weight": 1244
+      },
+      {
+       "capexCandidates": [
+        4497.0
+       ],
+       "emv": 4735.106,
+       "weight": 1248
+      },
+      {
+       "capexCandidates": [
+        4756.0
+       ],
+       "emv": 4747.558,
+       "weight": 1320
+      },
+      {
+       "capexCandidates": [
+        4830.0
+       ],
+       "emv": 4807.923,
+       "weight": 1341
+      },
+      {
+       "capexCandidates": [
+        4845.0
+       ],
+       "emv": 4849.822,
+       "weight": 1345
+      },
+      {
+       "capexCandidates": [
+        4901.0
+       ],
+       "emv": 4883.217,
+       "weight": 1360
+      },
+      {
+       "capexCandidates": [
+        4916.0
+       ],
+       "emv": 4925.116,
+       "weight": 1364
+      },
+      {
+       "capexCandidates": [
+        5004.0
+       ],
+       "emv": 4928.813999999999,
+       "weight": 1389
+      },
+      {
+       "capexCandidates": [
+        5121.0
+       ],
+       "emv": 4981.068,
+       "weight": 1422
+      },
+      {
+       "capexCandidates": [
+        5136.0
+       ],
+       "emv": 5022.967,
+       "weight": 1426
+      },
+      {
+       "capexCandidates": [
+        5264.0
+       ],
+       "emv": 5039.831999999999,
+       "weight": 1461
+      },
+      {
+       "capexCandidates": [
+        5311.0
+       ],
+       "emv": 5199.468,
+       "weight": 1474
+      },
+      {
+       "capexCandidates": [
+        5555.0
+       ],
+       "emv": 5212.977,
+       "weight": 1542
+      },
+      {
+       "capexCandidates": [
+        5643.0
+       ],
+       "emv": 5216.674999999999,
+       "weight": 1567
+      },
+      {
+       "capexCandidates": [
+        5659.0
+       ],
+       "emv": 5314.184,
+       "weight": 1571
+      },
+      {
+       "capexCandidates": [
+        5730.0
+       ],
+       "emv": 5389.478,
+       "weight": 1590
+      },
+      {
+       "capexCandidates": [
+        5818.0
+       ],
+       "emv": 5393.1759999999995,
+       "weight": 1615
+      },
+      {
+       "capexCandidates": [
+        5950.0
+       ],
+       "emv": 5487.329,
+       "weight": 1652
+      },
+      {
+       "capexCandidates": [
+        6078.0
+       ],
+       "emv": 5504.1939999999995,
+       "weight": 1687
+      },
+      {
+       "capexCandidates": [
+        6166.0
+       ],
+       "emv": 5507.892,
+       "weight": 1712
+      },
+      {
+       "capexCandidates": [
+        6237.0
+       ],
+       "emv": 5583.186,
+       "weight": 1731
+      },
+      {
+       "capexCandidates": [
+        6298.0
+       ],
+       "emv": 5602.045,
+       "weight": 1749
+      },
+      {
+       "capexCandidates": [
+        6369.0
+       ],
+       "emv": 5677.339,
+       "weight": 1768
+      },
+      {
+       "capexCandidates": [
+        6457.0
+       ],
+       "emv": 5681.036999999999,
+       "weight": 1793
+      },
+      {
+       "capexCandidates": [
+        6585.0
+       ],
+       "emv": 5697.902,
+       "weight": 1828
+      },
+      {
+       "capexCandidates": [
+        6717.0
+       ],
+       "emv": 5792.054999999999,
+       "weight": 1865
+      },
+      {
+       "capexCandidates": [
+        6805.0
+       ],
+       "emv": 5795.753,
+       "weight": 1890
+      },
+      {
+       "capexCandidates": [
+        6876.0
+       ],
+       "emv": 5871.047,
+       "weight": 1909
+      }
+     ],
+     "optimalEmv": 5871.047,
+     "optimalSets": [
+      {
+       "capex": 6876.0,
+       "emv": 5871.047,
+       "ids": [
+        "S1601_02",
+        "S1601_05",
+        "S1601_06",
+        "S1601_07",
+        "S1601_08",
+        "S1601_09",
+        "S1601_10",
+        "S1601_11",
+        "S1601_12",
+        "S1601_13",
+        "S1601_14"
+       ],
+       "npvSuccess": 13011.6,
+       "risk": {
+        "correlation": 0.15,
+        "emv": 5871.047,
+        "independentStdDev": 2841.3876723381586,
+        "p10": 11304.758816775056,
+        "p90": 437.33518322494274,
+        "probLoss": 0.08306442292858501,
+        "stdDev": 4239.7876223276035
+       }
+      }
+     ]
+    },
+    "resolution": 3.6,
+    "setChanged": false,
+    "weights": {
+     "S1601_01": 123,
+     "S1601_02": 193,
+     "S1601_04": 97,
+     "S1601_05": 230,
+     "S1601_06": 195,
+     "S1601_07": 178,
+     "S1601_08": 239,
+     "S1601_09": 141,
+     "S1601_10": 44,
+     "S1601_11": 226,
+     "S1601_12": 109,
+     "S1601_13": 116,
+     "S1601_14": 238,
+     "S1601_15": 155,
+     "S1601_16": 142
+    }
+   },
+   "id": "seeded16large",
+   "projects": [
+    {
+     "capex": 441.0,
+     "fail_cost": 216.5,
+     "id": "S1601_01",
+     "name": "Seed 1601 project 1",
+     "npv_p10": 358.4,
+     "npv_p50": 231.9,
+     "npv_p90": 84.9,
+     "pos": 0.56
+    },
+    {
+     "capex": 694.0,
+     "fail_cost": 220.7,
+     "id": "S1601_02",
+     "name": "Seed 1601 project 2",
+     "npv_p10": 1489.6,
+     "npv_p50": 973.8,
+     "npv_p90": 381.1,
+     "pos": 0.72
+    },
+    {
+     "capex": 602.0,
+     "fail_cost": 451.3,
+     "id": "S1601_03",
+     "name": "Seed 1601 project 3",
+     "npv_p10": 1690.9,
+     "npv_p50": 972.0,
+     "npv_p90": 457.4,
+     "pos": 0.15
+    },
+    {
+     "capex": 348.0,
+     "fail_cost": 118.0,
+     "id": "S1601_04",
+     "name": "Seed 1601 project 4",
+     "npv_p10": 638.0,
+     "npv_p50": 449.6,
+     "npv_p90": 177.7,
+     "pos": 0.41
+    },
+    {
+     "capex": 829.0,
+     "fail_cost": 346.0,
+     "id": "S1601_05",
+     "name": "Seed 1601 project 5",
+     "npv_p10": 2304.2,
+     "npv_p50": 1325.1,
+     "npv_p90": 438.7,
+     "pos": 0.51
+    },
+    {
+     "capex": 701.0,
+     "fail_cost": 534.0,
+     "id": "S1601_06",
+     "name": "Seed 1601 project 6",
+     "npv_p10": 2271.1,
+     "npv_p50": 1430.7,
+     "npv_p90": 903.2,
+     "pos": 0.59
+    },
+    {
+     "capex": 639.0,
+     "fail_cost": 202.5,
+     "id": "S1601_07",
+     "name": "Seed 1601 project 7",
+     "npv_p10": 1464.0,
+     "npv_p50": 1122.8,
+     "npv_p90": 679.3,
+     "pos": 0.37
+    },
+    {
+     "capex": 862.0,
+     "fail_cost": 600.3,
+     "id": "S1601_08",
+     "name": "Seed 1601 project 8",
+     "npv_p10": 2696.0,
+     "npv_p50": 1961.5,
+     "npv_p90": 1002.0,
+     "pos": 0.48
+    },
+    {
+     "capex": 507.0,
+     "fail_cost": 388.0,
+     "id": "S1601_09",
+     "name": "Seed 1601 project 9",
+     "npv_p10": 522.2,
+     "npv_p50": 321.4,
+     "npv_p90": 223.4,
+     "pos": 0.82
+    },
+    {
+     "capex": 160.0,
+     "fail_cost": 39.6,
+     "id": "S1601_10",
+     "name": "Seed 1601 project 10",
+     "npv_p10": 625.2,
+     "npv_p50": 386.2,
+     "npv_p90": 181.8,
+     "pos": 0.51
+    },
+    {
+     "capex": 814.0,
+     "fail_cost": 335.9,
+     "id": "S1601_11",
+     "name": "Seed 1601 project 11",
+     "npv_p10": 2074.1,
+     "npv_p50": 1403.8,
+     "npv_p90": 865.3,
+     "pos": 0.46
+    },
+    {
+     "capex": 394.0,
+     "fail_cost": 92.5,
+     "id": "S1601_12",
+     "name": "Seed 1601 project 12",
+     "npv_p10": 1158.3,
+     "npv_p50": 785.0,
+     "npv_p90": 464.2,
+     "pos": 0.52
+    },
+    {
+     "capex": 419.0,
+     "fail_cost": 288.3,
+     "id": "S1601_13",
+     "name": "Seed 1601 project 13",
+     "npv_p10": 1862.8,
+     "npv_p50": 1078.3,
+     "npv_p90": 671.9,
+     "pos": 0.35
+    },
+    {
+     "capex": 857.0,
+     "fail_cost": 639.6,
+     "id": "S1601_14",
+     "name": "Seed 1601 project 14",
+     "npv_p10": 3298.1,
+     "npv_p50": 2223.0,
+     "npv_p90": 1305.3,
+     "pos": 0.85
+    },
+    {
+     "capex": 558.0,
+     "fail_cost": 287.8,
+     "id": "S1601_15",
+     "name": "Seed 1601 project 15",
+     "npv_p10": 514.3,
+     "npv_p50": 355.5,
+     "npv_p90": 198.2,
+     "pos": 0.58
+    },
+    {
+     "capex": 510.0,
+     "fail_cost": 307.4,
+     "id": "S1601_16",
+     "name": "Seed 1601 project 16",
+     "npv_p10": 751.1,
+     "npv_p50": 460.6,
+     "npv_p90": 297.1,
+     "pos": 0.53
+    }
+   ]
+  },
+  {
+   "capexLimit": 900,
+   "correlation": 0,
+   "description": "mulberry32 seed 1602: sixteen integer projects with capex 10 to 200, limit 900, exact grid.",
+   "expected": {
+    "cells": 900,
+    "exact": {
+     "optimalEmv": 710.3620000000001,
+     "optimalSets": [
+      {
+       "capex": 894.0,
+       "emv": 710.3620000000001,
+       "ids": [
+        "S1602_03",
+        "S1602_05",
+        "S1602_08",
+        "S1602_10",
+        "S1602_11",
+        "S1602_12",
+        "S1602_13",
+        "S1602_15"
+       ],
+       "npvSuccess": 1376.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 710.3620000000001,
+        "independentStdDev": 414.07977468045806,
+        "p10": 1241.0466392304752,
+        "p90": 179.67736076952497,
+        "probLoss": 0.04312499575678874,
+        "stdDev": 414.07977468045806
+       }
+      }
+     ]
+    },
+    "limit": 900.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        50.0
+       ],
+       "emv": 31.534000000000002,
+       "weight": 50
+      },
+      {
+       "capexCandidates": [
+        84.0
+       ],
+       "emv": 68.62,
+       "weight": 84
+      },
+      {
+       "capexCandidates": [
+        90.0
+       ],
+       "emv": 88.94500000000001,
+       "weight": 90
+      },
+      {
+       "capexCandidates": [
+        130.0
+       ],
+       "emv": 106.208,
+       "weight": 130
+      },
+      {
+       "capexCandidates": [
+        140.0
+       ],
+       "emv": 120.47900000000001,
+       "weight": 140
+      },
+      {
+       "capexCandidates": [
+        174.0
+       ],
+       "emv": 157.565,
+       "weight": 174
+      },
+      {
+       "capexCandidates": [
+        192.0
+       ],
+       "emv": 207.235,
+       "weight": 192
+      },
+      {
+       "capexCandidates": [
+        242.0
+       ],
+       "emv": 238.76900000000003,
+       "weight": 242
+      },
+      {
+       "capexCandidates": [
+        276.0
+       ],
+       "emv": 275.855,
+       "weight": 276
+      },
+      {
+       "capexCandidates": [
+        282.0
+       ],
+       "emv": 296.18,
+       "weight": 282
+      },
+      {
+       "capexCandidates": [
+        322.0
+       ],
+       "emv": 313.44300000000004,
+       "weight": 322
+      },
+      {
+       "capexCandidates": [
+        332.0
+       ],
+       "emv": 327.71400000000006,
+       "weight": 332
+      },
+      {
+       "capexCandidates": [
+        366.0
+       ],
+       "emv": 364.8,
+       "weight": 366
+      },
+      {
+       "capexCandidates": [
+        406.0
+       ],
+       "emv": 382.06300000000005,
+       "weight": 406
+      },
+      {
+       "capexCandidates": [
+        412.0
+       ],
+       "emv": 402.38800000000003,
+       "weight": 412
+      },
+      {
+       "capexCandidates": [
+        451.0
+       ],
+       "emv": 406.185,
+       "weight": 451
+      },
+      {
+       "capexCandidates": [
+        452.0
+       ],
+       "emv": 406.40500000000003,
+       "weight": 452
+      },
+      {
+       "capexCandidates": [
+        456.0
+       ],
+       "emv": 413.59700000000004,
+       "weight": 456
+      },
+      {
+       "capexCandidates": [
+        462.0
+       ],
+       "emv": 433.922,
+       "weight": 462
+      },
+      {
+       "capexCandidates": [
+        496.0
+       ],
+       "emv": 471.00800000000004,
+       "weight": 496
+      },
+      {
+       "capexCandidates": [
+        536.0
+       ],
+       "emv": 475.02500000000003,
+       "weight": 536
+      },
+      {
+       "capexCandidates": [
+        542.0
+       ],
+       "emv": 495.35,
+       "weight": 542
+      },
+      {
+       "capexCandidates": [
+        546.0
+       ],
+       "emv": 502.54200000000003,
+       "weight": 546
+      },
+      {
+       "capexCandidates": [
+        581.0
+       ],
+       "emv": 512.393,
+       "weight": 581
+      },
+      {
+       "capexCandidates": [
+        586.0
+       ],
+       "emv": 515.91,
+       "weight": 586
+      },
+      {
+       "capexCandidates": [
+        592.0
+       ],
+       "emv": 526.884,
+       "weight": 592
+      },
+      {
+       "capexCandidates": [
+        620.0
+       ],
+       "emv": 532.878,
+       "weight": 620
+      },
+      {
+       "capexCandidates": [
+        626.0
+       ],
+       "emv": 563.97,
+       "weight": 626
+      },
+      {
+       "capexCandidates": [
+        676.0
+       ],
+       "emv": 595.504,
+       "weight": 676
+      },
+      {
+       "capexCandidates": [
+        711.0
+       ],
+       "emv": 605.355,
+       "weight": 711
+      },
+      {
+       "capexCandidates": [
+        716.0
+       ],
+       "emv": 608.8720000000001,
+       "weight": 716
+      },
+      {
+       "capexCandidates": [
+        736.0
+       ],
+       "emv": 611.4060000000001,
+       "weight": 736
+      },
+      {
+       "capexCandidates": [
+        750.0
+       ],
+       "emv": 625.84,
+       "weight": 750
+      },
+      {
+       "capexCandidates": [
+        761.0
+       ],
+       "emv": 636.889,
+       "weight": 761
+      },
+      {
+       "capexCandidates": [
+        766.0
+       ],
+       "emv": 640.4060000000001,
+       "weight": 766
+      },
+      {
+       "capexCandidates": [
+        770.0
+       ],
+       "emv": 648.4920000000001,
+       "weight": 770
+      },
+      {
+       "capexCandidates": [
+        801.0
+       ],
+       "emv": 650.2570000000001,
+       "weight": 801
+      },
+      {
+       "capexCandidates": [
+        820.0
+       ],
+       "emv": 680.0260000000001,
+       "weight": 820
+      },
+      {
+       "capexCandidates": [
+        851.0
+       ],
+       "emv": 681.791,
+       "weight": 851
+      },
+      {
+       "capexCandidates": [
+        855.0
+       ],
+       "emv": 689.8770000000001,
+       "weight": 855
+      },
+      {
+       "capexCandidates": [
+        860.0
+       ],
+       "emv": 693.394,
+       "weight": 860
+      },
+      {
+       "capexCandidates": [
+        894.0
+       ],
+       "emv": 710.3620000000001,
+       "weight": 894
+      }
+     ],
+     "optimalEmv": 710.3620000000001,
+     "optimalSets": [
+      {
+       "capex": 894.0,
+       "emv": 710.3620000000001,
+       "ids": [
+        "S1602_03",
+        "S1602_05",
+        "S1602_08",
+        "S1602_10",
+        "S1602_11",
+        "S1602_12",
+        "S1602_13",
+        "S1602_15"
+       ],
+       "npvSuccess": 1376.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 710.3620000000001,
+        "independentStdDev": 414.07977468045806,
+        "p10": 1241.0466392304752,
+        "p90": 179.67736076952497,
+        "probLoss": 0.04312499575678874,
+        "stdDev": 414.07977468045806
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "S1602_01": 85,
+     "S1602_02": 75,
+     "S1602_03": 130,
+     "S1602_05": 84,
+     "S1602_06": 168,
+     "S1602_08": 130,
+     "S1602_09": 90,
+     "S1602_10": 74,
+     "S1602_11": 90,
+     "S1602_12": 192,
+     "S1602_13": 144,
+     "S1602_14": 180,
+     "S1602_15": 50
+    }
+   },
+   "id": "seeded16exact",
+   "projects": [
+    {
+     "capex": 85.0,
+     "fail_cost": 18.6,
+     "id": "S1602_01",
+     "name": "Seed 1602 project 1",
+     "npv_p10": 162.9,
+     "npv_p50": 120.9,
+     "npv_p90": 42.5,
+     "pos": 0.43
+    },
+    {
+     "capex": 75.0,
+     "fail_cost": 25.9,
+     "id": "S1602_02",
+     "name": "Seed 1602 project 2",
+     "npv_p10": 253.9,
+     "npv_p50": 165.2,
+     "npv_p90": 60.0,
+     "pos": 0.16
+    },
+    {
+     "capex": 130.0,
+     "fail_cost": 48.7,
+     "id": "S1602_03",
+     "name": "Seed 1602 project 3",
+     "npv_p10": 376.8,
+     "npv_p50": 249.2,
+     "npv_p90": 116.9,
+     "pos": 0.52
+    },
+    {
+     "capex": 56.0,
+     "fail_cost": 44.3,
+     "id": "S1602_04",
+     "name": "Seed 1602 project 4",
+     "npv_p10": 118.0,
+     "npv_p50": 66.5,
+     "npv_p90": 25.6,
+     "pos": 0.3
+    },
+    {
+     "capex": 84.0,
+     "fail_cost": 61.1,
+     "id": "S1602_05",
+     "name": "Seed 1602 project 5",
+     "npv_p10": 118.7,
+     "npv_p50": 76.9,
+     "npv_p90": 43.9,
+     "pos": 0.94
+    },
+    {
+     "capex": 168.0,
+     "fail_cost": 129.1,
+     "id": "S1602_06",
+     "name": "Seed 1602 project 6",
+     "npv_p10": 525.2,
+     "npv_p50": 293.6,
+     "npv_p90": 179.5,
+     "pos": 0.46
+    },
+    {
+     "capex": 67.0,
+     "fail_cost": 44.8,
+     "id": "S1602_07",
+     "name": "Seed 1602 project 7",
+     "npv_p10": 41.2,
+     "npv_p50": 28.7,
+     "npv_p90": 18.0,
+     "pos": 0.34
+    },
+    {
+     "capex": 130.0,
+     "fail_cost": 100.3,
+     "id": "S1602_08",
+     "name": "Seed 1602 project 8",
+     "npv_p10": 275.1,
+     "npv_p50": 171.9,
+     "npv_p90": 105.2,
+     "pos": 0.71
+    },
+    {
+     "capex": 90.0,
+     "fail_cost": 28.5,
+     "id": "S1602_09",
+     "name": "Seed 1602 project 9",
+     "npv_p10": 209.9,
+     "npv_p50": 121.3,
+     "npv_p90": 45.9,
+     "pos": 0.49
+    },
+    {
+     "capex": 74.0,
+     "fail_cost": 15.7,
+     "id": "S1602_10",
+     "name": "Seed 1602 project 10",
+     "npv_p10": 79.6,
+     "npv_p50": 52.0,
+     "npv_p90": 16.8,
+     "pos": 0.68
+    },
+    {
+     "capex": 90.0,
+     "fail_cost": 46.3,
+     "id": "S1602_11",
+     "name": "Seed 1602 project 11",
+     "npv_p10": 271.3,
+     "npv_p50": 199.6,
+     "npv_p90": 131.8,
+     "pos": 0.55
+    },
+    {
+     "capex": 192.0,
+     "fail_cost": 128.1,
+     "id": "S1602_12",
+     "name": "Seed 1602 project 12",
+     "npv_p10": 680.3,
+     "npv_p50": 387.8,
+     "npv_p90": 159.6,
+     "pos": 0.65
+    },
+    {
+     "capex": 144.0,
+     "fail_cost": 114.4,
+     "id": "S1602_13",
+     "name": "Seed 1602 project 13",
+     "npv_p10": 221.4,
+     "npv_p50": 137.4,
+     "npv_p90": 68.9,
+     "pos": 0.79
+    },
+    {
+     "capex": 180.0,
+     "fail_cost": 52.2,
+     "id": "S1602_14",
+     "name": "Seed 1602 project 14",
+     "npv_p10": 466.4,
+     "npv_p50": 303.3,
+     "npv_p90": 109.8,
+     "pos": 0.3
+    },
+    {
+     "capex": 50.0,
+     "fail_cost": 35.4,
+     "id": "S1602_15",
+     "name": "Seed 1602 project 15",
+     "npv_p10": 140.2,
+     "npv_p50": 101.2,
+     "npv_p90": 70.7,
+     "pos": 0.49
+    },
+    {
+     "capex": 133.0,
+     "fail_cost": 68.8,
+     "id": "S1602_16",
+     "name": "Seed 1602 project 16",
+     "npv_p10": 173.2,
+     "npv_p50": 118.0,
+     "npv_p90": 75.9,
+     "pos": 0.24
+    }
+   ]
+  }
+ ],
+ "projectEmv": [
+  {
+   "description": "Suite: pos and fail_cost absent; EMV is the NPV (250).",
+   "expected": {
+    "emv": 250.0
+   },
+   "id": "unrisked",
+   "project": {
+    "capex": 100,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 250
+   }
+  },
+  {
+   "description": "Suite: 0.3 * 300 minus 0.7 * 50 = 55.",
+   "expected": {
+    "emv": 54.99999999999999
+   },
+   "id": "risked",
+   "project": {
+    "capex": 100,
+    "fail_cost": 50,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 300,
+    "pos": 0.3
+   }
+  },
+  {
+   "description": "pos 1.4 is clamped to 1; EMV is the NPV.",
+   "expected": {
+    "emv": 80.0
+   },
+   "id": "posAboveOneClamps",
+   "project": {
+    "capex": 10,
+    "fail_cost": 30,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": 1.4
+   }
+  },
+  {
+   "description": "pos -0.2 is clamped to 0; EMV is minus the fail cost.",
+   "expected": {
+    "emv": -30.0
+   },
+   "id": "posBelowZeroClamps",
+   "project": {
+    "capex": 10,
+    "fail_cost": 30,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": -0.2
+   }
+  },
+  {
+   "description": "A negative fail cost is 0.",
+   "expected": {
+    "emv": 40.0
+   },
+   "id": "negativeFailCostIsZero",
+   "project": {
+    "capex": 10,
+    "fail_cost": -30,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": 0.5
+   }
+  },
+  {
+   "description": "No NPV at all; EMV is minus (1 minus pos) times the fail cost.",
+   "expected": {
+    "emv": -6.0
+   },
+   "id": "missingNpvIsZero",
+   "project": {
+    "capex": 10,
+    "fail_cost": 8,
+    "id": "a",
+    "pos": 0.25
+   }
+  },
+  {
+   "description": "A non-numeric pos is the default 1.",
+   "expected": {
+    "emv": 80.0
+   },
+   "id": "nonNumericPosIsDefault",
+   "project": {
+    "capex": 10,
+    "fail_cost": 30,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": "n/a"
+   }
+  },
+  {
+   "description": "pos 0; EMV is exactly minus the fail cost.",
+   "expected": {
+    "emv": -30.0
+   },
+   "id": "posZero",
+   "project": {
+    "capex": 10,
+    "fail_cost": 30,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": 0
+   }
+  }
+ ],
+ "projectMoments": [
+  {
+   "description": "Suite: pos 0.5, success N(100, 20), failure -40: mean 30, variance 5100.",
+   "expected": {
+    "mean": 30.0,
+    "variance": 5100.0
+   },
+   "id": "mixture",
+   "project": {
+    "fail_cost": 40,
+    "npv_p50": 100,
+    "npv_stddev": 20,
+    "pos": 0.5
+   }
+  },
+  {
+   "description": "Suite: a sure project with no spread has zero variance.",
+   "expected": {
+    "mean": 100.0,
+    "variance": 0.0
+   },
+   "id": "sure",
+   "project": {
+    "npv_p50": 100
+   }
+  },
+  {
+   "description": "pos 0.6 with P10 / P90 spread and a fail cost.",
+   "expected": {
+    "mean": 58.0,
+    "variance": 7556.095581072796
+   },
+   "id": "percentileRisked",
+   "project": {
+    "fail_cost": 35,
+    "npv_p10": 200,
+    "npv_p50": 120,
+    "npv_p90": 60,
+    "pos": 0.6
+   }
+  },
+  {
+   "description": "pos 0: a point mass at minus the fail cost; zero variance.",
+   "expected": {
+    "mean": -35.0,
+    "variance": 0.0
+   },
+   "id": "failureOnly",
+   "project": {
+    "fail_cost": 35,
+    "npv_p50": 120,
+    "npv_stddev": 30,
+    "pos": 0
+   }
+  },
+  {
+   "description": "pos 0.5 with no success spread: variance is the Bernoulli spread ((mu + c)^2 / 4).",
+   "expected": {
+    "mean": 20.0,
+    "variance": 1600.0
+   },
+   "id": "binaryNoSpread",
+   "project": {
+    "fail_cost": 20,
+    "npv_p50": 60,
+    "pos": 0.5
+   }
+  }
+ ],
+ "riskMetrics": [
+  {
+   "correlation": 0,
+   "description": "Suite: means 30 + 50 = 80, variances 5100 + 100, P(loss) = Phi(minus 80 / sqrt 5200).",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 80.0,
+    "independentStdDev": 72.11102550927978,
+    "p10": 172.41749029269297,
+    "p90": -12.417490292692975,
+    "probLoss": 0.13362874657719392,
+    "stdDev": 72.11102550927978
+   },
+   "id": "suiteIndependent",
+   "selected": [
+    {
+     "fail_cost": 40,
+     "npv_p50": 100,
+     "npv_stddev": 20,
+     "pos": 0.5
+    },
+    {
+     "npv_p50": 50,
+     "npv_stddev": 10
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "Suite: a sure profitable project has zero loss probability.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 10.0,
+    "independentStdDev": 0.0,
+    "p10": 10.0,
+    "p90": 10.0,
+    "probLoss": 0.0,
+    "stdDev": 0.0
+   },
+   "id": "deterministicProfit",
+   "selected": [
+    {
+     "npv_p50": 10
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "A sure loss with zero spread has loss probability 1.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": -10.0,
+    "independentStdDev": 0.0,
+    "p10": -10.0,
+    "p90": -10.0,
+    "probLoss": 1.0,
+    "stdDev": 0.0
+   },
+   "id": "deterministicLoss",
+   "selected": [
+    {
+     "npv_p50": -10
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "No projects: everything 0.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 0.0,
+    "independentStdDev": 0.0,
+    "p10": 0.0,
+    "p90": 0.0,
+    "probLoss": 0.0,
+    "stdDev": 0.0
+   },
+   "id": "empty",
+   "selected": []
+  },
+  {
+   "correlation": 0,
+   "description": "A portfolio whose mean is negative with spread: P(loss) above one half.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 27.0,
+    "independentStdDev": 45.50824101193101,
+    "p10": 85.3233616808908,
+    "p90": -31.32336168089079,
+    "probLoss": 0.2764904889885104,
+    "stdDev": 45.50824101193101
+   },
+   "id": "expectedLoss",
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 40,
+     "npv_stddev": 30,
+     "pos": 0.3
+    },
+    {
+     "npv_p50": 50,
+     "npv_stddev": 10
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "Suite E5 pair (100 / 160 / 40 and 80 / 130 / 30) at rho 0.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 258.10554394789096,
+    "p90": 101.89445605210902,
+    "probLoss": 0.0015707495770913016,
+    "stdDev": 60.94377648867898
+   },
+   "id": "correlation_0",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 0.25,
+   "description": "Suite E5 pair (100 / 160 / 40 and 80 / 130 / 30) at rho 0.25.",
+   "expected": {
+    "correlation": 0.25,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 267.1813801418864,
+    "p90": 92.81861985811358,
+    "probLoss": 0.0040716529356796816,
+    "stdDev": 68.02542145902498
+   },
+   "id": "correlation_0p25",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 0.5,
+   "description": "Suite E5 pair (100 / 160 / 40 and 80 / 130 / 30) at rho 0.5.",
+   "expected": {
+    "correlation": 0.5,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 275.397641959811,
+    "p90": 84.60235804018902,
+    "probLoss": 0.0077993297957903995,
+    "stdDev": 74.43636232819209
+   },
+   "id": "correlation_0p5",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 0.6,
+   "description": "Suite E5 pair (100 / 160 / 40 and 80 / 130 / 30) at rho 0.6.",
+   "expected": {
+    "correlation": 0.6,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 278.49242057494354,
+    "p90": 81.50757942505646,
+    "probLoss": 0.009585466544011878,
+    "stdDev": 76.85113964961262
+   },
+   "id": "correlation_0p6",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 0.75,
+   "description": "Suite E5 pair (100 / 160 / 40 and 80 / 130 / 30) at rho 0.75.",
+   "expected": {
+    "correlation": 0.75,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 282.9603182762197,
+    "p90": 77.03968172378026,
+    "probLoss": 0.012527537765527452,
+    "stdDev": 80.33732699455348
+   },
+   "id": "correlation_0p75",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 0.8,
+   "description": "Suite E5 pair (100 / 160 / 40 and 80 / 130 / 30) at rho 0.8.",
+   "expected": {
+    "correlation": 0.8,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 284.40713840130906,
+    "p90": 75.59286159869094,
+    "probLoss": 0.013569798896450547,
+    "stdDev": 81.46624407093402
+   },
+   "id": "correlation_0p8",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 1,
+   "description": "Suite E5 pair (100 / 160 / 40 and 80 / 130 / 30) at rho 1.",
+   "expected": {
+    "correlation": 1.0,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 290.0042916780461,
+    "p90": 69.99570832195387,
+    "probLoss": 0.01799316659709227,
+    "stdDev": 85.83356092232063
+   },
+   "id": "correlation_1",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 5,
+   "description": "Suite: rho 5 is clamped to 1.",
+   "expected": {
+    "correlation": 1.0,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 290.0042916780461,
+    "p90": 69.99570832195387,
+    "probLoss": 0.01799316659709227,
+    "stdDev": 85.83356092232063
+   },
+   "id": "clampAbove",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": -3,
+   "description": "Suite: rho -3 is clamped to 0.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 258.10554394789096,
+    "p90": 101.89445605210902,
+    "probLoss": 0.0015707495770913016,
+    "stdDev": 60.94377648867898
+   },
+   "id": "clampBelow",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": "NaN",
+   "description": "Suite: a non-numeric rho is 0 (the gate passes NaN for the string).",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 180.0,
+    "independentStdDev": 60.94377648867898,
+    "p10": 258.10554394789096,
+    "p90": 101.89445605210902,
+    "probLoss": 0.0015707495770913016,
+    "stdDev": 60.94377648867898
+   },
+   "id": "nanIsZero",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 0.9,
+   "description": "Suite: one project has nothing to correlate with; rho 0.9 changes nothing.",
+   "expected": {
+    "correlation": 0.9,
+    "emv": 100.0,
+    "independentStdDev": 46.818305957629434,
+    "p10": 160.00234091529788,
+    "p90": 39.997659084702114,
+    "probLoss": 0.0163431034285364,
+    "stdDev": 46.818305957629434
+   },
+   "id": "singleProject",
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 0.35,
+   "description": "Three risked projects with mixed spreads at rho 0.35.",
+   "expected": {
+    "correlation": 0.35,
+    "emv": 138.0,
+    "independentStdDev": 112.94288636772481,
+    "p10": 310.9442967721624,
+    "p90": -34.9442967721624,
+    "probLoss": 0.15323761677854053,
+    "stdDev": 134.94405178851622
+   },
+   "id": "threeRisked",
+   "selected": [
+    {
+     "fail_cost": 40,
+     "npv_p50": 100,
+     "npv_stddev": 20,
+     "pos": 0.5
+    },
+    {
+     "fail_cost": 35,
+     "npv_p10": 200,
+     "npv_p50": 120,
+     "npv_p90": 60,
+     "pos": 0.6
+    },
+    {
+     "npv_p50": 50,
+     "npv_stddev": 10
+    }
+   ]
+  }
+ ],
+ "successStdDev": [
+  {
+   "description": "Suite: npv_stddev 40 wins over the percentiles.",
+   "expected": {
+    "sd": 40.0
+   },
+   "id": "explicitStddev",
+   "project": {
+    "npv_p10": 200,
+    "npv_p90": 50,
+    "npv_stddev": 40
+   }
+  },
+  {
+   "description": "Suite: (200 minus 50) / 2.5631.",
+   "expected": {
+    "sd": 58.52288244703679
+   },
+   "id": "percentileFallback",
+   "project": {
+    "npv_p10": 200,
+    "npv_p90": 50
+   }
+  },
+  {
+   "description": "Suite: nothing entered; 0.",
+   "expected": {
+    "sd": 0.0
+   },
+   "id": "neither",
+   "project": {}
+  },
+  {
+   "description": "P10 below P90 is not a spread; 0.",
+   "expected": {
+    "sd": 0.0
+   },
+   "id": "invertedPercentiles",
+   "project": {
+    "npv_p10": 50,
+    "npv_p90": 200
+   }
+  },
+  {
+   "description": "P10 equal to P90; 0.",
+   "expected": {
+    "sd": 0.0
+   },
+   "id": "equalPercentiles",
+   "project": {
+    "npv_p10": 50,
+    "npv_p90": 50
+   }
+  },
+  {
+   "description": "npv_stddev 0 is not positive, so the percentiles are used.",
+   "expected": {
+    "sd": 58.52288244703679
+   },
+   "id": "zeroStddevFallsBack",
+   "project": {
+    "npv_p10": 200,
+    "npv_p90": 50,
+    "npv_stddev": 0
+   }
+  },
+  {
+   "description": "A negative npv_stddev is ignored in favour of the percentiles.",
+   "expected": {
+    "sd": 39.015254964691195
+   },
+   "id": "negativeStddevFallsBack",
+   "project": {
+    "npv_p10": 120,
+    "npv_p90": 20,
+    "npv_stddev": -5
+   }
+  }
+ ]
+}
