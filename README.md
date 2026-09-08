@@ -338,6 +338,57 @@ and its consumers.
   written by `tools/validation/wellsite/gen_report_day.py` with the
   expected counts worked by hand in the test-data README.
 
+- `engines/economics/` — the Economics module (EC0 extraction wave,
+  2026-09-08; plan of record in the Suite at
+  docs/scope/NextGen-Remaining-Courses-PLAN.md section 8, which gated
+  every Economics course on this extraction). Twelve modules, every one
+  VERBATIM from the Suite with only imports repointed, each with a
+  stdlib python oracle under `tools/validation/economics/` and goldens
+  under `test-data/economics/goldens/`: `cashflow.ts` (the Petroleum
+  Economics Studio cash flow engine, v3.9.0: JV, PSC with cost-recovery
+  carryforward, tranches and ITC, the Nigerian PIA 2021 cascade and the
+  NTA 2025 framework switch, allowances with volume caps, CPR
+  forfeiture, tax-loss carryforward, economic limit, abandonment,
+  decision KPIs, breakeven price; year-end discounting on a real or
+  nominal basis) and `montecarlo.ts` (the seeded Monte Carlo over it),
+  both TypeScript like `engines/mbal` because they are DEPLOYED AS
+  SUPABASE EDGE FUNCTIONS and bundle through the Suite's shims;
+  `screening.js` (the client screening economics: exponential decline,
+  JV / PSC, straight-line depreciation, MID-YEAR discounting,
+  sensitivity, scenarios); `fiscalRegime.js` + `fiscalTemplates.js`
+  (the Fiscal Regime Designer: concession, PSC with a cost pool, sliding
+  royalty, R-factor tranches, RRT with uplift, bisection IRR, regime
+  comparison and insights); `breakeven.js` (bisection breakeven price
+  and the seeded probabilistic breakeven); `decisionTree.js` (EMV
+  rollback, EVPI, Bayes-derived EVII, implied priors, information
+  trees), `voi.js` (the VOI Analyzer over it) and `portfolio.js`
+  (risked-EMV 0/1 knapsack on a capex grid, efficient frontier, mixture
+  moments, correlated portfolio variance); `fdp/` (the FDP Accelerator's
+  twelve calculation modules: case economics through screening.js,
+  costs, scenarios, concepts, subsurface, wells, facilities, HSE, risks,
+  schedule, completeness); `afe.js` (partner cost split with the
+  validity rule, AFE cost-control metrics and the S-curve) and
+  `projectControls.js` (earned value). The oracles reach every number by
+  a different road (closed-form declines, bracket-scan IRR, exact
+  rational rollback, brute-force knapsack over all subsets, a second CPM
+  pass, mulberry32 replicated in uint32 arithmetic so seeded samples
+  reproduce element for element) and compute EVERY reported summary.
+  Where engine and oracle disagree the golden carries BOTH numbers and
+  the gate pins the gap; the four `FINDINGS-*.md` files record them for
+  the owner (the screening IRR reports its 1000 percent Newton clamp as
+  the answer on profiles whose only root is negative or beyond the
+  clamp; the knapsack grid can pick a set over the limit or 23 percent
+  short; `calculateCPM` is a passthrough; the NPV profile point at the
+  applied rate is evaluated at a rate rounded to two decimals).
+- `lib/stats/` — the canonical Monte Carlo sampling primitives and
+  descriptive statistics (the Suite's src/lib/monteCarlo.js with
+  simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
+  POPULATION standard deviation, the quantile rule; pinned against the
+  real library in `test-data/stats/`). `lib/dates/` is the date-fns
+  4.1.0 subset the economics modules use (parseISO, isValid,
+  differenceInDays, addDays, light `format` tokens), pinned against the
+  real library in `test-data/dates/`; UTC assumed.
+
 ## Consumption (git subtree)
 
 Both consumers vendor this repo at `packages/engines/`:
@@ -365,6 +416,10 @@ promotion) remains Suite-side at tools/validation/mbal-validation.ts and
 runs against this vendored engine through the Suite shim; __tests__/mbal
 carries the portable literature anchors (Pletcher SPE 75354, Ahmed
 Ex. 10-10 and 11-1).
+`engines/economics/cashflow.ts` and `montecarlo.ts` (2026-09-08) follow the
+same rule for the same reason: they are bundled into the Suite's
+epe-cash-flow-engine, epe-cash-flow-engine-batch and epe-monte-carlo edge
+functions through one-line shims at supabase/functions/_shared/.
 
 ## Moved from petrolord-suite (N1 log)
 
@@ -391,6 +446,20 @@ Ex. 10-10 and 11-1).
 | `engines/scal/fractionalFlow.js` | `src/utils/fractionalFlowCalculations.js` |
 | `engines/scal/scal.js` | `src/utils/scalCalculations.js` |
 | `lib/welltest/lmFit.js` | `src/utils/welltest/lmFit.js` |
+| `engines/economics/cashflow.ts` | `supabase/functions/_shared/epe-engine.ts` (edge-function engine; the Suite path is a re-export shim bundled into three epe edge functions) |
+| `engines/economics/montecarlo.ts` | `supabase/functions/_shared/epe-mc.ts` (same shim arrangement) |
+| `test-data/economics/fixtures/pia-worked-example.json` | `tools/validation/fixtures/epe-pia-worked-example.ts` (the TS fixture stays in the Suite for its harness) |
+| `engines/economics/screening.js` | `src/utils/npvCalculations.js` (`quantile` now from lib/stats) |
+| `engines/economics/fiscalRegime.js`, `fiscalTemplates.js` | `src/utils/fiscalDesignerCalculations.js`, `src/utils/fiscalTemplates.js` |
+| `engines/economics/breakeven.js` | `src/utils/breakevenCalculations.js` |
+| `engines/economics/decisionTree.js` | `src/lib/decisionTree.js` |
+| `engines/economics/voi.js` | `src/utils/voiCalculations.js` |
+| `engines/economics/portfolio.js` | `src/utils/portfolioOptimizer.js` |
+| `engines/economics/fdp/*.js` | `src/utils/fdp/*.js` (`formatting.js` stays in the Suite, Intl-dependent; `riskModel.js` is `src/data/fdp/RiskManagementModel.js`) |
+| `engines/economics/afe.js` | `src/utils/afeServices.js` (`calculatePartnerCosts` only; PDF and Excel stay) + `src/utils/costControlCalculations.js` |
+| `engines/economics/projectControls.js` | `src/utils/projectManagementCalculations.js` |
+| `lib/stats/stats.js` | `src/lib/monteCarlo.js` (simple-statistics vendored; the Suite keeps its copy on the npm dependency for now) |
+| `lib/dates/dates.js` | date-fns subset (new) |
 | `engines/mbal/mbalEngine.ts` | `supabase/functions/_shared/mbal-engine.ts` (server engine; the Suite path is now a re-export shim bundled into the calculate-mbal edge function) |
 | `engines/mbal/lm.ts` | `supabase/functions/_shared/lm.ts` (mbal's own Levenberg-Marquardt; coexists with lib/welltest/lmFit.js for now, unification is a later cleanup) |
 | `test-data/mbal/dake-9-2.ts` | `tools/validation/fixtures/dake-9-2.ts` |
