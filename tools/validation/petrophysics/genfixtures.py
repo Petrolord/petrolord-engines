@@ -332,6 +332,32 @@ def run_oracle(tw):
                   "PAY": pay_zoned_e, "zones": zoned_zones_e},
     }
 
+    # ---- probabilistic golden (PT10c) -------------------------------------
+    # Uncertain Rw, lognormal(mean 0.05, sd 0.015), everything else at the
+    # golden set, Archie on PHIE. Sw is monotone in Rw, so the per-sample
+    # percentile curves are EXACT (Archie at the Rw quantile) and the zone
+    # net pay at each Rw quantile is the exact exceedance case: high Rw is
+    # high Sw is low net, so P90 (low) = net at the 90th percentile of Rw.
+    rw_mean, rw_sd = p["rw"], 0.015
+    rw_q = {q: oracle.lognormal_quantile(rw_mean, rw_sd, q) for q in (0.1, 0.5, 0.9)}
+    sw_q = {}
+    net_q = {name: {} for name in p["zones"]}
+    for q, rwq in rw_q.items():
+        sw_curve = [oracle.sw_archie(r, f, rwq, p["a"], p["m"], p["n"]) for r, f in zip(rt, phie)]
+        sw_q[q] = sw_curve
+        sw_c = [None if s_ is None else min(1.0, max(0.0, s_)) for s_ in sw_curve]
+        for name, (top, base) in p["zones"].items():
+            _, summ = oracle.net_pay(depth, phie, vsh, sw_c, p["cut_phi"], p["cut_vsh"], p["cut_sw"], top, base)
+            net_q[name][q] = summ["net_m"]
+    out["PROBABILISTIC"] = {
+        "case": "lognormal_rw_archie_on_phie",
+        "rw": {"type": "lognormal", "mean": rw_mean, "stdDev": rw_sd},
+        "rw_q": {"q10": rw_q[0.1], "q50": rw_q[0.5], "q90": rw_q[0.9]},
+        "SW_Q10": sw_q[0.1], "SW_Q50": sw_q[0.5], "SW_Q90": sw_q[0.9],
+        "ZONES": {name: {"net_m": {"p90": net_q[name][0.9], "p50": net_q[name][0.5], "p10": net_q[name][0.1]}}
+                  for name in p["zones"]},
+    }
+
     # ---- normalization golden (PS7) ---------------------------------------
     # The target is an exact affine distortion of GR (1.1*GR + 5), so
     # both fits must recover it and applying the fit must give GR back

@@ -741,3 +741,21 @@ def net_pay(depth, phi, vsh, sw, cut_phi, cut_vsh, cut_sw, top=None, base=None):
         "sw_avg": (ssw / net) if net > 0 else None,
     }
     return flags, out
+
+
+# ---- probabilistic (PT10c) ------------------------------------------------
+# Lognormal quantile by moment matching (Aitchison & Brown 1957, "The
+# Lognormal Distribution", ch. 2): for a lognormal with arithmetic mean m
+# and standard deviation s, mu = ln(m^2 / sqrt(m^2 + s^2)) and
+# sigma = sqrt(ln(1 + s^2 / m^2)); the q-quantile is exp(mu + sigma * z_q)
+# with z_q the standard-normal quantile (statistics.NormalDist, stdlib).
+# Because Archie's Sw is monotone increasing in Rw, the q-quantile of Sw
+# under an uncertain Rw is sw_archie at the q-quantile of Rw: an EXACT
+# reference for a Monte Carlo engine, no sampling needed.
+def lognormal_quantile(mean, sd, q):
+    from statistics import NormalDist
+    m2 = mean * mean
+    s2 = sd * sd
+    mu = math.log(m2 / math.sqrt(m2 + s2))
+    sigma = math.sqrt(math.log(1.0 + s2 / m2))
+    return math.exp(mu + sigma * NormalDist().inv_cdf(q))
