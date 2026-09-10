@@ -1,0 +1,6 @@
+{
+  "_about": "PT11a golden set for rweToRw: readings taken DIRECTLY off the Schlumberger Rw versus Rweq chart (SP-2 in current Log Interpretation Charts editions, Gen-9 in older ones), never off another implementation. Each point: rwe and rw in ohm.m, temp_f in degF, precision as a relative fraction the chart grid allows. The jest gate brackets every point to its precision; with an empty list the gate reports the readings as pending rather than passing silently. Request list (owner, 2026-09-10): at least six points, both ends of the chart, at least two temperatures, and one at 75 degF near Rwe 0.3.",
+  "citation": "Schlumberger Log Interpretation Charts, chart SP-2 (Rw versus Rweq and formation temperature); Bateman & Konen 1977, The Log Analyst 18(5) p. 3-11.",
+  "chart_temp_f_range": null,
+  "points": []
+}

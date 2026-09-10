@@ -62,6 +62,15 @@ that is only a dual implementation while the two sides stay separate.
   - `arps_75_to_150`: 0.1·(75+6.77)/(150+6.77).
   - `sp_quicklook`: K = 61+0.133·150 = 80.95;
     Rwe = 0.5·10^(−100/80.95).
+  - `bk_check_point_150f` (PT11a): A = 0.131·10^(1/log10(150/19.9)−2)
+    = 0.0181, B = 10^(0.0426/log10(150/50.8)) = 1.232,
+    Rw = (0.05+A)/(B−0.025) = 0.0564 (the owner's check point).
+  - `bk_inverse_roundtrip`: rwe_to_rw(rw_to_rwe(0.12, 200), 200) = 0.12.
+  - `bk_rmfe_x085` / `bk_rmfe_inverse`: Rmf 0.5 at 75 °F exceeds 0.1 so
+    Rmfe = 0.85·Rmf(150 °F); Rmf 0.05 goes through the chart inverse.
+  - `sp_chain_typewell`: SSP solved so the full chain returns the type
+    well's Rw = 0.05 at 150 °F; the uncorrected Rwe = 0.0425 is what
+    the pre-PT11a quicklook would have applied.
   - `simandoux/indonesia_vsh0_equals_archie`: shaly-sand models must
     degenerate exactly to Archie at Vsh = 0.
 
@@ -86,11 +95,11 @@ that is only a dual implementation while the two sides stay separate.
 
 ## Published-example anchor (RESOLVED — owner accepted 2026-07-13)
 
-The layer-4 end-to-end published worked example (plan §8 Q4) is NOT
-here yet — open web sources were login-gated/bot-blocked on
-2026-07-13 and no coefficients or citations were guessed. When the
-owner supplies a page-referenced example (e.g. Asquith & Krygowski),
-it lands as `published_case.json` beside these with its full
-citation. The SP chain is the documented QUICKLOOK approximation
-(Rmfe ≈ Rmf, Rw ≈ Rwe) until the Bateman & Konen (1977) conversion
-can be cited from the page.
+No page-referenced worked example (Asquith & Krygowski or equivalent) is
+on file yet; when the owner supplies one it lands as `published_case.json`
+beside these with its full citation. The SP chain is complete since PT11a
+(2026-09-10): Rmf -> Rmfe (0.85 rule or the chart inverse), Rwe from SSP
+and K, and Rwe -> Rw by the Bateman & Konen (1977, The Log Analyst 18(5)
+p. 3-11) fit to chart SP-2, with the limits stated in `engines/petrophysics/rw.js`.
+Chart readings for its golden gate live in `chart_points.json` (pending
+until read off the chart).

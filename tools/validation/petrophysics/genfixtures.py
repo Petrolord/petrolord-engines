@@ -418,6 +418,19 @@ def run_oracle(tw):
     return out
 
 
+def _sp_chain_typewell():
+    """SSP at T = 150 degF with Rmf = 0.5 at 75 degF (the x0.85 rule) such
+    that Rw from the full chain equals PARAMS['rw'] exactly."""
+    t_f = 150.0
+    rw = PARAMS["rw"]
+    rwe = oracle.rw_to_rwe(rw, t_f)
+    rmfe, rule = oracle.rmfe_from_rmf(0.5, 75.0, t_f)
+    ssp = -oracle.sp_k(t_f) * math.log10(rmfe / rwe)
+    chain = oracle.rw_from_ssp(ssp, 0.5, 75.0, t_f)
+    return {"in": {"ssp_mv": ssp, "rmf": 0.5, "rmf_t_f": 75.0, "t_f": t_f},
+            "rule": rule, "rmfe": rmfe, "rwe": rwe, "rw": chain["rw"]}
+
+
 def analytic_cases():
     """Hand-derivable scalar cases — derivations in the README."""
     return {
@@ -435,6 +448,17 @@ def analytic_cases():
         "rhg_matrix": {"in": {"dt": 182.0, "dt_ma": 182.0}, "out": oracle.phi_sonic_rhg(182.0, 182.0)},
         "arps_75_to_150": {"in": {"rw1": 0.1, "t1_f": 75.0, "t2_f": 150.0}, "out": oracle.rw_arps(0.1, 75.0, 150.0)},
         "sp_quicklook": {"in": {"ssp_mv": -100.0, "rmfe": 0.5, "temp_f": 150.0}, "out": oracle.rwe_from_ssp(-100.0, 0.5, 150.0)},
+        # PT11a: Bateman & Konen (1977) Rwe -> Rw (SP-2 chart fit)
+        "bk_check_point_150f": {"in": {"rwe": 0.05, "t_f": 150.0}, "out": oracle.rwe_to_rw(0.05, 150.0)},
+        "bk_fresh_band_150f": {"in": {"rwe": 0.30, "t_f": 150.0}, "out": oracle.rwe_to_rw(0.30, 150.0)},
+        "bk_75f_0p3": {"in": {"rwe": 0.30, "t_f": 75.0}, "out": oracle.rwe_to_rw(0.30, 75.0)},
+        "bk_inverse_roundtrip": {"in": {"rw": 0.12, "t_f": 200.0},
+                                 "out": oracle.rwe_to_rw(oracle.rw_to_rwe(0.12, 200.0), 200.0)},
+        "bk_rmfe_x085": {"in": {"rmf": 0.5, "rmf_t_f": 75.0, "t_f": 150.0}, "out": oracle.rmfe_from_rmf(0.5, 75.0, 150.0)[0]},
+        "bk_rmfe_inverse": {"in": {"rmf": 0.05, "rmf_t_f": 75.0, "t_f": 150.0}, "out": oracle.rmfe_from_rmf(0.05, 75.0, 150.0)[0]},
+        # the type-well SP case: SSP chosen so the chain returns the golden
+        # rw exactly; the uncorrected Rwe is what the quicklook used to apply
+        "sp_chain_typewell": _sp_chain_typewell(),
         "simandoux_vsh0_equals_archie": {
             "in": {"rt": 8.0, "phi": 0.18, "rw": 0.05},
             "simandoux": oracle.sw_simandoux(8.0, 0.18, 0.05, 0.0, 2.0),
@@ -552,6 +576,14 @@ def assert_anchors(tw, goldens):
         assert abs(got - chart) / chart < 0.10, f"Rw fit at {ppm} ppm: {got} vs chart {chart}"
         back = oracle.salinity_from_rw(got, 75.0)
         assert abs(back - ppm) / ppm < 1e-9, f"salinity round trip {back} vs {ppm}"
+    # PT11a: the owner's check point (T = 150 degF, Rwe = 0.050 -> Rw =
+    # 0.0564, A = 0.0181, B = 1.232) and the chain's exact round trip
+    a_bk, b_bk = oracle._bk_ab(150.0)
+    assert abs(a_bk - 0.0181) < 5e-5 and abs(b_bk - 1.232) < 5e-4, f"BK A,B {a_bk} {b_bk}"
+    assert abs(oracle.rwe_to_rw(0.05, 150.0) - 0.0564) < 5e-5, f"BK check point {oracle.rwe_to_rw(0.05, 150.0)}"
+    chain = _sp_chain_typewell()
+    assert abs(chain["rw"] - p["rw"]) < 1e-12, f"SP chain round trip {chain['rw']} vs {p['rw']}"
+    assert chain["rwe"] < p["rw"], "the correction must be upward at the saline end"
     a0 = oracle.sw_archie(8.0, 0.18, 0.05)
     assert abs(oracle.sw_waxman_smits(8.0, 0.18, 0.05, 0.0, 3.0) - a0) < 1e-12, "WS(qv=0) != Archie"
     assert abs(oracle.sw_dual_water(8.0, 0.18, 0.05, 0.02, 0.0) - a0) < 1e-12, "DW(swb=0) != Archie"
