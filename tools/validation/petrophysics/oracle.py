@@ -533,7 +533,8 @@ def apply_normalization(values, shift, scale):
 
 
 # ---- Log conditioning (PS8) -----------------------------------------------
-# SCOPE GUARD: depth_shift_block is a CONSTANT block shift resampled
+# depth_shift_block is a CONSTANT block shift and depth_shift_tie_points
+# (PT11c) the stretch-and-squeeze warp through tie points; both resampled
 # back onto the original grid — deliberately NOT interval-wise
 # stretch/squeeze correlation (a Techlog-class interactive depth match
 # is a program of its own).
@@ -597,33 +598,80 @@ def smooth_median(x, half_window):
 
 def depth_shift_block(depth, x, shift_m):
     """Constant block shift: the shifted curve at depth z reads the
-    original at z - shift, linearly interpolated on the original grid.
-    Outside the original extent, or bracketed by a None, -> None (gaps
-    are never bridged)."""
-    out = []
+    original at z - shift through _read_at (gaps never bridged)."""
+    return [_read_at(depth, x, z - shift_m) for z in depth]
+
+
+def _read_at(depth, x, zq):
+    """Bracketing linear interpolation of x at zq; None outside the
+    extent or beside a None (gaps never bridged)."""
     n = len(depth)
-    for i in range(n):
-        zq = depth[i] - shift_m
-        if zq < depth[0] or zq > depth[n - 1]:
-            out.append(None)
-            continue
-        lo = 0
-        hi = n - 1
+    if zq < depth[0] or zq > depth[n - 1]:
+        return None
+    lo, hi = 0, n - 1
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        if depth[mid] <= zq:
+            lo = mid
+        else:
+            hi = mid
+    # a read exactly on a sample is that sample (PT11c: the identity warp
+    # returns the input byte for byte); only a read BETWEEN samples needs
+    # both brackets finite
+    if zq == depth[lo]:
+        return x[lo]
+    if zq == depth[hi]:
+        return x[hi]
+    if x[lo] is None or x[hi] is None:
+        return None
+    t = (zq - depth[lo]) / (depth[hi] - depth[lo])
+    return x[lo] + t * (x[hi] - x[lo])
+
+
+def tie_point_warp(pairs):
+    """PT11c: warp(z) through [ref, target] pairs sorted by ref: piecewise
+    linear between ties, z + (target_outer - ref_outer) beyond them.
+    Returns (warp, error): error names crossing or duplicate ties."""
+    sorted_pairs = sorted((float(r), float(t)) for r, t in pairs)
+    for (r0, t0), (r1, t1) in zip(sorted_pairs, sorted_pairs[1:]):
+        if r1 == r0:
+            return None, "duplicate reference depth"
+        if not t1 > t0:
+            return None, "ties cross"
+    m = len(sorted_pairs)
+
+    def warp(z):
+        if m == 0:
+            return z
+        if m == 1 or z <= sorted_pairs[0][0]:
+            return z + (sorted_pairs[0][1] - sorted_pairs[0][0])
+        if z >= sorted_pairs[-1][0]:
+            return z + (sorted_pairs[-1][1] - sorted_pairs[-1][0])
+        lo, hi = 0, m - 1
         while hi - lo > 1:
             mid = (lo + hi) // 2
-            if depth[mid] <= zq:
+            if sorted_pairs[mid][0] <= z:
                 lo = mid
             else:
                 hi = mid
-        if x[lo] is None or x[hi] is None:
-            out.append(None)
-            continue
-        if depth[hi] == depth[lo]:
-            out.append(x[lo])
-            continue
-        t = (zq - depth[lo]) / (depth[hi] - depth[lo])
-        out.append(x[lo] + t * (x[hi] - x[lo]))
-    return out
+        r0, t0 = sorted_pairs[lo]
+        r1, t1 = sorted_pairs[hi]
+        return t0 + (z - r0) / (r1 - r0) * (t1 - t0)
+    return warp, None
+
+
+def depth_shift_tie_points(depth, x, pairs):
+    warp, err = tie_point_warp(pairs)
+    if err:
+        raise ValueError(err)
+    return [_read_at(depth, x, warp(z)) for z in depth]
+
+
+def shift_curve(depth, pairs):
+    warp, err = tie_point_warp(pairs)
+    if err:
+        raise ValueError(err)
+    return [z - warp(z) for z in depth]
 
 
 def bad_hole_flag(cali, bit_size, drho, washout_over, drho_max):

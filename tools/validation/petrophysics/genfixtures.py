@@ -395,6 +395,11 @@ def run_oracle(tw):
         "GR_SMOOTH_MEAN": oracle.smooth_mean(gr, 2),
         "GR_SMOOTH_MEDIAN": oracle.smooth_median(gr, 2),
         "GR_SHIFTED": oracle.depth_shift_block(depth, gr, cnd["shiftM"]),
+        # PT11c: stretch and squeeze through three ties (ref, target): a
+        # 1 m pull-up at the top, 2.5 m push-down mid-well, 1 m at the base
+        "tiePairs": [[2015.0, 2016.0], [2045.0, 2047.5], [2070.0, 2069.0]],
+        "GR_TIE_SHIFTED": oracle.depth_shift_tie_points(depth, gr, [[2015.0, 2016.0], [2045.0, 2047.5], [2070.0, 2069.0]]),
+        "SHIFT_CURVE": oracle.shift_curve(depth, [[2015.0, 2016.0], [2045.0, 2047.5], [2070.0, 2069.0]]),
         "DRHO_SYN": drho_syn,
         "CALI_SYN": cali_syn,
         "BADHOLE": flags,
@@ -551,6 +556,14 @@ def assert_anchors(tw, goldens):
     shifted = oracle.depth_shift_block(tw["curves"]["DEPT"], gr_base, 1.5)
     i_chk = 100  # grid step 0.5 -> exactly 3 samples of shift
     assert abs(shifted[i_chk] - gr_base[i_chk - 3]) < 1e-12, "block shift misaligned"
+    # PT11c: no ties is the identity, one tie is the block shift exactly
+    dept = tw["curves"]["DEPT"]
+    ident = oracle.depth_shift_tie_points(dept, gr_base, [])
+    assert all((a is None and b is None) or a == b for a, b in zip(ident, gr_base)), "tie identity"
+    one = oracle.depth_shift_tie_points(dept, gr_base, [[2020.0, 2018.5]])
+    assert all((a is None and b is None) or abs(a - b) < 1e-12 for a, b in zip(one, shifted)), "one tie != block"
+    _, err = oracle.tie_point_warp([[2010.0, 2012.0], [2012.0, 2011.0]])
+    assert err == "ties cross", "crossing ties must be refused"
     gr_c = tw["curves"]["GR"]
     gt = [None if g is None else 1.1 * g + 5.0 for g in gr_c]
     for shift, scale in (oracle.fit_normalization_two_point(gr_c, gt),
