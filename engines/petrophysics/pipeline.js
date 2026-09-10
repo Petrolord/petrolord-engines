@@ -23,7 +23,7 @@ export const DEFAULT_PARAMS = {
   rhoMa: 2.65, rhoFl: 1.0,
   dtMa: 182, dtFl: 656, sonicMethod: 'wyllie',
   ndMethod: 'avg',
-  phiSource: 'density',           // density | sonic | nd
+  phiSource: 'density',           // density | sonic | nd | mineral (PT11d: curves.PHI_MM from the mineral model, never a default)
   // PT9 effective porosity: PHIT is the selected source's porosity as
   // read (total); PHIE = PHIT - Vsh*phiShale, phiShale being the
   // selected tool's apparent porosity in 100 percent shale (read it in
@@ -84,7 +84,9 @@ export function computeWell(curves, params) {
     outputs.PHIND = Float64Array.from(outputs.PHID, (d, i) => phiNd(d, curves.NPHI[i], p.ndMethod));
   }
 
-  const phiT = { density: outputs.PHID, sonic: outputs.PHIS, nd: outputs.PHIND }[p.phiSource];
+  // PT11d: 'mineral' reads the porosity the Studio solved from the mineral
+  // model (curves.PHI_MM); an explicit choice, absent means missing
+  const phiT = { density: outputs.PHID, sonic: outputs.PHIS, nd: outputs.PHIND, mineral: curves.PHI_MM || null }[p.phiSource];
   if (phiT) outputs.PHIT = phiT;
   else missing.push(`${p.phiSource} porosity inputs`);
   if (phiT && outputs.VSH) {
@@ -228,7 +230,7 @@ export function computeWellZoned(curves, baseParams, zoneParamList = []) {
  *  as read) is now PHIT; PHIE is the shale-corrected effective
  *  porosity and feeds Sw, cutoffs, k and BVW; permeability defaults to
  *  Timur. */
-export const PIPELINE_VERSION = 5;
+export const PIPELINE_VERSION = 6; // PT11d: phiSource 'mineral'
 
 /** Literature references for each selectable method, keyed the way the
  *  parameter set spells them — the same sources the validation oracle
