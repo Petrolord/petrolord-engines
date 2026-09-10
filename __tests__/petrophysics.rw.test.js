@@ -35,7 +35,7 @@ test('temperature enters through Arps only; invalid inputs are NaN', () => {
 // the Rmf -> Rmfe step and the whole SP chain.
 // ---------------------------------------------------------------------
 import {
-  rweToRw, rwToRwe, rmfeFromRmf, rwFromSsp, rweToRwProblem, RWE_TO_RW_DOMAIN, rweFromSsp, spK,
+  rweToRw, rwToRwe, rmfeFromRmf, rwFromSsp, rweToRwProblem, rwToRweProblem, rweBand, RWE_TO_RW_DOMAIN, rweFromSsp, spK,
 } from '../engines/petrophysics/rw';
 import { swArchie } from '../engines/petrophysics/sw';
 
@@ -54,63 +54,121 @@ describe('PT11a Bateman-Konen', () => {
     expect(b).toBeCloseTo(1.232, 3);
   });
 
-  test('gate 2: every chart reading is bracketed within its stated precision (pending until read)', () => {
-    const pts = Array.isArray(chart.points) ? chart.points : [];
-    if (!pts.length) {
-      // eslint-disable-next-line no-console
-      console.warn('PT11a chart_points.json holds no readings yet: acceptance of rweToRw against chart SP-2 is PENDING.');
-      return;
-    }
+  const rawFit = (rwe, t) => {
+    const a = 0.131 * 10 ** (1 / Math.log10(t / 19.9) - 2);
+    const b = 10 ** (0.0426 / Math.log10(t / 50.8));
+    return (rwe + a) / (b - 0.5 * rwe);
+  };
+
+  test('gate 2: chart SP-2 readings, accepted points bracketed, refuted points refused (in-band acceptance pending until read)', () => {
+    const pts = chart.points;
     expect(pts.length).toBeGreaterThanOrEqual(6);
+    expect(chart.chart_temp_f_range).toEqual([RWE_TO_RW_DOMAIN.chartTempFMin, RWE_TO_RW_DOMAIN.tempFMax]);
+    const temps = new Set(pts.map((p) => p.temp_f));
+    expect(temps.size).toBeGreaterThanOrEqual(2);
+    expect(temps.has(75)).toBe(true);
+    let accepted = 0;
+    let refuted = 0;
     for (const p of pts) {
+      // the chart's correction is upward everywhere it was read
+      expect(p.rw).toBeGreaterThan(p.rwe);
       const rw = rweToRw(p.rwe, p.temp_f);
-      expect(Number.isFinite(rw)).toBe(true);
-      expect(Math.abs(rw - p.rw) / p.rw).toBeLessThanOrEqual(p.precision);
+      const band = rweBand(p.temp_f);
+      const inBand = p.rwe >= band.lo && p.rwe <= band.hi;
+      if (inBand) {
+        accepted += 1;
+        expect(Number.isFinite(rw)).toBe(true);
+        expect(Math.abs(rw - p.rw) / p.rw).toBeLessThanOrEqual(p.precision);
+      } else {
+        // outside the band the engine refuses with a reason
+        expect(Number.isNaN(rw)).toBe(true);
+        expect(typeof rweToRwProblem(p.rwe, p.temp_f)).toBe('string');
+        if (Math.abs(rawFit(p.rwe, p.temp_f) - p.rw) / p.rw > p.precision) refuted += 1;
+      }
+    }
+    // the readings refute the raw fit on both sides of the band (2026-09-10: 28 fresh, 3 saline)
+    expect(refuted).toBeGreaterThanOrEqual(28);
+    expect(pts.filter((p) => p.band === 'fresh').every((p) => rawFit(p.rwe, p.temp_f) < 0.65 * p.rw)).toBe(true);
+    expect(pts.filter((p) => p.band === 'saline').every((p) => rawFit(p.rwe, p.temp_f) > 1.1 * p.rw)).toBe(true);
+    if (!accepted) {
+      // eslint-disable-next-line no-console
+      console.warn(`PT11a chart_points.json: ${pts.length} readings, all outside the accepted band and all refused; acceptance of rweToRw INSIDE the band (Rwe ${RWE_TO_RW_DOMAIN.rweMin75F} at 75 degF .. ${RWE_TO_RW_DOMAIN.rweMax} ohm.m) is PENDING until the chart is read there.`);
     }
   });
 
-  test('gate 3: oracle agreement at 1e-12 (forward, inverse, Rmfe)', () => {
+  test('gate 3: oracle agreement at 1e-12 (forward, inverse, Rmfe) incl. the refusals it records', () => {
     expect(close(rweToRw(0.05, 150), analytic.bk_check_point_150f.out)).toBe(true);
-    expect(close(rweToRw(0.30, 150), analytic.bk_fresh_band_150f.out)).toBe(true);
-    expect(close(rweToRw(0.30, 75), analytic.bk_75f_0p3.out)).toBe(true);
-    expect(close(rweToRw(rwToRwe(0.12, 200), 200), analytic.bk_inverse_roundtrip.out)).toBe(true);
+    expect(close(rweToRw(0.10, 150), analytic.bk_band_edge_150f.out)).toBe(true);
+    expect(close(rweToRw(0.02, 75), analytic.bk_band_floor_75f.out)).toBe(true);
+    expect(analytic.bk_fresh_band_150f.out).toBeNull();
+    expect(Number.isNaN(rweToRw(0.30, 150))).toBe(true);
+    expect(analytic.bk_75f_0p3.out).toBeNull();
+    expect(Number.isNaN(rweToRw(0.30, 75))).toBe(true);
+    expect(close(rweToRw(rwToRwe(0.06, 200), 200), analytic.bk_inverse_roundtrip.out)).toBe(true);
     expect(close(rmfeFromRmf(0.5, 75, 150).rmfe, analytic.bk_rmfe_x085.out)).toBe(true);
     expect(close(rmfeFromRmf(0.05, 75, 150).rmfe, analytic.bk_rmfe_inverse.out)).toBe(true);
   });
 
-  test('gate 4: inverse round trip across the domain at three temperatures', () => {
+  test('gate 4: inverse round trip across the accepted band at three temperatures', () => {
     for (const t of [75, 150, 250]) {
-      for (const x of [0.02, 0.05, 0.1, 0.3, 0.6, 1.0]) {
+      const { lo, hi } = rweBand(t);
+      for (const f of [0, 0.1, 0.3, 0.5, 0.8, 1]) {
+        const x = lo + f * (hi - lo);
         expect(close(rwToRwe(rweToRw(x, t), t), x)).toBe(true);
       }
     }
+    expect(rweBand(75)).toEqual({ lo: 0.02, hi: 0.1 });
+    expect(close(rweBand(150).lo, 0.02 * (75 + 6.77) / (150 + 6.77))).toBe(true);
+    expect(rweBand(60)).toBeNull();
   });
 
-  test('gate 5: the fresh-water band, Rwe = 0.30 at 150 degF moves Rw by under 3 percent', () => {
-    const rw = rweToRw(0.30, 150);
-    expect(Math.abs(rw - 0.30) / 0.30).toBeLessThan(0.03);
-    // and the fit is NOT negligible everywhere: it grows again toward very fresh water
-    expect(rweToRw(1.0, 150) / 1.0).toBeGreaterThan(1.3);
+  test('gate 5: inside the band the correction is upward and modest; the chart says it is large and upward beyond it', () => {
+    // pinned numbers at 150 degF: +12.8 percent at the check point, under 1 percent at the band edge (within 2 percent at every temperature)
+    expect(rweToRw(0.05, 150) / 0.05).toBeCloseTo(1.128, 2);
+    expect(Math.abs(rweToRw(0.10, 150) / 0.10 - 1)).toBeLessThan(0.01);
+    for (const t of [75, 150, 300, 500]) {
+      const { lo, hi } = rweBand(t);
+      for (const x of [lo, (lo + hi) / 2, hi]) expect(rweToRw(x, t)).toBeGreaterThanOrEqual(x * 0.98);
+    }
+    // the fresh band is refused, not corrected downward: the raw fit would give 0.294 at 150 degF/0.30
+    expect(Number.isNaN(rweToRw(0.30, 150))).toBe(true);
+    expect(rawFit(0.30, 150)).toBeLessThan(0.30);
+    // and the chart itself puts Rw = 1.0 ohm.m at Rweq 0.53 at 150 degF (an 89 percent upward correction)
+    const p = chart.points.find((q) => q.rw === 1 && q.temp_f === 150);
+    expect(p.rwe).toBeCloseTo(0.53, 3);
   });
 
   test('gate 6: refusals are NaN and the problem sentence names the limit', () => {
     const t = 150;
     const b = 10 ** (0.0426 / Math.log10(t / 50.8));
-    expect(Number.isNaN(rweToRw(2 * b, t))).toBe(true);          // denominator zero
+    expect(Number.isNaN(rweToRw(2 * b, t))).toBe(true);          // denominator zero (also beyond the band)
     expect(Number.isNaN(rweToRw(2 * b + 0.5, t))).toBe(true);    // denominator negative
     expect(rweToRwProblem(2 * b + 0.5, t)).toMatch(/beyond the chart/);
+    expect(rweToRwProblem(0.3, t)).toMatch(/beyond the chart band.*too fresh/);
+    expect(Number.isNaN(rweToRw(0.005, t))).toBe(true);          // nearer saturation than the band
+    expect(rweToRwProblem(0.005, t)).toMatch(/saturation/);
     expect(Number.isNaN(rweToRw(0.05, 50.8))).toBe(true);        // T at the log's zero
     expect(Number.isNaN(rweToRw(0.05, 40))).toBe(true);
     expect(rweToRwProblem(0.05, 40)).toMatch(/50\.8/);
+    expect(Number.isNaN(rweToRw(0.05, 60))).toBe(true);          // below the chart's printed range
+    expect(rweToRwProblem(0.05, 60)).toMatch(/starts at 75/);
+    expect(Number.isNaN(rweToRw(0.05, 500))).toBe(false);        // the printed top is inside
+    expect(Number.isNaN(rweToRw(0.05, 501))).toBe(true);
+    expect(rweToRwProblem(0.05, 501)).toMatch(/stops at 500/);
     expect(Number.isNaN(rweToRw(0, t))).toBe(true);
     expect(Number.isNaN(rweToRw(-0.1, t))).toBe(true);
     expect(rweToRwProblem(-0.1, t)).toMatch(/positive/);
     expect(Number.isNaN(rwToRwe(0.001, t))).toBe(true);          // inverse not positive
+    expect(rwToRweProblem(0.001, t)).toMatch(/floor/);
+    expect(Number.isNaN(rwToRwe(1.0, t))).toBe(true);            // inverse lands beyond the band
+    expect(rwToRweProblem(1.0, t)).toMatch(/Rmfe.*beyond the chart band/);
+    expect(rwToRweProblem(0.05, t)).toBeNull();
     expect(rweToRwProblem(0.05, t)).toBeNull();
     expect(RWE_TO_RW_DOMAIN.tempFMin).toBe(50.8);
-    if (RWE_TO_RW_DOMAIN.tempFMax != null) {
-      expect(Number.isNaN(rweToRw(0.05, RWE_TO_RW_DOMAIN.tempFMax + 1))).toBe(true);
-    }
+    expect(RWE_TO_RW_DOMAIN.chartTempFMin).toBe(75);
+    expect(RWE_TO_RW_DOMAIN.tempFMax).toBe(500);
+    expect(RWE_TO_RW_DOMAIN.rweMax).toBe(0.1);
+    expect(RWE_TO_RW_DOMAIN.rweMin75F).toBe(0.02);
   });
 
   test('gate 7: the 0.85 rule boundary at Rmf(75 degF) = 0.1, both sides pinned', () => {
