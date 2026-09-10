@@ -74,6 +74,16 @@ that is only a dual implementation while the two sides stay separate.
   - `simandoux/indonesia_vsh0_equals_archie`: shaly-sand models must
     degenerate exactly to Archie at Vsh = 0.
 
+- `COND` (PS8, PT11c): conditioning goldens on derived inputs. PT11c
+  adds `tiePairs` ([reference, target] depths), `GR_TIE_SHIFTED`
+  (stretch and squeeze through those ties) and `SHIFT_CURVE`
+  (z − warp(z), positive where the curve moves deeper, the block
+  shift's sign). One rule changed with PT11c and moved one sample of
+  `GR_SHIFTED` (index 92, None → 120): a read that lands exactly on a
+  raw sample is that sample, so the identity warp returns the input
+  byte for byte; only a read BETWEEN samples needs both brackets
+  finite (gaps are still never bridged).
+
 ## Numeric contract (for the G2.1 jest suites)
 
 - Everything is closed-form float64. JS engines must match the golden

@@ -2,10 +2,13 @@
 // depth-shift, bad-hole flag and repair. Shared engine conventions
 // (see vsh.js): pure, float64, NaN-propagating, no I/O.
 //
-// SCOPE GUARD: depthShiftBlock is a CONSTANT block shift resampled
-// back onto the original grid — deliberately NOT interval-wise
-// stretch/squeeze correlation; that interactive depth match is a
-// program of its own and is out of scope here by decision.
+// Two depth shifts, both resampled back onto the ORIGINAL grid so every
+// index-based consumer keeps working: depthShiftBlock is a constant
+// shift; depthShiftTiePoints (PT11c, 2026-09-10) is stretch and squeeze
+// through user-placed tie points, piecewise linear between ties and a
+// constant shift beyond the outermost ones. Both read the raw curve
+// through the same bracketing linear interpolation (readAt), the only
+// resampler in the Studio; nulls are never bridged.
 //
 // The defensibility rule lives with the CALLER: conditioned curves are
 // saved as NEW registry curves with full provenance; raw curves are
@@ -72,6 +75,32 @@ export function smoothMedian(x, halfWindow) {
 }
 
 /**
+ * The one resampler: the raw curve read at depth zq by linear
+ * interpolation between the two bracketing samples. Outside the extent,
+ * or bracketed by a NaN, -> NaN (gaps are never bridged); a read that
+ * lands exactly on a sample is that sample.
+ */
+function readAt(depth, x, zq) {
+  const n = depth.length;
+  if (!(zq >= depth[0]) || !(zq <= depth[n - 1])) return NaN;
+  let lo = 0;
+  let hi = n - 1;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (depth[mid] <= zq) lo = mid;
+    else hi = mid;
+  }
+  // a read exactly on a sample is that sample (the identity warp returns
+  // the input byte for byte); only a read BETWEEN samples needs both
+  // brackets finite. A repeated depth therefore also takes the lower one.
+  if (zq === depth[lo]) return x[lo];
+  if (zq === depth[hi]) return x[hi];
+  if (!Number.isFinite(x[lo]) || !Number.isFinite(x[hi])) return NaN;
+  const t = (zq - depth[lo]) / (depth[hi] - depth[lo]);
+  return x[lo] + t * (x[hi] - x[lo]);
+}
+
+/**
  * Constant block shift: the shifted curve at depth z reads the
  * original at z - shift, linearly interpolated on the original grid.
  * Outside the original extent, or bracketed by a NaN, -> NaN (gaps
@@ -80,22 +109,81 @@ export function smoothMedian(x, halfWindow) {
 export function depthShiftBlock(depth, x, shiftM) {
   const n = depth.length;
   const out = new Float64Array(n).fill(NaN);
-  for (let i = 0; i < n; i++) {
-    const zq = depth[i] - shiftM;
-    if (zq < depth[0] || zq > depth[n - 1]) continue;
+  for (let i = 0; i < n; i++) out[i] = readAt(depth, x, depth[i] - shiftM);
+  return out;
+}
+
+/**
+ * Tie-point warp (PT11c). `pairs` are [refMd, targetMd]: the target
+ * curve's feature at targetMd belongs at refMd, so the shifted curve at
+ * z reads the raw curve at warp(z). warp is piecewise linear through
+ * the pairs (sorted by reference depth) and z + (targetOuter - refOuter)
+ * beyond the outermost ties. Zero pairs is the identity; one pair is
+ * the block shift with shiftM = refMd - targetMd.
+ *
+ * Refused (structured, the fit convention): a non-finite pair,
+ * duplicate reference depths, or ties that cross (the target sequence
+ * must increase strictly with the reference sequence).
+ * @returns {{ ok: true, pairs: number[][], warp: (z: number) => number } | { ok: false, error: string }}
+ */
+export function tiePointWarp(pairs) {
+  const list = Array.isArray(pairs) ? pairs : [];
+  for (const p of list) {
+    if (!Array.isArray(p) || p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1])) {
+      return { ok: false, error: 'Every tie point needs a finite reference depth and a finite target depth.' };
+    }
+  }
+  const sorted = list.map(([r, t]) => [r, t]).sort((a, b) => a[0] - b[0]);
+  for (let i = 1; i < sorted.length; i++) {
+    const [r0, t0] = sorted[i - 1];
+    const [r1, t1] = sorted[i];
+    if (r1 === r0) return { ok: false, error: `Two ties share the reference depth ${r0}; a depth can map to one place only.` };
+    if (!(t1 > t0)) {
+      return { ok: false, error: `Ties cross: reference ${r0} to ${r1} would map target ${t0} to ${t1}, which runs backwards. Depth order must be kept.` };
+    }
+  }
+  const m = sorted.length;
+  const warp = (z) => {
+    if (m === 0) return z;
+    if (m === 1 || z <= sorted[0][0]) return z + (sorted[0][1] - sorted[0][0]);
+    if (z >= sorted[m - 1][0]) return z + (sorted[m - 1][1] - sorted[m - 1][0]);
     let lo = 0;
-    let hi = n - 1;
+    let hi = m - 1;
     while (hi - lo > 1) {
       const mid = (lo + hi) >> 1;
-      if (depth[mid] <= zq) lo = mid;
+      if (sorted[mid][0] <= z) lo = mid;
       else hi = mid;
     }
-    if (!Number.isFinite(x[lo]) || !Number.isFinite(x[hi])) continue;
-    if (depth[hi] === depth[lo]) { out[i] = x[lo]; continue; }
-    const t = (zq - depth[lo]) / (depth[hi] - depth[lo]);
-    out[i] = x[lo] + t * (x[hi] - x[lo]);
-  }
+    const [r0, t0] = sorted[lo];
+    const [r1, t1] = sorted[hi];
+    return t0 + ((z - r0) / (r1 - r0)) * (t1 - t0);
+  };
+  return { ok: true, pairs: sorted, warp };
+}
+
+/**
+ * Stretch and squeeze through tie points: out[i] = readAt(warp(depth[i])).
+ * Same resampler and null rules as the block shift. Throws on a refused
+ * tie set (call tiePointWarp first to get the sentence).
+ */
+export function depthShiftTiePoints(depth, x, pairs) {
+  const w = tiePointWarp(pairs);
+  if (!w.ok) throw new Error(w.error);
+  const n = depth.length;
+  const out = new Float64Array(n).fill(NaN);
+  for (let i = 0; i < n; i++) out[i] = readAt(depth, x, w.warp(depth[i]));
   return out;
+}
+
+/**
+ * The shift-versus-depth track: shift(z) = z - warp(z), positive where
+ * the curve is moved deeper (the block shift's sign). Throws on a
+ * refused tie set.
+ */
+export function shiftCurve(depth, pairs) {
+  const w = tiePointWarp(pairs);
+  if (!w.ok) throw new Error(w.error);
+  return Float64Array.from(depth, (z) => z - w.warp(z));
 }
 
 /**
