@@ -34,6 +34,15 @@ that is only a dual implementation while the two sides stay separate.
     noise); DT inverted through Wyllie the same way; NPHI = φ + 0.30·s
     − 0.08·(gas); RT = exact Archie inversion of `sw_target` where
     s < 0.01, conductivity blend elsewhere.
+  - PT11d adds `PEF` from the same mixture: the type well is quartz +
+    clay + fluid by construction (RHOB = 2.65 − 1.65·φ − 0.10·s is
+    v_q·2.65 + s·2.55 + φ·1.0; NPHI = φ + 0.30·s off the gas zone), so
+    U = v_q·U_q + s·U_c + φ·0.398 with U = Pe·ρe, ρe = (ρb+0.1883)/1.0704,
+    Pe quartz 1.81 and clay 3.45; PEF = U/ρe(RHOB) and shares RHOB's
+    nulls. Note the forward model's quartz neutron endpoint is 0.0 (the
+    v1 construction reads NPHI = φ in clean sand), not the chart-book
+    −0.02 the engine's default table carries; the MINERAL golden stores
+    its own table.
 - `goldens.json` — oracle outputs on the type well for the parameter
   set recorded in `typewell.json.params`: IGR + 5 Vsh models, PHID,
   Wyllie + RHG sonic porosity, ND avg/rms, Sw (Archie / Simandoux
@@ -74,6 +83,14 @@ that is only a dual implementation while the two sides stay separate.
   - `simandoux/indonesia_vsh0_equals_archie`: shaly-sand models must
     degenerate exactly to Archie at Vsh = 0.
 
+- `MINERAL` (PT11d): the three-mineral solve {quartz, calcite, clay}
+  with the stored endpoint table and fluid: `V_QUARTZ`, `V_CALCITE`,
+  `V_CLAY`, `PHI_MM`, `MM_RES` (the excursion outside 0..1, 0 when
+  accepted) and `MM_FLAG` (0 accepted, 1 singular, 2 out of range, 3
+  missing). Off the gas zone the solve recovers `phi_true`, the shale
+  fraction and zero calcite to 1e-9 (asserted at generation); the gas
+  zone (2010-2030 m, NPHI lowered by 0.08) is refused with flag 2,
+  which is the fixed-fluid assumption failing as it should.
 - `COND` (PS8, PT11c): conditioning goldens on derived inputs. PT11c
   adds `tiePairs` ([reference, target] depths), `GR_TIE_SHIFTED`
   (stretch and squeeze through those ties) and `SHIFT_CURVE`

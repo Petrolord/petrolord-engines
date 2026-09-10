@@ -96,11 +96,33 @@ def sw_target(z, s):
     return sw * (1.0 - s) + 1.0 * s
 
 
+# PT11d endpoint table used by the forward model and the MINERAL golden:
+# quartz / calcite / dolomite from the Schlumberger chart-book values,
+# clay = the type well's shale (rho_sh 2.55, nphi 0.30, an illite-like Pe)
+MINERALS = {
+    "quartz": {"rho": 2.65, "nphi": 0.0, "pe": 1.81},   # nphi 0.0: the type well's clean sand reads NPHI = phi by construction (v1 fixture), not the chart -0.02
+    "calcite": {"rho": 2.71, "nphi": 0.0, "pe": 5.08},
+    "dolomite": {"rho": 2.87, "nphi": 0.02, "pe": 3.14},
+    "clay": {"rho": 2.55, "nphi": 0.30, "pe": 3.45},
+}
+FLUID = {"rho": 1.0, "nphi": 1.0, "u": 0.398}
+
+
+def with_u(m):
+    return {**m, "u": oracle.u_of(m["pe"], m["rho"])}
+
+
 def build_typewell():
     p = PARAMS
     depth, s_prof, phi_prof, swt_prof = [], [], [], []
-    gr, rhob, nphi, dt, rt = [], [], [], [], []
+    gr, rhob, nphi, dt, rt, pef = [], [], [], [], [], []
     phi_dsh = (p["rho_ma"] - p["rho_sh"]) / (p["rho_ma"] - p["rho_fl"])  # shale apparent phiD
+    # PT11d: the type well IS a quartz + clay + fluid mixture by construction
+    # (RHOB = 2.65 - 1.65*phi - 0.10*s is v_q*2.65 + s*2.55 + phi*1.0 with
+    # v_q = 1 - phi - s; NPHI = phi + 0.30*s is v_q*0 + s*0.30 + phi*1.0 off
+    # the gas zone). PEF follows the same mixture through U = Pe*rho_e.
+    u_q = oracle.u_of(MINERALS["quartz"]["pe"], MINERALS["quartz"]["rho"])
+    u_c = oracle.u_of(MINERALS["clay"]["pe"], MINERALS["clay"]["rho"])
 
     for i in range(201):
         z = 2000.0 + 0.5 * i
@@ -120,6 +142,8 @@ def build_typewell():
             c_sand = (phi ** p["m"] * swt ** p["n"]) / (p["a"] * p["rw"]) if phi > 0 else 0.0
             v_rt = 1.0 / ((1.0 - s) * c_sand + s / p["rsh"])
         v_gr = p["gr_clean"] + (p["gr_clay"] - p["gr_clean"]) * s
+        v_u = (1.0 - phi - s) * u_q + s * u_c + phi * FLUID["u"]
+        v_pef = v_u / oracle.rho_electron(v_rhob)
 
         depth.append(z)
         s_prof.append(s)
@@ -130,10 +154,11 @@ def build_typewell():
         nphi.append(None if i in NULL_IDX["NPHI"] else v_nphi)
         dt.append(None if i in NULL_IDX["DT"] else v_dt)
         rt.append(None if i in NULL_IDX["RT"] else v_rt)
+        pef.append(None if i in NULL_IDX["RHOB"] else v_pef)   # PEF shares the density tool's gaps
 
     return {
         "params": PARAMS, "null_indices": NULL_IDX,
-        "curves": {"DEPT": depth, "GR": gr, "RHOB": rhob, "NPHI": nphi, "DT": dt, "RT": rt},
+        "curves": {"DEPT": depth, "GR": gr, "RHOB": rhob, "NPHI": nphi, "DT": dt, "RT": rt, "PEF": pef},
         "construction": {"shale_fraction": s_prof, "phi_true": phi_prof, "sw_target": swt_prof},
     }
 
@@ -407,6 +432,26 @@ def run_oracle(tw):
         "RHOB_INTERP": oracle.apply_bad_hole(rhob, flags, "interp", cnd["maxGapSamples"]),
     }
 
+    # ---- multi-mineral goldens (PT11d) ------------------------------------
+    # The type well is quartz + clay + fluid by construction, so a three-
+    # mineral solve {quartz, calcite, clay} must return v_calcite = 0,
+    # v_clay = shale_fraction and phi = phi_true wherever the neutron gas
+    # term is zero; the gas zone (2010-2030 m, NPHI lowered by 0.08) is
+    # where the fixed-fluid assumption fails and the flags say so.
+    mset = [with_u(MINERALS["quartz"]), with_u(MINERALS["calcite"]), with_u(MINERALS["clay"])]
+    pef_c = tw["curves"]["PEF"]
+    mm = [oracle.three_mineral_solve(rhob[i], nphi[i], pef_c[i], mset, FLUID) for i in range(len(depth))]
+    out["MINERAL"] = {
+        "minerals": {"quartz": mset[0], "calcite": mset[1], "clay": mset[2]},
+        "fluid": FLUID,
+        "V_QUARTZ": [r["v"][0] for r in mm],
+        "V_CALCITE": [r["v"][1] for r in mm],
+        "V_CLAY": [r["v"][2] for r in mm],
+        "PHI_MM": [r["phi"] for r in mm],
+        "MM_RES": [r["residual"] for r in mm],
+        "MM_FLAG": [r["flag"] for r in mm],
+    }
+
     # ---- matrix ID + Hingle goldens (PS10) --------------------------------
     ts_p = {"phiSand": 0.28, "phiSh": 0.1}
     hingle_rw, hingle_slope, hingle_n = oracle.hingle_fit(
@@ -597,6 +642,21 @@ def assert_anchors(tw, goldens):
     chain = _sp_chain_typewell()
     assert abs(chain["rw"] - p["rw"]) < 1e-12, f"SP chain round trip {chain['rw']} vs {p['rw']}"
     assert chain["rwe"] < p["rw"], "the correction must be upward at the saline end"
+    # PT11d: off the gas zone the three-mineral solve recovers the
+    # construction exactly; in the gas zone it must not pretend to
+    mm = goldens["MINERAL"]
+    n_exact = 0
+    for i, z in enumerate(c["DEPT"]):
+        if mm["MM_FLAG"][i] != 0:
+            continue
+        gas = (2010.0 + RAMP) <= z <= (2030.0 - RAMP)
+        if gas:
+            continue
+        assert abs(mm["PHI_MM"][i] - con["phi_true"][i]) < 1e-9, f"mineral phi misses phi_true at {i}"
+        assert abs(mm["V_CLAY"][i] - con["shale_fraction"][i]) < 1e-9, f"mineral clay misses s at {i}"
+        assert abs(mm["V_CALCITE"][i]) < 1e-9, f"phantom calcite at {i}"
+        n_exact += 1
+    assert n_exact > 120, f"too few exact mineral samples: {n_exact}"
     a0 = oracle.sw_archie(8.0, 0.18, 0.05)
     assert abs(oracle.sw_waxman_smits(8.0, 0.18, 0.05, 0.0, 3.0) - a0) < 1e-12, "WS(qv=0) != Archie"
     assert abs(oracle.sw_dual_water(8.0, 0.18, 0.05, 0.02, 0.0) - a0) < 1e-12, "DW(swb=0) != Archie"

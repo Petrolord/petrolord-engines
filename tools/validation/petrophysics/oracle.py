@@ -484,6 +484,63 @@ def two_mineral_solve(rhob, nphi, rho1, n1, rho2, n2, rho_fl, n_fl):
     return {"v1": v1, "v2": v2, "phi": 1.0 - v1 - v2}
 
 
+def rho_electron(rhob):
+    """Chart-book electron density rho_e = (rho_b + 0.1883)/1.0704."""
+    return (rhob + 0.1883) / 1.0704
+
+
+def u_of(pe, rho):
+    """A mineral's volumetric photoelectric index U = Pe * rho_e(rho)."""
+    return pe * rho_electron(rho)
+
+
+def _gauss4(a, b):
+    """Own elimination with partial pivoting (never numpy, never the JS)."""
+    n = len(b)
+    m = [row[:] + [b[i]] for i, row in enumerate(a)]
+    for col in range(n):
+        piv = max(range(col, n), key=lambda r: abs(m[r][col]))
+        if abs(m[piv][col]) < 1e-14:
+            return None
+        m[col], m[piv] = m[piv], m[col]
+        for r in range(col + 1, n):
+            f = m[r][col] / m[col][col]
+            if f == 0.0:
+                continue
+            for c in range(col, n + 1):
+                m[r][c] -= f * m[col][c]
+    x = [0.0] * n
+    for r in range(n - 1, -1, -1):
+        sacc = m[r][n]
+        for c in range(r + 1, n):
+            sacc -= m[r][c] * x[c]
+        x[r] = sacc / m[r][r]
+    return x
+
+
+def three_mineral_solve(rhob, nphi, pef, minerals, fluid, tol=1e-9):
+    """PT11d stage one (Doveton 1994 ch. 3, determined case): v1, v2, v3,
+    phi from rhob, nphi, U = pef*rho_e(rhob) and closure, each mineral
+    {rho, nphi, u}, fluid {rho, nphi, u}. Returns a dict with flag 0
+    accepted, 1 singular, 2 a fraction outside [0, 1] beyond tol (with the
+    excursion as residual and the unclamped solution), 3 missing input."""
+    if rhob is None or nphi is None or pef is None:
+        return {"flag": 3, "v": [None] * 3, "phi": None, "residual": None}
+    u = pef * rho_electron(rhob)
+    a = [[m["rho"] for m in minerals] + [fluid["rho"]],
+         [m["nphi"] for m in minerals] + [fluid["nphi"]],
+         [m["u"] for m in minerals] + [fluid["u"]],
+         [1.0, 1.0, 1.0, 1.0]]
+    x = _gauss4(a, [rhob, nphi, u, 1.0])
+    if x is None:
+        return {"flag": 1, "v": [None] * 3, "phi": None, "residual": None}
+    exc = max(max(-f, f - 1.0) for f in x)
+    exc = max(exc, 0.0)
+    if exc > tol:
+        return {"flag": 2, "v": [None] * 3, "phi": None, "residual": exc, "unclamped": x}
+    return {"flag": 0, "v": x[:3], "phi": x[3], "residual": 0.0, "unclamped": x}
+
+
 # ---- Curve normalization (PS7) --------------------------------------------
 
 
