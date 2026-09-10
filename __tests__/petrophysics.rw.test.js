@@ -67,8 +67,14 @@ describe('PT11a Bateman-Konen', () => {
     const temps = new Set(pts.map((p) => p.temp_f));
     expect(temps.size).toBeGreaterThanOrEqual(2);
     expect(temps.has(75)).toBe(true);
+    // inside the band the fit is accepted to its DECLARED residual, not to
+    // reading precision: it is an approximation of the chart, and says so
+    const residual = chart.fit_residual_accepted;
+    expect(residual).toBe(RWE_TO_RW_DOMAIN.fitResidual);
     let accepted = 0;
     let refuted = 0;
+    const acceptedTemps = new Set();
+    let worst = 0;
     for (const p of pts) {
       // the chart's correction is upward everywhere it was read
       expect(p.rw).toBeGreaterThan(p.rwe);
@@ -77,8 +83,14 @@ describe('PT11a Bateman-Konen', () => {
       const inBand = p.rwe >= band.lo && p.rwe <= band.hi;
       if (inBand) {
         accepted += 1;
+        acceptedTemps.add(p.temp_f);
+        expect(p.precision).toBeLessThanOrEqual(residual);
         expect(Number.isFinite(rw)).toBe(true);
-        expect(Math.abs(rw - p.rw) / p.rw).toBeLessThanOrEqual(p.precision);
+        const err = Math.abs(rw - p.rw) / p.rw;
+        worst = Math.max(worst, err);
+        expect(err).toBeLessThanOrEqual(residual);
+        // and the fit beats no correction at every in-band reading
+        expect(err).toBeLessThan(Math.abs(p.rwe - p.rw) / p.rw);
       } else {
         // outside the band the engine refuses with a reason
         expect(Number.isNaN(rw)).toBe(true);
@@ -90,9 +102,15 @@ describe('PT11a Bateman-Konen', () => {
     expect(refuted).toBeGreaterThanOrEqual(28);
     expect(pts.filter((p) => p.band === 'fresh').every((p) => rawFit(p.rwe, p.temp_f) < 0.65 * p.rw)).toBe(true);
     expect(pts.filter((p) => p.band === 'saline').every((p) => rawFit(p.rwe, p.temp_f) > 1.1 * p.rw)).toBe(true);
-    if (!accepted) {
+    // 2026-09-10: five label-anchored 75 degF readings inside the band, worst residual 9.3 percent
+    expect(accepted).toBeGreaterThanOrEqual(5);
+    expect(acceptedTemps.has(75)).toBe(true);
+    expect(worst).toBeGreaterThan(0.09);
+    expect(worst).toBeLessThan(0.10);
+    const unread = [...temps].filter((t) => !acceptedTemps.has(t));
+    if (unread.length) {
       // eslint-disable-next-line no-console
-      console.warn(`PT11a chart_points.json: ${pts.length} readings, all outside the accepted band and all refused; acceptance of rweToRw INSIDE the band (Rwe ${RWE_TO_RW_DOMAIN.rweMin75F} at 75 degF .. ${RWE_TO_RW_DOMAIN.rweMax} ohm.m) is PENDING until the chart is read there.`);
+      console.warn(`PT11a chart_points.json: the fit is accepted inside the band at ${[...acceptedTemps].join(', ')} degF (worst residual ${(worst * 100).toFixed(1)} percent); in-band readings at ${unread.join(', ')} degF are still PENDING.`);
     }
   });
 
