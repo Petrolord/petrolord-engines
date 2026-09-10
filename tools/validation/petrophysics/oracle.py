@@ -128,17 +128,67 @@ def sp_k(temp_f):
 
 
 def rwe_from_ssp(ssp_mv, rmfe, temp_f):
-    """Quicklook SP chain: SSP = -K*log10(Rmfe/Rwe)  =>
-    Rwe = Rmfe * 10^(SSP/K).
-    v1 SCOPE NOTE (plan Q4): Rmfe ~= Rmf and Rw ~= Rwe are the
-    documented quicklook approximations (valid for moderately saline,
-    predominantly NaCl waters). The full Rmf->Rmfe and Rwe->Rw
-    conversions (Bateman & Konen 1977) land only with a
-    page-referenced source in hand — coefficients were not verifiable
-    from open sources on 2026-07-13 and will not be guessed."""
+    """SP chain: SSP = -K*log10(Rmfe/Rwe)  =>  Rwe = Rmfe * 10^(SSP/K).
+    Rwe is the EQUIVALENT water resistivity; rwe_to_rw takes it to Rw
+    (PT11a, Bateman & Konen 1977) and rmfe_from_rmf gives Rmfe."""
     if ssp_mv is None:
         return None
     return rmfe * 10.0 ** (ssp_mv / sp_k(temp_f))
+
+
+def _bk_ab(t_f):
+    """Bateman & Konen (1977, The Log Analyst 18(5) p. 3-11) fit to the
+    Schlumberger Rw vs Rweq chart (SP-2 / Gen-9), T in degF:
+    A = 0.131*10^(1/log10(T/19.9) - 2), B = 10^(0.0426/log10(T/50.8)).
+    Written from the paper as supplied 2026-09-10, never from the JS."""
+    if t_f is None or t_f <= 50.8:
+        return None
+    a = 0.131 * 10.0 ** (1.0 / math.log10(t_f / 19.9) - 2.0)
+    b = 10.0 ** (0.0426 / math.log10(t_f / 50.8))
+    return a, b
+
+
+def rwe_to_rw(rwe, t_f):
+    """Rw = (Rwe + A)/(B - 0.5*Rwe); None where the denominator is not
+    positive (the fit fails, roughly Rwe > 2 ohm.m) or T <= 50.8 degF."""
+    ab = _bk_ab(t_f)
+    if ab is None or rwe is None or rwe <= 0:
+        return None
+    a, b = ab
+    den = b - 0.5 * rwe
+    if den <= 0:
+        return None
+    return (rwe + a) / den
+
+
+def rw_to_rwe(rw, t_f):
+    """Inverse: Rwe = (Rw*B - A)/(1 + 0.5*Rw); None when not positive."""
+    ab = _bk_ab(t_f)
+    if ab is None or rw is None or rw <= 0:
+        return None
+    a, b = ab
+    rwe = (rw * b - a) / (1.0 + 0.5 * rw)
+    return rwe if rwe > 0 else None
+
+
+def rmfe_from_rmf(rmf, rmf_t_f, t_f):
+    """Rmfe at formation temperature: Rmfe = 0.85*Rmf(T) when Rmf at
+    75 degF exceeds 0.1 ohm.m (standard convention), else the chart
+    inverse. Returns (rmfe, rule)."""
+    if rmf is None or rmf <= 0:
+        return None, None
+    rmf_t = rw_arps(rmf, rmf_t_f, t_f)
+    rmf_75 = rw_arps(rmf, rmf_t_f, 75.0)
+    if rmf_75 > 0.1:
+        return 0.85 * rmf_t, "x0.85"
+    return rw_to_rwe(rmf_t, t_f), "chart-inverse"
+
+
+def rw_from_ssp(ssp_mv, rmf, rmf_t_f, t_f):
+    """The whole chain at formation temperature."""
+    rmfe, rule = rmfe_from_rmf(rmf, rmf_t_f, t_f)
+    rwe = rwe_from_ssp(ssp_mv, rmfe, t_f)
+    return {"k": sp_k(t_f), "rmfe": rmfe, "rule": rule, "rwe": rwe, "rw": rwe_to_rw(rwe, t_f)}
 
 
 def rw_from_salinity(ppm_nacl, t_f):
