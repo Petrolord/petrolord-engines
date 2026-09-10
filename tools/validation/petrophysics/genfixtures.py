@@ -500,10 +500,13 @@ def analytic_cases():
         "sp_quicklook": {"in": {"ssp_mv": -100.0, "rmfe": 0.5, "temp_f": 150.0}, "out": oracle.rwe_from_ssp(-100.0, 0.5, 150.0)},
         # PT11a: Bateman & Konen (1977) Rwe -> Rw (SP-2 chart fit)
         "bk_check_point_150f": {"in": {"rwe": 0.05, "t_f": 150.0}, "out": oracle.rwe_to_rw(0.05, 150.0)},
+        "bk_band_edge_150f": {"in": {"rwe": 0.10, "t_f": 150.0}, "out": oracle.rwe_to_rw(0.10, 150.0)},
+        "bk_band_floor_75f": {"in": {"rwe": 0.02, "t_f": 75.0}, "out": oracle.rwe_to_rw(0.02, 75.0)},
+        # refused since the chart was read (2026-09-10): fresher than the band
         "bk_fresh_band_150f": {"in": {"rwe": 0.30, "t_f": 150.0}, "out": oracle.rwe_to_rw(0.30, 150.0)},
         "bk_75f_0p3": {"in": {"rwe": 0.30, "t_f": 75.0}, "out": oracle.rwe_to_rw(0.30, 75.0)},
-        "bk_inverse_roundtrip": {"in": {"rw": 0.12, "t_f": 200.0},
-                                 "out": oracle.rwe_to_rw(oracle.rw_to_rwe(0.12, 200.0), 200.0)},
+        "bk_inverse_roundtrip": {"in": {"rw": 0.06, "t_f": 200.0},
+                                 "out": oracle.rwe_to_rw(oracle.rw_to_rwe(0.06, 200.0), 200.0)},
         "bk_rmfe_x085": {"in": {"rmf": 0.5, "rmf_t_f": 75.0, "t_f": 150.0}, "out": oracle.rmfe_from_rmf(0.5, 75.0, 150.0)[0]},
         "bk_rmfe_inverse": {"in": {"rmf": 0.05, "rmf_t_f": 75.0, "t_f": 150.0}, "out": oracle.rmfe_from_rmf(0.05, 75.0, 150.0)[0]},
         # the type-well SP case: SSP chosen so the chain returns the golden
@@ -639,6 +642,19 @@ def assert_anchors(tw, goldens):
     a_bk, b_bk = oracle._bk_ab(150.0)
     assert abs(a_bk - 0.0181) < 5e-5 and abs(b_bk - 1.232) < 5e-4, f"BK A,B {a_bk} {b_bk}"
     assert abs(oracle.rwe_to_rw(0.05, 150.0) - 0.0564) < 5e-5, f"BK check point {oracle.rwe_to_rw(0.05, 150.0)}"
+    # chart SP-2 readings (chart_points.json, 2026-09-10): every reading
+    # outside the accepted band is refused, and none inside it may miss
+    with open(os.path.join(OUT, "chart_points.json")) as f:
+        chart = json.load(f)
+    n_in = 0
+    for pt in chart["points"]:
+        got = oracle.rwe_to_rw(pt["rwe"], pt["temp_f"])
+        if got is None:
+            continue
+        n_in += 1
+        assert abs(got - pt["rw"]) / pt["rw"] <= pt["precision"], f"chart point {pt} vs fit {got}"
+    if n_in == 0:
+        print("chart SP-2: no reading inside the accepted band yet; in-band acceptance PENDING")
     chain = _sp_chain_typewell()
     assert abs(chain["rw"] - p["rw"]) < 1e-12, f"SP chain round trip {chain['rw']} vs {p['rw']}"
     assert chain["rwe"] < p["rw"], "the correction must be upward at the saline end"

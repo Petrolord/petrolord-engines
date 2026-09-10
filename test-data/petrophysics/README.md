@@ -128,5 +128,10 @@ beside these with its full citation. The SP chain is complete since PT11a
 (2026-09-10): Rmf -> Rmfe (0.85 rule or the chart inverse), Rwe from SSP
 and K, and Rwe -> Rw by the Bateman & Konen (1977, The Log Analyst 18(5)
 p. 3-11) fit to chart SP-2, with the limits stated in `engines/petrophysics/rw.js`.
-Chart readings for its golden gate live in `chart_points.json` (pending
-until read off the chart).
+Chart readings for its golden gate live in `chart_points.json`: 31 read
+2026-09-10 (28 on the fresh side, Rw 1.0 to 5.0 ohm.m at all seven
+printed temperatures 75 to 500 F; 3 near NaCl saturation at 75 F). They
+REFUTE the fit on both sides (36 to 92 percent low fresh, 13 to 24
+percent high saline), so the engine accepts only Rwe 0.02 (at 75 F,
+Arps to formation T) to 0.1 ohm.m and refuses elsewhere; no reading yet
+sits inside that band, so its acceptance is PENDING (gate 2 says so).

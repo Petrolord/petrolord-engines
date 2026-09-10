@@ -148,11 +148,34 @@ def _bk_ab(t_f):
     return a, b
 
 
+# The band chart SP-2 allows the fit (read 2026-09-10, chart_points.json):
+# the chart's printed 75..500 degF, Rwe at formation temperature at most
+# BK_RWE_MAX, and Rwe carried to 75 degF by Arps at least BK_RWE_MIN_75F.
+# Outside it the readings refute the fit (36 to 92 percent low on the
+# fresh side, 13 to 24 percent high near saturation), so the oracle
+# refuses there exactly as the engine does.
+BK_CHART_T_F = (75.0, 500.0)
+BK_RWE_MAX = 0.1
+BK_RWE_MIN_75F = 0.02
+
+
+def bk_rwe_band(t_f):
+    """(lo, hi) accepted Rwe at t_f, or None outside the chart."""
+    if t_f is None or t_f <= 50.8 or t_f < BK_CHART_T_F[0] or t_f > BK_CHART_T_F[1]:
+        return None
+    return rw_arps(BK_RWE_MIN_75F, 75.0, t_f), BK_RWE_MAX
+
+
+def _bk_in_band(rwe, t_f):
+    band = bk_rwe_band(t_f)
+    return band is not None and band[0] <= rwe <= band[1]
+
+
 def rwe_to_rw(rwe, t_f):
-    """Rw = (Rwe + A)/(B - 0.5*Rwe); None where the denominator is not
-    positive (the fit fails, roughly Rwe > 2 ohm.m) or T <= 50.8 degF."""
+    """Rw = (Rwe + A)/(B - 0.5*Rwe); None outside the accepted band, where
+    the denominator is not positive, or T outside the chart."""
     ab = _bk_ab(t_f)
-    if ab is None or rwe is None or rwe <= 0:
+    if ab is None or rwe is None or rwe <= 0 or not _bk_in_band(rwe, t_f):
         return None
     a, b = ab
     den = b - 0.5 * rwe
@@ -162,13 +185,14 @@ def rwe_to_rw(rwe, t_f):
 
 
 def rw_to_rwe(rw, t_f):
-    """Inverse: Rwe = (Rw*B - A)/(1 + 0.5*Rw); None when not positive."""
+    """Inverse: Rwe = (Rw*B - A)/(1 + 0.5*Rw); None when not positive or
+    when the Rwe it lands on is outside the accepted band."""
     ab = _bk_ab(t_f)
-    if ab is None or rw is None or rw <= 0:
+    if ab is None or rw is None or rw <= 0 or bk_rwe_band(t_f) is None:
         return None
     a, b = ab
     rwe = (rw * b - a) / (1.0 + 0.5 * rw)
-    return rwe if rwe > 0 else None
+    return rwe if rwe > 0 and _bk_in_band(rwe, t_f) else None
 
 
 def rmfe_from_rmf(rmf, rmf_t_f, t_f):

@@ -1,6 +1,281 @@
 {
-  "_about": "PT11a golden set for rweToRw: readings taken DIRECTLY off the Schlumberger Rw versus Rweq chart (SP-2 in current Log Interpretation Charts editions, Gen-9 in older ones), never off another implementation. Each point: rwe and rw in ohm.m, temp_f in degF, precision as a relative fraction the chart grid allows. The jest gate brackets every point to its precision; with an empty list the gate reports the readings as pending rather than passing silently. Request list (owner, 2026-09-10): at least six points, both ends of the chart, at least two temperatures, and one at 75 degF near Rwe 0.3.",
-  "citation": "Schlumberger Log Interpretation Charts, chart SP-2 (Rw versus Rweq and formation temperature); Bateman & Konen 1977, The Log Analyst 18(5) p. 3-11.",
-  "chart_temp_f_range": null,
-  "points": []
+ "_about": "PT11a golden set for rweToRw: readings taken DIRECTLY off the Schlumberger Rw versus Rweq chart (SP-2 in current Log Interpretation Charts editions, Gen-9 in older ones), never off another implementation. Each point: rwe and rw in ohm.m, temp_f in degF, precision as a relative fraction of Rw the chart grid allows (assigned here from the grid: 3 percent on the fresh columns, 5 percent on the saline corner where the 75 F curve is nearly vertical; the calibration check below recovered the printed example to 0.25 percent, so grid reading, not scan geometry, sets it). The jest gate (petrophysics.rw.test.js gate 2) brackets every ACCEPTED point to its precision and requires every point OUTSIDE the engine's accepted band to be refused; it reports PENDING while no reading falls inside the band.",
+ "citation": "Schlumberger Log Interpretation Charts, chart SP-2 (Rw versus Rweq and formation temperature), scanned reproduction; Bateman & Konen 1977, The Log Analyst 18(5) p. 3-11 for the fit under test.",
+ "read_on": "2026-09-10",
+ "axes": {
+  "x": "Rw or Rmf (ohm-m)",
+  "y": "Rweq or Rmfeq (ohm-m)"
+ },
+ "chart_temp_f_range": [
+  75,
+  500
+ ],
+ "curves_top_to_bottom_f": [
+  500,
+  400,
+  300,
+  200,
+  150,
+  100,
+  75
+ ],
+ "calibration_check": {
+  "printed_rw": 0.041,
+  "recovered_rw": 0.0411
+ },
+ "saturation_asymptote_75f_rw": 0.035,
+ "needs_human_check": [
+  "75 F between Rweq 0.02 and 0.06, where the NaCl-in-75F solid line crosses the family (no reading yet; this is the band the engine accepts, so its acceptance is PENDING)"
+ ],
+ "verdict_2026_09_10": "The Bateman-Konen fit does not reproduce the chart in either band read: 36 to 92 percent LOW on all 28 fresh readings (Rw 1.0 to 5.0 ohm.m, all seven temperatures) and 13 to 24 percent HIGH on the three saline 75 F readings (Rweq 0.0075 to 0.015). Every chart reading has Rw above Rweq; the fit turns the correction downward between Rwe 0.1 and about 1.4 ohm.m below 250 F. The engine therefore accepts only rweMin75F 0.02 (Arps to formation T) .. rweMax 0.1 ohm.m at formation T (RWE_TO_RW_DOMAIN) and refuses elsewhere. Held for the owner: the band itself, which no reading yet confirms.",
+ "points": [
+  {
+   "band": "fresh",
+   "rw": 1.0,
+   "temp_f": 75.0,
+   "rwe": 0.744,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.0,
+   "temp_f": 100.0,
+   "rwe": 0.653,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.0,
+   "temp_f": 150.0,
+   "rwe": 0.53,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.0,
+   "temp_f": 200.0,
+   "rwe": 0.446,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.0,
+   "temp_f": 300.0,
+   "rwe": 0.36,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.0,
+   "temp_f": 400.0,
+   "rwe": 0.278,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.0,
+   "temp_f": 500.0,
+   "rwe": 0.229,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.5,
+   "temp_f": 75.0,
+   "rwe": 0.933,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.5,
+   "temp_f": 100.0,
+   "rwe": 0.805,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.5,
+   "temp_f": 150.0,
+   "rwe": 0.653,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.5,
+   "temp_f": 200.0,
+   "rwe": 0.54,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.5,
+   "temp_f": 300.0,
+   "rwe": 0.425,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.5,
+   "temp_f": 400.0,
+   "rwe": 0.325,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 1.5,
+   "temp_f": 500.0,
+   "rwe": 0.263,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 4.0,
+   "temp_f": 75.0,
+   "rwe": 1.434,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 4.0,
+   "temp_f": 100.0,
+   "rwe": 1.264,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 4.0,
+   "temp_f": 150.0,
+   "rwe": 0.983,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 4.0,
+   "temp_f": 200.0,
+   "rwe": 0.787,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 4.0,
+   "temp_f": 300.0,
+   "rwe": 0.607,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 4.0,
+   "temp_f": 400.0,
+   "rwe": 0.434,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 4.0,
+   "temp_f": 500.0,
+   "rwe": 0.351,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 5.0,
+   "temp_f": 75.0,
+   "rwe": 1.571,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 5.0,
+   "temp_f": 100.0,
+   "rwe": 1.373,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 5.0,
+   "temp_f": 150.0,
+   "rwe": 1.067,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 5.0,
+   "temp_f": 200.0,
+   "rwe": 0.87,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 5.0,
+   "temp_f": 300.0,
+   "rwe": 0.656,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 5.0,
+   "temp_f": 400.0,
+   "rwe": 0.466,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "fresh",
+   "rw": 5.0,
+   "temp_f": 500.0,
+   "rwe": 0.375,
+   "precision": 0.03,
+   "read": "Rweq read on the T curve at the Rw grid line"
+  },
+  {
+   "band": "saline",
+   "rw": 0.0355,
+   "temp_f": 75.0,
+   "rwe": 0.0075,
+   "precision": 0.05,
+   "read": "Rw read on the 75 F curve at the Rweq grid line, near the saturation bend"
+  },
+  {
+   "band": "saline",
+   "rw": 0.0405,
+   "temp_f": 75.0,
+   "rwe": 0.01,
+   "precision": 0.05,
+   "read": "Rw read on the 75 F curve at the Rweq grid line, near the saturation bend"
+  },
+  {
+   "band": "saline",
+   "rw": 0.043,
+   "temp_f": 75.0,
+   "rwe": 0.015,
+   "precision": 0.05,
+   "read": "Rw read on the 75 F curve at the Rweq grid line, near the saturation bend"
+  }
+ ]
 }
