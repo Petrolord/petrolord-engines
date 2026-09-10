@@ -248,6 +248,7 @@ export const METHOD_CITATIONS = {
     density: 'Density porosity: phi = (rho_ma - rho_b) / (rho_ma - rho_fl).',
     sonic: 'Sonic porosity, per the sonicMethod parameter (Wyllie or RHG).',
     nd: 'Neutron-density combination, per the ndMethod parameter (avg or rms gas form).',
+    mineral: 'Porosity solved by the mineral model: density, neutron and U = Pe*rho_e with closure for three minerals plus porosity, fixed fluid (Doveton 1994, ch. 3, determined case); the endpoint table in play is in the published curves\' provenance.',
   },
   phie: {
     'shale-point': 'Effective porosity by the linear shale-point correction phi_e = phi_t - Vsh * phi_sh (Dresser Atlas 1979 log interpretation charts; Asquith & Krygowski 2004, ch. 4), phi_sh being the selected tool\'s apparent porosity in shale.',
