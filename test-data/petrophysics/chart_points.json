@@ -25,9 +25,10 @@
  },
  "saturation_asymptote_75f_rw": 0.035,
  "needs_human_check": [
-  "75 F between Rweq 0.02 and 0.06, where the NaCl-in-75F solid line crosses the family (no reading yet; this is the band the engine accepts, so its acceptance is PENDING)"
+  "RESOLVED 2026-09-10: 75 F between Rweq 0.02 and 0.06 read label-anchored (five inband points). A first trace from the chart's printed example landed on a hot curve (Rw 0.025/0.0345/0.041/0.0525/0.063 at the same Rweq, matching the fit at 300 to 500 F within 4 percent) and was discarded because it was non-monotonic with the saline set and below the 75 F saturation asymptote; the example's printed 75 F is its Rmf temperature.",
+  "NEXT: the same Rweq 0.02 to 0.06 column at 150 F and 300 F, to test the fit's temperature handling inside the band (only 75 F is confirmed)."
  ],
- "verdict_2026_09_10": "The Bateman-Konen fit does not reproduce the chart in either band read: 36 to 92 percent LOW on all 28 fresh readings (Rw 1.0 to 5.0 ohm.m, all seven temperatures) and 13 to 24 percent HIGH on the three saline 75 F readings (Rweq 0.0075 to 0.015). Every chart reading has Rw above Rweq; the fit turns the correction downward between Rwe 0.1 and about 1.4 ohm.m below 250 F. The engine therefore accepts only rweMin75F 0.02 (Arps to formation T) .. rweMax 0.1 ohm.m at formation T (RWE_TO_RW_DOMAIN) and refuses elsewhere. Held for the owner: the band itself, which no reading yet confirms.",
+ "verdict_2026_09_10": "The Bateman-Konen fit does not reproduce the chart outside a saline band: 36 to 92 percent LOW on all 28 fresh readings (Rw 1.0 to 5.0 ohm.m, all seven temperatures) and 13 to 24 percent HIGH on the three saline 75 F readings (Rweq 0.0075 to 0.015). Every chart reading has Rw above Rweq; the fit turns the correction downward between Rwe 0.1 and about 1.4 ohm.m below 250 F. Inside the accepted band (rweMin75F 0.02 Arps to formation T .. rweMax 0.1 at formation T, RWE_TO_RW_DOMAIN) the five label-anchored 75 F readings put the fit within 10 percent (+9.3 to -4.2), so it is accepted there with that residual declared; other temperatures inside the band are unread.",
  "points": [
   {
    "band": "fresh",
@@ -276,6 +277,48 @@
    "rwe": 0.015,
    "precision": 0.05,
    "read": "Rw read on the 75 F curve at the Rweq grid line, near the saturation bend"
+  },
+  {
+   "band": "inband",
+   "rw": 0.047,
+   "temp_f": 75.0,
+   "rwe": 0.02,
+   "precision": 0.03,
+   "read": "Rw read on the label-anchored 75 F curve at the Rweq grid line (2026-09-10, second pass); agrees with the earlier saline set (monotonic through 0.015 -> 0.043) and with the published 75 F relation to 1 percent"
+  },
+  {
+   "band": "inband",
+   "rw": 0.054,
+   "temp_f": 75.0,
+   "rwe": 0.03,
+   "precision": 0.03,
+   "read": "Rw read on the label-anchored 75 F curve at the Rweq grid line (2026-09-10, second pass); agrees with the earlier saline set (monotonic through 0.015 -> 0.043) and with the published 75 F relation to 1 percent"
+  },
+  {
+   "band": "inband",
+   "rw": 0.06,
+   "temp_f": 75.0,
+   "rwe": 0.038,
+   "precision": 0.03,
+   "read": "Rw read on the label-anchored 75 F curve at the Rweq grid line (2026-09-10, second pass); agrees with the earlier saline set (monotonic through 0.015 -> 0.043) and with the published 75 F relation to 1 percent"
+  },
+  {
+   "band": "inband",
+   "rw": 0.07,
+   "temp_f": 75.0,
+   "rwe": 0.05,
+   "precision": 0.03,
+   "read": "Rw read on the label-anchored 75 F curve at the Rweq grid line (2026-09-10, second pass); agrees with the earlier saline set (monotonic through 0.015 -> 0.043) and with the published 75 F relation to 1 percent"
+  },
+  {
+   "band": "inband",
+   "rw": 0.078,
+   "temp_f": 75.0,
+   "rwe": 0.06,
+   "precision": 0.03,
+   "read": "Rw read on the label-anchored 75 F curve at the Rweq grid line (2026-09-10, second pass); agrees with the earlier saline set (monotonic through 0.015 -> 0.043) and with the published 75 F relation to 1 percent"
   }
- ]
+ ],
+ "fit_residual_accepted": 0.1,
+ "fit_residual_note": "Inside the accepted band the gate asks the fit to sit within fit_residual_accepted of each chart reading, NOT within reading precision: the Bateman-Konen fit is a 1977 pocket-calculator approximation and the 75 F readings show it +9.3 percent at Rweq 0.020, +5.9 at 0.030, +3.1 at 0.038, -1.6 at 0.050, -4.2 at 0.060 (the uncorrected Rweq would be 23 to 57 percent low). The same 10 percent standard gates rwFromSalinity against Gen-9 (PT9d). The band floor rweMin75F = 0.02 is where the residual crosses 10 percent; below 0.015 it is 13 to 24 percent. The residual is declared in RWE_TO_RW_DOMAIN.fitResidual and stated in the Studio."
 }

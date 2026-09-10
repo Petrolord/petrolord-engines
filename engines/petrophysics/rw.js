@@ -54,10 +54,13 @@ export function rweFromSsp(sspMv, rmfe, tempF) {
  *    below) it is 13 to 24 percent HIGH; its only confirmed anchors are
  *    the 75 degF saturation asymptote (A/B = 0.040 against the chart's
  *    0.035) and the owner's 150 degF check point;
- *  - no reading yet sits between Rweq 0.02 and Rw 1.0 (the owner flagged
- *    75 degF between 0.02 and 0.06 for a human check), so the band the
- *    fit is trusted in below is bounded by where it is KNOWN wrong, not
- *    proven right; the gate says PENDING for that band until it is read.
+ *  - inside the band, five label-anchored 75 degF readings (Rweq 0.020
+ *    to 0.060) put the fit within 10 percent: +9.3 percent at 0.020,
+ *    +5.9 at 0.030, +3.1 at 0.038, -1.6 at 0.050, -4.2 at 0.060, where
+ *    the uncorrected Rweq would be 23 to 57 percent low. That residual
+ *    is declared as fitResidual below and stated in the Studio; the same
+ *    10 percent standard gates rwFromSalinity against Gen-9. Only 75
+ *    degF is read inside the band; other temperatures are unconfirmed.
  * Accepted band (RWE_TO_RW_DOMAIN, refused with a reason outside it):
  *    T inside 75..500 degF (and above 50.8 degF, where the second log
  *    goes to zero); Rwe at formation temperature at most rweMax = 0.1
@@ -68,7 +71,9 @@ export function rweFromSsp(sspMv, rmfe, tempF) {
  *    is always positive. No extrapolation, no clamping.
  * Inside the band the correction is upward and modest: +13 percent at
  * 150 degF and Rwe 0.05 (the check point, Rw = 0.0564), within 2 percent
- * of Rwe at the 0.1 edge (slightly below it at 75 degF). Check point: T = 150, Rwe = 0.050 gives A = 0.0181,
+ * of Rwe at the 0.1 edge (slightly below it at 75 degF); at 75 degF the
+ * chart's own correction runs +30 to +135 percent over the band and the
+ * fit follows it to within the 10 percent above. Check point: T = 150, Rwe = 0.050 gives A = 0.0181,
  * B = 1.232, Rw = 0.0564.
  */
 export const RWE_TO_RW_DOMAIN = Object.freeze({
@@ -78,6 +83,7 @@ export const RWE_TO_RW_DOMAIN = Object.freeze({
   rweMin: 0,          // exclusive
   rweMax: 0.1,        // inclusive, at formation temperature: fresher is refused (chart refutes the fit)
   rweMin75F: 0.02,    // inclusive, Rwe carried to 75 degF by Arps: nearer saturation is refused
+  fitResidual: 0.10,  // the fit's declared accuracy against chart SP-2 inside the band (75 degF readings)
 });
 
 const bkAB = (tempF) => ({

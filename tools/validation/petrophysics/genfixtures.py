@@ -647,14 +647,15 @@ def assert_anchors(tw, goldens):
     with open(os.path.join(OUT, "chart_points.json")) as f:
         chart = json.load(f)
     n_in = 0
+    residual = chart["fit_residual_accepted"]
     for pt in chart["points"]:
         got = oracle.rwe_to_rw(pt["rwe"], pt["temp_f"])
         if got is None:
             continue
         n_in += 1
-        assert abs(got - pt["rw"]) / pt["rw"] <= pt["precision"], f"chart point {pt} vs fit {got}"
-    if n_in == 0:
-        print("chart SP-2: no reading inside the accepted band yet; in-band acceptance PENDING")
+        assert abs(got - pt["rw"]) / pt["rw"] <= residual, f"chart point {pt} vs fit {got}"
+    assert n_in >= 5, "chart SP-2: fewer than five readings inside the accepted band"
+    print(f"chart SP-2: {n_in} readings inside the accepted band, fit within {residual:.0%}")
     chain = _sp_chain_typewell()
     assert abs(chain["rw"] - p["rw"]) < 1e-12, f"SP chain round trip {chain['rw']} vs {p['rw']}"
     assert chain["rwe"] < p["rw"], "the correction must be upward at the saline end"

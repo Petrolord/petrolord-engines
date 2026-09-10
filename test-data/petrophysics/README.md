@@ -133,5 +133,9 @@ Chart readings for its golden gate live in `chart_points.json`: 31 read
 printed temperatures 75 to 500 F; 3 near NaCl saturation at 75 F). They
 REFUTE the fit on both sides (36 to 92 percent low fresh, 13 to 24
 percent high saline), so the engine accepts only Rwe 0.02 (at 75 F,
-Arps to formation T) to 0.1 ohm.m and refuses elsewhere; no reading yet
-sits inside that band, so its acceptance is PENDING (gate 2 says so).
+Arps to formation T) to 0.1 ohm.m and refuses elsewhere. Five
+label-anchored 75 F readings inside that band (Rweq 0.02 to 0.06, read
+later the same day) put the fit within 10 percent (+9.3 to -4.2), the
+declared `fit_residual_accepted` gate 2 uses inside the band (reading
+precision is 3 percent; the fit is an approximation and says so); other
+temperatures inside the band are unread and gate 2 says so.
