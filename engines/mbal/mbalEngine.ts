@@ -70,7 +70,7 @@ export type SolverMethod =
 // PVTCorrelations is defined with the correlations themselves, in
 // engines/fluid/blackOil.ts, and re-exported here so every existing consumer
 // of this module's type surface is unaffected by the extraction.
-export type { PVTCorrelations } from '../fluid/blackOil';
+export type { PVTCorrelations } from '../fluid/blackOil.ts';
 
 export interface ProductionDataPoint {
   timestep_index: number;
@@ -319,7 +319,7 @@ import {
   bealDeadOilViscosity, beggsRobinsonLiveOilViscosity,
   vasquezBeggsUndersaturatedOilViscosity, leeGonzalezEakinGasViscosity,
   correlationValidityWarnings, viscosityValidityWarnings,
-} from '../fluid/blackOil';
+} from '../fluid/blackOil.ts';
 
 // ============================================================================
 // CAPSULE 4C CHUNK (b) — PVT LAB TABLE INTERPOLATION (2026-05-15)
