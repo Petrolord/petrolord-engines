@@ -209,8 +209,13 @@ export interface PerTimestepResult {
   ddi?: number;
   gdi?: number;
   wdi?: number;
-  cdi?: number;                  // Formation+water compressibility drive (gas)
-  sdi?: number;                  // Segregation drive (oil)
+  // Rock and connate water expansion drive, BOTH fluid systems. Pletcher calls
+  // this ICD for gas and Ahmed calls it EDI for oil; it is the same numerator
+  // either way, N·Efw (or G·Efw). Named cdi throughout since 2026-09-11, when
+  // the oil path's separate `sdi` field was removed: `sdi` held this same
+  // expansion term while its comment said "Segregation drive", and the UI
+  // printed it as "Segregation (SDI)". Ahmed's SDI (segregation, i.e. the gas
+  // cap) is `gdi`. Read the numerator, never the acronym.
   drive_index_sum?: number;
 }
 
@@ -232,7 +237,6 @@ export interface MBALResult {
   final_ddi?: number;
   final_gdi?: number;
   final_wdi?: number;
-  final_sdi?: number;
   final_cdi?: number;
   final_drive_index_sum?: number;
 
@@ -913,7 +917,7 @@ export function resolveValidationTier(
   // aquifer_model === 'none'
   // Validated 2026-05-17 against Tarek Ahmed Example 11-3 (Virginia Hills
   // Beaverhill Lake field). Validation harness Case 2D asserts D-1..D-6:
-  // OOIP, drive index sum, DDI+SDI invariant, WDI≈0, GDI=0, mechanism
+  // OOIP, drive index sum, DDI+CDI invariant, WDI≈0, GDI=0, mechanism
   // classification. All pass.
   return {
     tier: 'benchmark_verified',
@@ -1027,6 +1031,55 @@ function validateInputs(inputs: MBALInputs): void {
 // candidate (simulated) pressures through the exact same PVT precedence
 // chain the regression path uses. Mirrors the MB1 computeOilPerTimestep
 // extraction on the oil side. computeGasMBE behavior is unchanged.
+/**
+ * Sanity guards on a material-balance solution that came back physically
+ * impossible: a negative or zero hydrocarbon in place, or a negative pot
+ * aquifer volume.
+ *
+ * The regression happily returns these. A straight line fitted to data that
+ * does not obey the assumed drive mechanism can have a negative intercept, and
+ * the fit quality says nothing about it: R² of 0.999 on a negative OOIP is
+ * common, because the points really are collinear, just not about the model
+ * you asked for. Without a guard the engine reported OOIP = -516,449 STB with
+ * an empty warnings array and tier `benchmark_verified`, which reads exactly
+ * like a good answer (found 2026-08-27 while authoring RC2).
+ *
+ * Warnings only. The validation tier describes the provenance of the CODE PATH,
+ * not the plausibility of one result, so it stays as it is; what changes is
+ * that the UI now has something to show.
+ */
+function physicalSanityWarnings(
+  fluid: 'oil' | 'gas',
+  inPlace: number | null | undefined,
+  inPlaceUnit: string,
+  aquiferModel: AquiferModel,
+  W_rb: number | null | undefined,
+): string[] {
+  const out: string[] = [];
+  const label = fluid === 'oil' ? 'OOIP' : 'OGIP';
+  if (inPlace != null && isFinite(inPlace) && inPlace <= 0) {
+    out.push(
+      `Computed ${label} is ${inPlace < 0 ? 'negative' : 'zero'} ` +
+      `(${inPlace.toExponential(4)} ${inPlaceUnit}), which is physically impossible. ` +
+      `The regression line's intercept came out at or below zero, so this result cannot be ` +
+      `used. A high R² does not rescue it: the points can be collinear about the wrong model. ` +
+      `Check the aquifer model (a real aquifer analysed as "none" bends the plot), the ` +
+      `pressure and production history for unit or sign errors, and whether the early ` +
+      `points belong to a different flow regime.`,
+    );
+  }
+  if (aquiferModel === 'pot' && W_rb != null && isFinite(W_rb) && W_rb < 0) {
+    out.push(
+      `Computed aquifer W is negative (${W_rb.toFixed(0)} res bbl). The pot aquifer ` +
+      `regression solved for a W < 0, which is physically impossible. This often indicates ` +
+      `no aquifer is actually present; consider switching to "none". If you do expect ` +
+      `aquifer support, the data may have a different drive mechanism (gas-cap expansion, ` +
+      `communicating reservoirs, etc.).`,
+    );
+  }
+  return out;
+}
+
 export function computeGasPerTimestep(inputs: MBALInputs): {
   per_timestep: PerTimestepResult[];
   meta: {
@@ -1330,9 +1383,9 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
   if (reg.r_squared < 0.95) {
     warnings.push(`Regression R²=${reg.r_squared.toFixed(4)} is low; data may have scatter or wrong aquifer model.`);
   }
-  if (aquiferModel === 'pot' && W_rb < 0) {
-    warnings.push(`Computed aquifer W is negative (${W_rb.toFixed(0)} res bbl). The pot aquifer regression solved for a W < 0, which is physically impossible. This often indicates no aquifer is actually present; consider switching to "none". If you do expect aquifer support, the data may have a different drive mechanism (gas-cap expansion, communicating reservoirs, etc.).`);
-  }
+  // The negative-W guard has been here since Phase 1; the negative-OGIP half was
+  // missing, exactly as the oil branch was missing both (2026-09-11).
+  warnings.push(...physicalSanityWarnings('gas', G_scf, 'scf', aquiferModel, W_rb));
 
   // Capsule 4C: correlation-validity warnings. Tpr is the most-likely-violated
   // range for gas correlations; we report it at the reservoir temperature.
@@ -1414,7 +1467,7 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
  */
 export interface OilDriveIndices {
   ddi: number;   // depletion drive (oil expansion)
-  sdi: number;   // rock + connate water expansion (Ahmed's EDI)
+  cdi: number;   // rock + connate water expansion (Ahmed's EDI, Pletcher's ICD)
   gdi: number;   // gas cap / segregation drive (Ahmed's SDI)
   wdi: number;   // water drive, net of water produced
   drive_index_sum: number;
@@ -1445,13 +1498,13 @@ export function oilDriveIndices(
 ): OilDriveIndices {
   const WpBw_rb = Wp_stb * (row.bw_rb_stb ?? 1);
   const A_rb = row.F_rb - WpBw_rb;  // hydrocarbon voidage = Np[Bt + (Rp - Rsi)Bg]
-  const zero = { ddi: 0, sdi: 0, gdi: 0, wdi: 0, drive_index_sum: 0, A_rb };
+  const zero = { ddi: 0, cdi: 0, gdi: 0, wdi: 0, drive_index_sum: 0, A_rb };
   if (row.timestep_index === 0 || A_rb <= 0) return zero;
   const ddi = (N_stb * (row.Eo_rb_stb ?? 0)) / A_rb;
-  const sdi = (N_stb * row.Efw_rb) / A_rb;
+  const cdi = (N_stb * row.Efw_rb) / A_rb;
   const gdi = (N_stb * m * (row.Eg_rb_stb ?? 0)) / A_rb;
   const wdi = ((row.We_rb ?? 0) - WpBw_rb) / A_rb;
-  return { ddi, sdi, gdi, wdi, drive_index_sum: ddi + sdi + gdi + wdi, A_rb };
+  return { ddi, cdi, gdi, wdi, drive_index_sum: ddi + cdi + gdi + wdi, A_rb };
 }
 
 export function computeOilPerTimestep(inputs: MBALInputs): {
@@ -1784,16 +1837,23 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
   //   A = F - Wp·Bw = Np·[Bt + (Rp - Rsi)·Bg]
   // and water production is netted inside WDI's numerator:
   //   DDI = N·Eo / A               (depletion drive, oil expansion)
-  //   SDI = N·Efw / A              (rock+connate-water expansion; book EDI)
-  //   GDI = N·m·Eg / A             (gas cap drive; book SDI/segregation)
+  //   CDI = N·Efw / A              (rock and connate water expansion; book EDI)
+  //   GDI = N·m·Eg / A             (gas cap drive; book SDI, "segregation")
   //   WDI = (We - Wp·Bw) / A       (water drive, net of water produced)
+  //
+  // Acronym warning, since the book's letters and the field names do not line
+  // up: Ahmed's SDI is the GAS CAP, which this engine calls gdi. What Ahmed
+  // calls EDI is the rock and connate water expansion, which this engine calls
+  // cdi (Pletcher's ICD on the gas path, same numerator). Until 2026-09-11 the
+  // oil path carried it in a field called `sdi` whose comment said
+  // "Segregation drive", and the studio printed it as "Segregation (SDI)".
   //
   // This is the published convention (Ahmed, Reservoir Engineering Handbook
   // 4th ed., Example 11-1, which prints A = 1,710,000 rb with Wp·Bw = 50,000
   // rb EXCLUDED) and it is the same shape the gas path above already uses
   // (denominator Gp·Bg, water netted into WDI). Substituting the MBE
   // F = N·Et + We gives
-  //   DDI + SDI + GDI + WDI = (N·Et + We - Wp·Bw) / A = (F - Wp·Bw) / A ≡ 1,
+  //   DDI + CDI + GDI + WDI = (N·Et + We - Wp·Bw) / A = (F - Wp·Bw) / A ≡ 1,
   // so the sum is an exact identity at every timestep.
   //
   // BUG FIXED 2026-09-11: this loop divided by gross withdrawal F (which
@@ -1812,7 +1872,7 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
     const r = per_timestep[i];
     const point = inputs.production_data[i];
     const idx = oilDriveIndices(r, N_stb, m, point.cum_water_stb ?? 0);
-    r.ddi = idx.ddi; r.sdi = idx.sdi; r.gdi = idx.gdi; r.wdi = idx.wdi;
+    r.ddi = idx.ddi; r.cdi = idx.cdi; r.gdi = idx.gdi; r.wdi = idx.wdi;
     r.drive_index_sum = idx.drive_index_sum;
   }
 
@@ -1853,6 +1913,11 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
   if (reg.r_squared < 0.95) {
     warnings.push(`Regression R²=${reg.r_squared.toFixed(4)} is low; data may have scatter or wrong drive mechanism.`);
   }
+
+  // 2026-09-11: the oil branch had NO physical-sanity guard while the gas
+  // branch had half of one. A pot aquifer forced onto an aquifer-free tank
+  // returned OOIP = -516,449 STB, R² = 0.9995 and an empty warnings array.
+  warnings.push(...physicalSanityWarnings('oil', N_stb, 'STB', aquiferModel, W_rb));
 
   // Capsule 4C: correlation-validity warnings for oil-side correlations.
   // For oil cases, Tpr/Ppr only matter when there's a gas cap or below-Pb path.
@@ -1910,8 +1975,7 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
     final_ddi: last.ddi,
     final_gdi: last.gdi,
     final_wdi: last.wdi,
-    final_sdi: last.sdi,
-    final_cdi: last.sdi,  // For oil, the rock+water compressibility drive is in sdi
+    final_cdi: last.cdi,  // rock and connate water expansion (Ahmed's EDI)
     final_drive_index_sum: last.drive_index_sum,
     drive_mechanism,
     aquifer_strength,
