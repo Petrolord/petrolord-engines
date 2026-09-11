@@ -23,6 +23,7 @@ import * as path from 'path';
 import {
   computeMaterialBalance,
   computeFetkovichWe,
+  computeGasPerTimestep,
   computeOilPerTimestep,
   oilDriveIndices,
 } from '../engines/mbal/mbalEngine.ts';
@@ -503,5 +504,118 @@ describe('GATE 3W: drive-index closure under heavy water production', () => {
     expect(wet.final_wdi ?? 0).toBeGreaterThan(wet.final_ddi ?? 0);
     const spurious = (wet.warnings ?? []).some((w: string) => w.includes('Drive index sum'));
     expect(spurious).toBe(false);
+  });
+});
+
+// ============================================================================
+// GATE 4 — physical-sanity guards on impossible solutions (2026-09-11)
+// ============================================================================
+// The oil branch had no sanity guard at all and the gas branch had only half of
+// one (negative pot W, no negative OGIP). A regression returns these happily: a
+// straight line fitted to data that does not obey the assumed drive mechanism
+// can have a negative intercept, and fit quality says nothing about it. Found
+// 2026-08-27 authoring RC2: a forced pot aquifer returned OOIP = -516,449 STB
+// with an empty warnings array and tier benchmark_verified, which reads exactly
+// like a good answer.
+//
+// Note what R² does in each case below: 1.0000 for the negative-OOIP and
+// negative-OGIP cases (perfect fit, impossible answer) and 0.03 for the
+// negative-W one. Fit quality is not a sanity check.
+describe('GATE 4: physical-sanity guards', () => {
+  const pvtAt = (p: number) => {
+    const t = (3000 - p) / 200;
+    return {
+      Bo: 1.58 + t * (1.48 - 1.58),
+      Rs: 1040 + t * (850 - 1040),
+      Bg: 0.00080 + t * (0.00092 - 0.00080),
+    };
+  };
+  const pressures = [3000, 2950, 2900, 2850, 2800, 2750, 2700, 2650, 2600];
+  const Rsi = 1040;
+  const oilBase = {
+    fluid_system: 'oil', initial_pressure_psia: 3000, bubble_point_psia: 3000,
+    reservoir_temperature_f: 150, initial_water_saturation: 0.2,
+    formation_compressibility_psi: 1e-6, water_compressibility_psi: 1.5e-6,
+    oil_gravity_api: 35, gas_specific_gravity: 0.8, gas_cap_ratio_m: 0,
+    aquifer_model: 'pot',
+    production_data: pressures.map((p, i) => {
+      const v = pvtAt(p);
+      return {
+        timestep_index: i, pressure_psia: p, cum_oil_stb: 0, cum_gas_scf: 0,
+        cum_water_stb: 0, bo_rb_stb: v.Bo, rs_scf_stb: v.Rs, bg_rb_scf: v.Bg, bw_rb_stb: 1.0,
+      };
+    }),
+  } as any;
+  const { per_timestep: oilTerms } = computeOilPerTimestep(oilBase);
+  const oilRows = (F: (i: number) => number) => pressures.map((p, i) => {
+    if (i === 0) return oilBase.production_data[0];
+    const v = pvtAt(p);
+    const Bt = v.Bo + v.Bg * (Rsi - v.Rs);
+    const Np = F(i) / Bt;
+    return { ...oilBase.production_data[i], cum_oil_stb: Np, cum_gas_scf: Np * Rsi };
+  });
+  const impossible = (w: string[] = []) => w.filter((x) => x.includes('physically impossible'));
+
+  it('S-1: negative OOIP warns, even at R² = 1', () => {
+    // F = N·Em + slope·Δp with N < 0: exactly collinear about the wrong model.
+    const rows = oilRows((i) => -5e5 * (oilTerms[i].Eo_rb_stb ?? 0) + 2000 * oilTerms[i].delta_p_psi);
+    const res = computeMaterialBalance({ ...oilBase, production_data: rows } as any);
+    expect(res.estimated_ooip_stb).toBeLessThan(0);
+    expect(res.r_squared).toBeGreaterThan(0.999);   // a perfect fit to an impossible answer
+    const hits = impossible(res.warnings);
+    expect(hits.length).toBe(1);
+    expect(hits[0]).toContain('OOIP is negative');
+  });
+
+  it('S-2: oil pot aquifer forced onto a tank with no aquifer warns on negative W', () => {
+    // Fluid expansion only, so the pot plot's slope falls below the rock/water
+    // expansion term and W solves negative. This is the realistic misuse: the
+    // user picks "pot" for a depletion tank.
+    const rows = oilRows((i) => 1e7 * (oilTerms[i].Eo_rb_stb ?? 0));
+    const res = computeMaterialBalance({ ...oilBase, production_data: rows } as any);
+    expect(res.aquifer_owip_rb ?? 0).toBeLessThan(0);
+    const hits = impossible(res.warnings);
+    expect(hits.length).toBe(1);
+    expect(hits[0]).toContain('aquifer W is negative');
+  });
+
+  it('S-3: negative OGIP warns on the gas branch too', () => {
+    const gasBase = {
+      fluid_system: 'gas', has_aquifer: true, initial_pressure_psia: 6411,
+      reservoir_temperature_f: 239, initial_water_saturation: 0.15,
+      gas_specific_gravity: 0.65, formation_compressibility_psi: 6e-6,
+      water_compressibility_psi: 3e-6, aquifer_model: 'pot', pvt_source: 'lab_table',
+      production_data: [6411, 5947, 5509, 5093, 4697, 4319, 3957, 3610, 3276, 2953, 2638]
+        .map((p, i) => ({
+          timestep_index: i, pressure_psia: p, cum_oil_stb: 0, cum_gas_scf: 0, cum_water_stb: 0,
+          bg_rb_mscf: [0.6279, 0.6587, 0.6933, 0.7327, 0.7778, 0.83, 0.891, 0.9628, 1.0487, 1.1532, 1.2829][i],
+          bw_rb_stb: 1.045,
+          z_factor: [1.1192, 1.089, 1.0618, 1.0374, 1.0156, 0.9966, 0.9801, 0.9663, 0.9551, 0.9467, 0.9409][i],
+        })),
+    } as any;
+    const { per_timestep: gasTerms } = computeGasPerTimestep(gasBase);
+    const rows = gasBase.production_data.map((row: any, i: number) => {
+      if (i === 0) return row;
+      const Eg_scf = (gasTerms[i].Eg_rb_mscf ?? 0) / 1000;
+      const F = -2e9 * Eg_scf + 2500 * gasTerms[i].delta_p_psi;
+      return { ...row, cum_gas_scf: F / (row.bg_rb_mscf / 1000) };
+    });
+    const res = computeMaterialBalance({ ...gasBase, production_data: rows } as any);
+    expect(res.estimated_ogip_scf).toBeLessThan(0);
+    const hits = impossible(res.warnings);
+    expect(hits.length).toBe(1);
+    expect(hits[0]).toContain('OGIP is negative');
+  });
+
+  it('S-4: no false positive on the healthy benchmark cases', () => {
+    const pletcher = computeMaterialBalance(buildPletcherInputs());
+    expect(impossible(pletcher.warnings).length).toBe(0);
+    // A sound depletion tank read as a pot aquifer lands at W ≈ 0, not below it.
+    const sound = computeMaterialBalance({
+      ...oilBase,
+      production_data: oilRows((i) => 1e7 * oilTerms[i].Et_rb),
+    } as any);
+    expect(sound.estimated_ooip_stb ?? 0).toBeGreaterThan(0);
+    expect(impossible(sound.warnings).length).toBe(0);
   });
 });

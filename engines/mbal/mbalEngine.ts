@@ -1027,6 +1027,55 @@ function validateInputs(inputs: MBALInputs): void {
 // candidate (simulated) pressures through the exact same PVT precedence
 // chain the regression path uses. Mirrors the MB1 computeOilPerTimestep
 // extraction on the oil side. computeGasMBE behavior is unchanged.
+/**
+ * Sanity guards on a material-balance solution that came back physically
+ * impossible: a negative or zero hydrocarbon in place, or a negative pot
+ * aquifer volume.
+ *
+ * The regression happily returns these. A straight line fitted to data that
+ * does not obey the assumed drive mechanism can have a negative intercept, and
+ * the fit quality says nothing about it: R² of 0.999 on a negative OOIP is
+ * common, because the points really are collinear, just not about the model
+ * you asked for. Without a guard the engine reported OOIP = -516,449 STB with
+ * an empty warnings array and tier `benchmark_verified`, which reads exactly
+ * like a good answer (found 2026-08-27 while authoring RC2).
+ *
+ * Warnings only. The validation tier describes the provenance of the CODE PATH,
+ * not the plausibility of one result, so it stays as it is; what changes is
+ * that the UI now has something to show.
+ */
+function physicalSanityWarnings(
+  fluid: 'oil' | 'gas',
+  inPlace: number | null | undefined,
+  inPlaceUnit: string,
+  aquiferModel: AquiferModel,
+  W_rb: number | null | undefined,
+): string[] {
+  const out: string[] = [];
+  const label = fluid === 'oil' ? 'OOIP' : 'OGIP';
+  if (inPlace != null && isFinite(inPlace) && inPlace <= 0) {
+    out.push(
+      `Computed ${label} is ${inPlace < 0 ? 'negative' : 'zero'} ` +
+      `(${inPlace.toExponential(4)} ${inPlaceUnit}), which is physically impossible. ` +
+      `The regression line's intercept came out at or below zero, so this result cannot be ` +
+      `used. A high R² does not rescue it: the points can be collinear about the wrong model. ` +
+      `Check the aquifer model (a real aquifer analysed as "none" bends the plot), the ` +
+      `pressure and production history for unit or sign errors, and whether the early ` +
+      `points belong to a different flow regime.`,
+    );
+  }
+  if (aquiferModel === 'pot' && W_rb != null && isFinite(W_rb) && W_rb < 0) {
+    out.push(
+      `Computed aquifer W is negative (${W_rb.toFixed(0)} res bbl). The pot aquifer ` +
+      `regression solved for a W < 0, which is physically impossible. This often indicates ` +
+      `no aquifer is actually present; consider switching to "none". If you do expect ` +
+      `aquifer support, the data may have a different drive mechanism (gas-cap expansion, ` +
+      `communicating reservoirs, etc.).`,
+    );
+  }
+  return out;
+}
+
 export function computeGasPerTimestep(inputs: MBALInputs): {
   per_timestep: PerTimestepResult[];
   meta: {
@@ -1330,9 +1379,9 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
   if (reg.r_squared < 0.95) {
     warnings.push(`Regression R²=${reg.r_squared.toFixed(4)} is low; data may have scatter or wrong aquifer model.`);
   }
-  if (aquiferModel === 'pot' && W_rb < 0) {
-    warnings.push(`Computed aquifer W is negative (${W_rb.toFixed(0)} res bbl). The pot aquifer regression solved for a W < 0, which is physically impossible. This often indicates no aquifer is actually present; consider switching to "none". If you do expect aquifer support, the data may have a different drive mechanism (gas-cap expansion, communicating reservoirs, etc.).`);
-  }
+  // The negative-W guard has been here since Phase 1; the negative-OGIP half was
+  // missing, exactly as the oil branch was missing both (2026-09-11).
+  warnings.push(...physicalSanityWarnings('gas', G_scf, 'scf', aquiferModel, W_rb));
 
   // Capsule 4C: correlation-validity warnings. Tpr is the most-likely-violated
   // range for gas correlations; we report it at the reservoir temperature.
@@ -1853,6 +1902,11 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
   if (reg.r_squared < 0.95) {
     warnings.push(`Regression R²=${reg.r_squared.toFixed(4)} is low; data may have scatter or wrong drive mechanism.`);
   }
+
+  // 2026-09-11: the oil branch had NO physical-sanity guard while the gas
+  // branch had half of one. A pot aquifer forced onto an aquifer-free tank
+  // returned OOIP = -516,449 STB, R² = 0.9995 and an empty warnings array.
+  warnings.push(...physicalSanityWarnings('oil', N_stb, 'STB', aquiferModel, W_rb));
 
   // Capsule 4C: correlation-validity warnings for oil-side correlations.
   // For oil cases, Tpr/Ppr only matter when there's a gas cap or below-Pb path.
