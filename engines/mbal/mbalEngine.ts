@@ -53,11 +53,19 @@ export type FluidSystem = 'oil' | 'gas' | 'oil_with_gas_cap';
 
 export type AquiferModel = 'none' | 'pot' | 'fetkovich' | 'carter_tracy';
 
+/**
+ * The regression the engine actually runs. It is DERIVED from fluid_system and
+ * aquifer_model (see resolveSolverMethod), never chosen by the caller.
+ *
+ * 'p_over_z' and 'p_over_z_modified' were members of this union until
+ * 2026-09-11 and neither was ever implemented: a gas case with no aquifer runs
+ * the same F = G·Et regression as everything else, and Ramagost-Farshad is a
+ * PLOT OVERLAY in the studio, not a solver. Asking for them got Havlena-Odeh
+ * silently, which is the whole reason this type is now an output.
+ */
 export type SolverMethod =
-  | 'havlena_odeh'        // F vs Et regression (oil) or F/Eg vs deltaP/Eg (gas pot aquifer)
-  | 'p_over_z'            // Gas reservoir, no aquifer
-  | 'p_over_z_modified'   // Gas reservoir with cf correction (Ramagost-Farshad)
-  | 'pot_aquifer_plot';   // Gas reservoir with pot aquifer (Pletcher Eq. 13)
+  | 'havlena_odeh'        // F (or F - We) vs Et regression: oil any aquifer, gas except pot
+  | 'pot_aquifer_plot';   // F/Em vs deltaP/Em pot plot (Pletcher Eq. 13), oil or gas
 
 // PVTCorrelations is defined with the correlations themselves, in
 // engines/fluid/blackOil.ts, and re-exported here so every existing consumer
@@ -147,7 +155,14 @@ export interface MBALInputs {
   pvt_lab_table?: PvtLabTableRow[];
 
   // Solver
-  solver_method: SolverMethod;
+  /**
+   * DEPRECATED and IGNORED since 2026-09-11. Nothing has ever branched on it:
+   * the engine selects its regression from fluid_system + aquifer_model. It was
+   * a REQUIRED input, so it read like a choice the caller had. Read
+   * `solver_method_used` on the result for what actually ran; supplying a value
+   * that disagrees with that now raises a warning instead of being swallowed.
+   */
+  solver_method?: SolverMethod;
   excluded_timesteps?: number[];
 
   // Production history (sorted by timestep_index ascending; index 0 = initial)
@@ -239,6 +254,12 @@ export interface MBALResult {
   final_wdi?: number;
   final_cdi?: number;
   final_drive_index_sum?: number;
+
+  /**
+   * The regression this run actually used, derived from fluid_system and
+   * aquifer_model. Report this rather than whatever the caller asked for.
+   */
+  solver_method_used: SolverMethod;
 
   // Diagnostics
   drive_mechanism: string;
@@ -846,6 +867,22 @@ export function computeCarterTracyWe(
 // the UI's pre-run tier badge reads THAT file instead of hand-mirroring this
 // function (the Capsule 4B mirror had already drifted: it still showed
 // Carter-Tracy as published_method after the Phase 5 benchmark promotion).
+/**
+ * Which regression the engine runs for a given case. This is the single source
+ * of truth for the `solver_method_used` output; the loops below must not drift
+ * from it (GATE 7 asserts they agree on every fluid/aquifer combination).
+ *
+ * Only the pot-aquifer path plots F/Em against Δp/Em. Every other combination,
+ * including gas with no aquifer, is a Havlena-Odeh style regression of F (or
+ * F - We) against Et.
+ */
+export function resolveSolverMethod(
+  fluid_system: FluidSystem,
+  aquifer_model: AquiferModel | undefined,
+): SolverMethod {
+  return (aquifer_model ?? 'none') === 'pot' ? 'pot_aquifer_plot' : 'havlena_odeh';
+}
+
 export function resolveValidationTier(
   fluid_system: 'oil' | 'gas',
   aquifer_model: AquiferModel,
@@ -874,8 +911,8 @@ export function resolveValidationTier(
     if (aquifer_model === 'carter_tracy') {
       return {
         tier: 'benchmark_verified',
-        reference: 'Carter-Tracy (1960) with Lee-Wattenbarger pD/pD\' polynomial fits. Validated 2026-05-17 against Dake (1978) Exercise 9.2 (oil + Carter-Tracy + reD=5, wedge aquifer 140° encroachment): engine OOIP 301.0 MMSTB vs Dake truth 312 MMSTB (3.53% error), R² = 0.9998, drive indices match expected water-drive-with-depletion signature. The CT math is shared between gas and oil fluid systems; validation on the oil path qualifies the gas path. Implementation corrections in same release: Δp convention now cumulative drop (was van Everdingen averaged, a bug), finite-aquifer pD via tanh-blended pseudo-steady-state transition when radius_ratio is set, r_R and μ_w user-configurable via aquifer_params.',
-        tolerance_pct: 3.53,
+        reference: 'Carter-Tracy (1960) with Lee-Wattenbarger pD/pD\' polynomial fits. Validated against Dake (1978) Exercise 9.2 (oil + Carter-Tracy + reD=5, wedge aquifer 140° encroachment). RE-MEASURED 2026-09-11 on the current engine: OOIP 307.2 MMSTB vs Dake truth 312 MMSTB (1.53% error), R² = 0.999975, drive indices DDI 0.568 / WDI 0.418 / CDI 0.011 / GDI 0.000 summing to 0.997, the expected water-drive-with-depletion signature. (The figures quoted here until 2026-09-11 were a 2026-05-17 run the engine no longer reproduces: 301.0 MMSTB, R² 0.9998, sum 1.010. Later releases moved them, and for Carter-Tracy the sum is not expected to be exactly 1 because We is marched from aquifer parameters while N comes from the regression, so the two are only as consistent as the fit.) The CT math is shared between gas and oil fluid systems; validation on the oil path qualifies the gas path. Implementation corrections in the 2026-05-17 release: Δp convention now cumulative drop (was van Everdingen averaged, a bug), finite-aquifer pD via tanh-blended pseudo-steady-state transition when radius_ratio is set, r_R and μ_w user-configurable via aquifer_params.',
+        tolerance_pct: 1.53,
       };
     }
     // aquifer_model === 'none'
@@ -910,8 +947,8 @@ export function resolveValidationTier(
   if (aquifer_model === 'carter_tracy') {
     return {
       tier: 'benchmark_verified',
-      reference: 'Carter-Tracy (1960) with Lee-Wattenbarger pD/pD\' polynomial fits applied to oil material balance via Havlena-Odeh F/Eo vs We/Eo regression. Validated 2026-05-17 against Dake (1978) Exercise 9.2 (wedge reservoir, 140° encroachment angle, reD=5, k=200 mD, h=100 ft, φ=0.25, μw=0.55 cP, r_o=9200 ft): engine OOIP = 301.0 MMSTB vs Dake truth 312 MMSTB (3.53% error), R² = 0.9998. Drive indices at year 10: IDD=0.608, IWD=0.392, GDI=0, SDI=0.011, sum=1.010 — matching the water-drive-with-depletion signature Dake describes. Implementation corrections in same release (2026-05-17): Δp convention now cumulative drop from initial pressure (was van Everdingen averaged step, a bug that caused systematic ~80%% under-prediction of We); finite-aquifer pD via tanh-blended pseudo-steady-state transition at tD_pss = 0.4·reD² when radius_ratio is set; r_R and μ_w user-configurable via aquifer_params (defaults: 2980 ft, 0.5 cP for backward compatibility with pre-Phase-5 cases).',
-      tolerance_pct: 3.53,
+      reference: 'Carter-Tracy (1960) with Lee-Wattenbarger pD/pD\' polynomial fits applied to oil material balance via Havlena-Odeh F/Eo vs We/Eo regression. Validated 2026-05-17 against Dake (1978) Exercise 9.2 (wedge reservoir, 140° encroachment angle, reD=5, k=200 mD, h=100 ft, φ=0.25, μw=0.55 cP, r_o=9200 ft): engine OOIP = 307.2 MMSTB vs Dake truth 312 MMSTB (1.53% error), R² = 0.999975, drive indices at the final timestep DDI=0.568, WDI=0.418, CDI=0.011, GDI=0.000, sum=0.997 — the water-drive-with-depletion signature Dake describes. These figures were RE-MEASURED on the current engine 2026-09-11; the previous text quoted a 2026-05-17 run (301.0 MMSTB, R² 0.9998, indices 0.608/0.392/0.011 summing to 1.010) that later releases had moved away from, so it described code that no longer existed. For Carter-Tracy the index sum is NOT expected to be exactly 1: We is marched from aquifer parameters while N comes from the regression, so closure is only as good as the fit (contrast the pot and no-aquifer paths, where the MBE makes it an identity). Implementation corrections in same release (2026-05-17): Δp convention now cumulative drop from initial pressure (was van Everdingen averaged step, a bug that caused systematic ~80%% under-prediction of We); finite-aquifer pD via tanh-blended pseudo-steady-state transition at tD_pss = 0.4·reD² when radius_ratio is set; r_R and μ_w user-configurable via aquifer_params (defaults: 2980 ft, 0.5 cP for backward compatibility with pre-Phase-5 cases).',
+      tolerance_pct: 1.53,
     };
   }
   // aquifer_model === 'none'
@@ -1048,6 +1085,25 @@ function validateInputs(inputs: MBALInputs): void {
  * not the plausibility of one result, so it stays as it is; what changes is
  * that the UI now has something to show.
  */
+/**
+ * The caller asked for one regression and the engine ran another. Before
+ * 2026-09-11 `solver_method` was a required input that nothing read, so this
+ * mismatch was silent. Now it is said out loud.
+ */
+function solverMethodWarnings(
+  requested: SolverMethod | undefined,
+  used: SolverMethod,
+): string[] {
+  if (requested == null || requested === used) return [];
+  return [
+    `Requested solver "${requested}" was not used; this run used "${used}". ` +
+    `The regression is determined by the fluid system and the aquifer model, ` +
+    `not chosen directly: only a pot aquifer uses the pot plot, and everything ` +
+    `else regresses F (or F - We) against Et. Drop solver_method from the ` +
+    `request and read solver_method_used on the result.`,
+  ];
+}
+
 function physicalSanityWarnings(
   fluid: 'oil' | 'gas',
   inPlace: number | null | undefined,
@@ -1386,6 +1442,8 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
   // The negative-W guard has been here since Phase 1; the negative-OGIP half was
   // missing, exactly as the oil branch was missing both (2026-09-11).
   warnings.push(...physicalSanityWarnings('gas', G_scf, 'scf', aquiferModel, W_rb));
+  const solver_method_used = resolveSolverMethod('gas', aquiferModel);
+  warnings.push(...solverMethodWarnings(inputs.solver_method, solver_method_used));
 
   // Capsule 4C: correlation-validity warnings. Tpr is the most-likely-violated
   // range for gas correlations; we report it at the reservoir temperature.
@@ -1414,6 +1472,7 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
 
   return {
     estimated_ogip_scf: G_scf,
+    solver_method_used,
     r_squared: reg.r_squared,
     regression_slope: reg.slope,
     regression_intercept: reg.intercept,
@@ -1918,6 +1977,8 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
   // branch had half of one. A pot aquifer forced onto an aquifer-free tank
   // returned OOIP = -516,449 STB, R² = 0.9995 and an empty warnings array.
   warnings.push(...physicalSanityWarnings('oil', N_stb, 'STB', aquiferModel, W_rb));
+  const solver_method_used = resolveSolverMethod(inputs.fluid_system ?? 'oil', aquiferModel);
+  warnings.push(...solverMethodWarnings(inputs.solver_method, solver_method_used));
 
   // Capsule 4C: correlation-validity warnings for oil-side correlations.
   // For oil cases, Tpr/Ppr only matter when there's a gas cap or below-Pb path.
@@ -1958,6 +2019,7 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
 
   return {
     estimated_ooip_stb: N_stb,
+    solver_method_used,
     aquifer_owip_rb: W_rb ?? undefined,
     // 2026-05-17: widened condition so Carter-Tracy and Fetkovich oil cases
     // also expose final We. Previously gated on W_rb !== null, which was only

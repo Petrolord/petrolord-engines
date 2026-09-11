@@ -680,3 +680,188 @@ describe('GATE 5: drive-index field naming', () => {
     }
   });
 });
+
+// ============================================================================
+// GATE 6 — validation_reference must describe THIS engine (2026-09-11)
+// ============================================================================
+// Every result carries a validation_reference so the studio can state honestly
+// how trusted a code path is. The Carter-Tracy entry had drifted: it quoted a
+// 2026-05-17 run (OOIP 301.0 MMSTB, R² 0.9998, indices summing to 1.010) that
+// later releases had moved away from, while the engine returned 307.2 MMSTB and
+// 0.997. A provenance string that drifts from the code it describes is worse
+// than none, because it is the thing a careful reader trusts.
+//
+// So the string is now checked rather than merely written: this gate parses the
+// figures out of the reference the engine hands back and compares them with
+// what that same run produced. Editing either side alone fails the build.
+describe('GATE 6: validation_reference matches the run it describes', () => {
+  const dakeCarterTracyResult = () => {
+    const production_data = DAKE_CT_PERFORMANCE.map((row, idx) => ({
+      timestep_index: idx,
+      observation_date: `${1980 + row.yr}-01-01`,
+      pressure_psia: row.p,
+      cum_oil_stb: row.Np_mmstb * 1e6,
+      cum_gas_scf: row.Np_mmstb * 1e6 * row.Rp,
+      cum_water_stb: 0,
+      bo_rb_stb: row.Bo,
+      rs_scf_stb: row.Rs,
+      bg_rb_scf: row.Bg,
+      bw_rb_stb: 1.0,
+    }));
+    return computeMaterialBalance({
+      fluid_system: 'oil',
+      initial_pressure_psia: DAKE_CT_RESERVOIR.initial_pressure_psia,
+      bubble_point_psia: DAKE_CT_RESERVOIR.bubble_point_psia,
+      reservoir_temperature_f: DAKE_CT_RESERVOIR.reservoir_temperature_f,
+      initial_water_saturation: DAKE_CT_RESERVOIR.initial_water_saturation,
+      formation_compressibility_psi: DAKE_CT_RESERVOIR.formation_compressibility_psi,
+      water_compressibility_psi: DAKE_CT_RESERVOIR.water_compressibility_psi,
+      oil_gravity_api: DAKE_CT_RESERVOIR.oil_gravity_api,
+      gas_specific_gravity: DAKE_CT_RESERVOIR.gas_specific_gravity,
+      gas_cap_ratio_m: 0,
+      aquifer_model: 'carter_tracy',
+      aquifer_params: {
+        aquifer_radius_ft: DAKE_CT_RESERVOIR.aquifer_radius_ft,
+        radius_ratio: DAKE_CT_RESERVOIR.aquifer_dim_radius_ratio,
+        aquifer_thickness_ft: DAKE_CT_RESERVOIR.aquifer_thickness_ft,
+        aquifer_permeability_md: DAKE_CT_RESERVOIR.aquifer_permeability_md,
+        aquifer_porosity: DAKE_CT_RESERVOIR.aquifer_porosity,
+        aquifer_water_viscosity_cp: DAKE_CT_RESERVOIR.aquifer_water_viscosity_cp,
+        // theta_degrees, NOT aquifer_encroachment_angle_deg: the engine reads
+        // that key and silently ignores unknown ones. Getting it wrong here
+        // first time round produced OOIP = -46.9 MMSTB, which is now caught by
+        // the GATE 4 sanity guard rather than sailing through.
+        theta_degrees: DAKE_CT_RESERVOIR.aquifer_encroachment_angle_deg,
+        aquifer_total_compressibility_psi: DAKE_CT_RESERVOIR.aquifer_total_compressibility_psi,
+      },
+      pvt_source: 'lab_table',
+      excluded_timesteps: [],
+      production_data,
+    } as any);
+  };
+
+  it('P-1: the Carter-Tracy reference quotes this engine, not an older one', () => {
+    const result = dakeCarterTracyResult();
+    const ref = result.validation_reference ?? '';
+    const num = (re: RegExp) => {
+      const m = ref.match(re);
+      expect(m).not.toBeNull();
+      return Number(m![1]);
+    };
+    // Quoted OOIP, R² and the four indices, against what this very run returned.
+    expect(num(/engine OOIP = ([\d.]+) MMSTB/)).toBeCloseTo((result.estimated_ooip_stb ?? 0) / 1e6, 1);
+    expect(num(/R² = ([\d.]+)/)).toBeCloseTo(result.r_squared, 5);
+    expect(num(/DDI=([\d.]+)/)).toBeCloseTo(result.final_ddi ?? 0, 3);
+    expect(num(/WDI=([\d.]+)/)).toBeCloseTo(result.final_wdi ?? 0, 3);
+    expect(num(/CDI=([\d.]+)/)).toBeCloseTo(result.final_cdi ?? 0, 3);
+    expect(num(/sum=([\d.]+)/)).toBeCloseTo(result.final_drive_index_sum ?? 0, 3);
+    // And the quoted deviation from Dake's truth is the real one.
+    const deviationPct = Math.abs((result.estimated_ooip_stb ?? 0) / 1e6 - 312) / 312 * 100;
+    expect(num(/\(([\d.]+)% error\)/)).toBeCloseTo(deviationPct, 1);
+    expect(result.validation_tolerance_pct).toBeCloseTo(deviationPct, 1);
+  });
+
+  it('P-2: no reference still quotes the superseded 2026-05-17 figures as current', () => {
+    const ref = dakeCarterTracyResult().validation_reference ?? '';
+    // The old numbers may appear ONLY as explicitly-labelled history.
+    const idx = ref.indexOf('301.0 MMSTB');
+    if (idx !== -1) {
+      const context = ref.slice(Math.max(0, idx - 260), idx);
+      expect(context).toMatch(/previous text quoted|until 2026-09-11|no longer reproduces/i);
+    }
+  });
+});
+
+// ============================================================================
+// GATE 7 — solver_method_used describes the regression that ran (2026-09-11)
+// ============================================================================
+// `solver_method` was a REQUIRED input that nothing in the engine ever read:
+// the regression comes from fluid_system + aquifer_model. A caller could ask
+// for 'p_over_z' and silently get Havlena-Odeh, and the studio's PDF printed
+// the requested value as though it were what happened. It is an output now.
+//
+// These gates do not restate resolveSolverMethod (a gate that restates the
+// formula validates nothing). They check the LABEL against an observable
+// signature of the regression itself: the pot plot puts the in-place volume in
+// the intercept, every other path puts it in the slope.
+describe('GATE 7: solver_method_used', () => {
+  const pvtAt = (p: number) => {
+    const t = (3000 - p) / 200;
+    return {
+      Bo: 1.58 + t * (1.48 - 1.58),
+      Rs: 1040 + t * (850 - 1040),
+      Bg: 0.00080 + t * (0.00092 - 0.00080),
+    };
+  };
+  const pressures = [3000, 2950, 2900, 2850, 2800, 2750, 2700, 2650, 2600];
+  const Rsi = 1040;
+  const oilCase = (aquifer_model: string, extra: any = {}) => {
+    const base = {
+      fluid_system: 'oil', initial_pressure_psia: 3000, bubble_point_psia: 3000,
+      reservoir_temperature_f: 150, initial_water_saturation: 0.2,
+      formation_compressibility_psi: 1e-6, water_compressibility_psi: 1.5e-6,
+      oil_gravity_api: 35, gas_specific_gravity: 0.8, gas_cap_ratio_m: 0,
+      aquifer_model,
+      production_data: pressures.map((p, i) => {
+        const v = pvtAt(p);
+        return {
+          timestep_index: i, pressure_psia: p, cum_oil_stb: 0, cum_gas_scf: 0,
+          cum_water_stb: 0, bo_rb_stb: v.Bo, rs_scf_stb: v.Rs, bg_rb_scf: v.Bg, bw_rb_stb: 1.0,
+        };
+      }),
+      ...extra,
+    } as any;
+    const { per_timestep: terms } = computeOilPerTimestep(base);
+    base.production_data = pressures.map((p, i) => {
+      if (i === 0) return base.production_data[0];
+      const v = pvtAt(p);
+      const Bt = v.Bo + v.Bg * (Rsi - v.Rs);
+      const F = 1e7 * terms[i].Et_rb;
+      return { ...base.production_data[i], cum_oil_stb: F / Bt, cum_gas_scf: (F / Bt) * Rsi };
+    });
+    return base;
+  };
+  const gasCase = (aquifer_model: string) => {
+    const inputs = buildPletcherInputs();
+    return { ...inputs, aquifer_model, has_aquifer: aquifer_model !== 'none' };
+  };
+
+  // [label, inputs, in-place getter]
+  const cases: Array<[string, any, (r: any) => number]> = [
+    ['gas + pot', gasCase('pot'), (r) => r.estimated_ogip_scf],
+    ['gas + none', gasCase('none'), (r) => r.estimated_ogip_scf],
+    ['oil + pot', oilCase('pot'), (r) => r.estimated_ooip_stb],
+    ['oil + none', oilCase('none'), (r) => r.estimated_ooip_stb],
+  ];
+
+  it.each(cases)('V-1 %s: the label matches where the regression put the answer', (_label, inputs, inPlace) => {
+    const res: any = computeMaterialBalance(inputs);
+    const isPot = inputs.aquifer_model === 'pot';
+    expect(res.solver_method_used).toBe(isPot ? 'pot_aquifer_plot' : 'havlena_odeh');
+    // The observable signature: pot reads the intercept, everything else the slope.
+    const fromRegression = isPot ? res.regression_intercept : res.regression_slope;
+    expect(Math.abs(inPlace(res) - fromRegression) / Math.abs(fromRegression)).toBeLessThan(1e-9);
+  });
+
+  it('V-2: a disagreeing solver_method is reported, not swallowed', () => {
+    const res: any = computeMaterialBalance({ ...oilCase('none'), solver_method: 'pot_aquifer_plot' });
+    expect(res.solver_method_used).toBe('havlena_odeh');
+    const hit = (res.warnings ?? []).filter((w: string) => w.includes('was not used'));
+    expect(hit.length).toBe(1);
+    expect(hit[0]).toContain('pot_aquifer_plot');
+    expect(hit[0]).toContain('havlena_odeh');
+  });
+
+  it('V-3: omitting solver_method is the clean path and warns about nothing', () => {
+    const inputs = oilCase('none');
+    delete inputs.solver_method;
+    const res: any = computeMaterialBalance(inputs);
+    expect(res.solver_method_used).toBe('havlena_odeh');
+    expect((res.warnings ?? []).filter((w: string) => w.includes('was not used')).length).toBe(0);
+  });
+
+  it('V-4: a matching solver_method warns about nothing either', () => {
+    const res: any = computeMaterialBalance({ ...oilCase('pot'), solver_method: 'pot_aquifer_plot' });
+    expect((res.warnings ?? []).filter((w: string) => w.includes('was not used')).length).toBe(0);
+  });
+});
