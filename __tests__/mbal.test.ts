@@ -298,9 +298,9 @@ describe('GATE 3: Ahmed Ex. 11-1 combination drive', () => {
     const idx = oilDriveIndices(row, N, g.m, g.Wp_stb);
     expectClose(idx.A_rb, fx.printed.A_rb, 0.003);   // denominator EXCLUDES Wp·Bw
     expectClose(idx.ddi, fx.printed.DDI, 0.01);
-    expectClose(idx.gdi, fx.printed.SDI_gascap, 0.01);   // book SDI = engine gdi
+    expectClose(idx.gdi, fx.printed.SDI_gascap, 0.01);   // book SDI (segregation) = engine gdi
     expectClose(idx.wdi, fx.printed.WDI, 0.02);
-    expectClose(idx.sdi, fx.printed.EDI, 0.10);          // book EDI = engine sdi
+    expectClose(idx.cdi, fx.printed.EDI, 0.10);          // book EDI = engine cdi
     expect(Math.abs(idx.drive_index_sum - 1.0)).toBeLessThanOrEqual(1e-9);
     // Guard the exact defect: dividing by gross F instead of A would scale
     // every index by A/F and break closure. On these printed numbers that is
@@ -468,7 +468,7 @@ describe('GATE 3W: drive-index closure under heavy water production', () => {
     expectClose(result.estimated_ooip_stb ?? 0, N_truth, 1e-6);
     expect(result.final_wdi ?? 0).toBeLessThan(0);
     expect(result.final_ddi ?? 0).toBeGreaterThan(0);
-    const expansion = (result.final_ddi ?? 0) + (result.final_sdi ?? 0) + (result.final_gdi ?? 0);
+    const expansion = (result.final_ddi ?? 0) + (result.final_cdi ?? 0) + (result.final_gdi ?? 0);
     expect(expansion).toBeGreaterThan(1);
   });
 
@@ -617,5 +617,66 @@ describe('GATE 4: physical-sanity guards', () => {
     } as any);
     expect(sound.estimated_ooip_stb ?? 0).toBeGreaterThan(0);
     expect(impossible(sound.warnings).length).toBe(0);
+  });
+});
+
+// ============================================================================
+// GATE 5 — drive-index field naming (2026-09-11)
+// ============================================================================
+// The oil path used to expose the rock and connate water expansion term in a
+// field called `sdi` whose own comment said "Segregation drive (oil)", while
+// the gas cap sat in `gdi`. `final_cdi` was mirrored from it. The studio
+// printed the field as "Segregation (SDI)", so the app told users a number was
+// the gas cap's segregation drive when it was the rock and water expansion.
+//
+// One name per quantity now: `cdi` on both fluid systems, `gdi` for the gas cap
+// only. These gates pin the numerators so a future rename cannot quietly swap
+// the meanings back.
+describe('GATE 5: drive-index field naming', () => {
+  const fx = loadFixture('ahmed-ex-11-1-combination.json');
+  const g = fx.given;
+
+  it('N-1: cdi holds N·Efw/A and gdi holds N·m·Eg/A, not the other way round', () => {
+    const termInputs = {
+      fluid_system: 'oil', initial_pressure_psia: g.pi_psia, bubble_point_psia: g.pi_psia,
+      reservoir_temperature_f: g.temp_f, initial_water_saturation: g.Swi,
+      formation_compressibility_psi: g.cf_psi, water_compressibility_psi: g.cw_psi,
+      oil_gravity_api: 35, gas_specific_gravity: g.gas_sg, gas_cap_ratio_m: g.m,
+      aquifer_model: 'pot',
+      production_data: [
+        {
+          timestep_index: 0, pressure_psia: g.pi_psia, cum_oil_stb: 0, cum_gas_scf: 0,
+          cum_water_stb: 0, bo_rb_stb: g.pvt.at_3000.Bo, rs_scf_stb: g.pvt.at_3000.Rs,
+          bg_rb_scf: g.pvt.at_3000.Bg_rb_scf, bw_rb_stb: g.pvt.at_3000.Bw,
+        },
+        {
+          timestep_index: 1, pressure_psia: g.p2_psia, cum_oil_stb: g.Np_stb,
+          cum_gas_scf: g.Gp_scf, cum_water_stb: g.Wp_stb, bo_rb_stb: g.pvt.at_2800.Bo,
+          rs_scf_stb: g.pvt.at_2800.Rs, bg_rb_scf: g.pvt.at_2800.Bg_rb_scf,
+          bw_rb_stb: g.pvt.at_2800.Bw,
+        },
+      ],
+    } as any;
+    const { per_timestep } = computeOilPerTimestep(termInputs);
+    const r = per_timestep[1];
+    const N = g.N_stb;
+    const idx = oilDriveIndices({ ...r, We_rb: r.F_rb - N * r.Et_rb }, N, g.m, g.Wp_stb);
+    expectClose(idx.cdi, (N * r.Efw_rb) / idx.A_rb, 1e-12);
+    expectClose(idx.gdi, (N * g.m * (r.Eg_rb_stb ?? 0)) / idx.A_rb, 1e-12);
+    // The book's own labels, to keep the mapping on the record: Ahmed's SDI is
+    // the gas cap (our gdi, 0.3465) and his EDI is the expansion term (our cdi,
+    // 0.0038). They are three orders of magnitude apart here, so a swap is not
+    // a subtle error.
+    expectClose(idx.gdi, fx.printed.SDI_gascap, 0.01);
+    expectClose(idx.cdi, fx.printed.EDI, 0.10);
+    expect(idx.gdi).toBeGreaterThan(idx.cdi * 10);
+  });
+
+  it('N-2: no `sdi` field survives on results or per-timestep rows', () => {
+    const res: any = computeMaterialBalance(buildPletcherInputs());
+    expect('final_sdi' in res).toBe(false);
+    for (const row of res.per_timestep ?? []) {
+      expect('sdi' in row).toBe(false);
+    }
   });
 });
