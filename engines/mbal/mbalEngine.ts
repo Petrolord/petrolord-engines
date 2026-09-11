@@ -892,7 +892,7 @@ export function resolveValidationTier(
   if (aquifer_model === 'pot' && has_gas_cap) {
     return {
       tier: 'benchmark_verified',
-      reference: 'Validated 2026-07-18 (MB1) against Ahmed, Reservoir Engineering Handbook 4th ed., Chapter 11, Example 11-1: combination-drive reservoir (gas cap m=0.25 plus water influx, N=10 MMSTB given). Engine per-timestep terms reproduce the printed back-calculated We = 411,281 bbl and the printed driving indexes DDI/SDI/WDI/EDI = 0.4385/0.3465/0.2112/0.0038 (book index convention, denominator F - Wp*Bw). Scope note: the published truth is a single pressure step with N given, so it anchors the combined-MBE term math and drive indexes; the m>0 pot-plot regression (F/(Eo+m*Eg) vs dp/(Eo+m*Eg), generalized in MB1) is additionally gated by an exact synthetic multi-step round trip recovering N and W to numerical precision (harness CASE 9).',
+      reference: 'Validated 2026-07-18 (MB1) against Ahmed, Reservoir Engineering Handbook 4th ed., Chapter 11, Example 11-1: combination-drive reservoir (gas cap m=0.25 plus water influx, N=10 MMSTB given). Engine per-timestep terms reproduce the printed back-calculated We = 411,281 bbl and the printed driving indexes DDI/SDI/WDI/EDI = 0.4385/0.3465/0.2112/0.0038 (book index convention, denominator A = F - Wp*Bw, which the runtime drive-index block adopted on 2026-09-11; before that it divided by gross F and under-reported every index by the water fraction of voidage). Scope note: the published truth is a single pressure step with N given, so it anchors the combined-MBE term math and drive indexes; the m>0 pot-plot regression (F/(Eo+m*Eg) vs dp/(Eo+m*Eg), generalized in MB1) is additionally gated by an exact synthetic multi-step round trip recovering N and W to numerical precision (harness CASE 9).',
       tolerance_pct: 1.5,
     };
   }
@@ -1279,7 +1279,10 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
   // IGD = G·Eg / (Gp·Bg)
   // ICD = G·Efw / (Gp·Bg)
   // IWD = (We - Wp·Bw) / (Gp·Bg)
-  // Common denominator Gp·Bg is the cumulative reservoir voidage at that timestep.
+  // Common denominator Gp·Bg is the cumulative HYDROCARBON voidage at that
+  // timestep (water production is netted inside IWD, exactly as the oil path
+  // below does with A = F - Wp·Bw), which makes the sum an exact identity of
+  // the gas MBE: Gp·Bg + Wp·Bw = G·(Eg + Efw) + We.
   // ==========================================================================
   for (let i = 0; i < per_timestep.length; i++) {
     const r = per_timestep[i];
@@ -1409,6 +1412,48 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
  * reservoir) that has too few rows for the regression solver. Pure function;
  * behavior is identical to the pre-split loop.
  */
+export interface OilDriveIndices {
+  ddi: number;   // depletion drive (oil expansion)
+  sdi: number;   // rock + connate water expansion (Ahmed's EDI)
+  gdi: number;   // gas cap / segregation drive (Ahmed's SDI)
+  wdi: number;   // water drive, net of water produced
+  drive_index_sum: number;
+  A_rb: number;  // the index denominator actually used (hydrocarbon voidage)
+}
+
+/**
+ * Oil drive indices for one timestep, in the published convention.
+ *
+ * Exported so that the acceptance gates assert THIS function against the
+ * printed truth (Ahmed REH 4th ed. Example 11-1) instead of recomputing the
+ * formula test-side. The 2026-09-11 denominator bug survived five months of
+ * green gates precisely because both the jest gate and the validation harness
+ * re-derived the indices in the book's convention from the engine's raw terms,
+ * so they never exercised the shipped arithmetic. Any new drive-index gate
+ * must call this function.
+ *
+ * @param row     per-timestep terms (F_rb, Eo, Eg, Efw, We, Bw) already computed
+ * @param N_stb   OOIP in STB
+ * @param m       gas cap ratio
+ * @param Wp_stb  cumulative water produced at this timestep, STB
+ */
+export function oilDriveIndices(
+  row: PerTimestepResult,
+  N_stb: number,
+  m: number,
+  Wp_stb: number,
+): OilDriveIndices {
+  const WpBw_rb = Wp_stb * (row.bw_rb_stb ?? 1);
+  const A_rb = row.F_rb - WpBw_rb;  // hydrocarbon voidage = Np[Bt + (Rp - Rsi)Bg]
+  const zero = { ddi: 0, sdi: 0, gdi: 0, wdi: 0, drive_index_sum: 0, A_rb };
+  if (row.timestep_index === 0 || A_rb <= 0) return zero;
+  const ddi = (N_stb * (row.Eo_rb_stb ?? 0)) / A_rb;
+  const sdi = (N_stb * row.Efw_rb) / A_rb;
+  const gdi = (N_stb * m * (row.Eg_rb_stb ?? 0)) / A_rb;
+  const wdi = ((row.We_rb ?? 0) - WpBw_rb) / A_rb;
+  return { ddi, sdi, gdi, wdi, drive_index_sum: ddi + sdi + gdi + wdi, A_rb };
+}
+
 export function computeOilPerTimestep(inputs: MBALInputs): {
   per_timestep: PerTimestepResult[];
   meta: {
@@ -1734,25 +1779,41 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
 
   // ==========================================================================
   // Drive indices for oil
-  // DDI = N·Eo / (F)             (depletion drive, oil expansion)
-  // SDI = N·Efw / (F)            (rock+water compressibility drive)
-  // GDI = N·m·Eg / (F)           (gas cap drive)
-  // WDI = (We - Wp·Bw) / F       (water drive)
-  // For Phase 1 with no aquifer, We = 0 so WDI = -Wp·Bw/F (usually small)
+  //
+  // The index denominator is the HYDROCARBON voidage
+  //   A = F - Wp·Bw = Np·[Bt + (Rp - Rsi)·Bg]
+  // and water production is netted inside WDI's numerator:
+  //   DDI = N·Eo / A               (depletion drive, oil expansion)
+  //   SDI = N·Efw / A              (rock+connate-water expansion; book EDI)
+  //   GDI = N·m·Eg / A             (gas cap drive; book SDI/segregation)
+  //   WDI = (We - Wp·Bw) / A       (water drive, net of water produced)
+  //
+  // This is the published convention (Ahmed, Reservoir Engineering Handbook
+  // 4th ed., Example 11-1, which prints A = 1,710,000 rb with Wp·Bw = 50,000
+  // rb EXCLUDED) and it is the same shape the gas path above already uses
+  // (denominator Gp·Bg, water netted into WDI). Substituting the MBE
+  // F = N·Et + We gives
+  //   DDI + SDI + GDI + WDI = (N·Et + We - Wp·Bw) / A = (F - Wp·Bw) / A ≡ 1,
+  // so the sum is an exact identity at every timestep.
+  //
+  // BUG FIXED 2026-09-11: this loop divided by gross withdrawal F (which
+  // INCLUDES Wp·Bw) while netting Wp·Bw inside WDI, so the sum came out as
+  // (F - Wp·Bw)/F instead of 1. Every index was under-reported by the water
+  // fraction of voidage, and past ~5% water cut by volume the sum fell below
+  // the 0.95 closure band and raised a spurious "Possible material balance
+  // solution issue" warning on a perfectly good solution. On Ahmed's own
+  // Example 11-1 the old code summed to 0.972; on a mature waterflood it
+  // approached 0.5. The engine's own validation_reference for this path has
+  // always stated the "book index convention, denominator F - Wp*Bw".
+  // For no-aquifer cases We = 0, so WDI = -Wp·Bw/A (a small negative number
+  // representing voidage that reservoir energy has to make up).
   // ==========================================================================
   for (let i = 0; i < per_timestep.length; i++) {
     const r = per_timestep[i];
     const point = inputs.production_data[i];
-    if (r.timestep_index === 0 || r.F_rb <= 0) {
-      r.ddi = 0; r.sdi = 0; r.gdi = 0; r.wdi = 0; r.drive_index_sum = 0;
-      continue;
-    }
-    r.ddi = (N_stb * (r.Eo_rb_stb ?? 0)) / r.F_rb;
-    r.sdi = (N_stb * r.Efw_rb) / r.F_rb;
-    r.gdi = (N_stb * m * (r.Eg_rb_stb ?? 0)) / r.F_rb;
-    const Wp_stb = point.cum_water_stb ?? 0;
-    r.wdi = ((r.We_rb ?? 0) - Wp_stb * (r.bw_rb_stb ?? 1)) / r.F_rb;
-    r.drive_index_sum = r.ddi + r.sdi + r.gdi + r.wdi;
+    const idx = oilDriveIndices(r, N_stb, m, point.cum_water_stb ?? 0);
+    r.ddi = idx.ddi; r.sdi = idx.sdi; r.gdi = idx.gdi; r.wdi = idx.wdi;
+    r.drive_index_sum = idx.drive_index_sum;
   }
 
   const last = per_timestep[per_timestep.length - 1];
