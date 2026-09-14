@@ -330,7 +330,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 178.18 per barrel, with a 90 percent chance of being below 219.42. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 20260829: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 178.18 per barrel, and its 90th percentile is 219.42: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 20260829: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 180.0853730556394,
      "p10": 144.1379624353947,
@@ -1089,7 +1089,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 179.27 per barrel, with a 90 percent chance of being below 219.89. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 12345: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 179.27 per barrel, and its 90th percentile is 219.89: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 12345: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 182.12782184508188,
      "p10": 145.42916519597208,
@@ -1849,7 +1849,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 179.22 per barrel, with a 90 percent chance of being below 215.81. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 179.22 per barrel, and its 90th percentile is 215.81: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 181.4423149937127,
      "p10": 150.7141535501849,
@@ -2609,7 +2609,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 176.51 per barrel, with a 90 percent chance of being below 219.18. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 1: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 176.51 per barrel, and its 90th percentile is 219.18: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 1: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 180.56029530788499,
      "p10": 147.39436554605436,
@@ -3369,7 +3369,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 179.43 per barrel, with a 90 percent chance of being below 221.29. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 2: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 179.43 per barrel, and its 90th percentile is 221.29: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 2: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 181.83294124459732,
      "p10": 144.08103058708252,
@@ -4129,7 +4129,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 214.98 per barrel, with a 90 percent chance of being below 251.21. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 214.98 per barrel, and its 90th percentile is 251.21: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 216.67756928926386,
      "p10": 184.53823003827966,
@@ -4889,7 +4889,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 179.33 per barrel, with a 90 percent chance of being below 217.75. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly. capex: the stated median sits too near the P10 for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum) opex: the stated median sits too near the P90 for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum)",
+    "insights": "The median breakeven oil price is 179.33 per barrel, and its 90th percentile is 217.75: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly. capex: the stated median sits too near the P10 for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum) opex: the stated median sits too near the P90 for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum)",
     "kpis": {
      "mean": 182.54093847185712,
      "p10": 150.9868088832148,
@@ -5521,7 +5521,7 @@
      }
     },
     "excludedIterations": 55,
-    "insights": "The P50 breakeven oil price is 449.57 per barrel, with a 90 percent chance of being below 486.68. Breakeven is most sensitive to Total CAPEX and Annual OPEX. Run seed 5: the same inputs and seed reproduce this result exactly. 55 of 120 iterations did not break even below 500 dollars a barrel and are excluded from the statistics.",
+    "insights": "The median breakeven oil price is 449.57 per barrel, and its 90th percentile is 486.68: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Annual OPEX. Run seed 5: the same inputs and seed reproduce this result exactly. 55 of 120 iterations did not break even below 500 dollars a barrel and are excluded from the statistics.",
     "kpis": {
      "mean": 446.84315879264796,
      "p10": 397.3403825151038,
@@ -7746,7 +7746,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 177.47 per barrel, with a 90 percent chance of being below 219.39. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 20260829: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 177.47 per barrel, and its 90th percentile is 219.39: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 20260829: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 180.63636929285826,
      "p10": 146.92506238523035,

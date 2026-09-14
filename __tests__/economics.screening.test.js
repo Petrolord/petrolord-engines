@@ -21,7 +21,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  calculateEconomics, runSensitivityAnalysis, generateScenarios, runMonteCarlo,
+  calculateEconomics, runSensitivityAnalysis, generateScenarios, runMonteCarlo, DEFAULT_MC_SEED,
   expandQuickInputs, getPortfolioMetrics,
 } from '../engines/economics/screening.js';
 import { mulberry32 } from '../lib/stats/stats.js';
@@ -401,14 +401,13 @@ describe('getPortfolioMetrics', () => {
   });
 });
 
-describe('runMonteCarlo with a seeded stand-in for Math.random', () => {
+describe('runMonteCarlo, seeded (EC3-0)', () => {
   afterEach(() => jest.restoreAllMocks());
 
-  const seeded = G.monteCarloSeeded.filter((c) => !c.engine);
-  test.each(seeded.map((c) => [c.id, c]))('%s', async (_id, c) => {
-    jest.spyOn(Math, 'random').mockImplementation(mulberry32(c.seed));
-    const res = await runMonteCarlo(c.inputs, c.settings);
+  const gate = (res, c) => {
     const e = c.expected;
+    expect(res.seed).toBe(c.seed);
+    expect(res.iterations).toBe(c.settings.iterations);
     expect(res.allValues).toHaveLength(e.allValues.length);
     res.allValues.forEach((v, i) => near(v, e.allValues[i], MONEY));
     near(res.p10, e.p10, MONEY);
@@ -427,30 +426,48 @@ describe('runMonteCarlo with a seeded stand-in for Math.random', () => {
       near(p.value, e.cdf[i].value, MONEY);
       near(p.probability, e.cdf[i].probability, 1e-9);
     });
+  };
+
+  test.each(G.monteCarloSeeded.map((c) => [c.id, c]))('%s', async (_id, c) => {
+    gate(await runMonteCarlo(c.inputs, c.settings), c);
   });
 
-  test('an unseeded run is not reproducible (Math.random): two runs differ', async () => {
-    const c = seeded[0];
+  test('never calls Math.random', async () => {
+    const spy = jest.spyOn(Math, 'random');
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed42_100');
+    await runMonteCarlo(c.inputs, c.settings);
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  test('the same seed reproduces the run exactly; a different seed does not', async () => {
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed42_100');
     const a = await runMonteCarlo(c.inputs, c.settings);
     const b = await runMonteCarlo(c.inputs, c.settings);
-    expect(a.allValues).not.toEqual(b.allValues);
+    const d = await runMonteCarlo(c.inputs, { ...c.settings, seed: 43 });
+    expect(a.allValues).toEqual(b.allValues);
+    expect(d.allValues).not.toEqual(a.allValues);
   });
 
-  test('zero uncertainty everywhere: the oracle gives the base NPV, the engine throws (recorded)', async () => {
-    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_zero_uncertainty_throws');
-    expect(c.engine.throws).toBe(true);
-    near(c.expected.p50, c.expected.baseNPV, MONEY);
-    near(c.expected.p10, c.expected.p90, MONEY);
-    near(calculateEconomics(c.inputs).metrics.npv, c.expected.baseNPV, MONEY);
-    jest.spyOn(Math, 'random').mockImplementation(mulberry32(c.seed));
-    await expect(runMonteCarlo(c.inputs, c.settings)).rejects.toThrow();
-  });
-
-  test('fewer than 50 iterations leaves the cdf empty (recorded)', async () => {
-    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed11_40_iters_cdf_empty');
-    expect(c.expected.cdf).toEqual([]);
-    jest.spyOn(Math, 'random').mockImplementation(mulberry32(c.seed));
+  test('no seed means DEFAULT_MC_SEED, the breakeven default, reported with the result', async () => {
+    expect(DEFAULT_MC_SEED).toBe(20260829);
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_default_seed');
+    expect(c.settings.seed).toBeUndefined();
     const res = await runMonteCarlo(c.inputs, c.settings);
-    expect(res.cdf).toEqual([]);
+    expect(res.seed).toBe(DEFAULT_MC_SEED);
+  });
+
+  test('zero uncertainty everywhere: every value is the base NPV and every iteration lands in bin 0 (S4 fixed)', async () => {
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_zero_uncertainty_degenerate');
+    const res = await runMonteCarlo(c.inputs, c.settings);
+    near(res.p10, c.expected.baseNPV, MONEY);
+    near(res.p90, c.expected.baseNPV, MONEY);
+    near(calculateEconomics(c.inputs).metrics.npv, c.expected.baseNPV, MONEY);
+    expect(res.histogram[0].count).toBe(c.settings.iterations);
+  });
+
+  test('fewer than 50 iterations keeps every S-curve point (S5 fixed)', async () => {
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed11_40_iters');
+    const res = await runMonteCarlo(c.inputs, c.settings);
+    expect(res.cdf).toHaveLength(40);
   });
 });

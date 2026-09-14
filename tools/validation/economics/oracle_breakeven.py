@@ -231,7 +231,7 @@ def generate(inputs):
                'high': [0.0 if d['high'] is None else d['high'] - base_be for d in sens],
                'base': [base_be for _ in sens]}
     top = ' and '.join(d['name'] for d in sens[:2])
-    parts = [f'The P50 breakeven oil price is {js_to_fixed(kpis["p50"], 2)} per barrel, with a 90 percent chance of being below {js_to_fixed(kpis["p90"], 2)}.',
+    parts = [f'The median breakeven oil price is {js_to_fixed(kpis["p50"], 2)} per barrel, and its 90th percentile is {js_to_fixed(kpis["p90"], 2)}: a 90 percent chance the breakeven price is below that.',
              f'Breakeven is most sensitive to {top}.',
              f'Run seed {seed}: the same inputs and seed reproduce this result exactly.']
     if unreachable > 0:

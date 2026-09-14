@@ -62,6 +62,8 @@ report exactly 10 percent for its IRR.
 
 ### S3. runMonteCarlo is not reproducible (Math.random)
 
+**FIXED EC3-0 (2026-09-14, owner decision).** runMonteCarlo draws from mulberry32(settings.seed), default DEFAULT_MC_SEED 20260829, and returns the seed. The stream is consumed in the order the gate's stand-in consumed it, so every published seeded value is unchanged; a gate asserts Math.random is never called.
+
 The sampler is a bare `Math.random()`. Two runs on the same inputs give
 different P10/P50/P90 (gated as such). The gate substitutes a mulberry32
 stream for Math.random and the oracle replicates mulberry32 bit for bit
@@ -72,6 +74,8 @@ already carry the seeded generator this function should use.
 
 ### S4. runMonteCarlo throws when every uncertainty is zero
 
+**FIXED EC3-0.** A zero-width range puts every iteration in the first bin; `mc_zero_uncertainty_degenerate` pins P10 = P50 = P90 = base NPV.
+
 With all three ranges at 0 every iteration is the base NPV, the histogram
 bin width is 0, `(v - min) / binSize` is NaN, `histogram[NaN]` is undefined
 and `.count++` throws a TypeError. `mc_zero_uncertainty_throws`: the oracle
@@ -79,6 +83,8 @@ reports P10 = P50 = P90 = EMV = base NPV (188.3699 $MM on that case); the
 engine rejects. Pinned as `engine.throws`.
 
 ### S5. runMonteCarlo returns an empty CDF below 50 iterations
+
+**FIXED EC3-0.** The downsample step is floored at 1; `mc_seed11_40_iters` keeps all 40 points.
 
 The S-curve downsample is `i % Math.floor(iterations / 50) === 0`; below
 50 iterations the divisor is 0, `i % 0` is NaN, and the CDF is empty.
@@ -224,6 +230,8 @@ tornado is in input order with every high side at 0.0 while the low sides
 are -80.7, -6.8 and -26.2 $/bbl. Pinned as engine behaviour.
 
 ### B2. Two percentile conventions in one module
+
+EC3-0 note: both are PERCENTILE rules (the keys `p10`/`p90` are 10th and 90th percentiles). Screens now map them through the Suite's exceedance convention: an NPV's P90 (low case) reads `p10`, and a breakeven price carries no P-label at all.
 
 breakeven.js reads P10/P50/P90 as `sorted[min(n - 1, floor(q n))]`;
 screening.js's runMonteCarlo uses the simple-statistics rule (averaging the

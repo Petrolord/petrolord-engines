@@ -147,6 +147,12 @@ describe('probabilistic run', () => {
     expect(r.insights).toContain(String(DEFAULT_SEED));
   });
 
+  test('the insight carries no P-label on the breakeven price (EC3-0, Suite percentile convention)', () => {
+    const r = generateBreakevenData({ ...inputs, seed: 7 });
+    expect(r.insights).not.toMatch(/\bP(10|50|90)\b/);
+    expect(r.insights).toMatch(/^The median breakeven oil price is [0-9.]+ per barrel, and its 90th percentile is [0-9.]+: a 90 percent chance the breakeven price is below that\./);
+  });
+
   test('percentiles are ordered and bracket the deterministic base case', () => {
     const r = generateBreakevenData({ ...inputs, seed: 7 });
     expect(r.kpis.p10).toBeLessThan(r.kpis.p50);
