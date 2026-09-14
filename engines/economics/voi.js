@@ -14,6 +14,19 @@
 // types those independently in this legacy input shape, so nothing forces
 // them to be Bayes-consistent).
 //
+// EC4-0 (2026-09-14, owner decision): the Analyzer no longer reports a value
+// of information built on numbers that contradict each other. Percent inputs
+// that are not distributions are REFUSED with a DecisionTreeError naming the
+// sum in percent: outcome chances, indicator chances, and each indicator's
+// outcome chances. Inputs that are distributions but imply outcome chances
+// other than the stated ones (impliedPriors inconsistent) keep the two cards
+// that depend only on the stated priors (EMV without information and EVPI)
+// and WITHHOLD the rest: emvWithInfo, voi and netVoi are null, the tree is
+// null, `withheld` is true and the insight says why. Before this, such inputs
+// produced full cards, including a gross VOI below zero or above EVPI, and an
+// indicator whose outcome chances did not sum to 100 made the cards and the
+// diagram disagree while the consistency check passed.
+//
 // Economics E2 replaced the node/link "plot data" this used to return with a
 // real decision tree. Nothing rendered those nodes (the panel was a "Chart
 // removed" placeholder), and their link values were not a quantity: each was
@@ -23,7 +36,53 @@
 
 import {
   bestActionEmv, evpi as engineEvpi, impliedPriors, buildInformationTree, rollback,
+  DecisionTreeError,
 } from './decisionTree.js';
+
+// Percent-point tolerance on every sum of percent inputs: the engine's 1e-6
+// probability tolerance, on the 0 to 100 scale the form types.
+const PCT_TOL = 1e-4;
+const pctText = (v) => `${Number(v.toFixed(4))}`;
+
+const requireChance = (value, what) => {
+    const v = Number(value);
+    if (!Number.isFinite(v) || v < 0 || v > 100) {
+        throw new DecisionTreeError(`${what} needs a chance between 0 and 100 percent`);
+    }
+    return v;
+};
+
+const requireHundred = (sum, what) => {
+    if (Math.abs(sum - 100) > PCT_TOL) {
+        throw new DecisionTreeError(`${what} sum to ${pctText(sum)} percent, expected 100`);
+    }
+};
+
+/**
+ * Refuse percent inputs that are not distributions, before anything is
+ * computed from them. Returns each indicator's outcome chances as fractions,
+ * in outcome order (a missing entry counts as 0 and so fails its sum).
+ */
+const validatePercentInputs = (outcomes, indicators) => {
+    if (!outcomes?.length) throw new DecisionTreeError('No outcomes given');
+    requireHundred(
+        outcomes.reduce((s, o) => s + requireChance(o.probability, `Outcome "${o.name ?? ''}"`), 0),
+        'Outcome chances',
+    );
+    if (!indicators?.length) throw new DecisionTreeError('No indicators given');
+    requireHundred(
+        indicators.reduce((s, ind) => s + requireChance(ind.probability, `Indicator "${ind.name ?? ''}"`), 0),
+        'Indicator chances',
+    );
+    return indicators.map((ind) => {
+        const chances = outcomes.map((o) => {
+            const cp = (ind.conditionalProbabilities || []).find((c) => c.outcomeId === o.id);
+            return requireChance(cp?.probability ?? 0, `P(${o.name ?? ''} | ${ind.name ?? ''})`);
+        });
+        requireHundred(chances.reduce((s, v) => s + v, 0), `Outcome chances given "${ind.name ?? ''}"`);
+        return chances.map((v) => v / 100);
+    });
+};
 
 /**
  * Turn the legacy VOI input shape into the signal likelihoods the canonical
@@ -35,17 +94,18 @@ import {
  *   P(s | o) = P(o | s) * P(s) / P(o)
  *
  * This is exact and it round-trips: rolling back the built tree reproduces
- * the indicator chances and posteriors the user actually entered, whether or
- * not those are Bayes-consistent with the stated priors. The consistency
- * check stays a separate warning rather than something this quietly repairs.
- * An outcome with a zero prior cannot be conditioned on, so its column is
- * left at zero.
+ * the indicator chances and posteriors the user actually entered. An outcome
+ * with a zero prior cannot be conditioned on, so its column is left at zero.
  */
 const likelihoodsFromPosteriors = (priors, pIndicator, posteriors) =>
   priors.map((prior, i) => (prior > 0 ? (posteriors[i] * pIndicator) / prior : 0));
 
 export const generateVoiData = (inputs) => {
     const { decisionCost, outcomes, infoScenario } = inputs;
+    const indicators = infoScenario?.indicators;
+
+    // EC4-0: refuse what is not a distribution, in percent, before computing.
+    const posteriors = validatePercentInputs(outcomes, indicators);
 
     const engineOutcomes = outcomes.map((o) => ({ label: o.name, probability: o.probability / 100 }));
     const engineActions = [
@@ -58,41 +118,48 @@ export const generateVoiData = (inputs) => {
     const emvWithoutInfo = prior.emv;
     const optimalActionWithoutInfo = engineActions[prior.actionIndex].label;
 
-    // --- With Information (legacy shape: user-entered indicator marginals
-    // and posteriors, evaluated indicator by indicator) ---
-    let emvWithInfoPreCost = 0;
-
-    infoScenario.indicators.forEach(indicator => {
-        const pIndicator = indicator.probability / 100;
-
-        const posterior = outcomes.map((o) => {
-            const cp = indicator.conditionalProbabilities.find((c) => c.outcomeId === o.id);
-            return (cp?.probability ?? 0) / 100;
-        });
-        const conditional = bestActionEmv(engineOutcomes, engineActions, posterior);
-
-        emvWithInfoPreCost += pIndicator * conditional.emv;
-    });
-
-    const emvWithInfo = emvWithInfoPreCost - infoScenario.cost;
-    const voi = emvWithInfoPreCost - emvWithoutInfo;
-    const netVoi = voi - infoScenario.cost;
-
     // --- EVPI (canonical engine) ---
     const { evpi } = engineEvpi(engineOutcomes, engineActions);
 
     // --- Bayes-consistency check on the user-entered indicator set ---
     const consistency = impliedPriors(
         engineOutcomes,
-        infoScenario.indicators.map((ind) => ({
-            label: ind.name,
-            probability: ind.probability / 100,
-            posteriors: outcomes.map((o) => {
-                const cp = ind.conditionalProbabilities.find((c) => c.outcomeId === o.id);
-                return (cp?.probability ?? 0) / 100;
-            }),
-        })),
+        indicators.map((ind, k) => ({ label: ind.name, probability: ind.probability / 100, posteriors: posteriors[k] })),
     );
+
+    const baseInsight = `The Expected Monetary Value (EMV) without new information is $${emvWithoutInfo.toFixed(2)}M, with the optimal decision being to '${optimalActionWithoutInfo}'.`;
+    const evpiInsight = `The EVPI of $${evpi.toFixed(2)}M sets the theoretical maximum value of any information-gathering activity.`;
+
+    if (!consistency.consistent) {
+        const impliedTxt = outcomes
+            .map((o, i) => `${o.name} ${(consistency.implied[i] * 100).toFixed(1)}% vs stated ${o.probability}%`)
+            .join('; ');
+        return {
+            kpis: {
+                emvWithInfo: null,
+                emvWithoutInfo: emvWithoutInfo.toFixed(2),
+                voi: null,
+                netVoi: null,
+                evpi: evpi.toFixed(2),
+            },
+            tree: null,
+            withheld: true,
+            insights: `${baseInsight} ${evpiInsight} Consistency warning: the indicator probabilities you entered imply different outcome chances than your stated ones (${impliedTxt}), so the value of the '${infoScenario.name}' is withheld rather than computed from numbers that contradict each other. Adjust the indicator chances or their outcome chances until they agree, or use the Decision Tree Builder, which derives them from reliabilities so they cannot disagree.`,
+            consistency,
+        };
+    }
+
+    // --- With Information (legacy shape: user-entered indicator marginals
+    // and posteriors, evaluated indicator by indicator) ---
+    let emvWithInfoPreCost = 0;
+    indicators.forEach((indicator, k) => {
+        const conditional = bestActionEmv(engineOutcomes, engineActions, posteriors[k]);
+        emvWithInfoPreCost += (indicator.probability / 100) * conditional.emv;
+    });
+
+    const emvWithInfo = emvWithInfoPreCost - infoScenario.cost;
+    const voi = emvWithInfoPreCost - emvWithoutInfo;
+    const netVoi = voi - infoScenario.cost;
 
     const kpis = {
         emvWithInfo: emvWithInfo.toFixed(2),
@@ -107,49 +174,28 @@ export const generateVoiData = (inputs) => {
         : netVoi < 0
             ? `Since this is negative, the information costs more than the value it adds, so acquiring it is not justified on EMV grounds.`
             : `The information exactly pays for itself, so the decision is value-neutral on EMV grounds.`;
-    let insights = `The Expected Monetary Value (EMV) without new information is $${emvWithoutInfo.toFixed(2)}M, with the optimal decision being to '${optimalActionWithoutInfo}'. Acquiring the '${infoScenario.name}' for $${infoScenario.cost}M results in a final EMV of $${emvWithInfo.toFixed(2)}M. The gross Value of Information (VOI) is $${voi.toFixed(2)}M. After accounting for the cost, the Net VOI is $${netVoi.toFixed(2)}M. ${recommendation} The EVPI of $${evpi.toFixed(2)}M sets the theoretical maximum value of any information-gathering activity.`;
-
-    if (!consistency.consistent) {
-        const impliedTxt = outcomes
-            .map((o, i) => `${o.name} ${(consistency.implied[i] * 100).toFixed(1)}% vs stated ${o.probability}%`)
-            .join('; ');
-        insights += ` Consistency warning: the indicator probabilities you entered imply different outcome chances than your stated ones (${impliedTxt}). The VOI figure is only as reliable as these inputs; consider adjusting them until they agree, or use the Decision Tree Builder, which derives them from reliabilities so they cannot disagree.`;
-    }
+    const insights = `${baseInsight} Acquiring the '${infoScenario.name}' for $${infoScenario.cost}M results in a final EMV of $${emvWithInfo.toFixed(2)}M. The gross Value of Information (VOI) is $${voi.toFixed(2)}M. After accounting for the cost, the Net VOI is $${netVoi.toFixed(2)}M. ${recommendation} ${evpiInsight}`;
 
     // Economics E2: a real decision tree, drawn by the same component the
-    // Decision Tree Builder uses. This panel used to be a "Chart removed"
-    // placeholder, so the app computed a tree and then showed the user an
-    // empty box.
-    let tree = null;
-    try {
-        const priors = engineOutcomes.map((o) => o.probability);
-        tree = rollback(buildInformationTree({
-            outcomes: engineOutcomes,
-            actions: engineActions,
-            signals: infoScenario.indicators.map((ind) => ({
-                label: ind.name,
-                likelihoods: likelihoodsFromPosteriors(
-                    priors,
-                    ind.probability / 100,
-                    outcomes.map((o) => {
-                        const cp = ind.conditionalProbabilities.find((c) => c.outcomeId === o.id);
-                        return (cp?.probability ?? 0) / 100;
-                    }),
-                ),
-            })),
-            infoCost: infoScenario.cost,
-            infoLabel: `Acquire ${infoScenario.name}`,
-        }));
-    } catch (err) {
-        // A tree that cannot be built is reported as a missing diagram rather
-        // than taking the whole analysis down with it; the KPIs above do not
-        // depend on it.
-        tree = null;
-    }
+    // Decision Tree Builder uses. With every percent input a distribution
+    // (checked above) the inverted likelihoods reproduce the entered chances
+    // exactly, so the picture and the KPIs are one analysis.
+    const priors = engineOutcomes.map((o) => o.probability);
+    const tree = rollback(buildInformationTree({
+        outcomes: engineOutcomes,
+        actions: engineActions,
+        signals: indicators.map((ind, k) => ({
+            label: ind.name,
+            likelihoods: likelihoodsFromPosteriors(priors, ind.probability / 100, posteriors[k]),
+        })),
+        infoCost: infoScenario.cost,
+        infoLabel: `Acquire ${infoScenario.name}`,
+    }));
 
     return {
         kpis,
         tree,
+        withheld: false,
         insights,
         consistency,
     };

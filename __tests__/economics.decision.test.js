@@ -335,12 +335,22 @@ describe('Suite port: generateVoiData (delegating to the canonical decision engi
     expect(r.insights).toContain('not justified');
   });
 
-  it('warns when indicator entries contradict the stated priors', () => {
+  it('withholds the value of information when indicator entries contradict the stated priors (EC4-0)', () => {
     const inconsistent = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
     inconsistent.infoScenario.indicators[0].conditionalProbabilities[0].probability = 90;
+    inconsistent.infoScenario.indicators[0].conditionalProbabilities[1].probability = 10;
     const r = generateVoiData(inconsistent);
     expect(r.consistency.consistent).toBe(false);
+    expect(r.withheld).toBe(true);
     expect(r.insights).toContain('Consistency warning');
+    expect(r.insights).toContain('is withheld');
+    // It survived AND it said so: the withheld cards are null, not a number.
+    expect(r.kpis.voi).toBeNull();
+    expect(r.kpis.netVoi).toBeNull();
+    expect(r.kpis.emvWithInfo).toBeNull();
+    expect(Number(r.kpis.emvWithoutInfo)).toBeCloseTo(15, 2);
+    expect(Number(r.kpis.evpi)).toBeCloseTo(63, 2);
+    expect(r.insights).not.toContain('Since this is');
   });
 
   describe('the decision tree behind the diagram', () => {
@@ -369,24 +379,20 @@ describe('Suite port: generateVoiData (delegating to the canonical decision engi
       expect(chances[1]).toBeCloseTo(0.6, 10);
     });
 
-    it('still draws when posteriors contradict the priors, and is not repaired', () => {
+    it('is not drawn when posteriors contradict the priors (EC4-0: withheld with the cards)', () => {
       const contradicting = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
       contradicting.infoScenario.indicators[0].conditionalProbabilities[0].probability = 90;
       contradicting.infoScenario.indicators[0].conditionalProbabilities[1].probability = 10;
       const r = generateVoiData(contradicting);
       expect(r.consistency.consistent).toBe(false);
-      expect(r.tree).toBeTruthy();
-      const chances = r.tree.branches[0].node.branches.map((b) => b.probability);
-      expect(chances[0]).toBeCloseTo(0.4, 10);
-      expect(r.tree.branches[0].branchValue).toBeCloseTo(Number(r.kpis.emvWithInfo), 8);
+      expect(r.tree).toBeNull();
     });
 
-    it("withholds the diagram when an indicator's outcome chances do not sum to 100", () => {
+    it("refuses, in percent, an indicator whose outcome chances do not sum to 100 (EC4-0)", () => {
       const malformed = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
       malformed.infoScenario.indicators[0].conditionalProbabilities[0].probability = 90;
-      const r = generateVoiData(malformed);
-      expect(r.tree).toBeNull();
-      expect(Number(r.kpis.evpi)).toBeGreaterThan(0);
+      expect(() => generateVoiData(malformed)).toThrow(DecisionTreeError);
+      expect(() => generateVoiData(malformed)).toThrow('Outcome chances given "Positive Seismic" sum to 130 percent, expected 100');
     });
   });
 });
@@ -483,17 +489,15 @@ describe('golden: implied priors', () => {
       e.stated.forEach((v, i) => near(r.stated[i], v, ABS, `${c.id} stated ${i}`));
       e.implied.forEach((v, i) => near(r.implied[i], v, ABS, `${c.id} implied ${i}`));
       e.deltas.forEach((v, i) => near(r.deltas[i], v, ABS, `${c.id} delta ${i}`));
-      if (c.disagreement) {
-        // Recorded disagreement (FINDINGS-decision.md): the method's
-        // threshold is inclusive at exactly 0.005; the engine's float delta
-        // sits 4.4e-18 above it. Both numbers are pinned.
-        expect(e.consistent).toBe(true);
-        expect(r.consistent).toBe(c.disagreement.engineConsistent);
-        expect(r.deltas[0]).toBe(c.disagreement.engineDelta);
+      expect(c.disagreement).toBeUndefined();
+      expect(r.consistent).toBe(e.consistent);
+      if (c.id === 'justInsideTolerance') {
+        // Finding D1, resolved in EC4-0: the float delta still sits 4.4e-18
+        // above 0.005, and the engine now calls it consistent as the method
+        // does. Negative control: without the allowance it would not be.
         expect(r.deltas[0] - 0.005).toBeGreaterThan(0);
         expect(r.deltas[0] - 0.005).toBeLessThan(1e-17);
-      } else {
-        expect(r.consistent).toBe(e.consistent);
+        expect(r.deltas.every((d) => Math.abs(d) <= 0.005)).toBe(false);
       }
     });
   }
@@ -535,18 +539,31 @@ describe('golden: VOI Analyzer', () => {
     it(`${c.id}: ${c.description}`, () => {
       const r = generateVoiData(c.inputs);
       const e = c.expected;
+      expect(r.withheld).toBe(e.withheld);
       for (const k of ['emvWithoutInfo', 'emvWithInfo', 'voi', 'netVoi', 'evpi']) {
+        if (e[k] === null) {
+          expect(r.kpis[k]).toBeNull();
+          continue;
+        }
         expect(r.kpis[k]).toMatch(/^-?\d+\.\d{2}$/);
         near(Number(r.kpis[k]), e[k], KPI, `${c.id} kpi ${k}`);
       }
       expect(r.insights).toContain(`'${e.optimalActionWithoutInfo}'`);
-      expect(r.insights).toContain(VERDICT_TEXT[e.verdict]);
+      if (e.verdict === null) {
+        for (const t of Object.values(VERDICT_TEXT)) expect(r.insights).not.toContain(t);
+        expect(r.insights).toContain('is withheld');
+      } else {
+        expect(r.insights).toContain(VERDICT_TEXT[e.verdict]);
+      }
       expect(r.consistency.consistent).toBe(e.consistency.consistent);
       e.consistency.implied.forEach((v, i) => near(r.consistency.implied[i], v, ABS, `${c.id} implied ${i}`));
       e.consistency.deltas.forEach((v, i) => near(r.consistency.deltas[i], v, ABS, `${c.id} delta ${i}`));
       if (e.consistency.consistent) expect(r.insights).not.toContain('Consistency warning');
       else expect(r.insights).toContain('Consistency warning');
+      // (a) withheld exactly when inconsistent, and only then without a tree.
+      expect(e.withheld).toBe(!e.consistency.consistent);
       if (!e.treePresent) {
+        expect(e.withheld).toBe(true);
         expect(r.tree).toBeNull();
         return;
       }
@@ -577,10 +594,27 @@ describe('golden: VOI Analyzer', () => {
   });
 });
 
+describe('golden: VOI Analyzer refusals (EC4-0)', () => {
+  expect(G.voiRefusals.length).toBeGreaterThanOrEqual(7);
+  for (const c of G.voiRefusals) {
+    it(`${c.id}: refused (${c.reason})`, () => {
+      expect(() => generateVoiData(c.inputs)).toThrow(DecisionTreeError);
+      let message = '';
+      try { generateVoiData(c.inputs); } catch (err) { message = err.message; }
+      if (c.sumPercent !== undefined) {
+        // The refusal names the sum IN PERCENT, the scale the form types.
+        expect(message).toContain(`sum to ${Number(c.sumPercent.toFixed(4))} percent, expected 100`);
+      } else {
+        expect(message).toMatch(/between 0 and 100 percent|No indicators given|No outcomes given/);
+      }
+    });
+  }
+});
+
 describe('golden: shape', () => {
   it('carries a description and every section', () => {
     expect(typeof G.description).toBe('string');
-    for (const k of ['rollback', 'rollbackRefusals', 'evpi', 'evii', 'eviiRefusals', 'impliedPriors', 'informationTree', 'voi']) {
+    for (const k of ['rollback', 'rollbackRefusals', 'evpi', 'evii', 'eviiRefusals', 'impliedPriors', 'informationTree', 'voi', 'voiRefusals']) {
       expect(Array.isArray(G[k])).toBe(true);
       expect(G[k].length).toBeGreaterThan(0);
     }
