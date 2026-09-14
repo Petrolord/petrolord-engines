@@ -36,7 +36,17 @@ import {
   classifyGovernmentShare,
   commonShareWindow,
   GOVERNMENT_SHARE_STATES,
+  takeMetrics,
 } from '../engines/economics/fiscalRegime.js';
+import {
+  FISCAL_METRICS,
+  GOVERNMENT_CASH_FLOW,
+  basisLabel,
+  metricLabel,
+  metricPhrase,
+  metricDefinition,
+  exportHeaderLines,
+} from '../engines/economics/fiscalConventions.js';
 import { fiscalTemplates } from '../engines/economics/fiscalTemplates.js';
 import { calculateEconomics } from '../engines/economics/screening.js';
 
@@ -438,6 +448,14 @@ describe('golden agreement: runFiscalComparison', () => {
       expect(s.rFactorPayoutYear).toBe(es.rFactorPayoutYear);
       near(s.govTake, es.govTake, MONEY);
       near(s.effectiveTaxRate, es.effectiveTaxRate, 1e-9);
+      // Naming wave: the two named metrics, each against the oracle.
+      ['governmentTakePct', 'governmentTakeDiscountedPct', 'governmentShareOfNetRevenuePct'].forEach((k) => {
+        if (es[k] === null) expect(s[k]).toBeNull();
+        else near(s[k], es[k], 1e-9);
+      });
+      expect(s.governmentTakeState).toBe(es.governmentTakeState);
+      expect(s.governmentTakeDiscountedState).toBe(es.governmentTakeDiscountedState);
+      expect(s.discountRatePct).toBe(es.discountRatePct);
     });
 
     // Annual cash flows per regime, in input order.
@@ -601,6 +619,103 @@ describe('EC2-1: every government share point says what it is', () => {
         const sorted = e.priceClimbs.map((x) => x.climb).sort((a, b) => b - a);
         expect(sorted[0] - sorted[1]).toBeGreaterThanOrEqual(1);
       }
+    });
+  });
+});
+
+describe('naming wave: government take and government share of net revenue', () => {
+  const golden = (id) => G.comparisons.find((c) => c.id === id);
+
+  test('no computation changed: share of net revenue IS the legacy summary rate and take IS the sweep at the deck price', async () => {
+    for (const c of G.comparisons) {
+      // eslint-disable-next-line no-await-in-loop
+      const res = await runFiscalComparison({ projectInputs: c.project, regimes: c.regimes });
+      const basePrice = c.project.prices[0].oil;
+      const at = res.sensitivityData.price.labels.indexOf(basePrice);
+      res.summary.forEach((s) => {
+        if (s.effectiveTaxRate > 0) near(s.governmentShareOfNetRevenuePct, s.effectiveTaxRate, 1e-9);
+        if (at >= 0) {
+          const sweep = res.sensitivityData.price.data.find((d) => d.regimeId === s.id);
+          expect(s.governmentTakeState).toBe(sweep.states[at]);
+          if (sweep.values[at] === null) expect(s.governmentTakePct).toBeNull();
+          else near(s.governmentTakePct, sweep.values[at], 1e-9);
+        }
+      });
+    }
+  });
+
+  test('the headline is larger than the add-back metric wherever both are ordinary shares', async () => {
+    const c = golden('cmp_all_templates_default_project');
+    const res = await runFiscalComparison({ projectInputs: c.project, regimes: c.regimes });
+    res.summary.forEach((s) => {
+      expect(s.governmentTakeState).toBe('share');
+      expect(s.governmentTakePct).toBeGreaterThan(s.governmentShareOfNetRevenuePct);
+    });
+  });
+
+  test('the discounted variant is the ratio of year-end present values, recomputed by hand', async () => {
+    const c = golden('cmp_designer_defaults');
+    const res = await runFiscalComparison({ projectInputs: c.project, regimes: c.regimes });
+    const r = c.project.discountRate / 100;
+    res.summary.forEach((s) => {
+      const rows = res.annualCashFlows.find((a) => a.regimeId === s.id).data;
+      let pvGov = 0;
+      let pvNcf = 0;
+      rows.forEach((cf) => { pvGov += cf.governmentTake / (1 + r) ** cf.year; pvNcf += cf.contractorNCF / (1 + r) ** cf.year; });
+      near(s.governmentTakeDiscountedPct, (pvGov / (pvGov + pvNcf)) * 100, 1e-9);
+      // Negative control: discounting moves the number, so the field grades something.
+      expect(Math.abs(s.governmentTakeDiscountedPct - s.governmentTakePct)).toBeGreaterThan(1);
+    });
+  });
+
+  test('never recovers: take is undefined undiscounted and discounted, share of net revenue is still a number', async () => {
+    const c = golden('cmp_never_recovers');
+    const res = await runFiscalComparison({ projectInputs: c.project, regimes: c.regimes });
+    res.summary.forEach((s) => {
+      expect(s.governmentTakePct).toBeNull();
+      expect(s.governmentTakeState).toBe('undefined');
+      expect(s.governmentTakeDiscountedPct).toBeNull();
+      expect(s.governmentShareOfNetRevenuePct).toBeGreaterThan(0);
+    });
+  });
+
+  test('takeMetrics returns null, never zero, when revenue less opex is not positive', () => {
+    const rows = [{ year: 1, governmentTake: 0, contractorNCF: -50, capex: 10 }];
+    const m = takeMetrics(rows);
+    expect(m.governmentTake).toBeNull();
+    expect(m.governmentTakeState).toBe('undefined');
+    expect(m.governmentShareOfNetRevenue).toBeNull();
+  });
+
+  test('conventions: both definitions, basis labels and export header lines', () => {
+    expect(FISCAL_METRICS.governmentTake.role).toBe('headline');
+    expect(FISCAL_METRICS.governmentShareOfNetRevenue.role).toBe('secondary');
+    expect(FISCAL_METRICS.governmentTake.definition).toMatch(/revenue less opex less capex/);
+    expect(FISCAL_METRICS.governmentShareOfNetRevenue.definition).toMatch(/revenue less opex over the project life, so capex is added back/);
+    expect(basisLabel()).toBe('undiscounted');
+    expect(basisLabel(10)).toBe('discounted at 10 percent');
+    expect(metricLabel('governmentTake')).toBe('Government take (undiscounted)');
+    expect(metricPhrase('governmentShareOfNetRevenue', 12.5)).toBe('government share of net revenue (discounted at 12.5 percent)');
+    expect(metricDefinition('governmentTake', 10)).toMatch(/^Government take \(discounted at 10 percent\): /);
+    expect(exportHeaderLines([{ key: 'governmentTake' }, { key: 'governmentShareOfNetRevenue' }])).toHaveLength(2);
+    expect(GOVERNMENT_CASH_FLOW.definition).toMatch(/Royalty plus/);
+    expect(() => metricLabel('effectiveTaxRate')).toThrow();
+    // Copy rule: no em dashes, and neither definition calls itself a tax rate.
+    const words = JSON.stringify(FISCAL_METRICS) + JSON.stringify(GOVERNMENT_CASH_FLOW);
+    expect(words).not.toMatch(/\u2014/);
+    expect(words.toLowerCase()).not.toMatch(/tax rate/);
+  });
+
+  test('no verdict the engine prints says "government share" or "effective tax rate"', () => {
+    const texts = [
+      ...G.insights.flatMap((c) => c.expected.map((i) => i.text)),
+      ...G.comparisons.flatMap((c) => [...c.expected.insights, ...c.expected.insightsAsEngine].map((i) => i.text)),
+    ];
+    expect(texts.length).toBeGreaterThan(20);
+    texts.forEach((t) => {
+      expect(t).not.toMatch(/government share/i);
+      expect(t).not.toMatch(/effective tax rate/i);
+      if (/government take/.test(t)) expect(t).toMatch(/government take \((undiscounted|discounted at [0-9.]+ percent)\)|every regime's government take is within|a government take within/);
     });
   });
 });

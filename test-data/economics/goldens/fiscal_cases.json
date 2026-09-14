@@ -18793,7 +18793,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "No regime is progressive: every government share falls across the swept price range. \"Nigerian PIA (PSC)\" is the least regressive, falling 1.3 percentage points."
+      "text": "No regime is progressive: every government take (undiscounted) falls across the swept price range. \"Nigerian PIA (PSC)\" is the least regressive, falling 1.3 percentage points."
      }
     ],
     "insightsAsEngine": [
@@ -18820,7 +18820,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "No regime is progressive: every government share falls across the swept price range. \"Nigerian PIA (PSC)\" is the least regressive, falling 1.3 percentage points."
+      "text": "No regime is progressive: every government take (undiscounted) falls across the swept price range. \"Nigerian PIA (PSC)\" is the least regressive, falling 1.3 percentage points."
      }
     ],
     "priceClimbs": [
@@ -18947,8 +18947,14 @@
     },
     "summary": [
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 46.345241558596065,
       "govTake": 1040.6750392706772,
+      "governmentShareOfNetRevenuePct": 46.345241558596065,
+      "governmentTakeDiscountedPct": 63.74182671813096,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 59.620997277292844,
+      "governmentTakeState": "share",
       "id": 2,
       "irr": 37.45255063823749,
       "name": "Concessionary (Royalty/Tax)",
@@ -18957,8 +18963,14 @@
       "rFactorPayoutYear": 3
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 55.5380437422336,
       "govTake": 1247.0979524271227,
+      "governmentShareOfNetRevenuePct": 55.5380437422336,
+      "governmentTakeDiscountedPct": 77.08284565721888,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 71.44710963595604,
+      "governmentTakeState": "share",
       "id": 1,
       "irr": 26.215277742936603,
       "name": "Nigerian PIA (PSC)",
@@ -21710,7 +21722,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Angola - Deepwater PSC\" is the most progressive: its government share rises 12.1 percentage points across the swept price range, so it captures upside fastest."
+      "text": "\"Angola - Deepwater PSC\" is the most progressive: its government take (undiscounted) rises 12.1 percentage points across the swept price range, so it captures upside fastest."
      }
     ],
     "insightsAsEngine": [
@@ -21737,7 +21749,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Angola - Deepwater PSC\" is the most progressive: its government share rises 12.1 percentage points across the swept price range, so it captures upside fastest."
+      "text": "\"Angola - Deepwater PSC\" is the most progressive: its government take (undiscounted) rises 12.1 percentage points across the swept price range, so it captures upside fastest."
      }
     ],
     "priceClimbs": [
@@ -22032,8 +22044,14 @@
     },
     "summary": [
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 33.790103466051605,
       "govTake": 758.7514072406691,
+      "governmentShareOfNetRevenuePct": 33.790103466051605,
+      "governmentTakeDiscountedPct": 47.52973760584345,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 43.46939618820996,
+      "governmentTakeState": "share",
       "id": "generic_royalty_tax",
       "irr": 44.65741387873917,
       "name": "Generic Royalty/Tax",
@@ -22042,8 +22060,14 @@
       "rFactorPayoutYear": 3
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 34.0484628736644,
       "govTake": 764.5528267094498,
+      "governmentShareOfNetRevenuePct": 34.04846287366439,
+      "governmentTakeDiscountedPct": 49.509171334183904,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 43.80176354718402,
+      "governmentTakeState": "share",
       "id": "usa___gulf_of_mexico",
       "irr": 40.21250985631485,
       "name": "USA - Gulf of Mexico",
@@ -22052,8 +22076,14 @@
       "rFactorPayoutYear": 3
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 37.113653882887895,
       "govTake": 833.3812040491757,
+      "governmentShareOfNetRevenuePct": 37.1136538828879,
+      "governmentTakeDiscountedPct": 52.70635886585971,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 47.74498918738787,
+      "governmentTakeState": "share",
       "id": "brazil___concession",
       "irr": 43.0918686034416,
       "name": "Brazil - Concession",
@@ -22062,8 +22092,14 @@
       "rFactorPayoutYear": 3
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 53.453442903920035,
       "govTake": 1200.288571651044,
+      "governmentShareOfNetRevenuePct": 53.453442903920035,
+      "governmentTakeDiscountedPct": 70.43624797552054,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 68.76536763342067,
+      "governmentTakeState": "share",
       "id": "angola___deepwater_psc",
       "irr": 32.5073448680617,
       "name": "Angola - Deepwater PSC",
@@ -22072,8 +22108,14 @@
       "rFactorPayoutYear": 3
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 58.63353418198148,
       "govTake": 1316.6066986675255,
+      "governmentShareOfNetRevenuePct": 58.633534181981474,
+      "governmentTakeDiscountedPct": 77.17032153372568,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 75.42931408399528,
+      "governmentTakeState": "share",
       "id": "ghana___deepwater",
       "irr": 33.23293200041283,
       "name": "Ghana - Deepwater",
@@ -22082,8 +22124,14 @@
       "rFactorPayoutYear": 3
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 59.643190846896466,
       "govTake": 1339.278378738107,
+      "governmentShareOfNetRevenuePct": 59.64319084689647,
+      "governmentTakeDiscountedPct": 79.53907982904515,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 76.72819041402344,
+      "governmentTakeState": "share",
       "id": "nigeria___pia__2021",
       "irr": 28.21293738436989,
       "name": "Nigeria - PIA (2021)",
@@ -24937,7 +24985,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Brazil - Concession\" is the most progressive: its government share rises 2.1 percentage points between 50 and 120 USD per bbl, the prices at which every regime's point is a government share, so it captures upside fastest."
+      "text": "\"Brazil - Concession\" is the most progressive: its government take (undiscounted) rises 2.1 percentage points between 50 and 120 USD per bbl, the prices at which every regime's government take is within 0 to 100 percent, so it captures upside fastest."
      }
     ],
     "insightsAsEngine": [
@@ -24964,7 +25012,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Brazil - Concession\" is the most progressive: its government share rises 2.1 percentage points between 50 and 120 USD per bbl, the prices at which every regime's point is a government share, so it captures upside fastest."
+      "text": "\"Brazil - Concession\" is the most progressive: its government take (undiscounted) rises 2.1 percentage points between 50 and 120 USD per bbl, the prices at which every regime's government take is within 0 to 100 percent, so it captures upside fastest."
      }
     ],
     "priceClimbs": [
@@ -25259,8 +25307,14 @@
     },
     "summary": [
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 36.53103601029599,
       "govTake": 1881.7626424890727,
+      "governmentShareOfNetRevenuePct": 36.531036010296006,
+      "governmentTakeDiscountedPct": 45.46445340099046,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 45.331290442870056,
+      "governmentTakeState": "share",
       "id": "generic_royalty_tax",
       "irr": 124.57769866184282,
       "name": "Generic Royalty/Tax",
@@ -25269,8 +25323,14 @@
       "rFactorPayoutYear": 2
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 37.45212015840263,
       "govTake": 1929.2089218666256,
+      "governmentShareOfNetRevenuePct": 37.45212015840262,
+      "governmentTakeDiscountedPct": 46.77308556264815,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 46.47426194327801,
+      "governmentTakeState": "share",
       "id": "usa___gulf_of_mexico",
       "irr": 104.95450258440643,
       "name": "USA - Gulf of Mexico",
@@ -25279,8 +25339,14 @@
       "rFactorPayoutYear": 2
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 45.401377136605596,
       "govTake": 2338.6858064781636,
+      "governmentShareOfNetRevenuePct": 45.401377136605596,
+      "governmentTakeDiscountedPct": 58.44937784778001,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 56.33847922915975,
+      "governmentTakeState": "share",
       "id": "brazil___concession",
       "irr": 107.28173706958934,
       "name": "Brazil - Concession",
@@ -25289,8 +25355,14 @@
       "rFactorPayoutYear": 2
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 62.169891078557725,
       "govTake": 3202.454441376153,
+      "governmentShareOfNetRevenuePct": 62.16989107855772,
+      "governmentTakeDiscountedPct": 74.07083762033892,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 77.1464950648921,
+      "governmentTakeState": "share",
       "id": "angola___deepwater_psc",
       "irr": 64.8632226396163,
       "name": "Angola - Deepwater PSC",
@@ -25299,8 +25371,14 @@
       "rFactorPayoutYear": 2
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 63.132556040432085,
       "govTake": 3252.0426042187787,
+      "governmentShareOfNetRevenuePct": 63.132556040432085,
+      "governmentTakeDiscountedPct": 77.02014216412273,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 78.34106411498972,
+      "governmentTakeState": "share",
       "id": "ghana___deepwater",
       "irr": 88.34177397790829,
       "name": "Ghana - Deepwater",
@@ -25309,8 +25387,14 @@
       "rFactorPayoutYear": 2
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 65.47392409576604,
       "govTake": 3372.6496118493023,
+      "governmentShareOfNetRevenuePct": 65.47392409576604,
+      "governmentTakeDiscountedPct": 79.34100640813567,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 81.24646311106764,
+      "governmentTakeState": "share",
       "id": "nigeria___pia__2021",
       "irr": 69.57218119417364,
       "name": "Nigeria - PIA (2021)",
@@ -26416,7 +26500,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "No regime is progressive: every government share falls across the swept price range. \"Complex\" is the least regressive, falling 13.9 percentage points."
+      "text": "No regime is progressive: every government take (undiscounted) falls across the swept price range. \"Complex\" is the least regressive, falling 13.9 percentage points."
      }
     ],
     "insightsAsEngine": [
@@ -26443,7 +26527,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "No regime is progressive: every government share falls across the swept price range. \"Complex\" is the least regressive, falling 13.9 percentage points."
+      "text": "No regime is progressive: every government take (undiscounted) falls across the swept price range. \"Complex\" is the least regressive, falling 13.9 percentage points."
      }
     ],
     "priceClimbs": [
@@ -26570,8 +26654,14 @@
     },
     "summary": [
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 36.53103601029599,
       "govTake": 1881.7626424890727,
+      "governmentShareOfNetRevenuePct": 36.531036010296006,
+      "governmentTakeDiscountedPct": 45.46445340099046,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 45.331290442870056,
+      "governmentTakeState": "share",
       "id": "flat",
       "irr": 124.57769866184282,
       "name": "Flat",
@@ -26580,8 +26670,14 @@
       "rFactorPayoutYear": 2
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 56.958674323941594,
       "govTake": 2934.0176796049864,
+      "governmentShareOfNetRevenuePct": 56.958674323941615,
+      "governmentTakeDiscountedPct": 69.35425510945039,
+      "governmentTakeDiscountedState": "share",
+      "governmentTakePct": 70.67990648531627,
+      "governmentTakeState": "share",
       "id": "complex",
       "irr": 75.25650651103295,
       "name": "Complex",
@@ -29331,7 +29427,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. No regime is economic at any swept price from 40 to 120 USD per bbl."
+      "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give every regime a government take within 0 to 100 percent. No regime is economic at any swept price from 40 to 120 USD per bbl."
      }
     ],
     "insightsAsEngine": [
@@ -29358,7 +29454,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. No regime is economic at any swept price from 40 to 120 USD per bbl."
+      "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give every regime a government take within 0 to 100 percent. No regime is economic at any swept price from 40 to 120 USD per bbl."
      }
     ],
     "priceClimbs": [],
@@ -29624,8 +29720,14 @@
     },
     "summary": [
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 13.591558018847289,
       "govTake": 700.1193759158975,
+      "governmentShareOfNetRevenuePct": 13.591558018847284,
+      "governmentTakeDiscountedPct": null,
+      "governmentTakeDiscountedState": "undefined",
+      "governmentTakePct": null,
+      "governmentTakeState": "undefined",
       "id": "brazil___concession",
       "irr": 0.0,
       "name": "Brazil - Concession",
@@ -29634,8 +29736,14 @@
       "rFactorPayoutYear": null
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 13.832808173681821,
       "govTake": 712.5464948384047,
+      "governmentShareOfNetRevenuePct": 13.832808173681835,
+      "governmentTakeDiscountedPct": null,
+      "governmentTakeDiscountedState": "undefined",
+      "governmentTakePct": null,
+      "governmentTakeState": "undefined",
       "id": "ghana___deepwater",
       "irr": 0.0,
       "name": "Ghana - Deepwater",
@@ -29644,8 +29752,14 @@
       "rFactorPayoutYear": null
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 16.989447523559097,
       "govTake": 875.1492198948719,
+      "governmentShareOfNetRevenuePct": 16.98944752355912,
+      "governmentTakeDiscountedPct": null,
+      "governmentTakeDiscountedState": "undefined",
+      "governmentTakePct": null,
+      "governmentTakeState": "undefined",
       "id": "generic_royalty_tax",
       "irr": 0.0,
       "name": "Generic Royalty/Tax",
@@ -29654,8 +29768,14 @@
       "rFactorPayoutYear": null
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 25.484171285338647,
       "govTake": 1312.7238298423076,
+      "governmentShareOfNetRevenuePct": 25.48417128533864,
+      "governmentTakeDiscountedPct": null,
+      "governmentTakeDiscountedState": "undefined",
+      "governmentTakePct": null,
+      "governmentTakeState": "undefined",
       "id": "usa___gulf_of_mexico",
       "irr": 0.0,
       "name": "USA - Gulf of Mexico",
@@ -29664,8 +29784,14 @@
       "rFactorPayoutYear": null
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 27.781144590523848,
       "govTake": 1431.0440043720944,
+      "governmentShareOfNetRevenuePct": 27.78114459052386,
+      "governmentTakeDiscountedPct": null,
+      "governmentTakeDiscountedState": "undefined",
+      "governmentTakePct": null,
+      "governmentTakeState": "undefined",
       "id": "nigeria___pia__2021",
       "irr": 0.0,
       "name": "Nigeria - PIA (2021)",
@@ -29674,8 +29800,14 @@
       "rFactorPayoutYear": null
      },
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 32.27995029476228,
       "govTake": 1662.7835178002565,
+      "governmentShareOfNetRevenuePct": 32.279950294762294,
+      "governmentTakeDiscountedPct": null,
+      "governmentTakeDiscountedState": "undefined",
+      "governmentTakePct": null,
+      "governmentTakeState": "undefined",
       "id": "angola___deepwater_psc",
       "irr": 0.0,
       "name": "Angola - Deepwater PSC",
@@ -30337,7 +30469,7 @@
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Angola - Deepwater PSC\" collects $638.1MM in total government take."
+      "text": "\"Angola - Deepwater PSC\" collects $638.1MM in total government cash flow."
      }
     ],
     "insightsAsEngine": [
@@ -30354,7 +30486,7 @@
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Angola - Deepwater PSC\" collects $638.1MM in total government take."
+      "text": "\"Angola - Deepwater PSC\" collects $638.1MM in total government cash flow."
      }
     ],
     "priceClimbs": [
@@ -30439,8 +30571,14 @@
     },
     "summary": [
      {
+      "discountRatePct": 10,
       "effectiveTaxRate": 28.41905302174635,
       "govTake": 638.1453224717479,
+      "governmentShareOfNetRevenuePct": 28.41905302174635,
+      "governmentTakeDiscountedPct": null,
+      "governmentTakeDiscountedState": "undefined",
+      "governmentTakePct": 85.60146432520123,
+      "governmentTakeState": "share",
       "id": "angola___deepwater_psc",
       "irr": 1.0696658431198596,
       "name": "Angola - Deepwater PSC",
@@ -30562,7 +30700,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "\"Beta\" is the most progressive: its government share rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
     }
    ],
    "id": "insights_suite",
@@ -30672,7 +30810,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "\"Beta\" is the most progressive: its government share rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
     }
    ],
    "id": "insights_flipped",
@@ -30782,7 +30920,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "\"Beta\" is the most progressive: its government share rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
     }
    ],
    "id": "insights_never_pays_back",
@@ -30882,7 +31020,7 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Alpha\" collects $400.0MM in total government take."
+     "text": "\"Alpha\" collects $400.0MM in total government cash flow."
     }
    ],
    "id": "insights_single_regime",
@@ -30963,7 +31101,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "\"Beta\" is the most progressive: its government share rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
     }
    ],
    "id": "insights_ties",
@@ -31073,7 +31211,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "\"Beta\" is the most progressive: its government share rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
     }
    ],
    "id": "insights_rounding",
@@ -31248,7 +31386,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. \"Alpha\" and \"Beta\" are already economic at 40 USD per bbl, the lowest price swept."
+     "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give every regime a government take within 0 to 100 percent. \"Alpha\" and \"Beta\" are already economic at 40 USD per bbl, the lowest price swept."
     }
    ],
    "id": "insights_price_two_points",
@@ -31353,7 +31491,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "No regime can be ranked across this sweep: the steepest climb, 10.5 percentage points for \"Beta\", is within one percentage point of the next, 10.0 for \"Alpha\". \"Alpha\" and \"Beta\" are already economic at 40 USD per bbl, the lowest price swept."
+     "text": "No regime can be ranked across this sweep: the steepest climb in government take (undiscounted), 10.5 percentage points for \"Beta\", is within one percentage point of the next, 10.0 for \"Alpha\". \"Alpha\" and \"Beta\" are already economic at 40 USD per bbl, the lowest price swept."
     }
    ],
    "id": "insights_price_within_one_point",
@@ -31463,7 +31601,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "\"Beta\" is the most progressive: its government share rises 21.0 percentage points between 50 and 70 USD per bbl, the prices at which every regime's point is a government share, so it captures upside fastest."
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 21.0 percentage points between 50 and 70 USD per bbl, the prices at which every regime's government take is within 0 to 100 percent, so it captures upside fastest."
     }
    ],
    "id": "insights_price_exceeds_excluded",
@@ -31578,7 +31716,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. No regime is economic at any swept price from 40 to 60 USD per bbl."
+     "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give every regime a government take within 0 to 100 percent. No regime is economic at any swept price from 40 to 60 USD per bbl."
     }
    ],
    "id": "insights_price_never_economic",
@@ -31688,7 +31826,7 @@
     {
      "key": "price",
      "label": "Response to higher prices",
-     "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. The first regime to become economic is \"Beta\", at 50 USD per bbl."
+     "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give every regime a government take within 0 to 100 percent. The first regime to become economic is \"Beta\", at 50 USD per bbl."
     }
    ],
    "id": "insights_price_first_economic",

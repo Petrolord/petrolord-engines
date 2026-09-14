@@ -128,6 +128,27 @@ in the table against 59.62 percent on the chart; PIA 55.54 against 71.45.
 A user comparing the chart's $70 point to the table sees two different
 numbers for one regime. The oracle computes both and the gate pins both.
 
+**Named, not merged (owner decision, naming wave 2026-09-14).** Both
+computations stay exactly as they were; they get distinct names, defined once
+in `engines/economics/fiscalConventions.js`:
+
+- **Government take** (the headline): government cash flow over the
+  project's pre-take net cash flow, revenue less opex less capex. This is the
+  price sweep's ratio. `takeMetrics` returns it with its state, undiscounted by
+  default, and the summary carries it undiscounted (`governmentTakePct`) and
+  discounted at the project rate (`governmentTakeDiscountedPct`).
+- **Government share of net revenue** (always second): government cash flow
+  over revenue less opex, the capex add-back. This is the summary's legacy
+  `effectiveTaxRate`, now also `governmentShareOfNetRevenuePct` with a null
+  in place of the zero fallback.
+
+The money quantity both divide is **government cash flow** (royalty plus
+government profit oil plus tax); "total government take" in money is retired
+from the verdict text. Gates: share of net revenue equals the legacy rate
+wherever positive, take equals the sweep at the deck price, the discounted
+take equals the ratio of year-end present values, and no verdict prints
+"government share" or "effective tax rate".
+
 ### F3. The resilience and progressivity verdicts rank ties by rounding noise
 
 When every regime gives up the same NPV across the capex sweep (any
