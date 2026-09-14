@@ -662,7 +662,7 @@ def build():
         {'id': 'cmp_never_recovers', 'note': 'Templates on a project with capex 20000: nothing pays back, every IRR 0, the payback insight says so.',
          'regimes': template_regimes(),
          'project': dict(TEST_PROJECT, costs={'capex': {'drilling': 10000, 'facilities': 10000, 'subsea': 0}, 'opex': {'fixed': 60, 'variable': 4}})},
-        {'id': 'cmp_angola_capex_x3', 'note': 'EC2-1: Angola - Deepwater PSC on the default project with every capex line tripled. Profit is not positive at 40 (undefined, null), small and positive at 50 (exceeds, 2223 percent) and 60, and a share from 80 up.',
+        {'id': 'cmp_angola_capex_x3', 'note': 'EC2-1: Angola - Deepwater PSC on the default project with every capex line tripled. Profit is not positive at 40 (undefined, null), small and positive at 50 (exceeds, 2223 percent) and 60, and a share from 70 up (85.6015).',
          'regimes': [r for r in template_regimes() if r['name'] == 'Angola - Deepwater PSC'],
          'project': dict(DEFAULT_PROJECT, costs=dict(DEFAULT_PROJECT['costs'], capex={k: v * 3 for k, v in DEFAULT_PROJECT['costs']['capex'].items()}))},
     ]
