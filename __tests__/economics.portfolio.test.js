@@ -2,26 +2,28 @@
  * Gates for the Economics capital portfolio optimizer
  * (engines/economics/portfolio.js).
  *
- * Three parts, per the EC0 brief:
- *   (c) every test the Suite carried for the module, ported verbatim in
- *       intent (src/utils/__tests__/portfolioOptimizer.test.js: 15 D4 cases
- *       and 10 E5 correlation cases);
+ * Parts, per the EC0 brief and the EC5-0 repair (owner decision 2026-09-14):
+ *   (c) every test the Suite carried for the module, ported in intent
+ *       (src/utils/__tests__/portfolioOptimizer.test.js: 15 D4 cases and 10
+ *       E5 correlation cases). The one that asserted the old normal
+ *       approximation (P(loss) = Phi(-mean/sd)) now asserts the Monte Carlo
+ *       contract against the exact answer instead.
  *   (b) agreement with every case in the independent oracle's golden,
- *       test-data/economics/goldens/portfolio_cases.json, within stated
- *       absolute tolerances: 1e-9 on EMVs, capex sums, means, spreads and
- *       percentiles (scaled by the magnitude for the rawDollars case, whose
- *       capex is 1e8), 1.5e-7 + 1e-12 on P(loss) (the engine's Abramowitz
- *       and Stegun erf against math.erf; the largest gap seen is reported),
- *       and an exact match on chosen sets, frontier lengths and clamped
- *       correlations. The oracle solves the knapsack by brute force, both
- *       exactly and on the engine's documented quantised grid; the engine
- *       must reproduce the GRID optimum, and the gap to the exact optimum is
- *       pinned case by case. Cases where the grid changes the chosen set are
- *       pinned by name (CHANGED_BY_GRID) so a new one cannot appear unseen.
- *   (a) closed-form identities: frontier monotone and ending at the
- *       optimum; correlation never moves the mean; rho 1 gives the sum of
- *       the spreads and rho 0 the root sum of squares; risk of the picked
- *       set equals portfolioRiskMetrics of that set.
+ *       test-data/economics/goldens/portfolio_cases.json: 1e-9 on EMVs, capex
+ *       sums, means and spreads (scaled by magnitude; rawDollars has capex
+ *       1e8); the Monte Carlo risk block against the oracle's bit-for-bit
+ *       replica, probLoss EXACTLY (a count ratio) and P90 / P10 within 1e-9
+ *       scaled, at the seed and iterations each case states (the largest
+ *       replication gap is reported); an exact match on chosen sets, frontier
+ *       lengths, clamped correlations, overLimit and overLimitBy. The knapsack
+ *       optimum is brute force, exact and on the quantised grid; cases where
+ *       the grid changes the set are pinned by name (CHANGED_BY_GRID).
+ *   (m) the risk METHOD against exact answers (riskMethod): enumeration,
+ *       normal sums, comonotone and conditioned-copula cases, within 4
+ *       standard errors, and the discrete percentile outcomes exactly.
+ *   (a) properties: frontier monotone and ending at the optimum; correlation
+ *       never moves the mean; seeded determinism; Math.random never called;
+ *       p90 <= p10; p90 never below the worst possible outcome.
  *
  * Money is $MM (rawDollars deliberately in dollars).
  */
@@ -29,6 +31,7 @@ import fs from 'fs';
 import path from 'path';
 import {
   projectEmv, projectMoments, portfolioRiskMetrics, optimizePortfolio, successStdDev,
+  DEFAULT_RISK_SEED, DEFAULT_RISK_ITERATIONS, PortfolioInputError,
 } from '../engines/economics/portfolio.js';
 import { normalCDF } from '../lib/stats/stats.js';
 
@@ -38,7 +41,7 @@ const G = JSON.parse(fs.readFileSync(
 ));
 
 const ABS = 1e-9;
-const PROB = 1.5e-7 + 1e-12;
+const SE_LIMIT = 4;
 
 const near = (actual, expected, tol, label) => {
   const gap = Math.abs(actual - expected);
@@ -50,25 +53,36 @@ const scaled = (v) => ABS * Math.max(1, Math.abs(v));
 const rho = (v) => (v === 'NaN' ? NaN : v);
 const ids = (ps) => ps.map((p) => p.id).slice().sort();
 const sameIds = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+const withinSE = (mc, exact, n, label) => {
+  const se = Math.sqrt((exact * (1 - exact)) / n);
+  const z = Math.abs(mc - exact) / se;
+  if (!(z <= SE_LIMIT)) throw new Error(`${label}: Monte Carlo ${mc} vs exact ${exact} is ${z} standard errors`);
+  return z;
+};
 
 /** Cases where the engine's grid changes the chosen set from the exact optimum.
  *  Recorded in tools/validation/economics/FINDINGS-decision.md. */
 const CHANGED_BY_GRID = ['freeProjectTightLimit', 'freeProjectZeroLimit', 'gridOvershoot', 'gridUndershoot'];
 
-let maxProbLossGap = 0;
-const probLossGate = (actual, expected, label) => {
-  maxProbLossGap = Math.max(maxProbLossGap, Math.abs(actual - expected));
-  near(actual, expected, PROB, label);
-};
+// Replication gaps, engine against the oracle's replayed sampler.
+const gaps = { lossCount: 0, quantile: 0, compared: 0 };
 
 const riskGate = (r, e, label) => {
   near(r.emv, e.emv, scaled(e.emv), `${label} emv`);
   near(r.stdDev, e.stdDev, scaled(e.stdDev), `${label} stdDev`);
   near(r.independentStdDev, e.independentStdDev, scaled(e.independentStdDev), `${label} independentStdDev`);
+  expect(r.correlation).toBe(e.correlation);
+  expect(r.method).toBe('monte-carlo');
+  expect(r.seed).toBe(e.seed);
+  expect(r.iterations).toBe(e.iterations);
+  gaps.compared += 1;
+  gaps.lossCount = Math.max(gaps.lossCount, Math.abs(Math.round(r.probLoss * r.iterations) - Math.round(e.probLoss * e.iterations)));
+  gaps.quantile = Math.max(gaps.quantile, Math.abs(r.p90 - e.p90), Math.abs(r.p10 - e.p10));
+  if (r.probLoss !== e.probLoss) {
+    throw new Error(`${label} probLoss: engine ${r.probLoss} vs replica ${e.probLoss} (a COUNT mismatch; report it, do not loosen)`);
+  }
   near(r.p90, e.p90, scaled(e.p90), `${label} p90`);
   near(r.p10, e.p10, scaled(e.p10), `${label} p10`);
-  expect(r.correlation).toBe(e.correlation);
-  probLossGate(r.probLoss, e.probLoss, `${label} probLoss`);
 };
 
 // ---------------------------------------------------------------------------
@@ -111,14 +125,21 @@ describe('Suite port: projectMoments (success/failure mixture, exact)', () => {
   });
 });
 
-describe('Suite port: portfolioRiskMetrics (independent normal approximation)', () => {
-  it('sums means and variances and computes P(loss) = Phi(-mean/sd)', () => {
+describe('Suite port: portfolioRiskMetrics (closed-form moments, Monte Carlo loss and percentiles)', () => {
+  it('sums means and variances, and reads P(loss) from the Monte Carlo, not Phi(-mean/sd)', () => {
     const a = { npv_p50: 100, npv_stddev: 20, pos: 0.5, fail_cost: 40 };
     const b = { npv_p50: 50, npv_stddev: 10 };
     const r = portfolioRiskMetrics([a, b]);
     expect(r.emv).toBeCloseTo(80, 9);
     expect(r.stdDev).toBeCloseTo(Math.sqrt(5200), 9);
-    expect(r.probLoss).toBeCloseTo(normalCDF(-80 / Math.sqrt(5200)), 12);
+    expect(r.method).toBe('monte-carlo');
+    expect(r.seed).toBe(DEFAULT_RISK_SEED);
+    expect(r.iterations).toBe(DEFAULT_RISK_ITERATIONS);
+    // Exact: a fails (0.5) and b < 40, or a succeeds and N(150, sqrt 500) < 0.
+    const exact = 0.5 * normalCDF(-1) + 0.5 * normalCDF(-150 / Math.sqrt(500));
+    withinSE(r.probLoss, exact, r.iterations, 'suite pair');
+    // The old normal approximation (0.1336) is far outside the sampling error.
+    expect(Math.abs(r.probLoss - normalCDF(-80 / Math.sqrt(5200)))).toBeGreaterThan(0.04);
     expect(r.p90).toBeLessThan(r.emv);
     expect(r.p10).toBeGreaterThan(r.emv);
   });
@@ -275,20 +296,36 @@ describe('golden: projectMoments', () => {
   }
 });
 
-describe('golden: portfolioRiskMetrics', () => {
+describe('golden: portfolioRiskMetrics (Monte Carlo replayed bit for bit)', () => {
   for (const c of G.riskMetrics) {
     it(`${c.id}: ${c.description}`, () => {
-      riskGate(portfolioRiskMetrics(c.selected, rho(c.correlation)), c.expected, c.id);
+      const r = c.useEngineDefaults
+        ? portfolioRiskMetrics(c.selected, rho(c.correlation))
+        : portfolioRiskMetrics(c.selected, rho(c.correlation), c.riskOptions);
+      riskGate(r, c.expected, c.id);
     });
   }
+
+  it('pins the engine defaults to the golden\'s stated seed and iterations', () => {
+    expect(DEFAULT_RISK_SEED).toBe(20260829);
+    expect(DEFAULT_RISK_ITERATIONS).toBe(10000);
+    const def = G.riskMetrics.filter((c) => c.useEngineDefaults);
+    expect(def.length).toBeGreaterThan(0);
+    for (const c of def) {
+      expect(c.riskOptions).toEqual({ seed: DEFAULT_RISK_SEED, iterations: DEFAULT_RISK_ITERATIONS });
+    }
+  });
 });
 
 describe('golden: optimizePortfolio (brute-force knapsack, exact and on the grid)', () => {
   for (const c of G.optimize) {
     it(`${c.id}: ${c.description}`, () => {
-      const r = optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit, correlation: c.correlation });
+      const r = optimizePortfolio({
+        projects: c.projects, capexLimit: c.capexLimit, correlation: c.correlation, ...c.riskOptions,
+      });
       const e = c.expected;
       near(r.resolution, e.resolution, scaled(e.resolution) * 1e-3, `${c.id} resolution`);
+      near(r.capexLimit, e.limit, scaled(e.limit), `${c.id} capexLimit`);
 
       // The chosen set is one of the grid optima, and its totals are that set's.
       const chosen = ids(r.optimalProjects);
@@ -300,10 +337,16 @@ describe('golden: optimizePortfolio (brute-force knapsack, exact and on the grid
       near(r.totalCapex, match.capex, scaled(match.capex), `${c.id} totalCapex`);
       near(r.totalNpvSuccess, match.npvSuccess, scaled(match.npvSuccess), `${c.id} totalNpvSuccess`);
       riskGate(r.risk, match.risk, `${c.id} risk`);
+
+      // D3 flag: overLimit is the chosen set's capex above the clamped limit.
+      expect(r.overLimit).toBe(match.overLimit);
+      expect(r.overLimit).toBe(r.totalCapex > r.capexLimit);
+      near(r.overLimitBy, match.overLimitBy, scaled(match.overLimitBy), `${c.id} overLimitBy`);
+      expect(r.overLimitBy).toBe(Math.max(0, r.totalCapex - r.capexLimit));
+
       // (a) the risk block is the risk of the picked set.
-      const direct = portfolioRiskMetrics(r.optimalProjects, c.correlation);
-      expect(r.risk.stdDev).toBe(direct.stdDev);
-      expect(r.risk.emv).toBe(direct.emv);
+      const direct = portfolioRiskMetrics(r.optimalProjects, c.correlation, c.riskOptions);
+      expect(r.risk).toEqual(direct);
 
       // The gap to the exact optimum is pinned, and the set only changes
       // where the golden says it does.
@@ -335,28 +378,175 @@ describe('golden: optimizePortfolio (brute-force knapsack, exact and on the grid
     expect(changed).toEqual(CHANGED_BY_GRID.slice().sort());
   });
 
+  it('D3 is flagged: gridOvershoot reports overLimit by 2, classic450 is within the limit', () => {
+    const byId = Object.fromEntries(G.optimize.map((c) => [c.id, c]));
+    const run = (id) => optimizePortfolio({
+      projects: byId[id].projects, capexLimit: byId[id].capexLimit, correlation: byId[id].correlation, ...byId[id].riskOptions,
+    });
+    const over = run('gridOvershoot');
+    expect(over.totalCapex).toBe(6002);
+    expect(over.capexLimit).toBe(6000);
+    expect(over.overLimit).toBe(true);
+    expect(over.overLimitBy).toBe(2);
+    const classic = run('classic450');
+    expect(classic.overLimit).toBe(false);
+    expect(classic.overLimitBy).toBe(0);
+  });
+
   it('(a) correlation never moves the mean of the picked set', () => {
     for (const c of G.optimize) {
-      const r0 = optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit, correlation: 0 });
-      const r1 = optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit, correlation: 1 });
+      const r0 = optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit, correlation: 0, ...c.riskOptions });
+      const r1 = optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit, correlation: 1, ...c.riskOptions });
       near(r1.risk.emv, r0.risk.emv, scaled(r0.risk.emv), `${c.id} mean under rho`);
       expect(r1.risk.stdDev).toBeGreaterThanOrEqual(r0.risk.stdDev - ABS);
     }
   });
 });
 
-describe('golden: shape and the erf gap', () => {
+describe('golden: optimizeRefusals (EC5-0)', () => {
+  for (const c of G.optimizeRefusals) {
+    it(`${c.id}: ${c.description}`, () => {
+      const call = () => optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit });
+      expect(call).toThrow(PortfolioInputError);
+      let err;
+      try { call(); } catch (e) { err = e; }
+      expect(err.name).toBe(c.expected.throws);
+      for (const s of c.expected.messageIncludes) expect(err.message).toContain(s);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (m) The risk method against exact answers.
+// ---------------------------------------------------------------------------
+
+describe('golden: riskMethod (Monte Carlo within 4 standard errors of the exact answer)', () => {
+  for (const c of G.riskMethod) {
+    it(`${c.id} [${c.kind}]: ${c.description}`, () => {
+      const r = portfolioRiskMetrics(c.selected, c.correlation, c.riskOptions);
+      const n = r.iterations;
+      expect(n).toBe(c.riskOptions.iterations);
+      // Method FIRST (so a method failure is reported as one, not masked by the
+      // replica check): the engine's own estimate against the exact answer.
+      withinSE(r.probLoss, c.exact.probLoss, n, `${c.id} probLoss`);
+      for (const [key, level] of [['p90', 0.1], ['p10', 0.9]]) {
+        const ex = c.exact[key];
+        if (typeof ex === 'object') {
+          // Discrete: the percentile IS the exact outcome wherever sampling
+          // cannot tip it (neither cumulative within 0.01 of the level).
+          const clear = Math.abs(ex.cumulativeAt - level) > 0.01 && Math.abs(ex.cumulativeBelow - level) > 0.01;
+          expect(ex.checked).toBe(clear);
+          if (clear) expect(r[key]).toBe(ex.outcome);
+          expect(r[key]).toBeGreaterThanOrEqual(c.exact.worstOutcome);
+        } else {
+          const z = Math.abs(r[key] - ex) / c.exact[`${key}SE`];
+          if (!(z <= SE_LIMIT)) throw new Error(`${c.id} ${key}: ${r[key]} vs exact ${ex} is ${z} standard errors`);
+        }
+      }
+      // Replication: the engine is the stream the oracle replayed.
+      expect(r.probLoss).toBe(c.mc.probLoss);
+      near(r.p90, c.mc.p90, scaled(c.mc.p90), `${c.id} replica p90`);
+      near(r.p10, c.mc.p10, scaled(c.mc.p10), `${c.id} replica p10`);
+    });
+  }
+
+  it('covers every method family the brief names, with the discrete percentile check armed', () => {
+    const kinds = new Set(G.riskMethod.map((c) => c.kind));
+    for (const k of ['independent-binary', 'pos1-normal', 'comonotone']) expect(kinds.has(k)).toBe(true);
+    const armed = G.riskMethod.filter((c) => typeof c.exact.p90 === 'object' && c.exact.p90.checked);
+    expect(armed.length).toBeGreaterThan(5);
+  });
+
+  it('the old normal approximation fails the same gate (why EC5-0 exists)', () => {
+    const wc = G.riskMethod.find((c) => c.id === 'singleWildcat');
+    expect(() => withinSE(wc.normalApprox.probLoss, wc.exact.probLoss, 10000, 'old')).toThrow();
+    expect(wc.normalApprox.p90).toBeLessThan(wc.exact.worstOutcome);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// (a) Properties of the Monte Carlo.
+// ---------------------------------------------------------------------------
+
+describe('properties: the seeded Monte Carlo', () => {
+  const wc = { npv_p50: 300, pos: 0.3, fail_cost: 50 };
+  const three = [wc, { npv_p50: 400, pos: 0.25, fail_cost: 60 }, { npv_p50: 250, pos: 0.4, fail_cost: 45 }];
+
+  it('is deterministic: the same seed gives identical results', () => {
+    const opts = { seed: 12345, iterations: 3000 };
+    expect(portfolioRiskMetrics(three, 0.4, opts)).toEqual(portfolioRiskMetrics(three, 0.4, opts));
+    expect(portfolioRiskMetrics([wc])).toEqual(portfolioRiskMetrics([wc]));
+  });
+
+  it('a different seed moves probLoss, but stays within the standard error of the truth', () => {
+    const a = portfolioRiskMetrics([wc], 0, { seed: 1 });
+    const b = portfolioRiskMetrics([wc], 0, { seed: 2 });
+    expect(a.seed).toBe(1);
+    expect(b.seed).toBe(2);
+    expect(a.probLoss).not.toBe(b.probLoss);
+    withinSE(a.probLoss, 0.7, a.iterations, 'seed 1');
+    withinSE(b.probLoss, 0.7, b.iterations, 'seed 2');
+  });
+
+  it('never calls Math.random', () => {
+    const spy = jest.spyOn(Math, 'random');
+    try {
+      portfolioRiskMetrics(three, 0.5, { iterations: 500 });
+      optimizePortfolio({ projects: [P('A', 100, 60, { pos: 0.5, fail_cost: 10 }), P('B', 50, 30)], capexLimit: 150, iterations: 500 });
+      expect(spy).toHaveBeenCalledTimes(0);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('falls back to the defaults for an invalid seed or iteration count', () => {
+    const r = portfolioRiskMetrics([wc], 0, { seed: 'abc', iterations: -4 });
+    expect(r.seed).toBe(DEFAULT_RISK_SEED);
+    expect(r.iterations).toBe(DEFAULT_RISK_ITERATIONS);
+    expect(portfolioRiskMetrics([wc], 0, { seed: null, iterations: 2.5 })).toEqual(portfolioRiskMetrics([wc]));
+  });
+
+  it('an empty selection is 0 / 0 / 0 and still reports the seed and iterations', () => {
+    const r = portfolioRiskMetrics([], 0.3, { seed: 5, iterations: 50 });
+    expect(r).toMatchObject({ emv: 0, stdDev: 0, probLoss: 0, p90: 0, p10: 0, seed: 5, iterations: 50, method: 'monte-carlo' });
+  });
+
+  it('p90 <= p10 always, and p90 is never below the worst outcome of a binary no-spread portfolio', () => {
+    // mulberry32-free, hand-listed portfolios over a spread of pos and rho.
+    const portfolios = [
+      [wc], three, Array(8).fill(wc),
+      [{ npv_p50: 50, pos: 0.9, fail_cost: 200 }, { npv_p50: 10, pos: 0.05, fail_cost: 1 }],
+      [{ npv_p50: -20, pos: 1 }, { npv_p50: 500, pos: 0.02, fail_cost: 0 }],
+    ];
+    for (const ps of portfolios) {
+      const worst = ps.reduce((s, p) => s + Math.min(-(p.fail_cost ?? 0), p.pos >= 1 ? p.npv_p50 : Infinity), 0);
+      for (const r of [0, 0.3, 0.7, 1]) {
+        const out = portfolioRiskMetrics(ps, r, { seed: 77, iterations: 4000 });
+        expect(out.p90).toBeLessThanOrEqual(out.p10);
+        expect(out.p90).toBeGreaterThanOrEqual(worst);
+      }
+    }
+    // With a success spread the worst outcome is minus infinity; p90 <= p10 still holds.
+    const spread = portfolioRiskMetrics([{ npv_p50: 100, npv_stddev: 80, pos: 0.6, fail_cost: 30 }], 0, { iterations: 4000 });
+    expect(spread.p90).toBeLessThanOrEqual(spread.p10);
+  });
+});
+
+describe('golden: shape and the replication gap', () => {
   it('carries a description and every section', () => {
     expect(typeof G.description).toBe('string');
-    for (const k of ['projectEmv', 'successStdDev', 'projectMoments', 'riskMetrics', 'optimize']) {
+    for (const k of ['projectEmv', 'successStdDev', 'projectMoments', 'riskMetrics', 'optimize', 'optimizeRefusals', 'riskMethod']) {
       expect(Array.isArray(G[k])).toBe(true);
       expect(G[k].length).toBeGreaterThan(0);
     }
   });
 
-  it('the largest P(loss) gap between the engine erf and math.erf stays inside the published 1.5e-7', () => {
+  it('the largest replication gap (engine against the replayed sampler) is zero counts and inside 1e-9 on the percentiles', () => {
     // Runs after the risk and optimize gates in file order.
-    expect(maxProbLossGap).toBeLessThanOrEqual(1.5e-7);
-    expect(maxProbLossGap).toBeGreaterThan(0);
+    // eslint-disable-next-line no-console
+    console.log(`portfolio Monte Carlo replication: ${gaps.compared} risk blocks, largest loss-count gap ${gaps.lossCount}, largest P90/P10 gap ${gaps.quantile}`);
+    expect(gaps.compared).toBeGreaterThan(20);
+    expect(gaps.lossCount).toBe(0);
+    expect(gaps.quantile).toBeLessThanOrEqual(1e-6);
   });
 });

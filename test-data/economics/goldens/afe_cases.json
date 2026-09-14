@@ -1,5 +1,5 @@
 {
- "description": "AFE cost control and project controls goldens. partnerSplit: calculatePartnerCosts (shares by working interest, operator remainder, validity, the note text, and the conservation identity). metrics: calculateMetrics (BAC, commitments, AC, EAC, VAC, EV, CPI, SPI, percent spent and complete) with the standard EVM set beside it (pv, cv, sv, etc, tcpi are reference only, not engine outputs). sCurve: generateSCurveData points inside the window and the after-window invariant for past windows. evm: projectControls.calculateEVM strings (toFixed(2)) and their numeric values; cpiSpi; gantt: formatTasksForGantt rows with dates as epoch milliseconds (null = Invalid Date). Independent stdlib oracle tools/validation/economics/oracle_afe.py. AFE windows are wholly past (2020) or wholly future (2090 or later): the engine reads the clock and these goldens are valid until 2080. Money in the caller's currency; percentages 0 to 100; days whole. A null where a number is expected is Infinity or NaN in the engine and the case note says which. Timezone assumption UTC.",
+ "description": "AFE cost control and project controls goldens. partnerSplit: calculatePartnerCosts (shares by working interest, operator remainder, validity, the note text, and the conservation identity). metrics: calculateMetrics (BAC, commitments, AC, EAC, VAC, EV, CPI, SPI, percent spent and complete) with the standard EVM set beside it (cv, sv, etc, tcpi are reference only, not engine outputs; plannedValue and timeProgress are engine outputs since EC5-0; spi null where planned value is 0). metricsRefusals: the AfeInputError message for an invalid asOf or negative progress. sCurve: the exact generateSCurveData point list, bounded to the window. inputs.asOf, when present, is passed to the engine (as a Date when inputs.asOfAs is \"Date\", else as the string). evm: projectControls.calculateEVM strings (toFixed(2)) and their numeric values; cpiSpi; gantt: formatTasksForGantt rows with dates as epoch milliseconds (null = Invalid Date). Independent stdlib oracle tools/validation/economics/oracle_afe.py. Cases without an asOf use AFE windows wholly past (2020) or wholly future (2090 or later), because the engine defaults asOf to the clock; they are valid until 2080. Money in the caller's currency; percentages 0 to 100; days whole. A null where a number is expected is a null in the engine too (spi), or a non-finite value where a note says so. Timezone assumption UTC.",
  "validUntil": "2080-01-01",
  "partnerSplit": [
   {
@@ -793,6 +793,140 @@
      "gap": 0.0
     }
    }
+  },
+  {
+   "name": "negative interest: refused, allocation still shown",
+   "inputs": {
+    "totalCost": 1000,
+    "partners": [
+     {
+      "name": "A",
+      "working_interest": 30
+     },
+     {
+      "name": "B",
+      "working_interest": -20
+     }
+    ]
+   },
+   "expected": {
+    "partnerAllocations": [
+     {
+      "name": "A",
+      "working_interest": 30,
+      "shareAmount": 300.0,
+      "billingStatus": "Pending"
+     },
+     {
+      "name": "B",
+      "working_interest": -20,
+      "shareAmount": -200.0,
+      "billingStatus": "Pending"
+     }
+    ],
+    "operatorShare": 90.0,
+    "operatorAmount": 900.0,
+    "partnerTotal": 10.0,
+    "valid": false,
+    "note": "Partner \"B\" has a negative working interest (-20.00 percent). Correct the interests before billing.",
+    "conservation": {
+     "allocated": 1000.0,
+     "cost": 1000.0,
+     "gap": 0.0
+    }
+   }
+  },
+  {
+   "name": "negative interest and a total over 100: both sentences, negative first",
+   "inputs": {
+    "totalCost": 1000,
+    "partners": [
+     {
+      "name": "A",
+      "working_interest": 130
+     },
+     {
+      "name": "B",
+      "working_interest": -10
+     }
+    ]
+   },
+   "expected": {
+    "partnerAllocations": [
+     {
+      "name": "A",
+      "working_interest": 130,
+      "shareAmount": 1300.0,
+      "billingStatus": "Pending"
+     },
+     {
+      "name": "B",
+      "working_interest": -10,
+      "shareAmount": -100.0,
+      "billingStatus": "Pending"
+     }
+    ],
+    "operatorShare": -20.0,
+    "operatorAmount": -200.0,
+    "partnerTotal": 120.0,
+    "valid": false,
+    "note": "Partner \"B\" has a negative working interest (-10.00 percent). Correct the interests before billing. Partner working interests total 120.00 percent, which is more than the whole. The operator share below is negative; correct the interests before billing.",
+    "conservation": {
+     "allocated": 1000.0,
+     "cost": 1000.0,
+     "gap": 0.0
+    }
+   }
+  },
+  {
+   "name": "two negative interests, one unnamed, as a string",
+   "inputs": {
+    "totalCost": 500,
+    "partners": [
+     {
+      "name": "A",
+      "working_interest": "-5"
+     },
+     {
+      "working_interest": -2.5
+     },
+     {
+      "name": "C",
+      "working_interest": 40
+     }
+    ]
+   },
+   "expected": {
+    "partnerAllocations": [
+     {
+      "name": "A",
+      "working_interest": "-5",
+      "shareAmount": -25.0,
+      "billingStatus": "Pending"
+     },
+     {
+      "working_interest": -2.5,
+      "shareAmount": -12.5,
+      "billingStatus": "Pending"
+     },
+     {
+      "name": "C",
+      "working_interest": 40,
+      "shareAmount": 200.0,
+      "billingStatus": "Pending"
+     }
+    ],
+    "operatorShare": 67.5,
+    "operatorAmount": 337.5,
+    "partnerTotal": 32.5,
+    "valid": false,
+    "note": "Partner \"A\" has a negative working interest (-5.00 percent). Partner at index 1 has a negative working interest (-2.50 percent). Correct the interests before billing.",
+    "conservation": {
+     "allocated": 500.0,
+     "cost": 500.0,
+     "gap": 0.0
+    }
+   }
   }
  ],
  "metrics": [
@@ -831,6 +965,7 @@
     "spi": 0.0,
     "percentSpent": 23.333333333333332,
     "percentComplete": 0.0,
+    "plannedValue": 300.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 300.0,
@@ -878,6 +1013,7 @@
     "spi": 0.0,
     "percentSpent": 0.0,
     "percentComplete": 0.0,
+    "plannedValue": 100.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 100.0,
@@ -924,6 +1060,7 @@
     "spi": 0.0,
     "percentSpent": 20.0,
     "percentComplete": 0.0,
+    "plannedValue": 100.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 100.0,
@@ -970,6 +1107,7 @@
     "spi": 0.0,
     "percentSpent": 70.0,
     "percentComplete": 0.0,
+    "plannedValue": 100.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 100.0,
@@ -1020,6 +1158,7 @@
     "spi": 0.275,
     "percentSpent": 0.0,
     "percentComplete": 27.500000000000004,
+    "plannedValue": 400.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 400.0,
@@ -1065,6 +1204,7 @@
     "spi": 0.5,
     "percentSpent": 40.0,
     "percentComplete": 50.0,
+    "plannedValue": 200.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 200.0,
@@ -1110,6 +1250,7 @@
     "spi": 0.5,
     "percentSpent": 50.0,
     "percentComplete": 50.0,
+    "plannedValue": 200.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 200.0,
@@ -1142,13 +1283,14 @@
     "totalBudget": 0,
     "totalCommitments": 0,
     "totalActuals": 0,
-    "totalForecast": 0.0,
-    "variance": 0.0,
+    "totalForecast": 0,
+    "variance": 0,
     "earnedValue": 0.0,
     "cpi": 1.0,
     "spi": 1.0,
     "percentSpent": 0.0,
     "percentComplete": 0.0,
+    "plannedValue": 0.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 0,
@@ -1159,9 +1301,9 @@
      "sv": 0.0,
      "cpi": null,
      "spi": null,
-     "eac": 0.0,
-     "etc": 0.0,
-     "vac": 0.0,
+     "eac": 0,
+     "etc": 0,
+     "vac": 0,
      "tcpi": null
     }
    }
@@ -1194,6 +1336,7 @@
     "spi": 1.0,
     "percentSpent": 0.0,
     "percentComplete": 0.0,
+    "plannedValue": 0.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 0.0,
@@ -1237,6 +1380,7 @@
     "spi": 0.25,
     "percentSpent": 25.0,
     "percentComplete": 25.0,
+    "plannedValue": 400.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 400.0,
@@ -1281,6 +1425,7 @@
     "spi": 0.25,
     "percentSpent": 25.0,
     "percentComplete": 25.0,
+    "plannedValue": 400.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 400.0,
@@ -1324,6 +1469,7 @@
     "spi": 0.25,
     "percentSpent": 25.0,
     "percentComplete": 25.0,
+    "plannedValue": 400.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 400.0,
@@ -1342,7 +1488,7 @@
    }
   },
   {
-   "name": "future window with progress: SPI divides by zero",
+   "name": "future window with progress: SPI is null",
    "inputs": {
     "afe": {
      "start_date": "2090-01-01",
@@ -1369,6 +1515,7 @@
     "spi": null,
     "percentSpent": 25.0,
     "percentComplete": 25.0,
+    "plannedValue": 0.0,
     "timeProgress": 0.0,
     "standardEvm": {
      "bac": 400.0,
@@ -1385,10 +1532,10 @@
      "tcpi": 1.0
     }
    },
-   "note": "DISAGREEMENT: time progress is 0 so planned value is 0; the engine reports SPI = Infinity, the standard definition leaves SPI undefined (recorded null)."
+   "note": "Time progress is 0 so planned value is 0 and SPI is undefined: null. Before EC5-0 the engine reported Infinity."
   },
   {
-   "name": "future window with no progress: SPI is NaN",
+   "name": "future window with no progress: SPI is null",
    "inputs": {
     "afe": {
      "start_date": "2090-01-01",
@@ -1415,6 +1562,7 @@
     "spi": null,
     "percentSpent": 25.0,
     "percentComplete": 0.0,
+    "plannedValue": 0.0,
     "timeProgress": 0.0,
     "standardEvm": {
      "bac": 400.0,
@@ -1431,7 +1579,7 @@
      "tcpi": 1.3333333333333333
     }
    },
-   "note": "DISAGREEMENT: 0 / 0; the engine reports NaN (recorded null)."
+   "note": "Planned value 0 and earned value 0: SPI null. Before EC5-0 the engine reported NaN."
   },
   {
    "name": "future window, zero budget: the guard gives 1",
@@ -1461,6 +1609,7 @@
     "spi": 1.0,
     "percentSpent": 0.0,
     "percentComplete": 0.0,
+    "plannedValue": 0.0,
     "timeProgress": 0.0,
     "standardEvm": {
      "bac": 0.0,
@@ -1479,7 +1628,7 @@
    }
   },
   {
-   "name": "negative entered forecast is ignored here (used as is by the S-curve)",
+   "name": "negative entered forecast is ignored (the S-curve ignores it too)",
    "inputs": {
     "afe": {
      "start_date": "2020-01-01",
@@ -1508,6 +1657,7 @@
     "spi": 0.1,
     "percentSpent": 20.0,
     "percentComplete": 10.0,
+    "plannedValue": 100.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 100.0,
@@ -1524,7 +1674,7 @@
      "tcpi": 1.125
     }
    },
-   "note": "calculateMetrics takes max(budget, actual + commitment) when the entered forecast is not positive; generateSCurveData takes the entered -50. See FINDINGS-fdp.md."
+   "note": "A forecast that is not positive falls through to max(budget, actual + commitment), in the metrics and the S-curve alike (itemForecast). Before EC5-0 the S-curve took the entered -50."
   },
   {
    "name": "strings everywhere",
@@ -1556,6 +1706,7 @@
     "spi": 0.4,
     "percentSpent": 30.0,
     "percentComplete": 40.0,
+    "plannedValue": 1000.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 1000.0,
@@ -1608,6 +1759,7 @@
     "spi": 0.6666666666666666,
     "percentSpent": 100.0,
     "percentComplete": 66.66666666666666,
+    "plannedValue": 150.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 150.0,
@@ -1653,6 +1805,7 @@
     "spi": 1.5,
     "percentSpent": 90.0,
     "percentComplete": 150.0,
+    "plannedValue": 100.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 100.0,
@@ -1777,6 +1930,7 @@
     "spi": 0.5866666666666667,
     "percentSpent": 25.384615384615383,
     "percentComplete": 58.666666666666664,
+    "plannedValue": 7800.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 7800.0,
@@ -1822,6 +1976,7 @@
     "spi": 1.0,
     "percentSpent": 0.0,
     "percentComplete": 0.0,
+    "plannedValue": 0.0,
     "timeProgress": 1.0,
     "standardEvm": {
      "bac": 0.0,
@@ -1837,6 +1992,779 @@
      "vac": -500.0,
      "tcpi": -0.0
     }
+   }
+  },
+  {
+   "name": "asOf mid-window: SPI against 256 of 729 days",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1000,
+      "actual": 300,
+      "progress": 40
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-09-14",
+    "asOfAs": "Date"
+   },
+   "expected": {
+    "totalBudget": 1000.0,
+    "totalCommitments": 0.0,
+    "totalActuals": 300.0,
+    "totalForecast": 1000.0,
+    "variance": 0.0,
+    "earnedValue": 400.0,
+    "cpi": 1.3333333333333333,
+    "spi": 1.1390625,
+    "percentSpent": 30.0,
+    "percentComplete": 40.0,
+    "plannedValue": 351.1659807956104,
+    "timeProgress": 0.3511659807956104,
+    "standardEvm": {
+     "bac": 1000.0,
+     "pv": 351.1659807956104,
+     "ev": 400.0,
+     "ac": 300.0,
+     "cv": 100.0,
+     "sv": 48.83401920438962,
+     "cpi": 1.3333333333333333,
+     "spi": 1.1390625,
+     "eac": 1000.0,
+     "etc": 700.0,
+     "vac": 0.0,
+     "tcpi": 0.8571428571428571
+    }
+   }
+  },
+  {
+   "name": "asOf as a string, later in the window",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1000,
+      "actual": 300,
+      "progress": 40
+     }
+    ],
+    "invoices": [],
+    "asOf": "2027-03-01",
+    "asOfAs": "string"
+   },
+   "expected": {
+    "totalBudget": 1000.0,
+    "totalCommitments": 0.0,
+    "totalActuals": 300.0,
+    "totalForecast": 1000.0,
+    "variance": 0.0,
+    "earnedValue": 400.0,
+    "cpi": 1.3333333333333333,
+    "spi": 0.6877358490566039,
+    "percentSpent": 30.0,
+    "percentComplete": 40.0,
+    "plannedValue": 581.6186556927297,
+    "timeProgress": 0.5816186556927297,
+    "standardEvm": {
+     "bac": 1000.0,
+     "pv": 581.6186556927297,
+     "ev": 400.0,
+     "ac": 300.0,
+     "cv": 100.0,
+     "sv": -181.6186556927297,
+     "cpi": 1.3333333333333333,
+     "spi": 0.6877358490566039,
+     "eac": 1000.0,
+     "etc": 700.0,
+     "vac": 0.0,
+     "tcpi": 0.8571428571428571
+    }
+   }
+  },
+  {
+   "name": "asOf with a time of day counts whole days only",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1000,
+      "actual": 300,
+      "progress": 40
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-09-14T15:30:00Z",
+    "asOfAs": "Date"
+   },
+   "expected": {
+    "totalBudget": 1000.0,
+    "totalCommitments": 0.0,
+    "totalActuals": 300.0,
+    "totalForecast": 1000.0,
+    "variance": 0.0,
+    "earnedValue": 400.0,
+    "cpi": 1.3333333333333333,
+    "spi": 1.1390625,
+    "percentSpent": 30.0,
+    "percentComplete": 40.0,
+    "plannedValue": 351.1659807956104,
+    "timeProgress": 0.3511659807956104,
+    "standardEvm": {
+     "bac": 1000.0,
+     "pv": 351.1659807956104,
+     "ev": 400.0,
+     "ac": 300.0,
+     "cv": 100.0,
+     "sv": 48.83401920438962,
+     "cpi": 1.3333333333333333,
+     "spi": 1.1390625,
+     "eac": 1000.0,
+     "etc": 700.0,
+     "vac": 0.0,
+     "tcpi": 0.8571428571428571
+    }
+   }
+  },
+  {
+   "name": "asOf before the start: SPI null",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 400,
+      "actual": 100,
+      "progress": 25
+     }
+    ],
+    "invoices": [],
+    "asOf": "2025-12-31",
+    "asOfAs": "Date"
+   },
+   "expected": {
+    "totalBudget": 400.0,
+    "totalCommitments": 0.0,
+    "totalActuals": 100.0,
+    "totalForecast": 400.0,
+    "variance": 0.0,
+    "earnedValue": 100.0,
+    "cpi": 1.0,
+    "spi": null,
+    "percentSpent": 25.0,
+    "percentComplete": 25.0,
+    "plannedValue": 0.0,
+    "timeProgress": 0.0,
+    "standardEvm": {
+     "bac": 400.0,
+     "pv": 0.0,
+     "ev": 100.0,
+     "ac": 100.0,
+     "cv": 0.0,
+     "sv": 100.0,
+     "cpi": 1.0,
+     "spi": null,
+     "eac": 400.0,
+     "etc": 300.0,
+     "vac": 0.0,
+     "tcpi": 1.0
+    }
+   },
+   "note": "Planned value is 0 before the start, so SPI is undefined: null."
+  },
+  {
+   "name": "asOf before the start with no progress: SPI null",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 400,
+      "actual": 0,
+      "progress": 0
+     }
+    ],
+    "invoices": [],
+    "asOf": "2025-06-01",
+    "asOfAs": "string"
+   },
+   "expected": {
+    "totalBudget": 400.0,
+    "totalCommitments": 0.0,
+    "totalActuals": 0.0,
+    "totalForecast": 400.0,
+    "variance": 0.0,
+    "earnedValue": 0.0,
+    "cpi": 1.0,
+    "spi": null,
+    "percentSpent": 0.0,
+    "percentComplete": 0.0,
+    "plannedValue": 0.0,
+    "timeProgress": 0.0,
+    "standardEvm": {
+     "bac": 400.0,
+     "pv": 0.0,
+     "ev": 0.0,
+     "ac": 0.0,
+     "cv": 0.0,
+     "sv": 0.0,
+     "cpi": null,
+     "spi": null,
+     "eac": 400.0,
+     "etc": 400.0,
+     "vac": 0.0,
+     "tcpi": 1.0
+    }
+   }
+  },
+  {
+   "name": "asOf on the start day: no whole day elapsed, SPI null",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1000,
+      "actual": 300,
+      "progress": 40
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-01-01",
+    "asOfAs": "Date"
+   },
+   "expected": {
+    "totalBudget": 1000.0,
+    "totalCommitments": 0.0,
+    "totalActuals": 300.0,
+    "totalForecast": 1000.0,
+    "variance": 0.0,
+    "earnedValue": 400.0,
+    "cpi": 1.3333333333333333,
+    "spi": null,
+    "percentSpent": 30.0,
+    "percentComplete": 40.0,
+    "plannedValue": 0.0,
+    "timeProgress": 0.0,
+    "standardEvm": {
+     "bac": 1000.0,
+     "pv": 0.0,
+     "ev": 400.0,
+     "ac": 300.0,
+     "cv": 100.0,
+     "sv": 400.0,
+     "cpi": 1.3333333333333333,
+     "spi": null,
+     "eac": 1000.0,
+     "etc": 700.0,
+     "vac": 0.0,
+     "tcpi": 0.8571428571428571
+    }
+   }
+  },
+  {
+   "name": "asOf on the end day: time progress 1",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1000,
+      "actual": 300,
+      "progress": 40
+     }
+    ],
+    "invoices": [],
+    "asOf": "2027-12-31",
+    "asOfAs": "Date"
+   },
+   "expected": {
+    "totalBudget": 1000.0,
+    "totalCommitments": 0.0,
+    "totalActuals": 300.0,
+    "totalForecast": 1000.0,
+    "variance": 0.0,
+    "earnedValue": 400.0,
+    "cpi": 1.3333333333333333,
+    "spi": 0.4,
+    "percentSpent": 30.0,
+    "percentComplete": 40.0,
+    "plannedValue": 1000.0,
+    "timeProgress": 1.0,
+    "standardEvm": {
+     "bac": 1000.0,
+     "pv": 1000.0,
+     "ev": 400.0,
+     "ac": 300.0,
+     "cv": 100.0,
+     "sv": -600.0,
+     "cpi": 1.3333333333333333,
+     "spi": 0.4,
+     "eac": 1000.0,
+     "etc": 700.0,
+     "vac": 0.0,
+     "tcpi": 0.8571428571428571
+    }
+   }
+  },
+  {
+   "name": "asOf after the end: time progress 1",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 600,
+      "actual": 700,
+      "commitment": 50,
+      "progress": 90
+     },
+     {
+      "budget": 400,
+      "actual": 100,
+      "progress": 100
+     }
+    ],
+    "invoices": [],
+    "asOf": "2028-06-30",
+    "asOfAs": "string"
+   },
+   "expected": {
+    "totalBudget": 1000.0,
+    "totalCommitments": 50.0,
+    "totalActuals": 800.0,
+    "totalForecast": 1150.0,
+    "variance": -150.0,
+    "earnedValue": 940.0,
+    "cpi": 1.175,
+    "spi": 0.94,
+    "percentSpent": 80.0,
+    "percentComplete": 94.0,
+    "plannedValue": 1000.0,
+    "timeProgress": 1.0,
+    "standardEvm": {
+     "bac": 1000.0,
+     "pv": 1000.0,
+     "ev": 940.0,
+     "ac": 800.0,
+     "cv": 140.0,
+     "sv": -60.0,
+     "cpi": 1.175,
+     "spi": 0.94,
+     "eac": 1150.0,
+     "etc": 350.0,
+     "vac": -150.0,
+     "tcpi": 0.3
+    }
+   }
+  },
+  {
+   "name": "asOf before the start, zero budget: the guard gives 1",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 0,
+      "actual": 100,
+      "progress": 0
+     }
+    ],
+    "invoices": [],
+    "asOf": "2025-01-01",
+    "asOfAs": "Date"
+   },
+   "expected": {
+    "totalBudget": 0.0,
+    "totalCommitments": 0.0,
+    "totalActuals": 100.0,
+    "totalForecast": 100.0,
+    "variance": -100.0,
+    "earnedValue": 0.0,
+    "cpi": 0.0,
+    "spi": 1.0,
+    "percentSpent": 0.0,
+    "percentComplete": 0.0,
+    "plannedValue": 0.0,
+    "timeProgress": 0.0,
+    "standardEvm": {
+     "bac": 0.0,
+     "pv": 0.0,
+     "ev": 0.0,
+     "ac": 100.0,
+     "cv": -100.0,
+     "sv": 0.0,
+     "cpi": 0.0,
+     "spi": null,
+     "eac": 100.0,
+     "etc": 0.0,
+     "vac": -100.0,
+     "tcpi": -0.0
+    }
+   }
+  },
+  {
+   "name": "asOf with no AFE dates: time progress 1",
+   "inputs": {
+    "afe": {
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1000,
+      "actual": 300,
+      "progress": 40
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-09-14",
+    "asOfAs": "Date"
+   },
+   "expected": {
+    "totalBudget": 1000.0,
+    "totalCommitments": 0.0,
+    "totalActuals": 300.0,
+    "totalForecast": 1000.0,
+    "variance": 0.0,
+    "earnedValue": 400.0,
+    "cpi": 1.3333333333333333,
+    "spi": 0.4,
+    "percentSpent": 30.0,
+    "percentComplete": 40.0,
+    "plannedValue": 1000.0,
+    "timeProgress": 1.0,
+    "standardEvm": {
+     "bac": 1000.0,
+     "pv": 1000.0,
+     "ev": 400.0,
+     "ac": 300.0,
+     "cv": 100.0,
+     "sv": -600.0,
+     "cpi": 1.3333333333333333,
+     "spi": 0.4,
+     "eac": 1000.0,
+     "etc": 700.0,
+     "vac": 0.0,
+     "tcpi": 0.8571428571428571
+    }
+   }
+  },
+  {
+   "name": "asOf mid-window, a dozen items with forecasts",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 100,
+      "commitment": 0,
+      "actual": 0,
+      "progress": 0,
+      "forecast": 150
+     },
+     {
+      "budget": 200,
+      "commitment": 10,
+      "actual": 30,
+      "progress": 7,
+      "forecast": 0
+     },
+     {
+      "budget": 300,
+      "commitment": 20,
+      "actual": 60,
+      "progress": 14,
+      "forecast": 0
+     },
+     {
+      "budget": 400,
+      "commitment": 30,
+      "actual": 90,
+      "progress": 21,
+      "forecast": 600
+     },
+     {
+      "budget": 500,
+      "commitment": 40,
+      "actual": 120,
+      "progress": 28,
+      "forecast": 0
+     },
+     {
+      "budget": 600,
+      "commitment": 50,
+      "actual": 150,
+      "progress": 35,
+      "forecast": 0
+     },
+     {
+      "budget": 700,
+      "commitment": 60,
+      "actual": 180,
+      "progress": 42,
+      "forecast": 1050
+     },
+     {
+      "budget": 800,
+      "commitment": 70,
+      "actual": 210,
+      "progress": 49,
+      "forecast": 0
+     },
+     {
+      "budget": 900,
+      "commitment": 80,
+      "actual": 240,
+      "progress": 56,
+      "forecast": 0
+     },
+     {
+      "budget": 1000,
+      "commitment": 90,
+      "actual": 270,
+      "progress": 63,
+      "forecast": 1500
+     },
+     {
+      "budget": 1100,
+      "commitment": 100,
+      "actual": 300,
+      "progress": 70,
+      "forecast": 0
+     },
+     {
+      "budget": 1200,
+      "commitment": 110,
+      "actual": 330,
+      "progress": 77,
+      "forecast": 0
+     }
+    ],
+    "invoices": [],
+    "asOf": "2027-06-15",
+    "asOfAs": "string"
+   },
+   "expected": {
+    "totalBudget": 7800.0,
+    "totalCommitments": 660.0,
+    "totalActuals": 1980.0,
+    "totalForecast": 8900.0,
+    "variance": -1100.0,
+    "earnedValue": 4004.0,
+    "cpi": 2.022222222222222,
+    "spi": 0.7060754716981132,
+    "percentSpent": 25.384615384615383,
+    "percentComplete": 51.33333333333333,
+    "plannedValue": 5670.781893004115,
+    "timeProgress": 0.7270233196159122,
+    "standardEvm": {
+     "bac": 7800.0,
+     "pv": 5670.781893004115,
+     "ev": 4004.0,
+     "ac": 1980.0,
+     "cv": 2024.0,
+     "sv": -1666.7818930041149,
+     "cpi": 2.022222222222222,
+     "spi": 0.7060754716981132,
+     "eac": 8900.0,
+     "etc": 6920.0,
+     "vac": -1100.0,
+     "tcpi": 0.652233676975945
+    }
+   }
+  }
+ ],
+ "metricsRefusals": [
+  {
+   "name": "invalid asOf: not a date",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 100,
+      "progress": 10
+     }
+    ],
+    "invoices": [],
+    "asOf": "not a date"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "asOf is not a valid date"
+   }
+  },
+  {
+   "name": "invalid asOf: month 13",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 100,
+      "progress": 10
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-13-01"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "asOf is not a valid date"
+   }
+  },
+  {
+   "name": "invalid asOf: 30 February",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 100,
+      "progress": 10
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-02-30"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "asOf is not a valid date"
+   }
+  },
+  {
+   "name": "invalid asOf is refused even with no AFE dates",
+   "inputs": {
+    "afe": {},
+    "costItems": [],
+    "invoices": [],
+    "asOf": "yesterday"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "asOf is not a valid date"
+   }
+  },
+  {
+   "name": "negative progress named by code",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "code": "DRL-01",
+      "description": "Drilling",
+      "budget": 1000,
+      "actual": 0,
+      "progress": 10
+     },
+     {
+      "code": "CMP-02",
+      "budget": 1000,
+      "actual": 0,
+      "progress": -20
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-09-14"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "Cost item \"CMP-02\" has negative progress (-20 percent). Progress runs from 0 to 100 percent."
+   }
+  },
+  {
+   "name": "negative progress named by description",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "description": "Completion",
+      "budget": 500,
+      "progress": -0.5
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-09-14"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "Cost item \"Completion\" has negative progress (-0.5 percent). Progress runs from 0 to 100 percent."
+   }
+  },
+  {
+   "name": "negative progress as a string, named by index",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 100,
+      "progress": 10
+     },
+     {
+      "budget": 100,
+      "progress": "-12.5"
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-09-14"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "Cost item \"1\" has negative progress (-12.5 percent). Progress runs from 0 to 100 percent."
    }
   }
  ],
@@ -1854,8 +2782,7 @@
    },
    "expected": {
     "kind": "none",
-    "pointsWithinWindow": [],
-    "afterWindow": null,
+    "points": [],
     "totalBudget": null,
     "totalForecast": null,
     "totalDays": null
@@ -1878,7 +2805,7 @@
    },
    "expected": {
     "kind": "past",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 20",
       "Planned": 0.0,
@@ -1952,11 +2879,6 @@
       "Forecast": 0.0
      }
     ],
-    "afterWindow": {
-     "Planned": 1200.0,
-     "Actual": 0.0,
-     "Forecast": 0.0
-    },
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
     "totalDays": 365.0
@@ -1988,7 +2910,7 @@
    },
    "expected": {
     "kind": "past",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 20",
       "Planned": 0.0,
@@ -2062,11 +2984,6 @@
       "Forecast": 350.0
      }
     ],
-    "afterWindow": {
-     "Planned": 1200.0,
-     "Actual": 350.0,
-     "Forecast": 350.0
-    },
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
     "totalDays": 365.0
@@ -2102,7 +3019,7 @@
    },
    "expected": {
     "kind": "past",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 20",
       "Planned": 0.0,
@@ -2176,18 +3093,13 @@
       "Forecast": 30.0
      }
     ],
-    "afterWindow": {
-     "Planned": 3650.0,
-     "Actual": 60.0,
-     "Forecast": 60.0
-    },
     "totalBudget": 3650.0,
     "totalForecast": 3650.0,
     "totalDays": 365.0
    }
   },
   {
-   "name": "past window, invoice dated after the window: later points not pinned",
+   "name": "past window, invoice dated after the window never counts",
    "inputs": {
     "afe": {
      "start_date": "2020-01-01",
@@ -2212,7 +3124,7 @@
    },
    "expected": {
     "kind": "past",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 20",
       "Planned": 0.0,
@@ -2286,7 +3198,6 @@
       "Forecast": 250.0
      }
     ],
-    "afterWindow": null,
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
     "totalDays": 365.0
@@ -2319,7 +3230,7 @@
    },
    "expected": {
     "kind": "past",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 20",
       "Planned": 0.0,
@@ -2393,11 +3304,6 @@
       "Forecast": 250.0
      }
     ],
-    "afterWindow": {
-     "Planned": 600.0,
-     "Actual": 250.0,
-     "Forecast": 250.0
-    },
     "totalBudget": 600.0,
     "totalForecast": 600.0,
     "totalDays": 365.0
@@ -2428,7 +3334,7 @@
    },
    "expected": {
     "kind": "past",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 20",
       "Planned": 0.0,
@@ -2496,11 +3402,6 @@
       "Forecast": 350.0
      }
     ],
-    "afterWindow": {
-     "Planned": 1000.0,
-     "Actual": 350.0,
-     "Forecast": 350.0
-    },
     "totalBudget": 1000.0,
     "totalForecast": 1000.0,
     "totalDays": 335.0
@@ -2532,7 +3433,7 @@
    },
    "expected": {
     "kind": "past",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 20",
       "Planned": 0.0,
@@ -2606,11 +3507,6 @@
       "Forecast": 350.0
      }
     ],
-    "afterWindow": {
-     "Planned": 0.0,
-     "Actual": 350.0,
-     "Forecast": 350.0
-    },
     "totalBudget": 0.0,
     "totalForecast": 0.0,
     "totalDays": 365.0
@@ -2641,7 +3537,7 @@
    },
    "expected": {
     "kind": "past",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 20",
       "Planned": 0.0,
@@ -2715,11 +3611,6 @@
       "Forecast": 200.0
      }
     ],
-    "afterWindow": {
-     "Planned": 1200.0,
-     "Actual": 200.0,
-     "Forecast": 200.0
-    },
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
     "totalDays": 365.0
@@ -2746,7 +3637,7 @@
    },
    "expected": {
     "kind": "past",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jun 20",
       "Planned": 0.0,
@@ -2754,7 +3645,6 @@
       "Forecast": 500.0
      }
     ],
-    "afterWindow": null,
     "totalBudget": 500.0,
     "totalForecast": 500.0,
     "totalDays": 0.0
@@ -2779,7 +3669,7 @@
    },
    "expected": {
     "kind": "future",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 90",
       "Planned": 0.0,
@@ -2853,7 +3743,6 @@
       "Forecast": 1101.0
      }
     ],
-    "afterWindow": null,
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
     "totalDays": 364.0
@@ -2877,7 +3766,7 @@
    },
    "expected": {
     "kind": "future",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 90",
       "Planned": 0.0,
@@ -2951,14 +3840,13 @@
       "Forecast": 1376.0
      }
     ],
-    "afterWindow": null,
     "totalBudget": 1200.0,
     "totalForecast": 1500.0,
     "totalDays": 364.0
    }
   },
   {
-   "name": "future window with a NEGATIVE entered forecast",
+   "name": "future window with a NEGATIVE entered forecast, ignored as in the metrics",
    "inputs": {
     "afe": {
      "start_date": "2090-01-01",
@@ -2975,83 +3863,82 @@
    },
    "expected": {
     "kind": "future",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 90",
       "Planned": 0.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 0.0
      },
      {
       "date": "Feb 90",
       "Planned": 102.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 102.0
      },
      {
       "date": "Mar 90",
       "Planned": 195.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 195.0
      },
      {
       "date": "Apr 90",
       "Planned": 297.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 297.0
      },
      {
       "date": "May 90",
       "Planned": 396.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 396.0
      },
      {
       "date": "Jun 90",
       "Planned": 498.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 498.0
      },
      {
       "date": "Jul 90",
       "Planned": 597.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 597.0
      },
      {
       "date": "Aug 90",
       "Planned": 699.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 699.0
      },
      {
       "date": "Sep 90",
       "Planned": 801.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 801.0
      },
      {
       "date": "Oct 90",
       "Planned": 900.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 900.0
      },
      {
       "date": "Nov 90",
       "Planned": 1002.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 1002.0
      },
      {
       "date": "Dec 90",
       "Planned": 1101.0,
       "Actual": null,
-      "Forecast": -50.0
+      "Forecast": 1101.0
      }
     ],
-    "afterWindow": null,
     "totalBudget": 1200.0,
-    "totalForecast": -50.0,
+    "totalForecast": 1200.0,
     "totalDays": 364.0
    }
   },
@@ -3071,8 +3958,7 @@
    },
    "expected": {
     "kind": "future",
-    "pointsWithinWindow": [],
-    "afterWindow": null,
+    "points": [],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
     "totalDays": -364.0
@@ -3094,7 +3980,7 @@
    },
    "expected": {
     "kind": "future",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jun 90",
       "Planned": 0.0,
@@ -3102,7 +3988,6 @@
       "Forecast": 0.0
      }
     ],
-    "afterWindow": null,
     "totalBudget": 500.0,
     "totalForecast": 500.0,
     "totalDays": 0.0
@@ -3124,7 +4009,7 @@
    },
    "expected": {
     "kind": "future",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Jan 91",
       "Planned": 0.0,
@@ -3192,7 +4077,6 @@
       "Forecast": 916.0
      }
     ],
-    "afterWindow": null,
     "totalBudget": 1000.0,
     "totalForecast": 1000.0,
     "totalDays": 334.0
@@ -3215,7 +4099,7 @@
    },
    "expected": {
     "kind": "future",
-    "pointsWithinWindow": [
+    "points": [
      {
       "date": "Mar 90",
       "Planned": 0.0,
@@ -3361,10 +4245,901 @@
       "Forecast": 769.0
      }
     ],
-    "afterWindow": null,
     "totalBudget": 730.0,
     "totalForecast": 800.0,
     "totalDays": 730.0
+   }
+  },
+  {
+   "name": "future window ending on a bucket: the last forecast point is the whole EAC",
+   "inputs": {
+    "afe": {
+     "start_date": "2090-01-01",
+     "end_date": "2091-01-01"
+    },
+    "costItems": [
+     {
+      "budget": 1200,
+      "actual": 900,
+      "commitment": 600
+     },
+     {
+      "budget": 500,
+      "forecast": 650
+     },
+     {
+      "budget": 300,
+      "forecast": -10
+     }
+    ],
+    "invoices": []
+   },
+   "expected": {
+    "kind": "future",
+    "points": [
+     {
+      "date": "Jan 90",
+      "Planned": 0.0,
+      "Actual": null,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Feb 90",
+      "Planned": 170.0,
+      "Actual": null,
+      "Forecast": 208.0
+     },
+     {
+      "date": "Mar 90",
+      "Planned": 323.0,
+      "Actual": null,
+      "Forecast": 396.0
+     },
+     {
+      "date": "Apr 90",
+      "Planned": 493.0,
+      "Actual": null,
+      "Forecast": 604.0
+     },
+     {
+      "date": "May 90",
+      "Planned": 658.0,
+      "Actual": null,
+      "Forecast": 805.0
+     },
+     {
+      "date": "Jun 90",
+      "Planned": 827.0,
+      "Actual": null,
+      "Forecast": 1014.0
+     },
+     {
+      "date": "Jul 90",
+      "Planned": 992.0,
+      "Actual": null,
+      "Forecast": 1215.0
+     },
+     {
+      "date": "Aug 90",
+      "Planned": 1162.0,
+      "Actual": null,
+      "Forecast": 1423.0
+     },
+     {
+      "date": "Sep 90",
+      "Planned": 1332.0,
+      "Actual": null,
+      "Forecast": 1631.0
+     },
+     {
+      "date": "Oct 90",
+      "Planned": 1496.0,
+      "Actual": null,
+      "Forecast": 1832.0
+     },
+     {
+      "date": "Nov 90",
+      "Planned": 1666.0,
+      "Actual": null,
+      "Forecast": 2041.0
+     },
+     {
+      "date": "Dec 90",
+      "Planned": 1830.0,
+      "Actual": null,
+      "Forecast": 2242.0
+     },
+     {
+      "date": "Jan 91",
+      "Planned": 2000.0,
+      "Actual": null,
+      "Forecast": 2450.0
+     }
+    ],
+    "totalBudget": 2000.0,
+    "totalForecast": 2450.0,
+    "totalDays": 365.0
+   }
+  },
+  {
+   "name": "past window, asOf mid-year: actuals to June, forecast projected after",
+   "inputs": {
+    "afe": {
+     "start_date": "2020-01-01",
+     "end_date": "2020-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1200,
+      "actual": 200,
+      "commitment": 100,
+      "forecast": 1500
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2020-02-15",
+      "amount": 100
+     },
+     {
+      "invoice_date": "2020-06-15",
+      "amount": 250
+     }
+    ],
+    "asOf": "2020-06-30"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Jan 20",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Feb 20",
+      "Planned": 102.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Mar 20",
+      "Planned": 197.0,
+      "Actual": 100.0,
+      "Forecast": 100.0
+     },
+     {
+      "date": "Apr 20",
+      "Planned": 299.0,
+      "Actual": 100.0,
+      "Forecast": 100.0
+     },
+     {
+      "date": "May 20",
+      "Planned": 398.0,
+      "Actual": 100.0,
+      "Forecast": 100.0
+     },
+     {
+      "date": "Jun 20",
+      "Planned": 500.0,
+      "Actual": 100.0,
+      "Forecast": 100.0
+     },
+     {
+      "date": "Jul 20",
+      "Planned": 598.0,
+      "Actual": null,
+      "Forecast": 748.0
+     },
+     {
+      "date": "Aug 20",
+      "Planned": 700.0,
+      "Actual": null,
+      "Forecast": 875.0
+     },
+     {
+      "date": "Sep 20",
+      "Planned": 802.0,
+      "Actual": null,
+      "Forecast": 1003.0
+     },
+     {
+      "date": "Oct 20",
+      "Planned": 901.0,
+      "Actual": null,
+      "Forecast": 1126.0
+     },
+     {
+      "date": "Nov 20",
+      "Planned": 1003.0,
+      "Actual": null,
+      "Forecast": 1253.0
+     },
+     {
+      "date": "Dec 20",
+      "Planned": 1101.0,
+      "Actual": null,
+      "Forecast": 1377.0
+     }
+    ],
+    "totalBudget": 1200.0,
+    "totalForecast": 1500.0,
+    "totalDays": 365.0
+   }
+  },
+  {
+   "name": "past window, asOf on a bucket day counts that bucket",
+   "inputs": {
+    "afe": {
+     "start_date": "2020-01-01",
+     "end_date": "2020-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1200
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2020-02-15",
+      "amount": 100
+     },
+     {
+      "invoice_date": "2020-06-15",
+      "amount": 250
+     }
+    ],
+    "asOf": "2020-06-01"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Jan 20",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Feb 20",
+      "Planned": 102.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Mar 20",
+      "Planned": 197.0,
+      "Actual": 100.0,
+      "Forecast": 100.0
+     },
+     {
+      "date": "Apr 20",
+      "Planned": 299.0,
+      "Actual": 100.0,
+      "Forecast": 100.0
+     },
+     {
+      "date": "May 20",
+      "Planned": 398.0,
+      "Actual": 100.0,
+      "Forecast": 100.0
+     },
+     {
+      "date": "Jun 20",
+      "Planned": 500.0,
+      "Actual": 100.0,
+      "Forecast": 100.0
+     },
+     {
+      "date": "Jul 20",
+      "Planned": 598.0,
+      "Actual": null,
+      "Forecast": 598.0
+     },
+     {
+      "date": "Aug 20",
+      "Planned": 700.0,
+      "Actual": null,
+      "Forecast": 700.0
+     },
+     {
+      "date": "Sep 20",
+      "Planned": 802.0,
+      "Actual": null,
+      "Forecast": 802.0
+     },
+     {
+      "date": "Oct 20",
+      "Planned": 901.0,
+      "Actual": null,
+      "Forecast": 901.0
+     },
+     {
+      "date": "Nov 20",
+      "Planned": 1003.0,
+      "Actual": null,
+      "Forecast": 1003.0
+     },
+     {
+      "date": "Dec 20",
+      "Planned": 1101.0,
+      "Actual": null,
+      "Forecast": 1101.0
+     }
+    ],
+    "totalBudget": 1200.0,
+    "totalForecast": 1200.0,
+    "totalDays": 365.0
+   }
+  },
+  {
+   "name": "past window, asOf before the start: no actuals at all",
+   "inputs": {
+    "afe": {
+     "start_date": "2020-01-01",
+     "end_date": "2020-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1200
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2020-02-15",
+      "amount": 100
+     },
+     {
+      "invoice_date": "2020-06-15",
+      "amount": 250
+     }
+    ],
+    "asOf": "2019-06-01"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Jan 20",
+      "Planned": 0.0,
+      "Actual": null,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Feb 20",
+      "Planned": 102.0,
+      "Actual": null,
+      "Forecast": 102.0
+     },
+     {
+      "date": "Mar 20",
+      "Planned": 197.0,
+      "Actual": null,
+      "Forecast": 197.0
+     },
+     {
+      "date": "Apr 20",
+      "Planned": 299.0,
+      "Actual": null,
+      "Forecast": 299.0
+     },
+     {
+      "date": "May 20",
+      "Planned": 398.0,
+      "Actual": null,
+      "Forecast": 398.0
+     },
+     {
+      "date": "Jun 20",
+      "Planned": 500.0,
+      "Actual": null,
+      "Forecast": 500.0
+     },
+     {
+      "date": "Jul 20",
+      "Planned": 598.0,
+      "Actual": null,
+      "Forecast": 598.0
+     },
+     {
+      "date": "Aug 20",
+      "Planned": 700.0,
+      "Actual": null,
+      "Forecast": 700.0
+     },
+     {
+      "date": "Sep 20",
+      "Planned": 802.0,
+      "Actual": null,
+      "Forecast": 802.0
+     },
+     {
+      "date": "Oct 20",
+      "Planned": 901.0,
+      "Actual": null,
+      "Forecast": 901.0
+     },
+     {
+      "date": "Nov 20",
+      "Planned": 1003.0,
+      "Actual": null,
+      "Forecast": 1003.0
+     },
+     {
+      "date": "Dec 20",
+      "Planned": 1101.0,
+      "Actual": null,
+      "Forecast": 1101.0
+     }
+    ],
+    "totalBudget": 1200.0,
+    "totalForecast": 1200.0,
+    "totalDays": 365.0
+   }
+  },
+  {
+   "name": "future window, asOf after the end: all actuals",
+   "inputs": {
+    "afe": {
+     "start_date": "2090-01-01",
+     "end_date": "2090-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1200
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2090-03-10",
+      "amount": 400
+     },
+     {
+      "invoice_date": "2091-01-10",
+      "amount": 99
+     }
+    ],
+    "asOf": "2095-01-01"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Jan 90",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Feb 90",
+      "Planned": 102.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Mar 90",
+      "Planned": 195.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Apr 90",
+      "Planned": 297.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     },
+     {
+      "date": "May 90",
+      "Planned": 396.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     },
+     {
+      "date": "Jun 90",
+      "Planned": 498.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     },
+     {
+      "date": "Jul 90",
+      "Planned": 597.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     },
+     {
+      "date": "Aug 90",
+      "Planned": 699.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     },
+     {
+      "date": "Sep 90",
+      "Planned": 801.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     },
+     {
+      "date": "Oct 90",
+      "Planned": 900.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     },
+     {
+      "date": "Nov 90",
+      "Planned": 1002.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     },
+     {
+      "date": "Dec 90",
+      "Planned": 1101.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     }
+    ],
+    "totalBudget": 1200.0,
+    "totalForecast": 1200.0,
+    "totalDays": 364.0
+   }
+  },
+  {
+   "name": "window spanning today, asOf 2026-09-14",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 2400,
+      "actual": 900,
+      "commitment": 300
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2026-02-15",
+      "amount": 300
+     },
+     {
+      "invoice_date": "2026-08-20",
+      "amount": 600
+     },
+     {
+      "invoice_date": "2026-10-01",
+      "amount": 50
+     }
+    ],
+    "asOf": "2026-09-14"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Jan 26",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Feb 26",
+      "Planned": 102.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Mar 26",
+      "Planned": 194.0,
+      "Actual": 300.0,
+      "Forecast": 300.0
+     },
+     {
+      "date": "Apr 26",
+      "Planned": 296.0,
+      "Actual": 300.0,
+      "Forecast": 300.0
+     },
+     {
+      "date": "May 26",
+      "Planned": 395.0,
+      "Actual": 300.0,
+      "Forecast": 300.0
+     },
+     {
+      "date": "Jun 26",
+      "Planned": 497.0,
+      "Actual": 300.0,
+      "Forecast": 300.0
+     },
+     {
+      "date": "Jul 26",
+      "Planned": 596.0,
+      "Actual": 300.0,
+      "Forecast": 300.0
+     },
+     {
+      "date": "Aug 26",
+      "Planned": 698.0,
+      "Actual": 300.0,
+      "Forecast": 300.0
+     },
+     {
+      "date": "Sep 26",
+      "Planned": 800.0,
+      "Actual": 900.0,
+      "Forecast": 900.0
+     },
+     {
+      "date": "Oct 26",
+      "Planned": 899.0,
+      "Actual": null,
+      "Forecast": 899.0
+     },
+     {
+      "date": "Nov 26",
+      "Planned": 1001.0,
+      "Actual": null,
+      "Forecast": 1001.0
+     },
+     {
+      "date": "Dec 26",
+      "Planned": 1100.0,
+      "Actual": null,
+      "Forecast": 1100.0
+     },
+     {
+      "date": "Jan 27",
+      "Planned": 1202.0,
+      "Actual": null,
+      "Forecast": 1202.0
+     },
+     {
+      "date": "Feb 27",
+      "Planned": 1304.0,
+      "Actual": null,
+      "Forecast": 1304.0
+     },
+     {
+      "date": "Mar 27",
+      "Planned": 1396.0,
+      "Actual": null,
+      "Forecast": 1396.0
+     },
+     {
+      "date": "Apr 27",
+      "Planned": 1498.0,
+      "Actual": null,
+      "Forecast": 1498.0
+     },
+     {
+      "date": "May 27",
+      "Planned": 1597.0,
+      "Actual": null,
+      "Forecast": 1597.0
+     },
+     {
+      "date": "Jun 27",
+      "Planned": 1699.0,
+      "Actual": null,
+      "Forecast": 1699.0
+     },
+     {
+      "date": "Jul 27",
+      "Planned": 1798.0,
+      "Actual": null,
+      "Forecast": 1798.0
+     },
+     {
+      "date": "Aug 27",
+      "Planned": 1900.0,
+      "Actual": null,
+      "Forecast": 1900.0
+     },
+     {
+      "date": "Sep 27",
+      "Planned": 2002.0,
+      "Actual": null,
+      "Forecast": 2002.0
+     },
+     {
+      "date": "Oct 27",
+      "Planned": 2100.0,
+      "Actual": null,
+      "Forecast": 2100.0
+     },
+     {
+      "date": "Nov 27",
+      "Planned": 2202.0,
+      "Actual": null,
+      "Forecast": 2202.0
+     },
+     {
+      "date": "Dec 27",
+      "Planned": 2301.0,
+      "Actual": null,
+      "Forecast": 2301.0
+     }
+    ],
+    "totalBudget": 2400.0,
+    "totalForecast": 2400.0,
+    "totalDays": 729.0
+   }
+  },
+  {
+   "name": "negative entered forecast with asOf: ignored, never a negative point",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1200,
+      "forecast": -50
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-05-01"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Jan 26",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Feb 26",
+      "Planned": 51.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Mar 26",
+      "Planned": 97.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Apr 26",
+      "Planned": 148.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "May 26",
+      "Planned": 198.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Jun 26",
+      "Planned": 249.0,
+      "Actual": null,
+      "Forecast": 249.0
+     },
+     {
+      "date": "Jul 26",
+      "Planned": 298.0,
+      "Actual": null,
+      "Forecast": 298.0
+     },
+     {
+      "date": "Aug 26",
+      "Planned": 349.0,
+      "Actual": null,
+      "Forecast": 349.0
+     },
+     {
+      "date": "Sep 26",
+      "Planned": 400.0,
+      "Actual": null,
+      "Forecast": 400.0
+     },
+     {
+      "date": "Oct 26",
+      "Planned": 449.0,
+      "Actual": null,
+      "Forecast": 449.0
+     },
+     {
+      "date": "Nov 26",
+      "Planned": 500.0,
+      "Actual": null,
+      "Forecast": 500.0
+     },
+     {
+      "date": "Dec 26",
+      "Planned": 550.0,
+      "Actual": null,
+      "Forecast": 550.0
+     },
+     {
+      "date": "Jan 27",
+      "Planned": 601.0,
+      "Actual": null,
+      "Forecast": 601.0
+     },
+     {
+      "date": "Feb 27",
+      "Planned": 652.0,
+      "Actual": null,
+      "Forecast": 652.0
+     },
+     {
+      "date": "Mar 27",
+      "Planned": 698.0,
+      "Actual": null,
+      "Forecast": 698.0
+     },
+     {
+      "date": "Apr 27",
+      "Planned": 749.0,
+      "Actual": null,
+      "Forecast": 749.0
+     },
+     {
+      "date": "May 27",
+      "Planned": 798.0,
+      "Actual": null,
+      "Forecast": 798.0
+     },
+     {
+      "date": "Jun 27",
+      "Planned": 849.0,
+      "Actual": null,
+      "Forecast": 849.0
+     },
+     {
+      "date": "Jul 27",
+      "Planned": 899.0,
+      "Actual": null,
+      "Forecast": 899.0
+     },
+     {
+      "date": "Aug 27",
+      "Planned": 950.0,
+      "Actual": null,
+      "Forecast": 950.0
+     },
+     {
+      "date": "Sep 27",
+      "Planned": 1001.0,
+      "Actual": null,
+      "Forecast": 1001.0
+     },
+     {
+      "date": "Oct 27",
+      "Planned": 1050.0,
+      "Actual": null,
+      "Forecast": 1050.0
+     },
+     {
+      "date": "Nov 27",
+      "Planned": 1101.0,
+      "Actual": null,
+      "Forecast": 1101.0
+     },
+     {
+      "date": "Dec 27",
+      "Planned": 1151.0,
+      "Actual": null,
+      "Forecast": 1151.0
+     }
+    ],
+    "totalBudget": 1200.0,
+    "totalForecast": 1200.0,
+    "totalDays": 729.0
    }
   }
  ],

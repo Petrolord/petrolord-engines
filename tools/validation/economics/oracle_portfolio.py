@@ -25,18 +25,69 @@ and NOT by transcribing the JavaScript:
                     E[X^2] = pos (sd^2 + mu^2) + (1 minus pos) c^2,
                     variance = E[X^2] minus mean^2. Exact.
 
-  portfolio risk    under one average pairwise correlation rho (clamped to
-                    [0, 1], a non-numeric entry is 0):
+  portfolio risk    (EC5-0, owner decision 2026-09-14.) Closed form for the
+                    mean and spread, under one average pairwise correlation
+                    rho (clamped to [0, 1], a non-numeric entry is 0):
+                    mean = sum mean_i,
                     Var = sum var_i + rho ((sum sd_i)^2 minus sum var_i),
-                    mean = sum mean_i, P(NPV < 0) = Phi(minus mean / sd)
-                    through math.erf (exact to double precision; the engine
-                    uses the Abramowitz and Stegun 7.1.26 erf, 1.5e-7 max
-                    absolute error, which is the gate tolerance on probLoss),
-                    P90 = mean minus 1.2816 sd, P10 = mean + 1.2816 sd, and
-                    the independent spread sqrt(sum var_i) is reported
-                    beside the correlated one. With sd = 0 the loss
-                    probability is 1 when the mean is negative and 0
-                    otherwise.
+                    and the independent spread sqrt(sum var_i) beside it.
+                    P(NPV < 0), P90 and P10 are a SEEDED MONTE CARLO of a
+                    one-factor Gaussian copula: rng = mulberry32(seed) (an
+                    integer seed taken unsigned, anything else the default
+                    20260829; iterations an integer >= 1, anything else
+                    10000). Each iteration draws, in this fixed order, two
+                    standard normals F1, F2 and then, per project in array
+                    order, e1 and e2 (every normal is drawn whether or not
+                    it is used), with z1 = sqrt(rho) F1 + sqrt(1 minus rho)
+                    e1 and z2 likewise from F2 and e2. The project succeeds
+                    when Phi(z1) < pos and is then worth npv_p50 + sd z2;
+                    otherwise it is worth minus fail_cost. The portfolio
+                    value is the sum. probLoss = count(value < 0) /
+                    iterations; P90 = the simple-statistics quantile at 0.1
+                    (the LOW case, exceedance convention); P10 = the
+                    quantile at 0.9. An empty selection is 0, 0, 0.
+
+  sampler replica   the goldens' risk blocks are that Monte Carlo REPLAYED
+                    here bit for bit: mulberry32 in uint32 (imported from
+                    oracle_screening.py), Box-Muller as
+                    sqrt(-2 ln u) cos(2 pi v) with the same "redraw while
+                    exactly 0" loops, Phi through the Abramowitz and Stegun
+                    7.1.26 erf written out (the engine's normalCDF), and
+                    oracle_screening.py's simple-statistics quantile. The
+                    project parameters are rebuilt in float arithmetic as
+                    the engine evaluates them. Python's log, cos and exp are
+                    the C library's while V8 carries its own ports, so a
+                    last-ulp difference is possible: the gate compares
+                    probLoss EXACTLY (it is a count ratio) and P90 / P10
+                    within 1e-9 scaled. A replica is not validation, so:
+
+  risk method       the METHOD is validated independently of the replica in
+                    the riskMethod section, against answers that owe nothing
+                    to sampling: (1) independent binary projects with no
+                    success spread at rho 0 by exact enumeration of all 2^n
+                    outcomes; (2) pos 1 normal projects, a normal sum with
+                    the moment variance (the copula correlates z2 at exactly
+                    rho), P(loss) = Phi(minus mean / sd) through math.erf;
+                    (3) rho 1, where z1 = F1 for every project, so the
+                    outcomes are comonotone in one uniform U = Phi(F1) and
+                    the distribution is exact by intervals of U; (4) a
+                    success / failure mixture with spreads at rho 0 by
+                    enumerating success sets, each a normal or a point; (5)
+                    binary projects at 0 < rho < 1 by conditioning on F1
+                    (given F1 the projects are independent with success
+                    probability Phi((Phi^-1(pos) minus sqrt(rho) F1) /
+                    sqrt(1 minus rho))) and Simpson integration over F1. Each
+                    case asserts |mc minus exact| <= 4 standard errors
+                    (sqrt(p (1 minus p) / n) for a probability; for a
+                    continuous quantile sqrt(p (1 minus p) / n) / f(q)). For
+                    a DISCRETE distribution the Monte Carlo P90 must EQUAL
+                    the exact 10th-percentile outcome (and P10 the 90th)
+                    whenever neither the cumulative probability at that
+                    outcome nor the one just below it is within 0.01 of the
+                    level, where sampling could not tip it. The normal
+                    approximation the engine used to report is carried on
+                    each case as information (normalApprox), so the size of
+                    the old error is on the record.
 
   knapsack          the 0/1 knapsack maximising summed risked EMV under the
                     capex limit is solved by BRUTE FORCE over every subset of
@@ -63,6 +114,15 @@ and NOT by transcribing the JavaScript:
                     the chosen set. A free project (capex 0) weighs one cell
                     on the grid, which the exact problem does not charge:
                     see the freeProject cases and FINDINGS-decision.md.
+                    Every optimal set carries overLimit (its capex > the
+                    clamped limit) and overLimitBy (max(0, capex minus
+                    limit)), which the engine now reports for the set it
+                    chose (EC5-0; D3 is flagged, not prevented).
+
+  refusal           a project whose capex is a finite number below 0 is
+                    refused (EC5-0): the first such project in array order
+                    is named (name, else id, else its index) with its capex
+                    in the message.
 
   frontier          on the quantised grid: for each budget b of cells from 0,
                     best(b) is the largest EMV of a set weighing at most b;
@@ -79,10 +139,11 @@ and NOT by transcribing the JavaScript:
                     are double precision.
 
   seeded cases      the random project sets are generated by mulberry32
-                    (the generator in lib/stats/stats.js) replicated here in
+                    (the generator in lib/stats/stats.js) replicated in
                     uint32 arithmetic (Math.imul as a masked 32-bit product,
                     every step masked to 32 bits, then divided by
-                    4294967296). Seeds are stated on each case and the
+                    4294967296; the port is oracle_screening.py's, the same
+                    one the sampler replica uses). Seeds are stated on each case and the
                     projects themselves are written into the golden, so the
                     gate never needs the generator.
 
@@ -96,14 +157,23 @@ stdlib only. Regenerate (deterministic, byte identical):
 import json
 import math
 import os
+import sys
 from fractions import Fraction as F
+from statistics import NormalDist
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from oracle_screening import mulberry32, ss_quantile_sorted  # noqa: E402  (bit-for-bit ports, reused)
+
 OUT = os.path.normpath(os.path.join(HERE, '..', '..', '..', 'test-data', 'economics',
                                     'goldens', 'portfolio_cases.json'))
 
-Z90 = F(1.2816)
 SPREAD_DIVISOR = F(2.5631)
+DEFAULT_SEED = 20260829
+DEFAULT_ITERATIONS = 10000
+GOLDEN_OPTS = {'seed': DEFAULT_SEED, 'iterations': 2000}
+M32 = 0xFFFFFFFF
+STD = NormalDist()
 
 
 def out(x):
@@ -188,7 +258,7 @@ def rho_of(v):
     return min(F(1), max(F(0), r))
 
 
-def risk(selected, correlation=0):
+def closed_form(selected, correlation=0):
     rho = rho_of(correlation)
     mean = F(0)
     var_sum = F(0)
@@ -201,15 +271,96 @@ def risk(selected, correlation=0):
     cross = max(0.0, sd_sum * sd_sum - float(var_sum))
     variance = float(var_sum) + float(rho) * cross
     sd = math.sqrt(max(0.0, variance))
-    if sd > 0:
-        prob_loss = phi(-float(mean) / sd)
-    else:
-        prob_loss = 1.0 if mean < 0 else 0.0
-    return {
-        'emv': mean, 'stdDev': sd, 'probLoss': prob_loss,
-        'p90': float(mean) - float(Z90) * sd, 'p10': float(mean) + float(Z90) * sd,
-        'correlation': rho, 'independentStdDev': math.sqrt(float(var_sum)),
-    }
+    return rho, mean, sd, math.sqrt(float(var_sum))
+
+
+# ---------------------------------------------------------------------
+# The Monte Carlo sampler, replayed bit for bit.
+# ---------------------------------------------------------------------
+
+def js_erf(x):
+    """Abramowitz and Stegun 7.1.26, evaluated in the engine's order."""
+    sign = -1.0 if x < 0 else 1.0
+    ax = abs(x)
+    t = 1.0 / (1.0 + 0.3275911 * ax)
+    y = 1.0 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) \
+        * t * math.exp(-ax * ax)
+    return sign * y
+
+
+def js_normal_cdf(x):
+    return 0.5 * (1.0 + js_erf(x / math.sqrt(2.0)))
+
+
+def box_muller(rng):
+    u = 0.0
+    v = 0.0
+    while u == 0:
+        u = rng()
+    while v == 0:
+        v = rng()
+    return math.sqrt(-2.0 * math.log(u)) * math.cos(2.0 * math.pi * v)
+
+
+def js_success_sd(p):
+    """successStdDev in the engine's float arithmetic."""
+    sd = num(p.get('npv_stddev'))
+    if sd is not None and sd > 0:
+        return float(sd)
+    p10, p90 = num(p.get('npv_p10')), num(p.get('npv_p90'))
+    if p10 is not None and p90 is not None and p10 > p90:
+        return (float(p10) - float(p90)) / 2.5631
+    return 0.0
+
+
+def run_options(opts):
+    opts = opts or {}
+    seed = opts.get('seed', DEFAULT_SEED)
+    iters = opts.get('iterations', DEFAULT_ITERATIONS)
+
+    def is_int(v):
+        return not isinstance(v, bool) and (isinstance(v, int) or (isinstance(v, float) and v.is_integer()))
+    seed = int(seed) & M32 if is_int(seed) else DEFAULT_SEED
+    iters = int(iters) if is_int(iters) and iters >= 1 else DEFAULT_ITERATIONS
+    return seed, iters
+
+
+def sample_values(selected, rho, seed, iters):
+    """The sorted portfolio values of the replayed Monte Carlo."""
+    params = [(float(pos_of(p)), float(fail_cost_of(p)), float(npv_of(p)), js_success_sd(p)) for p in selected]
+    r = float(rho)
+    a = math.sqrt(r)
+    b = math.sqrt(1.0 - r)
+    rng = mulberry32(seed)
+    values = []
+    for _ in range(iters):
+        f1 = box_muller(rng)
+        f2 = box_muller(rng)
+        total = 0.0
+        for pos, fail, mu, sd in params:
+            e1 = box_muller(rng)
+            e2 = box_muller(rng)
+            z1 = a * f1 + b * e1
+            z2 = a * f2 + b * e2
+            total += (mu + sd * z2) if js_normal_cdf(z1) < pos else -fail
+        values.append(total)
+    values.sort()
+    return values
+
+
+def risk(selected, correlation=0, opts=None):
+    rho, mean, sd, indep = closed_form(selected, correlation)
+    seed, iters = run_options(opts)
+    rec = {'emv': mean, 'stdDev': sd, 'correlation': rho, 'independentStdDev': indep,
+           'seed': seed, 'iterations': iters, 'method': 'monte-carlo'}
+    if not selected:
+        rec.update({'probLoss': 0.0, 'p90': 0.0, 'p10': 0.0})
+        return rec
+    values = sample_values(selected, rho, seed, iters)
+    losses = sum(1 for v in values if v < 0)
+    rec.update({'probLoss': losses / iters, 'lossCount': losses,
+                'p90': ss_quantile_sorted(values, 0.1), 'p10': ss_quantile_sorted(values, 0.9)})
+    return rec
 
 
 # ---------------------------------------------------------------------
@@ -246,18 +397,21 @@ def subsets(items):
         yield [items[i] for i in range(n) if mask >> i & 1]
 
 
-def set_record(sel, rho):
+def set_record(sel, rho, limit, opts):
     ids = [p['id'] for p in sel]
+    capex = sum((capex_of(p) for p in sel), F(0))
     return {
         'ids': ids,
-        'capex': sum((capex_of(p) for p in sel), F(0)),
+        'capex': capex,
+        'overLimit': capex > limit,
+        'overLimitBy': max(F(0), capex - limit),
         'emv': sum((emv(p) for p in sel), F(0)),
         'npvSuccess': sum((npv_of(p) for p in sel), F(0)),
-        'risk': risk(sel, rho),
+        'risk': risk(sel, rho, opts),
     }
 
 
-def optimize(projects, capex_limit, correlation=0):
+def optimize(projects, capex_limit, correlation=0, opts=None):
     lim = num(capex_limit)
     limit = max(F(0), lim) if lim is not None else F(0)
     # Only projects with a strictly positive risked EMV can ever improve a
@@ -306,8 +460,8 @@ def optimize(projects, capex_limit, correlation=0):
             frontier.append({'weight': w, 'emv': best_here, 'capexCandidates': caps})
             last = best_here
 
-    exact_recs = sorted((set_record(s, correlation) for s in exact_sets), key=lambda r: r['ids'])
-    quant_recs = sorted((set_record(s, correlation) for s in quant_sets), key=lambda r: r['ids'])
+    exact_recs = sorted((set_record(s, correlation, limit, opts) for s in exact_sets), key=lambda r: r['ids'])
+    quant_recs = sorted((set_record(s, correlation, limit, opts) for s in quant_sets), key=lambda r: r['ids'])
     changed = {tuple(r['ids']) for r in exact_recs} != {tuple(r['ids']) for r in quant_recs}
     return {
         'limit': limit, 'resolution': resolution, 'cells': cells,
@@ -322,22 +476,6 @@ def optimize(projects, capex_limit, correlation=0):
 # ---------------------------------------------------------------------
 # Seeded project sets.
 # ---------------------------------------------------------------------
-
-def mulberry32(seed):
-    a = seed & 0xFFFFFFFF
-
-    def imul(x, y):
-        return (x * y) & 0xFFFFFFFF
-
-    def rng():
-        nonlocal a
-        a = (a + 0x6D2B79F5) & 0xFFFFFFFF
-        t = a
-        t = imul(t ^ (t >> 15), t | 1)
-        t = (t ^ ((t + imul(t ^ (t >> 7), t | 61)) & 0xFFFFFFFF)) & 0xFFFFFFFF
-        return ((t ^ (t >> 14)) & 0xFFFFFFFF) / 4294967296
-    return rng
-
 
 def seeded_projects(seed, n, capex_lo, capex_hi, decimals=0):
     """Projects from mulberry32(seed): capex uniform in [capex_lo, capex_hi]
@@ -425,10 +563,28 @@ def moments_cases():
 def risk_cases():
     cases = []
 
-    def add(cid, desc, selected, correlation=0, raw=None):
-        cases.append({'id': cid, 'description': desc, 'selected': selected,
-                      'correlation': raw if raw is not None else correlation,
-                      'expected': risk(selected, correlation)})
+    def add(cid, desc, selected, correlation=0, raw=None, opts=None, engine_defaults=False):
+        opts = dict(GOLDEN_OPTS) if opts is None else opts
+        rec = {'id': cid, 'description': desc, 'selected': selected,
+               'correlation': raw if raw is not None else correlation,
+               'riskOptions': opts,
+               'expected': risk(selected, correlation, opts)}
+        if engine_defaults:
+            # The gate calls the engine with NO options, so this pins the
+            # engine's defaults to the stated seed and iterations.
+            rec['useEngineDefaults'] = True
+        cases.append(rec)
+
+    wildcat = {'npv_p50': 300, 'pos': 0.3, 'fail_cost': 50}
+    three_mixed = [wildcat, {'npv_p50': 400, 'pos': 0.25, 'fail_cost': 60}, {'npv_p50': 250, 'pos': 0.4, 'fail_cost': 45}]
+    engine_defaults = {'seed': DEFAULT_SEED, 'iterations': DEFAULT_ITERATIONS}
+    add('defaultsSingleWildcat', 'EC5-0: one wildcat (pos 0.3, NPV 300, fail 50) at the ENGINE DEFAULT seed and iterations, called with no options. True P(loss) 0.7; the normal approximation said 0.366 with a P90 below the worst outcome.',
+        [wildcat], 0, opts=engine_defaults, engine_defaults=True)
+    add('defaultsThreeMixed', 'EC5-0: three risked projects (0.3 / 300 / 50, 0.25 / 400 / 60, 0.4 / 250 / 45) at the engine defaults, called with no options. The normal approximation put P90 at -193.46, below the worst case of -155.',
+        three_mixed, 0, opts=engine_defaults, engine_defaults=True)
+    add('otherSeed', 'The three risked projects at seed 7 and 2000 iterations: a different stream, the same closed-form mean and spread.', three_mixed, 0.3, opts={'seed': 7, 'iterations': 2000})
+    add('seedFallback', 'A non-integer seed (1.5) falls back to the default seed.', three_mixed, 0, opts={'seed': 1.5, 'iterations': 2000})
+    add('iterationsFallback', 'Iterations 0 is clamped to the default 10000.', [wildcat], 0, opts={'seed': 99, 'iterations': 0})
 
     a = {'npv_p50': 100, 'npv_stddev': 20, 'pos': 0.5, 'fail_cost': 40}
     b = {'npv_p50': 50, 'npv_stddev': 10}
@@ -454,8 +610,10 @@ def optimize_cases():
     cases = []
 
     def add(cid, desc, projects, limit, correlation=0, note=None):
+        opts = dict(GOLDEN_OPTS)
         rec = {'id': cid, 'description': desc, 'projects': projects, 'capexLimit': limit,
-               'correlation': correlation, 'expected': optimize(projects, limit, correlation)}
+               'correlation': correlation, 'riskOptions': opts,
+               'expected': optimize(projects, limit, correlation, opts)}
         if note:
             rec['note'] = note
         cases.append(rec)
@@ -509,19 +667,260 @@ def optimize_cases():
     return cases
 
 
+def refusal_cases():
+    """The refusal method statement: the first project, in array order, whose
+    capex is a finite number below 0 is named (name, else id, else index)."""
+    cases = []
+
+    def add(cid, desc, projects, limit):
+        bad = None
+        for i, p in enumerate(projects):
+            c = p.get('capex')
+            if isinstance(c, (int, float)) and not isinstance(c, bool) and math.isfinite(c) and c < 0:
+                label = p.get('name', p.get('id', i))
+                bad = (label, c)
+                break
+        assert bad is not None, cid
+        cap = bad[1]
+        cap_text = str(int(cap)) if float(cap).is_integer() else repr(cap)
+        cases.append({'id': cid, 'description': desc, 'projects': projects, 'capexLimit': limit,
+                      'expected': {'throws': 'PortfolioInputError',
+                                   'messageIncludes': ['"%s"' % bad[0], '(%s)' % cap_text]}})
+
+    add('negativeCapexRefused', 'EC5-0: B carries capex -150; the optimizer refuses it by name instead of letting the frontier axis go negative.',
+        [P('A', 100, 60), P('B', -150, 100), P('C', 300, 120)], 450)
+    add('negativeCapexUnnamed', 'A negative capex on a project with no name or id is named by its index (1).',
+        [{'capex': 50, 'npv_p50': 20}, {'capex': -0.5, 'npv_p50': 10}], 100)
+    return cases
+
+
+# ---------------------------------------------------------------------
+# The risk METHOD against answers that owe nothing to sampling.
+# ---------------------------------------------------------------------
+
+def old_normal_approx(selected, correlation):
+    """What the engine reported before EC5-0 (information only)."""
+    _, mean, sd, _ = closed_form(selected, correlation)
+    m = float(mean)
+    pl = phi(-m / sd) if sd > 0 else (1.0 if m < 0 else 0.0)
+    return {'probLoss': pl, 'p90': m - 1.2816 * sd, 'p10': m + 1.2816 * sd}
+
+
+def binary_params(selected):
+    for p in selected:
+        assert success_sd(p) == 0, 'binary cases carry no success spread'
+    return [(float(pos_of(p)), float(npv_of(p)), -float(fail_cost_of(p))) for p in selected]
+
+
+def dist_independent(selected):
+    """Exact outcome distribution of independent binary projects (2^n)."""
+    ps = binary_params(selected)
+    dist = {}
+    for mask in range(1 << len(ps)):
+        prob = F(1)
+        total = F(0)
+        for i, (pos, win, lose) in enumerate(ps):
+            if mask >> i & 1:
+                prob *= F(pos)
+                total += F(win)
+            else:
+                prob *= 1 - F(pos)
+                total += F(lose)
+        dist[total] = dist.get(total, F(0)) + prob
+    return {float(k): float(v) for k, v in dist.items() if v > 0}
+
+
+def dist_comonotone(selected):
+    """rho 1: z1 = F1 for every project, so project i succeeds iff U < pos_i
+    for one uniform U. Exact by the intervals between the sorted pos."""
+    ps = binary_params(selected)
+    cuts = sorted({0.0, 1.0} | {pos for pos, _, _ in ps})
+    dist = {}
+    for lo, hi in zip(cuts, cuts[1:]):
+        u = (lo + hi) / 2
+        total = F(0)
+        for pos, win, lose in ps:
+            total += F(win) if u < pos else F(lose)
+        dist[float(total)] = dist.get(float(total), 0.0) + (hi - lo)
+    return {k: v for k, v in dist.items() if v > 0}
+
+
+def dist_copula(selected, rho, n_int=4000, span=10.0):
+    """0 < rho < 1: condition on F1; the projects are then independent with
+    success probability Phi((Phi^-1(pos) minus sqrt(rho) F1) / sqrt(1 minus rho)).
+    Composite Simpson over F1 in [-span, span] against the normal density."""
+    ps = binary_params(selected)
+    a, b = math.sqrt(rho), math.sqrt(1 - rho)
+    thresholds = [STD.inv_cdf(pos) if 0 < pos < 1 else (math.inf if pos >= 1 else -math.inf) for pos, _, _ in ps]
+    h = 2 * span / n_int
+    dist = {}
+    for k in range(n_int + 1):
+        f = -span + k * h
+        wgt = (1 if k in (0, n_int) else (4 if k % 2 else 2)) * h / 3 * STD.pdf(f)
+        cond = [phi((t - a * f) / b) for t in thresholds]
+        for mask in range(1 << len(ps)):
+            prob = wgt
+            total = 0.0
+            for i, (pos, win, lose) in enumerate(ps):
+                if mask >> i & 1:
+                    prob *= cond[i]
+                    total += win
+                else:
+                    prob *= 1 - cond[i]
+                    total += lose
+            dist[total] = dist.get(total, 0.0) + prob
+    return dist
+
+
+def discrete_quantile(dist, level):
+    """Smallest outcome whose cumulative probability reaches the level, with
+    the cumulative probabilities at it and just below it."""
+    cum = 0.0
+    for x in sorted(dist):
+        below = cum
+        cum += dist[x]
+        if cum >= level - 1e-12:
+            return x, cum, below
+    raise AssertionError('distribution does not reach %s' % level)
+
+
+def continuous_quantile(cdf, level, lo, hi):
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        if cdf(mid) < level:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def cdf_independent_mixture(selected):
+    """rho 0, any projects: enumerate success sets; given the set the value is
+    normal (sum of success means, sum of success variances) or a point."""
+    parts = []
+    for mask in range(1 << len(selected)):
+        prob, mean, var = 1.0, 0.0, 0.0
+        for i, p in enumerate(selected):
+            pos = float(pos_of(p))
+            if mask >> i & 1:
+                prob *= pos
+                mean += float(npv_of(p))
+                var += float(success_sd(p)) ** 2
+            else:
+                prob *= 1 - pos
+                mean -= float(fail_cost_of(p))
+        if prob > 0:
+            parts.append((prob, mean, math.sqrt(var)))
+    assert all(sd > 0 for _, _, sd in parts), 'continuous cases carry no atoms'
+    return lambda x: sum(w * phi((x - m) / s) for w, m, s in parts)
+
+
+def cdf_normal_pos1(selected, correlation):
+    """pos 1 everywhere: z2 correlates at exactly rho, so the sum is normal with
+    the moment variance."""
+    for p in selected:
+        assert pos_of(p) == 1
+    _, mean, sd, _ = closed_form(selected, correlation)
+    return lambda x: phi((x - float(mean)) / sd)
+
+
+def method_cases():
+    cases = []
+    worst = {'z': 0.0}
+
+    def check(label, mc, exact, se):
+        z = abs(mc - exact) / se if se > 0 else (0.0 if mc == exact else math.inf)
+        worst['z'] = max(worst['z'], z)
+        if not z <= 4:
+            raise AssertionError('%s: Monte Carlo %r vs exact %r is %.2f standard errors' % (label, mc, exact, z))
+        return z
+
+    def add(cid, desc, selected, correlation, kind, exact_dist=None, cdf=None):
+        opts = {'seed': DEFAULT_SEED, 'iterations': DEFAULT_ITERATIONS}
+        seed, n = run_options(opts)
+        mc = risk(selected, correlation, opts)
+        rec = {'id': cid, 'description': desc, 'selected': selected, 'correlation': correlation,
+               'riskOptions': opts, 'kind': kind, 'mc': {k: mc[k] for k in ('probLoss', 'lossCount', 'p90', 'p10', 'seed', 'iterations')},
+               'normalApprox': old_normal_approx(selected, correlation)}
+        if exact_dist is not None:
+            pl = sum(v for x, v in exact_dist.items() if x < 0)
+            se = math.sqrt(pl * (1 - pl) / n)
+            rec['exact'] = {'probLoss': pl, 'worstOutcome': min(exact_dist)}
+            rec['probLossSE'] = se
+            rec['probLossZ'] = check(cid + ' probLoss', mc['probLoss'], pl, se)
+            for key, level in (('p90', 0.1), ('p10', 0.9)):
+                x, at, below = discrete_quantile(exact_dist, level)
+                clear = abs(at - level) > 0.01 and abs(below - level) > 0.01
+                rec['exact'][key] = {'outcome': x, 'cumulativeAt': at, 'cumulativeBelow': below, 'checked': clear}
+                if clear and mc[key] != x:
+                    raise AssertionError('%s %s: Monte Carlo %r vs exact outcome %r' % (cid, key, mc[key], x))
+        else:
+            _, mean, sd, _ = closed_form(selected, correlation)
+            lo, hi = float(mean) - 20 * sd, float(mean) + 20 * sd
+            pl = cdf(0.0)
+            se = math.sqrt(pl * (1 - pl) / n)
+            rec['exact'] = {'probLoss': pl}
+            rec['probLossSE'] = se
+            rec['probLossZ'] = check(cid + ' probLoss', mc['probLoss'], pl, se)
+            for key, level in (('p90', 0.1), ('p10', 0.9)):
+                q = continuous_quantile(cdf, level, lo, hi)
+                dh = 1e-4 * sd
+                dens = (cdf(q + dh) - cdf(q - dh)) / (2 * dh)
+                qse = math.sqrt(level * (1 - level) / n) / dens
+                rec['exact'][key] = q
+                rec['exact'][key + 'SE'] = qse
+                rec['exact'][key + 'Z'] = check('%s %s' % (cid, key), mc[key], q, qse)
+        cases.append(rec)
+
+    wc = {'npv_p50': 300, 'pos': 0.3, 'fail_cost': 50}
+    three = [wc, {'npv_p50': 400, 'pos': 0.25, 'fail_cost': 60}, {'npv_p50': 250, 'pos': 0.4, 'fail_cost': 45}]
+    add('singleWildcat', 'One wildcat, pos 0.3, NPV 300, fail 50: exact P(loss) 0.7, P90 -50 (the worst outcome), P10 300.',
+        [wc], 0, 'independent-binary', dist_independent([wc]))
+    for n in (2, 3, 6, 8):
+        add('identical%d' % n, '%d independent identical 0.3 / 300 / 50 wildcats, exact binomial enumeration.' % n,
+            [dict(wc) for _ in range(n)], 0, 'independent-binary', dist_independent([wc] * n))
+    add('threeMixed', 'Three independent risked projects 0.3 / 300 / 50, 0.25 / 400 / 60, 0.4 / 250 / 45; worst case -155.',
+        three, 0, 'independent-binary', dist_independent(three))
+    add('normalPairIndependent', 'Two pos 1 normal projects (100, 160 / 40 and 80, 130 / 30) at rho 0: a normal sum, P(loss) = Phi(-mean / sd).',
+        [RISK_A, RISK_B], 0, 'pos1-normal', cdf=cdf_normal_pos1([RISK_A, RISK_B], 0))
+    add('normalPairCorrelated', 'The same pair at rho 0.8: z2 correlates at exactly rho, so the sum is normal with the moment variance.',
+        [RISK_A, RISK_B], 0.8, 'pos1-normal', cdf=cdf_normal_pos1([RISK_A, RISK_B], 0.8))
+    wide = [{'npv_p50': 20, 'npv_stddev': 30, 'pos': 1}, {'npv_p50': 10, 'npv_stddev': 25, 'pos': 1}, {'npv_p50': 15, 'npv_stddev': 20}]
+    add('normalThreeCorrelated', 'Three pos 1 normal projects with a real loss chance (means 20, 10, 15; spreads 30, 25, 20) at rho 0.5.',
+        wide, 0.5, 'pos1-normal', cdf=cdf_normal_pos1(wide, 0.5))
+    mix = [{'npv_p50': 100, 'npv_stddev': 20, 'pos': 0.5, 'fail_cost': 40}, {'npv_p50': 50, 'npv_stddev': 10}]
+    add('mixtureWithSpread', 'Suite pair: pos 0.5 N(100, 20) or -40, beside a sure N(50, 10), rho 0; exact P(loss) = 0.5 Phi(-1) + 0.5 Phi(-150 / sqrt 500).',
+        mix, 0, 'independent-mixture', cdf=cdf_independent_mixture(mix))
+    add('comonotoneIdentical3', 'rho 1, three identical 0.3 / 300 / 50: they all succeed or all fail, P(loss) = 1 minus pos = 0.7.',
+        [dict(wc) for _ in range(3)], 1, 'comonotone', dist_comonotone([wc] * 3))
+    add('comonotoneMixed', 'rho 1, the three mixed projects: nested success sets by U = Phi(F1) against pos 0.25, 0.3, 0.4.',
+        three, 1, 'comonotone', dist_comonotone(three))
+    add('copulaIdentical3', 'rho 0.5, three identical 0.3 / 300 / 50: exact by conditioning on F1 and Simpson integration.',
+        [dict(wc) for _ in range(3)], 0.5, 'copula-binary', dist_copula([wc] * 3, 0.5))
+    add('copulaThreeMixed', 'rho 0.35, the three mixed projects, by conditioning on F1.',
+        three, 0.35, 'copula-binary', dist_copula(three, 0.35))
+    return cases, worst['z']
+
+
 def main():
+    method, worst_z = method_cases()
     golden = {
         'description': (
             'Economics capital portfolio goldens: risked EMV, success-case spread, exact success / '
-            'failure mixture moments, the normal-approximation portfolio risk summary with an average '
-            'pairwise correlation, and the 0/1 knapsack over the capex limit with its efficient frontier. '
+            'failure mixture moments, the portfolio risk summary (closed-form mean and spread with an '
+            'average pairwise correlation; P(loss), P90 and P10 from the EC5-0 seeded one-factor Gaussian '
+            'copula Monte Carlo, replayed bit for bit in riskMetrics and optimize, so the gate compares '
+            'probLoss exactly and P90 / P10 within 1e-9 scaled, at the riskOptions seed and iterations '
+            'stated on each case), the riskMethod section validating that Monte Carlo against exact '
+            'answers within 4 standard errors (normalApprox carries what the engine reported before), '
+            'the optimizeRefusals section (a negative capex is refused), overLimit / overLimitBy on every '
+            'optimal set, and the 0/1 knapsack over the capex limit with its efficient frontier. '
             'Independent stdlib oracle (tools/validation/economics/oracle_portfolio.py): the knapsack is '
             'solved by brute force over every subset, both EXACTLY (sum of capex within the limit) and on '
             'the engine\'s documented QUANTISED grid, and every optimize case carries both answers, the '
             'gap between them and whether quantisation changed the chosen set; every optimal set is '
             'listed so ties are explicit; the frontier is on the grid with every capex a tied set could '
-            'report. P(loss) is through math.erf, so the gate allows the engine\'s 1.5e-7 Abramowitz and '
-            'Stegun error. All money is USD millions ($MM) except rawDollars, which is typed in dollars '
+            'report. All money is USD millions ($MM) except rawDollars, which is typed in dollars '
             'on purpose. pos is 0 to 1; correlation is 0 to 1; a correlation given as the string NaN '
             'means the gate passes NaN. Every case in the Suite\'s '
             'src/utils/__tests__/portfolioOptimizer.test.js is here, plus seeded random sets (mulberry32, '
@@ -533,6 +932,8 @@ def main():
         'projectMoments': moments_cases(),
         'riskMetrics': risk_cases(),
         'optimize': optimize_cases(),
+        'optimizeRefusals': refusal_cases(),
+        'riskMethod': method,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, 'w') as f:
@@ -546,6 +947,15 @@ def main():
             c['id'], e['resolution'], e['cells'], float(e['exact']['optimalEmv']),
             float(e['quantized']['optimalEmv']), float(e['quantizationGap']), e['setChanged'],
             len(e['exact']['optimalSets']), len(e['quantized']['optimalSets'])))
+    print('riskMethod (seed %d, %d iterations): Monte Carlo against exact' % (DEFAULT_SEED, DEFAULT_ITERATIONS))
+    for c in method:
+        ex, mc, na = c['exact'], c['mc'], c['normalApprox']
+        q90 = ex['p90']['outcome'] if isinstance(ex['p90'], dict) else ex['p90']
+        q10 = ex['p10']['outcome'] if isinstance(ex['p10'], dict) else ex['p10']
+        print('  %-22s P(loss) mc %.4f exact %.6f (%.2f se; old normal %.6f)  P90 mc %-10.4f exact %-10.4f (old %.2f)  P10 mc %-10.4f exact %.4f' % (
+            c['id'], mc['probLoss'], ex['probLoss'], c['probLossZ'], na['probLoss'], mc['p90'], q90, na['p90'], mc['p10'], q10))
+    print('largest Monte Carlo gap to an exact answer: %.3f standard errors (gate: 4)' % worst_z)
+    print('(the replication gap, engine against this replica, is measured and printed by the jest gate)')
 
 
 if __name__ == '__main__':

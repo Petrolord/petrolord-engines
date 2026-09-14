@@ -15,16 +15,45 @@
  *   generateSCurveData             'date-fns' became '../../lib/dates/dates.js',
  *                                  the vendored subset with the same semantics.
  *
- * Function bodies are byte for byte the Suite's. Two of them read the clock
- * (`new Date()`): calculateMetrics through calculateTimeProgress for the
- * schedule index, and generateSCurveData for the actual-to-date cut. The
- * goldens therefore use AFE windows wholly in the past or wholly in the
- * future, where those reads are deterministic, and the tests say so.
+ * Function bodies were byte for byte the Suite's until the EC5-0 repair
+ * (owner decision 2026-09-14). calculateMetrics and generateSCurveData now
+ * take an `asOf` date (a Date or an ISO date string) as their last argument
+ * and read the clock ONLY as that argument's default (`asOf = new Date()`).
+ * Pass asOf and the output is reproducible: the schedule index and the
+ * actual-to-date cut no longer move with the calendar. The same repair
+ * bounds the S-curve to the AFE window (it used to walk on to the current
+ * month), reports SPI as null where planned value is zero (it was Infinity
+ * or NaN before the start date), gives both functions ONE estimate-at-
+ * completion rule (itemForecast), refuses negative progress (AfeInputError)
+ * and flags a negative working interest as invalid. FINDINGS-fdp.md, section
+ * "EC5-0 repair", has the before and after.
  *
  * Money is whatever unit the caller supplies (the AFE app uses its own
  * currency field); percentages are 0 to 100.
  */
 import { differenceInDays, isValid, parseISO } from '../../lib/dates/dates.js';
+
+// --- Input errors ---
+
+/**
+ * Thrown for an input the AFE engine refuses rather than computes on: an
+ * invalid `asOf` date, or a cost item with negative progress.
+ */
+export class AfeInputError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'AfeInputError';
+  }
+}
+
+/** `asOf` as a Date: a Date is used as is, an ISO string goes through parseISO. */
+const resolveAsOf = (asOf) => {
+  let d = null;
+  if (asOf instanceof Date) d = asOf;
+  else if (typeof asOf === 'string') d = parseISO(asOf);
+  if (!d || !isValid(d)) throw new AfeInputError('asOf is not a valid date');
+  return d;
+};
 
 // --- Partner Management Services ---
 
@@ -41,6 +70,12 @@ import { differenceInDays, isValid, parseISO } from '../../lib/dates/dates.js';
  * partner nobody entered. Either way the allocation is still returned, so the
  * numbers are visible, but it is flagged rather than billed out quietly.
  *
+ * EC5-0 added the same treatment for a NEGATIVE working interest: it would
+ * bill the partner a credit and load the operator with more than its share
+ * while the total still looked valid. The allocation is returned unchanged;
+ * `valid` is false and the note names the partner and the value, ahead of
+ * the over-100 sentence when both apply.
+ *
  * @param {number} totalCost cost to allocate
  * @param {{working_interest: number}[]} partners
  */
@@ -55,9 +90,21 @@ export const calculatePartnerCosts = (totalCost, partners = []) => {
   const operatorShare = 100 - partnerTotal;
   const operatorAmount = totalCost * (operatorShare / 100);
 
-  let note = null;
+  const negatives = [];
+  partners.forEach((p, index) => {
+    const wi = Number(p.working_interest);
+    if (Number.isFinite(wi) && wi < 0) {
+      const who = p.name != null ? `Partner "${p.name}"` : `Partner at index ${index}`;
+      negatives.push(`${who} has a negative working interest (${wi.toFixed(2)} percent).`);
+    }
+  });
+
+  const sentences = [];
+  if (negatives.length > 0) {
+    sentences.push(...negatives, 'Correct the interests before billing.');
+  }
   if (operatorShare < 0) {
-    note = `Partner working interests total ${partnerTotal.toFixed(2)} percent, which is more than the whole. The operator share below is negative; correct the interests before billing.`;
+    sentences.push(`Partner working interests total ${partnerTotal.toFixed(2)} percent, which is more than the whole. The operator share below is negative; correct the interests before billing.`);
   }
 
   return {
@@ -65,13 +112,47 @@ export const calculatePartnerCosts = (totalCost, partners = []) => {
     operatorShare,
     operatorAmount,
     partnerTotal,
-    valid: operatorShare >= 0,
-    note
+    valid: operatorShare >= 0 && negatives.length === 0,
+    note: sentences.length > 0 ? sentences.join(' ') : null
   };
 };
 
+/**
+ * Estimate at completion for one cost item, the ONE rule both the metric
+ * tiles and the S-curve use: the entered forecast when it is positive,
+ * otherwise max(budget, actual + commitment). A zero, blank, negative or
+ * non-numeric entered forecast falls through to the standard formula.
+ */
+export const itemForecast = (item) => {
+  const entered = Number(item.forecast) || 0;
+  if (entered > 0) return entered;
+  const budget = Number(item.budget) || 0;
+  const actual = Number(item.actual) || 0;
+  const commitment = Number(item.commitment) || 0;
+  return Math.max(budget, actual + commitment);
+};
 
-export const calculateMetrics = (afe, costItems, invoices) => {
+/**
+ * AFE earned-value metrics as of `asOf` (a Date or an ISO date string;
+ * defaults to the clock). Time progress is the elapsed fraction of the AFE
+ * window at asOf; planned value is the budget times that fraction; SPI is
+ * EV / PV and null where PV is zero (before or on the start day), with the
+ * empty-budget guard (SPI 1) unchanged.
+ *
+ * @throws {AfeInputError} asOf is not a valid date, or a cost item has
+ *   negative progress.
+ */
+export const calculateMetrics = (afe, costItems, invoices, asOf = new Date()) => {
+  const asOfDate = resolveAsOf(asOf);
+
+  costItems.forEach((item, index) => {
+    const progress = Number(item.progress);
+    if (Number.isFinite(progress) && progress < 0) {
+      const label = item.code ?? item.description ?? index;
+      throw new AfeInputError(`Cost item "${label}" has negative progress (${progress} percent). Progress runs from 0 to 100 percent.`);
+    }
+  });
+
   const totalBudget = costItems.reduce((sum, item) => sum + (Number(item.budget) || 0), 0);
   const totalCommitments = costItems.reduce((sum, item) => sum + (Number(item.commitment) || 0), 0);
   
@@ -79,21 +160,8 @@ export const calculateMetrics = (afe, costItems, invoices) => {
   // Using costItems.actual allows for manual accruals or non-invoice costs.
   const totalActuals = costItems.reduce((sum, item) => sum + (Number(item.actual) || 0), 0);
   
-  // Calculate Forecast (EAC - Estimate At Completion)
-  // Strategy: Use user-defined forecast if available and > 0, otherwise standard formula
-  const totalForecast = costItems.reduce((sum, item) => {
-    const itemBudget = Number(item.budget) || 0;
-    const itemActual = Number(item.actual) || 0;
-    const itemCommitment = Number(item.commitment) || 0;
-    const itemForecast = Number(item.forecast) || 0;
-
-    if (itemForecast > 0) return sum + itemForecast;
-    
-    // Default Logic: If we've spent more than budget, forecast is at least actuals.
-    // Otherwise, assume budget is still the target unless explicitly changed.
-    // A conservative approach: Max(Budget, Actuals + Commitments)
-    return sum + Math.max(itemBudget, itemActual + itemCommitment);
-  }, 0);
+  // Forecast (EAC - Estimate At Completion), the shared rule.
+  const totalForecast = costItems.reduce((sum, item) => sum + itemForecast(item), 0);
 
   const variance = totalBudget - totalForecast;
   
@@ -108,8 +176,15 @@ export const calculateMetrics = (afe, costItems, invoices) => {
     }, 0);
   }
 
+  const timeProgress = calculateTimeProgress(afe, asOfDate);
+  // Simplified planned value: the budget spread linearly over the AFE window.
+  const plannedValue = totalBudget * timeProgress;
+
   const cpi = totalActuals > 0 ? earnedValue / totalActuals : 1.0;
-  const spi = totalBudget > 0 ? earnedValue / (totalBudget * calculateTimeProgress(afe)) : 1.0; // Simplified planned value based on time
+  let spi = 1.0;
+  if (totalBudget > 0) {
+    spi = plannedValue > 0 ? earnedValue / plannedValue : null;
+  }
 
   const percentSpent = totalBudget > 0 ? (totalActuals / totalBudget) * 100 : 0;
   
@@ -123,6 +198,8 @@ export const calculateMetrics = (afe, costItems, invoices) => {
     totalForecast,
     variance,
     earnedValue,
+    plannedValue,
+    timeProgress,
     cpi,
     spi,
     percentSpent,
@@ -130,11 +207,11 @@ export const calculateMetrics = (afe, costItems, invoices) => {
   };
 };
 
-const calculateTimeProgress = (afe) => {
+const calculateTimeProgress = (afe, asOfDate) => {
   if (!afe?.start_date || !afe?.end_date) return 1.0;
   const start = parseISO(afe.start_date);
   const end = parseISO(afe.end_date);
-  const now = new Date();
+  const now = asOfDate;
 
   if (!isValid(start) || !isValid(end)) return 1.0;
   if (now < start) return 0;
@@ -146,20 +223,28 @@ const calculateTimeProgress = (afe) => {
   return totalDuration > 0 ? elapsed / totalDuration : 1.0;
 };
 
-export const generateSCurveData = (afe, costItems, invoices) => {
+/**
+ * Monthly S-curve points over the AFE window, with actuals up to `asOf` (a
+ * Date or an ISO date string; defaults to the clock) and the forecast
+ * projected after it. The walk stops at the window's end.
+ *
+ * @throws {AfeInputError} asOf is not a valid date.
+ */
+export const generateSCurveData = (afe, costItems, invoices, asOf = new Date()) => {
+  const asOfDate = resolveAsOf(asOf);
   if (!afe?.start_date || !afe?.end_date) return [];
 
   const start = new Date(afe.start_date);
   const end = new Date(afe.end_date);
   const totalBudget = costItems.reduce((sum, i) => sum + (Number(i.budget)||0), 0);
-  const totalForecast = costItems.reduce((sum, i) => sum + (Number(i.forecast) || Math.max(Number(i.budget)||0, (Number(i.actual)||0) + (Number(i.commitment)||0))), 0);
+  const totalForecast = costItems.reduce((sum, i) => sum + itemForecast(i), 0);
 
   // Sort invoices
   const sortedInvoices = [...invoices].sort((a, b) => new Date(a.invoice_date) - new Date(b.invoice_date));
 
   const dataPoints = [];
   let currentDate = new Date(start);
-  const now = new Date();
+  const now = asOfDate;
 
   let cumActual = 0;
   let cumPlanned = 0;
@@ -169,12 +254,11 @@ export const generateSCurveData = (afe, costItems, invoices) => {
   const dailyBudget = totalBudget / Math.max(totalDays, 1);
   const dailyForecast = totalForecast / Math.max(totalDays, 1);
 
-  // Create monthly buckets roughly
-  while (currentDate <= end || currentDate <= now) {
-    const dateStr = currentDate.toISOString().split('T')[0];
+  // Create monthly buckets roughly, inside the window only
+  while (currentDate <= end) {
     const displayDate = currentDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
     
-    // Actuals (up to now)
+    // Actuals (up to asOf)
     if (currentDate <= now) {
        // Sum invoices up to this date
        const invoicesUntilNow = sortedInvoices.filter(inv => new Date(inv.invoice_date) <= currentDate);
@@ -190,9 +274,7 @@ export const generateSCurveData = (afe, costItems, invoices) => {
         if (currentDate <= now) {
             cumForecast = cumActual; 
         } else {
-            // Project remaining forecast linearly from now to end
-            // Simple approach: Linear projection to Total Forecast
-            const totalForecastDays = differenceInDays(end, start);
+            // Project linearly to Total Forecast after asOf
             cumForecast = Math.min(totalForecast, daysElapsed * dailyForecast); 
         }
     }
