@@ -137,7 +137,34 @@ strict `<` reduce in deriveInsights names whichever regime's floating point
 noise happened to be smallest. The engine names "USA - Gulf of Mexico",
 the oracle's arithmetic names "Brazil - Concession"; neither is a result.
 The golden carries the ranked quantities (`capexLossesAsEngine`,
-`priceClimbs`) and the gate treats a tie as a tie.
+`priceClimbs`) and the gate treats a tie as a tie. The PRICE half is closed
+by EC2-1 below: a lead under one percentage point now declines to rank, so
+noise can no longer name a winner there. The capex half is still open.
+
+### F6. The price sweep returned 0 percent when profit was not positive (EC2-1, FIXED 2026-09-14)
+
+Found by the NextGen EC2 wave, not by this oracle, because the oracle
+implemented the same `totalProfit > 0 ? ... : 0` guard from the same method
+statement and the golden pinned the agreement. On `cmp_never_recovers` all
+six templates plotted a flat 0 percent at nine prices while the government
+collected 700.1194 to 1662.7835 $MM; Angola on the default project with
+capex tripled read 0, 2223.0766, 144.0692 and 85.6015 at 40 to 70 USD per
+bbl, three meanings on one line with no flag.
+
+Owner decision (b), 2026-09-14. Every price sweep series carries `states`
+beside `values`: `share` (profit positive, share 0 to 100), `exceeds`
+(profit positive, share above 100, true value kept) or `undefined` (profit
+zero or negative, value null). Zero is never a fallback. The progressivity
+verdict ranks only over the longest contiguous run of prices at which every
+regime is a share, needs at least three such prices and a lead of at least
+one percentage point, and otherwise says no regime can be ranked and names
+the first price at which a regime is economic. A lead whose climb is not
+positive is named least regressive rather than most progressive. The oracle
+implements the same rule independently (`point_state`, `share_window`,
+`price_verdict`); goldens `cmp_angola_capex_x3` and five
+`insights_price_*` cases pin the edges. No share value moved: every point
+that was a real number is the same number, and only the old zeros became
+null.
 
 ### F4. IRR beyond the 102400 percent bracket reports the bracket
 

@@ -18793,7 +18793,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Nigerian PIA (PSC)\" is the most progressive: its government share rises -1.3 percentage points across the swept price range, so it captures upside fastest."
+      "text": "No regime is progressive: every government share falls across the swept price range. \"Nigerian PIA (PSC)\" is the least regressive, falling 1.3 percentage points."
      }
     ],
     "insightsAsEngine": [
@@ -18820,7 +18820,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Nigerian PIA (PSC)\" is the most progressive: its government share rises -1.3 percentage points across the swept price range, so it captures upside fastest."
+      "text": "No regime is progressive: every government share falls across the swept price range. \"Nigerian PIA (PSC)\" is the least regressive, falling 1.3 percentage points."
      }
     ],
     "priceClimbs": [
@@ -18833,6 +18833,11 @@
       "name": "Concessionary (Royalty/Tax)"
      }
     ],
+    "priceWindow": {
+     "end": 8,
+     "length": 9,
+     "start": 0
+    },
     "sensitivityData": {
      "capex": {
       "data": [
@@ -18878,6 +18883,17 @@
       "data": [
        {
         "regimeId": 1,
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          73.16271828541204,
          71.7515447995327,
@@ -18892,6 +18908,17 @@
        },
        {
         "regimeId": 2,
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          65.18270254074919,
          62.01319575949466,
@@ -21739,6 +21766,11 @@
       "name": "Generic Royalty/Tax"
      }
     ],
+    "priceWindow": {
+     "end": 8,
+     "length": 9,
+     "start": 0
+    },
     "sensitivityData": {
      "capex": {
       "data": [
@@ -21836,6 +21868,17 @@
       "data": [
        {
         "regimeId": "nigeria___pia__2021",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          69.63443690207225,
          73.59626144442369,
@@ -21850,6 +21893,17 @@
        },
        {
         "regimeId": "ghana___deepwater",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          69.92147977584166,
          72.00081583568173,
@@ -21864,6 +21918,17 @@
        },
        {
         "regimeId": "brazil___concession",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          50.03293388303114,
          46.773109520710065,
@@ -21878,6 +21943,17 @@
        },
        {
         "regimeId": "usa___gulf_of_mexico",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          56.98300502157557,
          49.47127395000231,
@@ -21892,6 +21968,17 @@
        },
        {
         "regimeId": "angola___deepwater_psc",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          63.45195850891401,
          59.55096505940982,
@@ -21906,6 +21993,17 @@
        },
        {
         "regimeId": "generic_royalty_tax",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          51.255783557048865,
          46.818474063292506,
@@ -24839,7 +24937,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Brazil - Concession\" is the most progressive: its government share rises -23.7 percentage points across the swept price range, so it captures upside fastest."
+      "text": "\"Brazil - Concession\" is the most progressive: its government share rises 2.1 percentage points between 50 and 120 USD per bbl, the prices at which every regime's point is a government share, so it captures upside fastest."
      }
     ],
     "insightsAsEngine": [
@@ -24866,35 +24964,40 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Brazil - Concession\" is the most progressive: its government share rises -23.7 percentage points across the swept price range, so it captures upside fastest."
+      "text": "\"Brazil - Concession\" is the most progressive: its government share rises 2.1 percentage points between 50 and 120 USD per bbl, the prices at which every regime's point is a government share, so it captures upside fastest."
      }
     ],
     "priceClimbs": [
      {
-      "climb": -27.252043569962737,
+      "climb": -6.862425316478067,
       "name": "Nigeria - PIA (2021)"
      },
      {
-      "climb": -26.780099034375425,
+      "climb": -2.5353048247251166,
       "name": "Ghana - Deepwater"
      },
      {
-      "climb": -23.672022564965353,
+      "climb": 2.0567226138927026,
       "name": "Brazil - Concession"
      },
      {
-      "climb": -70.0730338898459,
+      "climb": -25.483728198247228,
       "name": "USA - Gulf of Mexico"
      },
      {
-      "climb": -49.13054518847626,
+      "climb": -0.36409698297319437,
       "name": "Angola - Deepwater PSC"
      },
      {
-      "climb": -49.02459221710505,
+      "climb": -17.359648468941344,
       "name": "Generic Royalty/Tax"
      }
     ],
+    "priceWindow": {
+     "end": 8,
+     "length": 8,
+     "start": 1
+    },
     "sensitivityData": {
      "capex": {
       "data": [
@@ -24992,6 +25095,17 @@
       "data": [
        {
         "regimeId": "nigeria___pia__2021",
+        "states": [
+         "exceeds",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          108.14067341270382,
          87.75105515921915,
@@ -25006,6 +25120,17 @@
        },
        {
         "regimeId": "ghana___deepwater",
+        "states": [
+         "exceeds",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          105.29000078835513,
          81.04520657870482,
@@ -25020,6 +25145,17 @@
        },
        {
         "regimeId": "brazil___concession",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          84.76786036862664,
          59.03911518976859,
@@ -25034,6 +25170,17 @@
        },
        {
         "regimeId": "usa___gulf_of_mexico",
+        "states": [
+         "exceeds",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          111.4529018926963,
          66.86359620109762,
@@ -25048,6 +25195,17 @@
        },
        {
         "regimeId": "angola___deepwater_psc",
+        "states": [
+         "exceeds",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          127.80080364472155,
          79.03435543921849,
@@ -25062,6 +25220,17 @@
        },
        {
         "regimeId": "generic_royalty_tax",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          91.07332872226759,
          59.40838497410388,
@@ -26247,7 +26416,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Complex\" is the most progressive: its government share rises -13.9 percentage points across the swept price range, so it captures upside fastest."
+      "text": "No regime is progressive: every government share falls across the swept price range. \"Complex\" is the least regressive, falling 13.9 percentage points."
      }
     ],
     "insightsAsEngine": [
@@ -26274,7 +26443,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Complex\" is the most progressive: its government share rises -13.9 percentage points across the swept price range, so it captures upside fastest."
+      "text": "No regime is progressive: every government share falls across the swept price range. \"Complex\" is the least regressive, falling 13.9 percentage points."
      }
     ],
     "priceClimbs": [
@@ -26287,6 +26456,11 @@
       "name": "Complex"
      }
     ],
+    "priceWindow": {
+     "end": 8,
+     "length": 9,
+     "start": 0
+    },
     "sensitivityData": {
      "capex": {
       "data": [
@@ -26332,6 +26506,17 @@
       "data": [
        {
         "regimeId": "flat",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          91.07332872226759,
          59.40838497410388,
@@ -26346,6 +26531,17 @@
        },
        {
         "regimeId": "complex",
+        "states": [
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
         "values": [
          94.38425667067013,
          73.01637542751025,
@@ -29135,7 +29331,7 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Nigeria - PIA (2021)\" is the most progressive: its government share rises 0.0 percentage points across the swept price range, so it captures upside fastest."
+      "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. No regime is economic at any swept price from 40 to 120 USD per bbl."
      }
     ],
     "insightsAsEngine": [
@@ -29162,35 +29358,11 @@
      {
       "key": "price",
       "label": "Response to higher prices",
-      "text": "\"Nigeria - PIA (2021)\" is the most progressive: its government share rises 0.0 percentage points across the swept price range, so it captures upside fastest."
+      "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. No regime is economic at any swept price from 40 to 120 USD per bbl."
      }
     ],
-    "priceClimbs": [
-     {
-      "climb": 0.0,
-      "name": "Nigeria - PIA (2021)"
-     },
-     {
-      "climb": 0.0,
-      "name": "Ghana - Deepwater"
-     },
-     {
-      "climb": 0.0,
-      "name": "Brazil - Concession"
-     },
-     {
-      "climb": 0.0,
-      "name": "USA - Gulf of Mexico"
-     },
-     {
-      "climb": 0.0,
-      "name": "Angola - Deepwater PSC"
-     },
-     {
-      "climb": 0.0,
-      "name": "Generic Royalty/Tax"
-     }
-    ],
+    "priceClimbs": [],
+    "priceWindow": null,
     "sensitivityData": {
      "capex": {
       "data": [
@@ -29288,86 +29460,152 @@
       "data": [
        {
         "regimeId": "nigeria___pia__2021",
+        "states": [
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined"
+        ],
         "values": [
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null
         ]
        },
        {
         "regimeId": "ghana___deepwater",
+        "states": [
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined"
+        ],
         "values": [
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null
         ]
        },
        {
         "regimeId": "brazil___concession",
+        "states": [
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined"
+        ],
         "values": [
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null
         ]
        },
        {
         "regimeId": "usa___gulf_of_mexico",
+        "states": [
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined"
+        ],
         "values": [
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null
         ]
        },
        {
         "regimeId": "angola___deepwater_psc",
+        "states": [
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined"
+        ],
         "values": [
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null
         ]
        },
        {
         "regimeId": "generic_royalty_tax",
+        "states": [
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined",
+         "undefined"
+        ],
         "values": [
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0,
-         0.0
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null
         ]
        }
       ],
@@ -29643,6 +29881,658 @@
      }
     }
    ]
+  },
+  {
+   "expected": {
+    "annualCashFlows": [
+     {
+      "data": [
+       {
+        "capex": 1500.0,
+        "contractorNCF": -1323.6111911458333,
+        "contractorSplit": 0.7,
+        "costRecovered": 135.9944375,
+        "cumulativeNCF": -1323.6111911458333,
+        "governmentTake": 64.59735781250001,
+        "grossRevenue": 271.988875,
+        "opex": 31.002708333333334,
+        "profitOil": 135.9944375,
+        "rFactor": 0.1776540782844794,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 23.7990265625,
+        "unrecoveredCostPool": 1395.0082708333334,
+        "year": 1
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 157.55486664583333,
+        "contractorSplit": 0.7,
+        "costRecovered": 122.2313825,
+        "cumulativeNCF": -1166.0563245,
+        "governmentTake": 58.059906687499996,
+        "grossRevenue": 244.462765,
+        "opex": 28.84799166666667,
+        "profitOil": 122.2313825,
+        "rFactor": 0.3310904306418556,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 21.390491937499995,
+        "unrecoveredCostPool": 1301.6248800000003,
+        "year": 2
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 140.62775281416668,
+        "contractorSplit": 0.7,
+        "costRecovered": 109.86429190000001,
+        "cumulativeNCF": -1025.4285716858335,
+        "governmentTake": 52.18553865250001,
+        "grossRevenue": 219.72858380000002,
+        "opex": 26.915292333333337,
+        "profitOil": 109.86429190000001,
+        "rFactor": 0.4639500892740017,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 19.2262510825,
+        "unrecoveredCostPool": 1218.6758804333335,
+        "year": 3
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 125.41397027903334,
+        "contractorSplit": 0.7,
+        "costRecovered": 98.75120814800002,
+        "cumulativeNCF": -900.0146014068001,
+        "governmentTake": 46.906823870300016,
+        "grossRevenue": 197.50241629600004,
+        "opex": 25.18162214666667,
+        "profitOil": 98.75120814800002,
+        "rFactor": 0.5792264163604335,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 17.2814614259,
+        "unrecoveredCostPool": 1145.1062944320004,
+        "year": 4
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 122.12650600090267,
+        "contractorSplit": 0.7,
+        "costRecovered": 95.57566701104001,
+        "cumulativeNCF": -777.8880954058975,
+        "governmentTake": 45.398441830243996,
+        "grossRevenue": 191.15133402208,
+        "opex": 23.62638619093333,
+        "profitOil": 95.57566701103998,
+        "rFactor": 0.6877304075857519,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 16.725741726931997,
+        "unrecoveredCostPool": 1073.1570136118937,
+        "year": 5
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 108.77202049275247,
+        "contractorSplit": 0.7,
+        "costRecovered": 85.90370665343681,
+        "cumulativeNCF": -669.116074913145,
+        "governmentTake": 40.80426066038249,
+        "grossRevenue": 171.80741330687363,
+        "opex": 22.23113215373867,
+        "profitOil": 85.90370665343681,
+        "rFactor": 0.782143426722087,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 15.033148664351442,
+        "unrecoveredCostPool": 1009.4844391121956,
+        "year": 6
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 96.77002690924861,
+        "contractorSplit": 0.7,
+        "costRecovered": 77.21269048904826,
+        "cumulativeNCF": -572.3460480038964,
+        "governmentTake": 36.676027982297924,
+        "grossRevenue": 154.4253809780965,
+        "opex": 20.979326086549975,
+        "profitOil": 77.21269048904826,
+        "rFactor": 0.8643556120028306,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 13.512220835583443,
+        "unrecoveredCostPool": 953.2510747096973,
+        "year": 7
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 85.98322899827762,
+        "contractorSplit": 0.7,
+        "costRecovered": 69.40287264616443,
+        "cumulativeNCF": -486.36281900561875,
+        "governmentTake": 32.96636450692811,
+        "grossRevenue": 138.80574529232885,
+        "opex": 19.856151787123128,
+        "profitOil": 69.40287264616443,
+        "rFactor": 0.93596756352231,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 12.145502713078775,
+        "unrecoveredCostPool": 903.704353850656,
+        "year": 8
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 76.28830592847831,
+        "contractorSplit": 0.7,
+        "costRecovered": 62.384680148412514,
+        "cumulativeNCF": -410.0745130771404,
+        "governmentTake": 29.632723070495945,
+        "grossRevenue": 124.76936029682503,
+        "opex": 18.848331297850773,
+        "profitOil": 62.384680148412514,
+        "rFactor": 0.998342307810912,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 10.917319025972187,
+        "unrecoveredCostPool": 860.1680050000944,
+        "year": 9
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 73.6295678646277,
+        "contractorSplit": 0.7,
+        "costRecovered": 60.04821780100605,
+        "cumulativeNCF": -336.4449452125127,
+        "governmentTake": 28.522903455477874,
+        "grossRevenue": 120.0964356020121,
+        "opex": 17.943964281906506,
+        "profitOil": 60.04821780100605,
+        "rFactor": 1.0572222659584627,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 10.508438115176057,
+        "unrecoveredCostPool": 818.0637514809948,
+        "year": 10
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 65.17869012409317,
+        "contractorSplit": 0.7,
+        "costRecovered": 53.97447501780452,
+        "cumulativeNCF": -271.26625508841954,
+        "governmentTake": 25.63787563345715,
+        "grossRevenue": 107.94895003560904,
+        "opex": 17.132384278058723,
+        "profitOil": 53.97447501780452,
+        "rFactor": 1.1084821034047354,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 9.445533128115791,
+        "unrecoveredCostPool": 781.221660741249,
+        "year": 11
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 57.58346858098446,
+        "contractorSplit": 0.7,
+        "costRecovered": 48.51639254379603,
+        "cumulativeNCF": -213.68278650743508,
+        "governmentTake": 23.045286458303117,
+        "grossRevenue": 97.03278508759206,
+        "opex": 16.404030048304495,
+        "profitOil": 48.51639254379603,
+        "rFactor": 1.1530556358209956,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 8.490368695164305,
+        "unrecoveredCostPool": 749.1092982457576,
+        "year": 12
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 50.75706797204364,
+        "contractorSplit": 0.7,
+        "costRecovered": 43.6114087835165,
+        "cumulativeNCF": -162.92571853539144,
+        "governmentTake": 20.715419172170343,
+        "grossRevenue": 87.222817567033,
+        "opex": 15.750330422819022,
+        "profitOil": 43.6114087835165,
+        "rFactor": 1.191751803181066,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 7.631996537115388,
+        "unrecoveredCostPool": 721.2482198850602,
+        "year": 13
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 44.6214890321772,
+        "contractorSplit": 0.7,
+        "costRecovered": 39.20333786806076,
+        "cumulativeNCF": -118.30422950321423,
+        "governmentTake": 18.62158548732886,
+        "grossRevenue": 78.40667573612151,
+        "opex": 15.163601216615461,
+        "profitOil": 39.20333786806076,
+        "rFactor": 1.225273658872696,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 6.8605841269106325,
+        "unrecoveredCostPool": 697.2084832336149,
+        "year": 14
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 39.106666588849734,
+        "contractorSplit": 0.7,
+        "costRecovered": 35.24171772644392,
+        "cumulativeNCF": -79.1975629143645,
+        "governmentTake": 16.739815920060863,
+        "grossRevenue": 70.48343545288785,
+        "opex": 14.636952943977239,
+        "profitOil": 35.24171772644392,
+        "rFactor": 1.2542340211845793,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 6.167300602127686,
+        "unrecoveredCostPool": 676.6037184511482,
+        "year": 15
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 34.149660044466465,
+        "contractorSplit": 0.7,
+        "costRecovered": 31.68122507317963,
+        "cumulativeNCF": -45.04790286989803,
+        "governmentTake": 15.048581909760328,
+        "grossRevenue": 63.362450146359265,
+        "opex": 14.16420819213247,
+        "profitOil": 31.681225073179636,
+        "rFactor": 1.2791684593057893,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 5.544214387806436,
+        "unrecoveredCostPool": 659.0867015701011,
+        "year": 16
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 29.693926744195707,
+        "contractorSplit": 0.7,
+        "costRecovered": 28.48115041360064,
+        "cumulativeNCF": -15.353976125702324,
+        "governmentTake": 13.528546446460302,
+        "grossRevenue": 56.962300827201275,
+        "opex": 13.739827636545265,
+        "profitOil": 28.481150413600634,
+        "rFactor": 1.3005461343284015,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 4.984201322380111,
+        "unrecoveredCostPool": 644.3453787930457,
+        "year": 17
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 25.688669708592172,
+        "contractorSplit": 0.7,
+        "costRecovered": 25.604926883120594,
+        "cumulativeNCF": 10.334693582889848,
+        "governmentTake": 12.16234026948228,
+        "grossRevenue": 51.20985376624118,
+        "opex": 13.358843788166737,
+        "profitOil": 25.604926883120587,
+        "rFactor": 1.31877890161435,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 4.480862204546103,
+        "unrecoveredCostPool": 632.0992956980919,
+        "year": 18
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 22.088252090300994,
+        "contractorSplit": 0.7,
+        "costRecovered": 23.019707376863092,
+        "cumulativeNCF": 32.42294567319084,
+        "governmentTake": 10.934361004009968,
+        "grossRevenue": 46.039414753726184,
+        "opex": 13.016801659415218,
+        "profitOil": 23.019707376863092,
+        "rFactor": 1.3342289942475534,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 4.028448790951041,
+        "unrecoveredCostPool": 622.0963899806441,
+        "year": 19
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 18.85167150270793,
+        "contractorSplit": 0.7,
+        "costRecovered": 20.69598499966653,
+        "cumulativeNCF": 51.27461717589877,
+        "governmentTake": 9.830592874841605,
+        "grossRevenue": 41.391969999333064,
+        "opex": 12.709705621783527,
+        "profitOil": 20.695984999666535,
+        "rFactor": 1.3472155409827786,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 3.6217973749416434,
+        "unrecoveredCostPool": 614.1101106027611,
+        "year": 20
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 15.942088075184703,
+        "contractorSplit": 0.7,
+        "costRecovered": 18.607252380390047,
+        "cumulativeNCF": 67.21670525108347,
+        "governmentTake": 8.838444880685273,
+        "grossRevenue": 37.214504760780095,
+        "opex": 12.433971804910119,
+        "profitOil": 18.607252380390047,
+        "rFactor": 1.358020120960349,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 3.256269166568258,
+        "unrecoveredCostPool": 607.9368300272812,
+        "year": 21
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 13.326400723096434,
+        "contractorSplit": 0.7,
+        "costRecovered": 16.729695854940854,
+        "cumulativeNCF": 80.5431059741799,
+        "governmentTake": 7.946605531096907,
+        "grossRevenue": 33.45939170988171,
+        "opex": 12.18638545568837,
+        "profitOil": 16.729695854940854,
+        "rFactor": 1.3668915177216643,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 2.9276967746146494,
+        "unrecoveredCostPool": 603.3935196280288,
+        "year": 22
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 10.97486668862472,
+        "contractorSplit": 0.7,
+        "costRecovered": 15.041920935101668,
+        "cumulativeNCF": 91.51797266280461,
+        "governmentTake": 7.144912444173293,
+        "grossRevenue": 30.083841870203337,
+        "opex": 11.964062737405323,
+        "profitOil": 15.041920935101668,
+        "rFactor": 1.3740498039737739,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 2.6323361636427918,
+        "unrecoveredCostPool": 600.3156614303325,
+        "year": 23
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 8.860759917554232,
+        "contractorSplit": 0.7,
+        "costRecovered": 13.524705850057606,
+        "cumulativeNCF": 100.37873258035884,
+        "governmentTake": 6.424235278777363,
+        "grossRevenue": 27.04941170011521,
+        "opex": 11.764416503783616,
+        "profitOil": 13.524705850057606,
+        "rFactor": 1.3796898640672963,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 2.3668235237600808,
+        "unrecoveredCostPool": 598.5553720840586,
+        "year": 24
+       },
+       {
+        "capex": 0.0,
+        "contractorNCF": 6.960064293590783,
+        "contractorSplit": 0.7,
+        "costRecovered": 12.160780278976622,
+        "cumulativeNCF": 107.33879687394963,
+        "governmentTake": 5.7763706325138955,
+        "grossRevenue": 24.321560557953244,
+        "opex": 11.585125631848566,
+        "profitOil": 12.160780278976622,
+        "rFactor": 1.3839844417446252,
+        "royalty": 0.0,
+        "royaltyRate": 0.0,
+        "tax": 2.1281365488209087,
+        "unrecoveredCostPool": 597.9797174369305,
+        "year": 25
+       }
+      ],
+      "regimeId": "angola___deepwater_psc"
+     }
+    ],
+    "capexLossesAsEngine": [
+     {
+      "loss": 812.0083243364227,
+      "name": "Angola - Deepwater PSC"
+     }
+    ],
+    "engineCapexPoints": 7,
+    "insights": [
+     {
+      "key": "npv",
+      "label": "Best for the contractor",
+      "text": "\"Angola - Deepwater PSC\" delivers the highest contractor NPV at $-486.1MM, with an IRR of 1.1%."
+     },
+     {
+      "key": "payback",
+      "label": "Fastest capital recovery",
+      "text": "\"Angola - Deepwater PSC\" pays back in year 18. No other regime pays back within the project life."
+     },
+     {
+      "key": "government",
+      "label": "Best for the government",
+      "text": "\"Angola - Deepwater PSC\" collects $638.1MM in total government take."
+     }
+    ],
+    "insightsAsEngine": [
+     {
+      "key": "npv",
+      "label": "Best for the contractor",
+      "text": "\"Angola - Deepwater PSC\" delivers the highest contractor NPV at $-486.1MM, with an IRR of 1.1%."
+     },
+     {
+      "key": "payback",
+      "label": "Fastest capital recovery",
+      "text": "\"Angola - Deepwater PSC\" pays back in year 18. No other regime pays back within the project life."
+     },
+     {
+      "key": "government",
+      "label": "Best for the government",
+      "text": "\"Angola - Deepwater PSC\" collects $638.1MM in total government take."
+     }
+    ],
+    "priceClimbs": [
+     {
+      "climb": -25.655268439246655,
+      "name": "Angola - Deepwater PSC"
+     }
+    ],
+    "priceWindow": {
+     "end": 8,
+     "length": 6,
+     "start": 3
+    },
+    "sensitivityData": {
+     "capex": {
+      "data": [
+       {
+        "regimeId": "angola___deepwater_psc",
+        "values": [
+         -219.55518516334018,
+         -349.7453276815812,
+         -486.1089640452175,
+         -622.4726004088542,
+         -758.8362367724902,
+         -895.1998731361267,
+         -1031.5635094997629,
+         -1167.9271458633991
+        ]
+       }
+      ],
+      "labels": [
+       "0.8",
+       "0.9",
+       "1.0",
+       "1.1",
+       "1.2",
+       "1.3",
+       "1.4",
+       "1.5"
+      ]
+     },
+     "price": {
+      "data": [
+       {
+        "regimeId": "angola___deepwater_psc",
+        "states": [
+         "undefined",
+         "exceeds",
+         "exceeds",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share",
+         "share"
+        ],
+        "values": [
+         null,
+         2223.076577690172,
+         144.06920249696617,
+         85.60146432520122,
+         67.21761104915645,
+         59.31546658913736,
+         53.82183829072491,
+         56.84487304603327,
+         59.946195885954566
+        ]
+       }
+      ],
+      "labels": [
+       40,
+       50,
+       60,
+       70,
+       80,
+       90,
+       100,
+       110,
+       120
+      ]
+     }
+    },
+    "summary": [
+     {
+      "effectiveTaxRate": 28.41905302174635,
+      "govTake": 638.1453224717479,
+      "id": "angola___deepwater_psc",
+      "irr": 1.0696658431198596,
+      "name": "Angola - Deepwater PSC",
+      "npv": -486.1089640452175,
+      "paybackPeriod": 18,
+      "rFactorPayoutYear": 10
+     }
+    ]
+   },
+   "id": "cmp_angola_capex_x3",
+   "note": "EC2-1: Angola - Deepwater PSC on the default project with every capex line tripled. Profit is not positive at 40 (undefined, null), small and positive at 50 (exceeds, 2223 percent) and 60, and a share from 70 up (85.6015).",
+   "project": {
+    "costs": {
+     "capex": {
+      "drilling": 900,
+      "facilities": 450,
+      "subsea": 150
+     },
+     "opex": {
+      "fixed": 10,
+      "variable": 5
+     }
+    },
+    "discountRate": 10,
+    "prices": [
+     {
+      "gas": 3.5,
+      "ngl": 30,
+      "oil": 70,
+      "year": 1
+     },
+     {
+      "gas": 4.0,
+      "ngl": 35,
+      "oil": 75,
+      "year": 5
+     },
+     {
+      "gas": 4.5,
+      "ngl": 40,
+      "oil": 80,
+      "year": 10
+     }
+    ],
+    "production": {
+     "gas": {
+      "decline": 8,
+      "initial": 50
+     },
+     "ngl": {
+      "decline": 12,
+      "initial": 1500
+     },
+     "oil": {
+      "decline": 10,
+      "initial": 10000
+     }
+    }
+   },
+   "regimes": [
+    {
+     "costRecoveryLimit": 50,
+     "id": "angola___deepwater_psc",
+     "name": "Angola - Deepwater PSC",
+     "profitSplit": {
+      "tiers": [
+       {
+        "split": 70,
+        "threshold": 1.0
+       },
+       {
+        "split": 50,
+        "threshold": 1.5
+       },
+       {
+        "split": 30,
+        "threshold": 2.0
+       }
+      ],
+      "type": "tiered_r_factor"
+     },
+     "royalty": {
+      "rate": 0,
+      "type": "flat"
+     },
+     "tax": {
+      "cit": 25,
+      "minTax": 0,
+      "rrt": 50
+     }
+    }
+   ]
   }
  ],
  "description": "Fiscal regime sandbox goldens for engines/economics/fiscalRegime.js and fiscalTemplates.js. Independent stdlib oracle tools/validation/economics/oracle_fiscal.py written from the method statement: 25 year closed-form declines, the price deck lookup, sliding-scale royalty by tier threshold, PSC cost recovery with a cap and carryforward, R-factor tranche splits, CIT and RRT with an annual capital uplift against a minimum tax, YEAR-END discounting NCF/(1+r)^year, IRR by tripling bracket and the Illinois method (engine: doubling bracket and 80 bisections), the price and capex sweeps, the per-regime summary and the five insight sentences rebuilt with JavaScript toFixed rounding. `cashflow` rows carry every engine column plus the oracle's `contractorSplit` and `royaltyRate` chosen that year. The capex sweep is evaluated on the DOCUMENTED grid 0.8 to 1.5 (8 points); the engine's accumulated loop stops at 1.4 (7 points, `engineCapexPoints`), so `insightsAsEngine` rebuilds the capex verdict over the 7 points the engine actually sees; both are pinned. Units: rates bbl/d and mscf/d, prices $/bbl and $/mscf, every money output $MM, percents 0 to 100, years 1 based.",
@@ -29704,21 +30594,34 @@
      "data": [
       {
        "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         30,
+        35,
         40
        ]
       },
       {
        "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         35,
+        47,
         60
        ]
       }
      ],
      "labels": [
       40,
+      80,
       120
      ]
     }
@@ -29801,21 +30704,34 @@
      "data": [
       {
        "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         30,
+        35,
         40
        ]
       },
       {
        "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         35,
+        47,
         60
        ]
       }
      ],
      "labels": [
       40,
+      80,
       120
      ]
     }
@@ -29898,21 +30814,34 @@
      "data": [
       {
        "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         30,
+        35,
         40
        ]
       },
       {
        "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         35,
+        47,
         60
        ]
       }
      ],
      "labels": [
       40,
+      80,
       120
      ]
     }
@@ -29978,14 +30907,21 @@
      "data": [
       {
        "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         30,
+        35,
         40
        ]
       }
      ],
      "labels": [
       40,
+      80,
       120
      ]
     }
@@ -30059,21 +30995,34 @@
      "data": [
       {
        "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         30,
+        35,
         40
        ]
       },
       {
        "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         35,
+        47,
         60
        ]
       }
      ],
      "labels": [
       40,
+      80,
       120
      ]
     }
@@ -30156,21 +31105,34 @@
      "data": [
       {
        "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         30,
+        35,
         40
        ]
       },
       {
        "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
        "values": [
         35,
+        47,
         60
        ]
       }
      ],
      "labels": [
       40,
+      80,
       120
      ]
     }
@@ -30227,6 +31189,101 @@
      "data": [
       {
        "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": []
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. \"Alpha\" and \"Beta\" are already economic at 40 USD per bbl, the lowest price swept."
+    }
+   ],
+   "id": "insights_price_two_points",
+   "note": "EC2-1: two swept prices are fewer than three, so no regime is ranked; both are economic at the lowest price.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share"
+       ],
        "values": [
         30,
         40
@@ -30234,6 +31291,10 @@
       },
       {
        "regimeId": "b",
+       "states": [
+        "share",
+        "share"
+       ],
        "values": [
         35,
         60
@@ -30246,7 +31307,476 @@
      ]
     }
    },
-   "summary": []
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "No regime can be ranked across this sweep: the steepest climb, 10.5 percentage points for \"Beta\", is within one percentage point of the next, 10.0 for \"Alpha\". \"Alpha\" and \"Beta\" are already economic at 40 USD per bbl, the lowest price swept."
+    }
+   ],
+   "id": "insights_price_within_one_point",
+   "note": "EC2-1: climbs of 10 and 10.5 points are within one point, so no regime is ranked.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        40,
+        45.5
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government share rises 21.0 percentage points between 50 and 70 USD per bbl, the prices at which every regime's point is a government share, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_price_exceeds_excluded",
+   "note": "EC2-1: Alpha exceeds 100 at 40, so the climb runs 50 to 70 for both; an endpoint read from 40 would give Alpha -86.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "exceeds",
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        150,
+        60,
+        62,
+        64
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        40,
+        45,
+        55,
+        66
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      50,
+      60,
+      70
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. No regime is economic at any swept price from 40 to 60 USD per bbl."
+    }
+   ],
+   "id": "insights_price_never_economic",
+   "note": "EC2-1: every point undefined, so no rank and no regime economic at any swept price.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "undefined",
+        "undefined",
+        "undefined"
+       ],
+       "values": [
+        null,
+        null,
+        null
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "undefined",
+        "undefined",
+        "undefined"
+       ],
+       "values": [
+        null,
+        null,
+        null
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      50,
+      60
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime. The first regime to become economic is \"Beta\", at 50 USD per bbl."
+    }
+   ],
+   "id": "insights_price_first_economic",
+   "note": "EC2-1: one common share price is fewer than three; Beta is the first regime economic, at 50.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "undefined",
+        "undefined",
+        "exceeds",
+        "share"
+       ],
+       "values": [
+        null,
+        null,
+        120,
+        90
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "undefined",
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        null,
+        80,
+        70,
+        65
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      50,
+      60,
+      70
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
   }
  ],
  "irr": [
