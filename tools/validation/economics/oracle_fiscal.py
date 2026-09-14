@@ -43,6 +43,14 @@ with an uplift), not by transcribing the JavaScript:
                  and solves with the Illinois (modified regula falsi)
                  method. Past the engine's 102400 percent bracket the
                  engine reports the bracket; the oracle records that.
+  take metrics   (naming wave 2026-09-14) government take = government cash
+                 flow / (government cash flow + contractor NCF), i.e. over
+                 revenue less opex less capex, with the sweep's three
+                 states; government share of net revenue = government cash
+                 flow / (that plus capex), null when not positive; both
+                 undiscounted, and government take again with every year
+                 discounted at year end at the project rate. Accumulated
+                 here year by year from the ledger rows, not from totals.
   summary        payback is the first year the cumulative NCF exceeds
                  zero, R-factor payout the first year R exceeds 1, and
                  the effective tax rate is government take over
@@ -256,6 +264,23 @@ def sweeps(regimes, project):
     return {'price': price, 'capex': capex}
 
 
+def take_metrics(rows, rate=None):
+    g = n = k = 0.0
+    for cf in rows:
+        d = 1.0 if rate is None else (1.0 + rate / 100.0) ** (-cf['year'])
+        g += cf['governmentTake'] * d
+        n += cf['contractorNCF'] * d
+        k += cf['capex'] * d
+    profit = g + n
+    if profit > 0:
+        take = g / profit * 100.0
+        state = 'exceeds' if take > 100.0 else 'share'
+    else:
+        take, state = None, 'undefined'
+    net_revenue = profit + k
+    return {'take': take, 'state': state, 'share_of_net_revenue': g / net_revenue * 100.0 if net_revenue > 0 else None}
+
+
 def summary_row(reg, project):
     rows = cash_flow(reg, project)
     cx = project['costs']['capex']
@@ -265,10 +290,15 @@ def summary_row(reg, project):
     tot = gov + con
     pay = next((cf['year'] for cf in rows if cf['cumulativeNCF'] > 0), None)
     rpay = next((cf['year'] for cf in rows if cf['rFactor'] > 1.0), None)
+    und, dis = take_metrics(rows), take_metrics(rows, project['discountRate'])
     return rows, {
         'id': reg['id'], 'name': reg['name'], 'npv': npv(rows, project['discountRate']), 'irr': irr(rows),
         'paybackPeriod': pay, 'rFactorPayoutYear': rpay, 'govTake': gov,
         'effectiveTaxRate': gov / tot * 100.0 if tot > 0 else 0.0,
+        'governmentTakePct': und['take'], 'governmentTakeState': und['state'],
+        'governmentTakeDiscountedPct': dis['take'], 'governmentTakeDiscountedState': dis['state'],
+        'discountRatePct': project['discountRate'],
+        'governmentShareOfNetRevenuePct': und['share_of_net_revenue'],
     }
 
 
@@ -321,14 +351,14 @@ def price_verdict(summary, sens):
         top, nxt = climbs[order[0]], climbs[order[1]]
         if top[1] - nxt[1] >= 1.0:
             where = ('across the swept price range' if a == 0 and b == count - 1 else
-                     f"between {labels[a]} and {labels[b]} USD per bbl, the prices at which every regime's point is a government share")
+                     f"between {labels[a]} and {labels[b]} USD per bbl, the prices at which every regime's government take is within 0 to 100 percent")
             if top[1] > 0:
-                return f'"{top[0]}" is the most progressive: its government share rises {f(top[1])} percentage points {where}, so it captures upside fastest.'
-            return f'No regime is progressive: every government share falls {where}. "{top[0]}" is the least regressive, falling {f(-top[1])} percentage points.'
-        head = (f'No regime can be ranked across this sweep: the steepest climb, {f(top[1])} percentage points for "{top[0]}", '
+                return f'"{top[0]}" is the most progressive: its government take (undiscounted) rises {f(top[1])} percentage points {where}, so it captures upside fastest.'
+            return f'No regime is progressive: every government take (undiscounted) falls {where}. "{top[0]}" is the least regressive, falling {f(-top[1])} percentage points.'
+        head = (f'No regime can be ranked across this sweep: the steepest climb in government take (undiscounted), {f(top[1])} percentage points for "{top[0]}", '
                 f'is within one percentage point of the next, {f(nxt[1])} for "{nxt[0]}".')
     else:
-        head = 'No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime.'
+        head = 'No regime can be ranked across this sweep: fewer than 3 swept prices give every regime a government take within 0 to 100 percent.'
     for i in range(count):
         names = ['"%s"' % by_id[d['regimeId']]['name'] for d in series if point_state(d, i) != 'undefined']
         if names:
@@ -380,7 +410,7 @@ def insights(summary, sens, capex_points=None):
                 nxt = r
     out.append({'key': 'government', 'label': 'Best for the government',
                 'text': (f'"{top["name"]}" collects the most, ${f(top["govTake"])}MM against ${f(nxt["govTake"])}MM for the next highest, "{nxt["name"]}".'
-                         if nxt else f'"{top["name"]}" collects ${f(top["govTake"])}MM in total government take.')})
+                         if nxt else f'"{top["name"]}" collects ${f(top["govTake"])}MM in total government cash flow.')})
     by_id = {r['id']: r for r in summary}
     losses = []
     for d in (sens or {}).get('capex', {}).get('data', []):

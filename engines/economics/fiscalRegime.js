@@ -271,6 +271,50 @@ export const classifyGovernmentShare = (govTake, contractorNCF) => {
     };
 };
 
+/**
+ * The two take metrics over a ledger (naming wave, 2026-09-14). Words and
+ * definitions live in ./fiscalConventions.js; this is the arithmetic.
+ *
+ *   governmentTake               government cash flow / (revenue - opex - capex)
+ *                                with its state (share, exceeds, undefined)
+ *   governmentShareOfNetRevenue  government cash flow / (revenue - opex), null
+ *                                when revenue less opex is not positive
+ *
+ * Revenue less opex less capex is government cash flow plus contractor net
+ * cash flow (the ledger identity), so neither needs revenue or opex directly.
+ * No computation is new: undiscounted, government take is the price sweep's
+ * ratio at the deck's own prices, and government share of net revenue is the
+ * summary's legacy `effectiveTaxRate` without its zero fallback. With a
+ * discount rate every year is discounted at year end first, the same
+ * convention as calculateNPV.
+ *
+ * @param {object[]} cashflows annual rows from calculateCashFlowForRegime
+ * @param {number|null} discountRatePct null for undiscounted
+ */
+export const takeMetrics = (cashflows, discountRatePct = null) => {
+    const factor = (year) => (discountRatePct === null || discountRatePct === undefined
+        ? 1
+        : Math.pow(1 + discountRatePct / 100, -year));
+    let gov = 0;
+    let ncf = 0;
+    let capex = 0;
+    cashflows.forEach((cf) => {
+        const f = factor(cf.year);
+        gov += cf.governmentTake * f;
+        ncf += cf.contractorNCF * f;
+        capex += cf.capex * f;
+    });
+    const take = classifyGovernmentShare(gov, ncf);
+    const netRevenue = gov + ncf + capex;
+    return {
+        discountRatePct: discountRatePct ?? null,
+        governmentCashFlow: gov,
+        governmentTake: take.value,
+        governmentTakeState: take.state,
+        governmentShareOfNetRevenue: netRevenue > 0 ? (gov / netRevenue) * 100 : null,
+    };
+};
+
 const runSensitivityAnalysis = (regimes, projectInputs) => {
     const priceSens = { labels: [], data: regimes.map(r => ({ regimeId: r.id, values: [], states: [] })) };
     for (let price = 40; price <= 120; price += 10) {
@@ -346,16 +390,16 @@ const rankPriceResponse = (series, labels, fmt) => {
         if (steepest.climb - next.climb >= PROGRESSIVITY_MIN_SPREAD_PCT_POINTS) {
             const range = win.start === 0 && win.end === count - 1
                 ? 'across the swept price range'
-                : `between ${labels[win.start]} and ${labels[win.end]} USD per bbl, the prices at which every regime's point is a government share`;
+                : `between ${labels[win.start]} and ${labels[win.end]} USD per bbl, the prices at which every regime's government take is within 0 to 100 percent`;
             // A share that falls at every regime has no progressive regime in
             // it, so the lead is named for what it is.
             return steepest.climb > 0
-                ? `"${steepest.name}" is the most progressive: its government share rises ${fmt(steepest.climb)} percentage points ${range}, so it captures upside fastest.`
-                : `No regime is progressive: every government share falls ${range}. "${steepest.name}" is the least regressive, falling ${fmt(-steepest.climb)} percentage points.`;
+                ? `"${steepest.name}" is the most progressive: its government take (undiscounted) rises ${fmt(steepest.climb)} percentage points ${range}, so it captures upside fastest.`
+                : `No regime is progressive: every government take (undiscounted) falls ${range}. "${steepest.name}" is the least regressive, falling ${fmt(-steepest.climb)} percentage points.`;
         }
-        return `No regime can be ranked across this sweep: the steepest climb, ${fmt(steepest.climb)} percentage points for "${steepest.name}", is within one percentage point of the next, ${fmt(next.climb)} for "${next.name}".${firstEconomic(series, labels, count)}`;
+        return `No regime can be ranked across this sweep: the steepest climb in government take (undiscounted), ${fmt(steepest.climb)} percentage points for "${steepest.name}", is within one percentage point of the next, ${fmt(next.climb)} for "${next.name}".${firstEconomic(series, labels, count)}`;
     }
-    return `No regime can be ranked across this sweep: fewer than ${PROGRESSIVITY_MIN_POINTS} swept prices give a government share for every regime.${firstEconomic(series, labels, count)}`;
+    return `No regime can be ranked across this sweep: fewer than ${PROGRESSIVITY_MIN_POINTS} swept prices give every regime a government take within 0 to 100 percent.${firstEconomic(series, labels, count)}`;
 };
 
 const firstEconomic = (series, labels, count) => {
@@ -436,7 +480,7 @@ export const deriveInsights = (summary, sensitivityData) => {
         label: 'Best for the government',
         text: nextGov
             ? `"${topGov.name}" collects the most, $${fmt(topGov.govTake)}MM against $${fmt(nextGov.govTake)}MM for the next highest, "${nextGov.name}".`
-            : `"${topGov.name}" collects $${fmt(topGov.govTake)}MM in total government take.`,
+            : `"${topGov.name}" collects $${fmt(topGov.govTake)}MM in total government cash flow.`,
     });
 
     // Capex resilience: how much NPV is lost across the swept multiplier range.
@@ -501,8 +545,13 @@ export const runFiscalComparison = async (inputs) => {
         const totalCapex = (projectInputs.costs.capex.drilling + projectInputs.costs.capex.facilities + projectInputs.costs.capex.subsea);
         const totalContractorTake = cashflows.reduce((sum, cf) => sum + cf.contractorNCF, 0) + totalCapex;
         const totalProfit = totalGovTake + totalContractorTake;
+        // LEGACY KEY. `effectiveTaxRate` is government share of net revenue
+        // with a zero fallback, kept unchanged for existing readers. Display
+        // the named fields below instead (naming wave, 2026-09-14).
         const effectiveTaxRate = totalProfit > 0 ? (totalGovTake / totalProfit) * 100 : 0;
-        
+        const undiscounted = takeMetrics(cashflows);
+        const discounted = takeMetrics(cashflows, projectInputs.discountRate);
+
         summary.push({
             id: regime.id,
             name: regime.name,
@@ -511,7 +560,13 @@ export const runFiscalComparison = async (inputs) => {
             paybackPeriod: payback ? payback.year : null,
             rFactorPayoutYear: rFactorPayout ? rFactorPayout.year : null,
             govTake: totalGovTake,
-            effectiveTaxRate: effectiveTaxRate
+            effectiveTaxRate: effectiveTaxRate,
+            governmentTakePct: undiscounted.governmentTake,
+            governmentTakeState: undiscounted.governmentTakeState,
+            governmentTakeDiscountedPct: discounted.governmentTake,
+            governmentTakeDiscountedState: discounted.governmentTakeState,
+            discountRatePct: projectInputs.discountRate,
+            governmentShareOfNetRevenuePct: undiscounted.governmentShareOfNetRevenue,
         });
     });
 
