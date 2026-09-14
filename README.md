@@ -338,6 +338,22 @@ and its consumers.
   written by `tools/validation/wellsite/gen_report_day.py` with the
   expected counts worked by hand in the test-data README.
 
+- `engines/downstream/` — the Midstream & Downstream module (M&D DS0 to
+  DS10, 2026-08-29), eleven modules: `streamModel.js` (the shared
+  product and stream vocabulary), `crudeAssay.js`, `productBlending.js`
+  and `refineryPlanning.js` (both solved as linear programmes on
+  `lib/lp/simplex.js`), `modularRefinery.js`, `terminalDepot.js`,
+  `fuelPricing.js`, `lpgCng.js`, `energyEfficiency.js`,
+  `carbonAbatement.js` and `flareToValue.js` (which reuses
+  `engines/production/gasProperties.js` and
+  `engines/facilities/compression.js`). The DS waves wrote these
+  straight into the Suite's vendored copy of this package and never
+  upstreamed them, so every `git subtree pull` into the Suite saw them
+  as deleted upstream; they were moved here byte for byte on 2026-09-14
+  with their twelve test files (tests embed their own fixtures, there is
+  no test-data directory). `lib/lp/simplex.js` is the dense simplex
+  solver (`solveLP`, `LP_STATUS`) the two LP modules share.
+
 - `engines/economics/` — the Economics module (EC0 extraction wave,
   2026-09-08; plan of record in the Suite at
   docs/scope/NextGen-Remaining-Courses-PLAN.md section 8, which gated
@@ -474,6 +490,9 @@ functions through one-line shims at supabase/functions/_shared/.
 | `test-data/fluid/{goldens,componentReference,characterizationReference,nistVaporPressure}.json` | `src/utils/fluidstudio/eos/__tests__/` |
 | `test-data/fluid/literature-fixtures.json` | `tools/validation/fluidstudio/` |
 | `tools/validation/fluid/` | `tools/validation/fluidstudio/` |
+| `engines/downstream/` (all eleven modules) | the Suite's vendored `packages/engines/engines/downstream/` (written there directly by DS0 to DS10 and never upstreamed; moved byte for byte 2026-09-14; the Suite's `src/utils/downstream/engine/*.js` re-export shims stay) |
+| `lib/lp/simplex.js` | the Suite's vendored `packages/engines/lib/lp/simplex.js` (same history; shim `src/utils/downstream/engine/simplex.js` stays) |
+| `__tests__/downstream.*.test.js`, `__tests__/lp.simplex.test.js` | the Suite's vendored `packages/engines/__tests__/` (same history) |
 
 Import rewrites at extraction: `engines/seismolord/synthetics.js` and
 all `@/lib/*` imports became `../../lib/*` (the package has no `@/`
