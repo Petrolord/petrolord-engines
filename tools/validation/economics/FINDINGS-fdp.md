@@ -195,3 +195,72 @@ month ends, leap days, negative differences, sub-day remainders, fractional
 and NaN amounts and the format ties. Machine timezone UTC (`date` and
 Intl.DateTimeFormat().resolvedOptions().timeZone both UTC); the gate refuses
 to compare under any other zone.
+
+## EC5-0 repair (2026-09-14, owner decision before the EC5 course)
+
+Engine: engines/economics/afe.js. This section supersedes sections 6 and 7
+and the clock caveat in the afe.js header. Oracle, goldens and gate were
+regenerated: afe_cases.json now holds 20 splits, 32 metric sets, 7 metric
+refusals and 24 S-curves. The evm, cpiSpi and gantt sections regenerated
+byte-identical, because projectControls.js was not touched.
+
+**The clock (RESOLVED).** Before: calculateMetrics took its time progress
+from `new Date()`, so SPI on a window that spans today changed every day. On
+2026-01-01..2027-12-31 with 1000 budget at 40 percent progress it was
+1.1390625 on 2026-09-14 and would read differently tomorrow. A fourth
+argument was ignored. After: calculateMetrics(afe, costItems, invoices,
+asOf) and generateSCurveData(afe, costItems, invoices, asOf) take asOf, a
+Date or an ISO date string. They read the clock only as the default. The
+same window gives 1.1390625 as of 2026-09-14 (256 of 729 whole days) and
+0.6877358490566039 as of 2027-03-01, on any day. An invalid asOf throws
+AfeInputError('asOf is not a valid date'). The gate proves the clock is not
+read: two different faked todays give identical output with asOf, and
+different output without it. calculateMetrics also returns plannedValue
+(budget x time progress) and timeProgress.
+
+**Section 7, SPI before the start (RESOLVED).** Before: SPI = EV / 0 was
+Infinity with value earned and NaN without, and the app printed a verdict on
+it. After: SPI is null whenever planned value is not positive, which covers
+before the start and on the start day. The goldens "future window with
+progress" and "future window with no progress" now expect null and carry no
+DISAGREEMENT note. The empty-budget guard (SPI 1) is unchanged.
+
+**Section 6, two forecast rules (RESOLVED).** Before: the metric tiles used
+an entered forecast only when positive, while the S-curve took any non-zero
+entered forecast. A -50 forecast on a 1200 budget showed EAC 1200 on the
+tiles and a curve that ran negative. After: both use the exported
+itemForecast(item). That is the entered forecast when Number(forecast) > 0,
+else max(budget, actual + commitment). The -50 case gives 1200 in both
+places. The gate checks that the last forecast point of a bucket-aligned
+future window equals Math.round of the itemForecast sum.
+
+**S-curve bounded to the window.** Before: the monthly walk ran
+`while (currentDate <= end || currentDate <= now)`. A 2020 AFE emitted 81
+points on 2026-09-14 and gained one a month, so the goldens could pin only
+the points inside the window plus an after-window invariant. After: the walk
+stops at the end, and the 2020 AFE gives 12 points on any day. Actual and
+Forecast split at asOf: a bucket on or before asOf shows the invoices to
+date, and a later bucket shows Actual null with the linear projection.
+Every S-curve golden now pins the exact point list. A window whose end is
+before its start still returns [].
+
+**Negative inputs.**
+- Negative progress: calculateMetrics throws AfeInputError when any item has
+  a finite Number(progress) < 0. The message names the item (code, else
+  description, else index) and the value, for example `Cost item "CMP-02"
+  has negative progress (-20 percent). Progress runs from 0 to 100 percent.`
+  Before, -20 on a 1000 line gave EV -200 and CPI -2. Progress above 100 is
+  still accepted (golden "progress beyond 100 percent earns beyond the
+  budget").
+- Negative working interest: calculatePartnerCosts returns valid false with
+  a note naming each such partner and its value, for example `Partner "B"
+  has a negative working interest (-20.00 percent). Correct the interests
+  before billing.` Before, -20 on a 1000 cost billed the partner -200, gave
+  the operator 120 percent and returned valid true. When the total is also
+  over 100, both sentences are given, the negative one first. The allocation
+  is still returned unchanged, and the conservation identity still holds
+  (gated on every split golden).
+
+**Section 8 is unchanged.** A null invoice date is still new Date(null), the
+epoch, and still counts in every bucket (golden "past window, all invoices
+unpaid: none dated"). It remains an open finding.

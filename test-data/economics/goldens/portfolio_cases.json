@@ -1,5 +1,5 @@
 {
- "description": "Economics capital portfolio goldens: risked EMV, success-case spread, exact success / failure mixture moments, the normal-approximation portfolio risk summary with an average pairwise correlation, and the 0/1 knapsack over the capex limit with its efficient frontier. Independent stdlib oracle (tools/validation/economics/oracle_portfolio.py): the knapsack is solved by brute force over every subset, both EXACTLY (sum of capex within the limit) and on the engine's documented QUANTISED grid, and every optimize case carries both answers, the gap between them and whether quantisation changed the chosen set; every optimal set is listed so ties are explicit; the frontier is on the grid with every capex a tied set could report. P(loss) is through math.erf, so the gate allows the engine's 1.5e-7 Abramowitz and Stegun error. All money is USD millions ($MM) except rawDollars, which is typed in dollars on purpose. pos is 0 to 1; correlation is 0 to 1; a correlation given as the string NaN means the gate passes NaN. Every case in the Suite's src/utils/__tests__/portfolioOptimizer.test.js is here, plus seeded random sets (mulberry32, seed on the case), ties, a zero-EMV and a negative-EMV project, free projects, and limits below every project.",
+ "description": "Economics capital portfolio goldens: risked EMV, success-case spread, exact success / failure mixture moments, the portfolio risk summary (closed-form mean and spread with an average pairwise correlation; P(loss), P90 and P10 from the EC5-0 seeded one-factor Gaussian copula Monte Carlo, replayed bit for bit in riskMetrics and optimize, so the gate compares probLoss exactly and P90 / P10 within 1e-9 scaled, at the riskOptions seed and iterations stated on each case), the riskMethod section validating that Monte Carlo against exact answers within 4 standard errors (normalApprox carries what the engine reported before), the optimizeRefusals section (a negative capex is refused), overLimit / overLimitBy on every optimal set, and the 0/1 knapsack over the capex limit with its efficient frontier. Independent stdlib oracle (tools/validation/economics/oracle_portfolio.py): the knapsack is solved by brute force over every subset, both EXACTLY (sum of capex within the limit) and on the engine's documented QUANTISED grid, and every optimize case carries both answers, the gap between them and whether quantisation changed the chosen set; every optimal set is listed so ties are explicit; the frontier is on the grid with every capex a tied set could report. All money is USD millions ($MM) except rawDollars, which is typed in dollars on purpose. pos is 0 to 1; correlation is 0 to 1; a correlation given as the string NaN means the gate passes NaN. Every case in the Suite's src/utils/__tests__/portfolioOptimizer.test.js is here, plus seeded random sets (mulberry32, seed on the case), ties, a zero-EMV and a negative-EMV project, free projects, and limits below every project.",
  "optimize": [
   {
    "capexLimit": 450,
@@ -19,13 +19,19 @@
         "D"
        ],
        "npvSuccess": 250.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 250.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 250.0,
         "p90": 250.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -103,13 +109,19 @@
         "D"
        ],
        "npvSuccess": 250.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 250.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 250.0,
         "p90": 250.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -150,7 +162,11 @@
      "name": "D",
      "npv_p50": 90
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 100,
@@ -168,13 +184,19 @@
         "Y"
        ],
        "npvSuccess": 50.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 50.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 50.0,
         "p90": 50.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -208,13 +230,19 @@
         "Y"
        ],
        "npvSuccess": 50.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 50.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 50.0,
         "p90": 50.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -243,7 +271,11 @@
      "name": "Y",
      "npv_p50": 50
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 200,
@@ -261,13 +293,19 @@
         "good"
        ],
        "npvSuccess": 30.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 30.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 30.0,
         "p90": 30.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -301,13 +339,19 @@
         "good"
        ],
        "npvSuccess": 30.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 30.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 30.0,
         "p90": 30.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -333,7 +377,11 @@
      "name": "good",
      "npv_p50": 30
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 450000000.0,
@@ -353,13 +401,19 @@
         "D"
        ],
        "npvSuccess": 250.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 250.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 250.0,
         "p90": 250.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -437,13 +491,19 @@
         "D"
        ],
        "npvSuccess": 250.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 250.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 250.0,
         "p90": 250.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -484,7 +544,11 @@
      "name": "D",
      "npv_p50": 90
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 20,
@@ -503,13 +567,19 @@
         "2"
        ],
        "npvSuccess": 180.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 180.0,
         "independentStdDev": 60.94377648867898,
-        "p10": 258.10554394789096,
-        "p90": 101.89445605210902,
-        "probLoss": 0.0015707495770913016,
+        "iterations": 2000,
+        "lossCount": 5,
+        "method": "monte-carlo",
+        "p10": 261.06708595418286,
+        "p90": 101.45430681432941,
+        "probLoss": 0.0025,
+        "seed": 20260829,
         "stdDev": 60.94377648867898
        }
       }
@@ -551,13 +621,19 @@
         "2"
        ],
        "npvSuccess": 180.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 180.0,
         "independentStdDev": 60.94377648867898,
-        "p10": 258.10554394789096,
-        "p90": 101.89445605210902,
-        "probLoss": 0.0015707495770913016,
+        "iterations": 2000,
+        "lossCount": 5,
+        "method": "monte-carlo",
+        "p10": 261.06708595418286,
+        "p90": 101.45430681432941,
+        "probLoss": 0.0025,
+        "seed": 20260829,
         "stdDev": 60.94377648867898
        }
       }
@@ -590,7 +666,11 @@
      "npv_p90": 30,
      "pos": 1
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 20,
@@ -609,13 +689,19 @@
         "2"
        ],
        "npvSuccess": 180.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.7,
         "emv": 180.0,
         "independentStdDev": 60.94377648867898,
-        "p10": 281.4928752668424,
-        "p90": 78.5071247331576,
-        "probLoss": 0.011514665140424762,
+        "iterations": 2000,
+        "lossCount": 15,
+        "method": "monte-carlo",
+        "p10": 282.07844997284974,
+        "p90": 80.85733149593486,
+        "probLoss": 0.0075,
+        "seed": 20260829,
         "stdDev": 79.19231840421536
        }
       }
@@ -657,13 +743,19 @@
         "2"
        ],
        "npvSuccess": 180.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.7,
         "emv": 180.0,
         "independentStdDev": 60.94377648867898,
-        "p10": 281.4928752668424,
-        "p90": 78.5071247331576,
-        "probLoss": 0.011514665140424762,
+        "iterations": 2000,
+        "lossCount": 15,
+        "method": "monte-carlo",
+        "p10": 282.07844997284974,
+        "p90": 80.85733149593486,
+        "probLoss": 0.0075,
+        "seed": 20260829,
         "stdDev": 79.19231840421536
        }
       }
@@ -696,7 +788,11 @@
      "npv_p90": 30,
      "pos": 1
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 100,
@@ -714,13 +810,19 @@
         "twinA"
        ],
        "npvSuccess": 50.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 50.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 50.0,
         "p90": 50.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       },
@@ -731,13 +833,19 @@
         "twinB"
        ],
        "npvSuccess": 50.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 50.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 50.0,
         "p90": 50.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -771,13 +879,19 @@
         "twinA"
        ],
        "npvSuccess": 50.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 50.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 50.0,
         "p90": 50.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       },
@@ -788,13 +902,19 @@
         "twinB"
        ],
        "npvSuccess": 50.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 50.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 50.0,
         "p90": 50.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -821,7 +941,11 @@
      "name": "twinB",
      "npv_p50": 50
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 100,
@@ -839,13 +963,19 @@
         "A"
        ],
        "npvSuccess": 80.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 80.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 80.0,
         "p90": 80.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       },
@@ -857,13 +987,19 @@
         "C"
        ],
        "npvSuccess": 80.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 80.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 80.0,
         "p90": 80.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -904,13 +1040,19 @@
         "A"
        ],
        "npvSuccess": 80.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 80.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 80.0,
         "p90": 80.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       },
@@ -922,13 +1064,19 @@
         "C"
        ],
        "npvSuccess": 80.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 80.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 80.0,
         "p90": 80.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -962,7 +1110,11 @@
      "name": "C",
      "npv_p50": 40
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 500,
@@ -980,13 +1132,19 @@
         "good"
        ],
        "npvSuccess": 30.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 30.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 30.0,
         "p90": 30.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1020,13 +1178,19 @@
         "good"
        ],
        "npvSuccess": 30.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 30.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 30.0,
         "p90": 30.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1054,7 +1218,11 @@
      "name": "good",
      "npv_p50": 30
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 10000,
@@ -1073,13 +1241,19 @@
         "better"
        ],
        "npvSuccess": 75.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 75.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 75.0,
         "p90": 75.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1128,13 +1302,19 @@
         "better"
        ],
        "npvSuccess": 75.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 75.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 75.0,
         "p90": 75.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1169,7 +1349,11 @@
      "name": "better",
      "npv_p50": 45
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 30,
@@ -1185,13 +1369,18 @@
        "emv": 0.0,
        "ids": [],
        "npvSuccess": 0.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 0.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "method": "monte-carlo",
         "p10": 0.0,
         "p90": 0.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1216,13 +1405,18 @@
        "emv": 0.0,
        "ids": [],
        "npvSuccess": 0.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 0.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "method": "monte-carlo",
         "p10": 0.0,
         "p90": 0.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1249,7 +1443,11 @@
      "name": "B",
      "npv_p50": 100
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 0,
@@ -1265,13 +1463,18 @@
        "emv": 0.0,
        "ids": [],
        "npvSuccess": 0.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 0.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "method": "monte-carlo",
         "p10": 0.0,
         "p90": 0.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1296,13 +1499,18 @@
        "emv": 0.0,
        "ids": [],
        "npvSuccess": 0.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 0.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "method": "monte-carlo",
         "p10": 0.0,
         "p90": 0.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1343,7 +1551,11 @@
      "name": "D",
      "npv_p50": 90
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": -100,
@@ -1359,13 +1571,18 @@
        "emv": 0.0,
        "ids": [],
        "npvSuccess": 0.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 0.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "method": "monte-carlo",
         "p10": 0.0,
         "p90": 0.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1390,13 +1607,18 @@
        "emv": 0.0,
        "ids": [],
        "npvSuccess": 0.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 0.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "method": "monte-carlo",
         "p10": 0.0,
         "p90": 0.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1437,7 +1659,11 @@
      "name": "D",
      "npv_p50": 90
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 500,
@@ -1456,13 +1682,19 @@
         "C"
        ],
        "npvSuccess": 300.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 300.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 300.0,
         "p90": 300.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1553,13 +1785,19 @@
         "C"
        ],
        "npvSuccess": 300.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 300.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 300.0,
         "p90": 300.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1600,7 +1838,11 @@
      "name": "D",
      "npv_p50": 90
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 0,
@@ -1618,13 +1860,19 @@
         "free"
        ],
        "npvSuccess": 10.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 10.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 10.0,
         "p90": 10.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1649,13 +1897,18 @@
        "emv": 0.0,
        "ids": [],
        "npvSuccess": 0.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 0.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "method": "monte-carlo",
         "p10": 0.0,
         "p90": 0.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1676,7 +1929,11 @@
      "name": "free",
      "npv_p50": 10
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 100,
@@ -1695,13 +1952,19 @@
         "A"
        ],
        "npvSuccess": 70.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 70.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 70.0,
         "p90": 70.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1742,13 +2005,19 @@
         "A"
        ],
        "npvSuccess": 60.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 60.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 60.0,
         "p90": 60.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1776,7 +2045,11 @@
      "name": "A",
      "npv_p50": 60
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 101,
@@ -1795,13 +2068,19 @@
         "A"
        ],
        "npvSuccess": 70.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 70.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 70.0,
         "p90": 70.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1850,13 +2129,19 @@
         "A"
        ],
        "npvSuccess": 70.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 70.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 70.0,
         "p90": 70.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1883,7 +2168,11 @@
      "name": "A",
      "npv_p50": 60
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 6000,
@@ -1902,13 +2191,19 @@
         "C"
        ],
        "npvSuccess": 780.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 780.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 780.0,
         "p90": 780.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -1971,13 +2266,19 @@
         "B"
        ],
        "npvSuccess": 800.0,
+       "overLimit": true,
+       "overLimitBy": 2.0,
        "risk": {
         "correlation": 0.0,
         "emv": 800.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 800.0,
         "p90": 800.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -2012,7 +2313,11 @@
      "name": "C",
      "npv_p50": 280
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 6000,
@@ -2033,13 +2338,19 @@
         "Z"
        ],
        "npvSuccess": 860.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 860.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 860.0,
         "p90": 860.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -2110,13 +2421,19 @@
         "Z"
        ],
        "npvSuccess": 660.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 660.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 660.0,
         "p90": 660.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -2158,7 +2475,11 @@
      "name": "Z",
      "npv_p50": 230
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 450.5,
@@ -2178,13 +2499,19 @@
         "D"
        ],
        "npvSuccess": 250.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 250.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 250.0,
         "p90": 250.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -2262,13 +2589,19 @@
         "D"
        ],
        "npvSuccess": 250.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 250.0,
         "independentStdDev": 0.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
         "p10": 250.0,
         "p90": 250.0,
         "probLoss": 0.0,
+        "seed": 20260829,
         "stdDev": 0.0
        }
       }
@@ -2309,7 +2642,11 @@
      "name": "D",
      "npv_p50": 90
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 330,
@@ -2328,13 +2665,19 @@
         "R3"
        ],
        "npvSuccess": 350.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.3,
         "emv": 181.50000000000003,
         "independentStdDev": 187.6497444641232,
-        "p10": 438.85693210806494,
-        "p90": -75.85693210806491,
-        "probLoss": 0.18303918596695928,
+        "iterations": 2000,
+        "lossCount": 506,
+        "method": "monte-carlo",
+        "p10": 434.7488358082576,
+        "p90": -48.29697068354601,
+        "probLoss": 0.253,
+        "seed": 20260829,
         "stdDev": 200.80909184461993
        }
       }
@@ -2404,13 +2747,19 @@
         "R3"
        ],
        "npvSuccess": 350.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.3,
         "emv": 181.50000000000003,
         "independentStdDev": 187.6497444641232,
-        "p10": 438.85693210806494,
-        "p90": -75.85693210806491,
-        "probLoss": 0.18303918596695928,
+        "iterations": 2000,
+        "lossCount": 506,
+        "method": "monte-carlo",
+        "p10": 434.7488358082576,
+        "p90": -48.29697068354601,
+        "probLoss": 0.253,
+        "seed": 20260829,
         "stdDev": 200.80909184461993
        }
       }
@@ -2473,7 +2822,11 @@
      "npv_p90": 180,
      "pos": 0.25
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 320,
@@ -2492,13 +2845,19 @@
         "S6001_03"
        ],
        "npvSuccess": 590.6,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 436.936,
         "independentStdDev": 260.3024390239058,
-        "p10": 770.5396058530376,
-        "p90": 103.33239414696232,
-        "probLoss": 0.04661788815114082,
+        "iterations": 2000,
+        "lossCount": 119,
+        "method": "monte-carlo",
+        "p10": 774.474058545169,
+        "p90": 87.83679007346352,
+        "probLoss": 0.0595,
+        "seed": 20260829,
         "stdDev": 260.3024390239058
        }
       }
@@ -2575,13 +2934,19 @@
         "S6001_03"
        ],
        "npvSuccess": 590.6,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 436.936,
         "independentStdDev": 260.3024390239058,
-        "p10": 770.5396058530376,
-        "p90": 103.33239414696232,
-        "probLoss": 0.04661788815114082,
+        "iterations": 2000,
+        "lossCount": 119,
+        "method": "monte-carlo",
+        "p10": 774.474058545169,
+        "p90": 87.83679007346352,
+        "probLoss": 0.0595,
+        "seed": 20260829,
         "stdDev": 260.3024390239058
        }
       }
@@ -2660,7 +3025,11 @@
      "npv_p90": 13.6,
      "pos": 0.91
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 500.5,
@@ -2684,13 +3053,19 @@
         "S1002_09"
        ],
        "npvSuccess": 730.1,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.2,
         "emv": 430.107,
         "independentStdDev": 179.1261956744371,
-        "p10": 753.378899577601,
-        "p90": 106.83510042239902,
-        "probLoss": 0.04408378810684288,
+        "iterations": 2000,
+        "lossCount": 41,
+        "method": "monte-carlo",
+        "p10": 716.3547189988287,
+        "p90": 160.83491591522892,
+        "probLoss": 0.0205,
+        "seed": 20260829,
         "stdDev": 252.2408704569296
        }
       }
@@ -2877,13 +3252,19 @@
         "S1002_09"
        ],
        "npvSuccess": 730.1,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.2,
         "emv": 430.107,
         "independentStdDev": 179.1261956744371,
-        "p10": 753.378899577601,
-        "p90": 106.83510042239902,
-        "probLoss": 0.04408378810684288,
+        "iterations": 2000,
+        "lossCount": 41,
+        "method": "monte-carlo",
+        "p10": 716.3547189988287,
+        "p90": 160.83491591522892,
+        "probLoss": 0.0205,
+        "seed": 20260829,
         "stdDev": 252.2408704569296
        }
       }
@@ -3005,7 +3386,11 @@
      "npv_p90": 122.0,
      "pos": 0.17
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 7200,
@@ -3033,13 +3418,19 @@
         "S1601_14"
        ],
        "npvSuccess": 13011.6,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.15,
         "emv": 5871.047,
         "independentStdDev": 2841.3876723381586,
-        "p10": 11304.758816775056,
-        "p90": 437.33518322494274,
-        "probLoss": 0.08306442292858501,
+        "iterations": 2000,
+        "lossCount": 99,
+        "method": "monte-carlo",
+        "p10": 10746.093081336305,
+        "p90": 1109.4657102874137,
+        "probLoss": 0.0495,
+        "seed": 20260829,
         "stdDev": 4239.7876223276035
        }
       }
@@ -3531,13 +3922,19 @@
         "S1601_14"
        ],
        "npvSuccess": 13011.6,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.15,
         "emv": 5871.047,
         "independentStdDev": 2841.3876723381586,
-        "p10": 11304.758816775056,
-        "p90": 437.33518322494274,
-        "probLoss": 0.08306442292858501,
+        "iterations": 2000,
+        "lossCount": 99,
+        "method": "monte-carlo",
+        "p10": 10746.093081336305,
+        "p90": 1109.4657102874137,
+        "probLoss": 0.0495,
+        "seed": 20260829,
         "stdDev": 4239.7876223276035
        }
       }
@@ -3725,7 +4122,11 @@
      "npv_p90": 297.1,
      "pos": 0.53
     }
-   ]
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   },
   {
    "capexLimit": 900,
@@ -3750,13 +4151,19 @@
         "S1602_15"
        ],
        "npvSuccess": 1376.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 710.3620000000001,
         "independentStdDev": 414.07977468045806,
-        "p10": 1241.0466392304752,
-        "p90": 179.67736076952497,
-        "probLoss": 0.04312499575678874,
+        "iterations": 2000,
+        "lossCount": 74,
+        "method": "monte-carlo",
+        "p10": 1258.3621698859793,
+        "p90": 162.98685472134105,
+        "probLoss": 0.037,
+        "seed": 20260829,
         "stdDev": 414.07977468045806
        }
       }
@@ -4084,13 +4491,19 @@
         "S1602_15"
        ],
        "npvSuccess": 1376.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
        "risk": {
         "correlation": 0.0,
         "emv": 710.3620000000001,
         "independentStdDev": 414.07977468045806,
-        "p10": 1241.0466392304752,
-        "p90": 179.67736076952497,
-        "probLoss": 0.04312499575678874,
+        "iterations": 2000,
+        "lossCount": 74,
+        "method": "monte-carlo",
+        "p10": 1258.3621698859793,
+        "p90": 162.98685472134105,
+        "probLoss": 0.037,
+        "seed": 20260829,
         "stdDev": 414.07977468045806
        }
       }
@@ -4275,6 +4688,66 @@
      "npv_p50": 118.0,
      "npv_p90": 75.9,
      "pos": 0.24
+    }
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
+  }
+ ],
+ "optimizeRefusals": [
+  {
+   "capexLimit": 450,
+   "description": "EC5-0: B carries capex -150; the optimizer refuses it by name instead of letting the frontier axis go negative.",
+   "expected": {
+    "messageIncludes": [
+     "\"B\"",
+     "(-150)"
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "negativeCapexRefused",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": -150,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 100
+    },
+    {
+     "capex": 300,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 120
+    }
+   ]
+  },
+  {
+   "capexLimit": 100,
+   "description": "A negative capex on a project with no name or id is named by its index (1).",
+   "expected": {
+    "messageIncludes": [
+     "\"1\"",
+     "(-0.5)"
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "negativeCapexUnnamed",
+   "projects": [
+    {
+     "capex": 50,
+     "npv_p50": 20
+    },
+    {
+     "capex": -0.5,
+     "npv_p50": 10
     }
    ]
   }
@@ -4466,7 +4939,983 @@
    }
   }
  ],
+ "riskMethod": [
+  {
+   "correlation": 0,
+   "description": "One wildcat, pos 0.3, NPV 300, fail 50: exact P(loss) 0.7, P90 -50 (the worst outcome), P10 300.",
+   "exact": {
+    "p10": {
+     "checked": true,
+     "cumulativeAt": 1.0,
+     "cumulativeBelow": 0.7,
+     "outcome": 300.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.7,
+     "cumulativeBelow": 0.0,
+     "outcome": -50.0
+    },
+    "probLoss": 0.7,
+    "worstOutcome": -50.0
+   },
+   "id": "singleWildcat",
+   "kind": "independent-binary",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 6961,
+    "p10": 300.0,
+    "p90": -50.0,
+    "probLoss": 0.6961,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 260.55601537293916,
+    "p90": -150.55601537293919,
+    "probLoss": 0.36583164447496336
+   },
+   "probLossSE": 0.0045825756949558405,
+   "probLossZ": 0.8510497719203491,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "2 independent identical 0.3 / 300 / 50 wildcats, exact binomial enumeration.",
+   "exact": {
+    "p10": {
+     "checked": false,
+     "cumulativeAt": 0.9099999999999999,
+     "cumulativeBelow": 0.49,
+     "outcome": 250.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.49,
+     "cumulativeBelow": 0.0,
+     "outcome": -100.0
+    },
+    "probLoss": 0.49,
+    "worstOutcome": -100.0
+   },
+   "id": "identical2",
+   "kind": "independent-binary",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 4871,
+    "p10": 250.0,
+    "p90": -100.0,
+    "probLoss": 0.4871,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 400.700104767783,
+    "p90": -180.700104767783,
+    "probLoss": 0.31385470594699694
+   },
+   "probLossSE": 0.004998999899979995,
+   "probLossZ": 0.5801160348116068,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "3 independent identical 0.3 / 300 / 50 wildcats, exact binomial enumeration.",
+   "exact": {
+    "p10": {
+     "checked": true,
+     "cumulativeAt": 0.9730000000000001,
+     "cumulativeBelow": 0.784,
+     "outcome": 550.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.343,
+     "cumulativeBelow": 0.0,
+     "outcome": -150.0
+    },
+    "probLoss": 0.343,
+    "worstOutcome": -150.0
+   },
+   "id": "identical3",
+   "kind": "independent-binary",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 3431,
+    "p10": 550.0,
+    "p90": -150.0,
+    "probLoss": 0.3431,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 521.0334624273398,
+    "p90": -191.03346242733988,
+    "probLoss": 0.27627472685915366
+   },
+   "probLossSE": 0.004747114913292072,
+   "probLossZ": 0.02106542643827429,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "6 independent identical 0.3 / 300 / 50 wildcats, exact binomial enumeration.",
+   "exact": {
+    "p10": {
+     "checked": true,
+     "cumulativeAt": 0.92953,
+     "cumulativeBelow": 0.74431,
+     "outcome": 750.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.11764900000000002,
+     "cumulativeBelow": 0.0,
+     "outcome": -300.0
+    },
+    "probLoss": 0.11764900000000002,
+    "worstOutcome": -300.0
+   },
+   "id": "identical6",
+   "kind": "independent-binary",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 1181,
+    "p10": 750.0,
+    "p90": -300.0,
+    "probLoss": 0.1181,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 833.5073512233957,
+    "p90": -173.5073512233958,
+    "probLoss": 0.20046431294142164
+   },
+   "probLossSE": 0.0032219204335147697,
+   "probLossZ": 0.1399786274386629,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "8 independent identical 0.3 / 300 / 50 wildcats, exact binomial enumeration.",
+   "exact": {
+    "p10": {
+     "checked": true,
+     "cumulativeAt": 0.9420323500000001,
+     "cumulativeBelow": 0.8058956500000001,
+     "outcome": 1000.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.25529833,
+     "cumulativeBelow": 0.057648010000000006,
+     "outcome": -50.0
+    },
+    "probLoss": 0.25529833,
+    "worstOutcome": -400.0
+   },
+   "id": "identical8",
+   "kind": "independent-binary",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 2514,
+    "p10": 1000.0,
+    "p90": -50.0,
+    "probLoss": 0.2514,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 1021.4002095355659,
+    "p90": -141.40020953556603,
+    "probLoss": 0.16604648231151703
+   },
+   "probLossSE": 0.00436028775081658,
+   "probLossZ": 0.894053379681178,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "Three independent risked projects 0.3 / 300 / 50, 0.25 / 400 / 60, 0.4 / 250 / 45; worst case -155.",
+   "exact": {
+    "p10": {
+     "checked": true,
+     "cumulativeAt": 0.925,
+     "cumulativeBelow": 0.855,
+     "outcome": 600.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.315,
+     "cumulativeBelow": 0.0,
+     "outcome": -155.0
+    },
+    "probLoss": 0.315,
+    "worstOutcome": -155.0
+   },
+   "id": "threeMixed",
+   "kind": "independent-binary",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 3128,
+    "p10": 600.0,
+    "p90": -155.0,
+    "probLoss": 0.3128,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 559.4633192598716,
+    "p90": -193.46331925987158,
+    "probLoss": 0.2666456193112986
+   },
+   "probLossSE": 0.004645158770160607,
+   "probLossZ": 0.47361136806178844,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 60,
+     "npv_p50": 400,
+     "pos": 0.25
+    },
+    {
+     "fail_cost": 45,
+     "npv_p50": 250,
+     "pos": 0.4
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "Two pos 1 normal projects (100, 160 / 40 and 80, 130 / 30) at rho 0: a normal sum, P(loss) = Phi(-mean / sd).",
+   "exact": {
+    "p10": 258.1025921692668,
+    "p10SE": 1.0417838577509348,
+    "p10Z": 1.8781839327577858,
+    "p90": 101.89740783073324,
+    "p90SE": 1.0417838577575254,
+    "p90Z": 0.26396911509734533,
+    "probLoss": 0.0015707495770913016
+   },
+   "id": "normalPairIndependent",
+   "kind": "pos1-normal",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 11,
+    "p10": 260.05925387230104,
+    "p90": 101.62240906767829,
+    "probLoss": 0.0011,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 258.10554394789096,
+    "p90": 101.89445605210902,
+    "probLoss": 0.0015707495770913016
+   },
+   "probLossSE": 0.0003960154445040457,
+   "probLossZ": 1.1887151969056406,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 0.8,
+   "description": "The same pair at rho 0.8: z2 correlates at exactly rho, so the sum is normal with the moment variance.",
+   "exact": {
+    "p10": 284.403192628144,
+    "p10SE": 1.392598603410514,
+    "p10Z": 1.1691647487103225,
+    "p90": 75.59680737185599,
+    "p90SE": 1.3925986034171214,
+    "p90Z": 0.4745368098376536,
+    "probLoss": 0.013569798896450547
+   },
+   "id": "normalPairCorrelated",
+   "kind": "pos1-normal",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 127,
+    "p10": 286.0313698243548,
+    "p90": 74.93596807320606,
+    "probLoss": 0.0127,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 284.40713840130906,
+    "p90": 75.59286159869094,
+    "probLoss": 0.013569798896450547
+   },
+   "probLossSE": 0.001156964107237577,
+   "probLossZ": 0.7517941922393088,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "npv_p10": 160,
+     "npv_p50": 100,
+     "npv_p90": 40,
+     "pos": 1
+    },
+    {
+     "npv_p10": 130,
+     "npv_p50": 80,
+     "npv_p90": 30,
+     "pos": 1
+    }
+   ]
+  },
+  {
+   "correlation": 0.5,
+   "description": "Three pos 1 normal projects with a real loss chance (means 20, 10, 15; spreads 30, 25, 20) at rho 0.5.",
+   "exact": {
+    "p10": 123.73984643870318,
+    "p10SE": 1.0502839752663928,
+    "p10Z": 0.15313047957281134,
+    "p90": -33.73984643870317,
+    "p90SE": 1.0502839752630708,
+    "p90Z": 0.8206914512067176,
+    "probLoss": 0.23195929659371428
+   },
+   "id": "normalThreeCorrelated",
+   "kind": "pos1-normal",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 2342,
+    "p10": 123.90067692752336,
+    "p90": -34.60180551854098,
+    "probLoss": 0.2342,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 123.74282230146441,
+    "p90": -33.742822301464415,
+    "probLoss": 0.23195929659371428
+   },
+   "probLossSE": 0.004220831450288717,
+   "probLossZ": 0.5308677763317081,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "npv_p50": 20,
+     "npv_stddev": 30,
+     "pos": 1
+    },
+    {
+     "npv_p50": 10,
+     "npv_stddev": 25,
+     "pos": 1
+    },
+    {
+     "npv_p50": 15,
+     "npv_stddev": 20
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "Suite pair: pos 0.5 N(100, 20) or -40, beside a sure N(50, 10), rho 0; exact P(loss) = 0.5 Phi(-1) + 0.5 Phi(-150 / sqrt 500).",
+   "exact": {
+    "p10": 168.81922289576266,
+    "p10SE": 0.4792225997472529,
+    "p10Z": 0.8201652112320876,
+    "p90": 1.5837876637005666,
+    "p90SE": 0.214314866185381,
+    "p90Z": 0.6114514636579375,
+    "probLoss": 0.0793276269706544
+   },
+   "id": "mixtureWithSpread",
+   "kind": "independent-mixture",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 798,
+    "p10": 168.42618119101377,
+    "p90": 1.7148308023132728,
+    "probLoss": 0.0798,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 172.41749029269297,
+    "p90": -12.417490292692975,
+    "probLoss": 0.13362874657719392
+   },
+   "probLossSE": 0.002702494302859103,
+   "probLossZ": 0.17479149867063426,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 40,
+     "npv_p50": 100,
+     "npv_stddev": 20,
+     "pos": 0.5
+    },
+    {
+     "npv_p50": 50,
+     "npv_stddev": 10
+    }
+   ]
+  },
+  {
+   "correlation": 1,
+   "description": "rho 1, three identical 0.3 / 300 / 50: they all succeed or all fail, P(loss) = 1 minus pos = 0.7.",
+   "exact": {
+    "p10": {
+     "checked": true,
+     "cumulativeAt": 1.0,
+     "cumulativeBelow": 0.7,
+     "outcome": 900.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.7,
+     "cumulativeBelow": 0.0,
+     "outcome": -150.0
+    },
+    "probLoss": 0.7,
+    "worstOutcome": -150.0
+   },
+   "id": "comonotoneIdentical3",
+   "kind": "comonotone",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 7048,
+    "p10": 900.0,
+    "p90": -150.0,
+    "probLoss": 0.7048,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 781.6680461188175,
+    "p90": -451.66804611881753,
+    "probLoss": 0.36583164447496336
+   },
+   "probLossSE": 0.0045825756949558405,
+   "probLossZ": 1.0474458731327692,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    }
+   ]
+  },
+  {
+   "correlation": 1,
+   "description": "rho 1, the three mixed projects: nested success sets by U = Phi(F1) against pos 0.25, 0.3, 0.4.",
+   "exact": {
+    "p10": {
+     "checked": true,
+     "cumulativeAt": 1.0,
+     "cumulativeBelow": 0.75,
+     "outcome": 950.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.6,
+     "cumulativeBelow": 0.0,
+     "outcome": -155.0
+    },
+    "probLoss": 0.6,
+    "worstOutcome": -155.0
+   },
+   "id": "comonotoneMixed",
+   "kind": "comonotone",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 6070,
+    "p10": 950.0,
+    "p90": -155.0,
+    "probLoss": 0.607,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 829.049288802375,
+    "p90": -463.04928880237503,
+    "probLoss": 0.3582926669666824
+   },
+   "probLossSE": 0.004898979485566357,
+   "probLossZ": 1.4288690166235216,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 60,
+     "npv_p50": 400,
+     "pos": 0.25
+    },
+    {
+     "fail_cost": 45,
+     "npv_p50": 250,
+     "pos": 0.4
+    }
+   ]
+  },
+  {
+   "correlation": 0.5,
+   "description": "rho 0.5, three identical 0.3 / 300 / 50: exact by conditioning on F1 and Simpson integration.",
+   "exact": {
+    "p10": {
+     "checked": false,
+     "cumulativeAt": 0.9999999999999986,
+     "cumulativeBelow": 0.8992586095702411,
+     "outcome": 900.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.46956057161750525,
+     "cumulativeBelow": 0.0,
+     "outcome": -150.0
+    },
+    "probLoss": 0.46956057161750525,
+    "worstOutcome": -150.0
+   },
+   "id": "copulaIdentical3",
+   "kind": "copula-binary",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 4733,
+    "p10": 900.0,
+    "p90": -150.0,
+    "probLoss": 0.4733,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 668.5073512233957,
+    "p90": -338.5073512233958,
+    "probLoss": 0.3372493192885788
+   },
+   "probLossSE": 0.004990725810939196,
+   "probLossZ": 0.7492754609556542,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    }
+   ]
+  },
+  {
+   "correlation": 0.35,
+   "description": "rho 0.35, the three mixed projects, by conditioning on F1.",
+   "exact": {
+    "p10": {
+     "checked": true,
+     "cumulativeAt": 0.9213715281528236,
+     "cumulativeBelow": 0.8834364778206323,
+     "outcome": 655.0
+    },
+    "p90": {
+     "checked": true,
+     "cumulativeAt": 0.4016305588273413,
+     "cumulativeBelow": 0.0,
+     "outcome": -155.0
+    },
+    "probLoss": 0.4016305588273413,
+    "worstOutcome": -155.0
+   },
+   "id": "copulaThreeMixed",
+   "kind": "copula-binary",
+   "mc": {
+    "iterations": 10000,
+    "lossCount": 4048,
+    "p10": 655.0,
+    "p90": -155.0,
+    "probLoss": 0.4048,
+    "seed": 20260829
+   },
+   "normalApprox": {
+    "p10": 671.0613683063054,
+    "p90": -305.06136830630544,
+    "probLoss": 0.3154218867223059
+   },
+   "probLossSE": 0.004902279602831512,
+   "probLossZ": 0.64652394996566,
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 60,
+     "npv_p50": 400,
+     "pos": 0.25
+    },
+    {
+     "fail_cost": 45,
+     "npv_p50": 250,
+     "pos": 0.4
+    }
+   ]
+  }
+ ],
  "riskMetrics": [
+  {
+   "correlation": 0,
+   "description": "EC5-0: one wildcat (pos 0.3, NPV 300, fail 50) at the ENGINE DEFAULT seed and iterations, called with no options. True P(loss) 0.7; the normal approximation said 0.366 with a P90 below the worst outcome.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 54.99999999999999,
+    "independentStdDev": 160.3901493234544,
+    "iterations": 10000,
+    "lossCount": 6961,
+    "method": "monte-carlo",
+    "p10": 300.0,
+    "p90": -50.0,
+    "probLoss": 0.6961,
+    "seed": 20260829,
+    "stdDev": 160.3901493234544
+   },
+   "id": "defaultsSingleWildcat",
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    }
+   ],
+   "useEngineDefaults": true
+  },
+  {
+   "correlation": 0,
+   "description": "EC5-0: three risked projects (0.3 / 300 / 50, 0.25 / 400 / 60, 0.4 / 250 / 45) at the engine defaults, called with no options. The normal approximation put P90 at -193.46, below the worst case of -155.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 183.0,
+    "independentStdDev": 293.74478718778994,
+    "iterations": 10000,
+    "lossCount": 3128,
+    "method": "monte-carlo",
+    "p10": 600.0,
+    "p90": -155.0,
+    "probLoss": 0.3128,
+    "seed": 20260829,
+    "stdDev": 293.74478718778994
+   },
+   "id": "defaultsThreeMixed",
+   "riskOptions": {
+    "iterations": 10000,
+    "seed": 20260829
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 60,
+     "npv_p50": 400,
+     "pos": 0.25
+    },
+    {
+     "fail_cost": 45,
+     "npv_p50": 250,
+     "pos": 0.4
+    }
+   ],
+   "useEngineDefaults": true
+  },
+  {
+   "correlation": 0.3,
+   "description": "The three risked projects at seed 7 and 2000 iterations: a different stream, the same closed-form mean and spread.",
+   "expected": {
+    "correlation": 0.3,
+    "emv": 183.0,
+    "independentStdDev": 293.74478718778994,
+    "iterations": 2000,
+    "lossCount": 770,
+    "method": "monte-carlo",
+    "p10": 655.0,
+    "p90": -155.0,
+    "probLoss": 0.385,
+    "seed": 7,
+    "stdDev": 369.64036439837616
+   },
+   "id": "otherSeed",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 7
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 60,
+     "npv_p50": 400,
+     "pos": 0.25
+    },
+    {
+     "fail_cost": 45,
+     "npv_p50": 250,
+     "pos": 0.4
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "A non-integer seed (1.5) falls back to the default seed.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 183.0,
+    "independentStdDev": 293.74478718778994,
+    "iterations": 2000,
+    "lossCount": 633,
+    "method": "monte-carlo",
+    "p10": 600.0,
+    "p90": -155.0,
+    "probLoss": 0.3165,
+    "seed": 20260829,
+    "stdDev": 293.74478718778994
+   },
+   "id": "seedFallback",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 1.5
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    },
+    {
+     "fail_cost": 60,
+     "npv_p50": 400,
+     "pos": 0.25
+    },
+    {
+     "fail_cost": 45,
+     "npv_p50": 250,
+     "pos": 0.4
+    }
+   ]
+  },
+  {
+   "correlation": 0,
+   "description": "Iterations 0 is clamped to the default 10000.",
+   "expected": {
+    "correlation": 0.0,
+    "emv": 54.99999999999999,
+    "independentStdDev": 160.3901493234544,
+    "iterations": 10000,
+    "lossCount": 7013,
+    "method": "monte-carlo",
+    "p10": 300.0,
+    "p90": -50.0,
+    "probLoss": 0.7013,
+    "seed": 99,
+    "stdDev": 160.3901493234544
+   },
+   "id": "iterationsFallback",
+   "riskOptions": {
+    "iterations": 0,
+    "seed": 99
+   },
+   "selected": [
+    {
+     "fail_cost": 50,
+     "npv_p50": 300,
+     "pos": 0.3
+    }
+   ]
+  },
   {
    "correlation": 0,
    "description": "Suite: means 30 + 50 = 80, variances 5100 + 100, P(loss) = Phi(minus 80 / sqrt 5200).",
@@ -4474,12 +5923,20 @@
     "correlation": 0.0,
     "emv": 80.0,
     "independentStdDev": 72.11102550927978,
-    "p10": 172.41749029269297,
-    "p90": -12.417490292692975,
-    "probLoss": 0.13362874657719392,
+    "iterations": 2000,
+    "lossCount": 174,
+    "method": "monte-carlo",
+    "p10": 168.95561628856456,
+    "p90": 0.7650535336283291,
+    "probLoss": 0.087,
+    "seed": 20260829,
     "stdDev": 72.11102550927978
    },
    "id": "suiteIndependent",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "fail_cost": 40,
@@ -4500,12 +5957,20 @@
     "correlation": 0.0,
     "emv": 10.0,
     "independentStdDev": 0.0,
+    "iterations": 2000,
+    "lossCount": 0,
+    "method": "monte-carlo",
     "p10": 10.0,
     "p90": 10.0,
     "probLoss": 0.0,
+    "seed": 20260829,
     "stdDev": 0.0
    },
    "id": "deterministicProfit",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p50": 10
@@ -4519,12 +5984,20 @@
     "correlation": 0.0,
     "emv": -10.0,
     "independentStdDev": 0.0,
+    "iterations": 2000,
+    "lossCount": 2000,
+    "method": "monte-carlo",
     "p10": -10.0,
     "p90": -10.0,
     "probLoss": 1.0,
+    "seed": 20260829,
     "stdDev": 0.0
    },
    "id": "deterministicLoss",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p50": -10
@@ -4538,12 +6011,19 @@
     "correlation": 0.0,
     "emv": 0.0,
     "independentStdDev": 0.0,
+    "iterations": 2000,
+    "method": "monte-carlo",
     "p10": 0.0,
     "p90": 0.0,
     "probLoss": 0.0,
+    "seed": 20260829,
     "stdDev": 0.0
    },
    "id": "empty",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": []
   },
   {
@@ -4553,12 +6033,20 @@
     "correlation": 0.0,
     "emv": 27.0,
     "independentStdDev": 45.50824101193101,
-    "p10": 85.3233616808908,
-    "p90": -31.32336168089079,
-    "probLoss": 0.2764904889885104,
+    "iterations": 2000,
+    "lossCount": 705,
+    "method": "monte-carlo",
+    "p10": 104.92266816424831,
+    "p90": -11.093651431655367,
+    "probLoss": 0.3525,
+    "seed": 20260829,
     "stdDev": 45.50824101193101
    },
    "id": "expectedLoss",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "fail_cost": 50,
@@ -4579,12 +6067,20 @@
     "correlation": 0.0,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 258.10554394789096,
-    "p90": 101.89445605210902,
-    "probLoss": 0.0015707495770913016,
+    "iterations": 2000,
+    "lossCount": 5,
+    "method": "monte-carlo",
+    "p10": 261.06708595418286,
+    "p90": 101.45430681432941,
+    "probLoss": 0.0025,
+    "seed": 20260829,
     "stdDev": 60.94377648867898
    },
    "id": "correlation_0",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4607,12 +6103,20 @@
     "correlation": 0.25,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 267.1813801418864,
-    "p90": 92.81861985811358,
-    "probLoss": 0.0040716529356796816,
+    "iterations": 2000,
+    "lossCount": 6,
+    "method": "monte-carlo",
+    "p10": 265.95801404272925,
+    "p90": 96.54242977751963,
+    "probLoss": 0.003,
+    "seed": 20260829,
     "stdDev": 68.02542145902498
    },
    "id": "correlation_0p25",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4635,12 +6139,20 @@
     "correlation": 0.5,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 275.397641959811,
-    "p90": 84.60235804018902,
-    "probLoss": 0.0077993297957903995,
+    "iterations": 2000,
+    "lossCount": 6,
+    "method": "monte-carlo",
+    "p10": 272.87048741796303,
+    "p90": 86.414665484144,
+    "probLoss": 0.003,
+    "seed": 20260829,
     "stdDev": 74.43636232819209
    },
    "id": "correlation_0p5",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4663,12 +6175,20 @@
     "correlation": 0.6,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 278.49242057494354,
-    "p90": 81.50757942505646,
-    "probLoss": 0.009585466544011878,
+    "iterations": 2000,
+    "lossCount": 13,
+    "method": "monte-carlo",
+    "p10": 277.5437754259531,
+    "p90": 84.0316043230709,
+    "probLoss": 0.0065,
+    "seed": 20260829,
     "stdDev": 76.85113964961262
    },
    "id": "correlation_0p6",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4691,12 +6211,20 @@
     "correlation": 0.75,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 282.9603182762197,
-    "p90": 77.03968172378026,
-    "probLoss": 0.012527537765527452,
+    "iterations": 2000,
+    "lossCount": 17,
+    "method": "monte-carlo",
+    "p10": 283.2378302644542,
+    "p90": 79.7990216468425,
+    "probLoss": 0.0085,
+    "seed": 20260829,
     "stdDev": 80.33732699455348
    },
    "id": "correlation_0p75",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4719,12 +6247,20 @@
     "correlation": 0.8,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 284.40713840130906,
-    "p90": 75.59286159869094,
-    "probLoss": 0.013569798896450547,
+    "iterations": 2000,
+    "lossCount": 17,
+    "method": "monte-carlo",
+    "p10": 285.09496796198766,
+    "p90": 78.34368054968397,
+    "probLoss": 0.0085,
+    "seed": 20260829,
     "stdDev": 81.46624407093402
    },
    "id": "correlation_0p8",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4747,12 +6283,20 @@
     "correlation": 1.0,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 290.0042916780461,
-    "p90": 69.99570832195387,
-    "probLoss": 0.01799316659709227,
+    "iterations": 2000,
+    "lossCount": 35,
+    "method": "monte-carlo",
+    "p10": 293.1512611037464,
+    "p90": 76.37187975899606,
+    "probLoss": 0.0175,
+    "seed": 20260829,
     "stdDev": 85.83356092232063
    },
    "id": "correlation_1",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4775,12 +6319,20 @@
     "correlation": 1.0,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 290.0042916780461,
-    "p90": 69.99570832195387,
-    "probLoss": 0.01799316659709227,
+    "iterations": 2000,
+    "lossCount": 35,
+    "method": "monte-carlo",
+    "p10": 293.1512611037464,
+    "p90": 76.37187975899606,
+    "probLoss": 0.0175,
+    "seed": 20260829,
     "stdDev": 85.83356092232063
    },
    "id": "clampAbove",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4803,12 +6355,20 @@
     "correlation": 0.0,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 258.10554394789096,
-    "p90": 101.89445605210902,
-    "probLoss": 0.0015707495770913016,
+    "iterations": 2000,
+    "lossCount": 5,
+    "method": "monte-carlo",
+    "p10": 261.06708595418286,
+    "p90": 101.45430681432941,
+    "probLoss": 0.0025,
+    "seed": 20260829,
     "stdDev": 60.94377648867898
    },
    "id": "clampBelow",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4831,12 +6391,20 @@
     "correlation": 0.0,
     "emv": 180.0,
     "independentStdDev": 60.94377648867898,
-    "p10": 258.10554394789096,
-    "p90": 101.89445605210902,
-    "probLoss": 0.0015707495770913016,
+    "iterations": 2000,
+    "lossCount": 5,
+    "method": "monte-carlo",
+    "p10": 261.06708595418286,
+    "p90": 101.45430681432941,
+    "probLoss": 0.0025,
+    "seed": 20260829,
     "stdDev": 60.94377648867898
    },
    "id": "nanIsZero",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4859,12 +6427,20 @@
     "correlation": 0.9,
     "emv": 100.0,
     "independentStdDev": 46.818305957629434,
-    "p10": 160.00234091529788,
-    "p90": 39.997659084702114,
-    "probLoss": 0.0163431034285364,
+    "iterations": 2000,
+    "lossCount": 29,
+    "method": "monte-carlo",
+    "p10": 160.45805292732393,
+    "p90": 39.01869338463982,
+    "probLoss": 0.0145,
+    "seed": 20260829,
     "stdDev": 46.818305957629434
    },
    "id": "singleProject",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "npv_p10": 160,
@@ -4881,12 +6457,20 @@
     "correlation": 0.35,
     "emv": 138.0,
     "independentStdDev": 112.94288636772481,
-    "p10": 310.9442967721624,
-    "p90": -34.9442967721624,
-    "probLoss": 0.15323761677854053,
+    "iterations": 2000,
+    "lossCount": 500,
+    "method": "monte-carlo",
+    "p10": 308.15279960528665,
+    "p90": -27.385083659434805,
+    "probLoss": 0.25,
+    "seed": 20260829,
     "stdDev": 134.94405178851622
    },
    "id": "threeRisked",
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   },
    "selected": [
     {
      "fail_cost": 40,

@@ -16,7 +16,10 @@ Standard for Earned Value Management), not by transcribing the JavaScript:
                   Suite test names (every currency unit allocated exactly
                   once: partner shares plus operator amount equals the
                   cost) and the validity rule (interests over 100 refused
-                  with the note; a shortfall accepted), and it renders the
+                  with the note; a shortfall accepted; since EC5-0 any
+                  negative working interest refused too, the note naming
+                  each such partner and its value ahead of the over-100
+                  sentence, the allocation still returned), and it renders the
                   note's two-decimal figure with the ECMAScript toFixed
                   rule (round half away from zero on the exact binary
                   value) written out on Decimal, not with Python's
@@ -25,11 +28,17 @@ Standard for Earned Value Management), not by transcribing the JavaScript:
   earned value    the module defines BAC as the budget sum, AC as the
                   actual sum, EV as the budget-weighted progress, EAC per
                   item as the entered forecast when positive else
-                  max(budget, actual + commitment), variance as BAC less
-                  EAC, CPI as EV / AC (1 when nothing is spent), and SPI as
-                  EV / (BAC x time progress), the documented
-                  simplification that planned value is the budget spread
-                  linearly over the AFE window. The oracle writes the
+                  max(budget, actual + commitment) (ONE rule, shared with
+                  the S-curve since EC5-0), variance as BAC less EAC, CPI
+                  as EV / AC (1 when nothing is spent), planned value as
+                  BAC x time progress (the documented simplification that
+                  the budget is spread linearly over the AFE window) and
+                  SPI as EV / PV, null where PV is not positive (the
+                  standard definition leaves SPI undefined at PV = 0; the
+                  empty-budget guard, SPI 1, fires first). Negative
+                  progress on any item is refused with an AfeInputError
+                  naming the item (code, else description, else index) and
+                  the value, as is an invalid asOf. The oracle writes the
                   standard formulas: PV = BAC x elapsed fraction, CV = EV
                   minus AC, SV = EV minus PV, CPI, SPI, EAC, ETC = EAC
                   minus AC, VAC = BAC minus EAC and TCPI = (BAC minus EV)
@@ -38,30 +47,36 @@ Standard for Earned Value Management), not by transcribing the JavaScript:
                   module; they are carried in the golden as reference
                   values so a future reporter has a number to check.
 
-  time progress   the module reads the clock. Every golden AFE window is
-                  WHOLLY IN THE PAST (progress 1.0) or WHOLLY IN THE FUTURE
-                  (progress 0, where the module divides by zero and reports
-                  Infinity or NaN for SPI, recorded as a disagreement with
-                  the standard definition, where PV = 0 makes SPI
-                  undefined and should be reported as such), or has no or
-                  invalid dates (progress 1.0). The goldens are valid until
-                  the year 2080, and the description says so.
+  time progress   measured AS OF a date the caller passes (asOf, a Date or
+                  an ISO date string). With no or invalid AFE dates it is
+                  1.0. Otherwise it is 0 when asOf is before the start, 1
+                  when asOf is after the end, else the whole days elapsed
+                  since the start over the whole days in the window (1.0
+                  for a zero-day window), whole days meaning the full-day
+                  difference truncated toward zero in UTC (lib/dates/dates.js
+                  differenceInDays semantics). The module defaults asOf to
+                  the clock, so cases WITHOUT an asOf keep the old
+                  discipline: every such window is WHOLLY IN THE PAST
+                  (progress 1.0) or WHOLLY IN THE FUTURE (progress 0), valid
+                  until the year 2080, and the description says so.
 
   S-curve         the module buckets the window by calendar month from the
                   start date (JS setMonth: the day of month is kept and
                   overflows forward), spreads the budget linearly by
                   elapsed full days over the window's full days, cuts
                   actuals from the invoices dated on or before each bucket,
-                  and rounds each point with Math.round. The oracle walks
-                  the same calendar with date arithmetic (month overflow
-                  by the 1st-of-month plus day-offset rule), counts days by
-                  subtraction, and rounds with floor(x + 0.5). For a past
-                  window the module keeps emitting monthly points up to the
-                  current month, so the golden pins the points INSIDE the
-                  window and the invariant every later point must satisfy
-                  (planned at the full budget, actual and forecast at the
-                  invoice total), not a point count that moves with the
-                  calendar.
+                  and rounds each point with Math.round. Buckets stop at
+                  the window's end. A bucket dated on or before asOf shows
+                  the invoice total to date as both Actual and Forecast; a
+                  later bucket shows Actual null and the forecast total
+                  (the same per-item EAC rule as the metrics) spread
+                  linearly by elapsed days, capped at that total. The
+                  oracle walks the same calendar with date arithmetic
+                  (month overflow by the 1st-of-month plus day-offset
+                  rule), counts days by subtraction, and rounds with
+                  floor(x + 0.5). Every golden pins the EXACT point list.
+                  Without an asOf a wholly past window is all actuals and a
+                  wholly future one all projection.
 
   calculateEVM    PV as the sum of planned cost, EV as planned cost times
                   percent complete, AC as the actual sum; CPI and SPI with
@@ -83,7 +98,7 @@ stdlib only. Regenerate:
 import json
 import math
 import os
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -208,13 +223,23 @@ def partner_split(total_cost, partners):
         partner_total += num_or0(p.get('working_interest'))
     operator_share = 100.0 - partner_total
     operator_amount = total_cost * (operator_share / 100.0)
-    note = None
+    sentences = []
+    negatives = 0
+    for idx, p in enumerate(partners):
+        wi = js_number(p.get('working_interest'))
+        if wi == wi and not math.isinf(wi) and wi < 0:
+            negatives += 1
+            who = ('Partner "%s"' % p['name']) if p.get('name') is not None else ('Partner at index %d' % idx)
+            sentences.append('%s has a negative working interest (%s percent).' % (who, js_to_fixed_2(wi)))
+    if negatives:
+        sentences.append('Correct the interests before billing.')
     if operator_share < 0:
-        note = ('Partner working interests total %s percent, which is more than the whole. The operator share below is '
-                'negative; correct the interests before billing.' % js_to_fixed_2(partner_total))
+        sentences.append('Partner working interests total %s percent, which is more than the whole. The operator share below is '
+                         'negative; correct the interests before billing.' % js_to_fixed_2(partner_total))
+    note = ' '.join(sentences) if sentences else None
     allocated = sum(a['shareAmount'] for a in allocations) + operator_amount
     return {'partnerAllocations': allocations, 'operatorShare': operator_share, 'operatorAmount': operator_amount,
-            'partnerTotal': partner_total, 'valid': operator_share >= 0, 'note': note,
+            'partnerTotal': partner_total, 'valid': operator_share >= 0 and negatives == 0, 'note': note,
             'conservation': {'allocated': allocated, 'cost': float(total_cost), 'gap': allocated - total_cost}}
 
 
@@ -233,50 +258,103 @@ def iso_date(s):
         return None
 
 
-def window_kind(afe):
+def parse_as_of(s):
+    """asOf as a UTC datetime: a date-only ISO string is midnight, a
+    date-time string ending Z is that instant; anything else invalid (None)."""
+    if not isinstance(s, str):
+        return None
+    try:
+        if 'T' in s:
+            if not s.endswith('Z'):
+                return None
+            return datetime.fromisoformat(s[:-1])
+        d = date.fromisoformat(s)
+        return datetime(d.year, d.month, d.day)
+    except ValueError:
+        return None
+
+
+def midnight(d):
+    return datetime(d.year, d.month, d.day)
+
+
+def window_kind(afe, as_of=None):
     start, end = iso_date((afe or {}).get('start_date')), iso_date((afe or {}).get('end_date'))
     if start is None or end is None:
         return 'none', None, None
+    if as_of is not None:
+        return 'asOf', start, end
     if end <= PAST_LIMIT and start <= PAST_LIMIT:
         return 'past', start, end
     if start >= FUTURE_LIMIT and end >= FUTURE_LIMIT:
         return 'future', start, end
-    raise ValueError('golden AFE windows must be wholly past or wholly future: %r' % afe)
+    raise ValueError('golden AFE windows without an asOf must be wholly past or wholly future: %r' % afe)
 
 
-def time_progress(afe):
-    kind, start, end = window_kind(afe)
+def time_progress(afe, as_of=None):
+    kind, start, end = window_kind(afe, as_of)
     if kind == 'none':
         return 1.0
     if kind == 'future':
         return 0.0
-    return 1.0
+    if kind == 'past':
+        return 1.0
+    s, e = midnight(start), midnight(end)
+    if as_of < s:
+        return 0.0
+    if as_of > e:
+        return 1.0
+    total = (e - s) // timedelta(days=1)
+    elapsed = (as_of - s) // timedelta(days=1)
+    return elapsed / total if total > 0 else 1.0
 
 
-def metrics(afe, items, invoices=None):
+def item_eac(i):
+    f = num_or0(i.get('forecast'))
+    return f if f > 0 else max(num_or0(i.get('budget')), num_or0(i.get('actual')) + num_or0(i.get('commitment')))
+
+
+def js_num_str(x):
+    """String(number) for the finite values the refusal cases carry."""
+    if x == int(x) and abs(x) < 1e21:
+        return str(int(x))
+    return repr(x)
+
+
+def refusal(items, as_of_raw):
+    """The AfeInputError message the module must throw, or None."""
+    if parse_as_of(as_of_raw) is None:
+        return 'asOf is not a valid date'
+    for idx, i in enumerate(items):
+        pr = js_number(i.get('progress'))
+        if pr == pr and not math.isinf(pr) and pr < 0:
+            label = i.get('code') if i.get('code') is not None else (i.get('description') if i.get('description') is not None else idx)
+            return ('Cost item "%s" has negative progress (%s percent). Progress runs from 0 to 100 percent.'
+                    % (label, js_num_str(pr)))
+    return None
+
+
+def metrics(afe, items, invoices=None, as_of=None):
     bac = sum(num_or0(i.get('budget')) for i in items)
     commitments = sum(num_or0(i.get('commitment')) for i in items)
     ac = sum(num_or0(i.get('actual')) for i in items)
-    eac = 0.0
-    for i in items:
-        b, a, c, f = num_or0(i.get('budget')), num_or0(i.get('actual')), num_or0(i.get('commitment')), num_or0(i.get('forecast'))
-        eac += f if f > 0 else max(b, a + c)
+    eac = sum(item_eac(i) for i in items)
     vac = bac - eac
     ev = 0.0
     if bac > 0:
         ev = sum(num_or0(i.get('budget')) * (num_or0(i.get('progress')) / 100.0) for i in items)
-    tp = time_progress(afe)
+    tp = time_progress(afe, as_of)
     pv = bac * tp
     cpi = ev / ac if ac > 0 else 1.0
     if bac > 0:
-        spi = ev / pv if pv != 0 else (INF if ev > 0 else (-INF if ev < 0 else NAN))
+        spi = ev / pv if pv > 0 else None
     else:
         spi = 1.0
     out = {'totalBudget': bac, 'totalCommitments': commitments, 'totalActuals': ac, 'totalForecast': eac,
            'variance': vac, 'earnedValue': ev, 'cpi': cpi, 'spi': spi,
            'percentSpent': ac / bac * 100.0 if bac > 0 else 0.0,
            'percentComplete': ev / bac * 100.0 if bac > 0 else 0.0,
-           'timeProgress': tp,
+           'plannedValue': pv, 'timeProgress': tp,
            'standardEvm': {'bac': bac, 'pv': pv, 'ev': ev, 'ac': ac, 'cv': ev - ac, 'sv': ev - pv,
                            'cpi': ev / ac if ac != 0 else None, 'spi': ev / pv if pv != 0 else None,
                            'eac': eac, 'etc': eac - ac, 'vac': vac,
@@ -303,18 +381,21 @@ def display(d):
     return '%s %02d' % (MONTHS[d.month - 1], d.year % 100)
 
 
-def scurve(afe, items, invoices):
-    kind, start, end = window_kind(afe)
+def scurve(afe, items, invoices, as_of=None):
+    kind, start, end = window_kind(afe, as_of)
     if kind == 'none':
-        return {'kind': kind, 'pointsWithinWindow': [], 'afterWindow': None, 'totalBudget': None,
-                'totalForecast': None, 'totalDays': None}
+        return {'kind': kind, 'points': [], 'totalBudget': None, 'totalForecast': None, 'totalDays': None}
     bac = sum(num_or0(i.get('budget')) for i in items)
-    # NOTE the different forecast rule from calculateMetrics: here a
-    # non-zero entered forecast is used AS IS, negative included.
-    eac = 0.0
-    for i in items:
-        f = js_number(i.get('forecast'))
-        eac += f if truthy(f) else max(num_or0(i.get('budget')), num_or0(i.get('actual')) + num_or0(i.get('commitment')))
+    # The same per-item EAC rule as the metrics (EC5-0).
+    eac = sum(item_eac(i) for i in items)
+    # The actual-to-date cut: asOf, or the whole window for a wholly past
+    # window without one, or nothing for a wholly future one.
+    if kind == 'asOf':
+        cut = as_of
+    elif kind == 'past':
+        cut = datetime.max
+    else:
+        cut = datetime.min
     total_days = (end - start).days
     daily_budget = bac / max(total_days, 1)
     daily_forecast = eac / max(total_days, 1)
@@ -335,25 +416,14 @@ def scurve(afe, items, invoices):
     while cur <= end:
         elapsed = (cur - start).days
         planned = min(bac, elapsed * daily_budget)
-        if kind == 'past':
+        if midnight(cur) <= cut:
             actual = sum(a for d, a in dated if d <= cur)
-            forecast = actual
-            points.append({'date': display(cur), 'Planned': js_round(planned), 'Actual': js_round(actual), 'Forecast': js_round(forecast)})
+            points.append({'date': display(cur), 'Planned': js_round(planned), 'Actual': js_round(actual), 'Forecast': js_round(actual)})
         else:
             forecast = min(eac, elapsed * daily_forecast)
             points.append({'date': display(cur), 'Planned': js_round(planned), 'Actual': None, 'Forecast': js_round(forecast)})
         cur = add_month_js(cur)
-    after = None
-    if kind == 'past':
-        # Every bucket after the window (the module keeps walking to the
-        # current month): the plan is complete, actual is every invoice
-        # dated inside or before the walk, forecast follows actual. Only
-        # pinned when every invoice falls on or before the window's end,
-        # otherwise the later points depend on the calendar.
-        if all(d <= end for d, _ in dated) and total_days >= 1:
-            total_actual = sum(a for _, a in dated)
-            after = {'Planned': js_round(bac), 'Actual': js_round(total_actual), 'Forecast': js_round(total_actual)}
-    return {'kind': kind, 'pointsWithinWindow': points, 'afterWindow': after, 'totalBudget': bac,
+    return {'kind': kind, 'points': points, 'totalBudget': bac,
             'totalForecast': eac, 'totalDays': float(total_days)}
 
 
@@ -426,6 +496,7 @@ def gantt(tasks, project):
 
 AFE_PAST = {'start_date': '2020-01-01', 'end_date': '2020-12-31', 'currency': 'USD'}
 AFE_FUTURE = {'start_date': '2090-01-01', 'end_date': '2090-12-31', 'currency': 'USD'}
+AFE_2YR = {'start_date': '2026-01-01', 'end_date': '2027-12-31', 'currency': 'USD'}
 PARTNERS = [{'name': 'A', 'working_interest': 30}, {'name': 'B', 'working_interest': 15}]
 
 
@@ -448,6 +519,9 @@ def partner_cases():
         ('one partner at 100', 1000, [{'name': 'A', 'working_interest': 100}]),
         ('one partner over 100 alone', 1000, [{'name': 'A', 'working_interest': 120.125}]),
         ('tie at the third decimal: 33.125', 1000, [{'name': 'A', 'working_interest': 33.125}, {'name': 'B', 'working_interest': 67}]),
+        ('negative interest: refused, allocation still shown', 1000, [{'name': 'A', 'working_interest': 30}, {'name': 'B', 'working_interest': -20}]),
+        ('negative interest and a total over 100: both sentences, negative first', 1000, [{'name': 'A', 'working_interest': 130}, {'name': 'B', 'working_interest': -10}]),
+        ('two negative interests, one unnamed, as a string', 500, [{'name': 'A', 'working_interest': '-5'}, {'working_interest': -2.5}, {'name': 'C', 'working_interest': 40}]),
     ]
     return [{'name': n, 'inputs': {'totalCost': c, 'partners': p}, 'expected': partner_split(c, p)} for n, c, p in sets]
 
@@ -466,26 +540,68 @@ def metrics_cases():
         ('no dates: time progress 1', {'currency': 'USD'}, [{'budget': 400, 'actual': 100, 'progress': 25}], None),
         ('invalid dates: time progress 1', {'start_date': 'not a date', 'end_date': '2020-13-01'}, [{'budget': 400, 'actual': 100, 'progress': 25}], None),
         ('half a date: time progress 1', {'start_date': '2020-01-01'}, [{'budget': 400, 'actual': 100, 'progress': 25}], None),
-        ('future window with progress: SPI divides by zero', AFE_FUTURE, [{'budget': 400, 'actual': 100, 'progress': 25}],
-         'DISAGREEMENT: time progress is 0 so planned value is 0; the engine reports SPI = Infinity, the standard definition leaves SPI undefined (recorded null).'),
-        ('future window with no progress: SPI is NaN', AFE_FUTURE, [{'budget': 400, 'actual': 100, 'progress': 0}],
-         'DISAGREEMENT: 0 / 0; the engine reports NaN (recorded null).'),
+        ('future window with progress: SPI is null', AFE_FUTURE, [{'budget': 400, 'actual': 100, 'progress': 25}],
+         'Time progress is 0 so planned value is 0 and SPI is undefined: null. Before EC5-0 the engine reported Infinity.'),
+        ('future window with no progress: SPI is null', AFE_FUTURE, [{'budget': 400, 'actual': 100, 'progress': 0}],
+         'Planned value 0 and earned value 0: SPI null. Before EC5-0 the engine reported NaN.'),
         ('future window, zero budget: the guard gives 1', AFE_FUTURE, [{'budget': 0, 'actual': 100, 'progress': 0}], None),
-        ('negative entered forecast is ignored here (used as is by the S-curve)', AFE_PAST, [{'budget': 100, 'actual': 20, 'commitment': 0, 'forecast': -50, 'progress': 10}],
-         'calculateMetrics takes max(budget, actual + commitment) when the entered forecast is not positive; generateSCurveData takes the entered -50. See FINDINGS-fdp.md.'),
+        ('negative entered forecast is ignored (the S-curve ignores it too)', AFE_PAST, [{'budget': 100, 'actual': 20, 'commitment': 0, 'forecast': -50, 'progress': 10}],
+         'A forecast that is not positive falls through to max(budget, actual + commitment), in the metrics and the S-curve alike (itemForecast). Before EC5-0 the S-curve took the entered -50.'),
         ('strings everywhere', AFE_PAST, [{'budget': '1000', 'commitment': '250', 'actual': '300', 'forecast': '1100', 'progress': '40'}], None),
         ('overspent and overcommitted', AFE_PAST, [{'budget': 100, 'commitment': 80, 'actual': 150, 'progress': 100}, {'budget': 50, 'commitment': 0, 'actual': 0, 'progress': 0}], None),
         ('progress beyond 100 percent earns beyond the budget', AFE_PAST, [{'budget': 100, 'actual': 90, 'progress': 150}], None),
         ('a dozen items', AFE_PAST, [{'budget': 100 * (k + 1), 'commitment': 10 * k, 'actual': 30 * k, 'progress': 8 * k, 'forecast': 0} for k in range(12)], None),
         ('zero budget with actuals: percent spent 0 by the guard', AFE_PAST, [{'budget': 0, 'actual': 500, 'progress': 50}], None),
     ]
+    probe = [{'budget': 1000, 'actual': 300, 'progress': 40}]
+    as_of_sets = [
+        ('asOf mid-window: SPI against 256 of 729 days', AFE_2YR, probe, '2026-09-14', 'Date', None),
+        ('asOf as a string, later in the window', AFE_2YR, probe, '2027-03-01', 'string', None),
+        ('asOf with a time of day counts whole days only', AFE_2YR, probe, '2026-09-14T15:30:00Z', 'Date', None),
+        ('asOf before the start: SPI null', AFE_2YR, [{'budget': 400, 'actual': 100, 'progress': 25}], '2025-12-31', 'Date',
+         'Planned value is 0 before the start, so SPI is undefined: null.'),
+        ('asOf before the start with no progress: SPI null', AFE_2YR, [{'budget': 400, 'actual': 0, 'progress': 0}], '2025-06-01', 'string', None),
+        ('asOf on the start day: no whole day elapsed, SPI null', AFE_2YR, probe, '2026-01-01', 'Date', None),
+        ('asOf on the end day: time progress 1', AFE_2YR, probe, '2027-12-31', 'Date', None),
+        ('asOf after the end: time progress 1', AFE_2YR, [{'budget': 600, 'actual': 700, 'commitment': 50, 'progress': 90}, {'budget': 400, 'actual': 100, 'progress': 100}], '2028-06-30', 'string', None),
+        ('asOf before the start, zero budget: the guard gives 1', AFE_2YR, [{'budget': 0, 'actual': 100, 'progress': 0}], '2025-01-01', 'Date', None),
+        ('asOf with no AFE dates: time progress 1', {'currency': 'USD'}, probe, '2026-09-14', 'Date', None),
+        ('asOf mid-window, a dozen items with forecasts', AFE_2YR, [{'budget': 100 * (k + 1), 'commitment': 10 * k, 'actual': 30 * k, 'progress': 7 * k, 'forecast': (0 if k % 3 else 150 * (k + 1))} for k in range(12)], '2027-06-15', 'string', None),
+    ]
     out = []
     for n, afe, items, note in sets:
         items_js = [{k: v for k, v in i.items() if v != '__undefined__'} for i in items]
+        assert refusal(items_js, '2026-01-01') is None
         c = {'name': n, 'inputs': {'afe': afe, 'costItems': items_js, 'invoices': []}, 'expected': metrics(afe, items_js)}
         if note:
             c['note'] = note
         out.append(c)
+    for n, afe, items, as_of, as_of_as, note in as_of_sets:
+        assert refusal(items, as_of) is None
+        c = {'name': n, 'inputs': {'afe': afe, 'costItems': items, 'invoices': [], 'asOf': as_of, 'asOfAs': as_of_as},
+             'expected': metrics(afe, items, as_of=parse_as_of(as_of))}
+        if note:
+            c['note'] = note
+        out.append(c)
+    return out
+
+
+def metrics_refusal_cases():
+    sets = [
+        ('invalid asOf: not a date', AFE_2YR, [{'budget': 100, 'progress': 10}], 'not a date'),
+        ('invalid asOf: month 13', AFE_2YR, [{'budget': 100, 'progress': 10}], '2026-13-01'),
+        ('invalid asOf: 30 February', AFE_2YR, [{'budget': 100, 'progress': 10}], '2026-02-30'),
+        ('invalid asOf is refused even with no AFE dates', {}, [], 'yesterday'),
+        ('negative progress named by code', AFE_2YR, [{'code': 'DRL-01', 'description': 'Drilling', 'budget': 1000, 'actual': 0, 'progress': 10}, {'code': 'CMP-02', 'budget': 1000, 'actual': 0, 'progress': -20}], '2026-09-14'),
+        ('negative progress named by description', AFE_2YR, [{'description': 'Completion', 'budget': 500, 'progress': -0.5}], '2026-09-14'),
+        ('negative progress as a string, named by index', AFE_2YR, [{'budget': 100, 'progress': 10}, {'budget': 100, 'progress': '-12.5'}], '2026-09-14'),
+    ]
+    out = []
+    for n, afe, items, as_of in sets:
+        msg = refusal(items, as_of)
+        assert msg is not None, n
+        out.append({'name': n, 'inputs': {'afe': afe, 'costItems': items, 'invoices': [], 'asOf': as_of},
+                    'expected': {'error': 'AfeInputError', 'message': msg}})
     return out
 
 
@@ -496,7 +612,7 @@ def scurve_cases():
         ('suite test: 1200 over 2020, no invoices', AFE_PAST, [{'budget': 1200}], []),
         ('suite test: 1200 over 2020 with two invoices', AFE_PAST, [{'budget': 1200}], inv),
         ('past window, invoices on bucket boundaries', AFE_PAST, [{'budget': 3650}], [{'invoice_date': '2020-01-01', 'amount': 10}, {'invoice_date': '2020-03-01', 'amount': 20}, {'invoice_date': '2020-12-31', 'amount': 30}]),
-        ('past window, invoice dated after the window: later points not pinned', AFE_PAST, [{'budget': 1200}], [{'invoice_date': '2020-06-15', 'amount': 250}, {'invoice_date': '2021-03-01', 'amount': 100}]),
+        ('past window, invoice dated after the window never counts', AFE_PAST, [{'budget': 1200}], [{'invoice_date': '2020-06-15', 'amount': 250}, {'invoice_date': '2021-03-01', 'amount': 100}]),
         ('past window, string amounts', AFE_PAST, [{'budget': '600', 'actual': '50'}], [{'invoice_date': '2020-04-10', 'amount': '250'}, {'invoice_date': '2020-04-11', 'amount': ''}]),
         ('past window, month-end start overflows the buckets', {'start_date': '2020-01-31', 'end_date': '2020-12-31'}, [{'budget': 1000}], inv),
         ('past window, zero budget', AFE_PAST, [{'budget': 0}], inv),
@@ -504,15 +620,28 @@ def scurve_cases():
         ('past window of one day', {'start_date': '2020-06-15', 'end_date': '2020-06-15'}, [{'budget': 500}], [{'invoice_date': '2020-06-15', 'amount': 500}]),
         ('future window: planned and forecast projected, actual null', AFE_FUTURE, [{'budget': 1200, 'commitment': 100, 'actual': 200}], []),
         ('future window with an entered forecast', AFE_FUTURE, [{'budget': 1200, 'forecast': 1500}], []),
-        ('future window with a NEGATIVE entered forecast', AFE_FUTURE, [{'budget': 1200, 'forecast': -50}], []),
+        ('future window with a NEGATIVE entered forecast, ignored as in the metrics', AFE_FUTURE, [{'budget': 1200, 'forecast': -50}], []),
         ('future window, end before start: no points', {'start_date': '2090-12-31', 'end_date': '2090-01-01'}, [{'budget': 1200}], []),
         ('future window of one day', {'start_date': '2090-06-15', 'end_date': '2090-06-15'}, [{'budget': 500}], []),
         ('future window, Jan 31 start', {'start_date': '2091-01-31', 'end_date': '2091-12-31'}, [{'budget': 1000}], []),
         ('future two-year window', {'start_date': '2090-03-01', 'end_date': '2092-02-29'}, [{'budget': 730, 'forecast': 800}], []),
+        ('future window ending on a bucket: the last forecast point is the whole EAC', {'start_date': '2090-01-01', 'end_date': '2091-01-01'}, [{'budget': 1200, 'actual': 900, 'commitment': 600}, {'budget': 500, 'forecast': 650}, {'budget': 300, 'forecast': -10}], []),
+    ]
+    as_of_sets = [
+        ('past window, asOf mid-year: actuals to June, forecast projected after', AFE_PAST, [{'budget': 1200, 'actual': 200, 'commitment': 100, 'forecast': 1500}], inv, '2020-06-30'),
+        ('past window, asOf on a bucket day counts that bucket', AFE_PAST, [{'budget': 1200}], inv, '2020-06-01'),
+        ('past window, asOf before the start: no actuals at all', AFE_PAST, [{'budget': 1200}], inv, '2019-06-01'),
+        ('future window, asOf after the end: all actuals', AFE_FUTURE, [{'budget': 1200}], [{'invoice_date': '2090-03-10', 'amount': 400}, {'invoice_date': '2091-01-10', 'amount': 99}], '2095-01-01'),
+        ('window spanning today, asOf 2026-09-14', AFE_2YR, [{'budget': 2400, 'actual': 900, 'commitment': 300}], [{'invoice_date': '2026-02-15', 'amount': 300}, {'invoice_date': '2026-08-20', 'amount': 600}, {'invoice_date': '2026-10-01', 'amount': 50}], '2026-09-14'),
+        ('negative entered forecast with asOf: ignored, never a negative point', AFE_2YR, [{'budget': 1200, 'forecast': -50}], [], '2026-05-01'),
     ]
     out = []
     for n, afe, items, invs in sets:
         c = {'name': n, 'inputs': {'afe': afe, 'costItems': items, 'invoices': invs}, 'expected': scurve(afe, items, invs)}
+        out.append(c)
+    for n, afe, items, invs, as_of in as_of_sets:
+        c = {'name': n, 'inputs': {'afe': afe, 'costItems': items, 'invoices': invs, 'asOf': as_of},
+             'expected': scurve(afe, items, invs, parse_as_of(as_of))}
         out.append(c)
     return out
 
@@ -565,17 +694,22 @@ def main():
             'AFE cost control and project controls goldens. partnerSplit: calculatePartnerCosts (shares by working '
             'interest, operator remainder, validity, the note text, and the conservation identity). metrics: '
             'calculateMetrics (BAC, commitments, AC, EAC, VAC, EV, CPI, SPI, percent spent and complete) with the '
-            'standard EVM set beside it (pv, cv, sv, etc, tcpi are reference only, not engine outputs). sCurve: '
-            'generateSCurveData points inside the window and the after-window invariant for past windows. evm: '
+            'standard EVM set beside it (cv, sv, etc, tcpi are reference only, not engine outputs; plannedValue and '
+            'timeProgress are engine outputs since EC5-0; spi null where planned value is 0). metricsRefusals: '
+            'the AfeInputError message for an invalid asOf or negative progress. sCurve: the exact '
+            'generateSCurveData point list, bounded to the window. inputs.asOf, when present, is passed to the '
+            'engine (as a Date when inputs.asOfAs is "Date", else as the string). evm: '
             'projectControls.calculateEVM strings (toFixed(2)) and their numeric values; cpiSpi; gantt: '
             'formatTasksForGantt rows with dates as epoch milliseconds (null = Invalid Date). Independent stdlib '
-            'oracle tools/validation/economics/oracle_afe.py. AFE windows are wholly past (2020) or wholly future '
-            '(2090 or later): the engine reads the clock and these goldens are valid until 2080. Money in the '
-            'caller\'s currency; percentages 0 to 100; days whole. A null where a number is expected is Infinity or '
-            'NaN in the engine and the case note says which. Timezone assumption UTC.'),
+            'oracle tools/validation/economics/oracle_afe.py. Cases without an asOf use AFE windows wholly past '
+            '(2020) or wholly future (2090 or later), because the engine defaults asOf to the clock; they are '
+            'valid until 2080. Money in the caller\'s currency; percentages 0 to 100; days whole. A null where a '
+            'number is expected is a null in the engine too (spi), or a non-finite value where a note says so. '
+            'Timezone assumption UTC.'),
         'validUntil': FUTURE_LIMIT.isoformat(),
         'partnerSplit': partner_cases(),
         'metrics': metrics_cases(),
+        'metricsRefusals': metrics_refusal_cases(),
         'sCurve': scurve_cases(),
         'evm': evm_cases(),
         'cpiSpi': cpi_spi_cases(),

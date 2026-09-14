@@ -135,3 +135,82 @@ where the grid changes the set cannot appear unseen.
   Schuyler and in Mian remains an owner-PDF gate (as the Suite's test header
   already states); every golden here is hand-derived or oracle-derived.
 - No engine edit of any kind, per the brief.
+
+## EC5-0 repair (2026-09-14, owner decision before the EC5 course)
+
+Scope: `engines/economics/portfolio.js` only. This supersedes the P(loss)
+erf bullet under "Documented approximations" above: the loss probability is
+no longer a normal CDF at all.
+
+### Why: the normal approximation was badly wrong for a few risked projects
+
+`portfolioRiskMetrics` reported P(portfolio NPV < 0) as Phi(-mean/sd) and the
+P90 / P10 cards as mean -/+ 1.2816 sd. Exact answers (enumeration, oracle
+`riskMethod` section) against what the engine used to say and what it says
+now at the default seed 20260829 and 10000 iterations:
+
+| portfolio (pos / NPV / fail cost) | exact P(loss) | old normal | new Monte Carlo | exact P90 | old P90 | new P90 |
+|---|---|---|---|---|---|---|
+| one wildcat 0.3 / 300 / 50 | 0.7 | 0.365832 | 0.6961 | -50 | -150.56 | -50 |
+| three mixed (0.3/300/50, 0.25/400/60, 0.4/250/45), rho 0 | 0.315 | 0.266646 | 0.3128 | -155 | -193.46 | -155 |
+| 2 identical wildcats | 0.49 | 0.313855 | 0.4871 | -100 | -180.70 | -100 |
+| 6 identical wildcats | 0.117649 | 0.200464 | 0.1181 | -300 | -173.51 | -300 |
+| 8 identical wildcats | 0.255298 | 0.166046 | 0.2514 | -50 | -141.40 | -50 |
+
+The old P90 sat below the worst possible outcome (-50 for one wildcat, -155
+for the three), and the sign of the probability error changed with n (too
+low at 1 to 3 projects, too high at 6, too low at 8).
+
+### The new contract
+
+- `DEFAULT_RISK_SEED = 20260829` (the EC3-0 screening seed) and
+  `DEFAULT_RISK_ITERATIONS = 10000` are exported.
+- `portfolioRiskMetrics(selected, correlation = 0, { seed, iterations })`.
+  `emv`, `stdDev` (the rho moment formula), `independentStdDev` and the
+  clamped `correlation` are unchanged and closed form. `probLoss`, `p90` and
+  `p10` come from a seeded Monte Carlo on mulberry32(seed): per iteration
+  F1, F2, then per project in array order e1, e2 (all Box-Muller normals,
+  every one drawn whether needed or not); z1 = sqrt(rho) F1 + sqrt(1 - rho) e1,
+  z2 likewise; success when normalCDF(z1) < pos, worth npv_p50 + sd z2,
+  otherwise -fail_cost. probLoss = count(value < 0) / iterations; p90 = the
+  simple-statistics quantile at 0.1 (the LOW case), p10 at 0.9. The result
+  carries `seed`, `iterations` and `method: 'monte-carlo'`. An invalid seed
+  or iteration count falls back to the default; an empty selection is
+  0 / 0 / 0 with the seed and iterations still reported.
+- rho is now the correlation of the LATENT drivers (a one-factor Gaussian
+  copula). The success / failure event correlation it implies is lower than
+  rho except at 0 and 1, so the Monte Carlo spread is not the analytic
+  `stdDev`, which still uses the moment formula. p90 <= emv <= p10 is not
+  guaranteed for a skewed mixture; p90 <= p10 is.
+- `optimizePortfolio({ ..., seed, iterations })` passes both through to the
+  risk block.
+
+### Validation
+
+The oracle replays the sampler bit for bit (goldens `riskMetrics` and
+`optimize`, 2000 iterations each, plus two cases at the engine defaults
+called with no options); the gate compares probLoss exactly and P90 / P10
+within 1e-9 scaled. Independently, `riskMethod` holds 14 cases whose answers
+owe nothing to sampling: exact enumeration of independent binary projects
+(1, 2, 3, 6, 8 identical and the three mixed), pos 1 normal sums at rho 0,
+0.5 and 0.8, a success / failure mixture with spreads, comonotone rho 1
+cases (P(loss) = 1 - pos), and binary projects at rho 0.35 and 0.5 by
+conditioning on F1. Every Monte Carlo estimate is within 4 standard errors
+(worst 1.88), and the discrete P90 / P10 equal the exact percentile outcome
+wherever the cumulative probability at and below it is more than 0.01 from
+the level. The negative control (the old normal formulas restored) turns the
+riskMethod cases red.
+
+### Knapsack: D3 flagged, negative capex refused
+
+- `optimizePortfolio` now returns `capexLimit` (the clamped limit),
+  `overLimit` (totalCapex > capexLimit) and `overLimitBy`
+  (max(0, totalCapex - capexLimit)). `optimize/gridOvershoot` reports
+  overLimit true by 2 (capex 6002 at limit 6000); `classic450` reports false.
+  D3 is now FLAGGED, not prevented: the grid still chooses the same set.
+- A project whose capex is a finite number below 0 throws
+  `PortfolioInputError` naming it, e.g. `Project "B" has a negative capex
+  (-150); capex must be 0 or more` (`optimizeRefusals`). It used to be
+  accepted silently, pushing the frontier's x axis negative and out of order.
+- D2 (a free project charged one cell) and D4 (grid undershoot) are
+  UNCHANGED, and `CHANGED_BY_GRID` still names the same four cases.
