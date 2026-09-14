@@ -20,7 +20,7 @@ gap. Decisions are the owner's.
 
 ## Disagreements
 
-### D1. impliedPriors: a delta of exactly half a percent is reported inconsistent
+### D1. impliedPriors: a delta of exactly half a percent is reported inconsistent (RESOLVED in EC4-0, see below)
 
 Golden: `impliedPriors/justInsideTolerance`.
 
@@ -128,6 +128,44 @@ where the grid changes the set cannot appear unseen.
   point on the default inputs. Other inputs could land a hair either side of
   zero; the two-decimal KPI would read 0.00 while the verdict reads positive
   or negative.
+
+## EC4-0 repair (2026-09-14, owner decision before the EC4 course)
+
+The Decision Analysis & Value of Information course's app audit found the VOI
+Analyzer reporting values the method does not admit, and the owner chose to
+repair the engine before the course teaches it.
+
+- **Percent inputs that are not distributions are now REFUSED**, with a
+  `DecisionTreeError` naming the sum in percent (`Outcome chances given
+  "Positive Seismic" sum to 130 percent, expected 100`): outcome chances,
+  indicator chances, and each indicator's outcome chances, each chance in
+  [0, 100] and each sum within 1e-4 percent points of 100. Goldens:
+  `voiRefusals` (7 cases). Before, `posteriorsAboveHundred` (the old
+  `voi/malformedPosterior`) computed a VOI of 69 above the EVPI of 63, and
+  `posteriorsOffsetButPriorsAgree` (indicators 50 / 50 with outcome chances
+  60 / 50 and 0 / 90) PASSED the consistency check while its cards said an
+  EMV with information of 47.5 and its diagram 45.5: the tree renormalises,
+  the cards did not. `indicatorChancesAboveHundred` (40 + 70) printed the
+  default cards and silently dropped the diagram.
+- **Inputs that contradict the stated priors are WITHHELD.** EMV without
+  information and EVPI depend only on the stated priors and are still
+  reported; `emvWithInfo`, `voi`, `netVoi` and the tree are null, `withheld`
+  is true, and the insight says the value is withheld and why. Goldens:
+  `contradictingPosterior` (was a gross VOI of 75 above the EVPI of 63),
+  `identicalPosteriorsWithheld` (was -15, below zero),
+  `certainPosteriorsWithheld` (was 245), `withheldPastHalfPercent`.
+- **D1 resolved.** `impliedPriors` compares against 0.005 + 1e-12, so a
+  delta of exactly half a percent in the typed decimals is consistent as the
+  method states. `justInsideTolerance` no longer carries a disagreement, and
+  `voi/consistentAtHalfPercent` pins the inclusive boundary end to end.
+- **The two "Observations for the owner" above are closed** for the
+  malformed indicator (now refused). The zero-net wording observation stands.
+
+Unchanged by EC4-0 and taught by the course as properties of the apps (owner
+kept them out of the repair): exact ties recommend the first option listed;
+the net VOI verdict reads the unrounded value beside a two-decimal card; the
+Decision Tree Builder's node label shows the value before the branch cost;
+non-numeric or blank costs read as 0 and negative costs are accepted.
 
 ## Not done
 

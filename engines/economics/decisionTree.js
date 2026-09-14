@@ -246,7 +246,10 @@ export function impliedPriors(outcomes, indicators) {
   const implied = outcomes.map((_, i) =>
     indicators.reduce((s, ind) => s + Number(ind.probability) * Number(ind.posteriors?.[i] ?? 0), 0));
   const deltas = implied.map((v, i) => v - stated[i]);
-  const consistent = deltas.every((d) => Math.abs(d) <= 0.005);
+  // The 1e-12 absorbs binary representation error, so a delta that is
+  // exactly half a percent in the typed decimals (0.305 against 0.3) is
+  // consistent as the method states; EC4-0 resolved finding D1 this way.
+  const consistent = deltas.every((d) => Math.abs(d) <= 0.005 + 1e-12);
   return { stated, implied, deltas, consistent };
 }
 

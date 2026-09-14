@@ -40,7 +40,10 @@ JavaScript:
   implied priors    P_implied(o) = sum_i P(i) P(o|i) from independently
                     typed indicator marginals and posteriors; consistent when
                     every delta against the stated prior is within half a
-                    percent (0.005), the engine's documented threshold.
+                    percent (0.005), the engine's documented threshold,
+                    inclusive. (EC4-0 gave the engine a 1e-12 representation
+                    allowance so a delta of exactly 0.005 in the typed
+                    decimals agrees with this; finding D1 is resolved.)
 
   information tree  the classic single-stage tree, BUILT HERE from the
                     method statement (decision: acquire or not; acquire leads
@@ -54,21 +57,28 @@ JavaScript:
 
   VOI Analyzer      the legacy input shape: percent priors, percent
                     indicator marginals, percent posteriors typed
-                    independently. EMV without information is the better of
-                    acting (sum prior payoff minus decision cost) and not
-                    acting (0). Per indicator, the best action under the
-                    ENTERED posteriors, whether or not those sum to 1 (the
-                    method statement is explicit that nothing repairs them);
-                    EMV with information before cost is the marginal
-                    weighted sum; VOI is the difference; net VOI subtracts
-                    the information cost; EVPI from the closed form. The
-                    verdict is 'acquire' for net VOI > 0, 'reject' for < 0,
-                    'neutral' at exactly 0. The diagram is the information
-                    tree above with the ENTERED marginals and posteriors
-                    (the Bayes inversion the engine performs round-trips
-                    exactly, which is a theorem, not an implementation
-                    detail), and it is drawable only when those entries form
-                    distributions; otherwise the analysis reports no tree.
+                    independently. As repaired in EC4-0 (owner decision
+                    2026-09-14): every percent input must be a distribution
+                    or the case is REFUSED, each chance in [0, 100] and each
+                    sum within 1e-4 percent points of 100: the outcome
+                    chances, the indicator chances, and each indicator's
+                    outcome chances (an outcome with no entry counts as 0).
+                    EMV without information is the better of acting (sum
+                    prior payoff minus decision cost) and not acting (0);
+                    EVPI from the closed form. When the implied priors are
+                    NOT consistent with the stated ones, those two are
+                    reported and everything that depends on the indicator
+                    entries is WITHHELD: no EMV with information, no VOI, no
+                    net VOI, no verdict, no tree. Otherwise, per indicator,
+                    the best action under the entered posteriors; EMV with
+                    information before cost is the marginal weighted sum;
+                    VOI is the difference; net VOI subtracts the information
+                    cost. The verdict is 'acquire' for net VOI > 0, 'reject'
+                    for < 0, 'neutral' at exactly 0. The diagram is the
+                    information tree above with the ENTERED marginals and
+                    posteriors (the Bayes inversion the engine performs
+                    round-trips exactly, which is a theorem, not an
+                    implementation detail).
 
   arithmetic        every probability and payoff is a fractions.Fraction, so
                     each golden number is EXACT before it is emitted as a
@@ -93,6 +103,7 @@ OUT = os.path.normpath(os.path.join(HERE, '..', '..', '..', 'test-data', 'econom
                                     'goldens', 'decision_cases.json'))
 
 CONSISTENCY_TOL = F(5, 1000)
+PERCENT_TOL = F(1, 10000)
 
 
 class Refused(Exception):
@@ -353,7 +364,44 @@ def bayes(outcomes, signals):
 # VOI Analyzer (legacy percent input shape).
 # ---------------------------------------------------------------------
 
+def voi_percent_refusal(inputs):
+    """The first percent input that is not a distribution, as (reason, sum
+    in percent) with sum None for a range refusal, or None when all are."""
+    outs = inputs.get('outcomes') or []
+    if not outs:
+        return ('no outcomes', None)
+    for o in outs:
+        if not (0 <= F(o['probability']) <= 100):
+            return ('outcome chance outside 0 to 100', None)
+    tot = sum((F(o['probability']) for o in outs), F(0))
+    if abs(tot - 100) > PERCENT_TOL:
+        return ('outcome chances sum to %s percent' % float(tot), tot)
+    inds = (inputs.get('infoScenario') or {}).get('indicators') or []
+    if not inds:
+        return ('no indicators', None)
+    for ind in inds:
+        if not (0 <= F(ind['probability']) <= 100):
+            return ('indicator chance outside 0 to 100', None)
+    tot = sum((F(ind['probability']) for ind in inds), F(0))
+    if abs(tot - 100) > PERCENT_TOL:
+        return ('indicator chances sum to %s percent' % float(tot), tot)
+    for ind in inds:
+        chances = []
+        for o in outs:
+            cp = [c for c in ind.get('conditionalProbabilities') or [] if c['outcomeId'] == o['id']]
+            v = F(cp[0]['probability']) if cp else F(0)
+            if not (0 <= v <= 100):
+                return ('outcome chance given %s outside 0 to 100' % ind['name'], None)
+            chances.append(v)
+        tot = sum(chances, F(0))
+        if abs(tot - 100) > PERCENT_TOL:
+            return ('outcome chances given %s sum to %s percent' % (ind['name'], float(tot)), tot)
+    return None
+
+
 def voi_analyzer(inputs):
+    if voi_percent_refusal(inputs) is not None:
+        raise Refused(voi_percent_refusal(inputs)[0])
     pct = lambda v: F(v) / 100  # noqa: E731
     outcomes = [{'label': o['name'], 'probability': pct(o['probability'])} for o in inputs['outcomes']]
     act_label = inputs['decisionName']
@@ -364,6 +412,7 @@ def voi_analyzer(inputs):
     info = inputs['infoScenario']
     emv_without, idx = best_action(outcomes, actions)
     optimal_without = actions[idx]['label']
+    ev = evpi(outcomes, actions)['evpi']
 
     def posterior_of(ind):
         post = []
@@ -375,6 +424,14 @@ def voi_analyzer(inputs):
     marginals = [pct(ind['probability']) for ind in info['indicators']]
     posteriors = [posterior_of(ind) for ind in info['indicators']]
     labels = [ind['name'] for ind in info['indicators']]
+    cons = implied_priors(outcomes, [{'probability': m, 'posteriors': p} for m, p in zip(marginals, posteriors)])
+
+    if not cons['consistent']:
+        return {
+            'emvWithoutInfo': emv_without, 'emvWithInfo': None, 'voi': None, 'netVoi': None,
+            'evpi': ev, 'optimalActionWithoutInfo': optimal_without, 'verdict': None,
+            'consistency': cons, 'withheld': True, 'treePresent': False,
+        }
 
     emv_with_pre = F(0)
     per_indicator = []
@@ -386,23 +443,17 @@ def voi_analyzer(inputs):
     emv_with = emv_with_pre - cost
     voi = emv_with_pre - emv_without
     net = voi - cost
-    ev = evpi(outcomes, actions)['evpi']
-    cons = implied_priors(outcomes, [{'probability': m, 'posteriors': p} for m, p in zip(marginals, posteriors)])
     verdict = 'acquire' if net > 0 else ('reject' if net < 0 else 'neutral')
 
     exp = {
         'emvWithoutInfo': emv_without, 'emvWithInfo': emv_with, 'voi': voi, 'netVoi': net,
         'evpi': ev, 'optimalActionWithoutInfo': optimal_without, 'verdict': verdict,
         'perIndicator': per_indicator,
-        'consistency': cons,
+        'consistency': cons, 'withheld': False,
     }
     tree = information_tree(outcomes, actions, marginals, posteriors, labels, cost,
                             'Acquire %s' % info['name'])
-    try:
-        ann = rollback(tree)
-    except Refused:
-        exp['treePresent'] = False
-        return exp
+    ann = rollback(tree)  # every entry is a distribution, so this cannot refuse
     exp['treePresent'] = True
     exp['tree'] = rollback_expected(ann)
     exp['signalChances'] = marginals
@@ -778,14 +829,9 @@ def implied_cases():
     add('inconsistent', 'Suite: positive posteriors typed as 0.8 / 0.2 imply P(success) 0.42 against 0.3 stated.', OUTCOMES,
         [{'label': 'Positive', 'probability': F(45, 100), 'posteriors': [F(8, 10), F(2, 10)]},
          {'label': 'Negative', 'probability': F(55, 100), 'posteriors': [F(6, 55), F(49, 55)]}])
-    add('justInsideTolerance', 'Deltas of exactly 0.005 are consistent (the threshold is inclusive). DISAGREEMENT: the engine evaluates the delta in binary floating point, 0.305 minus 0.3 is 0.0050000000000000044 there, and reports inconsistent; recorded as the engine number, see FINDINGS-decision.md.',
+    add('justInsideTolerance', 'Deltas of exactly 0.005 are consistent (the threshold is inclusive). In binary floating point 0.305 minus 0.3 is 0.0050000000000000044; before EC4-0 the engine reported that inconsistent (finding D1), and its 1e-12 representation allowance now agrees with the method.',
         [{'label': 'S', 'probability': F(3, 10)}, {'label': 'D', 'probability': F(7, 10)}],
         [{'label': 'only', 'probability': 1, 'posteriors': [F(305, 1000), F(695, 1000)]}])
-    cases[-1]['disagreement'] = {
-        'engineConsistent': False,
-        'engineDelta': 0.305 - 0.3,
-        'reason': 'the method threshold is inclusive at 0.005 exactly; the engine compares the float delta 0.305 - 0.3 = %r against 0.005 and fails it by 4.4e-18' % (0.305 - 0.3),
-    }
     add('justOutsideTolerance', 'Deltas of 0.006 are not.',
         [{'label': 'S', 'probability': F(3, 10)}, {'label': 'D', 'probability': F(7, 10)}],
         [{'label': 'only', 'probability': 1, 'posteriors': [F(306, 1000), F(694, 1000)]}])
@@ -847,10 +893,16 @@ def voi_cases():
 
     add('suiteDefaults', 'Suite voiCalculations.test.js defaults: EMV without 15, with 38, VOI 33, net 23, EVPI 63; consistent; tree present with chances 0.4 / 0.6.', voi_inputs())
     add('pricey', 'Suite: cost 50 on the same inputs; net VOI -17; verdict reject.', voi_inputs(cost=50))
-    add('malformedPosterior', 'Suite: positive posteriors 90 / 40 do not form a distribution; consistency fails; the KPIs still compute from the entered numbers and NO tree is drawn.',
-        voi_inputs(pos_post=(90, 40)))
-    add('contradictingPosterior', 'Suite: positive posteriors 90 / 10 (a distribution) contradict the 30 percent prior (implied 42); the tree is still drawn at the entered chances and is not repaired.',
+    add('contradictingPosterior', 'Positive posteriors 90 / 10 (a distribution) contradict the 30 percent prior (implied 42). Before EC4-0 this reported a gross VOI of 75 above the EVPI of 63; now EMV without information and EVPI are reported and the rest is withheld.',
         voi_inputs(pos_post=(90, 10)))
+    add('identicalPosteriorsWithheld', 'Both indicators typed 20 / 80 imply a 20 percent success chance against 30 stated. Before EC4-0 this reported a gross VOI of -15, below zero; now withheld.',
+        voi_inputs(pos_post=(20, 80), neg_post=(20, 80)))
+    add('certainPosteriorsWithheld', 'Both indicators typed 100 / 0 imply certain success against 30 stated. Before EC4-0 this reported a gross VOI of 245 beside an EVPI of 63; now withheld.',
+        voi_inputs(pos_post=(100, 0), neg_post=(100, 0)))
+    add('consistentAtHalfPercent', 'Positive posteriors 61.25 / 38.75 imply 30.5 percent success against 30 stated, a delta of exactly half a percent: consistent (inclusive threshold), so every KPI and the tree are reported.',
+        voi_inputs(pos_post=(F(6125, 100), F(3875, 100))))
+    add('withheldPastHalfPercent', 'Positive posteriors 61.5 / 38.5 imply 30.6 percent success against 30 stated, a delta of 0.6 percent: withheld.',
+        voi_inputs(pos_post=(F(615, 10), F(385, 10))))
     add('costExactlyValue', 'Degenerate: cost 33 equals the gross VOI; net VOI exactly 0; verdict neutral.', voi_inputs(cost=33))
     add('freeInformation', 'Cost 0; EMV with information equals the pre-cost value 48.', voi_inputs(cost=0))
     # Prior 10 / 90 with a symmetric accuracy-0.8 indicator: P(pos) = 0.26,
@@ -877,6 +929,45 @@ def voi_cases():
     return cases
 
 
+def voi_refusals():
+    cases = []
+
+    def add(cid, desc, inputs):
+        refusal = voi_percent_refusal(inputs)
+        assert refusal is not None, 'oracle accepted %s' % cid
+        try:
+            voi_analyzer(inputs)
+        except Refused:
+            pass
+        else:
+            raise AssertionError('oracle accepted %s' % cid)
+        rec = {'id': cid, 'description': desc, 'inputs': inputs, 'reason': refusal[0]}
+        if refusal[1] is not None:
+            rec['sumPercent'] = refusal[1]
+        cases.append(rec)
+
+    add('posteriorsAboveHundred', 'Suite: positive posteriors 90 / 40 sum to 130. Before EC4-0 the KPIs computed from them (VOI 69 above the EVPI of 63) and only the diagram was withheld.',
+        voi_inputs(pos_post=(90, 40)))
+    mixed = voi_inputs(pos_probability=50, pos_post=(60, 50), neg_post=(0, 90))
+    add('posteriorsOffsetButPriorsAgree', 'Indicators 50 / 50 with outcome chances 60 / 50 (sum 110) and 0 / 90 (sum 90). The implied priors still equal the stated 30 / 70, so the consistency check passed, and before EC4-0 the cards (EMV with information 47.5) disagreed with the diagram (45.5).',
+        mixed)
+    over = voi_inputs()
+    over['infoScenario']['indicators'][1]['probability'] = 70
+    add('indicatorChancesAboveHundred', 'Indicator chances 40 + 70 = 110. Before EC4-0 the cards matched the defaults and the diagram silently disappeared.', over)
+    short = voi_inputs()
+    short['outcomes'][1]['probability'] = 60
+    add('outcomeChancesBelowHundred', 'Outcome chances 30 + 60 = 90, named in percent.', short)
+    missing = voi_inputs()
+    missing['infoScenario']['indicators'][0]['conditionalProbabilities'] = [{'outcomeId': 1, 'probability': 60}]
+    add('missingOutcomeChanceCountsAsZero', 'The positive indicator has no entry for the dry hole, so its outcome chances sum to 60.', missing)
+    negative = voi_inputs(pos_post=(-10, 110))
+    add('chanceOutsideRange', 'Outcome chances -10 / 110 sum to 100 but are not chances.', negative)
+    none = voi_inputs()
+    none['infoScenario']['indicators'] = []
+    add('noIndicators', 'An information scenario with no indicators has nothing to value.', none)
+    return cases
+
+
 def main():
     golden = {
         'description': (
@@ -893,7 +984,9 @@ def main():
             'decision resolve to the first branch listed. Every case in the Suite\'s '
             'src/lib/__tests__/decisionTree.test.js and src/utils/__tests__/voiCalculations.test.js is '
             'here, plus the two templates from src/components/decisiontree/templates.js, sweeps of '
-            'signal accuracy and information cost, and degenerate and refused cases.'
+            'signal accuracy and information cost, and degenerate and refused cases. As repaired in EC4-0, '
+            'the VOI Analyzer refuses percent inputs that are not distributions (voiRefusals) and withholds '
+            'everything that depends on the indicator entries when they contradict the stated priors.'
         ),
         'rollback': rollback_cases(),
         'rollbackRefusals': rollback_refusals(),
@@ -903,6 +996,7 @@ def main():
         'impliedPriors': implied_cases(),
         'informationTree': information_tree_cases(),
         'voi': voi_cases(),
+        'voiRefusals': voi_refusals(),
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, 'w') as f:
