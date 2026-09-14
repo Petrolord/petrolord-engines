@@ -136,9 +136,9 @@ def ratio_at(m):
     return (g(0.5, m) - g(0.1, m)) / (g(0.9, m) - g(0.1, m))
 
 
-LEFT_NOTE = ('the stated median sits too near the P10 for any triangular to pass through all three points; '
+LEFT_NOTE = ('the stated median sits too near the 10th percentile for any triangular to pass through all three points; '
              'the fit uses the most left-skewed triangular there is (mode at the minimum)')
-RIGHT_NOTE = ('the stated median sits too near the P90 for any triangular to pass through all three points; '
+RIGHT_NOTE = ('the stated median sits too near the 90th percentile for any triangular to pass through all three points; '
               'the fit uses the most right-skewed triangular there is (mode at the maximum)')
 
 
@@ -307,7 +307,7 @@ def build():
             {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 800, 'p50': 820, 'p90': 1300},
             {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': 50, 'p50': 74, 'p90': 75},
             {'id': 3, 'name': 'Production Efficiency (%)', 'p10': 85, 'p50': 90, 'p90': 95}]},
-         'Medians too near the P10 (capex) and the P90 (opex): both fits clamp and the insight carries both notes.'),
+         'Medians too near the 10th percentile (capex) and the 90th percentile (opex): both fits clamp and the insight carries both notes.'),
         ('mc_all_unreachable_throws', {'seed': 5, 'iterations': 20, 'variables': [
             {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 40000, 'p50': 50000, 'p90': 60000},
             {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': 50, 'p50': 60, 'p90': 75},
