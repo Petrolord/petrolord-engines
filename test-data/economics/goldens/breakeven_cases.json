@@ -4871,7 +4871,7 @@
       "max": 1550.0,
       "min": 759.4302079790101,
       "mode": 759.4309619366204,
-      "note": "the stated median sits too near the P10 for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum)"
+      "note": "the stated median sits too near the 10th percentile for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum)"
      },
      "efficiency": {
       "exact": true,
@@ -4885,11 +4885,11 @@
       "max": 77.02848968388169,
       "min": 37.5,
       "mode": 77.02845182033687,
-      "note": "the stated median sits too near the P90 for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum)"
+      "note": "the stated median sits too near the 90th percentile for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum)"
      }
     },
     "excludedIterations": 0,
-    "insights": "The median breakeven oil price is 179.33 per barrel, and its 90th percentile is 217.75: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly. capex: the stated median sits too near the P10 for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum) opex: the stated median sits too near the P90 for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum)",
+    "insights": "The median breakeven oil price is 179.33 per barrel, and its 90th percentile is 217.75: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly. capex: the stated median sits too near the 10th percentile for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum) opex: the stated median sits too near the 90th percentile for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum)",
     "kpis": {
      "mean": 182.54093847185712,
      "p10": 150.9868088832148,
@@ -5318,7 +5318,7 @@
      }
     ]
    },
-   "note": "Medians too near the P10 (capex) and the P90 (opex): both fits clamp and the insight carries both notes."
+   "note": "Medians too near the 10th percentile (capex) and the 90th percentile (opex): both fits clamp and the insight carries both notes."
   },
   {
    "expected": {
