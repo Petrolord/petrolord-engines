@@ -10,7 +10,7 @@
  * (Nigerian PIA / NTA 2025, terrain royalties, HCT / CIT, allowances) is
  * ./cashflow.ts, the module's single fiscal source of truth.
  */
-import { quantile } from '../../lib/stats/stats.js';
+import { quantile, mulberry32 } from '../../lib/stats/stats.js';
 // Canonical CLIENT-SIDE SCREENING economics engine (docs/scope/
 // ReservoirEngineering-Module.md §5). Full-fiscal Nigerian economics
 // (PIA/NTA, terrain royalties, HCT/CIT) is NOT here; that is the EPE
@@ -319,16 +319,47 @@ export const generateScenarios = (baseInputs) => {
 };
 
 
+/**
+ * Default Monte Carlo seed, the same value as breakeven.js DEFAULT_SEED, so an
+ * unconfigured run of either app is reproducible (EC3-0, owner decision
+ * 2026-09-14).
+ */
+export const DEFAULT_MC_SEED = 20260829;
+
+/**
+ * Monte Carlo over the screening case (EC3-0 repair, owner decision
+ * 2026-09-14).
+ *
+ * SEEDED. Every draw comes from mulberry32(settings.seed), defaulting to
+ * DEFAULT_MC_SEED, and the seed travels with the result. It used to call a
+ * bare Math.random, so the same inputs gave a different answer every run
+ * (FINDINGS S3). The stream is consumed in exactly the order the old gates
+ * substituted for Math.random, so every previously published seeded value is
+ * unchanged.
+ *
+ * THE KEYS ARE PLAIN PERCENTILES OF NPV. `p10` is the 10th percentile, the
+ * LOW NPV; `p90` is the 90th, the HIGH NPV. Under the Suite's exceedance
+ * convention (src/lib/percentileConventions.js) the low case is labelled P90
+ * and reads `p10`. The keys are kept for existing callers; every screen must
+ * map them through the convention rather than printing the key as a label.
+ *
+ * Also repaired: every uncertainty at zero makes all NPVs equal, which used
+ * to divide by a zero bin width and throw (S4); now every iteration lands in
+ * the first bin. Fewer than 50 iterations used to leave the S-curve empty
+ * because the downsample step was zero (S5); the step is now at least 1.
+ */
 export const runMonteCarlo = async (baseInputs, settings) => {
     const iterations = settings.iterations || 500;
+    const seed = settings.seed ?? DEFAULT_MC_SEED;
+    const rng = mulberry32(seed);
     const results = [];
 
     const sample = (val, range) => {
         if (!range) return val;
         const min = val * (1 - range);
         const max = val * (1 + range);
-        const u = Math.random();
-        return min + (max - min) * u; // Uniform for simplicity or use Box-Muller for Normal
+        const u = rng();
+        return min + (max - min) * u; // Uniform on plus or minus the range
     };
 
     for (let i = 0; i < iterations; i++) {
@@ -373,7 +404,8 @@ export const runMonteCarlo = async (baseInputs, settings) => {
     }));
     
     results.forEach(v => {
-        const idx = Math.min(Math.floor((v - min) / binSize), binCount - 1);
+        // A zero-width range (every NPV equal) puts every value in bin 0.
+        const idx = binSize > 0 ? Math.min(Math.floor((v - min) / binSize), binCount - 1) : 0;
         histogram[idx].count++;
     });
 
@@ -382,9 +414,9 @@ export const runMonteCarlo = async (baseInputs, settings) => {
     const cdf = results.map((val, i) => ({
         value: val,
         probability: (i / iterations) * 100
-    })).filter((_, i) => i % Math.floor(iterations/50) === 0); // Downsample for chart
+    })).filter((_, i) => i % Math.max(1, Math.floor(iterations / 50)) === 0); // Downsample for chart, never to nothing
 
-    return { p10, p50, p90, emv, histogram, cdf, allValues: results };
+    return { p10, p50, p90, emv, histogram, cdf, allValues: results, seed, iterations };
 };
 
 // Helper to expand Quick Inputs into Full Engine Inputs

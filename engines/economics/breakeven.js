@@ -123,6 +123,11 @@ const findVariable = (variables, needle) =>
 /**
  * Run the probabilistic breakeven.
  *
+ * `kpis.p10`, `p50` and `p90` are the 10th, 50th and 90th PERCENTILES of the
+ * breakeven price (sorted[min(n - 1, floor(q n))]), and the input variables'
+ * `p10`, `p50`, `p90` are percentiles of each parameter. Neither is a P-label
+ * under the Suite's exceedance convention; screens say "10th percentile".
+ *
  * @param {object} inputs app inputs, plus an optional `seed`
  * @returns {object} kpis, plot data, two-sided tornado, and the seed used
  */
@@ -235,8 +240,11 @@ export const generateBreakevenData = (inputs) => {
 
   const topSensitivities = sensitivityData.slice(0, 2).map((d) => d.name).join(' and ');
   const insights = [
-    `The P50 breakeven oil price is ${kpis.p50.toFixed(2)} per barrel, `
-    + `with a 90 percent chance of being below ${kpis.p90.toFixed(2)}.`,
+    // No P-labels on a breakeven price (EC3-0, Suite percentile convention):
+    // the price is a quantity where more is worse, so it is described by its
+    // percentiles, never by P90 or P10.
+    `The median breakeven oil price is ${kpis.p50.toFixed(2)} per barrel, `
+    + `and its 90th percentile is ${kpis.p90.toFixed(2)}: a 90 percent chance the breakeven price is below that.`,
     `Breakeven is most sensitive to ${topSensitivities}.`,
     `Run seed ${seed}: the same inputs and seed reproduce this result exactly.`,
     unreachable > 0

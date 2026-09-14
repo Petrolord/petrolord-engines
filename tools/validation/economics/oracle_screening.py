@@ -384,13 +384,13 @@ def monte_carlo(inp, settings, seed):
     size = (hi - lo) / bins
     hist = [{'binStart': lo + i * size, 'binEnd': lo + (i + 1) * size, 'count': 0} for i in range(bins)]
     degenerate = size == 0
-    if not degenerate:
-        for v in results:
-            hist[min(int(math.floor((v - lo) / size)), bins - 1)]['count'] += 1
-    step = math.floor(iters / 50)
-    cdf = ([] if step == 0 else
-           [{'value': v, 'probability': (i / iters) * 100} for i, v in enumerate(results) if i % step == 0])
-    return {
+    for v in results:
+        # EC3-0: a zero-width range puts every value in the first bin.
+        idx = 0 if degenerate else min(int(math.floor((v - lo) / size)), bins - 1)
+        hist[idx]['count'] += 1
+    step = max(1, math.floor(iters / 50))
+    cdf = [{'value': v, 'probability': (i / iters) * 100} for i, v in enumerate(results) if i % step == 0]
+    return {'seed': seed, 'iterations': iters,
         'p10': ss_quantile_sorted(results, 0.1), 'p50': ss_quantile_sorted(results, 0.5),
         'p90': ss_quantile_sorted(results, 0.9), 'emv': mean,
         'histogram': hist, 'cdf': cdf, 'allValues': results, 'degenerateHistogram': degenerate,
@@ -728,26 +728,32 @@ def build():
                           opexFixed=[0.0] + flat(40.0, 4), opexVariable=[v * 6.0 / 1e6 for v in base_oil(12, 5)],
                           abandonment=[0, 0, 0, 0, 50.0])
     G['monteCarloSeeded'] = []
+    # EC3-0 (owner decision 2026-09-14): runMonteCarlo is seeded through
+    # mulberry32(settings.seed), default 20260829. The seed now lives IN the
+    # settings the engine reads; the stream is consumed in the order the old
+    # Math.random stand-in consumed it, so these values are unchanged.
     for cid, seed, settings, note in (
         ('mc_seed42_100', 42, {'iterations': 100, 'uncertainties': {'reserves': 0.2, 'price': 0.15, 'capex': 0.1}},
-         'runMonteCarlo with Math.random replaced by mulberry32(42), 100 iterations, all three uncertainties on.'),
+         'runMonteCarlo seeded with 42, 100 iterations, all three uncertainties on.'),
         ('mc_seed7_500', 7, {'iterations': 500, 'uncertainties': {'reserves': 0.1, 'price': 0.25, 'capex': 0.3}},
-         'mulberry32(7), 500 iterations (the engine default), P10/P50/P90 hit the even-length averaging branch of the quantile rule.'),
+         'Seed 7, 500 iterations (the engine default), P10/P50/P90 keys hit the even-length averaging branch of the quantile rule.'),
         ('mc_seed3_price_only', 3, {'iterations': 200, 'uncertainties': {'reserves': 0, 'price': 0.2, 'capex': 0}},
          'Only price uncertain: reserves and capex ranges are falsy and consume NO draws.'),
-        ('mc_seed11_40_iters_cdf_empty', 11, {'iterations': 40, 'uncertainties': {'reserves': 0.2, 'price': 0.2, 'capex': 0.2}},
-         'Fewer than 50 iterations: floor(iterations/50) is 0, i % 0 is NaN, and the engine returns an EMPTY cdf. The oracle records that as the engine behaviour (FINDINGS-fiscal.md).'),
+        ('mc_seed11_40_iters', 11, {'iterations': 40, 'uncertainties': {'reserves': 0.2, 'price': 0.2, 'capex': 0.2}},
+         'Fewer than 50 iterations: the S-curve downsample step is floored at 1, so every point is kept (FINDINGS S5, fixed EC3-0; it used to be empty).'),
+        ('mc_zero_uncertainty_degenerate', 1, {'iterations': 30, 'uncertainties': {'reserves': 0, 'price': 0, 'capex': 0}},
+         'Every range 0: every iteration is the base NPV, P10 = P50 = P90 = EMV = base NPV, and all 30 land in the first bin of a zero-width histogram (FINDINGS S4, fixed EC3-0; the engine used to throw).'),
     ):
         exp = monte_carlo(mc_base, settings, seed)
-        G['monteCarloSeeded'].append({'id': cid, 'note': note, 'seed': seed, 'inputs': mc_base, 'settings': settings, 'expected': exp})
-    degen = monte_carlo(mc_base, {'iterations': 30, 'uncertainties': {'reserves': 0, 'price': 0, 'capex': 0}}, 1)
+        G['monteCarloSeeded'].append({'id': cid, 'note': note, 'seed': seed, 'inputs': mc_base,
+                                      'settings': dict(settings, seed=seed), 'expected': exp})
+    G['monteCarloSeeded'][-1]['expected']['baseNPV'] = run(mc_base)['metrics']['npv']
+    dflt = monte_carlo(mc_base, {'iterations': 60, 'uncertainties': {'reserves': 0.2, 'price': 0.2, 'capex': 0.2}}, 20260829)
     G['monteCarloSeeded'].append({
-        'id': 'mc_zero_uncertainty_throws', 'seed': 1, 'inputs': mc_base,
-        'settings': {'iterations': 30, 'uncertainties': {'reserves': 0, 'price': 0, 'capex': 0}},
-        'note': 'Every range 0: every iteration is the base NPV, so P10 = P50 = P90 = EMV = base NPV and a histogram of zero width. '
-                'The engine divides by a zero bin size, indexes the histogram with NaN and THROWS. DISAGREEMENT, recorded in FINDINGS-fiscal.md.',
-        'expected': {'p10': degen['p10'], 'p50': degen['p50'], 'p90': degen['p90'], 'emv': degen['emv'], 'baseNPV': run(mc_base)['metrics']['npv']},
-        'engine': {'throws': True, 'disagreement': 'zero bin width makes the histogram index NaN'},
+        'id': 'mc_default_seed', 'seed': 20260829, 'inputs': mc_base,
+        'settings': {'iterations': 60, 'uncertainties': {'reserves': 0.2, 'price': 0.2, 'capex': 0.2}},
+        'note': 'No seed in the settings: the engine uses DEFAULT_MC_SEED, 20260829 (the breakeven default), and reports it.',
+        'expected': dflt,
     })
     return G
 
