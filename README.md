@@ -338,6 +338,15 @@ and its consumers.
   written by `tools/validation/wellsite/gen_report_day.py` with the
   expected counts worked by hand in the test-data README.
 
+- `lib/conventions/percentile.js` — the Suite-wide percentile conventions
+  (owner decision 2026-09-09): P-labels mean probability of exceedance of an
+  OUTCOME where more is better (SPE PRMS), P90 the low case, shown low to
+  high; parameters and more-is-worse quantities never carry a P-label and use
+  "10th / 50th / 90th percentile". Moved here 2026-09-14 from the Suite's
+  `src/lib/percentileConventions.js` (which becomes a re-export shim) so the
+  NextGen courses import the same words as the apps. Words and gate helpers
+  only (`findPLabels`, `outcomeOrderViolation`), no numerics.
+
 - `engines/downstream/` — the Midstream & Downstream module (M&D DS0 to
   DS10, 2026-08-29), eleven modules: `streamModel.js` (the shared
   product and stream vocabulary), `crudeAssay.js`, `productBlending.js`
@@ -491,6 +500,7 @@ functions through one-line shims at supabase/functions/_shared/.
 | `test-data/fluid/literature-fixtures.json` | `tools/validation/fluidstudio/` |
 | `tools/validation/fluid/` | `tools/validation/fluidstudio/` |
 | `engines/downstream/` (all eleven modules) | the Suite's vendored `packages/engines/engines/downstream/` (written there directly by DS0 to DS10 and never upstreamed; moved byte for byte 2026-09-14; the Suite's `src/utils/downstream/engine/*.js` re-export shims stay) |
+| `lib/conventions/percentile.js` | `src/lib/percentileConventions.js` (verbatim; the Suite path becomes a re-export shim) |
 | `lib/lp/simplex.js` | the Suite's vendored `packages/engines/lib/lp/simplex.js` (same history; shim `src/utils/downstream/engine/simplex.js` stays) |
 | `__tests__/downstream.*.test.js`, `__tests__/lp.simplex.test.js` | the Suite's vendored `packages/engines/__tests__/` (same history) |
 
