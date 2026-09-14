@@ -33,6 +33,9 @@ import {
   calculateIRR,
   deriveInsights,
   runFiscalComparison,
+  classifyGovernmentShare,
+  commonShareWindow,
+  GOVERNMENT_SHARE_STATES,
 } from '../engines/economics/fiscalRegime.js';
 import { fiscalTemplates } from '../engines/economics/fiscalTemplates.js';
 import { calculateEconomics } from '../engines/economics/screening.js';
@@ -441,12 +444,19 @@ describe('golden agreement: runFiscalComparison', () => {
     expect(res.annualCashFlows.map((a) => a.regimeId)).toEqual(e.annualCashFlows.map((a) => a.regimeId));
     res.annualCashFlows.forEach((a, i) => gateRows(a.data, e.annualCashFlows[i].data));
 
-    // Price sweep: $40 to $120, effective tax rate WITHOUT the capex add-back.
+    // Price sweep: $40 to $120, government take on profit (WITHOUT the capex
+    // add-back), every point with its state. An undefined point is null and
+    // never a number (EC2-1).
     expect(res.sensitivityData.price.labels).toEqual(e.sensitivityData.price.labels);
     res.sensitivityData.price.data.forEach((d, i) => {
-      expect(d.regimeId).toBe(e.sensitivityData.price.data[i].regimeId);
+      const ed = e.sensitivityData.price.data[i];
+      expect(d.regimeId).toBe(ed.regimeId);
       expect(d.values).toHaveLength(9);
-      d.values.forEach((v, k) => near(v, e.sensitivityData.price.data[i].values[k], 1e-9));
+      expect(d.states).toEqual(ed.states);
+      d.values.forEach((v, k) => {
+        if (ed.values[k] === null) expect(v).toBeNull();
+        else near(v, ed.values[k], 1e-9);
+      });
     });
 
     // Capex sweep: the engine emits 7 of the documented 8 points (pinned).
@@ -469,7 +479,6 @@ describe('golden agreement: runFiscalComparison', () => {
       return sorted.some((v, i) => i > 0 && Math.abs(v - sorted[i - 1]) <= tol);
     };
     const capexTie = tied(e.capexLossesAsEngine, 'loss', 1e-6);
-    const priceTie = tied(e.priceClimbs, 'climb', 1e-9);
     res.insights.forEach((got, i) => {
       const exp = e.insightsAsEngine[i];
       expect(got.key).toBe(exp.key);
@@ -482,12 +491,9 @@ describe('golden agreement: runFiscalComparison', () => {
         const most = got.text.match(/and "([^"]+)" the most/)[1];
         expect(Math.abs(losses.find((l) => l.name === least).loss - minLoss)).toBeLessThanOrEqual(1e-6);
         expect(Math.abs(losses.find((l) => l.name === most).loss - maxLoss)).toBeLessThanOrEqual(1e-6);
-      } else if (got.key === 'price' && priceTie) {
-        const climbs = e.priceClimbs;
-        const maxClimb = Math.max(...climbs.map((l) => l.climb));
-        const name = got.text.match(/^"([^"]+)" is the most progressive/)[1];
-        expect(Math.abs(climbs.find((l) => l.name === name).climb - maxClimb)).toBeLessThanOrEqual(1e-9);
       } else {
+        // The price verdict needs no tie branch since EC2-1: a lead under one
+        // percentage point declines to rank, so noise can never pick a winner.
         expect(got.text).toBe(exp.text);
       }
     });
@@ -495,7 +501,7 @@ describe('golden agreement: runFiscalComparison', () => {
     e.insights.forEach((ins) => {
       const got = res.insights.find((x) => x.key === ins.key);
       expect(got).toBeDefined();
-      if (ins.key !== 'capex' && !(ins.key === 'price' && priceTie)) expect(got.text).toBe(ins.text);
+      if (ins.key !== 'capex') expect(got.text).toBe(ins.text);
     });
   });
 
@@ -512,6 +518,89 @@ describe('golden agreement: runFiscalComparison', () => {
       const sweep = res.sensitivityData.price.data.find((d) => d.regimeId === s.id).values[3];
       near(sweep, (gov / (gov + con)) * 100, 1e-9);
       expect(sweep).toBeGreaterThan(s.effectiveTaxRate);
+    });
+  });
+});
+
+describe('EC2-1: every government share point says what it is', () => {
+  const golden = (id) => G.comparisons.find((c) => c.id === id);
+  const S = GOVERNMENT_SHARE_STATES;
+
+  test('the published never recovers case: all six regimes undefined at all nine prices, no value, no rank', async () => {
+    const c = golden('cmp_never_recovers');
+    const res = await runFiscalComparison({ projectInputs: c.project, regimes: c.regimes });
+    const price = res.sensitivityData.price;
+    expect(price.data).toHaveLength(6);
+    price.data.forEach((d) => {
+      expect(d.states).toEqual(Array(9).fill(S.UNDEFINED));
+      // Null, never the old zero fallback.
+      expect(d.values).toEqual(Array(9).fill(null));
+    });
+    // The government still collected: the undefined state is about profit, not take.
+    res.summary.forEach((s) => expect(s.govTake).toBeGreaterThan(700));
+    const verdict = res.insights.find((i) => i.key === 'price');
+    expect(verdict.text).toMatch(/^No regime can be ranked across this sweep/);
+    expect(verdict.text).toMatch(/No regime is economic at any swept price from 40 to 120 USD per bbl\.$/);
+    expect(verdict.text).not.toMatch(/most progressive/);
+  });
+
+  test('the barely positive point: Angola with tripled capex exceeds 100 percent at 50 USD per bbl, true value kept', async () => {
+    const c = golden('cmp_angola_capex_x3');
+    const res = await runFiscalComparison({ projectInputs: c.project, regimes: c.regimes });
+    const [d] = res.sensitivityData.price.data;
+    expect(d.states.slice(0, 5)).toEqual([S.UNDEFINED, S.EXCEEDS, S.EXCEEDS, S.SHARE, S.SHARE]);
+    expect(d.values[0]).toBeNull();
+    near(d.values[1], 2223.0766, 1e-4);
+    near(d.values[2], 144.0692, 1e-4);
+    near(d.values[3], 85.6015, 1e-4);
+    // Recomputed from the ledger, not from the sweep.
+    const rows = calculateCashFlowForRegime(c.regimes[0], c.project, 1, 50 / c.project.prices[0].oil);
+    const gov = rows.reduce((t, x) => t + x.governmentTake, 0);
+    const ncf = rows.reduce((t, x) => t + x.contractorNCF, 0);
+    expect(gov + ncf).toBeGreaterThan(0);
+    expect(ncf).toBeLessThan(0);
+    near(d.values[1], (gov / (gov + ncf)) * 100, 1e-9);
+  });
+
+  test('classifyGovernmentShare: the three states at their boundaries', () => {
+    expect(classifyGovernmentShare(10, -10)).toEqual({ value: null, state: S.UNDEFINED });
+    expect(classifyGovernmentShare(10, -20)).toEqual({ value: null, state: S.UNDEFINED });
+    expect(classifyGovernmentShare(50, 0)).toEqual({ value: 100, state: S.SHARE });
+    expect(classifyGovernmentShare(0, 50)).toEqual({ value: 0, state: S.SHARE });
+    const over = classifyGovernmentShare(50, -1);
+    expect(over.state).toBe(S.EXCEEDS);
+    near(over.value, 5000 / 49, 1e-9);
+    expect(classifyGovernmentShare(NaN, 1).state).toBe(S.UNDEFINED);
+  });
+
+  test('no golden sweep point is a zero standing in for a missing value', () => {
+    G.comparisons.forEach((c) => c.expected.sensitivityData.price.data.forEach((d) => {
+      d.values.forEach((v, k) => {
+        expect(v === null).toBe(d.states[k] === S.UNDEFINED);
+        if (d.states[k] === S.EXCEEDS) expect(v).toBeGreaterThan(100);
+        if (d.states[k] === S.SHARE) expect(v >= 0 && v <= 100).toBe(true);
+      });
+    }));
+  });
+
+  test('commonShareWindow takes the longest run where every series is a share, the later one on a tie', () => {
+    const st = (str) => ({ states: [...str].map((ch) => ({ s: S.SHARE, x: S.EXCEEDS, u: S.UNDEFINED }[ch])), values: [] });
+    expect(commonShareWindow([st('ssuss'), st('sssss')], 5)).toEqual({ start: 3, end: 4, length: 2 });
+    expect(commonShareWindow([st('xssss'), st('sssus')], 5)).toEqual({ start: 1, end: 2, length: 2 });
+    expect(commonShareWindow([st('uuu'), st('sss')], 3)).toBeNull();
+  });
+
+  test('the window is recorded on every comparison golden and the price verdict agrees with it', () => {
+    G.comparisons.forEach((c) => {
+      const e = c.expected;
+      const w = e.priceWindow;
+      const verdict = e.insightsAsEngine.find((i) => i.key === 'price');
+      if (!verdict) return;
+      if (/most progressive/.test(verdict.text)) {
+        expect(w.length).toBeGreaterThanOrEqual(3);
+        const sorted = e.priceClimbs.map((x) => x.climb).sort((a, b) => b - a);
+        expect(sorted[0] - sorted[1]).toBeGreaterThanOrEqual(1);
+      }
     });
   });
 });

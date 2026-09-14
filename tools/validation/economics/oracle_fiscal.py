@@ -49,7 +49,12 @@ with an uplift), not by transcribing the JavaScript:
                  government take plus contractor take with capex added
                  back (the summary) or NOT added back (the price sweep;
                  two definitions, recorded in FINDINGS-fiscal.md).
-  sweeps         effective tax rate at $40 to $120 in $10 steps, and NPV
+  sweeps         government take on profit at $40 to $120 in $10 steps,
+                 each point with its state (EC2-1): 'share' when profit
+                 (take plus contractor NCF) is positive and the share is
+                 at most 100, 'exceeds' above 100 (true value kept),
+                 'undefined' with a null value when profit is not
+                 positive. Never a zero fallback. And NPV
                  at capex multipliers 0.8 to 1.5 in 0.1 steps. The engine
                  accumulates 0.1 in floating point and STOPS AT 1.4; the
                  oracle evaluates the documented grid and the golden
@@ -230,14 +235,20 @@ ENGINE_CAPEX_POINTS = 7  # the engine's accumulated loop stops at 1.4
 def sweeps(regimes, project):
     price = {'labels': PRICE_GRID, 'data': []}
     for reg in regimes:
-        vals = []
+        vals, states = [], []
         for p in PRICE_GRID:
             rows = cash_flow(reg, project, 1.0, p / project['prices'][0]['oil'])
             gov = sum(cf['governmentTake'] for cf in rows)
             con = sum(cf['contractorNCF'] for cf in rows)
             tot = gov + con
-            vals.append(gov / tot * 100.0 if tot > 0 else 0.0)
-        price['data'].append({'regimeId': reg['id'], 'values': vals})
+            if tot > 0:
+                share = gov / tot * 100.0
+                vals.append(share)
+                states.append('exceeds' if share > 100.0 else 'share')
+            else:
+                vals.append(None)
+                states.append('undefined')
+        price['data'].append({'regimeId': reg['id'], 'values': vals, 'states': states})
     capex = {'labels': [js_to_fixed(m, 1) for m in CAPEX_GRID], 'data': []}
     for reg in regimes:
         capex['data'].append({'regimeId': reg['id'],
@@ -259,6 +270,73 @@ def summary_row(reg, project):
         'paybackPeriod': pay, 'rFactorPayoutYear': rpay, 'govTake': gov,
         'effectiveTaxRate': gov / tot * 100.0 if tot > 0 else 0.0,
     }
+
+
+def point_state(d, i):
+    """A point's state: the recorded one, or read off a bare value."""
+    if 'states' in d and d['states'] is not None:
+        return d['states'][i] if i < len(d['states']) else 'undefined'
+    v = d['values'][i]
+    if v is None or not math.isfinite(v):
+        return 'undefined'
+    return 'exceeds' if v > 100 else 'share'
+
+
+def share_window(series, count):
+    """Every run of consecutive prices at which ALL series are a share;
+    the longest, the one at higher prices when two are equally long."""
+    runs, run = [], []
+    for i in range(count):
+        if all(point_state(d, i) == 'share' for d in series):
+            run.append(i)
+        else:
+            if run:
+                runs.append(run)
+            run = []
+    if run:
+        runs.append(run)
+    if not runs:
+        return None
+    longest = max(len(r) for r in runs)
+    chosen = [r for r in runs if len(r) == longest][-1]
+    return chosen[0], chosen[-1]
+
+
+def price_verdict(summary, sens):
+    """EC2-1: rank price response only over prices where every regime is a
+    share, with at least 3 such prices and a 1 point lead; else decline and
+    name the first price at which any regime is economic."""
+    by_id = {r['id']: r for r in summary}
+    labels = (sens or {}).get('price', {}).get('labels', [])
+    series = [d for d in (sens or {}).get('price', {}).get('data', []) if d['regimeId'] in by_id]
+    if len(series) < 2:
+        return None
+    count = min([len(labels)] + [len(d.get('values') or []) for d in series])
+    f = js_to_fixed
+    win = share_window(series, count)
+    if win is not None and win[1] - win[0] + 1 >= 3:
+        a, b = win
+        climbs = [(by_id[d['regimeId']]['name'], d['values'][b] - d['values'][a]) for d in series]
+        order = sorted(range(len(climbs)), key=lambda k: (-climbs[k][1], k))
+        top, nxt = climbs[order[0]], climbs[order[1]]
+        if top[1] - nxt[1] >= 1.0:
+            where = ('across the swept price range' if a == 0 and b == count - 1 else
+                     f"between {labels[a]} and {labels[b]} USD per bbl, the prices at which every regime's point is a government share")
+            if top[1] > 0:
+                return f'"{top[0]}" is the most progressive: its government share rises {f(top[1])} percentage points {where}, so it captures upside fastest.'
+            return f'No regime is progressive: every government share falls {where}. "{top[0]}" is the least regressive, falling {f(-top[1])} percentage points.'
+        head = (f'No regime can be ranked across this sweep: the steepest climb, {f(top[1])} percentage points for "{top[0]}", '
+                f'is within one percentage point of the next, {f(nxt[1])} for "{nxt[0]}".')
+    else:
+        head = 'No regime can be ranked across this sweep: fewer than 3 swept prices give a government share for every regime.'
+    for i in range(count):
+        names = ['"%s"' % by_id[d['regimeId']]['name'] for d in series if point_state(d, i) != 'undefined']
+        if names:
+            joined = names[0] if len(names) == 1 else ', '.join(names[:-1]) + ' and ' + names[-1]
+            if i == 0:
+                return f"{head} {joined} {'are' if len(names) > 1 else 'is'} already economic at {labels[0]} USD per bbl, the lowest price swept."
+            return f'{head} The first regime to become economic is {joined}, at {labels[i]} USD per bbl.'
+    return head + (f' No regime is economic at any swept price from {labels[0]} to {labels[count - 1]} USD per bbl.' if count else '')
 
 
 def insights(summary, sens, capex_points=None):
@@ -322,20 +400,17 @@ def insights(summary, sens, capex_points=None):
                 weakest = l
         out.append({'key': 'capex', 'label': 'Resilience to cost overrun',
                     'text': f'Over the swept capex range, "{toughest["name"]}" gives up the least contractor NPV (${f(toughest["loss"])}MM) and "{weakest["name"]}" the most (${f(weakest["loss"])}MM).'})
-    climbs = []
-    for d in (sens or {}).get('price', {}).get('data', []):
-        v = d.get('values') or []
-        if len(v) < 2 or d['regimeId'] not in by_id:
-            continue
-        climbs.append({'name': by_id[d['regimeId']]['name'], 'climb': v[-1] - v[0]})
-    if len(climbs) >= 2:
-        steepest = climbs[0]
-        for c in climbs[1:]:
-            if c['climb'] > steepest['climb']:
-                steepest = c
-        out.append({'key': 'price', 'label': 'Response to higher prices',
-                    'text': f'"{steepest["name"]}" is the most progressive: its government share rises {f(steepest["climb"])} percentage points across the swept price range, so it captures upside fastest.'})
+    price = price_verdict(summary, sens)
+    if price is not None:
+        out.append({'key': 'price', 'label': 'Response to higher prices', 'text': price})
     return out
+
+
+def price_window_record(sens):
+    data = sens['price']['data']
+    count = min([len(sens['price']['labels'])] + [len(d['values']) for d in data])
+    win = share_window(data, count)
+    return None if win is None else {'start': win[0], 'end': win[1], 'length': win[1] - win[0] + 1}
 
 
 def comparison(regimes, project):
@@ -358,7 +433,10 @@ def comparison(regimes, project):
         # of pretending the winner of a tie is a result.
         'capexLossesAsEngine': [{'name': names[d['regimeId']], 'loss': d['values'][0] - d['values'][ENGINE_CAPEX_POINTS - 1]}
                                 for d in sens['capex']['data']],
-        'priceClimbs': [{'name': names[d['regimeId']], 'climb': d['values'][-1] - d['values'][0]} for d in sens['price']['data']],
+        # EC2-1: the climb is measured over the common share window only.
+        'priceWindow': price_window_record(sens),
+        'priceClimbs': [{'name': names[d['regimeId']], 'climb': d['values'][w['end']] - d['values'][w['start']]}
+                        for d in sens['price']['data'] for w in [price_window_record(sens)] if w is not None],
     }
 
 
@@ -535,13 +613,24 @@ def build():
         c['npvAt10'] = npv(c['cashFlows'], 10)
 
     # deriveInsights unit cases from the Suite test.
-    sens = {'price': {'labels': [40, 120], 'data': [{'regimeId': 'a', 'values': [30, 40]}, {'regimeId': 'b', 'values': [35, 60]}]},
+    sens = {'price': {'labels': [40, 80, 120], 'data': [{'regimeId': 'a', 'values': [30, 35, 40], 'states': ['share'] * 3},
+                                                        {'regimeId': 'b', 'values': [35, 47, 60], 'states': ['share'] * 3}]},
             'capex': {'labels': ['0.8', '1.5'], 'data': [{'regimeId': 'a', 'values': [200, 100]}, {'regimeId': 'b', 'values': [180, 150]}]}}
     summ = [{'id': 'a', 'name': 'Alpha', 'npv': 150, 'irr': 22, 'paybackPeriod': 6, 'govTake': 400, 'effectiveTaxRate': 55},
             {'id': 'b', 'name': 'Beta', 'npv': 120, 'irr': 18, 'paybackPeriod': 4, 'govTake': 900, 'effectiveTaxRate': 70}]
     flipped = [dict(summ[1], npv=300), dict(summ[0])]
     never = [dict(r, paybackPeriod=None) for r in summ]
-    one_sens = {'price': {'labels': [40, 120], 'data': [sens['price']['data'][0]]}, 'capex': {'labels': ['0.8', '1.5'], 'data': [sens['capex']['data'][0]]}}
+    one_sens = {'price': {'labels': [40, 80, 120], 'data': [sens['price']['data'][0]]}, 'capex': {'labels': ['0.8', '1.5'], 'data': [sens['capex']['data'][0]]}}
+    with_price = lambda labels, a, b: dict(sens, price={'labels': labels, 'data': [dict(a, regimeId='a'), dict(b, regimeId='b')]})
+    two_points = with_price([40, 120], {'values': [30, 40], 'states': ['share'] * 2}, {'values': [35, 60], 'states': ['share'] * 2})
+    within_one = with_price([40, 80, 120], {'values': [30, 35, 40], 'states': ['share'] * 3}, {'values': [35, 40, 45.5], 'states': ['share'] * 3})
+    exceeds_excluded = with_price([40, 50, 60, 70],
+                                  {'values': [150, 60, 62, 64], 'states': ['exceeds', 'share', 'share', 'share']},
+                                  {'values': [40, 45, 55, 66], 'states': ['share'] * 4})
+    never_economic = with_price([40, 50, 60], {'values': [None] * 3, 'states': ['undefined'] * 3}, {'values': [None] * 3, 'states': ['undefined'] * 3})
+    first_economic = with_price([40, 50, 60, 70],
+                                {'values': [None, None, 120, 90], 'states': ['undefined', 'undefined', 'exceeds', 'share']},
+                                {'values': [None, 80, 70, 65], 'states': ['undefined', 'share', 'share', 'share']})
     ties = [dict(summ[0], govTake=900, paybackPeriod=4), dict(summ[1])]
     G['insights'] = [
         {'id': 'insights_suite', 'note': 'Suite test summary: Beta pays back fastest and collects most; Beta resilient; Beta progressive.', 'summary': summ, 'sensitivityData': sens},
@@ -552,6 +641,11 @@ def build():
         {'id': 'insights_rounding', 'note': 'toFixed rounding pins: 0.25 is exact in binary and JavaScript rounds the tie up to 0.3 (Python would give 0.2); 2.45 is stored just above the tie so 2.5; 0.35 is stored just below so 0.3; 1.05 is stored just above so 1.1; -0.05 is stored just above the tie in magnitude so -0.1.',
          'summary': [dict(summ[0], npv=0.25, irr=0.35, govTake=2.45), dict(summ[1], npv=-0.05, irr=1.05, govTake=1.15)], 'sensitivityData': sens},
         {'id': 'insights_empty', 'note': 'No regimes: an empty list.', 'summary': [], 'sensitivityData': sens},
+        {'id': 'insights_price_two_points', 'note': 'EC2-1: two swept prices are fewer than three, so no regime is ranked; both are economic at the lowest price.', 'summary': summ, 'sensitivityData': two_points},
+        {'id': 'insights_price_within_one_point', 'note': 'EC2-1: climbs of 10 and 10.5 points are within one point, so no regime is ranked.', 'summary': summ, 'sensitivityData': within_one},
+        {'id': 'insights_price_exceeds_excluded', 'note': 'EC2-1: Alpha exceeds 100 at 40, so the climb runs 50 to 70 for both; an endpoint read from 40 would give Alpha -86.', 'summary': summ, 'sensitivityData': exceeds_excluded},
+        {'id': 'insights_price_never_economic', 'note': 'EC2-1: every point undefined, so no rank and no regime economic at any swept price.', 'summary': summ, 'sensitivityData': never_economic},
+        {'id': 'insights_price_first_economic', 'note': 'EC2-1: one common share price is fewer than three; Beta is the first regime economic, at 50.', 'summary': summ, 'sensitivityData': first_economic},
     ]
     for c in G['insights']:
         c['expected'] = insights(c['summary'], c['sensitivityData'])
@@ -568,6 +662,9 @@ def build():
         {'id': 'cmp_never_recovers', 'note': 'Templates on a project with capex 20000: nothing pays back, every IRR 0, the payback insight says so.',
          'regimes': template_regimes(),
          'project': dict(TEST_PROJECT, costs={'capex': {'drilling': 10000, 'facilities': 10000, 'subsea': 0}, 'opex': {'fixed': 60, 'variable': 4}})},
+        {'id': 'cmp_angola_capex_x3', 'note': 'EC2-1: Angola - Deepwater PSC on the default project with every capex line tripled. Profit is not positive at 40 (undefined, null), small and positive at 50 (exceeds, 2223 percent) and 60, and a share from 80 up.',
+         'regimes': [r for r in template_regimes() if r['name'] == 'Angola - Deepwater PSC'],
+         'project': dict(DEFAULT_PROJECT, costs=dict(DEFAULT_PROJECT['costs'], capex={k: v * 3 for k, v in DEFAULT_PROJECT['costs']['capex'].items()}))},
     ]
     for c in G['comparisons']:
         c['expected'] = comparison(c['regimes'], c['project'])

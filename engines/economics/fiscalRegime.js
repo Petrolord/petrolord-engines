@@ -233,17 +233,56 @@ export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1,
     return annualCashFlows;
 };
 
+/**
+ * What a government share point IS (EC2-1, owner decision 2026-09-14).
+ *
+ * The price sweep divides lifetime government take by lifetime government
+ * take plus lifetime contractor net cash flow, which is revenue less opex
+ * less capex: government take on profit. It used to guard that division with
+ * `totalProfit > 0 ? ... : 0`, so a project whose profit was zero or negative
+ * plotted EXACTLY 0 percent beside real shares. On the published
+ * `cmp_never_recovers` all six templates drew a flat zero at nine prices while
+ * the government collected 700 to 1663 million USD. And where profit was small
+ * and positive the same line ran to 2223 percent, unflagged.
+ *
+ * Every point now carries one of three states, and zero is never a fallback:
+ *   share      profit is positive and the share is within 0 to 100 percent
+ *   exceeds    profit is positive and the share is above 100 percent (the
+ *              government collects more than the project makes, so the
+ *              contractor loses money); the true value is returned
+ *   undefined  profit is zero or negative; the value is null
+ * Government take is royalty plus the government profit share plus tax, each
+ * non-negative for non-negative rates, so a positive profit cannot give a
+ * share below 0.
+ */
+export const GOVERNMENT_SHARE_STATES = Object.freeze({
+    SHARE: 'share',
+    EXCEEDS: 'exceeds',
+    UNDEFINED: 'undefined',
+});
+
+export const classifyGovernmentShare = (govTake, contractorNCF) => {
+    const profit = govTake + contractorNCF;
+    if (!(profit > 0)) return { value: null, state: GOVERNMENT_SHARE_STATES.UNDEFINED };
+    const value = (govTake / profit) * 100;
+    return {
+        value,
+        state: value > 100 ? GOVERNMENT_SHARE_STATES.EXCEEDS : GOVERNMENT_SHARE_STATES.SHARE,
+    };
+};
+
 const runSensitivityAnalysis = (regimes, projectInputs) => {
-    const priceSens = { labels: [], data: regimes.map(r => ({ regimeId: r.id, values: [] })) };
+    const priceSens = { labels: [], data: regimes.map(r => ({ regimeId: r.id, values: [], states: [] })) };
     for (let price = 40; price <= 120; price += 10) {
         priceSens.labels.push(price);
         regimes.forEach(regime => {
             const cashflows = calculateCashFlowForRegime(regime, projectInputs, 1, price / projectInputs.prices[0].oil);
             const totalGovTake = cashflows.reduce((sum, cf) => sum + cf.governmentTake, 0);
             const totalContractorTake = cashflows.reduce((sum, cf) => sum + cf.contractorNCF, 0);
-            const totalProfit = totalGovTake + totalContractorTake;
-            const effectiveTaxRate = totalProfit > 0 ? (totalGovTake / totalProfit) * 100 : 0;
-            priceSens.data.find(d => d.regimeId === regime.id).values.push(effectiveTaxRate);
+            const point = classifyGovernmentShare(totalGovTake, totalContractorTake);
+            const series = priceSens.data.find(d => d.regimeId === regime.id);
+            series.values.push(point.value);
+            series.states.push(point.state);
         });
     }
 
@@ -258,6 +297,81 @@ const runSensitivityAnalysis = (regimes, projectInputs) => {
     }
 
     return { price: priceSens, capex: capexSens };
+};
+
+export const PROGRESSIVITY_MIN_POINTS = 3;
+export const PROGRESSIVITY_MIN_SPREAD_PCT_POINTS = 1;
+
+/** The state of point i, read from the series or, for a caller that passes
+ *  bare values, from the value itself. */
+const shareStateAt = (series, i) => {
+    if (Array.isArray(series.states)) return series.states[i] ?? GOVERNMENT_SHARE_STATES.UNDEFINED;
+    const v = series.values[i];
+    if (!Number.isFinite(v)) return GOVERNMENT_SHARE_STATES.UNDEFINED;
+    return v > 100 ? GOVERNMENT_SHARE_STATES.EXCEEDS : GOVERNMENT_SHARE_STATES.SHARE;
+};
+
+/**
+ * The longest contiguous run of indices at which every series is a share,
+ * the later run on a tie. Returns { start, end, length } or null.
+ */
+export const commonShareWindow = (series, count) => {
+    let best = null;
+    let start = -1;
+    for (let i = 0; i <= count; i++) {
+        const every = i < count && series.every((s) => shareStateAt(s, i) === GOVERNMENT_SHARE_STATES.SHARE);
+        if (every) {
+            if (start < 0) start = i;
+        } else if (start >= 0) {
+            const length = i - start;
+            if (!best || length >= best.length) best = { start, end: i - 1, length };
+            start = -1;
+        }
+    }
+    return best;
+};
+
+const joinNames = (names) => (names.length <= 1
+    ? names.join('')
+    : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`);
+
+const rankPriceResponse = (series, labels, fmt) => {
+    const count = Math.min(labels.length, ...series.map((s) => s.values.length));
+    const win = commonShareWindow(series, count);
+    if (win && win.length >= PROGRESSIVITY_MIN_POINTS) {
+        const climbs = series.map((s) => ({ name: s.name, climb: s.values[win.end] - s.values[win.start] }));
+        const steepest = climbs.reduce((a, b) => (b.climb > a.climb ? b : a));
+        const rest = climbs.filter((c) => c !== steepest);
+        const next = rest.reduce((a, b) => (b.climb > a.climb ? b : a));
+        if (steepest.climb - next.climb >= PROGRESSIVITY_MIN_SPREAD_PCT_POINTS) {
+            const range = win.start === 0 && win.end === count - 1
+                ? 'across the swept price range'
+                : `between ${labels[win.start]} and ${labels[win.end]} USD per bbl, the prices at which every regime's point is a government share`;
+            // A share that falls at every regime has no progressive regime in
+            // it, so the lead is named for what it is.
+            return steepest.climb > 0
+                ? `"${steepest.name}" is the most progressive: its government share rises ${fmt(steepest.climb)} percentage points ${range}, so it captures upside fastest.`
+                : `No regime is progressive: every government share falls ${range}. "${steepest.name}" is the least regressive, falling ${fmt(-steepest.climb)} percentage points.`;
+        }
+        return `No regime can be ranked across this sweep: the steepest climb, ${fmt(steepest.climb)} percentage points for "${steepest.name}", is within one percentage point of the next, ${fmt(next.climb)} for "${next.name}".${firstEconomic(series, labels, count)}`;
+    }
+    return `No regime can be ranked across this sweep: fewer than ${PROGRESSIVITY_MIN_POINTS} swept prices give a government share for every regime.${firstEconomic(series, labels, count)}`;
+};
+
+const firstEconomic = (series, labels, count) => {
+    for (let i = 0; i < count; i++) {
+        const names = series
+            .filter((s) => shareStateAt(s, i) !== GOVERNMENT_SHARE_STATES.UNDEFINED)
+            .map((s) => `"${s.name}"`);
+        if (names.length) {
+            return i === 0
+                ? ` ${joinNames(names)} ${names.length > 1 ? 'are' : 'is'} already economic at ${labels[0]} USD per bbl, the lowest price swept.`
+                : ` The first regime to become economic is ${joinNames(names)}, at ${labels[i]} USD per bbl.`;
+        }
+    }
+    return count > 0
+        ? ` No regime is economic at any swept price from ${labels[0]} to ${labels[count - 1]} USD per bbl.`
+        : '';
 };
 
 /**
@@ -345,23 +459,25 @@ export const deriveInsights = (summary, sensitivityData) => {
         });
     }
 
-    // Price response: which regime's government share climbs fastest.
-    const priceSeries = sensitivityData?.price?.data || [];
-    const climbs = priceSeries
+    // Price response (EC2-1). Only a point that IS a government share can be
+    // ranked. The climb is measured over the longest contiguous run of swept
+    // prices at which EVERY regime's point is a share (the later run on a tie),
+    // so all regimes are compared over the same prices and no climb starts or
+    // ends on an `exceeds` point or a missing one. A most progressive regime is
+    // named only when that run has at least three prices and the steepest
+    // climb clears the next by at least one percentage point. Otherwise the
+    // verdict says no regime can be ranked and names the price at which the
+    // first regime becomes economic.
+    const priceLabels = sensitivityData?.price?.labels || [];
+    const priceSeries = (sensitivityData?.price?.data || [])
         .map((d) => {
-            const v = d.values || [];
-            if (v.length < 2) return null;
             const regime = summary.find((r) => r.id === d.regimeId);
-            return regime ? { name: regime.name, climb: v[v.length - 1] - v[0] } : null;
+            return regime ? { name: regime.name, values: d.values || [], states: d.states } : null;
         })
         .filter(Boolean);
-    if (climbs.length >= 2) {
-        const steepest = climbs.reduce((a, b) => (b.climb > a.climb ? b : a));
-        out.push({
-            key: 'price',
-            label: 'Response to higher prices',
-            text: `"${steepest.name}" is the most progressive: its government share rises ${fmt(steepest.climb)} percentage points across the swept price range, so it captures upside fastest.`,
-        });
+    if (priceSeries.length >= 2) {
+        const text = rankPriceResponse(priceSeries, priceLabels, fmt);
+        out.push({ key: 'price', label: 'Response to higher prices', text });
     }
 
     return out;
