@@ -105,8 +105,12 @@ const buildInputs = ({
   };
 };
 
-/** NPV in $MM at a given oil price, through the sanctioned engine. */
-export const npvAtPrice = (args) => calculateEconomics(buildInputs(args)).metrics.npv;
+/**
+ * NPV in $MM at a given oil price, through the sanctioned engine. The solve
+ * reads only NPV, about a hundred times per iteration, so the IRR search is
+ * skipped; the NPV is identical.
+ */
+export const npvAtPrice = (args) => calculateEconomics(buildInputs(args), { skipIrr: true }).metrics.npv;
 
 /**
  * Solve the oil price that puts NPV on the target.
