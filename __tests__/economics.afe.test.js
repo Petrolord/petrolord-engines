@@ -19,6 +19,14 @@
  * until 2080; the gate checks the calendar has not caught up). Every S-curve
  * golden pins the exact point list: the curve stops at the window's end.
  *
+ * EC5-1, the negative-forecast flag and EC5-9b (owner decisions 2026-09-15).
+ * A positive entered forecast below actual + commitment is kept and the line
+ * is flagged (forecastBelowCommitted, forecastBelowCommittedBy); a negative
+ * entered forecast is flagged forecastIgnored 'negative'; the metrics count
+ * both. The S-curve closes on the window end date, Planned the budget and
+ * Forecast the EAC. Negative controls: the retired silent forecast and the
+ * retired walk with no closing point, restated here.
+ *
  * EC5-3, EC5-5, EC5-8 and the CPI item (owner decisions 2026-09-15). CPI and
  * SPI are null wherever the ratio is undefined, with cpiStatus / spiStatus
  * naming why; progress above 100 percent is refused; the S-curve is UTC
@@ -35,6 +43,7 @@ import {
   calculateMetrics,
   generateSCurveData,
   itemForecast,
+  itemForecastCheck,
   countUndatedInvoices,
 } from '../engines/economics/afe.js';
 
@@ -128,9 +137,16 @@ describe('Suite port: calculateMetrics', () => {
   it('treats missing numbers as zero rather than producing NaN', () => {
     const items = [{ budget: null, commitment: undefined, actual: '', progress: 'x' }];
     const m = calculateMetrics(AFE, items, []);
-    const { cpi, spi, cpiStatus, spiStatus, ...numbers } = m;
+    const {
+      cpi, spi, cpiStatus, spiStatus, lineForecasts, ...numbers
+    } = m;
     Object.values(numbers).forEach((v) => expect(Number.isFinite(v)).toBe(true));
     expect([cpi, spi, cpiStatus, spiStatus]).toEqual([null, null, 'no-spend', 'no-budget']);
+    // The line carries its own numbers and its flags, all of them readable.
+    expect(lineForecasts).toEqual([{
+      index: 0, label: 0, forecast: 0, committed: 0,
+      forecastBelowCommitted: false, forecastBelowCommittedBy: 0, forecastIgnored: null,
+    }]);
   });
 
   // EC5-0 contract.
@@ -180,15 +196,19 @@ describe('Suite port: generateSCurveData', () => {
     const points = generateSCurveData(AFE, [{ budget: 1200 }], []);
     expect(points.length).toBeGreaterThan(1);
     expect(points[0].Planned).toBe(0);
-    expect(points[points.length - 1].Planned).toBeLessThanOrEqual(1200);
+    // EC5-9b: the closing point is the whole budget, on the end date.
+    expect(points[points.length - 1].Planned).toBe(1200);
+    expect(points[points.length - 1].date).toBe('31 Dec 20');
+    expect(points[points.length - 1].windowEnd).toBe(true);
     for (let i = 1; i < points.length; i += 1) {
       expect(points[i].Planned).toBeGreaterThanOrEqual(points[i - 1].Planned);
     }
   });
 
   it('stops at the end of the window whatever the date', () => {
-    expect(generateSCurveData(AFE, [{ budget: 1200 }], [])).toHaveLength(12);
-    expect(generateSCurveData(AFE, [{ budget: 1200 }], [], '2099-01-01')).toHaveLength(12);
+    // Twelve monthly buckets and the EC5-9b closing point.
+    expect(generateSCurveData(AFE, [{ budget: 1200 }], [])).toHaveLength(13);
+    expect(generateSCurveData(AFE, [{ budget: 1200 }], [], '2099-01-01')).toHaveLength(13);
   });
 
   it('cuts actuals at asOf and projects the forecast after it', () => {
@@ -373,16 +393,27 @@ describe('identities', () => {
   });
 
   test('the S-curve never extends past the end, whatever asOf', () => {
-    const bucketsIn = (afe) => {
+    // The monthly buckets, plus the EC5-9b closing point unless a bucket
+    // already lands on the end date, where it takes that bucket's place.
+    const pointsIn = (afe) => {
       const end = new Date(afe.end_date);
       let n = 0;
-      for (const d = new Date(afe.start_date); d <= end; d.setUTCMonth(d.getUTCMonth() + 1)) n += 1;
-      return n;
+      let last = null;
+      for (const d = new Date(afe.start_date); d <= end; d.setUTCMonth(d.getUTCMonth() + 1)) {
+        n += 1;
+        last = new Date(d.getTime());
+      }
+      if (n === 0) return 0;
+      return last.getTime() === end.getTime() ? n : n + 1;
     };
     G.sCurve.filter((c) => c.expected.kind !== 'none').forEach((c) => {
       [undefined, '1990-01-01', '2026-09-14', '2200-01-01'].forEach((asOf) => {
         const pts = generateSCurveData(c.inputs.afe, c.inputs.costItems, c.inputs.invoices, asOf);
-        expect(pts).toHaveLength(bucketsIn(c.inputs.afe));
+        expect(pts).toHaveLength(pointsIn(c.inputs.afe));
+        if (pts.length > 0) {
+          expect(pts[pts.length - 1].windowEnd).toBe(true);
+          expect(pts.slice(0, -1).every((q) => q.windowEnd === false)).toBe(true);
+        }
       });
     });
   });
@@ -394,6 +425,17 @@ describe('identities', () => {
     expect(pts[pts.length - 1].Forecast).toBe(Math.round(eac));
     expect(calculateMetrics(c.inputs.afe, c.inputs.costItems, []).totalForecast).toBe(eac);
     expect(eac).toBe(1500 + 650 + 300);
+  });
+
+  test('every curve closes on the budget and the EAC (EC5-9b)', () => {
+    G.sCurve.filter((c) => c.expected.kind !== 'none').forEach((c) => {
+      const pts = generateSCurveData(c.inputs.afe, c.inputs.costItems, c.inputs.invoices, asOfOf(c.inputs));
+      if (pts.length === 0) return;
+      const last = pts[pts.length - 1];
+      expect(last.Planned).toBe(Math.round(c.expected.totalBudget));
+      expect(last.Forecast).toBe(Math.round(c.expected.totalForecast));
+      expect(last.windowEnd).toBe(true);
+    });
   });
 
   test('itemForecast: positive entered forecast, else max(budget, actual + commitment)', () => {
@@ -430,6 +472,7 @@ describe('golden: partner split', () => {
 });
 
 describe('golden: metrics', () => {
+  const LINE_KEYS = ['index', 'label', 'committed', 'forecastBelowCommitted', 'forecastBelowCommittedBy', 'forecastIgnored'];
   const KEYS = ['totalBudget', 'totalCommitments', 'totalActuals', 'totalForecast', 'variance', 'earnedValue', 'plannedValue', 'timeProgress', 'cpi', 'percentSpent', 'percentComplete'];
 
   test.each(G.metrics.map((c) => [c.name, c]))('%s', (_n, c) => {
@@ -455,7 +498,149 @@ describe('golden: metrics', () => {
     expectNum(m.plannedValue, s.pv, MONEY);
     if (s.spi !== null && m.totalBudget > 0) expectNum(m.spi, s.spi, RATIO);
     if (s.spi === null && m.totalBudget > 0) expect(m.spi).toBeNull();
+    // EC5-1 and the negative-forecast flag: the line list and the counts.
+    expect(m.lineForecasts).toHaveLength(e.lineForecasts.length);
+    m.lineForecasts.forEach((line, i) => {
+      const g = e.lineForecasts[i];
+      LINE_KEYS.forEach((k) => expect(line[k]).toEqual(g[k]));
+      expectNum(line.forecast, g.forecast, MONEY);
+    });
+    expect(m.linesForecastBelowCommitted).toBe(e.linesForecastBelowCommitted);
+    expect(m.linesForecastIgnored).toBe(e.linesForecastIgnored);
+    expect(m.totalForecast).toBeCloseTo(m.lineForecasts.reduce((t, l) => t + l.forecast, 0), 9);
     if (c.note) expect(c.note).not.toMatch(/DISAGREEMENT/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EC5-1 and the negative-forecast flag: the line says what the number is worth.
+// ---------------------------------------------------------------------------
+
+describe('EC5-1: a forecast below the money spent and committed is kept and flagged', () => {
+  const golden = G.metrics.find((c) => c.name.startsWith('EC5-1: a forecast below'));
+
+  test('the typed value is still the EAC: no silent floor', () => {
+    const m = calculateMetrics(golden.inputs.afe, golden.inputs.costItems, [], asOfOf(golden.inputs));
+    expect(m.lineForecasts[0].forecast).toBe(850);
+    expect(m.lineForecasts[0].forecastBelowCommitted).toBe(true);
+    expect(m.lineForecasts[0].forecastBelowCommittedBy).toBe(50);
+    expect(m.lineForecasts[0].label).toBe('RIG');
+    expect(m.lineForecasts[1].forecastBelowCommitted).toBe(false);
+    expect(m.linesForecastBelowCommitted).toBe(1);
+    expect(m.totalForecast).toBe(850 + 400);
+  });
+
+  test('equal to committed is not below it, and the flag is off above it', () => {
+    expect(itemForecastCheck({ budget: 500, actual: 300, commitment: 100, forecast: 400 }).forecastBelowCommitted).toBe(false);
+    expect(itemForecastCheck({ budget: 500, actual: 300, commitment: 100, forecast: 401 }).forecastBelowCommitted).toBe(false);
+    expect(itemForecastCheck({ budget: 500, actual: 300, commitment: 100, forecast: 399 })).toMatchObject({
+      forecast: 399, committed: 400, forecastBelowCommitted: true, forecastBelowCommittedBy: 1,
+    });
+  });
+
+  test('a fallback EAC is never below committed, so it is never flagged', () => {
+    G.metrics.forEach((c) => {
+      const m = calculateMetrics(c.inputs.afe, c.inputs.costItems, c.inputs.invoices, asOfOf(c.inputs));
+      m.lineForecasts.forEach((line, i) => {
+        const entered = Number(c.inputs.costItems[i].forecast) || 0;
+        if (!(entered > 0)) expect(line.forecastBelowCommitted).toBe(false);
+        if (line.forecastBelowCommitted) expect(line.forecast).toBeLessThan(line.committed);
+      });
+    });
+  });
+
+  test('negative control: the retired rule reported the same EAC with nothing to read', () => {
+    const retired = (item) => {
+      const entered = Number(item.forecast) || 0;
+      if (entered > 0) return entered;
+      return Math.max(Number(item.budget) || 0, (Number(item.actual) || 0) + (Number(item.commitment) || 0));
+    };
+    let flagged = 0;
+    G.metrics.forEach((c) => {
+      c.inputs.costItems.forEach((item) => {
+        expect(itemForecast(item)).toBe(retired(item));
+        if (itemForecastCheck(item).forecastBelowCommitted) flagged += 1;
+      });
+    });
+    // The EAC is unchanged; what is new is that the flagged lines are named.
+    expect(flagged).toBeGreaterThan(0);
+  });
+});
+
+describe('a negative entered forecast is flagged instead of ignored silently', () => {
+  const golden = G.metrics.find((c) => c.name.startsWith('negative forecast flag'));
+
+  test('the flag names the reason and the EAC still comes from the standard rule', () => {
+    const m = calculateMetrics(golden.inputs.afe, golden.inputs.costItems, [], asOfOf(golden.inputs));
+    expect(m.lineForecasts.map((l) => l.forecastIgnored)).toEqual(['negative', null, null, null, 'negative', null]);
+    expect(m.lineForecasts[0].forecast).toBe(100);
+    expect(m.lineForecasts[4].forecast).toBe(130);
+    expect(m.linesForecastIgnored).toBe(2);
+    expect(m.linesForecastBelowCommitted).toBe(1);
+  });
+
+  test('a zero, blank or non-numeric forecast is no forecast, not an ignored one', () => {
+    expect(itemForecastCheck({ budget: 100, forecast: 0 }).forecastIgnored).toBeNull();
+    expect(itemForecastCheck({ budget: 100, forecast: '' }).forecastIgnored).toBeNull();
+    expect(itemForecastCheck({ budget: 100, forecast: 'abc' }).forecastIgnored).toBeNull();
+    expect(itemForecastCheck({ budget: 100, forecast: -0.5 }).forecastIgnored).toBe('negative');
+  });
+
+  test('negative control: the retired rule dropped a negative forecast with no count at all', () => {
+    const items = golden.inputs.costItems;
+    const retiredIgnored = items.filter((i) => (Number(i.forecast) || 0) < 0).length;
+    expect(retiredIgnored).toBe(2);
+    const m = calculateMetrics(golden.inputs.afe, items, [], asOfOf(golden.inputs));
+    expect(m.linesForecastIgnored).toBe(retiredIgnored);
+    expect(Object.keys(m)).toContain('linesForecastIgnored');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EC5-9b: the curve closes on the window end.
+// ---------------------------------------------------------------------------
+
+describe('EC5-9b: the S-curve closes on the budget and the EAC', () => {
+  const golden = G.sCurve.find((c) => c.name.startsWith('EC5-9b: OFON-1 at 2027-08-15'));
+  const run = () => generateSCurveData(golden.inputs.afe, golden.inputs.costItems, golden.inputs.invoices, golden.inputs.asOf);
+
+  test('OFON-1 draws its overrun as an overrun', () => {
+    const pts = run();
+    const last = pts[pts.length - 1];
+    expect(last.date).toBe('30 Nov 27');
+    expect(last.Planned).toBe(27050000);
+    expect(last.Forecast).toBe(27600000);
+    expect(last.Forecast).toBeGreaterThan(last.Planned);
+    expect(last.windowEnd).toBe(true);
+  });
+
+  test('negative control: the retired walk ended below both', () => {
+    // The point the walk used to end on, carried by the oracle.
+    const retiredLast = golden.expected.retiredLastPoint;
+    expect(retiredLast.date).toBe('Nov 27');
+    expect(retiredLast.Forecast).toBe(24949669);
+    expect(retiredLast.Planned).toBe(24452483);
+    expect(retiredLast.Forecast).toBeLessThan(27050000);
+    const pts = run();
+    expect(pts[pts.length - 2]).toEqual({ ...retiredLast, windowEnd: false });
+  });
+
+  test('a monthly step on the end date is replaced, so no date is listed twice', () => {
+    const c = G.sCurve.find((x) => x.name.startsWith('EC5-9b: a window ending on a month step'));
+    const pts = generateSCurveData(c.inputs.afe, c.inputs.costItems, c.inputs.invoices, c.inputs.asOf);
+    const dates = pts.map((q) => q.date);
+    expect(new Set(dates).size).toBe(dates.length);
+    expect(dates[dates.length - 1]).toBe('1 May 26');
+    expect(dates).not.toContain('May 26');
+  });
+
+  test('the closing Actual follows the bucket rule: the invoices up to the end when the end is read', () => {
+    const c = G.sCurve.find((x) => x.name.startsWith('EC5-9b: asOf on the end day'));
+    const pts = generateSCurveData(c.inputs.afe, c.inputs.costItems, c.inputs.invoices, c.inputs.asOf);
+    expect(pts[pts.length - 1].Actual).toBe(750);
+    // Read before the end, the closing point has no actual at all.
+    const early = generateSCurveData(c.inputs.afe, c.inputs.costItems, c.inputs.invoices, '2026-03-02');
+    expect(early[early.length - 1].Actual).toBeNull();
   });
 });
 
@@ -667,16 +852,22 @@ describe('EC5-5: the S-curve is identical under five TZ values', () => {
       const dated = (inv) => { const r = inv?.invoice_date; if (r == null || r === '') return null; const d = new Date(r); return Number.isNaN(d.getTime()) ? null : d; };
       const sorted = invoices.filter((v) => dated(v) !== null);
       const pts = []; const cur = new Date(start);
-      let a = 0; let p = 0; let f = 0;
+      let a = 0; let p = 0; let f = 0; let last = null;
       const days = differenceInDays(end, start);
       while (cur <= end) {
         const label = cur.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
         if (cur <= now) a = sorted.filter((v) => dated(v) <= cur).reduce((s, v) => s + Number(v.amount), 0);
         const el = differenceInDays(cur, start);
         if (el >= 0) { p = Math.min(bac, el * bac / Math.max(days, 1)); f = cur <= now ? a : Math.min(eac, el * eac / Math.max(days, 1)); }
-        pts.push({ date: label, Planned: Math.round(p), Actual: cur <= now ? Math.round(a) : null, Forecast: Math.round(f) });
+        pts.push({ date: label, Planned: Math.round(p), Actual: cur <= now ? Math.round(a) : null, Forecast: Math.round(f), windowEnd: false });
+        last = new Date(cur);
         cur.setMonth(cur.getMonth() + 1);
       }
+      if (pts.length === 0) return pts;
+      // EC5-9b, restated locally: the closing point at the window end.
+      if (last.getTime() === end.getTime()) pts.pop();
+      const endActual = sorted.filter((v) => dated(v) <= end).reduce((s, v) => s + Number(v.amount), 0);
+      pts.push({ date: end.getDate() + ' ' + end.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }), Planned: Math.round(bac), Actual: end <= now ? Math.round(endActual) : null, Forecast: Math.round(eac), windowEnd: true });
       return pts;
     };
     const both = (afe, items, invs, asOf) => ({
