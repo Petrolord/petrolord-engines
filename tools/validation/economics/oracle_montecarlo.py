@@ -231,14 +231,22 @@ def scale_usd(rows, s):
 
 
 def pmean(xs):
-    return sum(xs) / len(xs)
+    """Compensated mean: math.fsum is exactly rounded, and a sample whose
+    values are all equal reads exactly that value. EC1-16 (engine v3.10): the
+    layer used to sum naively, so a hundred identical NPVs of 1.35e8 rounded
+    the mean and the deviation sum read the rounding as spread."""
+    if xs and all(x == xs[0] for x in xs):
+        return xs[0]
+    return math.fsum(xs) / len(xs)
 
 
 def pstd(xs):
-    if len(xs) < 2:
+    """Population standard deviation (divide by n), exactly zero on a
+    constant sample."""
+    if len(xs) < 2 or all(x == xs[0] for x in xs):
         return 0.0
     m = pmean(xs)
-    return math.sqrt(sum((x - m) ** 2 for x in xs) / len(xs))
+    return math.sqrt(math.fsum((x - m) ** 2 for x in xs) / len(xs))
 
 
 def pmedian(xs):

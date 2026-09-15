@@ -3,7 +3,10 @@
 // MOVED in the EC0 Economics engine extraction wave (2026-09-08) from the
 // Suite's supabase/functions/_shared/epe-engine.ts, VERBATIM: the 1740 lines
 // below are byte for byte the Suite file at ENGINE_VERSION 3.9.0, with no
-// behaviour change. This file has no imports, so nothing was repointed. The
+// behaviour change. That copy had no imports; since v3.10 this file imports
+// the module IRR contract from ./irrContract.js (shared with screening.js and
+// fiscalRegime.js), which bundles for Deno, jest and Vite the same way the
+// rest of the package does. The
 // Suite path is now a re-export shim of this file (written by the EC0
 // coordinator), so the Suite's edge functions, its jest gates and the NextGen
 // academy (git subtree) all run this one copy. Independent stdlib oracle:
@@ -16,7 +19,46 @@
 //
 // supabase/functions/_shared/epe-engine.ts
 //
-// PETROLORD EPE CASH FLOW ENGINE — Shared compute library (v3.9, 2026-08-21)
+// PETROLORD EPE CASH FLOW ENGINE — Shared compute library (v3.10, 2026-09-15)
+//
+// v3.10 changes (EC1 owner decisions taken 2026-09-15; each one is recorded
+// in tools/validation/economics/FINDINGS-cashflow.md):
+//   - kpis.npv_profile: the applied-rate point is EVALUATED at the exact
+//     applied rate and only LABELLED with that rate rounded to two decimals,
+//     so the curve passes through the headline NPV on a real basis whose
+//     Fisher rate is not a round percentage (EC1-1).
+//   - irr(): adopts the module IRR contract (./irrContract.js, shared with
+//     screening.js and fiscalRegime.js). A rate is reported only when it is a
+//     single verified root inside the band from -99 to 1000 percent. In every
+//     other case kpis.irr is null and kpis.irr_status says which case it was
+//     ('no-sign-change', 'no-root', 'above-clamp', 'multiple-roots'), with
+//     kpis.irr_roots listing every in-band root and kpis.irr_root_above_band
+//     flagging a root above the band. The KPI names are snake_case to match
+//     the rest of kpis and map one for one onto the contract's camelCase:
+//     irr_status = irrStatus, irr_roots = irrRoots, irr_root_above_band =
+//     irrRootAboveBand. The exponents handed to the contract are this
+//     engine's own YEAR-END year offsets, so a reported rate zeroes the NPV
+//     the way this engine discounts (EC1-2).
+//   - Abandonment and working interest: abandonment_cost_usd is the user's
+//     share under BOTH funding modes. The sinking-fund contribution is
+//     grossed up by 1 / WI inside the regime so the share collects exactly
+//     the entered cost, and the fund column, abandonment_cost_funded and
+//     total_abandonment_cost all report the share (EC1-3).
+//   - JV at a working interest below 100 scales EVERY monetary line and the
+//     volumes to the share, as PSC and PIA do, so government take is
+//     working-interest invariant. PV(capex), dpi and the unit costs move with
+//     it because they are now read on the share basis (EC1-4).
+//   - PSC rows carry psc_cost_pool_after and PSC runs report
+//     kpis.psc_unrecovered_cost_at_cessation (EC1-5). Additive.
+//   - The CITA two-thirds capital allowance restriction carries the
+//     disallowed amount forward (row cit_allowance_claimed and
+//     cit_allowance_carryforward, KPI cit_allowance_unused_at_cessation).
+//     Config switch cit_restricted_allowance_carryforward, default true;
+//     false reproduces the frozen published worked example and every
+//     pre-v3.10 run (EC1-6).
+//   - kpis.profitability_index = 1 + dpi. `dpi` keeps its published meaning
+//     (NPV per present-value dollar of capex) because graded course fields
+//     read it (EC1-7).
 //
 // v3.9 changes (Wave F fiscal depth, docs/scope/EPE-Industry-Audit.md):
 //   - PSC profit-oil tranches (psc_profit_split_mode='tranches' with
@@ -129,7 +171,9 @@
 //     excluded from PSC cost recovery / PIA CPR (regime-specific decom-fund
 //     deductibility is future, literature-gated work)
 //   - Decision KPI bundle: total volumes + BOE (6:1 gas), unit technical
-//     cost, opex/boe, government take %, PV(capex) + DPI, numeric payback and
+//     cost, opex/boe, government take %, PV(capex) and DPI (NPV divided by
+//     PV(capex), which is the profitability index less one; v3.10 adds
+//     profitability_index itself), numeric payback and
 //     discounted payback
 //   - computeBreakevenOilPrice(): bisection on the flat oil price to NPV = 0
 //
@@ -153,8 +197,10 @@
 //   NTA-era cases (year >= 2026 OR override='force_nta') apply Dev Levy 4%
 //   instead of TET 2.5%, with the volume-cap and CPR-forfeiture behavior.
 
+import { solveIrrInBand } from './irrContract.js';
+
 // Stamped into kpis.engine_version on every run (Wave A provenance).
-export const ENGINE_VERSION = '3.9.0';
+export const ENGINE_VERSION = '3.10.0';
 
 // ============================================================================
 // TYPES
@@ -218,6 +264,9 @@ export interface PIAConfig {
   // v3.5 (Wave A)
   apply_loss_carryforward?: boolean;          // default true; false = old clamp
   pia_hct_include_gas_revenue?: boolean;      // default false; true = old whole-revenue HCT base
+  // v3.10 (EC1-6): default true; false drops the CITA carryforward of the
+  // capital allowance the two-thirds restriction disallows (pre-v3.10 runs).
+  cit_restricted_allowance_carryforward?: boolean;
 }
 
 export interface PIAState {
@@ -227,6 +276,9 @@ export interface PIAState {
   // v3.5 (Wave A): tax-loss pools, one per tax (separate bases)
   hct_loss_carryforward: number;
   cit_loss_carryforward: number;
+  // v3.10 (EC1-6): capital allowance disallowed by the CITA two-thirds
+  // restriction and carried to the next year.
+  cit_allowance_carryforward: number;
 }
 
 export interface PIAInputs {
@@ -272,6 +324,9 @@ export interface PIAOutputs {
   cit_loss_offset_used: number;
   hct_loss_carryforward: number;
   cit_loss_carryforward: number;
+  // v3.10 (EC1-6) CITA capital allowance restriction diagnostics
+  cit_allowance_claimed: number;
+  cit_allowance_carryforward: number;
 }
 
 export interface ComputeInput {
@@ -854,8 +909,18 @@ export function applyPIA(
 
   // CIT computation (base unchanged: CIT applies to oil AND gas profits)
   const citAssessableProfit = grossRev - totalRoyalties - opexClaimed - hcdt - nddc;
+  // v3.10 (EC1-6): CITA restricts the capital allowance claim to two thirds
+  // of the assessable profit AND carries the disallowed part forward, where
+  // it queues with the next year's allowance under the same restriction.
+  // cfg.cit_restricted_allowance_carryforward === false drops the
+  // carryforward and reproduces every pre-v3.10 run.
+  const carryRestrictedAllowance = cfg.cit_restricted_allowance_carryforward !== false;
+  const citAllowanceAvailable = capAllowClaimed
+    + (carryRestrictedAllowance ? (state.cit_allowance_carryforward || 0) : 0);
   const citCapAllowCap = Math.max(0, citAssessableProfit * 2 / 3);
-  const citCapAllowClaimed = Math.min(capAllowClaimed, citCapAllowCap);
+  const citCapAllowClaimed = Math.min(citAllowanceAvailable, citCapAllowCap);
+  const citAllowanceCarry = carryRestrictedAllowance
+    ? citAllowanceAvailable - citCapAllowClaimed : 0;
   const citChargeableProfit = citAssessableProfit - citCapAllowClaimed;
   let citLossPool = applyLossRelief ? state.cit_loss_carryforward : 0;
   let citLossOffset = 0;
@@ -905,6 +970,8 @@ export function applyPIA(
       cit_assessable_profit: citAssessableProfit,
       cit_chargeable_profit: citChargeableProfit,
       cit_tax: citTax,
+      cit_allowance_claimed: citCapAllowClaimed,
+      cit_allowance_carryforward: citAllowanceCarry,
       tet_tax: tetTax,
       dev_levy_tax: devLevyTax,
       total_tax: totalTax,
@@ -927,6 +994,7 @@ export function applyPIA(
       cumulative_oil_bbl_lifetime: state.cumulative_oil_bbl_lifetime + inputs.oil_bbl + inputs.condensate_bbl,
       hct_loss_carryforward: hctLossPool,
       cit_loss_carryforward: citLossPool,
+      cit_allowance_carryforward: citAllowanceCarry,
     },
   };
 }
@@ -944,49 +1012,40 @@ export function npv(cashFlows: number[], discountRate: number, baseYear: number,
   return total;
 }
 
-export function irr(cashFlows: number[]): number | null {
-  const hasNeg = cashFlows.some(cf => cf < 0);
-  const hasPos = cashFlows.some(cf => cf > 0);
-  if (!hasNeg || !hasPos) return null;
-
-  const npvAt = (rate: number): number => {
-    let f = 0;
-    for (let i = 0; i < cashFlows.length; i++) f += cashFlows[i] / Math.pow(1 + rate, i);
-    return f;
+// v3.10 (EC1-2): the module IRR contract, ./irrContract.js, shared with
+// screening.js and fiscalRegime.js. It reports a rate ONLY when that rate is
+// a verified single root inside the band from -99 to 1000 percent; every
+// other outcome is named by the status instead of being reported as a rate.
+// The v3.5 behaviour this replaces returned whichever root Newton reached
+// from 10 percent, with nothing to say that the profile had several.
+//
+// `times` are the discount exponents of the flows, one per flow. Discounting
+// is the caller's: this engine discounts YEAR-END, so computeCashFlow passes
+// the year offsets of its evaluated rows and the default here is the row
+// index. The result keys are snake_case for kpis and map one for one onto
+// the contract's camelCase: irr_status = irrStatus, irr_roots = irrRoots,
+// irr_root_above_band = irrRootAboveBand. `irr` and `irr_roots` are PERCENT.
+export function irrResult(cashFlows: number[], times?: number[]): {
+  irr: number | null;
+  irr_status: string;
+  irr_roots: number[] | null;
+  irr_root_above_band: boolean;
+} {
+  const exps = times ?? cashFlows.map((_, i) => i);
+  const solved = solveIrrInBand(cashFlows, exps);
+  return {
+    irr: solved.irr,
+    irr_status: solved.irrStatus,
+    irr_roots: solved.irrRoots,
+    irr_root_above_band: solved.irrRootAboveBand,
   };
+}
 
-  // Fast path: Newton from 10%, as before. Only a CONVERGED Newton result is
-  // trusted; the old code returned the last iterate even when it never
-  // converged (v3.5, Wave A finding 1.4).
-  let r = 0.10;
-  for (let iter = 0; iter < 100; iter++) {
-    let f = 0, df = 0;
-    for (let i = 0; i < cashFlows.length; i++) {
-      const factor = Math.pow(1 + r, i);
-      f += cashFlows[i] / factor;
-      df -= i * cashFlows[i] / (factor * (1 + r));
-    }
-    if (Math.abs(df) < 1e-12) break;
-    const r_new = r - f / df;
-    if (Math.abs(r_new - r) < 1e-7) return r_new;
-    r = r_new;
-    if (r < -0.99) r = -0.99;
-    if (r > 10) r = 10;
-  }
-
-  // Fallback: bisection on [-0.99, 10]. NPV(r) is continuous; without a sign
-  // change in the bracket there is no IRR to report, so return null rather
-  // than a number the cash flows do not support.
-  let lo = -0.99, hi = 10;
-  let fLo = npvAt(lo), fHi = npvAt(hi);
-  if (!Number.isFinite(fLo) || !Number.isFinite(fHi) || fLo * fHi > 0) return null;
-  for (let iter = 0; iter < 200 && hi - lo > 1e-9; iter++) {
-    const mid = (lo + hi) / 2;
-    const fMid = npvAt(mid);
-    if (fMid === 0) return mid;
-    if (fLo * fMid < 0) { hi = mid; fHi = fMid; } else { lo = mid; fLo = fMid; }
-  }
-  return (lo + hi) / 2;
+// Scalar IRR as a FRACTION, the shape callers before v3.10 expect. Null
+// wherever the contract refuses to name a single rate.
+export function irr(cashFlows: number[], times?: number[]): number | null {
+  const solved = irrResult(cashFlows, times);
+  return solved.irr === null ? null : solved.irr / 100;
 }
 
 // v3.4: numeric companion to paybackPeriod() — null means never paid back.
@@ -1157,6 +1216,10 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
     : cfg.fiscal_regime === 'PSC'
       ? Math.max(0, Math.min(1, Number(cfg.psc_working_interest_pct ?? 100) / 100))
       : 1;
+  const isPIAorPSC = cfg.fiscal_regime === 'PIA' || cfg.fiscal_regime === 'PSC';
+  // JV carries its working interest inside applyJV; v3.10 (EC1-4) reads it
+  // here too so the JV rows report the same share on every line.
+  const jvWorkingInterest = Number(cfg.jv_working_interest_pct) / 100;
 
   const annualVols = extractAnnualVolumes(prodRows, baseYear);
   const annualCapex = extractAnnualCapex(capexRows, baseYear);
@@ -1250,8 +1313,16 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
     const fundStart = Number.isFinite(reqStart) && reqStart > 0
       ? Math.min(reqStart, abandonmentYear!) : years[0];
     const fundYears = years.filter(y => y >= fundStart && y <= abandonmentYear!);
-    const perYear = abandonmentCost / Math.max(1, fundYears.length);
-    for (const y of fundYears) fundContribution.set(y, perYear);
+    const perYearShare = abandonmentCost / Math.max(1, fundYears.length);
+    // v3.10 (EC1-3): abandonment_cost_usd is the USER'S SHARE under both
+    // funding modes. The regime math runs at field level and is scaled to the
+    // share afterwards (JV scales inside applyJV), so the contribution is
+    // grossed up by 1 / WI here and comes back out at the share, which makes
+    // the fund collect exactly the cost that was entered. A zero working
+    // interest owns none of the field and so collects nothing.
+    const wiForFunding = isPIAorPSC ? wiRegime : jvWorkingInterest;
+    const perYearField = wiForFunding > 0 ? perYearShare / wiForFunding : 0;
+    for (const y of fundYears) fundContribution.set(y, perYearField);
   }
 
   const isPIA = cfg.fiscal_regime === 'PIA';
@@ -1295,6 +1366,7 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
     cumulative_oil_bbl_lifetime: Number(cfg.pia_prior_cumulative_oil_bbl ?? 0),
     hct_loss_carryforward: 0,
     cit_loss_carryforward: 0,
+    cit_allowance_carryforward: 0,
   };
   let jvLossCarryforward = 0;
   const applyLossRelief = cfg.apply_loss_carryforward !== false;
@@ -1440,6 +1512,9 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
         cit_loss_offset_used: pia.cit_loss_offset_used,
         hct_loss_carryforward: pia.hct_loss_carryforward,
         cit_loss_carryforward: pia.cit_loss_carryforward,
+        // v3.10 (EC1-6) CITA capital allowance restriction diagnostics
+        cit_allowance_claimed: pia.cit_allowance_claimed,
+        cit_allowance_carryforward: pia.cit_allowance_carryforward,
       });
 
     } else if (cfg.fiscal_regime === 'PSC') {
@@ -1471,6 +1546,8 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
         net_cash_flow: regOut.net_cash_flow,
         netCashFlow: regOut.net_cash_flow,
         psc_contractor_share_pct: shareEff * 100,
+        // v3.10 (EC1-5): the cost pool the row leaves unrecovered.
+        psc_cost_pool_after: pscOut.cumulative_unrecovered_cost_after,
         ...(itcThisYear > 0 || pscOut.itc_used > 0
           ? { psc_itc_used: pscOut.itc_used, psc_itc_carryforward: pscOut.itc_carryforward_after } : {}),
         ...(decomContributionPsc > 0 ? { decom_fund_contribution: decomContributionPsc } : {}),
@@ -1479,7 +1556,7 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
       const decomContributionJv = fundContribution.get(year) || 0;
       const jvOut = applyJV(
         { gross_revenue: grossRev, capex: capexNominal, opex: opexInflated + decomContributionJv, depreciation: depr, cumulative_unrecovered_cost: 0 },
-        Number(cfg.jv_working_interest_pct) / 100,
+        jvWorkingInterest,
         Number(cfg.jv_royalty_pct) / 100,
         Number(cfg.jv_tax_rate_pct) / 100,
         jvLossCarryforward,
@@ -1497,6 +1574,24 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
         loss_carryforward: jvOut.loss_carryforward_after,
         ...(decomContributionJv > 0 ? { decom_fund_contribution: decomContributionJv } : {}),
       });
+
+      // v3.10 (EC1-4): JV rows report the SHARE on every line, as PSC and PIA
+      // rows do. applyJV already returns royalty, taxable income, tax and net
+      // cash flow at the share; the revenue, cost and volume lines are scaled
+      // here so government take, the unit costs and PV(capex) are all read on
+      // one basis and the take is working-interest invariant. Before v3.10
+      // these lines stayed at field level, which counted the other partners'
+      // share of the value as government take.
+      if (jvWorkingInterest !== 1) {
+        const JV_SHARE_SCALED_KEYS = [
+          'gross_revenue', 'revenue', 'opex', 'capex', 'depreciation',
+          'oil_bbl', 'gas_mscf', 'condensate_bbl', 'decom_fund_contribution',
+        ];
+        for (const k of JV_SHARE_SCALED_KEYS) {
+          if (typeof baseRow[k] === 'number') baseRow[k] *= jvWorkingInterest;
+        }
+        baseRow.working_interest_pct = jvWorkingInterest * 100;
+      }
     }
 
     // v3.6 (Wave B): scale PSC/PIA rows to the working-interest share. The
@@ -1516,8 +1611,9 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
         'cpr_cap', 'cpr_costs_claimed', 'cpr_deferred_to_next',
         'hct_loss_offset_used', 'cit_loss_offset_used',
         'hct_loss_carryforward', 'cit_loss_carryforward',
+        'cit_allowance_claimed', 'cit_allowance_carryforward',
         'min_etr_topup', 'decom_fund_contribution', 'decom_fund_tax_relief',
-        'psc_itc_used', 'psc_itc_carryforward',
+        'psc_itc_used', 'psc_itc_carryforward', 'psc_cost_pool_after',
         'net_cash_flow', 'netCashFlow',
       ];
       for (const k of WI_SCALED_KEYS) {
@@ -1585,13 +1681,20 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
   const cfForIRR = evalRows.map(d => d.net_cash_flow);
   const cfForPayback = evalRows.map(d => d.net_cash_flow);
   const npvVal = evalRows.reduce((s, d) => s + d.discounted_cash_flow, 0);
-  const irrVal = irr(cfForIRR);
+  // v3.10 (EC1-2): year-end exponents measured from the first evaluated year.
+  // The valuation-date anchor and the mid-year half multiply every term by
+  // the same factor, so neither moves a root.
+  const irrFirstYear = evalRows.length > 0 ? evalRows[0].year : 0;
+  const irrOut = irrResult(cfForIRR, evalRows.map(d => d.year - irrFirstYear));
   const paybackVal = paybackPeriod(cfForPayback);
 
   const kpis: any = {
     engine_version: ENGINE_VERSION,
     npv: npvVal,
-    irr: irrVal !== null ? irrVal * 100 : null,
+    irr: irrOut.irr,
+    irr_status: irrOut.irr_status,
+    irr_roots: irrOut.irr_roots,
+    irr_root_above_band: irrOut.irr_root_above_band,
     payback: paybackVal,
     pv_basis: pvBasis,
     discount_rate_applied_pct: discountForNPV * 100,
@@ -1686,11 +1789,17 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
   // v3.8 (Wave D): NPV at a standard rate vector (the NPV-vs-discount-rate
   // profile). Same basis and exponents; the applied rate is included so the
   // curve always passes through the headline NPV.
+  // v3.10 (EC1-1): the applied point is LABELLED with the rate rounded to two
+  // decimals and EVALUATED at the exact applied rate, so the curve passes
+  // through the headline NPV. Before v3.10 it was evaluated at the rounded
+  // rate and missed the headline on a real basis whose Fisher rate is not a
+  // round percentage.
+  const appliedRateLabelPct = Math.round(discountForNPV * 10000) / 100;
   const profileRates = Array.from(new Set(
-    [0, 5, 8, 10, 12, 15, 20, Math.round(discountForNPV * 10000) / 100]
+    [0, 5, 8, 10, 12, 15, 20, appliedRateLabelPct]
   )).sort((a, b) => a - b);
   kpis.npv_profile = profileRates.map((ratePct) => {
-    const r = ratePct / 100;
+    const r = ratePct === appliedRateLabelPct ? discountForNPV : ratePct / 100;
     const v = evalRows.reduce((s, d) => {
       const t = d.year - baseYear;
       const onBasis = pvBasis === 'real' ? d.net_cash_flow / Math.pow(1 + inflationRate, t) : d.net_cash_flow;
@@ -1707,11 +1816,24 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
   }, 0);
   kpis.pv_capex = pvCapex;
   kpis.dpi = pvCapex > 0 ? npvVal / pvCapex : null;
+  // v3.10 (EC1-7): the conventional profitability index, PV(inflows) over
+  // PV(investment), which is dpi plus one. `dpi` keeps its published meaning.
+  kpis.profitability_index = kpis.dpi !== null ? 1 + kpis.dpi : null;
 
   kpis.payback_years = paybackYears(cfForPayback);
   kpis.discounted_payback_years = paybackYears(evalRows.map(d => d.discounted_cash_flow));
 
+  // v3.10 (EC1-5): the PSC cost pool still unrecovered when the contract
+  // ends, at the working-interest share. Zero when every cost was recovered.
+  if (cfg.fiscal_regime === 'PSC') {
+    kpis.psc_unrecovered_cost_at_cessation = pscCarryforward * wiRegime;
+  }
+
   if (cfg.fiscal_regime === 'PIA') {
+    // v3.10 (EC1-6): capital allowance the CITA restriction disallowed and
+    // that cessation leaves unclaimed, at the working-interest share.
+    const citAllowanceLeft = piaState.cit_allowance_carryforward * wiRegime;
+    if (citAllowanceLeft > 0) kpis.cit_allowance_unused_at_cessation = citAllowanceLeft;
     kpis.total_royalties = evalRows.reduce((s, d) => s + (d.royalty || 0), 0);
     kpis.total_hct = evalRows.reduce((s, d) => s + (d.hct_tax || 0), 0);
     kpis.total_cit = evalRows.reduce((s, d) => s + (d.cit_tax || 0), 0);
