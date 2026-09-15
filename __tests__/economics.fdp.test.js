@@ -25,6 +25,7 @@ import fs from 'fs';
 import path from 'path';
 import {
   runFdpCase, runFdpSensitivity, buildFdpCaseInputs, paybackYears, DEFAULT_FISCAL,
+  resolveAbandonment, planAbandonment, ABANDONMENT_SOURCES,
 } from '../engines/economics/fdp/economics.js';
 import {
   calculateCashFlows, calculateNPV, calculateIRR, calculatePaybackPeriod,
@@ -43,9 +44,11 @@ import {
 } from '../engines/economics/fdp/subsurfaceCalculations.js';
 import {
   calculateDrillingTime, calculateDrillingCost, calculateWellCount, aggregateWellsByType, calculateTotalDrillingCost,
+  SCREENING_RECOVERY_PER_WELL_MMBBL,
 } from '../engines/economics/fdp/wellCalculations.js';
 import {
   calculateFacilityCapacity, calculateFacilityCost, calculateFlowAssuranceRisk, identifyBottlenecks,
+  screenSourService, SOUR_SERVICE_THRESHOLD_PSIA, CORROSION_STATUSES,
 } from '../engines/economics/fdp/facilitiesCalculations.js';
 import {
   calculateRiskMatrix, calculateTotalRiskScore, aggregateRisksByType, calculateComplianceScore,
@@ -58,7 +61,9 @@ import {
   calculateProjectDuration, calculateCPM, calculateResourceRequirements, identifyMilestones,
   calculateNetworkDuration, criticalPaths,
 } from '../engines/economics/fdp/scheduleCalculations.js';
-import { calculateCompleteness, validateFDPData, planReservesP50 } from '../engines/economics/fdp/fdpCalculations.js';
+import {
+  calculateCompleteness, validateFDPData, planReservesP50, planReservesCheck, RESERVES_PROFILE_MARGIN,
+} from '../engines/economics/fdp/fdpCalculations.js';
 import { FdpInputError } from '../engines/economics/fdp/inputError.js';
 import { getRiskLevel, riskScore, RiskTypes, RiskStatus } from '../engines/economics/fdp/riskModel.js';
 import { calculateEconomics } from '../engines/economics/screening.js';
@@ -80,6 +85,35 @@ const expectNum = (actual, expected, tol) => {
 };
 
 const deck = (prices) => prices.map((p) => ({ oil_price_usd: p }));
+
+/**
+ * EC6-3: the corrosion screen. Strings, the threshold and the status are
+ * exact; the partial pressures are compared to a tolerance because the
+ * oracle reaches them by a different road (ppm x pressure over a million,
+ * where the engine takes the mole fraction first, and its own psi to kPa
+ * conversion from the definition of the pound-force per square inch).
+ */
+const expectCorrosion = (actual, expected) => {
+  ['status', 'message', 'standard', 'thresholdPsia', 'thresholdKpa']
+    .forEach((k) => expect(actual[k]).toEqual(expected[k]));
+  ['h2sPpm', 'operatingPressurePsia', 'h2sPartialPressurePsia', 'h2sPartialPressureKpa'].forEach((k) => {
+    if (expected[k] === null) expect(actual[k]).toBeNull();
+    else expect(Math.abs(actual[k] - expected[k])).toBeLessThanOrEqual(1e-12);
+  });
+};
+
+/** EC6-1: the plan reserves check. Volumes and ratios to a tolerance. */
+const expectReservesCheck = (actual, expected) => {
+  ['status', 'profileSource', 'recoveryPerWellSource', 'profileYears', 'impliedWells',
+    'carriedWells', 'recoveryPerWellMMbbl', 'marginFraction']
+    .forEach((k) => expect(actual[k]).toEqual(expected[k]));
+  expect(actual.missing).toEqual(expected.missing);
+  expect(actual.warnings).toEqual(expected.warnings);
+  ['profileVolumeMMbbl', 'oilP50MMbbl', 'profileToP50Ratio', 'wellsRatio'].forEach((k) => {
+    if (expected[k] === null) expect(actual[k]).toBeNull();
+    else expect(Math.abs(actual[k] - expected[k])).toBeLessThanOrEqual(1e-9);
+  });
+};
 
 // ---------------------------------------------------------------------------
 // (c) The Suite's own tests, ported.
@@ -613,7 +647,15 @@ describe('golden: facilities', () => {
   test.each(G.facilities.flowAssurance.map((c) => [JSON.stringify(c.inputs), c]))('flow assurance %s', (_n, c) => {
     const fluid = c.inputs.fluidProperties;
     const r = calculateFlowAssuranceRisk(c.inputs.facility, fluid === null ? undefined : fluid);
-    expect(r).toEqual(c.expected);
+    const { corrosion, ...rest } = r;
+    const { corrosion: expectedCorrosion, ...expectedRest } = c.expected;
+    expect(rest).toEqual(expectedRest);
+    expectCorrosion(corrosion, expectedCorrosion);
+    expectCorrosion(screenSourService(fluid === null ? undefined : fluid), expectedCorrosion);
+    expect(CORROSION_STATUSES).toContain(corrosion.status);
+    // EC6-3: the corrosion points are scored on the sour service status alone.
+    expect(r.contributions.some((x) => x.hazards.includes('Corrosion')))
+      .toBe(corrosion.status === 'sour-service');
     // EC6-2: the score is the sum of its named contributions, and no band.
     expect(r.contributions.reduce((sum, x) => sum + x.points, 0)).toBe(r.score);
     expect(r.contributions.flatMap((x) => x.hazards)).toEqual(r.hazards);
@@ -638,6 +680,61 @@ describe('golden: facilities', () => {
     const disagree = G.facilities.flowAssurance
       .filter((c) => c.retired.level !== getRiskLevel(c.expected.score).level);
     expect(disagree.length).toBeGreaterThan(0);
+  });
+
+  test('EC6-3: the corrosion screen is the H2S partial pressure against the NACE threshold', () => {
+    expect(SOUR_SERVICE_THRESHOLD_PSIA).toBe(0.05);
+    // 100 ppm at 1000 psia is 0.1 psia, twice the threshold.
+    const sour = screenSourService({ h2s: 100, operatingPressurePsia: 1000 });
+    expect(sour.status).toBe('sour-service');
+    expect(sour.h2sPartialPressurePsia).toBeCloseTo(0.1, 12);
+    expect(sour.h2sPartialPressureKpa).toBeCloseTo(0.1 * 6.894757293168361, 12);
+    // the same 100 ppm at 400 psia is 0.04 psia, below it
+    expect(screenSourService({ h2s: 100, operatingPressurePsia: 400 }).status).toBe('below-sour-threshold');
+    // blank, measured without a pressure, and a measured zero
+    expect(screenSourService(undefined).status).toBe('not-measured');
+    expect(screenSourService({ api: 30 }).status).toBe('not-measured');
+    expect(screenSourService({ h2s: '' }).status).toBe('not-measured');
+    expect(screenSourService({ h2s: 50 }).status).toBe('sour-severity-needs-pressure');
+    expect(screenSourService({ h2s: 0 }).status).toBe('below-sour-threshold');
+    expect(screenSourService({ h2s: 0 }).h2sPartialPressurePsia).toBe(0);
+    // the messages carry the numbers and no severity is claimed without them
+    expect(screenSourService(undefined).message).toMatch(/not measured/);
+    expect(screenSourService({ h2s: 50 }).message).toMatch(/enter the operating pressure in psia/);
+  });
+
+  test.each(G.facilities.flowAssuranceRefusals.map((c) => [c.name, c]))('refuses %s', (_n, c) => {
+    expect(() => calculateFlowAssuranceRisk({ type: 'FPSO' }, c.inputs)).toThrow(FdpInputError);
+    try {
+      screenSourService(c.inputs);
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
+    }
+  });
+
+  test('EC6-3 NEGATIVE CONTROL: the retired trigger fired at any H2S above zero, always High', () => {
+    // The retired rule, restated: `(fluidProperties?.h2s || 0) > 0` scored 4
+    // points and a High corrosion risk, and a blank H2S was 0, so it read
+    // as sweet.
+    const retiredFired = (fluid) => ((fluid?.h2s || 0) > 0);
+    G.facilities.flowAssurance.forEach((c) => {
+      const fluid = c.inputs.fluidProperties === null ? undefined : c.inputs.fluidProperties;
+      expect(retiredFired(fluid)).toBe(c.retired.corrosionFired);
+    });
+    const disagree = G.facilities.flowAssurance
+      .filter((c) => c.retired.corrosionFired !== (c.expected.corrosion.status === 'sour-service'));
+    expect(disagree.length).toBeGreaterThan(0);
+    // 1 ppm at 100 psia is 0.0001 psia, five hundred times below the
+    // threshold, and it used to score the same 4 points as 5 percent H2S.
+    const trace = { api: 32, h2s: 1, operatingPressurePsia: 100 };
+    const severe = { api: 32, h2s: 50000, operatingPressurePsia: 5000 };
+    expect(retiredFired(trace)).toBe(true);
+    expect(retiredFired(severe)).toBe(true);
+    expect(calculateFlowAssuranceRisk({ type: 'FPSO' }, trace).score).toBe(0);
+    expect(calculateFlowAssuranceRisk({ type: 'FPSO' }, severe).score).toBe(4);
+    // and a blank H2S is no longer an answer at all
+    expect(retiredFired(undefined)).toBe(false);
+    expect(calculateFlowAssuranceRisk({ type: 'FPSO' }, undefined).corrosion.status).toBe('not-measured');
   });
 
   test('bottlenecks', () => {
@@ -781,8 +878,79 @@ describe('golden: schedule', () => {
 
 describe('golden: plan completeness and validation', () => {
   test.each(G.plan.map((c) => [c.name, c]))('%s', (_n, c) => {
-    expect(calculateCompleteness(c.inputs)).toEqual(c.expected.completeness);
-    expect(validateFDPData(c.inputs)).toEqual(c.expected.validation);
+    const { reservesCheck, ...completeness } = calculateCompleteness(c.inputs);
+    const { reservesCheck: expectedCheck, ...expectedCompleteness } = c.expected.completeness;
+    expect(completeness).toEqual(expectedCompleteness);
+    expectReservesCheck(reservesCheck, expectedCheck);
+    expect(reservesCheck).toEqual(planReservesCheck(c.inputs));
+
+    const { reservesCheck: validationCheck, ...validation } = validateFDPData(c.inputs);
+    const { reservesCheck: expectedValidationCheck, ...expectedValidation } = c.expected.validation;
+    expect(validation).toEqual(expectedValidation);
+    expectReservesCheck(validationCheck, expectedValidationCheck);
+  });
+});
+
+describe('EC6-1: the reserves check against the profile', () => {
+  const egina = G.plan.find((c) => c.name.startsWith('EC6-1: the EGINA plan'));
+
+  test('the headline case: a screening shape far above the P50, on too few wells', () => {
+    const check = planReservesCheck(egina.inputs);
+    expect(check.status).toBe('checked');
+    expect(check.profileVolumeMMbbl).toBeCloseTo(229.9293, 4);
+    expect(check.oilP50MMbbl).toBe(130);
+    expect(check.profileToP50Ratio).toBeCloseTo(229.9293 / 130, 6);
+    expect(check.impliedWells).toBe(11);
+    expect(check.carriedWells).toBe(4);
+    expect(check.wellsRatio).toBeCloseTo(11 / 4, 12);
+    expect(check.recoveryPerWellMMbbl).toBe(SCREENING_RECOVERY_PER_WELL_MMBBL);
+    expect(check.warnings.map((w) => w.code))
+      .toEqual(['profile-exceeds-p50', 'implied-wells-exceed-carried']);
+    // Non-blocking and uncapped: the score is what it always was, the plan
+    // is valid, and the warnings are on the result instead.
+    const completeness = calculateCompleteness(egina.inputs);
+    expect(completeness.score).toBe(100);
+    expect(completeness.completeWithWarnings).toBe(true);
+    const validation = validateFDPData(egina.inputs);
+    expect(validation.isValid).toBe(true);
+    expect(validation.warnings).toEqual(expect.arrayContaining(check.warnings.map((w) => w.message)));
+  });
+
+  test('a profile within the margin and wells enough raises nothing', () => {
+    const within = G.plan.find((c) => c.name.includes('within the margin'));
+    const check = planReservesCheck(within.inputs);
+    expect(check.status).toBe('checked');
+    expect(check.profileToP50Ratio).toBeLessThanOrEqual(1 + RESERVES_PROFILE_MARGIN);
+    expect(check.warnings).toEqual([]);
+    expect(calculateCompleteness(within.inputs).completeWithWarnings).toBe(false);
+  });
+
+  test('NEGATIVE CONTROL: the retired result compared nothing, so it was silent on every one of them', () => {
+    // The retired rule, restated: completeness was the nine section checks
+    // and validation was the six field checks, and NEITHER looked at the
+    // profile, the reserves or the well count. Restating it is restating
+    // silence, so the control is that the silence disagrees.
+    const retiredValidationWarnings = (state) => {
+      const warnings = [];
+      if ((state.wells?.list?.length || 0) === 0) warnings.push('No wells defined in the drilling program.');
+      if ((state.facilities?.list?.length || 0) === 0) warnings.push('No facilities concepts selected.');
+      if ((state.costs?.items?.length || 0) === 0) warnings.push('Cost breakdown is empty.');
+      return warnings;
+    };
+    const warned = G.plan.filter((c) => c.expected.completeness.reservesCheck.warnings.length);
+    expect(warned.length).toBeGreaterThan(0);
+    warned.forEach((c) => {
+      const retired = retiredValidationWarnings(c.inputs);
+      const now = validateFDPData(c.inputs).warnings;
+      expect(retired).toEqual(now.slice(0, retired.length));
+      // every reserves warning is new, and the retired result had no check
+      expect(now.length).toBeGreaterThan(retired.length);
+      expect(calculateCompleteness(c.inputs).reservesCheck.warnings.length).toBeGreaterThan(0);
+    });
+    // and the EGINA plan is the one that used to read 100 percent complete
+    // and perfectly clean
+    expect(retiredValidationWarnings(egina.inputs)).toEqual([]);
+    expect(calculateCompleteness(egina.inputs).score).toBe(100);
   });
 });
 
@@ -1031,6 +1199,90 @@ describe('golden: the worked example, end to end', () => {
   });
 });
 
+
+describe('EC6-8: the end-of-life cost is in the case', () => {
+  test.each(G.abandonment.map((c) => [c.name, c]))('resolve: %s', (_n, c) => {
+    const r = resolveAbandonment(c.inputs);
+    expect(r.abandonmentSource).toBe(c.expected.abandonmentSource);
+    expect(ABANDONMENT_SOURCES).toContain(r.abandonmentSource);
+    expectNum(r.abandonmentMM, c.expected.abandonmentMM, MONEY);
+    expect(r.abandonmentBasis).toBe(c.expected.abandonmentBasis);
+    // the plan-state door reads the same three places
+    expect(planAbandonment({
+      costs: { items: c.inputs.costItems },
+      facilities: { list: c.inputs.facilities, selectedId: c.inputs.selectedFacilityId },
+    })).toEqual(r);
+  });
+
+  test.each(G.abandonmentRefusals.map((c) => [c.name, c]))('refuses %s', (_n, c) => {
+    const run = () => (c.inputs.case
+      ? runFdpCase({ ...c.inputs.case, abandonment: c.inputs.abandonment })
+      : resolveAbandonment(c.inputs));
+    expect(run).toThrow(FdpInputError);
+    try {
+      run();
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
+    }
+  });
+
+  test.each(G.fdpCaseAbandonment.map((c) => [c.name, c]))('%s', (_n, c) => {
+    const { capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal } = c.inputs.case;
+    const abandonment = c.inputs.abandonment;
+    const r = runFdpCase({ capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal, abandonment });
+    const e = c.expected;
+    expect(r.abandonmentSource).toBe(e.abandonmentSource);
+    expectNum(r.abandonmentMM, e.abandonmentMM, MONEY);
+    expect(r.abandonmentYear).toBe(e.abandonmentYear);
+    r.cashflow.forEach((row, i) => expectNum(row.abex, e.cashflow[i].abex, MONEY));
+    ['npv', 'payback', 'totalTax', 'totalGovTake'].forEach((k) => expectNum(r.metrics[k], e.metrics[k], MONEY));
+    expect(r.metrics.irrStatus).toBe(e.metrics.irrStatus);
+    if (e.metrics.irr === null) expect(r.metrics.irr).toBeNull();
+    else expectNum(r.metrics.irr, e.metrics.irr, IRR);
+    // the cost screen's door carries it too, and shows it in the rows
+    const rows = calculateCashFlows(capexMM, annualOpexMM, productionKbpd, deck(pricesUsd), fiscal, abandonment);
+    rows.forEach((row, i) => expectNum(row.abex, e.cashflow[i].abex, MONEY));
+    expectNum(calculateNPV(rows), e.costCalculations.npv, MONEY);
+    // and a scenario card, where the golden carries the scenario it came from
+    if (c.inputs.scenario) {
+      const sc = runScenario(c.inputs.scenario, c.inputs.concept, abandonment);
+      expectNum(sc.metrics.npv, e.metrics.npv, MONEY);
+      expect(sc.abandonmentSource).toBe(e.abandonmentSource);
+    }
+  });
+
+  test('NEGATIVE CONTROL: the retired case abandoned the field for nothing', () => {
+    // The retired rule, restated: `abandonment` was an array of zeros, so
+    // the ABEX item and the decommissioning estimate never reached the NPV.
+    G.fdpCaseAbandonment.forEach((c) => {
+      const { capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal } = c.inputs.case;
+      const asBefore = runFdpCase({ capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal });
+      expect(asBefore.abandonmentSource).toBe('none');
+      expect(asBefore.cashflow.every((row) => row.abex === 0)).toBe(true);
+      expectNum(asBefore.metrics.npv, c.retired.npv, MONEY);
+      if (c.expected.abandonmentMM > 0) {
+        // the retired NPV is the overstatement, every time
+        expect(asBefore.metrics.npv).toBeGreaterThan(c.expected.metrics.npv);
+      } else {
+        expectNum(asBefore.metrics.npv, c.expected.metrics.npv, MONEY);
+      }
+    });
+    const charged = G.fdpCaseAbandonment.filter((c) => c.expected.abandonmentMM > 0);
+    expect(charged.length).toBeGreaterThan(0);
+  });
+
+  test('an ABEX item replaces the decommissioning estimate and is never added to it', () => {
+    const items = [{ name: 'Abandonment provision', type: 'ABEX', amount: 260 }];
+    const facilities = [{ id: 'f1', name: 'FPSO', type: 'FPSO', nameplateCapacity: 60000 }];
+    const both = resolveAbandonment({ costItems: items, facilities });
+    const estimateOnly = resolveAbandonment({ facilities });
+    expect(both.abandonmentSource).toBe('abex-item');
+    expect(both.abandonmentMM).toBe(260);
+    expect(estimateOnly.abandonmentSource).toBe('decommissioning-estimate');
+    expect(estimateOnly.abandonmentMM).toBeCloseTo(calculateFacilityCost(facilities[0]).decommissioning, 12);
+    expect(both.abandonmentMM).toBeLessThan(260 + estimateOnly.abandonmentMM);
+  });
+});
 
 describe('EC6-1: the findings this wave closed', () => {
   test('section 10: an unscored risk cannot improve the register', () => {
