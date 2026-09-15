@@ -1,5 +1,5 @@
 {
- "description": "AFE cost control and project controls goldens. partnerSplit: calculatePartnerCosts (shares by working interest, operator remainder, validity, the note text, and the conservation identity). metrics: calculateMetrics (BAC, commitments, AC, EAC, VAC, EV, CPI, SPI, percent spent and complete) with the standard EVM set beside it (cv, sv, etc, tcpi are reference only, not engine outputs; plannedValue and timeProgress are engine outputs since EC5-0; spi null where planned value is 0). metricsRefusals: the AfeInputError message for an invalid asOf or negative progress. sCurve: the exact generateSCurveData point list, bounded to the window. inputs.asOf, when present, is passed to the engine (as a Date when inputs.asOfAs is \"Date\", else as the string). evm: projectControls.calculateEVM strings (toFixed(2)) and their numeric values; cpiSpi; gantt: formatTasksForGantt rows with dates as epoch milliseconds (null = Invalid Date). Independent stdlib oracle tools/validation/economics/oracle_afe.py. Cases without an asOf use AFE windows wholly past (2020) or wholly future (2090 or later), because the engine defaults asOf to the clock; they are valid until 2080. Money in the caller's currency; percentages 0 to 100; days whole. A null where a number is expected is a null in the engine too (spi), or a non-finite value where a note says so. Timezone assumption UTC.",
+ "description": "AFE cost control and project controls goldens. partnerSplit: calculatePartnerCosts (shares by working interest, operator remainder, validity, the note text, and the conservation identity). metrics: calculateMetrics (BAC, commitments, AC, EAC, VAC, EV, CPI, SPI, percent spent and complete) with the standard EVM set beside it (cv, sv, etc, tcpi are reference only, not engine outputs; plannedValue and timeProgress are engine outputs since EC5-0; since EC5-3 cpi and spi are null wherever the ratio is undefined, with cpiStatus no-spend and spiStatus no-budget or no-planned-value, and ok otherwise). metricsRefusals: the AfeInputError message for an invalid asOf or progress outside 0 to 100 percent. sCurve: the exact generateSCurveData point list, bounded to the window. inputs.asOf, when present, is passed to the engine (as a Date when inputs.asOfAs is \"Date\", else as the string). evm: projectControls.calculateEVM strings (toFixed(2)) and their numeric values; cpiSpi; gantt: formatTasksForGantt rows with dates as epoch milliseconds (null = Invalid Date). Independent stdlib oracle tools/validation/economics/oracle_afe.py. Cases without an asOf use AFE windows wholly past (2020) or wholly future (2090 or later), because the engine defaults asOf to the clock; they are valid until 2080. Money in the caller's currency; percentages 0 to 100; days whole. A null where a number is expected is a null in the engine too (spi), or a non-finite value where a note says so. The S-curve is UTC throughout (EC5-5) and the gate requires the same points under five TZ values; the metrics goldens assume a UTC run.",
  "validUntil": "2080-01-01",
  "partnerSplit": [
   {
@@ -963,7 +963,9 @@
     "variance": 0.0,
     "earnedValue": 0.0,
     "cpi": 0.0,
+    "cpiStatus": "ok",
     "spi": 0.0,
+    "spiStatus": "ok",
     "percentSpent": 23.333333333333332,
     "percentComplete": 0.0,
     "plannedValue": 300.0,
@@ -985,7 +987,7 @@
    }
   },
   {
-   "name": "suite test: entered forecast",
+   "name": "suite test: entered forecast (nothing spent: CPI null)",
    "inputs": {
     "afe": {
      "start_date": "2020-01-01",
@@ -1011,8 +1013,10 @@
     "totalForecast": 140.0,
     "variance": -40.0,
     "earnedValue": 0.0,
-    "cpi": 1.0,
+    "cpi": null,
+    "cpiStatus": "no-spend",
     "spi": 0.0,
+    "spiStatus": "ok",
     "percentSpent": 0.0,
     "percentComplete": 0.0,
     "plannedValue": 100.0,
@@ -1060,7 +1064,9 @@
     "variance": 0.0,
     "earnedValue": 0.0,
     "cpi": 0.0,
+    "cpiStatus": "ok",
     "spi": 0.0,
+    "spiStatus": "ok",
     "percentSpent": 20.0,
     "percentComplete": 0.0,
     "plannedValue": 100.0,
@@ -1108,7 +1114,9 @@
     "variance": -30.0,
     "earnedValue": 0.0,
     "cpi": 0.0,
+    "cpiStatus": "ok",
     "spi": 0.0,
+    "spiStatus": "ok",
     "percentSpent": 70.0,
     "percentComplete": 0.0,
     "plannedValue": 100.0,
@@ -1130,7 +1138,7 @@
    }
   },
   {
-   "name": "suite test: weighted earned value",
+   "name": "suite test: weighted earned value (value earned, nothing spent: CPI null)",
    "inputs": {
     "afe": {
      "start_date": "2020-01-01",
@@ -1159,8 +1167,10 @@
     "totalForecast": 400.0,
     "variance": 0.0,
     "earnedValue": 110.0,
-    "cpi": 1.0,
+    "cpi": null,
+    "cpiStatus": "no-spend",
     "spi": 0.275,
+    "spiStatus": "ok",
     "percentSpent": 0.0,
     "percentComplete": 27.500000000000004,
     "plannedValue": 400.0,
@@ -1179,7 +1189,8 @@
      "vac": 0.0,
      "tcpi": 0.725
     }
-   }
+   },
+   "note": "The CPI item: 110 earned against no spend. Before, CPI was reported as 1."
   },
   {
    "name": "suite test: CPI 1.25",
@@ -1207,7 +1218,9 @@
     "variance": 0.0,
     "earnedValue": 100.0,
     "cpi": 1.25,
+    "cpiStatus": "ok",
     "spi": 0.5,
+    "spiStatus": "ok",
     "percentSpent": 40.0,
     "percentComplete": 50.0,
     "plannedValue": 200.0,
@@ -1254,7 +1267,9 @@
     "variance": 0.0,
     "earnedValue": 100.0,
     "cpi": 1.0,
+    "cpiStatus": "ok",
     "spi": 0.5,
+    "spiStatus": "ok",
     "percentSpent": 50.0,
     "percentComplete": 50.0,
     "plannedValue": 200.0,
@@ -1276,7 +1291,7 @@
    }
   },
   {
-   "name": "suite test: empty AFE",
+   "name": "suite test: empty AFE: no budget and no spend, so SPI and CPI are null",
    "inputs": {
     "afe": {
      "start_date": "2020-01-01",
@@ -1294,8 +1309,10 @@
     "totalForecast": 0,
     "variance": 0,
     "earnedValue": 0.0,
-    "cpi": 1.0,
-    "spi": 1.0,
+    "cpi": null,
+    "cpiStatus": "no-spend",
+    "spi": null,
+    "spiStatus": "no-budget",
     "percentSpent": 0.0,
     "percentComplete": 0.0,
     "plannedValue": 0.0,
@@ -1314,10 +1331,11 @@
      "vac": 0,
      "tcpi": null
     }
-   }
+   },
+   "note": "EC5-3 and the CPI item: spiStatus no-budget and cpiStatus no-spend. Before, the zero-budget guard reported SPI 1 and CPI 1."
   },
   {
-   "name": "suite test: missing numbers",
+   "name": "suite test: missing numbers (no budget, no spend: both ratios null)",
    "inputs": {
     "afe": {
      "start_date": "2020-01-01",
@@ -1341,8 +1359,10 @@
     "totalForecast": 0.0,
     "variance": 0.0,
     "earnedValue": 0.0,
-    "cpi": 1.0,
-    "spi": 1.0,
+    "cpi": null,
+    "cpiStatus": "no-spend",
+    "spi": null,
+    "spiStatus": "no-budget",
     "percentSpent": 0.0,
     "percentComplete": 0.0,
     "plannedValue": 0.0,
@@ -1387,7 +1407,9 @@
     "variance": 0.0,
     "earnedValue": 100.0,
     "cpi": 1.0,
+    "cpiStatus": "ok",
     "spi": 0.25,
+    "spiStatus": "ok",
     "percentSpent": 25.0,
     "percentComplete": 25.0,
     "plannedValue": 400.0,
@@ -1433,7 +1455,9 @@
     "variance": 0.0,
     "earnedValue": 100.0,
     "cpi": 1.0,
+    "cpiStatus": "ok",
     "spi": 0.25,
+    "spiStatus": "ok",
     "percentSpent": 25.0,
     "percentComplete": 25.0,
     "plannedValue": 400.0,
@@ -1478,7 +1502,9 @@
     "variance": 0.0,
     "earnedValue": 100.0,
     "cpi": 1.0,
+    "cpiStatus": "ok",
     "spi": 0.25,
+    "spiStatus": "ok",
     "percentSpent": 25.0,
     "percentComplete": 25.0,
     "plannedValue": 400.0,
@@ -1525,7 +1551,9 @@
     "variance": 0.0,
     "earnedValue": 100.0,
     "cpi": 1.0,
+    "cpiStatus": "ok",
     "spi": null,
+    "spiStatus": "no-planned-value",
     "percentSpent": 25.0,
     "percentComplete": 25.0,
     "plannedValue": 0.0,
@@ -1573,7 +1601,9 @@
     "variance": 0.0,
     "earnedValue": 0.0,
     "cpi": 0.0,
+    "cpiStatus": "ok",
     "spi": null,
+    "spiStatus": "no-planned-value",
     "percentSpent": 25.0,
     "percentComplete": 0.0,
     "plannedValue": 0.0,
@@ -1596,7 +1626,7 @@
    "note": "Planned value 0 and earned value 0: SPI null. Before EC5-0 the engine reported NaN."
   },
   {
-   "name": "future window, zero budget: the guard gives 1",
+   "name": "future window, zero budget: SPI null, no budget",
    "inputs": {
     "afe": {
      "start_date": "2090-01-01",
@@ -1621,7 +1651,9 @@
     "variance": -100.0,
     "earnedValue": 0.0,
     "cpi": 0.0,
-    "spi": 1.0,
+    "cpiStatus": "ok",
+    "spi": null,
+    "spiStatus": "no-budget",
     "percentSpent": 0.0,
     "percentComplete": 0.0,
     "plannedValue": 0.0,
@@ -1640,7 +1672,8 @@
      "vac": -100.0,
      "tcpi": -0.0
     }
-   }
+   },
+   "note": "EC5-3: spiStatus no-budget. Before, the zero-budget guard reported SPI 1 while a budget with zero planned value reported null."
   },
   {
    "name": "negative entered forecast is ignored (the S-curve ignores it too)",
@@ -1670,7 +1703,9 @@
     "variance": 0.0,
     "earnedValue": 10.0,
     "cpi": 0.5,
+    "cpiStatus": "ok",
     "spi": 0.1,
+    "spiStatus": "ok",
     "percentSpent": 20.0,
     "percentComplete": 10.0,
     "plannedValue": 100.0,
@@ -1720,7 +1755,9 @@
     "variance": -100.0,
     "earnedValue": 400.0,
     "cpi": 1.3333333333333333,
+    "cpiStatus": "ok",
     "spi": 0.4,
+    "spiStatus": "ok",
     "percentSpent": 30.0,
     "percentComplete": 40.0,
     "plannedValue": 1000.0,
@@ -1774,7 +1811,9 @@
     "variance": -130.0,
     "earnedValue": 100.0,
     "cpi": 0.6666666666666666,
+    "cpiStatus": "ok",
     "spi": 0.6666666666666666,
+    "spiStatus": "ok",
     "percentSpent": 100.0,
     "percentComplete": 66.66666666666666,
     "plannedValue": 150.0,
@@ -1796,7 +1835,7 @@
    }
   },
   {
-   "name": "progress beyond 100 percent earns beyond the budget",
+   "name": "progress of exactly 100 percent is accepted and earns the whole budget",
    "inputs": {
     "afe": {
      "start_date": "2020-01-01",
@@ -1807,38 +1846,45 @@
      {
       "budget": 100,
       "actual": 90,
-      "progress": 150
+      "progress": 100
+     },
+     {
+      "budget": 40,
+      "actual": 10,
+      "progress": "100"
      }
     ],
     "invoices": []
    },
    "expected": {
     "undatedInvoices": 0,
-    "totalBudget": 100.0,
+    "totalBudget": 140.0,
     "totalCommitments": 0.0,
-    "totalActuals": 90.0,
-    "totalForecast": 100.0,
+    "totalActuals": 100.0,
+    "totalForecast": 140.0,
     "variance": 0.0,
-    "earnedValue": 150.0,
-    "cpi": 1.6666666666666667,
-    "spi": 1.5,
-    "percentSpent": 90.0,
-    "percentComplete": 150.0,
-    "plannedValue": 100.0,
+    "earnedValue": 140.0,
+    "cpi": 1.4,
+    "cpiStatus": "ok",
+    "spi": 1.0,
+    "spiStatus": "ok",
+    "percentSpent": 71.42857142857143,
+    "percentComplete": 100.0,
+    "plannedValue": 140.0,
     "timeProgress": 1.0,
     "standardEvm": {
-     "bac": 100.0,
-     "pv": 100.0,
-     "ev": 150.0,
-     "ac": 90.0,
-     "cv": 60.0,
-     "sv": 50.0,
-     "cpi": 1.6666666666666667,
-     "spi": 1.5,
-     "eac": 100.0,
-     "etc": 10.0,
+     "bac": 140.0,
+     "pv": 140.0,
+     "ev": 140.0,
+     "ac": 100.0,
+     "cv": 40.0,
+     "sv": 0.0,
+     "cpi": 1.4,
+     "spi": 1.0,
+     "eac": 140.0,
+     "etc": 40.0,
      "vac": 0.0,
-     "tcpi": -5.0
+     "tcpi": 0.0
     }
    }
   },
@@ -1947,7 +1993,9 @@
     "variance": 0.0,
     "earnedValue": 4576.0,
     "cpi": 2.311111111111111,
+    "cpiStatus": "ok",
     "spi": 0.5866666666666667,
+    "spiStatus": "ok",
     "percentSpent": 25.384615384615383,
     "percentComplete": 58.666666666666664,
     "plannedValue": 7800.0,
@@ -1969,7 +2017,7 @@
    }
   },
   {
-   "name": "zero budget with actuals: percent spent 0 by the guard",
+   "name": "zero budget with actuals: percent spent 0 by the guard, SPI null",
    "inputs": {
     "afe": {
      "start_date": "2020-01-01",
@@ -1994,7 +2042,9 @@
     "variance": -500.0,
     "earnedValue": 0.0,
     "cpi": 0.0,
-    "spi": 1.0,
+    "cpiStatus": "ok",
+    "spi": null,
+    "spiStatus": "no-budget",
     "percentSpent": 0.0,
     "percentComplete": 0.0,
     "plannedValue": 0.0,
@@ -2013,7 +2063,59 @@
      "vac": -500.0,
      "tcpi": -0.0
     }
-   }
+   },
+   "note": "EC5-3: no budget, so spiStatus no-budget (SPI was 1). Spend with nothing earned gives a defined CPI of 0."
+  },
+  {
+   "name": "value earned with no spend: CPI null",
+   "inputs": {
+    "afe": {
+     "start_date": "2020-01-01",
+     "end_date": "2020-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 1000,
+      "actual": 0,
+      "commitment": 400,
+      "progress": 40
+     }
+    ],
+    "invoices": []
+   },
+   "expected": {
+    "undatedInvoices": 0,
+    "totalBudget": 1000.0,
+    "totalCommitments": 400.0,
+    "totalActuals": 0.0,
+    "totalForecast": 1000.0,
+    "variance": 0.0,
+    "earnedValue": 400.0,
+    "cpi": null,
+    "cpiStatus": "no-spend",
+    "spi": 0.4,
+    "spiStatus": "ok",
+    "percentSpent": 0.0,
+    "percentComplete": 40.0,
+    "plannedValue": 1000.0,
+    "timeProgress": 1.0,
+    "standardEvm": {
+     "bac": 1000.0,
+     "pv": 1000.0,
+     "ev": 400.0,
+     "ac": 0.0,
+     "cv": 400.0,
+     "sv": -600.0,
+     "cpi": null,
+     "spi": 0.4,
+     "eac": 1000.0,
+     "etc": 1000.0,
+     "vac": 0.0,
+     "tcpi": 0.6
+    }
+   },
+   "note": "The CPI item: 400 earned, 0 spent, so cpiStatus no-spend; SPI is defined (0.4)."
   },
   {
    "name": "asOf mid-window: SPI against 256 of 729 days",
@@ -2043,7 +2145,9 @@
     "variance": 0.0,
     "earnedValue": 400.0,
     "cpi": 1.3333333333333333,
+    "cpiStatus": "ok",
     "spi": 1.1390625,
+    "spiStatus": "ok",
     "percentSpent": 30.0,
     "percentComplete": 40.0,
     "plannedValue": 351.1659807956104,
@@ -2092,7 +2196,9 @@
     "variance": 0.0,
     "earnedValue": 400.0,
     "cpi": 1.3333333333333333,
+    "cpiStatus": "ok",
     "spi": 0.6877358490566039,
+    "spiStatus": "ok",
     "percentSpent": 30.0,
     "percentComplete": 40.0,
     "plannedValue": 581.6186556927297,
@@ -2141,7 +2247,9 @@
     "variance": 0.0,
     "earnedValue": 400.0,
     "cpi": 1.3333333333333333,
+    "cpiStatus": "ok",
     "spi": 1.1390625,
+    "spiStatus": "ok",
     "percentSpent": 30.0,
     "percentComplete": 40.0,
     "plannedValue": 351.1659807956104,
@@ -2190,7 +2298,9 @@
     "variance": 0.0,
     "earnedValue": 100.0,
     "cpi": 1.0,
+    "cpiStatus": "ok",
     "spi": null,
+    "spiStatus": "no-planned-value",
     "percentSpent": 25.0,
     "percentComplete": 25.0,
     "plannedValue": 0.0,
@@ -2213,7 +2323,7 @@
    "note": "Planned value is 0 before the start, so SPI is undefined: null."
   },
   {
-   "name": "asOf before the start with no progress: SPI null",
+   "name": "asOf before the start with no progress or spend: SPI and CPI null",
    "inputs": {
     "afe": {
      "start_date": "2026-01-01",
@@ -2239,8 +2349,10 @@
     "totalForecast": 400.0,
     "variance": 0.0,
     "earnedValue": 0.0,
-    "cpi": 1.0,
+    "cpi": null,
+    "cpiStatus": "no-spend",
     "spi": null,
+    "spiStatus": "no-planned-value",
     "percentSpent": 0.0,
     "percentComplete": 0.0,
     "plannedValue": 0.0,
@@ -2289,7 +2401,9 @@
     "variance": 0.0,
     "earnedValue": 400.0,
     "cpi": 1.3333333333333333,
+    "cpiStatus": "ok",
     "spi": null,
+    "spiStatus": "no-planned-value",
     "percentSpent": 30.0,
     "percentComplete": 40.0,
     "plannedValue": 0.0,
@@ -2338,7 +2452,9 @@
     "variance": 0.0,
     "earnedValue": 400.0,
     "cpi": 1.3333333333333333,
+    "cpiStatus": "ok",
     "spi": 0.4,
+    "spiStatus": "ok",
     "percentSpent": 30.0,
     "percentComplete": 40.0,
     "plannedValue": 1000.0,
@@ -2393,7 +2509,9 @@
     "variance": -150.0,
     "earnedValue": 940.0,
     "cpi": 1.175,
+    "cpiStatus": "ok",
     "spi": 0.94,
+    "spiStatus": "ok",
     "percentSpent": 80.0,
     "percentComplete": 94.0,
     "plannedValue": 1000.0,
@@ -2415,7 +2533,7 @@
    }
   },
   {
-   "name": "asOf before the start, zero budget: the guard gives 1",
+   "name": "asOf before the start, zero budget: SPI null, no budget",
    "inputs": {
     "afe": {
      "start_date": "2026-01-01",
@@ -2442,7 +2560,9 @@
     "variance": -100.0,
     "earnedValue": 0.0,
     "cpi": 0.0,
-    "spi": 1.0,
+    "cpiStatus": "ok",
+    "spi": null,
+    "spiStatus": "no-budget",
     "percentSpent": 0.0,
     "percentComplete": 0.0,
     "plannedValue": 0.0,
@@ -2461,7 +2581,8 @@
      "vac": -100.0,
      "tcpi": -0.0
     }
-   }
+   },
+   "note": "EC5-3: spiStatus no-budget ahead of no-planned-value. Before, the zero-budget guard reported SPI 1."
   },
   {
    "name": "asOf with no AFE dates: time progress 1",
@@ -2489,7 +2610,9 @@
     "variance": 0.0,
     "earnedValue": 400.0,
     "cpi": 1.3333333333333333,
+    "cpiStatus": "ok",
     "spi": 0.4,
+    "spiStatus": "ok",
     "percentSpent": 30.0,
     "percentComplete": 40.0,
     "plannedValue": 1000.0,
@@ -2617,7 +2740,9 @@
     "variance": -1100.0,
     "earnedValue": 4004.0,
     "cpi": 2.022222222222222,
+    "cpiStatus": "ok",
     "spi": 0.7060754716981132,
+    "spiStatus": "ok",
     "percentSpent": 25.384615384615383,
     "percentComplete": 51.33333333333333,
     "plannedValue": 5670.781893004115,
@@ -2797,6 +2922,103 @@
    "expected": {
     "error": "AfeInputError",
     "message": "Cost item \"1\" has negative progress (-12.5 percent). Progress runs from 0 to 100 percent."
+   }
+  },
+  {
+   "name": "progress beyond 100 percent is refused",
+   "inputs": {
+    "afe": {
+     "start_date": "2020-01-01",
+     "end_date": "2020-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": 100,
+      "actual": 90,
+      "progress": 150
+     }
+    ],
+    "invoices": [],
+    "asOf": "2020-12-31"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "Cost item \"0\" has progress above 100 percent (150 percent). Progress runs from 0 to 100 percent."
+   }
+  },
+  {
+   "name": "progress 100.5 as a string, named by description",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "description": "Hook-up",
+      "budget": 500,
+      "progress": "100.5"
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-09-14"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "Cost item \"Hook-up\" has progress above 100 percent (100.5 percent). Progress runs from 0 to 100 percent."
+   }
+  },
+  {
+   "name": "progress over 100 named by code, ahead of a later negative item",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "code": "FAB-01",
+      "budget": 800,
+      "progress": 120
+     },
+     {
+      "code": "INS-02",
+      "budget": 200,
+      "progress": -5
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-09-14"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "Cost item \"FAB-01\" has progress above 100 percent (120 percent). Progress runs from 0 to 100 percent."
+   }
+  },
+  {
+   "name": "infinite progress is above 100",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2027-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "code": "X9",
+      "budget": 100,
+      "progress": "Infinity"
+     }
+    ],
+    "invoices": [],
+    "asOf": "2026-09-14"
+   },
+   "expected": {
+    "error": "AfeInputError",
+    "message": "Cost item \"X9\" has progress above 100 percent (Infinity percent). Progress runs from 0 to 100 percent."
    }
   }
  ],
@@ -5172,6 +5394,228 @@
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
     "totalDays": 729.0
+   }
+  },
+  {
+   "name": "February start labels Feb in every zone, asOf mid-window",
+   "inputs": {
+    "afe": {
+     "start_date": "2027-02-01",
+     "end_date": "2028-01-31"
+    },
+    "costItems": [
+     {
+      "budget": 3650,
+      "actual": 700,
+      "commitment": 200
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2027-02-01",
+      "amount": 150
+     },
+     {
+      "invoice_date": "2027-05-31",
+      "amount": 250
+     },
+     {
+      "invoice_date": "2027-11-15",
+      "amount": 90
+     }
+    ],
+    "asOf": "2027-06-01"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Feb 27",
+      "Planned": 0.0,
+      "Actual": 150.0,
+      "Forecast": 150.0
+     },
+     {
+      "date": "Mar 27",
+      "Planned": 281.0,
+      "Actual": 150.0,
+      "Forecast": 150.0
+     },
+     {
+      "date": "Apr 27",
+      "Planned": 592.0,
+      "Actual": 150.0,
+      "Forecast": 150.0
+     },
+     {
+      "date": "May 27",
+      "Planned": 892.0,
+      "Actual": 150.0,
+      "Forecast": 150.0
+     },
+     {
+      "date": "Jun 27",
+      "Planned": 1203.0,
+      "Actual": 400.0,
+      "Forecast": 400.0
+     },
+     {
+      "date": "Jul 27",
+      "Planned": 1504.0,
+      "Actual": null,
+      "Forecast": 1504.0
+     },
+     {
+      "date": "Aug 27",
+      "Planned": 1815.0,
+      "Actual": null,
+      "Forecast": 1815.0
+     },
+     {
+      "date": "Sep 27",
+      "Planned": 2126.0,
+      "Actual": null,
+      "Forecast": 2126.0
+     },
+     {
+      "date": "Oct 27",
+      "Planned": 2427.0,
+      "Actual": null,
+      "Forecast": 2427.0
+     },
+     {
+      "date": "Nov 27",
+      "Planned": 2738.0,
+      "Actual": null,
+      "Forecast": 2738.0
+     },
+     {
+      "date": "Dec 27",
+      "Planned": 3038.0,
+      "Actual": null,
+      "Forecast": 3038.0
+     },
+     {
+      "date": "Jan 28",
+      "Planned": 3349.0,
+      "Actual": null,
+      "Forecast": 3349.0
+     }
+    ],
+    "totalBudget": 3650.0,
+    "totalForecast": 3650.0,
+    "totalDays": 364.0
+   }
+  },
+  {
+   "name": "window across both clock changes, asOf on the November bucket",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-03-01",
+     "end_date": "2027-03-01"
+    },
+    "costItems": [
+     {
+      "budget": 1000
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2026-03-08",
+      "amount": 40
+     },
+     {
+      "invoice_date": "2026-11-01",
+      "amount": 60
+     }
+    ],
+    "asOf": "2026-11-01"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Mar 26",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0
+     },
+     {
+      "date": "Apr 26",
+      "Planned": 85.0,
+      "Actual": 40.0,
+      "Forecast": 40.0
+     },
+     {
+      "date": "May 26",
+      "Planned": 167.0,
+      "Actual": 40.0,
+      "Forecast": 40.0
+     },
+     {
+      "date": "Jun 26",
+      "Planned": 252.0,
+      "Actual": 40.0,
+      "Forecast": 40.0
+     },
+     {
+      "date": "Jul 26",
+      "Planned": 334.0,
+      "Actual": 40.0,
+      "Forecast": 40.0
+     },
+     {
+      "date": "Aug 26",
+      "Planned": 419.0,
+      "Actual": 40.0,
+      "Forecast": 40.0
+     },
+     {
+      "date": "Sep 26",
+      "Planned": 504.0,
+      "Actual": 40.0,
+      "Forecast": 40.0
+     },
+     {
+      "date": "Oct 26",
+      "Planned": 586.0,
+      "Actual": 40.0,
+      "Forecast": 40.0
+     },
+     {
+      "date": "Nov 26",
+      "Planned": 671.0,
+      "Actual": 100.0,
+      "Forecast": 100.0
+     },
+     {
+      "date": "Dec 26",
+      "Planned": 753.0,
+      "Actual": null,
+      "Forecast": 753.0
+     },
+     {
+      "date": "Jan 27",
+      "Planned": 838.0,
+      "Actual": null,
+      "Forecast": 838.0
+     },
+     {
+      "date": "Feb 27",
+      "Planned": 923.0,
+      "Actual": null,
+      "Forecast": 923.0
+     },
+     {
+      "date": "Mar 27",
+      "Planned": 1000.0,
+      "Actual": null,
+      "Forecast": 1000.0
+     }
+    ],
+    "totalBudget": 1000.0,
+    "totalForecast": 1000.0,
+    "totalDays": 365.0
    }
   }
  ],

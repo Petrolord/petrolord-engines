@@ -508,3 +508,59 @@ production spread below the price spread.
 - `getPortfolioMetrics` reads `chanceOfSuccess` with `|| 1.0`, so a stated
   chance of 0 is read as certainty (pinned as a disagreement in
   screening_cases.json, FINDINGS-fiscal.md).
+
+## EC5-3, EC5-5, EC5-8 and CPI: FIXED 2026-09-15 (owner decisions)
+
+Engine: engines/economics/afe.js. Oracle tools/validation/economics/oracle_afe.py
+regenerated twice, byte-identical: afe_cases.json now holds 20 splits, 33
+metric sets, 11 metric refusals and 26 S-curves (evm, evmRefusals, cpiSpi and
+gantt unchanged). Gate __tests__/economics.afe.test.js, 152 tests. This
+section supersedes the empty-budget guard in "EC5-0 repair" and its sentence
+that progress above 100 is still accepted.
+
+**EC5-3, SPI on an empty or zero-budget AFE (FIXED).** Before: the zero-budget
+guard returned SPI 1 before planned value was considered, so an AFE with
+nothing in it read SPI 1 while a budgeted AFE with zero planned value read
+null. After: `spi` is null with `spiStatus: 'no-budget'` whenever the budget is
+not above 0, and null with `spiStatus: 'no-planned-value'` when there is a
+budget but no planned value yet; a reported SPI has `spiStatus: 'ok'`. Goldens
+renamed from the old behaviour: "suite test: empty AFE", "future window, zero
+budget: the guard gives 1", "asOf before the start, zero budget: the guard
+gives 1" (now "...SPI null, no budget"), and "zero budget with actuals" (SPI 1
+to null). Gates: "EC5-3 and CPI: an undefined ratio is null" and the negative
+control "the retired zero-budget guard (SPI 1) fails the no-budget goldens".
+
+**CPI with nothing spent (FIXED).** Before: CPI was 1 whenever actuals were 0,
+whatever had been earned (110 earned on no spend read 1). After: `cpi` is null
+with `cpiStatus: 'no-spend'` whenever actuals are not above 0, and
+`cpiStatus: 'ok'` otherwise. New golden "value earned with no spend: CPI
+null". Negative control: the retired rule (1 when nothing is spent) disagrees
+on every no-spend golden and agrees wherever CPI is defined.
+
+**EC5-8, progress above 100 percent (FIXED).** Before: negative progress was
+refused, yet 150 percent earned 150 percent of the budget. After:
+calculateMetrics throws AfeInputError for any item whose Number(progress) is
+below 0 or above 100 (infinities included; non-numeric progress is still 0),
+naming the first such item:
+`Cost item "<label>" has progress above 100 percent (<value> percent). Progress runs from 0 to 100 percent.`
+The negative-progress message is unchanged. The golden "progress beyond 100
+percent earns beyond the budget" is now the refusal "progress beyond 100
+percent is refused"; exactly 100 is accepted (new golden). Negative control:
+the retired check (negative only) lets every over-100 golden through.
+
+**EC5-5, the S-curve in other time zones (FIXED).** Before: the window was
+parsed in UTC but months were stepped with local `setMonth`, labelled with
+local `toLocaleDateString`, counted with local `differenceInDays` and cut at a
+local-midnight asOf. A window opening 2027-02-01 drawn in Los Angeles was
+labelled from "Jan 27", and Planned moved wherever a count crossed a clock
+change. After: window dates, invoice dates and asOf are read in UTC (a
+date-only asOf is that day's UTC midnight; a time with no zone is read as UTC
+wall-clock time), the step is `setUTCMonth`, days are whole UTC days, and the
+label is a fixed English short month and two-digit year of the UTC date. UTC
+output is unchanged: every existing S-curve golden kept its points. Gate
+"EC5-5: the S-curve is identical under five TZ values" spawns node under TZ
+UTC, America/Los_Angeles, Africa/Lagos, Asia/Tokyo and Pacific/Kiritimati,
+checks each child's real offset, and requires every S-curve golden plus six
+input-form probes to match the UTC child exactly. Negative control: the
+retired walk, restated in the child, equals the engine in UTC but reads "Jan
+27" in Los Angeles and differs there on more than ten goldens.
