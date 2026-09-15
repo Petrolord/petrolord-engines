@@ -11,6 +11,7 @@
  * ./cashflow.ts, the module's single fiscal source of truth.
  */
 import { quantile, mulberry32 } from '../../lib/stats/stats.js';
+import { solveIrrInBand } from './irrContract.js';
 // Canonical CLIENT-SIDE SCREENING economics engine (docs/scope/
 // ReservoirEngineering-Module.md §5). Full-fiscal Nigerian economics
 // (PIA/NTA, terrain royalties, HCT/CIT) is NOT here; that is the EPE
@@ -206,116 +207,13 @@ export const calculateEconomics = (inputs) => {
   //   'multiple-roots'  the flow changes sign more than once; every rate
   //                     that zeroes it is listed in `irrRoots`
   //   'no-root'         no rate in the band zeroes the net present value
-  const IRR_LOWER = -0.99;
-  const IRR_UPPER = 10; // 1000 percent
-  const npvAtRate = (rate) => cashflow.reduce(
-    (sum, cf, t) => sum + cf.ncf / Math.pow(1 + rate, t + 0.5), 0,
+  // The contract (statuses, band, tolerance, the sweep when Newton fails)
+  // lives in ./irrContract.js since EC2-5, shared with the fiscal regime
+  // sandbox. Mid-year: the flow in period t is discounted at t + 0.5.
+  const { irr, irrStatus, irrRoots } = solveIrrInBand(
+    cashflow.map((cf) => cf.ncf),
+    cashflow.map((_, t) => t + 0.5),
   );
-  // The tolerance has to scale: a $100,000MM case and a $1MM case cannot
-  // share an absolute one. Undiscounted gross movement is the scale.
-  const flowScale = cashflow.reduce((sum, cf) => sum + Math.abs(cf.ncf), 0) || 1;
-  const IRR_TOL = 1e-9 * flowScale;
-
-  let irr = null;
-  let irrStatus = 'no-sign-change';
-  let irrRoots = null;
-  const hasNeg = cashflow.some(c => c.ncf < 0);
-  const hasPos = cashflow.some(c => c.ncf > 0);
-
-  // How many times the cash flow changes sign. By Descartes' rule a flow
-  // that changes sign once has at most one rate that zeroes it, so Newton's
-  // answer is the answer. A flow that changes sign more than once can have
-  // several, and no single one of them is "the" return, so those are swept
-  // properly rather than trusted.
-  let signChanges = 0;
-  let lastSign = 0;
-  cashflow.forEach((c) => {
-    const sign = Math.sign(c.ncf);
-    if (sign === 0) return;
-    if (lastSign !== 0 && sign !== lastSign) signChanges += 1;
-    lastSign = sign;
-  });
-
-  if (hasNeg && hasPos) {
-    let guess = 0.1;
-    for(let iter=0; iter<100; iter++){
-        let npvIter = 0;
-        let dNpv = 0;
-        for(let t=0; t<cashflow.length; t++){
-            const df = Math.pow(1+guess, t+0.5);
-            npvIter += cashflow[t].ncf / df;
-            dNpv -= (t+0.5) * cashflow[t].ncf / (df * (1+guess));
-        }
-        if(Math.abs(dNpv) < 1e-5) break;
-        const newGuess = guess - npvIter/dNpv;
-        if(!isFinite(newGuess)) break;
-        if(Math.abs(newGuess - guess) < 1e-7) { guess = newGuess; break; }
-        guess = Math.max(IRR_LOWER, Math.min(newGuess, IRR_UPPER));
-    }
-
-    const converged = signChanges <= 1
-      && isFinite(guess)
-      && guess > IRR_LOWER && guess < IRR_UPPER
-      && Math.abs(npvAtRate(guess)) <= IRR_TOL;
-
-    if (converged) {
-      irr = guess * 100;
-      irrStatus = 'ok';
-    } else {
-      // Newton did not land on a root, or the flow changes sign more than
-      // once so its answer cannot be trusted to be the only one. Rather
-      // than report where it stopped,
-      // look for the roots that are actually there: sweep the band, bisect
-      // every sign change. This is the path that recovers the -36.67
-      // percent root Newton used to run past on its way to the clamp, and
-      // it is only taken when Newton has already failed, so the Monte Carlo
-      // loop (which converges) does not pay for it.
-      const STEPS = 1000;
-      const roots = [];
-      let prevRate = IRR_LOWER;
-      let prevNpv = npvAtRate(prevRate);
-      for (let k = 1; k <= STEPS; k += 1) {
-        const rate = IRR_LOWER + ((IRR_UPPER - IRR_LOWER) * k) / STEPS;
-        const value = npvAtRate(rate);
-        if (value === 0) {
-          roots.push(rate);
-        } else if ((prevNpv < 0 && value > 0) || (prevNpv > 0 && value < 0)) {
-          let lo = prevRate;
-          let hi = rate;
-          let loNpv = prevNpv;
-          for (let b = 0; b < 200; b += 1) {
-            const mid = (lo + hi) / 2;
-            const midNpv = npvAtRate(mid);
-            if (midNpv === 0 || (hi - lo) < 1e-12) { lo = mid; break; }
-            if ((loNpv < 0) === (midNpv < 0)) { lo = mid; loNpv = midNpv; } else { hi = mid; }
-          }
-          roots.push((lo + hi) / 2);
-        }
-        prevRate = rate;
-        prevNpv = value;
-      }
-
-      if (roots.length === 1) {
-        irr = roots[0] * 100;
-        irrStatus = 'ok';
-      } else if (roots.length > 1) {
-        // A cash flow that changes sign more than once has more than one
-        // rate that zeroes it, and none of them is "the" return.
-        irrStatus = 'multiple-roots';
-        irrRoots = roots.map((r) => r * 100);
-      } else if (npvAtRate(IRR_UPPER) > 0) {
-        // Still worth something at 1000 percent, and it never crossed zero
-        // inside the band: the rate that would zero it is higher than the
-        // engine looks.
-        irrStatus = 'above-clamp';
-      } else {
-        // Negative at both ends and no crossing between them. For an
-        // ordinary spend-then-earn flow that means the project does not
-        // return its money at any rate at all.
-        irrStatus = 'no-root';
-      }
-    }
-  }
 
   // Payback, in years from the start of the project.
   //
@@ -654,11 +552,23 @@ export const getPortfolioMetrics = (projects) => {
     let totalRiskedNPV = 0;
     let weightedIRR = 0; // Weighted by CAPEX or NPV? Typically CAPEX for efficiency
 
-    projects.forEach(p => {
+    // EC1-10 (owner decision 2026-09-15). The chance of success used to be
+    // read as `chanceOfSuccess || 1.0`, so a project the user had written off
+    // at a chance of 0 was counted at its full NPV. A missing or null chance
+    // still means certainty; a chance that is present must be a finite number
+    // from 0 to 1, and anything else is refused by project.
+    projects.forEach((p, i) => {
+        const chance = p.chanceOfSuccess ?? 1;
+        if (typeof chance !== 'number' || !Number.isFinite(chance) || chance < 0 || chance > 1) {
+            const who = p.name ? `project "${p.name}" (index ${i})` : `project at index ${i}`;
+            throw new RangeError(
+                `getPortfolioMetrics: ${who} has chanceOfSuccess ${typeof p.chanceOfSuccess === 'string' ? JSON.stringify(p.chanceOfSuccess) : String(p.chanceOfSuccess)}; `
+                + 'a chance of success must be a number from 0 to 1.',
+            );
+        }
         totalNPV += p.npv || 0;
         totalCapex += p.capex || 0;
-        totalRiskedNPV += (p.npv || 0) * (p.chanceOfSuccess || 1.0);
-        // Simple average for now, could be weighted
+        totalRiskedNPV += (p.npv || 0) * chance;
     });
     
     const capitalEfficiency = totalCapex > 0 ? totalNPV / totalCapex : 0;

@@ -57,8 +57,9 @@ JavaScript. The statement, in the engine's own words and units:
                 first two years, gas at 3.5 $/mscf and zero volume, and
                 variable opex at opexPerBbl dollars a barrel.
   portfolio     sums of NPV and capex, risked NPV as NPV times chance of
-                success, capital efficiency as NPV over capex, and the
-                plain average IRR.
+                success (a missing chance is 1; a stated chance is used as
+                stated, so 0 counts nothing, EC1-10), capital efficiency as
+                NPV over capex, and the plain average IRR.
   Monte Carlo   EC3-7 (owner decision 2026-09-15): ONE uniform factor
                 1 + range * (2u - 1) per uncertain variable per iteration,
                 drawn in the order reserves, price, capex (a falsy range
@@ -793,13 +794,12 @@ def build():
         {'id': 'portfolio_empty', 'note': 'No projects: everything 0, avgIRR divides by 1 not 0.', 'projects': []},
         {'id': 'portfolio_zero_capex', 'note': 'Zero total capex: capital efficiency 0 rather than a division by zero.',
          'projects': [{'npv': 10, 'irr': 12}, {'npv': 5, 'irr': 9}]},
-        {'id': 'portfolio_zero_chance', 'note': 'A project with chanceOfSuccess 0: risked NPV must be 0. The engine\'s `|| 1.0` fallback reads a '
-         'zero chance as certain and counts the full NPV. DISAGREEMENT, recorded in FINDINGS-fiscal.md.',
+        {'id': 'portfolio_zero_chance', 'note': 'A project with chanceOfSuccess 0 contributes nothing to risked NPV: 0 x 100 + 0.5 x 40 = 20. '
+         'A missing chance means certainty; a present chance is used as stated (EC1-10, FIXED 2026-09-15; the retired `|| 1.0` read 0 as certain and gave 120).',
          'projects': [{'npv': 100, 'capex': 50, 'irr': 15, 'chanceOfSuccess': 0}, {'npv': 40, 'capex': 50, 'irr': 10, 'chanceOfSuccess': 0.5}]},
     ]
     for c in G['portfolio']:
         c['expected'] = portfolio(c['projects'])
-    G['portfolio'][3]['engine'] = {'totalRiskedNPV': 120.0, 'disagreement': 'chanceOfSuccess 0 is read as 1.0 by `|| 1.0`'}
 
     # ---- Monte Carlo, seeded stand-in for Math.random ----
     mc_base = base_inputs(projectLife=5, production={'oil': base_oil(12, 5), 'gas': [0.0] + decline_profile(10000, 5, 4)},

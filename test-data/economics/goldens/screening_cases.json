@@ -9476,10 +9476,6 @@
    ]
   },
   {
-   "engine": {
-    "disagreement": "chanceOfSuccess 0 is read as 1.0 by `|| 1.0`",
-    "totalRiskedNPV": 120.0
-   },
    "expected": {
     "avgIRR": 12.5,
     "capitalEfficiency": 1.4,
@@ -9489,7 +9485,7 @@
     "totalRiskedNPV": 20.0
    },
    "id": "portfolio_zero_chance",
-   "note": "A project with chanceOfSuccess 0: risked NPV must be 0. The engine's `|| 1.0` fallback reads a zero chance as certain and counts the full NPV. DISAGREEMENT, recorded in FINDINGS-fiscal.md.",
+   "note": "A project with chanceOfSuccess 0 contributes nothing to risked NPV: 0 x 100 + 0.5 x 40 = 20. A missing chance means certainty; a present chance is used as stated (EC1-10, FIXED 2026-09-15; the retired `|| 1.0` read 0 as certain and gave 120).",
    "projects": [
     {
      "capex": 50,
