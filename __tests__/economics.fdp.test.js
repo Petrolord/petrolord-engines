@@ -23,20 +23,23 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { runFdpCase, paybackYears, DEFAULT_FISCAL } from '../engines/economics/fdp/economics.js';
+import {
+  runFdpCase, runFdpSensitivity, buildFdpCaseInputs, paybackYears, DEFAULT_FISCAL,
+} from '../engines/economics/fdp/economics.js';
 import {
   calculateCashFlows, calculateNPV, calculateIRR, calculatePaybackPeriod,
   calculateTotalCAPEX, calculateTotalOPEX, calculateCostByPhase,
 } from '../engines/economics/fdp/costCalculations.js';
 import {
   runScenario, scenarioNPV, scenarioIRR, scenarioPayback, conceptProfileKbpd,
+  conceptCapexMM, scenarioSensitivity,
 } from '../engines/economics/fdp/scenarioCalculations.js';
 import {
   calculateConceptCost, calculateConceptSchedule, calculateReservesImpact,
 } from '../engines/economics/fdp/conceptCalculations.js';
 import {
   calculateRecoveryFactor, calculateOOIP, calculateRecoverableReserves, calculatePressureGradient,
-  calculateTemperatureGradient, calculateRiskScore, aggregateReserves,
+  calculateTemperatureGradient, calculateRiskScore, aggregateReserves, reservesP50,
 } from '../engines/economics/fdp/subsurfaceCalculations.js';
 import {
   calculateDrillingTime, calculateDrillingCost, calculateWellCount, aggregateWellsByType, calculateTotalDrillingCost,
@@ -53,8 +56,10 @@ import {
 } from '../engines/economics/fdp/riskCalculations.js';
 import {
   calculateProjectDuration, calculateCPM, calculateResourceRequirements, identifyMilestones,
+  calculateNetworkDuration, criticalPaths,
 } from '../engines/economics/fdp/scheduleCalculations.js';
-import { calculateCompleteness, validateFDPData } from '../engines/economics/fdp/fdpCalculations.js';
+import { calculateCompleteness, validateFDPData, planReservesP50 } from '../engines/economics/fdp/fdpCalculations.js';
+import { FdpInputError } from '../engines/economics/fdp/inputError.js';
 import { getRiskLevel, RiskTypes, RiskStatus } from '../engines/economics/fdp/riskModel.js';
 import { calculateEconomics } from '../engines/economics/screening.js';
 
@@ -186,7 +191,7 @@ describe('Suite port: costCalculations delegation', () => {
 });
 
 describe('Suite port: scenarioCalculations delegation', () => {
-  const concept = { capex: 800, opex: 60, peakProduction: 50 };
+  const concept = { drillingCapex: 300, facilitiesCapex: 400, subseaCapex: 100, opex: 60, peakProduction: 50 };
   const scenario = { oilPrice: 75, discountRate: 10 };
 
   test('the concept profile plateaus then declines', () => {
@@ -349,6 +354,21 @@ describe('identities', () => {
     expect(validateFDPData(full).isValid).toBe(true);
   });
 
+  test('EC6-0: the plan reads its reserves from the table, not from a key nothing writes', () => {
+    const state = {
+      subsurface: { reserves: { summary: { p50: 0 }, breakdown: [
+        { name: 'A', fluid: 'Oil', p50: 85 }, { name: 'B', fluid: 'Gas', p50: 30 },
+      ] } },
+    };
+    expect(planReservesP50(state)).toBe(85);
+    expect(planReservesP50(state, 'Gas')).toBe(30);
+    // the old path, still honoured for a plan that carries only a summary
+    expect(planReservesP50({ subsurface: { reserves: { summary: { p50: 115 } } } })).toBe(115);
+    // a full table no longer fails validation for want of a summary
+    expect(validateFDPData({ ...state, fieldData: { fieldName: 'X' }, economics: { capex: 1 } }).errors)
+      .not.toContain('Reserves (P50) not estimated.');
+  });
+
   test('calculateResourceRequirements is an empty stub and returns an empty profile', () => {
     expect(calculateResourceRequirements([{ resources: { crew: 5, cost: 10 } }])).toEqual({});
   });
@@ -489,7 +509,33 @@ describe('golden: subsurface', () => {
 
   test.each(G.subsurface.aggregateReserves.map((c) => [c.name, c]))('aggregate %s', (_n, c) => {
     const a = aggregateReserves(c.inputs);
-    ['p10', 'p50', 'p90', 'recoverable'].forEach((k) => expectNum(a[k], c.expected[k], RATIO));
+    expect(a.fluids).toEqual(c.expected.fluids);
+    expect(a.percentileNote).toBe(c.expected.percentileNote);
+    Object.keys(c.expected.byFluid).forEach((f) => {
+      const e = c.expected.byFluid[f];
+      expect(a.byFluid[f].units).toBe(e.units);
+      expect(a.byFluid[f].count).toBe(e.count);
+      ['p90Sum', 'p50Sum', 'p10Sum', 'recoverableSum'].forEach((k) => expectNum(a.byFluid[f][k], e[k], RATIO));
+    });
+  });
+
+  test.each(G.subsurface.aggregateReservesRefusals.map((c) => [c.name, c]))('aggregate refuses %s', (_n, c) => {
+    expect(() => aggregateReserves(c.inputs)).toThrow(FdpInputError);
+    try {
+      aggregateReserves(c.inputs);
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
+    }
+  });
+
+  test('EC6-0: oil and gas never land in the same total', () => {
+    const rows = [{ name: 'A', fluid: 'Oil', p50: 85 }, { name: 'B', fluid: 'Gas', p50: 30 }];
+    const a = aggregateReserves(rows);
+    expect(reservesP50(a)).toBe(85);
+    expect(reservesP50(a, 'Gas')).toBe(30);
+    // the retired total, for the record: it read 115 and was labelled MMbbl
+    expect(Object.values(a.byFluid).reduce((s, t) => s + t.p50Sum, 0)).toBe(115);
+    expect(a.percentileNote).toMatch(/sum of P90s is not the P90 of the sum/);
   });
 
   test('every cell of the risk score matrix', () => {
@@ -575,58 +621,98 @@ describe('golden: risk management', () => {
 });
 
 describe('golden: schedule', () => {
-  test.each(G.schedule.map((c) => [c.name, c]))('%s', (_n, c) => {
+  const runnable = G.schedule.filter((c) => !c.expected.refused);
+
+  test.each(runnable.map((c) => [c.name, c]))('%s', (_n, c) => {
     const e = c.expected;
     const dur = calculateProjectDuration(c.inputs);
-    if (e.projectDuration === null) expect(Number.isNaN(dur)).toBe(true);
+    if (e.projectDuration === null) expect(dur).toBeNull();
     else expect(dur).toBe(e.projectDuration);
-
-    // What the engine returns is the passthrough, pinned exactly.
-    const cpm = calculateCPM(c.inputs);
-    expect(cpm).toHaveLength(e.cpmPassthrough.length);
-    cpm.forEach((a, i) => {
-      expect(a.id).toBe(e.cpmPassthrough[i].id);
-      expect(a.isCritical).toBe(e.cpmPassthrough[i].isCritical);
-      // a truthy string float passes through as the string it was
-      expect(a.float).toBe(e.cpmPassthrough[i].float);
-    });
     expect(identifyMilestones(c.inputs).map((a) => a.id)).toEqual(e.milestones);
 
-    // The DISAGREEMENT: a real critical path (two independent passes in
-    // the oracle agree) against the passthrough. Every activity where they
-    // differ is listed in the golden; the gate pins that list so it cannot
-    // silently change in either direction.
-    if (c.inputs.length) {
-      expect(e.cpmReference.passesAgree).toBe(true);
-      const realCritical = new Set(e.cpmReference.criticalActivities);
-      const differing = cpm.filter((a) => a.isCritical !== realCritical.has(a.id)).map((a) => a.id);
-      expect(differing).toEqual(e.criticalityDisagreements);
-      // and the reference itself satisfies CPM's own identities
-      e.cpmReference.activities.forEach((a) => {
-        expect(a.ef).toBeCloseTo(a.es + (c.inputs.find((x) => x.id === a.id).duration || 0), 9);
-        expect(a.float).toBeCloseTo(a.ls - a.es, 9);
-        expect(a.float).toBeGreaterThanOrEqual(-1e-9);
-        expect(a.lf).toBeLessThanOrEqual(e.cpmReference.projectDurationDays + 1e-9);
-      });
-      e.cpmReference.criticalPaths.forEach((p) => {
-        const total = p.reduce((s, id) => s + (c.inputs.find((x) => x.id === id).duration || 0), 0);
-        expect(total).toBeCloseTo(e.cpmReference.projectDurationDays, 9);
-      });
+    const cpm = calculateCPM(c.inputs);
+    expect(cpm).toHaveLength(c.inputs.length);
+    if (!c.inputs.length) return;
+
+    // The engine against the independent reference: the oracle computes the
+    // same table two other ways (Kahn order and memoised recursion) and
+    // asserts they agree before emitting it.
+    expect(e.cpmReference.passesAgree).toBe(true);
+    const byId = new Map(e.cpmReference.activities.map((a) => [a.id, a]));
+    cpm.forEach((a) => {
+      const r = byId.get(a.id);
+      ['es', 'ef', 'ls', 'lf', 'float'].forEach((k) => expect(a[k]).toBeCloseTo(r[k], 9));
+      expect(a.isCritical).toBe(r.isCritical);
+    });
+    expect(calculateNetworkDuration(c.inputs)).toBeCloseTo(e.cpmReference.projectDurationDays, 9);
+    expect(criticalPaths(c.inputs)).toEqual(e.cpmReference.criticalPaths);
+
+    // CPM's own identities, on the engine's table.
+    cpm.forEach((a) => {
+      const duration = Number(a.duration) || 0;
+      expect(a.ef).toBeCloseTo(a.es + duration, 9);
+      expect(a.float).toBeCloseTo(a.ls - a.es, 9);
+      expect(a.float).toBeGreaterThanOrEqual(-1e-9);
+      expect(a.lf).toBeLessThanOrEqual(e.cpmReference.projectDurationDays + 1e-9);
+    });
+    e.cpmReference.criticalPaths.forEach((path) => {
+      const total = path.reduce((sum, id) => sum + (Number(c.inputs.find((x) => x.id === id).duration) || 0), 0);
+      expect(total).toBeCloseTo(e.cpmReference.projectDurationDays, 9);
+    });
+
+    // NEGATIVE CONTROL: the retired passthrough called these activities
+    // critical, and the method does not. If this list ever empties the
+    // repair has been undone.
+    const retired = new Set(e.retiredPassthrough.filter((a) => a.isCritical).map((a) => a.id));
+    const nowCritical = new Set(cpm.filter((a) => a.isCritical).map((a) => a.id));
+    const differing = c.inputs.map((a) => a.id).filter((id) => retired.has(id) !== nowCritical.has(id));
+    expect(differing).toEqual(e.criticalityDisagreements);
+  });
+
+  test.each(G.schedule.filter((c) => c.expected.refused).map((c) => [c.name, c]))('refuses %s', (_n, c) => {
+    expect(() => calculateCPM(c.inputs)).toThrow(FdpInputError);
+    try {
+      calculateCPM(c.inputs);
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
     }
   });
 
-  test('the example schedule: the engine calls every activity critical, the method does not', () => {
+  test('the textbook network: A-B-D-F at 14 days, four days of float on C and E', () => {
+    const c = G.schedule.find((x) => x.name.startsWith('textbook network'));
+    const cpm = calculateCPM(c.inputs);
+    expect(cpm.filter((a) => a.isCritical).map((a) => a.id)).toEqual(['A', 'B', 'D', 'F']);
+    expect(cpm.find((a) => a.id === 'C').float).toBe(4);
+    expect(cpm.find((a) => a.id === 'E').float).toBe(4);
+    expect(calculateNetworkDuration(c.inputs)).toBe(14);
+    expect(criticalPaths(c.inputs)).toEqual([['A', 'B', 'D', 'F']]);
+    // what the app used to show on this network
+    expect(c.expected.retiredPassthrough.every((a) => a.isCritical)).toBe(true);
+    expect(c.expected.criticalityDisagreements).toEqual(['C', 'E']);
+  });
+
+  test('the example schedule: act-2 and act-5 carry float the passthrough denied', () => {
     const c = G.schedule.find((x) => x.name.startsWith('example schedule'));
-    expect(calculateCPM(c.inputs).every((a) => a.isCritical)).toBe(true);
-    expect(c.expected.cpmReference.criticalPaths).toEqual([['act-1', 'act-3', 'act-4', 'act-6', 'act-7']]);
-    expect(c.expected.criticalityDisagreements).toEqual(['act-2', 'act-5']);
+    const cpm = calculateCPM(c.inputs);
+    expect(cpm.filter((a) => a.isCritical).map((a) => a.id)).toEqual(['act-1', 'act-3', 'act-4', 'act-6', 'act-7']);
+    expect(cpm.find((a) => a.id === 'act-2').float).toBe(20);
+    expect(cpm.find((a) => a.id === 'act-5').float).toBe(20);
     expect(c.expected.cpmReference.projectDurationDays).toBe(330);
+    expect(c.expected.criticalityDisagreements).toEqual(['act-2', 'act-5']);
   });
 
   test('a diamond with equal legs: both paths are critical (a tie, listed twice)', () => {
     const c = G.schedule.find((x) => x.name.startsWith('diamond'));
-    expect(c.expected.cpmReference.criticalPaths).toEqual([['A', 'B', 'D'], ['A', 'C', 'D']]);
+    expect(criticalPaths(c.inputs)).toEqual([['A', 'B', 'D'], ['A', 'C', 'D']]);
     expect(c.expected.criticalityDisagreements).toEqual([]);
+  });
+
+  test('EC6-0: a span with no readable dates is null, and the count is in calendar days', () => {
+    expect(calculateProjectDuration([{ id: 'a', duration: 3 }])).toBeNull();
+    expect(calculateProjectDuration([])).toBe(0);
+    expect(calculateProjectDuration([
+      { id: 'a', startDate: '2026-10-30', endDate: '2026-11-03' },
+    ])).toBe(4);
   });
 });
 
@@ -649,6 +735,106 @@ describe('golden: cost items', () => {
     } else {
       expect(() => calculateCostByPhase(items)).toThrow(TypeError);
     }
+  });
+});
+
+describe('golden: scenario refusals', () => {
+  test.each(G.scenarioRefusals.map((c) => [c.name, c]))('refuses %s', (_n, c) => {
+    const { scenario, concept } = c.inputs;
+    expect(() => runScenario(scenario, concept)).toThrow(FdpInputError);
+    try {
+      runScenario(scenario, concept);
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
+    }
+  });
+
+  test('NEGATIVE CONTROL: every refused case used to return a full set of economics', () => {
+    // The retired defaults: capex 100, opex 10, peak 50 kbpd, price $70,
+    // and a fiscal rate that did not parse fell back to DEFAULT_FISCAL.
+    // Restated here (runFdpCase carries no guards) to show that these
+    // inputs really did produce a card rather than an error, so the
+    // refusals above are a change in behaviour and not a change in wording.
+    const retiredProfile = (peak) => {
+      const p = [];
+      for (let y = 1; y <= 20; y += 1) p.push(y <= 3 ? peak : peak * 0.9 ** (y - 3));
+      return p;
+    };
+    G.scenarioRefusals.forEach((c) => {
+      const { scenario, concept } = c.inputs;
+      const productionKbpd = retiredProfile(parseFloat(concept.peakProduction) || 50);
+      const asBefore = runFdpCase({
+        capexMM: parseFloat(concept.capex) || 100,
+        annualOpexMM: parseFloat(concept.opex) || 10,
+        productionKbpd,
+        pricesUsd: new Array(productionKbpd.length).fill(parseFloat(scenario.oilPrice) || 70),
+        fiscal: { discountRate: 10, royaltyRate: DEFAULT_FISCAL.royaltyRate, taxRate: DEFAULT_FISCAL.taxRate },
+      });
+      expect(Number.isFinite(asBefore.metrics.npv)).toBe(true);
+    });
+  });
+
+  test('the headline case: the three capex fields are read, not the field nobody writes', () => {
+    const concept = {
+      drillingCapex: 400, facilitiesCapex: 1200, subseaCapex: 300, opex: 60, peakProduction: 50,
+    };
+    expect(conceptCapexMM(concept)).toBe(1900);
+    const r = runScenario({ oilPrice: 70, discountRate: 10 }, concept);
+    expect(r.metrics.npv).toBeCloseTo(1791.4, 0);
+    expect(r.metrics.irr).toBeCloseTo(30.0, 0);
+    // what the app showed while the capex fell back to 100
+    const retired = runScenario({ oilPrice: 70, discountRate: 10 },
+      { capex: 100, opex: 60, peakProduction: 50 });
+    expect(retired.metrics.npv).toBeCloseTo(3507.6, 0);
+    expect(retired.metrics.irr).toBeCloseTo(676.4, 0);
+  });
+});
+
+describe('golden: the sensitivity sweep', () => {
+  test.each(G.sensitivity.map((c) => [c.name, c]))('%s', (_n, c) => {
+    const i = c.inputs;
+    const sens = runFdpSensitivity({
+      capexMM: i.capexMM,
+      annualOpexMM: i.annualOpexMM,
+      productionKbpd: i.productionKbpd,
+      pricesUsd: i.pricesUsd,
+      fiscal: i.fiscal || {},
+    });
+    expect(sens.map((x) => x.name)).toEqual(c.expected.map((x) => x.name));
+    sens.forEach((x, k) => {
+      expectNum(x.lowParamNPV, c.expected[k].lowParamNPV, MONEY);
+      expectNum(x.highParamNPV, c.expected[k].highParamNPV, MONEY);
+      expectNum(x.baseNPV, c.expected[k].baseNPV, MONEY);
+    });
+  });
+
+  test('the sweep is about the case in front of the user, not a fixed picture', () => {
+    const base = {
+      capexMM: 800,
+      annualOpexMM: 60,
+      productionKbpd: new Array(10).fill(50),
+      pricesUsd: new Array(10).fill(70),
+    };
+    const a = runFdpSensitivity(base);
+    const b = runFdpSensitivity({ ...base, capexMM: 1600 });
+    expect(Math.abs(a[0].baseNPV - b[0].baseNPV)).toBeGreaterThan(1);
+    // the base NPV in the sweep is the case's own NPV
+    expectNum(a[0].baseNPV, runFdpCase(base).metrics.npv, MONEY);
+    // and the scenario wrapper sweeps the same case the card shows
+    const concept = { drillingCapex: 800, opex: 60, peakProduction: 50 };
+    const scenario = { oilPrice: 70, discountRate: 10 };
+    expectNum(scenarioSensitivity(scenario, concept)[0].baseNPV,
+      runScenario(scenario, concept).metrics.npv, MONEY);
+  });
+
+  test('buildFdpCaseInputs is the case runFdpCase runs', () => {
+    const p = {
+      capexMM: 500, annualOpexMM: 20, productionKbpd: [10, 20], pricesUsd: [60, 60],
+    };
+    const inputs = buildFdpCaseInputs(p);
+    expect(inputs.capex[0]).toBe(500);
+    expect(inputs.projectLife).toBe(3);
+    expect(inputs.production.oil[1]).toBeCloseTo(10 * 1000 * 365, 9);
   });
 });
 
@@ -696,23 +882,48 @@ describe('golden: the worked example, end to end', () => {
 
   test('reserves and volumetrics', () => {
     const agg = aggregateReserves(I.reservoirs);
-    ['p10', 'p50', 'p90', 'recoverable'].forEach((k) => expectNum(agg[k], E.reserves[k], 1e-9));
+    expect(agg.fluids).toEqual(E.reserves.fluids);
+    Object.keys(E.reserves.byFluid).forEach((f) => {
+      ['p90Sum', 'p50Sum', 'p10Sum', 'recoverableSum'].forEach(
+        (k) => expectNum(agg.byFluid[f][k], E.reserves.byFluid[f][k], 1e-9),
+      );
+      expect(agg.byFluid[f].units).toBe(E.reserves.byFluid[f].units);
+    });
+    const oilP50 = reservesP50(agg);
     const z = I.zone;
     const o = calculateOOIP(z.area, z.thickness, z.porosity, z.sw, z.bo);
     expectNum(o, E.ooip, 1e-6);
-    expectNum(calculateRecoveryFactor(o, agg.p50 * 1e6), E.recoveryFactor, RATIO);
-    expect(calculateWellCount(agg.p50, 12)).toBe(E.wellCountAt12MMbbl);
+    expectNum(calculateRecoveryFactor(o, oilP50 * 1e6), E.recoveryFactor, RATIO);
+    expect(calculateWellCount(oilP50, 12)).toBe(E.wellCountAt12MMbbl);
+    // the volumetrics read OIL, in MMbbl: the gas row is not in this number
+    expect(oilP50).toBe(85);
   });
 
   test('schedule', () => {
     expect(identifyMilestones(I.schedule).map((a) => a.id)).toEqual(E.schedule.milestones);
-    expect(Number.isNaN(calculateProjectDuration(I.schedule))).toBe(true);
+    // the example carries start and end, not startDate and endDate
+    expect(calculateProjectDuration(I.schedule)).toBeNull();
     const cpm = calculateCPM(I.schedule);
-    cpm.forEach((a, i) => {
-      expect(a.isCritical).toBe(E.schedule.cpmPassthrough[i].isCritical);
-      expect(a.float).toBe(E.schedule.cpmPassthrough[i].float);
+    const byId = new Map(E.schedule.cpmReference.activities.map((a) => [a.id, a]));
+    cpm.forEach((a) => {
+      expect(a.isCritical).toBe(byId.get(a.id).isCritical);
+      expect(a.float).toBeCloseTo(byId.get(a.id).float, 9);
     });
     expect(E.schedule.cpmReference.criticalActivities).toEqual(['act-1', 'act-3', 'act-4', 'act-6', 'act-7']);
+    expect(cpm.filter((a) => a.isCritical).map((a) => a.id)).toEqual(E.schedule.cpmReference.criticalActivities);
+  });
+
+  test('the example sensitivity sweep', () => {
+    const sens = runFdpSensitivity({
+      capexMM: 1500, annualOpexMM: 65, productionKbpd: conceptProfileKbpd({ peakProduction: 150 }),
+      pricesUsd: new Array(20).fill(70),
+    });
+    expect(sens.map((x) => x.name)).toEqual(E.sensitivity.map((x) => x.name));
+    sens.forEach((x, i) => {
+      expectNum(x.lowParamNPV, E.sensitivity[i].lowParamNPV, MONEY);
+      expectNum(x.highParamNPV, E.sensitivity[i].highParamNPV, MONEY);
+      expectNum(x.baseNPV, E.sensitivity[i].baseNPV, MONEY);
+    });
   });
 
   test('the FPSO concept scenario', () => {

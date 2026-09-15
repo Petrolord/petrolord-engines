@@ -10545,7 +10545,9 @@
      "discountRate": 10
     },
     "concept": {
-     "capex": 800,
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
      "opex": 60,
      "peakProduction": 50
     }
@@ -10601,7 +10603,9 @@
      "discountRate": 10
     },
     "concept": {
-     "capex": 800,
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
      "opex": 60,
      "peakProduction": 50
     }
@@ -10657,7 +10661,9 @@
      "discountRate": 10
     },
     "concept": {
-     "capex": 800,
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
      "opex": 60,
      "peakProduction": 50
     }
@@ -10713,7 +10719,9 @@
      "discountRate": 15
     },
     "concept": {
-     "capex": 800,
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
      "opex": 60,
      "peakProduction": 50
     }
@@ -10769,7 +10777,9 @@
      "discountRate": 5
     },
     "concept": {
-     "capex": 800,
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
      "opex": 60,
      "peakProduction": 50
     }
@@ -10818,10 +10828,19 @@
    }
   },
   {
-   "name": "empty scenario and concept take every default",
+   "name": "the three capex fields are added",
    "inputs": {
-    "scenario": {},
-    "concept": {}
+    "scenario": {
+     "oilPrice": 70,
+     "discountRate": 10
+    },
+    "concept": {
+     "drillingCapex": 400,
+     "facilitiesCapex": 1200,
+     "subseaCapex": 300,
+     "opex": 60,
+     "peakProduction": 50
+    }
    },
    "expected": {
     "productionKbpd": [
@@ -10847,25 +10866,137 @@
      8.338590849833288
     ],
     "resolved": {
-     "capexMM": 100.0,
-     "annualOpexMM": 10.0,
+     "capexMM": 1900.0,
+     "annualOpexMM": 60.0,
      "oilPrice": 70.0,
      "discountRate": 10.0,
      "royaltyRate": 12.5,
      "taxRate": 30.0
     },
-    "npv": 3791.716260911096,
-    "irr": 711.4424753165123,
-    "payback": 1.1405296210091784,
-    "totalTax": 3173.3804278587736,
+    "npv": 1791.3758424908383,
+    "irr": 30.00601188286368,
+    "payback": 3.808184379474389,
+    "totalTax": 2873.3804278587736,
     "irrExists": true,
     "irrRootsPercent": [
-     711.4424753165123
+     30.00601188286368
     ],
     "irrBeyondEngineClamp": false,
     "irrNoRoot": false
    },
-   "note": "capex 100, opex 10, peak 50, price 70, fiscal defaults"
+   "note": "EC6-0: 400 + 1200 + 300 = 1900. On the old fallback of 100 this concept showed NPV 3507.6 and IRR 676.4 percent; on its own capex it is 1791.4 and 30.0 percent."
+  },
+  {
+   "name": "a total capex field is taken as the total",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 70,
+     "discountRate": 10
+    },
+    "concept": {
+     "capex": 1900,
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "productionKbpd": [
+     50.0,
+     50.0,
+     50.0,
+     45.0,
+     40.5,
+     36.45,
+     32.805,
+     29.524500000000003,
+     26.572050000000004,
+     23.914845000000003,
+     21.523360500000006,
+     19.371024450000004,
+     17.433922005000007,
+     15.690529804500002,
+     14.121476824050006,
+     12.709329141645004,
+     11.438396227480505,
+     10.294556604732454,
+     9.265100944259208,
+     8.338590849833288
+    ],
+    "resolved": {
+     "capexMM": 1900.0,
+     "annualOpexMM": 60.0,
+     "oilPrice": 70.0,
+     "discountRate": 10.0,
+     "royaltyRate": 12.5,
+     "taxRate": 30.0
+    },
+    "npv": 1791.3758424908383,
+    "irr": 30.00601188286368,
+    "payback": 3.808184379474389,
+    "totalTax": 2873.3804278587736,
+    "irrExists": true,
+    "irrRootsPercent": [
+     30.00601188286368
+    ],
+    "irrBeyondEngineClamp": false,
+    "irrNoRoot": false
+   },
+   "note": "the same case entered as one figure: identical to the sum of the three fields"
+  },
+  {
+   "name": "only one capex field is entered",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 75
+    },
+    "concept": {
+     "facilitiesCapex": 800,
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "productionKbpd": [
+     50.0,
+     50.0,
+     50.0,
+     45.0,
+     40.5,
+     36.45,
+     32.805,
+     29.524500000000003,
+     26.572050000000004,
+     23.914845000000003,
+     21.523360500000006,
+     19.371024450000004,
+     17.433922005000007,
+     15.690529804500002,
+     14.121476824050006,
+     12.709329141645004,
+     11.438396227480505,
+     10.294556604732454,
+     9.265100944259208,
+     8.338590849833288
+    ],
+    "resolved": {
+     "capexMM": 800.0,
+     "annualOpexMM": 60.0,
+     "oilPrice": 75.0,
+     "discountRate": 10.0,
+     "royaltyRate": 12.5,
+     "taxRate": 30.0
+    },
+    "npv": 3146.9312295469795,
+    "irr": 88.8123061780184,
+    "payback": 2.0921734678640758,
+    "totalTax": 3124.8655722477893,
+    "irrExists": true,
+    "irrRootsPercent": [
+     88.8123061780184
+    ],
+    "irrBeyondEngineClamp": false,
+    "irrNoRoot": false
+   }
   },
   {
    "name": "string fields parse",
@@ -10926,7 +11057,7 @@
    }
   },
   {
-   "name": "blank rate strings become ZERO, not the default",
+   "name": "blank rate strings take the stated default",
    "inputs": {
     "scenario": {
      "oilPrice": 75,
@@ -10934,7 +11065,9 @@
      "taxRate": ""
     },
     "concept": {
-     "capex": 800,
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
      "opex": 60,
      "peakProduction": 50
     }
@@ -10967,24 +11100,24 @@
      "annualOpexMM": 60.0,
      "oilPrice": 75.0,
      "discountRate": 10.0,
-     "royaltyRate": 0.0,
-     "taxRate": 0.0
+     "royaltyRate": 12.5,
+     "taxRate": 30.0
     },
-    "npv": 5761.537518377815,
-    "irr": 150.60429635396892,
-    "payback": 1.6570841889117043,
-    "totalTax": 0.0,
+    "npv": 3146.9312295469795,
+    "irr": 88.8123061780184,
+    "payback": 2.0921734678640758,
+    "totalTax": 3124.8655722477893,
     "irrExists": true,
     "irrRootsPercent": [
-     150.60429635396892
+     88.8123061780184
     ],
     "irrBeyondEngineClamp": false,
     "irrNoRoot": false
    },
-   "note": "Number(\"\") is 0 and finite, so a blank royalty or tax field is a zero rate; see FINDINGS-fdp.md"
+   "note": "EC6-0: a blank fiscal field is absent, so it takes DEFAULT_FISCAL. It used to be read as a zero rate, which put NPV 5928.2 on a case with no royalty and no tax."
   },
   {
-   "name": "null rates become ZERO, not the default",
+   "name": "null rates take the stated default",
    "inputs": {
     "scenario": {
      "oilPrice": 75,
@@ -10992,66 +11125,9 @@
      "taxRate": null
     },
     "concept": {
-     "capex": 800,
-     "opex": 60,
-     "peakProduction": 50
-    }
-   },
-   "expected": {
-    "productionKbpd": [
-     50.0,
-     50.0,
-     50.0,
-     45.0,
-     40.5,
-     36.45,
-     32.805,
-     29.524500000000003,
-     26.572050000000004,
-     23.914845000000003,
-     21.523360500000006,
-     19.371024450000004,
-     17.433922005000007,
-     15.690529804500002,
-     14.121476824050006,
-     12.709329141645004,
-     11.438396227480505,
-     10.294556604732454,
-     9.265100944259208,
-     8.338590849833288
-    ],
-    "resolved": {
-     "capexMM": 800.0,
-     "annualOpexMM": 60.0,
-     "oilPrice": 75.0,
-     "discountRate": 10.0,
-     "royaltyRate": 0.0,
-     "taxRate": 0.0
-    },
-    "npv": 5761.537518377815,
-    "irr": 150.60429635396892,
-    "payback": 1.6570841889117043,
-    "totalTax": 0.0,
-    "irrExists": true,
-    "irrRootsPercent": [
-     150.60429635396892
-    ],
-    "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
-   },
-   "note": "Number(null) is 0 and finite"
-  },
-  {
-   "name": "non numeric rates fall back to the defaults",
-   "inputs": {
-    "scenario": {
-     "oilPrice": 75,
-     "discountRate": "abc",
-     "royaltyRate": "x",
-     "taxRate": "y"
-    },
-    "concept": {
-     "capex": 800,
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
      "opex": 60,
      "peakProduction": 50
     }
@@ -11100,15 +11176,73 @@
    }
   },
   {
-   "name": "zero capex concept is replaced by the 100 default",
+   "name": "a zero capex a user actually typed is honoured",
    "inputs": {
     "scenario": {
      "oilPrice": 75
     },
     "concept": {
-     "capex": 0,
+     "drillingCapex": 0,
+     "facilitiesCapex": 0,
+     "subseaCapex": 0,
      "opex": 0,
-     "peakProduction": 0
+     "peakProduction": 10
+    }
+   },
+   "expected": {
+    "productionKbpd": [
+     10.0,
+     10.0,
+     10.0,
+     9.0,
+     8.100000000000001,
+     7.290000000000001,
+     6.561,
+     5.9049000000000005,
+     5.3144100000000005,
+     4.7829690000000005,
+     4.304672100000001,
+     3.874204890000001,
+     3.486784401000001,
+     3.138105960900001,
+     2.824295364810001,
+     2.5418658283290005,
+     2.287679245496101,
+     2.058911320946491,
+     1.8530201888518416,
+     1.6677181699666577
+    ],
+    "resolved": {
+     "capexMM": 0.0,
+     "annualOpexMM": 0.0,
+     "oilPrice": 75.0,
+     "discountRate": 10.0,
+     "royaltyRate": 12.5,
+     "taxRate": 30.0
+    },
+    "npv": 850.1261220554567,
+    "irr": 0.0,
+    "payback": 0.0,
+    "totalTax": 696.9731144495578,
+    "irrExists": false,
+    "irrRootsPercent": null,
+    "irrBeyondEngineClamp": false,
+    "irrNoRoot": false
+   },
+   "note": "EC6-0: 0 is a value. It used to be replaced by the 100 default, so a zero could not be entered."
+  },
+  {
+   "name": "a zero oil price a user actually typed is honoured",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 0
+    },
+    "concept": {
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
+     "opex": 60,
+     "peakProduction": 50
     }
    },
    "expected": {
@@ -11135,25 +11269,23 @@
      8.338590849833288
     ],
     "resolved": {
-     "capexMM": 100.0,
-     "annualOpexMM": 10.0,
-     "oilPrice": 75.0,
+     "capexMM": 800.0,
+     "annualOpexMM": 60.0,
+     "oilPrice": 0.0,
      "discountRate": 10.0,
      "royaltyRate": 12.5,
      "taxRate": 30.0
     },
-    "npv": 4098.462799797086,
-    "irr": 767.3519395456074,
-    "payback": 1.1302958122111606,
-    "totalTax": 3424.8655722477893,
-    "irrExists": true,
-    "irrRootsPercent": [
-     767.3519395456074
-    ],
+    "npv": -1750.6226176056014,
+    "irr": 0.0,
+    "payback": null,
+    "totalTax": 0.0,
+    "irrExists": false,
+    "irrRootsPercent": null,
     "irrBeyondEngineClamp": false,
     "irrNoRoot": false
    },
-   "note": "parseFloat(0) || 100: a zero cannot be entered; see FINDINGS-fdp.md"
+   "note": "EC6-0: it used to become 70 while the card printed \"$0/bbl\"."
   },
   {
    "name": "explicit production profile overrides the concept shape",
@@ -11376,7 +11508,9 @@
      "oilPrice": 12
     },
     "concept": {
-     "capex": 800,
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
      "opex": 60,
      "peakProduction": 50
     }
@@ -11434,7 +11568,9 @@
      "discountRate": 0
     },
     "concept": {
-     "capex": 800,
+     "drillingCapex": 300,
+     "facilitiesCapex": 400,
+     "subseaCapex": 100,
      "opex": 60,
      "peakProduction": 50
     }
@@ -11481,6 +11617,438 @@
     "irrBeyondEngineClamp": false,
     "irrNoRoot": false
    }
+  }
+ ],
+ "scenarioRefusals": [
+  {
+   "name": "a concept with no capex at all",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 75
+    },
+    "concept": {
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the concept carries no capex: enter a drilling, facilities or subsea capex"
+   }
+  },
+  {
+   "name": "a scenario with no oil price",
+   "inputs": {
+    "scenario": {},
+    "concept": {
+     "capex": 800,
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the scenario oil price is missing"
+   }
+  },
+  {
+   "name": "a blank oil price",
+   "inputs": {
+    "scenario": {
+     "oilPrice": ""
+    },
+    "concept": {
+     "capex": 800,
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the scenario oil price is missing"
+   }
+  },
+  {
+   "name": "a concept with no operating cost",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 75
+    },
+    "concept": {
+     "capex": 800,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the concept annual operating cost is missing"
+   }
+  },
+  {
+   "name": "a concept with no peak rate",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 75
+    },
+    "concept": {
+     "capex": 800,
+     "opex": 60
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the concept peak production rate is missing"
+   }
+  },
+  {
+   "name": "a negative capex",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 75
+    },
+    "concept": {
+     "drillingCapex": -500,
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the drilling capex may not be negative: -500"
+   }
+  },
+  {
+   "name": "a negative oil price",
+   "inputs": {
+    "scenario": {
+     "oilPrice": -5
+    },
+    "concept": {
+     "capex": 800,
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the scenario oil price may not be negative: -5"
+   }
+  },
+  {
+   "name": "a non numeric discount rate",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 75,
+     "discountRate": "abc"
+    },
+    "concept": {
+     "capex": 800,
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the scenario discount rate is not a number: abc"
+   }
+  },
+  {
+   "name": "a non numeric royalty rate",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 75,
+     "royaltyRate": "x"
+    },
+    "concept": {
+     "capex": 800,
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the scenario royalty rate is not a number: x"
+   }
+  },
+  {
+   "name": "a non numeric capex",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 75
+    },
+    "concept": {
+     "capex": "lots",
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "refused": true,
+    "message": "the concept capex is not a number: lots"
+   }
+  }
+ ],
+ "sensitivity": [
+  {
+   "name": "800 capex, 60 opex, 50 kbpd flat ten years at 70",
+   "inputs": {
+    "capexMM": 800,
+    "annualOpexMM": 60,
+    "productionKbpd": [
+     50,
+     50,
+     50,
+     50,
+     50,
+     50,
+     50,
+     50,
+     50,
+     50
+    ],
+    "pricesUsd": [
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70
+    ],
+    "fiscal": null
+   },
+   "expected": [
+    {
+     "name": "Oil Price",
+     "lowParamNPV": 1825.877213725739,
+     "highParamNPV": 4576.387042593156,
+     "baseNPV": 3201.132128159448
+    },
+    {
+     "name": "CAPEX",
+     "lowParamNPV": 3429.9631495783897,
+     "highParamNPV": 2972.3011067405055,
+     "baseNPV": 3201.132128159448
+    },
+    {
+     "name": "OPEX",
+     "lowParamNPV": 3274.9506754256686,
+     "highParamNPV": 3127.313580893227,
+     "baseNPV": 3201.132128159448
+    },
+    {
+     "name": "Production",
+     "lowParamNPV": 1825.877213725739,
+     "highParamNPV": 4576.387042593156,
+     "baseNPV": 3201.132128159448
+    }
+   ]
+  },
+  {
+   "name": "the example FPSO concept profile at 70",
+   "inputs": {
+    "capexMM": 1500,
+    "annualOpexMM": 65,
+    "productionKbpd": [
+     150.0,
+     150.0,
+     150.0,
+     135.0,
+     121.50000000000001,
+     109.35000000000001,
+     98.415,
+     88.57350000000001,
+     79.71615000000001,
+     71.74453500000001,
+     64.57008150000001,
+     58.113073350000015,
+     52.30176601500001,
+     47.07158941350001,
+     42.36443047215002,
+     38.127987424935014,
+     34.315188682441516,
+     30.88366981419736,
+     27.795302832777622,
+     25.015772549499864
+    ],
+    "pricesUsd": [
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70,
+     70
+    ],
+    "fiscal": null
+   },
+   "expected": [
+    {
+     "name": "Oil Price",
+     "lowParamNPV": 6167.111855230374,
+     "highParamNPV": 13897.124635157312,
+     "baseNPV": 10032.118245193842
+    },
+    {
+     "name": "CAPEX",
+     "lowParamNPV": 10461.17641035436,
+     "highParamNPV": 9603.060080033325,
+     "baseNPV": 10032.118245193842
+    },
+    {
+     "name": "OPEX",
+     "lowParamNPV": 10142.920270727342,
+     "highParamNPV": 9921.316219660346,
+     "baseNPV": 10032.118245193842
+    },
+    {
+     "name": "Production",
+     "lowParamNPV": 6167.111855230374,
+     "highParamNPV": 13897.124635157312,
+     "baseNPV": 10032.118245193842
+    }
+   ]
+  },
+  {
+   "name": "a marginal case: 900 capex at 45",
+   "inputs": {
+    "capexMM": 900,
+    "annualOpexMM": 40,
+    "productionKbpd": [
+     20,
+     20,
+     20,
+     20,
+     20,
+     20,
+     20,
+     20,
+     20,
+     20,
+     20,
+     20,
+     20,
+     20,
+     20
+    ],
+    "pricesUsd": [
+     45,
+     45,
+     45,
+     45,
+     45,
+     45,
+     45,
+     45,
+     45,
+     45,
+     45,
+     45,
+     45,
+     45,
+     45
+    ],
+    "fiscal": null
+   },
+   "expected": [
+    {
+     "name": "Oil Price",
+     "lowParamNPV": -225.04772314641187,
+     "highParamNPV": 650.454464312943,
+     "baseNPV": 212.7033705832655
+    },
+    {
+     "name": "CAPEX",
+     "lowParamNPV": 470.1382696795755,
+     "highParamNPV": -44.73152851304441,
+     "baseNPV": 212.7033705832655
+    },
+    {
+     "name": "OPEX",
+     "lowParamNPV": 273.6211135680436,
+     "highParamNPV": 151.78562759848768,
+     "baseNPV": 212.7033705832655
+    },
+    {
+     "name": "Production",
+     "lowParamNPV": -225.04772314641176,
+     "highParamNPV": 650.454464312943,
+     "baseNPV": 212.7033705832655
+    }
+   ]
+  },
+  {
+   "name": "no royalty and no tax",
+   "inputs": {
+    "capexMM": 500,
+    "annualOpexMM": 25,
+    "productionKbpd": [
+     30,
+     30,
+     30,
+     30,
+     30,
+     30,
+     30,
+     30
+    ],
+    "pricesUsd": [
+     65,
+     65,
+     65,
+     65,
+     65,
+     65,
+     65,
+     65
+    ],
+    "fiscal": {
+     "royaltyRate": 0,
+     "taxRate": 0
+    }
+   },
+   "expected": [
+    {
+     "name": "Oil Price",
+     "lowParamNPV": 1651.9056296007175,
+     "highParamNPV": 3824.1605994069214,
+     "baseNPV": 2738.0331145038194
+    },
+    {
+     "name": "CAPEX",
+     "lowParamNPV": 2881.052502890658,
+     "highParamNPV": 2595.0137261169807,
+     "baseNPV": 2738.0331145038194
+    },
+    {
+     "name": "OPEX",
+     "lowParamNPV": 2776.1830085994675,
+     "highParamNPV": 2699.883220408172,
+     "baseNPV": 2738.0331145038194
+    },
+    {
+     "name": "Production",
+     "lowParamNPV": 1651.905629600717,
+     "highParamNPV": 3824.1605994069214,
+     "baseNPV": 2738.0331145038194
+    }
+   ]
   }
  ],
  "concept": [
@@ -11698,7 +12266,7 @@
    }
   },
   {
-   "name": "invalid start date throws",
+   "name": "invalid start date is refused",
    "inputs": {
     "concept": {
      "startDate": "not a date"
@@ -11716,7 +12284,36 @@
      "totalLifecycleCost": 0.0
     },
     "schedule": {
-     "throws": "RangeError"
+     "throws": "FdpInputError",
+     "message": "the concept has no start date: enter one, or pass today to date the schedule from"
+    },
+    "reserves": {
+     "recoverableReserves": 5.0,
+     "rfMultiplier": 1.0
+    }
+   }
+  },
+  {
+   "name": "no start date at all is refused",
+   "inputs": {
+    "concept": {
+     "facilityType": "FPSO"
+    },
+    "subsurfaceData": {
+     "reserves": {
+      "p50": 5
+     }
+    }
+   },
+   "expected": {
+    "cost": {
+     "totalCapex": 0.0,
+     "totalOpex": 0.0,
+     "totalLifecycleCost": 0.0
+    },
+    "schedule": {
+     "throws": "FdpInputError",
+     "message": "the concept has no start date: enter one, or pass today to date the schedule from"
     },
     "reserves": {
      "recoverableReserves": 5.0,
@@ -11888,7 +12485,7 @@
   ],
   "aggregateReserves": [
    {
-    "name": "example breakdown",
+    "name": "example breakdown: 85 MMbbl of oil and 30 Bcf of gas stay apart",
     "inputs": [
      {
       "id": "r1",
@@ -11910,22 +12507,48 @@
      }
     ],
     "expected": {
-     "p10": 165.0,
-     "p50": 115.0,
-     "p90": 75.0,
-     "recoverable": 0.0
-    }
+     "byFluid": {
+      "Oil": {
+       "fluid": "Oil",
+       "units": "MMbbl",
+       "count": 1,
+       "p90Sum": 60.0,
+       "p50Sum": 85.0,
+       "p10Sum": 120.0,
+       "recoverableSum": 0.0
+      },
+      "Gas": {
+       "fluid": "Gas",
+       "units": "Bcf",
+       "count": 1,
+       "p90Sum": 15.0,
+       "p50Sum": 30.0,
+       "p10Sum": 45.0,
+       "recoverableSum": 0.0
+      }
+     },
+     "fluids": [
+      "Oil",
+      "Gas"
+     ],
+     "percentileNote": "Each column is the arithmetic sum of that column within one fluid. A sum of P90s is not the P90 of the sum: add low cases only if every reservoir disappoints together. Aggregate the distributions to get a portfolio P90."
+    },
+    "note": "EC6-0: the engine used to report \"Total (P50) 115\" and the summary called that 115 MMbbl of oil."
    },
    {
     "name": "strings and blanks",
     "inputs": [
      {
+      "name": "S1",
+      "fluid": "Oil",
       "p10": "10",
       "p50": "",
       "p90": null,
       "recoverable": "abc"
      },
      {
+      "name": "S2",
+      "fluid": "Oil",
       "p10": 5,
       "p50": 4.5,
       "p90": 3,
@@ -11933,20 +12556,145 @@
      }
     ],
     "expected": {
-     "p10": 15.0,
-     "p50": 4.5,
-     "p90": 3.0,
-     "recoverable": 2.0
+     "byFluid": {
+      "Oil": {
+       "fluid": "Oil",
+       "units": "MMbbl",
+       "count": 2,
+       "p90Sum": 3.0,
+       "p50Sum": 4.5,
+       "p10Sum": 15.0,
+       "recoverableSum": 2.0
+      }
+     },
+     "fluids": [
+      "Oil"
+     ],
+     "percentileNote": "Each column is the arithmetic sum of that column within one fluid. A sum of P90s is not the P90 of the sum: add low cases only if every reservoir disappoints together. Aggregate the distributions to get a portfolio P90."
+    }
+   },
+   {
+    "name": "three fluids, two oil rows",
+    "inputs": [
+     {
+      "name": "A",
+      "fluid": "Oil",
+      "p90": 60,
+      "p50": 85,
+      "p10": 120
+     },
+     {
+      "name": "B",
+      "fluid": "Gas",
+      "p90": 15,
+      "p50": 30,
+      "p10": 45
+     },
+     {
+      "name": "C",
+      "fluid": "Condensate",
+      "p90": 2,
+      "p50": 4,
+      "p10": 7
+     },
+     {
+      "name": "D",
+      "fluid": "Oil",
+      "p90": 10,
+      "p50": 20,
+      "p10": 35
+     }
+    ],
+    "expected": {
+     "byFluid": {
+      "Oil": {
+       "fluid": "Oil",
+       "units": "MMbbl",
+       "count": 2,
+       "p90Sum": 70.0,
+       "p50Sum": 105.0,
+       "p10Sum": 155.0,
+       "recoverableSum": 0.0
+      },
+      "Gas": {
+       "fluid": "Gas",
+       "units": "Bcf",
+       "count": 1,
+       "p90Sum": 15.0,
+       "p50Sum": 30.0,
+       "p10Sum": 45.0,
+       "recoverableSum": 0.0
+      },
+      "Condensate": {
+       "fluid": "Condensate",
+       "units": "MMbbl",
+       "count": 1,
+       "p90Sum": 2.0,
+       "p50Sum": 4.0,
+       "p10Sum": 7.0,
+       "recoverableSum": 0.0
+      }
+     },
+     "fluids": [
+      "Oil",
+      "Gas",
+      "Condensate"
+     ],
+     "percentileNote": "Each column is the arithmetic sum of that column within one fluid. A sum of P90s is not the P90 of the sum: add low cases only if every reservoir disappoints together. Aggregate the distributions to get a portfolio P90."
     }
    },
    {
     "name": "empty list",
     "inputs": [],
     "expected": {
-     "p10": 0.0,
-     "p50": 0.0,
-     "p90": 0.0,
-     "recoverable": 0.0
+     "byFluid": {},
+     "fluids": [],
+     "percentileNote": "No reservoirs entered."
+    }
+   }
+  ],
+  "aggregateReservesRefusals": [
+   {
+    "name": "a row with no fluid type",
+    "inputs": [
+     {
+      "name": "Reservoir A",
+      "p50": 10
+     }
+    ],
+    "expected": {
+     "refused": true,
+     "message": "Reservoir A: fluid type is missing or unknown (undefined); expected one of Oil, Gas, Condensate"
+    }
+   },
+   {
+    "name": "a row with an unknown fluid type",
+    "inputs": [
+     {
+      "name": "Reservoir A",
+      "fluid": "Brine",
+      "p50": 10
+     }
+    ],
+    "expected": {
+     "refused": true,
+     "message": "Reservoir A: fluid type is missing or unknown (Brine); expected one of Oil, Gas, Condensate"
+    }
+   },
+   {
+    "name": "an unnamed row is refused by its position",
+    "inputs": [
+     {
+      "fluid": "Oil",
+      "p50": 1
+     },
+     {
+      "p50": 2
+     }
+    ],
+    "expected": {
+     "refused": true,
+     "message": "row 2: fluid type is missing or unknown (undefined); expected one of Oil, Gas, Condensate"
     }
    }
   ],
@@ -14746,6 +15494,167 @@
  ],
  "schedule": [
   {
+   "name": "textbook network: the critical path is A-B-D-F at 14 days",
+   "inputs": [
+    {
+     "id": "A",
+     "duration": 3,
+     "dependencies": []
+    },
+    {
+     "id": "B",
+     "duration": 4,
+     "dependencies": [
+      "A"
+     ]
+    },
+    {
+     "id": "C",
+     "duration": 2,
+     "dependencies": [
+      "A"
+     ]
+    },
+    {
+     "id": "D",
+     "duration": 5,
+     "dependencies": [
+      "B"
+     ]
+    },
+    {
+     "id": "E",
+     "duration": 3,
+     "dependencies": [
+      "C"
+     ]
+    },
+    {
+     "id": "F",
+     "duration": 2,
+     "dependencies": [
+      "D",
+      "E"
+     ]
+    }
+   ],
+   "expected": {
+    "projectDuration": null,
+    "retiredPassthrough": [
+     {
+      "id": "A",
+      "isCritical": true,
+      "float": 0.0
+     },
+     {
+      "id": "B",
+      "isCritical": true,
+      "float": 0.0
+     },
+     {
+      "id": "C",
+      "isCritical": true,
+      "float": 0.0
+     },
+     {
+      "id": "D",
+      "isCritical": true,
+      "float": 0.0
+     },
+     {
+      "id": "E",
+      "isCritical": true,
+      "float": 0.0
+     },
+     {
+      "id": "F",
+      "isCritical": true,
+      "float": 0.0
+     }
+    ],
+    "milestones": [],
+    "cpmReference": {
+     "projectDurationDays": 14.0,
+     "activities": [
+      {
+       "id": "A",
+       "es": 0.0,
+       "ef": 3.0,
+       "ls": 0.0,
+       "lf": 3.0,
+       "float": 0.0,
+       "isCritical": true
+      },
+      {
+       "id": "B",
+       "es": 3.0,
+       "ef": 7.0,
+       "ls": 3.0,
+       "lf": 7.0,
+       "float": 0.0,
+       "isCritical": true
+      },
+      {
+       "id": "C",
+       "es": 3.0,
+       "ef": 5.0,
+       "ls": 7.0,
+       "lf": 9.0,
+       "float": 4.0,
+       "isCritical": false
+      },
+      {
+       "id": "D",
+       "es": 7.0,
+       "ef": 12.0,
+       "ls": 7.0,
+       "lf": 12.0,
+       "float": 0.0,
+       "isCritical": true
+      },
+      {
+       "id": "E",
+       "es": 5.0,
+       "ef": 8.0,
+       "ls": 9.0,
+       "lf": 12.0,
+       "float": 4.0,
+       "isCritical": false
+      },
+      {
+       "id": "F",
+       "es": 12.0,
+       "ef": 14.0,
+       "ls": 12.0,
+       "lf": 14.0,
+       "float": 0.0,
+       "isCritical": true
+      }
+     ],
+     "criticalActivities": [
+      "A",
+      "B",
+      "D",
+      "F"
+     ],
+     "criticalPaths": [
+      [
+       "A",
+       "B",
+       "D",
+       "F"
+      ]
+     ],
+     "passesAgree": true
+    },
+    "criticalityDisagreements": [
+     "C",
+     "E"
+    ]
+   },
+   "note": "EC6-0: the engine used to mark all six activities critical at float 0. The method puts four days of float on C and on E."
+  },
+  {
    "name": "example schedule from 2026-01-01",
    "inputs": [
     {
@@ -14834,7 +15743,7 @@
    ],
    "expected": {
     "projectDuration": null,
-    "cpmPassthrough": [
+    "retiredPassthrough": [
      {
       "id": "act-1",
       "isCritical": true,
@@ -14965,7 +15874,7 @@
      "act-5"
     ]
    },
-   "note": "The engine marks every activity critical (no float field); the real critical path is act-1, act-3, act-4, act-6, act-7 and act-2 and act-5 carry 20 days of float. calculateProjectDuration reads startDate and endDate, which the example does not carry, so it is NaN (null here)."
+   "note": "EC6-0: the engine used to mark every activity critical (it read back the caller's own float); the critical path is act-1, act-3, act-4, act-6, act-7 and act-2 and act-5 carry 20 days of float. calculateProjectDuration reads startDate and endDate, which the example does not carry, so it reports null."
   },
   {
    "name": "dated four activity plan",
@@ -15012,7 +15921,7 @@
    ],
    "expected": {
     "projectDuration": 181.0,
-    "cpmPassthrough": [
+    "retiredPassthrough": [
      {
       "id": "a",
       "isCritical": true,
@@ -15149,7 +16058,7 @@
    ],
    "expected": {
     "projectDuration": null,
-    "cpmPassthrough": [
+    "retiredPassthrough": [
      {
       "id": "p",
       "isCritical": true,
@@ -15298,7 +16207,7 @@
    ],
    "expected": {
     "projectDuration": null,
-    "cpmPassthrough": [
+    "retiredPassthrough": [
      {
       "id": "A",
       "isCritical": true,
@@ -15473,7 +16382,7 @@
    ],
    "expected": {
     "projectDuration": null,
-    "cpmPassthrough": [
+    "retiredPassthrough": [
      {
       "id": "n0",
       "isCritical": true,
@@ -15709,7 +16618,7 @@
    ],
    "expected": {
     "projectDuration": null,
-    "cpmPassthrough": [
+    "retiredPassthrough": [
      {
       "id": "w0",
       "isCritical": true,
@@ -15802,9 +16711,121 @@
    "inputs": [],
    "expected": {
     "projectDuration": 0.0,
-    "cpmPassthrough": [],
+    "retiredPassthrough": [],
     "milestones": []
    }
+  },
+  {
+   "name": "a dependency on an activity that is not in the schedule",
+   "inputs": [
+    {
+     "id": "a",
+     "duration": 2,
+     "dependencies": []
+    },
+    {
+     "id": "b",
+     "duration": 3,
+     "dependencies": [
+      "zz"
+     ]
+    }
+   ],
+   "expected": {
+    "refused": true,
+    "message": "activity b depends on zz, which is not in the schedule"
+   },
+   "note": "EC6-0: the passthrough accepted every one of these."
+  },
+  {
+   "name": "a dependency cycle",
+   "inputs": [
+    {
+     "id": "a",
+     "duration": 2,
+     "dependencies": [
+      "c"
+     ]
+    },
+    {
+     "id": "b",
+     "duration": 3,
+     "dependencies": [
+      "a"
+     ]
+    },
+    {
+     "id": "c",
+     "duration": 1,
+     "dependencies": [
+      "b"
+     ]
+    }
+   ],
+   "expected": {
+    "refused": true,
+    "message": "the schedule has a dependency cycle through: a, b, c"
+   },
+   "note": "EC6-0: the passthrough accepted every one of these."
+  },
+  {
+   "name": "two activities with the same id",
+   "inputs": [
+    {
+     "id": "a",
+     "duration": 1
+    },
+    {
+     "id": "a",
+     "duration": 2
+    }
+   ],
+   "expected": {
+    "refused": true,
+    "message": "duplicate activity id: a"
+   },
+   "note": "EC6-0: the passthrough accepted every one of these."
+  },
+  {
+   "name": "an activity with no id",
+   "inputs": [
+    {
+     "duration": 1
+    }
+   ],
+   "expected": {
+    "refused": true,
+    "message": "every activity needs an id"
+   },
+   "note": "EC6-0: the passthrough accepted every one of these."
+  },
+  {
+   "name": "a negative duration",
+   "inputs": [
+    {
+     "id": "a",
+     "duration": -4
+    }
+   ],
+   "expected": {
+    "refused": true,
+    "message": "activity a: duration may not be negative: -4"
+   },
+   "note": "EC6-0: the passthrough accepted every one of these."
+  },
+  {
+   "name": "an unreadable duration",
+   "inputs": [
+    {
+     "id": "a",
+     "duration": "two weeks"
+    }
+   ],
+   "expected": {
+    "refused": true,
+    "message": "activity a: duration is not a number: two weeks"
+   },
+   "note": "EC6-0: the passthrough accepted every one of these."
   }
  ],
  "plan": [
@@ -15817,7 +16838,29 @@
     },
     "subsurface": {
      "reserves": {
-      "p50": 115
+      "summary": {
+       "p50": 0
+      },
+      "breakdown": [
+       {
+        "id": "r1",
+        "name": "Reservoir A",
+        "p10": 120,
+        "p50": 85,
+        "p90": 60,
+        "fluid": "Oil",
+        "rf": 0.35
+       },
+       {
+        "id": "r2",
+        "name": "Reservoir B",
+        "p10": 45,
+        "p50": 30,
+        "p90": 15,
+        "fluid": "Gas",
+        "rf": 0.65
+       }
+      ]
      }
     },
     "concepts": {
@@ -16407,7 +17450,13 @@
     },
     "subsurface": {
      "reserves": {
-      "p50": 1
+      "breakdown": [
+       {
+        "name": "R",
+        "fluid": "Oil",
+        "p50": 1
+       }
+      ]
      }
     },
     "concepts": {
@@ -16484,7 +17533,13 @@
     },
     "subsurface": {
      "reserves": {
-      "p50": 1
+      "breakdown": [
+       {
+        "name": "R",
+        "fluid": "Oil",
+        "p50": 1
+       }
+      ]
      }
     },
     "concepts": {
@@ -16563,7 +17618,13 @@
     },
     "subsurface": {
      "reserves": {
-      "p50": -3
+      "breakdown": [
+       {
+        "name": "R",
+        "fluid": "Oil",
+        "p50": -3
+       }
+      ]
      }
     },
     "economics": {
@@ -16601,6 +17662,355 @@
       {
        "module": "Economics",
        "valid": false
+      },
+      {
+       "module": "HSE",
+       "valid": false
+      },
+      {
+       "module": "Risks",
+       "valid": false
+      }
+     ]
+    },
+    "validation": {
+     "isValid": false,
+     "errors": [
+      "Reserves (P50) not estimated."
+     ],
+     "warnings": [
+      "No wells defined in the drilling program.",
+      "No facilities concepts selected.",
+      "Cost breakdown is empty."
+     ]
+    }
+   }
+  },
+  {
+   "name": "a gas only plan passes the reserves check",
+   "inputs": {
+    "fieldData": {
+     "fieldName": "X",
+     "country": "Y"
+    },
+    "subsurface": {
+     "reserves": {
+      "breakdown": [
+       {
+        "name": "G",
+        "fluid": "Gas",
+        "p50": 40
+       }
+      ]
+     }
+    },
+    "economics": {
+     "capex": 10,
+     "npv": 1
+    }
+   },
+   "expected": {
+    "completeness": {
+     "score": 33.0,
+     "breakdown": [
+      {
+       "module": "Field Data",
+       "valid": true
+      },
+      {
+       "module": "Subsurface",
+       "valid": true
+      },
+      {
+       "module": "Concepts",
+       "valid": false
+      },
+      {
+       "module": "Wells",
+       "valid": false
+      },
+      {
+       "module": "Facilities",
+       "valid": false
+      },
+      {
+       "module": "Schedule",
+       "valid": false
+      },
+      {
+       "module": "Economics",
+       "valid": true
+      },
+      {
+       "module": "HSE",
+       "valid": false
+      },
+      {
+       "module": "Risks",
+       "valid": false
+      }
+     ]
+    },
+    "validation": {
+     "isValid": true,
+     "errors": [],
+     "warnings": [
+      "No wells defined in the drilling program.",
+      "No facilities concepts selected.",
+      "Cost breakdown is empty."
+     ]
+    }
+   }
+  },
+  {
+   "name": "EC6-0: a full table with an empty summary now passes; it used to score 78 and fail",
+   "inputs": {
+    "fieldData": {
+     "fieldName": "X",
+     "country": "Y"
+    },
+    "subsurface": {
+     "reserves": {
+      "summary": {
+       "p10": 0,
+       "p50": 0,
+       "p90": 0
+      },
+      "breakdown": [
+       {
+        "id": "r1",
+        "name": "Reservoir A",
+        "p10": 120,
+        "p50": 85,
+        "p90": 60,
+        "fluid": "Oil",
+        "rf": 0.35
+       },
+       {
+        "id": "r2",
+        "name": "Reservoir B",
+        "p10": 45,
+        "p50": 30,
+        "p90": 15,
+        "fluid": "Gas",
+        "rf": 0.65
+       }
+      ]
+     }
+    },
+    "concepts": {
+     "list": [
+      1
+     ]
+    },
+    "wells": {
+     "list": [
+      1
+     ]
+    },
+    "facilities": {
+     "list": [
+      1
+     ]
+    },
+    "schedule": {
+     "activities": [
+      1
+     ]
+    },
+    "economics": {
+     "npv": 1,
+     "capex": 1
+    },
+    "hseData": {
+     "hazards": [
+      1
+     ]
+    },
+    "risks": [
+     1
+    ],
+    "costs": {
+     "items": [
+      1
+     ]
+    }
+   },
+   "expected": {
+    "completeness": {
+     "score": 100.0,
+     "breakdown": [
+      {
+       "module": "Field Data",
+       "valid": true
+      },
+      {
+       "module": "Subsurface",
+       "valid": true
+      },
+      {
+       "module": "Concepts",
+       "valid": true
+      },
+      {
+       "module": "Wells",
+       "valid": true
+      },
+      {
+       "module": "Facilities",
+       "valid": true
+      },
+      {
+       "module": "Schedule",
+       "valid": true
+      },
+      {
+       "module": "Economics",
+       "valid": true
+      },
+      {
+       "module": "HSE",
+       "valid": true
+      },
+      {
+       "module": "Risks",
+       "valid": true
+      }
+     ]
+    },
+    "validation": {
+     "isValid": true,
+     "errors": [],
+     "warnings": []
+    }
+   }
+  },
+  {
+   "name": "a loaded example carries only the summary",
+   "inputs": {
+    "fieldData": {
+     "fieldName": "X",
+     "country": "Y"
+    },
+    "subsurface": {
+     "reserves": {
+      "summary": {
+       "p50": 115
+      },
+      "breakdown": []
+     }
+    },
+    "economics": {
+     "capex": 1,
+     "npv": 1
+    }
+   },
+   "expected": {
+    "completeness": {
+     "score": 33.0,
+     "breakdown": [
+      {
+       "module": "Field Data",
+       "valid": true
+      },
+      {
+       "module": "Subsurface",
+       "valid": true
+      },
+      {
+       "module": "Concepts",
+       "valid": false
+      },
+      {
+       "module": "Wells",
+       "valid": false
+      },
+      {
+       "module": "Facilities",
+       "valid": false
+      },
+      {
+       "module": "Schedule",
+       "valid": false
+      },
+      {
+       "module": "Economics",
+       "valid": true
+      },
+      {
+       "module": "HSE",
+       "valid": false
+      },
+      {
+       "module": "Risks",
+       "valid": false
+      }
+     ]
+    },
+    "validation": {
+     "isValid": true,
+     "errors": [],
+     "warnings": [
+      "No wells defined in the drilling program.",
+      "No facilities concepts selected.",
+      "Cost breakdown is empty."
+     ]
+    }
+   }
+  },
+  {
+   "name": "an unreadable reserves table reads as no reserves",
+   "inputs": {
+    "fieldData": {
+     "fieldName": "X",
+     "country": "Y"
+    },
+    "subsurface": {
+     "reserves": {
+      "breakdown": [
+       {
+        "name": "R",
+        "p50": 99
+       }
+      ]
+     }
+    },
+    "economics": {
+     "capex": 1,
+     "npv": 1
+    }
+   },
+   "expected": {
+    "completeness": {
+     "score": 22.0,
+     "breakdown": [
+      {
+       "module": "Field Data",
+       "valid": true
+      },
+      {
+       "module": "Subsurface",
+       "valid": false
+      },
+      {
+       "module": "Concepts",
+       "valid": false
+      },
+      {
+       "module": "Wells",
+       "valid": false
+      },
+      {
+       "module": "Facilities",
+       "valid": false
+      },
+      {
+       "module": "Schedule",
+       "valid": false
+      },
+      {
+       "module": "Economics",
+       "valid": true
       },
       {
        "module": "HSE",
@@ -17186,14 +18596,35 @@
     "health": 43.0
    },
    "reserves": {
-    "p10": 165.0,
-    "p50": 115.0,
-    "p90": 75.0,
-    "recoverable": 0.0
+    "byFluid": {
+     "Oil": {
+      "fluid": "Oil",
+      "units": "MMbbl",
+      "count": 1,
+      "p90Sum": 60.0,
+      "p50Sum": 85.0,
+      "p10Sum": 120.0,
+      "recoverableSum": 0.0
+     },
+     "Gas": {
+      "fluid": "Gas",
+      "units": "Bcf",
+      "count": 1,
+      "p90Sum": 15.0,
+      "p50Sum": 30.0,
+      "p10Sum": 45.0,
+      "recoverableSum": 0.0
+     }
+    },
+    "fluids": [
+     "Oil",
+     "Gas"
+    ],
+    "percentileNote": "Each column is the arithmetic sum of that column within one fluid. A sum of P90s is not the P90 of the sum: add low cases only if every reservoir disappoints together. Aggregate the distributions to get a portfolio P90."
    },
    "ooip": 6005809.152,
-   "recoveryFactor": 19.148127602706747,
-   "wellCountAt12MMbbl": 10.0,
+   "recoveryFactor": 14.15296388026151,
+   "wellCountAt12MMbbl": 8.0,
    "schedule": {
     "milestones": [
      "act-1",
@@ -17364,8 +18795,34 @@
     ],
     "irrBeyondEngineClamp": false,
     "irrNoRoot": false
-   }
+   },
+   "sensitivity": [
+    {
+     "name": "Oil Price",
+     "lowParamNPV": 6167.111855230374,
+     "highParamNPV": 13897.124635157312,
+     "baseNPV": 10032.118245193842
+    },
+    {
+     "name": "CAPEX",
+     "lowParamNPV": 10461.17641035436,
+     "highParamNPV": 9603.060080033325,
+     "baseNPV": 10032.118245193842
+    },
+    {
+     "name": "OPEX",
+     "lowParamNPV": 10142.920270727342,
+     "highParamNPV": 9921.316219660346,
+     "baseNPV": 10032.118245193842
+    },
+    {
+     "name": "Production",
+     "lowParamNPV": 6167.111855230374,
+     "highParamNPV": 13897.124635157312,
+     "baseNPV": 10032.118245193842
+    }
+   ]
   },
-  "note": "exampleSchedule carries start and end, not startDate and endDate, so calculateProjectDuration is NaN (null). The example HSE risks have no costImpact, so exposure is 0."
+  "note": "exampleSchedule carries start and end, not startDate and endDate, so calculateProjectDuration has no dates to read and reports null (EC6-0; it used to be NaN and the app printed it). The example HSE risks have no costImpact, so exposure is 0. Reserves are per fluid: 85 MMbbl of oil and 30 Bcf of gas, never 115 of anything."
  }
 }

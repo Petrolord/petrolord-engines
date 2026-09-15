@@ -25,7 +25,7 @@
 //
 // CONVENTION: mid-year discounting, inherited from calculateEconomics.
 
-import { calculateEconomics } from '../screening.js';
+import { calculateEconomics, runSensitivityAnalysis } from '../screening.js';
 
 /**
  * Default screening fiscal terms. Stated rather than assumed silently,
@@ -50,7 +50,18 @@ export const DEFAULT_FISCAL = {
  * @param {object} [p.fiscal] overrides for DEFAULT_FISCAL
  * @returns {{cashflow: object[], metrics: object}}
  */
-export const runFdpCase = ({
+/**
+ * Build the screening-engine inputs one FDP case implies.
+ *
+ * Split out of `runFdpCase` in EC6-0 so the Economics tab can run the same
+ * case through the sanctioned sensitivity sweep instead of the hard-coded
+ * tornado it used to draw (a literal five-bar chart around "Base Case
+ * ($245MM)", the same picture whatever the plan said).
+ *
+ * @param {object} p see runFdpCase
+ * @returns {object} inputs for calculateEconomics
+ */
+export const buildFdpCaseInputs = ({
   capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal = {},
 }) => {
   const terms = { ...DEFAULT_FISCAL, ...fiscal };
@@ -76,7 +87,7 @@ export const runFdpCase = ({
     opexVariable[i + 1] = (annualBbl * terms.variableOpexPerBbl) / 1e6;
   }
 
-  return calculateEconomics({
+  return {
     startYear: 0,
     projectLife,
     discountRate: terms.discountRate,
@@ -89,8 +100,30 @@ export const runFdpCase = ({
     abandonment: new Array(projectLife).fill(0),
     royaltyRate: terms.royaltyRate,
     taxRate: terms.taxRate,
-  });
+  };
 };
+
+/**
+ * Run one FDP case.
+ *
+ * @param {object} p
+ * @param {number} p.capexMM total development capex, $MM, spent in year one
+ * @param {number} p.annualOpexMM fixed operating cost, $MM per year
+ * @param {number[]} p.productionKbpd daily rate per production year, kbpd
+ * @param {number[]} p.pricesUsd oil price per production year, $/bbl
+ * @param {object} [p.fiscal] overrides for DEFAULT_FISCAL
+ * @returns {{cashflow: object[], metrics: object}}
+ */
+export const runFdpCase = (p) => calculateEconomics(buildFdpCaseInputs(p));
+
+/**
+ * The screening sensitivity sweep for one FDP case: NPV at plus and minus
+ * 30 percent on oil price, capex, opex and production, against the base.
+ *
+ * @param {object} p see runFdpCase
+ * @returns {Array<{name: string, lowParamNPV: number, highParamNPV: number, baseNPV: number}>}
+ */
+export const runFdpSensitivity = (p) => runSensitivityAnalysis(buildFdpCaseInputs(p));
 
 /**
  * Years to payback, or null when the project never pays back.
