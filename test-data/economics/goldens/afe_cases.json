@@ -1,5 +1,5 @@
 {
- "description": "AFE cost control and project controls goldens. partnerSplit: calculatePartnerCosts (shares by working interest, operator remainder, validity, the note text, and the conservation identity). metrics: calculateMetrics (BAC, commitments, AC, EAC, VAC, EV, CPI, SPI, percent spent and complete) with the standard EVM set beside it (cv, sv, etc, tcpi are reference only, not engine outputs; plannedValue and timeProgress are engine outputs since EC5-0; since EC5-3 cpi and spi are null wherever the ratio is undefined, with cpiStatus no-spend and spiStatus no-budget or no-planned-value, and ok otherwise). metricsRefusals: the AfeInputError message for an invalid asOf or progress outside 0 to 100 percent. sCurve: the exact generateSCurveData point list, bounded to the window. inputs.asOf, when present, is passed to the engine (as a Date when inputs.asOfAs is \"Date\", else as the string). evm: projectControls.calculateEVM strings (toFixed(2)) and their numeric values; cpiSpi; gantt: formatTasksForGantt rows with dates as epoch milliseconds (null = Invalid Date). Independent stdlib oracle tools/validation/economics/oracle_afe.py. Cases without an asOf use AFE windows wholly past (2020) or wholly future (2090 or later), because the engine defaults asOf to the clock; they are valid until 2080. Money in the caller's currency; percentages 0 to 100; days whole. A null where a number is expected is a null in the engine too (spi), or a non-finite value where a note says so. The S-curve is UTC throughout (EC5-5) and the gate requires the same points under five TZ values; the metrics goldens assume a UTC run.",
+ "description": "AFE cost control and project controls goldens. partnerSplit: calculatePartnerCosts (shares by working interest, operator remainder, validity, the note text, and the conservation identity). metrics: calculateMetrics (BAC, commitments, AC, EAC, VAC, EV, CPI, SPI, percent spent and complete) with the standard EVM set beside it (cv, sv, etc, tcpi are reference only, not engine outputs; plannedValue and timeProgress are engine outputs since EC5-0; since EC5-3 cpi and spi are null wherever the ratio is undefined, with cpiStatus no-spend and spiStatus no-budget or no-planned-value, and ok otherwise). metricsRefusals: the AfeInputError message for an invalid asOf or progress outside 0 to 100 percent. sCurve: the exact generateSCurveData point list, bounded to the window and closed on the window end date with Planned the budget and Forecast the EAC (EC5-9b; retiredLastPoint is where the walk ended before, for the negative control). metrics lineForecasts and the two flag counts: EC5-1 and the negative-forecast flag. inputs.asOf, when present, is passed to the engine (as a Date when inputs.asOfAs is \"Date\", else as the string). evm: projectControls.calculateEVM strings (toFixed(2)) and their numeric values; cpiSpi; gantt: formatTasksForGantt rows with dates as epoch milliseconds (null = Invalid Date). Independent stdlib oracle tools/validation/economics/oracle_afe.py. Cases without an asOf use AFE windows wholly past (2020) or wholly future (2090 or later), because the engine defaults asOf to the clock; they are valid until 2080. Money in the caller's currency; percentages 0 to 100; days whole. A null where a number is expected is a null in the engine too (spi), or a non-finite value where a note says so. The S-curve is UTC throughout (EC5-5) and the gate requires the same points under five TZ values; the metrics goldens assume a UTC run.",
  "validUntil": "2080-01-01",
  "partnerSplit": [
   {
@@ -970,6 +970,28 @@
     "percentComplete": 0.0,
     "plannedValue": 300.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 100.0,
+      "committed": 50.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 1,
+      "label": 1,
+      "forecast": 200.0,
+      "committed": 90.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 300.0,
      "pv": 300.0,
@@ -1021,6 +1043,19 @@
     "percentComplete": 0.0,
     "plannedValue": 100.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 140.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 100.0,
      "pv": 100.0,
@@ -1071,6 +1106,19 @@
     "percentComplete": 0.0,
     "plannedValue": 100.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 100.0,
+      "committed": 30.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 100.0,
      "pv": 100.0,
@@ -1121,6 +1169,19 @@
     "percentComplete": 0.0,
     "plannedValue": 100.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 130.0,
+      "committed": 130.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 100.0,
      "pv": 100.0,
@@ -1175,6 +1236,28 @@
     "percentComplete": 27.500000000000004,
     "plannedValue": 400.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 100.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 1,
+      "label": 1,
+      "forecast": 300.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 400.0,
      "pv": 400.0,
@@ -1225,6 +1308,19 @@
     "percentComplete": 50.0,
     "plannedValue": 200.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 200.0,
+      "committed": 80.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 200.0,
      "pv": 200.0,
@@ -1274,6 +1370,19 @@
     "percentComplete": 50.0,
     "plannedValue": 200.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 200.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 200.0,
      "pv": 200.0,
@@ -1317,6 +1426,9 @@
     "percentComplete": 0.0,
     "plannedValue": 0.0,
     "timeProgress": 1.0,
+    "lineForecasts": [],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 0,
      "pv": 0.0,
@@ -1367,6 +1479,19 @@
     "percentComplete": 0.0,
     "plannedValue": 0.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 0.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 0.0,
      "pv": 0.0,
@@ -1414,6 +1539,19 @@
     "percentComplete": 25.0,
     "plannedValue": 400.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 400.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 400.0,
      "pv": 400.0,
@@ -1462,6 +1600,19 @@
     "percentComplete": 25.0,
     "plannedValue": 400.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 400.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 400.0,
      "pv": 400.0,
@@ -1509,6 +1660,19 @@
     "percentComplete": 25.0,
     "plannedValue": 400.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 400.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 400.0,
      "pv": 400.0,
@@ -1558,6 +1722,19 @@
     "percentComplete": 25.0,
     "plannedValue": 0.0,
     "timeProgress": 0.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 400.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 400.0,
      "pv": 0.0,
@@ -1608,6 +1785,19 @@
     "percentComplete": 0.0,
     "plannedValue": 0.0,
     "timeProgress": 0.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 400.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 400.0,
      "pv": 0.0,
@@ -1658,6 +1848,19 @@
     "percentComplete": 0.0,
     "plannedValue": 0.0,
     "timeProgress": 0.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 100.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 0.0,
      "pv": 0.0,
@@ -1710,6 +1913,19 @@
     "percentComplete": 10.0,
     "plannedValue": 100.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 100.0,
+      "committed": 20.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": "negative"
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 1,
     "standardEvm": {
      "bac": 100.0,
      "pv": 100.0,
@@ -1762,6 +1978,19 @@
     "percentComplete": 40.0,
     "plannedValue": 1000.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 1100.0,
+      "committed": 550.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 1000.0,
      "pv": 1000.0,
@@ -1818,6 +2047,28 @@
     "percentComplete": 66.66666666666666,
     "plannedValue": 150.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 230.0,
+      "committed": 230.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 1,
+      "label": 1,
+      "forecast": 50.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 150.0,
      "pv": 150.0,
@@ -1872,6 +2123,28 @@
     "percentComplete": 100.0,
     "plannedValue": 140.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 100.0,
+      "committed": 90.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 1,
+      "label": 1,
+      "forecast": 40.0,
+      "committed": 10.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 140.0,
      "pv": 140.0,
@@ -2000,6 +2273,118 @@
     "percentComplete": 58.666666666666664,
     "plannedValue": 7800.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 100.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 1,
+      "label": 1,
+      "forecast": 200.0,
+      "committed": 40.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 2,
+      "label": 2,
+      "forecast": 300.0,
+      "committed": 80.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 3,
+      "label": 3,
+      "forecast": 400.0,
+      "committed": 120.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 4,
+      "label": 4,
+      "forecast": 500.0,
+      "committed": 160.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 5,
+      "label": 5,
+      "forecast": 600.0,
+      "committed": 200.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 6,
+      "label": 6,
+      "forecast": 700.0,
+      "committed": 240.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 7,
+      "label": 7,
+      "forecast": 800.0,
+      "committed": 280.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 8,
+      "label": 8,
+      "forecast": 900.0,
+      "committed": 320.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 9,
+      "label": 9,
+      "forecast": 1000.0,
+      "committed": 360.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 10,
+      "label": 10,
+      "forecast": 1100.0,
+      "committed": 400.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 11,
+      "label": 11,
+      "forecast": 1200.0,
+      "committed": 440.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 7800.0,
      "pv": 7800.0,
@@ -2049,6 +2434,19 @@
     "percentComplete": 0.0,
     "plannedValue": 0.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 500.0,
+      "committed": 500.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 0.0,
      "pv": 0.0,
@@ -2100,6 +2498,19 @@
     "percentComplete": 40.0,
     "plannedValue": 1000.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 1000.0,
+      "committed": 400.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 1000.0,
      "pv": 1000.0,
@@ -2116,6 +2527,360 @@
     }
    },
    "note": "The CPI item: 400 earned, 0 spent, so cpiStatus no-spend; SPI is defined (0.4)."
+  },
+  {
+   "name": "EC5-1: a forecast below the money spent and committed is kept and flagged",
+   "inputs": {
+    "afe": {
+     "start_date": "2020-01-01",
+     "end_date": "2020-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "code": "RIG",
+      "budget": 1000,
+      "actual": 700,
+      "commitment": 200,
+      "forecast": 850,
+      "progress": 60
+     },
+     {
+      "code": "CMT",
+      "budget": 300,
+      "actual": 100,
+      "commitment": 50,
+      "forecast": 400,
+      "progress": 30
+     }
+    ],
+    "invoices": []
+   },
+   "expected": {
+    "undatedInvoices": 0,
+    "totalBudget": 1300.0,
+    "totalCommitments": 250.0,
+    "totalActuals": 800.0,
+    "totalForecast": 1250.0,
+    "variance": 50.0,
+    "earnedValue": 690.0,
+    "cpi": 0.8625,
+    "cpiStatus": "ok",
+    "spi": 0.5307692307692308,
+    "spiStatus": "ok",
+    "percentSpent": 61.53846153846154,
+    "percentComplete": 53.07692307692308,
+    "plannedValue": 1300.0,
+    "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": "RIG",
+      "forecast": 850.0,
+      "committed": 900.0,
+      "forecastBelowCommitted": true,
+      "forecastBelowCommittedBy": 50.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 1,
+      "label": "CMT",
+      "forecast": 400.0,
+      "committed": 150.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 1,
+    "linesForecastIgnored": 0,
+    "standardEvm": {
+     "bac": 1300.0,
+     "pv": 1300.0,
+     "ev": 690.0,
+     "ac": 800.0,
+     "cv": -110.0,
+     "sv": -610.0,
+     "cpi": 0.8625,
+     "spi": 0.5307692307692308,
+     "eac": 1250.0,
+     "etc": 450.0,
+     "vac": 50.0,
+     "tcpi": 1.22
+    }
+   },
+   "note": "EC5-1: RIG forecasts 850 against 900 already spent and committed. The 850 stays the EAC (a re-baseline is legitimate) and the line is flagged below committed by 50. Before, it was taken silently."
+  },
+  {
+   "name": "EC5-1: a forecast equal to the money committed is not below it",
+   "inputs": {
+    "afe": {
+     "start_date": "2020-01-01",
+     "end_date": "2020-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "description": "Casing",
+      "budget": 500,
+      "actual": 300,
+      "commitment": 100,
+      "forecast": 400,
+      "progress": 50
+     }
+    ],
+    "invoices": []
+   },
+   "expected": {
+    "undatedInvoices": 0,
+    "totalBudget": 500.0,
+    "totalCommitments": 100.0,
+    "totalActuals": 300.0,
+    "totalForecast": 400.0,
+    "variance": 100.0,
+    "earnedValue": 250.0,
+    "cpi": 0.8333333333333334,
+    "cpiStatus": "ok",
+    "spi": 0.5,
+    "spiStatus": "ok",
+    "percentSpent": 60.0,
+    "percentComplete": 50.0,
+    "plannedValue": 500.0,
+    "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": "Casing",
+      "forecast": 400.0,
+      "committed": 400.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
+    "standardEvm": {
+     "bac": 500.0,
+     "pv": 500.0,
+     "ev": 250.0,
+     "ac": 300.0,
+     "cv": -50.0,
+     "sv": -250.0,
+     "cpi": 0.8333333333333334,
+     "spi": 0.5,
+     "eac": 400.0,
+     "etc": 100.0,
+     "vac": 100.0,
+     "tcpi": 1.25
+    }
+   }
+  },
+  {
+   "name": "EC5-1: string inputs, forecast 1100 below 1200 committed",
+   "inputs": {
+    "afe": {
+     "start_date": "2020-01-01",
+     "end_date": "2020-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "budget": "1000",
+      "actual": "900",
+      "commitment": "300",
+      "forecast": "1100",
+      "progress": "70"
+     }
+    ],
+    "invoices": []
+   },
+   "expected": {
+    "undatedInvoices": 0,
+    "totalBudget": 1000.0,
+    "totalCommitments": 300.0,
+    "totalActuals": 900.0,
+    "totalForecast": 1100.0,
+    "variance": -100.0,
+    "earnedValue": 700.0,
+    "cpi": 0.7777777777777778,
+    "cpiStatus": "ok",
+    "spi": 0.7,
+    "spiStatus": "ok",
+    "percentSpent": 90.0,
+    "percentComplete": 70.0,
+    "plannedValue": 1000.0,
+    "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 1100.0,
+      "committed": 1200.0,
+      "forecastBelowCommitted": true,
+      "forecastBelowCommittedBy": 100.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 1,
+    "linesForecastIgnored": 0,
+    "standardEvm": {
+     "bac": 1000.0,
+     "pv": 1000.0,
+     "ev": 700.0,
+     "ac": 900.0,
+     "cv": -200.0,
+     "sv": -300.0,
+     "cpi": 0.7777777777777778,
+     "spi": 0.7,
+     "eac": 1100.0,
+     "etc": 200.0,
+     "vac": -100.0,
+     "tcpi": 3.0
+    }
+   }
+  },
+  {
+   "name": "negative forecast flag: only a number below 0 is flagged; blank, zero and text are no forecast",
+   "inputs": {
+    "afe": {
+     "start_date": "2020-01-01",
+     "end_date": "2020-12-31",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "code": "A",
+      "budget": 100,
+      "actual": 20,
+      "forecast": -50,
+      "progress": 10
+     },
+     {
+      "code": "B",
+      "budget": 100,
+      "forecast": "",
+      "progress": 0
+     },
+     {
+      "code": "C",
+      "budget": 100,
+      "forecast": 0,
+      "progress": 0
+     },
+     {
+      "code": "D",
+      "budget": 100,
+      "forecast": "abc",
+      "progress": 0
+     },
+     {
+      "description": "E",
+      "budget": 100,
+      "actual": 130,
+      "forecast": "-0.5",
+      "progress": 0
+     },
+     {
+      "budget": 100,
+      "actual": 90,
+      "commitment": 30,
+      "forecast": 60,
+      "progress": 0
+     }
+    ],
+    "invoices": []
+   },
+   "expected": {
+    "undatedInvoices": 0,
+    "totalBudget": 600.0,
+    "totalCommitments": 30.0,
+    "totalActuals": 240.0,
+    "totalForecast": 590.0,
+    "variance": 10.0,
+    "earnedValue": 10.0,
+    "cpi": 0.041666666666666664,
+    "cpiStatus": "ok",
+    "spi": 0.016666666666666666,
+    "spiStatus": "ok",
+    "percentSpent": 40.0,
+    "percentComplete": 1.6666666666666667,
+    "plannedValue": 600.0,
+    "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": "A",
+      "forecast": 100.0,
+      "committed": 20.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": "negative"
+     },
+     {
+      "index": 1,
+      "label": "B",
+      "forecast": 100.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 2,
+      "label": "C",
+      "forecast": 100.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 3,
+      "label": "D",
+      "forecast": 100.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 4,
+      "label": "E",
+      "forecast": 130.0,
+      "committed": 130.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": "negative"
+     },
+     {
+      "index": 5,
+      "label": 5,
+      "forecast": 60.0,
+      "committed": 120.0,
+      "forecastBelowCommitted": true,
+      "forecastBelowCommittedBy": 60.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 1,
+    "linesForecastIgnored": 2,
+    "standardEvm": {
+     "bac": 600.0,
+     "pv": 600.0,
+     "ev": 10.0,
+     "ac": 240.0,
+     "cv": -230.0,
+     "sv": -590.0,
+     "cpi": 0.041666666666666664,
+     "spi": 0.016666666666666666,
+     "eac": 590.0,
+     "etc": 350.0,
+     "vac": 10.0,
+     "tcpi": 1.6388888888888888
+    }
+   },
+   "note": "A and E are flagged forecastIgnored negative and take the standard rule (100 and 130); the unnamed line 5 forecasts 60 against 120 committed and is flagged below committed by 60. Before, the negative values were ignored silently."
   },
   {
    "name": "asOf mid-window: SPI against 256 of 729 days",
@@ -2152,6 +2917,19 @@
     "percentComplete": 40.0,
     "plannedValue": 351.1659807956104,
     "timeProgress": 0.3511659807956104,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 1000.0,
+      "committed": 300.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 1000.0,
      "pv": 351.1659807956104,
@@ -2203,6 +2981,19 @@
     "percentComplete": 40.0,
     "plannedValue": 581.6186556927297,
     "timeProgress": 0.5816186556927297,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 1000.0,
+      "committed": 300.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 1000.0,
      "pv": 581.6186556927297,
@@ -2254,6 +3045,19 @@
     "percentComplete": 40.0,
     "plannedValue": 351.1659807956104,
     "timeProgress": 0.3511659807956104,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 1000.0,
+      "committed": 300.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 1000.0,
      "pv": 351.1659807956104,
@@ -2305,6 +3109,19 @@
     "percentComplete": 25.0,
     "plannedValue": 0.0,
     "timeProgress": 0.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 400.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 400.0,
      "pv": 0.0,
@@ -2357,6 +3174,19 @@
     "percentComplete": 0.0,
     "plannedValue": 0.0,
     "timeProgress": 0.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 400.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 400.0,
      "pv": 0.0,
@@ -2408,6 +3238,19 @@
     "percentComplete": 40.0,
     "plannedValue": 0.0,
     "timeProgress": 0.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 1000.0,
+      "committed": 300.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 1000.0,
      "pv": 0.0,
@@ -2459,6 +3302,19 @@
     "percentComplete": 40.0,
     "plannedValue": 1000.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 1000.0,
+      "committed": 300.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 1000.0,
      "pv": 1000.0,
@@ -2516,6 +3372,28 @@
     "percentComplete": 94.0,
     "plannedValue": 1000.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 750.0,
+      "committed": 750.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 1,
+      "label": 1,
+      "forecast": 400.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 1000.0,
      "pv": 1000.0,
@@ -2567,6 +3445,19 @@
     "percentComplete": 0.0,
     "plannedValue": 0.0,
     "timeProgress": 0.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 100.0,
+      "committed": 100.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 0.0,
      "pv": 0.0,
@@ -2617,6 +3508,19 @@
     "percentComplete": 40.0,
     "plannedValue": 1000.0,
     "timeProgress": 1.0,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 1000.0,
+      "committed": 300.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 1000.0,
      "pv": 1000.0,
@@ -2630,6 +3534,143 @@
      "etc": 700.0,
      "vac": 0.0,
      "tcpi": 0.8571428571428571
+    }
+   }
+  },
+  {
+   "name": "EC5-1 and EC5-9b: OFON-1 at 2027-08-15, no line below committed",
+   "inputs": {
+    "afe": {
+     "afe_number": "OFON-1",
+     "start_date": "2027-02-01",
+     "end_date": "2027-11-30",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "code": "DRL-01",
+      "description": "Rig and drilling services",
+      "budget": 14200000,
+      "commitment": 2600000,
+      "actual": 9800000,
+      "progress": 72
+     },
+     {
+      "code": "CSG-02",
+      "description": "Casing and tubulars",
+      "budget": 3900000,
+      "commitment": 0,
+      "actual": 4300000,
+      "progress": 100
+     },
+     {
+      "code": "CMT-03",
+      "description": "Cementing",
+      "budget": 1250000,
+      "commitment": 300000,
+      "actual": 640000,
+      "forecast": 1400000,
+      "progress": 55
+     },
+     {
+      "code": "LOG-04",
+      "description": "Logging and testing",
+      "budget": 2100000,
+      "commitment": 900000,
+      "actual": 350000,
+      "progress": 20
+     },
+     {
+      "code": "CMP-05",
+      "description": "Completion",
+      "budget": 5600000,
+      "commitment": 1200000,
+      "actual": 0,
+      "progress": 0
+     }
+    ],
+    "invoices": [],
+    "asOf": "2027-08-15",
+    "asOfAs": "string"
+   },
+   "expected": {
+    "undatedInvoices": 0,
+    "totalBudget": 27050000.0,
+    "totalCommitments": 5000000.0,
+    "totalActuals": 15090000.0,
+    "totalForecast": 27600000.0,
+    "variance": -550000.0,
+    "earnedValue": 15231500.0,
+    "cpi": 1.009377070907886,
+    "cpiStatus": "ok",
+    "spi": 0.8720627517891844,
+    "spiStatus": "ok",
+    "percentSpent": 55.78558225508318,
+    "percentComplete": 56.3086876155268,
+    "plannedValue": 17466059.602649007,
+    "timeProgress": 0.6456953642384106,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": "DRL-01",
+      "forecast": 14200000.0,
+      "committed": 12400000.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 1,
+      "label": "CSG-02",
+      "forecast": 4300000.0,
+      "committed": 4300000.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 2,
+      "label": "CMT-03",
+      "forecast": 1400000.0,
+      "committed": 940000.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 3,
+      "label": "LOG-04",
+      "forecast": 2100000.0,
+      "committed": 1250000.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 4,
+      "label": "CMP-05",
+      "forecast": 5600000.0,
+      "committed": 1200000.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
+    "standardEvm": {
+     "bac": 27050000.0,
+     "pv": 17466059.602649007,
+     "ev": 15231500.0,
+     "ac": 15090000.0,
+     "cv": 141500.0,
+     "sv": -2234559.602649007,
+     "cpi": 1.009377070907886,
+     "spi": 0.8720627517891844,
+     "eac": 27600000.0,
+     "etc": 12510000.0,
+     "vac": -550000.0,
+     "tcpi": 0.9881688963210702
     }
    }
   },
@@ -2747,6 +3788,118 @@
     "percentComplete": 51.33333333333333,
     "plannedValue": 5670.781893004115,
     "timeProgress": 0.7270233196159122,
+    "lineForecasts": [
+     {
+      "index": 0,
+      "label": 0,
+      "forecast": 150.0,
+      "committed": 0.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 1,
+      "label": 1,
+      "forecast": 200.0,
+      "committed": 40.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 2,
+      "label": 2,
+      "forecast": 300.0,
+      "committed": 80.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 3,
+      "label": 3,
+      "forecast": 600.0,
+      "committed": 120.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 4,
+      "label": 4,
+      "forecast": 500.0,
+      "committed": 160.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 5,
+      "label": 5,
+      "forecast": 600.0,
+      "committed": 200.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 6,
+      "label": 6,
+      "forecast": 1050.0,
+      "committed": 240.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 7,
+      "label": 7,
+      "forecast": 800.0,
+      "committed": 280.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 8,
+      "label": 8,
+      "forecast": 900.0,
+      "committed": 320.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 9,
+      "label": 9,
+      "forecast": 1500.0,
+      "committed": 360.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 10,
+      "label": 10,
+      "forecast": 1100.0,
+      "committed": 400.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     },
+     {
+      "index": 11,
+      "label": 11,
+      "forecast": 1200.0,
+      "committed": 440.0,
+      "forecastBelowCommitted": false,
+      "forecastBelowCommittedBy": 0.0,
+      "forecastIgnored": null
+     }
+    ],
+    "linesForecastBelowCommitted": 0,
+    "linesForecastIgnored": 0,
     "standardEvm": {
      "bac": 7800.0,
      "pv": 5670.781893004115,
@@ -3064,78 +4217,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 102.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 197.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 299.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 398.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 500.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 598.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 700.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 802.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 901.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 1003.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 1101.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 1200.0,
+      "Actual": 0.0,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 1101.0,
+     "Actual": 0.0,
+     "Forecast": 0.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -3169,78 +4348,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 102.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 197.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 299.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 398.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 500.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 598.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 700.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 802.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 901.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 1003.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 1101.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 1200.0,
+      "Actual": 350.0,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 1101.0,
+     "Actual": 350.0,
+     "Forecast": 350.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -3278,78 +4483,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 10.0,
-      "Forecast": 10.0
+      "Forecast": 10.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 310.0,
       "Actual": 10.0,
-      "Forecast": 10.0
+      "Forecast": 10.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 600.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 910.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 1210.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 1520.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 1820.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 2130.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 2440.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 2740.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 3050.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 3350.0,
       "Actual": 30.0,
-      "Forecast": 30.0
+      "Forecast": 30.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 3650.0,
+      "Actual": 60.0,
+      "Forecast": 3650.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 3650.0,
     "totalForecast": 3650.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 3350.0,
+     "Actual": 30.0,
+     "Forecast": 30.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -3383,78 +4614,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 102.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 197.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 299.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 398.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 500.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 598.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 700.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 802.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 901.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 1003.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 1101.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 1200.0,
+      "Actual": 250.0,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 1101.0,
+     "Actual": 250.0,
+     "Forecast": 250.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -3489,78 +4746,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 51.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 99.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 150.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 199.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 250.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 299.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 350.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 401.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 450.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 501.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 551.0,
       "Actual": 250.0,
-      "Forecast": 250.0
+      "Forecast": 250.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 600.0,
+      "Actual": 250.0,
+      "Forecast": 600.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 600.0,
     "totalForecast": 600.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 551.0,
+     "Actual": 250.0,
+     "Forecast": 250.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -3593,72 +4876,97 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 93.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 185.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 275.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 367.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 457.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 549.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 642.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 731.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 824.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 913.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 1000.0,
+      "Actual": 350.0,
+      "Forecast": 1000.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1000.0,
     "totalForecast": 1000.0,
-    "totalDays": 335.0
+    "totalDays": 335.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 913.0,
+     "Actual": 350.0,
+     "Forecast": 350.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -3692,78 +5000,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 0.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 0.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 0.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 0.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 0.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 0.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 0.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 0.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 0.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 0.0,
       "Actual": 350.0,
-      "Forecast": 350.0
+      "Forecast": 350.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 0.0,
+      "Actual": 350.0,
+      "Forecast": 0.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 0.0,
     "totalForecast": 0.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 0.0,
+     "Actual": 350.0,
+     "Forecast": 350.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -3796,78 +5130,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 102.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 197.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 299.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 398.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 500.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 598.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 700.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 802.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 901.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 1003.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 1101.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 1200.0,
+      "Actual": 0.0,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 1101.0,
+     "Actual": 0.0,
+     "Forecast": 0.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -3893,15 +5253,23 @@
     "kind": "past",
     "points": [
      {
-      "date": "Jun 20",
-      "Planned": 0.0,
+      "date": "15 Jun 20",
+      "Planned": 500.0,
       "Actual": 500.0,
-      "Forecast": 500.0
+      "Forecast": 500.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 500.0,
     "totalForecast": 500.0,
-    "totalDays": 0.0
+    "totalDays": 0.0,
+    "retiredLastPoint": {
+     "date": "Jun 20",
+     "Planned": 0.0,
+     "Actual": 500.0,
+     "Forecast": 500.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -3928,78 +5296,104 @@
       "date": "Jan 90",
       "Planned": 0.0,
       "Actual": null,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 90",
       "Planned": 102.0,
       "Actual": null,
-      "Forecast": 102.0
+      "Forecast": 102.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 90",
       "Planned": 195.0,
       "Actual": null,
-      "Forecast": 195.0
+      "Forecast": 195.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 90",
       "Planned": 297.0,
       "Actual": null,
-      "Forecast": 297.0
+      "Forecast": 297.0,
+      "windowEnd": false
      },
      {
       "date": "May 90",
       "Planned": 396.0,
       "Actual": null,
-      "Forecast": 396.0
+      "Forecast": 396.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 90",
       "Planned": 498.0,
       "Actual": null,
-      "Forecast": 498.0
+      "Forecast": 498.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 90",
       "Planned": 597.0,
       "Actual": null,
-      "Forecast": 597.0
+      "Forecast": 597.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 90",
       "Planned": 699.0,
       "Actual": null,
-      "Forecast": 699.0
+      "Forecast": 699.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 90",
       "Planned": 801.0,
       "Actual": null,
-      "Forecast": 801.0
+      "Forecast": 801.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 90",
       "Planned": 900.0,
       "Actual": null,
-      "Forecast": 900.0
+      "Forecast": 900.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 90",
       "Planned": 1002.0,
       "Actual": null,
-      "Forecast": 1002.0
+      "Forecast": 1002.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 90",
       "Planned": 1101.0,
       "Actual": null,
-      "Forecast": 1101.0
+      "Forecast": 1101.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 90",
+      "Planned": 1200.0,
+      "Actual": null,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 364.0
+    "totalDays": 364.0,
+    "retiredLastPoint": {
+     "date": "Dec 90",
+     "Planned": 1101.0,
+     "Actual": null,
+     "Forecast": 1101.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4025,78 +5419,104 @@
       "date": "Jan 90",
       "Planned": 0.0,
       "Actual": null,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 90",
       "Planned": 102.0,
       "Actual": null,
-      "Forecast": 128.0
+      "Forecast": 128.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 90",
       "Planned": 195.0,
       "Actual": null,
-      "Forecast": 243.0
+      "Forecast": 243.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 90",
       "Planned": 297.0,
       "Actual": null,
-      "Forecast": 371.0
+      "Forecast": 371.0,
+      "windowEnd": false
      },
      {
       "date": "May 90",
       "Planned": 396.0,
       "Actual": null,
-      "Forecast": 495.0
+      "Forecast": 495.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 90",
       "Planned": 498.0,
       "Actual": null,
-      "Forecast": 622.0
+      "Forecast": 622.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 90",
       "Planned": 597.0,
       "Actual": null,
-      "Forecast": 746.0
+      "Forecast": 746.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 90",
       "Planned": 699.0,
       "Actual": null,
-      "Forecast": 874.0
+      "Forecast": 874.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 90",
       "Planned": 801.0,
       "Actual": null,
-      "Forecast": 1001.0
+      "Forecast": 1001.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 90",
       "Planned": 900.0,
       "Actual": null,
-      "Forecast": 1125.0
+      "Forecast": 1125.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 90",
       "Planned": 1002.0,
       "Actual": null,
-      "Forecast": 1253.0
+      "Forecast": 1253.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 90",
       "Planned": 1101.0,
       "Actual": null,
-      "Forecast": 1376.0
+      "Forecast": 1376.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 90",
+      "Planned": 1200.0,
+      "Actual": null,
+      "Forecast": 1500.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1500.0,
-    "totalDays": 364.0
+    "totalDays": 364.0,
+    "retiredLastPoint": {
+     "date": "Dec 90",
+     "Planned": 1101.0,
+     "Actual": null,
+     "Forecast": 1376.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4122,78 +5542,104 @@
       "date": "Jan 90",
       "Planned": 0.0,
       "Actual": null,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 90",
       "Planned": 102.0,
       "Actual": null,
-      "Forecast": 102.0
+      "Forecast": 102.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 90",
       "Planned": 195.0,
       "Actual": null,
-      "Forecast": 195.0
+      "Forecast": 195.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 90",
       "Planned": 297.0,
       "Actual": null,
-      "Forecast": 297.0
+      "Forecast": 297.0,
+      "windowEnd": false
      },
      {
       "date": "May 90",
       "Planned": 396.0,
       "Actual": null,
-      "Forecast": 396.0
+      "Forecast": 396.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 90",
       "Planned": 498.0,
       "Actual": null,
-      "Forecast": 498.0
+      "Forecast": 498.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 90",
       "Planned": 597.0,
       "Actual": null,
-      "Forecast": 597.0
+      "Forecast": 597.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 90",
       "Planned": 699.0,
       "Actual": null,
-      "Forecast": 699.0
+      "Forecast": 699.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 90",
       "Planned": 801.0,
       "Actual": null,
-      "Forecast": 801.0
+      "Forecast": 801.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 90",
       "Planned": 900.0,
       "Actual": null,
-      "Forecast": 900.0
+      "Forecast": 900.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 90",
       "Planned": 1002.0,
       "Actual": null,
-      "Forecast": 1002.0
+      "Forecast": 1002.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 90",
       "Planned": 1101.0,
       "Actual": null,
-      "Forecast": 1101.0
+      "Forecast": 1101.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 90",
+      "Planned": 1200.0,
+      "Actual": null,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 364.0
+    "totalDays": 364.0,
+    "retiredLastPoint": {
+     "date": "Dec 90",
+     "Planned": 1101.0,
+     "Actual": null,
+     "Forecast": 1101.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4215,7 +5661,8 @@
     "points": [],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": -364.0
+    "totalDays": -364.0,
+    "retiredLastPoint": null
    }
   },
   {
@@ -4236,15 +5683,23 @@
     "kind": "future",
     "points": [
      {
-      "date": "Jun 90",
-      "Planned": 0.0,
+      "date": "15 Jun 90",
+      "Planned": 500.0,
       "Actual": null,
-      "Forecast": 0.0
+      "Forecast": 500.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 500.0,
     "totalForecast": 500.0,
-    "totalDays": 0.0
+    "totalDays": 0.0,
+    "retiredLastPoint": {
+     "date": "Jun 90",
+     "Planned": 0.0,
+     "Actual": null,
+     "Forecast": 0.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4268,72 +5723,97 @@
       "date": "Jan 91",
       "Planned": 0.0,
       "Actual": null,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 91",
       "Planned": 93.0,
       "Actual": null,
-      "Forecast": 93.0
+      "Forecast": 93.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 91",
       "Planned": 186.0,
       "Actual": null,
-      "Forecast": 186.0
+      "Forecast": 186.0,
+      "windowEnd": false
      },
      {
       "date": "May 91",
       "Planned": 275.0,
       "Actual": null,
-      "Forecast": 275.0
+      "Forecast": 275.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 91",
       "Planned": 368.0,
       "Actual": null,
-      "Forecast": 368.0
+      "Forecast": 368.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 91",
       "Planned": 458.0,
       "Actual": null,
-      "Forecast": 458.0
+      "Forecast": 458.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 91",
       "Planned": 551.0,
       "Actual": null,
-      "Forecast": 551.0
+      "Forecast": 551.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 91",
       "Planned": 644.0,
       "Actual": null,
-      "Forecast": 644.0
+      "Forecast": 644.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 91",
       "Planned": 734.0,
       "Actual": null,
-      "Forecast": 734.0
+      "Forecast": 734.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 91",
       "Planned": 826.0,
       "Actual": null,
-      "Forecast": 826.0
+      "Forecast": 826.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 91",
       "Planned": 916.0,
       "Actual": null,
-      "Forecast": 916.0
+      "Forecast": 916.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 91",
+      "Planned": 1000.0,
+      "Actual": null,
+      "Forecast": 1000.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1000.0,
     "totalForecast": 1000.0,
-    "totalDays": 334.0
+    "totalDays": 334.0,
+    "retiredLastPoint": {
+     "date": "Dec 91",
+     "Planned": 916.0,
+     "Actual": null,
+     "Forecast": 916.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4358,150 +5838,188 @@
       "date": "Mar 90",
       "Planned": 0.0,
       "Actual": null,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 90",
       "Planned": 31.0,
       "Actual": null,
-      "Forecast": 34.0
+      "Forecast": 34.0,
+      "windowEnd": false
      },
      {
       "date": "May 90",
       "Planned": 61.0,
       "Actual": null,
-      "Forecast": 67.0
+      "Forecast": 67.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 90",
       "Planned": 92.0,
       "Actual": null,
-      "Forecast": 101.0
+      "Forecast": 101.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 90",
       "Planned": 122.0,
       "Actual": null,
-      "Forecast": 134.0
+      "Forecast": 134.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 90",
       "Planned": 153.0,
       "Actual": null,
-      "Forecast": 168.0
+      "Forecast": 168.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 90",
       "Planned": 184.0,
       "Actual": null,
-      "Forecast": 202.0
+      "Forecast": 202.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 90",
       "Planned": 214.0,
       "Actual": null,
-      "Forecast": 235.0
+      "Forecast": 235.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 90",
       "Planned": 245.0,
       "Actual": null,
-      "Forecast": 268.0
+      "Forecast": 268.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 90",
       "Planned": 275.0,
       "Actual": null,
-      "Forecast": 301.0
+      "Forecast": 301.0,
+      "windowEnd": false
      },
      {
       "date": "Jan 91",
       "Planned": 306.0,
       "Actual": null,
-      "Forecast": 335.0
+      "Forecast": 335.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 91",
       "Planned": 337.0,
       "Actual": null,
-      "Forecast": 369.0
+      "Forecast": 369.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 91",
       "Planned": 365.0,
       "Actual": null,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 91",
       "Planned": 396.0,
       "Actual": null,
-      "Forecast": 434.0
+      "Forecast": 434.0,
+      "windowEnd": false
      },
      {
       "date": "May 91",
       "Planned": 426.0,
       "Actual": null,
-      "Forecast": 467.0
+      "Forecast": 467.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 91",
       "Planned": 457.0,
       "Actual": null,
-      "Forecast": 501.0
+      "Forecast": 501.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 91",
       "Planned": 487.0,
       "Actual": null,
-      "Forecast": 534.0
+      "Forecast": 534.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 91",
       "Planned": 518.0,
       "Actual": null,
-      "Forecast": 568.0
+      "Forecast": 568.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 91",
       "Planned": 549.0,
       "Actual": null,
-      "Forecast": 602.0
+      "Forecast": 602.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 91",
       "Planned": 579.0,
       "Actual": null,
-      "Forecast": 635.0
+      "Forecast": 635.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 91",
       "Planned": 610.0,
       "Actual": null,
-      "Forecast": 668.0
+      "Forecast": 668.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 91",
       "Planned": 640.0,
       "Actual": null,
-      "Forecast": 701.0
+      "Forecast": 701.0,
+      "windowEnd": false
      },
      {
       "date": "Jan 92",
       "Planned": 671.0,
       "Actual": null,
-      "Forecast": 735.0
+      "Forecast": 735.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 92",
       "Planned": 702.0,
       "Actual": null,
-      "Forecast": 769.0
+      "Forecast": 769.0,
+      "windowEnd": false
+     },
+     {
+      "date": "29 Feb 92",
+      "Planned": 730.0,
+      "Actual": null,
+      "Forecast": 800.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 730.0,
     "totalForecast": 800.0,
-    "totalDays": 730.0
+    "totalDays": 730.0,
+    "retiredLastPoint": {
+     "date": "Feb 92",
+     "Planned": 702.0,
+     "Actual": null,
+     "Forecast": 769.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4535,84 +6053,104 @@
       "date": "Jan 90",
       "Planned": 0.0,
       "Actual": null,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 90",
       "Planned": 170.0,
       "Actual": null,
-      "Forecast": 208.0
+      "Forecast": 208.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 90",
       "Planned": 323.0,
       "Actual": null,
-      "Forecast": 396.0
+      "Forecast": 396.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 90",
       "Planned": 493.0,
       "Actual": null,
-      "Forecast": 604.0
+      "Forecast": 604.0,
+      "windowEnd": false
      },
      {
       "date": "May 90",
       "Planned": 658.0,
       "Actual": null,
-      "Forecast": 805.0
+      "Forecast": 805.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 90",
       "Planned": 827.0,
       "Actual": null,
-      "Forecast": 1014.0
+      "Forecast": 1014.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 90",
       "Planned": 992.0,
       "Actual": null,
-      "Forecast": 1215.0
+      "Forecast": 1215.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 90",
       "Planned": 1162.0,
       "Actual": null,
-      "Forecast": 1423.0
+      "Forecast": 1423.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 90",
       "Planned": 1332.0,
       "Actual": null,
-      "Forecast": 1631.0
+      "Forecast": 1631.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 90",
       "Planned": 1496.0,
       "Actual": null,
-      "Forecast": 1832.0
+      "Forecast": 1832.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 90",
       "Planned": 1666.0,
       "Actual": null,
-      "Forecast": 2041.0
+      "Forecast": 2041.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 90",
       "Planned": 1830.0,
       "Actual": null,
-      "Forecast": 2242.0
+      "Forecast": 2242.0,
+      "windowEnd": false
      },
      {
-      "date": "Jan 91",
+      "date": "1 Jan 91",
       "Planned": 2000.0,
       "Actual": null,
-      "Forecast": 2450.0
+      "Forecast": 2450.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 2000.0,
     "totalForecast": 2450.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Jan 91",
+     "Planned": 2000.0,
+     "Actual": null,
+     "Forecast": 2450.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4650,78 +6188,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 102.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 197.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 299.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 398.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 500.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 598.0,
       "Actual": null,
-      "Forecast": 748.0
+      "Forecast": 748.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 700.0,
       "Actual": null,
-      "Forecast": 875.0
+      "Forecast": 875.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 802.0,
       "Actual": null,
-      "Forecast": 1003.0
+      "Forecast": 1003.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 901.0,
       "Actual": null,
-      "Forecast": 1126.0
+      "Forecast": 1126.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 1003.0,
       "Actual": null,
-      "Forecast": 1253.0
+      "Forecast": 1253.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 1101.0,
       "Actual": null,
-      "Forecast": 1377.0
+      "Forecast": 1377.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 1200.0,
+      "Actual": null,
+      "Forecast": 1500.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1500.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 1101.0,
+     "Actual": null,
+     "Forecast": 1377.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4756,78 +6320,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 102.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 197.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 299.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 398.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 500.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 598.0,
       "Actual": null,
-      "Forecast": 598.0
+      "Forecast": 598.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 700.0,
       "Actual": null,
-      "Forecast": 700.0
+      "Forecast": 700.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 802.0,
       "Actual": null,
-      "Forecast": 802.0
+      "Forecast": 802.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 901.0,
       "Actual": null,
-      "Forecast": 901.0
+      "Forecast": 901.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 1003.0,
       "Actual": null,
-      "Forecast": 1003.0
+      "Forecast": 1003.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 1101.0,
       "Actual": null,
-      "Forecast": 1101.0
+      "Forecast": 1101.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 1200.0,
+      "Actual": null,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 1101.0,
+     "Actual": null,
+     "Forecast": 1101.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4862,78 +6452,104 @@
       "date": "Jan 20",
       "Planned": 0.0,
       "Actual": null,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 20",
       "Planned": 102.0,
       "Actual": null,
-      "Forecast": 102.0
+      "Forecast": 102.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 20",
       "Planned": 197.0,
       "Actual": null,
-      "Forecast": 197.0
+      "Forecast": 197.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 20",
       "Planned": 299.0,
       "Actual": null,
-      "Forecast": 299.0
+      "Forecast": 299.0,
+      "windowEnd": false
      },
      {
       "date": "May 20",
       "Planned": 398.0,
       "Actual": null,
-      "Forecast": 398.0
+      "Forecast": 398.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 20",
       "Planned": 500.0,
       "Actual": null,
-      "Forecast": 500.0
+      "Forecast": 500.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 20",
       "Planned": 598.0,
       "Actual": null,
-      "Forecast": 598.0
+      "Forecast": 598.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 20",
       "Planned": 700.0,
       "Actual": null,
-      "Forecast": 700.0
+      "Forecast": 700.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 20",
       "Planned": 802.0,
       "Actual": null,
-      "Forecast": 802.0
+      "Forecast": 802.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 20",
       "Planned": 901.0,
       "Actual": null,
-      "Forecast": 901.0
+      "Forecast": 901.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 20",
       "Planned": 1003.0,
       "Actual": null,
-      "Forecast": 1003.0
+      "Forecast": 1003.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 20",
       "Planned": 1101.0,
       "Actual": null,
-      "Forecast": 1101.0
+      "Forecast": 1101.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 20",
+      "Planned": 1200.0,
+      "Actual": null,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Dec 20",
+     "Planned": 1101.0,
+     "Actual": null,
+     "Forecast": 1101.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -4968,78 +6584,104 @@
       "date": "Jan 90",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 90",
       "Planned": 102.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 90",
       "Planned": 195.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 90",
       "Planned": 297.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "May 90",
       "Planned": 396.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 90",
       "Planned": 498.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 90",
       "Planned": 597.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 90",
       "Planned": 699.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 90",
       "Planned": 801.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 90",
       "Planned": 900.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 90",
       "Planned": 1002.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 90",
       "Planned": 1101.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 90",
+      "Planned": 1200.0,
+      "Actual": 400.0,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 364.0
+    "totalDays": 364.0,
+    "retiredLastPoint": {
+     "date": "Dec 90",
+     "Planned": 1101.0,
+     "Actual": 400.0,
+     "Forecast": 400.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -5080,150 +6722,188 @@
       "date": "Jan 26",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 26",
       "Planned": 102.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 26",
       "Planned": 194.0,
       "Actual": 300.0,
-      "Forecast": 300.0
+      "Forecast": 300.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 26",
       "Planned": 296.0,
       "Actual": 300.0,
-      "Forecast": 300.0
+      "Forecast": 300.0,
+      "windowEnd": false
      },
      {
       "date": "May 26",
       "Planned": 395.0,
       "Actual": 300.0,
-      "Forecast": 300.0
+      "Forecast": 300.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 26",
       "Planned": 497.0,
       "Actual": 300.0,
-      "Forecast": 300.0
+      "Forecast": 300.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 26",
       "Planned": 596.0,
       "Actual": 300.0,
-      "Forecast": 300.0
+      "Forecast": 300.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 26",
       "Planned": 698.0,
       "Actual": 300.0,
-      "Forecast": 300.0
+      "Forecast": 300.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 26",
       "Planned": 800.0,
       "Actual": 900.0,
-      "Forecast": 900.0
+      "Forecast": 900.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 26",
       "Planned": 899.0,
       "Actual": null,
-      "Forecast": 899.0
+      "Forecast": 899.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 26",
       "Planned": 1001.0,
       "Actual": null,
-      "Forecast": 1001.0
+      "Forecast": 1001.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 26",
       "Planned": 1100.0,
       "Actual": null,
-      "Forecast": 1100.0
+      "Forecast": 1100.0,
+      "windowEnd": false
      },
      {
       "date": "Jan 27",
       "Planned": 1202.0,
       "Actual": null,
-      "Forecast": 1202.0
+      "Forecast": 1202.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 27",
       "Planned": 1304.0,
       "Actual": null,
-      "Forecast": 1304.0
+      "Forecast": 1304.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 27",
       "Planned": 1396.0,
       "Actual": null,
-      "Forecast": 1396.0
+      "Forecast": 1396.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 27",
       "Planned": 1498.0,
       "Actual": null,
-      "Forecast": 1498.0
+      "Forecast": 1498.0,
+      "windowEnd": false
      },
      {
       "date": "May 27",
       "Planned": 1597.0,
       "Actual": null,
-      "Forecast": 1597.0
+      "Forecast": 1597.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 27",
       "Planned": 1699.0,
       "Actual": null,
-      "Forecast": 1699.0
+      "Forecast": 1699.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 27",
       "Planned": 1798.0,
       "Actual": null,
-      "Forecast": 1798.0
+      "Forecast": 1798.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 27",
       "Planned": 1900.0,
       "Actual": null,
-      "Forecast": 1900.0
+      "Forecast": 1900.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 27",
       "Planned": 2002.0,
       "Actual": null,
-      "Forecast": 2002.0
+      "Forecast": 2002.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 27",
       "Planned": 2100.0,
       "Actual": null,
-      "Forecast": 2100.0
+      "Forecast": 2100.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 27",
       "Planned": 2202.0,
       "Actual": null,
-      "Forecast": 2202.0
+      "Forecast": 2202.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 27",
       "Planned": 2301.0,
       "Actual": null,
-      "Forecast": 2301.0
+      "Forecast": 2301.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 27",
+      "Planned": 2400.0,
+      "Actual": null,
+      "Forecast": 2400.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 2400.0,
     "totalForecast": 2400.0,
-    "totalDays": 729.0
+    "totalDays": 729.0,
+    "retiredLastPoint": {
+     "date": "Dec 27",
+     "Planned": 2301.0,
+     "Actual": null,
+     "Forecast": 2301.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -5250,150 +6930,188 @@
       "date": "Jan 26",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 26",
       "Planned": 51.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 26",
       "Planned": 97.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 26",
       "Planned": 148.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "May 26",
       "Planned": 198.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 26",
       "Planned": 249.0,
       "Actual": null,
-      "Forecast": 249.0
+      "Forecast": 249.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 26",
       "Planned": 298.0,
       "Actual": null,
-      "Forecast": 298.0
+      "Forecast": 298.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 26",
       "Planned": 349.0,
       "Actual": null,
-      "Forecast": 349.0
+      "Forecast": 349.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 26",
       "Planned": 400.0,
       "Actual": null,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 26",
       "Planned": 449.0,
       "Actual": null,
-      "Forecast": 449.0
+      "Forecast": 449.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 26",
       "Planned": 500.0,
       "Actual": null,
-      "Forecast": 500.0
+      "Forecast": 500.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 26",
       "Planned": 550.0,
       "Actual": null,
-      "Forecast": 550.0
+      "Forecast": 550.0,
+      "windowEnd": false
      },
      {
       "date": "Jan 27",
       "Planned": 601.0,
       "Actual": null,
-      "Forecast": 601.0
+      "Forecast": 601.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 27",
       "Planned": 652.0,
       "Actual": null,
-      "Forecast": 652.0
+      "Forecast": 652.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 27",
       "Planned": 698.0,
       "Actual": null,
-      "Forecast": 698.0
+      "Forecast": 698.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 27",
       "Planned": 749.0,
       "Actual": null,
-      "Forecast": 749.0
+      "Forecast": 749.0,
+      "windowEnd": false
      },
      {
       "date": "May 27",
       "Planned": 798.0,
       "Actual": null,
-      "Forecast": 798.0
+      "Forecast": 798.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 27",
       "Planned": 849.0,
       "Actual": null,
-      "Forecast": 849.0
+      "Forecast": 849.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 27",
       "Planned": 899.0,
       "Actual": null,
-      "Forecast": 899.0
+      "Forecast": 899.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 27",
       "Planned": 950.0,
       "Actual": null,
-      "Forecast": 950.0
+      "Forecast": 950.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 27",
       "Planned": 1001.0,
       "Actual": null,
-      "Forecast": 1001.0
+      "Forecast": 1001.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 27",
       "Planned": 1050.0,
       "Actual": null,
-      "Forecast": 1050.0
+      "Forecast": 1050.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 27",
       "Planned": 1101.0,
       "Actual": null,
-      "Forecast": 1101.0
+      "Forecast": 1101.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 27",
       "Planned": 1151.0,
       "Actual": null,
-      "Forecast": 1151.0
+      "Forecast": 1151.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Dec 27",
+      "Planned": 1200.0,
+      "Actual": null,
+      "Forecast": 1200.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1200.0,
     "totalForecast": 1200.0,
-    "totalDays": 729.0
+    "totalDays": 729.0,
+    "retiredLastPoint": {
+     "date": "Dec 27",
+     "Planned": 1151.0,
+     "Actual": null,
+     "Forecast": 1151.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -5433,78 +7151,104 @@
       "date": "Feb 27",
       "Planned": 0.0,
       "Actual": 150.0,
-      "Forecast": 150.0
+      "Forecast": 150.0,
+      "windowEnd": false
      },
      {
       "date": "Mar 27",
       "Planned": 281.0,
       "Actual": 150.0,
-      "Forecast": 150.0
+      "Forecast": 150.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 27",
       "Planned": 592.0,
       "Actual": 150.0,
-      "Forecast": 150.0
+      "Forecast": 150.0,
+      "windowEnd": false
      },
      {
       "date": "May 27",
       "Planned": 892.0,
       "Actual": 150.0,
-      "Forecast": 150.0
+      "Forecast": 150.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 27",
       "Planned": 1203.0,
       "Actual": 400.0,
-      "Forecast": 400.0
+      "Forecast": 400.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 27",
       "Planned": 1504.0,
       "Actual": null,
-      "Forecast": 1504.0
+      "Forecast": 1504.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 27",
       "Planned": 1815.0,
       "Actual": null,
-      "Forecast": 1815.0
+      "Forecast": 1815.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 27",
       "Planned": 2126.0,
       "Actual": null,
-      "Forecast": 2126.0
+      "Forecast": 2126.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 27",
       "Planned": 2427.0,
       "Actual": null,
-      "Forecast": 2427.0
+      "Forecast": 2427.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 27",
       "Planned": 2738.0,
       "Actual": null,
-      "Forecast": 2738.0
+      "Forecast": 2738.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 27",
       "Planned": 3038.0,
       "Actual": null,
-      "Forecast": 3038.0
+      "Forecast": 3038.0,
+      "windowEnd": false
      },
      {
       "date": "Jan 28",
       "Planned": 3349.0,
       "Actual": null,
-      "Forecast": 3349.0
+      "Forecast": 3349.0,
+      "windowEnd": false
+     },
+     {
+      "date": "31 Jan 28",
+      "Planned": 3650.0,
+      "Actual": null,
+      "Forecast": 3650.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 3650.0,
     "totalForecast": 3650.0,
-    "totalDays": 364.0
+    "totalDays": 364.0,
+    "retiredLastPoint": {
+     "date": "Jan 28",
+     "Planned": 3349.0,
+     "Actual": null,
+     "Forecast": 3349.0,
+     "windowEnd": false
+    }
    }
   },
   {
@@ -5538,84 +7282,598 @@
       "date": "Mar 26",
       "Planned": 0.0,
       "Actual": 0.0,
-      "Forecast": 0.0
+      "Forecast": 0.0,
+      "windowEnd": false
      },
      {
       "date": "Apr 26",
       "Planned": 85.0,
       "Actual": 40.0,
-      "Forecast": 40.0
+      "Forecast": 40.0,
+      "windowEnd": false
      },
      {
       "date": "May 26",
       "Planned": 167.0,
       "Actual": 40.0,
-      "Forecast": 40.0
+      "Forecast": 40.0,
+      "windowEnd": false
      },
      {
       "date": "Jun 26",
       "Planned": 252.0,
       "Actual": 40.0,
-      "Forecast": 40.0
+      "Forecast": 40.0,
+      "windowEnd": false
      },
      {
       "date": "Jul 26",
       "Planned": 334.0,
       "Actual": 40.0,
-      "Forecast": 40.0
+      "Forecast": 40.0,
+      "windowEnd": false
      },
      {
       "date": "Aug 26",
       "Planned": 419.0,
       "Actual": 40.0,
-      "Forecast": 40.0
+      "Forecast": 40.0,
+      "windowEnd": false
      },
      {
       "date": "Sep 26",
       "Planned": 504.0,
       "Actual": 40.0,
-      "Forecast": 40.0
+      "Forecast": 40.0,
+      "windowEnd": false
      },
      {
       "date": "Oct 26",
       "Planned": 586.0,
       "Actual": 40.0,
-      "Forecast": 40.0
+      "Forecast": 40.0,
+      "windowEnd": false
      },
      {
       "date": "Nov 26",
       "Planned": 671.0,
       "Actual": 100.0,
-      "Forecast": 100.0
+      "Forecast": 100.0,
+      "windowEnd": false
      },
      {
       "date": "Dec 26",
       "Planned": 753.0,
       "Actual": null,
-      "Forecast": 753.0
+      "Forecast": 753.0,
+      "windowEnd": false
      },
      {
       "date": "Jan 27",
       "Planned": 838.0,
       "Actual": null,
-      "Forecast": 838.0
+      "Forecast": 838.0,
+      "windowEnd": false
      },
      {
       "date": "Feb 27",
       "Planned": 923.0,
       "Actual": null,
-      "Forecast": 923.0
+      "Forecast": 923.0,
+      "windowEnd": false
      },
      {
-      "date": "Mar 27",
+      "date": "1 Mar 27",
       "Planned": 1000.0,
       "Actual": null,
-      "Forecast": 1000.0
+      "Forecast": 1000.0,
+      "windowEnd": true
      }
     ],
     "totalBudget": 1000.0,
     "totalForecast": 1000.0,
-    "totalDays": 365.0
+    "totalDays": 365.0,
+    "retiredLastPoint": {
+     "date": "Mar 27",
+     "Planned": 1000.0,
+     "Actual": null,
+     "Forecast": 1000.0,
+     "windowEnd": false
+    }
+   }
+  },
+  {
+   "name": "EC5-9b: OFON-1 at 2027-08-15 closes on 30 Nov 27 with Planned the budget and Forecast the EAC",
+   "inputs": {
+    "afe": {
+     "afe_number": "OFON-1",
+     "start_date": "2027-02-01",
+     "end_date": "2027-11-30",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "code": "DRL-01",
+      "description": "Rig and drilling services",
+      "budget": 14200000,
+      "commitment": 2600000,
+      "actual": 9800000,
+      "progress": 72
+     },
+     {
+      "code": "CSG-02",
+      "description": "Casing and tubulars",
+      "budget": 3900000,
+      "commitment": 0,
+      "actual": 4300000,
+      "progress": 100
+     },
+     {
+      "code": "CMT-03",
+      "description": "Cementing",
+      "budget": 1250000,
+      "commitment": 300000,
+      "actual": 640000,
+      "forecast": 1400000,
+      "progress": 55
+     },
+     {
+      "code": "LOG-04",
+      "description": "Logging and testing",
+      "budget": 2100000,
+      "commitment": 900000,
+      "actual": 350000,
+      "progress": 20
+     },
+     {
+      "code": "CMP-05",
+      "description": "Completion",
+      "budget": 5600000,
+      "commitment": 1200000,
+      "actual": 0,
+      "progress": 0
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2027-02-20",
+      "amount": 3100000
+     },
+     {
+      "invoice_date": "2027-04-10",
+      "amount": 5200000
+     },
+     {
+      "invoice_date": "2027-06-05",
+      "amount": 4400000
+     },
+     {
+      "invoice_date": "2027-07-18",
+      "amount": 2390000
+     }
+    ],
+    "asOf": "2027-08-15"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Feb 27",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Mar 27",
+      "Planned": 2507947.0,
+      "Actual": 3100000.0,
+      "Forecast": 3100000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Apr 27",
+      "Planned": 5284603.0,
+      "Actual": 3100000.0,
+      "Forecast": 3100000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "May 27",
+      "Planned": 7971689.0,
+      "Actual": 8300000.0,
+      "Forecast": 8300000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Jun 27",
+      "Planned": 10748344.0,
+      "Actual": 8300000.0,
+      "Forecast": 8300000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Jul 27",
+      "Planned": 13435430.0,
+      "Actual": 12700000.0,
+      "Forecast": 12700000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Aug 27",
+      "Planned": 16212086.0,
+      "Actual": 15090000.0,
+      "Forecast": 15090000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Sep 27",
+      "Planned": 18988742.0,
+      "Actual": null,
+      "Forecast": 19374834.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Oct 27",
+      "Planned": 21675828.0,
+      "Actual": null,
+      "Forecast": 22116556.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Nov 27",
+      "Planned": 24452483.0,
+      "Actual": null,
+      "Forecast": 24949669.0,
+      "windowEnd": false
+     },
+     {
+      "date": "30 Nov 27",
+      "Planned": 27050000.0,
+      "Actual": null,
+      "Forecast": 27600000.0,
+      "windowEnd": true
+     }
+    ],
+    "totalBudget": 27050000.0,
+    "totalForecast": 27600000.0,
+    "totalDays": 302.0,
+    "retiredLastPoint": {
+     "date": "Nov 27",
+     "Planned": 24452483.0,
+     "Actual": null,
+     "Forecast": 24949669.0,
+     "windowEnd": false
+    }
+   }
+  },
+  {
+   "name": "EC5-9b: OFON-1 read after the end: the closing point carries the actuals and the EAC",
+   "inputs": {
+    "afe": {
+     "afe_number": "OFON-1",
+     "start_date": "2027-02-01",
+     "end_date": "2027-11-30",
+     "currency": "USD"
+    },
+    "costItems": [
+     {
+      "code": "DRL-01",
+      "description": "Rig and drilling services",
+      "budget": 14200000,
+      "commitment": 2600000,
+      "actual": 9800000,
+      "progress": 72
+     },
+     {
+      "code": "CSG-02",
+      "description": "Casing and tubulars",
+      "budget": 3900000,
+      "commitment": 0,
+      "actual": 4300000,
+      "progress": 100
+     },
+     {
+      "code": "CMT-03",
+      "description": "Cementing",
+      "budget": 1250000,
+      "commitment": 300000,
+      "actual": 640000,
+      "forecast": 1400000,
+      "progress": 55
+     },
+     {
+      "code": "LOG-04",
+      "description": "Logging and testing",
+      "budget": 2100000,
+      "commitment": 900000,
+      "actual": 350000,
+      "progress": 20
+     },
+     {
+      "code": "CMP-05",
+      "description": "Completion",
+      "budget": 5600000,
+      "commitment": 1200000,
+      "actual": 0,
+      "progress": 0
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2027-02-20",
+      "amount": 3100000
+     },
+     {
+      "invoice_date": "2027-04-10",
+      "amount": 5200000
+     },
+     {
+      "invoice_date": "2027-06-05",
+      "amount": 4400000
+     },
+     {
+      "invoice_date": "2027-07-18",
+      "amount": 2390000
+     }
+    ],
+    "asOf": "2028-01-10"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Feb 27",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Mar 27",
+      "Planned": 2507947.0,
+      "Actual": 3100000.0,
+      "Forecast": 3100000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Apr 27",
+      "Planned": 5284603.0,
+      "Actual": 3100000.0,
+      "Forecast": 3100000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "May 27",
+      "Planned": 7971689.0,
+      "Actual": 8300000.0,
+      "Forecast": 8300000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Jun 27",
+      "Planned": 10748344.0,
+      "Actual": 8300000.0,
+      "Forecast": 8300000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Jul 27",
+      "Planned": 13435430.0,
+      "Actual": 12700000.0,
+      "Forecast": 12700000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Aug 27",
+      "Planned": 16212086.0,
+      "Actual": 15090000.0,
+      "Forecast": 15090000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Sep 27",
+      "Planned": 18988742.0,
+      "Actual": 15090000.0,
+      "Forecast": 15090000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Oct 27",
+      "Planned": 21675828.0,
+      "Actual": 15090000.0,
+      "Forecast": 15090000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Nov 27",
+      "Planned": 24452483.0,
+      "Actual": 15090000.0,
+      "Forecast": 15090000.0,
+      "windowEnd": false
+     },
+     {
+      "date": "30 Nov 27",
+      "Planned": 27050000.0,
+      "Actual": 15090000.0,
+      "Forecast": 27600000.0,
+      "windowEnd": true
+     }
+    ],
+    "totalBudget": 27050000.0,
+    "totalForecast": 27600000.0,
+    "totalDays": 302.0,
+    "retiredLastPoint": {
+     "date": "Nov 27",
+     "Planned": 24452483.0,
+     "Actual": 15090000.0,
+     "Forecast": 15090000.0,
+     "windowEnd": false
+    }
+   }
+  },
+  {
+   "name": "EC5-9b: asOf on the end day counts an invoice dated that day on the closing point",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-15",
+     "end_date": "2026-06-20"
+    },
+    "costItems": [
+     {
+      "budget": 900,
+      "actual": 700,
+      "commitment": 400
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2026-03-01",
+      "amount": 300
+     },
+     {
+      "invoice_date": "2026-06-20",
+      "amount": 450
+     }
+    ],
+    "asOf": "2026-06-20"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Jan 26",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Feb 26",
+      "Planned": 179.0,
+      "Actual": 0.0,
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Mar 26",
+      "Planned": 340.0,
+      "Actual": 300.0,
+      "Forecast": 300.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Apr 26",
+      "Planned": 519.0,
+      "Actual": 300.0,
+      "Forecast": 300.0,
+      "windowEnd": false
+     },
+     {
+      "date": "May 26",
+      "Planned": 692.0,
+      "Actual": 300.0,
+      "Forecast": 300.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Jun 26",
+      "Planned": 871.0,
+      "Actual": 300.0,
+      "Forecast": 300.0,
+      "windowEnd": false
+     },
+     {
+      "date": "20 Jun 26",
+      "Planned": 900.0,
+      "Actual": 750.0,
+      "Forecast": 1100.0,
+      "windowEnd": true
+     }
+    ],
+    "totalBudget": 900.0,
+    "totalForecast": 1100.0,
+    "totalDays": 156.0,
+    "retiredLastPoint": {
+     "date": "Jun 26",
+     "Planned": 871.0,
+     "Actual": 300.0,
+     "Forecast": 300.0,
+     "windowEnd": false
+    }
+   }
+  },
+  {
+   "name": "EC5-9b: a window ending on a month step, read after the end: the step becomes the closing point",
+   "inputs": {
+    "afe": {
+     "start_date": "2026-01-01",
+     "end_date": "2026-05-01"
+    },
+    "costItems": [
+     {
+      "budget": 400,
+      "forecast": 380,
+      "actual": 500
+     }
+    ],
+    "invoices": [
+     {
+      "invoice_date": "2026-05-01",
+      "amount": 120
+     }
+    ],
+    "asOf": "2026-05-02"
+   },
+   "expected": {
+    "kind": "asOf",
+    "points": [
+     {
+      "date": "Jan 26",
+      "Planned": 0.0,
+      "Actual": 0.0,
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Feb 26",
+      "Planned": 103.0,
+      "Actual": 0.0,
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Mar 26",
+      "Planned": 197.0,
+      "Actual": 0.0,
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "Apr 26",
+      "Planned": 300.0,
+      "Actual": 0.0,
+      "Forecast": 0.0,
+      "windowEnd": false
+     },
+     {
+      "date": "1 May 26",
+      "Planned": 400.0,
+      "Actual": 120.0,
+      "Forecast": 380.0,
+      "windowEnd": true
+     }
+    ],
+    "totalBudget": 400.0,
+    "totalForecast": 380.0,
+    "totalDays": 120.0,
+    "retiredLastPoint": {
+     "date": "May 26",
+     "Planned": 400.0,
+     "Actual": 120.0,
+     "Forecast": 120.0,
+     "windowEnd": false
+    }
    }
   }
  ],

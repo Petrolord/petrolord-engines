@@ -36,6 +36,17 @@
  * same AFE draws the same curve in every time zone. FINDINGS-fdp.md, section
  * "EC5-3, EC5-5, EC5-8 and CPI", has the before and after.
  *
+ * EC5-1, the negative-forecast flag and EC5-9b (owner decisions 2026-09-15).
+ * An entered forecast below the money already spent and committed is kept
+ * (a re-baseline is legitimate) but flagged on its line
+ * (`forecastBelowCommitted`, `forecastBelowCommittedBy`); a negative entered
+ * forecast still falls through to the standard rule and is flagged
+ * (`forecastIgnored: 'negative'`). calculateMetrics reports every line in
+ * `lineForecasts` and counts both flags. The S-curve closes on a point at
+ * the window end date where Planned is the budget and Forecast is the
+ * estimate at completion, so an overrun can no longer draw as an underrun.
+ * FINDINGS-fdp.md, section "EC5-1, negative forecast and EC5-9b".
+ *
  * Money is whatever unit the caller supplies (the AFE app uses its own
  * currency field); percentages are 0 to 100.
  */
@@ -155,13 +166,49 @@ export const calculatePartnerCosts = (totalCost, partners = []) => {
  * otherwise max(budget, actual + commitment). A zero, blank, negative or
  * non-numeric entered forecast falls through to the standard formula.
  */
-export const itemForecast = (item) => {
+export const itemForecast = (item) => itemForecastCheck(item).forecast;
+
+/**
+ * The estimate at completion of one cost item with the two flags that say
+ * how far to trust it (EC5-1 and the negative-forecast decision, owner
+ * 2026-09-15). The EAC is the itemForecast rule, unchanged.
+ *
+ *   committed                  actual + commitment, the money already spent
+ *                              or contracted.
+ *   forecastBelowCommitted     true when a positive entered forecast is the
+ *                              EAC and it is below committed. The typed value
+ *                              is KEPT (a re-baseline is legitimate); the flag
+ *                              says it reports a saving on money already gone.
+ *   forecastBelowCommittedBy   committed less the forecast when flagged, else 0.
+ *   forecastIgnored            'negative' when the entered forecast is a
+ *                              number below 0 (it is ignored and the standard
+ *                              rule gives the EAC); null otherwise. A zero,
+ *                              blank or non-numeric forecast means none was
+ *                              entered and is not flagged.
+ */
+export const itemForecastCheck = (item) => {
   const entered = Number(item.forecast) || 0;
-  if (entered > 0) return entered;
   const budget = Number(item.budget) || 0;
   const actual = Number(item.actual) || 0;
   const commitment = Number(item.commitment) || 0;
-  return Math.max(budget, actual + commitment);
+  const committed = actual + commitment;
+  if (entered > 0) {
+    const below = entered < committed;
+    return {
+      forecast: entered,
+      committed,
+      forecastBelowCommitted: below,
+      forecastBelowCommittedBy: below ? committed - entered : 0,
+      forecastIgnored: null,
+    };
+  }
+  return {
+    forecast: Math.max(budget, committed),
+    committed,
+    forecastBelowCommitted: false,
+    forecastBelowCommittedBy: 0,
+    forecastIgnored: entered < 0 ? 'negative' : null,
+  };
 };
 
 /**
@@ -177,6 +224,14 @@ export const itemForecast = (item) => {
  * be 1; with a budget but no planned value yet (before or on the start day)
  * it is null and `spiStatus` is 'no-planned-value'. A reported ratio carries
  * the status 'ok'.
+ *
+ * Per line (EC5-1 and the negative-forecast decision): `lineForecasts` has
+ * one entry per cost item in order, `{ index, label, forecast, committed,
+ * forecastBelowCommitted, forecastBelowCommittedBy, forecastIgnored }` (label
+ * is the code, else the description, else the index; the rest is
+ * itemForecastCheck). `linesForecastBelowCommitted` and
+ * `linesForecastIgnored` count the flagged lines. totalForecast is the sum of
+ * the line forecasts, as before.
  *
  * @throws {AfeInputError} asOf is not a valid date, or a cost item has
  *   progress below 0 or above 100 percent (EC5-8: above 100 used to earn
@@ -204,8 +259,14 @@ export const calculateMetrics = (afe, costItems, invoices, asOf = new Date()) =>
   // Using costItems.actual allows for manual accruals or non-invoice costs.
   const totalActuals = costItems.reduce((sum, item) => sum + (Number(item.actual) || 0), 0);
   
-  // Forecast (EAC - Estimate At Completion), the shared rule.
-  const totalForecast = costItems.reduce((sum, item) => sum + itemForecast(item), 0);
+  // Forecast (EAC, Estimate At Completion), the shared rule, line by line
+  // with its flags (EC5-1, negative forecast).
+  const lineForecasts = costItems.map((item, index) => ({
+    index,
+    label: item.code ?? item.description ?? index,
+    ...itemForecastCheck(item),
+  }));
+  const totalForecast = lineForecasts.reduce((sum, line) => sum + line.forecast, 0);
 
   const variance = totalBudget - totalForecast;
   
@@ -255,7 +316,10 @@ export const calculateMetrics = (afe, costItems, invoices, asOf = new Date()) =>
     spi,
     spiStatus,
     percentSpent,
-    percentComplete
+    percentComplete,
+    lineForecasts,
+    linesForecastBelowCommitted: lineForecasts.filter((line) => line.forecastBelowCommitted).length,
+    linesForecastIgnored: lineForecasts.filter((line) => line.forecastIgnored !== null).length
   };
 };
 
@@ -338,10 +402,14 @@ const utcWholeDays = (later, earlier) => {
 /** 'Feb 27': the short English month and two-digit year of the UTC date. */
 const utcMonthLabel = (d) => `${MONTH_LABELS[d.getUTCMonth()]} ${String(((d.getUTCFullYear() % 100) + 100) % 100).padStart(2, '0')}`;
 
+/** '30 Nov 27': the UTC day of month ahead of the month label, for the closing point. */
+const utcDayLabel = (d) => `${d.getUTCDate()} ${utcMonthLabel(d)}`;
+
 /**
  * Monthly S-curve points over the AFE window, with actuals up to `asOf` (a
  * Date or an ISO date string; defaults to the clock) and the forecast
- * projected after it. The walk stops at the window's end.
+ * projected after it. The walk stops at the window's end and closes on the
+ * window end date (EC5-9b below).
  *
  * EC5-5 (owner decision 2026-09-15). The window was parsed in UTC but the
  * months were stepped with local `setMonth`, labelled with local
@@ -351,6 +419,20 @@ const utcMonthLabel = (d) => `${MONTH_LABELS[d.getUTCMonth()]} ${String(((d.getU
  * asOf, the monthly step (`setUTCMonth`), the day count and the label are all
  * UTC, so every zone draws the curve a UTC machine draws, and the UTC output
  * is unchanged.
+ *
+ * EC5-9b (owner decision 2026-09-15). The monthly walk stops at the last
+ * month step on or before the end date, which is usually short of it, so the
+ * last Planned point sat below the budget and the last Forecast below the
+ * estimate at completion (OFON-1 read 24949669 against a budget of 27050000
+ * while the EAC is 27600000: an overrun drawn as an underrun). The curve now
+ * CLOSES on a point dated the window end (UTC), labelled with its day
+ * ('30 Nov 27') and carrying `windowEnd: true`, where Planned is the budget
+ * total and Forecast is the EAC, both rounded. Its Actual follows the bucket
+ * rule: the invoices dated on or before the end when the end is on or
+ * before asOf, else null. When a month step lands exactly on the end date,
+ * that step is replaced by the closing point, so no date appears twice.
+ * Every other point carries `windowEnd: false`. A window with no valid dates,
+ * or ending before it starts, still has no points.
  *
  * @throws {AfeInputError} asOf is not a valid date.
  */
@@ -378,6 +460,7 @@ export const generateSCurveData = (afe, costItems, invoices, asOf = new Date()) 
 
   const dataPoints = [];
   let currentDate = new Date(start);
+  let lastStep = null;
   const now = asOfDate;
 
   let cumActual = 0;
@@ -417,12 +500,28 @@ export const generateSCurveData = (afe, costItems, invoices, asOf = new Date()) 
       date: displayDate,
       Planned: Math.round(cumPlanned),
       Actual: currentDate <= now ? Math.round(cumActual) : null,
-      Forecast: Math.round(cumForecast)
+      Forecast: Math.round(cumForecast),
+      windowEnd: false
     });
+    lastStep = new Date(currentDate);
 
     // Advance 1 calendar month in UTC (the day of month is kept and
     // overflows forward, as setMonth did on a UTC machine)
     currentDate.setUTCMonth(currentDate.getUTCMonth() + 1);
   }
+  if (dataPoints.length === 0) return dataPoints;
+
+  // EC5-9b: close the curve at the window end with the budget and the EAC.
+  if (lastStep.getTime() === end.getTime()) dataPoints.pop();
+  const endActual = sortedInvoices
+    .filter((inv) => invoiceDate(inv) <= end)
+    .reduce((sum, inv) => sum + Number(inv.amount), 0);
+  dataPoints.push({
+    date: utcDayLabel(end),
+    Planned: Math.round(totalBudget),
+    Actual: end <= now ? Math.round(endActual) : null,
+    Forecast: Math.round(totalForecast),
+    windowEnd: true
+  });
   return dataPoints;
 };

@@ -86,7 +86,37 @@ Standard for Earned Value Management), not by transcribing the JavaScript:
                   rule), counts days by subtraction, and rounds with
                   floor(x + 0.5). Every golden pins the EXACT point list.
                   Without an asOf a wholly past window is all actuals and a
-                  wholly future one all projection.
+                  wholly future one all projection. Every point carries
+                  windowEnd false except the closing point below.
+
+  closing point   (EC5-9b, owner decision 2026-09-15.) A curve that has any
+                  point closes on the window END date: its label is the UTC
+                  day of month, a space and the month label ("30 Nov 27"),
+                  Planned is the budget total rounded, Forecast is the
+                  estimate at completion rounded (the same per-item rule),
+                  and Actual is the invoice total dated on or before the end
+                  when the end is on or before the actual-to-date cut, else
+                  null; windowEnd is true. When a monthly step falls ON the
+                  end date the closing point takes its place, so no date is
+                  listed twice. The point of the rule: the last Planned is
+                  the budget and the last Forecast the EAC, so an overrun
+                  draws as an overrun.
+
+  line forecast   (EC5-1 and the negative-forecast decision, owner
+                  2026-09-15.) Per cost item, committed = actual +
+                  commitment. A positive entered forecast IS the EAC even
+                  below committed (a re-baseline), and the line is then
+                  flagged forecastBelowCommitted true with
+                  forecastBelowCommittedBy = committed minus the forecast
+                  (else false and 0; equal is not below). An entered
+                  forecast that is a number below 0 is ignored for the EAC
+                  (the standard rule applies) and flagged forecastIgnored
+                  'negative'; a zero, blank or non-numeric forecast is no
+                  forecast and carries forecastIgnored null. The metrics
+                  list every line in order as lineForecasts (index; label =
+                  code, else description, else index; forecast; committed;
+                  the three flag fields) and count the flagged lines as
+                  linesForecastBelowCommitted and linesForecastIgnored.
 
   calculateEVM    PV as the sum of planned cost, EV as planned cost times
                   percent complete, AC as the actual sum; CPI and SPI with
@@ -327,6 +357,18 @@ def item_eac(i):
     return f if f > 0 else max(num_or0(i.get('budget')), num_or0(i.get('actual')) + num_or0(i.get('commitment')))
 
 
+def line_forecast(idx, i):
+    """EC5-1 and the negative-forecast flag, from the method statement."""
+    entered = num_or0(i.get('forecast'))
+    committed = num_or0(i.get('actual')) + num_or0(i.get('commitment'))
+    below = entered > 0 and entered < committed
+    label = i.get('code') if i.get('code') is not None else (i.get('description') if i.get('description') is not None else idx)
+    return {'index': idx, 'label': label, 'forecast': item_eac(i), 'committed': committed,
+            'forecastBelowCommitted': below,
+            'forecastBelowCommittedBy': committed - entered if below else 0.0,
+            'forecastIgnored': 'negative' if entered < 0 else None}
+
+
 def js_num_str(x):
     """String(number) for the values the refusal cases carry."""
     if math.isinf(x):
@@ -371,6 +413,7 @@ def metrics(afe, items, invoices=None, as_of=None):
     else:
         spi, spi_status = ev / pv, 'ok'
     undated = sum(1 for inv in (invoices or []) if iso_date(inv.get('invoice_date')) is None)
+    lines = [line_forecast(k, i) for k, i in enumerate(items)]
     out = {'undatedInvoices': undated,
            'totalBudget': bac, 'totalCommitments': commitments, 'totalActuals': ac, 'totalForecast': eac,
            'variance': vac, 'earnedValue': ev, 'cpi': cpi, 'cpiStatus': cpi_status,
@@ -378,6 +421,9 @@ def metrics(afe, items, invoices=None, as_of=None):
            'percentSpent': ac / bac * 100.0 if bac > 0 else 0.0,
            'percentComplete': ev / bac * 100.0 if bac > 0 else 0.0,
            'plannedValue': pv, 'timeProgress': tp,
+           'lineForecasts': lines,
+           'linesForecastBelowCommitted': sum(1 for x in lines if x['forecastBelowCommitted']),
+           'linesForecastIgnored': sum(1 for x in lines if x['forecastIgnored'] is not None),
            'standardEvm': {'bac': bac, 'pv': pv, 'ev': ev, 'ac': ac, 'cv': ev - ac, 'sv': ev - pv,
                            'cpi': ev / ac if ac != 0 else None, 'spi': ev / pv if pv != 0 else None,
                            'eac': eac, 'etc': eac - ac, 'vac': vac,
@@ -402,6 +448,10 @@ def add_month_js(d):
 
 def display(d):
     return '%s %02d' % (MONTHS[d.month - 1], d.year % 100)
+
+
+def display_day(d):
+    return '%d %s' % (d.day, display(d))
 
 
 def scurve(afe, items, invoices, as_of=None):
@@ -439,13 +489,26 @@ def scurve(afe, items, invoices, as_of=None):
         planned = min(bac, elapsed * daily_budget)
         if midnight(cur) <= cut:
             actual = sum(a for d, a in dated if d <= cur)
-            points.append({'date': display(cur), 'Planned': js_round(planned), 'Actual': js_round(actual), 'Forecast': js_round(actual)})
+            points.append({'date': display(cur), 'Planned': js_round(planned), 'Actual': js_round(actual), 'Forecast': js_round(actual), 'windowEnd': False})
         else:
             forecast = min(eac, elapsed * daily_forecast)
-            points.append({'date': display(cur), 'Planned': js_round(planned), 'Actual': None, 'Forecast': js_round(forecast)})
+            points.append({'date': display(cur), 'Planned': js_round(planned), 'Actual': None, 'Forecast': js_round(forecast), 'windowEnd': False})
+        last = cur
         cur = add_month_js(cur)
+    # EC5-9b: the closing point at the window end.
+    retired_last = dict(points[-1]) if points else None
+    if points:
+        if last == end:
+            points.pop()
+        end_actual = sum(a for d, a in dated if d <= end)
+        points.append({'date': display_day(end), 'Planned': js_round(bac),
+                       'Actual': js_round(end_actual) if midnight(end) <= cut else None,
+                       'Forecast': js_round(eac), 'windowEnd': True})
     return {'kind': kind, 'points': points, 'totalBudget': bac,
-            'totalForecast': eac, 'totalDays': float(total_days)}
+            'totalForecast': eac, 'totalDays': float(total_days),
+            # What the retired walk ended on (EC5-9b negative control): its
+            # last monthly point, before the closing point existed.
+            'retiredLastPoint': retired_last}
 
 
 # ---------------------------------------------------------------------
@@ -621,6 +684,21 @@ AFE_PAST = {'start_date': '2020-01-01', 'end_date': '2020-12-31', 'currency': 'U
 AFE_FUTURE = {'start_date': '2090-01-01', 'end_date': '2090-12-31', 'currency': 'USD'}
 AFE_2YR = {'start_date': '2026-01-01', 'end_date': '2027-12-31', 'currency': 'USD'}
 PARTNERS = [{'name': 'A', 'working_interest': 30}, {'name': 'B', 'working_interest': 15}]
+# The EC5 course's teaching AFE (OFON-1), where EC5-9b was found.
+OFON_AFE = {'afe_number': 'OFON-1', 'start_date': '2027-02-01', 'end_date': '2027-11-30', 'currency': 'USD'}
+OFON_ITEMS = [
+    {'code': 'DRL-01', 'description': 'Rig and drilling services', 'budget': 14200000, 'commitment': 2600000, 'actual': 9800000, 'progress': 72},
+    {'code': 'CSG-02', 'description': 'Casing and tubulars', 'budget': 3900000, 'commitment': 0, 'actual': 4300000, 'progress': 100},
+    {'code': 'CMT-03', 'description': 'Cementing', 'budget': 1250000, 'commitment': 300000, 'actual': 640000, 'forecast': 1400000, 'progress': 55},
+    {'code': 'LOG-04', 'description': 'Logging and testing', 'budget': 2100000, 'commitment': 900000, 'actual': 350000, 'progress': 20},
+    {'code': 'CMP-05', 'description': 'Completion', 'budget': 5600000, 'commitment': 1200000, 'actual': 0, 'progress': 0},
+]
+OFON_INVOICES = [
+    {'invoice_date': '2027-02-20', 'amount': 3100000},
+    {'invoice_date': '2027-04-10', 'amount': 5200000},
+    {'invoice_date': '2027-06-05', 'amount': 4400000},
+    {'invoice_date': '2027-07-18', 'amount': 2390000},
+]
 
 
 def partner_cases():
@@ -681,6 +759,22 @@ def metrics_cases():
          'EC5-3: no budget, so spiStatus no-budget (SPI was 1). Spend with nothing earned gives a defined CPI of 0.'),
         ('value earned with no spend: CPI null', AFE_PAST, [{'budget': 1000, 'actual': 0, 'commitment': 400, 'progress': 40}],
          'The CPI item: 400 earned, 0 spent, so cpiStatus no-spend; SPI is defined (0.4).'),
+        ('EC5-1: a forecast below the money spent and committed is kept and flagged', AFE_PAST,
+         [{'code': 'RIG', 'budget': 1000, 'actual': 700, 'commitment': 200, 'forecast': 850, 'progress': 60},
+          {'code': 'CMT', 'budget': 300, 'actual': 100, 'commitment': 50, 'forecast': 400, 'progress': 30}],
+         'EC5-1: RIG forecasts 850 against 900 already spent and committed. The 850 stays the EAC (a re-baseline is legitimate) and the line is flagged below committed by 50. Before, it was taken silently.'),
+        ('EC5-1: a forecast equal to the money committed is not below it', AFE_PAST,
+         [{'description': 'Casing', 'budget': 500, 'actual': 300, 'commitment': 100, 'forecast': 400, 'progress': 50}], None),
+        ('EC5-1: string inputs, forecast 1100 below 1200 committed', AFE_PAST,
+         [{'budget': '1000', 'actual': '900', 'commitment': '300', 'forecast': '1100', 'progress': '70'}], None),
+        ('negative forecast flag: only a number below 0 is flagged; blank, zero and text are no forecast', AFE_PAST,
+         [{'code': 'A', 'budget': 100, 'actual': 20, 'forecast': -50, 'progress': 10},
+          {'code': 'B', 'budget': 100, 'forecast': '', 'progress': 0},
+          {'code': 'C', 'budget': 100, 'forecast': 0, 'progress': 0},
+          {'code': 'D', 'budget': 100, 'forecast': 'abc', 'progress': 0},
+          {'description': 'E', 'budget': 100, 'actual': 130, 'forecast': '-0.5', 'progress': 0},
+          {'budget': 100, 'actual': 90, 'commitment': 30, 'forecast': 60, 'progress': 0}],
+         'A and E are flagged forecastIgnored negative and take the standard rule (100 and 130); the unnamed line 5 forecasts 60 against 120 committed and is flagged below committed by 60. Before, the negative values were ignored silently.'),
     ]
     probe = [{'budget': 1000, 'actual': 300, 'progress': 40}]
     as_of_sets = [
@@ -696,6 +790,7 @@ def metrics_cases():
         ('asOf before the start, zero budget: SPI null, no budget', AFE_2YR, [{'budget': 0, 'actual': 100, 'progress': 0}], '2025-01-01', 'Date',
          'EC5-3: spiStatus no-budget ahead of no-planned-value. Before, the zero-budget guard reported SPI 1.'),
         ('asOf with no AFE dates: time progress 1', {'currency': 'USD'}, probe, '2026-09-14', 'Date', None),
+        ('EC5-1 and EC5-9b: OFON-1 at 2027-08-15, no line below committed', OFON_AFE, OFON_ITEMS, '2027-08-15', 'string', None),
         ('asOf mid-window, a dozen items with forecasts', AFE_2YR, [{'budget': 100 * (k + 1), 'commitment': 10 * k, 'actual': 30 * k, 'progress': 7 * k, 'forecast': (0 if k % 3 else 150 * (k + 1))} for k in range(12)], '2027-06-15', 'string', None),
     ]
     out = []
@@ -773,6 +868,12 @@ def scurve_cases():
         # repair its first label read "Jan 27" and every Planned value moved.
         ('February start labels Feb in every zone, asOf mid-window', {'start_date': '2027-02-01', 'end_date': '2028-01-31'}, [{'budget': 3650, 'actual': 700, 'commitment': 200}], [{'invoice_date': '2027-02-01', 'amount': 150}, {'invoice_date': '2027-05-31', 'amount': 250}, {'invoice_date': '2027-11-15', 'amount': 90}], '2027-06-01'),
         ('window across both clock changes, asOf on the November bucket', {'start_date': '2026-03-01', 'end_date': '2027-03-01'}, [{'budget': 1000}], [{'invoice_date': '2026-03-08', 'amount': 40}, {'invoice_date': '2026-11-01', 'amount': 60}], '2026-11-01'),
+        # EC5-9b: the teaching AFE. The retired walk ended on Nov 27 with
+        # Forecast 24949669 below the budget 27050000 while the EAC is 27600000.
+        ('EC5-9b: OFON-1 at 2027-08-15 closes on 30 Nov 27 with Planned the budget and Forecast the EAC', OFON_AFE, OFON_ITEMS, OFON_INVOICES, '2027-08-15'),
+        ('EC5-9b: OFON-1 read after the end: the closing point carries the actuals and the EAC', OFON_AFE, OFON_ITEMS, OFON_INVOICES, '2028-01-10'),
+        ('EC5-9b: asOf on the end day counts an invoice dated that day on the closing point', {'start_date': '2026-01-15', 'end_date': '2026-06-20'}, [{'budget': 900, 'actual': 700, 'commitment': 400}], [{'invoice_date': '2026-03-01', 'amount': 300}, {'invoice_date': '2026-06-20', 'amount': 450}], '2026-06-20'),
+        ('EC5-9b: a window ending on a month step, read after the end: the step becomes the closing point', {'start_date': '2026-01-01', 'end_date': '2026-05-01'}, [{'budget': 400, 'forecast': 380, 'actual': 500}], [{'invoice_date': '2026-05-01', 'amount': 120}], '2026-05-02'),
     ]
     out = []
     for n, afe, items, invs in sets:
@@ -904,7 +1005,9 @@ def main():
             'undefined, with cpiStatus no-spend and spiStatus no-budget or no-planned-value, and ok otherwise). '
             'metricsRefusals: the AfeInputError message for an invalid asOf or progress outside 0 to 100 percent. '
             'sCurve: the exact '
-            'generateSCurveData point list, bounded to the window. inputs.asOf, when present, is passed to the '
+            'generateSCurveData point list, bounded to the window and closed on the window end date with Planned the '
+            'budget and Forecast the EAC (EC5-9b; retiredLastPoint is where the walk ended before, for the negative '
+            'control). metrics lineForecasts and the two flag counts: EC5-1 and the negative-forecast flag. inputs.asOf, when present, is passed to the '
             'engine (as a Date when inputs.asOfAs is "Date", else as the string). evm: '
             'projectControls.calculateEVM strings (toFixed(2)) and their numeric values; cpiSpi; gantt: '
             'formatTasksForGantt rows with dates as epoch milliseconds (null = Invalid Date). Independent stdlib '

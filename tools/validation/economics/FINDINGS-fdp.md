@@ -619,3 +619,66 @@ missing", and "only one capex field is entered" renamed to say it is partial
 with two fields named missing. Consumer to update: the Suite's
 ScenarioManager.jsx reads only `metrics` from `runScenario` and should mark a
 partial card.
+
+## EC5-1, the negative forecast flag and EC5-9b: FIXED 2026-09-15 (owner decisions)
+
+Engine: engines/economics/afe.js. Oracle
+tools/validation/economics/oracle_afe.py regenerated twice, byte-identical:
+afe_cases.json now holds 20 splits, 38 metric sets, 11 metric refusals and 30
+S-curves (evm, evmRefusals, cpiSpi and gantt unchanged). Gate
+__tests__/economics.afe.test.js, 173 tests.
+
+**EC5-1, a forecast below the money already spent (FIXED).** Before:
+`itemForecast` took any positive entered forecast as the line's estimate at
+completion, so a line with 900 spent and committed and 850 typed reported a
+saving of 50 on money already gone, with nothing on the screen to say so.
+After: the typed value is still the EAC, because a re-baseline is legitimate
+and a silent floor would hide the entry. The line is FLAGGED instead. The new
+`itemForecastCheck(item)` returns `{ forecast, committed, forecastBelowCommitted,
+forecastBelowCommittedBy, forecastIgnored }`, where committed is actual +
+commitment and forecastBelowCommittedBy is committed less the forecast (0 when
+not flagged; equal to committed is not below it). `itemForecast` is that
+function's `forecast` and is unchanged, so no total moves.
+
+**A negative entered forecast (FIXED).** Before: a negative forecast fell
+through to max(budget, actual + commitment) silently, while negative progress
+was refused outright. After: the fallback still gives the EAC (the same
+number), and the line carries `forecastIgnored: 'negative'`. A zero, blank or
+non-numeric forecast is no forecast at all and carries null: only a number
+below 0 is an ignored entry.
+
+**The metrics.** `calculateMetrics` returns `lineForecasts`, one entry per
+cost item in order (`index`, `label` = code, else description, else the index,
+and the itemForecastCheck fields), and the counts
+`linesForecastBelowCommitted` and `linesForecastIgnored`. New goldens: a
+forecast 50 below committed and kept, a forecast equal to committed, the same
+in strings, and a six-line set where two negative forecasts are flagged
+ignored and an unnamed line is flagged 60 below committed. Negative control:
+the retired rule restated computes the same EAC for every golden line and has
+nothing to report.
+
+**EC5-9b, the S-curve closed short of the window (FIXED).** Before: the
+monthly walk stopped at the last month step on or before the end date, which
+is usually short of it, so the last Planned sat below the budget and the last
+Forecast below the EAC. The course's OFON-1 ended on "Nov 27" with Forecast
+24949669 against a budget of 27050000, while the EAC is 27600000: an overrun
+drawn as an underrun. After: the curve CLOSES on a point dated the window end
+in UTC, labelled by its day ("30 Nov 27") and carrying `windowEnd: true`,
+where Planned is the budget total and Forecast is the EAC, both rounded. Its
+Actual follows the bucket rule (the invoices dated on or before the end when
+the end is on or before asOf, else null), so the actual series is unchanged.
+When a month step lands exactly on the end date it is replaced by the closing
+point, so no date is listed twice. Every other point carries
+`windowEnd: false`. A window with no valid dates, or one ending before it
+starts, still has no points at all. The UTC discipline of EC5-5 is untouched,
+and the zone sweep replays the closing point in all five zones.
+
+Goldens: every S-curve case gained the closing point and carries
+`retiredLastPoint`, the point the retired walk ended on, which is the negative
+control; four new cases cover OFON-1 read mid-window and after the end, an
+invoice dated on the end day, and a window whose last step is the end date.
+
+**Consumers to update.** The Suite's AFEDashboard draws the S-curve and shows
+the metric tiles: the closing point is a new category on the x axis (a day
+label among month labels) and the two line counts belong beside the forecast
+tile, with the flagged lines marked in the Cost Breakdown table.
