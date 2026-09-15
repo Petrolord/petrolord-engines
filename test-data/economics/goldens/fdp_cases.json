@@ -15985,7 +15985,7 @@
    }
   },
   {
-   "name": "caller supplied floats: passthrough semantics",
+   "name": "the caller's own float fields are ignored: the method computes them",
    "inputs": [
     {
      "id": "p",
@@ -16151,7 +16151,7 @@
      "t"
     ]
    },
-   "note": "float 0 and a missing float are critical; null, a string 0 and a negative float are not; null and the string coerce to 0 in the float column."
+   "note": "EC6-0 renamed this case. Every activity arrives carrying a float field (0, 5, absent, null, the string \"0\" and -2) and the engine reads none of them: it computes 0, 5, 0, 0, 0 and 2 from the network. The retired passthrough took the field at face value, so it called s and t non-critical when both sit on the only zero-float chain, and it reported u at -2 days of float, which no schedule can have."
   },
   {
    "name": "diamond with two equal critical paths (a tie)",
