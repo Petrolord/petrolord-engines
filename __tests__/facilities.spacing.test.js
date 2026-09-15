@@ -60,11 +60,11 @@ describe('the spacing table', () => {
 
 describe('distance on the map', () => {
   test('haversine matches Vincenty and the chord derivation', () => {
-    G.distances.forEach((row) => {
-      const d = haversineM(row);
+    G.distances.forEach((c) => {
+      const d = haversineM(c.input);
       expect(d.error).toBeUndefined();
-      expect(rel(d.distanceM, row.vincentyM)).toBeLessThan(1e-9);
-      expect(rel(d.distanceM, row.chordM)).toBeLessThan(1e-9);
+      expect(rel(d.distanceM, c.expected.vincentyM)).toBeLessThan(1e-9);
+      expect(rel(d.distanceM, c.expected.chordM)).toBeLessThan(1e-9);
     });
   });
 
@@ -81,24 +81,49 @@ describe('distance on the map', () => {
 
 describe('computed radiation setbacks', () => {
   test('the flare setback round-trips to its own allowable', () => {
-    G.flare.forEach((row) => {
-      const r = flareSetbackM(row);
+    G.flare.forEach((c) => {
+      const r = flareSetbackM(c.input);
       expect(r.error).toBeUndefined();
-      expect(rel(r.distanceM, row.distanceM)).toBeLessThan(1e-9);
+      expect(rel(r.distanceM, c.expected.distanceM)).toBeLessThan(1e-9);
       // the round trip the oracle performed
-      expect(rel(row.intensityAtDistance, row.allowableKwM2)).toBeLessThan(1e-9);
+      expect(rel(c.expected.intensityAtDistance, c.input.allowableKwM2)).toBeLessThan(1e-9);
     });
     expect(flareSetbackM({ reliefRateKgS: 0, lhvKjKg: 46000 }).error).toBeTruthy();
   });
 
-  test('the pool fire matches the oracle including the Thomas flame height', () => {
-    G.poolFire.forEach((row) => {
-      const r = poolFireSetbackM(row);
-      expect(r.error).toBeUndefined();
-      expect(rel(r.qKw, row.qKw)).toBeLessThan(1e-9);
-      expect(rel(r.flameHeightM, row.flameHeightM)).toBeLessThan(1e-9);
-      expect(rel(r.setbackFromEdgeM, row.setbackFromEdgeM)).toBeLessThan(1e-9);
-    });
+  test.each(G.poolFire.map((c) => [c.name, c]))('pool fire %s matches the oracle', (_, c) => {
+    const r = poolFireSetbackM(c.input);
+    expect(r.error).toBeUndefined();
+    expect(rel(r.qKw, c.expected.qKw)).toBeLessThan(1e-9);
+    expect(rel(r.flameHeightM, c.expected.flameHeightM)).toBeLessThan(1e-9);
+    expect(rel(r.radiusFromCentreM, c.expected.radiusFromCentreM)).toBeLessThan(1e-9);
+    // round trip: the point source at that radius gives the allowable
+    expect(rel(c.expected.intensityAtRadius, c.input.allowableKwM2)).toBeLessThan(1e-9);
+    expect(r.setbackStatus).toBe(c.expected.setbackStatus);
+    if (c.expected.setbackFromEdgeM === 0) expect(r.setbackFromEdgeM).toBe(0);
+    else expect(rel(r.setbackFromEdgeM, c.expected.setbackFromEdgeM)).toBeLessThan(1e-9);
+    expect(r.note !== null).toBe(c.expected.nearFieldNote || c.expected.setbackStatus === 'within-pool-edge');
+  });
+
+  test('S2 NEGATIVE CONTROL: a radius inside the pool edge is flagged, where the retired clamp was silent', () => {
+    const c = G.poolFire.find((x) => x.name === 'withinPoolEdgeEdgeCase');
+    const r = poolFireSetbackM(c.input);
+    // the retired max(0) gave the same 0 with nothing to say why
+    expect(c.expected.retiredClampSetbackM).toBe(0);
+    expect(r.setbackStatus).toBe('within-pool-edge');
+    expect(r.note).toMatch(/within the pool edge/);
+    expect(poolFireSetbackM({ poolDiameterM: 20 }).setbackStatus).toBe('beyond-pool-edge');
+  });
+
+  test('S2: the pool-fire header describes the point source it computes', () => {
+    const src = fs.readFileSync(
+      path.join(__dirname, '..', 'engines', 'facilities', 'spacing.js'), 'utf8',
+    );
+    const header = src.slice(src.indexOf('Setback from a liquid pool fire'), src.indexOf('export const poolFireSetbackM'));
+    expect(header).toMatch(/POINT-SOURCE/);
+    expect(header).toMatch(/No view factor/);
+    expect(header).not.toMatch(/view-factor-based intensity/);
+    expect(src).not.toMatch(/\u2014/);
   });
 
   test('THE POINT: a computed setback moves with the duty, a table figure does not', () => {
@@ -120,17 +145,60 @@ describe('computed radiation setbacks', () => {
 });
 
 describe('the layout check', () => {
-  // A small site: wellhead, separator and a tank, plus a flare.
+  // A small site: ~0.0001 deg latitude is about 11 m
   const base = 4.8156;
   const lonBase = 7.0498;
-  // ~0.0001 deg latitude is about 11 m
   const mk = (id, name, type, dLatM, dLonM = 0) => ({
     id, name, type,
     lat: base + dLatM / 111320,
     lon: lonBase + dLonM / (111320 * Math.cos(base * Math.PI / 180)),
   });
+  const pairOf = (v) => (v ? [v.kind, v.aId, v.bId] : null);
 
-  test('flags what is too close and sorts the worst first', () => {
+  test.each(G.layout.map((c) => [c.name, c]))('%s matches the oracle', (_, c) => {
+    const r = checkLayout(c.input);
+    const e = c.expected;
+    expect(r.checked).toBe(e.checked);
+    expect(r.zeroRequirementPairs).toBe(e.zeroRequirementPairs);
+    expect(r.pass).toBe(e.pass);
+    expect(r.passStatus).toBe(e.passStatus);
+    expect(r.complete).toBe(e.complete);
+    expect(r.skipped).toEqual(e.skipped);
+    expect(r.unknownPairs).toEqual(e.unknownPairs);
+    expect(r.violations.map(pairOf)).toEqual(e.violations.map(pairOf));
+    r.violations.forEach((v, i) => {
+      expect(rel(v.shortfallM, e.violations[i].shortfallM)).toBeLessThan(1e-9);
+      expect(rel(v.shortfallFraction, e.violations[i].shortfallFraction)).toBeLessThan(1e-9);
+    });
+    expect(pairOf(r.worstAbsolute)).toEqual(e.worstAbsolutePair);
+    expect(pairOf(r.worstRelative)).toEqual(e.worstRelativePair);
+    expect(r.worst).toBeUndefined();
+  });
+
+  test('S4 NEGATIVE CONTROL: the retired "worst" was the relative ranking, and the two rankings disagree', () => {
+    const c = G.layout.find((x) => x.name === 's4RankingsDisagree');
+    const r = checkLayout(c.input);
+    expect(c.expected.retiredRule.worstPair).toEqual(['spacing', 'p1', 'p2']);
+    expect(pairOf(r.worstAbsolute)).toEqual(['spacing', 'f1', 'c1']);
+    expect(pairOf(r.worstRelative)).toEqual(['spacing', 'p1', 'p2']);
+    expect(r.worstAbsolute.shortfallM).toBeGreaterThan(r.worstRelative.shortfallM);
+    expect(r.worstRelative.shortfallFraction).toBeGreaterThan(r.worstAbsolute.shortfallFraction);
+  });
+
+  test('S3 NEGATIVE CONTROL: nothing checked is not a pass', () => {
+    const none = G.layout.find((x) => x.name === 's3AllUnplacedNothingChecked');
+    expect(none.expected.retiredRule).toEqual({ checked: 0, pass: true, worstPair: null });
+    const r = checkLayout(none.input);
+    expect(r.pass).toBeNull();
+    expect(r.passStatus).toBe('nothing-checked');
+    expect(r.complete).toBe(false);
+    const zero = G.layout.find((x) => x.name === 's3ZeroRequirementPairOnly');
+    // the retired rule counted the valve beside a PSV as one passed check
+    expect(zero.expected.retiredRule.checked).toBe(1);
+    expect(checkLayout(zero.input).checked).toBe(0);
+  });
+
+  test('flags what is too close and sorts the largest shortfall first', () => {
     const items = [
       mk('w1', 'Wellhead 1', 'wellhead', 0),
       mk('s1', 'Separator', 'separator', 5),      // 5 m from the wellhead: needs 15
@@ -138,15 +206,12 @@ describe('the layout check', () => {
     ];
     const r = checkLayout({ items });
     expect(r.pass).toBe(false);
-    expect(r.violations.length).toBeGreaterThan(0);
-    const worst = r.worst;
-    expect(worst.kind).toBe('spacing');
-    expect(worst.requiredM).toBe(15);
-    expect(worst.actualM).toBeLessThan(15);
-    expect(worst.shortfallM).toBeGreaterThan(0);
-    // sorted by severity
+    expect(r.complete).toBe(true);
+    expect(r.worstAbsolute.kind).toBe('spacing');
+    expect(r.worstAbsolute.requiredM).toBe(15);
+    expect(r.worstAbsolute.actualM).toBeLessThan(15);
     for (let i = 1; i < r.violations.length; i += 1) {
-      expect(r.violations[i].severity).toBeLessThanOrEqual(r.violations[i - 1].severity);
+      expect(r.violations[i].shortfallM).toBeLessThanOrEqual(r.violations[i - 1].shortfallM);
     }
   });
 
@@ -158,8 +223,11 @@ describe('the layout check', () => {
     ];
     const r = checkLayout({ items });
     expect(r.pass).toBe(true);
+    expect(r.passStatus).toBe('checked');
     expect(r.violations).toHaveLength(0);
-    expect(r.checked).toBe(3); // three pairs
+    expect(r.checked).toBe(3); // three pairs, all with a positive requirement
+    expect(r.worstAbsolute).toBeNull();
+    expect(r.worstRelative).toBeNull();
   });
 
   test('applies a COMPUTED radiation setback alongside the table', () => {
@@ -188,6 +256,8 @@ describe('the layout check', () => {
     const r = checkLayout({ items });
     expect(r.unknownPairs.length).toBe(1);
     expect(r.violations).toHaveLength(0); // not judged, not hidden
+    expect(r.pass).toBeNull();
+    expect(r.complete).toBe(false);
     expect(checkLayout({ items: null }).error).toBeTruthy();
   });
 

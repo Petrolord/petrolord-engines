@@ -1,102 +1,594 @@
 {
  "distances": [
   {
-   "chordM": 89.40986537483325,
-   "lat1": 4.8156,
-   "lat2": 4.816,
-   "lon1": 7.0498,
-   "lon2": 7.0505,
-   "vincentyM": 89.4098653747303
+   "expected": {
+    "chordM": 89.40986537483325,
+    "vincentyM": 89.4098653747303
+   },
+   "input": {
+    "lat1": 4.8156,
+    "lat2": 4.816,
+    "lon1": 7.0498,
+    "lon2": 7.0505
+   },
+   "name": "portHarcourt90m",
+   "note": "haversine against Vincenty and the 3D chord"
   },
   {
-   "chordM": 489.25835302778285,
-   "lat1": 4.8156,
-   "lat2": 4.82,
-   "lon1": 7.0498,
-   "lon2": 7.0498,
-   "vincentyM": 489.25835302771907
+   "expected": {
+    "chordM": 489.25835302778285,
+    "vincentyM": 489.25835302771907
+   },
+   "input": {
+    "lat1": 4.8156,
+    "lat2": 4.82,
+    "lon1": 7.0498,
+    "lon2": 7.0498
+   },
+   "name": "portHarcourtDueNorth",
+   "note": "haversine against Vincenty and the 3D chord"
   },
   {
-   "chordM": 55.59754011633493,
-   "lat1": 60.0,
-   "lat2": 60.0,
-   "lon1": 5.0,
-   "lon2": 5.001,
-   "vincentyM": 55.59754011625579
+   "expected": {
+    "chordM": 55.59754011633493,
+    "vincentyM": 55.59754011625579
+   },
+   "input": {
+    "lat1": 60.0,
+    "lat2": 60.0,
+    "lon1": 5.0,
+    "lon2": 5.001
+   },
+   "name": "highLatitudeSmallDLon",
+   "note": "haversine against Vincenty and the 3D chord"
   },
   {
-   "chordM": 1111.9508023353294,
-   "lat1": 0.0,
-   "lat2": 0.0,
-   "lon1": 0.0,
-   "lon2": 0.01,
-   "vincentyM": 1111.9508023353292
+   "expected": {
+    "chordM": 1111.9508023353294,
+    "vincentyM": 1111.9508023353292
+   },
+   "input": {
+    "lat1": 0.0,
+    "lat2": 0.0,
+    "lon1": 0.0,
+    "lon2": 0.01
+   },
+   "name": "equator",
+   "note": "haversine against Vincenty and the 3D chord"
   }
  ],
  "flare": [
   {
-   "allowableKwM2": 4.73,
-   "distanceM": 68.14265310846025,
-   "fractionRadiated": 0.3,
-   "intensityAtDistance": 4.730000000000001,
-   "lhvKjKg": 46000.0,
-   "qKw": 920000.0,
-   "reliefRateKgS": 20.0,
-   "transmissivity": 1.0
+   "expected": {
+    "distanceM": 68.14265310846025,
+    "intensityAtDistance": 4.730000000000001,
+    "qKw": 920000.0
+   },
+   "input": {
+    "allowableKwM2": 4.73,
+    "fractionRadiated": 0.3,
+    "lhvKjKg": 46000.0,
+    "reliefRateKgS": 20.0,
+    "transmissivity": 1.0
+   },
+   "name": "flare20kgsAt4p73",
+   "note": "point source, round trip to the allowable"
   },
   {
-   "allowableKwM2": 1.58,
-   "distanceM": 49.36021168401372,
-   "fractionRadiated": 0.25,
-   "intensityAtDistance": 1.5799999999999998,
-   "lhvKjKg": 43000.0,
-   "qKw": 215000.0,
-   "reliefRateKgS": 5.0,
-   "transmissivity": 0.9
+   "expected": {
+    "distanceM": 49.36021168401372,
+    "intensityAtDistance": 1.5799999999999998,
+    "qKw": 215000.0
+   },
+   "input": {
+    "allowableKwM2": 1.58,
+    "fractionRadiated": 0.25,
+    "lhvKjKg": 43000.0,
+    "reliefRateKgS": 5.0,
+    "transmissivity": 0.9
+   },
+   "name": "flare5kgsAt1p58",
+   "note": "point source, round trip to the allowable"
+  }
+ ],
+ "layout": [
+  {
+   "expected": {
+    "checked": 6,
+    "complete": true,
+    "pass": false,
+    "passStatus": "checked",
+    "retiredRule": {
+     "checked": 6,
+     "pass": false,
+     "worstPair": [
+      "spacing",
+      "p1",
+      "p2"
+     ]
+    },
+    "skipped": [],
+    "unknownPairs": [],
+    "violations": [
+     {
+      "aId": "f1",
+      "actualM": 49.94389158889961,
+      "bId": "c1",
+      "kind": "spacing",
+      "requiredM": 90,
+      "shortfallFraction": 0.4450678712344488,
+      "shortfallM": 40.05610841110039
+     },
+     {
+      "aId": "p1",
+      "actualM": 0.998877831856181,
+      "bId": "p2",
+      "kind": "spacing",
+      "requiredM": 3,
+      "shortfallFraction": 0.6670407227146063,
+      "shortfallM": 2.001122168143819
+     }
+    ],
+    "worstAbsolutePair": [
+     "spacing",
+     "f1",
+     "c1"
+    ],
+    "worstRelativePair": [
+     "spacing",
+     "p1",
+     "p2"
+    ],
+    "zeroRequirementPairs": 0
+   },
+   "input": {
+    "items": [
+     {
+      "id": "p1",
+      "lat": 4.8156,
+      "lon": 7.0498,
+      "name": "Pump 1",
+      "type": "pump"
+     },
+     {
+      "id": "p2",
+      "lat": 4.8156089831117495,
+      "lon": 7.0498,
+      "name": "Pump 2",
+      "type": "pump"
+     },
+     {
+      "id": "f1",
+      "lat": 4.8156,
+      "lon": 7.054307467056822,
+      "name": "Flare",
+      "type": "flare"
+     },
+     {
+      "id": "c1",
+      "lat": 4.816049155587495,
+      "lon": 7.054307467056822,
+      "name": "Control room",
+      "type": "control"
+     }
+    ],
+    "radiationSources": []
+   },
+   "name": "s4RankingsDisagree",
+   "note": "pumps 1 m apart (2 m short of 3 m, fraction 0.67) against a control room 50 m from a flare (40 m short of 90 m, fraction 0.44): worstAbsolute is the flare pair, worstRelative the pumps; the retired worst was the pumps"
+  },
+  {
+   "expected": {
+    "checked": 0,
+    "complete": false,
+    "pass": null,
+    "passStatus": "nothing-checked",
+    "retiredRule": {
+     "checked": 0,
+     "pass": true,
+     "worstPair": null
+    },
+    "skipped": [
+     {
+      "id": "w1",
+      "reason": "bad-coordinates"
+     },
+     {
+      "id": "s1",
+      "reason": "bad-coordinates"
+     }
+    ],
+    "unknownPairs": [],
+    "violations": [],
+    "worstAbsolutePair": null,
+    "worstRelativePair": null,
+    "zeroRequirementPairs": 0
+   },
+   "input": {
+    "items": [
+     {
+      "id": "w1",
+      "lat": null,
+      "lon": null,
+      "name": "Wellhead",
+      "type": "wellhead"
+     },
+     {
+      "id": "s1",
+      "lat": null,
+      "lon": null,
+      "name": "Separator",
+      "type": "separator"
+     }
+    ],
+    "radiationSources": []
+   },
+   "name": "s3AllUnplacedNothingChecked",
+   "note": "retired rule: checked 0 and pass true; now pass null, passStatus nothing-checked, both items skipped"
+  },
+  {
+   "expected": {
+    "checked": 0,
+    "complete": true,
+    "pass": null,
+    "passStatus": "nothing-checked",
+    "retiredRule": {
+     "checked": 1,
+     "pass": true,
+     "worstPair": null
+    },
+    "skipped": [],
+    "unknownPairs": [],
+    "violations": [],
+    "worstAbsolutePair": null,
+    "worstRelativePair": null,
+    "zeroRequirementPairs": 1
+   },
+   "input": {
+    "items": [
+     {
+      "id": "v1",
+      "lat": 4.8156,
+      "lon": 7.0498,
+      "name": "Valve",
+      "type": "valve"
+     },
+     {
+      "id": "r1",
+      "lat": 4.8156089831117495,
+      "lon": 7.0498,
+      "name": "PSV",
+      "type": "psv"
+     }
+    ],
+    "radiationSources": []
+   },
+   "name": "s3ZeroRequirementPairOnly",
+   "note": "a valve beside a PSV has no requirement: the retired rule counted it as one passed check"
+  },
+  {
+   "expected": {
+    "checked": 3,
+    "complete": false,
+    "pass": true,
+    "passStatus": "checked",
+    "retiredRule": {
+     "checked": 3,
+     "pass": true,
+     "worstPair": null
+    },
+    "skipped": [
+     {
+      "id": "x1",
+      "reason": "bad-coordinates"
+     }
+    ],
+    "unknownPairs": [],
+    "violations": [],
+    "worstAbsolutePair": null,
+    "worstRelativePair": null,
+    "zeroRequirementPairs": 0
+   },
+   "input": {
+    "items": [
+     {
+      "id": "w1",
+      "lat": 4.8156,
+      "lon": 7.0498,
+      "name": "Wellhead",
+      "type": "wellhead"
+     },
+     {
+      "id": "s1",
+      "lat": 4.817396622349982,
+      "lon": 7.0498,
+      "name": "Separator",
+      "type": "separator"
+     },
+     {
+      "id": "t1",
+      "lat": 4.819193244699964,
+      "lon": 7.0498,
+      "name": "Tank",
+      "type": "tank"
+     },
+     {
+      "id": "x1",
+      "lat": null,
+      "lon": null,
+      "name": "Unplaced tank",
+      "type": "tank"
+     }
+    ],
+    "radiationSources": []
+   },
+   "name": "s3SkippedItemPassesButIncomplete",
+   "note": "three well-spread items pass, a fourth has no coordinates: pass true, complete false"
+  },
+  {
+   "expected": {
+    "checked": 2,
+    "complete": false,
+    "pass": false,
+    "passStatus": "checked",
+    "retiredRule": {
+     "checked": 2,
+     "pass": false,
+     "worstPair": [
+      "radiation",
+      "f1",
+      "t1"
+     ]
+    },
+    "skipped": [
+     {
+      "id": "ghost",
+      "reason": "radiation-source-not-placed"
+     }
+    ],
+    "unknownPairs": [],
+    "violations": [
+     {
+      "aId": "f1",
+      "actualM": 49.94389158889961,
+      "bId": "t1",
+      "kind": "radiation",
+      "requiredM": 68.14265310846025,
+      "shortfallFraction": 0.2670685787739188,
+      "shortfallM": 18.19876151956064
+     },
+     {
+      "aId": "f1",
+      "actualM": 49.94389158889961,
+      "bId": "t1",
+      "kind": "spacing",
+      "requiredM": 60,
+      "shortfallFraction": 0.16760180685167317,
+      "shortfallM": 10.05610841110039
+     }
+    ],
+    "worstAbsolutePair": [
+     "radiation",
+     "f1",
+     "t1"
+    ],
+    "worstRelativePair": [
+     "radiation",
+     "f1",
+     "t1"
+    ],
+    "zeroRequirementPairs": 0
+   },
+   "input": {
+    "items": [
+     {
+      "id": "f1",
+      "lat": 4.8156,
+      "lon": 7.0498,
+      "name": "Flare",
+      "type": "flare"
+     },
+     {
+      "id": "t1",
+      "lat": 4.816049155587495,
+      "lon": 7.0498,
+      "name": "Tank",
+      "type": "tank"
+     }
+    ],
+    "radiationSources": [
+     {
+      "allowableKwM2": 4.73,
+      "id": "f1",
+      "label": "Flare radiation",
+      "setbackM": 68.14265310846025
+     },
+     {
+      "allowableKwM2": 4.73,
+      "id": "ghost",
+      "label": "Unplaced flare",
+      "setbackM": 40.0
+     }
+    ]
+   },
+   "name": "radiationAndTableWithGhostSource",
+   "note": "a tank 50 m from a flare breaks the 60 m table figure and the 68 m computed setback; a radiation source with no placed item is skipped"
+  },
+  {
+   "expected": {
+    "checked": 1,
+    "complete": false,
+    "pass": false,
+    "passStatus": "checked",
+    "retiredRule": {
+     "checked": 1,
+     "pass": false,
+     "worstPair": [
+      "spacing",
+      "b",
+      "c"
+     ]
+    },
+    "skipped": [],
+    "unknownPairs": [
+     {
+      "typeA": "unicorn",
+      "typeB": "tank"
+     },
+     {
+      "typeA": "unicorn",
+      "typeB": "wellhead"
+     }
+    ],
+    "violations": [
+     {
+      "aId": "b",
+      "actualM": 7.991022654232603,
+      "bId": "c",
+      "kind": "spacing",
+      "requiredM": 30,
+      "shortfallFraction": 0.7336325781922466,
+      "shortfallM": 22.0089773457674
+     }
+    ],
+    "worstAbsolutePair": [
+     "spacing",
+     "b",
+     "c"
+    ],
+    "worstRelativePair": [
+     "spacing",
+     "b",
+     "c"
+    ],
+    "zeroRequirementPairs": 0
+   },
+   "input": {
+    "items": [
+     {
+      "id": "a",
+      "lat": 4.8156,
+      "lon": 7.0498,
+      "name": "Thing",
+      "type": "unicorn"
+     },
+     {
+      "id": "b",
+      "lat": 4.8156179662235,
+      "lon": 7.0498,
+      "name": "Tank",
+      "type": "tank"
+     },
+     {
+      "id": "c",
+      "lat": 4.815689831117499,
+      "lon": 7.0498,
+      "name": "Wellhead",
+      "type": "wellhead"
+     }
+    ],
+    "radiationSources": []
+   },
+   "name": "unknownPairIncomplete",
+   "note": "an unknown type pair is reported and makes the check incomplete; the known pair is still judged"
   }
  ],
  "poolFire": [
   {
-   "allowableKwM2": 4.73,
-   "areaM2": 314.1592653589793,
-   "burnRateKgM2S": 0.055,
-   "burnRateKgS": 17.278759594743864,
-   "flameHeightM": 25.607784821372782,
-   "fractionRadiated": 0.35,
-   "lhvKjKg": 43000.0,
-   "poolDiameterM": 20.0,
-   "qKw": 742986.6625739861,
-   "radiusFromCentreM": 66.14378277661476,
-   "setbackFromEdgeM": 56.143782776614756,
-   "transmissivity": 1.0
+   "expected": {
+    "areaM2": 314.1592653589793,
+    "burnRateKgS": 17.278759594743864,
+    "flameHeightM": 25.607784821372782,
+    "intensityAtRadius": 4.73,
+    "nearFieldNote": false,
+    "qKw": 742986.6625739861,
+    "radiusFromCentreM": 66.14378277661476,
+    "retiredClampSetbackM": 56.143782776614756,
+    "setbackFromEdgeM": 56.143782776614756,
+    "setbackStatus": "beyond-pool-edge"
+   },
+   "input": {
+    "allowableKwM2": 4.73,
+    "burnRateKgM2S": 0.055,
+    "fractionRadiated": 0.35,
+    "lhvKjKg": 43000.0,
+    "poolDiameterM": 20.0,
+    "transmissivity": 1.0
+   },
+   "name": "pool20mAt4p73",
+   "note": "point source from the pool centre, beyond the edge"
   },
   {
-   "allowableKwM2": 1.58,
-   "areaM2": 28.274333882308138,
-   "burnRateKgM2S": 0.055,
-   "burnRateKgS": 1.5550883635269477,
-   "flameHeightM": 11.09101477559392,
-   "fractionRadiated": 0.35,
-   "lhvKjKg": 43000.0,
-   "poolDiameterM": 6.0,
-   "qKw": 66868.79963165875,
-   "radiusFromCentreM": 34.3330440158225,
-   "setbackFromEdgeM": 31.3330440158225,
-   "transmissivity": 1.0
+   "expected": {
+    "areaM2": 28.274333882308138,
+    "burnRateKgS": 1.5550883635269477,
+    "flameHeightM": 11.09101477559392,
+    "intensityAtRadius": 1.5799999999999996,
+    "nearFieldNote": false,
+    "qKw": 66868.79963165875,
+    "radiusFromCentreM": 34.3330440158225,
+    "retiredClampSetbackM": 31.3330440158225,
+    "setbackFromEdgeM": 31.3330440158225,
+    "setbackStatus": "beyond-pool-edge"
+   },
+   "input": {
+    "allowableKwM2": 1.58,
+    "burnRateKgM2S": 0.055,
+    "fractionRadiated": 0.35,
+    "lhvKjKg": 43000.0,
+    "poolDiameterM": 6.0,
+    "transmissivity": 1.0
+   },
+   "name": "pool6mAt1p58",
+   "note": "point source from the pool centre, beyond the edge"
   },
   {
-   "allowableKwM2": 4.73,
-   "areaM2": 1256.6370614359173,
-   "burnRateKgM2S": 0.062,
-   "burnRateKgS": 77.91149780902687,
-   "flameHeightM": 44.59904392860395,
-   "fractionRadiated": 0.35,
-   "lhvKjKg": 44000.0,
-   "poolDiameterM": 40.0,
-   "qKw": 3428105.903597182,
-   "radiusFromCentreM": 134.7866531243547,
-   "setbackFromEdgeM": 114.7866531243547,
-   "transmissivity": 0.9
+   "expected": {
+    "areaM2": 1256.6370614359173,
+    "burnRateKgS": 77.91149780902687,
+    "flameHeightM": 44.59904392860395,
+    "intensityAtRadius": 4.7299999999999995,
+    "nearFieldNote": false,
+    "qKw": 3428105.903597182,
+    "radiusFromCentreM": 134.7866531243547,
+    "retiredClampSetbackM": 114.7866531243547,
+    "setbackFromEdgeM": 114.7866531243547,
+    "setbackStatus": "beyond-pool-edge"
+   },
+   "input": {
+    "allowableKwM2": 4.73,
+    "burnRateKgM2S": 0.062,
+    "fractionRadiated": 0.35,
+    "lhvKjKg": 44000.0,
+    "poolDiameterM": 40.0,
+    "transmissivity": 0.9
+   },
+   "name": "pool40mAt4p73Tau0p9",
+   "note": "point source from the pool centre, beyond the edge"
+  },
+  {
+   "expected": {
+    "areaM2": 314.1592653589793,
+    "burnRateKgS": 17.278759594743864,
+    "flameHeightM": 25.607784821372782,
+    "intensityAtRadius": 4000.0,
+    "nearFieldNote": true,
+    "qKw": 742986.6625739861,
+    "radiusFromCentreM": 2.2745191799587006,
+    "retiredClampSetbackM": 0.0,
+    "setbackFromEdgeM": 0.0,
+    "setbackStatus": "within-pool-edge"
+   },
+   "input": {
+    "allowableKwM2": 4000.0,
+    "burnRateKgM2S": 0.055,
+    "fractionRadiated": 0.35,
+    "lhvKjKg": 43000.0,
+    "poolDiameterM": 20.0,
+    "transmissivity": 1.0
+   },
+   "name": "withinPoolEdgeEdgeCase",
+   "note": "deliberate edge case: an allowable of 4000 kW/m2 puts the point-source radius inside the pool edge, so the setback is 0 with setbackStatus within-pool-edge"
   }
  ]
 }

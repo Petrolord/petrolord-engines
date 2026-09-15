@@ -1,159 +1,1147 @@
 {
  "fingerSlug": [
   {
-   "fillFraction": 0.8,
-   "fingerIdIn": 24,
-   "fingerLengthFt": 558.4929318133567,
-   "nFingers": 6,
-   "slugBbl": 1500,
-   "totalVolumeFt3": 10527.343749999998
+   "expected": {
+    "fingerLengthFt": 558.4929318133567,
+    "totalVolumeFt3": 10527.343749999998
+   },
+   "input": {
+    "fillFraction": 0.8,
+    "fingerIdIn": 24,
+    "nFingers": 6,
+    "slugBbl": 1500
+   },
+   "name": "finger1500bbl6x24in",
+   "note": "SI geometry"
   },
   {
-   "fillFraction": 0.75,
-   "fingerIdIn": 16,
-   "fingerLengthFt": 670.1915181760281,
-   "nFingers": 4,
-   "slugBbl": 500,
-   "totalVolumeFt3": 3743.055555555555
+   "expected": {
+    "fingerLengthFt": 670.1915181760281,
+    "totalVolumeFt3": 3743.055555555555
+   },
+   "input": {
+    "fillFraction": 0.75,
+    "fingerIdIn": 16,
+    "nFingers": 4,
+    "slugBbl": 500
+   },
+   "name": "finger500bbl4x16in",
+   "note": "SI geometry"
+  }
+ ],
+ "gasDensity": [
+  {
+   "expected": {
+    "ppr": 1.4922499996269374,
+    "pprBelowFit": false,
+    "rhoLbFt3": 3.5985052052626276,
+    "status": "ok",
+    "tpr": 1.532880501766591,
+    "z": 0.8710271466687576
+   },
+   "input": {
+    "gasSg": 0.65,
+    "pPsia": 1000.0,
+    "tF": 100.0
+   },
+   "name": "sg065At1000psia100F",
+   "note": "DAK by bisection on reduced density, SI gas law; range 1.0 <= Tpr <= 3.0, Ppr <= 30"
+  },
+  {
+   "expected": {
+    "ppr": 0.14922499996269376,
+    "pprBelowFit": true,
+    "rhoLbFt3": 0.31779784654007465,
+    "status": "ok",
+    "tpr": 1.532880501766591,
+    "z": 0.9862860165156366
+   },
+   "input": {
+    "gasSg": 0.65,
+    "pPsia": 100.0,
+    "tF": 100.0
+   },
+   "name": "sg065At100psia100FBelowFitPpr",
+   "note": "DAK by bisection on reduced density, SI gas law; range 1.0 <= Tpr <= 3.0, Ppr <= 30"
+  },
+  {
+   "expected": {
+    "ppr": 3.76882907003389,
+    "pprBelowFit": false,
+    "rhoLbFt3": 9.344846866538935,
+    "status": "ok",
+    "tpr": 1.614634921475675,
+    "z": 0.8289790050264484
+   },
+   "input": {
+    "gasSg": 0.7,
+    "pPsia": 2500.0,
+    "tF": 150.0
+   },
+   "name": "sg070At2500psia150F",
+   "note": "DAK by bisection on reduced density, SI gas law; range 1.0 <= Tpr <= 3.0, Ppr <= 30"
+  },
+  {
+   "expected": {
+    "ppr": 0.769590700881643,
+    "pprBelowFit": false,
+    "rhoLbFt3": 2.377054432692754,
+    "status": "ok",
+    "tpr": 1.2945147469111202,
+    "z": 0.8739080009307021
+   },
+   "input": {
+    "gasSg": 0.8,
+    "pPsia": 500.0,
+    "tF": 60.0
+   },
+   "name": "sg080At500psia60F",
+   "note": "DAK by bisection on reduced density, SI gas law; range 1.0 <= Tpr <= 3.0, Ppr <= 30"
+  },
+  {
+   "expected": {
+    "ppr": 1.4922499996269374,
+    "status": "refused-tpr-below-range",
+    "tpr": 0.8481553504423325
+   },
+   "input": {
+    "gasSg": 0.65,
+    "pPsia": 1000.0,
+    "tF": -150.0
+   },
+   "name": "coldGasTprBelowRange",
+   "note": "DAK by bisection on reduced density, SI gas law; range 1.0 <= Tpr <= 3.0, Ppr <= 30"
+  },
+  {
+   "expected": {
+    "ppr": 0.7461249998134687,
+    "status": "refused-tpr-above-range",
+    "tpr": 3.176220864944811
+   },
+   "input": {
+    "gasSg": 0.65,
+    "pPsia": 500.0,
+    "tF": 700.0
+   },
+   "name": "hotGasTprAboveRange",
+   "note": "DAK by bisection on reduced density, SI gas law; range 1.0 <= Tpr <= 3.0, Ppr <= 30"
+  },
+  {
+   "expected": {
+    "ppr": 37.306249990673436,
+    "status": "refused-ppr-above-range",
+    "tpr": 1.6698255320314428
+   },
+   "input": {
+    "gasSg": 0.65,
+    "pPsia": 25000.0,
+    "tF": 150.0
+   },
+   "name": "pprAboveRange",
+   "note": "DAK by bisection on reduced density, SI gas law; range 1.0 <= Tpr <= 3.0, Ppr <= 30"
   }
  ],
  "horizontal": [
   {
-   "areaGasFt2": 25.132741197910804,
-   "areaLiquidFt2": 25.132741259525886,
-   "diameterFt": 8.0,
-   "lengthFt": 2.246893316992749,
-   "lengthGasFt": 2.246893316992749,
-   "lengthLiquidFt": 1.3962323278218998,
-   "liquidLevelFrac": 0.5,
-   "qGasActFt3S": 12.0,
-   "qLiquidBpd": 3000,
-   "retentionMin": 3,
-   "vTerminalFtS": 0.85
+   "expected": {
+    "areaGasFt2": 14.137166923824964,
+    "areaLiquidFt2": 14.137166958483174,
+    "controlling": "liquid",
+    "gasCapacityOk": true,
+    "gasVelocityFtS": 0.7073553034977104,
+    "ldRatio": 3.4474872291899086,
+    "lengthFt": 20.68492337513945,
+    "lengthGasFt": 2.496548129991919,
+    "lengthLiquidFt": 20.68492337513945
+   },
+   "input": {
+    "diameterFt": 6.0,
+    "liquidLevelFrac": 0.5,
+    "qGasActFt3S": 10.0,
+    "qLiquidBpd": 25000,
+    "retentionMin": 3,
+    "vTerminalFtS": 0.85
+   },
+   "name": "horizontal6ftHalfFullLiquidControlledInBand",
+   "note": "physical: L/D about 3.45, gas velocity below Souders-Brown"
   },
   {
-   "areaGasFt2": 49.202835640759105,
-   "areaLiquidFt2": 29.336980698985727,
-   "diameterFt": 10.0,
-   "lengthFt": 7.9742688800388475,
-   "lengthGasFt": 3.3257506707765643,
-   "lengthLiquidFt": 7.9742688800388475,
-   "liquidLevelFrac": 0.4,
-   "qGasActFt3S": 30.0,
-   "qLiquidBpd": 12000,
-   "retentionMin": 5,
-   "vTerminalFtS": 1.1
+   "expected": {
+    "areaGasFt2": 31.489814810086443,
+    "areaLiquidFt2": 18.775667647350247,
+    "controlling": "liquid",
+    "gasCapacityOk": true,
+    "gasVelocityFtS": 0.9526889942328514,
+    "ldRatio": 3.893685976581597,
+    "lengthFt": 31.149487812652776,
+    "lengthGasFt": 4.157188338470624,
+    "lengthLiquidFt": 31.149487812652776
+   },
+   "input": {
+    "diameterFt": 8.0,
+    "liquidLevelFrac": 0.4,
+    "qGasActFt3S": 30.0,
+    "qLiquidBpd": 30000,
+    "retentionMin": 5,
+    "vTerminalFtS": 1.1
+   },
+   "name": "horizontal8ftAt40pctLiquidControlledInBand",
+   "note": "physical: L/D about 3.9, gas velocity below Souders-Brown"
+  }
+ ],
+ "kValue": [
+  {
+   "expected": {
+    "derated": false,
+    "floored": false,
+    "k": 0.35,
+    "kDerated": 0.35
+   },
+   "input": {
+    "internalsId": "verticalMesh",
+    "pPsig": 50
+   },
+   "name": "verticalMeshAt50psig",
+   "note": "exact rational derating; floored when the derated K is below 0.12"
+  },
+  {
+   "expected": {
+    "derated": true,
+    "floored": false,
+    "k": 0.25,
+    "kDerated": 0.25
+   },
+   "input": {
+    "internalsId": "verticalMesh",
+    "pPsig": 1100
+   },
+   "name": "verticalMeshAt1100psig",
+   "note": "exact rational derating; floored when the derated K is below 0.12"
+  },
+  {
+   "expected": {
+    "derated": true,
+    "floored": false,
+    "k": 0.31,
+    "kDerated": 0.31
+   },
+   "input": {
+    "internalsId": "horizontalVane",
+    "pPsig": 2500
+   },
+   "name": "horizontalVaneAt2500psig",
+   "note": "exact rational derating; floored when the derated K is below 0.12"
+  },
+  {
+   "expected": {
+    "derated": true,
+    "floored": false,
+    "k": 0.125,
+    "kDerated": 0.125
+   },
+   "input": {
+    "internalsId": "verticalNone",
+    "pPsig": 650
+   },
+   "name": "verticalNoneAt650psig",
+   "note": "exact rational derating; floored when the derated K is below 0.12"
+  },
+  {
+   "expected": {
+    "derated": true,
+    "floored": true,
+    "k": 0.12,
+    "kDerated": -0.11
+   },
+   "input": {
+    "internalsId": "verticalNone",
+    "pPsig": 3000
+   },
+   "name": "verticalNoneAt3000psig",
+   "note": "exact rational derating; floored when the derated K is below 0.12"
+  },
+  {
+   "expected": {
+    "derated": true,
+    "floored": true,
+    "k": 0.12,
+    "kDerated": 0.11
+   },
+   "input": {
+    "internalsId": "horizontalNone",
+    "pPsig": 1500
+   },
+   "name": "horizontalNoneAt1500psig",
+   "note": "exact rational derating; floored when the derated K is below 0.12"
   }
  ],
  "segments": [
   {
-   "areaLiquidFt2": 25.132741239610322,
-   "diameterFt": 8.0,
-   "liquidLevelFrac": 0.5
+   "expected": {
+    "areaLiquidFt2": 25.132741239610322
+   },
+   "input": {
+    "diameterFt": 8.0,
+    "liquidLevelFrac": 0.5
+   },
+   "name": "segment8ftAt0.5",
+   "note": "closed form vs midpoint integration of the chord"
   },
   {
-   "areaLiquidFt2": 19.816835636181626,
-   "diameterFt": 10.0,
-   "liquidLevelFrac": 0.3
+   "expected": {
+    "areaLiquidFt2": 19.816835636181626
+   },
+   "input": {
+    "diameterFt": 10.0,
+    "liquidLevelFrac": 0.3
+   },
+   "name": "segment10ftAt0.3",
+   "note": "closed form vs midpoint integration of the chord"
   },
   {
-   "areaLiquidFt2": 22.74667024983058,
-   "diameterFt": 6.0,
-   "liquidLevelFrac": 0.75
+   "expected": {
+    "areaLiquidFt2": 22.74667024983058
+   },
+   "input": {
+    "diameterFt": 6.0,
+    "liquidLevelFrac": 0.75
+   },
+   "name": "segment6ftAt0.75",
+   "note": "closed form vs midpoint integration of the chord"
   },
   {
-   "areaLiquidFt2": 56.54866778912258,
-   "diameterFt": 12.0,
-   "liquidLevelFrac": 0.5
+   "expected": {
+    "areaLiquidFt2": 56.54866778912258
+   },
+   "input": {
+    "diameterFt": 12.0,
+    "liquidLevelFrac": 0.5
+   },
+   "name": "segment12ftAt0.5",
+   "note": "closed form vs midpoint integration of the chord"
   }
  ],
  "soudersBrown": [
   {
-   "k": 0.35,
-   "rhoGLbFt3": 2.5,
-   "rhoLLbFt3": 52.0,
-   "vFtS": 1.557401682290089
+   "expected": {
+    "vFtS": 1.557401682290089
+   },
+   "input": {
+    "k": 0.35,
+    "rhoGLbFt3": 2.5,
+    "rhoLLbFt3": 52.0
+   },
+   "name": "souders0.35",
+   "note": "SI re-derivation"
   },
   {
-   "k": 0.45,
-   "rhoGLbFt3": 5.0,
-   "rhoLLbFt3": 55.0,
-   "vFtS": 1.4230249470757705
+   "expected": {
+    "vFtS": 1.4230249470757705
+   },
+   "input": {
+    "k": 0.45,
+    "rhoGLbFt3": 5.0,
+    "rhoLLbFt3": 55.0
+   },
+   "name": "souders0.45",
+   "note": "SI re-derivation"
   },
   {
-   "k": 0.18,
-   "rhoGLbFt3": 0.8,
-   "rhoLLbFt3": 62.4,
-   "vFtS": 1.5794935897305817
+   "expected": {
+    "vFtS": 1.5794935897305817
+   },
+   "input": {
+    "k": 0.18,
+    "rhoGLbFt3": 0.8,
+    "rhoLLbFt3": 62.4
+   },
+   "name": "souders0.18",
+   "note": "SI re-derivation"
   }
  ],
  "stokes": [
   {
-   "dropletMicron": 500,
-   "muCp": 2.0,
-   "sgHeavy": 1.05,
-   "sgLight": 0.85,
-   "vFtS": 0.04468617855059785
+   "expected": {
+    "vFtS": 0.04468617855059785
+   },
+   "input": {
+    "dropletMicron": 500,
+    "muCp": 2.0,
+    "sgHeavy": 1.05,
+    "sgLight": 0.85
+   },
+   "name": "stokes500um",
+   "note": "SI Stokes law checks the 1.78e-6 field constant"
   },
   {
-   "dropletMicron": 150,
-   "muCp": 5.0,
-   "sgHeavy": 1.02,
-   "sgLight": 0.8,
-   "vFtS": 0.0017695726706036742
+   "expected": {
+    "vFtS": 0.0017695726706036742
+   },
+   "input": {
+    "dropletMicron": 150,
+    "muCp": 5.0,
+    "sgHeavy": 1.02,
+    "sgLight": 0.8
+   },
+   "name": "stokes150um",
+   "note": "SI Stokes law checks the 1.78e-6 field constant"
   },
   {
-   "dropletMicron": 1000,
-   "muCp": 1.0,
-   "sgHeavy": 1.08,
-   "sgLight": 0.9,
-   "vFtS": 0.3217404855643045
+   "expected": {
+    "vFtS": 0.3217404855643045
+   },
+   "input": {
+    "dropletMicron": 1000,
+    "muCp": 1.0,
+    "sgHeavy": 1.08,
+    "sgLight": 0.9
+   },
+   "name": "stokes1000um",
+   "note": "SI Stokes law checks the 1.78e-6 field constant"
+  }
+ ],
+ "sweep": [
+  {
+   "expected": {
+    "preferredDiameterFt": null,
+    "preferredStatus": "none-in-band",
+    "retiredPreferredDiameterFt": 4.0,
+    "rows": [
+     {
+      "diameterFt": 4.0,
+      "feasible": false,
+      "inRange": true,
+      "ldRatio": 3.8270538825556533,
+      "lengthFt": 15.308215530222613,
+      "reasons": [
+       "gas-capacity"
+      ]
+     },
+     {
+      "diameterFt": 6.0,
+      "feasible": false,
+      "inRange": false,
+      "ldRatio": 1.6894974466831563,
+      "lengthFt": 10.136984680098937,
+      "reasons": [
+       "gas-capacity",
+       "ld-out-of-band"
+      ]
+     },
+     {
+      "diameterFt": 7.0,
+      "feasible": true,
+      "inRange": false,
+      "ldRatio": 1.2913453308558656,
+      "lengthFt": 9.039417315991058,
+      "reasons": [
+       "ld-out-of-band"
+      ]
+     },
+     {
+      "diameterFt": 8.0,
+      "feasible": true,
+      "inRange": false,
+      "ldRatio": 1.0408817353194566,
+      "lengthFt": 8.327053882555653,
+      "reasons": [
+       "ld-out-of-band"
+      ]
+     }
+    ]
+   },
+   "input": {
+    "allowanceFt": 6,
+    "diametersFt": [
+     4.0,
+     6.0,
+     7.0,
+     8.0
+    ],
+    "ldMax": 5,
+    "ldMin": 3,
+    "mode": "vertical2",
+    "qGasActFt3S": 30.0,
+    "qLiquidBpd": 10000,
+    "retentionMin": 3,
+    "vTerminalFtS": 0.8
+   },
+   "name": "d1ProbeVertical4ftGasOverloaded",
+   "note": "D1 probe: the retired rule preferred 4 ft at velocity margin 0.34 (gas needs 6.91 ft); no feasible row is in band"
+  },
+  {
+   "expected": {
+    "preferredDiameterFt": 7.0,
+    "preferredStatus": "selected",
+    "retiredPreferredDiameterFt": 8.0,
+    "rows": [
+     {
+      "diameterFt": 4.0,
+      "feasible": false,
+      "inRange": false,
+      "ldRatio": 3.8270538825556533,
+      "lengthFt": 15.308215530222613,
+      "reasons": [
+       "gas-capacity",
+       "ld-out-of-band"
+      ]
+     },
+     {
+      "diameterFt": 6.0,
+      "feasible": false,
+      "inRange": true,
+      "ldRatio": 1.6894974466831563,
+      "lengthFt": 10.136984680098937,
+      "reasons": [
+       "gas-capacity"
+      ]
+     },
+     {
+      "diameterFt": 7.0,
+      "feasible": true,
+      "inRange": true,
+      "ldRatio": 1.2913453308558656,
+      "lengthFt": 9.039417315991058,
+      "reasons": []
+     },
+     {
+      "diameterFt": 8.0,
+      "feasible": true,
+      "inRange": true,
+      "ldRatio": 1.0408817353194566,
+      "lengthFt": 8.327053882555653,
+      "reasons": []
+     },
+     {
+      "diameterFt": 10.0,
+      "feasible": true,
+      "inRange": false,
+      "ldRatio": 0.7489314484835619,
+      "lengthFt": 7.489314484835618,
+      "reasons": [
+       "ld-out-of-band"
+      ]
+     }
+    ]
+   },
+   "input": {
+    "allowanceFt": 6,
+    "diametersFt": [
+     10.0,
+     8.0,
+     6.0,
+     4.0,
+     7.0
+    ],
+    "ldMax": 2,
+    "ldMin": 1,
+    "mode": "vertical2",
+    "qGasActFt3S": 30.0,
+    "qLiquidBpd": 10000,
+    "retentionMin": 3,
+    "vTerminalFtS": 0.8
+   },
+   "name": "verticalUnsortedListSmallestFeasible",
+   "note": "unsorted list: the retired rule took the first in-band row in list order (8 ft); the smallest feasible in band is 7 ft"
+  },
+  {
+   "expected": {
+    "preferredDiameterFt": null,
+    "preferredStatus": "none-feasible",
+    "retiredPreferredDiameterFt": 3.0,
+    "rows": [
+     {
+      "diameterFt": 2.0,
+      "feasible": false,
+      "inRange": false,
+      "ldRatio": 21.616431060445226,
+      "lengthFt": 43.23286212089045,
+      "reasons": [
+       "gas-capacity",
+       "ld-out-of-band"
+      ]
+     },
+     {
+      "diameterFt": 3.0,
+      "feasible": false,
+      "inRange": true,
+      "ldRatio": 7.515979573465251,
+      "lengthFt": 22.547938720395752,
+      "reasons": [
+       "gas-capacity"
+      ]
+     },
+     {
+      "diameterFt": 4.0,
+      "feasible": false,
+      "inRange": true,
+      "ldRatio": 3.8270538825556533,
+      "lengthFt": 15.308215530222613,
+      "reasons": [
+       "gas-capacity"
+      ]
+     }
+    ]
+   },
+   "input": {
+    "allowanceFt": 6,
+    "diametersFt": [
+     2.0,
+     3.0,
+     4.0
+    ],
+    "ldMax": 10,
+    "ldMin": 1,
+    "mode": "vertical2",
+    "qGasActFt3S": 30.0,
+    "qLiquidBpd": 10000,
+    "retentionMin": 3,
+    "vTerminalFtS": 0.8
+   },
+   "name": "verticalNoneFeasible",
+   "note": "every diameter is below the gas-required diameter"
+  },
+  {
+   "expected": {
+    "preferredDiameterFt": 8.5,
+    "preferredStatus": "selected",
+    "retiredPreferredDiameterFt": 7.5,
+    "rows": [
+     {
+      "diameterFt": 6.0,
+      "feasible": false,
+      "inRange": false,
+      "ldRatio": 9.19329928910875,
+      "lengthFt": 55.159795734652505,
+      "reasons": [
+       "gas-capacity",
+       "ld-out-of-band"
+      ]
+     },
+     {
+      "diameterFt": 7.0,
+      "feasible": false,
+      "inRange": false,
+      "ldRatio": 5.789366316173441,
+      "lengthFt": 40.52556421321409,
+      "reasons": [
+       "gas-capacity",
+       "ld-out-of-band"
+      ]
+     },
+     {
+      "diameterFt": 7.5,
+      "feasible": false,
+      "inRange": true,
+      "ldRatio": 4.706969236023681,
+      "lengthFt": 35.302269270177604,
+      "reasons": [
+       "gas-capacity"
+      ]
+     },
+     {
+      "diameterFt": 8.5,
+      "feasible": true,
+      "inRange": true,
+      "ldRatio": 3.233466552326465,
+      "lengthFt": 27.48446569477495,
+      "reasons": []
+     },
+     {
+      "diameterFt": 10.0,
+      "feasible": true,
+      "inRange": false,
+      "ldRatio": 1.9857526464474902,
+      "lengthFt": 19.8575264644749,
+      "reasons": [
+       "ld-out-of-band"
+      ]
+     }
+    ]
+   },
+   "input": {
+    "diametersFt": [
+     6.0,
+     7.0,
+     7.5,
+     8.5,
+     10.0
+    ],
+    "ldMax": 5,
+    "ldMin": 3,
+    "liquidLevelFrac": 0.5,
+    "mode": "horizontal2",
+    "qGasActFt3S": 27.0,
+    "qLiquidBpd": 40000,
+    "retentionMin": 5,
+    "vTerminalFtS": 1.1
+   },
+   "name": "horizontal2InBandButGasOverloaded",
+   "note": "7.5 ft is in band but its gas velocity exceeds Souders-Brown; 8.5 ft is the smallest feasible in band"
+  },
+  {
+   "expected": {
+    "preferredDiameterFt": null,
+    "preferredStatus": "none-feasible",
+    "retiredPreferredDiameterFt": 8.0,
+    "rows": [
+     {
+      "diameterFt": 8.0,
+      "feasible": false,
+      "inRange": true,
+      "ldRatio": 4.848028921990943,
+      "lengthFt": 38.78423137592755,
+      "reasons": [
+       "gas-capacity"
+      ]
+     },
+     {
+      "diameterFt": 10.0,
+      "feasible": false,
+      "inRange": true,
+      "ldRatio": 2.482190808059363,
+      "lengthFt": 24.82190808059363,
+      "reasons": [
+       "water-carryover"
+      ]
+     },
+     {
+      "diameterFt": 12.0,
+      "feasible": false,
+      "inRange": true,
+      "ldRatio": 1.4364530139232423,
+      "lengthFt": 17.237436167078908,
+      "reasons": [
+       "water-carryover"
+      ]
+     },
+     {
+      "diameterFt": 14.0,
+      "feasible": false,
+      "inRange": false,
+      "ldRatio": 0.9045884869021003,
+      "lengthFt": 12.664238816629403,
+      "reasons": [
+       "water-carryover",
+       "ld-out-of-band"
+      ]
+     }
+    ]
+   },
+   "input": {
+    "diametersFt": [
+     8.0,
+     10.0,
+     12.0,
+     14.0
+    ],
+    "ldMax": 7,
+    "ldMin": 1,
+    "mode": "horizontal3",
+    "muOilCp": 3.0,
+    "muWaterCp": 0.7,
+    "oilDropletMicron": 200,
+    "oilRetentionMin": 5,
+    "qGasActFt3S": 30.0,
+    "qOilBpd": 30000,
+    "qWaterBpd": 20000,
+    "sgOil": 0.85,
+    "sgWater": 1.05,
+    "vTerminalFtS": 1.0,
+    "waterDropletMicron": 250,
+    "waterRetentionMin": 5
+   },
+   "name": "horizontal3DropletVerdictsGateFeasibility",
+   "note": "8 ft is in band but gas-overloaded, 10 and 12 ft are in band but a 250 micron water drop cannot leave the oil layer; the retired rule preferred 8 ft"
+  }
+ ],
+ "threePhase": [
+  {
+   "expected": {
+    "areaLiquidFt2": 39.269908169872416,
+    "areaOilFt2": 23.561944901923447,
+    "areaWaterFt2": 15.707963267948967,
+    "controlling": "liquid-retention",
+    "dropChecks": {
+     "oilCarryunder": false,
+     "oilDropRiseS": 124.8935102055488,
+     "residenceOilS": 300.00000000000006,
+     "residenceWaterS": 300.0000000000001,
+     "waterCarryover": false,
+     "waterDropFallS": 55.26537446783255
+    },
+    "gasCapacityOk": true,
+    "gasVelocityFtS": 0.5092958178940651,
+    "interfaceHeightFt": 2.540690836181451,
+    "interfaceSplit": "explicit",
+    "ldRatio": 0.4964381616118727,
+    "lengthFt": 4.964381616118727,
+    "lengthGasFt": 2.5464790894703255,
+    "liquidRetentionLengthFt": 4.964381616118727,
+    "oilLayerFt": 2.459309163818549,
+    "phaseRetentionLengthsFt": {
+     "oilFt": 4.964381616118727,
+     "waterFt": 4.964381616118725
+    },
+    "retentionPhase": null,
+    "retiredChordRule": {
+     "oilLayerFt": 2.356194490192345,
+     "waterLayerFt": 1.5707963267948968
+    },
+    "waterLayerFt": 2.540690836181451,
+    "waterShare": 0.4
+   },
+   "input": {
+    "diameterFt": 10.0,
+    "muOilCp": 2.0,
+    "muWaterCp": 0.7,
+    "oilDropletMicron": 200,
+    "oilRetentionMin": 5,
+    "qGasActFt3S": 20.0,
+    "qOilBpd": 6000,
+    "qWaterBpd": 4000,
+    "sgOil": 0.85,
+    "sgWater": 1.05,
+    "vTerminalFtS": 1.0,
+    "waterDropletMicron": 500,
+    "waterFracOfLiquid": 0.4,
+    "waterRetentionMin": 5
+   },
+   "name": "d2Probe10ftHalfFull40pctWaterExplicit",
+   "note": "D2 probe: exact water layer 2.54 ft where the retired chord rule gave 1.57 ft; the explicit 0.4 equals the proportional share, so the phase lengths tie and retentionPhase is null"
+  },
+  {
+   "expected": {
+    "areaLiquidFt2": 39.269908169872416,
+    "areaOilFt2": 29.45243112740431,
+    "areaWaterFt2": 9.817477042468104,
+    "controlling": "liquid-retention",
+    "dropChecks": {
+     "oilCarryunder": false,
+     "oilDropRiseS": 89.78468546933458,
+     "residenceOilS": 599.9999999999999,
+     "residenceWaterS": 300.0,
+     "waterCarryover": false,
+     "waterDropFallS": 71.31512291867334
+    },
+    "gasCapacityOk": true,
+    "gasVelocityFtS": 0.5092958178940651,
+    "interfaceHeightFt": 1.8264770301190356,
+    "interfaceSplit": "explicit",
+    "ldRatio": 0.794301058578996,
+    "lengthFt": 7.943010585789961,
+    "lengthGasFt": 2.5464790894703255,
+    "liquidRetentionLengthFt": 7.943010585789961,
+    "oilLayerFt": 3.173522969880964,
+    "phaseRetentionLengthsFt": {
+     "oilFt": 3.971505292894981,
+     "waterFt": 7.943010585789961
+    },
+    "retentionPhase": "water",
+    "retiredChordRule": {
+     "oilLayerFt": 2.945243112740431,
+     "waterLayerFt": 0.9817477042468103
+    },
+    "waterLayerFt": 1.8264770301190356,
+    "waterShare": 0.25
+   },
+   "input": {
+    "diameterFt": 10.0,
+    "muOilCp": 2.0,
+    "muWaterCp": 0.7,
+    "oilDropletMicron": 200,
+    "oilRetentionMin": 5,
+    "qGasActFt3S": 20.0,
+    "qOilBpd": 6000,
+    "qWaterBpd": 4000,
+    "sgOil": 0.85,
+    "sgWater": 1.05,
+    "vTerminalFtS": 1.0,
+    "waterDropletMicron": 500,
+    "waterFracOfLiquid": 0.25,
+    "waterRetentionMin": 5
+   },
+   "name": "explicit25pctWaterWaterRetentionSets",
+   "note": "explicit split below the proportional share: the water layer is smaller, so the water retention sets the length and retentionPhase is water"
+  },
+  {
+   "expected": {
+    "areaLiquidFt2": 39.269908169872416,
+    "areaOilFt2": 23.56194490192345,
+    "areaWaterFt2": 15.707963267948966,
+    "controlling": "liquid-retention",
+    "dropChecks": {
+     "oilCarryunder": false,
+     "oilDropRiseS": 124.89351020554876,
+     "residenceOilS": 300.0,
+     "residenceWaterS": 300.0,
+     "waterCarryover": false,
+     "waterDropFallS": 55.26537446783256
+    },
+    "gasCapacityOk": true,
+    "gasVelocityFtS": 0.5092958178940651,
+    "interfaceHeightFt": 2.5406908361814504,
+    "interfaceSplit": "retention-proportional",
+    "ldRatio": 0.49643816161187254,
+    "lengthFt": 4.964381616118725,
+    "lengthGasFt": 2.5464790894703255,
+    "liquidRetentionLengthFt": 4.964381616118725,
+    "oilLayerFt": 2.4593091638185496,
+    "phaseRetentionLengthsFt": null,
+    "retentionPhase": null,
+    "retiredChordRule": {
+     "oilLayerFt": 2.356194490192345,
+     "waterLayerFt": 1.5707963267948966
+    },
+    "waterLayerFt": 2.5406908361814504,
+    "waterShare": 0.39999999999999997
+   },
+   "input": {
+    "diameterFt": 10.0,
+    "muOilCp": 2.0,
+    "muWaterCp": 0.7,
+    "oilDropletMicron": 200,
+    "oilRetentionMin": 5,
+    "qGasActFt3S": 20.0,
+    "qOilBpd": 6000,
+    "qWaterBpd": 4000,
+    "sgOil": 0.85,
+    "sgWater": 1.05,
+    "vTerminalFtS": 1.0,
+    "waterDropletMicron": 500,
+    "waterRetentionMin": 5
+   },
+   "name": "proportionalSplitLiquidRetention",
+   "note": "D3: proportional split, one liquid retention requirement"
+  },
+  {
+   "expected": {
+    "areaLiquidFt2": 39.269908169872416,
+    "areaOilFt2": 9.062286500739788,
+    "areaWaterFt2": 30.207621669132628,
+    "controlling": "liquid-retention",
+    "dropChecks": {
+     "oilCarryunder": false,
+     "oilDropRiseS": 200.9894932206966,
+     "residenceOilS": 59.99999999999999,
+     "residenceWaterS": 300.0,
+     "waterCarryover": true,
+     "waterDropFallS": 51196.59843798386
+    },
+    "gasCapacityOk": true,
+    "gasVelocityFtS": 0.5092958178940651,
+    "interfaceHeightFt": 4.088700547803887,
+    "interfaceSplit": "retention-proportional",
+    "ldRatio": 0.2581478440381737,
+    "lengthFt": 2.581478440381737,
+    "lengthGasFt": 2.5464790894703255,
+    "liquidRetentionLengthFt": 2.581478440381737,
+    "oilLayerFt": 0.9112994521961131,
+    "phaseRetentionLengthsFt": null,
+    "retentionPhase": null,
+    "retiredChordRule": {
+     "oilLayerFt": 0.9062286500739788,
+     "waterLayerFt": 3.0207621669132627
+    },
+    "waterLayerFt": 4.088700547803887,
+    "waterShare": 0.7692307692307693
+   },
+   "input": {
+    "diameterFt": 10.0,
+    "muOilCp": 200.0,
+    "muWaterCp": 0.7,
+    "oilDropletMicron": 200,
+    "oilRetentionMin": 1,
+    "qGasActFt3S": 20.0,
+    "qOilBpd": 6000,
+    "qWaterBpd": 4000,
+    "sgOil": 0.85,
+    "sgWater": 1.05,
+    "vTerminalFtS": 1.0,
+    "waterDropletMicron": 100,
+    "waterRetentionMin": 5
+   },
+   "name": "thickOilWaterCarryover",
+   "note": "200 cP oil, 100 micron water drops, 1 min oil retention: water carryover"
+  },
+  {
+   "expected": {
+    "areaLiquidFt2": 19.81683562827353,
+    "areaOilFt2": 14.154882591623949,
+    "areaWaterFt2": 5.661953036649581,
+    "controlling": "liquid-retention",
+    "dropChecks": {
+     "oilCarryunder": true,
+     "oilDropRiseS": 7798.552246354871,
+     "residenceOilS": 299.99999999999994,
+     "residenceWaterS": 180.00000000000003,
+     "waterCarryover": false,
+     "waterDropFallS": 39.340942250201095
+    },
+    "gasCapacityOk": true,
+    "gasVelocityFtS": 0.34058216660131285,
+    "interfaceHeightFt": 1.2493280698660507,
+    "interfaceSplit": "retention-proportional",
+    "ldRatio": 0.8263614011205401,
+    "lengthFt": 8.263614011205402,
+    "lengthGasFt": 2.38407516620919,
+    "liquidRetentionLengthFt": 8.263614011205402,
+    "oilLayerFt": 1.7506719301339493,
+    "phaseRetentionLengthsFt": null,
+    "retentionPhase": null,
+    "retiredChordRule": {
+     "oilLayerFt": 1.5444243078411772,
+     "waterLayerFt": 0.617769723136471
+    },
+    "waterLayerFt": 1.2493280698660507,
+    "waterShare": 0.28571428571428575
+   },
+   "input": {
+    "diameterFt": 10.0,
+    "liquidLevelFrac": 0.3,
+    "muOilCp": 2.0,
+    "muWaterCp": 2.0,
+    "oilDropletMicron": 30,
+    "oilRetentionMin": 5,
+    "qGasActFt3S": 20.0,
+    "qOilBpd": 6000,
+    "qWaterBpd": 4000,
+    "sgOil": 0.85,
+    "sgWater": 1.05,
+    "vTerminalFtS": 1.0,
+    "waterDropletMicron": 500,
+    "waterRetentionMin": 3
+   },
+   "name": "lowLevelSmallOilDropCarryunder",
+   "note": "liquid at 0.3, 30 micron oil drops in 2 cP water, 3 min water retention: oil carryunder"
+  },
+  {
+   "expected": {
+    "areaLiquidFt2": 14.137166941154069,
+    "areaOilFt2": 8.482300164692443,
+    "areaWaterFt2": 5.654866776461627,
+    "controlling": "gas",
+    "dropChecks": {
+     "oilCarryunder": false,
+     "oilDropRiseS": 74.93610612332925,
+     "residenceOilS": 7386.478664192951,
+     "residenceWaterS": 7386.478664192949,
+     "waterCarryover": false,
+     "waterDropFallS": 33.159224680699545
+    },
+    "gasCapacityOk": false,
+    "gasVelocityFtS": 2.8294212105225838,
+    "interfaceHeightFt": 1.52441450170887,
+    "interfaceSplit": "retention-proportional",
+    "ldRatio": 2.8294212105225838,
+    "lengthFt": 16.9765272631355,
+    "lengthGasFt": 16.9765272631355,
+    "liquidRetentionLengthFt": 0.6894974466831563,
+    "oilLayerFt": 1.47558549829113,
+    "phaseRetentionLengthsFt": null,
+    "retentionPhase": null,
+    "retiredChordRule": {
+     "oilLayerFt": 1.4137166941154071,
+     "waterLayerFt": 0.9424777960769378
+    },
+    "waterLayerFt": 1.52441450170887,
+    "waterShare": 0.39999999999999997
+   },
+   "input": {
+    "diameterFt": 6.0,
+    "muOilCp": 2.0,
+    "muWaterCp": 0.7,
+    "oilDropletMicron": 200,
+    "oilRetentionMin": 5,
+    "qGasActFt3S": 40.0,
+    "qOilBpd": 300,
+    "qWaterBpd": 200,
+    "sgOil": 0.85,
+    "sgWater": 1.05,
+    "vTerminalFtS": 0.5,
+    "waterDropletMicron": 500,
+    "waterRetentionMin": 5
+   },
+   "name": "gasOverloaded6ftGasControls",
+   "note": "gas controls only when the gas velocity exceeds Souders-Brown, so this vessel fails gas capacity"
   }
  ],
  "vertical": [
   {
-   "allowanceFt": 6,
-   "diameterFt": 4.239710663937833,
-   "hLiquidFt": 2.485622829861111,
-   "heightFt": 8.48562282986111,
-   "qGasActFt3S": 12.0,
-   "qLiquidBpd": 3000,
-   "retentionMin": 3,
-   "vTerminalFtS": 0.85
+   "expected": {
+    "diameterFt": 4.239710663937833,
+    "diameterGasFt": 4.239710663937833,
+    "gasCapacityOk": true,
+    "hLiquidFt": 2.4856228298611107,
+    "heightFt": 8.48562282986111,
+    "ldRatio": 2.0014627182081535,
+    "velocityMargin": 1.0000000000000002
+   },
+   "input": {
+    "allowanceFt": 6,
+    "qGasActFt3S": 12.0,
+    "qLiquidBpd": 3000,
+    "retentionMin": 3,
+    "vTerminalFtS": 0.85
+   },
+   "name": "vertical12ft3sGasSized",
+   "note": "diameter from the gas load, height from retention plus allowance"
   },
   {
-   "allowanceFt": 7,
-   "diameterFt": 5.6418958354775635,
-   "hLiquidFt": 2.4953703703703702,
-   "heightFt": 9.49537037037037,
-   "qGasActFt3S": 30.0,
-   "qLiquidBpd": 8000,
-   "retentionMin": 2,
-   "vTerminalFtS": 1.2
+   "expected": {
+    "diameterFt": 5.6418958354775635,
+    "diameterGasFt": 5.6418958354775635,
+    "gasCapacityOk": true,
+    "hLiquidFt": 2.4953703703703702,
+    "heightFt": 9.49537037037037,
+    "ldRatio": 1.6830105778737097,
+    "velocityMargin": 1.0
+   },
+   "input": {
+    "allowanceFt": 7,
+    "qGasActFt3S": 30.0,
+    "qLiquidBpd": 8000,
+    "retentionMin": 2,
+    "vTerminalFtS": 1.2
+   },
+   "name": "vertical30ft3sGasSized",
+   "note": "diameter from the gas load, height from retention plus allowance"
   }
  ],
  "vesselSlug": [
   {
-   "diameterFt": 8.650995474707157,
-   "fillFraction": 0.6,
-   "holdMin": 5,
-   "ldRatio": 4,
-   "lengthFt": 34.60398189882863,
-   "normalBbl": 17.36111111111111,
-   "qLiquidBpd": 5000,
-   "slugBbl": 200,
-   "totalVolumeFt3": 2033.986786265432
+   "expected": {
+    "diameterFt": 8.650995474707157,
+    "lengthFt": 34.60398189882863,
+    "normalBbl": 17.36111111111111,
+    "totalVolumeFt3": 2033.986786265432
+   },
+   "input": {
+    "fillFraction": 0.6,
+    "holdMin": 5,
+    "ldRatio": 4,
+    "qLiquidBpd": 5000,
+    "slugBbl": 200
+   },
+   "name": "vessel200bblSlugLd4",
+   "note": "SI geometry"
   },
   {
-   "diameterFt": 13.98410623712808,
-   "fillFraction": 0.7,
-   "holdMin": 10,
-   "ldRatio": 5,
-   "lengthFt": 69.9205311856404,
-   "normalBbl": 138.88888888888889,
-   "qLiquidBpd": 20000,
-   "slugBbl": 1200,
-   "totalVolumeFt3": 10739.004629629628
+   "expected": {
+    "diameterFt": 13.98410623712808,
+    "lengthFt": 69.9205311856404,
+    "normalBbl": 138.88888888888889,
+    "totalVolumeFt3": 10739.004629629628
+   },
+   "input": {
+    "fillFraction": 0.7,
+    "holdMin": 10,
+    "ldRatio": 5,
+    "qLiquidBpd": 20000,
+    "slugBbl": 1200
+   },
+   "name": "vessel1200bblSlugLd5",
+   "note": "SI geometry"
   }
  ]
 }
