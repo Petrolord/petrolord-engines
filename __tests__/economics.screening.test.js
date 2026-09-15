@@ -70,12 +70,16 @@ const gateResult = (res, exp, engine) => {
     near(m.irr, em.irr, IRR);
   }
   if (em.irrStatus === 'multiple-roots') {
-    // Every root the oracle found, reported rather than one of them picked.
-    expect(m.irrRoots).toHaveLength(em.irrRoots.length);
-    m.irrRoots.forEach((r, i) => near(r, em.irrRoots[i], IRR));
+    // Every root the oracle found INSIDE the band, reported rather than one
+    // of them picked. The oracle's irrRoots also lists roots above the band.
+    const inBand = em.irrRoots.filter((r) => r > -99 && r < 1000);
+    expect(m.irrRoots).toHaveLength(inBand.length);
+    m.irrRoots.forEach((r, i) => near(r, inBand[i], IRR));
   } else {
     expect(m.irrRoots).toBeNull();
   }
+  // A root above the band (lead decision 2026-09-15), on every result.
+  expect(m.irrRootAboveBand).toBe(em.irrRootAboveBand);
 };
 
 // ---------------------------------------------------------------------
@@ -348,6 +352,27 @@ describe('EC6-1: the IRR disagreements are resolved, and the clamp is not an ans
     expect(m.irr).toBeNull();
     expect(m.irrStatus).toBe('above-clamp');
     expect(c.expected.metrics.irrRoots[0]).toBeCloseTo(9900, 6);
+  });
+
+  test('one root inside the band and one above it: not called THE return (lead decision 2026-09-15)', () => {
+    const c = G.irr.find((x) => x.id === 'irr_root_above_band_with_one_inside');
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irr).toBeNull();
+    expect(m.irrStatus).toBe('multiple-roots');
+    expect(m.irrRootAboveBand).toBe(true);
+    expect(m.irrRoots).toHaveLength(1);
+    near(m.irrRoots[0], -20, 1e-6);
+    expect(c.expected.metrics.irrRoots.map((r) => Math.round(r))).toEqual([-20, 1500]);
+    // Negative control: the rule before it reported the in-band root as 'ok'.
+    const inBand = c.expected.metrics.irrRoots.filter((r) => r > -99 && r < 1000);
+    expect(inBand).toHaveLength(1);
+  });
+
+  test('a lone root above the band keeps above-clamp, with the flag set', () => {
+    const c = G.irr.find((x) => x.id === 'irr_beyond_clamp');
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irrStatus).toBe('above-clamp');
+    expect(m.irrRootAboveBand).toBe(true);
   });
 
   test('two roots: both are reported and neither is called THE return', () => {

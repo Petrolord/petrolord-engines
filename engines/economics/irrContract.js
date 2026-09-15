@@ -20,9 +20,21 @@
  *   'no-sign-change'  every period has the same sign, no IRR exists
  *   'above-clamp'     still positive at 1000 percent: the IRR is higher
  *                     than the band the engine searches
- *   'multiple-roots'  more than one rate in the band zeroes the net present
- *                     value; every one is listed in `irrRoots`
+ *   'multiple-roots'  more than one rate zeroes the net present value: every
+ *                     root inside the band is listed in `irrRoots`, and
+ *                     `irrRootAboveBand` is true when another lies above it
  *   'no-root'         no rate in the band zeroes the net present value
+ *
+ * A ROOT ABOVE THE BAND (lead decision for the owner, 2026-09-15). As the rate
+ * grows without bound every term vanishes faster than the earliest non-zero
+ * flow, so the net present value takes that flow's sign. When its sign at the
+ * top of the band differs, an odd number of roots lies above the band. One
+ * root inside the band is then not "the" return: the result is null with
+ * 'multiple-roots', the in-band roots listed and `irrRootAboveBand` true. With
+ * no root inside the band the lone root above it is 'above-clamp' (flag true).
+ * Every other result carries `irrRootAboveBand: false`, so the shape is stable.
+ * The test reads the sign at infinity, so it holds for either discounting
+ * convention; an EVEN number of roots above the band is invisible to it.
  *
  * DISCOUNTING IS THE CALLER'S. `times` gives the exponent of each flow: the
  * screening engine passes t + 0.5 (mid-year), the fiscal sandbox passes the
@@ -46,8 +58,8 @@ const IRR_UPPER = 10; // 1000 percent
 /**
  * @param {number[]} flows cash flow per period
  * @param {number[]} times discount exponent per period, same length
- * @returns {{irr: number|null, irrStatus: string, irrRoots: number[]|null}}
- *          irr and irrRoots in percent
+ * @returns {{irr: number|null, irrStatus: string, irrRoots: number[]|null,
+ *            irrRootAboveBand: boolean}} irr and irrRoots in percent
  */
 export const solveIrrInBand = (flows, times) => {
     const npvAtRate = (rate) => flows.reduce(
@@ -61,6 +73,7 @@ export const solveIrrInBand = (flows, times) => {
     let irr = null;
     let irrStatus = IRR_STATUSES.NO_SIGN_CHANGE;
     let irrRoots = null;
+    let irrRootAboveBand = false;
     const hasNeg = flows.some((c) => c < 0);
     const hasPos = flows.some((c) => c > 0);
 
@@ -135,16 +148,26 @@ export const solveIrrInBand = (flows, times) => {
                 prevNpv = value;
             }
 
-            if (roots.length === 1) {
+            // The sign the NPV tends to as the rate grows without bound is the
+            // sign of the earliest non-zero flow. A different sign at the top
+            // of the band means a root lies above it.
+            let earliest = -1;
+            flows.forEach((cf, k) => {
+                if (cf !== 0 && (earliest < 0 || times[k] < times[earliest])) earliest = k;
+            });
+            const atUpper = npvAtRate(IRR_UPPER);
+            irrRootAboveBand = atUpper !== 0 && Math.sign(atUpper) !== Math.sign(flows[earliest]);
+
+            if (roots.length === 1 && !irrRootAboveBand) {
                 irr = roots[0] * 100;
                 irrStatus = IRR_STATUSES.OK;
-            } else if (roots.length > 1) {
+            } else if (roots.length >= 1) {
                 irrStatus = IRR_STATUSES.MULTIPLE_ROOTS;
                 irrRoots = roots.map((r) => r * 100);
-            } else if (npvAtRate(IRR_UPPER) > 0) {
-                // Still worth something at 1000 percent, and it never crossed
-                // zero inside the band: the rate that would zero it is higher
-                // than the engine looks.
+            } else if (irrRootAboveBand) {
+                // No crossing inside the band, but the sign at the top of it
+                // is not the sign it ends on: the rate that would zero it is
+                // higher than the engine looks.
                 irrStatus = IRR_STATUSES.ABOVE_CLAMP;
             } else {
                 // Negative at both ends and no crossing between them. For an
@@ -154,5 +177,5 @@ export const solveIrrInBand = (flows, times) => {
             }
         }
     }
-    return { irr, irrStatus, irrRoots };
+    return { irr, irrStatus, irrRoots, irrRootAboveBand };
 };

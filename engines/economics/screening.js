@@ -210,7 +210,7 @@ export const calculateEconomics = (inputs) => {
   // The contract (statuses, band, tolerance, the sweep when Newton fails)
   // lives in ./irrContract.js since EC2-5, shared with the fiscal regime
   // sandbox. Mid-year: the flow in period t is discounted at t + 0.5.
-  const { irr, irrStatus, irrRoots } = solveIrrInBand(
+  const { irr, irrStatus, irrRoots, irrRootAboveBand } = solveIrrInBand(
     cashflow.map((cf) => cf.ncf),
     cashflow.map((_, t) => t + 0.5),
   );
@@ -284,6 +284,7 @@ export const calculateEconomics = (inputs) => {
       irr,
       irrStatus,
       irrRoots,
+      irrRootAboveBand,
       payback,
       paybackLast,
       paybackStatus,

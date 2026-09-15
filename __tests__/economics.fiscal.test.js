@@ -248,7 +248,7 @@ describe('solvers', () => {
       { year: 2, contractorNCF: 20 },
     ];
     expect(calculateIRR(allPositive)).toBeNull();
-    expect(calculateIRRResult(allPositive)).toEqual({ irr: null, irrStatus: 'no-sign-change', irrRoots: null });
+    expect(calculateIRRResult(allPositive)).toEqual({ irr: null, irrStatus: 'no-sign-change', irrRoots: null, irrRootAboveBand: false });
   });
 
   test('a harsher regime leaves the contractor less', () => {
@@ -360,6 +360,7 @@ describe('templates match the oracle\'s copy', () => {
 // EC2-5: the IRR result against the oracle's { irr, irrStatus, irrRoots }.
 const gateIrr = (got, exp) => {
   expect(got.irrStatus).toBe(exp.irrStatus);
+  expect(got.irrRootAboveBand).toBe(exp.irrRootAboveBand);
   if (exp.irr === null) expect(got.irr).toBeNull();
   else near(got.irr, exp.irr, IRR);
   if (exp.irrRoots === null) {
@@ -493,15 +494,32 @@ describe('golden agreement: IRR solver (EC2-5)', () => {
     expect(retiredIRR(id('irr_multiple_roots_listed').cashFlows)).toBe(0);
   });
 
-  test('OPEN (recorded): one root in the band is reported even when another lies above it', () => {
+  test('one root in the band and another above it is multiple-roots, not ok (lead decision 2026-09-15)', () => {
     const c = G.cashflow.find((x) => x.id === 'capex_multiplier_0_7');
     const rows = calculateCashFlowForRegime(c.regime, c.project, 0.7, 1);
     const res = calculateIRRResult(rows);
-    expect(res.irrStatus).toBe('ok');
-    near(res.irr, -20.4852, 1e-4);
+    expect(res.irrStatus).toBe('multiple-roots');
+    expect(res.irr).toBeNull();
+    expect(res.irrRootAboveBand).toBe(true);
+    expect(res.irrRoots).toHaveLength(1);
+    near(res.irrRoots[0], -20.4852, 1e-4);
     expect(c.expected.rootsToScan).toHaveLength(2);
     near(c.expected.rootsToScan[1], 1095.4783, 1e-4);
+    // Negative controls: the retired bisection read the root above the band,
+    // and an in-band-only count would have called -20.4852 'ok'.
     near(retiredIRR(rows), 1095.4783, 1e-4);
+    expect(c.expected.rootsToScan.filter((r) => r > -99 && r < 1000)).toHaveLength(1);
+    const syn = G.irr.find((x) => x.id === 'irr_root_above_band_with_one_inside');
+    expect(calculateIRRResult(syn.cashFlows)).toMatchObject({ irr: null, irrStatus: 'multiple-roots', irrRootAboveBand: true });
+  });
+
+  test('a lone root above the band keeps above-clamp with the flag set; every other status carries false', () => {
+    G.irr.forEach((c) => {
+      const res = calculateIRRResult(c.cashFlows);
+      expect(typeof res.irrRootAboveBand).toBe('boolean');
+      if (res.irrStatus === 'above-clamp') expect(res.irrRootAboveBand).toBe(true);
+      if (res.irrStatus === 'ok' || res.irrStatus === 'no-sign-change' || res.irrStatus === 'no-root') expect(res.irrRootAboveBand).toBe(false);
+    });
   });
 });
 

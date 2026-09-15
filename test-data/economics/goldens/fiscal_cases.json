@@ -432,6 +432,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 52.60226023832824,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 240.39370956440843,
@@ -963,6 +964,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 39.95692625694559,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 218.5118562784327,
@@ -1494,6 +1496,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 32.2083677388094,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 198.2886911941198,
@@ -2025,6 +2028,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 26.2152777429366,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 173.4149835907035,
@@ -2556,6 +2560,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 22.091305528666286,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 150.6191099788556,
@@ -3087,6 +3092,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 18.624190520406117,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 123.63423198197341,
@@ -3618,6 +3624,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 16.04789245033974,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 98.25197540715591,
@@ -4151,6 +4158,7 @@
     ],
     "finalUnrecoveredPool": 79.39322400784954,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -20.406083721807093,
      124.57769866184277
@@ -4657,6 +4665,7 @@
     ],
     "finalUnrecoveredPool": 180.71929193318698,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -14.049297062654816,
      75.25650651103295
@@ -5189,6 +5198,7 @@
     ],
     "finalUnrecoveredPool": 2543.7574609947433,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -14.261377893515519,
      54.67924873515847
@@ -5695,6 +5705,7 @@
     ],
     "finalUnrecoveredPool": 399.64187225230773,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -17.407561128251963,
      81.79078820786893
@@ -6201,6 +6212,7 @@
     ],
     "finalUnrecoveredPool": 101.54070884771485,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -12.521628182608866,
      53.903760526787515
@@ -6707,6 +6719,7 @@
     ],
     "finalUnrecoveredPool": 38.728911782114785,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -13.02521457124495,
      70.09400655964401
@@ -7234,6 +7247,7 @@
     ],
     "finalUnrecoveredPool": 74.52379202532134,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -8.70023609555686,
      83.36482217689455
@@ -7761,6 +7775,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 26.2152777429366,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 173.4149835907035,
@@ -8292,6 +8307,7 @@
     ],
     "finalUnrecoveredPool": 72.29408894201026,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -29.683291355901197,
      2.991019602570348
@@ -8827,6 +8843,7 @@
     ],
     "finalUnrecoveredPool": 72.70817018990559,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -20.41821592198257,
      107.2817370695893
@@ -9332,6 +9349,7 @@
     ],
     "finalUnrecoveredPool": 72.70817018990559,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -15.154537963519612,
      72.49976186065877
@@ -9838,6 +9856,7 @@
     ],
     "finalUnrecoveredPool": 79.39322400784954,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -19.30036697289074,
      103.78024595438814
@@ -10344,6 +10363,7 @@
     ],
     "finalUnrecoveredPool": 79.39322400784954,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -20.326847986212766,
      63.33636539277592
@@ -10849,9 +10869,12 @@
      }
     ],
     "finalUnrecoveredPool": 79.39322400784954,
-    "irr": -20.48517945307153,
-    "irrRoots": null,
-    "irrStatus": "ok",
+    "irr": null,
+    "irrRootAboveBand": true,
+    "irrRoots": [
+     -20.48517945307153
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 1460.6940693298359,
     "paybackYear": 2,
     "rFactorPayoutYear": 1,
@@ -10863,7 +10886,7 @@
     "totalGovTake": 1971.7626424890727
    },
    "id": "capex_multiplier_0_7",
-   "note": "Capex multiplier 0.7 on the flat regime. The NPV is zero at 1095.4783 percent, above the band, and at -20.4852 percent, inside it. The contract reports the one root in the band, so the IRR reads -20.4852 percent with status ok where the retired bisection read 1095.4783 (OPEN, FINDINGS-fiscal.md EC2-5 follow-up).",
+   "note": "Capex multiplier 0.7 on the flat regime. The NPV is zero at 1095.4783 percent, above the band, and at -20.4852 percent, inside it. One root inside the band and one above it: irr null, multiple-roots, irrRoots lists -20.4852 only and irrRootAboveBand is true. The retired bisection read 1095.4783 as the IRR.",
    "priceMultiplier": 1.0,
    "project": {
     "costs": {
@@ -11353,6 +11376,7 @@
     ],
     "finalUnrecoveredPool": 15724.015148693836,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "no-root",
     "npv": -15453.850962028926,
@@ -11853,6 +11877,7 @@
     ],
     "finalUnrecoveredPool": 38.728911782114785,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -13.02521457124495,
      70.09400655964401
@@ -12380,6 +12405,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 44.65741387873918,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 397.0444827478669,
@@ -12893,6 +12919,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 28.212937384369887,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 154.82856565106277,
@@ -13428,6 +13455,7 @@
     ],
     "finalUnrecoveredPool": 130.3246342503865,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -12.103621176066712,
      69.57218119417364
@@ -13955,6 +13983,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 33.23293200041283,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 172.75305028685108,
@@ -14481,6 +14510,7 @@
     ],
     "finalUnrecoveredPool": 84.74126706220471,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -14.795573370397307,
      88.34177397790829
@@ -14999,6 +15029,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 43.091868603441604,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 357.872791645486,
@@ -15512,6 +15543,7 @@
     ],
     "finalUnrecoveredPool": 72.70817018990559,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -20.41821592198257,
      107.2817370695893
@@ -16017,6 +16049,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 40.21250985631484,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 382.06603200373354,
@@ -16530,6 +16563,7 @@
     ],
     "finalUnrecoveredPool": 97.23305399517679,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -19.097022599341688,
      104.95450258440644
@@ -17035,6 +17069,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 32.50734486806171,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 223.71004250881913,
@@ -17561,6 +17596,7 @@
     ],
     "finalUnrecoveredPool": 251.65369831659177,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -11.0275057879622,
      64.86322263961631
@@ -18079,6 +18115,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 44.65741387873918,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 397.0444827478669,
@@ -18592,6 +18629,7 @@
     ],
     "finalUnrecoveredPool": 79.39322400784954,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -20.406083721807093,
      124.57769866184277
@@ -19730,6 +19768,7 @@
       "governmentTakeState": "share",
       "id": 2,
       "irr": 37.452550638237504,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "ok",
       "name": "Concessionary (Royalty/Tax)",
@@ -19748,6 +19787,7 @@
       "governmentTakeState": "share",
       "id": 1,
       "irr": 26.2152777429366,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "ok",
       "name": "Nigerian PIA (PSC)",
@@ -22831,6 +22871,7 @@
       "governmentTakeState": "share",
       "id": "generic_royalty_tax",
       "irr": 44.65741387873918,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "ok",
       "name": "Generic Royalty/Tax",
@@ -22849,6 +22890,7 @@
       "governmentTakeState": "share",
       "id": "usa___gulf_of_mexico",
       "irr": 40.21250985631484,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "ok",
       "name": "USA - Gulf of Mexico",
@@ -22867,6 +22909,7 @@
       "governmentTakeState": "share",
       "id": "brazil___concession",
       "irr": 43.091868603441604,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "ok",
       "name": "Brazil - Concession",
@@ -22885,6 +22928,7 @@
       "governmentTakeState": "share",
       "id": "angola___deepwater_psc",
       "irr": 32.50734486806171,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "ok",
       "name": "Angola - Deepwater PSC",
@@ -22903,6 +22947,7 @@
       "governmentTakeState": "share",
       "id": "ghana___deepwater",
       "irr": 33.23293200041283,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "ok",
       "name": "Ghana - Deepwater",
@@ -22921,6 +22966,7 @@
       "governmentTakeState": "share",
       "id": "nigeria___pia__2021",
       "irr": 28.212937384369887,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "ok",
       "name": "Nigeria - PIA (2021)",
@@ -26106,6 +26152,7 @@
       "governmentTakeState": "share",
       "id": "generic_royalty_tax",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": [
        -20.406083721807093,
        124.57769866184277
@@ -26127,6 +26174,7 @@
       "governmentTakeState": "share",
       "id": "usa___gulf_of_mexico",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": [
        -19.097022599341688,
        104.95450258440644
@@ -26148,6 +26196,7 @@
       "governmentTakeState": "share",
       "id": "brazil___concession",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": [
        -20.41821592198257,
        107.2817370695893
@@ -26169,6 +26218,7 @@
       "governmentTakeState": "share",
       "id": "angola___deepwater_psc",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": [
        -11.0275057879622,
        64.86322263961631
@@ -26190,6 +26240,7 @@
       "governmentTakeState": "share",
       "id": "ghana___deepwater",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": [
        -14.795573370397307,
        88.34177397790829
@@ -26211,6 +26262,7 @@
       "governmentTakeState": "share",
       "id": "nigeria___pia__2021",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": [
        -12.103621176066712,
        69.57218119417364
@@ -27483,6 +27535,7 @@
       "governmentTakeState": "share",
       "id": "flat",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": [
        -20.406083721807093,
        124.57769866184277
@@ -27504,6 +27557,7 @@
       "governmentTakeState": "share",
       "id": "complex",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": [
        -14.049297062654816,
        75.25650651103295
@@ -30559,6 +30613,7 @@
       "governmentTakeState": "undefined",
       "id": "brazil___concession",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "no-root",
       "name": "Brazil - Concession",
@@ -30577,6 +30632,7 @@
       "governmentTakeState": "undefined",
       "id": "ghana___deepwater",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "no-root",
       "name": "Ghana - Deepwater",
@@ -30595,6 +30651,7 @@
       "governmentTakeState": "undefined",
       "id": "generic_royalty_tax",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "no-root",
       "name": "Generic Royalty/Tax",
@@ -30613,6 +30670,7 @@
       "governmentTakeState": "undefined",
       "id": "usa___gulf_of_mexico",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "no-root",
       "name": "USA - Gulf of Mexico",
@@ -30631,6 +30689,7 @@
       "governmentTakeState": "undefined",
       "id": "nigeria___pia__2021",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "no-root",
       "name": "Nigeria - PIA (2021)",
@@ -30649,6 +30708,7 @@
       "governmentTakeState": "undefined",
       "id": "angola___deepwater_psc",
       "irr": null,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "no-root",
       "name": "Angola - Deepwater PSC",
@@ -31422,6 +31482,7 @@
       "governmentTakeState": "share",
       "id": "angola___deepwater_psc",
       "irr": 1.0696658431198613,
+      "irrRootAboveBand": false,
       "irrRoots": null,
       "irrStatus": "ok",
       "name": "Angola - Deepwater PSC",
@@ -34111,6 +34172,7 @@
    ],
    "expected": {
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "no-sign-change"
    },
@@ -34131,6 +34193,7 @@
    ],
    "expected": {
     "irr": 21.0,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok"
    },
@@ -34151,6 +34214,7 @@
    ],
    "expected": {
     "irr": -10.00000000000001,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok"
    },
@@ -34172,6 +34236,7 @@
    ],
    "expected": {
     "irr": null,
+    "irrRootAboveBand": true,
     "irrRoots": null,
     "irrStatus": "above-clamp"
    },
@@ -34193,6 +34258,7 @@
    ],
    "expected": {
     "irr": null,
+    "irrRootAboveBand": true,
     "irrRoots": null,
     "irrStatus": "above-clamp"
    },
@@ -34218,6 +34284,7 @@
    ],
    "expected": {
     "irr": 13.06623862918074,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok"
    },
@@ -34239,6 +34306,7 @@
    ],
    "expected": {
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "no-root"
    },
@@ -34246,6 +34314,37 @@
    "note": "-100 then 0.5: the only root is 1 + r = 0.005, -99.5 percent, below the band; NPV is negative at both ends, so null with status no-root.",
    "npvAt10": -90.49586776859503,
    "trueIrr": -99.5
+  },
+  {
+   "cashFlows": [
+    {
+     "contractorNCF": -5,
+     "year": 1
+    },
+    {
+     "contractorNCF": 84,
+     "year": 2
+    },
+    {
+     "contractorNCF": -64,
+     "year": 3
+    }
+   ],
+   "expected": {
+    "irr": null,
+    "irrRootAboveBand": true,
+    "irrRoots": [
+     -20.0
+    ],
+    "irrStatus": "multiple-roots"
+   },
+   "id": "irr_root_above_band_with_one_inside",
+   "note": "-5, 84, -64: with x = 1/(1+r), 64 x^2 - 84 x + 5 = 0 gives roots at -20 and 1500 percent. One is inside the band and one above it: null, multiple-roots, irrRoots lists -20 only, irrRootAboveBand true.",
+   "npvAt10": 16.79188580015027,
+   "trueRoots": [
+    -20.0,
+    1500.0
+   ]
   },
   {
    "cashFlows": [
@@ -34264,6 +34363,7 @@
    ],
    "expected": {
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      10.00000000000019,
      19.99999999999989
@@ -34779,6 +34879,7 @@
     ],
     "finalUnrecoveredPool": 5.957813665580598,
     "irr": null,
+    "irrRootAboveBand": false,
     "irrRoots": [
      -40.1442059744519,
      6.699437426825824
@@ -35314,6 +35415,7 @@
     ],
     "finalUnrecoveredPool": 0.7642350313303865,
     "irr": 12.60812883771621,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 34.92708577375093,
@@ -35845,6 +35947,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 19.020185384793052,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 107.7526249224264,
@@ -36376,6 +36479,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 26.2152777429366,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 173.4149835907035,
@@ -36907,6 +37011,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 32.74099315782729,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 226.79993422956818,
@@ -37438,6 +37543,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 41.58695964395999,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 286.5859019365813,
@@ -37969,6 +38075,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 52.42177902947385,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 347.4936683212892,
@@ -38500,6 +38607,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 64.89685042933088,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 404.9801120923499,
@@ -39031,6 +39139,7 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 78.25219249440077,
+    "irrRootAboveBand": false,
     "irrRoots": null,
     "irrStatus": "ok",
     "npv": 452.51050838949885,

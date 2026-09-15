@@ -34,6 +34,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": 10.0,
@@ -131,6 +132,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": true,
      "irrRoots": [
       1800.0
      ],
@@ -230,6 +232,7 @@
     ],
     "metrics": {
      "irr": 550.0000000000003,
+     "irrRootAboveBand": false,
      "irrRoots": [
       550.0000000000003
      ],
@@ -329,6 +332,7 @@
     ],
     "metrics": {
      "irr": 371.42857142857144,
+     "irrRootAboveBand": false,
      "irrRoots": [
       371.42857142857144
      ],
@@ -428,6 +432,7 @@
     ],
     "metrics": {
      "irr": 300.0,
+     "irrRootAboveBand": false,
      "irrRoots": [
       300.0
      ],
@@ -639,6 +644,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -914,6 +920,7 @@
     ],
     "metrics": {
      "irr": 45.79162481099285,
+     "irrRootAboveBand": false,
      "irrRoots": [
       45.79162481099285
      ],
@@ -1189,6 +1196,7 @@
     ],
     "metrics": {
      "irr": 45.79038316969001,
+     "irrRootAboveBand": false,
      "irrRoots": [
       45.79038316969001
      ],
@@ -1464,6 +1472,7 @@
     ],
     "metrics": {
      "irr": 44.9949316344855,
+     "irrRootAboveBand": false,
      "irrRoots": [
       44.9949316344855
      ],
@@ -1739,6 +1748,7 @@
     ],
     "metrics": {
      "irr": 44.11311605282605,
+     "irrRootAboveBand": false,
      "irrRoots": [
       44.11311605282605
      ],
@@ -1916,6 +1926,7 @@
     ],
     "metrics": {
      "irr": 279.12878474779205,
+     "irrRootAboveBand": false,
      "irrRoots": [
       279.12878474779205
      ],
@@ -2023,6 +2034,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": 10.0,
@@ -2134,6 +2146,7 @@
     ],
     "metrics": {
      "irr": -76.80749452886002,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -76.80749452886002
      ],
@@ -2241,6 +2254,7 @@
     ],
     "metrics": {
      "irr": -2.46913580246913,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -2.46913580246913
      ],
@@ -2471,6 +2485,7 @@
     ],
     "metrics": {
      "irr": 48.5693987043922,
+     "irrRootAboveBand": false,
      "irrRoots": [
       48.5693987043922
      ],
@@ -2767,6 +2782,7 @@
     ],
     "metrics": {
      "irr": 72.90913689460356,
+     "irrRootAboveBand": false,
      "irrRoots": [
       72.90913689460356
      ],
@@ -3063,6 +3079,7 @@
     ],
     "metrics": {
      "irr": -36.67468836383813,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -36.67468836383813
      ],
@@ -3221,6 +3238,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": -60.0,
@@ -3295,6 +3313,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": 30.0,
@@ -3397,6 +3416,7 @@
     ],
     "metrics": {
      "irr": -3.57377411719198,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -3.57377411719198
      ],
@@ -3699,6 +3719,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -3973,6 +3994,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": -1259.4853906324638,
@@ -4135,6 +4157,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": 90.0,
@@ -4231,6 +4254,7 @@
     ],
     "metrics": {
      "irr": 20.999999999999996,
+     "irrRootAboveBand": false,
      "irrRoots": [
       20.999999999999996
      ],
@@ -4343,6 +4367,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [
       10.00000000000002,
       20.00000000000003
@@ -4464,6 +4489,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": -16.0,
@@ -4568,6 +4594,7 @@
     ],
     "metrics": {
      "irr": 21.000000000000007,
+     "irrRootAboveBand": false,
      "irrRoots": [
       21.000000000000007
      ],
@@ -4666,6 +4693,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": true,
      "irrRoots": [
       9900.0
      ],
@@ -4729,6 +4757,128 @@
     "taxRate": 0
    },
    "note": "ncf [-1, 100]: the mid-year IRR is 9900 percent. The engine clamps Newton at 1000 percent and reports the clamp. DISAGREEMENT (bound), recorded in FINDINGS-fiscal.md."
+  },
+  {
+   "expected": {
+    "cashflow": [
+     {
+      "abex": 0.0,
+      "capex": 5.0,
+      "cumulativeNCF": -5.0,
+      "depreciation": 5.0,
+      "govTake": 0.0,
+      "grossRevenue": 0.0,
+      "ncf": -5.0,
+      "opex": 0.0,
+      "pscUnrecoveredCost": 0.0,
+      "royalty": 0.0,
+      "tax": 0.0,
+      "year": 2030
+     },
+     {
+      "abex": 0.0,
+      "capex": 0.0,
+      "cumulativeNCF": 79.0,
+      "depreciation": 0.0,
+      "govTake": 0.0,
+      "grossRevenue": 84.0,
+      "ncf": 84.0,
+      "opex": 0.0,
+      "pscUnrecoveredCost": 0.0,
+      "royalty": 0.0,
+      "tax": 0.0,
+      "year": 2031
+     },
+     {
+      "abex": 0.0,
+      "capex": 64.0,
+      "cumulativeNCF": 15.0,
+      "depreciation": 64.0,
+      "govTake": 0.0,
+      "grossRevenue": 0.0,
+      "ncf": -64.0,
+      "opex": 0.0,
+      "pscUnrecoveredCost": 0.0,
+      "royalty": 0.0,
+      "tax": 0.0,
+      "year": 2032
+     }
+    ],
+    "metrics": {
+     "irr": null,
+     "irrRootAboveBand": true,
+     "irrRoots": [
+      -19.99999999999999,
+      1500.0
+     ],
+     "irrStatus": "multiple-roots",
+     "maxExposure": -5.0,
+     "npv": 17.611478404660325,
+     "payback": 1.0595238095238095,
+     "paybackLast": 1.0595238095238095,
+     "paybackStatus": "ok",
+     "totalCapex": 69.0,
+     "totalGovTake": 0.0,
+     "totalOpex": 0.0,
+     "totalRevenue": 84.0,
+     "totalRoyalty": 0.0,
+     "totalTax": 0.0
+    }
+   },
+   "id": "irr_root_above_band_with_one_inside",
+   "inputs": {
+    "abandonment": [
+     0,
+     0,
+     0
+    ],
+    "capex": [
+     5,
+     0,
+     64
+    ],
+    "discountRate": 10,
+    "fiscalType": "TaxRoyalty",
+    "opexFixed": [
+     0,
+     0,
+     0
+    ],
+    "opexVariable": [
+     0,
+     0,
+     0
+    ],
+    "price": {
+     "gas": [
+      0,
+      0,
+      0
+     ],
+     "oil": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "production": {
+     "gas": [
+      0,
+      0,
+      0
+     ],
+     "oil": [
+      0,
+      84000000.0,
+      0
+     ]
+    },
+    "projectLife": 3,
+    "royaltyRate": 0,
+    "startYear": 2030,
+    "taxRate": 0
+   },
+   "note": "ncf [-5, 84, -64]: with x = 1/(1+r), 64 x^2 - 84 x + 5 = 0 (mid-year scales every term by the same (1 + r)^-0.5) gives roots at -20 and 1500 percent. One root is inside the band and one above it, so neither is THE return: irr null, multiple-roots, irrRoots lists -20 only (the in-band root), irrRootAboveBand true."
   }
  ],
  "monteCarloRefused": [
@@ -8276,6 +8426,7 @@
     ],
     "metrics": {
      "irr": 49.999999999999986,
+     "irrRootAboveBand": false,
      "irrRoots": [
       49.999999999999986
      ],
@@ -8374,6 +8525,7 @@
     ],
     "metrics": {
      "irr": 0.0,
+     "irrRootAboveBand": false,
      "irrRoots": [
       0.0
      ],
@@ -8486,6 +8638,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": 5.0,
@@ -8632,6 +8785,7 @@
     ],
     "metrics": {
      "irr": -28.70525599580199,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -28.70525599580199
      ],
@@ -8796,6 +8950,7 @@
     ],
     "metrics": {
      "irr": 2.8699570560112186,
+     "irrRootAboveBand": false,
      "irrRoots": [
       2.8699570560112186
      ],
@@ -8932,8 +9087,9 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
-     "irrStatus": "above-clamp",
+     "irrStatus": "no-root",
      "maxExposure": -5.0,
      "npv": 43.811999968640436,
      "payback": 0.0,
@@ -9064,6 +9220,7 @@
     ],
     "metrics": {
      "irr": 18.10893250654152,
+     "irrRootAboveBand": false,
      "irrRoots": [
       18.10893250654152
      ],
@@ -9192,6 +9349,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -82.28756555322954,
       182.28756555322954
@@ -9327,6 +9485,7 @@
     ],
     "metrics": {
      "irr": 31.556025850453995,
+     "irrRootAboveBand": false,
      "irrRoots": [
       31.556025850453995
      ],
@@ -9537,6 +9696,7 @@
     ],
     "metrics": {
      "irr": -2.46913580246913,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -2.46913580246913
      ],
@@ -9665,6 +9825,7 @@
     ],
     "metrics": {
      "irr": 72.11649430202016,
+     "irrRootAboveBand": false,
      "irrRoots": [
       72.11649430202016
      ],
@@ -10103,6 +10264,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -20.406083721807093,
       124.57769866184285
@@ -10444,6 +10606,7 @@
     ],
     "metrics": {
      "irr": 7.560693884463177,
+     "irrRootAboveBand": false,
      "irrRoots": [
       7.560693884463177
      ],
@@ -10576,6 +10739,7 @@
     ],
     "metrics": {
      "irr": -51.85185185185186,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -51.85185185185186
      ],
@@ -10676,6 +10840,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": 5.0,
@@ -11216,6 +11381,7 @@
     ],
     "metrics": {
      "irr": 422.49807620078934,
+     "irrRootAboveBand": false,
      "irrRoots": [
       422.49807620078934
      ],
@@ -11722,6 +11888,7 @@
     ],
     "metrics": {
      "irr": 178.79611201240783,
+     "irrRootAboveBand": false,
      "irrRoots": [
       178.79611201240783
      ],
@@ -11903,6 +12070,7 @@
      ],
      "metrics": {
       "irr": 41.06831963564014,
+      "irrRootAboveBand": false,
       "irrRoots": [
        41.06831963564014
       ],
@@ -12065,6 +12233,7 @@
      ],
      "metrics": {
       "irr": 99.88014494575272,
+      "irrRootAboveBand": false,
       "irrRoots": [
        99.88014494575272
       ],
@@ -12227,6 +12396,7 @@
      ],
      "metrics": {
       "irr": 4.159225523463606,
+      "irrRootAboveBand": false,
       "irrRoots": [
        4.159225523463606
       ],
@@ -12784,6 +12954,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -72.13783142125267,
       0.25494074228514796
@@ -13059,6 +13230,7 @@
     ],
     "metrics": {
      "irr": 13.822080265611591,
+     "irrRootAboveBand": false,
      "irrRoots": [
       13.822080265611591
      ],
@@ -13333,6 +13505,7 @@
     ],
     "metrics": {
      "irr": 25.118761748012076,
+     "irrRootAboveBand": false,
      "irrRoots": [
       25.118761748012076
      ],
@@ -13607,6 +13780,7 @@
     ],
     "metrics": {
      "irr": 35.82170499127136,
+     "irrRootAboveBand": false,
      "irrRoots": [
       35.82170499127136
      ],
@@ -13881,6 +14055,7 @@
     ],
     "metrics": {
      "irr": 46.277996732880254,
+     "irrRootAboveBand": false,
      "irrRoots": [
       46.277996732880254
      ],
@@ -14155,6 +14330,7 @@
     ],
     "metrics": {
      "irr": 56.64328439217628,
+     "irrRootAboveBand": false,
      "irrRoots": [
       56.64328439217628
      ],
@@ -14429,6 +14605,7 @@
     ],
     "metrics": {
      "irr": 66.99327118159356,
+     "irrRootAboveBand": false,
      "irrRoots": [
       66.99327118159356
      ],
@@ -14703,6 +14880,7 @@
     ],
     "metrics": {
      "irr": 77.36537920773057,
+     "irrRootAboveBand": false,
      "irrRoots": [
       77.36537920773057
      ],
@@ -14977,6 +15155,7 @@
     ],
     "metrics": {
      "irr": 87.77737489507571,
+     "irrRootAboveBand": false,
      "irrRoots": [
       87.77737489507571
      ],
@@ -15251,6 +15430,7 @@
     ],
     "metrics": {
      "irr": 55.299530143471266,
+     "irrRootAboveBand": false,
      "irrRoots": [
       55.299530143471266
      ],
@@ -15525,6 +15705,7 @@
     ],
     "metrics": {
      "irr": 49.49678194310915,
+     "irrRootAboveBand": false,
      "irrRoots": [
       49.49678194310915
      ],
@@ -15799,6 +15980,7 @@
     ],
     "metrics": {
      "irr": 43.520318535366386,
+     "irrRootAboveBand": false,
      "irrRoots": [
       43.520318535366386
      ],
@@ -16073,6 +16255,7 @@
     ],
     "metrics": {
      "irr": 37.30809409667696,
+     "irrRootAboveBand": false,
      "irrRoots": [
       37.30809409667696
      ],
@@ -16347,6 +16530,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -71.63643706208791,
       30.697336385349605
@@ -16622,6 +16806,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -27.0627259129811,
       14.733717340328745
@@ -16897,6 +17082,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -17171,6 +17357,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -17445,6 +17632,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -17719,6 +17907,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -17993,6 +18182,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -18267,6 +18457,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -18541,6 +18732,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -18815,6 +19007,7 @@
     ],
     "metrics": {
      "irr": 61.666027114130564,
+     "irrRootAboveBand": false,
      "irrRoots": [
       61.666027114130564
      ],
@@ -19089,6 +19282,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -19363,6 +19557,7 @@
     ],
     "metrics": {
      "irr": 26.026613645179808,
+     "irrRootAboveBand": false,
      "irrRoots": [
       26.026613645179808
      ],
@@ -19637,6 +19832,7 @@
     ],
     "metrics": {
      "irr": -7.712335476643823,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -7.712335476643823
      ],
@@ -19911,6 +20107,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -78.96160676015258,
       10.321790806158504
@@ -20188,6 +20385,7 @@
     ],
     "metrics": {
      "irr": 24.069459736974284,
+     "irrRootAboveBand": false,
      "irrRoots": [
       24.069459736974284
      ],
@@ -20464,6 +20662,7 @@
     ],
     "metrics": {
      "irr": 32.24569468877622,
+     "irrRootAboveBand": false,
      "irrRoots": [
       32.24569468877622
      ],
@@ -20740,6 +20939,7 @@
     ],
     "metrics": {
      "irr": 35.95293714855029,
+     "irrRootAboveBand": false,
      "irrRoots": [
       35.95293714855029
      ],
@@ -21016,6 +21216,7 @@
     ],
     "metrics": {
      "irr": 37.98027807308938,
+     "irrRootAboveBand": false,
      "irrRoots": [
       37.98027807308938
      ],
@@ -21182,6 +21383,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": false,
      "irrRoots": [],
      "irrStatus": "no-sign-change",
      "maxExposure": 10.0,
@@ -21278,6 +21480,7 @@
     ],
     "metrics": {
      "irr": null,
+     "irrRootAboveBand": true,
      "irrRoots": [
       1800.0
      ],
@@ -21489,6 +21692,7 @@
     ],
     "metrics": {
      "irr": 41.06831963564014,
+     "irrRootAboveBand": false,
      "irrRoots": [
       41.06831963564014
      ],
@@ -21763,6 +21967,7 @@
     ],
     "metrics": {
      "irr": 46.90631829006505,
+     "irrRootAboveBand": false,
      "irrRoots": [
       46.90631829006505
      ],
@@ -21953,6 +22158,7 @@
     ],
     "metrics": {
      "irr": -15.029380280330667,
+     "irrRootAboveBand": false,
      "irrRoots": [
       -15.029380280330667
      ],

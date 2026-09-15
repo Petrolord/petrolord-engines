@@ -40,15 +40,19 @@ with an uplift), not by transcribing the JavaScript:
                  capex; government take = royalty + government profit
                  share + tax; the two sum to revenue less costs.
   NPV            YEAR-END discounting, sum of NCF_y / (1 + r)^y.
-  IRR            (EC2-5, 2026-09-15, the screening engine's contract) every
+  IRR            (EC2-5, 2026-09-15, the screening engine's contract; the
+                 above-band rule is the lead's decision of the same day) every
                  rate strictly inside -99 to 1000 percent at which the
                  year-end NPV is zero, found by a fine scan and the Illinois
                  (modified regula falsi) method on each sign change. One
                  root: that rate, negative or not, status 'ok'. None of the
                  flows changes sign: null, 'no-sign-change'. Several roots:
-                 null, 'multiple-roots', every root listed. No root in the
-                 band: null, 'above-clamp' when the NPV is still positive at
-                 1000 percent, else 'no-root'. `irrRoots` is null except for
+                 null, 'multiple-roots', every root listed. A root ABOVE
+                 the band exists when the NPV at 1000 percent and its limit
+                 (the sign of the earliest non-zero flow) differ in sign:
+                 then one in-band root is also 'multiple-roots' (in-band
+                 roots listed) with irrRootAboveBand true, and no in-band
+                 root is 'above-clamp'; otherwise 'no-root'. `irrRoots` is null except for
                  multiple roots. The engine runs Newton and sweeps the band
                  when Newton fails.
   take metrics   (naming wave 2026-09-14) government take = government cash
@@ -275,16 +279,23 @@ def illinois(f, lo, hi, flo, fhi):
 
 def irr_contract(rows):
     ncf = [cf['contractorNCF'] for cf in rows]
+    res = lambda irr_, st, roots_, above: {'irr': irr_, 'irrStatus': st, 'irrRoots': roots_, 'irrRootAboveBand': above}
     if not (any(c < 0 for c in ncf) and any(c > 0 for c in ncf)):
-        return {'irr': None, 'irrStatus': 'no-sign-change', 'irrRoots': None}
+        return res(None, 'no-sign-change', None, False)
     roots = roots_between(rows, IRR_BAND_LOW_PCT, IRR_BAND_HIGH_PCT)
-    if len(roots) == 1:
-        return {'irr': roots[0], 'irrStatus': 'ok', 'irrRoots': None}
-    if len(roots) > 1:
-        return {'irr': None, 'irrStatus': 'multiple-roots', 'irrRoots': roots}
-    if npv_frac(rows, IRR_BAND_HIGH_PCT / 100.0) > 0:
-        return {'irr': None, 'irrStatus': 'above-clamp', 'irrRoots': None}
-    return {'irr': None, 'irrStatus': 'no-root', 'irrRoots': None}
+    # A root above the band (lead decision 2026-09-15): the NPV at 1000
+    # percent and its limit as the rate grows without bound (the sign of the
+    # earliest-year non-zero flow) have different signs.
+    earliest = min((cf for cf in rows if cf['contractorNCF'] != 0), key=lambda cf: cf['year'])['contractorNCF']
+    top = npv_frac(rows, IRR_BAND_HIGH_PCT / 100.0)
+    above = top != 0 and (top > 0) != (earliest > 0)
+    if len(roots) == 1 and not above:
+        return res(roots[0], 'ok', None, False)
+    if roots:
+        return res(None, 'multiple-roots', roots, above)
+    if above:
+        return res(None, 'above-clamp', None, True)
+    return res(None, 'no-root', None, False)
 
 
 def irr(rows):
@@ -736,7 +747,8 @@ def build():
                 flat_regime(id='mintax', name='Min tax', tax={'cit': 0, 'rrt': 0, 'minTax': 10, 'rrtUpliftPct': 0}), TEST_PROJECT),
         cf_case('capex_multiplier_1_3', 'Capex multiplier 1.3 on the flat regime.', flat_regime(), TEST_PROJECT, 1.3, 1.0),
         cf_case('capex_multiplier_0_7', 'Capex multiplier 0.7 on the flat regime. The NPV is zero at 1095.4783 percent, above the band, and at -20.4852 percent, inside it. '
-                'The contract reports the one root in the band, so the IRR reads -20.4852 percent with status ok where the retired bisection read 1095.4783 (OPEN, FINDINGS-fiscal.md EC2-5 follow-up).',
+                'One root inside the band and one above it: irr null, multiple-roots, irrRoots lists -20.4852 only and irrRootAboveBand is true. '
+                'The retired bisection read 1095.4783 as the IRR.',
                 flat_regime(), TEST_PROJECT, 0.7, 1.0),
         cf_case('never_recovers_huge_capex', 'Capex 20000 on the test project: the pool never clears and there is no payback. NPV at 0 percent is negative and no rate from -99 to 1000 percent zeroes it, so the IRR is null with status no-root (the retired rule printed 0).',
                 flat_regime(), dict(TEST_PROJECT, costs={'capex': {'drilling': 10000, 'facilities': 10000, 'subsea': 0}, 'opex': {'fixed': 60, 'variable': 4}})),
@@ -804,6 +816,9 @@ def build():
                  [(1, -1000), (2, 600), (3, 600)], trueIrr=100.0 * (1.0 / ((-600 + math.sqrt(600 ** 2 + 4 * 600 * 1000)) / 1200) - 1.0)),
         irr_case('irr_no_root_below_band', '-100 then 0.5: the only root is 1 + r = 0.005, -99.5 percent, below the band; NPV is negative at both ends, so null with status no-root.',
                  [(1, -100), (2, 0.5)], trueIrr=-99.5),
+        irr_case('irr_root_above_band_with_one_inside', '-5, 84, -64: with x = 1/(1+r), 64 x^2 - 84 x + 5 = 0 gives roots at -20 and 1500 percent. One is inside the band '
+                 'and one above it: null, multiple-roots, irrRoots lists -20 only, irrRootAboveBand true.',
+                 [(1, -5), (2, 84), (3, -64)], trueRoots=[-20.0, 1500.0]),
         irr_case('irr_multiple_roots_listed', '-100, 230, -132: with x = 1/(1+r), 132 x^2 - 230 x + 100 = 0 gives x = 240/264 and 220/264, roots 10 and 20 percent; null with status multiple-roots and both listed.',
                  [(1, -100), (2, 230), (3, -132)], trueRoots=[10.0, 20.0]),
     ]

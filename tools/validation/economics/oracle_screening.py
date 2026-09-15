@@ -151,15 +151,26 @@ def engine_irr(ncf, roots):
     which of the other things happened.
     """
     if not (any(c < 0 for c in ncf) and any(c > 0 for c in ncf)):
-        return None, 'no-sign-change'
+        return None, 'no-sign-change', False
     in_band = [x for x in roots if IRR_BAND_LOW_PCT < x < IRR_BAND_HIGH_PCT]
-    if len(in_band) == 1:
-        return in_band[0], 'ok'
-    if len(in_band) > 1:
-        return None, 'multiple-roots'
-    if mid_year_npv(ncf, IRR_BAND_HIGH_PCT / 100.0) > 0:
-        return None, 'above-clamp'
-    return None, 'no-root'
+    above = root_above_band(ncf)
+    if len(in_band) == 1 and not above:
+        return in_band[0], 'ok', False
+    if in_band:
+        return None, 'multiple-roots', above
+    if above:
+        return None, 'above-clamp', True
+    return None, 'no-root', False
+
+
+def root_above_band(ncf):
+    """Lead decision 2026-09-15: a root lies above the band when the NPV at
+    1000 percent and the NPV as the rate grows without bound have different
+    signs. The limit takes the sign of the earliest non-zero flow, since every
+    later term carries a higher power of 1 / (1 + r)."""
+    first = next(c for c in ncf if c != 0)
+    top = mid_year_npv(ncf, IRR_BAND_HIGH_PCT / 100.0)
+    return top != 0 and (top > 0) != (first > 0)
 
 
 def irr_roots_pct(ncf):
@@ -284,13 +295,14 @@ def run(inp):
     ncf = [row['ncf'] for row in rows]
     cum_arr = [row['cumulativeNCF'] for row in rows]
     roots = irr_roots_pct(ncf)
-    reported_irr, irr_status = engine_irr(ncf, roots)
+    reported_irr, irr_status, above_band = engine_irr(ncf, roots)
     payback, payback_last, payback_status = payback_years(cum_arr, ncf)
     metrics = {
         'npv': mid_year_npv(ncf, r),
         'irr': reported_irr,
         'irrStatus': irr_status,
         'irrRoots': roots,
+        'irrRootAboveBand': above_band,
         'payback': payback, 'paybackLast': payback_last, 'paybackStatus': payback_status,
         'maxExposure': min(cum_arr) if cum_arr else None,
         'totalRevenue': tot['rev'], 'totalCapex': tot['capex'], 'totalOpex': tot['opex'],
@@ -677,6 +689,10 @@ def build():
         ncf_case('irr_beyond_clamp', 'ncf [-1, 100]: the mid-year IRR is 9900 percent. The engine clamps Newton at '
                  '1000 percent and reports the clamp. DISAGREEMENT (bound), recorded in FINDINGS-fiscal.md.',
                  [-1, 100]),
+        ncf_case('irr_root_above_band_with_one_inside', 'ncf [-5, 84, -64]: with x = 1/(1+r), 64 x^2 - 84 x + 5 = 0 (mid-year scales every term by '
+                 'the same (1 + r)^-0.5) gives roots at -20 and 1500 percent. One root is inside the band and one above it, so neither is THE '
+                 'return: irr null, multiple-roots, irrRoots lists -20 only (the in-band root), irrRootAboveBand true.',
+                 [-5, 84, -64]),
     ]
 
     # ---- payback ----

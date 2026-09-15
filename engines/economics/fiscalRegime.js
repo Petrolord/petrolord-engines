@@ -671,6 +671,7 @@ export const runFiscalComparison = async (inputs) => {
             irr: irrResult.irr,
             irrStatus: irrResult.irrStatus,
             irrRoots: irrResult.irrRoots,
+            irrRootAboveBand: irrResult.irrRootAboveBand,
             paybackPeriod: payback ? payback.year : null,
             rFactorPayoutYear: rFactorPayout ? rFactorPayout.year : null,
             govTake: totalGovTake,
