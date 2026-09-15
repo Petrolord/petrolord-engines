@@ -564,3 +564,56 @@ checks each child's real offset, and requires every S-curve golden plus six
 input-form probes to match the UTC child exactly. Negative control: the
 retired walk, restated in the child, equals the engine in UTC but reads "Jan
 27" in Los Angeles and differs there on more than ten goldens.
+
+## EC6-2, EC6-4 and EC6-9 (FIXED 2026-09-15, owner decisions)
+
+Engines: engines/economics/fdp/facilitiesCalculations.js,
+scheduleCalculations.js, scenarioCalculations.js. The oracle rules were
+rewritten from the method statements below and fdp_cases.json regenerated
+(twice, byte-identical): 22 scenarios (3 new), 20 flow assurance cases each
+carrying the retired band beside it, 14 schedules. Every retired rule has a
+negative control in __tests__/economics.fdp.test.js, and the new gates fail
+against the pre-repair engines.
+
+**EC6-2, the flow assurance band (FIXED 2026-09-15).** Before:
+`calculateFlowAssuranceRisk` banded its hazard score as `level` Low, Medium
+or High (above 2 Medium, above 5 High). Those are the words of the risk
+register's single scale (riskModel.js getRiskLevel: 20 Critical, 12 High,
+6 Medium), which bands probability x impact, a different quantity. A subsea
+tie-back scores 3: Medium on the flow assurance card, Low on the register.
+After: the `level` key is retired and absent. The result is `score`,
+`hazards` (the hazard names in the order they were raised), `contributions`
+(one entry per trigger: `trigger`, `points`, `hazards`; the points sum to the
+score) and the existing `risks` detail unchanged. Consumer to update: the
+Suite's FlowAssuranceAnalysis.jsx reads `analysis.level` for its badge
+colour and text; it should show the score and the named hazards instead.
+Golden: the score 3 tie-back case carries a note; the gate restates the
+retired band for every case (3 reads Medium) against getRiskLevel(3) = Low.
+
+**EC6-4, the empty plan's duration (FIXED 2026-09-15).** Before:
+`calculateProjectDuration([])` returned 0, a zero-day window, while a plan
+whose activities carry no dates returned null. After: an empty or absent plan
+returns null, the same unknown window. Golden renamed "empty schedule: no
+window, so the duration is null"; every schedule case now carries
+`retiredProjectDuration`, and the gate proves the empty plan is the only case
+that moved (retired 0, now null).
+
+**EC6-9, the partial concept capex (FIXED 2026-09-15).** Before:
+`conceptCapexMM` refused only a concept with all of `drillingCapex`,
+`facilitiesCapex` and `subseaCapex` blank. A concept with some blank was
+summed silently and screened on a partial capex that read like a complete
+one: an FPSO concept with its facilities capex omitted screened at 1350.0000
+against 2250.0000. After: the partial sum is kept (a partial concept is
+legitimate in early screening), and the new `conceptCapex` returns
+`capexMM`, `capexStatus` ('complete' or 'partial') and `capexMissing` (the
+blank field names, in the form's order). `runScenario` adds `capexStatus`
+and `capexMissing` beside `cashflow` and `metrics`. A total `capex` is
+complete; typed zeros are entered; an all-blank concept is still refused
+with the same message. `conceptCapexMM` and `scenarioCase` keep their
+signatures. Goldens: "a partial concept: the facilities capex is left blank"
+(1350, partial, facilitiesCapex missing), "the same concept with its
+facilities capex entered is complete" (2250), "a blank string capex field is
+missing", and "only one capex field is entered" renamed to say it is partial
+with two fields named missing. Consumer to update: the Suite's
+ScenarioManager.jsx reads only `metrics` from `runScenario` and should mark a
+partial card.

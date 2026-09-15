@@ -1,8 +1,8 @@
 /**
- * VENDORED VERBATIM from the Suite's src/utils/fdp/facilitiesCalculations.js in the EC0 Economics
- * extraction wave (2026-09-08). No edit at all beyond this header: the module has no imports.
- * Behaviour is unchanged; the gates in __tests__/economics.fdp.test.js and the
- * independent oracle tools/validation/economics/oracle_fdp.py cover it.
+ * Vendored from the Suite's src/utils/fdp/facilitiesCalculations.js in the EC0 Economics
+ * extraction wave (2026-09-08), repaired since in EC6-1 (decommissioning) and EC6-2 (the
+ * flow assurance score). The gates in __tests__/economics.fdp.test.js and the independent
+ * oracle tools/validation/economics/oracle_fdp.py cover it.
  */
 /**
  * Facilities Calculations Utility
@@ -59,30 +59,54 @@ export const calculateFacilityCost = (facility) => {
     };
 };
 
+/**
+ * Flow assurance screening: a hazard score and the hazards that produced it.
+ *
+ * Three triggers add to the score. A subsea tie-back adds 3 (hydrates and
+ * wax), oil below 25 API adds 2 (viscosity), any H2S adds 4 (corrosion).
+ * Each entry in `contributions` names its trigger, its points and its
+ * hazards, and the points sum to `score`.
+ *
+ * EC6-2 (FINDINGS-fdp.md). The result used to carry a `level` of Low,
+ * Medium or High, banded at score > 2 and score > 5. Those are the words
+ * of the risk register's scale (riskModel.js getRiskLevel: 20 Critical,
+ * 12 High, 6 Medium), where they band probability x impact, a different
+ * quantity. A tie-back scored 3 read Medium here and Low on the register.
+ * The key is retired and absent: the score and its named hazards are the
+ * answer, and nothing on this screen borrows the register's vocabulary.
+ *
+ * @param {object} facility
+ * @param {object} [fluidProperties]
+ * @returns {{score: number, hazards: string[], contributions: object[], risks: object[]}}
+ */
 export const calculateFlowAssuranceRisk = (facility, fluidProperties) => {
-    // Simple risk scoring based on fluid props and facility type
     let riskScore = 0;
     const risks = [];
+    const contributions = [];
 
     if (facility.type === 'Subsea Tie-back') {
         riskScore += 3;
         risks.push({ type: 'Hydrates', severity: 'High', mitigation: 'MEG Injection' });
         risks.push({ type: 'Wax', severity: 'Medium', mitigation: 'Insulation' });
+        contributions.push({ trigger: 'Subsea tie-back', points: 3, hazards: ['Hydrates', 'Wax'] });
     }
 
     if (fluidProperties?.api < 25) {
         riskScore += 2;
         risks.push({ type: 'Viscosity', severity: 'Medium', mitigation: 'Heating' });
+        contributions.push({ trigger: 'Oil below 25 API', points: 2, hazards: ['Viscosity'] });
     }
 
     if ((fluidProperties?.h2s || 0) > 0) {
         riskScore += 4;
         risks.push({ type: 'Corrosion', severity: 'High', mitigation: 'CRA Materials' });
+        contributions.push({ trigger: 'H2S present', points: 4, hazards: ['Corrosion'] });
     }
 
     return {
         score: riskScore,
-        level: riskScore > 5 ? 'High' : riskScore > 2 ? 'Medium' : 'Low',
+        hazards: risks.map((r) => r.type),
+        contributions,
         risks
     };
 };
