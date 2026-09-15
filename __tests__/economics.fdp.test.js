@@ -52,7 +52,7 @@ import {
 } from '../engines/economics/fdp/hseCalculations.js';
 import {
   calculateConsolidatedRiskScore, calculateRiskExposure, aggregateRisksBySource, aggregateRisksByLevel,
-  calculatePortfolioHealth,
+  calculatePortfolioHealth, countUnscoredRisks,
 } from '../engines/economics/fdp/riskCalculations.js';
 import {
   calculateProjectDuration, calculateCPM, calculateResourceRequirements, identifyMilestones,
@@ -60,7 +60,7 @@ import {
 } from '../engines/economics/fdp/scheduleCalculations.js';
 import { calculateCompleteness, validateFDPData, planReservesP50 } from '../engines/economics/fdp/fdpCalculations.js';
 import { FdpInputError } from '../engines/economics/fdp/inputError.js';
-import { getRiskLevel, RiskTypes, RiskStatus } from '../engines/economics/fdp/riskModel.js';
+import { getRiskLevel, riskScore, RiskTypes, RiskStatus } from '../engines/economics/fdp/riskModel.js';
 import { calculateEconomics } from '../engines/economics/screening.js';
 
 const G = JSON.parse(fs.readFileSync(path.join(__dirname, '../test-data/economics/goldens/fdp_cases.json'), 'utf8'));
@@ -318,8 +318,16 @@ describe('identities', () => {
     for (let p = 1; p <= 5; p += 1) for (let i = 1; i <= 5; i += 1) risks.push({ probability: p, impact: i });
     const lv = aggregateRisksByLevel(risks);
     expect(lv.Critical + lv.High + lv.Medium + lv.Low).toBe(25);
+    expect(lv.Unscored).toBe(0);
     const m = calculateRiskMatrix(risks);
-    expect(m.low + m.medium + m.high).toBe(m.total);
+    // EC6-1: the HSE matrix bands on the SAME scale as the register, so the
+    // two screens agree about what a score of 12 is. It used to band on 15
+    // and 8 and had no Critical band at all.
+    expect(m.low + m.medium + m.high + m.critical + m.unscored).toBe(m.total);
+    expect(m.critical).toBe(lv.Critical);
+    expect(m.high).toBe(lv.High);
+    expect(m.medium).toBe(lv.Medium);
+    expect(m.low).toBe(lv.Low);
     expect(calculateTotalRiskScore(risks)).toBe(15 * 15);
     expect(calculateConsolidatedRiskScore(risks)).toBe(225);
     expect(calculateRiskScore(4, 5)).toBe(20);
@@ -395,29 +403,41 @@ describe('golden: runFdpCase and the costCalculations view', () => {
     ['npv', 'payback', 'maxExposure', 'totalRevenue', 'totalCapex', 'totalOpex', 'totalTax', 'totalRoyalty', 'totalGovTake']
       .forEach((k) => expectNum(r.metrics[k], e.metrics[k], MONEY));
 
-    // IRR. Three outcomes: the same root by two methods; a root the engine
-    // cannot reach (beyond its clamp, or none at all), where the golden pins
-    // the engine's own number as a DISAGREEMENT beside the oracle's; or no
-    // sign change, where 0 is the documented convention.
-    if (e.engineReported) {
-      // The engine's published number, pinned; and the gap to the oracle,
-      // which must be real (a pin that could be removed silently is no pin).
-      expect(e.engineReported.label).toMatch(/^DISAGREEMENT/);
-      expectNum(r.metrics.irr, e.engineReported.irr, IRR);
-      if (e.metrics.irr !== null) expect(Math.abs(e.metrics.irr - e.engineReported.irr)).toBeGreaterThan(100);
-      if (e.irrBeyondEngineClamp) expect(e.irrRootsPercent[0]).toBeGreaterThan(1000);
-      if (e.irrNoRoot) expect(e.irrRootsPercent).toBeNull();
+    // IRR. EC6-1: a rate is reported only when it is a single root inside
+    // the band the engine searches, and `irrStatus` carries the reason when
+    // there is none. There are no disagreements left to pin.
+    expect(r.metrics.irrStatus).toBe(e.metrics.irrStatus);
+    if (e.metrics.irr === null) {
+      expect(r.metrics.irr).toBeNull();
+      if (e.irrBeyondEngineClamp) {
+        expect(e.metrics.irrStatus).toBe('above-clamp');
+        expect(e.irrRootsPercent[0]).toBeGreaterThan(1000);
+      }
+      if (e.irrNoRoot) {
+        expect(e.metrics.irrStatus).toBe('no-root');
+        expect(e.irrRootsPercent).toBeNull();
+      }
     } else {
-      expect(e.metrics.irr).not.toBeNull();
       expectNum(r.metrics.irr, e.metrics.irr, IRR);
+      // and it really is a root of this cash flow
+      const rate = r.metrics.irr / 100;
+      const npvAtIrr = r.cashflow.reduce((sum, cf, i) => sum + cf.ncf / (1 + rate) ** (i + 0.5), 0);
+      const scale = r.cashflow.reduce((sum, cf) => sum + Math.abs(cf.ncf), 0);
+      expect(Math.abs(npvAtIrr) / scale).toBeLessThan(1e-8);
     }
     if (e.paybackYears === null) expect(paybackYears(r)).toBeNull();
     else expectNum(paybackYears(r), e.paybackYears, MONEY);
 
-    // costCalculations builds the same case from a price deck (missing
-    // rows default to 70 there, which the oracle models separately).
-    const rows = calculateCashFlows(capexMM, annualOpexMM, productionKbpd, deck(pricesUsd), fiscal);
+    // costCalculations builds the same case from a price deck. EC6-1: a deck
+    // that does not cover the profile is refused rather than padded with 70,
+    // which is what made the two doors disagree.
     const cc = e.costCalculations;
+    if (cc.priceDeckRefused) {
+      expect(() => calculateCashFlows(capexMM, annualOpexMM, productionKbpd, deck(pricesUsd), fiscal))
+        .toThrow(FdpInputError);
+      return;
+    }
+    const rows = calculateCashFlows(capexMM, annualOpexMM, productionKbpd, deck(pricesUsd), fiscal);
     expect(rows).toHaveLength(cc.rows.length);
     rows.forEach((row, i) => Object.keys(cc.rows[i]).forEach((k) => expectNum(row[k], cc.rows[i][k], MONEY)));
     expectNum(calculateNPV(rows), cc.npv, MONEY);
@@ -433,7 +453,7 @@ describe('golden: runFdpCase and the costCalculations view', () => {
     G.fdpCase.forEach((c) => {
       const e = c.expected;
       if (e.metrics.irr !== null && e.irrExists && e.costCalculations.irr !== null && e.metrics.irr > 0
-          && !e.costCalculations.priceDeckPaddedTo70) {
+          && !e.costCalculations.priceDeckRefused) {
         expect(Math.abs(e.metrics.irr - e.costCalculations.irr)).toBeLessThan(1e-6);
       }
     });
@@ -931,5 +951,84 @@ describe('golden: the worked example, end to end', () => {
     expectNum(r.metrics.npv, E.scenario.npv, MONEY);
     expectNum(r.metrics.irr, E.scenario.irr, IRR);
     expectNum(scenarioPayback(I.scenario, I.concept), E.scenario.payback, MONEY);
+  });
+});
+
+
+describe('EC6-1: the findings this wave closed', () => {
+  test('section 10: an unscored risk cannot improve the register', () => {
+    const scored = [{ probability: 5, impact: 5 }, { probability: 4, impact: 3 }];
+    const withUnscored = [...scored, { impact: 4 }, { probability: 3 }];
+    // The score no longer goes NaN, the unscored risks are counted as such,
+    // and the health is the same as the register that leaves them out.
+    expect(calculateConsolidatedRiskScore(withUnscored)).toBe(calculateConsolidatedRiskScore(scored));
+    expect(Number.isNaN(calculateConsolidatedRiskScore(withUnscored))).toBe(false);
+    expect(aggregateRisksByLevel(withUnscored).Unscored).toBe(2);
+    expect(calculatePortfolioHealth(withUnscored)).toBe(calculatePortfolioHealth(scored));
+    // Before: the two unscored risks each counted as Low, and the health
+    // improved because the register was less complete.
+    const asLow = [...scored, { probability: 1, impact: 1 }, { probability: 1, impact: 1 }];
+    expect(calculatePortfolioHealth(asLow)).toBeGreaterThan(calculatePortfolioHealth(scored));
+  });
+
+  test('one banding scale: the HSE matrix and the register agree on every score', () => {
+    for (let p = 1; p <= 5; p += 1) {
+      for (let i = 1; i <= 5; i += 1) {
+        const risk = [{ probability: p, impact: i }];
+        const m = calculateRiskMatrix(risk);
+        const level = getRiskLevel(p * i).level.toLowerCase();
+        expect(m[level]).toBe(1);
+      }
+    }
+    // The old boundaries, for the record: a score of 12 was High on the
+    // register and Medium here, and 15 to 19 was High in both but for
+    // different reasons.
+    expect(getRiskLevel(12).level).toBe('High');
+    expect(calculateRiskMatrix([{ probability: 3, impact: 4 }]).high).toBe(1);
+    expect(calculateRiskMatrix([{ probability: 3, impact: 4 }]).medium).toBe(0);
+  });
+
+  test('section 12: decommissioning scales with the facility', () => {
+    const small = calculateFacilityCost({ type: 'FPSO', nameplateCapacity: 50000 });
+    const large = calculateFacilityCost({ type: 'FPSO', nameplateCapacity: 150000 });
+    expect(large.capex).toBeGreaterThan(small.capex);
+    expect(large.decommissioning).toBeGreaterThan(small.decommissioning);
+    // it is 15 percent of the capex the facility actually carries
+    expect(small.decommissioning).toBeCloseTo(small.capex * 0.15, 9);
+    expect(large.decommissioning).toBeCloseTo(large.capex * 0.15, 9);
+  });
+
+  test('section 5: a price deck that does not cover the profile is refused, not padded', () => {
+    const profile = [10, 20, 30];
+    const short = [{ oil_price_usd: 70 }, { oil_price_usd: 70 }];
+    expect(() => calculateCashFlows(800, 60, profile, short)).toThrow(FdpInputError);
+    try {
+      calculateCashFlows(800, 60, profile, short);
+    } catch (err) {
+      expect(err.message).toMatch(/no price for production year 3/);
+    }
+    // A full deck is unchanged, and now agrees with runFdpCase exactly.
+    const full = [{ oil_price_usd: 70 }, { oil_price_usd: 70 }, { oil_price_usd: 70 }];
+    const rows = calculateCashFlows(800, 60, profile, full);
+    const direct = runFdpCase({
+      capexMM: 800, annualOpexMM: 60, productionKbpd: profile, pricesUsd: [70, 70, 70],
+    });
+    rows.forEach((row, i) => expect(row.netCashFlow).toBeCloseTo(direct.cashflow[i].ncf, 9));
+  });
+
+  test('the sensitivity sweep carries the variable operating cost with the volume', () => {
+    const p = {
+      capexMM: 800, annualOpexMM: 60, productionKbpd: new Array(10).fill(50),
+      pricesUsd: new Array(10).fill(70),
+    };
+    const sweep = runFdpSensitivity(p);
+    const production = sweep.find((x) => x.name === 'Production');
+    const price = sweep.find((x) => x.name === 'Oil Price');
+    // Before EC6-1 the production sweep scaled the volume alone, so it moved
+    // the NPV exactly as far as the price sweep. Volume costs money to
+    // produce; price does not.
+    const productionSpread = Math.abs(production.highParamNPV - production.lowParamNPV);
+    const priceSpread = Math.abs(price.highParamNPV - price.lowParamNPV);
+    expect(productionSpread).toBeLessThan(priceSpread);
   });
 });

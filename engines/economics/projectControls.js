@@ -24,13 +24,19 @@
  * for the caller to label, rather than as an invented 1. Inputs that cannot
  * be read are refused by task name.
  *
- * SCOPE NOTE (owner decision, EC6): planned value here is still the whole
- * budget of every task in scope, not the budget time-phased to a date. So
- * the schedule index is earned value over budget at completion, which is a
- * progress ratio, not a schedule variance: it cannot tell early from late.
- * That is stated in `spiBasis` and on the app's card, and a time-phased
- * rebuild was left out of this wave. EC6 grades earned value on the AFE
- * Cost Control engine, which is time-phased against an as-of date.
+ * EC6-1: planned value is now TIME-PHASED. It used to be the whole budget
+ * of every task in scope, so "SPI" was earned value over budget at
+ * completion: a project half finished on schedule and a project half
+ * finished a year late reported the same 0.50, and the index could never
+ * read above 1. Planned value is now each task's own budget spread evenly
+ * across its planned window and cut off at the as-of date, which is the
+ * definition the AFE engine already follows, so the two apps mean the same
+ * thing by SPI. The completion ratio the old number really was is still
+ * reported, under its own name.
+ *
+ * `asOf` is a parameter, not the clock: a figure that changes overnight
+ * without anyone touching the project is not a measurement (the same rule
+ * EC5-0 applied to afe.js).
  */
 
 import { parseScheduleDate } from './fdp/scheduleCalculations.js';
@@ -67,20 +73,50 @@ const readPercent = (value, label) => {
   return n;
 };
 
+/** A local date as whole calendar days since the epoch. */
+const calendarDay = (d) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000;
+
+/** The fraction of a task's planned window that has elapsed by `asOf`. */
+const elapsedFraction = (task, asOfDay, label) => {
+  const start = parseScheduleDate(task.planned_start_date);
+  const end = parseScheduleDate(task.planned_end_date);
+  if (!start || !end) return null;
+  const startDay = calendarDay(start);
+  const endDay = calendarDay(end);
+  if (endDay < startDay) {
+    throw new ProjectControlsInputError(
+      `${label}: the planned end date is before the planned start date`,
+    );
+  }
+  if (asOfDay <= startDay) return 0;
+  if (asOfDay >= endDay) return 1;
+  // A same-day task is either not started or finished; the branches above
+  // have already covered both, so the divisor here is never zero.
+  return (asOfDay - startDay) / (endDay - startDay);
+};
+
 /**
- * Earned value for a list of tasks.
+ * Earned value for a list of tasks, as of a stated date.
  *
- * @param {object[]} tasks each with planned_cost, actual_cost and percent_complete
- * @returns {{plannedValue: number, earnedValue: number, actualCost: number,
- *   pv: number, ev: number, ac: number, cpi: number|null, spi: number|null,
- *   cv: number, sv: number, percentComplete: number|null, taskCount: number,
- *   costed: boolean, spiBasis: string}}
+ * @param {object[]} tasks planned_cost, actual_cost, percent_complete and
+ *   the planned start and end dates
+ * @param {object} [options]
+ * @param {Date|string} [options.asOf] the date planned value is measured to.
+ *   Defaults to today, which is the only thing a dashboard can mean, but
+ *   pass it to get a figure that does not move overnight.
+ * @returns {object} see the keys below
  */
-export function calculateEVM(tasks) {
+export function calculateEVM(tasks, { asOf = new Date() } = {}) {
   const list = Array.isArray(tasks) ? tasks : [];
-  let plannedValue = 0;
+  const asOfDate = parseScheduleDate(asOf);
+  if (!asOfDate) throw new ProjectControlsInputError(`asOf is not a valid date: ${String(asOf)}`);
+  const asOfDay = calendarDay(asOfDate);
+
+  let budgetAtCompletion = 0;
   let earnedValue = 0;
   let actualCost = 0;
+  let plannedValue = 0;
+  let undatedCostedTasks = 0;
 
   list.forEach((task, i) => {
     const label = taskLabel(task, i);
@@ -88,31 +124,50 @@ export function calculateEVM(tasks) {
     const percentComplete = readPercent(task.percent_complete, label);
     const taskActualCost = readCost(task.actual_cost, 'actual cost', label);
 
-    plannedValue += plannedCost;
+    budgetAtCompletion += plannedCost;
     earnedValue += plannedCost * (percentComplete / 100);
     actualCost += taskActualCost;
+
+    if (plannedCost > 0) {
+      const fraction = elapsedFraction(task, asOfDay, label);
+      if (fraction === null) undatedCostedTasks += 1;
+      else plannedValue += plannedCost * fraction;
+    }
   });
 
   // An index is a ratio. With no denominator there is no ratio, and saying
   // so is the only honest answer: 1.00 reads as "on plan" and it is not.
   const cpi = actualCost === 0 ? null : earnedValue / actualCost;
-  const spi = plannedValue === 0 ? null : earnedValue / plannedValue;
+  // A schedule index needs a planned value every costed task contributed to.
+  // With a costed task nobody has dated there is no such number, and the
+  // completion ratio below is what the app should show instead.
+  const timePhased = budgetAtCompletion > 0 && undatedCostedTasks === 0;
+  const spi = timePhased && plannedValue > 0 ? earnedValue / plannedValue : null;
 
   return {
-    plannedValue,
+    plannedValue: timePhased ? plannedValue : null,
+    budgetAtCompletion,
     earnedValue,
     actualCost,
-    pv: plannedValue,
+    pv: timePhased ? plannedValue : null,
     ev: earnedValue,
     ac: actualCost,
+    bac: budgetAtCompletion,
     cpi,
     spi,
     cv: earnedValue - actualCost,
-    sv: earnedValue - plannedValue,
-    percentComplete: plannedValue === 0 ? null : (earnedValue / plannedValue) * 100,
+    sv: timePhased ? earnedValue - plannedValue : null,
+    completionRatio: budgetAtCompletion === 0 ? null : earnedValue / budgetAtCompletion,
+    percentComplete: budgetAtCompletion === 0 ? null : (earnedValue / budgetAtCompletion) * 100,
     taskCount: list.length,
-    costed: plannedValue > 0,
-    spiBasis: 'earned value over budget at completion, not time-phased',
+    costed: budgetAtCompletion > 0,
+    undatedCostedTasks,
+    asOf: asOfDate.toISOString().slice(0, 10),
+    spiBasis: timePhased
+      ? 'planned value time-phased to the as-of date'
+      : (budgetAtCompletion === 0
+        ? 'no costed task, so there is no planned value'
+        : `${undatedCostedTasks} costed task${undatedCostedTasks === 1 ? ' carries' : 's carry'} no planned dates, so planned value cannot be time-phased`),
   };
 }
 
@@ -159,7 +214,7 @@ export function calculateCPI(earnedValue, actualCost) {
   return ev / ac;
 }
 
-/** Schedule performance index on the basis stated in calculateEVM, or null. */
+/** Schedule performance index: earned value over TIME-PHASED planned value. */
 export function calculateSPI(earnedValue, plannedValue) {
   const ev = Number(earnedValue);
   const pv = Number(plannedValue);

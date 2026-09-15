@@ -46,6 +46,27 @@ export class AfeInputError extends Error {
   }
 }
 
+/**
+ * The date on an invoice, or null when it has none the engine can read.
+ *
+ * EC6-1 (FINDINGS-fdp.md section 8). The S-curve placed invoices with
+ * `new Date(inv.invoice_date) <= currentDate`. A missing or unreadable date
+ * is an Invalid Date and never counts, but a NULL date is `new Date(null)`,
+ * the first of January 1970, so an undated invoice counted in EVERY bucket
+ * from the first: an unpaid invoice with no date inflated the actual spend
+ * from day one of the AFE.
+ */
+export const invoiceDate = (invoice) => {
+  const raw = invoice?.invoice_date;
+  if (raw === null || raw === undefined || raw === '') return null;
+  const d = raw instanceof Date ? raw : new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+
+/** How many invoices carry no date the engine can place on a curve. */
+export const countUndatedInvoices = (invoices = []) => invoices
+  .filter((inv) => invoiceDate(inv) === null).length;
+
 /** `asOf` as a Date: a Date is used as is, an ISO string goes through parseISO. */
 const resolveAsOf = (asOf) => {
   let d = null;
@@ -192,6 +213,9 @@ export const calculateMetrics = (afe, costItems, invoices, asOf = new Date()) =>
   const percentComplete = totalBudget > 0 ? (earnedValue / totalBudget) * 100 : 0;
 
   return {
+    // EC6-1: invoices with no readable date are excluded from the curve
+    // and counted here (FINDINGS-fdp.md section 8).
+    undatedInvoices: countUndatedInvoices(invoices),
     totalBudget,
     totalCommitments,
     totalActuals,
@@ -239,8 +263,18 @@ export const generateSCurveData = (afe, costItems, invoices, asOf = new Date()) 
   const totalBudget = costItems.reduce((sum, i) => sum + (Number(i.budget)||0), 0);
   const totalForecast = costItems.reduce((sum, i) => sum + itemForecast(i), 0);
 
-  // Sort invoices
-  const sortedInvoices = [...invoices].sort((a, b) => new Date(a.invoice_date) - new Date(b.invoice_date));
+  // EC6-1 (FINDINGS-fdp.md section 8). An invoice was placed on the curve
+  // with `new Date(inv.invoice_date) <= currentDate`. A missing or
+  // unreadable date is an Invalid Date and never counts, but a NULL date is
+  // `new Date(null)`, the first of January 1970, so an undated invoice
+  // counted in EVERY bucket from the first one: an unpaid invoice with no
+  // date inflated the actual spend from day one of the AFE. An invoice the
+  // engine cannot date is not on the curve at all; `countUndatedInvoices`
+  // and the `undatedInvoices` field on calculateMetrics say how many were
+  // set aside, so the app can ask for the dates.
+  const sortedInvoices = invoices
+    .filter((inv) => invoiceDate(inv) !== null)
+    .sort((a, b) => invoiceDate(a) - invoiceDate(b));
 
   const dataPoints = [];
   let currentDate = new Date(start);
@@ -261,7 +295,7 @@ export const generateSCurveData = (afe, costItems, invoices, asOf = new Date()) 
     // Actuals (up to asOf)
     if (currentDate <= now) {
        // Sum invoices up to this date
-       const invoicesUntilNow = sortedInvoices.filter(inv => new Date(inv.invoice_date) <= currentDate);
+       const invoicesUntilNow = sortedInvoices.filter(inv => invoiceDate(inv) <= currentDate);
        cumActual = invoicesUntilNow.reduce((sum, inv) => sum + Number(inv.amount), 0);
     }
 

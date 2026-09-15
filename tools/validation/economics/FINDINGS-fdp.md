@@ -405,3 +405,106 @@ They are taught in the course instead:
   operating cost that production implies (screening.js
   runSensitivityAnalysis, shared with the other economics apps). Noted here
   because runFdpSensitivity inherits it.
+
+## EC6-1 repair (2026-09-15, owner: implement the recommendations)
+
+Engines: engines/economics/screening.js, fdp/costCalculations.js,
+fdp/facilitiesCalculations.js, fdp/hseCalculations.js,
+fdp/riskCalculations.js, fdp/riskModel.js, afe.js, projectControls.js.
+Oracles and goldens regenerated on all three sides (screening, fdp, afe).
+This section closes sections 1, 5, 8, 10 and 12, and the four items EC6-0
+left as findings by decision.
+
+**Section 1, the IRR clamp (RESOLVED).** Before: Newton ran from 10 percent
+between a lower clamp of -99 percent and an upper clamp of 1000 percent, and
+whatever it stopped at was reported. A project whose net present value is
+negative at every rate from -99 percent to 1e14 percent showed an IRR of
+1000.0 percent, and on a scenario card that 1000 was coloured green for
+clearing the 15 percent hurdle. After: the search must land strictly inside
+the clamps AND the net present value there must be zero to within a
+tolerance scaled by the size of the cash flow. When it does not, the engine
+sweeps the band and bisects every sign change, and `metrics.irr` is null
+with `metrics.irrStatus` saying why:
+
+| status | what it means |
+|---|---|
+| `ok` | one root in the band, reported |
+| `no-sign-change` | every period the same sign, no IRR exists |
+| `multiple-roots` | the flow changes sign more than once; every root is in `irrRoots` |
+| `above-clamp` | still positive at 1000 percent: the rate is higher than the band |
+| `no-root` | nothing in the band zeroes the net present value |
+
+What this recovers: the -36.67468836383813 percent root Newton used to run
+past on the 100000 capex case; the 21 percent root of a cash flow of order
+1e-7 $MM that used to trip the absolute derivative guard and come back as
+the 10 percent starting guess; both roots (10 and 20 percent) of the
+two-root case, reported as a pair rather than one of them picked. Every
+`ENGINE_IRR_PINS` entry in oracle_screening.py and every `ENGINE_REPORTED`
+entry in oracle_fdp.py is gone, because there is no disagreement left to
+pin. Descartes' rule keeps the cost down: a flow that changes sign once has
+at most one root, so Newton's answer is trusted there and the sweep only
+runs when it has already failed or the flow changes sign more than once (so
+the 10,000 iteration Monte Carlo does not pay for it). `getPortfolioMetrics`
+averages only the projects that HAVE a rate, and reports how many
+(`irrProjectCount`); a project with none used to be averaged in as a zero.
+
+**Section 5, the price deck (RESOLVED).** `calculateCashFlows` padded a
+short deck with 70 $/bbl while `runFdpCase` read a missing price as 0, so
+the same profile gave $178.99MM through one door and -$66.92MM through the
+other. A deck that does not cover the profile is refused by
+FdpInputError, naming the years it has no price for.
+
+**Section 8, the undated invoice (RESOLVED).** An invoice with a NULL date
+was `new Date(null)`, the first of January 1970, so it counted in every
+bucket of the S-curve from the first one and inflated actual spend from day
+one. `invoiceDate` returns null for anything it cannot read, those invoices
+are off the curve, and `countUndatedInvoices` plus `calculateMetrics`'s new
+`undatedInvoices` field tell the app how many to ask about.
+
+**Section 10, the missing risk factor (RESOLVED).** `probability * impact`
+with a factor missing is NaN, and NaN fails every band comparison, so an
+unscored risk was counted as Low and the portfolio health went UP the less
+of the register was filled in. `riskScore` returns null for an unscored
+risk; the consolidated score sums the scored ones, `aggregateRisksByLevel`
+and `calculateRiskMatrix` count an `Unscored` band, and the health is taken
+over the scored risks only.
+
+**The five banding scales (RESOLVED).** `getRiskLevel` in riskModel.js is
+the one scale: 20 Critical, 12 High, 6 Medium, below Low. `calculateRiskMatrix`
+banded on 15 and 8 with no Critical band at all, so a score of 12 read High
+on the register and Medium on the HSE tab; it now returns low / medium /
+high / critical / unscored on the register's scale, and the gate walks all
+25 cells of the 5 by 5 to prove the two screens agree.
+
+**Section 12, decommissioning (RESOLVED).** It was 15 percent of the
+UNSCALED base capex, so a 150,000 bbl/d FPSO decommissioned for the same
+$180MM as a 50,000 bbl/d one. It is 15 percent of the capex the facility
+actually carries.
+
+**Time-phased planned value (RESOLVED).** `calculateEVM(tasks, { asOf })`
+spreads each task's budget evenly across its own planned window and cuts it
+off at the as-of date, which is the definition afe.js already follows, so
+the two apps mean the same thing by SPI. Before, planned value was the whole
+budget of every task, so the index was earned value over budget at
+completion: a project half done on time and a project half done a year late
+both read 0.50, and it could never read above 1. The ratio it really was is
+still reported, as `completionRatio`. A costed task with no planned dates
+makes the time-phased number impossible, so `spi` and `plannedValue` are
+null and `spiBasis` says how many tasks are missing dates. `asOf` is a
+parameter, not the clock.
+
+**The sensitivity sweep (RESOLVED).** `runSensitivityAnalysis` scaled the
+production volume without scaling the variable operating cost that volume
+implies, so a 30 percent cut in production kept the full profile's operating
+cost and the production bar of the tornado moved the NPV exactly as far as
+the price bar. Volume now carries its own cost, and the gate pins the
+production spread below the price spread.
+
+**Still open after this wave.**
+- `fiscalRegime.calculateIRR` (Fiscal Regime Designer) has the same shape of
+  defect as section 1 in its own bisection: it returns 0 when NPV(0) <= 0 and
+  returns the search bound when the root is beyond it. It was not in the EC6
+  audit's scope and is recorded here for the owner.
+- `getPortfolioMetrics` reads `chanceOfSuccess` with `|| 1.0`, so a stated
+  chance of 0 is read as certainty (pinned as a disagreement in
+  screening_cases.json, FINDINGS-fiscal.md).

@@ -192,6 +192,7 @@
     "metrics": {
      "npv": 1966.9868961783843,
      "irr": 48.5693987043922,
+     "irrStatus": "ok",
      "payback": 3.5218964608334944,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -335,7 +336,7 @@
      "npv": 1966.9868961783843,
      "irr": 48.5693987043922,
      "paybackPeriod": 3.5218964608334944,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -533,6 +534,7 @@
     "metrics": {
      "npv": 3794.2801161100824,
      "irr": 72.90913689460356,
+     "irrStatus": "ok",
      "payback": 3.0236292727689835,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -676,7 +678,7 @@
      "npv": 3794.2801161100824,
      "irr": 72.90913689460356,
      "paybackPeriod": 3.0236292727689835,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -871,6 +873,7 @@
     "metrics": {
      "npv": -92616.50195698437,
      "irr": -36.67468836383813,
+     "irrStatus": "ok",
      "payback": 11.0,
      "maxExposure": -100000.0,
      "totalRevenue": 9033.75,
@@ -1014,11 +1017,7 @@
      "npv": -92616.50195698437,
      "irr": null,
      "paybackPeriod": null,
-     "priceDeckPaddedTo70": false
-    },
-    "engineReported": {
-     "irr": 1000.0,
-     "label": "DISAGREEMENT: the only root of the mid-year NPV is -36.67 percent; Newton from 10 percent runs to the 1000 percent clamp and the engine reports 1000."
+     "priceDeckRefused": false
     }
    }
   },
@@ -1213,6 +1212,7 @@
     "metrics": {
      "npv": 2539.06444972574,
      "irr": 135.1754448098712,
+     "irrStatus": "ok",
      "payback": 2.2522957163223283,
      "maxExposure": -200.0,
      "totalRevenue": 9033.75,
@@ -1356,7 +1356,7 @@
      "npv": 2539.06444972574,
      "irr": 135.1754448098712,
      "paybackPeriod": 2.2522957163223283,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -1551,6 +1551,7 @@
     "metrics": {
      "npv": 2348.371931876621,
      "irr": 83.02045845418886,
+     "irrStatus": "ok",
      "payback": 2.8315991944061008,
      "maxExposure": -400.0,
      "totalRevenue": 9033.75,
@@ -1694,7 +1695,7 @@
      "npv": 2348.371931876621,
      "irr": 83.02045845418886,
      "paybackPeriod": 2.8315991944061008,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -1889,6 +1890,7 @@
     "metrics": {
      "npv": 1204.2168247819106,
      "irr": 24.763725638652442,
+     "irrStatus": "ok",
      "payback": 4.664621685616161,
      "maxExposure": -1600.0,
      "totalRevenue": 9033.75,
@@ -2032,7 +2034,7 @@
      "npv": 1204.2168247819106,
      "irr": 24.763725638652442,
      "paybackPeriod": 4.664621685616161,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -2227,6 +2229,7 @@
     "metrics": {
      "npv": -321.323318011037,
      "irr": 7.572902342603738,
+     "irrStatus": "ok",
      "payback": 7.088512882354594,
      "maxExposure": -3200.0,
      "totalRevenue": 9033.75,
@@ -2370,7 +2373,7 @@
      "npv": -321.323318011037,
      "irr": 7.572902342603738,
      "paybackPeriod": 7.088512882354594,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -2565,6 +2568,7 @@
     "metrics": {
      "npv": 463.7382281579295,
      "irr": 21.659823472777294,
+     "irrStatus": "ok",
      "payback": 4.916630036630036,
      "maxExposure": -800.0,
      "totalRevenue": 4818.0,
@@ -2708,7 +2712,7 @@
      "npv": 463.7382281579295,
      "irr": 21.659823472777294,
      "paybackPeriod": 4.916630036630036,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -2903,6 +2907,7 @@
     "metrics": {
      "npv": 1107.987657309553,
      "irr": 34.457679594971424,
+     "irrStatus": "ok",
      "payback": 4.087488870467594,
      "maxExposure": -800.0,
      "totalRevenue": 6624.75,
@@ -3046,7 +3051,7 @@
      "npv": 1107.987657309553,
      "irr": 34.457679594971424,
      "paybackPeriod": 4.087488870467594,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -3241,6 +3246,7 @@
     "metrics": {
      "npv": 2825.9861350472156,
      "irr": 60.831043235864016,
+     "irrStatus": "ok",
      "payback": 3.21648920154381,
      "maxExposure": -800.0,
      "totalRevenue": 11442.75,
@@ -3384,7 +3390,7 @@
      "npv": 2825.9861350472156,
      "irr": 60.831043235864016,
      "paybackPeriod": 3.21648920154381,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -3579,6 +3585,7 @@
     "metrics": {
      "npv": 3899.735183633255,
      "irr": 74.58838249227576,
+     "irrStatus": "ok",
      "payback": 2.982823627984918,
      "maxExposure": -800.0,
      "totalRevenue": 14454.0,
@@ -3722,7 +3729,7 @@
      "npv": 3899.735183633255,
      "irr": 74.58838249227576,
      "paybackPeriod": 2.982823627984918,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -3919,6 +3926,7 @@
     "metrics": {
      "npv": 3891.596875,
      "irr": 48.5693987043922,
+     "irrStatus": "ok",
      "payback": 3.5218964608334944,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -4062,7 +4070,7 @@
      "npv": 3891.596875,
      "irr": 48.5693987043922,
      "paybackPeriod": 3.5218964608334944,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -4259,6 +4267,7 @@
     "metrics": {
      "npv": 2753.3830165930435,
      "irr": 48.5693987043922,
+     "irrStatus": "ok",
      "payback": 3.5218964608334944,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -4402,7 +4411,7 @@
      "npv": 2753.3830165930435,
      "irr": 48.5693987043922,
      "paybackPeriod": 3.5218964608334944,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -4599,6 +4608,7 @@
     "metrics": {
      "npv": 1409.1324471463836,
      "irr": 48.5693987043922,
+     "irrStatus": "ok",
      "payback": 3.5218964608334944,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -4742,7 +4752,7 @@
      "npv": 1409.1324471463836,
      "irr": 48.5693987043922,
      "paybackPeriod": 3.5218964608334944,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -4939,6 +4949,7 @@
     "metrics": {
      "npv": 1004.0833137467683,
      "irr": 48.5693987043922,
+     "irrStatus": "ok",
      "payback": 3.5218964608334944,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -5082,7 +5093,7 @@
      "npv": 1004.0833137467683,
      "irr": 48.5693987043922,
      "paybackPeriod": 3.5218964608334944,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -5280,6 +5291,7 @@
     "metrics": {
      "npv": 2427.1650598581155,
      "irr": 55.31137086996527,
+     "irrStatus": "ok",
      "payback": 3.3382492708026086,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -5423,7 +5435,7 @@
      "npv": 2427.1650598581155,
      "irr": 55.31137086996527,
      "paybackPeriod": 3.3382492708026086,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -5621,6 +5633,7 @@
     "metrics": {
      "npv": 1690.8799979705457,
      "irr": 44.286672995477275,
+     "irrStatus": "ok",
      "payback": 3.6642740688983464,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -5764,7 +5777,7 @@
      "npv": 1690.8799979705457,
      "irr": 44.286672995477275,
      "paybackPeriod": 3.6642740688983464,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -5962,6 +5975,7 @@
     "metrics": {
      "npv": 3136.8827394247523,
      "irr": 64.61776401674457,
+     "irrStatus": "ok",
      "payback": 3.155504349713637,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -6105,7 +6119,7 @@
      "npv": 3136.8827394247523,
      "irr": 64.61776401674457,
      "paybackPeriod": 3.155504349713637,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -6303,6 +6317,7 @@
     "metrics": {
      "npv": -177.82214977328982,
      "irr": 4.385846628608222,
+     "irrStatus": "ok",
      "payback": 8.18326174334558,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -6446,7 +6461,7 @@
      "npv": -177.82214977328982,
      "irr": 4.385846628608222,
      "paybackPeriod": 8.18326174334558,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -6644,6 +6659,7 @@
     "metrics": {
      "npv": -315.8755988772091,
      "irr": -0.7400658836962649,
+     "irrStatus": "ok",
      "payback": 11.0,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -6787,7 +6803,7 @@
      "npv": -315.8755988772091,
      "irr": null,
      "paybackPeriod": null,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -6984,6 +7000,7 @@
     "metrics": {
      "npv": 1476.130188253338,
      "irr": 40.80510659032116,
+     "irrStatus": "ok",
      "payback": 3.798587543651035,
      "maxExposure": -800.0,
      "totalRevenue": 9033.75,
@@ -7127,7 +7144,7 @@
      "npv": 1476.130188253338,
      "irr": 40.80510659032116,
      "paybackPeriod": 3.798587543651035,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -7322,6 +7339,7 @@
     "metrics": {
      "npv": 1733.545875921974,
      "irr": 40.97614805004584,
+     "irrStatus": "ok",
      "payback": 4.0087023285084955,
      "maxExposure": -800.0,
      "totalRevenue": 8699.775,
@@ -7465,7 +7483,7 @@
      "npv": 1733.545875921974,
      "irr": 40.97614805004584,
      "paybackPeriod": 4.0087023285084955,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -7516,6 +7534,7 @@
     "metrics": {
      "npv": 330.4397959865008,
      "irr": 391.2249999999999,
+     "irrStatus": "ok",
      "payback": 1.2035727009008093,
      "maxExposure": -100.0,
      "totalRevenue": 876.0,
@@ -7560,7 +7579,7 @@
      "npv": 330.4397959865008,
      "irr": 391.2249999999999,
      "paybackPeriod": 1.2035727009008093,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -7674,7 +7693,8 @@
     ],
     "metrics": {
      "npv": -979.6324735027605,
-     "irr": 0.0,
+     "irr": null,
+     "irrStatus": "no-sign-change",
      "payback": 6.0,
      "maxExposure": -1100.0,
      "totalRevenue": 0.0,
@@ -7761,7 +7781,7 @@
      "npv": -979.6324735027605,
      "irr": null,
      "paybackPeriod": null,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    },
    "note": "irr 0 is the engine convention for no sign change; paybackYears null"
@@ -7844,7 +7864,8 @@
     ],
     "metrics": {
      "npv": 717.9604189637012,
-     "irr": 0.0,
+     "irr": null,
+     "irrStatus": "no-sign-change",
      "payback": 0.0,
      "maxExposure": 0.0,
      "totalRevenue": 1642.5,
@@ -7909,7 +7930,7 @@
      "npv": 717.9604189637012,
      "irr": null,
      "paybackPeriod": 0.0,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    },
    "note": "no sign change: engine irr 0, costCalculations irr null, payback 0"
@@ -8104,7 +8125,8 @@
     ],
     "metrics": {
      "npv": -8228.830093628298,
-     "irr": 0.0,
+     "irr": null,
+     "irrStatus": "no-sign-change",
      "payback": 11.0,
      "maxExposure": -13497.71875,
      "totalRevenue": 9033.75,
@@ -8246,7 +8268,7 @@
      "npv": -8228.830093628298,
      "irr": null,
      "paybackPeriod": null,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    },
    "note": "no positive flow: irr 0 by convention; maxExposure is the whole loss"
@@ -8378,6 +8400,7 @@
     "metrics": {
      "npv": -944.3200746283543,
      "irr": null,
+     "irrStatus": "no-root",
      "payback": 7.0,
      "maxExposure": -1278.71875,
      "totalRevenue": 5338.125,
@@ -8475,11 +8498,7 @@
      "npv": -944.3200746283543,
      "irr": null,
      "paybackPeriod": null,
-     "priceDeckPaddedTo70": false
-    },
-    "engineReported": {
-     "irr": 1000.0,
-     "label": "DISAGREEMENT: NPV(r) is negative at every rate from -99 percent to 1e14 percent, so no IRR exists; the engine reports the 1000 percent clamp."
+     "priceDeckRefused": false
     }
    }
   },
@@ -8594,6 +8613,7 @@
     "metrics": {
      "npv": 690.0729479916344,
      "irr": 82.75216459022128,
+     "irrStatus": "ok",
      "payback": 1.803767660910518,
      "maxExposure": -300.0,
      "totalRevenue": 2600.625,
@@ -8682,7 +8702,7 @@
      "npv": 690.0729479916344,
      "irr": 82.75216459022128,
      "paybackPeriod": 1.803767660910518,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    },
    "note": "Number(\"25\") is 25, Number(null) is 0, Number(\"x\") is NaN and becomes 0"
@@ -8779,7 +8799,8 @@
     ],
     "metrics": {
      "npv": 126.163606905875,
-     "irr": 50.31215966598197,
+     "irr": null,
+     "irrStatus": "multiple-roots",
      "payback": 2.014220212563653,
      "maxExposure": -300.0,
      "totalRevenue": 1095.0,
@@ -8798,67 +8819,11 @@
     "irrBeyondEngineClamp": false,
     "irrNoRoot": false,
     "costCalculations": {
-     "rows": [
-      {
-       "year": 0,
-       "revenue": 0.0,
-       "royalty": 0.0,
-       "tax": 0.0,
-       "capex": 300.0,
-       "opex": 0.0,
-       "netCashFlow": -300.0,
-       "cumulativeCashFlow": -300.0,
-       "discountedCashFlow": -286.0387767736777
-      },
-      {
-       "year": 1,
-       "revenue": 547.5,
-       "royalty": 68.4375,
-       "tax": 126.76875,
-       "capex": 0.0,
-       "opex": 56.5,
-       "netCashFlow": 295.79375,
-       "cumulativeCashFlow": -4.206250000000011,
-       "discountedCashFlow": 256.38934068878484
-      },
-      {
-       "year": 2,
-       "revenue": 547.5,
-       "royalty": 68.4375,
-       "tax": 126.76875,
-       "capex": 0.0,
-       "opex": 56.5,
-       "netCashFlow": 295.79375,
-       "cumulativeCashFlow": 291.5875,
-       "discountedCashFlow": 233.08121880798626
-      },
-      {
-       "year": 3,
-       "revenue": 511.0,
-       "royalty": 63.875,
-       "tax": 117.1875,
-       "capex": 0.0,
-       "opex": 56.5,
-       "netCashFlow": 273.4375,
-       "cumulativeCashFlow": 565.025,
-       "discountedCashFlow": 195.87710499387043
-      },
-      {
-       "year": 4,
-       "revenue": 511.0,
-       "royalty": 63.875,
-       "tax": 117.1875,
-       "capex": 0.0,
-       "opex": 56.5,
-       "netCashFlow": 273.4375,
-       "cumulativeCashFlow": 838.4625,
-       "discountedCashFlow": 178.07009544897312
-      }
-     ],
-     "npv": 577.3789831659369,
-     "irr": 89.44529867969308,
-     "paybackPeriod": 2.014220212563653,
-     "priceDeckPaddedTo70": true
+     "rows": null,
+     "npv": null,
+     "irr": null,
+     "paybackPeriod": null,
+     "priceDeckRefused": true
     }
    }
   },
@@ -8909,6 +8874,7 @@
     "metrics": {
      "npv": 133.30869695943701,
      "irr": null,
+     "irrStatus": "above-clamp",
      "payback": 1.0064559081647064,
      "maxExposure": -1.0,
      "totalRevenue": 273.75,
@@ -8953,11 +8919,7 @@
      "npv": 133.30869695943701,
      "irr": 15389.687500000002,
      "paybackPeriod": 1.0064559081647064,
-     "priceDeckPaddedTo70": false
-    },
-    "engineReported": {
-     "irr": 1000.0,
-     "label": "DISAGREEMENT: the true IRR is 15389.69 percent, above the clamp; the engine reports 1000."
+     "priceDeckRefused": false
     }
    },
    "note": "true mid-year IRR is far above 1000 percent; the engine clamps Newton to 1000 percent"
@@ -9041,6 +9003,7 @@
     "metrics": {
      "npv": 1074.4692190294004,
      "irr": null,
+     "irrStatus": "above-clamp",
      "payback": 1.0433660159505627,
      "maxExposure": -20.0,
      "totalRevenue": 2463.75,
@@ -9107,11 +9070,7 @@
      "npv": 1074.4692190294004,
      "irr": 2305.7875180064902,
      "paybackPeriod": 1.0433660159505627,
-     "priceDeckPaddedTo70": false
-    },
-    "engineReported": {
-     "irr": 1000.0,
-     "label": "DISAGREEMENT: the true IRR is 2305.79 percent, above the clamp; the engine reports 1000."
+     "priceDeckRefused": false
     }
    },
    "note": "true mid-year IRR above 1000 percent; the engine clamps"
@@ -9308,7 +9267,8 @@
     ],
     "metrics": {
      "npv": -1464.8988973725586,
-     "irr": 0.0,
+     "irr": null,
+     "irrStatus": "no-sign-change",
      "payback": 11.0,
      "maxExposure": -2002.25,
      "totalRevenue": 9033.75,
@@ -9450,7 +9410,7 @@
      "npv": -1464.8988973725586,
      "irr": null,
      "paybackPeriod": null,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -9645,6 +9605,7 @@
     "metrics": {
      "npv": 1442.5824720933088,
      "irr": 29.866679874637704,
+     "irrStatus": "ok",
      "payback": 4.323317476908637,
      "maxExposure": -1350.0,
      "totalRevenue": 9033.75,
@@ -9788,7 +9749,7 @@
      "npv": 1442.5824720933088,
      "irr": 29.866679874637704,
      "paybackPeriod": 4.323317476908637,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   },
@@ -10223,6 +10184,7 @@
     "metrics": {
      "npv": 2886.438657363212,
      "irr": 58.55509622435455,
+     "irrStatus": "ok",
      "payback": 2.533938446619718,
      "maxExposure": -1200.0,
      "totalRevenue": 16779.36935415103,
@@ -10531,7 +10493,7 @@
      "npv": 2886.438657363212,
      "irr": 58.55509622435455,
      "paybackPeriod": 2.533938446619718,
-     "priceDeckPaddedTo70": false
+     "priceDeckRefused": false
     }
    }
   }
@@ -11221,7 +11183,7 @@
      "taxRate": 30.0
     },
     "npv": 850.1261220554567,
-    "irr": 0.0,
+    "irr": null,
     "payback": 0.0,
     "totalTax": 696.9731144495578,
     "irrExists": false,
@@ -11277,7 +11239,7 @@
      "taxRate": 30.0
     },
     "npv": -1750.6226176056014,
-    "irr": 0.0,
+    "irr": null,
     "payback": null,
     "totalTax": 0.0,
     "irrExists": false,
@@ -11553,11 +11515,7 @@
     "irrExists": true,
     "irrRootsPercent": null,
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": true,
-    "engineReported": {
-     "irr": 1000.0,
-     "label": "DISAGREEMENT: NPV(r) is negative at every rate, no IRR exists; the engine reports the 1000 percent clamp on a scenario card."
-    }
+    "irrNoRoot": true
    }
   },
   {
@@ -11841,8 +11799,8 @@
     },
     {
      "name": "Production",
-     "lowParamNPV": 1825.877213725739,
-     "highParamNPV": 4576.387042593156,
+     "lowParamNPV": 1938.1429210264503,
+     "highParamNPV": 4464.121335292445,
      "baseNPV": 3201.132128159448
     }
    ]
@@ -11919,8 +11877,8 @@
     },
     {
      "name": "Production",
-     "lowParamNPV": 6167.111855230374,
-     "highParamNPV": 13897.124635157312,
+     "lowParamNPV": 6482.622580941679,
+     "highParamNPV": 13581.613909446005,
      "baseNPV": 10032.118245193842
     }
    ]
@@ -11987,8 +11945,8 @@
     },
     {
      "name": "Production",
-     "lowParamNPV": -225.04772314641176,
-     "highParamNPV": 650.454464312943,
+     "lowParamNPV": -169.4602826728019,
+     "highParamNPV": 594.867023839333,
      "baseNPV": 212.7033705832655
     }
    ]
@@ -12044,8 +12002,8 @@
     },
     {
      "name": "Production",
-     "lowParamNPV": 1651.905629600717,
-     "highParamNPV": 3824.1605994069214,
+     "lowParamNPV": 1735.4538976701867,
+     "highParamNPV": 3740.612331337453,
      "baseNPV": 2738.0331145038194
     }
    ]
@@ -14070,7 +14028,7 @@
     "expected": {
      "capex": 2589.2031359695115,
      "opex": 96.65910224658813,
-     "decommissioning": 180.0
+     "decommissioning": 388.3804703954267
     }
    },
    {
@@ -14104,7 +14062,7 @@
     "expected": {
      "capex": 209.81045712432882,
      "opex": 11.040328842267499,
-     "decommissioning": 45.0
+     "decommissioning": 31.47156856864932
     }
    },
    {
@@ -14126,7 +14084,7 @@
     "expected": {
      "capex": 1593.841487932001,
      "opex": 63.77122503128953,
-     "decommissioning": 180.0
+     "decommissioning": 239.07622318980015
     }
    },
    {
@@ -14148,7 +14106,7 @@
     "expected": {
      "capex": 791.7047464637366,
      "opex": 34.46095064991105,
-     "decommissioning": 45.0
+     "decommissioning": 118.75571196956048
     }
    }
   ],
@@ -14794,7 +14752,9 @@
      "matrix": {
       "low": 0,
       "medium": 1,
-      "high": 2,
+      "high": 1,
+      "critical": 1,
+      "unscored": 0,
       "total": 3
      },
      "totalScore": 43.0,
@@ -14830,9 +14790,11 @@
     ],
     "expected": {
      "matrix": {
-      "low": 1,
+      "low": 0,
       "medium": 2,
-      "high": 1,
+      "high": 2,
+      "critical": 0,
+      "unscored": 0,
       "total": 4
      },
      "totalScore": 44.0,
@@ -14856,9 +14818,11 @@
     ],
     "expected": {
      "matrix": {
-      "low": 3,
+      "low": 0,
       "medium": 0,
       "high": 0,
+      "critical": 0,
+      "unscored": 3,
       "total": 3
      },
      "totalScore": 0.0,
@@ -14875,6 +14839,8 @@
       "low": 0,
       "medium": 0,
       "high": 0,
+      "critical": 0,
+      "unscored": 0,
       "total": 0
      },
      "totalScore": 0.0,
@@ -15012,9 +14978,11 @@
     ],
     "expected": {
      "matrix": {
-      "low": 12,
+      "low": 10,
       "medium": 7,
-      "high": 6,
+      "high": 5,
+      "critical": 3,
+      "unscored": 0,
       "total": 25
      },
      "totalScore": 225.0,
@@ -15183,7 +15151,8 @@
      "Critical": 1,
      "High": 1,
      "Medium": 1,
-     "Low": 0
+     "Low": 0,
+     "Unscored": 0
     },
     "health": 43.0
    }
@@ -15234,7 +15203,8 @@
      "Critical": 1,
      "High": 2,
      "Medium": 1,
-     "Low": 1
+     "Low": 1,
+     "Unscored": 0
     },
     "health": 56.0
    }
@@ -15273,7 +15243,8 @@
      "Critical": 2,
      "High": 1,
      "Medium": 1,
-     "Low": 1
+     "Low": 1,
+     "Unscored": 0
     },
     "health": 46.0
    }
@@ -15307,7 +15278,8 @@
      "Critical": 3,
      "High": 0,
      "Medium": 0,
-     "Low": 0
+     "Low": 0,
+     "Unscored": 0
     },
     "health": 0.0
    }
@@ -15342,7 +15314,8 @@
      "Critical": 0,
      "High": 0,
      "Medium": 0,
-     "Low": 4
+     "Low": 4,
+     "Unscored": 0
     },
     "health": 100.0
    }
@@ -15358,7 +15331,8 @@
      "Critical": 0,
      "High": 0,
      "Medium": 0,
-     "Low": 0
+     "Low": 0,
+     "Unscored": 0
     },
     "health": 100.0
    }
@@ -15381,7 +15355,8 @@
      "Critical": 0,
      "High": 0,
      "Medium": 1,
-     "Low": 0
+     "Low": 0,
+     "Unscored": 0
     },
     "health": 80.0
    }
@@ -15405,7 +15380,8 @@
      "Critical": 0,
      "High": 1,
      "Medium": 0,
-     "Low": 0
+     "Low": 0,
+     "Unscored": 0
     },
     "health": 50.0
    }
@@ -15429,7 +15405,8 @@
      "Critical": 0,
      "High": 0,
      "Medium": 1,
-     "Low": 0
+     "Low": 0,
+     "Unscored": 0
     },
     "health": 80.0
    }
@@ -15458,7 +15435,8 @@
      "Critical": 1,
      "High": 0,
      "Medium": 0,
-     "Low": 1
+     "Low": 1,
+     "Unscored": 0
     },
     "health": 50.0
    }
@@ -15476,7 +15454,7 @@
     }
    ],
    "expected": {
-    "consolidatedScore": null,
+    "consolidatedScore": 9.0,
     "exposure": 0.0,
     "bySource": {
      "Other": 2
@@ -15485,11 +15463,11 @@
      "Critical": 0,
      "High": 0,
      "Medium": 1,
-     "Low": 1
+     "Low": 0,
+     "Unscored": 1
     },
-    "health": 90.0
-   },
-   "note": "consolidatedScore is NaN in the engine (a missing factor multiplies as undefined); recorded as null. The NaN score reads as Low in byLevel."
+    "health": 80.0
+   }
   }
  ],
  "schedule": [
@@ -18498,7 +18476,7 @@
      "cost": {
       "capex": 2589.2031359695115,
       "opex": 96.65910224658813,
-      "decommissioning": 180.0
+      "decommissioning": 388.3804703954267
      },
      "flowAssurance": {
       "score": 0,
@@ -18542,7 +18520,7 @@
      "cost": {
       "capex": 209.81045712432882,
       "opex": 11.040328842267499,
-      "decommissioning": 45.0
+      "decommissioning": 31.47156856864932
      },
      "flowAssurance": {
       "score": 3,
@@ -18571,7 +18549,9 @@
     "matrix": {
      "low": 0,
      "medium": 1,
-     "high": 2,
+     "high": 1,
+     "critical": 1,
+     "unscored": 0,
      "total": 3
     },
     "totalScore": 43.0,
@@ -18591,7 +18571,8 @@
      "Critical": 1,
      "High": 1,
      "Medium": 1,
-     "Low": 0
+     "Low": 0,
+     "Unscored": 0
     },
     "health": 43.0
    },
@@ -18817,8 +18798,8 @@
     },
     {
      "name": "Production",
-     "lowParamNPV": 6167.111855230374,
-     "highParamNPV": 13897.124635157312,
+     "lowParamNPV": 6482.622580941679,
+     "highParamNPV": 13581.613909446005,
      "baseNPV": 10032.118245193842
     }
    ]

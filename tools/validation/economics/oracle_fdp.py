@@ -237,33 +237,41 @@ def bracket_roots(f, lo, hi, n):
 
 
 def irr_engine_convention(flows):
-    """The screening engine's IRR field: 0 when the cash flow never changes
-    sign; otherwise the root of the mid-year NPV. Returns a dict: irr in
-    percent (None when there is no root the engine could report honestly),
-    exists (a sign change is present), roots (every root found, percent),
-    beyondClamp (the only root is above the engine's 1000 percent clamp) and
-    noRoot (NPV never crosses zero anywhere the engine can look)."""
+    """The screening engine's IRR field, EC6-1.
+
+    Before: 0 when the cash flow never changes sign, otherwise wherever the
+    clamped Newton search stopped, which on several of these cases was the
+    1000 percent clamp itself. Now: a rate is reported only when it is a
+    single root inside the band the engine searches (-99 to 1000 percent),
+    and `status` says which of the other things happened.
+
+    Returns irr (percent, None when there is none to report), status, exists
+    (a sign change is present), roots (every root in the band, percent),
+    beyondClamp (the only root is above the clamp) and noRoot (the NPV never
+    crosses zero anywhere the engine can look)."""
     has_neg = any(f < 0 for f in flows)
     has_pos = any(f > 0 for f in flows)
-    out = {'irr': 0.0, 'exists': False, 'roots': None, 'beyondClamp': False, 'noRoot': False}
+    out = {'irr': None, 'status': 'no-sign-change', 'exists': False, 'roots': None,
+           'beyondClamp': False, 'noRoot': False}
     if not (has_neg and has_pos):
         return out
     out['exists'] = True
     f = lambda r: npv_at(flows, r)
     roots = bracket_roots(f, -0.99, 10.0, 20000)
-    if roots:
-        # The engine starts at 10 percent; with one root that is the root.
-        # With several the nearest to the start is what Newton finds from
-        # there on a conventional profile; the golden lists them all.
-        root = min(roots, key=lambda r: abs(r - 0.1))
-        out.update({'irr': root * 100.0, 'roots': [r * 100.0 for r in roots]})
+    if len(roots) == 1:
+        out.update({'irr': roots[0] * 100.0, 'status': 'ok', 'roots': [roots[0] * 100.0]})
+        return out
+    if len(roots) > 1:
+        # A flow that changes sign more than once has more than one rate
+        # that zeroes it, and none of them is "the" return.
+        out.update({'irr': None, 'status': 'multiple-roots', 'roots': [r * 100.0 for r in roots]})
         return out
     # No root inside the clamp: solve in log(1 + r) out to 1e12 (a rate of
     # 1e14 percent; the mid-year power stays finite there for 25 periods).
     g = lambda u: f(math.exp(u) - 1.0)
     ulo, uhi = math.log(11.0), math.log(1e12)
     if (g(ulo) < 0) == (g(uhi) < 0):
-        out.update({'irr': None, 'noRoot': True})
+        out.update({'irr': None, 'status': 'no-root', 'noRoot': True})
         return out
     for _ in range(400):
         um = 0.5 * (ulo + uhi)
@@ -272,7 +280,7 @@ def irr_engine_convention(flows):
         else:
             uhi = um
     true_root = (math.exp(0.5 * (ulo + uhi)) - 1.0) * 100.0
-    out.update({'irr': None, 'roots': [true_root], 'beyondClamp': True})
+    out.update({'irr': None, 'status': 'above-clamp', 'roots': [true_root], 'beyondClamp': True})
     return out
 
 
@@ -392,32 +400,30 @@ def fdp_case(capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal=None):
     npv = npv_at(flows, d)
     ir = irr_engine_convention(flows)
     irr, exists, roots, clamped, no_root = ir['irr'], ir['exists'], ir['roots'], ir['beyondClamp'], ir['noRoot']
+    irr_status = ir['status']
     cums = [r['cumulativeNCF'] for r in rows]
     payback = payback_from_cumulative(flows, cums, float(life))
     pays_back = any(c >= 0 for c in cums)
-    metrics = {'npv': npv, 'irr': irr, 'payback': payback, 'maxExposure': min(cums)}
+    metrics = {'npv': npv, 'irr': irr, 'irrStatus': irr_status, 'payback': payback, 'maxExposure': min(cums)}
     metrics.update(tot)
-    # costCalculations view of the same case. calculateCashFlows reads the
-    # price deck row by row and a MISSING row is 70 $/bbl there (`?? 70`),
-    # where runFdpCase reads a missing price as 0, so the view is rebuilt
-    # from the padded deck rather than copied from the rows above.
-    cc_prices = [pricesUsd[i] if i < len(pricesUsd) and pricesUsd[i] is not None else 70 for i in range(n)]
-    if cc_prices != list(pricesUsd):
-        base = fdp_case(capexMM, annualOpexMM, productionKbpd, cc_prices, fiscal)
-        cc_src, cc_flows, cc_cums = base['cashflow'], [r['ncf'] for r in base['cashflow']], [r['cumulativeNCF'] for r in base['cashflow']]
-    else:
-        cc_src, cc_flows, cc_cums = rows, flows, cums
+    # costCalculations view of the same case. EC6-1: calculateCashFlows used
+    # to pad a short price deck with 70 $/bbl (`?? 70`) where runFdpCase
+    # reads a missing price as 0, so the same profile gave two different
+    # NPVs depending on the door you came in by. A deck that does not cover
+    # the profile is refused now, and `priceDeckRefused` records it.
+    deck_complete = all(i < len(pricesUsd) and pricesUsd[i] is not None for i in range(n))
+    cc_src, cc_flows, cc_cums = rows, flows, cums
     rate = d
     cc_rows = [{'year': i, 'revenue': r['grossRevenue'], 'royalty': r['royalty'], 'tax': r['tax'],
                 'capex': r['capex'], 'opex': r['opex'], 'netCashFlow': r['ncf'],
                 'cumulativeCashFlow': r['cumulativeNCF'],
                 'discountedCashFlow': r['ncf'] / (1.0 + rate) ** (i + 0.5)}
                for i, r in enumerate(cc_src)]
-    cc = {'rows': cc_rows,
-          'npv': sum(x['discountedCashFlow'] for x in cc_rows),
-          'irr': cost_calculations_irr(cc_flows),
-          'paybackPeriod': payback_from_cumulative(cc_flows, cc_cums, None),
-          'priceDeckPaddedTo70': cc_prices != list(pricesUsd)}
+    cc = {'rows': cc_rows if deck_complete else None,
+          'npv': sum(x['discountedCashFlow'] for x in cc_rows) if deck_complete else None,
+          'irr': cost_calculations_irr(cc_flows) if deck_complete else None,
+          'paybackPeriod': payback_from_cumulative(cc_flows, cc_cums, None) if deck_complete else None,
+          'priceDeckRefused': not deck_complete}
     return {'cashflow': rows, 'metrics': metrics, 'paybackYears': payback if pays_back else None,
             'irrExists': exists, 'irrRootsPercent': roots, 'irrBeyondEngineClamp': clamped,
             'irrNoRoot': no_root, 'costCalculations': cc}
@@ -550,11 +556,12 @@ def fdp_sensitivity(capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal=Non
     base = screening_npv(oil, price, opex_fixed, opex_var, capex, terms)
 
     def scaled(which, k):
+        # EC6-1: production carries the variable operating cost it implies.
         return screening_npv(
             [v * k for v in oil] if which == 'Production' else oil,
             [v * k for v in price] if which == 'Oil Price' else price,
             [v * k for v in opex_fixed] if which == 'OPEX' else opex_fixed,
-            opex_var,
+            [v * k for v in opex_var] if which == 'Production' else opex_var,
             [v * k for v in capex] if which == 'CAPEX' else capex,
             terms)
 
@@ -734,10 +741,12 @@ FAC_BASE = {'FPSO': (1200.0, 50.0), 'Platform': (800.0, 30.0), 'Subsea Tie-back'
 def facility_cost(f):
     capex, opex = FAC_BASE.get(f.get('type'), (500.0, 25.0))
     size = pf_or(f.get('nameplateCapacity'), 50000.0) / 50000.0
-    # The method statement scales capex by the 0.7 power and opex by the 0.6
-    # power of size; it says nothing about decommissioning, which is 15
-    # percent of the UNSCALED base (see FINDINGS-fdp.md, observation).
-    return {'capex': capex * size ** 0.7, 'opex': opex * size ** 0.6, 'decommissioning': capex * 0.15}
+    # EC6-1: capex scales by the 0.7 power of size and opex by the 0.6, and
+    # decommissioning is 15 percent of the capex the facility actually
+    # carries. It used to be 15 percent of the UNSCALED base, so a 150,000
+    # bbl/d FPSO decommissioned for the same 180 $MM as a 50,000 one.
+    sized_capex = capex * size ** 0.7
+    return {'capex': sized_capex, 'opex': opex * size ** 0.6, 'decommissioning': sized_capex * 0.15}
 
 
 def flow_assurance(f, fluid):
@@ -783,25 +792,52 @@ def bottlenecks(f, peak):
 # ---------------------------------------------------------------------
 
 
+def scored(r):
+    """EC6-1: the score of one risk, or None when a factor is missing.
+
+    Before, a missing factor was read as a zero here and as NaN in the risk
+    module, and NaN failed every band comparison, so an unscored risk was
+    counted as Low on both sides and the portfolio health went UP the less
+    of the register had been filled in."""
+    p = parse_float_or_none(r.get('probability'))
+    i = parse_float_or_none(r.get('impact'))
+    if p is None or i is None:
+        return None
+    return p * i
+
+
+def parse_float_or_none(v):
+    if v is None or (isinstance(v, str) and v.strip() == ''):
+        return None
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    if f != f or f in (float('inf'), float('-inf')):
+        return None
+    return f
+
+
 def hse_score(r):
-    return or_default(r.get('probability'), 0.0) * or_default(r.get('impact'), 0.0)
+    return scored(r) or 0.0
 
 
 def risk_matrix(risks):
-    m = {'low': 0, 'medium': 0, 'high': 0, 'total': len(risks)}
+    """EC6-1: banded on the register's scale (20 / 12 / 6), the one scale in
+    the module. This used to band on 15 and 8, so a score of 12 read High on
+    the register and Medium here."""
+    m = {'low': 0, 'medium': 0, 'high': 0, 'critical': 0, 'unscored': 0, 'total': len(risks)}
     for r in risks:
-        s = hse_score(r)
-        if s >= 15:
-            m['high'] += 1
-        elif s >= 8:
-            m['medium'] += 1
-        else:
-            m['low'] += 1
+        s = scored(r)
+        if s is None:
+            m['unscored'] += 1
+            continue
+        m[risk_level(s).lower()] += 1
     return m
 
 
 def total_risk_score(risks):
-    return float(sum(hse_score(r) for r in risks))
+    return float(sum(scored(r) or 0.0 for r in risks))
 
 
 def by_key(risks, key, default):
@@ -846,9 +882,15 @@ PROB_FACTORS = {1: 0.05, 2: 0.20, 3: 0.40, 4: 0.60, 5: 0.85}
 
 
 def consolidated_score(risks):
+    """EC6-1: the sum of the SCORED risks. It used to multiply without
+    coercion, so one risk missing a factor made the whole register NaN."""
     if not risks:
         return 0.0
-    return sum(risk_score_strict(r) for r in risks)
+    return sum(scored(r) or 0.0 for r in risks)
+
+
+def unscored_count(risks):
+    return sum(1 for r in risks if scored(r) is None)
 
 
 def risk_exposure(risks):
@@ -867,16 +909,22 @@ def risk_exposure(risks):
 
 
 def by_level(risks):
-    levels = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0}
+    levels = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Unscored': 0}
     for r in risks:
-        levels[risk_level(risk_score_strict(r))] += 1
+        s = scored(r)
+        if s is None:
+            levels['Unscored'] += 1
+            continue
+        levels[risk_level(s)] += 1
     return levels
 
 
 def portfolio_health(risks):
+    """EC6-1: over the scored risks only. An unscored risk used to count as
+    Low, which improved the score."""
     lv = by_level(risks)
-    total = len(risks)
-    if total == 0:
+    total = len(risks) - lv['Unscored']
+    if total <= 0:
         return 100.0
     penalty = lv['Critical'] * 10 + lv['High'] * 5 + lv['Medium'] * 2
     return js_round(max(0.0, 100.0 - (penalty / total) * 10.0))
@@ -1170,25 +1218,17 @@ PRICES = [75] * 10
 # published behaviour; the golden carries its number here, labelled, beside
 # the oracle's, and the gate pins both and the gap. See FINDINGS-fdp.md.
 # ---------------------------------------------------------------------
-ENGINE_REPORTED = {
-    'suite test: never pays back (100000 capex)': {
-        'irr': 1000.0,
-        'label': 'DISAGREEMENT: the only root of the mid-year NPV is -36.67 percent; Newton from 10 percent runs to the 1000 percent clamp and the engine reports 1000.'},
-    'tax floor: loss years pay no tax': {
-        'irr': 1000.0,
-        'label': 'DISAGREEMENT: NPV(r) is negative at every rate from -99 percent to 1e14 percent, so no IRR exists; the engine reports the 1000 percent clamp.'},
-    'tiny capex, large single year: IRR beyond the engine clamp': {
-        'irr': 1000.0,
-        'label': 'DISAGREEMENT: the true IRR is 15389.69 percent, above the clamp; the engine reports 1000.'},
-    'high IRR above the clamp: three fat years on 20 capex': {
-        'irr': 1000.0,
-        'label': 'DISAGREEMENT: the true IRR is 2305.79 percent, above the clamp; the engine reports 1000.'},
-}
-ENGINE_REPORTED_SCENARIO = {
-    'price so low the scenario never pays back': {
-        'irr': 1000.0,
-        'label': 'DISAGREEMENT: NPV(r) is negative at every rate, no IRR exists; the engine reports the 1000 percent clamp on a scenario card.'},
-}
+# EC6-1: there are no IRR disagreements left to pin here either.
+#
+# Four cases in this file and one scenario used to carry one: the engine ran
+# a clamped Newton search from 10 percent and reported the rate it stopped
+# at, so a case whose only root is -36.67 percent, and a case with no root at
+# all, both showed an IRR of exactly 1000.0 percent, and on a scenario card
+# that 1000 was coloured green for clearing the 15 percent hurdle. The engine
+# now reports a rate only when it is a single root inside the band it
+# searches, and `irrStatus` carries the reason when there is none.
+ENGINE_REPORTED = {}
+ENGINE_REPORTED_SCENARIO = {}
 
 
 def fdp_cases():

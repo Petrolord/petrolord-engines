@@ -350,7 +350,9 @@ def metrics(afe, items, invoices=None, as_of=None):
         spi = ev / pv if pv > 0 else None
     else:
         spi = 1.0
-    out = {'totalBudget': bac, 'totalCommitments': commitments, 'totalActuals': ac, 'totalForecast': eac,
+    undated = sum(1 for inv in (invoices or []) if iso_date(inv.get('invoice_date')) is None)
+    out = {'undatedInvoices': undated,
+           'totalBudget': bac, 'totalCommitments': commitments, 'totalActuals': ac, 'totalForecast': eac,
            'variance': vac, 'earnedValue': ev, 'cpi': cpi, 'spi': spi,
            'percentSpent': ac / bac * 100.0 if bac > 0 else 0.0,
            'percentComplete': ev / bac * 100.0 if bac > 0 else 0.0,
@@ -399,15 +401,13 @@ def scurve(afe, items, invoices, as_of=None):
     total_days = (end - start).days
     daily_budget = bac / max(total_days, 1)
     daily_forecast = eac / max(total_days, 1)
-    # `new Date(inv.invoice_date) <= currentDate`: a missing or unparsable
-    # date is Invalid Date and never counts; a NULL date is the epoch
-    # (new Date(null) is 1970-01-01) and counts in EVERY bucket. See
-    # FINDINGS-fdp.md.
+    # EC6-1 (FINDINGS-fdp.md section 8, RESOLVED). An invoice with no date
+    # the engine can read is not placed on the curve at all. A NULL date
+    # used to be `new Date(null)`, the first of January 1970, so an undated
+    # invoice counted in EVERY bucket and inflated the actual spend from the
+    # first day of the AFE.
     dated = []
     for inv in invoices:
-        if 'invoice_date' in inv and inv['invoice_date'] is None:
-            dated.append((date(1970, 1, 1), js_number(inv.get('amount'))))
-            continue
         d = iso_date(inv.get('invoice_date'))
         if d is not None:
             dated.append((d, js_number(inv.get('amount'))))
@@ -475,27 +475,81 @@ def js_num(n):
     return repr(float(n))
 
 
-def evm(tasks):
-    """EC6-0: numbers, not strings from toFixed(2); a percent complete of
-    null rather than the string "NaN" when there is nothing to divide by;
-    an index of null rather than an invented 1.00 when its denominator is
-    zero; and inputs that cannot be read are refused by task name."""
-    pv = ev = ac = 0.0
+def _calendar_day(iso):
+    """A date-only string as whole days since the epoch, or None."""
+    if not isinstance(iso, str) or not iso.strip():
+        return None
+    try:
+        d = date.fromisoformat(iso.strip()[:10])
+    except ValueError:
+        return None
+    return (d - date(1970, 1, 1)).days
+
+
+def _elapsed_fraction(task, as_of_day, label):
+    start = _calendar_day(task.get('planned_start_date'))
+    end = _calendar_day(task.get('planned_end_date'))
+    if start is None or end is None:
+        return None
+    if end < start:
+        raise EvmRefused('%s: the planned end date is before the planned start date' % label)
+    if as_of_day <= start:
+        return 0.0
+    if as_of_day >= end:
+        return 1.0
+    return (as_of_day - start) / (end - start)
+
+
+def evm(tasks, as_of='2026-09-15'):
+    """EC6-1: planned value is TIME-PHASED to an as-of date.
+
+    EC6-0 made the figures numbers, put null where an index has no
+    denominator, and refused a cost it could not read. Planned value was
+    still the whole budget of every task, so "SPI" was earned value over
+    budget at completion: a project half done on time and a project half
+    done a year late both read 0.50, and the index could never go above 1.
+    Each task's budget is now spread evenly across its own planned window
+    and cut off at the as-of date, the definition afe.js already uses. The
+    completion ratio that number really was is still reported, by name."""
+    as_of_day = _calendar_day(as_of)
+    if as_of_day is None:
+        raise EvmRefused('asOf is not a valid date: %s' % as_of)
+    bac = ev = ac = pv = 0.0
+    undated = 0
     for i, t in enumerate(tasks):
         label = _task_label(t, i)
         pc = _read_cost(t.get('planned_cost'), 'planned cost', label)
         pct = _read_percent(t.get('percent_complete'), label)
-        pv += pc
+        bac += pc
         ev += pc * (pct / 100.0)
         ac += _read_cost(t.get('actual_cost'), 'actual cost', label)
-    return {'plannedValue': pv, 'earnedValue': ev, 'actualCost': ac,
-            'pv': pv, 'ev': ev, 'ac': ac,
+        if pc > 0:
+            fraction = _elapsed_fraction(t, as_of_day, label)
+            if fraction is None:
+                undated += 1
+            else:
+                pv += pc * fraction
+    time_phased = bac > 0 and undated == 0
+    if time_phased:
+        basis = 'planned value time-phased to the as-of date'
+    elif bac == 0:
+        basis = 'no costed task, so there is no planned value'
+    else:
+        basis = ('%d costed task%s no planned dates, so planned value cannot be time-phased'
+                 % (undated, ' carries' if undated == 1 else 's carry'))
+    return {'plannedValue': pv if time_phased else None,
+            'budgetAtCompletion': bac,
+            'earnedValue': ev, 'actualCost': ac,
+            'pv': pv if time_phased else None, 'ev': ev, 'ac': ac, 'bac': bac,
             'cpi': None if ac == 0 else ev / ac,
-            'spi': None if pv == 0 else ev / pv,
-            'cv': ev - ac, 'sv': ev - pv,
-            'percentComplete': None if pv == 0 else ev / pv * 100.0,
-            'taskCount': len(tasks), 'costed': pv > 0,
-            'spiBasis': 'earned value over budget at completion, not time-phased'}
+            'spi': (ev / pv) if (time_phased and pv > 0) else None,
+            'cv': ev - ac, 'sv': (ev - pv) if time_phased else None,
+            'completionRatio': None if bac == 0 else ev / bac,
+            'percentComplete': None if bac == 0 else ev / bac * 100.0,
+            'taskCount': len(tasks), 'costed': bac > 0,
+            'undatedCostedTasks': undated,
+            'asOf': as_of,
+            'spiBasis': basis}
 
 
 def cpi_spi(ev, divisor):
@@ -695,23 +749,64 @@ def scurve_cases():
 
 
 def evm_cases():
+    """EC6-1: every costed task carries a planned window, so planned value
+    can be time-phased; the cases without one are here on purpose."""
+    W = {'planned_start_date': '2026-01-01', 'planned_end_date': '2026-12-31'}
     sets = [
-        ('three tasks', [{'planned_cost': 1000, 'percent_complete': 50, 'actual_cost': 600}, {'planned_cost': 2000, 'percent_complete': 25, 'actual_cost': 400}, {'planned_cost': 500, 'percent_complete': 100, 'actual_cost': 450}], None),
-        ('empty task list: no percent complete', [], 'EC6-0: percentComplete is null. It used to be the string "NaN", and one card read that as 0 and printed "Behind Schedule".'),
-        ('no actuals but progress: CPI is not defined', [{'planned_cost': 100, 'percent_complete': 40, 'actual_cost': 0}], 'EC6-0: cpi is null. It used to be an invented 1.00, printed as "Under Budget".'),
-        ('no actuals and no progress: CPI is not defined', [{'planned_cost': 100, 'percent_complete': 0, 'actual_cost': 0}], None),
-        ('tasks without costs: no SPI', [{'name': 'x'}, {'name': 'y', 'actual_cost': 20}], 'EC6-0: spi and percentComplete are null. This is every project in the app: no screen wrote a task cost until this wave.'),
-        ('strings and blanks', [{'name': 'a', 'planned_cost': '1500.5', 'percent_complete': '33.3', 'actual_cost': '499.99'}, {'name': 'b', 'planned_cost': '', 'percent_complete': None}], None),
-        ('a tie at the third decimal: 0.125 rounds to 0.13', [{'planned_cost': 0.125, 'percent_complete': 100, 'actual_cost': 0.125}], None),
-        ('negative cost variance rounds away from zero', [{'planned_cost': 10, 'percent_complete': 100, 'actual_cost': 10.125}], None),
-        ('a single fully spent task', [{'name': 'one', 'planned_cost': 100, 'percent_complete': 100, 'actual_cost': 100}], None),
-        ('over budget and behind', [{'planned_cost': 4000, 'percent_complete': 30, 'actual_cost': 2500}], None),
-        ('twenty tasks', [{'planned_cost': 100 + 37 * k, 'percent_complete': (k * 13) % 101, 'actual_cost': 90 + 41 * k} for k in range(20)], None),
-        ('2.675 does not tie in binary', [{'planned_cost': 2.675, 'percent_complete': 100, 'actual_cost': 2.675}], None),
+        ('three tasks', [dict(W, name='t1', planned_cost=1000, percent_complete=50, actual_cost=600),
+                         dict(W, name='t2', planned_cost=2000, percent_complete=25, actual_cost=400),
+                         dict(W, name='t3', planned_cost=500, percent_complete=100, actual_cost=450)], '2026-07-02', None),
+        ('empty task list: no percent complete', [], '2026-07-02',
+         'EC6-0: percentComplete is null. It used to be the string "NaN", and one card read that as 0 and printed "Behind Schedule".'),
+        ('no actuals but progress: CPI is not defined',
+         [dict(W, name='a', planned_cost=100, percent_complete=40, actual_cost=0)], '2026-07-02',
+         'EC6-0: cpi is null. It used to be an invented 1.00, printed as "Under Budget".'),
+        ('no actuals and no progress: CPI is not defined',
+         [dict(W, name='a', planned_cost=100, percent_complete=0, actual_cost=0)], '2026-07-02', None),
+        ('tasks without costs: no SPI', [{'name': 'x'}, {'name': 'y', 'actual_cost': 20}], '2026-07-02',
+         'EC6-0: spi and percentComplete are null. This is every project in the app: no screen wrote a task cost until this wave.'),
+        ('strings and blanks',
+         [dict(W, name='a', planned_cost='1500.5', percent_complete='33.3', actual_cost='499.99'),
+          dict(W, name='b', planned_cost='', percent_complete=None)], '2026-07-02', None),
+        ('a tie at the third decimal: 0.125 rounds to 0.13',
+         [dict(W, name='a', planned_cost=0.125, percent_complete=100, actual_cost=0.125)], '2026-07-02', None),
+        ('negative cost variance rounds away from zero',
+         [dict(W, name='a', planned_cost=10, percent_complete=100, actual_cost=10.125)], '2026-07-02', None),
+        ('a single fully spent task',
+         [dict(W, name='one', planned_cost=100, percent_complete=100, actual_cost=100)], '2026-07-02', None),
+        ('over budget and behind',
+         [dict(W, name='a', planned_cost=4000, percent_complete=30, actual_cost=2500)], '2026-07-02', None),
+        ('twenty tasks', [dict(W, name='t%d' % k, planned_cost=100 + 37 * k, percent_complete=(k * 13) % 101,
+                               actual_cost=90 + 41 * k) for k in range(20)], '2026-07-02', None),
+        ('2.675 does not tie in binary',
+         [dict(W, name='a', planned_cost=2.675, percent_complete=100, actual_cost=2.675)], '2026-07-02', None),
+        # EC6-1 cases
+        ('before the window opens: nothing is planned yet, so no SPI',
+         [dict(W, name='a', planned_cost=1000, percent_complete=0)], '2025-12-31',
+         'EC6-1: planned value is 0 before the start, so there is no schedule index to report.'),
+        ('after the window closes: the whole budget was planned',
+         [dict(W, name='a', planned_cost=1000, percent_complete=60)], '2027-06-30',
+         'EC6-1: SPI is the completion ratio only once the window has closed.'),
+        ('half way through a window, half done: on schedule',
+         [dict(W, name='a', planned_cost=1000, percent_complete=50)], '2026-07-02', None),
+        ('half way through a window, a quarter done: behind',
+         [dict(W, name='a', planned_cost=1000, percent_complete=25)], '2026-07-02', None),
+        ('two windows that do not overlap',
+         [{'name': 'first', 'planned_cost': 600, 'percent_complete': 100,
+           'planned_start_date': '2026-01-01', 'planned_end_date': '2026-06-30'},
+          {'name': 'second', 'planned_cost': 400, 'percent_complete': 0,
+           'planned_start_date': '2026-07-01', 'planned_end_date': '2026-12-31'}], '2026-07-01', None),
+        ('a costed task with no dates: planned value cannot be time-phased',
+         [dict(W, name='dated', planned_cost=500, percent_complete=50),
+          {'name': 'undated', 'planned_cost': 500, 'percent_complete': 50}], '2026-07-02',
+         'EC6-1: spi is null and the basis says why; the completion ratio is still reported.'),
+        ('a zero-length window is either not started or finished',
+         [{'name': 'milestone', 'planned_cost': 100, 'percent_complete': 100,
+           'planned_start_date': '2026-06-01', 'planned_end_date': '2026-06-01'}], '2026-06-01', None),
     ]
     out = []
-    for n, tasks, note in sets:
-        c = {'name': n, 'inputs': {'tasks': tasks}, 'expected': evm(tasks)}
+    for n, tasks, as_of, note in sets:
+        c = {'name': n, 'inputs': {'tasks': tasks, 'asOf': as_of}, 'expected': evm(tasks, as_of)}
         if note:
             c['note'] = note
         out.append(c)
@@ -729,11 +824,14 @@ def evm_refusal_cases():
         ('negative progress', [{'name': 'Back', 'planned_cost': 100, 'percent_complete': -10}]),
         ('an unreadable progress figure', [{'name': 'Half', 'planned_cost': 100, 'percent_complete': 'half'}]),
         ('an unnamed task is refused by its position', [{'planned_cost': 'abc'}]),
+        ('a planned window that ends before it starts',
+         [{'name': 'Backwards', 'planned_cost': 100, 'planned_start_date': '2026-06-30',
+           'planned_end_date': '2026-01-01'}]),
     ]:
         try:
-            evm(tasks)
+            evm(tasks, '2026-07-02')
         except EvmRefused as e:
-            out.append({'name': name, 'inputs': {'tasks': tasks},
+            out.append({'name': name, 'inputs': {'tasks': tasks, 'asOf': '2026-07-02'},
                         'expected': {'refused': True, 'message': e.message}})
             continue
         raise AssertionError('expected a refusal for: %s' % name)

@@ -13,6 +13,7 @@
  */
 
 import { runFdpCase, DEFAULT_FISCAL } from './economics.js';
+import { FdpInputError } from './inputError.js';
 
 export const calculateTotalCAPEX = (costItems) => {
     if (!costItems) return 0;
@@ -55,7 +56,22 @@ export const calculateCostByPhase = (costItems) => {
  * @returns {object[]} rows shaped for the economics charts
  */
 export const calculateCashFlows = (capex, annualOpex, productionProfile, priceDeck, fiscal = {}) => {
-    const prices = productionProfile.map((_, i) => priceDeck[i]?.oil_price_usd ?? 70);
+    // EC6-1 (FINDINGS-fdp.md section 5). A price deck shorter than the
+    // production profile used to be padded with 70 $/bbl here and with 0 in
+    // runFdpCase, so the same profile produced two different NPVs depending
+    // on which door you came in by: $178.99MM against -$66.92MM on a short
+    // deck. Neither number was asked for. A deck that does not cover the
+    // profile is refused.
+    const missing = productionProfile
+        .map((_, i) => i)
+        .filter((i) => !Number.isFinite(parseFloat(priceDeck?.[i]?.oil_price_usd)));
+    if (missing.length) {
+        throw new FdpInputError(
+            `the price deck has no price for production year${missing.length > 1 ? 's' : ''} `
+            + `${missing.map((i) => i + 1).join(', ')}: enter a price for every year of the profile`,
+        );
+    }
+    const prices = productionProfile.map((_, i) => parseFloat(priceDeck[i].oil_price_usd));
     const result = runFdpCase({
         capexMM: capex,
         annualOpexMM: annualOpex,

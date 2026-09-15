@@ -126,6 +126,31 @@ def mid_year_npv(ncf, r):
     return sum(cf / (1.0 + r) ** (i + 0.5) for i, cf in enumerate(ncf))
 
 
+IRR_BAND_LOW_PCT = -99.0
+IRR_BAND_HIGH_PCT = 1000.0
+
+
+def engine_irr(ncf, roots):
+    """EC6-1: what calculateEconomics now reports, and why.
+
+    The clamps were a guard against a wandering Newton search and the rate
+    the search stopped at was reported as the answer: a cash flow that is
+    negative at every rate showed an IRR of 1000.0 percent. An answer is now
+    only reported when it is a root inside the band, and the status says
+    which of the other things happened.
+    """
+    if not (any(c < 0 for c in ncf) and any(c > 0 for c in ncf)):
+        return None, 'no-sign-change'
+    in_band = [x for x in roots if IRR_BAND_LOW_PCT < x < IRR_BAND_HIGH_PCT]
+    if len(in_band) == 1:
+        return in_band[0], 'ok'
+    if len(in_band) > 1:
+        return None, 'multiple-roots'
+    if mid_year_npv(ncf, IRR_BAND_HIGH_PCT / 100.0) > 0:
+        return None, 'above-clamp'
+    return None, 'no-root'
+
+
 def irr_roots_pct(ncf):
     """Every rate in (-99, 20000] percent at which the mid-year NPV is
     zero, by a fine scan and bisection. Returns [] when there is none."""
@@ -236,9 +261,11 @@ def run(inp):
     ncf = [row['ncf'] for row in rows]
     cum_arr = [row['cumulativeNCF'] for row in rows]
     roots = irr_roots_pct(ncf)
+    reported_irr, irr_status = engine_irr(ncf, roots)
     metrics = {
         'npv': mid_year_npv(ncf, r),
-        'irr': roots[0] if len(roots) == 1 else (0.0 if not roots else None),
+        'irr': reported_irr,
+        'irrStatus': irr_status,
         'irrRoots': roots,
         'payback': payback_years(cum_arr, ncf, life),
         'maxExposure': min(cum_arr) if cum_arr else None,
@@ -264,13 +291,21 @@ def scaled(inp, **mult):
             out['opexFixed'] = [v * m for v in out['opexFixed']]
         elif key == 'oilProd':
             out['production']['oil'] = [v * m for v in out['production']['oil']]
+        elif key == 'oilProdWithVariableOpex':
+            # EC6-1: production carries the variable operating cost it
+            # implies. The sweep used to scale the volume alone, crediting a
+            # 30 percent cut in production with the full profile's operating
+            # cost.
+            out['production']['oil'] = [v * m for v in out['production']['oil']]
+            out['opexVariable'] = [v * m for v in out.get('opexVariable', [])]
     return out
 
 
 def sensitivity(inp):
     base = run(inp)['metrics']['npv']
     out = []
-    for name, key in (('Oil Price', 'oilPrice'), ('CAPEX', 'capex'), ('OPEX', 'opexFixed'), ('Production', 'oilProd')):
+    for name, key in (('Oil Price', 'oilPrice'), ('CAPEX', 'capex'), ('OPEX', 'opexFixed'),
+                      ('Production', 'oilProdWithVariableOpex')):
         lo = run(scaled(inp, **{key: 0.7}))['metrics']['npv']
         hi = run(scaled(inp, **{key: 1.3}))['metrics']['npv']
         out.append({'name': name, 'lowParamNPV': lo, 'highParamNPV': hi, 'baseNPV': base})
@@ -306,8 +341,12 @@ def portfolio(projects):
     capex = sum(p.get('capex', 0) or 0 for p in projects)
     risked = sum((p.get('npv', 0) or 0) * (1.0 if p.get('chanceOfSuccess') is None else p['chanceOfSuccess']) for p in projects)
     eff = npv / capex if capex > 0 else 0.0
-    avg = sum(p.get('irr', 0) or 0 for p in projects) / (len(projects) or 1)
-    return {'totalNPV': npv, 'totalCapex': capex, 'totalRiskedNPV': risked, 'capitalEfficiency': eff, 'avgIRR': avg}
+    # EC6-1: only the projects that HAVE an internal rate of return are
+    # averaged. A project with none used to be averaged in as a zero.
+    with_irr = [p['irr'] for p in projects if isinstance(p.get('irr'), (int, float)) and not isinstance(p.get('irr'), bool)]
+    avg = (sum(with_irr) / len(with_irr)) if with_irr else None
+    return {'totalNPV': npv, 'totalCapex': capex, 'totalRiskedNPV': risked, 'capitalEfficiency': eff,
+            'avgIRR': avg, 'irrProjectCount': len(with_irr)}
 
 
 # ---------------------------------------------------------------------
@@ -758,38 +797,28 @@ def build():
     return G
 
 
-# Engine IRR numbers read from the engine where they disagree with the
-# oracle. Every one is the clamped Newton-Raphson: either the true root
-# lies past the 1000 percent clamp, or NPV(10 percent) is negative with a
-# positive slope so the first Newton step lands on the clamp and stays
-# there for 100 iterations, and the clamp is reported as the IRR. Both
-# are recorded in FINDINGS-fiscal.md.
-BEYOND_CLAMP = 'the true root lies beyond the 1000 percent Newton clamp and the clamp is reported'
-WANDERS = ('NPV(10 percent) is negative with a positive slope, so Newton steps past the clamp and the '
-           'clamp is reported; the only root is negative')
-ENGINE_IRR_PINS = {
-    'tr_hand_2yr_depr2': (1000.0, BEYOND_CLAMP + ' (the root is 1800 percent)'),
-    'depr_2yr_on_2yr_hand': (1000.0, BEYOND_CLAMP + ' (the root is 1800 percent)'),
-    'irr_beyond_clamp': (1000.0, BEYOND_CLAMP + ' (the root is 9900 percent)'),
-    'irr_tiny_cash_flows_derivative_guard': (10.0, 'absolute derivative guard returns the Newton starting guess'),
-    'fdp_never_pays_back': (1000.0, WANDERS),
-    'depr_capex_in_last_year': (1000.0, WANDERS),
-}
-
-
-def apply_pins(G):
-    for group, cases in G.items():
-        if not isinstance(cases, list):
-            continue
-        for c in cases:
-            if c.get('id') in ENGINE_IRR_PINS:
-                irr_pin, why = ENGINE_IRR_PINS[c['id']]
-                c['engine'] = {'irr': irr_pin, 'disagreement': why}
+# EC6-1: there are no IRR disagreements left to pin.
+#
+# Every case below used to carry one. The engine ran a clamped Newton search
+# from 10 percent and reported the rate it stopped at, so a true root beyond
+# 1000 percent (tr_hand_2yr_depr2 and depr_2yr_on_2yr_hand at 1800 percent,
+# irr_beyond_clamp at 9900) came back as exactly 1000, a cash flow whose only
+# root is negative (fdp_never_pays_back, depr_capex_in_last_year) came back as
+# 1000 as well, and a case whose cash flows are of order 1e-7 $MM tripped the
+# absolute derivative guard and came back as the 10 percent starting guess.
+#
+# calculateEconomics now verifies that what it found is a root inside the
+# band and, when it is not, sweeps the band and bisects every sign change.
+# So it reports the -36.67 percent root it used to run past, the 21 percent
+# root of the tiny cash flow, both roots of a flow that changes sign twice
+# (as `irrRoots`, with `irr` null and `irrStatus` 'multiple-roots'), and null
+# with 'above-clamp' where the answer is outside the band it searches.
+# `irrStatus` is gated case by case, so a return to reporting a clamp is a
+# test failure rather than a number nobody reads.
 
 
 def main():
     G = build()
-    apply_pins(G)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, 'w') as f:
         json.dump(G, f, indent=1, sort_keys=True)

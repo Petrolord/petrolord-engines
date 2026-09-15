@@ -13,7 +13,10 @@
  * EC6-0 changed the contract: the figures are numbers, an index whose
  * denominator is zero is null rather than an invented 1, percent complete
  * is null rather than the string "NaN", and an unreadable or out-of-range
- * input is refused by task name. Money to 1e-9, ratios to 1e-12.
+ * input is refused by task name. EC6-1 made planned value TIME-PHASED to a
+ * stated as-of date, so the schedule index measures schedule; the ratio it
+ * used to be is reported as `completionRatio`. Money to 1e-9, ratios to
+ * 1e-12.
  *
  * Dates. Gantt rows carry LOCAL dates, so the golden holds the calendar
  * date and the gate reads the Date's local fields: the assertions hold in
@@ -32,30 +35,78 @@ const localDate = (d) => (d === null ? null : [
 ].join('-'));
 
 describe('identities', () => {
+  const WINDOW = { planned_start_date: '2026-01-01', planned_end_date: '2026-12-31' };
   const tasks = [
-    { name: 'a', planned_cost: 1000, percent_complete: 50, actual_cost: 600 },
-    { name: 'b', planned_cost: 2000, percent_complete: 25, actual_cost: 400 },
+    { name: 'a', ...WINDOW, planned_cost: 1000, percent_complete: 50, actual_cost: 600 },
+    { name: 'b', ...WINDOW, planned_cost: 2000, percent_complete: 25, actual_cost: 400 },
   ];
+  const AS_OF = { asOf: '2026-12-31' }; // the window has closed: PV is the whole budget
 
-  test('PV, EV and AC are the sums the definitions say; CV and SV follow', () => {
-    const r = calculateEVM(tasks);
-    expect(r.plannedValue).toBe(3000);
+  test('EV and AC are the sums the definitions say; CV follows', () => {
+    const r = calculateEVM(tasks, AS_OF);
+    expect(r.budgetAtCompletion).toBe(3000);
     expect(r.earnedValue).toBe(1000);
     expect(r.actualCost).toBe(1000);
     expect(r.cv).toBeCloseTo(1000 - 1000, 9);
-    expect(r.sv).toBeCloseTo(1000 - 3000, 9);
     expect(r.cpi).toBeCloseTo(1, 12);
-    expect(r.spi).toBeCloseTo(1000 / 3000, 12);
     expect(r.percentComplete).toBeCloseTo(100 / 3, 12);
   });
 
+  test('EC6-1: planned value is time-phased, so the same tasks read differently on two dates', () => {
+    const closed = calculateEVM(tasks, { asOf: '2026-12-31' });
+    expect(closed.plannedValue).toBe(3000);
+    expect(closed.spi).toBeCloseTo(1000 / 3000, 12);
+
+    const midway = calculateEVM(tasks, { asOf: '2026-07-02' });
+    expect(midway.plannedValue).toBeGreaterThan(1400);
+    expect(midway.plannedValue).toBeLessThan(1600);
+    // Half the budget was due by now and a third of it is done: behind, but
+    // nothing like the 0.33 the old budget-at-completion ratio reported.
+    expect(midway.spi).toBeGreaterThan(closed.spi);
+    expect(midway.completionRatio).toBeCloseTo(closed.completionRatio, 12);
+
+    const notStarted = calculateEVM(tasks, { asOf: '2025-06-01' });
+    expect(notStarted.plannedValue).toBe(0);
+    expect(notStarted.spi).toBeNull();
+  });
+
+  test('the schedule index can read above 1, which the old one never could', () => {
+    const ahead = calculateEVM(
+      [{ name: 'a', ...WINDOW, planned_cost: 1000, percent_complete: 90 }],
+      { asOf: '2026-07-02' },
+    );
+    expect(ahead.spi).toBeGreaterThan(1);
+    expect(ahead.completionRatio).toBeCloseTo(0.9, 12);
+  });
+
+  test('a costed task with no dates: no schedule index, and the basis says why', () => {
+    const r = calculateEVM([
+      { name: 'dated', ...WINDOW, planned_cost: 500, percent_complete: 50 },
+      { name: 'undated', planned_cost: 500, percent_complete: 50 },
+    ], AS_OF);
+    expect(r.spi).toBeNull();
+    expect(r.plannedValue).toBeNull();
+    expect(r.undatedCostedTasks).toBe(1);
+    expect(r.spiBasis).toMatch(/1 costed task carries no planned dates/);
+    expect(r.completionRatio).toBeCloseTo(0.5, 12);
+  });
+
+  test('asOf is a parameter, not the clock', () => {
+    const a = calculateEVM(tasks, { asOf: '2026-07-02' });
+    const b = calculateEVM(tasks, { asOf: '2026-07-02' });
+    expect(a.pv).toBe(b.pv);
+    expect(a.asOf).toBe('2026-07-02');
+    expect(() => calculateEVM(tasks, { asOf: 'sometime' })).toThrow(ProjectControlsInputError);
+  });
+
   test('every figure is a number, and pv/ev/ac alias the long names', () => {
-    const r = calculateEVM(tasks);
-    ['plannedValue', 'earnedValue', 'actualCost', 'pv', 'ev', 'ac', 'cpi', 'spi', 'cv', 'sv', 'percentComplete']
+    const r = calculateEVM(tasks, AS_OF);
+    ['plannedValue', 'earnedValue', 'actualCost', 'pv', 'ev', 'ac', 'bac', 'cpi', 'spi', 'cv', 'sv', 'percentComplete']
       .forEach((k) => expect(typeof r[k]).toBe('number'));
     expect(r.pv).toBe(r.plannedValue);
     expect(r.ev).toBe(r.earnedValue);
     expect(r.ac).toBe(r.actualCost);
+    expect(r.bac).toBe(r.budgetAtCompletion);
   });
 
   test('EC6-0: an index with no denominator is null, not an invented 1', () => {
@@ -65,13 +116,13 @@ describe('identities', () => {
     expect(calculateCPI(120, 100)).toBeCloseTo(1.2, 12);
     expect(calculateSPI(80, 100)).toBeCloseTo(0.8, 12);
 
-    const r = calculateEVM([{ name: 'x', planned_cost: 100, percent_complete: 40, actual_cost: 0 }]);
+    const r = calculateEVM([{ name: 'x', ...WINDOW, planned_cost: 100, percent_complete: 40, actual_cost: 0 }], AS_OF);
     expect(r.cpi).toBeNull();
     expect(r.spi).toBeCloseTo(0.4, 12);
   });
 
   test('EC6-0: a project with no costs reports no percent complete, not "NaN"', () => {
-    const r = calculateEVM([{ name: 'x' }, { name: 'y' }]);
+    const r = calculateEVM([{ name: 'x' }, { name: 'y' }], AS_OF);
     expect(r.percentComplete).toBeNull();
     expect(r.spi).toBeNull();
     expect(r.cpi).toBeNull();
@@ -83,12 +134,12 @@ describe('identities', () => {
   });
 
   test('the schedule index says on its face what it is measured against', () => {
-    expect(calculateEVM(tasks).spiBasis).toBe('earned value over budget at completion, not time-phased');
+    expect(calculateEVM(tasks, AS_OF).spiBasis).toBe('planned value time-phased to the as-of date');
   });
 
   test('an empty or absent task list is a zero, not a crash', () => {
-    expect(calculateEVM([]).plannedValue).toBe(0);
-    expect(calculateEVM(undefined).taskCount).toBe(0);
+    expect(calculateEVM([], AS_OF).budgetAtCompletion).toBe(0);
+    expect(calculateEVM(undefined, AS_OF).taskCount).toBe(0);
   });
 
   test('Gantt rows keep ids and order, mark milestones, and carry dependencies only when there are predecessors', () => {
@@ -113,25 +164,31 @@ describe('identities', () => {
 
 describe('golden: calculateEVM', () => {
   test.each(G.evm.map((c) => [c.name, c]))('%s', (_n, c) => {
-    const r = calculateEVM(c.inputs.tasks);
+    const r = calculateEVM(c.inputs.tasks, { asOf: c.inputs.asOf });
     const e = c.expected;
-    ['plannedValue', 'earnedValue', 'actualCost', 'pv', 'ev', 'ac', 'cv', 'sv'].forEach((k) => {
+    ['budgetAtCompletion', 'earnedValue', 'actualCost', 'ev', 'ac', 'bac', 'cv'].forEach((k) => {
       expect(Math.abs(r[k] - e[k])).toBeLessThanOrEqual(1e-9);
     });
-    ['cpi', 'spi', 'percentComplete'].forEach((k) => {
+    ['plannedValue', 'pv', 'sv'].forEach((k) => {
+      if (e[k] === null) expect(r[k]).toBeNull();
+      else expect(Math.abs(r[k] - e[k])).toBeLessThanOrEqual(1e-9);
+    });
+    ['cpi', 'spi', 'percentComplete', 'completionRatio'].forEach((k) => {
       if (e[k] === null) expect(r[k]).toBeNull();
       else expect(Math.abs(r[k] - e[k])).toBeLessThanOrEqual(1e-12 + Math.abs(e[k]) * 1e-12);
     });
     expect(r.taskCount).toBe(e.taskCount);
     expect(r.costed).toBe(e.costed);
+    expect(r.undatedCostedTasks).toBe(e.undatedCostedTasks);
+    expect(r.asOf).toBe(e.asOf);
     expect(r.spiBasis).toBe(e.spiBasis);
   });
 
   test('no figure is a string any more (the callers used to compare them as text)', () => {
     G.evm.forEach((c) => {
-      const r = calculateEVM(c.inputs.tasks);
+      const r = calculateEVM(c.inputs.tasks, { asOf: c.inputs.asOf });
       Object.entries(r).forEach(([k, v]) => {
-        if (k === 'spiBasis') return;
+        if (k === 'spiBasis' || k === 'asOf') return;
         expect(typeof v === 'number' || v === null || typeof v === 'boolean').toBe(true);
       });
     });
@@ -140,9 +197,9 @@ describe('golden: calculateEVM', () => {
 
 describe('golden: calculateEVM refusals', () => {
   test.each(G.evmRefusals.map((c) => [c.name, c]))('%s', (_n, c) => {
-    expect(() => calculateEVM(c.inputs.tasks)).toThrow(ProjectControlsInputError);
+    expect(() => calculateEVM(c.inputs.tasks, { asOf: c.inputs.asOf })).toThrow(ProjectControlsInputError);
     try {
-      calculateEVM(c.inputs.tasks);
+      calculateEVM(c.inputs.tasks, { asOf: c.inputs.asOf });
     } catch (err) {
       expect(err.message).toBe(c.expected.message);
     }
