@@ -10,9 +10,18 @@
 // engine, the solvers and deriveInsights.
 //
 // The oracle reaches every number by a different road: closed-form 25 year
-// declines, tier selection by highest threshold reached, IRR by a tripling
-// bracket and the Illinois method where the engine doubles and bisects, and
-// the verdict sentences rebuilt with JavaScript toFixed rounding.
+// declines, tier selection by highest threshold reached (max over the tiers,
+// not a sorted walk), IRR roots by a fine scan and the Illinois method where
+// the engine runs Newton and sweeps the band, and the verdict sentences
+// rebuilt with JavaScript toFixed rounding.
+//
+// EC2 owner decisions, 2026-09-15 (FINDINGS-fiscal.md): EC2-2 effectiveTaxRate
+// is a deprecated alias with no zero fallback; EC2-4 the capex verdict uses
+// the price verdict's tie rule; EC2-5 IRR follows the screening engine's
+// contract (null plus a status); EC2-8 tiers are selected in threshold order
+// and a repeated threshold is refused; EC2-10 payback names every regime at
+// the winning year; EC2-11 money reads "1,339.3 million USD". Each has a
+// negative control that re-implements the retired rule and shows it differs.
 //
 // ONE PLACE THEY DO NOT AGREE, AND IT IS PINNED. The engine's capex sweep
 // accumulates 0.1 in floating point from 0.8 and stops at 1.4000000000000004
@@ -22,7 +31,7 @@
 // capex insight against `insightsAsEngine`, the oracle's rebuild of that
 // verdict over the 7 points the engine actually sees.
 //
-// Tolerances (absolute): money $MM 1e-6, IRR 1e-6 percentage points,
+// Tolerances (absolute): money (million USD) 1e-6, IRR 1e-6 percentage points,
 // effective tax rate 1e-9 points.
 
 import fs from 'fs';
@@ -31,6 +40,10 @@ import {
   calculateCashFlowForRegime,
   calculateNPV,
   calculateIRR,
+  calculateIRRResult,
+  orderedTierTable,
+  leadOrTie,
+  CAPEX_RESILIENCE_MIN_SPREAD_MM,
   deriveInsights,
   runFiscalComparison,
   classifyGovernmentShare,
@@ -46,6 +59,7 @@ import {
   metricPhrase,
   metricDefinition,
   exportHeaderLines,
+  formatMillionUSD,
 } from '../engines/economics/fiscalConventions.js';
 import { fiscalTemplates } from '../engines/economics/fiscalTemplates.js';
 import { calculateEconomics } from '../engines/economics/screening.js';
@@ -211,11 +225,21 @@ describe('parity with the canonical screening engine', () => {
 });
 
 describe('solvers', () => {
-  test('IRR is the rate at which NPV is zero', () => {
+  test('every IRR root reported is a rate at which NPV is zero', () => {
+    // The flat regime on this project runs past its economic limit, so late
+    // contractor cash flow is negative and the NPV is zero at two rates.
     const rows = calculateCashFlowForRegime(flatRegime(), project);
-    const irr = calculateIRR(rows);
-    expect(irr).toBeGreaterThan(0);
-    expect(calculateNPV(rows, irr)).toBeCloseTo(0, 6);
+    const res = calculateIRRResult(rows);
+    expect(res.irrStatus).toBe('multiple-roots');
+    expect(res.irr).toBeNull();
+    expect(res.irrRoots).toHaveLength(2);
+    res.irrRoots.forEach((r) => expect(calculateNPV(rows, r)).toBeCloseTo(0, 6));
+    // Truncated at year 10, before the flow turns negative, there is one.
+    const early = rows.slice(0, 10);
+    const one = calculateIRRResult(early);
+    expect(one.irrStatus).toBe('ok');
+    expect(calculateIRR(early)).toBe(one.irr);
+    expect(calculateNPV(early, one.irr)).toBeCloseTo(0, 6);
   });
 
   test('no IRR is reported when the cash flow never changes sign', () => {
@@ -223,7 +247,8 @@ describe('solvers', () => {
       { year: 1, contractorNCF: 10 },
       { year: 2, contractorNCF: 20 },
     ];
-    expect(calculateIRR(allPositive)).toBe(0);
+    expect(calculateIRR(allPositive)).toBeNull();
+    expect(calculateIRRResult(allPositive)).toEqual({ irr: null, irrStatus: 'no-sign-change', irrRoots: null });
   });
 
   test('a harsher regime leaves the contractor less', () => {
@@ -332,12 +357,25 @@ describe('templates match the oracle\'s copy', () => {
   });
 });
 
+// EC2-5: the IRR result against the oracle's { irr, irrStatus, irrRoots }.
+const gateIrr = (got, exp) => {
+  expect(got.irrStatus).toBe(exp.irrStatus);
+  if (exp.irr === null) expect(got.irr).toBeNull();
+  else near(got.irr, exp.irr, IRR);
+  if (exp.irrRoots === null) {
+    expect(got.irrRoots).toBeNull();
+  } else {
+    expect(got.irrRoots).toHaveLength(exp.irrRoots.length);
+    got.irrRoots.forEach((r, i) => near(r, exp.irrRoots[i], IRR));
+  }
+};
+
 describe.each(['cashflow', 'priceSweep', 'capexSweep'])('golden agreement: %s', (group) => {
   test.each(G[group].map((c) => [c.id, c]))('%s', (_id, c) => {
     const rows = calculateCashFlowForRegime(c.regime, c.project, c.capexMultiplier, c.priceMultiplier);
     gateRows(rows, c.expected.cashflow);
     near(calculateNPV(rows, c.project.discountRate), c.expected.npv, MONEY);
-    near(calculateIRR(rows), c.expected.irr, IRR);
+    gateIrr(calculateIRRResult(rows), c.expected);
     near(rows.reduce((s, cf) => s + cf.governmentTake, 0), c.expected.totalGovTake, MONEY);
     near(rows.reduce((s, cf) => s + cf.contractorNCF, 0), c.expected.totalContractorNCF, MONEY);
     near(rows[rows.length - 1].unrecoveredCostPool, c.expected.finalUnrecoveredPool, MONEY);
@@ -404,25 +442,66 @@ describe('golden agreement: tranche and tier selection', () => {
     rows.forEach((cf) => near(cf.royalty / cf.grossRevenue, 0.125, 1e-12));
   });
 
-  test('a project that never recovers its cost: pool never clears, no payback, IRR 0', () => {
+  test('a project that never recovers its cost: pool never clears, no payback, no IRR (no-root)', () => {
     const c = G.cashflow.find((x) => x.id === 'never_recovers_huge_capex');
     const rows = calculateCashFlowForRegime(c.regime, c.project);
     expect(rows.every((cf) => cf.unrecoveredCostPool > 0)).toBe(true);
     expect(rows.every((cf) => cf.cumulativeNCF < 0)).toBe(true);
-    expect(calculateIRR(rows)).toBe(0);
+    expect(calculateIRR(rows)).toBeNull();
+    expect(calculateIRRResult(rows).irrStatus).toBe('no-root');
     expect(c.expected.paybackYear).toBeNull();
   });
 });
 
-describe('golden agreement: IRR solver', () => {
+// The fiscal IRR before EC2-5, kept only as the negative control.
+const retiredIRR = (cashFlows) => {
+  const hasNeg = cashFlows.some((cf) => cf.contractorNCF < 0);
+  const hasPos = cashFlows.some((cf) => cf.contractorNCF > 0);
+  if (!hasNeg || !hasPos) return 0;
+  const npvAt = (ratePct) => calculateNPV(cashFlows, ratePct);
+  if (npvAt(0) <= 0) return 0;
+  let lo = 0;
+  let hi = 100;
+  for (let i = 0; i < 10 && npvAt(hi) > 0; i++) hi *= 2;
+  if (npvAt(hi) > 0) return hi;
+  for (let i = 0; i < 80; i++) {
+    const mid = (lo + hi) / 2;
+    if (npvAt(mid) > 0) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+};
+
+describe('golden agreement: IRR solver (EC2-5)', () => {
   test.each(G.irr.map((c) => [c.id, c]))('%s', (_id, c) => {
     near(calculateNPV(c.cashFlows, 10), c.npvAt10, MONEY);
-    near(calculateIRR(c.cashFlows), c.expected, IRR);
-    if (c.engine) {
-      // The bracket is reported as the IRR; the true root is far beyond it.
-      expect(c.trueIrr).toBeGreaterThan(c.engine.irr);
-      expect(calculateNPV(c.cashFlows, c.trueIrr)).toBeCloseTo(0, 6);
-    }
+    gateIrr(calculateIRRResult(c.cashFlows), c.expected);
+    if (c.expected.irr !== null) expect(calculateNPV(c.cashFlows, c.expected.irr)).toBeCloseTo(0, 6);
+    if (c.trueIrr !== undefined) expect(calculateNPV(c.cashFlows, c.trueIrr)).toBeCloseTo(0, 6);
+    (c.trueRoots || []).forEach((r) => expect(calculateNPV(c.cashFlows, r)).toBeCloseTo(0, 6));
+  });
+
+  test('negative control: the retired bisection printed 0 or its bracket where the contract reports a status', () => {
+    const id = (x) => G.irr.find((c) => c.id === x);
+    expect(retiredIRR(id('irr_all_positive_no_sign_change').cashFlows)).toBe(0);
+    expect(retiredIRR(id('irr_negative_root_reported').cashFlows)).toBe(0);
+    near(calculateIRR(id('irr_negative_root_reported').cashFlows), -10, IRR);
+    expect(retiredIRR(id('irr_above_clamp_past_old_bracket').cashFlows)).toBe(102400);
+    near(retiredIRR(id('irr_above_clamp_inside_old_bracket').cashFlows), 1400, 1e-9);
+    expect(calculateIRR(id('irr_above_clamp_inside_old_bracket').cashFlows)).toBeNull();
+    expect(retiredIRR(id('irr_no_root_below_band').cashFlows)).toBe(0);
+    // On the multiple-roots flow the retired rule picked one root silently.
+    expect(retiredIRR(id('irr_multiple_roots_listed').cashFlows)).toBe(0);
+  });
+
+  test('OPEN (recorded): one root in the band is reported even when another lies above it', () => {
+    const c = G.cashflow.find((x) => x.id === 'capex_multiplier_0_7');
+    const rows = calculateCashFlowForRegime(c.regime, c.project, 0.7, 1);
+    const res = calculateIRRResult(rows);
+    expect(res.irrStatus).toBe('ok');
+    near(res.irr, -20.4852, 1e-4);
+    expect(c.expected.rootsToScan).toHaveLength(2);
+    near(c.expected.rootsToScan[1], 1095.4783, 1e-4);
+    near(retiredIRR(rows), 1095.4783, 1e-4);
   });
 });
 
@@ -443,11 +522,12 @@ describe('golden agreement: runFiscalComparison', () => {
       const es = e.summary[i];
       expect(s.name).toBe(es.name);
       near(s.npv, es.npv, MONEY);
-      near(s.irr, es.irr, IRR);
+      gateIrr(s, es);
       expect(s.paybackPeriod).toBe(es.paybackPeriod);
       expect(s.rFactorPayoutYear).toBe(es.rFactorPayoutYear);
       near(s.govTake, es.govTake, MONEY);
-      near(s.effectiveTaxRate, es.effectiveTaxRate, 1e-9);
+      if (es.effectiveTaxRate === null) expect(s.effectiveTaxRate).toBeNull();
+      else near(s.effectiveTaxRate, es.effectiveTaxRate, 1e-9);
       // Naming wave: the two named metrics, each against the oracle.
       ['governmentTakePct', 'governmentTakeDiscountedPct', 'governmentShareOfNetRevenuePct'].forEach((k) => {
         if (es[k] === null) expect(s[k]).toBeNull();
@@ -489,31 +569,14 @@ describe('golden agreement: runFiscalComparison', () => {
 
     // Insights: identical to the oracle's rebuild over the 7 points the
     // engine sees; and only the capex sentence can differ from the
-    // 8 point rebuild. A verdict that ranks quantities which are TIED
-    // (equal to 1e-6 $MM or 1e-9 points) is decided by rounding noise, so
-    // there the gate checks that the regime named is one of the tied set.
-    const tied = (list, key, tol) => {
-      const sorted = list.map((x) => x[key]).sort((a, b) => a - b);
-      return sorted.some((v, i) => i > 0 && Math.abs(v - sorted[i - 1]) <= tol);
-    };
-    const capexTie = tied(e.capexLossesAsEngine, 'loss', 1e-6);
+    // 8 point rebuild. No verdict needs a tie branch: since EC2-1 (price) and
+    // EC2-4 (capex) a lead inside the tie rule declines to rank, so rounding
+    // noise can never pick a winner.
     res.insights.forEach((got, i) => {
       const exp = e.insightsAsEngine[i];
       expect(got.key).toBe(exp.key);
       expect(got.label).toBe(exp.label);
-      if (got.key === 'capex' && capexTie) {
-        const losses = e.capexLossesAsEngine;
-        const minLoss = Math.min(...losses.map((l) => l.loss));
-        const maxLoss = Math.max(...losses.map((l) => l.loss));
-        const least = got.text.match(/"([^"]+)" gives up the least/)[1];
-        const most = got.text.match(/and "([^"]+)" the most/)[1];
-        expect(Math.abs(losses.find((l) => l.name === least).loss - minLoss)).toBeLessThanOrEqual(1e-6);
-        expect(Math.abs(losses.find((l) => l.name === most).loss - maxLoss)).toBeLessThanOrEqual(1e-6);
-      } else {
-        // The price verdict needs no tie branch since EC2-1: a lead under one
-        // percentage point declines to rank, so noise can never pick a winner.
-        expect(got.text).toBe(exp.text);
-      }
+      expect(got.text).toBe(exp.text);
     });
     expect(res.insights).toHaveLength(e.insightsAsEngine.length);
     e.insights.forEach((ins) => {
@@ -633,7 +696,8 @@ describe('naming wave: government take and government share of net revenue', () 
       const basePrice = c.project.prices[0].oil;
       const at = res.sensitivityData.price.labels.indexOf(basePrice);
       res.summary.forEach((s) => {
-        if (s.effectiveTaxRate > 0) near(s.governmentShareOfNetRevenuePct, s.effectiveTaxRate, 1e-9);
+        // EC2-2: the deprecated alias IS the named field, null included.
+        expect(s.effectiveTaxRate).toBe(s.governmentShareOfNetRevenuePct);
         if (at >= 0) {
           const sweep = res.sensitivityData.price.data.find((d) => d.regimeId === s.id);
           expect(s.governmentTakeState).toBe(sweep.states[at]);
@@ -716,6 +780,199 @@ describe('naming wave: government take and government share of net revenue', () 
       expect(t).not.toMatch(/government share/i);
       expect(t).not.toMatch(/effective tax rate/i);
       if (/government take/.test(t)) expect(t).toMatch(/government take \((undiscounted|discounted at [0-9.]+ percent)\)|every regime's government take is within|a government take within/);
+    });
+  });
+});
+
+describe('EC2 owner decisions, 2026-09-15', () => {
+  const golden = (id) => G.comparisons.find((c) => c.id === id);
+  const run = (c) => runFiscalComparison({ projectInputs: c.project, regimes: c.regimes });
+
+  describe('EC2-2: effectiveTaxRate is a deprecated alias, with no zero fallback', () => {
+    // The legacy computation, kept only to prove no defined value moved.
+    const legacyRate = (rows, capex) => {
+      const gov = rows.reduce((t, cf) => t + cf.governmentTake, 0);
+      const con = rows.reduce((t, cf) => t + cf.contractorNCF, 0) + capex;
+      return gov + con > 0 ? (gov / (gov + con)) * 100 : 0;
+    };
+
+    test('no value changed wherever the share is defined, on every comparison golden', async () => {
+      let compared = 0;
+      for (const c of G.comparisons) {
+        // eslint-disable-next-line no-await-in-loop
+        const res = await run(c);
+        const capex = c.project.costs.capex.drilling + c.project.costs.capex.facilities + c.project.costs.capex.subsea;
+        res.summary.forEach((s) => {
+          const rows = res.annualCashFlows.find((a) => a.regimeId === s.id).data;
+          expect(s.governmentShareOfNetRevenuePct).not.toBeNull();
+          near(s.effectiveTaxRate, legacyRate(rows, capex), 1e-9);
+          compared += 1;
+        });
+      }
+      expect(compared).toBeGreaterThan(20);
+    });
+
+    test('where revenue less opex is not positive the alias is null; the retired rule printed 0 (negative control)', async () => {
+      const c = golden('cmp_designer_defaults');
+      const project = { ...c.project, prices: [{ year: 1, oil: 0.5, gas: 0, ngl: 0 }] };
+      const res = await runFiscalComparison({ projectInputs: project, regimes: c.regimes });
+      res.summary.forEach((s) => {
+        expect(s.governmentShareOfNetRevenuePct).toBeNull();
+        expect(s.effectiveTaxRate).toBeNull();
+        const rows = res.annualCashFlows.find((a) => a.regimeId === s.id).data;
+        expect(legacyRate(rows, 500)).toBe(0);
+      });
+    });
+  });
+
+  describe('EC2-4: the capex verdict uses the price verdict\'s tie rule', () => {
+    test('leadOrTie: a lead of at least the spread ranks, a smaller one names every tied item', () => {
+      const items = [{ n: 'a', v: 10 }, { n: 'b', v: 10.05 }, { n: 'c', v: 20 }];
+      const least = leadOrTie(items, 'v', 0.1, 'min');
+      expect(least.ranked).toBe(false);
+      expect(least.tied.map((x) => x.n)).toEqual(['a', 'b']);
+      const most = leadOrTie(items, 'v', 0.1, 'max');
+      expect(most.ranked).toBe(true);
+      expect(most.tied.map((x) => x.n)).toEqual(['c']);
+      // The first of equal items leads, as the strict reduce chose.
+      expect(leadOrTie([{ n: 'x', v: 1 }, { n: 'y', v: 1 }], 'v', 0.1, 'max').leader.n).toBe('x');
+      expect(CAPEX_RESILIENCE_MIN_SPREAD_MM).toBe(0.1);
+    });
+
+    test('cmp_never_recovers: six equal losses rank nobody; the retired strict reduce named a winner (negative control)', async () => {
+      const c = golden('cmp_never_recovers');
+      const res = await run(c);
+      const text = res.insights.find((i) => i.key === 'capex').text;
+      expect(text).toMatch(/^No regime can be ranked on resilience to cost overrun/);
+      expect(text).not.toMatch(/gives up the least/);
+      c.regimes.forEach((r) => expect(text).toContain(`"${r.name}"`));
+      const losses = res.sensitivityData.capex.data.map((d) => ({
+        name: c.regimes.find((r) => r.id === d.regimeId).name,
+        loss: d.values[0] - d.values[d.values.length - 1],
+      }));
+      const retired = losses.reduce((a, b) => (b.loss < a.loss ? b : a));
+      expect(retired.name).toBeTruthy();
+      expect(Math.max(...losses.map((l) => l.loss)) - Math.min(...losses.map((l) => l.loss))).toBeLessThan(1e-6);
+    });
+  });
+
+  describe('EC2-8: tiers are selected in threshold order; a repeated threshold is refused', () => {
+    // List-order selection, the retired rule, for the negative control.
+    const retiredPick = (x, tiers, field) => {
+      let v = tiers[0][field];
+      tiers.forEach((t) => { if (x >= t.threshold) v = t[field]; });
+      return v;
+    };
+
+    test('an unsorted table gives the sorted table\'s ledger, row for row', () => {
+      const unsorted = G.cashflow.find((x) => x.id === 'tiers_unsorted_selected_by_threshold');
+      const sorted = G.cashflow.find((x) => x.id === 'rfactor_tranche_crossing');
+      const a = calculateCashFlowForRegime(unsorted.regime, unsorted.project);
+      const b = calculateCashFlowForRegime(sorted.regime, sorted.project);
+      a.forEach((row, i) => ROW_FIELDS.forEach((k) => expect(row[k]).toBe(b[i][k])));
+      // Negative control: list order would have picked other rates and splits.
+      const r = unsorted.regime;
+      const wrongRoyalty = retiredPick(80, r.royalty.tiers, 'rate');
+      expect(wrongRoyalty).toBe(7.5);
+      const wrongSplits = a.map((row) => retiredPick(row.rFactor, r.profitSplit.tiers, 'split') / 100);
+      const rightSplits = unsorted.expected.cashflow.map((row) => row.contractorSplit);
+      expect(wrongSplits.some((w, i) => w !== rightSplits[i])).toBe(true);
+    });
+
+    test('orderedTierTable returns a sorted copy and leaves the input alone', () => {
+      const tiers = [{ threshold: 2, split: 1 }, { threshold: 1, split: 2 }];
+      expect(orderedTierTable({ name: 'R' }, 'profit split', tiers).map((t) => t.threshold)).toEqual([1, 2]);
+      expect(tiers.map((t) => t.threshold)).toEqual([2, 1]);
+    });
+
+    test.each(G.tierRefusals.map((c) => [c.id, c]))('%s', (_id, c) => {
+      const { regime, table, threshold } = c.refused;
+      let message = '';
+      try {
+        calculateCashFlowForRegime(c.regime, c.project);
+      } catch (err) {
+        expect(err).toBeInstanceOf(RangeError);
+        message = err.message;
+      }
+      expect(message).toContain(`"${regime}"`);
+      expect(message).toContain(`the ${table} tier table`);
+      expect(message).toContain(`threshold ${threshold}`);
+      // Negative control: the retired selection accepted the table silently.
+      const tiers = table === 'royalty' ? c.regime.royalty.tiers : c.regime.profitSplit.tiers;
+      expect(() => retiredPick(threshold, tiers, table === 'royalty' ? 'rate' : 'split')).not.toThrow();
+    });
+  });
+
+  describe('EC2-9: the corrected golden notes say what the numbers say', () => {
+    const cf = (id) => G.cashflow.find((x) => x.id === id);
+
+    test('capped_5pct_pool_never_clears pays back in year 3 and its NPV is zero at 54.6792 and -14.2614 percent', () => {
+      const c = cf('capped_5pct_pool_never_clears');
+      expect(c.expected.paybackYear).toBe(3);
+      expect(c.expected.finalUnrecoveredPool).toBeGreaterThan(1000);
+      near(c.expected.irrRoots[1], 54.6792, 1e-4);
+      near(c.expected.irrRoots[0], -14.2614, 1e-4);
+      expect(c.note).toMatch(/year 3/);
+      expect(c.note).toMatch(/54\.6792/);
+      expect(c.note).not.toMatch(/no payback|IRR 0/);
+      expect(G.cashflow.some((x) => x.id === 'capped_5pct_never_recovers')).toBe(false);
+    });
+
+    test('rfactor_tranche_crossing: R reaches 1.0 in year 2, 1.6 in year 3 and 2.5 in year 6', () => {
+      const c = cf('rfactor_tranche_crossing');
+      const first = (t) => c.expected.cashflow.find((r) => r.rFactor >= t).year;
+      expect([first(1.0), first(1.6), first(2.5)]).toEqual([2, 3, 6]);
+      expect(c.note).toMatch(/1\.0 in year 2, 1\.6 in year 3 and 2\.5 in year 6/);
+    });
+
+    test('rfactor_falls_back peaks at 2.972625 in year 11 and the split steps back up in year 23', () => {
+      const c = cf('rfactor_falls_back');
+      const peak = c.expected.cashflow.reduce((a, b) => (b.rFactor > a.rFactor ? b : a));
+      near(peak.rFactor, 2.972625, 1e-6);
+      expect(peak.year).toBe(11);
+      expect(c.expected.cashflow[22].contractorSplit).toBe(0.4);
+      expect(c.expected.cashflow[21].contractorSplit).toBe(0.3);
+      expect(c.note).toMatch(/2\.972625 in year 11/);
+      expect(c.note).not.toMatch(/just above 2\.5/);
+    });
+  });
+
+  describe('EC2-10: payback names every regime at the winning year', () => {
+    test('cmp_all_templates_default_project: all four year-3 regimes are named; the retired reduce named one (negative control)', async () => {
+      const c = golden('cmp_all_templates_default_project');
+      const res = await run(c);
+      const text = res.insights.find((i) => i.key === 'payback').text;
+      const atThree = res.summary.filter((s) => s.paybackPeriod === 3);
+      expect(atThree).toHaveLength(4);
+      atThree.forEach((s) => expect(text).toContain(`"${s.name}"`));
+      expect(text).toMatch(/ pay back in year 3, against year 4 for /);
+      const retired = res.summary.reduce((a, b) => (b.paybackPeriod < a.paybackPeriod ? b : a));
+      expect(`"${retired.name}" pays back in year 3`).not.toBe(text.slice(0, text.indexOf(',')));
+    });
+  });
+
+  describe('EC2-11: one money formatter, no "$..MM" in any sentence', () => {
+    test.each(G.moneyFormat.map((c) => [c.id, c]))('%s', (_id, c) => {
+      expect(formatMillionUSD(c.value)).toBe(c.expected);
+    });
+
+    test('every engine sentence in the goldens is free of the shorthand and of em dashes', () => {
+      const texts = [
+        ...G.insights.flatMap((c) => c.expected.map((i) => i.text)),
+        ...G.comparisons.flatMap((c) => [...c.expected.insights, ...c.expected.insightsAsEngine].map((i) => i.text)),
+      ];
+      expect(texts.filter((t) => /million USD/.test(t)).length).toBeGreaterThan(40);
+      texts.forEach((t) => {
+        expect(t).not.toMatch(/\$/);
+        expect(t).not.toMatch(/MM\b/);
+        expect(t).not.toMatch(/\u2014/);
+      });
+    });
+
+    test('negative control: the retired format is a different string', () => {
+      const retired = (v) => `$${v.toFixed(1)}MM`;
+      expect(retired(1339.3)).toBe('$1339.3MM');
+      expect(formatMillionUSD(1339.3)).toBe('1,339.3 million USD');
     });
   });
 });

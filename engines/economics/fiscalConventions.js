@@ -97,3 +97,21 @@ export const metricDefinition = (key, discountRatePct = null) => {
  */
 export const exportHeaderLines = (items) => items.map(({ key, discountRatePct = null }) =>
     metricDefinition(key, discountRatePct));
+
+/**
+ * Money in every user-facing fiscal sentence (EC2-11, owner decision
+ * 2026-09-15): "1,339.3 million USD". One decimal, rounded as
+ * Number.prototype.toFixed rounds, thousands separators on the whole part, and
+ * never the "$..MM" shorthand. A value that rounds to zero prints without a
+ * sign; a value that is not a finite number prints "n/a".
+ * @param {number} valueMM an amount in millions of US dollars
+ */
+export const formatMillionUSD = (valueMM) => {
+    if (typeof valueMM !== 'number' || !Number.isFinite(valueMM)) return 'n/a';
+    let fixed = valueMM.toFixed(1);
+    if (/^-0\.0$/.test(fixed)) fixed = '0.0';
+    const negative = fixed.startsWith('-');
+    const [whole, fraction] = (negative ? fixed.slice(1) : fixed).split('.');
+    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return `${negative ? '-' : ''}${grouped}.${fraction} million USD`;
+};
