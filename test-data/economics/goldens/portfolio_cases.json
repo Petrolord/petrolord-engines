@@ -1,5 +1,5 @@
 {
- "description": "Economics capital portfolio goldens: risked EMV, success-case spread, exact success / failure mixture moments, the portfolio risk summary (closed-form mean and spread with an average pairwise correlation; P(loss), P90 and P10 from the EC5-0 seeded one-factor Gaussian copula Monte Carlo, replayed bit for bit in riskMetrics and optimize, so the gate compares probLoss exactly and P90 / P10 within 1e-9 scaled, at the riskOptions seed and iterations stated on each case), the riskMethod section validating that Monte Carlo against exact answers within 4 standard errors (normalApprox carries what the engine reported before), the optimizeRefusals section (a negative capex is refused), overLimit / overLimitBy on every optimal set, and the 0/1 knapsack over the capex limit with its efficient frontier. Independent stdlib oracle (tools/validation/economics/oracle_portfolio.py): the knapsack is solved by brute force over every subset, both EXACTLY (sum of capex within the limit) and on the engine's documented QUANTISED grid, and every optimize case carries both answers, the gap between them and whether quantisation changed the chosen set; every optimal set is listed so ties are explicit; the frontier is on the grid with every capex a tied set could report. All money is USD millions ($MM) except rawDollars, which is typed in dollars on purpose. pos is 0 to 1; correlation is 0 to 1; a correlation given as the string NaN means the gate passes NaN. Every case in the Suite's src/utils/__tests__/portfolioOptimizer.test.js is here, plus seeded random sets (mulberry32, seed on the case), ties, a zero-EMV and a negative-EMV project, free projects, and limits below every project.",
+ "description": "Economics capital portfolio goldens: risked EMV, success-case spread, exact success / failure mixture moments, the portfolio risk summary (closed-form mean and spread with an average pairwise correlation; P(loss), P90 and P10 from the EC5-0 seeded one-factor Gaussian copula Monte Carlo, replayed bit for bit in riskMetrics and optimize, so the gate compares probLoss exactly and P90 / P10 within 1e-9 scaled, at the riskOptions seed and iterations stated on each case), the riskMethod section validating that Monte Carlo against exact answers within 4 standard errors (normalApprox carries what the engine reported before), the optimizeRefusals section (a capex that is not a finite number of 0 or more, or a present pos that is blank, non-numeric or outside 0 to 1, is refused by project; EC5-0, EC5-6, EC5-7), the projectEmvRefusals and riskMetricsRefusals sections (the same pos rule), overLimit / overLimitBy on every optimal set, and the 0/1 knapsack over the capex limit with its efficient frontier. Independent stdlib oracle (tools/validation/economics/oracle_portfolio.py): the knapsack is solved by brute force over every subset, both EXACTLY (sum of capex within the limit) and on the engine's documented QUANTISED grid, and every optimize case carries both answers, the gap between them and whether quantisation changed the chosen set; every optimal set is listed so ties are explicit; the frontier is on the grid with every capex a tied set could report. All money is USD millions ($MM) except rawDollars, which is typed in dollars on purpose. pos is 0 to 1; correlation is 0 to 1; a correlation given as the string NaN means the gate passes NaN. Every case in the Suite's src/utils/__tests__/portfolioOptimizer.test.js is here, plus seeded random sets (mulberry32, seed on the case), ties, a zero-EMV and a negative-EMV project, free projects, and limits below every project.",
  "optimize": [
   {
    "capexLimit": 450,
@@ -4694,6 +4694,175 @@
     "iterations": 2000,
     "seed": 20260829
    }
+  },
+  {
+   "capexLimit": 450,
+   "correlation": 0,
+   "description": "EC5-6 and EC5-7: capex and pos typed as numeric strings are numbers; the classic set with A at \"0.9\" and B at \" 200 \".",
+   "expected": {
+    "cells": 450,
+    "exact": {
+     "optimalEmv": 244.0,
+     "optimalSets": [
+      {
+       "capex": 450.0,
+       "emv": 244.0,
+       "ids": [
+        "A",
+        "B",
+        "D"
+       ],
+       "npvSuccess": 250.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 244.0,
+        "independentStdDev": 18.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
+        "p10": 250.0,
+        "p90": 250.0,
+        "probLoss": 0.0,
+        "seed": 20260829,
+        "stdDev": 18.0
+       }
+      }
+     ]
+    },
+    "limit": 450.0,
+    "quantizationGap": 0.0,
+    "quantized": {
+     "frontier": [
+      {
+       "capexCandidates": [
+        0.0
+       ],
+       "emv": 0.0,
+       "weight": 0
+      },
+      {
+       "capexCandidates": [
+        100.0
+       ],
+       "emv": 54.0,
+       "weight": 100
+      },
+      {
+       "capexCandidates": [
+        150.0
+       ],
+       "emv": 90.0,
+       "weight": 150
+      },
+      {
+       "capexCandidates": [
+        200.0
+       ],
+       "emv": 100.0,
+       "weight": 200
+      },
+      {
+       "capexCandidates": [
+        250.0
+       ],
+       "emv": 144.0,
+       "weight": 250
+      },
+      {
+       "capexCandidates": [
+        300.0
+       ],
+       "emv": 154.0,
+       "weight": 300
+      },
+      {
+       "capexCandidates": [
+        350.0
+       ],
+       "emv": 190.0,
+       "weight": 350
+      },
+      {
+       "capexCandidates": [
+        450.0
+       ],
+       "emv": 244.0,
+       "weight": 450
+      }
+     ],
+     "optimalEmv": 244.0,
+     "optimalSets": [
+      {
+       "capex": 450.0,
+       "emv": 244.0,
+       "ids": [
+        "A",
+        "B",
+        "D"
+       ],
+       "npvSuccess": 250.0,
+       "overLimit": false,
+       "overLimitBy": 0.0,
+       "risk": {
+        "correlation": 0.0,
+        "emv": 244.0,
+        "independentStdDev": 18.0,
+        "iterations": 2000,
+        "lossCount": 0,
+        "method": "monte-carlo",
+        "p10": 250.0,
+        "p90": 250.0,
+        "probLoss": 0.0,
+        "seed": 20260829,
+        "stdDev": 18.0
+       }
+      }
+     ]
+    },
+    "resolution": 1.0,
+    "setChanged": false,
+    "weights": {
+     "A": 100,
+     "B": 200,
+     "C": 300,
+     "D": 150
+    }
+   },
+   "id": "numericStrings",
+   "projects": [
+    {
+     "capex": "100",
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60,
+     "pos": "0.9"
+    },
+    {
+     "capex": " 200 ",
+     "id": "B",
+     "name": "B",
+     "npv_p50": 100
+    },
+    {
+     "capex": 300,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 120
+    },
+    {
+     "capex": 150,
+     "id": "D",
+     "name": "D",
+     "npv_p50": 90,
+     "pos": null
+    }
+   ],
+   "riskOptions": {
+    "iterations": 2000,
+    "seed": 20260829
+   }
   }
  ],
  "optimizeRefusals": [
@@ -4701,9 +4870,9 @@
    "capexLimit": 450,
    "description": "EC5-0: B carries capex -150; the optimizer refuses it by name instead of letting the frontier axis go negative.",
    "expected": {
+    "message": "Project \"B\" has a negative capex (-150); capex must be 0 or more",
     "messageIncludes": [
-     "\"B\"",
-     "(-150)"
+     "\"B\""
     ],
     "throws": "PortfolioInputError"
    },
@@ -4733,9 +4902,9 @@
    "capexLimit": 100,
    "description": "A negative capex on a project with no name or id is named by its index (1).",
    "expected": {
+    "message": "Project \"1\" has a negative capex (-0.5); capex must be 0 or more",
     "messageIncludes": [
-     "\"1\"",
-     "(-0.5)"
+     "\"1\""
     ],
     "throws": "PortfolioInputError"
    },
@@ -4748,6 +4917,225 @@
     {
      "capex": -0.5,
      "npv_p50": 10
+    }
+   ]
+  },
+  {
+   "capexLimit": 450,
+   "description": "EC5-7: capex \"abc\" used to count as 0, so the project was funded for free.",
+   "expected": {
+    "message": "Project \"B\" has a capex that is not a finite number (\"abc\"); capex must be 0 or more",
+    "messageIncludes": [
+     "\"B\""
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "nonNumericCapexRefused",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": "abc",
+     "id": "B",
+     "name": "B",
+     "npv_p50": 100
+    },
+    {
+     "capex": 300,
+     "id": "C",
+     "name": "C",
+     "npv_p50": 120
+    }
+   ]
+  },
+  {
+   "capexLimit": 450,
+   "description": "EC5-7: a blank capex is refused.",
+   "expected": {
+    "message": "Project \"Blank\" has a blank capex; capex must be 0 or more",
+    "messageIncludes": [
+     "\"Blank\""
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "blankCapexRefused",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "capex": "",
+     "id": "Blank",
+     "name": "Blank",
+     "npv_p50": 100
+    }
+   ]
+  },
+  {
+   "capexLimit": 450,
+   "description": "EC5-7: a project with no capex at all is refused.",
+   "expected": {
+    "message": "Project \"NoCapex\" has no capex; capex must be 0 or more",
+    "messageIncludes": [
+     "\"NoCapex\""
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "missingCapexRefused",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60
+    },
+    {
+     "id": "NoCapex",
+     "npv_p50": 40
+    }
+   ]
+  },
+  {
+   "capexLimit": 450,
+   "description": "EC5-7: a null capex is refused like a missing one.",
+   "expected": {
+    "message": "Project \"Null\" has no capex; capex must be 0 or more",
+    "messageIncludes": [
+     "\"Null\""
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "nullCapexRefused",
+   "projects": [
+    {
+     "capex": null,
+     "id": "Null",
+     "name": "Null",
+     "npv_p50": 40
+    }
+   ]
+  },
+  {
+   "capexLimit": 450,
+   "description": "EC5-7: the string \"Infinity\" is not a finite capex.",
+   "expected": {
+    "message": "Project \"Inf\" has a capex that is not a finite number (\"Infinity\"); capex must be 0 or more",
+    "messageIncludes": [
+     "\"Inf\""
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "infiniteCapexRefused",
+   "projects": [
+    {
+     "capex": "Infinity",
+     "id": "Inf",
+     "name": "Inf",
+     "npv_p50": 40
+    }
+   ]
+  },
+  {
+   "capexLimit": 200,
+   "description": "EC5-6: a blank pos in the optimizer is refused by name (it used to read the project as a certain failure, so it was never chosen).",
+   "expected": {
+    "message": "Project \"Wildcat\" has a blank pos; pos must be a number from 0 to 1",
+    "messageIncludes": [
+     "\"Wildcat\""
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "blankPosRefusedInOptimize",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "Sure",
+     "name": "Sure",
+     "npv_p50": 60
+    },
+    {
+     "capex": 100,
+     "fail_cost": 50,
+     "id": "Wildcat",
+     "name": "Wildcat",
+     "npv_p50": 300,
+     "pos": ""
+    }
+   ]
+  },
+  {
+   "capexLimit": 200,
+   "description": "EC5-6: pos 1.2 in the optimizer is refused (it used to be clamped to 1).",
+   "expected": {
+    "message": "Project \"Over\" has a pos outside 0 to 1 (1.2); pos must be a number from 0 to 1",
+    "messageIncludes": [
+     "\"Over\""
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "posOutOfRangeInOptimize",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "Over",
+     "name": "Over",
+     "npv_p50": 60,
+     "pos": 1.2
+    }
+   ]
+  },
+  {
+   "capexLimit": 200,
+   "description": "Array order: A has a bad pos and comes before B with a negative capex, so A is named.",
+   "expected": {
+    "message": "Project \"A\" has a pos that is not a number (\"x\"); pos must be a number from 0 to 1",
+    "messageIncludes": [
+     "\"A\""
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "firstBadProjectNamed",
+   "projects": [
+    {
+     "capex": 100,
+     "id": "A",
+     "name": "A",
+     "npv_p50": 60,
+     "pos": "x"
+    },
+    {
+     "capex": -1,
+     "id": "B",
+     "name": "B",
+     "npv_p50": 10
+    }
+   ]
+  },
+  {
+   "capexLimit": 200,
+   "description": "One project with a bad capex and a blank pos: the capex is reported.",
+   "expected": {
+    "message": "Project \"Both\" has a capex that is not a finite number (\"abc\"); capex must be 0 or more",
+    "messageIncludes": [
+     "\"Both\""
+    ],
+    "throws": "PortfolioInputError"
+   },
+   "id": "capexCheckedBeforePos",
+   "projects": [
+    {
+     "capex": "abc",
+     "id": "Both",
+     "name": "Both",
+     "npv_p50": 60,
+     "pos": ""
     }
    ]
   }
@@ -4782,33 +5170,48 @@
    }
   },
   {
-   "description": "pos 1.4 is clamped to 1; EMV is the NPV.",
+   "description": "pos exactly 1 is accepted; EMV is the NPV.",
    "expected": {
     "emv": 80.0
    },
-   "id": "posAboveOneClamps",
+   "id": "posOneBoundary",
    "project": {
     "capex": 10,
     "fail_cost": 30,
     "id": "a",
     "name": "a",
     "npv_p50": 80,
-    "pos": 1.4
+    "pos": 1
    }
   },
   {
-   "description": "pos -0.2 is clamped to 0; EMV is minus the fail cost.",
+   "description": "EC5-6: a null pos is the documented default 1, like a missing one.",
    "expected": {
-    "emv": -30.0
+    "emv": 80.0
    },
-   "id": "posBelowZeroClamps",
+   "id": "nullPosIsDefault",
    "project": {
     "capex": 10,
     "fail_cost": 30,
     "id": "a",
     "name": "a",
     "npv_p50": 80,
-    "pos": -0.2
+    "pos": null
+   }
+  },
+  {
+   "description": "EC5-6: a numeric string pos is a number: \" 0.3 \" on 300 / 50 gives 55.",
+   "expected": {
+    "emv": 54.99999999999999
+   },
+   "id": "numericStringPos",
+   "project": {
+    "capex": 100,
+    "fail_cost": 50,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 300,
+    "pos": " 0.3 "
    }
   },
   {
@@ -4840,21 +5243,6 @@
    }
   },
   {
-   "description": "A non-numeric pos is the default 1.",
-   "expected": {
-    "emv": 80.0
-   },
-   "id": "nonNumericPosIsDefault",
-   "project": {
-    "capex": 10,
-    "fail_cost": 30,
-    "id": "a",
-    "name": "a",
-    "npv_p50": 80,
-    "pos": "n/a"
-   }
-  },
-  {
    "description": "pos 0; EMV is exactly minus the fail cost.",
    "expected": {
     "emv": -30.0
@@ -4867,6 +5255,161 @@
     "name": "a",
     "npv_p50": 80,
     "pos": 0
+   }
+  }
+ ],
+ "projectEmvRefusals": [
+  {
+   "description": "EC5-6: a blank pos used to read as 0, so the project was a certain failure (EMV minus the fail cost).",
+   "expected": {
+    "message": "Project \"Wildcat\" has a blank pos; pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "blankPosRefused",
+   "project": {
+    "capex": 10,
+    "fail_cost": 50,
+    "id": "Wildcat",
+    "name": "Wildcat",
+    "npv_p50": 300,
+    "pos": ""
+   }
+  },
+  {
+   "description": "A pos of spaces is blank too.",
+   "expected": {
+    "message": "Project \"Wildcat\" has a blank pos; pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "whitespacePosRefused",
+   "project": {
+    "capex": 10,
+    "fail_cost": 50,
+    "id": "Wildcat",
+    "name": "Wildcat",
+    "npv_p50": 300,
+    "pos": "   "
+   }
+  },
+  {
+   "description": "EC5-6: \"n/a\" used to read as the default 1, a certain success.",
+   "expected": {
+    "message": "Project \"a\" has a pos that is not a number (\"n/a\"); pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "nonNumericPosRefused",
+   "project": {
+    "capex": 10,
+    "fail_cost": 30,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": "n/a"
+   }
+  },
+  {
+   "description": "EC5-6: pos 1.4 used to be clamped to 1.",
+   "expected": {
+    "message": "Project \"a\" has a pos outside 0 to 1 (1.4); pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "posAboveOneRefused",
+   "project": {
+    "capex": 10,
+    "fail_cost": 30,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": 1.4
+   }
+  },
+  {
+   "description": "EC5-6: pos -0.2 used to be clamped to 0.",
+   "expected": {
+    "message": "Project \"a\" has a pos outside 0 to 1 (-0.2); pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "posBelowZeroRefused",
+   "project": {
+    "capex": 10,
+    "fail_cost": 30,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": -0.2
+   }
+  },
+  {
+   "description": "A chance typed as a percentage (30) is outside 0 to 1.",
+   "expected": {
+    "message": "Project \"Appraisal\" has a pos outside 0 to 1 (30); pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "percentTypedAsPosRefused",
+   "project": {
+    "capex": 10,
+    "fail_cost": 30,
+    "id": "Appraisal",
+    "name": "Appraisal",
+    "npv_p50": 80,
+    "pos": 30
+   }
+  },
+  {
+   "description": "The string \"Infinity\" is a number outside 0 to 1.",
+   "expected": {
+    "message": "Project \"a\" has a pos outside 0 to 1 (Infinity); pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "infinityStringPosRefused",
+   "project": {
+    "capex": 10,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": "Infinity"
+   }
+  },
+  {
+   "description": "A boolean pos is not a number.",
+   "expected": {
+    "message": "Project \"a\" has a pos that is not a number (true); pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "booleanPosRefused",
+   "project": {
+    "capex": 10,
+    "id": "a",
+    "name": "a",
+    "npv_p50": 80,
+    "pos": true
+   }
+  },
+  {
+   "description": "A project with no name or id is described as such.",
+   "expected": {
+    "message": "A project with no name or id has a pos that is not a number (\"abc\"); pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "unnamedProjectRefused",
+   "project": {
+    "capex": 10,
+    "npv_p50": 80,
+    "pos": "abc"
+   }
+  },
+  {
+   "description": "With no name the id names the project.",
+   "expected": {
+    "message": "Project \"P-7\" has a pos that is not a number (\"0.5x\"); pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "idNamesTheProject",
+   "project": {
+    "capex": 10,
+    "id": "P-7",
+    "npv_p50": 80,
+    "pos": "0.5x"
    }
   }
  ],
@@ -6488,6 +7031,42 @@
     {
      "npv_p50": 50,
      "npv_stddev": 10
+    }
+   ]
+  }
+ ],
+ "riskMetricsRefusals": [
+  {
+   "description": "The second selected project (index 1) has a blank pos.",
+   "expected": {
+    "message": "Project \"1\" has a blank pos; pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "blankPosByIndex",
+   "selected": [
+    {
+     "fail_cost": 20,
+     "npv_p50": 100,
+     "pos": 0.5
+    },
+    {
+     "npv_p50": 50,
+     "pos": ""
+    }
+   ]
+  },
+  {
+   "description": "A named project with pos 2.",
+   "expected": {
+    "message": "Project \"Deep\" has a pos outside 0 to 1 (2); pos must be a number from 0 to 1",
+    "throws": "PortfolioInputError"
+   },
+   "id": "outOfRangeByName",
+   "selected": [
+    {
+     "name": "Deep",
+     "npv_p50": 400,
+     "pos": 2
     }
    ]
   }

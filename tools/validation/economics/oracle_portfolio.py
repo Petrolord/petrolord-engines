@@ -9,10 +9,12 @@ knapsack, the normal approximation with an average pairwise correlation)
 and NOT by transcribing the JavaScript:
 
   risked EMV        EMV = pos * npv_p50 minus (1 minus pos) * fail_cost, pos
-                    the chance of success in [0, 1] (default 1; values outside
-                    the domain are clamped to it; a non-numeric pos is the
-                    default), fail_cost the expected loss on failure, >= 0
-                    (default 0; a negative entry is 0). A missing NPV is 0.
+                    the chance of success in [0, 1] (1 when missing or null;
+                    since EC5-6 a pos that is present must be a number or a
+                    numeric string inside [0, 1], and a blank, non-numeric or
+                    out-of-range pos is REFUSED, see refusal below), fail_cost
+                    the expected loss on failure, >= 0 (default 0; a negative
+                    entry is 0). A missing NPV is 0.
 
   success spread    the success-case standard deviation is the explicit
                     npv_stddev when it is a positive number; otherwise
@@ -119,10 +121,26 @@ and NOT by transcribing the JavaScript:
                     limit)), which the engine now reports for the set it
                     chose (EC5-0; D3 is flagged, not prevented).
 
-  refusal           a project whose capex is a finite number below 0 is
-                    refused (EC5-0): the first such project in array order
-                    is named (name, else id, else its index) with its capex
-                    in the message.
+  refusal           (EC5-0, widened by EC5-6 and EC5-7, owner decisions
+                    2026-09-15.) The optimizer checks every project in array
+                    order, capex first and then pos, and refuses the first
+                    failure with a PortfolioInputError naming the project
+                    (name, else id, else its index; "A project with no name
+                    or id" when a lone project has neither). capex must be a
+                    finite number of 0 or more: missing or null ("has no
+                    capex"), blank ("has a blank capex"), not a finite number
+                    ("has a capex that is not a finite number (<value>)"),
+                    below 0 ("has a negative capex (<n>)"), each ending
+                    "; capex must be 0 or more". pos, when present, must be a
+                    number in [0, 1]: blank ("has a blank pos"), not a number
+                    ("has a pos that is not a number (<value>)"), outside
+                    ("has a pos outside 0 to 1 (<n>)"), each ending "; pos
+                    must be a number from 0 to 1". A string value is shown
+                    in double quotes. A numeric string is a number (the
+                    ECMAScript decimal literal grammar, Infinity included; a
+                    boolean is not a number). projectEmv, projectMoments and
+                    portfolioRiskMetrics refuse an invalid pos the same way
+                    (the risk summary by index in the selection).
 
   frontier          on the quantised grid: for each budget b of cells from 0,
                     best(b) is the largest EMV of a set weighing at most b;
@@ -157,6 +175,7 @@ stdlib only. Regenerate (deterministic, byte identical):
 import json
 import math
 import os
+import re
 import sys
 from fractions import Fraction as F
 from statistics import NormalDist
@@ -190,6 +209,78 @@ def out(x):
     raise TypeError(type(x))
 
 
+class Refused(Exception):
+    """The PortfolioInputError the engine must throw, with its message."""
+
+
+JS_DECIMAL = re.compile(r'^[+-]?(Infinity|(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?)$')
+
+
+def js_numeric(raw):
+    """Number(raw) for a number or a string, None when that is NaN (a blank
+    string is handled by the caller). A boolean or any other type is NaN."""
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, (int, float)):
+        return None if (isinstance(raw, float) and raw != raw) else raw
+    if isinstance(raw, str):
+        t = raw.strip()
+        if not JS_DECIMAL.match(t):
+            return None
+        return float(t.replace('Infinity', 'inf')) if 'Infinity' in t else (int(t) if re.match(r'^[+-]?\d+$', t) else float(t))
+    return None
+
+
+def js_num_text(n):
+    """How a template string prints a number."""
+    if isinstance(n, float) and math.isinf(n):
+        return 'Infinity' if n > 0 else '-Infinity'
+    return str(int(n)) if float(n).is_integer() else repr(float(n))
+
+
+def shown(raw):
+    return '"%s"' % raw if isinstance(raw, str) else (('true' if raw else 'false') if isinstance(raw, bool) else js_num_text(raw))
+
+
+def who(p, index=None):
+    label = p.get('name', p.get('id', index))
+    if label is None:
+        return 'A project with no name or id'
+    return 'Project "%s"' % label
+
+
+def strict_pos(p, index=None):
+    """The EC5-6 method statement for pos."""
+    raw = p.get('pos')
+    if raw is None:
+        return F(1)
+    rule = 'pos must be a number from 0 to 1'
+    if isinstance(raw, str) and raw.strip() == '':
+        raise Refused('%s has a blank pos; %s' % (who(p, index), rule))
+    n = js_numeric(raw)
+    if n is None:
+        raise Refused('%s has a pos that is not a number (%s); %s' % (who(p, index), shown(raw), rule))
+    if not (0 <= n <= 1):
+        raise Refused('%s has a pos outside 0 to 1 (%s); %s' % (who(p, index), js_num_text(n), rule))
+    return F(n)
+
+
+def strict_capex(p, index=None):
+    """The EC5-7 method statement for capex."""
+    raw = p.get('capex')
+    rule = 'capex must be 0 or more'
+    if raw is None:
+        raise Refused('%s has no capex; %s' % (who(p, index), rule))
+    if isinstance(raw, str) and raw.strip() == '':
+        raise Refused('%s has a blank capex; %s' % (who(p, index), rule))
+    n = js_numeric(raw)
+    if n is None or math.isinf(n):
+        raise Refused('%s has a capex that is not a finite number (%s); %s' % (who(p, index), shown(raw), rule))
+    if n < 0:
+        raise Refused('%s has a negative capex (%s); %s' % (who(p, index), js_num_text(n), rule))
+    return F(n)
+
+
 def num(v):
     """A numeric field as an exact Fraction, or None when it is not a number."""
     if v is None or isinstance(v, bool):
@@ -208,10 +299,7 @@ def num(v):
 # ---------------------------------------------------------------------
 
 def pos_of(p):
-    v = num(p.get('pos', 1))
-    if v is None:
-        return F(1)
-    return min(F(1), max(F(0), v))
+    return strict_pos(p)
 
 
 def fail_cost_of(p):
@@ -373,8 +461,7 @@ def js_round(x):
 
 
 def capex_of(p):
-    v = num(p.get('capex', 0))
-    return v if v is not None else F(0)
+    return strict_capex(p)
 
 
 def is_integer(v):
@@ -520,12 +607,62 @@ def emv_cases():
 
     add('unrisked', 'Suite: pos and fail_cost absent; EMV is the NPV (250).', P('a', 100, 250))
     add('risked', 'Suite: 0.3 * 300 minus 0.7 * 50 = 55.', P('a', 100, 300, pos=0.3, fail_cost=50))
-    add('posAboveOneClamps', 'pos 1.4 is clamped to 1; EMV is the NPV.', P('a', 10, 80, pos=1.4, fail_cost=30))
-    add('posBelowZeroClamps', 'pos -0.2 is clamped to 0; EMV is minus the fail cost.', P('a', 10, 80, pos=-0.2, fail_cost=30))
+    add('posOneBoundary', 'pos exactly 1 is accepted; EMV is the NPV.', P('a', 10, 80, pos=1, fail_cost=30))
+    add('nullPosIsDefault', 'EC5-6: a null pos is the documented default 1, like a missing one.', P('a', 10, 80, pos=None, fail_cost=30))
+    add('numericStringPos', 'EC5-6: a numeric string pos is a number: " 0.3 " on 300 / 50 gives 55.', P('a', 100, 300, pos=' 0.3 ', fail_cost=50))
     add('negativeFailCostIsZero', 'A negative fail cost is 0.', P('a', 10, 80, pos=0.5, fail_cost=-30))
     add('missingNpvIsZero', 'No NPV at all; EMV is minus (1 minus pos) times the fail cost.', {'id': 'a', 'capex': 10, 'pos': 0.25, 'fail_cost': 8})
-    add('nonNumericPosIsDefault', 'A non-numeric pos is the default 1.', P('a', 10, 80, pos='n/a', fail_cost=30))
     add('posZero', 'pos 0; EMV is exactly minus the fail cost.', P('a', 10, 80, pos=0, fail_cost=30))
+    return cases
+
+
+def emv_refusal_cases():
+    """EC5-6: a present pos that is blank, non-numeric or outside 0..1 is
+    refused by projectEmv (and projectMoments) naming the project."""
+    cases = []
+
+    def add(cid, desc, p):
+        try:
+            emv(p)
+        except Refused as e:
+            cases.append({'id': cid, 'description': desc, 'project': p,
+                          'expected': {'throws': 'PortfolioInputError', 'message': str(e)}})
+            return
+        raise AssertionError('expected a refusal: %s' % cid)
+
+    add('blankPosRefused', 'EC5-6: a blank pos used to read as 0, so the project was a certain failure (EMV minus the fail cost).',
+        P('Wildcat', 10, 300, pos='', fail_cost=50))
+    add('whitespacePosRefused', 'A pos of spaces is blank too.', P('Wildcat', 10, 300, pos='   ', fail_cost=50))
+    add('nonNumericPosRefused', 'EC5-6: "n/a" used to read as the default 1, a certain success.', P('a', 10, 80, pos='n/a', fail_cost=30))
+    add('posAboveOneRefused', 'EC5-6: pos 1.4 used to be clamped to 1.', P('a', 10, 80, pos=1.4, fail_cost=30))
+    add('posBelowZeroRefused', 'EC5-6: pos -0.2 used to be clamped to 0.', P('a', 10, 80, pos=-0.2, fail_cost=30))
+    add('percentTypedAsPosRefused', 'A chance typed as a percentage (30) is outside 0 to 1.', P('Appraisal', 10, 80, pos=30, fail_cost=30))
+    add('infinityStringPosRefused', 'The string "Infinity" is a number outside 0 to 1.', P('a', 10, 80, pos='Infinity'))
+    add('booleanPosRefused', 'A boolean pos is not a number.', P('a', 10, 80, pos=True))
+    add('unnamedProjectRefused', 'A project with no name or id is described as such.', {'capex': 10, 'npv_p50': 80, 'pos': 'abc'})
+    add('idNamesTheProject', 'With no name the id names the project.', {'id': 'P-7', 'capex': 10, 'npv_p50': 80, 'pos': '0.5x'})
+    return cases
+
+
+def risk_refusal_cases():
+    """EC5-6 in the risk summary: the first invalid pos, by name, else id,
+    else its index in the selection."""
+    cases = []
+    for cid, desc, selected in [
+        ('blankPosByIndex', 'The second selected project (index 1) has a blank pos.',
+         [{'npv_p50': 100, 'pos': 0.5, 'fail_cost': 20}, {'npv_p50': 50, 'pos': ''}]),
+        ('outOfRangeByName', 'A named project with pos 2.', [{'name': 'Deep', 'npv_p50': 400, 'pos': 2}]),
+    ]:
+        msg = None
+        for i, p in enumerate(selected):
+            try:
+                strict_pos(p, i)
+            except Refused as e:
+                msg = str(e)
+                break
+        assert msg is not None, cid
+        cases.append({'id': cid, 'description': desc, 'selected': selected,
+                      'expected': {'throws': 'PortfolioInputError', 'message': msg}})
     return cases
 
 
@@ -664,33 +801,48 @@ def optimize_cases():
     add('seeded10decimal', 'mulberry32 seed 1002: ten one-decimal capex projects, limit 500.5, quantised grid of 0.25025.', seeded_projects(1002, 10, 20, 180, 1), 500.5, 0.2)
     add('seeded16large', 'mulberry32 seed 1601: sixteen integer projects with capex 100 to 900, limit 7200 (above 5000, so the grid is 3.6 per cell).', seeded_projects(1601, 16, 100, 900), 7200, 0.15)
     add('seeded16exact', 'mulberry32 seed 1602: sixteen integer projects with capex 10 to 200, limit 900, exact grid.', seeded_projects(1602, 16, 10, 200), 900)
+    add('numericStrings', 'EC5-6 and EC5-7: capex and pos typed as numeric strings are numbers; the classic set with A at "0.9" and B at " 200 ".',
+        [P('A', '100', 60, pos='0.9'), P('B', ' 200 ', 100), P('C', 300, 120), P('D', 150, 90, pos=None)], 450)
     return cases
 
 
 def refusal_cases():
-    """The refusal method statement: the first project, in array order, whose
-    capex is a finite number below 0 is named (name, else id, else index)."""
+    """The refusal method statement: every project in array order, capex then
+    pos, and the first failure is named (name, else id, else index)."""
     cases = []
 
     def add(cid, desc, projects, limit):
-        bad = None
+        msg = None
         for i, p in enumerate(projects):
-            c = p.get('capex')
-            if isinstance(c, (int, float)) and not isinstance(c, bool) and math.isfinite(c) and c < 0:
-                label = p.get('name', p.get('id', i))
-                bad = (label, c)
+            try:
+                strict_capex(p, i)
+                strict_pos(p, i)
+            except Refused as e:
+                msg = str(e)
                 break
-        assert bad is not None, cid
-        cap = bad[1]
-        cap_text = str(int(cap)) if float(cap).is_integer() else repr(cap)
+        assert msg is not None, cid
+        label = '"%s"' % msg.split('"')[1] if msg.startswith('Project "') else msg.split(' has ')[0]
         cases.append({'id': cid, 'description': desc, 'projects': projects, 'capexLimit': limit,
-                      'expected': {'throws': 'PortfolioInputError',
-                                   'messageIncludes': ['"%s"' % bad[0], '(%s)' % cap_text]}})
+                      'expected': {'throws': 'PortfolioInputError', 'message': msg,
+                                   'messageIncludes': [label]}})
 
     add('negativeCapexRefused', 'EC5-0: B carries capex -150; the optimizer refuses it by name instead of letting the frontier axis go negative.',
         [P('A', 100, 60), P('B', -150, 100), P('C', 300, 120)], 450)
     add('negativeCapexUnnamed', 'A negative capex on a project with no name or id is named by its index (1).',
         [{'capex': 50, 'npv_p50': 20}, {'capex': -0.5, 'npv_p50': 10}], 100)
+    add('nonNumericCapexRefused', 'EC5-7: capex "abc" used to count as 0, so the project was funded for free.',
+        [P('A', 100, 60), P('B', 'abc', 100), P('C', 300, 120)], 450)
+    add('blankCapexRefused', 'EC5-7: a blank capex is refused.', [P('A', 100, 60), P('Blank', '', 100)], 450)
+    add('missingCapexRefused', 'EC5-7: a project with no capex at all is refused.', [P('A', 100, 60), {'id': 'NoCapex', 'npv_p50': 40}], 450)
+    add('nullCapexRefused', 'EC5-7: a null capex is refused like a missing one.', [P('Null', None, 40)], 450)
+    add('infiniteCapexRefused', 'EC5-7: the string "Infinity" is not a finite capex.', [P('Inf', 'Infinity', 40)], 450)
+    add('blankPosRefusedInOptimize', 'EC5-6: a blank pos in the optimizer is refused by name (it used to read the project as a certain failure, so it was never chosen).',
+        [P('Sure', 100, 60), P('Wildcat', 100, 300, pos='', fail_cost=50)], 200)
+    add('posOutOfRangeInOptimize', 'EC5-6: pos 1.2 in the optimizer is refused (it used to be clamped to 1).', [P('Over', 100, 60, pos=1.2)], 200)
+    add('firstBadProjectNamed', 'Array order: A has a bad pos and comes before B with a negative capex, so A is named.',
+        [P('A', 100, 60, pos='x'), P('B', -1, 10)], 200)
+    add('capexCheckedBeforePos', 'One project with a bad capex and a blank pos: the capex is reported.',
+        [P('Both', 'abc', 60, pos='')], 200)
     return cases
 
 
@@ -913,7 +1065,9 @@ def main():
             'probLoss exactly and P90 / P10 within 1e-9 scaled, at the riskOptions seed and iterations '
             'stated on each case), the riskMethod section validating that Monte Carlo against exact '
             'answers within 4 standard errors (normalApprox carries what the engine reported before), '
-            'the optimizeRefusals section (a negative capex is refused), overLimit / overLimitBy on every '
+            'the optimizeRefusals section (a capex that is not a finite number of 0 or more, or a present pos that '
+            'is blank, non-numeric or outside 0 to 1, is refused by project; EC5-0, EC5-6, EC5-7), the '
+            'projectEmvRefusals and riskMetricsRefusals sections (the same pos rule), overLimit / overLimitBy on every '
             'optimal set, and the 0/1 knapsack over the capex limit with its efficient frontier. '
             'Independent stdlib oracle (tools/validation/economics/oracle_portfolio.py): the knapsack is '
             'solved by brute force over every subset, both EXACTLY (sum of capex within the limit) and on '
@@ -928,6 +1082,8 @@ def main():
             'below every project.'
         ),
         'projectEmv': emv_cases(),
+        'projectEmvRefusals': emv_refusal_cases(),
+        'riskMetricsRefusals': risk_refusal_cases(),
         'successStdDev': sd_cases(),
         'projectMoments': moments_cases(),
         'riskMetrics': risk_cases(),

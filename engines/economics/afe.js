@@ -28,6 +28,14 @@
  * and flags a negative working interest as invalid. FINDINGS-fdp.md, section
  * "EC5-0 repair", has the before and after.
  *
+ * EC5-3, EC5-5, EC5-8 and the CPI item (owner decisions 2026-09-15): CPI and
+ * SPI are null whenever the ratio is undefined, with `cpiStatus` and
+ * `spiStatus` naming why ('no-spend', 'no-budget', 'no-planned-value'; 'ok'
+ * when the ratio is reported); progress above 100 percent is refused like
+ * negative progress; and the S-curve parses, steps and labels in UTC, so the
+ * same AFE draws the same curve in every time zone. FINDINGS-fdp.md, section
+ * "EC5-3, EC5-5, EC5-8 and CPI", has the before and after.
+ *
  * Money is whatever unit the caller supplies (the AFE app uses its own
  * currency field); percentages are 0 to 100.
  */
@@ -37,7 +45,8 @@ import { differenceInDays, isValid, parseISO } from '../../lib/dates/dates.js';
 
 /**
  * Thrown for an input the AFE engine refuses rather than computes on: an
- * invalid `asOf` date, or a cost item with negative progress.
+ * invalid `asOf` date, or a cost item with progress below 0 or above 100
+ * percent.
  */
 export class AfeInputError extends Error {
   constructor(message) {
@@ -59,7 +68,9 @@ export class AfeInputError extends Error {
 export const invoiceDate = (invoice) => {
   const raw = invoice?.invoice_date;
   if (raw === null || raw === undefined || raw === '') return null;
-  const d = raw instanceof Date ? raw : new Date(raw);
+  // EC5-5: read in UTC like the S-curve window (parseWindowDateUtc below),
+  // so an invoice lands in the same bucket in every time zone.
+  const d = raw instanceof Date ? raw : parseWindowDateUtc(raw);
   return Number.isNaN(d.getTime()) ? null : d;
 };
 
@@ -156,21 +167,33 @@ export const itemForecast = (item) => {
 /**
  * AFE earned-value metrics as of `asOf` (a Date or an ISO date string;
  * defaults to the clock). Time progress is the elapsed fraction of the AFE
- * window at asOf; planned value is the budget times that fraction; SPI is
- * EV / PV and null where PV is zero (before or on the start day), with the
- * empty-budget guard (SPI 1) unchanged.
+ * window at asOf; planned value is the budget times that fraction.
+ *
+ * ONE null rule for an undefined ratio (EC5-3 and the CPI item, owner
+ * decisions 2026-09-15). CPI is EV / AC; with nothing spent (AC not above
+ * 0) it is null and `cpiStatus` is 'no-spend'. It used to be 1 whatever had
+ * been earned. SPI is EV / PV; with no budget (BAC not above 0, the empty
+ * AFE included) it is null and `spiStatus` is 'no-budget', where it used to
+ * be 1; with a budget but no planned value yet (before or on the start day)
+ * it is null and `spiStatus` is 'no-planned-value'. A reported ratio carries
+ * the status 'ok'.
  *
  * @throws {AfeInputError} asOf is not a valid date, or a cost item has
- *   negative progress.
+ *   progress below 0 or above 100 percent (EC5-8: above 100 used to earn
+ *   more than the budget).
  */
 export const calculateMetrics = (afe, costItems, invoices, asOf = new Date()) => {
   const asOfDate = resolveAsOf(asOf);
 
   costItems.forEach((item, index) => {
     const progress = Number(item.progress);
-    if (Number.isFinite(progress) && progress < 0) {
-      const label = item.code ?? item.description ?? index;
+    if (Number.isNaN(progress)) return;
+    const label = item.code ?? item.description ?? index;
+    if (progress < 0) {
       throw new AfeInputError(`Cost item "${label}" has negative progress (${progress} percent). Progress runs from 0 to 100 percent.`);
+    }
+    if (progress > 100) {
+      throw new AfeInputError(`Cost item "${label}" has progress above 100 percent (${progress} percent). Progress runs from 0 to 100 percent.`);
     }
   });
 
@@ -201,10 +224,13 @@ export const calculateMetrics = (afe, costItems, invoices, asOf = new Date()) =>
   // Simplified planned value: the budget spread linearly over the AFE window.
   const plannedValue = totalBudget * timeProgress;
 
-  const cpi = totalActuals > 0 ? earnedValue / totalActuals : 1.0;
-  let spi = 1.0;
+  const cpi = totalActuals > 0 ? earnedValue / totalActuals : null;
+  const cpiStatus = totalActuals > 0 ? 'ok' : 'no-spend';
+  let spi = null;
+  let spiStatus = 'no-budget';
   if (totalBudget > 0) {
     spi = plannedValue > 0 ? earnedValue / plannedValue : null;
+    spiStatus = plannedValue > 0 ? 'ok' : 'no-planned-value';
   }
 
   const percentSpent = totalBudget > 0 ? (totalActuals / totalBudget) * 100 : 0;
@@ -225,7 +251,9 @@ export const calculateMetrics = (afe, costItems, invoices, asOf = new Date()) =>
     plannedValue,
     timeProgress,
     cpi,
+    cpiStatus,
     spi,
+    spiStatus,
     percentSpent,
     percentComplete
   };
@@ -247,19 +275,91 @@ const calculateTimeProgress = (afe, asOfDate) => {
   return totalDuration > 0 ? elapsed / totalDuration : 1.0;
 };
 
+// --- UTC calendar for the S-curve (EC5-5) ---
+
+const DAY_MS = 86400000;
+const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** A date-only ISO string (no time part), which ECMAScript parses as UTC. */
+const isDateOnly = (s) => /^[+-]?\d{4,6}(-\d{2}(-\d{2})?)?$/.test(s);
+
+/** A string carrying a time AND a zone designator names one instant. */
+const hasTimeAndZone = (s) => /[T ]\d/.test(s) && /(Z|[+-]\d{2}(:?\d{2})?)$/i.test(s);
+
+/** A Date's wall-clock fields in the running zone, read as UTC fields. */
+const localFieldsAsUtc = (d) => new Date(Date.UTC(
+  d.getFullYear(), d.getMonth(), d.getDate(),
+  d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds(),
+));
+
+/**
+ * An AFE window date as a UTC instant. A Date is used as is. A date-only ISO
+ * string and a string with an explicit zone parse the way `new Date` always
+ * parsed them (UTC midnight, or the stated instant). Any other string `new
+ * Date` reads in the running zone, so its wall-clock fields are taken as UTC:
+ * '2027-02-01T00:00:00' is 1 February 2027 in Lagos and Los Angeles alike.
+ * An unreadable value is an Invalid Date, and the walk emits nothing.
+ */
+const parseWindowDateUtc = (raw) => {
+  if (raw instanceof Date) return new Date(raw.getTime());
+  const d = new Date(raw);
+  if (typeof raw !== 'string' || Number.isNaN(d.getTime())) return d;
+  const s = raw.trim();
+  return isDateOnly(s) || hasTimeAndZone(s) ? d : localFieldsAsUtc(d);
+};
+
+/**
+ * `asOf` as a UTC instant for the S-curve. It is validated exactly as the
+ * metrics validate it (same refusal). A Date is used as is. A string with no
+ * time part is that calendar day at UTC midnight (parseISO reads it at LOCAL
+ * midnight, which in Tokyo is the previous UTC day and dropped a bucket dated
+ * on asOf). A string with a time and a zone is that instant; a time with no
+ * zone is read as UTC wall-clock time.
+ */
+const resolveAsOfUtc = (asOf) => {
+  const d = resolveAsOf(asOf);
+  if (typeof asOf !== 'string') return d;
+  const s = asOf.trim();
+  if (!/[T ]\d/.test(s)) return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  return hasTimeAndZone(s) ? d : localFieldsAsUtc(d);
+};
+
+/**
+ * Whole days from `earlier` to `later`: the full-day difference truncated
+ * toward zero. UTC has no daylight saving, so this is date-fns
+ * differenceInDays as run in UTC; run in Los Angeles that function lost a day
+ * across the autumn clock change.
+ */
+const utcWholeDays = (later, earlier) => {
+  const days = Math.trunc((later.getTime() - earlier.getTime()) / DAY_MS);
+  return days === 0 ? 0 : days;
+};
+
+/** 'Feb 27': the short English month and two-digit year of the UTC date. */
+const utcMonthLabel = (d) => `${MONTH_LABELS[d.getUTCMonth()]} ${String(((d.getUTCFullYear() % 100) + 100) % 100).padStart(2, '0')}`;
+
 /**
  * Monthly S-curve points over the AFE window, with actuals up to `asOf` (a
  * Date or an ISO date string; defaults to the clock) and the forecast
  * projected after it. The walk stops at the window's end.
  *
+ * EC5-5 (owner decision 2026-09-15). The window was parsed in UTC but the
+ * months were stepped with local `setMonth`, labelled with local
+ * `toLocaleDateString`, counted with local `differenceInDays` and cut at a
+ * local-midnight asOf. A window starting 1 February 2027 drawn in Los Angeles
+ * was labelled from "Jan 27" and every Planned value moved. Now the window,
+ * asOf, the monthly step (`setUTCMonth`), the day count and the label are all
+ * UTC, so every zone draws the curve a UTC machine draws, and the UTC output
+ * is unchanged.
+ *
  * @throws {AfeInputError} asOf is not a valid date.
  */
 export const generateSCurveData = (afe, costItems, invoices, asOf = new Date()) => {
-  const asOfDate = resolveAsOf(asOf);
+  const asOfDate = resolveAsOfUtc(asOf);
   if (!afe?.start_date || !afe?.end_date) return [];
 
-  const start = new Date(afe.start_date);
-  const end = new Date(afe.end_date);
+  const start = parseWindowDateUtc(afe.start_date);
+  const end = parseWindowDateUtc(afe.end_date);
   const totalBudget = costItems.reduce((sum, i) => sum + (Number(i.budget)||0), 0);
   const totalForecast = costItems.reduce((sum, i) => sum + itemForecast(i), 0);
 
@@ -284,13 +384,13 @@ export const generateSCurveData = (afe, costItems, invoices, asOf = new Date()) 
   let cumPlanned = 0;
   let cumForecast = 0;
 
-  const totalDays = differenceInDays(end, start);
+  const totalDays = utcWholeDays(end, start);
   const dailyBudget = totalBudget / Math.max(totalDays, 1);
   const dailyForecast = totalForecast / Math.max(totalDays, 1);
 
   // Create monthly buckets roughly, inside the window only
   while (currentDate <= end) {
-    const displayDate = currentDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    const displayDate = utcMonthLabel(currentDate);
     
     // Actuals (up to asOf)
     if (currentDate <= now) {
@@ -300,7 +400,7 @@ export const generateSCurveData = (afe, costItems, invoices, asOf = new Date()) 
     }
 
     // Planned (Linear distribution for simplicity, could be S-curve bell shaped in advanced version)
-    const daysElapsed = differenceInDays(currentDate, start);
+    const daysElapsed = utcWholeDays(currentDate, start);
     if (daysElapsed >= 0) {
         cumPlanned = Math.min(totalBudget, daysElapsed * dailyBudget);
         
@@ -320,8 +420,9 @@ export const generateSCurveData = (afe, costItems, invoices, asOf = new Date()) 
       Forecast: Math.round(cumForecast)
     });
 
-    // Advance 1 month
-    currentDate.setMonth(currentDate.getMonth() + 1);
+    // Advance 1 calendar month in UTC (the day of month is kept and
+    // overflows forward, as setMonth did on a UTC machine)
+    currentDate.setUTCMonth(currentDate.getUTCMonth() + 1);
   }
   return dataPoints;
 };

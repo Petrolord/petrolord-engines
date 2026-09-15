@@ -18,9 +18,17 @@
  * it; the rest use windows wholly in the past or wholly in the future (valid
  * until 2080; the gate checks the calendar has not caught up). Every S-curve
  * golden pins the exact point list: the curve stops at the window's end.
+ *
+ * EC5-3, EC5-5, EC5-8 and the CPI item (owner decisions 2026-09-15). CPI and
+ * SPI are null wherever the ratio is undefined, with cpiStatus / spiStatus
+ * naming why; progress above 100 percent is refused; the S-curve is UTC
+ * throughout, and the zone sweep replays it in child processes under five TZ
+ * values. Each retired rule has a negative control: restated here, it must
+ * disagree with the golden it was retired by.
  */
 import fs from 'fs';
 import path from 'path';
+import { spawnSync } from 'child_process';
 import {
   AfeInputError,
   calculatePartnerCosts,
@@ -105,11 +113,14 @@ describe('Suite port: calculateMetrics', () => {
     expect(calculateMetrics(AFE, items, []).spi).toBeCloseTo(0.5, 10);
   });
 
-  it('does not divide by zero on an empty or unspent AFE', () => {
+  it('does not divide by zero on an empty or unspent AFE: the undefined ratios are null, with the reason', () => {
+    // EC5-3 and the CPI item: this test used to expect CPI 1 and SPI 1.
     const empty = calculateMetrics(AFE, [], []);
     expect(empty.totalBudget).toBe(0);
-    expect(empty.cpi).toBe(1);
-    expect(empty.spi).toBe(1);
+    expect(empty.cpi).toBeNull();
+    expect(empty.cpiStatus).toBe('no-spend');
+    expect(empty.spi).toBeNull();
+    expect(empty.spiStatus).toBe('no-budget');
     expect(empty.percentSpent).toBe(0);
     expect(Number.isFinite(empty.percentComplete)).toBe(true);
   });
@@ -117,7 +128,9 @@ describe('Suite port: calculateMetrics', () => {
   it('treats missing numbers as zero rather than producing NaN', () => {
     const items = [{ budget: null, commitment: undefined, actual: '', progress: 'x' }];
     const m = calculateMetrics(AFE, items, []);
-    Object.values(m).forEach((v) => expect(Number.isFinite(v)).toBe(true));
+    const { cpi, spi, cpiStatus, spiStatus, ...numbers } = m;
+    Object.values(numbers).forEach((v) => expect(Number.isFinite(v)).toBe(true));
+    expect([cpi, spi, cpiStatus, spiStatus]).toEqual([null, null, 'no-spend', 'no-budget']);
   });
 
   // EC5-0 contract.
@@ -148,6 +161,13 @@ describe('Suite port: calculateMetrics', () => {
     const items = [{ code: 'X1', budget: 1000, actual: 100, progress: -20 }];
     expect(() => calculateMetrics(AFE, items, [])).toThrow(AfeInputError);
     expect(() => calculateMetrics(AFE, items, [])).toThrow(/"X1".*-20/);
+  });
+
+  it('refuses progress above 100 percent, naming the item (EC5-8)', () => {
+    const items = [{ code: 'X2', budget: 100, actual: 90, progress: 150 }];
+    expect(() => calculateMetrics(AFE, items, [])).toThrow(AfeInputError);
+    expect(() => calculateMetrics(AFE, items, [])).toThrow('Cost item "X2" has progress above 100 percent (150 percent). Progress runs from 0 to 100 percent.');
+    expect(calculateMetrics(AFE, [{ code: 'X3', budget: 100, progress: 100 }], []).earnedValue).toBe(100);
   });
 });
 
@@ -356,7 +376,7 @@ describe('identities', () => {
     const bucketsIn = (afe) => {
       const end = new Date(afe.end_date);
       let n = 0;
-      for (const d = new Date(afe.start_date); d <= end; d.setMonth(d.getMonth() + 1)) n += 1;
+      for (const d = new Date(afe.start_date); d <= end; d.setUTCMonth(d.getUTCMonth() + 1)) n += 1;
       return n;
     };
     G.sCurve.filter((c) => c.expected.kind !== 'none').forEach((c) => {
@@ -415,9 +435,14 @@ describe('golden: metrics', () => {
   test.each(G.metrics.map((c) => [c.name, c]))('%s', (_n, c) => {
     const m = calculateMetrics(c.inputs.afe, c.inputs.costItems, c.inputs.invoices, asOfOf(c.inputs));
     const e = c.expected;
-    KEYS.forEach((k) => expectNum(m[k], e[k], k === 'cpi' || k === 'timeProgress' ? RATIO : MONEY));
+    KEYS.filter((k) => k !== 'cpi').forEach((k) => expectNum(m[k], e[k], k === 'timeProgress' ? RATIO : MONEY));
+    // EC5-3 and the CPI item: an undefined ratio is null exactly, with its reason.
+    if (e.cpi === null) expect(m.cpi).toBeNull();
+    else expectNum(m.cpi, e.cpi, RATIO);
     if (e.spi === null) expect(m.spi).toBeNull();
     else expectNum(m.spi, e.spi, RATIO);
+    expect(m.cpiStatus).toBe(e.cpiStatus);
+    expect(m.spiStatus).toBe(e.spiStatus);
     // The standard EVM set the oracle carries: the module's fields must map
     // onto it exactly where the module reports them.
     const s = e.standardEvm;
@@ -490,5 +515,226 @@ describe('EC6-1: an invoice with no date is not on the curve', () => {
     expect(points[june].Actual).toBe(0);
     expect(points[june + 1].Actual).toBe(250);
     expect(calculateMetrics(afe, items, dated, '2020-12-31').undatedInvoices).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EC5-3 and the CPI item: one null rule for an undefined ratio.
+// ---------------------------------------------------------------------------
+
+describe('EC5-3 and CPI: an undefined ratio is null, with the reason named', () => {
+  const byName = (prefix) => {
+    const c = G.metrics.find((x) => x.name.startsWith(prefix));
+    if (!c) throw new Error(`no golden named ${prefix}`);
+    return c;
+  };
+  const run = (c) => calculateMetrics(c.inputs.afe, c.inputs.costItems, c.inputs.invoices, asOfOf(c.inputs));
+
+  test('the statuses are exactly the four the contract names, and a null ratio never says ok', () => {
+    G.metrics.forEach((c) => {
+      const m = run(c);
+      expect(['ok', 'no-spend']).toContain(m.cpiStatus);
+      expect(['ok', 'no-budget', 'no-planned-value']).toContain(m.spiStatus);
+      expect(m.cpi === null).toBe(m.cpiStatus !== 'ok');
+      expect(m.spi === null).toBe(m.spiStatus !== 'ok');
+    });
+  });
+
+  test('the golden set exercises every status', () => {
+    const seen = new Set(G.metrics.flatMap((c) => [`cpi:${c.expected.cpiStatus}`, `spi:${c.expected.spiStatus}`]));
+    ['cpi:ok', 'cpi:no-spend', 'spi:ok', 'spi:no-budget', 'spi:no-planned-value'].forEach((s) => expect(seen.has(s)).toBe(true));
+  });
+
+  test('the empty AFE and the budgeted AFE with no planned value now agree: both SPI null', () => {
+    const empty = run(byName('suite test: empty AFE'));
+    const notStarted = run(byName('future window with progress'));
+    expect([empty.spi, empty.spiStatus]).toEqual([null, 'no-budget']);
+    expect([notStarted.spi, notStarted.spiStatus]).toEqual([null, 'no-planned-value']);
+  });
+
+  test('value earned with nothing spent: CPI null, not 1', () => {
+    const m = run(byName('value earned with no spend'));
+    expect(m.earnedValue).toBe(400);
+    expect(m.totalActuals).toBe(0);
+    expect([m.cpi, m.cpiStatus]).toEqual([null, 'no-spend']);
+  });
+
+  // Negative controls: the retired rules, restated, disagree with the goldens.
+  const retiredCpi = (m) => (m.totalActuals > 0 ? m.earnedValue / m.totalActuals : 1.0);
+  const retiredSpi = (m) => {
+    if (!(m.totalBudget > 0)) return 1.0;
+    return m.plannedValue > 0 ? m.earnedValue / m.plannedValue : null;
+  };
+
+  test('negative control: the retired CPI rule (1 when nothing is spent) fails the no-spend goldens', () => {
+    const noSpend = G.metrics.filter((c) => c.expected.cpiStatus === 'no-spend');
+    expect(noSpend.length).toBeGreaterThanOrEqual(5);
+    noSpend.forEach((c) => expect(retiredCpi(run(c))).not.toBe(c.expected.cpi));
+    // and it agrees wherever the ratio is defined, so the control isolates the rule
+    G.metrics.filter((c) => c.expected.cpiStatus === 'ok')
+      .forEach((c) => expectNum(retiredCpi(run(c)), c.expected.cpi, RATIO));
+  });
+
+  test('negative control: the retired zero-budget guard (SPI 1) fails the no-budget goldens', () => {
+    const noBudget = G.metrics.filter((c) => c.expected.spiStatus === 'no-budget');
+    expect(noBudget.length).toBeGreaterThanOrEqual(4);
+    noBudget.forEach((c) => {
+      expect(retiredSpi(run(c))).toBe(1);
+      expect(c.expected.spi).toBeNull();
+    });
+    G.metrics.filter((c) => c.expected.spiStatus !== 'no-budget').forEach((c) => {
+      const r = retiredSpi(run(c));
+      if (c.expected.spi === null) expect(r).toBeNull();
+      else expectNum(r, c.expected.spi, RATIO);
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EC5-8: progress above 100 percent is refused.
+// ---------------------------------------------------------------------------
+
+describe('EC5-8: progress above 100 percent is refused', () => {
+  // The retired check: the message for the first NEGATIVE item, else no refusal.
+  const retiredRefusal = (items) => {
+    const k = items.findIndex((i) => Number.isFinite(Number(i.progress)) && Number(i.progress) < 0);
+    if (k < 0) return false;
+    const i = items[k];
+    return `Cost item "${i.code ?? i.description ?? k}" has negative progress (${Number(i.progress)} percent). Progress runs from 0 to 100 percent.`;
+  };
+
+  test('the former golden "progress beyond 100 percent earns beyond the budget" is now a refusal', () => {
+    expect(G.metrics.some((c) => /beyond 100/.test(c.name))).toBe(false);
+    const c = G.metricsRefusals.find((x) => x.name === 'progress beyond 100 percent is refused');
+    expect(c.expected.message).toBe('Cost item "0" has progress above 100 percent (150 percent). Progress runs from 0 to 100 percent.');
+    expect(() => calculateMetrics(c.inputs.afe, c.inputs.costItems, [], c.inputs.asOf)).toThrow(c.expected.message);
+  });
+
+  test('negative control: the retired rule (only negative progress refused) lets every over-100 golden through', () => {
+    const over = G.metricsRefusals.filter((c) => /above 100 percent/.test(c.expected.message));
+    expect(over.length).toBeGreaterThanOrEqual(4);
+    over.forEach((c) => expect(retiredRefusal(c.inputs.costItems)).not.toBe(c.expected.message));
+    expect(over.filter((c) => retiredRefusal(c.inputs.costItems) === false).length).toBeGreaterThanOrEqual(3);
+  });
+
+  test('exactly 100 percent is accepted', () => {
+    const c = G.metrics.find((x) => x.name.startsWith('progress of exactly 100 percent'));
+    const m = calculateMetrics(c.inputs.afe, c.inputs.costItems, c.inputs.invoices);
+    expect(m.percentComplete).toBe(100);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EC5-5: the S-curve is the same in every time zone.
+// ---------------------------------------------------------------------------
+
+describe('EC5-5: the S-curve is identical under five TZ values', () => {
+  // Each zone runs in its own node process, because TZ is read once at
+  // process start. The child imports the engine directly (plain ES modules).
+  const ZONES = {
+    UTC: 0, 'America/Los_Angeles': 480, 'Africa/Lagos': -60, 'Asia/Tokyo': -540, 'Pacific/Kiritimati': -840,
+  };
+  const url = (rel) => `file://${path.join(__dirname, '..', rel)}`;
+  const goldenPath = path.join(__dirname, '../test-data/economics/goldens/afe_cases.json');
+
+  // Probes beyond the goldens: the input forms whose parsing depends on the zone.
+  const PROBES = [
+    { name: 'date-time strings with no zone', afe: { start_date: '2027-02-01T00:00:00', end_date: '2028-01-31T00:00:00' }, items: [{ budget: 3650 }], invoices: [{ invoice_date: '2027-03-01T00:00:00', amount: 10 }], asOf: '2027-06-01T12:00:00' },
+    { name: 'a Date asOf', afe: { start_date: '2027-02-01', end_date: '2028-01-31' }, items: [{ budget: 3650 }], invoices: [], asOfIso: '2027-06-01T00:00:00Z' },
+    { name: 'an asOf with an offset', afe: { start_date: '2027-02-01', end_date: '2028-01-31' }, items: [{ budget: 3650 }], invoices: [{ invoice_date: '2027-06-01', amount: 5 }], asOf: '2027-06-01T00:30:00+01:00' },
+    { name: 'a non-ISO window', afe: { start_date: 'February 1, 2027', end_date: 'January 31, 2028' }, items: [{ budget: 1200 }], invoices: [], asOf: '2027-09-01' },
+    { name: 'autumn clock change inside the window', afe: { start_date: '2026-06-01', end_date: '2026-12-01' }, items: [{ budget: 1830 }], invoices: [{ invoice_date: '2026-10-31', amount: 70 }], asOf: '2026-12-01' },
+    { name: 'a date-only asOf on the first bucket', afe: { start_date: '2027-02-01', end_date: '2027-06-30' }, items: [{ budget: 500 }], invoices: [{ invoice_date: '2027-02-01', amount: 50 }], asOf: '2027-02-01' },
+  ];
+
+  const CHILD = `
+    import fs from 'fs';
+    import { generateSCurveData } from ${JSON.stringify(url('engines/economics/afe.js'))};
+    import { differenceInDays, parseISO, isValid } from ${JSON.stringify(url('lib/dates/dates.js'))};
+    const G = JSON.parse(fs.readFileSync(${JSON.stringify(goldenPath)}, 'utf8'));
+    const PROBES = ${JSON.stringify(PROBES)};
+    const asOfOf = (i) => (i.asOfIso ? new Date(i.asOfIso) : (i.asOfAs === 'Date' ? new Date(i.asOf) : i.asOf));
+    // The RETIRED walk (main before EC5-5), restated as the negative control:
+    // local setMonth, local label, local differenceInDays, parseISO asOf.
+    const retired = (afe, costItems, invoices, asOf = new Date()) => {
+      const now = asOf instanceof Date ? asOf : parseISO(asOf);
+      if (!isValid(now)) throw new Error('asOf');
+      if (!afe?.start_date || !afe?.end_date) return [];
+      const start = new Date(afe.start_date); const end = new Date(afe.end_date);
+      const fc = (i) => { const f = Number(i.forecast) || 0; return f > 0 ? f : Math.max(Number(i.budget) || 0, (Number(i.actual) || 0) + (Number(i.commitment) || 0)); };
+      const bac = costItems.reduce((s, i) => s + (Number(i.budget) || 0), 0);
+      const eac = costItems.reduce((s, i) => s + fc(i), 0);
+      const dated = (inv) => { const r = inv?.invoice_date; if (r == null || r === '') return null; const d = new Date(r); return Number.isNaN(d.getTime()) ? null : d; };
+      const sorted = invoices.filter((v) => dated(v) !== null);
+      const pts = []; const cur = new Date(start);
+      let a = 0; let p = 0; let f = 0;
+      const days = differenceInDays(end, start);
+      while (cur <= end) {
+        const label = cur.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        if (cur <= now) a = sorted.filter((v) => dated(v) <= cur).reduce((s, v) => s + Number(v.amount), 0);
+        const el = differenceInDays(cur, start);
+        if (el >= 0) { p = Math.min(bac, el * bac / Math.max(days, 1)); f = cur <= now ? a : Math.min(eac, el * eac / Math.max(days, 1)); }
+        pts.push({ date: label, Planned: Math.round(p), Actual: cur <= now ? Math.round(a) : null, Forecast: Math.round(f) });
+        cur.setMonth(cur.getMonth() + 1);
+      }
+      return pts;
+    };
+    const both = (afe, items, invs, asOf) => ({
+      engine: generateSCurveData(afe, items, invs, asOf),
+      retired: retired(afe, items, invs, asOf),
+    });
+    const out = {
+      zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      januaryOffset: new Date(2027, 0, 1).getTimezoneOffset(),
+      goldens: G.sCurve.map((c) => ({ name: c.name, ...both(c.inputs.afe, c.inputs.costItems, c.inputs.invoices, asOfOf(c.inputs)) })),
+      probes: PROBES.map((q) => ({ name: q.name, ...both(q.afe, q.items, q.invoices, asOfOf(q)) })),
+    };
+    process.stdout.write(JSON.stringify(out));
+  `;
+
+  const runs = {};
+  beforeAll(() => {
+    Object.keys(ZONES).forEach((tz) => {
+      const r = spawnSync(process.execPath, ['--input-type=module', '-e', CHILD], {
+        env: { ...process.env, TZ: tz }, encoding: 'utf8', timeout: 60000,
+      });
+      if (r.status !== 0) throw new Error(`child under TZ=${tz} failed: ${r.stderr}`);
+      runs[tz] = JSON.parse(r.stdout);
+    });
+  });
+
+  test('each child really ran in its zone (a missing tzdata would silently give UTC)', () => {
+    Object.entries(ZONES).forEach(([tz, offset]) => {
+      expect(runs[tz].zone).toBe(tz);
+      expect(runs[tz].januaryOffset).toBe(offset);
+    });
+  });
+
+  test('the UTC child reproduces every S-curve golden (the UTC output is unchanged)', () => {
+    runs.UTC.goldens.forEach((g, i) => expect(g.engine).toEqual(G.sCurve[i].expected.points));
+  });
+
+  test('the retired walk agrees with the engine in UTC, on every golden and probe', () => {
+    [...runs.UTC.goldens, ...runs.UTC.probes].forEach((g) => expect(g.retired).toEqual(g.engine));
+  });
+
+  test.each(Object.keys(ZONES).filter((z) => z !== 'UTC'))('TZ=%s draws exactly the UTC curve for every golden and probe', (tz) => {
+    runs[tz].goldens.forEach((g, i) => expect({ name: g.name, points: g.engine }).toEqual({ name: runs.UTC.goldens[i].name, points: runs.UTC.goldens[i].engine }));
+    runs[tz].probes.forEach((g, i) => expect({ name: g.name, points: g.engine }).toEqual({ name: runs.UTC.probes[i].name, points: runs.UTC.probes[i].engine }));
+  });
+
+  test('a February start is labelled Feb 27 in every zone', () => {
+    const i = G.sCurve.findIndex((c) => c.name.startsWith('February start'));
+    Object.keys(ZONES).forEach((tz) => expect(runs[tz].goldens[i].engine[0].date).toBe('Feb 27'));
+  });
+
+  test('negative control: the retired walk differs from UTC in Los Angeles (Jan 27) and in Tokyo', () => {
+    const i = G.sCurve.findIndex((c) => c.name.startsWith('February start'));
+    const la = runs['America/Los_Angeles'].goldens[i].retired;
+    expect(la[0].date).toBe('Jan 27');
+    expect(la).not.toEqual(runs.UTC.goldens[i].retired);
+    const differsIn = (tz) => runs[tz].goldens.filter((g, k) => JSON.stringify(g.retired) !== JSON.stringify(runs.UTC.goldens[k].retired)).length;
+    expect(differsIn('America/Los_Angeles')).toBeGreaterThan(10);
+    expect(differsIn('Asia/Tokyo')).toBeGreaterThan(0);
   });
 });

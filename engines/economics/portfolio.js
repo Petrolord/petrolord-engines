@@ -17,6 +17,13 @@
 // a chosen set whose capex exceeds the limit on the quantised grid
 // (overLimit / overLimitBy; FINDINGS-decision.md D3).
 //
+// EC5-6 and EC5-7 (owner decisions 2026-09-15): a pos that is present but
+// blank, non-numeric or outside 0..1 is refused by project name (a blank pos
+// used to read as 0, a certain failure, while "n/a" read as 1 and 1.4 was
+// clamped), and the knapsack refuses any capex that is not a finite number
+// of 0 or more (capex "abc" used to count as 0). A missing or null pos keeps
+// the documented default 1. FINDINGS-decision.md, "EC5-6 and EC5-7".
+//
 // Capital portfolio optimizer (D4, docs/scope/Economics-ROADMAP.md).
 // Extracted from CapitalPortfolioStudio's inline knapsack and upgraded:
 // risked EMV objective, step-scaled DP (bounded memory whatever the units),
@@ -27,8 +34,9 @@
 // - Risked EMV per project follows the ProspectRiskEngine convention of
 //   keeping risked and success-case values separate:
 //     EMV = pos * npv_p50 - (1 - pos) * fail_cost
-//   where pos is the chance of success (0..1, default 1) and fail_cost is
-//   the expected loss if the project fails (>= 0, default 0).
+//   where pos is the chance of success (0..1; 1 when missing or null; any
+//   other pos outside 0..1, blank or non-numeric is refused) and fail_cost
+//   is the expected loss if the project fails (>= 0, default 0).
 // - Portfolio risk: the mean (emv) and the spread (stdDev, with one average
 //   correlation rho in the moment formula) stay closed form. P(NPV < 0), P90
 //   and P10 are read from a seeded Monte Carlo (mulberry32, default seed
@@ -55,16 +63,76 @@ export class PortfolioInputError extends Error {
   }
 }
 
-export const projectEmv = (p) => {
-  const pos = clamp01(p.pos ?? 1);
-  const failCost = Math.max(0, Number(p.fail_cost) || 0);
-  return pos * (Number(p.npv_p50) || 0) - (1 - pos) * failCost;
+/** How a refusal names a project: name, else id, else its index when known. */
+const projectWho = (p, index) => {
+  const label = p?.name ?? p?.id ?? index;
+  return label === undefined ? 'A project with no name or id' : `Project "${label}"`;
 };
 
-const clamp01 = (v) => {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return 1;
-  return Math.min(1, Math.max(0, n));
+/** An entered value as a refusal message shows it: a string in quotes. */
+const shown = (raw) => (typeof raw === 'string' ? `"${raw}"` : String(raw));
+
+/** Number() of a number or a non-blank string; NaN for anything else. */
+const numberOrNaN = (raw) => (
+  typeof raw === 'number' || typeof raw === 'string' ? Number(raw) : NaN
+);
+
+/**
+ * The chance of success of one project (EC5-6, owner decision 2026-09-15).
+ * Missing or null is the documented default 1. A pos that is present must be
+ * a number, or a numeric string, from 0 to 1 inclusive; a blank, a
+ * non-numeric value (a boolean included) or a value outside 0..1 throws a
+ * PortfolioInputError naming the project (name, else id, else `index`).
+ */
+const readPos = (p, index) => {
+  const raw = p.pos;
+  if (raw === undefined || raw === null) return 1;
+  const who = projectWho(p, index);
+  const rule = 'pos must be a number from 0 to 1';
+  if (typeof raw === 'string' && raw.trim() === '') {
+    throw new PortfolioInputError(`${who} has a blank pos; ${rule}`);
+  }
+  const n = numberOrNaN(raw);
+  if (Number.isNaN(n)) {
+    throw new PortfolioInputError(`${who} has a pos that is not a number (${shown(raw)}); ${rule}`);
+  }
+  if (!(n >= 0 && n <= 1)) {
+    throw new PortfolioInputError(`${who} has a pos outside 0 to 1 (${n}); ${rule}`);
+  }
+  return n;
+};
+
+/**
+ * The capex of one project for the knapsack (EC5-0, widened by EC5-7): a
+ * finite number, or a numeric string, of 0 or more. Missing, null, blank,
+ * non-numeric, infinite or negative throws a PortfolioInputError naming the
+ * project.
+ */
+const readCapex = (p, index) => {
+  const raw = p.capex;
+  const who = projectWho(p, index);
+  const rule = 'capex must be 0 or more';
+  if (raw === undefined || raw === null) {
+    throw new PortfolioInputError(`${who} has no capex; ${rule}`);
+  }
+  if (typeof raw === 'string' && raw.trim() === '') {
+    throw new PortfolioInputError(`${who} has a blank capex; ${rule}`);
+  }
+  const n = numberOrNaN(raw);
+  if (!Number.isFinite(n)) {
+    throw new PortfolioInputError(`${who} has a capex that is not a finite number (${shown(raw)}); ${rule}`);
+  }
+  if (n < 0) {
+    throw new PortfolioInputError(`${who} has a negative capex (${n}); ${rule}`);
+  }
+  return n;
+};
+
+/** Risked EMV of one project. @throws {PortfolioInputError} an invalid pos. */
+export const projectEmv = (p) => {
+  const pos = readPos(p);
+  const failCost = Math.max(0, Number(p.fail_cost) || 0);
+  return pos * (Number(p.npv_p50) || 0) - (1 - pos) * failCost;
 };
 
 // Success-case NPV spread of one project, as a standard deviation in $MM.
@@ -87,7 +155,7 @@ export const successStdDev = (p) => {
 // point mass at -fail_cost. Mixture moments are exact; only the summed
 // portfolio shape is approximated as normal.
 export const projectMoments = (p) => {
-  const pos = clamp01(p.pos ?? 1);
+  const pos = readPos(p);
   const failCost = Math.max(0, Number(p.fail_cost) || 0);
   const muS = Number(p.npv_p50) || 0;
   const sdS = successStdDev(p);
@@ -126,9 +194,11 @@ export const projectMoments = (p) => {
  *   e2 = randomNormal(rng),
  *
  * sets a = sqrt(rho), b = sqrt(1 - rho), z1 = a F1 + b e1, z2 = a F2 + b e2,
- * and the project succeeds when normalCDF(z1) < pos (pos clamped as in
- * projectMoments). Its value is npv_p50 + successStdDev * z2 on success and
- * -fail_cost on failure; the portfolio value is the sum in array order.
+ * and the project succeeds when normalCDF(z1) < pos (pos read as in
+ * projectMoments; an invalid pos is refused before any draw, naming the
+ * project by name, else id, else its index in `selected`). Its value is
+ * npv_p50 + successStdDev * z2 on success and -fail_cost on failure; the
+ * portfolio value is the sum in array order.
  * Every normal is drawn whether or not it is needed, so the stream structure
  * never depends on the inputs.
  *
@@ -160,6 +230,7 @@ export const portfolioRiskMetrics = (
   correlation = 0,
   { seed = DEFAULT_RISK_SEED, iterations = DEFAULT_RISK_ITERATIONS } = {},
 ) => {
+  selected.forEach((p, i) => readPos(p, i));
   const rho = Math.min(1, Math.max(0, Number(correlation) || 0));
   const runSeed = Number.isInteger(seed) ? seed >>> 0 : DEFAULT_RISK_SEED;
   const runIterations = Number.isInteger(iterations) && iterations >= 1
@@ -197,7 +268,7 @@ export const portfolioRiskMetrics = (
   }
 
   const params = selected.map((p) => ({
-    pos: clamp01(p.pos ?? 1),
+    pos: readPos(p),
     failCost: Math.max(0, Number(p.fail_cost) || 0),
     muS: Number(p.npv_p50) || 0,
     sdS: successStdDev(p),
@@ -248,18 +319,18 @@ export const portfolioRiskMetrics = (
  * (FINDINGS D3); that is now FLAGGED, not prevented: `overLimit` is
  * totalCapex > capexLimit and `overLimitBy` the excess (0 when within).
  * `seed` and `iterations` pass through to portfolioRiskMetrics.
+ *
+ * EC5-7 widened the refusal: any capex that is not a finite number of 0 or
+ * more (missing, blank, "abc", Infinity) is refused by project name; "abc"
+ * used to count as 0. Every project is checked before anything is computed,
+ * in array order, capex before pos, and the first failure is thrown.
  */
 export const optimizePortfolio = ({
   projects, capexLimit, correlation = 0, seed, iterations,
 }) => {
   projects.forEach((p, i) => {
-    const capex = Number(p.capex);
-    if (Number.isFinite(capex) && capex < 0) {
-      const label = p.name ?? p.id ?? i;
-      throw new PortfolioInputError(
-        `Project "${label}" has a negative capex (${capex}); capex must be 0 or more`,
-      );
-    }
+    readCapex(p, i);
+    readPos(p, i);
   });
   const limit = Math.max(0, Number(capexLimit) || 0);
   const candidates = projects.filter((p) => Number(p.capex) > 0 || projectEmv(p) > 0);

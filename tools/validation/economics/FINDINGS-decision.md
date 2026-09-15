@@ -373,3 +373,47 @@ riskMethod cases red.
   accepted silently, pushing the frontier's x axis negative and out of order.
 - D2 (a free project charged one cell) and D4 (grid undershoot) are
   UNCHANGED, and `CHANGED_BY_GRID` still names the same four cases.
+
+## EC5-6 and EC5-7: FIXED 2026-09-15 (owner decisions)
+
+Engine: engines/economics/portfolio.js. Oracle
+tools/validation/economics/oracle_portfolio.py regenerated twice,
+byte-identical. Gate __tests__/economics.portfolio.test.js, 149 tests.
+
+**EC5-6, a blank pos made the project a certain failure (FIXED).** Before:
+`projectEmv` took `p.pos ?? 1` and clamp01 read "n/a" as 1 but an empty
+string as 0, so a blank pos turned a 300 NPV wildcat into EMV minus the fail
+cost; 1.4 and -0.2 were clamped silently. After: a missing or null pos is the
+documented default 1. A pos that is present must be a number, or a numeric
+string, from 0 to 1; otherwise projectEmv, projectMoments,
+portfolioRiskMetrics and optimizePortfolio throw PortfolioInputError naming the
+project (name, else id, else index; "A project with no name or id" when a
+lone project has neither):
+- `Project "<label>" has a blank pos; pos must be a number from 0 to 1`
+- `Project "<label>" has a pos that is not a number (<value>); pos must be a number from 0 to 1`
+- `Project "<label>" has a pos outside 0 to 1 (<n>); pos must be a number from 0 to 1`
+
+Goldens: projectEmv cases posAboveOneClamps, posBelowZeroClamps and
+nonNumericPosIsDefault moved to the new projectEmvRefusals section (10 cases)
+as posAboveOneRefused, posBelowZeroRefused and nonNumericPosRefused; new
+accepted cases posOneBoundary, nullPosIsDefault, numericStringPos; new
+riskMetricsRefusals section (2 cases). Negative controls: the retired reader
+computes a number for every refusal golden (blank pos to 0, "n/a" to 1) and
+agrees with the engine on every accepted golden.
+
+**EC5-7, capex "abc" counted as 0 (FIXED).** Before: the EC5-0 refusal checked
+finite numbers only, so a non-numeric, blank or missing capex was 0 and the
+project was funded for free. After: optimizePortfolio checks every project in
+array order, capex then pos, before computing anything, and refuses any capex
+that is not a finite number of 0 or more:
+- `Project "<label>" has no capex; capex must be 0 or more` (missing or null)
+- `Project "<label>" has a blank capex; capex must be 0 or more`
+- `Project "<label>" has a capex that is not a finite number (<value>); capex must be 0 or more`
+- `Project "<label>" has a negative capex (<n>); capex must be 0 or more` (unchanged)
+
+A string value is shown in double quotes. optimizeRefusals grew from 2 to 11
+cases, and the gate now asserts each exact message. New optimize case
+numericStrings (capex "100" and " 200 ", pos "0.9") shows that numeric strings
+are numbers. Negative control: the retired finite-only check lets every
+non-numeric, blank, missing and infinite capex golden through. D2, D3 and D4
+are unchanged, and CHANGED_BY_GRID still names the same four cases.

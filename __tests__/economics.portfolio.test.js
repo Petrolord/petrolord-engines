@@ -24,6 +24,11 @@
  *   (a) properties: frontier monotone and ending at the optimum; correlation
  *       never moves the mean; seeded determinism; Math.random never called;
  *       p90 <= p10; p90 never below the worst possible outcome.
+ *   (r) EC5-6 and EC5-7 (owner decisions 2026-09-15): a present pos that is
+ *       blank, non-numeric or outside 0..1, and a capex that is not a finite
+ *       number of 0 or more, are refused by project name with the exact
+ *       golden message; negative controls restate the retired clamp01 and
+ *       the finite-only capex check and show they let those inputs through.
  *
  * Money is $MM (rawDollars deliberately in dollars).
  */
@@ -403,17 +408,84 @@ describe('golden: optimizePortfolio (brute-force knapsack, exact and on the grid
   });
 });
 
-describe('golden: optimizeRefusals (EC5-0)', () => {
+const thrown = (call) => {
+  try { call(); } catch (e) { return e; }
+  throw new Error('expected a PortfolioInputError, nothing was thrown');
+};
+
+describe('golden: optimizeRefusals (EC5-0, EC5-6, EC5-7)', () => {
   for (const c of G.optimizeRefusals) {
     it(`${c.id}: ${c.description}`, () => {
       const call = () => optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit });
       expect(call).toThrow(PortfolioInputError);
-      let err;
-      try { call(); } catch (e) { err = e; }
+      const err = thrown(call);
       expect(err.name).toBe(c.expected.throws);
+      expect(err.message).toBe(c.expected.message);
       for (const s of c.expected.messageIncludes) expect(err.message).toContain(s);
     });
   }
+});
+
+describe('golden: projectEmvRefusals and riskMetricsRefusals (EC5-6)', () => {
+  for (const c of G.projectEmvRefusals) {
+    it(`projectEmv ${c.id}: ${c.description}`, () => {
+      const err = thrown(() => projectEmv(c.project));
+      expect(err).toBeInstanceOf(PortfolioInputError);
+      expect(err.message).toBe(c.expected.message);
+      // projectMoments reads pos by the same rule
+      expect(thrown(() => projectMoments(c.project)).message).toBe(c.expected.message);
+    });
+  }
+  for (const c of G.riskMetricsRefusals) {
+    it(`portfolioRiskMetrics ${c.id}: ${c.description}`, () => {
+      const err = thrown(() => portfolioRiskMetrics(c.selected, 0, { iterations: 10 }));
+      expect(err).toBeInstanceOf(PortfolioInputError);
+      expect(err.message).toBe(c.expected.message);
+    });
+  }
+});
+
+describe('EC5-6 and EC5-7: negative controls for the retired rules', () => {
+  // The retired pos reader: `p.pos ?? 1`, then Number, non-finite to 1, clamped.
+  const retiredPos = (p) => {
+    const n = Number(p.pos ?? 1);
+    if (!Number.isFinite(n)) return 1;
+    return Math.min(1, Math.max(0, n));
+  };
+  const retiredEmv = (p) => {
+    const pos = retiredPos(p);
+    return pos * (Number(p.npv_p50) || 0) - (1 - pos) * Math.max(0, Number(p.fail_cost) || 0);
+  };
+  // The retired capex refusal: a finite number below 0 only.
+  const retiredCapexRefuses = (p) => Number.isFinite(Number(p.capex)) && Number(p.capex) < 0;
+
+  it('the retired pos reader computes a number for every pos refusal golden instead of refusing', () => {
+    expect(G.projectEmvRefusals.length).toBeGreaterThanOrEqual(8);
+    for (const c of G.projectEmvRefusals) expect(Number.isFinite(retiredEmv(c.project))).toBe(true);
+  });
+
+  it('the retired reader made a blank pos a certain failure and "n/a" a certain success', () => {
+    const blank = G.projectEmvRefusals.find((c) => c.id === 'blankPosRefused').project;
+    expect(retiredPos(blank)).toBe(0);
+    expect(retiredEmv(blank)).toBe(-blank.fail_cost);
+    const na = G.projectEmvRefusals.find((c) => c.id === 'nonNumericPosRefused').project;
+    expect(retiredPos(na)).toBe(1);
+  });
+
+  it('the retired and current readers agree on every accepted pos golden', () => {
+    for (const c of G.projectEmv) near(retiredEmv(c.project), projectEmv(c.project), ABS, c.id);
+  });
+
+  it('the retired capex check lets every non-negative-number capex refusal through', () => {
+    const capexCases = G.optimizeRefusals.filter((c) => /capex/.test(c.expected.message) && !/negative capex/.test(c.expected.message));
+    expect(capexCases.length).toBeGreaterThanOrEqual(5);
+    for (const c of capexCases) expect(c.projects.some(retiredCapexRefuses)).toBe(false);
+  });
+
+  it('a missing or null pos is still the default 1', () => {
+    expect(projectEmv({ npv_p50: 80, fail_cost: 30 })).toBe(80);
+    expect(projectEmv({ npv_p50: 80, fail_cost: 30, pos: null })).toBe(80);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -535,7 +607,7 @@ describe('properties: the seeded Monte Carlo', () => {
 describe('golden: shape and the replication gap', () => {
   it('carries a description and every section', () => {
     expect(typeof G.description).toBe('string');
-    for (const k of ['projectEmv', 'successStdDev', 'projectMoments', 'riskMetrics', 'optimize', 'optimizeRefusals', 'riskMethod']) {
+    for (const k of ['projectEmv', 'projectEmvRefusals', 'riskMetricsRefusals', 'successStdDev', 'projectMoments', 'riskMetrics', 'optimize', 'optimizeRefusals', 'riskMethod']) {
       expect(Array.isArray(G[k])).toBe(true);
       expect(G[k].length).toBeGreaterThan(0);
     }
