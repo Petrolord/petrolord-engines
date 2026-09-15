@@ -533,7 +533,7 @@ describe('golden: VOI Analyzer', () => {
   const VERDICT_TEXT = {
     acquire: 'Since this is positive',
     reject: 'not justified',
-    neutral: 'exactly pays for itself',
+    neutral: 'Since this rounds to zero, the information costs what it is worth',
   };
   for (const c of G.voi) {
     it(`${c.id}: ${c.description}`, () => {
@@ -547,13 +547,22 @@ describe('golden: VOI Analyzer', () => {
         }
         expect(r.kpis[k]).toMatch(/^-?\d+\.\d{2}$/);
         near(Number(r.kpis[k]), e[k], KPI, `${c.id} kpi ${k}`);
+        // EC4-2: the card string is exactly the oracle's rounding, never -0.00.
+        expect(r.kpis[k]).toBe(e.cards[k]);
+        expect(r.kpis[k]).not.toBe('-0.00');
       }
+      expect(r.insights).not.toContain('-0.00');
       expect(r.insights).toContain(`'${e.optimalActionWithoutInfo}'`);
       if (e.verdict === null) {
         for (const t of Object.values(VERDICT_TEXT)) expect(r.insights).not.toContain(t);
         expect(r.insights).toContain('is withheld');
       } else {
         expect(r.insights).toContain(VERDICT_TEXT[e.verdict]);
+        for (const [v, t] of Object.entries(VERDICT_TEXT)) if (v !== e.verdict) expect(r.insights).not.toContain(t);
+        // EC4-2: one rounded net VOI feeds the card and the verdict.
+        const card = Number(r.kpis.netVoi);
+        expect(e.verdict).toBe(card > 0 ? 'acquire' : card < 0 ? 'reject' : 'neutral');
+        expect(r.insights).toContain(`the Net VOI is $${r.kpis.netVoi}M.`);
       }
       expect(r.consistency.consistent).toBe(e.consistency.consistent);
       e.consistency.implied.forEach((v, i) => near(r.consistency.implied[i], v, ABS, `${c.id} implied ${i}`));
@@ -618,5 +627,175 @@ describe('golden: shape', () => {
       expect(Array.isArray(G[k])).toBe(true);
       expect(G[k].length).toBeGreaterThan(0);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EC4-8 and EC4-2 (owner decisions 2026-09-15): the retired rules, restored
+// here as NEGATIVE CONTROLS, must disagree with the goldens they were retired
+// for, and the new rules must still refuse what is genuinely off.
+// ---------------------------------------------------------------------------
+
+const byId = (section, id) => {
+  const c = G[section].find((x) => x.id === id);
+  if (!c) throw new Error(`golden ${section}/${id} missing`);
+  return c;
+};
+
+describe('EC4-8: binary representation allowance on every probability tolerance', () => {
+  // The retired comparisons, exactly as they were.
+  const oldProbRefuses = (sum) => Math.abs(sum - 1) > 1e-6;
+  const oldPctRefuses = (sum) => Math.abs(sum - 100) > 1e-4;
+  const sum = (xs) => xs.reduce((s, x) => s + x, 0);
+
+  it('rollback accepts thirds typed to six places; the old strict rule refused them', () => {
+    const c = byId('rollback', 'thirdsTypedToSixPlaces');
+    const ps = c.tree.branches.map((b) => b.probability);
+    expect(oldProbRefuses(sum(ps))).toBe(true); // negative control
+    expect(Math.abs(sum(ps) - 1) - 1e-6).toBeLessThan(1e-12);
+    expectTree(rollback(c.tree), c.expected, c.id);
+    near(rollback(c.tree).emv, 34.999965, ABS, 'typed thirds are not renormalised');
+  });
+
+  it('EVPI accepts priors typed to six places; the old strict rule refused them', () => {
+    const c = byId('evpi', 'thirdsPriorsSixPlaces');
+    expect(oldProbRefuses(sum(c.outcomes.map((o) => o.probability)))).toBe(true);
+    expect(() => evpi(c.outcomes, c.actions)).not.toThrow();
+  });
+
+  it('EVII accepts a likelihood column typed to six places; the old strict rule refused it', () => {
+    const c = byId('evii', 'likelihoodColumnSixPlaces');
+    expect(oldProbRefuses(sum(c.signals.map((sg) => sg.likelihoods[0])))).toBe(true);
+    expect(() => evii(c.outcomes, c.actions, c.signals, c.infoCost)).not.toThrow();
+  });
+
+  it('the VOI Analyzer accepts outcome chances typed 33.3333; the old strict rule refused them', () => {
+    const c = byId('voi', 'thirdsOutcomeChancesFourPlaces');
+    expect(oldPctRefuses(sum(c.inputs.outcomes.map((o) => o.probability)))).toBe(true);
+    const r = generateVoiData(c.inputs);
+    expect(r.withheld).toBe(false);
+    expect(r.tree).toBeTruthy();
+  });
+
+  it('a sum genuinely off by more than the tolerance is still refused, at every site', () => {
+    expect(() => rollback(byId('rollbackRefusals', 'sumShortByTwoMillionths').tree)).toThrow('sum to 0.999998, expected 1');
+    expect(() => rollback(byId('rollbackRefusals', 'thirdsTypedToThreePlaces').tree)).toThrow('sum to 0.999000, expected 1');
+    const col = byId('eviiRefusals', 'likelihoodColumnShortByTwoMillionths');
+    expect(() => evii(col.outcomes, col.actions, col.signals)).toThrow('sum to 0.999998, expected 1');
+    const pri = byId('eviiRefusals', 'priorsShortByTwoMillionths');
+    expect(() => evii(pri.outcomes, pri.actions, pri.signals)).toThrow('Outcome probabilities sum to 0.999998, expected 1');
+    expect(() => generateVoiData(byId('voiRefusals', 'outcomeChancesShortByTwoTenThousandths').inputs))
+      .toThrow('Outcome chances sum to 99.9998 percent, expected 100');
+    expect(() => generateVoiData(byId('voiRefusals', 'thirdsOutcomeChancesThreePlaces').inputs))
+      .toThrow('Outcome chances sum to 99.999 percent, expected 100');
+  });
+});
+
+describe('EC4-2: one rounded net VOI for the card and the verdict', () => {
+  // The retired rules: verdict from the UNROUNDED net, card from toFixed(2).
+  const oldVerdict = (net) => (net > 0 ? 'acquire' : net < 0 ? 'reject' : 'neutral');
+  const unroundedNet = (r) => r.tree.branches[0].branchValue - r.tree.branches[1].branchValue;
+
+  it('cost 32.996: card 0.00 and neutral; the old unrounded verdict said acquire under that card', () => {
+    const c = byId('voi', 'netRoundsToZeroFromAbove');
+    const r = generateVoiData(c.inputs);
+    expect(r.kpis.netVoi).toBe('0.00');
+    expect(c.expected.verdict).toBe('neutral');
+    expect(r.insights).toContain('Since this rounds to zero');
+    expect(oldVerdict(unroundedNet(r))).toBe('acquire'); // negative control
+  });
+
+  it('cost 33.004: card 0.00 and neutral; the old card printed -0.00 under a reject verdict', () => {
+    const c = byId('voi', 'netRoundsToZeroFromBelow');
+    const r = generateVoiData(c.inputs);
+    expect(r.kpis.netVoi).toBe('0.00');
+    expect(c.expected.verdict).toBe('neutral');
+    expect(unroundedNet(r).toFixed(2)).toBe('-0.00'); // negative control
+    expect(oldVerdict(unroundedNet(r))).toBe('reject'); // negative control
+  });
+
+  it('cost 33: exactly zero is neutral under both rules', () => {
+    const r = generateVoiData(byId('voi', 'costExactlyValue').inputs);
+    expect(r.kpis.netVoi).toBe('0.00');
+    expect(r.insights).toContain('Since this rounds to zero');
+  });
+
+  it('half-cent boundaries round away from zero, and clear cases keep their verdicts', () => {
+    const expectations = {
+      netHalfCentAbove: ['0.01', 'Since this is positive'],
+      netHalfCentBelow: ['-0.01', 'not justified'],
+      netClearlyPositive: ['0.10', 'Since this is positive'],
+      netClearlyNegative: ['-0.10', 'not justified'],
+    };
+    for (const [id, [cardText, verdictText]] of Object.entries(expectations)) {
+      const r = generateVoiData(byId('voi', id).inputs);
+      expect(r.kpis.netVoi).toBe(cardText);
+      expect(r.insights).toContain(verdictText);
+      expect(byId('voi', id).expected.cards.netVoi).toBe(cardText);
+    }
+  });
+});
+
+describe('EC4-9: derived branch probabilities are renormalised once typed inputs pass', () => {
+  // Stated tolerance: a case typed to four places agrees with its exact
+  // thirds reference within 1e-3 $MM on every unrounded quantity. The typed
+  // stated chances (0.333333, used as typed) differ from 1/3 by 3.3e-7, and
+  // payoffs of a few hundred $MM carry that to about 1e-4.
+  const EDGE_TOL = 1e-3;
+  const pairs = [
+    ['compoundEdgeAllThirds', 'compoundEdgeAllThirdsExact'],
+    ['compoundEdgeInformative', 'compoundEdgeInformativeExact'],
+  ];
+
+  // The retired derivation, restored: the typed chances inverted by Bayes
+  // with no renormalisation, exactly as voi.js built the diagram before.
+  const oldDiagram = (inputs) => {
+    const priors = inputs.outcomes.map((o) => o.probability / 100);
+    const outcomes = inputs.outcomes.map((o) => ({ label: o.name, probability: o.probability / 100 }));
+    const actions = [
+      { label: inputs.decisionName, cost: inputs.decisionCost, payoffs: inputs.outcomes.map((o) => o.payoff) },
+      { label: `Do Not ${inputs.decisionName}`, cost: 0, payoffs: inputs.outcomes.map(() => 0) },
+    ];
+    const signals = inputs.infoScenario.indicators.map((ind) => {
+      const post = inputs.outcomes.map((o) => ind.conditionalProbabilities.find((c) => c.outcomeId === o.id).probability / 100);
+      return { label: ind.name, likelihoods: priors.map((p, i) => (p > 0 ? (post[i] * ind.probability / 100) / p : 0)) };
+    });
+    return rollback(buildInformationTree({
+      outcomes, actions, signals, infoCost: inputs.infoScenario.cost, infoLabel: `Acquire ${inputs.infoScenario.name}`,
+    }));
+  };
+
+  for (const [edgeId, exactId] of pairs) {
+    it(`${edgeId}: full cards and diagram, within ${EDGE_TOL} $MM of ${exactId}`, () => {
+      const edge = byId('voi', edgeId);
+      const exact = byId('voi', exactId);
+      const r = generateVoiData(edge.inputs);
+      expect(r.withheld).toBe(false);
+      expect(r.tree).toBeTruthy();
+      const signalNode = r.tree.branches[0].node;
+      expect(signalNode.label).toBe('Signal received');
+      near(signalNode.branches.reduce((s, b) => s + b.probability, 0), 1, 1e-12, `${edgeId} renormalised signal chances`);
+      for (const k of ['emvWithoutInfo', 'emvWithInfo', 'voi', 'netVoi', 'evpi']) {
+        near(edge.expected[k], exact.expected[k], EDGE_TOL, `${edgeId} vs ${exactId} ${k}`);
+      }
+      near(r.tree.branches[0].branchValue, exact.expected.emvWithInfo, EDGE_TOL, `${edgeId} diagram vs exact`);
+      // The cards and the diagram are still one analysis, unrounded.
+      near(r.tree.branches[0].branchValue, edge.expected.emvWithInfo, ABS, `${edgeId} tree = emvWithInfo`);
+      // Negative control: the pre-EC4-9 derivation refuses at "Signal received".
+      expect(() => oldDiagram(edge.inputs)).toThrow(DecisionTreeError);
+      expect(() => oldDiagram(edge.inputs)).toThrow('sum to 0.999998, expected 1 (at node "Signal received")');
+      // And it is the compound edge that trips it: the exact reference builds.
+      expect(() => oldDiagram(exact.inputs)).not.toThrow();
+    });
+  }
+
+  it('the strict chance node check still refuses a node typed directly', () => {
+    expect(() => rollback({
+      type: 'chance', label: 'typed', branches: [
+        { label: 'a', probability: 0.333333, node: { type: 'terminal', payoff: 1 } },
+        { label: 'b', probability: 0.333333, node: { type: 'terminal', payoff: 1 } },
+        { label: 'c', probability: 0.333332, node: { type: 'terminal', payoff: 1 } },
+      ],
+    })).toThrow('Chance branch probabilities sum to 0.999998, expected 1 (at node "typed")');
   });
 });

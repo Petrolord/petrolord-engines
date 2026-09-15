@@ -51,32 +51,61 @@ export const conceptProfileKbpd = (concept) => {
   return profile;
 };
 
+const CAPEX_PARTS = [
+  ['drillingCapex', 'the drilling capex'],
+  ['facilitiesCapex', 'the facilities capex'],
+  ['subseaCapex', 'the subsea capex'],
+];
+
 /**
- * Total development capex for a concept, $MM.
+ * Total development capex for a concept, and whether it is complete.
  *
  * Reads the three fields the concept form collects, and accepts a single
  * `capex` when a caller has already totalled them. A concept that carries
  * none of the four is refused: there is no defensible screening number for
  * a development whose cost nobody has entered.
  *
+ * EC6-9. A concept with some of the three left blank is still summed (a
+ * partial concept is legitimate in early screening), but the result says
+ * so. `capexStatus` is 'partial' and `capexMissing` names the blank fields,
+ * in the form's order. Before, the partial sum reached the scenario card
+ * looking like a complete one: an FPSO concept whose facilities capex was
+ * left blank screened at 1350 against its 2250. A total `capex`, or all
+ * three fields entered (a typed zero counts as entered), is 'complete'.
+ *
  * @param {object} concept
- * @returns {number}
+ * @returns {{capexMM: number, capexStatus: 'complete'|'partial', capexMissing: string[]}}
  */
-export const conceptCapexMM = (concept) => {
-  if (!isBlank(concept?.capex)) return requireNonNegative(concept.capex, 'the concept capex');
-  const parts = [
-    ['drillingCapex', 'the drilling capex'],
-    ['facilitiesCapex', 'the facilities capex'],
-    ['subseaCapex', 'the subsea capex'],
-  ];
-  const given = parts.filter(([key]) => !isBlank(concept?.[key]));
+export const conceptCapex = (concept) => {
+  if (!isBlank(concept?.capex)) {
+    return {
+      capexMM: requireNonNegative(concept.capex, 'the concept capex'),
+      capexStatus: 'complete',
+      capexMissing: [],
+    };
+  }
+  const given = CAPEX_PARTS.filter(([key]) => !isBlank(concept?.[key]));
   if (given.length === 0) {
     throw new FdpInputError(
       'the concept carries no capex: enter a drilling, facilities or subsea capex',
     );
   }
-  return given.reduce((sum, [key, label]) => sum + requireNonNegative(concept[key], label), 0);
+  const capexMissing = CAPEX_PARTS.filter(([key]) => isBlank(concept?.[key])).map(([key]) => key);
+  return {
+    capexMM: given.reduce((sum, [key, label]) => sum + requireNonNegative(concept[key], label), 0),
+    capexStatus: capexMissing.length === 0 ? 'complete' : 'partial',
+    capexMissing,
+  };
 };
+
+/**
+ * Total development capex for a concept, $MM. The number alone; use
+ * `conceptCapex` to learn whether it is complete.
+ *
+ * @param {object} concept
+ * @returns {number}
+ */
+export const conceptCapexMM = (concept) => conceptCapex(concept).capexMM;
 
 /** The fiscal terms a scenario implies, defaults stated rather than silent. */
 const scenarioFiscal = (scenario) => ({
@@ -91,27 +120,48 @@ const scenarioFiscal = (scenario) => ({
     : requireNumber(scenario.taxRate, 'the scenario tax rate'),
 });
 
-/** The case one scenario and one concept imply, ready for the screening engine. */
-export const scenarioCase = (scenario, concept) => {
+/**
+ * The case and the capex status together, validated in the order the card
+ * has always refused in: profile, capex, operating cost, oil price.
+ */
+const buildScenario = (scenario, concept) => {
   const productionKbpd = concept?.productionProfileKbpd?.length
     ? concept.productionProfileKbpd
     : conceptProfileKbpd(concept);
+  const capex = conceptCapex(concept);
   return {
-    capexMM: conceptCapexMM(concept),
-    annualOpexMM: requireNonNegative(concept?.opex, 'the concept annual operating cost'),
-    productionKbpd,
-    pricesUsd: new Array(productionKbpd.length)
-      .fill(requireNonNegative(scenario?.oilPrice, 'the scenario oil price')),
-    fiscal: scenarioFiscal(scenario),
+    capex,
+    fdpCase: {
+      capexMM: capex.capexMM,
+      annualOpexMM: requireNonNegative(concept?.opex, 'the concept annual operating cost'),
+      productionKbpd,
+      pricesUsd: new Array(productionKbpd.length)
+        .fill(requireNonNegative(scenario?.oilPrice, 'the scenario oil price')),
+      fiscal: scenarioFiscal(scenario),
+    },
   };
 };
+
+/** The case one scenario and one concept imply, ready for the screening engine. */
+export const scenarioCase = (scenario, concept) => buildScenario(scenario, concept).fdpCase;
 
 /**
  * Run one scenario against one concept.
  *
- * @returns {{cashflow: object[], metrics: object}} full engine result
+ * The full engine result, plus `capexStatus` ('complete' or 'partial') and
+ * `capexMissing` (the blank capex field names) so a card screened on a
+ * partial capex can say so (EC6-9).
+ *
+ * @returns {{cashflow: object[], metrics: object, capexStatus: string, capexMissing: string[]}}
  */
-export const runScenario = (scenario, concept) => runFdpCase(scenarioCase(scenario, concept));
+export const runScenario = (scenario, concept) => {
+  const { capex, fdpCase } = buildScenario(scenario, concept);
+  return {
+    ...runFdpCase(fdpCase),
+    capexStatus: capex.capexStatus,
+    capexMissing: capex.capexMissing,
+  };
+};
 
 /**
  * The sensitivity sweep for one scenario, on the same case the card shows.

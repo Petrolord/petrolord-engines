@@ -47,7 +47,19 @@ const generateFlatProfile = (value, years) => new Array(years).fill(value);
 
 // --- Core Economic Engine ---
 
-export const calculateEconomics = (inputs) => {
+/**
+ * @param {object} inputs the screening case
+ * @param {{skipIrr?: boolean}} [options] `skipIrr: true` leaves the internal
+ *   rate of return uncomputed (`irr` null, `irrStatus` 'not-computed'). For
+ *   callers that read only NPV many times over: the breakeven price solve and
+ *   each Monte Carlo iteration. Since EC6-1 the IRR search sweeps and bisects
+ *   the whole rate band whenever Newton does not land on a verified root or the
+ *   flow changes sign more than once, which made a 5000 iteration breakeven on
+ *   a profile with late losses take minutes. NPV, the ledger and payback are
+ *   identical either way.
+ */
+export const calculateEconomics = (inputs, options = {}) => {
+  const skipIrr = options.skipIrr === true;
   const {
     startYear = new Date().getFullYear(),
     projectLife = 20,
@@ -210,10 +222,14 @@ export const calculateEconomics = (inputs) => {
   // The contract (statuses, band, tolerance, the sweep when Newton fails)
   // lives in ./irrContract.js since EC2-5, shared with the fiscal regime
   // sandbox. Mid-year: the flow in period t is discounted at t + 0.5.
-  const { irr, irrStatus, irrRoots, irrRootAboveBand } = solveIrrInBand(
-    cashflow.map((cf) => cf.ncf),
-    cashflow.map((_, t) => t + 0.5),
-  );
+  // `skipIrr` (breakeven and Monte Carlo) bypasses the whole search, the
+  // sweep included, and says so with 'not-computed'.
+  const { irr, irrStatus, irrRoots, irrRootAboveBand } = skipIrr
+    ? { irr: null, irrStatus: 'not-computed', irrRoots: null, irrRootAboveBand: false }
+    : solveIrrInBand(
+      cashflow.map((cf) => cf.ncf),
+      cashflow.map((_, t) => t + 0.5),
+    );
 
   // Payback, in years from the start of the project.
   //
@@ -472,7 +488,8 @@ export const runMonteCarlo = async (baseInputs, settings) => {
             capex: baseInputs.capex.map(v => v * fCapex)
         };
 
-        const res = calculateEconomics(iterInputs);
+        // Only NPV is read from each iteration, so the IRR search is skipped.
+        const res = calculateEconomics(iterInputs, { skipIrr: true });
         results.push(res.metrics.npv);
     }
 

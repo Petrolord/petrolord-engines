@@ -68,11 +68,15 @@ const calendarDay = (d) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) 
  * example schedule has no startDate or endDate at all, so the number on
  * that screen was NaN for every example plan.
  *
+ * EC6-4. An empty plan returns null too. It used to return 0, which reads
+ * as a window of zero days; a plan with no activities has no window at
+ * all, the same unknown as a plan whose activities carry no dates.
+ *
  * @param {object[]} activities
  * @returns {number|null} whole days from the earliest start to the latest end
  */
 export const calculateProjectDuration = (activities) => {
-  if (!activities || activities.length === 0) return 0;
+  if (!activities || activities.length === 0) return null;
   const starts = [];
   const ends = [];
   for (const a of activities) {
