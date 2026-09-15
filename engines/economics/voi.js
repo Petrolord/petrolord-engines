@@ -27,6 +27,17 @@
 // indicator whose outcome chances did not sum to 100 made the cards and the
 // diagram disagree while the consistency check passed.
 //
+// EC4-8 and EC4-2 (2026-09-15, owner decisions): the percent tolerance
+// comparison adds the engine's 1e-12 binary representation allowance, so
+// three outcome chances typed 33.3333 (99.9999, exactly 1e-4 short in the
+// typed decimals) are accepted while a sum off by more is still refused. Net
+// VOI is rounded ONCE to card precision (2 decimal places, half away from
+// zero) and that single rounded value feeds both the card and the verdict: a
+// net VOI that rounds to 0.00 (|net| < 0.005) gets its own neutral sentence,
+// and no card or insight ever prints "-0.00". Before, the verdict read the
+// unrounded value, so a survey cost of 32.996 showed a 0.00 card under "Since
+// this is positive" and 33.004 showed "-0.00" under "not justified".
+//
 // Economics E2 replaced the node/link "plot data" this used to return with a
 // real decision tree. Nothing rendered those nodes (the panel was a "Chart
 // removed" placeholder), and their link values were not a quantity: each was
@@ -42,7 +53,18 @@ import {
 // Percent-point tolerance on every sum of percent inputs: the engine's 1e-6
 // probability tolerance, on the 0 to 100 scale the form types.
 const PCT_TOL = 1e-4;
+const REPRESENTATION_ALLOWANCE = 1e-12;
 const pctText = (v) => `${Number(v.toFixed(4))}`;
+
+// Card precision, $MM to 2 decimal places, rounded half away from zero on
+// the magnitude (with the representation allowance, so a value that is a
+// half cent in exact decimals rounds the way the decimals do). Negative zero
+// is normalised, so nothing ever prints "-0.00".
+const toCard = (v) => {
+    const magnitude = Number((Math.abs(v) + REPRESENTATION_ALLOWANCE).toFixed(2));
+    return magnitude === 0 ? 0 : (v < 0 ? -magnitude : magnitude);
+};
+const cardText = (v) => toCard(v).toFixed(2);
 
 const requireChance = (value, what) => {
     const v = Number(value);
@@ -53,7 +75,7 @@ const requireChance = (value, what) => {
 };
 
 const requireHundred = (sum, what) => {
-    if (Math.abs(sum - 100) > PCT_TOL) {
+    if (Math.abs(sum - 100) > PCT_TOL + REPRESENTATION_ALLOWANCE) {
         throw new DecisionTreeError(`${what} sum to ${pctText(sum)} percent, expected 100`);
     }
 };
@@ -127,8 +149,8 @@ export const generateVoiData = (inputs) => {
         indicators.map((ind, k) => ({ label: ind.name, probability: ind.probability / 100, posteriors: posteriors[k] })),
     );
 
-    const baseInsight = `The Expected Monetary Value (EMV) without new information is $${emvWithoutInfo.toFixed(2)}M, with the optimal decision being to '${optimalActionWithoutInfo}'.`;
-    const evpiInsight = `The EVPI of $${evpi.toFixed(2)}M sets the theoretical maximum value of any information-gathering activity.`;
+    const baseInsight = `The Expected Monetary Value (EMV) without new information is $${cardText(emvWithoutInfo)}M, with the optimal decision being to '${optimalActionWithoutInfo}'.`;
+    const evpiInsight = `The EVPI of $${cardText(evpi)}M sets the theoretical maximum value of any information-gathering activity.`;
 
     if (!consistency.consistent) {
         const impliedTxt = outcomes
@@ -137,10 +159,10 @@ export const generateVoiData = (inputs) => {
         return {
             kpis: {
                 emvWithInfo: null,
-                emvWithoutInfo: emvWithoutInfo.toFixed(2),
+                emvWithoutInfo: cardText(emvWithoutInfo),
                 voi: null,
                 netVoi: null,
-                evpi: evpi.toFixed(2),
+                evpi: cardText(evpi),
             },
             tree: null,
             withheld: true,
@@ -161,20 +183,24 @@ export const generateVoiData = (inputs) => {
     const voi = emvWithInfoPreCost - emvWithoutInfo;
     const netVoi = voi - infoScenario.cost;
 
+    // EC4-2: net VOI is rounded once; the card and the verdict read the same
+    // rounded value.
+    const netVoiCard = toCard(netVoi);
+
     const kpis = {
-        emvWithInfo: emvWithInfo.toFixed(2),
-        emvWithoutInfo: emvWithoutInfo.toFixed(2),
-        voi: voi.toFixed(2),
-        netVoi: netVoi.toFixed(2),
-        evpi: evpi.toFixed(2),
+        emvWithInfo: cardText(emvWithInfo),
+        emvWithoutInfo: cardText(emvWithoutInfo),
+        voi: cardText(voi),
+        netVoi: netVoiCard.toFixed(2),
+        evpi: cardText(evpi),
     };
 
-    const recommendation = netVoi > 0
+    const recommendation = netVoiCard > 0
         ? `Since this is positive, acquiring the information is financially advantageous.`
-        : netVoi < 0
+        : netVoiCard < 0
             ? `Since this is negative, the information costs more than the value it adds, so acquiring it is not justified on EMV grounds.`
-            : `The information exactly pays for itself, so the decision is value-neutral on EMV grounds.`;
-    const insights = `${baseInsight} Acquiring the '${infoScenario.name}' for $${infoScenario.cost}M results in a final EMV of $${emvWithInfo.toFixed(2)}M. The gross Value of Information (VOI) is $${voi.toFixed(2)}M. After accounting for the cost, the Net VOI is $${netVoi.toFixed(2)}M. ${recommendation} ${evpiInsight}`;
+            : `Since this rounds to zero, the information costs what it is worth, so acquiring it or not is indifferent on EMV grounds.`;
+    const insights = `${baseInsight} Acquiring the '${infoScenario.name}' for $${infoScenario.cost}M results in a final EMV of $${kpis.emvWithInfo}M. The gross Value of Information (VOI) is $${kpis.voi}M. After accounting for the cost, the Net VOI is $${kpis.netVoi}M. ${recommendation} ${evpiInsight}`;
 
     // Economics E2: a real decision tree, drawn by the same component the
     // Decision Tree Builder uses. With every percent input a distribution

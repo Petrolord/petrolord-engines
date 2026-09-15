@@ -502,6 +502,106 @@
      ]
     }
    ],
+   "description": "EC4-8: three signals whose likelihoods under success are typed 0.333333 (column sum 0.999999, on the edge) are accepted; the dry column is 0.1 / 0.3 / 0.6.",
+   "expected": {
+    "emvPrior": 43.0,
+    "evWithInfo": 43.999942,
+    "evii": 0.999942,
+    "evpi": 35.0,
+    "netEvii": -1.000058,
+    "perSignal": [
+     {
+      "bestActionIndex": 0,
+      "emv": 132.35286608992124,
+      "pSignal": 0.1699999,
+      "posterior": [
+       0.5882350519029718,
+       0.4117649480970283
+      ]
+     },
+     {
+      "bestActionIndex": 0,
+      "emv": 49.99993225804266,
+      "pSignal": 0.3099999,
+      "posterior": [
+       0.3225804266388473,
+       0.6774195733611527
+      ]
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 11.538452218933118,
+      "pSignal": 0.5199999,
+      "posterior": [
+       0.19230753698221864,
+       0.8076924630177813
+      ]
+     }
+    ]
+   },
+   "id": "likelihoodColumnSixPlaces",
+   "infoCost": 2,
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "signals": [
+    {
+     "label": "High",
+     "likelihoods": [
+      0.333333,
+      0.1
+     ]
+    },
+    {
+     "label": "Mid",
+     "likelihoods": [
+      0.333333,
+      0.3
+     ]
+    },
+    {
+     "label": "Low",
+     "likelihoods": [
+      0.333333,
+      0.6
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 40,
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Farm out",
+     "payoffs": [
+      60,
+      0
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
    "description": "Net EVII negative when the information costs more than it is worth (cost 20 on a 12.5 signal).",
    "expected": {
     "emvPrior": 43.0,
@@ -1778,6 +1878,153 @@
      ]
     }
    ],
+   "description": "EC4-8: likelihoods under success 0.333333 + 0.333333 + 0.333332 = 0.999998; still refused.",
+   "id": "likelihoodColumnShortByTwoMillionths",
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "likelihood column for success sums to 0.999998",
+   "signals": [
+    {
+     "label": "High",
+     "likelihoods": [
+      0.333333,
+      0.1
+     ]
+    },
+    {
+     "label": "Mid",
+     "likelihoods": [
+      0.333333,
+      0.3
+     ]
+    },
+    {
+     "label": "Low",
+     "likelihoods": [
+      0.333332,
+      0.6
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 60,
+     "label": "Drill alone",
+     "payoffs": [
+      500,
+      150,
+      -20
+     ]
+    },
+    {
+     "cost": 30,
+     "label": "Drill with partner",
+     "payoffs": [
+      250,
+      75,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Farm out",
+     "payoffs": [
+      80,
+      30,
+      0
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Relinquish",
+     "payoffs": [
+      0,
+      0,
+      0
+     ]
+    }
+   ],
+   "description": "EC4-8: priors 0.333333 + 0.333333 + 0.333332 = 0.999998; still refused.",
+   "id": "priorsShortByTwoMillionths",
+   "outcomes": [
+    {
+     "label": "Large",
+     "probability": 0.333333
+    },
+    {
+     "label": "Medium",
+     "probability": 0.333333
+    },
+    {
+     "label": "Dry",
+     "probability": 0.333332
+    }
+   ],
+   "reason": "priors sum to 0.999998",
+   "signals": [
+    {
+     "label": "Bright",
+     "likelihoods": [
+      0.7,
+      0.3,
+      0.1
+     ]
+    },
+    {
+     "label": "Flat",
+     "likelihoods": [
+      0.2,
+      0.5,
+      0.3
+     ]
+    },
+    {
+     "label": "Dim",
+     "likelihoods": [
+      0.1,
+      0.2,
+      0.6
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 40,
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Farm out",
+     "payoffs": [
+      60,
+      0
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
    "description": "No signals at all.",
    "id": "noSignals",
    "outcomes": [
@@ -2130,6 +2377,73 @@
     {
      "label": "Dry hole",
      "probability": 0.7
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 60,
+     "label": "Drill alone",
+     "payoffs": [
+      500,
+      150,
+      -20
+     ]
+    },
+    {
+     "cost": 30,
+     "label": "Drill with partner",
+     "payoffs": [
+      250,
+      75,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Farm out",
+     "payoffs": [
+      80,
+      30,
+      0
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Relinquish",
+     "payoffs": [
+      0,
+      0,
+      0
+     ]
+    }
+   ],
+   "description": "EC4-8: three outcome priors typed 0.333333 (sum 0.999999, on the edge) are accepted and used as typed.",
+   "expected": {
+    "bestActionIndex": 0,
+    "emvPrior": 149.99979,
+    "evWithPerfect": 176.66649,
+    "evpi": 26.6667,
+    "perfectBestActionIndex": [
+     0,
+     0,
+     2
+    ]
+   },
+   "id": "thirdsPriorsSixPlaces",
+   "outcomes": [
+    {
+     "label": "Large",
+     "probability": 0.333333
+    },
+    {
+     "label": "Medium",
+     "probability": 0.333333
+    },
+    {
+     "label": "Dry",
+     "probability": 0.333333
     }
    ]
   },
@@ -10371,6 +10685,97 @@
    }
   },
   {
+   "description": "EC4-8: three branches typed 0.333333 sum to 0.999999, exactly 1e-6 short, which the inclusive tolerance accepts. The probabilities are used as typed: EMV 0.333333 * (90 + 30 - 15) = 34.999965.",
+   "expected": {
+    "branches": [
+     {
+      "branchValue": 90.0,
+      "onOptimalPath": true,
+      "path": [
+       0
+      ]
+     },
+     {
+      "branchValue": 30.0,
+      "onOptimalPath": true,
+      "path": [
+       1
+      ]
+     },
+     {
+      "branchValue": -15.0,
+      "onOptimalPath": true,
+      "path": [
+       2
+      ]
+     }
+    ],
+    "emv": 34.999965,
+    "nodes": [
+     {
+      "emv": 34.999965,
+      "path": [],
+      "type": "chance"
+     },
+     {
+      "emv": 90.0,
+      "path": [
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 30.0,
+      "path": [
+       1
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": -15.0,
+      "path": [
+       2
+      ],
+      "type": "terminal"
+     }
+    ]
+   },
+   "id": "thirdsTypedToSixPlaces",
+   "tree": {
+    "branches": [
+     {
+      "label": "a",
+      "node": {
+       "label": "a",
+       "payoff": 90,
+       "type": "terminal"
+      },
+      "probability": 0.333333
+     },
+     {
+      "label": "b",
+      "node": {
+       "label": "b",
+       "payoff": 30,
+       "type": "terminal"
+      },
+      "probability": 0.333333
+     },
+     {
+      "label": "c",
+      "node": {
+       "label": "c",
+       "payoff": -15,
+       "type": "terminal"
+      },
+      "probability": 0.333333
+     }
+    ],
+    "label": "thirds typed",
+    "type": "chance"
+   }
+  },
+  {
    "description": "Chance at the root with a cost on every branch and a nested decision under one of them; EMV subtracts the branch costs before weighting.",
    "expected": {
     "branches": [
@@ -10937,6 +11342,82 @@
    }
   },
   {
+   "description": "EC4-8: three branches typed 0.333 sum to 0.999, a thousandth short; the binary allowance does not widen the tolerance.",
+   "id": "thirdsTypedToThreePlaces",
+   "reason": "probabilities sum to 0.999",
+   "tree": {
+    "branches": [
+     {
+      "label": "a",
+      "node": {
+       "label": "a",
+       "payoff": 90,
+       "type": "terminal"
+      },
+      "probability": 0.333
+     },
+     {
+      "label": "b",
+      "node": {
+       "label": "b",
+       "payoff": 30,
+       "type": "terminal"
+      },
+      "probability": 0.333
+     },
+     {
+      "label": "c",
+      "node": {
+       "label": "c",
+       "payoff": -15,
+       "type": "terminal"
+      },
+      "probability": 0.333
+     }
+    ],
+    "label": "thirds",
+    "type": "chance"
+   }
+  },
+  {
+   "description": "EC4-8: 0.333333 + 0.333333 + 0.333332 = 0.999998, twice the tolerance short; still refused.",
+   "id": "sumShortByTwoMillionths",
+   "reason": "probabilities sum to 0.999998",
+   "tree": {
+    "branches": [
+     {
+      "label": "a",
+      "node": {
+       "label": "a",
+       "payoff": 90,
+       "type": "terminal"
+      },
+      "probability": 0.333333
+     },
+     {
+      "label": "b",
+      "node": {
+       "label": "b",
+       "payoff": 30,
+       "type": "terminal"
+      },
+      "probability": 0.333333
+     },
+     {
+      "label": "c",
+      "node": {
+       "label": "c",
+       "payoff": -15,
+       "type": "terminal"
+      },
+      "probability": 0.333332
+     }
+    ],
+    "label": "short",
+    "type": "chance"
+   }
+  },
+  {
    "description": "A decision node with no branches has nothing to decide.",
    "id": "emptyBranches",
    "reason": "no branches",
@@ -11042,6 +11523,13 @@
    "description": "Suite voiCalculations.test.js defaults: EMV without 15, with 38, VOI 33, net 23, EVPI 63; consistent; tree present with chances 0.4 / 0.6.",
    "expected": {
     "acquireBranchValue": 38.0,
+    "cards": {
+     "emvWithInfo": "38.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "23.00",
+     "voi": "33.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -11556,6 +12044,13 @@
    "description": "Suite: cost 50 on the same inputs; net VOI -17; verdict reject.",
    "expected": {
     "acquireBranchValue": -2.0,
+    "cards": {
+     "emvWithInfo": "-2.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "-17.00",
+     "voi": "33.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -12069,6 +12564,13 @@
   {
    "description": "Positive posteriors 90 / 10 (a distribution) contradict the 30 percent prior (implied 42). Before EC4-0 this reported a gross VOI of 75 above the EVPI of 63; now EMV without information and EVPI are reported and the rest is withheld.",
    "expected": {
+    "cards": {
+     "emvWithInfo": null,
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": null,
+     "voi": null
+    },
     "consistency": {
      "consistent": false,
      "deltas": [
@@ -12154,6 +12656,13 @@
   {
    "description": "Both indicators typed 20 / 80 imply a 20 percent success chance against 30 stated. Before EC4-0 this reported a gross VOI of -15, below zero; now withheld.",
    "expected": {
+    "cards": {
+     "emvWithInfo": null,
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": null,
+     "voi": null
+    },
     "consistency": {
      "consistent": false,
      "deltas": [
@@ -12239,6 +12748,13 @@
   {
    "description": "Both indicators typed 100 / 0 imply certain success against 30 stated. Before EC4-0 this reported a gross VOI of 245 beside an EVPI of 63; now withheld.",
    "expected": {
+    "cards": {
+     "emvWithInfo": null,
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": null,
+     "voi": null
+    },
     "consistency": {
      "consistent": false,
      "deltas": [
@@ -12325,6 +12841,13 @@
    "description": "Positive posteriors 61.25 / 38.75 imply 30.5 percent success against 30 stated, a delta of exactly half a percent: consistent (inclusive threshold), so every KPI and the tree are reported.",
    "expected": {
     "acquireBranchValue": 39.75,
+    "cards": {
+     "emvWithInfo": "39.75",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "24.75",
+     "voi": "34.75"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -12838,6 +13361,13 @@
   {
    "description": "Positive posteriors 61.5 / 38.5 imply 30.6 percent success against 30 stated, a delta of 0.6 percent: withheld.",
    "expected": {
+    "cards": {
+     "emvWithInfo": null,
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": null,
+     "voi": null
+    },
     "consistency": {
      "consistent": false,
      "deltas": [
@@ -12921,9 +13451,16 @@
    }
   },
   {
-   "description": "Degenerate: cost 33 equals the gross VOI; net VOI exactly 0; verdict neutral.",
+   "description": "Degenerate: cost 33 equals the gross VOI; net VOI exactly 0; card 0.00; verdict neutral.",
    "expected": {
     "acquireBranchValue": 15.0,
+    "cards": {
+     "emvWithInfo": "15.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "0.00",
+     "voi": "33.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -13435,9 +13972,3796 @@
    }
   },
   {
+   "description": "EC4-2: cost 32.996 leaves a net VOI of +0.004, which rounds to a 0.00 card; the verdict reads that card and is neutral. Before, the unrounded value put \"Since this is positive\" under a 0.00 card.",
+   "expected": {
+    "acquireBranchValue": 15.004,
+    "cards": {
+     "emvWithInfo": "15.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "0.00",
+     "voi": "33.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3,
+      0.7
+     ],
+     "stated": [
+      0.3,
+      0.7
+     ]
+    },
+    "emvWithInfo": 15.004,
+    "emvWithoutInfo": 15.0,
+    "evpi": 63.0,
+    "netVoi": 0.004,
+    "noInfoBranchValue": 15.0,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 120.0
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0
+     }
+    ],
+    "signalChances": [
+     0.4,
+     0.6
+    ],
+    "tree": {
+     "bestBranchIndex": 0,
+     "branches": [
+      {
+       "branchValue": 15.004,
+       "onOptimalPath": true,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -55.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": false,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      }
+     ],
+     "emv": 15.004,
+     "nodes": [
+      {
+       "bestBranchIndex": 0,
+       "emv": 15.004,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 48.0,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 120.0,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 160.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": -15.0,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 15.0,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 55.0,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "neutral",
+    "voi": 33.0,
+    "withheld": false
+   },
+   "id": "netRoundsToZeroFromAbove",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 32.996,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   }
+  },
+  {
+   "description": "EC4-2: cost 33.004 leaves a net VOI of -0.004; the card reads 0.00 (never -0.00) and the verdict is neutral. Before, the card read -0.00 under \"not justified\".",
+   "expected": {
+    "acquireBranchValue": 14.996,
+    "cards": {
+     "emvWithInfo": "15.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "0.00",
+     "voi": "33.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3,
+      0.7
+     ],
+     "stated": [
+      0.3,
+      0.7
+     ]
+    },
+    "emvWithInfo": 14.996,
+    "emvWithoutInfo": 15.0,
+    "evpi": 63.0,
+    "netVoi": -0.004,
+    "noInfoBranchValue": 15.0,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 120.0
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0
+     }
+    ],
+    "signalChances": [
+     0.4,
+     0.6
+    ],
+    "tree": {
+     "bestBranchIndex": 1,
+     "branches": [
+      {
+       "branchValue": 14.996,
+       "onOptimalPath": false,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -55.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": true,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      }
+     ],
+     "emv": 15.0,
+     "nodes": [
+      {
+       "bestBranchIndex": 1,
+       "emv": 15.0,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 48.0,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 120.0,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 160.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": -15.0,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 15.0,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 55.0,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "neutral",
+    "voi": 33.0,
+    "withheld": false
+   },
+   "id": "netRoundsToZeroFromBelow",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 33.004,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   }
+  },
+  {
+   "description": "EC4-2 boundary: cost 32.995 leaves exactly +0.005, which rounds half away from zero to a 0.01 card; verdict acquire.",
+   "expected": {
+    "acquireBranchValue": 15.005,
+    "cards": {
+     "emvWithInfo": "15.01",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "0.01",
+     "voi": "33.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3,
+      0.7
+     ],
+     "stated": [
+      0.3,
+      0.7
+     ]
+    },
+    "emvWithInfo": 15.005,
+    "emvWithoutInfo": 15.0,
+    "evpi": 63.0,
+    "netVoi": 0.005,
+    "noInfoBranchValue": 15.0,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 120.0
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0
+     }
+    ],
+    "signalChances": [
+     0.4,
+     0.6
+    ],
+    "tree": {
+     "bestBranchIndex": 0,
+     "branches": [
+      {
+       "branchValue": 15.005,
+       "onOptimalPath": true,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -55.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": false,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      }
+     ],
+     "emv": 15.005,
+     "nodes": [
+      {
+       "bestBranchIndex": 0,
+       "emv": 15.005,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 48.0,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 120.0,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 160.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": -15.0,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 15.0,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 55.0,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "acquire",
+    "voi": 33.0,
+    "withheld": false
+   },
+   "id": "netHalfCentAbove",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 32.995,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   }
+  },
+  {
+   "description": "EC4-2 boundary: cost 33.005 leaves exactly -0.005, which rounds to a -0.01 card; verdict reject.",
+   "expected": {
+    "acquireBranchValue": 14.995,
+    "cards": {
+     "emvWithInfo": "15.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "-0.01",
+     "voi": "33.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3,
+      0.7
+     ],
+     "stated": [
+      0.3,
+      0.7
+     ]
+    },
+    "emvWithInfo": 14.995,
+    "emvWithoutInfo": 15.0,
+    "evpi": 63.0,
+    "netVoi": -0.005,
+    "noInfoBranchValue": 15.0,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 120.0
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0
+     }
+    ],
+    "signalChances": [
+     0.4,
+     0.6
+    ],
+    "tree": {
+     "bestBranchIndex": 1,
+     "branches": [
+      {
+       "branchValue": 14.995,
+       "onOptimalPath": false,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -55.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": true,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      }
+     ],
+     "emv": 15.0,
+     "nodes": [
+      {
+       "bestBranchIndex": 1,
+       "emv": 15.0,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 48.0,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 120.0,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 160.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": -15.0,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 15.0,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 55.0,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "reject",
+    "voi": 33.0,
+    "withheld": false
+   },
+   "id": "netHalfCentBelow",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 33.005,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   }
+  },
+  {
+   "description": "EC4-2: cost 32.9 leaves a net VOI of +0.10; card 0.10; verdict acquire.",
+   "expected": {
+    "acquireBranchValue": 15.1,
+    "cards": {
+     "emvWithInfo": "15.10",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "0.10",
+     "voi": "33.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3,
+      0.7
+     ],
+     "stated": [
+      0.3,
+      0.7
+     ]
+    },
+    "emvWithInfo": 15.1,
+    "emvWithoutInfo": 15.0,
+    "evpi": 63.0,
+    "netVoi": 0.1,
+    "noInfoBranchValue": 15.0,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 120.0
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0
+     }
+    ],
+    "signalChances": [
+     0.4,
+     0.6
+    ],
+    "tree": {
+     "bestBranchIndex": 0,
+     "branches": [
+      {
+       "branchValue": 15.1,
+       "onOptimalPath": true,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -55.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": false,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      }
+     ],
+     "emv": 15.1,
+     "nodes": [
+      {
+       "bestBranchIndex": 0,
+       "emv": 15.1,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 48.0,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 120.0,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 160.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": -15.0,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 15.0,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 55.0,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "acquire",
+    "voi": 33.0,
+    "withheld": false
+   },
+   "id": "netClearlyPositive",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 32.9,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   }
+  },
+  {
+   "description": "EC4-2: cost 33.1 leaves a net VOI of -0.10; card -0.10; verdict reject.",
+   "expected": {
+    "acquireBranchValue": 14.9,
+    "cards": {
+     "emvWithInfo": "14.90",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "-0.10",
+     "voi": "33.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3,
+      0.7
+     ],
+     "stated": [
+      0.3,
+      0.7
+     ]
+    },
+    "emvWithInfo": 14.9,
+    "emvWithoutInfo": 15.0,
+    "evpi": 63.0,
+    "netVoi": -0.1,
+    "noInfoBranchValue": 15.0,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 120.0
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0
+     }
+    ],
+    "signalChances": [
+     0.4,
+     0.6
+    ],
+    "tree": {
+     "bestBranchIndex": 1,
+     "branches": [
+      {
+       "branchValue": 14.9,
+       "onOptimalPath": false,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 120.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -55.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": true,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 15.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      }
+     ],
+     "emv": 15.0,
+     "nodes": [
+      {
+       "bestBranchIndex": 1,
+       "emv": 15.0,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 48.0,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 120.0,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 160.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": -15.0,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 15.0,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 55.0,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "reject",
+    "voi": 33.0,
+    "withheld": false
+   },
+   "id": "netClearlyNegative",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 33.1,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   }
+  },
+  {
+   "description": "EC4-8: three outcome chances typed 33.3333 percent sum to 99.9999, exactly 1e-4 percent points short, and are accepted end to end (prior tree included); indicators 50 / 50 with outcome chances 50 / 30 / 20 and 16.6666 / 36.6667 / 46.6667, consistent with the stated thirds.",
+   "expected": {
+    "acquireBranchValue": 53.333235,
+    "cards": {
+     "emvWithInfo": "53.33",
+     "emvWithoutInfo": "63.33",
+     "evpi": "30.00",
+     "netVoi": "-10.00",
+     "voi": "0.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      5e-07,
+      5e-07
+     ],
+     "implied": [
+      0.333333,
+      0.3333335,
+      0.3333335
+     ],
+     "stated": [
+      0.333333,
+      0.333333,
+      0.333333
+     ]
+    },
+    "emvWithInfo": 53.333235,
+    "emvWithoutInfo": 63.33323,
+    "evpi": 30.00001,
+    "netVoi": -9.999995,
+    "noInfoBranchValue": 63.33323,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 118.0
+     },
+     {
+      "bestActionIndex": 0,
+      "emv": 8.66647
+     }
+    ],
+    "signalChances": [
+     0.5,
+     0.5
+    ],
+    "tree": {
+     "bestBranchIndex": 1,
+     "branches": [
+      {
+       "branchValue": 53.333235,
+       "onOptimalPath": false,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 118.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 118.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 8.66647,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 8.66647,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.33323,
+       "onOptimalPath": true,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 63.33323,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        2
+       ]
+      }
+     ],
+     "emv": 63.33323,
+     "nodes": [
+      {
+       "bestBranchIndex": 1,
+       "emv": 63.33323,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 63.333235,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 118.0,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 158.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 8.66647,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 48.66647,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.33323,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33323,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "reject",
+    "voi": 5e-06,
+    "withheld": false
+   },
+   "id": "thirdsOutcomeChancesFourPlaces",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 10,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 50
+        },
+        {
+         "outcomeId": 2,
+         "probability": 30
+        },
+        {
+         "outcomeId": 3,
+         "probability": 20
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 50
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 16.6666
+        },
+        {
+         "outcomeId": 2,
+         "probability": 36.6667
+        },
+        {
+         "outcomeId": 3,
+         "probability": 46.6667
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 50
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Large",
+      "payoff": 300,
+      "probability": 33.3333
+     },
+     {
+      "id": 2,
+      "name": "Small",
+      "payoff": 60,
+      "probability": 33.3333
+     },
+     {
+      "id": 3,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 33.3333
+     }
+    ],
+    "projectName": "Thirds Prospect"
+   }
+  },
+  {
    "description": "Cost 0; EMV with information equals the pre-cost value 48.",
    "expected": {
     "acquireBranchValue": 48.0,
+    "cards": {
+     "emvWithInfo": "48.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "33.00",
+     "voi": "33.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -13952,6 +18276,13 @@
    "description": "A prior so poor that doing nothing is optimal without information (10 percent success); the EMV without information is 0 and every KPI still follows.",
    "expected": {
     "acquireBranchValue": -5.4,
+    "cards": {
+     "emvWithInfo": "-5.40",
+     "emvWithoutInfo": "0.00",
+     "evpi": "26.00",
+     "netVoi": "-5.40",
+     "voi": "4.60"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -14466,6 +18797,13 @@
    "description": "Information cost sweep on the default indicators.",
    "expected": {
     "acquireBranchValue": 43.0,
+    "cards": {
+     "emvWithInfo": "43.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "28.00",
+     "voi": "33.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -14980,6 +19318,13 @@
    "description": "Information cost sweep on the default indicators.",
    "expected": {
     "acquireBranchValue": 28.0,
+    "cards": {
+     "emvWithInfo": "28.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "13.00",
+     "voi": "33.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -15494,6 +19839,13 @@
    "description": "Information cost sweep on the default indicators.",
    "expected": {
     "acquireBranchValue": 8.0,
+    "cards": {
+     "emvWithInfo": "8.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "-7.00",
+     "voi": "33.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -16009,6 +20361,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.5 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 5.0,
+    "cards": {
+     "emvWithInfo": "5.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "-10.00",
+     "voi": "0.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -16524,6 +20883,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.55 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 5.0,
+    "cards": {
+     "emvWithInfo": "5.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "-10.00",
+     "voi": "0.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -17039,6 +21405,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.6 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 11.6,
+    "cards": {
+     "emvWithInfo": "11.60",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "-3.40",
+     "voi": "6.60"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -17554,6 +21927,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.65 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 18.65,
+    "cards": {
+     "emvWithInfo": "18.65",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "3.65",
+     "voi": "13.65"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -18069,6 +22449,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.7 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 25.7,
+    "cards": {
+     "emvWithInfo": "25.70",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "10.70",
+     "voi": "20.70"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -18584,6 +22971,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.75 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 32.75,
+    "cards": {
+     "emvWithInfo": "32.75",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "17.75",
+     "voi": "27.75"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -19099,6 +23493,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.8 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 39.8,
+    "cards": {
+     "emvWithInfo": "39.80",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "24.80",
+     "voi": "34.80"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -19614,6 +24015,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.85 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 46.85,
+    "cards": {
+     "emvWithInfo": "46.85",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "31.85",
+     "voi": "41.85"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -20129,6 +24537,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.9 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 53.9,
+    "cards": {
+     "emvWithInfo": "53.90",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "38.90",
+     "voi": "48.90"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -20644,6 +25059,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.95 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 60.95,
+    "cards": {
+     "emvWithInfo": "60.95",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "45.95",
+     "voi": "55.95"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -21159,6 +25581,13 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 1.0 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 68.0,
+    "cards": {
+     "emvWithInfo": "68.00",
+     "emvWithoutInfo": "15.00",
+     "evpi": "63.00",
+     "netVoi": "53.00",
+     "voi": "63.00"
+    },
     "consistency": {
      "consistent": true,
      "deltas": [
@@ -22031,6 +26460,156 @@
     "projectName": "Test Prospect"
    },
    "reason": "outcome chance given Positive Seismic outside 0 to 100"
+  },
+  {
+   "description": "EC4-8: outcome chances typed 33.333 percent sum to 99.999, a thousandth of a point short; the binary allowance does not widen the tolerance.",
+   "id": "thirdsOutcomeChancesThreePlaces",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 10,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 50
+        },
+        {
+         "outcomeId": 2,
+         "probability": 30
+        },
+        {
+         "outcomeId": 3,
+         "probability": 20
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 50
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 16.6666
+        },
+        {
+         "outcomeId": 2,
+         "probability": 36.6667
+        },
+        {
+         "outcomeId": 3,
+         "probability": 46.6667
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 50
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Large",
+      "payoff": 300,
+      "probability": 33.333
+     },
+     {
+      "id": 2,
+      "name": "Small",
+      "payoff": 60,
+      "probability": 33.333
+     },
+     {
+      "id": 3,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 33.333
+     }
+    ],
+    "projectName": "Thirds Prospect"
+   },
+   "reason": "outcome chances sum to 99.999 percent",
+   "sumPercent": 99.999
+  },
+  {
+   "description": "EC4-8: 33.3333 + 33.3333 + 33.3332 = 99.9998 percent, twice the tolerance short; still refused.",
+   "id": "outcomeChancesShortByTwoTenThousandths",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 10,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 50
+        },
+        {
+         "outcomeId": 2,
+         "probability": 30
+        },
+        {
+         "outcomeId": 3,
+         "probability": 20
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 50
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 16.6666
+        },
+        {
+         "outcomeId": 2,
+         "probability": 36.6667
+        },
+        {
+         "outcomeId": 3,
+         "probability": 46.6667
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 50
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Large",
+      "payoff": 300,
+      "probability": 33.3333
+     },
+     {
+      "id": 2,
+      "name": "Small",
+      "payoff": 60,
+      "probability": 33.3333
+     },
+     {
+      "id": 3,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 33.3332
+     }
+    ],
+    "projectName": "Thirds Prospect"
+   },
+   "reason": "outcome chances sum to 99.9998 percent",
+   "sumPercent": 99.9998
   },
   {
    "description": "An information scenario with no indicators has nothing to value.",

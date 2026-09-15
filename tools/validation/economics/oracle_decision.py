@@ -17,8 +17,13 @@ JavaScript:
                     first branch listed. Every branch reachable by taking
                     the best decision at every decision node is on the
                     optimal path. Probabilities at a chance node must be a
-                    distribution: each in [0, 1], summing to 1. Anything else
-                    is REFUSED, not repaired.
+                    distribution: each in [0, 1], summing to 1 within 1e-6,
+                    an inclusive tolerance on the numbers as typed (EC4-8,
+                    owner decision 2026-09-15: three branches typed 0.333333
+                    sum to 0.999999, exactly on the edge, and are accepted).
+                    Accepted probabilities are used as typed and are never
+                    renormalised. Anything further off is REFUSED, not
+                    repaired.
 
   EVPI              E over outcomes of the best (payoff minus cost) given
                     the outcome, minus the best expected (payoff minus cost)
@@ -27,9 +32,10 @@ JavaScript:
   EVII              signal marginals P(s) = sum_o P(o) P(s|o) and posteriors
                     P(o|s) = P(o) P(s|o) / P(s) through Bayes; the value with
                     information is sum_s P(s) max_a E[payoff minus cost | s];
-                    EVII is that minus the prior best. Likelihood columns
-                    (over signals, for a fixed outcome) must sum to 1 or the
-                    case is refused. A signal that cannot occur (P(s) = 0)
+                    EVII is that minus the prior best. Priors, and each
+                    likelihood column (over signals, for a fixed outcome),
+                    must sum to 1 within the same inclusive 1e-6 or the case
+                    is refused. A signal that cannot occur (P(s) = 0)
                     contributes nothing; its posterior is reported as the
                     prior, the engine's documented fallback.
                     Identities the oracle asserts on every case:
@@ -73,8 +79,13 @@ JavaScript:
                     the best action under the entered posteriors; EMV with
                     information before cost is the marginal weighted sum;
                     VOI is the difference; net VOI subtracts the information
-                    cost. The verdict is 'acquire' for net VOI > 0, 'reject'
-                    for < 0, 'neutral' at exactly 0. The diagram is the
+                    cost. Every card is the value rounded to 2 decimal
+                    places, half away from zero, and a card that rounds to
+                    zero reads 0.00 whatever the sign (never -0.00). EC4-2,
+                    owner decision 2026-09-15: net VOI is rounded ONCE and the
+                    verdict reads that rounded card: 'acquire' when it is
+                    above 0.00, 'reject' when below, 'neutral' when it is
+                    0.00, that is whenever |net VOI| < 0.005. The diagram is the
                     information tree above with the ENTERED marginals and
                     posteriors (the Bayes inversion the engine performs
                     round-trips exactly, which is a theorem, not an
@@ -104,6 +115,7 @@ OUT = os.path.normpath(os.path.join(HERE, '..', '..', '..', 'test-data', 'econom
 
 CONSISTENCY_TOL = F(5, 1000)
 PERCENT_TOL = F(1, 10000)
+PROB_TOL = F(1, 10 ** 6)
 
 
 class Refused(Exception):
@@ -143,7 +155,18 @@ def payoff_value(p):
 
 
 def is_distribution(probs):
-    return all(F(0) <= p <= F(1) for p in probs) and sum(probs, F(0)) == 1
+    return all(F(0) <= p <= F(1) for p in probs) and abs(sum(probs, F(0)) - 1) <= PROB_TOL
+
+
+def card(v):
+    """(text, value) of a money card: 2 decimal places, half away from zero
+    on the magnitude, zero always unsigned."""
+    v = F(v)
+    cents = int(abs(v) * 100 + F(1, 2))  # floor of a non-negative Fraction
+    if cents == 0:
+        return '0.00', F(0)
+    text = '%s%d.%02d' % ('-' if v < 0 else '', cents // 100, cents % 100)
+    return text, (F(cents, 100) if v > 0 else -F(cents, 100))
 
 
 def evaluate(node):
@@ -276,7 +299,7 @@ def evii(outcomes, actions, signals, info_cost=0):
     n = len(outcomes)
     for i in range(n):
         col = sum((F(s['likelihoods'][i]) for s in signals), F(0))
-        if col != 1:
+        if abs(col - 1) > PROB_TOL:
             raise Refused('likelihood column %d sums to %s' % (i, col))
     emv_prior, _ = best_action(outcomes, actions)
     ev_info = F(0)
@@ -430,6 +453,8 @@ def voi_analyzer(inputs):
         return {
             'emvWithoutInfo': emv_without, 'emvWithInfo': None, 'voi': None, 'netVoi': None,
             'evpi': ev, 'optimalActionWithoutInfo': optimal_without, 'verdict': None,
+            'cards': {'emvWithoutInfo': card(emv_without)[0], 'emvWithInfo': None, 'voi': None,
+                      'netVoi': None, 'evpi': card(ev)[0]},
             'consistency': cons, 'withheld': True, 'treePresent': False,
         }
 
@@ -443,11 +468,14 @@ def voi_analyzer(inputs):
     emv_with = emv_with_pre - cost
     voi = emv_with_pre - emv_without
     net = voi - cost
-    verdict = 'acquire' if net > 0 else ('reject' if net < 0 else 'neutral')
+    net_text, net_card = card(net)
+    verdict = 'acquire' if net_card > 0 else ('reject' if net_card < 0 else 'neutral')
 
     exp = {
         'emvWithoutInfo': emv_without, 'emvWithInfo': emv_with, 'voi': voi, 'netVoi': net,
         'evpi': ev, 'optimalActionWithoutInfo': optimal_without, 'verdict': verdict,
+        'cards': {'emvWithoutInfo': card(emv_without)[0], 'emvWithInfo': card(emv_with)[0],
+                  'voi': card(voi)[0], 'netVoi': net_text, 'evpi': card(ev)[0]},
         'perIndicator': per_indicator,
         'consistency': cons, 'withheld': False,
     }
@@ -490,6 +518,9 @@ ACTIONS4 = [{'label': 'Drill alone', 'cost': 60, 'payoffs': [500, 150, -20]},
             {'label': 'Drill with partner', 'cost': 30, 'payoffs': [250, 75, -10]},
             {'label': 'Farm out', 'cost': 0, 'payoffs': [80, 30, 0]},
             {'label': 'Relinquish', 'cost': 0, 'payoffs': [0, 0, 0]}]
+THIRDS6 = [{'label': 'Large', 'probability': F('0.333333')},
+           {'label': 'Medium', 'probability': F('0.333333')},
+           {'label': 'Dry', 'probability': F('0.333333')}]
 SIGNALS3 = [{'label': 'Bright', 'likelihoods': [F(7, 10), F(3, 10), F(1, 10)]},
             {'label': 'Flat', 'likelihoods': [F(2, 10), F(5, 10), F(3, 10)]},
             {'label': 'Dim', 'likelihoods': [F(1, 10), F(2, 10), F(6, 10)]}]
@@ -571,6 +602,36 @@ def voi_inputs(cost=10, pos_probability=40, pos_post=(60, 40), neg_post=(10, 90)
     return d
 
 
+def voi_thirds(chance='33.3333'):
+    """Three outcomes at a typed third each, two indicators 50 / 50 whose
+    outcome chances are consistent with the thirds."""
+    c = F(chance)
+    return {
+        'projectName': 'Thirds Prospect',
+        'decisionName': 'Drill Exploration Well',
+        'decisionCost': 40,
+        'outcomes': [
+            {'id': 1, 'name': 'Large', 'probability': c, 'payoff': 300},
+            {'id': 2, 'name': 'Small', 'probability': c, 'payoff': 60},
+            {'id': 3, 'name': 'Dry Hole', 'probability': c, 'payoff': -50},
+        ],
+        'infoScenario': {
+            'name': '3D Seismic Survey',
+            'cost': 10,
+            'indicators': [
+                {'id': 1, 'name': 'Positive Seismic', 'probability': 50,
+                 'conditionalProbabilities': [{'outcomeId': 1, 'probability': 50},
+                                              {'outcomeId': 2, 'probability': 30},
+                                              {'outcomeId': 3, 'probability': 20}]},
+                {'id': 2, 'name': 'Negative Seismic', 'probability': 50,
+                 'conditionalProbabilities': [{'outcomeId': 1, 'probability': F('16.6666')},
+                                              {'outcomeId': 2, 'probability': F('36.6667')},
+                                              {'outcomeId': 3, 'probability': F('46.6667')}]},
+            ],
+        },
+    }
+
+
 def voi_inputs_at_accuracy(a, cost=10):
     """Bayes-consistent indicators for a symmetric signal of accuracy a
     (P(pos|success) = P(neg|dry) = a) against the 30/70 default priors,
@@ -643,6 +704,13 @@ def rollback_cases():
             {'label': 'b', 'probability': F(1, 3), 'node': terminal('b', 30)},
             {'label': 'c', 'probability': F(1, 3), 'node': terminal('c', -15)},
         ]})
+    add('thirdsTypedToSixPlaces',
+        'EC4-8: three branches typed 0.333333 sum to 0.999999, exactly 1e-6 short, which the inclusive tolerance accepts. The probabilities are used as typed: EMV 0.333333 * (90 + 30 - 15) = 34.999965.',
+        {'type': 'chance', 'label': 'thirds typed', 'branches': [
+            {'label': 'a', 'probability': F('0.333333'), 'node': terminal('a', 90)},
+            {'label': 'b', 'probability': F('0.333333'), 'node': terminal('b', 30)},
+            {'label': 'c', 'probability': F('0.333333'), 'node': terminal('c', -15)},
+        ]})
     add('chanceRootWithBranchCosts',
         'Chance at the root with a cost on every branch and a nested decision under one of them; EMV subtracts the branch costs before weighting.',
         {'type': 'chance', 'label': 'weather', 'branches': [
@@ -701,6 +769,18 @@ def rollback_refusals():
             {'label': 'a', 'probability': F(3, 2), 'node': terminal('a', 1)},
             {'label': 'b', 'probability': F(-1, 2), 'node': terminal('b', 1)}]},
         'probability outside [0, 1]')
+    add('thirdsTypedToThreePlaces', 'EC4-8: three branches typed 0.333 sum to 0.999, a thousandth short; the binary allowance does not widen the tolerance.',
+        {'type': 'chance', 'label': 'thirds', 'branches': [
+            {'label': 'a', 'probability': F('0.333'), 'node': terminal('a', 90)},
+            {'label': 'b', 'probability': F('0.333'), 'node': terminal('b', 30)},
+            {'label': 'c', 'probability': F('0.333'), 'node': terminal('c', -15)}]},
+        'probabilities sum to 0.999')
+    add('sumShortByTwoMillionths', 'EC4-8: 0.333333 + 0.333333 + 0.333332 = 0.999998, twice the tolerance short; still refused.',
+        {'type': 'chance', 'label': 'short', 'branches': [
+            {'label': 'a', 'probability': F('0.333333'), 'node': terminal('a', 90)},
+            {'label': 'b', 'probability': F('0.333333'), 'node': terminal('b', 30)},
+            {'label': 'c', 'probability': F('0.333332'), 'node': terminal('c', -15)}]},
+        'probabilities sum to 0.999998')
     add('emptyBranches', 'A decision node with no branches has nothing to decide.',
         {'type': 'decision', 'label': 'empty', 'branches': []}, 'no branches')
     add('unknownType', 'An unknown node type is refused.',
@@ -739,6 +819,8 @@ def evpi_cases():
     add('distributionPayoffs', 'Payoffs given as distribution summaries; only the means enter.',
         OUTCOMES, [{'label': 'Drill', 'cost': 40, 'payoffs': [{'mean': 300, 'p10': 500}, {'mean': -10}]},
                    {'label': 'Walk', 'cost': 0, 'payoffs': [0, 0]}])
+    add('thirdsPriorsSixPlaces', 'EC4-8: three outcome priors typed 0.333333 (sum 0.999999, on the edge) are accepted and used as typed.',
+        THIRDS6, ACTIONS4)
     for p in (F(1, 10), F(2, 10), F(4, 10), F(5, 10), F(8, 10)):
         add('prospectPriorSweep_%s' % str(float(p)).replace('.', 'p'),
             'Sweep of P(success) over the prospect actions.',
@@ -773,6 +855,10 @@ def evii_cases():
         OUTCOMES, ACTIONS, [{'label': 'Positive', 'likelihoods': [F(8, 10), F(3, 10)]},
                             {'label': 'Negative', 'likelihoods': [F(2, 10), F(7, 10)]},
                             {'label': 'Never', 'likelihoods': [0, 0]}], 1)
+    add('likelihoodColumnSixPlaces', 'EC4-8: three signals whose likelihoods under success are typed 0.333333 (column sum 0.999999, on the edge) are accepted; the dry column is 0.1 / 0.3 / 0.6.',
+        OUTCOMES, ACTIONS, [{'label': 'High', 'likelihoods': [F('0.333333'), F(1, 10)]},
+                            {'label': 'Mid', 'likelihoods': [F('0.333333'), F(3, 10)]},
+                            {'label': 'Low', 'likelihoods': [F('0.333333'), F(6, 10)]}], 2)
     add('costAboveValue', 'Net EVII negative when the information costs more than it is worth (cost 20 on a 12.5 signal).', OUTCOMES, ACTIONS, SIGNALS, 20)
     add('costEqualsValue', 'Degenerate: information cost exactly equal to gross EVII; net is exactly 0.', OUTCOMES, ACTIONS, SIGNALS, F(25, 2))
     prev = F(-1)
@@ -810,6 +896,15 @@ def evii_refusals():
     add('priorsNotDistribution', 'Priors 0.3 + 0.6 do not sum to 1.',
         [{'label': 'S', 'probability': F(3, 10)}, {'label': 'D', 'probability': F(6, 10)}], ACTIONS, SIGNALS,
         'priors sum to 0.9')
+    add('likelihoodColumnShortByTwoMillionths', 'EC4-8: likelihoods under success 0.333333 + 0.333333 + 0.333332 = 0.999998; still refused.',
+        OUTCOMES, ACTIONS, [{'label': 'High', 'likelihoods': [F('0.333333'), F(1, 10)]},
+                            {'label': 'Mid', 'likelihoods': [F('0.333333'), F(3, 10)]},
+                            {'label': 'Low', 'likelihoods': [F('0.333332'), F(6, 10)]}],
+        'likelihood column for success sums to 0.999998')
+    add('priorsShortByTwoMillionths', 'EC4-8: priors 0.333333 + 0.333333 + 0.333332 = 0.999998; still refused.',
+        [{'label': 'Large', 'probability': F('0.333333')}, {'label': 'Medium', 'probability': F('0.333333')},
+         {'label': 'Dry', 'probability': F('0.333332')}], ACTIONS4, SIGNALS3,
+        'priors sum to 0.999998')
     add('noSignals', 'No signals at all.', OUTCOMES, ACTIONS, [], 'no signals')
     add('payoffCountMismatch', 'An action with one payoff for two outcomes.', OUTCOMES,
         [{'label': 'short', 'cost': 0, 'payoffs': [1]}], SIGNALS, 'payoff count')
@@ -903,7 +998,19 @@ def voi_cases():
         voi_inputs(pos_post=(F(6125, 100), F(3875, 100))))
     add('withheldPastHalfPercent', 'Positive posteriors 61.5 / 38.5 imply 30.6 percent success against 30 stated, a delta of 0.6 percent: withheld.',
         voi_inputs(pos_post=(F(615, 10), F(385, 10))))
-    add('costExactlyValue', 'Degenerate: cost 33 equals the gross VOI; net VOI exactly 0; verdict neutral.', voi_inputs(cost=33))
+    add('costExactlyValue', 'Degenerate: cost 33 equals the gross VOI; net VOI exactly 0; card 0.00; verdict neutral.', voi_inputs(cost=33))
+    add('netRoundsToZeroFromAbove', 'EC4-2: cost 32.996 leaves a net VOI of +0.004, which rounds to a 0.00 card; the verdict reads that card and is neutral. Before, the unrounded value put "Since this is positive" under a 0.00 card.',
+        voi_inputs(cost=F('32.996')))
+    add('netRoundsToZeroFromBelow', 'EC4-2: cost 33.004 leaves a net VOI of -0.004; the card reads 0.00 (never -0.00) and the verdict is neutral. Before, the card read -0.00 under "not justified".',
+        voi_inputs(cost=F('33.004')))
+    add('netHalfCentAbove', 'EC4-2 boundary: cost 32.995 leaves exactly +0.005, which rounds half away from zero to a 0.01 card; verdict acquire.',
+        voi_inputs(cost=F('32.995')))
+    add('netHalfCentBelow', 'EC4-2 boundary: cost 33.005 leaves exactly -0.005, which rounds to a -0.01 card; verdict reject.',
+        voi_inputs(cost=F('33.005')))
+    add('netClearlyPositive', 'EC4-2: cost 32.9 leaves a net VOI of +0.10; card 0.10; verdict acquire.', voi_inputs(cost=F('32.9')))
+    add('netClearlyNegative', 'EC4-2: cost 33.1 leaves a net VOI of -0.10; card -0.10; verdict reject.', voi_inputs(cost=F('33.1')))
+    add('thirdsOutcomeChancesFourPlaces', 'EC4-8: three outcome chances typed 33.3333 percent sum to 99.9999, exactly 1e-4 percent points short, and are accepted end to end (prior tree included); indicators 50 / 50 with outcome chances 50 / 30 / 20 and 16.6666 / 36.6667 / 46.6667, consistent with the stated thirds.',
+        voi_thirds())
     add('freeInformation', 'Cost 0; EMV with information equals the pre-cost value 48.', voi_inputs(cost=0))
     # Prior 10 / 90 with a symmetric accuracy-0.8 indicator: P(pos) = 0.26,
     # P(S|pos) = 4/13, P(S|neg) = 1/37. Doing nothing is optimal without
@@ -962,6 +1069,11 @@ def voi_refusals():
     add('missingOutcomeChanceCountsAsZero', 'The positive indicator has no entry for the dry hole, so its outcome chances sum to 60.', missing)
     negative = voi_inputs(pos_post=(-10, 110))
     add('chanceOutsideRange', 'Outcome chances -10 / 110 sum to 100 but are not chances.', negative)
+    three = voi_thirds('33.333')
+    add('thirdsOutcomeChancesThreePlaces', 'EC4-8: outcome chances typed 33.333 percent sum to 99.999, a thousandth of a point short; the binary allowance does not widen the tolerance.', three)
+    short3 = voi_thirds()
+    short3['outcomes'][2]['probability'] = F('33.3332')
+    add('outcomeChancesShortByTwoTenThousandths', 'EC4-8: 33.3333 + 33.3333 + 33.3332 = 99.9998 percent, twice the tolerance short; still refused.', short3)
     none = voi_inputs()
     none['infoScenario']['indicators'] = []
     add('noIndicators', 'An information scenario with no indicators has nothing to value.', none)

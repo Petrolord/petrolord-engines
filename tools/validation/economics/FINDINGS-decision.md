@@ -167,6 +167,103 @@ the net VOI verdict reads the unrounded value beside a two-decimal card; the
 Decision Tree Builder's node label shows the value before the branch cost;
 non-numeric or blank costs read as 0 and negative costs are accepted.
 
+## EC4-8 and EC4-2 (FIXED 2026-09-15, owner decisions)
+
+These supersede two lines above: the EC4-0 note that "the net VOI verdict
+reads the unrounded value beside a two-decimal card", and the standing
+zero-net wording observation. Both are closed.
+
+### EC4-8. Probability tolerances refused sums on their own edge (FIXED 2026-09-15)
+
+Evidence: three branches typed 0.333333 sum to 0.999999, exactly 1e-6 short
+in the typed decimals, but `Math.abs(0.999999 - 1)` is
+1.0000000000287557e-6 in binary, so `> PROB_TOL` refused a sum that the
+refusal message printed as 0.999999. The same held in the VOI Analyzer at
+percent scale: 33.3333 x 3 = 99.9999 is 1.0000000000331966e-4 short against
+`PCT_TOL` 1e-4.
+
+Fix: every tolerance comparison adds the 1e-12 representation allowance
+`impliedPriors` already used for D1: the chance node rollback, the outcome
+priors (`validateLottery`, so `bestActionEmv`, `evpi` and `evii`), each EVII
+likelihood column, and the VOI Analyzer's percent sums. Accepted
+probabilities are used as typed, never renormalised (the oracle states the
+same). The tolerance itself is unchanged: 0.999998 and 99.9998 are refused.
+
+Goldens (oracle method statement updated: distributions sum to 1 within an
+inclusive 1e-6): accepted `rollback/thirdsTypedToSixPlaces` (EMV 34.999965),
+`evpi/thirdsPriorsSixPlaces`, `evii/likelihoodColumnSixPlaces`,
+`voi/thirdsOutcomeChancesFourPlaces`; refused
+`rollbackRefusals/thirdsTypedToThreePlaces` (0.999),
+`rollbackRefusals/sumShortByTwoMillionths`,
+`eviiRefusals/likelihoodColumnShortByTwoMillionths`,
+`eviiRefusals/priorsShortByTwoMillionths`,
+`voiRefusals/thirdsOutcomeChancesThreePlaces` (99.999),
+`voiRefusals/outcomeChancesShortByTwoTenThousandths`.
+
+Gates: `EC4-8: binary representation allowance on every probability
+tolerance` in `__tests__/economics.decision.test.js`. Its negative controls
+restore the retired `> 1e-6` and `> 1e-4` comparisons and show they refuse
+each accepted golden.
+
+### EC4-2. The net VOI verdict disagreed with its own card (FIXED 2026-09-15)
+
+Evidence, default Analyzer inputs (gross VOI 33):
+
+| survey cost | net VOI (unrounded) | card before | verdict before | card now | verdict now |
+|---|---|---|---|---|---|
+| 32.996 | +0.004 | 0.00 | Since this is positive | 0.00 | neutral |
+| 33.000 | 0 | 0.00 | exactly pays for itself | 0.00 | neutral |
+| 33.004 | -0.004 | -0.00 | not justified | 0.00 | neutral |
+
+Fix: net VOI is rounded once to card precision (2 decimal places, half away
+from zero on the magnitude, with the 1e-12 allowance so an exact half cent
+rounds as its decimals do). That one value feeds the card and the verdict.
+Rounding to 0.00 (|net| < 0.005) is neutral and has its own sentence. Every
+card and every dollar figure in the insight uses the same formatter, which
+normalises negative zero, so "-0.00" is never printed.
+
+Wording changed (the neutral sentence only). Before: `The information
+exactly pays for itself, so the decision is value-neutral on EMV grounds.`
+Now: `Since this rounds to zero, the information costs what it is worth, so
+acquiring it or not is indifferent on EMV grounds.` The positive and negative
+sentences are unchanged.
+
+Goldens: every `voi` case now carries `cards` (the oracle's rounded strings),
+and the gate requires exact string equality. New cases
+`netRoundsToZeroFromAbove` (32.996), `netRoundsToZeroFromBelow` (33.004),
+`netHalfCentAbove` (32.995, 0.01 acquire), `netHalfCentBelow` (33.005, -0.01
+reject), `netClearlyPositive` (32.9), `netClearlyNegative` (33.1);
+`costExactlyValue` keeps its values. No existing golden number moved.
+
+Two card strings moved on the engine (goldens carry the unrounded numbers,
+which did not move):
+
+- `voi/accuracySweep_0p55`, an existing case: the VOI card printed `-0.00`
+  (the exact VOI is 0; binary gave a tiny negative) and the insight repeated
+  it. It now prints `0.00`. The retired rule was already showing -0.00 on a
+  shipped golden.
+- `voi/netHalfCentBelow` (cost 33.005): the EMV with information card was
+  `14.99` from `toFixed(2)` on the binary 14.994999999999997; exact 14.995
+  rounds half away from zero to `15.00`, which it now prints.
+
+Gates: `golden: VOI Analyzer` (card strings, no "-0.00" anywhere, verdict
+sign equal to the card sign) and `EC4-2: one rounded net VOI for the card
+and the verdict`. Its negative controls show the retired unrounded verdict
+says acquire under the 0.00 card at 32.996, and the retired `toFixed(2)` card
+prints -0.00 at 33.004.
+
+### Open observation after EC4-8 (not fixed, owner decision needed)
+
+When BOTH the indicator chances and each indicator's outcome chances sit on
+the percent edge (three outcomes at 33.3333, three indicators at 33.3333,
+every outcome chance 33.3333), each percent sum passes, but the diagram's
+"Signal received" chance node carries marginals P(indicator) x sum of its
+outcome chances, which sum to 0.999998. The tree rollback then refuses with
+`Chance branch probabilities sum to 0.999998, expected 1 (at node "Signal
+received")`, a message about a node the user never typed. Before EC4-8 the
+same inputs were refused earlier, in percent. Only a compound edge reaches
+it; a single typed edge (the goldens above) is accepted end to end.
+
 ## Not done
 
 - Literature byte-verification against the worked examples in Newendorp and
