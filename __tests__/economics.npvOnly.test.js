@@ -27,12 +27,14 @@ describe('skipIrr changes nothing but the IRR', () => {
     const full = calculateEconomics(c.inputs);
     const fast = calculateEconomics(c.inputs, { skipIrr: true });
     expect(fast.cashflow).toEqual(full.cashflow);
-    const { irr, irrStatus, irrRoots, ...rest } = fast.metrics;
-    const { irr: _i, irrStatus: _s, irrRoots: _r, ...fullRest } = full.metrics;
+    const { irr, irrStatus, irrRoots, irrRootAboveBand, ...rest } = fast.metrics;
+    const { irr: _i, irrStatus: _s, irrRoots: _r, irrRootAboveBand: _a, ...fullRest } = full.metrics;
     expect(rest).toEqual(fullRest);
     expect(irr).toBeNull();
     expect(irrStatus).toBe('not-computed');
     expect(irrRoots).toBeNull();
+    // The above-band flag (irrContract.js) is an IRR field too: false when skipped.
+    expect(irrRootAboveBand).toBe(false);
   });
 
   test('no option, or skipIrr other than true, still computes the IRR', () => {

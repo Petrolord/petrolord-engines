@@ -20,14 +20,18 @@ with an uplift), not by transcribing the JavaScript:
   capex          the sum of drilling, facilities and subsea, times the
                  multiplier, all in year 1.
   royalty        flat, or the rate of the highest sliding-scale tier
-                 whose threshold the oil price reaches (the first tier
-                 below every threshold).
+                 whose threshold the oil price reaches, whatever order the
+                 tiers are typed in; the LOWEST-threshold tier when the
+                 price is below every threshold. A table with a threshold
+                 repeated is refused, naming the regime and the table
+                 (EC2-8, 2026-09-15).
   cost recovery  cost oil is the lesser of the pool (carried plus this
                  year's capex and opex) and costRecoveryLimit percent of
                  revenue after royalty; the rest carries forward.
   R-factor       cumulative gross revenue over cumulative capex plus
                  opex, both through the current year, before the split.
-  profit split   flat, or the split of the highest R-factor tier reached.
+  profit split   flat, or the split of the highest R-factor tier reached,
+                 by the same threshold-order rule and refusal.
   tax            CIT on the contractor profit share; RRT on that share
                  less an annual uplift of rrtUpliftPct percent of total
                  capex (default 20, zero respected); the larger of CIT
@@ -36,13 +40,21 @@ with an uplift), not by transcribing the JavaScript:
                  capex; government take = royalty + government profit
                  share + tax; the two sum to revenue less costs.
   NPV            YEAR-END discounting, sum of NCF_y / (1 + r)^y.
-  IRR            0 when the cash flow never changes sign or NPV(0) <= 0;
-                 otherwise the rate where the year-end NPV is zero. The
-                 engine brackets by doubling from 100 percent and bisects
-                 80 times; the oracle brackets by TRIPLING from 50 percent
-                 and solves with the Illinois (modified regula falsi)
-                 method. Past the engine's 102400 percent bracket the
-                 engine reports the bracket; the oracle records that.
+  IRR            (EC2-5, 2026-09-15, the screening engine's contract; the
+                 above-band rule is the lead's decision of the same day) every
+                 rate strictly inside -99 to 1000 percent at which the
+                 year-end NPV is zero, found by a fine scan and the Illinois
+                 (modified regula falsi) method on each sign change. One
+                 root: that rate, negative or not, status 'ok'. None of the
+                 flows changes sign: null, 'no-sign-change'. Several roots:
+                 null, 'multiple-roots', every root listed. A root ABOVE
+                 the band exists when the NPV at 1000 percent and its limit
+                 (the sign of the earliest non-zero flow) differ in sign:
+                 then one in-band root is also 'multiple-roots' (in-band
+                 roots listed) with irrRootAboveBand true, and no in-band
+                 root is 'above-clamp'; otherwise 'no-root'. `irrRoots` is null except for
+                 multiple roots. The engine runs Newton and sweeps the band
+                 when Newton fails.
   take metrics   (naming wave 2026-09-14) government take = government cash
                  flow / (government cash flow + contractor NCF), i.e. over
                  revenue less opex less capex, with the sweep's three
@@ -52,11 +64,10 @@ with an uplift), not by transcribing the JavaScript:
                  discounted at year end at the project rate. Accumulated
                  here year by year from the ledger rows, not from totals.
   summary        payback is the first year the cumulative NCF exceeds
-                 zero, R-factor payout the first year R exceeds 1, and
-                 the effective tax rate is government take over
-                 government take plus contractor take with capex added
-                 back (the summary) or NOT added back (the price sweep;
-                 two definitions, recorded in FINDINGS-fiscal.md).
+                 zero, R-factor payout the first year R exceeds 1, and the
+                 deprecated `effectiveTaxRate` is exactly government share
+                 of net revenue, null where that is null (EC2-2; the zero
+                 fallback is retired).
   sweeps         government take on profit at $40 to $120 in $10 steps,
                  each point with its state (EC2-1): 'share' when profit
                  (take plus contractor NCF) is positive and the share is
@@ -69,7 +80,13 @@ with an uplift), not by transcribing the JavaScript:
                  records both.
   insights       the five verdict sentences, rebuilt from the numbers
                  with JavaScript toFixed semantics (round half up on the
-                 exact binary value).
+                 exact binary value). Money reads "1,339.3 million USD"
+                 (EC2-11). Payback names every regime at the earliest year
+                 (EC2-10). The capex verdict names an end alone only when it
+                 leads the next regime by at least 0.1 million USD, else
+                 every regime within 0.1 of it, and ranks nothing when the
+                 two ends share a regime (EC2-4). The contractor sentence
+                 states the IRR status when there is no rate.
 
 Units: initial rates bbl/d, mscf/d and bbl/d; prices $/bbl, $/mscf,
 $/bbl; capex and fixed opex $MM; variable opex $/boe; every money output
@@ -118,15 +135,27 @@ def deck_price(year, deck):
     return applicable
 
 
-def tier_rate(x, tiers, field):
-    """Highest-threshold tier reached, else the first tier."""
-    chosen = tiers[0]
-    best = None
+class TierTableRefused(ValueError):
+    def __init__(self, regime, table, threshold):
+        super().__init__(f'{regime}: {table} tiers repeat threshold {threshold}')
+        self.regime, self.table, self.threshold = regime, table, threshold
+
+
+def check_tiers(regime, table, tiers):
+    seen = set()
     for t in tiers:
-        if x >= t['threshold'] and (best is None or t['threshold'] >= best):
-            best = t['threshold']
-            chosen = t
-    return chosen[field]
+        if t['threshold'] in seen:
+            raise TierTableRefused(regime.get('name', regime.get('id')), table, t['threshold'])
+        seen.add(t['threshold'])
+
+
+def tier_rate(x, tiers, field):
+    """The tier with the largest threshold not above x; when x is below
+    every threshold, the tier with the smallest threshold."""
+    reached = [t for t in tiers if x >= t['threshold']]
+    if reached:
+        return max(reached, key=lambda t: t['threshold'])[field]
+    return min(tiers, key=lambda t: t['threshold'])[field]
 
 
 def royalty_rate(oil_price, roy):
@@ -147,6 +176,10 @@ def cash_flow(regime, project, capex_mult=1.0, price_mult=1.0):
     ngl = profile(project['production']['ngl']['initial'], project['production']['ngl']['decline'])
     cx = project['costs']['capex']
     total_capex = (cx['drilling'] + cx['facilities'] + cx['subsea']) * capex_mult
+    if regime['royalty']['type'] != 'flat':
+        check_tiers(regime, 'royalty', regime['royalty']['tiers'])
+    if regime['profitSplit']['type'] != 'flat':
+        check_tiers(regime, 'profit split', regime['profitSplit']['tiers'])
     uplift = regime['tax'].get('rrtUpliftPct')
     if uplift is None:
         uplift = 20
@@ -194,29 +227,42 @@ def npv(rows, rate_pct):
     return sum(cf['contractorNCF'] / (1.0 + r) ** cf['year'] for cf in rows)
 
 
-ENGINE_IRR_BRACKET = 100.0 * 2 ** 10  # the engine's last doubled bracket, percent
+IRR_BAND_LOW_PCT = -99.0
+IRR_BAND_HIGH_PCT = 1000.0
 
 
-def irr(rows):
-    ncf = [cf['contractorNCF'] for cf in rows]
-    if not (any(c < 0 for c in ncf) and any(c > 0 for c in ncf)):
-        return 0.0
-    f = lambda pct: npv(rows, pct)
-    if f(0.0) <= 0:
-        return 0.0
-    hi = 50.0
-    while f(hi) > 0 and hi < 1e7:
-        hi *= 3
-    if f(hi) > 0:
-        return ENGINE_IRR_BRACKET
-    if hi > ENGINE_IRR_BRACKET and f(ENGINE_IRR_BRACKET) > 0:
-        return ENGINE_IRR_BRACKET  # the engine reports its bracket here
-    lo, flo, fhi = 0.0, f(0.0), f(hi)
+def npv_frac(rows, r):
+    return sum(cf['contractorNCF'] / (1.0 + r) ** cf['year'] for cf in rows)
+
+
+def roots_between(rows, lo_pct, hi_pct):
+    """Every rate strictly between lo_pct and hi_pct (percent) at which the
+    year-end NPV is zero: a scan at 0.05 point steps to 100 percent and 0.5
+    point steps above, then the Illinois method on each sign change."""
+    f = lambda pct: npv_frac(rows, pct / 100.0)
+    grid, x = [], lo_pct
+    while x < hi_pct:
+        grid.append(x)
+        x = round(x + (0.05 if x < 100.0 else 0.5 if x < 1000.0 else 5.0), 10)
+    grid.append(hi_pct)
+    roots = []
+    prev_x, prev_f = grid[0], f(grid[0])
+    for x in grid[1:]:
+        fx = f(x)
+        if fx == 0.0 and x < hi_pct:
+            roots.append(x)
+        elif prev_f != 0.0 and fx != 0.0 and (prev_f < 0) != (fx < 0):
+            roots.append(illinois(f, prev_x, x, prev_f, fx))
+        prev_x, prev_f = x, fx
+    return roots
+
+
+def illinois(f, lo, hi, flo, fhi):
     side = 0
     for _ in range(500):
         mid = (lo * fhi - hi * flo) / (fhi - flo)
         fm = f(mid)
-        if abs(fm) < 1e-13 or abs(hi - lo) < 1e-13:
+        if fm == 0.0 or abs(hi - lo) < 1e-13:
             return mid
         if (fm < 0) == (fhi < 0):
             hi, fhi = mid, fm
@@ -229,6 +275,31 @@ def irr(rows):
                 fhi *= 0.5
             side = 1
     return 0.5 * (lo + hi)
+
+
+def irr_contract(rows):
+    ncf = [cf['contractorNCF'] for cf in rows]
+    res = lambda irr_, st, roots_, above: {'irr': irr_, 'irrStatus': st, 'irrRoots': roots_, 'irrRootAboveBand': above}
+    if not (any(c < 0 for c in ncf) and any(c > 0 for c in ncf)):
+        return res(None, 'no-sign-change', None, False)
+    roots = roots_between(rows, IRR_BAND_LOW_PCT, IRR_BAND_HIGH_PCT)
+    # A root above the band (lead decision 2026-09-15): the NPV at 1000
+    # percent and its limit as the rate grows without bound (the sign of the
+    # earliest-year non-zero flow) have different signs.
+    earliest = min((cf for cf in rows if cf['contractorNCF'] != 0), key=lambda cf: cf['year'])['contractorNCF']
+    top = npv_frac(rows, IRR_BAND_HIGH_PCT / 100.0)
+    above = top != 0 and (top > 0) != (earliest > 0)
+    if len(roots) == 1 and not above:
+        return res(roots[0], 'ok', None, False)
+    if roots:
+        return res(None, 'multiple-roots', roots, above)
+    if above:
+        return res(None, 'above-clamp', None, True)
+    return res(None, 'no-root', None, False)
+
+
+def irr(rows):
+    return irr_contract(rows)['irr']
 
 
 # ---------------------------------------------------------------------
@@ -283,18 +354,15 @@ def take_metrics(rows, rate=None):
 
 def summary_row(reg, project):
     rows = cash_flow(reg, project)
-    cx = project['costs']['capex']
-    total_capex = cx['drilling'] + cx['facilities'] + cx['subsea']
     gov = sum(cf['governmentTake'] for cf in rows)
-    con = sum(cf['contractorNCF'] for cf in rows) + total_capex
-    tot = gov + con
     pay = next((cf['year'] for cf in rows if cf['cumulativeNCF'] > 0), None)
     rpay = next((cf['year'] for cf in rows if cf['rFactor'] > 1.0), None)
     und, dis = take_metrics(rows), take_metrics(rows, project['discountRate'])
     return rows, {
-        'id': reg['id'], 'name': reg['name'], 'npv': npv(rows, project['discountRate']), 'irr': irr(rows),
+        'id': reg['id'], 'name': reg['name'], 'npv': npv(rows, project['discountRate']),
+        **irr_contract(rows),
         'paybackPeriod': pay, 'rFactorPayoutYear': rpay, 'govTake': gov,
-        'effectiveTaxRate': gov / tot * 100.0 if tot > 0 else 0.0,
+        'effectiveTaxRate': und['share_of_net_revenue'],
         'governmentTakePct': und['take'], 'governmentTakeState': und['state'],
         'governmentTakeDiscountedPct': dis['take'], 'governmentTakeDiscountedState': dis['state'],
         'discountRatePct': project['discountRate'],
@@ -369,6 +437,79 @@ def price_verdict(summary, sens):
     return head + (f' No regime is economic at any swept price from {labels[0]} to {labels[count - 1]} USD per bbl.' if count else '')
 
 
+def money(x):
+    """EC2-11: one decimal as toFixed rounds, thousands grouped, the unit in words."""
+    s = js_to_fixed(x, 1)
+    if s == 'n/a':
+        return s
+    neg = s.startswith('-')
+    whole, frac = s.lstrip('-').split('.')
+    return ('-' if neg else '') + '{:,}'.format(int(whole)) + '.' + frac + ' million USD'
+
+
+def and_join(items):
+    return items[0] if len(items) == 1 else ', '.join(items[:-1]) + ' and ' + items[-1]
+
+
+def irr_clause(row):
+    v = row.get('irr')
+    if v is not None and math.isfinite(v):
+        return f'with an IRR of {js_to_fixed(v)}%'
+    st = row.get('irrStatus')
+    if st == 'no-sign-change':
+        return 'with no IRR because its contractor cash flow never changes sign'
+    if st == 'no-root':
+        return 'with no IRR because no rate from -99 to 1000 percent brings its NPV to zero'
+    if st == 'above-clamp':
+        return 'with an IRR above 1000 percent'
+    if st == 'multiple-roots':
+        roots = row.get('irrRoots') or []
+        if roots:
+            return 'with no single IRR because its NPV is zero at ' + and_join([js_to_fixed(r) + '%' for r in roots])
+        return 'with no single IRR because its NPV is zero at more than one rate'
+    return 'with no IRR defined'
+
+
+CAPEX_SPREAD = 0.1
+
+
+def capex_sentence(losses):
+    """EC2-4, from the statement: an end is named alone when the regime at
+    that end leads the next by at least 0.1 million USD; otherwise every
+    regime within 0.1 of the end is named with it; when the two groups share
+    a regime nothing is ranked."""
+    idx = list(range(len(losses)))
+    lo_first = sorted(idx, key=lambda k: (losses[k]['loss'], k))
+    hi_first = sorted(idx, key=lambda k: (-losses[k]['loss'], k))
+
+    def end(order, sign):
+        lead = order[0]
+        gap = sign * (losses[lead]['loss'] - losses[order[1]]['loss'])
+        if gap >= CAPEX_SPREAD:
+            return [lead]
+        return [lead] + [k for k in idx if k != lead and abs(losses[k]['loss'] - losses[lead]['loss']) < CAPEX_SPREAD]
+
+    least = end(lo_first, -1)
+    most = end(hi_first, 1)
+    q = lambda group: and_join(['"%s"' % losses[k]['name'] for k in group])
+
+    def amount(group):
+        vals = [losses[k]['loss'] for k in group]
+        a, b = money(min(vals)), money(max(vals))
+        if a == b:
+            return a + ' each' if len(group) > 1 else a
+        return f'between {a} and {b}'
+    if set(least) & set(most):
+        return (f'No regime can be ranked on resilience to cost overrun: over the swept capex range {q(idx)} give up {amount(idx)} '
+                f'of contractor NPV, within {money(CAPEX_SPREAD)} of each other.')
+    if len(least) == 1 and len(most) == 1:
+        return (f'Over the swept capex range, {q(least)} gives up the least contractor NPV ({money(losses[least[0]]["loss"])}) '
+                f'and {q(most)} the most ({money(losses[most[0]]["loss"])}).')
+    v = lambda g: 'give' if len(g) > 1 else 'gives'
+    return (f'Over the swept capex range, {q(least)} {v(least)} up the least contractor NPV ({amount(least)}); '
+            f'{q(most)} {v(most)} up the most ({amount(most)}). Regimes named together are within {money(CAPEX_SPREAD)} of each other, so they are not ranked.')
+
+
 def insights(summary, sens, capex_points=None):
     """The verdict sentences. capex_points limits the capex sweep to the
     first n points (the engine's truncated loop) when given."""
@@ -378,22 +519,22 @@ def insights(summary, sens, capex_points=None):
     f = js_to_fixed
     best = summary[0]
     out.append({'key': 'npv', 'label': 'Best for the contractor',
-                'text': f'"{best["name"]}" delivers the highest contractor NPV at ${f(best["npv"])}MM, with an IRR of {f(best["irr"])}%.'})
+                'text': f'"{best["name"]}" delivers the highest contractor NPV at {money(best["npv"])}, {irr_clause(best)}.'})
     paying = [r for r in summary if r['paybackPeriod'] is not None and math.isfinite(r['paybackPeriod'])]
     if paying:
-        fastest = paying[0]
-        for r in paying[1:]:
-            if r['paybackPeriod'] < fastest['paybackPeriod']:
-                fastest = r
-        rest = [r for r in paying if r['id'] != fastest['id']]
-        slowest = None
-        if rest:
-            slowest = rest[0]
-            for r in rest[1:]:
-                if r['paybackPeriod'] > slowest['paybackPeriod']:
-                    slowest = r
-        text = (f'"{fastest["name"]}" pays back in year {fastest["paybackPeriod"]}, against year {slowest["paybackPeriod"]} for "{slowest["name"]}".'
-                if slowest else f'"{fastest["name"]}" pays back in year {fastest["paybackPeriod"]}. No other regime pays back within the project life.')
+        year = min(r['paybackPeriod'] for r in paying)
+        winners = [r for r in paying if r['paybackPeriod'] == year]
+        names = and_join(['"%s"' % r['name'] for r in winners])
+        verb = 'pay' if len(winners) > 1 else 'pays'
+        later = [r for r in paying if r['paybackPeriod'] != year]
+        if later:
+            slow_year = max(r['paybackPeriod'] for r in later)
+            slowest = next(r for r in later if r['paybackPeriod'] == slow_year)
+            text = f'{names} {verb} back in year {year}, against year {slow_year} for "{slowest["name"]}".'
+        elif len(winners) < len(summary) or len(winners) == 1:
+            text = f'{names} {verb} back in year {year}. No other regime pays back within the project life.'
+        else:
+            text = f'{names} {"both" if len(winners) == 2 else "all"} pay back in year {year}.'
         out.append({'key': 'payback', 'label': 'Fastest capital recovery', 'text': text})
     else:
         out.append({'key': 'payback', 'label': 'Capital recovery', 'text': 'No regime pays back within the project life on these inputs.'})
@@ -409,8 +550,8 @@ def insights(summary, sens, capex_points=None):
             if r['govTake'] > nxt['govTake']:
                 nxt = r
     out.append({'key': 'government', 'label': 'Best for the government',
-                'text': (f'"{top["name"]}" collects the most, ${f(top["govTake"])}MM against ${f(nxt["govTake"])}MM for the next highest, "{nxt["name"]}".'
-                         if nxt else f'"{top["name"]}" collects ${f(top["govTake"])}MM in total government cash flow.')})
+                'text': (f'"{top["name"]}" collects the most, {money(top["govTake"])} against {money(nxt["govTake"])} for the next highest, "{nxt["name"]}".'
+                         if nxt else f'"{top["name"]}" collects {money(top["govTake"])} in total government cash flow.')})
     by_id = {r['id']: r for r in summary}
     losses = []
     for d in (sens or {}).get('capex', {}).get('data', []):
@@ -421,15 +562,7 @@ def insights(summary, sens, capex_points=None):
             continue
         losses.append({'name': by_id[d['regimeId']]['name'], 'loss': v[0] - v[-1]})
     if len(losses) >= 2:
-        toughest = losses[0]
-        weakest = losses[0]
-        for l in losses[1:]:
-            if l['loss'] < toughest['loss']:
-                toughest = l
-            if l['loss'] > weakest['loss']:
-                weakest = l
-        out.append({'key': 'capex', 'label': 'Resilience to cost overrun',
-                    'text': f'Over the swept capex range, "{toughest["name"]}" gives up the least contractor NPV (${f(toughest["loss"])}MM) and "{weakest["name"]}" the most (${f(weakest["loss"])}MM).'})
+        out.append({'key': 'capex', 'label': 'Resilience to cost overrun', 'text': capex_sentence(losses)})
     price = price_verdict(summary, sens)
     if price is not None:
         out.append({'key': 'price', 'label': 'Response to higher prices', 'text': price})
@@ -548,7 +681,11 @@ def cf_case(cid, note, regime, project, capex_mult=1.0, price_mult=1.0):
     rows = cash_flow(regime, project, capex_mult, price_mult)
     return {'id': cid, 'note': note, 'regime': regime, 'project': project, 'capexMultiplier': capex_mult,
             'priceMultiplier': price_mult,
-            'expected': {'cashflow': rows, 'npv': npv(rows, project['discountRate']), 'irr': irr(rows),
+            # `rootsToScan` is every root from -99 to 20000 percent, INCLUDING
+            # any above the band, so a note about a root the contract does not
+            # report can be checked.
+            'expected': {'cashflow': rows, 'npv': npv(rows, project['discountRate']), **irr_contract(rows),
+                         'rootsToScan': roots_between(rows, IRR_BAND_LOW_PCT, 20000.0),
                          'totalGovTake': sum(cf['governmentTake'] for cf in rows),
                          'totalContractorNCF': sum(cf['contractorNCF'] for cf in rows),
                          'finalUnrecoveredPool': rows[-1]['unrecoveredCostPool'],
@@ -579,18 +716,20 @@ def build():
                 flat_regime(), TEST_PROJECT),
         cf_case('complex_test_project', 'Suite test: sliding royalty, 70 percent recovery, tiered split, RRT 20 with 20 percent uplift, minimum tax 2.',
                 COMPLEX_REGIME, TEST_PROJECT),
-        cf_case('capped_5pct_never_recovers', 'Suite test: recovery capped at 5 percent, the pool grows past the 1000 capex and never clears; no payback, IRR 0.',
+        cf_case('capped_5pct_pool_never_clears', 'Suite test: recovery capped at 5 percent, so the cost pool grows past the 1000 capex and never clears (2543.8 still unrecovered in year 25). '
+                'The contractor pays back anyway, in year 3, because the flat regime\'s 100 percent split hands it the profit oil the cap leaves. Its NPV is zero at 54.6792 percent '
+                'and again at -14.2614 percent (late-life contractor cash flow is negative), so under EC2-5 the IRR is null with status multiple-roots and both roots listed.',
                 flat_regime(id='capped5', name='Capped 5', costRecoveryLimit=5), TEST_PROJECT),
         cf_case('capped_40pct', 'Suite test: recovery capped at 40 percent of revenue after royalty.',
                 flat_regime(id='capped40', name='Capped 40', costRecoveryLimit=40), TEST_PROJECT),
         cf_case('harsh_split_40_royalty_20', 'Suite test: a 40 percent split and 20 percent royalty leave the contractor less and the government more than the flat regime.',
                 flat_regime(id='harsh', name='Harsh', profitSplit={'type': 'flat', 'split': 40}, royalty={'type': 'flat', 'rate': 20}), TEST_PROJECT),
         cf_case('rfactor_tranche_crossing', 'The Nigeria PIA tranches on a 10000 bopd project (capex 350, opex 20 + 1 $/boe) at $80: the R-factor walks '
-                'through 1.0 in year 3 and 2.5 in year 6, so `contractorSplit` steps 60 -> 40 -> 30 at exactly those years.',
+                'through 1.0 in year 2, 1.6 in year 3 and 2.5 in year 6. The 60 tranche applies from the start (below 1.0 the lowest tier applies), so `contractorSplit` steps 60 -> 40 when R reaches 1.6 in year 3 and 40 -> 30 when it reaches 2.5 in year 6.',
                 dict(template_regimes()[0], id='pia_walk', name='PIA tranche walk'),
                 dict(TEST_PROJECT, production={'oil': {'initial': 10000, 'decline': 12}, 'gas': {'initial': 0, 'decline': 0}, 'ngl': {'initial': 0, 'decline': 0}},
                      costs={'capex': {'drilling': 350, 'facilities': 0, 'subsea': 0}, 'opex': {'fixed': 20, 'variable': 1}})),
-        cf_case('rfactor_falls_back', 'The same regime with capex 320 and opex 25: the R-factor peaks just above 2.5 and then FALLS as revenue declines '
+        cf_case('rfactor_falls_back', 'The same regime with capex 320 and opex 25: the R-factor peaks at 2.972625 in year 11 and then FALLS as revenue declines '
                 'while opex keeps accruing, so the split steps back up from 30 to 40 in year 23. The R-factor is a ratio of cumulatives and is not monotone.',
                 dict(template_regimes()[0], id='pia_fallback', name='PIA fall back'),
                 dict(TEST_PROJECT, production={'oil': {'initial': 10000, 'decline': 12}, 'gas': {'initial': 0, 'decline': 0}, 'ngl': {'initial': 0, 'decline': 0}},
@@ -607,15 +746,46 @@ def build():
         cf_case('minimum_tax_binds', 'A 10 percent minimum tax on gross revenue with a 0 CIT: the minimum binds every year.',
                 flat_regime(id='mintax', name='Min tax', tax={'cit': 0, 'rrt': 0, 'minTax': 10, 'rrtUpliftPct': 0}), TEST_PROJECT),
         cf_case('capex_multiplier_1_3', 'Capex multiplier 1.3 on the flat regime.', flat_regime(), TEST_PROJECT, 1.3, 1.0),
-        cf_case('capex_multiplier_0_7', 'Capex multiplier 0.7 on the flat regime.', flat_regime(), TEST_PROJECT, 0.7, 1.0),
-        cf_case('never_recovers_huge_capex', 'Capex 20000 on the test project: NPV(0) is negative so the engine reports IRR 0, the pool never clears, no payback.',
+        cf_case('capex_multiplier_0_7', 'Capex multiplier 0.7 on the flat regime. The NPV is zero at 1095.4783 percent, above the band, and at -20.4852 percent, inside it. '
+                'One root inside the band and one above it: irr null, multiple-roots, irrRoots lists -20.4852 only and irrRootAboveBand is true. '
+                'The retired bisection read 1095.4783 as the IRR.',
+                flat_regime(), TEST_PROJECT, 0.7, 1.0),
+        cf_case('never_recovers_huge_capex', 'Capex 20000 on the test project: the pool never clears and there is no payback. NPV at 0 percent is negative and no rate from -99 to 1000 percent zeroes it, so the IRR is null with status no-root (the retired rule printed 0).',
                 flat_regime(), dict(TEST_PROJECT, costs={'capex': {'drilling': 10000, 'facilities': 10000, 'subsea': 0}, 'opex': {'fixed': 60, 'variable': 4}})),
+        cf_case('tiers_unsorted_selected_by_threshold', 'EC2-8: the Nigeria PIA tranches typed out of order (royalty 50 before 0, split 2.5, 1.0, 1.6) on the rfactor_tranche_crossing project. '
+                'Selection is by threshold, so every row equals the sorted case; the retired list-order rule would take 7.5 percent royalty at $80 and a 40 split once R passes 2.5.',
+                dict(template_regimes()[0], id='pia_unsorted', name='PIA typed out of order',
+                     royalty={'type': 'sliding_price', 'tiers': [{'threshold': 50, 'rate': 10}, {'threshold': 0, 'rate': 7.5}]},
+                     profitSplit={'type': 'tiered_r_factor', 'tiers': [{'threshold': 2.5, 'split': 30}, {'threshold': 1.0, 'split': 60}, {'threshold': 1.6, 'split': 40}]}),
+                dict(TEST_PROJECT, production={'oil': {'initial': 10000, 'decline': 12}, 'gas': {'initial': 0, 'decline': 0}, 'ngl': {'initial': 0, 'decline': 0}},
+                     costs={'capex': {'drilling': 350, 'facilities': 0, 'subsea': 0}, 'opex': {'fixed': 20, 'variable': 1}})),
         cf_case('gas_and_ngl_streams', 'Gas and NGL streams contribute revenue and boe on the default project under the Generic template.',
                 dict(template_regimes()[5], id='generic', name='Generic'), DEFAULT_PROJECT),
     ]
     for t, reg in zip(TEMPLATES, template_regimes()):
         G['cashflow'].append(cf_case(f'template_{reg["id"]}_default_project', f'Template "{t["name"]}" on the Designer\'s default project.', reg, DEFAULT_PROJECT))
         G['cashflow'].append(cf_case(f'template_{reg["id"]}_test_project', f'Template "{t["name"]}" on the Suite test project.', reg, TEST_PROJECT))
+
+    # EC2-8: a repeated threshold is refused, naming the regime and the table.
+    G['tierRefusals'] = []
+    for cid, note, reg in [
+        ('tiers_duplicate_royalty_threshold', 'Two royalty tiers at 50 USD per bbl: refused.',
+         dict(template_regimes()[0], id='dup_roy', name='Duplicate royalty',
+              royalty={'type': 'sliding_price', 'tiers': [{'threshold': 0, 'rate': 7.5}, {'threshold': 50, 'rate': 10}, {'threshold': 50, 'rate': 12}]})),
+        ('tiers_duplicate_split_threshold', 'Two profit split tiers at R factor 1.6, typed apart: refused.',
+         dict(template_regimes()[0], id='dup_split', name='Duplicate split',
+              profitSplit={'type': 'tiered_r_factor', 'tiers': [{'threshold': 1.6, 'split': 40}, {'threshold': 1.0, 'split': 60}, {'threshold': 1.6, 'split': 30}]})),
+    ]:
+        try:
+            cash_flow(reg, TEST_PROJECT)
+            raise AssertionError(cid + ' was not refused')
+        except TierTableRefused as e:
+            G['tierRefusals'].append({'id': cid, 'note': note, 'regime': reg, 'project': TEST_PROJECT,
+                                      'refused': {'regime': e.regime, 'table': e.table, 'threshold': e.threshold}})
+
+    # EC2-11: the one money formatter.
+    G['moneyFormat'] = [{'id': f'money_{i}', 'value': v, 'expected': money(v)} for i, v in enumerate(
+        [1339.3, 1339.25, 999.95, 0.05, -0.04, 0, -20.411827, 1234567.891, 10909.090909090909, 100000, -1234.56, 12.34, None])]
 
     G['priceSweep'] = []
     for p in range(40, 121, 10):
@@ -626,18 +796,31 @@ def build():
         G['capexSweep'].append(cf_case(f'capex_{js_to_fixed(m, 1)}_pia_default', f'Default PIA regime on the default project at capex multiplier {m}.',
                                        DEFAULT_REGIMES[0], DEFAULT_PROJECT, m, 1.0))
 
+    def irr_case(cid, note, flows, **extra):
+        cfs = [{'year': y, 'contractorNCF': v} for y, v in flows]
+        c = {'id': cid, 'note': note, 'cashFlows': cfs, 'expected': irr_contract(cfs)}
+        c.update(extra)
+        return c
+
     G['irr'] = [
-        {'id': 'irr_all_positive', 'note': 'Suite test: no sign change, IRR 0.', 'cashFlows': [{'year': 1, 'contractorNCF': 10}, {'year': 2, 'contractorNCF': 20}], 'expected': 0.0},
-        {'id': 'irr_known_21pct_year_end', 'note': '-100 then 121 at year-end discounting: (1 + r) = 1.21, IRR 21 percent.',
-         'cashFlows': [{'year': 1, 'contractorNCF': -100}, {'year': 2, 'contractorNCF': 121}], 'expected': 21.0},
-        {'id': 'irr_npv0_negative', 'note': 'NPV at 0 percent is negative: the engine reports 0 rather than a negative rate.',
-         'cashFlows': [{'year': 1, 'contractorNCF': -100}, {'year': 2, 'contractorNCF': 90}], 'expected': 0.0},
-        {'id': 'irr_beyond_bracket', 'note': '-1 then 2000: the rate is 199900 percent, past the engine\'s 102400 percent bracket, so the engine reports the bracket. Both numbers pinned.',
-         'cashFlows': [{'year': 1, 'contractorNCF': -1}, {'year': 2, 'contractorNCF': 2000}], 'expected': ENGINE_IRR_BRACKET,
-         'trueIrr': 199900.0, 'engine': {'irr': ENGINE_IRR_BRACKET, 'disagreement': 'bracket reported as the IRR'}},
-        {'id': 'irr_three_period', 'note': '-1000, 600, 600: the year-end IRR solves 1000 x^2 = 600 x + 600, x = 1/(1+r).',
-         'cashFlows': [{'year': 1, 'contractorNCF': -1000}, {'year': 2, 'contractorNCF': 600}, {'year': 3, 'contractorNCF': 600}],
-         'expected': 100.0 * (1.0 / ((-600 + math.sqrt(600 ** 2 + 4 * 600 * 1000)) / 1200) - 1.0)},
+        irr_case('irr_all_positive_no_sign_change', 'Suite test: no sign change, so no IRR exists: null with status no-sign-change (EC2-5; the retired rule printed 0).',
+                 [(1, 10), (2, 20)]),
+        irr_case('irr_known_21pct_year_end', '-100 then 121 at year-end discounting: (1 + r) = 1.21, IRR 21 percent.', [(1, -100), (2, 121)]),
+        irr_case('irr_negative_root_reported', '-100 then 90: NPV at 0 percent is negative and the only root is 1 + r = 0.9, IRR -10 percent, inside the band, so it IS reported (EC2-5; the retired rule printed 0).',
+                 [(1, -100), (2, 90)], trueIrr=-10.0),
+        irr_case('irr_above_clamp_past_old_bracket', '-1 then 2000: the root is 199900 percent, above the 1000 percent band, so null with status above-clamp (EC2-5; the retired rule reported its 102400 percent bracket as the rate).',
+                 [(1, -1), (2, 2000)], trueIrr=199900.0),
+        irr_case('irr_above_clamp_inside_old_bracket', '-100 then 1500: the root is 1400 percent, which the retired bisection reported as a rate; it is above the 1000 percent band, so null with status above-clamp.',
+                 [(1, -100), (2, 1500)], trueIrr=1400.0),
+        irr_case('irr_three_period', '-1000, 600, 600: the year-end IRR solves 1000 x^2 = 600 x + 600, x = 1/(1+r).',
+                 [(1, -1000), (2, 600), (3, 600)], trueIrr=100.0 * (1.0 / ((-600 + math.sqrt(600 ** 2 + 4 * 600 * 1000)) / 1200) - 1.0)),
+        irr_case('irr_no_root_below_band', '-100 then 0.5: the only root is 1 + r = 0.005, -99.5 percent, below the band; NPV is negative at both ends, so null with status no-root.',
+                 [(1, -100), (2, 0.5)], trueIrr=-99.5),
+        irr_case('irr_root_above_band_with_one_inside', '-5, 84, -64: with x = 1/(1+r), 64 x^2 - 84 x + 5 = 0 gives roots at -20 and 1500 percent. One is inside the band '
+                 'and one above it: null, multiple-roots, irrRoots lists -20 only, irrRootAboveBand true.',
+                 [(1, -5), (2, 84), (3, -64)], trueRoots=[-20.0, 1500.0]),
+        irr_case('irr_multiple_roots_listed', '-100, 230, -132: with x = 1/(1+r), 132 x^2 - 230 x + 100 = 0 gives x = 240/264 and 220/264, roots 10 and 20 percent; null with status multiple-roots and both listed.',
+                 [(1, -100), (2, 230), (3, -132)], trueRoots=[10.0, 20.0]),
     ]
     for c in G['irr']:
         c['npvAt10'] = npv(c['cashFlows'], 10)
@@ -662,12 +845,36 @@ def build():
                                 {'values': [None, None, 120, 90], 'states': ['undefined', 'undefined', 'exceeds', 'share']},
                                 {'values': [None, 80, 70, 65], 'states': ['undefined', 'share', 'share', 'share']})
     ties = [dict(summ[0], govTake=900, paybackPeriod=4), dict(summ[1])]
+    gamma = {'id': 'c', 'name': 'Gamma', 'npv': 90, 'irr': 15, 'paybackPeriod': 6, 'govTake': 500, 'effectiveTaxRate': 60}
+    three_sens = lambda losses: dict(sens, capex={'labels': ['0.8', '1.5'], 'data': [
+        {'regimeId': rid, 'values': [1000.0, 1000.0 - l]} for rid, l in zip(['a', 'b', 'c'], losses)]},
+        price={'labels': [40, 80, 120], 'data': sens['price']['data'] + [{'regimeId': 'c', 'values': [20, 22, 24], 'states': ['share'] * 3}]})
+    two_sens = lambda la, lb: dict(sens, capex={'labels': ['0.8', '1.5'], 'data': [{'regimeId': 'a', 'values': [1000.0, 1000.0 - la]},
+                                                                                   {'regimeId': 'b', 'values': [1000.0, 1000.0 - lb]}]})
+    irr_best = lambda **kw: [dict(summ[0], irr=None, **kw), dict(summ[1])]
     G['insights'] = [
         {'id': 'insights_suite', 'note': 'Suite test summary: Beta pays back fastest and collects most; Beta resilient; Beta progressive.', 'summary': summ, 'sensitivityData': sens},
         {'id': 'insights_flipped', 'note': 'Beta ranked first by NPV: government verdict still follows the take.', 'summary': flipped, 'sensitivityData': sens},
         {'id': 'insights_never_pays_back', 'note': 'Every paybackPeriod null.', 'summary': never, 'sensitivityData': sens},
         {'id': 'insights_single_regime', 'note': 'One regime: no sweep verdicts, government sentence in its single form.', 'summary': [summ[0]], 'sensitivityData': one_sens},
-        {'id': 'insights_ties', 'note': 'Ties on payback and government take: strict comparisons keep the FIRST of tied regimes.', 'summary': ties, 'sensitivityData': sens},
+        {'id': 'insights_ties', 'note': 'Ties on payback and government take. Payback names BOTH regimes at year 4 (EC2-10); the government verdict still keeps the first of the tied regimes.', 'summary': ties, 'sensitivityData': sens},
+        {'id': 'insights_payback_tie_with_slower', 'note': 'EC2-10: Alpha and Beta both pay back in year 4 and Gamma in year 6; both winners are named.',
+         'summary': [dict(summ[0], paybackPeriod=4), dict(summ[1]), gamma], 'sensitivityData': three_sens([100, 30, 60])},
+        {'id': 'insights_payback_tie_with_nonpayer', 'note': 'EC2-10: Alpha and Beta tie at year 4 and Gamma never pays back.',
+         'summary': [dict(summ[0], paybackPeriod=4), dict(summ[1]), dict(gamma, paybackPeriod=None)], 'sensitivityData': three_sens([100, 30, 60])},
+        {'id': 'insights_capex_all_tied', 'note': 'EC2-4: losses of 100 and 100.05 million USD are within 0.1 of each other, so no regime is ranked.',
+         'summary': summ, 'sensitivityData': two_sens(100.0, 100.05)},
+        {'id': 'insights_capex_least_end_tied', 'note': 'EC2-4: Alpha 50 and Beta 50.04 tie at the least end and are named together; Gamma 90 is named alone at the most end.',
+         'summary': [summ[0], summ[1], gamma], 'sensitivityData': three_sens([50.0, 50.04, 90.0])},
+        {'id': 'insights_capex_one_step_ranks', 'note': 'EC2-4: a lead of one printed step, 50 against 50.1, ranks (the lead in binary is 0.10000000000000142).',
+         'summary': summ, 'sensitivityData': two_sens(50.0, 50.1)},
+        {'id': 'insights_capex_ends_meet', 'note': 'EC2-4: 10, 10.06 and 10.12: the least end ties 10 with 10.06 and the most end ties 10.12 with 10.06; the ends share Beta, so nothing is ranked.',
+         'summary': [summ[0], summ[1], gamma], 'sensitivityData': three_sens([10.0, 10.06, 10.12])},
+        {'id': 'insights_irr_no_sign_change', 'note': 'EC2-5: the contractor sentence states that no IRR exists.', 'summary': irr_best(irrStatus='no-sign-change', irrRoots=None), 'sensitivityData': sens},
+        {'id': 'insights_irr_no_root', 'note': 'EC2-5: no root in the band.', 'summary': irr_best(irrStatus='no-root', irrRoots=None), 'sensitivityData': sens},
+        {'id': 'insights_irr_above_clamp', 'note': 'EC2-5: above the band.', 'summary': irr_best(irrStatus='above-clamp', irrRoots=None), 'sensitivityData': sens},
+        {'id': 'insights_irr_multiple_roots', 'note': 'EC2-5: every root named.', 'summary': irr_best(irrStatus='multiple-roots', irrRoots=[10.0, 20.0]), 'sensitivityData': sens},
+        {'id': 'insights_irr_null_without_status', 'note': 'EC2-5: a null IRR with no status is not printed as n/a percent.', 'summary': irr_best(), 'sensitivityData': sens},
         {'id': 'insights_rounding', 'note': 'toFixed rounding pins: 0.25 is exact in binary and JavaScript rounds the tie up to 0.3 (Python would give 0.2); 2.45 is stored just above the tie so 2.5; 0.35 is stored just below so 0.3; 1.05 is stored just above so 1.1; -0.05 is stored just above the tie in magnitude so -0.1.',
          'summary': [dict(summ[0], npv=0.25, irr=0.35, govTake=2.45), dict(summ[1], npv=-0.05, irr=1.05, govTake=1.15)], 'sensitivityData': sens},
         {'id': 'insights_empty', 'note': 'No regimes: an empty list.', 'summary': [], 'sensitivityData': sens},
@@ -689,7 +896,7 @@ def build():
          'regimes': template_regimes(), 'project': TEST_PROJECT},
         {'id': 'cmp_flat_vs_complex', 'note': 'The two Suite test regimes side by side.',
          'regimes': [flat_regime(), COMPLEX_REGIME], 'project': TEST_PROJECT},
-        {'id': 'cmp_never_recovers', 'note': 'Templates on a project with capex 20000: nothing pays back, every IRR 0, the payback insight says so.',
+        {'id': 'cmp_never_recovers', 'note': 'Templates on a project with capex 20000: nothing pays back and every IRR is null with status no-root; the payback insight says so.',
          'regimes': template_regimes(),
          'project': dict(TEST_PROJECT, costs={'capex': {'drilling': 10000, 'facilities': 10000, 'subsea': 0}, 'opex': {'fixed': 60, 'variable': 4}})},
         {'id': 'cmp_angola_capex_x3', 'note': 'EC2-1: Angola - Deepwater PSC on the default project with every capex line tripled. Profit is not positive at 40 (undefined, null), small and positive at 50 (exceeds, 2223 percent) and 60, and a share from 70 up (85.6015).',

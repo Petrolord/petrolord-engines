@@ -70,12 +70,16 @@ const gateResult = (res, exp, engine) => {
     near(m.irr, em.irr, IRR);
   }
   if (em.irrStatus === 'multiple-roots') {
-    // Every root the oracle found, reported rather than one of them picked.
-    expect(m.irrRoots).toHaveLength(em.irrRoots.length);
-    m.irrRoots.forEach((r, i) => near(r, em.irrRoots[i], IRR));
+    // Every root the oracle found INSIDE the band, reported rather than one
+    // of them picked. The oracle's irrRoots also lists roots above the band.
+    const inBand = em.irrRoots.filter((r) => r > -99 && r < 1000);
+    expect(m.irrRoots).toHaveLength(inBand.length);
+    m.irrRoots.forEach((r, i) => near(r, inBand[i], IRR));
   } else {
     expect(m.irrRoots).toBeNull();
   }
+  // A root above the band (lead decision 2026-09-15), on every result.
+  expect(m.irrRootAboveBand).toBe(em.irrRootAboveBand);
 };
 
 // ---------------------------------------------------------------------
@@ -350,6 +354,27 @@ describe('EC6-1: the IRR disagreements are resolved, and the clamp is not an ans
     expect(c.expected.metrics.irrRoots[0]).toBeCloseTo(9900, 6);
   });
 
+  test('one root inside the band and one above it: not called THE return (lead decision 2026-09-15)', () => {
+    const c = G.irr.find((x) => x.id === 'irr_root_above_band_with_one_inside');
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irr).toBeNull();
+    expect(m.irrStatus).toBe('multiple-roots');
+    expect(m.irrRootAboveBand).toBe(true);
+    expect(m.irrRoots).toHaveLength(1);
+    near(m.irrRoots[0], -20, 1e-6);
+    expect(c.expected.metrics.irrRoots.map((r) => Math.round(r))).toEqual([-20, 1500]);
+    // Negative control: the rule before it reported the in-band root as 'ok'.
+    const inBand = c.expected.metrics.irrRoots.filter((r) => r > -99 && r < 1000);
+    expect(inBand).toHaveLength(1);
+  });
+
+  test('a lone root above the band keeps above-clamp, with the flag set', () => {
+    const c = G.irr.find((x) => x.id === 'irr_beyond_clamp');
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irrStatus).toBe('above-clamp');
+    expect(m.irrRootAboveBand).toBe(true);
+  });
+
   test('two roots: both are reported and neither is called THE return', () => {
     const c = G.irr.find((x) => x.id === 'irr_two_roots');
     const m = calculateEconomics(c.inputs).metrics;
@@ -498,14 +523,51 @@ describe('expandQuickInputs', () => {
 describe('getPortfolioMetrics', () => {
   test.each(G.portfolio.map((c) => [c.id, c]))('%s', (_id, c) => {
     const m = getPortfolioMetrics(c.projects);
-    ['totalNPV', 'totalCapex', 'capitalEfficiency', 'avgIRR'].forEach((f) => near(m[f], c.expected[f], 1e-9));
-    if (c.engine) {
-      // chanceOfSuccess 0 is read as 1.0 by `|| 1.0`: pinned on both sides.
-      near(m.totalRiskedNPV, c.engine.totalRiskedNPV, 1e-9);
-      expect(c.expected.totalRiskedNPV).toBeCloseTo(20, 9);
-    } else {
-      near(m.totalRiskedNPV, c.expected.totalRiskedNPV, 1e-9);
-    }
+    ['totalNPV', 'totalCapex', 'capitalEfficiency', 'avgIRR', 'totalRiskedNPV'].forEach((f) => near(m[f], c.expected[f], 1e-9));
+    // EC1-10: no portfolio golden is a recorded disagreement any more.
+    expect(c.engine).toBeUndefined();
+  });
+
+  describe('EC1-10: a chance of success of 0 is a chance of 0', () => {
+    const golden = () => G.portfolio.find((c) => c.id === 'portfolio_zero_chance');
+
+    test('the written-off project contributes nothing; the retired `|| 1.0` rule is the negative control', () => {
+      const c = golden();
+      const m = getPortfolioMetrics(c.projects);
+      near(m.totalRiskedNPV, 20, 1e-9);
+      const retired = c.projects.reduce((t, p) => t + (p.npv || 0) * (p.chanceOfSuccess || 1.0), 0);
+      near(retired, 120, 1e-9);
+      expect(Math.abs(m.totalRiskedNPV - retired)).toBeGreaterThan(50);
+    });
+
+    test('a missing or null chance still means certainty', () => {
+      const m = getPortfolioMetrics([{ npv: 100 }, { npv: 40, chanceOfSuccess: null }, { npv: 10, chanceOfSuccess: undefined }]);
+      near(m.totalRiskedNPV, 150, 1e-9);
+    });
+
+    test('the band edges 0 and 1 are accepted', () => {
+      near(getPortfolioMetrics([{ npv: 10, chanceOfSuccess: 0 }, { npv: 7, chanceOfSuccess: 1 }]).totalRiskedNPV, 7, 1e-12);
+    });
+
+    test.each([
+      [-0.1, /project at index 1 has chanceOfSuccess -0\.1/],
+      [1.5, /project at index 1 has chanceOfSuccess 1\.5/],
+      [NaN, /chanceOfSuccess NaN/],
+      [Infinity, /chanceOfSuccess Infinity/],
+      ['0.5', /chanceOfSuccess "0\.5"/],
+      [true, /chanceOfSuccess true/],
+    ])('a present chance of %p is refused by project', (chance, message) => {
+      expect(() => getPortfolioMetrics([{ npv: 1, chanceOfSuccess: 0.5 }, { npv: 2, chanceOfSuccess: chance }]))
+        .toThrow(message);
+      // Negative control: the retired rule silently accepted every one of these.
+      expect(() => [{ npv: 2, chanceOfSuccess: chance }].reduce((t, p) => t + p.npv * (p.chanceOfSuccess || 1.0), 0))
+        .not.toThrow();
+    });
+
+    test('a named project is refused by name as well as index', () => {
+      expect(() => getPortfolioMetrics([{ name: 'Block 7', npv: 1, chanceOfSuccess: 2 }]))
+        .toThrow(/project "Block 7" \(index 0\) has chanceOfSuccess 2; a chance of success must be a number from 0 to 1/);
+    });
   });
 });
 

@@ -431,10 +431,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 52.60226023832826,
+    "irr": 52.60226023832824,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 240.39370956440843,
     "paybackYear": 3,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     52.60226023832824
+    ],
     "totalContractorNCF": 545.722251872178,
     "totalGovTake": 1349.7618674735195
    },
@@ -957,10 +963,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 39.95692625694561,
+    "irr": 39.95692625694559,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 218.5118562784327,
     "paybackYear": 3,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     39.95692625694559
+    ],
     "totalContractorNCF": 529.34865419125,
     "totalGovTake": 1316.1354651544475
    },
@@ -1483,10 +1495,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 32.20836773880939,
+    "irr": 32.2083677388094,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 198.2886911941198,
     "paybackYear": 4,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     32.2083677388094
+    ],
     "totalContractorNCF": 515.886166918575,
     "totalGovTake": 1279.5979524271227
    },
@@ -2009,10 +2027,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 26.215277742936603,
+    "irr": 26.2152777429366,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 173.4149835907035,
     "paybackYear": 4,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     26.2152777429366
+    ],
     "totalContractorNCF": 498.38616691857504,
     "totalGovTake": 1247.0979524271227
    },
@@ -2536,9 +2560,15 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 22.091305528666286,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 150.6191099788556,
     "paybackYear": 4,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     22.091305528666286
+    ],
     "totalContractorNCF": 484.51527381801407,
     "totalGovTake": 1210.9688455276837
    },
@@ -3062,9 +3092,15 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 18.624190520406117,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 123.63423198197341,
     "paybackYear": 5,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     18.624190520406117
+    ],
     "totalContractorNCF": 467.01527381801407,
     "totalGovTake": 1178.4688455276837
    },
@@ -3587,10 +3623,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 16.047892450339734,
+    "irr": 16.04789245033974,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 98.25197540715591,
     "paybackYear": 5,
     "rFactorPayoutYear": 4,
+    "rootsToScan": [
+     16.04789245033974
+    ],
     "totalContractorNCF": 453.02767958066977,
     "totalGovTake": 1142.4564397650279
    },
@@ -4115,10 +4157,20 @@
      }
     ],
     "finalUnrecoveredPool": 79.39322400784954,
-    "irr": 124.57769866184282,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -20.406083721807093,
+     124.57769866184277
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 1262.3469618918193,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -20.406083721807093,
+     124.57769866184277
+    ],
     "totalContractorNCF": 2269.371428711953,
     "totalGovTake": 1881.7626424890727
    },
@@ -4612,10 +4664,20 @@
      }
     ],
     "finalUnrecoveredPool": 180.71929193318698,
-    "irr": 75.25650651103295,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -14.049297062654816,
+     75.25650651103295
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 709.3641738285916,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -14.049297062654816,
+     75.25650651103295
+    ],
     "totalContractorNCF": 1217.1163915960394,
     "totalGovTake": 2934.0176796049864
    },
@@ -5135,15 +5197,25 @@
      }
     ],
     "finalUnrecoveredPool": 2543.7574609947433,
-    "irr": 54.67924873515847,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -14.261377893515519,
+     54.67924873515847
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 829.6617207496168,
     "paybackYear": 3,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -14.261377893515519,
+     54.67924873515847
+    ],
     "totalContractorNCF": 1530.0621576158844,
     "totalGovTake": 2621.071913585141
    },
-   "id": "capped_5pct_never_recovers",
-   "note": "Suite test: recovery capped at 5 percent, the pool grows past the 1000 capex and never clears; no payback, IRR 0.",
+   "id": "capped_5pct_pool_never_clears",
+   "note": "Suite test: recovery capped at 5 percent, so the cost pool grows past the 1000 capex and never clears (2543.8 still unrecovered in year 25). The contractor pays back anyway, in year 3, because the flat regime's 100 percent split hands it the profit oil the cap leaves. Its NPV is zero at 54.6792 percent and again at -14.2614 percent (late-life contractor cash flow is negative), so under EC2-5 the IRR is null with status multiple-roots and both roots listed.",
    "priceMultiplier": 1.0,
    "project": {
     "costs": {
@@ -5632,10 +5704,20 @@
      }
     ],
     "finalUnrecoveredPool": 399.64187225230773,
-    "irr": 81.79078820786896,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -17.407561128251963,
+     81.79078820786893
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 1194.1092012570439,
     "paybackYear": 3,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -17.407561128251963,
+     81.79078820786893
+    ],
     "totalContractorNCF": 2173.2968342386152,
     "totalGovTake": 1977.8372369624103
    },
@@ -6129,10 +6211,20 @@
      }
     ],
     "finalUnrecoveredPool": 101.54070884771485,
-    "irr": 53.903760526787494,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -12.521628182608866,
+     53.903760526787515
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 394.1035680951091,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -12.521628182608866,
+     53.903760526787515
+    ],
     "totalContractorNCF": 697.1413790530298,
     "totalGovTake": 3453.9926921479955
    },
@@ -6626,15 +6718,25 @@
      }
     ],
     "finalUnrecoveredPool": 38.728911782114785,
-    "irr": 70.09400655964401,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -13.02521457124495,
+     70.09400655964401
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 168.21903381986147,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -13.02521457124495,
+     70.09400655964401
+    ],
     "totalContractorNCF": 279.58027367396056,
     "totalGovTake": 1174.9793387158684
    },
    "id": "rfactor_tranche_crossing",
-   "note": "The Nigeria PIA tranches on a 10000 bopd project (capex 350, opex 20 + 1 $/boe) at $80: the R-factor walks through 1.0 in year 3 and 2.5 in year 6, so `contractorSplit` steps 60 -> 40 -> 30 at exactly those years.",
+   "note": "The Nigeria PIA tranches on a 10000 bopd project (capex 350, opex 20 + 1 $/boe) at $80: the R-factor walks through 1.0 in year 2, 1.6 in year 3 and 2.5 in year 6. The 60 tranche applies from the start (below 1.0 the lowest tier applies), so `contractorSplit` steps 60 -> 40 when R reaches 1.6 in year 3 and 40 -> 30 when it reaches 2.5 in year 6.",
    "priceMultiplier": 1.0,
    "project": {
     "costs": {
@@ -7144,15 +7246,25 @@
      }
     ],
     "finalUnrecoveredPool": 74.52379202532134,
-    "irr": 83.36482217689455,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -8.70023609555686,
+     83.36482217689455
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 159.51150430647093,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -8.70023609555686,
+     83.36482217689455
+    ],
     "totalContractorNCF": 225.73462786809716,
     "totalGovTake": 1133.8249845217317
    },
    "id": "rfactor_falls_back",
-   "note": "The same regime with capex 320 and opex 25: the R-factor peaks just above 2.5 and then FALLS as revenue declines while opex keeps accruing, so the split steps back up from 30 to 40 in year 23. The R-factor is a ratio of cumulatives and is not monotone.",
+   "note": "The same regime with capex 320 and opex 25: the R-factor peaks at 2.972625 in year 11 and then FALLS as revenue declines while opex keeps accruing, so the split steps back up from 30 to 40 in year 23. The R-factor is a ratio of cumulatives and is not monotone.",
    "priceMultiplier": 1.0,
    "project": {
     "costs": {
@@ -7662,10 +7774,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 26.215277742936603,
+    "irr": 26.2152777429366,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 173.4149835907035,
     "paybackYear": 4,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     26.2152777429366
+    ],
     "totalContractorNCF": 498.38616691857504,
     "totalGovTake": 1247.0979524271227
    },
@@ -8188,10 +8306,20 @@
      }
     ],
     "finalUnrecoveredPool": 72.29408894201026,
-    "irr": 2.9910196025703475,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -29.683291355901197,
+     2.991019602570348
+    ],
+    "irrStatus": "multiple-roots",
     "npv": -111.72540183594616,
     "paybackYear": 12,
     "rFactorPayoutYear": 6,
+    "rootsToScan": [
+     -29.683291355901197,
+     2.991019602570348
+    ],
     "totalContractorNCF": 80.80848380036271,
     "totalGovTake": 396.76749712709517
    },
@@ -8714,10 +8842,20 @@
      }
     ],
     "finalUnrecoveredPool": 72.70817018990559,
-    "irr": 107.28173706958934,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -20.41821592198257,
+     107.2817370695893
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 961.7819002390349,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -20.41821592198257,
+     107.2817370695893
+    ],
     "totalContractorNCF": 1812.4482647228622,
     "totalGovTake": 2338.6858064781636
    },
@@ -9210,10 +9348,20 @@
      }
     ],
     "finalUnrecoveredPool": 72.70817018990559,
-    "irr": 72.49976186065877,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -15.154537963519612,
+     72.49976186065877
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 473.7982858106298,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -15.154537963519612,
+     72.49976186065877
+    ],
     "totalContractorNCF": 843.4597748336032,
     "totalGovTake": 3307.6742963674224
    },
@@ -9707,10 +9855,20 @@
      }
     ],
     "finalUnrecoveredPool": 79.39322400784954,
-    "irr": 103.78024595438816,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -19.30036697289074,
+     103.78024595438814
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 1422.1987808943452,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -19.30036697289074,
+     103.78024595438814
+    ],
     "totalContractorNCF": 2575.8654753902565,
     "totalGovTake": 1575.2685958107693
    },
@@ -10204,10 +10362,20 @@
      }
     ],
     "finalUnrecoveredPool": 79.39322400784954,
-    "irr": 63.33636539277594,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -20.326847986212766,
+     63.33636539277592
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 1062.6176455882883,
     "paybackYear": 3,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -20.326847986212766,
+     63.33636539277592
+    ],
     "totalContractorNCF": 2059.371428711953,
     "totalGovTake": 1791.7626424890727
    },
@@ -10701,15 +10869,24 @@
      }
     ],
     "finalUnrecoveredPool": 79.39322400784954,
-    "irr": 1095.4783465310281,
+    "irr": null,
+    "irrRootAboveBand": true,
+    "irrRoots": [
+     -20.48517945307153
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 1460.6940693298359,
     "paybackYear": 2,
     "rFactorPayoutYear": 1,
+    "rootsToScan": [
+     -20.48517945307153,
+     1095.4783465310188
+    ],
     "totalContractorNCF": 2479.371428711953,
     "totalGovTake": 1971.7626424890727
    },
    "id": "capex_multiplier_0_7",
-   "note": "Capex multiplier 0.7 on the flat regime.",
+   "note": "Capex multiplier 0.7 on the flat regime. The NPV is zero at 1095.4783 percent, above the band, and at -20.4852 percent, inside it. One root inside the band and one above it: irr null, multiple-roots, irrRoots lists -20.4852 only and irrRootAboveBand is true. The retired bisection read 1095.4783 as the IRR.",
    "priceMultiplier": 1.0,
    "project": {
     "costs": {
@@ -11198,15 +11375,19 @@
      }
     ],
     "finalUnrecoveredPool": 15724.015148693836,
-    "irr": 0.0,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "no-root",
     "npv": -15453.850962028926,
     "paybackYear": null,
     "rFactorPayoutYear": null,
+    "rootsToScan": [],
     "totalContractorNCF": -15724.015148693845,
     "totalGovTake": 875.1492198948719
    },
    "id": "never_recovers_huge_capex",
-   "note": "Capex 20000 on the test project: NPV(0) is negative so the engine reports IRR 0, the pool never clears, no payback.",
+   "note": "Capex 20000 on the test project: the pool never clears and there is no payback. NPV at 0 percent is negative and no rate from -99 to 1000 percent zeroes it, so the IRR is null with status no-root (the retired rule printed 0).",
    "priceMultiplier": 1.0,
    "project": {
     "costs": {
@@ -11261,6 +11442,534 @@
      "minTax": 0,
      "rrt": 0,
      "rrtUpliftPct": 0
+    }
+   }
+  },
+  {
+   "capexMultiplier": 1.0,
+   "expected": {
+    "cashflow": [
+     {
+      "capex": 350.0,
+      "contractorNCF": -141.3348,
+      "contractorSplit": 0.6,
+      "costRecovered": 210.24,
+      "cumulativeNCF": -141.3348,
+      "governmentTake": 59.6848,
+      "grossRevenue": 292.0,
+      "opex": 23.65,
+      "profitOil": 52.56,
+      "rFactor": 0.7814799946473974,
+      "royalty": 29.200000000000003,
+      "royaltyRate": 0.1,
+      "tax": 9.4608,
+      "unrecoveredCostPool": 163.40999999999997,
+      "year": 1
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 181.225376,
+      "contractorSplit": 0.6,
+      "costRecovered": 185.0112,
+      "cumulativeNCF": 39.89057600000001,
+      "governmentTake": 52.522623999999986,
+      "grossRevenue": 256.96,
+      "opex": 23.212,
+      "profitOil": 46.25279999999998,
+      "rFactor": 1.3832516088715978,
+      "royalty": 25.695999999999998,
+      "royaltyRate": 0.1,
+      "tax": 8.325503999999997,
+      "unrecoveredCostPool": 1.610799999999955,
+      "year": 2
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 51.75178879999997,
+      "contractorSplit": 0.4,
+      "costRecovered": 24.437359999999956,
+      "cumulativeNCF": 91.64236479999998,
+      "governmentTake": 151.5464512,
+      "grossRevenue": 226.1248,
+      "opex": 22.82656,
+      "profitOil": 179.07496000000003,
+      "rFactor": 1.846809453181188,
+      "royalty": 22.61248,
+      "royaltyRate": 0.1,
+      "tax": 21.48899520000001,
+      "unrecoveredCostPool": 0.0,
+      "year": 3
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 43.848971264,
+      "contractorSplit": 0.4,
+      "costRecovered": 22.4873728,
+      "cumulativeNCF": 135.491336064,
+      "governmentTake": 132.653479936,
+      "grossRevenue": 198.989824,
+      "opex": 22.4873728,
+      "profitOil": 156.6034688,
+      "rFactor": 2.202911899414893,
+      "royalty": 19.8989824,
+      "royaltyRate": 0.1,
+      "tax": 18.792416256000003,
+      "unrecoveredCostPool": 0.0,
+      "year": 4
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 37.91509471232,
+      "contractorSplit": 0.4,
+      "costRecovered": 22.188888064,
+      "cumulativeNCF": 173.40643077632,
+      "governmentTake": 115.00706234367999,
+      "grossRevenue": 175.11104512,
+      "opex": 22.188888064,
+      "profitOil": 135.411052544,
+      "rFactor": 2.4747474776013787,
+      "royalty": 17.511104512,
+      "royaltyRate": 0.1,
+      "tax": 16.24932630528,
+      "unrecoveredCostPool": 0.0,
+      "year": 5
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 24.519962510131204,
+      "contractorSplit": 0.3,
+      "costRecovered": 21.92622149632,
+      "cumulativeNCF": 197.9263932864512,
+      "governmentTake": 107.65153569914878,
+      "grossRevenue": 154.09771970559999,
+      "opex": 21.92622149632,
+      "profitOil": 116.76172623871999,
+      "rFactor": 2.6800481096666493,
+      "royalty": 15.40977197056,
+      "royaltyRate": 0.1,
+      "tax": 10.508555361484799,
+      "unrecoveredCostPool": 0.0,
+      "year": 6
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 21.073567008915457,
+      "contractorSplit": 0.3,
+      "costRecovered": 21.6950749167616,
+      "cumulativeNCF": 218.99996029536666,
+      "governmentTake": 92.83735141525096,
+      "grossRevenue": 135.60599334092802,
+      "opex": 21.6950749167616,
+      "profitOil": 100.35031909007363,
+      "rFactor": 2.8325368218314604,
+      "royalty": 13.560599334092803,
+      "royaltyRate": 0.1,
+      "tax": 9.031528718106625,
+      "unrecoveredCostPool": 0.0,
+      "year": 7
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 18.04073896784559,
+      "contractorSplit": 0.3,
+      "costRecovered": 21.49166592675021,
+      "cumulativeNCF": 237.04069926321225,
+      "governmentTake": 79.80086924542083,
+      "grossRevenue": 119.33327414001664,
+      "opex": 21.49166592675021,
+      "profitOil": 85.90828079926476,
+      "rFactor": 2.9429424722560635,
+      "royalty": 11.933327414001665,
+      "royaltyRate": 0.1,
+      "tax": 7.731745271933828,
+      "unrecoveredCostPool": 0.0,
+      "year": 8
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 15.371850291704124,
+      "contractorSplit": 0.3,
+      "costRecovered": 21.312666015540184,
+      "cumulativeNCF": 252.41254955491638,
+      "governmentTake": 68.32876493597031,
+      "grossRevenue": 105.01328124321464,
+      "opex": 21.312666015540184,
+      "profitOil": 73.19928710335299,
+      "rFactor": 3.0197254507717797,
+      "royalty": 10.501328124321464,
+      "royaltyRate": 0.1,
+      "tax": 6.587935839301768,
+      "unrecoveredCostPool": 0.0,
+      "year": 9
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 13.023228256699632,
+      "contractorSplit": 0.3,
+      "costRecovered": 21.155146093675363,
+      "cumulativeNCF": 265.435777811616,
+      "governmentTake": 58.23331314365388,
+      "grossRevenue": 92.41168749402888,
+      "opex": 21.155146093675363,
+      "profitOil": 62.01537265095063,
+      "rFactor": 3.0696059895047463,
+      "royalty": 9.241168749402888,
+      "royaltyRate": 0.1,
+      "tax": 5.581383538585556,
+      "unrecoveredCostPool": 0.0,
+      "year": 10
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 10.95644086589568,
+      "contractorSplit": 0.3,
+      "costRecovered": 21.016528562434317,
+      "cumulativeNCF": 276.39221867751166,
+      "governmentTake": 49.34931556641543,
+      "grossRevenue": 81.32228499474543,
+      "opex": 21.016528562434317,
+      "profitOil": 52.17352793283656,
+      "rFactor": 3.097954887965636,
+      "royalty": 8.132228499474543,
+      "royaltyRate": 0.1,
+      "tax": 4.695617513955291,
+      "unrecoveredCostPool": 0.0,
+      "year": 11
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 9.1376679619882,
+      "contractorSplit": 0.3,
+      "costRecovered": 20.8945451349422,
+      "cumulativeNCF": 285.52988663949986,
+      "governmentTake": 41.53139769844557,
+      "grossRevenue": 71.56361079537598,
+      "opex": 20.8945451349422,
+      "profitOil": 43.51270458089618,
+      "rFactor": 3.1090865623576054,
+      "royalty": 7.156361079537598,
+      "royaltyRate": 0.1,
+      "tax": 3.9161434122806553,
+      "unrecoveredCostPool": 0.0,
+      "year": 12
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 7.537147806549612,
+      "contractorSplit": 0.3,
+      "costRecovered": 20.787199718749136,
+      "cumulativeNCF": 293.0670344460495,
+      "governmentTake": 34.6516299746321,
+      "grossRevenue": 62.97597749993085,
+      "opex": 20.787199718749136,
+      "profitOil": 35.891180031188625,
+      "rFactor": 3.1064815961771455,
+      "royalty": 6.297597749993085,
+      "royaltyRate": 0.1,
+      "tax": 3.2302062028069765,
+      "unrecoveredCostPool": 0.0,
+      "year": 13
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 6.12869006976366,
+      "contractorSplit": 0.3,
+      "costRecovered": 20.69273575249924,
+      "cumulativeNCF": 299.19572451581314,
+      "governmentTake": 28.597434377676247,
+      "grossRevenue": 55.418860199939154,
+      "opex": 20.69273575249924,
+      "profitOil": 29.184238427445997,
+      "rFactor": 3.092957641419931,
+      "royalty": 5.541886019993916,
+      "royaltyRate": 0.1,
+      "tax": 2.6265814584701395,
+      "unrecoveredCostPool": 0.0,
+      "year": 14
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 4.889247261392022,
+      "contractorSplit": 0.3,
+      "costRecovered": 20.60960746219933,
+      "cumulativeNCF": 304.08497177720517,
+      "governmentTake": 23.269742252355105,
+      "grossRevenue": 48.76859697594646,
+      "opex": 20.60960746219933,
+      "profitOil": 23.28212981615248,
+      "rFactor": 3.070801964464719,
+      "royalty": 4.8768596975946465,
+      "royaltyRate": 0.1,
+      "tax": 2.095391683453723,
+      "unrecoveredCostPool": 0.0,
+      "year": 15
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 3.798537590024978,
+      "contractorSplit": 0.3,
+      "costRecovered": 20.53645456673541,
+      "cumulativeNCF": 307.88350936723015,
+      "governmentTake": 18.581373182072493,
+      "grossRevenue": 42.91636533883288,
+      "opex": 20.53645456673541,
+      "profitOil": 18.088274238214186,
+      "rFactor": 3.0418751574434104,
+      "royalty": 4.291636533883288,
+      "royaltyRate": 0.1,
+      "tax": 1.6279446814392768,
+      "unrecoveredCostPool": 0.0,
+      "year": 16
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 2.838713079221982,
+      "contractorSplit": 0.3,
+      "costRecovered": 20.472080018727162,
+      "cumulativeNCF": 310.7222224464521,
+      "governmentTake": 14.455608400223792,
+      "grossRevenue": 37.76640149817294,
+      "opex": 20.472080018727162,
+      "profitOil": 13.51768132962848,
+      "rFactor": 3.007692930112296,
+      "royalty": 3.776640149817294,
+      "royaltyRate": 0.1,
+      "tax": 1.2165913196665632,
+      "unrecoveredCostPool": 0.0,
+      "year": 17
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 1.994067509715343,
+      "contractorSplit": 0.3,
+      "costRecovered": 20.415430416479904,
+      "cumulativeNCF": 312.7162899561675,
+      "governmentTake": 10.824935392196936,
+      "grossRevenue": 33.234433318392185,
+      "opex": 20.415430416479904,
+      "profitOil": 9.495559570073063,
+      "rFactor": 2.9694910699189134,
+      "royalty": 3.3234433318392185,
+      "royaltyRate": 0.1,
+      "tax": 0.8546003613065757,
+      "unrecoveredCostPool": 0.0,
+      "year": 18
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": 1.2507794085495014,
+      "contractorSplit": 0.3,
+      "costRecovered": 20.365578766502313,
+      "cumulativeNCF": 313.96706936471696,
+      "governmentTake": 7.629943145133307,
+      "grossRevenue": 29.246301320185122,
+      "opex": 20.365578766502313,
+      "profitOil": 5.956092421664298,
+      "rFactor": 2.9282773582453543,
+      "royalty": 2.924630132018512,
+      "royaltyRate": 0.1,
+      "tax": 0.5360483179497868,
+      "unrecoveredCostPool": 0.0,
+      "year": 19
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": -0.8184038309381059,
+      "contractorSplit": 0.3,
+      "costRecovered": 18.530456516469293,
+      "cumulativeNCF": 313.14866553377885,
+      "governmentTake": 6.2334396781789785,
+      "grossRevenue": 25.736745161762908,
+      "opex": 20.321709314522035,
+      "profitOil": 4.632614129117325,
+      "rFactor": 2.8848732941205655,
+      "royalty": 2.573674516176291,
+      "royaltyRate": 0.1,
+      "tax": 0.41693527162055927,
+      "unrecoveredCostPool": 1.7912527980527422,
+      "year": 20
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": -3.120195371225531,
+      "contractorSplit": 0.3,
+      "costRecovered": 16.30680173449298,
+      "cumulativeNCF": 310.02847016255333,
+      "governmentTake": 5.4854269167975,
+      "grossRevenue": 22.64833574235136,
+      "opex": 20.28310419677939,
+      "profitOil": 4.076700433623245,
+      "rFactor": 2.839947793326234,
+      "royalty": 2.264833574235136,
+      "royaltyRate": 0.1,
+      "tax": 0.366903039026092,
+      "unrecoveredCostPool": 5.767555260339154,
+      "year": 21
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": -5.145771926678469,
+      "contractorSplit": 0.3,
+      "costRecovered": 14.34998552635382,
+      "cumulativeNCF": 304.88269823587484,
+      "governmentTake": 4.827175686781798,
+      "grossRevenue": 19.930535453269194,
+      "opex": 20.249131693165864,
+      "profitOil": 3.587496381588455,
+      "rFactor": 2.7940445265572706,
+      "royalty": 1.9930535453269194,
+      "royaltyRate": 0.1,
+      "tax": 0.3228746743429609,
+      "unrecoveredCostPool": 11.6667014271512,
+      "year": 22
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": -6.928279295477054,
+      "contractorSplit": 0.3,
+      "costRecovered": 12.62798726319136,
+      "cumulativeNCF": 297.9544189403978,
+      "governmentTake": 4.247914604367983,
+      "grossRevenue": 17.53887119887689,
+      "opex": 20.21923588998596,
+      "profitOil": 3.156996815797841,
+      "rFactor": 2.7476041842321117,
+      "royalty": 1.753887119887689,
+      "royaltyRate": 0.1,
+      "tax": 0.2841297134218057,
+      "unrecoveredCostPool": 19.257950053945798,
+      "year": 23
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": -8.496885780019806,
+      "contractorSplit": 0.3,
+      "costRecovered": 11.1126287916084,
+      "cumulativeNCF": 289.457533160378,
+      "governmentTake": 3.7381648518438255,
+      "grossRevenue": 15.434206655011666,
+      "opex": 20.192927583187647,
+      "profitOil": 2.7781571979021003,
+      "rFactor": 2.7009826723068824,
+      "royalty": 1.5434206655011666,
+      "royaltyRate": 0.1,
+      "tax": 0.25003414781118904,
+      "unrecoveredCostPool": 28.338248845525044,
+      "year": 24
+     },
+     {
+      "capex": 0.0,
+      "contractorNCF": -9.87725948641743,
+      "contractorSplit": 0.3,
+      "costRecovered": 9.779113336615389,
+      "cumulativeNCF": 279.58027367396056,
+      "governmentTake": 3.2895850696225675,
+      "grossRevenue": 13.582101856410265,
+      "opex": 20.169776273205127,
+      "profitOil": 2.444778334153849,
+      "rFactor": 2.65446602814969,
+      "royalty": 1.3582101856410267,
+      "royaltyRate": 0.1,
+      "tax": 0.22003005007384638,
+      "unrecoveredCostPool": 38.728911782114785,
+      "year": 25
+     }
+    ],
+    "finalUnrecoveredPool": 38.728911782114785,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -13.02521457124495,
+     70.09400655964401
+    ],
+    "irrStatus": "multiple-roots",
+    "npv": 168.21903381986147,
+    "paybackYear": 2,
+    "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -13.02521457124495,
+     70.09400655964401
+    ],
+    "totalContractorNCF": 279.58027367396056,
+    "totalGovTake": 1174.9793387158684
+   },
+   "id": "tiers_unsorted_selected_by_threshold",
+   "note": "EC2-8: the Nigeria PIA tranches typed out of order (royalty 50 before 0, split 2.5, 1.0, 1.6) on the rfactor_tranche_crossing project. Selection is by threshold, so every row equals the sorted case; the retired list-order rule would take 7.5 percent royalty at $80 and a 40 split once R passes 2.5.",
+   "priceMultiplier": 1.0,
+   "project": {
+    "costs": {
+     "capex": {
+      "drilling": 350,
+      "facilities": 0,
+      "subsea": 0
+     },
+     "opex": {
+      "fixed": 20,
+      "variable": 1
+     }
+    },
+    "discountRate": 10,
+    "prices": [
+     {
+      "gas": 3,
+      "ngl": 45,
+      "oil": 80,
+      "year": 1
+     }
+    ],
+    "production": {
+     "gas": {
+      "decline": 0,
+      "initial": 0
+     },
+     "ngl": {
+      "decline": 0,
+      "initial": 0
+     },
+     "oil": {
+      "decline": 12,
+      "initial": 10000
+     }
+    }
+   },
+   "regime": {
+    "costRecoveryLimit": 80,
+    "id": "pia_unsorted",
+    "name": "PIA typed out of order",
+    "profitSplit": {
+     "tiers": [
+      {
+       "split": 30,
+       "threshold": 2.5
+      },
+      {
+       "split": 60,
+       "threshold": 1.0
+      },
+      {
+       "split": 40,
+       "threshold": 1.6
+      }
+     ],
+     "type": "tiered_r_factor"
+    },
+    "royalty": {
+     "tiers": [
+      {
+       "rate": 10,
+       "threshold": 50
+      },
+      {
+       "rate": 7.5,
+       "threshold": 0
+      }
+     ],
+     "type": "sliding_price"
+    },
+    "tax": {
+     "cit": 30,
+     "minTax": 0,
+     "rrt": 0
     }
    }
   },
@@ -11695,10 +12404,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 44.65741387873917,
+    "irr": 44.65741387873918,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 397.0444827478669,
     "paybackYear": 3,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     44.65741387873918
+    ],
     "totalContractorNCF": 986.7327121050287,
     "totalGovTake": 758.7514072406691
    },
@@ -12203,10 +12918,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 28.21293738436989,
+    "irr": 28.212937384369887,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 154.82856565106277,
     "paybackYear": 4,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     28.212937384369887
+    ],
     "totalContractorNCF": 406.2057406075906,
     "totalGovTake": 1339.278378738107
    },
@@ -12733,10 +13454,20 @@
      }
     ],
     "finalUnrecoveredPool": 130.3246342503865,
-    "irr": 69.57218119417364,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -12.103621176066712,
+     69.57218119417364
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 478.19852229932775,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -12.103621176066712,
+     69.57218119417364
+    ],
     "totalContractorNCF": 778.4844593517234,
     "totalGovTake": 3372.6496118493023
    },
@@ -13252,9 +13983,15 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 33.23293200041283,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 172.75305028685108,
     "paybackYear": 3,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     33.23293200041283
+    ],
     "totalContractorNCF": 428.87742067817226,
     "totalGovTake": 1316.6066986675255
    },
@@ -13772,10 +14509,20 @@
      }
     ],
     "finalUnrecoveredPool": 84.74126706220471,
-    "irr": 88.34177397790829,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -14.795573370397307,
+     88.34177397790829
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 531.9201059287163,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -14.795573370397307,
+     88.34177397790829
+    ],
     "totalContractorNCF": 899.0914669822467,
     "totalGovTake": 3252.0426042187787
    },
@@ -14281,10 +15028,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 43.0918686034416,
+    "irr": 43.091868603441604,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 357.872791645486,
     "paybackYear": 3,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     43.091868603441604
+    ],
     "totalContractorNCF": 912.1029152965218,
     "totalGovTake": 833.3812040491757
    },
@@ -14789,10 +15542,20 @@
      }
     ],
     "finalUnrecoveredPool": 72.70817018990559,
-    "irr": 107.28173706958934,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -20.41821592198257,
+     107.2817370695893
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 961.7819002390349,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -20.41821592198257,
+     107.2817370695893
+    ],
     "totalContractorNCF": 1812.4482647228622,
     "totalGovTake": 2338.6858064781636
    },
@@ -15285,10 +16048,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 40.21250985631485,
+    "irr": 40.21250985631484,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 382.06603200373354,
     "paybackYear": 3,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     40.21250985631484
+    ],
     "totalContractorNCF": 980.9312926362478,
     "totalGovTake": 764.5528267094498
    },
@@ -15793,10 +16562,20 @@
      }
     ],
     "finalUnrecoveredPool": 97.23305399517679,
-    "irr": 104.95450258440643,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -19.097022599341688,
+     104.95450258440644
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 1232.0557493428928,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -19.097022599341688,
+     104.95450258440644
+    ],
     "totalContractorNCF": 2221.9251493344,
     "totalGovTake": 1929.2089218666256
    },
@@ -16289,10 +17068,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 32.5073448680617,
+    "irr": 32.50734486806171,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 223.71004250881913,
     "paybackYear": 4,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     32.50734486806171
+    ],
     "totalContractorNCF": 545.1955476946534,
     "totalGovTake": 1200.288571651044
    },
@@ -16810,10 +17595,20 @@
      }
     ],
     "finalUnrecoveredPool": 251.65369831659177,
-    "irr": 64.8632226396163,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -11.0275057879622,
+     64.86322263961631
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 600.1883431192985,
     "paybackYear": 3,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -11.0275057879622,
+     64.86322263961631
+    ],
     "totalContractorNCF": 948.679629824872,
     "totalGovTake": 3202.454441376153
    },
@@ -17319,10 +18114,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 44.65741387873917,
+    "irr": 44.65741387873918,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 397.0444827478669,
     "paybackYear": 3,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     44.65741387873918
+    ],
     "totalContractorNCF": 986.7327121050287,
     "totalGovTake": 758.7514072406691
    },
@@ -17827,10 +18628,20 @@
      }
     ],
     "finalUnrecoveredPool": 79.39322400784954,
-    "irr": 124.57769866184282,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -20.406083721807093,
+     124.57769866184277
+    ],
+    "irrStatus": "multiple-roots",
     "npv": 1262.3469618918193,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     -20.406083721807093,
+     124.57769866184277
+    ],
     "totalContractorNCF": 2269.371428711953,
     "totalGovTake": 1881.7626424890727
    },
@@ -18773,7 +19584,7 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Concessionary (Royalty/Tax)\" delivers the highest contractor NPV at $274.4MM, with an IRR of 37.5%."
+      "text": "\"Concessionary (Royalty/Tax)\" delivers the highest contractor NPV at 274.4 million USD, with an IRR of 37.5%."
      },
      {
       "key": "payback",
@@ -18783,12 +19594,12 @@
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Nigerian PIA (PSC)\" collects the most, $1247.1MM against $1040.7MM for the next highest, \"Concessionary (Royalty/Tax)\"."
+      "text": "\"Nigerian PIA (PSC)\" collects the most, 1,247.1 million USD against 1,040.7 million USD for the next highest, \"Concessionary (Royalty/Tax)\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Nigerian PIA (PSC)\" gives up the least contractor NPV ($177.2MM) and \"Concessionary (Royalty/Tax)\" the most ($194.7MM)."
+      "text": "Over the swept capex range, \"Nigerian PIA (PSC)\" gives up the least contractor NPV (177.2 million USD) and \"Concessionary (Royalty/Tax)\" the most (194.7 million USD)."
      },
      {
       "key": "price",
@@ -18800,7 +19611,7 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Concessionary (Royalty/Tax)\" delivers the highest contractor NPV at $274.4MM, with an IRR of 37.5%."
+      "text": "\"Concessionary (Royalty/Tax)\" delivers the highest contractor NPV at 274.4 million USD, with an IRR of 37.5%."
      },
      {
       "key": "payback",
@@ -18810,12 +19621,12 @@
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Nigerian PIA (PSC)\" collects the most, $1247.1MM against $1040.7MM for the next highest, \"Concessionary (Royalty/Tax)\"."
+      "text": "\"Nigerian PIA (PSC)\" collects the most, 1,247.1 million USD against 1,040.7 million USD for the next highest, \"Concessionary (Royalty/Tax)\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Nigerian PIA (PSC)\" gives up the least contractor NPV ($149.0MM) and \"Concessionary (Royalty/Tax)\" the most ($164.9MM)."
+      "text": "Over the swept capex range, \"Nigerian PIA (PSC)\" gives up the least contractor NPV (149.0 million USD) and \"Concessionary (Royalty/Tax)\" the most (164.9 million USD)."
      },
      {
       "key": "price",
@@ -18956,7 +19767,10 @@
       "governmentTakePct": 59.620997277292844,
       "governmentTakeState": "share",
       "id": 2,
-      "irr": 37.45255063823749,
+      "irr": 37.452550638237504,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "ok",
       "name": "Concessionary (Royalty/Tax)",
       "npv": 274.366984253646,
       "paybackPeriod": 3,
@@ -18972,7 +19786,10 @@
       "governmentTakePct": 71.44710963595604,
       "governmentTakeState": "share",
       "id": 1,
-      "irr": 26.215277742936603,
+      "irr": 26.2152777429366,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "ok",
       "name": "Nigerian PIA (PSC)",
       "npv": 173.4149835907035,
       "paybackPeriod": 4,
@@ -21702,22 +22519,22 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Generic Royalty/Tax\" delivers the highest contractor NPV at $397.0MM, with an IRR of 44.7%."
+      "text": "\"Generic Royalty/Tax\" delivers the highest contractor NPV at 397.0 million USD, with an IRR of 44.7%."
      },
      {
       "key": "payback",
       "label": "Fastest capital recovery",
-      "text": "\"Generic Royalty/Tax\" pays back in year 3, against year 4 for \"Angola - Deepwater PSC\"."
+      "text": "\"Generic Royalty/Tax\", \"USA - Gulf of Mexico\", \"Brazil - Concession\" and \"Ghana - Deepwater\" pay back in year 3, against year 4 for \"Angola - Deepwater PSC\"."
      },
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Nigeria - PIA (2021)\" collects the most, $1339.3MM against $1316.6MM for the next highest, \"Ghana - Deepwater\"."
+      "text": "\"Nigeria - PIA (2021)\" collects the most, 1,339.3 million USD against 1,316.6 million USD for the next highest, \"Ghana - Deepwater\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Angola - Deepwater PSC\" gives up the least contractor NPV ($107.4MM) and \"USA - Gulf of Mexico\" the most ($267.7MM)."
+      "text": "Over the swept capex range, \"Angola - Deepwater PSC\" gives up the least contractor NPV (107.4 million USD) and \"USA - Gulf of Mexico\" the most (267.7 million USD)."
      },
      {
       "key": "price",
@@ -21729,22 +22546,22 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Generic Royalty/Tax\" delivers the highest contractor NPV at $397.0MM, with an IRR of 44.7%."
+      "text": "\"Generic Royalty/Tax\" delivers the highest contractor NPV at 397.0 million USD, with an IRR of 44.7%."
      },
      {
       "key": "payback",
       "label": "Fastest capital recovery",
-      "text": "\"Generic Royalty/Tax\" pays back in year 3, against year 4 for \"Angola - Deepwater PSC\"."
+      "text": "\"Generic Royalty/Tax\", \"USA - Gulf of Mexico\", \"Brazil - Concession\" and \"Ghana - Deepwater\" pay back in year 3, against year 4 for \"Angola - Deepwater PSC\"."
      },
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Nigeria - PIA (2021)\" collects the most, $1339.3MM against $1316.6MM for the next highest, \"Ghana - Deepwater\"."
+      "text": "\"Nigeria - PIA (2021)\" collects the most, 1,339.3 million USD against 1,316.6 million USD for the next highest, \"Ghana - Deepwater\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Angola - Deepwater PSC\" gives up the least contractor NPV ($84.9MM) and \"USA - Gulf of Mexico\" the most ($228.8MM)."
+      "text": "Over the swept capex range, \"Angola - Deepwater PSC\" gives up the least contractor NPV (84.9 million USD) and \"USA - Gulf of Mexico\" the most (228.8 million USD)."
      },
      {
       "key": "price",
@@ -22053,7 +22870,10 @@
       "governmentTakePct": 43.46939618820996,
       "governmentTakeState": "share",
       "id": "generic_royalty_tax",
-      "irr": 44.65741387873917,
+      "irr": 44.65741387873918,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "ok",
       "name": "Generic Royalty/Tax",
       "npv": 397.0444827478669,
       "paybackPeriod": 3,
@@ -22061,7 +22881,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 34.0484628736644,
+      "effectiveTaxRate": 34.04846287366439,
       "govTake": 764.5528267094498,
       "governmentShareOfNetRevenuePct": 34.04846287366439,
       "governmentTakeDiscountedPct": 49.509171334183904,
@@ -22069,7 +22889,10 @@
       "governmentTakePct": 43.80176354718402,
       "governmentTakeState": "share",
       "id": "usa___gulf_of_mexico",
-      "irr": 40.21250985631485,
+      "irr": 40.21250985631484,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "ok",
       "name": "USA - Gulf of Mexico",
       "npv": 382.06603200373354,
       "paybackPeriod": 3,
@@ -22077,7 +22900,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 37.113653882887895,
+      "effectiveTaxRate": 37.1136538828879,
       "govTake": 833.3812040491757,
       "governmentShareOfNetRevenuePct": 37.1136538828879,
       "governmentTakeDiscountedPct": 52.70635886585971,
@@ -22085,7 +22908,10 @@
       "governmentTakePct": 47.74498918738787,
       "governmentTakeState": "share",
       "id": "brazil___concession",
-      "irr": 43.0918686034416,
+      "irr": 43.091868603441604,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "ok",
       "name": "Brazil - Concession",
       "npv": 357.872791645486,
       "paybackPeriod": 3,
@@ -22101,7 +22927,10 @@
       "governmentTakePct": 68.76536763342067,
       "governmentTakeState": "share",
       "id": "angola___deepwater_psc",
-      "irr": 32.5073448680617,
+      "irr": 32.50734486806171,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "ok",
       "name": "Angola - Deepwater PSC",
       "npv": 223.71004250881913,
       "paybackPeriod": 4,
@@ -22109,7 +22938,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 58.63353418198148,
+      "effectiveTaxRate": 58.633534181981474,
       "govTake": 1316.6066986675255,
       "governmentShareOfNetRevenuePct": 58.633534181981474,
       "governmentTakeDiscountedPct": 77.17032153372568,
@@ -22118,6 +22947,9 @@
       "governmentTakeState": "share",
       "id": "ghana___deepwater",
       "irr": 33.23293200041283,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "ok",
       "name": "Ghana - Deepwater",
       "npv": 172.75305028685108,
       "paybackPeriod": 3,
@@ -22125,7 +22957,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 59.643190846896466,
+      "effectiveTaxRate": 59.64319084689647,
       "govTake": 1339.278378738107,
       "governmentShareOfNetRevenuePct": 59.64319084689647,
       "governmentTakeDiscountedPct": 79.53907982904515,
@@ -22133,7 +22965,10 @@
       "governmentTakePct": 76.72819041402344,
       "governmentTakeState": "share",
       "id": "nigeria___pia__2021",
-      "irr": 28.21293738436989,
+      "irr": 28.212937384369887,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "ok",
       "name": "Nigeria - PIA (2021)",
       "npv": 154.82856565106277,
       "paybackPeriod": 4,
@@ -24965,22 +25800,22 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Generic Royalty/Tax\" delivers the highest contractor NPV at $1262.3MM, with an IRR of 124.6%."
+      "text": "\"Generic Royalty/Tax\" delivers the highest contractor NPV at 1,262.3 million USD, with no single IRR because its NPV is zero at -20.4% and 124.6%."
      },
      {
       "key": "payback",
       "label": "Fastest capital recovery",
-      "text": "\"Generic Royalty/Tax\" pays back in year 2, against year 3 for \"Angola - Deepwater PSC\"."
+      "text": "\"Generic Royalty/Tax\", \"USA - Gulf of Mexico\", \"Brazil - Concession\", \"Ghana - Deepwater\" and \"Nigeria - PIA (2021)\" pay back in year 2, against year 3 for \"Angola - Deepwater PSC\"."
      },
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Nigeria - PIA (2021)\" collects the most, $3372.6MM against $3252.0MM for the next highest, \"Ghana - Deepwater\"."
+      "text": "\"Nigeria - PIA (2021)\" collects the most, 3,372.6 million USD against 3,252.0 million USD for the next highest, \"Ghana - Deepwater\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Angola - Deepwater PSC\" gives up the least contractor NPV ($21.6MM) and \"USA - Gulf of Mexico\" the most ($520.6MM)."
+      "text": "Over the swept capex range, \"Angola - Deepwater PSC\" gives up the least contractor NPV (21.6 million USD) and \"USA - Gulf of Mexico\" the most (520.6 million USD)."
      },
      {
       "key": "price",
@@ -24992,22 +25827,22 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Generic Royalty/Tax\" delivers the highest contractor NPV at $1262.3MM, with an IRR of 124.6%."
+      "text": "\"Generic Royalty/Tax\" delivers the highest contractor NPV at 1,262.3 million USD, with no single IRR because its NPV is zero at -20.4% and 124.6%."
      },
      {
       "key": "payback",
       "label": "Fastest capital recovery",
-      "text": "\"Generic Royalty/Tax\" pays back in year 2, against year 3 for \"Angola - Deepwater PSC\"."
+      "text": "\"Generic Royalty/Tax\", \"USA - Gulf of Mexico\", \"Brazil - Concession\", \"Ghana - Deepwater\" and \"Nigeria - PIA (2021)\" pay back in year 2, against year 3 for \"Angola - Deepwater PSC\"."
      },
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Nigeria - PIA (2021)\" collects the most, $3372.6MM against $3252.0MM for the next highest, \"Ghana - Deepwater\"."
+      "text": "\"Nigeria - PIA (2021)\" collects the most, 3,372.6 million USD against 3,252.0 million USD for the next highest, \"Ghana - Deepwater\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Angola - Deepwater PSC\" gives up the least contractor NPV ($-20.4MM) and \"USA - Gulf of Mexico\" the most ($445.5MM)."
+      "text": "Over the swept capex range, \"Angola - Deepwater PSC\" gives up the least contractor NPV (-20.4 million USD) and \"USA - Gulf of Mexico\" the most (445.5 million USD)."
      },
      {
       "key": "price",
@@ -25308,7 +26143,7 @@
     "summary": [
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 36.53103601029599,
+      "effectiveTaxRate": 36.531036010296006,
       "govTake": 1881.7626424890727,
       "governmentShareOfNetRevenuePct": 36.531036010296006,
       "governmentTakeDiscountedPct": 45.46445340099046,
@@ -25316,7 +26151,13 @@
       "governmentTakePct": 45.331290442870056,
       "governmentTakeState": "share",
       "id": "generic_royalty_tax",
-      "irr": 124.57769866184282,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": [
+       -20.406083721807093,
+       124.57769866184277
+      ],
+      "irrStatus": "multiple-roots",
       "name": "Generic Royalty/Tax",
       "npv": 1262.3469618918193,
       "paybackPeriod": 2,
@@ -25324,7 +26165,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 37.45212015840263,
+      "effectiveTaxRate": 37.45212015840262,
       "govTake": 1929.2089218666256,
       "governmentShareOfNetRevenuePct": 37.45212015840262,
       "governmentTakeDiscountedPct": 46.77308556264815,
@@ -25332,7 +26173,13 @@
       "governmentTakePct": 46.47426194327801,
       "governmentTakeState": "share",
       "id": "usa___gulf_of_mexico",
-      "irr": 104.95450258440643,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": [
+       -19.097022599341688,
+       104.95450258440644
+      ],
+      "irrStatus": "multiple-roots",
       "name": "USA - Gulf of Mexico",
       "npv": 1232.0557493428928,
       "paybackPeriod": 2,
@@ -25348,7 +26195,13 @@
       "governmentTakePct": 56.33847922915975,
       "governmentTakeState": "share",
       "id": "brazil___concession",
-      "irr": 107.28173706958934,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": [
+       -20.41821592198257,
+       107.2817370695893
+      ],
+      "irrStatus": "multiple-roots",
       "name": "Brazil - Concession",
       "npv": 961.7819002390349,
       "paybackPeriod": 2,
@@ -25356,7 +26209,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 62.169891078557725,
+      "effectiveTaxRate": 62.16989107855772,
       "govTake": 3202.454441376153,
       "governmentShareOfNetRevenuePct": 62.16989107855772,
       "governmentTakeDiscountedPct": 74.07083762033892,
@@ -25364,7 +26217,13 @@
       "governmentTakePct": 77.1464950648921,
       "governmentTakeState": "share",
       "id": "angola___deepwater_psc",
-      "irr": 64.8632226396163,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": [
+       -11.0275057879622,
+       64.86322263961631
+      ],
+      "irrStatus": "multiple-roots",
       "name": "Angola - Deepwater PSC",
       "npv": 600.1883431192985,
       "paybackPeriod": 3,
@@ -25380,7 +26239,13 @@
       "governmentTakePct": 78.34106411498972,
       "governmentTakeState": "share",
       "id": "ghana___deepwater",
-      "irr": 88.34177397790829,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": [
+       -14.795573370397307,
+       88.34177397790829
+      ],
+      "irrStatus": "multiple-roots",
       "name": "Ghana - Deepwater",
       "npv": 531.9201059287163,
       "paybackPeriod": 2,
@@ -25396,7 +26261,13 @@
       "governmentTakePct": 81.24646311106764,
       "governmentTakeState": "share",
       "id": "nigeria___pia__2021",
-      "irr": 69.57218119417364,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": [
+       -12.103621176066712,
+       69.57218119417364
+      ],
+      "irrStatus": "multiple-roots",
       "name": "Nigeria - PIA (2021)",
       "npv": 478.19852229932775,
       "paybackPeriod": 2,
@@ -26480,22 +27351,22 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Flat\" delivers the highest contractor NPV at $1262.3MM, with an IRR of 124.6%."
+      "text": "\"Flat\" delivers the highest contractor NPV at 1,262.3 million USD, with no single IRR because its NPV is zero at -20.4% and 124.6%."
      },
      {
       "key": "payback",
       "label": "Fastest capital recovery",
-      "text": "\"Flat\" pays back in year 2, against year 2 for \"Complex\"."
+      "text": "\"Flat\" and \"Complex\" both pay back in year 2."
      },
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Complex\" collects the most, $2934.0MM against $1881.8MM for the next highest, \"Flat\"."
+      "text": "\"Complex\" collects the most, 2,934.0 million USD against 1,881.8 million USD for the next highest, \"Flat\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Complex\" gives up the least contractor NPV ($160.1MM) and \"Flat\" the most ($468.7MM)."
+      "text": "Over the swept capex range, \"Complex\" gives up the least contractor NPV (160.1 million USD) and \"Flat\" the most (468.7 million USD)."
      },
      {
       "key": "price",
@@ -26507,22 +27378,22 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Flat\" delivers the highest contractor NPV at $1262.3MM, with an IRR of 124.6%."
+      "text": "\"Flat\" delivers the highest contractor NPV at 1,262.3 million USD, with no single IRR because its NPV is zero at -20.4% and 124.6%."
      },
      {
       "key": "payback",
       "label": "Fastest capital recovery",
-      "text": "\"Flat\" pays back in year 2, against year 2 for \"Complex\"."
+      "text": "\"Flat\" and \"Complex\" both pay back in year 2."
      },
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Complex\" collects the most, $2934.0MM against $1881.8MM for the next highest, \"Flat\"."
+      "text": "\"Complex\" collects the most, 2,934.0 million USD against 1,881.8 million USD for the next highest, \"Flat\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Complex\" gives up the least contractor NPV ($107.5MM) and \"Flat\" the most ($400.3MM)."
+      "text": "Over the swept capex range, \"Complex\" gives up the least contractor NPV (107.5 million USD) and \"Flat\" the most (400.3 million USD)."
      },
      {
       "key": "price",
@@ -26655,7 +27526,7 @@
     "summary": [
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 36.53103601029599,
+      "effectiveTaxRate": 36.531036010296006,
       "govTake": 1881.7626424890727,
       "governmentShareOfNetRevenuePct": 36.531036010296006,
       "governmentTakeDiscountedPct": 45.46445340099046,
@@ -26663,7 +27534,13 @@
       "governmentTakePct": 45.331290442870056,
       "governmentTakeState": "share",
       "id": "flat",
-      "irr": 124.57769866184282,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": [
+       -20.406083721807093,
+       124.57769866184277
+      ],
+      "irrStatus": "multiple-roots",
       "name": "Flat",
       "npv": 1262.3469618918193,
       "paybackPeriod": 2,
@@ -26671,7 +27548,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 56.958674323941594,
+      "effectiveTaxRate": 56.958674323941615,
       "govTake": 2934.0176796049864,
       "governmentShareOfNetRevenuePct": 56.958674323941615,
       "governmentTakeDiscountedPct": 69.35425510945039,
@@ -26679,7 +27556,13 @@
       "governmentTakePct": 70.67990648531627,
       "governmentTakeState": "share",
       "id": "complex",
-      "irr": 75.25650651103295,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": [
+       -14.049297062654816,
+       75.25650651103295
+      ],
+      "irrStatus": "multiple-roots",
       "name": "Complex",
       "npv": 709.3641738285916,
       "paybackPeriod": 2,
@@ -29407,7 +30290,7 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Brazil - Concession\" delivers the highest contractor NPV at $-15354.7MM, with an IRR of 0.0%."
+      "text": "\"Brazil - Concession\" delivers the highest contractor NPV at -15,354.7 million USD, with no IRR because no rate from -99 to 1000 percent brings its NPV to zero."
      },
      {
       "key": "payback",
@@ -29417,12 +30300,12 @@
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Angola - Deepwater PSC\" collects the most, $1662.8MM against $1431.0MM for the next highest, \"Nigeria - PIA (2021)\"."
+      "text": "\"Angola - Deepwater PSC\" collects the most, 1,662.8 million USD against 1,431.0 million USD for the next highest, \"Nigeria - PIA (2021)\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Ghana - Deepwater\" gives up the least contractor NPV ($12727.3MM) and \"Nigeria - PIA (2021)\" the most ($12727.3MM)."
+      "text": "No regime can be ranked on resilience to cost overrun: over the swept capex range \"Nigeria - PIA (2021)\", \"Ghana - Deepwater\", \"Brazil - Concession\", \"USA - Gulf of Mexico\", \"Angola - Deepwater PSC\" and \"Generic Royalty/Tax\" give up 12,727.3 million USD each of contractor NPV, within 0.1 million USD of each other."
      },
      {
       "key": "price",
@@ -29434,7 +30317,7 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Brazil - Concession\" delivers the highest contractor NPV at $-15354.7MM, with an IRR of 0.0%."
+      "text": "\"Brazil - Concession\" delivers the highest contractor NPV at -15,354.7 million USD, with no IRR because no rate from -99 to 1000 percent brings its NPV to zero."
      },
      {
       "key": "payback",
@@ -29444,12 +30327,12 @@
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Angola - Deepwater PSC\" collects the most, $1662.8MM against $1431.0MM for the next highest, \"Nigeria - PIA (2021)\"."
+      "text": "\"Angola - Deepwater PSC\" collects the most, 1,662.8 million USD against 1,431.0 million USD for the next highest, \"Nigeria - PIA (2021)\"."
      },
      {
       "key": "capex",
       "label": "Resilience to cost overrun",
-      "text": "Over the swept capex range, \"Brazil - Concession\" gives up the least contractor NPV ($10909.1MM) and \"Nigeria - PIA (2021)\" the most ($10909.1MM)."
+      "text": "No regime can be ranked on resilience to cost overrun: over the swept capex range \"Nigeria - PIA (2021)\", \"Ghana - Deepwater\", \"Brazil - Concession\", \"USA - Gulf of Mexico\", \"Angola - Deepwater PSC\" and \"Generic Royalty/Tax\" give up 10,909.1 million USD each of contractor NPV, within 0.1 million USD of each other."
      },
      {
       "key": "price",
@@ -29721,7 +30604,7 @@
     "summary": [
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 13.591558018847289,
+      "effectiveTaxRate": 13.591558018847284,
       "govTake": 700.1193759158975,
       "governmentShareOfNetRevenuePct": 13.591558018847284,
       "governmentTakeDiscountedPct": null,
@@ -29729,7 +30612,10 @@
       "governmentTakePct": null,
       "governmentTakeState": "undefined",
       "id": "brazil___concession",
-      "irr": 0.0,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "no-root",
       "name": "Brazil - Concession",
       "npv": -15354.681579577924,
       "paybackPeriod": null,
@@ -29737,7 +30623,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 13.832808173681821,
+      "effectiveTaxRate": 13.832808173681835,
       "govTake": 712.5464948384047,
       "governmentShareOfNetRevenuePct": 13.832808173681835,
       "governmentTakeDiscountedPct": null,
@@ -29745,7 +30631,10 @@
       "governmentTakePct": null,
       "governmentTakeState": "undefined",
       "id": "ghana___deepwater",
-      "irr": 0.0,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "no-root",
       "name": "Ghana - Deepwater",
       "npv": -15361.722605731946,
       "paybackPeriod": null,
@@ -29753,7 +30642,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 16.989447523559097,
+      "effectiveTaxRate": 16.98944752355912,
       "govTake": 875.1492198948719,
       "governmentShareOfNetRevenuePct": 16.98944752355912,
       "governmentTakeDiscountedPct": null,
@@ -29761,7 +30650,10 @@
       "governmentTakePct": null,
       "governmentTakeState": "undefined",
       "id": "generic_royalty_tax",
-      "irr": 0.0,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "no-root",
       "name": "Generic Royalty/Tax",
       "npv": -15453.850962028926,
       "paybackPeriod": null,
@@ -29769,7 +30661,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 25.484171285338647,
+      "effectiveTaxRate": 25.48417128533864,
       "govTake": 1312.7238298423076,
       "governmentShareOfNetRevenuePct": 25.48417128533864,
       "governmentTakeDiscountedPct": null,
@@ -29777,7 +30669,10 @@
       "governmentTakePct": null,
       "governmentTakeState": "undefined",
       "id": "usa___gulf_of_mexico",
-      "irr": 0.0,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "no-root",
       "name": "USA - Gulf of Mexico",
       "npv": -15701.774418156423,
       "paybackPeriod": null,
@@ -29785,7 +30680,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 27.781144590523848,
+      "effectiveTaxRate": 27.78114459052386,
       "govTake": 1431.0440043720944,
       "governmentShareOfNetRevenuePct": 27.78114459052386,
       "governmentTakeDiscountedPct": null,
@@ -29793,7 +30688,10 @@
       "governmentTakePct": null,
       "governmentTakeState": "undefined",
       "id": "nigeria___pia__2021",
-      "irr": 0.0,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "no-root",
       "name": "Nigeria - PIA (2021)",
       "npv": -15768.812920693303,
       "paybackPeriod": null,
@@ -29801,7 +30699,7 @@
      },
      {
       "discountRatePct": 10,
-      "effectiveTaxRate": 32.27995029476228,
+      "effectiveTaxRate": 32.279950294762294,
       "govTake": 1662.7835178002565,
       "governmentShareOfNetRevenuePct": 32.279950294762294,
       "governmentTakeDiscountedPct": null,
@@ -29809,7 +30707,10 @@
       "governmentTakePct": null,
       "governmentTakeState": "undefined",
       "id": "angola___deepwater_psc",
-      "irr": 0.0,
+      "irr": null,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "no-root",
       "name": "Angola - Deepwater PSC",
       "npv": -15900.113183058427,
       "paybackPeriod": null,
@@ -29818,7 +30719,7 @@
     ]
    },
    "id": "cmp_never_recovers",
-   "note": "Templates on a project with capex 20000: nothing pays back, every IRR 0, the payback insight says so.",
+   "note": "Templates on a project with capex 20000: nothing pays back and every IRR is null with status no-root; the payback insight says so.",
    "project": {
     "costs": {
      "capex": {
@@ -30459,7 +31360,7 @@
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Angola - Deepwater PSC\" delivers the highest contractor NPV at $-486.1MM, with an IRR of 1.1%."
+      "text": "\"Angola - Deepwater PSC\" delivers the highest contractor NPV at -486.1 million USD, with an IRR of 1.1%."
      },
      {
       "key": "payback",
@@ -30469,14 +31370,14 @@
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Angola - Deepwater PSC\" collects $638.1MM in total government cash flow."
+      "text": "\"Angola - Deepwater PSC\" collects 638.1 million USD in total government cash flow."
      }
     ],
     "insightsAsEngine": [
      {
       "key": "npv",
       "label": "Best for the contractor",
-      "text": "\"Angola - Deepwater PSC\" delivers the highest contractor NPV at $-486.1MM, with an IRR of 1.1%."
+      "text": "\"Angola - Deepwater PSC\" delivers the highest contractor NPV at -486.1 million USD, with an IRR of 1.1%."
      },
      {
       "key": "payback",
@@ -30486,7 +31387,7 @@
      {
       "key": "government",
       "label": "Best for the government",
-      "text": "\"Angola - Deepwater PSC\" collects $638.1MM in total government cash flow."
+      "text": "\"Angola - Deepwater PSC\" collects 638.1 million USD in total government cash flow."
      }
     ],
     "priceClimbs": [
@@ -30580,7 +31481,10 @@
       "governmentTakePct": 85.60146432520123,
       "governmentTakeState": "share",
       "id": "angola___deepwater_psc",
-      "irr": 1.0696658431198596,
+      "irr": 1.0696658431198613,
+      "irrRootAboveBand": false,
+      "irrRoots": null,
+      "irrStatus": "ok",
       "name": "Angola - Deepwater PSC",
       "npv": -486.1089640452175,
       "paybackPeriod": 18,
@@ -30680,7 +31584,7 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
@@ -30690,12 +31594,12 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -30790,7 +31694,7 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Beta\" delivers the highest contractor NPV at $300.0MM, with an IRR of 18.0%."
+     "text": "\"Beta\" delivers the highest contractor NPV at 300.0 million USD, with an IRR of 18.0%."
     },
     {
      "key": "payback",
@@ -30800,12 +31704,12 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -30900,7 +31804,7 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
@@ -30910,12 +31814,12 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -31010,7 +31914,7 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
@@ -31020,7 +31924,7 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Alpha\" collects $400.0MM in total government cash flow."
+     "text": "\"Alpha\" collects 400.0 million USD in total government cash flow."
     }
    ],
    "id": "insights_single_regime",
@@ -31081,22 +31985,22 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
      "label": "Fastest capital recovery",
-     "text": "\"Alpha\" pays back in year 4, against year 4 for \"Beta\"."
+     "text": "\"Alpha\" and \"Beta\" both pay back in year 4."
     },
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Alpha\" collects the most, $900.0MM against $900.0MM for the next highest, \"Beta\"."
+     "text": "\"Alpha\" collects the most, 900.0 million USD against 900.0 million USD for the next highest, \"Beta\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -31105,7 +32009,7 @@
     }
    ],
    "id": "insights_ties",
-   "note": "Ties on payback and government take: strict comparisons keep the FIRST of tied regimes.",
+   "note": "Ties on payback and government take. Payback names BOTH regimes at year 4 (EC2-10); the government verdict still keeps the first of the tied regimes.",
    "sensitivityData": {
     "capex": {
      "data": [
@@ -31191,7 +32095,285 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $0.3MM, with an IRR of 0.3%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Alpha\" and \"Beta\" pay back in year 4, against year 6 for \"Gamma\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 500.0 million USD for the next highest, \"Gamma\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_payback_tie_with_slower",
+   "note": "EC2-10: Alpha and Beta both pay back in year 4 and Gamma in year 6; both winners are named.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        1000.0,
+        900.0
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        1000.0,
+        970.0
+       ]
+      },
+      {
+       "regimeId": "c",
+       "values": [
+        1000.0,
+        940.0
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      },
+      {
+       "regimeId": "c",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        20,
+        22,
+        24
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 4
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    },
+    {
+     "effectiveTaxRate": 60,
+     "govTake": 500,
+     "id": "c",
+     "irr": 15,
+     "name": "Gamma",
+     "npv": 90,
+     "paybackPeriod": 6
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Alpha\" and \"Beta\" pay back in year 4. No other regime pays back within the project life."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 500.0 million USD for the next highest, \"Gamma\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_payback_tie_with_nonpayer",
+   "note": "EC2-10: Alpha and Beta tie at year 4 and Gamma never pays back.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        1000.0,
+        900.0
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        1000.0,
+        970.0
+       ]
+      },
+      {
+       "regimeId": "c",
+       "values": [
+        1000.0,
+        940.0
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      },
+      {
+       "regimeId": "c",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        20,
+        22,
+        24
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 4
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    },
+    {
+     "effectiveTaxRate": 60,
+     "govTake": 500,
+     "id": "c",
+     "irr": 15,
+     "name": "Gamma",
+     "npv": 90,
+     "paybackPeriod": null
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
@@ -31201,12 +32383,1071 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Alpha\" collects the most, $2.5MM against $1.1MM for the next highest, \"Beta\"."
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "No regime can be ranked on resilience to cost overrun: over the swept capex range \"Alpha\" and \"Beta\" give up 100.0 million USD each of contractor NPV, within 0.1 million USD of each other."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_capex_all_tied",
+   "note": "EC2-4: losses of 100 and 100.05 million USD are within 0.1 of each other, so no regime is ranked.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        1000.0,
+        900.0
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        1000.0,
+        899.95
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 500.0 million USD for the next highest, \"Gamma\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Alpha\" and \"Beta\" give up the least contractor NPV (50.0 million USD each); \"Gamma\" gives up the most (90.0 million USD). Regimes named together are within 0.1 million USD of each other, so they are not ranked."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_capex_least_end_tied",
+   "note": "EC2-4: Alpha 50 and Beta 50.04 tie at the least end and are named together; Gamma 90 is named alone at the most end.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        1000.0,
+        950.0
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        1000.0,
+        949.96
+       ]
+      },
+      {
+       "regimeId": "c",
+       "values": [
+        1000.0,
+        910.0
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      },
+      {
+       "regimeId": "c",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        20,
+        22,
+        24
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    },
+    {
+     "effectiveTaxRate": 60,
+     "govTake": 500,
+     "id": "c",
+     "irr": 15,
+     "name": "Gamma",
+     "npv": 90,
+     "paybackPeriod": 6
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Alpha\" gives up the least contractor NPV (50.0 million USD) and \"Beta\" the most (50.1 million USD)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_capex_one_step_ranks",
+   "note": "EC2-4: a lead of one printed step, 50 against 50.1, ranks (the lead in binary is 0.10000000000000142).",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        1000.0,
+        950.0
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        1000.0,
+        949.9
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 500.0 million USD for the next highest, \"Gamma\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "No regime can be ranked on resilience to cost overrun: over the swept capex range \"Alpha\", \"Beta\" and \"Gamma\" give up between 10.0 million USD and 10.1 million USD of contractor NPV, within 0.1 million USD of each other."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_capex_ends_meet",
+   "note": "EC2-4: 10, 10.06 and 10.12: the least end ties 10 with 10.06 and the most end ties 10.12 with 10.06; the ends share Beta, so nothing is ranked.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        1000.0,
+        990.0
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        1000.0,
+        989.94
+       ]
+      },
+      {
+       "regimeId": "c",
+       "values": [
+        1000.0,
+        989.88
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      },
+      {
+       "regimeId": "c",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        20,
+        22,
+        24
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": 22,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    },
+    {
+     "effectiveTaxRate": 60,
+     "govTake": 500,
+     "id": "c",
+     "irr": 15,
+     "name": "Gamma",
+     "npv": 90,
+     "paybackPeriod": 6
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with no IRR because its contractor cash flow never changes sign."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_irr_no_sign_change",
+   "note": "EC2-5: the contractor sentence states that no IRR exists.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": null,
+     "irrRoots": null,
+     "irrStatus": "no-sign-change",
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with no IRR because no rate from -99 to 1000 percent brings its NPV to zero."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_irr_no_root",
+   "note": "EC2-5: no root in the band.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": null,
+     "irrRoots": null,
+     "irrStatus": "no-root",
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR above 1000 percent."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_irr_above_clamp",
+   "note": "EC2-5: above the band.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": null,
+     "irrRoots": null,
+     "irrStatus": "above-clamp",
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with no single IRR because its NPV is zero at 10.0% and 20.0%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_irr_multiple_roots",
+   "note": "EC2-5: every root named.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": null,
+     "irrRoots": [
+      10.0,
+      20.0
+     ],
+     "irrStatus": "multiple-roots",
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with no IRR defined."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
+    },
+    {
+     "key": "price",
+     "label": "Response to higher prices",
+     "text": "\"Beta\" is the most progressive: its government take (undiscounted) rises 25.0 percentage points across the swept price range, so it captures upside fastest."
+    }
+   ],
+   "id": "insights_irr_null_without_status",
+   "note": "EC2-5: a null IRR with no status is not printed as n/a percent.",
+   "sensitivityData": {
+    "capex": {
+     "data": [
+      {
+       "regimeId": "a",
+       "values": [
+        200,
+        100
+       ]
+      },
+      {
+       "regimeId": "b",
+       "values": [
+        180,
+        150
+       ]
+      }
+     ],
+     "labels": [
+      "0.8",
+      "1.5"
+     ]
+    },
+    "price": {
+     "data": [
+      {
+       "regimeId": "a",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        30,
+        35,
+        40
+       ]
+      },
+      {
+       "regimeId": "b",
+       "states": [
+        "share",
+        "share",
+        "share"
+       ],
+       "values": [
+        35,
+        47,
+        60
+       ]
+      }
+     ],
+     "labels": [
+      40,
+      80,
+      120
+     ]
+    }
+   },
+   "summary": [
+    {
+     "effectiveTaxRate": 55,
+     "govTake": 400,
+     "id": "a",
+     "irr": null,
+     "name": "Alpha",
+     "npv": 150,
+     "paybackPeriod": 6
+    },
+    {
+     "effectiveTaxRate": 70,
+     "govTake": 900,
+     "id": "b",
+     "irr": 18,
+     "name": "Beta",
+     "npv": 120,
+     "paybackPeriod": 4
+    }
+   ]
+  },
+  {
+   "expected": [
+    {
+     "key": "npv",
+     "label": "Best for the contractor",
+     "text": "\"Alpha\" delivers the highest contractor NPV at 0.3 million USD, with an IRR of 0.3%."
+    },
+    {
+     "key": "payback",
+     "label": "Fastest capital recovery",
+     "text": "\"Beta\" pays back in year 4, against year 6 for \"Alpha\"."
+    },
+    {
+     "key": "government",
+     "label": "Best for the government",
+     "text": "\"Alpha\" collects the most, 2.5 million USD against 1.1 million USD for the next highest, \"Beta\"."
+    },
+    {
+     "key": "capex",
+     "label": "Resilience to cost overrun",
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -31366,7 +33607,7 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
@@ -31376,12 +33617,12 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -31471,7 +33712,7 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
@@ -31481,12 +33722,12 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -31581,7 +33822,7 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
@@ -31591,12 +33832,12 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -31696,7 +33937,7 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
@@ -31706,12 +33947,12 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -31806,7 +34047,7 @@
     {
      "key": "npv",
      "label": "Best for the contractor",
-     "text": "\"Alpha\" delivers the highest contractor NPV at $150.0MM, with an IRR of 22.0%."
+     "text": "\"Alpha\" delivers the highest contractor NPV at 150.0 million USD, with an IRR of 22.0%."
     },
     {
      "key": "payback",
@@ -31816,12 +34057,12 @@
     {
      "key": "government",
      "label": "Best for the government",
-     "text": "\"Beta\" collects the most, $900.0MM against $400.0MM for the next highest, \"Alpha\"."
+     "text": "\"Beta\" collects the most, 900.0 million USD against 400.0 million USD for the next highest, \"Alpha\"."
     },
     {
      "key": "capex",
      "label": "Resilience to cost overrun",
-     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV ($30.0MM) and \"Alpha\" the most ($100.0MM)."
+     "text": "Over the swept capex range, \"Beta\" gives up the least contractor NPV (30.0 million USD) and \"Alpha\" the most (100.0 million USD)."
     },
     {
      "key": "price",
@@ -31929,9 +34170,14 @@
      "year": 2
     }
    ],
-   "expected": 0.0,
-   "id": "irr_all_positive",
-   "note": "Suite test: no sign change, IRR 0.",
+   "expected": {
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "no-sign-change"
+   },
+   "id": "irr_all_positive_no_sign_change",
+   "note": "Suite test: no sign change, so no IRR exists: null with status no-sign-change (EC2-5; the retired rule printed 0).",
    "npvAt10": 25.6198347107438
   },
   {
@@ -31945,7 +34191,12 @@
      "year": 2
     }
    ],
-   "expected": 21.0,
+   "expected": {
+    "irr": 21.0,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok"
+   },
    "id": "irr_known_21pct_year_end",
    "note": "-100 then 121 at year-end discounting: (1 + r) = 1.21, IRR 21 percent.",
    "npvAt10": 9.09090909090908
@@ -31961,10 +34212,16 @@
      "year": 2
     }
    ],
-   "expected": 0.0,
-   "id": "irr_npv0_negative",
-   "note": "NPV at 0 percent is negative: the engine reports 0 rather than a negative rate.",
-   "npvAt10": -16.528925619834723
+   "expected": {
+    "irr": -10.00000000000001,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok"
+   },
+   "id": "irr_negative_root_reported",
+   "note": "-100 then 90: NPV at 0 percent is negative and the only root is 1 + r = 0.9, IRR -10 percent, inside the band, so it IS reported (EC2-5; the retired rule printed 0).",
+   "npvAt10": -16.528925619834723,
+   "trueIrr": -10.0
   },
   {
    "cashFlows": [
@@ -31977,15 +34234,38 @@
      "year": 2
     }
    ],
-   "engine": {
-    "disagreement": "bracket reported as the IRR",
-    "irr": 102400.0
+   "expected": {
+    "irr": null,
+    "irrRootAboveBand": true,
+    "irrRoots": null,
+    "irrStatus": "above-clamp"
    },
-   "expected": 102400.0,
-   "id": "irr_beyond_bracket",
-   "note": "-1 then 2000: the rate is 199900 percent, past the engine's 102400 percent bracket, so the engine reports the bracket. Both numbers pinned.",
+   "id": "irr_above_clamp_past_old_bracket",
+   "note": "-1 then 2000: the root is 199900 percent, above the 1000 percent band, so null with status above-clamp (EC2-5; the retired rule reported its 102400 percent bracket as the rate).",
    "npvAt10": 1651.9834710743798,
    "trueIrr": 199900.0
+  },
+  {
+   "cashFlows": [
+    {
+     "contractorNCF": -100,
+     "year": 1
+    },
+    {
+     "contractorNCF": 1500,
+     "year": 2
+    }
+   ],
+   "expected": {
+    "irr": null,
+    "irrRootAboveBand": true,
+    "irrRoots": null,
+    "irrStatus": "above-clamp"
+   },
+   "id": "irr_above_clamp_inside_old_bracket",
+   "note": "-100 then 1500: the root is 1400 percent, which the retired bisection reported as a rate; it is above the 1000 percent band, so null with status above-clamp.",
+   "npvAt10": 1148.7603305785121,
+   "trueIrr": 1400.0
   },
   {
    "cashFlows": [
@@ -32002,10 +34282,168 @@
      "year": 3
     }
    ],
-   "expected": 13.066238629180749,
+   "expected": {
+    "irr": 13.06623862918074,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok"
+   },
    "id": "irr_three_period",
    "note": "-1000, 600, 600: the year-end IRR solves 1000 x^2 = 600 x + 600, x = 1/(1+r).",
-   "npvAt10": 37.56574004507877
+   "npvAt10": 37.56574004507877,
+   "trueIrr": 13.066238629180749
+  },
+  {
+   "cashFlows": [
+    {
+     "contractorNCF": -100,
+     "year": 1
+    },
+    {
+     "contractorNCF": 0.5,
+     "year": 2
+    }
+   ],
+   "expected": {
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "no-root"
+   },
+   "id": "irr_no_root_below_band",
+   "note": "-100 then 0.5: the only root is 1 + r = 0.005, -99.5 percent, below the band; NPV is negative at both ends, so null with status no-root.",
+   "npvAt10": -90.49586776859503,
+   "trueIrr": -99.5
+  },
+  {
+   "cashFlows": [
+    {
+     "contractorNCF": -5,
+     "year": 1
+    },
+    {
+     "contractorNCF": 84,
+     "year": 2
+    },
+    {
+     "contractorNCF": -64,
+     "year": 3
+    }
+   ],
+   "expected": {
+    "irr": null,
+    "irrRootAboveBand": true,
+    "irrRoots": [
+     -20.0
+    ],
+    "irrStatus": "multiple-roots"
+   },
+   "id": "irr_root_above_band_with_one_inside",
+   "note": "-5, 84, -64: with x = 1/(1+r), 64 x^2 - 84 x + 5 = 0 gives roots at -20 and 1500 percent. One is inside the band and one above it: null, multiple-roots, irrRoots lists -20 only, irrRootAboveBand true.",
+   "npvAt10": 16.79188580015027,
+   "trueRoots": [
+    -20.0,
+    1500.0
+   ]
+  },
+  {
+   "cashFlows": [
+    {
+     "contractorNCF": -100,
+     "year": 1
+    },
+    {
+     "contractorNCF": 230,
+     "year": 2
+    },
+    {
+     "contractorNCF": -132,
+     "year": 3
+    }
+   ],
+   "expected": {
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     10.00000000000019,
+     19.99999999999989
+    ],
+    "irrStatus": "multiple-roots"
+   },
+   "id": "irr_multiple_roots_listed",
+   "note": "-100, 230, -132: with x = 1/(1+r), 132 x^2 - 230 x + 100 = 0 gives x = 240/264 and 220/264, roots 10 and 20 percent; null with status multiple-roots and both listed.",
+   "npvAt10": -1.4210854715202004e-14,
+   "trueRoots": [
+    10.0,
+    20.0
+   ]
+  }
+ ],
+ "moneyFormat": [
+  {
+   "expected": "1,339.3 million USD",
+   "id": "money_0",
+   "value": 1339.3
+  },
+  {
+   "expected": "1,339.3 million USD",
+   "id": "money_1",
+   "value": 1339.25
+  },
+  {
+   "expected": "1,000.0 million USD",
+   "id": "money_2",
+   "value": 999.95
+  },
+  {
+   "expected": "0.1 million USD",
+   "id": "money_3",
+   "value": 0.05
+  },
+  {
+   "expected": "0.0 million USD",
+   "id": "money_4",
+   "value": -0.04
+  },
+  {
+   "expected": "0.0 million USD",
+   "id": "money_5",
+   "value": 0
+  },
+  {
+   "expected": "-20.4 million USD",
+   "id": "money_6",
+   "value": -20.411827
+  },
+  {
+   "expected": "1,234,567.9 million USD",
+   "id": "money_7",
+   "value": 1234567.891
+  },
+  {
+   "expected": "10,909.1 million USD",
+   "id": "money_8",
+   "value": 10909.090909090908
+  },
+  {
+   "expected": "100,000.0 million USD",
+   "id": "money_9",
+   "value": 100000
+  },
+  {
+   "expected": "-1,234.6 million USD",
+   "id": "money_10",
+   "value": -1234.56
+  },
+  {
+   "expected": "12.3 million USD",
+   "id": "money_11",
+   "value": 12.34
+  },
+  {
+   "expected": "n/a",
+   "id": "money_12",
+   "value": null
   }
  ],
  "priceSweep": [
@@ -32440,10 +34878,20 @@
      }
     ],
     "finalUnrecoveredPool": 5.957813665580598,
-    "irr": 6.6994374268258285,
+    "irr": null,
+    "irrRootAboveBand": false,
+    "irrRoots": [
+     -40.1442059744519,
+     6.699437426825824
+    ],
+    "irrStatus": "multiple-roots",
     "npv": -51.16726892507048,
     "paybackYear": 9,
     "rFactorPayoutYear": 5,
+    "rootsToScan": [
+     -40.1442059744519,
+     6.699437426825824
+    ],
     "totalContractorNCF": 176.7787084012074,
     "totalGovTake": 481.927006585999
    },
@@ -32966,10 +35414,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.7642350313303865,
-    "irr": 12.608128837716217,
+    "irr": 12.60812883771621,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 34.92708577375093,
     "paybackYear": 6,
     "rFactorPayoutYear": 4,
+    "rootsToScan": [
+     12.60812883771621
+    ],
     "totalContractorNCF": 288.40689236226615,
     "totalGovTake": 732.5582907444375
    },
@@ -33492,10 +35946,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 19.02018538479306,
+    "irr": 19.020185384793052,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 107.7526249224264,
     "paybackYear": 5,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     19.020185384793052
+    ],
     "totalContractorNCF": 397.2743181401823,
     "totalGovTake": 985.9503330860183
    },
@@ -34018,10 +36478,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 26.215277742936603,
+    "irr": 26.2152777429366,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 173.4149835907035,
     "paybackYear": 4,
     "rFactorPayoutYear": 3,
+    "rootsToScan": [
+     26.2152777429366
+    ],
     "totalContractorNCF": 498.38616691857504,
     "totalGovTake": 1247.0979524271227
    },
@@ -34544,10 +37010,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 32.74099315782731,
+    "irr": 32.74099315782729,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 226.79993422956818,
     "paybackYear": 4,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     32.74099315782729
+    ],
     "totalContractorNCF": 592.5343804191987,
     "totalGovTake": 1515.209207045996
    },
@@ -35070,10 +37542,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 41.58695964395997,
+    "irr": 41.58695964395999,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 286.5859019365813,
     "paybackYear": 3,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     41.58695964395999
+    ],
     "totalContractorNCF": 697.0945792139191,
     "totalGovTake": 1772.9084763707729
    },
@@ -35596,10 +38074,16 @@
      }
     ],
     "finalUnrecoveredPool": 0.0,
-    "irr": 52.42177902947388,
+    "irr": 52.42177902947385,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 347.4936683212892,
     "paybackYear": 3,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     52.42177902947385
+    ],
     "totalContractorNCF": 804.6218929469069,
     "totalGovTake": 2027.640630757282
    },
@@ -36123,9 +38607,15 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 64.89685042933088,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 404.9801120923499,
     "paybackYear": 3,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     64.89685042933088
+    ],
     "totalContractorNCF": 908.9573879931755,
     "totalGovTake": 2285.5646038305104
    },
@@ -36649,9 +39139,15 @@
     ],
     "finalUnrecoveredPool": 0.0,
     "irr": 78.25219249440077,
+    "irrRootAboveBand": false,
+    "irrRoots": null,
+    "irrStatus": "ok",
     "npv": 452.51050838949885,
     "paybackYear": 2,
     "rFactorPayoutYear": 2,
+    "rootsToScan": [
+     78.25219249440077
+    ],
     "totalContractorNCF": 1000.3404802105949,
     "totalGovTake": 2556.440979732588
    },
@@ -36740,6 +39236,182 @@
      "cit": 30,
      "minTax": 2,
      "rrt": 20
+    }
+   }
+  }
+ ],
+ "tierRefusals": [
+  {
+   "id": "tiers_duplicate_royalty_threshold",
+   "note": "Two royalty tiers at 50 USD per bbl: refused.",
+   "project": {
+    "costs": {
+     "capex": {
+      "drilling": 400,
+      "facilities": 500,
+      "subsea": 100
+     },
+     "opex": {
+      "fixed": 60,
+      "variable": 4
+     }
+    },
+    "discountRate": 10,
+    "prices": [
+     {
+      "gas": 3,
+      "ngl": 45,
+      "oil": 80,
+      "year": 1
+     }
+    ],
+    "production": {
+     "gas": {
+      "decline": 0,
+      "initial": 0
+     },
+     "ngl": {
+      "decline": 0,
+      "initial": 0
+     },
+     "oil": {
+      "decline": 12,
+      "initial": 30000
+     }
+    }
+   },
+   "refused": {
+    "regime": "Duplicate royalty",
+    "table": "royalty",
+    "threshold": 50
+   },
+   "regime": {
+    "costRecoveryLimit": 80,
+    "id": "dup_roy",
+    "name": "Duplicate royalty",
+    "profitSplit": {
+     "tiers": [
+      {
+       "split": 60,
+       "threshold": 1.0
+      },
+      {
+       "split": 40,
+       "threshold": 1.6
+      },
+      {
+       "split": 30,
+       "threshold": 2.5
+      }
+     ],
+     "type": "tiered_r_factor"
+    },
+    "royalty": {
+     "tiers": [
+      {
+       "rate": 7.5,
+       "threshold": 0
+      },
+      {
+       "rate": 10,
+       "threshold": 50
+      },
+      {
+       "rate": 12,
+       "threshold": 50
+      }
+     ],
+     "type": "sliding_price"
+    },
+    "tax": {
+     "cit": 30,
+     "minTax": 0,
+     "rrt": 0
+    }
+   }
+  },
+  {
+   "id": "tiers_duplicate_split_threshold",
+   "note": "Two profit split tiers at R factor 1.6, typed apart: refused.",
+   "project": {
+    "costs": {
+     "capex": {
+      "drilling": 400,
+      "facilities": 500,
+      "subsea": 100
+     },
+     "opex": {
+      "fixed": 60,
+      "variable": 4
+     }
+    },
+    "discountRate": 10,
+    "prices": [
+     {
+      "gas": 3,
+      "ngl": 45,
+      "oil": 80,
+      "year": 1
+     }
+    ],
+    "production": {
+     "gas": {
+      "decline": 0,
+      "initial": 0
+     },
+     "ngl": {
+      "decline": 0,
+      "initial": 0
+     },
+     "oil": {
+      "decline": 12,
+      "initial": 30000
+     }
+    }
+   },
+   "refused": {
+    "regime": "Duplicate split",
+    "table": "profit split",
+    "threshold": 1.6
+   },
+   "regime": {
+    "costRecoveryLimit": 80,
+    "id": "dup_split",
+    "name": "Duplicate split",
+    "profitSplit": {
+     "tiers": [
+      {
+       "split": 40,
+       "threshold": 1.6
+      },
+      {
+       "split": 60,
+       "threshold": 1.0
+      },
+      {
+       "split": 30,
+       "threshold": 1.6
+      }
+     ],
+     "type": "tiered_r_factor"
+    },
+    "royalty": {
+     "tiers": [
+      {
+       "rate": 7.5,
+       "threshold": 0
+      },
+      {
+       "rate": 10,
+       "threshold": 50
+      }
+     ],
+     "type": "sliding_price"
+    },
+    "tax": {
+     "cit": 30,
+     "minTax": 0,
+     "rrt": 0
     }
    }
   }

@@ -57,8 +57,9 @@ JavaScript. The statement, in the engine's own words and units:
                 first two years, gas at 3.5 $/mscf and zero volume, and
                 variable opex at opexPerBbl dollars a barrel.
   portfolio     sums of NPV and capex, risked NPV as NPV times chance of
-                success, capital efficiency as NPV over capex, and the
-                plain average IRR.
+                success (a missing chance is 1; a stated chance is used as
+                stated, so 0 counts nothing, EC1-10), capital efficiency as
+                NPV over capex, and the plain average IRR.
   Monte Carlo   EC3-7 (owner decision 2026-09-15): ONE uniform factor
                 1 + range * (2u - 1) per uncertain variable per iteration,
                 drawn in the order reserves, price, capex (a falsy range
@@ -150,15 +151,26 @@ def engine_irr(ncf, roots):
     which of the other things happened.
     """
     if not (any(c < 0 for c in ncf) and any(c > 0 for c in ncf)):
-        return None, 'no-sign-change'
+        return None, 'no-sign-change', False
     in_band = [x for x in roots if IRR_BAND_LOW_PCT < x < IRR_BAND_HIGH_PCT]
-    if len(in_band) == 1:
-        return in_band[0], 'ok'
-    if len(in_band) > 1:
-        return None, 'multiple-roots'
-    if mid_year_npv(ncf, IRR_BAND_HIGH_PCT / 100.0) > 0:
-        return None, 'above-clamp'
-    return None, 'no-root'
+    above = root_above_band(ncf)
+    if len(in_band) == 1 and not above:
+        return in_band[0], 'ok', False
+    if in_band:
+        return None, 'multiple-roots', above
+    if above:
+        return None, 'above-clamp', True
+    return None, 'no-root', False
+
+
+def root_above_band(ncf):
+    """Lead decision 2026-09-15: a root lies above the band when the NPV at
+    1000 percent and the NPV as the rate grows without bound have different
+    signs. The limit takes the sign of the earliest non-zero flow, since every
+    later term carries a higher power of 1 / (1 + r)."""
+    first = next(c for c in ncf if c != 0)
+    top = mid_year_npv(ncf, IRR_BAND_HIGH_PCT / 100.0)
+    return top != 0 and (top > 0) != (first > 0)
 
 
 def irr_roots_pct(ncf):
@@ -283,13 +295,14 @@ def run(inp):
     ncf = [row['ncf'] for row in rows]
     cum_arr = [row['cumulativeNCF'] for row in rows]
     roots = irr_roots_pct(ncf)
-    reported_irr, irr_status = engine_irr(ncf, roots)
+    reported_irr, irr_status, above_band = engine_irr(ncf, roots)
     payback, payback_last, payback_status = payback_years(cum_arr, ncf)
     metrics = {
         'npv': mid_year_npv(ncf, r),
         'irr': reported_irr,
         'irrStatus': irr_status,
         'irrRoots': roots,
+        'irrRootAboveBand': above_band,
         'payback': payback, 'paybackLast': payback_last, 'paybackStatus': payback_status,
         'maxExposure': min(cum_arr) if cum_arr else None,
         'totalRevenue': tot['rev'], 'totalCapex': tot['capex'], 'totalOpex': tot['opex'],
@@ -676,6 +689,10 @@ def build():
         ncf_case('irr_beyond_clamp', 'ncf [-1, 100]: the mid-year IRR is 9900 percent. The engine clamps Newton at '
                  '1000 percent and reports the clamp. DISAGREEMENT (bound), recorded in FINDINGS-fiscal.md.',
                  [-1, 100]),
+        ncf_case('irr_root_above_band_with_one_inside', 'ncf [-5, 84, -64]: with x = 1/(1+r), 64 x^2 - 84 x + 5 = 0 (mid-year scales every term by '
+                 'the same (1 + r)^-0.5) gives roots at -20 and 1500 percent. One root is inside the band and one above it, so neither is THE '
+                 'return: irr null, multiple-roots, irrRoots lists -20 only (the in-band root), irrRootAboveBand true.',
+                 [-5, 84, -64]),
     ]
 
     # ---- payback ----
@@ -793,13 +810,12 @@ def build():
         {'id': 'portfolio_empty', 'note': 'No projects: everything 0, avgIRR divides by 1 not 0.', 'projects': []},
         {'id': 'portfolio_zero_capex', 'note': 'Zero total capex: capital efficiency 0 rather than a division by zero.',
          'projects': [{'npv': 10, 'irr': 12}, {'npv': 5, 'irr': 9}]},
-        {'id': 'portfolio_zero_chance', 'note': 'A project with chanceOfSuccess 0: risked NPV must be 0. The engine\'s `|| 1.0` fallback reads a '
-         'zero chance as certain and counts the full NPV. DISAGREEMENT, recorded in FINDINGS-fiscal.md.',
+        {'id': 'portfolio_zero_chance', 'note': 'A project with chanceOfSuccess 0 contributes nothing to risked NPV: 0 x 100 + 0.5 x 40 = 20. '
+         'A missing chance means certainty; a present chance is used as stated (EC1-10, FIXED 2026-09-15; the retired `|| 1.0` read 0 as certain and gave 120).',
          'projects': [{'npv': 100, 'capex': 50, 'irr': 15, 'chanceOfSuccess': 0}, {'npv': 40, 'capex': 50, 'irr': 10, 'chanceOfSuccess': 0.5}]},
     ]
     for c in G['portfolio']:
         c['expected'] = portfolio(c['projects'])
-    G['portfolio'][3]['engine'] = {'totalRiskedNPV': 120.0, 'disagreement': 'chanceOfSuccess 0 is read as 1.0 by `|| 1.0`'}
 
     # ---- Monte Carlo, seeded stand-in for Math.random ----
     mc_base = base_inputs(projectLife=5, production={'oil': base_oil(12, 5), 'gas': [0.0] + decline_profile(10000, 5, 4)},

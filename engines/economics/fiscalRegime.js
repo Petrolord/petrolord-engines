@@ -24,8 +24,9 @@
 // single source of truth. Where this model and the canonical engines
 // overlap, they must agree, and that is now gated by tests.
 //
-// D1 (docs/scope/Economics-ROADMAP.md): IRR is a robust bisection solver
-// (no artificial cap), the tax base is the contractor profit share (costs
+// D1 (docs/scope/Economics-ROADMAP.md): IRR was a bisection solver (since
+// EC2-5, 2026-09-15, it follows the screening engine's contract in
+// ./irrContract.js, see calculateIRRResult), the tax base is the contractor profit share (costs
 // are compensated via cost recovery; the old opex/2 halving is gone), and
 // the RRT capital uplift is a regime parameter (tax.rrtUpliftPct, default
 // 20).
@@ -56,6 +57,9 @@
 // (1 + r)^0.5. That relation is gated by a test rather than left as a
 // surprise.
 
+import { formatMillionUSD } from './fiscalConventions.js';
+import { solveIrrInBand, IRR_BAND_LOWER_PCT, IRR_BAND_UPPER_PCT, IRR_STATUSES } from './irrContract.js';
+
 const PROJECT_LIFE = 25; // years
 
 const generateProductionProfile = (initial, decline) => {
@@ -81,30 +85,55 @@ const getPriceForYear = (year, prices) => {
     return applicablePrice;
 };
 
-const getSlidingScaleRoyalty = (oilPrice, royaltyInfo) => {
+/**
+ * A tier table in threshold order (EC2-8, owner decision 2026-09-15).
+ *
+ * Tiers used to be selected as the LAST tier in list order whose threshold was
+ * reached, which is "the highest threshold reached" only when the list happens
+ * to be sorted. An unsorted table silently picked the wrong royalty rate or
+ * profit split, and a price or R factor below every threshold took whichever
+ * tier was typed first. A sorted copy is now selected from: the highest
+ * threshold reached, or the lowest-threshold tier below every threshold. Two
+ * tiers at one threshold cannot both apply, so a table with a repeated
+ * threshold is refused, naming the regime and the table.
+ *
+ * @param {object} regime the regime, for its name in the refusal
+ * @param {'royalty'|'profit split'} tableName
+ * @param {{threshold: number}[]} tiers
+ */
+export const orderedTierTable = (regime, tableName, tiers) => {
+    const sorted = [...tiers].sort((a, b) => a.threshold - b.threshold);
+    for (let i = 1; i < sorted.length; i++) {
+        if (sorted[i].threshold === sorted[i - 1].threshold) {
+            const who = regime?.name ?? regime?.id ?? '(unnamed)';
+            throw new RangeError(
+                `Fiscal regime "${who}": the ${tableName} tier table has more than one tier at threshold ${sorted[i].threshold}. Each threshold can appear once.`,
+            );
+        }
+    }
+    return sorted;
+};
+
+const tierReached = (x, sortedTiers) => {
+    let chosen = sortedTiers[0];
+    for (const tier of sortedTiers) {
+        if (x >= tier.threshold) chosen = tier;
+    }
+    return chosen;
+};
+
+const getSlidingScaleRoyalty = (oilPrice, royaltyInfo, sortedTiers) => {
     if (royaltyInfo.type === 'flat') {
         return royaltyInfo.rate / 100;
     }
-    let rate = royaltyInfo.tiers[0].rate;
-    for (const tier of royaltyInfo.tiers) {
-        if (oilPrice >= tier.threshold) {
-            rate = tier.rate;
-        }
-    }
-    return rate / 100;
+    return tierReached(oilPrice, sortedTiers).rate / 100;
 };
 
-const getTieredSplit = (rFactor, splitInfo) => {
+const getTieredSplit = (rFactor, splitInfo, sortedTiers) => {
     if (splitInfo.type === 'flat') {
         return splitInfo.split / 100;
     }
-    let split = splitInfo.tiers[0].split;
-    for (const tier of splitInfo.tiers) {
-        if (rFactor >= tier.threshold) {
-            split = tier.split;
-        }
-    }
-    return split / 100;
+    return tierReached(rFactor, sortedTiers).split / 100;
 };
 
 export const calculateNPV = (cashFlows, discountRate) => {
@@ -113,30 +142,31 @@ export const calculateNPV = (cashFlows, discountRate) => {
     }, 0);
 };
 
-// Robust IRR by bisection on the NPV(r) sign change. Returns 0 when the
-// cash flow never changes sign (no IRR exists) or when NPV(0) < 0 and no
-// positive root exists in the searched range. No artificial rate cap.
-export const calculateIRR = (cashFlows) => {
-    const hasNeg = cashFlows.some(cf => cf.contractorNCF < 0);
-    const hasPos = cashFlows.some(cf => cf.contractorNCF > 0);
-    if (!hasNeg || !hasPos) return 0;
+/**
+ * IRR under the screening engine's contract (EC2-5, owner decision
+ * 2026-09-15; the contract is ./irrContract.js, shared with screening.js).
+ *
+ * The bisection this replaces returned 0 for a cash flow that never changes
+ * sign AND for one whose only root is negative, so "0.0%" meant two different
+ * things and neither of them was a rate, and it reported its 102400 percent
+ * search bracket as the IRR when the root was beyond it. A rate is now
+ * reported only when it is a verified root strictly inside -99 to 1000
+ * percent (a negative root inside the band IS reported); otherwise `irr` is
+ * null and `irrStatus` is 'no-sign-change', 'no-root', 'above-clamp' or
+ * 'multiple-roots', with every root listed in `irrRoots` for the last.
+ *
+ * Discounting stays YEAR-END: each row is discounted at its own `year`, the
+ * convention of calculateNPV here (the screening engine is mid-year).
+ *
+ * @returns {{irr: number|null, irrStatus: string, irrRoots: number[]|null}}
+ */
+export const calculateIRRResult = (cashFlows) => solveIrrInBand(
+    cashFlows.map((cf) => cf.contractorNCF),
+    cashFlows.map((cf) => cf.year),
+);
 
-    const npvAt = (ratePct) => calculateNPV(cashFlows, ratePct);
-    if (npvAt(0) <= 0) return 0;
-
-    // Bracket the root: NPV(0) > 0, find an upper rate where NPV < 0.
-    let lo = 0;
-    let hi = 100; // 100%
-    for (let i = 0; i < 10 && npvAt(hi) > 0; i++) hi *= 2;
-    if (npvAt(hi) > 0) return hi; // beyond search range; report the bound
-
-    for (let i = 0; i < 80; i++) {
-        const mid = (lo + hi) / 2;
-        if (npvAt(mid) > 0) lo = mid;
-        else hi = mid;
-    }
-    return (lo + hi) / 2;
-};
+/** The IRR in percent, or null when calculateIRRResult reports no rate. */
+export const calculateIRR = (cashFlows) => calculateIRRResult(cashFlows).irr;
 
 
 export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1, priceMultiplier = 1) => {
@@ -145,6 +175,8 @@ export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1,
     const nglProd = generateProductionProfile(project.production.ngl.initial, project.production.ngl.decline);
 
     const totalCapex = (project.costs.capex.drilling + project.costs.capex.facilities + project.costs.capex.subsea) * capexMultiplier;
+    const royaltyTiers = regime.royalty.type === 'flat' ? null : orderedTierTable(regime, 'royalty', regime.royalty.tiers);
+    const splitTiers = regime.profitSplit.type === 'flat' ? null : orderedTierTable(regime, 'profit split', regime.profitSplit.tiers);
     // Unrecovered cost carried forward. Costs enter the pool in the year
     // they are incurred (capex AND opex), matching applyPSC.
     let cumulativeCostPool = 0;
@@ -175,7 +207,7 @@ export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1,
         const capex = (year === 1) ? totalCapex : 0;
         cumulativeCosts += capex + opex;
 
-        const royaltyRate = getSlidingScaleRoyalty(price.oil, regime.royalty);
+        const royaltyRate = getSlidingScaleRoyalty(price.oil, regime.royalty, royaltyTiers);
         const royalty = grossRevenue * royaltyRate;
         
         const revenueAfterRoyalty = grossRevenue - royalty;
@@ -188,7 +220,7 @@ export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1,
         const profitOil = Math.max(0, revenueAfterRoyalty - costRecovered);
         
         const rFactor = cumulativeCosts > 0 ? cumulativeRevenue / cumulativeCosts : 0;
-        const contractorProfitSplit = getTieredSplit(rFactor, regime.profitSplit);
+        const contractorProfitSplit = getTieredSplit(rFactor, regime.profitSplit, splitTiers);
         
         const contractorProfitShare = profitOil * contractorProfitSplit;
         const governmentProfitShare = profitOil * (1 - contractorProfitSplit);
@@ -283,8 +315,9 @@ export const classifyGovernmentShare = (govTake, contractorNCF) => {
  * Revenue less opex less capex is government cash flow plus contractor net
  * cash flow (the ledger identity), so neither needs revenue or opex directly.
  * No computation is new: undiscounted, government take is the price sweep's
- * ratio at the deck's own prices, and government share of net revenue is the
- * summary's legacy `effectiveTaxRate` without its zero fallback. With a
+ * ratio at the deck's own prices, and government share of net revenue is what
+ * the summary's legacy `effectiveTaxRate` computed before its zero fallback
+ * was retired (EC2-2: that key is now a deprecated alias of this one). With a
  * discount rate every year is discounted at year end first, the same
  * convention as calculateNPV.
  *
@@ -379,15 +412,45 @@ const joinNames = (names) => (names.length <= 1
     ? names.join('')
     : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`);
 
+/**
+ * The one tie rule every ranked verdict uses (EC2-1 for price, EC2-4 for
+ * capex, owner decisions 2026-09-14 and 2026-09-15).
+ *
+ * A leader is named only when it leads the next item by at least `minSpread`
+ * (strictly greater or smaller, by `direction`). Otherwise the verdict does
+ * not rank, and `tied` holds every item within `minSpread` of the leader, the
+ * leader first, in input order. The first of equal items leads, as the strict
+ * reduce always chose, so a clear winner is unchanged.
+ *
+ * @param {object[]} items at least two
+ * @param {string} key the ranked quantity
+ * @param {number} minSpread the smallest lead that ranks
+ * @param {'max'|'min'} direction
+ * @returns {{leader: object, next: object, ranked: boolean, tied: object[]}}
+ */
+export const leadOrTie = (items, key, minSpread, direction = 'max') => {
+    const better = (a, b) => (direction === 'max' ? b[key] > a[key] : b[key] < a[key]);
+    const leader = items.reduce((a, b) => (better(a, b) ? b : a));
+    const rest = items.filter((x) => x !== leader);
+    const next = rest.reduce((a, b) => (better(a, b) ? b : a));
+    const lead = direction === 'max' ? leader[key] - next[key] : next[key] - leader[key];
+    const ranked = lead >= minSpread;
+    const tied = ranked
+        ? [leader]
+        : [leader, ...rest.filter((x) => Math.abs(x[key] - leader[key]) < minSpread)];
+    return { leader, next, ranked, tied };
+};
+
+/** The capex verdict's smallest rankable lead: one printed step, 0.1 million USD. */
+export const CAPEX_RESILIENCE_MIN_SPREAD_MM = 0.1;
+
 const rankPriceResponse = (series, labels, fmt) => {
     const count = Math.min(labels.length, ...series.map((s) => s.values.length));
     const win = commonShareWindow(series, count);
     if (win && win.length >= PROGRESSIVITY_MIN_POINTS) {
         const climbs = series.map((s) => ({ name: s.name, climb: s.values[win.end] - s.values[win.start] }));
-        const steepest = climbs.reduce((a, b) => (b.climb > a.climb ? b : a));
-        const rest = climbs.filter((c) => c !== steepest);
-        const next = rest.reduce((a, b) => (b.climb > a.climb ? b : a));
-        if (steepest.climb - next.climb >= PROGRESSIVITY_MIN_SPREAD_PCT_POINTS) {
+        const { leader: steepest, next, ranked } = leadOrTie(climbs, 'climb', PROGRESSIVITY_MIN_SPREAD_PCT_POINTS, 'max');
+        if (ranked) {
             const range = win.start === 0 && win.end === count - 1
                 ? 'across the swept price range'
                 : `between ${labels[win.start]} and ${labels[win.end]} USD per bbl, the prices at which every regime's government take is within 0 to 100 percent`;
@@ -438,29 +501,38 @@ export const deriveInsights = (summary, sensitivityData) => {
     if (!summary?.length) return out;
 
     const fmt = (v, d = 1) => (Number.isFinite(v) ? v.toFixed(d) : 'n/a');
+    // EC2-11: every money amount in every sentence goes through ONE formatter.
+    const money = formatMillionUSD;
+    const quoted = (list) => joinNames(list.map((r) => `"${r.name}"`));
 
     const best = summary[0];
     out.push({
         key: 'npv',
         label: 'Best for the contractor',
-        text: `"${best.name}" delivers the highest contractor NPV at $${fmt(best.npv)}MM, with an IRR of ${fmt(best.irr)}%.`,
+        text: `"${best.name}" delivers the highest contractor NPV at ${money(best.npv)}, ${irrPhrase(best, fmt)}.`,
     });
 
-    // Fastest payback, over the regimes that pay back at all.
+    // Fastest payback, over the regimes that pay back at all. Payback is a
+    // whole year, so regimes tie constantly; EC2-10 names EVERY regime at the
+    // winning year rather than the first of them in NPV order.
     const paying = summary.filter((r) => Number.isFinite(r.paybackPeriod));
     if (paying.length > 0) {
-        const fastest = paying.reduce((a, b) => (b.paybackPeriod < a.paybackPeriod ? b : a));
-        const rest = paying.filter((r) => r.id !== fastest.id);
+        const year = Math.min(...paying.map((r) => r.paybackPeriod));
+        const fastest = paying.filter((r) => r.paybackPeriod === year);
+        const rest = paying.filter((r) => r.paybackPeriod !== year);
         const slowest = rest.length
             ? rest.reduce((a, b) => (b.paybackPeriod > a.paybackPeriod ? b : a))
             : null;
-        out.push({
-            key: 'payback',
-            label: 'Fastest capital recovery',
-            text: slowest
-                ? `"${fastest.name}" pays back in year ${fastest.paybackPeriod}, against year ${slowest.paybackPeriod} for "${slowest.name}".`
-                : `"${fastest.name}" pays back in year ${fastest.paybackPeriod}. No other regime pays back within the project life.`,
-        });
+        const pays = fastest.length > 1 ? 'pay' : 'pays';
+        let text;
+        if (slowest) {
+            text = `${quoted(fastest)} ${pays} back in year ${year}, against year ${slowest.paybackPeriod} for "${slowest.name}".`;
+        } else if (fastest.length === 1 || paying.length < summary.length) {
+            text = `${quoted(fastest)} ${pays} back in year ${year}. No other regime pays back within the project life.`;
+        } else {
+            text = `${quoted(fastest)} ${fastest.length === 2 ? 'both' : 'all'} pay back in year ${year}.`;
+        }
+        out.push({ key: 'payback', label: 'Fastest capital recovery', text });
     } else {
         out.push({
             key: 'payback',
@@ -479,8 +551,8 @@ export const deriveInsights = (summary, sensitivityData) => {
         key: 'government',
         label: 'Best for the government',
         text: nextGov
-            ? `"${topGov.name}" collects the most, $${fmt(topGov.govTake)}MM against $${fmt(nextGov.govTake)}MM for the next highest, "${nextGov.name}".`
-            : `"${topGov.name}" collects $${fmt(topGov.govTake)}MM in total government cash flow.`,
+            ? `"${topGov.name}" collects the most, ${money(topGov.govTake)} against ${money(nextGov.govTake)} for the next highest, "${nextGov.name}".`
+            : `"${topGov.name}" collects ${money(topGov.govTake)} in total government cash flow.`,
     });
 
     // Capex resilience: how much NPV is lost across the swept multiplier range.
@@ -494,13 +566,7 @@ export const deriveInsights = (summary, sensitivityData) => {
         })
         .filter(Boolean);
     if (losses.length >= 2) {
-        const toughest = losses.reduce((a, b) => (b.loss < a.loss ? b : a));
-        const weakest = losses.reduce((a, b) => (b.loss > a.loss ? b : a));
-        out.push({
-            key: 'capex',
-            label: 'Resilience to cost overrun',
-            text: `Over the swept capex range, "${toughest.name}" gives up the least contractor NPV ($${fmt(toughest.loss)}MM) and "${weakest.name}" the most ($${fmt(weakest.loss)}MM).`,
-        });
+        out.push({ key: 'capex', label: 'Resilience to cost overrun', text: capexVerdict(losses) });
     }
 
     // Price response (EC2-1). Only a point that IS a government share can be
@@ -527,6 +593,58 @@ export const deriveInsights = (summary, sensitivityData) => {
     return out;
 };
 
+/** The IRR clause of the contractor sentence, for every IRR status. */
+const irrPhrase = (row, fmt) => {
+    if (Number.isFinite(row.irr)) return `with an IRR of ${fmt(row.irr)}%`;
+    switch (row.irrStatus) {
+    case IRR_STATUSES.NO_SIGN_CHANGE:
+        return 'with no IRR because its contractor cash flow never changes sign';
+    case IRR_STATUSES.NO_ROOT:
+        return `with no IRR because no rate from ${IRR_BAND_LOWER_PCT} to ${IRR_BAND_UPPER_PCT} percent brings its NPV to zero`;
+    case IRR_STATUSES.ABOVE_CLAMP:
+        return `with an IRR above ${IRR_BAND_UPPER_PCT} percent`;
+    case IRR_STATUSES.MULTIPLE_ROOTS:
+        return Array.isArray(row.irrRoots) && row.irrRoots.length
+            ? `with no single IRR because its NPV is zero at ${joinNames(row.irrRoots.map((r) => `${fmt(r)}%`))}`
+            : 'with no single IRR because its NPV is zero at more than one rate';
+    default:
+        return 'with no IRR defined';
+    }
+};
+
+/**
+ * The resilience verdict (EC2-4, owner decision 2026-09-15). It used to name
+ * the least and the most NPV given up with a strict reduce, so six regimes
+ * that give up the same 10,909.1 million USD had a "winner" picked by
+ * floating point noise. Each end is now ranked by the price verdict's rule
+ * (leadOrTie): named alone only when it leads the next by at least one printed
+ * step, 0.1 million USD, and otherwise named together with every regime tied
+ * with it. When the two ends meet, no regime is ranked.
+ */
+const capexVerdict = (losses) => {
+    const money = formatMillionUSD;
+    const spread = CAPEX_RESILIENCE_MIN_SPREAD_MM;
+    const least = leadOrTie(losses, 'loss', spread, 'min');
+    const most = leadOrTie(losses, 'loss', spread, 'max');
+    const names = (group) => joinNames(group.map((l) => `"${l.name}"`));
+    const amount = (group) => {
+        const values = group.map((l) => l.loss);
+        const lo = Math.min(...values);
+        const hi = Math.max(...values);
+        if (money(lo) === money(hi)) return group.length > 1 ? `${money(lo)} each` : money(lo);
+        return `between ${money(lo)} and ${money(hi)}`;
+    };
+    const spreadText = money(spread);
+    if (least.tied.some((l) => most.tied.includes(l))) {
+        return `No regime can be ranked on resilience to cost overrun: over the swept capex range ${names(losses)} give up ${amount(losses)} of contractor NPV, within ${spreadText} of each other.`;
+    }
+    if (least.ranked && most.ranked) {
+        return `Over the swept capex range, "${least.leader.name}" gives up the least contractor NPV (${money(least.leader.loss)}) and "${most.leader.name}" the most (${money(most.leader.loss)}).`;
+    }
+    const verb = (group) => (group.length > 1 ? 'give' : 'gives');
+    return `Over the swept capex range, ${names(least.tied)} ${verb(least.tied)} up the least contractor NPV (${amount(least.tied)}); ${names(most.tied)} ${verb(most.tied)} up the most (${amount(most.tied)}). Regimes named together are within ${spreadText} of each other, so they are not ranked.`;
+};
+
 export const runFiscalComparison = async (inputs) => {
     const { projectInputs, regimes } = inputs;
     const summary = [];
@@ -537,18 +655,11 @@ export const runFiscalComparison = async (inputs) => {
         annualCashFlows.push({ regimeId: regime.id, data: cashflows });
 
         const contractorNPV = calculateNPV(cashflows, projectInputs.discountRate);
-        const irr = calculateIRR(cashflows);
+        const irrResult = calculateIRRResult(cashflows);
         const payback = cashflows.find(cf => cf.cumulativeNCF > 0);
         const rFactorPayout = cashflows.find(cf => cf.rFactor > 1.0);
 
         const totalGovTake = cashflows.reduce((sum, cf) => sum + cf.governmentTake, 0);
-        const totalCapex = (projectInputs.costs.capex.drilling + projectInputs.costs.capex.facilities + projectInputs.costs.capex.subsea);
-        const totalContractorTake = cashflows.reduce((sum, cf) => sum + cf.contractorNCF, 0) + totalCapex;
-        const totalProfit = totalGovTake + totalContractorTake;
-        // LEGACY KEY. `effectiveTaxRate` is government share of net revenue
-        // with a zero fallback, kept unchanged for existing readers. Display
-        // the named fields below instead (naming wave, 2026-09-14).
-        const effectiveTaxRate = totalProfit > 0 ? (totalGovTake / totalProfit) * 100 : 0;
         const undiscounted = takeMetrics(cashflows);
         const discounted = takeMetrics(cashflows, projectInputs.discountRate);
 
@@ -556,11 +667,18 @@ export const runFiscalComparison = async (inputs) => {
             id: regime.id,
             name: regime.name,
             npv: contractorNPV,
-            irr: irr,
+            // EC2-5: null unless a verified root in -99 to 1000 percent.
+            irr: irrResult.irr,
+            irrStatus: irrResult.irrStatus,
+            irrRoots: irrResult.irrRoots,
+            irrRootAboveBand: irrResult.irrRootAboveBand,
             paybackPeriod: payback ? payback.year : null,
             rFactorPayoutYear: rFactorPayout ? rFactorPayout.year : null,
             govTake: totalGovTake,
-            effectiveTaxRate: effectiveTaxRate,
+            // DEPRECATED ALIAS (EC2-2, owner decision 2026-09-15). Equal to
+            // governmentShareOfNetRevenuePct, null where that is null. The
+            // zero fallback it used to carry is retired; read the named field.
+            effectiveTaxRate: undiscounted.governmentShareOfNetRevenue,
             governmentTakePct: undiscounted.governmentTake,
             governmentTakeState: undiscounted.governmentTakeState,
             governmentTakeDiscountedPct: discounted.governmentTake,
