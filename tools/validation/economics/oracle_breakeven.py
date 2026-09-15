@@ -32,14 +32,27 @@ expensing, MID-YEAR discounting), not by transcribing the JavaScript:
                   sample is emitted for the seeded cases.
   statistics      P10, P50, P90 as sorted[min(n - 1, floor(q n))], the
                   mean, the CDF y = (i + 1) / n.
-  tornado         base case at the P50s; each variable swung P10 to P90
-                  (efficiency P90 to P10, since a higher efficiency is a
-                  lower breakeven); sorted by swing, largest first, ties
-                  keeping input order; low and high sides measured from
-                  the base breakeven.
+  bounds          EC3-8 (owner decision 2026-09-15): capex and opex
+                  percentiles below 0, or efficiency percentiles outside
+                  0..100, are refused by name; a draw from a fitted
+                  triangle past a limit is held AT the limit and counted,
+                  and a note names the limit and the count.
+  beliefs         EC3-5: an exact fit hands the base case and the tornado
+                  the stated percentiles; an inexact (clamped) fit hands
+                  them the fitted triangle's own 10th, 50th and 90th
+                  percentiles (held at the bounds), with a note.
+  tornado         base case at the belief medians; each variable swung
+                  from its 10th to its 90th percentile (efficiency 90th to
+                  10th, since a higher efficiency is a lower breakeven).
+                  B1: an end with no breakeven below $500 is null, the bar
+                  is `unreachable` and carries no swing; unreachable bars
+                  sort first, then by swing, largest first, ties keeping
+                  input order; low and high sides measured from the base
+                  breakeven, null where either is null.
   insights        the sentence with toFixed(2) rounding (round half up on
-                  the exact binary value), the seed, the excluded count
-                  and any fit notes.
+                  the exact binary value), the seed, the excluded count,
+                  one sentence per unreachable bar, the fit notes, the
+                  belief notes and the bound notes, in that order.
 
 Units: production bbl per year, capex $MM, opex $MM per year, efficiency
 in percent for the variables and a fraction inside the solve, prices
@@ -178,6 +191,18 @@ def tri_inv(u, a, c, b):
 # The probabilistic run
 # ---------------------------------------------------------------------
 
+BOUNDS = {
+    'capex': {'min': 0.0, 'max': math.inf, 'label': 'CAPEX', 'unit': '$MM'},
+    'opex': {'min': 0.0, 'max': math.inf, 'label': 'OPEX', 'unit': '$MM a year'},
+    'efficiency': {'min': 0.0, 'max': 100.0, 'label': 'Production efficiency', 'unit': 'percent'},
+}
+
+
+def js_num(x):
+    """How JavaScript prints a bound in a template literal."""
+    return str(int(x)) if float(x).is_integer() else repr(x)
+
+
 def find_var(variables, needle):
     return next((v for v in variables if needle.upper() in str(v['name']).upper()), None)
 
@@ -189,6 +214,15 @@ def generate(inputs):
     seed = inputs.get('seed', DEFAULT_SEED)
     target = inputs.get('targetNpv', 0)
     cv, ov, ev = find_var(variables, 'CAPEX'), find_var(variables, 'OPEX'), find_var(variables, 'Production Efficiency')
+    stated = {'capex': cv, 'opex': ov, 'efficiency': ev}
+    for key, v in stated.items():
+        b = BOUNDS[key]
+        for q in ('p10', 'p50', 'p90'):
+            x = float(v[q])
+            if x < b['min'] or x > b['max']:
+                msg = (f"{b['label']} percentiles must not be negative." if b['max'] == math.inf
+                       else f"{b['label']} percentiles must lie between {js_num(b['min'])} and {js_num(b['max'])} {b['unit']}.")
+                return {'throws': True, 'refused': True, 'error': msg}
     fits = {'capex': fit_triangular(cv['p10'], cv['p50'], cv['p90']),
             'opex': fit_triangular(ov['p10'], ov['p50'], ov['p90']),
             'efficiency': fit_triangular(ev['p10'], ev['p50'], ev['p90'])}
@@ -197,10 +231,23 @@ def generate(inputs):
     rng = mulberry32(seed)
     results = []
     unreachable = 0
+    clipped = {'capex': 0, 'opex': 0, 'efficiency': 0}
+
+    def held(key, x):
+        return min(BOUNDS[key]['max'], max(BOUNDS[key]['min'], x))
+
+    def draw(key):
+        f = fits[key]
+        x = tri_inv(rng(), f['min'], f['mode'], f['max'])
+        h = held(key, x)
+        if h != x:
+            clipped[key] += 1
+        return h
+
     for _ in range(iters):
-        capex = tri_inv(rng(), fits['capex']['min'], fits['capex']['mode'], fits['capex']['max'])
-        opex = tri_inv(rng(), fits['opex']['min'], fits['opex']['mode'], fits['opex']['max'])
-        eff = tri_inv(rng(), fits['efficiency']['min'], fits['efficiency']['mode'], fits['efficiency']['max']) / 100.0
+        capex = draw('capex')
+        opex = draw('opex')
+        eff = draw('efficiency') / 100.0
         p = solve_price(dict(base, capexMM=capex, opexMM=opex, efficiency=eff), target)
         if p is None:
             unreachable += 1
@@ -214,21 +261,39 @@ def generate(inputs):
     pct = lambda qq: results[min(n - 1, math.floor(qq * n))]
     mean = sum(results) / n
     kpis = {'p10': pct(0.1), 'p50': pct(0.5), 'p90': pct(0.9), 'mean': mean}
-    base_case = dict(base, capexMM=cv['p50'], opexMM=ov['p50'], efficiency=ev['p50'] / 100.0)
+    beliefs = {}
+    for key, v in stated.items():
+        f = fits[key]
+        if f['exact']:
+            beliefs[key] = {'p10': float(v['p10']), 'p50': float(v['p50']), 'p90': float(v['p90']), 'source': 'stated'}
+        else:
+            beliefs[key] = {q: held(key, tri_inv(u, f['min'], f['mode'], f['max']))
+                            for q, u in (('p10', 0.1), ('p50', 0.5), ('p90', 0.9))}
+            beliefs[key]['source'] = 'fitted'
+    bc, bo, bf = beliefs['capex'], beliefs['opex'], beliefs['efficiency']
+    base_case = dict(base, capexMM=bc['p50'], opexMM=bo['p50'], efficiency=bf['p50'] / 100.0)
     base_be = solve_price(base_case, target)
 
     def swing(label, low_over, high_over):
         lo = solve_price(dict(base_case, **low_over), target)
         hi = solve_price(dict(base_case, **high_over), target)
-        return {'name': label, 'low': lo, 'high': hi, 'swing': 0.0 if lo is None or hi is None else abs(hi - lo)}
+        open_end = lo is None or hi is None
+        return {'name': label, 'low': lo, 'high': hi, 'unreachable': open_end,
+                'swing': None if open_end else abs(hi - lo)}
 
-    sens = [swing('Total CAPEX', {'capexMM': cv['p10']}, {'capexMM': cv['p90']}),
-            swing('Annual OPEX', {'opexMM': ov['p10']}, {'opexMM': ov['p90']}),
-            swing('Prod. Efficiency', {'efficiency': ev['p90'] / 100.0}, {'efficiency': ev['p10'] / 100.0})]
-    sens = sorted(sens, key=lambda d: -d['swing'])
+    sens = [swing('Total CAPEX', {'capexMM': bc['p10']}, {'capexMM': bc['p90']}),
+            swing('Annual OPEX', {'opexMM': bo['p10']}, {'opexMM': bo['p90']}),
+            swing('Prod. Efficiency', {'efficiency': bf['p90'] / 100.0}, {'efficiency': bf['p10'] / 100.0})]
+    # Python's sort is stable, as JavaScript's is: unreachable first, then swing.
+    sens = sorted(sens, key=lambda d: (0 if d['unreachable'] else 1, -(d['swing'] or 0.0)))
+
+    def from_base(x):
+        return None if x is None or base_be is None else x - base_be
+
     tornado = {'y': [d['name'] for d in sens],
-               'low': [0.0 if d['low'] is None else d['low'] - base_be for d in sens],
-               'high': [0.0 if d['high'] is None else d['high'] - base_be for d in sens],
+               'low': [from_base(d['low']) for d in sens],
+               'high': [from_base(d['high']) for d in sens],
+               'unreachable': [d['unreachable'] for d in sens],
                'base': [base_be for _ in sens]}
     top = ' and '.join(d['name'] for d in sens[:2])
     parts = [f'The median breakeven oil price is {js_to_fixed(kpis["p50"], 2)} per barrel, and its 90th percentile is {js_to_fixed(kpis["p90"], 2)}: a 90 percent chance the breakeven price is below that.',
@@ -236,10 +301,24 @@ def generate(inputs):
              f'Run seed {seed}: the same inputs and seed reproduce this result exactly.']
     if unreachable > 0:
         parts.append(f'{unreachable} of {iters} iterations did not break even below 500 dollars a barrel and are excluded from the statistics.')
+    parts += [f"{d['name']} has no breakeven below 500 dollars a barrel at one end of its range, so that side of its bar is left open."
+              for d in sens if d['unreachable']]
     parts += fit_notes
+    for key, b in beliefs.items():
+        if b['source'] == 'fitted':
+            parts.append(f"{key}: the base case and the tornado use the fitted triangle's 10th, 50th and 90th percentiles, "
+                         f"{js_to_fixed(b['p10'], 2)}, {js_to_fixed(b['p50'], 2)} and {js_to_fixed(b['p90'], 2)}, "
+                         f"so they describe the same belief the sample is drawn from.")
+    for key, f in fits.items():
+        bd = BOUNDS[key]
+        limits = [x for x in ((bd['min'] if f['min'] < bd['min'] else None), (bd['max'] if f['max'] > bd['max'] else None)) if x is not None]
+        if limits:
+            parts.append(f"{key}: the fitted triangle runs past the physical limit of {' and '.join(js_num(x) for x in limits)} {bd['unit']}, "
+                         f"so {clipped[key]} of {iters} draws were held at that limit.")
     return {'kpis': kpis, 'sample': results, 'cdfY': [(i + 1) / n for i in range(n)], 'tornadoData': tornado,
             'sensitivity': sens, 'insights': ' '.join(parts), 'seed': seed, 'baseBreakeven': base_be,
-            'excludedIterations': unreachable, 'distributionFits': fits}
+            'excludedIterations': unreachable, 'distributionFits': fits, 'beliefs': beliefs,
+            'clippedDraws': clipped}
 
 
 # ---------------------------------------------------------------------
@@ -307,7 +386,8 @@ def build():
             {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 800, 'p50': 820, 'p90': 1300},
             {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': 50, 'p50': 74, 'p90': 75},
             {'id': 3, 'name': 'Production Efficiency (%)', 'p10': 85, 'p50': 90, 'p90': 95}]},
-         'Medians too near the 10th percentile (capex) and the 90th percentile (opex): both fits clamp and the insight carries both notes.'),
+         'Medians too near the 10th percentile (capex) and the 90th percentile (opex): both fits clamp and the insight carries both notes. '
+         'EC3-5: the base case and the tornado use both fitted triangles\' own percentiles, and say so.'),
         ('mc_all_unreachable_throws', {'seed': 5, 'iterations': 20, 'variables': [
             {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 40000, 'p50': 50000, 'p90': 60000},
             {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': 50, 'p50': 60, 'p90': 75},
@@ -317,7 +397,35 @@ def build():
             {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 2800, 'p50': 3400, 'p90': 4200},
             {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': 50, 'p50': 60, 'p90': 75},
             {'id': 3, 'name': 'Production Efficiency (%)', 'p10': 85, 'p50': 90, 'p90': 95}]},
-         'Capex so large that part of the sample cannot break even below $500: those iterations are excluded and counted.'),
+         'Capex so large that part of the sample cannot break even below $500: those iterations are excluded and counted. '
+         'B1: the capex bar has no breakeven at its adverse end, so that side is null and the bar sorts FIRST (it used to read 0 and sort last).'),
+        ('mc_one_bar_unreachable', {'seed': 5, 'iterations': 120, 'variables': [
+            {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 2000, 'p50': 2400, 'p90': 3600},
+            {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': 50, 'p50': 60, 'p90': 75},
+            {'id': 3, 'name': 'Production Efficiency (%)', 'p10': 85, 'p50': 90, 'p90': 95}]},
+         'B1: only the capex bar is open (no breakeven below $500 at capex 3600). It is null on that side and sorts FIRST; '
+         'the retired rule drew it at 0 with a zero swing and sorted it LAST, below both reachable bars.'),
+        ('mc_efficiency_past_100', {'seed': 7, 'variables': [
+            {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 800, 'p50': 1000, 'p90': 1300},
+            {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': 50, 'p50': 60, 'p90': 75},
+            {'id': 3, 'name': 'Production Efficiency (%)', 'p10': 90, 'p50': 95, 'p90': 99}]},
+         'EC3-8: efficiency 90 / 95 / 99 fits EXACTLY a triangle whose maximum is above 100 percent; draws past it are held at 100 and counted. '
+         '(90 / 96 / 99, the example in the EC3 wave notes, does not: its median is too near the 90th percentile, the fit clamps and tops out at 99.73.)'),
+        ('mc_refuses_negative_opex', {'seed': 7, 'variables': [
+            {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 800, 'p50': 1000, 'p90': 1300},
+            {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': -5, 'p50': 60, 'p90': 75},
+            {'id': 3, 'name': 'Production Efficiency (%)', 'p10': 85, 'p50': 90, 'p90': 95}]},
+         'EC3-8: a negative opex percentile is refused by name.'),
+        ('mc_refuses_efficiency_above_100', {'seed': 7, 'variables': [
+            {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 800, 'p50': 1000, 'p90': 1300},
+            {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': 50, 'p50': 60, 'p90': 75},
+            {'id': 3, 'name': 'Production Efficiency (%)', 'p10': 90, 'p50': 98, 'p90': 102}]},
+         'EC3-8: an efficiency percentile above 100 is refused by name.'),
+        ('mc_ec3_5_narrow_opex', {'seed': 7, 'variables': [
+            {'id': 1, 'name': 'Total CAPEX ($MM)', 'p10': 800, 'p50': 1000, 'p90': 1300},
+            {'id': 2, 'name': 'Annual OPEX ($MM/year)', 'p10': 16, 'p50': 17, 'p90': 26},
+            {'id': 3, 'name': 'Production Efficiency (%)', 'p10': 85, 'p50': 90, 'p90': 95}]},
+         'EC3-5, the FINDINGS shape: opex 16 / 17 / 26 clamps; the base case and the tornado run at the fitted median, not the stated 17.'),
         ('mc_default_seed_2000', {'iterations': 2000}, '2000 iterations at the default seed; the sample is emitted in full.'),
     ):
         inp = dict(INPUTS, **over)

@@ -24,7 +24,7 @@ import {
   calculateEconomics, runSensitivityAnalysis, generateScenarios, runMonteCarlo, DEFAULT_MC_SEED,
   expandQuickInputs, getPortfolioMetrics,
 } from '../engines/economics/screening.js';
-import { mulberry32 } from '../lib/stats/stats.js';
+import { mulberry32, quantile } from '../lib/stats/stats.js';
 
 const G = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', 'test-data', 'economics', 'goldens', 'screening_cases.json'),
@@ -55,7 +55,10 @@ const gateResult = (res, exp, engine) => {
   near(m.npv, em.npv, MONEY);
   ['totalRevenue', 'totalCapex', 'totalOpex', 'totalTax', 'totalRoyalty', 'totalGovTake']
     .forEach((f) => near(m[f], em[f], MONEY));
-  near(m.payback, em.payback, PAYBACK);
+  // EC3-1 / EC3-2: the first crossing, the last, and what happened between.
+  expect(m.paybackStatus).toBe(em.paybackStatus);
+  if (em.payback === null) expect(m.payback).toBeNull(); else near(m.payback, em.payback, PAYBACK);
+  if (em.paybackLast === null) expect(m.paybackLast).toBeNull(); else near(m.paybackLast, em.paybackLast, PAYBACK);
   if (em.maxExposure !== null) near(m.maxExposure, em.maxExposure, MONEY);
   // EC6-1: the internal rate of return, and the reason when there is none.
   // There are no recorded IRR disagreements left; the engine agrees with
@@ -225,11 +228,13 @@ describe('FDP economics on the sanctioned engine', () => {
     expect(r.metrics.payback).toBeLessThan(crossing + 1);
   });
 
-  test('a project that never pays back reports the project life (the Suite wrapper turns that into null)', () => {
+  test('a project that never pays back reports null and not-recovered (EC3-2; it used to report the project life)', () => {
     const c = byId('fdp_never_pays_back');
     const r = calculateEconomics(c.inputs);
     expect(r.cashflow.some((x) => x.cumulativeNCF >= 0)).toBe(false);
-    expect(r.metrics.payback).toBe(c.inputs.projectLife);
+    expect(r.metrics.payback).toBeNull();
+    expect(r.metrics.paybackStatus).toBe('not-recovered');
+    expect(r.metrics.payback).not.toBe(c.inputs.projectLife);
   });
 });
 
@@ -313,6 +318,7 @@ describe('ledger identities', () => {
     expect(r.metrics.payback).toBeLessThanOrEqual(i + 1);
     const rich = calculateEconomics({ ...base, capex: flat(0, 10) });
     expect(rich.metrics.payback).toBe(0);
+    expect(rich.metrics.paybackStatus).toBe('no-investment');
   });
 });
 
@@ -380,6 +386,55 @@ describe('EC6-1: the IRR disagreements are resolved, and the clamp is not an ans
   });
 });
 
+describe('EC3-1 and EC3-2: payback says what happened around it', () => {
+  const byId = (id) => G.payback.find((c) => c.id === id);
+
+  test('the OKPOMA shape: payback 0 at the first crossing, recrossed, and paybackLast by hand', () => {
+    const m = calculateEconomics(byId('payback_recrossed_from_first_period').inputs).metrics;
+    expect(m.payback).toBe(0);
+    expect(m.paybackStatus).toBe('recrossed');
+    // cumulative 10, -5, 55: back to non-negative two periods in, 5 short of zero with 60 coming in
+    near(m.paybackLast, 2 + 5 / 60, PAYBACK);
+    expect(m.maxExposure).toBeLessThan(0);
+  });
+
+  test('a crossing that is undone and redone: the first and the last crossing, both by hand', () => {
+    const m = calculateEconomics(byId('payback_recrossed_after_crossing').inputs).metrics;
+    near(m.payback, 1 + 100 / 150, PAYBACK);
+    near(m.paybackLast, 3 + 30 / 50, PAYBACK);
+    expect(m.paybackStatus).toBe('recrossed');
+  });
+
+  test('recrossed and never recovered for good: paybackLast is null', () => {
+    const m = calculateEconomics(byId('payback_recrossed_never_recovers').inputs).metrics;
+    expect(m.payback).toBe(0);
+    expect(m.paybackLast).toBeNull();
+    expect(m.paybackStatus).toBe('recrossed');
+  });
+
+  test('EC3-4: payback_multi_year recovers in the FIFTH period, 4.75 years, and its note now says so', () => {
+    const c = byId('payback_multi_year');
+    near(calculateEconomics(c.inputs).metrics.payback, 4 + 30 / 40, PAYBACK);
+    expect(c.note).toMatch(/4 \+ 30\/40 = 4\.75/);
+    expect(c.note).not.toMatch(/fourth period: 3 \+ 10\/40/);
+  });
+
+  test('NEGATIVE CONTROL: no case anywhere reports the project life for a cumulative that never turns non-negative', () => {
+    let never = 0;
+    ['taxRoyalty', 'fdp', 'psc', 'irr', 'payback', 'depreciation', 'horizon', 'sweeps'].forEach((g) => {
+      G[g].forEach((c) => {
+        const r = calculateEconomics(c.inputs);
+        if (!r.cashflow.some((x) => x.cumulativeNCF >= 0)) {
+          never += 1;
+          expect(r.metrics.payback).toBeNull();
+          expect(r.metrics.paybackStatus).toBe('not-recovered');
+        }
+      });
+    });
+    expect(never).toBeGreaterThan(3);
+  });
+});
+
 describe('sensitivity and scenarios', () => {
   test.each(G.sensitivity.map((c) => [c.id, c]))('%s', (_id, c) => {
     const res = runSensitivityAnalysis(c.inputs);
@@ -402,6 +457,19 @@ describe('sensitivity and scenarios', () => {
     ['Base', 'Low', 'High'].forEach((k) => gateResult(res[k], c.expected[k]));
     expect(res.Low.metrics.npv).toBeLessThan(res.Base.metrics.npv);
     expect(res.High.metrics.npv).toBeGreaterThan(res.Base.metrics.npv);
+  });
+
+  test('EC3-3: a scenario\'s variable opex moves with its production, by hand', () => {
+    const inputs = G.scenarios[0].inputs;
+    const res = generateScenarios(inputs);
+    const sum = (a) => a.reduce((s, v) => s + (v || 0), 0);
+    const fixed = sum(inputs.opexFixed);
+    const variable = sum(inputs.opexVariable);
+    expect(variable).toBeGreaterThan(0);
+    near(res.Low.metrics.totalOpex, 1.2 * fixed + 0.8 * variable, MONEY);
+    near(res.High.metrics.totalOpex, 0.8 * fixed + 1.2 * variable, MONEY);
+    // Negative control: the retired rule held variable opex at the base money.
+    expect(Math.abs(res.Low.metrics.totalOpex - (1.2 * fixed + variable))).toBeGreaterThan(1);
   });
 });
 
@@ -505,9 +573,68 @@ describe('runMonteCarlo, seeded (EC3-0)', () => {
     expect(res.histogram[0].count).toBe(c.settings.iterations);
   });
 
-  test('fewer than 50 iterations keeps every S-curve point (S5 fixed)', async () => {
+  test('fewer than 50 iterations still draws the whole S-curve (S5 fixed)', async () => {
     const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed11_40_iters');
     const res = await runMonteCarlo(c.inputs, c.settings);
-    expect(res.cdf).toHaveLength(40);
+    expect(res.cdf).toHaveLength(51);
+  });
+
+  test('EC3-6: the S-curve runs from the smallest NPV to the largest and its 10 / 50 / 90 heights ARE the cards', async () => {
+    for (const c of G.monteCarloSeeded) {
+      // eslint-disable-next-line no-await-in-loop
+      const res = await runMonteCarlo(c.inputs, c.settings);
+      expect(res.cdf).toHaveLength(51);
+      expect(res.cdf[0]).toEqual({ value: res.allValues[0], probability: 0 });
+      expect(res.cdf[50]).toEqual({ value: res.allValues[res.allValues.length - 1], probability: 100 });
+      expect(res.cdf[5].probability).toBe(10);
+      expect(res.cdf[5].value).toBe(res.p10);
+      expect(res.cdf[25].value).toBe(res.p50);
+      expect(res.cdf[45].value).toBe(res.p90);
+    }
+  });
+
+  test('EC3-7: ONE price factor per iteration, applied to every year (read back through a linear ledger)', async () => {
+    // No royalty, no tax, no gas, one uncertain variable: NPV is exactly
+    // a + b * f in the price factor f, so each iteration's NPV names its f.
+    const life = 6;
+    const inputs = {
+      startYear: 2030, projectLife: life, discountRate: 10, fiscalType: 'TaxRoyalty',
+      production: { oil: [0, 900000, 800000, 700000, 600000, 500000], gas: flat(0, life) },
+      price: { oil: flat(70, life), gas: flat(0, life) },
+      capex: [120, 0, 0, 0, 0, 0], opexFixed: flat(5, life), opexVariable: flat(0, life), abandonment: flat(0, life),
+      royaltyRate: 0, taxRate: 0,
+    };
+    const settings = { iterations: 200, seed: 99, uncertainties: { reserves: 0, price: 0.25, capex: 0 } };
+    const res = await runMonteCarlo(inputs, settings);
+    const a = calculateEconomics({ ...inputs, price: { oil: flat(0, life), gas: flat(0, life) } }).metrics.npv;
+    const b = calculateEconomics(inputs).metrics.npv - a;
+    const rng = mulberry32(99);
+    const predicted = Array.from({ length: 200 }, () => a + b * (1 + 0.25 * (2 * rng() - 1))).sort((x, y) => x - y);
+    res.allValues.forEach((v, i) => near(v, predicted[i], 1e-9));
+    // Negative control: a draw per year would not collapse onto one factor.
+    const perYear = mulberry32(99);
+    const yearly = calculateEconomics({ ...inputs, price: { oil: inputs.price.oil.map((p) => p * (1 + 0.25 * (2 * perYear() - 1))), gas: flat(0, life) } }).metrics.npv;
+    expect(Math.abs(yearly - predicted[0])).toBeGreaterThan(1e-6);
+  });
+
+  test('EC3-7: reserves moves variable opex with the volume', async () => {
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed42_100');
+    const inputs = { ...c.inputs, opexVariable: c.inputs.opexVariable.map((v) => v * 50) };
+    const only = { iterations: 1, seed: 5, uncertainties: { reserves: 0.2, price: 0, capex: 0 } };
+    const [npv] = (await runMonteCarlo(inputs, only)).allValues;
+    const f = 1 + 0.2 * (2 * mulberry32(5)() - 1);
+    const scaled = {
+      ...inputs,
+      production: { oil: inputs.production.oil.map((v) => v * f), gas: inputs.production.gas.map((v) => v * f) },
+      opexVariable: inputs.opexVariable.map((v) => v * f),
+    };
+    near(npv, calculateEconomics(scaled).metrics.npv, MONEY);
+    const volumeOnly = { ...scaled, opexVariable: inputs.opexVariable };
+    expect(Math.abs(npv - calculateEconomics(volumeOnly).metrics.npv)).toBeGreaterThan(1);
+  });
+
+  test.each((G.monteCarloRefused || []).map((c) => [c.id, c]))('refused: %s', async (_id, c) => {
+    expect(c.expected.throws).toBe(true);
+    await expect(runMonteCarlo(c.inputs, c.settings)).rejects.toThrow(c.expected.error);
   });
 });
