@@ -30,9 +30,10 @@
 //   probability-weighted sum of branch values minus branch costs; decision
 //   nodes to the MAX over branch values minus branch costs (rational
 //   risk-neutral actor). Probabilities at a chance node must sum to 1.
-// - Ties at a decision are reported (EC4-1): the node carries every tied
-//   branch index and says it is indifferent, so a screen can show all of
-//   them instead of recommending whichever was listed first.
+// - Ties at a decision are reported (EC4-1) at two precisions: the exact
+//   value band, which the optimal-path marking uses, and the card precision
+//   a reader sees. A screen shows every tied branch instead of recommending
+//   whichever was listed first, and its words come from the card set.
 // - Costs and payoffs are read strictly (EC4-4): omitted is 0, and anything
 //   present that is not a finite number, or a negative cost, is refused by
 //   node label.
@@ -65,13 +66,55 @@ const offOne = (sum) => Math.abs(sum - 1) > PROB_TOL + REPRESENTATION_ALLOWANCE;
 export const TIE_RELATIVE = 1e-9;
 const tieBand = (best) => TIE_RELATIVE * Math.max(1, Math.abs(best));
 
+/**
+ * Money at card precision: 2 decimal places, half away from zero on the
+ * magnitude (with the representation allowance, so a value that is an exact
+ * half cent in decimals rounds the way the decimals do), and negative zero
+ * normalised so nothing ever reads "-0.00". This is the EC4-2 rounding the
+ * VOI Analyzer's cards and verdict already share; the Analyzer imports it
+ * from here so one rounding serves the numbers and the words.
+ */
+export function cardValue(v) {
+  const magnitude = Number((Math.abs(v) + REPRESENTATION_ALLOWANCE).toFixed(2));
+  return magnitude === 0 ? 0 : (v < 0 ? -magnitude : magnitude);
+}
+
+// EC4-1, second precision (2026-09-15, owner decision via the lead): a
+// sentence a reader sees must agree with the numbers beside it. So every
+// result reports TWO tie sets, side by side:
+//
+//   tiedIndices / indifferent
+//       the exact value band above. This is the engine's internal truth and
+//       what the optimal-path marking and `bestBranchIndex` use.
+//   tiedIndicesAtCardPrecision / indifferentAtCardPrecision
+//       every index whose value ROUNDS to the same card as the best does.
+//       Guidance wording uses this set, so a gap of 0.0001 that both cards
+//       print as 0.00 reads as indifferent, while a gap the cards show still
+//       names one action.
+//
+// The two sets are measured independently and neither contains the other in
+// every case: values a ten-billionth apart that straddle a rounding boundary
+// (0.005 against 0.0049999999) are an exact tie printed on two different
+// cards, and the result says exactly that.
 function bestWithTies(values) {
   let best = -Infinity;
   for (const v of values) if (v > best) best = v;
   const band = tieBand(best);
+  const bestCard = cardValue(best);
   const tiedIndices = [];
-  values.forEach((v, i) => { if (Math.abs(best - v) <= band) tiedIndices.push(i); });
-  return { best, index: tiedIndices[0], tiedIndices, indifferent: tiedIndices.length > 1 };
+  const tiedIndicesAtCardPrecision = [];
+  values.forEach((v, i) => {
+    if (Math.abs(best - v) <= band) tiedIndices.push(i);
+    if (cardValue(v) === bestCard) tiedIndicesAtCardPrecision.push(i);
+  });
+  return {
+    best,
+    index: tiedIndices[0],
+    tiedIndices,
+    indifferent: tiedIndices.length > 1,
+    tiedIndicesAtCardPrecision,
+    indifferentAtCardPrecision: tiedIndicesAtCardPrecision.length > 1,
+  };
 }
 
 // EC4-4 (2026-09-15, owner decision): no silent defaults for money. A cost
@@ -153,7 +196,8 @@ export function payoffValue(payoff, nodeLabel = null) {
  * EMV rollback. Returns an annotated deep copy of the tree:
  *   every node gains `emv`;
  *   decision nodes gain `bestBranchIndex` (the first listed of the tied
- *   best branches), `tiedIndices` and `indifferent` (EC4-1);
+ *   best branches), `tiedIndices` and `indifferent`, plus
+ *   `tiedIndicesAtCardPrecision` and `indifferentAtCardPrecision` (EC4-1);
  *   decision/chance branches gain `branchValue` (child EMV minus branch cost)
  *   and `onOptimalPath` (true for every branch reachable by always taking
  *   the best decision at each decision node).
@@ -209,6 +253,8 @@ function evaluate(node) {
       bestBranchIndex: t.index,
       tiedIndices: t.tiedIndices,
       indifferent: t.indifferent,
+      tiedIndicesAtCardPrecision: t.tiedIndicesAtCardPrecision,
+      indifferentAtCardPrecision: t.indifferentAtCardPrecision,
     };
   }
 
@@ -262,13 +308,22 @@ const actionValue = (a, outcomes, probs) =>
 /**
  * EMV of the best action under the given outcome probabilities.
  * `actionIndex` is the first listed of `tiedIndices`; `indifferent` is true
- * when more than one action ties for the best (EC4-1).
+ * when more than one action ties for the best on value, and
+ * `indifferentAtCardPrecision` when more than one rounds to the best card
+ * (EC4-1). Guidance wording reads the card-precision pair.
  */
 export function bestActionEmv(outcomes, actions, probs = null) {
   validateLottery(outcomes, actions);
   const p = probs ?? outcomes.map((o) => Number(o.probability));
   const t = bestWithTies(actions.map((a) => actionValue(a, outcomes, p)));
-  return { emv: t.best, actionIndex: t.index, tiedIndices: t.tiedIndices, indifferent: t.indifferent };
+  return {
+    emv: t.best,
+    actionIndex: t.index,
+    tiedIndices: t.tiedIndices,
+    indifferent: t.indifferent,
+    tiedIndicesAtCardPrecision: t.tiedIndicesAtCardPrecision,
+    indifferentAtCardPrecision: t.indifferentAtCardPrecision,
+  };
 }
 
 /**
@@ -318,11 +373,13 @@ export function evii(outcomes, actions, signals, infoCost = 0) {
     const joint = priors.map((p, i) => p * Number(sig.likelihoods[i]));
     const pSignal = joint.reduce((s, j) => s + j, 0);
     const posterior = pSignal > 0 ? joint.map((j) => j / pSignal) : priors;
-    const { emv, actionIndex, tiedIndices, indifferent } = bestActionEmv(outcomes, actions, posterior);
-    evWithInfo += pSignal * emv;
+    const best = bestActionEmv(outcomes, actions, posterior);
+    evWithInfo += pSignal * best.emv;
     return {
-      label: sig.label, pSignal, posterior, emv, bestActionIndex: actionIndex,
-      tiedActionIndices: tiedIndices, indifferent,
+      label: sig.label, pSignal, posterior, emv: best.emv, bestActionIndex: best.actionIndex,
+      tiedActionIndices: best.tiedIndices, indifferent: best.indifferent,
+      tiedActionIndicesAtCardPrecision: best.tiedIndicesAtCardPrecision,
+      indifferentAtCardPrecision: best.indifferentAtCardPrecision,
     };
   });
 

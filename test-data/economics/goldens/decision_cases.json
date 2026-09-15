@@ -1,5 +1,5 @@
 {
- "description": "Economics decision-analysis goldens: EMV rollback over decision, chance and terminal nodes with branch costs and optimal-path marking; EVPI; EVII through Bayes from priors and likelihoods; the implied-priors consistency check; the single-stage information tree; and the VOI Analyzer computation layer on its legacy percent inputs. Independent stdlib oracle (tools/validation/economics/oracle_decision.py) written from the method statements in exact rational arithmetic (fractions.Fraction), emitted as full-precision floats. Money is USD millions ($MM). Probabilities are 0 to 1 except VOI Analyzer inputs, which are percent (0 to 100) as the form types them. Tree node and branch records are addressed by `path`, the list of branch indices from the root: node path [] is the root, [i] is root.branches[i].node, branch path [i, j] is root.branches[i].node.branches[j]. Ties at a decision resolve to the first branch listed. Every case in the Suite's src/lib/__tests__/decisionTree.test.js and src/utils/__tests__/voiCalculations.test.js is here, plus the two templates from src/components/decisiontree/templates.js, sweeps of signal accuracy and information cost, and degenerate and refused cases. EC4-1 (owner decision 2026-09-15): a decision node and a best-action result carry every tied index and whether the choice is indifferent, and the first listed of the tied ones keeps the optimal-path marking. EC4-4 (same date): money that is omitted is 0, money that is present must be a finite number, and a negative cost is refused, each naming what carries it (rollbackRefusals, lotteryRefusals and the money cases in voiRefusals); a case carrying a NaN or an infinity holds a placeholder string and a `nonFinite` instruction, since JSON cannot hold either. As repaired in EC4-0, the VOI Analyzer refuses percent inputs that are not distributions (voiRefusals) and withholds everything that depends on the indicator entries when they contradict the stated priors.",
+ "description": "Economics decision-analysis goldens: EMV rollback over decision, chance and terminal nodes with branch costs and optimal-path marking; EVPI; EVII through Bayes from priors and likelihoods; the implied-priors consistency check; the single-stage information tree; and the VOI Analyzer computation layer on its legacy percent inputs. Independent stdlib oracle (tools/validation/economics/oracle_decision.py) written from the method statements in exact rational arithmetic (fractions.Fraction), emitted as full-precision floats. Money is USD millions ($MM). Probabilities are 0 to 1 except VOI Analyzer inputs, which are percent (0 to 100) as the form types them. Tree node and branch records are addressed by `path`, the list of branch indices from the root: node path [] is the root, [i] is root.branches[i].node, branch path [i, j] is root.branches[i].node.branches[j]. Ties at a decision resolve to the first branch listed. Every case in the Suite's src/lib/__tests__/decisionTree.test.js and src/utils/__tests__/voiCalculations.test.js is here, plus the two templates from src/components/decisiontree/templates.js, sweeps of signal accuracy and information cost, and degenerate and refused cases. EC4-1 (owner decision 2026-09-15): a decision node and a best-action result carry every tied index and whether the choice is indifferent, at two precisions (the exact value band, which keeps the optimal-path marking, and the card precision the reader sees, which the guidance wording quotes). EC4-4 (same date): money that is omitted is 0, money that is present must be a finite number, and a negative cost is refused, each naming what carries it (rollbackRefusals, lotteryRefusals and the money cases in voiRefusals); a case carrying a NaN or an infinity holds a placeholder string and a `nonFinite` instruction, since JSON cannot hold either. As repaired in EC4-0, the VOI Analyzer refuses percent inputs that are not distributions (voiRefusals) and withholds everything that depends on the indicator entries when they contradict the stated priors.",
  "evii": [
   {
    "actions": [
@@ -40,6 +40,7 @@
       "bestActionIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.45,
       "posterior": [
        0.5333333333333333,
@@ -47,18 +48,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.55,
       "posterior": [
        0.10909090909090909,
        0.8909090909090909
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -132,6 +140,7 @@
       "bestActionIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.5,
       "posterior": [
        0.3,
@@ -139,18 +148,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.5,
       "posterior": [
        0.3,
        0.7
       ],
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -224,6 +240,7 @@
       "bestActionIndex": 0,
       "emv": 260.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.3,
       "posterior": [
        1.0,
@@ -231,18 +248,26 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": true,
+      "indifferentAtCardPrecision": true,
       "pSignal": 0.7,
       "posterior": [
        0.0,
        1.0
       ],
       "tiedActionIndices": [
+       1,
+       2
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1,
        2
       ]
@@ -329,6 +354,7 @@
       "bestActionIndex": 0,
       "emv": 227.1875,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.32,
       "posterior": [
        0.4375,
@@ -337,12 +363,16 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 86.57894736842105,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.38,
       "posterior": [
        0.10526315789473684,
@@ -351,12 +381,16 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 2,
       "emv": 15.333333333333334,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.3,
       "posterior": [
        0.06666666666666667,
@@ -364,6 +398,9 @@
        0.6
       ],
       "tiedActionIndices": [
+       2
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        2
       ]
      }
@@ -451,6 +488,7 @@
       "bestActionIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.45,
       "posterior": [
        0.5333333333333333,
@@ -458,12 +496,16 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.55,
       "posterior": [
        0.10909090909090909,
@@ -471,18 +513,25 @@
       ],
       "tiedActionIndices": [
        1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       1
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.0,
       "posterior": [
        0.3,
        0.7
       ],
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -563,6 +612,7 @@
       "bestActionIndex": 0,
       "emv": 132.35286608992124,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.1699999,
       "posterior": [
        0.5882350519029718,
@@ -570,12 +620,16 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 49.99993225804266,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.3099999,
       "posterior": [
        0.3225804266388473,
@@ -583,18 +637,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 11.538452218933118,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.5199999,
       "posterior": [
        0.19230753698221864,
        0.8076924630177813
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -675,6 +736,7 @@
       "bestActionIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.45,
       "posterior": [
        0.5333333333333333,
@@ -682,18 +744,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.55,
       "posterior": [
        0.10909090909090909,
        0.8909090909090909
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -767,6 +836,7 @@
       "bestActionIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.45,
       "posterior": [
        0.5333333333333333,
@@ -774,18 +844,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.55,
       "posterior": [
        0.10909090909090909,
        0.8909090909090909
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -860,6 +937,7 @@
       "bestActionIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.5,
       "posterior": [
        0.3,
@@ -867,18 +945,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.5,
       "posterior": [
        0.3,
        0.7
       ],
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -953,6 +1038,7 @@
       "bestActionIndex": 0,
       "emv": 56.5625,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.48,
       "posterior": [
        0.34375,
@@ -960,18 +1046,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 30.48076923076923,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.52,
       "posterior": [
        0.25961538461538464,
        0.7403846153846154
       ],
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -1046,6 +1139,7 @@
       "bestActionIndex": 0,
       "emv": 71.30434782608695,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.46,
       "posterior": [
        0.391304347826087,
@@ -1053,18 +1147,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 18.88888888888889,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.54,
       "posterior": [
        0.2222222222222222,
        0.7777777777777778
       ],
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -1139,6 +1240,7 @@
       "bestActionIndex": 0,
       "emv": 87.38636363636364,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.44,
       "posterior": [
        0.4431818181818182,
@@ -1146,18 +1248,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 11.25,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.56,
       "posterior": [
        0.1875,
        0.8125
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -1232,6 +1341,7 @@
       "bestActionIndex": 0,
       "emv": 105.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.42,
       "posterior": [
        0.5,
@@ -1239,18 +1349,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 9.310344827586206,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.58,
       "posterior": [
        0.15517241379310345,
        0.8448275862068966
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -1325,6 +1442,7 @@
       "bestActionIndex": 0,
       "emv": 124.375,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.4,
       "posterior": [
        0.5625,
@@ -1332,18 +1450,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 7.5,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.6,
       "posterior": [
        0.125,
        0.875
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -1418,6 +1543,7 @@
       "bestActionIndex": 0,
       "emv": 145.78947368421052,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.38,
       "posterior": [
        0.631578947368421,
@@ -1425,18 +1551,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 5.806451612903226,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.62,
       "posterior": [
        0.0967741935483871,
        0.9032258064516129
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -1511,6 +1644,7 @@
       "bestActionIndex": 0,
       "emv": 169.58333333333334,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.36,
       "posterior": [
        0.7083333333333334,
@@ -1518,18 +1652,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 4.21875,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.64,
       "posterior": [
        0.0703125,
        0.9296875
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -1604,6 +1745,7 @@
       "bestActionIndex": 0,
       "emv": 196.1764705882353,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.34,
       "posterior": [
        0.7941176470588235,
@@ -1611,18 +1753,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 2.727272727272727,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.66,
       "posterior": [
        0.045454545454545456,
        0.9545454545454546
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -1697,6 +1846,7 @@
       "bestActionIndex": 0,
       "emv": 226.09375,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.32,
       "posterior": [
        0.890625,
@@ -1704,18 +1854,25 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 1.3235294117647058,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.68,
       "posterior": [
        0.022058823529411766,
        0.9779411764705882
       ],
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -1790,6 +1947,7 @@
       "bestActionIndex": 0,
       "emv": 260.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "pSignal": 0.3,
       "posterior": [
        1.0,
@@ -1797,18 +1955,26 @@
       ],
       "tiedActionIndices": [
        0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": true,
+      "indifferentAtCardPrecision": true,
       "pSignal": 0.7,
       "posterior": [
        0.0,
        1.0
       ],
       "tiedActionIndices": [
+       1,
+       2
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1,
        2
       ]
@@ -2281,10 +2447,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 43.0,
     "evWithPerfect": 78.0,
     "evpi": 35.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2327,10 +2497,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 15.0,
     "evWithPerfect": 78.0,
     "evpi": 63.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2393,10 +2567,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 109.0,
     "evWithPerfect": 133.0,
     "evpi": 24.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      0,
@@ -2444,10 +2622,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 65.0,
     "evWithPerfect": 65.0,
     "evpi": 0.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      0
@@ -2498,10 +2680,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 260.0,
     "evWithPerfect": 260.0,
     "evpi": 0.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2549,10 +2735,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 43.0,
     "evWithPerfect": 78.0,
     "evpi": 35.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2604,10 +2794,15 @@
      0,
      1
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0,
+     1
+    ],
     "emvPrior": 37.0,
     "evWithPerfect": 46.1,
     "evpi": 9.1,
     "indifferent": true,
+    "indifferentAtCardPrecision": true,
     "perfectBestActionIndex": [
      1,
      2
@@ -2657,10 +2852,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 43.0,
     "evWithPerfect": 78.0,
     "evpi": 35.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2723,10 +2922,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 149.99979,
     "evWithPerfect": 176.66649,
     "evpi": 26.6667,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      0,
@@ -2782,10 +2985,14 @@
     "bestActionTiedIndices": [
      1
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     1
+    ],
     "emvPrior": 6.0,
     "evWithPerfect": 26.0,
     "evpi": 20.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2837,10 +3044,15 @@
      0,
      1
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0,
+     1
+    ],
     "emvPrior": 12.0,
     "evWithPerfect": 52.0,
     "evpi": 40.0,
     "indifferent": true,
+    "indifferentAtCardPrecision": true,
     "perfectBestActionIndex": [
      0,
      1
@@ -2891,10 +3103,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 74.0,
     "evWithPerfect": 104.0,
     "evpi": 30.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2945,10 +3161,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 105.0,
     "evWithPerfect": 130.0,
     "evpi": 25.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2999,10 +3219,14 @@
     "bestActionTiedIndices": [
      0
     ],
+    "bestActionTiedIndicesAtCardPrecision": [
+     0
+    ],
     "emvPrior": 198.0,
     "evWithPerfect": 208.0,
     "evpi": 10.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -3627,14 +3851,19 @@
     },
     "emv": 50.5,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 50.5,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -3650,11 +3879,15 @@
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -3750,11 +3983,15 @@
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        1
       ],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -3850,10 +4087,14 @@
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -3942,6 +4183,9 @@
      0.55
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -4298,14 +4542,19 @@
     },
     "emv": 43.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -4321,11 +4570,15 @@
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -4421,11 +4674,15 @@
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        1
       ],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -4521,10 +4778,14 @@
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -4613,6 +4874,9 @@
      0.55
     ],
     "tiedIndices": [
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
      1
     ]
    },
@@ -4969,14 +5233,19 @@
     },
     "emv": 50.5,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 50.5,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -4992,11 +5261,15 @@
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -5092,11 +5365,15 @@
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        1
       ],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -5192,10 +5469,14 @@
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -5284,6 +5565,9 @@
      0.55
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -5640,14 +5924,20 @@
     },
     "emv": 43.0,
     "indifferent": true,
+    "indifferentAtCardPrecision": true,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": true,
+      "indifferentAtCardPrecision": true,
       "path": [],
       "tiedIndices": [
+       0,
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        0,
        1
       ],
@@ -5664,11 +5954,15 @@
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -5764,11 +6058,15 @@
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        1
       ],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -5864,10 +6162,14 @@
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -5956,6 +6258,10 @@
      0.55
     ],
     "tiedIndices": [
+     0,
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
      0,
      1
     ]
@@ -6093,13 +6399,18 @@
     ],
     "emv": 43.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -6175,6 +6486,9 @@
      }
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -6892,14 +7206,19 @@
     },
     "emv": 109.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "noInfoBranchValue": 109.0,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": 109.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -6915,11 +7234,15 @@
       "bestBranchIndex": 0,
       "emv": 227.1875,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -7084,11 +7407,15 @@
       "bestBranchIndex": 0,
       "emv": 86.57894736842105,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -7253,11 +7580,15 @@
       "bestBranchIndex": 2,
       "emv": 15.333333333333334,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        2
       ],
       "tiedIndices": [
+       2
+      ],
+      "tiedIndicesAtCardPrecision": [
        2
       ],
       "type": "decision"
@@ -7422,10 +7753,14 @@
       "bestBranchIndex": 0,
       "emv": 109.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -7577,6 +7912,9 @@
      0.3
     ],
     "tiedIndices": [
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
      1
     ]
    },
@@ -7947,14 +8285,19 @@
     },
     "emv": 55.5,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 55.5,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -7970,11 +8313,15 @@
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -8070,11 +8417,15 @@
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        1
       ],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -8170,10 +8521,14 @@
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -8262,6 +8617,9 @@
      0.55
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -8618,14 +8976,19 @@
     },
     "emv": 50.5,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 50.5,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -8641,11 +9004,15 @@
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -8741,11 +9108,15 @@
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        1
       ],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -8841,10 +9212,14 @@
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -8933,6 +9308,9 @@
      0.55
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -9289,14 +9667,19 @@
     },
     "emv": 45.5,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 45.5,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -9312,11 +9695,15 @@
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -9412,11 +9799,15 @@
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        1
       ],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -9512,10 +9903,14 @@
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -9604,6 +9999,9 @@
      0.55
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -9960,14 +10358,19 @@
     },
     "emv": 43.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -9983,11 +10386,15 @@
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -10083,11 +10490,15 @@
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        1
       ],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -10183,10 +10594,14 @@
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        1
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -10275,6 +10690,9 @@
      0.55
     ],
     "tiedIndices": [
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
      1
     ]
    },
@@ -11149,13 +11567,18 @@
     ],
     "emv": 43.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -11215,6 +11638,9 @@
      }
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -11340,13 +11766,18 @@
     ],
     "emv": 67.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 67.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -11362,11 +11793,15 @@
       "bestBranchIndex": 0,
       "emv": 150.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -11399,6 +11834,9 @@
      }
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -11611,13 +12049,18 @@
     ],
     "emv": 7.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 7.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -11631,6 +12074,9 @@
      }
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -11696,15 +12142,22 @@
     ],
     "emv": 30.0,
     "indifferent": true,
+    "indifferentAtCardPrecision": true,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 30.0,
       "indifferent": true,
+      "indifferentAtCardPrecision": true,
       "path": [],
       "tiedIndices": [
        0,
        1
+      ],
+      "tiedIndicesAtCardPrecision": [
+       0,
+       1,
+       2
       ],
       "type": "decision"
      },
@@ -11749,6 +12202,11 @@
     "tiedIndices": [
      0,
      1
+    ],
+    "tiedIndicesAtCardPrecision": [
+     0,
+     1,
+     2
     ]
    },
    "id": "equalEmvTie",
@@ -11843,13 +12301,18 @@
     ],
     "emv": -52.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": -52.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -11886,6 +12349,9 @@
      }
     ],
     "tiedIndices": [
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
      1
     ]
    },
@@ -12162,10 +12628,14 @@
       "bestBranchIndex": 0,
       "emv": 19.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -12280,13 +12750,18 @@
     ],
     "emv": 3.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": 3.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        1
       ],
       "type": "decision"
@@ -12323,6 +12798,9 @@
      }
     ],
     "tiedIndices": [
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
      1
     ]
    },
@@ -12406,13 +12884,19 @@
     ],
     "emv": 0.3,
     "indifferent": true,
+    "indifferentAtCardPrecision": true,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 0.3,
       "indifferent": true,
+      "indifferentAtCardPrecision": true,
       "path": [],
       "tiedIndices": [
+       0,
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        0,
        1
       ],
@@ -12450,6 +12934,10 @@
      }
     ],
     "tiedIndices": [
+     0,
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
      0,
      1
     ]
@@ -12519,13 +13007,19 @@
     ],
     "emv": 43.00000001,
     "indifferent": true,
+    "indifferentAtCardPrecision": true,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 43.00000001,
       "indifferent": true,
+      "indifferentAtCardPrecision": true,
       "path": [],
       "tiedIndices": [
+       0,
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        0,
        1
       ],
@@ -12547,6 +13041,10 @@
      }
     ],
     "tiedIndices": [
+     0,
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
      0,
      1
     ]
@@ -12597,13 +13095,19 @@
     ],
     "emv": 43.0000001,
     "indifferent": false,
+    "indifferentAtCardPrecision": true,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": 43.0000001,
       "indifferent": false,
+      "indifferentAtCardPrecision": true,
       "path": [],
       "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
+       0,
        1
       ],
       "type": "decision"
@@ -12624,6 +13128,10 @@
      }
     ],
     "tiedIndices": [
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
+     0,
      1
     ]
    },
@@ -12673,13 +13181,19 @@
     ],
     "emv": 0.2000000005,
     "indifferent": true,
+    "indifferentAtCardPrecision": true,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 0.2000000005,
       "indifferent": true,
+      "indifferentAtCardPrecision": true,
       "path": [],
       "tiedIndices": [
+       0,
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
        0,
        1
       ],
@@ -12701,6 +13215,10 @@
      }
     ],
     "tiedIndices": [
+     0,
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
      0,
      1
     ]
@@ -12726,6 +13244,262 @@
      }
     ],
     "label": "small",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-1 second precision: branch values 43 and 43.0001. The gap is far outside the exact band (4.3e-8), so indifferent is false and the second branch is the value winner, but both print a 43.00 card, so tiedIndicesAtCardPrecision is [0, 1] and the guidance a reader sees says indifferent.",
+   "expected": {
+    "bestBranchIndex": 1,
+    "branches": [
+     {
+      "branchValue": 43.0,
+      "onOptimalPath": false,
+      "path": [
+       0
+      ]
+     },
+     {
+      "branchValue": 43.0001,
+      "onOptimalPath": true,
+      "path": [
+       1
+      ]
+     }
+    ],
+    "emv": 43.0001,
+    "indifferent": false,
+    "indifferentAtCardPrecision": true,
+    "nodes": [
+     {
+      "bestBranchIndex": 1,
+      "emv": 43.0001,
+      "indifferent": false,
+      "indifferentAtCardPrecision": true,
+      "path": [],
+      "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
+       0,
+       1
+      ],
+      "type": "decision"
+     },
+     {
+      "emv": 43.0,
+      "path": [
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 43.0001,
+      "path": [
+       1
+      ],
+      "type": "terminal"
+     }
+    ],
+    "tiedIndices": [
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
+     0,
+     1
+    ]
+   },
+   "id": "cardPrecisionTieOutsideBand",
+   "tree": {
+    "branches": [
+     {
+      "label": "A",
+      "node": {
+       "label": "A",
+       "payoff": 43,
+       "type": "terminal"
+      }
+     },
+     {
+      "label": "B",
+      "node": {
+       "label": "B",
+       "payoff": 43.0001,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "same card",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-1 control: branch values 43 and 43.02 differ on the cards as well as on value, so neither set ties and the guidance names one branch.",
+   "expected": {
+    "bestBranchIndex": 1,
+    "branches": [
+     {
+      "branchValue": 43.0,
+      "onOptimalPath": false,
+      "path": [
+       0
+      ]
+     },
+     {
+      "branchValue": 43.02,
+      "onOptimalPath": true,
+      "path": [
+       1
+      ]
+     }
+    ],
+    "emv": 43.02,
+    "indifferent": false,
+    "indifferentAtCardPrecision": false,
+    "nodes": [
+     {
+      "bestBranchIndex": 1,
+      "emv": 43.02,
+      "indifferent": false,
+      "indifferentAtCardPrecision": false,
+      "path": [],
+      "tiedIndices": [
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
+       1
+      ],
+      "type": "decision"
+     },
+     {
+      "emv": 43.0,
+      "path": [
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 43.02,
+      "path": [
+       1
+      ],
+      "type": "terminal"
+     }
+    ],
+    "tiedIndices": [
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
+     1
+    ]
+   },
+   "id": "apartOnTheCards",
+   "tree": {
+    "branches": [
+     {
+      "label": "A",
+      "node": {
+       "label": "A",
+       "payoff": 43,
+       "type": "terminal"
+      }
+     },
+     {
+      "label": "B",
+      "node": {
+       "label": "B",
+       "payoff": 43.02,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "different cards",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-1: the two sets are measured independently. Values 0.005 and 0.0049999999 are a tenth of a billionth apart, inside the absolute band, so they tie on value; half away from zero puts them on 0.01 and 0.00, two different cards, so only the first is tied at card precision.",
+   "expected": {
+    "bestBranchIndex": 0,
+    "branches": [
+     {
+      "branchValue": 0.005,
+      "onOptimalPath": true,
+      "path": [
+       0
+      ]
+     },
+     {
+      "branchValue": 0.0049999999,
+      "onOptimalPath": false,
+      "path": [
+       1
+      ]
+     }
+    ],
+    "emv": 0.005,
+    "indifferent": true,
+    "indifferentAtCardPrecision": false,
+    "nodes": [
+     {
+      "bestBranchIndex": 0,
+      "emv": 0.005,
+      "indifferent": true,
+      "indifferentAtCardPrecision": false,
+      "path": [],
+      "tiedIndices": [
+       0,
+       1
+      ],
+      "tiedIndicesAtCardPrecision": [
+       0
+      ],
+      "type": "decision"
+     },
+     {
+      "emv": 0.005,
+      "path": [
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 0.0049999999,
+      "path": [
+       1
+      ],
+      "type": "terminal"
+     }
+    ],
+    "tiedIndices": [
+     0,
+     1
+    ],
+    "tiedIndicesAtCardPrecision": [
+     0
+    ]
+   },
+   "id": "cardBoundarySplitsAnExactTie",
+   "tree": {
+    "branches": [
+     {
+      "label": "A",
+      "node": {
+       "label": "A",
+       "payoff": 0.005,
+       "type": "terminal"
+      }
+     },
+     {
+      "label": "B",
+      "node": {
+       "label": "B",
+       "payoff": 0.0049999999,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "rounding boundary",
     "type": "decision"
    }
   },
@@ -12767,13 +13541,18 @@
     ],
     "emv": 30.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 30.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -12810,6 +13589,9 @@
      }
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -12934,13 +13716,18 @@
     ],
     "emv": 6.0,
     "indifferent": false,
+    "indifferentAtCardPrecision": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 6.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -12956,11 +13743,15 @@
       "bestBranchIndex": 0,
       "emv": 23.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "path": [
        0,
        0
       ],
       "tiedIndices": [
+       0
+      ],
+      "tiedIndicesAtCardPrecision": [
        0
       ],
       "type": "decision"
@@ -13020,6 +13811,9 @@
      }
     ],
     "tiedIndices": [
+     0
+    ],
+    "tiedIndicesAtCardPrecision": [
      0
     ]
    },
@@ -13842,10 +14636,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -13874,6 +14675,7 @@
     "emvWithInfo": 38.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 23.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -13882,7 +14684,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -13890,7 +14696,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -14103,13 +14913,18 @@
      ],
      "emv": 38.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 38.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -14125,11 +14940,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -14196,11 +15015,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -14267,10 +15090,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -14329,6 +15156,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -14401,10 +15231,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -14433,6 +15270,7 @@
     "emvWithInfo": -2.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": -17.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -14441,7 +15279,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -14449,7 +15291,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -14662,13 +15508,18 @@
      ],
      "emv": 15.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -14684,11 +15535,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -14755,11 +15610,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -14826,10 +15685,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -14888,6 +15751,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -14959,10 +15825,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -14991,6 +15864,7 @@
     "emvWithInfo": null,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": null,
     "optimalActionWithoutInfo": "Drill Exploration Well",
     "treePresent": false,
@@ -15061,10 +15935,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -15093,6 +15974,7 @@
     "emvWithInfo": null,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": null,
     "optimalActionWithoutInfo": "Drill Exploration Well",
     "treePresent": false,
@@ -15163,10 +16045,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -15195,6 +16084,7 @@
     "emvWithInfo": null,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": null,
     "optimalActionWithoutInfo": "Drill Exploration Well",
     "treePresent": false,
@@ -15266,10 +16156,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -15298,6 +16195,7 @@
     "emvWithInfo": 39.75,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 24.75,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -15306,7 +16204,11 @@
       "bestActionIndex": 0,
       "emv": 124.375,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -15314,7 +16216,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -15527,13 +16433,18 @@
      ],
      "emv": 39.75,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 39.75,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -15549,11 +16460,15 @@
        "bestBranchIndex": 0,
        "emv": 124.375,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -15620,11 +16535,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -15691,10 +16610,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -15753,6 +16676,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -15824,10 +16750,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -15856,6 +16789,7 @@
     "emvWithInfo": null,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": null,
     "optimalActionWithoutInfo": "Drill Exploration Well",
     "treePresent": false,
@@ -15927,10 +16861,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -15959,6 +16900,7 @@
     "emvWithInfo": 15.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 0.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -15967,7 +16909,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -15975,7 +16921,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -16188,13 +17138,19 @@
      ],
      "emv": 15.0,
      "indifferent": true,
+     "indifferentAtCardPrecision": true,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": true,
+       "indifferentAtCardPrecision": true,
        "path": [],
        "tiedIndices": [
+        0,
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         0,
         1
        ],
@@ -16211,11 +17167,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -16282,11 +17242,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -16353,10 +17317,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -16415,6 +17383,10 @@
       }
      ],
      "tiedIndices": [
+      0,
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       0,
       1
      ]
@@ -16488,10 +17460,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -16520,6 +17499,7 @@
     "emvWithInfo": 15.004,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 0.004,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -16528,7 +17508,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -16536,7 +17520,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -16749,14 +17737,20 @@
      ],
      "emv": 15.004,
      "indifferent": false,
+     "indifferentAtCardPrecision": true,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 15.004,
        "indifferent": false,
+       "indifferentAtCardPrecision": true,
        "path": [],
        "tiedIndices": [
         0
+       ],
+       "tiedIndicesAtCardPrecision": [
+        0,
+        1
        ],
        "type": "decision"
       },
@@ -16771,11 +17765,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -16842,11 +17840,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -16913,10 +17915,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -16976,6 +17982,10 @@
      ],
      "tiedIndices": [
       0
+     ],
+     "tiedIndicesAtCardPrecision": [
+      0,
+      1
      ]
     },
     "treePresent": true,
@@ -17047,10 +18057,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -17079,6 +18096,7 @@
     "emvWithInfo": 14.996,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": -0.004,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -17087,7 +18105,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -17095,7 +18117,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -17308,13 +18334,19 @@
      ],
      "emv": 15.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": true,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": true,
        "path": [],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
+        0,
         1
        ],
        "type": "decision"
@@ -17330,11 +18362,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -17401,11 +18437,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -17472,10 +18512,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -17534,6 +18578,10 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
+      0,
       1
      ]
     },
@@ -17606,10 +18654,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -17638,6 +18693,7 @@
     "emvWithInfo": 15.005,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 0.005,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -17646,7 +18702,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -17654,7 +18714,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -17867,13 +18931,18 @@
      ],
      "emv": 15.005,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 15.005,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -17889,11 +18958,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -17960,11 +19033,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -18031,10 +19108,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -18093,6 +19174,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -18165,10 +19249,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -18197,6 +19288,7 @@
     "emvWithInfo": 14.995,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": -0.005,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -18205,7 +19297,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -18213,7 +19309,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -18426,13 +19526,19 @@
      ],
      "emv": 15.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": true,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": true,
        "path": [],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
+        0,
         1
        ],
        "type": "decision"
@@ -18448,11 +19554,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -18519,11 +19629,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -18590,10 +19704,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -18652,6 +19770,10 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
+      0,
       1
      ]
     },
@@ -18724,10 +19846,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -18756,6 +19885,7 @@
     "emvWithInfo": 15.1,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 0.1,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -18764,7 +19894,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -18772,7 +19906,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -18985,13 +20123,18 @@
      ],
      "emv": 15.1,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 15.1,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -19007,11 +20150,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -19078,11 +20225,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -19149,10 +20300,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -19211,6 +20366,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -19283,10 +20441,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -19315,6 +20480,7 @@
     "emvWithInfo": 14.9,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": -0.1,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -19323,7 +20489,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -19331,7 +20501,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -19544,13 +20718,18 @@
      ],
      "emv": 15.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -19566,11 +20745,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -19637,11 +20820,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -19708,10 +20895,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -19770,6 +20961,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -19842,10 +21036,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -19877,6 +21078,7 @@
     "emvWithInfo": 62.333333333333336,
     "emvWithoutInfo": 63.33323,
     "evpi": 30.00001,
+    "guidance": "names one action",
     "netVoi": -0.9998966666666667,
     "noInfoBranchValue": 63.33323,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -19885,7 +21087,11 @@
       "bestActionIndex": 0,
       "emv": 63.333333333333336,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -19893,7 +21099,11 @@
       "bestActionIndex": 0,
       "emv": 63.333333333333336,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -19901,7 +21111,11 @@
       "bestActionIndex": 0,
       "emv": 63.333333333333336,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -20259,15 +21473,20 @@
      ],
      "emv": 63.33323,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 63.33323,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
         1
        ],
+       "tiedIndicesAtCardPrecision": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -20281,11 +21500,15 @@
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -20372,11 +21595,15 @@
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -20463,11 +21690,15 @@
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         2
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -20554,10 +21785,14 @@
        "bestBranchIndex": 0,
        "emv": 63.33323,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -20634,6 +21869,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -20739,10 +21977,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -20774,6 +22019,7 @@
     "emvWithInfo": 62.333333333333336,
     "emvWithoutInfo": 63.333333333333336,
     "evpi": 30.0,
+    "guidance": "names one action",
     "netVoi": -1.0,
     "noInfoBranchValue": 63.333333333333336,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -20782,7 +22028,11 @@
       "bestActionIndex": 0,
       "emv": 63.333333333333336,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -20790,7 +22040,11 @@
       "bestActionIndex": 0,
       "emv": 63.333333333333336,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -20798,7 +22052,11 @@
       "bestActionIndex": 0,
       "emv": 63.333333333333336,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -21156,15 +22414,20 @@
      ],
      "emv": 63.333333333333336,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 63.333333333333336,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
         1
        ],
+       "tiedIndicesAtCardPrecision": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -21178,11 +22441,15 @@
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -21269,11 +22536,15 @@
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -21360,11 +22631,15 @@
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         2
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -21451,10 +22726,14 @@
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -21531,6 +22810,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -21636,10 +22918,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -21671,6 +22960,7 @@
     "emvWithInfo": 71.22222222222223,
     "emvWithoutInfo": 63.33323,
     "evpi": 30.00001,
+    "guidance": "names one action",
     "netVoi": 7.888992222222222,
     "noInfoBranchValue": 63.33323,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -21679,7 +22969,11 @@
       "bestActionIndex": 0,
       "emv": 167.77777777777777,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -21687,7 +22981,11 @@
       "bestActionIndex": 0,
       "emv": 48.888888888888886,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -21695,7 +22993,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -22053,13 +23355,18 @@
      ],
      "emv": 71.22222222222223,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 71.22222222222223,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -22075,11 +23382,15 @@
        "bestBranchIndex": 0,
        "emv": 167.77777777777777,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -22166,11 +23477,15 @@
        "bestBranchIndex": 0,
        "emv": 48.888888888888886,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -22257,11 +23572,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         2
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -22348,10 +23667,14 @@
        "bestBranchIndex": 0,
        "emv": 63.33323,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -22428,6 +23751,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -22533,10 +23859,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -22568,6 +23901,7 @@
     "emvWithInfo": 71.22222222222223,
     "emvWithoutInfo": 63.333333333333336,
     "evpi": 30.0,
+    "guidance": "names one action",
     "netVoi": 7.888888888888889,
     "noInfoBranchValue": 63.333333333333336,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -22576,7 +23910,11 @@
       "bestActionIndex": 0,
       "emv": 167.77777777777777,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -22584,7 +23922,11 @@
       "bestActionIndex": 0,
       "emv": 48.888888888888886,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -22592,7 +23934,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -22950,13 +24296,18 @@
      ],
      "emv": 71.22222222222223,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 71.22222222222223,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -22972,11 +24323,15 @@
        "bestBranchIndex": 0,
        "emv": 167.77777777777777,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -23063,11 +24418,15 @@
        "bestBranchIndex": 0,
        "emv": 48.888888888888886,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -23154,11 +24513,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         2
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -23245,10 +24608,14 @@
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -23325,6 +24692,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -23430,11 +24800,20 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": true,
+     "indifferentAtCardPrecision": true,
      "tiedIndices": [
       0,
       1
      ],
+     "tiedIndicesAtCardPrecision": [
+      0,
+      1
+     ],
      "tiedLabels": [
+      "Drill Exploration Well",
+      "Do Not Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well",
       "Do Not Drill Exploration Well"
      ]
@@ -23464,6 +24843,7 @@
     "emvWithInfo": 32.0,
     "emvWithoutInfo": 0.0,
     "evpi": 73.5,
+    "guidance": "indifferent",
     "netVoi": 32.0,
     "noInfoBranchValue": 0.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -23472,7 +24852,11 @@
       "bestActionIndex": 0,
       "emv": 105.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -23480,7 +24864,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -23693,13 +25081,18 @@
      ],
      "emv": 32.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 32.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -23715,11 +25108,15 @@
        "bestBranchIndex": 0,
        "emv": 105.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -23786,11 +25183,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -23857,10 +25258,15 @@
        "bestBranchIndex": 0,
        "emv": 0.0,
        "indifferent": true,
+       "indifferentAtCardPrecision": true,
        "path": [
         1
        ],
        "tiedIndices": [
+        0,
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         0,
         1
        ],
@@ -23920,6 +25326,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -23992,11 +25401,20 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": true,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0,
+      1
+     ],
      "tiedLabels": [
       "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
+      "Drill Exploration Well",
+      "Do Not Drill Exploration Well"
      ]
     },
     "cards": {
@@ -24024,6 +25442,7 @@
     "emvWithInfo": 32.00004,
     "emvWithoutInfo": 0.0001,
     "evpi": 73.49993,
+    "guidance": "indifferent",
     "netVoi": 31.99994,
     "noInfoBranchValue": 0.0001,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -24032,7 +25451,11 @@
       "bestActionIndex": 0,
       "emv": 105.0001,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -24040,7 +25463,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -24253,13 +25680,18 @@
      ],
      "emv": 32.00004,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 32.00004,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -24275,11 +25707,15 @@
        "bestBranchIndex": 0,
        "emv": 105.0001,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -24346,11 +25782,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -24417,11 +25857,16 @@
        "bestBranchIndex": 0,
        "emv": 0.0001,
        "indifferent": false,
+       "indifferentAtCardPrecision": true,
        "path": [
         1
        ],
        "tiedIndices": [
         0
+       ],
+       "tiedIndicesAtCardPrecision": [
+        0,
+        1
        ],
        "type": "decision"
       },
@@ -24479,6 +25924,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -24545,16 +25993,618 @@
    }
   },
   {
+   "description": "EC4-1 control: a decision cost of 54.9 leaves drilling worth 0.10 against 0 for not drilling, a difference the EMV cards show (0.10 against 0.00), so the guidance names drilling.",
+   "expected": {
+    "acquireBranchValue": 32.04,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "indifferentAtCardPrecision": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
+      "Drill Exploration Well"
+     ]
+    },
+    "cards": {
+     "emvWithInfo": "32.04",
+     "emvWithoutInfo": "0.10",
+     "evpi": "73.43",
+     "netVoi": "31.94",
+     "voi": "41.94"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3,
+      0.7
+     ],
+     "stated": [
+      0.3,
+      0.7
+     ]
+    },
+    "emvWithInfo": 32.04,
+    "emvWithoutInfo": 0.1,
+    "evpi": 73.43,
+    "guidance": "names one action",
+    "netVoi": 31.94,
+    "noInfoBranchValue": 0.1,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 105.1,
+      "indifferent": false,
+      "indifferentAtCardPrecision": false,
+      "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       0
+      ]
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0,
+      "indifferent": false,
+      "indifferentAtCardPrecision": false,
+      "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
+       1
+      ]
+     }
+    ],
+    "signalChances": [
+     0.4,
+     0.6
+    ],
+    "tree": {
+     "bestBranchIndex": 0,
+     "branches": [
+      {
+       "branchValue": 32.04,
+       "onOptimalPath": true,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 105.1,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 105.1,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -69.9,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.1,
+       "onOptimalPath": false,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 0.1,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      }
+     ],
+     "emv": 32.04,
+     "indifferent": false,
+     "indifferentAtCardPrecision": false,
+     "nodes": [
+      {
+       "bestBranchIndex": 0,
+       "emv": 32.04,
+       "indifferent": false,
+       "indifferentAtCardPrecision": false,
+       "path": [],
+       "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 42.04,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 105.1,
+       "indifferent": false,
+       "indifferentAtCardPrecision": false,
+       "path": [
+        0,
+        0
+       ],
+       "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 160.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "indifferent": false,
+       "indifferentAtCardPrecision": false,
+       "path": [
+        0,
+        1
+       ],
+       "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": -15.0,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 0.1,
+       "indifferent": false,
+       "indifferentAtCardPrecision": false,
+       "path": [
+        1
+       ],
+       "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 55.0,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      }
+     ],
+     "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ]
+    },
+    "treePresent": true,
+    "verdict": "acquire",
+    "voi": 41.94,
+    "withheld": false
+   },
+   "id": "actionsApartOnTheCards",
+   "inputs": {
+    "decisionCost": 54.9,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 10,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   }
+  },
+  {
    "description": "EC4-8: three outcome chances typed 33.3333 percent sum to 99.9999, exactly 1e-4 percent points short, and are accepted end to end (prior tree included); indicators 50 / 50 with outcome chances 50 / 30 / 20 and 16.6666 / 36.6667 / 46.6667, consistent with the stated thirds.",
    "expected": {
     "acquireBranchValue": 53.333235,
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -24586,6 +26636,7 @@
     "emvWithInfo": 53.333235,
     "emvWithoutInfo": 63.33323,
     "evpi": 30.00001,
+    "guidance": "names one action",
     "netVoi": -9.999995,
     "noInfoBranchValue": 63.33323,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -24594,7 +26645,11 @@
       "bestActionIndex": 0,
       "emv": 118.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -24602,7 +26657,11 @@
       "bestActionIndex": 0,
       "emv": 8.66647,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -24873,13 +26932,18 @@
      ],
      "emv": 63.33323,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 63.33323,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -24895,11 +26959,15 @@
        "bestBranchIndex": 0,
        "emv": 118.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -24986,11 +27054,15 @@
        "bestBranchIndex": 0,
        "emv": 8.66647,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -25077,10 +27149,14 @@
        "bestBranchIndex": 0,
        "emv": 63.33323,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -25157,6 +27233,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -25243,10 +27322,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -25275,6 +27361,7 @@
     "emvWithInfo": 48.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 33.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -25283,7 +27370,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -25291,7 +27382,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -25504,13 +27599,18 @@
      ],
      "emv": 48.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 48.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -25526,11 +27626,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -25597,11 +27701,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -25668,10 +27776,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -25730,6 +27842,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -25802,10 +27917,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 1,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       1
      ],
+     "tiedIndicesAtCardPrecision": [
+      1
+     ],
      "tiedLabels": [
+      "Do Not Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Do Not Drill Exploration Well"
      ]
     },
@@ -25834,6 +27956,7 @@
     "emvWithInfo": -5.4,
     "emvWithoutInfo": 0.0,
     "evpi": 26.0,
+    "guidance": "names one action",
     "netVoi": -5.4,
     "noInfoBranchValue": 0.0,
     "optimalActionWithoutInfo": "Do Not Drill Exploration Well",
@@ -25842,7 +27965,11 @@
       "bestActionIndex": 0,
       "emv": 17.692307692307693,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -25850,7 +27977,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -26063,13 +28194,18 @@
      ],
      "emv": 0.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -26085,11 +28221,15 @@
        "bestBranchIndex": 0,
        "emv": 17.692307692307693,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -26156,11 +28296,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -26227,10 +28371,14 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -26289,6 +28437,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -26361,10 +28512,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -26393,6 +28551,7 @@
     "emvWithInfo": 43.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 28.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -26401,7 +28560,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -26409,7 +28572,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -26622,13 +28789,18 @@
      ],
      "emv": 43.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 43.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -26644,11 +28816,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -26715,11 +28891,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -26786,10 +28966,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -26848,6 +29032,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -26920,10 +29107,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -26952,6 +29146,7 @@
     "emvWithInfo": 28.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 13.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -26960,7 +29155,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -26968,7 +29167,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -27181,13 +29384,18 @@
      ],
      "emv": 28.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 28.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -27203,11 +29411,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -27274,11 +29486,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -27345,10 +29561,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -27407,6 +29627,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -27479,10 +29702,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -27511,6 +29741,7 @@
     "emvWithInfo": 8.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": -7.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -27519,7 +29750,11 @@
       "bestActionIndex": 0,
       "emv": 120.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -27527,7 +29762,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -27740,13 +29979,18 @@
      ],
      "emv": 15.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -27762,11 +30006,15 @@
        "bestBranchIndex": 0,
        "emv": 120.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -27833,11 +30081,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -27904,10 +30156,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -27966,6 +30222,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -28039,10 +30298,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -28071,6 +30337,7 @@
     "emvWithInfo": 5.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": -10.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -28079,7 +30346,11 @@
       "bestActionIndex": 0,
       "emv": 15.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -28087,7 +30358,11 @@
       "bestActionIndex": 0,
       "emv": 15.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -28300,15 +30575,20 @@
      ],
      "emv": 15.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
         1
        ],
+       "tiedIndicesAtCardPrecision": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -28322,11 +30602,15 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -28393,11 +30677,15 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -28464,10 +30752,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -28526,6 +30818,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -28599,10 +30894,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -28631,6 +30933,7 @@
     "emvWithInfo": 5.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": -10.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -28639,7 +30942,11 @@
       "bestActionIndex": 0,
       "emv": 30.3125,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -28647,7 +30954,11 @@
       "bestActionIndex": 0,
       "emv": 0.8653846153846154,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      }
@@ -28860,13 +31171,18 @@
      ],
      "emv": 15.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -28882,11 +31198,15 @@
        "bestBranchIndex": 0,
        "emv": 30.3125,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -28953,11 +31273,15 @@
        "bestBranchIndex": 0,
        "emv": 0.8653846153846154,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -29024,10 +31348,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -29086,6 +31414,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -29159,10 +31490,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -29191,6 +31529,7 @@
     "emvWithInfo": 11.6,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": -3.4,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -29199,7 +31538,11 @@
       "bestActionIndex": 0,
       "emv": 46.95652173913044,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -29207,7 +31550,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -29420,13 +31767,18 @@
      ],
      "emv": 15.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -29442,11 +31794,15 @@
        "bestBranchIndex": 0,
        "emv": 46.95652173913044,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -29513,11 +31869,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -29584,10 +31944,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -29646,6 +32010,9 @@
       }
      ],
      "tiedIndices": [
+      1
+     ],
+     "tiedIndicesAtCardPrecision": [
       1
      ]
     },
@@ -29719,10 +32086,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -29751,6 +32125,7 @@
     "emvWithInfo": 18.65,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 3.65,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -29759,7 +32134,11 @@
       "bestActionIndex": 0,
       "emv": 65.11363636363636,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -29767,7 +32146,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -29980,13 +32363,18 @@
      ],
      "emv": 18.65,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 18.65,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -30002,11 +32390,15 @@
        "bestBranchIndex": 0,
        "emv": 65.11363636363636,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -30073,11 +32465,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -30144,10 +32540,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -30206,6 +32606,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -30279,10 +32682,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -30311,6 +32721,7 @@
     "emvWithInfo": 25.7,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 10.7,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -30319,7 +32730,11 @@
       "bestActionIndex": 0,
       "emv": 85.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -30327,7 +32742,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -30540,13 +32959,18 @@
      ],
      "emv": 25.7,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 25.7,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -30562,11 +32986,15 @@
        "bestBranchIndex": 0,
        "emv": 85.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -30633,11 +33061,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -30704,10 +33136,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -30766,6 +33202,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -30839,10 +33278,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -30871,6 +33317,7 @@
     "emvWithInfo": 32.75,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 17.75,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -30879,7 +33326,11 @@
       "bestActionIndex": 0,
       "emv": 106.875,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -30887,7 +33338,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -31100,13 +33555,18 @@
      ],
      "emv": 32.75,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 32.75,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -31122,11 +33582,15 @@
        "bestBranchIndex": 0,
        "emv": 106.875,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -31193,11 +33657,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -31264,10 +33732,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -31326,6 +33798,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -31399,10 +33874,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -31431,6 +33913,7 @@
     "emvWithInfo": 39.8,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 24.8,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -31439,7 +33922,11 @@
       "bestActionIndex": 0,
       "emv": 131.05263157894737,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -31447,7 +33934,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -31660,13 +34151,18 @@
      ],
      "emv": 39.8,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 39.8,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -31682,11 +34178,15 @@
        "bestBranchIndex": 0,
        "emv": 131.05263157894737,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -31753,11 +34253,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -31824,10 +34328,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -31886,6 +34394,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -31959,10 +34470,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -31991,6 +34509,7 @@
     "emvWithInfo": 46.85,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 31.85,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -31999,7 +34518,11 @@
       "bestActionIndex": 0,
       "emv": 157.91666666666666,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -32007,7 +34530,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -32220,13 +34747,18 @@
      ],
      "emv": 46.85,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 46.85,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -32242,11 +34774,15 @@
        "bestBranchIndex": 0,
        "emv": 157.91666666666666,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -32313,11 +34849,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -32384,10 +34924,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -32446,6 +34990,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -32519,10 +35066,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -32551,6 +35105,7 @@
     "emvWithInfo": 53.9,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 38.9,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -32559,7 +35114,11 @@
       "bestActionIndex": 0,
       "emv": 187.94117647058823,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -32567,7 +35126,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -32780,13 +35343,18 @@
      ],
      "emv": 53.9,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 53.9,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -32802,11 +35370,15 @@
        "bestBranchIndex": 0,
        "emv": 187.94117647058823,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -32873,11 +35445,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -32944,10 +35520,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -33006,6 +35586,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -33079,10 +35662,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -33111,6 +35701,7 @@
     "emvWithInfo": 60.95,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 45.95,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -33119,7 +35710,11 @@
       "bestActionIndex": 0,
       "emv": 221.71875,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -33127,7 +35722,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -33340,13 +35939,18 @@
      ],
      "emv": 60.95,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 60.95,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -33362,11 +35966,15 @@
        "bestBranchIndex": 0,
        "emv": 221.71875,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -33433,11 +36041,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -33504,10 +36116,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -33566,6 +36182,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },
@@ -33639,10 +36258,17 @@
     "bestActionWithoutInfo": {
      "actionIndex": 0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "tiedIndices": [
       0
      ],
+     "tiedIndicesAtCardPrecision": [
+      0
+     ],
      "tiedLabels": [
+      "Drill Exploration Well"
+     ],
+     "tiedLabelsAtCardPrecision": [
       "Drill Exploration Well"
      ]
     },
@@ -33671,6 +36297,7 @@
     "emvWithInfo": 68.0,
     "emvWithoutInfo": 15.0,
     "evpi": 63.0,
+    "guidance": "names one action",
     "netVoi": 53.0,
     "noInfoBranchValue": 15.0,
     "optimalActionWithoutInfo": "Drill Exploration Well",
@@ -33679,7 +36306,11 @@
       "bestActionIndex": 0,
       "emv": 260.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       0
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        0
       ]
      },
@@ -33687,7 +36318,11 @@
       "bestActionIndex": 1,
       "emv": 0.0,
       "indifferent": false,
+      "indifferentAtCardPrecision": false,
       "tiedActionIndices": [
+       1
+      ],
+      "tiedActionIndicesAtCardPrecision": [
        1
       ]
      }
@@ -33900,13 +36535,18 @@
      ],
      "emv": 68.0,
      "indifferent": false,
+     "indifferentAtCardPrecision": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 68.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -33922,11 +36562,15 @@
        "bestBranchIndex": 0,
        "emv": 260.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         0
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -33993,11 +36637,15 @@
        "bestBranchIndex": 1,
        "emv": 0.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         0,
         1
        ],
        "tiedIndices": [
+        1
+       ],
+       "tiedIndicesAtCardPrecision": [
         1
        ],
        "type": "decision"
@@ -34064,10 +36712,14 @@
        "bestBranchIndex": 0,
        "emv": 15.0,
        "indifferent": false,
+       "indifferentAtCardPrecision": false,
        "path": [
         1
        ],
        "tiedIndices": [
+        0
+       ],
+       "tiedIndicesAtCardPrecision": [
         0
        ],
        "type": "decision"
@@ -34126,6 +36778,9 @@
       }
      ],
      "tiedIndices": [
+      0
+     ],
+     "tiedIndicesAtCardPrecision": [
       0
      ]
     },

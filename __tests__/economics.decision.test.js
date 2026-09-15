@@ -91,9 +91,11 @@ const expectTree = (r, expected, label) => {
     near(node.emv, n.emv, ABS, `${label} node [${n.path}] emv`);
     if (n.type === 'decision') {
       expect(node.bestBranchIndex).toBe(n.bestBranchIndex);
-      // EC4-1: every tied branch, in listed order, and the indifference flag.
+      // EC4-1: every tied branch, in listed order, at both precisions.
       expect(node.tiedIndices).toEqual(n.tiedIndices);
       expect(node.indifferent).toBe(n.indifferent);
+      expect(node.tiedIndicesAtCardPrecision).toEqual(n.tiedIndicesAtCardPrecision);
+      expect(node.indifferentAtCardPrecision).toBe(n.indifferentAtCardPrecision);
       expect(node.bestBranchIndex).toBe(n.tiedIndices[0]);
     }
   }
@@ -107,6 +109,8 @@ const expectTree = (r, expected, label) => {
     expect(r.bestBranchIndex).toBe(expected.bestBranchIndex);
     expect(r.tiedIndices).toEqual(expected.tiedIndices);
     expect(r.indifferent).toBe(expected.indifferent);
+    expect(r.tiedIndicesAtCardPrecision).toEqual(expected.tiedIndicesAtCardPrecision);
+    expect(r.indifferentAtCardPrecision).toBe(expected.indifferentAtCardPrecision);
   }
 };
 
@@ -491,9 +495,11 @@ describe('golden: EVPI', () => {
       const b = bestActionEmv(c.outcomes, c.actions);
       near(b.emv, c.expected.emvPrior, ABS, `${c.id} bestActionEmv`);
       expect(b.actionIndex).toBe(c.expected.bestActionIndex);
-      // EC4-1: the tied actions and the indifference flag.
+      // EC4-1: the tied actions and the indifference flag, both precisions.
       expect(b.tiedIndices).toEqual(c.expected.bestActionTiedIndices);
       expect(b.indifferent).toBe(c.expected.indifferent);
+      expect(b.tiedIndicesAtCardPrecision).toEqual(c.expected.bestActionTiedIndicesAtCardPrecision);
+      expect(b.indifferentAtCardPrecision).toBe(c.expected.indifferentAtCardPrecision);
       expect(b.actionIndex).toBe(c.expected.bestActionTiedIndices[0]);
     });
   }
@@ -515,6 +521,8 @@ describe('golden: EVII through Bayes', () => {
         expect(r.perSignal[k].bestActionIndex).toBe(s.bestActionIndex);
         expect(r.perSignal[k].tiedActionIndices).toEqual(s.tiedActionIndices);
         expect(r.perSignal[k].indifferent).toBe(s.indifferent);
+        expect(r.perSignal[k].tiedActionIndicesAtCardPrecision).toEqual(s.tiedActionIndicesAtCardPrecision);
+        expect(r.perSignal[k].indifferentAtCardPrecision).toBe(s.indifferentAtCardPrecision);
         expect(r.perSignal[k].posterior).toHaveLength(s.posterior.length);
         s.posterior.forEach((p, i) => near(r.perSignal[k].posterior[i], p, ABS, `${c.id} signal ${k} posterior ${i}`));
         expect(r.perSignal[k].label).toBe(c.signals[k].label);
@@ -627,10 +635,16 @@ describe('golden: VOI Analyzer', () => {
       expect(r.bestActionWithoutInfo.tiedIndices).toEqual(best.tiedIndices);
       expect(r.bestActionWithoutInfo.indifferent).toBe(best.indifferent);
       expect(r.bestActionWithoutInfo.tiedLabels).toEqual(best.tiedLabels);
-      if (best.indifferent) {
-        expect(r.insights).toContain('indifferent between them');
+      expect(r.bestActionWithoutInfo.tiedIndicesAtCardPrecision).toEqual(best.tiedIndicesAtCardPrecision);
+      expect(r.bestActionWithoutInfo.indifferentAtCardPrecision).toBe(best.indifferentAtCardPrecision);
+      expect(r.bestActionWithoutInfo.tiedLabelsAtCardPrecision).toEqual(best.tiedLabelsAtCardPrecision);
+      // The guidance quotes the CARD-precision set, so the sentence agrees
+      // with the EMV card printed beside it.
+      expect(e.guidance).toBe(best.indifferentAtCardPrecision ? 'indifferent' : 'names one action');
+      if (best.indifferentAtCardPrecision) {
+        expect(r.insights).toContain('both come to that figure, so the decision without new information is indifferent between them');
         expect(r.insights).not.toContain('with the optimal decision being to');
-        for (const label of best.tiedLabels) expect(r.insights).toContain(`'${label}'`);
+        for (const label of best.tiedLabelsAtCardPrecision) expect(r.insights).toContain(`'${label}'`);
       } else {
         expect(r.insights).toContain(`with the optimal decision being to '${e.optimalActionWithoutInfo}'`);
       }
@@ -967,10 +981,63 @@ describe('EC4-1: exact ties are reported, and the first listed keeps the marking
     // Negative control: the retired rule named the first listed action alone.
     const retired = `with the optimal decision being to '${r.bestActionWithoutInfo.tiedLabels[0]}'`;
     expect(r.insights).not.toContain(retired);
-    // And a near miss outside the band still names one action.
-    const near = generateVoiData(byId('voi', 'actionsNearTieOutsideTolerance').inputs);
-    expect(near.bestActionWithoutInfo.indifferent).toBe(false);
-    expect(near.insights).toContain('with the optimal decision being to');
+  });
+});
+
+describe('EC4-1 second precision: guidance agrees with the cards beside it', () => {
+  // The retired guidance selector: the exact value band alone.
+  const retiredGuidance = (result) => (result.bestActionWithoutInfo.indifferent
+    ? 'indifferent'
+    : `names '${result.bestActionWithoutInfo.label}'`);
+
+  it('a 0.0001 gap that both cards print as 0.00 reads as indifferent', () => {
+    const c = byId('voi', 'actionsNearTieOutsideTolerance');
+    const r = generateVoiData(c.inputs);
+    // Both cards read 0.00: the EMV without information, and the value of the
+    // action the retired rule singled out.
+    expect(r.kpis.emvWithoutInfo).toBe('0.00');
+    expect(r.bestActionWithoutInfo.indifferent).toBe(false);          // value truth is kept
+    expect(r.bestActionWithoutInfo.indifferentAtCardPrecision).toBe(true);
+    expect(r.bestActionWithoutInfo.tiedIndicesAtCardPrecision).toEqual([0, 1]);
+    expect(r.insights).toContain('both come to that figure, so the decision without new information is indifferent between them');
+    // Negative control: the pre-fix selector named one action under that 0.00 card.
+    expect(retiredGuidance(r)).toBe("names 'Drill Exploration Well'");
+    expect(c.expected.guidance).toBe('indifferent');
+  });
+
+  it('a gap the cards show still names one action', () => {
+    const c = byId('voi', 'actionsApartOnTheCards');
+    const r = generateVoiData(c.inputs);
+    expect(r.kpis.emvWithoutInfo).toBe('0.10');
+    expect(r.bestActionWithoutInfo.indifferentAtCardPrecision).toBe(false);
+    expect(r.insights).toContain("with the optimal decision being to 'Drill Exploration Well'");
+    expect(c.expected.guidance).toBe('names one action');
+  });
+
+  it('an exact tie is indifferent at both precisions', () => {
+    const r = generateVoiData(byId('voi', 'actionsTiedWithoutInfo').inputs);
+    expect(r.bestActionWithoutInfo.indifferent).toBe(true);
+    expect(r.bestActionWithoutInfo.indifferentAtCardPrecision).toBe(true);
+    expect(retiredGuidance(r)).toBe('indifferent');    // the two agree here
+  });
+
+  it('a decision node reports both sets, and they can disagree either way', () => {
+    const sameCard = rollback(byId('rollback', 'cardPrecisionTieOutsideBand').tree);
+    expect(sameCard.indifferent).toBe(false);
+    expect(sameCard.tiedIndices).toEqual([1]);
+    expect(sameCard.indifferentAtCardPrecision).toBe(true);
+    expect(sameCard.tiedIndicesAtCardPrecision).toEqual([0, 1]);
+
+    const apart = rollback(byId('rollback', 'apartOnTheCards').tree);
+    expect(apart.indifferent).toBe(false);
+    expect(apart.indifferentAtCardPrecision).toBe(false);
+
+    // An exact tie split by a rounding boundary: tied on value, two cards.
+    const boundary = rollback(byId('rollback', 'cardBoundarySplitsAnExactTie').tree);
+    expect(boundary.indifferent).toBe(true);
+    expect(boundary.tiedIndices).toEqual([0, 1]);
+    expect(boundary.indifferentAtCardPrecision).toBe(false);
+    expect(boundary.tiedIndicesAtCardPrecision).toEqual([0]);
   });
 });
 

@@ -14,11 +14,18 @@ JavaScript:
                     cost); a decision node is worth the MAX of (child value
                     minus branch cost) over its branches, the rational
                     risk-neutral actor. Ties at a decision are REPORTED
-                    (EC4-1, owner decision 2026-09-15): every branch whose
-                    value is within 1e-9 * max(1, |best|) of the best is
-                    tied, the node says whether it is indifferent, and the
-                    single index the path marking needs is the FIRST listed
-                    of the tied ones. Every branch reachable by taking
+                    (EC4-1, owner decision 2026-09-15) at TWO precisions:
+                    every branch whose value is within 1e-9 * max(1, |best|)
+                    of the best is tied on value, and every branch whose
+                    value ROUNDS to the same card as the best (2 decimal
+                    places, half away from zero, zero unsigned) is tied at
+                    card precision. Each set says whether it is indifferent,
+                    the two are measured independently (an exact tie can
+                    straddle a rounding boundary and print two cards), and
+                    the single index the path marking needs is the FIRST
+                    listed of the value-tied ones. Guidance a reader sees
+                    quotes the card-precision set, so the words agree with
+                    the numbers printed beside them. Every branch reachable by taking
                     the best decision at every decision node is on the
                     optimal path. Probabilities at a chance node must be a
                     distribution: each in [0, 1], summing to 1 within 1e-6,
@@ -151,12 +158,16 @@ class Refused(Exception):
 
 
 def best_with_ties(values):
-    """(best value, first tied index, tied indices, indifferent) under the
-    EC4-1 band: within TIE_TOL * max(1, |best|) of the best."""
+    """(best value, first tied index, value-tied indices, indifferent,
+    card-tied indices, indifferent at card precision) under EC4-1: tied on
+    value within TIE_TOL * max(1, |best|) of the best, and tied at card
+    precision when the value rounds to the same card as the best."""
     best = max(values)
     band = TIE_TOL * max(F(1), abs(best))
     tied = [i for i, v in enumerate(values) if best - v <= band]
-    return best, tied[0], tied, len(tied) > 1
+    best_card = card(best)[1]
+    card_tied = [i for i, v in enumerate(values) if card(v)[1] == best_card]
+    return best, tied[0], tied, len(tied) > 1, card_tied, len(card_tied) > 1
 
 
 def read_amount(raw):
@@ -286,9 +297,12 @@ def evaluate(node):
             child = evaluate(b.get('node'))
             bv = child['emv'] - read_cost(b.get('cost', OMITTED), 'Branch "%s"' % (b.get('label') or ''), label)
             ann.append({'branchValue': bv, 'node': child})
-        emv, best, tied, indifferent = best_with_ties([a['branchValue'] for a in ann])
+        emv, best, tied, indifferent, card_tied, card_indifferent = \
+            best_with_ties([a['branchValue'] for a in ann])
         return {'type': t, 'emv': emv, 'branches': ann, 'bestBranchIndex': best,
-                'tiedIndices': tied, 'indifferent': indifferent}
+                'tiedIndices': tied, 'indifferent': indifferent,
+                'tiedIndicesAtCardPrecision': card_tied,
+                'indifferentAtCardPrecision': card_indifferent}
     raise Refused('unknown node type %r' % t)
 
 
@@ -318,6 +332,8 @@ def flatten(ann):
             rec['bestBranchIndex'] = node['bestBranchIndex']
             rec['tiedIndices'] = node['tiedIndices']
             rec['indifferent'] = node['indifferent']
+            rec['tiedIndicesAtCardPrecision'] = node['tiedIndicesAtCardPrecision']
+            rec['indifferentAtCardPrecision'] = node['indifferentAtCardPrecision']
         nodes.append(rec)
         if node['type'] == 'terminal':
             return
@@ -337,6 +353,8 @@ def rollback_expected(ann):
         exp['bestBranchIndex'] = ann['bestBranchIndex']
         exp['tiedIndices'] = ann['tiedIndices']
         exp['indifferent'] = ann['indifferent']
+        exp['tiedIndicesAtCardPrecision'] = ann['tiedIndicesAtCardPrecision']
+        exp['indifferentAtCardPrecision'] = ann['indifferentAtCardPrecision']
     return exp
 
 
@@ -384,16 +402,19 @@ def best_action(outcomes, actions, probs=None):
 def evpi(outcomes, actions):
     check_lottery(outcomes, actions)
     priors = [F(o['probability']) for o in outcomes]
-    emv_prior, best_prior, tied_prior, indifferent_prior = best_action(outcomes, actions)
+    emv_prior, best_prior, tied_prior, indifferent_prior, card_prior, card_indifferent_prior = \
+        best_action(outcomes, actions)
     ev_perfect = F(0)
     per_outcome = []
     for i, p in enumerate(priors):
         vals = [action_payoff(a, outcomes, i) - action_cost(a) for a in actions]
-        best_here, b, _, _ = best_with_ties(vals)
+        best_here, b = best_with_ties(vals)[:2]
         per_outcome.append(b)
         ev_perfect += p * best_here
     return {'emvPrior': emv_prior, 'bestActionIndex': best_prior,
             'bestActionTiedIndices': tied_prior, 'indifferent': indifferent_prior,
+            'bestActionTiedIndicesAtCardPrecision': card_prior,
+            'indifferentAtCardPrecision': card_indifferent_prior,
             'evWithPerfect': ev_perfect, 'evpi': ev_perfect - emv_prior,
             'perfectBestActionIndex': per_outcome}
 
@@ -416,11 +437,14 @@ def evii(outcomes, actions, signals, info_cost=0):
         joint = [priors[i] * F(s['likelihoods'][i]) for i in range(n)]
         p_s = sum(joint, F(0))
         post = [j / p_s for j in joint] if p_s > 0 else list(priors)
-        emv_s, idx, tied, indifferent = best_action(outcomes, actions, post)
+        emv_s, idx, tied, indifferent, card_tied, card_indifferent = \
+            best_action(outcomes, actions, post)
         ev_info += p_s * emv_s
         per_signal.append({'pSignal': p_s, 'posterior': post, 'emv': emv_s,
                            'bestActionIndex': idx, 'tiedActionIndices': tied,
-                           'indifferent': indifferent})
+                           'indifferent': indifferent,
+                           'tiedActionIndicesAtCardPrecision': card_tied,
+                           'indifferentAtCardPrecision': card_indifferent})
     gross = ev_info - emv_prior
     return {'emvPrior': emv_prior, 'evWithInfo': ev_info, 'evii': gross,
             'netEvii': gross - net_cost, 'perSignal': per_signal}
@@ -545,11 +569,17 @@ def voi_analyzer(inputs):
         {'label': 'Do Not %s' % act_label, 'cost': F(0), 'payoffs': [0 for _ in inputs['outcomes']]},
     ]
     info = inputs['infoScenario']
-    emv_without, idx, tied_without, indifferent_without = best_action(outcomes, actions)
+    emv_without, idx, tied_without, indifferent_without, card_without, card_indifferent_without = \
+        best_action(outcomes, actions)
     optimal_without = actions[idx]['label']
     best_without = {'actionIndex': idx, 'tiedIndices': tied_without,
                     'indifferent': indifferent_without,
-                    'tiedLabels': [actions[k]['label'] for k in tied_without]}
+                    'tiedLabels': [actions[k]['label'] for k in tied_without],
+                    'tiedIndicesAtCardPrecision': card_without,
+                    'indifferentAtCardPrecision': card_indifferent_without,
+                    'tiedLabelsAtCardPrecision': [actions[k]['label'] for k in card_without]}
+    # EC4-1: the guidance a reader sees quotes the card-precision set.
+    guidance = 'indifferent' if card_indifferent_without else 'names one action'
     ev = evpi(outcomes, actions)['evpi']
 
     def posterior_of(ind):
@@ -579,16 +609,18 @@ def voi_analyzer(inputs):
             'cards': {'emvWithoutInfo': card(emv_without)[0], 'emvWithInfo': None, 'voi': None,
                       'netVoi': None, 'evpi': card(ev)[0]},
             'consistency': cons, 'withheld': True, 'treePresent': False,
-            'bestActionWithoutInfo': best_without,
+            'bestActionWithoutInfo': best_without, 'guidance': guidance,
         }
 
     emv_with_pre = F(0)
     per_indicator = []
     for m, post in zip(marginals, posteriors):
-        e, k, tied_k, indifferent_k = best_action(outcomes, actions, post)
+        e, k, tied_k, indifferent_k, card_k, card_indifferent_k = best_action(outcomes, actions, post)
         emv_with_pre += m * e
         per_indicator.append({'emv': e, 'bestActionIndex': k, 'tiedActionIndices': tied_k,
-                              'indifferent': indifferent_k})
+                              'indifferent': indifferent_k,
+                              'tiedActionIndicesAtCardPrecision': card_k,
+                              'indifferentAtCardPrecision': card_indifferent_k})
     cost = info_cost_value
     emv_with = emv_with_pre - cost
     voi = emv_with_pre - emv_without
@@ -602,7 +634,7 @@ def voi_analyzer(inputs):
         'cards': {'emvWithoutInfo': card(emv_without)[0], 'emvWithInfo': card(emv_with)[0],
                   'voi': card(voi)[0], 'netVoi': net_text, 'evpi': card(ev)[0]},
         'perIndicator': per_indicator,
-        'bestActionWithoutInfo': best_without,
+        'bestActionWithoutInfo': best_without, 'guidance': guidance,
         'consistency': cons, 'withheld': False,
     }
     tree = information_tree(outcomes, actions, marginals, posteriors, labels, cost,
@@ -923,6 +955,24 @@ def rollback_cases():
         {'type': 'decision', 'label': 'small', 'branches': [
             {'label': 'A', 'node': terminal('A', F(2, 10))},
             {'label': 'B', 'node': terminal('B', F('0.2000000005'))},
+        ]})
+    add('cardPrecisionTieOutsideBand',
+        'EC4-1 second precision: branch values 43 and 43.0001. The gap is far outside the exact band (4.3e-8), so indifferent is false and the second branch is the value winner, but both print a 43.00 card, so tiedIndicesAtCardPrecision is [0, 1] and the guidance a reader sees says indifferent.',
+        {'type': 'decision', 'label': 'same card', 'branches': [
+            {'label': 'A', 'node': terminal('A', 43)},
+            {'label': 'B', 'node': terminal('B', F('43.0001'))},
+        ]})
+    add('apartOnTheCards',
+        'EC4-1 control: branch values 43 and 43.02 differ on the cards as well as on value, so neither set ties and the guidance names one branch.',
+        {'type': 'decision', 'label': 'different cards', 'branches': [
+            {'label': 'A', 'node': terminal('A', 43)},
+            {'label': 'B', 'node': terminal('B', F('43.02'))},
+        ]})
+    add('cardBoundarySplitsAnExactTie',
+        'EC4-1: the two sets are measured independently. Values 0.005 and 0.0049999999 are a tenth of a billionth apart, inside the absolute band, so they tie on value; half away from zero puts them on 0.01 and 0.00, two different cards, so only the first is tied at card precision.',
+        {'type': 'decision', 'label': 'rounding boundary', 'branches': [
+            {'label': 'A', 'node': terminal('A', F('0.005'))},
+            {'label': 'B', 'node': terminal('B', F('0.0049999999'))},
         ]})
     add('numericStringMoney',
         'EC4-4: costs and payoffs typed as numeric strings (with surrounding spaces) are numbers, so a form that stores text still rolls back: 40 - 10 = 30 against a chance node worth 2.75.',
@@ -1398,6 +1448,11 @@ def voi_cases():
     add('actionsNearTieOutsideTolerance',
         'EC4-1 control: a decision cost of 54.9999 leaves drilling worth 0.0001, outside the band, so drilling alone is optimal even though the EMV card still reads 0.00.',
         near_tie)
+    apart = voi_inputs()
+    apart['decisionCost'] = F('54.9')
+    add('actionsApartOnTheCards',
+        'EC4-1 control: a decision cost of 54.9 leaves drilling worth 0.10 against 0 for not drilling, a difference the EMV cards show (0.10 against 0.00), so the guidance names drilling.',
+        apart)
     add('thirdsOutcomeChancesFourPlaces', 'EC4-8: three outcome chances typed 33.3333 percent sum to 99.9999, exactly 1e-4 percent points short, and are accepted end to end (prior tree included); indicators 50 / 50 with outcome chances 50 / 30 / 20 and 16.6666 / 36.6667 / 46.6667, consistent with the stated thirds.',
         voi_thirds())
     add('freeInformation', 'Cost 0; EMV with information equals the pre-cost value 48.', voi_inputs(cost=0))
@@ -1527,8 +1582,9 @@ def main():
             'here, plus the two templates from src/components/decisiontree/templates.js, sweeps of '
             'signal accuracy and information cost, and degenerate and refused cases. EC4-1 (owner '
             'decision 2026-09-15): a decision node and a best-action result carry every tied index and '
-            'whether the choice is indifferent, and the first listed of the tied ones keeps the '
-            'optimal-path marking. EC4-4 (same date): money that is omitted is 0, money that is present '
+            'whether the choice is indifferent, at two precisions (the exact value band, which keeps the '
+            'optimal-path marking, and the card precision the reader sees, which the guidance wording '
+            'quotes). EC4-4 (same date): money that is omitted is 0, money that is present '
             'must be a finite number, and a negative cost is refused, each naming what carries it '
             '(rollbackRefusals, lotteryRefusals and the money cases in voiRefusals); a case carrying a '
             'NaN or an infinity holds a placeholder string and a `nonFinite` instruction, since JSON '

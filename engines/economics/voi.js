@@ -55,7 +55,10 @@
 // tie on EMV without information, the Analyzer says the decision is
 // indifferent between them and names them all, instead of reporting the
 // first listed as the optimal decision; `bestActionWithoutInfo` carries the
-// tied indices and labels. And the survey cost, the decision cost and every
+// tied indices and labels at both precisions. The sentence reads the CARD
+// precision, so a difference of 0.0001 that both EMV cards print as 0.00
+// reads as indifferent, and a difference the cards show still names one
+// action. And the survey cost, the decision cost and every
 // outcome payoff are read strictly by the engine: an entry that is present
 // but blank, null, non-numeric or non-finite is refused naming the field,
 // and a negative cost is refused. Before, a blank or non-numeric cost read
@@ -70,7 +73,7 @@
 
 import {
   bestActionEmv, evpi as engineEvpi, impliedPriors, buildInformationTree, rollback,
-  costValue, DecisionTreeError,
+  cardValue, costValue, DecisionTreeError,
 } from './decisionTree.js';
 
 // Percent-point tolerance on every sum of percent inputs: the engine's 1e-6
@@ -82,11 +85,10 @@ const pctText = (v) => `${Number(v.toFixed(4))}`;
 // Card precision, $MM to 2 decimal places, rounded half away from zero on
 // the magnitude (with the representation allowance, so a value that is a
 // half cent in exact decimals rounds the way the decimals do). Negative zero
-// is normalised, so nothing ever prints "-0.00".
-const toCard = (v) => {
-    const magnitude = Number((Math.abs(v) + REPRESENTATION_ALLOWANCE).toFixed(2));
-    return magnitude === 0 ? 0 : (v < 0 ? -magnitude : magnitude);
-};
+// is normalised, so nothing ever prints "-0.00". The engine owns this
+// rounding since EC4-1's card-precision tie set uses it too, so the cards,
+// the verdict and the tie wording cannot drift apart.
+const toCard = cardValue;
 const cardText = (v) => toCard(v).toFixed(2);
 
 const requireChance = (value, what) => {
@@ -170,14 +172,20 @@ export const generateVoiData = (inputs) => {
     const prior = bestActionEmv(engineOutcomes, engineActions);
     const emvWithoutInfo = prior.emv;
     const optimalActionWithoutInfo = engineActions[prior.actionIndex].label;
-    // EC4-1: every action within the tie band of the best, in listed order.
+    // EC4-1: the tied actions at both precisions, in listed order. The
+    // wording below reads the card-precision set, so what the sentence says
+    // agrees with the EMV card printed beside it.
     const tiedLabels = prior.tiedIndices.map((i) => engineActions[i].label);
+    const tiedLabelsAtCardPrecision = prior.tiedIndicesAtCardPrecision.map((i) => engineActions[i].label);
     const bestActionWithoutInfo = {
         actionIndex: prior.actionIndex,
         label: optimalActionWithoutInfo,
         tiedIndices: prior.tiedIndices,
         tiedLabels,
         indifferent: prior.indifferent,
+        tiedIndicesAtCardPrecision: prior.tiedIndicesAtCardPrecision,
+        tiedLabelsAtCardPrecision,
+        indifferentAtCardPrecision: prior.indifferentAtCardPrecision,
     };
     const quotedList = (labels) => labels.map((l) => `'${l}'`)
         .reduce((text, l, i) => (i === 0 ? l : `${text}${i === labels.length - 1 ? ' and ' : ', '}${l}`), '');
@@ -191,8 +199,8 @@ export const generateVoiData = (inputs) => {
         indicators.map((ind, k) => ({ label: ind.name, probability: ind.probability / 100, posteriors: posteriors[k] })),
     );
 
-    const baseInsight = prior.indifferent
-        ? `The Expected Monetary Value (EMV) without new information is $${cardText(emvWithoutInfo)}M, and ${quotedList(tiedLabels)} carry the same EMV, so the decision without new information is indifferent between them.`
+    const baseInsight = prior.indifferentAtCardPrecision
+        ? `The Expected Monetary Value (EMV) without new information is $${cardText(emvWithoutInfo)}M, and ${quotedList(tiedLabelsAtCardPrecision)} both come to that figure, so the decision without new information is indifferent between them.`
         : `The Expected Monetary Value (EMV) without new information is $${cardText(emvWithoutInfo)}M, with the optimal decision being to '${optimalActionWithoutInfo}'.`;
     const evpiInsight = `The EVPI of $${cardText(evpi)}M sets the theoretical maximum value of any information-gathering activity.`;
 

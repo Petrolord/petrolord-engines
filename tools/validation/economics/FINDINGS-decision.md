@@ -337,9 +337,45 @@ show it names a lone winner at `equalEmvTie` and picks the SECOND branch at
 `floatResidueTie`; the near-tie case shows the band does not swallow a gap
 1e-7 wide.
 
-Open, not decided here: the VOI Analyzer's tie band is on the value, so
-`actionsNearTieOutsideTolerance` names one action while its EMV card reads
-0.00, the same card-versus-value gap EC4-2 closed for the net VOI verdict.
+### EC4-1, second precision: the guidance disagreed with its own cards (FIXED 2026-09-15)
+
+The open item above (the tie band is on the value, so a 0.0001 gap named one
+action while both EMV cards read 0.00) was decided the same day: the sentence
+a reader sees must agree with the numbers beside it.
+
+Fix: every result now carries two tie sets side by side.
+`tiedIndices` / `indifferent` keep the exact value band, which is the
+engine's internal truth and what `bestBranchIndex` and the optimal-path
+marking use. `tiedIndicesAtCardPrecision` /
+`indifferentAtCardPrecision` hold every index whose value rounds to the same
+card as the best, under the EC4-2 rounding (2 decimal places, half away from
+zero, negative zero normalised), which `cardValue` now exports from
+`decisionTree.js` so the cards, the net VOI verdict and the tie wording share
+one rounding. Guidance wording reads the card set, so a difference both cards
+print as 0.00 reads as indifferent and a difference the cards show still
+names one action. The sets are measured independently: an exact tie can
+straddle a rounding boundary (0.005 against 0.0049999999) and print two
+cards, and the result says exactly that.
+
+Wording at each level, on the VOI Analyzer's insight:
+
+| gap without information | cards | sentence |
+|---|---|---|
+| exact tie (decision cost 55) | 0.00 against 0.00 | `... is $0.00M, and 'Drill Exploration Well' and 'Do Not Drill Exploration Well' both come to that figure, so the decision without new information is indifferent between them.` |
+| 0.0001 (decision cost 54.9999) | 0.00 against 0.00 | the same indifferent sentence |
+| 0.10 (decision cost 54.9) | 0.10 against 0.00 | `... is $0.10M, with the optimal decision being to 'Drill Exploration Well'.` |
+
+Goldens: `rollback/cardPrecisionTieOutsideBand` (43 against 43.0001: value
+set [1], card set [0, 1]), `rollback/apartOnTheCards` (43 against 43.02:
+neither), `rollback/cardBoundarySplitsAnExactTie` (tied on value, two cards),
+and `voi/actionsApartOnTheCards`; every `voi` case now carries `guidance`
+(`indifferent` or `names one action`), and `voi/actionsNearTieOutsideTolerance`
+moved from naming one action to indifferent.
+
+Gates: `EC4-1 second precision: guidance agrees with the cards beside it`.
+The negative control restores the pre-fix selector (the exact band alone) and
+shows it names 'Drill Exploration Well' on the 0.0001 case while the EMV card
+beside it reads 0.00.
 
 ### EC4-4. Money that was blank, non-numeric or negative was read silently (FIXED)
 
