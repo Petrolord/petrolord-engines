@@ -1258,12 +1258,17 @@ def fdp_cases():
     add('sweep variable opex 15 per bbl', 800, 60, PROFILE, PRICES, {'variableOpexPerBbl': 15})
     add('rising price deck', 800, 60, PROFILE, [50, 55, 60, 65, 70, 75, 80, 85, 90, 95])
     add('single producing year', 100, 10, [30], [80])
-    add('zero production every year: irr 0 by convention, payback is the project life', 800, 60, [0, 0, 0, 0, 0], [75] * 5,
-        note='irr 0 is the engine convention for no sign change; paybackYears null')
+    # EC6-1 renamed these three. Their names asserted the retired conventions
+    # (an IRR of 0 reported for a cash flow that never changes sign, and the
+    # project life reported as a payback), which the engine no longer does and
+    # the goldens themselves no longer record. A case name is quoted verbatim
+    # by anything that reads the goldens, so a stale one teaches the defect.
+    add('zero production every year: no sign change, so no rate and no payback', 800, 60, [0, 0, 0, 0, 0], [75] * 5,
+        note='no sign change: irr null with irrStatus no-sign-change; paybackYears null')
     add('zero capex: all positive, no IRR exists', 0, 10, [20, 20, 20], [75, 75, 75],
-        note='no sign change: engine irr 0, costCalculations irr null, payback 0')
+        note='no sign change: engine irr null, costCalculations irr null, payback 0')
     add('opex above revenue every year: negative everywhere', 800, 2000, PROFILE, PRICES,
-        note='no positive flow: irr 0 by convention; maxExposure is the whole loss')
+        note='no positive flow: irr null with irrStatus no-sign-change; maxExposure is the whole loss')
     add('tax floor: loss years pay no tax', 800, 700, [10, 40, 60, 60, 20, 5], [75] * 6)
     add('string and null production entries coerce through Number', 300, 20, ['25', None, 30, 'x', 40], [75] * 5,
         note='Number("25") is 25, Number(null) is 0, Number("x") is NaN and becomes 0')
@@ -1545,7 +1550,10 @@ def risk_cases():
         'string probability keys the factor table': [{'probability': '3', 'impact': '4', 'costImpact': 10}],
         'fractional probability has no factor': [{'probability': 2.5, 'impact': 4, 'costImpact': 10}],
         'probability out of the 1 to 5 range': [{'probability': 6, 'impact': 4, 'costImpact': 10}, {'probability': 0, 'impact': 4, 'costImpact': 10}],
-        'missing probability: consolidated score is NaN': [{'impact': 4, 'costImpact': 10}, {'probability': 3, 'impact': 3}],
+        # EC6-1 renamed this too: the consolidated score is the sum of the
+        # SCORED risks now, so an unscored risk contributes nothing instead of
+        # making the whole register NaN.
+        'missing probability: the unscored risk contributes nothing': [{'impact': 4, 'costImpact': 10}, {'probability': 3, 'impact': 3}],
     }
     out = []
     for name, rs in sets.items():
@@ -1553,7 +1561,15 @@ def risk_cases():
                'bySource': by_key(rs, 'source', 'Other'), 'byLevel': by_level(rs), 'health': portfolio_health(rs)}
         c = {'name': name, 'inputs': rs, 'expected': exp}
         if exp['consolidatedScore'] != exp['consolidatedScore']:
-            c['note'] = 'consolidatedScore is NaN in the engine (a missing factor multiplies as undefined); recorded as null. The NaN score reads as Low in byLevel.'
+            # Unreachable since EC6-1: riskScore returns null for an unscored
+            # risk and the consolidated score sums the scored ones. Kept as a
+            # guard so a regression to the NaN behaviour is recorded rather
+            # than emitted silently.
+            c['note'] = 'REGRESSION: consolidatedScore is NaN again; EC6-1 made an unscored risk contribute nothing.'
+        if by_level(rs)['Unscored']:
+            c['note'] = ('%d risk(s) carry no probability or no impact: they are counted Unscored, '
+                         'contribute nothing to the consolidated score and are left out of the health.'
+                         % by_level(rs)['Unscored'])
         out.append(c)
     return out
 
@@ -1600,7 +1616,8 @@ def schedule_cases():
          'days of float on C and on E.'),
         ('example schedule from 2026-01-01', ex, 'EC6-0: the engine used to mark every activity critical (it read back the caller\'s own float); the critical path is act-1, act-3, act-4, act-6, act-7 and act-2 and act-5 carry 20 days of float. calculateProjectDuration reads startDate and endDate, which the example does not carry, so it reports null.'),
         ('dated four activity plan', dated, None),
-        ('caller supplied floats: passthrough semantics', with_floats, 'float 0 and a missing float are critical; null, a string 0 and a negative float are not; null and the string coerce to 0 in the float column.'),
+        ('the caller\'s own float fields are ignored: the method computes them', with_floats,
+         'EC6-0 renamed this case. Every activity arrives carrying a float field (0, 5, absent, null, the string "0" and -2) and the engine reads none of them: it computes 0, 5, 0, 0, 0 and 2 from the network. The retired passthrough took the field at face value, so it called s and t non-critical when both sit on the only zero-float chain, and it reported u at -2 days of float, which no schedule can have.'),
         ('diamond with two equal critical paths (a tie)', diamond, 'both A-B-D and A-C-D are critical; the oracle lists both.'),
         ('twelve activity chain', chain, None),
         ('four independent activities, all critical', parallel, None),
