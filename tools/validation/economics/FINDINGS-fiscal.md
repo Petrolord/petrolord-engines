@@ -99,6 +99,12 @@ failure is counted at full value.
 
 ### S7. Observations, no numerical disagreement
 
+**Resolved in part (EC3 repairs, owner decisions 2026-09-15).** The Production
+sensitivity carries variable opex since EC6-1 and the Low/High scenarios do
+since EC3-3; payback is null with `paybackStatus` 'not-recovered' when the
+project never pays back (EC3-2). The OPEX sensitivity still scales fixed opex
+only, as its label says.
+
 - The OPEX sensitivity and the Low/High scenarios scale FIXED opex only;
   variable opex is left untouched, and the Production sensitivity scales
   volumes without scaling variable opex. The oracle follows the code's own
@@ -222,6 +228,12 @@ rather than a defect at real project scale.
 
 ### B1. A one-sided tornado bar collapses to zero instead of flagging
 
+**FIXED 2026-09-15 (owner decision).** An end with no breakeven below $500 is
+null, the bar carries `unreachable: true` and no swing, unreachable bars sort
+first, and the insight names each one. `mc_one_bar_unreachable` pins a run
+where exactly one bar is open, with the retired zero-and-sort-last rule as the
+negative control. The text below is the finding as recorded.
+
 When one side of a swing cannot break even below $500 the bar's `swing` is
 0 and that side is drawn at 0 from the base case; the variable then sorts
 LAST regardless of how influential it is. `mc_with_unreachable` (capex P50
@@ -244,3 +256,39 @@ The closed-form price solve agrees with the engine's 100 step bisection to
 1e-8 $/bbl on every case, the seeded sample is reproduced element for
 element on six seeds including the default (20260829) and a 2000 iteration
 run, and every verdict sentence matches character for character.
+
+## EC3 wave findings, all FIXED 2026-09-15 (owner decisions)
+
+Found while the EC3 Probabilistic Economics course was written (wave notes in
+the NextGen repo). Each fix is gated in `economics.screening.test.js` or
+`economics.breakeven.test.js` with a negative control for the retired rule.
+
+- **EC3-1.** Payback was taken at the first non-negative cumulative and never
+  revisited, so a cash-positive first year followed by more capex read payback
+  0 beside a negative peak exposure. `payback` stays the first crossing (the
+  definition cashflow.ts and fdp/costCalculations.js share); `paybackStatus`
+  'recrossed' flags a return below zero and `paybackLast` is the last crossing
+  into non-negative, null when the cumulative ends negative.
+- **EC3-2.** An all-positive case read IRR 0 and payback 0. IRR was already
+  null with 'no-sign-change' after EC6-1; payback is 0 with 'no-investment'
+  (nothing was at risk, the same 0 cashflow.ts reports) and null with
+  'not-recovered' where it used to be the project life.
+- **EC3-3.** The Low and High scenarios scaled oil volume without its variable
+  opex. They carry it now, as the Production sensitivity has since EC6-1.
+- **EC3-4.** The `payback_multi_year` note said "3 + 10/40 = 3.25 years" while
+  its own cumulative -100, -130, -70, -30, 10 pays back at 4 + 30/40 = 4.75,
+  the value the golden always gated. Note corrected; no value moved.
+- **EC3-5.** The breakeven base case and tornado read the STATED median while
+  the sample drew from the fitted triangle, which differs when the fit clamps.
+  An inexact fit now hands both the fitted triangle's 10th, 50th and 90th
+  percentiles (`beliefs`), with a note.
+- **EC3-6.** The Scenario Builder S-curve kept every floor(n/50)th sorted value,
+  so it never plotted the top of the sample and disagreed with the cards. It
+  is 51 points at 0, 2, ..., 100 percent read with the cards' quantile rule.
+- **EC3-7.** The Monte Carlo drew every year independently and never moved
+  variable opex, which narrowed the NPV spread far below the stated belief.
+  It draws one factor per variable per iteration for every year, reserves
+  carries variable opex, and a range outside 0 to 1 is refused.
+- **EC3-8.** Nothing bounded a belief. Capex and opex percentiles below 0 and
+  efficiency percentiles outside 0 to 100 are refused by name; a fitted draw
+  past a limit is held at it and counted in `clippedDraws`, with a note.

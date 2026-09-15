@@ -55,6 +55,18 @@ export const DEFAULT_SEED = 20260829;
 const PRICE_BRACKET_MAX = 500; // $/bbl; well past any real breakeven
 
 /**
+ * Physical bounds on each belief (EC3-8, owner decision 2026-09-15). A cost
+ * below zero or an efficiency above 100 percent describes nothing a field
+ * can do, so a stated percentile outside these is refused and a draw from a
+ * fitted tail past them is held at the limit and counted.
+ */
+export const BELIEF_BOUNDS = Object.freeze({
+  capex: Object.freeze({ min: 0, max: Infinity, label: 'CAPEX', unit: '$MM' }),
+  opex: Object.freeze({ min: 0, max: Infinity, label: 'OPEX', unit: '$MM a year' }),
+  efficiency: Object.freeze({ min: 0, max: 100, label: 'Production efficiency', unit: 'percent' }),
+});
+
+/**
  * Build the screening-engine inputs for one trial price.
  *
  * CAPEX is placed in the first year and OPEX is held flat across the
@@ -128,8 +140,14 @@ const findVariable = (variables, needle) =>
  * `p10`, `p50`, `p90` are percentiles of each parameter. Neither is a P-label
  * under the Suite's exceedance convention; screens say "10th percentile".
  *
+ * EC3 repairs (owner decisions 2026-09-15): stated percentiles outside
+ * BELIEF_BOUNDS are refused and fitted draws past them are held and counted
+ * (EC3-8); an inexact fit hands the base case and the tornado the fitted
+ * triangle's own percentiles, reported in `beliefs` (EC3-5); a tornado end
+ * with no breakeven is null and its bar sorts first (B1).
+ *
  * @param {object} inputs app inputs, plus an optional `seed`
- * @returns {object} kpis, plot data, two-sided tornado, and the seed used
+ * @returns {object} kpis, plot data, two-sided tornado, beliefs, clipped draws and the seed used
  */
 export const generateBreakevenData = (inputs) => {
   const {
@@ -150,6 +168,26 @@ export const generateBreakevenData = (inputs) => {
     throw new Error('CAPEX, OPEX and Production Efficiency variables are all required.');
   }
 
+  const stated = { capex: capexVar, opex: opexVar, efficiency: efficiencyVar };
+
+  // EC3-8 (owner decision 2026-09-15): a belief a field cannot have is
+  // refused by name. Nothing used to stop a negative cost or an efficiency
+  // above 100 percent from being sampled.
+  Object.entries(stated).forEach(([key, v]) => {
+    const b = BELIEF_BOUNDS[key];
+    ['p10', 'p50', 'p90'].forEach((q) => {
+      const x = Number(v[q]);
+      if (!Number.isFinite(x)) {
+        throw new Error(`${b.label} percentiles must be numbers.`);
+      }
+      if (x < b.min || x > b.max) {
+        throw new Error(b.max === Infinity
+          ? `${b.label} percentiles must not be negative.`
+          : `${b.label} percentiles must lie between ${b.min} and ${b.max} ${b.unit}.`);
+      }
+    });
+  });
+
   // Fit each stated P10/P50/P90 to a triangular whose CDF passes through
   // all three, rather than pretending the percentiles are endpoints.
   const fits = {
@@ -163,17 +201,28 @@ export const generateBreakevenData = (inputs) => {
     .filter(([, f]) => !f.exact && f.note)
     .map(([key, f]) => `${key}: ${f.note}`);
 
+  // A stated belief can still fit a triangle whose tail runs past a physical
+  // limit (efficiency 90 / 96 / 99 fits a maximum above 100). The draw is
+  // held at the limit and the count is reported.
+  const clipped = { capex: 0, opex: 0, efficiency: 0 };
+  const atBounds = (key, x) => Math.min(BELIEF_BOUNDS[key].max, Math.max(BELIEF_BOUNDS[key].min, x));
+  const draw = (key, u) => {
+    const f = fits[key];
+    const x = triInvCDF(u, f.min, f.mode, f.max);
+    const held = atBounds(key, x);
+    if (held !== x) clipped[key] += 1;
+    return held;
+  };
+
   const base = { rows, discountRate, royaltyRate, taxRate };
   const rng = mulberry32(seed);
   const results = [];
   let unreachable = 0;
 
   for (let i = 0; i < iterations; i += 1) {
-    const capexMM = triInvCDF(rng(), fits.capex.min, fits.capex.mode, fits.capex.max);
-    const opexMM = triInvCDF(rng(), fits.opex.min, fits.opex.mode, fits.opex.max);
-    const efficiency = triInvCDF(
-      rng(), fits.efficiency.min, fits.efficiency.mode, fits.efficiency.max,
-    ) / 100;
+    const capexMM = draw('capex', rng());
+    const opexMM = draw('opex', rng());
+    const efficiency = draw('efficiency', rng()) / 100;
 
     const price = solveBreakevenPrice(
       { ...base, capexMM, opexMM, efficiency }, targetNpv,
@@ -194,44 +243,92 @@ export const generateBreakevenData = (inputs) => {
   const kpis = { p10: pct(0.1), p50: pct(0.5), p90: pct(0.9), mean };
 
   // --- Deterministic base case and a two-sided tornado ---
+  //
+  // EC3-5 (owner decision 2026-09-15). The sample draws from the FITTED
+  // triangle. When the fit is exact that triangle passes through the stated
+  // percentiles and they can be used as they are. When it is clamped, its
+  // percentiles are not the stated ones (opex 16 / 17 / 26 fits a triangle
+  // whose median is near 19.8), and a base case and tornado at the stated
+  // 17 described a different belief from the sample on the same screen. So
+  // an inexact fit hands the base case and the tornado the fitted
+  // triangle's own 10th, 50th and 90th percentiles, and a note says so.
+  const beliefOf = (key) => {
+    const f = fits[key];
+    const v = stated[key];
+    if (f.exact) {
+      return { p10: Number(v.p10), p50: Number(v.p50), p90: Number(v.p90), source: 'stated' };
+    }
+    const q = (u) => atBounds(key, triInvCDF(u, f.min, f.mode, f.max));
+    return { p10: q(0.1), p50: q(0.5), p90: q(0.9), source: 'fitted' };
+  };
+  const beliefs = { capex: beliefOf('capex'), opex: beliefOf('opex'), efficiency: beliefOf('efficiency') };
+
   const baseCase = {
     ...base,
-    capexMM: capexVar.p50,
-    opexMM: opexVar.p50,
-    efficiency: efficiencyVar.p50 / 100,
+    capexMM: beliefs.capex.p50,
+    opexMM: beliefs.opex.p50,
+    efficiency: beliefs.efficiency.p50 / 100,
   };
   const baseBreakeven = solveBreakevenPrice(baseCase, targetNpv);
 
+  // B1 (owner decision 2026-09-15). An end of a swing with no breakeven
+  // below the bracket used to be drawn as 0 and its bar sorted last, so the
+  // variable that can put the project out of reach looked like the one that
+  // matters least. That end is now null, the bar is flagged `unreachable`,
+  // and unreachable bars sort FIRST.
   const swingOf = (label, lowCase, highCase) => {
     const low = solveBreakevenPrice({ ...baseCase, ...lowCase }, targetNpv);
     const high = solveBreakevenPrice({ ...baseCase, ...highCase }, targetNpv);
+    const unreachableSide = low === null || high === null;
     return {
       name: label,
       low, high,
-      swing: low === null || high === null ? 0 : Math.abs(high - low),
+      unreachable: unreachableSide,
+      swing: unreachableSide ? null : Math.abs(high - low),
     };
   };
 
   const sensitivityData = [
-    swingOf('Total CAPEX', { capexMM: capexVar.p10 }, { capexMM: capexVar.p90 }),
-    swingOf('Annual OPEX', { opexMM: opexVar.p10 }, { opexMM: opexVar.p90 }),
+    swingOf('Total CAPEX', { capexMM: beliefs.capex.p10 }, { capexMM: beliefs.capex.p90 }),
+    swingOf('Annual OPEX', { opexMM: beliefs.opex.p10 }, { opexMM: beliefs.opex.p90 }),
     // A HIGHER efficiency is a LOWER breakeven, so the low-price end of
-    // this bar comes from the P90 efficiency. Naming it explicitly
-    // because getting it backwards is how tornadoes end up misleading.
+    // this bar comes from the 90th percentile efficiency. Naming it
+    // explicitly because getting it backwards is how tornadoes end up
+    // misleading.
     swingOf(
       'Prod. Efficiency',
-      { efficiency: efficiencyVar.p90 / 100 },
-      { efficiency: efficiencyVar.p10 / 100 },
+      { efficiency: beliefs.efficiency.p90 / 100 },
+      { efficiency: beliefs.efficiency.p10 / 100 },
     ),
-  ].sort((a, b) => b.swing - a.swing);
+  ].sort((a, b) => (Number(b.unreachable) - Number(a.unreachable)) || ((b.swing ?? 0) - (a.swing ?? 0)));
 
+  const fromBase = (x) => (x === null || baseBreakeven === null ? null : x - baseBreakeven);
   const tornadoData = {
     y: sensitivityData.map((d) => d.name),
-    // Both sides of each bar, measured from the base case.
-    low: sensitivityData.map((d) => (d.low === null ? 0 : d.low - baseBreakeven)),
-    high: sensitivityData.map((d) => (d.high === null ? 0 : d.high - baseBreakeven)),
+    // Both sides of each bar, measured from the base case; null where that
+    // end has no breakeven below the bracket.
+    low: sensitivityData.map((d) => fromBase(d.low)),
+    high: sensitivityData.map((d) => fromBase(d.high)),
+    unreachable: sensitivityData.map((d) => d.unreachable),
     base: sensitivityData.map(() => baseBreakeven),
   };
+
+  const unreachableNotes = sensitivityData
+    .filter((d) => d.unreachable)
+    .map((d) => `${d.name} has no breakeven below ${PRICE_BRACKET_MAX} dollars a barrel at one end of its range, so that side of its bar is left open.`);
+  const beliefNotes = Object.entries(beliefs)
+    .filter(([, b]) => b.source === 'fitted')
+    .map(([key, b]) => `${key}: the base case and the tornado use the fitted triangle's 10th, 50th and 90th percentiles, `
+      + `${b.p10.toFixed(2)}, ${b.p50.toFixed(2)} and ${b.p90.toFixed(2)}, so they describe the same belief the sample is drawn from.`);
+  const boundNotes = Object.entries(fits)
+    .map(([key, f]) => {
+      const b = BELIEF_BOUNDS[key];
+      const limits = [f.min < b.min ? b.min : null, f.max > b.max ? b.max : null].filter((x) => x !== null);
+      if (limits.length === 0) return null;
+      return `${key}: the fitted triangle runs past the physical limit of ${limits.join(' and ')} ${b.unit}, `
+        + `so ${clipped[key]} of ${iterations} draws were held at that limit.`;
+    })
+    .filter(Boolean);
 
   const plotData = {
     cdf: { x: results, y: results.map((_, i) => (i + 1) / results.length) },
@@ -251,7 +348,10 @@ export const generateBreakevenData = (inputs) => {
       ? `${unreachable} of ${iterations} iterations did not break even below `
         + `${PRICE_BRACKET_MAX} dollars a barrel and are excluded from the statistics.`
       : null,
+    ...unreachableNotes,
     ...fitNotes,
+    ...beliefNotes,
+    ...boundNotes,
   ].filter(Boolean).join(' ');
 
   return {
@@ -263,5 +363,7 @@ export const generateBreakevenData = (inputs) => {
     baseBreakeven,
     excludedIterations: unreachable,
     distributionFits: fits,
+    beliefs,
+    clippedDraws: clipped,
   };
 };
