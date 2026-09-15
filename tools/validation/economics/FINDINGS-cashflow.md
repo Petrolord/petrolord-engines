@@ -1,16 +1,17 @@
 # FINDINGS: Economics cash flow engine and Monte Carlo layer (EC0, agent A)
 
 Engine under test: `engines/economics/cashflow.ts` (the Suite's
-`supabase/functions/_shared/epe-engine.ts`, ENGINE_VERSION 3.9.0, moved
-verbatim 2026-09-08) and `engines/economics/montecarlo.ts` (the Suite's
+`supabase/functions/_shared/epe-engine.ts`, ENGINE_VERSION 3.10.0 since the
+EC1 owner decisions of 2026-09-15; 3.9.0 when it was moved verbatim
+2026-09-08) and `engines/economics/montecarlo.ts` (the Suite's
 `epe-mc.ts`, verbatim, one import repointed to `./cashflow.ts`).
 
 Oracles: `tools/validation/economics/oracle_cashflow.py` and
 `oracle_montecarlo.py`, python3 stdlib, written from the engine header,
 `docs/scope/EPE.md` and the harness derivations, not from the TypeScript.
-Goldens: `test-data/economics/goldens/cashflow_cases.json` (74 cases, 8
-ingestion errors, 15 IRR vectors, 6 breakeven cases, 4 sweeps, 10 pinned
-disagreements) and `montecarlo_cases.json` (7 cases plus primitive pins),
+Goldens: `test-data/economics/goldens/cashflow_cases.json` (81 cases, 8
+ingestion errors, 17 IRR vectors, 6 breakeven cases, 4 sweeps, and since
+2026-09-15 no pinned disagreements at all) and `montecarlo_cases.json` (7 cases plus primitive pins),
 both byte-identical on rerun. Gates: `__tests__/economics.cashflow.test.ts`
 (the 58 Suite engine tests, the 60 harness checks of
 `tools/validation/epe-validation.ts` cases 1 to 6, 9 closed-form
@@ -30,9 +31,16 @@ with zero inflation equals nominal; real NPV equals the nominal flows
 discounted at the nominal rate). The screening engine (`screening.js`)
 discounts mid-year and is not comparable.
 
-No engine behaviour was changed. Every disagreement below is recorded with
-both numbers; the golden pins the engine's number as published and the
-jest gate asserts the engine still produces it.
+STATUS 2026-09-15. When this file was written no engine behaviour had been
+changed and every disagreement was pinned with both numbers. The owner then
+decided eight of them. Sections 1.1, 1.2, 1.3, 2.1, 2.7, 2.9 and 3.3 are
+now FIXED in the engine at v3.10.0 (decisions EC1-1, EC1-2, EC1-3, EC1-6,
+EC1-7 and EC1-16), and the two decisions raised outside this file, EC1-4
+and EC1-5, are recorded in section 5. Each entry below keeps the finding as
+it was first written and states underneath what was decided and what the
+engine does now. The goldens carry the new numbers and the jest gate
+carries a NEGATIVE CONTROL for every retired rule, so a silent return to
+the old behaviour fails the build.
 
 ## 1. Disagreements between the engine and the oracle
 
@@ -69,6 +77,15 @@ seven standard-rate points agree to the cent in every case. Single-year
 cases at t = 0 show no gap because the NPV there is rate independent, so
 the Suite's regression contract never saw this. Owner decision.
 
+**FIXED 2026-09-15 (owner decision EC1-1).** The engine evaluates the
+applied point at the EXACT applied rate and keeps the two-decimal rounding
+as the label only. Every case in the table above now reports the headline
+NPV at that point, so all eight gaps are gone. The golden case
+`jv_real_fisher_profile` pins the behaviour on a 6.3414634 percent Fisher
+rate, and the gate recomputes the retired rule case by case as a negative
+control: wherever evaluating at the rounded rate would miss the headline,
+the engine must not be reporting that number.
+
 ### 1.2 IRR on a profile with more than one root
 
 Method statement (engine header, v3.5): "irr(): Newton now falls back to
@@ -98,6 +115,27 @@ economic limit is off) has two IRRs, and the engine reports one of them
 with no flag that the number is ambiguous. On [-100, 230, -132] (roots at
 10 and 20 percent) both report 10 percent.
 
+**FIXED 2026-09-15 (owner decision EC1-2).** cashflow.ts adopts the module
+IRR contract, `engines/economics/irrContract.js`, which screening.js and
+fiscalRegime.js have shared since engines #186. A rate is reported only
+when it is a single verified root strictly inside the band from -99 to 1000
+percent. Otherwise `kpis.irr` is null and `kpis.irr_status` says which case
+it was ('no-sign-change', 'no-root', 'above-clamp', 'multiple-roots'),
+`kpis.irr_roots` lists every in-band root and `kpis.irr_root_above_band`
+flags a root above the band. The KPI names are snake_case to match the rest
+of `kpis` and map one for one onto the contract's camelCase: irr_status =
+irrStatus, irr_roots = irrRoots, irr_root_above_band = irrRootAboveBand.
+The exponents handed to the contract are this engine's own year-end year
+offsets from the first evaluated row, which is the convention `npv()` and
+`discounted_cash_flow` use; the valuation-date anchor and the mid-year half
+multiply every term by the same factor and move no root. Six golden IRR
+vectors and the terminal-negative cases (`elt_off_tail_kept`,
+`abandonment_appended_year`, `elt_tail_trimmed`, `abandonment_final_year`
+where they carry two roots, and the new `jv_abandonment_two_irr_roots`) now
+report null with their roots listed rather than one root of two. The gate's
+negative control reimplements the retired Newton-from-10-percent rule and
+shows it still answers where the contract refuses.
+
 ### 1.3 Degenerate Monte Carlo standard deviation is 3.3e-7, not 0
 
 With no uncertain variable every one of 100 iterations returns the
@@ -108,6 +146,15 @@ mean by a few 1e-8, which the deviation sum then picks up. The oracle
 (compensated summation) reports exactly 0. Inside every stated tolerance
 (the Suite's own test asked for 1e-6) and pinned as a bound, but a reader
 who expects "no uncertainty in, zero spread out" sees a nonzero number.
+
+**FIXED 2026-09-15 (owner decision EC1-16).** `mean` and `stdDev` in
+montecarlo.ts call the compensated (Kahan/Neumaier) sum of
+`lib/stats/stats.js`, the canonical module the anti-drift gate already
+compares them against, and a sample whose values are all equal reads
+exactly that value with exactly zero spread. The degenerate run reports
+stdDev 0 and se 0 exactly. The gate asserts equality with zero rather than
+a bound and recomputes the naive sum on the same sample as the negative
+control.
 
 ## 2. Things the engine does that its header does not say
 
@@ -125,6 +172,20 @@ disallows is NOT carried forward in the CIT computation (CITA carries a
 restricted allowance forward; the engine only carries the CPR pool). Owner
 decision whether the CIT carryforward is wanted; the oracle mirrors the
 published behaviour.
+
+**FIXED 2026-09-15 (owner decision EC1-6).** The disallowed amount is
+carried forward and queues with the next year's allowance under the same
+restriction. Rows carry `cit_allowance_claimed` and
+`cit_allowance_carryforward`, and `kpis.cit_allowance_unused_at_cessation`
+reports what cessation leaves unclaimed. The input switch
+`cit_restricted_allowance_carryforward` defaults to TRUE; setting it false
+drops the carryforward and reproduces the frozen published worked example
+and every pre-v3.10 run bit for bit. The golden pair
+`pia_cit_allowance_restricted_carry` and `pia_cit_allowance_no_carry` pins
+both sides on a field where the restriction binds in 2025 (5,324,926.18
+claimed of 12,000,000 available) and the 6,675,073.82 it disallows is
+claimed in 2026. The published worked example is a single year, so its
+regression contract is untouched either way.
 
 2.2 The NDDC levy is deducted from the CIT assessable profit but not from
 the HCT assessable profit; the HCDT is deducted from both (liquids share in
@@ -156,6 +217,11 @@ index is PV(inflows) / PV(investment), which is this number plus one. The
 code comment says "NPV per present-value dollar of capex"; the header says
 only "PV(capex) + DPI". Naming, not arithmetic.
 
+**FIXED 2026-09-15 (owner decision EC1-7).** `dpi` keeps its published
+meaning, because the graded NextGen field `jv_dpi` reads it, and
+`kpis.profitability_index` is added as 1 + dpi. The header text that
+implied otherwise is corrected.
+
 2.8 Sinking fund relief under PIA (header: "contributions are
 tax-deductible in the regime bases"): the HCT saving is contribution x
 liquids revenue share x EFFECTIVE HCT rate (hct_tax / hct_chargeable, so
@@ -174,6 +240,16 @@ sinking-fund contribution sits in the WI-scaled keys, so at 50 percent WI
 and `unit_technical_cost_usd_per_boe` adds the full 30,000,000 over the
 WI-share barrels. Under one mode `abandonment_cost_usd` is a share-level
 number, under the other a field-level one. Owner decision.
+
+**FIXED 2026-09-15 (owner decision EC1-3).** `abandonment_cost_usd` is the
+user's share under BOTH funding modes, which is the documented contract.
+The sinking-fund contribution is grossed up by 1 / WI inside the regime, so
+the share collects exactly the cost that was entered, and the fund column,
+`abandonment_cost_funded` and `total_abandonment_cost` all report the
+share. `pia_sinking_fund_wi_50` now collects 30,000,000 where it collected
+15,000,000, and the new goldens `jv_sinking_fund_wi_60` and
+`psc_sinking_fund_wi_50` pin the same rule on the other two regimes. A zero
+working interest owns none of the field and collects nothing.
 
 2.10 `taxable_income` on a PIA row is `hct_chargeable_profit +
 cit_chargeable_profit`, the sum of two different bases; a diagnostic with
@@ -199,6 +275,10 @@ whenever a valuation year is set.
 level, as the v3.6 header says; `kpis.total_abandonment_cost` is the
 unscaled input.
 
+**CHANGED 2026-09-15.** JV scales the same way now (EC1-4), so share
+barrels are the rule on every regime, and `kpis.total_abandonment_cost` is
+the share because `abandonment_cost_usd` is the share (EC1-3).
+
 2.15 Row years: an explicit `year` beats `date` beats `month_index`; the
 first row's headers decide the volume columns for every row.
 
@@ -219,6 +299,11 @@ any golden case changed a truncation decision or an order statistic.
 canonical `lib/stats/stats.js` uses simple-statistics' Kahan-compensated
 sum. The anti-drift gate holds them to 1e-9, as the Suite's did.
 
+**FIXED 2026-09-15 (EC1-16).** montecarlo.ts imports `ss` from
+`lib/stats/stats.js` and calls it for both, so there is ONE compensated sum
+in the module and the anti-drift gate asserts bit equality rather than
+1e-9. Every sampling primitive stays vendored, as the Suite port intended.
+
 3.4 The sampled absolute price under a per-year deck is applied as a
 scale against the flat config price, falling back to the first deck value
 and then to 1 when the flat price is unset. Pinned by
@@ -237,3 +322,72 @@ explicit; and the sinking-fund relief (2.8) and the CIT allowance cap
 literature reading, because the regression contract in `EPE.md` section 7
 freezes the worked example and no published PIA decommissioning or CITA
 carryforward example was supplied. Both are owner decisions.
+
+**Decided 2026-09-15.** The multi-root IRR convention is now the module
+contract (EC1-2), and the CITA carryforward is now the default with a
+switch that reproduces the frozen worked example (EC1-6). The sinking-fund
+relief of 2.8 is unchanged and still awaits a published example.
+
+## 5. The EC1 owner decisions of 2026-09-15, and what moved
+
+Eight decisions were taken under the owner's delegation and implemented in
+engine v3.10.0. Six of them are recorded above at the finding they close.
+The two raised elsewhere (`/root/ec-wip-cashflow/OWNER_DECISIONS.md` items
+4 and 5, which this file did not carry) are recorded here.
+
+### 5.1 EC1-4: JV at a working interest below 100 reports the share
+
+Before: a JV row kept revenue, volumes, opex, capex and depreciation at
+FIELD level and scaled only royalty, taxable income, tax and net cash flow,
+because `applyJV` scaled inside the regime and nothing scaled the row. PSC
+and PIA scale every monetary line and the entitlement volumes. The
+consequence was that `government_take_pct` counted the other partners'
+share of the value as government take: on the teaching field AKATA it read
+66.1723 percent at a 100 percent working interest and 79.7034 percent at 60
+percent, for the same fiscal terms.
+
+Now: `computeCashFlow` scales the JV row the way PSC and PIA rows are
+scaled, so gross revenue, revenue, opex, capex, depreciation, the three
+volume lines and any decommissioning contribution are the share, and the
+row carries `working_interest_pct`. Government take, the unit technical
+cost and `dpi` are working-interest invariant, which the closed-form
+identity test now asserts for JV alongside PSC and PIA, with a negative
+control that recomputes the retired field-level take and shows it moves.
+
+Knock-on, and it is not small: `total_revenue`, `total_capex`,
+`total_opex`, `total_oil_bbl`, `total_boe`, `pv_capex`, `dpi`,
+`unit_technical_cost_usd_per_boe` and both government-take KPIs are share
+numbers on a JV run now. NPV, IRR, payback and tax were already the share
+and do not move. Goldens `jv_wi_60` and `jv_abandonment_wi_60` carry the
+new values.
+
+### 5.2 EC1-5: the PSC cost pool is reported
+
+Additive. Every PSC row carries `psc_cost_pool_after`, the pool the row
+leaves unrecovered, and a PSC run reports
+`kpis.psc_unrecovered_cost_at_cessation` (zero when everything was
+recovered), which is the fiscal sandbox's `finalUnrecoveredPool` idea in
+this engine's snake_case. Both are scaled to the working-interest share.
+Pinned by the new golden `psc_pool_unrecovered_at_cessation`.
+
+### 5.3 The live NextGen course
+
+EC1 `cashflow` (the IKPOTO capstone, 18 graded fields) is pinned to this
+engine. Recomputing all 18 fields with v3.10.0 moves four, every one of
+them through EC1-4, because IKPOTO is a JV at an 80 percent working
+interest:
+
+| field | tier | before | after |
+|---|---|---|---|
+| jv_2033_gross_revenue_usd | beginner | 83,024,596.48 | 66,419,677.18 |
+| jv_total_boe | beginner | 6,788,275.2 | 5,430,620.16 |
+| jv_government_take_pct | beginner | 80.0765934 | 75.0957418 |
+| jv_dpi | intermediate | 0.14002119 | 0.17502649 |
+
+The other fourteen are unchanged to the last digit, including every PIA
+field, both NPVs, the IRR, both paybacks and the breakeven price. `jv_dpi`
+moves because PV(capex) is now the share, which the recon had not
+anticipated; the recon's other expectation held. The PIA tier's IRR was
+already null (its abandonment lump sum gives the profile a terminal
+negative) and stays null, now with `irr_status` 'multiple-roots' to say so,
+and the capstone never graded it.

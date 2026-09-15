@@ -111,7 +111,7 @@ describe('anti-drift: montecarlo.ts primitives vs canonical lib/stats/stats.js',
     }
   });
 
-  it('basicStats percentiles and CDF are identical (mean/stdDev to 1e-9)', () => {
+  it('basicStats percentiles, CDF, mean and stdDev are identical (one compensated sum since v3.10)', () => {
     const rng = mulberry32(123);
     const data = Array.from({ length: 1000 }, () => rng() * 100);
     const ours = basicStats(data);
@@ -120,8 +120,10 @@ describe('anti-drift: montecarlo.ts primitives vs canonical lib/stats/stats.js',
     expect(ours.p50).toBe(theirs.p50);
     expect(ours.p10).toBe(theirs.p10);
     expect(ours.cdf).toEqual(theirs.cdf);
-    expect(ours.mean).toBeCloseTo(theirs.mean, 9);
-    expect(ours.stdDev).toBeCloseTo(theirs.stdDev, 9);
+    // v3.10 (EC1-16): montecarlo.ts calls lib/stats/stats.js for these two
+    // rather than repeating its sum, so they agree bit for bit.
+    expect(ours.mean).toBe(theirs.mean);
+    expect(ours.stdDev).toBe(theirs.stdDev);
   });
 
   it('tornadoSwings agrees with the canonical implementation', () => {
@@ -152,7 +154,8 @@ describe('runEpeMonteCarlo', () => {
     const det = computeCashFlow(baseArgs);
     expect(res.npv.p90).toBeCloseTo(det.kpis.npv, 6);
     expect(res.npv.p10).toBeCloseTo(det.kpis.npv, 6);
-    expect(res.npv.stdDev).toBeCloseTo(0, 6);
+    // v3.10 (EC1-16): no uncertainty in, exactly zero spread out.
+    expect(res.npv.stdDev).toBe(0);
     expect(res.probNpvPositive).toBe(1);
     expect(res.base.npv).toBeCloseTo(det.kpis.npv, 6);
   });
@@ -347,7 +350,8 @@ describe('ported validation harness case 7: Monte Carlo layer over the engine', 
     expect(Math.abs(degenerate.npv.p10 - PIA_WORKED_EXAMPLE_EXPECTED.npv)).toBeLessThanOrEqual(0.01);
   });
   it('degenerate MC stdDev = 0', () => {
-    expect(Math.abs(degenerate.npv.stdDev)).toBeLessThanOrEqual(1e-6);
+    // v3.10 (EC1-16): exactly zero, not within a tolerance of it.
+    expect(degenerate.npv.stdDev).toBe(0);
   });
   it('seeded run reproducible (P50 identical)', () => {
     expect(runA.npv.p50).toBe(runB.npv.p50);
@@ -513,13 +517,20 @@ describe('golden agreement: montecarlo_cases.json', () => {
     const res = runEpeMonteCarlo({ cfg: c.cfg, prodRows: c.prodRows, capexRows: c.capexRows, opexRows: c.opexRows, mcConfig: c.mcConfig });
     for (const row of res.samples) expect(row.npv).toBe(res.base.npv);
     expect(Math.abs(res.base.npv - PIA_WORKED_EXAMPLE_EXPECTED.npv)).toBeLessThanOrEqual(0.01);
-    // FINDINGS-cashflow.md (Monte Carlo section): with 100 identical NPVs the
-    // engine's naive reduce-mean rounds, so its population stdDev comes out
-    // at 3.3e-7 USD where the oracle (compensated sum) reports exactly 0.
-    // Pinned as a bound, not as zero.
-    expect(res.npv.stdDev).toBeLessThanOrEqual(1e-6);
+    // v3.10 (EC1-16, FINDINGS-cashflow.md section 1.3): the naive reduce-mean
+    // this replaced rounded the mean of 100 identical NPVs and reported a
+    // standard deviation of 3.28e-7 USD. Engine and oracle now both read
+    // exactly zero, and the mean is exactly the value itself.
+    expect(res.npv.stdDev).toBe(0);
     expect(c.expected.npv.stdDev).toBe(0);
-    expect(res.npv.se).toBeLessThanOrEqual(1e-7);
+    expect(res.npv.se).toBe(0);
+    expect(res.npv.mean).toBe(res.base.npv);
+    // NEGATIVE CONTROL: the retired naive sum on this very sample is not zero.
+    const naiveMean = res.samples.reduce((s: number, r: any) => s + r.npv, 0) / res.samples.length;
+    const naiveStdDev = Math.sqrt(
+      res.samples.reduce((s: number, r: any) => s + (r.npv - naiveMean) ** 2, 0) / res.samples.length,
+    );
+    expect(naiveStdDev).toBeGreaterThan(0);
     expect(res.tornado).toEqual([]);
     expect(res.varKeys).toEqual([]);
     expect(c.expected.npv.p90).toBe(c.expected.npv.p10);

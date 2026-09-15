@@ -29,7 +29,14 @@
 // ./irrContract.js, see calculateIRRResult), the tax base is the contractor profit share (costs
 // are compensated via cost recovery; the old opex/2 halving is gone), and
 // the RRT capital uplift is a regime parameter (tax.rrtUpliftPct, default
-// 20).
+// 20). Since EC2-6 (2026-09-15) that uplift sizes a ONE-TIME uplifted cost
+// pool for the RRT, capex times (1 + uplift), drawn down against the RRT base
+// until it is exhausted; see calculateCashFlowForRegime.
+//
+// EC2-3 (2026-09-15): the capex sweep runs on an integer step count, eight
+// points 0.8, 0.9, ..., 1.5 exactly (CAPEX_SWEEP_MULTIPLIERS). It used to
+// accumulate 0.1 in floating point and stop at 1.4 while its axis and the
+// resilience verdict said 1.5.
 //
 // E1 (2026-08-29) fixed two defects that survived D1, both found by
 // checking the ledger's mass balance against the canonical PSC semantics
@@ -169,6 +176,36 @@ export const calculateIRRResult = (cashFlows) => solveIrrInBand(
 export const calculateIRR = (cashFlows) => calculateIRRResult(cashFlows).irr;
 
 
+/**
+ * The annual ledger of one regime on one project.
+ *
+ * Regime tax parameters (`regime.tax`), every one a percent:
+ *   cit           corporate income tax on the contractor profit share.
+ *   rrt           resource rent tax rate on the RRT base below.
+ *   rrtUpliftPct  the capital uplift of the RRT cost pool, default 20 when
+ *                 omitted (0 is respected). It is NOT an annual allowance:
+ *                 the pool is opened once at total capex (after the capex
+ *                 multiplier) times (1 + rrtUpliftPct / 100), so at 20 the
+ *                 pool is 1.2 times the capex and at 0 it is the capex.
+ *   minTax        minimum tax on gross revenue.
+ *
+ * The RRT base (EC2-6, owner decision 2026-09-15). The base before relief is
+ * the contractor profit share, the same base as CIT: revenue after royalty,
+ * after cost recovery and after the profit split. Nothing else is deducted
+ * from it, CIT included. In each year whose base is positive the relief is
+ * the lesser of the base and what is left of the uplifted pool, the pool
+ * falls by that relief, and RRT is the rate on what remains. The pool is drawn
+ * in every year with a positive base whatever the RRT rate and whether or not
+ * the minimum tax binds, and it is never refilled, so the relief over the life
+ * never exceeds capex times (1 + rrtUpliftPct / 100). The rule it replaces
+ * deducted capex times the uplift in every one of the 25 years, five times the
+ * capex over the life at the default 20 percent.
+ *
+ * @param {object} regime royalty, costRecoveryLimit, profitSplit and tax
+ * @param {object} project production, prices, costs and discountRate
+ * @param {number} capexMultiplier scales every capex line
+ * @param {number} priceMultiplier scales the oil price only
+ */
 export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1, priceMultiplier = 1) => {
     const oilProd = generateProductionProfile(project.production.oil.initial, project.production.oil.decline);
     const gasProd = generateProductionProfile(project.production.gas.initial, project.production.gas.decline);
@@ -180,6 +217,9 @@ export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1,
     // Unrecovered cost carried forward. Costs enter the pool in the year
     // they are incurred (capex AND opex), matching applyPSC.
     let cumulativeCostPool = 0;
+    // EC2-6: the one-time uplifted RRT cost pool, drawn down, never refilled.
+    const rrtUpliftPct = regime.tax.rrtUpliftPct ?? 20;
+    let rrtPoolRemaining = totalCapex * (1 + rrtUpliftPct / 100);
     let cumulativeRevenue = 0;
     let cumulativeCosts = 0;
     let cumulativeNCF = 0;
@@ -230,10 +270,11 @@ export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1,
         // here (the old `- opex / 2` was an invented halving, removed D1).
         const taxableIncome = contractorProfitShare;
         const cit = taxableIncome > 0 ? taxableIncome * (regime.tax.cit / 100) : 0;
-        // RRT base allows an annual capital uplift (screening approximation
-        // of an uplifted cost pool); rate is a regime parameter, default 20%.
-        const rrtUpliftPct = regime.tax.rrtUpliftPct ?? 20;
-        const rrtBase = taxableIncome - (totalCapex * rrtUpliftPct / 100);
+        // RRT base: the profit share less relief drawn from the one-time
+        // uplifted pool (EC2-6; ordering and the pool in the JSDoc above).
+        const rrtRelief = taxableIncome > 0 ? Math.min(taxableIncome, rrtPoolRemaining) : 0;
+        rrtPoolRemaining -= rrtRelief;
+        const rrtBase = taxableIncome - rrtRelief;
         const rrt = rrtBase > 0 ? rrtBase * (regime.tax.rrt / 100) : 0;
         const minTax = grossRevenue * (regime.tax.minTax / 100);
         const tax = Math.max(cit + rrt, minTax);
@@ -348,6 +389,20 @@ export const takeMetrics = (cashflows, discountRatePct = null) => {
     };
 };
 
+/**
+ * The capex sweep's multipliers (EC2-3, owner decision 2026-09-15): eight
+ * points, 0.8, 0.9, ..., 1.5, each built from an INTEGER step count as
+ * (8 + k) / 10 so the sweep lands on its documented endpoint exactly.
+ *
+ * The loop this replaces started at 0.8 and added 0.1 in floating point, so it
+ * reached 1.4000000000000004 and then 1.5000000000000004, which failed its
+ * `<= 1.5` test: the sweep the axis labelled 0.8 to 1.5 had seven points
+ * ending at 1.4, and the resilience verdict measured a range nobody asked for.
+ */
+export const CAPEX_SWEEP_MULTIPLIERS = Object.freeze(
+    Array.from({ length: 8 }, (unused, k) => (8 + k) / 10),
+);
+
 const runSensitivityAnalysis = (regimes, projectInputs) => {
     const priceSens = { labels: [], data: regimes.map(r => ({ regimeId: r.id, values: [], states: [] })) };
     for (let price = 40; price <= 120; price += 10) {
@@ -364,7 +419,7 @@ const runSensitivityAnalysis = (regimes, projectInputs) => {
     }
 
     const capexSens = { labels: [], data: regimes.map(r => ({ regimeId: r.id, values: [] })) };
-    for (let multiplier = 0.8; multiplier <= 1.5; multiplier += 0.1) {
+    for (const multiplier of CAPEX_SWEEP_MULTIPLIERS) {
         capexSens.labels.push(multiplier.toFixed(1));
         regimes.forEach(regime => {
             const cashflows = calculateCashFlowForRegime(regime, projectInputs, multiplier, 1);

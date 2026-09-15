@@ -31,12 +31,20 @@
 // (supabase/functions/_shared/__tests__/epe-mc.test.ts) asserts this port
 // and the canonical module produce IDENTICAL samples for identical seeded
 // RNG streams. If you change a primitive here or there, the test forces you
-// to change both.
+// to change both. Since v3.10 the two statistics helpers (mean and stdDev)
+// call lib/stats/stats.js directly rather than repeating its sum, so they
+// cannot drift from it at all; every sampling primitive stays vendored.
 //
 // Conventions: petroleum percentiles (P90 = low case), Gaussian-copula
 // correlation, injectable RNG (seeded mulberry32 for reproducible runs).
 
 import { computeCashFlow, isVolumeColumn, parsePriceDeck } from './cashflow.ts';
+// v3.10 (EC1-16): the canonical statistics module of this package. The Suite
+// file this was ported from could not import its canonical module because
+// that one depends on the npm package simple-statistics; lib/stats/stats.js
+// carries the same six functions vendored with NO dependency, so the edge
+// bundle can import it and the two sides cannot drift apart on a sum.
+import { ss } from '../../lib/stats/stats.js';
 
 // ============================================================================
 // Seeded RNG
@@ -56,16 +64,27 @@ export function mulberry32(seed: number): () => number {
 // Dependency-free statistics helpers
 // ============================================================================
 
+// v3.10 (EC1-16, owner decision 2026-09-15): these were naive left-to-right
+// sums. A hundred additions of a 1.35e8 NPV rounded the mean by a few 1e-8,
+// the deviation sum read that rounding as spread, and a run with no uncertain
+// variable at all reported a standard deviation of 3.28e-7 USD. Both now use
+// the COMPENSATED (Kahan/Neumaier) sum of the canonical module
+// lib/stats/stats.js, which the anti-drift gate already compares against, and
+// a sample whose values are all equal reads exactly that value with exactly
+// zero spread.
+const allEqual = (xs: number[]): boolean => xs.every((x) => x === xs[0]);
+
 export function mean(xs: number[]): number {
-  return xs.reduce((s, x) => s + x, 0) / xs.length;
+  if (xs.length === 0) return NaN;
+  if (allEqual(xs)) return xs[0];
+  return ss.mean(xs);
 }
 
 // Population standard deviation (divide by n), matching simple-statistics'
 // standardDeviation used by the canonical module.
 export function stdDev(xs: number[]): number {
-  if (xs.length < 2) return 0;
-  const m = mean(xs);
-  return Math.sqrt(xs.reduce((s, x) => s + (x - m) * (x - m), 0) / xs.length);
+  if (xs.length < 2 || allEqual(xs)) return 0;
+  return ss.standardDeviation(xs);
 }
 
 export function median(xs: number[]): number {
