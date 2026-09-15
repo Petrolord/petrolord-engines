@@ -955,6 +955,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 300.0,
     "totalCommitments": 70.0,
     "totalActuals": 70.0,
@@ -1003,6 +1004,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 100.0,
     "totalCommitments": 0.0,
     "totalActuals": 0.0,
@@ -1050,6 +1052,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 100.0,
     "totalCommitments": 10.0,
     "totalActuals": 20.0,
@@ -1097,6 +1100,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 100.0,
     "totalCommitments": 60.0,
     "totalActuals": 70.0,
@@ -1148,6 +1152,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 400.0,
     "totalCommitments": 0.0,
     "totalActuals": 0.0,
@@ -1194,6 +1199,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 200.0,
     "totalCommitments": 0.0,
     "totalActuals": 80.0,
@@ -1240,6 +1246,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 200.0,
     "totalCommitments": 0.0,
     "totalActuals": 100.0,
@@ -1280,6 +1287,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 0,
     "totalCommitments": 0,
     "totalActuals": 0,
@@ -1326,6 +1334,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 0.0,
     "totalCommitments": 0.0,
     "totalActuals": 0.0,
@@ -1370,6 +1379,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 400.0,
     "totalCommitments": 0.0,
     "totalActuals": 100.0,
@@ -1415,6 +1425,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 400.0,
     "totalCommitments": 0.0,
     "totalActuals": 100.0,
@@ -1459,6 +1470,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 400.0,
     "totalCommitments": 0.0,
     "totalActuals": 100.0,
@@ -1505,6 +1517,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 400.0,
     "totalCommitments": 0.0,
     "totalActuals": 100.0,
@@ -1552,6 +1565,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 400.0,
     "totalCommitments": 0.0,
     "totalActuals": 100.0,
@@ -1599,6 +1613,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 0.0,
     "totalCommitments": 0.0,
     "totalActuals": 100.0,
@@ -1647,6 +1662,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 100.0,
     "totalCommitments": 0.0,
     "totalActuals": 20.0,
@@ -1696,6 +1712,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 1000.0,
     "totalCommitments": 250.0,
     "totalActuals": 300.0,
@@ -1749,6 +1766,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 150.0,
     "totalCommitments": 80.0,
     "totalActuals": 150.0,
@@ -1795,6 +1813,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 100.0,
     "totalCommitments": 0.0,
     "totalActuals": 90.0,
@@ -1920,6 +1939,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 7800.0,
     "totalCommitments": 660.0,
     "totalActuals": 1980.0,
@@ -1966,6 +1986,7 @@
     "invoices": []
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 0.0,
     "totalCommitments": 0.0,
     "totalActuals": 500.0,
@@ -2014,6 +2035,7 @@
     "asOfAs": "Date"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 1000.0,
     "totalCommitments": 0.0,
     "totalActuals": 300.0,
@@ -2062,6 +2084,7 @@
     "asOfAs": "string"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 1000.0,
     "totalCommitments": 0.0,
     "totalActuals": 300.0,
@@ -2110,6 +2133,7 @@
     "asOfAs": "Date"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 1000.0,
     "totalCommitments": 0.0,
     "totalActuals": 300.0,
@@ -2158,6 +2182,7 @@
     "asOfAs": "Date"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 400.0,
     "totalCommitments": 0.0,
     "totalActuals": 100.0,
@@ -2207,6 +2232,7 @@
     "asOfAs": "string"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 400.0,
     "totalCommitments": 0.0,
     "totalActuals": 0.0,
@@ -2255,6 +2281,7 @@
     "asOfAs": "Date"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 1000.0,
     "totalCommitments": 0.0,
     "totalActuals": 300.0,
@@ -2303,6 +2330,7 @@
     "asOfAs": "Date"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 1000.0,
     "totalCommitments": 0.0,
     "totalActuals": 300.0,
@@ -2357,6 +2385,7 @@
     "asOfAs": "string"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 1000.0,
     "totalCommitments": 50.0,
     "totalActuals": 800.0,
@@ -2405,6 +2434,7 @@
     "asOfAs": "Date"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 0.0,
     "totalCommitments": 0.0,
     "totalActuals": 100.0,
@@ -2451,6 +2481,7 @@
     "asOfAs": "Date"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 1000.0,
     "totalCommitments": 0.0,
     "totalActuals": 300.0,
@@ -2578,6 +2609,7 @@
     "asOfAs": "string"
    },
    "expected": {
+    "undatedInvoices": 0,
     "totalBudget": 7800.0,
     "totalCommitments": 660.0,
     "totalActuals": 1980.0,
@@ -3541,74 +3573,74 @@
      {
       "date": "Jan 20",
       "Planned": 0.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Feb 20",
       "Planned": 102.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Mar 20",
       "Planned": 197.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Apr 20",
       "Planned": 299.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "May 20",
       "Planned": 398.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Jun 20",
       "Planned": 500.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Jul 20",
       "Planned": 598.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Aug 20",
       "Planned": 700.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Sep 20",
       "Planned": 802.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Oct 20",
       "Planned": 901.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Nov 20",
       "Planned": 1003.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      },
      {
       "date": "Dec 20",
       "Planned": 1101.0,
-      "Actual": 200.0,
-      "Forecast": 200.0
+      "Actual": 0.0,
+      "Forecast": 0.0
      }
     ],
     "totalBudget": 1200.0,
@@ -5149,59 +5181,80 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t1",
       "planned_cost": 1000,
       "percent_complete": 50,
       "actual_cost": 600
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t2",
       "planned_cost": 2000,
       "percent_complete": 25,
       "actual_cost": 400
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t3",
       "planned_cost": 500,
       "percent_complete": 100,
       "actual_cost": 450
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 3500.0,
+    "plannedValue": 1750.0,
+    "budgetAtCompletion": 3500.0,
     "earnedValue": 1500.0,
     "actualCost": 1450.0,
-    "pv": 3500.0,
+    "pv": 1750.0,
     "ev": 1500.0,
     "ac": 1450.0,
+    "bac": 3500.0,
     "cpi": 1.0344827586206897,
-    "spi": 0.42857142857142855,
+    "spi": 0.8571428571428571,
     "cv": 50.0,
-    "sv": -2000.0,
+    "sv": -250.0,
+    "completionRatio": 0.42857142857142855,
     "percentComplete": 42.857142857142854,
     "taskCount": 3,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
    }
   },
   {
    "name": "empty task list: no percent complete",
    "inputs": {
-    "tasks": []
+    "tasks": [],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 0.0,
+    "plannedValue": null,
+    "budgetAtCompletion": 0.0,
     "earnedValue": 0.0,
     "actualCost": 0.0,
-    "pv": 0.0,
+    "pv": null,
     "ev": 0.0,
     "ac": 0.0,
+    "bac": 0.0,
     "cpi": null,
     "spi": null,
     "cv": 0.0,
-    "sv": 0.0,
+    "sv": null,
+    "completionRatio": null,
     "percentComplete": null,
     "taskCount": 0,
     "costed": false,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "no costed task, so there is no planned value"
    },
    "note": "EC6-0: percentComplete is null. It used to be the string \"NaN\", and one card read that as 0 and printed \"Behind Schedule\"."
   },
@@ -5210,27 +5263,36 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
       "planned_cost": 100,
       "percent_complete": 40,
       "actual_cost": 0
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 100.0,
+    "plannedValue": 50.0,
+    "budgetAtCompletion": 100.0,
     "earnedValue": 40.0,
     "actualCost": 0.0,
-    "pv": 100.0,
+    "pv": 50.0,
     "ev": 40.0,
     "ac": 0.0,
+    "bac": 100.0,
     "cpi": null,
-    "spi": 0.4,
+    "spi": 0.8,
     "cv": 40.0,
-    "sv": -60.0,
+    "sv": -10.0,
+    "completionRatio": 0.4,
     "percentComplete": 40.0,
     "taskCount": 1,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
    },
    "note": "EC6-0: cpi is null. It used to be an invented 1.00, printed as \"Under Budget\"."
   },
@@ -5239,27 +5301,36 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
       "planned_cost": 100,
       "percent_complete": 0,
       "actual_cost": 0
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 100.0,
+    "plannedValue": 50.0,
+    "budgetAtCompletion": 100.0,
     "earnedValue": 0.0,
     "actualCost": 0.0,
-    "pv": 100.0,
+    "pv": 50.0,
     "ev": 0.0,
     "ac": 0.0,
+    "bac": 100.0,
     "cpi": null,
     "spi": 0.0,
     "cv": 0.0,
-    "sv": -100.0,
+    "sv": -50.0,
+    "completionRatio": 0.0,
     "percentComplete": 0.0,
     "taskCount": 1,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
    }
   },
   {
@@ -5273,23 +5344,29 @@
       "name": "y",
       "actual_cost": 20
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 0.0,
+    "plannedValue": null,
+    "budgetAtCompletion": 0.0,
     "earnedValue": 0.0,
     "actualCost": 20.0,
-    "pv": 0.0,
+    "pv": null,
     "ev": 0.0,
     "ac": 20.0,
+    "bac": 0.0,
     "cpi": 0.0,
     "spi": null,
     "cv": -20.0,
-    "sv": 0.0,
+    "sv": null,
+    "completionRatio": null,
     "percentComplete": null,
     "taskCount": 2,
     "costed": false,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "no costed task, so there is no planned value"
    },
    "note": "EC6-0: spi and percentComplete are null. This is every project in the app: no screen wrote a task cost until this wave."
   },
@@ -5298,33 +5375,43 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
       "name": "a",
       "planned_cost": "1500.5",
       "percent_complete": "33.3",
       "actual_cost": "499.99"
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
       "name": "b",
       "planned_cost": "",
       "percent_complete": null
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 1500.5,
+    "plannedValue": 750.25,
+    "budgetAtCompletion": 1500.5,
     "earnedValue": 499.6664999999999,
     "actualCost": 499.99,
-    "pv": 1500.5,
+    "pv": 750.25,
     "ev": 499.6664999999999,
     "ac": 499.99,
+    "bac": 1500.5,
     "cpi": 0.9993529870597411,
-    "spi": 0.33299999999999996,
+    "spi": 0.6659999999999999,
     "cv": -0.32350000000008095,
-    "sv": -1000.8335000000001,
+    "sv": -250.58350000000007,
+    "completionRatio": 0.33299999999999996,
     "percentComplete": 33.3,
     "taskCount": 2,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
    }
   },
   {
@@ -5332,27 +5419,36 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
       "planned_cost": 0.125,
       "percent_complete": 100,
       "actual_cost": 0.125
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 0.125,
+    "plannedValue": 0.0625,
+    "budgetAtCompletion": 0.125,
     "earnedValue": 0.125,
     "actualCost": 0.125,
-    "pv": 0.125,
+    "pv": 0.0625,
     "ev": 0.125,
     "ac": 0.125,
+    "bac": 0.125,
     "cpi": 1.0,
-    "spi": 1.0,
+    "spi": 2.0,
     "cv": 0.0,
-    "sv": 0.0,
+    "sv": 0.0625,
+    "completionRatio": 1.0,
     "percentComplete": 100.0,
     "taskCount": 1,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
    }
   },
   {
@@ -5360,27 +5456,36 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
       "planned_cost": 10,
       "percent_complete": 100,
       "actual_cost": 10.125
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 10.0,
+    "plannedValue": 5.0,
+    "budgetAtCompletion": 10.0,
     "earnedValue": 10.0,
     "actualCost": 10.125,
-    "pv": 10.0,
+    "pv": 5.0,
     "ev": 10.0,
     "ac": 10.125,
+    "bac": 10.0,
     "cpi": 0.9876543209876543,
-    "spi": 1.0,
+    "spi": 2.0,
     "cv": -0.125,
-    "sv": 0.0,
+    "sv": 5.0,
+    "completionRatio": 1.0,
     "percentComplete": 100.0,
     "taskCount": 1,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
    }
   },
   {
@@ -5388,28 +5493,36 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
       "name": "one",
       "planned_cost": 100,
       "percent_complete": 100,
       "actual_cost": 100
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 100.0,
+    "plannedValue": 50.0,
+    "budgetAtCompletion": 100.0,
     "earnedValue": 100.0,
     "actualCost": 100.0,
-    "pv": 100.0,
+    "pv": 50.0,
     "ev": 100.0,
     "ac": 100.0,
+    "bac": 100.0,
     "cpi": 1.0,
-    "spi": 1.0,
+    "spi": 2.0,
     "cv": 0.0,
-    "sv": 0.0,
+    "sv": 50.0,
+    "completionRatio": 1.0,
     "percentComplete": 100.0,
     "taskCount": 1,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
    }
   },
   {
@@ -5417,27 +5530,36 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
       "planned_cost": 4000,
       "percent_complete": 30,
       "actual_cost": 2500
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 4000.0,
+    "plannedValue": 2000.0,
+    "budgetAtCompletion": 4000.0,
     "earnedValue": 1200.0,
     "actualCost": 2500.0,
-    "pv": 4000.0,
+    "pv": 2000.0,
     "ev": 1200.0,
     "ac": 2500.0,
+    "bac": 4000.0,
     "cpi": 0.48,
-    "spi": 0.3,
+    "spi": 0.6,
     "cv": -1300.0,
-    "sv": -2800.0,
+    "sv": -800.0,
+    "completionRatio": 0.3,
     "percentComplete": 30.0,
     "taskCount": 1,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
    }
   },
   {
@@ -5445,122 +5567,188 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t0",
       "planned_cost": 100,
       "percent_complete": 0,
       "actual_cost": 90
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t1",
       "planned_cost": 137,
       "percent_complete": 13,
       "actual_cost": 131
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t2",
       "planned_cost": 174,
       "percent_complete": 26,
       "actual_cost": 172
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t3",
       "planned_cost": 211,
       "percent_complete": 39,
       "actual_cost": 213
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t4",
       "planned_cost": 248,
       "percent_complete": 52,
       "actual_cost": 254
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t5",
       "planned_cost": 285,
       "percent_complete": 65,
       "actual_cost": 295
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t6",
       "planned_cost": 322,
       "percent_complete": 78,
       "actual_cost": 336
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t7",
       "planned_cost": 359,
       "percent_complete": 91,
       "actual_cost": 377
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t8",
       "planned_cost": 396,
       "percent_complete": 3,
       "actual_cost": 418
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t9",
       "planned_cost": 433,
       "percent_complete": 16,
       "actual_cost": 459
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t10",
       "planned_cost": 470,
       "percent_complete": 29,
       "actual_cost": 500
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t11",
       "planned_cost": 507,
       "percent_complete": 42,
       "actual_cost": 541
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t12",
       "planned_cost": 544,
       "percent_complete": 55,
       "actual_cost": 582
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t13",
       "planned_cost": 581,
       "percent_complete": 68,
       "actual_cost": 623
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t14",
       "planned_cost": 618,
       "percent_complete": 81,
       "actual_cost": 664
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t15",
       "planned_cost": 655,
       "percent_complete": 94,
       "actual_cost": 705
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t16",
       "planned_cost": 692,
       "percent_complete": 6,
       "actual_cost": 746
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t17",
       "planned_cost": 729,
       "percent_complete": 19,
       "actual_cost": 787
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t18",
       "planned_cost": 766,
       "percent_complete": 32,
       "actual_cost": 828
      },
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "t19",
       "planned_cost": 803,
       "percent_complete": 45,
       "actual_cost": 869
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 9030.0,
+    "plannedValue": 4515.0,
+    "budgetAtCompletion": 9030.0,
     "earnedValue": 4064.86,
     "actualCost": 9590.0,
-    "pv": 9030.0,
+    "pv": 4515.0,
     "ev": 4064.86,
     "ac": 9590.0,
+    "bac": 9030.0,
     "cpi": 0.42386444212721586,
-    "spi": 0.45015060908084165,
+    "spi": 0.9003012181616833,
     "cv": -5525.139999999999,
-    "sv": -4965.139999999999,
+    "sv": -450.1399999999999,
+    "completionRatio": 0.45015060908084165,
     "percentComplete": 45.015060908084166,
     "taskCount": 20,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
    }
   },
   {
@@ -5568,27 +5756,303 @@
    "inputs": {
     "tasks": [
      {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
       "planned_cost": 2.675,
       "percent_complete": 100,
       "actual_cost": 2.675
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
-    "plannedValue": 2.675,
+    "plannedValue": 1.3375,
+    "budgetAtCompletion": 2.675,
     "earnedValue": 2.675,
     "actualCost": 2.675,
-    "pv": 2.675,
+    "pv": 1.3375,
     "ev": 2.675,
     "ac": 2.675,
+    "bac": 2.675,
     "cpi": 1.0,
-    "spi": 1.0,
+    "spi": 2.0,
     "cv": 0.0,
-    "sv": 0.0,
+    "sv": 1.3375,
+    "completionRatio": 1.0,
     "percentComplete": 100.0,
     "taskCount": 1,
     "costed": true,
-    "spiBasis": "earned value over budget at completion, not time-phased"
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
+   }
+  },
+  {
+   "name": "before the window opens: nothing is planned yet, so no SPI",
+   "inputs": {
+    "tasks": [
+     {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
+      "planned_cost": 1000,
+      "percent_complete": 0
+     }
+    ],
+    "asOf": "2025-12-31"
+   },
+   "expected": {
+    "plannedValue": 0.0,
+    "budgetAtCompletion": 1000.0,
+    "earnedValue": 0.0,
+    "actualCost": 0.0,
+    "pv": 0.0,
+    "ev": 0.0,
+    "ac": 0.0,
+    "bac": 1000.0,
+    "cpi": null,
+    "spi": null,
+    "cv": 0.0,
+    "sv": 0.0,
+    "completionRatio": 0.0,
+    "percentComplete": 0.0,
+    "taskCount": 1,
+    "costed": true,
+    "undatedCostedTasks": 0,
+    "asOf": "2025-12-31",
+    "spiBasis": "planned value time-phased to the as-of date"
+   },
+   "note": "EC6-1: planned value is 0 before the start, so there is no schedule index to report."
+  },
+  {
+   "name": "after the window closes: the whole budget was planned",
+   "inputs": {
+    "tasks": [
+     {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
+      "planned_cost": 1000,
+      "percent_complete": 60
+     }
+    ],
+    "asOf": "2027-06-30"
+   },
+   "expected": {
+    "plannedValue": 1000.0,
+    "budgetAtCompletion": 1000.0,
+    "earnedValue": 600.0,
+    "actualCost": 0.0,
+    "pv": 1000.0,
+    "ev": 600.0,
+    "ac": 0.0,
+    "bac": 1000.0,
+    "cpi": null,
+    "spi": 0.6,
+    "cv": 600.0,
+    "sv": -400.0,
+    "completionRatio": 0.6,
+    "percentComplete": 60.0,
+    "taskCount": 1,
+    "costed": true,
+    "undatedCostedTasks": 0,
+    "asOf": "2027-06-30",
+    "spiBasis": "planned value time-phased to the as-of date"
+   },
+   "note": "EC6-1: SPI is the completion ratio only once the window has closed."
+  },
+  {
+   "name": "half way through a window, half done: on schedule",
+   "inputs": {
+    "tasks": [
+     {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
+      "planned_cost": 1000,
+      "percent_complete": 50
+     }
+    ],
+    "asOf": "2026-07-02"
+   },
+   "expected": {
+    "plannedValue": 500.0,
+    "budgetAtCompletion": 1000.0,
+    "earnedValue": 500.0,
+    "actualCost": 0.0,
+    "pv": 500.0,
+    "ev": 500.0,
+    "ac": 0.0,
+    "bac": 1000.0,
+    "cpi": null,
+    "spi": 1.0,
+    "cv": 500.0,
+    "sv": 0.0,
+    "completionRatio": 0.5,
+    "percentComplete": 50.0,
+    "taskCount": 1,
+    "costed": true,
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
+   }
+  },
+  {
+   "name": "half way through a window, a quarter done: behind",
+   "inputs": {
+    "tasks": [
+     {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "a",
+      "planned_cost": 1000,
+      "percent_complete": 25
+     }
+    ],
+    "asOf": "2026-07-02"
+   },
+   "expected": {
+    "plannedValue": 500.0,
+    "budgetAtCompletion": 1000.0,
+    "earnedValue": 250.0,
+    "actualCost": 0.0,
+    "pv": 500.0,
+    "ev": 250.0,
+    "ac": 0.0,
+    "bac": 1000.0,
+    "cpi": null,
+    "spi": 0.5,
+    "cv": 250.0,
+    "sv": -250.0,
+    "completionRatio": 0.25,
+    "percentComplete": 25.0,
+    "taskCount": 1,
+    "costed": true,
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-02",
+    "spiBasis": "planned value time-phased to the as-of date"
+   }
+  },
+  {
+   "name": "two windows that do not overlap",
+   "inputs": {
+    "tasks": [
+     {
+      "name": "first",
+      "planned_cost": 600,
+      "percent_complete": 100,
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-06-30"
+     },
+     {
+      "name": "second",
+      "planned_cost": 400,
+      "percent_complete": 0,
+      "planned_start_date": "2026-07-01",
+      "planned_end_date": "2026-12-31"
+     }
+    ],
+    "asOf": "2026-07-01"
+   },
+   "expected": {
+    "plannedValue": 600.0,
+    "budgetAtCompletion": 1000.0,
+    "earnedValue": 600.0,
+    "actualCost": 0.0,
+    "pv": 600.0,
+    "ev": 600.0,
+    "ac": 0.0,
+    "bac": 1000.0,
+    "cpi": null,
+    "spi": 1.0,
+    "cv": 600.0,
+    "sv": 0.0,
+    "completionRatio": 0.6,
+    "percentComplete": 60.0,
+    "taskCount": 2,
+    "costed": true,
+    "undatedCostedTasks": 0,
+    "asOf": "2026-07-01",
+    "spiBasis": "planned value time-phased to the as-of date"
+   }
+  },
+  {
+   "name": "a costed task with no dates: planned value cannot be time-phased",
+   "inputs": {
+    "tasks": [
+     {
+      "planned_start_date": "2026-01-01",
+      "planned_end_date": "2026-12-31",
+      "name": "dated",
+      "planned_cost": 500,
+      "percent_complete": 50
+     },
+     {
+      "name": "undated",
+      "planned_cost": 500,
+      "percent_complete": 50
+     }
+    ],
+    "asOf": "2026-07-02"
+   },
+   "expected": {
+    "plannedValue": null,
+    "budgetAtCompletion": 1000.0,
+    "earnedValue": 500.0,
+    "actualCost": 0.0,
+    "pv": null,
+    "ev": 500.0,
+    "ac": 0.0,
+    "bac": 1000.0,
+    "cpi": null,
+    "spi": null,
+    "cv": 500.0,
+    "sv": null,
+    "completionRatio": 0.5,
+    "percentComplete": 50.0,
+    "taskCount": 2,
+    "costed": true,
+    "undatedCostedTasks": 1,
+    "asOf": "2026-07-02",
+    "spiBasis": "1 costed task carries no planned dates, so planned value cannot be time-phased"
+   },
+   "note": "EC6-1: spi is null and the basis says why; the completion ratio is still reported."
+  },
+  {
+   "name": "a zero-length window is either not started or finished",
+   "inputs": {
+    "tasks": [
+     {
+      "name": "milestone",
+      "planned_cost": 100,
+      "percent_complete": 100,
+      "planned_start_date": "2026-06-01",
+      "planned_end_date": "2026-06-01"
+     }
+    ],
+    "asOf": "2026-06-01"
+   },
+   "expected": {
+    "plannedValue": 0.0,
+    "budgetAtCompletion": 100.0,
+    "earnedValue": 100.0,
+    "actualCost": 0.0,
+    "pv": 0.0,
+    "ev": 100.0,
+    "ac": 0.0,
+    "bac": 100.0,
+    "cpi": null,
+    "spi": null,
+    "cv": 100.0,
+    "sv": 100.0,
+    "completionRatio": 1.0,
+    "percentComplete": 100.0,
+    "taskCount": 1,
+    "costed": true,
+    "undatedCostedTasks": 0,
+    "asOf": "2026-06-01",
+    "spiBasis": "planned value time-phased to the as-of date"
    }
   }
  ],
@@ -5601,7 +6065,8 @@
       "name": "Rig move",
       "planned_cost": "$1,200"
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
     "refused": true,
@@ -5617,7 +6082,8 @@
       "planned_cost": -100,
       "percent_complete": 50
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
     "refused": true,
@@ -5633,7 +6099,8 @@
       "planned_cost": 100,
       "actual_cost": -20
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
     "refused": true,
@@ -5649,7 +6116,8 @@
       "planned_cost": 100,
       "percent_complete": 150
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
     "refused": true,
@@ -5665,7 +6133,8 @@
       "planned_cost": 100,
       "percent_complete": -10
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
     "refused": true,
@@ -5681,7 +6150,8 @@
       "planned_cost": 100,
       "percent_complete": "half"
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
     "refused": true,
@@ -5695,11 +6165,30 @@
      {
       "planned_cost": "abc"
      }
-    ]
+    ],
+    "asOf": "2026-07-02"
    },
    "expected": {
     "refused": true,
     "message": "task 1: planned cost is not a number: abc"
+   }
+  },
+  {
+   "name": "a planned window that ends before it starts",
+   "inputs": {
+    "tasks": [
+     {
+      "name": "Backwards",
+      "planned_cost": 100,
+      "planned_start_date": "2026-06-30",
+      "planned_end_date": "2026-01-01"
+     }
+    ],
+    "asOf": "2026-07-02"
+   },
+   "expected": {
+    "refused": true,
+    "message": "Backwards: the planned end date is before the planned start date"
    }
   }
  ],

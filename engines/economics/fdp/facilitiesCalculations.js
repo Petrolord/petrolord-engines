@@ -46,11 +46,16 @@ export const calculateFacilityCost = (facility) => {
 
     // Adjust for size
     const sizeMultiplier = (parseFloat(facility.nameplateCapacity) || 50000) / 50000;
-    
+    const sizedCapex = capex * Math.pow(sizeMultiplier, 0.7); // Economy of scale
+
+    // EC6-1 (FINDINGS-fdp.md section 12): decommissioning was 15 percent of
+    // the UNSCALED base, so a 150,000 bbl/d FPSO was decommissioned for the
+    // same $180MM as a 50,000 bbl/d one. It is 15 percent of the capex this
+    // facility actually carries.
     return {
-        capex: capex * Math.pow(sizeMultiplier, 0.7), // Economy of scale
+        capex: sizedCapex,
         opex: opex * Math.pow(sizeMultiplier, 0.6),
-        decommissioning: capex * 0.15
+        decommissioning: sizedCapex * 0.15
     };
 };
 

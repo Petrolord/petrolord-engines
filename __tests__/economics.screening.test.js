@@ -57,16 +57,21 @@ const gateResult = (res, exp, engine) => {
     .forEach((f) => near(m[f], em[f], MONEY));
   near(m.payback, em.payback, PAYBACK);
   if (em.maxExposure !== null) near(m.maxExposure, em.maxExposure, MONEY);
-  if (engine && engine.irr !== undefined) {
-    // A recorded disagreement: pin the engine's number and the oracle's.
-    near(m.irr, engine.irr, IRR);
-    expect(Math.abs(engine.irr - em.irr)).toBeGreaterThan(1);
-  } else if (em.irrRoots.length > 1) {
-    // Several roots: the engine must land on one of them.
-    const hit = em.irrRoots.some((r) => Math.abs(r - m.irr) <= IRR);
-    expect(hit).toBe(true);
+  // EC6-1: the internal rate of return, and the reason when there is none.
+  // There are no recorded IRR disagreements left; the engine agrees with
+  // the oracle case by case, including on which cases have no answer.
+  expect(m.irrStatus).toBe(em.irrStatus);
+  if (em.irr === null) {
+    expect(m.irr).toBeNull();
   } else {
     near(m.irr, em.irr, IRR);
+  }
+  if (em.irrStatus === 'multiple-roots') {
+    // Every root the oracle found, reported rather than one of them picked.
+    expect(m.irrRoots).toHaveLength(em.irrRoots.length);
+    m.irrRoots.forEach((r, i) => near(r, em.irrRoots[i], IRR));
+  } else {
+    expect(m.irrRoots).toBeNull();
   }
 };
 
@@ -163,7 +168,10 @@ describe('calculateEconomics IRR guard', () => {
       capex: [0, 0], opexFixed: [10, 10], opexVariable: [0, 0], abandonment: [0, 0],
       royaltyRate: 0, taxRate: 0,
     });
-    expect(metrics.irr).toBe(0);
+    // EC6-1: no sign change means no rate returns the money, which is null
+    // and a reason. It used to be reported as an IRR of 0.
+    expect(metrics.irr).toBeNull();
+    expect(metrics.irrStatus).toBe('no-sign-change');
   });
 
   it('solves a known mid-year IRR', () => {
@@ -320,23 +328,55 @@ describe.each(['taxRoyalty', 'fdp', 'psc', 'irr', 'payback', 'depreciation', 'ho
   },
 );
 
-describe('recorded disagreements are pinned on both sides', () => {
-  test('IRR: the absolute derivative guard returns the 10 percent seed on 1e-7 $MM cash flows', () => {
+describe('EC6-1: the IRR disagreements are resolved, and the clamp is not an answer', () => {
+  test('a cash flow of order 1e-7 $MM: the 21 percent root is found, not the 10 percent seed', () => {
     const c = G.irr.find((x) => x.id === 'irr_tiny_cash_flows_derivative_guard');
-    expect(calculateEconomics(c.inputs).metrics.irr).toBe(10);
-    expect(c.expected.metrics.irr).toBeCloseTo(21, 6);
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irr).toBeCloseTo(21, 6);
+    expect(m.irrStatus).toBe('ok');
   });
 
-  test('IRR: a 9900 percent root is reported as the 1000 percent clamp', () => {
+  test('a 9900 percent root is reported as no answer and a reason, not as 1000', () => {
     const c = G.irr.find((x) => x.id === 'irr_beyond_clamp');
-    expect(calculateEconomics(c.inputs).metrics.irr).toBe(1000);
-    expect(c.expected.metrics.irr).toBeCloseTo(9900, 6);
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irr).toBeNull();
+    expect(m.irrStatus).toBe('above-clamp');
+    expect(c.expected.metrics.irrRoots[0]).toBeCloseTo(9900, 6);
   });
 
-  test('IRR: two roots at 10 and 20 percent, the engine lands on the lower one from its 10 percent start', () => {
+  test('two roots: both are reported and neither is called THE return', () => {
     const c = G.irr.find((x) => x.id === 'irr_two_roots');
-    expect(c.expected.metrics.irrRoots.map((r) => Math.round(r))).toEqual([10, 20]);
-    expect(calculateEconomics(c.inputs).metrics.irr).toBeCloseTo(10, 6);
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irr).toBeNull();
+    expect(m.irrStatus).toBe('multiple-roots');
+    expect(m.irrRoots.map((r) => Math.round(r))).toEqual([10, 20]);
+  });
+
+  test('the case that ran to the clamp now reports its only, negative, root', () => {
+    const c = G.fdp.find((x) => x.id === 'fdp_never_pays_back');
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irrStatus).toBe('ok');
+    expect(m.irr).toBeCloseTo(-36.674688, 4);
+    // and it is a root: the mid-year NPV there is zero
+    const { cashflow } = calculateEconomics(c.inputs);
+    const npvAtIrr = cashflow.reduce((s, cf, i) => s + cf.ncf / Math.pow(1 + m.irr / 100, i + 0.5), 0);
+    const scale = cashflow.reduce((s, cf) => s + Math.abs(cf.ncf), 0);
+    expect(Math.abs(npvAtIrr) / scale).toBeLessThan(1e-9);
+  });
+
+  test('NEGATIVE CONTROL: no case anywhere reports exactly the clamp as its IRR', () => {
+    let checked = 0;
+    ['taxRoyalty', 'fdp', 'psc', 'irr', 'payback', 'depreciation', 'horizon', 'sweeps'].forEach((g) => {
+      G[g].forEach((c) => {
+        const m = calculateEconomics(c.inputs).metrics;
+        if (m.irr !== null) {
+          expect(m.irr).toBeLessThan(1000);
+          expect(m.irr).toBeGreaterThan(-99);
+        }
+        checked += 1;
+      });
+    });
+    expect(checked).toBeGreaterThan(40);
   });
 });
 

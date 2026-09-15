@@ -33,8 +33,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": 10.0,
      "npv": 39.87207191390658,
      "payback": 0.0,
@@ -95,10 +96,6 @@
    "note": "capexDepreciationYears 1 on the two year hand case: deductions past year 2 are lost."
   },
   {
-   "engine": {
-    "disagreement": "the true root lies beyond the 1000 percent Newton clamp and the clamp is reported (the root is 1800 percent)",
-    "irr": 1000.0
-   },
    "expected": {
     "cashflow": [
      {
@@ -131,10 +128,11 @@
      }
     ],
     "metrics": {
-     "irr": 1800.0,
+     "irr": null,
      "irrRoots": [
       1800.0
      ],
+     "irrStatus": "above-clamp",
      "maxExposure": -2.5,
      "npv": 38.78859169885477,
      "payback": 1.0526315789473684,
@@ -231,6 +229,7 @@
      "irrRoots": [
       550.0000000000003
      ],
+     "irrStatus": "ok",
      "maxExposure": -6.666666666666664,
      "npv": 31.204230193492112,
      "payback": 1.1538461538461537,
@@ -327,6 +326,7 @@
      "irrRoots": [
       371.42857142857144
      ],
+     "irrStatus": "ok",
      "maxExposure": -8.75,
      "npv": 27.41204944081077,
      "payback": 1.2121212121212122,
@@ -423,6 +423,7 @@
      "irrRoots": [
       300.0
      ],
+     "irrStatus": "ok",
      "maxExposure": -10.0,
      "npv": 25.136740989201975,
      "payback": 1.25,
@@ -631,6 +632,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 472.60822311560736,
      "payback": 3.111540629545507,
@@ -903,6 +905,7 @@
      "irrRoots": [
       45.79162481099285
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 522.2513166052539,
      "payback": 2.8637449342277943,
@@ -1175,6 +1178,7 @@
      "irrRoots": [
       45.79038316969001
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 534.2143708805368,
      "payback": 2.8773649156325583,
@@ -1447,6 +1451,7 @@
      "irrRoots": [
       44.9949316344855
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 537.0700046854967,
      "payback": 2.9761314203724236,
@@ -1719,6 +1724,7 @@
      "irrRoots": [
       44.11311605282605
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 536.5100079992499,
      "payback": 3.045889252971472,
@@ -1893,6 +1899,7 @@
      "irrRoots": [
       279.12878474779205
      ],
+     "irrStatus": "ok",
      "maxExposure": -15.0,
      "npv": 60.162701395785916,
      "payback": 1.3333333333333333,
@@ -1993,8 +2000,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": 10.0,
      "npv": 39.87207191390658,
      "payback": 0.0,
@@ -2055,10 +2063,6 @@
    "note": "capexDepreciationYears 0 is floored at 1 (immediate expensing)."
   },
   {
-   "engine": {
-    "disagreement": "NPV(10 percent) is negative with a positive slope, so Newton steps past the clamp and the clamp is reported; the only root is negative",
-    "irr": 1000.0
-   },
    "expected": {
     "cashflow": [
      {
@@ -2109,6 +2113,7 @@
      "irrRoots": [
       -76.80749452886002
      ],
+     "irrStatus": "ok",
      "maxExposure": 35.0,
      "npv": 55.82878053557869,
      "payback": 0.0,
@@ -2213,6 +2218,7 @@
      "irrRoots": [
       -2.46913580246913
      ],
+     "irrStatus": "ok",
      "maxExposure": -40.5,
      "npv": -4.3772600688093135,
      "payback": 2.0,
@@ -2440,6 +2446,7 @@
      "irrRoots": [
       48.5693987043922
      ],
+     "irrStatus": "ok",
      "maxExposure": -800.0,
      "npv": 1966.9868961783843,
      "payback": 3.5218964608334944,
@@ -2733,6 +2740,7 @@
      "irrRoots": [
       72.90913689460356
      ],
+     "irrStatus": "ok",
      "maxExposure": -800.0,
      "npv": 3794.2801161100824,
      "payback": 3.0236292727689835,
@@ -2864,10 +2872,6 @@
    "note": "The same case with royalty and tax at zero; post-fiscal NPV must be below 0.75 of this."
   },
   {
-   "engine": {
-    "disagreement": "NPV(10 percent) is negative with a positive slope, so Newton steps past the clamp and the clamp is reported; the only root is negative",
-    "irr": 1000.0
-   },
    "expected": {
     "cashflow": [
      {
@@ -3030,6 +3034,7 @@
      "irrRoots": [
       -36.67468836383813
      ],
+     "irrStatus": "ok",
      "maxExposure": -100000.0,
      "npv": -92616.50195698437,
      "payback": 11.0,
@@ -3181,8 +3186,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": -60.0,
      "npv": -57.20775535473553,
      "payback": 1.0,
@@ -3252,8 +3258,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": 30.0,
      "npv": 28.603877677367766,
      "payback": 0.0,
@@ -3355,6 +3362,7 @@
      "irrRoots": [
       -3.57377411719198
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": -73.6972801468896,
      "payback": 3.0,
@@ -3654,6 +3662,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 472.60822311560736,
      "payback": 3.111540629545507,
@@ -3921,8 +3930,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": -1259.4853906324638,
      "npv": -958.9482361345583,
      "payback": 10.0,
@@ -4080,8 +4090,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": 90.0,
      "npv": 163.82220851583355,
      "payback": 0.0,
@@ -4177,6 +4188,7 @@
      "irrRoots": [
       20.999999999999996
      ],
+     "irrStatus": "ok",
      "maxExposure": -100.0,
      "npv": 9.534625892455907,
      "payback": 1.8264462809917354,
@@ -4287,6 +4299,7 @@
       10.00000000000002,
       20.00000000000003
      ],
+     "irrStatus": "multiple-roots",
      "maxExposure": -100.0,
      "npv": -1.4210854715202004e-14,
      "payback": 1.434782608695652,
@@ -4400,8 +4413,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": -16.0,
      "npv": -14.65653236360993,
      "payback": 3.0,
@@ -4469,10 +4483,6 @@
    "note": "Every period negative: no IRR, reported 0; payback is the project life."
   },
   {
-   "engine": {
-    "disagreement": "absolute derivative guard returns the Newton starting guess",
-    "irr": 10.0
-   },
    "expected": {
     "cashflow": [
      {
@@ -4509,6 +4519,7 @@
      "irrRoots": [
       21.000000000000007
      ],
+     "irrStatus": "ok",
      "maxExposure": -1e-07,
      "npv": 9.534625892455925e-09,
      "payback": 1.8264462809917354,
@@ -4568,10 +4579,6 @@
    "note": "ncf of order 1e-7 $MM: the true mid-year IRR is the same 21 percent as irr_known_21pct scaled down, but the engine's ABSOLUTE derivative guard (|dNPV/dr| < 1e-5) fires on the first iteration and it returns its 10 percent starting guess. DISAGREEMENT, recorded in FINDINGS-fiscal.md."
   },
   {
-   "engine": {
-    "disagreement": "the true root lies beyond the 1000 percent Newton clamp and the clamp is reported (the root is 9900 percent)",
-    "irr": 1000.0
-   },
    "expected": {
     "cashflow": [
      {
@@ -4604,10 +4611,11 @@
      }
     ],
     "metrics": {
-     "irr": 9900.0,
+     "irr": null,
      "irrRoots": [
       9900.0
      ],
+     "irrStatus": "above-clamp",
      "maxExposure": -1.0,
      "npv": 85.72495461489915,
      "payback": 1.01,
@@ -7939,6 +7947,7 @@
      "irrRoots": [
       49.999999999999986
      ],
+     "irrStatus": "ok",
      "maxExposure": -100.0,
      "npv": 34.671366881657875,
      "payback": 1.6666666666666665,
@@ -8034,6 +8043,7 @@
      "irrRoots": [
       0.0
      ],
+     "irrStatus": "ok",
      "maxExposure": -100.0,
      "npv": -8.667841720414486,
      "payback": 2.0,
@@ -8139,8 +8149,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": 5.0,
      "npv": 21.31501077611014,
      "payback": 0.0,
@@ -8286,6 +8297,7 @@
      "irrRoots": [
       -28.70525599580199
      ],
+     "irrStatus": "ok",
      "maxExposure": -100.0,
      "npv": -65.12277776419592,
      "payback": 5.0,
@@ -8447,6 +8459,7 @@
      "irrRoots": [
       2.8699570560112186
      ],
+     "irrStatus": "ok",
      "maxExposure": -130.0,
      "npv": -19.367514107071877,
      "payback": 4.75,
@@ -8594,6 +8607,7 @@
      "irrRoots": [
       31.556025850453995
      ],
+     "irrStatus": "ok",
      "maxExposure": -50.0,
      "npv": 11.497426414268777,
      "payback": 1.8333333333333335,
@@ -8674,6 +8688,7 @@
    "expected": {
     "avgIRR": 15.666666666666666,
     "capitalEfficiency": 0.38461538461538464,
+    "irrProjectCount": 3,
     "totalCapex": 1300,
     "totalNPV": 500,
     "totalRiskedNPV": 442.0
@@ -8702,8 +8717,9 @@
   },
   {
    "expected": {
-    "avgIRR": 0.0,
+    "avgIRR": null,
     "capitalEfficiency": 0.0,
+    "irrProjectCount": 0,
     "totalCapex": 0,
     "totalNPV": 0,
     "totalRiskedNPV": 0
@@ -8716,6 +8732,7 @@
    "expected": {
     "avgIRR": 10.5,
     "capitalEfficiency": 0.0,
+    "irrProjectCount": 2,
     "totalCapex": 0,
     "totalNPV": 15,
     "totalRiskedNPV": 15.0
@@ -8741,6 +8758,7 @@
    "expected": {
     "avgIRR": 12.5,
     "capitalEfficiency": 1.4,
+    "irrProjectCount": 2,
     "totalCapex": 100,
     "totalNPV": 140,
     "totalRiskedNPV": 20.0
@@ -8801,6 +8819,7 @@
      "irrRoots": [
       -2.46913580246913
      ],
+     "irrStatus": "ok",
      "maxExposure": -40.5,
      "npv": -4.3772600688093135,
      "payback": 2.0,
@@ -8926,6 +8945,7 @@
      "irrRoots": [
       72.11649430202016
      ],
+     "irrStatus": "ok",
      "maxExposure": -40.5,
      "npv": 42.149708504820445,
      "payback": 2.0253164556962027,
@@ -9362,6 +9382,7 @@
       -20.406083721807093,
       124.57769866184285
      ],
+     "irrStatus": "multiple-roots",
      "maxExposure": -337.29999999999995,
      "npv": 1323.9606630928495,
      "payback": 1.6687508376733735,
@@ -9699,6 +9720,7 @@
      "irrRoots": [
       7.560693884463177
      ],
+     "irrStatus": "ok",
      "maxExposure": -64.125,
      "npv": -3.7626113114185706,
      "payback": 5.039370078740157,
@@ -9828,6 +9850,7 @@
      "irrRoots": [
       -51.85185185185186
      ],
+     "irrStatus": "ok",
      "maxExposure": -54.0,
      "npv": -28.95059134618435,
      "payback": 2.0,
@@ -9921,8 +9944,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": 5.0,
      "npv": 43.77260068809309,
      "payback": 0.0,
@@ -10462,6 +10486,7 @@
      "irrRoots": [
       422.49807620078934
      ],
+     "irrStatus": "ok",
      "maxExposure": -11.417500000000004,
      "npv": 207.7161627980789,
      "payback": 2.2058998164619767,
@@ -10965,6 +10990,7 @@
      "irrRoots": [
       178.79611201240783
      ],
+     "irrStatus": "ok",
      "maxExposure": -2.0625,
      "npv": 56.409058466649235,
      "payback": 2.295302013422819,
@@ -11143,6 +11169,7 @@
       "irrRoots": [
        41.06831963564014
       ],
+      "irrStatus": "ok",
       "maxExposure": -400.0,
       "npv": 472.60822311560736,
       "payback": 3.111540629545507,
@@ -11302,6 +11329,7 @@
       "irrRoots": [
        101.67968713491446
       ],
+      "irrStatus": "ok",
       "maxExposure": -320.0,
       "npv": 1157.5513637374931,
       "payback": 2.005764620301901,
@@ -11462,6 +11490,7 @@
        -92.4041266290228,
        2.4617495444596904
       ],
+      "irrStatus": "multiple-roots",
       "maxExposure": -505.20000000000005,
       "npv": -118.64793517804424,
       "payback": 7.696319284444435,
@@ -11609,8 +11638,8 @@
     },
     {
      "baseNPV": 472.60822311560736,
-     "highParamNPV": 850.0944728513882,
-     "lowParamNPV": 95.12197337982654,
+     "highParamNPV": 815.5814443041169,
+     "lowParamNPV": 129.63500192709793,
      "name": "Production"
     }
    ],
@@ -11747,8 +11776,8 @@
     },
     {
      "baseNPV": 301.4414233685058,
-     "highParamNPV": 541.936084868966,
-     "lowParamNPV": 7.416563189040352,
+     "highParamNPV": 519.6013513864505,
+     "lowParamNPV": 56.72088968514237,
      "name": "Production"
     }
    ],
@@ -12017,6 +12046,7 @@
       -72.13783142125267,
       0.25494074228514796
      ],
+     "irrStatus": "multiple-roots",
      "maxExposure": -428.3,
      "npv": -123.63359291147027,
      "payback": 8.43774330861122,
@@ -12288,6 +12318,7 @@
      "irrRoots": [
       13.822080265611591
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 53.17905674251766,
      "payback": 5.096962664306453,
@@ -12559,6 +12590,7 @@
      "irrRoots": [
       25.118761748012076
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 220.95072329175358,
      "payback": 3.956891887096605,
@@ -12830,6 +12862,7 @@
      "irrRoots": [
       35.82170499127136
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 388.7223898409894,
      "payback": 3.342143361983494,
@@ -13101,6 +13134,7 @@
      "irrRoots": [
       46.277996732880254
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 556.4940563902253,
      "payback": 2.9274998152390808,
@@ -13372,6 +13406,7 @@
      "irrRoots": [
       56.64328439217628
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 724.2657229394612,
      "payback": 2.656034153656689,
@@ -13643,6 +13678,7 @@
      "irrRoots": [
       66.99327118159356
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 892.037389488697,
      "payback": 2.44768045775168,
@@ -13914,6 +13950,7 @@
      "irrRoots": [
       77.36537920773057
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 1059.809056037933,
      "payback": 2.2827217190941473,
@@ -14185,6 +14222,7 @@
      "irrRoots": [
       87.77737489507571
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 1227.580722587169,
      "payback": 2.148879437139367,
@@ -14456,6 +14494,7 @@
      "irrRoots": [
       55.299530143471266
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 1002.3868160006191,
      "payback": 2.951686718139392,
@@ -14727,6 +14766,7 @@
      "irrRoots": [
       49.49678194310915
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 748.4067265342948,
      "payback": 3.0075581404838583,
@@ -14998,6 +15038,7 @@
      "irrRoots": [
       43.520318535366386
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 543.2314795813618,
      "payback": 3.0781597653544512,
@@ -15269,6 +15310,7 @@
      "irrRoots": [
       37.30809409667696
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 377.23942768780313,
      "payback": 3.1682943202256797,
@@ -15541,6 +15583,7 @@
       -71.63643706208791,
       30.697336385349605
      ],
+     "irrStatus": "multiple-roots",
      "maxExposure": -400.0,
      "npv": 240.53368654888817,
      "payback": 3.28484990203452,
@@ -15813,6 +15856,7 @@
       -27.0627259129811,
       14.733717340328745
      ],
+     "irrStatus": "multiple-roots",
      "maxExposure": -400.0,
      "npv": 34.7681807980175,
      "payback": 3.643370302762798,
@@ -16084,6 +16128,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 908.4827485870769,
      "payback": 3.111540629545507,
@@ -16355,6 +16400,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 655.526348213523,
      "payback": 3.111540629545507,
@@ -16626,6 +16672,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 539.0363048683215,
      "payback": 3.111540629545507,
@@ -16897,6 +16944,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 472.60822311560736,
      "payback": 3.111540629545507,
@@ -17168,6 +17216,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 413.70050119553605,
      "payback": 3.111540629545507,
@@ -17439,6 +17488,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 337.2368906005102,
      "payback": 3.111540629545507,
@@ -17710,6 +17760,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 234.99109713917136,
      "payback": 3.111540629545507,
@@ -17981,6 +18032,7 @@
      "irrRoots": [
       61.666027114130564
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 838.6053340358263,
      "payback": 2.5968483897956744,
@@ -18252,6 +18304,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 472.60822311560736,
      "payback": 3.111540629545507,
@@ -18523,6 +18576,7 @@
      "irrRoots": [
       26.026613645179808
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 228.61014916879472,
      "payback": 3.880967099439561,
@@ -18794,6 +18848,7 @@
      "irrRoots": [
       -7.712335476643823
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": -198.38648023812738,
      "payback": 10.0,
@@ -19066,6 +19121,7 @@
       -78.96160676015258,
       10.321790806158504
      ],
+     "irrStatus": "multiple-roots",
      "maxExposure": -427.02250000000004,
      "npv": 4.540477476767897,
      "payback": 5.564676324349569,
@@ -19339,6 +19395,7 @@
      "irrRoots": [
       24.069459736974284
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 213.05669161653242,
      "payback": 4.050096325158673,
@@ -19612,6 +19669,7 @@
      "irrRoots": [
       32.24569468877622
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 301.4414233685058,
      "payback": 3.3348573123694965,
@@ -19885,6 +19943,7 @@
      "irrRoots": [
       35.95293714855029
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 316.6306282024005,
      "payback": 2.8850176946590995,
@@ -20158,6 +20217,7 @@
      "irrRoots": [
       37.98027807308938
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 322.747695670455,
      "payback": 2.779000457231748,
@@ -20317,8 +20377,9 @@
      }
     ],
     "metrics": {
-     "irr": 0.0,
+     "irr": null,
      "irrRoots": [],
+     "irrStatus": "no-sign-change",
      "maxExposure": 10.0,
      "npv": 39.87207191390658,
      "payback": 0.0,
@@ -20378,10 +20439,6 @@
    "note": "Suite test: $100 oil, 1 MMbbl/yr, royalty 20, tax 50, capex 50 in year 1, opex 10; year 1 royalty 20, tax 10, ncf 10; year 2 tax 35, ncf 35; NPV = 10/1.1^0.5 + 35/1.1^1.5."
   },
   {
-   "engine": {
-    "disagreement": "the true root lies beyond the 1000 percent Newton clamp and the clamp is reported (the root is 1800 percent)",
-    "irr": 1000.0
-   },
    "expected": {
     "cashflow": [
      {
@@ -20414,10 +20471,11 @@
      }
     ],
     "metrics": {
-     "irr": 1800.0,
+     "irr": null,
      "irrRoots": [
       1800.0
      ],
+     "irrStatus": "above-clamp",
      "maxExposure": -2.5,
      "npv": 38.78859169885477,
      "payback": 1.0526315789473684,
@@ -20626,6 +20684,7 @@
      "irrRoots": [
       41.06831963564014
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 472.60822311560736,
      "payback": 3.111540629545507,
@@ -20897,6 +20956,7 @@
      "irrRoots": [
       46.90631829006505
      ],
+     "irrStatus": "ok",
      "maxExposure": -400.0,
      "npv": 572.0520262552938,
      "payback": 2.9164151354414276,
@@ -21084,6 +21144,7 @@
      "irrRoots": [
       -15.029380280330667
      ],
+     "irrStatus": "ok",
      "maxExposure": 1.4,
      "npv": 3.7560522046967257,
      "payback": 0.0,

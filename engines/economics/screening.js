@@ -182,12 +182,60 @@ export const calculateEconomics = (inputs) => {
       npv += cf.ncf / Math.pow(1 + discountRate / 100, i + 0.5);
   });
 
-  // IRR (mid-year convention, matching the NPV above). Guard: an IRR only
-  // exists if the cash flow changes sign; without that, report 0 rather
-  // than letting Newton-Raphson wander.
-  let irr = 0;
+  // IRR (mid-year convention, matching the NPV above).
+  //
+  // EC6-1 (FINDINGS-fdp.md section 1). Newton runs from 10 percent between
+  // a lower clamp of -99 percent and an upper clamp of 1000 percent. The
+  // clamps were written as a guard against a wandering search, and the
+  // number Newton stopped at was then reported as the answer: a project
+  // whose net present value is negative at every rate from -99 percent to
+  // 1e14 percent showed an IRR of 1000.0 percent, and on a scenario card
+  // that 1000 was coloured green because it cleared the 15 percent hurdle.
+  //
+  // An answer is now only an answer if it is one: the search must land
+  // strictly inside the clamps AND the net present value there must be
+  // zero to within a tolerance scaled by the size of the cash flow. When
+  // it does not, `irr` is null and `irrStatus` says which of the four
+  // things happened, so a caller can print "not defined" or "above 1000
+  // percent" instead of a number that means neither.
+  //
+  //   'ok'              a root, reported
+  //   'no-sign-change'  every period has the same sign, no IRR exists
+  //   'above-clamp'     still positive at 1000 percent: the IRR is higher
+  //                     than the band the engine searches
+  //   'multiple-roots'  the flow changes sign more than once; every rate
+  //                     that zeroes it is listed in `irrRoots`
+  //   'no-root'         no rate in the band zeroes the net present value
+  const IRR_LOWER = -0.99;
+  const IRR_UPPER = 10; // 1000 percent
+  const npvAtRate = (rate) => cashflow.reduce(
+    (sum, cf, t) => sum + cf.ncf / Math.pow(1 + rate, t + 0.5), 0,
+  );
+  // The tolerance has to scale: a $100,000MM case and a $1MM case cannot
+  // share an absolute one. Undiscounted gross movement is the scale.
+  const flowScale = cashflow.reduce((sum, cf) => sum + Math.abs(cf.ncf), 0) || 1;
+  const IRR_TOL = 1e-9 * flowScale;
+
+  let irr = null;
+  let irrStatus = 'no-sign-change';
+  let irrRoots = null;
   const hasNeg = cashflow.some(c => c.ncf < 0);
   const hasPos = cashflow.some(c => c.ncf > 0);
+
+  // How many times the cash flow changes sign. By Descartes' rule a flow
+  // that changes sign once has at most one rate that zeroes it, so Newton's
+  // answer is the answer. A flow that changes sign more than once can have
+  // several, and no single one of them is "the" return, so those are swept
+  // properly rather than trusted.
+  let signChanges = 0;
+  let lastSign = 0;
+  cashflow.forEach((c) => {
+    const sign = Math.sign(c.ncf);
+    if (sign === 0) return;
+    if (lastSign !== 0 && sign !== lastSign) signChanges += 1;
+    lastSign = sign;
+  });
+
   if (hasNeg && hasPos) {
     let guess = 0.1;
     for(let iter=0; iter<100; iter++){
@@ -202,9 +250,71 @@ export const calculateEconomics = (inputs) => {
         const newGuess = guess - npvIter/dNpv;
         if(!isFinite(newGuess)) break;
         if(Math.abs(newGuess - guess) < 1e-7) { guess = newGuess; break; }
-        guess = Math.max(-0.99, Math.min(newGuess, 10));
+        guess = Math.max(IRR_LOWER, Math.min(newGuess, IRR_UPPER));
     }
-    irr = isFinite(guess) ? guess * 100 : 0;
+
+    const converged = signChanges <= 1
+      && isFinite(guess)
+      && guess > IRR_LOWER && guess < IRR_UPPER
+      && Math.abs(npvAtRate(guess)) <= IRR_TOL;
+
+    if (converged) {
+      irr = guess * 100;
+      irrStatus = 'ok';
+    } else {
+      // Newton did not land on a root, or the flow changes sign more than
+      // once so its answer cannot be trusted to be the only one. Rather
+      // than report where it stopped,
+      // look for the roots that are actually there: sweep the band, bisect
+      // every sign change. This is the path that recovers the -36.67
+      // percent root Newton used to run past on its way to the clamp, and
+      // it is only taken when Newton has already failed, so the Monte Carlo
+      // loop (which converges) does not pay for it.
+      const STEPS = 1000;
+      const roots = [];
+      let prevRate = IRR_LOWER;
+      let prevNpv = npvAtRate(prevRate);
+      for (let k = 1; k <= STEPS; k += 1) {
+        const rate = IRR_LOWER + ((IRR_UPPER - IRR_LOWER) * k) / STEPS;
+        const value = npvAtRate(rate);
+        if (value === 0) {
+          roots.push(rate);
+        } else if ((prevNpv < 0 && value > 0) || (prevNpv > 0 && value < 0)) {
+          let lo = prevRate;
+          let hi = rate;
+          let loNpv = prevNpv;
+          for (let b = 0; b < 200; b += 1) {
+            const mid = (lo + hi) / 2;
+            const midNpv = npvAtRate(mid);
+            if (midNpv === 0 || (hi - lo) < 1e-12) { lo = mid; break; }
+            if ((loNpv < 0) === (midNpv < 0)) { lo = mid; loNpv = midNpv; } else { hi = mid; }
+          }
+          roots.push((lo + hi) / 2);
+        }
+        prevRate = rate;
+        prevNpv = value;
+      }
+
+      if (roots.length === 1) {
+        irr = roots[0] * 100;
+        irrStatus = 'ok';
+      } else if (roots.length > 1) {
+        // A cash flow that changes sign more than once has more than one
+        // rate that zeroes it, and none of them is "the" return.
+        irrStatus = 'multiple-roots';
+        irrRoots = roots.map((r) => r * 100);
+      } else if (npvAtRate(IRR_UPPER) > 0) {
+        // Still worth something at 1000 percent, and it never crossed zero
+        // inside the band: the rate that would zero it is higher than the
+        // engine looks.
+        irrStatus = 'above-clamp';
+      } else {
+        // Negative at both ends and no crossing between them. For an
+        // ordinary spend-then-earn flow that means the project does not
+        // return its money at any rate at all.
+        irrStatus = 'no-root';
+      }
+    }
   }
 
   // Payback, in years from the start of the project.
@@ -240,6 +350,8 @@ export const calculateEconomics = (inputs) => {
     metrics: {
       npv,
       irr,
+      irrStatus,
+      irrRoots,
       payback,
       maxExposure,
       totalRevenue,
@@ -270,14 +382,24 @@ export const runSensitivityAnalysis = (baseInputs) => {
         if (sens.name === 'Oil Price') lowInputs.price.oil = lowInputs.price.oil.map(v => v * (1 - sens.range));
         if (sens.name === 'CAPEX') lowInputs.capex = lowInputs.capex.map(v => v * (1 - sens.range)); // Lower Cost is better? Usually tornado shows impact of variable value
         if (sens.name === 'OPEX') lowInputs.opexFixed = lowInputs.opexFixed.map(v => v * (1 - sens.range));
-        if (sens.name === 'Production') lowInputs.production.oil = lowInputs.production.oil.map(v => v * (1 - sens.range));
+        if (sens.name === 'Production') {
+            // EC6-1: production carries the variable operating cost with it.
+            // Sweeping the volume alone credited a 30 percent cut in
+            // production with the operating cost of the full profile, which
+            // overstates how much the NPV moves with volume.
+            lowInputs.production.oil = lowInputs.production.oil.map(v => v * (1 - sens.range));
+            lowInputs.opexVariable = (lowInputs.opexVariable || []).map(v => v * (1 - sens.range));
+        }
 
         // High Case (+30%)
         let highInputs = JSON.parse(JSON.stringify(baseInputs));
         if (sens.name === 'Oil Price') highInputs.price.oil = highInputs.price.oil.map(v => v * (1 + sens.range));
         if (sens.name === 'CAPEX') highInputs.capex = highInputs.capex.map(v => v * (1 + sens.range));
         if (sens.name === 'OPEX') highInputs.opexFixed = highInputs.opexFixed.map(v => v * (1 + sens.range));
-        if (sens.name === 'Production') highInputs.production.oil = highInputs.production.oil.map(v => v * (1 + sens.range));
+        if (sens.name === 'Production') {
+            highInputs.production.oil = highInputs.production.oil.map(v => v * (1 + sens.range));
+            highInputs.opexVariable = (highInputs.opexVariable || []).map(v => v * (1 + sens.range));
+        }
 
         const lowRes = calculateEconomics(lowInputs);
         const highRes = calculateEconomics(highInputs);
@@ -467,13 +589,21 @@ export const getPortfolioMetrics = (projects) => {
     });
     
     const capitalEfficiency = totalCapex > 0 ? totalNPV / totalCapex : 0;
-    const avgIRR = projects.reduce((acc, p) => acc + (p.irr || 0), 0) / (projects.length || 1);
+    // EC6-1: a project with no internal rate of return used to be averaged
+    // in as a zero, which pulls the portfolio average towards nothing for
+    // exactly the projects that have no return at all. Only the projects
+    // that have one are averaged, and the count is reported beside it.
+    const withIRR = projects.filter((p) => typeof p.irr === 'number' && Number.isFinite(p.irr));
+    const avgIRR = withIRR.length
+        ? withIRR.reduce((acc, p) => acc + p.irr, 0) / withIRR.length
+        : null;
 
     return {
         totalNPV,
         totalCapex,
         totalRiskedNPV,
         capitalEfficiency,
+        irrProjectCount: withIRR.length,
         avgIRR
     };
 };

@@ -74,6 +74,29 @@ export const createRisk = (data = {}) => ({
     modifiedDate: new Date().toISOString()
 });
 
+/**
+ * The score of one risk, or null when it has not been scored.
+ *
+ * EC6-1 (FINDINGS-fdp.md section 10): `risk.probability * risk.impact` with
+ * a factor missing is NaN, and NaN failed every band comparison, so an
+ * unscored risk was counted as Low and the portfolio health went UP as the
+ * register was left unfilled. A risk with a factor missing has no score,
+ * and the callers say so rather than scoring it as nothing.
+ *
+ * @param {object} risk
+ * @returns {number|null}
+ */
+export const riskScore = (risk) => {
+    const probability = parseFloat(risk?.probability);
+    const impact = parseFloat(risk?.impact);
+    if (!Number.isFinite(probability) || !Number.isFinite(impact)) return null;
+    return probability * impact;
+};
+
+/**
+ * The one banding scale for the whole module: the register, the HSE tab,
+ * the matrix and the response plan all read this.
+ */
 export const getRiskLevel = (score) => {
     if (score >= 20) return { level: 'Critical', color: 'bg-red-600', text: 'text-red-600' };
     if (score >= 12) return { level: 'High', color: 'bg-orange-500', text: 'text-orange-500' };

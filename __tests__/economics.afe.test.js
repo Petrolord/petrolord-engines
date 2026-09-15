@@ -27,6 +27,7 @@ import {
   calculateMetrics,
   generateSCurveData,
   itemForecast,
+  countUndatedInvoices,
 } from '../engines/economics/afe.js';
 
 const G = JSON.parse(fs.readFileSync(path.join(__dirname, '../test-data/economics/goldens/afe_cases.json'), 'utf8'));
@@ -458,5 +459,36 @@ describe('golden: S-curve', () => {
     pts.forEach((p) => expect(p.Forecast).toBeGreaterThanOrEqual(0));
     const m = calculateMetrics(c.inputs.afe, c.inputs.costItems, []);
     expect(m.totalForecast).toBe(1200);
+  });
+});
+
+
+describe('EC6-1: an invoice with no date is not on the curve', () => {
+  // FINDINGS-fdp.md section 8, resolved. A NULL invoice date was
+  // `new Date(null)`, the first of January 1970, so an undated invoice
+  // counted in every bucket of every AFE from the first one.
+  const afe = { start_date: '2020-01-01', end_date: '2020-12-31', currency: 'USD' };
+  const items = [{ budget: 1200 }];
+  const invoices = [{ amount: 100 }, { invoice_date: null, amount: 200 }];
+
+  test('it is excluded, not counted from 1970', () => {
+    const points = generateSCurveData(afe, items, invoices, '2020-12-31');
+    expect(points.every((p) => p.Actual === 0)).toBe(true);
+  });
+
+  test('and the app is told how many were set aside', () => {
+    expect(countUndatedInvoices(invoices)).toBe(2);
+    expect(calculateMetrics(afe, items, invoices, '2020-12-31').undatedInvoices).toBe(2);
+    expect(countUndatedInvoices([{ invoice_date: '2020-02-15', amount: 1 }])).toBe(0);
+    expect(countUndatedInvoices([{ invoice_date: 'last Tuesday', amount: 1 }])).toBe(1);
+  });
+
+  test('a dated invoice is placed exactly where it always was', () => {
+    const dated = [{ invoice_date: '2020-06-15', amount: 250 }];
+    const points = generateSCurveData(afe, items, dated, '2020-12-31');
+    const june = points.findIndex((p) => p.date === 'Jun 20');
+    expect(points[june].Actual).toBe(0);
+    expect(points[june + 1].Actual).toBe(250);
+    expect(calculateMetrics(afe, items, dated, '2020-12-31').undatedInvoices).toBe(0);
   });
 });
