@@ -23,13 +23,14 @@
 // the winning year; EC2-11 money reads "1,339.3 million USD". Each has a
 // negative control that re-implements the retired rule and shows it differs.
 //
-// ONE PLACE THEY DO NOT AGREE, AND IT IS PINNED. The engine's capex sweep
-// accumulates 0.1 in floating point from 0.8 and stops at 1.4000000000000004
-// because the next step (1.5000000000000004) fails the `<= 1.5` test, so the
-// documented 0.8 to 1.5 sweep has 7 points, not 8. The golden carries the
-// 8 point sweep; the gate pins the engine's 7 against the first 7 and the
-// capex insight against `insightsAsEngine`, the oracle's rebuild of that
-// verdict over the 7 points the engine actually sees.
+// EC2-3 and EC2-6 (owner decisions 2026-09-15) close the last two places the
+// engine and the oracle did not agree. The capex sweep ran a floating point
+// accumulator from 0.8 and stopped at 1.4000000000000004, so the sweep its
+// axis labelled 0.8 to 1.5 had 7 points; it now runs the 8 point integer grid
+// `CAPEX_SWEEP_MULTIPLIERS` and the golden carries one capex sweep, not two
+// readings of it. The RRT capital uplift was deducted in every one of the 25
+// years; it now sizes a one-time pool, capex times (1 + uplift), drawn down
+// against the RRT base. Both have negative controls below.
 //
 // Tolerances (absolute): money (million USD) 1e-6, IRR 1e-6 percentage points,
 // effective tax rate 1e-9 points.
@@ -44,6 +45,7 @@ import {
   orderedTierTable,
   leadOrTie,
   CAPEX_RESILIENCE_MIN_SPREAD_MM,
+  CAPEX_SWEEP_MULTIPLIERS,
   deriveInsights,
   runFiscalComparison,
   classifyGovernmentShare,
@@ -575,33 +577,26 @@ describe('golden agreement: runFiscalComparison', () => {
       });
     });
 
-    // Capex sweep: the engine emits 7 of the documented 8 points (pinned).
+    // Capex sweep: the eight documented points, 0.8 to 1.5 (EC2-3).
     expect(e.sensitivityData.capex.labels).toEqual(['0.8', '0.9', '1.0', '1.1', '1.2', '1.3', '1.4', '1.5']);
-    expect(res.sensitivityData.capex.labels).toEqual(e.sensitivityData.capex.labels.slice(0, e.engineCapexPoints));
-    expect(e.engineCapexPoints).toBe(7);
+    expect(res.sensitivityData.capex.labels).toEqual(e.sensitivityData.capex.labels);
     res.sensitivityData.capex.data.forEach((d, i) => {
       expect(d.regimeId).toBe(e.sensitivityData.capex.data[i].regimeId);
-      expect(d.values).toHaveLength(7);
+      expect(d.values).toHaveLength(8);
       d.values.forEach((v, k) => near(v, e.sensitivityData.capex.data[i].values[k], MONEY));
     });
 
-    // Insights: identical to the oracle's rebuild over the 7 points the
-    // engine sees; and only the capex sentence can differ from the
-    // 8 point rebuild. No verdict needs a tie branch: since EC2-1 (price) and
-    // EC2-4 (capex) a lead inside the tie rule declines to rank, so rounding
-    // noise can never pick a winner.
+    // Insights: every verdict identical to the oracle's, the capex sentence
+    // included, now that both read the same eight points. No verdict needs a
+    // tie branch: since EC2-1 (price) and EC2-4 (capex) a lead inside the tie
+    // rule declines to rank, so rounding noise can never pick a winner.
     res.insights.forEach((got, i) => {
-      const exp = e.insightsAsEngine[i];
+      const exp = e.insights[i];
       expect(got.key).toBe(exp.key);
       expect(got.label).toBe(exp.label);
       expect(got.text).toBe(exp.text);
     });
-    expect(res.insights).toHaveLength(e.insightsAsEngine.length);
-    e.insights.forEach((ins) => {
-      const got = res.insights.find((x) => x.key === ins.key);
-      expect(got).toBeDefined();
-      if (ins.key !== 'capex') expect(got.text).toBe(ins.text);
-    });
+    expect(res.insights).toHaveLength(e.insights.length);
   });
 
   test('the two effective tax rate definitions are both computed and differ by the capex add-back (recorded)', async () => {
@@ -693,7 +688,7 @@ describe('EC2-1: every government share point says what it is', () => {
     G.comparisons.forEach((c) => {
       const e = c.expected;
       const w = e.priceWindow;
-      const verdict = e.insightsAsEngine.find((i) => i.key === 'price');
+      const verdict = e.insights.find((i) => i.key === 'price');
       if (!verdict) return;
       if (/most progressive/.test(verdict.text)) {
         expect(w.length).toBeGreaterThanOrEqual(3);
@@ -791,7 +786,7 @@ describe('naming wave: government take and government share of net revenue', () 
   test('no verdict the engine prints says "government share" or "effective tax rate"', () => {
     const texts = [
       ...G.insights.flatMap((c) => c.expected.map((i) => i.text)),
-      ...G.comparisons.flatMap((c) => [...c.expected.insights, ...c.expected.insightsAsEngine].map((i) => i.text)),
+      ...G.comparisons.flatMap((c) => c.expected.insights.map((i) => i.text)),
     ];
     expect(texts.length).toBeGreaterThan(20);
     texts.forEach((t) => {
@@ -969,6 +964,189 @@ describe('EC2 owner decisions, 2026-09-15', () => {
     });
   });
 
+  describe('EC2-3: the capex sweep runs eight points, 0.8 to 1.5', () => {
+    // The retired loop, kept only as the negative control.
+    const retiredLoop = () => {
+      const out = [];
+      for (let multiplier = 0.8; multiplier <= 1.5; multiplier += 0.1) out.push(multiplier);
+      return out;
+    };
+
+    test('eight multipliers, both endpoints exact; the retired loop stopped at 1.4 (negative control)', () => {
+      expect(CAPEX_SWEEP_MULTIPLIERS).toHaveLength(8);
+      expect(CAPEX_SWEEP_MULTIPLIERS[0]).toBe(0.8);
+      expect(CAPEX_SWEEP_MULTIPLIERS[7]).toBe(1.5);
+      expect([...CAPEX_SWEEP_MULTIPLIERS]).toEqual(G.capexGrid.multipliers);
+      expect(CAPEX_SWEEP_MULTIPLIERS.map((m) => m.toFixed(1))).toEqual(G.capexGrid.labels);
+      const retired = retiredLoop();
+      expect(retired).toHaveLength(7);
+      expect(retired[6]).toBe(1.4000000000000004);
+      expect(retired.map((m) => m.toFixed(1))).not.toContain('1.5');
+      expect(retired[6]).not.toBe(CAPEX_SWEEP_MULTIPLIERS[6]);
+    });
+
+    test('every swept value IS the engine called at that multiplier, endpoints included', async () => {
+      const c = golden('cmp_designer_defaults');
+      const res = await run(c);
+      expect(res.sensitivityData.capex.labels).toEqual(['0.8', '0.9', '1.0', '1.1', '1.2', '1.3', '1.4', '1.5']);
+      res.sensitivityData.capex.data.forEach((d) => {
+        const g = c.regimes.find((r) => r.id === d.regimeId);
+        expect(d.values).toHaveLength(8);
+        CAPEX_SWEEP_MULTIPLIERS.forEach((m, k) => {
+          const direct = calculateNPV(calculateCashFlowForRegime(g, c.project, m, 1), c.project.discountRate);
+          expect(d.values[k]).toBe(direct);
+        });
+      });
+      // The endpoint ledgers are published cases of their own.
+      ['capex_0.8_pia_default', 'capex_1.5_pia_default'].forEach((id) => {
+        const k = G.capexSweep.find((x) => x.id === id);
+        expect(k).toBeDefined();
+        gateRows(calculateCashFlowForRegime(k.regime, k.project, k.capexMultiplier, k.priceMultiplier), k.expected.cashflow);
+      });
+    });
+
+    test('the resilience verdict re-derives from the eight points; the retired seven named other amounts (negative control)', async () => {
+      const c = golden('cmp_designer_defaults');
+      const res = await run(c);
+      const text = res.insights.find((i) => i.key === 'capex').text;
+      const losses = res.sensitivityData.capex.data.map((d) => ({
+        name: c.regimes.find((r) => r.id === d.regimeId).name,
+        eight: d.values[0] - d.values[7],
+        seven: d.values[0] - d.values[6],
+      }));
+      losses.forEach((l) => {
+        expect(text).toContain(formatMillionUSD(l.eight));
+        // The retired reading of the same sweep is a different sentence.
+        expect(Math.abs(l.eight - l.seven)).toBeGreaterThan(CAPEX_RESILIENCE_MIN_SPREAD_MM);
+        expect(text).not.toContain(formatMillionUSD(l.seven));
+      });
+      // And the oracle ranks the same losses.
+      const e = c.expected.capexLosses;
+      losses.forEach((l, i) => {
+        expect(e[i].name).toBe(l.name);
+        near(e[i].loss, l.eight, MONEY);
+      });
+    });
+  });
+
+  describe('EC2-6: the RRT capital uplift is a one-time pool, not an annual allowance', () => {
+    const cfCase = (id) => G.cashflow.find((x) => x.id === id);
+    const totalCapexOf = (c) => {
+      const k = c.project.costs.capex;
+      return (k.drilling + k.facilities + k.subsea) * (c.capexMultiplier ?? 1);
+    };
+
+    test('no published ledger relieves more than capex times one plus the uplift', () => {
+      let checked = 0;
+      G.cashflow.forEach((c) => {
+        const uplift = c.regime.tax.rrtUpliftPct ?? 20;
+        const opened = totalCapexOf(c) * (1 + uplift / 100);
+        const relief = c.expected.cashflow.reduce((s, r) => s + r.rrtUpliftRelief, 0);
+        near(c.expected.cashflow[0].rrtUpliftPoolOpened, opened, MONEY);
+        expect(relief).toBeLessThanOrEqual(opened + MONEY);
+        // The pool only falls, and never below zero.
+        c.expected.cashflow.forEach((r, i) => {
+          expect(r.rrtUpliftPoolRemaining).toBeGreaterThanOrEqual(-MONEY);
+          if (i > 0) expect(r.rrtUpliftPoolRemaining).toBeLessThanOrEqual(c.expected.cashflow[i - 1].rrtUpliftPoolRemaining + MONEY);
+        });
+        checked += 1;
+      });
+      expect(checked).toBeGreaterThan(25);
+    });
+
+    test('the relief the engine gives is the oracle\'s, and it is exhausted where the oracle exhausts it', () => {
+      ['rrt_uplift_default_20', 'rrt_uplift_zero_respected'].forEach((id) => {
+        const c = cfCase(id);
+        const rows = calculateCashFlowForRegime(c.regime, c.project);
+        const citRate = c.regime.tax.cit / 100;
+        const rrtRate = c.regime.tax.rrt / 100;
+        expect(c.regime.tax.minTax).toBe(0);
+        expect(c.regime.profitSplit.type).toBe('flat');
+        expect(c.regime.profitSplit.split).toBe(100);
+        rows.forEach((row, i) => {
+          // Flat 100 percent split, so the profit share IS profit oil, and the
+          // tax is CIT plus RRT: the relief the engine used follows.
+          const share = row.profitOil;
+          const rrt = row.tax - share * citRate;
+          const base = rrt / rrtRate;
+          const implied = share - base;
+          near(implied, c.expected.cashflow[i].rrtUpliftRelief, MONEY);
+        });
+        const drawn = c.expected.cashflow.filter((r) => r.rrtUpliftRelief > 0);
+        expect(drawn.length).toBeGreaterThan(0);
+        const opened = c.expected.cashflow[0].rrtUpliftPoolOpened;
+        near(drawn.reduce((s, r) => s + r.rrtUpliftRelief, 0), opened, MONEY);
+        expect(c.expected.cashflow[c.expected.cashflow.length - 1].rrtUpliftPoolRemaining).toBeLessThan(MONEY);
+      });
+    });
+
+    test('negative control: the retired annual uplift relieved five times the capex and charged less tax', () => {
+      const c = cfCase('rrt_uplift_default_20');
+      const rows = calculateCashFlowForRegime(c.regime, c.project);
+      const uplift = c.regime.tax.rrtUpliftPct ?? 20;
+      const totalCapex = totalCapexOf(c);
+      const annual = totalCapex * (uplift / 100);
+      // The retired rule, recomputed on the engine's own rows. Nothing above
+      // the tax line depends on tax, so these are the ledgers it would give.
+      const retiredTax = rows.map((row) => {
+        const share = row.profitOil;
+        const cit = share > 0 ? share * (c.regime.tax.cit / 100) : 0;
+        const base = share - annual;
+        const rrt = base > 0 ? base * (c.regime.tax.rrt / 100) : 0;
+        return Math.max(cit + rrt, row.grossRevenue * (c.regime.tax.minTax / 100));
+      });
+      const retiredRelief = rows.length * annual;
+      near(retiredRelief / totalCapex, 5, 1e-12);
+      const opened = c.expected.cashflow[0].rrtUpliftPoolOpened;
+      expect(retiredRelief).toBeGreaterThan(opened * 4);
+      const engineTotal = rows.reduce((s, row) => s + row.tax, 0);
+      const retiredTotal = retiredTax.reduce((s, t) => s + t, 0);
+      expect(retiredTotal).toBeLessThan(engineTotal);
+      expect(Math.abs(retiredTotal - engineTotal)).toBeGreaterThan(1);
+    });
+
+    test('a pool larger than every profit share put together leaves no RRT at all', () => {
+      const c = cfCase('rrt_pool_never_exhausted');
+      const rows = calculateCashFlowForRegime(c.regime, c.project);
+      const citOnly = calculateCashFlowForRegime(
+        { ...c.regime, tax: { ...c.regime.tax, rrt: 0 } }, c.project,
+      );
+      rows.forEach((row, i) => near(row.tax, citOnly[i].tax, MONEY));
+      expect(c.expected.cashflow.every((r) => r.rrtUpliftPoolRemaining > 0)).toBe(true);
+    });
+
+    test('a zero uplift still relieves the capex once, and no RRT rate makes the pool inert', () => {
+      const zero = cfCase('rrt_uplift_zero_respected');
+      near(zero.expected.cashflow[0].rrtUpliftPoolOpened, totalCapexOf(zero), MONEY);
+      // No RRT: the pool is opened and drawn and changes nothing.
+      const inert = cfCase('rrt_absent_uplift_has_no_effect');
+      const flat = cfCase('flat_test_project');
+      expect(inert.regime.tax.rrtUpliftPct).toBe(20);
+      expect(inert.regime.tax.rrt).toBe(0);
+      const a = calculateCashFlowForRegime(inert.regime, inert.project);
+      const b = calculateCashFlowForRegime(flat.regime, flat.project);
+      a.forEach((row, i) => ROW_FIELDS.forEach((k) => expect(row[k]).toBe(b[i][k])));
+    });
+
+    test('the pool is drawn in the years the minimum tax binds, so it does not outlast them', () => {
+      const withMin = cfCase('rrt_pool_with_minimum_tax');
+      const rows = calculateCashFlowForRegime(withMin.regime, withMin.project);
+      const noMin = calculateCashFlowForRegime(
+        { ...withMin.regime, tax: { ...withMin.regime.tax, minTax: 0 } }, withMin.project,
+      );
+      let bound = 0;
+      rows.forEach((row, i) => {
+        const minimum = row.grossRevenue * (withMin.regime.tax.minTax / 100);
+        near(row.tax, Math.max(noMin[i].tax, minimum), MONEY);
+        if (minimum > noMin[i].tax + MONEY) bound += 1;
+      });
+      expect(bound).toBeGreaterThan(0);
+      // The relief schedule is the same whether or not the minimum binds.
+      const opened = withMin.expected.cashflow[0].rrtUpliftPoolOpened;
+      near(withMin.expected.cashflow.reduce((s, r) => s + r.rrtUpliftRelief, 0), opened, MONEY);
+    });
+  });
+
   describe('EC2-11: one money formatter, no "$..MM" in any sentence', () => {
     test.each(G.moneyFormat.map((c) => [c.id, c]))('%s', (_id, c) => {
       expect(formatMillionUSD(c.value)).toBe(c.expected);
@@ -977,7 +1155,7 @@ describe('EC2 owner decisions, 2026-09-15', () => {
     test('every engine sentence in the goldens is free of the shorthand and of em dashes', () => {
       const texts = [
         ...G.insights.flatMap((c) => c.expected.map((i) => i.text)),
-        ...G.comparisons.flatMap((c) => [...c.expected.insights, ...c.expected.insightsAsEngine].map((i) => i.text)),
+        ...G.comparisons.flatMap((c) => c.expected.insights.map((i) => i.text)),
       ];
       expect(texts.filter((t) => /million USD/.test(t)).length).toBeGreaterThan(40);
       texts.forEach((t) => {

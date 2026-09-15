@@ -32,10 +32,18 @@ with an uplift), not by transcribing the JavaScript:
                  opex, both through the current year, before the split.
   profit split   flat, or the split of the highest R-factor tier reached,
                  by the same threshold-order rule and refusal.
-  tax            CIT on the contractor profit share; RRT on that share
-                 less an annual uplift of rrtUpliftPct percent of total
-                 capex (default 20, zero respected); the larger of CIT
-                 plus RRT and minTax percent of gross revenue.
+  tax            CIT on the contractor profit share. RRT (EC2-6,
+                 2026-09-15) on that share less relief from ONE uplifted
+                 cost pool opened at total capex (after the multiplier)
+                 times (1 + rrtUpliftPct / 100), default 20, zero respected
+                 (a zero uplift still relieves the capex once). Each year,
+                 when the share is positive, the relief is the lesser of
+                 the share and what is left of the pool, and the pool falls
+                 by it; nothing else is deducted from the RRT base and the
+                 pool is drawn whatever the RRT rate or the minimum tax, so
+                 the relief over the life never exceeds the pool. The tax
+                 is the larger of CIT plus RRT and minTax percent of gross
+                 revenue.
   ledger         contractor NCF = cost oil + profit share - tax - opex -
                  capex; government take = royalty + government profit
                  share + tax; the two sum to revenue less costs.
@@ -184,6 +192,8 @@ def cash_flow(regime, project, capex_mult=1.0, price_mult=1.0):
     if uplift is None:
         uplift = 20
     pool = 0.0
+    rrt_pool = total_capex * (1.0 + uplift / 100.0)
+    rrt_pool_opened = rrt_pool
     cum_rev = cum_cost = cum_ncf = 0.0
     rows = []
     for y in range(1, LIFE + 1):
@@ -207,7 +217,9 @@ def cash_flow(regime, project, capex_mult=1.0, price_mult=1.0):
         c_share = profit_oil * split
         g_share = profit_oil * (1.0 - split)
         cit = c_share * regime['tax']['cit'] / 100.0 if c_share > 0 else 0.0
-        rrt_base = c_share - total_capex * uplift / 100.0
+        relief = min(c_share, rrt_pool) if c_share > 0 else 0.0
+        rrt_pool -= relief
+        rrt_base = c_share - relief
         rrt = rrt_base * regime['tax']['rrt'] / 100.0 if rrt_base > 0 else 0.0
         tax = max(cit + rrt, gross * regime['tax']['minTax'] / 100.0)
         ncf = recovered + c_share - tax - opex - capex
@@ -218,6 +230,9 @@ def cash_flow(regime, project, capex_mult=1.0, price_mult=1.0):
             'unrecoveredCostPool': pool, 'profitOil': profit_oil, 'tax': tax, 'opex': opex, 'capex': capex,
             'contractorNCF': ncf, 'governmentTake': gov, 'cumulativeNCF': cum_ncf, 'rFactor': r_factor,
             'contractorSplit': split, 'royaltyRate': royalty_rate(p_oil, regime['royalty']),
+            # EC2-6, oracle-only columns: the relief drawn this year and the
+            # pool left after it, beside the pool as opened.
+            'rrtUpliftRelief': relief, 'rrtUpliftPoolRemaining': rrt_pool, 'rrtUpliftPoolOpened': rrt_pool_opened,
         })
     return rows
 
@@ -307,8 +322,9 @@ def irr(rows):
 # ---------------------------------------------------------------------
 
 PRICE_GRID = list(range(40, 121, 10))
+# EC2-3 (2026-09-15): eight multipliers, 0.8 to 1.5 inclusive in tenths. Written
+# as decimal literals; each is the nearest double to its tenth.
 CAPEX_GRID = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
-ENGINE_CAPEX_POINTS = 7  # the engine's accumulated loop stops at 1.4
 
 
 def sweeps(regimes, project):
@@ -510,9 +526,8 @@ def capex_sentence(losses):
             f'{q(most)} {v(most)} up the most ({amount(most)}). Regimes named together are within {money(CAPEX_SPREAD)} of each other, so they are not ranked.')
 
 
-def insights(summary, sens, capex_points=None):
-    """The verdict sentences. capex_points limits the capex sweep to the
-    first n points (the engine's truncated loop) when given."""
+def insights(summary, sens):
+    """The verdict sentences, the capex verdict over every swept point."""
     out = []
     if not summary:
         return out
@@ -556,8 +571,6 @@ def insights(summary, sens, capex_points=None):
     losses = []
     for d in (sens or {}).get('capex', {}).get('data', []):
         v = d.get('values') or []
-        if capex_points:
-            v = v[:capex_points]
         if len(v) < 2 or d['regimeId'] not in by_id:
             continue
         losses.append({'name': by_id[d['regimeId']]['name'], 'loss': v[0] - v[-1]})
@@ -589,13 +602,12 @@ def comparison(regimes, project):
     return {
         'summary': summary, 'annualCashFlows': annual, 'sensitivityData': sens,
         'insights': insights(summary, sens),
-        'insightsAsEngine': insights(summary, sens, ENGINE_CAPEX_POINTS),
-        'engineCapexPoints': ENGINE_CAPEX_POINTS,
         # The quantities the capex and price verdicts rank, so a gate can
         # recognise a TIE (equal losses decided by rounding noise) instead
-        # of pretending the winner of a tie is a result.
-        'capexLossesAsEngine': [{'name': names[d['regimeId']], 'loss': d['values'][0] - d['values'][ENGINE_CAPEX_POINTS - 1]}
-                                for d in sens['capex']['data']],
+        # of pretending the winner of a tie is a result. EC2-3: the capex loss
+        # runs over all eight swept points, 0.8 to 1.5.
+        'capexLosses': [{'name': names[d['regimeId']], 'loss': d['values'][0] - d['values'][-1]}
+                        for d in sens['capex']['data']],
         # EC2-1: the climb is measured over the common share window only.
         'priceWindow': price_window_record(sens),
         'priceClimbs': [{'name': names[d['regimeId']], 'climb': d['values'][w['end']] - d['values'][w['start']]}
@@ -699,14 +711,14 @@ def build():
         'Independent stdlib oracle tools/validation/economics/oracle_fiscal.py written from the method '
         'statement: 25 year closed-form declines, the price deck lookup, sliding-scale royalty by tier '
         'threshold, PSC cost recovery with a cap and carryforward, R-factor tranche splits, CIT and RRT '
-        'with an annual capital uplift against a minimum tax, YEAR-END discounting NCF/(1+r)^year, IRR by '
+        'with a one-time uplifted cost pool against a minimum tax, YEAR-END discounting NCF/(1+r)^year, IRR by '
         'tripling bracket and the Illinois method (engine: doubling bracket and 80 bisections), the price '
         'and capex sweeps, the per-regime summary and the five insight sentences rebuilt with JavaScript '
         'toFixed rounding. `cashflow` rows carry every engine column plus the oracle\'s `contractorSplit` '
-        'and `royaltyRate` chosen that year. The capex sweep is evaluated on the DOCUMENTED grid 0.8 to '
-        '1.5 (8 points); the engine\'s accumulated loop stops at 1.4 (7 points, `engineCapexPoints`), so '
-        '`insightsAsEngine` rebuilds the capex verdict over the 7 points the engine actually sees; both are '
-        'pinned. Units: rates bbl/d and mscf/d, prices $/bbl and $/mscf, every money output $MM, percents '
+        'and `royaltyRate` chosen that year and its `rrtUpliftRelief`, `rrtUpliftPoolRemaining` and '
+        '`rrtUpliftPoolOpened` (EC2-6). The capex sweep is evaluated on the eight point grid 0.8, 0.9, ... '
+        '1.5 the engine now sweeps (EC2-3), and the capex verdict and `capexLosses` run over all eight. '
+        'Units: rates bbl/d and mscf/d, prices $/bbl and $/mscf, every money output $MM, percents '
         '0 to 100, years 1 based.'
     )}
 
@@ -739,10 +751,19 @@ def build():
                 DEFAULT_REGIMES[0], DEFAULT_PROJECT),
         cf_case('price_below_every_threshold', 'Price multiplier 0.5 puts $35 oil below every sliding tier: the FIRST tier applies.',
                 DEFAULT_REGIMES[0], DEFAULT_PROJECT, 1.0, 0.5),
-        cf_case('rrt_uplift_default_20', 'rrtUpliftPct omitted: the default 20 percent uplift applies to the Brazil RRT.',
+        cf_case('rrt_uplift_default_20', 'rrtUpliftPct omitted: the default 20 percent uplift sizes the Brazil RRT pool at 1.2 times the 1000 capex (EC2-6).',
                 dict(template_regimes()[2], id='brazil', name='Brazil'), TEST_PROJECT),
-        cf_case('rrt_uplift_zero_respected', 'rrtUpliptPct 0 is respected (not replaced by the default).',
+        cf_case('rrt_uplift_zero_respected', 'rrtUpliftPct 0 is respected (not replaced by the default). The pool is then the capex itself, 1000, relieved once (EC2-6).',
                 dict(template_regimes()[2], id='brazil0', name='Brazil no uplift', tax={'cit': 34, 'rrt': 40, 'minTax': 0, 'rrtUpliftPct': 0}), TEST_PROJECT),
+        cf_case('rrt_pool_never_exhausted', 'EC2-6: an uplift of 900 percent opens a pool of 10000 against a 1000 capex, larger than every profit share in the life put together, '
+                'so the relief never runs out, the RRT base is zero in all 25 years and the tax is the CIT alone.',
+                dict(template_regimes()[2], id='brazil900', name='Brazil huge uplift', tax={'cit': 34, 'rrt': 40, 'minTax': 0, 'rrtUpliftPct': 900}), TEST_PROJECT),
+        cf_case('rrt_pool_with_minimum_tax', 'EC2-6: the Brazil instruments with a 2 percent minimum tax. The pool is drawn in every year with a positive profit share, '
+                'including the years the minimum binds, and it is never refilled.',
+                dict(template_regimes()[2], id='brazilmin', name='Brazil with a minimum tax', tax={'cit': 34, 'rrt': 40, 'minTax': 2}), TEST_PROJECT),
+        cf_case('rrt_absent_uplift_has_no_effect', 'EC2-6: no RRT (rate 0) with a 20 percent uplift. The pool is opened and drawn and changes nothing, so this ledger is the '
+                'flat_test_project ledger row for row.',
+                flat_regime(id='flat_up20', name='Flat, no RRT, uplift 20', tax={'cit': 30, 'rrt': 0, 'minTax': 0, 'rrtUpliftPct': 20}), TEST_PROJECT),
         cf_case('minimum_tax_binds', 'A 10 percent minimum tax on gross revenue with a 0 CIT: the minimum binds every year.',
                 flat_regime(id='mintax', name='Min tax', tax={'cit': 0, 'rrt': 0, 'minTax': 10, 'rrtUpliftPct': 0}), TEST_PROJECT),
         cf_case('capex_multiplier_1_3', 'Capex multiplier 1.3 on the flat regime.', flat_regime(), TEST_PROJECT, 1.3, 1.0),
@@ -791,8 +812,13 @@ def build():
     for p in range(40, 121, 10):
         G['priceSweep'].append(cf_case(f'price_{p}_pia_default', f'Default PIA regime on the default project with oil scaled to ${p}.',
                                        DEFAULT_REGIMES[0], DEFAULT_PROJECT, 1.0, p / 70.0))
+    # EC2-3: the eight multipliers the sweep runs on, with both endpoints
+    # exact, beside the 0.7 case that is outside the swept range.
+    G['capexGrid'] = {'multipliers': CAPEX_GRID, 'labels': [js_to_fixed(m, 1) for m in CAPEX_GRID],
+                      'pointCount': len(CAPEX_GRID), 'firstMultiplier': CAPEX_GRID[0], 'lastMultiplier': CAPEX_GRID[-1],
+                      'note': 'Eight points, 0.8 to 1.5 in tenths, each (8 + k) / 10. The retired loop accumulated 0.1 and stopped at 1.4.'}
     G['capexSweep'] = []
-    for m in (0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3):
+    for m in (0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5):
         G['capexSweep'].append(cf_case(f'capex_{js_to_fixed(m, 1)}_pia_default', f'Default PIA regime on the default project at capex multiplier {m}.',
                                        DEFAULT_REGIMES[0], DEFAULT_PROJECT, m, 1.0))
 
