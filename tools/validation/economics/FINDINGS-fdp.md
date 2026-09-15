@@ -501,10 +501,12 @@ the price bar. Volume now carries its own cost, and the gate pins the
 production spread below the price spread.
 
 **Still open after this wave.**
-- `fiscalRegime.calculateIRR` (Fiscal Regime Designer) has the same shape of
-  defect as section 1 in its own bisection: it returns 0 when NPV(0) <= 0 and
-  returns the search bound when the root is beyond it. It was not in the EC6
-  audit's scope and is recorded here for the owner.
-- `getPortfolioMetrics` reads `chanceOfSuccess` with `|| 1.0`, so a stated
-  chance of 0 is read as certainty (pinned as a disagreement in
-  screening_cases.json, FINDINGS-fiscal.md).
+- **FIXED 2026-09-15 (EC2-5).** `fiscalRegime.calculateIRR` (Fiscal Regime
+  Designer) had the same shape of defect as section 1 in its own bisection: it
+  returned 0 when NPV(0) <= 0 and returned the search bound when the root was
+  beyond it. It now uses this section's contract from
+  `engines/economics/irrContract.js` (FINDINGS-fiscal.md, EC2 decisions).
+- **FIXED 2026-09-15 (EC1-10).** `getPortfolioMetrics` read `chanceOfSuccess`
+  with `|| 1.0`, so a stated chance of 0 was read as certainty. It reads
+  `?? 1` and refuses a present chance outside 0 to 1 by project; the
+  disagreement pin in screening_cases.json is gone (FINDINGS-fiscal.md S6).

@@ -92,6 +92,15 @@ The S-curve downsample is `i % Math.floor(iterations / 50) === 0`; below
 
 ### S6. getPortfolioMetrics reads a chance of success of 0 as certain
 
+**FIXED 2026-09-15 (EC1-10, owner decision).** The chance is read with `?? 1`,
+so only a missing or null chance means certainty, and a present chance that is
+not a finite number from 0 to 1 is refused with a RangeError naming the
+project (by name and index, or index alone). `portfolio_zero_chance` is no
+longer a recorded disagreement: its `engine` pin is removed and the engine
+gives the oracle's 20. The gate re-implements `|| 1.0` as the negative control
+(120). No other screening value moved. The text below is the finding as
+recorded.
+
 `(p.chanceOfSuccess || 1.0)` turns 0 into 1.0. `portfolio_zero_chance`
 (NPV 100 at chance 0 plus NPV 40 at chance 0.5): risked NPV should be 20;
 the engine reports 120. A project the user has written off as a certain
@@ -172,7 +181,18 @@ the oracle's arithmetic names "Brazil - Concession"; neither is a result.
 The golden carries the ranked quantities (`capexLossesAsEngine`,
 `priceClimbs`) and the gate treats a tie as a tie. The PRICE half is closed
 by EC2-1 below: a lead under one percentage point now declines to rank, so
-noise can no longer name a winner there. The capex half is still open.
+noise can no longer name a winner there.
+
+**Capex half FIXED 2026-09-15 (EC2-4, owner decision).** The capex verdict
+uses the price verdict's rule through one helper, `leadOrTie`: each end is
+named alone only when it leads the next regime by at least one printed step
+(`CAPEX_RESILIENCE_MIN_SPREAD_MM`, 0.1 million USD), otherwise every regime
+within that step is named with it, and when the two ends share a regime no
+regime is ranked. `cmp_never_recovers` now reads "No regime can be ranked on
+resilience to cost overrun" and names all six; the comparison gate lost its
+tie branch because every verdict text is now exact. Goldens
+`insights_capex_all_tied`, `insights_capex_least_end_tied`,
+`insights_capex_one_step_ranks`, `insights_capex_ends_meet`.
 
 ### F6. The price sweep returned 0 percent when profit was not positive (EC2-1, FIXED 2026-09-14)
 
@@ -201,6 +221,11 @@ null.
 
 ### F4. IRR beyond the 102400 percent bracket reports the bracket
 
+**FIXED 2026-09-15 (EC2-5, owner decision).** See the EC2 section below: the
+fiscal IRR follows the screening engine's contract, and `irr_beyond_bracket`
+is now `irr_above_clamp_past_old_bracket`, null with status 'above-clamp'.
+The text below is the finding as recorded.
+
 The bisection brackets by doubling from 100 percent ten times and reports
 the bracket if NPV is still positive there. `irr_beyond_bracket` (ncf -1
 then +2000): true IRR 199900 percent, engine 102400. Pinned; a curiosity
@@ -217,12 +242,82 @@ rather than a defect at real project scale.
   below it in year 23 as revenue declines while opex accrues, and the
   contractor's split steps back UP to 40. Real R-factor contracts usually
   ratchet; this one does not. Recorded as a property, gated as such.
-- Sliding-scale and R-factor tiers are selected as the LAST tier in list
-  order whose threshold is reached. Identical to "highest threshold
+- **FIXED 2026-09-15 (EC2-8).** Sliding-scale and R-factor tiers were
+  selected as the LAST tier in list order whose threshold is reached. Identical to "highest threshold
   reached" for sorted tiers (all templates and the Designer's defaults
   are sorted); an unsorted tier list would silently pick the wrong rate.
+  A sorted copy is now selected from (below every threshold, the lowest
+  tier), and a repeated threshold is refused naming the regime and table.
 - The price multiplier scales oil only; gas and NGL prices are untouched,
   so the price sweep is an oil price sweep.
+
+## EC2 decisions, all FIXED 2026-09-15 (owner decisions)
+
+Found while the EC2 Fiscal Systems course was written. Each is gated in
+`__tests__/economics.fiscal.test.js` (describe "EC2 owner decisions") with a
+negative control that re-implements the retired rule, and the oracle
+implements each rule from its statement.
+
+- **EC2-2.** `effectiveTaxRate` kept a zero fallback beside the null-safe
+  `governmentShareOfNetRevenuePct`. The key is now a DEPRECATED alias equal to
+  that field, null where it is null. The gate recomputes the legacy formula on
+  every comparison golden: no defined value moved (1e-9), and only the old
+  zeros become null.
+- **EC2-4.** The capex verdict ranked ties with a strict reduce. Fixed as F3
+  above.
+- **EC2-5.** `calculateIRR` returned 0 for a flow that never changes sign and
+  for one whose only root is negative, and reported its 102400 percent bracket
+  as a rate. The screening engine's EC6-1 contract now serves both engines
+  from `engines/economics/irrContract.js` (lifted out of screening.js
+  unchanged, so every screening golden holds): a rate only when it is a
+  verified root strictly inside -99 to 1000 percent, negative roots included;
+  otherwise null with 'no-sign-change', 'no-root', 'above-clamp' or
+  'multiple-roots' and the roots listed. Discounting stays year-end.
+  `calculateIRRResult` returns `{ irr, irrStatus, irrRoots }`; `calculateIRR`
+  returns the rate or null; the summary carries all three. The contractor
+  sentence states the status when there is no rate. Golden renames:
+  `irr_all_positive` to `irr_all_positive_no_sign_change`, `irr_npv0_negative`
+  to `irr_negative_root_reported` (-10 percent), `irr_beyond_bracket` to
+  `irr_above_clamp_past_old_bracket`; new `irr_above_clamp_inside_old_bracket`,
+  `irr_no_root_below_band`, `irr_multiple_roots_listed`.
+- **EC2-8.** Tiers are selected in threshold order; a repeated threshold is
+  refused. Fixed as the F5 observation above. Goldens
+  `tiers_unsorted_selected_by_threshold` and `tierRefusals`.
+- **EC2-9.** Three golden notes contradicted their values. The case
+  `capped_5pct_never_recovers` (renamed `capped_5pct_pool_never_clears`) said
+  "no payback, IRR 0" beside payback year 3 and a root at 54.6792 percent;
+  `rfactor_tranche_crossing` dated the 1.0 crossing to year 3 (it is year 2;
+  the 60 to 40 step in year 3 is the 1.6 threshold); `rfactor_falls_back` said
+  the R factor peaks "just above 2.5" (it peaks at 2.972625 in year 11). The
+  notes now state the engine's numbers and a gate ties each note to them.
+- **EC2-10.** The payback verdict named the first regime at the winning year.
+  It names every regime at that year ("both" or "all" when every regime ties).
+- **EC2-11.** Money read "$1339.3MM". `formatMillionUSD` in
+  fiscalConventions.js gives "1,339.3 million USD" for every insight sentence;
+  golden group `moneyFormat` pins it and a gate refuses "$" and "MM" in every
+  golden sentence.
+
+### Open after EC2-5, for the owner
+
+1. **Most test-project IRRs are now null 'multiple-roots'.** The sandbox runs a
+   fixed 25 year life with no economic limit, so on the Suite test project
+   (fixed opex 60) late contractor cash flow turns negative and the NPV is
+   zero at a second, negative rate as well as the familiar one:
+   `flat_test_project` at -20.4061 and 124.5777 percent. 18 cash flow goldens,
+   `price_40_pia_default`, and all eight regimes in
+   `cmp_all_templates_test_project` and `cmp_flat_vs_complex` moved from a rate
+   to null with both roots listed; in every one the old IRR is one of the
+   listed roots, unchanged to 1e-6. The Designer's default project keeps its
+   rates at the deck price (23 goldens unchanged), but at 35 and 40 USD per bbl
+   (`price_below_every_threshold`, `price_40_pia_default`) it too has two
+   roots. An economic-limit truncation, or a rule that picks the root a user
+   means, is an owner call.
+2. **One root in the band is reported even when another lies above it.**
+   `capex_multiplier_0_7` has roots at -20.4852 and 1095.4783 percent. The
+   contract reports the one inside the band, so the IRR reads -20.4852 with
+   status 'ok' where the retired bisection read 1095.4783. The screening
+   engine has the same rule; no screening golden exercises it today (checked
+   2026-09-15). Pinned by the gate "OPEN (recorded)".
 
 ## Breakeven (breakeven.js)
 
