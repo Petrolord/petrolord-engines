@@ -12,12 +12,24 @@ royalties, Sixth Schedule production allowance, CITA capital allowance
 restriction, NTA 2025 Development Levy). It was NOT written by transcribing
 the TypeScript. Where the engine iterates, this file solves differently:
 
-  IRR         the engine runs Newton from 10 percent and falls back to
-              bisection. The oracle SCANS the bracket [-0.99, 10] on a
-              0.001 grid for the first sign change of NPV(r) and BISECTS
-              that bracket to a width of 1e-13. No derivative is used.
-              On a multiple-root profile the oracle reports the SMALLEST
-              root; the engine reports whichever root Newton reaches.
+  IRR         the module IRR contract (engines/economics/irrContract.js,
+              adopted by cashflow.ts at v3.10 under owner decision EC1-2):
+              a rate is an answer only when it is a single verified root
+              strictly inside the band from -99 to 1000 percent. The
+              oracle SWEEPS the whole band on a 0.001 grid, bisects EVERY
+              sign change to a width of 1e-13 and uses no derivative,
+              where the engine tries Newton first and sweeps 1000 steps
+              only when Newton cannot be trusted; the finer grid is
+              deliberate, so that a pair of roots the engine's coarser
+              sweep could straddle in one cell would show up here as a
+              disagreement. The sign the NPV takes as the rate grows
+              without bound is the sign of the earliest non-zero flow;
+              when the sign at the top of the band differs, a root lies
+              above the band. Status: 'ok' with the rate, else
+              'no-sign-change', 'multiple-roots' (every in-band root
+              listed), 'above-clamp' or 'no-root'. Exponents are the
+              engine's own year-end year offsets from the first evaluated
+              row.
 
   breakeven   the engine bisects the flat oil price to a 0.001 USD/bbl
               bracket and returns its midpoint. The oracle bisects the
@@ -61,7 +73,7 @@ import math
 import os
 import re
 
-ENGINE_VERSION = '3.9.0'
+ENGINE_VERSION = '3.10.0'
 GAS_MSCF_PER_BOE = 6.0
 
 
@@ -465,9 +477,15 @@ def fiscal_pia(year, vols, price, gross, liq_rev, capex, opex, cap_allow, nddc, 
     hct_tax = max(0.0, hct_base * hct_rate(cfg, framework))
 
     # CIT on all profits; capital allowance restricted to two thirds of the
-    # assessable profit (CITA capital allowance restriction).
+    # assessable profit (CITA capital allowance restriction), with the
+    # disallowed part CARRIED FORWARD to queue with the next year's allowance
+    # under the same restriction (EC1-6, engine v3.10). The config switch
+    # cit_restricted_allowance_carryforward === False drops the carryforward.
     cit_assessable = gross - total_roy - opex_claimed - hcdt - nddc
-    cit_ca = min(ca_claimed, max(0.0, cit_assessable * 2 / 3))
+    carry_allow = cfg.get('cit_restricted_allowance_carryforward') is not False
+    cit_allow_available = ca_claimed + (st['cit_allow'] if carry_allow else 0.0)
+    cit_ca = min(cit_allow_available, max(0.0, cit_assessable * 2 / 3))
+    cit_allow_carry = cit_allow_available - cit_ca if carry_allow else 0.0
     cit_chargeable = cit_assessable - cit_ca
     cit_base, cit_used, cit_pool = loss_relief(st['cit_loss'], cit_chargeable, relief_on)
     cit_tax = max(0.0, cit_base * cfg['pia_cit_rate_pct'] / 100.0)
@@ -489,6 +507,7 @@ def fiscal_pia(year, vols, price, gross, liq_rev, capex, opex, cap_allow, nddc, 
         'hct_assessable_profit': hct_assessable, 'production_allowance': allowance,
         'hct_chargeable_profit': hct_chargeable, 'hct_tax': hct_tax,
         'cit_assessable_profit': cit_assessable, 'cit_chargeable_profit': cit_chargeable, 'cit_tax': cit_tax,
+        'cit_allowance_claimed': cit_ca, 'cit_allowance_carryforward': cit_allow_carry,
         'tet_tax': tet, 'dev_levy_tax': dev, 'tax': total_tax,
         'taxable_income': hct_chargeable + cit_chargeable,
         'cpr_cap': cpr_cap, 'cpr_costs_claimed': claimed, 'cpr_deferred_to_next': deferred,
@@ -500,7 +519,7 @@ def fiscal_pia(year, vols, price, gross, liq_rev, capex, opex, cap_allow, nddc, 
     }
     new_state = {'cpr_carry': deferred, 'prior_opex': opex,
                  'cum_liquids': st['cum_liquids'] + vols['oil_bbl'] + vols['condensate_bbl'],
-                 'hct_loss': hct_pool, 'cit_loss': cit_pool}
+                 'hct_loss': hct_pool, 'cit_loss': cit_pool, 'cit_allow': cit_allow_carry}
     return row, new_state
 
 
@@ -508,54 +527,80 @@ def fiscal_pia(year, vols, price, gross, liq_rev, capex, opex, cap_allow, nddc, 
 # Financial metrics
 # ---------------------------------------------------------------------
 
-def npv_of(flows, rate):
-    return sum(cf / (1 + rate) ** i for i, cf in enumerate(flows))
+IRR_BAND_LOWER = -0.99   # -99 percent
+IRR_BAND_UPPER = 10.0    # 1000 percent
 
 
-def _first_root(flows, a, b, step, f_a):
-    """First sign change of NPV(r) walking from a towards b in `step`
-    increments (negative step walks down), bisected to 1e-13."""
-    n = int(round(abs(b - a) / abs(step)))
-    for k in range(1, n + 1):
-        r = a + k * step
-        f = npv_of(flows, r)
-        if f == 0:
-            return r
-        if (f_a < 0) != (f < 0):
-            lo, hi = (r - step, r) if step > 0 else (r, r - step)
-            f_lo = npv_of(flows, lo)
+def npv_of(flows, rate, times=None):
+    ts = range(len(flows)) if times is None else times
+    return sum(cf / (1 + rate) ** t for cf, t in zip(flows, ts))
+
+
+def irr_of(flows, times=None):
+    """The module IRR contract (EC1-2, engines/economics/irrContract.js).
+
+    A rate is reported ONLY when exactly one rate strictly inside the band
+    from -99 to 1000 percent zeroes the net present value and no root lies
+    above the band. The band is swept on a 0.001 grid and every sign change
+    is bisected to a width of 1e-13; no derivative is used. As the rate
+    grows without bound every term vanishes faster than the earliest
+    non-zero flow, so the net present value takes that flow's sign: a
+    different sign at the top of the band means a root lies above it.
+
+    Returns the four reported quantities, rates in PERCENT:
+      irr                 the rate, or None
+      irr_status          'ok' | 'no-sign-change' | 'multiple-roots' |
+                          'above-clamp' | 'no-root'
+      irr_roots           every in-band root when there is more than one
+      irr_root_above_band True when a root lies above the band
+    """
+    ts = list(range(len(flows))) if times is None else list(times)
+    out = {'irr': None, 'irr_status': 'no-sign-change', 'irr_roots': None,
+           'irr_root_above_band': False}
+    if not flows or not any(cf < 0 for cf in flows) or not any(cf > 0 for cf in flows):
+        return out
+
+    def f(rate):
+        return npv_of(flows, rate, ts)
+
+    roots = []
+    steps = int(round((IRR_BAND_UPPER - IRR_BAND_LOWER) / 0.001))
+    prev_r = IRR_BAND_LOWER
+    prev = f(prev_r)
+    for k in range(1, steps + 1):
+        r = IRR_BAND_LOWER + (IRR_BAND_UPPER - IRR_BAND_LOWER) * k / steps
+        v = f(r)
+        if v == 0:
+            roots.append(r)
+        elif (prev < 0 < v) or (prev > 0 > v):
+            lo, hi, f_lo = prev_r, r, prev
             while hi - lo > 1e-13:
                 m = (lo + hi) / 2
-                fm = npv_of(flows, m)
+                fm = f(m)
                 if fm == 0:
-                    return m
+                    lo = hi = m
+                    break
                 if (f_lo < 0) != (fm < 0):
                     hi = m
                 else:
                     lo, f_lo = m, fm
-            return (lo + hi) / 2
-        f_a = f
-    return None
+            roots.append((lo + hi) / 2)
+        prev_r, prev = r, v
 
+    _, earliest_flow = min((t, cf) for cf, t in zip(flows, ts) if cf != 0)
+    at_upper = f(IRR_BAND_UPPER)
+    above = at_upper != 0 and (at_upper > 0) != (earliest_flow > 0)
 
-def irr_of(flows):
-    """Root of NPV(r) = 0 NEAREST ZERO, positive side first: a 0.001 grid
-    scan upward from 0 to 10 for the first sign change, else downward from
-    0 to -0.99, each bracket bisected to 1e-13. The hurdle-rate comparison
-    an IRR exists for lives near the origin, so on a profile with several
-    roots (two sign changes in the flows) the root nearest zero on the
-    positive side is the one reported; the engine's Newton from 10 percent
-    reports whichever root it converges to, which the golden pins where the
-    two differ. None without a sign change in the flows or in the bracket."""
-    if not any(cf < 0 for cf in flows) or not any(cf > 0 for cf in flows):
-        return None
-    f0 = npv_of(flows, 0.0)
-    if f0 == 0:
-        return 0.0
-    up = _first_root(flows, 0.0, 10.0, 0.001, f0)
-    if up is not None:
-        return up
-    return _first_root(flows, 0.0, -0.99, -0.001, f0)
+    if len(roots) == 1 and not above:
+        out.update(irr=roots[0] * 100, irr_status='ok')
+    elif roots:
+        out.update(irr_status='multiple-roots', irr_roots=[r * 100 for r in roots],
+                   irr_root_above_band=above)
+    elif above:
+        out.update(irr_status='above-clamp', irr_root_above_band=True)
+    else:
+        out.update(irr_status='no-root')
+    return out
 
 
 def payback_of(flows):
@@ -634,7 +679,10 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
     elif regime == 'PSC':
         wi = max(0.0, min(1.0, pct(cfg, 'psc_working_interest_pct', 100.0) / 100.0))
     else:
-        wi = 1.0
+        # EC1-4 (engine v3.10): JV reports the share on every monetary line
+        # and on the volumes, exactly as PSC and PIA do, so the fiscal math
+        # runs at field level here and is scaled once at the end of the year.
+        wi = num_or_zero(cfg.get('jv_working_interest_pct')) / 100.0
 
     vols = annual_volumes(prod_rows, base_year)
     capex = annual_usd(capex_rows, base_year, CAPEX_COLS, 'CAPEX file')
@@ -695,8 +743,14 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
         req = num(cfg.get('abandonment_fund_start_year')) if cfg.get('abandonment_fund_start_year') not in (None, '') else None
         start = min(int(req), abex_year) if req is not None and req > 0 else years[0]
         fund_years = [y for y in years if start <= y <= abex_year]
+        # EC1-3 (engine v3.10): abandonment_cost_usd is the USER'S SHARE under
+        # both funding modes. The contribution is grossed up by 1 / WI at
+        # field level so that the share collects exactly the entered cost once
+        # the row is scaled; a zero working interest collects nothing.
+        per_year_share = abex / max(1, len(fund_years))
+        per_year_field = per_year_share / wi if wi > 0 else 0.0
         for y in fund_years:
-            fund[y] = abex / max(1, len(fund_years))
+            fund[y] = per_year_field
 
     # Depreciation / capital allowance schedules from the capex year.
     is_pia = regime == 'PIA'
@@ -724,7 +778,8 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
     jv_loss = 0.0
     relief_on = cfg.get('apply_loss_carryforward') is not False
     pia_state = {'cpr_carry': 0.0, 'prior_opex': pct(cfg, 'pia_prior_year_opex_usd', 0.0),
-                 'cum_liquids': pct(cfg, 'pia_prior_cumulative_oil_bbl', 0.0), 'hct_loss': 0.0, 'cit_loss': 0.0}
+                 'cum_liquids': pct(cfg, 'pia_prior_cumulative_oil_bbl', 0.0), 'hct_loss': 0.0, 'cit_loss': 0.0,
+                 'cit_allow': 0.0}
 
     for year in years:
         t = year - base_year
@@ -784,6 +839,8 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
             psc_cum += v['oil_bbl'] + v['condensate_bbl']
             row.update({k: out[k] for k in ('royalty', 'taxable_income', 'tax', 'net_cash_flow')})
             row['psc_contractor_share_pct'] = share * 100
+            # EC1-5: the cost pool the row leaves unrecovered.
+            row['psc_cost_pool_after'] = out['carry_after']
             if itc_year > 0 or out['itc_used'] > 0:
                 row['psc_itc_used'] = out['itc_used']
                 row['psc_itc_carryforward'] = out['itc_carry_after']
@@ -791,7 +848,10 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
                 row['decom_fund_contribution'] = contrib
             net = out['net_cash_flow']
         else:
-            out = fiscal_jv(gross, cx, ox + contrib, dp, num_or_zero(cfg.get('jv_working_interest_pct')) / 100.0,
+            # EC1-4: field level here, scaled to the share below with every
+            # other regime; the loss pool threads at field level and scales
+            # with the rows, which is the same number either way.
+            out = fiscal_jv(gross, cx, ox + contrib, dp, 1.0,
                             num_or_zero(cfg.get('jv_royalty_pct')) / 100.0, num_or_zero(cfg.get('jv_tax_rate_pct')) / 100.0,
                             jv_loss, relief_on)
             jv_loss = out['loss_carryforward']
@@ -836,10 +896,15 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
     ev = [r for r in rows if not r.get('sunk')]
     flows = [r['net_cash_flow'] for r in ev]
     npv = sum(r['discounted_cash_flow'] for r in ev)
-    irr = irr_of(flows)
+    # EC1-2: the IRR contract, on this engine's own year-end exponents
+    # measured from the first evaluated year. The valuation anchor and the
+    # mid-year half multiply every term alike, so neither moves a root.
+    irr_res = irr_of(flows, [r['year'] - ev[0]['year'] for r in ev]) if ev else irr_of([])
     tot = lambda k: sum(r.get(k, 0.0) or 0.0 for r in ev)
     k = {
-        'engine_version': ENGINE_VERSION, 'npv': npv, 'irr': irr * 100 if irr is not None else None,
+        'engine_version': ENGINE_VERSION, 'npv': npv, 'irr': irr_res['irr'],
+        'irr_status': irr_res['irr_status'], 'irr_roots': irr_res['irr_roots'],
+        'irr_root_above_band': irr_res['irr_root_above_band'],
         'payback': payback_label(flows), 'pv_basis': basis, 'discount_rate_applied_pct': disc * 100,
         'fiscal_regime': regime, 'fiscal_framework': framework,
         'discounting_convention': 'mid_year' if mid_year else 'end_year',
@@ -852,10 +917,11 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
         k['valuation_year'] = valuation_year
     if sunk_cutoff is not None:
         k['sunk_net_cash_flow'] = sum(r['net_cash_flow'] for r in rows if r.get('sunk'))
-    if wi != 1:
-        k['working_interest_pct'] = wi * 100
-    elif regime == 'JV':
+    if regime == 'JV':
+        # Reported as the config carries it, for every JV run.
         k['working_interest_pct'] = pct(cfg, 'jv_working_interest_pct', 100.0)
+    elif wi != 1:
+        k['working_interest_pct'] = wi * 100
     oil_t, gas_t, cond_t = tot('oil_bbl'), tot('gas_mscf'), tot('condensate_bbl')
     boe = oil_t + cond_t + gas_t / GAS_MSCF_PER_BOE
     abex_total = abex if abex_year is not None else 0.0
@@ -896,20 +962,34 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
     pv_con = sum(r['discounted_cash_flow'] for r in ev)
     k['government_take_pct_discounted'] = (pv_pre - pv_con) / pv_pre * 100 if pv_pre > 0 else None
 
-    def npv_at(rate_pct):
-        r = rate_pct / 100.0
+    def npv_at_rate(r):
         return sum((row['net_cash_flow'] / (1 + infl) ** (row['year'] - base_year) if basis == 'real' else row['net_cash_flow'])
                    / (1 + r) ** dexp(row['year']) for row in ev)
     # Standard rate vector plus the applied rate, which by the method
-    # statement makes the profile pass through the headline NPV.
-    profile_rates = sorted(set([0, 5, 8, 10, 12, 15, 20] + [disc * 100]))
-    k['npv_profile'] = [{'rate_pct': rp, 'npv': npv_at(rp)} for rp in profile_rates]
+    # statement makes the profile pass through the headline NPV. EC1-1
+    # (engine v3.10): that point is LABELLED with the applied rate rounded to
+    # two decimals and EVALUATED at the exact applied rate, so the curve
+    # passes through the headline NPV on a real basis too.
+    applied_label = math.floor(disc * 10000 + 0.5) / 100.0
+    profile_rates = sorted(set([0, 5, 8, 10, 12, 15, 20] + [applied_label]))
+    k['npv_profile'] = [{'rate_pct': rp, 'npv': npv_at_rate(disc if rp == applied_label else rp / 100.0)}
+                        for rp in profile_rates]
     pv_capex = sum(pv(r['capex'], r['year']) for r in ev)
     k['pv_capex'] = pv_capex
     k['dpi'] = npv / pv_capex if pv_capex > 0 else None
+    # EC1-7: the conventional profitability index is dpi plus one.
+    k['profitability_index'] = 1 + k['dpi'] if k['dpi'] is not None else None
     k['payback_years'] = payback_of(flows)
     k['discounted_payback_years'] = payback_of([r['discounted_cash_flow'] for r in ev])
+    if regime == 'PSC':
+        # EC1-5: the cost pool cessation leaves unrecovered, at the share.
+        k['psc_unrecovered_cost_at_cessation'] = psc_carry * wi
     if regime == 'PIA':
+        # EC1-6: allowance the CITA restriction disallowed that cessation
+        # leaves unclaimed, at the share.
+        cit_allow_left = pia_state['cit_allow'] * wi
+        if cit_allow_left > 0:
+            k['cit_allowance_unused_at_cessation'] = cit_allow_left
         for kk, src in (('total_royalties', 'royalty'), ('total_hct', 'hct_tax'), ('total_cit', 'cit_tax'),
                         ('total_tet', 'tet_tax'), ('total_dev_levy', 'dev_levy_tax'), ('total_hcdt', 'hcdt'),
                         ('total_nddc', 'nddc'), ('total_production_allowance', 'production_allowance')):
@@ -927,6 +1007,11 @@ WI_KEYS = [
     'cpr_cap', 'cpr_costs_claimed', 'cpr_deferred_to_next', 'hct_loss_offset_used', 'cit_loss_offset_used',
     'hct_loss_carryforward', 'cit_loss_carryforward', 'min_etr_topup', 'decom_fund_contribution',
     'decom_fund_tax_relief', 'psc_itc_used', 'psc_itc_carryforward', 'net_cash_flow',
+    # v3.10: CITA allowance restriction (EC1-6), the PSC pool (EC1-5) and the
+    # JV loss lines, which are share quantities now that JV scales like the
+    # other regimes (EC1-4).
+    'cit_allowance_claimed', 'cit_allowance_carryforward', 'psc_cost_pool_after',
+    'loss_offset_used', 'loss_carryforward',
 ]
 
 
@@ -1206,7 +1291,7 @@ def build():
              'PIA sinking fund on the worked example: contribution relieves HCT (liquids share) and CIT at their rates, levies untouched.'),
         case('pia_sinking_fund_wi_50', {**PIA_CFG, 'abandonment_cost_usd': 30_000_000, 'abandonment_funding_mode': 'sinking_fund', 'pia_working_interest_pct': 50},
              PIA_PROD, PIA_CAPEX, PIA_OPEX,
-             'Sinking fund at 50 percent WI: the contribution is WI-scaled with the other monetary lines while abandonment_cost_funded stays the full amount (see FINDINGS).'),
+             'Sinking fund at 50 percent WI: abandonment_cost_usd is the share under both funding modes, so the fund collects the entered 30,000,000 and abandonment_cost_funded and total_abandonment_cost report the same share number (EC1-3).'),
         case('jv_abandonment_wi_60', {**JV_CFG, 'jv_working_interest_pct': 60, 'abandonment_cost_usd': 10_000_000}, JV_PROD, JV_CAPEX, JV_OPEX,
              'Lump-sum abandonment at 60 percent JV WI: the lump sum is applied unscaled after the WI share (entered as the user share).'),
         case('psc_abandonment_wi_50', {**PSC_CFG, 'psc_working_interest_pct': 50, 'abandonment_cost_usd': 10_000_000}, JV_PROD, PSC_CAPEX, JV_OPEX,
@@ -1215,7 +1300,8 @@ def build():
         case('jv_nigeria_ppt', {**JV_CFG, 'depreciation_method': 'nigeria_ppt'}, JV_PROD, JV_CAPEX, JV_OPEX,
              'PPT schedule 20/20/20/20/19 from the capex year: 10M in each of the first two years.'),
         case('jv_ngn_fx', {**JV_CFG, 'fx_ngn_per_usd': 1500}, JV_PROD, JV_CAPEX, JV_OPEX, 'Flat FX 1500 stamps the NGN mirrors.'),
-        case('jv_wi_60', {**JV_CFG, 'jv_working_interest_pct': 60}, JV_PROD, JV_CAPEX, JV_OPEX, 'JV at 60 percent WI scales inside the regime.'),
+        case('jv_wi_60', {**JV_CFG, 'jv_working_interest_pct': 60}, JV_PROD, JV_CAPEX, JV_OPEX,
+             'JV at 60 percent WI: every monetary line and the volumes report the share, as PSC and PIA do, so government take matches the 100 percent run (EC1-4).'),
         case('multiyear_pia_real', MULTI_CFG, MULTI_PROD, MULTI_CAPEX, MULTI_OPEX,
              'Six-year declining PIA field, three streams, 3 percent inflation, escalators, real basis: Fisher real rate 6.7961 percent.'),
         case('multiyear_pia_nominal', {**MULTI_CFG, 'present_value_basis': 'nominal'}, MULTI_PROD, MULTI_CAPEX, MULTI_OPEX,
@@ -1239,6 +1325,36 @@ def build():
              [{'year': 2025, 'well1_oil_bbl': 2_000_000}, {'year': 2026, 'well1_oil_bbl': 2_000_000}, {'year': 2027, 'well1_oil_bbl': 2_000_000}],
              [{'year': 2025, 'amount_usd': 200_000_000}], [{'year': 2025 + i, 'total_opex_usd': 30_000_000} for i in range(3)],
              'CPR cap 30 percent binds for three years: the deferred pool carries and is claimed opex-first before capital allowance.'),
+        # ---- v3.10, the EC1 owner decisions of 2026-09-15 ----
+        case('jv_real_fisher_profile', {**JV_CFG, 'inflation_rate_pct': 2.5, 'discount_rate_pct': 9,
+                                        'present_value_basis': 'real', 'oil_price_escalator_pct': 1.5,
+                                        'opex_escalator_pct': 3.5},
+             [{'year': 2030 + i, 'well1_oil_bbl': 1_200_000 * 0.8 ** i} for i in range(5)],
+             [{'year': 2030, 'amount_usd': 90_000_000}],
+             [{'year': 2030 + i, 'total_opex_usd': 14_000_000} for i in range(5)],
+             'Real basis whose Fisher rate is 6.3414634 percent: the profile point is labelled 6.34 and evaluated at the exact rate, so it IS the headline NPV (EC1-1).'),
+        case('jv_abandonment_two_irr_roots', {**JV_CFG, 'abandonment_cost_usd': 20_000_000, 'abandonment_year': 2032},
+             JV_PROD, JV_CAPEX, JV_OPEX,
+             'Terminal negative flow: two rates in the band zero the NPV, so irr is null with irr_status multiple-roots and both roots listed (EC1-2).'),
+        case('psc_pool_unrecovered_at_cessation', PSC_CFG, JV_PROD,
+             [{'year': 2030, 'amount_usd': 200_000_000}], JV_OPEX,
+             'A capex the cost oil cap cannot recover: every row reports psc_cost_pool_after and the KPI reports the pool cessation forfeits (EC1-5).'),
+        case('jv_sinking_fund_wi_60', {**JV_CFG, 'jv_working_interest_pct': 60, 'abandonment_cost_usd': 10_000_000,
+                                       'abandonment_funding_mode': 'sinking_fund'}, JV_PROD, JV_CAPEX, JV_OPEX,
+             'JV sinking fund at 60 percent WI: the share collects the entered 10,000,000, at 5,000,000 a year (EC1-3).'),
+        case('psc_sinking_fund_wi_50', {**PSC_CFG, 'psc_working_interest_pct': 50, 'abandonment_cost_usd': 10_000_000,
+                                        'abandonment_funding_mode': 'sinking_fund'}, JV_PROD, PSC_CAPEX, JV_OPEX,
+             'PSC sinking fund at 50 percent WI: the share collects the entered 10,000,000 (EC1-3).'),
+        case('pia_cit_allowance_restricted_carry', {**PIA_CFG, 'base_year': 2025},
+             [{'year': 2025, 'well1_oil_bbl': 1_000_000}, {'year': 2026, 'well1_oil_bbl': 6_000_000}],
+             [{'year': 2025, 'amount_usd': 300_000_000}],
+             [{'year': 2025, 'total_opex_usd': 40_000_000}, {'year': 2026, 'total_opex_usd': 40_000_000}],
+             'CITA restriction binds in 2025 (5,324,926.18 claimed of 12,000,000 available) and the 6,675,073.82 it disallows is carried and claimed in 2026 (EC1-6).'),
+        case('pia_cit_allowance_no_carry', {**PIA_CFG, 'base_year': 2025, 'cit_restricted_allowance_carryforward': False},
+             [{'year': 2025, 'well1_oil_bbl': 1_000_000}, {'year': 2026, 'well1_oil_bbl': 6_000_000}],
+             [{'year': 2025, 'amount_usd': 300_000_000}],
+             [{'year': 2025, 'total_opex_usd': 40_000_000}, {'year': 2026, 'total_opex_usd': 40_000_000}],
+             'The same field with the carryforward switched off, which is the pre-v3.10 rule: the disallowed allowance is lost and 2026 pays more CIT (EC1-6).'),
     ]
     errors = [
         error_case('no_volume_columns', ALAOMA_CFG, [{'date': '2027-01', 'oil_production': 100_000}], [], [], 'no oil/gas/condensate volume columns'),
@@ -1267,14 +1383,15 @@ def build():
         ('two_roots_minus73_and_173', [-12_500_000, 37_500_000, -9_000_000]),
         ('three_roots_0_7_33', [-100, 340, -382.4, 142.4]),
         ('three_roots_10_20_40', [-100, 370, -454, 184.8]),
+        # v3.10 (EC1-2): the band edges of the contract.
+        ('above_band_only', [-1, 1000]),
+        ('one_in_band_one_above', [-1, 30, -200]),
     ]:
-        r = irr_of(flows)
-        entry = {'name': name, 'flows': flows, 'irr_pct': r * 100 if r is not None else None,
-                 'payback_years': payback_of(flows), 'payback': payback_label(flows)}
-        if name in IRR_ENGINE_PINS:
-            entry['disagreement'] = {'engine_irr_pct': IRR_ENGINE_PINS[name], 'oracle_irr_pct': entry['irr_pct'],
-                                     'method_statement': IRR_METHOD_NOTE}
-        irr_cases.append(entry)
+        res = irr_of(flows)
+        irr_cases.append({'name': name, 'flows': flows, 'irr_pct': res['irr'],
+                          'irr_status': res['irr_status'], 'irr_roots': res['irr_roots'],
+                          'irr_root_above_band': res['irr_root_above_band'],
+                          'payback_years': payback_of(flows), 'payback': payback_label(flows)})
     breakeven = [
         {'name': 'jv_analytic', 'cfg': JV_CFG, 'prodRows': JV_PROD, 'capexRows': JV_CAPEX, 'opexRows': JV_OPEX},
         {'name': 'pia_worked_example', 'cfg': PIA_CFG, 'prodRows': PIA_PROD, 'capexRows': PIA_CAPEX, 'opexRows': PIA_OPEX},
@@ -1343,26 +1460,20 @@ def build():
     }
 
 
-# Engine IRR (percent) on multi-root profiles, read from a run of
-# engines/economics/cashflow.ts irr() on the same flows (Newton from 10
-# percent converges to the root nearest its start, not the root nearest
-# zero). Pinned so the golden carries BOTH numbers.
-IRR_ENGINE_PINS = {
-    'two_roots_2_and_6': 5.9999999999995654,
-    'three_roots_0_7_33': 7.350889359324948,
-}
-IRR_METHOD_NOTE = ('Engine header v3.5: "irr(): Newton now falls back to bisection when unconverged and returns null when no '
-                   'sign change brackets a root." It does not say which root is reported when the profile has several. '
-                   'The oracle reports the root nearest zero on the positive side (the hurdle-rate region); the engine reports '
-                   'the root Newton reaches from 10 percent. Both zero the NPV; the choice is an owner decision.')
-
-
 def disagreements(cases, irr_cases=()):
     """Quantities where the engine's published behaviour differs from the
-    method statement the oracle implements. Each entry pins BOTH numbers. The
-    engine numbers were read from a run of engines/economics/cashflow.ts on
-    the same inputs and are pinned by the jest gate; the oracle numbers are
-    computed here."""
+    method statement the oracle implements. Each entry pins BOTH numbers.
+
+    EMPTY since 2026-09-15. Both entries this used to carry were owner
+    decisions that the engine now implements: the npv_profile applied-rate
+    point, evaluated at the exact applied rate so the curve passes through
+    the headline NPV (EC1-1), and the IRR on a multi-root profile, which is
+    null with every in-band root listed rather than whichever root Newton
+    reached (EC1-2). The jest gate keeps a negative control for each retired
+    rule, and the list stays here so the next disagreement has a home. See
+    FINDINGS-cashflow.md.
+    """
+    return []
     out = []
     # 1. npv_profile applied-rate point. The header says the applied rate is
     #    included "so the curve always passes through the headline NPV". The

@@ -27,7 +27,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  computeCashFlow, computeBreakevenOilPrice, irr, paybackYears, paybackPeriod, ENGINE_VERSION,
+  computeCashFlow, computeBreakevenOilPrice, irr, irrResult, paybackYears, paybackPeriod, ENGINE_VERSION,
   deriveOilRoyaltyRate, derivePriceRoyaltyRate, resolveStreamPrice,
 } from '../engines/economics/cashflow.ts';
 
@@ -505,22 +505,47 @@ describe('EPE engine v3.5: HCT excludes gas revenue (Wave A finding 1.3)', () =>
   });
 });
 
-describe('EPE engine v3.5: IRR solver hardening (Wave A finding 1.4)', () => {
+describe('EPE engine v3.10: the IRR contract (EC1-2; v3.5 solver hardening kept)', () => {
   it('still solves the JV analytic case via Newton (200%)', () => {
     expect(irr([-12_500_000, 37_500_000])! * 100).toBeCloseTo(200, 6);
+    expect(irrResult([-12_500_000, 37_500_000]).irr_status).toBe('ok');
   });
 
   it('returns null when no real IRR exists instead of a garbage rate', () => {
     expect(irr([-1, 3, -3])).toBeNull();
+    expect(irrResult([-1, 3, -3]).irr_status).toBe('no-root');
   });
 
-  it('any non-null IRR actually zeroes the NPV (self-consistency)', () => {
-    const flows = [-100, 230, -132];
-    const r = irr(flows);
-    if (r !== null) {
-      const f = flows.reduce((s, cf, i) => s + cf / Math.pow(1 + r, i), 0);
-      expect(Math.abs(f)).toBeLessThan(1e-4);
+  it('refuses to name a rate on a multi-root profile and lists every in-band root', () => {
+    const flows = [-100, 230, -132];   // roots at 10 and 20 percent
+    const res = irrResult(flows);
+    expect(res.irr).toBeNull();
+    expect(res.irr_status).toBe('multiple-roots');
+    expect(res.irr_roots).toHaveLength(2);
+    expect(res.irr_roots![0]).toBeCloseTo(10, 6);
+    expect(res.irr_roots![1]).toBeCloseTo(20, 6);
+    for (const root of res.irr_roots!) {
+      const f = flows.reduce((s, cf, i) => s + cf / Math.pow(1 + root / 100, i), 0);
+      expect(Math.abs(f)).toBeLessThan(1e-6);
     }
+  });
+
+  it('names a flow that never changes sign and one whose rate is above the band', () => {
+    expect(irrResult([5, 5, 5]).irr_status).toBe('no-sign-change');
+    const above = irrResult([-1, 1000]);
+    expect(above.irr).toBeNull();
+    expect(above.irr_status).toBe('above-clamp');
+    expect(above.irr_root_above_band).toBe(true);
+  });
+
+  it('takes its discount exponents from the caller, so a gap year is a gap', () => {
+    // The same three flows in 2030, 2031 and 2033: year-end exponents 0, 1, 3.
+    const flows = [-12_500_000, 37_500_000, -10_000_000];
+    const byIndex = irrResult(flows);
+    const byYear = irrResult(flows, [0, 1, 3]);
+    expect(byIndex.irr_status).toBe('multiple-roots');
+    expect(byYear.irr_status).toBe('multiple-roots');
+    expect(byYear.irr_roots).not.toEqual(byIndex.irr_roots);
   });
 });
 
@@ -886,6 +911,35 @@ describe('EPE engine v3.9: Wave F fiscal depth', () => {
     expect(fund.kpis.total_decom_fund_contributions).toBeCloseTo(10_000_000, 2);
   });
 
+  it('EC1-3: at a working interest below 100 the share still collects the entered cost', () => {
+    const jv60 = computeCashFlow({
+      cfg: {
+        ...jvCfg, jv_working_interest_pct: 60,
+        abandonment_cost_usd: 10_000_000, abandonment_funding_mode: 'sinking_fund',
+      },
+      ...jvInput,
+    });
+    expect(jv60.cashFlowData[0].decom_fund_contribution).toBeCloseTo(5_000_000, 2);
+    expect(jv60.kpis.total_decom_fund_contributions).toBeCloseTo(10_000_000, 2);
+    expect(jv60.cashFlowData[1].abandonment_cost_funded).toBe(10_000_000);
+    expect(jv60.kpis.total_abandonment_cost).toBe(10_000_000);
+
+    const psc50 = computeCashFlow({
+      cfg: {
+        ...pscCfg, psc_working_interest_pct: 50,
+        abandonment_cost_usd: 10_000_000, abandonment_funding_mode: 'sinking_fund',
+      },
+      ...pscInput,
+    });
+    expect(psc50.kpis.total_decom_fund_contributions).toBeCloseTo(10_000_000, 2);
+
+    // NEGATIVE CONTROL: the retired rule left the contribution inside the
+    // working-interest scaling, so the share collected only its percentage of
+    // the entered cost while the funded line still claimed the whole of it.
+    expect(psc50.kpis.total_decom_fund_contributions).not.toBeCloseTo(5_000_000, 2);
+    expect(jv60.kpis.total_decom_fund_contributions).not.toBeCloseTo(6_000_000, 2);
+  });
+
   it('depreciation controls: configurable years and the nigeria_ppt preset', () => {
     const sl5 = computeCashFlow({ cfg: { ...jvCfg, jv_psc_depr_years: 5 }, ...jvInput });
     expect(sl5.cashFlowData[0].depreciation).toBeCloseTo(10_000_000, 2);
@@ -903,6 +957,97 @@ describe('EPE engine v3.9: Wave F fiscal depth', () => {
     expect(ngn.kpis.fx_ngn_per_usd).toBe(1500);
     expect(ngn.kpis.npv_ngn).toBeCloseTo(usd.kpis.npv * 1500, 2);
     expect(ngn.kpis.total_tax_ngn).toBeCloseTo(usd.kpis.total_tax * 1500, 2);
+  });
+});
+
+describe('EPE engine v3.10: EC1 owner decisions (2026-09-15)', () => {
+  const jvCfg = {
+    fiscal_regime: 'JV', base_year: 2030,
+    oil_price_usd_bbl: 100, gas_price_usd_mscf: 0, condensate_price_usd_bbl: 0,
+    discount_rate_pct: 10, inflation_rate_pct: 0,
+    oil_price_escalator_pct: 0, gas_price_escalator_pct: 0,
+    condensate_price_escalator_pct: 0, opex_escalator_pct: 0, capex_escalator_pct: 0,
+    present_value_basis: 'nominal',
+    jv_working_interest_pct: 100, jv_royalty_pct: 20, jv_tax_rate_pct: 50,
+  };
+  const jvInput = {
+    prodRows: [{ year: 2030, well1_oil_bbl: 1_000_000 }, { year: 2031, well1_oil_bbl: 1_000_000 }],
+    capexRows: [{ year: 2030, amount_usd: 50_000_000 }],
+    opexRows: [{ year: 2030, total_opex_usd: 10_000_000 }, { year: 2031, total_opex_usd: 10_000_000 }],
+  };
+  const pscCfg = {
+    ...jvCfg, fiscal_regime: 'PSC',
+    psc_royalty_pct: 10, psc_cost_oil_cap_pct: 40,
+    psc_contractor_profit_share_pct: 50, psc_tax_rate_pct: 50,
+  };
+  // A capex the cost oil cap cannot recover inside the contract.
+  const pscBigCapex = { ...jvInput, capexRows: [{ year: 2030, amount_usd: 200_000_000 }] };
+  // Two PIA years where the CITA restriction binds in the first and the
+  // second has room for what it disallowed.
+  const citInput = {
+    prodRows: [{ year: 2025, well1_oil_bbl: 1_000_000 }, { year: 2026, well1_oil_bbl: 6_000_000 }],
+    capexRows: [{ year: 2025, amount_usd: 300_000_000 }],
+    opexRows: [{ year: 2025, total_opex_usd: 40_000_000 }, { year: 2026, total_opex_usd: 40_000_000 }],
+  };
+
+  it('EC1-1: the applied-rate profile point is the headline NPV when the Fisher rate is not round', () => {
+    const cfg = { ...jvCfg, present_value_basis: 'real', inflation_rate_pct: 2.5, discount_rate_pct: 9 };
+    const { kpis } = computeCashFlow({ cfg, ...jvInput });
+    const label = Math.round(kpis.discount_rate_applied_pct * 100) / 100;
+    expect(label).not.toBe(kpis.discount_rate_applied_pct);
+    const point = kpis.npv_profile.find((p: any) => p.rate_pct === label);
+    expect(point.npv).toBeCloseTo(kpis.npv, 6);
+  });
+
+  it('EC1-5: PSC rows carry the cost pool and the KPI reports what cessation leaves', () => {
+    const { cashFlowData, kpis } = computeCashFlow({ cfg: pscCfg, ...pscBigCapex });
+    // 90M after royalty each year, cap 40 percent recovers 36M: 210M
+    // recoverable leaves 174M, then 184M recoverable leaves 148M.
+    expect(cashFlowData[0].psc_cost_pool_after).toBeCloseTo(174_000_000, 2);
+    expect(cashFlowData[1].psc_cost_pool_after).toBeCloseTo(148_000_000, 2);
+    expect(kpis.psc_unrecovered_cost_at_cessation).toBeCloseTo(148_000_000, 2);
+
+    const half = computeCashFlow({ cfg: { ...pscCfg, psc_working_interest_pct: 50 }, ...pscBigCapex });
+    expect(half.cashFlowData[0].psc_cost_pool_after).toBeCloseTo(87_000_000, 2);
+    expect(half.kpis.psc_unrecovered_cost_at_cessation).toBeCloseTo(74_000_000, 2);
+
+    // A run that recovers everything reports a zero pool rather than nothing.
+    const recovered = computeCashFlow({ cfg: pscCfg, ...jvInput });
+    expect(recovered.kpis.psc_unrecovered_cost_at_cessation).toBe(0);
+  });
+
+  it('EC1-6: the CITA restriction carries the disallowed allowance forward, and the switch restores the old rule', () => {
+    const carry = computeCashFlow({ cfg: { ...PIA_WORKED_EXAMPLE_CFG, base_year: 2025 }, ...citInput });
+    const noCarry = computeCashFlow({
+      cfg: { ...PIA_WORKED_EXAMPLE_CFG, base_year: 2025, cit_restricted_allowance_carryforward: false },
+      ...citInput,
+    });
+    // 2025: 12,000,000 of allowance reaches the CIT computation and the two
+    // thirds cap allows 5,324,926.18 of it.
+    expect(carry.cashFlowData[0].cit_allowance_claimed).toBeCloseTo(5_324_926.18, 2);
+    expect(carry.cashFlowData[0].cit_allowance_carryforward).toBeCloseTo(6_675_073.82, 2);
+    expect(carry.cashFlowData[1].cit_allowance_claimed)
+      .toBeCloseTo(noCarry.cashFlowData[1].cit_allowance_claimed + 6_675_073.82, 2);
+    expect(carry.cashFlowData[1].cit_allowance_carryforward).toBe(0);
+
+    // NEGATIVE CONTROL: the retired rule loses the disallowed allowance, so
+    // the second year pays over a million dollars more of CIT.
+    expect(noCarry.cashFlowData[0].cit_allowance_carryforward).toBe(0);
+    expect(noCarry.cashFlowData[1].cit_tax - carry.cashFlowData[1].cit_tax).toBeGreaterThan(1_000_000);
+
+    // The published worked example is one year, so the switch cannot move it.
+    expect(runWorkedExample({ cit_restricted_allowance_carryforward: false }).kpis.npv)
+      .toBeCloseTo(runWorkedExample().kpis.npv, 6);
+  });
+
+  it('EC1-7: profitability_index is dpi plus one, and dpi keeps its published meaning', () => {
+    const { kpis } = computeCashFlow({ cfg: jvCfg, ...jvInput });
+    expect(kpis.dpi).toBeCloseTo(kpis.npv / kpis.pv_capex, 12);
+    expect(kpis.profitability_index).toBeCloseTo(1 + kpis.dpi, 12);
+    expect(kpis.profitability_index - kpis.dpi).toBeCloseTo(1, 12);
+    const noCapex = computeCashFlow({ cfg: jvCfg, ...jvInput, capexRows: [] });
+    expect(noCapex.kpis.dpi).toBeNull();
+    expect(noCapex.kpis.profitability_index).toBeNull();
   });
 });
 
@@ -1097,20 +1242,42 @@ describe('closed-form identities', () => {
     }
   });
 
-  it('PSC and PIA at working interest w scale every monetary line by w; take percent is invariant', () => {
-    for (const name of ['psc_carryforward', 'pia_worked_example', 'multiyear_pia_real']) {
+  // v3.10 (EC1-4): JV joins PSC and PIA here. Every monetary line and the
+  // volumes are the working-interest share, so take, dpi and the unit costs
+  // are all invariant in the working interest.
+  it('PSC, PIA and JV at working interest w scale every monetary line and volume by w; take and dpi are invariant', () => {
+    for (const name of ['psc_carryforward', 'pia_worked_example', 'multiyear_pia_real',
+      'jv_analytic_decision_kpis', 'multiyear_jv_real']) {
       const c = GOLDEN.cases.find((x: any) => x.name === name);
-      const key = c.cfg.fiscal_regime === 'PSC' ? 'psc_working_interest_pct' : 'pia_working_interest_pct';
+      const key = c.cfg.fiscal_regime === 'PSC' ? 'psc_working_interest_pct'
+        : c.cfg.fiscal_regime === 'PIA' ? 'pia_working_interest_pct' : 'jv_working_interest_pct';
       const full = computeCashFlow({ cfg: c.cfg, prodRows: c.prodRows, capexRows: c.capexRows, opexRows: c.opexRows });
       const part = computeCashFlow({ cfg: { ...c.cfg, [key]: 35 }, prodRows: c.prodRows, capexRows: c.capexRows, opexRows: c.opexRows });
       full.cashFlowData.forEach((row: any, i: number) => {
-        for (const k of ['gross_revenue', 'royalty', 'tax', 'net_cash_flow', 'capex', 'opex']) {
+        for (const k of ['gross_revenue', 'royalty', 'tax', 'net_cash_flow', 'capex', 'opex', 'oil_bbl']) {
           expect(part.cashFlowData[i][k]).toBeCloseTo(row[k] * 0.35, 4);
         }
       });
       expect(part.kpis.npv).toBeCloseTo(full.kpis.npv * 0.35, 4);
+      expect(part.kpis.total_boe).toBeCloseTo(full.kpis.total_boe * 0.35, 4);
       expect(part.kpis.government_take_pct).toBeCloseTo(full.kpis.government_take_pct, 8);
+      expect(part.kpis.unit_technical_cost_usd_per_boe).toBeCloseTo(full.kpis.unit_technical_cost_usd_per_boe, 8);
+      if (full.kpis.dpi !== null) expect(part.kpis.dpi).toBeCloseTo(full.kpis.dpi, 8);
     }
+  });
+
+  it('NEGATIVE CONTROL (EC1-4): the retired field-level JV row makes government take move with the working interest', () => {
+    const c = GOLDEN.cases.find((x: any) => x.name === 'jv_analytic_decision_kpis');
+    const args = { prodRows: c.prodRows, capexRows: c.capexRows, opexRows: c.opexRows };
+    const full = computeCashFlow({ cfg: c.cfg, ...args });
+    const part = computeCashFlow({ cfg: { ...c.cfg, jv_working_interest_pct: 60 }, ...args });
+    // The retired rule: revenue, capex and opex read at FIELD level against a
+    // net cash flow that is already the share. Its take counts the other
+    // partners' share of the value as government take.
+    const retiredPreTake = full.kpis.total_revenue - full.kpis.total_capex - full.kpis.total_opex;
+    const retiredTakePct = ((retiredPreTake - part.kpis.total_net_cash_flow_nominal) / retiredPreTake) * 100;
+    expect(Math.abs(retiredTakePct - part.kpis.government_take_pct)).toBeGreaterThan(1);
+    expect(part.kpis.government_take_pct).toBeCloseTo(full.kpis.government_take_pct, 8);
   });
 
   it('price royalty is continuous at every anchor and capped at 10 percent', () => {
@@ -1143,13 +1310,27 @@ describe('closed-form identities', () => {
     expect(resolveStreamPrice([], 10, 0, 2025, 2025, -20)).toBe(0);
   });
 
-  it('IRR zeroes the NPV wherever it is reported, and payback is where the cumulative first turns non-negative', () => {
+  // v3.10 (EC1-2): a reported rate is a single verified root on the engine's
+  // own year-end exponents; every other outcome is a status with the roots.
+  it('IRR is a single verified root that zeroes the NPV, and payback is where the cumulative first turns non-negative', () => {
     for (const c of GOLDEN.cases) {
       const { cashFlowData, kpis } = computeCashFlow({ cfg: c.cfg, prodRows: c.prodRows, capexRows: c.capexRows, opexRows: c.opexRows });
-      const flows = cashFlowData.filter((r: any) => r.sunk !== true).map((r: any) => r.net_cash_flow);
+      const ev = cashFlowData.filter((r: any) => r.sunk !== true);
+      const flows = ev.map((r: any) => r.net_cash_flow);
+      const times = ev.map((r: any) => r.year - ev[0].year);
+      const scale = Math.max(1, ...flows.map(Math.abs));
+      const npvAtPct = (ratePct: number) =>
+        flows.reduce((s: number, cf: number, i: number) => s + cf / Math.pow(1 + ratePct / 100, times[i]), 0);
+      expect(['ok', 'no-sign-change', 'no-root', 'above-clamp', 'multiple-roots']).toContain(kpis.irr_status);
       if (kpis.irr !== null) {
-        const f = flows.reduce((s: number, cf: number, i: number) => s + cf / Math.pow(1 + kpis.irr / 100, i), 0);
-        expect(Math.abs(f)).toBeLessThan(1e-3 * Math.max(1, ...flows.map(Math.abs)) * 1e-6 + 1);
+        expect(kpis.irr_status).toBe('ok');
+        expect(kpis.irr_roots).toBeNull();
+        expect(Math.abs(npvAtPct(kpis.irr))).toBeLessThan(1e-3 * scale * 1e-6 + 1);
+      } else if (kpis.irr_status === 'multiple-roots') {
+        expect(kpis.irr_roots.length).toBeGreaterThanOrEqual(1);
+        for (const root of kpis.irr_roots) expect(Math.abs(npvAtPct(root))).toBeLessThan(1e-6 * scale + 1);
+      } else {
+        expect(kpis.irr_roots).toBeNull();
       }
       let cum = 0;
       let expected: number | null = null;
@@ -1170,6 +1351,8 @@ describe('closed-form identities', () => {
 
 const TOL: Array<[RegExp, number | ((v: number) => number)]> = [
   [/^irr$/, 1e-4],
+  [/^irr_roots$/, 1e-6],
+  [/^profitability_index$/, 1e-8],
   [/payback_years$/, 1e-8],
   [/^(dpi|government_take_pct|government_take_pct_discounted|discount_rate_applied_pct|psc_contractor_share_pct|working_interest_pct|unit_technical_cost_usd_per_boe|opex_usd_per_boe|fx_ngn_per_usd)$/, 1e-8],
   [/^applied_.*_price$/, 1e-9],
@@ -1184,6 +1367,14 @@ const tolFor = (key: string, expected: number) => {
 const expectSame = (actual: any, expected: any, where: string) => {
   if (expected === null || expected === undefined) {
     expect(actual === null || actual === undefined).toBe(true);
+    return;
+  }
+  // v3.10: kpis.irr_roots is an array of rates, compared elementwise under
+  // the tolerance for its key.
+  if (Array.isArray(expected)) {
+    expect(Array.isArray(actual)).toBe(true);
+    expect(actual).toHaveLength(expected.length);
+    expected.forEach((v: any, i: number) => expectSame(actual[i], v, where));
     return;
   }
   if (typeof expected === 'number') {
@@ -1231,7 +1422,7 @@ describe('golden agreement: cashflow_cases.json cases', () => {
       }
     });
 
-    it('npv_profile agrees at the standard rates; the applied-rate point passes through the headline NPV or is a pinned disagreement', () => {
+    it('npv_profile agrees at the standard rates and its applied-rate point IS the headline NPV (EC1-1)', () => {
       const engineByRate = new Map(kpis.npv_profile.map((p: any) => [p.rate_pct, p.npv]));
       for (const p of exp.kpis.npv_profile) {
         if ([0, 5, 8, 10, 12, 15, 20].includes(p.rate_pct)) {
@@ -1244,17 +1435,29 @@ describe('golden agreement: cashflow_cases.json cases', () => {
       // i.e. the percent rounded to two decimals.
       const rounded = Math.round(applied * 100) / 100;
       expect(engineByRate.has(rounded)).toBe(true);
-      const pin = pinned.find((d) => d.quantity === 'kpis.npv_profile applied-rate point');
-      if (pin) {
-        // The engine's number is pinned as published; the oracle's point at
-        // the exact rate is the headline NPV; the gap is recorded.
-        expect(pin.engine.rate_pct).toBe(rounded);
-        expectSame(engineByRate.get(rounded), pin.engine.npv, `${c.name}.disagreement.engine.npv`);
-        expect(pin.oracle.npv).toBeCloseTo(exp.kpis.npv, 6);
-        expect(pin.gap).toBeCloseTo(pin.engine.npv - pin.oracle.npv, 6);
-        expect(Math.abs(pin.gap)).toBeGreaterThan(0.01);
-      } else {
-        expectSame(engineByRate.get(rounded), exp.kpis.npv, `${c.name}.kpis.npv_profile[applied].npv`);
+      // The point is evaluated at the EXACT applied rate, so it is the
+      // headline NPV of the oracle and of the engine alike.
+      expectSame(engineByRate.get(rounded), exp.kpis.npv, `${c.name}.kpis.npv_profile[applied].npv`);
+      expectSame(engineByRate.get(rounded), kpis.npv, `${c.name}.kpis.npv_profile[applied] vs headline`);
+      expect(pinned.length).toBe(0);
+
+      // NEGATIVE CONTROL: the retired rule evaluated that point at the
+      // ROUNDED rate. Wherever that number is not the headline NPV, the
+      // engine must not be reporting it.
+      if (rounded !== applied) {
+        const basisReal = (c.cfg.present_value_basis || 'real') === 'real';
+        const baseYear = c.cfg.base_year || 2027;
+        const valuationYear = kpis.valuation_year ?? baseYear;
+        const half = kpis.discounting_convention === 'mid_year' ? 0.5 : 0;
+        const atRounded = cashFlowData.filter((r: any) => r.sunk !== true).reduce((s: number, r: any) => {
+          const onBasis = basisReal
+            ? r.net_cash_flow / Math.pow(1 + (c.cfg.inflation_rate_pct || 0) / 100, r.year - baseYear)
+            : r.net_cash_flow;
+          return s + onBasis / Math.pow(1 + rounded / 100, (r.year - valuationYear) + half);
+        }, 0);
+        if (Math.abs(atRounded - kpis.npv) > 0.01) {
+          expect(Math.abs(engineByRate.get(rounded)! - atRounded)).toBeGreaterThan(0.01);
+        }
       }
     });
   });
@@ -1271,27 +1474,75 @@ describe('golden agreement: irr and payback on bare flow vectors', () => {
     flows.reduce((s: number, cf: number, i: number) => s + cf / Math.pow(1 + ratePct / 100, i), 0);
 
   it.each(GOLDEN.irr.map((e: any) => [e.name, e]))('%s', (_n: string, e: any) => {
-    const r = irr(e.flows);
-    if (e.irr_pct === null) expect(r).toBeNull();
-    else if (e.disagreement) {
-      // Multi-root profile: the engine's Newton root is pinned as published,
-      // the oracle's nearest-zero root is recorded beside it, and BOTH must
-      // zero the NPV (they are different roots of the same equation).
-      expect(r).not.toBeNull();
-      expect(Math.abs(r! * 100 - e.disagreement.engine_irr_pct)).toBeLessThanOrEqual(1e-6);
-      expect(Math.abs(e.disagreement.oracle_irr_pct - e.irr_pct)).toBeLessThanOrEqual(1e-12);
-      const scale = Math.max(...e.flows.map(Math.abs));
-      expect(Math.abs(npvAt(e.flows, r! * 100))).toBeLessThan(1e-6 * scale);
-      expect(Math.abs(npvAt(e.flows, e.irr_pct))).toBeLessThan(1e-6 * scale);
-      expect(Math.abs(r! * 100 - e.irr_pct)).toBeGreaterThan(1);
+    const res = irrResult(e.flows);
+    const scale = Math.max(...e.flows.map(Math.abs));
+    expect(res.irr_status).toBe(e.irr_status);
+    expect(res.irr_root_above_band).toBe(e.irr_root_above_band);
+    if (e.irr_pct === null) {
+      expect(res.irr).toBeNull();
+      expect(irr(e.flows)).toBeNull();
     } else {
-      expect(r).not.toBeNull();
-      expect(Math.abs(r! * 100 - e.irr_pct)).toBeLessThanOrEqual(1e-6);
+      expect(res.irr).not.toBeNull();
+      expect(res.irr_status).toBe('ok');
+      expect(Math.abs(res.irr! - e.irr_pct)).toBeLessThanOrEqual(1e-6);
+      expect(Math.abs(npvAt(e.flows, res.irr!))).toBeLessThan(1e-6 * scale);
+      expect(irr(e.flows)! * 100).toBeCloseTo(res.irr!, 9);
+    }
+    if (e.irr_roots === null) expect(res.irr_roots).toBeNull();
+    else {
+      // Every listed root is a root, and there is more than one of them or
+      // one of them shares the band with a root above it.
+      expect(res.irr_roots).toHaveLength(e.irr_roots.length);
+      e.irr_roots.forEach((root: number, i: number) => {
+        expect(Math.abs(res.irr_roots![i] - root)).toBeLessThanOrEqual(1e-6);
+        expect(Math.abs(npvAt(e.flows, res.irr_roots![i]))).toBeLessThan(1e-6 * scale);
+      });
+      expect(e.irr_roots.length > 1 || e.irr_root_above_band).toBe(true);
     }
     const p = paybackYears(e.flows);
     if (e.payback_years === null) expect(p).toBeNull();
     else expect(p).toBeCloseTo(e.payback_years, 9);
     expect(paybackPeriod(e.flows)).toBe(e.payback);
+  });
+
+  it('NEGATIVE CONTROL (EC1-2): the retired Newton-from-10-percent rule answers where the contract refuses', () => {
+    // The v3.5 rule, reproduced here and nowhere else: Newton from 10 percent,
+    // whichever root it reaches, with nothing to say the profile has others.
+    const newtonFrom10 = (flows: number[]): number | null => {
+      let r = 0.10;
+      for (let iter = 0; iter < 100; iter++) {
+        let f = 0;
+        let df = 0;
+        for (let i = 0; i < flows.length; i++) {
+          const factor = Math.pow(1 + r, i);
+          f += flows[i] / factor;
+          df -= (i * flows[i]) / (factor * (1 + r));
+        }
+        if (Math.abs(df) < 1e-12) break;
+        const rNew = r - f / df;
+        if (Math.abs(rNew - r) < 1e-7) return rNew;
+        r = Math.max(-0.99, Math.min(rNew, 10));
+      }
+      return null;
+    };
+
+    const multi = GOLDEN.irr.filter((e: any) => e.irr_status === 'multiple-roots');
+    expect(multi.length).toBeGreaterThanOrEqual(3);
+    for (const e of multi) {
+      expect(irrResult(e.flows).irr).toBeNull();
+      const retired = newtonFrom10(e.flows);
+      if (retired !== null) {
+        expect(Math.abs(npvAt(e.flows, retired * 100))).toBeLessThan(1e-4 * Math.max(...e.flows.map(Math.abs)));
+      }
+    }
+    // The published example: two roots at 2 and 6 percent. The retired rule
+    // reported 6 percent alone; the golden lists both and reports no rate.
+    const twoRoots = GOLDEN.irr.find((e: any) => e.name === 'two_roots_2_and_6');
+    expect(twoRoots.irr_pct).toBeNull();
+    expect(twoRoots.irr_roots).toHaveLength(2);
+    expect(twoRoots.irr_roots[0]).toBeCloseTo(2, 6);
+    expect(twoRoots.irr_roots[1]).toBeCloseTo(6, 6);
+    expect(newtonFrom10(twoRoots.flows)! * 100).toBeCloseTo(6, 6);
   });
 });
 
@@ -1330,8 +1581,12 @@ describe('golden agreement: sweeps', () => {
 });
 
 describe('golden disagreements are all accounted for', () => {
+  // Empty since the EC1 decisions of 2026-09-15: the npv_profile applied-rate
+  // point (EC1-1) and the multi-root IRR (EC1-2) are now engine behaviour,
+  // each with a negative control above. The shape check stays for the next
+  // disagreement.
   it('every pinned disagreement names a case in the golden, a method statement and a non-trivial gap', () => {
-    expect(GOLDEN.disagreements.length).toBeGreaterThan(0);
+    expect(Array.isArray(GOLDEN.disagreements)).toBe(true);
     for (const d of GOLDEN.disagreements) {
       const name = d.case.startsWith('irr:') ? d.case.slice(4) : d.case;
       const pool = d.case.startsWith('irr:') ? GOLDEN.irr : GOLDEN.cases;
