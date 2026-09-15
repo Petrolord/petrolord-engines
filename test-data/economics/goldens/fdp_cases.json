@@ -1,5 +1,5 @@
 {
- "description": "FDP Accelerator goldens: the FDP screening case (runFdpCase, MID-YEAR discounting at t + 0.5, TaxRoyalty terms, one-year straight-line capex), the costCalculations view of it (rows with discountedCashFlow, NPV, bisection IRR with the 2^20 cap, payback or null), scenario economics with the concept plateau-and-decline profile and the JS defaulting rules, concept cost and schedule, subsurface volumetrics (OOIP in STB from acres and ft), well times and costs, facilities capacity and cost, HSE and risk indices, the schedule (calculateProjectDuration, calculateCPM passthrough beside a REAL two-pass critical path reference, milestones) and plan completeness and validation. Independent stdlib oracle tools/validation/economics/oracle_fdp.py. Units: money $MM unless a field says USD (drilling cost); rates kbpd and $/bbl; percent inputs 0 to 100; irr in percent; payback and durations in years or days as named. A null where a number is expected is NaN or Infinity in the engine and the case note says which. Timezone assumption UTC. DISAGREEMENTS are recorded in the case (irrBeyondEngineClamp, criticalityDisagreements) and pinned in the jest gate.",
+ "description": "FDP Accelerator goldens: the FDP screening case (runFdpCase, MID-YEAR discounting at t + 0.5, TaxRoyalty terms, one-year straight-line capex), the costCalculations view of it (rows with discountedCashFlow, NPV, bisection IRR with the 2^20 cap, payback or null), scenario economics with the concept plateau-and-decline profile, refusals by name and the capex status (complete or partial, with the missing fields named), concept cost and schedule, subsurface volumetrics (OOIP in STB from acres and ft), well times and costs, facilities capacity and cost, the flow assurance score with the hazards that produced it (no band), HSE and risk indices, the schedule (calculateProjectDuration, null for an empty or undated plan; calculateCPM against a two-pass critical path reference, with the retired passthrough kept beside it; milestones) and plan completeness and validation. Independent stdlib oracle tools/validation/economics/oracle_fdp.py. Units: money $MM unless a field says USD (drilling cost); rates kbpd and $/bbl; percent inputs 0 to 100; irr in percent; payback and durations in years or days as named. A null where a number is expected is NaN or Infinity in the engine and the case note says which. Timezone assumption UTC. DISAGREEMENTS are recorded in the case (irrBeyondEngineClamp, criticalityDisagreements) and pinned in the jest gate.",
  "fdpCase": [
   {
    "name": "suite test base: 800 capex, 60 opex, 10 year profile at 75",
@@ -10554,7 +10554,9 @@
      88.8123061780184
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -10612,7 +10614,9 @@
      117.43518205355943
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -10670,7 +10674,9 @@
      59.74569925850115
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -10728,7 +10734,9 @@
      88.8123061780184
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -10786,7 +10794,9 @@
      88.8123061780184
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -10844,7 +10854,9 @@
      30.00601188286368
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    },
    "note": "EC6-0: 400 + 1200 + 300 = 1900. On the old fallback of 100 this concept showed NPV 3507.6 and IRR 676.4 percent; on its own capex it is 1791.4 and 30.0 percent."
   },
@@ -10901,12 +10913,14 @@
      30.00601188286368
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    },
    "note": "the same case entered as one figure: identical to the sum of the three fields"
   },
   {
-   "name": "only one capex field is entered",
+   "name": "only one capex field is entered: a partial capex, two fields named missing",
    "inputs": {
     "scenario": {
      "oilPrice": 75
@@ -10957,8 +10971,199 @@
      88.8123061780184
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
-   }
+    "irrNoRoot": false,
+    "capexStatus": "partial",
+    "capexMissing": [
+     "drillingCapex",
+     "subseaCapex"
+    ]
+   },
+   "note": "EC6-9: screened on 800 as before, now marked partial with drillingCapex and subseaCapex missing."
+  },
+  {
+   "name": "a partial concept: the facilities capex is left blank",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 70,
+     "discountRate": 10
+    },
+    "concept": {
+     "drillingCapex": 950,
+     "subseaCapex": 400,
+     "opex": 65,
+     "peakProduction": 150
+    }
+   },
+   "expected": {
+    "productionKbpd": [
+     150.0,
+     150.0,
+     150.0,
+     135.0,
+     121.50000000000001,
+     109.35000000000001,
+     98.415,
+     88.57350000000001,
+     79.71615000000001,
+     71.74453500000001,
+     64.57008150000001,
+     58.113073350000015,
+     52.30176601500001,
+     47.07158941350001,
+     42.36443047215002,
+     38.127987424935014,
+     34.315188682441516,
+     30.88366981419736,
+     27.795302832777622,
+     25.015772549499864
+    ],
+    "resolved": {
+     "capexMM": 1350.0,
+     "annualOpexMM": 65.0,
+     "oilPrice": 70.0,
+     "discountRate": 10.0,
+     "royaltyRate": 12.5,
+     "taxRate": 30.0
+    },
+    "npv": 10175.137633580682,
+    "irr": 154.82514995344664,
+    "payback": 1.6397251551185417,
+    "totalTax": 9310.141283576319,
+    "irrExists": true,
+    "irrRootsPercent": [
+     154.82514995344664
+    ],
+    "irrBeyondEngineClamp": false,
+    "irrNoRoot": false,
+    "capexStatus": "partial",
+    "capexMissing": [
+     "facilitiesCapex"
+    ]
+   },
+   "note": "EC6-9: 950 + 400 = 1350 is screened, marked partial with facilitiesCapex missing. The same concept with its 900 facilities capex entered is 2250 (next case). Before, the 1350 card read like a complete one."
+  },
+  {
+   "name": "the same concept with its facilities capex entered is complete",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 70,
+     "discountRate": 10
+    },
+    "concept": {
+     "drillingCapex": 950,
+     "facilitiesCapex": 900,
+     "subseaCapex": 400,
+     "opex": 65,
+     "peakProduction": 150
+    }
+   },
+   "expected": {
+    "productionKbpd": [
+     150.0,
+     150.0,
+     150.0,
+     135.0,
+     121.50000000000001,
+     109.35000000000001,
+     98.415,
+     88.57350000000001,
+     79.71615000000001,
+     71.74453500000001,
+     64.57008150000001,
+     58.113073350000015,
+     52.30176601500001,
+     47.07158941350001,
+     42.36443047215002,
+     38.127987424935014,
+     34.315188682441516,
+     30.88366981419736,
+     27.795302832777622,
+     25.015772549499864
+    ],
+    "resolved": {
+     "capexMM": 2250.0,
+     "annualOpexMM": 65.0,
+     "oilPrice": 70.0,
+     "discountRate": 10.0,
+     "royaltyRate": 12.5,
+     "taxRate": 30.0
+    },
+    "npv": 9317.021303259648,
+    "irr": 91.20047942433295,
+    "payback": 2.0662085918642363,
+    "totalTax": 9310.141283576319,
+    "irrExists": true,
+    "irrRootsPercent": [
+     91.20047942433295
+    ],
+    "irrBeyondEngineClamp": false,
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
+   },
+   "note": "EC6-9: 2250, complete, nothing missing."
+  },
+  {
+   "name": "a blank string capex field is missing",
+   "inputs": {
+    "scenario": {
+     "oilPrice": 75
+    },
+    "concept": {
+     "drillingCapex": 300,
+     "facilitiesCapex": "  ",
+     "subseaCapex": 100,
+     "opex": 60,
+     "peakProduction": 50
+    }
+   },
+   "expected": {
+    "productionKbpd": [
+     50.0,
+     50.0,
+     50.0,
+     45.0,
+     40.5,
+     36.45,
+     32.805,
+     29.524500000000003,
+     26.572050000000004,
+     23.914845000000003,
+     21.523360500000006,
+     19.371024450000004,
+     17.433922005000007,
+     15.690529804500002,
+     14.121476824050006,
+     12.709329141645004,
+     11.438396227480505,
+     10.294556604732454,
+     9.265100944259208,
+     8.338590849833288
+    ],
+    "resolved": {
+     "capexMM": 400.0,
+     "annualOpexMM": 60.0,
+     "oilPrice": 75.0,
+     "discountRate": 10.0,
+     "royaltyRate": 12.5,
+     "taxRate": 30.0
+    },
+    "npv": 3528.316265245216,
+    "irr": 181.85066225116117,
+    "payback": 1.5460867339320377,
+    "totalTax": 3124.8655722477893,
+    "irrExists": true,
+    "irrRootsPercent": [
+     181.85066225116117
+    ],
+    "irrBeyondEngineClamp": false,
+    "irrNoRoot": false,
+    "capexStatus": "partial",
+    "capexMissing": [
+     "facilitiesCapex"
+    ]
+   },
+   "note": "EC6-9: whitespace is blank, so facilitiesCapex is named missing and the capex is 400."
   },
   {
    "name": "string fields parse",
@@ -11015,7 +11220,9 @@
      66.12240500895517
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -11074,7 +11281,9 @@
      88.8123061780184
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    },
    "note": "EC6-0: a blank fiscal field is absent, so it takes DEFAULT_FISCAL. It used to be read as a zero rate, which put NPV 5928.2 on a case with no royalty and no tax."
   },
@@ -11134,7 +11343,9 @@
      88.8123061780184
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -11189,9 +11400,11 @@
     "irrExists": false,
     "irrRootsPercent": null,
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    },
-   "note": "EC6-0: 0 is a value. It used to be replaced by the 100 default, so a zero could not be entered."
+   "note": "EC6-0: 0 is a value. It used to be replaced by the 100 default, so a zero could not be entered. EC6-9: three typed zeros are a complete capex."
   },
   {
    "name": "a zero oil price a user actually typed is honoured",
@@ -11245,7 +11458,9 @@
     "irrExists": false,
     "irrRootsPercent": null,
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    },
    "note": "EC6-0: it used to become 70 while the card printed \"$0/bbl\"."
   },
@@ -11292,7 +11507,9 @@
      40.51518579184309
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -11348,7 +11565,9 @@
      69.88943938634968
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -11404,7 +11623,9 @@
      138.99671475480795
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -11460,7 +11681,9 @@
      118.1681849761397
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -11515,7 +11738,9 @@
     "irrExists": true,
     "irrRootsPercent": null,
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": true
+    "irrNoRoot": true,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   },
   {
@@ -11573,7 +11798,9 @@
      88.8123061780184
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    }
   }
  ],
@@ -14120,7 +14347,20 @@
     },
     "expected": {
      "score": 3,
-     "level": "Medium",
+     "hazards": [
+      "Hydrates",
+      "Wax"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14133,7 +14373,11 @@
        "mitigation": "Insulation"
       }
      ]
-    }
+    },
+    "retired": {
+     "level": "Medium"
+    },
+    "note": "EC6-2: score 3 from a subsea tie-back. The retired band called it Medium; the risk register reads a score of 3 as Low. The result now carries the score and its hazards and no band."
    },
    {
     "inputs": {
@@ -14144,7 +14388,20 @@
     },
     "expected": {
      "score": 3,
-     "level": "Medium",
+     "hazards": [
+      "Hydrates",
+      "Wax"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14157,6 +14414,9 @@
        "mitigation": "Insulation"
       }
      ]
+    },
+    "retired": {
+     "level": "Medium"
     }
    },
    {
@@ -14170,7 +14430,20 @@
     },
     "expected": {
      "score": 3,
-     "level": "Medium",
+     "hazards": [
+      "Hydrates",
+      "Wax"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14183,6 +14456,9 @@
        "mitigation": "Insulation"
       }
      ]
+    },
+    "retired": {
+     "level": "Medium"
     }
    },
    {
@@ -14196,7 +14472,28 @@
     },
     "expected": {
      "score": 5,
-     "level": "Medium",
+     "hazards": [
+      "Hydrates",
+      "Wax",
+      "Viscosity"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      },
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14214,6 +14511,9 @@
        "mitigation": "Heating"
       }
      ]
+    },
+    "retired": {
+     "level": "Medium"
     }
    },
    {
@@ -14228,7 +14528,28 @@
     },
     "expected": {
      "score": 5,
-     "level": "Medium",
+     "hazards": [
+      "Hydrates",
+      "Wax",
+      "Viscosity"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      },
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14246,6 +14567,9 @@
        "mitigation": "Heating"
       }
      ]
+    },
+    "retired": {
+     "level": "Medium"
     }
    },
    {
@@ -14260,7 +14584,28 @@
     },
     "expected": {
      "score": 7,
-     "level": "High",
+     "hazards": [
+      "Hydrates",
+      "Wax",
+      "Corrosion"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      },
+      {
+       "trigger": "H2S present",
+       "points": 4,
+       "hazards": [
+        "Corrosion"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14278,6 +14623,9 @@
        "mitigation": "CRA Materials"
       }
      ]
+    },
+    "retired": {
+     "level": "High"
     }
    },
    {
@@ -14292,7 +14640,36 @@
     },
     "expected": {
      "score": 9,
-     "level": "High",
+     "hazards": [
+      "Hydrates",
+      "Wax",
+      "Viscosity",
+      "Corrosion"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      },
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      },
+      {
+       "trigger": "H2S present",
+       "points": 4,
+       "hazards": [
+        "Corrosion"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14315,6 +14692,9 @@
        "mitigation": "CRA Materials"
       }
      ]
+    },
+    "retired": {
+     "level": "High"
     }
    },
    {
@@ -14328,7 +14708,28 @@
     },
     "expected": {
      "score": 5,
-     "level": "Medium",
+     "hazards": [
+      "Hydrates",
+      "Wax",
+      "Viscosity"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      },
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14346,6 +14747,9 @@
        "mitigation": "Heating"
       }
      ]
+    },
+    "retired": {
+     "level": "Medium"
     }
    },
    {
@@ -14359,7 +14763,28 @@
     },
     "expected": {
      "score": 5,
-     "level": "Medium",
+     "hazards": [
+      "Hydrates",
+      "Wax",
+      "Viscosity"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      },
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14377,6 +14802,9 @@
        "mitigation": "Heating"
       }
      ]
+    },
+    "retired": {
+     "level": "Medium"
     }
    },
    {
@@ -14390,7 +14818,28 @@
     },
     "expected": {
      "score": 7,
-     "level": "High",
+     "hazards": [
+      "Hydrates",
+      "Wax",
+      "Corrosion"
+     ],
+     "contributions": [
+      {
+       "trigger": "Subsea tie-back",
+       "points": 3,
+       "hazards": [
+        "Hydrates",
+        "Wax"
+       ]
+      },
+      {
+       "trigger": "H2S present",
+       "points": 4,
+       "hazards": [
+        "Corrosion"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Hydrates",
@@ -14408,6 +14857,9 @@
        "mitigation": "CRA Materials"
       }
      ]
+    },
+    "retired": {
+     "level": "High"
     }
    },
    {
@@ -14419,8 +14871,12 @@
     },
     "expected": {
      "score": 0,
-     "level": "Low",
+     "hazards": [],
+     "contributions": [],
      "risks": []
+    },
+    "retired": {
+     "level": "Low"
     }
    },
    {
@@ -14432,8 +14888,12 @@
     },
     "expected": {
      "score": 0,
-     "level": "Low",
+     "hazards": [],
+     "contributions": [],
      "risks": []
+    },
+    "retired": {
+     "level": "Low"
     }
    },
    {
@@ -14447,8 +14907,12 @@
     },
     "expected": {
      "score": 0,
-     "level": "Low",
+     "hazards": [],
+     "contributions": [],
      "risks": []
+    },
+    "retired": {
+     "level": "Low"
     }
    },
    {
@@ -14462,7 +14926,18 @@
     },
     "expected": {
      "score": 2,
-     "level": "Low",
+     "hazards": [
+      "Viscosity"
+     ],
+     "contributions": [
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Viscosity",
@@ -14470,6 +14945,9 @@
        "mitigation": "Heating"
       }
      ]
+    },
+    "retired": {
+     "level": "Low"
     }
    },
    {
@@ -14484,7 +14962,18 @@
     },
     "expected": {
      "score": 2,
-     "level": "Low",
+     "hazards": [
+      "Viscosity"
+     ],
+     "contributions": [
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Viscosity",
@@ -14492,6 +14981,9 @@
        "mitigation": "Heating"
       }
      ]
+    },
+    "retired": {
+     "level": "Low"
     }
    },
    {
@@ -14506,7 +14998,18 @@
     },
     "expected": {
      "score": 4,
-     "level": "Medium",
+     "hazards": [
+      "Corrosion"
+     ],
+     "contributions": [
+      {
+       "trigger": "H2S present",
+       "points": 4,
+       "hazards": [
+        "Corrosion"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Corrosion",
@@ -14514,6 +15017,9 @@
        "mitigation": "CRA Materials"
       }
      ]
+    },
+    "retired": {
+     "level": "Medium"
     }
    },
    {
@@ -14528,7 +15034,26 @@
     },
     "expected": {
      "score": 6,
-     "level": "High",
+     "hazards": [
+      "Viscosity",
+      "Corrosion"
+     ],
+     "contributions": [
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      },
+      {
+       "trigger": "H2S present",
+       "points": 4,
+       "hazards": [
+        "Corrosion"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Viscosity",
@@ -14541,6 +15066,9 @@
        "mitigation": "CRA Materials"
       }
      ]
+    },
+    "retired": {
+     "level": "High"
     }
    },
    {
@@ -14554,7 +15082,18 @@
     },
     "expected": {
      "score": 2,
-     "level": "Low",
+     "hazards": [
+      "Viscosity"
+     ],
+     "contributions": [
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Viscosity",
@@ -14562,6 +15101,9 @@
        "mitigation": "Heating"
       }
      ]
+    },
+    "retired": {
+     "level": "Low"
     }
    },
    {
@@ -14575,7 +15117,18 @@
     },
     "expected": {
      "score": 2,
-     "level": "Low",
+     "hazards": [
+      "Viscosity"
+     ],
+     "contributions": [
+      {
+       "trigger": "Oil below 25 API",
+       "points": 2,
+       "hazards": [
+        "Viscosity"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Viscosity",
@@ -14583,6 +15136,9 @@
        "mitigation": "Heating"
       }
      ]
+    },
+    "retired": {
+     "level": "Low"
     }
    },
    {
@@ -14596,7 +15152,18 @@
     },
     "expected": {
      "score": 4,
-     "level": "Medium",
+     "hazards": [
+      "Corrosion"
+     ],
+     "contributions": [
+      {
+       "trigger": "H2S present",
+       "points": 4,
+       "hazards": [
+        "Corrosion"
+       ]
+      }
+     ],
      "risks": [
       {
        "type": "Corrosion",
@@ -14604,6 +15171,9 @@
        "mitigation": "CRA Materials"
       }
      ]
+    },
+    "retired": {
+     "level": "Medium"
     }
    }
   ],
@@ -15519,6 +16089,7 @@
    ],
    "expected": {
     "projectDuration": null,
+    "retiredProjectDuration": null,
     "retiredPassthrough": [
      {
       "id": "A",
@@ -15722,6 +16293,7 @@
    ],
    "expected": {
     "projectDuration": null,
+    "retiredProjectDuration": null,
     "retiredPassthrough": [
      {
       "id": "act-1",
@@ -15900,6 +16472,7 @@
    ],
    "expected": {
     "projectDuration": 181.0,
+    "retiredProjectDuration": 181.0,
     "retiredPassthrough": [
      {
       "id": "a",
@@ -16037,6 +16610,7 @@
    ],
    "expected": {
     "projectDuration": null,
+    "retiredProjectDuration": null,
     "retiredPassthrough": [
      {
       "id": "p",
@@ -16186,6 +16760,7 @@
    ],
    "expected": {
     "projectDuration": null,
+    "retiredProjectDuration": null,
     "retiredPassthrough": [
      {
       "id": "A",
@@ -16361,6 +16936,7 @@
    ],
    "expected": {
     "projectDuration": null,
+    "retiredProjectDuration": null,
     "retiredPassthrough": [
      {
       "id": "n0",
@@ -16597,6 +17173,7 @@
    ],
    "expected": {
     "projectDuration": null,
+    "retiredProjectDuration": null,
     "retiredPassthrough": [
      {
       "id": "w0",
@@ -16686,13 +17263,15 @@
    }
   },
   {
-   "name": "empty schedule",
+   "name": "empty schedule: no window, so the duration is null",
    "inputs": [],
    "expected": {
-    "projectDuration": 0.0,
+    "projectDuration": null,
+    "retiredProjectDuration": 0.0,
     "retiredPassthrough": [],
     "milestones": []
-   }
+   },
+   "note": "EC6-4: a plan with no activities has no window, the same unknown as a plan with no dates. calculateProjectDuration used to return 0 here, which reads as a zero-day window."
   },
   {
    "name": "a dependency on an activity that is not in the schedule",
@@ -18481,7 +19060,8 @@
      },
      "flowAssurance": {
       "score": 0,
-      "level": "Low",
+      "hazards": [],
+      "contributions": [],
       "risks": []
      },
      "bottlenecks": []
@@ -18501,7 +19081,8 @@
      },
      "flowAssurance": {
       "score": 0,
-      "level": "Low",
+      "hazards": [],
+      "contributions": [],
       "risks": []
      },
      "bottlenecks": [
@@ -18525,7 +19106,20 @@
      },
      "flowAssurance": {
       "score": 3,
-      "level": "Medium",
+      "hazards": [
+       "Hydrates",
+       "Wax"
+      ],
+      "contributions": [
+       {
+        "trigger": "Subsea tie-back",
+        "points": 3,
+        "hazards": [
+         "Hydrates",
+         "Wax"
+        ]
+       }
+      ],
       "risks": [
        {
         "type": "Hydrates",
@@ -18776,7 +19370,9 @@
      138.99671475480795
     ],
     "irrBeyondEngineClamp": false,
-    "irrNoRoot": false
+    "irrNoRoot": false,
+    "capexStatus": "complete",
+    "capexMissing": []
    },
    "sensitivity": [
     {

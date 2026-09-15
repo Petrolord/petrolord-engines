@@ -484,14 +484,25 @@ CAPEX_PARTS = [('drillingCapex', 'the drilling capex'),
 def concept_capex(concept):
     """EC6-0: the concept form collects drilling, facilities and subsea
     capex. The engine used to read `concept.capex`, a field no form has
-    ever written, and priced every scenario at the 100 fallback."""
+    ever written, and priced every scenario at the 100 fallback.
+
+    EC6-9 method statement: a caller's total `capex` is a complete figure.
+    Otherwise the capex is what the entered fields add to; with none entered
+    the concept is refused; with some entered it is still screened, as a
+    PARTIAL capex, and the blank fields are named in the form's order. A
+    typed zero is entered."""
     concept = concept or {}
     if not is_blank(concept.get('capex')):
-        return require_number(concept.get('capex'), 'the concept capex', True)
-    given = [(k, label) for k, label in CAPEX_PARTS if not is_blank(concept.get(k))]
-    if not given:
+        return {'capexMM': require_number(concept.get('capex'), 'the concept capex', True),
+                'capexStatus': 'complete', 'capexMissing': []}
+    entered = {k: label for k, label in CAPEX_PARTS if not is_blank(concept.get(k))}
+    if not entered:
         raise Refused('the concept carries no capex: enter a drilling, facilities or subsea capex')
-    return sum(require_number(concept.get(k), label, True) for k, label in given)
+    total = 0.0
+    for k, label in entered.items():
+        total += require_number(concept.get(k), label, True)
+    missing = [k for k, _ in CAPEX_PARTS if k not in entered]
+    return {'capexMM': total, 'capexStatus': 'partial' if missing else 'complete', 'capexMissing': missing}
 
 
 def run_scenario(scenario, concept):
@@ -500,7 +511,8 @@ def run_scenario(scenario, concept):
     given = concept.get('productionProfileKbpd')
     prod = list(given) if given else concept_profile(concept)
     price = require_number(scenario.get('oilPrice'), 'the scenario oil price', True)
-    capex = concept_capex(concept)
+    capex_info = concept_capex(concept)
+    capex = capex_info['capexMM']
     opex = require_number(concept.get('opex'), 'the concept annual operating cost', True)
     fiscal = {
         'discountRate': DEFAULT_FISCAL['discountRate'] if is_blank(scenario.get('discountRate')) else require_number(scenario.get('discountRate'), 'the scenario discount rate'),
@@ -514,7 +526,8 @@ def run_scenario(scenario, concept):
             'npv': res['metrics']['npv'], 'irr': res['metrics']['irr'],
             'payback': res['paybackYears'], 'totalTax': res['metrics']['totalTax'],
             'irrExists': res['irrExists'], 'irrRootsPercent': res['irrRootsPercent'],
-            'irrBeyondEngineClamp': res['irrBeyondEngineClamp'], 'irrNoRoot': res['irrNoRoot']}
+            'irrBeyondEngineClamp': res['irrBeyondEngineClamp'], 'irrNoRoot': res['irrNoRoot'],
+            'capexStatus': capex_info['capexStatus'], 'capexMissing': capex_info['capexMissing']}
 
 
 def screening_npv(oil_bbl, price, opex_fixed, opex_var, capex, terms):
@@ -751,28 +764,48 @@ def facility_cost(f):
     return {'capex': sized_capex, 'opex': opex * size ** 0.6, 'decommissioning': sized_capex * 0.15}
 
 
-def flow_assurance(f, fluid):
-    score, risks = 0, []
-    if f.get('type') == 'Subsea Tie-back':
-        score += 3
-        risks.append({'type': 'Hydrates', 'severity': 'High', 'mitigation': 'MEG Injection'})
-        risks.append({'type': 'Wax', 'severity': 'Medium', 'mitigation': 'Insulation'})
-    api = None if fluid is None else fluid.get('api', '__undefined__')
-    # `api < 25` in JS: undefined is false, null is 0 (true), a numeric string converts.
-    if api is not None and api != '__undefined__':
-        a = js_number(api)
-        if a == a and a < 25:
-            score += 2
-            risks.append({'type': 'Viscosity', 'severity': 'Medium', 'mitigation': 'Heating'})
-    elif api is None and fluid is not None:
-        score += 2
-        risks.append({'type': 'Viscosity', 'severity': 'Medium', 'mitigation': 'Heating'})
+# EC6-2 method statement. The screen scores three triggers and names what
+# each one raises: a subsea tie-back (3 points; hydrates and wax), oil below
+# 25 API (2 points; viscosity), H2S present (4 points; corrosion). The answer
+# is the score and the hazards behind it. There is no band: Low, Medium and
+# High are the risk register's words for probability x impact, a different
+# quantity, and the retired band read a score of 3 as Medium where the
+# register reads 3 as Low.
+FLOW_TRIGGERS = [
+    ('Subsea tie-back', 3, [('Hydrates', 'High', 'MEG Injection'), ('Wax', 'Medium', 'Insulation')]),
+    ('Oil below 25 API', 2, [('Viscosity', 'Medium', 'Heating')]),
+    ('H2S present', 4, [('Corrosion', 'High', 'CRA Materials')]),
+]
+
+
+def _flow_trigger_fires(label, f, fluid):
+    if label == 'Subsea tie-back':
+        return f.get('type') == 'Subsea Tie-back'
+    if label == 'Oil below 25 API':
+        # `api < 25` in JS: undefined is false, null is 0 (true), a numeric string converts.
+        if fluid is None or 'api' not in fluid:
+            return False
+        if fluid['api'] is None:
+            return True
+        a = js_number(fluid['api'])
+        return a == a and a < 25
     h2s = 0.0 if fluid is None else or_default(fluid.get('h2s'), 0.0)
-    if js_number(h2s) > 0:
-        score += 4
-        risks.append({'type': 'Corrosion', 'severity': 'High', 'mitigation': 'CRA Materials'})
-    level = 'High' if score > 5 else 'Medium' if score > 2 else 'Low'
-    return {'score': score, 'level': level, 'risks': risks}
+    return js_number(h2s) > 0
+
+
+def flow_assurance(f, fluid):
+    fired = [(label, pts, hz) for label, pts, hz in FLOW_TRIGGERS if _flow_trigger_fires(label, f, fluid)]
+    risks = [{'type': t, 'severity': sev, 'mitigation': m} for _, _, hz in fired for t, sev, m in hz]
+    return {'score': sum(pts for _, pts, _ in fired),
+            'hazards': [t for _, _, hz in fired for t, _, _ in hz],
+            'contributions': [{'trigger': label, 'points': pts, 'hazards': [t for t, _, _ in hz]}
+                              for label, pts, hz in fired],
+            'risks': risks}
+
+
+def retired_flow_assurance_level(score):
+    """The band EC6-2 retired: High above 5, Medium above 2, Low otherwise."""
+    return 'High' if score > 5 else 'Medium' if score > 2 else 'Low'
 
 
 def bottlenecks(f, peak):
@@ -953,14 +986,21 @@ def project_duration(acts):
     """EC6-0: whole CALENDAR days from the earliest start to the latest end,
     and None (not NaN) when any activity has no readable start or end. The
     old engine subtracted timestamps, so a span across a daylight-saving
-    change counted one day fewer west of Greenwich than it did in UTC."""
+    change counted one day fewer west of Greenwich than it did in UTC.
+
+    EC6-4: an empty plan has no window, so it is None like an undated one."""
     if not acts:
-        return 0.0
+        return None
     ends = [js_date_ms(a.get('endDate')) for a in acts]
     starts = [js_date_ms(a.get('startDate')) for a in acts]
     if any(x != x for x in ends + starts):
         return None
     return (max(ends) - min(starts)) / 86400000.0
+
+
+def retired_project_duration(acts):
+    """The rule EC6-4 retired: an empty plan was a window of 0 days."""
+    return 0.0 if not acts else project_duration(acts)
 
 
 def cpm_passthrough(acts):
@@ -1309,7 +1349,20 @@ def scenario_cases():
     add('a total capex field is taken as the total', {'oilPrice': 70, 'discountRate': 10},
         {'capex': 1900, 'opex': 60, 'peakProduction': 50},
         note='the same case entered as one figure: identical to the sum of the three fields')
-    add('only one capex field is entered', {'oilPrice': 75}, {'facilitiesCapex': 800, 'opex': 60, 'peakProduction': 50})
+    add('only one capex field is entered: a partial capex, two fields named missing', {'oilPrice': 75},
+        {'facilitiesCapex': 800, 'opex': 60, 'peakProduction': 50},
+        note='EC6-9: screened on 800 as before, now marked partial with drillingCapex and subseaCapex missing.')
+    add('a partial concept: the facilities capex is left blank', {'oilPrice': 70, 'discountRate': 10},
+        {'drillingCapex': 950, 'subseaCapex': 400, 'opex': 65, 'peakProduction': 150},
+        note='EC6-9: 950 + 400 = 1350 is screened, marked partial with facilitiesCapex missing. The same '
+             'concept with its 900 facilities capex entered is 2250 (next case). Before, the 1350 card read '
+             'like a complete one.')
+    add('the same concept with its facilities capex entered is complete', {'oilPrice': 70, 'discountRate': 10},
+        {'drillingCapex': 950, 'facilitiesCapex': 900, 'subseaCapex': 400, 'opex': 65, 'peakProduction': 150},
+        note='EC6-9: 2250, complete, nothing missing.')
+    add('a blank string capex field is missing', {'oilPrice': 75},
+        {'drillingCapex': 300, 'facilitiesCapex': '  ', 'subseaCapex': 100, 'opex': 60, 'peakProduction': 50},
+        note='EC6-9: whitespace is blank, so facilitiesCapex is named missing and the capex is 400.')
     add('string fields parse', {'oilPrice': '80', 'discountRate': '8', 'royaltyRate': '10', 'taxRate': '25'},
         {'capex': '1000', 'opex': '50', 'peakProduction': '40'})
     add('blank rate strings take the stated default', {'oilPrice': 75, 'royaltyRate': '', 'taxRate': ''}, concept,
@@ -1318,7 +1371,8 @@ def scenario_cases():
     add('null rates take the stated default', {'oilPrice': 75, 'royaltyRate': None, 'taxRate': None}, concept)
     add('a zero capex a user actually typed is honoured', {'oilPrice': 75},
         {'drillingCapex': 0, 'facilitiesCapex': 0, 'subseaCapex': 0, 'opex': 0, 'peakProduction': 10},
-        note='EC6-0: 0 is a value. It used to be replaced by the 100 default, so a zero could not be entered.')
+        note='EC6-0: 0 is a value. It used to be replaced by the 100 default, so a zero could not be entered. '
+             'EC6-9: three typed zeros are a complete capex.')
     add('a zero oil price a user actually typed is honoured', {'oilPrice': 0}, concept,
         note='EC6-0: it used to become 70 while the card printed "$0/bbl".')
     add('explicit production profile overrides the concept shape', {'oilPrice': 75},
@@ -1494,7 +1548,14 @@ def facility_cases():
     fluids = [None, {}, {'api': 35}, {'api': 20}, {'api': 20, 'h2s': 0}, {'api': 30, 'h2s': 50}, {'api': 18, 'h2s': 100}, {'api': None}, {'api': '22'}, {'h2s': '5'}]
     for f in [{'type': 'Subsea Tie-back'}, {'type': 'FPSO'}]:
         for fl in fluids:
-            fa.append({'inputs': {'facility': f, 'fluidProperties': fl}, 'expected': flow_assurance(f, fl)})
+            e = flow_assurance(f, fl)
+            case = {'inputs': {'facility': f, 'fluidProperties': fl}, 'expected': e,
+                    'retired': {'level': retired_flow_assurance_level(e['score'])}}
+            if e['score'] == 3 and fl is None:
+                case['note'] = ('EC6-2: score 3 from a subsea tie-back. The retired band called it Medium; the '
+                                'risk register reads a score of 3 as %s. The result now carries the score and '
+                                'its hazards and no band.' % risk_level(3))
+            fa.append(case)
     for f, peak in [
         (EXAMPLE_FACILITIES[0], {'oil': 160000, 'gas': 200000, 'water': 100000}),
         (EXAMPLE_FACILITIES[1], {'oil': 40000, 'gas': 80000, 'water': 50000}),
@@ -1623,9 +1684,12 @@ def schedule_cases():
         ('diamond with two equal critical paths (a tie)', diamond, 'both A-B-D and A-C-D are critical; the oracle lists both.'),
         ('twelve activity chain', chain, None),
         ('four independent activities, all critical', parallel, None),
-        ('empty schedule', [], None),
+        ('empty schedule: no window, so the duration is null', [],
+         'EC6-4: a plan with no activities has no window, the same unknown as a plan with no dates. '
+         'calculateProjectDuration used to return 0 here, which reads as a zero-day window.'),
     ]:
-        exp = {'projectDuration': project_duration(acts), 'retiredPassthrough': cpm_passthrough(acts),
+        exp = {'projectDuration': project_duration(acts), 'retiredProjectDuration': retired_project_duration(acts),
+               'retiredPassthrough': cpm_passthrough(acts),
                'milestones': milestones(acts)}
         if acts:
             ref = cpm_reference(acts)
@@ -1751,10 +1815,13 @@ def main():
             'FDP Accelerator goldens: the FDP screening case (runFdpCase, MID-YEAR discounting at t + 0.5, '
             'TaxRoyalty terms, one-year straight-line capex), the costCalculations view of it (rows with '
             'discountedCashFlow, NPV, bisection IRR with the 2^20 cap, payback or null), scenario economics with '
-            'the concept plateau-and-decline profile and the JS defaulting rules, concept cost and schedule, '
+            'the concept plateau-and-decline profile, refusals by name and the capex status (complete or partial, '
+            'with the missing fields named), concept cost and schedule, '
             'subsurface volumetrics (OOIP in STB from acres and ft), well times and costs, facilities capacity '
-            'and cost, HSE and risk indices, the schedule (calculateProjectDuration, calculateCPM passthrough '
-            'beside a REAL two-pass critical path reference, milestones) and plan completeness and validation. '
+            'and cost, the flow assurance score with the hazards that produced it (no band), HSE and risk '
+            'indices, the schedule (calculateProjectDuration, null for an empty or undated plan; calculateCPM '
+            'against a two-pass critical path reference, with the retired passthrough kept beside it; '
+            'milestones) and plan completeness and validation. '
             'Independent stdlib oracle tools/validation/economics/oracle_fdp.py. Units: money $MM unless a field '
             'says USD (drilling cost); rates kbpd and $/bbl; percent inputs 0 to 100; irr in percent; payback '
             'and durations in years or days as named. A null where a number is expected is NaN or Infinity in '
