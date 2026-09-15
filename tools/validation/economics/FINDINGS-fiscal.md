@@ -128,6 +128,22 @@ only, as its label says.
 
 ### F1. The capex sensitivity stops at 1.4, not the documented 1.5
 
+**FIXED 2026-09-15 (EC2-3, owner decision.)** The sweep runs on an integer
+step count, `CAPEX_SWEEP_MULTIPLIERS`, eight points built as (8 + k) / 10:
+0.8, 0.9, ... 1.5 exactly. Every swept value, the resilience verdict and its
+sentence now re-derive from eight points, and the golden carries one capex
+sweep rather than two readings of it (`insightsAsEngine`, `engineCapexPoints`
+and `capexLossesAsEngine` are retired; the losses are `capexLosses`). On the
+Designer's default comparison the verdict now reads 163.4 million USD for the
+PIA regime and 194.7 for the concession. The gate pins the multipliers, pins
+every swept value against the engine called directly at that multiplier, and
+keeps the retired accumulating loop as a negative control: it yields seven
+points ending at 1.4000000000000004 and never reaches 1.5. The published
+endpoint ledgers `capex_0.8_pia_default` and `capex_1.5_pia_default` are cases
+of their own.
+
+The text below is the finding as recorded.
+
 `for (let multiplier = 0.8; multiplier <= 1.5; multiplier += 0.1)`
 accumulates in floating point: 1.2000000000000002, 1.3000000000000003,
 1.4000000000000004, and then 1.5000000000000004 fails `<= 1.5`. The sweep
@@ -178,7 +194,7 @@ regimes give up 10909.0909 $MM, differing in the fifteenth figure) the
 strict `<` reduce in deriveInsights names whichever regime's floating point
 noise happened to be smallest. The engine names "USA - Gulf of Mexico",
 the oracle's arithmetic names "Brazil - Concession"; neither is a result.
-The golden carries the ranked quantities (`capexLossesAsEngine`,
+The golden carries the ranked quantities (`capexLosses`,
 `priceClimbs`) and the gate treats a tie as a tie. The PRICE half is closed
 by EC2-1 below: a lead under one percentage point now declines to rank, so
 noise can no longer name a winner there.
@@ -233,10 +249,13 @@ rather than a defect at real project scale.
 
 ### F5. Observations, no numerical disagreement
 
-- The RRT uplift is `totalCapex * rrtUpliftPct / 100` deducted EVERY
-  year of the 25 year life, so at the default 20 percent the uplift over
-  the life is five times the capex. The engine calls this a screening
-  approximation; the oracle implements it as stated.
+- **FIXED 2026-09-15 (EC2-6, owner decision.)** The RRT uplift was
+  `totalCapex * rrtUpliftPct / 100` deducted EVERY year of the 25 year
+  life, so at the default 20 percent the relief over the life was five
+  times the capex. The engine called this a screening approximation; the
+  parameter name did not. It now sizes a ONE-TIME uplifted cost pool,
+  capex times (1 + rrtUpliftPct / 100), drawn down against the RRT base
+  year by year until it is exhausted, and never refilled. See EC2-6 below.
 - The R-factor is a ratio of cumulatives and is not monotone: on
   `rfactor_falls_back` it rises past 2.5 (split 30) and then falls back
   below it in year 23 as revenue declines while opex accrues, and the
@@ -263,8 +282,30 @@ implements each rule from its statement.
   that field, null where it is null. The gate recomputes the legacy formula on
   every comparison golden: no defined value moved (1e-9), and only the old
   zeros become null.
+- **EC2-3.** The capex sweep accumulated 0.1 from 0.8 and stopped at 1.4 while
+  its axis and its verdict said 1.5. It runs eight points on an integer step
+  count now. Fixed as F1 above.
 - **EC2-4.** The capex verdict ranked ties with a strict reduce. Fixed as F3
   above.
+- **EC2-6.** The RRT capital uplift was deducted in all 25 years. The uplift
+  now sizes one pool, capex times (1 + uplift), and the relief in a year is the
+  lesser of the contractor profit share and what is left of that pool, so the
+  relief over the life can never exceed the pool. The base before relief is the
+  contractor profit share, the CIT base: revenue after royalty, after cost
+  recovery and after the profit split, with nothing else deducted from it. The
+  pool is drawn in every year whose base is positive whatever the RRT rate and
+  whether or not the minimum tax binds, and `calculateCashFlowForRegime` now
+  carries the parameter documentation (`rrtUpliftPct` is not an annual
+  allowance; 0 is respected and still relieves the capex once). This moves the
+  Brazil (rrt 40) and Angola (rrt 50) templates and the Designer's default PIA
+  regime (rrt 20): on the default project the Brazil RRT alone goes from 62.58
+  to 350.72 million USD over the life and its first charged year from 4 to 7.
+  Goldens `rrt_pool_never_exhausted`, `rrt_pool_with_minimum_tax`,
+  `rrt_absent_uplift_has_no_effect`, and the recut notes on
+  `rrt_uplift_default_20` and `rrt_uplift_zero_respected`; oracle columns
+  `rrtUpliftRelief`, `rrtUpliftPoolRemaining` and `rrtUpliftPoolOpened` on
+  every row. The negative control recomputes the retired annual rule on the
+  engine's own rows: five times the capex relieved, and less tax charged.
 - **EC2-5.** `calculateIRR` returned 0 for a flow that never changes sign and
   for one whose only root is negative, and reported its 102400 percent bracket
   as a rate. The screening engine's EC6-1 contract now serves both engines
