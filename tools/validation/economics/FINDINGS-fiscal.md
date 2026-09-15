@@ -297,27 +297,38 @@ implements each rule from its statement.
   golden group `moneyFormat` pins it and a gate refuses "$" and "MM" in every
   golden sentence.
 
-### Open after EC2-5, for the owner
+### Decided after EC2-5 (lead, delegated by the owner, 2026-09-15)
 
-1. **Most test-project IRRs are now null 'multiple-roots'.** The sandbox runs a
-   fixed 25 year life with no economic limit, so on the Suite test project
-   (fixed opex 60) late contractor cash flow turns negative and the NPV is
-   zero at a second, negative rate as well as the familiar one:
-   `flat_test_project` at -20.4061 and 124.5777 percent. 18 cash flow goldens,
-   `price_40_pia_default`, and all eight regimes in
-   `cmp_all_templates_test_project` and `cmp_flat_vs_complex` moved from a rate
-   to null with both roots listed; in every one the old IRR is one of the
-   listed roots, unchanged to 1e-6. The Designer's default project keeps its
-   rates at the deck price (23 goldens unchanged), but at 35 and 40 USD per bbl
-   (`price_below_every_threshold`, `price_40_pia_default`) it too has two
-   roots. An economic-limit truncation, or a rule that picks the root a user
-   means, is an owner call.
-2. **One root in the band is reported even when another lies above it.**
-   `capex_multiplier_0_7` has roots at -20.4852 and 1095.4783 percent. The
-   contract reports the one inside the band, so the IRR reads -20.4852 with
-   status 'ok' where the retired bisection read 1095.4783. The screening
-   engine has the same rule; no screening golden exercises it today (checked
-   2026-09-15). Pinned by the gate "OPEN (recorded)".
+1. **Null 'multiple-roots' IRRs on the fixed 25 year projects: the contract is
+   KEPT.** The sandbox runs a fixed 25 year life with no economic limit, so on
+   the Suite test project (fixed opex 60) late contractor cash flow turns
+   negative and the NPV is zero at a second, negative rate as well as the
+   familiar one: `flat_test_project` at -20.4061 and 124.5777 percent. 18 cash
+   flow goldens, `price_40_pia_default`, and all eight regimes in
+   `cmp_all_templates_test_project` and `cmp_flat_vs_complex` read null with
+   both roots listed; in every one the old IRR is one of the listed roots,
+   unchanged to 1e-6. The Designer's default project keeps its rates at the
+   deck price, but at 35 and 40 USD per bbl it too has two roots. Honest and
+   consistent with screening; the summary carries `irrRoots` and the contractor
+   sentence prints them. An economic limit would move graded EC2 values and is
+   a separate product decision, recorded as a FUTURE item.
+2. **A root above the band: FIXED 2026-09-15.** `capex_multiplier_0_7` has
+   roots at -20.4852 and 1095.4783 percent, and the contract used to report the
+   in-band one as 'ok'. `irrContract.js` now compares the sign of the NPV at
+   1000 percent with the sign it tends to as the rate grows without bound (the
+   earliest non-zero flow, under either discounting convention). When they
+   differ a root lies above the band: one in-band root is then null
+   'multiple-roots' with the in-band roots in `irrRoots` and
+   `irrRootAboveBand: true`; with no in-band root it stays 'above-clamp' (flag
+   true). Every other result carries `irrRootAboveBand: false`. Both engines
+   follow it. Goldens: fiscal `capex_multiplier_0_7` moved ok to
+   multiple-roots; new `irr_root_above_band_with_one_inside` in both oracles
+   (ncf -5, 84, -64: roots -20 and 1500 percent). One screening status moved
+   WITHOUT a root above the band: `payback_recrossed_from_first_period` (ncf
+   10, -15, 60, which has no real root at any rate) read 'above-clamp' only
+   because its NPV is positive at 1000 percent; it is 'no-root' now. No other
+   screening value moved. An even number of roots above the band is not
+   detected by the sign test.
 
 ## Breakeven (breakeven.js)
 
