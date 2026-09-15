@@ -619,3 +619,148 @@ missing", and "only one capex field is entered" renamed to say it is partial
 with two fields named missing. Consumer to update: the Suite's
 ScenarioManager.jsx reads only `metrics` from `runScenario` and should mark a
 partial card.
+
+## EC6-1, EC6-3 and EC6-8: FIXED 2026-09-15 (owner decisions)
+
+Engines: engines/economics/fdp/fdpCalculations.js, facilitiesCalculations.js,
+economics.js, costCalculations.js, scenarioCalculations.js,
+wellCalculations.js. The oracle rules were written from the method
+statements below and fdp_cases.json regenerated (twice, byte-identical):
+19 plan cases (7 new), 36 flow assurance cases (16 new) plus 5 flow
+assurance refusals, 11 abandonment resolutions, 5 abandonment refusals and
+7 screening cases run with and without the end-of-life cost. Gate
+__tests__/economics.fdp.test.js, 300 tests, green under TZ UTC,
+Africa/Lagos, America/Los_Angeles, Asia/Tokyo and Pacific/Kiritimati. Every
+retired rule has a negative control.
+
+**EC6-1, the reserves against the profile (FIXED 2026-09-15).** Before:
+nothing reconciled the concept's screening production profile with the
+plan's reserves. The EGINA plan's FPSO concept produces 229.9293 MMbbl over
+20 years against an oil P50 of 130.0000 MMbbl (a ratio of 1.7687), and
+130 MMbbl at 12 MMbbl a well implies 11 wells against the 4 the plan
+carries, and the plan scored 100 percent complete with a clean validation.
+After: `calculateCompleteness` and `validateFDPData` both carry
+`reservesCheck` (exported on its own as `planReservesCheck`), and
+completeness carries `completeWithWarnings`, true when the score is 100 and
+the check has warnings. The check is NON-BLOCKING and caps nothing: the
+shape is not a reservoir forecast, so a cap would invent one. It reports
+`status` ('checked' or 'incomplete' with `missing` naming what is absent),
+`profileSource` ('concept-profile' or 'screening-shape'), `profileYears`,
+`profileVolumeMMbbl`, `oilP50MMbbl`, `profileToP50Ratio`, `marginFraction`
+(0.1), `recoveryPerWellMMbbl` (12) with `recoveryPerWellSource` stating
+where the 12 comes from (wellCalculations.js
+SCREENING_RECOVERY_PER_WELL_MMBBL, the figure the worked example golden
+counts wells at), `impliedWells`, `carriedWells`, `wellsRatio` and
+`warnings`. The two warning codes are `profile-exceeds-p50` (the ratio is
+more than 10 percent above the P50, the margin chosen and stated on the
+result) and `implied-wells-exceed-carried`. The score and `isValid` are
+unchanged; the warning messages are appended to `validation.warnings` so
+the screen cannot show a complete plan with nothing to say. Negative
+control: the retired result compared nothing at all, so the restated
+retired validation is silent on every golden that now warns.
+
+**EC6-3, the corrosion screen (FIXED 2026-09-15).** Before:
+`calculateFlowAssuranceRisk` fired the corrosion trigger at
+`(fluidProperties?.h2s || 0) > 0`, always at High and always worth 4 points,
+and a blank H2S read as 0, so an unmeasured fluid read as sweet and 1 ppm at
+100 psia scored exactly what 5 percent H2S at 5000 psia scored. After: the
+new `screenSourService` (also on the result as `corrosion`) takes the H2S
+partial pressure, the mole fraction (ppm over a million) times the total
+pressure in psia, against the NACE MR0175 / ISO 15156 sour service
+threshold of 0.05 psia (the standard states 0.3 kPa; psia x 6.894757 gives
+kPa). Four statuses:
+
+| status | when |
+|---|---|
+| `not-measured` | H2S blank or absent. No severity is claimed |
+| `sour-severity-needs-pressure` | H2S measured, no operating pressure |
+| `below-sour-threshold` | partial pressure below 0.05 psia |
+| `sour-service` | partial pressure at or above 0.05 psia |
+
+A measured 0 ppm is the one case that needs no pressure: its partial
+pressure is 0 at any pressure, so it is known to be below the threshold.
+The corrosion points (4) and the High corrosion risk are scored on
+`sour-service` alone; the retired trigger label 'H2S present' is gone and
+the trigger reads 'H2S partial pressure at or above 0.05 psia'. The shape
+is additive: `score`, `hazards`, `contributions` and `risks` are unchanged
+in meaning and `corrosion` is new, carrying `status`, `h2sPpm`,
+`operatingPressurePsia`, `h2sPartialPressurePsia`, `h2sPartialPressureKpa`,
+`thresholdPsia`, `thresholdKpa`, `standard` and `message`. A negative or
+unreadable H2S, and a pressure that is unreadable or not above zero, are
+refused by name. New input read: `fluidProperties.operatingPressurePsia`.
+The corrosion verdict moves on 10 of the 36 flow assurance goldens.
+Negative control: the retired trigger, restated, fires on every golden the
+golden says it fired on, and disagrees with the sour service status on
+those 10.
+
+**EC6-8, the end-of-life cost (FIXED 2026-09-15).** Before:
+`buildFdpCaseInputs` set the abandonment row to zeros, an ABEX cost item was
+only flagged on the cost screen and facility decommissioning was display
+only, so a known cost never reached the NPV and the NPV was overstated by
+its discounted after-tax value. After: `resolveAbandonment({costItems,
+facilities, selectedFacilityId})` and `planAbandonment(state)` return
+`abandonmentSource` ('abex-item', 'decommissioning-estimate' or 'none'),
+`abandonmentMM` and `abandonmentBasis`, and `runFdpCase`,
+`runFdpSensitivity`, `calculateCashFlows` (sixth argument; the rows gain
+`abex`) and `runScenario` / `scenarioCase` / `scenarioSensitivity` (third
+argument) charge it in the FINAL PRODUCTION YEAR. The result carries
+`abandonmentSource`, `abandonmentMM` and `abandonmentYear` beside the
+economics. An ABEX item replaces the decommissioning estimate and is never
+added to it; a typed zero is a figure and still names its source; with
+several facilities and none selected nothing is charged and the basis says
+so; a cost with no production year to fall in is refused.
+
+What it moves on the EGINA plan case (2250 capex, 95 opex, the 60 kbpd
+shape, 70 $/bbl):
+
+| case | abandonment | NPV before | NPV after |
+|---|---|---|---|
+| the plan ABEX item | 260.0000 | 2047.5653 | 2015.4123 |
+| no ABEX item, the FPSO estimate | 204.5029 | 2047.5653 | 2023.2777 |
+| neither | 0 | 2047.5653 | 2047.5653 |
+
+CONSEQUENCE, AND IT IS NOT SMALL. A final year that pays the abandonment
+usually has a negative net cash flow, so the flow changes sign twice and
+the IRR contract (irrContract.js, EC6-1) reports `irr` null with
+`irrStatus` 'multiple-roots' and both roots in `irrRoots`. On this case the
+roots are -44.3414 and 29.5779 percent where the rate used to read
+29.5998. That is the honest answer for such a flow and this wave leaves the
+contract alone, but every screen that prints an IRR must handle the null.
+
+THE EC6 CAPSTONE (checked, 2026-09-15). The NextGen course EC6 lab
+(src/components/course/panels/fdp/fdpLab.js, `ukotRuns`) calls
+`SC.runScenario(scenario, concept)` and `E.runFdpSensitivity(kase)` with no
+abandonment argument, so every one of the eighteen graded UKOT fields is
+byte-for-byte what it was: ukot_base_npv_mm 1717.6860327539478,
+ukot_base_irr_pct 37.66903234346082, ukot_alternative_npv_mm
+721.0656772144272, ukot_stress_npv_mm -771.0011900805065,
+ukot_price_swing_mm 2202.685546432514, ukot_concept_capex_mm 1320,
+ukot_platform_capex_mm 743.1213581482968 and
+ukot_platform_decommissioning_mm 111.46820372224452 all verified unchanged
+against the live engine. UKOT_COSTS does carry an ABEX item of 190, so IF
+the lab is ever re-derived to pass `planAbandonment` into the runs, the
+graded values move: base NPV 1717.6860 to 1694.0732, base IRR 37.6690 to
+null ('multiple-roots', roots -43.2259 and 37.6593), alternative NPV
+721.0657 to 695.4146, stress NPV -771.0012 to -797.9292 and the price swing
+2202.6855 to 2206.7510. That would need a capstone migration and a new
+answer for the IRR field.
+
+**Consumers to update (the Suite).**
+- `src/components/fdp/modules/generation/FDPGenerationOverview.jsx` shows
+  the completeness score and "Ready" or "Needs Review" only. It should show
+  `completeness.reservesCheck.warnings` and stop reading 100 percent as
+  clean when `completeWithWarnings` is true.
+- `src/components/fdp/modules/facilities/FlowAssuranceAnalysis.jsx` still
+  reads the `level` EC6-2 retired, hard-codes a "Corrosion High" tile and
+  passes a mock fluid `{ api: 28, h2s: 10, co2: 2 }` with no pressure, which
+  now screens as 'sour-severity-needs-pressure'. It should read
+  `analysis.corrosion` and collect the H2S and the operating pressure.
+- `src/components/fdp/modules/cost/EconomicsAnalysis.jsx` calls
+  `calculateCashFlows` with five arguments, so its NPV, IRR and payback are
+  still the pre-abandonment ones. It should pass `planAbandonment(state)`,
+  show the source and the amount, and handle a null IRR.
+- `src/components/fdp/modules/scenarios/ScenarioManager.jsx` can pass the
+  same abandonment into `runScenario` so a card and the Economics tab agree.
+- `src/components/fdp/modules/facilities/FacilitiesCostEstimation.jsx`
+  already shows the decommissioning estimate; it is now the fallback the
+  case uses when no ABEX item exists, which is worth saying on the screen.

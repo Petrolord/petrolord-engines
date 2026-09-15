@@ -124,7 +124,7 @@ const scenarioFiscal = (scenario) => ({
  * The case and the capex status together, validated in the order the card
  * has always refused in: profile, capex, operating cost, oil price.
  */
-const buildScenario = (scenario, concept) => {
+const buildScenario = (scenario, concept, abandonment) => {
   const productionKbpd = concept?.productionProfileKbpd?.length
     ? concept.productionProfileKbpd
     : conceptProfileKbpd(concept);
@@ -138,12 +138,20 @@ const buildScenario = (scenario, concept) => {
       pricesUsd: new Array(productionKbpd.length)
         .fill(requireNonNegative(scenario?.oilPrice, 'the scenario oil price')),
       fiscal: scenarioFiscal(scenario),
+      abandonment,
     },
   };
 };
 
-/** The case one scenario and one concept imply, ready for the screening engine. */
-export const scenarioCase = (scenario, concept) => buildScenario(scenario, concept).fdpCase;
+/**
+ * The case one scenario and one concept imply, ready for the screening engine.
+ *
+ * EC6-8: a concept carries no end-of-life cost of its own. Pass the plan's,
+ * as planAbandonment returns it, and it is charged in the final production
+ * year; leave it out and the card reports `abandonmentSource` 'none'.
+ */
+export const scenarioCase = (scenario, concept, abandonment) =>
+  buildScenario(scenario, concept, abandonment).fdpCase;
 
 /**
  * Run one scenario against one concept.
@@ -152,10 +160,14 @@ export const scenarioCase = (scenario, concept) => buildScenario(scenario, conce
  * `capexMissing` (the blank capex field names) so a card screened on a
  * partial capex can say so (EC6-9).
  *
- * @returns {{cashflow: object[], metrics: object, capexStatus: string, capexMissing: string[]}}
+ * EC6-8: also `abandonmentSource`, `abandonmentMM` and `abandonmentYear`
+ * from runFdpCase, for the abandonment passed (see scenarioCase).
+ *
+ * @returns {{cashflow: object[], metrics: object, capexStatus: string, capexMissing: string[],
+ *   abandonmentSource: string, abandonmentMM: number, abandonmentYear: number|null}}
  */
-export const runScenario = (scenario, concept) => {
-  const { capex, fdpCase } = buildScenario(scenario, concept);
+export const runScenario = (scenario, concept, abandonment) => {
+  const { capex, fdpCase } = buildScenario(scenario, concept, abandonment);
   return {
     ...runFdpCase(fdpCase),
     capexStatus: capex.capexStatus,
@@ -168,7 +180,8 @@ export const runScenario = (scenario, concept) => {
  *
  * @returns {Array<{name: string, lowParamNPV: number, highParamNPV: number, baseNPV: number}>}
  */
-export const scenarioSensitivity = (scenario, concept) => runFdpSensitivity(scenarioCase(scenario, concept));
+export const scenarioSensitivity = (scenario, concept, abandonment) =>
+  runFdpSensitivity(scenarioCase(scenario, concept, abandonment));
 
 /** Post-fiscal NPV in $MM. */
 export const scenarioNPV = (scenario, concept) => runScenario(scenario, concept).metrics.npv;

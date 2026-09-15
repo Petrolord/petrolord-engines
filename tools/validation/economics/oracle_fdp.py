@@ -356,13 +356,24 @@ def payback_from_cumulative(ncfs, cums, never):
     return never
 
 
-def fdp_case(capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal=None):
-    """runFdpCase: the full engine result rebuilt from its definition."""
+def fdp_case(capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal=None, abandonment=None):
+    """runFdpCase: the full engine result rebuilt from its definition.
+
+    EC6-8 method statement: the case carries ONE end-of-life cost and it
+    falls in the FINAL PRODUCTION YEAR (the last year of the profile). Cash
+    out in that year, and deductible against that year's taxable income the
+    way the screening engine treats every abandonment cost. A case with no
+    production year cannot carry one."""
     terms = dict(DEFAULT_FISCAL)
     terms.update(fiscal or {})
     d = terms['discountRate'] / 100.0
     n = len(productionKbpd)
     life = n + 1
+    abex_source = (abandonment or {}).get('abandonmentSource', 'none')
+    abex_total = float((abandonment or {}).get('abandonmentMM', 0.0) or 0.0)
+    if abex_total and n == 0:
+        raise Refused('the case has no production years to carry the abandonment cost in: '
+                      'enter a production profile')
     rows = []
     cum = 0.0
     tot = {'totalRevenue': 0.0, 'totalCapex': 0.0, 'totalOpex': 0.0, 'totalTax': 0.0,
@@ -376,15 +387,16 @@ def fdp_case(capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal=None):
             fixed = float(annualOpexMM)
             capex = 0.0
         annual_bbl = kbpd * 1000.0 * 365.0
+        abex = abex_total if (n > 0 and i == life - 1) else 0.0
         var = (annual_bbl * terms['variableOpexPerBbl']) / 1e6 if i > 0 else 0.0
         revenue = (annual_bbl * price) / 1e6
         royalty = revenue * (terms['royaltyRate'] / 100.0)
         net = revenue - royalty
         opex = fixed + var
         depreciation = capex  # one-year straight line = in-year expensing
-        taxable = net - opex - depreciation
+        taxable = net - opex - abex - depreciation
         tax = taxable * (terms['taxRate'] / 100.0) if taxable > 0 else 0.0
-        ncf = net - (capex + opex) - tax
+        ncf = net - (capex + opex + abex) - tax
         cum += ncf
         tot['totalRevenue'] += revenue
         tot['totalCapex'] += capex
@@ -393,7 +405,7 @@ def fdp_case(capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal=None):
         tot['totalRoyalty'] += royalty
         tot['totalGovTake'] += royalty + tax
         rows.append({'year': i, 'grossRevenue': revenue, 'royalty': royalty, 'capex': capex,
-                     'opex': opex, 'abex': 0.0, 'tax': tax, 'depreciation': depreciation,
+                     'opex': opex, 'abex': abex, 'tax': tax, 'depreciation': depreciation,
                      'pscUnrecoveredCost': 0.0, 'ncf': ncf, 'cumulativeNCF': cum,
                      'govTake': royalty + tax})
     flows = [r['ncf'] for r in rows]
@@ -417,7 +429,7 @@ def fdp_case(capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal=None):
     cc_src, cc_flows, cc_cums = rows, flows, cums
     rate = d
     cc_rows = [{'year': i, 'revenue': r['grossRevenue'], 'royalty': r['royalty'], 'tax': r['tax'],
-                'capex': r['capex'], 'opex': r['opex'], 'netCashFlow': r['ncf'],
+                'capex': r['capex'], 'opex': r['opex'], 'abex': r['abex'], 'netCashFlow': r['ncf'],
                 'cumulativeCashFlow': r['cumulativeNCF'],
                 'discountedCashFlow': r['ncf'] / (1.0 + rate) ** (i + 0.5)}
                for i, r in enumerate(cc_src)]
@@ -428,7 +440,9 @@ def fdp_case(capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal=None):
           'priceDeckRefused': not deck_complete}
     return {'cashflow': rows, 'metrics': metrics, 'paybackYears': payback if pays_back else None,
             'irrExists': exists, 'irrRootsPercent': roots, 'irrBeyondEngineClamp': clamped,
-            'irrNoRoot': no_root, 'costCalculations': cc}
+            'irrNoRoot': no_root, 'costCalculations': cc,
+            'abandonmentSource': abex_source, 'abandonmentMM': abex_total,
+            'abandonmentYear': None if abex_source == 'none' else n}
 
 
 # ---------------------------------------------------------------------
@@ -766,19 +780,96 @@ def facility_cost(f):
 
 # EC6-2 method statement. The screen scores three triggers and names what
 # each one raises: a subsea tie-back (3 points; hydrates and wax), oil below
-# 25 API (2 points; viscosity), H2S present (4 points; corrosion). The answer
-# is the score and the hazards behind it. There is no band: Low, Medium and
-# High are the risk register's words for probability x impact, a different
-# quantity, and the retired band read a score of 3 as Medium where the
-# register reads 3 as Low.
+# 25 API (2 points; viscosity) and a fluid in SOUR SERVICE (4 points;
+# corrosion). The answer is the score and the hazards behind it. There is no
+# band: Low, Medium and High are the risk register's words for probability x
+# impact, a different quantity, and the retired band read a score of 3 as
+# Medium where the register reads 3 as Low.
+#
+# EC6-3 method statement (the corrosion screen). H2S is entered in ppm by
+# mole; the operating pressure in psia. The mole fraction is ppm over a
+# million and the H2S PARTIAL PRESSURE is that fraction of the total
+# pressure. NACE MR0175 / ISO 15156 calls a fluid sour at a partial
+# pressure of 0.05 psia or above (the standard states 0.3 kPa in SI).
+#   - H2S blank or absent: 'not-measured'. Nothing is scored and no severity
+#     is claimed. The retired screen read a blank as 0 and called it sweet.
+#   - H2S measured with no pressure: 'sour-severity-needs-pressure'. A
+#     measured 0 ppm is the one exception: its partial pressure is 0 at any
+#     pressure, so it is known to be below the threshold.
+#   - partial pressure at or above 0.05 psia: 'sour-service', the only
+#     status that scores the 4 corrosion points.
+#   - below it: 'below-sour-threshold'.
+# A negative or unreadable H2S, or a pressure that is unreadable or not
+# above zero, is refused by name.
+#
+# The oracle converts psi to kPa from the definition of the pound-force per
+# square inch (0.45359237 kg x 9.80665 m/s2 over a square inch in metres),
+# and takes the partial pressure as ppm x pressure over a million, where the
+# engine takes the mole fraction first.
+SOUR_THRESHOLD_PSIA = 0.05
+SOUR_THRESHOLD_KPA = 0.3
+SOUR_STANDARD = 'NACE MR0175 / ISO 15156'
+KPA_PER_PSI = 0.45359237 * 9.80665 / (0.0254 ** 2) / 1000.0
+
+
+def js_to_fixed(x, digits):
+    """Number.prototype.toFixed: the closest decimal with that many places,
+    ties away from zero, on the EXACT value of the double."""
+    from decimal import Decimal, ROUND_HALF_UP
+    q = Decimal(1).scaleb(-digits)
+    return str(Decimal(x).quantize(q, rounding=ROUND_HALF_UP))
+
+
+def sour_service(fluid):
+    base = {'thresholdPsia': SOUR_THRESHOLD_PSIA, 'thresholdKpa': SOUR_THRESHOLD_KPA,
+            'standard': SOUR_STANDARD}
+    raw_pressure = (fluid or {}).get('operatingPressurePsia')
+    pressure = None
+    if not is_blank(raw_pressure):
+        pressure = require_number(raw_pressure, 'the operating pressure (psia)')
+        if not pressure > 0:
+            raise Refused('the operating pressure (psia) must be above zero: %s' % js_number_text(pressure))
+    if is_blank((fluid or {}).get('h2s')):
+        out = {'status': 'not-measured', 'h2sPpm': None, 'operatingPressurePsia': pressure,
+               'h2sPartialPressurePsia': None, 'h2sPartialPressureKpa': None}
+        out.update(base)
+        out['message'] = ('H2S is not measured, so the corrosion screen has not run. '
+                          'Enter the H2S concentration in ppm and the operating pressure in psia.')
+        return out
+    ppm = require_number(fluid.get('h2s'), 'the H2S concentration (ppm)', True)
+    if pressure is None and ppm > 0:
+        out = {'status': 'sour-severity-needs-pressure', 'h2sPpm': ppm, 'operatingPressurePsia': None,
+               'h2sPartialPressurePsia': None, 'h2sPartialPressureKpa': None}
+        out.update(base)
+        out['message'] = ('H2S is measured at %s ppm. Sour service depends on the H2S partial pressure, '
+                          'so enter the operating pressure in psia to screen it.' % js_number_text(ppm))
+        return out
+    psia = 0.0 if pressure is None else ppm * pressure / 1e6
+    kpa = psia * KPA_PER_PSI
+    sour = psia >= SOUR_THRESHOLD_PSIA
+    at = ('%s ppm' % js_number_text(ppm)) if pressure is None else (
+        '%s ppm and %s psia' % (js_number_text(ppm), js_number_text(pressure)))
+    out = {'status': 'sour-service' if sour else 'below-sour-threshold', 'h2sPpm': ppm,
+           'operatingPressurePsia': pressure, 'h2sPartialPressurePsia': psia, 'h2sPartialPressureKpa': kpa}
+    out.update(base)
+    out['message'] = ('H2S partial pressure is %s psia (%s kPa) at %s, ' % (js_to_fixed(psia, 4), js_to_fixed(kpa, 4), at)
+                      + ('at or above the %s sour service threshold of 0.05 psia (0.3 kPa). '
+                         'Materials in contact with the fluid must be qualified for sour service.' % SOUR_STANDARD
+                         if sour else
+                         'below the %s sour service threshold of 0.05 psia (0.3 kPa).' % SOUR_STANDARD))
+    return out
+
+
+CORROSION_TRIGGER = 'H2S partial pressure at or above 0.05 psia'
+
 FLOW_TRIGGERS = [
     ('Subsea tie-back', 3, [('Hydrates', 'High', 'MEG Injection'), ('Wax', 'Medium', 'Insulation')]),
     ('Oil below 25 API', 2, [('Viscosity', 'Medium', 'Heating')]),
-    ('H2S present', 4, [('Corrosion', 'High', 'CRA Materials')]),
+    (CORROSION_TRIGGER, 4, [('Corrosion', 'High', 'CRA Materials')]),
 ]
 
 
-def _flow_trigger_fires(label, f, fluid):
+def _flow_trigger_fires(label, f, fluid, corrosion):
     if label == 'Subsea tie-back':
         return f.get('type') == 'Subsea Tie-back'
     if label == 'Oil below 25 API':
@@ -789,23 +880,72 @@ def _flow_trigger_fires(label, f, fluid):
             return True
         a = js_number(fluid['api'])
         return a == a and a < 25
-    h2s = 0.0 if fluid is None else or_default(fluid.get('h2s'), 0.0)
-    return js_number(h2s) > 0
+    return corrosion['status'] == 'sour-service'
 
 
 def flow_assurance(f, fluid):
-    fired = [(label, pts, hz) for label, pts, hz in FLOW_TRIGGERS if _flow_trigger_fires(label, f, fluid)]
+    corrosion = sour_service(fluid)
+    fired = [(label, pts, hz) for label, pts, hz in FLOW_TRIGGERS
+             if _flow_trigger_fires(label, f, fluid, corrosion)]
     risks = [{'type': t, 'severity': sev, 'mitigation': m} for _, _, hz in fired for t, sev, m in hz]
     return {'score': sum(pts for _, pts, _ in fired),
             'hazards': [t for _, _, hz in fired for t, _, _ in hz],
             'contributions': [{'trigger': label, 'points': pts, 'hazards': [t for t, _, _ in hz]}
                               for label, pts, hz in fired],
-            'risks': risks}
+            'risks': risks,
+            'corrosion': corrosion}
 
 
 def retired_flow_assurance_level(score):
     """The band EC6-2 retired: High above 5, Medium above 2, Low otherwise."""
     return 'High' if score > 5 else 'Medium' if score > 2 else 'Low'
+
+
+def retired_corrosion_fired(fluid):
+    """The trigger EC6-3 retired: `(fluidProperties?.h2s || 0) > 0`, so a
+    blank read as 0 (sweet) and any trace at any pressure scored 4 High."""
+    h = None if fluid is None else fluid.get('h2s')
+    return js_number(or_default(h, 0)) > 0
+
+
+def resolve_abandonment(cost_items=None, facilities=None, selected_facility_id=None):
+    """EC6-8 method statement. A screening case carries ONE end-of-life cost.
+
+    The plan's ABEX cost items are the figure whenever it has any, a typed
+    zero included, and their amounts are required by name. With no ABEX item
+    the screening decommissioning estimate of the facility the plan builds
+    (the selected facility, or the only facility listed) stands in, labelled
+    as an estimate. With neither, nothing is charged and the basis says why.
+    Never both: an ABEX item replaces the estimate."""
+    abex = [i for i in (cost_items or []) if isinstance(i, dict) and i.get('type') == 'ABEX']
+    if abex:
+        names = [(i.get('name') or ('ABEX item %d' % (k + 1))) for k, i in enumerate(abex)]
+        total = 0.0
+        for name, item in zip(names, abex):
+            total += require_number(item.get('amount'), 'the ABEX cost item "%s" amount' % name, True)
+        return {'abandonmentSource': 'abex-item', 'abandonmentMM': total,
+                'abandonmentBasis': "The plan's ABEX cost item%s: %s."
+                                    % ('s' if len(abex) > 1 else '', ', '.join(names))}
+    listed = [f for f in (facilities or []) if f]
+    selected = None
+    if not is_blank(selected_facility_id):
+        for f in listed:
+            if isinstance(f, dict) and f.get('id') == selected_facility_id:
+                selected = f
+                break
+    facility = selected or (listed[0] if len(listed) == 1 else None)
+    if facility:
+        return {'abandonmentSource': 'decommissioning-estimate',
+                'abandonmentMM': facility_cost(facility)['decommissioning'],
+                'abandonmentBasis': 'Screening decommissioning estimate for %s: 15 percent of its sized '
+                                    'capex. Enter an ABEX cost item to use your own figure.'
+                                    % (facility.get('name') or 'the facility')}
+    return {'abandonmentSource': 'none', 'abandonmentMM': 0.0,
+            'abandonmentBasis': ('The plan carries no ABEX cost item and lists several facilities with none '
+                                 'selected, so no end-of-life cost is in the case. Select the facility the '
+                                 'plan builds or enter an ABEX cost item.' if len(listed) > 1 else
+                                 'The plan carries no ABEX cost item and no facility, so no end-of-life cost '
+                                 'is in the case.')}
 
 
 def bottlenecks(f, peak):
@@ -1160,8 +1300,15 @@ def completeness(state):
         ('Risks', _len(_get(state, 'risks')) > 0),
     ]
     done = sum(1 for _, v in checks if v)
-    return {'score': js_round(done / len(checks) * 100.0),
-            'breakdown': [{'module': m, 'valid': bool(v)} for m, v in checks]}
+    score = js_round(done / len(checks) * 100.0)
+    check = reserves_check(state)
+    # EC6-1: the score is unchanged and the reserves check rides beside it;
+    # a plan with every section filled in never reads as clean while the
+    # check has warnings.
+    return {'score': score,
+            'breakdown': [{'module': m, 'valid': bool(v)} for m, v in checks],
+            'reservesCheck': check,
+            'completeWithWarnings': score == 100 and bool(check['warnings'])}
 
 
 def validate(state):
@@ -1178,7 +1325,116 @@ def validate(state):
         warnings.append('Cost breakdown is empty.')
     if or_default(_get(state, 'economics', 'capex'), 0) <= 0:
         errors.append('Total CAPEX is zero or missing.')
-    return {'isValid': not errors, 'errors': errors, 'warnings': warnings}
+    # EC6-1: the reserves check never makes a plan invalid; its messages are
+    # appended to the warnings so the screen cannot show a clean plan.
+    check = reserves_check(state)
+    warnings.extend(w['message'] for w in check['warnings'])
+    return {'isValid': not errors, 'errors': errors, 'warnings': warnings, 'reservesCheck': check}
+
+
+# EC6-1 method statement (the reserves check). NOTHING reconciled the
+# concept's screening production profile with the plan's reserves. The
+# check is NON-BLOCKING and caps nothing, because the plateau-and-decline
+# shape is not a reservoir forecast and there is no better profile to put
+# in its place.
+#
+#   the plan concept       the selected concept, or the only one listed
+#   the profile            its productionProfileKbpd when it carries one,
+#                          otherwise the screening shape from its peak rate
+#   profileVolumeMMbbl     each year's kbpd x 1000 x 365 barrels, in MMbbl
+#   oilP50MMbbl            the oil P50 of the reserves table
+#   profileToP50Ratio      one over the other
+#   impliedWells           the oil P50 divided by the recovery per well,
+#                          rounded up (calculateWellCount)
+#   carriedWells           the wells in the drilling program
+#   warnings               'profile-exceeds-p50' above a margin of 10
+#                          percent, 'implied-wells-exceed-carried' when the
+#                          count implied is above the count carried
+#
+# The oracle sums the profile with math.fsum on each year's MMbbl, where
+# the engine sums the rates and converts once.
+RESERVES_PROFILE_MARGIN = 0.1
+SCREENING_RECOVERY_PER_WELL_MMBBL = 12
+SCREENING_RECOVERY_PER_WELL_SOURCE = ('The engine screening figure of 12 MMbbl a well '
+                                      '(wellCalculations.js SCREENING_RECOVERY_PER_WELL_MMBBL, '
+                                      'the worked example well count).')
+
+
+def plan_concept(state):
+    lst = _get(state, 'concepts', 'list')
+    lst = lst if isinstance(lst, list) else []
+    sel = _get(state, 'concepts', 'selectedId')
+    if sel is not None:
+        for c in lst:
+            if isinstance(c, dict) and c.get('id') == sel:
+                return c
+    return lst[0] if len(lst) == 1 else None
+
+
+def reserves_check(state):
+    missing = []
+    concept = plan_concept(state)
+    profile, source = None, None
+    if concept is None:
+        missing.append('a selected concept')
+    else:
+        stated = concept.get('productionProfileKbpd') if isinstance(concept, dict) else None
+        if isinstance(stated, list) and stated:
+            profile, source = stated, 'concept-profile'
+        else:
+            try:
+                profile = concept_profile(concept if isinstance(concept, dict) else {})
+                source = 'screening-shape'
+            except Refused:
+                missing.append('the concept peak production rate')
+    oil_p50 = plan_reserves_p50(state, 'Oil')
+    if not oil_p50 > 0:
+        missing.append('the oil P50 reserves')
+    wells = _get(state, 'wells', 'list')
+    carried = len(wells) if isinstance(wells, list) else 0
+    if carried == 0:
+        missing.append('wells in the drilling program')
+
+    volume = math.fsum(num_or0(k) * 1000.0 * 365.0 / 1e6 for k in profile) if profile is not None else None
+    p50 = oil_p50 if oil_p50 > 0 else None
+    ratio = (volume / p50) if (volume is not None and p50 is not None) else None
+    implied = well_count(p50, SCREENING_RECOVERY_PER_WELL_MMBBL) if p50 is not None else None
+    wells_ratio = (implied / carried) if (implied is not None and carried > 0) else None
+
+    warnings = []
+    if ratio is not None and ratio > 1 + RESERVES_PROFILE_MARGIN:
+        warnings.append({
+            'code': 'profile-exceeds-p50',
+            'message': ('The concept production profile carries %s MMbbl over %d years, %s percent above '
+                        'the oil P50 of %s MMbbl. The warning margin is %s percent. The profile is a '
+                        'screening shape with no reservoir behind it, so check the peak rate against the '
+                        'reserves before relying on the economics.'
+                        % (js_to_fixed(volume, 1), len(profile), js_to_fixed((ratio - 1) * 100.0, 1),
+                           js_to_fixed(p50, 1), js_number_text(RESERVES_PROFILE_MARGIN * 100))),
+        })
+    if implied is not None and implied > carried:
+        warnings.append({
+            'code': 'implied-wells-exceed-carried',
+            'message': ('Recovering the oil P50 of %s MMbbl at %s MMbbl a well takes %d wells, and the '
+                        'drilling program carries %d. The %s MMbbl a well is the engine screening figure.'
+                        % (js_to_fixed(p50, 1), js_number_text(SCREENING_RECOVERY_PER_WELL_MMBBL), implied,
+                           carried, js_number_text(SCREENING_RECOVERY_PER_WELL_MMBBL))),
+        })
+
+    return {'status': 'incomplete' if missing else 'checked',
+            'missing': missing,
+            'profileSource': source,
+            'profileYears': len(profile) if profile is not None else None,
+            'profileVolumeMMbbl': volume,
+            'oilP50MMbbl': p50,
+            'profileToP50Ratio': ratio,
+            'marginFraction': RESERVES_PROFILE_MARGIN,
+            'recoveryPerWellMMbbl': SCREENING_RECOVERY_PER_WELL_MMBBL,
+            'recoveryPerWellSource': SCREENING_RECOVERY_PER_WELL_SOURCE,
+            'impliedWells': implied,
+            'carriedWells': carried,
+            'wellsRatio': wells_ratio,
+            'warnings': warnings}
 
 
 def cost_rollups(items):
@@ -1545,12 +1801,24 @@ def facility_cases():
     for f in EXAMPLE_FACILITIES + [{'type': 'Onshore Plant', 'nameplateCapacity': ''}, {'type': 'FPSO', 'nameplateCapacity': '75000'}, {'type': 'Platform', 'nameplateCapacity': 0}, {'type': 'Subsea Tie-back', 'nameplateCapacity': 200000}]:
         caps.append({'inputs': f, 'expected': facility_capacity(f)})
         costs.append({'inputs': f, 'expected': facility_cost(f)})
-    fluids = [None, {}, {'api': 35}, {'api': 20}, {'api': 20, 'h2s': 0}, {'api': 30, 'h2s': 50}, {'api': 18, 'h2s': 100}, {'api': None}, {'api': '22'}, {'h2s': '5'}]
+    fluids = [None, {}, {'api': 35}, {'api': 20}, {'api': 20, 'h2s': 0}, {'api': 30, 'h2s': 50}, {'api': 18, 'h2s': 100}, {'api': None}, {'api': '22'}, {'h2s': '5'},
+              # EC6-3: the same fluids with an operating pressure, so the
+              # corrosion screen can reach a severity, plus the two ends of
+              # the range the retired trigger could not tell apart.
+              {'api': 30, 'h2s': 50, 'operatingPressurePsia': 1200},
+              {'api': 30, 'h2s': 50, 'operatingPressurePsia': 800},
+              {'api': 32, 'h2s': 1, 'operatingPressurePsia': 100},
+              {'api': 32, 'h2s': 50000, 'operatingPressurePsia': 5000},
+              {'api': 30, 'h2s': 0, 'operatingPressurePsia': 3000},
+              {'api': 22, 'h2s': ''},
+              {'api': 22, 'operatingPressurePsia': 2000},
+              {'h2s': '5', 'operatingPressurePsia': '15000'}]
     for f in [{'type': 'Subsea Tie-back'}, {'type': 'FPSO'}]:
         for fl in fluids:
             e = flow_assurance(f, fl)
             case = {'inputs': {'facility': f, 'fluidProperties': fl}, 'expected': e,
-                    'retired': {'level': retired_flow_assurance_level(e['score'])}}
+                    'retired': {'level': retired_flow_assurance_level(e['score']),
+                                'corrosionFired': retired_corrosion_fired(fl)}}
             if e['score'] == 3 and fl is None:
                 case['note'] = ('EC6-2: score 3 from a subsea tie-back. The retired band called it Medium; the '
                                 'risk register reads a score of 3 as %s. The result now carries the score and '
@@ -1565,7 +1833,22 @@ def facility_cases():
         ({'nameplateCapacity': 50000}, {}),
     ]:
         bn.append({'inputs': {'facility': f, 'peakProduction': peak}, 'expected': bottlenecks(f, peak)})
-    return {'capacity': caps, 'cost': costs, 'flowAssurance': fa, 'bottlenecks': bn}
+    refusals = []
+    for name, fl in [
+        ('a negative H2S figure', {'api': 30, 'h2s': -1}),
+        ('an H2S figure that does not parse', {'api': 30, 'h2s': 'abc'}),
+        ('an operating pressure of zero', {'h2s': 10, 'operatingPressurePsia': 0}),
+        ('a negative operating pressure', {'h2s': 10, 'operatingPressurePsia': -5}),
+        ('an operating pressure that does not parse', {'h2s': 10, 'operatingPressurePsia': 'x'}),
+    ]:
+        try:
+            sour_service(fl)
+        except Refused as e:
+            refusals.append({'name': name, 'inputs': fl, 'expected': {'refused': True, 'message': e.message}})
+            continue
+        raise AssertionError('expected a refusal for: %s' % name)
+    return {'capacity': caps, 'cost': costs, 'flowAssurance': fa, 'bottlenecks': bn,
+            'flowAssuranceRefusals': refusals}
 
 
 def hse_cases():
@@ -1716,6 +1999,35 @@ def schedule_cases():
     return out
 
 
+EC61_RESERVOIRS = [{'name': 'Main', 'fluid': 'Oil', 'p90': 60, 'p50': 85, 'p10': 170},
+                   {'name': 'North', 'fluid': 'Oil', 'p90': 30, 'p50': 45, 'p10': 70},
+                   {'name': 'Gas cap', 'fluid': 'Gas', 'p90': 20, 'p50': 30, 'p10': 45}]
+
+
+def ec61_plan(peak=60, wells=4, profile=None, reservoirs=None, selected=101, second_concept=False):
+    """A complete plan whose only variables are the ones the reserves check
+    reads: the concept rate or profile, the reserves and the well count."""
+    concept = {'id': 101, 'name': 'FPSO development', 'facilityType': 'FPSO', 'drillingCapex': 520,
+               'facilitiesCapex': 1350, 'subseaCapex': 380, 'opex': 95, 'lifeOfField': 20}
+    if peak is not None:
+        concept['peakProduction'] = peak
+    if profile is not None:
+        concept['productionProfileKbpd'] = profile
+    concepts = [concept]
+    if second_concept:
+        concepts.append({'id': 102, 'name': 'Subsea tie-back', 'facilityType': 'Subsea Tie-back',
+                         'drillingCapex': 240, 'facilitiesCapex': 180, 'subseaCapex': 310,
+                         'opex': 40, 'lifeOfField': 15, 'peakProduction': 25})
+    return {'fieldData': {'fieldName': 'Egina', 'country': 'Nigeria'},
+            'subsurface': {'reserves': {'breakdown': reservoirs if reservoirs is not None else EC61_RESERVOIRS}},
+            'concepts': {'list': concepts, 'selectedId': selected},
+            'wells': {'list': [{'id': 'w%d' % (i + 1)} for i in range(wells)]},
+            'facilities': {'list': EXAMPLE_FACILITIES},
+            'schedule': {'activities': example_schedule()},
+            'economics': {'npv': 512.3, 'capex': 2250},
+            'hseData': {'hazards': EXAMPLE_HSE}, 'risks': EXAMPLE_HSE, 'costs': {'items': EXAMPLE_COSTS}}
+
+
 def plan_cases():
     full = {'fieldData': {'fieldName': 'Example', 'country': 'Nigeria'},
             'subsurface': {'reserves': {'summary': {'p50': 0}, 'breakdown': EXAMPLE_RESERVOIRS}},
@@ -1752,8 +2064,133 @@ def plan_cases():
         ('an unreadable reserves table reads as no reserves', {'fieldData': {'fieldName': 'X', 'country': 'Y'},
                                                               'subsurface': {'reserves': {'breakdown': [{'name': 'R', 'p50': 99}]}},
                                                               'economics': {'capex': 1, 'npv': 1}}),
+        # EC6-1. The reserves check, on plans built to exercise each warning.
+        ('EC6-1: the EGINA plan, a screening profile far above the P50 on four wells',
+         ec61_plan(peak=60, wells=4)),
+        ('EC6-1: a profile within the margin and the wells to drain it', ec61_plan(peak=36, wells=11)),
+        ('EC6-1: the wells warning alone, on a profile inside the margin', ec61_plan(peak=36, wells=4)),
+        ('EC6-1: a stated production profile above the P50, under-welled',
+         ec61_plan(wells=2, profile=[50, 50, 50, 40, 30], reservoirs=[{'name': 'Main', 'fluid': 'Oil', 'p50': 50}])),
+        ('EC6-1: several concepts and none selected, so the profile cannot be checked',
+         ec61_plan(peak=60, wells=4, selected=None, second_concept=True)),
+        ('EC6-1: a concept with no peak rate', ec61_plan(peak=None, wells=4)),
+        ('EC6-1: a plan with no wells carried', ec61_plan(peak=60, wells=0)),
     ]
     return [{'name': n, 'inputs': s, 'expected': {'completeness': completeness(s), 'validation': validate(s)}} for n, s in states]
+
+
+EC68_FPSO = {'id': 'f1', 'name': 'Egina FPSO', 'type': 'FPSO', 'nameplateCapacity': 60000}
+EC68_FPSO_BIG = {'id': 'f2', 'name': 'Egina FPSO, debottlenecked', 'type': 'FPSO', 'nameplateCapacity': 150000}
+EC68_ABEX = {'id': 'c7', 'name': 'Decommissioning provision', 'type': 'ABEX', 'amount': 260, 'phase': 'Operate'}
+EC68_CAPEX = {'id': 'c1', 'name': 'Development drilling', 'type': 'CAPEX', 'amount': 2250, 'phase': 'Execution'}
+
+
+def abandonment_cases():
+    """EC6-8: which end-of-life cost a plan implies, and where it came from."""
+    out = []
+    for name, inputs in [
+        ('the plan carries an ABEX item, so the estimate is not used',
+         {'costItems': [EC68_CAPEX, EC68_ABEX], 'facilities': [EC68_FPSO, EC68_FPSO_BIG],
+          'selectedFacilityId': 'f1'}),
+        ('two ABEX items are summed', {'costItems': [{'name': 'Wells P and A', 'type': 'ABEX', 'amount': 120},
+                                                     {'name': 'Facilities removal', 'type': 'ABEX', 'amount': 180}]}),
+        ('an unnamed ABEX item is named by its position', {'costItems': [{'type': 'ABEX', 'amount': 75}]}),
+        ('a typed zero ABEX item is a figure, and the estimate stays out',
+         {'costItems': [{'name': 'Abandonment provision', 'type': 'ABEX', 'amount': 0}], 'facilities': [EC68_FPSO]}),
+        ('an ABEX amount entered as a string',
+         {'costItems': [{'name': 'Abandonment provision', 'type': 'ABEX', 'amount': '260'}]}),
+        ('no ABEX item: the selected facility decommissioning estimate',
+         {'costItems': [EC68_CAPEX], 'facilities': [EC68_FPSO, EC68_FPSO_BIG], 'selectedFacilityId': 'f2'}),
+        ('no ABEX item and one facility listed: its estimate', {'facilities': [EC68_FPSO]}),
+        ('a selected id that matches nothing, with one facility listed',
+         {'facilities': [EC68_FPSO], 'selectedFacilityId': 'zzz'}),
+        ('no ABEX item and several facilities with none selected: nothing is charged',
+         {'facilities': [EC68_FPSO, EC68_FPSO_BIG]}),
+        ('neither an ABEX item nor a facility: nothing is charged', {}),
+        ('cost items with no ABEX line at all', {'costItems': [EC68_CAPEX]}),
+    ]:
+        out.append({'name': name, 'inputs': inputs,
+                    'expected': resolve_abandonment(inputs.get('costItems'), inputs.get('facilities'),
+                                                    inputs.get('selectedFacilityId'))})
+    return out
+
+
+def abandonment_refusal_cases():
+    out = []
+    for name, inputs in [
+        ('a blank ABEX amount', {'costItems': [{'name': 'Abandonment provision', 'type': 'ABEX', 'amount': ''}]}),
+        ('a missing ABEX amount on an unnamed item', {'costItems': [{'type': 'ABEX'}]}),
+        ('a negative ABEX amount', {'costItems': [{'name': 'Abandonment provision', 'type': 'ABEX', 'amount': -50}]}),
+        ('an ABEX amount that does not parse',
+         {'costItems': [{'name': 'Abandonment provision', 'type': 'ABEX', 'amount': 'lots'}]}),
+    ]:
+        try:
+            resolve_abandonment(inputs.get('costItems'), inputs.get('facilities'), inputs.get('selectedFacilityId'))
+        except Refused as e:
+            out.append({'name': name, 'inputs': inputs, 'expected': {'refused': True, 'message': e.message}})
+            continue
+        raise AssertionError('expected a refusal for: %s' % name)
+    no_years = {'case': {'capexMM': 800, 'annualOpexMM': 60, 'productionKbpd': [], 'pricesUsd': [], 'fiscal': {}},
+                'abandonment': {'abandonmentSource': 'abex-item', 'abandonmentMM': 260,
+                                'abandonmentBasis': "The plan's ABEX cost item: Decommissioning provision."}}
+    try:
+        fdp_case(no_years['case']['capexMM'], no_years['case']['annualOpexMM'],
+                 no_years['case']['productionKbpd'], no_years['case']['pricesUsd'], {},
+                 no_years['abandonment'])
+    except Refused as e:
+        out.append({'name': 'an end-of-life cost on a case with no production years',
+                    'inputs': no_years, 'expected': {'refused': True, 'message': e.message}})
+    else:
+        raise AssertionError('expected a refusal for a case with no production years')
+    return out
+
+
+def fdp_case_abandonment_cases():
+    """EC6-8: the same screening cases with and without the end-of-life cost.
+
+    `retired` is the case as the engine ran it before, with an abandonment
+    row of zeros, which is the overstatement the decision removes."""
+    shape = concept_profile({'peakProduction': 60})
+    plan = {'capexMM': 2250, 'annualOpexMM': 95, 'productionKbpd': shape, 'pricesUsd': [70] * 20, 'fiscal': {}}
+    concept = {'drillingCapex': 520, 'facilitiesCapex': 1350, 'subseaCapex': 380, 'opex': 95, 'peakProduction': 60}
+    scenario = {'oilPrice': 70, 'discountRate': 10}
+    card = dict(plan, fiscal={'discountRate': 10.0, 'royaltyRate': 12.5, 'taxRate': 30.0})
+    short = {'capexMM': 100, 'annualOpexMM': 10, 'productionKbpd': [30, 25, 20], 'pricesUsd': [80] * 3, 'fiscal': {}}
+    single = {'capexMM': 100, 'annualOpexMM': 10, 'productionKbpd': [30], 'pricesUsd': [80], 'fiscal': {}}
+    abex_260 = resolve_abandonment([EC68_CAPEX, EC68_ABEX], [EC68_FPSO])
+    estimate = resolve_abandonment(None, [EC68_FPSO])
+    nothing = resolve_abandonment()
+    zero_item = resolve_abandonment([{'name': 'Abandonment provision', 'type': 'ABEX', 'amount': 0}])
+    out = []
+    for name, case, ab, extra in [
+        ('the plan ABEX item of 260 falls in the final production year', plan, abex_260, {}),
+        ('no ABEX item: the FPSO decommissioning estimate falls there instead', plan, estimate, {}),
+        ('neither: the case is the one the engine always ran', plan, nothing, {}),
+        ('a typed zero charges nothing and still names its source', plan, zero_item, {}),
+        ('a scenario card on the plan cost', card, abex_260, {'scenario': scenario, 'concept': concept}),
+        ('a three year case pays 40 in year three', short,
+         {'abandonmentSource': 'abex-item', 'abandonmentMM': 40.0,
+          'abandonmentBasis': "The plan's ABEX cost item: Abandonment provision."}, {}),
+        ('a single producing year pays its abandonment in that year', single,
+         {'abandonmentSource': 'abex-item', 'abandonmentMM': 25.0,
+          'abandonmentBasis': "The plan's ABEX cost item: Abandonment provision."}, {}),
+    ]:
+        expected = fdp_case(case['capexMM'], case['annualOpexMM'], case['productionKbpd'],
+                            case['pricesUsd'], case['fiscal'], ab)
+        before = fdp_case(case['capexMM'], case['annualOpexMM'], case['productionKbpd'],
+                          case['pricesUsd'], case['fiscal'])
+        inputs = {'case': case, 'abandonment': ab}
+        inputs.update(extra)
+        entry = {'name': 'EC6-8: %s' % name, 'inputs': inputs, 'expected': expected,
+                 'retired': {'npv': before['metrics']['npv'], 'irr': before['metrics']['irr'],
+                             'irrStatus': before['metrics']['irrStatus']}}
+        if (expected['metrics']['irrStatus'] == 'multiple-roots'
+                and before['metrics']['irrStatus'] != 'multiple-roots'):
+            entry['note'] = ('the end-of-life cost makes the final year negative, so the flow changes sign '
+                             'twice and the rate of return is a set of roots rather than one number '
+                             '(irrContract.js)')
+        out.append(entry)
+    return out
 
 
 def cost_cases():
@@ -1822,6 +2259,13 @@ def main():
             'indices, the schedule (calculateProjectDuration, null for an empty or undated plan; calculateCPM '
             'against a two-pass critical path reference, with the retired passthrough kept beside it; '
             'milestones) and plan completeness and validation. '
+            'EC6-1: the reserves check beside the completeness and the validation (the concept profile '
+            'volume against the oil P50 and the wells carried, non-blocking, with named warnings). '
+            'EC6-3: the corrosion screen, the H2S partial pressure in psia (ppm over a million times the '
+            'operating pressure) against the NACE MR0175 / ISO 15156 sour service threshold of 0.05 psia. '
+            'EC6-8: the end-of-life cost, one abandonment charge in the final production year, from the '
+            'plan ABEX item or the facility decommissioning estimate and never both, with the retired '
+            'zero-abandonment case pinned beside it. '
             'Independent stdlib oracle tools/validation/economics/oracle_fdp.py. Units: money $MM unless a field '
             'says USD (drilling cost); rates kbpd and $/bbl; percent inputs 0 to 100; irr in percent; payback '
             'and durations in years or days as named. A null where a number is expected is NaN or Infinity in '
@@ -1839,6 +2283,9 @@ def main():
         'risk': risk_cases(),
         'schedule': schedule_cases(),
         'plan': plan_cases(),
+        'abandonment': abandonment_cases(),
+        'abandonmentRefusals': abandonment_refusal_cases(),
+        'fdpCaseAbandonment': fdp_case_abandonment_cases(),
         'costItems': cost_cases(),
         'example': example_end_to_end(),
     }
