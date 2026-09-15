@@ -5163,64 +5163,50 @@
       "percent_complete": 100,
       "actual_cost": 450
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "3500.00",
-     "earnedValue": "1500.00",
-     "actualCost": "1450.00",
-     "cpi": "1.03",
-     "spi": "0.43",
-     "cv": "50.00",
-     "sv": "-2000.00",
-     "percentCompleteRaw": "42.86"
-    },
-    "numeric": {
-     "pv": 3500.0,
-     "ev": 1500.0,
-     "ac": 1450.0,
-     "cpi": 1.0344827586206897,
-     "spi": 0.42857142857142855,
-     "cv": 50.0,
-     "sv": -2000.0,
-     "percentCompleteRaw": 42.857142857142854
-    }
+    "plannedValue": 3500.0,
+    "earnedValue": 1500.0,
+    "actualCost": 1450.0,
+    "pv": 3500.0,
+    "ev": 1500.0,
+    "ac": 1450.0,
+    "cpi": 1.0344827586206897,
+    "spi": 0.42857142857142855,
+    "cv": 50.0,
+    "sv": -2000.0,
+    "percentComplete": 42.857142857142854,
+    "taskCount": 3,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
    }
   },
   {
-   "name": "empty task list: NaN percent",
+   "name": "empty task list: no percent complete",
    "inputs": {
-    "tasks": [],
-    "baselineBudget": 10000
+    "tasks": []
    },
    "expected": {
-    "strings": {
-     "plannedValue": "0.00",
-     "earnedValue": "0.00",
-     "actualCost": "0.00",
-     "cpi": "0.00",
-     "spi": "0.00",
-     "cv": "0.00",
-     "sv": "0.00",
-     "percentCompleteRaw": "NaN"
-    },
-    "numeric": {
-     "pv": 0.0,
-     "ev": 0.0,
-     "ac": 0.0,
-     "cpi": 0.0,
-     "spi": 0.0,
-     "cv": 0.0,
-     "sv": 0.0,
-     "percentCompleteRaw": null
-    }
+    "plannedValue": 0.0,
+    "earnedValue": 0.0,
+    "actualCost": 0.0,
+    "pv": 0.0,
+    "ev": 0.0,
+    "ac": 0.0,
+    "cpi": null,
+    "spi": null,
+    "cv": 0.0,
+    "sv": 0.0,
+    "percentComplete": null,
+    "taskCount": 0,
+    "costed": false,
+    "spiBasis": "earned value over budget at completion, not time-phased"
    },
-   "note": "percentCompleteRaw is the string \"NaN\": 0 / 0."
+   "note": "EC6-0: percentComplete is null. It used to be the string \"NaN\", and one card read that as 0 and printed \"Behind Schedule\"."
   },
   {
-   "name": "no actuals but progress: CPI 1 by rule",
+   "name": "no actuals but progress: CPI is not defined",
    "inputs": {
     "tasks": [
      {
@@ -5228,34 +5214,28 @@
       "percent_complete": 40,
       "actual_cost": 0
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "100.00",
-     "earnedValue": "40.00",
-     "actualCost": "0.00",
-     "cpi": "1.00",
-     "spi": "0.40",
-     "cv": "40.00",
-     "sv": "-60.00",
-     "percentCompleteRaw": "40.00"
-    },
-    "numeric": {
-     "pv": 100.0,
-     "ev": 40.0,
-     "ac": 0.0,
-     "cpi": 1.0,
-     "spi": 0.4,
-     "cv": 40.0,
-     "sv": -60.0,
-     "percentCompleteRaw": 40.0
-    }
-   }
+    "plannedValue": 100.0,
+    "earnedValue": 40.0,
+    "actualCost": 0.0,
+    "pv": 100.0,
+    "ev": 40.0,
+    "ac": 0.0,
+    "cpi": null,
+    "spi": 0.4,
+    "cv": 40.0,
+    "sv": -60.0,
+    "percentComplete": 40.0,
+    "taskCount": 1,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
+   },
+   "note": "EC6-0: cpi is null. It used to be an invented 1.00, printed as \"Under Budget\"."
   },
   {
-   "name": "no actuals and no progress: CPI 0 by rule",
+   "name": "no actuals and no progress: CPI is not defined",
    "inputs": {
     "tasks": [
      {
@@ -5263,34 +5243,27 @@
       "percent_complete": 0,
       "actual_cost": 0
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "100.00",
-     "earnedValue": "0.00",
-     "actualCost": "0.00",
-     "cpi": "0.00",
-     "spi": "0.00",
-     "cv": "0.00",
-     "sv": "-100.00",
-     "percentCompleteRaw": "0.00"
-    },
-    "numeric": {
-     "pv": 100.0,
-     "ev": 0.0,
-     "ac": 0.0,
-     "cpi": 0.0,
-     "spi": 0.0,
-     "cv": 0.0,
-     "sv": -100.0,
-     "percentCompleteRaw": 0.0
-    }
+    "plannedValue": 100.0,
+    "earnedValue": 0.0,
+    "actualCost": 0.0,
+    "pv": 100.0,
+    "ev": 0.0,
+    "ac": 0.0,
+    "cpi": null,
+    "spi": 0.0,
+    "cv": 0.0,
+    "sv": -100.0,
+    "percentComplete": 0.0,
+    "taskCount": 1,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
    }
   },
   {
-   "name": "tasks without costs: SPI 0 by rule",
+   "name": "tasks without costs: no SPI",
    "inputs": {
     "tasks": [
      {
@@ -5300,70 +5273,58 @@
       "name": "y",
       "actual_cost": 20
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "0.00",
-     "earnedValue": "0.00",
-     "actualCost": "20.00",
-     "cpi": "0.00",
-     "spi": "0.00",
-     "cv": "-20.00",
-     "sv": "0.00",
-     "percentCompleteRaw": "NaN"
-    },
-    "numeric": {
-     "pv": 0.0,
-     "ev": 0.0,
-     "ac": 20.0,
-     "cpi": 0.0,
-     "spi": 0.0,
-     "cv": -20.0,
-     "sv": 0.0,
-     "percentCompleteRaw": null
-    }
-   }
+    "plannedValue": 0.0,
+    "earnedValue": 0.0,
+    "actualCost": 20.0,
+    "pv": 0.0,
+    "ev": 0.0,
+    "ac": 20.0,
+    "cpi": 0.0,
+    "spi": null,
+    "cv": -20.0,
+    "sv": 0.0,
+    "percentComplete": null,
+    "taskCount": 2,
+    "costed": false,
+    "spiBasis": "earned value over budget at completion, not time-phased"
+   },
+   "note": "EC6-0: spi and percentComplete are null. This is every project in the app: no screen wrote a task cost until this wave."
   },
   {
    "name": "strings and blanks",
    "inputs": {
     "tasks": [
      {
+      "name": "a",
       "planned_cost": "1500.5",
       "percent_complete": "33.3",
       "actual_cost": "499.99"
      },
      {
+      "name": "b",
       "planned_cost": "",
-      "percent_complete": null,
-      "actual_cost": "abc"
+      "percent_complete": null
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "1500.50",
-     "earnedValue": "499.67",
-     "actualCost": "499.99",
-     "cpi": "1.00",
-     "spi": "0.33",
-     "cv": "-0.32",
-     "sv": "-1000.83",
-     "percentCompleteRaw": "33.30"
-    },
-    "numeric": {
-     "pv": 1500.5,
-     "ev": 499.6664999999999,
-     "ac": 499.99,
-     "cpi": 0.9993529870597411,
-     "spi": 0.33299999999999996,
-     "cv": -0.32350000000008095,
-     "sv": -1000.8335000000001,
-     "percentCompleteRaw": 33.3
-    }
+    "plannedValue": 1500.5,
+    "earnedValue": 499.6664999999999,
+    "actualCost": 499.99,
+    "pv": 1500.5,
+    "ev": 499.6664999999999,
+    "ac": 499.99,
+    "cpi": 0.9993529870597411,
+    "spi": 0.33299999999999996,
+    "cv": -0.32350000000008095,
+    "sv": -1000.8335000000001,
+    "percentComplete": 33.3,
+    "taskCount": 2,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
    }
   },
   {
@@ -5375,30 +5336,23 @@
       "percent_complete": 100,
       "actual_cost": 0.125
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "0.13",
-     "earnedValue": "0.13",
-     "actualCost": "0.13",
-     "cpi": "1.00",
-     "spi": "1.00",
-     "cv": "0.00",
-     "sv": "0.00",
-     "percentCompleteRaw": "100.00"
-    },
-    "numeric": {
-     "pv": 0.125,
-     "ev": 0.125,
-     "ac": 0.125,
-     "cpi": 1.0,
-     "spi": 1.0,
-     "cv": 0.0,
-     "sv": 0.0,
-     "percentCompleteRaw": 100.0
-    }
+    "plannedValue": 0.125,
+    "earnedValue": 0.125,
+    "actualCost": 0.125,
+    "pv": 0.125,
+    "ev": 0.125,
+    "ac": 0.125,
+    "cpi": 1.0,
+    "spi": 1.0,
+    "cv": 0.0,
+    "sv": 0.0,
+    "percentComplete": 100.0,
+    "taskCount": 1,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
    }
   },
   {
@@ -5410,72 +5364,53 @@
       "percent_complete": 100,
       "actual_cost": 10.125
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "10.00",
-     "earnedValue": "10.00",
-     "actualCost": "10.13",
-     "cpi": "0.99",
-     "spi": "1.00",
-     "cv": "-0.13",
-     "sv": "0.00",
-     "percentCompleteRaw": "100.00"
-    },
-    "numeric": {
-     "pv": 10.0,
-     "ev": 10.0,
-     "ac": 10.125,
-     "cpi": 0.9876543209876543,
-     "spi": 1.0,
-     "cv": -0.125,
-     "sv": 0.0,
-     "percentCompleteRaw": 100.0
-    }
+    "plannedValue": 10.0,
+    "earnedValue": 10.0,
+    "actualCost": 10.125,
+    "pv": 10.0,
+    "ev": 10.0,
+    "ac": 10.125,
+    "cpi": 0.9876543209876543,
+    "spi": 1.0,
+    "cv": -0.125,
+    "sv": 0.0,
+    "percentComplete": 100.0,
+    "taskCount": 1,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
    }
   },
   {
-   "name": "planned value nets to zero with earned value: Infinity percent",
+   "name": "a single fully spent task",
    "inputs": {
     "tasks": [
      {
-      "planned_cost": -100,
-      "percent_complete": 50,
-      "actual_cost": 0
-     },
-     {
+      "name": "one",
       "planned_cost": 100,
       "percent_complete": 100,
-      "actual_cost": 0
+      "actual_cost": 100
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "0.00",
-     "earnedValue": "50.00",
-     "actualCost": "0.00",
-     "cpi": "1.00",
-     "spi": "1.00",
-     "cv": "50.00",
-     "sv": "50.00",
-     "percentCompleteRaw": "Infinity"
-    },
-    "numeric": {
-     "pv": 0.0,
-     "ev": 50.0,
-     "ac": 0.0,
-     "cpi": 1.0,
-     "spi": 1.0,
-     "cv": 50.0,
-     "sv": 50.0,
-     "percentCompleteRaw": null
-    }
-   },
-   "note": "percentCompleteRaw is the string \"Infinity\"."
+    "plannedValue": 100.0,
+    "earnedValue": 100.0,
+    "actualCost": 100.0,
+    "pv": 100.0,
+    "ev": 100.0,
+    "ac": 100.0,
+    "cpi": 1.0,
+    "spi": 1.0,
+    "cv": 0.0,
+    "sv": 0.0,
+    "percentComplete": 100.0,
+    "taskCount": 1,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
+   }
   },
   {
    "name": "over budget and behind",
@@ -5486,30 +5421,23 @@
       "percent_complete": 30,
       "actual_cost": 2500
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "4000.00",
-     "earnedValue": "1200.00",
-     "actualCost": "2500.00",
-     "cpi": "0.48",
-     "spi": "0.30",
-     "cv": "-1300.00",
-     "sv": "-2800.00",
-     "percentCompleteRaw": "30.00"
-    },
-    "numeric": {
-     "pv": 4000.0,
-     "ev": 1200.0,
-     "ac": 2500.0,
-     "cpi": 0.48,
-     "spi": 0.3,
-     "cv": -1300.0,
-     "sv": -2800.0,
-     "percentCompleteRaw": 30.0
-    }
+    "plannedValue": 4000.0,
+    "earnedValue": 1200.0,
+    "actualCost": 2500.0,
+    "pv": 4000.0,
+    "ev": 1200.0,
+    "ac": 2500.0,
+    "cpi": 0.48,
+    "spi": 0.3,
+    "cv": -1300.0,
+    "sv": -2800.0,
+    "percentComplete": 30.0,
+    "taskCount": 1,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
    }
   },
   {
@@ -5616,30 +5544,23 @@
       "percent_complete": 45,
       "actual_cost": 869
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "9030.00",
-     "earnedValue": "4064.86",
-     "actualCost": "9590.00",
-     "cpi": "0.42",
-     "spi": "0.45",
-     "cv": "-5525.14",
-     "sv": "-4965.14",
-     "percentCompleteRaw": "45.02"
-    },
-    "numeric": {
-     "pv": 9030.0,
-     "ev": 4064.86,
-     "ac": 9590.0,
-     "cpi": 0.42386444212721586,
-     "spi": 0.45015060908084165,
-     "cv": -5525.139999999999,
-     "sv": -4965.139999999999,
-     "percentCompleteRaw": 45.015060908084166
-    }
+    "plannedValue": 9030.0,
+    "earnedValue": 4064.86,
+    "actualCost": 9590.0,
+    "pv": 9030.0,
+    "ev": 4064.86,
+    "ac": 9590.0,
+    "cpi": 0.42386444212721586,
+    "spi": 0.45015060908084165,
+    "cv": -5525.139999999999,
+    "sv": -4965.139999999999,
+    "percentComplete": 45.015060908084166,
+    "taskCount": 20,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
    }
   },
   {
@@ -5651,30 +5572,134 @@
       "percent_complete": 100,
       "actual_cost": 2.675
      }
-    ],
-    "baselineBudget": 10000
+    ]
    },
    "expected": {
-    "strings": {
-     "plannedValue": "2.67",
-     "earnedValue": "2.67",
-     "actualCost": "2.67",
-     "cpi": "1.00",
-     "spi": "1.00",
-     "cv": "0.00",
-     "sv": "0.00",
-     "percentCompleteRaw": "100.00"
-    },
-    "numeric": {
-     "pv": 2.675,
-     "ev": 2.675,
-     "ac": 2.675,
-     "cpi": 1.0,
-     "spi": 1.0,
-     "cv": 0.0,
-     "sv": 0.0,
-     "percentCompleteRaw": 100.0
-    }
+    "plannedValue": 2.675,
+    "earnedValue": 2.675,
+    "actualCost": 2.675,
+    "pv": 2.675,
+    "ev": 2.675,
+    "ac": 2.675,
+    "cpi": 1.0,
+    "spi": 1.0,
+    "cv": 0.0,
+    "sv": 0.0,
+    "percentComplete": 100.0,
+    "taskCount": 1,
+    "costed": true,
+    "spiBasis": "earned value over budget at completion, not time-phased"
+   }
+  }
+ ],
+ "evmRefusals": [
+  {
+   "name": "a cost pasted with its currency symbol",
+   "inputs": {
+    "tasks": [
+     {
+      "name": "Rig move",
+      "planned_cost": "$1,200"
+     }
+    ]
+   },
+   "expected": {
+    "refused": true,
+    "message": "Rig move: planned cost is not a number: $1,200"
+   }
+  },
+  {
+   "name": "a negative planned cost",
+   "inputs": {
+    "tasks": [
+     {
+      "name": "Credit",
+      "planned_cost": -100,
+      "percent_complete": 50
+     }
+    ]
+   },
+   "expected": {
+    "refused": true,
+    "message": "Credit: planned cost may not be negative: -100"
+   }
+  },
+  {
+   "name": "a negative actual cost",
+   "inputs": {
+    "tasks": [
+     {
+      "name": "Refund",
+      "planned_cost": 100,
+      "actual_cost": -20
+     }
+    ]
+   },
+   "expected": {
+    "refused": true,
+    "message": "Refund: actual cost may not be negative: -20"
+   }
+  },
+  {
+   "name": "progress over 100 percent",
+   "inputs": {
+    "tasks": [
+     {
+      "name": "Overdone",
+      "planned_cost": 100,
+      "percent_complete": 150
+     }
+    ]
+   },
+   "expected": {
+    "refused": true,
+    "message": "Overdone: percent complete must be between 0 and 100, not 150"
+   }
+  },
+  {
+   "name": "negative progress",
+   "inputs": {
+    "tasks": [
+     {
+      "name": "Back",
+      "planned_cost": 100,
+      "percent_complete": -10
+     }
+    ]
+   },
+   "expected": {
+    "refused": true,
+    "message": "Back: percent complete must be between 0 and 100, not -10"
+   }
+  },
+  {
+   "name": "an unreadable progress figure",
+   "inputs": {
+    "tasks": [
+     {
+      "name": "Half",
+      "planned_cost": 100,
+      "percent_complete": "half"
+     }
+    ]
+   },
+   "expected": {
+    "refused": true,
+    "message": "Half: percent complete is not a number: half"
+   }
+  },
+  {
+   "name": "an unnamed task is refused by its position",
+   "inputs": {
+    "tasks": [
+     {
+      "planned_cost": "abc"
+     }
+    ]
+   },
+   "expected": {
+    "refused": true,
+    "message": "task 1: planned cost is not a number: abc"
    }
   }
  ],
@@ -5708,24 +5733,24 @@
     0,
     0
    ],
-   "expectedCpi": 0.0,
-   "expectedSpi": 0.0
+   "expectedCpi": null,
+   "expectedSpi": null
   },
   {
    "inputs": [
     10,
     0
    ],
-   "expectedCpi": 1.0,
-   "expectedSpi": 1.0
+   "expectedCpi": null,
+   "expectedSpi": null
   },
   {
    "inputs": [
     -5,
     0
    ],
-   "expectedCpi": 0.0,
-   "expectedSpi": 0.0
+   "expectedCpi": null,
+   "expectedSpi": null
   },
   {
    "inputs": [
@@ -5819,8 +5844,8 @@
     {
      "id": "t1",
      "name": "Engineering",
-     "startMs": 1767225600000.0,
-     "endMs": 1772323200000.0,
+     "startDate": "2026-01-01",
+     "endDate": "2026-03-01",
      "progress": 45,
      "type": "task",
      "project": "Example development",
@@ -5830,13 +5855,14 @@
       "progressSelectedColor": "#65a30d"
      },
      "owner": "A",
-     "status": "active"
+     "status": "active",
+     "task_category": null
     },
     {
      "id": "t2",
      "name": "Sanction",
-     "startMs": 1772323200000.0,
-     "endMs": 1772323200000.0,
+     "startDate": "2026-03-01",
+     "endDate": "2026-03-01",
      "progress": 0,
      "type": "milestone",
      "project": "Example development",
@@ -5847,6 +5873,7 @@
      },
      "owner": "B",
      "status": "planned",
+     "task_category": null,
      "dependencies": [
       "t1"
      ]
@@ -5854,8 +5881,8 @@
     {
      "id": "t3",
      "name": "Drilling",
-     "startMs": 1772409600000.0,
-     "endMs": 1790726400000.0,
+     "startDate": "2026-03-02",
+     "endDate": "2026-09-30",
      "progress": "30",
      "type": "task",
      "project": "Example development",
@@ -5866,6 +5893,7 @@
      },
      "owner": null,
      "status": "planned",
+     "task_category": null,
      "dependencies": [
       "t1",
       "t2"
@@ -5874,8 +5902,8 @@
     {
      "id": "t4",
      "name": "No dates",
-     "startMs": null,
-     "endMs": null,
+     "startDate": null,
+     "endDate": null,
      "progress": 0,
      "type": "task",
      "project": "Example development",
@@ -5885,13 +5913,14 @@
       "progressSelectedColor": "#65a30d"
      },
      "owner": "C",
-     "status": "planned"
+     "status": "planned",
+     "task_category": null
     },
     {
      "id": "t5",
      "name": "Null dates",
-     "startMs": 0.0,
-     "endMs": null,
+     "startDate": null,
+     "endDate": null,
      "progress": 100,
      "type": "task",
      "project": "Example development",
@@ -5901,7 +5930,8 @@
       "progressSelectedColor": "#65a30d"
      },
      "owner": null,
-     "status": null
+     "status": null,
+     "task_category": null
     }
    ]
   },

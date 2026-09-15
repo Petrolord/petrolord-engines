@@ -432,57 +432,105 @@ def scurve(afe, items, invoices, as_of=None):
 # ---------------------------------------------------------------------
 
 
+class EvmRefused(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+
+def _task_label(t, i):
+    return t.get('name') or t.get('id') or 'task %d' % (i + 1)
+
+
+def _read_cost(v, field, label):
+    if v is None or v == '':
+        return 0.0
+    try:
+        n = float(v)
+    except (TypeError, ValueError):
+        raise EvmRefused('%s: %s is not a number: %s' % (label, field, v))
+    if n != n or n in (INF, -INF):
+        raise EvmRefused('%s: %s is not a number: %s' % (label, field, v))
+    if n < 0:
+        raise EvmRefused('%s: %s may not be negative: %s' % (label, field, js_num(n)))
+    return n
+
+
+def _read_percent(v, label):
+    if v is None or v == '':
+        return 0.0
+    try:
+        n = float(v)
+    except (TypeError, ValueError):
+        raise EvmRefused('%s: percent complete is not a number: %s' % (label, v))
+    if n != n or n < 0 or n > 100:
+        raise EvmRefused('%s: percent complete must be between 0 and 100, not %s' % (label, js_num(n)))
+    return n
+
+
+def js_num(n):
+    """How JavaScript prints a number in a template string."""
+    if float(n).is_integer() and abs(n) < 1e21:
+        return '%d' % int(n)
+    return repr(float(n))
+
+
 def evm(tasks):
+    """EC6-0: numbers, not strings from toFixed(2); a percent complete of
+    null rather than the string "NaN" when there is nothing to divide by;
+    an index of null rather than an invented 1.00 when its denominator is
+    zero; and inputs that cannot be read are refused by task name."""
     pv = ev = ac = 0.0
-    for t in tasks:
-        pc = pf_or0(t.get('planned_cost'))
-        pct = pf_or0(t.get('percent_complete'))
+    for i, t in enumerate(tasks):
+        label = _task_label(t, i)
+        pc = _read_cost(t.get('planned_cost'), 'planned cost', label)
+        pct = _read_percent(t.get('percent_complete'), label)
         pv += pc
         ev += pc * (pct / 100.0)
-        ac += pf_or0(t.get('actual_cost'))
-    cpi = (1.0 if ev > 0 else 0.0) if ac == 0 else ev / ac
-    spi = (1.0 if ev > 0 else 0.0) if pv == 0 else ev / pv
-    if pv == 0:
-        raw = NAN if ev == 0 else (INF if ev > 0 else -INF)
-    else:
-        raw = ev / pv * 100.0
-    numeric = {'pv': pv, 'ev': ev, 'ac': ac, 'cpi': cpi, 'spi': spi, 'cv': ev - ac, 'sv': ev - pv, 'percentCompleteRaw': raw}
-    strings = {'plannedValue': js_to_fixed_2(pv), 'earnedValue': js_to_fixed_2(ev), 'actualCost': js_to_fixed_2(ac),
-               'cpi': js_to_fixed_2(cpi), 'spi': js_to_fixed_2(spi), 'cv': js_to_fixed_2(ev - ac),
-               'sv': js_to_fixed_2(ev - pv), 'percentCompleteRaw': js_to_fixed_2(raw)}
-    return {'strings': strings, 'numeric': numeric}
+        ac += _read_cost(t.get('actual_cost'), 'actual cost', label)
+    return {'plannedValue': pv, 'earnedValue': ev, 'actualCost': ac,
+            'pv': pv, 'ev': ev, 'ac': ac,
+            'cpi': None if ac == 0 else ev / ac,
+            'spi': None if pv == 0 else ev / pv,
+            'cv': ev - ac, 'sv': ev - pv,
+            'percentComplete': None if pv == 0 else ev / pv * 100.0,
+            'taskCount': len(tasks), 'costed': pv > 0,
+            'spiBasis': 'earned value over budget at completion, not time-phased'}
 
 
 def cpi_spi(ev, divisor):
     if divisor == 0:
-        return 1.0 if ev > 0 else 0.0
+        return None
     return ev / divisor
 
 
-def js_date_ms(s):
-    """new Date(x).getTime() for the values these tasks carry: a date-only
-    string is UTC midnight, null is the epoch, undefined or junk is NaN."""
-    if s == '__undefined__':
-        return NAN
-    if s is None:
-        return 0.0
+def gantt_date(s):
+    """EC6-0: the LOCAL calendar date a Gantt row carries, or None.
+
+    The engine used to hand the chart `new Date('2026-03-01')`, which is UTC
+    midnight: rendered in Los Angeles that row started on Feb 28, so a task
+    moved a day by being looked at from another time zone. A date-only
+    string is now local midnight, and null or unreadable is null rather
+    than the epoch or an Invalid Date. Emitted as a calendar date so the
+    gate can assert it in any zone."""
+    if s == '__undefined__' or s is None:
+        return None
     d = iso_date(s)
-    if d is None:
-        return NAN
-    return (d - date(1970, 1, 1)).days * 86400000.0
+    return None if d is None else d.isoformat()
 
 
 def gantt(tasks, project):
     out = []
     for t in tasks:
         row = {'id': t.get('id'), 'name': t.get('name'),
-               'startMs': js_date_ms(t.get('planned_start_date', '__undefined__')),
-               'endMs': js_date_ms(t.get('planned_end_date', '__undefined__')),
+               'startDate': gantt_date(t.get('planned_start_date', '__undefined__')),
+               'endDate': gantt_date(t.get('planned_end_date', '__undefined__')),
                'progress': t.get('percent_complete') if truthy(t.get('percent_complete')) else 0,
                'type': 'milestone' if t.get('type') == 'milestone' else 'task',
                'project': project.get('name'), 'isDisabled': False,
                'styles': {'progressColor': '#84cc16', 'progressSelectedColor': '#65a30d'},
-               'owner': t.get('owner'), 'status': t.get('status')}
+               'owner': t.get('owner'), 'status': t.get('status'),
+               'task_category': t.get('task_category')}
         preds = t.get('predecessors')
         if isinstance(preds, list) and len(preds) > 0:
             row['dependencies'] = preds
@@ -649,24 +697,46 @@ def scurve_cases():
 def evm_cases():
     sets = [
         ('three tasks', [{'planned_cost': 1000, 'percent_complete': 50, 'actual_cost': 600}, {'planned_cost': 2000, 'percent_complete': 25, 'actual_cost': 400}, {'planned_cost': 500, 'percent_complete': 100, 'actual_cost': 450}], None),
-        ('empty task list: NaN percent', [], 'percentCompleteRaw is the string "NaN": 0 / 0.'),
-        ('no actuals but progress: CPI 1 by rule', [{'planned_cost': 100, 'percent_complete': 40, 'actual_cost': 0}], None),
-        ('no actuals and no progress: CPI 0 by rule', [{'planned_cost': 100, 'percent_complete': 0, 'actual_cost': 0}], None),
-        ('tasks without costs: SPI 0 by rule', [{'name': 'x'}, {'name': 'y', 'actual_cost': 20}], None),
-        ('strings and blanks', [{'planned_cost': '1500.5', 'percent_complete': '33.3', 'actual_cost': '499.99'}, {'planned_cost': '', 'percent_complete': None, 'actual_cost': 'abc'}], None),
+        ('empty task list: no percent complete', [], 'EC6-0: percentComplete is null. It used to be the string "NaN", and one card read that as 0 and printed "Behind Schedule".'),
+        ('no actuals but progress: CPI is not defined', [{'planned_cost': 100, 'percent_complete': 40, 'actual_cost': 0}], 'EC6-0: cpi is null. It used to be an invented 1.00, printed as "Under Budget".'),
+        ('no actuals and no progress: CPI is not defined', [{'planned_cost': 100, 'percent_complete': 0, 'actual_cost': 0}], None),
+        ('tasks without costs: no SPI', [{'name': 'x'}, {'name': 'y', 'actual_cost': 20}], 'EC6-0: spi and percentComplete are null. This is every project in the app: no screen wrote a task cost until this wave.'),
+        ('strings and blanks', [{'name': 'a', 'planned_cost': '1500.5', 'percent_complete': '33.3', 'actual_cost': '499.99'}, {'name': 'b', 'planned_cost': '', 'percent_complete': None}], None),
         ('a tie at the third decimal: 0.125 rounds to 0.13', [{'planned_cost': 0.125, 'percent_complete': 100, 'actual_cost': 0.125}], None),
         ('negative cost variance rounds away from zero', [{'planned_cost': 10, 'percent_complete': 100, 'actual_cost': 10.125}], None),
-        ('planned value nets to zero with earned value: Infinity percent', [{'planned_cost': -100, 'percent_complete': 50, 'actual_cost': 0}, {'planned_cost': 100, 'percent_complete': 100, 'actual_cost': 0}], 'percentCompleteRaw is the string "Infinity".'),
+        ('a single fully spent task', [{'name': 'one', 'planned_cost': 100, 'percent_complete': 100, 'actual_cost': 100}], None),
         ('over budget and behind', [{'planned_cost': 4000, 'percent_complete': 30, 'actual_cost': 2500}], None),
         ('twenty tasks', [{'planned_cost': 100 + 37 * k, 'percent_complete': (k * 13) % 101, 'actual_cost': 90 + 41 * k} for k in range(20)], None),
         ('2.675 does not tie in binary', [{'planned_cost': 2.675, 'percent_complete': 100, 'actual_cost': 2.675}], None),
     ]
     out = []
     for n, tasks, note in sets:
-        c = {'name': n, 'inputs': {'tasks': tasks, 'baselineBudget': 10000}, 'expected': evm(tasks)}
+        c = {'name': n, 'inputs': {'tasks': tasks}, 'expected': evm(tasks)}
         if note:
             c['note'] = note
         out.append(c)
+    return out
+
+
+def evm_refusal_cases():
+    """EC6-0: what calculateEVM now refuses instead of reading as zero."""
+    out = []
+    for name, tasks in [
+        ('a cost pasted with its currency symbol', [{'name': 'Rig move', 'planned_cost': '$1,200'}]),
+        ('a negative planned cost', [{'name': 'Credit', 'planned_cost': -100, 'percent_complete': 50}]),
+        ('a negative actual cost', [{'name': 'Refund', 'planned_cost': 100, 'actual_cost': -20}]),
+        ('progress over 100 percent', [{'name': 'Overdone', 'planned_cost': 100, 'percent_complete': 150}]),
+        ('negative progress', [{'name': 'Back', 'planned_cost': 100, 'percent_complete': -10}]),
+        ('an unreadable progress figure', [{'name': 'Half', 'planned_cost': 100, 'percent_complete': 'half'}]),
+        ('an unnamed task is refused by its position', [{'planned_cost': 'abc'}]),
+    ]:
+        try:
+            evm(tasks)
+        except EvmRefused as e:
+            out.append({'name': name, 'inputs': {'tasks': tasks},
+                        'expected': {'refused': True, 'message': e.message}})
+            continue
+        raise AssertionError('expected a refusal for: %s' % name)
     return out
 
 
@@ -712,6 +782,7 @@ def main():
         'metricsRefusals': metrics_refusal_cases(),
         'sCurve': scurve_cases(),
         'evm': evm_cases(),
+        'evmRefusals': evm_refusal_cases(),
         'cpiSpi': cpi_spi_cases(),
         'gantt': gantt_cases(),
     }

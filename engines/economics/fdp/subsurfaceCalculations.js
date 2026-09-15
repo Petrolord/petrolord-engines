@@ -1,9 +1,19 @@
 /**
- * VENDORED VERBATIM from the Suite's src/utils/fdp/subsurfaceCalculations.js in the EC0 Economics
- * extraction wave (2026-09-08). No edit at all beyond this header: the module has no imports.
- * Behaviour is unchanged; the gates in __tests__/economics.fdp.test.js and the
- * independent oracle tools/validation/economics/oracle_fdp.py cover it.
+ * EC6-0. Vendored from the Suite in the EC0 extraction wave; `aggregateReserves`
+ * repaired here.
+ *
+ * It used to reduce every row of the reserves table into one set of totals,
+ * whatever fluid each row held. The example plan's 85 MMbbl of oil and 30 Bcf
+ * of gas came out as "Total (P50) 115", and the summary card called that 115
+ * MMbbl of oil. It also added the P90 column and the P10 column the same way,
+ * and a sum of P90s is not the P90 of the sum: adding low cases treats every
+ * reservoir as failing together, which is the one thing a portfolio of
+ * reservoirs does not do.
+ *
+ * Totals are now per fluid, in that fluid's own unit, and the percentile
+ * columns come back labelled as the sums they are.
  */
+import { FdpInputError } from './inputError.js';
 /**
  * Subsurface Calculations Utility
  * Standard formulas for reservoir engineering calculations.
@@ -42,11 +52,65 @@ export const calculateRiskScore = (probability, impact) => {
     return probability * impact;
 };
 
+/** The fluids the reserves table offers, with the unit each is entered in. */
+export const RESERVES_UNITS = { Oil: 'MMbbl', Gas: 'Bcf', Condensate: 'MMbbl' };
+
+const emptyFluidTotal = (fluid) => ({
+  fluid,
+  units: RESERVES_UNITS[fluid],
+  count: 0,
+  p90Sum: 0,
+  p50Sum: 0,
+  p10Sum: 0,
+  recoverableSum: 0,
+});
+
+/**
+ * Total the reserves table, one total per fluid.
+ *
+ * @param {object[]} reservoirs rows carrying `fluid` and the p90/p50/p10 columns
+ * @returns {{byFluid: object, fluids: string[], percentileNote: string}}
+ */
 export const aggregateReserves = (reservoirs) => {
-    return reservoirs.reduce((acc, res) => ({
-        p10: acc.p10 + (parseFloat(res.p10) || 0),
-        p50: acc.p50 + (parseFloat(res.p50) || 0),
-        p90: acc.p90 + (parseFloat(res.p90) || 0),
-        recoverable: acc.recoverable + (parseFloat(res.recoverable) || 0)
-    }), { p10: 0, p50: 0, p90: 0, recoverable: 0 });
+  const byFluid = {};
+  (reservoirs || []).forEach((res, i) => {
+    const fluid = res?.fluid;
+    if (!fluid || !RESERVES_UNITS[fluid]) {
+      const name = res?.name || `row ${i + 1}`;
+      throw new FdpInputError(
+        `${name}: fluid type is missing or unknown (${String(fluid)}); `
+        + `expected one of ${Object.keys(RESERVES_UNITS).join(', ')}`,
+      );
+    }
+    if (!byFluid[fluid]) byFluid[fluid] = emptyFluidTotal(fluid);
+    const t = byFluid[fluid];
+    t.count += 1;
+    t.p90Sum += parseFloat(res.p90) || 0;
+    t.p50Sum += parseFloat(res.p50) || 0;
+    t.p10Sum += parseFloat(res.p10) || 0;
+    t.recoverableSum += parseFloat(res.recoverable) || 0;
+  });
+
+  const fluids = Object.keys(RESERVES_UNITS).filter((f) => byFluid[f]);
+  return {
+    byFluid,
+    fluids,
+    percentileNote: fluids.length
+      ? 'Each column is the arithmetic sum of that column within one fluid. '
+        + 'A sum of P90s is not the P90 of the sum: add low cases only if every '
+        + 'reservoir disappoints together. Aggregate the distributions to get a '
+        + 'portfolio P90.'
+      : 'No reservoirs entered.',
+  };
 };
+
+/**
+ * The plan's headline P50 for one fluid, or 0 when that fluid is absent.
+ * The completeness check and the volumetric cards read this rather than
+ * reaching into the totals object.
+ *
+ * @param {object} aggregate an aggregateReserves result
+ * @param {string} [fluid]
+ * @returns {number}
+ */
+export const reservesP50 = (aggregate, fluid = 'Oil') => aggregate?.byFluid?.[fluid]?.p50Sum || 0;
