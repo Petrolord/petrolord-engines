@@ -46,7 +46,19 @@ const generateFlatProfile = (value, years) => new Array(years).fill(value);
 
 // --- Core Economic Engine ---
 
-export const calculateEconomics = (inputs) => {
+/**
+ * @param {object} inputs the screening case
+ * @param {{skipIrr?: boolean}} [options] `skipIrr: true` leaves the internal
+ *   rate of return uncomputed (`irr` null, `irrStatus` 'not-computed'). For
+ *   callers that read only NPV many times over: the breakeven price solve and
+ *   each Monte Carlo iteration. Since EC6-1 the IRR search sweeps and bisects
+ *   the whole rate band whenever Newton does not land on a verified root or the
+ *   flow changes sign more than once, which made a 5000 iteration breakeven on
+ *   a profile with late losses take minutes. NPV, the ledger and payback are
+ *   identical either way.
+ */
+export const calculateEconomics = (inputs, options = {}) => {
+  const skipIrr = options.skipIrr === true;
   const {
     startYear = new Date().getFullYear(),
     projectLife = 20,
@@ -217,7 +229,7 @@ export const calculateEconomics = (inputs) => {
   const IRR_TOL = 1e-9 * flowScale;
 
   let irr = null;
-  let irrStatus = 'no-sign-change';
+  let irrStatus = skipIrr ? 'not-computed' : 'no-sign-change';
   let irrRoots = null;
   const hasNeg = cashflow.some(c => c.ncf < 0);
   const hasPos = cashflow.some(c => c.ncf > 0);
@@ -236,7 +248,7 @@ export const calculateEconomics = (inputs) => {
     lastSign = sign;
   });
 
-  if (hasNeg && hasPos) {
+  if (!skipIrr && hasNeg && hasPos) {
     let guess = 0.1;
     for(let iter=0; iter<100; iter++){
         let npvIter = 0;
@@ -573,7 +585,8 @@ export const runMonteCarlo = async (baseInputs, settings) => {
             capex: baseInputs.capex.map(v => v * fCapex)
         };
 
-        const res = calculateEconomics(iterInputs);
+        // Only NPV is read from each iteration, so the IRR search is skipped.
+        const res = calculateEconomics(iterInputs, { skipIrr: true });
         results.push(res.metrics.npv);
     }
 
