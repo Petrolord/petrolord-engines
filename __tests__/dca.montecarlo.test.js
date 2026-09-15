@@ -25,6 +25,7 @@ import { runMonteCarloSimulation } from '../engines/dca/monteCarlo.js';
 import { calculateEUR } from '../engines/dca/arps.js';
 
 const ZERO_SPREAD = { hasIntervals: true, qi: 0, Di: 0, b: 0 };
+const SEED = 20260829;
 const CONFIG = { economicLimit: 10, durationDays: 20000, stopAtLimit: true };
 
 // The three Arps families, using the committed Ekene producers' planted
@@ -39,8 +40,12 @@ describe('dca monteCarlo: the decline constant is per DAY', () => {
   for (const c of CASES) {
     it(`${c.name}: zero-spread EUR tracks the closed form`, async () => {
       const closed = calculateEUR(c.qi, c.Di, c.b, CONFIG.economicLimit, c.model);
+      // Seeded: an unseeded run re-draws the +-20 percent economic-limit
+      // spread every time, and at 40 iterations the median of those draws can
+      // land just outside the 3 percent band (CI saw 1.0377 on harmonic).
+      // The band is about the decline unit, so the draw is pinned.
       const r = await runMonteCarloSimulation(
-        { qi: c.qi, Di: c.Di, b: c.b }, ZERO_SPREAD, CONFIG, 40,
+        { qi: c.qi, Di: c.Di, b: c.b }, ZERO_SPREAD, CONFIG, 40, null, SEED,
       );
       const ratio = r.p50 / closed;
       expect(ratio).toBeGreaterThan(0.97);
