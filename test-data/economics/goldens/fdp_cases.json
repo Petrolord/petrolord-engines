@@ -7584,7 +7584,7 @@
    }
   },
   {
-   "name": "zero production every year: irr 0 by convention, payback is the project life",
+   "name": "zero production every year: no sign change, so no rate and no payback",
    "inputs": {
     "capexMM": 800,
     "annualOpexMM": 60,
@@ -7784,7 +7784,7 @@
      "priceDeckRefused": false
     }
    },
-   "note": "irr 0 is the engine convention for no sign change; paybackYears null"
+   "note": "no sign change: irr null with irrStatus no-sign-change; paybackYears null"
   },
   {
    "name": "zero capex: all positive, no IRR exists",
@@ -7933,7 +7933,7 @@
      "priceDeckRefused": false
     }
    },
-   "note": "no sign change: engine irr 0, costCalculations irr null, payback 0"
+   "note": "no sign change: engine irr null, costCalculations irr null, payback 0"
   },
   {
    "name": "opex above revenue every year: negative everywhere",
@@ -8271,7 +8271,7 @@
      "priceDeckRefused": false
     }
    },
-   "note": "no positive flow: irr 0 by convention; maxExposure is the whole loss"
+   "note": "no positive flow: irr null with irrStatus no-sign-change; maxExposure is the whole loss"
   },
   {
    "name": "tax floor: loss years pay no tax",
@@ -15442,7 +15442,7 @@
    }
   },
   {
-   "name": "missing probability: consolidated score is NaN",
+   "name": "missing probability: the unscored risk contributes nothing",
    "inputs": [
     {
      "impact": 4,
@@ -15467,7 +15467,8 @@
      "Unscored": 1
     },
     "health": 80.0
-   }
+   },
+   "note": "1 risk(s) carry no probability or no impact: they are counted Unscored, contribute nothing to the consolidated score and are left out of the health."
   }
  ],
  "schedule": [
