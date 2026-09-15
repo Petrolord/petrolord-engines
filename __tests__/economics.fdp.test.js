@@ -32,7 +32,7 @@ import {
 } from '../engines/economics/fdp/costCalculations.js';
 import {
   runScenario, scenarioNPV, scenarioIRR, scenarioPayback, conceptProfileKbpd,
-  conceptCapexMM, scenarioSensitivity,
+  conceptCapex, conceptCapexMM, scenarioCase, scenarioSensitivity,
 } from '../engines/economics/fdp/scenarioCalculations.js';
 import {
   calculateConceptCost, calculateConceptSchedule, calculateReservesImpact,
@@ -483,6 +483,13 @@ describe('golden: scenarios', () => {
     // The resolved inputs are what the engine actually ran: capex row 0 and
     // the opex of a producing year say so.
     expect(r.cashflow[0].capex).toBe(e.resolved.capexMM);
+    // EC6-9: the card says whether the capex it screened is complete.
+    expect(r.capexStatus).toBe(e.capexStatus);
+    expect(r.capexMissing).toEqual(e.capexMissing);
+    expect(r.capexStatus === 'partial').toBe(e.capexMissing.length > 0);
+    expect(conceptCapex(concept)).toEqual({
+      capexMM: e.resolved.capexMM, capexStatus: e.capexStatus, capexMissing: e.capexMissing,
+    });
     const varOpex = (e.productionKbpd[0] * 1000 * 365 * DEFAULT_FISCAL.variableOpexPerBbl) / 1e6;
     expectNum(r.cashflow[1].opex, e.resolved.annualOpexMM + varOpex, MONEY);
     expectNum(r.cashflow[1].royalty, r.cashflow[1].grossRevenue * (e.resolved.royaltyRate / 100), MONEY);
@@ -605,7 +612,32 @@ describe('golden: facilities', () => {
 
   test.each(G.facilities.flowAssurance.map((c) => [JSON.stringify(c.inputs), c]))('flow assurance %s', (_n, c) => {
     const fluid = c.inputs.fluidProperties;
-    expect(calculateFlowAssuranceRisk(c.inputs.facility, fluid === null ? undefined : fluid)).toEqual(c.expected);
+    const r = calculateFlowAssuranceRisk(c.inputs.facility, fluid === null ? undefined : fluid);
+    expect(r).toEqual(c.expected);
+    // EC6-2: the score is the sum of its named contributions, and no band.
+    expect(r.contributions.reduce((sum, x) => sum + x.points, 0)).toBe(r.score);
+    expect(r.contributions.flatMap((x) => x.hazards)).toEqual(r.hazards);
+    expect(r.risks.map((x) => x.type)).toEqual(r.hazards);
+    expect(r).not.toHaveProperty('level');
+  });
+
+  test('EC6-2 NEGATIVE CONTROL: the retired band borrowed the register words for a different quantity', () => {
+    // The retired rule, restated: High above 5, Medium above 2, Low otherwise.
+    const retiredBand = (score) => (score > 5 ? 'High' : score > 2 ? 'Medium' : 'Low');
+    G.facilities.flowAssurance.forEach((c) => expect(retiredBand(c.expected.score)).toBe(c.retired.level));
+    const three = G.facilities.flowAssurance.find((c) => c.expected.score === 3 && c.note);
+    expect(three.inputs.facility.type).toBe('Subsea Tie-back');
+    expect(three.retired.level).toBe('Medium');
+    expect(getRiskLevel(3).level).toBe('Low');
+    const r = calculateFlowAssuranceRisk(three.inputs.facility, undefined);
+    expect(r.score).toBe(3);
+    expect(r.hazards).toEqual(['Hydrates', 'Wax']);
+    expect(r.level).toBeUndefined();
+    // Across the goldens the retired band and the register disagree on
+    // some score, so the retirement is a change and not a relabel.
+    const disagree = G.facilities.flowAssurance
+      .filter((c) => c.retired.level !== getRiskLevel(c.expected.score).level);
+    expect(disagree.length).toBeGreaterThan(0);
   });
 
   test('bottlenecks', () => {
@@ -727,9 +759,20 @@ describe('golden: schedule', () => {
     expect(c.expected.criticalityDisagreements).toEqual([]);
   });
 
+  test('EC6-4 NEGATIVE CONTROL: only the empty plan moved, and it used to read 0', () => {
+    const moved = G.schedule.filter((c) => !c.expected.refused
+      && c.expected.retiredProjectDuration !== c.expected.projectDuration);
+    expect(moved.map((c) => c.inputs.length)).toEqual([0]);
+    expect(moved[0].expected.retiredProjectDuration).toBe(0);
+    expect(moved[0].expected.projectDuration).toBeNull();
+    expect(calculateProjectDuration(moved[0].inputs)).toBeNull();
+    expect(calculateProjectDuration(undefined)).toBeNull();
+  });
+
   test('EC6-0: a span with no readable dates is null, and the count is in calendar days', () => {
     expect(calculateProjectDuration([{ id: 'a', duration: 3 }])).toBeNull();
-    expect(calculateProjectDuration([])).toBe(0);
+    // EC6-4: an empty plan is null too (it was 0)
+    expect(calculateProjectDuration([])).toBeNull();
     expect(calculateProjectDuration([
       { id: 'a', startDate: '2026-10-30', endDate: '2026-11-03' },
     ])).toBe(4);
@@ -807,6 +850,40 @@ describe('golden: scenario refusals', () => {
       { capex: 100, opex: 60, peakProduction: 50 });
     expect(retired.metrics.npv).toBeCloseTo(3507.6, 0);
     expect(retired.metrics.irr).toBeCloseTo(676.4, 0);
+  });
+});
+
+describe('EC6-9: a partial concept capex is screened and named', () => {
+  const partial = G.scenario.find((c) => c.name === 'a partial concept: the facilities capex is left blank');
+  const complete = G.scenario.find((c) => c.name === 'the same concept with its facilities capex entered is complete');
+
+  test('the golden pair: 1350 partial with facilitiesCapex missing, 2250 complete', () => {
+    expect(partial.expected.resolved.capexMM).toBe(1350);
+    expect(partial.expected.capexStatus).toBe('partial');
+    expect(partial.expected.capexMissing).toEqual(['facilitiesCapex']);
+    expect(complete.expected.resolved.capexMM).toBe(2250);
+    expect(complete.expected.capexStatus).toBe('complete');
+    expect(complete.expected.capexMissing).toEqual([]);
+    const r = runScenario(partial.inputs.scenario, partial.inputs.concept);
+    expect(r.capexStatus).toBe('partial');
+    expect(r.capexMissing).toEqual(['facilitiesCapex']);
+  });
+
+  test('NEGATIVE CONTROL: the retired result carried the partial sum with nothing to say so', () => {
+    // The retired card: the screening result of the same case, no status.
+    const asBefore = runFdpCase(scenarioCase(partial.inputs.scenario, partial.inputs.concept));
+    expect(asBefore).not.toHaveProperty('capexStatus');
+    expect(asBefore).not.toHaveProperty('capexMissing');
+    expect(asBefore.cashflow[0].capex).toBe(1350);
+    // and that partial NPV is not the complete concept's NPV
+    expectNum(asBefore.metrics.npv, partial.expected.npv, MONEY);
+    expect(partial.expected.npv - complete.expected.npv).toBeGreaterThan(1);
+  });
+
+  test('an all-blank concept is still refused, and a total capex is complete', () => {
+    expect(() => conceptCapex({ drillingCapex: '', subseaCapex: null })).toThrow(FdpInputError);
+    expect(conceptCapex({ capex: 1900 })).toEqual({ capexMM: 1900, capexStatus: 'complete', capexMissing: [] });
+    expect(conceptCapex({ drillingCapex: 0, facilitiesCapex: 0, subseaCapex: 0 }).capexStatus).toBe('complete');
   });
 });
 
