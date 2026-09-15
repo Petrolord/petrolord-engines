@@ -402,7 +402,9 @@ def fdp_case(capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal=None):
     irr, exists, roots, clamped, no_root = ir['irr'], ir['exists'], ir['roots'], ir['beyondClamp'], ir['noRoot']
     irr_status = ir['status']
     cums = [r['cumulativeNCF'] for r in rows]
-    payback = payback_from_cumulative(flows, cums, float(life))
+    # EC3-2 (owner decision 2026-09-15): the engine reports null, not the
+    # project life, when the cumulative never turns non-negative.
+    payback = payback_from_cumulative(flows, cums, None)
     pays_back = any(c >= 0 for c in cums)
     metrics = {'npv': npv, 'irr': irr, 'irrStatus': irr_status, 'payback': payback, 'maxExposure': min(cums)}
     metrics.update(tot)

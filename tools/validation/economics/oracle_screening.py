@@ -39,29 +39,39 @@ JavaScript. The statement, in the engine's own words and units:
                 second roots and roots the clamp hides.
   payback       years from the start of the project: index i of the first
                 non-negative cumulative NCF plus the fraction of period i
-                needed to cover the shortfall carried in; 0 if the first
-                period is already non-negative; the project life if the
-                cumulative never turns non-negative.
+                needed to cover the shortfall carried in. EC3-1 / EC3-2
+                (owner decision 2026-09-15): `paybackStatus` is
+                'no-investment' (payback 0) when the cumulative is never
+                negative, 'not-recovered' (payback null) when it never
+                turns non-negative, 'recrossed' when it goes back below
+                zero after the first crossing, else 'ok'; `paybackLast` is
+                the same formula at the LAST crossing into non-negative,
+                null when the cumulative ends negative.
   maxExposure   the minimum cumulative NCF.
   sensitivity   NPV at -30 and +30 percent of oil price, capex, FIXED
                 opex and oil production, one at a time.
   scenarios     Low is -20 percent price and production with +20 percent
-                capex and fixed opex; High is the mirror image.
+                capex and fixed opex; High is the mirror image. EC3-3:
+                variable opex moves with production.
   quick inputs  a 20 year case with capex split half and half over the
                 first two years, gas at 3.5 $/mscf and zero volume, and
                 variable opex at opexPerBbl dollars a barrel.
   portfolio     sums of NPV and capex, risked NPV as NPV times chance of
                 success, capital efficiency as NPV over capex, and the
                 plain average IRR.
-  Monte Carlo   uniform draws of val * (1 +/- range) for every production,
-                price and capex entry, in that order; P10, P50, P90 by the
-                simple-statistics quantile rule; a 20 bin histogram; and a
-                CDF downsampled to every floor(iterations/50)th point.
-                THE ENGINE DRAWS FROM Math.random AND IS THEREFORE NOT
-                REPRODUCIBLE (recorded in FINDINGS-fiscal.md). The gate
-                substitutes a mulberry32 stream for Math.random and the
-                oracle replicates mulberry32 BIT FOR BIT in uint32
-                arithmetic, dividing by 4294967296.
+  Monte Carlo   EC3-7 (owner decision 2026-09-15): ONE uniform factor
+                1 + range * (2u - 1) per uncertain variable per iteration,
+                drawn in the order reserves, price, capex (a falsy range
+                draws nothing), applied to every year: reserves scales oil
+                and gas volume AND variable opex, price scales oil and gas
+                price, capex scales every capex entry. A range outside
+                0..1 is refused. P10, P50, P90 by the simple-statistics
+                quantile rule; a 20 bin histogram; EC3-6: the S-curve is
+                51 points at probability 0, 2, ..., 100 percent, each read
+                with that same quantile rule, so it starts at the smallest
+                NPV, ends at the largest and its 10 / 50 / 90 heights are
+                the P-cards' values. Seeded through mulberry32, replicated
+                BIT FOR BIT in uint32 arithmetic, dividing by 4294967296.
 
 Units: volumes bbl and mscf per year, prices $/bbl and $/mscf, every money
 figure $MM, rates in percent (0 to 100), payback in years, IRR in percent.
@@ -183,15 +193,27 @@ def irr_roots_pct(ncf):
     return [100.0 * r for r in roots]
 
 
-def payback_years(cum, ncf, life):
-    first = next((i for i, c in enumerate(cum) if c >= 0), -1)
-    if first > 0:
-        prev = cum[first - 1]
-        cur = ncf[first]
-        return first + abs(prev) / cur if cur > 0 else float(first)
-    if first == 0:
-        return 0.0
-    return float(life)
+def payback_years(cum, ncf):
+    """(payback, paybackLast, paybackStatus) from the definitions in the
+    module docstring: every index where the cumulative is negative and every
+    index where it is not, then the crossing formula at the first and last
+    entry into non-negative."""
+    def crossing(i):
+        if i == 0:
+            return 0.0
+        return i + abs(cum[i - 1]) / ncf[i] if ncf[i] > 0 else float(i)
+    negative = [i for i, c in enumerate(cum) if c < 0]
+    non_negative = [i for i, c in enumerate(cum) if c >= 0]
+    if not non_negative:
+        return None, None, 'not-recovered'
+    if not negative:
+        return 0.0, 0.0, 'no-investment'
+    first = crossing(non_negative[0])
+    if negative[-1] < non_negative[0]:
+        return first, first, 'ok'
+    if negative[-1] == len(cum) - 1:
+        return first, None, 'recrossed'
+    return first, crossing(negative[-1] + 1), 'recrossed'
 
 
 def run(inp):
@@ -262,12 +284,13 @@ def run(inp):
     cum_arr = [row['cumulativeNCF'] for row in rows]
     roots = irr_roots_pct(ncf)
     reported_irr, irr_status = engine_irr(ncf, roots)
+    payback, payback_last, payback_status = payback_years(cum_arr, ncf)
     metrics = {
         'npv': mid_year_npv(ncf, r),
         'irr': reported_irr,
         'irrStatus': irr_status,
         'irrRoots': roots,
-        'payback': payback_years(cum_arr, ncf, life),
+        'payback': payback, 'paybackLast': payback_last, 'paybackStatus': payback_status,
         'maxExposure': min(cum_arr) if cum_arr else None,
         'totalRevenue': tot['rev'], 'totalCapex': tot['capex'], 'totalOpex': tot['opex'],
         'totalTax': tot['tax'], 'totalRoyalty': tot['roy'], 'totalGovTake': tot['gov'],
@@ -313,8 +336,9 @@ def sensitivity(inp):
 
 
 def scenarios(inp):
-    low = scaled(inp, oilPrice=0.8, oilProd=0.8, capex=1.2, opexFixed=1.2)
-    high = scaled(inp, oilPrice=1.2, oilProd=1.2, capex=0.8, opexFixed=0.8)
+    # EC3-3: the scenario's production carries its variable opex with it.
+    low = scaled(inp, oilPrice=0.8, oilProdWithVariableOpex=0.8, capex=1.2, opexFixed=1.2)
+    high = scaled(inp, oilPrice=1.2, oilProdWithVariableOpex=1.2, capex=0.8, opexFixed=0.8)
     return {'Base': run(inp), 'Low': run(low), 'High': run(high)}
 
 
@@ -394,24 +418,31 @@ def monte_carlo(inp, settings, seed):
     iters = settings.get('iterations', 500) or 500
     unc = settings['uncertainties']
 
-    def sample(v, rng_range):
+    for key in ('reserves', 'price', 'capex'):
+        r = unc.get(key)
+        if r and not (0 <= r <= 1):
+            return {'throws': True, 'error': f'The {key} uncertainty must be a fraction between 0 and 1.'}
+
+    def factor(rng_range):
+        # One draw for the whole iteration; a falsy range draws nothing.
         if not rng_range:
-            return v
-        lo, hi = v * (1 - rng_range), v * (1 + rng_range)
-        return lo + (hi - lo) * rng()
+            return 1.0
+        u = rng()
+        lo, hi = 1.0 - rng_range, 1.0 + rng_range
+        return lo + (hi - lo) * u
 
     results = []
     for _ in range(iters):
+        f_res = factor(unc.get('reserves'))
+        f_price = factor(unc.get('price'))
+        f_capex = factor(unc.get('capex'))
         it = json.loads(json.dumps(inp))
-        it['production'] = {
-            'oil': [sample(v, unc.get('reserves')) for v in inp['production']['oil']],
-            'gas': [sample(v, unc.get('reserves')) for v in inp['production']['gas']],
-        }
-        it['price'] = {
-            'oil': [sample(v, unc.get('price')) for v in inp['price']['oil']],
-            'gas': [sample(v, unc.get('price')) for v in inp['price']['gas']],
-        }
-        it['capex'] = [sample(v, unc.get('capex')) for v in inp['capex']]
+        it['production'] = {'oil': [v * f_res for v in inp['production']['oil']],
+                            'gas': [v * f_res for v in inp['production']['gas']]}
+        it['opexVariable'] = [v * f_res for v in inp.get('opexVariable', [])]
+        it['price'] = {'oil': [v * f_price for v in inp['price']['oil']],
+                       'gas': [v * f_price for v in inp['price']['gas']]}
+        it['capex'] = [v * f_capex for v in inp['capex']]
         results.append(run(it)['metrics']['npv'])
     results.sort()
     mean = 0.0
@@ -427,8 +458,7 @@ def monte_carlo(inp, settings, seed):
         # EC3-0: a zero-width range puts every value in the first bin.
         idx = 0 if degenerate else min(int(math.floor((v - lo) / size)), bins - 1)
         hist[idx]['count'] += 1
-    step = max(1, math.floor(iters / 50))
-    cdf = [{'value': v, 'probability': (i / iters) * 100} for i, v in enumerate(results) if i % step == 0]
+    cdf = [{'value': ss_quantile_sorted(results, k / 50), 'probability': k * 100 / 50} for k in range(51)]
     return {'seed': seed, 'iterations': iters,
         'p10': ss_quantile_sorted(results, 0.1), 'p50': ss_quantile_sorted(results, 0.5),
         'p90': ss_quantile_sorted(results, 0.9), 'emv': mean,
@@ -542,11 +572,12 @@ def build():
         'MID-YEAR discounting at t + 0.5, IRR by a fine scan and bisection of every '
         'sign change (the engine runs clamped Newton from 10 percent; `irrRoots` lists '
         'every root the oracle found and `irr` is the single root or 0 when none), '
-        'payback in years from project start, sensitivity at plus and minus 30 percent, '
+        'payback in years from project start (first crossing; null when never recovered), sensitivity at plus and minus 30 percent, '
         'the plus and minus 20 percent scenarios, expandQuickInputs, getPortfolioMetrics, '
-        'and runMonteCarlo replayed with a bit-for-bit mulberry32 stream standing in for '
-        'Math.random (draw order: oil volumes, gas volumes, oil prices, gas prices, capex; '
-        'an entry with a falsy range consumes no draw). Units: volumes bbl and mscf per '
+        'and runMonteCarlo replayed with a bit-for-bit mulberry32 stream (EC3-7: one factor per '
+        'uncertain variable per iteration applied to every year, drawn reserves, price, capex; '
+        'a falsy range consumes no draw; reserves also scales variable opex; EC3-6: a 51 point '
+        'S-curve read with the quantile rule). Payback carries paybackStatus and paybackLast (EC3-1/2). Units: volumes bbl and mscf per '
         'year, prices $/bbl and $/mscf, all money $MM, rates percent 0 to 100, payback '
         'years, IRR percent. Where the engine and the oracle disagree the case carries an '
         '`engine` object with the engine\'s pinned number and a `disagreement` note.'
@@ -582,7 +613,7 @@ def build():
              fdp_inputs(800, 60, profile, prices)),
         case('fdp_800_no_fiscal', 'The same case with royalty and tax at zero; post-fiscal NPV must be below 0.75 of this.',
              fdp_inputs(800, 60, profile, prices, royalty=0, tax=0)),
-        case('fdp_never_pays_back', 'capex 100000 on the same profile: never pays back, payback reports the project life.',
+        case('fdp_never_pays_back', 'capex 100000 on the same profile: never pays back, payback null with paybackStatus not-recovered (EC3-2; it used to report the project life).',
              fdp_inputs(100000, 60, profile, prices)),
     ]
 
@@ -621,7 +652,7 @@ def build():
 
     # ---- IRR (Suite tests plus roots the method statement must expose) ----
     G['irr'] = [
-        case('irr_no_sign_change', 'Suite test: all-positive cash flow, IRR reported as 0.',
+        case('irr_no_sign_change', 'Suite test: all-positive cash flow, IRR null with no-sign-change; payback 0 with no-investment.',
              {'startYear': 2030, 'projectLife': 2, 'discountRate': 10, 'fiscalType': 'TaxRoyalty',
               'production': {'oil': [1000000, 1000000], 'gas': [0, 0]}, 'price': {'oil': [100, 100], 'gas': [0, 0]},
               'capex': [0, 0], 'opexFixed': [10, 10], 'opexVariable': [0, 0], 'abandonment': [0, 0],
@@ -635,7 +666,7 @@ def build():
                  'scales every term by the same (1 + r)^-0.5 so the year-end roots survive). The engine\'s Newton from '
                  '10 percent lands on one of them; the gate accepts either root and pins which.',
                  [-100, 230, -132]),
-        ncf_case('irr_all_negative', 'Every period negative: no IRR, reported 0; payback is the project life.',
+        ncf_case('irr_all_negative', 'Every period negative: no IRR (null, no-sign-change); payback null, not-recovered.',
                  [-10, -5, -1]),
         ncf_case('irr_tiny_cash_flows_derivative_guard',
                  'ncf of order 1e-7 $MM: the true mid-year IRR is the same 21 percent as irr_known_21pct scaled down, but '
@@ -653,12 +684,21 @@ def build():
                  [-100, 150]),
         ncf_case('payback_exact_recovery', '-100 then +100: cumulative reaches exactly zero at index 1, payback 1 + 100/100 = 2.0 years.',
                  [-100, 100]),
-        ncf_case('payback_first_period_positive', 'Positive from the first period: payback 0.',
+        ncf_case('payback_first_period_positive', 'Positive from the first period and never negative: payback 0, paybackStatus no-investment.',
                  [5, 10, 10]),
-        ncf_case('payback_never', 'Never recovers: payback is the project life (5).',
+        ncf_case('payback_never', 'Never recovers: payback null, paybackStatus not-recovered (EC3-2; it used to report the project life, 5).',
                  [-100, 10, 10, 10, 10]),
-        ncf_case('payback_multi_year', 'Recovers in the fourth period: 3 + 10/40 = 3.25 years; maxExposure -130.',
+        ncf_case('payback_multi_year', 'Cumulative -100, -130, -70, -30, 10: recovers in the FIFTH period, 4 + 30/40 = 4.75 years; maxExposure -130 '
+                 '(EC3-4: this note used to say the fourth period and 3.25 years, which its own numbers refuse).',
                  [-100, -30, 60, 40, 40]),
+        ncf_case('payback_recrossed_from_first_period', 'EC3-1, the OKPOMA shape: cumulative 10, -5, 55. The first crossing is period 0 so payback is 0, '
+                 'paybackStatus recrossed, and paybackLast is 2 + 5/60 where it turns non-negative for good.',
+                 [10, -15, 60]),
+        ncf_case('payback_recrossed_after_crossing', 'EC3-1: cumulative -100, 50, -30, 20. Payback 1 + 100/150 at the first crossing, recrossed, '
+                 'paybackLast 3 + 30/50.',
+                 [-100, 150, -80, 50]),
+        ncf_case('payback_recrossed_never_recovers', 'EC3-1: cumulative 10, -20, -15 ends negative. Payback 0 at the first crossing, recrossed, paybackLast null.',
+                 [10, -30, 5]),
         ncf_case('payback_zero_period_after_negative', 'A zero cash flow period right after the cumulative crosses: crossing period is the one used.',
                  [-50, 60, 0, 10]),
     ]
@@ -688,10 +728,10 @@ def build():
 
     # ---- horizon edge cases ----
     G['horizon'] = [
-        case('horizon_single_year_capex_only', 'A one year project that only spends: npv negative, irr 0, payback = life = 1, exposure = the spend.',
+        case('horizon_single_year_capex_only', 'A one year project that only spends: npv negative, irr null, payback null (not-recovered), exposure = the spend.',
              two_year(projectLife=1, production={'oil': [0], 'gas': [0]}, price={'oil': [100], 'gas': [0]},
                       capex=[50], opexFixed=[10], opexVariable=[0], abandonment=[0])),
-        case('horizon_single_year_profitable', 'A one year project in the black: payback 0, irr 0 (no sign change).',
+        case('horizon_single_year_profitable', 'A one year project in the black: payback 0 (no-investment), irr null (no sign change).',
              two_year(projectLife=1, production={'oil': [1000000], 'gas': [0]}, price={'oil': [100], 'gas': [0]},
                       capex=[10], opexFixed=[10], opexVariable=[0], abandonment=[0])),
         case('horizon_life_shorter_than_profiles', 'projectLife 3 with 10 year profiles: only the first three years count.',
@@ -727,7 +767,7 @@ def build():
          'expected': sensitivity(base_inputs(fiscalType='PSC', costRecoveryCap=60, profitSplitContractor=60))},
     ]
     G['scenarios'] = [
-        {'id': 'scen_base_10yr', 'note': 'generateScenarios on the base case: Base, Low (-20 price and production, +20 capex and fixed opex), High (mirror).',
+        {'id': 'scen_base_10yr', 'note': 'generateScenarios on the base case: Base, Low (-20 price and production with its variable opex, +20 capex and fixed opex), High (mirror). EC3-3: variable opex moves with production.',
          'inputs': base_inputs(), 'expected': scenarios(base_inputs())},
     ]
 
@@ -768,18 +808,17 @@ def build():
                           abandonment=[0, 0, 0, 0, 50.0])
     G['monteCarloSeeded'] = []
     # EC3-0 (owner decision 2026-09-14): runMonteCarlo is seeded through
-    # mulberry32(settings.seed), default 20260829. The seed now lives IN the
-    # settings the engine reads; the stream is consumed in the order the old
-    # Math.random stand-in consumed it, so these values are unchanged.
+    # mulberry32(settings.seed), default 20260829. EC3-7 (2026-09-15): one
+    # factor per variable per iteration, so every value here moved.
     for cid, seed, settings, note in (
         ('mc_seed42_100', 42, {'iterations': 100, 'uncertainties': {'reserves': 0.2, 'price': 0.15, 'capex': 0.1}},
          'runMonteCarlo seeded with 42, 100 iterations, all three uncertainties on.'),
         ('mc_seed7_500', 7, {'iterations': 500, 'uncertainties': {'reserves': 0.1, 'price': 0.25, 'capex': 0.3}},
          'Seed 7, 500 iterations (the engine default), P10/P50/P90 keys hit the even-length averaging branch of the quantile rule.'),
         ('mc_seed3_price_only', 3, {'iterations': 200, 'uncertainties': {'reserves': 0, 'price': 0.2, 'capex': 0}},
-         'Only price uncertain: reserves and capex ranges are falsy and consume NO draws.'),
+         'Only price uncertain: reserves and capex ranges are falsy and consume NO draws; one draw per iteration.'),
         ('mc_seed11_40_iters', 11, {'iterations': 40, 'uncertainties': {'reserves': 0.2, 'price': 0.2, 'capex': 0.2}},
-         'Fewer than 50 iterations: the S-curve downsample step is floored at 1, so every point is kept (FINDINGS S5, fixed EC3-0; it used to be empty).'),
+         'Fewer than 50 iterations: the S-curve is still its 51 quantile points (FINDINGS S5, fixed EC3-0, where it used to be empty; EC3-6 made it 51 points at every size).'),
         ('mc_zero_uncertainty_degenerate', 1, {'iterations': 30, 'uncertainties': {'reserves': 0, 'price': 0, 'capex': 0}},
          'Every range 0: every iteration is the base NPV, P10 = P50 = P90 = EMV = base NPV, and all 30 land in the first bin of a zero-width histogram (FINDINGS S4, fixed EC3-0; the engine used to throw).'),
     ):
@@ -787,6 +826,16 @@ def build():
         G['monteCarloSeeded'].append({'id': cid, 'note': note, 'seed': seed, 'inputs': mc_base,
                                       'settings': dict(settings, seed=seed), 'expected': exp})
     G['monteCarloSeeded'][-1]['expected']['baseNPV'] = run(mc_base)['metrics']['npv']
+    G['monteCarloRefused'] = []
+    for cid, unc, note in (
+        ('mc_refuses_range_above_one', {'reserves': 1.5, 'price': 0.2, 'capex': 0.2},
+         'EC3-7: a reserves range of 1.5 would draw negative volumes; refused by name.'),
+        ('mc_refuses_negative_range', {'reserves': 0.2, 'price': -0.1, 'capex': 0.2},
+         'EC3-7: a negative price range is refused by name.'),
+    ):
+        settings = {'iterations': 20, 'uncertainties': unc, 'seed': 1}
+        G['monteCarloRefused'].append({'id': cid, 'note': note, 'inputs': mc_base, 'settings': settings,
+                                       'expected': monte_carlo(mc_base, settings, 1)})
     dflt = monte_carlo(mc_base, {'iterations': 60, 'uncertainties': {'reserves': 0.2, 'price': 0.2, 'capex': 0.2}}, 20260829)
     G['monteCarloSeeded'].append({
         'id': 'mc_default_seed', 'seed': 20260829, 'inputs': mc_base,
