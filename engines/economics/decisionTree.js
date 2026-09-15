@@ -30,6 +30,12 @@
 //   probability-weighted sum of branch values minus branch costs; decision
 //   nodes to the MAX over branch values minus branch costs (rational
 //   risk-neutral actor). Probabilities at a chance node must sum to 1.
+// - Ties at a decision are reported (EC4-1): the node carries every tied
+//   branch index and says it is indifferent, so a screen can show all of
+//   them instead of recommending whichever was listed first.
+// - Costs and payoffs are read strictly (EC4-4): omitted is 0, and anything
+//   present that is not a finite number, or a negative cost, is refused by
+//   node label.
 // - EVPI / EVII follow the standard prior/posterior construction
 //   (Newendorp & Schuyler; Mian): EVII derives the signal marginals and
 //   posteriors from priors and likelihoods via Bayes, so its inputs CANNOT
@@ -45,6 +51,88 @@ const PROB_TOL = 1e-6;
 const REPRESENTATION_ALLOWANCE = 1e-12;
 const offOne = (sum) => Math.abs(sum - 1) > PROB_TOL + REPRESENTATION_ALLOWANCE;
 
+// EC4-1 (2026-09-15, owner decision): exact ties are reported, never hidden.
+// Two values tie when |a - b| <= TIE_RELATIVE * max(1, |best|), where best is
+// the largest value being compared: relative to the best for values above 1
+// in magnitude, absolute (1e-9) below that. Float residue inside that band is
+// a tie. Every decision node result, and every best-action result, carries
+// `tiedIndices` (every index within the band of the best, in listed order)
+// and `indifferent` (tiedIndices.length > 1). The single index the optimal
+// path marking needs (`bestBranchIndex`, `actionIndex`) is the FIRST listed
+// of the tied indices; the value (`emv`) is the largest. Before, the first
+// strictly greater value won, so a tie silently recommended the first
+// listed branch, and float residue could recommend a later one.
+export const TIE_RELATIVE = 1e-9;
+const tieBand = (best) => TIE_RELATIVE * Math.max(1, Math.abs(best));
+
+function bestWithTies(values) {
+  let best = -Infinity;
+  for (const v of values) if (v > best) best = v;
+  const band = tieBand(best);
+  const tiedIndices = [];
+  values.forEach((v, i) => { if (Math.abs(best - v) <= band) tiedIndices.push(i); });
+  return { best, index: tiedIndices[0], tiedIndices, indifferent: tiedIndices.length > 1 };
+}
+
+// EC4-4 (2026-09-15, owner decision): no silent defaults for money. A cost
+// or payoff that is OMITTED (undefined) is 0. One that is PRESENT must be a
+// finite number, or a string holding one; a blank string, null, a
+// non-numeric value, NaN or an infinity is REFUSED naming the node (or the
+// action) and the field. A negative cost is refused: a receipt is a payoff.
+// Before, a cost read as `Number(cost) || 0` (blank, null, "abc" and NaN all
+// became 0, and -5 became a receipt of 5) and a null or blank payoff was 0.
+const shown = (v) => (typeof v === 'string' ? `"${v}"` : String(v));
+
+function readAmount(raw) {
+  if (raw === undefined) return { kind: 'omitted', value: 0 };
+  if (raw === null || (typeof raw === 'string' && raw.trim() === '')) return { kind: 'blank' };
+  if (typeof raw !== 'number' && typeof raw !== 'string') return { kind: 'notNumber' };
+  const v = Number(raw);
+  return Number.isFinite(v) ? { kind: 'number', value: v } : { kind: 'notNumber' };
+}
+
+/**
+ * A cost as a number of 0 or more (omitted is 0). `subject` names what
+ * carries it (`Branch "Drill"`, `Action "Drill"`); `nodeLabel` is appended
+ * by DecisionTreeError as (at node "...").
+ */
+export function costValue(cost, subject, nodeLabel = null) {
+  const r = readAmount(cost);
+  if (r.kind === 'blank') {
+    throw new DecisionTreeError(`${subject} has a blank cost; a cost must be a number of 0 or more`, nodeLabel);
+  }
+  if (r.kind === 'notNumber') {
+    throw new DecisionTreeError(
+      `${subject} has a cost that is not a finite number (${shown(cost)}); a cost must be a number of 0 or more`, nodeLabel);
+  }
+  if (r.value < 0) {
+    throw new DecisionTreeError(
+      `${subject} has a negative cost (${r.value}); a cost cannot be negative: enter a receipt as a payoff`, nodeLabel);
+  }
+  return r.value;
+}
+
+function readPayoff(payoff, subject, nodeLabel) {
+  if (payoff !== null && typeof payoff === 'object') {
+    const m = readAmount(payoff.mean);
+    if (m.kind !== 'number') {
+      throw new DecisionTreeError(subject === 'Terminal payoff'
+        ? 'Distribution payoff has no finite mean'
+        : `${subject} is a distribution with no finite mean`, nodeLabel);
+    }
+    return m.value;
+  }
+  const r = readAmount(payoff);
+  if (r.kind === 'blank') {
+    throw new DecisionTreeError(`${subject} is blank; a payoff must be a finite number`, nodeLabel);
+  }
+  if (r.kind === 'notNumber') {
+    throw new DecisionTreeError(
+      `${subject} is not a finite number (${shown(payoff)}); a payoff must be a finite number`, nodeLabel);
+  }
+  return r.value;
+}
+
 export class DecisionTreeError extends Error {
   constructor(message, nodeLabel = null) {
     super(nodeLabel ? `${message} (at node "${nodeLabel}")` : message);
@@ -53,26 +141,19 @@ export class DecisionTreeError extends Error {
   }
 }
 
-// EMV basis of a terminal payoff: a plain number, or `.mean` of a
-// distribution summary object.
-export function payoffValue(payoff) {
-  if (payoff == null) return 0;
-  if (typeof payoff === 'object') {
-    const m = Number(payoff.mean);
-    if (!Number.isFinite(m)) {
-      throw new DecisionTreeError('Distribution payoff has no finite mean');
-    }
-    return m;
-  }
-  const v = Number(payoff);
-  if (!Number.isFinite(v)) throw new DecisionTreeError('Terminal payoff is not a number');
-  return v;
+// EMV basis of a terminal payoff: a plain number (or a string holding one),
+// or `.mean` of a distribution summary object. An omitted payoff is 0; a
+// present one that is blank, null or not a finite number is refused (EC4-4),
+// naming `nodeLabel` when given.
+export function payoffValue(payoff, nodeLabel = null) {
+  return readPayoff(payoff, 'Terminal payoff', nodeLabel);
 }
 
 /**
  * EMV rollback. Returns an annotated deep copy of the tree:
  *   every node gains `emv`;
- *   decision nodes gain `bestBranchIndex`;
+ *   decision nodes gain `bestBranchIndex` (the first listed of the tied
+ *   best branches), `tiedIndices` and `indifferent` (EC4-1);
  *   decision/chance branches gain `branchValue` (child EMV minus branch cost)
  *   and `onOptimalPath` (true for every branch reachable by always taking
  *   the best decision at each decision node).
@@ -88,7 +169,7 @@ function evaluate(node) {
     throw new DecisionTreeError('Missing node');
   }
   if (node.type === 'terminal') {
-    return { ...node, emv: payoffValue(node.payoff) };
+    return { ...node, emv: payoffValue(node.payoff, node.label) };
   }
   const branches = node.branches || [];
   if (branches.length === 0) {
@@ -104,7 +185,7 @@ function evaluate(node) {
       }
       pSum += p;
       const child = evaluate(b.node);
-      const branchValue = child.emv - (Number(b.cost) || 0);
+      const branchValue = child.emv - costValue(b.cost, `Branch "${b.label ?? ''}"`, node.label);
       return { ...b, node: child, branchValue };
     });
     if (offOne(pSum)) {
@@ -117,14 +198,18 @@ function evaluate(node) {
   if (node.type === 'decision') {
     const annBranches = branches.map((b) => {
       const child = evaluate(b.node);
-      const branchValue = child.emv - (Number(b.cost) || 0);
+      const branchValue = child.emv - costValue(b.cost, `Branch "${b.label ?? ''}"`, node.label);
       return { ...b, node: child, branchValue };
     });
-    let best = 0;
-    for (let i = 1; i < annBranches.length; i++) {
-      if (annBranches[i].branchValue > annBranches[best].branchValue) best = i;
-    }
-    return { ...node, branches: annBranches, emv: annBranches[best].branchValue, bestBranchIndex: best };
+    const t = bestWithTies(annBranches.map((b) => b.branchValue));
+    return {
+      ...node,
+      branches: annBranches,
+      emv: t.best,
+      bestBranchIndex: t.index,
+      tiedIndices: t.tiedIndices,
+      indifferent: t.indifferent,
+    };
   }
 
   throw new DecisionTreeError(`Unknown node type "${node.type}"`, node.label);
@@ -160,22 +245,30 @@ function validateLottery(outcomes, actions) {
       throw new DecisionTreeError(`Action "${a.label ?? ''}" needs one payoff per outcome`);
     }
   }
+  // EC4-4: every cost and payoff is read before anything is computed.
+  for (const a of actions) {
+    actionCost(a);
+    outcomes.forEach((_, i) => actionPayoff(a, outcomes, i));
+  }
 }
 
-const actionValue = (a, probs) =>
-  probs.reduce((s, p, i) => s + p * payoffValue(a.payoffs[i]), 0) - (Number(a.cost) || 0);
+const actionCost = (a) => costValue(a.cost, `Action "${a.label ?? ''}"`);
+const actionPayoff = (a, outcomes, i) =>
+  readPayoff(a.payoffs[i], `Payoff of action "${a.label ?? ''}" for outcome "${outcomes[i].label ?? i}"`, null);
 
-/** EMV of the best action under the given outcome probabilities. */
+const actionValue = (a, outcomes, probs) =>
+  probs.reduce((s, p, i) => s + p * actionPayoff(a, outcomes, i), 0) - actionCost(a);
+
+/**
+ * EMV of the best action under the given outcome probabilities.
+ * `actionIndex` is the first listed of `tiedIndices`; `indifferent` is true
+ * when more than one action ties for the best (EC4-1).
+ */
 export function bestActionEmv(outcomes, actions, probs = null) {
   validateLottery(outcomes, actions);
   const p = probs ?? outcomes.map((o) => Number(o.probability));
-  let best = -Infinity;
-  let bestIndex = 0;
-  actions.forEach((a, i) => {
-    const v = actionValue(a, p);
-    if (v > best) { best = v; bestIndex = i; }
-  });
-  return { emv: best, actionIndex: bestIndex };
+  const t = bestWithTies(actions.map((a) => actionValue(a, outcomes, p)));
+  return { emv: t.best, actionIndex: t.index, tiedIndices: t.tiedIndices, indifferent: t.indifferent };
 }
 
 /**
@@ -187,7 +280,7 @@ export function evpi(outcomes, actions) {
   const priors = outcomes.map((o) => Number(o.probability));
   const emvPrior = bestActionEmv(outcomes, actions).emv;
   const evWithPerfect = priors.reduce((s, p, i) => {
-    const bestHere = Math.max(...actions.map((a) => payoffValue(a.payoffs[i]) - (Number(a.cost) || 0)));
+    const bestHere = Math.max(...actions.map((a) => actionPayoff(a, outcomes, i) - actionCost(a)));
     return s + p * bestHere;
   }, 0);
   return { evpi: evWithPerfect - emvPrior, emvPrior, evWithPerfect };
@@ -206,6 +299,7 @@ export function evpi(outcomes, actions) {
  */
 export function evii(outcomes, actions, signals, infoCost = 0) {
   validateLottery(outcomes, actions);
+  const netCost = costValue(infoCost, 'The information');
   if (!signals?.length) throw new DecisionTreeError('No signals given');
   const priors = outcomes.map((o) => Number(o.probability));
 
@@ -224,15 +318,18 @@ export function evii(outcomes, actions, signals, infoCost = 0) {
     const joint = priors.map((p, i) => p * Number(sig.likelihoods[i]));
     const pSignal = joint.reduce((s, j) => s + j, 0);
     const posterior = pSignal > 0 ? joint.map((j) => j / pSignal) : priors;
-    const { emv, actionIndex } = bestActionEmv(outcomes, actions, posterior);
+    const { emv, actionIndex, tiedIndices, indifferent } = bestActionEmv(outcomes, actions, posterior);
     evWithInfo += pSignal * emv;
-    return { label: sig.label, pSignal, posterior, emv, bestActionIndex: actionIndex };
+    return {
+      label: sig.label, pSignal, posterior, emv, bestActionIndex: actionIndex,
+      tiedActionIndices: tiedIndices, indifferent,
+    };
   });
 
   const eviiGross = evWithInfo - emvPrior;
   return {
     evii: eviiGross,
-    netEvii: eviiGross - (Number(infoCost) || 0),
+    netEvii: eviiGross - netCost,
     emvPrior,
     evWithInfo,
     perSignal,
@@ -279,7 +376,7 @@ export function buildInformationTree({ outcomes, actions, signals, infoCost = 0,
     label: 'Choose action',
     branches: actions.map((a) => ({
       label: a.label,
-      cost: Number(a.cost) || 0,
+      cost: costValue(a.cost, `Action "${a.label ?? ''}"`),
       node: {
         type: 'chance',
         label: `${a.label} outcome`,
@@ -317,7 +414,7 @@ export function buildInformationTree({ outcomes, actions, signals, infoCost = 0,
     type: 'decision',
     label: 'Information decision',
     branches: [
-      { label: infoLabel, cost: Number(infoCost) || 0, node: withInfo },
+      { label: infoLabel, cost: costValue(infoCost, 'The information'), node: withInfo },
       { label: 'No further information', cost: 0, node: withoutInfo },
     ],
   };

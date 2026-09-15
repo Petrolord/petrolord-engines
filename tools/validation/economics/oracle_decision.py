@@ -13,8 +13,12 @@ JavaScript:
                     probability weighted sum of (child value minus branch
                     cost); a decision node is worth the MAX of (child value
                     minus branch cost) over its branches, the rational
-                    risk-neutral actor. Ties at a decision resolve to the
-                    first branch listed. Every branch reachable by taking
+                    risk-neutral actor. Ties at a decision are REPORTED
+                    (EC4-1, owner decision 2026-09-15): every branch whose
+                    value is within 1e-9 * max(1, |best|) of the best is
+                    tied, the node says whether it is indifferent, and the
+                    single index the path marking needs is the FIRST listed
+                    of the tied ones. Every branch reachable by taking
                     the best decision at every decision node is on the
                     optimal path. Probabilities at a chance node must be a
                     distribution: each in [0, 1], summing to 1 within 1e-6,
@@ -24,6 +28,13 @@ JavaScript:
                     Accepted probabilities are used as typed and are never
                     renormalised. Anything further off is REFUSED, not
                     repaired.
+
+  money             a cost or a payoff that is OMITTED is 0. One that is
+                    PRESENT must be a finite number, or a string holding one:
+                    a blank entry, a null, a non-numeric value, a NaN or an
+                    infinity is REFUSED, naming what carries it and the
+                    field, and a negative cost is refused because a receipt
+                    is a payoff (EC4-4, owner decision 2026-09-15).
 
   EVPI              E over outcomes of the best (payoff minus cost) given
                     the outcome, minus the best expected (payoff minus cost)
@@ -112,8 +123,11 @@ Tree Builder and VOI Analyzer. Percent inputs to the VOI Analyzer are 0 to
 stdlib only. Regenerate (deterministic, byte identical):
     python3 tools/validation/economics/oracle_decision.py
 """
+import copy
 import json
+import math
 import os
+import re
 from fractions import Fraction as F
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -123,10 +137,80 @@ OUT = os.path.normpath(os.path.join(HERE, '..', '..', '..', 'test-data', 'econom
 CONSISTENCY_TOL = F(5, 1000)
 PERCENT_TOL = F(1, 10000)
 PROB_TOL = F(1, 10 ** 6)
+TIE_TOL = F(1, 10 ** 9)
+DECIMAL = re.compile(r'^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$')
+OMITTED = object()
 
 
 class Refused(Exception):
     """The oracle refuses an input the method statement does not admit."""
+
+    def __init__(self, message, **details):
+        super().__init__(message)
+        self.details = details
+
+
+def best_with_ties(values):
+    """(best value, first tied index, tied indices, indifferent) under the
+    EC4-1 band: within TIE_TOL * max(1, |best|) of the best."""
+    best = max(values)
+    band = TIE_TOL * max(F(1), abs(best))
+    tied = [i for i, v in enumerate(values) if best - v <= band]
+    return best, tied[0], tied, len(tied) > 1
+
+
+def read_amount(raw):
+    """('omitted' | 'blank' | 'notNumber' | 'number', value)."""
+    if raw is OMITTED:
+        return 'omitted', F(0)
+    if raw is None:
+        return 'blank', None
+    if isinstance(raw, bool):
+        return 'notNumber', None
+    if isinstance(raw, str):
+        text = raw.strip()
+        if text == '':
+            return 'blank', None
+        return ('number', F(text)) if DECIMAL.match(text) else ('notNumber', None)
+    if isinstance(raw, float):
+        return ('number', F(raw)) if math.isfinite(raw) else ('notNumber', None)
+    if isinstance(raw, (int, F)):
+        return 'number', F(raw)
+    return 'notNumber', None
+
+
+def read_cost(raw, subject, node=None):
+    kind, value = read_amount(raw)
+    if kind == 'blank':
+        raise Refused('%s has a blank cost' % subject, kind='blank', field='cost',
+                      subject=subject, node=node)
+    if kind == 'notNumber':
+        raise Refused('%s has a cost that is not a finite number' % subject, kind='notNumber',
+                      field='cost', subject=subject, node=node)
+    if value < 0:
+        raise Refused('%s has a negative cost' % subject, kind='negative', field='cost',
+                      subject=subject, node=node)
+    return value
+
+
+def read_payoff(raw, subject, node=None):
+    if isinstance(raw, dict):
+        kind, value = read_amount(raw['mean'] if 'mean' in raw else OMITTED)
+        if kind != 'number':
+            # The message names the distribution, not the terminal, exactly as
+            # the engine's long-standing wording does.
+            named = 'Distribution payoff' if subject == 'Terminal payoff' else subject
+            raise Refused('%s has no finite mean' % named, kind='noMean',
+                          field='payoff', subject=named, node=node)
+        return value
+    kind, value = read_amount(raw)
+    if kind == 'blank':
+        raise Refused('%s is blank' % subject, kind='blank', field='payoff',
+                      subject=subject, node=node)
+    if kind == 'notNumber':
+        raise Refused('%s is not a finite number' % subject, kind='notNumber', field='payoff',
+                      subject=subject, node=node)
+    return value
 
 
 # ---------------------------------------------------------------------
@@ -153,12 +237,8 @@ def out(x):
 # EMV rollback.
 # ---------------------------------------------------------------------
 
-def payoff_value(p):
-    if p is None:
-        return F(0)
-    if isinstance(p, dict):
-        return F(p['mean'])
-    return F(p)
+def payoff_value(p, node=None):
+    return read_payoff(p, 'Terminal payoff', node)
 
 
 def is_distribution(probs):
@@ -182,8 +262,9 @@ def evaluate(node):
     if node is None or not isinstance(node, dict):
         raise Refused('missing node')
     t = node.get('type')
+    label = node.get('label')
     if t == 'terminal':
-        return {'type': t, 'emv': payoff_value(node.get('payoff'))}
+        return {'type': t, 'emv': payoff_value(node.get('payoff', OMITTED), label)}
     branches = node.get('branches') or []
     if not branches:
         raise Refused('node without branches')
@@ -195,7 +276,7 @@ def evaluate(node):
         emv = F(0)
         for b, p in zip(branches, probs):
             child = evaluate(b.get('node'))
-            bv = child['emv'] - F(b.get('cost', 0) or 0)
+            bv = child['emv'] - read_cost(b.get('cost', OMITTED), 'Branch "%s"' % (b.get('label') or ''), label)
             ann.append({'branchValue': bv, 'node': child, 'probability': p})
             emv += p * bv
         return {'type': t, 'emv': emv, 'branches': ann}
@@ -203,11 +284,11 @@ def evaluate(node):
         ann = []
         for b in branches:
             child = evaluate(b.get('node'))
-            bv = child['emv'] - F(b.get('cost', 0) or 0)
+            bv = child['emv'] - read_cost(b.get('cost', OMITTED), 'Branch "%s"' % (b.get('label') or ''), label)
             ann.append({'branchValue': bv, 'node': child})
-        best = max(range(len(ann)), key=lambda i: (ann[i]['branchValue'], -i))
-        return {'type': t, 'emv': ann[best]['branchValue'], 'branches': ann,
-                'bestBranchIndex': best}
+        emv, best, tied, indifferent = best_with_ties([a['branchValue'] for a in ann])
+        return {'type': t, 'emv': emv, 'branches': ann, 'bestBranchIndex': best,
+                'tiedIndices': tied, 'indifferent': indifferent}
     raise Refused('unknown node type %r' % t)
 
 
@@ -235,6 +316,8 @@ def flatten(ann):
         rec = {'path': list(path), 'type': node['type'], 'emv': node['emv']}
         if node['type'] == 'decision':
             rec['bestBranchIndex'] = node['bestBranchIndex']
+            rec['tiedIndices'] = node['tiedIndices']
+            rec['indifferent'] = node['indifferent']
         nodes.append(rec)
         if node['type'] == 'terminal':
             return
@@ -252,6 +335,8 @@ def rollback_expected(ann):
     exp = {'emv': ann['emv'], 'nodes': nodes, 'branches': branches}
     if ann['type'] == 'decision':
         exp['bestBranchIndex'] = ann['bestBranchIndex']
+        exp['tiedIndices'] = ann['tiedIndices']
+        exp['indifferent'] = ann['indifferent']
     return exp
 
 
@@ -267,39 +352,55 @@ def check_lottery(outcomes, actions):
     for a in actions:
         if len(a['payoffs']) != len(outcomes):
             raise Refused('payoff count')
+    for a in actions:
+        action_cost(a)
+        for i in range(len(outcomes)):
+            action_payoff(a, outcomes, i)
 
 
-def action_value(a, probs):
-    return sum((p * payoff_value(v) for p, v in zip(probs, a['payoffs'])), F(0)) - F(a.get('cost', 0) or 0)
+def action_cost(a):
+    return read_cost(a.get('cost', OMITTED), 'Action "%s"' % (a.get('label') or ''))
+
+
+def action_payoff(a, outcomes, i):
+    return read_payoff(a['payoffs'][i],
+                       'Payoff of action "%s" for outcome "%s"'
+                       % (a.get('label') or '', outcomes[i].get('label', i)))
+
+
+def action_value(a, outcomes, probs):
+    return sum((p * action_payoff(a, outcomes, i) for i, p in enumerate(probs)), F(0)) - action_cost(a)
 
 
 def best_action(outcomes, actions, probs=None):
-    """(emv, index) of the best action; ties to the first listed."""
+    """(emv, index, tied indices, indifferent); the index is the first listed
+    of the tied actions."""
     check_lottery(outcomes, actions)
     p = probs if probs is not None else [F(o['probability']) for o in outcomes]
-    vals = [action_value(a, p) for a in actions]
-    best = max(range(len(vals)), key=lambda i: (vals[i], -i))
-    return vals[best], best
+    vals = [action_value(a, outcomes, p) for a in actions]
+    return best_with_ties(vals)
 
 
 def evpi(outcomes, actions):
     check_lottery(outcomes, actions)
     priors = [F(o['probability']) for o in outcomes]
-    emv_prior, best_prior = best_action(outcomes, actions)
+    emv_prior, best_prior, tied_prior, indifferent_prior = best_action(outcomes, actions)
     ev_perfect = F(0)
     per_outcome = []
     for i, p in enumerate(priors):
-        vals = [payoff_value(a['payoffs'][i]) - F(a.get('cost', 0) or 0) for a in actions]
-        b = max(range(len(vals)), key=lambda k: (vals[k], -k))
+        vals = [action_payoff(a, outcomes, i) - action_cost(a) for a in actions]
+        best_here, b, _, _ = best_with_ties(vals)
         per_outcome.append(b)
-        ev_perfect += p * vals[b]
+        ev_perfect += p * best_here
     return {'emvPrior': emv_prior, 'bestActionIndex': best_prior,
+            'bestActionTiedIndices': tied_prior, 'indifferent': indifferent_prior,
             'evWithPerfect': ev_perfect, 'evpi': ev_perfect - emv_prior,
             'perfectBestActionIndex': per_outcome}
 
 
 def evii(outcomes, actions, signals, info_cost=0):
     check_lottery(outcomes, actions)
+    net_cost = read_cost(info_cost, 'The information')
     if not signals:
         raise Refused('no signals')
     priors = [F(o['probability']) for o in outcomes]
@@ -308,20 +409,21 @@ def evii(outcomes, actions, signals, info_cost=0):
         col = sum((F(s['likelihoods'][i]) for s in signals), F(0))
         if abs(col - 1) > PROB_TOL:
             raise Refused('likelihood column %d sums to %s' % (i, col))
-    emv_prior, _ = best_action(outcomes, actions)
+    emv_prior = best_action(outcomes, actions)[0]
     ev_info = F(0)
     per_signal = []
     for s in signals:
         joint = [priors[i] * F(s['likelihoods'][i]) for i in range(n)]
         p_s = sum(joint, F(0))
         post = [j / p_s for j in joint] if p_s > 0 else list(priors)
-        emv_s, idx = best_action(outcomes, actions, post)
+        emv_s, idx, tied, indifferent = best_action(outcomes, actions, post)
         ev_info += p_s * emv_s
         per_signal.append({'pSignal': p_s, 'posterior': post, 'emv': emv_s,
-                           'bestActionIndex': idx})
+                           'bestActionIndex': idx, 'tiedActionIndices': tied,
+                           'indifferent': indifferent})
     gross = ev_info - emv_prior
     return {'emvPrior': emv_prior, 'evWithInfo': ev_info, 'evii': gross,
-            'netEvii': gross - F(info_cost or 0), 'perSignal': per_signal}
+            'netEvii': gross - net_cost, 'perSignal': per_signal}
 
 
 def implied_priors(outcomes, indicators):
@@ -343,7 +445,7 @@ def act_node(outcomes, actions, probs):
     return {
         'type': 'decision', 'label': 'Choose action',
         'branches': [{
-            'label': a['label'], 'cost': F(a.get('cost', 0) or 0),
+            'label': a['label'], 'cost': action_cost(a),
             'node': {
                 'type': 'chance', 'label': '%s outcome' % a['label'],
                 'branches': [{
@@ -373,7 +475,7 @@ def information_tree(outcomes, actions, marginals, posteriors, signals_labels,
     return {
         'type': 'decision', 'label': 'Information decision',
         'branches': [
-            {'label': info_label, 'cost': F(info_cost or 0), 'node': with_info},
+            {'label': info_label, 'cost': read_cost(info_cost, 'The information'), 'node': with_info},
             {'label': 'No further information', 'cost': F(0), 'node': without},
         ],
     }
@@ -435,13 +537,19 @@ def voi_analyzer(inputs):
     pct = lambda v: F(v) / 100  # noqa: E731
     outcomes = [{'label': o['name'], 'probability': pct(o['probability'])} for o in inputs['outcomes']]
     act_label = inputs['decisionName']
+    # EC4-4: the survey cost is money and is read before anything uses it.
+    info_cost_value = read_cost(inputs['infoScenario']['cost'],
+                                'Information scenario "%s"' % (inputs['infoScenario'].get('name') or ''))
     actions = [
-        {'label': act_label, 'cost': F(inputs['decisionCost']), 'payoffs': [o['payoff'] for o in inputs['outcomes']]},
+        {'label': act_label, 'cost': inputs['decisionCost'], 'payoffs': [o['payoff'] for o in inputs['outcomes']]},
         {'label': 'Do Not %s' % act_label, 'cost': F(0), 'payoffs': [0 for _ in inputs['outcomes']]},
     ]
     info = inputs['infoScenario']
-    emv_without, idx = best_action(outcomes, actions)
+    emv_without, idx, tied_without, indifferent_without = best_action(outcomes, actions)
     optimal_without = actions[idx]['label']
+    best_without = {'actionIndex': idx, 'tiedIndices': tied_without,
+                    'indifferent': indifferent_without,
+                    'tiedLabels': [actions[k]['label'] for k in tied_without]}
     ev = evpi(outcomes, actions)['evpi']
 
     def posterior_of(ind):
@@ -471,15 +579,17 @@ def voi_analyzer(inputs):
             'cards': {'emvWithoutInfo': card(emv_without)[0], 'emvWithInfo': None, 'voi': None,
                       'netVoi': None, 'evpi': card(ev)[0]},
             'consistency': cons, 'withheld': True, 'treePresent': False,
+            'bestActionWithoutInfo': best_without,
         }
 
     emv_with_pre = F(0)
     per_indicator = []
     for m, post in zip(marginals, posteriors):
-        e, k = best_action(outcomes, actions, post)
+        e, k, tied_k, indifferent_k = best_action(outcomes, actions, post)
         emv_with_pre += m * e
-        per_indicator.append({'emv': e, 'bestActionIndex': k})
-    cost = F(info['cost'])
+        per_indicator.append({'emv': e, 'bestActionIndex': k, 'tiedActionIndices': tied_k,
+                              'indifferent': indifferent_k})
+    cost = info_cost_value
     emv_with = emv_with_pre - cost
     voi = emv_with_pre - emv_without
     net = voi - cost
@@ -492,6 +602,7 @@ def voi_analyzer(inputs):
         'cards': {'emvWithoutInfo': card(emv_without)[0], 'emvWithInfo': card(emv_with)[0],
                   'voi': card(voi)[0], 'netVoi': net_text, 'evpi': card(ev)[0]},
         'perIndicator': per_indicator,
+        'bestActionWithoutInfo': best_without,
         'consistency': cons, 'withheld': False,
     }
     tree = information_tree(outcomes, actions, marginals, posteriors, labels, cost,
@@ -539,6 +650,18 @@ THIRDS6 = [{'label': 'Large', 'probability': F('0.333333')},
 SIGNALS3 = [{'label': 'Bright', 'likelihoods': [F(7, 10), F(3, 10), F(1, 10)]},
             {'label': 'Flat', 'likelihoods': [F(2, 10), F(5, 10), F(3, 10)]},
             {'label': 'Dim', 'likelihoods': [F(1, 10), F(2, 10), F(6, 10)]}]
+
+
+def inject(record, path, value):
+    """A deep copy of `record` with `value` written at `path` (a list of keys
+    and indices). Used for NaN and infinity, which JSON cannot carry: the
+    emitted case holds a placeholder string and a `nonFinite` instruction."""
+    live = copy.deepcopy(record)
+    target = live
+    for k in path[:-1]:
+        target = target[k]
+    target[path[-1]] = value
+    return live
 
 
 def terminal(label, payoff):
@@ -729,7 +852,7 @@ def rollback_cases():
         {'type': 'decision', 'label': 'forced', 'branches': [
             {'label': 'only', 'cost': 3, 'node': terminal('x', 10)}]})
     add('equalEmvTie',
-        'Degenerate: a decision whose branches tie exactly (both 30) resolves to the first branch listed; the optimal path follows it and not the other.',
+        'EC4-1: a decision whose first two branches tie exactly (both 30) reports tiedIndices [0, 1] and indifferent; the third (29.999) is outside the band. bestBranchIndex stays the first listed so the optimal-path marking has one branch to follow.',
         {'type': 'decision', 'label': 'tie', 'branches': [
             {'label': 'A', 'cost': 10, 'node': terminal('A', 40)},
             {'label': 'B', 'cost': 0, 'node': {'type': 'chance', 'label': 'Bc', 'branches': [
@@ -767,13 +890,47 @@ def rollback_cases():
                 {'label': 'wait', 'cost': 0, 'node': terminal('wait', 5)}]}},
             {'label': 'storm', 'probability': F(4, 10), 'cost': 8, 'node': terminal('storm', -25)},
         ]})
-    add('missingCostAndNullPayoff',
-        'Boundary: absent cost fields count as 0 and a null payoff is worth 0.',
+    add('omittedCostAndPayoffAreZero',
+        'EC4-4: an OMITTED cost field is 0, and so is an omitted payoff. Only entries that are present are read, so a sparse tree still rolls back.',
         {'type': 'decision', 'label': 'sparse', 'branches': [
-            {'label': 'A', 'node': terminal('A', None)},
+            {'label': 'A', 'node': {'type': 'terminal', 'label': 'A'}},
             {'label': 'B', 'node': {'type': 'chance', 'label': 'Bc', 'branches': [
                 {'label': 'x', 'probability': F(1, 2), 'node': terminal('x', 8)},
                 {'label': 'y', 'probability': F(1, 2), 'node': terminal('y', -2)}]}},
+        ]})
+    add('floatResidueTie',
+        'EC4-1: two branches worth exactly 0.3 in decimals. In binary the chance branch evaluates to 0.30000000000000004, one ulp above the terminal listed first, so the retired strictly-greater rule recommended the SECOND branch. Residue inside the band is a tie, and the first listed keeps the marking.',
+        {'type': 'decision', 'label': 'residue', 'branches': [
+            {'label': 'Sell now', 'node': terminal('Sell now', F(3, 10))},
+            {'label': 'Keep', 'node': {'type': 'chance', 'label': 'Keep outcome', 'branches': [
+                {'label': 'up', 'probability': F(2, 10), 'node': terminal('up', F(7, 10))},
+                {'label': 'down', 'probability': F(8, 10), 'node': terminal('down', F(2, 10))}]}},
+        ]})
+    add('withinToleranceTie',
+        'EC4-1: branch values 43 and 43.00000001, a gap of 1e-8 inside the band 1e-9 * max(1, 43) = 4.3e-8: tied, indifferent, and the first listed carries the marking while the node EMV is the larger value.',
+        {'type': 'decision', 'label': 'within band', 'branches': [
+            {'label': 'A', 'node': terminal('A', 43)},
+            {'label': 'B', 'node': terminal('B', F('43.00000001'))},
+        ]})
+    add('nearTieOutsideTolerance',
+        'EC4-1 control: branch values 43 and 43.0000001, a gap of 1e-7 outside the same band: not tied, and the larger branch (listed second) is the one recommended.',
+        {'type': 'decision', 'label': 'outside band', 'branches': [
+            {'label': 'A', 'node': terminal('A', 43)},
+            {'label': 'B', 'node': terminal('B', F('43.0000001'))},
+        ]})
+    add('absoluteFloorTie',
+        'EC4-1: below unit magnitude the band is absolute. Values 0.2 and 0.2000000005 differ by 5e-10, inside the 1e-9 floor, so they tie.',
+        {'type': 'decision', 'label': 'small', 'branches': [
+            {'label': 'A', 'node': terminal('A', F(2, 10))},
+            {'label': 'B', 'node': terminal('B', F('0.2000000005'))},
+        ]})
+    add('numericStringMoney',
+        'EC4-4: costs and payoffs typed as numeric strings (with surrounding spaces) are numbers, so a form that stores text still rolls back: 40 - 10 = 30 against a chance node worth 2.75.',
+        {'type': 'decision', 'label': 'typed as text', 'branches': [
+            {'label': 'A', 'cost': '10', 'node': terminal('A', '40')},
+            {'label': 'B', 'cost': ' 5 ', 'node': {'type': 'chance', 'label': 'Bc', 'branches': [
+                {'label': 'x', 'probability': F(1, 2), 'node': terminal('x', '18')},
+                {'label': 'y', 'probability': F(1, 2), 'node': terminal('y', '-2.5')}]}},
         ]})
     add('deepAlternation',
         'Four levels of alternating decision and chance nodes, so optimal-path marking is checked below the second level.',
@@ -836,6 +993,81 @@ def rollback_refusals():
         'unknown node type')
     add('missingChildNode', 'A branch without a node is refused.',
         {'type': 'decision', 'label': 'x', 'branches': [{'label': 'a', 'cost': 0}]}, 'missing node')
+    def money(cid, desc, tree, refusal, refused_value, non_finite=None):
+        """A refusal that names what carries the money and which field."""
+        rec = {'id': cid, 'description': desc, 'tree': tree, 'reason': desc.split(':')[0],
+               'refusal': refusal, 'refusedValue': refused_value}
+        if non_finite:
+            rec['nonFinite'] = non_finite
+        live = rec
+        for injection in non_finite or []:
+            live = inject(live, injection['at'], float(injection['value']))
+        try:
+            rollback(live['tree'])
+        except Refused as err:
+            for k, v in refusal.items():
+                assert err.details.get(k) == v, (cid, k, err.details.get(k), v)
+        else:
+            raise AssertionError('oracle accepted %s' % cid)
+        cases.append(rec)
+
+    def drill_branch(cost=None, payoff=300, omit_cost=False):
+        branch = {'label': 'Drill', 'node': terminal('Success', payoff)}
+        if not omit_cost:
+            branch['cost'] = cost
+        return {'type': 'decision', 'label': 'Prospect decision', 'branches': [branch]}
+
+    at_cost = ['tree', 'branches', 0, 'cost']
+    at_payoff = ['tree', 'branches', 0, 'node', 'payoff']
+    branch_cost = {'kind': None, 'field': 'cost', 'subject': 'Branch "Drill"', 'node': 'Prospect decision'}
+
+    def cost_refusal(kind):
+        return dict(branch_cost, kind=kind)
+
+    money('blankCostRefused', 'EC4-4: a branch cost typed and then cleared (a blank string) is refused by node label. Before, it read as 0 and the branch looked free.',
+          drill_branch(''), cost_refusal('blank'), '')
+    money('nullCostRefused', 'EC4-4: a null branch cost is refused the same way a blank one is.',
+          drill_branch(None), cost_refusal('blank'), None)
+    money('nonNumericCostRefused', 'EC4-4: a branch cost of "abc" is refused. Before, Number("abc") || 0 made it free.',
+          drill_branch('abc'), cost_refusal('notNumber'), 'abc')
+    money('nanCostRefused', 'EC4-4: a branch cost of NaN is refused. Before, NaN || 0 made it free.',
+          drill_branch('NaN'), cost_refusal('notNumber'), 'NaN',
+          [{'at': at_cost, 'value': 'NaN'}, {'at': ['refusedValue'], 'value': 'NaN'}])
+    money('infiniteCostRefused', 'EC4-4: an infinite branch cost is refused rather than propagated.',
+          drill_branch('Infinity'), cost_refusal('notNumber'), 'Infinity',
+          [{'at': at_cost, 'value': 'Infinity'}, {'at': ['refusedValue'], 'value': 'Infinity'}])
+    money('negativeCostRefused', 'EC4-4: a branch cost of -5 is refused: a receipt belongs in the payoff. Before, it was added to the branch value as income.',
+          drill_branch(-5), cost_refusal('negative'), -5)
+    money('negativeCostStringRefused', 'EC4-4: a negative cost typed as text is refused the same way.',
+          drill_branch('-3'), cost_refusal('negative'), '-3')
+    money('nullPayoffRefused', 'EC4-4: a terminal payoff of null is refused by node label. Before, it was worth 0, so a cleared field looked like a break-even outcome.',
+          drill_branch(cost=0, payoff=None),
+          {'kind': 'blank', 'field': 'payoff', 'subject': 'Terminal payoff', 'node': 'Success'}, None)
+    money('blankPayoffRefused', 'EC4-4: a blank terminal payoff is refused. Before, Number("") was 0.',
+          drill_branch(cost=0, payoff=''),
+          {'kind': 'blank', 'field': 'payoff', 'subject': 'Terminal payoff', 'node': 'Success'}, '')
+    money('nonNumericPayoffRefused', 'EC4-4: a terminal payoff of "abc" is refused, and the refusal now names the node.',
+          drill_branch(cost=0, payoff='abc'),
+          {'kind': 'notNumber', 'field': 'payoff', 'subject': 'Terminal payoff', 'node': 'Success'}, 'abc')
+    money('nanPayoffRefused', 'EC4-4: a terminal payoff of NaN is refused, naming the node.',
+          drill_branch(cost=0, payoff='NaN'),
+          {'kind': 'notNumber', 'field': 'payoff', 'subject': 'Terminal payoff', 'node': 'Success'}, 'NaN',
+          [{'at': at_payoff, 'value': 'NaN'}, {'at': ['refusedValue'], 'value': 'NaN'}])
+    money('booleanPayoffRefused', 'EC4-4: a boolean payoff is not a number. Before, true was worth 1.',
+          drill_branch(cost=0, payoff=True),
+          {'kind': 'notNumber', 'field': 'payoff', 'subject': 'Terminal payoff', 'node': 'Success'}, True)
+    money('distributionBlankMeanRefused', 'EC4-4: a distribution payoff whose mean is blank is refused. Before, Number("") gave it a mean of 0.',
+          drill_branch(cost=0, payoff={'mean': '', 'p90': 40}),
+          {'kind': 'noMean', 'field': 'payoff', 'subject': 'Distribution payoff', 'node': 'Success'}, '')
+    money('nestedBlankCostRefused', 'EC4-4: a blank cost two levels down is refused naming the node that carries it, not the root.',
+          {'type': 'decision', 'label': 'root', 'branches': [
+              {'label': 'ok', 'cost': 0, 'node': terminal('ok', 1)},
+              {'label': 'deep', 'cost': 0, 'node': {'type': 'chance', 'label': 'Weather', 'branches': [
+                  {'label': 'calm', 'probability': F(1, 2), 'cost': '', 'node': terminal('calm', 10)},
+                  {'label': 'storm', 'probability': F(1, 2), 'node': terminal('storm', 1)}]}},
+          ]},
+          {'kind': 'blank', 'field': 'cost', 'subject': 'Branch "calm"', 'node': 'Weather'}, '')
+
     add('nestedRefusal', 'A bad distribution two levels down is still refused at the root.',
         {'type': 'decision', 'label': 'root', 'branches': [
             {'label': 'ok', 'node': terminal('ok', 1)},
@@ -867,6 +1099,16 @@ def evpi_cases():
     add('distributionPayoffs', 'Payoffs given as distribution summaries; only the means enter.',
         OUTCOMES, [{'label': 'Drill', 'cost': 40, 'payoffs': [{'mean': 300, 'p10': 500}, {'mean': -10}]},
                    {'label': 'Walk', 'cost': 0, 'payoffs': [0, 0]}])
+    add('tiedActionsAtPrior',
+        'EC4-1: two actions worth exactly 37 under the priors (100 / 10 free against 110 / 10 at a cost of 3); the best-action result reports both as tied and says the choice is indifferent.',
+        OUTCOMES, [{'label': 'Alpha', 'cost': 0, 'payoffs': [100, 10]},
+                   {'label': 'Beta', 'cost': 3, 'payoffs': [110, 10]},
+                   {'label': 'Gamma', 'cost': 0, 'payoffs': [20, 20]}])
+    add('omittedAndStringCosts',
+        'EC4-4: the prospect with the drill cost typed as the string "40", the farm-out cost omitted entirely and one payoff as text; every number reads as it looks, so EVPI is still 35.',
+        OUTCOMES, [{'label': 'Drill', 'cost': '40', 'payoffs': ['300', -10]},
+                   {'label': 'Farm out', 'payoffs': [60, 0]},
+                   {'label': 'Do nothing', 'cost': 0, 'payoffs': [0, 0]}])
     add('thirdsPriorsSixPlaces', 'EC4-8: three outcome priors typed 0.333333 (sum 0.999999, on the edge) are accepted and used as typed.',
         THIRDS6, ACTIONS4)
     for p in (F(1, 10), F(2, 10), F(4, 10), F(5, 10), F(8, 10)):
@@ -959,6 +1201,85 @@ def evii_refusals():
     return cases
 
 
+def lottery_refusals():
+    """EC4-4 in the lottery shape: action costs, action payoffs and the
+    information cost, each refused naming the action or the information."""
+    cases = []
+    ORACLE_CALLS = {
+        'bestActionEmv': lambda r: best_action(r['outcomes'], r['actions']),
+        'evpi': lambda r: evpi(r['outcomes'], r['actions']),
+        'evii': lambda r: evii(r['outcomes'], r['actions'], r['signals'], r['infoCost']),
+        'buildInformationTree': lambda r: act_node(r['outcomes'], r['actions'],
+                                                   [F(o['probability']) for o in r['outcomes']]),
+    }
+
+    def add(cid, desc, actions, calls, refusal, refused_value, info_cost=0, non_finite=None):
+        rec = {'id': cid, 'description': desc, 'outcomes': OUTCOMES, 'actions': actions,
+               'signals': SIGNALS, 'infoCost': info_cost, 'calls': calls,
+               'reason': desc.split(':')[0], 'refusal': refusal, 'refusedValue': refused_value}
+        if non_finite:
+            rec['nonFinite'] = non_finite
+        live = rec
+        for injection in non_finite or []:
+            live = inject(live, injection['at'], float(injection['value']))
+        for name in calls:
+            try:
+                ORACLE_CALLS[name](live)
+            except Refused as err:
+                for k, v in refusal.items():
+                    assert err.details.get(k) == v, (cid, name, k, err.details.get(k), v)
+            else:
+                raise AssertionError('oracle accepted %s via %s' % (cid, name))
+        cases.append(rec)
+
+    ALL = ['bestActionEmv', 'evpi', 'evii', 'buildInformationTree']
+    LOTTERY = ['bestActionEmv', 'evpi', 'evii']
+    INFO = ['evii']
+
+    def drill(cost=0, payoffs=(300, -10)):
+        return [{'label': 'Drill', 'cost': cost, 'payoffs': list(payoffs)},
+                {'label': 'Do nothing', 'cost': 0, 'payoffs': [0, 0]}]
+
+    action_cost_refusal = {'field': 'cost', 'subject': 'Action "Drill"', 'node': None}
+    payoff_subject = 'Payoff of action "Drill" for outcome "Success"'
+
+    add('actionBlankCostRefused', 'EC4-4: a blank action cost is refused. Before, it read as 0 and the action looked free.',
+        drill(cost=''), ALL, dict(action_cost_refusal, kind='blank'), '')
+    add('actionNullCostRefused', 'EC4-4: a null action cost is refused.',
+        drill(cost=None), ALL, dict(action_cost_refusal, kind='blank'), None)
+    add('actionNonNumericCostRefused', 'EC4-4: an action cost of "abc" is refused.',
+        drill(cost='abc'), ALL, dict(action_cost_refusal, kind='notNumber'), 'abc')
+    add('actionNanCostRefused', 'EC4-4: an action cost of NaN is refused.',
+        drill(cost='NaN'), ALL, dict(action_cost_refusal, kind='notNumber'), 'NaN',
+        non_finite=[{'at': ['actions', 0, 'cost'], 'value': 'NaN'}, {'at': ['refusedValue'], 'value': 'NaN'}])
+    add('actionNegativeCostRefused', 'EC4-4: an action cost of -40 is refused: a receipt belongs in the payoffs.',
+        drill(cost=-40), ALL, dict(action_cost_refusal, kind='negative'), -40)
+    add('actionBlankPayoffRefused', 'EC4-4: a blank payoff is refused naming the action and the outcome. Before it was 0.',
+        drill(payoffs=('', -10)), LOTTERY,
+        {'kind': 'blank', 'field': 'payoff', 'subject': payoff_subject, 'node': None}, '')
+    add('actionNullPayoffRefused', 'EC4-4: a null payoff is refused naming the action and the outcome.',
+        drill(payoffs=(None, -10)), LOTTERY,
+        {'kind': 'blank', 'field': 'payoff', 'subject': payoff_subject, 'node': None}, None)
+    add('actionNonNumericPayoffRefused', 'EC4-4: a payoff of "abc" is refused naming the action and the outcome.',
+        drill(payoffs=('abc', -10)), LOTTERY,
+        {'kind': 'notNumber', 'field': 'payoff', 'subject': payoff_subject, 'node': None}, 'abc')
+    add('actionInfinitePayoffRefused', 'EC4-4: an infinite payoff is refused rather than propagated into an EMV.',
+        drill(payoffs=('Infinity', -10)), LOTTERY,
+        {'kind': 'notNumber', 'field': 'payoff', 'subject': payoff_subject, 'node': None}, 'Infinity',
+        non_finite=[{'at': ['actions', 0, 'payoffs', 0], 'value': 'Infinity'},
+                    {'at': ['refusedValue'], 'value': 'Infinity'}])
+    add('infoCostBlankRefused', 'EC4-4: a blank information cost is refused. Before, it read as 0 and the net EVII equalled the gross.',
+        drill(cost=40), INFO, {'kind': 'blank', 'field': 'cost', 'subject': 'The information', 'node': None},
+        '', info_cost='')
+    add('infoCostNonNumericRefused', 'EC4-4: an information cost of "abc" is refused.',
+        drill(cost=40), INFO, {'kind': 'notNumber', 'field': 'cost', 'subject': 'The information', 'node': None},
+        'abc', info_cost='abc')
+    add('infoCostNegativeRefused', 'EC4-4: a negative information cost is refused: a payment received for acquiring data belongs in the payoffs.',
+        drill(cost=40), INFO, {'kind': 'negative', 'field': 'cost', 'subject': 'The information', 'node': None},
+        -5, info_cost=-5)
+    return cases
+
+
 def implied_cases():
     cases = []
 
@@ -1015,7 +1336,7 @@ def information_tree_cases():
     add('seismicCost20', 'Suite: 55.5 less 20 = 35.5 loses to 43; the no-information branch is optimal.', OUTCOMES, ACTIONS, SIGNALS, 20)
     add('valueOfInformationTemplate', 'Suite templates.js valueOfInformation: the same lottery and signals at cost 5 with label Acquire 3D seismic.',
         OUTCOMES, ACTIONS, SIGNALS, 5, 'Acquire 3D seismic')
-    add('costExactlyNetZero', 'Degenerate: cost 12.5 makes both root branches worth exactly 43; the tie resolves to the acquire branch listed first.',
+    add('costExactlyNetZero', 'EC4-1: cost 12.5 makes both root branches worth exactly 43, so the root is indifferent between acquiring the information and not; bestBranchIndex is the acquire branch, listed first.',
         OUTCOMES, ACTIONS, SIGNALS, F(25, 2))
     add('noSignals', 'Degenerate: no signals; the builder returns the plain action decision under the priors (EMV 43).', OUTCOMES, ACTIONS, [], 0)
     add('threeByThreeCost12', 'Three outcomes, four actions, three signals at cost 12.', OUTCOMES3, ACTIONS4, SIGNALS3, 12)
@@ -1067,6 +1388,16 @@ def voi_cases():
             ('compoundEdgeInformativeExact', 'EC4-9 reference: the same analysis at exact thirds and ninths; compoundEdgeInformative agrees with it within the stated tolerance.',
              voi_compound(INFORMATIVE_ROWS, None))):
         add(cid, desc, inp)
+    tied = voi_inputs()
+    tied['decisionCost'] = 55
+    add('actionsTiedWithoutInfo',
+        'EC4-1: a decision cost of 55 makes drilling worth exactly 0 without information, the same as not drilling. Both actions are tied, the Analyzer says the decision is indifferent between them, and it names both instead of the first listed.',
+        tied)
+    near_tie = voi_inputs()
+    near_tie['decisionCost'] = F('54.9999')
+    add('actionsNearTieOutsideTolerance',
+        'EC4-1 control: a decision cost of 54.9999 leaves drilling worth 0.0001, outside the band, so drilling alone is optimal even though the EMV card still reads 0.00.',
+        near_tie)
     add('thirdsOutcomeChancesFourPlaces', 'EC4-8: three outcome chances typed 33.3333 percent sum to 99.9999, exactly 1e-4 percent points short, and are accepted end to end (prior tree included); indicators 50 / 50 with outcome chances 50 / 30 / 20 and 16.6666 / 36.6667 / 46.6667, consistent with the stated thirds.',
         voi_thirds())
     add('freeInformation', 'Cost 0; EMV with information equals the pre-cost value 48.', voi_inputs(cost=0))
@@ -1135,6 +1466,46 @@ def voi_refusals():
     none = voi_inputs()
     none['infoScenario']['indicators'] = []
     add('noIndicators', 'An information scenario with no indicators has nothing to value.', none)
+
+    def money(cid, desc, inputs, refusal):
+        """EC4-4: money in the Analyzer inputs, refused by field."""
+        assert voi_percent_refusal(inputs) is None, 'the percent inputs are distributions'
+        try:
+            voi_analyzer(inputs)
+        except Refused as err:
+            for k, v in refusal.items():
+                assert err.details.get(k) == v, (cid, k, err.details.get(k), v)
+        else:
+            raise AssertionError('oracle accepted %s' % cid)
+        cases.append({'id': cid, 'description': desc, 'inputs': inputs,
+                      'reason': desc.split(':')[0], 'refusal': refusal})
+
+    blank_survey = voi_inputs()
+    blank_survey['infoScenario']['cost'] = ''
+    money('surveyCostBlank', 'EC4-4: a survey cost cleared to a blank string is refused naming the scenario. Before, it read as 0 and the net VOI equalled the gross.',
+          blank_survey, {'kind': 'blank', 'field': 'cost',
+                         'subject': 'Information scenario "3D Seismic Survey"', 'node': None})
+    text_survey = voi_inputs()
+    text_survey['infoScenario']['cost'] = 'abc'
+    money('surveyCostNonNumeric', 'EC4-4: a survey cost of "abc" is refused. Before, the cards read NaN.',
+          text_survey, {'kind': 'notNumber', 'field': 'cost',
+                        'subject': 'Information scenario "3D Seismic Survey"', 'node': None})
+    negative_survey = voi_inputs()
+    negative_survey['infoScenario']['cost'] = -10
+    money('surveyCostNegative', 'EC4-4: a survey cost of -10 is refused: a receipt belongs in the payoffs. Before, it was added to the value of information.',
+          negative_survey, {'kind': 'negative', 'field': 'cost',
+                            'subject': 'Information scenario "3D Seismic Survey"', 'node': None})
+    blank_decision = voi_inputs()
+    blank_decision['decisionCost'] = ''
+    money('decisionCostBlank', 'EC4-4: a blank decision cost is refused naming the action. Before, the well looked free to drill.',
+          blank_decision, {'kind': 'blank', 'field': 'cost',
+                           'subject': 'Action "Drill Exploration Well"', 'node': None})
+    null_payoff = voi_inputs()
+    null_payoff['outcomes'][1]['payoff'] = None
+    money('outcomePayoffNull', 'EC4-4: an outcome payoff cleared to null is refused naming the action and the outcome. Before, it was worth 0, so a dry hole looked free.',
+          null_payoff, {'kind': 'blank', 'field': 'payoff',
+                        'subject': 'Payoff of action "Drill Exploration Well" for outcome "Dry Hole"',
+                        'node': None})
     return cases
 
 
@@ -1154,12 +1525,20 @@ def main():
             'decision resolve to the first branch listed. Every case in the Suite\'s '
             'src/lib/__tests__/decisionTree.test.js and src/utils/__tests__/voiCalculations.test.js is '
             'here, plus the two templates from src/components/decisiontree/templates.js, sweeps of '
-            'signal accuracy and information cost, and degenerate and refused cases. As repaired in EC4-0, '
+            'signal accuracy and information cost, and degenerate and refused cases. EC4-1 (owner '
+            'decision 2026-09-15): a decision node and a best-action result carry every tied index and '
+            'whether the choice is indifferent, and the first listed of the tied ones keeps the '
+            'optimal-path marking. EC4-4 (same date): money that is omitted is 0, money that is present '
+            'must be a finite number, and a negative cost is refused, each naming what carries it '
+            '(rollbackRefusals, lotteryRefusals and the money cases in voiRefusals); a case carrying a '
+            'NaN or an infinity holds a placeholder string and a `nonFinite` instruction, since JSON '
+            'cannot hold either. As repaired in EC4-0, '
             'the VOI Analyzer refuses percent inputs that are not distributions (voiRefusals) and withholds '
             'everything that depends on the indicator entries when they contradict the stated priors.'
         ),
         'rollback': rollback_cases(),
         'rollbackRefusals': rollback_refusals(),
+        'lotteryRefusals': lottery_refusals(),
         'evpi': evpi_cases(),
         'evii': evii_cases(),
         'eviiRefusals': evii_refusals(),

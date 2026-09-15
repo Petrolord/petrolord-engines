@@ -1,5 +1,5 @@
 {
- "description": "Economics decision-analysis goldens: EMV rollback over decision, chance and terminal nodes with branch costs and optimal-path marking; EVPI; EVII through Bayes from priors and likelihoods; the implied-priors consistency check; the single-stage information tree; and the VOI Analyzer computation layer on its legacy percent inputs. Independent stdlib oracle (tools/validation/economics/oracle_decision.py) written from the method statements in exact rational arithmetic (fractions.Fraction), emitted as full-precision floats. Money is USD millions ($MM). Probabilities are 0 to 1 except VOI Analyzer inputs, which are percent (0 to 100) as the form types them. Tree node and branch records are addressed by `path`, the list of branch indices from the root: node path [] is the root, [i] is root.branches[i].node, branch path [i, j] is root.branches[i].node.branches[j]. Ties at a decision resolve to the first branch listed. Every case in the Suite's src/lib/__tests__/decisionTree.test.js and src/utils/__tests__/voiCalculations.test.js is here, plus the two templates from src/components/decisiontree/templates.js, sweeps of signal accuracy and information cost, and degenerate and refused cases. As repaired in EC4-0, the VOI Analyzer refuses percent inputs that are not distributions (voiRefusals) and withholds everything that depends on the indicator entries when they contradict the stated priors.",
+ "description": "Economics decision-analysis goldens: EMV rollback over decision, chance and terminal nodes with branch costs and optimal-path marking; EVPI; EVII through Bayes from priors and likelihoods; the implied-priors consistency check; the single-stage information tree; and the VOI Analyzer computation layer on its legacy percent inputs. Independent stdlib oracle (tools/validation/economics/oracle_decision.py) written from the method statements in exact rational arithmetic (fractions.Fraction), emitted as full-precision floats. Money is USD millions ($MM). Probabilities are 0 to 1 except VOI Analyzer inputs, which are percent (0 to 100) as the form types them. Tree node and branch records are addressed by `path`, the list of branch indices from the root: node path [] is the root, [i] is root.branches[i].node, branch path [i, j] is root.branches[i].node.branches[j]. Ties at a decision resolve to the first branch listed. Every case in the Suite's src/lib/__tests__/decisionTree.test.js and src/utils/__tests__/voiCalculations.test.js is here, plus the two templates from src/components/decisiontree/templates.js, sweeps of signal accuracy and information cost, and degenerate and refused cases. EC4-1 (owner decision 2026-09-15): a decision node and a best-action result carry every tied index and whether the choice is indifferent, and the first listed of the tied ones keeps the optimal-path marking. EC4-4 (same date): money that is omitted is 0, money that is present must be a finite number, and a negative cost is refused, each naming what carries it (rollbackRefusals, lotteryRefusals and the money cases in voiRefusals); a case carrying a NaN or an infinity holds a placeholder string and a `nonFinite` instruction, since JSON cannot hold either. As repaired in EC4-0, the VOI Analyzer refuses percent inputs that are not distributions (voiRefusals) and withholds everything that depends on the indicator entries when they contradict the stated priors.",
  "evii": [
   {
    "actions": [
@@ -39,19 +39,27 @@
      {
       "bestActionIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "pSignal": 0.45,
       "posterior": [
        0.5333333333333333,
        0.4666666666666667
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "pSignal": 0.55,
       "posterior": [
        0.10909090909090909,
        0.8909090909090909
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -123,19 +131,27 @@
      {
       "bestActionIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "pSignal": 0.5,
       "posterior": [
        0.3,
        0.7
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "pSignal": 0.5,
       "posterior": [
        0.3,
        0.7
+      ],
+      "tiedActionIndices": [
+       0
       ]
      }
     ]
@@ -207,19 +223,28 @@
      {
       "bestActionIndex": 0,
       "emv": 260.0,
+      "indifferent": false,
       "pSignal": 0.3,
       "posterior": [
        1.0,
        0.0
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 0.0,
+      "indifferent": true,
       "pSignal": 0.7,
       "posterior": [
        0.0,
        1.0
+      ],
+      "tiedActionIndices": [
+       1,
+       2
       ]
      }
     ]
@@ -303,31 +328,43 @@
      {
       "bestActionIndex": 0,
       "emv": 227.1875,
+      "indifferent": false,
       "pSignal": 0.32,
       "posterior": [
        0.4375,
        0.46875,
        0.09375
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 86.57894736842105,
+      "indifferent": false,
       "pSignal": 0.38,
       "posterior": [
        0.10526315789473684,
        0.6578947368421053,
        0.23684210526315788
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 2,
       "emv": 15.333333333333334,
+      "indifferent": false,
       "pSignal": 0.3,
       "posterior": [
        0.06666666666666667,
        0.3333333333333333,
        0.6
+      ],
+      "tiedActionIndices": [
+       2
       ]
      }
     ]
@@ -413,28 +450,40 @@
      {
       "bestActionIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "pSignal": 0.45,
       "posterior": [
        0.5333333333333333,
        0.4666666666666667
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "pSignal": 0.55,
       "posterior": [
        0.10909090909090909,
        0.8909090909090909
+      ],
+      "tiedActionIndices": [
+       1
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "pSignal": 0.0,
       "posterior": [
        0.3,
        0.7
+      ],
+      "tiedActionIndices": [
+       0
       ]
      }
     ]
@@ -513,28 +562,40 @@
      {
       "bestActionIndex": 0,
       "emv": 132.35286608992124,
+      "indifferent": false,
       "pSignal": 0.1699999,
       "posterior": [
        0.5882350519029718,
        0.4117649480970283
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 49.99993225804266,
+      "indifferent": false,
       "pSignal": 0.3099999,
       "posterior": [
        0.3225804266388473,
        0.6774195733611527
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 11.538452218933118,
+      "indifferent": false,
       "pSignal": 0.5199999,
       "posterior": [
        0.19230753698221864,
        0.8076924630177813
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -613,19 +674,27 @@
      {
       "bestActionIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "pSignal": 0.45,
       "posterior": [
        0.5333333333333333,
        0.4666666666666667
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "pSignal": 0.55,
       "posterior": [
        0.10909090909090909,
        0.8909090909090909
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -697,19 +766,27 @@
      {
       "bestActionIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "pSignal": 0.45,
       "posterior": [
        0.5333333333333333,
        0.4666666666666667
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "pSignal": 0.55,
       "posterior": [
        0.10909090909090909,
        0.8909090909090909
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -782,19 +859,27 @@
      {
       "bestActionIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "pSignal": 0.5,
       "posterior": [
        0.3,
        0.7
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "pSignal": 0.5,
       "posterior": [
        0.3,
        0.7
+      ],
+      "tiedActionIndices": [
+       0
       ]
      }
     ]
@@ -867,19 +952,27 @@
      {
       "bestActionIndex": 0,
       "emv": 56.5625,
+      "indifferent": false,
       "pSignal": 0.48,
       "posterior": [
        0.34375,
        0.65625
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 30.48076923076923,
+      "indifferent": false,
       "pSignal": 0.52,
       "posterior": [
        0.25961538461538464,
        0.7403846153846154
+      ],
+      "tiedActionIndices": [
+       0
       ]
      }
     ]
@@ -952,19 +1045,27 @@
      {
       "bestActionIndex": 0,
       "emv": 71.30434782608695,
+      "indifferent": false,
       "pSignal": 0.46,
       "posterior": [
        0.391304347826087,
        0.6086956521739131
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 0,
       "emv": 18.88888888888889,
+      "indifferent": false,
       "pSignal": 0.54,
       "posterior": [
        0.2222222222222222,
        0.7777777777777778
+      ],
+      "tiedActionIndices": [
+       0
       ]
      }
     ]
@@ -1037,19 +1138,27 @@
      {
       "bestActionIndex": 0,
       "emv": 87.38636363636364,
+      "indifferent": false,
       "pSignal": 0.44,
       "posterior": [
        0.4431818181818182,
        0.5568181818181818
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 11.25,
+      "indifferent": false,
       "pSignal": 0.56,
       "posterior": [
        0.1875,
        0.8125
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -1122,19 +1231,27 @@
      {
       "bestActionIndex": 0,
       "emv": 105.0,
+      "indifferent": false,
       "pSignal": 0.42,
       "posterior": [
        0.5,
        0.5
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 9.310344827586206,
+      "indifferent": false,
       "pSignal": 0.58,
       "posterior": [
        0.15517241379310345,
        0.8448275862068966
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -1207,19 +1324,27 @@
      {
       "bestActionIndex": 0,
       "emv": 124.375,
+      "indifferent": false,
       "pSignal": 0.4,
       "posterior": [
        0.5625,
        0.4375
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 7.5,
+      "indifferent": false,
       "pSignal": 0.6,
       "posterior": [
        0.125,
        0.875
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -1292,19 +1417,27 @@
      {
       "bestActionIndex": 0,
       "emv": 145.78947368421052,
+      "indifferent": false,
       "pSignal": 0.38,
       "posterior": [
        0.631578947368421,
        0.3684210526315789
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 5.806451612903226,
+      "indifferent": false,
       "pSignal": 0.62,
       "posterior": [
        0.0967741935483871,
        0.9032258064516129
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -1377,19 +1510,27 @@
      {
       "bestActionIndex": 0,
       "emv": 169.58333333333334,
+      "indifferent": false,
       "pSignal": 0.36,
       "posterior": [
        0.7083333333333334,
        0.2916666666666667
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 4.21875,
+      "indifferent": false,
       "pSignal": 0.64,
       "posterior": [
        0.0703125,
        0.9296875
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -1462,19 +1603,27 @@
      {
       "bestActionIndex": 0,
       "emv": 196.1764705882353,
+      "indifferent": false,
       "pSignal": 0.34,
       "posterior": [
        0.7941176470588235,
        0.20588235294117646
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 2.727272727272727,
+      "indifferent": false,
       "pSignal": 0.66,
       "posterior": [
        0.045454545454545456,
        0.9545454545454546
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -1547,19 +1696,27 @@
      {
       "bestActionIndex": 0,
       "emv": 226.09375,
+      "indifferent": false,
       "pSignal": 0.32,
       "posterior": [
        0.890625,
        0.109375
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 1.3235294117647058,
+      "indifferent": false,
       "pSignal": 0.68,
       "posterior": [
        0.022058823529411766,
        0.9779411764705882
+      ],
+      "tiedActionIndices": [
+       1
       ]
      }
     ]
@@ -1632,19 +1789,28 @@
      {
       "bestActionIndex": 0,
       "emv": 260.0,
+      "indifferent": false,
       "pSignal": 0.3,
       "posterior": [
        1.0,
        0.0
+      ],
+      "tiedActionIndices": [
+       0
       ]
      },
      {
       "bestActionIndex": 1,
       "emv": 0.0,
+      "indifferent": true,
       "pSignal": 0.7,
       "posterior": [
        0.0,
        1.0
+      ],
+      "tiedActionIndices": [
+       1,
+       2
       ]
      }
     ]
@@ -2112,9 +2278,13 @@
    "description": "Suite: perfect information on the drill / farm-out prospect. EV 0.3*260 = 78; EVPI 78 - 43 = 35.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 43.0,
     "evWithPerfect": 78.0,
     "evpi": 35.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2154,9 +2324,13 @@
    "description": "The VOI Analyzer default lottery as an outcomes/actions pair: act (cost 40, 300 / -50) vs do nothing. EMV 15, EV perfect 78, EVPI 63.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 15.0,
     "evWithPerfect": 78.0,
     "evpi": 63.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2216,9 +2390,13 @@
    "description": "Three outcomes and four actions with costs; the best action differs by outcome.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 109.0,
     "evWithPerfect": 133.0,
     "evpi": 24.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      0,
@@ -2263,9 +2441,13 @@
    "description": "Degenerate: one action is best under every outcome, so perfect information is worth exactly 0.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 65.0,
     "evWithPerfect": 65.0,
     "evpi": 0.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      0
@@ -2313,9 +2495,13 @@
    "description": "Degenerate: a prior of 1 on one outcome; perfect information is worth 0.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 260.0,
     "evWithPerfect": 260.0,
     "evpi": 0.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2360,15 +2546,127 @@
    "description": "Payoffs given as distribution summaries; only the means enter.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 43.0,
     "evWithPerfect": 78.0,
     "evpi": 35.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      1
     ]
    },
    "id": "distributionPayoffs",
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 0,
+     "label": "Alpha",
+     "payoffs": [
+      100,
+      10
+     ]
+    },
+    {
+     "cost": 3,
+     "label": "Beta",
+     "payoffs": [
+      110,
+      10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Gamma",
+     "payoffs": [
+      20,
+      20
+     ]
+    }
+   ],
+   "description": "EC4-1: two actions worth exactly 37 under the priors (100 / 10 free against 110 / 10 at a cost of 3); the best-action result reports both as tied and says the choice is indifferent.",
+   "expected": {
+    "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0,
+     1
+    ],
+    "emvPrior": 37.0,
+    "evWithPerfect": 46.1,
+    "evpi": 9.1,
+    "indifferent": true,
+    "perfectBestActionIndex": [
+     1,
+     2
+    ]
+   },
+   "id": "tiedActionsAtPrior",
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": "40",
+     "label": "Drill",
+     "payoffs": [
+      "300",
+      -10
+     ]
+    },
+    {
+     "label": "Farm out",
+     "payoffs": [
+      60,
+      0
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "description": "EC4-4: the prospect with the drill cost typed as the string \"40\", the farm-out cost omitted entirely and one payoff as text; every number reads as it looks, so EVPI is still 35.",
+   "expected": {
+    "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
+    "emvPrior": 43.0,
+    "evWithPerfect": 78.0,
+    "evpi": 35.0,
+    "indifferent": false,
+    "perfectBestActionIndex": [
+     0,
+     1
+    ]
+   },
+   "id": "omittedAndStringCosts",
    "outcomes": [
     {
      "label": "Success",
@@ -2422,9 +2720,13 @@
    "description": "EC4-8: three outcome priors typed 0.333333 (sum 0.999999, on the edge) are accepted and used as typed.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 149.99979,
     "evWithPerfect": 176.66649,
     "evpi": 26.6667,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      0,
@@ -2477,9 +2779,13 @@
    "description": "Sweep of P(success) over the prospect actions.",
    "expected": {
     "bestActionIndex": 1,
+    "bestActionTiedIndices": [
+     1
+    ],
     "emvPrior": 6.0,
     "evWithPerfect": 26.0,
     "evpi": 20.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2527,9 +2833,14 @@
    "description": "Sweep of P(success) over the prospect actions.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0,
+     1
+    ],
     "emvPrior": 12.0,
     "evWithPerfect": 52.0,
     "evpi": 40.0,
+    "indifferent": true,
     "perfectBestActionIndex": [
      0,
      1
@@ -2577,9 +2888,13 @@
    "description": "Sweep of P(success) over the prospect actions.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 74.0,
     "evWithPerfect": 104.0,
     "evpi": 30.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2627,9 +2942,13 @@
    "description": "Sweep of P(success) over the prospect actions.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 105.0,
     "evWithPerfect": 130.0,
     "evpi": 25.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -2677,9 +2996,13 @@
    "description": "Sweep of P(success) over the prospect actions.",
    "expected": {
     "bestActionIndex": 0,
+    "bestActionTiedIndices": [
+     0
+    ],
     "emvPrior": 198.0,
     "evWithPerfect": 208.0,
     "evpi": 10.0,
+    "indifferent": false,
     "perfectBestActionIndex": [
      0,
      1
@@ -3303,12 +3626,17 @@
      "netEvii": 7.5
     },
     "emv": 50.5,
+    "indifferent": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 50.5,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -3321,8 +3649,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -3417,8 +3749,12 @@
      {
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "path": [
        0,
+       1
+      ],
+      "tiedIndices": [
        1
       ],
       "type": "decision"
@@ -3513,8 +3849,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -3600,6 +3940,9 @@
     "signalMarginals": [
      0.45,
      0.55
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "seismicCost5",
@@ -3954,12 +4297,17 @@
      "netEvii": -7.5
     },
     "emv": 43.0,
+    "indifferent": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": 43.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       1
+      ],
       "type": "decision"
      },
      {
@@ -3972,8 +4320,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -4068,8 +4420,12 @@
      {
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "path": [
        0,
+       1
+      ],
+      "tiedIndices": [
        1
       ],
       "type": "decision"
@@ -4164,8 +4520,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -4251,6 +4611,9 @@
     "signalMarginals": [
      0.45,
      0.55
+    ],
+    "tiedIndices": [
+     1
     ]
    },
    "id": "seismicCost20",
@@ -4605,12 +4968,17 @@
      "netEvii": 7.5
     },
     "emv": 50.5,
+    "indifferent": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 50.5,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -4623,8 +4991,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -4719,8 +5091,12 @@
      {
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "path": [
        0,
+       1
+      ],
+      "tiedIndices": [
        1
       ],
       "type": "decision"
@@ -4815,8 +5191,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -4902,6 +5282,9 @@
     "signalMarginals": [
      0.45,
      0.55
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "valueOfInformationTemplate",
@@ -4961,7 +5344,7 @@
      ]
     }
    ],
-   "description": "Degenerate: cost 12.5 makes both root branches worth exactly 43; the tie resolves to the acquire branch listed first.",
+   "description": "EC4-1: cost 12.5 makes both root branches worth exactly 43, so the root is indifferent between acquiring the information and not; bestBranchIndex is the acquire branch, listed first.",
    "expected": {
     "acquireBranchValue": 43.0,
     "bestBranchIndex": 0,
@@ -5256,12 +5639,18 @@
      "netEvii": 0.0
     },
     "emv": 43.0,
+    "indifferent": true,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": true,
       "path": [],
+      "tiedIndices": [
+       0,
+       1
+      ],
       "type": "decision"
      },
      {
@@ -5274,8 +5663,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -5370,8 +5763,12 @@
      {
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "path": [
        0,
+       1
+      ],
+      "tiedIndices": [
        1
       ],
       "type": "decision"
@@ -5466,8 +5863,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -5553,6 +5954,10 @@
     "signalMarginals": [
      0.45,
      0.55
+    ],
+    "tiedIndices": [
+     0,
+     1
     ]
    },
    "id": "costExactlyNetZero",
@@ -5687,11 +6092,16 @@
      }
     ],
     "emv": 43.0,
+    "indifferent": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -5763,6 +6173,9 @@
       ],
       "type": "terminal"
      }
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "noSignals",
@@ -6478,12 +6891,17 @@
      "netEvii": -10.8
     },
     "emv": 109.0,
+    "indifferent": false,
     "noInfoBranchValue": 109.0,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": 109.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       1
+      ],
       "type": "decision"
      },
      {
@@ -6496,8 +6914,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 227.1875,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -6661,9 +7083,13 @@
      {
       "bestBranchIndex": 0,
       "emv": 86.57894736842105,
+      "indifferent": false,
       "path": [
        0,
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -6826,8 +7252,12 @@
      {
       "bestBranchIndex": 2,
       "emv": 15.333333333333334,
+      "indifferent": false,
       "path": [
        0,
+       2
+      ],
+      "tiedIndices": [
        2
       ],
       "type": "decision"
@@ -6991,8 +7421,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 109.0,
+      "indifferent": false,
       "path": [
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -7141,6 +7575,9 @@
      0.32,
      0.38,
      0.3
+    ],
+    "tiedIndices": [
+     1
     ]
    },
    "id": "threeByThreeCost12",
@@ -7509,12 +7946,17 @@
      "netEvii": 12.5
     },
     "emv": 55.5,
+    "indifferent": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 55.5,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -7527,8 +7969,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -7623,8 +8069,12 @@
      {
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "path": [
        0,
+       1
+      ],
+      "tiedIndices": [
        1
       ],
       "type": "decision"
@@ -7719,8 +8169,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -7806,6 +8260,9 @@
     "signalMarginals": [
      0.45,
      0.55
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "costSweep_0",
@@ -8160,12 +8617,17 @@
      "netEvii": 7.5
     },
     "emv": 50.5,
+    "indifferent": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 50.5,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -8178,8 +8640,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -8274,8 +8740,12 @@
      {
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "path": [
        0,
+       1
+      ],
+      "tiedIndices": [
        1
       ],
       "type": "decision"
@@ -8370,8 +8840,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -8457,6 +8931,9 @@
     "signalMarginals": [
      0.45,
      0.55
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "costSweep_5",
@@ -8811,12 +9288,17 @@
      "netEvii": 2.5
     },
     "emv": 45.5,
+    "indifferent": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 45.5,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -8829,8 +9311,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -8925,8 +9411,12 @@
      {
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "path": [
        0,
+       1
+      ],
+      "tiedIndices": [
        1
       ],
       "type": "decision"
@@ -9021,8 +9511,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -9108,6 +9602,9 @@
     "signalMarginals": [
      0.45,
      0.55
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "costSweep_10",
@@ -9462,12 +9959,17 @@
      "netEvii": -2.5
     },
     "emv": 43.0,
+    "indifferent": false,
     "noInfoBranchValue": 43.0,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": 43.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       1
+      ],
       "type": "decision"
      },
      {
@@ -9480,8 +9982,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 115.33333333333333,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -9576,8 +10082,12 @@
      {
       "bestBranchIndex": 1,
       "emv": 6.545454545454546,
+      "indifferent": false,
       "path": [
        0,
+       1
+      ],
+      "tiedIndices": [
        1
       ],
       "type": "decision"
@@ -9672,8 +10182,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [
        1
+      ],
+      "tiedIndices": [
+       0
       ],
       "type": "decision"
      },
@@ -9759,6 +10273,9 @@
     "signalMarginals": [
      0.45,
      0.55
+    ],
+    "tiedIndices": [
+     1
     ]
    },
    "id": "costSweep_15",
@@ -9774,6 +10291,784 @@
      "probability": 0.7
     }
    ],
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  }
+ ],
+ "lotteryRefusals": [
+  {
+   "actions": [
+    {
+     "cost": "",
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "bestActionEmv",
+    "evpi",
+    "evii",
+    "buildInformationTree"
+   ],
+   "description": "EC4-4: a blank action cost is refused. Before, it read as 0 and the action looked free.",
+   "id": "actionBlankCostRefused",
+   "infoCost": 0,
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "blank",
+    "node": null,
+    "subject": "Action \"Drill\""
+   },
+   "refusedValue": "",
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": null,
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "bestActionEmv",
+    "evpi",
+    "evii",
+    "buildInformationTree"
+   ],
+   "description": "EC4-4: a null action cost is refused.",
+   "id": "actionNullCostRefused",
+   "infoCost": 0,
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "blank",
+    "node": null,
+    "subject": "Action \"Drill\""
+   },
+   "refusedValue": null,
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": "abc",
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "bestActionEmv",
+    "evpi",
+    "evii",
+    "buildInformationTree"
+   ],
+   "description": "EC4-4: an action cost of \"abc\" is refused.",
+   "id": "actionNonNumericCostRefused",
+   "infoCost": 0,
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "notNumber",
+    "node": null,
+    "subject": "Action \"Drill\""
+   },
+   "refusedValue": "abc",
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": "NaN",
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "bestActionEmv",
+    "evpi",
+    "evii",
+    "buildInformationTree"
+   ],
+   "description": "EC4-4: an action cost of NaN is refused.",
+   "id": "actionNanCostRefused",
+   "infoCost": 0,
+   "nonFinite": [
+    {
+     "at": [
+      "actions",
+      0,
+      "cost"
+     ],
+     "value": "NaN"
+    },
+    {
+     "at": [
+      "refusedValue"
+     ],
+     "value": "NaN"
+    }
+   ],
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "notNumber",
+    "node": null,
+    "subject": "Action \"Drill\""
+   },
+   "refusedValue": "NaN",
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": -40,
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "bestActionEmv",
+    "evpi",
+    "evii",
+    "buildInformationTree"
+   ],
+   "description": "EC4-4: an action cost of -40 is refused: a receipt belongs in the payoffs.",
+   "id": "actionNegativeCostRefused",
+   "infoCost": 0,
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "negative",
+    "node": null,
+    "subject": "Action \"Drill\""
+   },
+   "refusedValue": -40,
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 0,
+     "label": "Drill",
+     "payoffs": [
+      "",
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "bestActionEmv",
+    "evpi",
+    "evii"
+   ],
+   "description": "EC4-4: a blank payoff is refused naming the action and the outcome. Before it was 0.",
+   "id": "actionBlankPayoffRefused",
+   "infoCost": 0,
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "blank",
+    "node": null,
+    "subject": "Payoff of action \"Drill\" for outcome \"Success\""
+   },
+   "refusedValue": "",
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 0,
+     "label": "Drill",
+     "payoffs": [
+      null,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "bestActionEmv",
+    "evpi",
+    "evii"
+   ],
+   "description": "EC4-4: a null payoff is refused naming the action and the outcome.",
+   "id": "actionNullPayoffRefused",
+   "infoCost": 0,
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "blank",
+    "node": null,
+    "subject": "Payoff of action \"Drill\" for outcome \"Success\""
+   },
+   "refusedValue": null,
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 0,
+     "label": "Drill",
+     "payoffs": [
+      "abc",
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "bestActionEmv",
+    "evpi",
+    "evii"
+   ],
+   "description": "EC4-4: a payoff of \"abc\" is refused naming the action and the outcome.",
+   "id": "actionNonNumericPayoffRefused",
+   "infoCost": 0,
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "notNumber",
+    "node": null,
+    "subject": "Payoff of action \"Drill\" for outcome \"Success\""
+   },
+   "refusedValue": "abc",
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 0,
+     "label": "Drill",
+     "payoffs": [
+      "Infinity",
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "bestActionEmv",
+    "evpi",
+    "evii"
+   ],
+   "description": "EC4-4: an infinite payoff is refused rather than propagated into an EMV.",
+   "id": "actionInfinitePayoffRefused",
+   "infoCost": 0,
+   "nonFinite": [
+    {
+     "at": [
+      "actions",
+      0,
+      "payoffs",
+      0
+     ],
+     "value": "Infinity"
+    },
+    {
+     "at": [
+      "refusedValue"
+     ],
+     "value": "Infinity"
+    }
+   ],
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "notNumber",
+    "node": null,
+    "subject": "Payoff of action \"Drill\" for outcome \"Success\""
+   },
+   "refusedValue": "Infinity",
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 40,
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "evii"
+   ],
+   "description": "EC4-4: a blank information cost is refused. Before, it read as 0 and the net EVII equalled the gross.",
+   "id": "infoCostBlankRefused",
+   "infoCost": "",
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "blank",
+    "node": null,
+    "subject": "The information"
+   },
+   "refusedValue": "",
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 40,
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "evii"
+   ],
+   "description": "EC4-4: an information cost of \"abc\" is refused.",
+   "id": "infoCostNonNumericRefused",
+   "infoCost": "abc",
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "notNumber",
+    "node": null,
+    "subject": "The information"
+   },
+   "refusedValue": "abc",
+   "signals": [
+    {
+     "label": "Positive seismic",
+     "likelihoods": [
+      0.8,
+      0.3
+     ]
+    },
+    {
+     "label": "Negative seismic",
+     "likelihoods": [
+      0.2,
+      0.7
+     ]
+    }
+   ]
+  },
+  {
+   "actions": [
+    {
+     "cost": 40,
+     "label": "Drill",
+     "payoffs": [
+      300,
+      -10
+     ]
+    },
+    {
+     "cost": 0,
+     "label": "Do nothing",
+     "payoffs": [
+      0,
+      0
+     ]
+    }
+   ],
+   "calls": [
+    "evii"
+   ],
+   "description": "EC4-4: a negative information cost is refused: a payment received for acquiring data belongs in the payoffs.",
+   "id": "infoCostNegativeRefused",
+   "infoCost": -5,
+   "outcomes": [
+    {
+     "label": "Success",
+     "probability": 0.3
+    },
+    {
+     "label": "Dry hole",
+     "probability": 0.7
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "negative",
+    "node": null,
+    "subject": "The information"
+   },
+   "refusedValue": -5,
    "signals": [
     {
      "label": "Positive seismic",
@@ -9853,11 +11148,16 @@
      }
     ],
     "emv": 43.0,
+    "indifferent": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 43.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -9913,6 +11213,9 @@
       ],
       "type": "terminal"
      }
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "drillFarmOut",
@@ -10036,11 +11339,16 @@
      }
     ],
     "emv": 67.0,
+    "indifferent": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 67.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -10053,8 +11361,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 150.0,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -10085,6 +11397,9 @@
       ],
       "type": "terminal"
      }
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "twoStageSequential",
@@ -10295,11 +11610,16 @@
      }
     ],
     "emv": 7.0,
+    "indifferent": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 7.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -10309,6 +11629,9 @@
       ],
       "type": "terminal"
      }
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "singleBranchDecision",
@@ -10329,7 +11652,7 @@
    }
   },
   {
-   "description": "Degenerate: a decision whose branches tie exactly (both 30) resolves to the first branch listed; the optimal path follows it and not the other.",
+   "description": "EC4-1: a decision whose first two branches tie exactly (both 30) reports tiedIndices [0, 1] and indifferent; the third (29.999) is outside the band. bestBranchIndex stays the first listed so the optimal-path marking has one branch to follow.",
    "expected": {
     "bestBranchIndex": 0,
     "branches": [
@@ -10372,11 +11695,17 @@
      }
     ],
     "emv": 30.0,
+    "indifferent": true,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 30.0,
+      "indifferent": true,
       "path": [],
+      "tiedIndices": [
+       0,
+       1
+      ],
       "type": "decision"
      },
      {
@@ -10416,6 +11745,10 @@
       ],
       "type": "terminal"
      }
+    ],
+    "tiedIndices": [
+     0,
+     1
     ]
    },
    "id": "equalEmvTie",
@@ -10509,11 +11842,16 @@
      }
     ],
     "emv": -52.0,
+    "indifferent": false,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": -52.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       1
+      ],
       "type": "decision"
      },
      {
@@ -10546,6 +11884,9 @@
       ],
       "type": "terminal"
      }
+    ],
+    "tiedIndices": [
+     1
     ]
    },
    "id": "allNegative",
@@ -10820,7 +12161,11 @@
      {
       "bestBranchIndex": 0,
       "emv": 19.0,
+      "indifferent": false,
       "path": [
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -10898,7 +12243,7 @@
    }
   },
   {
-   "description": "Boundary: absent cost fields count as 0 and a null payoff is worth 0.",
+   "description": "EC4-4: an OMITTED cost field is 0, and so is an omitted payoff. Only entries that are present are read, so a sparse tree still rolls back.",
    "expected": {
     "bestBranchIndex": 1,
     "branches": [
@@ -10934,11 +12279,16 @@
      }
     ],
     "emv": 3.0,
+    "indifferent": false,
     "nodes": [
      {
       "bestBranchIndex": 1,
       "emv": 3.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       1
+      ],
       "type": "decision"
      },
      {
@@ -10971,16 +12321,18 @@
       ],
       "type": "terminal"
      }
+    ],
+    "tiedIndices": [
+     1
     ]
    },
-   "id": "missingCostAndNullPayoff",
+   "id": "omittedCostAndPayoffAreZero",
    "tree": {
     "branches": [
      {
       "label": "A",
       "node": {
        "label": "A",
-       "payoff": null,
        "type": "terminal"
       }
      },
@@ -11013,6 +12365,496 @@
      }
     ],
     "label": "sparse",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-1: two branches worth exactly 0.3 in decimals. In binary the chance branch evaluates to 0.30000000000000004, one ulp above the terminal listed first, so the retired strictly-greater rule recommended the SECOND branch. Residue inside the band is a tie, and the first listed keeps the marking.",
+   "expected": {
+    "bestBranchIndex": 0,
+    "branches": [
+     {
+      "branchValue": 0.3,
+      "onOptimalPath": true,
+      "path": [
+       0
+      ]
+     },
+     {
+      "branchValue": 0.3,
+      "onOptimalPath": false,
+      "path": [
+       1
+      ]
+     },
+     {
+      "branchValue": 0.7,
+      "onOptimalPath": false,
+      "path": [
+       1,
+       0
+      ]
+     },
+     {
+      "branchValue": 0.2,
+      "onOptimalPath": false,
+      "path": [
+       1,
+       1
+      ]
+     }
+    ],
+    "emv": 0.3,
+    "indifferent": true,
+    "nodes": [
+     {
+      "bestBranchIndex": 0,
+      "emv": 0.3,
+      "indifferent": true,
+      "path": [],
+      "tiedIndices": [
+       0,
+       1
+      ],
+      "type": "decision"
+     },
+     {
+      "emv": 0.3,
+      "path": [
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 0.3,
+      "path": [
+       1
+      ],
+      "type": "chance"
+     },
+     {
+      "emv": 0.7,
+      "path": [
+       1,
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 0.2,
+      "path": [
+       1,
+       1
+      ],
+      "type": "terminal"
+     }
+    ],
+    "tiedIndices": [
+     0,
+     1
+    ]
+   },
+   "id": "floatResidueTie",
+   "tree": {
+    "branches": [
+     {
+      "label": "Sell now",
+      "node": {
+       "label": "Sell now",
+       "payoff": 0.3,
+       "type": "terminal"
+      }
+     },
+     {
+      "label": "Keep",
+      "node": {
+       "branches": [
+        {
+         "label": "up",
+         "node": {
+          "label": "up",
+          "payoff": 0.7,
+          "type": "terminal"
+         },
+         "probability": 0.2
+        },
+        {
+         "label": "down",
+         "node": {
+          "label": "down",
+          "payoff": 0.2,
+          "type": "terminal"
+         },
+         "probability": 0.8
+        }
+       ],
+       "label": "Keep outcome",
+       "type": "chance"
+      }
+     }
+    ],
+    "label": "residue",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-1: branch values 43 and 43.00000001, a gap of 1e-8 inside the band 1e-9 * max(1, 43) = 4.3e-8: tied, indifferent, and the first listed carries the marking while the node EMV is the larger value.",
+   "expected": {
+    "bestBranchIndex": 0,
+    "branches": [
+     {
+      "branchValue": 43.0,
+      "onOptimalPath": true,
+      "path": [
+       0
+      ]
+     },
+     {
+      "branchValue": 43.00000001,
+      "onOptimalPath": false,
+      "path": [
+       1
+      ]
+     }
+    ],
+    "emv": 43.00000001,
+    "indifferent": true,
+    "nodes": [
+     {
+      "bestBranchIndex": 0,
+      "emv": 43.00000001,
+      "indifferent": true,
+      "path": [],
+      "tiedIndices": [
+       0,
+       1
+      ],
+      "type": "decision"
+     },
+     {
+      "emv": 43.0,
+      "path": [
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 43.00000001,
+      "path": [
+       1
+      ],
+      "type": "terminal"
+     }
+    ],
+    "tiedIndices": [
+     0,
+     1
+    ]
+   },
+   "id": "withinToleranceTie",
+   "tree": {
+    "branches": [
+     {
+      "label": "A",
+      "node": {
+       "label": "A",
+       "payoff": 43,
+       "type": "terminal"
+      }
+     },
+     {
+      "label": "B",
+      "node": {
+       "label": "B",
+       "payoff": 43.00000001,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "within band",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-1 control: branch values 43 and 43.0000001, a gap of 1e-7 outside the same band: not tied, and the larger branch (listed second) is the one recommended.",
+   "expected": {
+    "bestBranchIndex": 1,
+    "branches": [
+     {
+      "branchValue": 43.0,
+      "onOptimalPath": false,
+      "path": [
+       0
+      ]
+     },
+     {
+      "branchValue": 43.0000001,
+      "onOptimalPath": true,
+      "path": [
+       1
+      ]
+     }
+    ],
+    "emv": 43.0000001,
+    "indifferent": false,
+    "nodes": [
+     {
+      "bestBranchIndex": 1,
+      "emv": 43.0000001,
+      "indifferent": false,
+      "path": [],
+      "tiedIndices": [
+       1
+      ],
+      "type": "decision"
+     },
+     {
+      "emv": 43.0,
+      "path": [
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 43.0000001,
+      "path": [
+       1
+      ],
+      "type": "terminal"
+     }
+    ],
+    "tiedIndices": [
+     1
+    ]
+   },
+   "id": "nearTieOutsideTolerance",
+   "tree": {
+    "branches": [
+     {
+      "label": "A",
+      "node": {
+       "label": "A",
+       "payoff": 43,
+       "type": "terminal"
+      }
+     },
+     {
+      "label": "B",
+      "node": {
+       "label": "B",
+       "payoff": 43.0000001,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "outside band",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-1: below unit magnitude the band is absolute. Values 0.2 and 0.2000000005 differ by 5e-10, inside the 1e-9 floor, so they tie.",
+   "expected": {
+    "bestBranchIndex": 0,
+    "branches": [
+     {
+      "branchValue": 0.2,
+      "onOptimalPath": true,
+      "path": [
+       0
+      ]
+     },
+     {
+      "branchValue": 0.2000000005,
+      "onOptimalPath": false,
+      "path": [
+       1
+      ]
+     }
+    ],
+    "emv": 0.2000000005,
+    "indifferent": true,
+    "nodes": [
+     {
+      "bestBranchIndex": 0,
+      "emv": 0.2000000005,
+      "indifferent": true,
+      "path": [],
+      "tiedIndices": [
+       0,
+       1
+      ],
+      "type": "decision"
+     },
+     {
+      "emv": 0.2,
+      "path": [
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 0.2000000005,
+      "path": [
+       1
+      ],
+      "type": "terminal"
+     }
+    ],
+    "tiedIndices": [
+     0,
+     1
+    ]
+   },
+   "id": "absoluteFloorTie",
+   "tree": {
+    "branches": [
+     {
+      "label": "A",
+      "node": {
+       "label": "A",
+       "payoff": 0.2,
+       "type": "terminal"
+      }
+     },
+     {
+      "label": "B",
+      "node": {
+       "label": "B",
+       "payoff": 0.2000000005,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "small",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: costs and payoffs typed as numeric strings (with surrounding spaces) are numbers, so a form that stores text still rolls back: 40 - 10 = 30 against a chance node worth 2.75.",
+   "expected": {
+    "bestBranchIndex": 0,
+    "branches": [
+     {
+      "branchValue": 30.0,
+      "onOptimalPath": true,
+      "path": [
+       0
+      ]
+     },
+     {
+      "branchValue": 2.75,
+      "onOptimalPath": false,
+      "path": [
+       1
+      ]
+     },
+     {
+      "branchValue": 18.0,
+      "onOptimalPath": false,
+      "path": [
+       1,
+       0
+      ]
+     },
+     {
+      "branchValue": -2.5,
+      "onOptimalPath": false,
+      "path": [
+       1,
+       1
+      ]
+     }
+    ],
+    "emv": 30.0,
+    "indifferent": false,
+    "nodes": [
+     {
+      "bestBranchIndex": 0,
+      "emv": 30.0,
+      "indifferent": false,
+      "path": [],
+      "tiedIndices": [
+       0
+      ],
+      "type": "decision"
+     },
+     {
+      "emv": 40.0,
+      "path": [
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": 7.75,
+      "path": [
+       1
+      ],
+      "type": "chance"
+     },
+     {
+      "emv": 18.0,
+      "path": [
+       1,
+       0
+      ],
+      "type": "terminal"
+     },
+     {
+      "emv": -2.5,
+      "path": [
+       1,
+       1
+      ],
+      "type": "terminal"
+     }
+    ],
+    "tiedIndices": [
+     0
+    ]
+   },
+   "id": "numericStringMoney",
+   "tree": {
+    "branches": [
+     {
+      "cost": "10",
+      "label": "A",
+      "node": {
+       "label": "A",
+       "payoff": "40",
+       "type": "terminal"
+      }
+     },
+     {
+      "cost": " 5 ",
+      "label": "B",
+      "node": {
+       "branches": [
+        {
+         "label": "x",
+         "node": {
+          "label": "x",
+          "payoff": "18",
+          "type": "terminal"
+         },
+         "probability": 0.5
+        },
+        {
+         "label": "y",
+         "node": {
+          "label": "y",
+          "payoff": "-2.5",
+          "type": "terminal"
+         },
+         "probability": 0.5
+        }
+       ],
+       "label": "Bc",
+       "type": "chance"
+      }
+     }
+    ],
+    "label": "typed as text",
     "type": "decision"
    }
   },
@@ -11091,11 +12933,16 @@
      }
     ],
     "emv": 6.0,
+    "indifferent": false,
     "nodes": [
      {
       "bestBranchIndex": 0,
       "emv": 6.0,
+      "indifferent": false,
       "path": [],
+      "tiedIndices": [
+       0
+      ],
       "type": "decision"
      },
      {
@@ -11108,8 +12955,12 @@
      {
       "bestBranchIndex": 0,
       "emv": 23.0,
+      "indifferent": false,
       "path": [
        0,
+       0
+      ],
+      "tiedIndices": [
        0
       ],
       "type": "decision"
@@ -11167,6 +13018,9 @@
       ],
       "type": "terminal"
      }
+    ],
+    "tiedIndices": [
+     0
     ]
    },
    "id": "deepAlternation",
@@ -11462,6 +13316,468 @@
    }
   },
   {
+   "description": "EC4-4: a branch cost typed and then cleared (a blank string) is refused by node label. Before, it read as 0 and the branch looked free.",
+   "id": "blankCostRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "blank",
+    "node": "Prospect decision",
+    "subject": "Branch \"Drill\""
+   },
+   "refusedValue": "",
+   "tree": {
+    "branches": [
+     {
+      "cost": "",
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": 300,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a null branch cost is refused the same way a blank one is.",
+   "id": "nullCostRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "blank",
+    "node": "Prospect decision",
+    "subject": "Branch \"Drill\""
+   },
+   "refusedValue": null,
+   "tree": {
+    "branches": [
+     {
+      "cost": null,
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": 300,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a branch cost of \"abc\" is refused. Before, Number(\"abc\") || 0 made it free.",
+   "id": "nonNumericCostRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "notNumber",
+    "node": "Prospect decision",
+    "subject": "Branch \"Drill\""
+   },
+   "refusedValue": "abc",
+   "tree": {
+    "branches": [
+     {
+      "cost": "abc",
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": 300,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a branch cost of NaN is refused. Before, NaN || 0 made it free.",
+   "id": "nanCostRefused",
+   "nonFinite": [
+    {
+     "at": [
+      "tree",
+      "branches",
+      0,
+      "cost"
+     ],
+     "value": "NaN"
+    },
+    {
+     "at": [
+      "refusedValue"
+     ],
+     "value": "NaN"
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "notNumber",
+    "node": "Prospect decision",
+    "subject": "Branch \"Drill\""
+   },
+   "refusedValue": "NaN",
+   "tree": {
+    "branches": [
+     {
+      "cost": "NaN",
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": 300,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: an infinite branch cost is refused rather than propagated.",
+   "id": "infiniteCostRefused",
+   "nonFinite": [
+    {
+     "at": [
+      "tree",
+      "branches",
+      0,
+      "cost"
+     ],
+     "value": "Infinity"
+    },
+    {
+     "at": [
+      "refusedValue"
+     ],
+     "value": "Infinity"
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "notNumber",
+    "node": "Prospect decision",
+    "subject": "Branch \"Drill\""
+   },
+   "refusedValue": "Infinity",
+   "tree": {
+    "branches": [
+     {
+      "cost": "Infinity",
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": 300,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a branch cost of -5 is refused: a receipt belongs in the payoff. Before, it was added to the branch value as income.",
+   "id": "negativeCostRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "negative",
+    "node": "Prospect decision",
+    "subject": "Branch \"Drill\""
+   },
+   "refusedValue": -5,
+   "tree": {
+    "branches": [
+     {
+      "cost": -5,
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": 300,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a negative cost typed as text is refused the same way.",
+   "id": "negativeCostStringRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "negative",
+    "node": "Prospect decision",
+    "subject": "Branch \"Drill\""
+   },
+   "refusedValue": "-3",
+   "tree": {
+    "branches": [
+     {
+      "cost": "-3",
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": 300,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a terminal payoff of null is refused by node label. Before, it was worth 0, so a cleared field looked like a break-even outcome.",
+   "id": "nullPayoffRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "blank",
+    "node": "Success",
+    "subject": "Terminal payoff"
+   },
+   "refusedValue": null,
+   "tree": {
+    "branches": [
+     {
+      "cost": 0,
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": null,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a blank terminal payoff is refused. Before, Number(\"\") was 0.",
+   "id": "blankPayoffRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "blank",
+    "node": "Success",
+    "subject": "Terminal payoff"
+   },
+   "refusedValue": "",
+   "tree": {
+    "branches": [
+     {
+      "cost": 0,
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": "",
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a terminal payoff of \"abc\" is refused, and the refusal now names the node.",
+   "id": "nonNumericPayoffRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "notNumber",
+    "node": "Success",
+    "subject": "Terminal payoff"
+   },
+   "refusedValue": "abc",
+   "tree": {
+    "branches": [
+     {
+      "cost": 0,
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": "abc",
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a terminal payoff of NaN is refused, naming the node.",
+   "id": "nanPayoffRefused",
+   "nonFinite": [
+    {
+     "at": [
+      "tree",
+      "branches",
+      0,
+      "node",
+      "payoff"
+     ],
+     "value": "NaN"
+    },
+    {
+     "at": [
+      "refusedValue"
+     ],
+     "value": "NaN"
+    }
+   ],
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "notNumber",
+    "node": "Success",
+    "subject": "Terminal payoff"
+   },
+   "refusedValue": "NaN",
+   "tree": {
+    "branches": [
+     {
+      "cost": 0,
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": "NaN",
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a boolean payoff is not a number. Before, true was worth 1.",
+   "id": "booleanPayoffRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "notNumber",
+    "node": "Success",
+    "subject": "Terminal payoff"
+   },
+   "refusedValue": true,
+   "tree": {
+    "branches": [
+     {
+      "cost": 0,
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": true,
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a distribution payoff whose mean is blank is refused. Before, Number(\"\") gave it a mean of 0.",
+   "id": "distributionBlankMeanRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "noMean",
+    "node": "Success",
+    "subject": "Distribution payoff"
+   },
+   "refusedValue": "",
+   "tree": {
+    "branches": [
+     {
+      "cost": 0,
+      "label": "Drill",
+      "node": {
+       "label": "Success",
+       "payoff": {
+        "mean": "",
+        "p90": 40
+       },
+       "type": "terminal"
+      }
+     }
+    ],
+    "label": "Prospect decision",
+    "type": "decision"
+   }
+  },
+  {
+   "description": "EC4-4: a blank cost two levels down is refused naming the node that carries it, not the root.",
+   "id": "nestedBlankCostRefused",
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "blank",
+    "node": "Weather",
+    "subject": "Branch \"calm\""
+   },
+   "refusedValue": "",
+   "tree": {
+    "branches": [
+     {
+      "cost": 0,
+      "label": "ok",
+      "node": {
+       "label": "ok",
+       "payoff": 1,
+       "type": "terminal"
+      }
+     },
+     {
+      "cost": 0,
+      "label": "deep",
+      "node": {
+       "branches": [
+        {
+         "cost": "",
+         "label": "calm",
+         "node": {
+          "label": "calm",
+          "payoff": 10,
+          "type": "terminal"
+         },
+         "probability": 0.5
+        },
+        {
+         "label": "storm",
+         "node": {
+          "label": "storm",
+          "payoff": 1,
+          "type": "terminal"
+         },
+         "probability": 0.5
+        }
+       ],
+       "label": "Weather",
+       "type": "chance"
+      }
+     }
+    ],
+    "label": "root",
+    "type": "decision"
+   }
+  },
+  {
    "description": "A bad distribution two levels down is still refused at the root.",
    "id": "nestedRefusal",
    "reason": "nested probabilities sum to 0.2",
@@ -11523,6 +13839,16 @@
    "description": "Suite voiCalculations.test.js defaults: EMV without 15, with 38, VOI 33, net 23, EVPI 63; consistent; tree present with chances 0.4 / 0.6.",
    "expected": {
     "acquireBranchValue": 38.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "38.00",
      "emvWithoutInfo": "15.00",
@@ -11554,11 +13880,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -11768,11 +14102,16 @@
       }
      ],
      "emv": 38.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 38.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -11785,8 +14124,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -11852,8 +14195,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -11919,8 +14266,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -11976,6 +14327,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -12044,6 +14398,16 @@
    "description": "Suite: cost 50 on the same inputs; net VOI -17; verdict reject.",
    "expected": {
     "acquireBranchValue": -2.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "-2.00",
      "emvWithoutInfo": "15.00",
@@ -12075,11 +14439,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -12289,11 +14661,16 @@
       }
      ],
      "emv": 15.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -12306,8 +14683,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -12373,8 +14754,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -12440,8 +14825,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -12497,6 +14886,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -12564,6 +14956,16 @@
   {
    "description": "Positive posteriors 90 / 10 (a distribution) contradict the 30 percent prior (implied 42). Before EC4-0 this reported a gross VOI of 75 above the EVPI of 63; now EMV without information and EVPI are reported and the rest is withheld.",
    "expected": {
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": null,
      "emvWithoutInfo": "15.00",
@@ -12656,6 +15058,16 @@
   {
    "description": "Both indicators typed 20 / 80 imply a 20 percent success chance against 30 stated. Before EC4-0 this reported a gross VOI of -15, below zero; now withheld.",
    "expected": {
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": null,
      "emvWithoutInfo": "15.00",
@@ -12748,6 +15160,16 @@
   {
    "description": "Both indicators typed 100 / 0 imply certain success against 30 stated. Before EC4-0 this reported a gross VOI of 245 beside an EVPI of 63; now withheld.",
    "expected": {
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": null,
      "emvWithoutInfo": "15.00",
@@ -12841,6 +15263,16 @@
    "description": "Positive posteriors 61.25 / 38.75 imply 30.5 percent success against 30 stated, a delta of exactly half a percent: consistent (inclusive threshold), so every KPI and the tree are reported.",
    "expected": {
     "acquireBranchValue": 39.75,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "39.75",
      "emvWithoutInfo": "15.00",
@@ -12872,11 +15304,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 124.375
+      "emv": 124.375,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -13086,11 +15526,16 @@
       }
      ],
      "emv": 39.75,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 39.75,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -13103,8 +15548,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 124.375,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -13170,8 +15619,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -13237,8 +15690,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -13294,6 +15751,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -13361,6 +15821,16 @@
   {
    "description": "Positive posteriors 61.5 / 38.5 imply 30.6 percent success against 30 stated, a delta of 0.6 percent: withheld.",
    "expected": {
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": null,
      "emvWithoutInfo": "15.00",
@@ -13454,6 +15924,16 @@
    "description": "Degenerate: cost 33 equals the gross VOI; net VOI exactly 0; card 0.00; verdict neutral.",
    "expected": {
     "acquireBranchValue": 15.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "15.00",
      "emvWithoutInfo": "15.00",
@@ -13485,11 +15965,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -13699,11 +16187,17 @@
       }
      ],
      "emv": 15.0,
+     "indifferent": true,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": true,
        "path": [],
+       "tiedIndices": [
+        0,
+        1
+       ],
        "type": "decision"
       },
       {
@@ -13716,8 +16210,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -13783,8 +16281,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -13850,8 +16352,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -13907,6 +16413,10 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0,
+      1
      ]
     },
     "treePresent": true,
@@ -13975,6 +16485,16 @@
    "description": "EC4-2: cost 32.996 leaves a net VOI of +0.004, which rounds to a 0.00 card; the verdict reads that card and is neutral. Before, the unrounded value put \"Since this is positive\" under a 0.00 card.",
    "expected": {
     "acquireBranchValue": 15.004,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "15.00",
      "emvWithoutInfo": "15.00",
@@ -14006,11 +16526,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -14220,11 +16748,16 @@
       }
      ],
      "emv": 15.004,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 15.004,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -14237,8 +16770,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -14304,8 +16841,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -14371,8 +16912,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -14428,6 +16973,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -14496,6 +17044,16 @@
    "description": "EC4-2: cost 33.004 leaves a net VOI of -0.004; the card reads 0.00 (never -0.00) and the verdict is neutral. Before, the card read -0.00 under \"not justified\".",
    "expected": {
     "acquireBranchValue": 14.996,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "15.00",
      "emvWithoutInfo": "15.00",
@@ -14527,11 +17085,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -14741,11 +17307,16 @@
       }
      ],
      "emv": 15.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -14758,8 +17329,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -14825,8 +17400,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -14892,8 +17471,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -14949,6 +17532,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -15017,6 +17603,16 @@
    "description": "EC4-2 boundary: cost 32.995 leaves exactly +0.005, which rounds half away from zero to a 0.01 card; verdict acquire.",
    "expected": {
     "acquireBranchValue": 15.005,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "15.01",
      "emvWithoutInfo": "15.00",
@@ -15048,11 +17644,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -15262,11 +17866,16 @@
       }
      ],
      "emv": 15.005,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 15.005,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -15279,8 +17888,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -15346,8 +17959,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -15413,8 +18030,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -15470,6 +18091,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -15538,6 +18162,16 @@
    "description": "EC4-2 boundary: cost 33.005 leaves exactly -0.005, which rounds to a -0.01 card; verdict reject.",
    "expected": {
     "acquireBranchValue": 14.995,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "15.00",
      "emvWithoutInfo": "15.00",
@@ -15569,11 +18203,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -15783,11 +18425,16 @@
       }
      ],
      "emv": 15.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -15800,8 +18447,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -15867,8 +18518,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -15934,8 +18589,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -15991,6 +18650,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -16059,6 +18721,16 @@
    "description": "EC4-2: cost 32.9 leaves a net VOI of +0.10; card 0.10; verdict acquire.",
    "expected": {
     "acquireBranchValue": 15.1,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "15.10",
      "emvWithoutInfo": "15.00",
@@ -16090,11 +18762,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -16304,11 +18984,16 @@
       }
      ],
      "emv": 15.1,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 15.1,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -16321,8 +19006,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -16388,8 +19077,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -16455,8 +19148,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -16512,6 +19209,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -16580,6 +19280,16 @@
    "description": "EC4-2: cost 33.1 leaves a net VOI of -0.10; card -0.10; verdict reject.",
    "expected": {
     "acquireBranchValue": 14.9,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "14.90",
      "emvWithoutInfo": "15.00",
@@ -16611,11 +19321,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -16825,11 +19543,16 @@
       }
      ],
      "emv": 15.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -16842,8 +19565,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -16909,8 +19636,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -16976,8 +19707,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -17033,6 +19768,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -17101,6 +19839,16 @@
    "description": "EC4-9: every outcome chance, indicator chance and outcome chance given an indicator typed 33.3333, so every sum sits on the 1e-4 edge. Before EC4-9 the diagram's \"Signal received\" node summed to 0.999998 and the analysis was refused; the renormalised indicator sets now give the full cards and diagram (a useless signal, VOI 0).",
    "expected": {
     "acquireBranchValue": 62.333333333333336,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "62.33",
      "emvWithoutInfo": "63.33",
@@ -17135,15 +19883,27 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 63.333333333333336
+      "emv": 63.333333333333336,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 0,
-      "emv": 63.333333333333336
+      "emv": 63.333333333333336,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 0,
-      "emv": 63.333333333333336
+      "emv": 63.333333333333336,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      }
     ],
     "signalChances": [
@@ -17498,11 +20258,16 @@
       }
      ],
      "emv": 63.33323,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 63.33323,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -17515,8 +20280,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -17602,9 +20371,13 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
+       "indifferent": false,
        "path": [
         0,
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -17689,9 +20462,13 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
+       "indifferent": false,
        "path": [
         0,
         2
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -17776,8 +20553,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.33323,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -17851,6 +20632,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -17952,6 +20736,16 @@
    "description": "EC4-9 reference: the same analysis at exact thirds; compoundEdgeAllThirds agrees with it within the stated tolerance.",
    "expected": {
     "acquireBranchValue": 62.333333333333336,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "62.33",
      "emvWithoutInfo": "63.33",
@@ -17986,15 +20780,27 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 63.333333333333336
+      "emv": 63.333333333333336,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 0,
-      "emv": 63.333333333333336
+      "emv": 63.333333333333336,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 0,
-      "emv": 63.333333333333336
+      "emv": 63.333333333333336,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      }
     ],
     "signalChances": [
@@ -18349,11 +21155,16 @@
       }
      ],
      "emv": 63.333333333333336,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 63.333333333333336,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -18366,8 +21177,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -18453,9 +21268,13 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
+       "indifferent": false,
        "path": [
         0,
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -18540,9 +21359,13 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
+       "indifferent": false,
        "path": [
         0,
         2
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -18627,8 +21450,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -18702,6 +21529,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -18803,6 +21633,16 @@
    "description": "EC4-9: outcome and indicator chances typed 33.3333, and informative outcome chances given each indicator typed to four places (66.6666 / 22.2222 / 11.1111 and its mirrors), every sum on the edge. Refused at \"Signal received\" before EC4-9; now the full analysis.",
    "expected": {
     "acquireBranchValue": 71.22222222222223,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "71.22",
      "emvWithoutInfo": "63.33",
@@ -18837,15 +21677,27 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 167.77777777777777
+      "emv": 167.77777777777777,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 0,
-      "emv": 48.888888888888886
+      "emv": 48.888888888888886,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -19200,11 +22052,16 @@
       }
      ],
      "emv": 71.22222222222223,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 71.22222222222223,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -19217,8 +22074,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 167.77777777777777,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -19304,9 +22165,13 @@
       {
        "bestBranchIndex": 0,
        "emv": 48.888888888888886,
+       "indifferent": false,
        "path": [
         0,
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -19391,9 +22256,13 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
         2
+       ],
+       "tiedIndices": [
+        1
        ],
        "type": "decision"
       },
@@ -19478,8 +22347,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.33323,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -19553,6 +22426,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -19654,6 +22530,16 @@
    "description": "EC4-9 reference: the same analysis at exact thirds and ninths; compoundEdgeInformative agrees with it within the stated tolerance.",
    "expected": {
     "acquireBranchValue": 71.22222222222223,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "71.22",
      "emvWithoutInfo": "63.33",
@@ -19688,15 +22574,27 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 167.77777777777777
+      "emv": 167.77777777777777,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 0,
-      "emv": 48.888888888888886
+      "emv": 48.888888888888886,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -20051,11 +22949,16 @@
       }
      ],
      "emv": 71.22222222222223,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 71.22222222222223,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -20068,8 +22971,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 167.77777777777777,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -20155,9 +23062,13 @@
       {
        "bestBranchIndex": 0,
        "emv": 48.888888888888886,
+       "indifferent": false,
        "path": [
         0,
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -20242,9 +23153,13 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
         2
+       ],
+       "tiedIndices": [
+        1
        ],
        "type": "decision"
       },
@@ -20329,8 +23244,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.333333333333336,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -20404,6 +23323,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -20502,9 +23424,1140 @@
    }
   },
   {
+   "description": "EC4-1: a decision cost of 55 makes drilling worth exactly 0 without information, the same as not drilling. Both actions are tied, the Analyzer says the decision is indifferent between them, and it names both instead of the first listed.",
+   "expected": {
+    "acquireBranchValue": 32.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": true,
+     "tiedIndices": [
+      0,
+      1
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well",
+      "Do Not Drill Exploration Well"
+     ]
+    },
+    "cards": {
+     "emvWithInfo": "32.00",
+     "emvWithoutInfo": "0.00",
+     "evpi": "73.50",
+     "netVoi": "32.00",
+     "voi": "42.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3,
+      0.7
+     ],
+     "stated": [
+      0.3,
+      0.7
+     ]
+    },
+    "emvWithInfo": 32.0,
+    "emvWithoutInfo": 0.0,
+    "evpi": 73.5,
+    "netVoi": 32.0,
+    "noInfoBranchValue": 0.0,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 105.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
+     }
+    ],
+    "signalChances": [
+     0.4,
+     0.6
+    ],
+    "tree": {
+     "bestBranchIndex": 0,
+     "branches": [
+      {
+       "branchValue": 32.0,
+       "onOptimalPath": true,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 105.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 105.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -70.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      }
+     ],
+     "emv": 32.0,
+     "indifferent": false,
+     "nodes": [
+      {
+       "bestBranchIndex": 0,
+       "emv": 32.0,
+       "indifferent": false,
+       "path": [],
+       "tiedIndices": [
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 42.0,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 105.0,
+       "indifferent": false,
+       "path": [
+        0,
+        0
+       ],
+       "tiedIndices": [
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 160.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "indifferent": false,
+       "path": [
+        0,
+        1
+       ],
+       "tiedIndices": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": -15.0,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 0.0,
+       "indifferent": true,
+       "path": [
+        1
+       ],
+       "tiedIndices": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 55.0,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      }
+     ],
+     "tiedIndices": [
+      0
+     ]
+    },
+    "treePresent": true,
+    "verdict": "acquire",
+    "voi": 42.0,
+    "withheld": false
+   },
+   "id": "actionsTiedWithoutInfo",
+   "inputs": {
+    "decisionCost": 55,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 10,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   }
+  },
+  {
+   "description": "EC4-1 control: a decision cost of 54.9999 leaves drilling worth 0.0001, outside the band, so drilling alone is optimal even though the EMV card still reads 0.00.",
+   "expected": {
+    "acquireBranchValue": 32.00004,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
+    "cards": {
+     "emvWithInfo": "32.00",
+     "emvWithoutInfo": "0.00",
+     "evpi": "73.50",
+     "netVoi": "32.00",
+     "voi": "42.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3,
+      0.7
+     ],
+     "stated": [
+      0.3,
+      0.7
+     ]
+    },
+    "emvWithInfo": 32.00004,
+    "emvWithoutInfo": 0.0001,
+    "evpi": 73.49993,
+    "netVoi": 31.99994,
+    "noInfoBranchValue": 0.0001,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 105.0001,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
+     }
+    ],
+    "signalChances": [
+     0.4,
+     0.6
+    ],
+    "tree": {
+     "bestBranchIndex": 0,
+     "branches": [
+      {
+       "branchValue": 32.00004,
+       "onOptimalPath": true,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 105.0001,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 105.0001,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -69.9999,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0001,
+       "onOptimalPath": false,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0001,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      }
+     ],
+     "emv": 32.00004,
+     "indifferent": false,
+     "nodes": [
+      {
+       "bestBranchIndex": 0,
+       "emv": 32.00004,
+       "indifferent": false,
+       "path": [],
+       "tiedIndices": [
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 42.00004,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 105.0001,
+       "indifferent": false,
+       "path": [
+        0,
+        0
+       ],
+       "tiedIndices": [
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 160.0,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "indifferent": false,
+       "path": [
+        0,
+        1
+       ],
+       "tiedIndices": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": -15.0,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 0.0001,
+       "indifferent": false,
+       "path": [
+        1
+       ],
+       "tiedIndices": [
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 55.0,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      }
+     ],
+     "tiedIndices": [
+      0
+     ]
+    },
+    "treePresent": true,
+    "verdict": "acquire",
+    "voi": 41.99994,
+    "withheld": false
+   },
+   "id": "actionsNearTieOutsideTolerance",
+   "inputs": {
+    "decisionCost": 54.9999,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 10,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   }
+  },
+  {
    "description": "EC4-8: three outcome chances typed 33.3333 percent sum to 99.9999, exactly 1e-4 percent points short, and are accepted end to end (prior tree included); indicators 50 / 50 with outcome chances 50 / 30 / 20 and 16.6666 / 36.6667 / 46.6667, consistent with the stated thirds.",
    "expected": {
     "acquireBranchValue": 53.333235,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "53.33",
      "emvWithoutInfo": "63.33",
@@ -20539,11 +24592,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 118.0
+      "emv": 118.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 0,
-      "emv": 8.66647
+      "emv": 8.66647,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      }
     ],
     "signalChances": [
@@ -20811,11 +24872,16 @@
       }
      ],
      "emv": 63.33323,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 63.33323,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -20828,8 +24894,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 118.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -20915,9 +24985,13 @@
       {
        "bestBranchIndex": 0,
        "emv": 8.66647,
+       "indifferent": false,
        "path": [
         0,
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -21002,8 +25076,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 63.33323,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -21077,6 +25155,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -21159,6 +25240,16 @@
    "description": "Cost 0; EMV with information equals the pre-cost value 48.",
    "expected": {
     "acquireBranchValue": 48.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "48.00",
      "emvWithoutInfo": "15.00",
@@ -21190,11 +25281,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -21404,11 +25503,16 @@
       }
      ],
      "emv": 48.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 48.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -21421,8 +25525,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -21488,8 +25596,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -21555,8 +25667,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -21612,6 +25728,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -21680,6 +25799,16 @@
    "description": "A prior so poor that doing nothing is optimal without information (10 percent success); the EMV without information is 0 and every KPI still follows.",
    "expected": {
     "acquireBranchValue": -5.4,
+    "bestActionWithoutInfo": {
+     "actionIndex": 1,
+     "indifferent": false,
+     "tiedIndices": [
+      1
+     ],
+     "tiedLabels": [
+      "Do Not Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "-5.40",
      "emvWithoutInfo": "0.00",
@@ -21711,11 +25840,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 17.692307692307693
+      "emv": 17.692307692307693,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -21925,11 +26062,16 @@
       }
      ],
      "emv": 0.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -21942,8 +26084,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 17.692307692307693,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -22009,8 +26155,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -22076,7 +26226,11 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -22133,6 +26287,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -22201,6 +26358,16 @@
    "description": "Information cost sweep on the default indicators.",
    "expected": {
     "acquireBranchValue": 43.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "43.00",
      "emvWithoutInfo": "15.00",
@@ -22232,11 +26399,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -22446,11 +26621,16 @@
       }
      ],
      "emv": 43.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 43.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -22463,8 +26643,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -22530,8 +26714,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -22597,8 +26785,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -22654,6 +26846,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -22722,6 +26917,16 @@
    "description": "Information cost sweep on the default indicators.",
    "expected": {
     "acquireBranchValue": 28.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "28.00",
      "emvWithoutInfo": "15.00",
@@ -22753,11 +26958,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -22967,11 +27180,16 @@
       }
      ],
      "emv": 28.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 28.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -22984,8 +27202,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -23051,8 +27273,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -23118,8 +27344,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -23175,6 +27405,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -23243,6 +27476,16 @@
    "description": "Information cost sweep on the default indicators.",
    "expected": {
     "acquireBranchValue": 8.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "8.00",
      "emvWithoutInfo": "15.00",
@@ -23274,11 +27517,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 120.0
+      "emv": 120.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -23488,11 +27739,16 @@
       }
      ],
      "emv": 15.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -23505,8 +27761,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 120.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -23572,8 +27832,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -23639,8 +27903,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -23696,6 +27964,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -23765,6 +28036,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.5 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 5.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "5.00",
      "emvWithoutInfo": "15.00",
@@ -23796,11 +28077,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 15.0
+      "emv": 15.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 0,
-      "emv": 15.0
+      "emv": 15.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      }
     ],
     "signalChances": [
@@ -24010,11 +28299,16 @@
       }
      ],
      "emv": 15.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -24027,8 +28321,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -24094,9 +28392,13 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         0,
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -24161,8 +28463,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -24218,6 +28524,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -24287,6 +28596,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.55 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 5.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "5.00",
      "emvWithoutInfo": "15.00",
@@ -24318,11 +28637,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 30.3125
+      "emv": 30.3125,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 0,
-      "emv": 0.8653846153846154
+      "emv": 0.8653846153846154,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      }
     ],
     "signalChances": [
@@ -24532,11 +28859,16 @@
       }
      ],
      "emv": 15.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -24549,8 +28881,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 30.3125,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -24616,9 +28952,13 @@
       {
        "bestBranchIndex": 0,
        "emv": 0.8653846153846154,
+       "indifferent": false,
        "path": [
         0,
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -24683,8 +29023,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -24740,6 +29084,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -24809,6 +29156,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.6 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 11.6,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "11.60",
      "emvWithoutInfo": "15.00",
@@ -24840,11 +29197,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 46.95652173913044
+      "emv": 46.95652173913044,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -25054,11 +29419,16 @@
       }
      ],
      "emv": 15.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 1,
        "emv": 15.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        1
+       ],
        "type": "decision"
       },
       {
@@ -25071,8 +29441,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 46.95652173913044,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -25138,8 +29512,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -25205,8 +29583,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -25262,6 +29644,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      1
      ]
     },
     "treePresent": true,
@@ -25331,6 +29716,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.65 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 18.65,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "18.65",
      "emvWithoutInfo": "15.00",
@@ -25362,11 +29757,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 65.11363636363636
+      "emv": 65.11363636363636,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -25576,11 +29979,16 @@
       }
      ],
      "emv": 18.65,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 18.65,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -25593,8 +30001,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 65.11363636363636,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -25660,8 +30072,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -25727,8 +30143,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -25784,6 +30204,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -25853,6 +30276,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.7 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 25.7,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "25.70",
      "emvWithoutInfo": "15.00",
@@ -25884,11 +30317,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 85.0
+      "emv": 85.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -26098,11 +30539,16 @@
       }
      ],
      "emv": 25.7,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 25.7,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -26115,8 +30561,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 85.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -26182,8 +30632,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -26249,8 +30703,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -26306,6 +30764,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -26375,6 +30836,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.75 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 32.75,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "32.75",
      "emvWithoutInfo": "15.00",
@@ -26406,11 +30877,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 106.875
+      "emv": 106.875,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -26620,11 +31099,16 @@
       }
      ],
      "emv": 32.75,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 32.75,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -26637,8 +31121,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 106.875,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -26704,8 +31192,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -26771,8 +31263,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -26828,6 +31324,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -26897,6 +31396,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.8 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 39.8,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "39.80",
      "emvWithoutInfo": "15.00",
@@ -26928,11 +31437,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 131.05263157894737
+      "emv": 131.05263157894737,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -27142,11 +31659,16 @@
       }
      ],
      "emv": 39.8,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 39.8,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -27159,8 +31681,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 131.05263157894737,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -27226,8 +31752,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -27293,8 +31823,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -27350,6 +31884,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -27419,6 +31956,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.85 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 46.85,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "46.85",
      "emvWithoutInfo": "15.00",
@@ -27450,11 +31997,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 157.91666666666666
+      "emv": 157.91666666666666,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -27664,11 +32219,16 @@
       }
      ],
      "emv": 46.85,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 46.85,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -27681,8 +32241,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 157.91666666666666,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -27748,8 +32312,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -27815,8 +32383,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -27872,6 +32444,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -27941,6 +32516,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.9 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 53.9,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "53.90",
      "emvWithoutInfo": "15.00",
@@ -27972,11 +32557,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 187.94117647058823
+      "emv": 187.94117647058823,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -28186,11 +32779,16 @@
       }
      ],
      "emv": 53.9,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 53.9,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -28203,8 +32801,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 187.94117647058823,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -28270,8 +32872,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -28337,8 +32943,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -28394,6 +33004,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -28463,6 +33076,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 0.95 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 60.95,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "60.95",
      "emvWithoutInfo": "15.00",
@@ -28494,11 +33117,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 221.71875
+      "emv": 221.71875,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -28708,11 +33339,16 @@
       }
      ],
      "emv": 60.95,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 60.95,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -28725,8 +33361,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 221.71875,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -28792,8 +33432,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -28859,8 +33503,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -28916,6 +33564,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -28985,6 +33636,16 @@
    "description": "Bayes-consistent symmetric indicator of accuracy 1.0 against the default priors; VOI rises from 0 at 0.5 to EVPI (63) at 1.",
    "expected": {
     "acquireBranchValue": 68.0,
+    "bestActionWithoutInfo": {
+     "actionIndex": 0,
+     "indifferent": false,
+     "tiedIndices": [
+      0
+     ],
+     "tiedLabels": [
+      "Drill Exploration Well"
+     ]
+    },
     "cards": {
      "emvWithInfo": "68.00",
      "emvWithoutInfo": "15.00",
@@ -29016,11 +33677,19 @@
     "perIndicator": [
      {
       "bestActionIndex": 0,
-      "emv": 260.0
+      "emv": 260.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       0
+      ]
      },
      {
       "bestActionIndex": 1,
-      "emv": 0.0
+      "emv": 0.0,
+      "indifferent": false,
+      "tiedActionIndices": [
+       1
+      ]
      }
     ],
     "signalChances": [
@@ -29230,11 +33899,16 @@
       }
      ],
      "emv": 68.0,
+     "indifferent": false,
      "nodes": [
       {
        "bestBranchIndex": 0,
        "emv": 68.0,
+       "indifferent": false,
        "path": [],
+       "tiedIndices": [
+        0
+       ],
        "type": "decision"
       },
       {
@@ -29247,8 +33921,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 260.0,
+       "indifferent": false,
        "path": [
         0,
+        0
+       ],
+       "tiedIndices": [
         0
        ],
        "type": "decision"
@@ -29314,8 +33992,12 @@
       {
        "bestBranchIndex": 1,
        "emv": 0.0,
+       "indifferent": false,
        "path": [
         0,
+        1
+       ],
+       "tiedIndices": [
         1
        ],
        "type": "decision"
@@ -29381,8 +34063,12 @@
       {
        "bestBranchIndex": 0,
        "emv": 15.0,
+       "indifferent": false,
        "path": [
         1
+       ],
+       "tiedIndices": [
+        0
        ],
        "type": "decision"
       },
@@ -29438,6 +34124,9 @@
        ],
        "type": "terminal"
       }
+     ],
+     "tiedIndices": [
+      0
      ]
     },
     "treePresent": true,
@@ -30043,6 +34732,336 @@
     "projectName": "Test Prospect"
    },
    "reason": "no indicators"
+  },
+  {
+   "description": "EC4-4: a survey cost cleared to a blank string is refused naming the scenario. Before, it read as 0 and the net VOI equalled the gross.",
+   "id": "surveyCostBlank",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": "",
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   },
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "blank",
+    "node": null,
+    "subject": "Information scenario \"3D Seismic Survey\""
+   }
+  },
+  {
+   "description": "EC4-4: a survey cost of \"abc\" is refused. Before, the cards read NaN.",
+   "id": "surveyCostNonNumeric",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": "abc",
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   },
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "notNumber",
+    "node": null,
+    "subject": "Information scenario \"3D Seismic Survey\""
+   }
+  },
+  {
+   "description": "EC4-4: a survey cost of -10 is refused: a receipt belongs in the payoffs. Before, it was added to the value of information.",
+   "id": "surveyCostNegative",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": -10,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   },
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "negative",
+    "node": null,
+    "subject": "Information scenario \"3D Seismic Survey\""
+   }
+  },
+  {
+   "description": "EC4-4: a blank decision cost is refused naming the action. Before, the well looked free to drill.",
+   "id": "decisionCostBlank",
+   "inputs": {
+    "decisionCost": "",
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 10,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   },
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "cost",
+    "kind": "blank",
+    "node": null,
+    "subject": "Action \"Drill Exploration Well\""
+   }
+  },
+  {
+   "description": "EC4-4: an outcome payoff cleared to null is refused naming the action and the outcome. Before, it was worth 0, so a dry hole looked free.",
+   "id": "outcomePayoffNull",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 10,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 60
+        },
+        {
+         "outcomeId": 2,
+         "probability": 40
+        }
+       ],
+       "id": 1,
+       "name": "Positive Seismic",
+       "probability": 40
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 10
+        },
+        {
+         "outcomeId": 2,
+         "probability": 90
+        }
+       ],
+       "id": 2,
+       "name": "Negative Seismic",
+       "probability": 60
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Success Case",
+      "payoff": 300,
+      "probability": 30
+     },
+     {
+      "id": 2,
+      "name": "Dry Hole",
+      "payoff": null,
+      "probability": 70
+     }
+    ],
+    "projectName": "Test Prospect"
+   },
+   "reason": "EC4-4",
+   "refusal": {
+    "field": "payoff",
+    "kind": "blank",
+    "node": null,
+    "subject": "Payoff of action \"Drill Exploration Well\" for outcome \"Dry Hole\""
+   }
   }
  ]
 }

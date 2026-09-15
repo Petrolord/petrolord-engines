@@ -50,6 +50,38 @@ const branchAt = (root, p) => nodeAt(root, p.slice(0, -1)).branches[p[p.length -
 
 const countNodes = (n) => 1 + (n.branches || []).reduce((s, b) => s + countNodes(b.node), 0);
 
+/**
+ * A golden case can carry values JSON cannot hold (NaN, Infinity): each
+ * `nonFinite` entry names the path to the field and the value to inject.
+ */
+const revive = (c) => {
+  const clone = JSON.parse(JSON.stringify(c));
+  for (const inj of c.nonFinite || []) {
+    const target = inj.at.slice(0, -1).reduce((o, k) => o[k], clone);
+    target[inj.at[inj.at.length - 1]] = Number(inj.value);
+  }
+  return clone;
+};
+
+/** EC4-4: the refusal names what carries the field, the field and the node. */
+const expectRefusal = (call, refusal, label) => {
+  expect(call).toThrow(DecisionTreeError);
+  let err = null;
+  try { call(); } catch (e) { err = e; }
+  const phrase = {
+    blank: refusal.field === 'cost' ? 'has a blank cost' : 'is blank',
+    notNumber: refusal.field === 'cost' ? 'has a cost that is not a finite number' : 'is not a finite number',
+    noMean: 'has no finite mean',
+    negative: 'a cost cannot be negative: enter a receipt as a payoff',
+  }[refusal.kind];
+  expect(`${label}: ${err.message}`).toContain(phrase);
+  if (refusal.subject) expect(err.message).toContain(refusal.subject);
+  if (refusal.node) {
+    expect(err.message).toContain(`(at node "${refusal.node}")`);
+    expect(err.nodeLabel).toBe(refusal.node);
+  }
+};
+
 /** Walk an engine-annotated tree against the oracle's flattened expectation. */
 const expectTree = (r, expected, label) => {
   expect(countNodes(r)).toBe(expected.nodes.length);
@@ -57,7 +89,13 @@ const expectTree = (r, expected, label) => {
     const node = nodeAt(r, n.path);
     expect(node.type).toBe(n.type);
     near(node.emv, n.emv, ABS, `${label} node [${n.path}] emv`);
-    if (n.type === 'decision') expect(node.bestBranchIndex).toBe(n.bestBranchIndex);
+    if (n.type === 'decision') {
+      expect(node.bestBranchIndex).toBe(n.bestBranchIndex);
+      // EC4-1: every tied branch, in listed order, and the indifference flag.
+      expect(node.tiedIndices).toEqual(n.tiedIndices);
+      expect(node.indifferent).toBe(n.indifferent);
+      expect(node.bestBranchIndex).toBe(n.tiedIndices[0]);
+    }
   }
   for (const b of expected.branches) {
     const br = branchAt(r, b.path);
@@ -65,7 +103,11 @@ const expectTree = (r, expected, label) => {
     expect(br.onOptimalPath).toBe(b.onOptimalPath);
   }
   near(r.emv, expected.emv, ABS, `${label} root emv`);
-  if (expected.bestBranchIndex !== undefined) expect(r.bestBranchIndex).toBe(expected.bestBranchIndex);
+  if (expected.bestBranchIndex !== undefined) {
+    expect(r.bestBranchIndex).toBe(expected.bestBranchIndex);
+    expect(r.tiedIndices).toEqual(expected.tiedIndices);
+    expect(r.indifferent).toBe(expected.indifferent);
+  }
 };
 
 // ---------------------------------------------------------------------------
@@ -405,7 +447,7 @@ describe('golden: rollback', () => {
   expect(G.rollback.length).toBeGreaterThanOrEqual(12);
   for (const c of G.rollback) {
     it(`${c.id}: ${c.description}`, () => {
-      expectTree(rollback(c.tree), c.expected, c.id);
+      expectTree(rollback(revive(c).tree), c.expected, c.id);
     });
   }
 });
@@ -413,7 +455,27 @@ describe('golden: rollback', () => {
 describe('golden: rollback refusals', () => {
   for (const c of G.rollbackRefusals) {
     it(`${c.id}: refused (${c.reason})`, () => {
-      expect(() => rollback(c.tree)).toThrow(DecisionTreeError);
+      const tree = revive(c).tree;
+      expect(() => rollback(tree)).toThrow(DecisionTreeError);
+      if (c.refusal) expectRefusal(() => rollback(tree), c.refusal, c.id);
+    });
+  }
+});
+
+describe('golden: lottery refusals (EC4-4)', () => {
+  expect(G.lotteryRefusals.length).toBeGreaterThanOrEqual(9);
+  for (const c of G.lotteryRefusals) {
+    it(`${c.id}: refused (${c.reason})`, () => {
+      const r = revive(c);
+      const calls = {
+        bestActionEmv: () => bestActionEmv(r.outcomes, r.actions),
+        evpi: () => evpi(r.outcomes, r.actions),
+        evii: () => evii(r.outcomes, r.actions, r.signals, r.infoCost),
+        buildInformationTree: () => buildInformationTree({
+          outcomes: r.outcomes, actions: r.actions, signals: r.signals, infoCost: r.infoCost,
+        }),
+      };
+      for (const name of c.calls) expectRefusal(calls[name], c.refusal, `${c.id} ${name}`);
     });
   }
 });
@@ -429,6 +491,10 @@ describe('golden: EVPI', () => {
       const b = bestActionEmv(c.outcomes, c.actions);
       near(b.emv, c.expected.emvPrior, ABS, `${c.id} bestActionEmv`);
       expect(b.actionIndex).toBe(c.expected.bestActionIndex);
+      // EC4-1: the tied actions and the indifference flag.
+      expect(b.tiedIndices).toEqual(c.expected.bestActionTiedIndices);
+      expect(b.indifferent).toBe(c.expected.indifferent);
+      expect(b.actionIndex).toBe(c.expected.bestActionTiedIndices[0]);
     });
   }
 });
@@ -447,6 +513,8 @@ describe('golden: EVII through Bayes', () => {
         near(r.perSignal[k].pSignal, s.pSignal, ABS, `${c.id} signal ${k} pSignal`);
         near(r.perSignal[k].emv, s.emv, ABS, `${c.id} signal ${k} emv`);
         expect(r.perSignal[k].bestActionIndex).toBe(s.bestActionIndex);
+        expect(r.perSignal[k].tiedActionIndices).toEqual(s.tiedActionIndices);
+        expect(r.perSignal[k].indifferent).toBe(s.indifferent);
         expect(r.perSignal[k].posterior).toHaveLength(s.posterior.length);
         s.posterior.forEach((p, i) => near(r.perSignal[k].posterior[i], p, ABS, `${c.id} signal ${k} posterior ${i}`));
         expect(r.perSignal[k].label).toBe(c.signals[k].label);
@@ -553,6 +621,19 @@ describe('golden: VOI Analyzer', () => {
       }
       expect(r.insights).not.toContain('-0.00');
       expect(r.insights).toContain(`'${e.optimalActionWithoutInfo}'`);
+      // EC4-1: the tied actions without information, and how they read.
+      const best = e.bestActionWithoutInfo;
+      expect(r.bestActionWithoutInfo.actionIndex).toBe(best.actionIndex);
+      expect(r.bestActionWithoutInfo.tiedIndices).toEqual(best.tiedIndices);
+      expect(r.bestActionWithoutInfo.indifferent).toBe(best.indifferent);
+      expect(r.bestActionWithoutInfo.tiedLabels).toEqual(best.tiedLabels);
+      if (best.indifferent) {
+        expect(r.insights).toContain('indifferent between them');
+        expect(r.insights).not.toContain('with the optimal decision being to');
+        for (const label of best.tiedLabels) expect(r.insights).toContain(`'${label}'`);
+      } else {
+        expect(r.insights).toContain(`with the optimal decision being to '${e.optimalActionWithoutInfo}'`);
+      }
       if (e.verdict === null) {
         for (const t of Object.values(VERDICT_TEXT)) expect(r.insights).not.toContain(t);
         expect(r.insights).toContain('is withheld');
@@ -610,7 +691,10 @@ describe('golden: VOI Analyzer refusals (EC4-0)', () => {
       expect(() => generateVoiData(c.inputs)).toThrow(DecisionTreeError);
       let message = '';
       try { generateVoiData(c.inputs); } catch (err) { message = err.message; }
-      if (c.sumPercent !== undefined) {
+      if (c.refusal) {
+        // EC4-4: money, refused by what carries it and the field.
+        expectRefusal(() => generateVoiData(c.inputs), c.refusal, c.id);
+      } else if (c.sumPercent !== undefined) {
         // The refusal names the sum IN PERCENT, the scale the form types.
         expect(message).toContain(`sum to ${Number(c.sumPercent.toFixed(4))} percent, expected 100`);
       } else {
@@ -623,7 +707,7 @@ describe('golden: VOI Analyzer refusals (EC4-0)', () => {
 describe('golden: shape', () => {
   it('carries a description and every section', () => {
     expect(typeof G.description).toBe('string');
-    for (const k of ['rollback', 'rollbackRefusals', 'evpi', 'evii', 'eviiRefusals', 'impliedPriors', 'informationTree', 'voi', 'voiRefusals']) {
+    for (const k of ['rollback', 'rollbackRefusals', 'lotteryRefusals', 'evpi', 'evii', 'eviiRefusals', 'impliedPriors', 'informationTree', 'voi', 'voiRefusals']) {
       expect(Array.isArray(G[k])).toBe(true);
       expect(G[k].length).toBeGreaterThan(0);
     }
@@ -797,5 +881,194 @@ describe('EC4-9: derived branch probabilities are renormalised once typed inputs
         { label: 'c', probability: 0.333332, node: { type: 'terminal', payoff: 1 } },
       ],
     })).toThrow('Chance branch probabilities sum to 0.999998, expected 1 (at node "typed")');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EC4-1 and EC4-4 (owner decisions 2026-09-15). Each retired rule is restored
+// here as a NEGATIVE CONTROL and must disagree with the goldens it was retired
+// for; the new rules must still discriminate what they are meant to.
+// ---------------------------------------------------------------------------
+
+describe('EC4-1: exact ties are reported, and the first listed keeps the marking', () => {
+  // The retired rule: the incumbent is replaced only on a strictly greater
+  // value, and the single winner is what a screen calls "Recommended".
+  const retiredWinner = (values) => {
+    let best = 0;
+    for (let i = 1; i < values.length; i++) if (values[i] > values[best]) best = i;
+    return best;
+  };
+  const values = (r) => r.branches.map((b) => b.branchValue);
+
+  it('an exact tie names every tied branch and says the node is indifferent', () => {
+    const c = byId('rollback', 'equalEmvTie');
+    const r = rollback(c.tree);
+    expect(r.tiedIndices).toEqual([0, 1]);
+    expect(r.indifferent).toBe(true);
+    expect(r.bestBranchIndex).toBe(0);           // the marking still has one branch
+    expect(r.branches[0].onOptimalPath).toBe(true);
+    expect(r.branches[1].onOptimalPath).toBe(false);
+    // Negative control: the retired rule reported a lone winner, which the
+    // Builder and the brief printed as the recommended first move.
+    expect(retiredWinner(values(r))).toBe(0);
+    expect(c.expected.tiedIndices).toEqual([0, 1]);
+  });
+
+  it('float residue inside the band is a tie, and the first listed still wins', () => {
+    const c = byId('rollback', 'floatResidueTie');
+    const r = rollback(c.tree);
+    // The two branches are exactly equal in decimals; in binary the second is
+    // larger by one ulp, so the retired rule recommended the SECOND branch.
+    expect(values(r)[1]).toBeGreaterThan(values(r)[0]);
+    expect(retiredWinner(values(r))).toBe(1);    // negative control
+    expect(r.bestBranchIndex).toBe(0);
+    expect(r.tiedIndices).toEqual([0, 1]);
+    expect(r.indifferent).toBe(true);
+  });
+
+  it('a gap inside the band ties; a gap outside it does not', () => {
+    const tied = rollback(byId('rollback', 'withinToleranceTie').tree);
+    expect(tied.tiedIndices).toEqual([0, 1]);
+    expect(tied.indifferent).toBe(true);
+    const apart = rollback(byId('rollback', 'nearTieOutsideTolerance').tree);
+    expect(apart.tiedIndices).toEqual([1]);
+    expect(apart.indifferent).toBe(false);
+    expect(apart.bestBranchIndex).toBe(1);
+    // The band is not wide enough to swallow the near miss: a hundredfold
+    // wider tolerance would have called it a tie.
+    const gap = Math.abs(apart.branches[1].branchValue - apart.branches[0].branchValue);
+    expect(gap).toBeGreaterThan(1e-9 * Math.max(1, Math.abs(apart.emv)));
+    expect(gap).toBeLessThan(1e-7 * Math.max(1, Math.abs(apart.emv)));
+  });
+
+  it('below unit magnitude the band is absolute, not relative', () => {
+    const c = byId('rollback', 'absoluteFloorTie');
+    const r = rollback(c.tree);
+    expect(r.tiedIndices).toEqual([0, 1]);
+    expect(r.indifferent).toBe(true);
+    expect(Math.abs(r.branches[1].branchValue - r.branches[0].branchValue)).toBeGreaterThan(0);
+  });
+
+  it('a perfect signal leaves two actions tied under the dry posterior', () => {
+    const c = byId('evii', 'perfectSignal');
+    const r = evii(c.outcomes, c.actions, c.signals, c.infoCost);
+    expect(r.perSignal[1].tiedActionIndices).toEqual([1, 2]);
+    expect(r.perSignal[1].indifferent).toBe(true);
+    expect(r.perSignal[0].indifferent).toBe(false);
+  });
+
+  it('the VOI Analyzer says indifferent instead of naming one tied action', () => {
+    const c = byId('voi', 'actionsTiedWithoutInfo');
+    const r = generateVoiData(c.inputs);
+    expect(r.bestActionWithoutInfo.indifferent).toBe(true);
+    expect(r.bestActionWithoutInfo.tiedIndices).toEqual([0, 1]);
+    expect(r.insights).toContain('indifferent between them');
+    expect(r.insights).not.toContain('with the optimal decision being to');
+    // Negative control: the retired rule named the first listed action alone.
+    const retired = `with the optimal decision being to '${r.bestActionWithoutInfo.tiedLabels[0]}'`;
+    expect(r.insights).not.toContain(retired);
+    // And a near miss outside the band still names one action.
+    const near = generateVoiData(byId('voi', 'actionsNearTieOutsideTolerance').inputs);
+    expect(near.bestActionWithoutInfo.indifferent).toBe(false);
+    expect(near.insights).toContain('with the optimal decision being to');
+  });
+});
+
+describe('EC4-4: money that is present must be a number, and a cost cannot be negative', () => {
+  // The retired readers, exactly as they were: `Number(cost) || 0` and a null
+  // payoff as 0. A negative cost was accepted as a receipt.
+  const retiredCost = (c) => Number(c) || 0;
+  const retiredPayoff = (p) => {
+    if (p == null) return 0;
+    if (typeof p === 'object') {
+      const m = Number(p.mean);
+      if (!Number.isFinite(m)) throw new Error('Distribution payoff has no finite mean');
+      return m;
+    }
+    const v = Number(p);
+    if (!Number.isFinite(v)) throw new Error('Terminal payoff is not a number');
+    return v;
+  };
+
+  it('every refused cost read as a number under the retired rule', () => {
+    const costCases = G.rollbackRefusals.concat(G.lotteryRefusals)
+      .filter((c) => c.refusal && c.refusal.field === 'cost');
+    expect(costCases.length).toBeGreaterThanOrEqual(8);
+    for (const c of costCases) {
+      const raw = revive(c).refusedValue;
+      const old = retiredCost(raw);
+      // Negative control: the retired reader never refused. It handed back a
+      // usable number for every one of these.
+      expect(typeof old).toBe('number');
+      expect(Number.isNaN(old)).toBe(false);
+      if (c.refusal.kind === 'negative') expect(old).toBeLessThan(0);
+      else if (raw === Infinity) expect(old).toBe(Infinity);   // propagated, not refused
+      else expect(old).toBe(0);
+    }
+  });
+
+  it('a refused payoff read as 0, or refused without naming the node, under the retired rule', () => {
+    const payoffCases = G.rollbackRefusals.concat(G.lotteryRefusals)
+      .filter((c) => c.refusal && c.refusal.field === 'payoff');
+    expect(payoffCases.length).toBeGreaterThanOrEqual(5);
+    let silentlyZero = 0;
+    for (const c of payoffCases) {
+      const raw = revive(c).refusedValue;
+      try {
+        expect(retiredPayoff(raw)).toBe(0);      // negative control: blank, null and a blank mean were 0
+        silentlyZero += 1;
+      } catch (err) {
+        // The retired rule refused this one, but without naming the node.
+        expect(err.message).not.toContain('(at node');
+      }
+    }
+    expect(silentlyZero).toBeGreaterThanOrEqual(2);
+  });
+
+  it('an omitted cost is still 0, and a numeric string is still a number', () => {
+    const c = byId('rollback', 'omittedCostAndPayoffAreZero');
+    expectTree(rollback(c.tree), c.expected, c.id);
+    const s = byId('rollback', 'numericStringMoney');
+    expectTree(rollback(s.tree), s.expected, s.id);
+  });
+
+  it('the exact refusal wording, at a branch, a terminal and an action', () => {
+    const term = (label, payoff) => ({ type: 'terminal', label, payoff });
+    expect(() => rollback({
+      type: 'decision', label: 'Prospect decision',
+      branches: [{ label: 'Drill', cost: '', node: term('x', 10) }],
+    })).toThrow('Branch "Drill" has a blank cost; a cost must be a number of 0 or more (at node "Prospect decision")');
+    expect(() => rollback({
+      type: 'decision', label: 'Prospect decision',
+      branches: [{ label: 'Drill', cost: 'abc', node: term('x', 10) }],
+    })).toThrow('Branch "Drill" has a cost that is not a finite number ("abc"); a cost must be a number of 0 or more (at node "Prospect decision")');
+    expect(() => rollback({
+      type: 'decision', label: 'Prospect decision',
+      branches: [{ label: 'Drill', cost: -5, node: term('x', 10) }],
+    })).toThrow('Branch "Drill" has a negative cost (-5); a cost cannot be negative: enter a receipt as a payoff (at node "Prospect decision")');
+    expect(() => rollback(term('Dry hole', null)))
+      .toThrow('Terminal payoff is blank; a payoff must be a finite number (at node "Dry hole")');
+    expect(() => rollback(term('Dry hole', 'abc')))
+      .toThrow('Terminal payoff is not a finite number ("abc"); a payoff must be a finite number (at node "Dry hole")');
+    expect(() => bestActionEmv(OUTCOMES, [{ label: 'Drill', cost: null, payoffs: [1, 2] }]))
+      .toThrow('Action "Drill" has a blank cost; a cost must be a number of 0 or more');
+    expect(() => bestActionEmv(OUTCOMES, [{ label: 'Drill', cost: 0, payoffs: [null, 2] }]))
+      .toThrow('Payoff of action "Drill" for outcome "Success" is blank; a payoff must be a finite number');
+    expect(() => evii(OUTCOMES, ACTIONS, SIGNALS, -5))
+      .toThrow('The information has a negative cost (-5); a cost cannot be negative: enter a receipt as a payoff');
+  });
+
+  it('the VOI Analyzer refuses a blank survey cost and a blank decision cost', () => {
+    const blankSurvey = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
+    blankSurvey.infoScenario.cost = '';
+    expect(() => generateVoiData(blankSurvey))
+      .toThrow('Information scenario "3D Seismic Survey" has a blank cost; a cost must be a number of 0 or more');
+    const blankDecision = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
+    blankDecision.decisionCost = null;
+    expect(() => generateVoiData(blankDecision))
+      .toThrow('Action "Drill Exploration Well" has a blank cost; a cost must be a number of 0 or more');
+    // Negative control: the retired reader turned both into 0 and reported cards.
+    expect(retiredCost('')).toBe(0);
+    expect(retiredCost(null)).toBe(0);
   });
 });

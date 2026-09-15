@@ -108,10 +108,10 @@ where the grid changes the set cannot appear unseen.
   the 62 cases: 6.86e-8 on `riskMetrics/correlation_0` (engine 0.0015708182,
   oracle 0.0015707496). The gate allows 1.5e-7 and asserts the observed
   maximum stays below it.
-- Ties resolve to the first branch or action listed (`rollback/equalEmvTie`,
-  `informationTree/costExactlyNetZero`, `optimize/tieIdenticalProjects`,
-  `optimize/tieDifferentComposition`). The oracle states the same convention
-  for trees and lists every optimal set for the knapsack.
+- Ties resolve to the first branch or action listed (`optimize/tieIdenticalProjects`,
+  `optimize/tieDifferentComposition`). The oracle lists every optimal set for
+  the knapsack. For trees and lotteries this is superseded by EC4-1 below:
+  the tie is now reported, and the first listed keeps the marking.
 
 ## Observations for the owner (no number disagrees)
 
@@ -162,10 +162,12 @@ repair the engine before the course teaches it.
   malformed indicator (now refused). The zero-net wording observation stands.
 
 Unchanged by EC4-0 and taught by the course as properties of the apps (owner
-kept them out of the repair): exact ties recommend the first option listed;
-the net VOI verdict reads the unrounded value beside a two-decimal card; the
-Decision Tree Builder's node label shows the value before the branch cost;
-non-numeric or blank costs read as 0 and negative costs are accepted.
+kept them out of the repair at the time): exact ties recommend the first
+option listed; the net VOI verdict reads the unrounded value beside a
+two-decimal card; the Decision Tree Builder's node label shows the value
+before the branch cost; non-numeric or blank costs read as 0 and negative
+costs are accepted. The tie line and the cost line are superseded by EC4-1
+and EC4-4 below; the verdict line was superseded by EC4-2.
 
 ## EC4-8 and EC4-2 (FIXED 2026-09-15, owner decisions)
 
@@ -287,6 +289,99 @@ inputs pass`. The negative control restores the pre-EC4-9 derivation (typed
 chances inverted with no renormalisation) and shows it throws at "Signal
 received" on both edge cases and builds on both exact references. A second
 test shows a typed 0.999998 chance node is still refused.
+
+## EC4-1 and EC4-4: FIXED 2026-09-15 (owner decisions)
+
+Engines: `engines/economics/decisionTree.js` and `engines/economics/voi.js`.
+Oracle `tools/validation/economics/oracle_decision.py` regenerated twice,
+byte-identical. Golden `decision_cases.json`: 160 cases (was 118).
+
+### EC4-1. An exact tie was reported as a recommendation (FIXED)
+
+Evidence: `rollback` and `bestActionEmv` replaced the incumbent only on a
+strictly greater value, so at a tie the first listed branch became
+`bestBranchIndex` and the Suite printed it as "Recommended first move" with
+a runner-up margin of 0. Nothing in the result said the choice was a tie.
+Float residue made it worse: two branches worth exactly 0.3 in decimals
+evaluate to 0.3 and 0.30000000000000004 in binary, and the retired rule
+recommended the second one on a difference of one ulp
+(`rollback/floatResidueTie`).
+
+Fix: every decision node result, and every best-action result, now carries
+`tiedIndices` (every index whose value is within `1e-9 * max(1, |best|)` of
+the best, in listed order) and `indifferent` (`tiedIndices.length > 1`).
+Float residue inside that band is a tie. `bestBranchIndex` and `actionIndex`
+are kept, because the optimal-path marking needs one branch, and each is now
+the FIRST listed of the tied indices, so a residue-larger later branch no
+longer wins. The node EMV is still the largest branch value. `evii` reports
+`tiedActionIndices` and `indifferent` per signal, and the VOI Analyzer
+returns `bestActionWithoutInfo` (`actionIndex`, `label`, `tiedIndices`,
+`tiedLabels`, `indifferent`).
+
+Wording: when the actions tie, the Analyzer's insight reads `and 'Drill
+Exploration Well' and 'Do Not Drill Exploration Well' carry the same EMV, so
+the decision without new information is indifferent between them.` instead of
+`with the optimal decision being to '...'`.
+
+Goldens: `rollback/floatResidueTie`, `withinToleranceTie` (gap 1e-8 inside
+the band at 43), `nearTieOutsideTolerance` (gap 1e-7 outside it),
+`absoluteFloorTie` (the band is absolute below unit magnitude),
+`evpi/tiedActionsAtPrior`, `voi/actionsTiedWithoutInfo` (decision cost 55)
+and `voi/actionsNearTieOutsideTolerance`. `rollback/equalEmvTie` and
+`informationTree/costExactlyNetZero` keep their index behaviour and numbers;
+their notes no longer say a tie resolves to a recommendation.
+
+Gates: `EC4-1: exact ties are reported, and the first listed keeps the
+marking`. Negative controls restore the retired strictly-greater rule and
+show it names a lone winner at `equalEmvTie` and picks the SECOND branch at
+`floatResidueTie`; the near-tie case shows the band does not swallow a gap
+1e-7 wide.
+
+Open, not decided here: the VOI Analyzer's tie band is on the value, so
+`actionsNearTieOutsideTolerance` names one action while its EMV card reads
+0.00, the same card-versus-value gap EC4-2 closed for the net VOI verdict.
+
+### EC4-4. Money that was blank, non-numeric or negative was read silently (FIXED)
+
+Evidence: costs read as `Number(cost) || 0`, so a blank field, a null, "abc"
+and NaN all made a branch or an action free, and a negative cost was added to
+the branch value as a receipt. A null or blank terminal payoff was worth 0,
+so a cleared field looked like a break-even outcome, and `true` was worth 1.
+
+Fix: an OMITTED cost or payoff is still 0. One that is PRESENT must be a
+finite number, or a string holding one (` 40 ` is 40), and is otherwise
+refused by node label, naming the field:
+
+- `Branch "Drill" has a blank cost; a cost must be a number of 0 or more (at node "Prospect decision")` (blank string or null)
+- `Branch "Drill" has a cost that is not a finite number ("abc"); a cost must be a number of 0 or more (at node "Prospect decision")` (also NaN and infinities)
+- `Branch "Drill" has a negative cost (-5); a cost cannot be negative: enter a receipt as a payoff (at node "Prospect decision")`
+- `Terminal payoff is blank; a payoff must be a finite number (at node "Dry hole")`
+- `Terminal payoff is not a finite number ("abc"); a payoff must be a finite number (at node "Dry hole")`
+- `Distribution payoff has no finite mean (at node "Dry hole")` (unchanged, now also for a blank mean)
+- `Action "Drill" has a blank cost; a cost must be a number of 0 or more` (and the not-a-number and negative forms)
+- `Payoff of action "Drill" for outcome "Success" is blank; a payoff must be a finite number` (and the not-a-number form)
+- `The information has a negative cost (-5); a cost cannot be negative: enter a receipt as a payoff` (the EVII information cost)
+- `Information scenario "3D Seismic Survey" has a blank cost; a cost must be a number of 0 or more` (the VOI Analyzer's survey cost)
+
+`validateLottery` reads every action cost and payoff before anything is
+computed, so `bestActionEmv`, `evpi`, `evii` and `buildInformationTree` all
+refuse the same inputs, and the VOI Analyzer refuses its survey cost, its
+decision cost and its outcome payoffs.
+
+Goldens: `rollback/omittedCostAndPayoffAreZero` (renamed from
+`missingCostAndNullPayoff`, whose null payoff is now refused) and
+`rollback/numericStringMoney`; `rollbackRefusals` grew from 9 to 23 cases and
+a new `lotteryRefusals` section holds 12; `voiRefusals` grew from 9 to 14
+with the five money cases. A case carrying NaN or an infinity holds a
+placeholder string and a `nonFinite` instruction, since JSON holds neither.
+
+Gates: `golden: lottery refusals (EC4-4)`, the refusal detail check on every
+`rollbackRefusals` case with a `refusal` block, and `EC4-4: money that is
+present must be a number, and a cost cannot be negative`, which pins the
+exact wording. Negative controls restore the retired readers and show every
+refused cost reading as a finite number (0, or the negative itself), every
+refused payoff reading as 0 or refusing without naming the node, and the
+blank survey and decision costs reading as 0.
 
 ## Not done
 

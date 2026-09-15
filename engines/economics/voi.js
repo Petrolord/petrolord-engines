@@ -51,6 +51,16 @@
 // chance node typed directly in the Decision Tree Builder keeps the strict
 // refusal.
 //
+// EC4-1 and EC4-4 (2026-09-15, owner decisions): when two or more actions
+// tie on EMV without information, the Analyzer says the decision is
+// indifferent between them and names them all, instead of reporting the
+// first listed as the optimal decision; `bestActionWithoutInfo` carries the
+// tied indices and labels. And the survey cost, the decision cost and every
+// outcome payoff are read strictly by the engine: an entry that is present
+// but blank, null, non-numeric or non-finite is refused naming the field,
+// and a negative cost is refused. Before, a blank or non-numeric cost read
+// as 0 and a negative cost read as a receipt.
+//
 // Economics E2 replaced the node/link "plot data" this used to return with a
 // real decision tree. Nothing rendered those nodes (the panel was a "Chart
 // removed" placeholder), and their link values were not a quantity: each was
@@ -60,7 +70,7 @@
 
 import {
   bestActionEmv, evpi as engineEvpi, impliedPriors, buildInformationTree, rollback,
-  DecisionTreeError,
+  costValue, DecisionTreeError,
 } from './decisionTree.js';
 
 // Percent-point tolerance on every sum of percent inputs: the engine's 1e-6
@@ -147,6 +157,8 @@ export const generateVoiData = (inputs) => {
 
     // EC4-0: refuse what is not a distribution, in percent, before computing.
     const posteriors = validatePercentInputs(outcomes, indicators);
+    // EC4-4: the survey cost is money, read strictly before anything uses it.
+    const infoCost = costValue(infoScenario.cost, `Information scenario "${infoScenario?.name ?? ''}"`);
 
     const engineOutcomes = outcomes.map((o) => ({ label: o.name, probability: o.probability / 100 }));
     const engineActions = [
@@ -158,6 +170,17 @@ export const generateVoiData = (inputs) => {
     const prior = bestActionEmv(engineOutcomes, engineActions);
     const emvWithoutInfo = prior.emv;
     const optimalActionWithoutInfo = engineActions[prior.actionIndex].label;
+    // EC4-1: every action within the tie band of the best, in listed order.
+    const tiedLabels = prior.tiedIndices.map((i) => engineActions[i].label);
+    const bestActionWithoutInfo = {
+        actionIndex: prior.actionIndex,
+        label: optimalActionWithoutInfo,
+        tiedIndices: prior.tiedIndices,
+        tiedLabels,
+        indifferent: prior.indifferent,
+    };
+    const quotedList = (labels) => labels.map((l) => `'${l}'`)
+        .reduce((text, l, i) => (i === 0 ? l : `${text}${i === labels.length - 1 ? ' and ' : ', '}${l}`), '');
 
     // --- EVPI (canonical engine) ---
     const { evpi } = engineEvpi(engineOutcomes, engineActions);
@@ -168,7 +191,9 @@ export const generateVoiData = (inputs) => {
         indicators.map((ind, k) => ({ label: ind.name, probability: ind.probability / 100, posteriors: posteriors[k] })),
     );
 
-    const baseInsight = `The Expected Monetary Value (EMV) without new information is $${cardText(emvWithoutInfo)}M, with the optimal decision being to '${optimalActionWithoutInfo}'.`;
+    const baseInsight = prior.indifferent
+        ? `The Expected Monetary Value (EMV) without new information is $${cardText(emvWithoutInfo)}M, and ${quotedList(tiedLabels)} carry the same EMV, so the decision without new information is indifferent between them.`
+        : `The Expected Monetary Value (EMV) without new information is $${cardText(emvWithoutInfo)}M, with the optimal decision being to '${optimalActionWithoutInfo}'.`;
     const evpiInsight = `The EVPI of $${cardText(evpi)}M sets the theoretical maximum value of any information-gathering activity.`;
 
     if (!consistency.consistent) {
@@ -185,6 +210,7 @@ export const generateVoiData = (inputs) => {
             },
             tree: null,
             withheld: true,
+            bestActionWithoutInfo,
             insights: `${baseInsight} ${evpiInsight} Consistency warning: the indicator probabilities you entered imply different outcome chances than your stated ones (${impliedTxt}), so the value of the '${infoScenario.name}' is withheld rather than computed from numbers that contradict each other. Adjust the indicator chances or their outcome chances until they agree, or use the Decision Tree Builder, which derives them from reliabilities so they cannot disagree.`,
             consistency,
         };
@@ -202,9 +228,9 @@ export const generateVoiData = (inputs) => {
         emvWithInfoPreCost += indicatorChances[k] * conditional.emv;
     });
 
-    const emvWithInfo = emvWithInfoPreCost - infoScenario.cost;
+    const emvWithInfo = emvWithInfoPreCost - infoCost;
     const voi = emvWithInfoPreCost - emvWithoutInfo;
-    const netVoi = voi - infoScenario.cost;
+    const netVoi = voi - infoCost;
 
     // EC4-2: net VOI is rounded once; the card and the verdict read the same
     // rounded value.
@@ -237,7 +263,7 @@ export const generateVoiData = (inputs) => {
             label: ind.name,
             likelihoods: likelihoodsFromPosteriors(priors, indicatorChances[k], outcomeChancesGiven[k]),
         })),
-        infoCost: infoScenario.cost,
+        infoCost,
         infoLabel: `Acquire ${infoScenario.name}`,
     }));
 
@@ -247,5 +273,6 @@ export const generateVoiData = (inputs) => {
         withheld: false,
         insights,
         consistency,
+        bestActionWithoutInfo,
     };
 };
