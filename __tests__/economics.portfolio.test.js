@@ -8,6 +8,13 @@
  *       E5 correlation cases). The one that asserted the old normal
  *       approximation (P(loss) = Phi(-mean/sd)) now asserts the Monte Carlo
  *       contract against the exact answer instead.
+ *   (x) D2, D4 and EC1-12 (owner decisions 2026-09-15): the knapsack is
+ *       solved EXACTLY, so every golden's funded set is the brute-force
+ *       optimum, overLimit is false and optimalityGap 0; a case whose
+ *       exactStateLimit forces the fallback matches the ceil-weight grid and
+ *       its floor-weight bound. Negative controls restate the retired
+ *       step-scaled grid and show it funding 6002 on 6000, leaving 200 of EMV
+ *       out, and charging a free project a cell.
  *   (b) agreement with every case in the independent oracle's golden,
  *       test-data/economics/goldens/portfolio_cases.json: 1e-9 on EMVs, capex
  *       sums, means and spreads (scaled by magnitude; rawDollars has capex
@@ -37,6 +44,7 @@ import path from 'path';
 import {
   projectEmv, projectMoments, portfolioRiskMetrics, optimizePortfolio, successStdDev,
   DEFAULT_RISK_SEED, DEFAULT_RISK_ITERATIONS, PortfolioInputError,
+  EXACT_STATE_LIMIT, FALLBACK_GRID_CELLS,
 } from '../engines/economics/portfolio.js';
 import { normalCDF } from '../lib/stats/stats.js';
 
@@ -65,9 +73,47 @@ const withinSE = (mc, exact, n, label) => {
   return z;
 };
 
-/** Cases where the engine's grid changes the chosen set from the exact optimum.
- *  Recorded in tools/validation/economics/FINDINGS-decision.md. */
-const CHANGED_BY_GRID = ['freeProjectTightLimit', 'freeProjectZeroLimit', 'gridOvershoot', 'gridUndershoot'];
+/** Cases where the RETIRED step-scaled grid chose a different set from the
+ *  exact optimum: D2, D3 and D4 in
+ *  tools/validation/economics/FINDINGS-decision.md. The engine no longer runs
+ *  that grid; the golden keeps its answer so the negative controls below have
+ *  something to fail against. */
+const CHANGED_BY_GRID = [
+  'freeProjectTightLimit', 'freeProjectZeroLimit', 'gridOvershoot', 'gridUndershoot',
+  'gridOvershootFallback', 'gridUndershootFallback',
+];
+
+/** The retired step-scaled grid, restated as the negative control: weights
+ *  round to nearest with a floor of one cell, so a set could exceed the limit,
+ *  a free project cost a cell and a feasible project be left out. */
+const retiredGrid = ({ projects, capexLimit }) => {
+  const limit = Math.max(0, Number(capexLimit) || 0);
+  const candidates = projects.filter((p) => Number(p.capex) > 0 || projectEmv(p) > 0);
+  const allInteger = Number.isInteger(limit) && candidates.every((p) => Number.isInteger(Number(p.capex)));
+  const resolution = allInteger && limit <= 5000 ? 1 : Math.max(1e-9, limit / 2000);
+  const cells = Math.round(limit / resolution);
+  const dp = new Array(cells + 1).fill(0);
+  const pick = new Array(cells + 1).fill(null).map(() => []);
+  for (const p of candidates) {
+    const value = projectEmv(p);
+    if (value <= 0) continue;
+    const weight = Math.max(1, Math.round((Number(p.capex) || 0) / resolution));
+    if (weight > cells) continue;
+    for (let w = cells; w >= weight; w--) {
+      if (dp[w - weight] + value > dp[w]) {
+        dp[w] = dp[w - weight] + value;
+        pick[w] = [...pick[w - weight], p];
+      }
+    }
+  }
+  const optimalProjects = pick[cells];
+  return {
+    optimalProjects,
+    resolution,
+    totalCapex: optimalProjects.reduce((t, p) => t + (Number(p.capex) || 0), 0),
+    totalEmv: optimalProjects.reduce((t, p) => t + projectEmv(p), 0),
+  };
+};
 
 // Replication gaps, engine against the oracle's replayed sampler.
 const gaps = { lossCount: 0, quantile: 0, compared: 0 };
@@ -176,11 +222,15 @@ describe('Suite port: optimizePortfolio (step-scaled knapsack)', () => {
     expect(r.optimalProjects.map((p) => p.name)).toEqual(['good']);
   });
 
-  it('keeps the DP bounded when the limit is typed in raw dollars', () => {
+  it('solves a limit typed in raw dollars exactly, with no grid at all', () => {
     const dollarProjects = projects.map((p) => ({ ...p, capex: p.capex * 1e6 }));
     const r = optimizePortfolio({ projects: dollarProjects, capexLimit: 450e6 });
     expect(r.optimalProjects.map((p) => p.name).sort()).toEqual(['A', 'B', 'D']);
-    expect(r.resolution).toBeGreaterThan(1);
+    expect(r.solveMethod).toBe('exact');
+    expect(r.resolution).toBeNull();
+    expect(r.totalCapex).toBe(450e6);
+    // The state list stays small: one entry per step of the frontier.
+    expect(r.frontierData.length).toBeLessThan(EXACT_STATE_LIMIT);
   });
 
   it('produces a monotone frontier ending at the optimum', () => {
@@ -322,80 +372,175 @@ describe('golden: portfolioRiskMetrics (Monte Carlo replayed bit for bit)', () =
   });
 });
 
-describe('golden: optimizePortfolio (brute-force knapsack, exact and on the grid)', () => {
+describe('golden: optimizePortfolio (the engine solves the brute-force knapsack exactly)', () => {
   for (const c of G.optimize) {
     it(`${c.id}: ${c.description}`, () => {
       const r = optimizePortfolio({
-        projects: c.projects, capexLimit: c.capexLimit, correlation: c.correlation, ...c.riskOptions,
+        projects: c.projects,
+        capexLimit: c.capexLimit,
+        correlation: c.correlation,
+        ...c.riskOptions,
+        ...(c.exactStateLimit === undefined ? {} : { exactStateLimit: c.exactStateLimit }),
       });
       const e = c.expected;
-      near(r.resolution, e.resolution, scaled(e.resolution) * 1e-3, `${c.id} resolution`);
+      expect(r.solveMethod).toBe(e.solveMethod);
       near(r.capexLimit, e.limit, scaled(e.limit), `${c.id} capexLimit`);
 
-      // The chosen set is one of the grid optima, and its totals are that set's.
+      // The chosen set is one of the optima of the problem the engine solved,
+      // and its totals are that set's.
+      const target = e.solveMethod === 'exact' ? e.exact : e.gridFeasible;
       const chosen = ids(r.optimalProjects);
-      const match = e.quantized.optimalSets.find((s) => sameIds(s.ids.slice().sort(), chosen));
+      const match = target.optimalSets.find((s) => sameIds(s.ids.slice().sort(), chosen));
       if (!match) {
-        throw new Error(`${c.id}: engine chose [${chosen}] but the grid optima are ${JSON.stringify(e.quantized.optimalSets.map((s) => s.ids))}`);
+        throw new Error(`${c.id}: engine chose [${chosen}] but the optima are ${JSON.stringify(target.optimalSets.map((s) => s.ids))}`);
       }
-      near(r.totalEmv, e.quantized.optimalEmv, scaled(e.quantized.optimalEmv), `${c.id} totalEmv`);
+      near(r.totalEmv, target.optimalEmv, scaled(target.optimalEmv), `${c.id} totalEmv`);
       near(r.totalCapex, match.capex, scaled(match.capex), `${c.id} totalCapex`);
       near(r.totalNpvSuccess, match.npvSuccess, scaled(match.npvSuccess), `${c.id} totalNpvSuccess`);
       riskGate(r.risk, match.risk, `${c.id} risk`);
 
-      // D3 flag: overLimit is the chosen set's capex above the clamped limit.
-      expect(r.overLimit).toBe(match.overLimit);
-      expect(r.overLimit).toBe(r.totalCapex > r.capexLimit);
-      near(r.overLimitBy, match.overLimitBy, scaled(match.overLimitBy), `${c.id} overLimitBy`);
-      expect(r.overLimitBy).toBe(Math.max(0, r.totalCapex - r.capexLimit));
+      // EC1-12: feasible by construction, whichever method ran.
+      expect(match.overLimit).toBe(false);
+      expect(r.overLimit).toBe(false);
+      expect(r.overLimitBy).toBe(0);
+      expect(r.totalCapex).toBeLessThanOrEqual(r.capexLimit);
 
-      // (a) the risk block is the risk of the picked set.
-      const direct = portfolioRiskMetrics(r.optimalProjects, c.correlation, c.riskOptions);
-      expect(r.risk).toEqual(direct);
-
-      // The gap to the exact optimum is pinned, and the set only changes
-      // where the golden says it does.
-      near(r.totalEmv - e.exact.optimalEmv, e.quantizationGap, scaled(e.exact.optimalEmv), `${c.id} quantization gap`);
-      expect(e.setChanged).toBe(CHANGED_BY_GRID.includes(c.id));
-      if (!e.setChanged) {
-        expect(e.exact.optimalSets.some((s) => sameIds(s.ids.slice().sort(), chosen))).toBe(true);
+      near(r.optimalityGap, e.optimalityGap, scaled(e.optimalityGap), `${c.id} optimalityGap`);
+      if (e.solveMethod === 'exact') {
+        // D2 and D4: the exact optimum, with nothing left on the table.
+        expect(r.resolution).toBeNull();
+        expect(r.optimalityGap).toBe(0);
+        near(r.totalEmv, e.exact.optimalEmv, scaled(e.exact.optimalEmv), `${c.id} exact optimum`);
+      } else {
+        near(r.resolution, e.engineResolution, scaled(e.engineResolution) * 1e-3, `${c.id} resolution`);
+        expect(r.resolution).toBe(r.capexLimit / FALLBACK_GRID_CELLS);
+        // The stated gap really does bound what the fallback left out.
+        expect(r.totalEmv + r.optimalityGap + scaled(e.exact.optimalEmv)).toBeGreaterThanOrEqual(e.exact.optimalEmv);
       }
 
-      // Frontier: same length, same EMV levels, capex among the tied sets'.
-      expect(r.frontierData.length).toBe(e.quantized.frontier.length);
-      e.quantized.frontier.forEach((f, i) => {
+      // Frontier: same length, same EMV levels, the exact capex where the
+      // solve was exact and one of the tied sets' capex on the grid.
+      expect(r.frontierData.length).toBe(target.frontier.length);
+      target.frontier.forEach((f, i) => {
         near(r.frontierData[i].emv, f.emv, scaled(f.emv), `${c.id} frontier ${i} emv`);
-        const ok = f.capexCandidates.some((cap) => Math.abs(cap - r.frontierData[i].capex) <= scaled(cap));
-        if (!ok) throw new Error(`${c.id} frontier ${i} capex ${r.frontierData[i].capex} not in [${f.capexCandidates}]`);
+        if (e.solveMethod === 'exact') {
+          near(r.frontierData[i].capex, f.capex, scaled(f.capex), `${c.id} frontier ${i} capex`);
+        } else {
+          const ok = f.capexCandidates.some((cap) => Math.abs(cap - r.frontierData[i].capex) <= scaled(cap));
+          if (!ok) throw new Error(`${c.id} frontier ${i} capex ${r.frontierData[i].capex} not in [${f.capexCandidates}]`);
+        }
       });
-      // (a) monotone, starting at (0, 0) and ending at the optimum.
+      // (a) monotone, starting at capex 0 and ending at the optimum. D2: the
+      // first point carries the free projects' EMV, which costs nothing.
       expect(r.frontierData[0].capex).toBe(0);
-      expect(r.frontierData[0].emv).toBe(0);
       for (let i = 1; i < r.frontierData.length; i++) {
         expect(r.frontierData[i].emv).toBeGreaterThan(r.frontierData[i - 1].emv);
+        expect(r.frontierData[i].capex).toBeGreaterThan(r.frontierData[i - 1].capex);
       }
       near(r.frontierData[r.frontierData.length - 1].emv, r.totalEmv, scaled(r.totalEmv), `${c.id} frontier end`);
     });
   }
 
-  it('pins the set of cases the grid changes, and every pinned case is in the golden', () => {
+  it('pins the set of cases the retired grid changed, and every pinned case is in the golden', () => {
     const changed = G.optimize.filter((c) => c.expected.setChanged).map((c) => c.id).sort();
     expect(changed).toEqual(CHANGED_BY_GRID.slice().sort());
   });
 
-  it('D3 is flagged: gridOvershoot reports overLimit by 2, classic450 is within the limit', () => {
+  it('every golden funds a set inside its limit, and every exact case is the brute-force optimum', () => {
+    let exact = 0;
+    let fallback = 0;
+    for (const c of G.optimize) {
+      const r = optimizePortfolio({
+        projects: c.projects, capexLimit: c.capexLimit, correlation: c.correlation, ...c.riskOptions,
+        ...(c.exactStateLimit === undefined ? {} : { exactStateLimit: c.exactStateLimit }),
+      });
+      expect(r.totalCapex).toBeLessThanOrEqual(r.capexLimit);
+      if (r.solveMethod === 'exact') {
+        exact += 1;
+        near(r.totalEmv, c.expected.exact.optimalEmv, scaled(c.expected.exact.optimalEmv), `${c.id} optimum`);
+      } else {
+        fallback += 1;
+      }
+    }
+    expect(exact).toBe(G.optimize.length - 3);
+    expect(fallback).toBe(3);
+  });
+
+  it('EC1-12: gridOvershoot funds A + C at 5995, inside the limit of 6000', () => {
     const byId = Object.fromEntries(G.optimize.map((c) => [c.id, c]));
     const run = (id) => optimizePortfolio({
       projects: byId[id].projects, capexLimit: byId[id].capexLimit, correlation: byId[id].correlation, ...byId[id].riskOptions,
     });
     const over = run('gridOvershoot');
-    expect(over.totalCapex).toBe(6002);
+    expect(over.optimalProjects.map((p) => p.name).sort()).toEqual(['A', 'C']);
+    expect(over.totalCapex).toBe(5995);
     expect(over.capexLimit).toBe(6000);
-    expect(over.overLimit).toBe(true);
-    expect(over.overLimitBy).toBe(2);
+    expect(over.overLimit).toBe(false);
+    expect(over.overLimitBy).toBe(0);
     const classic = run('classic450');
     expect(classic.overLimit).toBe(false);
     expect(classic.overLimitBy).toBe(0);
+  });
+
+  it('D4: gridUndershoot funds all four projects at 5999 for 860', () => {
+    const c = G.optimize.find((x) => x.id === 'gridUndershoot');
+    const r = optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit, ...c.riskOptions });
+    expect(r.optimalProjects.map((p) => p.name).sort()).toEqual(['W', 'X', 'Y', 'Z']);
+    expect(r.totalCapex).toBe(5999);
+    expect(r.totalEmv).toBe(860);
+  });
+
+  it('D2: a free project is funded at a limit of 0 and beside a project that spends it all', () => {
+    const zero = optimizePortfolio({ projects: [{ id: 'free', name: 'free', capex: 0, npv_p50: 10 }], capexLimit: 0 });
+    expect(zero.optimalProjects.map((p) => p.name)).toEqual(['free']);
+    expect(zero.totalEmv).toBe(10);
+    const tight = optimizePortfolio({
+      projects: [{ id: 'free', name: 'free', capex: 0, npv_p50: 10 }, { id: 'A', name: 'A', capex: 100, npv_p50: 60 }],
+      capexLimit: 100,
+    });
+    expect(tight.optimalProjects.map((p) => p.name).sort()).toEqual(['A', 'free']);
+    expect(tight.totalEmv).toBe(70);
+    expect(tight.frontierData[0]).toEqual({ capex: 0, emv: 10 });
+  });
+
+  it('decimal capex add up in decimals: 0.1 + 0.2 is funded at a limit of 0.3', () => {
+    const c = G.optimize.find((x) => x.id === 'decimalCapexExactSum');
+    const r = optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit, ...c.riskOptions });
+    expect(r.optimalProjects.map((p) => p.name).sort()).toEqual(['a', 'b']);
+    expect(r.totalCapex).toBe(0.3);
+    expect(r.overLimit).toBe(false);
+    // The double sum of the same two numbers is above the limit.
+    expect(0.1 + 0.2 > 0.3).toBe(true);
+  });
+
+  it('the fallback keeps the answer feasible and states what it may have left out', () => {
+    const under = G.optimize.find((x) => x.id === 'gridUndershootFallback');
+    const r = optimizePortfolio({
+      projects: under.projects, capexLimit: under.capexLimit, exactStateLimit: under.exactStateLimit, ...under.riskOptions,
+    });
+    expect(r.solveMethod).toBe('grid-feasible');
+    expect(r.resolution).toBe(3);
+    expect(r.totalCapex).toBe(4500);
+    expect(r.totalEmv).toBe(660);
+    expect(r.optimalityGap).toBe(200);
+    expect(r.totalEmv + r.optimalityGap).toBeGreaterThanOrEqual(under.expected.exact.optimalEmv);
+    const over = G.optimize.find((x) => x.id === 'gridOvershootFallback');
+    const q = optimizePortfolio({
+      projects: over.projects, capexLimit: over.capexLimit, exactStateLimit: over.exactStateLimit, ...over.riskOptions,
+    });
+    expect(q.totalCapex).toBe(5995);
+    expect(q.overLimit).toBe(false);
+    expect(q.optimalityGap).toBe(20);
+  });
+
+  it('an invalid exactStateLimit falls back to the engine default, which no golden reaches', () => {
+    const c = G.optimize.find((x) => x.id === 'gridUndershootFallback');
+    ['3', 0, -5, 2.5, null].forEach((bad) => {
+      const r = optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit, exactStateLimit: bad, ...c.riskOptions });
+      expect(r.solveMethod).toBe('exact');
+    });
+    expect(EXACT_STATE_LIMIT).toBe(200000);
+    G.optimize.forEach((x) => expect(Math.max(...x.expected.paretoStates, 0)).toBeLessThan(EXACT_STATE_LIMIT));
   });
 
   it('(a) correlation never moves the mean of the picked set', () => {
@@ -405,6 +550,52 @@ describe('golden: optimizePortfolio (brute-force knapsack, exact and on the grid
       near(r1.risk.emv, r0.risk.emv, scaled(r0.risk.emv), `${c.id} mean under rho`);
       expect(r1.risk.stdDev).toBeGreaterThanOrEqual(r0.risk.stdDev - ABS);
     }
+  });
+});
+
+describe('D2, D4 and EC1-12: negative controls for the retired step-scaled grid', () => {
+  const byId = Object.fromEntries(G.optimize.map((c) => [c.id, c]));
+  const both = (id) => ({
+    retired: retiredGrid({ projects: byId[id].projects, capexLimit: byId[id].capexLimit }),
+    engine: optimizePortfolio({ projects: byId[id].projects, capexLimit: byId[id].capexLimit, ...byId[id].riskOptions }),
+  });
+
+  it('EC1-12: the retired grid funded 6002 on a limit of 6000', () => {
+    const { retired, engine } = both('gridOvershoot');
+    expect(retired.totalCapex).toBe(6002);
+    expect(retired.totalCapex).toBeGreaterThan(6000);
+    expect(retired.totalEmv).toBe(800);
+    expect(engine.totalCapex).toBe(5995);
+    expect(engine.totalCapex).toBeLessThanOrEqual(6000);
+  });
+
+  it('D4: the retired grid left a feasible project out, 660 against 860', () => {
+    const { retired, engine } = both('gridUndershoot');
+    expect(retired.optimalProjects.map((p) => p.name).sort()).toEqual(['X', 'Y', 'Z']);
+    expect(retired.totalEmv).toBe(660);
+    expect(engine.totalEmv).toBe(860);
+  });
+
+  it('D2: the retired grid charged a free project one cell, 60 against 70', () => {
+    const { retired, engine } = both('freeProjectTightLimit');
+    expect(retired.optimalProjects.map((p) => p.name)).toEqual(['A']);
+    expect(retired.totalEmv).toBe(60);
+    expect(engine.totalEmv).toBe(70);
+    expect(retiredGrid({ projects: byId.freeProjectZeroLimit.projects, capexLimit: 0 }).totalEmv).toBe(0);
+  });
+
+  it('the retired grid matches the golden record of it on every case, and differs exactly where the golden says', () => {
+    let differed = 0;
+    for (const c of G.optimize) {
+      const retired = retiredGrid({ projects: c.projects, capexLimit: c.capexLimit });
+      near(retired.totalEmv, c.expected.quantized.optimalEmv, scaled(c.expected.quantized.optimalEmv), `${c.id} retired emv`);
+      near(retired.resolution, c.expected.resolution, scaled(c.expected.resolution) * 1e-3, `${c.id} retired resolution`);
+      const engine = optimizePortfolio({ projects: c.projects, capexLimit: c.capexLimit, ...c.riskOptions });
+      const same = sameIds(ids(retired.optimalProjects), ids(engine.optimalProjects));
+      if (!same) differed += 1;
+      if (c.expected.setChanged) expect(same).toBe(false);
+    }
+    expect(differed).toBe(CHANGED_BY_GRID.length);
   });
 });
 

@@ -42,6 +42,7 @@ three decimals of a percent). Recorded so the boundary is known; a fix would
 be a small tolerance in the comparison, not a change of threshold.
 
 ### D2. Knapsack grid: a free project (capex 0) is charged one cell
+(FIXED 2026-09-15, see "D2, D4 and EC1-12" below)
 
 Golden: `optimize/freeProjectZeroLimit`, `optimize/freeProjectTightLimit`
 (and `freeProjectSlack`, where one spare cell makes the two agree).
@@ -64,6 +65,7 @@ project (a carried interest, a farm-in with no capex) needs one cell of slack
 to be funded. Narrow, but real when the budget is fully committed.
 
 ### D3. Knapsack grid: overshoot, a reported portfolio above the limit
+(flagged in EC5-0, then FIXED with EC1-12 on 2026-09-15, below)
 
 Golden: `optimize/gridOvershoot`. Limit 6000 (above 5000, so the grid is
 6000 / 2000 = 3 per cell). A(4000, EMV 500) weighs 1333 cells (3999
@@ -80,6 +82,7 @@ finding is that nothing in the result flags that `totalCapex` exceeds
 `capexLimit`; a reader must know to compare them.
 
 ### D4. Knapsack grid: undershoot, a feasible project left out
+(FIXED 2026-09-15, see "D2, D4 and EC1-12" below)
 
 Golden: `optimize/gridUndershoot`. Limit 6000 (grid 3 per cell). W, X, Y at
 capex 1499 (EMV 200, 210, 220) and Z at 1502 (EMV 230): total 5999, which fits
@@ -417,3 +420,84 @@ numericStrings (capex "100" and " 200 ", pos "0.9") shows that numeric strings
 are numbers. Negative control: the retired finite-only check lets every
 non-numeric, blank, missing and infinite capex golden through. D2, D3 and D4
 are unchanged, and CHANGED_BY_GRID still names the same four cases.
+
+## D2, D4 and EC1-12: FIXED 2026-09-15 (owner decisions)
+
+Engine: engines/economics/portfolio.js. Oracle
+tools/validation/economics/oracle_portfolio.py regenerated twice,
+byte-identical: portfolio_cases.json now holds 109 cases, 30 of them optimize
+cases (4 new). Gate __tests__/economics.portfolio.test.js, 163 tests.
+
+The owner's decision was to make the answer feasible and optimal by
+construction at portfolio sizes, rather than flag it.
+
+**The exact solve.** `optimizePortfolio` no longer quantises. The candidates
+(risked EMV above 0, in array order) go through a dominance list DP: after
+each candidate the engine holds every non-dominated partial portfolio, sorted
+by capex with EMV strictly rising, and drops any state no better than a
+lighter one. The answer is the heaviest affordable state, so it is optimal and
+its capex is inside the limit. Capex and the limit are read at the DECIMAL
+precision they were typed, when one power of ten up to a million makes them
+all whole numbers with a safe-integer total, so 0.1 + 0.2 is funded at a limit
+of 0.3 although the two doubles add to 0.30000000000000004; otherwise they are
+summed in double precision in array order, the same sum `totalCapex` reports,
+so the feasibility test and the reported total can never disagree.
+
+**New fields.** `solveMethod` ('exact' or 'grid-feasible'), `optimalityGap`
+(0 when exact) and `resolution`, which is now null when the solve is exact,
+because there is no grid. `overLimit` and `overLimitBy` stay in the result
+shape and are false and 0 on every case.
+
+**The stated size limit.** If any state list would exceed `exactStateLimit`
+(default EXACT_STATE_LIMIT, 200000; the call may state a smaller one), the
+solve falls back to a grid of FALLBACK_GRID_CELLS (2000) cells of
+`resolution` = limit / 2000 with every weight rounded UP, so the fallback is
+feasible too, and `optimalityGap` is the optimum of the same grid with weights
+rounded DOWN (a relaxation, so at least the exact optimum) less the funded
+EMV: an upper bound on what the fallback left out. A sixteen-project inventory
+has at most 65536 subsets, so no golden reaches the default limit; the
+fallback cases state a limit of 2, 3 and 40 to exercise it.
+
+| case | before (retired grid) | after (exact) |
+|---|---|---|
+| freeProjectZeroLimit (limit 0) | [], capex 0, EMV 0 | [free], capex 0, EMV 10 |
+| freeProjectTightLimit (limit 100) | [A], 100, 60 | [free, A], 100, 70 |
+| gridOvershoot (limit 6000) | [A, B], 6002, 800, overLimit by 2 | [A, C], 5995, 780 |
+| gridUndershoot (limit 6000) | [X, Y, Z], 4500, 660 | [W, X, Y, Z], 5999, 860 |
+| decimalCapexExactSum (limit 0.3) | [a, b], 0.3, 2 | [a, b], 0.3, 2 |
+| gridUndershootFallback (state limit 3) | n/a | [X, Y, Z], 4500, 660, gap 200 stated |
+| gridOvershootFallback (state limit 2) | n/a | [A, C], 5995, 780, gap 20 stated |
+
+**Goldens.** Every optimize case carries the exact optimum and the exact
+frontier (the non-dominated capex / EMV pairs over all feasible subsets),
+`solveMethod`, `optimalityGap`, `engineResolution`, `paretoStates` (the
+non-dominated partial portfolios after each candidate, counted independently
+by brute force) and `stateLimit`. A fallback case also carries `gridFeasible`:
+the ceil-weight grid, its floor-weight bound and its frontier. Every case
+still carries the RETIRED step-scaled grid (`resolution`, `cells`, `weights`,
+`quantized`, `quantizationGap`, `setChanged`), which is what the negative
+controls fail against. New cases: gridOvershootFallback, gridUndershootFallback,
+seeded16largeFallback and decimalCapexExactSum.
+
+**Negative controls.** The gate restates the retired grid (round to nearest
+with a floor of one cell) and runs it on every golden: it reproduces the
+golden's record of it, funds 6002 on a limit of 6000 (EC1-12), reports 660
+where 860 is affordable (D4) and drops a free project for want of a cell
+(D2), while the engine does none of those. The set of cases where the retired
+grid chose differently is pinned by name in CHANGED_BY_GRID.
+
+**Course capstone.** The EC5 course's IDOHO question grades
+`id_emv_at_first_limit_musd` 344.326 (520), `id_emv_at_second_limit_musd`
+415.90599999999995 (640), `id_emv_at_third_limit_musd` 566.0459999999999
+(900), `id_success_npv_at_first_limit_musd` 738.8 and
+`id_value_of_excluded_project_musd` 20.141999999999996. Every IDOHO capex is a
+whole number of million USD and every limit is at most 5000, so the retired
+grid was already exact there: the exact solve returns the same sets (ID-1 +
+ID-3 + ID-4; ID-1 + ID-2 + ID-4; ID-1 + ID-2 + ID-4 + ID-5 + ID-7) and the
+same numbers, and the risk figures at 640 are unchanged because the funded set
+is unchanged. No graded value moves.
+
+**Consumers to update.** The Suite's CapitalPortfolioStudio reads
+`resolution` for its quantisation line and its help guide describes the grid;
+both should read `solveMethod`, show the exact answer with no resolution, and
+name the grid only when `solveMethod` is 'grid-feasible'.
