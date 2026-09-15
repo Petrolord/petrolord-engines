@@ -36,6 +36,14 @@
 //   be probabilistically inconsistent. 0 <= EVII <= EVPI always holds.
 
 const PROB_TOL = 1e-6;
+// EC4-8 (2026-09-15, owner decision): every comparison against PROB_TOL adds
+// this binary representation allowance, the same 1e-12 impliedPriors uses
+// (D1, EC4-0). Three branches typed 0.333333 sum to 0.999999, exactly 1e-6
+// short in the typed decimals but 1.0000000000287557e-6 short in binary
+// floating point, so without it the engine refused a sum on its own edge.
+// A sum genuinely off by more than 1e-6 is still refused.
+const REPRESENTATION_ALLOWANCE = 1e-12;
+const offOne = (sum) => Math.abs(sum - 1) > PROB_TOL + REPRESENTATION_ALLOWANCE;
 
 export class DecisionTreeError extends Error {
   constructor(message, nodeLabel = null) {
@@ -99,7 +107,7 @@ function evaluate(node) {
       const branchValue = child.emv - (Number(b.cost) || 0);
       return { ...b, node: child, branchValue };
     });
-    if (Math.abs(pSum - 1) > PROB_TOL) {
+    if (offOne(pSum)) {
       throw new DecisionTreeError(`Chance branch probabilities sum to ${pSum.toFixed(6)}, expected 1`, node.label);
     }
     const emv = annBranches.reduce((s, b) => s + Number(b.probability) * b.branchValue, 0);
@@ -144,7 +152,7 @@ function validateLottery(outcomes, actions) {
   if (!outcomes?.length) throw new DecisionTreeError('No outcomes given');
   if (!actions?.length) throw new DecisionTreeError('No actions given');
   const pSum = outcomes.reduce((s, o) => s + Number(o.probability), 0);
-  if (Math.abs(pSum - 1) > PROB_TOL) {
+  if (offOne(pSum)) {
     throw new DecisionTreeError(`Outcome probabilities sum to ${pSum.toFixed(6)}, expected 1`);
   }
   for (const a of actions) {
@@ -203,7 +211,7 @@ export function evii(outcomes, actions, signals, infoCost = 0) {
 
   for (let i = 0; i < outcomes.length; i++) {
     const colSum = signals.reduce((s, sig) => s + Number(sig.likelihoods?.[i] ?? NaN), 0);
-    if (!Number.isFinite(colSum) || Math.abs(colSum - 1) > PROB_TOL) {
+    if (!Number.isFinite(colSum) || offOne(colSum)) {
       throw new DecisionTreeError(
         `Likelihoods P(signal | "${outcomes[i].label ?? i}") sum to ${colSum.toFixed(6)}, expected 1`);
     }
