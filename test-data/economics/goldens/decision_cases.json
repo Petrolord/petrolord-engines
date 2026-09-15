@@ -17098,6 +17098,3410 @@
    }
   },
   {
+   "description": "EC4-9: every outcome chance, indicator chance and outcome chance given an indicator typed 33.3333, so every sum sits on the 1e-4 edge. Before EC4-9 the diagram's \"Signal received\" node summed to 0.999998 and the analysis was refused; the renormalised indicator sets now give the full cards and diagram (a useless signal, VOI 0).",
+   "expected": {
+    "acquireBranchValue": 62.333333333333336,
+    "cards": {
+     "emvWithInfo": "62.33",
+     "emvWithoutInfo": "63.33",
+     "evpi": "30.00",
+     "netVoi": "-1.00",
+     "voi": "0.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      -3.33333e-07,
+      -3.33333e-07,
+      -3.33333e-07
+     ],
+     "implied": [
+      0.333332666667,
+      0.333332666667,
+      0.333332666667
+     ],
+     "stated": [
+      0.333333,
+      0.333333,
+      0.333333
+     ]
+    },
+    "emvWithInfo": 62.333333333333336,
+    "emvWithoutInfo": 63.33323,
+    "evpi": 30.00001,
+    "netVoi": -0.9998966666666667,
+    "noInfoBranchValue": 63.33323,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 63.333333333333336
+     },
+     {
+      "bestActionIndex": 0,
+      "emv": 63.333333333333336
+     },
+     {
+      "bestActionIndex": 0,
+      "emv": 63.333333333333336
+     }
+    ],
+    "signalChances": [
+     0.3333333333333333,
+     0.3333333333333333,
+     0.3333333333333333
+    ],
+    "tree": {
+     "bestBranchIndex": 1,
+     "branches": [
+      {
+       "branchValue": 62.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.33323,
+       "onOptimalPath": true,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 63.33323,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        2
+       ]
+      }
+     ],
+     "emv": 63.33323,
+     "nodes": [
+      {
+       "bestBranchIndex": 1,
+       "emv": 63.33323,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 63.333333333333336,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.333333333333336,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33333333333333,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.333333333333336,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33333333333333,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.333333333333336,
+       "path": [
+        0,
+        2
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33333333333333,
+       "path": [
+        0,
+        2,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        2,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        2,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        2,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.33323,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33323,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "reject",
+    "voi": 0.00010333333333333333,
+    "withheld": false
+   },
+   "id": "compoundEdgeAllThirds",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 1,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 33.3333
+        },
+        {
+         "outcomeId": 2,
+         "probability": 33.3333
+        },
+        {
+         "outcomeId": 3,
+         "probability": 33.3333
+        }
+       ],
+       "id": 1,
+       "name": "Bright",
+       "probability": 33.3333
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 33.3333
+        },
+        {
+         "outcomeId": 2,
+         "probability": 33.3333
+        },
+        {
+         "outcomeId": 3,
+         "probability": 33.3333
+        }
+       ],
+       "id": 2,
+       "name": "Flat",
+       "probability": 33.3333
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 33.3333
+        },
+        {
+         "outcomeId": 2,
+         "probability": 33.3333
+        },
+        {
+         "outcomeId": 3,
+         "probability": 33.3333
+        }
+       ],
+       "id": 3,
+       "name": "Dim",
+       "probability": 33.3333
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Large",
+      "payoff": 300,
+      "probability": 33.3333
+     },
+     {
+      "id": 2,
+      "name": "Small",
+      "payoff": 60,
+      "probability": 33.3333
+     },
+     {
+      "id": 3,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 33.3333
+     }
+    ],
+    "projectName": "Compound Edge Prospect"
+   }
+  },
+  {
+   "description": "EC4-9 reference: the same analysis at exact thirds; compoundEdgeAllThirds agrees with it within the stated tolerance.",
+   "expected": {
+    "acquireBranchValue": 62.333333333333336,
+    "cards": {
+     "emvWithInfo": "62.33",
+     "emvWithoutInfo": "63.33",
+     "evpi": "30.00",
+     "netVoi": "-1.00",
+     "voi": "0.00"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+     ],
+     "stated": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+     ]
+    },
+    "emvWithInfo": 62.333333333333336,
+    "emvWithoutInfo": 63.333333333333336,
+    "evpi": 30.0,
+    "netVoi": -1.0,
+    "noInfoBranchValue": 63.333333333333336,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 63.333333333333336
+     },
+     {
+      "bestActionIndex": 0,
+      "emv": 63.333333333333336
+     },
+     {
+      "bestActionIndex": 0,
+      "emv": 63.333333333333336
+     }
+    ],
+    "signalChances": [
+     0.3333333333333333,
+     0.3333333333333333,
+     0.3333333333333333
+    ],
+    "tree": {
+     "bestBranchIndex": 1,
+     "branches": [
+      {
+       "branchValue": 62.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": true,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        2
+       ]
+      }
+     ],
+     "emv": 63.333333333333336,
+     "nodes": [
+      {
+       "bestBranchIndex": 1,
+       "emv": 63.333333333333336,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 63.333333333333336,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.333333333333336,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33333333333333,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.333333333333336,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33333333333333,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.333333333333336,
+       "path": [
+        0,
+        2
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33333333333333,
+       "path": [
+        0,
+        2,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        2,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        2,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        2,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.333333333333336,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33333333333333,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "reject",
+    "voi": 0.0,
+    "withheld": false
+   },
+   "id": "compoundEdgeAllThirdsExact",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 1,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 33.333333333333336
+        },
+        {
+         "outcomeId": 2,
+         "probability": 33.333333333333336
+        },
+        {
+         "outcomeId": 3,
+         "probability": 33.333333333333336
+        }
+       ],
+       "id": 1,
+       "name": "Bright",
+       "probability": 33.333333333333336
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 33.333333333333336
+        },
+        {
+         "outcomeId": 2,
+         "probability": 33.333333333333336
+        },
+        {
+         "outcomeId": 3,
+         "probability": 33.333333333333336
+        }
+       ],
+       "id": 2,
+       "name": "Flat",
+       "probability": 33.333333333333336
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 33.333333333333336
+        },
+        {
+         "outcomeId": 2,
+         "probability": 33.333333333333336
+        },
+        {
+         "outcomeId": 3,
+         "probability": 33.333333333333336
+        }
+       ],
+       "id": 3,
+       "name": "Dim",
+       "probability": 33.333333333333336
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Large",
+      "payoff": 300,
+      "probability": 33.333333333333336
+     },
+     {
+      "id": 2,
+      "name": "Small",
+      "payoff": 60,
+      "probability": 33.333333333333336
+     },
+     {
+      "id": 3,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 33.333333333333336
+     }
+    ],
+    "projectName": "Compound Edge Prospect"
+   }
+  },
+  {
+   "description": "EC4-9: outcome and indicator chances typed 33.3333, and informative outcome chances given each indicator typed to four places (66.6666 / 22.2222 / 11.1111 and its mirrors), every sum on the edge. Refused at \"Signal received\" before EC4-9; now the full analysis.",
+   "expected": {
+    "acquireBranchValue": 71.22222222222223,
+    "cards": {
+     "emvWithInfo": "71.22",
+     "emvWithoutInfo": "63.33",
+     "evpi": "30.00",
+     "netVoi": "7.89",
+     "voi": "8.89"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      -3.33333e-07,
+      -3.33333e-07,
+      -3.33333e-07
+     ],
+     "implied": [
+      0.333332666667,
+      0.333332666667,
+      0.333332666667
+     ],
+     "stated": [
+      0.333333,
+      0.333333,
+      0.333333
+     ]
+    },
+    "emvWithInfo": 71.22222222222223,
+    "emvWithoutInfo": 63.33323,
+    "evpi": 30.00001,
+    "netVoi": 7.888992222222222,
+    "noInfoBranchValue": 63.33323,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 167.77777777777777
+     },
+     {
+      "bestActionIndex": 0,
+      "emv": 48.888888888888886
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0
+     }
+    ],
+    "signalChances": [
+     0.3333333333333333,
+     0.3333333333333333,
+     0.3333333333333333
+    ],
+    "tree": {
+     "bestBranchIndex": 0,
+     "branches": [
+      {
+       "branchValue": 71.22222222222223,
+       "onOptimalPath": true,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 167.77777777777777,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 167.77777777777777,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 48.888888888888886,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 48.888888888888886,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": -26.666666666666668,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.33323,
+       "onOptimalPath": false,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 63.33323,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        2
+       ]
+      }
+     ],
+     "emv": 71.22222222222223,
+     "nodes": [
+      {
+       "bestBranchIndex": 0,
+       "emv": 71.22222222222223,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 72.22222222222223,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 167.77777777777777,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 207.77777777777777,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 48.888888888888886,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 88.88888888888889,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "path": [
+        0,
+        2
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 13.333333333333334,
+       "path": [
+        0,
+        2,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        2,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        2,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        2,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.33323,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33323,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "acquire",
+    "voi": 8.888992222222223,
+    "withheld": false
+   },
+   "id": "compoundEdgeInformative",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 1,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 66.6666
+        },
+        {
+         "outcomeId": 2,
+         "probability": 22.2222
+        },
+        {
+         "outcomeId": 3,
+         "probability": 11.1111
+        }
+       ],
+       "id": 1,
+       "name": "Bright",
+       "probability": 33.3333
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 22.2222
+        },
+        {
+         "outcomeId": 2,
+         "probability": 55.5555
+        },
+        {
+         "outcomeId": 3,
+         "probability": 22.2222
+        }
+       ],
+       "id": 2,
+       "name": "Flat",
+       "probability": 33.3333
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 11.1111
+        },
+        {
+         "outcomeId": 2,
+         "probability": 22.2222
+        },
+        {
+         "outcomeId": 3,
+         "probability": 66.6666
+        }
+       ],
+       "id": 3,
+       "name": "Dim",
+       "probability": 33.3333
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Large",
+      "payoff": 300,
+      "probability": 33.3333
+     },
+     {
+      "id": 2,
+      "name": "Small",
+      "payoff": 60,
+      "probability": 33.3333
+     },
+     {
+      "id": 3,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 33.3333
+     }
+    ],
+    "projectName": "Compound Edge Prospect"
+   }
+  },
+  {
+   "description": "EC4-9 reference: the same analysis at exact thirds and ninths; compoundEdgeInformative agrees with it within the stated tolerance.",
+   "expected": {
+    "acquireBranchValue": 71.22222222222223,
+    "cards": {
+     "emvWithInfo": "71.22",
+     "emvWithoutInfo": "63.33",
+     "evpi": "30.00",
+     "netVoi": "7.89",
+     "voi": "8.89"
+    },
+    "consistency": {
+     "consistent": true,
+     "deltas": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "implied": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+     ],
+     "stated": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+     ]
+    },
+    "emvWithInfo": 71.22222222222223,
+    "emvWithoutInfo": 63.333333333333336,
+    "evpi": 30.0,
+    "netVoi": 7.888888888888889,
+    "noInfoBranchValue": 63.333333333333336,
+    "optimalActionWithoutInfo": "Drill Exploration Well",
+    "perIndicator": [
+     {
+      "bestActionIndex": 0,
+      "emv": 167.77777777777777
+     },
+     {
+      "bestActionIndex": 0,
+      "emv": 48.888888888888886
+     },
+     {
+      "bestActionIndex": 1,
+      "emv": 0.0
+     }
+    ],
+    "signalChances": [
+     0.3333333333333333,
+     0.3333333333333333,
+     0.3333333333333333
+    ],
+    "tree": {
+     "bestBranchIndex": 0,
+     "branches": [
+      {
+       "branchValue": 71.22222222222223,
+       "onOptimalPath": true,
+       "path": [
+        0
+       ]
+      },
+      {
+       "branchValue": 167.77777777777777,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 167.77777777777777,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 48.888888888888886,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": 48.888888888888886,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": -26.666666666666668,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        0,
+        2,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": true,
+       "path": [
+        0,
+        2,
+        1,
+        2
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        1
+       ]
+      },
+      {
+       "branchValue": 63.333333333333336,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 300.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        0
+       ]
+      },
+      {
+       "branchValue": 60.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        1
+       ]
+      },
+      {
+       "branchValue": -50.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        0,
+        2
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        0
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        1
+       ]
+      },
+      {
+       "branchValue": 0.0,
+       "onOptimalPath": false,
+       "path": [
+        1,
+        1,
+        2
+       ]
+      }
+     ],
+     "emv": 71.22222222222223,
+     "nodes": [
+      {
+       "bestBranchIndex": 0,
+       "emv": 71.22222222222223,
+       "path": [],
+       "type": "decision"
+      },
+      {
+       "emv": 72.22222222222223,
+       "path": [
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 167.77777777777777,
+       "path": [
+        0,
+        0
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 207.77777777777777,
+       "path": [
+        0,
+        0,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        0,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        0,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        0,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 48.888888888888886,
+       "path": [
+        0,
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 88.88888888888889,
+       "path": [
+        0,
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 1,
+       "emv": 0.0,
+       "path": [
+        0,
+        2
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 13.333333333333334,
+       "path": [
+        0,
+        2,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        0,
+        2,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        0,
+        2,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        0,
+        2,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        0,
+        2,
+        1,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "bestBranchIndex": 0,
+       "emv": 63.333333333333336,
+       "path": [
+        1
+       ],
+       "type": "decision"
+      },
+      {
+       "emv": 103.33333333333333,
+       "path": [
+        1,
+        0
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 300.0,
+       "path": [
+        1,
+        0,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 60.0,
+       "path": [
+        1,
+        0,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": -50.0,
+       "path": [
+        1,
+        0,
+        2
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1
+       ],
+       "type": "chance"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        0
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        1
+       ],
+       "type": "terminal"
+      },
+      {
+       "emv": 0.0,
+       "path": [
+        1,
+        1,
+        2
+       ],
+       "type": "terminal"
+      }
+     ]
+    },
+    "treePresent": true,
+    "verdict": "acquire",
+    "voi": 8.88888888888889,
+    "withheld": false
+   },
+   "id": "compoundEdgeInformativeExact",
+   "inputs": {
+    "decisionCost": 40,
+    "decisionName": "Drill Exploration Well",
+    "infoScenario": {
+     "cost": 1,
+     "indicators": [
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 66.66666666666667
+        },
+        {
+         "outcomeId": 2,
+         "probability": 22.22222222222222
+        },
+        {
+         "outcomeId": 3,
+         "probability": 11.11111111111111
+        }
+       ],
+       "id": 1,
+       "name": "Bright",
+       "probability": 33.333333333333336
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 22.22222222222222
+        },
+        {
+         "outcomeId": 2,
+         "probability": 55.55555555555556
+        },
+        {
+         "outcomeId": 3,
+         "probability": 22.22222222222222
+        }
+       ],
+       "id": 2,
+       "name": "Flat",
+       "probability": 33.333333333333336
+      },
+      {
+       "conditionalProbabilities": [
+        {
+         "outcomeId": 1,
+         "probability": 11.11111111111111
+        },
+        {
+         "outcomeId": 2,
+         "probability": 22.22222222222222
+        },
+        {
+         "outcomeId": 3,
+         "probability": 66.66666666666667
+        }
+       ],
+       "id": 3,
+       "name": "Dim",
+       "probability": 33.333333333333336
+      }
+     ],
+     "name": "3D Seismic Survey"
+    },
+    "outcomes": [
+     {
+      "id": 1,
+      "name": "Large",
+      "payoff": 300,
+      "probability": 33.333333333333336
+     },
+     {
+      "id": 2,
+      "name": "Small",
+      "payoff": 60,
+      "probability": 33.333333333333336
+     },
+     {
+      "id": 3,
+      "name": "Dry Hole",
+      "payoff": -50,
+      "probability": 33.333333333333336
+     }
+    ],
+    "projectName": "Compound Edge Prospect"
+   }
+  },
+  {
    "description": "EC4-8: three outcome chances typed 33.3333 percent sum to 99.9999, exactly 1e-4 percent points short, and are accepted end to end (prior tree included); indicators 50 / 50 with outcome chances 50 / 30 / 20 and 16.6666 / 36.6667 / 46.6667, consistent with the stated thirds.",
    "expected": {
     "acquireBranchValue": 53.333235,

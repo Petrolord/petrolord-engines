@@ -252,17 +252,41 @@ and the verdict`. Its negative controls show the retired unrounded verdict
 says acquire under the 0.00 card at 32.996, and the retired `toFixed(2)` card
 prints -0.00 at 33.004.
 
-### Open observation after EC4-8 (not fixed, owner decision needed)
+### EC4-9. The VOI diagram refused a node the user never typed (FIXED 2026-09-15)
 
-When BOTH the indicator chances and each indicator's outcome chances sit on
-the percent edge (three outcomes at 33.3333, three indicators at 33.3333,
-every outcome chance 33.3333), each percent sum passes, but the diagram's
-"Signal received" chance node carries marginals P(indicator) x sum of its
-outcome chances, which sum to 0.999998. The tree rollback then refuses with
+Evidence: after EC4-8, typing every outcome chance, every indicator chance
+and every outcome chance given an indicator as 33.3333 passes each percent
+sum (99.9999, on the edge). The diagram's Bayes inversion then gave each
+"Signal received" branch P(indicator) x (sum of its outcome chances), and
+those summed to 0.999998. The strict chance node check refused with
 `Chance branch probabilities sum to 0.999998, expected 1 (at node "Signal
-received")`, a message about a node the user never typed. Before EC4-8 the
-same inputs were refused earlier, in percent. Only a compound edge reaches
-it; a single typed edge (the goldens above) is accepted end to end.
+received")`, naming a node the user never typed. (With a single edge typed,
+the tree already renormalised the posteriors silently while the cards used
+them as typed, so the two could differ by about 1e-6 relative.)
+
+Fix (owner decision): once every typed percent input has passed validation,
+the indicator chances, and each indicator's outcome chances, are divided by
+their own sums. That one renormalised set feeds the cards and the diagram,
+so the two remain one analysis. The stated outcome chances stay as typed,
+the consistency check reads the typed entries, and a chance node typed
+directly in the Decision Tree Builder keeps the strict refusal (0.999998
+still throws). Sums that are exactly 100 are unchanged, so no existing
+golden value moved.
+
+Goldens (oracle method statement updated the same way): `voi/compoundEdgeAllThirds`
+(the reproduction: useless signal, net VOI card -1.00, reject) against
+`voi/compoundEdgeAllThirdsExact`, and `voi/compoundEdgeInformative` (outcome
+chances given each indicator 66.6666 / 22.2222 / 11.1111 and mirrors, net VOI
+card 7.89, acquire) against `voi/compoundEdgeInformativeExact`. Every
+unrounded quantity agrees with its exact reference within the stated 1e-3
+$MM (largest gap 1.03e-4, from the typed stated chances 0.333333 used as
+typed), and every card string matches.
+
+Gates: `EC4-9: derived branch probabilities are renormalised once typed
+inputs pass`. The negative control restores the pre-EC4-9 derivation (typed
+chances inverted with no renormalisation) and shows it throws at "Signal
+received" on both edge cases and builds on both exact references. A second
+test shows a typed 0.999998 chance node is still refused.
 
 ## Not done
 

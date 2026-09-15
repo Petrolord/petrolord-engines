@@ -735,3 +735,67 @@ describe('EC4-2: one rounded net VOI for the card and the verdict', () => {
     }
   });
 });
+
+describe('EC4-9: derived branch probabilities are renormalised once typed inputs pass', () => {
+  // Stated tolerance: a case typed to four places agrees with its exact
+  // thirds reference within 1e-3 $MM on every unrounded quantity. The typed
+  // stated chances (0.333333, used as typed) differ from 1/3 by 3.3e-7, and
+  // payoffs of a few hundred $MM carry that to about 1e-4.
+  const EDGE_TOL = 1e-3;
+  const pairs = [
+    ['compoundEdgeAllThirds', 'compoundEdgeAllThirdsExact'],
+    ['compoundEdgeInformative', 'compoundEdgeInformativeExact'],
+  ];
+
+  // The retired derivation, restored: the typed chances inverted by Bayes
+  // with no renormalisation, exactly as voi.js built the diagram before.
+  const oldDiagram = (inputs) => {
+    const priors = inputs.outcomes.map((o) => o.probability / 100);
+    const outcomes = inputs.outcomes.map((o) => ({ label: o.name, probability: o.probability / 100 }));
+    const actions = [
+      { label: inputs.decisionName, cost: inputs.decisionCost, payoffs: inputs.outcomes.map((o) => o.payoff) },
+      { label: `Do Not ${inputs.decisionName}`, cost: 0, payoffs: inputs.outcomes.map(() => 0) },
+    ];
+    const signals = inputs.infoScenario.indicators.map((ind) => {
+      const post = inputs.outcomes.map((o) => ind.conditionalProbabilities.find((c) => c.outcomeId === o.id).probability / 100);
+      return { label: ind.name, likelihoods: priors.map((p, i) => (p > 0 ? (post[i] * ind.probability / 100) / p : 0)) };
+    });
+    return rollback(buildInformationTree({
+      outcomes, actions, signals, infoCost: inputs.infoScenario.cost, infoLabel: `Acquire ${inputs.infoScenario.name}`,
+    }));
+  };
+
+  for (const [edgeId, exactId] of pairs) {
+    it(`${edgeId}: full cards and diagram, within ${EDGE_TOL} $MM of ${exactId}`, () => {
+      const edge = byId('voi', edgeId);
+      const exact = byId('voi', exactId);
+      const r = generateVoiData(edge.inputs);
+      expect(r.withheld).toBe(false);
+      expect(r.tree).toBeTruthy();
+      const signalNode = r.tree.branches[0].node;
+      expect(signalNode.label).toBe('Signal received');
+      near(signalNode.branches.reduce((s, b) => s + b.probability, 0), 1, 1e-12, `${edgeId} renormalised signal chances`);
+      for (const k of ['emvWithoutInfo', 'emvWithInfo', 'voi', 'netVoi', 'evpi']) {
+        near(edge.expected[k], exact.expected[k], EDGE_TOL, `${edgeId} vs ${exactId} ${k}`);
+      }
+      near(r.tree.branches[0].branchValue, exact.expected.emvWithInfo, EDGE_TOL, `${edgeId} diagram vs exact`);
+      // The cards and the diagram are still one analysis, unrounded.
+      near(r.tree.branches[0].branchValue, edge.expected.emvWithInfo, ABS, `${edgeId} tree = emvWithInfo`);
+      // Negative control: the pre-EC4-9 derivation refuses at "Signal received".
+      expect(() => oldDiagram(edge.inputs)).toThrow(DecisionTreeError);
+      expect(() => oldDiagram(edge.inputs)).toThrow('sum to 0.999998, expected 1 (at node "Signal received")');
+      // And it is the compound edge that trips it: the exact reference builds.
+      expect(() => oldDiagram(exact.inputs)).not.toThrow();
+    });
+  }
+
+  it('the strict chance node check still refuses a node typed directly', () => {
+    expect(() => rollback({
+      type: 'chance', label: 'typed', branches: [
+        { label: 'a', probability: 0.333333, node: { type: 'terminal', payoff: 1 } },
+        { label: 'b', probability: 0.333333, node: { type: 'terminal', payoff: 1 } },
+        { label: 'c', probability: 0.333332, node: { type: 'terminal', payoff: 1 } },
+      ],
+    })).toThrow('Chance branch probabilities sum to 0.999998, expected 1 (at node "typed")');
+  });
+});

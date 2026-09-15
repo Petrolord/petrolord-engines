@@ -38,6 +38,19 @@
 // unrounded value, so a survey cost of 32.996 showed a 0.00 card under "Since
 // this is positive" and 33.004 showed "-0.00" under "not justified".
 //
+// EC4-9 (2026-09-15, owner decision): once every typed percent input has
+// passed validation, the indicator chances and each indicator's outcome
+// chances are divided by their own sums before anything is computed from
+// them. Validation admits sums within the tolerance of 100, and the Bayes
+// inversion below multiplies two such sums into the diagram's "Signal
+// received" branch: every chance typed 33.3333 made that node sum to
+// 0.999998, and the strict chance node check refused a node the user never
+// typed. The renormalised set feeds the cards AND the diagram, so the two
+// stay one analysis. Nothing else is renormalised: the stated outcome chances
+// are used as typed, the consistency check reads the typed entries, and a
+// chance node typed directly in the Decision Tree Builder keeps the strict
+// refusal.
+//
 // Economics E2 replaced the node/link "plot data" this used to return with a
 // real decision tree. Nothing rendered those nodes (the panel was a "Chart
 // removed" placeholder), and their link values were not a quantity: each was
@@ -119,6 +132,12 @@ const validatePercentInputs = (outcomes, indicators) => {
  * the indicator chances and posteriors the user actually entered. An outcome
  * with a zero prior cannot be conditioned on, so its column is left at zero.
  */
+/** Divide a validated set of chances by its sum (EC4-9). */
+const unitSum = (xs) => {
+    const total = xs.reduce((s, x) => s + x, 0);
+    return xs.map((x) => x / total);
+};
+
 const likelihoodsFromPosteriors = (priors, pIndicator, posteriors) =>
   priors.map((prior, i) => (prior > 0 ? (posteriors[i] * pIndicator) / prior : 0));
 
@@ -173,10 +192,14 @@ export const generateVoiData = (inputs) => {
 
     // --- With Information (legacy shape: user-entered indicator marginals
     // and posteriors, evaluated indicator by indicator) ---
+    // EC4-9: every typed input passed validation above, so the derived
+    // branch probabilities are renormalised to sum to exactly 1.
+    const indicatorChances = unitSum(indicators.map((ind) => ind.probability / 100));
+    const outcomeChancesGiven = posteriors.map(unitSum);
     let emvWithInfoPreCost = 0;
     indicators.forEach((indicator, k) => {
-        const conditional = bestActionEmv(engineOutcomes, engineActions, posteriors[k]);
-        emvWithInfoPreCost += (indicator.probability / 100) * conditional.emv;
+        const conditional = bestActionEmv(engineOutcomes, engineActions, outcomeChancesGiven[k]);
+        emvWithInfoPreCost += indicatorChances[k] * conditional.emv;
     });
 
     const emvWithInfo = emvWithInfoPreCost - infoScenario.cost;
@@ -212,7 +235,7 @@ export const generateVoiData = (inputs) => {
         actions: engineActions,
         signals: indicators.map((ind, k) => ({
             label: ind.name,
-            likelihoods: likelihoodsFromPosteriors(priors, ind.probability / 100, posteriors[k]),
+            likelihoods: likelihoodsFromPosteriors(priors, indicatorChances[k], outcomeChancesGiven[k]),
         })),
         infoCost: infoScenario.cost,
         infoLabel: `Acquire ${infoScenario.name}`,

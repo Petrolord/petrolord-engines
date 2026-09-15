@@ -87,7 +87,14 @@ JavaScript:
                     above 0.00, 'reject' when below, 'neutral' when it is
                     0.00, that is whenever |net VOI| < 0.005. The diagram is the
                     information tree above with the ENTERED marginals and
-                    posteriors (the Bayes inversion the engine performs
+                    posteriors. EC4-9, owner decision 2026-09-15: once every
+                    typed input has passed, the indicator chances, and each
+                    indicator's outcome chances, are each divided by their
+                    own sum, and those renormalised sets are the marginals
+                    and posteriors for the cards and the diagram alike (the
+                    stated outcome chances stay as typed, and the consistency
+                    check reads the typed entries). Sums that are exactly 100
+                    are unchanged by this (the Bayes inversion the engine performs
                     round-trips exactly, which is a theorem, not an
                     implementation detail).
 
@@ -444,10 +451,18 @@ def voi_analyzer(inputs):
             post.append(pct(cp[0]['probability']) if cp else F(0))
         return post
 
-    marginals = [pct(ind['probability']) for ind in info['indicators']]
-    posteriors = [posterior_of(ind) for ind in info['indicators']]
+    typed_marginals = [pct(ind['probability']) for ind in info['indicators']]
+    typed_posteriors = [posterior_of(ind) for ind in info['indicators']]
     labels = [ind['name'] for ind in info['indicators']]
-    cons = implied_priors(outcomes, [{'probability': m, 'posteriors': p} for m, p in zip(marginals, posteriors)])
+    cons = implied_priors(outcomes, [{'probability': m, 'posteriors': p}
+                                     for m, p in zip(typed_marginals, typed_posteriors)])
+
+    def unit(xs):
+        total = sum(xs, F(0))
+        return [x / total for x in xs]
+
+    marginals = unit(typed_marginals)
+    posteriors = [unit(p) for p in typed_posteriors]
 
     if not cons['consistent']:
         return {
@@ -628,6 +643,39 @@ def voi_thirds(chance='33.3333'):
                                               {'outcomeId': 2, 'probability': F('36.6667')},
                                               {'outcomeId': 3, 'probability': F('46.6667')}]},
             ],
+        },
+    }
+
+
+# Outcome chances given each of three indicators, as (typed four-place
+# decimal, exact fraction) pairs, in percent.
+ALL_THIRDS_ROWS = [[('33.3333', F(100, 3))] * 3] * 3
+INFORMATIVE_ROWS = [
+    [('66.6666', F(200, 3)), ('22.2222', F(200, 9)), ('11.1111', F(100, 9))],
+    [('22.2222', F(200, 9)), ('55.5555', F(500, 9)), ('22.2222', F(200, 9))],
+    [('11.1111', F(100, 9)), ('22.2222', F(200, 9)), ('66.6666', F(200, 3))],
+]
+
+
+def voi_compound(rows, typed_third):
+    """Three outcomes and three indicators, every chance a third; typed to
+    four places when typed_third is given, exact otherwise."""
+    third = F(typed_third) if typed_third else F(100, 3)
+    pick = (lambda pair: F(pair[0])) if typed_third else (lambda pair: pair[1])
+    names = ['Large', 'Small', 'Dry Hole']
+    return {
+        'projectName': 'Compound Edge Prospect',
+        'decisionName': 'Drill Exploration Well',
+        'decisionCost': 40,
+        'outcomes': [{'id': i + 1, 'name': n, 'probability': third, 'payoff': pay}
+                     for i, (n, pay) in enumerate(zip(names, (300, 60, -50)))],
+        'infoScenario': {
+            'name': '3D Seismic Survey',
+            'cost': 1,
+            'indicators': [{'id': k + 1, 'name': lab, 'probability': third,
+                            'conditionalProbabilities': [{'outcomeId': i + 1, 'probability': pick(row[i])}
+                                                         for i in range(3)]}
+                           for k, (lab, row) in enumerate(zip(('Bright', 'Flat', 'Dim'), rows))],
         },
     }
 
@@ -1009,6 +1057,16 @@ def voi_cases():
         voi_inputs(cost=F('33.005')))
     add('netClearlyPositive', 'EC4-2: cost 32.9 leaves a net VOI of +0.10; card 0.10; verdict acquire.', voi_inputs(cost=F('32.9')))
     add('netClearlyNegative', 'EC4-2: cost 33.1 leaves a net VOI of -0.10; card -0.10; verdict reject.', voi_inputs(cost=F('33.1')))
+    for cid, desc, inp in (
+            ('compoundEdgeAllThirds', 'EC4-9: every outcome chance, indicator chance and outcome chance given an indicator typed 33.3333, so every sum sits on the 1e-4 edge. Before EC4-9 the diagram\'s "Signal received" node summed to 0.999998 and the analysis was refused; the renormalised indicator sets now give the full cards and diagram (a useless signal, VOI 0).',
+             voi_compound(ALL_THIRDS_ROWS, '33.3333')),
+            ('compoundEdgeAllThirdsExact', 'EC4-9 reference: the same analysis at exact thirds; compoundEdgeAllThirds agrees with it within the stated tolerance.',
+             voi_compound(ALL_THIRDS_ROWS, None)),
+            ('compoundEdgeInformative', 'EC4-9: outcome and indicator chances typed 33.3333, and informative outcome chances given each indicator typed to four places (66.6666 / 22.2222 / 11.1111 and its mirrors), every sum on the edge. Refused at "Signal received" before EC4-9; now the full analysis.',
+             voi_compound(INFORMATIVE_ROWS, '33.3333')),
+            ('compoundEdgeInformativeExact', 'EC4-9 reference: the same analysis at exact thirds and ninths; compoundEdgeInformative agrees with it within the stated tolerance.',
+             voi_compound(INFORMATIVE_ROWS, None))):
+        add(cid, desc, inp)
     add('thirdsOutcomeChancesFourPlaces', 'EC4-8: three outcome chances typed 33.3333 percent sum to 99.9999, exactly 1e-4 percent points short, and are accepted end to end (prior tree included); indicators 50 / 50 with outcome chances 50 / 30 / 20 and 16.6666 / 36.6667 / 46.6667, consistent with the stated thirds.',
         voi_thirds())
     add('freeInformation', 'Cost 0; EMV with information equals the pre-cost value 48.', voi_inputs(cost=0))
