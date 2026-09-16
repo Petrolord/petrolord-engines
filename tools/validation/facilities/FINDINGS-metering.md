@@ -342,8 +342,23 @@ thresholds of 2 and 3, the authority thresholds, the noise bands, the
 Reader-Harris coefficients, the expansibility coefficients, the AP-42
 coefficients, the API 650 allowables and the thermal venting factors.
 
-They are pinned by LITERAL in the suites, in a block that says in its own
-comment exactly what that is worth: **it detects silent change and
+A constant that lives in the engine AND in the oracle cannot be checked by
+comparing those two files against each other, which is most of what was
+wrong with this gate. So every held constant is MEASURED OUT OF THE ENGINE
+and compared against a literal in the suite, which is a THIRD location:
+the four fire-duty band constants and their four exponents are recovered
+from two areas inside each band, the two API 650 allowables are recovered
+from a thickness, the saturation coefficient and the 365 days are
+recovered from a loss result, the one-foot offset from the slope of two
+thicknesses, the recovery factor from the allowable drop, the Rankine
+offset from two sizings at different temperatures, and the leading
+Reader-Harris coefficient is read off at vanishing beta and infinite
+Reynolds number. The 1107 emergency vent constant needs no pin because it
+is gone: what is pinned instead is that no input produces a vent figure at
+all.
+
+The rest are pinned by LITERAL in the suites, in a block that says in its
+own comment exactly what that is worth: **it detects silent change and
 nothing more, it does not validate anything against a publication, and
 the values must never be regenerated from the engine.** Where a constant
 can be isolated from the engine rather than pinned by value it is: the
@@ -358,6 +373,53 @@ red.
 Thirteen negative controls prove each new check fires and print the case
 they name, including one that shows the OLD factor-of-two band gate
 accepting the exponent the new one rejects.
+
+### THREE DEFECTS IN THE MEASURING INSTRUMENT ITSELF
+
+The planting harness this wave inherited had three defects, **all of which
+pushed its reading the same way: they INFLATED the number of plants that
+appeared to survive.** A plant that broke the harness was
+indistinguishable from a plant the gate failed to catch. Two were
+reported by the FC9-0 agent and the third was found here by gating the
+runner against itself.
+
+1. **No results line was read as no failures.** `run()` piped jest
+   through `grep -E '^Tests:'` and the caller tested the captured text for
+   the word "failed". A mutation that stopped jest producing a summary at
+   all gave an EMPTY capture, no "failed", and a GREEN score.
+2. **Two batteries in one worktree raced** and produced bogus greens,
+   because they restored each other's files mid-run.
+3. **A suite that failed to LOAD left the other suite's clean summary.** A
+   syntax error in `storageTank.js` printed `Tests: 38 passed, 38 total`
+   from the control valve suite alone and was scored GREEN, while
+   `Test Suites:` said `1 failed, 1 passed` two lines above it. A runner
+   that reads one summary line and not the other cannot tell a passing
+   gate from half a gate.
+
+The runner in `tools/validation/facilities/batteries/plant.sh` refuses all
+three. It requires BOTH summary lines, requires the expected number of
+suites to have run, requires a floor on the number of tests, treats
+"Test suite failed to run" as HARNESS-BROKEN rather than as a result,
+takes a LOCK on the worktree for the whole battery and refuses to start if
+another battery holds it, and VERIFIES THE RESTORE before and after every
+plant so a failed restore is noticed instead of contaminating the next
+plant. A HARNESS-BROKEN plant is never scored.
+
+**The runner is itself gated**, by
+`tools/validation/facilities/batteries/control_on_the_runner.sh`: three
+plants that break the harness in the three ways above, all of which must
+report HARNESS-BROKEN or RED and none of which may report GREEN. Run it
+before trusting any number a battery gives you.
+
+**Every number in this record was re-measured with the hardened runner,
+serially, one plant at a time, and the before figures were taken in a
+SEPARATE worktree checked out at the pre-repair commit so nothing could
+race.** The baseline came out identical, 25 green of 64 and 8 of 13, with
+zero harness-broken plants, so the blindness this wave repaired was real
+and none of it was instrument noise. Because all three defects inflate
+survivors, they cannot manufacture a false zero: the after figures were
+already safe, and they are now measured on an instrument that has been
+checked.
 
 ### What the control on the controls caught in this wave's own work
 

@@ -3,7 +3,7 @@
 # in the original battery means the defect is unplantable, not that it is
 # caught, so every one of these is either adapted here or recorded as
 # removed with the code it lived in.
-source /root/fc-wip-metering/scratch/plant.sh
+source "$(dirname "${BASH_SOURCE[0]}")/plant.sh"
 M=engines/facilities/metering.js
 C=engines/facilities/controlValve.js
 S=engines/facilities/storageTank.js
@@ -40,3 +40,4 @@ plant "shell: minimum plate 0.1875 -> 0.3125"                      $S 's/minimum
 plant "shell: minimum-plate crossover reported as course 1"        $S 's/    firstMinimumGovernedCourse: firstMin,/    firstMinimumGovernedCourse: 1,/'
 plant "shell: water-test crossover reported as the last course"    $S 's/    lastTestGovernedCourse: lastTest,/    lastTestGovernedCourse: n,/'
 plant "lossControl: swallow a missing efficiency again"            $S 's/  if \(!Number\.isFinite\(controlEfficiencyPct\)\) \{/  if (false) {/'
+totals
