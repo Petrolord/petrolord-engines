@@ -134,6 +134,59 @@ describe('the stated constants are pinned by literal, against silent change', ()
     expect(t.basis).toMatch(/not cited to a document/);
   });
 
+  test('the fire band constants are MEASURED OUT OF THE ENGINE and pinned', () => {
+    // A constant that lives in the engine and in the oracle cannot be
+    // checked by comparing those two files against each other, and both
+    // of these files carry all eight of these numbers. So the constants
+    // are RECOVERED from the engine's own outputs and compared against
+    // literals here, which is a THIRD location: within a band the duty is
+    // k A^n, so two areas give n from the ratio of logs and then k.
+    const q = (a) => fireVenting({ wettedFt2: a }).qBtuHr;
+    const recover = (a1, a2) => {
+      const n = Math.log(q(a2) / q(a1)) / Math.log(a2 / a1);
+      return { n, k: q(a1) / a1 ** n };
+    };
+    const BANDS = [
+      { label: 'below 200 ft2', a1: 100, a2: 150, k: 20000, n: 1 },
+      { label: '200 to 1000 ft2', a1: 300, a2: 600, k: 199300, n: 0.566 },
+      { label: '1000 to 2800 ft2', a1: 1200, a2: 2000, k: 963400, n: 0.338 },
+      { label: 'above 2800 ft2', a1: 4000, a2: 8000, k: 21000, n: 0.82 },
+    ];
+    BANDS.forEach((b) => {
+      const r = recover(b.a1, b.a2);
+      expect(r.n).toBeCloseTo(b.n, 9);
+      expect(rel(r.k, b.k)).toBeLessThan(1e-9);
+      // eslint-disable-next-line no-console
+      console.log(`fire band "${b.label}" recovered from the engine at ${b.a1} and ${b.a2} ft2: k ${r.k.toPrecision(7)}, n ${r.n.toFixed(6)}`);
+    });
+    // and the band the engine says it used
+    expect(fireVenting({ wettedFt2: 100 }).band).toBe('below 200 ft2');
+    expect(fireVenting({ wettedFt2: 900 }).band).toBe('200 to 1000 ft2');
+    expect(fireVenting({ wettedFt2: 2000 }).band).toBe('1000 to 2800 ft2');
+    expect(fireVenting({ wettedFt2: 5000 }).band).toBe('above 2800 ft2');
+    // the 30 ft wetted-area basis, pinned
+    expect(wettedAreaFt2({ diameterFt: 120, liquidLevelFt: 100 }).effectiveHeightFt).toBe(30);
+    expect(wettedAreaFt2({ diameterFt: 120, liquidLevelFt: 20 }).effectiveHeightFt).toBe(20);
+  });
+
+  test('the shell allowables are MEASURED OUT OF THE ENGINE and pinned', () => {
+    // The goldens pass the two stresses explicitly, so the DEFAULTS are
+    // not reached by any oracle route. They are recovered here instead:
+    // t = 2.6 D (H - 1) G / S with no corrosion allowance, so S falls out.
+    const c = shellCourse({
+      diameterFt: 100, courseBottomHeightFt: 0, liquidLevelFt: 31, sg: 1,
+    });
+    const head = 30;
+    const sDesign = (2.6 * 100 * head * 1) / c.tDesignIn;
+    const sTest = (2.6 * 100 * head) / c.tTestIn;
+    expect(rel(sDesign, 23200)).toBeLessThan(1e-9);
+    expect(rel(sTest, 24900)).toBeLessThan(1e-9);
+    // and the RATIO, which does not lean on the 2.6 at all
+    expect(c.tTestIn / c.tDesignIn).toBeCloseTo(23200 / 24900, 12);
+    // eslint-disable-next-line no-console
+    console.log(`shell allowables recovered from the engine: design ${sDesign.toFixed(3)} psi, test ${sTest.toFixed(3)} psi`);
+  });
+
   test('the AP-42 coefficients are recovered from the engine and pinned', () => {
     const e = evaporativeLosses({
       diameterFt: 110, vapourSpaceHeightFt: 10, vapourPressurePsia: 1.5, throughputBbl: 450000,
@@ -1020,8 +1073,15 @@ describe('turbine meters and meter runs', () => {
       expect(straightRunDiameters({ beta: 0.7, upstreamFitting: fitting }).downstreamDiameters)
         .toBe(5);
     });
+    // and the upstream column that the studio's own default fitting uses,
+    // pinned by literal at every one of its breakpoints. It lives in the
+    // engine and nowhere else, so nothing but a literal can hold it.
+    const SINGLE_ELBOW = [[0.2, 10], [0.4, 14], [0.5, 18], [0.6, 26], [0.67, 36], [0.75, 44]];
+    SINGLE_ELBOW.forEach(([beta, need]) => {
+      expect(straightRunDiameters({ beta }).upstreamDiameters).toBe(need);
+    });
     // eslint-disable-next-line no-console
-    console.log('the downstream column examined at 7 betas across 4 fittings: 4 diameters to beta 0.5 and 5 above');
+    console.log(`the downstream column examined at 7 betas across 4 fittings: 4 diameters to beta 0.5 and 5 above; the single-elbow upstream column pinned at ${SINGLE_ELBOW.length} breakpoints`);
   });
 
   test('THE WITHHELD COLUMN: two elbows out of plane refuses by name', () => {
