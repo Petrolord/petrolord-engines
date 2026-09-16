@@ -1,3 +1,382 @@
+# FINDINGS: metering, control valves and storage (FC8-0, 2026-09-16)
+
+The repair wave before the NextGen Metering, Control Valves and Storage
+course, taken against `engines/facilities/metering.js`,
+`controlValve.js` and `storageTank.js` at engines main `06ad75b`, over
+their two goldens, two oracles and two jest suites, and over the three
+LIVE Suite studios that call them. THE RECON THAT ORDERED THIS WORK IS
+THE SECOND HALF OF THIS FILE, unchanged: 64 findings, 29 LIVE, 13 fail
+open, 10 held for literature. This first half records what changed and
+why.
+
+Twenty-nine findings were reachable by typing into a box in a shipped
+studio. Thirteen of them failed OPEN: a wrong answer, an unmoved answer
+or a non-finite one with no `error` key, so every caller's guard passed
+and the studio printed a figure or a dash where a fault belonged. One was
+a safety number that might have been twenty four times too small.
+
+## THE ONE THAT IS NOT REPAIRED, AND WHY
+
+**The emergency vent capacity is WITHHELD.** `fireVenting` computed
+
+    scfhAir = 1107 * Q / (L * sqrt(M * tempR)) * Math.sqrt(1)
+
+Three things are wrong on the face of that line without needing any
+standard. The `* Math.sqrt(1)` is dead, and it is where a temperature
+RATIO was clearly meant to go. 1107 is a field-unit packaged constant
+with a reference temperature already folded into it, so it cannot coexist
+with a free absolute temperature in the same denominator: the value of
+the relation would then depend on whether the temperature were written in
+Rankine or in Kelvin, which no physical relation does. And `tempR` was an
+input no screen exposed, defaulting to 560 R and moving the headline
+answer by 29 percent across 400 to 800 R.
+
+If the customary packaged form `1107 Q / (L sqrt(M))` is the right one,
+the line **under-stated the required vent by sqrt(560), which is 23.7
+times**: the studio's own default tank showed 1,678,956 scfh of air where
+the packaged form gives 39.7 million.
+
+The API 2000 air-equivalence relation is not in this repository. It
+cannot be reconstructed from memory, and it must not be chosen by
+whichever form makes the number look reasonable. An emergency vent sized
+twenty four times too small is precisely the failure the module's own
+header says destroys tanks, and a number that might be wrong in that
+direction is worse than no number, because a figure on a screen gets
+bought.
+
+So the duty is computed and returned, with its band, and the vent
+capacity is `null` with `ventWithheld: true` and a named reason that
+says which standard is missing, what was wrong with the line that was
+there, how large the discrepancy is, and where to get the answer
+instead. The Storage Tank studio prints "withheld" with that reason
+beside it, and the help guide says the same. **Recorded as WITHHELD, not
+repaired.** The duty above it is ready for the relation the moment
+somebody puts API 2000 in the repository with a clause number.
+
+Ten items are HELD FOR LITERATURE on the same principle, recorded and
+exposed as stated limits, never graded and never cited to an invented
+source: the air-equivalence relation above, API 650's minimum shell
+plate thickness band table, the one-foot method's diameter limit, the
+fire case's wetted-area ceiling, the API 2000 thermal venting table
+above the capacity where it stops being proportional, the ISO 5167 or
+AGA 3 straight-run column for two elbows out of plane, the published
+Reynolds floor of the Reader-Harris/Gallagher correlation, the ISA
+Reynolds number factor FR with the valve style modifier fd, the API MPMS
+temperature and pressure correction tables, and the style table's own FL
+and xT values with the sigma thresholds. Each one is named where it is
+used. Every module header now carries a WHAT THIS PACKAGE DOES NOT CARRY
+list.
+
+## THE SCREEN THAT COULD NOT FIRE
+
+**A liquid sizing with no vapour pressure is now refused.** The
+cavitation index was
+
+    sigma = pvPsia > 0 ? (p1Psia - pvPsia) / dpStated : Infinity
+
+with `pvPsia` defaulting to zero. An infinite index takes the last branch
+of the regime ladder, so **every liquid service at every pressure drop
+reported `regime: 'stable'` with `warning: null`**, and the Suite's
+`num(inputs.liquid.pvPsia, 0)` meant that CLEARING THE Pv BOX supplied
+exactly that default. The studio printed Sigma "n/a" beside Regime
+"stable" in green. The whole cavitation screen, which the module header
+calls the point of the module, was switched off by an empty box.
+
+Every liquid has a vapour pressure at its flowing temperature, so there
+is no legitimate case to preserve. The engine refuses and says why, the
+studio passes the box through with no fallback, and no finite input can
+now produce an infinite index.
+
+Two smaller route repairs in the same class. The index is computed on the
+drop the valve ACTUALLY USES rather than the stated drop, so a choked
+service no longer reports an index belonging to a pressure drop the valve
+cannot take. And the recovery factor and terminal ratio overrides are
+bounded to the fractions they are: `flOverride: 5` used to give an
+allowable drop of 4881 psi on a 200 psia inlet, which is more drop than
+the system has pressure.
+
+## THE VERDICT OVER CHECKS THAT DID NOT RUN
+
+`travelCheck` returned `pass: true` HAVING PERFORMED ZERO CHECKS. Every
+warning was guarded on a non-null travel except the maximum one, so a
+missing minimum flow skipped the near-seat rangeability check silently
+and the studio printed **Verdict: WORKABLE** in green. This is FC1's
+fail-open droplet verdict and FC7's skipped-device verdict in a third
+engine.
+
+It now counts. `checksRun`, `checksSkipped`, `checksPerformed` and
+`checksPossible` come back with the answer, `pass` is WITHHELD as null
+whenever any of the three flows is missing, and `passWithheldReason`
+names which checks did not run and what is therefore not known. The
+studio prints "NO VERDICT" with the count beside it.
+
+And one null used to mean two different things, with the alarming reading
+winning: `maxTravelPct === null` meant either "this Cv is beyond the
+valve" or "you gave me no maximum flow", and the warning pushed was "the
+maximum flow needs more Cv than the valve is rated for: it will not pass
+the design case". A box the user had simply not filled in printed that in
+red. `minState`, `normalState` and `maxState` now carry `ok`,
+`beyond the valve` or `not given`, and the studio renders the three
+differently.
+
+## THE BAND THAT COULD NOT SEE ITS OWN QUANTITY
+
+`noiseIndication` computed a stream power and then banded the service on
+the pressure ratio alone. **A 1 scfh bleed at a ratio of 12 read "severe"
+with the multistage-trim warning, and a valve passing 100 MMscfh at a
+ratio of 1.9 read "low" with no warning at all.** The power moved
+nothing and was never displayed. Three separate defects planted in the
+function all left the suite green, which is why nobody noticed: it had no
+oracle route and no golden row.
+
+The pressure ratio still sets the band, and the stream power now CAPS AND
+FLOORS it, because a trickle cannot be loud however hard it is throttled
+and a thousand kilowatts is not quiet however gently. Both sets of
+thresholds are the engine's stated screen and say so. The power, the mass
+flow and the band the ratio alone would have given are all returned and
+displayed, and the function refuses an outlet pressure of zero and a
+missing gas gravity or temperature rather than answering cheerfully with
+an Infinity or a NaN.
+
+## THE TWO ROUTES THAT NEVER MET
+
+`transmitterUncertaintyPct` computed a differential uncertainty from a
+reading and a span; `orificeUncertainty` took a TYPED figure and could
+not accept a reading or a span at all. At the Flow Metering studio's own
+defaults the transmitter said 0.15 percent and the budget used 0.5
+percent, **in adjacent cards on the same screen**. Worse, the budget put
+the discharge coefficient at 64.687 percent of the variance and the
+differential at 16.172 percent, while the module header said the
+transmitter "contributes far more than the plate bore ever does", the
+engine's own note said improving anything else was wasted effort about
+the Cd, and the app's body copy said "A more precisely bored plate buys
+nothing when the differential transmitter dominates the budget".
+
+The budget now takes the reading, the span and the transmitter accuracy
+and DERIVES the differential term, reporting
+`differentialUncertaintySource` so a reader can see where it came from.
+The typed figure is still accepted when no reading and span are given.
+The three claims are corrected in the engine header, the engine note and
+the app copy: which term leads is a result, it depends on where the run
+sits in its span, and the studio shows the runner-up and its share
+beside the leader. A dead heat now says it is one instead of naming a
+winner and telling the user to spend money on it.
+
+## A DIFFERENTIAL TURNDOWN IS NOT A FLOW TURNDOWN
+
+`transmitterUncertaintyPct` returned `turndown = spanInH2O / dpInH2O` and
+warned above 3 with the sentence "An orifice run has a usable turndown of
+about three to one because of exactly this". Flow through an orifice goes
+as the SQUARE ROOT of the differential, so a differential turndown of 3
+is a flow turndown of 1.73, and the three-to-one flow rule is a
+differential turndown of NINE. **The warning fired about five times too
+early** and its sentence conflated the two quantities, and the Suite
+compounded it with a tile labelled "Turndown ... to 1" above a paragraph
+repeating the flow rule.
+
+Both turndowns are now returned by name, with both limits, and the rule
+is applied to the flow one. The studio shows two tiles and the help guide
+says the two are constantly swapped. The square-root law itself is proved
+in the suite through the flow equation rather than asserted in a
+sentence: four times the differential gives 1.9958 times the flow.
+
+## THE TABLE THAT NO PUBLISHED TABLE LOOKS LIKE
+
+`straightRunDiameters`'s `twoElbowsDifferentPlanes` column returned 34,
+50, 75, 65, 60, 80 upstream diameters at beta 0.2, 0.4, 0.5, 0.6, 0.67
+and 0.75. **It fell by 15 diameters as beta rose from 0.5 to 0.6 and then
+rose by 20.** A published straight-run requirement rises with beta; this
+one cannot be right, and it cannot be repaired without the table.
+
+That fitting is WITHHELD by name, at all six of its own breakpoints, and
+the Suite renders the refusal where it used to render 75 diameters. Two
+elbows out of plane is the worst common upstream arrangement, so the
+refusal says to take the requirement from the standard or fit a flow
+conditioner. The four remaining columns are labelled as this engine's
+stated table data, because none of them is cited to a document here
+either, and the suite asserts every one of them rises monotonically in
+beta across twelve betas: the property the withheld column violated.
+
+Nothing is answered above beta 0.75 now either. The table used to fall
+through to its last row and return 44 diameters at beta 0.95, where the
+flange-tap correlation the whole module rests on stops being published.
+
+## THE REST OF THE THIRTEEN FAIL-OPENS
+
+| export | what it did | what it does |
+| --- | --- | --- |
+| `evaporativeLosses` | standing loss of MINUS 29,008 lb/yr at 30 psia TVP, Infinity at exactly 14.7, and a total still printing positive at 466.8 short tons/yr | refuses a true vapour pressure at or above the STATED atmospheric pressure, and says a product that boils at ambient is not a fixed-roof tank problem |
+| `evaporativeLosses` | `turnoversPerYear` moved the total 0.000000 percent over 1 to 500 turnovers and was echoed back in the result | the input is GONE, with a note saying AP-42's Kn is not carried here and the turnover effect is the stated `workingTurnoverFactor` |
+| `movementVenting` | no error path of ANY kind, returning negative venting that `normalVenting` added into its totals | refuses a negative rate by name, and `normalVenting` propagates it |
+| `tankCapacity` | accepted a negative fill and printed "Working -20,143 bbl" | refuses it: a tank does not hold less than nothing |
+| `lossControl` | NaN with no error for a missing efficiency, and a silent clamp of an impossible 150 percent | refuses both, and says that leaving it out is not the same as saying zero |
+| `fireVenting` | any environment factor, so 5 multiplied the duty fivefold | bounded to 0 to 1, because it is a credit |
+| `thermalVenting` | any latitude factor, and a proportional rate extrapolated to any capacity | bounded, and a tank above the stated proportional limit is warned rather than silently extrapolated. The studio's own 80,574 bbl default is flagged |
+| `sizeOrifice` | returned beta 0.05 and a bore BESIDE its own error, because a refused flow mapped to NaN and every comparison against NaN is false | every error path returns an error and nothing else, proved by a plant that removes all four guards |
+| `noiseIndication` | an infinite ratio and power at p2 = 0, and a NaN power with a "moderate" band on a missing gravity | refuses both by name |
+| `travelCheck` | see above | see above |
+| `liquidValve` | see above | see above |
+| `expansibility` | a bare NaN with no beta guard and no check that the differential was below the static pressure | guarded, and the real case is named in `orificeFlow`: a differential above the static pressure used to be reported as "a positive pipe Reynolds number is needed" |
+| `orificeUncertainty` | named a dominant term on a photo finish and told the user improving anything else was wasted effort | reports the runner-up, its share, and whether the lead is clear |
+
+## THE STUDIOS
+
+Two hidden persisted inputs had no field anywhere, came back from every
+saved study, and moved the answer. Valve `fp` divides into every required
+Cv, a 50 percent swing across its range; tank `latitudeFactor` scales
+thermal inbreathing linearly, a 75 percent swing on the number the app
+labels the governing vacuum case. **A persisted input nobody can see is
+not a setting, it is a trap.** Both are exposed as fields with hints. The
+minimum plate thickness is exposed too, because the studio showed
+"minimum plate thickness" as a governing reason with no number attached
+to the phrase.
+
+**The tank defaults contradicted themselves before anyone touched them.**
+A 40 ft shell at a 38 ft design liquid level is 2 ft of vapour space; the
+losses block defaulted `vapourSpaceHeightFt` to 12 and nothing linked
+them, so the standing loss shown was 17,276 lb/yr where the tank as drawn
+implies 4,854, a factor of 3.56, with the saturation factor moving from
+0.512 to 0.863. The vapour space is now DERIVED from the shell height
+less the design liquid level, displayed as a derived quantity, and the
+studio refuses when the level reaches the shell top.
+
+**The Control Valve studio's "Body velocity limit" card advertised a
+check it could not perform.** It computed an API RP 14E erosional
+velocity and never computed an actual velocity, because the valve has no
+flow area, so nothing was ever compared and the copy's claim that a valve
+can erode its own body could not be detected. It also applied a two-phase
+continuous-service C factor to a single-phase liquid without saying so.
+The card now takes an outlet bore, computes the in-situ velocity of the
+maximum case through it, compares the two, prints the percentage of the
+limit and warns when it is exceeded, and the C factor is a stated choice
+from the published presets.
+
+Also: travel printed to one decimal, matching the engine warnings the
+tiles sit beside, which the engine carries four dedicated tests about.
+The sizing result's own warning rendered, because `sizeOrifice`'s "beta
+above 0.6" warning was attached to a number in one card while only the
+other card's warning was displayed. The recommended characteristic
+rendered in words rather than an identifier, with a warning when it
+disagrees with the trim selected. The two identically labelled "Vapour
+MW" fields resolved, because the fire case no longer needs one. Short
+tons said out loud. Every derived block in all three contexts wrapped in
+a try/catch, so a throw shows a message rather than a blank studio. And
+the silent defaults removed from the boxes that move an answer, so an
+empty numeric box is no longer the same input as a typed one.
+
+## THE GATE
+
+**Before: 25 of 64 defects planted in these three engines left both
+suites 40 of 40 GREEN**, including the entire AP-42 evaporative loss
+chain in five different ways, the entire API 2000 thermal venting chain
+in three, the 1107 emergency vent constant doubled, dropping
+sqrt(tempR), the minimum plate thickness, the barrel changed from 42 to
+55 gallons, and the whole of the noise indication. **And 8 of 13 planted
+in an engine and its oracle together survived**, because a golden
+regenerated from a changed oracle agrees with a changed engine; the five
+that were caught were all caught by a literal typed into the test, never
+by a golden.
+
+Seven of the ten storage tank exports had NO oracle route and NO golden
+row at all, and three of the ten control valve exports had none, which is
+exactly where the defects were.
+
+**After: 0 green.** 54 of the original 64 still patch and all 54 are red.
+The other 10 no longer patch because the code is gone or restructured,
+and because PATCH-FAILED is not the same as caught, all 10 are
+re-expressed against the repaired source: 31 adapted plants, all red.
+Three are unplantable by removal, which is the strongest outcome
+available: the 1107 constant and its sqrt(tempR) went with the withheld
+vent, and `permanentLoss`'s 0.61 default went because the coefficient is
+required. The shared battery is 0 green of 8 adapted plants, and one of
+the original thirteen is now impossible to plant in both files at all,
+because the oracle contains no 1360 to change.
+
+Goldens: **67 rows in 9 groups before, 129 rows in 22 groups after.** The
+two suites go from 40 tests to 96.
+
+### Which routes are real, measured rather than described
+
+Five golden groups were transcriptions: `cd`, `liquid`, `gas`,
+`gasMarch` and `boundary` reproduced 51 of their 53 rows BIT FOR BIT, at
+exactly 0.000 percent of tolerances as tight as 1e-12. Two independent
+arithmetics do not land on the same IEEE double. Both suites now print a
+MARGIN REPORT on every run, so a route that has collapsed onto a
+transcription shows as 0.000 percent and cannot hide.
+
+| route | what it checks | what it cannot |
+| --- | --- | --- |
+| orifice mass flow | the 32.174, 144 and 0.0361273 packagings, entirely in SI | the published coefficients |
+| uncertainty | the root-sum-square, against a 200,000-sample Monte Carlo | nothing: it is a different method |
+| shell thickness | the 2.6 field constant, re-derived from rho g H D over 2 S in SI | the one-foot offset, which is recovered from the engine and pinned by literal |
+| evaporative loss | the 10.731 field gas constant, from the SI gas constant and a molar mass in kg/mol | the empirical 0.053 and the shape of Ke, both pinned by recovery and literal |
+| gas Cv | THE 1360 PACKAGING, through moles, cubic metres, bar and a metric Kv. This is the route the docstring used to claim and did not contain | the style table's xT |
+| choking boundary | the boundary LOCATED FROM THE ENGINE'S OWN Cv OUTPUTS, never from its choked flag | nothing, now that the predicate is no longer transcribed |
+| equal-percentage travel | a round trip: a travel gives a Cv, the engine must give the travel back | the rangeability default, pinned by literal |
+| noise | 379.49 cubic feet per pound mole and the 287 J/(kg K) of air, both from the SI gas constant | the bands, pinned by literal |
+| Reader-Harris Cd, liquid Cv | the assembly and the floating-point arithmetic, in 60-digit decimal, AND the suite now requires a last-bit disagreement so the routes cannot silently collapse back together | the published coefficients, pinned by literal |
+| fire duty | nothing: it is a transcription and the margin report says 0.000 percent | the constants, which are pinned by the BAND-EDGE CONTINUITY property instead |
+| capacity, movement venting | the assembly. The SI barrel is 42 gallons by definition, so it is the module's own packaging carried through exact conversions | the 42 gallons, which is pinned by literal |
+
+Three new property checks do work no value comparison can:
+
+ - **the fire band edges.** Four power laws that have to join up at 200,
+   1000 and 2800 square feet cannot be moved one at a time. The old gate
+   was `expect(q).toBeGreaterThan(prev * 0.5)`, which tolerates a
+   factor-of-two discontinuity, and that is exactly why a 0.500 exponent
+   in place of 0.566 went green. The join is now asserted within 1
+   percent at each of the three edges, and it currently holds to 0.07.
+ - **the monotonic straight-run columns**, which is the property the
+   withheld column violated.
+ - **the Cv definition.** A 2 percent factor planted in the engine and
+   the oracle together survived everything, because the liquid form has
+   no packaging constant to compare: `Q sqrt(SG/dP)` IS the definition of
+   Cv. So the definition is the test. One US gallon a minute of water at
+   one psi must give a Cv of exactly 1.
+
+### The constant register, and what a literal is worth
+
+Some numbers here have no publication in this repository, so no route can
+validate them: the style table's sixteen FL and xT values, the sigma
+thresholds of 2 and 3, the authority thresholds, the noise bands, the
+Reader-Harris coefficients, the expansibility coefficients, the AP-42
+coefficients, the API 650 allowables and the thermal venting factors.
+
+They are pinned by LITERAL in the suites, in a block that says in its own
+comment exactly what that is worth: **it detects silent change and
+nothing more, it does not validate anything against a publication, and
+the values must never be regenerated from the engine.** Where a constant
+can be isolated from the engine rather than pinned by value it is: the
+leading Reader-Harris coefficient is read off at vanishing beta and
+infinite Reynolds number, the one-foot offset is recovered from the slope
+of two thicknesses, the saturation coefficient and the 365 days are
+recovered from a loss result, the recovery factor is recovered from the
+allowable drop, and the Rankine offset is recovered from two sizings at
+different temperatures. Those recoveries are what make the shared plants
+red.
+
+Thirteen negative controls prove each new check fires and print the case
+they name, including one that shows the OLD factor-of-two band gate
+accepting the exponent the new one rejects.
+
+### What the control on the controls caught in this wave's own work
+
+A defect planted in the ORACLE ALONE, with the golden regenerated, must
+go red. Ten of eleven do. The eleventh was mine: changing the Btu to
+joule conversion in the fire duty route left the suite green, because the
+route multiplied the band constants into SI and divided them straight
+back out again. The conversion cancels exactly. That is the same
+decoration FC4 found in the TEG and amine routes, and shipping it inside
+a repair that exists to remove such things would have been the worst kind
+of miss. It is gone, and so is the same pattern in the saturation
+coefficient. **A route that says SI and multiplies by a constant and then
+divides by it is not a unit check.** The one remaining green is the Monte
+Carlo seed, which is green by design; cutting the sample count from
+200,000 to 2,000 goes red, so the tolerance is not so loose that the
+method is decorative.
+
+---
+
 # FC8 `metering` FINDINGS: Metering, Control Valves and Storage
 
 Subject: `engines/facilities/metering.js`, `engines/facilities/controlValve.js`,
