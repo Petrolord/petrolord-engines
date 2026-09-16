@@ -127,6 +127,40 @@ describe('the stated constants are pinned by literal, against silent change', ()
     console.log(`recovery factor recovered from the allowable drop: ${recoveredFl}`);
   });
 
+  test('Cv IS its own definition: one gallon a minute of water at one psi', () => {
+    // The liquid form has no packaging constant to re-derive, because Cv
+    // is DEFINED as the US gallons per minute of water at 60 F that pass
+    // at one psi of drop. That definition is the anchor, and it is the
+    // only thing that pins the liquid Cv to anything outside these two
+    // files: a 2 percent factor planted in the engine and the oracle
+    // together is invisible to any comparison between them.
+    const water = (qGpm, dp) => liquidValve({
+      qGpm, p1Psia: 1000, p2Psia: 1000 - dp, sg: 1, pvPsia: 1e-9, pcPsia: 3200,
+      flOverride: 1,
+    });
+    expect(water(1, 1).choked).toBe(false);
+    expect(water(1, 1).cv).toBeCloseTo(1, 12);
+    expect(water(2, 1).cv).toBeCloseTo(2, 12);
+    expect(water(100, 1).cv).toBeCloseTo(100, 12);
+    // four times the drop, half the Cv
+    expect(water(1, 4).cv).toBeCloseTo(0.5, 12);
+    expect(water(1, 100).cv).toBeCloseTo(0.1, 12);
+    // and a heavier liquid needs more Cv for the same rate and drop, by
+    // the square root of its gravity
+    const heavy = liquidValve({
+      qGpm: 1, p1Psia: 1000, p2Psia: 999, sg: 4, pvPsia: 1e-9, pcPsia: 3200, flOverride: 1,
+    });
+    expect(heavy.cv).toBeCloseTo(2, 12);
+    // the piping geometry factor divides into it, exactly
+    const withFp = liquidValve({
+      qGpm: 1, p1Psia: 1000, p2Psia: 999, sg: 1, pvPsia: 1e-9, pcPsia: 3200,
+      flOverride: 1, fp: 0.5,
+    });
+    expect(withFp.cv).toBeCloseTo(2, 12);
+    // eslint-disable-next-line no-console
+    console.log(`Cv definition examined: 1 gpm of water at 1 psi gives Cv ${water(1, 1).cv}, and 1 gpm at 4 psi gives ${water(1, 4).cv}`);
+  });
+
   test('the Rankine offset is recovered from two temperatures', () => {
     // 459.67 planted as 460 used to leave this suite green in both
     // files. Cv goes as sqrt(T), so two temperatures give the offset.

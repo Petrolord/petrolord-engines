@@ -32,22 +32,28 @@ the same for all of them, so each group says its own:
    so; the value of this route is the OVERLAP with `movement` in
    `normalVenting` and the governing-case label.
 
- - `fireDuty`: the wetted-area heat input bands evaluated in SI
-   (square metres and watts) and converted back, plus the RATIO ACROSS
-   EACH BAND EDGE. The band constants themselves have no source here,
-   but four power laws that must join up at 200, 1000 and 2800 ft2
-   cannot all be moved independently, so the continuity ratios pin all
-   eight of them against each other. This oracle produces NO VENT
-   CAPACITY: the module withholds it, because the API 2000 air
-   equivalence relation is not in this repository.
+ - `fireDuty`: the wetted-area heat input bands, TRANSCRIBED. An
+   earlier draft of this route carried the constants into SI and back,
+   which cancels exactly and checked nothing; the oracle-only control
+   battery caught it and it is gone. The real check is
+   `fireBandEdges`: the RATIO ACROSS EACH BAND EDGE. Four power laws
+   that must join up at 200, 1000 and 2800 ft2 cannot be moved one at a
+   time, so the continuity ratios pin all eight constants against each
+   other. This oracle produces NO VENT CAPACITY: the module withholds
+   it, because the API 2000 air equivalence relation is not in this
+   repository.
 
- - `evaporative`: the standing and working losses computed entirely in
-   SI, with the vapour density from the SI gas constant and the
-   molar mass in kg/mol, and the saturation coefficient converted out
-   of its field units. This CHECKS the 10.731 field gas constant, the
-   barrel and the whole assembly. It cannot check the empirical 0.053
-   or the shape of the expansion factor; literals in the suite pin
-   those against silent change.
+ - `evaporative`: the standing and working losses in SI, with the
+   vapour density from the SI GAS CONSTANT and a molar mass in kg/mol.
+   That part is a real check on the module's 10.731 psia ft3 per lbmol
+   per R: the residual is about 5e-5, which is the rounding in 10.731,
+   and an oracle-only change to the SI gas constant goes red. It does
+   NOT check the empirical 0.053 or the shape of the expansion factor.
+   The 0.053 is carried here per pascal per metre rather than per psia
+   per foot, but be clear what that is worth: the conversion cancels
+   against the pressure and the height, so it is presentation and not a
+   check. What pins 0.053, and the 365 days, is a recovery from the
+   engine compared with a LITERAL in the suite.
 
  - `orifice`: the orifice mass flow computed entirely in SI (kg/s from
    Pa and kg/m3) against the module's field-unit form, so the 32.174,
@@ -102,8 +108,6 @@ BBL_TO_M3 = 0.158987294928
 FT3_TO_M3 = 0.028316846592
 # SI gas constant and the molar mass unit, used to re-derive 10.731
 R_SI = 8.314462618       # J / (mol K)
-BTU_TO_J = 1055.05585262
-HR_TO_S = 3600.0
 
 
 # ------------------------------------------------------------------ #
@@ -198,17 +202,23 @@ def normal_venting_si(nominal_bbl, fill_bbl_hr, draw_bbl_hr,
 # fire duty in SI, and the band edges
 # ------------------------------------------------------------------ #
 
-FT2_TO_M2 = FT_TO_M ** 2
+def fire_duty(wetted_ft2, environment_factor=1.0):
+    """The wetted-area heat input bands, TRANSCRIBED, and it says so.
 
+    An earlier draft of this route carried the constants into SI and back
+    again, which looks like a unit-system check and is not one: the
+    conversion cancels exactly, and changing the Btu here left the suite
+    green while every other oracle-only plant went red. That is the same
+    decoration FC4 found in the TEG and amine routes, so it is gone.
 
-def fire_duty_si(wetted_ft2, environment_factor=1.0):
-    """The wetted-area heat input evaluated in SI and converted back.
-
-    Q = k A^n in field units becomes Q_W = k' A_m2^n with
-    k' = k * BTU_TO_J / HR_TO_S / FT2_TO_M2**n, which is the same
-    relation carried through a different unit system.
+    These four power laws are empirical field-unit relations with no
+    derivable content and no source in this repository, so there is
+    nothing in them to re-derive. The rows are a CHANGE DETECTOR and the
+    real check on the constants is `fire_band_edges` below: four
+    relations that have to join up at 200, 1000 and 2800 square feet
+    cannot be moved one at a time, which is what pins all eight numbers
+    against each other.
     """
-    a_m2 = wetted_ft2 * FT2_TO_M2
     if wetted_ft2 < 200:
         k, n = 20000.0, 1.0
     elif wetted_ft2 < 1000:
@@ -217,11 +227,9 @@ def fire_duty_si(wetted_ft2, environment_factor=1.0):
         k, n = 963400.0, 0.338
     else:
         k, n = 21000.0, 0.82
-    k_si = k * BTU_TO_J / HR_TO_S / (FT2_TO_M2 ** n)
-    q_w = k_si * (a_m2 ** n) * environment_factor
     return {
         "wettedFt2": wetted_ft2, "environmentFactor": environment_factor,
-        "qBtuHr": q_w * HR_TO_S / BTU_TO_J,
+        "qBtuHr": k * (wetted_ft2 ** n) * environment_factor,
     }
 
 
@@ -234,8 +242,8 @@ def fire_band_edges():
     """
     rows = []
     for edge in (200.0, 1000.0, 2800.0):
-        below = fire_duty_si(edge * (1 - 1e-9))["qBtuHr"]
-        above = fire_duty_si(edge * (1 + 1e-9))["qBtuHr"]
+        below = fire_duty(edge * (1 - 1e-9))["qBtuHr"]
+        above = fire_duty(edge * (1 + 1e-9))["qBtuHr"]
         rows.append({"areaFt2": edge, "ratioAcrossEdge": above / below})
     return rows
 
@@ -266,9 +274,11 @@ def evaporative_si(d_ft, vapour_space_ft, pva_psia, throughput_bbl,
     # atmospheric pressure are both pressures, so this is unit-free
     dt_over_t = temp_swing_f / avg_temp_r
     ke = dt_over_t + max(0.0, pva_psia * dt_over_t - vent_setting_psi) / (atm_psia - pva_psia)
-    # 0.053 per (psia ft) expressed per (Pa m)
-    ks_coeff_si = 0.053 / (PSI_TO_PA * FT_TO_M)
-    ks = 1.0 / (1.0 + ks_coeff_si * p_pa * h_m)
+    # 0.053 per (psia ft), TRANSCRIBED. An earlier draft expressed it per
+    # pascal per metre, which reads as a conversion and cancels exactly
+    # against the pressure and the height. What pins this coefficient is a
+    # recovery from the engine against a literal in the suite.
+    ks = 1.0 / (1.0 + 0.053 * pva_psia * vapour_space_ft)
     standing_kg = days_per_year * v_m3 * rho_kgm3 * ke * ks
     working_kg = (throughput_bbl * BBL_TO_M3 * rho_kgm3
                   * working_turnover * product_factor) if throughput_bbl > 0 else 0.0
@@ -478,9 +488,9 @@ def main():
         normal_venting_si(10000.0, 0.0, 0.0, True, 1.0, False),
     ]
 
-    out["fireDuty"] = [fire_duty_si(a) for a in
+    out["fireDuty"] = [fire_duty(a) for a in
                        (150.0, 199.0, 201.0, 900.0, 1001.0, 2799.0, 2801.0, 5000.0)]
-    out["fireDuty"].append(fire_duty_si(900.0, 0.3))
+    out["fireDuty"].append(fire_duty(900.0, 0.3))
     out["fireBandEdges"] = fire_band_edges()
 
     out["evaporative"] = [

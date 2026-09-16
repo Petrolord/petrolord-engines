@@ -290,6 +290,51 @@ describe('tank geometry and shell', () => {
     expect(s.minimumThicknessIn).toBe(0.1875);
     // a screen that says "minimum plate thickness" now has the number
     expect(s.summary).toMatch(/0\.1875 in minimum governs/);
+    // THE INVARIANT, across geometries: the bottom course is always the
+    // thickest, because the head falls upward and the minimum is a floor.
+    // So `governingCourse` is a property of the method rather than a
+    // result, and the fields that DO vary are the crossovers below.
+    [
+      { diameterFt: 120, heightFt: 40, sg: 0.85 },
+      { diameterFt: 48, heightFt: 24, sg: 0.7, courseHeightFt: 6 },
+      { diameterFt: 200, heightFt: 56, sg: 1.0 },
+      { diameterFt: 30, heightFt: 16, sg: 0.55, courseHeightFt: 4 },
+      { diameterFt: 150, heightFt: 48, sg: 0.9, minimumThicknessIn: 0.3125 },
+    ].forEach((tank) => {
+      const r = shellCourses(tank);
+      expect(r.error).toBeUndefined();
+      const argmax = r.courses.reduce((a, b) => (b.requiredIn > a.requiredIn ? b : a)).course;
+      expect(r.thickestCourse).toBe(argmax);
+      expect(r.governingCourse).toBe(argmax);
+      expect(argmax).toBe(1);
+      for (let i = 1; i < r.courses.length; i += 1) {
+        expect(r.courses[i].requiredIn).toBeLessThanOrEqual(r.courses[i - 1].requiredIn);
+      }
+      // the crossovers, which DO move with the geometry
+      if (r.minimumGovernedCount > 0) {
+        expect(r.firstMinimumGovernedCourse)
+          .toBe(r.courses.find((c) => c.governing === 'minimum plate thickness').course);
+        expect(r.courses.slice(r.firstMinimumGovernedCourse - 1)
+          .every((c) => c.governing === 'minimum plate thickness')).toBe(true);
+      } else {
+        expect(r.firstMinimumGovernedCourse).toBeNull();
+      }
+      if (r.testGovernedCount > 0) {
+        expect(r.lastTestGovernedCourse).toBeGreaterThan(0);
+        expect(r.courses[r.lastTestGovernedCourse - 1].governing).toBe('hydrostatic test');
+      } else {
+        expect(r.lastTestGovernedCourse).toBeNull();
+      }
+    });
+    // and the crossover really does move: a thicker stated minimum takes
+    // over sooner
+    const thin = shellCourses({ diameterFt: 150, heightFt: 48, sg: 0.9 });
+    const thick = shellCourses({
+      diameterFt: 150, heightFt: 48, sg: 0.9, minimumThicknessIn: 0.3125,
+    });
+    expect(thick.firstMinimumGovernedCourse).toBeLessThan(thin.firstMinimumGovernedCourse);
+    // eslint-disable-next-line no-console
+    console.log(`shell summary invariant examined on 5 tanks: the bottom course governs every one, and the minimum-plate crossover moves from course ${thin.firstMinimumGovernedCourse} to ${thick.firstMinimumGovernedCourse} when the stated minimum goes from 0.1875 to 0.3125 in`);
     expect(s.courses[4].note).toMatch(/stated minimum of 0\.1875 in governs/);
     // eslint-disable-next-line no-console
     console.log(`shell summary examined: ${s.summary}`);
@@ -399,12 +444,13 @@ describe('the fire case: a computed duty and a withheld vent', () => {
     G.fireDuty.forEach((row) => {
       const f = fireVenting(row);
       expect(f.error).toBeUndefined();
-      // the constants carried through Btu to joules, hours to seconds
-      // and square feet to square metres and back
-      within('fire duty in SI', f.qBtuHr, row.qBtuHr, 1e-9);
+      // A TRANSCRIPTION, and the margin report says so at 0.000 percent.
+      // The real check on these eight constants is the band-edge
+      // continuity in the next test.
+      within('fire duty (transcribed: the band edges are the real check)', f.qBtuHr, row.qBtuHr, 1e-9);
     });
     // eslint-disable-next-line no-console
-    console.log(`fire duty examined ${G.fireDuty.length} areas across all four bands in SI`);
+    console.log(`fire duty examined ${G.fireDuty.length} areas across all four bands, as a change detector; the band-edge continuity below is what pins the constants`);
   });
 
   test('THE PROPERTY: the four band relations join up at their edges', () => {
@@ -628,6 +674,40 @@ describe('orifice metering', () => {
     expect(spanAtOneBeta).toBeLessThan(spanAcrossBeta / 2);
     // eslint-disable-next-line no-console
     console.log(`Cd spans ${(spanAcrossBeta * 100).toFixed(1)} percent across beta, and ${(spanAtOneBeta * 100).toFixed(2)} percent across Reynolds at a single beta: the chart caption that quoted the first figure under a line drawn at the second is what this measures`);
+  });
+
+  test('the published beta range is stated at the value it is stated at', () => {
+    // The 0.1 to 0.75 range appears in a flag and in a warning, and the
+    // warning's threshold used to be assertable by nothing: moving it to
+    // 0.95 left this suite green, so a beta 0.8 plate was reported without
+    // the sentence telling the reader to resize it.
+    const inside = orificeFlow({
+      pipeIdIn: 6.065, orificeIdIn: 3.5, dpInH2O: 100, p1Psia: 500,
+      densityLbFt3: 2.5, viscosityCp: 0.012,
+    });
+    expect(inside.beta).toBeLessThan(0.75);
+    expect(inside.betaInPublishedRange).toBe(true);
+    expect(String(inside.warning)).not.toMatch(/outside the 0\.1 to 0\.75 range/);
+    [0.76, 0.8, 0.9, 0.95].forEach((beta) => {
+      const out = orificeFlow({
+        pipeIdIn: 6.065, orificeIdIn: beta * 6.065, dpInH2O: 100, p1Psia: 500,
+        densityLbFt3: 2.5, viscosityCp: 0.012,
+      });
+      expect(out.betaInPublishedRange).toBe(false);
+      expect(out.warning).toMatch(/outside the 0\.1 to 0\.75 range/);
+      expect(out.warning).toMatch(/resize the plate/);
+      expect(dischargeCoefficient({ beta, reynolds: 1e6, pipeIdIn: 6.065 }).warning)
+        .toMatch(/outside the 0\.1 to 0\.75 range/);
+    });
+    // and below the range as well
+    const low = orificeFlow({
+      pipeIdIn: 6.065, orificeIdIn: 0.5, dpInH2O: 100, p1Psia: 500,
+      densityLbFt3: 2.5, viscosityCp: 0.012,
+    });
+    expect(low.betaInPublishedRange).toBe(false);
+    expect(low.warning).toMatch(/outside the 0\.1 to 0\.75 range/);
+    // eslint-disable-next-line no-console
+    console.log('the published beta range examined at 0.577 inside and at 0.082, 0.76, 0.8, 0.9 and 0.95 outside');
   });
 
   test('every coefficient says the low Reynolds end is not validated here', () => {
@@ -924,6 +1004,24 @@ describe('turbine meters and meter runs', () => {
     expect(highBeta.upstreamDiameters).toBeGreaterThan(lowBeta.upstreamDiameters);
     expect(lowBeta.note).toMatch(/this engine's stated table data/);
     expect(straightRunDiameters({ beta: 0.5, upstreamFitting: 'teleporter' }).error).toBeTruthy();
+    // the downstream column, pinned by literal: four diameters to beta 0.5
+    // and five above it. Nothing asserted these values, so 4 and 5 planted
+    // as 2 and 3 used to leave this suite green.
+    [0.2, 0.4, 0.5].forEach((beta) => {
+      expect(straightRunDiameters({ beta }).downstreamDiameters).toBe(4);
+    });
+    [0.55, 0.6, 0.67, 0.75].forEach((beta) => {
+      expect(straightRunDiameters({ beta }).downstreamDiameters).toBe(5);
+    });
+    // and it is the same column whatever is upstream
+    ['twoElbowsSamePlane', 'reducer', 'fullBoreValve'].forEach((fitting) => {
+      expect(straightRunDiameters({ beta: 0.4, upstreamFitting: fitting }).downstreamDiameters)
+        .toBe(4);
+      expect(straightRunDiameters({ beta: 0.7, upstreamFitting: fitting }).downstreamDiameters)
+        .toBe(5);
+    });
+    // eslint-disable-next-line no-console
+    console.log('the downstream column examined at 7 betas across 4 fittings: 4 diameters to beta 0.5 and 5 above');
   });
 
   test('THE WITHHELD COLUMN: two elbows out of plane refuses by name', () => {

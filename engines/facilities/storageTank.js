@@ -157,9 +157,20 @@ export const shellCourses = ({
   }
   // A course list with no summary makes every caller re-derive the same
   // four facts, and the Suite did exactly that with its own `.some()`.
+  //
+  // THE THICKEST COURSE IS ALWAYS THE BOTTOM ONE, and that is a property
+  // of the method rather than a result: the head falls as the courses go
+  // up, both thickness relations are linear in it, and the minimum plate
+  // is a floor, so the required thickness is non-increasing upward. It is
+  // returned because a caller should not have to know that, not because
+  // it varies. The fields that DO vary with the geometry are the counts
+  // and the two crossover courses below: where the water test stops
+  // governing and where the minimum plate takes over.
   const thickest = courses.reduce((a, b) => (b.requiredIn > a.requiredIn ? b : a));
   const testGoverned = courses.filter((c) => c.governing === 'hydrostatic test');
   const minimumGoverned = courses.filter((c) => c.governing === 'minimum plate thickness');
+  const firstMin = minimumGoverned.length ? minimumGoverned[0].course : null;
+  const lastTest = testGoverned.length ? testGoverned[testGoverned.length - 1].course : null;
   return {
     courses,
     count: n,
@@ -167,10 +178,13 @@ export const shellCourses = ({
     thickestRequiredIn: thickest.requiredIn,
     governingCourse: thickest.course,
     governingReason: thickest.governing,
+    governingCourseIsAlwaysTheBottom: true,
     testGovernedCount: testGoverned.length,
     minimumGovernedCount: minimumGoverned.length,
+    firstMinimumGovernedCourse: firstMin,
+    lastTestGovernedCourse: lastTest,
     minimumThicknessIn: courses[0].minimumThicknessIn,
-    summary: `${n} courses. The thickest is course ${thickest.course} at ${thickest.requiredIn.toFixed(4)} in, governed by ${thickest.governing}. The water test governs ${testGoverned.length} of them and the stated ${courses[0].minimumThicknessIn} in minimum governs ${minimumGoverned.length}`,
+    summary: `${n} courses. The bottom course is always the thickest and this one needs ${thickest.requiredIn.toFixed(4)} in, governed by ${thickest.governing}. The water test governs ${testGoverned.length} of them${lastTest ? ` up to course ${lastTest}` : ''}, and the stated ${courses[0].minimumThicknessIn} in minimum governs ${minimumGoverned.length}${firstMin ? ` from course ${firstMin} up` : ''}`,
   };
 };
 

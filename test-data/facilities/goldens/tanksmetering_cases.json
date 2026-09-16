@@ -83,11 +83,11 @@
    "diameterFt": 110.0,
    "expansionFactorKe": 0.04903897019925939,
    "molecularWeight": 65.0,
-   "saturationFactorKs": 0.32051282051282054,
-   "standingLossLbYr": 24922.338618338137,
+   "saturationFactorKs": 0.3205128205128205,
+   "standingLossLbYr": 24922.33861833813,
    "tempSwingF": 20.0,
    "throughputBbl": 450000.0,
-   "totalLossLbYr": 140417.5491040668,
+   "totalLossLbYr": 140417.54910406677,
    "vapourDensityLbFt3": 0.04571239005001051,
    "vapourPressurePsia": 4.0,
    "vapourSpaceFt3": 95033.17777109124,
@@ -128,15 +128,15 @@
  "fireBandEdges": [
   {
    "areaFt2": 200.0,
-   "ratioAcrossEdge": 0.9996092944941921
+   "ratioAcrossEdge": 0.9996092944941922
   },
   {
    "areaFt2": 1000.0,
-   "ratioAcrossEdge": 1.0006895018706503
+   "ratioAcrossEdge": 1.0006895018706499
   },
   {
    "areaFt2": 2800.0,
-   "ratioAcrossEdge": 0.9998683569017234
+   "ratioAcrossEdge": 0.9998683569017236
   }
  ],
  "fireDuty": [
@@ -147,22 +147,22 @@
   },
   {
    "environmentFactor": 1.0,
-   "qBtuHr": 3980000.000000001,
+   "qBtuHr": 3980000.0,
    "wettedFt2": 199.0
   },
   {
    "environmentFactor": 1.0,
-   "qBtuHr": 4009740.500763931,
+   "qBtuHr": 4009740.5007639313,
    "wettedFt2": 201.0
   },
   {
    "environmentFactor": 1.0,
-   "qBtuHr": 9367173.385254063,
+   "qBtuHr": 9367173.385254065,
    "wettedFt2": 900.0
   },
   {
    "environmentFactor": 1.0,
-   "qBtuHr": 9952985.243281102,
+   "qBtuHr": 9952985.2432811,
    "wettedFt2": 1001.0
   },
   {
@@ -172,17 +172,17 @@
   },
   {
    "environmentFactor": 1.0,
-   "qBtuHr": 14093408.62182142,
+   "qBtuHr": 14093408.621821424,
    "wettedFt2": 2801.0
   },
   {
    "environmentFactor": 1.0,
-   "qBtuHr": 22665990.285169605,
+   "qBtuHr": 22665990.28516961,
    "wettedFt2": 5000.0
   },
   {
    "environmentFactor": 0.3,
-   "qBtuHr": 2810152.0155762187,
+   "qBtuHr": 2810152.015576219,
    "wettedFt2": 900.0
   }
  ],
