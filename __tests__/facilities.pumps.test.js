@@ -22,6 +22,7 @@ import {
   speedChange, impellerTrim, viscosityCorrection,
   combineParallel, combineSeries, operatingRegion,
 } from '../engines/facilities/pumps';
+import { KW_PER_HP } from '../lib/units/fieldUnits';
 
 const G = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', 'test-data', 'facilities', 'goldens', 'pumps_cases.json'),
@@ -219,7 +220,13 @@ describe('the operating region', () => {
     expect(operatingRegion({ qGpm: 1000, qBepGpm: 1000 }).region).toBe('preferred');
     expect(operatingRegion({ qGpm: 600, qBepGpm: 1000 }).region).toBe('allowable, low');
     expect(operatingRegion({ qGpm: 600, qBepGpm: 1000 }).note).toMatch(/recirculation/);
-    expect(operatingRegion({ qGpm: 1300, qBepGpm: 1000 }).note).toMatch(/NPSH required climbs/);
+    // G5. The note used to end "check the suction margin again at this
+    // duty", which is advice a reader cannot follow: npshrFt is a SCALAR
+    // input to npshCheck and there is no NPSHr-against-flow curve
+    // anywhere in this module, so re-checking rereads the same number.
+    // The note now says where the curve has to come from.
+    expect(operatingRegion({ qGpm: 1300, qBepGpm: 1000 }).note).toMatch(/required NPSH climbs steeply with flow/);
+    expect(operatingRegion({ qGpm: 1300, qBepGpm: 1000 }).note).toMatch(/single number rather than a curve/);
     const throttled = operatingRegion({ qGpm: 300, qBepGpm: 1000 });
     expect(throttled.region).toBe('outside');
     expect(throttled.note).toMatch(/variable speed drive/);
@@ -261,5 +268,299 @@ describe('the pump warnings print a value off their own threshold', () => {
     expect(v.cEta).toBeGreaterThan(0.595);
     expect(v.warning).toMatch(/59\.8 percent/);
     expect(v.warning).not.toMatch(/\b60 percent\b/);
+  });
+});
+
+/* ==================================================================== *
+ * FC3-0. The repair wave before the NextGen Rotating Equipment course.
+ *
+ * Eleven inputs returned a confident wrong number and eighteen returned a
+ * NaN or an Infinity with NO error key, so every caller's
+ * `if (result.error)` guard passed and the non-finite value propagated.
+ * Each test below names the defective input, the corrected behaviour and
+ * the boundary, because a guard tested only in the middle of its range is
+ * a guard nobody has checked the edge of.
+ * ==================================================================== */
+
+describe('FC3-0: a refusal is a named refusal', () => {
+  const duty = { qGpm: 1000, headFt: 300, brakeHp: 100 };
+
+  test('systemCurve refuses a missing static head, and keeps a negative one', () => {
+    // The object used to look healthy: kFt was right, staticHeadFt was
+    // undefined, and headAt(q) was NaN at every flow, so the failure only
+    // appeared when the curve was called.
+    const missing = systemCurve({ frictionHeadFt: 200, atFlowGpm: 1500 });
+    expect(missing.error).toMatch(/needs a static head/);
+    // negative is legal: the destination can sit below the pump
+    const below = systemCurve({ staticHeadFt: -40, frictionHeadFt: 200, atFlowGpm: 1500 });
+    expect(below.error).toBeUndefined();
+    expect(below.headAt(1500)).toBeCloseTo(160, 9);
+    // and zero is legal
+    expect(systemCurve({ staticHeadFt: 0, frictionHeadFt: 200, atFlowGpm: 1500 }).headAt(0)).toBe(0);
+  });
+
+  test('pumpPower bounds the motor efficiency it used to divide by unchecked', () => {
+    const base = { qGpm: 1500, headFt: 300, sg: 0.85, efficiency: 0.78 };
+    // 5 returned a motor drawing a fifth of what its shaft delivers
+    expect(pumpPower({ ...base, motorEfficiency: 5 }).error).toMatch(/motor efficiency/);
+    // -0.5 returned -184.7 kW
+    expect(pumpPower({ ...base, motorEfficiency: -0.5 }).error).toMatch(/motor efficiency/);
+    // 0 returned Infinity with no error key
+    expect(pumpPower({ ...base, motorEfficiency: 0 }).error).toMatch(/motor efficiency/);
+    // BOUNDARY: 1 is a real machine-shop answer and is allowed; just past is not
+    const unity = pumpPower({ ...base, motorEfficiency: 1 });
+    expect(unity.error).toBeUndefined();
+    expect(unity.motorInputHp).toBeCloseTo(unity.brakeHp, 12);
+    expect(pumpPower({ ...base, motorEfficiency: 1.0001 }).error).toMatch(/motor efficiency/);
+  });
+
+  test('npshCheck refuses an available head it cannot read', () => {
+    // absent: pass false beside severity 'adequate', in one object
+    expect(npshCheck({ npshrFt: 12 }).error).toMatch(/finite available NPSH/);
+    expect(npshCheck({ npshaFt: NaN, npshrFt: 12 }).error).toMatch(/finite available NPSH/);
+    // Infinity: pass TRUE beside severity 'adequate'
+    expect(npshCheck({ npshaFt: Infinity, npshrFt: 12 }).error).toMatch(/finite available NPSH/);
+    // BOUNDARY: a finite available head below required is a verdict, not a refusal
+    const cavitating = npshCheck({ npshaFt: -5, npshrFt: 12 });
+    expect(cavitating.error).toBeUndefined();
+    expect(cavitating.severity).toBe('cavitating');
+  });
+
+  test('npshAvailable refuses unreadable suction terms and keeps negative ones', () => {
+    const base = { suctionPressurePsia: 14.7, vapourPressurePsia: 0.5, sg: 0.85 };
+    expect(npshAvailable({ ...base, staticSuctionLiftFt: NaN }).error).toMatch(/static suction head/);
+    expect(npshAvailable({ ...base, suctionFrictionFt: NaN }).error).toMatch(/static suction head/);
+    // BOUNDARY: a pump above its source is a negative static term and is legal
+    const lift = npshAvailable({ ...base, staticSuctionLiftFt: -12, suctionFrictionFt: 3 });
+    expect(lift.error).toBeUndefined();
+    expect(lift.npshaFt).toBeCloseTo(lift.pressureHeadFt - 15, 9);
+  });
+
+  test('speedChange and impellerTrim refuse a change with no duty to change', () => {
+    // all three outputs were NaN; four were, respectively
+    expect(speedChange({ speedRatio: 0.8 }).error).toMatch(/needs a duty to change/);
+    expect(impellerTrim({ diameterRatio: 0.8 }).error).toMatch(/needs a duty to trim/);
+    // BOUNDARY: a zero-power duty is readable and is not refused
+    expect(speedChange({ ...duty, brakeHp: 0, speedRatio: 0.8 }).error).toBeUndefined();
+  });
+
+  test('viscosityCorrection refuses a speed it cannot turn at', () => {
+    const base = { qBepGpm: 1500, headBepFt: 300, viscosityCSt: 100 };
+    // 0 gave B Infinity and every factor 0; negative gave all NaN and no warning
+    expect(viscosityCorrection({ ...base, speedRpm: 0 }).error).toMatch(/positive pump speed/);
+    expect(viscosityCorrection({ ...base, speedRpm: -3560 }).error).toMatch(/positive pump speed/);
+    expect(viscosityCorrection({ ...base, speedRpm: 1 }).error).toBeUndefined();
+  });
+
+  test('the two bare-number converters hold a NaN contract, never Infinity', () => {
+    // These have nowhere to put an error key. The contract is that they
+    // return NaN and never a plausible number: sg 0 used to give Infinity.
+    expect(psiToHeadFt({ psi: 100, sg: 0 })).toBeNaN();
+    expect(psiToHeadFt({ psi: 100, sg: -1 })).toBeNaN();
+    expect(headFtToPsi({ sg: 1 })).toBeNaN();
+    expect(headFtToPsi({ headFt: 231, sg: 0 })).toBeNaN();
+    // BOUNDARY: the round trip still holds where the inputs are readable
+    expect(psiToHeadFt({ psi: headFtToPsi({ headFt: 231, sg: 0.85 }), sg: 0.85 })).toBeCloseTo(231, 9);
+  });
+});
+
+describe('FC3-0: the numbers that were confidently wrong', () => {
+  const duty = { qGpm: 1000, headFt: 300, brakeHp: 100 };
+
+  test('P2: a duty point is not returned for a curve the module has disowned', () => {
+    const rising = fitPumpCurve({
+      points: [{ qGpm: 0, headFt: 100 }, { qGpm: 500, headFt: 150 }, { qGpm: 1000, headFt: 260 }],
+    });
+    expect(rising.droops).toBe(false);
+    expect(rising.warning).toMatch(/must droop/);
+    const system = systemCurve({ staticHeadFt: 50, frictionHeadFt: 60, atFlowGpm: 500 });
+    // it used to return 833.333 gpm at 216.667 ft, which the studio printed
+    // as its two headline figures with the warning beneath them
+    const d = dutyPoint({ pump: rising, system, qMaxGpm: 3000 });
+    expect(d.error).toMatch(/not a centrifugal head curve/);
+    expect(d.qGpm).toBeUndefined();
+    // and the disowning travels through a combination, which is the only
+    // way a flag on the fit can reach a curve built out of it
+    expect(dutyPoint({ pump: combineParallel({ pump: rising, n: 2 }), system, qMaxGpm: 3000 }).error)
+      .toMatch(/not a centrifugal head curve/);
+    // BOUNDARY: a drooping curve is still solved
+    const ok = fitPumpCurve({
+      points: [{ qGpm: 0, headFt: 180 }, { qGpm: 500, headFt: 168 }, { qGpm: 1000, headFt: 130 }],
+    });
+    expect(ok.droops).toBe(true);
+    expect(dutyPoint({ pump: ok, system, qMaxGpm: 3000 }).error).toBeUndefined();
+  });
+
+  test('P4: the affinity laws still apply exactly, and the extrapolation is named', () => {
+    // the law is unchanged: this is the control
+    const modest = speedChange({ ...duty, speedRatio: 0.8 });
+    expect(modest.qGpm).toBeCloseTo(800, 9);
+    expect(modest.brakeHp).toBeCloseTo(51.2, 9);
+    expect(modest.warning).toBeNull();
+    // a ratio of 100 returned 100,000,000 brake hp with nothing to say so
+    const wild = speedChange({ ...duty, speedRatio: 100 });
+    expect(wild.brakeHp).toBe(1e8);
+    expect(wild.warning).toMatch(/far outside the range/);
+    // BOUNDARY: the band is inclusive at each end
+    expect(speedChange({ ...duty, speedRatio: 0.5 }).warning).toBeNull();
+    expect(speedChange({ ...duty, speedRatio: 1.5 }).warning).toBeNull();
+    expect(speedChange({ ...duty, speedRatio: 0.49 }).warning).toMatch(/far outside/);
+    expect(speedChange({ ...duty, speedRatio: 1.51 }).warning).toMatch(/far outside/);
+  });
+
+  test('P5: the efficiency a trim implies is stated instead of left to be divided out', () => {
+    const deep = impellerTrim({ ...duty, diameterRatio: 0.75 });
+    // head takes the whole shortfall, flow half of it, power none
+    expect(deep.shortfallPct).toBe(12);
+    expect(deep.impliedEfficiencyRatio).toBeCloseTo(0.94 * 0.88, 12);
+    expect(deep.impliedEfficiencyRatio).toBeCloseTo(0.8272, 12);
+    // and it is exactly the product a reader would form by division
+    expect(deep.impliedEfficiencyRatio)
+      .toBeCloseTo((deep.qGpm / deep.idealQGpm) * (deep.headFt / deep.idealHeadFt), 12);
+    // BOUNDARY: with no shortfall the trim is ideal and the ratio is 1
+    expect(impellerTrim({ ...duty, diameterRatio: 0.97 }).impliedEfficiencyRatio).toBe(1);
+  });
+
+  test('F8: the five percent boundary falls where the rule says, not where binary does', () => {
+    // (1 - 0.95) * 100 is 5.000000000000004, so `trimPct <= 5` was false at
+    // the very ratio the rule says carries no shortfall
+    const at = impellerTrim({ ...duty, diameterRatio: 0.95 });
+    expect(at.trimPercent).toBeGreaterThan(5);          // the float is still the float
+    expect(at.shortfallPct).toBe(0);                     // the rule is not
+    expect(at.headFt).toBe(at.idealHeadFt);
+    expect(at.qGpm).toBe(at.idealQGpm);
+    // BOUNDARY: a ten-thousandth past it and the shortfall is real again
+    const past = impellerTrim({ ...duty, diameterRatio: 0.9499 });
+    expect(past.shortfallPct).toBeGreaterThan(0);
+    expect(past.shortfallPct).toBeCloseTo(0.006, 9);
+    // the 20 percent warning boundary is exclusive by the same slack
+    expect(impellerTrim({ ...duty, diameterRatio: 0.8 }).warning).toBeNull();
+    expect(impellerTrim({ ...duty, diameterRatio: 0.7999 }).warning).toMatch(/beyond what most casings/);
+  });
+
+  test('G3: B is the parameter on every branch and the corrected values are always present', () => {
+    const base = { qBepGpm: 1150, headBepFt: 430, speedRpm: 1780 };
+    const water = viscosityCorrection({ ...base, viscosityCSt: 1 });
+    // it used to report B: 0 here, a sentinel dressed as a value
+    expect(water.B).toBeGreaterThan(0);
+    const justOver = viscosityCorrection({ ...base, viscosityCSt: 1.000001 });
+    // a millionth of a centistoke moved the reported B from 0 to 0.4257
+    expect(water.B).toBeCloseTo(justOver.B, 5);
+    // and the answer on a no-correction branch is the catalogue value, which
+    // is a value: both keys used to be absent on exactly these rows
+    expect(water.correctedQGpm).toBe(1150);
+    expect(water.correctedHeadFt).toBe(430);
+    expect(water.cQ).toBe(1);
+    expect(justOver.correctedQGpm).toBe(1150);
+    // BOUNDARY: a corrected row still corrects
+    const corrected = viscosityCorrection({ ...base, viscosityCSt: 100 });
+    expect(corrected.correctedQGpm).toBeLessThan(1150);
+    expect(corrected.note).toBeNull();
+  });
+
+  test('G6: a machine count is a whole number of machines', () => {
+    const pump = fitPumpCurve({
+      points: [{ qGpm: 0, headFt: 540 }, { qGpm: 600, headFt: 512 }, { qGpm: 1200, headFt: 424 }],
+    });
+    // two and a half pumps in parallel used to return a curve and read a head
+    expect(combineParallel({ pump, n: 2.5 }).error).toMatch(/whole number of machines/);
+    expect(combineSeries({ pump, n: 1.5 }).error).toMatch(/whole number of machines/);
+    expect(combineParallel({ pump, n: 0 }).error).toMatch(/whole number of machines/);
+    // BOUNDARY: one machine is a machine
+    expect(combineParallel({ pump, n: 1 }).error).toBeUndefined();
+    expect(combineSeries({ pump, n: 3 }).headAt(1000)).toBeCloseTo(3 * pump.headAt(1000), 9);
+  });
+
+  test('G8: R squared is null when there is no variance to explain', () => {
+    const flat = fitPumpCurve({
+      points: [{ qGpm: 0, headFt: 140 }, { qGpm: 500, headFt: 140 }, { qGpm: 1000, headFt: 140 }],
+    });
+    // it used to return 1, reporting a horizontal line that explains nothing
+    // as a perfect fit, beside a droop warning saying the opposite
+    expect(flat.rSquared).toBeNull();
+    expect(flat.warning).toMatch(/must droop/);
+    // BOUNDARY: a real fit still reports a real R squared
+    const real = fitPumpCurve({
+      points: [{ qGpm: 0, headFt: 540 }, { qGpm: 600, headFt: 512 }, { qGpm: 1200, headFt: 424 }, { qGpm: 1900, headFt: 250 }],
+    });
+    expect(real.rSquared).toBeGreaterThan(0.99);
+    expect(real.rSquared).toBeLessThanOrEqual(1);
+  });
+
+  test('F4: the kilowatt packaging is the derived constant, not 0.7457', () => {
+    const p = pumpPower({ qGpm: 1500, headFt: 300, sg: 0.85, efficiency: 0.78, motorEfficiency: 1 });
+    expect(p.motorInputKw / p.motorInputHp).toBe(KW_PER_HP);
+    // the rounding it replaces was 1.722e-7 high, which is a cause and not a
+    // tolerance: this asserts the direction and the size of the correction
+    expect(0.7457 / KW_PER_HP).toBeCloseTo(1.0000001722110123, 15);
+  });
+});
+
+describe('FC3-0: G4, the solve reports what it did', () => {
+  const points = [
+    { qGpm: 0, headFt: 540 }, { qGpm: 600, headFt: 512 },
+    { qGpm: 1200, headFt: 424 }, { qGpm: 1900, headFt: 250 },
+  ];
+
+  test('the duty point carries the evidence of its own bisection', () => {
+    const pump = fitPumpCurve({ points });
+    const system = systemCurve({ staticHeadFt: 210, frictionHeadFt: 165, atFlowGpm: 1100 });
+    const d = dutyPoint({ pump, system, qMaxGpm: 7500 });
+    // it used to return { qGpm, headFt } and nothing else, after a fixed
+    // 200 halvings, whatever had happened inside them
+    expect(d.converged).toBe(true);
+    expect(d.warning).toBeNull();
+    expect(d.iterations).toBeGreaterThan(0);
+    expect(d.iterations).toBeLessThan(200);
+    expect(Math.abs(d.residualFt)).toBeLessThan(1e-9);
+    // the crossing is a crossing: the two curves agree there
+    expect(d.systemHeadFt).toBeCloseTo(d.headFt, 9);
+  });
+
+  test('NEGATIVE CONTROL: a curve that goes non-finite inside the bracket is not reported as converged', () => {
+    // `diff(mid) > 0` is false for NaN, so every halving moved the upper
+    // bound down and the loop marched quietly to the bottom of the range
+    // and returned a flow with no crossing under it. A flag made only of
+    // the bracket width could not have caught this, because the bracket
+    // collapses perfectly well on nonsense.
+    const poisoned = {
+      droops: true,
+      headAt: (q) => (q > 900 ? NaN : 540 - (q / 1200) ** 2 * 116),
+    };
+    const system = systemCurve({ staticHeadFt: 210, frictionHeadFt: 165, atFlowGpm: 1100 });
+    const d = dutyPoint({ pump: poisoned, system, qMaxGpm: 7500 });
+    expect(d.converged).toBe(false);
+    expect(d.warning).toMatch(/crossing is not resolved/);
+    // and the control is a control: the same system on a sound curve passes
+    expect(dutyPoint({ pump: fitPumpCurve({ points }), system, qMaxGpm: 7500 }).converged).toBe(true);
+  });
+
+  test('the curve fit reports the conditioning of the system it solved', () => {
+    const f = fitPumpCurve({ points });
+    // rSquared measures the FIT; nothing measured the SOLVE. On the swept
+    // catalogue sets this sits in the hundreds, which is a comfortable
+    // solve in double precision.
+    expect(f.conditionNumber).toBeGreaterThan(1);
+    expect(f.conditionNumber).toBeLessThan(1e4);
+    expect(f.conditioningNote).toBeNull();
+    // and it is a measurement, not a constant: crowding the flows together
+    // makes the normal equations far worse and the note fires
+    const crowded = fitPumpCurve({
+      points: [
+        { qGpm: 1000, headFt: 500 }, { qGpm: 1001, headFt: 499.99992 },
+        { qGpm: 1002, headFt: 499.99968 }, { qGpm: 1003, headFt: 499.99928 },
+      ],
+    });
+    expect(crowded.error).toBeUndefined();
+    expect(crowded.conditionNumber).toBeGreaterThan(f.conditionNumber * 1e6);
+    expect(crowded.conditioningNote).toMatch(/condition number/);
+    // and a set crowded past what the pivot will carry is still refused
+    // outright rather than reported with a condition number
+    expect(fitPumpCurve({
+      points: [
+        { qGpm: 1000, headFt: 500 }, { qGpm: 1000.0001, headFt: 499.99999 },
+        { qGpm: 1000.0002, headFt: 499.99997 }, { qGpm: 1000.0003, headFt: 499.99994 },
+      ],
+    }).error).toMatch(/degenerate/);
   });
 });
