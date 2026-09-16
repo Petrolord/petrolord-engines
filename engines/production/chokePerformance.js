@@ -26,7 +26,16 @@
  *
  * Field units: velocity ft/s, density lb/ft3, pressure psia,
  * temperature degF, diameter in, rate stb/d and Mscf/d.
+ *
+ * The barrel is imported rather than written here. It used to be the
+ * truncated 5.614583 while engines/facilities/lineHydraulics.js, which
+ * composes this module in the Pipeline & Line Sizing Studio's single
+ * chain, carried it exactly: one part in seventeen million, in the same
+ * chain, with nothing downstream able to say which of the two it held.
+ * This module's own SI oracle already worked from the exact barrel, so
+ * the goldens said which half was right before anyone asked.
  */
+import { CUFT_PER_BBL, S_PER_DAY } from '../../lib/units/fieldUnits.js';
 
 /**
  * API RP 14E erosional velocity:
@@ -69,7 +78,7 @@ export const mixtureVelocityFtS = ({ inSituBpd, idIn }) => {
   const areaFt2 = pipeAreaFt2(idIn);
   if (!(areaFt2 > 0)) return NaN;
   // bbl/d -> ft3/s
-  return (inSituBpd * 5.614583) / 86400 / areaFt2;
+  return (inSituBpd * CUFT_PER_BBL) / S_PER_DAY / areaFt2;
 };
 
 /**
@@ -103,7 +112,7 @@ export const erosionalCheck = ({
 export const erosionalRateBpd = ({ idIn, mixtureDensityLbFt3, cFactor = 100 }) => {
   const ve = erosionalVelocityFtS({ mixtureDensityLbFt3, cFactor });
   if (!Number.isFinite(ve)) return NaN;
-  return (ve * pipeAreaFt2(idIn) * 86400) / 5.614583;
+  return (ve * pipeAreaFt2(idIn) * S_PER_DAY) / CUFT_PER_BBL;
 };
 
 // ---------------------------------------------------------------- fitting
