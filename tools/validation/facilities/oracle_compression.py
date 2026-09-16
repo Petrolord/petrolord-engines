@@ -23,9 +23,30 @@ import json
 import math
 import os
 
-R_UNIVERSAL = 1545.349
-MW_AIR = 28.9625
-LBMOL_SCF = 379.49
+# THE PACKAGE'S CONSTANTS, DECLARED AS INPUTS, AND THE BASE DERIVED.
+#
+# engines/production/gasProperties.js is the domain's owner of the gas
+# constant and of the molecular weight of air, and compression.js now
+# imports both rather than carrying private copies (it used to carry
+# 1545.349 against the owner's 10.7316 psia.ft3, a ratio of
+# 0.999999094). Those two are carried here as DECLARED INPUTS, exactly
+# as z is, because the quantity this oracle checks is the head
+# integral, the temperature march and the horsepower packaging, not the
+# value of a constant the package has chosen.
+#
+# What is NOT copied is the standard molar volume. The module used to
+# quote LBMOL_SCF = 379.49 and separately work its inlet volumes from a
+# different base (14.7 psia, 520 degR), three parts in ten thousand
+# away, so the same MMscfd meant two different molar quantities. Here
+# the 60 degF base is stated once and the molar volume is DERIVED from
+# the ideal gas law, which is the check.
+R_PSIA_FT3 = 10.7316           # gasProperties.js, the owner
+SQ_IN_PER_SQ_FT = 144
+R_UNIVERSAL = R_PSIA_FT3 * SQ_IN_PER_SQ_FT     # ft.lbf/(lbmol.degR)
+MW_AIR = 28.9625               # gasProperties.js AIR_MW
+STD_PRESSURE_PSIA = 14.696
+STD_TEMPERATURE_R = 519.67
+LBMOL_SCF = R_PSIA_FT3 * STD_TEMPERATURE_R / STD_PRESSURE_PSIA
 FT_LBF_TO_J = 1.35581794833
 LBM_TO_KG = 0.45359237
 HP_TO_W = 745.6998715822702
