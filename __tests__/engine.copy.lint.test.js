@@ -174,7 +174,10 @@ describe('engine copy lint (items 17 and 62)', () => {
  * filed for the owner to decide on rather than quietly fixed or quietly
  * ignored. The list may only ever shrink.
  *
- * Dated 4 September 2026. 17 entries.
+ * Dated 4 September 2026, 17 entries. 16 after FC8-0: metering.js's
+ * uncertainty note no longer rounds its share of variance to a whole
+ * percent, so the ratchet has shrunk by one, which is the only direction
+ * it may move.
  */
 const KNOWN_ROUNDING = new Set([
   'engines/drilling/cementing.js::Achieved TOC',
@@ -185,7 +188,6 @@ const KNOWN_ROUNDING = new Set([
   'engines/facilities/compression.js::${acfm.toFixed(0)} acfm at a modest',
   'engines/facilities/compression.js::overall ratio',
   'engines/facilities/heatTransfer.js::tube-side Reynolds',
-  'engines/facilities/metering.js::${sorted[0].name} contributes',
   'engines/fluid/experiments.js::No gas evolved at',
   'engines/production/allocation.js::Oil ${Math.round(oil)',
   'engines/production/allocation.js::Test oil',
