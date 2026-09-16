@@ -146,6 +146,94 @@ def gas_case(eq, p1, p2, d_in, l_mi, sg, t_r, z, e, dz_ft, mu_cp=0.011,
     return row
 
 
+def gas_outlet_closed_form(eq, q_scfd, p1, d_in, l_mi, sg, t_r, z, e, dz_ft,
+                           mu_cp=0.011, rough_in=0.0007):
+    """Invert the SI form for the outlet pressure IN CLOSED FORM.
+
+    Each published form is q = A * driving^b, so driving = (q/A)^(1/b) and
+    p2 = sqrt((p1^2 - driving) / es). There is no bracket and in particular
+    no assumption that p2 lies below p1: on a DESCENDING line es < 1 and the
+    outlet pressure the rate implies can legitimately exceed the inlet,
+    which is the case the engine's bisection could not reach. For General
+    Flow the friction factor is fixed by the RATE alone -- the Reynolds
+    number depends on q and not on p2 -- so the direction the engine has to
+    iterate is the one that closes in one step here.
+    """
+    p1k = p1 * PSI / 1000.0
+    d_mm = d_in * 25.4
+    l_km = l_mi * MILE / 1000.0
+    t_k = t_r / 1.8
+    s_el = elevation_s(sg, dz_ft, t_r, z)
+    if abs(s_el) < 1e-12:
+        es, le_km = 1.0, l_km
+    else:
+        es = math.exp(s_el)
+        le_km = l_km * (es - 1.0) / s_el
+    q = q_scfd * CUFT                      # scfd -> m3/day at the same base
+    if eq == "weymouth":
+        a = 3.7435e-3 * e * (TB_K / PB_KPA) * d_mm ** 2.667 / math.sqrt(
+            sg * t_k * le_km * z)
+        b = 0.5
+    elif eq == "panhandleA":
+        a = (4.5965e-3 * e * (TB_K / PB_KPA) ** 1.0788 * d_mm ** 2.6182
+             / (sg ** 0.8539 * t_k * le_km * z) ** 0.5394)
+        b = 0.5394
+    elif eq == "panhandleB":
+        a = (1.002e-2 * e * (TB_K / PB_KPA) ** 1.02 * d_mm ** 2.53
+             / (sg ** 0.961 * t_k * le_km * z) ** 0.51)
+        b = 0.51
+    elif eq == "general":
+        rho_base = (PB_KPA * 1000.0) * (M_AIR * sg) / (R_GAS * TB_K)
+        mdot = rho_base * q / 86400.0
+        re = 4.0 * mdot / (math.pi * (d_in * IN) * (mu_cp * CP))
+        f = colebrook(re, rough_in / d_in)
+        a = 1.1494e-3 * e * (TB_K / PB_KPA) * d_mm ** 2.5 / math.sqrt(
+            sg * t_k * le_km * z * f)
+        b = 0.5
+    else:
+        raise ValueError(eq)
+    driving = (q / a) ** (1.0 / b)
+    inner = (p1k * p1k - driving) / es
+    if inner < 0:
+        return None
+    return math.sqrt(inner) * 1000.0 / PSI
+
+
+def outlet_cases():
+    """The inverse solve, including the two brackets that were wrong.
+
+    Row 4 onward is a DESCENT steep enough that the outlet the rate implies
+    stands ABOVE the inlet, and the last row is an ASCENT read at a modest
+    rate, where the outlet cannot reach the inlet at any rate at all because
+    the static column spends 75 psi of it.
+    """
+    rows = []
+    for eq, p1, p2, d, l, sg, t, z, e, dz in [
+        ("weymouth", 1000, 700, 8.0, 25.0, 0.65, 540.0, 0.87, 1.0, 0.0),
+        ("weymouth", 1000, 700, 8.0, 25.0, 0.65, 540.0, 0.87, 1.0, 800.0),
+        ("weymouth", 1000, 700, 8.0, 25.0, 0.65, 540.0, 0.87, 1.0, -800.0),
+        ("weymouth", 1000, 1010, 8.0, 25.0, 0.65, 540.0, 0.87, 1.0, -3000.0),
+        ("panhandleA", 1000, 1010, 8.0, 25.0, 0.65, 540.0, 0.87, 1.0, -3000.0),
+        ("panhandleB", 1000, 1010, 8.0, 25.0, 0.65, 540.0, 0.87, 1.0, -3000.0),
+        ("general", 1000, 1010, 8.0, 25.0, 0.65, 540.0, 0.87, 1.0, -3000.0),
+        ("weymouth", 1000, 900, 8.0, 25.0, 0.65, 540.0, 0.87, 1.0, 3000.0),
+    ]:
+        fwd = gas_case(eq, p1, p2, d, l, sg, t, z, e, dz)
+        back = gas_outlet_closed_form(eq, fwd["qScfd"], p1, d, l, sg, t, z, e, dz)
+        row = {
+            "equation": eq, "p1Psia": p1, "p2SetPsia": p2, "idIn": d,
+            "lengthMi": l, "sg": sg, "tAvgR": t, "zAvg": z, "efficiency": e,
+            "elevChangeFt": dz, "qScfd": fwd["qScfd"],
+            "p2RecoveredPsia": back,
+            "p2AboveInlet": p2 > p1,
+        }
+        if eq == "general":
+            row["muCp"] = 0.011
+            row["roughnessIn"] = 0.0007
+        rows.append(row)
+    return rows
+
+
 def barlow_case(design_psig, od_in, smys_psi, code, loc, joint, temp, ca_in):
     f = 0.72 if code == "B31.4" else {1: 0.72, 2: 0.60, 3: 0.50, 4: 0.40}[loc]
     p = design_psig * PSI
@@ -216,6 +304,8 @@ def main():
         barlow_case(720, 6.625, 35000, "B31.8", 4, 1.0, 0.967, 0.05),
     ]
 
+    out["outlet"] = outlet_cases()
+
     out["pigging"] = pigging_cases()
 
     here = os.path.dirname(os.path.abspath(__file__))
@@ -227,7 +317,9 @@ def main():
         json.dump(out, fh, indent=1, sort_keys=True)
     print("wrote", dest,
           "| gas rows:", len(out["gas"]),
-          "| liquid rows:", len(out["liquid"]))
+          "| liquid rows:", len(out["liquid"]),
+          "| outlet rows:", len(out["outlet"]),
+          "| cases:", sum(len(v) for v in out.values()))
 
 
 if __name__ == "__main__":
