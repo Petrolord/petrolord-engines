@@ -69,6 +69,16 @@ C = {
     "filterCoefficientPerM": 3.5, "filterReferenceLoadingMHr": 10.0,
     "filterLoadingExponent": 0.5, "filterReferenceDropletMicron": 20.0,
     "filterReferenceMediaMicron": 800.0,
+    # FC7-1. Every threshold this oracle decides a golden WARNING or a
+    # golden REFUSAL on is held here, for the same reason as the rest:
+    # a threshold inlined in a comparison is a threshold nobody
+    # reviews, and this oracle was still deciding three of them on
+    # bare numbers typed at the comparison itself.
+    "starvedTurndown": 0.5,
+    "gasHoldupWarn": 0.2,
+    "flotationResidenceWarnS": 60.0,
+    "filterBreakthroughLoadingMHr": 25.0,
+    "filterMinLoadingMHr": 1.0,
 }
 
 
@@ -370,10 +380,19 @@ def flotation_cut_by_march(parts, steps=20000):
 # ------------------------------------------------------------------ #
 
 def filter_lambda_at(d_micron, q, area, media_micron, lam0, d_ref):
+    """The declared loading law, with NO clamp on the loading rate.
+
+    FC7-0 carried a max(loading, 1) here as well as in the engine, so
+    the two files agreed about a bed area that could not move the
+    answer. The engine now REFUSES below its declared floor instead,
+    and this route answers wherever the engine answers: the rows
+    between the floor and the reference loading are what catch a clamp
+    coming back at any value above the floor.
+    """
     loading_mhr = (q / area) * 3600.0
     media_factor = (C["filterReferenceMediaMicron"] / media_micron) ** 3
     lam_ref = lam0 * media_factor * (
-        C["filterReferenceLoadingMHr"] / max(loading_mhr, 1.0)
+        C["filterReferenceLoadingMHr"] / loading_mhr
     ) ** C["filterLoadingExponent"]
     return lam_ref * (d_micron / d_ref) ** 2
 
@@ -406,6 +425,32 @@ def filter_cut_by_march(q, area, depth, media_micron, lam0, d_ref):
 # ------------------------------------------------------------------ #
 # the distribution and the train, by sampling and particle tracking
 # ------------------------------------------------------------------ #
+
+def midpoint_median(d50, sigma, n_bins, span):
+    """The QUANTISED median of the same grid: the MIDPOINT of the bin
+    the accumulated volume crosses one half in.
+
+    This is not a rival route to the median. It is the wrong answer,
+    computed on purpose, so the gate has something to discriminate
+    against: FC7-0 removed the midpoint median and then left a silent
+    fallback to it, and a gate that only compares the median to its own
+    d50 passes on either route.
+    """
+    ln_lo = math.log(d50) - span * sigma
+    ln_hi = math.log(d50) + span * sigma
+    step = (ln_hi - ln_lo) / n_bins
+    edges = [ln_lo + step * i for i in range(n_bins + 1)]
+    frac = [lognormal_cdf(math.exp(edges[i + 1]), d50, sigma)
+            - lognormal_cdf(math.exp(edges[i]), d50, sigma)
+            for i in range(n_bins)]
+    total = sum(frac)
+    acc = 0.0
+    for i, f in enumerate(frac):
+        if acc + f / total >= 0.5:
+            return math.exp((edges[i] + edges[i + 1]) / 2.0)
+        acc += f / total
+    return float("nan")
+
 
 def lognormal_cdf(d, d50, sigma):
     return 0.5 * (1.0 + math.erf(math.log(d / d50) / (sigma * math.sqrt(2.0))))
@@ -497,10 +542,21 @@ def main():
     ]
 
     # --- the bin grid: the truncated tail is 2 Phi(-span), exactly ---
+    # `midpointMedianMicron` is the QUANTISED answer, built here from
+    # this oracle's own erf-based cdf: the midpoint of the bin the
+    # accumulated volume crosses one half in, which is what FC7-0's
+    # medianOfBins returned whenever a bin arrived without edges. It is
+    # carried so the gate can assert the engine's median is the
+    # interpolated one and is NOT this one, by a margin far outside the
+    # comparison tolerance. A gate that only checks the median against
+    # its own d50 cannot tell the two routes apart at 60 bins: the
+    # identity holds to 3e-9 interpolated and misses by 4.6 percent
+    # quantised, and both are "close to 30".
     out["binGrid"] = [
         {"d50": d50, "sigma": s, "nBins": n, "spanSigma": span,
          "truncatedTailFraction": 2.0 * lognormal_cdf(math.exp(-span), 1.0, 1.0),
-         "medianMicron": d50}
+         "medianMicron": d50,
+         "midpointMedianMicron": midpoint_median(d50, s, n, span)}
         for d50, s, n, span in [(30, 0.7, 60, 4), (30, 0.7, 30, 4),
                                 (12, 0.9, 60, 4), (30, 0.7, 60, 5),
                                 (30, 0.7, 240, 6)]
@@ -659,7 +715,7 @@ def main():
             "turndownRatio": march["turndownRatio"],
             "shearPenalty": march["shearPenalty"],
             "mcCaptureFractionAtCut": mc,
-            "expectStarvedWarning": march["turndownRatio"] < 0.5,
+            "expectStarvedWarning": march["turndownRatio"] < C["starvedTurndown"],
             "expectOverloadWarning": march["turndownRatio"] > C["overloadTurndown"],
         }
         if states_all:
@@ -672,12 +728,22 @@ def main():
 
     # --- flotation, assembled from parts and marched ---
     out["flotation"] = []
+    # FC7-1 adds the two rows that STRADDLE the residence threshold to
+    # within a second: 61.0 s and 59.0 s, on a lean enough gas rate
+    # that the residence warning is the only one in play. Before them
+    # the nearest rows either side were 32 s and 347.8 s, so the
+    # threshold could be moved anywhere in a ten-fold range and every
+    # golden value stayed identical. The threshold itself comes out of
+    # this file's own copy of the declared constants, not out of a
+    # number typed at the comparison.
     for q, vol, n_cells, depth, ratio, bubble, t_c, tds, api, states_all in [
         (0.09201, 8.0, 4, 3.0, 0.2, 300, 48.888888888888886, 35000, 32, False),
         (0.09201, 8.0, 4, 3.0, 0.03, 80, 48.888888888888886, 35000, 32, True),
         (0.05, 8.0, 4, 3.0, 0.2, 300, 50, 35000, 32, True),
         (1.0, 8.0, 4, 3.0, 0.2, 300, 50, 35000, 32, True),
         (0.05, 20.0, 1, 4.0, 0.5, 600, 25, 0, 25, True),
+        (0.1, 6.1, 1, 3.0, 0.05, 300, 48.888888888888886, 35000, 32, True),
+        (0.1, 5.9, 1, 3.0, 0.05, 300, 48.888888888888886, 35000, 32, True),
     ]:
         rho_w = water_density(t_c, tds)
         rho_o = oil_density(api, t_c)
@@ -695,8 +761,10 @@ def main():
             "bubbleReynolds": parts["bubbleReynolds"],
             "gasHoldup": parts["gasHoldup"],
             "d50cMicron": flotation_cut_by_march(parts),
-            "expectResidenceWarning": parts["residenceS"] < 60,
-            "expectHoldupWarning": parts["gasHoldup"] > 0.2,
+            "residenceWarnS": C["flotationResidenceWarnS"],
+            "expectResidenceWarning":
+                parts["residenceS"] < C["flotationResidenceWarnS"],
+            "expectHoldupWarning": parts["gasHoldup"] > C["gasHoldupWarn"],
         }
         if states_all:
             row["cellDepthM"] = depth
@@ -708,12 +776,20 @@ def main():
 
     # --- the filter: one route, marched, and its cut bisected out of it ---
     out["mediaFilter"] = []
+    # FC7-1 adds three rows BETWEEN the declared floor and the declared
+    # reference loading: 3.0, 1.8 and 1.08 m/hr. Every row FC7-0 carried
+    # sat at 11.25 m/hr or above, so a clamp on the loading rate
+    # anywhere below 11 m/hr moved no golden value at all, and one was
+    # there: max(loading, 1), in this file as well as in the engine.
     for q, area, depth, media, lam0, states_all in [
         (0.05, 6.0, 0.9, 800.0, 3.5, False),
         (0.09201, 16.0, 0.9, 800.0, 3.5, True),
         (0.09, 4.0, 1.2, 800.0, 3.5, True),
         (0.05, 16.0, 3.0, 1200.0, 4.2, True),
         (0.09201, 16.0, 0.1, 800.0, 3.5, True),
+        (0.001, 1.2, 0.9, 800.0, 3.5, True),
+        (0.001, 2.0, 0.9, 800.0, 3.5, True),
+        (0.0012, 4.0, 1.1, 650.0, 3.5, True),
     ]:
         d_ref = C["filterReferenceDropletMicron"]
         row = {
@@ -723,13 +799,39 @@ def main():
             "removalAtRefDroplet": filter_march(d_ref, q, area, depth, media, lam0, d_ref),
             "d50cMicron": filter_cut_by_march(q, area, depth, media, lam0, d_ref),
             "referenceDropletMicron": d_ref,
-            "expectBreakthroughWarning": (q / area) * 3600.0 > 25.0,
+            "loadingFloorMHr": C["filterMinLoadingMHr"],
+            "expectBreakthroughWarning":
+                (q / area) * 3600.0 > C["filterBreakthroughLoadingMHr"],
         }
         if states_all:
             row["bedDepthM"] = depth
             row["mediaMicron"] = media
             row["filterCoefficientPerM"] = lam0
         out["mediaFilter"].append(row)
+
+    # --- the beds this module REFUSES, and what it must say about them ---
+    # A POLICY GROUP, and the gate says so: there is no independent
+    # physics to check here, because the whole point is that this module
+    # states no physics below its declared floor. What the group does
+    # carry is the four conditions the FC7-0 clamp answered IDENTICALLY
+    # - 0.18, 0.018, 0.006 and 0.0018 m/hr all reported a filter
+    # coefficient of 11.067972 per m and the same cut to every digit -
+    # so if the floor is ever removed and the clamp restored, the
+    # engine answers where the golden says it must refuse. The floor
+    # itself is straddled to within three parts in a thousand: 3.61 m2
+    # loads at 0.99723 m/hr and must refuse, 3.6 m2 loads at exactly
+    # 1.0 m/hr and must answer.
+    out["mediaFilterFloor"] = [
+        {"flowM3S": q, "areaM2": area,
+         "loadingMHr": (q / area) * 3600.0,
+         "loadingFloorMHr": C["filterMinLoadingMHr"],
+         "areaAtFloorM2": (q * 3600.0) / C["filterMinLoadingMHr"],
+         "referenceLoadingMHr": C["filterReferenceLoadingMHr"],
+         "expectRefusal": (q / area) * 3600.0 < C["filterMinLoadingMHr"]}
+        for q, area in [(0.001, 20.0), (0.001, 200.0), (0.001, 600.0),
+                        (0.001, 2000.0), (0.001, 3.61), (0.001, 3.6),
+                        (0.001, 3.5)]
+    ]
 
     # --- the whole train, by particle tracking ---
     out["train"] = []

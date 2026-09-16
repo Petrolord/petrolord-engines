@@ -136,6 +136,14 @@ export const DECLARED_CONSTANTS = Object.freeze({
   attachmentEfficiency: 0.01,
   gasHoldupWarn: 0.2,
   coarseCutWarnMicron: 100,
+  /** The flotation residence time this module warns under. FC7-0 left
+   *  it as a BARE 60 inlined in the warning itself, the one device
+   *  threshold in the module that was not declared here, against this
+   *  module's own stated doctrine that every number which is a choice
+   *  rather than a derivation lives in this object. It IS a choice: a
+   *  minute of contact is a round figure and no flotation residence
+   *  data in this repository sets it. */
+  flotationResidenceWarnS: 60,
 
   // --- media / walnut shell filter ---
   filterCoefficientPerM: 3.5,
@@ -145,6 +153,37 @@ export const DECLARED_CONSTANTS = Object.freeze({
   filterReferenceMediaMicron: 800,
   filterBreakthroughLoadingMHr: 25,
   filterBedDepthDefaultM: 0.9,
+  /** The loading rate this module STOPS ANSWERING below. It is a
+   *  refusal and not a model.
+   *
+   *  FC7-0 left a silent `Math.max(loadingMHr, 1)` inside the loading
+   *  factor, so below 1 m/hr the bed area moved the answer by exactly
+   *  nothing: at 0.001 m3/s through 20, 200, 600 and 2000 m2 the
+   *  loading read 0.18, 0.018, 0.006 and 0.0018 m/hr while the filter
+   *  coefficient stayed 11.067972 per m and the cut stayed 5.275789
+   *  micron on all four, to every digit. That is the same class this
+   *  module refuses everywhere else - the TDS clamp became a named
+   *  refusal for it - and the same class FC7-0 repaired IN THIS DEVICE
+   *  when it made the bed depth bite. A polishing bed run at a low
+   *  rate reaches it by typing.
+   *
+   *  The clamp is GONE, so wherever this module answers the bed area
+   *  bites. Below the floor it refuses BY NAME, because the loading
+   *  exponent is the only velocity dependence in the model - the
+   *  interception derivation behind lambda carries none at all - and
+   *  it is declared at ONE loading, 10 m/hr, with no published source
+   *  here. A decade under that rate the declared law is already
+   *  claiming 3.162 times the only coefficient this module has any
+   *  calibration for, and extending it further is arithmetic rather
+   *  than a statement about a bed.
+   *
+   *  HELD FOR LITERATURE: what a bed really does far below its design
+   *  rate needs bed data this repository does not carry, so a floor
+   *  that refuses is what this module can honestly say. The value is
+   *  one decade below the declared reference loading, which is a
+   *  stated choice and not a measurement; that it coincides with the
+   *  number the old clamp used is a coincidence and not the reason. */
+  filterMinLoadingMHr: 1,
 
   // --- bands ---
   /** Stokes law is stated for creeping flow. Above this Reynolds
@@ -160,6 +199,13 @@ export const DECLARED_CONSTANTS = Object.freeze({
   sigmaMax: 2,
   sigmaCustomaryMin: 0.5,
   sigmaCustomaryMax: 1.0,
+  /** The coarsest grid and the narrowest span this module will
+   *  integrate on. Both were bare numbers inlined in their own
+   *  refusals until FC7-1, for the same doctrine reason as the
+   *  flotation residence threshold: a threshold nobody can find is a
+   *  threshold nobody reviews. Neither is measured. */
+  minNBins: 10,
+  minSpanSigma: 3,
   /** The inlet spread the train assumes when the caller states none. */
   trainSigmaDefault: 0.7,
 });
@@ -321,17 +367,19 @@ export const dropletBins = ({
   nBins = DECLARED_CONSTANTS.defaultNBins,
   spanSigma = DECLARED_CONSTANTS.defaultSpanSigma,
 }) => {
-  const { sigmaMax, sigmaCustomaryMin, sigmaCustomaryMax } = DECLARED_CONSTANTS;
+  const {
+    sigmaMax, sigmaCustomaryMin, sigmaCustomaryMax, minNBins, minSpanSigma,
+  } = DECLARED_CONSTANTS;
   if (!(d50 > 0)) return { error: 'the droplet distribution needs a positive median diameter d50', d50 };
   if (!(sigma > 0)) return { error: 'the droplet distribution needs a positive log-standard-deviation sigma', sigma };
   if (sigma > sigmaMax) {
     return { error: `a log-standard-deviation of ${sigma} describes a distribution far wider in diameter than produced water carries: this module holds sigma to ${sigmaMax}`, sigma };
   }
-  if (!Number.isFinite(nBins) || nBins < 10 || nBins !== Math.round(nBins)) {
-    return { error: `the distribution needs a whole number of bins, at least 10, and this is ${nBins}`, nBins };
+  if (!Number.isFinite(nBins) || nBins < minNBins || nBins !== Math.round(nBins)) {
+    return { error: `the distribution needs a whole number of bins, at least ${minNBins}, and this is ${nBins}`, nBins };
   }
-  if (!Number.isFinite(spanSigma) || spanSigma < 3) {
-    return { error: `the distribution must span at least 3 sigma either side of the median and this spans ${spanSigma}`, spanSigma };
+  if (!Number.isFinite(spanSigma) || spanSigma < minSpanSigma) {
+    return { error: `the distribution must span at least ${minSpanSigma} sigma either side of the median and this spans ${spanSigma}`, spanSigma };
   }
   const lnLo = Math.log(d50) - spanSigma * sigma;
   const lnHi = Math.log(d50) + spanSigma * sigma;
@@ -426,8 +474,8 @@ export const applyDevice = ({
 };
 
 /**
- * LEAF. Volume-median diameter of a bin set. Bare number, NaN when the
- * bins carry no volume.
+ * LEAF. Volume-median diameter of a bin set. Bare number, NaN on bins
+ * it cannot take the median of.
  *
  * Interpolated in LOG diameter across the bin the median falls in. The
  * bare bin midpoint quantises the answer to the grid: on this module's
@@ -436,12 +484,29 @@ export const applyDevice = ({
  * of magnitude of outlet concentration, and the median of the
  * UNTREATED inlet came back 4.6 percent below the d50 it was built
  * from. Interpolated, the inlet median reproduces its own d50.
+ *
+ * THE MIDPOINT PATH IS CLOSED (FC7-1). FC7-0 interpolated when the bin
+ * carried edges and FELL BACK TO `b.dMicron` when it did not, which is
+ * a silent path back to the quantised median it had just removed: the
+ * same 60-bin inlet answers 30.000000 micron with edges and
+ * 28.632164 without, and nothing said which route ran. Every bin set
+ * this module makes comes out of `dropletBins`, which always carries
+ * edges, and `applyDevice` spreads them through, so no in-module
+ * caller can reach the path at all - it is the EXTERNAL caller's, and
+ * a caller who hands over midpoints alone now gets NaN rather than a
+ * number 4.6 percent light that could pass for an answer. The bins are
+ * checked UP FRONT rather than at the bin the median happens to land
+ * in, so the answer cannot depend on where in a bad grid the median
+ * fell. This is a leaf with nowhere to put an error key, so NaN is the
+ * refusal and the in-module callers turn it into a named one.
  */
 export const medianOfBins = (bins) => {
   if (!Array.isArray(bins) || !bins.length) return NaN;
   let total = 0;
   for (const b of bins) {
     if (!(b.volumeFraction >= 0)) return NaN;
+    // no edges, no median: the midpoint is the quantised answer
+    if (!(b.dLoMicron > 0) || !(b.dHiMicron > b.dLoMicron)) return NaN;
     total += b.volumeFraction;
   }
   if (!(total > 0)) return NaN;
@@ -449,11 +514,9 @@ export const medianOfBins = (bins) => {
   for (const b of bins) {
     const f = b.volumeFraction / total;
     if (acc + f >= 0.5) {
-      if (b.dLoMicron > 0 && b.dHiMicron > b.dLoMicron && f > 0) {
-        const within = (0.5 - acc) / f;
-        return Math.exp(Math.log(b.dLoMicron) + within * Math.log(b.dHiMicron / b.dLoMicron));
-      }
-      return b.dMicron;
+      if (!(f > 0)) return NaN;
+      const within = (0.5 - acc) / f;
+      return Math.exp(Math.log(b.dLoMicron) + within * Math.log(b.dHiMicron / b.dLoMicron));
     }
     acc += f;
   }
@@ -816,7 +879,7 @@ export const flotation = ({
 }) => {
   const {
     bubbleMicronMin, bubbleMicronMax, gasRatioMax, interceptionCoefficient,
-    gasHoldupWarn, coarseCutWarnMicron,
+    gasHoldupWarn, coarseCutWarnMicron, flotationResidenceWarnS,
   } = DECLARED_CONSTANTS;
   if (!(flowM3S > 0)) return { error: 'flotation needs a positive flow in m3/s', flowM3S };
   if (!(cellVolumeM3 > 0)) return { error: 'flotation needs a positive cell volume in m3', cellVolumeM3 };
@@ -859,6 +922,7 @@ export const flotation = ({
     d50cMicron,
     sharpness: DECLARED_CONSTANTS.interceptionSharpness,
     residenceS,
+    residenceWarnS: flotationResidenceWarnS,
     planAreaM2,
     gasFlowPerCellM3S: gasFlowM3S,
     totalGasFlowM3S: gasFlowM3S * nCells,
@@ -873,8 +937,8 @@ export const flotation = ({
     cellDepthM,
     cutBasis: 'interception of droplets on a rising bubble swarm: the rate goes as the square of the droplet diameter and as the gas rate over the cube of the bubble diameter, and the cut size is the droplet the cell removes half of in its residence time',
     warning: joinWarnings([
-      residenceS < 60
-        ? `less than a minute of flotation residence (${residenceS.toFixed(1)} s): the attachment process needs time and this cell is too small for the flow`
+      residenceS < flotationResidenceWarnS
+        ? `${residenceS.toFixed(1)} s of flotation residence is under the ${flotationResidenceWarnS} s this module warns below: the attachment process needs time and this cell is too small for the flow`
         : null,
       gasHoldup > gasHoldupWarn
         ? `a gas holdup of ${(gasHoldup * 100).toFixed(1)} percent: past about ${gasHoldupWarn * 100} percent the bubbles coalesce and churn and a swarm of independent bubbles is no longer what is in the cell`
@@ -922,7 +986,7 @@ export const mediaFilter = ({
 }) => {
   const {
     filterReferenceLoadingMHr, filterLoadingExponent, filterReferenceMediaMicron,
-    filterBreakthroughLoadingMHr,
+    filterBreakthroughLoadingMHr, filterMinLoadingMHr,
   } = DECLARED_CONSTANTS;
   if (!(flowM3S > 0)) return { error: 'a filter needs a positive flow in m3/s', flowM3S };
   if (!(areaM2 > 0)) return { error: 'a filter needs a positive bed area in m2', areaM2 };
@@ -933,13 +997,33 @@ export const mediaFilter = ({
 
   const loadingMS = flowM3S / areaM2;
   const loadingMHr = loadingMS * 3600;
+  // THE FLOOR, AND WHY IT IS A REFUSAL. FC7-0 left a silent
+  // Math.max(loadingMHr, 1) in the loading factor below, so under
+  // 1 m/hr the bed area moved the cut by exactly nothing: 0.18, 0.018,
+  // 0.006 and 0.0018 m/hr all reported a filter coefficient of
+  // 11.067972 per m and the same cut size to every digit. The clamp is
+  // gone, so the area bites wherever this module answers, and below
+  // the floor the module says what it does not know instead of
+  // extrapolating a one-point calibration by three orders of
+  // magnitude. See filterMinLoadingMHr for the whole reason.
+  if (loadingMHr < filterMinLoadingMHr) {
+    const areaAtFloorM2 = (flowM3S * 3600) / filterMinLoadingMHr;
+    const claimAtFloor = (filterReferenceLoadingMHr / filterMinLoadingMHr) ** filterLoadingExponent;
+    return {
+      error: `a loading of ${loadingMHr.toPrecision(3)} m/hr is below the ${filterMinLoadingMHr} m/hr floor this module answers above: the filter coefficient is DECLARED at ${filterReferenceLoadingMHr} m/hr, its loading exponent is the only velocity dependence in this model, and at the floor the declared law is already claiming ${claimAtFloor.toPrecision(4)} times the one coefficient there is any calibration for. ${areaAtFloorM2.toPrecision(4)} m2 of bed would run this flow at the floor. What a bed really does far below its design rate needs bed data this module does not carry`,
+      loadingMHr,
+      areaM2,
+      loadingFloorMHr: filterMinLoadingMHr,
+      areaAtFloorM2,
+    };
+  }
   // the filter coefficient falls with loading rate, and goes as the
   // inverse cube of the grain size at a fixed droplet size, because
   // both the number of collectors per unit volume and the
   // interception efficiency of each one depend on it
   const mediaFactor = (filterReferenceMediaMicron / mediaMicron) ** 3;
   const lambdaAtRefPerM = filterCoefficientPerM * mediaFactor
-    * (filterReferenceLoadingMHr / Math.max(loadingMHr, 1)) ** filterLoadingExponent;
+    * (filterReferenceLoadingMHr / loadingMHr) ** filterLoadingExponent;
   const penetrationAtRefDroplet = Math.exp(-lambdaAtRefPerM * bedDepthM);
   // lambda(d) = lambdaAtRef (d / dRef)^2, so lambda(d50c) L = ln 2
   const d50cMicron = referenceDropletMicron
@@ -948,6 +1032,7 @@ export const mediaFilter = ({
     d50cMicron,
     sharpness: DECLARED_CONSTANTS.interceptionSharpness,
     loadingMHr,
+    loadingFloorMHr: filterMinLoadingMHr,
     bedDepthM,
     mediaMicron,
     referenceDropletMicron,

@@ -1,4 +1,9 @@
-# FINDINGS: produced water treatment (FC7-0, 2026-09-16)
+# FINDINGS: produced water treatment (FC7-0 and FC7-1, 2026-09-16)
+
+Two waves, in one file on purpose. FC7-0 is below; **FC7-1 is the last
+section, and it records three more defects the FC7 course foundation found
+by exercising the engine FC7-0 had just repaired.** All three are classes
+FC7-0 itself named, surviving in places FC7-0 did not look.
 
 The repair wave before the NextGen Produced Water course, taken against
 `engines/facilities/producedWater.js` at engines main `82ec6d4`, its oracle,
@@ -522,3 +527,312 @@ its `fields.json` against this list.
   0.05 / 16 x 3.0 at 1200 um and 4.2, 0.09201 / 16 x 0.1
 - trains: 500 ppm at d50 30 sigma 0.7 through cuts 100 / 4.6 / 11.2 and
   12 / 12 / 12, and 2000 ppm at d50 12 sigma 0.9 through 60 / 18
+
+---
+
+# FC7-1: the three defects the FC7 course foundation found in the REPAIRED engine
+
+FC7-0 drove this battery from 22 of 35 green to 0 of 35. The course
+foundation then exercised the repaired engine to build the digest its 78
+lessons quote, and found three more. All three are the classes FC7-0
+itself named, surviving in places FC7-0 did not look, which is why they
+are recorded here rather than in a new file: **a wave that removes a
+defect class is not finished until the class is gone from the module.**
+
+| | plants | left the suite GREEN |
+| --- | --- | --- |
+| FC7-0's own 35, before FC7-0 | 35 | **22** |
+| FC7-0's own 35, after FC7-0 | 35 | **0** |
+| the same 35 plus FC7-1's 24 and one harness self-test, after FC7-1 | **60** | **0** |
+
+The battery and its runner are checked in this time, at
+`tools/validation/facilities/batteries/battery_producedwater_fc71.{py,json}`,
+and it was run STRICTLY SERIALLY under an exclusive lock on the worktree. It
+carries all 35 of FC7-0's plants, re-run against the repaired source, plus 24
+of FC7-1's own and one harness self-test: **60 cases, 0 GREEN.**
+**THREE** harness defects are closed in the runner, all of which pushed
+the reading the same way by inflating the number of plants that appeared
+to survive. Two were reported to this wave: `plant.sh` scored a plant
+that BROKE PARSING as green, because no `Tests:` line read as no
+failures, and two concurrent batteries on one worktree produced seven
+bogus greens that were all red when re-run serially. The third was
+published while this wave was open, in engines PR #205, which hardened
+the shell runner and gated it against itself: a suite that FAILED TO LOAD
+left the other suite's clean `Tests:` line, so a runner reading one
+summary line and not the other could not tell a passing gate from half a
+gate. This runner requires BOTH summary lines, no `Test suite failed to
+run` anywhere in the output, the expected suite count, and a FLOOR on the
+number of tests; it VERIFIES the restore before and after every plant;
+and it takes an exclusive lock so a second copy refuses to start. A plant
+it cannot read is HARNESS-BROKEN, is never scored in either direction,
+and makes the run exit non-zero. **It carries H1, a deliberate
+parse-breaking plant whose EXPECTED verdict is that refusal**, so the fix
+is not a promise: a runner that scored H1 green would fail its own run.
+It is a Python runner rather than a copy of `plant.sh` because this
+battery is a sixty-case JSON table with per-case oracle regeneration, and
+it is held to the same bar.
+
+Golden inventory: **65 rows in 13 groups before, 77 rows in 14 groups
+after.** The suite went from 68 tests to 78.
+
+## 1. The media filter kept a silent clamp, and below it the bed area moved nothing
+
+`Math.max(loadingMHr, 1)` sat inside the loading factor. Below 1 m/hr
+the bed area moved the answer by EXACTLY NOTHING:
+
+| flow m3/s | bed area m2 | loading m/hr | lambda per m | cut micron |
+| --- | --- | --- | --- | --- |
+| 0.001 | 20 | 0.18 | 11.067972 | 5.275789 |
+| 0.001 | 200 | 0.018 | 11.067972 | 5.275789 |
+| 0.001 | 600 | 0.006 | 11.067972 | 5.275789 |
+| 0.001 | 2000 | 0.0018 | 11.067972 | 5.275789 |
+
+To every digit, on a hundredfold range of bed area. At the module's own
+default bed depth of 0.9 m the cut is 5.275789 micron; the foundation
+measured 5.005053 micron because it took the same four conditions at a
+1.0 m bed, and the flatness is the same either way. It is reachable by
+typing a low rate into a polishing bed: 1 m/hr through the shipped
+studio's own 16 m2 bed is a flow of about 2400 bwpd.
+
+This is the class FC7-0 refused everywhere else - the TDS clamp became a
+named refusal for exactly this reason - and the class FC7-0 repaired IN
+THIS DEVICE when it made the bed depth bite. **The clamp was in the
+oracle too**, at the same value, so the two files agreed about a bed
+area that could not move the answer.
+
+**DECISION: REFUSE below a declared floor, by name. The clamp is gone,
+so wherever this module answers the bed area bites.** The alternative
+was to extend the declared law downward, which is arithmetic rather than
+a statement about a bed: the loading exponent is the ONLY velocity
+dependence in this model - the interception derivation behind lambda
+carries none at all, interception being a geometric mechanism - and it
+is declared at ONE loading, 10 m/hr, with no published source here. A
+decade under that rate the declared law is already claiming 3.162 times
+the only coefficient there is any calibration for, and a tenth of a
+percent of it would claim 100 times. **HELD FOR LITERATURE: what a bed
+really does far below its design rate needs bed data this repository
+does not carry, so a refusal is what this module can honestly say.** No
+citation was invented and the exponent itself stays held, as in FC7-0.
+
+`filterMinLoadingMHr` is declared, pinned, reported on every return as
+`loadingFloorMHr`, and the refusal names the loading, the floor, the
+loading the coefficient is declared at, and the bed that would run this
+flow at the floor, the way the cyclone's overload refusal names the
+liners the flow wants:
+
+> a loading of 0.180 m/hr is below the 1 m/hr floor this module answers
+> above: the filter coefficient is DECLARED at 10 m/hr, its loading
+> exponent is the only velocity dependence in this model, and at the
+> floor the declared law is already claiming 3.162 times the one
+> coefficient there is any calibration for. 3.600 m2 of bed would run
+> this flow at the floor. What a bed really does far below its design
+> rate needs bed data this module does not carry
+
+The floor's value is one decade below the declared reference loading.
+**That is a stated choice and not a measurement, and that it coincides
+with the number the old clamp used is a coincidence and not the reason**
+- which has one useful consequence: the old clamp is now unreachable by
+construction, because there is no band left in which a clamp at the
+floor could flatten anything.
+
+**The gate could not have seen it.** Every filter row FC7-0 carried sat
+at 11.25 m/hr or above, so a clamp anywhere below 11 m/hr moved no
+golden value at all. Three rows now sit BETWEEN the floor and the
+reference loading, at 3.0, 1.8 and 1.08 m/hr, marched by the oracle's
+own layer-by-layer bed and bisected, and a new `mediaFilterFloor` group
+carries the four flat conditions above plus the floor straddled to three
+parts in a thousand (3.61 m2 loads at 0.99723 m/hr and must refuse, 3.6
+m2 loads at exactly 1.0 and must answer). That group is labelled a
+POLICY gate in the test, because below the floor there is no physics for
+an oracle to check - that is the point of the floor.
+
+The band the model could not previously express also carries an
+IDENTITY, which needs no source: the cut goes as one over the FOURTH
+root of the loading rate, the declared exponent of 0.5 carried through
+the ln 2 inversion's own square root. It is asserted across the band.
+
+## 2. The one device threshold that was not declared
+
+`residenceS < 60` was inlined in the flotation warning sentence: the
+only device threshold in the module outside `DECLARED_CONSTANTS`,
+against this module's own stated doctrine that every number which is a
+choice rather than a derivation lives there. The grid's two floors,
+`nBins < 10` and `spanSigma < 3`, were bare in the same way, and the
+ORACLE was deciding three golden warnings on bare numbers typed at the
+comparison itself.
+
+**REPAIRED.** `flotationResidenceWarnS`, `minNBins` and `minSpanSigma`
+are declared, pinned and read. The oracle's second copy gains
+`flotationResidenceWarnS`, `filterMinLoadingMHr`, `starvedTurndown`,
+`gasHoldupWarn` and `filterBreakthroughLoadingMHr`, so every threshold
+it decides a golden warning or a golden refusal on comes out of its own
+declared copy. **It is a choice and it says so**: a minute of contact is
+a round figure and no flotation residence data in this repository sets
+it. The warning quotes the threshold it judged against and the return
+carries `residenceWarnS`, so a reader is never told about a band they
+cannot see.
+
+**The gate could not have seen it either, and the battery proved it on
+the repair itself.** The first FC7-1 run left ONE plant green: the grid's
+`nBins` floor re-inlined at 25, which nothing exercised, because the only
+grid cases in the suite were 4 or 5 bins (refused) and 30 or more
+(accepted). A straddle built from the declared value closed it and the
+battery went to zero. **That is what a battery is for: it caught a hole
+in FC7-1's own repair before FC7-1 was committed.**
+
+The nearest flotation rows
+either side of 60 s were 32 s and 347.8 s, so the threshold could be
+moved anywhere in a ten-fold range with every golden value identical.
+Two rows now straddle it to within a second, 59.0 s and 61.0 s, on a
+lean enough gas rate that the residence warning is the only one in play;
+a test builds both cases FROM the declared value, so an engine that
+inlines any other number fails whatever the pin says; and a source scan
+over the engine with the comments stripped asserts none of the four
+inlined forms can come back beside the declared one. The comments quote
+all four on purpose: that is where the record of the defect lives.
+
+## 3. The quantised median had a silent way back
+
+`medianOfBins` interpolated when a bin carried edges and **fell back to
+the bare `b.dMicron` midpoint when it did not**, which is a silent path
+back to the quantised median FC7-0 had just removed. The same 60-bin
+untreated inlet answers **30.000000 micron with edges and 28.632164
+micron without**, and nothing on the return said which route had run.
+
+**REPAIRED, by closing the path.** The bins are checked UP FRONT and
+the function returns NaN if any bin lacks usable edges, so the answer
+cannot depend on where in a bad grid the median happened to land. It is
+a LEAF with nowhere to put an error key, so NaN is the refusal, as
+FC7-0's leaf contract states; no in-module caller can reach it, because
+every bin set here comes from `dropletBins`, which always carries edges,
+and `applyDevice` spreads them through. It is the EXTERNAL caller's
+path, and a caller who hands over midpoints alone now gets NaN rather
+than a number 4.6 percent light that could pass for an answer.
+
+**And the gate now discriminates the two routes rather than just liking
+both.** A gate that only compares the median to its own d50 passes
+either way: at 60 bins the identity holds to 3e-9 interpolated and
+misses by 4.56 percent quantised, and "close to 30" covers both. The
+oracle carries `midpointMedianMicron` for every `binGrid` row, built
+from its own erf cdf - **the wrong answer, computed on purpose** - and
+the gate refuses any row where the two routes are within one percent of
+each other, so it can never claim a discrimination it is not making. The
+measured gaps are 1.73, 4.56, 5.67, 6.18 and 8.91 percent.
+
+## 4. The negative controls, and what each one printed
+
+Every repair carries one, and every one was PROVED to fire and to name
+its case:
+
+- **the clamp comes back.** A clamp at the floor's own value fires on
+  nothing, because the floor made it unreachable, so the control bends
+  it ABOVE the floor and then must fire on exactly the three rows FC7-1
+  added and none of the five FC7-0 carried. It printed
+  `mediaFilter: 3 of 8 cases failed` and named
+  `mediaFilter[5] the cut of a 0.9 m bed at 3.00 m/hr`. **A control that
+  fired on all eight would have been telling us the new rows were not
+  the ones doing the work.**
+- **the floor is deleted.** `mediaFilterFloor: 5 of 7 cases failed`,
+  naming `mediaFilterFloor[0] at 0.180 m/hr the module answered 5.275789
+  micron and the golden expects a refusal`.
+- **the threshold is read as anything else.** The straddle rebuilt at
+  twice the declared value printed `at 119.9 s, just under a threshold
+  of 120 s, the residence warning was false`.
+- **the midpoint fallback comes back.** `binGrid: 5 of 5 cases failed`,
+  naming `binGrid[0] the bin median at 60 bins: engine 28.632164392
+  against oracle 30, rel gap 4.55e-2 over 0.000001`.
+
+## 5. Movement, and what a live user sees
+
+**NO ANSWER THIS MODULE GIVES CHANGES VALUE.** Every loading rate at or
+above 1 m/hr returns the same filter coefficient, the same cut and the
+same removal it did after FC7-0, bit for bit; the flotation cut, rise,
+holdup and residence are untouched, because the threshold moved is a
+warning; and every median off a bin set this module builds is unchanged,
+because those bins have always carried edges.
+
+What changes is the SHAPE of three answers, not their value:
+
+| | after FC7-0 | after FC7-1 |
+| --- | --- | --- |
+| a bed below 1 m/hr | a cut of 5.275789 um, flat over any area, and a verdict | REFUSED by name, the stage is skipped and the train withholds the verdict |
+| a flotation cell under the threshold | "less than a minute of flotation residence (53.3 s)" | "53.3 s of flotation residence is under the 60 s this module warns below" |
+| `medianOfBins` on midpoints alone | 28.632164 um, 4.6 percent light | NaN |
+
+**What a live user sees.** The shipped Produced Water Treatment Studio
+runs its bed at 20.7 m/hr, twenty times the floor, so the studio's own
+default case is unchanged in every digit. The reachable change is a
+FLOW below about 2400 bwpd through the studio's 16 m2 bed: that used to
+print a flat 5.28 um cut and a confident train verdict, and now paints
+the bed row with the refusal and withholds the verdict with its reason,
+through the FC7-0 machinery the studio already has. **No app code change
+is needed**: `PwtPanels.jsx` already renders `d.error` per stage and
+`verdictWithheldReason` above the train. What the app needs is the
+VENDORED copy, and that is a separate reviewed pass with its own pin, in
+engines-merge order: `packages/engines` is pinned at the FC9-0 commit,
+FC8-0's pass is the next one in line, and FC7-1 belongs to the one after.
+Until it is vendored the live studio keeps the clamp.
+
+## 5b. What the course wave must rebuild, measured rather than guessed
+
+The FC7 teaching digest is built from this engine and this golden, so it
+was rebuilt against FC7-1 into a scratch copy and diffed. **No teaching
+VALUE moves.** `gate_claims.mjs` was run against the repaired engine:
+**22 of 22 relational claims hold and all 5 of its negative controls
+fire.** What the rebuild changes is counts and three table rows:
+
+- `fc7_dump.mjs` REFUSES to run until its `GROUP_NOTE` table describes
+  the new `mediaFilterFloor` group, which is the generator's own gate
+  working: a golden group nobody has described is a group the digest
+  would have printed without saying what it pins.
+- `DECLARED_CONSTANTS` goes from 51 keys to 55, so the two sentences
+  counting them move, and the four new keys may want rows in the
+  generator's curated `DECLARED_ROWS`.
+- the golden row and group counts move from 65 in 13 to 77 in 14, in
+  Sections 13, 18 and 19; the `mediaFilter` group goes 5 to 8 and
+  `flotation` 5 to 7; `expectResidenceWarning` goes from 5 rows with 1
+  true to 7 with 2, and `expectBreakthroughWarning` from 5 rows to 8.
+- the published-bed table gains three rows: 1.2 m2, 2 m2 and 4 m2, at
+  3.00, 1.80 and 1.08 m/hr.
+- the hardcoded battery sentence in `fc7_dump.mjs` ("Thirty five
+  defects... 22 of those 35... 20 tests to 68") is now wrong twice over
+  and needs the FC7-1 numbers.
+- `fc7_dump.mjs` also carries its own inlined `r.residenceS < 60` for
+  the flotation warning, which should read the declared constant.
+
+**All eighteen graded capstone fields are identical to the last bit**,
+re-derived by running `fc7_capstone.mjs` against this engine before and
+after: `precision.json` is byte-identical too, and all 18 still classify
+with 0 weak routes. Both graded beds load at 21.35 and 20.82 m/hr, more
+than twenty times the floor, and the graded flotation cells sit at
+730.8 s of residence against a 60 s warning that is only ever a warning.
+The foundation should re-derive `fields.json` anyway, because a graded
+value proved unchanged is worth more than a graded value assumed
+unchanged, and it must rebuild the digest and re-pin before any lesson
+is written.
+
+## 6. What is NOT repaired here, and why
+
+- **The media filter's grain exponent**, `attachmentEfficiency`, the
+  dissolved oil floor's value, API 421's missing velocity half and the
+  29 ppm discharge figure are all still HELD, exactly as FC7-0 left
+  them. Nothing here invented a citation and the engine still states no
+  discharge limit at all: the test that asserts `DECLARED_CONSTANTS`
+  carries no spec-like key is untouched and still passes.
+- **The band between the floor and the declared reference loading.**
+  Between 1 and 10 m/hr the module claims up to 3.162 times the only
+  coefficient it has a calibration for, and it does not warn there. The
+  extrapolation is stated in the refusal wording and in the constant's
+  own note, `loadingFloorMHr` is on every return, and the band is where
+  the model's cases sit; adding a warning there would put one on a
+  6.21 m/hr row the studio can reach today, which is a decision about
+  live copy rather than about arithmetic. RECORDED, not repaired.
+- **The `f > 0` line in `medianOfBins`** is an arithmetic guard on the
+  interpolation's own divisor and is unreachable: the loop only reaches
+  a bin while the accumulator is under one half. It is a guard and not a
+  refusal, and it is one line rather than a branch that pretends to a
+  case that cannot happen.
+- **The wave directory's own copies.** `fc7_dump.mjs` in the course wave
+  carries its own inlined 60 for the same warning. That file is the
+  foundation's, not this repository's, and it is reported rather than
+  edited from here.

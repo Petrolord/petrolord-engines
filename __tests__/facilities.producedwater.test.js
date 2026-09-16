@@ -120,16 +120,18 @@ describe('the declared constants: a pin, and not a validation', () => {
     bubbleMicronMin: 20, bubbleMicronMax: 2000,
     attachmentEfficiency: 0.01,
     gasHoldupWarn: 0.2, coarseCutWarnMicron: 100,
+    flotationResidenceWarnS: 60,
     filterCoefficientPerM: 3.5, filterReferenceLoadingMHr: 10,
     filterLoadingExponent: 0.5, filterReferenceDropletMicron: 20,
     filterReferenceMediaMicron: 800, filterBreakthroughLoadingMHr: 25,
-    filterBedDepthDefaultM: 0.9,
+    filterBedDepthDefaultM: 0.9, filterMinLoadingMHr: 1,
     stokesReynoldsLimit: 1,
     waterViscosityMinC: -10, waterViscosityMaxC: 200,
     waterDensityMinC: 0, waterDensityMaxC: 100,
     tdsMaxPpm: 300000,
     apiGravityMin: 5, apiGravityMax: 100,
     sigmaMax: 2, sigmaCustomaryMin: 0.5, sigmaCustomaryMax: 1.0,
+    minNBins: 10, minSpanSigma: 3,
     trainSigmaDefault: 0.7,
   };
 
@@ -168,6 +170,32 @@ describe('the declared constants: a pin, and not a validation', () => {
       if (wrong.length) throw new Error(wrong.join('\n'));
     });
     expect(msg).toMatch(/salinityViscosityMultiplier: engine 1\.8 against the pin 2\.5/);
+  });
+
+  test('FC7-1: every threshold a device decides on is IN here, and the source carries none', () => {
+    // FC7-0 declared forty-nine constants and then decided the
+    // flotation residence warning on a BARE 60 inlined in the warning
+    // sentence, which was the one device threshold in the module that
+    // was not declared, against the module's own stated doctrine. The
+    // grid's own two floors were bare in the same way. A threshold
+    // nobody can find is a threshold nobody reviews.
+    expect(DECLARED_CONSTANTS.flotationResidenceWarnS).toBe(60);
+    expect(DECLARED_CONSTANTS.filterMinLoadingMHr).toBe(1);
+    expect(DECLARED_CONSTANTS.minNBins).toBe(10);
+    expect(DECLARED_CONSTANTS.minSpanSigma).toBe(3);
+    // the exact expressions that used to decide these four, scanned out
+    // of the EXECUTABLE source with the comments stripped, because the
+    // prose quotes every one of them on purpose: that is where the
+    // record of the defect lives
+    const code = fs.readFileSync(
+      path.join(__dirname, '..', 'engines', 'facilities', 'producedWater.js'), 'utf8',
+    ).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+    expect(code).toMatch(/flotationResidenceWarnS/);
+    expect(code).not.toMatch(/residenceS\s*<\s*60/);
+    expect(code).toMatch(/filterMinLoadingMHr/);
+    expect(code).not.toMatch(/Math\.max\(loadingMHr/);
+    expect(code).not.toMatch(/nBins\s*<\s*10\b/);
+    expect(code).not.toMatch(/spanSigma\s*<\s*3\b/);
   });
 
   test('the module states what it does NOT know, in words a caller can read', () => {
@@ -283,14 +311,74 @@ describe('the droplet distribution', () => {
       });
       if (b.error) return `refused a case the oracle answered: ${b.error}`;
       const total = b.bins.reduce((s, x) => s + x.volumeFraction, 0);
+      // and the median must be the INTERPOLATED route and not the
+      // quantised one. The oracle carries the midpoint answer for the
+      // same grid, built from its own erf cdf, because both routes are
+      // "close to the d50" and only the gap tells them apart: 3e-9
+      // interpolated against 1.7 to 8.9 percent quantised
+      const got = medianOfBins(b.bins);
+      const midpointGap = Math.abs(got - row.midpointMedianMicron) / row.midpointMedianMicron;
       return first(
         near(`truncated tail at span ${row.spanSigma}`, b.truncatedTailFraction, row.truncatedTailFraction, 1e-6, 'abs'),
-        near(`the bin median at ${row.nBins} bins`, medianOfBins(b.bins), row.medianMicron, 1e-6),
+        near(`the bin median at ${row.nBins} bins`, got, row.medianMicron, 1e-6),
         near(`normalisation at ${row.nBins} bins`, total, 1, 1e-12),
+        midpointGap > 1e-2 ? null
+          : `the bin median at ${row.nBins} bins is ${got}, within ${(midpointGap * 100).toFixed(4)} percent of the QUANTISED midpoint answer ${row.midpointMedianMicron}: this gate needs the two routes to be distinguishable and on this row they are not`,
         b.nBins === row.nBins ? null : `the grid it used (${b.nBins}) is not the grid it was asked for`,
       );
     });
     expect(n).toBeGreaterThanOrEqual(4);
+  });
+
+  test('FC7-1: the midpoint route is CLOSED, and bins with no edges get NaN', () => {
+    // FC7-0 interpolated when the bin carried edges and fell back to
+    // `b.dMicron` when it did not, which is a silent path back to the
+    // quantised median it had just removed: the same 60-bin untreated
+    // inlet answers 30.000000 um with edges and 28.632164 um without,
+    // and nothing on the return said which route had run.
+    const b = dropletBins({ d50: 30, sigma: 0.7 });
+    expect(rel(medianOfBins(b.bins), 30)).toBeLessThan(1e-6);
+    const midpointsOnly = b.bins.map(
+      ({ dMicron, volumeFraction }) => ({ dMicron, volumeFraction }),
+    );
+    expect(Number.isNaN(medianOfBins(midpointsOnly))).toBe(true);
+    // and specifically NOT the quantised number the fallback returned
+    expect(medianOfBins(midpointsOnly)).not.toBeCloseTo(28.632164392009408, 6);
+    // half a grid is no better than none: the check is UP FRONT, so the
+    // answer cannot depend on where in a bad grid the median landed
+    const oneBadBin = b.bins.map((x, i) => (i === 40 ? { ...x, dHiMicron: undefined } : x));
+    expect(Number.isNaN(medianOfBins(oneBadBin))).toBe(true);
+    const badBinBelowTheMedian = b.bins.map((x, i) => (i === 2 ? { ...x, dLoMicron: 0 } : x));
+    expect(Number.isNaN(medianOfBins(badBinBelowTheMedian))).toBe(true);
+    // every bin set this module makes carries edges, which is why no
+    // in-module caller can reach the refusal
+    b.bins.forEach((x) => {
+      expect(x.dLoMicron).toBeGreaterThan(0);
+      expect(x.dHiMicron).toBeGreaterThan(x.dLoMicron);
+    });
+    const applied = applyDevice({ bins: b.bins, d50cMicron: 12, sharpness: 3 });
+    applied.outletBins.forEach((x) => expect(x.dHiMicron).toBeGreaterThan(x.dLoMicron));
+  });
+
+  test('NEGATIVE CONTROL: the median gate fires when the midpoint fallback comes back', () => {
+    // the fallback, re-expressed here: the midpoint of the bin the
+    // accumulated volume crosses one half in
+    const midpointMedian = (bins) => {
+      let acc = 0;
+      for (const b of bins) {
+        if (acc + b.volumeFraction >= 0.5) return b.dMicron;
+        acc += b.volumeFraction;
+      }
+      return NaN;
+    };
+    const msg = controlFires(() => gate('binGrid', G.binGrid, 4, (row) => {
+      const b = dropletBins({
+        d50: row.d50, sigma: row.sigma, nBins: row.nBins, spanSigma: row.spanSigma,
+      });
+      return near(`the bin median at ${row.nBins} bins`, midpointMedian(b.bins), row.medianMicron, 1e-6);
+    }));
+    expect(msg).toMatch(/^binGrid: 5 of 5 cases failed$/m);
+    expect(msg).toMatch(/binGrid\[0\] the bin median at 60 bins: engine 28\.63216\d+ against oracle 30, rel gap 4\.5\d+e-2 over 0?\.000001/);
   });
 
   test('the median no longer depends on the grid it is measured on', () => {
@@ -314,6 +402,27 @@ describe('the droplet distribution', () => {
     expect(Number.isNaN(gradeEfficiency({ dMicron: 10, d50cMicron: -5 }))).toBe(true);
     expect(applyDevice({ bins: dropletBins({ d50: 30, sigma: 0.7 }).bins }).error)
       .toMatch(/positive cut size/);
+  });
+
+  test('FC7-1: the grid floors are the DECLARED ones, straddled either side', () => {
+    // FC7-0 decided both on bare numbers inlined in their own refusals,
+    // and nothing exercised a grid between the floor and the coarsest
+    // the goldens use: the floor could be moved from 10 bins to 25, or
+    // the span from 3 sigma to 3.5, with this suite fully green. Both
+    // cases below are BUILT from the declared value, so an engine that
+    // compares against any other number fails here.
+    const { minNBins, minSpanSigma } = DECLARED_CONSTANTS;
+    expect(dropletBins({ d50: 30, sigma: 0.7, nBins: minNBins }).error).toBeUndefined();
+    expect(dropletBins({ d50: 30, sigma: 0.7, nBins: minNBins - 1 }).error)
+      .toMatch(new RegExp(`at least ${minNBins}`));
+    expect(dropletBins({ d50: 30, sigma: 0.7, spanSigma: minSpanSigma }).error).toBeUndefined();
+    expect(dropletBins({ d50: 30, sigma: 0.7, spanSigma: minSpanSigma - 0.001 }).error)
+      .toMatch(new RegExp(`at least ${minSpanSigma} sigma`));
+    // and the refusal must quote the floor it was judged against rather
+    // than a number of its own: a message that says 10 beside a
+    // comparison that uses 25 is the defect, not the repair
+    expect(dropletBins({ d50: 30, sigma: 0.7, nBins: 4 }).error).toMatch(new RegExp(`at least ${minNBins}, and this is 4`));
+    expect(dropletBins({ d50: 30, sigma: 0.7, spanSigma: 1 }).error).toMatch(new RegExp(`at least ${minSpanSigma} sigma either side of the median and this spans 1`));
   });
 
   test('the distribution refuses the parameters it cannot describe', () => {
@@ -713,7 +822,7 @@ describe('the hydrocyclone: bounded, and marched rather than asserted', () => {
 
 describe('flotation: a model that bites, assembled from its parts', () => {
   test('the cut matches the attachment ODE marched and bisected', () => {
-    const n = gate('flotation', G.flotation, 4, (row) => {
+    const n = gate('flotation', G.flotation, 7, (row) => {
       const r = flotation(row);
       if (r.error) return `refused a case the oracle answered: ${r.error}`;
       return first(
@@ -726,7 +835,7 @@ describe('flotation: a model that bites, assembled from its parts', () => {
         near('its gas holdup', r.gasHoldup, row.gasHoldup, 1e-9),
       );
     });
-    expect(n).toBeGreaterThanOrEqual(4);
+    expect(n).toBeGreaterThanOrEqual(7);
   });
 
   test('THE FC7 DEFECT: the bubble size moves the answer, so IGF and DAF differ', () => {
@@ -786,14 +895,58 @@ describe('flotation: a model that bites, assembled from its parts', () => {
   });
 
   test('the warnings fire exactly where the golden says', () => {
-    gate('flotation warnings', G.flotation, 4, (row) => {
+    gate('flotation warnings', G.flotation, 7, (row) => {
       const r = flotation(row);
       const rushed = /too small for the flow/.test(r.warning || '');
       const churn = /gas holdup/.test(r.warning || '');
       if (rushed !== row.expectResidenceWarning) return `at ${row.residenceS.toFixed(1)} s the residence warning was ${rushed}, the golden expects ${row.expectResidenceWarning}`;
       if (churn !== row.expectHoldupWarning) return `at a holdup of ${row.gasHoldup.toFixed(3)} the churn warning was ${churn}, the golden expects ${row.expectHoldupWarning}`;
+      if (r.residenceWarnS !== row.residenceWarnS) return `the engine judges the residence against ${r.residenceWarnS} s and the oracle decided this golden on ${row.residenceWarnS} s`;
       return null;
     });
+  });
+
+  test('FC7-1: the residence warning fires at the DECLARED threshold, not at a number typed in the sentence', () => {
+    // FC7-0 decided it on a bare `residenceS < 60` inlined in the
+    // warning, the one device threshold in the module that was not
+    // declared. Both cases below are BUILT from the declared value, so
+    // an engine that inlines any other number fails here whatever the
+    // pin says, and the pin fails if the declared value itself moves.
+    const warnAt = DECLARED_CONSTANTS.flotationResidenceWarnS;
+    const base = {
+      flowM3S: 0.1, nCells: 1, gasRatio: 0.05,
+      rhoWater: 1013.06, rhoOil: 844.41, muPaS: 5.895e-4,
+    };
+    const at = (residenceS) => flotation({ ...base, cellVolumeM3: residenceS * base.flowM3S });
+    const under = at(warnAt * 0.999);
+    const over = at(warnAt * 1.001);
+    expect(under.residenceS).toBeLessThan(warnAt);
+    expect(over.residenceS).toBeGreaterThan(warnAt);
+    expect(under.warning).toMatch(/too small for the flow/);
+    expect(over.warning).toBeNull();
+    // the sentence quotes the threshold it was judged against, and the
+    // return carries it, so a reader is never told about a band they
+    // cannot see
+    expect(under.warning).toMatch(new RegExp(`under the ${warnAt} s this module warns below`));
+    expect(under.residenceWarnS).toBe(warnAt);
+    expect(over.residenceWarnS).toBe(warnAt);
+  });
+
+  test('NEGATIVE CONTROL: the residence straddle fires if the threshold is read as anything else', () => {
+    const warnAt = DECLARED_CONSTANTS.flotationResidenceWarnS;
+    const base = {
+      flowM3S: 0.1, nCells: 1, gasRatio: 0.05,
+      rhoWater: 1013.06, rhoOil: 844.41, muPaS: 5.895e-4,
+    };
+    const msg = controlFires(() => {
+      // the threshold bent to twice the declared one, which is what an
+      // engine that had inlined its own number would look like
+      const bent = warnAt * 2;
+      const r = flotation({ ...base, cellVolumeM3: bent * 0.999 * base.flowM3S });
+      const warned = /too small for the flow/.test(r.warning || '');
+      if (!warned) throw new Error(`at ${r.residenceS.toFixed(1)} s, just under a threshold of ${bent} s, the residence warning was ${warned}`);
+    });
+    expect(msg).toMatch(/^at 119\.9 s, just under a threshold of 120 s, the residence warning was false$/);
   });
 
   test('every refusal names its own cause', () => {
@@ -813,13 +966,13 @@ describe('flotation: a model that bites, assembled from its parts', () => {
   });
 
   test('NEGATIVE CONTROL: the flotation gate fires when the attachment term is dropped', () => {
-    const msg = controlFires(() => gate('flotation', G.flotation, 4, (row) => {
+    const msg = controlFires(() => gate('flotation', G.flotation, 7, (row) => {
       const r = flotation(row);
       // the cut with the attachment efficiency deleted from the rate
       const bent = r.d50cMicron * Math.sqrt(DECLARED_CONSTANTS.attachmentEfficiency);
       return near(`the cut of ${row.nCells} x ${row.cellVolumeM3} m3`, bent, row.d50cMicron, 5e-5);
     }));
-    expect(msg).toMatch(/^flotation: 5 of 5 cases failed$/m);
+    expect(msg).toMatch(/^flotation: 7 of 7 cases failed$/m);
     expect(msg).toMatch(/flotation\[0\] the cut of 4 x 8 m3: engine [\d.]+ against oracle [\d.]+, rel gap [\d.e-]+ over [\d.e-]+/);
   });
 });
@@ -830,7 +983,7 @@ describe('flotation: a model that bites, assembled from its parts', () => {
 
 describe('the media filter: ONE route, marched', () => {
   test('the cut is the droplet the marched bed removes exactly half of', () => {
-    const n = gate('mediaFilter', G.mediaFilter, 4, (row) => {
+    const n = gate('mediaFilter', G.mediaFilter, 8, (row) => {
       const r = mediaFilter(row);
       if (r.error) return `refused a case the oracle answered: ${r.error}`;
       return first(
@@ -838,9 +991,11 @@ describe('the media filter: ONE route, marched', () => {
         near('its loading', r.loadingMHr, row.loadingMHr, 1e-12),
         near('its filter coefficient at the reference droplet', r.filterCoefficientPerM, row.lambdaAtRefPerM, 1e-12),
         near('the removal of a reference droplet', r.removalAtRefDroplet, row.removalAtRefDroplet, 1e-4, 'abs'),
+        r.loadingFloorMHr === row.loadingFloorMHr ? null
+          : `the engine answers above ${r.loadingFloorMHr} m/hr and the oracle built this golden against a floor of ${row.loadingFloorMHr} m/hr`,
       );
     });
-    expect(n).toBeGreaterThanOrEqual(4);
+    expect(n).toBeGreaterThanOrEqual(8);
   });
 
   test('THE FC7 DEFECT: there is no second removal number to disagree with the first', () => {
@@ -869,12 +1024,125 @@ describe('the media filter: ONE route, marched', () => {
   });
 
   test('the breakthrough warning fires exactly where the golden says', () => {
-    gate('mediaFilter warnings', G.mediaFilter, 4, (row) => {
+    gate('mediaFilter warnings', G.mediaFilter, 8, (row) => {
       const r = mediaFilter(row);
       const warned = /break through/.test(r.warning || '');
       return warned === row.expectBreakthroughWarning ? null
         : `at ${row.loadingMHr.toFixed(1)} m/hr the warning was ${warned} and the golden expects ${row.expectBreakthroughWarning}`;
     });
+  });
+
+  test('FC7-1 THE DEFECT: the bed area bites all the way down to the floor', () => {
+    // FC7-0 kept a silent Math.max(loadingMHr, 1) in the loading
+    // factor, so below 1 m/hr the area moved the answer by EXACTLY
+    // nothing: at 0.001 m3/s through 20, 200, 600 and 2000 m2 the
+    // loading read 0.18, 0.018, 0.006 and 0.0018 m/hr while the filter
+    // coefficient stayed 11.067972 per m and the cut stayed 5.275789
+    // micron on all four, to every digit.
+    const base = { flowM3S: 0.001, bedDepthM: 0.9 };
+    const band = [1.2, 1.5, 2.0, 2.5, 3.0, 3.5, 3.6].map((areaM2) => mediaFilter({ ...base, areaM2 }));
+    band.forEach((r, i) => {
+      expect(r.error).toBeUndefined();
+      // and every one of them is INSIDE the band the clamp used to flatten
+      expect(r.loadingMHr).toBeLessThan(DECLARED_CONSTANTS.filterReferenceLoadingMHr);
+      if (i > 0) {
+        expect(r.loadingMHr).toBeLessThan(band[i - 1].loadingMHr);
+        expect(r.filterCoefficientPerM).toBeGreaterThan(band[i - 1].filterCoefficientPerM);
+        expect(r.d50cMicron).toBeLessThan(band[i - 1].d50cMicron);
+      }
+    });
+    // measured, so "it moves" is not an assertion about a rounding digit
+    expect(band[0].d50cMicron / band[band.length - 1].d50cMicron).toBeGreaterThan(1.25);
+    // and the cut goes as one over the fourth root of the loading rate,
+    // which is the declared exponent 0.5 carried through the ln 2
+    // inversion's own square root. An identity of the model, on a band
+    // the model could not previously express at all
+    band.forEach((r) => {
+      expect(r.d50cMicron * r.loadingMHr ** -0.25).toBeCloseTo(
+        band[0].d50cMicron * band[0].loadingMHr ** -0.25, 9,
+      );
+    });
+  });
+
+  test('FC7-1: below the floor it REFUSES, and the refusal names the loading, the reference and the bed the flow wants', () => {
+    // A POLICY GATE and not a validation: the whole point of the floor
+    // is that this module states no physics below it, so there is
+    // nothing for the oracle to march. What the golden group carries is
+    // the four conditions the clamp answered identically, so removing
+    // the floor and restoring the clamp fails here.
+    const n = gate('mediaFilterFloor', G.mediaFilterFloor, 6, (row) => {
+      const r = mediaFilter({ flowM3S: row.flowM3S, areaM2: row.areaM2 });
+      const refused = Boolean(r.error);
+      if (refused !== row.expectRefusal) {
+        return `at ${row.loadingMHr.toPrecision(3)} m/hr the module ${refused ? 'refused' : `answered ${r.d50cMicron} micron`} and the golden expects ${row.expectRefusal ? 'a refusal' : 'an answer'}`;
+      }
+      if (!refused) return null;
+      return first(
+        near('the loading it names', r.loadingMHr, row.loadingMHr, 1e-12),
+        near('the floor it names', r.loadingFloorMHr, row.loadingFloorMHr, 1e-12),
+        near('the bed it says would run this flow at the floor', r.areaAtFloorM2, row.areaAtFloorM2, 1e-12),
+        new RegExp(`below the ${row.loadingFloorMHr} m/hr floor`).test(r.error) ? null
+          : `the refusal does not name the floor: ${r.error}`,
+        new RegExp(`DECLARED at ${row.referenceLoadingMHr} m/hr`).test(r.error) ? null
+          : `the refusal does not name the loading its coefficient is declared at: ${r.error}`,
+        new RegExp(`${row.areaAtFloorM2.toPrecision(4)} m2 of bed`).test(r.error) ? null
+          : `the refusal does not say what bed would run this flow at the floor: ${r.error}`,
+        // and it must not blame the flow, which is not what is wrong
+        /positive flow/.test(r.error) ? 'the refusal blames the flow, which is fine' : null,
+      );
+    });
+    expect(n).toBeGreaterThanOrEqual(6);
+    // the floor makes the old clamp unreachable by construction: they
+    // sit at the same loading rate, so there is no band left in which a
+    // clamp at the declared floor could flatten an answer
+    expect(DECLARED_CONSTANTS.filterMinLoadingMHr).toBe(1);
+  });
+
+  test('NEGATIVE CONTROL: the filter gate fires when a low-rate clamp comes back', () => {
+    // The clamp re-expressed: the loading factor evaluated at
+    // max(loading, FLATTEN_BELOW) instead of at the loading itself.
+    //
+    // The clamp FC7-0 had, at 1 m/hr, is now unreachable: the floor
+    // sits at the same loading, so there is no band left in which it
+    // could flatten anything, and a control at 1 fires on nothing at
+    // all. The control has to bend it ABOVE the floor, which is what
+    // any clamp that could still flatten an answer looks like, and
+    // then it must fire on exactly the three rows FC7-1 added between
+    // the floor and the reference loading and on none of the five
+    // FC7-0 carried, all of which sat at 11.25 m/hr or above. That is
+    // the measurement: those five rows could not see a clamp anywhere
+    // below 11 m/hr and there was one there.
+    const FLATTEN_BELOW = 4;
+    const clamped = (row) => {
+      const c = DECLARED_CONSTANTS;
+      const lam = (row.filterCoefficientPerM ?? c.filterCoefficientPerM)
+        * ((c.filterReferenceMediaMicron / (row.mediaMicron ?? c.filterReferenceMediaMicron)) ** 3)
+        * (c.filterReferenceLoadingMHr / Math.max(row.loadingMHr, FLATTEN_BELOW)) ** c.filterLoadingExponent;
+      return (row.referenceDropletMicron ?? c.filterReferenceDropletMicron)
+        * Math.sqrt(Math.LN2 / (lam * (row.bedDepthM ?? c.filterBedDepthDefaultM)));
+    };
+    const msg = controlFires(() => gate('mediaFilter', G.mediaFilter, 8, (row) => near(
+      `the cut of a ${row.bedDepthM ?? DECLARED_CONSTANTS.filterBedDepthDefaultM} m bed at ${row.loadingMHr.toFixed(2)} m/hr`,
+      clamped(row), row.d50cMicron, 1e-4,
+    )));
+    // exactly the three low-rate rows, and not one of the five above
+    // the clamp: a control that fired on all eight would be telling us
+    // the rows we added were not the ones doing the work
+    expect(msg).toMatch(/^mediaFilter: 3 of 8 cases failed$/m);
+    expect(msg).toMatch(/mediaFilter\[5\] the cut of a 0\.9 m bed at 3\.00 m\/hr: engine [\d.]+ against oracle [\d.]+, rel gap [\d.e-]+ over 0?\.0001/);
+    expect(msg).toMatch(/mediaFilter\[7\] the cut of a 1\.1 m bed at 1\.08 m\/hr/);
+  });
+
+  test('NEGATIVE CONTROL: the floor gate fires if the module answers below the floor', () => {
+    const msg = controlFires(() => gate('mediaFilterFloor', G.mediaFilterFloor, 6, (row) => {
+      // the floor deleted: the module answers everywhere, which is what
+      // it did before FC7-1 and what the clamp made look sensible
+      const refused = false;
+      return refused === row.expectRefusal ? null
+        : `at ${row.loadingMHr.toPrecision(3)} m/hr the module ${refused ? 'refused' : 'answered 5.275789 micron'} and the golden expects ${row.expectRefusal ? 'a refusal' : 'an answer'}`;
+    }));
+    expect(msg).toMatch(/^mediaFilterFloor: 5 of 7 cases failed$/m);
+    expect(msg).toMatch(/mediaFilterFloor\[0\] at 0\.180 m\/hr the module answered 5\.275789 micron and the golden expects a refusal/);
   });
 
   test('every refusal names its own cause', () => {
@@ -887,11 +1155,11 @@ describe('the media filter: ONE route, marched', () => {
   });
 
   test('NEGATIVE CONTROL: the filter gate fires on a one percent error on the cut', () => {
-    const msg = controlFires(() => gate('mediaFilter', G.mediaFilter, 4, (row) => near(
+    const msg = controlFires(() => gate('mediaFilter', G.mediaFilter, 8, (row) => near(
       `the cut of a ${row.bedDepthM ?? DECLARED_CONSTANTS.filterBedDepthDefaultM} m bed`,
       mediaFilter(row).d50cMicron * 1.01, row.d50cMicron, 1e-4,
     )));
-    expect(msg).toMatch(/^mediaFilter: 5 of 5 cases failed$/m);
+    expect(msg).toMatch(/^mediaFilter: 8 of 8 cases failed$/m);
     expect(msg).toMatch(/mediaFilter\[1\] the cut of a 0\.9 m bed: engine [\d.]+ against oracle [\d.]+, rel gap 1\.\d+e-2 over 0\.0001/);
   });
 });
