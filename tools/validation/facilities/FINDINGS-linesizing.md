@@ -94,8 +94,10 @@ of elevation and the two brackets that were wrong.
   own label, where `fittingK`, `roughnessOf` and `gradeYield` return NaN and
   `scheduleRow` returns null. It belongs to the RP 14E table that two other
   studios read; changing it is a decision for that table.
-- **`maopPsig` over-rates a line by 15.6 percent if the caller omits the
-  corrosion allowance.** Both calls are legal and each is correct for what it
+- **`maopPsig` over-rates a line whenever the caller omits the corrosion
+  allowance**, by the ratio of the gross wall to the net: 1.156 times on the
+  wall the findings measured, 1.5 times on a 0.375 in wall carrying the same
+  0.125 in allowance. Both calls are legal and each is correct for what it
   was asked. A guard cannot fix a question that was fully formed and wrong.
 - **Neither iteration reports convergence.** They converge everywhere both
   oracles have looked (1.5e-13 worst case) and no wrong number follows.
