@@ -97,23 +97,41 @@ K_TABLE = {
     "horizontalVane": Fraction(55, 100), "horizontalNone": Fraction(25, 100),
 }
 K_FLOOR = Fraction(12, 100)
+K_DERATE_PER_100PSI = Fraction(1, 100)
+
+
+def k_derated_at(base, p_psig):
+    """The published rule, and nothing else: 0.01 comes off K for every
+    100 psi of gauge pressure above 100 psig."""
+    over = max(Fraction(0), Fraction(p_psig) - 100)
+    return base - K_DERATE_PER_100PSI * over / 100
 
 
 def k_value(internals, p_psig):
     """GPSA rule: K falls 0.01 per 100 psi over 100 psig, floor 0.12
-    (the floor binds when the derated value is BELOW 0.12)."""
+    (the floor binds when the derated value is BELOW 0.12).
+
+    nearFloor is derived HERE FROM THE PUBLISHED RULE and never from the
+    JS: a K the floor did not catch is near the floor when one more
+    100 psi step of that same rule WOULD put it under. Stated that way
+    the flag needs no threshold of its own, and exact rational
+    arithmetic decides the boundary cases (a derating landing exactly on
+    0.12 is NOT floored and IS near the floor) rather than leaving them
+    to binary floating point."""
     base = K_TABLE[internals]
-    over = max(Fraction(0), Fraction(p_psig) - 100)
-    derated = base - Fraction(1, 100) * over / 100
+    derated = k_derated_at(base, p_psig)
     floored = derated < K_FLOOR
+    near_floor = (not floored) and k_derated_at(base, Fraction(p_psig) + 100) < K_FLOOR
     return {
         "name": f"{internals}At{p_psig}psig",
-        "note": "exact rational derating; floored when the derated K is below 0.12",
+        "note": ("exact rational derating; floored when the derated K is below 0.12, "
+                 "nearFloor when one more 100 psi step of the rule would floor it"),
         "input": {"internalsId": internals, "pPsig": p_psig},
         "expected": {
             "k": float(K_FLOOR if floored else derated),
             "kDerated": float(derated),
             "floored": floored,
+            "nearFloor": near_floor,
             "derated": p_psig > 100,
         },
     }
