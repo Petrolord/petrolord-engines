@@ -113,6 +113,30 @@ export const K_BASE = [
 /** The derating floor, below which the rule of thumb means nothing. */
 export const K_FLOOR = 0.12;
 
+/**
+ * The published derating slope: K falls this much for every 100 psi of
+ * gauge pressure above 100 psig. Exported because `nearFloor` below is
+ * ONE STEP of this same rule rather than an invented tolerance, so if the
+ * literature ever moves the slope the flag moves with it.
+ */
+export const K_DERATE_PER_100PSI = 0.01;
+
+/**
+ * Binary floating point puts a derating that lands EXACTLY on the floor a
+ * few parts in 1e17 either side of it: `0.35 - 0.01 * 23` reads as
+ * 0.11999999999999997, so a bare `<` floors a K the published rule does
+ * not floor. The exact-rational oracle disagreed with this module at
+ * verticalMesh/2400 psig for precisely that reason. Every comparison
+ * against the floor is therefore made with this slack, which is fifteen
+ * orders below the six decimals a K is ever reported at.
+ */
+const K_FLOOR_EPS = 1e-9;
+
+/** The published rule itself: a base K with the pressure deduction taken off. */
+const kDeratedAt = (kBase, pPsig) => (
+  kBase - K_DERATE_PER_100PSI * (Math.max(0, pPsig - 100) / 100)
+);
+
 export const kBaseOf = (id) => K_BASE.find((k) => k.id === id) || null;
 
 /**
@@ -122,15 +146,27 @@ export const kBaseOf = (id) => K_BASE.find((k) => k.id === id) || null;
  * `kDerated` keeps the value the rule gave, and the warning says the
  * floor bound.
  *
+ * `floored` is a cliff, and until this flag existed a K sitting just
+ * above it was reported exactly like a robust derated one:
+ * verticalNoneAt650psig returns 0.125, which is half a step from the
+ * floor. `nearFloor` is the flag beside `floored` for the APPROACH to
+ * the cliff, and it is derived from the published rule rather than from
+ * a chosen threshold: true when the floor did NOT catch this K and one
+ * more 100 psi step of the same rule WOULD put it under. The two are
+ * mutually exclusive, because a floored K is on the cliff and not
+ * walking towards it.
+ *
  * `kOverride` is optional; when it is given it must be positive, and it
- * wins outright. Without it, `internalsId` must name a K_BASE row.
+ * wins outright. Without it, `internalsId` must name a K_BASE row. A
+ * typed K reports `nearFloor` false with the other two: the derating
+ * rule did not touch it, so none of the rule's flags can be raised.
  */
 export const kValue = ({ internalsId, pPsig, kOverride } = {}) => {
   if (given(kOverride)) {
     need(isNum(kOverride) && kOverride > 0, 'kOverride',
       `kOverride must be a positive K in ft/s when it is given (got ${kOverride}); leave it out to use the published table`);
     return {
-      k: kOverride, derated: false, floored: false, source: 'typed', warning: null,
+      k: kOverride, derated: false, floored: false, nearFloor: false, source: 'typed', warning: null,
     };
   }
   need(typeof internalsId === 'string' && internalsId.length > 0, 'internalsId',
@@ -139,9 +175,8 @@ export const kValue = ({ internalsId, pPsig, kOverride } = {}) => {
   need(base, 'internalsId', `internalsId '${internalsId}' is not a mist extractor in K_BASE`);
   need(isNum(pPsig) && pPsig >= 0, 'pPsig',
     `pPsig must be a finite, non-negative gauge pressure (got ${pPsig})`);
-  const over = Math.max(0, pPsig - 100);
-  const kDerated = base.k - 0.01 * (over / 100);
-  const floored = kDerated < K_FLOOR;
+  const kDerated = kDeratedAt(base.k, pPsig);
+  const floored = kDerated < K_FLOOR - K_FLOOR_EPS;
   const k = floored ? K_FLOOR : kDerated;
   return {
     k,
@@ -149,6 +184,7 @@ export const kValue = ({ internalsId, pPsig, kOverride } = {}) => {
     kDerated,
     derated: pPsig > 100,
     floored,
+    nearFloor: !floored && kDeratedAt(base.k, pPsig + 100) < K_FLOOR - K_FLOOR_EPS,
     source: base.label,
     warning: floored
       ? `The 0.12 floor bound: the published derating gives K = ${beside(kDerated, K_FLOOR)} at ${pPsig} psig, below the floor where the rule of thumb stops meaning anything. K is held at 0.12, and a vendor K is the only honest input here.`

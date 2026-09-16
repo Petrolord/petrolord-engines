@@ -54,6 +54,9 @@ describe('the K value', () => {
     expect(rel(r.kDerated, c.expected.kDerated)).toBeLessThan(1e-12);
     expect(r.floored).toBe(c.expected.floored);
     expect(r.derated).toBe(c.expected.derated);
+    expect(r.nearFloor).toBe(c.expected.nearFloor);
+    // the cliff and the approach to it are different states
+    expect(r.floored && r.nearFloor).toBe(false);
     if (c.expected.floored) {
       expect(r.k).toBe(K_FLOOR);
       expect(r.warning).toMatch(/0\.12 floor bound/);
@@ -61,6 +64,82 @@ describe('the K value', () => {
     } else {
       expect(r.warning).toBeNull();
     }
+  });
+
+  // FC1 finding 7. `floored` is a cliff, and until this flag there was
+  // nothing beside it for the APPROACH to the cliff: verticalNoneAt650psig
+  // came back at 0.125 reported exactly like a robust derated value.
+  test('nearFloor flags the published case that sits half a step above the floor', () => {
+    const near = kValue({ internalsId: 'verticalNone', pPsig: 650 });
+    expect(near.k).toBeCloseTo(0.125, 12);
+    expect(near.derated).toBe(true);
+    expect(near.floored).toBe(false);
+    expect(near.nearFloor).toBe(true);
+    // and it is the published rule that says so, not a chosen threshold:
+    // one more 100 psi step of the same rule does floor that vessel
+    expect(kValue({ internalsId: 'verticalNone', pPsig: 750 }).floored).toBe(true);
+  });
+
+  test('a robust derated K is unflagged, and a floored K is not "near" the floor', () => {
+    const robust = kValue({ internalsId: 'verticalMesh', pPsig: 600 });
+    expect(robust.derated).toBe(true);
+    expect(robust.floored).toBe(false);
+    expect(robust.nearFloor).toBe(false);
+
+    const onTheCliff = kValue({ internalsId: 'verticalNone', pPsig: 3000 });
+    expect(onTheCliff.floored).toBe(true);
+    expect(onTheCliff.nearFloor).toBe(false);
+  });
+
+  test('the nearFloor boundary is exactly one step of the published rule', () => {
+    // A gap of exactly one step is NOT near the floor: 100 psi more lands
+    // the rule ON 0.12, and the floor does not catch a value equal to it.
+    const oneStepClear = kValue({ internalsId: 'verticalNone', pPsig: 600 });
+    expect(oneStepClear.kDerated).toBeCloseTo(0.13, 12);
+    expect(oneStepClear.nearFloor).toBe(false);
+    // a single psi inside that step is
+    expect(kValue({ internalsId: 'verticalNone', pPsig: 601 }).nearFloor).toBe(true);
+  });
+
+  test('a derating landing EXACTLY on the floor is not floored, and is near it', () => {
+    // verticalMesh at 2400 psig: the published rule gives 0.35 - 0.01 * 23,
+    // which is exactly 0.12, but 0.11999999999999997 in binary floating
+    // point. Before K_FLOOR_EPS the engine floored it and the exact-rational
+    // oracle did not; this is the only class of input where they disagreed.
+    const onIt = kValue({ internalsId: 'verticalMesh', pPsig: 2400 });
+    expect(onIt.floored).toBe(false);
+    expect(onIt.k).toBeCloseTo(0.12, 12);
+    expect(onIt.nearFloor).toBe(true);
+  });
+
+  test('a typed K raises none of the derating rule flags', () => {
+    const typed = kValue({ kOverride: 0.28 });
+    expect(typed.source).toBe('typed');
+    expect(typed.derated).toBe(false);
+    expect(typed.floored).toBe(false);
+    expect(typed.nearFloor).toBe(false);
+  });
+
+  test('both flags agree with an integer re-derivation across the pressure range', () => {
+    // A SECOND ROUTE, not the module's own: K in millionths as an integer,
+    // so the floor and the one-step band are integer comparisons with no
+    // floating point slack anywhere in them.
+    let flagged = 0;
+    let flooredCount = 0;
+    K_BASE.forEach(({ id }) => {
+      for (let p = 0; p <= 4000; p += 5) {
+        const r = kValue({ internalsId: id, pPsig: p });
+        const micro = Math.round(r.kDerated * 1e6);
+        expect(r.floored).toBe(micro < 120000);
+        expect(r.nearFloor).toBe(micro >= 120000 && micro - 120000 < 10000);
+        expect(r.floored && r.nearFloor).toBe(false);
+        if (r.nearFloor) flagged += 1;
+        if (r.floored) flooredCount += 1;
+      }
+    });
+    // a negative control: the sweep has to actually exercise both branches
+    expect(flagged).toBeGreaterThan(0);
+    expect(flooredCount).toBeGreaterThan(0);
   });
 
   test('an override wins outright', () => {

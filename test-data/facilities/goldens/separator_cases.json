@@ -195,84 +195,90 @@
     "derated": false,
     "floored": false,
     "k": 0.35,
-    "kDerated": 0.35
+    "kDerated": 0.35,
+    "nearFloor": false
    },
    "input": {
     "internalsId": "verticalMesh",
     "pPsig": 50
    },
    "name": "verticalMeshAt50psig",
-   "note": "exact rational derating; floored when the derated K is below 0.12"
+   "note": "exact rational derating; floored when the derated K is below 0.12, nearFloor when one more 100 psi step of the rule would floor it"
   },
   {
    "expected": {
     "derated": true,
     "floored": false,
     "k": 0.25,
-    "kDerated": 0.25
+    "kDerated": 0.25,
+    "nearFloor": false
    },
    "input": {
     "internalsId": "verticalMesh",
     "pPsig": 1100
    },
    "name": "verticalMeshAt1100psig",
-   "note": "exact rational derating; floored when the derated K is below 0.12"
+   "note": "exact rational derating; floored when the derated K is below 0.12, nearFloor when one more 100 psi step of the rule would floor it"
   },
   {
    "expected": {
     "derated": true,
     "floored": false,
     "k": 0.31,
-    "kDerated": 0.31
+    "kDerated": 0.31,
+    "nearFloor": false
    },
    "input": {
     "internalsId": "horizontalVane",
     "pPsig": 2500
    },
    "name": "horizontalVaneAt2500psig",
-   "note": "exact rational derating; floored when the derated K is below 0.12"
+   "note": "exact rational derating; floored when the derated K is below 0.12, nearFloor when one more 100 psi step of the rule would floor it"
   },
   {
    "expected": {
     "derated": true,
     "floored": false,
     "k": 0.125,
-    "kDerated": 0.125
+    "kDerated": 0.125,
+    "nearFloor": true
    },
    "input": {
     "internalsId": "verticalNone",
     "pPsig": 650
    },
    "name": "verticalNoneAt650psig",
-   "note": "exact rational derating; floored when the derated K is below 0.12"
+   "note": "exact rational derating; floored when the derated K is below 0.12, nearFloor when one more 100 psi step of the rule would floor it"
   },
   {
    "expected": {
     "derated": true,
     "floored": true,
     "k": 0.12,
-    "kDerated": -0.11
+    "kDerated": -0.11,
+    "nearFloor": false
    },
    "input": {
     "internalsId": "verticalNone",
     "pPsig": 3000
    },
    "name": "verticalNoneAt3000psig",
-   "note": "exact rational derating; floored when the derated K is below 0.12"
+   "note": "exact rational derating; floored when the derated K is below 0.12, nearFloor when one more 100 psi step of the rule would floor it"
   },
   {
    "expected": {
     "derated": true,
     "floored": true,
     "k": 0.12,
-    "kDerated": 0.11
+    "kDerated": 0.11,
+    "nearFloor": false
    },
    "input": {
     "internalsId": "horizontalNone",
     "pPsig": 1500
    },
    "name": "horizontalNoneAt1500psig",
-   "note": "exact rational derating; floored when the derated K is below 0.12"
+   "note": "exact rational derating; floored when the derated K is below 0.12, nearFloor when one more 100 psi step of the rule would floor it"
   }
  ],
  "segments": [
