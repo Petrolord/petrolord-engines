@@ -853,8 +853,19 @@ describe('integrity: allowance and remaining life', () => {
       expect(rel(r.requiredAllowanceMm, row.requiredAllowanceMm)).toBeLessThan(1e-12);
       expect(r.meetsDesignLife).toBe(row.meetsDesignLife);
       expect(r.unbounded).toBe(false);
+      // the shortfall, which the oracle forms as a DEFICIT OF YEARS times
+      // the rate rather than as a subtraction of two allowances. Held to
+      // one marching step of rate, not to machine precision.
+      expect(Math.abs(r.shortfallMm - row.shortfallMm))
+        .toBeLessThanOrEqual(row.stepYr * row.rateMmYr + 1e-12);
+      if (row.meetsDesignLife) expect(r.shortfallMm).toBe(0);
+      else expect(r.shortfallMm).toBeGreaterThan(0);
     });
-    say(`${rows.length} rows held to the ${rows[0].stepYr} year marching step`);
+    const withShortfall = rows.filter((r) => r.shortfallMm > 0).length;
+    expect(withShortfall).toBeGreaterThanOrEqual(1);
+    expect(rows.length - withShortfall).toBeGreaterThanOrEqual(1);
+    say(`${rows.length} rows held to the ${rows[0].stepYr} year marching step,`,
+      `${withShortfall} of them with a real allowance shortfall`);
   });
 
   test('A ZERO RATE NO LONGER RETURNS AN UNBOUNDED LIFE WITH A PASSING VERDICT', () => {
@@ -1341,6 +1352,11 @@ describe('NEGATIVE CONTROLS: each check is proved able to fail', () => {
     });
     control('the old screen with no binding constraint at all', () => {
       expect(screen(base).binding).toBeUndefined();
+    });
+    control('a shortfall forced to zero', () => {
+      const row = G.lifeRows.find((r) => r.shortfallMm > 0);
+      expect(Math.abs(0 - row.shortfallMm))
+        .toBeLessThanOrEqual(row.stepYr * row.rateMmYr + 1e-12);
     });
     say(`${fired.length - before} fails-open controls fired:`, fired.slice(before).join('; '));
   });

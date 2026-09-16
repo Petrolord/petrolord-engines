@@ -627,6 +627,10 @@ def main():
             "stepYr": 1e-3,
             "requiredAllowanceMm": rate * design,
             "meetsDesignLife": life_by_marching(remaining, rate) >= design,
+            # the allowance the design life is short by, formed here as a
+            # DEFICIT of years times rate rather than as a subtraction of
+            # two allowances
+            "shortfallMm": max(0.0, (design - life_by_marching(remaining, rate)) * rate),
         })
     out["lifeZeroRate"] = {
         "rateMmYr": 0.0, "corrosionAllowanceMm": 3.175, "designLifeYears": 20.0,

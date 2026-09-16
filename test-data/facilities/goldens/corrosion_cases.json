@@ -947,6 +947,7 @@
    "rateMmYr": 0.1,
    "remainingMm": 3.0,
    "requiredAllowanceMm": 2.0,
+   "shortfallMm": 0.0,
    "stepYr": 0.001
   },
   {
@@ -958,6 +959,7 @@
    "rateMmYr": 0.3,
    "remainingMm": 3.0,
    "requiredAllowanceMm": 6.0,
+   "shortfallMm": 3.0000000000000306,
    "stepYr": 0.001
   },
   {
@@ -969,6 +971,7 @@
    "rateMmYr": 0.7545236542623222,
    "remainingMm": 3.175,
    "requiredAllowanceMm": 15.090473085246444,
+   "shortfallMm": 11.915437548110788,
    "stepYr": 0.001
   },
   {
@@ -980,6 +983,7 @@
    "rateMmYr": 2.4,
    "remainingMm": 5.1499999999999995,
    "requiredAllowanceMm": 60.0,
+   "shortfallMm": 54.8496000000003,
    "stepYr": 0.001
   },
   {
@@ -991,6 +995,7 @@
    "rateMmYr": 0.0331,
    "remainingMm": 2.675,
    "requiredAllowanceMm": 0.6619999999999999,
+   "shortfallMm": 0.0,
    "stepYr": 0.001
   }
  ],
