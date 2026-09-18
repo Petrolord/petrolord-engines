@@ -405,6 +405,53 @@ and its consumers.
   clamp; the knapsack grid can pick a set over the limit or 23 percent
   short; `calculateCPM` is a passthrough; the NPV profile point at the
   applied rate is evaluated at a rate rounded to two decimals).
+- `engines/assurance/` — the Assurance & Compliance module (AS12
+  extraction wave, 2026-09-18; plan of record in the Suite at
+  docs/scope/Assurance-ROADMAP.md, which gated both NextGen assurance
+  courses on this extraction). Rules, not numerics: nine modules taken
+  from the Suite's `src/lib/` with the UI colour tokens left behind
+  (every `*_TOKENS`, `*_CHART_COLORS` and the risk band class helpers
+  stay Suite-side) and imports repointed; everything else verbatim.
+  `riskScoring.js` (ISO 31000 5x5 score, bands, residual as inherent
+  until assessed, appetite, review dates), `complianceStatus.js`
+  (obligation status: expired outranks overdue, due soon inside the
+  obligation's own lead time, compliant only with evidence; roll
+  forward), `documentControl.js` (review due calculus, revision
+  numbers, confidentiality floor), `peerReview.js` (comment disposition
+  transitions; a review cannot close over an unresolved Critical or
+  Major comment), `managementOfChange.js` (temporary change expiry,
+  every approval level signs before implementation, action closure),
+  `qualityAssurance.js` (hold points, checkpoint decisions carry a
+  verification record, NCR closure on evidence and CAPA effectiveness,
+  plan closure, NCR ageing), `isoCompliance.js` (conformity claims need
+  evidence, date and assessor; ISO 19011 independence; clause coverage
+  over the certification cycle; certification readiness as a list of
+  blockers, never a percentage; ISO 9001 10.2 finding closure),
+  `lessonsLearned.js` (an anecdote is not a lesson, an author may not
+  validate their own, Embedded is earned by an application) and
+  `auditManagement.js` (checklist completeness, critical nonconformance
+  raises a finding, lead auditor is not the auditee, a programme is
+  complete when its audits are; the finding rules are isoCompliance's,
+  imported). `calendar.js` is the one copy of the calendar date helpers
+  five Suite modules each carried byte for byte (a `YYYY-MM-DD` parses at
+  LOCAL midnight; AS3 found a UTC parse that moved a permit expiry by a
+  day). Gates: the Suite's rule tests ported (`assurance.*.test.js`),
+  and `assurance.goldens.test.js`, which runs every case in
+  `test-data/assurance/goldens/` against the engine and replays them all
+  under five time zones. The goldens are written by stdlib python
+  oracles in `tools/validation/assurance/`, from the rules as documented
+  rather than from the JavaScript, and they compute every summary
+  (1,745 cases). The oracles found thirteen engine defects, all repaired
+  in the same wave and each pinned by `"repaired"` cases: impossible dates
+  rolling over into real ones and years below 1000 misprinted
+  (calendar), a UTC parse that made a review due today overdue west of
+  Greenwich and a blank residual axis scoring 0 (risk), unreadable dates
+  reading "due soon" or passing the temporary change gate (documents,
+  MOC), a null severity sorting above Critical and "A open comment"
+  (peer review), a non-transitive lesson sort, and in ISO the dashboard
+  ignoring each standard's certification cycle, findings ageing after
+  closure and a 29 February cycle start rolled to 1 March. The
+  `FINDINGS-*.md` files keep the owner questions that were not changed.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
@@ -503,6 +550,8 @@ functions through one-line shims at supabase/functions/_shared/.
 | `lib/conventions/percentile.js` | `src/lib/percentileConventions.js` (verbatim; the Suite path becomes a re-export shim) |
 | `lib/lp/simplex.js` | the Suite's vendored `packages/engines/lib/lp/simplex.js` (same history; shim `src/utils/downstream/engine/simplex.js` stays) |
 | `__tests__/downstream.*.test.js`, `__tests__/lp.simplex.test.js` | the Suite's vendored `packages/engines/__tests__/` (same history) |
+| `engines/assurance/{riskScoring,complianceStatus,documentControl,peerReview,managementOfChange,qualityAssurance,isoCompliance,lessonsLearned,auditManagement}.js` | `src/lib/` (same names; the colour tokens stayed in the Suite, which keeps each path as a shim that re-exports the engine and adds them) |
+| `engines/assurance/calendar.js` | five byte-identical copies of `parseDateOnly` / `daysUntil` / `toDateOnlyString` in the Suite modules above |
 
 Import rewrites at extraction: `engines/seismolord/synthetics.js` and
 all `@/lib/*` imports became `../../lib/*` (the package has no `@/`
