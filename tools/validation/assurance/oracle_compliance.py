@@ -64,6 +64,19 @@ def lead(o):
     return n
 
 
+def lead_source(o):
+    """ASC-1: whose lead time is in force. 'own' only when the obligation's
+    column holds a usable count of days; otherwise the 30-day default, and
+    the reason must not call it the obligation's own."""
+    raw = o.get('lead_time_days', UNDEF)
+    if raw is None or raw is UNDEF or raw == '':
+        return 'unset'
+    n = js_number(raw)
+    if n != n or n in (float('inf'), float('-inf')) or n < 0:
+        return 'unusable'
+    return 'own'
+
+
 def next_action(o):
     ds = [d for d in (to_date(o.get('due_date')), to_date(o.get('expiry_date'))) if d is not None]
     return min(ds) if ds else None
@@ -140,12 +153,27 @@ def explain_reason(o, today):
         return out
     if st == COMPLIANT:
         return f'Last filed {filed}, next due {_in_days(days)}.'
+    if st == DUE_SOON:
+        # ASC-1: only an obligation's own lead time is "set for this
+        # obligation"; the default says it is the default.
+        if days == 0:
+            return 'Due today.'
+        n = lead(o)
+        n = int(n) if n == int(n) else n
+        head = f"Due in {days} day{'' if days == 1 else 's'}, "
+        src = lead_source(o)
+        if src == 'own':
+            return head + f'inside the {n} day lead time set for this obligation.'
+        if src == 'unset':
+            return head + f'inside the default {n} day lead time (none is set for this obligation).'
+        return head + (f'inside the default {n} day lead time (the one recorded for this '
+                       'obligation is not a usable number of days).')
     if st == ON_TRACK:
         if filed:
             return (f'Due {_in_days(days)}. The last filing ({filed}) was for an earlier period, '
                     'so nothing has been filed for this one yet.')
         return f'Due {_in_days(days)}. Nothing has been filed against it yet.'
-    raise ValueError('explain_reason covers Compliant and On track only')
+    raise ValueError('explain_reason covers Compliant, On track and Due soon only')
 
 
 def summarise(obs, today):
@@ -415,6 +443,27 @@ def build():
     for cid, o, t in r4:
         c.add('r4-' + cid, 'explainStatus', [o, t], {**explain(o, t), 'reason': explain_reason(o, t)},
               defect='R4', prose='exact')
+
+    # ASC-1: the Due soon reason names whose lead time it is. The lead's
+    # repro first: no lead time recorded, due in 25 days, read "inside the
+    # 30 day lead time set for this obligation". Compared verbatim.
+    asc1 = [
+        ('null-default-25-days', {'frequency': 'Annual', 'due_date': '2026-10-12', 'lead_time_days': None}),
+        ('absent-default', {'frequency': 'Annual', 'due_date': '2026-10-12'}),
+        ('empty-default', {'frequency': 'Annual', 'due_date': '2026-10-12', 'lead_time_days': ''}),
+        ('negative-unusable', {'frequency': 'Annual', 'due_date': '2026-10-12', 'lead_time_days': -5}),
+        ('text-unusable', {'frequency': 'Annual', 'due_date': '2026-10-12', 'lead_time_days': 'soon'}),
+        ('own-30', {'frequency': 'Annual', 'due_date': '2026-10-12', 'lead_time_days': 30}),
+        ('own-90', {'frequency': 'Annual', 'due_date': '2026-12-01', 'lead_time_days': 90}),
+        ('own-string-number', {'frequency': 'Annual', 'due_date': '2026-09-27', 'lead_time_days': '10'}),
+        ('own-one-day', {'frequency': 'Annual', 'due_date': '2026-09-18', 'lead_time_days': 7}),
+        ('default-one-day', {'frequency': 'Annual', 'due_date': '2026-09-18'}),
+        ('default-due-today', {'frequency': 'Annual', 'due_date': '2026-09-17'}),
+        ('default-permit-expiry', {'frequency': 'Annual', 'expiry_date': '2026-10-01'}),
+    ]
+    for cid, o in asc1:
+        c.add('asc1-lead-' + cid, 'explainStatus', [o, T], {**explain(o, T), 'reason': explain_reason(o, T)},
+              defect='ASC-1', prose='exact')
     return c
 
 

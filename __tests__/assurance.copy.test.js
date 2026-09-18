@@ -27,6 +27,7 @@ import {
   missingEvidenceParts,
   summarise as isoSummarise,
 } from '../engines/assurance/isoCompliance.js';
+import { explainStatus } from '../engines/assurance/complianceStatus.js';
 
 const TODAY = new Date(2026, 8, 18);
 const ap = (level, status) => ({ level, status });
@@ -126,6 +127,7 @@ describe('count agreement', () => {
  *       its planned end. Overdue asks "delivered by the planned end?".
  *   E8: the readiness sentence said evidence, date and assessor were all
  *       missing when only the evidence reference was.
+ *   Lead time: "set for this obligation" was printed for the default.
  */
 describe('ASC-1 E3: one answer to "is this audit overdue"', () => {
   const past = { planned_end: '2026-08-06' };
@@ -195,5 +197,29 @@ describe('ASC-1 E8: the unevidenced-claim sentence names what is missing', () =>
     expect(missingEvidenceParts({ status: 'Conformant' }))
       .toEqual(['evidence reference', 'assessed date', 'assessor']);
     expect(missingEvidenceParts(ev({ assessed_by: null, assessor_name: 'J. Okafor' }))).toEqual([]);
+  });
+});
+
+describe('ASC-1: the Due soon reason says whose lead time it is', () => {
+  const T = new Date(2026, 8, 17);
+  const ob = (o) => ({ frequency: 'Annual', due_date: '2026-10-12', ...o });
+
+  it('the default is called the default (the lead\'s repro: 25 days, no lead time)', () => {
+    expect(explainStatus(ob({ lead_time_days: null }), T).reason)
+      .toBe('Due in 25 days, inside the default 30 day lead time (none is set for this obligation).');
+    expect(explainStatus(ob({}), T).reason)
+      .toBe('Due in 25 days, inside the default 30 day lead time (none is set for this obligation).');
+  });
+
+  it('an unusable recorded value is not called the obligation\'s lead time', () => {
+    expect(explainStatus(ob({ lead_time_days: -5 }), T).reason)
+      .toBe('Due in 25 days, inside the default 30 day lead time (the one recorded for this obligation is not a usable number of days).');
+  });
+
+  it('the obligation\'s own lead time keeps its wording, even when it equals the default', () => {
+    expect(explainStatus(ob({ lead_time_days: 30 }), T).reason)
+      .toBe('Due in 25 days, inside the 30 day lead time set for this obligation.');
+    expect(explainStatus(ob({ due_date: '2026-09-18', lead_time_days: 7 }), T).reason)
+      .toBe('Due in 1 day, inside the 7 day lead time set for this obligation.');
   });
 });

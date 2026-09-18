@@ -143,15 +143,37 @@ export const nextActionDate = (obligation = {}) => {
   return due || expiry || null;
 };
 
-const leadTime = (obligation) => {
+/**
+ * The lead time in force and where it came from: 'own' (the obligation's
+ * lead_time_days), 'unset' (none recorded, so the default) or 'unusable'
+ * (something recorded that is not a count of days, so the default).
+ * ASC-1: explainStatus needs the source, because "the 30 day lead time
+ * set for this obligation" was untrue whenever the default applied.
+ */
+const leadTimeOf = (obligation) => {
   const raw = obligation?.lead_time_days;
   // Number(null) and Number('') are both 0, not NaN, so a null column
   // would otherwise mean a zero-day warning window: the obligation
   // would jump straight from On track to Overdue with no notice at all,
   // which is the one thing this field exists to prevent.
-  if (raw === null || raw === undefined || raw === '') return DEFAULT_LEAD_TIME_DAYS;
+  if (raw === null || raw === undefined || raw === '') {
+    return { days: DEFAULT_LEAD_TIME_DAYS, source: 'unset' };
+  }
   const n = Number(raw);
-  return Number.isFinite(n) && n >= 0 ? n : DEFAULT_LEAD_TIME_DAYS;
+  return Number.isFinite(n) && n >= 0
+    ? { days: n, source: 'own' }
+    : { days: DEFAULT_LEAD_TIME_DAYS, source: 'unusable' };
+};
+
+const leadTime = (obligation) => leadTimeOf(obligation).days;
+
+// ASC-1: the lead-time clause of the Due soon reason. Only an obligation's
+// own lead time is "set for this obligation"; the default says it is one.
+const leadTimeClause = (obligation) => {
+  const { days, source } = leadTimeOf(obligation);
+  if (source === 'own') return `inside the ${days} day lead time set for this obligation`;
+  if (source === 'unset') return `inside the default ${days} day lead time (none is set for this obligation)`;
+  return `inside the default ${days} day lead time (the one recorded for this obligation is not a usable number of days)`;
 };
 
 /**
@@ -257,7 +279,7 @@ export const explainStatus = (obligation = {}, today = new Date()) => {
     case STATUS.DUE_SOON:
       reason = days === 0
         ? 'Due today.'
-        : `Due in ${days} day${days === 1 ? '' : 's'}, inside the ${leadTime(obligation)} day lead time set for this obligation.`;
+        : `Due in ${days} day${days === 1 ? '' : 's'}, ${leadTimeClause(obligation)}.`;
       break;
     case STATUS.COMPLIANT:
       // ASC-0 (R4): a filed One-off is Compliant whatever its due date
