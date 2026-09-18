@@ -121,6 +121,28 @@ describe('overdue implementation', () => {
       expect(isOverdue(moc({ stage, target_implementation_date: '2020-01-01' }), TODAY)).toBe(false);
     });
   });
+
+  // RC-3 (ASC-0): a change in Implementation is on the facility, so it is
+  // not late to be implemented. Late work after that is its actions.
+  it('asks only before the change is on the facility', () => {
+    ['Draft', 'Screening', 'Review', 'Approval'].forEach((stage) => {
+      expect(isOverdue(moc({ stage, target_implementation_date: '2020-01-01' }), TODAY)).toBe(true);
+    });
+    expect(isOverdue(moc({
+      stage: 'Implementation', target_implementation_date: '2026-09-10', actual_implementation_date: '2026-09-10',
+    }), TODAY)).toBe(false);
+  });
+
+  it('a change implemented on its target date is not counted overdue or ranked as overdue', () => {
+    const inEffect = moc({ id: 'impl', stage: 'Implementation', type: 'Permanent', target_implementation_date: '2026-09-10' });
+    const late = moc({ id: 'late', stage: 'Approval', type: 'Permanent', target_implementation_date: '2026-09-12' });
+    const live = moc({ id: 'live', stage: 'Review', type: 'Permanent', target_implementation_date: '2026-09-01' });
+    expect(summarise([inEffect, late], {}, TODAY).overdue).toBe(1);
+    // live is overdue (Review, past target) and ranks with late; inEffect
+    // ranks with live work after them.
+    const order = [inEffect, late, live].sort(byUrgency(TODAY)).map((m) => m.id);
+    expect(order).toEqual(['live', 'late', 'impl']);
+  });
 });
 
 describe('the multi-level approval gate', () => {

@@ -2145,7 +2145,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": true
+   "expected": false
   },
   {
    "id": "overdue-Implementation-today",
@@ -2299,6 +2299,181 @@
     }
    ],
    "expected": false
+  },
+  {
+   "id": "rc3-implemented-on-target",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Implementation",
+     "type": "Permanent",
+     "target_implementation_date": "2026-09-26",
+     "actual_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-temporary-in-effect-long-past-target",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Implementation",
+     "type": "Temporary",
+     "expiry_date": "2026-12-31",
+     "target_implementation_date": "2026-06-01"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-pre-effect-Draft-still-overdue",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Draft",
+     "target_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-pre-effect-Screening-still-overdue",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Screening",
+     "target_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-pre-effect-Review-still-overdue",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Review",
+     "target_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-pre-effect-Approval-still-overdue",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Approval",
+     "target_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-summarise-in-effect-not-overdue",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "r1",
+      "stage": "Implementation",
+      "type": "Permanent",
+      "target_implementation_date": "2026-09-26"
+     },
+     {
+      "id": "r2",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "expiry_date": "2027-01-01",
+      "target_implementation_date": "2026-08-01"
+     },
+     {
+      "id": "r3",
+      "stage": "Approval",
+      "type": "Permanent",
+      "target_implementation_date": "2026-09-20"
+     },
+     {
+      "id": "r4",
+      "stage": "Review",
+      "type": "Permanent",
+      "target_implementation_date": "2026-10-20"
+     }
+    ],
+    {
+     "actions": [
+      {
+       "moc_id": "r1",
+       "action_type": "Implementation",
+       "status": "Open",
+       "due_date": "2026-09-28"
+      },
+      {
+       "moc_id": "r2",
+       "action_type": "Post-implementation",
+       "status": "Open",
+       "due_date": "2026-10-15"
+      }
+     ]
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": {
+    "total": 4,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 1,
+     "Approval": 1,
+     "Implementation": 2,
+     "Closed": 0,
+     "Rejected": 0,
+     "Cancelled": 0
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 4,
+    "awaitingApproval": 1,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 1,
+    "openActions": 2,
+    "overdueActions": 1,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
+   },
+   "repaired": "RC-3"
   },
   {
    "id": "approvals-empty",
@@ -3534,7 +3709,7 @@
     "awaitingApproval": 2,
     "expired": 1,
     "expiringSoon": 2,
-    "overdue": 3,
+    "overdue": 2,
     "openActions": 5,
     "overdueActions": 2,
     "ratificationPending": 0,
@@ -3644,7 +3819,7 @@
     "awaitingApproval": 1,
     "expired": 1,
     "expiringSoon": 1,
-    "overdue": 2,
+    "overdue": 1,
     "openActions": 0,
     "overdueActions": 0,
     "ratificationPending": 0,
@@ -3849,7 +4024,7 @@
     "awaitingApproval": 2,
     "expired": 2,
     "expiringSoon": 2,
-    "overdue": 4,
+    "overdue": 3,
     "openActions": 0,
     "overdueActions": 0,
     "ratificationPending": 0,
@@ -5508,6 +5683,49 @@
    ],
    "rows": [],
    "expectedOrder": []
+  },
+  {
+   "id": "rc3-urgency-in-effect-ranks-as-live",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "rows": [
+    {
+     "id": "impl-past-target",
+     "stage": "Implementation",
+     "type": "Permanent",
+     "target_implementation_date": "2026-08-19"
+    },
+    {
+     "id": "live-future",
+     "stage": "Review",
+     "type": "Permanent",
+     "target_implementation_date": "2026-09-28"
+    },
+    {
+     "id": "approval-late",
+     "stage": "Approval",
+     "type": "Permanent",
+     "target_implementation_date": "2026-09-15"
+    },
+    {
+     "id": "closed",
+     "stage": "Closed",
+     "type": "Permanent",
+     "target_implementation_date": "2026-07-20"
+    }
+   ],
+   "expectedOrder": [
+    "approval-late",
+    "impl-past-target",
+    "live-future",
+    "closed"
+   ],
+   "repaired": "RC-3"
   },
   {
    "id": "urgency-lead-edge",

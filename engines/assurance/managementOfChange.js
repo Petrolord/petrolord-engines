@@ -144,8 +144,21 @@ export const expiryState = (moc = {}, today = new Date()) => {
 export const isExpired = (moc, today = new Date()) =>
   expiryState(moc, today) === EXPIRY.EXPIRED;
 
+/**
+ * Is this change late to be implemented?
+ *
+ * Only BEFORE it is on the facility: a stage in ACTIVE_STAGES that is not
+ * in IN_EFFECT_STAGES (Draft, Screening, Review, Approval). A change in
+ * Implementation is in effect, so its target implementation date has been
+ * met or passed by the fact of it; late work after that point is carried
+ * by its overdue ACTIONS (`summarise().overdueActions`). Before ASC-0 the
+ * test used ACTIVE_STAGES alone, so a change implemented ON its target
+ * date read overdue from the next day until it closed (RC-3). The
+ * dashboard's `summarise().overdue` and the `byUrgency` rank both ask this
+ * function, so they follow it.
+ */
 export const isOverdue = (moc = {}, today = new Date()) => {
-  if (!ACTIVE_STAGES.includes(moc.stage)) return false;
+  if (!ACTIVE_STAGES.includes(moc.stage) || IN_EFFECT_STAGES.includes(moc.stage)) return false;
   const days = daysUntil(moc.target_implementation_date, today);
   return days !== null && days < 0;
 };
@@ -419,8 +432,9 @@ export const countBy = (rows = [], field, unset = 'Unspecified') => {
 };
 
 /**
- * Sort: expired temporary changes first, then overdue, then live work,
- * then everything finished. An expired temporary change outranks
+ * Sort: expired temporary changes first, then expiring soon, then
+ * overdue (late to be implemented, `isOverdue`, so never a change already
+ * in Implementation), then live work, then everything finished. An expired temporary change outranks
  * everything because it is the one that is actually on the facility
  * without authority.
  */
