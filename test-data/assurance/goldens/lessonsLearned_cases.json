@@ -1,0 +1,7968 @@
+{
+ "module": "lessonsLearned",
+ "generatedBy": "tools/validation/assurance/oracle_lessons.py",
+ "description": "Independent stdlib-Python oracle for the Lessons Learned rules: author may not validate their own lesson, an anecdote is not a lesson, Embedded is earned by an Adopted or Adapted application, the reuse record is counted, application and archive/supersede requirements, review dates (lead 30 days), search, the dashboard summary and the attention sort. Findings: FINDINGS-lessons.md.",
+ "cases": [
+  {
+   "id": "parse-plain",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-18"
+   ],
+   "expected": {
+    "$date": "2026-09-18"
+   }
+  },
+  {
+   "id": "parse-ts",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-18T00:00:00-05:00"
+   ],
+   "expected": {
+    "$date": "2026-09-18"
+   }
+  },
+  {
+   "id": "parse-date",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$date": "2026-03-29"
+    }
+   ],
+   "expected": {
+    "$date": "2026-03-29"
+   }
+  },
+  {
+   "id": "parse-null",
+   "fn": "parseDateOnly",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-garbage",
+   "fn": "parseDateOnly",
+   "args": [
+    "18/09/2026"
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-invalid-date",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$date": null
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-31-june",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-06-31"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "days-future",
+   "fn": "daysUntil",
+   "args": [
+    "2026-10-18",
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 30
+  },
+  {
+   "id": "days-past",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-17",
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": -1
+  },
+  {
+   "id": "days-null",
+   "fn": "daysUntil",
+   "args": [
+    null,
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "days-dst-eu-end",
+   "fn": "daysUntil",
+   "args": [
+    "2026-10-26",
+    {
+     "$date": "2026-10-24"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "tods-date",
+   "fn": "toDateOnlyString",
+   "args": [
+    {
+     "$date": "2026-11-01"
+    }
+   ],
+   "expected": "2026-11-01"
+  },
+  {
+   "id": "tods-str",
+   "fn": "toDateOnlyString",
+   "args": [
+    "2026-11-01T12:00Z"
+   ],
+   "expected": "2026-11-01"
+  },
+  {
+   "id": "tods-null",
+   "fn": "toDateOnlyString",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "isLive-Draft",
+   "fn": "isLive",
+   "args": [
+    {
+     "status": "Draft"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isVisible-Draft",
+   "fn": "isVisible",
+   "args": [
+    {
+     "status": "Draft"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isAccepted-Draft",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "status": "Draft"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isLive-Submitted",
+   "fn": "isLive",
+   "args": [
+    {
+     "status": "Submitted"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isVisible-Submitted",
+   "fn": "isVisible",
+   "args": [
+    {
+     "status": "Submitted"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isAccepted-Submitted",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "status": "Submitted"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isLive-Validated",
+   "fn": "isLive",
+   "args": [
+    {
+     "status": "Validated"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isVisible-Validated",
+   "fn": "isVisible",
+   "args": [
+    {
+     "status": "Validated"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isAccepted-Validated",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "status": "Validated"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isLive-Published",
+   "fn": "isLive",
+   "args": [
+    {
+     "status": "Published"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isVisible-Published",
+   "fn": "isVisible",
+   "args": [
+    {
+     "status": "Published"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isAccepted-Published",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "status": "Published"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isLive-Embedded",
+   "fn": "isLive",
+   "args": [
+    {
+     "status": "Embedded"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isVisible-Embedded",
+   "fn": "isVisible",
+   "args": [
+    {
+     "status": "Embedded"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isAccepted-Embedded",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "status": "Embedded"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isLive-Archived",
+   "fn": "isLive",
+   "args": [
+    {
+     "status": "Archived"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isVisible-Archived",
+   "fn": "isVisible",
+   "args": [
+    {
+     "status": "Archived"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isAccepted-Archived",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "status": "Archived"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isLive-Superseded",
+   "fn": "isLive",
+   "args": [
+    {
+     "status": "Superseded"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isVisible-Superseded",
+   "fn": "isVisible",
+   "args": [
+    {
+     "status": "Superseded"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isAccepted-Superseded",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "status": "Superseded"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isLive-Rejected",
+   "fn": "isLive",
+   "args": [
+    {
+     "status": "Rejected"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isVisible-Rejected",
+   "fn": "isVisible",
+   "args": [
+    {
+     "status": "Rejected"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isAccepted-Rejected",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "status": "Rejected"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isLive-None",
+   "fn": "isLive",
+   "args": [
+    {
+     "status": null
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isVisible-None",
+   "fn": "isVisible",
+   "args": [
+    {
+     "status": null
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isAccepted-None",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "status": null
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isLive-default",
+   "fn": "isLive",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isVisible-default",
+   "fn": "isVisible",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isAccepted-default",
+   "fn": "isAccepted",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "substance-full",
+   "fn": "hasSubstance",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "missing-full",
+   "fn": "missingSubstance",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "id": "substance-story-only",
+   "fn": "hasSubstance",
+   "args": [
+    {
+     "description": "Seal failed",
+     "root_cause": "Dry running"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "missing-story-only",
+   "fn": "missingSubstance",
+   "args": [
+    {
+     "description": "Seal failed",
+     "root_cause": "Dry running"
+    }
+   ],
+   "expected": [
+    "what to do about it"
+   ]
+  },
+  {
+   "id": "substance-blank-why",
+   "fn": "hasSubstance",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "   ",
+     "recommendation": "Prime the pump before restart"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "missing-blank-why",
+   "fn": "missingSubstance",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "   ",
+     "recommendation": "Prime the pump before restart"
+    }
+   ],
+   "expected": [
+    "why it happened"
+   ]
+  },
+  {
+   "id": "substance-no-what",
+   "fn": "hasSubstance",
+   "args": [
+    {
+     "description": null,
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "missing-no-what",
+   "fn": "missingSubstance",
+   "args": [
+    {
+     "description": null,
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart"
+    }
+   ],
+   "expected": [
+    "what happened"
+   ]
+  },
+  {
+   "id": "substance-nothing",
+   "fn": "hasSubstance",
+   "args": [
+    {}
+   ],
+   "expected": false
+  },
+  {
+   "id": "missing-nothing",
+   "fn": "missingSubstance",
+   "args": [
+    {}
+   ],
+   "expected": [
+    "what happened",
+    "why it happened",
+    "what to do about it"
+   ]
+  },
+  {
+   "id": "substance-whitespace-all",
+   "fn": "hasSubstance",
+   "args": [
+    {
+     "description": " ",
+     "root_cause": "\t",
+     "recommendation": "\n"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "missing-whitespace-all",
+   "fn": "missingSubstance",
+   "args": [
+    {
+     "description": " ",
+     "root_cause": "\t",
+     "recommendation": "\n"
+    }
+   ],
+   "expected": [
+    "what happened",
+    "why it happened",
+    "what to do about it"
+   ]
+  },
+  {
+   "id": "missing-default",
+   "fn": "missingSubstance",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": [
+    "what happened",
+    "why it happened",
+    "what to do about it"
+   ]
+  },
+  {
+   "id": "validation-record-user",
+   "fn": "hasValidationRecord",
+   "args": [
+    {
+     "validated_at": "2026-09-17",
+     "validated_by": "u-2"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "validation-record-external-name",
+   "fn": "hasValidationRecord",
+   "args": [
+    {
+     "validated_at": "2026-09-17",
+     "validator_name": "IOGP reviewer"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "validation-record-blank-name",
+   "fn": "hasValidationRecord",
+   "args": [
+    {
+     "validated_at": "2026-09-17",
+     "validator_name": " "
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "validation-record-no-date",
+   "fn": "hasValidationRecord",
+   "args": [
+    {
+     "validated_by": "u-2"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "validation-record-nothing",
+   "fn": "hasValidationRecord",
+   "args": [
+    {}
+   ],
+   "expected": false
+  },
+  {
+   "id": "validate-author-self",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-author",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "validate-other-user",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-other",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "validate-clerk-who-typed-it",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-clerk",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "validate-external-no-id",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    null,
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "validate-author-falls-back-to-created-by",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": null,
+     "created_by": "u-clerk"
+    },
+    "u-clerk",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "validate-no-author-at-all",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L2"
+    },
+    "u-any",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "validate-story-by-other",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-other",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "validate-story-external",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": null,
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    null,
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "validate-patch-supplies-recommendation",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": null,
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-other",
+    {
+     "recommendation": "Prime first"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "validate-patch-blanks-description",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-other",
+    {
+     "description": ""
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "validate-author-and-story",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-author",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "validate-no-patch",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-other",
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "changed-Adopted",
+   "fn": "didChangeSomething",
+   "args": [
+    {
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "changed-Adapted",
+   "fn": "didChangeSomething",
+   "args": [
+    {
+     "outcome": "Adapted"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "changed-Rejected",
+   "fn": "didChangeSomething",
+   "args": [
+    {
+     "outcome": "Rejected"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "changed-Pending",
+   "fn": "didChangeSomething",
+   "args": [
+    {
+     "outcome": "Pending"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "changed-None",
+   "fn": "didChangeSomething",
+   "args": [
+    {
+     "outcome": null
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "changed-default",
+   "fn": "didChangeSomething",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "reuse-mixed",
+   "fn": "reuseRecord",
+   "args": [
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-08-09"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adapted",
+      "target_type": "Training",
+      "applied_on": "2026-09-16"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-06-10"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": null,
+      "applied_on": "n/a"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adapted",
+      "target_type": "Management of change"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 6,
+    "applied": 5,
+    "adopted": 3,
+    "adapted": 2,
+    "rejected": 1,
+    "targets": [
+     "Risk register",
+     "Training",
+     "Management of change"
+    ],
+    "lastAppliedOn": "2026-09-16"
+   }
+  },
+  {
+   "id": "reuse-empty",
+   "fn": "reuseRecord",
+   "args": [
+    []
+   ],
+   "expected": {
+    "total": 0,
+    "applied": 0,
+    "adopted": 0,
+    "adapted": 0,
+    "rejected": 0,
+    "targets": [],
+    "lastAppliedOn": null
+   }
+  },
+  {
+   "id": "reuse-rejected-only",
+   "fn": "reuseRecord",
+   "args": [
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 2,
+    "applied": 0,
+    "adopted": 0,
+    "adapted": 0,
+    "rejected": 2,
+    "targets": [],
+    "lastAppliedOn": null
+   }
+  },
+  {
+   "id": "reuse-undated-applied",
+   "fn": "reuseRecord",
+   "args": [
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": null,
+      "applied_on": "n/a"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adapted",
+      "target_type": "Management of change"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 2,
+    "applied": 2,
+    "adopted": 1,
+    "adapted": 1,
+    "rejected": 0,
+    "targets": [
+     "Management of change"
+    ],
+    "lastAppliedOn": null
+   }
+  },
+  {
+   "id": "reuse-default",
+   "fn": "reuseRecord",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "total": 0,
+    "applied": 0,
+    "adopted": 0,
+    "adapted": 0,
+    "rejected": 0,
+    "targets": [],
+    "lastAppliedOn": null
+   }
+  },
+  {
+   "id": "record-app-risk-with-key",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Risk register",
+     "target_risk_id": "r-1",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-risk-without-key",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Risk register",
+     "reference": "RSK-1042",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-moc-with-key",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Management of change",
+     "target_moc_id": "m-1",
+     "outcome": "Adapted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-moc-without-key",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Management of change",
+     "outcome": "Adapted"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-procedure-with-ref",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Procedure",
+     "reference": "OPS-PR-017 rev 4",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-procedure-blank-ref",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Procedure",
+     "reference": "  ",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-training-no-ref",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Training",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-unknown-target",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Newsletter",
+     "reference": "Q3",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-no-target",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-no-outcome",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Other",
+     "reference": "x"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-bad-outcome",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Other",
+     "reference": "x",
+     "outcome": "Maybe"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-rejected-no-notes",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Design standard",
+     "reference": "DEP 31.38",
+     "outcome": "Rejected"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-rejected-blank-notes",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Design standard",
+     "reference": "DEP 31.38",
+     "outcome": "Rejected",
+     "notes": " "
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "record-app-rejected-with-notes",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Design standard",
+     "reference": "DEP 31.38",
+     "outcome": "Rejected",
+     "notes": "Not applicable offshore"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-rejected-into-risk",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Risk register",
+     "target_risk_id": "r-2",
+     "outcome": "Rejected",
+     "notes": "Already covered"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-every-target-Risk register",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Risk register",
+     "target_risk_id": "r",
+     "target_moc_id": "m",
+     "reference": "ref",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-every-target-Management of change",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Management of change",
+     "target_risk_id": "r",
+     "target_moc_id": "m",
+     "reference": "ref",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-every-target-Procedure",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Procedure",
+     "target_risk_id": "r",
+     "target_moc_id": "m",
+     "reference": "ref",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-every-target-Training",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Training",
+     "target_risk_id": "r",
+     "target_moc_id": "m",
+     "reference": "ref",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-every-target-Design standard",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Design standard",
+     "target_risk_id": "r",
+     "target_moc_id": "m",
+     "reference": "ref",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-every-target-Contract or tender",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Contract or tender",
+     "target_risk_id": "r",
+     "target_moc_id": "m",
+     "reference": "ref",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-every-target-Maintenance plan",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Maintenance plan",
+     "target_risk_id": "r",
+     "target_moc_id": "m",
+     "reference": "ref",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-every-target-Other",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "target_type": "Other",
+     "target_risk_id": "r",
+     "target_moc_id": "m",
+     "reference": "ref",
+     "outcome": "Adopted"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "record-app-default",
+   "fn": "canRecordApplication",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "next-Draft",
+   "fn": "nextLessonStatuses",
+   "args": [
+    "Draft"
+   ],
+   "expected": [
+    "Submitted",
+    "Archived"
+   ]
+  },
+  {
+   "id": "next-Submitted",
+   "fn": "nextLessonStatuses",
+   "args": [
+    "Submitted"
+   ],
+   "expected": [
+    "Validated",
+    "Draft",
+    "Archived"
+   ]
+  },
+  {
+   "id": "next-Validated",
+   "fn": "nextLessonStatuses",
+   "args": [
+    "Validated"
+   ],
+   "expected": [
+    "Published",
+    "Submitted",
+    "Archived"
+   ]
+  },
+  {
+   "id": "next-Published",
+   "fn": "nextLessonStatuses",
+   "args": [
+    "Published"
+   ],
+   "expected": [
+    "Embedded",
+    "Superseded",
+    "Archived"
+   ]
+  },
+  {
+   "id": "next-Embedded",
+   "fn": "nextLessonStatuses",
+   "args": [
+    "Embedded"
+   ],
+   "expected": [
+    "Superseded",
+    "Archived"
+   ]
+  },
+  {
+   "id": "next-Archived",
+   "fn": "nextLessonStatuses",
+   "args": [
+    "Archived"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-Superseded",
+   "fn": "nextLessonStatuses",
+   "args": [
+    "Superseded"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-Published ",
+   "fn": "nextLessonStatuses",
+   "args": [
+    "Published "
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-None",
+   "fn": "nextLessonStatuses",
+   "args": [
+    null
+   ],
+   "expected": []
+  },
+  {
+   "id": "embed-none",
+   "fn": "canEmbed",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "embed-rejected-only",
+   "fn": "canEmbed",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "embed-one-adapted",
+   "fn": "canEmbed",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Adapted",
+      "target_type": "Training",
+      "applied_on": "2026-09-16"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "embed-mixed",
+   "fn": "canEmbed",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-08-09"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adapted",
+      "target_type": "Training",
+      "applied_on": "2026-09-16"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-06-10"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": null,
+      "applied_on": "n/a"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Adapted",
+      "target_type": "Management of change"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "embed-no-apps",
+   "fn": "canEmbed",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "archive-reason-on-row",
+   "fn": "canArchive",
+   "args": [
+    {
+     "archive_reason": "Superseded by the 2026 standard"
+    },
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "archive-reason-in-patch",
+   "fn": "canArchive",
+   "args": [
+    {},
+    {
+     "archive_reason": "Asset decommissioned"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "archive-none",
+   "fn": "canArchive",
+   "args": [
+    {},
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "archive-blank",
+   "fn": "canArchive",
+   "args": [
+    {
+     "archive_reason": "  "
+    },
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "archive-patch-blank-overrides-row",
+   "fn": "canArchive",
+   "args": [
+    {
+     "archive_reason": "old reason"
+    },
+    {
+     "archive_reason": ""
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "archive-patch-null-keeps-row",
+   "fn": "canArchive",
+   "args": [
+    {
+     "archive_reason": "old reason"
+    },
+    {
+     "archive_reason": null
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "archive-no-patch",
+   "fn": "canArchive",
+   "args": [
+    {
+     "archive_reason": "x"
+    },
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "supersede-successor-in-patch",
+   "fn": "canSupersede",
+   "args": [
+    {
+     "id": "L1"
+    },
+    {
+     "superseded_by": "L9"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "supersede-successor-on-row",
+   "fn": "canSupersede",
+   "args": [
+    {
+     "id": "L1",
+     "superseded_by": "L9"
+    },
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "supersede-none",
+   "fn": "canSupersede",
+   "args": [
+    {
+     "id": "L1"
+    },
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "supersede-itself",
+   "fn": "canSupersede",
+   "args": [
+    {
+     "id": "L1"
+    },
+    {
+     "superseded_by": "L1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "supersede-itself-on-row",
+   "fn": "canSupersede",
+   "args": [
+    {
+     "id": "L1",
+     "superseded_by": "L1"
+    },
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "supersede-patch-empty-string",
+   "fn": "canSupersede",
+   "args": [
+    {
+     "id": "L1",
+     "superseded_by": "L9"
+    },
+    {
+     "superseded_by": ""
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "supersede-no-patch",
+   "fn": "canSupersede",
+   "args": [
+    {
+     "id": "L1"
+    },
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Draft-to-Draft",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Draft",
+     "author_id": "u-author"
+    },
+    "Draft",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Draft-to-Submitted",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Draft",
+     "author_id": "u-author"
+    },
+    "Submitted",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Draft-to-Validated",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Draft",
+     "author_id": "u-author"
+    },
+    "Validated",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Draft-to-Published",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Draft",
+     "author_id": "u-author"
+    },
+    "Published",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Draft-to-Embedded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Draft",
+     "author_id": "u-author"
+    },
+    "Embedded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Draft-to-Archived",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Draft",
+     "author_id": "u-author"
+    },
+    "Archived",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Draft-to-Superseded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Draft",
+     "author_id": "u-author"
+    },
+    "Superseded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Submitted-to-Draft",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Draft",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Submitted-to-Submitted",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Submitted",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Submitted-to-Validated",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Validated",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Submitted-to-Published",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Published",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Submitted-to-Embedded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Embedded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Submitted-to-Archived",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Archived",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Submitted-to-Superseded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Superseded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Validated-to-Draft",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other"
+    },
+    "Draft",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Validated-to-Submitted",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other"
+    },
+    "Submitted",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Validated-to-Validated",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other"
+    },
+    "Validated",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Validated-to-Published",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other"
+    },
+    "Published",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Validated-to-Embedded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other"
+    },
+    "Embedded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Validated-to-Archived",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other"
+    },
+    "Archived",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Validated-to-Superseded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other"
+    },
+    "Superseded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Published-to-Draft",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "superseded_by": null
+    },
+    "Draft",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Published-to-Submitted",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "superseded_by": null
+    },
+    "Submitted",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Published-to-Validated",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "superseded_by": null
+    },
+    "Validated",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Published-to-Published",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "superseded_by": null
+    },
+    "Published",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Published-to-Embedded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "superseded_by": null
+    },
+    "Embedded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Published-to-Archived",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "superseded_by": null
+    },
+    "Archived",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Published-to-Superseded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "superseded_by": null
+    },
+    "Superseded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Embedded-to-Draft",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Embedded",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "archive_reason": "Retired asset"
+    },
+    "Draft",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Embedded-to-Submitted",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Embedded",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "archive_reason": "Retired asset"
+    },
+    "Submitted",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Embedded-to-Validated",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Embedded",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "archive_reason": "Retired asset"
+    },
+    "Validated",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Embedded-to-Published",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Embedded",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "archive_reason": "Retired asset"
+    },
+    "Published",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Embedded-to-Embedded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Embedded",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "archive_reason": "Retired asset"
+    },
+    "Embedded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Embedded-to-Archived",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Embedded",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "archive_reason": "Retired asset"
+    },
+    "Archived",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Embedded-to-Superseded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Embedded",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other",
+     "archive_reason": "Retired asset"
+    },
+    "Superseded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-Archived-to-Draft",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Archived",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Draft",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Archived-to-Submitted",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Archived",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Submitted",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Archived-to-Validated",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Archived",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Validated",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Archived-to-Published",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Archived",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Published",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Archived-to-Embedded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Archived",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Embedded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Archived-to-Archived",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Archived",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Archived",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Archived-to-Superseded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Archived",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Superseded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Superseded-to-Draft",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Superseded",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Draft",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Superseded-to-Submitted",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Superseded",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Submitted",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Superseded-to-Validated",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Superseded",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Validated",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Superseded-to-Published",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Superseded",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Published",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Superseded-to-Embedded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Superseded",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Embedded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Superseded-to-Archived",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Superseded",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Archived",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-Superseded-to-Superseded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Superseded",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Superseded",
+    {
+     "validatorId": "u-other",
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Adopted",
+       "target_type": "Risk register",
+       "applied_on": "2026-08-09"
+      }
+     ],
+     "patch": {
+      "archive_reason": "Duplicate of LL-2026-004",
+      "superseded_by": "L9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-submit-empty-draft",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Draft"
+    },
+    "Submitted",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-validate-by-author",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Validated",
+    {
+     "validatorId": "u-author"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-validate-story",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Validated",
+    {
+     "validatorId": "u-other"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-validate-external",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Validated",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-publish-unvalidated",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Published",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-publish-validated-by-name",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-16",
+     "validator_name": "Ext"
+    },
+    "Published",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-publish-validated-story",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": null,
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "validated_at": "2026-09-17",
+     "validated_by": "u-other"
+    },
+    "Published",
+    {
+     "validatorId": "u-other"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-embed-no-applications",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Embedded",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-embed-rejected-only",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Embedded",
+    {
+     "applications": [
+      {
+       "lesson_id": "L1",
+       "outcome": "Rejected",
+       "target_type": "Procedure",
+       "applied_on": "2026-09-19"
+      },
+      {
+       "lesson_id": "L1",
+       "outcome": "Rejected",
+       "target_type": "Procedure",
+       "applied_on": "2026-09-19"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-archive-no-reason",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Published",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Archived",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-archive-reason-on-row",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Draft",
+     "author_id": "u-author",
+     "created_by": "u-clerk",
+     "archive_reason": "Duplicate"
+    },
+    "Archived",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-supersede-self",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Embedded",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Superseded",
+    {
+     "patch": {
+      "superseded_by": "L1"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-supersede-nothing",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Embedded",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Superseded",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-unknown-status",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Rejected",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-no-context",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Validated",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Submitted",
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "review-overdue-Draft-yesterday",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Draft",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Draft-yesterday",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Draft",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Draft-today",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Draft",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Draft-today",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Draft",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Draft-lead-edge",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Draft",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Draft-lead-edge",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Draft",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Draft-lead-plus-1",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Draft",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Draft-lead-plus-1",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Draft",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Submitted-yesterday",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Submitted",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Submitted-yesterday",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Submitted",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Submitted-today",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Submitted",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Submitted-today",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Submitted",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Submitted-lead-edge",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Submitted",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Submitted-lead-edge",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Submitted",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Submitted-lead-plus-1",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Submitted",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Submitted-lead-plus-1",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Submitted",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Validated-yesterday",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Validated",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Validated-yesterday",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Validated",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Validated-today",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Validated",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Validated-today",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Validated",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Validated-lead-edge",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Validated",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Validated-lead-edge",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Validated",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Validated-lead-plus-1",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Validated",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Validated-lead-plus-1",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Validated",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Published-yesterday",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-soon-Published-yesterday",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Published-today",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Published-today",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-overdue-Published-lead-edge",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Published-lead-edge",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-overdue-Published-lead-plus-1",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Published-lead-plus-1",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Embedded-yesterday",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Embedded",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-soon-Embedded-yesterday",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Embedded",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Embedded-today",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Embedded",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Embedded-today",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Embedded",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-overdue-Embedded-lead-edge",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Embedded",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Embedded-lead-edge",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Embedded",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-overdue-Embedded-lead-plus-1",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Embedded",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Embedded-lead-plus-1",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Embedded",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Archived-yesterday",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Archived",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Archived-yesterday",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Archived",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Archived-today",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Archived",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Archived-today",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Archived",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Archived-lead-edge",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Archived",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Archived-lead-edge",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Archived",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Archived-lead-plus-1",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Archived",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Archived-lead-plus-1",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Archived",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Superseded-yesterday",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Superseded",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Superseded-yesterday",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Superseded",
+     "review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Superseded-today",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Superseded",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Superseded-today",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Superseded",
+     "review_due": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Superseded-lead-edge",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Superseded",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Superseded-lead-edge",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Superseded",
+     "review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-Superseded-lead-plus-1",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Superseded",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-Superseded-lead-plus-1",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Superseded",
+     "review_due": "2026-10-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-null",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": null
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-null",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": null
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-garbage",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "annual"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-garbage",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": "annual"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-overdue-invalid-date",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": {
+      "$date": null
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-invalid-date",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "status": "Published",
+     "review_due": {
+      "$date": null
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "age-event-400",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "event_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 400
+  },
+  {
+   "id": "age-event-today",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "event_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "age-event-future",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "event_date": "2026-09-28"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "age-created-at-only",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "created_at": "2026-09-01T23:59:00Z"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 17
+  },
+  {
+   "id": "age-event-over-created",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "event_date": "2026-09-13",
+     "created_at": "2026-09-17T00:00:00Z"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 5
+  },
+  {
+   "id": "age-nothing",
+   "fn": "lessonAgeDays",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "age-garbage",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "event_date": "Q2 2025"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "age-date-object",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "event_date": {
+      "$date": "2026-09-11"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 7
+  },
+  {
+   "id": "age-across-dst",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "event_date": "2026-03-28"
+    },
+    {
+     "$date": "2026-03-30"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "unapplied-Draft-no-apps",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Draft"
+    },
+    []
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Draft-rejected",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Draft"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Draft-adopted",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Draft"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-08-09"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Submitted-no-apps",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Submitted"
+    },
+    []
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Submitted-rejected",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Submitted"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Submitted-adopted",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Submitted"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-08-09"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Validated-no-apps",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Validated"
+    },
+    []
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Validated-rejected",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Validated"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Validated-adopted",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Validated"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-08-09"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Published-no-apps",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Published"
+    },
+    []
+   ],
+   "expected": true
+  },
+  {
+   "id": "unapplied-Published-rejected",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Published"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     }
+    ]
+   ],
+   "expected": true
+  },
+  {
+   "id": "unapplied-Published-adopted",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Published"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-08-09"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Embedded-no-apps",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Embedded"
+    },
+    []
+   ],
+   "expected": true
+  },
+  {
+   "id": "unapplied-Embedded-rejected",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Embedded"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     }
+    ]
+   ],
+   "expected": true
+  },
+  {
+   "id": "unapplied-Embedded-adopted",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Embedded"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-08-09"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Archived-no-apps",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Archived"
+    },
+    []
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Archived-rejected",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Archived"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Archived-adopted",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Archived"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-08-09"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Superseded-no-apps",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Superseded"
+    },
+    []
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Superseded-rejected",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Superseded"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     },
+     {
+      "lesson_id": "L1",
+      "outcome": "Rejected",
+      "target_type": "Procedure",
+      "applied_on": "2026-09-19"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-Superseded-adopted",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Superseded"
+    },
+    [
+     {
+      "lesson_id": "L1",
+      "outcome": "Adopted",
+      "target_type": "Risk register",
+      "applied_on": "2026-08-09"
+     }
+    ]
+   ],
+   "expected": false
+  },
+  {
+   "id": "unapplied-default-apps",
+   "fn": "isUnapplied",
+   "args": [
+    {
+     "status": "Published"
+    },
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "search-empty-query",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    },
+    {
+     "id": "B",
+     "status": "Draft",
+     "title": "Drill bit optimisation",
+     "description": "ROP improved",
+     "category": "Drilling",
+     "discipline": "Drilling",
+     "source_type": "Success",
+     "applicability_scope": "Industry-wide",
+     "author_name": "Jane Smith",
+     "project_ref": "WELL-7"
+    },
+    {
+     "id": "C",
+     "status": "Embedded",
+     "title": "Permit handover",
+     "consequence": "Near miss at the pump skid",
+     "category": "Operations",
+     "discipline": "Operations",
+     "source_type": "Near miss",
+     "applicability_scope": "This organization",
+     "department": "Production",
+     "source_reference": "NM-44"
+    },
+    {
+     "id": "D",
+     "status": "Archived",
+     "title": "Pump",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "asset_id": 4417
+    }
+   ]
+  },
+  {
+   "id": "search-one-term",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "pump",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    },
+    {
+     "id": "C",
+     "status": "Embedded",
+     "title": "Permit handover",
+     "consequence": "Near miss at the pump skid",
+     "category": "Operations",
+     "discipline": "Operations",
+     "source_type": "Near miss",
+     "applicability_scope": "This organization",
+     "department": "Production",
+     "source_reference": "NM-44"
+    },
+    {
+     "id": "D",
+     "status": "Archived",
+     "title": "Pump",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "asset_id": 4417
+    }
+   ]
+  },
+  {
+   "id": "search-two-terms-both-needed",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "pump seal",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    }
+   ]
+  },
+  {
+   "id": "search-two-terms-one-missing",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "pump drill",
+    {}
+   ],
+   "expected": []
+  },
+  {
+   "id": "search-case-insensitive",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "PUMP   SEAL",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    }
+   ]
+  },
+  {
+   "id": "search-keyword-array",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "seal",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    }
+   ]
+  },
+  {
+   "id": "search-numeric-asset",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "4417",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "D",
+     "status": "Archived",
+     "title": "Pump",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "asset_id": 4417
+    }
+   ]
+  },
+  {
+   "id": "search-zero-asset-not-searchable",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "0",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    }
+   ]
+  },
+  {
+   "id": "search-author",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "jane",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "B",
+     "status": "Draft",
+     "title": "Drill bit optimisation",
+     "description": "ROP improved",
+     "category": "Drilling",
+     "discipline": "Drilling",
+     "source_type": "Success",
+     "applicability_scope": "Industry-wide",
+     "author_name": "Jane Smith",
+     "project_ref": "WELL-7"
+    }
+   ]
+  },
+  {
+   "id": "search-project-ref",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "well-7",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "B",
+     "status": "Draft",
+     "title": "Drill bit optimisation",
+     "description": "ROP improved",
+     "category": "Drilling",
+     "discipline": "Drilling",
+     "source_type": "Success",
+     "applicability_scope": "Industry-wide",
+     "author_name": "Jane Smith",
+     "project_ref": "WELL-7"
+    }
+   ]
+  },
+  {
+   "id": "search-consequence-and-department",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "skid production",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "C",
+     "status": "Embedded",
+     "title": "Permit handover",
+     "consequence": "Near miss at the pump skid",
+     "category": "Operations",
+     "discipline": "Operations",
+     "source_type": "Near miss",
+     "applicability_scope": "This organization",
+     "department": "Production",
+     "source_reference": "NM-44"
+    }
+   ]
+  },
+  {
+   "id": "search-code",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "ll-2026-001",
+    {}
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    }
+   ]
+  },
+  {
+   "id": "search-status-filter",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "",
+    {
+     "status": "Draft"
+    }
+   ],
+   "expected": [
+    {
+     "id": "B",
+     "status": "Draft",
+     "title": "Drill bit optimisation",
+     "description": "ROP improved",
+     "category": "Drilling",
+     "discipline": "Drilling",
+     "source_type": "Success",
+     "applicability_scope": "Industry-wide",
+     "author_name": "Jane Smith",
+     "project_ref": "WELL-7"
+    }
+   ]
+  },
+  {
+   "id": "search-category-filter",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "pump",
+    {
+     "category": "Rotating equipment"
+    }
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    },
+    {
+     "id": "D",
+     "status": "Archived",
+     "title": "Pump",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "asset_id": 4417
+    }
+   ]
+  },
+  {
+   "id": "search-discipline-filter",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "",
+    {
+     "discipline": "Operations"
+    }
+   ],
+   "expected": [
+    {
+     "id": "C",
+     "status": "Embedded",
+     "title": "Permit handover",
+     "consequence": "Near miss at the pump skid",
+     "category": "Operations",
+     "discipline": "Operations",
+     "source_type": "Near miss",
+     "applicability_scope": "This organization",
+     "department": "Production",
+     "source_reference": "NM-44"
+    }
+   ]
+  },
+  {
+   "id": "search-source-filter",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "",
+    {
+     "source_type": "Incident"
+    }
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    },
+    {
+     "id": "D",
+     "status": "Archived",
+     "title": "Pump",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "asset_id": 4417
+    }
+   ]
+  },
+  {
+   "id": "search-scope-filter",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "",
+    {
+     "scope": "This asset"
+    }
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    },
+    {
+     "id": "D",
+     "status": "Archived",
+     "title": "Pump",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "asset_id": 4417
+    }
+   ]
+  },
+  {
+   "id": "search-visible-only",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "pump",
+    {
+     "visibleOnly": true
+    }
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    },
+    {
+     "id": "C",
+     "status": "Embedded",
+     "title": "Permit handover",
+     "consequence": "Near miss at the pump skid",
+     "category": "Operations",
+     "discipline": "Operations",
+     "source_type": "Near miss",
+     "applicability_scope": "This organization",
+     "department": "Production",
+     "source_reference": "NM-44"
+    }
+   ]
+  },
+  {
+   "id": "search-falsy-filters-ignored",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "",
+    {
+     "status": "",
+     "category": null,
+     "visibleOnly": false
+    }
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    },
+    {
+     "id": "B",
+     "status": "Draft",
+     "title": "Drill bit optimisation",
+     "description": "ROP improved",
+     "category": "Drilling",
+     "discipline": "Drilling",
+     "source_type": "Success",
+     "applicability_scope": "Industry-wide",
+     "author_name": "Jane Smith",
+     "project_ref": "WELL-7"
+    },
+    {
+     "id": "C",
+     "status": "Embedded",
+     "title": "Permit handover",
+     "consequence": "Near miss at the pump skid",
+     "category": "Operations",
+     "discipline": "Operations",
+     "source_type": "Near miss",
+     "applicability_scope": "This organization",
+     "department": "Production",
+     "source_reference": "NM-44"
+    },
+    {
+     "id": "D",
+     "status": "Archived",
+     "title": "Pump",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "asset_id": 4417
+    }
+   ]
+  },
+  {
+   "id": "search-no-match",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    "corrosion",
+    {}
+   ],
+   "expected": []
+  },
+  {
+   "id": "search-defaults",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    {
+     "$undefined": true
+    },
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    },
+    {
+     "id": "B",
+     "status": "Draft",
+     "title": "Drill bit optimisation",
+     "description": "ROP improved",
+     "category": "Drilling",
+     "discipline": "Drilling",
+     "source_type": "Success",
+     "applicability_scope": "Industry-wide",
+     "author_name": "Jane Smith",
+     "project_ref": "WELL-7"
+    },
+    {
+     "id": "C",
+     "status": "Embedded",
+     "title": "Permit handover",
+     "consequence": "Near miss at the pump skid",
+     "category": "Operations",
+     "discipline": "Operations",
+     "source_type": "Near miss",
+     "applicability_scope": "This organization",
+     "department": "Production",
+     "source_reference": "NM-44"
+    },
+    {
+     "id": "D",
+     "status": "Archived",
+     "title": "Pump",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "asset_id": 4417
+    }
+   ]
+  },
+  {
+   "id": "search-null-query",
+   "fn": "searchLessons",
+   "args": [
+    [
+     {
+      "id": "A",
+      "status": "Published",
+      "lesson_code": "LL-2026-001",
+      "title": "Pump seal failure on restart",
+      "description": "Mechanical seal failed",
+      "root_cause": "Dry running",
+      "recommendation": "Prime before restart",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "keywords": [
+       "pump",
+       "seal"
+      ],
+      "asset_id": 0
+     },
+     {
+      "id": "B",
+      "status": "Draft",
+      "title": "Drill bit optimisation",
+      "description": "ROP improved",
+      "category": "Drilling",
+      "discipline": "Drilling",
+      "source_type": "Success",
+      "applicability_scope": "Industry-wide",
+      "author_name": "Jane Smith",
+      "project_ref": "WELL-7"
+     },
+     {
+      "id": "C",
+      "status": "Embedded",
+      "title": "Permit handover",
+      "consequence": "Near miss at the pump skid",
+      "category": "Operations",
+      "discipline": "Operations",
+      "source_type": "Near miss",
+      "applicability_scope": "This organization",
+      "department": "Production",
+      "source_reference": "NM-44"
+     },
+     {
+      "id": "D",
+      "status": "Archived",
+      "title": "Pump",
+      "category": "Rotating equipment",
+      "discipline": "Mechanical",
+      "source_type": "Incident",
+      "applicability_scope": "This asset",
+      "asset_id": 4417
+     }
+    ],
+    null
+   ],
+   "expected": [
+    {
+     "id": "A",
+     "status": "Published",
+     "lesson_code": "LL-2026-001",
+     "title": "Pump seal failure on restart",
+     "description": "Mechanical seal failed",
+     "root_cause": "Dry running",
+     "recommendation": "Prime before restart",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "keywords": [
+      "pump",
+      "seal"
+     ],
+     "asset_id": 0
+    },
+    {
+     "id": "B",
+     "status": "Draft",
+     "title": "Drill bit optimisation",
+     "description": "ROP improved",
+     "category": "Drilling",
+     "discipline": "Drilling",
+     "source_type": "Success",
+     "applicability_scope": "Industry-wide",
+     "author_name": "Jane Smith",
+     "project_ref": "WELL-7"
+    },
+    {
+     "id": "C",
+     "status": "Embedded",
+     "title": "Permit handover",
+     "consequence": "Near miss at the pump skid",
+     "category": "Operations",
+     "discipline": "Operations",
+     "source_type": "Near miss",
+     "applicability_scope": "This organization",
+     "department": "Production",
+     "source_reference": "NM-44"
+    },
+    {
+     "id": "D",
+     "status": "Archived",
+     "title": "Pump",
+     "category": "Rotating equipment",
+     "discipline": "Mechanical",
+     "source_type": "Incident",
+     "applicability_scope": "This asset",
+     "asset_id": 4417
+    }
+   ]
+  },
+  {
+   "id": "search-empty-register",
+   "fn": "searchLessons",
+   "args": [
+    [],
+    "pump",
+    {}
+   ],
+   "expected": []
+  },
+  {
+   "id": "summarise-register",
+   "fn": "summarise",
+   "args": [
+    {
+     "lessons": [
+      {
+       "id": "P1",
+       "status": "Published",
+       "review_due": "2026-09-17"
+      },
+      {
+       "id": "P2",
+       "status": "Published",
+       "review_due": "2026-10-18"
+      },
+      {
+       "id": "P3",
+       "status": "Embedded",
+       "review_due": "2026-10-19"
+      },
+      {
+       "id": "P4",
+       "status": "Embedded",
+       "review_due": "2026-09-18"
+      },
+      {
+       "id": "S1",
+       "status": "Submitted",
+       "review_due": "2026-07-30"
+      },
+      {
+       "id": "D1",
+       "status": "Draft"
+      },
+      {
+       "id": "D2",
+       "status": "Draft"
+      },
+      {
+       "id": "V1",
+       "status": "Validated",
+       "review_due": "2026-09-21"
+      },
+      {
+       "id": "A1",
+       "status": "Archived",
+       "review_due": "2026-09-13"
+      },
+      {
+       "id": "X1",
+       "status": "Superseded"
+      },
+      {
+       "id": "Q1",
+       "status": "Retired"
+      }
+     ],
+     "applications": [
+      {
+       "lesson_id": "P1",
+       "outcome": "Rejected",
+       "target_type": "Procedure"
+      },
+      {
+       "lesson_id": "P2",
+       "outcome": "Adopted",
+       "target_type": "Risk register"
+      },
+      {
+       "lesson_id": "P2",
+       "outcome": "Adapted",
+       "target_type": "Management of change"
+      },
+      {
+       "lesson_id": "P3",
+       "outcome": "Adapted",
+       "target_type": "Risk register"
+      },
+      {
+       "lesson_id": "A1",
+       "outcome": "Adopted",
+       "target_type": "Management of change"
+      },
+      {
+       "lesson_id": "ZZ",
+       "outcome": "Adopted",
+       "target_type": "Training"
+      },
+      {
+       "lesson_id": "P4",
+       "outcome": "Rejected",
+       "target_type": "Risk register"
+      },
+      {
+       "lesson_id": "P4",
+       "outcome": null,
+       "target_type": "Risk register"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "lessons": 11,
+    "byStatus": {
+     "Draft": 2,
+     "Submitted": 1,
+     "Validated": 1,
+     "Published": 2,
+     "Embedded": 2,
+     "Archived": 1,
+     "Superseded": 1
+    },
+    "live": 8,
+    "visible": 4,
+    "awaitingValidation": 1,
+    "drafts": 2,
+    "applications": 8,
+    "applied": 5,
+    "rejected": 2,
+    "lessonsApplied": 2,
+    "lessonsUnapplied": 2,
+    "intoRiskRegister": 2,
+    "intoMoc": 2,
+    "reviewsOverdue": 1,
+    "reviewsDueSoon": 2
+   }
+  },
+  {
+   "id": "summarise-empty",
+   "fn": "summarise",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "lessons": 0,
+    "byStatus": {
+     "Draft": 0,
+     "Submitted": 0,
+     "Validated": 0,
+     "Published": 0,
+     "Embedded": 0,
+     "Archived": 0,
+     "Superseded": 0
+    },
+    "live": 0,
+    "visible": 0,
+    "awaitingValidation": 0,
+    "drafts": 0,
+    "applications": 0,
+    "applied": 0,
+    "rejected": 0,
+    "lessonsApplied": 0,
+    "lessonsUnapplied": 0,
+    "intoRiskRegister": 0,
+    "intoMoc": 0,
+    "reviewsOverdue": 0,
+    "reviewsDueSoon": 0
+   }
+  },
+  {
+   "id": "summarise-default",
+   "fn": "summarise",
+   "args": [
+    {
+     "$undefined": true
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "lessons": 0,
+    "byStatus": {
+     "Draft": 0,
+     "Submitted": 0,
+     "Validated": 0,
+     "Published": 0,
+     "Embedded": 0,
+     "Archived": 0,
+     "Superseded": 0
+    },
+    "live": 0,
+    "visible": 0,
+    "awaitingValidation": 0,
+    "drafts": 0,
+    "applications": 0,
+    "applied": 0,
+    "rejected": 0,
+    "lessonsApplied": 0,
+    "lessonsUnapplied": 0,
+    "intoRiskRegister": 0,
+    "intoMoc": 0,
+    "reviewsOverdue": 0,
+    "reviewsDueSoon": 0
+   }
+  },
+  {
+   "id": "summarise-no-applications",
+   "fn": "summarise",
+   "args": [
+    {
+     "lessons": [
+      {
+       "id": "P1",
+       "status": "Published",
+       "review_due": "2026-09-17"
+      },
+      {
+       "id": "P2",
+       "status": "Published",
+       "review_due": "2026-10-18"
+      },
+      {
+       "id": "P3",
+       "status": "Embedded",
+       "review_due": "2026-10-19"
+      },
+      {
+       "id": "P4",
+       "status": "Embedded",
+       "review_due": "2026-09-18"
+      },
+      {
+       "id": "S1",
+       "status": "Submitted",
+       "review_due": "2026-07-30"
+      },
+      {
+       "id": "D1",
+       "status": "Draft"
+      },
+      {
+       "id": "D2",
+       "status": "Draft"
+      },
+      {
+       "id": "V1",
+       "status": "Validated",
+       "review_due": "2026-09-21"
+      },
+      {
+       "id": "A1",
+       "status": "Archived",
+       "review_due": "2026-09-13"
+      },
+      {
+       "id": "X1",
+       "status": "Superseded"
+      },
+      {
+       "id": "Q1",
+       "status": "Retired"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "lessons": 11,
+    "byStatus": {
+     "Draft": 2,
+     "Submitted": 1,
+     "Validated": 1,
+     "Published": 2,
+     "Embedded": 2,
+     "Archived": 1,
+     "Superseded": 1
+    },
+    "live": 8,
+    "visible": 4,
+    "awaitingValidation": 1,
+    "drafts": 2,
+    "applications": 0,
+    "applied": 0,
+    "rejected": 0,
+    "lessonsApplied": 0,
+    "lessonsUnapplied": 4,
+    "intoRiskRegister": 0,
+    "intoMoc": 0,
+    "reviewsOverdue": 1,
+    "reviewsDueSoon": 2
+   }
+  },
+  {
+   "id": "summarise-a-day-later",
+   "fn": "summarise",
+   "args": [
+    {
+     "lessons": [
+      {
+       "id": "P1",
+       "status": "Published",
+       "review_due": "2026-09-17"
+      },
+      {
+       "id": "P2",
+       "status": "Published",
+       "review_due": "2026-10-18"
+      },
+      {
+       "id": "P3",
+       "status": "Embedded",
+       "review_due": "2026-10-19"
+      },
+      {
+       "id": "P4",
+       "status": "Embedded",
+       "review_due": "2026-09-18"
+      },
+      {
+       "id": "S1",
+       "status": "Submitted",
+       "review_due": "2026-07-30"
+      },
+      {
+       "id": "D1",
+       "status": "Draft"
+      },
+      {
+       "id": "D2",
+       "status": "Draft"
+      },
+      {
+       "id": "V1",
+       "status": "Validated",
+       "review_due": "2026-09-21"
+      },
+      {
+       "id": "A1",
+       "status": "Archived",
+       "review_due": "2026-09-13"
+      },
+      {
+       "id": "X1",
+       "status": "Superseded"
+      },
+      {
+       "id": "Q1",
+       "status": "Retired"
+      }
+     ],
+     "applications": [
+      {
+       "lesson_id": "P1",
+       "outcome": "Rejected",
+       "target_type": "Procedure"
+      },
+      {
+       "lesson_id": "P2",
+       "outcome": "Adopted",
+       "target_type": "Risk register"
+      },
+      {
+       "lesson_id": "P2",
+       "outcome": "Adapted",
+       "target_type": "Management of change"
+      },
+      {
+       "lesson_id": "P3",
+       "outcome": "Adapted",
+       "target_type": "Risk register"
+      },
+      {
+       "lesson_id": "A1",
+       "outcome": "Adopted",
+       "target_type": "Management of change"
+      },
+      {
+       "lesson_id": "ZZ",
+       "outcome": "Adopted",
+       "target_type": "Training"
+      },
+      {
+       "lesson_id": "P4",
+       "outcome": "Rejected",
+       "target_type": "Risk register"
+      },
+      {
+       "lesson_id": "P4",
+       "outcome": null,
+       "target_type": "Risk register"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-19"
+    }
+   ],
+   "expected": {
+    "lessons": 11,
+    "byStatus": {
+     "Draft": 2,
+     "Submitted": 1,
+     "Validated": 1,
+     "Published": 2,
+     "Embedded": 2,
+     "Archived": 1,
+     "Superseded": 1
+    },
+    "live": 8,
+    "visible": 4,
+    "awaitingValidation": 1,
+    "drafts": 2,
+    "applications": 8,
+    "applied": 5,
+    "rejected": 2,
+    "lessonsApplied": 2,
+    "lessonsUnapplied": 2,
+    "intoRiskRegister": 2,
+    "intoMoc": 2,
+    "reviewsOverdue": 2,
+    "reviewsDueSoon": 2
+   }
+  },
+  {
+   "id": "countBy-source",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "source_type": "Incident"
+     },
+     {
+      "source_type": "Near miss"
+     },
+     {
+      "source_type": "Incident"
+     },
+     {
+      "source_type": null
+     },
+     {},
+     {
+      "source_type": "Success"
+     },
+     {
+      "source_type": "Near miss"
+     }
+    ],
+    "source_type"
+   ],
+   "expected": [
+    {
+     "name": "Incident",
+     "count": 2
+    },
+    {
+     "name": "Near miss",
+     "count": 2
+    },
+    {
+     "name": "Unspecified",
+     "count": 2
+    },
+    {
+     "name": "Success",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countBy-unset-label",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "source_type": "Incident"
+     },
+     {
+      "source_type": "Near miss"
+     },
+     {
+      "source_type": "Incident"
+     },
+     {
+      "source_type": null
+     },
+     {},
+     {
+      "source_type": "Success"
+     },
+     {
+      "source_type": "Near miss"
+     }
+    ],
+    "source_type",
+    "Not recorded"
+   ],
+   "expected": [
+    {
+     "name": "Incident",
+     "count": 2
+    },
+    {
+     "name": "Near miss",
+     "count": 2
+    },
+    {
+     "name": "Not recorded",
+     "count": 2
+    },
+    {
+     "name": "Success",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countBy-empty",
+   "fn": "countBy",
+   "args": [
+    [],
+    "category"
+   ],
+   "expected": []
+  },
+  {
+   "id": "attention-register",
+   "sort": "lessonByAttention",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$map": [
+      [
+       "applied-review-overdue",
+       [
+        {
+         "outcome": "Adopted"
+        }
+       ]
+      ],
+      [
+       "applied-current",
+       [
+        {
+         "outcome": "Adapted"
+        }
+       ]
+      ],
+      [
+       "rejected-only-unapplied",
+       [
+        {
+         "outcome": "Rejected",
+         "notes": "n/a"
+        }
+       ]
+      ]
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "rows": [
+    {
+     "id": "archived",
+     "status": "Archived",
+     "event_date": "2026-09-17"
+    },
+    {
+     "id": "draft-old",
+     "status": "Draft",
+     "event_date": "2025-11-22"
+    },
+    {
+     "id": "draft-new",
+     "status": "Draft",
+     "event_date": "2026-09-15"
+    },
+    {
+     "id": "applied-review-overdue",
+     "status": "Published",
+     "review_due": "2026-09-17",
+     "event_date": "2026-06-20"
+    },
+    {
+     "id": "unapplied-old",
+     "status": "Published",
+     "event_date": "2026-03-02"
+    },
+    {
+     "id": "submitted",
+     "status": "Submitted",
+     "created_at": "2026-09-08T09:00:00Z"
+    },
+    {
+     "id": "unapplied-new",
+     "status": "Embedded",
+     "event_date": "2026-08-29"
+    },
+    {
+     "id": "applied-current",
+     "status": "Embedded",
+     "review_due": "2026-12-27",
+     "event_date": "2026-07-20"
+    },
+    {
+     "id": "rejected-only-unapplied",
+     "status": "Published",
+     "event_date": "2026-06-10"
+    },
+    {
+     "id": "superseded",
+     "status": "Superseded",
+     "event_date": "2025-08-14"
+    }
+   ],
+   "expectedOrder": [
+    "unapplied-new",
+    "rejected-only-unapplied",
+    "unapplied-old",
+    "submitted",
+    "applied-review-overdue",
+    "draft-new",
+    "applied-current",
+    "draft-old",
+    "archived",
+    "superseded"
+   ]
+  },
+  {
+   "id": "attention-empty-map",
+   "sort": "lessonByAttention",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$map": []
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "rows": [
+    {
+     "id": "archived",
+     "status": "Archived",
+     "event_date": "2026-09-17"
+    },
+    {
+     "id": "draft-old",
+     "status": "Draft",
+     "event_date": "2025-11-22"
+    },
+    {
+     "id": "draft-new",
+     "status": "Draft",
+     "event_date": "2026-09-15"
+    },
+    {
+     "id": "applied-review-overdue",
+     "status": "Published",
+     "review_due": "2026-09-17",
+     "event_date": "2026-06-20"
+    },
+    {
+     "id": "unapplied-old",
+     "status": "Published",
+     "event_date": "2026-03-02"
+    },
+    {
+     "id": "submitted",
+     "status": "Submitted",
+     "created_at": "2026-09-08T09:00:00Z"
+    }
+   ],
+   "expectedOrder": [
+    "applied-review-overdue",
+    "unapplied-old",
+    "submitted",
+    "draft-new",
+    "draft-old",
+    "archived"
+   ]
+  },
+  {
+   "id": "attention-undated-between-dated",
+   "sort": "lessonByAttention",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$map": []
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "rows": [
+    {
+     "id": "jan",
+     "status": "Draft",
+     "event_date": "2026-01-10"
+    },
+    {
+     "id": "undated",
+     "status": "Draft"
+    },
+    {
+     "id": "may",
+     "status": "Draft",
+     "event_date": "2026-05-10"
+    }
+   ],
+   "expectedOrder": [
+    "may",
+    "jan",
+    "undated"
+   ],
+   "repaired": "LL-1"
+  }
+ ]
+}

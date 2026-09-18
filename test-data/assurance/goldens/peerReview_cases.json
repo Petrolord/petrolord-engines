@@ -1,0 +1,2108 @@
+{
+ "module": "peerReview",
+ "generatedBy": "tools/validation/assurance/oracle_peer_review.py",
+ "description": "Peer review comment disposition, close gate, stages, overdue, counts and sorts, from the method statements and STATUS section 3d.",
+ "cases": [
+  {
+   "id": "cal-parse-string",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "cal-parse-null",
+   "fn": "parseDateOnly",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "cal-parse-garbage",
+   "fn": "parseDateOnly",
+   "args": [
+    "next week"
+   ],
+   "expected": null
+  },
+  {
+   "id": "cal-days-today",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-17",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "cal-days-past",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-10",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": -7
+  },
+  {
+   "id": "cal-days-none",
+   "fn": "daysUntil",
+   "args": [
+    "",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "cal-ymd-date",
+   "fn": "toDateOnlyString",
+   "args": [
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": "2026-03-08"
+  },
+  {
+   "id": "cal-ymd-nonsense",
+   "fn": "toDateOnlyString",
+   "args": [
+    "nonsense"
+   ],
+   "expected": null
+  },
+  {
+   "id": "can-Open-Open",
+   "fn": "canTransition",
+   "args": [
+    "Open",
+    "Open"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Open-Responded",
+   "fn": "canTransition",
+   "args": [
+    "Open",
+    "Responded"
+   ],
+   "expected": true
+  },
+  {
+   "id": "can-Open-Verified",
+   "fn": "canTransition",
+   "args": [
+    "Open",
+    "Verified"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Open-Closed",
+   "fn": "canTransition",
+   "args": [
+    "Open",
+    "Closed"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Open-Rejected",
+   "fn": "canTransition",
+   "args": [
+    "Open",
+    "Rejected"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Open-Withdrawn",
+   "fn": "canTransition",
+   "args": [
+    "Open",
+    "Withdrawn"
+   ],
+   "expected": true
+  },
+  {
+   "id": "can-Responded-Open",
+   "fn": "canTransition",
+   "args": [
+    "Responded",
+    "Open"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Responded-Responded",
+   "fn": "canTransition",
+   "args": [
+    "Responded",
+    "Responded"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Responded-Verified",
+   "fn": "canTransition",
+   "args": [
+    "Responded",
+    "Verified"
+   ],
+   "expected": true
+  },
+  {
+   "id": "can-Responded-Closed",
+   "fn": "canTransition",
+   "args": [
+    "Responded",
+    "Closed"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Responded-Rejected",
+   "fn": "canTransition",
+   "args": [
+    "Responded",
+    "Rejected"
+   ],
+   "expected": true
+  },
+  {
+   "id": "can-Responded-Withdrawn",
+   "fn": "canTransition",
+   "args": [
+    "Responded",
+    "Withdrawn"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Verified-Open",
+   "fn": "canTransition",
+   "args": [
+    "Verified",
+    "Open"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Verified-Responded",
+   "fn": "canTransition",
+   "args": [
+    "Verified",
+    "Responded"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Verified-Verified",
+   "fn": "canTransition",
+   "args": [
+    "Verified",
+    "Verified"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Verified-Closed",
+   "fn": "canTransition",
+   "args": [
+    "Verified",
+    "Closed"
+   ],
+   "expected": true
+  },
+  {
+   "id": "can-Verified-Rejected",
+   "fn": "canTransition",
+   "args": [
+    "Verified",
+    "Rejected"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Verified-Withdrawn",
+   "fn": "canTransition",
+   "args": [
+    "Verified",
+    "Withdrawn"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Closed-Open",
+   "fn": "canTransition",
+   "args": [
+    "Closed",
+    "Open"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Closed-Responded",
+   "fn": "canTransition",
+   "args": [
+    "Closed",
+    "Responded"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Closed-Verified",
+   "fn": "canTransition",
+   "args": [
+    "Closed",
+    "Verified"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Closed-Closed",
+   "fn": "canTransition",
+   "args": [
+    "Closed",
+    "Closed"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Closed-Rejected",
+   "fn": "canTransition",
+   "args": [
+    "Closed",
+    "Rejected"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Closed-Withdrawn",
+   "fn": "canTransition",
+   "args": [
+    "Closed",
+    "Withdrawn"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Rejected-Open",
+   "fn": "canTransition",
+   "args": [
+    "Rejected",
+    "Open"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Rejected-Responded",
+   "fn": "canTransition",
+   "args": [
+    "Rejected",
+    "Responded"
+   ],
+   "expected": true
+  },
+  {
+   "id": "can-Rejected-Verified",
+   "fn": "canTransition",
+   "args": [
+    "Rejected",
+    "Verified"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Rejected-Closed",
+   "fn": "canTransition",
+   "args": [
+    "Rejected",
+    "Closed"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Rejected-Rejected",
+   "fn": "canTransition",
+   "args": [
+    "Rejected",
+    "Rejected"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Rejected-Withdrawn",
+   "fn": "canTransition",
+   "args": [
+    "Rejected",
+    "Withdrawn"
+   ],
+   "expected": true
+  },
+  {
+   "id": "can-Withdrawn-Open",
+   "fn": "canTransition",
+   "args": [
+    "Withdrawn",
+    "Open"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Withdrawn-Responded",
+   "fn": "canTransition",
+   "args": [
+    "Withdrawn",
+    "Responded"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Withdrawn-Verified",
+   "fn": "canTransition",
+   "args": [
+    "Withdrawn",
+    "Verified"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Withdrawn-Closed",
+   "fn": "canTransition",
+   "args": [
+    "Withdrawn",
+    "Closed"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Withdrawn-Rejected",
+   "fn": "canTransition",
+   "args": [
+    "Withdrawn",
+    "Rejected"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-Withdrawn-Withdrawn",
+   "fn": "canTransition",
+   "args": [
+    "Withdrawn",
+    "Withdrawn"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-unknown-from",
+   "fn": "canTransition",
+   "args": [
+    "Pending",
+    "Responded"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-unknown-to",
+   "fn": "canTransition",
+   "args": [
+    "Open",
+    "Answered"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-undefined-from",
+   "fn": "canTransition",
+   "args": [
+    {
+     "$undefined": true
+    },
+    "Responded"
+   ],
+   "expected": false
+  },
+  {
+   "id": "can-lowercase",
+   "fn": "canTransition",
+   "args": [
+    "open",
+    "responded"
+   ],
+   "expected": false
+  },
+  {
+   "id": "next-Open",
+   "fn": "nextStatuses",
+   "args": [
+    "Open"
+   ],
+   "expected": [
+    "Responded",
+    "Withdrawn"
+   ]
+  },
+  {
+   "id": "next-Responded",
+   "fn": "nextStatuses",
+   "args": [
+    "Responded"
+   ],
+   "expected": [
+    "Verified",
+    "Rejected"
+   ]
+  },
+  {
+   "id": "next-Verified",
+   "fn": "nextStatuses",
+   "args": [
+    "Verified"
+   ],
+   "expected": [
+    "Closed"
+   ]
+  },
+  {
+   "id": "next-Closed",
+   "fn": "nextStatuses",
+   "args": [
+    "Closed"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-Rejected",
+   "fn": "nextStatuses",
+   "args": [
+    "Rejected"
+   ],
+   "expected": [
+    "Responded",
+    "Withdrawn"
+   ]
+  },
+  {
+   "id": "next-Withdrawn",
+   "fn": "nextStatuses",
+   "args": [
+    "Withdrawn"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-Pending",
+   "fn": "nextStatuses",
+   "args": [
+    "Pending"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-undefined",
+   "fn": "nextStatuses",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": []
+  },
+  {
+   "id": "refuse-open-respond",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Open"
+    },
+    "Responded"
+   ],
+   "expected": null
+  },
+  {
+   "id": "refuse-open-withdraw",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Open"
+    },
+    "Withdrawn"
+   ],
+   "expected": null
+  },
+  {
+   "id": "refuse-nostatus-respond",
+   "fn": "explainRefusal",
+   "args": [
+    {},
+    "Responded"
+   ],
+   "expected": null
+  },
+  {
+   "id": "refuse-responded-verify-with-text",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Responded",
+     "response_text": "Revised the model."
+    },
+    "Verified"
+   ],
+   "expected": null
+  },
+  {
+   "id": "refuse-responded-verify-no-text",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Responded"
+    },
+    "Verified"
+   ],
+   "expected": "A comment cannot be verified before the author has responded to it."
+  },
+  {
+   "id": "refuse-responded-verify-blank",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Responded",
+     "response_text": "   "
+    },
+    "Verified"
+   ],
+   "expected": "A comment cannot be verified before the author has responded to it."
+  },
+  {
+   "id": "refuse-responded-reject",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Responded"
+    },
+    "Rejected"
+   ],
+   "expected": null
+  },
+  {
+   "id": "refuse-rejected-respond",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Rejected"
+    },
+    "Responded"
+   ],
+   "expected": null
+  },
+  {
+   "id": "refuse-rejected-withdraw",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Rejected"
+    },
+    "Withdrawn"
+   ],
+   "expected": null
+  },
+  {
+   "id": "refuse-verified-close",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Verified",
+     "response_text": "ok"
+    },
+    "Closed"
+   ],
+   "expected": null
+  },
+  {
+   "id": "refuse-same-responded",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Responded"
+    },
+    "Responded"
+   ],
+   "expected": "This comment is already responded."
+  },
+  {
+   "id": "refuse-same-closed",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Closed"
+    },
+    "Closed"
+   ],
+   "expected": "This comment is already closed."
+  },
+  {
+   "id": "refuse-same-open",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Open"
+    },
+    "Open"
+   ],
+   "expected": "This comment is already open."
+  },
+  {
+   "id": "refuse-closed-final",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Closed"
+    },
+    "Open"
+   ],
+   "expected": "A closed comment is final."
+  },
+  {
+   "id": "refuse-withdrawn-final",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Withdrawn"
+    },
+    "Responded"
+   ],
+   "expected": "A withdrawn comment is final."
+  },
+  {
+   "id": "refuse-responded-close",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Responded"
+    },
+    "Closed"
+   ],
+   "expected": "A responded comment can only go to Verified or Rejected."
+  },
+  {
+   "id": "refuse-verified-reopen",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Verified"
+    },
+    "Open"
+   ],
+   "expected": "A verified comment can only go to Closed."
+  },
+  {
+   "id": "refuse-rejected-verify",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Rejected",
+     "response_text": "x"
+    },
+    "Verified"
+   ],
+   "expected": "A rejected comment can only go to Responded or Withdrawn."
+  },
+  {
+   "id": "refuse-unknown-from",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Pending"
+    },
+    "Responded"
+   ],
+   "expected": "A pending comment is final."
+  },
+  {
+   "id": "refuse-open-verify",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Open"
+    },
+    "Verified"
+   ],
+   "expected": "An open comment can only go to Responded or Withdrawn.",
+   "repaired": "PR-2"
+  },
+  {
+   "id": "refuse-open-close",
+   "fn": "explainRefusal",
+   "args": [
+    {
+     "status": "Open"
+    },
+    "Closed"
+   ],
+   "expected": "An open comment can only go to Responded or Withdrawn.",
+   "repaired": "PR-2"
+  },
+  {
+   "id": "refuse-nostatus-verify",
+   "fn": "explainRefusal",
+   "args": [
+    {},
+    "Verified"
+   ],
+   "expected": "An open comment can only go to Responded or Withdrawn.",
+   "repaired": "PR-2"
+  },
+  {
+   "id": "resolved-Open",
+   "fn": "isResolved",
+   "args": [
+    {
+     "status": "Open"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "resolved-Responded",
+   "fn": "isResolved",
+   "args": [
+    {
+     "status": "Responded"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "resolved-Verified",
+   "fn": "isResolved",
+   "args": [
+    {
+     "status": "Verified"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "resolved-Closed",
+   "fn": "isResolved",
+   "args": [
+    {
+     "status": "Closed"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "resolved-Rejected",
+   "fn": "isResolved",
+   "args": [
+    {
+     "status": "Rejected"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "resolved-Withdrawn",
+   "fn": "isResolved",
+   "args": [
+    {
+     "status": "Withdrawn"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "resolved-None",
+   "fn": "isResolved",
+   "args": [
+    {
+     "status": null
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "resolved-no-arg",
+   "fn": "isResolved",
+   "args": [],
+   "expected": false
+  },
+  {
+   "id": "blocking-Critical-Open",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Critical",
+     "status": "Open"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "blocking-Critical-Rejected",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Critical",
+     "status": "Rejected"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "blocking-Critical-Responded",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Critical",
+     "status": "Responded"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "blocking-Critical-Verified",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Critical",
+     "status": "Verified"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Critical-Withdrawn",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Critical",
+     "status": "Withdrawn"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Major-Open",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Major",
+     "status": "Open"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "blocking-Major-Rejected",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Major",
+     "status": "Rejected"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "blocking-Major-Responded",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Major",
+     "status": "Responded"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "blocking-Major-Verified",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Major",
+     "status": "Verified"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Major-Withdrawn",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Major",
+     "status": "Withdrawn"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Minor-Open",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Minor",
+     "status": "Open"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Minor-Rejected",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Minor",
+     "status": "Rejected"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Minor-Responded",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Minor",
+     "status": "Responded"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Minor-Verified",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Minor",
+     "status": "Verified"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Minor-Withdrawn",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Minor",
+     "status": "Withdrawn"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Editorial-Open",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Editorial",
+     "status": "Open"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Editorial-Rejected",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Editorial",
+     "status": "Rejected"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Editorial-Responded",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Editorial",
+     "status": "Responded"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Editorial-Verified",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Editorial",
+     "status": "Verified"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-Editorial-Withdrawn",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": "Editorial",
+     "status": "Withdrawn"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-None-Open",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": null,
+     "status": "Open"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-None-Rejected",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": null,
+     "status": "Rejected"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-None-Responded",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": null,
+     "status": "Responded"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-None-Verified",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": null,
+     "status": "Verified"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-None-Withdrawn",
+   "fn": "isBlocking",
+   "args": [
+    {
+     "severity": null,
+     "status": "Withdrawn"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "blocking-no-arg",
+   "fn": "isBlocking",
+   "args": [],
+   "expected": false
+  },
+  {
+   "id": "close-empty",
+   "fn": "canClose",
+   "args": [
+    []
+   ],
+   "expected": {
+    "ok": true,
+    "blocking": []
+   }
+  },
+  {
+   "id": "close-minor-open",
+   "fn": "canClose",
+   "args": [
+    [
+     {
+      "id": 1,
+      "severity": "Minor",
+      "status": "Open"
+     },
+     {
+      "id": 2,
+      "severity": "Editorial",
+      "status": "Rejected"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true,
+    "blocking": []
+   }
+  },
+  {
+   "id": "close-all-resolved",
+   "fn": "canClose",
+   "args": [
+    [
+     {
+      "id": 1,
+      "severity": "Critical",
+      "status": "Closed"
+     },
+     {
+      "id": 2,
+      "severity": "Major",
+      "status": "Verified"
+     },
+     {
+      "id": 3,
+      "severity": "Critical",
+      "status": "Withdrawn"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true,
+    "blocking": []
+   }
+  },
+  {
+   "id": "close-one-critical",
+   "fn": "canClose",
+   "args": [
+    [
+     {
+      "id": 1,
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "id": 2,
+      "severity": "Minor",
+      "status": "Open"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "blocking": [
+     {
+      "id": 1,
+      "severity": "Critical",
+      "status": "Open"
+     }
+    ]
+   }
+  },
+  {
+   "id": "close-one-major-responded",
+   "fn": "canClose",
+   "args": [
+    [
+     {
+      "id": 1,
+      "severity": "Major",
+      "status": "Responded"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "blocking": [
+     {
+      "id": 1,
+      "severity": "Major",
+      "status": "Responded"
+     }
+    ]
+   }
+  },
+  {
+   "id": "close-mixed",
+   "fn": "canClose",
+   "args": [
+    [
+     {
+      "id": 1,
+      "severity": "Major",
+      "status": "Open"
+     },
+     {
+      "id": 2,
+      "severity": "Critical",
+      "status": "Rejected"
+     },
+     {
+      "id": 3,
+      "severity": "Critical",
+      "status": "Verified"
+     },
+     {
+      "id": 4,
+      "severity": "Major",
+      "status": "Responded"
+     },
+     {
+      "id": 5,
+      "severity": "Critical",
+      "status": "Open"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "blocking": [
+     {
+      "id": 1,
+      "severity": "Major",
+      "status": "Open"
+     },
+     {
+      "id": 2,
+      "severity": "Critical",
+      "status": "Rejected"
+     },
+     {
+      "id": 4,
+      "severity": "Major",
+      "status": "Responded"
+     },
+     {
+      "id": 5,
+      "severity": "Critical",
+      "status": "Open"
+     }
+    ]
+   }
+  },
+  {
+   "id": "close-no-arg",
+   "fn": "canClose",
+   "args": [],
+   "expected": {
+    "ok": true,
+    "blocking": []
+   }
+  },
+  {
+   "id": "stage-Draft",
+   "fn": "nextStages",
+   "args": [
+    "Draft"
+   ],
+   "expected": [
+    "In Review",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "stage-In Review",
+   "fn": "nextStages",
+   "args": [
+    "In Review"
+   ],
+   "expected": [
+    "Verification",
+    "Draft",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "stage-Verification",
+   "fn": "nextStages",
+   "args": [
+    "Verification"
+   ],
+   "expected": [
+    "Closed",
+    "In Review",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "stage-Closed",
+   "fn": "nextStages",
+   "args": [
+    "Closed"
+   ],
+   "expected": []
+  },
+  {
+   "id": "stage-Cancelled",
+   "fn": "nextStages",
+   "args": [
+    "Cancelled"
+   ],
+   "expected": []
+  },
+  {
+   "id": "stage-Archived",
+   "fn": "nextStages",
+   "args": [
+    "Archived"
+   ],
+   "expected": []
+  },
+  {
+   "id": "overdue-stage-Draft",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Draft",
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-stage-In Review",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "In Review",
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-stage-Verification",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Verification",
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-stage-Closed",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Closed",
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-stage-Cancelled",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Cancelled",
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-stage-None",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": null,
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-due-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "In Review",
+     "due_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-due-tomorrow",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "In Review",
+     "due_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-no-date",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "In Review"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-garbage-date",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Draft",
+     "due_date": "asap"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-date-object",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Verification",
+     "due_date": {
+      "$date": "2026-09-16"
+     }
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-date-object-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Verification",
+     "due_date": {
+      "$date": "2026-09-17"
+     }
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-across-dst",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Draft",
+     "due_date": "2026-11-01"
+    },
+    {
+     "$date": "2026-11-02"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-no-arg",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "$undefined": true
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-impossible-date",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "In Review",
+     "due_date": "2026-02-30"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "summary-mixed",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "stage": "Draft",
+      "due_date": "2026-09-01"
+     },
+     {
+      "stage": "In Review",
+      "due_date": "2026-09-17"
+     },
+     {
+      "stage": "In Review",
+      "due_date": "2026-08-01"
+     },
+     {
+      "stage": "Verification"
+     },
+     {
+      "stage": "Closed",
+      "due_date": "2025-01-01"
+     },
+     {
+      "stage": "Cancelled",
+      "due_date": "2025-01-01"
+     },
+     {
+      "stage": "On hold",
+      "due_date": "2025-01-01"
+     },
+     {}
+    ],
+    [
+     {
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "severity": "Critical",
+      "status": "Closed"
+     },
+     {
+      "severity": "Major",
+      "status": "Responded"
+     },
+     {
+      "severity": "Major",
+      "status": "Verified"
+     },
+     {
+      "severity": "Minor",
+      "status": "Open"
+     },
+     {
+      "severity": "Editorial",
+      "status": "Withdrawn"
+     },
+     {
+      "severity": "Minor",
+      "status": "Rejected"
+     },
+     {
+      "severity": null,
+      "status": "Open"
+     },
+     {
+      "severity": "Major",
+      "status": "Rejected"
+     },
+     {
+      "severity": "Trivial",
+      "status": "Acknowledged"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 8,
+    "byStage": {
+     "Draft": 1,
+     "In Review": 2,
+     "Verification": 1,
+     "Closed": 1,
+     "Cancelled": 1
+    },
+    "active": 4,
+    "overdue": 2,
+    "totalComments": 10,
+    "bySeverity": {
+     "Critical": 2,
+     "Major": 3,
+     "Minor": 2,
+     "Editorial": 1
+    },
+    "byStatus": {
+     "Open": 3,
+     "Responded": 1,
+     "Verified": 1,
+     "Closed": 1,
+     "Rejected": 2,
+     "Withdrawn": 1
+    },
+    "openComments": 7,
+    "blockingComments": 3
+   }
+  },
+  {
+   "id": "summary-empty",
+   "fn": "summarise",
+   "args": [
+    [],
+    [],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 0,
+    "byStage": {
+     "Draft": 0,
+     "In Review": 0,
+     "Verification": 0,
+     "Closed": 0,
+     "Cancelled": 0
+    },
+    "active": 0,
+    "overdue": 0,
+    "totalComments": 0,
+    "bySeverity": {
+     "Critical": 0,
+     "Major": 0,
+     "Minor": 0,
+     "Editorial": 0
+    },
+    "byStatus": {
+     "Open": 0,
+     "Responded": 0,
+     "Verified": 0,
+     "Closed": 0,
+     "Rejected": 0,
+     "Withdrawn": 0
+    },
+    "openComments": 0,
+    "blockingComments": 0
+   }
+  },
+  {
+   "id": "summary-reviews-only",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "stage": "Draft",
+      "due_date": "2026-09-01"
+     },
+     {
+      "stage": "In Review",
+      "due_date": "2026-09-17"
+     },
+     {
+      "stage": "In Review",
+      "due_date": "2026-08-01"
+     },
+     {
+      "stage": "Verification"
+     },
+     {
+      "stage": "Closed",
+      "due_date": "2025-01-01"
+     },
+     {
+      "stage": "Cancelled",
+      "due_date": "2025-01-01"
+     },
+     {
+      "stage": "On hold",
+      "due_date": "2025-01-01"
+     },
+     {}
+    ],
+    [],
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": {
+    "total": 8,
+    "byStage": {
+     "Draft": 1,
+     "In Review": 2,
+     "Verification": 1,
+     "Closed": 1,
+     "Cancelled": 1
+    },
+    "active": 4,
+    "overdue": 3,
+    "totalComments": 0,
+    "bySeverity": {
+     "Critical": 0,
+     "Major": 0,
+     "Minor": 0,
+     "Editorial": 0
+    },
+    "byStatus": {
+     "Open": 0,
+     "Responded": 0,
+     "Verified": 0,
+     "Closed": 0,
+     "Rejected": 0,
+     "Withdrawn": 0
+    },
+    "openComments": 0,
+    "blockingComments": 0
+   }
+  },
+  {
+   "id": "countby-discipline",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "discipline": "Reservoir"
+     },
+     {
+      "discipline": "Drilling"
+     },
+     {
+      "discipline": "Reservoir"
+     },
+     {
+      "discipline": null
+     },
+     {},
+     {
+      "discipline": "Facilities"
+     }
+    ],
+    "discipline"
+   ],
+   "expected": [
+    {
+     "name": "Reservoir",
+     "count": 2
+    },
+    {
+     "name": "Unspecified",
+     "count": 2
+    },
+    {
+     "name": "Drilling",
+     "count": 1
+    },
+    {
+     "name": "Facilities",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countby-unset-label",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "discipline": "Reservoir"
+     },
+     {
+      "discipline": "Drilling"
+     },
+     {
+      "discipline": "Reservoir"
+     },
+     {
+      "discipline": null
+     },
+     {},
+     {
+      "discipline": "Facilities"
+     }
+    ],
+    "discipline",
+    "General"
+   ],
+   "expected": [
+    {
+     "name": "Reservoir",
+     "count": 2
+    },
+    {
+     "name": "General",
+     "count": 2
+    },
+    {
+     "name": "Drilling",
+     "count": 1
+    },
+    {
+     "name": "Facilities",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countby-empty",
+   "fn": "countBy",
+   "args": [
+    [],
+    "discipline"
+   ],
+   "expected": []
+  },
+  {
+   "id": "urgency-mixed",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [
+    {
+     "id": "closed-old",
+     "stage": "Closed",
+     "due_date": "2025-01-01"
+    },
+    {
+     "id": "live-late",
+     "stage": "In Review",
+     "due_date": "2027-01-01"
+    },
+    {
+     "id": "overdue-recent",
+     "stage": "Draft",
+     "due_date": "2026-09-16"
+    },
+    {
+     "id": "live-undated",
+     "stage": "Verification"
+    },
+    {
+     "id": "live-today",
+     "stage": "In Review",
+     "due_date": "2026-09-17"
+    },
+    {
+     "id": "overdue-old",
+     "stage": "Verification",
+     "due_date": "2026-01-01"
+    },
+    {
+     "id": "cancelled-undated",
+     "stage": "Cancelled"
+    },
+    {
+     "id": "cancelled-dated",
+     "stage": "Cancelled",
+     "due_date": "2024-01-01"
+    }
+   ],
+   "expectedOrder": [
+    "overdue-old",
+    "overdue-recent",
+    "live-today",
+    "live-late",
+    "live-undated",
+    "cancelled-dated",
+    "closed-old",
+    "cancelled-undated"
+   ]
+  },
+  {
+   "id": "urgency-empty",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [],
+   "expectedOrder": []
+  },
+  {
+   "id": "sev-mixed",
+   "sort": "bySeverityThenAge",
+   "factory": false,
+   "factoryArgs": [],
+   "rows": [
+    {
+     "id": "minor-open-old",
+     "severity": "Minor",
+     "status": "Open",
+     "created_at": "2026-09-01T10:00:00Z"
+    },
+    {
+     "id": "crit-closed",
+     "severity": "Critical",
+     "status": "Closed",
+     "created_at": "2026-08-01T10:00:00Z"
+    },
+    {
+     "id": "major-open-new",
+     "severity": "Major",
+     "status": "Open",
+     "created_at": "2026-09-10T10:00:00Z"
+    },
+    {
+     "id": "crit-open",
+     "severity": "Critical",
+     "status": "Responded",
+     "created_at": "2026-09-12T10:00:00Z"
+    },
+    {
+     "id": "major-open-old",
+     "severity": "Major",
+     "status": "Rejected",
+     "created_at": "2026-09-02T10:00:00Z"
+    },
+    {
+     "id": "edit-open",
+     "severity": "Editorial",
+     "status": "Open",
+     "created_at": "2026-07-01T10:00:00Z"
+    },
+    {
+     "id": "major-verified",
+     "severity": "Major",
+     "status": "Verified",
+     "created_at": "2026-09-03T10:00:00Z"
+    },
+    {
+     "id": "major-open-undated",
+     "severity": "Major",
+     "status": "Open"
+    }
+   ],
+   "expectedOrder": [
+    "crit-open",
+    "major-open-undated",
+    "major-open-old",
+    "major-open-new",
+    "minor-open-old",
+    "edit-open",
+    "crit-closed",
+    "major-verified"
+   ]
+  },
+  {
+   "id": "sev-empty",
+   "sort": "bySeverityThenAge",
+   "factory": false,
+   "factoryArgs": [],
+   "rows": [],
+   "expectedOrder": []
+  },
+  {
+   "id": "sev-unrated-not-above-critical",
+   "sort": "bySeverityThenAge",
+   "factory": false,
+   "factoryArgs": [],
+   "rows": [
+    {
+     "id": "minor-open-old",
+     "severity": "Minor",
+     "status": "Open",
+     "created_at": "2026-09-01T10:00:00Z"
+    },
+    {
+     "id": "crit-closed",
+     "severity": "Critical",
+     "status": "Closed",
+     "created_at": "2026-08-01T10:00:00Z"
+    },
+    {
+     "id": "major-open-new",
+     "severity": "Major",
+     "status": "Open",
+     "created_at": "2026-09-10T10:00:00Z"
+    },
+    {
+     "id": "crit-open",
+     "severity": "Critical",
+     "status": "Responded",
+     "created_at": "2026-09-12T10:00:00Z"
+    },
+    {
+     "id": "major-open-old",
+     "severity": "Major",
+     "status": "Rejected",
+     "created_at": "2026-09-02T10:00:00Z"
+    },
+    {
+     "id": "edit-open",
+     "severity": "Editorial",
+     "status": "Open",
+     "created_at": "2026-07-01T10:00:00Z"
+    },
+    {
+     "id": "major-verified",
+     "severity": "Major",
+     "status": "Verified",
+     "created_at": "2026-09-03T10:00:00Z"
+    },
+    {
+     "id": "major-open-undated",
+     "severity": "Major",
+     "status": "Open"
+    },
+    {
+     "id": "unrated-open",
+     "severity": null,
+     "status": "Open",
+     "created_at": "2026-09-05T10:00:00Z"
+    }
+   ],
+   "expectedOrder": [
+    "crit-open",
+    "major-open-undated",
+    "major-open-old",
+    "major-open-new",
+    "minor-open-old",
+    "edit-open",
+    "unrated-open",
+    "crit-closed",
+    "major-verified"
+   ],
+   "repaired": "PR-1"
+  }
+ ]
+}

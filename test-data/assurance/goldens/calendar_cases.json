@@ -1,0 +1,639 @@
+{
+ "module": "calendar",
+ "generatedBy": "tools/validation/assurance/oracle_calendar.py",
+ "description": "Calendar-date parsing and whole-day arithmetic, from the module docstring; Python datetime.date is the independent model of local-midnight rounding.",
+ "cases": [
+  {
+   "id": "parse-plain",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "parse-leap-day",
+   "fn": "parseDateOnly",
+   "args": [
+    "2028-02-29"
+   ],
+   "expected": {
+    "$date": "2028-02-29"
+   }
+  },
+  {
+   "id": "parse-year-end",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-12-31"
+   ],
+   "expected": {
+    "$date": "2026-12-31"
+   }
+  },
+  {
+   "id": "parse-year-start",
+   "fn": "parseDateOnly",
+   "args": [
+    "2027-01-01"
+   ],
+   "expected": {
+    "$date": "2027-01-01"
+   }
+  },
+  {
+   "id": "parse-utc-timestamp-prefix",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17T23:30:00Z"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "parse-offset-timestamp-prefix",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17T01:00:00+14:00"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "parse-us-dst-start",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-03-08"
+   ],
+   "expected": {
+    "$date": "2026-03-08"
+   }
+  },
+  {
+   "id": "parse-nz-dst-end",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-04-05"
+   ],
+   "expected": {
+    "$date": "2026-04-05"
+   }
+  },
+  {
+   "id": "parse-nz-dst-start",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-27"
+   ],
+   "expected": {
+    "$date": "2026-09-27"
+   }
+  },
+  {
+   "id": "parse-us-dst-end",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-11-01"
+   ],
+   "expected": {
+    "$date": "2026-11-01"
+   }
+  },
+  {
+   "id": "parse-null",
+   "fn": "parseDateOnly",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-undefined",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-empty",
+   "fn": "parseDateOnly",
+   "args": [
+    ""
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-garbage",
+   "fn": "parseDateOnly",
+   "args": [
+    "garbage"
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-dmy",
+   "fn": "parseDateOnly",
+   "args": [
+    "17/09/2026"
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-unpadded",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-9-7"
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-leading-space",
+   "fn": "parseDateOnly",
+   "args": [
+    " 2026-09-17"
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-number",
+   "fn": "parseDateOnly",
+   "args": [
+    20260917
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-zero",
+   "fn": "parseDateOnly",
+   "args": [
+    0
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-date-object",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": {
+    "$date": "2026-03-08"
+   }
+  },
+  {
+   "id": "parse-invalid-date-object",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$date": null
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-feb-30",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-02-30"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "parse-feb-29-nonleap",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-02-29"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "parse-apr-31",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-04-31"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "parse-month-13",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-13-01"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "parse-month-00",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-00-10"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "parse-day-00",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-00"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "startofday-date",
+   "fn": "startOfDay",
+   "args": [
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": {
+    "$date": "2026-03-08"
+   }
+  },
+  {
+   "id": "startofday-invalid",
+   "fn": "startOfDay",
+   "args": [
+    {
+     "$date": null
+    }
+   ],
+   "expected": {
+    "$date": null
+   }
+  },
+  {
+   "id": "days-same",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-17",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "days-tomorrow",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-18",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 1
+  },
+  {
+   "id": "days-yesterday",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-16",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": -1
+  },
+  {
+   "id": "days-across-us-dst-start",
+   "fn": "daysUntil",
+   "args": [
+    "2026-03-09",
+    {
+     "$date": "2026-03-07"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "days-on-us-dst-start",
+   "fn": "daysUntil",
+   "args": [
+    "2026-03-09",
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": 1
+  },
+  {
+   "id": "days-into-us-dst-start",
+   "fn": "daysUntil",
+   "args": [
+    "2026-03-08",
+    {
+     "$date": "2026-03-07"
+    }
+   ],
+   "expected": 1
+  },
+  {
+   "id": "days-backwards-us-dst",
+   "fn": "daysUntil",
+   "args": [
+    "2026-03-01",
+    {
+     "$date": "2026-03-15"
+    }
+   ],
+   "expected": -14
+  },
+  {
+   "id": "days-across-us-dst-end",
+   "fn": "daysUntil",
+   "args": [
+    "2026-11-02",
+    {
+     "$date": "2026-10-31"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "days-on-us-dst-end",
+   "fn": "daysUntil",
+   "args": [
+    "2026-11-02",
+    {
+     "$date": "2026-11-01"
+    }
+   ],
+   "expected": 1
+  },
+  {
+   "id": "days-across-nz-dst-end",
+   "fn": "daysUntil",
+   "args": [
+    "2026-04-06",
+    {
+     "$date": "2026-04-04"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "days-on-nz-dst-end",
+   "fn": "daysUntil",
+   "args": [
+    "2026-04-06",
+    {
+     "$date": "2026-04-05"
+    }
+   ],
+   "expected": 1
+  },
+  {
+   "id": "days-across-nz-dst-start",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-28",
+    {
+     "$date": "2026-09-26"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "days-on-nz-dst-start",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-28",
+    {
+     "$date": "2026-09-27"
+    }
+   ],
+   "expected": 1
+  },
+  {
+   "id": "days-whole-year",
+   "fn": "daysUntil",
+   "args": [
+    "2027-01-01",
+    {
+     "$date": "2026-01-01"
+    }
+   ],
+   "expected": 365
+  },
+  {
+   "id": "days-leap-feb",
+   "fn": "daysUntil",
+   "args": [
+    "2028-03-01",
+    {
+     "$date": "2028-02-28"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "days-decade",
+   "fn": "daysUntil",
+   "args": [
+    "2030-01-01",
+    {
+     "$date": "2020-01-01"
+    }
+   ],
+   "expected": 3653
+  },
+  {
+   "id": "days-decade-back",
+   "fn": "daysUntil",
+   "args": [
+    "2020-01-01",
+    {
+     "$date": "2030-01-01"
+    }
+   ],
+   "expected": -3653
+  },
+  {
+   "id": "days-year-boundary",
+   "fn": "daysUntil",
+   "args": [
+    "2027-01-01",
+    {
+     "$date": "2026-12-31"
+    }
+   ],
+   "expected": 1
+  },
+  {
+   "id": "days-date-object",
+   "fn": "daysUntil",
+   "args": [
+    {
+     "$date": "2026-10-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 30
+  },
+  {
+   "id": "days-timestamp-prefix",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-18T23:59:59Z",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 1
+  },
+  {
+   "id": "days-null",
+   "fn": "daysUntil",
+   "args": [
+    null,
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "days-empty",
+   "fn": "daysUntil",
+   "args": [
+    "",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "days-garbage",
+   "fn": "daysUntil",
+   "args": [
+    "soon",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "days-invalid-date-object",
+   "fn": "daysUntil",
+   "args": [
+    {
+     "$date": null
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "days-feb-30",
+   "fn": "daysUntil",
+   "args": [
+    "2026-02-30",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "ymd-string",
+   "fn": "toDateOnlyString",
+   "args": [
+    "2026-09-17"
+   ],
+   "expected": "2026-09-17"
+  },
+  {
+   "id": "ymd-date-object",
+   "fn": "toDateOnlyString",
+   "args": [
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": "2026-03-08"
+  },
+  {
+   "id": "ymd-timestamp",
+   "fn": "toDateOnlyString",
+   "args": [
+    "2026-11-01T10:00:00Z"
+   ],
+   "expected": "2026-11-01"
+  },
+  {
+   "id": "ymd-null",
+   "fn": "toDateOnlyString",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "ymd-garbage",
+   "fn": "toDateOnlyString",
+   "args": [
+    "nonsense"
+   ],
+   "expected": null
+  },
+  {
+   "id": "ymd-feb-30",
+   "fn": "toDateOnlyString",
+   "args": [
+    "2026-02-30"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "ymd-year-0026",
+   "fn": "toDateOnlyString",
+   "args": [
+    "0026-09-17"
+   ],
+   "expected": "0026-09-17",
+   "repaired": "CAL-2"
+  },
+  {
+   "id": "ymd-year-0099",
+   "fn": "toDateOnlyString",
+   "args": [
+    "0099-12-31"
+   ],
+   "expected": "0099-12-31",
+   "repaired": "CAL-2"
+  },
+  {
+   "id": "ymd-year-0100",
+   "fn": "toDateOnlyString",
+   "args": [
+    "0100-01-01"
+   ],
+   "expected": "0100-01-01",
+   "repaired": "CAL-2"
+  }
+ ]
+}

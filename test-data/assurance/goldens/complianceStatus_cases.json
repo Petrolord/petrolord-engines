@@ -1,0 +1,1658 @@
+{
+ "module": "complianceStatus",
+ "generatedBy": "tools/validation/assurance/oracle_compliance.py",
+ "description": "Regulatory obligation status, reasons, sort, counts and due-date roll-forward, from the deriveStatus method statement and STATUS section 3b.",
+ "cases": [
+  {
+   "id": "cal-parse-string",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "cal-parse-null",
+   "fn": "parseDateOnly",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "cal-parse-garbage",
+   "fn": "parseDateOnly",
+   "args": [
+    "next week"
+   ],
+   "expected": null
+  },
+  {
+   "id": "cal-days-today",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-17",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "cal-days-past",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-10",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": -7
+  },
+  {
+   "id": "cal-days-none",
+   "fn": "daysUntil",
+   "args": [
+    "",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "cal-ymd-date",
+   "fn": "toDateOnlyString",
+   "args": [
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": "2026-03-08"
+  },
+  {
+   "id": "cal-ymd-nonsense",
+   "fn": "toDateOnlyString",
+   "args": [
+    "nonsense"
+   ],
+   "expected": null
+  },
+  {
+   "id": "next-both-due-first",
+   "fn": "nextActionDate",
+   "args": [
+    {
+     "due_date": "2026-10-01",
+     "expiry_date": "2027-01-01"
+    }
+   ],
+   "expected": {
+    "$date": "2026-10-01"
+   }
+  },
+  {
+   "id": "next-both-expiry-first",
+   "fn": "nextActionDate",
+   "args": [
+    {
+     "due_date": "2026-12-01",
+     "expiry_date": "2026-10-08"
+    }
+   ],
+   "expected": {
+    "$date": "2026-10-08"
+   }
+  },
+  {
+   "id": "next-both-same",
+   "fn": "nextActionDate",
+   "args": [
+    {
+     "due_date": "2026-10-01",
+     "expiry_date": "2026-10-01"
+    }
+   ],
+   "expected": {
+    "$date": "2026-10-01"
+   }
+  },
+  {
+   "id": "next-due-only",
+   "fn": "nextActionDate",
+   "args": [
+    {
+     "due_date": "2026-10-01"
+    }
+   ],
+   "expected": {
+    "$date": "2026-10-01"
+   }
+  },
+  {
+   "id": "next-expiry-only",
+   "fn": "nextActionDate",
+   "args": [
+    {
+     "expiry_date": "2026-10-01"
+    }
+   ],
+   "expected": {
+    "$date": "2026-10-01"
+   }
+  },
+  {
+   "id": "next-none",
+   "fn": "nextActionDate",
+   "args": [
+    {}
+   ],
+   "expected": null
+  },
+  {
+   "id": "next-garbage-due",
+   "fn": "nextActionDate",
+   "args": [
+    {
+     "due_date": "tbc",
+     "expiry_date": "2027-03-31"
+    }
+   ],
+   "expected": {
+    "$date": "2027-03-31"
+   }
+  },
+  {
+   "id": "next-date-objects",
+   "fn": "nextActionDate",
+   "args": [
+    {
+     "due_date": {
+      "$date": "2026-11-01"
+     },
+     "expiry_date": {
+      "$date": "2026-10-31"
+     }
+    }
+   ],
+   "expected": {
+    "$date": "2026-10-31"
+   }
+  },
+  {
+   "id": "next-no-arg",
+   "fn": "nextActionDate",
+   "args": [],
+   "expected": null
+  },
+  {
+   "id": "st-draft",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "lifecycle": "Draft",
+     "due_date": "2020-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Draft"
+  },
+  {
+   "id": "st-superseded",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "lifecycle": "Superseded",
+     "expiry_date": "2020-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Superseded"
+  },
+  {
+   "id": "st-not-applicable",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "lifecycle": "Not applicable",
+     "due_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not applicable"
+  },
+  {
+   "id": "st-active-explicit-no-date",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "lifecycle": "Active"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "No date set"
+  },
+  {
+   "id": "st-no-lifecycle-no-date",
+   "fn": "deriveStatus",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "No date set"
+  },
+  {
+   "id": "st-empty-lifecycle",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "lifecycle": "",
+     "due_date": "2027-06-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "On track"
+  },
+  {
+   "id": "st-expired-yesterday",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "expiry_date": "2026-09-16",
+     "due_date": "2027-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Expired"
+  },
+  {
+   "id": "st-expiry-today",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-expired-outranks-overdue",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "expiry_date": "2026-09-01",
+     "due_date": "2026-08-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Expired"
+  },
+  {
+   "id": "st-overdue-yesterday",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-09-16",
+     "expiry_date": "2027-09-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Overdue"
+  },
+  {
+   "id": "st-overdue-despite-filing",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-09-10",
+     "last_submitted_date": "2026-03-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Overdue"
+  },
+  {
+   "id": "st-due-today",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-due-today-filed",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-09-17",
+     "last_submitted_date": "2026-06-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-edge-30",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-edge-31",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "On track"
+  },
+  {
+   "id": "st-lead-edge-31-filed",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-18",
+     "last_submitted_date": "2026-07-18"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Compliant"
+  },
+  {
+   "id": "st-expiry-drives-soon",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2027-03-01",
+     "expiry_date": "2026-10-01",
+     "last_submitted_date": "2026-03-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-90-inside",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-12-16",
+     "lead_time_days": 90
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-90-outside",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-12-17",
+     "lead_time_days": 90
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "On track"
+  },
+  {
+   "id": "st-lead-7-inside",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-09-24",
+     "lead_time_days": 7
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-7-outside",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-09-25",
+     "lead_time_days": 7
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "On track"
+  },
+  {
+   "id": "st-lead-zero-today",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-09-17",
+     "lead_time_days": 0
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-zero-tomorrow",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-09-18",
+     "lead_time_days": 0
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "On track"
+  },
+  {
+   "id": "st-lead-null-default",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-10",
+     "lead_time_days": null
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-empty-default",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-10",
+     "lead_time_days": ""
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-negative-default",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-10",
+     "lead_time_days": -5
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-text-default",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-10",
+     "lead_time_days": "soon"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-lead-string-number",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-10",
+     "lead_time_days": "10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "On track"
+  },
+  {
+   "id": "st-lead-nan-default",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-10",
+     "lead_time_days": {
+      "$num": "NaN"
+     }
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-compliant",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2027-09-17",
+     "last_submitted_date": "2026-09-15"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Compliant"
+  },
+  {
+   "id": "st-on-track",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2027-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "On track"
+  },
+  {
+   "id": "st-garbage-evidence",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2027-09-17",
+     "last_submitted_date": "n/a"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "On track"
+  },
+  {
+   "id": "st-garbage-dates",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "tbc",
+     "expiry_date": "never"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "No date set"
+  },
+  {
+   "id": "st-dst-us",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-04-07"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Overdue"
+  },
+  {
+   "id": "st-date-objects",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": {
+      "$date": "2026-09-16"
+     }
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Overdue"
+  },
+  {
+   "id": "st-dst-us-lead-edge",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-04-07"
+    },
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-dst-nz-lead-edge",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2026-10-27",
+     "last_submitted_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-27"
+    }
+   ],
+   "expected": "Due soon"
+  },
+  {
+   "id": "st-no-arg",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "$undefined": true
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "No date set"
+  },
+  {
+   "id": "st-unknown-lifecycle",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "lifecycle": "Archived",
+     "due_date": "2026-09-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Overdue"
+  },
+  {
+   "id": "st-impossible-expiry",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "expiry_date": "2026-09-31",
+     "due_date": "2027-06-01",
+     "last_submitted_date": "2026-06-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Compliant",
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "st-impossible-evidence",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "due_date": "2027-06-01",
+     "last_submitted_date": "2026-02-30"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "On track",
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "ex-draft",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "lifecycle": "Draft",
+     "due_date": "2020-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Draft",
+    "daysUntil": -2451,
+    "nextActionDate": {
+     "$date": "2020-01-01"
+    }
+   }
+  },
+  {
+   "id": "ex-expired-yesterday",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "expiry_date": "2026-09-16",
+     "due_date": "2027-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Expired",
+    "daysUntil": -1,
+    "nextActionDate": {
+     "$date": "2026-09-16"
+    }
+   }
+  },
+  {
+   "id": "ex-overdue-yesterday",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "due_date": "2026-09-16",
+     "expiry_date": "2027-09-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Overdue",
+    "daysUntil": -1,
+    "nextActionDate": {
+     "$date": "2026-09-16"
+    }
+   }
+  },
+  {
+   "id": "ex-due-today",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "due_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 0,
+    "nextActionDate": {
+     "$date": "2026-09-17"
+    }
+   }
+  },
+  {
+   "id": "ex-lead-edge-30",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "due_date": "2026-10-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 30,
+    "nextActionDate": {
+     "$date": "2026-10-17"
+    }
+   }
+  },
+  {
+   "id": "ex-compliant",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "due_date": "2027-09-17",
+     "last_submitted_date": "2026-09-15"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Compliant",
+    "daysUntil": 365,
+    "nextActionDate": {
+     "$date": "2027-09-17"
+    }
+   }
+  },
+  {
+   "id": "ex-on-track",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "due_date": "2027-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "On track",
+    "daysUntil": 365,
+    "nextActionDate": {
+     "$date": "2027-09-17"
+    }
+   }
+  },
+  {
+   "id": "ex-no-lifecycle-no-date",
+   "fn": "explainStatus",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "No date set",
+    "daysUntil": null,
+    "nextActionDate": null
+   }
+  },
+  {
+   "id": "ex-expiry-drives-soon",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "due_date": "2027-03-01",
+     "expiry_date": "2026-10-01",
+     "last_submitted_date": "2026-03-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 14,
+    "nextActionDate": {
+     "$date": "2026-10-01"
+    }
+   }
+  },
+  {
+   "id": "ex-expired-outranks-overdue",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "expiry_date": "2026-09-01",
+     "due_date": "2026-08-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Expired",
+    "daysUntil": -47,
+    "nextActionDate": {
+     "$date": "2026-08-01"
+    }
+   }
+  },
+  {
+   "id": "ex-superseded",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "lifecycle": "Superseded",
+     "expiry_date": "2020-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Superseded",
+    "daysUntil": -2451,
+    "nextActionDate": {
+     "$date": "2020-01-01"
+    }
+   }
+  },
+  {
+   "id": "ex-not-applicable",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "lifecycle": "Not applicable",
+     "due_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Not applicable",
+    "daysUntil": 1,
+    "nextActionDate": {
+     "$date": "2026-09-18"
+    }
+   }
+  },
+  {
+   "id": "urgency-mixed",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [
+    {
+     "id": "na",
+     "lifecycle": "Not applicable"
+    },
+    {
+     "id": "ontrack-far",
+     "due_date": "2027-08-01"
+    },
+    {
+     "id": "compliant",
+     "due_date": "2027-02-01",
+     "last_submitted_date": "2026-02-01"
+    },
+    {
+     "id": "overdue-old",
+     "due_date": "2026-01-01"
+    },
+    {
+     "id": "draft",
+     "lifecycle": "Draft",
+     "due_date": "2026-01-01"
+    },
+    {
+     "id": "soon-late",
+     "due_date": "2026-10-10"
+    },
+    {
+     "id": "expired",
+     "expiry_date": "2026-09-01"
+    },
+    {
+     "id": "nodate"
+    },
+    {
+     "id": "soon-early",
+     "expiry_date": "2026-09-20",
+     "due_date": "2027-01-01"
+    },
+    {
+     "id": "overdue-recent",
+     "due_date": "2026-09-16"
+    },
+    {
+     "id": "superseded",
+     "lifecycle": "Superseded"
+    },
+    {
+     "id": "ontrack-near",
+     "due_date": "2026-11-01"
+    }
+   ],
+   "expectedOrder": [
+    "expired",
+    "overdue-old",
+    "overdue-recent",
+    "soon-early",
+    "soon-late",
+    "ontrack-near",
+    "ontrack-far",
+    "compliant",
+    "nodate",
+    "draft",
+    "superseded",
+    "na"
+   ]
+  },
+  {
+   "id": "urgency-ties-in-status",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [
+    {
+     "id": "draft-undated",
+     "lifecycle": "Draft"
+    },
+    {
+     "id": "draft-late",
+     "lifecycle": "Draft",
+     "due_date": "2027-01-01"
+    },
+    {
+     "id": "draft-undated-2",
+     "lifecycle": "Draft"
+    },
+    {
+     "id": "draft-early",
+     "lifecycle": "Draft",
+     "expiry_date": "2026-01-01"
+    }
+   ],
+   "expectedOrder": [
+    "draft-early",
+    "draft-late",
+    "draft-undated",
+    "draft-undated-2"
+   ]
+  },
+  {
+   "id": "urgency-empty",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [],
+   "expectedOrder": []
+  },
+  {
+   "id": "summary-mixed",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "na",
+      "lifecycle": "Not applicable"
+     },
+     {
+      "id": "ontrack-far",
+      "due_date": "2027-08-01"
+     },
+     {
+      "id": "compliant",
+      "due_date": "2027-02-01",
+      "last_submitted_date": "2026-02-01"
+     },
+     {
+      "id": "overdue-old",
+      "due_date": "2026-01-01"
+     },
+     {
+      "id": "draft",
+      "lifecycle": "Draft",
+      "due_date": "2026-01-01"
+     },
+     {
+      "id": "soon-late",
+      "due_date": "2026-10-10"
+     },
+     {
+      "id": "expired",
+      "expiry_date": "2026-09-01"
+     },
+     {
+      "id": "nodate"
+     },
+     {
+      "id": "soon-early",
+      "expiry_date": "2026-09-20",
+      "due_date": "2027-01-01"
+     },
+     {
+      "id": "overdue-recent",
+      "due_date": "2026-09-16"
+     },
+     {
+      "id": "superseded",
+      "lifecycle": "Superseded"
+     },
+     {
+      "id": "ontrack-near",
+      "due_date": "2026-11-01"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 12,
+    "byStatus": {
+     "Expired": 1,
+     "Overdue": 2,
+     "Due soon": 2,
+     "On track": 2,
+     "Compliant": 1,
+     "No date set": 1,
+     "Draft": 1,
+     "Superseded": 1,
+     "Not applicable": 1
+    },
+    "attention": 5
+   }
+  },
+  {
+   "id": "summary-empty",
+   "fn": "summarise",
+   "args": [
+    [],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 0,
+    "byStatus": {
+     "Expired": 0,
+     "Overdue": 0,
+     "Due soon": 0,
+     "On track": 0,
+     "Compliant": 0,
+     "No date set": 0,
+     "Draft": 0,
+     "Superseded": 0,
+     "Not applicable": 0
+    },
+    "attention": 0
+   }
+  },
+  {
+   "id": "summary-no-attention",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "draft-undated",
+      "lifecycle": "Draft"
+     },
+     {
+      "id": "draft-late",
+      "lifecycle": "Draft",
+      "due_date": "2027-01-01"
+     },
+     {
+      "id": "draft-undated-2",
+      "lifecycle": "Draft"
+     },
+     {
+      "id": "draft-early",
+      "lifecycle": "Draft",
+      "expiry_date": "2026-01-01"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 4,
+    "byStatus": {
+     "Expired": 0,
+     "Overdue": 0,
+     "Due soon": 0,
+     "On track": 0,
+     "Compliant": 0,
+     "No date set": 0,
+     "Draft": 4,
+     "Superseded": 0,
+     "Not applicable": 0
+    },
+    "attention": 0
+   }
+  },
+  {
+   "id": "countby-regime",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "regime": "Environmental"
+     },
+     {
+      "regime": "Licensing"
+     },
+     {
+      "regime": ""
+     },
+     {
+      "regime": "Environmental"
+     },
+     {},
+     {
+      "regime": "Licensing"
+     },
+     {
+      "regime": "Environmental"
+     },
+     {
+      "regime": null
+     },
+     {
+      "regime": "Reporting"
+     }
+    ],
+    "regime"
+   ],
+   "expected": [
+    {
+     "name": "Environmental",
+     "count": 3
+    },
+    {
+     "name": "Unspecified",
+     "count": 3
+    },
+    {
+     "name": "Licensing",
+     "count": 2
+    },
+    {
+     "name": "Reporting",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countby-custom-unset",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "regime": "Environmental"
+     },
+     {
+      "regime": "Licensing"
+     },
+     {
+      "regime": ""
+     },
+     {
+      "regime": "Environmental"
+     },
+     {},
+     {
+      "regime": "Licensing"
+     },
+     {
+      "regime": "Environmental"
+     },
+     {
+      "regime": null
+     },
+     {
+      "regime": "Reporting"
+     }
+    ],
+    "regime",
+    "No regime"
+   ],
+   "expected": [
+    {
+     "name": "Environmental",
+     "count": 3
+    },
+    {
+     "name": "No regime",
+     "count": 3
+    },
+    {
+     "name": "Licensing",
+     "count": 2
+    },
+    {
+     "name": "Reporting",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countby-missing-field",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "regime": "Environmental"
+     },
+     {
+      "regime": "Licensing"
+     },
+     {
+      "regime": ""
+     },
+     {
+      "regime": "Environmental"
+     },
+     {},
+     {
+      "regime": "Licensing"
+     },
+     {
+      "regime": "Environmental"
+     },
+     {
+      "regime": null
+     },
+     {
+      "regime": "Reporting"
+     }
+    ],
+    "authority"
+   ],
+   "expected": [
+    {
+     "name": "Unspecified",
+     "count": 9
+    }
+   ]
+  },
+  {
+   "id": "countby-empty",
+   "fn": "countBy",
+   "args": [
+    [],
+    "regime"
+   ],
+   "expected": []
+  },
+  {
+   "id": "roll-monthly",
+   "fn": "rollForward",
+   "args": [
+    "2026-09-17",
+    "Monthly"
+   ],
+   "expected": {
+    "$date": "2026-10-17"
+   }
+  },
+  {
+   "id": "roll-quarterly",
+   "fn": "rollForward",
+   "args": [
+    "2026-09-17",
+    "Quarterly"
+   ],
+   "expected": {
+    "$date": "2026-12-17"
+   }
+  },
+  {
+   "id": "roll-semiannual",
+   "fn": "rollForward",
+   "args": [
+    "2026-09-17",
+    "Semi-annual"
+   ],
+   "expected": {
+    "$date": "2027-03-17"
+   }
+  },
+  {
+   "id": "roll-annual",
+   "fn": "rollForward",
+   "args": [
+    "2026-09-17",
+    "Annual"
+   ],
+   "expected": {
+    "$date": "2027-09-17"
+   }
+  },
+  {
+   "id": "roll-biennial",
+   "fn": "rollForward",
+   "args": [
+    "2026-09-17",
+    "Biennial"
+   ],
+   "expected": {
+    "$date": "2028-09-17"
+   }
+  },
+  {
+   "id": "roll-jan31-monthly",
+   "fn": "rollForward",
+   "args": [
+    "2026-01-31",
+    "Monthly"
+   ],
+   "expected": {
+    "$date": "2026-02-28"
+   }
+  },
+  {
+   "id": "roll-jan31-monthly-leap",
+   "fn": "rollForward",
+   "args": [
+    "2028-01-31",
+    "Monthly"
+   ],
+   "expected": {
+    "$date": "2028-02-29"
+   }
+  },
+  {
+   "id": "roll-aug31-quarterly",
+   "fn": "rollForward",
+   "args": [
+    "2026-08-31",
+    "Quarterly"
+   ],
+   "expected": {
+    "$date": "2026-11-30"
+   }
+  },
+  {
+   "id": "roll-mar31-semiannual",
+   "fn": "rollForward",
+   "args": [
+    "2026-03-31",
+    "Semi-annual"
+   ],
+   "expected": {
+    "$date": "2026-09-30"
+   }
+  },
+  {
+   "id": "roll-leapday-annual",
+   "fn": "rollForward",
+   "args": [
+    "2028-02-29",
+    "Annual"
+   ],
+   "expected": {
+    "$date": "2029-02-28"
+   }
+  },
+  {
+   "id": "roll-leapday-biennial",
+   "fn": "rollForward",
+   "args": [
+    "2028-02-29",
+    "Biennial"
+   ],
+   "expected": {
+    "$date": "2030-02-28"
+   }
+  },
+  {
+   "id": "roll-dec-monthly",
+   "fn": "rollForward",
+   "args": [
+    "2026-12-15",
+    "Monthly"
+   ],
+   "expected": {
+    "$date": "2027-01-15"
+   }
+  },
+  {
+   "id": "roll-nov30-quarterly",
+   "fn": "rollForward",
+   "args": [
+    "2026-11-30",
+    "Quarterly"
+   ],
+   "expected": {
+    "$date": "2027-02-28"
+   }
+  },
+  {
+   "id": "roll-oct31-monthly",
+   "fn": "rollForward",
+   "args": [
+    "2026-10-31",
+    "Monthly"
+   ],
+   "expected": {
+    "$date": "2026-11-30"
+   }
+  },
+  {
+   "id": "roll-across-dst",
+   "fn": "rollForward",
+   "args": [
+    "2026-03-08",
+    "Monthly"
+   ],
+   "expected": {
+    "$date": "2026-04-08"
+   }
+  },
+  {
+   "id": "roll-date-object",
+   "fn": "rollForward",
+   "args": [
+    {
+     "$date": "2026-05-31"
+    },
+    "Monthly"
+   ],
+   "expected": {
+    "$date": "2026-06-30"
+   }
+  },
+  {
+   "id": "roll-one-off",
+   "fn": "rollForward",
+   "args": [
+    "2026-09-17",
+    "One-off"
+   ],
+   "expected": null
+  },
+  {
+   "id": "roll-other",
+   "fn": "rollForward",
+   "args": [
+    "2026-09-17",
+    "Other"
+   ],
+   "expected": null
+  },
+  {
+   "id": "roll-unknown",
+   "fn": "rollForward",
+   "args": [
+    "2026-09-17",
+    "Weekly"
+   ],
+   "expected": null
+  },
+  {
+   "id": "roll-no-freq",
+   "fn": "rollForward",
+   "args": [
+    "2026-09-17",
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "roll-no-date",
+   "fn": "rollForward",
+   "args": [
+    null,
+    "Annual"
+   ],
+   "expected": null
+  },
+  {
+   "id": "roll-garbage-date",
+   "fn": "rollForward",
+   "args": [
+    "soon",
+    "Annual"
+   ],
+   "expected": null
+  },
+  {
+   "id": "roll-impossible-date",
+   "fn": "rollForward",
+   "args": [
+    "2026-02-30",
+    "Monthly"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  }
+ ]
+}

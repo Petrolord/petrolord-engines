@@ -1,0 +1,7224 @@
+{
+ "module": "isoCompliance",
+ "generatedBy": "tools/validation/assurance/oracle_iso.py",
+ "description": "ISO Compliance (AS8) rules from the docstrings, AssuranceApps-STATUS.md 3g, ISO 9001:2015 4.3/9.2/10.2 and ISO 19011; independent stdlib model. Dates as datetime.date; N years back clamps 29 Feb to 28 Feb.",
+ "cases": [
+  {
+   "id": "parse-string",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "parse-timestamp",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17T23:30:00Z"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "parse-date",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$date": "2024-02-29"
+    }
+   ],
+   "expected": {
+    "$date": "2024-02-29"
+   }
+  },
+  {
+   "id": "parse-empty",
+   "fn": "parseDateOnly",
+   "args": [
+    ""
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-null",
+   "fn": "parseDateOnly",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-garbage",
+   "fn": "parseDateOnly",
+   "args": [
+    "next Tuesday"
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-invalid-date",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$date": null
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-feb-30",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-02-30"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "days-future",
+   "fn": "daysUntil",
+   "args": [
+    "2026-10-17",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 30
+  },
+  {
+   "id": "days-past",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-16",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": -1
+  },
+  {
+   "id": "days-today",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-17",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "days-none",
+   "fn": "daysUntil",
+   "args": [
+    null,
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "days-across-leap",
+   "fn": "daysUntil",
+   "args": [
+    "2028-02-29",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 530
+  },
+  {
+   "id": "ymd-string",
+   "fn": "toDateOnlyString",
+   "args": [
+    "2026-01-05T08:00:00"
+   ],
+   "expected": "2026-01-05"
+  },
+  {
+   "id": "ymd-date",
+   "fn": "toDateOnlyString",
+   "args": [
+    {
+     "$date": "2028-02-29"
+    }
+   ],
+   "expected": "2028-02-29"
+  },
+  {
+   "id": "ymd-null",
+   "fn": "toDateOnlyString",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "action-open-open",
+   "fn": "isActionOpen",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "action-open-progress",
+   "fn": "isActionOpen",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "In progress"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "action-open-complete",
+   "fn": "isActionOpen",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Complete"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "action-open-cancelled",
+   "fn": "isActionOpen",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Cancelled"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "action-overdue-yes",
+   "fn": "isActionOverdue",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open",
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "action-overdue-today",
+   "fn": "isActionOverdue",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open",
+     "due_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "action-overdue-complete",
+   "fn": "isActionOverdue",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Complete",
+     "due_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "action-overdue-nodate",
+   "fn": "isActionOverdue",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "eff-verified",
+   "fn": "isEffectivenessVerified",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Complete",
+     "completed_at": "2026-09-10",
+     "effectiveness_verified": true,
+     "effectiveness_checked_at": "2026-09-15",
+     "effectiveness_verified_by": "u3"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "eff-unsigned",
+   "fn": "isEffectivenessVerified",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Complete",
+     "completed_at": "2026-09-10",
+     "effectiveness_verified": true,
+     "effectiveness_checked_at": "2026-09-15",
+     "effectiveness_verified_by": null
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "eff-undated",
+   "fn": "isEffectivenessVerified",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Complete",
+     "completed_at": "2026-09-10",
+     "effectiveness_verified": true,
+     "effectiveness_checked_at": null,
+     "effectiveness_verified_by": "u3"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "eff-string-true",
+   "fn": "isEffectivenessVerified",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Complete",
+     "completed_at": "2026-09-10",
+     "effectiveness_verified": "true",
+     "effectiveness_checked_at": "2026-09-15",
+     "effectiveness_verified_by": "u3"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "eff-failed",
+   "fn": "isEffectivenessFailed",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open",
+     "effectiveness_verified": false
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "eff-failed-null",
+   "fn": "isEffectivenessFailed",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open",
+     "effectiveness_verified": null
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "eff-failed-absent",
+   "fn": "isEffectivenessFailed",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "applicable",
+   "fn": "isApplicable",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "applicable-excluded",
+   "fn": "isApplicable",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Not applicable",
+     "status": "Not assessed"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "applicable-unset",
+   "fn": "isApplicable",
+   "args": [
+    {
+     "id": "c9"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "claims-conformant",
+   "fn": "claimsConformity",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Conformant"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "claims-partial",
+   "fn": "claimsConformity",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Partially conformant"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "claims-nonconformant",
+   "fn": "claimsConformity",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Nonconformant"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "claims-not-assessed",
+   "fn": "claimsConformity",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "assessed-dated",
+   "fn": "isAssessed",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Conformant",
+     "evidence_reference": "QMS-PR-009 rev 4",
+     "assessed_date": "2026-06-01",
+     "assessed_by": "u1"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "assessed-undated",
+   "fn": "isAssessed",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Conformant",
+     "evidence_reference": "QMS-PR-009 rev 4",
+     "assessed_date": null,
+     "assessed_by": "u1"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "assessed-not",
+   "fn": "isAssessed",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed",
+     "assessed_date": "2026-01-01"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "evidence-full",
+   "fn": "hasEvidenceRecord",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Conformant",
+     "evidence_reference": "QMS-PR-009 rev 4",
+     "assessed_date": "2026-06-01",
+     "assessed_by": "u1"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "evidence-external-assessor",
+   "fn": "hasEvidenceRecord",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Conformant",
+     "evidence_reference": "QMS-PR-009 rev 4",
+     "assessed_date": "2026-06-01",
+     "assessed_by": null,
+     "assessor_name": "LR surveyor"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "evidence-blank-ref",
+   "fn": "hasEvidenceRecord",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Conformant",
+     "evidence_reference": "   ",
+     "assessed_date": "2026-06-01",
+     "assessed_by": "u1"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "evidence-no-date",
+   "fn": "hasEvidenceRecord",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Conformant",
+     "evidence_reference": "QMS-PR-009 rev 4",
+     "assessed_date": null,
+     "assessed_by": "u1"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "evidence-blank-assessor",
+   "fn": "hasEvidenceRecord",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Conformant",
+     "evidence_reference": "QMS-PR-009 rev 4",
+     "assessed_date": "2026-06-01",
+     "assessed_by": null,
+     "assessor_name": "  "
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "status-bad-vocab",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Compliant",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "status-conformant-bare",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Conformant",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "status-conformant-evidenced",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Conformant",
+    {
+     "evidence_reference": "QMS-PR-009",
+     "assessed_date": "2026-09-01",
+     "assessed_by": "u1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "status-partial-no-assessor",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Partially conformant",
+    {
+     "evidence_reference": "QMS-PR-009",
+     "assessed_date": "2026-09-01"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "status-partial-external",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Partially conformant",
+    {
+     "evidence_reference": "QMS-PR-009",
+     "assessed_date": "2026-09-01",
+     "assessor_name": "External assessor"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "status-nonconformant-bare",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Nonconformant",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "status-nonconformant-dated-named",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Nonconformant",
+    {
+     "assessed_date": "2026-09-01",
+     "assessor_name": "Q. Auditor"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "status-na-without-applicability",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Not applicable",
+    {
+     "applicability_justification": "No design activity."
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "status-na-no-justification",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Not applicable",
+    {
+     "applicability": "Not applicable"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "status-na-blank-justification",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Not applicable",
+    {
+     "applicability": "Not applicable",
+     "applicability_justification": "  "
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "status-na-justified",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    "Not applicable",
+    {
+     "applicability": "Not applicable",
+     "applicability_justification": "No design (8.3)."
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "status-excluded-claimed",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Not applicable",
+     "status": "Not assessed",
+     "applicability_justification": "no design"
+    },
+    "Conformant",
+    {
+     "evidence_reference": "x",
+     "assessed_date": "2026-09-01",
+     "assessed_by": "u1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "status-not-assessed",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Conformant",
+     "evidence_reference": "QMS-PR-009 rev 4",
+     "assessed_date": "2026-06-01",
+     "assessed_by": "u1"
+    },
+    "Not assessed",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "status-reinclude",
+   "fn": "canSetClauseStatus",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Not applicable",
+     "status": "Not applicable",
+     "applicability_justification": "no design"
+    },
+    "Not assessed",
+    {
+     "applicability": "Applicable"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "review-overdue-overdue",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed",
+     "next_review_due": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-today-overdue",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed",
+     "next_review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-none-overdue",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-excluded-overdue",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Not applicable",
+     "status": "Not assessed",
+     "next_review_due": "2020-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-today",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed",
+     "next_review_due": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-soon-30",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed",
+     "next_review_due": "2026-10-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-soon-31",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed",
+     "next_review_due": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-past",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Applicable",
+     "status": "Not assessed",
+     "next_review_due": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-soon-excluded",
+   "fn": "isReviewDueSoon",
+   "args": [
+    {
+     "id": "c1",
+     "standard_id": "s1",
+     "clause_ref": "7.1.5",
+     "applicability": "Not applicable",
+     "status": "Not assessed",
+     "next_review_due": "2026-09-20"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "indep-clear",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u7",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u2"
+     },
+     {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u9"
+     },
+     {
+      "id": "c3",
+      "standard_id": "s1",
+      "clause_ref": "9.2",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u9"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true,
+    "clauses": []
+   }
+  },
+  {
+   "id": "indep-owns-two",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u2"
+     },
+     {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u9"
+     },
+     {
+      "id": "c3",
+      "standard_id": "s1",
+      "clause_ref": "9.2",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u9"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "clauses": [
+     "8.5.1",
+     "9.2"
+    ]
+   }
+  },
+  {
+   "id": "indep-owns-one",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u2"
+     },
+     {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u9"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "clauses": [
+     "8.5.1"
+    ]
+   }
+  },
+  {
+   "id": "indep-external",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": null,
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "lead_auditor_name": "LR"
+    },
+    [
+     {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u2"
+     },
+     {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u9"
+     },
+     {
+      "id": "c3",
+      "standard_id": "s1",
+      "clause_ref": "9.2",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u9"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true,
+    "clauses": []
+   }
+  },
+  {
+   "id": "indep-empty-scope",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    []
+   ],
+   "expected": {
+    "ok": true,
+    "clauses": []
+   }
+  },
+  {
+   "id": "indep-owned-no-ref",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "c5",
+      "owner_id": "u9"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "clauses": []
+   }
+  },
+  {
+   "id": "indep-null-entry",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     null,
+     {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed",
+      "owner_id": "u2"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true,
+    "clauses": []
+   }
+  },
+  {
+   "id": "indep-no-scope-arg",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "clauses": []
+   }
+  },
+  {
+   "id": "examined-conformant",
+   "fn": "isCoverageExamined",
+   "args": [
+    {
+     "id": "ac1",
+     "audit_id": "a1",
+     "clause_id": "c1",
+     "clause_ref": "7.1.5",
+     "result": "Conformant",
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "examined-na",
+   "fn": "isCoverageExamined",
+   "args": [
+    {
+     "id": "ac1",
+     "audit_id": "a1",
+     "clause_id": "c1",
+     "clause_ref": "7.1.5",
+     "result": "Not applicable",
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "examined-observation",
+   "fn": "isCoverageExamined",
+   "args": [
+    {
+     "id": "ac1",
+     "audit_id": "a1",
+     "clause_id": "c1",
+     "clause_ref": "7.1.5",
+     "result": "Observation",
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "examined-not",
+   "fn": "isCoverageExamined",
+   "args": [
+    {
+     "id": "ac1",
+     "audit_id": "a1",
+     "clause_id": "c1",
+     "clause_ref": "7.1.5",
+     "result": "Not examined",
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "examined-unset",
+   "fn": "isCoverageExamined",
+   "args": [
+    {}
+   ],
+   "expected": false
+  },
+  {
+   "id": "report-ok",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "ac1",
+      "audit_id": "a1",
+      "clause_id": "c1",
+      "clause_ref": "7.1.5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac2",
+      "audit_id": "a1",
+      "clause_id": "c2",
+      "clause_ref": "8.5.1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac3",
+      "audit_id": "a1",
+      "clause_id": "c3",
+      "clause_ref": "8.3",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report-scope-incomplete",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "ac1",
+      "audit_id": "a1",
+      "clause_id": "c1",
+      "clause_ref": "7.1.5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac2",
+      "audit_id": "a1",
+      "clause_id": "c2",
+      "clause_ref": "8.5.1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac3",
+      "audit_id": "a1",
+      "clause_id": "c3",
+      "clause_ref": "8.3",
+      "result": "Not examined",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-empty-scope",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-no-conclusion",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "  "
+    },
+    [
+     {
+      "id": "ac1",
+      "audit_id": "a1",
+      "clause_id": "c1",
+      "clause_ref": "7.1.5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac2",
+      "audit_id": "a1",
+      "clause_id": "c2",
+      "clause_ref": "8.5.1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac3",
+      "audit_id": "a1",
+      "clause_id": "c3",
+      "clause_ref": "8.3",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-external-lead",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": null,
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "lead_auditor_name": "LR auditor"
+    },
+    [
+     {
+      "id": "ac1",
+      "audit_id": "a1",
+      "clause_id": "c1",
+      "clause_ref": "7.1.5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac2",
+      "audit_id": "a1",
+      "clause_id": "c2",
+      "clause_ref": "8.5.1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac3",
+      "audit_id": "a1",
+      "clause_id": "c3",
+      "clause_ref": "8.3",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report-no-lead",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": null,
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "lead_auditor_name": ""
+    },
+    [
+     {
+      "id": "ac1",
+      "audit_id": "a1",
+      "clause_id": "c1",
+      "clause_ref": "7.1.5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac2",
+      "audit_id": "a1",
+      "clause_id": "c2",
+      "clause_ref": "8.5.1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac3",
+      "audit_id": "a1",
+      "clause_id": "c3",
+      "clause_ref": "8.3",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-cancelled",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Cancelled",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "ac1",
+      "audit_id": "a1",
+      "clause_id": "c1",
+      "clause_ref": "7.1.5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac2",
+      "audit_id": "a1",
+      "clause_id": "c2",
+      "clause_ref": "8.5.1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac3",
+      "audit_id": "a1",
+      "clause_id": "c3",
+      "clause_ref": "8.3",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-closed",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Closed",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "ac1",
+      "audit_id": "a1",
+      "clause_id": "c1",
+      "clause_ref": "7.1.5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac2",
+      "audit_id": "a1",
+      "clause_id": "c2",
+      "clause_ref": "8.5.1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "ac3",
+      "audit_id": "a1",
+      "clause_id": "c3",
+      "clause_ref": "8.3",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-audit-not-reported",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-audit-ok",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Reported",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "f1",
+      "finding_code": "ISF-2026-001",
+      "audit_id": "a1",
+      "standard_id": "s1",
+      "finding_type": "Minor nonconformity",
+      "title": "Uncalibrated gauge",
+      "status": "Open",
+      "raised_date": "2026-09-01"
+     },
+     {
+      "id": "f2",
+      "finding_code": "ISF-2026-001",
+      "audit_id": "a1",
+      "standard_id": "s1",
+      "finding_type": "Major nonconformity",
+      "title": "Uncalibrated gauge",
+      "status": "Closed",
+      "raised_date": "2026-09-01"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-audit-open-major",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Reported",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "f1",
+      "finding_code": "ISF-2026-001",
+      "audit_id": "a1",
+      "standard_id": "s1",
+      "finding_type": "Major nonconformity",
+      "title": "Uncalibrated gauge",
+      "status": "Verification",
+      "raised_date": "2026-09-01"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-audit-voided-major",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Reported",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    [
+     {
+      "id": "f1",
+      "finding_code": "ISF-2026-001",
+      "audit_id": "a1",
+      "standard_id": "s1",
+      "finding_type": "Major nonconformity",
+      "title": "Uncalibrated gauge",
+      "status": "Voided",
+      "raised_date": "2026-09-01"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-audit-already",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Closed",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "next-audit-planned",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Planned"
+   ],
+   "expected": [
+    "In progress",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-audit-in-progress",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "In progress"
+   ],
+   "expected": [
+    "Fieldwork complete",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-audit-fieldwork-complete",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Fieldwork complete"
+   ],
+   "expected": [
+    "Reported",
+    "In progress",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-audit-reported",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Reported"
+   ],
+   "expected": [
+    "Closed"
+   ]
+  },
+  {
+   "id": "next-audit-closed",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Closed"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-audit-cancelled",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Cancelled"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-audit-bogus",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Bogus"
+   ],
+   "expected": []
+  },
+  {
+   "id": "advance-plan-start",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Planned",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "In progress",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-plan-report",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Planned",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "Reported",
+    {
+     "coverage": [
+      {
+       "id": "ac1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "ac2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "8.5.1",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "ac3",
+       "audit_id": "a1",
+       "clause_id": "c3",
+       "clause_ref": "8.3",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-report-full",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "Reported",
+    {
+     "coverage": [
+      {
+       "id": "ac1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "ac2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "8.5.1",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "ac3",
+       "audit_id": "a1",
+       "clause_id": "c3",
+       "clause_ref": "8.3",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-report-partial",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "Reported",
+    {
+     "coverage": [
+      {
+       "id": "ac1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "ac2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "8.5.1",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "ac3",
+       "audit_id": "a1",
+       "clause_id": "c3",
+       "clause_ref": "8.3",
+       "result": "Not examined",
+       "examined_on": "2026-09-02"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-report-nocontext",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "Reported",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-close-major",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Reported",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "Closed",
+    {
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-close-ok",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Reported",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "Closed",
+    {
+     "findings": []
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-reopen-fieldwork",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "In progress",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-reported-cancel",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Reported",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "Cancelled",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-closed-final",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Closed",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    "Reported",
+    {
+     "coverage": [
+      {
+       "id": "ac1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "ac2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "8.5.1",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "ac3",
+       "audit_id": "a1",
+       "clause_id": "c3",
+       "clause_ref": "8.3",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "audit-overdue-planned",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Planned",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "planned_end": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "audit-overdue-today",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Planned",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "planned_end": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "audit-overdue-reported",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Reported",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "planned_end": "2026-08-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "audit-overdue-closed",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Closed",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "planned_end": "2026-08-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "audit-overdue-cancelled",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Cancelled",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "planned_end": "2026-08-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "audit-overdue-nodate",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "In progress",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "finding-open-open",
+   "fn": "isFindingOpen",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "finding-open-correction-proposed",
+   "fn": "isFindingOpen",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Correction proposed",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "finding-open-action-in-progress",
+   "fn": "isFindingOpen",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Action in progress",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "finding-open-verification",
+   "fn": "isFindingOpen",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Verification",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "finding-open-closed",
+   "fn": "isFindingOpen",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Closed",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "finding-open-voided",
+   "fn": "isFindingOpen",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Voided",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "nonconformity-major",
+   "fn": "isNonconformity",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "nonconformity-minor",
+   "fn": "isNonconformity",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Minor nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "nonconformity-observation",
+   "fn": "isNonconformity",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Observation",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "nonconformity-opportunity",
+   "fn": "isNonconformity",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Opportunity for improvement",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "finding-overdue-yes",
+   "fn": "isFindingOverdue",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-09-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "finding-overdue-today",
+   "fn": "isFindingOverdue",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "finding-overdue-closed",
+   "fn": "isFindingOverdue",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Closed",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-09-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "finding-overdue-voided",
+   "fn": "isFindingOverdue",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Voided",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-09-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "finding-overdue-nodate",
+   "fn": "isFindingOverdue",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "age-open",
+   "fn": "findingAgeDays",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 16
+  },
+  {
+   "id": "age-no-raise",
+   "fn": "findingAgeDays",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": null
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "age-future-raise",
+   "fn": "findingAgeDays",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-20"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "age-closed-no-date",
+   "fn": "findingAgeDays",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Closed",
+     "raised_date": "2026-09-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 16
+  },
+  {
+   "id": "age-closed-stops-at-closure",
+   "fn": "findingAgeDays",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Closed",
+     "raised_date": "2026-01-01",
+     "closed_date": "2026-02-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 31,
+   "repaired": "ISO-2"
+  },
+  {
+   "id": "age-voided-stops",
+   "fn": "findingAgeDays",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Voided",
+     "raised_date": "2026-03-01",
+     "closed_date": "2026-03-04"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 3,
+   "repaired": "ISO-2"
+  },
+  {
+   "id": "close-closed",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Closed",
+     "raised_date": "2026-09-01"
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-voided",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Voided",
+     "raised_date": "2026-09-01"
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-minor-no-correction",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Minor nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-minor-blank-correction",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Minor nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "  "
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-minor-corrected",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Minor nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "Gauge recalibrated."
+    },
+    []
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-minor-open-action",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Minor nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Open"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-observation",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Observation",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    },
+    []
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-ofi",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Opportunity for improvement",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    },
+    []
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-major-no-correction",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "root_cause": "x"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "completed_at": "2026-09-10",
+      "effectiveness_verified": true,
+      "effectiveness_checked_at": "2026-09-15",
+      "effectiveness_verified_by": "u3"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-major-no-root-cause",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "completed_at": "2026-09-10",
+      "effectiveness_verified": true,
+      "effectiveness_checked_at": "2026-09-15",
+      "effectiveness_verified_by": "u3"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-major-no-action",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x",
+     "root_cause": "No recall system"
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-major-only-preventive",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x",
+     "root_cause": "y"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Preventive",
+      "status": "Complete",
+      "completed_at": "2026-09-10",
+      "effectiveness_verified": true,
+      "effectiveness_checked_at": "2026-09-15",
+      "effectiveness_verified_by": "u3"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-major-complete-unverified",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x",
+     "root_cause": "y"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "completed_at": "2026-09-10"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-major-failed",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x",
+     "root_cause": "y"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "effectiveness_verified": false,
+      "effectiveness_checked_at": "2026-09-12",
+      "effectiveness_verified_by": "u3"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-major-failed-then-verified",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x",
+     "root_cause": "y"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "effectiveness_verified": false,
+      "effectiveness_checked_at": "2026-09-12",
+      "effectiveness_verified_by": "u3"
+     },
+     {
+      "id": "x2",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "completed_at": "2026-09-10",
+      "effectiveness_verified": true,
+      "effectiveness_checked_at": "2026-09-15",
+      "effectiveness_verified_by": "u3"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-major-verified",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x",
+     "root_cause": "y"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "completed_at": "2026-09-10",
+      "effectiveness_verified": true,
+      "effectiveness_checked_at": "2026-09-15",
+      "effectiveness_verified_by": "u3"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-major-verified-cancelled",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x",
+     "root_cause": "y"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Cancelled",
+      "completed_at": "2026-09-10",
+      "effectiveness_verified": true,
+      "effectiveness_checked_at": "2026-09-15",
+      "effectiveness_verified_by": "u3"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-major-verified-unsigned",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x",
+     "root_cause": "y"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "completed_at": "2026-09-10",
+      "effectiveness_verified": true,
+      "effectiveness_checked_at": "2026-09-15",
+      "effectiveness_verified_by": null
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-major-verified-plus-open",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "correction": "x",
+     "root_cause": "y"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "completed_at": "2026-09-10",
+      "effectiveness_verified": true,
+      "effectiveness_checked_at": "2026-09-15",
+      "effectiveness_verified_by": "u3"
+     },
+     {
+      "id": "x2",
+      "finding_id": "f1",
+      "action_type": "Preventive",
+      "status": "Open"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-no-actions-arg",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Observation",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "coverage-boundary-day",
+   "fn": "clauseCoverage",
+   "args": [
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2023-09-17"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a3",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2023-09-16"
+      },
+      {
+       "id": "r3",
+       "audit_id": "a2",
+       "clause_id": "c3",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-08-01"
+      },
+      {
+       "id": "r4",
+       "audit_id": "a1",
+       "clause_id": "c4",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-08-01"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2026-06-30"
+      },
+      {
+       "id": "a2",
+       "audit_code": "CB-2026",
+       "standard_id": "s1",
+       "audit_type": "Certification",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      {
+       "id": "a3",
+       "audit_code": "IA-2023-004",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2023-09-20"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": [
+    {
+     "clause": {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "7.1.5",
+     "lastExaminedOn": "2023-09-17",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities.",
+      "actual_end": "2026-06-30"
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "8.5.1",
+     "lastExaminedOn": "2023-09-16",
+     "lastAudit": {
+      "id": "a3",
+      "audit_code": "IA-2023-004",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities.",
+      "actual_end": "2023-09-20"
+     },
+     "lastResult": "Conformant",
+     "covered": false,
+     "stale": true
+    },
+    {
+     "clause": {
+      "id": "c3",
+      "standard_id": "s1",
+      "clause_ref": "9.2",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "9.2",
+     "lastExaminedOn": null,
+     "lastAudit": null,
+     "lastResult": null,
+     "covered": false,
+     "stale": false
+    }
+   ]
+  },
+  {
+   "id": "coverage-latest-and-fallback",
+   "fn": "clauseCoverage",
+   "args": [
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2024-02-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Observation",
+       "examined_on": "2026-02-02"
+      },
+      {
+       "id": "r3",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Not examined",
+       "examined_on": "2026-05-05"
+      },
+      {
+       "id": "r4",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": null
+      },
+      {
+       "id": "r5",
+       "audit_id": "a3",
+       "clause_id": "c3",
+       "clause_ref": "7.1.5",
+       "result": "Nonconformant",
+       "examined_on": null
+      },
+      {
+       "id": "r6",
+       "audit_id": "zz",
+       "clause_id": "c3",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-01"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2026-06-30"
+      },
+      {
+       "id": "a2",
+       "audit_code": "CB-2026",
+       "standard_id": "s1",
+       "audit_type": "Certification",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      {
+       "id": "a3",
+       "audit_code": "IA-2023-004",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2023-09-20"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": [
+    {
+     "clause": {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "7.1.5",
+     "lastExaminedOn": "2026-02-02",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities.",
+      "actual_end": "2026-06-30"
+     },
+     "lastResult": "Observation",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "8.5.1",
+     "lastExaminedOn": "2026-06-30",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities.",
+      "actual_end": "2026-06-30"
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c3",
+      "standard_id": "s1",
+      "clause_ref": "9.2",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "9.2",
+     "lastExaminedOn": "2023-09-20",
+     "lastAudit": {
+      "id": "a3",
+      "audit_code": "IA-2023-004",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities.",
+      "actual_end": "2023-09-20"
+     },
+     "lastResult": "Nonconformant",
+     "covered": true,
+     "stale": false
+    }
+   ]
+  },
+  {
+   "id": "coverage-cycle-one-year",
+   "fn": "clauseCoverage",
+   "args": [
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2024-02-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Observation",
+       "examined_on": "2026-02-02"
+      },
+      {
+       "id": "r3",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Not examined",
+       "examined_on": "2026-05-05"
+      },
+      {
+       "id": "r4",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": null
+      },
+      {
+       "id": "r5",
+       "audit_id": "a3",
+       "clause_id": "c3",
+       "clause_ref": "7.1.5",
+       "result": "Nonconformant",
+       "examined_on": null
+      },
+      {
+       "id": "r6",
+       "audit_id": "zz",
+       "clause_id": "c3",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-01"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2026-06-30"
+      },
+      {
+       "id": "a2",
+       "audit_code": "CB-2026",
+       "standard_id": "s1",
+       "audit_type": "Certification",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      {
+       "id": "a3",
+       "audit_code": "IA-2023-004",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2023-09-20"
+      }
+     ],
+     "cycleYears": 1
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": [
+    {
+     "clause": {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "7.1.5",
+     "lastExaminedOn": "2026-02-02",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities.",
+      "actual_end": "2026-06-30"
+     },
+     "lastResult": "Observation",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "8.5.1",
+     "lastExaminedOn": "2026-06-30",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities.",
+      "actual_end": "2026-06-30"
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c3",
+      "standard_id": "s1",
+      "clause_ref": "9.2",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "9.2",
+     "lastExaminedOn": "2023-09-20",
+     "lastAudit": {
+      "id": "a3",
+      "audit_code": "IA-2023-004",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities.",
+      "actual_end": "2023-09-20"
+     },
+     "lastResult": "Nonconformant",
+     "covered": false,
+     "stale": true
+    }
+   ]
+  },
+  {
+   "id": "coverage-empty",
+   "fn": "clauseCoverage",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "id": "coverage-only-excluded",
+   "fn": "clauseCoverage",
+   "args": [
+    {
+     "clauses": [
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "id": "coverage-leap-day-boundary",
+   "fn": "clauseCoverage",
+   "args": [
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2025-02-28"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2025-02-27"
+      }
+     ]
+    },
+    {
+     "$date": "2028-02-29"
+    }
+   ],
+   "expected": [
+    {
+     "clause": {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "7.1.5",
+     "lastExaminedOn": "2025-02-28",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "8.5.1",
+     "lastExaminedOn": "2025-02-27",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": false,
+     "stale": true
+    }
+   ],
+   "repaired": "ISO-3"
+  },
+  {
+   "id": "coverage-leap-day-agreed",
+   "fn": "clauseCoverage",
+   "args": [
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2025-03-01"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2025-02-27"
+      }
+     ]
+    },
+    {
+     "$date": "2028-02-29"
+    }
+   ],
+   "expected": [
+    {
+     "clause": {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "7.1.5",
+     "lastExaminedOn": "2025-03-01",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "8.5.1",
+     "lastExaminedOn": "2025-02-27",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": false,
+     "stale": true
+    }
+   ]
+  },
+  {
+   "id": "coverage-leap-to-leap",
+   "fn": "clauseCoverage",
+   "args": [
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2024-02-29"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2024-02-28"
+      }
+     ],
+     "cycleYears": 4
+    },
+    {
+     "$date": "2028-02-29"
+    }
+   ],
+   "expected": [
+    {
+     "clause": {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "7.1.5",
+     "lastExaminedOn": "2024-02-29",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "8.5.1",
+     "lastExaminedOn": "2024-02-28",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": false,
+     "stale": true
+    }
+   ]
+  },
+  {
+   "id": "coverage-march-first",
+   "fn": "clauseCoverage",
+   "args": [
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-03-01"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-02-28"
+      }
+     ]
+    },
+    {
+     "$date": "2029-03-01"
+    }
+   ],
+   "expected": [
+    {
+     "clause": {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "7.1.5",
+     "lastExaminedOn": "2026-03-01",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Not assessed"
+     },
+     "clause_ref": "8.5.1",
+     "lastExaminedOn": "2026-02-28",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": false,
+     "stale": true
+    }
+   ]
+  },
+  {
+   "id": "ready-clean",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "id": "s1",
+     "code": "ISO 9001:2015",
+     "certification_status": "Certified",
+     "certificate_expires": "2029-03-31",
+     "cycle_years": 3
+    },
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Partially conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Closed",
+       "raised_date": "2026-09-01"
+      }
+     ],
+     "actions": []
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": true,
+    "blockers": [],
+    "counts": {
+     "clauses": 3,
+     "applicable": 2,
+     "excluded": 1,
+     "assessed": 2,
+     "evidenced": 2,
+     "conformant": 1,
+     "partial": 1,
+     "nonconformant": 0,
+     "notAssessed": 0,
+     "covered": 2,
+     "neverAudited": 0,
+     "staleAudited": 0,
+     "openMajor": 0,
+     "openMinor": 0,
+     "overdueActions": 0,
+     "certificateDays": 926,
+     "certificateExpiring": false,
+     "certificateExpired": false
+    },
+    "coverage": [
+     {
+      "clause": {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "7.1.5",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Partially conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "8.5.1",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "ready-messy",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "id": "s1",
+     "code": "ISO 9001:2015",
+     "certification_status": "Certified",
+     "certificate_expires": "2026-11-01",
+     "cycle_years": 3
+    },
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant"
+      },
+      {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Nonconformant",
+       "assessed_date": "2026-05-01",
+       "assessed_by": "u1",
+       "next_review_due": "2026-09-01"
+      },
+      {
+       "id": "c5",
+       "standard_id": "s1",
+       "clause_ref": "7.2",
+       "applicability": "Applicable",
+       "status": "Not assessed",
+       "next_review_due": "2026-09-30"
+      },
+      {
+       "id": "c6",
+       "standard_id": "s2",
+       "clause_ref": "7.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a3",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2022-05-05"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      {
+       "id": "a3",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2022-05-10"
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      },
+      {
+       "id": "f2",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Minor nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01",
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "f3",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Minor nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Voided",
+       "raised_date": "2026-09-01",
+       "due_date": "2026-01-01"
+      },
+      {
+       "id": "f4",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s2",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      },
+      {
+       "id": "f5",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Observation",
+       "title": "Uncalibrated gauge",
+       "status": "Verification",
+       "raised_date": "2026-09-01"
+      }
+     ],
+     "actions": [
+      {
+       "id": "x1",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "x2",
+       "finding_id": "f2",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-09-30"
+      },
+      {
+       "id": "x3",
+       "finding_id": "f4",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-01-01"
+      },
+      {
+       "id": "x4",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Complete",
+       "due_date": "2026-01-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": false,
+    "blockers": [
+     {
+      "severity": "blocking",
+      "count": 1
+     },
+     {
+      "severity": "blocking",
+      "count": 2
+     },
+     {
+      "severity": "blocking",
+      "count": 1
+     },
+     {
+      "severity": "blocking",
+      "count": 1
+     },
+     {
+      "severity": "serious",
+      "count": 1
+     },
+     {
+      "severity": "serious",
+      "count": 2
+     },
+     {
+      "severity": "serious",
+      "count": 1
+     },
+     {
+      "severity": "watch",
+      "count": 1
+     },
+     {
+      "severity": "watch",
+      "count": 1
+     },
+     {
+      "severity": "watch",
+      "count": 1
+     }
+    ],
+    "counts": {
+     "clauses": 5,
+     "applicable": 4,
+     "excluded": 1,
+     "assessed": 2,
+     "evidenced": 1,
+     "conformant": 2,
+     "partial": 0,
+     "nonconformant": 1,
+     "notAssessed": 2,
+     "covered": 1,
+     "neverAudited": 2,
+     "staleAudited": 1,
+     "openMajor": 1,
+     "openMinor": 1,
+     "overdueActions": 1,
+     "certificateDays": 45,
+     "certificateExpiring": true,
+     "certificateExpired": false
+    },
+    "coverage": [
+     {
+      "clause": {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "7.1.5",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant"
+      },
+      "clause_ref": "8.5.1",
+      "lastExaminedOn": "2022-05-05",
+      "lastAudit": {
+       "id": "a3",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2022-05-10"
+      },
+      "lastResult": "Conformant",
+      "covered": false,
+      "stale": true
+     },
+     {
+      "clause": {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Nonconformant",
+       "assessed_date": "2026-05-01",
+       "assessed_by": "u1",
+       "next_review_due": "2026-09-01"
+      },
+      "clause_ref": "9.2",
+      "lastExaminedOn": null,
+      "lastAudit": null,
+      "lastResult": null,
+      "covered": false,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c5",
+       "standard_id": "s1",
+       "clause_ref": "7.2",
+       "applicability": "Applicable",
+       "status": "Not assessed",
+       "next_review_due": "2026-09-30"
+      },
+      "clause_ref": "7.2",
+      "lastExaminedOn": null,
+      "lastAudit": null,
+      "lastResult": null,
+      "covered": false,
+      "stale": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "ready-one-year-cycle-expired",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "id": "s1",
+     "code": "ISO 9001:2015",
+     "certification_status": "Certified",
+     "certificate_expires": "2026-09-16",
+     "cycle_years": 1
+    },
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Partially conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Closed",
+       "raised_date": "2026-09-01"
+      }
+     ],
+     "actions": []
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": true,
+    "blockers": [],
+    "counts": {
+     "clauses": 3,
+     "applicable": 2,
+     "excluded": 1,
+     "assessed": 2,
+     "evidenced": 2,
+     "conformant": 1,
+     "partial": 1,
+     "nonconformant": 0,
+     "notAssessed": 0,
+     "covered": 2,
+     "neverAudited": 0,
+     "staleAudited": 0,
+     "openMajor": 0,
+     "openMinor": 0,
+     "overdueActions": 0,
+     "certificateDays": -1,
+     "certificateExpiring": true,
+     "certificateExpired": true
+    },
+    "coverage": [
+     {
+      "clause": {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "7.1.5",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Partially conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "8.5.1",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "ready-cycle-zero-defaults",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "id": "s1",
+     "code": "ISO 9001:2015",
+     "certification_status": "Certified",
+     "certificate_expires": null,
+     "cycle_years": 0
+    },
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant"
+      },
+      {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Nonconformant",
+       "assessed_date": "2026-05-01",
+       "assessed_by": "u1",
+       "next_review_due": "2026-09-01"
+      },
+      {
+       "id": "c5",
+       "standard_id": "s1",
+       "clause_ref": "7.2",
+       "applicability": "Applicable",
+       "status": "Not assessed",
+       "next_review_due": "2026-09-30"
+      },
+      {
+       "id": "c6",
+       "standard_id": "s2",
+       "clause_ref": "7.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a3",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2022-05-05"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      {
+       "id": "a3",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2022-05-10"
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      },
+      {
+       "id": "f2",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Minor nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01",
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "f3",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Minor nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Voided",
+       "raised_date": "2026-09-01",
+       "due_date": "2026-01-01"
+      },
+      {
+       "id": "f4",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s2",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      },
+      {
+       "id": "f5",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Observation",
+       "title": "Uncalibrated gauge",
+       "status": "Verification",
+       "raised_date": "2026-09-01"
+      }
+     ],
+     "actions": [
+      {
+       "id": "x1",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "x2",
+       "finding_id": "f2",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-09-30"
+      },
+      {
+       "id": "x3",
+       "finding_id": "f4",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-01-01"
+      },
+      {
+       "id": "x4",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Complete",
+       "due_date": "2026-01-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": false,
+    "blockers": [
+     {
+      "severity": "blocking",
+      "count": 1
+     },
+     {
+      "severity": "blocking",
+      "count": 2
+     },
+     {
+      "severity": "blocking",
+      "count": 1
+     },
+     {
+      "severity": "blocking",
+      "count": 1
+     },
+     {
+      "severity": "serious",
+      "count": 1
+     },
+     {
+      "severity": "serious",
+      "count": 2
+     },
+     {
+      "severity": "serious",
+      "count": 1
+     },
+     {
+      "severity": "watch",
+      "count": 1
+     },
+     {
+      "severity": "watch",
+      "count": 1
+     },
+     {
+      "severity": "watch",
+      "count": 1
+     }
+    ],
+    "counts": {
+     "clauses": 5,
+     "applicable": 4,
+     "excluded": 1,
+     "assessed": 2,
+     "evidenced": 1,
+     "conformant": 2,
+     "partial": 0,
+     "nonconformant": 1,
+     "notAssessed": 2,
+     "covered": 1,
+     "neverAudited": 2,
+     "staleAudited": 1,
+     "openMajor": 1,
+     "openMinor": 1,
+     "overdueActions": 1,
+     "certificateDays": null,
+     "certificateExpiring": false,
+     "certificateExpired": false
+    },
+    "coverage": [
+     {
+      "clause": {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "7.1.5",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant"
+      },
+      "clause_ref": "8.5.1",
+      "lastExaminedOn": "2022-05-05",
+      "lastAudit": {
+       "id": "a3",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2022-05-10"
+      },
+      "lastResult": "Conformant",
+      "covered": false,
+      "stale": true
+     },
+     {
+      "clause": {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Nonconformant",
+       "assessed_date": "2026-05-01",
+       "assessed_by": "u1",
+       "next_review_due": "2026-09-01"
+      },
+      "clause_ref": "9.2",
+      "lastExaminedOn": null,
+      "lastAudit": null,
+      "lastResult": null,
+      "covered": false,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c5",
+       "standard_id": "s1",
+       "clause_ref": "7.2",
+       "applicability": "Applicable",
+       "status": "Not assessed",
+       "next_review_due": "2026-09-30"
+      },
+      "clause_ref": "7.2",
+      "lastExaminedOn": null,
+      "lastAudit": null,
+      "lastResult": null,
+      "covered": false,
+      "stale": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "ready-no-applicable-clauses",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "id": "s1",
+     "code": "ISO 9001:2015",
+     "certification_status": "Certified",
+     "certificate_expires": "2029-03-31",
+     "cycle_years": 3
+    },
+    {
+     "clauses": [
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": false,
+    "blockers": [
+     {
+      "severity": "blocking",
+      "count": 0
+     },
+     {
+      "severity": "blocking",
+      "count": 1
+     }
+    ],
+    "counts": {
+     "clauses": 1,
+     "applicable": 0,
+     "excluded": 1,
+     "assessed": 0,
+     "evidenced": 0,
+     "conformant": 0,
+     "partial": 0,
+     "nonconformant": 0,
+     "notAssessed": 0,
+     "covered": 0,
+     "neverAudited": 0,
+     "staleAudited": 0,
+     "openMajor": 1,
+     "openMinor": 0,
+     "overdueActions": 0,
+     "certificateDays": 926,
+     "certificateExpiring": false,
+     "certificateExpired": false
+    },
+    "coverage": []
+   }
+  },
+  {
+   "id": "ready-empty",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "id": "s1",
+     "code": "ISO 9001:2015",
+     "certification_status": "Certified",
+     "certificate_expires": "2029-03-31",
+     "cycle_years": 3
+    },
+    {},
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": false,
+    "blockers": [
+     {
+      "severity": "blocking",
+      "count": 0
+     }
+    ],
+    "counts": {
+     "clauses": 0,
+     "applicable": 0,
+     "excluded": 0,
+     "assessed": 0,
+     "evidenced": 0,
+     "conformant": 0,
+     "partial": 0,
+     "nonconformant": 0,
+     "notAssessed": 0,
+     "covered": 0,
+     "neverAudited": 0,
+     "staleAudited": 0,
+     "openMajor": 0,
+     "openMinor": 0,
+     "overdueActions": 0,
+     "certificateDays": 926,
+     "certificateExpiring": false,
+     "certificateExpired": false
+    },
+    "coverage": []
+   }
+  },
+  {
+   "id": "ready-no-standard-id",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "code": "ISO 45001"
+    },
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant"
+      },
+      {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Nonconformant",
+       "assessed_date": "2026-05-01",
+       "assessed_by": "u1",
+       "next_review_due": "2026-09-01"
+      },
+      {
+       "id": "c5",
+       "standard_id": "s1",
+       "clause_ref": "7.2",
+       "applicability": "Applicable",
+       "status": "Not assessed",
+       "next_review_due": "2026-09-30"
+      },
+      {
+       "id": "c6",
+       "standard_id": "s2",
+       "clause_ref": "7.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a3",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2022-05-05"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      {
+       "id": "a3",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2022-05-10"
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      },
+      {
+       "id": "f2",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Minor nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01",
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "f3",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Minor nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Voided",
+       "raised_date": "2026-09-01",
+       "due_date": "2026-01-01"
+      },
+      {
+       "id": "f4",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s2",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      },
+      {
+       "id": "f5",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Observation",
+       "title": "Uncalibrated gauge",
+       "status": "Verification",
+       "raised_date": "2026-09-01"
+      }
+     ],
+     "actions": [
+      {
+       "id": "x1",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "x2",
+       "finding_id": "f2",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-09-30"
+      },
+      {
+       "id": "x3",
+       "finding_id": "f4",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-01-01"
+      },
+      {
+       "id": "x4",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Complete",
+       "due_date": "2026-01-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": false,
+    "blockers": [
+     {
+      "severity": "blocking",
+      "count": 2
+     },
+     {
+      "severity": "blocking",
+      "count": 3
+     },
+     {
+      "severity": "blocking",
+      "count": 1
+     },
+     {
+      "severity": "blocking",
+      "count": 1
+     },
+     {
+      "severity": "serious",
+      "count": 1
+     },
+     {
+      "severity": "serious",
+      "count": 3
+     },
+     {
+      "severity": "serious",
+      "count": 2
+     },
+     {
+      "severity": "watch",
+      "count": 1
+     },
+     {
+      "severity": "watch",
+      "count": 1
+     },
+     {
+      "severity": "watch",
+      "count": 1
+     }
+    ],
+    "counts": {
+     "clauses": 6,
+     "applicable": 5,
+     "excluded": 1,
+     "assessed": 2,
+     "evidenced": 1,
+     "conformant": 2,
+     "partial": 0,
+     "nonconformant": 1,
+     "notAssessed": 3,
+     "covered": 1,
+     "neverAudited": 3,
+     "staleAudited": 1,
+     "openMajor": 2,
+     "openMinor": 1,
+     "overdueActions": 2,
+     "certificateDays": null,
+     "certificateExpiring": false,
+     "certificateExpired": false
+    },
+    "coverage": [
+     {
+      "clause": {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "7.1.5",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant"
+      },
+      "clause_ref": "8.5.1",
+      "lastExaminedOn": "2022-05-05",
+      "lastAudit": {
+       "id": "a3",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2022-05-10"
+      },
+      "lastResult": "Conformant",
+      "covered": false,
+      "stale": true
+     },
+     {
+      "clause": {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Nonconformant",
+       "assessed_date": "2026-05-01",
+       "assessed_by": "u1",
+       "next_review_due": "2026-09-01"
+      },
+      "clause_ref": "9.2",
+      "lastExaminedOn": null,
+      "lastAudit": null,
+      "lastResult": null,
+      "covered": false,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c5",
+       "standard_id": "s1",
+       "clause_ref": "7.2",
+       "applicability": "Applicable",
+       "status": "Not assessed",
+       "next_review_due": "2026-09-30"
+      },
+      "clause_ref": "7.2",
+      "lastExaminedOn": null,
+      "lastAudit": null,
+      "lastResult": null,
+      "covered": false,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c6",
+       "standard_id": "s2",
+       "clause_ref": "7.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      "clause_ref": "7.5",
+      "lastExaminedOn": null,
+      "lastAudit": null,
+      "lastResult": null,
+      "covered": false,
+      "stale": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "ready-cert-90-days",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "id": "s1",
+     "code": "ISO 9001:2015",
+     "certification_status": "Certified",
+     "certificate_expires": "2026-12-16",
+     "cycle_years": 3
+    },
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Partially conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Closed",
+       "raised_date": "2026-09-01"
+      }
+     ],
+     "actions": []
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": true,
+    "blockers": [],
+    "counts": {
+     "clauses": 3,
+     "applicable": 2,
+     "excluded": 1,
+     "assessed": 2,
+     "evidenced": 2,
+     "conformant": 1,
+     "partial": 1,
+     "nonconformant": 0,
+     "notAssessed": 0,
+     "covered": 2,
+     "neverAudited": 0,
+     "staleAudited": 0,
+     "openMajor": 0,
+     "openMinor": 0,
+     "overdueActions": 0,
+     "certificateDays": 90,
+     "certificateExpiring": true,
+     "certificateExpired": false
+    },
+    "coverage": [
+     {
+      "clause": {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "7.1.5",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Partially conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "8.5.1",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "ready-cert-91-days",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "id": "s1",
+     "code": "ISO 9001:2015",
+     "certification_status": "Certified",
+     "certificate_expires": "2026-12-17",
+     "cycle_years": 3
+    },
+    {
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Partially conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Closed",
+       "raised_date": "2026-09-01"
+      }
+     ],
+     "actions": []
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": true,
+    "blockers": [],
+    "counts": {
+     "clauses": 3,
+     "applicable": 2,
+     "excluded": 1,
+     "assessed": 2,
+     "evidenced": 2,
+     "conformant": 1,
+     "partial": 1,
+     "nonconformant": 0,
+     "notAssessed": 0,
+     "covered": 2,
+     "neverAudited": 0,
+     "staleAudited": 0,
+     "openMajor": 0,
+     "openMinor": 0,
+     "overdueActions": 0,
+     "certificateDays": 91,
+     "certificateExpiring": false,
+     "certificateExpired": false
+    },
+    "coverage": [
+     {
+      "clause": {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "7.1.5",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     },
+     {
+      "clause": {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Partially conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "8.5.1",
+      "lastExaminedOn": "2026-09-02",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "summary-mixed",
+   "fn": "summarise",
+   "args": [
+    {
+     "standards": [
+      {
+       "id": "s1",
+       "code": "ISO 9001:2015",
+       "certification_status": "Certified",
+       "certificate_expires": "2029-03-31",
+       "cycle_years": 3
+      },
+      {
+       "id": "s2",
+       "code": "ISO 14001:2015",
+       "certification_status": "Seeking certification",
+       "certificate_expires": "2029-03-31",
+       "cycle_years": 3
+      }
+     ],
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant"
+      },
+      {
+       "id": "c3",
+       "standard_id": "s1",
+       "clause_ref": "9.2",
+       "applicability": "Applicable",
+       "status": "Nonconformant",
+       "assessed_date": "2026-05-01",
+       "assessed_by": "u1",
+       "next_review_due": "2026-09-01"
+      },
+      {
+       "id": "c5",
+       "standard_id": "s1",
+       "clause_ref": "7.2",
+       "applicability": "Applicable",
+       "status": "Not assessed",
+       "next_review_due": "2026-09-30"
+      },
+      {
+       "id": "c6",
+       "standard_id": "s2",
+       "clause_ref": "7.5",
+       "applicability": "Applicable",
+       "status": "Not assessed"
+      },
+      {
+       "id": "c4",
+       "standard_id": "s1",
+       "clause_ref": "8.3",
+       "applicability": "Not applicable",
+       "status": "Not applicable",
+       "applicability_justification": "no design"
+      },
+      {
+       "id": "c7",
+       "standard_id": "s1",
+       "clause_ref": "6.1",
+       "applicability": "Applicable",
+       "status": "Not assessed",
+       "next_review_due": "2026-10-17"
+      },
+      {
+       "id": "c8",
+       "standard_id": "s1",
+       "clause_ref": "6.2",
+       "applicability": "Applicable",
+       "status": "Not assessed",
+       "next_review_due": "2026-10-18"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      {
+       "id": "a3",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Closed",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "actual_end": "2022-05-10"
+      },
+      {
+       "id": "a4",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Planned",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "planned_end": "2026-09-01"
+      },
+      {
+       "id": "a5",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Reported",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "planned_end": "2026-08-01"
+      },
+      {
+       "id": "a6",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Cancelled",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "planned_end": "2026-08-01"
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      },
+      {
+       "id": "f2",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Minor nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01",
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "f3",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Minor nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Voided",
+       "raised_date": "2026-09-01",
+       "due_date": "2026-01-01"
+      },
+      {
+       "id": "f4",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s2",
+       "finding_type": "Major nonconformity",
+       "title": "Uncalibrated gauge",
+       "status": "Open",
+       "raised_date": "2026-09-01"
+      },
+      {
+       "id": "f5",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Observation",
+       "title": "Uncalibrated gauge",
+       "status": "Verification",
+       "raised_date": "2026-09-01"
+      },
+      {
+       "id": "f6",
+       "finding_code": "ISF-2026-001",
+       "audit_id": "a1",
+       "standard_id": "s1",
+       "finding_type": "Opportunity for improvement",
+       "title": "Uncalibrated gauge",
+       "status": "Closed",
+       "raised_date": "2026-09-01"
+      }
+     ],
+     "actions": [
+      {
+       "id": "x1",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "x2",
+       "finding_id": "f2",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-09-30"
+      },
+      {
+       "id": "x3",
+       "finding_id": "f4",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-01-01"
+      },
+      {
+       "id": "x4",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Complete",
+       "due_date": "2026-01-01"
+      },
+      {
+       "id": "x5",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Complete",
+       "completed_at": "2026-09-10",
+       "effectiveness_verified": true,
+       "effectiveness_checked_at": "2026-09-15",
+       "effectiveness_verified_by": "u3"
+      },
+      {
+       "id": "x6",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Complete",
+       "effectiveness_verified": false,
+       "effectiveness_checked_at": "2026-09-12",
+       "effectiveness_verified_by": "u3"
+      },
+      {
+       "id": "x7",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Cancelled",
+       "due_date": "2026-01-01"
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a3",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2022-05-05"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "standards": 2,
+    "certified": 1,
+    "clauses": 8,
+    "applicable": 7,
+    "excluded": 1,
+    "byClauseStatus": {
+     "Not assessed": 4,
+     "Conformant": 2,
+     "Partially conformant": 0,
+     "Nonconformant": 1,
+     "Not applicable": 1
+    },
+    "evidencedClaims": 1,
+    "unevidencedClaims": 1,
+    "notAssessed": 5,
+    "reviewsOverdue": 1,
+    "reviewsDueSoon": 2,
+    "audits": 5,
+    "byAuditStatus": {
+     "Planned": 1,
+     "In progress": 0,
+     "Fieldwork complete": 1,
+     "Reported": 1,
+     "Closed": 1,
+     "Cancelled": 1
+    },
+    "auditsOpen": 3,
+    "auditsOverdue": 2,
+    "clausesCovered": 1,
+    "clausesNeverAudited": 5,
+    "clausesStale": 1,
+    "findings": 6,
+    "openFindings": 4,
+    "byFindingType": {
+     "Major nonconformity": 2,
+     "Minor nonconformity": 2,
+     "Observation": 1,
+     "Opportunity for improvement": 1
+    },
+    "openByFindingType": {
+     "Major nonconformity": 2,
+     "Minor nonconformity": 1,
+     "Observation": 1,
+     "Opportunity for improvement": 0
+    },
+    "openMajor": 2,
+    "findingsOverdue": 1,
+    "actions": 7,
+    "openActions": 3,
+    "overdueActions": 2,
+    "actionsAwaitingEffectiveness": 1,
+    "actionsVerifiedEffective": 1,
+    "actionsFoundIneffective": 1
+   }
+  },
+  {
+   "id": "summary-empty",
+   "fn": "summarise",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "standards": 0,
+    "certified": 0,
+    "clauses": 0,
+    "applicable": 0,
+    "excluded": 0,
+    "byClauseStatus": {
+     "Not assessed": 0,
+     "Conformant": 0,
+     "Partially conformant": 0,
+     "Nonconformant": 0,
+     "Not applicable": 0
+    },
+    "evidencedClaims": 0,
+    "unevidencedClaims": 0,
+    "notAssessed": 0,
+    "reviewsOverdue": 0,
+    "reviewsDueSoon": 0,
+    "audits": 0,
+    "byAuditStatus": {
+     "Planned": 0,
+     "In progress": 0,
+     "Fieldwork complete": 0,
+     "Reported": 0,
+     "Closed": 0,
+     "Cancelled": 0
+    },
+    "auditsOpen": 0,
+    "auditsOverdue": 0,
+    "clausesCovered": 0,
+    "clausesNeverAudited": 0,
+    "clausesStale": 0,
+    "findings": 0,
+    "openFindings": 0,
+    "byFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openByFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openMajor": 0,
+    "findingsOverdue": 0,
+    "actions": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "actionsAwaitingEffectiveness": 0,
+    "actionsVerifiedEffective": 0,
+    "actionsFoundIneffective": 0
+   }
+  },
+  {
+   "id": "summary-honours-standard-cycle",
+   "fn": "summarise",
+   "args": [
+    {
+     "standards": [
+      {
+       "id": "s1",
+       "code": "ISO 9001:2015",
+       "certification_status": "Certified",
+       "certificate_expires": "2029-03-31",
+       "cycle_years": 1
+      }
+     ],
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2025-03-01"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "standards": 1,
+    "certified": 1,
+    "clauses": 2,
+    "applicable": 2,
+    "excluded": 0,
+    "byClauseStatus": {
+     "Not assessed": 0,
+     "Conformant": 2,
+     "Partially conformant": 0,
+     "Nonconformant": 0,
+     "Not applicable": 0
+    },
+    "evidencedClaims": 2,
+    "unevidencedClaims": 0,
+    "notAssessed": 0,
+    "reviewsOverdue": 0,
+    "reviewsDueSoon": 0,
+    "audits": 1,
+    "byAuditStatus": {
+     "Planned": 0,
+     "In progress": 0,
+     "Fieldwork complete": 1,
+     "Reported": 0,
+     "Closed": 0,
+     "Cancelled": 0
+    },
+    "auditsOpen": 1,
+    "auditsOverdue": 0,
+    "clausesCovered": 1,
+    "clausesNeverAudited": 0,
+    "clausesStale": 1,
+    "findings": 0,
+    "openFindings": 0,
+    "byFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openByFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openMajor": 0,
+    "findingsOverdue": 0,
+    "actions": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "actionsAwaitingEffectiveness": 0,
+    "actionsVerifiedEffective": 0,
+    "actionsFoundIneffective": 0
+   },
+   "repaired": "ISO-1"
+  },
+  {
+   "id": "ready-agrees-with-summary-cycle",
+   "fn": "certificationReadiness",
+   "args": [
+    {
+     "id": "s1",
+     "code": "ISO 9001:2015",
+     "certification_status": "Certified",
+     "certificate_expires": "2029-03-31",
+     "cycle_years": 1
+    },
+    {
+     "standards": [
+      {
+       "id": "s1",
+       "code": "ISO 9001:2015",
+       "certification_status": "Certified",
+       "certificate_expires": "2029-03-31",
+       "cycle_years": 1
+      }
+     ],
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2025-03-01"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "ready": true,
+    "blockers": [
+     {
+      "severity": "serious",
+      "count": 1
+     }
+    ],
+    "counts": {
+     "clauses": 2,
+     "applicable": 2,
+     "excluded": 0,
+     "assessed": 2,
+     "evidenced": 2,
+     "conformant": 2,
+     "partial": 0,
+     "nonconformant": 0,
+     "notAssessed": 0,
+     "covered": 1,
+     "neverAudited": 0,
+     "staleAudited": 1,
+     "openMajor": 0,
+     "openMinor": 0,
+     "overdueActions": 0,
+     "certificateDays": 926,
+     "certificateExpiring": false,
+     "certificateExpired": false
+    },
+    "coverage": [
+     {
+      "clause": {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "7.1.5",
+      "lastExaminedOn": "2025-03-01",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": false,
+      "stale": true
+     },
+     {
+      "clause": {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      "clause_ref": "8.5.1",
+      "lastExaminedOn": "2026-09-01",
+      "lastAudit": {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      },
+      "lastResult": "Conformant",
+      "covered": true,
+      "stale": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "summary-three-year-standard",
+   "fn": "summarise",
+   "args": [
+    {
+     "standards": [
+      {
+       "id": "s1",
+       "code": "ISO 9001:2015",
+       "certification_status": "Certified",
+       "certificate_expires": "2029-03-31",
+       "cycle_years": 3
+      }
+     ],
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2025-03-01"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "standards": 1,
+    "certified": 1,
+    "clauses": 2,
+    "applicable": 2,
+    "excluded": 0,
+    "byClauseStatus": {
+     "Not assessed": 0,
+     "Conformant": 2,
+     "Partially conformant": 0,
+     "Nonconformant": 0,
+     "Not applicable": 0
+    },
+    "evidencedClaims": 2,
+    "unevidencedClaims": 0,
+    "notAssessed": 0,
+    "reviewsOverdue": 0,
+    "reviewsDueSoon": 0,
+    "audits": 1,
+    "byAuditStatus": {
+     "Planned": 0,
+     "In progress": 0,
+     "Fieldwork complete": 1,
+     "Reported": 0,
+     "Closed": 0,
+     "Cancelled": 0
+    },
+    "auditsOpen": 1,
+    "auditsOverdue": 0,
+    "clausesCovered": 2,
+    "clausesNeverAudited": 0,
+    "clausesStale": 0,
+    "findings": 0,
+    "openFindings": 0,
+    "byFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openByFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openMajor": 0,
+    "findingsOverdue": 0,
+    "actions": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "actionsAwaitingEffectiveness": 0,
+    "actionsVerifiedEffective": 0,
+    "actionsFoundIneffective": 0
+   }
+  },
+  {
+   "id": "countby-ties-and-unset",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "dept": "Ops"
+     },
+     {
+      "dept": "QA"
+     },
+     {
+      "dept": "QA"
+     },
+     {
+      "dept": null
+     },
+     {
+      "dept": ""
+     },
+     {
+      "dept": "Ops"
+     },
+     {
+      "x": 1
+     }
+    ],
+    "dept"
+   ],
+   "expected": [
+    {
+     "name": "Unspecified",
+     "count": 3
+    },
+    {
+     "name": "Ops",
+     "count": 2
+    },
+    {
+     "name": "QA",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "countby-custom-unset",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "dept": "Ops"
+     },
+     {
+      "dept": "QA"
+     },
+     {
+      "dept": "QA"
+     },
+     {
+      "dept": null
+     },
+     {
+      "dept": ""
+     },
+     {
+      "dept": "Ops"
+     },
+     {
+      "x": 1
+     }
+    ],
+    "dept",
+    "None given"
+   ],
+   "expected": [
+    {
+     "name": "None given",
+     "count": 3
+    },
+    {
+     "name": "Ops",
+     "count": 2
+    },
+    {
+     "name": "QA",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "countby-empty",
+   "fn": "countBy",
+   "args": [
+    [],
+    "dept"
+   ],
+   "expected": []
+  },
+  {
+   "id": "urgency-mixed",
+   "sort": "findingByUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [
+    {
+     "id": "closed",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Closed",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-01-01"
+    },
+    {
+     "id": "minor-open-late",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Minor nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-09-10"
+    },
+    {
+     "id": "major-open",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-10-30"
+    },
+    {
+     "id": "obs-open-undated",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Observation",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": null
+    },
+    {
+     "id": "major-late",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-09-01"
+    },
+    {
+     "id": "minor-open",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Minor nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-10-01"
+    },
+    {
+     "id": "major-open-sooner",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "due_date": "2026-10-01"
+    },
+    {
+     "id": "obs-open-raised",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Observation",
+     "title": "Uncalibrated gauge",
+     "status": "Open",
+     "raised_date": "2026-08-01"
+    },
+    {
+     "id": "voided",
+     "finding_code": "ISF-2026-001",
+     "audit_id": "a1",
+     "standard_id": "s1",
+     "finding_type": "Major nonconformity",
+     "title": "Uncalibrated gauge",
+     "status": "Voided",
+     "raised_date": "2026-09-01",
+     "due_date": "2025-01-01"
+    }
+   ],
+   "expectedOrder": [
+    "major-late",
+    "major-open-sooner",
+    "major-open",
+    "minor-open-late",
+    "obs-open-raised",
+    "minor-open",
+    "obs-open-undated",
+    "voided",
+    "closed"
+   ]
+  }
+ ]
+}

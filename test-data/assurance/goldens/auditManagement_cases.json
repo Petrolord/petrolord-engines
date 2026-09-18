@@ -1,0 +1,5422 @@
+{
+ "module": "auditManagement",
+ "generatedBy": "tools/validation/assurance/oracle_audit.py",
+ "description": "Audit & Findings Manager (AS10) rules from the docstrings, AssuranceApps-STATUS.md 3i and the AS10 migration header; finding and action rules shared with oracle_iso.py by design.",
+ "cases": [
+  {
+   "id": "reexport-parse",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17T06:00:00Z"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "reexport-parse-invalid",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$date": null
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "reexport-parse-feb-30",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-02-30"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "reexport-days",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-10",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": -7
+  },
+  {
+   "id": "reexport-days-none",
+   "fn": "daysUntil",
+   "args": [
+    null,
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "reexport-ymd",
+   "fn": "toDateOnlyString",
+   "args": [
+    {
+     "$date": "2026-01-31"
+    }
+   ],
+   "expected": "2026-01-31"
+  },
+  {
+   "id": "reexport-action-open",
+   "fn": "isActionOpen",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "In progress"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "reexport-action-closed",
+   "fn": "isActionOpen",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Cancelled"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "reexport-action-overdue",
+   "fn": "isActionOverdue",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open",
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "reexport-action-due-today",
+   "fn": "isActionOverdue",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open",
+     "due_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "reexport-eff-verified",
+   "fn": "isEffectivenessVerified",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Complete",
+     "completed_at": "2026-09-10",
+     "effectiveness_verified": true,
+     "effectiveness_checked_at": "2026-09-15",
+     "effectiveness_verified_by": "u3"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "reexport-eff-unsigned",
+   "fn": "isEffectivenessVerified",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Complete",
+     "completed_at": "2026-09-10",
+     "effectiveness_verified": true,
+     "effectiveness_checked_at": "2026-09-15",
+     "effectiveness_verified_by": null
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "reexport-eff-failed",
+   "fn": "isEffectivenessFailed",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open",
+     "effectiveness_verified": false
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "reexport-eff-not-failed",
+   "fn": "isEffectivenessFailed",
+   "args": [
+    {
+     "id": "x1",
+     "finding_id": "f1",
+     "action_type": "Corrective",
+     "status": "Open"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "reexport-finding-open",
+   "fn": "isFindingOpen",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Verification",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "reexport-finding-voided",
+   "fn": "isFindingOpen",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Voided",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "reexport-finding-overdue",
+   "fn": "isFindingOverdue",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "reexport-finding-overdue-closed",
+   "fn": "isFindingOverdue",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Closed",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "reexport-nonconformity",
+   "fn": "isNonconformity",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Minor nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "reexport-not-nonconformity",
+   "fn": "isNonconformity",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Observation",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "reexport-age-open",
+   "fn": "findingAgeDays",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 15
+  },
+  {
+   "id": "reexport-age-closed",
+   "fn": "findingAgeDays",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Closed",
+     "raised_date": "2026-07-01",
+     "stop_work": false,
+     "closed_date": "2026-07-15"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 14,
+   "repaired": "ISO-2"
+  },
+  {
+   "id": "reexport-close-major-verified",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "correction": "Work stopped, permit issued.",
+     "root_cause": "No permit board"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "completed_at": "2026-09-10",
+      "effectiveness_verified": true,
+      "effectiveness_checked_at": "2026-09-15",
+      "effectiveness_verified_by": "u3"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "reexport-close-major-unverified",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "correction": "x",
+     "root_cause": "y"
+    },
+    [
+     {
+      "id": "x1",
+      "finding_id": "f1",
+      "action_type": "Corrective",
+      "status": "Complete",
+      "completed_at": "2026-09-10"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "reexport-close-minor-uncorrected",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Minor nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "reexport-close-observation",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Observation",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    },
+    []
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "reexport-close-voided",
+   "fn": "canCloseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Voided",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "reexport-urgency",
+   "sort": "findingByUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [
+    {
+     "id": "closed",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Closed",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-01-01"
+    },
+    {
+     "id": "minor",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Minor nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-10-01"
+    },
+    {
+     "id": "major-late",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-09-01"
+    },
+    {
+     "id": "major",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-10-01"
+    }
+   ],
+   "expectedOrder": [
+    "major-late",
+    "major",
+    "minor",
+    "closed"
+   ]
+  },
+  {
+   "id": "answered-conformant",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": "Conformant",
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "answered-nonconformant",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": "Nonconformant",
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "answered-observation",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": "Observation",
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "answered-not-applicable",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": "Not applicable",
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "answered-not-examined",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": "Not examined",
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "answered-unset",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": null,
+     "examined_on": "2026-09-02"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "answered-na-with-reason",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": "Not applicable",
+     "examined_on": "2026-09-02",
+     "note": "No lifting on this site."
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "answered-empty",
+   "fn": "isAnswered",
+   "args": [
+    {}
+   ],
+   "expected": false
+  },
+  {
+   "id": "progress-mixed",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     },
+     {
+      "id": "i4",
+      "template_id": "t1",
+      "item_no": "1.4",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i5",
+      "template_id": "t1",
+      "item_no": "1.5",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i6",
+      "template_id": "t1",
+      "item_no": "1.6",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i7",
+      "template_id": "t1",
+      "item_no": "1.7",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i8",
+      "template_id": "t1",
+      "item_no": "1.8",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02",
+      "evidence": "No permit."
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02",
+      "note": "No hot work."
+     },
+     {
+      "id": "r3",
+      "audit_id": "a1",
+      "item_id": "i3",
+      "result": "Observation",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r4",
+      "audit_id": "a1",
+      "item_id": "i4",
+      "result": "Not examined",
+      "examined_on": null
+     },
+     {
+      "id": "r9",
+      "audit_id": "a1",
+      "item_id": "i-other",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 8,
+    "answered": 3,
+    "outstanding": 5,
+    "conformant": 0,
+    "nonconformant": 1,
+    "observations": 1,
+    "notApplicable": 1,
+    "percent": 38
+   }
+  },
+  {
+   "id": "progress-one-of-eight",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     },
+     {
+      "id": "i4",
+      "template_id": "t1",
+      "item_no": "1.4",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i5",
+      "template_id": "t1",
+      "item_no": "1.5",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i6",
+      "template_id": "t1",
+      "item_no": "1.6",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i7",
+      "template_id": "t1",
+      "item_no": "1.7",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i8",
+      "template_id": "t1",
+      "item_no": "1.8",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 8,
+    "answered": 1,
+    "outstanding": 7,
+    "conformant": 1,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 0,
+    "percent": 13
+   }
+  },
+  {
+   "id": "progress-none",
+   "fn": "checklistProgress",
+   "args": [
+    [],
+    []
+   ],
+   "expected": {
+    "total": 0,
+    "answered": 0,
+    "outstanding": 0,
+    "conformant": 0,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 0,
+    "percent": null
+   }
+  },
+  {
+   "id": "progress-no-responses",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    []
+   ],
+   "expected": {
+    "total": 3,
+    "answered": 0,
+    "outstanding": 3,
+    "conformant": 0,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 0,
+    "percent": 0
+   }
+  },
+  {
+   "id": "progress-all",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02",
+      "note": "n/a"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 2,
+    "answered": 2,
+    "outstanding": 0,
+    "conformant": 1,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 1,
+    "percent": 100
+   }
+  },
+  {
+   "id": "progress-third",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 3,
+    "answered": 1,
+    "outstanding": 2,
+    "conformant": 1,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 0,
+    "percent": 33
+   }
+  },
+  {
+   "id": "progress-two-thirds",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 3,
+    "answered": 2,
+    "outstanding": 1,
+    "conformant": 2,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 0,
+    "percent": 67
+   }
+  },
+  {
+   "id": "unanswered-mixed",
+   "fn": "unansweredItems",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     },
+     {
+      "id": "i4",
+      "template_id": "t1",
+      "item_no": "1.4",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i5",
+      "template_id": "t1",
+      "item_no": "1.5",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i6",
+      "template_id": "t1",
+      "item_no": "1.6",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i7",
+      "template_id": "t1",
+      "item_no": "1.7",
+      "criticality": "Minor"
+     },
+     {
+      "id": "i8",
+      "template_id": "t1",
+      "item_no": "1.8",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02",
+      "evidence": "No permit."
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02",
+      "note": "No hot work."
+     },
+     {
+      "id": "r3",
+      "audit_id": "a1",
+      "item_id": "i3",
+      "result": "Observation",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r4",
+      "audit_id": "a1",
+      "item_id": "i4",
+      "result": "Not examined",
+      "examined_on": null
+     },
+     {
+      "id": "r9",
+      "audit_id": "a1",
+      "item_id": "i-other",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": [
+    {
+     "id": "i4",
+     "template_id": "t1",
+     "item_no": "1.4",
+     "criticality": "Minor"
+    },
+    {
+     "id": "i5",
+     "template_id": "t1",
+     "item_no": "1.5",
+     "criticality": "Minor"
+    },
+    {
+     "id": "i6",
+     "template_id": "t1",
+     "item_no": "1.6",
+     "criticality": "Minor"
+    },
+    {
+     "id": "i7",
+     "template_id": "t1",
+     "item_no": "1.7",
+     "criticality": "Minor"
+    },
+    {
+     "id": "i8",
+     "template_id": "t1",
+     "item_no": "1.8",
+     "criticality": "Minor"
+    }
+   ]
+  },
+  {
+   "id": "unanswered-none-answered",
+   "fn": "unansweredItems",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Minor"
+     }
+    ],
+    []
+   ],
+   "expected": [
+    {
+     "id": "i1",
+     "template_id": "t1",
+     "item_no": "1.1",
+     "criticality": "Critical"
+    },
+    {
+     "id": "i2",
+     "template_id": "t1",
+     "item_no": "1.2",
+     "criticality": "Minor"
+    }
+   ]
+  },
+  {
+   "id": "unanswered-empty",
+   "fn": "unansweredItems",
+   "args": [
+    [],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02",
+      "evidence": "No permit."
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02",
+      "note": "No hot work."
+     },
+     {
+      "id": "r3",
+      "audit_id": "a1",
+      "item_id": "i3",
+      "result": "Observation",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r4",
+      "audit_id": "a1",
+      "item_id": "i4",
+      "result": "Not examined",
+      "examined_on": null
+     },
+     {
+      "id": "r9",
+      "audit_id": "a1",
+      "item_id": "i-other",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": []
+  },
+  {
+   "id": "critical-none-raised",
+   "fn": "criticalAnswersWithoutFindings",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r3",
+      "audit_id": "a1",
+      "item_id": "i3",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     }
+    ],
+    []
+   ],
+   "expected": [
+    {
+     "id": "i1",
+     "template_id": "t1",
+     "item_no": "1.1",
+     "criticality": "Critical"
+    },
+    {
+     "id": "i2",
+     "template_id": "t1",
+     "item_no": "1.2",
+     "criticality": "Critical"
+    }
+   ]
+  },
+  {
+   "id": "critical-one-raised",
+   "fn": "criticalAnswersWithoutFindings",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r3",
+      "audit_id": "a1",
+      "item_id": "i3",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     }
+    ],
+    [
+     {
+      "id": "f1",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Major nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Open",
+      "raised_date": "2026-09-02",
+      "stop_work": false,
+      "response_id": "r1"
+     }
+    ]
+   ],
+   "expected": [
+    {
+     "id": "i2",
+     "template_id": "t1",
+     "item_no": "1.2",
+     "criticality": "Critical"
+    }
+   ]
+  },
+  {
+   "id": "critical-voided-does-not-count",
+   "fn": "criticalAnswersWithoutFindings",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r3",
+      "audit_id": "a1",
+      "item_id": "i3",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     }
+    ],
+    [
+     {
+      "id": "f1",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Major nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Voided",
+      "raised_date": "2026-09-02",
+      "stop_work": false,
+      "response_id": "r1"
+     },
+     {
+      "id": "f2",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Major nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Open",
+      "raised_date": "2026-09-02",
+      "stop_work": false,
+      "response_id": "r2"
+     }
+    ]
+   ],
+   "expected": [
+    {
+     "id": "i1",
+     "template_id": "t1",
+     "item_no": "1.1",
+     "criticality": "Critical"
+    }
+   ]
+  },
+  {
+   "id": "critical-closed-counts",
+   "fn": "criticalAnswersWithoutFindings",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r3",
+      "audit_id": "a1",
+      "item_id": "i3",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     }
+    ],
+    [
+     {
+      "id": "f1",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Major nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Closed",
+      "raised_date": "2026-09-02",
+      "stop_work": false,
+      "response_id": "r1"
+     },
+     {
+      "id": "f2",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Major nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Open",
+      "raised_date": "2026-09-02",
+      "stop_work": false,
+      "response_id": "r2"
+     }
+    ]
+   ],
+   "expected": []
+  },
+  {
+   "id": "critical-finding-without-response",
+   "fn": "criticalAnswersWithoutFindings",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "r3",
+      "audit_id": "a1",
+      "item_id": "i3",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     }
+    ],
+    [
+     {
+      "id": "f1",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Major nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Open",
+      "raised_date": "2026-09-02",
+      "stop_work": false
+     }
+    ]
+   ],
+   "expected": [
+    {
+     "id": "i1",
+     "template_id": "t1",
+     "item_no": "1.1",
+     "criticality": "Critical"
+    },
+    {
+     "id": "i2",
+     "template_id": "t1",
+     "item_no": "1.2",
+     "criticality": "Critical"
+    }
+   ]
+  },
+  {
+   "id": "critical-conformant",
+   "fn": "criticalAnswersWithoutFindings",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    [
+     {
+      "id": "r1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ],
+    []
+   ],
+   "expected": []
+  },
+  {
+   "id": "critical-unknown-item",
+   "fn": "criticalAnswersWithoutFindings",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "1.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "1.2",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i3",
+      "template_id": "t1",
+      "item_no": "1.3",
+      "criticality": "Major"
+     }
+    ],
+    [
+     {
+      "id": "r9",
+      "audit_id": "a1",
+      "item_id": "i9",
+      "result": "Nonconformant",
+      "examined_on": "2026-09-02"
+     }
+    ],
+    []
+   ],
+   "expected": []
+  },
+  {
+   "id": "indep-distinct",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "indep-same",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u1",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "indep-external-lead",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": null,
+     "auditee_id": "u1",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05",
+     "lead_auditor_name": "X"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "indep-external-auditee",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": null,
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05",
+     "auditee_name": "Rig 7 OIM"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "indep-same-names-text",
+   "fn": "auditIndependence",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": null,
+     "auditee_id": null,
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05",
+     "lead_auditor_name": "J. Obi",
+     "auditee_name": "J. Obi"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report-ok",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": "No hot work on site."
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report-half-blank",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-not-examined",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not examined",
+       "examined_on": null
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-critical-nc-no-finding",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02",
+       "evidence": "x"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-critical-nc-finding",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02",
+       "evidence": "x"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "AF-2026-001",
+       "audit_id": "a1",
+       "finding_type": "Major nonconformity",
+       "title": "Work without a displayed permit",
+       "objective_evidence": "No permit at 09:40.",
+       "status": "Open",
+       "raised_date": "2026-09-02",
+       "stop_work": false,
+       "response_id": "r1"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report-critical-nc-voided-finding",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02",
+       "evidence": "x"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "AF-2026-001",
+       "audit_id": "a1",
+       "finding_type": "Major nonconformity",
+       "title": "Work without a displayed permit",
+       "objective_evidence": "No permit at 09:40.",
+       "status": "Voided",
+       "raised_date": "2026-09-02",
+       "stop_work": false,
+       "response_id": "r1"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-minor-nc-no-finding",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02",
+       "evidence": "x"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report-adhoc-no-template",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": null,
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report-adhoc-still-checks-critical",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": null,
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02",
+       "evidence": "x"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-no-conclusion",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": " ",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": "No hot work on site."
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-external-lead",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": null,
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05",
+     "lead_auditor_name": "Contract auditor"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": "No hot work on site."
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report-no-lead",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": null,
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": "No hot work on site."
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-cancelled",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Cancelled",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": "No hot work on site."
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "report-template-empty-protocol",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-not-reported",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-ok",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Reported",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    [
+     {
+      "id": "f1",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Major nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Closed",
+      "raised_date": "2026-09-02",
+      "stop_work": false
+     },
+     {
+      "id": "f2",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Minor nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Open",
+      "raised_date": "2026-09-02",
+      "stop_work": false
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-open-major",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Reported",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    [
+     {
+      "id": "f1",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Major nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Action in progress",
+      "raised_date": "2026-09-02",
+      "stop_work": false
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-voided-major",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Reported",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    [
+     {
+      "id": "f1",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Major nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Voided",
+      "raised_date": "2026-09-02",
+      "stop_work": false
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-open-stop-work-minor",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Reported",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    [
+     {
+      "id": "f1",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Minor nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Open",
+      "raised_date": "2026-09-02",
+      "stop_work": true,
+      "correction": "Stopped the lift."
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "close-closed-stop-work",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Reported",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    [
+     {
+      "id": "f1",
+      "finding_code": "AF-2026-001",
+      "audit_id": "a1",
+      "finding_type": "Minor nonconformity",
+      "title": "Work without a displayed permit",
+      "objective_evidence": "No permit at 09:40.",
+      "status": "Closed",
+      "raised_date": "2026-09-02",
+      "stop_work": true,
+      "correction": "x"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "close-already",
+   "fn": "canCloseAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Closed",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "cancel-with-reason",
+   "fn": "canCancelAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "cancellation_reason": "Contractor demobilised."
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cancel-no-reason",
+   "fn": "canCancelAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "cancel-blank-reason",
+   "fn": "canCancelAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "cancellation_reason": "   "
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "cancel-reason-on-record",
+   "fn": "canCancelAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "In progress",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05",
+     "cancellation_reason": "Site shut in."
+    },
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cancel-patch-blanks-record",
+   "fn": "canCancelAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "In progress",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05",
+     "cancellation_reason": "Site shut in."
+    },
+    {
+     "cancellation_reason": ""
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "cancel-already-cancelled",
+   "fn": "canCancelAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Cancelled",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05",
+     "cancellation_reason": "x"
+    },
+    {
+     "cancellation_reason": "y"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "cancel-closed",
+   "fn": "canCancelAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Closed",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "cancellation_reason": "y"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "cancel-no-patch-arg",
+   "fn": "canCancelAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "next-audit-planned",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Planned"
+   ],
+   "expected": [
+    "In progress",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-audit-in-progress",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "In progress"
+   ],
+   "expected": [
+    "Fieldwork complete",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-audit-fieldwork-complete",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Fieldwork complete"
+   ],
+   "expected": [
+    "Reported",
+    "In progress",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-audit-reported",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Reported"
+   ],
+   "expected": [
+    "Closed"
+   ]
+  },
+  {
+   "id": "next-audit-closed",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Closed"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-audit-cancelled",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Cancelled"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-audit-nope",
+   "fn": "nextAuditStatuses",
+   "args": [
+    "Nope"
+   ],
+   "expected": []
+  },
+  {
+   "id": "advance-start",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "In progress",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-skip-to-report",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "Reported",
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": "No hot work on site."
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-report-ok",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "Reported",
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": "No hot work on site."
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-report-blank",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "Reported",
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "1.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "1.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": []
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-close-ok",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Reported",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "Closed",
+    {
+     "findings": []
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-close-stop-work",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Reported",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "Closed",
+    {
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "AF-2026-001",
+       "audit_id": "a1",
+       "finding_type": "Minor nonconformity",
+       "title": "Work without a displayed permit",
+       "objective_evidence": "No permit at 09:40.",
+       "status": "Open",
+       "raised_date": "2026-09-02",
+       "stop_work": true,
+       "correction": "x"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-cancel-reason",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "Cancelled",
+    {
+     "patch": {
+      "cancellation_reason": "Weather."
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-cancel-no-reason",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "Cancelled",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-cancel-reported",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Reported",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "Cancelled",
+    {
+     "patch": {
+      "cancellation_reason": "x"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-reopen",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    "In progress",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-final",
+   "fn": "canAdvanceAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Cancelled",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05",
+     "cancellation_reason": "x"
+    },
+    "Planned",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "overdue-planned",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-today",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "In progress",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-fieldwork",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-reported",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Reported",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-08-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-closed",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Closed",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-08-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-cancelled",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Cancelled",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-08-01",
+     "cancellation_reason": "x"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-no-end",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Planned",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": null
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "progress-programme-mixed",
+   "fn": "programmeProgress",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Closed",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a3",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": "Contractor demobilised."
+     },
+     {
+      "id": "a4",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-01"
+     },
+     {
+      "id": "a5",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "In progress",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a6",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-10"
+     },
+     {
+      "id": "a7",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": null
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 7,
+    "reported": 2,
+    "cancelled": 1,
+    "outstanding": 4,
+    "overdue": 2,
+    "percent": 29
+   }
+  },
+  {
+   "id": "progress-programme-empty",
+   "fn": "programmeProgress",
+   "args": [
+    [],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 0,
+    "reported": 0,
+    "cancelled": 0,
+    "outstanding": 0,
+    "overdue": 0,
+    "percent": null
+   }
+  },
+  {
+   "id": "progress-programme-all-planned",
+   "fn": "programmeProgress",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-02"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 2,
+    "reported": 0,
+    "cancelled": 0,
+    "outstanding": 2,
+    "overdue": 0,
+    "percent": 0
+   }
+  },
+  {
+   "id": "progress-programme-cancelled-only",
+   "fn": "programmeProgress",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": "x"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 1,
+    "reported": 0,
+    "cancelled": 1,
+    "outstanding": 0,
+    "overdue": 0,
+    "percent": 0
+   }
+  },
+  {
+   "id": "progress-programme-one-of-eight",
+   "fn": "programmeProgress",
+   "args": [
+    [
+     {
+      "id": "a0",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a3",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a4",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a5",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a6",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a7",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 8,
+    "reported": 1,
+    "cancelled": 0,
+    "outstanding": 7,
+    "overdue": 0,
+    "percent": 13
+   }
+  },
+  {
+   "id": "approve-ok",
+   "fn": "canApproveProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "approve-no-date",
+   "fn": "canApproveProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": null,
+     "approved_by": "u9"
+    },
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "approve-no-name",
+   "fn": "canApproveProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": "2026-01-10",
+     "approved_by": null
+    },
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "approve-named-in-text",
+   "fn": "canApproveProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": "2026-01-10",
+     "approved_by": null
+    },
+    {
+     "approver_name": "HSE Director"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "approve-blank-name",
+   "fn": "canApproveProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": "2026-01-10",
+     "approved_by": null
+    },
+    {
+     "approver_name": "  "
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "approve-date-in-patch",
+   "fn": "canApproveProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": null,
+     "approved_by": "u9"
+    },
+    {
+     "approved_at": "2026-02-01"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "approve-no-patch-arg",
+   "fn": "canApproveProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "complete-all-done",
+   "fn": "canCompleteProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Closed",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a3",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": "Contractor demobilised."
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "complete-outstanding",
+   "fn": "canCompleteProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Closed",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a3",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": "Contractor demobilised."
+     },
+     {
+      "id": "a4",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-01"
+     },
+     {
+      "id": "a5",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "In progress",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "a6",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-10"
+     },
+     {
+      "id": "a7",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": null
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "complete-cancelled-with-reason",
+   "fn": "canCompleteProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": "Rig released."
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "complete-empty",
+   "fn": "canCompleteProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    []
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "complete-already",
+   "fn": "canCompleteProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Complete",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "complete-cancelled-programme",
+   "fn": "canCompleteProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Cancelled",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    []
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "complete-cancelled-no-reason-trusts-status",
+   "fn": "canCompleteProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "next-programme-draft",
+   "fn": "nextProgrammeStatuses",
+   "args": [
+    "Draft"
+   ],
+   "expected": [
+    "Approved",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-programme-approved",
+   "fn": "nextProgrammeStatuses",
+   "args": [
+    "Approved"
+   ],
+   "expected": [
+    "In progress",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-programme-in-progress",
+   "fn": "nextProgrammeStatuses",
+   "args": [
+    "In progress"
+   ],
+   "expected": [
+    "Complete",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-programme-complete",
+   "fn": "nextProgrammeStatuses",
+   "args": [
+    "Complete"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-programme-cancelled",
+   "fn": "nextProgrammeStatuses",
+   "args": [
+    "Cancelled"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-programme-nope",
+   "fn": "nextProgrammeStatuses",
+   "args": [
+    "Nope"
+   ],
+   "expected": []
+  },
+  {
+   "id": "prog-approve-ok",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    "Approved",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "prog-approve-missing",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": null,
+     "approved_by": "u9"
+    },
+    "Approved",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "prog-approve-with-patch",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": null,
+     "approved_by": null
+    },
+    "Approved",
+    {
+     "patch": {
+      "approved_at": "2026-01-10",
+      "approved_by": "u9"
+     }
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "prog-start",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Approved",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    "In progress",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "prog-complete-ok",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    "Complete",
+    {
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Reported",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05"
+      },
+      {
+       "id": "a2",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Closed",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05"
+      },
+      {
+       "id": "a3",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Cancelled",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05",
+       "cancellation_reason": "Contractor demobilised."
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "prog-complete-outstanding",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    "Complete",
+    {
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Reported",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05"
+      },
+      {
+       "id": "a2",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Closed",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05"
+      },
+      {
+       "id": "a3",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Cancelled",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05",
+       "cancellation_reason": "Contractor demobilised."
+      },
+      {
+       "id": "a4",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Planned",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-01"
+      },
+      {
+       "id": "a5",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "In progress",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-12-01"
+      },
+      {
+       "id": "a6",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-10"
+      },
+      {
+       "id": "a7",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Planned",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": null
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "prog-complete-no-audits-ctx",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    "Complete",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "prog-skip",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Draft",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    "Complete",
+    {
+     "audits": []
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "prog-cancel",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Approved",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    "Cancelled",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "prog-final",
+   "fn": "canAdvanceProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "Complete",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    "In progress",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "raise-ok",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "raise-bad-type",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Critical",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "raise-no-title",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "  ",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "raise-no-evidence",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": null,
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "raise-stop-work-no-correction",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": true
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "raise-stop-work-corrected",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": true,
+     "correction": "Lift stopped, area barricaded."
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "raise-stop-work-minor",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Minor nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": true,
+     "correction": "x"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "raise-stop-work-observation",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Observation",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": true,
+     "correction": "x"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "raise-stop-work-ofi",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Opportunity for improvement",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": true,
+     "correction": "x"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "raise-observation",
+   "fn": "canRaiseFinding",
+   "args": [
+    {
+     "id": "f1",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Observation",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "summary-mixed",
+   "fn": "summarise",
+   "args": [
+    {
+     "programmes": [
+      {
+       "id": "p1",
+       "title": "2026 HSE audit programme",
+       "programme_year": 2026,
+       "status": "In progress",
+       "approved_at": "2026-01-10",
+       "approved_by": "u9"
+      },
+      {
+       "id": "p2",
+       "title": "2026 HSE audit programme",
+       "programme_year": 2026,
+       "status": "Approved",
+       "approved_at": "2026-01-10",
+       "approved_by": "u9"
+      },
+      {
+       "id": "p3",
+       "title": "2026 HSE audit programme",
+       "programme_year": 2026,
+       "status": "Draft",
+       "approved_at": "2026-01-10",
+       "approved_by": "u9"
+      },
+      {
+       "id": "p4",
+       "title": "2026 HSE audit programme",
+       "programme_year": 2026,
+       "status": "Complete",
+       "approved_at": "2026-01-10",
+       "approved_by": "u9"
+      }
+     ],
+     "templates": [
+      {
+       "id": "t1",
+       "status": "Active"
+      },
+      {
+       "id": "t2",
+       "status": "Retired"
+      },
+      {
+       "id": "t3",
+       "status": "Draft"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Reported",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05"
+      },
+      {
+       "id": "a2",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Closed",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05"
+      },
+      {
+       "id": "a3",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Cancelled",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05",
+       "cancellation_reason": "Contractor demobilised."
+      },
+      {
+       "id": "a4",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Planned",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-01"
+      },
+      {
+       "id": "a5",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "In progress",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-12-01"
+      },
+      {
+       "id": "a6",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-10"
+      },
+      {
+       "id": "a7",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Planned",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": null
+      }
+     ],
+     "responses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Nonconformant",
+       "examined_on": "2026-09-02",
+       "evidence": "No permit."
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": "No hot work."
+      },
+      {
+       "id": "r3",
+       "audit_id": "a1",
+       "item_id": "i3",
+       "result": "Observation",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r4",
+       "audit_id": "a1",
+       "item_id": "i4",
+       "result": "Not examined",
+       "examined_on": null
+      },
+      {
+       "id": "r9",
+       "audit_id": "a1",
+       "item_id": "i-other",
+       "result": "Conformant",
+       "examined_on": "2026-09-02"
+      },
+      {
+       "id": "r5",
+       "audit_id": "a1",
+       "item_id": "i5",
+       "result": null,
+       "examined_on": "2026-09-02"
+      }
+     ],
+     "findings": [
+      {
+       "id": "f1",
+       "finding_code": "AF-2026-001",
+       "audit_id": "a1",
+       "finding_type": "Major nonconformity",
+       "title": "Work without a displayed permit",
+       "objective_evidence": "No permit at 09:40.",
+       "status": "Open",
+       "raised_date": "2026-09-02",
+       "stop_work": false
+      },
+      {
+       "id": "f2",
+       "finding_code": "AF-2026-001",
+       "audit_id": "a1",
+       "finding_type": "Major nonconformity",
+       "title": "Work without a displayed permit",
+       "objective_evidence": "No permit at 09:40.",
+       "status": "Open",
+       "raised_date": "2026-09-02",
+       "stop_work": true,
+       "correction": "x",
+       "due_date": "2026-09-10"
+      },
+      {
+       "id": "f3",
+       "finding_code": "AF-2026-001",
+       "audit_id": "a1",
+       "finding_type": "Minor nonconformity",
+       "title": "Work without a displayed permit",
+       "objective_evidence": "No permit at 09:40.",
+       "status": "Closed",
+       "raised_date": "2026-09-02",
+       "stop_work": true,
+       "correction": "x"
+      },
+      {
+       "id": "f4",
+       "finding_code": "AF-2026-001",
+       "audit_id": "a1",
+       "finding_type": "Observation",
+       "title": "Work without a displayed permit",
+       "objective_evidence": "No permit at 09:40.",
+       "status": "Open",
+       "raised_date": "2026-09-02",
+       "stop_work": false,
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "f5",
+       "finding_code": "AF-2026-001",
+       "audit_id": "a1",
+       "finding_type": "Minor nonconformity",
+       "title": "Work without a displayed permit",
+       "objective_evidence": "No permit at 09:40.",
+       "status": "Voided",
+       "raised_date": "2026-09-02",
+       "stop_work": false
+      },
+      {
+       "id": "f6",
+       "finding_code": "AF-2026-001",
+       "audit_id": "a1",
+       "finding_type": "Opportunity for improvement",
+       "title": "Work without a displayed permit",
+       "objective_evidence": "No permit at 09:40.",
+       "status": "Open",
+       "raised_date": "2026-09-02",
+       "stop_work": false
+      }
+     ],
+     "actions": [
+      {
+       "id": "x1",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Open",
+       "due_date": "2026-09-01"
+      },
+      {
+       "id": "x2",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Complete"
+      },
+      {
+       "id": "x3",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Complete",
+       "completed_at": "2026-09-10",
+       "effectiveness_verified": true,
+       "effectiveness_checked_at": "2026-09-15",
+       "effectiveness_verified_by": "u3"
+      },
+      {
+       "id": "x4",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Complete",
+       "effectiveness_verified": false,
+       "effectiveness_checked_at": "2026-09-12",
+       "effectiveness_verified_by": "u3"
+      },
+      {
+       "id": "x5",
+       "finding_id": "f1",
+       "action_type": "Corrective",
+       "status": "Cancelled",
+       "due_date": "2026-01-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "programmes": 4,
+    "activeProgrammes": 2,
+    "templates": 3,
+    "activeTemplates": 1,
+    "audits": 7,
+    "byAuditStatus": {
+     "Planned": 2,
+     "In progress": 1,
+     "Fieldwork complete": 1,
+     "Reported": 1,
+     "Closed": 1,
+     "Cancelled": 1
+    },
+    "auditsOutstanding": 4,
+    "auditsOverdue": 2,
+    "auditsReported": 2,
+    "auditsCancelled": 1,
+    "answers": 4,
+    "answersOutstanding": 2,
+    "nonconformances": 1,
+    "notApplicable": 1,
+    "findings": 6,
+    "openFindings": 4,
+    "byFindingType": {
+     "Major nonconformity": 2,
+     "Minor nonconformity": 2,
+     "Observation": 1,
+     "Opportunity for improvement": 1
+    },
+    "openByFindingType": {
+     "Major nonconformity": 2,
+     "Minor nonconformity": 0,
+     "Observation": 1,
+     "Opportunity for improvement": 1
+    },
+    "openMajor": 2,
+    "stopWork": 2,
+    "stopWorkOpen": 1,
+    "findingsOverdue": 2,
+    "actions": 5,
+    "openActions": 1,
+    "overdueActions": 1,
+    "actionsAwaitingEffectiveness": 1,
+    "actionsVerifiedEffective": 1,
+    "actionsFoundIneffective": 1
+   }
+  },
+  {
+   "id": "summary-empty",
+   "fn": "summarise",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "programmes": 0,
+    "activeProgrammes": 0,
+    "templates": 0,
+    "activeTemplates": 0,
+    "audits": 0,
+    "byAuditStatus": {
+     "Planned": 0,
+     "In progress": 0,
+     "Fieldwork complete": 0,
+     "Reported": 0,
+     "Closed": 0,
+     "Cancelled": 0
+    },
+    "auditsOutstanding": 0,
+    "auditsOverdue": 0,
+    "auditsReported": 0,
+    "auditsCancelled": 0,
+    "answers": 0,
+    "answersOutstanding": 0,
+    "nonconformances": 0,
+    "notApplicable": 0,
+    "findings": 0,
+    "openFindings": 0,
+    "byFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openByFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openMajor": 0,
+    "stopWork": 0,
+    "stopWorkOpen": 0,
+    "findingsOverdue": 0,
+    "actions": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "actionsAwaitingEffectiveness": 0,
+    "actionsVerifiedEffective": 0,
+    "actionsFoundIneffective": 0
+   }
+  },
+  {
+   "id": "countby-auditee",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "auditee_name": "Rig 7"
+     },
+     {
+      "auditee_name": "Yard"
+     },
+     {
+      "auditee_name": "Yard"
+     },
+     {
+      "auditee_name": null
+     },
+     {}
+    ],
+    "auditee_name"
+   ],
+   "expected": [
+    {
+     "name": "Yard",
+     "count": 2
+    },
+    {
+     "name": "Unspecified",
+     "count": 2
+    },
+    {
+     "name": "Rig 7",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countby-custom-unset",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "auditee_name": "Rig 7"
+     },
+     {
+      "auditee_name": "Yard"
+     },
+     {
+      "auditee_name": "Yard"
+     },
+     {
+      "auditee_name": null
+     },
+     {}
+    ],
+    "auditee_name",
+    "No auditee"
+   ],
+   "expected": [
+    {
+     "name": "Yard",
+     "count": 2
+    },
+    {
+     "name": "No auditee",
+     "count": 2
+    },
+    {
+     "name": "Rig 7",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countby-empty",
+   "fn": "countBy",
+   "args": [
+    [],
+    "x"
+   ],
+   "expected": []
+  },
+  {
+   "id": "attention-mixed",
+   "sort": "findingByAttention",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [
+    {
+     "id": "closed-stop",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Closed",
+     "raised_date": "2026-09-02",
+     "stop_work": true,
+     "correction": "x"
+    },
+    {
+     "id": "obs-late",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Observation",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-09-01"
+    },
+    {
+     "id": "major",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-10-01"
+    },
+    {
+     "id": "minor-open",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Minor nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-09-30"
+    },
+    {
+     "id": "stop-minor",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Minor nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": true,
+     "correction": "x",
+     "due_date": "2026-12-01"
+    },
+    {
+     "id": "major-late",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2026-09-10"
+    },
+    {
+     "id": "stop-major",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": "2026-09-02",
+     "stop_work": true,
+     "correction": "x",
+     "due_date": "2026-11-01"
+    },
+    {
+     "id": "voided",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Major nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Voided",
+     "raised_date": "2026-09-02",
+     "stop_work": false,
+     "due_date": "2025-01-01"
+    },
+    {
+     "id": "minor-undated",
+     "finding_code": "AF-2026-001",
+     "audit_id": "a1",
+     "finding_type": "Minor nonconformity",
+     "title": "Work without a displayed permit",
+     "objective_evidence": "No permit at 09:40.",
+     "status": "Open",
+     "raised_date": null,
+     "stop_work": false
+    }
+   ],
+   "expectedOrder": [
+    "stop-major",
+    "stop-minor",
+    "major-late",
+    "major",
+    "obs-late",
+    "minor-open",
+    "minor-undated",
+    "voided",
+    "closed-stop"
+   ]
+  }
+ ]
+}
