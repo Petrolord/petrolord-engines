@@ -85,3 +85,14 @@ Negative control: the previous engine fails every `repaired` case above
   module defines starts with a consonant, so only an unknown value could
   print the defect; nothing in the goldens moved. Covered by
   `__tests__/assurance.copy.test.js`.
+- **R2, percent rounding (ASC-0).** `planProgress` rounded the float
+  `(resolved / total) * 100`, and so did this oracle (`half_up` on the
+  same float), so the two agreed on 23 of 40 = 57 where the exact 57.5
+  rounds half up to 58. The lead ruled every percentage in the family is
+  round half UP on the EXACT rational. Changed: the engine computes
+  `floor((200n + d) / 2d)` from the counts (`halfUpPercent`), and the
+  oracle does the same in integers, independently. Cases
+  `r2-progress-half-*` (4): 23 of 40 (58), 57 of 200 (29), 29 of 200 (15),
+  1 of 8 (13). The previous engine fails 3. No existing case moved (none
+  sat on a half the float gets wrong). 414 -> 418. Mean ages
+  (`meanOpenNcrAgeDays`) are not percentages and did not change.

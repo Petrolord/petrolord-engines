@@ -99,6 +99,12 @@ describe('the checklist is the audit', () => {
     const progress = checklistProgress(items, [response({ item_id: 'i1' })]);
     expect(progress).toMatchObject({ total: 2, answered: 1, outstanding: 1, percent: 50 });
     expect(checklistProgress([], []).percent).toBe(null);
+    // ASC-0 R2: half up on the exact rational; 57 of 200 is 28.5, so 29.
+    const many = Array.from({ length: 200 }, (_, i) => item({ id: `h${i}`, item_no: `9.${i}` }));
+    const answers = many.slice(0, 57).map((it, i) => response({ id: `hr${i}`, item_id: it.id }));
+    expect(checklistProgress(many, answers).percent).toBe(29);
+    const audits = Array.from({ length: 40 }, (_, i) => audit({ id: `p${i}`, status: i < 23 ? 'Reported' : 'Planned' }));
+    expect(programmeProgress(audits, TODAY).percent).toBe(58);
   });
 
   it('names the items nobody answered rather than counting them', () => {

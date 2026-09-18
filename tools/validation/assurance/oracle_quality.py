@@ -187,7 +187,9 @@ def o_plan_progress(cps):
         'outstanding': total - resolved,
         'holdPoints': len(holds),
         'holdPointsOutstanding': sum(1 for c in holds if not o_is_resolved(c)),
-        'percent': None if total == 0 else half_up(resolved / total * 100),
+        # ASC-0 R2: half up on the EXACT rational, in integers. The float
+        # form (resolved / total * 100) rounded 23 of 40 to 57 like the engine.
+        'percent': None if total == 0 else (200 * resolved + total) // (2 * total),
     }
 
 # ---------------------------------------------------------------- NCRs and CAPAs
@@ -535,6 +537,13 @@ progress_sets = {
 for tag, rows in progress_sets.items():
     case(f'progress-{tag}', 'planProgress', [rows], o_plan_progress(rows))
 case('progress-default', 'planProgress', [UNDEF], o_plan_progress([]))
+# ASC-0 R2: exact halves. 23 of 40 is 57.5 exactly and prints 58; the float
+# form printed 57. 57 of 200 is 28.5 -> 29 (float 28). 1 of 8 is 12.5 -> 13
+# (float agreed). 29 of 200 is 14.5 -> 15 (float 14).
+for tag, n, d in [('23-of-40', 23, 40), ('57-of-200', 57, 200), ('1-of-8', 1, 8), ('29-of-200', 29, 200)]:
+    rows = ([cp(f'y{i}', 'Witness point', 'Passed') for i in range(n)]
+            + [cp(f'n{i}', 'Monitor point', 'Pending') for i in range(d - n)])
+    case(f'r2-progress-half-{tag}', 'planProgress', [rows], o_plan_progress(rows), 'R2')
 
 # --- NCR predicates
 for st in NCR_STATUSES + ['Draft', None]:

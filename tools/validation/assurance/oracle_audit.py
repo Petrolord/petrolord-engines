@@ -477,6 +477,15 @@ def build():
                                                      rs(id='r2', item_id='i2',
                                                         result='Not applicable', note='n/a')])]:
         c.add(cid, 'checklistProgress', [i_, r_], checklist_progress(i_, r_))
+    # ASC-0 R2: exact halves, half up on the exact rational (57 of 200 is 29).
+    for tag, n, d in [('57-of-200', 57, 200), ('23-of-40', 23, 40), ('29-of-200', 29, 200), ('1-of-8', 1, 8)]:
+        its = [it(id=f'h{k}', item_no=f'9.{k}', criticality='Minor') for k in range(d)]
+        rsp = [rs(id=f'hr{k}', item_id=f'h{k}') for k in range(n)]
+        c.add(f'r2-progress-half-{tag}', 'checklistProgress', [its, rsp], checklist_progress(its, rsp), 'R2')
+    for tag, n, d in [('23-of-40', 23, 40), ('1-of-8', 1, 8)]:
+        aus = ([au(id=f'pr{k}', status='Reported') for k in range(n)]
+               + [au(id=f'pp{k}', status='Planned', planned_end='2026-12-01') for k in range(d - n)])
+        c.add(f'r2-programme-half-{tag}', 'programmeProgress', [aus, T], programme_progress(aus, T), 'R2')
     c.add('progress-third', 'checklistProgress', [items[:3], [rs(item_id='i1')]],
           checklist_progress(items[:3], [rs(item_id='i1')]))
     c.add('progress-two-thirds', 'checklistProgress',

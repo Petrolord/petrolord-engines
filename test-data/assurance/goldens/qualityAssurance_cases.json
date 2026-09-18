@@ -2550,6 +2550,2318 @@
    }
   },
   {
+   "id": "r2-progress-half-23-of-40",
+   "fn": "planProgress",
+   "args": [
+    [
+     {
+      "id": "y0",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y1",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y2",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y3",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y4",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y5",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y6",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y7",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y8",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y9",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y10",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y11",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y12",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y13",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y14",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y15",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y16",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y17",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y18",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y19",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y20",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y21",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y22",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "n0",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n1",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n2",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n3",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n4",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n5",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n6",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n7",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n8",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n9",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n10",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n11",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n12",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n13",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n14",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n15",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n16",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 40,
+    "resolved": 23,
+    "failed": 0,
+    "outstanding": 17,
+    "holdPoints": 0,
+    "holdPointsOutstanding": 0,
+    "percent": 58
+   },
+   "repaired": "R2"
+  },
+  {
+   "id": "r2-progress-half-57-of-200",
+   "fn": "planProgress",
+   "args": [
+    [
+     {
+      "id": "y0",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y1",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y2",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y3",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y4",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y5",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y6",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y7",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y8",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y9",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y10",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y11",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y12",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y13",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y14",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y15",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y16",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y17",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y18",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y19",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y20",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y21",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y22",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y23",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y24",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y25",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y26",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y27",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y28",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y29",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y30",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y31",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y32",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y33",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y34",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y35",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y36",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y37",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y38",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y39",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y40",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y41",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y42",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y43",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y44",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y45",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y46",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y47",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y48",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y49",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y50",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y51",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y52",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y53",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y54",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y55",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y56",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "n0",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n1",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n2",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n3",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n4",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n5",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n6",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n7",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n8",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n9",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n10",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n11",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n12",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n13",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n14",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n15",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n16",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n17",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n18",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n19",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n20",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n21",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n22",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n23",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n24",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n25",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n26",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n27",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n28",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n29",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n30",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n31",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n32",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n33",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n34",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n35",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n36",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n37",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n38",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n39",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n40",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n41",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n42",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n43",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n44",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n45",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n46",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n47",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n48",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n49",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n50",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n51",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n52",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n53",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n54",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n55",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n56",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n57",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n58",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n59",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n60",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n61",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n62",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n63",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n64",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n65",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n66",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n67",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n68",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n69",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n70",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n71",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n72",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n73",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n74",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n75",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n76",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n77",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n78",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n79",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n80",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n81",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n82",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n83",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n84",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n85",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n86",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n87",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n88",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n89",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n90",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n91",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n92",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n93",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n94",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n95",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n96",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n97",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n98",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n99",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n100",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n101",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n102",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n103",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n104",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n105",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n106",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n107",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n108",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n109",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n110",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n111",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n112",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n113",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n114",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n115",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n116",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n117",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n118",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n119",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n120",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n121",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n122",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n123",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n124",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n125",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n126",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n127",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n128",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n129",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n130",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n131",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n132",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n133",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n134",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n135",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n136",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n137",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n138",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n139",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n140",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n141",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n142",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 200,
+    "resolved": 57,
+    "failed": 0,
+    "outstanding": 143,
+    "holdPoints": 0,
+    "holdPointsOutstanding": 0,
+    "percent": 29
+   },
+   "repaired": "R2"
+  },
+  {
+   "id": "r2-progress-half-1-of-8",
+   "fn": "planProgress",
+   "args": [
+    [
+     {
+      "id": "y0",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "n0",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n1",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n2",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n3",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n4",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n5",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n6",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 8,
+    "resolved": 1,
+    "failed": 0,
+    "outstanding": 7,
+    "holdPoints": 0,
+    "holdPointsOutstanding": 0,
+    "percent": 13
+   },
+   "repaired": "R2"
+  },
+  {
+   "id": "r2-progress-half-29-of-200",
+   "fn": "planProgress",
+   "args": [
+    [
+     {
+      "id": "y0",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y1",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y2",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y3",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y4",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y5",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y6",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y7",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y8",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y9",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y10",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y11",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y12",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y13",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y14",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y15",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y16",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y17",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y18",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y19",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y20",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y21",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y22",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y23",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y24",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y25",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y26",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y27",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "y28",
+      "point_type": "Witness point",
+      "status": "Passed"
+     },
+     {
+      "id": "n0",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n1",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n2",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n3",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n4",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n5",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n6",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n7",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n8",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n9",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n10",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n11",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n12",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n13",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n14",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n15",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n16",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n17",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n18",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n19",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n20",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n21",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n22",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n23",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n24",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n25",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n26",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n27",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n28",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n29",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n30",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n31",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n32",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n33",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n34",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n35",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n36",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n37",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n38",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n39",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n40",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n41",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n42",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n43",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n44",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n45",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n46",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n47",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n48",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n49",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n50",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n51",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n52",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n53",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n54",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n55",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n56",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n57",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n58",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n59",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n60",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n61",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n62",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n63",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n64",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n65",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n66",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n67",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n68",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n69",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n70",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n71",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n72",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n73",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n74",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n75",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n76",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n77",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n78",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n79",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n80",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n81",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n82",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n83",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n84",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n85",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n86",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n87",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n88",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n89",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n90",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n91",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n92",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n93",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n94",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n95",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n96",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n97",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n98",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n99",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n100",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n101",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n102",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n103",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n104",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n105",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n106",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n107",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n108",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n109",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n110",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n111",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n112",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n113",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n114",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n115",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n116",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n117",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n118",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n119",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n120",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n121",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n122",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n123",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n124",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n125",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n126",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n127",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n128",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n129",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n130",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n131",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n132",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n133",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n134",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n135",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n136",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n137",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n138",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n139",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n140",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n141",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n142",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n143",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n144",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n145",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n146",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n147",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n148",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n149",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n150",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n151",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n152",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n153",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n154",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n155",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n156",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n157",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n158",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n159",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n160",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n161",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n162",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n163",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n164",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n165",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n166",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n167",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n168",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n169",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     },
+     {
+      "id": "n170",
+      "point_type": "Monitor point",
+      "status": "Pending"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 200,
+    "resolved": 29,
+    "failed": 0,
+    "outstanding": 171,
+    "holdPoints": 0,
+    "holdPointsOutstanding": 0,
+    "percent": 15
+   },
+   "repaired": "R2"
+  },
+  {
    "id": "ncr-open-Open",
    "fn": "isNcrOpen",
    "args": [

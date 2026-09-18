@@ -216,6 +216,16 @@ describe('progress is counted, not typed', () => {
     expect(p.holdPoints).toBe(2);
     expect(p.holdPointsOutstanding).toBe(1);
   });
+
+  // ASC-0 R2: half up on the exact rational. 23 of 40 is exactly 57.5.
+  it('rounds an exact half up, which the float form did not', () => {
+    const rows = (n, d) => Array.from({ length: d }, (_, i) => chk({ id: `c${i}`, status: i < n ? 'Passed' : 'Pending' }));
+    expect(planProgress(rows(23, 40)).percent).toBe(58);
+    expect(planProgress(rows(57, 200)).percent).toBe(29);
+    expect(planProgress(rows(1, 8)).percent).toBe(13);
+    expect(planProgress(rows(1, 3)).percent).toBe(33);
+    expect(planProgress(rows(2, 3)).percent).toBe(67);
+  });
 });
 
 describe('a non-conformance report closes on evidence', () => {

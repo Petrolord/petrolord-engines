@@ -81,6 +81,18 @@ import {
 // "A emergency change".
 const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
 
+/**
+ * ASC-0 (R2): a whole percent, round half UP on the EXACT rational n/d
+ * (n, d whole counts, n >= 0, d > 0). floor((200n + d) / 2d) is
+ * floor(100n/d + 1/2), computed from integers. It replaces
+ * Math.round((n / d) * 100), which rounds the binary float of n/d: 57 of
+ * 200 is 0.285, stored as 0.28499999..., and printed 28 where the exact
+ * half rounds to 29 (23 of 40 printed 57 for 58). Exact while d < 2^45:
+ * the true quotient is at least 1/(2d) below the next whole number, far
+ * more than the float division's error.
+ */
+const halfUpPercent = (n, d) => Math.floor((200 * n + d) / (2 * d));
+
 export {
   ACTION_STATUSES,
   ACTION_TYPES,
@@ -180,7 +192,7 @@ export const checklistProgress = (items = [], responses = []) => {
     nonconformant: count('Nonconformant'),
     observations: count('Observation'),
     notApplicable: count('Not applicable'),
-    percent: total === 0 ? null : Math.round((answered / total) * 100),
+    percent: total === 0 ? null : halfUpPercent(answered, total),
   };
 };
 
@@ -387,7 +399,7 @@ export const programmeProgress = (audits = [], today = new Date()) => {
     cancelled,
     outstanding: outstanding.length,
     overdue: outstanding.filter((a) => isAuditOverdue(a, today)).length,
-    percent: total === 0 ? null : Math.round((reported / total) * 100),
+    percent: total === 0 ? null : halfUpPercent(reported, total),
   };
 };
 

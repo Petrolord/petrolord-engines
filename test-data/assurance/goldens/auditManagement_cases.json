@@ -1130,6 +1130,4164 @@
    }
   },
   {
+   "id": "r2-progress-half-57-of-200",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "h0",
+      "template_id": "t1",
+      "item_no": "9.0",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h1",
+      "template_id": "t1",
+      "item_no": "9.1",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h2",
+      "template_id": "t1",
+      "item_no": "9.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h3",
+      "template_id": "t1",
+      "item_no": "9.3",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h4",
+      "template_id": "t1",
+      "item_no": "9.4",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h5",
+      "template_id": "t1",
+      "item_no": "9.5",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h6",
+      "template_id": "t1",
+      "item_no": "9.6",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h7",
+      "template_id": "t1",
+      "item_no": "9.7",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h8",
+      "template_id": "t1",
+      "item_no": "9.8",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h9",
+      "template_id": "t1",
+      "item_no": "9.9",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h10",
+      "template_id": "t1",
+      "item_no": "9.10",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h11",
+      "template_id": "t1",
+      "item_no": "9.11",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h12",
+      "template_id": "t1",
+      "item_no": "9.12",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h13",
+      "template_id": "t1",
+      "item_no": "9.13",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h14",
+      "template_id": "t1",
+      "item_no": "9.14",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h15",
+      "template_id": "t1",
+      "item_no": "9.15",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h16",
+      "template_id": "t1",
+      "item_no": "9.16",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h17",
+      "template_id": "t1",
+      "item_no": "9.17",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h18",
+      "template_id": "t1",
+      "item_no": "9.18",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h19",
+      "template_id": "t1",
+      "item_no": "9.19",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h20",
+      "template_id": "t1",
+      "item_no": "9.20",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h21",
+      "template_id": "t1",
+      "item_no": "9.21",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h22",
+      "template_id": "t1",
+      "item_no": "9.22",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h23",
+      "template_id": "t1",
+      "item_no": "9.23",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h24",
+      "template_id": "t1",
+      "item_no": "9.24",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h25",
+      "template_id": "t1",
+      "item_no": "9.25",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h26",
+      "template_id": "t1",
+      "item_no": "9.26",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h27",
+      "template_id": "t1",
+      "item_no": "9.27",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h28",
+      "template_id": "t1",
+      "item_no": "9.28",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h29",
+      "template_id": "t1",
+      "item_no": "9.29",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h30",
+      "template_id": "t1",
+      "item_no": "9.30",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h31",
+      "template_id": "t1",
+      "item_no": "9.31",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h32",
+      "template_id": "t1",
+      "item_no": "9.32",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h33",
+      "template_id": "t1",
+      "item_no": "9.33",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h34",
+      "template_id": "t1",
+      "item_no": "9.34",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h35",
+      "template_id": "t1",
+      "item_no": "9.35",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h36",
+      "template_id": "t1",
+      "item_no": "9.36",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h37",
+      "template_id": "t1",
+      "item_no": "9.37",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h38",
+      "template_id": "t1",
+      "item_no": "9.38",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h39",
+      "template_id": "t1",
+      "item_no": "9.39",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h40",
+      "template_id": "t1",
+      "item_no": "9.40",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h41",
+      "template_id": "t1",
+      "item_no": "9.41",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h42",
+      "template_id": "t1",
+      "item_no": "9.42",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h43",
+      "template_id": "t1",
+      "item_no": "9.43",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h44",
+      "template_id": "t1",
+      "item_no": "9.44",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h45",
+      "template_id": "t1",
+      "item_no": "9.45",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h46",
+      "template_id": "t1",
+      "item_no": "9.46",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h47",
+      "template_id": "t1",
+      "item_no": "9.47",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h48",
+      "template_id": "t1",
+      "item_no": "9.48",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h49",
+      "template_id": "t1",
+      "item_no": "9.49",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h50",
+      "template_id": "t1",
+      "item_no": "9.50",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h51",
+      "template_id": "t1",
+      "item_no": "9.51",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h52",
+      "template_id": "t1",
+      "item_no": "9.52",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h53",
+      "template_id": "t1",
+      "item_no": "9.53",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h54",
+      "template_id": "t1",
+      "item_no": "9.54",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h55",
+      "template_id": "t1",
+      "item_no": "9.55",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h56",
+      "template_id": "t1",
+      "item_no": "9.56",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h57",
+      "template_id": "t1",
+      "item_no": "9.57",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h58",
+      "template_id": "t1",
+      "item_no": "9.58",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h59",
+      "template_id": "t1",
+      "item_no": "9.59",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h60",
+      "template_id": "t1",
+      "item_no": "9.60",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h61",
+      "template_id": "t1",
+      "item_no": "9.61",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h62",
+      "template_id": "t1",
+      "item_no": "9.62",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h63",
+      "template_id": "t1",
+      "item_no": "9.63",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h64",
+      "template_id": "t1",
+      "item_no": "9.64",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h65",
+      "template_id": "t1",
+      "item_no": "9.65",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h66",
+      "template_id": "t1",
+      "item_no": "9.66",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h67",
+      "template_id": "t1",
+      "item_no": "9.67",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h68",
+      "template_id": "t1",
+      "item_no": "9.68",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h69",
+      "template_id": "t1",
+      "item_no": "9.69",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h70",
+      "template_id": "t1",
+      "item_no": "9.70",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h71",
+      "template_id": "t1",
+      "item_no": "9.71",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h72",
+      "template_id": "t1",
+      "item_no": "9.72",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h73",
+      "template_id": "t1",
+      "item_no": "9.73",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h74",
+      "template_id": "t1",
+      "item_no": "9.74",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h75",
+      "template_id": "t1",
+      "item_no": "9.75",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h76",
+      "template_id": "t1",
+      "item_no": "9.76",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h77",
+      "template_id": "t1",
+      "item_no": "9.77",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h78",
+      "template_id": "t1",
+      "item_no": "9.78",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h79",
+      "template_id": "t1",
+      "item_no": "9.79",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h80",
+      "template_id": "t1",
+      "item_no": "9.80",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h81",
+      "template_id": "t1",
+      "item_no": "9.81",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h82",
+      "template_id": "t1",
+      "item_no": "9.82",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h83",
+      "template_id": "t1",
+      "item_no": "9.83",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h84",
+      "template_id": "t1",
+      "item_no": "9.84",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h85",
+      "template_id": "t1",
+      "item_no": "9.85",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h86",
+      "template_id": "t1",
+      "item_no": "9.86",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h87",
+      "template_id": "t1",
+      "item_no": "9.87",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h88",
+      "template_id": "t1",
+      "item_no": "9.88",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h89",
+      "template_id": "t1",
+      "item_no": "9.89",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h90",
+      "template_id": "t1",
+      "item_no": "9.90",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h91",
+      "template_id": "t1",
+      "item_no": "9.91",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h92",
+      "template_id": "t1",
+      "item_no": "9.92",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h93",
+      "template_id": "t1",
+      "item_no": "9.93",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h94",
+      "template_id": "t1",
+      "item_no": "9.94",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h95",
+      "template_id": "t1",
+      "item_no": "9.95",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h96",
+      "template_id": "t1",
+      "item_no": "9.96",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h97",
+      "template_id": "t1",
+      "item_no": "9.97",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h98",
+      "template_id": "t1",
+      "item_no": "9.98",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h99",
+      "template_id": "t1",
+      "item_no": "9.99",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h100",
+      "template_id": "t1",
+      "item_no": "9.100",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h101",
+      "template_id": "t1",
+      "item_no": "9.101",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h102",
+      "template_id": "t1",
+      "item_no": "9.102",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h103",
+      "template_id": "t1",
+      "item_no": "9.103",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h104",
+      "template_id": "t1",
+      "item_no": "9.104",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h105",
+      "template_id": "t1",
+      "item_no": "9.105",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h106",
+      "template_id": "t1",
+      "item_no": "9.106",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h107",
+      "template_id": "t1",
+      "item_no": "9.107",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h108",
+      "template_id": "t1",
+      "item_no": "9.108",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h109",
+      "template_id": "t1",
+      "item_no": "9.109",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h110",
+      "template_id": "t1",
+      "item_no": "9.110",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h111",
+      "template_id": "t1",
+      "item_no": "9.111",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h112",
+      "template_id": "t1",
+      "item_no": "9.112",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h113",
+      "template_id": "t1",
+      "item_no": "9.113",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h114",
+      "template_id": "t1",
+      "item_no": "9.114",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h115",
+      "template_id": "t1",
+      "item_no": "9.115",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h116",
+      "template_id": "t1",
+      "item_no": "9.116",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h117",
+      "template_id": "t1",
+      "item_no": "9.117",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h118",
+      "template_id": "t1",
+      "item_no": "9.118",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h119",
+      "template_id": "t1",
+      "item_no": "9.119",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h120",
+      "template_id": "t1",
+      "item_no": "9.120",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h121",
+      "template_id": "t1",
+      "item_no": "9.121",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h122",
+      "template_id": "t1",
+      "item_no": "9.122",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h123",
+      "template_id": "t1",
+      "item_no": "9.123",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h124",
+      "template_id": "t1",
+      "item_no": "9.124",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h125",
+      "template_id": "t1",
+      "item_no": "9.125",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h126",
+      "template_id": "t1",
+      "item_no": "9.126",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h127",
+      "template_id": "t1",
+      "item_no": "9.127",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h128",
+      "template_id": "t1",
+      "item_no": "9.128",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h129",
+      "template_id": "t1",
+      "item_no": "9.129",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h130",
+      "template_id": "t1",
+      "item_no": "9.130",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h131",
+      "template_id": "t1",
+      "item_no": "9.131",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h132",
+      "template_id": "t1",
+      "item_no": "9.132",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h133",
+      "template_id": "t1",
+      "item_no": "9.133",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h134",
+      "template_id": "t1",
+      "item_no": "9.134",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h135",
+      "template_id": "t1",
+      "item_no": "9.135",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h136",
+      "template_id": "t1",
+      "item_no": "9.136",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h137",
+      "template_id": "t1",
+      "item_no": "9.137",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h138",
+      "template_id": "t1",
+      "item_no": "9.138",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h139",
+      "template_id": "t1",
+      "item_no": "9.139",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h140",
+      "template_id": "t1",
+      "item_no": "9.140",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h141",
+      "template_id": "t1",
+      "item_no": "9.141",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h142",
+      "template_id": "t1",
+      "item_no": "9.142",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h143",
+      "template_id": "t1",
+      "item_no": "9.143",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h144",
+      "template_id": "t1",
+      "item_no": "9.144",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h145",
+      "template_id": "t1",
+      "item_no": "9.145",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h146",
+      "template_id": "t1",
+      "item_no": "9.146",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h147",
+      "template_id": "t1",
+      "item_no": "9.147",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h148",
+      "template_id": "t1",
+      "item_no": "9.148",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h149",
+      "template_id": "t1",
+      "item_no": "9.149",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h150",
+      "template_id": "t1",
+      "item_no": "9.150",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h151",
+      "template_id": "t1",
+      "item_no": "9.151",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h152",
+      "template_id": "t1",
+      "item_no": "9.152",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h153",
+      "template_id": "t1",
+      "item_no": "9.153",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h154",
+      "template_id": "t1",
+      "item_no": "9.154",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h155",
+      "template_id": "t1",
+      "item_no": "9.155",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h156",
+      "template_id": "t1",
+      "item_no": "9.156",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h157",
+      "template_id": "t1",
+      "item_no": "9.157",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h158",
+      "template_id": "t1",
+      "item_no": "9.158",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h159",
+      "template_id": "t1",
+      "item_no": "9.159",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h160",
+      "template_id": "t1",
+      "item_no": "9.160",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h161",
+      "template_id": "t1",
+      "item_no": "9.161",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h162",
+      "template_id": "t1",
+      "item_no": "9.162",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h163",
+      "template_id": "t1",
+      "item_no": "9.163",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h164",
+      "template_id": "t1",
+      "item_no": "9.164",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h165",
+      "template_id": "t1",
+      "item_no": "9.165",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h166",
+      "template_id": "t1",
+      "item_no": "9.166",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h167",
+      "template_id": "t1",
+      "item_no": "9.167",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h168",
+      "template_id": "t1",
+      "item_no": "9.168",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h169",
+      "template_id": "t1",
+      "item_no": "9.169",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h170",
+      "template_id": "t1",
+      "item_no": "9.170",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h171",
+      "template_id": "t1",
+      "item_no": "9.171",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h172",
+      "template_id": "t1",
+      "item_no": "9.172",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h173",
+      "template_id": "t1",
+      "item_no": "9.173",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h174",
+      "template_id": "t1",
+      "item_no": "9.174",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h175",
+      "template_id": "t1",
+      "item_no": "9.175",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h176",
+      "template_id": "t1",
+      "item_no": "9.176",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h177",
+      "template_id": "t1",
+      "item_no": "9.177",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h178",
+      "template_id": "t1",
+      "item_no": "9.178",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h179",
+      "template_id": "t1",
+      "item_no": "9.179",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h180",
+      "template_id": "t1",
+      "item_no": "9.180",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h181",
+      "template_id": "t1",
+      "item_no": "9.181",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h182",
+      "template_id": "t1",
+      "item_no": "9.182",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h183",
+      "template_id": "t1",
+      "item_no": "9.183",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h184",
+      "template_id": "t1",
+      "item_no": "9.184",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h185",
+      "template_id": "t1",
+      "item_no": "9.185",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h186",
+      "template_id": "t1",
+      "item_no": "9.186",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h187",
+      "template_id": "t1",
+      "item_no": "9.187",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h188",
+      "template_id": "t1",
+      "item_no": "9.188",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h189",
+      "template_id": "t1",
+      "item_no": "9.189",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h190",
+      "template_id": "t1",
+      "item_no": "9.190",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h191",
+      "template_id": "t1",
+      "item_no": "9.191",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h192",
+      "template_id": "t1",
+      "item_no": "9.192",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h193",
+      "template_id": "t1",
+      "item_no": "9.193",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h194",
+      "template_id": "t1",
+      "item_no": "9.194",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h195",
+      "template_id": "t1",
+      "item_no": "9.195",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h196",
+      "template_id": "t1",
+      "item_no": "9.196",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h197",
+      "template_id": "t1",
+      "item_no": "9.197",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h198",
+      "template_id": "t1",
+      "item_no": "9.198",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h199",
+      "template_id": "t1",
+      "item_no": "9.199",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "hr0",
+      "audit_id": "a1",
+      "item_id": "h0",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr1",
+      "audit_id": "a1",
+      "item_id": "h1",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr2",
+      "audit_id": "a1",
+      "item_id": "h2",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr3",
+      "audit_id": "a1",
+      "item_id": "h3",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr4",
+      "audit_id": "a1",
+      "item_id": "h4",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr5",
+      "audit_id": "a1",
+      "item_id": "h5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr6",
+      "audit_id": "a1",
+      "item_id": "h6",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr7",
+      "audit_id": "a1",
+      "item_id": "h7",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr8",
+      "audit_id": "a1",
+      "item_id": "h8",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr9",
+      "audit_id": "a1",
+      "item_id": "h9",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr10",
+      "audit_id": "a1",
+      "item_id": "h10",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr11",
+      "audit_id": "a1",
+      "item_id": "h11",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr12",
+      "audit_id": "a1",
+      "item_id": "h12",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr13",
+      "audit_id": "a1",
+      "item_id": "h13",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr14",
+      "audit_id": "a1",
+      "item_id": "h14",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr15",
+      "audit_id": "a1",
+      "item_id": "h15",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr16",
+      "audit_id": "a1",
+      "item_id": "h16",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr17",
+      "audit_id": "a1",
+      "item_id": "h17",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr18",
+      "audit_id": "a1",
+      "item_id": "h18",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr19",
+      "audit_id": "a1",
+      "item_id": "h19",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr20",
+      "audit_id": "a1",
+      "item_id": "h20",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr21",
+      "audit_id": "a1",
+      "item_id": "h21",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr22",
+      "audit_id": "a1",
+      "item_id": "h22",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr23",
+      "audit_id": "a1",
+      "item_id": "h23",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr24",
+      "audit_id": "a1",
+      "item_id": "h24",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr25",
+      "audit_id": "a1",
+      "item_id": "h25",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr26",
+      "audit_id": "a1",
+      "item_id": "h26",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr27",
+      "audit_id": "a1",
+      "item_id": "h27",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr28",
+      "audit_id": "a1",
+      "item_id": "h28",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr29",
+      "audit_id": "a1",
+      "item_id": "h29",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr30",
+      "audit_id": "a1",
+      "item_id": "h30",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr31",
+      "audit_id": "a1",
+      "item_id": "h31",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr32",
+      "audit_id": "a1",
+      "item_id": "h32",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr33",
+      "audit_id": "a1",
+      "item_id": "h33",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr34",
+      "audit_id": "a1",
+      "item_id": "h34",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr35",
+      "audit_id": "a1",
+      "item_id": "h35",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr36",
+      "audit_id": "a1",
+      "item_id": "h36",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr37",
+      "audit_id": "a1",
+      "item_id": "h37",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr38",
+      "audit_id": "a1",
+      "item_id": "h38",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr39",
+      "audit_id": "a1",
+      "item_id": "h39",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr40",
+      "audit_id": "a1",
+      "item_id": "h40",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr41",
+      "audit_id": "a1",
+      "item_id": "h41",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr42",
+      "audit_id": "a1",
+      "item_id": "h42",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr43",
+      "audit_id": "a1",
+      "item_id": "h43",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr44",
+      "audit_id": "a1",
+      "item_id": "h44",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr45",
+      "audit_id": "a1",
+      "item_id": "h45",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr46",
+      "audit_id": "a1",
+      "item_id": "h46",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr47",
+      "audit_id": "a1",
+      "item_id": "h47",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr48",
+      "audit_id": "a1",
+      "item_id": "h48",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr49",
+      "audit_id": "a1",
+      "item_id": "h49",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr50",
+      "audit_id": "a1",
+      "item_id": "h50",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr51",
+      "audit_id": "a1",
+      "item_id": "h51",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr52",
+      "audit_id": "a1",
+      "item_id": "h52",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr53",
+      "audit_id": "a1",
+      "item_id": "h53",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr54",
+      "audit_id": "a1",
+      "item_id": "h54",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr55",
+      "audit_id": "a1",
+      "item_id": "h55",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr56",
+      "audit_id": "a1",
+      "item_id": "h56",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 200,
+    "answered": 57,
+    "outstanding": 143,
+    "conformant": 57,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 0,
+    "percent": 29
+   },
+   "repaired": "R2"
+  },
+  {
+   "id": "r2-progress-half-23-of-40",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "h0",
+      "template_id": "t1",
+      "item_no": "9.0",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h1",
+      "template_id": "t1",
+      "item_no": "9.1",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h2",
+      "template_id": "t1",
+      "item_no": "9.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h3",
+      "template_id": "t1",
+      "item_no": "9.3",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h4",
+      "template_id": "t1",
+      "item_no": "9.4",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h5",
+      "template_id": "t1",
+      "item_no": "9.5",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h6",
+      "template_id": "t1",
+      "item_no": "9.6",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h7",
+      "template_id": "t1",
+      "item_no": "9.7",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h8",
+      "template_id": "t1",
+      "item_no": "9.8",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h9",
+      "template_id": "t1",
+      "item_no": "9.9",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h10",
+      "template_id": "t1",
+      "item_no": "9.10",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h11",
+      "template_id": "t1",
+      "item_no": "9.11",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h12",
+      "template_id": "t1",
+      "item_no": "9.12",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h13",
+      "template_id": "t1",
+      "item_no": "9.13",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h14",
+      "template_id": "t1",
+      "item_no": "9.14",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h15",
+      "template_id": "t1",
+      "item_no": "9.15",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h16",
+      "template_id": "t1",
+      "item_no": "9.16",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h17",
+      "template_id": "t1",
+      "item_no": "9.17",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h18",
+      "template_id": "t1",
+      "item_no": "9.18",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h19",
+      "template_id": "t1",
+      "item_no": "9.19",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h20",
+      "template_id": "t1",
+      "item_no": "9.20",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h21",
+      "template_id": "t1",
+      "item_no": "9.21",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h22",
+      "template_id": "t1",
+      "item_no": "9.22",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h23",
+      "template_id": "t1",
+      "item_no": "9.23",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h24",
+      "template_id": "t1",
+      "item_no": "9.24",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h25",
+      "template_id": "t1",
+      "item_no": "9.25",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h26",
+      "template_id": "t1",
+      "item_no": "9.26",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h27",
+      "template_id": "t1",
+      "item_no": "9.27",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h28",
+      "template_id": "t1",
+      "item_no": "9.28",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h29",
+      "template_id": "t1",
+      "item_no": "9.29",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h30",
+      "template_id": "t1",
+      "item_no": "9.30",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h31",
+      "template_id": "t1",
+      "item_no": "9.31",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h32",
+      "template_id": "t1",
+      "item_no": "9.32",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h33",
+      "template_id": "t1",
+      "item_no": "9.33",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h34",
+      "template_id": "t1",
+      "item_no": "9.34",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h35",
+      "template_id": "t1",
+      "item_no": "9.35",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h36",
+      "template_id": "t1",
+      "item_no": "9.36",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h37",
+      "template_id": "t1",
+      "item_no": "9.37",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h38",
+      "template_id": "t1",
+      "item_no": "9.38",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h39",
+      "template_id": "t1",
+      "item_no": "9.39",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "hr0",
+      "audit_id": "a1",
+      "item_id": "h0",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr1",
+      "audit_id": "a1",
+      "item_id": "h1",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr2",
+      "audit_id": "a1",
+      "item_id": "h2",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr3",
+      "audit_id": "a1",
+      "item_id": "h3",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr4",
+      "audit_id": "a1",
+      "item_id": "h4",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr5",
+      "audit_id": "a1",
+      "item_id": "h5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr6",
+      "audit_id": "a1",
+      "item_id": "h6",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr7",
+      "audit_id": "a1",
+      "item_id": "h7",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr8",
+      "audit_id": "a1",
+      "item_id": "h8",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr9",
+      "audit_id": "a1",
+      "item_id": "h9",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr10",
+      "audit_id": "a1",
+      "item_id": "h10",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr11",
+      "audit_id": "a1",
+      "item_id": "h11",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr12",
+      "audit_id": "a1",
+      "item_id": "h12",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr13",
+      "audit_id": "a1",
+      "item_id": "h13",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr14",
+      "audit_id": "a1",
+      "item_id": "h14",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr15",
+      "audit_id": "a1",
+      "item_id": "h15",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr16",
+      "audit_id": "a1",
+      "item_id": "h16",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr17",
+      "audit_id": "a1",
+      "item_id": "h17",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr18",
+      "audit_id": "a1",
+      "item_id": "h18",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr19",
+      "audit_id": "a1",
+      "item_id": "h19",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr20",
+      "audit_id": "a1",
+      "item_id": "h20",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr21",
+      "audit_id": "a1",
+      "item_id": "h21",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr22",
+      "audit_id": "a1",
+      "item_id": "h22",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 40,
+    "answered": 23,
+    "outstanding": 17,
+    "conformant": 23,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 0,
+    "percent": 58
+   },
+   "repaired": "R2"
+  },
+  {
+   "id": "r2-progress-half-29-of-200",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "h0",
+      "template_id": "t1",
+      "item_no": "9.0",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h1",
+      "template_id": "t1",
+      "item_no": "9.1",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h2",
+      "template_id": "t1",
+      "item_no": "9.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h3",
+      "template_id": "t1",
+      "item_no": "9.3",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h4",
+      "template_id": "t1",
+      "item_no": "9.4",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h5",
+      "template_id": "t1",
+      "item_no": "9.5",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h6",
+      "template_id": "t1",
+      "item_no": "9.6",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h7",
+      "template_id": "t1",
+      "item_no": "9.7",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h8",
+      "template_id": "t1",
+      "item_no": "9.8",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h9",
+      "template_id": "t1",
+      "item_no": "9.9",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h10",
+      "template_id": "t1",
+      "item_no": "9.10",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h11",
+      "template_id": "t1",
+      "item_no": "9.11",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h12",
+      "template_id": "t1",
+      "item_no": "9.12",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h13",
+      "template_id": "t1",
+      "item_no": "9.13",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h14",
+      "template_id": "t1",
+      "item_no": "9.14",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h15",
+      "template_id": "t1",
+      "item_no": "9.15",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h16",
+      "template_id": "t1",
+      "item_no": "9.16",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h17",
+      "template_id": "t1",
+      "item_no": "9.17",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h18",
+      "template_id": "t1",
+      "item_no": "9.18",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h19",
+      "template_id": "t1",
+      "item_no": "9.19",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h20",
+      "template_id": "t1",
+      "item_no": "9.20",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h21",
+      "template_id": "t1",
+      "item_no": "9.21",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h22",
+      "template_id": "t1",
+      "item_no": "9.22",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h23",
+      "template_id": "t1",
+      "item_no": "9.23",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h24",
+      "template_id": "t1",
+      "item_no": "9.24",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h25",
+      "template_id": "t1",
+      "item_no": "9.25",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h26",
+      "template_id": "t1",
+      "item_no": "9.26",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h27",
+      "template_id": "t1",
+      "item_no": "9.27",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h28",
+      "template_id": "t1",
+      "item_no": "9.28",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h29",
+      "template_id": "t1",
+      "item_no": "9.29",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h30",
+      "template_id": "t1",
+      "item_no": "9.30",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h31",
+      "template_id": "t1",
+      "item_no": "9.31",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h32",
+      "template_id": "t1",
+      "item_no": "9.32",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h33",
+      "template_id": "t1",
+      "item_no": "9.33",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h34",
+      "template_id": "t1",
+      "item_no": "9.34",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h35",
+      "template_id": "t1",
+      "item_no": "9.35",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h36",
+      "template_id": "t1",
+      "item_no": "9.36",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h37",
+      "template_id": "t1",
+      "item_no": "9.37",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h38",
+      "template_id": "t1",
+      "item_no": "9.38",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h39",
+      "template_id": "t1",
+      "item_no": "9.39",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h40",
+      "template_id": "t1",
+      "item_no": "9.40",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h41",
+      "template_id": "t1",
+      "item_no": "9.41",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h42",
+      "template_id": "t1",
+      "item_no": "9.42",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h43",
+      "template_id": "t1",
+      "item_no": "9.43",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h44",
+      "template_id": "t1",
+      "item_no": "9.44",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h45",
+      "template_id": "t1",
+      "item_no": "9.45",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h46",
+      "template_id": "t1",
+      "item_no": "9.46",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h47",
+      "template_id": "t1",
+      "item_no": "9.47",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h48",
+      "template_id": "t1",
+      "item_no": "9.48",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h49",
+      "template_id": "t1",
+      "item_no": "9.49",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h50",
+      "template_id": "t1",
+      "item_no": "9.50",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h51",
+      "template_id": "t1",
+      "item_no": "9.51",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h52",
+      "template_id": "t1",
+      "item_no": "9.52",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h53",
+      "template_id": "t1",
+      "item_no": "9.53",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h54",
+      "template_id": "t1",
+      "item_no": "9.54",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h55",
+      "template_id": "t1",
+      "item_no": "9.55",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h56",
+      "template_id": "t1",
+      "item_no": "9.56",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h57",
+      "template_id": "t1",
+      "item_no": "9.57",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h58",
+      "template_id": "t1",
+      "item_no": "9.58",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h59",
+      "template_id": "t1",
+      "item_no": "9.59",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h60",
+      "template_id": "t1",
+      "item_no": "9.60",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h61",
+      "template_id": "t1",
+      "item_no": "9.61",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h62",
+      "template_id": "t1",
+      "item_no": "9.62",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h63",
+      "template_id": "t1",
+      "item_no": "9.63",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h64",
+      "template_id": "t1",
+      "item_no": "9.64",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h65",
+      "template_id": "t1",
+      "item_no": "9.65",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h66",
+      "template_id": "t1",
+      "item_no": "9.66",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h67",
+      "template_id": "t1",
+      "item_no": "9.67",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h68",
+      "template_id": "t1",
+      "item_no": "9.68",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h69",
+      "template_id": "t1",
+      "item_no": "9.69",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h70",
+      "template_id": "t1",
+      "item_no": "9.70",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h71",
+      "template_id": "t1",
+      "item_no": "9.71",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h72",
+      "template_id": "t1",
+      "item_no": "9.72",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h73",
+      "template_id": "t1",
+      "item_no": "9.73",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h74",
+      "template_id": "t1",
+      "item_no": "9.74",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h75",
+      "template_id": "t1",
+      "item_no": "9.75",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h76",
+      "template_id": "t1",
+      "item_no": "9.76",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h77",
+      "template_id": "t1",
+      "item_no": "9.77",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h78",
+      "template_id": "t1",
+      "item_no": "9.78",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h79",
+      "template_id": "t1",
+      "item_no": "9.79",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h80",
+      "template_id": "t1",
+      "item_no": "9.80",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h81",
+      "template_id": "t1",
+      "item_no": "9.81",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h82",
+      "template_id": "t1",
+      "item_no": "9.82",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h83",
+      "template_id": "t1",
+      "item_no": "9.83",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h84",
+      "template_id": "t1",
+      "item_no": "9.84",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h85",
+      "template_id": "t1",
+      "item_no": "9.85",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h86",
+      "template_id": "t1",
+      "item_no": "9.86",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h87",
+      "template_id": "t1",
+      "item_no": "9.87",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h88",
+      "template_id": "t1",
+      "item_no": "9.88",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h89",
+      "template_id": "t1",
+      "item_no": "9.89",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h90",
+      "template_id": "t1",
+      "item_no": "9.90",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h91",
+      "template_id": "t1",
+      "item_no": "9.91",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h92",
+      "template_id": "t1",
+      "item_no": "9.92",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h93",
+      "template_id": "t1",
+      "item_no": "9.93",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h94",
+      "template_id": "t1",
+      "item_no": "9.94",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h95",
+      "template_id": "t1",
+      "item_no": "9.95",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h96",
+      "template_id": "t1",
+      "item_no": "9.96",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h97",
+      "template_id": "t1",
+      "item_no": "9.97",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h98",
+      "template_id": "t1",
+      "item_no": "9.98",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h99",
+      "template_id": "t1",
+      "item_no": "9.99",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h100",
+      "template_id": "t1",
+      "item_no": "9.100",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h101",
+      "template_id": "t1",
+      "item_no": "9.101",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h102",
+      "template_id": "t1",
+      "item_no": "9.102",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h103",
+      "template_id": "t1",
+      "item_no": "9.103",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h104",
+      "template_id": "t1",
+      "item_no": "9.104",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h105",
+      "template_id": "t1",
+      "item_no": "9.105",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h106",
+      "template_id": "t1",
+      "item_no": "9.106",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h107",
+      "template_id": "t1",
+      "item_no": "9.107",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h108",
+      "template_id": "t1",
+      "item_no": "9.108",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h109",
+      "template_id": "t1",
+      "item_no": "9.109",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h110",
+      "template_id": "t1",
+      "item_no": "9.110",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h111",
+      "template_id": "t1",
+      "item_no": "9.111",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h112",
+      "template_id": "t1",
+      "item_no": "9.112",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h113",
+      "template_id": "t1",
+      "item_no": "9.113",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h114",
+      "template_id": "t1",
+      "item_no": "9.114",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h115",
+      "template_id": "t1",
+      "item_no": "9.115",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h116",
+      "template_id": "t1",
+      "item_no": "9.116",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h117",
+      "template_id": "t1",
+      "item_no": "9.117",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h118",
+      "template_id": "t1",
+      "item_no": "9.118",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h119",
+      "template_id": "t1",
+      "item_no": "9.119",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h120",
+      "template_id": "t1",
+      "item_no": "9.120",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h121",
+      "template_id": "t1",
+      "item_no": "9.121",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h122",
+      "template_id": "t1",
+      "item_no": "9.122",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h123",
+      "template_id": "t1",
+      "item_no": "9.123",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h124",
+      "template_id": "t1",
+      "item_no": "9.124",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h125",
+      "template_id": "t1",
+      "item_no": "9.125",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h126",
+      "template_id": "t1",
+      "item_no": "9.126",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h127",
+      "template_id": "t1",
+      "item_no": "9.127",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h128",
+      "template_id": "t1",
+      "item_no": "9.128",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h129",
+      "template_id": "t1",
+      "item_no": "9.129",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h130",
+      "template_id": "t1",
+      "item_no": "9.130",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h131",
+      "template_id": "t1",
+      "item_no": "9.131",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h132",
+      "template_id": "t1",
+      "item_no": "9.132",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h133",
+      "template_id": "t1",
+      "item_no": "9.133",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h134",
+      "template_id": "t1",
+      "item_no": "9.134",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h135",
+      "template_id": "t1",
+      "item_no": "9.135",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h136",
+      "template_id": "t1",
+      "item_no": "9.136",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h137",
+      "template_id": "t1",
+      "item_no": "9.137",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h138",
+      "template_id": "t1",
+      "item_no": "9.138",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h139",
+      "template_id": "t1",
+      "item_no": "9.139",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h140",
+      "template_id": "t1",
+      "item_no": "9.140",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h141",
+      "template_id": "t1",
+      "item_no": "9.141",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h142",
+      "template_id": "t1",
+      "item_no": "9.142",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h143",
+      "template_id": "t1",
+      "item_no": "9.143",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h144",
+      "template_id": "t1",
+      "item_no": "9.144",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h145",
+      "template_id": "t1",
+      "item_no": "9.145",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h146",
+      "template_id": "t1",
+      "item_no": "9.146",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h147",
+      "template_id": "t1",
+      "item_no": "9.147",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h148",
+      "template_id": "t1",
+      "item_no": "9.148",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h149",
+      "template_id": "t1",
+      "item_no": "9.149",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h150",
+      "template_id": "t1",
+      "item_no": "9.150",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h151",
+      "template_id": "t1",
+      "item_no": "9.151",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h152",
+      "template_id": "t1",
+      "item_no": "9.152",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h153",
+      "template_id": "t1",
+      "item_no": "9.153",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h154",
+      "template_id": "t1",
+      "item_no": "9.154",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h155",
+      "template_id": "t1",
+      "item_no": "9.155",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h156",
+      "template_id": "t1",
+      "item_no": "9.156",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h157",
+      "template_id": "t1",
+      "item_no": "9.157",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h158",
+      "template_id": "t1",
+      "item_no": "9.158",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h159",
+      "template_id": "t1",
+      "item_no": "9.159",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h160",
+      "template_id": "t1",
+      "item_no": "9.160",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h161",
+      "template_id": "t1",
+      "item_no": "9.161",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h162",
+      "template_id": "t1",
+      "item_no": "9.162",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h163",
+      "template_id": "t1",
+      "item_no": "9.163",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h164",
+      "template_id": "t1",
+      "item_no": "9.164",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h165",
+      "template_id": "t1",
+      "item_no": "9.165",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h166",
+      "template_id": "t1",
+      "item_no": "9.166",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h167",
+      "template_id": "t1",
+      "item_no": "9.167",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h168",
+      "template_id": "t1",
+      "item_no": "9.168",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h169",
+      "template_id": "t1",
+      "item_no": "9.169",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h170",
+      "template_id": "t1",
+      "item_no": "9.170",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h171",
+      "template_id": "t1",
+      "item_no": "9.171",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h172",
+      "template_id": "t1",
+      "item_no": "9.172",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h173",
+      "template_id": "t1",
+      "item_no": "9.173",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h174",
+      "template_id": "t1",
+      "item_no": "9.174",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h175",
+      "template_id": "t1",
+      "item_no": "9.175",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h176",
+      "template_id": "t1",
+      "item_no": "9.176",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h177",
+      "template_id": "t1",
+      "item_no": "9.177",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h178",
+      "template_id": "t1",
+      "item_no": "9.178",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h179",
+      "template_id": "t1",
+      "item_no": "9.179",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h180",
+      "template_id": "t1",
+      "item_no": "9.180",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h181",
+      "template_id": "t1",
+      "item_no": "9.181",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h182",
+      "template_id": "t1",
+      "item_no": "9.182",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h183",
+      "template_id": "t1",
+      "item_no": "9.183",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h184",
+      "template_id": "t1",
+      "item_no": "9.184",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h185",
+      "template_id": "t1",
+      "item_no": "9.185",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h186",
+      "template_id": "t1",
+      "item_no": "9.186",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h187",
+      "template_id": "t1",
+      "item_no": "9.187",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h188",
+      "template_id": "t1",
+      "item_no": "9.188",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h189",
+      "template_id": "t1",
+      "item_no": "9.189",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h190",
+      "template_id": "t1",
+      "item_no": "9.190",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h191",
+      "template_id": "t1",
+      "item_no": "9.191",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h192",
+      "template_id": "t1",
+      "item_no": "9.192",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h193",
+      "template_id": "t1",
+      "item_no": "9.193",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h194",
+      "template_id": "t1",
+      "item_no": "9.194",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h195",
+      "template_id": "t1",
+      "item_no": "9.195",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h196",
+      "template_id": "t1",
+      "item_no": "9.196",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h197",
+      "template_id": "t1",
+      "item_no": "9.197",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h198",
+      "template_id": "t1",
+      "item_no": "9.198",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h199",
+      "template_id": "t1",
+      "item_no": "9.199",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "hr0",
+      "audit_id": "a1",
+      "item_id": "h0",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr1",
+      "audit_id": "a1",
+      "item_id": "h1",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr2",
+      "audit_id": "a1",
+      "item_id": "h2",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr3",
+      "audit_id": "a1",
+      "item_id": "h3",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr4",
+      "audit_id": "a1",
+      "item_id": "h4",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr5",
+      "audit_id": "a1",
+      "item_id": "h5",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr6",
+      "audit_id": "a1",
+      "item_id": "h6",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr7",
+      "audit_id": "a1",
+      "item_id": "h7",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr8",
+      "audit_id": "a1",
+      "item_id": "h8",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr9",
+      "audit_id": "a1",
+      "item_id": "h9",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr10",
+      "audit_id": "a1",
+      "item_id": "h10",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr11",
+      "audit_id": "a1",
+      "item_id": "h11",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr12",
+      "audit_id": "a1",
+      "item_id": "h12",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr13",
+      "audit_id": "a1",
+      "item_id": "h13",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr14",
+      "audit_id": "a1",
+      "item_id": "h14",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr15",
+      "audit_id": "a1",
+      "item_id": "h15",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr16",
+      "audit_id": "a1",
+      "item_id": "h16",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr17",
+      "audit_id": "a1",
+      "item_id": "h17",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr18",
+      "audit_id": "a1",
+      "item_id": "h18",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr19",
+      "audit_id": "a1",
+      "item_id": "h19",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr20",
+      "audit_id": "a1",
+      "item_id": "h20",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr21",
+      "audit_id": "a1",
+      "item_id": "h21",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr22",
+      "audit_id": "a1",
+      "item_id": "h22",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr23",
+      "audit_id": "a1",
+      "item_id": "h23",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr24",
+      "audit_id": "a1",
+      "item_id": "h24",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr25",
+      "audit_id": "a1",
+      "item_id": "h25",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr26",
+      "audit_id": "a1",
+      "item_id": "h26",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr27",
+      "audit_id": "a1",
+      "item_id": "h27",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     },
+     {
+      "id": "hr28",
+      "audit_id": "a1",
+      "item_id": "h28",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 200,
+    "answered": 29,
+    "outstanding": 171,
+    "conformant": 29,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 0,
+    "percent": 15
+   },
+   "repaired": "R2"
+  },
+  {
+   "id": "r2-progress-half-1-of-8",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "h0",
+      "template_id": "t1",
+      "item_no": "9.0",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h1",
+      "template_id": "t1",
+      "item_no": "9.1",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h2",
+      "template_id": "t1",
+      "item_no": "9.2",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h3",
+      "template_id": "t1",
+      "item_no": "9.3",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h4",
+      "template_id": "t1",
+      "item_no": "9.4",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h5",
+      "template_id": "t1",
+      "item_no": "9.5",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h6",
+      "template_id": "t1",
+      "item_no": "9.6",
+      "criticality": "Minor"
+     },
+     {
+      "id": "h7",
+      "template_id": "t1",
+      "item_no": "9.7",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "hr0",
+      "audit_id": "a1",
+      "item_id": "h0",
+      "result": "Conformant",
+      "examined_on": "2026-09-02"
+     }
+    ]
+   ],
+   "expected": {
+    "total": 8,
+    "answered": 1,
+    "outstanding": 7,
+    "conformant": 1,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 0,
+    "percent": 13
+   },
+   "repaired": "R2"
+  },
+  {
+   "id": "r2-programme-half-23-of-40",
+   "fn": "programmeProgress",
+   "args": [
+    [
+     {
+      "id": "pr0",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr3",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr4",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr5",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr6",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr7",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr8",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr9",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr10",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr11",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr12",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr13",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr14",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr15",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr16",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr17",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr18",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr19",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr20",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr21",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pr22",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pp0",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp3",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp4",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp5",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp6",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp7",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp8",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp9",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp10",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp11",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp12",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp13",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp14",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp15",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp16",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 40,
+    "reported": 23,
+    "cancelled": 0,
+    "outstanding": 17,
+    "overdue": 0,
+    "percent": 58
+   },
+   "repaired": "R2"
+  },
+  {
+   "id": "r2-programme-half-1-of-8",
+   "fn": "programmeProgress",
+   "args": [
+    [
+     {
+      "id": "pr0",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "pp0",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp3",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp4",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp5",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     },
+     {
+      "id": "pp6",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-12-01"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 8,
+    "reported": 1,
+    "cancelled": 0,
+    "outstanding": 7,
+    "overdue": 0,
+    "percent": 13
+   },
+   "repaired": "R2"
+  },
+  {
    "id": "progress-third",
    "fn": "checklistProgress",
    "args": [

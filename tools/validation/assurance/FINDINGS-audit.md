@@ -111,3 +111,16 @@ Negative control: against the pre-AS15 engine every case above fails.
   summarise cases (its programmeProgress was already right). No existing
   case moved. 171 -> 175. Latent in production: the database constraint
   `audit_records_cancel_needs_reason` refuses such a row on the write path.
+- **R2, percent rounding at an exact half (ambiguity 2 above, now
+  decided).** `checklistProgress` on 57 answered of 200 printed 28:
+  `Math.round((57 / 200) * 100)` rounds the binary float 28.499999...,
+  where the exact 28.5 rounds half up to 29. The lead ruled every
+  percentage in the family is round half UP on the EXACT rational.
+  Changed: `checklistProgress` and `programmeProgress` compute
+  `floor((200n + d) / 2d)` from the integer counts (`halfUpPercent`, with
+  the exactness argument in its comment). This oracle already rounded
+  that way (`half_up_percent`); the gap was that no golden sat on an exact
+  half the float gets wrong. Cases `r2-*` (6): 57 of 200 (29), 23 of 40
+  (58), 29 of 200 (15), 1 of 8 (13, where the float agreed). The previous
+  engine fails 4 (all but the 1-of-8 pair). No existing case moved. 175
+  -> 181.
