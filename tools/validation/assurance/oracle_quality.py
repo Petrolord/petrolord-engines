@@ -161,6 +161,11 @@ def o_can_decide(cp, status, patch=None):
         return {'ok': False}
     if status == 'Waived' and blank(get(nxt, 'remarks')):
         return {'ok': False}
+    # AS13-0: setting a HOLD point aside as not applicable carries the
+    # same record as a waiver (date, who, why).
+    if status == 'Not applicable' and get(nxt, 'point_type') == 'Hold point':
+        if not o_has_record(nxt) or blank(get(nxt, 'remarks')):
+            return {'ok': False}
     return {'ok': True}
 
 
@@ -458,6 +463,10 @@ decide = [
     ('witness-pass-unsigned', WP, 'Passed', {}),
     ('witness-pass-signed', WP, 'Passed', named),
     ('hold-not-applicable', HP, 'Not applicable', {}),
+    ('hold-na-signed-no-reason', HP, 'Not applicable', signed),
+    ('hold-na-signed-with-reason', HP, 'Not applicable', dict(signed, remarks='Scope removed by MOC-2026-014')),
+    ('hold-na-reason-unsigned', HP, 'Not applicable', {'remarks': 'not in scope'}),
+    ('witness-not-applicable-bare', WP, 'Not applicable', {}),
     ('hold-back-to-pending', dict(HP, status='Failed'), 'Pending', {}),
     ('hold-notified', HP, 'Notified', {}),
     ('hold-in-progress', HP, 'In progress', {}),

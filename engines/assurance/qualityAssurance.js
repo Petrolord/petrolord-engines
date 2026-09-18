@@ -208,6 +208,25 @@ export const canDecideCheckpoint = (checkpoint = {}, status, patch = {}) => {
         : 'Record the date this was decided and who decided it.',
     };
   }
+  // A HOLD point cannot be set aside more quietly than it can be waived.
+  // "Not applicable" clears a hold point for plan closure exactly as a
+  // waiver does, so it carries the same record: who, when and why
+  // (AS13-0; it needed nothing at all before). Other point types may
+  // still be marked not applicable freely.
+  if (status === 'Not applicable' && isBlockingPoint(next)) {
+    if (!hasVerificationRecord(next)) {
+      return {
+        ok: false,
+        reason: 'Setting a hold point aside needs the date and who decided it, the same record a waiver needs.',
+      };
+    }
+    if (!String(next.remarks || '').trim()) {
+      return {
+        ok: false,
+        reason: 'Say why this hold point does not apply. It stops work until released, so setting it aside needs a reason on the record.',
+      };
+    }
+  }
   if (status === 'Waived' && !String(next.remarks || '').trim()) {
     return {
       ok: false,

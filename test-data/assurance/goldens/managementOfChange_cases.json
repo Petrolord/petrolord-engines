@@ -965,7 +965,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Temporary-Closed-today",
@@ -980,7 +980,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Temporary-Closed-lead-edge",
@@ -995,7 +995,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Temporary-Closed-lead-plus-1",
@@ -1010,7 +1010,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Temporary-Closed-far",
@@ -1025,7 +1025,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Temporary-Closed-past-400",
@@ -1040,7 +1040,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Temporary-Rejected-past-1",
@@ -1310,7 +1310,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Emergency-Closed-today",
@@ -1325,7 +1325,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Emergency-Closed-lead-edge",
@@ -1340,7 +1340,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Emergency-Closed-lead-plus-1",
@@ -1355,7 +1355,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Emergency-Closed-far",
@@ -1370,7 +1370,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Emergency-Closed-past-400",
@@ -1385,7 +1385,7 @@
      "$date": "2026-09-18"
     }
    ],
-   "expected": "Permanent change"
+   "expected": "Closed out"
   },
   {
    "id": "expiry-Emergency-Rejected-past-1",

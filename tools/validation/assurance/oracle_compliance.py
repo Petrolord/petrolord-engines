@@ -69,6 +69,9 @@ def status(o, today):
         return NO_DATE
     if exp is not None and exp < t:
         return EXPIRED
+    # AS13-0: a one-off, once filed, is discharged; it has no next period.
+    if o.get('frequency') == 'One-off' and to_date(o.get('last_submitted_date')) is not None:
+        return COMPLIANT
     if due is not None and due < t:
         return OVERDUE
     if (next_action(o) - t).days <= lead(o):
@@ -169,6 +172,16 @@ def build():
     c.add('st-dst-nz-lead-edge', 'deriveStatus', [{'due_date': '2026-10-27', 'last_submitted_date': '2026-01-01'},
                                                    D('2026-09-27')], DUE_SOON)
     c.add('st-no-arg', 'deriveStatus', [UNDEF, T], NO_DATE)
+    # AS13-0: a one-off, once filed, is discharged; unfiled it goes overdue;
+    # an expired permit still outranks it; a recurring one is unaffected.
+    for cid, o in [
+        ('st-one-off-filed-past-due', {'frequency': 'One-off', 'due_date': '2026-06-30', 'last_submitted_date': '2026-06-28'}),
+        ('st-one-off-filed-late', {'frequency': 'One-off', 'due_date': '2026-06-30', 'last_submitted_date': '2026-07-10'}),
+        ('st-one-off-unfiled-past-due', {'frequency': 'One-off', 'due_date': '2026-06-30'}),
+        ('st-one-off-filed-but-expired', {'frequency': 'One-off', 'due_date': '2026-06-30', 'expiry_date': '2026-09-01', 'last_submitted_date': '2026-06-28'}),
+        ('st-annual-filed-past-due', {'frequency': 'Annual', 'due_date': '2026-06-30', 'last_submitted_date': '2026-06-28'}),
+    ]:
+        c.add(cid, 'deriveStatus', [o, T], status(o, today=T))
     # rule taken from the code, not the docs: an unknown lifecycle is tracked as Active
     c.add('st-unknown-lifecycle', 'deriveStatus', [{'lifecycle': 'Archived', 'due_date': '2026-09-01'}, T], OVERDUE)
     # CAL-1 knock-on: an impossible expiry is no expiry
