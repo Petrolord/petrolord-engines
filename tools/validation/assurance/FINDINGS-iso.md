@@ -198,3 +198,72 @@ Negative control: against the pre-AS15 engine every case above fails
 - 206 -> 216. The previous engine fails the two R3 cases with a lapsed
   certificate (the repro and day -1; day 0 and day 1 read the same before
   and after) and the five R5 cases other than ISO 9001.
+
+## ASC-1 (2026-09-18): E3, a Reported audit is not overdue
+
+- **Repro:** `isAuditOverdue({status:'Reported', planned_end:'2026-08-06'},
+  2026-09-17)` -> `true`, and `summarise({audits:[that]}).auditsOverdue`
+  -> 1. `auditManagement.isAuditOverdue` on the same audit -> `false`.
+  The ISO predicate was `AUDIT_OPEN_STATUSES.includes(status)`, and
+  Reported is open (its findings may still be pending closure), so a
+  delivered audit stayed "overdue" until it was closed. Both modules
+  measure the same thing, whether the audit was delivered by its planned
+  end, and on the same audit the ISO dashboard and the Audit Manager
+  disagreed.
+- **Lead's ruling, applied:** align ISO with auditManagement. New
+  `AUDIT_UNDELIVERED_STATUSES` (Planned, In progress, Fieldwork
+  complete); `isAuditOverdue` asks that list and its doc comment says why
+  the two modules now agree. `AUDIT_OPEN_STATUSES` is unchanged: Reported
+  stays open for every other purpose (`summarise().auditsOpen`, findings
+  pending closure).
+- **Consumers followed:** `isAuditOverdue` itself and
+  `summarise().auditsOverdue` are the only ISO outputs that use it.
+  `certificationReadiness` does not ask about audit lateness, and the one
+  urgency sort (`findingByUrgency`) ranks findings, so neither moved.
+  Suite callers of the ISO export: the Assurance hub's "Audits overdue"
+  tile (through `summarise`).
+- **Oracle:** `audit_overdue` asks the three undelivered stages (it no
+  longer reads `AUDIT_OPEN`). Independent statement of the rule; it does
+  not import `oracle_audit.py`.
+- **Goldens moved (2, expected only):** `audit-overdue-reported` (true ->
+  false) and `summary-mixed` (`auditsOverdue` 2 -> 1; its a5 is Reported
+  and past its planned end). No other field moved. Added `e3-*` (5): the
+  repro, Fieldwork complete and In progress past their end (still
+  overdue), Reported with no date, and a summary where the Reported audit
+  is open and not overdue. 216 -> 221.
+- **Jest:** `assurance.copy.test.js` checks the two modules agree for
+  every audit status on four dates around today.
+- **Remaining difference (not changed):** an audit with no status or an
+  unknown one is never overdue in ISO; auditManagement judges it by date.
+  The status column is not null in both tables, so no stored row reaches
+  it.
+
+## ASC-1 (2026-09-18): E8, the readiness sentence says what is missing
+
+- **Repro:** `certificationReadiness` over a register whose clause 5.2 is
+  Conformant, assessed on a date by a named assessor, with no evidence
+  reference. Blocker: "1 clause is marked conformant with no evidence,
+  date or assessor recorded." Only the evidence was missing; the sentence
+  read as if all three were.
+- **Changed:** new export `missingEvidenceParts(clause)` lists the gaps in
+  the record's order ('evidence reference', 'assessed date', 'assessor'),
+  on the same tests as `hasEvidenceRecord`. When every clause in the item
+  lacks the same parts, the sentence names them: "1 clause is marked
+  conformant with no evidence reference recorded.", "2 clauses are marked
+  conformant with no assessed date or assessor recorded.", "1 clause is
+  marked conformant with no evidence reference, assessed date or assessor
+  recorded." When the clauses lack different parts: "2 clauses are marked
+  conformant without a complete evidence record (evidence reference,
+  assessed date and assessor)." Number agrees for 1 and n.
+- **Oracle:** `evidence_gaps` and `unevidenced_text` state the rule
+  independently. Each `e8-*` readiness fixture is otherwise ready, so the
+  whole result is compared verbatim (`"prose": "exact"`); where a claim
+  also has no assessed date, the module's existing "never been assessed
+  at all" item is pinned alongside.
+- **Goldens:** blocker `text` is prose, stripped by the runner, so no
+  existing case moved. Added 14: `e8-parts-*` (7, the new export) and 7
+  verbatim readiness cases, the course repro first
+  (`e8-course-5-2-evidence-only`). 221 -> 235. The previous engine fails
+  all 14 (the export does not exist there, and every sentence differs).
+- **Not changed (for the owner):** "marked conformant" also covers a
+  Partially conformant claim, as it did before.

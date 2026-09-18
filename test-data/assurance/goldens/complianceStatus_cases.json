@@ -2552,6 +2552,290 @@
    },
    "repaired": "R4",
    "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-null-default-25-days",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-10-12",
+     "lead_time_days": null
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 25,
+    "nextActionDate": {
+     "$date": "2026-10-12"
+    },
+    "reason": "Due in 25 days, inside the default 30 day lead time (none is set for this obligation)."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-absent-default",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-10-12"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 25,
+    "nextActionDate": {
+     "$date": "2026-10-12"
+    },
+    "reason": "Due in 25 days, inside the default 30 day lead time (none is set for this obligation)."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-empty-default",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-10-12",
+     "lead_time_days": ""
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 25,
+    "nextActionDate": {
+     "$date": "2026-10-12"
+    },
+    "reason": "Due in 25 days, inside the default 30 day lead time (none is set for this obligation)."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-negative-unusable",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-10-12",
+     "lead_time_days": -5
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 25,
+    "nextActionDate": {
+     "$date": "2026-10-12"
+    },
+    "reason": "Due in 25 days, inside the default 30 day lead time (the one recorded for this obligation is not a usable number of days)."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-text-unusable",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-10-12",
+     "lead_time_days": "soon"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 25,
+    "nextActionDate": {
+     "$date": "2026-10-12"
+    },
+    "reason": "Due in 25 days, inside the default 30 day lead time (the one recorded for this obligation is not a usable number of days)."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-own-30",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-10-12",
+     "lead_time_days": 30
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 25,
+    "nextActionDate": {
+     "$date": "2026-10-12"
+    },
+    "reason": "Due in 25 days, inside the 30 day lead time set for this obligation."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-own-90",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-12-01",
+     "lead_time_days": 90
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 75,
+    "nextActionDate": {
+     "$date": "2026-12-01"
+    },
+    "reason": "Due in 75 days, inside the 90 day lead time set for this obligation."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-own-string-number",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-09-27",
+     "lead_time_days": "10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 10,
+    "nextActionDate": {
+     "$date": "2026-09-27"
+    },
+    "reason": "Due in 10 days, inside the 10 day lead time set for this obligation."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-own-one-day",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-09-18",
+     "lead_time_days": 7
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 1,
+    "nextActionDate": {
+     "$date": "2026-09-18"
+    },
+    "reason": "Due in 1 day, inside the 7 day lead time set for this obligation."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-default-one-day",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 1,
+    "nextActionDate": {
+     "$date": "2026-09-18"
+    },
+    "reason": "Due in 1 day, inside the default 30 day lead time (none is set for this obligation)."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-default-due-today",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 0,
+    "nextActionDate": {
+     "$date": "2026-09-17"
+    },
+    "reason": "Due today."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
+  },
+  {
+   "id": "asc1-lead-default-permit-expiry",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "expiry_date": "2026-10-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Due soon",
+    "daysUntil": 14,
+    "nextActionDate": {
+     "$date": "2026-10-01"
+    },
+    "reason": "Due in 14 days, inside the default 30 day lead time (none is set for this obligation)."
+   },
+   "repaired": "ASC-1",
+   "prose": "exact"
   }
  ]
 }

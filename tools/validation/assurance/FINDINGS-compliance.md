@@ -101,3 +101,36 @@ still goes Overdue. Cases `st-one-off-*` and `st-annual-filed-past-due`.
   (`"prose": "exact"`); the oracle's new `explain_reason` decides which
   sentence applies and every count in it. The previous engine fails 8
   (the two recurring many-day cases pass on both). 149 -> 159.
+
+## ASC-1 (2026-09-18): the Due soon reason says whose lead time it is
+
+- **Repro:** `explainStatus({frequency:'Annual', due_date:'2026-10-12',
+  lead_time_days:null}, 2026-09-17).reason` -> "Due in 25 days, inside the
+  30 day lead time set for this obligation." The 30 is
+  `DEFAULT_LEAD_TIME_DAYS`; nobody set it for this obligation.
+- **Changed:** a private `leadTimeOf` returns the days and their source
+  ('own', 'unset', 'unusable'); `leadTime` (used by `deriveStatus`) is its
+  days, so no status changes. The Due soon reason reads:
+  - own lead time (unchanged): "Due in 25 days, inside the 30 day lead
+    time set for this obligation."
+  - none recorded: "Due in 25 days, inside the default 30 day lead time
+    (none is set for this obligation)."
+  - recorded but not a count of days: "Due in 25 days, inside the default
+    30 day lead time (the one recorded for this obligation is not a usable
+    number of days)." The column is a nullable integer checked 0 to 1095
+    (migration 20260917100000), so only a caller's hand-built row can
+    reach this branch.
+- **Sweep:** the Due soon reason is the only `explainStatus` branch that
+  mentions the lead time. "Due today." (day 0) names no lead time; the
+  Compliant and On track sentences mention none; Expired, Overdue, No
+  date and the lifecycle sentence do not depend on it. `deriveStatus`,
+  `byUrgency` and `summarise` use the days only.
+- **Oracle:** it did not model this sentence (prose is stripped, and ASC-0
+  modelled only Compliant and On track). `explain_reason` now covers Due
+  soon, with an independent `lead_source`. 12 `asc1-lead-*` cases compare
+  the whole result verbatim (`"prose": "exact"`), the repro first; they
+  include the own-30 case (same number, own wording), a permit expiry
+  inside the default, and day 0.
+- **Goldens:** no existing case moved (reasons are prose-stripped). 159 ->
+  171. The previous engine fails the 7 default and unusable cases and
+  passes the 5 own-lead-time and due-today controls.

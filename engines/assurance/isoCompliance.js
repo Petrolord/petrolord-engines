@@ -235,6 +235,41 @@ export const hasEvidenceRecord = (clause = {}) =>
   && Boolean(clause.assessed_by || String(clause.assessor_name || '').trim());
 
 /**
+ * Which parts of the evidence record a clause lacks, in a fixed order:
+ * 'evidence reference', 'assessed date', 'assessor'. Empty when
+ * `hasEvidenceRecord` holds. ASC-1 (E8): the readiness sentence names
+ * these rather than claiming all three are missing.
+ */
+export const missingEvidenceParts = (clause = {}) => [
+  !String(clause.evidence_reference || '').trim() && 'evidence reference',
+  !clause.assessed_date && 'assessed date',
+  !(clause.assessed_by || String(clause.assessor_name || '').trim()) && 'assessor',
+].filter(Boolean);
+
+const listWith = (items, conj) => (items.length < 2
+  ? items.join('')
+  : `${items.slice(0, -1).join(', ')} ${conj} ${items[items.length - 1]}`);
+
+/**
+ * The readiness sentence for conformity claims without a complete
+ * evidence record (ASC-1, E8). It used to say "with no evidence, date or
+ * assessor recorded" whatever was missing, so a clause that was assessed
+ * and dated but lacked only its evidence reference read as if nothing had
+ * been recorded. When every clause lacks the same parts the sentence names
+ * them; when they differ it says the record is incomplete and lists what a
+ * complete one holds.
+ */
+const unevidencedSentence = (clauses) => {
+  const n = clauses.length;
+  const lead = `${n} clause${n === 1 ? ' is' : 's are'} marked conformant`;
+  const sets = new Set(clauses.map((c) => missingEvidenceParts(c).join('|')));
+  if (sets.size === 1) {
+    return `${lead} with no ${listWith(missingEvidenceParts(clauses[0]), 'or')} recorded.`;
+  }
+  return `${lead} without a complete evidence record (evidence reference, assessed date and assessor).`;
+};
+
+/**
  * May this clause be moved to `status`, and if not, why not?
  *
  * The old app's Add Clause modal set `status: 'Compliant'` on every
@@ -444,13 +479,28 @@ export const canAdvanceAudit = (audit = {}, to, context = {}) => {
 /* ------------------------------------------------------------------ */
 
 /**
- * An audit still open past its planned end. Named at AS11 so the hub
+ * An audit not yet delivered by its planned end. Named at AS11 so the hub
  * asks this module rather than restating the rule; `summarise()` uses
- * it too. Reported counts as open here because an ISO audit is not
- * finished until its findings are closed.
+ * it too.
+ *
+ * ASC-1 (E3): overdue asks whether the audit was DELIVERED by its planned
+ * end, and an audit is delivered when it is Reported. So only Planned,
+ * In progress and Fieldwork complete can be overdue. This is the rule
+ * `auditManagement.isAuditOverdue` has always applied (false for
+ * Reported, Closed and Cancelled); the two modules count the same audits
+ * against the same date, so the ISO dashboard and the Audit Manager can
+ * no longer disagree about one audit. Before ASC-1 this predicate used
+ * AUDIT_OPEN_STATUSES and so kept a Reported audit overdue forever.
+ * Reported stays in AUDIT_OPEN_STATUSES: the audit is still open for
+ * every other purpose (its findings are pending closure, `auditsOpen`
+ * counts it); it is only no longer late.
  */
+export const AUDIT_UNDELIVERED_STATUSES = Object.freeze([
+  'Planned', 'In progress', 'Fieldwork complete',
+]);
+
 export const isAuditOverdue = (audit = {}, today = new Date()) =>
-  AUDIT_OPEN_STATUSES.includes(audit.status)
+  AUDIT_UNDELIVERED_STATUSES.includes(audit.status)
   && (daysUntil(audit.planned_end, today) ?? 1) < 0;
 
 export const isFindingOpen = (finding = {}) =>
@@ -674,7 +724,7 @@ export const certificationReadiness = (
   add('blocking', neverAudited.length,
     `${neverAudited.length} applicable clause${neverAudited.length === 1 ? ' has' : 's have'} never been examined by an internal audit. ${internalAuditRequirement(standard)}`);
   add('blocking', unevidenced.length,
-    `${unevidenced.length} clause${unevidenced.length === 1 ? ' is' : 's are'} marked conformant with no evidence, date or assessor recorded.`);
+    unevidenced.length ? unevidencedSentence(unevidenced) : '');
   add('blocking', nonconformant.length,
     `${nonconformant.length} clause${nonconformant.length === 1 ? ' is' : 's are'} assessed nonconformant and not yet resolved.`);
   add('serious', staleAudited.length,
