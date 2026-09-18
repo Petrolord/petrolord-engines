@@ -68,6 +68,11 @@ export const isActionOpen = isCapaOpen;
 export const isActionOverdue = isCapaOverdue;
 export { isEffectivenessVerified, isEffectivenessFailed, parseDateOnly, daysUntil, toDateOnlyString };
 
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
 /* ------------------------------------------------------------------ */
 /* Vocabularies. Every one is a check constraint in migration          */
 /* 20260917600000, and every gate below compares against one of them.  */
@@ -387,7 +392,7 @@ export const canAdvanceAudit = (audit = {}, to, context = {}) => {
       ok: false,
       reason: allowed.length
         ? `An audit that is ${String(audit.status).toLowerCase()} can only move to ${allowed.join(', ')}.`
-        : `A ${String(audit.status).toLowerCase()} audit is final.`,
+        : `${withArticle(String(audit.status).toLowerCase())} audit is final.`,
     };
   }
   if (to === 'Reported') return canReportAudit(audit, context.coverage || []);
@@ -638,13 +643,13 @@ export const certificationReadiness = (
   add('serious', notAssessed.length,
     `${notAssessed.length} applicable clause${notAssessed.length === 1 ? ' has' : 's have'} never been assessed at all.`);
   add('serious', overdueActions.length,
-    `${overdueActions.length} corrective or preventive action${overdueActions.length === 1 ? ' is' : 's are'} past its due date.`);
+    `${overdueActions.length} corrective or preventive action${overdueActions.length === 1 ? ' is past its due date' : 's are past their due dates'}.`);
   add('watch', openMinor.length,
     `${openMinor.length} minor nonconformit${openMinor.length === 1 ? 'y is' : 'ies are'} open.`);
   add('watch', reviewsOverdue.length,
     `${reviewsOverdue.length} clause review${reviewsOverdue.length === 1 ? ' is' : 's are'} past due.`);
   add('watch', overdueFindings.length,
-    `${overdueFindings.length} finding${overdueFindings.length === 1 ? ' is' : 's are'} past its due date.`);
+    `${overdueFindings.length} finding${overdueFindings.length === 1 ? ' is past its due date' : 's are past their due dates'}.`);
 
   // Owner decision AS15 (§3k.4 Q6): an expired certificate was a count
   // and never appeared in the list. It does not make the management

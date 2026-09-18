@@ -76,3 +76,12 @@ Other point types may still be marked not applicable freely. Cases
 
 Negative control: the previous engine fails every `repaired` case above
 (the two new functions do not exist in it).
+
+## ASC-0 (2026-09-18): RC-9, copy (family sweep)
+
+- The "A <status> plan is final." refusal and the two "A <severity>
+  non-conformance needs ..." refusals now choose their article from the
+  word ("An obsolete plan is final."). Every status and severity the
+  module defines starts with a consonant, so only an unknown value could
+  print the defect; nothing in the goldens moved. Covered by
+  `__tests__/assurance.copy.test.js`.

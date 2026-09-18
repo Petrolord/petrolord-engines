@@ -400,10 +400,12 @@ def attention_order(rows, apps_by_lesson, today):
 cases = []
 
 
-def case(cid, fn, args, expected, defect=None):
+def case(cid, fn, args, expected, defect=None, prose=None):
     c = {'id': cid, 'fn': fn, 'args': args, 'expected': expected}
     if defect:
         c['repaired'] = defect
+    if prose:
+        c['prose'] = prose  # 'exact': reason compared verbatim (ASC-0 RC-9)
     cases.append(c)
 
 
@@ -752,6 +754,34 @@ und = [dict(id='jan', status='Draft', event_date='2026-01-10'),
 cases.append({'id': 'attention-undated-between-dated', 'sort': 'lessonByAttention', 'factory': True,
               'factoryArgs': [{'$map': []}, T], 'rows': und,
               'expectedOrder': attention_order(und, {}, T), 'repaired': 'LL-1'})
+
+# --- ASC-0 RC-9: the article agrees with the status, and a list of what is
+# missing reads 'a, b and c'. The words are the engine's; the agreement is
+# decided here. Compared verbatim ("prose": "exact").
+
+
+def _article(word):
+    return 'An' if str(word)[:1].lower() in 'aeiou' else 'A'
+
+
+def _listed(xs):
+    return xs[0] if len(xs) == 1 else ', '.join(xs[:-1]) + ' and ' + xs[-1]
+
+
+for st in ('Archived', 'Superseded', 'Obsolete'):
+    l = dict(id='L1', status=st)
+    case(f'rc9-final-article-{st.lower()}', 'canAdvanceLesson', [l, 'Draft', {}],
+         {'ok': False, 'reason': f'{_article(st.lower())} {st.lower()} lesson is final.'}, 'RC-9', prose='exact')
+for tag, l in [
+    ('all-three', dict(id='L1', status='Submitted')),
+    ('two', dict(id='L1', status='Submitted', description='Seal failed')),
+    ('one', dict(id='L1', status='Submitted', description='Seal failed', root_cause='Wrong elastomer')),
+]:
+    miss = o_missing(l)
+    case(f'rc9-missing-{tag}', 'canValidate', [l, 'u-other'],
+         {'ok': False, 'reason': f'This lesson is missing {_listed(miss)}. A lesson is what happened, why it '
+                                 'happened and what to do about it; the first two without the third are a story.'},
+         'RC-9', prose='exact')
 
 golden = {
     'module': 'lessonsLearned',

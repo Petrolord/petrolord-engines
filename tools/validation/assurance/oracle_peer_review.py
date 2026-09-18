@@ -260,6 +260,21 @@ def build():
     for cid, coms in cc.items():
         c.add(cid, 'canClose', [coms], can_close(coms))
     c.add('close-no-arg', 'canClose', [], {'ok': True, 'blocking': []})
+    # ASC-0 RC-9: the verb and pronoun agree with the count. Words are the
+    # engine's; the agreement is decided here. Compared verbatim.
+    for cid, coms in {
+        'rc9-close-one-critical': [{'severity': 'Critical', 'status': 'Open'}],
+        'rc9-close-one-major': [{'severity': 'Major', 'status': 'Rejected'}],
+        'rc9-close-two-critical': [{'severity': 'Critical', 'status': 'Open'}, {'severity': 'Critical', 'status': 'Responded'}],
+        'rc9-close-critical-and-major': [{'severity': 'Critical', 'status': 'Open'}, {'severity': 'Major', 'status': 'Open'}],
+    }.items():
+        b = [x for x in coms if blocking(x)]
+        parts = [f"{sum(1 for x in b if x['severity'] == s)} {s.lower()}" for s in BLOCKING
+                 if any(x['severity'] == s for x in b)]
+        one = len(b) == 1
+        reason = (f"{' and '.join(parts)} comment{'' if one else 's'} still need{'s' if one else ''} resolving. "
+                  f"Verify, close out or withdraw {'it' if one else 'them'} first.")
+        c.add(cid, 'canClose', [coms], {'ok': False, 'blocking': b, 'reason': reason}, defect='RC-9', prose='exact')
 
     # nextStages
     for s in STAGES + ['Archived']:

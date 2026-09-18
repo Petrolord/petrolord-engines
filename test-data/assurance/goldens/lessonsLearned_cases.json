@@ -8082,6 +8082,114 @@
     "undated"
    ],
    "repaired": "LL-1"
+  },
+  {
+   "id": "rc9-final-article-archived",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Archived"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "An archived lesson is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-superseded",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Superseded"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "A superseded lesson is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-obsolete",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Obsolete"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "An obsolete lesson is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-missing-all-three",
+   "fn": "canValidate",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Submitted"
+    },
+    "u-other"
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "This lesson is missing what happened, why it happened and what to do about it. A lesson is what happened, why it happened and what to do about it; the first two without the third are a story."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-missing-two",
+   "fn": "canValidate",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Submitted",
+     "description": "Seal failed"
+    },
+    "u-other"
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "This lesson is missing why it happened and what to do about it. A lesson is what happened, why it happened and what to do about it; the first two without the third are a story."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-missing-one",
+   "fn": "canValidate",
+   "args": [
+    {
+     "id": "L1",
+     "status": "Submitted",
+     "description": "Seal failed",
+     "root_cause": "Wrong elastomer"
+    },
+    "u-other"
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "This lesson is missing what to do about it. A lesson is what happened, why it happened and what to do about it; the first two without the third are a story."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
   }
  ]
 }

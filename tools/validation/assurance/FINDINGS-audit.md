@@ -84,3 +84,11 @@ docs/scope/AssuranceApps-STATUS.md §3k for decision.
     `report-refused-over-na-without-reason`.
 
 Negative control: against the pre-AS15 engine every case above fails.
+
+## ASC-0 (2026-09-18): RC-9, copy (family sweep)
+
+- "A <status> audit is final." and "A <status> programme is final." now
+  choose their article from the word ("An archived audit is final."). No
+  status the module defines starts with a vowel, so only an unknown value
+  printed the defect; nothing in the goldens moved. Covered by
+  `__tests__/assurance.copy.test.js`.

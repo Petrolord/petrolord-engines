@@ -1300,6 +1300,118 @@
    }
   },
   {
+   "id": "rc9-close-one-critical",
+   "fn": "canClose",
+   "args": [
+    [
+     {
+      "severity": "Critical",
+      "status": "Open"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "blocking": [
+     {
+      "severity": "Critical",
+      "status": "Open"
+     }
+    ],
+    "reason": "1 critical comment still needs resolving. Verify, close out or withdraw it first."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-close-one-major",
+   "fn": "canClose",
+   "args": [
+    [
+     {
+      "severity": "Major",
+      "status": "Rejected"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "blocking": [
+     {
+      "severity": "Major",
+      "status": "Rejected"
+     }
+    ],
+    "reason": "1 major comment still needs resolving. Verify, close out or withdraw it first."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-close-two-critical",
+   "fn": "canClose",
+   "args": [
+    [
+     {
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "severity": "Critical",
+      "status": "Responded"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "blocking": [
+     {
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "severity": "Critical",
+      "status": "Responded"
+     }
+    ],
+    "reason": "2 critical comments still need resolving. Verify, close out or withdraw them first."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-close-critical-and-major",
+   "fn": "canClose",
+   "args": [
+    [
+     {
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "severity": "Major",
+      "status": "Open"
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false,
+    "blocking": [
+     {
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "severity": "Major",
+      "status": "Open"
+     }
+    ],
+    "reason": "1 critical and 1 major comments still need resolving. Verify, close out or withdraw them first."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
    "id": "stage-Draft",
    "fn": "nextStages",
    "args": [

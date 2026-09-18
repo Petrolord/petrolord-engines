@@ -76,6 +76,11 @@ import {
 /* Shared with AS8, re-exported so this app's pages have one import.   */
 /* ------------------------------------------------------------------ */
 
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
 export {
   ACTION_STATUSES,
   ACTION_TYPES,
@@ -330,7 +335,7 @@ export const canAdvanceAudit = (audit = {}, to, context = {}) => {
       ok: false,
       reason: allowed.length
         ? `An audit that is ${String(audit.status).toLowerCase()} can only move to ${allowed.join(', ')}.`
-        : `A ${String(audit.status).toLowerCase()} audit is final.`,
+        : `${withArticle(String(audit.status).toLowerCase())} audit is final.`,
     };
   }
   if (to === 'Reported') return canReportAudit(audit, context);
@@ -421,7 +426,7 @@ export const canAdvanceProgramme = (programme = {}, to, context = {}) => {
       ok: false,
       reason: allowed.length
         ? `A programme that is ${String(programme.status).toLowerCase()} can only move to ${allowed.join(', ')}.`
-        : `A ${String(programme.status).toLowerCase()} programme is final.`,
+        : `${withArticle(String(programme.status).toLowerCase())} programme is final.`,
     };
   }
   if (to === 'Approved') return canApproveProgramme(programme, context.patch);

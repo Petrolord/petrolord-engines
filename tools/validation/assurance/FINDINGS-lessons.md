@@ -70,3 +70,17 @@ docs/scope/AssuranceApps-STATUS.md §3k for decision.
 Negative control: these cases have the same verdict on origin/main (the
 engine rule is unchanged); what changed is the reason text and the
 caller. The guard is in the Suite hook test.
+
+## ASC-0 (2026-09-18): RC-9, copy
+
+- **Article.** `canAdvanceLesson({status:'Archived'}, 'Draft').reason` ->
+  "A archived lesson is final." Now "An archived lesson is final." (the
+  article follows the status word; "A superseded lesson is final." is
+  unchanged).
+- **List.** `canValidate` listed what a lesson is missing with " and "
+  between every item: "missing what happened and why it happened and what
+  to do about it". Now "what happened, why it happened and what to do
+  about it".
+- Golden cases `rc9-*` (6), verbatim (`"prose": "exact"`); the previous
+  engine fails 3 (archived, obsolete, all-three). No existing case moved.
+  333 -> 339.

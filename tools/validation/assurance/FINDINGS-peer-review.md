@@ -105,3 +105,13 @@ docs/scope/AssuranceApps-STATUS.md §3k for decision.
   who may raise a comment (the author raising a comment on their own
   work is not refused; D1 as ruled covers reviewing and the reviewer's
   moves).
+- **RC-9 (copy), count agreement.** Repro: `canClose([{severity:'Critical',
+  status:'Open'}]).reason` -> "1 critical comment still need resolving.
+  Verify, close out or withdraw them first." Now "1 critical comment still
+  needs resolving. Verify, close out or withdraw it first."; two or more
+  keep "need" and "them". `explainRefusal` already chose its article (PR-2);
+  it now uses the same helper for the "is final" branch too ("An open
+  comment ..." was already right; "A withdrawn comment is final." is
+  unchanged). Golden cases `rc9-close-*` (4) compare the sentence
+  verbatim; the previous engine fails the two single-comment cases. 184
+  cases in total.

@@ -79,11 +79,13 @@ class Cases:
         assert cid not in self._ids, cid
         self._ids.add(cid)
 
-    def add(self, cid, fn, args, expected, defect=None):
+    def add(self, cid, fn, args, expected, defect=None, prose=None):
         self._id(cid)
         c = {'id': cid, 'fn': fn, 'args': enc(list(args)), 'expected': enc(expected)}
         if defect:
             c['repaired'] = defect
+        if prose:
+            c['prose'] = prose  # 'exact': reason/text compared verbatim (ASC-0 RC-9)
         self.cases.append(c)
 
     def throws(self, cid, fn, args, defect=None):
@@ -112,6 +114,26 @@ class Cases:
             f.write('\n')
         print(f'{path}: {len(self.cases)} cases, '
               f'{sum(1 for c in self.cases if c.get("repaired"))} repaired')
+
+
+# ------------------------------------------------------------ English agreement
+# ASC-0 (RC-9). For the few golden cases that compare a sentence verbatim
+# ("prose": "exact"): the words are the engine's, the AGREEMENT is decided
+# here, independently. Not engine logic.
+
+def article(word):
+    """'An' before a vowel letter, else 'A'."""
+    return 'An' if str(word)[:1].lower() in 'aeiou' else 'A'
+
+
+def listed(xs):
+    """'x', 'x and y', 'x, y and z'."""
+    xs = [str(x) for x in xs]
+    return xs[0] if len(xs) == 1 else ', '.join(xs[:-1]) + ' and ' + xs[-1]
+
+
+def agree(n, one, many):
+    return one if n == 1 else many
 
 
 # ------------------------------------------------------------ JS-ish coercions

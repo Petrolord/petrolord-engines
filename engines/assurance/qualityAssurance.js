@@ -51,6 +51,11 @@ import {
 
 export { daysUntil, parseDateOnly, toDateOnlyString };
 
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
 /* ------------------------------------------------------------------ */
 /* Vocabularies. Every one of these is a database check constraint in  */
 /* migration 20260917500000, and every gate below compares against    */
@@ -354,7 +359,7 @@ export const canCloseNcr = (ncr = {}, capas = []) => {
       && !String(ncr.root_cause || '').trim()) {
     return {
       ok: false,
-      reason: `A ${String(ncr.severity).toLowerCase()} non-conformance needs a root cause before it closes. Closing one without it is how the same non-conformance arrives again next quarter.`,
+      reason: `${withArticle(String(ncr.severity).toLowerCase())} non-conformance needs a root cause before it closes. Closing one without it is how the same non-conformance arrives again next quarter.`,
     };
   }
 
@@ -372,7 +377,7 @@ export const canCloseNcr = (ncr = {}, capas = []) => {
     if (!corrective.length) {
       return {
         ok: false,
-        reason: `A ${String(ncr.severity).toLowerCase()} non-conformance needs at least one corrective action. A disposition deals with the item; a corrective action deals with the cause.`,
+        reason: `${withArticle(String(ncr.severity).toLowerCase())} non-conformance needs at least one corrective action. A disposition deals with the item; a corrective action deals with the cause.`,
       };
     }
     if (corrective.some(isEffectivenessFailed) && !corrective.some(isEffectivenessVerified)) {
@@ -525,7 +530,7 @@ export const canAdvancePlan = (plan = {}, to, context = {}) => {
       ok: false,
       reason: allowed.length
         ? `A plan that is ${String(plan.status).toLowerCase()} can only move to ${allowed.join(', ')}.`
-        : `A ${String(plan.status).toLowerCase()} plan is final.`,
+        : `${withArticle(String(plan.status).toLowerCase())} plan is final.`,
     };
   }
   if (to === 'Closed') return canClosePlan(plan, context);

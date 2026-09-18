@@ -147,3 +147,19 @@ signature is refused; closing an unratified emergency change is allowed).
   by design).
 - **Not changed:** expiry, ratification, the approval gate, action
   counts, the within-rank date mix (O2).
+
+- **RC-9 (copy), number and article agreement.** Repro:
+  `canAdvance({type:'Permanent',stage:'Approval'}, 'Implementation',
+  {approvals:[L1 Approved, L2 Pending, L3 Pending]}).reason` ->
+  "Approval level 2 and 3 has not signed yet." Now "Approval levels 2 and
+  3 have not signed yet." (one level: "Approval level 2 has not signed
+  yet."; three: "levels 2, 3 and 4 have"). The sweep found the same class
+  in the emergency close gate ("has not ratified") and the article class
+  in two more places: "A emergency change needs an expiry date" (a real
+  path: an Emergency change with its first level signed and no expiry)
+  and "A <stage> change is final" for an unknown stage ("An approved
+  change is final."). Golden cases `rc9-*` (11) compare the sentence
+  verbatim (`"prose": "exact"`); the oracle builds the agreement itself
+  (`_article`, `_listed`) around the engine's words. The previous engine
+  fails 6 of them (the singular, Temporary and consonant-stage cases pass
+  on both, by design). 272 -> 291 in total with RC-3.

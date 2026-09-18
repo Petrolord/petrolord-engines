@@ -27,6 +27,11 @@ import {
 
 export { daysUntil, parseDateOnly, toDateOnlyString };
 
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
 /** Review stages, in workflow order. */
 export const STAGES = Object.freeze([
   'Draft',
@@ -192,10 +197,8 @@ export const explainRefusal = (comment = {}, to) => {
   }
   if (from === to) return `This comment is already ${to.toLowerCase()}.`;
   const allowed = nextStatuses(from);
-  if (!allowed.length) return `A ${from.toLowerCase()} comment is final.`;
-  const word = from.toLowerCase();
-  const article = /^[aeiou]/.test(word) ? 'An' : 'A';
-  return `${article} ${word} comment can only go to ${allowed.join(' or ')}.`;
+  if (!allowed.length) return `${withArticle(from.toLowerCase())} comment is final.`;
+  return `${withArticle(from.toLowerCase())} comment can only go to ${allowed.join(' or ')}.`;
 };
 
 export const isResolved = (comment = {}) =>
@@ -225,8 +228,11 @@ export const canClose = (comments = []) => {
   return {
     ok: false,
     blocking,
+    // ASC-0 (RC-9): the verb agrees with the count ("1 critical comment
+    // still needs resolving").
     reason: `${counts.join(' and ')} comment${blocking.length === 1 ? '' : 's'} `
-      + 'still need resolving. Verify, close out or withdraw them first.',
+      + `still need${blocking.length === 1 ? 's' : ''} resolving. `
+      + `Verify, close out or withdraw ${blocking.length === 1 ? 'it' : 'them'} first.`,
   };
 };
 

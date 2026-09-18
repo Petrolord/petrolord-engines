@@ -37,6 +37,15 @@ import { parseDateOnly, daysUntil, toDateOnlyString } from './qualityAssurance.j
 
 export { parseDateOnly, daysUntil, toDateOnlyString };
 
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
+// ASC-0 (RC-9): 'a', 'a and b', 'a, b and c'.
+const listed = (xs) => (xs.length <= 1 ? xs.join('')
+  : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
 /* ------------------------------------------------------------------ */
 /* Vocabularies. Every one is a check constraint in migration          */
 /* 20260917700000, and every gate below compares against one of them.  */
@@ -155,7 +164,7 @@ export const canValidate = (lesson = {}, actorId, patch = {}) => {
     const missing = missingSubstance(next);
     return {
       ok: false,
-      reason: `This lesson is missing ${missing.join(' and ')}. A lesson is what happened, why it happened and what to do about it; the first two without the third are a story.`,
+      reason: `This lesson is missing ${listed(missing)}. A lesson is what happened, why it happened and what to do about it; the first two without the third are a story.`,
     };
   }
   return { ok: true };
@@ -298,7 +307,7 @@ export const canAdvanceLesson = (lesson = {}, to, context = {}) => {
       ok: false,
       reason: allowed.length
         ? `A lesson that is ${String(lesson.status).toLowerCase()} can only move to ${allowed.join(', ')}.`
-        : `A ${String(lesson.status).toLowerCase()} lesson is final.`,
+        : `${withArticle(String(lesson.status).toLowerCase())} lesson is final.`,
     };
   }
   if (to === 'Validated') return canValidate(lesson, context.validatorId, context.patch);

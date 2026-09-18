@@ -357,10 +357,12 @@ def urgency_order(rows, today):
 cases = []
 
 
-def case(cid, fn, args, expected, defect=None):
+def case(cid, fn, args, expected, defect=None, prose=None):
     c = {'id': cid, 'fn': fn, 'args': args, 'expected': expected}
     if defect:
         c['repaired'] = defect
+    if prose:
+        c['prose'] = prose  # 'exact': reason compared verbatim (ASC-0 RC-9)
     cases.append(c)
 
 
@@ -757,6 +759,62 @@ sort_case('urgency-lead-edge', [
     {'id': 'expired-today-minus-1', 'stage': 'Implementation', 'type': 'Temporary', 'expiry_date': iso(-1)},
     {'id': 'today', 'stage': 'Implementation', 'type': 'Temporary', 'expiry_date': iso(0)},
 ], T)
+
+# --- ASC-0 RC-9: refusal sentences agree in number and article. The words
+# are the engine's; the agreement (level/levels, has/have, a/an, the list)
+# is decided here. Compared verbatim ("prose": "exact").
+
+
+def _article(word):
+    return 'An' if str(word)[:1].lower() in 'aeiou' else 'A'
+
+
+def _listed(xs):
+    xs = [str(x) for x in xs]
+    return xs[0] if len(xs) == 1 else ', '.join(xs[:-1]) + ' and ' + xs[-1]
+
+
+def _levels_sentence(outstanding, verb_tail):
+    n = len(outstanding)
+    return (f"Approval level{'' if n == 1 else 's'} {_listed(outstanding)} "
+            f"{'has' if n == 1 else 'have'} {verb_tail}")
+
+
+def _refused(reason):
+    return {'ok': False, 'reason': reason}
+
+
+def AP(lv, st):
+    return {'level': lv, 'status': st}
+
+
+perm_appr = {'type': 'Permanent', 'stage': 'Approval'}
+for tag, appr in [
+    ('one-level', [AP(1, 'Approved'), AP(2, 'Pending')]),
+    ('two-levels', [AP(1, 'Approved'), AP(2, 'Pending'), AP(3, 'Pending')]),
+    ('three-levels', [AP(1, 'Approved'), AP(2, 'Pending'), AP(3, 'Pending'), AP(4, 'Pending')]),
+]:
+    out = o_approval_state(appr)['outstanding']
+    case(f'rc9-signed-{tag}', 'canAdvance', [perm_appr, 'Implementation', {'approvals': appr}],
+         _refused(_levels_sentence(out, 'not signed yet.')), 'RC-9', prose='exact')
+em_live = {'type': 'Emergency', 'stage': 'Implementation', 'expiry_date': iso(30)}
+for tag, appr in [
+    ('one-level', [AP(1, 'Approved'), AP(2, 'Pending')]),
+    ('two-levels', [AP(1, 'Approved'), AP(2, 'Pending'), AP(3, 'Pending')]),
+]:
+    out = o_approval_state(appr)['outstanding']
+    case(f'rc9-ratified-{tag}', 'canAdvance', [em_live, 'Closed', {'approvals': appr}],
+         _refused(_levels_sentence(out, 'not ratified this emergency change.')
+                  + ' It cannot close until every level has signed.'), 'RC-9', prose='exact')
+for typ in ('Emergency', 'Temporary'):
+    m = {'type': typ, 'stage': 'Approval'}
+    case(f'rc9-expiry-article-{typ.lower()}', 'canAdvance',
+         [m, 'Implementation', {'approvals': [AP(1, 'Approved')]}],
+         _refused(f'{_article(typ.lower())} {typ.lower()} change needs an expiry date before it is implemented. '
+                  'Without one it is a permanent change nobody decided to make.'), 'RC-9', prose='exact')
+for stage in ('Closed', 'Approved', 'Implemented', 'Rejected'):
+    case(f'rc9-final-article-{stage.lower()}', 'canAdvance', [{'stage': stage}, 'Draft', {}],
+         _refused(f'{_article(stage.lower())} {stage.lower()} change is final.'), 'RC-9', prose='exact')
 
 golden = {
     'module': 'managementOfChange',

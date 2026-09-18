@@ -147,3 +147,13 @@ AssuranceApps-STATUS.md). Three changed this module.
 
 Negative control: against the pre-AS15 engine every case above fails
 (canExamineClause does not exist there).
+
+## ASC-0 (2026-09-18): RC-9, copy (family sweep)
+
+- `certificationReadiness` blockers: "2 corrective or preventive actions
+  are past its due date." and "2 findings are past its due date." Now
+  "past their due dates" for two or more ("past its due date" for one).
+- "A <status> audit is final." chooses its article ("An archived audit
+  is final."); only an unknown status could print the defect.
+- Blocker `text` is prose, stripped by the golden runner, so no golden
+  moved; covered by `__tests__/assurance.copy.test.js`.

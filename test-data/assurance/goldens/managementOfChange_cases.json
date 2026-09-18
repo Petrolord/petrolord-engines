@@ -5768,6 +5768,287 @@
     "edge",
     "edge-plus-1"
    ]
+  },
+  {
+   "id": "rc9-signed-one-level",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval level 2 has not signed yet."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-signed-two-levels",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "level": 3,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval levels 2 and 3 have not signed yet."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-signed-three-levels",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "level": 3,
+       "status": "Pending"
+      },
+      {
+       "level": 4,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval levels 2, 3 and 4 have not signed yet."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-ratified-one-level",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval level 2 has not ratified this emergency change. It cannot close until every level has signed."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-ratified-two-levels",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "level": 3,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval levels 2 and 3 have not ratified this emergency change. It cannot close until every level has signed."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-expiry-article-emergency",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "An emergency change needs an expiry date before it is implemented. Without one it is a permanent change nobody decided to make."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-expiry-article-temporary",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "A temporary change needs an expiry date before it is implemented. Without one it is a permanent change nobody decided to make."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-closed",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Closed"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "A closed change is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-approved",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Approved"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "An approved change is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-implemented",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Implemented"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "An implemented change is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-rejected",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Rejected"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "A rejected change is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
   }
  ]
 }
