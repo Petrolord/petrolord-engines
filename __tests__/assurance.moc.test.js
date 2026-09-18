@@ -296,3 +296,19 @@ describe('rollup', () => {
   });
 
 });
+
+describe('AS14: actions on finished changes', () => {
+  it('are not open or overdue work; actions whose change is unknown still count', () => {
+    const records = [moc({ id: 'r', stage: 'Rejected' }), moc({ id: 'c', stage: 'Cancelled' }),
+      moc({ id: 'l', stage: 'Implementation' })];
+    const actions = [
+      action({ moc_id: 'r', due_date: '2026-01-01' }),
+      action({ moc_id: 'c' }),
+      action({ moc_id: 'l', due_date: '2026-09-01' }),
+      action({ moc_id: 'elsewhere' }),
+    ];
+    const s = summarise(records, { actions }, TODAY);
+    expect(s.openActions).toBe(2);
+    expect(s.overdueActions).toBe(1);
+  });
+});

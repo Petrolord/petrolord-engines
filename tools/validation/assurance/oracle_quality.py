@@ -304,9 +304,17 @@ def o_can_advance_plan(plan, to, ctx=None):
 def o_summarise(data, today):
     data = data or {}
     plans = data.get('plans') or []
-    cps = data.get('checkpoints') or []
+    all_cps = data.get('checkpoints') or []
     ncrs = data.get('ncrs') or []
-    capas = data.get('capas') or []
+    all_capas = data.get('capas') or []
+    # AS14 (Assurance STATUS 3l.4): outstanding means somebody can still do
+    # it. A point on a finished plan, or an action on a withdrawn (voided)
+    # NCR, is not outstanding work. History (totals, failures, the
+    # effectiveness record) still counts it. An unknown parent counts.
+    done_plans = {get(p, 'id') for p in plans if get(p, 'status') in PLAN_TERMINAL} - {None}
+    voided = {get(n, 'id') for n in ncrs if get(n, 'status') == 'Voided'} - {None}
+    cps = [c for c in all_cps if get(c, 'plan_id') not in done_plans]
+    capas = [c for c in all_capas if get(c, 'ncr_id') not in voided]
     open_ncrs = [n for n in ncrs if o_ncr_open(n)]
     ages = [a for a in (o_ncr_age(n, today) for n in open_ncrs) if a is not None]
     return {
@@ -314,11 +322,11 @@ def o_summarise(data, today):
         'activePlans': sum(1 for p in plans if get(p, 'status') == 'Active'),
         'livePlans': sum(1 for p in plans if get(p, 'status') in PLAN_LIVE),
         'byPlanStatus': {s: sum(1 for p in plans if get(p, 'status') == s) for s in PLAN_STATUSES},
-        'checkpoints': len(cps),
+        'checkpoints': len(all_cps),
         'checkpointsOutstanding': sum(1 for c in cps if not o_is_resolved(c)),
         'checkpointsOverdue': sum(1 for c in cps if o_cp_overdue(c, today)),
         'holdPointsOutstanding': sum(1 for c in cps if o_is_blocking(c) and not o_is_resolved(c)),
-        'checkpointsFailed': sum(1 for c in cps if get(c, 'status') == 'Failed'),
+        'checkpointsFailed': sum(1 for c in all_cps if get(c, 'status') == 'Failed'),
         'ncrs': len(ncrs),
         'openNcrs': len(open_ncrs),
         'bySeverity': {s: sum(1 for n in ncrs if get(n, 'severity') == s) for s in SEVERITIES},
@@ -328,15 +336,42 @@ def o_summarise(data, today):
         'concessions': sum(1 for n in ncrs if get(n, 'disposition') in CONCESSIONS),
         'oldestOpenNcrDays': max(ages) if ages else None,
         'meanOpenNcrAgeDays': half_up(sum(ages) / len(ages)) if ages else None,
-        'capas': len(capas),
+        'capas': len(all_capas),
         'openCapas': sum(1 for c in capas if o_capa_open(c)),
         'overdueCapas': sum(1 for c in capas if o_capa_overdue(c, today)),
         'capasAwaitingEffectiveness': sum(
             1 for c in capas if get(c, 'status') == 'Complete'
             and get(c, 'effectiveness_verified') is None),
-        'capasVerifiedEffective': sum(1 for c in capas if o_eff_verified(c)),
-        'capasFoundIneffective': sum(1 for c in capas if o_eff_failed(c)),
+        'capasVerifiedEffective': sum(1 for c in all_capas if o_eff_verified(c)),
+        'capasFoundIneffective': sum(1 for c in all_capas if o_eff_failed(c)),
     }
+
+
+UNRECORDED = ['Pending', 'Notified', 'In progress']
+
+
+def o_can_remove_checkpoint(cp, plan):
+    """AS14. A finished plan keeps its points; a point with any result
+    recorded is evidence; a hold point outside Draft is released (Not
+    applicable, with who/when/why), never deleted."""
+    if isinstance(plan, dict) and get(plan, 'status') in PLAN_TERMINAL:
+        return {'ok': False}
+    status = get(cp, 'status') or 'Pending'
+    if status not in UNRECORDED or js_truthy(get(cp, 'result_date')):
+        return {'ok': False}
+    plan_status = get(plan, 'status') if isinstance(plan, dict) else None
+    if o_is_blocking(cp) and plan_status != 'Draft':
+        return {'ok': False}
+    return {'ok': True}
+
+
+def o_can_raise_ncr(plan):
+    """AS14. No plan is fine; a finished plan cannot take a new NCR."""
+    if not isinstance(plan, dict):
+        return {'ok': True}
+    if get(plan, 'status') in PLAN_TERMINAL:
+        return {'ok': False}
+    return {'ok': True}
 
 
 def o_count_by(rows, field, unset='Unspecified'):
@@ -664,6 +699,67 @@ half = {'ncrs': [{'status': 'Open', 'severity': 'Minor', 'raised_date': iso(-1)}
 case('summarise-mean-half', 'summarise', [half, T], o_summarise(half, T))
 closed_only = {'ncrs': [ncrs[6], ncrs[7]], 'capas': capas[6:7]}
 case('summarise-only-closed', 'summarise', [closed_only, T], o_summarise(closed_only, T))
+
+# --- AS14: outstanding work excludes children of finished parents
+as14 = {
+    'plans': [{'id': 'p-active', 'status': 'Active'}, {'id': 'p-closed', 'status': 'Closed'},
+              {'id': 'p-sup', 'status': 'Superseded'}, {'id': 'p-cancel', 'status': 'Cancelled'},
+              {'id': 'p-draft', 'status': 'Draft'}],
+    'checkpoints': [
+        dict(cp('a1', 'Hold point', 'Pending'), plan_id='p-active', planned_date=iso(-2)),
+        dict(cp('a2', 'Witness point', 'Failed'), plan_id='p-active'),
+        dict(cp('c1', 'Hold point', 'Pending'), plan_id='p-closed', planned_date=iso(-20)),
+        dict(cp('c2', 'Witness point', 'Failed'), plan_id='p-closed'),
+        dict(cp('s1', 'Review point', 'In progress'), plan_id='p-sup', planned_date=iso(-1)),
+        dict(cp('x1', 'Hold point', 'Notified'), plan_id='p-cancel', planned_date=iso(-3)),
+        dict(cp('d1', 'Hold point', 'Pending'), plan_id='p-draft'),
+        dict(cp('o1', 'Hold point', 'Pending'), plan_id='p-not-loaded', planned_date=iso(-4)),
+        dict(cp('n1', 'Monitor point', 'Pending'), planned_date=iso(-4)),
+    ],
+    'ncrs': [{'id': 'n-open', 'status': 'Open', 'severity': 'Major', 'raised_date': iso(-5)},
+             {'id': 'n-void', 'status': 'Voided', 'severity': 'Critical', 'raised_date': iso(-50)},
+             {'id': 'n-closed', 'status': 'Closed', 'severity': 'Minor', 'raised_date': iso(-50)}],
+    'capas': [
+        {'ncr_id': 'n-open', 'status': 'Open', 'due_date': iso(-1)},
+        {'ncr_id': 'n-void', 'status': 'Open', 'due_date': iso(-30)},
+        {'ncr_id': 'n-void', 'status': 'In progress', 'due_date': iso(-2)},
+        {'ncr_id': 'n-void', 'status': 'Complete'},
+        dict(EFF, ncr_id='n-void', status='Complete', effectiveness_verified=False),
+        {'ncr_id': 'n-closed', 'status': 'Complete'},
+        {'ncr_id': 'n-unknown', 'status': 'Open', 'due_date': iso(-9)},
+        {'status': 'Open', 'due_date': iso(-9)},
+    ],
+}
+case('summarise-children-of-finished-parents', 'summarise', [as14, T], o_summarise(as14, T), 'QA-AS14-1')
+case('summarise-unknown-parents-still-count', 'summarise',
+     [{'checkpoints': as14['checkpoints'], 'capas': as14['capas']}, T],
+     o_summarise({'checkpoints': as14['checkpoints'], 'capas': as14['capas']}, T))
+
+# --- AS14: removing an inspection point, raising an NCR against a plan
+for st in PLAN_STATUSES + ['Archived']:
+    for cst in CP_STATUSES:
+        for pt in ['Hold point', 'Witness point']:
+            one = cp('r', pt, cst)
+            case(f'remove-{st}-{pt.split()[0].lower()}-{cst}', 'canRemoveCheckpoint',
+                 [one, {'status': st, 'plan_code': 'QAP-1'}],
+                 o_can_remove_checkpoint(one, {'status': st}), 'QA-AS14-2')
+pend_dated = dict(cp('r', 'Witness point', 'Pending'), result_date=iso(-1))
+case('remove-pending-with-result-date', 'canRemoveCheckpoint', [pend_dated, {'status': 'Active'}],
+     o_can_remove_checkpoint(pend_dated, {'status': 'Active'}), 'QA-AS14-2')
+no_status = {'item_no': '7', 'point_type': 'Witness point'}
+case('remove-no-status-is-pending', 'canRemoveCheckpoint', [no_status, {'status': 'Active'}],
+     o_can_remove_checkpoint(no_status, {'status': 'Active'}))
+hold = cp('r', 'Hold point', 'Pending')
+case('remove-hold-plan-unknown', 'canRemoveCheckpoint', [hold, None], o_can_remove_checkpoint(hold, None))
+case('remove-hold-no-plan-arg', 'canRemoveCheckpoint', [hold], o_can_remove_checkpoint(hold, None))
+witness = cp('r', 'Witness point', 'Pending')
+case('remove-witness-plan-unknown', 'canRemoveCheckpoint', [witness, None],
+     o_can_remove_checkpoint(witness, None))
+for st in PLAN_STATUSES + ['Archived']:
+    case(f'raise-ncr-plan-{st}', 'canRaiseNcr', [{'status': st, 'plan_code': 'QAP-9'}],
+         o_can_raise_ncr({'status': st}), 'QA-AS14-3')
+case('raise-ncr-no-plan', 'canRaiseNcr', [None], o_can_raise_ncr(None))
+case('raise-ncr-undefined-plan', 'canRaiseNcr', [UNDEF], o_can_raise_ncr(None))
 
 # --- countBy
 rows = [{'root_cause_category': 'Design'}, {'root_cause_category': 'Communication'}, {},

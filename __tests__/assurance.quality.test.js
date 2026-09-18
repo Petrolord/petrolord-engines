@@ -31,6 +31,8 @@ import {
   canAdvancePlan,
   canCloseNcr,
   canClosePlan,
+  canRaiseNcr,
+  canRemoveCheckpoint,
   canDecideCheckpoint,
   countBy,
   daysUntil,
@@ -584,3 +586,67 @@ describe('sorting and grouping', () => {
 const PLAN_TRANSITIONS_KEYS = {
   Draft: 1, 'Under review': 1, Active: 1, Superseded: 1, Closed: 1, Cancelled: 1,
 };
+
+describe('AS14: removing a point and raising an NCR', () => {
+  const pt = (over = {}) => ({ item_no: '4', point_type: 'Witness point', status: 'Pending', ...over });
+
+  it('removes an unrecorded witness point from a live plan', () => {
+    expect(canRemoveCheckpoint(pt(), { status: 'Active' }).ok).toBe(true);
+  });
+
+  it('never removes a point with a result recorded', () => {
+    ['Passed', 'Failed', 'Waived', 'Not applicable'].forEach((status) => {
+      const v = canRemoveCheckpoint(pt({ status }), { status: 'Draft' });
+      expect(v.ok).toBe(false);
+      expect(v.reason).toMatch(/Item 4 has a result recorded/);
+    });
+    expect(canRemoveCheckpoint(pt({ result_date: '2026-09-01' }), { status: 'Draft' }).ok).toBe(false);
+  });
+
+  it('releases a hold point outside Draft rather than deleting it: the closure-gate bypass', () => {
+    const hold = pt({ point_type: 'Hold point' });
+    expect(canRemoveCheckpoint(hold, { status: 'Draft' }).ok).toBe(true);
+    const v = canRemoveCheckpoint(hold, { status: 'Active' });
+    expect(v.ok).toBe(false);
+    expect(v.reason).toMatch(/Not applicable/);
+    expect(canRemoveCheckpoint(hold).ok).toBe(false);
+  });
+
+  it('keeps every point on a finished plan', () => {
+    ['Closed', 'Superseded', 'Cancelled'].forEach((status) => {
+      expect(canRemoveCheckpoint(pt(), { status }).ok).toBe(false);
+    });
+  });
+
+  it('refuses an NCR against a finished plan and allows one with no plan', () => {
+    expect(canRaiseNcr().ok).toBe(true);
+    expect(canRaiseNcr(null).ok).toBe(true);
+    expect(canRaiseNcr({ status: 'Active' }).ok).toBe(true);
+    const v = canRaiseNcr({ status: 'Closed', plan_code: 'QAP-2026-004' });
+    expect(v.ok).toBe(false);
+    expect(v.reason).toMatch(/QAP-2026-004 is closed/);
+  });
+});
+
+describe('AS14: outstanding counts skip children of finished parents', () => {
+  it('drops points on a closed plan and actions on a voided NCR from the work counts only', () => {
+    const s = summarise({
+      plans: [{ id: 'a', status: 'Active' }, { id: 'c', status: 'Closed' }],
+      checkpoints: [
+        { plan_id: 'a', point_type: 'Hold point', status: 'Pending' },
+        { plan_id: 'c', point_type: 'Hold point', status: 'Pending', planned_date: '2020-01-01' },
+        { plan_id: 'c', point_type: 'Witness point', status: 'Failed' },
+      ],
+      ncrs: [{ id: 'v', status: 'Voided', severity: 'Major' }],
+      capas: [{ ncr_id: 'v', status: 'Open', due_date: '2020-01-01' }, { ncr_id: 'x', status: 'Open' }],
+    }, new Date(2026, 8, 18));
+    expect(s.checkpoints).toBe(3);
+    expect(s.checkpointsOutstanding).toBe(1);
+    expect(s.holdPointsOutstanding).toBe(1);
+    expect(s.checkpointsOverdue).toBe(0);
+    expect(s.checkpointsFailed).toBe(1);
+    expect(s.capas).toBe(2);
+    expect(s.openCapas).toBe(1);
+    expect(s.overdueCapas).toBe(0);
+  });
+});

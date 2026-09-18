@@ -440,6 +440,72 @@ export const canClosePlan = (plan = {}, { checkpoints = [], ncrs = [] } = {}) =>
   return { ok: true };
 };
 
+/**
+ * Statuses in which a checkpoint has nothing recorded against it yet.
+ * Anything else is a result, and a result is part of the record.
+ */
+export const CHECKPOINT_UNRECORDED_STATUSES = Object.freeze(['Pending', 'Notified', 'In progress']);
+
+/**
+ * Whether an inspection point may be removed from its plan, and why not
+ * (AS14).
+ *
+ * Removal used to be a plain delete. Deleting an unreleased hold point
+ * cleared canClosePlan's hold-point check without anybody verifying,
+ * waiving or setting it aside, so the plan could be closed over it and
+ * nothing said the point had ever existed. Three rules:
+ *
+ * - A finished plan is a record: nothing on it is removed.
+ * - A point with a result recorded (passed, failed, waived, not
+ *   applicable, or simply a result date) is evidence. It stays.
+ * - Once the plan has left Draft, a HOLD point is released, never
+ *   removed: recording it Not applicable asks who, when and why, which
+ *   is the record a deletion throws away. Other point types may still
+ *   be removed while nothing is recorded against them; the app logs it.
+ */
+export const canRemoveCheckpoint = (checkpoint = {}, plan = null) => {
+  if (plan && PLAN_TERMINAL_STATUSES.includes(plan.status)) {
+    return {
+      ok: false,
+      reason: `This plan is ${String(plan.status).toLowerCase()}. Its inspection points are the record it was finished on.`,
+    };
+  }
+  const status = checkpoint.status || 'Pending';
+  if (!CHECKPOINT_UNRECORDED_STATUSES.includes(status) || checkpoint.result_date) {
+    return {
+      ok: false,
+      reason: `${checkpoint.item_no ? `Item ${checkpoint.item_no}` : 'This item'} has a result recorded (${status}). A recorded result is evidence and stays on the plan.`,
+    };
+  }
+  if (isBlockingPoint(checkpoint) && (!plan || plan.status !== 'Draft')) {
+    return {
+      ok: false,
+      reason: 'A hold point on a plan that has left Draft is released, not removed. Record it as Not applicable with the reason, so the plan shows who set it aside and why.',
+    };
+  }
+  return { ok: true };
+};
+
+/**
+ * Whether a non-conformance may be raised against `plan` (AS14).
+ *
+ * An NCR with no plan is allowed: not every non-conformance comes from
+ * an inspection and test plan. One raised against a closed, superseded
+ * or cancelled plan reopened nothing, sat open under a plan that could
+ * no longer be closed over it, and made the finished plan's record
+ * wrong after the fact.
+ */
+export const canRaiseNcr = (plan = null) => {
+  if (!plan) return { ok: true };
+  if (PLAN_TERMINAL_STATUSES.includes(plan.status)) {
+    return {
+      ok: false,
+      reason: `${plan.plan_code || 'This plan'} is ${String(plan.status).toLowerCase()}. Raise the non-conformance against the plan now in force, or with no plan.`,
+    };
+  }
+  return { ok: true };
+};
+
 /** Legal next statuses from where a plan is now. */
 export const PLAN_TRANSITIONS = Object.freeze({
   Draft: Object.freeze(['Under review', 'Active', 'Cancelled']),
@@ -483,6 +549,19 @@ export const summarise = (
     if (byPlanStatus[p.status] !== undefined) byPlanStatus[p.status] += 1;
   });
 
+  // AS14: work is only outstanding while somebody can still do it. A
+  // point on a closed, superseded or cancelled plan is locked, and a
+  // corrective action on a voided NCR answers a non-conformance that was
+  // withdrawn. Both used to count as outstanding for ever. Totals, the
+  // failure count and the effectiveness record still count them: those
+  // are history, not work. A child whose parent is not supplied counts.
+  const idsWhere = (rows, pred) => new Set(rows.filter(pred).map((r) => r.id)
+    .filter((id) => id !== undefined && id !== null));
+  const finishedPlans = idsWhere(plans, (p) => PLAN_TERMINAL_STATUSES.includes(p.status));
+  const voidedNcrs = idsWhere(ncrs, (n) => n.status === 'Voided');
+  const livePoints = checkpoints.filter((c) => !finishedPlans.has(c.plan_id));
+  const liveCapas = capas.filter((c) => !voidedNcrs.has(c.ncr_id));
+
   const bySeverity = Object.fromEntries(NCR_SEVERITIES.map((s) => [s, 0]));
   const openBySeverity = Object.fromEntries(NCR_SEVERITIES.map((s) => [s, 0]));
   ncrs.forEach((n) => {
@@ -501,9 +580,9 @@ export const summarise = (
 
     checkpoints: checkpoints.length,
     // The literal 12 this replaces.
-    checkpointsOutstanding: checkpoints.filter((c) => !isResolved(c)).length,
-    checkpointsOverdue: checkpoints.filter((c) => isCheckpointOverdue(c, today)).length,
-    holdPointsOutstanding: checkpoints.filter(
+    checkpointsOutstanding: livePoints.filter((c) => !isResolved(c)).length,
+    checkpointsOverdue: livePoints.filter((c) => isCheckpointOverdue(c, today)).length,
+    holdPointsOutstanding: livePoints.filter(
       (c) => isBlockingPoint(c) && !isResolved(c)).length,
     checkpointsFailed: checkpoints.filter((c) => c.status === 'Failed').length,
 
@@ -521,11 +600,11 @@ export const summarise = (
       ? Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) : null,
 
     capas: capas.length,
-    openCapas: capas.filter(isCapaOpen).length,
-    overdueCapas: capas.filter((c) => isCapaOverdue(c, today)).length,
+    openCapas: liveCapas.filter(isCapaOpen).length,
+    overdueCapas: liveCapas.filter((c) => isCapaOverdue(c, today)).length,
     // The number that says whether corrective action is working: done,
     // and nobody has been back to see whether it worked.
-    capasAwaitingEffectiveness: capas.filter(
+    capasAwaitingEffectiveness: liveCapas.filter(
       (c) => c.status === 'Complete'
         && c.effectiveness_verified !== true
         && c.effectiveness_verified !== false).length,

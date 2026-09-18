@@ -81,3 +81,12 @@ docs/scope/AssuranceApps-STATUS.md §3k for decision.
 
 A closed Temporary or Emergency change now reads `EXPIRY.CLOSED_OUT`
 ("Closed out"). It no longer exports as "Permanent change".
+
+## AS14 (2026-09-18): MOC-AS14-1
+
+`summarise` counted unfinished actions on closed, rejected and cancelled
+changes as open and overdue work. The change's record is locked, so
+nobody can finish them and the dashboard number never fell. They are now
+skipped; an action whose change is not in `records` still counts. Case
+`summarise-actions-on-finished-changes` fails against the previous
+engine.

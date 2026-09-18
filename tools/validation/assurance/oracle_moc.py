@@ -203,7 +203,11 @@ def o_can_advance(moc, to, ctx=None):
 
 def o_summarise(records, ctx, today):
     ctx = ctx or {}
-    actions = ctx.get('actions') or []
+    # AS14 (Assurance STATUS 3l.4): an action on a closed, rejected or
+    # cancelled change is locked with its change, so it is not open work.
+    # An action whose change is not supplied still counts.
+    finished = {get(m, 'id') for m in records if get(m, 'stage') in ('Closed', 'Rejected', 'Cancelled')} - {None}
+    actions = [a for a in (ctx.get('actions') or []) if get(a, 'moc_id') not in finished]
     by_stage = {s: sum(1 for m in records if get(m, 'stage') == s) for s in ALL_STAGES}
     by_risk = {r: sum(1 for m in records if get(m, 'risk_level') == r) for r in RISKS}
     open_actions = [a for a in actions if get(a, 'status') not in DONE]
@@ -491,6 +495,28 @@ case('summarise-only-finished', 'summarise', [[records[5], records[6], records[7
      o_summarise([records[5], records[6], records[7]], {'actions': actions[2:4]}, T))
 case('summarise-lead-edge-moves-a-day-later', 'summarise', [records, {}, D(iso(1))],
      o_summarise(records, {}, D(iso(1))))
+# AS14: actions on finished changes are not open work
+as14_records = [
+    {'id': 'live', 'stage': 'Implementation', 'type': 'Permanent'},
+    {'id': 'rej', 'stage': 'Rejected', 'type': 'Permanent'},
+    {'id': 'can', 'stage': 'Cancelled', 'type': 'Temporary', 'expiry_date': iso(-3)},
+    {'id': 'clo', 'stage': 'Closed', 'type': 'Permanent'},
+    {'id': 'dra', 'stage': 'Draft', 'type': 'Permanent'},
+]
+as14_actions = [
+    {'moc_id': 'live', 'status': 'Open', 'due_date': iso(-1)},
+    {'moc_id': 'rej', 'status': 'Open', 'due_date': iso(-40)},
+    {'moc_id': 'can', 'status': 'In progress', 'due_date': iso(-2)},
+    {'moc_id': 'clo', 'status': 'Open', 'due_date': iso(-9)},
+    {'moc_id': 'dra', 'status': 'Open', 'due_date': iso(-5)},
+    {'moc_id': 'not-loaded', 'status': 'Open', 'due_date': iso(-5)},
+    {'status': 'Open', 'due_date': iso(-6)},
+    {'moc_id': 'rej', 'status': 'Complete', 'due_date': iso(-40)},
+]
+case('summarise-actions-on-finished-changes', 'summarise', [as14_records, {'actions': as14_actions}, T],
+     o_summarise(as14_records, {'actions': as14_actions}, T), 'MOC-AS14-1')
+case('summarise-actions-parents-not-supplied', 'summarise', [[], {'actions': as14_actions}, T],
+     o_summarise([], {'actions': as14_actions}, T))
 case('summarise-unreadable-expiry', 'summarise', [[bad | {'stage': 'Implementation'}], {}, T],
      o_summarise([bad], {}, T), 'MOC-1')
 
