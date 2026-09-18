@@ -76,3 +76,32 @@ Other point types may still be marked not applicable freely. Cases
 
 Negative control: the previous engine fails every `repaired` case above
 (the two new functions do not exist in it).
+
+## ASC-0 (2026-09-18): RC-9, copy (family sweep)
+
+- The "A <status> plan is final." refusal and the two "A <severity>
+  non-conformance needs ..." refusals now choose their article from the
+  word ("An obsolete plan is final."). Every status and severity the
+  module defines starts with a consonant, so only an unknown value could
+  print the defect; nothing in the goldens moved. Covered by
+  `__tests__/assurance.copy.test.js`.
+- **R2, percent rounding (ASC-0).** `planProgress` rounded the float
+  `(resolved / total) * 100`, and so did this oracle (`half_up` on the
+  same float), so the two agreed on 23 of 40 = 57 where the exact 57.5
+  rounds half up to 58. The lead ruled every percentage in the family is
+  round half UP on the EXACT rational. Changed: the engine computes
+  `floor((200n + d) / 2d)` from the counts (`halfUpPercent`), and the
+  oracle does the same in integers, independently. Cases
+  `r2-progress-half-*` (4): 23 of 40 (58), 57 of 200 (29), 29 of 200 (15),
+  1 of 8 (13). The previous engine fails 3. No existing case moved (none
+  sat on a half the float gets wrong). 414 -> 418. Mean ages
+  (`meanOpenNcrAgeDays`) are not percentages and did not change.
+- **ASC-0 item 12, created_at is an instant.** `ncrAgeDays` dates an NCR
+  with no `raised_date` by `created_at`, now read through calendar.js's
+  `localDateOf` (its local calendar date), so `summarise().oldestOpenNcrDays`,
+  `meanOpenNcrAgeDays` and `ncrAgeing` follow. Goldens moved (ARGUMENTS
+  only, no expected value): `age-open-created-at-only` and the one
+  created_at-only NCR in `summarise-full`, `summarise-a-month-later` and
+  `ageing-register` (literal '...Z' instants -> `$localInstant` at the same
+  wall-clock time; every expected value unchanged). Added `item12-age-*`
+  (4). 418 -> 422.

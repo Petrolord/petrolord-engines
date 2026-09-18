@@ -76,6 +76,23 @@ import {
 /* Shared with AS8, re-exported so this app's pages have one import.   */
 /* ------------------------------------------------------------------ */
 
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
+/**
+ * ASC-0 (R2): a whole percent, round half UP on the EXACT rational n/d
+ * (n, d whole counts, n >= 0, d > 0). floor((200n + d) / 2d) is
+ * floor(100n/d + 1/2), computed from integers. It replaces
+ * Math.round((n / d) * 100), which rounds the binary float of n/d: 57 of
+ * 200 is 0.285, stored as 0.28499999..., and printed 28 where the exact
+ * half rounds to 29 (23 of 40 printed 57 for 58). Exact while d < 2^45:
+ * the true quotient is at least 1/(2d) below the next whole number, far
+ * more than the float division's error.
+ */
+const halfUpPercent = (n, d) => Math.floor((200 * n + d) / (2 * d));
+
 export {
   ACTION_STATUSES,
   ACTION_TYPES,
@@ -175,7 +192,7 @@ export const checklistProgress = (items = [], responses = []) => {
     nonconformant: count('Nonconformant'),
     observations: count('Observation'),
     notApplicable: count('Not applicable'),
-    percent: total === 0 ? null : Math.round((answered / total) * 100),
+    percent: total === 0 ? null : halfUpPercent(answered, total),
   };
 };
 
@@ -330,7 +347,7 @@ export const canAdvanceAudit = (audit = {}, to, context = {}) => {
       ok: false,
       reason: allowed.length
         ? `An audit that is ${String(audit.status).toLowerCase()} can only move to ${allowed.join(', ')}.`
-        : `A ${String(audit.status).toLowerCase()} audit is final.`,
+        : `${withArticle(String(audit.status).toLowerCase())} audit is final.`,
     };
   }
   if (to === 'Reported') return canReportAudit(audit, context);
@@ -352,6 +369,17 @@ export const isAuditOverdue = (audit = {}, today = new Date()) => {
 export const PROGRAMME_DONE_STATUSES = Object.freeze(['Reported', 'Closed', 'Cancelled']);
 
 /**
+ * The one authority for "outstanding" (ASC-0, R1). An audit is outstanding
+ * until it is reported, closed, or cancelled WITH a written reason (AS15
+ * §3k.4 Q11: a cancellation counts as done only with its reason).
+ * programmeProgress, canCompleteProgramme and summarise all ask this, so
+ * the Programmes page and the dashboard cannot print different counts for
+ * the same audits; summarise used to count a reasonless cancellation done.
+ */
+const isOutstandingAudit = (a = {}) => !PROGRAMME_DONE_STATUSES.includes(a.status)
+  || (a.status === 'Cancelled' && !String(a.cancellation_reason || '').trim());
+
+/**
  * How the programme actually went: performed, cancelled with a reason,
  * and still outstanding.
  *
@@ -364,15 +392,14 @@ export const programmeProgress = (audits = [], today = new Date()) => {
   const reported = audits.filter((a) => ['Reported', 'Closed'].includes(a.status)).length;
   const cancelled = audits.filter((a) => a.status === 'Cancelled').length;
   // AS15 (§3k.4 Q11): a cancellation counts as done only with its reason.
-  const outstanding = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status)
-    || (a.status === 'Cancelled' && !String(a.cancellation_reason || '').trim()));
+  const outstanding = audits.filter(isOutstandingAudit);
   return {
     total,
     reported,
     cancelled,
     outstanding: outstanding.length,
     overdue: outstanding.filter((a) => isAuditOverdue(a, today)).length,
-    percent: total === 0 ? null : Math.round((reported / total) * 100),
+    percent: total === 0 ? null : halfUpPercent(reported, total),
   };
 };
 
@@ -392,8 +419,7 @@ export const canCompleteProgramme = (programme = {}, audits = []) => {
     return { ok: false, reason: `This programme is already ${String(programme.status).toLowerCase()}.` };
   }
   // AS15 (§3k.4 Q11): a cancellation counts as done only with its reason.
-  const outstanding = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status)
-    || (a.status === 'Cancelled' && !String(a.cancellation_reason || '').trim()));
+  const outstanding = audits.filter(isOutstandingAudit);
   if (outstanding.length) {
     const codes = outstanding.map((a) => a.audit_code).filter(Boolean);
     return {
@@ -421,7 +447,7 @@ export const canAdvanceProgramme = (programme = {}, to, context = {}) => {
       ok: false,
       reason: allowed.length
         ? `A programme that is ${String(programme.status).toLowerCase()} can only move to ${allowed.join(', ')}.`
-        : `A ${String(programme.status).toLowerCase()} programme is final.`,
+        : `${withArticle(String(programme.status).toLowerCase())} programme is final.`,
     };
   }
   if (to === 'Approved') return canApproveProgramme(programme, context.patch);
@@ -492,7 +518,8 @@ export const summarise = (
     }
   });
 
-  const live = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status));
+  // ASC-0 (R1): the same rule as programmeProgress().outstanding.
+  const live = audits.filter(isOutstandingAudit);
 
   return {
     programmes: programmes.length,

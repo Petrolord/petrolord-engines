@@ -18,8 +18,11 @@ import {
   PRIORITIES,
   SEVERITIES,
   STAGES,
+  REVIEWER_ROLES,
   bySeverityThenAge,
   byUrgency,
+  canActOnComment,
+  canAssignPeerReviewer,
   canClose,
   canTransition,
   countBy,
@@ -219,6 +222,21 @@ describe('rollup', () => {
     expect(s.blockingComments).toBe(1);
   });
 
+  // RC-4b (ASC-0): the AS14 rule. A comment on a finished review is locked
+  // with it, so it is history, not open work; an unknown review still counts.
+  it('does not count open or blocking comments on a closed or cancelled review', () => {
+    const s = summarise(reviews, [
+      comment({ review_id: 1, severity: 'Critical', status: 'Open' }),
+      comment({ review_id: 3, severity: 'Critical', status: 'Open' }),
+      comment({ review_id: 4, severity: 'Major', status: 'Rejected' }),
+      comment({ review_id: 99, severity: 'Major', status: 'Open' }),
+    ], TODAY);
+    expect(s.totalComments).toBe(4);
+    expect(s.bySeverity.Critical).toBe(2);
+    expect(s.openComments).toBe(2);
+    expect(s.blockingComments).toBe(2);
+  });
+
   it('counts every review into exactly one stage', () => {
     const s = summarise(reviews, comments, TODAY);
     expect(Object.values(s.byStage).reduce((a, b) => a + b, 0)).toBe(reviews.length);
@@ -244,4 +262,51 @@ describe('rollup', () => {
       .toEqual([{ name: 'Reservoir', count: 1 }, { name: 'Unspecified', count: 1 }]);
   });
 
+});
+
+describe('segregation of duties (owner decision D1, ASC-0 RC-4a)', () => {
+  const pr = { id: 'r', author_id: 'author', lead_reviewer_id: 'lead', created_by: 'coord' };
+  const responded = comment({ status: 'Responded', response_text: 'Revised in rev B.' });
+
+  it('names the reviewer roles', () => {
+    expect(REVIEWER_ROLES).toEqual(['Lead Reviewer', 'Reviewer']);
+  });
+
+  it('never puts the author of the work on the review as a reviewer', () => {
+    expect(canAssignPeerReviewer(pr, { user_id: 'author', role: 'Reviewer' }).ok).toBe(false);
+    expect(canAssignPeerReviewer(pr, { user_id: 'author', role: 'Lead Reviewer' }).ok).toBe(false);
+    expect(canAssignPeerReviewer(pr, { user_id: 'author' }).ok).toBe(false);
+    expect(canAssignPeerReviewer(pr, { user_id: 'author', role: 'Reviewer' }).reason)
+      .toMatch(/author of the work under review cannot review it/);
+  });
+
+  it('lets the author hold the Author role, and anybody else review', () => {
+    expect(canAssignPeerReviewer(pr, { user_id: 'author', role: 'Author' }).ok).toBe(true);
+    expect(canAssignPeerReviewer(pr, { user_id: 'coord', role: 'Reviewer' }).ok).toBe(true);
+    expect(canAssignPeerReviewer(pr, { display_name: 'External expert', role: 'Reviewer' }).ok).toBe(true);
+  });
+
+  it('needs somebody named', () => {
+    expect(canAssignPeerReviewer(pr, { role: 'Reviewer' })).toEqual({ ok: false, reason: 'Choose the reviewer.' });
+  });
+
+  it('refuses the author every reviewer move', () => {
+    ['Verified', 'Rejected'].forEach((to) => {
+      expect(canActOnComment(responded, to, pr, 'author').ok).toBe(false);
+    });
+    expect(canActOnComment(comment({ status: 'Open' }), 'Withdrawn', pr, 'author').ok).toBe(false);
+    expect(canActOnComment(responded, 'Verified', pr, 'author').reason)
+      .toBe('The author of the work under review cannot verify a comment on it. A reviewer independent of the work decides it.');
+  });
+
+  it("leaves the author's own move and the reviewer's moves alone", () => {
+    expect(canActOnComment(comment({ status: 'Open' }), 'Responded', pr, 'author').ok).toBe(true);
+    expect(canActOnComment(responded, 'Verified', pr, 'reviewer-1').ok).toBe(true);
+    expect(canActOnComment(responded, 'Rejected', pr, 'lead').ok).toBe(true);
+  });
+
+  it('applies the disposition rules first, and needs a signed-in user', () => {
+    expect(canActOnComment(comment({ status: 'Open' }), 'Verified', pr, 'reviewer-1').ok).toBe(false);
+    expect(canActOnComment(responded, 'Verified', pr, null).ok).toBe(false);
+  });
 });

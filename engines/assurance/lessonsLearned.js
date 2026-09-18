@@ -34,8 +34,18 @@
  */
 
 import { parseDateOnly, daysUntil, toDateOnlyString } from './qualityAssurance.js';
+import { localDateOf } from './calendar.js';
 
 export { parseDateOnly, daysUntil, toDateOnlyString };
+
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
+// ASC-0 (RC-9): 'a', 'a and b', 'a, b and c'.
+const listed = (xs) => (xs.length <= 1 ? xs.join('')
+  : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
 /* ------------------------------------------------------------------ */
 /* Vocabularies. Every one is a check constraint in migration          */
@@ -155,7 +165,7 @@ export const canValidate = (lesson = {}, actorId, patch = {}) => {
     const missing = missingSubstance(next);
     return {
       ok: false,
-      reason: `This lesson is missing ${missing.join(' and ')}. A lesson is what happened, why it happened and what to do about it; the first two without the third are a story.`,
+      reason: `This lesson is missing ${listed(missing)}. A lesson is what happened, why it happened and what to do about it; the first two without the third are a story.`,
     };
   }
   return { ok: true };
@@ -298,7 +308,7 @@ export const canAdvanceLesson = (lesson = {}, to, context = {}) => {
       ok: false,
       reason: allowed.length
         ? `A lesson that is ${String(lesson.status).toLowerCase()} can only move to ${allowed.join(', ')}.`
-        : `A ${String(lesson.status).toLowerCase()} lesson is final.`,
+        : `${withArticle(String(lesson.status).toLowerCase())} lesson is final.`,
     };
   }
   if (to === 'Validated') return canValidate(lesson, context.validatorId, context.patch);
@@ -334,8 +344,12 @@ export const isReviewDueSoon = (lesson = {}, today = new Date()) => {
   return days !== null && days >= 0 && days <= REVIEW_LEAD_DAYS;
 };
 
+// ASC-0 (item 12): the event date is a calendar date; the created_at
+// fallback is an instant, read as its LOCAL calendar date (localDateOf).
+const raisedOn = (lesson) => localDateOf(lesson.event_date || lesson.created_at);
+
 export const lessonAgeDays = (lesson = {}, today = new Date()) => {
-  const raised = parseDateOnly(lesson.event_date || lesson.created_at);
+  const raised = raisedOn(lesson);
   if (!raised) return null;
   return Math.max(0, -daysUntil(raised, today));
 };
@@ -450,8 +464,8 @@ export const lessonByAttention = (applicationsByLesson = new Map(), today = new 
     };
     const diff = rank(a) - rank(b);
     if (diff !== 0) return diff;
-    const da = parseDateOnly(b.event_date || b.created_at);
-    const db = parseDateOnly(a.event_date || a.created_at);
+    const da = raisedOn(b);
+    const db = raisedOn(a);
     if (da && db) return da - db;
     // Undated last, as the sibling comparators do. Returning 0 here made
     // the order non-transitive, so the sort could return anything (LL-1).

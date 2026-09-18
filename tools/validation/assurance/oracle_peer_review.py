@@ -20,6 +20,19 @@ AssuranceApps-STATUS.md section 3d (AS5):
     and only when its due date (a calendar date) is before today.
   * summarise counts reviews by stage, active, overdue, comments by
     severity and by status, open (unresolved) and blocking comments.
+    ASC-0 RC-4b (the AS14 rule of MOC and QA): open and blocking skip
+    comments on a Closed or Cancelled review, which is locked; the
+    history counts do not. A comment whose review is not supplied (or a
+    review with no id) still counts.
+  * ASC-0 RC-4a, owner decision D1 (segregation of duties): the author of
+    the work under review (peer_reviews.author_id) is never its reviewer.
+    A roster row (user_id, display_name, role) needs somebody named; a
+    Lead Reviewer or Reviewer row (no role = Reviewer) whose user_id is
+    the author is refused;
+    an unknown author refuses nothing. A comment move is refused first by
+    the disposition rules, then when nobody is signed in, then when the
+    move belongs to the reviewer (Verified, Rejected, Withdrawn) and the
+    signed-in user is the author.
   * byUrgency: overdue first, then the other live reviews, then closed or
     cancelled; within a rank the earlier due date first, undated last.
   * bySeverityThenAge: unresolved before resolved, then worst severity
@@ -105,7 +118,38 @@ def overdue(r, today):
     return d is not None and d < to_date(today)
 
 
+FINISHED = ['Closed', 'Cancelled']
+REVIEWER_ROLES = ['Lead Reviewer', 'Reviewer']
+REVIEWER_MOVES = ['Verified', 'Rejected', 'Withdrawn']
+
+
+def is_author(review, user):
+    author = (review or {}).get('author_id')
+    return truthy(user) and truthy(author) and user == author
+
+
+def can_assign_peer_reviewer(review, participant):
+    p = participant or {}
+    if not truthy(p.get('user_id')) and not str(p.get('display_name') or '').strip():
+        return {'ok': False}
+    if (p.get('role') or 'Reviewer') in REVIEWER_ROLES and is_author(review, p.get('user_id')):
+        return {'ok': False}
+    return {'ok': True}
+
+
+def can_act_on_comment(comment, to, review, user):
+    if refusal(comment or {}, to) is not None:
+        return {'ok': False}
+    if not truthy(user):
+        return {'ok': False}
+    if to in REVIEWER_MOVES and is_author(review, user):
+        return {'ok': False}
+    return {'ok': True}
+
+
 def summarise(reviews, comments, today):
+    done = {r.get('id') for r in reviews if r.get('stage') in FINISHED} - {None}
+    live = [c for c in comments if c.get('review_id') not in done]
     return {
         'total': len(reviews),
         'byStage': {s: sum(1 for r in reviews if r.get('stage') == s) for s in STAGES},
@@ -114,8 +158,8 @@ def summarise(reviews, comments, today):
         'totalComments': len(comments),
         'bySeverity': {s: sum(1 for c in comments if c.get('severity') == s) for s in SEVERITIES},
         'byStatus': {s: sum(1 for c in comments if c.get('status') == s) for s in STATUSES},
-        'openComments': sum(1 for c in comments if not resolved(c)),
-        'blockingComments': sum(1 for c in comments if blocking(c)),
+        'openComments': sum(1 for c in live if not resolved(c)),
+        'blockingComments': sum(1 for c in live if blocking(c)),
     }
 
 
@@ -216,6 +260,21 @@ def build():
     for cid, coms in cc.items():
         c.add(cid, 'canClose', [coms], can_close(coms))
     c.add('close-no-arg', 'canClose', [], {'ok': True, 'blocking': []})
+    # ASC-0 RC-9: the verb and pronoun agree with the count. Words are the
+    # engine's; the agreement is decided here. Compared verbatim.
+    for cid, coms in {
+        'rc9-close-one-critical': [{'severity': 'Critical', 'status': 'Open'}],
+        'rc9-close-one-major': [{'severity': 'Major', 'status': 'Rejected'}],
+        'rc9-close-two-critical': [{'severity': 'Critical', 'status': 'Open'}, {'severity': 'Critical', 'status': 'Responded'}],
+        'rc9-close-critical-and-major': [{'severity': 'Critical', 'status': 'Open'}, {'severity': 'Major', 'status': 'Open'}],
+    }.items():
+        b = [x for x in coms if blocking(x)]
+        parts = [f"{sum(1 for x in b if x['severity'] == s)} {s.lower()}" for s in BLOCKING
+                 if any(x['severity'] == s for x in b)]
+        one = len(b) == 1
+        reason = (f"{' and '.join(parts)} comment{'' if one else 's'} still need{'s' if one else ''} resolving. "
+                  f"Verify, close out or withdraw {'it' if one else 'them'} first.")
+        c.add(cid, 'canClose', [coms], {'ok': False, 'blocking': b, 'reason': reason}, defect='RC-9', prose='exact')
 
     # nextStages
     for s in STAGES + ['Archived']:
@@ -265,6 +324,72 @@ def build():
     c.add('summary-mixed', 'summarise', [reviews, comments, T], summarise(reviews, comments, T))
     c.add('summary-empty', 'summarise', [[], [], T], summarise([], [], T))
     c.add('summary-reviews-only', 'summarise', [reviews, [], D('2026-10-01')], summarise(reviews, [], D('2026-10-01')))
+
+    # ASC-0 RC-4b: comments on finished reviews are not open or blocking.
+    # The course's repro first.
+    c.add('rc4b-cancelled-review-critical-open', 'summarise',
+          [[{'id': 'a', 'stage': 'Cancelled'}], [{'review_id': 'a', 'severity': 'Critical', 'status': 'Open'}], T],
+          summarise([{'id': 'a', 'stage': 'Cancelled'}],
+                    [{'review_id': 'a', 'severity': 'Critical', 'status': 'Open'}], T), defect='RC-4b')
+    rv4 = [
+        {'id': 'live', 'stage': 'In Review', 'due_date': '2026-09-30'},
+        {'id': 'closed', 'stage': 'Closed'},
+        {'id': 'cancelled', 'stage': 'Cancelled'},
+        {'id': 'verif', 'stage': 'Verification'},
+        {'stage': 'Closed'},  # a finished review with no id owns nothing
+    ]
+    cm4 = [
+        {'review_id': 'live', 'severity': 'Critical', 'status': 'Open'},
+        {'review_id': 'live', 'severity': 'Minor', 'status': 'Responded'},
+        {'review_id': 'closed', 'severity': 'Major', 'status': 'Rejected'},
+        {'review_id': 'closed', 'severity': 'Minor', 'status': 'Open'},
+        {'review_id': 'closed', 'severity': 'Critical', 'status': 'Verified'},
+        {'review_id': 'cancelled', 'severity': 'Critical', 'status': 'Open'},
+        {'review_id': 'cancelled', 'severity': 'Editorial', 'status': 'Open'},
+        {'review_id': 'verif', 'severity': 'Major', 'status': 'Responded'},
+        {'review_id': 'unknown', 'severity': 'Critical', 'status': 'Open'},
+        {'severity': 'Major', 'status': 'Open'},
+    ]
+    c.add('rc4b-finished-parents-skipped', 'summarise', [rv4, cm4, T], summarise(rv4, cm4, T), defect='RC-4b')
+    c.add('rc4b-no-reviews-supplied-all-count', 'summarise', [[], cm4, T], summarise([], cm4, T), defect='RC-4b')
+
+    # ASC-0 RC-4a: owner decision D1, segregation of duties.
+    rev = {'id': 'r', 'author_id': 'u-author', 'lead_reviewer_id': 'u-lead', 'created_by': 'u-coord'}
+    for cid, (review, part) in {
+        'assign-independent-reviewer': (rev, {'user_id': 'u-rev', 'role': 'Reviewer'}),
+        'assign-author-as-reviewer': (rev, {'user_id': 'u-author', 'role': 'Reviewer'}),
+        'assign-author-as-lead': (rev, {'user_id': 'u-author', 'role': 'Lead Reviewer'}),
+        'assign-author-as-author': (rev, {'user_id': 'u-author', 'role': 'Author'}),
+        'assign-author-as-observer': (rev, {'user_id': 'u-author', 'role': 'Observer'}),
+        'assign-creator-as-reviewer': (rev, {'user_id': 'u-coord', 'role': 'Reviewer'}),
+        'assign-external-by-name': (rev, {'display_name': 'Dr A. External', 'role': 'Reviewer'}),
+        'assign-nobody': (rev, {'role': 'Reviewer'}),
+        'assign-blank-name': (rev, {'display_name': '   ', 'role': 'Reviewer'}),
+        'assign-no-participant': (rev, UNDEF),
+        'assign-unknown-author': ({'id': 'r'}, {'user_id': 'u-author', 'role': 'Reviewer'}),
+        'assign-no-role': (rev, {'user_id': 'u-author'}),
+    }.items():
+        c.add(f'rc4a-{cid}', 'canAssignPeerReviewer', [review, part],
+              can_assign_peer_reviewer(review, None if part is UNDEF else part), defect='RC-4a')
+    responded = {'status': 'Responded', 'response_text': 'Fixed in rev B.'}
+    for cid, (com, to, review, user) in {
+        'reviewer-verifies': (responded, 'Verified', rev, 'u-rev'),
+        'author-verifies': (responded, 'Verified', rev, 'u-author'),
+        'author-rejects': (responded, 'Rejected', rev, 'u-author'),
+        'author-withdraws': ({'status': 'Open'}, 'Withdrawn', rev, 'u-author'),
+        'reviewer-withdraws': ({'status': 'Open'}, 'Withdrawn', rev, 'u-rev'),
+        'author-responds': ({'status': 'Open'}, 'Responded', rev, 'u-author'),
+        'author-responds-to-rejection': ({'status': 'Rejected'}, 'Responded', rev, 'u-author'),
+        'author-closes-verified': ({'status': 'Verified'}, 'Closed', rev, 'u-author'),
+        'lead-verifies': (responded, 'Verified', rev, 'u-lead'),
+        'illegal-move-by-reviewer': ({'status': 'Open'}, 'Verified', rev, 'u-rev'),
+        'verify-without-response': ({'status': 'Responded'}, 'Verified', rev, 'u-rev'),
+        'no-user': (responded, 'Verified', rev, None),
+        'unknown-author-verifies': (responded, 'Verified', {'id': 'r'}, 'u-author'),
+        'final-comment': ({'status': 'Closed'}, 'Closed', rev, 'u-rev'),
+    }.items():
+        c.add(f'rc4a-act-{cid}', 'canActOnComment', [com, to, review, user],
+              can_act_on_comment(com, to, review, user), defect='RC-4a')
 
     # countBy
     rows = [{'discipline': 'Reservoir'}, {'discipline': 'Drilling'}, {'discipline': 'Reservoir'},

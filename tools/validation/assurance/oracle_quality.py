@@ -70,6 +70,21 @@ def cal_date(v):
     except ValueError:
         return None
 
+def LI(local):
+    """ASC-0 item 12: an instant at a LOCAL wall-clock time. The golden runner
+    hands the engine that moment as a UTC ISO string ('...+00:00'), so its
+    UTC date is the local date only in UTC; its local date is written here."""
+    return {'$localInstant': local}
+
+
+def local_date_of(v):
+    """ASC-0 item 12: the LOCAL calendar date of an instant; anything else as
+    cal_date reads it (a date-only string stays that calendar date)."""
+    if isinstance(v, dict) and '$localInstant' in v:
+        return dt.date.fromisoformat(v['$localInstant'][:10])
+    return cal_date(v)
+
+
 
 def days_until(v, today):
     d = cal_date(v)
@@ -187,7 +202,9 @@ def o_plan_progress(cps):
         'outstanding': total - resolved,
         'holdPoints': len(holds),
         'holdPointsOutstanding': sum(1 for c in holds if not o_is_resolved(c)),
-        'percent': None if total == 0 else half_up(resolved / total * 100),
+        # ASC-0 R2: half up on the EXACT rational, in integers. The float
+        # form (resolved / total * 100) rounded 23 of 40 to 57 like the engine.
+        'percent': None if total == 0 else (200 * resolved + total) // (2 * total),
     }
 
 # ---------------------------------------------------------------- NCRs and CAPAs
@@ -208,8 +225,10 @@ def o_ncr_age(n, today):
     n = n or {}
     # Raised date, else the row's creation (rule from the code: the first
     # PRESENT value is used, R3).
-    src = get(n, 'raised_date') if js_truthy(get(n, 'raised_date')) else get(n, 'created_at')
-    raised = cal_date(src)
+    # ASC-0 item 12: the created_at fallback is an instant, read as its
+    # LOCAL calendar date; raised_date is a calendar date.
+    raised = (cal_date(get(n, 'raised_date')) if js_truthy(get(n, 'raised_date'))
+              else local_date_of(get(n, 'created_at')))
     if raised is None:
         return None
     end = cal_date(today)
@@ -535,6 +554,13 @@ progress_sets = {
 for tag, rows in progress_sets.items():
     case(f'progress-{tag}', 'planProgress', [rows], o_plan_progress(rows))
 case('progress-default', 'planProgress', [UNDEF], o_plan_progress([]))
+# ASC-0 R2: exact halves. 23 of 40 is 57.5 exactly and prints 58; the float
+# form printed 57. 57 of 200 is 28.5 -> 29 (float 28). 1 of 8 is 12.5 -> 13
+# (float agreed). 29 of 200 is 14.5 -> 15 (float 14).
+for tag, n, d in [('23-of-40', 23, 40), ('57-of-200', 57, 200), ('1-of-8', 1, 8), ('29-of-200', 29, 200)]:
+    rows = ([cp(f'y{i}', 'Witness point', 'Passed') for i in range(n)]
+            + [cp(f'n{i}', 'Monitor point', 'Pending') for i in range(d - n)])
+    case(f'r2-progress-half-{tag}', 'planProgress', [rows], o_plan_progress(rows), 'R2')
 
 # --- NCR predicates
 for st in NCR_STATUSES + ['Draft', None]:
@@ -550,7 +576,8 @@ age_cases = {
     'open-30': {'status': 'Verification', 'raised_date': iso(-30)},
     'open-31': {'status': 'Open', 'raised_date': iso(-31)},
     'open-across-dst': {'status': 'Open', 'raised_date': '2026-03-01'},
-    'open-created-at-only': {'status': 'Open', 'created_at': '2026-06-10T21:15:00Z'},
+    # ASC-0 item 12: created_at is an instant; LI makes it zone-invariant.
+    'open-created-at-only': {'status': 'Open', 'created_at': LI('2026-06-10T21:15')},
     'closed-with-date': {'status': 'Closed', 'raised_date': '2026-01-10', 'closed_date': '2026-03-15'},
     'closed-without-date': {'status': 'Closed', 'raised_date': iso(-12)},
     'voided-with-date': {'status': 'Voided', 'raised_date': '2025-12-25', 'closed_date': '2026-01-04'},
@@ -561,6 +588,16 @@ age_cases = {
 }
 for tag, n in age_cases.items():
     case(f'age-{tag}', 'ncrAgeDays', [n, T], o_ncr_age(n, T))
+# ASC-0 item 12: an NCR with no raised date is dated by created_at, an
+# instant, read as its LOCAL calendar date (00:30 local is the previous UTC
+# date east of Greenwich, 23:30 local the next one west).
+for tag, n in {
+    'created-0030-local': {'status': 'Open', 'created_at': LI('2026-09-10T00:30')},
+    'created-2330-local': {'status': 'Open', 'created_at': LI('2026-09-10T23:30')},
+    'closed-created-0030': {'status': 'Closed', 'created_at': LI('2026-09-01T00:30'), 'closed_date': '2026-09-05'},
+    'raised-date-wins': {'status': 'Open', 'raised_date': '2026-09-01', 'created_at': LI('2026-09-10T00:30')},
+}.items():
+    case(f'item12-age-{tag}', 'ncrAgeDays', [n, T], o_ncr_age(n, T), 'ASC0-12')
 # Across the US spring-forward day the local-midnight gap is 23 hours short of whole days.
 case('age-across-us-dst', 'ncrAgeDays', [{'status': 'Open', 'raised_date': '2026-03-07'}, D('2026-03-09')],
      o_ncr_age({'status': 'Open', 'raised_date': '2026-03-07'}, D('2026-03-09')))
@@ -671,7 +708,7 @@ ncrs = [
     {'status': 'Under investigation', 'severity': 'Major', 'raised_date': iso(-31), 'due_date': iso(0)},
     {'status': 'Disposition agreed', 'severity': 'Minor', 'raised_date': iso(-60), 'due_date': iso(-30), 'disposition': 'Use as is'},
     {'status': 'Actions in progress', 'severity': 'Observation', 'raised_date': iso(-61)},
-    {'status': 'Verification', 'severity': 'Major', 'created_at': iso(-2) + 'T08:00:00Z'},
+    {'status': 'Verification', 'severity': 'Major', 'created_at': LI(iso(-2) + 'T08:00')},
     {'status': 'Open', 'severity': 'Minor'},
     {'status': 'Closed', 'severity': 'Critical', 'raised_date': iso(-400), 'closed_date': iso(-300), 'due_date': iso(-350), 'disposition': 'Regrade'},
     {'status': 'Voided', 'severity': 'Major', 'raised_date': iso(-200), 'due_date': iso(-100), 'disposition': 'Scrap'},

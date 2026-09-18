@@ -75,3 +75,29 @@ still goes Overdue. Cases `st-one-off-*` and `st-annual-filed-past-due`.
   New export `periodStart` has 14 cases.
 - Negative control: the previous engine fails all 25 AS15-tagged cases
   and passes every untagged one.
+
+## ASC-0 (2026-09-18): R4, explainStatus says what is true
+
+- **Repro:** `explainStatus({frequency:'One-off', due_date:'2026-08-14',
+  last_submitted_date:'2026-08-10'}, 2026-10-15)` -> `{status:'Compliant',
+  reason:'Last filed 2026-08-10, next due in -62 days.', daysUntil:-62}`.
+  AS13-0 made a filed One-off Compliant after its due date; the Compliant
+  sentence was written for a recurring obligation with a due date ahead.
+  Live on the Regulatory Compliance detail page.
+- **Changed:** a filed One-off reads "Filed 2026-08-10. A one-off
+  obligation, nothing further is due." (the filing date through
+  `toDateOnlyString`, so a timestamp prints as its date), plus "The permit
+  expires in N days." / "... expires today." when a permit expiry is still
+  ahead, because that date still comes.
+- **Sweep of every branch for a count printed as if ahead:** Expired and
+  Overdue print the absolute count of a date already passed (at least 1);
+  Due soon has day 0 as "Due today." and at least 1 otherwise; recurring
+  Compliant and On track are outside the lead time, so at least 1. None
+  could print a negative or zero, but Compliant and On track printed
+  "in 1 days"; they now agree ("in 1 day"). `daysUntil` in the result is
+  unchanged (-62 in the repro): it is the signed count, and graded.
+- **Goldens:** reasons are prose, stripped by the runner, so no existing
+  case moved. 10 cases `r4-*` compare the whole result verbatim
+  (`"prose": "exact"`); the oracle's new `explain_reason` decides which
+  sentence applies and every count in it. The previous engine fails 8
+  (the two recurring many-day cases pass on both). 149 -> 159.

@@ -497,7 +497,9 @@ def certification_readiness(standard, data=None, today=None):
             'openMinor': open_minor,
             'overdueActions': a_overdue,
             'certificateDays': cert,
-            'certificateExpiring': cert is not None and cert <= CERT_LEAD,
+            # ASC-0 R3: expiring and expired partition the line. Expiring is
+            # the lead window up to and including the day of expiry.
+            'certificateExpiring': cert is not None and 0 <= cert <= CERT_LEAD,
             'certificateExpired': cert is not None and cert < 0,
         },
         'coverage': cov,
@@ -634,10 +636,12 @@ class Cases:
     def __init__(self):
         self.cases = []
 
-    def add(self, cid, fn, args, expected, defect=None):
+    def add(self, cid, fn, args, expected, defect=None, prose=None):
         c = {'id': cid, 'fn': fn, 'args': enc(args), 'expected': enc(expected)}
         if defect:
             c['repaired'] = defect
+        if prose:
+            c['prose'] = prose  # 'exact': reason compared verbatim (ASC-0 R5)
         self.cases.append(c)
 
     def throws(self, cid, fn, args):
@@ -793,6 +797,31 @@ def build():
     ]
     for cid, x, s, p in scs:
         c.add(cid, 'canSetClauseStatus', [x, s, p], can_set_clause_status(x, s, p))
+
+    # ASC-0 R5: the not-applicable refusal names the standard the register
+    # holds. ISO 9001 alone carries the §4.3 kept-justification requirement;
+    # any other code is named without a clause number; no record, neutral.
+    # The words are the engine's; which sentence applies is decided here.
+    na = cl(id='c9', clause_ref='8.3', applicability='Not applicable', applicability_justification='')
+
+    def na_reason(standard):
+        label = str((standard or {}).get('code') or (standard or {}).get('title') or '').strip()
+        if 'ISO 9001' in label.upper().replace('ISO9001', 'ISO 9001'):
+            return (f'{label} §4.3 requires the justification for a requirement determined not '
+                    'applicable to be kept. Say why this one does not apply.')
+        if label:
+            return (f'Say why this requirement of {label} does not apply. A requirement determined '
+                    'not applicable keeps its justification on record.')
+        return ('Say why this requirement does not apply. A requirement determined not applicable '
+                'keeps its justification on record.')
+
+    for tag, st in [('iso-9001', std()), ('iso-14001', std(code='ISO 14001:2015')),
+                    ('iso-45001', std(code='ISO 45001')), ('other-code', std(code='API Q1')),
+                    ('title-only', {'id': 's9', 'code': '', 'title': 'Company HSE-MS'}),
+                    ('no-standard', None)]:
+        args = [na, 'Not applicable', {}] + ([] if st is None else [st])
+        c.add(f'r5-na-justification-{tag}', 'canSetClauseStatus', args,
+              {'ok': False, 'reason': na_reason(st)}, defect='R5', prose='exact')
 
     for cid, x in [('review-overdue', cl(next_review_due='2026-09-16')),
                    ('review-today', cl(next_review_due='2026-09-17')),
@@ -1050,6 +1079,16 @@ def build():
     s91 = std(certificate_expires='2026-12-17')
     c.add('ready-cert-91-days', 'certificationReadiness', [s91, ready_data, T],
           certification_readiness(s91, ready_data, T))
+    # ASC-0 R3: the two certificate flags partition the line, no overlap and
+    # no gap: day -1 expired only, day 0 (the day of expiry) expiring only.
+    # The course's repro first: expired 2026-09-30, as of 2026-10-15.
+    r3_repro = std(certificate_expires='2026-09-30')
+    c.add('r3-lapsed-15-days', 'certificationReadiness', [r3_repro, ready_data, date('2026-10-15')],
+          certification_readiness(r3_repro, ready_data, date('2026-10-15')), defect='R3')
+    for tag, exp in [('day-minus-1', '2026-09-16'), ('day-0', '2026-09-17'), ('day-1', '2026-09-18')]:
+        sx = std(certificate_expires=exp)
+        c.add(f'r3-cert-{tag}', 'certificationReadiness', [sx, ready_data, T],
+              certification_readiness(sx, ready_data, T), defect='R3')
 
     # --- summarise --------------------------------------------------------
     standards = [std(), std(id='s2', code='ISO 14001:2015', certification_status='Seeking certification')]

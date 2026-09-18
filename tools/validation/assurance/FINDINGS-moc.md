@@ -116,3 +116,50 @@ engine.
 Negative control: against origin/main the new `AS15-*` cases fail (the
 new exports do not exist; emergency implementation on a first-level
 signature is refused; closing an unratified emergency change is allowed).
+
+## ASC-0 (2026-09-18): the repairs the Risk and Change course found
+
+- **RC-3, a change in effect read overdue against its target
+  implementation date.** `isOverdue` tested `ACTIVE_STAGES`, which include
+  Implementation, and Implementation is also in `IN_EFFECT_STAGES`: the
+  same change was "on the facility" for its expiry and "late to be
+  implemented" for its overdue flag. Repro:
+  `isOverdue({stage:'Implementation', target_implementation_date:'2026-09-26',
+  actual_implementation_date:'2026-09-26'}, new Date(2026,9,1))` -> `true`.
+  The oracle agreed (same ACTIVE list), so this was a rule ambiguity, and
+  the lead ruled: overdue against `target_implementation_date` applies
+  only BEFORE the change is on the facility, i.e. Draft, Screening,
+  Review and Approval. Late work after implementation is carried by
+  overdue ACTIONS (`summarise().overdueActions`), which did not change.
+  `summarise().overdue` and the `byUrgency` rank ask `isOverdue`, so both
+  follow: an Implementation change past its target now ranks with live
+  work (rank 3) instead of overdue (rank 2). Doc comments say so. The
+  oracle's `o_is_overdue` now reads a `PRE_EFFECT` list.
+- **Goldens moved (4 existing, expected only):** `overdue-Implementation-past`
+  true -> false; `summarise-register` overdue 3 -> 2;
+  `summarise-no-context` overdue 2 -> 1;
+  `summarise-lead-edge-moves-a-day-later` overdue 4 -> 3. In each summary
+  the one change that left the count is in Implementation. No other key
+  moved. 8 cases added (`rc3-*`), including the course repro, every
+  pre-effect stage still overdue, a summary with in-effect changes past
+  target and an urgency sort. 272 -> 280. The previous engine fails the 4
+  moved cases and 4 of the 8 new ones (the pre-effect cases pass on both,
+  by design).
+- **Not changed:** expiry, ratification, the approval gate, action
+  counts, the within-rank date mix (O2).
+
+- **RC-9 (copy), number and article agreement.** Repro:
+  `canAdvance({type:'Permanent',stage:'Approval'}, 'Implementation',
+  {approvals:[L1 Approved, L2 Pending, L3 Pending]}).reason` ->
+  "Approval level 2 and 3 has not signed yet." Now "Approval levels 2 and
+  3 have not signed yet." (one level: "Approval level 2 has not signed
+  yet."; three: "levels 2, 3 and 4 have"). The sweep found the same class
+  in the emergency close gate ("has not ratified") and the article class
+  in two more places: "A emergency change needs an expiry date" (a real
+  path: an Emergency change with its first level signed and no expiry)
+  and "A <stage> change is final" for an unknown stage ("An approved
+  change is final."). Golden cases `rc9-*` (11) compare the sentence
+  verbatim (`"prose": "exact"`); the oracle builds the agreement itself
+  (`_article`, `_listed`) around the engine's words. The previous engine
+  fails 6 of them (the singular, Temporary and consonant-stage cases pass
+  on both, by design). 272 -> 291 in total with RC-3.

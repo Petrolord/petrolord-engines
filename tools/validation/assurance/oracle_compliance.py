@@ -118,6 +118,36 @@ def explain(o, today):
             'nextActionDate': nxt}
 
 
+def _in_days(n):
+    return 'today' if n == 0 else f"in {n} day{'' if n == 1 else 's'}"
+
+
+def explain_reason(o, today):
+    """ASC-0 R4, the Compliant and On track sentences only. The words are the
+    engine's; which sentence applies, and every count in it, is decided
+    here: a filed One-off says it is discharged (never a negative "next due
+    in"), naming a permit expiry still ahead; a count agrees with 'day'."""
+    st = status(o, today)
+    t = to_date(today)
+    nxt = next_action(o)
+    days = None if nxt is None else (nxt - t).days
+    filed = o.get('last_submitted_date')
+    if st == COMPLIANT and o.get('frequency') == 'One-off':
+        out = f'Filed {to_date(filed).isoformat()}. A one-off obligation, nothing further is due.'
+        exp = to_date(o.get('expiry_date'))
+        if exp is not None and (exp - t).days >= 0:
+            out += f' The permit expires {_in_days((exp - t).days)}.'
+        return out
+    if st == COMPLIANT:
+        return f'Last filed {filed}, next due {_in_days(days)}.'
+    if st == ON_TRACK:
+        if filed:
+            return (f'Due {_in_days(days)}. The last filing ({filed}) was for an earlier period, '
+                    'so nothing has been filed for this one yet.')
+        return f'Due {_in_days(days)}. Nothing has been filed against it yet.'
+    raise ValueError('explain_reason covers Compliant and On track only')
+
+
 def summarise(obs, today):
     by = {s: 0 for s in SEVERITY}
     for o in obs:
@@ -355,6 +385,36 @@ def build():
         ('ps-garbage-date', 'soon', 'Annual'), ('ps-impossible-date', '2026-02-30', 'Monthly'),
     ]:
         c.add(cid, 'periodStart', [d, f], period_start(d, f), defect='AS15-Q2')
+
+    # ASC-0 R4: explainStatus says what is true of a filed One-off, and every
+    # Compliant / On track count agrees with 'day'. Compared verbatim. The
+    # course's repro first: filed 2026-08-10 against a 2026-08-14 due date,
+    # read on 2026-10-15, printed "next due in -62 days".
+    R4_T = D('2026-10-15')
+    r4 = [
+        ('one-off-filed-after-due-passed', {'frequency': 'One-off', 'due_date': '2026-08-14',
+                                            'last_submitted_date': '2026-08-10'}, R4_T),
+        ('one-off-filed-due-ahead', {'frequency': 'One-off', 'due_date': '2026-12-01',
+                                     'last_submitted_date': '2026-09-01'}, T),
+        ('one-off-filed-due-today', {'frequency': 'One-off', 'due_date': '2026-09-17',
+                                     'last_submitted_date': '2026-09-10'}, T),
+        ('one-off-filed-permit-ahead', {'frequency': 'One-off', 'due_date': '2026-08-14',
+                                        'expiry_date': '2027-03-01', 'last_submitted_date': '2026-08-10'}, T),
+        ('one-off-filed-permit-expires-today', {'frequency': 'One-off', 'expiry_date': '2026-09-17',
+                                                'last_submitted_date': '2026-08-10'}, T),
+        ('one-off-filed-timestamp', {'frequency': 'One-off', 'due_date': '2026-08-14',
+                                     'last_submitted_date': '2026-08-10T09:30:00'}, T),
+        ('annual-compliant-one-day', {'frequency': 'Annual', 'due_date': '2026-09-18', 'lead_time_days': 0,
+                                      'last_submitted_date': '2026-01-10'}, T),
+        ('annual-compliant-many-days', {'frequency': 'Annual', 'due_date': '2027-01-10',
+                                        'last_submitted_date': '2026-02-10'}, T),
+        ('on-track-one-day', {'frequency': 'Monthly', 'due_date': '2026-09-18', 'lead_time_days': 0}, T),
+        ('on-track-earlier-period', {'frequency': 'Monthly', 'due_date': '2026-12-01',
+                                     'last_submitted_date': '2026-01-05'}, T),
+    ]
+    for cid, o, t in r4:
+        c.add('r4-' + cid, 'explainStatus', [o, t], {**explain(o, t), 'reason': explain_reason(o, t)},
+              defect='R4', prose='exact')
     return c
 
 

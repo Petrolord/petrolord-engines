@@ -99,6 +99,12 @@ describe('the checklist is the audit', () => {
     const progress = checklistProgress(items, [response({ item_id: 'i1' })]);
     expect(progress).toMatchObject({ total: 2, answered: 1, outstanding: 1, percent: 50 });
     expect(checklistProgress([], []).percent).toBe(null);
+    // ASC-0 R2: half up on the exact rational; 57 of 200 is 28.5, so 29.
+    const many = Array.from({ length: 200 }, (_, i) => item({ id: `h${i}`, item_no: `9.${i}` }));
+    const answers = many.slice(0, 57).map((it, i) => response({ id: `hr${i}`, item_id: it.id }));
+    expect(checklistProgress(many, answers).percent).toBe(29);
+    const audits = Array.from({ length: 40 }, (_, i) => audit({ id: `p${i}`, status: i < 23 ? 'Reported' : 'Planned' }));
+    expect(programmeProgress(audits, TODAY).percent).toBe(58);
   });
 
   it('names the items nobody answered rather than counting them', () => {
@@ -448,6 +454,20 @@ describe('AS15 owner decision Q11: the engine does not trust the stored row', ()
       expect(v.ok).toBe(false);
       expect(v.reason).toMatch(/AUD-2026-009/);
     });
+  });
+
+  // ASC-0 R1: one authority. The Programmes page and the dashboard read
+  // the same audits, so they must print the same outstanding count.
+  it('summarise counts outstanding audits exactly as programmeProgress does', () => {
+    const asOf = new Date(2026, 9, 15);
+    const audits = [
+      audit({ id: 'a1', status: 'Reported' }),
+      audit({ id: 'a2', status: 'Cancelled', cancellation_reason: null }),
+      audit({ id: 'a3', status: 'Cancelled', cancellation_reason: 'Plant shutdown' }),
+      audit({ id: 'a4', status: 'Planned', planned_end: '2026-09-01' }),
+    ];
+    expect(programmeProgress(audits, asOf).outstanding).toBe(2);
+    expect(summarise({ audits }, asOf).auditsOutstanding).toBe(2);
   });
 });
 

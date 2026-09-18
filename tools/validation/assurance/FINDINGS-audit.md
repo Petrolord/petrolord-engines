@@ -84,3 +84,43 @@ docs/scope/AssuranceApps-STATUS.md §3k for decision.
     `report-refused-over-na-without-reason`.
 
 Negative control: against the pre-AS15 engine every case above fails.
+
+## ASC-0 (2026-09-18): RC-9, copy (family sweep)
+
+- "A <status> audit is final." and "A <status> programme is final." now
+  choose their article from the word ("An archived audit is final."). No
+  status the module defines starts with a vowel, so only an unknown value
+  printed the defect; nothing in the goldens moved. Covered by
+  `__tests__/assurance.copy.test.js`.
+
+## ASC-0 (2026-09-18): the repairs the Compliance course found
+
+- **R1, two authorities for "outstanding".** AS15 Q11 made a cancellation
+  with no written reason outstanding in `programmeProgress` and
+  `canCompleteProgramme`; `summarise().auditsOutstanding` still counted
+  it done. Repro, audits [Reported, Cancelled with no reason, Cancelled
+  'Plant shutdown', Planned ending 2026-09-01] as of 2026-10-15:
+  `programmeProgress(...).outstanding` 2, `summarise({audits}).auditsOutstanding`
+  1. The oracle's `programme_progress` did not model Q11 either (it said
+  1 as well), and no golden case put a reasonless cancellation inside a
+  programme, so nothing caught it. Changed: one internal predicate,
+  `isOutstandingAudit`, answers for all three; the oracle's new
+  `audit_outstanding` models Q11 once for `programme_progress` and
+  `summarise`. Cases `r1-*` (4): the repro in each function and a
+  blank/whitespace-reason set. The previous engine fails the two
+  summarise cases (its programmeProgress was already right). No existing
+  case moved. 171 -> 175. Latent in production: the database constraint
+  `audit_records_cancel_needs_reason` refuses such a row on the write path.
+- **R2, percent rounding at an exact half (ambiguity 2 above, now
+  decided).** `checklistProgress` on 57 answered of 200 printed 28:
+  `Math.round((57 / 200) * 100)` rounds the binary float 28.499999...,
+  where the exact 28.5 rounds half up to 29. The lead ruled every
+  percentage in the family is round half UP on the EXACT rational.
+  Changed: `checklistProgress` and `programmeProgress` compute
+  `floor((200n + d) / 2d)` from the integer counts (`halfUpPercent`, with
+  the exactness argument in its comment). This oracle already rounded
+  that way (`half_up_percent`); the gap was that no golden sat on an exact
+  half the float gets wrong. Cases `r2-*` (6): 57 of 200 (29), 23 of 40
+  (58), 29 of 200 (15), 1 of 8 (13, where the float agreed). The previous
+  engine fails 4 (all but the 1-of-8 pair). No existing case moved. 175
+  -> 181.

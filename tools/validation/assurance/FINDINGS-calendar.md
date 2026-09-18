@@ -82,3 +82,42 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## ASC-0 item 12 (2026-09-18): the local date of an instant
+
+- **Finding (Suite repair agent, lead's item 12).** `lessonAgeDays` falls
+  back from `event_date` to `created_at`, a timestamptz sent as
+  `'2026-09-17T23:30:00+00:00'`. `parseDateOnly` takes its leading
+  YYYY-MM-DD, the UTC date, so in Lagos (UTC+1) a lesson created between
+  00:00 and 01:00 local time was dated a day early (and west of Greenwich,
+  one created after 23:00 local a day late in Pago Pago).
+- **Changed:** new export `localDateOf(value)`: a string with a time part
+  is read as the instant it names and its LOCAL calendar date taken, the
+  way `daysUntil` takes today; a date-only string, a Date and anything
+  else read exactly as `parseDateOnly` reads them, and an impossible date
+  (`2026-02-30T10:00Z`) is still no date. `parseDateOnly` is unchanged: a
+  date column that arrives as a timestamp keeps its leading date (cases
+  `parse-timestamp-prefix`, `days-timestamp-prefix` did not move).
+- **Sweep of the family for a date field that falls back to an instant:**
+  `lessonsLearned.lessonAgeDays` and `lessonByAttention` (event_date ->
+  created_at) and `qualityAssurance.ncrAgeDays` (raised_date -> created_at,
+  which feeds `summarise().oldestOpenNcrDays`, `meanOpenNcrAgeDays` and
+  `ncrAgeing`). All three now read through `localDateOf`. No other
+  function falls back to an instant. Not a fallback and not changed:
+  `managementOfChange.ratificationState` reads
+  `actual_implementation_date`, which the Suite stamps with a UTC instant
+  (RC-5, a Suite item), and `peerReview.bySeverityThenAge` compares
+  `created_at` strings as an order, not as dates.
+- **Harness:** a literal instant has a different local date per zone, so
+  it cannot be one golden expectation. The golden contract gains
+  `{"$localInstant": "YYYY-MM-DDTHH:MM"}`, the moment at that LOCAL
+  wall-clock time, revived as the UTC ISO string PostgREST sends
+  (`...+00:00`); its local date is the same in every zone and its UTC date
+  is not. The oracles' `LI(...)` writes it. `__tests__/assurance.instants.test.js`
+  pins the literal `2026-09-17T23:30:00+00:00` (and `Z`) per zone in child
+  processes: the 17th in UTC, Los Angeles, St John's and Pago Pago, the
+  18th in Lagos, Kolkata and Auckland.
+- **Goldens:** calendar 63 -> 77 (`item12-*`, 14). Negative control: with
+  the three fallbacks reverted to `parseDateOnly`, the zone sweep fails in
+  5 of 6 zones (every zone but UTC): the 23:30-local cases west of
+  Greenwich, the 00:30-local cases east of it.

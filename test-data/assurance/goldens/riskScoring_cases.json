@@ -971,6 +971,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": {
       "$date": "2026-09-17"
      }
@@ -986,6 +987,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": {
       "$date": "2026-09-16"
      }
@@ -1001,6 +1003,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": "2026-09-17"
     },
     {
@@ -1015,6 +1018,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": "2026-09-16"
     },
     {
@@ -1028,6 +1032,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": "2026-09-18"
     },
     {
@@ -1041,6 +1046,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": "2025-09-17"
     },
     {
@@ -1054,6 +1060,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": "2026-03-07"
     },
     {
@@ -1066,7 +1073,9 @@
    "id": "review-none",
    "fn": "isReviewOverdue",
    "args": [
-    {},
+    {
+     "status": "Open"
+    },
     {
      "$date": "2026-09-17"
     }
@@ -1078,6 +1087,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": ""
     },
     {
@@ -1091,6 +1101,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": "garbage"
     },
     {
@@ -1117,6 +1128,7 @@
    "fn": "isReviewOverdue",
    "args": [
     {
+     "status": "Open",
      "next_review_date": "2026-02-30"
     },
     {
@@ -1125,6 +1137,235 @@
    ],
    "expected": false,
    "repaired": "RS-1"
+  },
+  {
+   "id": "rc1-string-asof-day-after",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Open",
+     "next_review_date": "2026-09-30"
+    },
+    "2026-10-01"
+   ],
+   "expected": true,
+   "repaired": "RC-1"
+  },
+  {
+   "id": "rc1-string-asof-due-day",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Open",
+     "next_review_date": "2026-09-30"
+    },
+    "2026-09-30"
+   ],
+   "expected": false,
+   "repaired": "RC-1"
+  },
+  {
+   "id": "rc1-timestamp-asof",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Open",
+     "next_review_date": "2026-09-30"
+    },
+    "2026-10-01T00:00:00Z"
+   ],
+   "expected": true,
+   "repaired": "RC-1"
+  },
+  {
+   "id": "rc1-string-asof-year-end",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Open",
+     "next_review_date": "2026-12-31"
+    },
+    "2027-01-01"
+   ],
+   "expected": true,
+   "repaired": "RC-1"
+  },
+  {
+   "id": "rc1-unreadable-asof",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Open",
+     "next_review_date": "2020-01-01"
+    },
+    "yesterday"
+   ],
+   "expected": false,
+   "repaired": "RC-1"
+  },
+  {
+   "id": "rc1-invalid-date-asof",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Open",
+     "next_review_date": "2020-01-01"
+    },
+    {
+     "$date": null
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-1"
+  },
+  {
+   "id": "rc2-live-open",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Open",
+     "next_review_date": "2026-01-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-2"
+  },
+  {
+   "id": "rc2-live-under-review",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Under Review",
+     "next_review_date": "2026-01-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-2"
+  },
+  {
+   "id": "rc2-live-mitigated",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Mitigated",
+     "next_review_date": "2026-01-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-2"
+  },
+  {
+   "id": "rc2-live-realized",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Realized",
+     "next_review_date": "2026-01-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-2"
+  },
+  {
+   "id": "rc2-not-live-closed",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-01-10",
+     "status": "Closed"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-2"
+  },
+  {
+   "id": "rc2-not-live-draft",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-01-10",
+     "status": "Draft"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-2"
+  },
+  {
+   "id": "rc2-not-live-no-status",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-01-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-2"
+  },
+  {
+   "id": "rc2-not-live-null-status",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-01-10",
+     "status": null
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-2"
+  },
+  {
+   "id": "rc2-not-live-unknown-status",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-01-10",
+     "status": "Archived"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-2"
+  },
+  {
+   "id": "rc2-not-live-lower-case-open",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-01-10",
+     "status": "open"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-2"
   },
   {
    "id": "derive-critical-mitigated",

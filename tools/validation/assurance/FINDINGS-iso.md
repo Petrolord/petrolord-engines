@@ -147,3 +147,54 @@ AssuranceApps-STATUS.md). Three changed this module.
 
 Negative control: against the pre-AS15 engine every case above fails
 (canExamineClause does not exist there).
+
+## ASC-0 (2026-09-18): RC-9, copy (family sweep)
+
+- `certificationReadiness` blockers: "2 corrective or preventive actions
+  are past its due date." and "2 findings are past its due date." Now
+  "past their due dates" for two or more ("past its due date" for one).
+- "A <status> audit is final." chooses its article ("An archived audit
+  is final."); only an unknown status could print the defect.
+- Blocker `text` is prose, stripped by the golden runner, so no golden
+  moved; covered by `__tests__/assurance.copy.test.js`.
+
+## ASC-0 (2026-09-18): the repairs the Compliance course found
+
+- **R3, `certificateExpiring` true for a lapsed certificate.** Repro:
+  `certificationReadiness({id:'s', certificate_expires:'2026-09-30'},
+  {clauses:[...]}, 2026-10-15).counts` -> `certificateDays -15,
+  certificateExpiring true, certificateExpired true`. The flag was
+  `certDays <= 90` with no lower bound, and this oracle mirrored it (its
+  blocker list already used `0 <= cert <= 90`). Changed, engine and
+  oracle: `certificateExpiring` is `0 <= certDays <= CERTIFICATE_LEAD_DAYS`
+  and `certificateExpired` stays `certDays < 0`, so the two partition the
+  line with no overlap and no gap; the day of expiry (0) is expiring and
+  not expired, the family's rule for a date due today. Sweep in the same
+  function: on day 0 the watch blocker read "The certificate expires in 0
+  days."; it now reads "The certificate expires today. Book the
+  recertification audit now."
+- **Goldens moved (4, expected only, `counts.certificateExpiring` true ->
+  false, every one a lapsed certificate):** `ready-one-year-cycle-expired`,
+  `ready-cert-expired-yesterday`, `ready-cert-expired-long-ago`,
+  `ready-cert-lapsed-sits-among-serious`. No other field moved. Added
+  `r3-*` (4): the course repro, day -1, day 0, day 1.
+- **R5, "ISO 9001" cited for every standard.** The never-audited blocker
+  said "ISO 9001 §9.2 requires ..." and the not-applicable refusal "ISO
+  9001:2015 §4.3 requires ..." whatever standard the register held (the
+  course's register is ISO 14001). Changed: both read the standard record
+  (`code`, then `title`). Internal audit is §9.2 in ISO 9001, 14001 and
+  45001 (the harmonized structure), so those codes keep the clause
+  number ("ISO 14001:2015 §9.2 requires the organization to audit its own
+  system."); any other code is named without one ("API Q1 requires ...").
+  The kept justification for a requirement determined not applicable is
+  ISO 9001 §4.3 alone, so only a 9001 register cites §4.3; any other names
+  the standard ("Say why this requirement of ISO 14001:2015 does not
+  apply. A requirement determined not applicable keeps its justification
+  on record."). With no record, standard-neutral words. `canSetClauseStatus`
+  gains a fourth argument, `standard` (the clause's `iso_standards` row),
+  so a caller that passes nothing now gets the neutral wording. Cases
+  `r5-*` (6) compare the refusal verbatim (`"prose": "exact"`), the
+  blocker is covered in jest (blocker `text` is prose-stripped).
+- 206 -> 216. The previous engine fails the two R3 cases with a lapsed
+  certificate (the repro and day -1; day 0 and day 1 read the same before
+  and after) and the five R5 cases other than ISO 9001.

@@ -31,7 +31,7 @@
  * them is an owner decision with a migration behind it.
  */
 
-import { daysUntil } from './calendar.js';
+import { daysUntil, parseDateOnly } from './calendar.js';
 
 export const SCALE_MIN = 1;
 export const SCALE_MAX = 5;
@@ -132,14 +132,23 @@ export const getAppetiteStatus = (risk = {}) => {
 /**
  * Is this risk's review overdue? `asOf` is injectable so the tests are
  * not a function of the day they run on.
+ *
+ * Only a LIVE risk (RISK_LIVE_STATUSES) can be review-overdue, the same
+ * shape as every other overdue test in the family: a Closed or Draft
+ * risk carries no review obligation, and a risk with no status is not
+ * known to be live (RC-2, ASC-0).
  */
 export const isReviewOverdue = (risk = {}, asOf = new Date()) => {
-  // A calendar date, read at LOCAL midnight through calendar.js. This used
-  // `new Date('YYYY-MM-DD')`, which is UTC midnight, so west of Greenwich
-  // a review due today read overdue (RS-1, AS12 oracle; the AS3 defect).
-  // A review due today is not yet overdue.
-  const today = asOf instanceof Date ? asOf : new Date(asOf);
-  if (Number.isNaN(today.getTime())) return false;
+  if (!RISK_LIVE_STATUSES.includes(risk?.status)) return false;
+  // Both dates are calendar dates, read at LOCAL midnight through
+  // calendar.js. The risk's date used `new Date('YYYY-MM-DD')`, UTC
+  // midnight, so west of Greenwich a review due today read overdue (RS-1,
+  // AS12 oracle; the AS3 defect). The as-of date kept that read after the
+  // RS-1 repair, so a STRING as-of date was the day before west of
+  // Greenwich (RC-1, ASC-0). A review due today is not yet overdue, and an
+  // unreadable as-of date decides nothing.
+  const today = parseDateOnly(asOf);
+  if (!today) return false;
   const days = daysUntil(risk.next_review_date, today);
   return days !== null && days < 0;
 };

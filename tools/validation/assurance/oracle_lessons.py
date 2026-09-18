@@ -80,6 +80,21 @@ def cal_date(v):
     except ValueError:
         return None
 
+def LI(local):
+    """ASC-0 item 12: an instant at a LOCAL wall-clock time. The golden runner
+    hands the engine that moment as a UTC ISO string ('...+00:00'), so its
+    UTC date is the local date only in UTC; its local date is written here."""
+    return {'$localInstant': local}
+
+
+def local_date_of(v):
+    """ASC-0 item 12: the LOCAL calendar date of an instant; anything else as
+    cal_date reads it (a date-only string stays that calendar date)."""
+    if isinstance(v, dict) and '$localInstant' in v:
+        return dt.date.fromisoformat(v['$localInstant'][:10])
+    return cal_date(v)
+
+
 
 def days_until(v, today):
     d = cal_date(v)
@@ -293,8 +308,10 @@ def o_review_soon(l, today):
 
 
 def event_of(l):
+    # ASC-0 item 12: the event date is a calendar date; the created_at
+    # fallback is an instant, read as its LOCAL calendar date.
     e = get(l, 'event_date')
-    return cal_date(e if js_truthy(e) else get(l, 'created_at'))
+    return cal_date(e) if js_truthy(e) else local_date_of(get(l, 'created_at'))
 
 
 def o_age(l, today):
@@ -400,10 +417,12 @@ def attention_order(rows, apps_by_lesson, today):
 cases = []
 
 
-def case(cid, fn, args, expected, defect=None):
+def case(cid, fn, args, expected, defect=None, prose=None):
     c = {'id': cid, 'fn': fn, 'args': args, 'expected': expected}
     if defect:
         c['repaired'] = defect
+    if prose:
+        c['prose'] = prose  # 'exact': reason compared verbatim (ASC-0 RC-9)
     cases.append(c)
 
 
@@ -621,7 +640,8 @@ age = {
     'event-400': {'event_date': iso(-400)},
     'event-today': {'event_date': iso(0)},
     'event-future': {'event_date': iso(10)},
-    'created-at-only': {'created_at': '2026-09-01T23:59:00Z'},
+    # ASC-0 item 12: created_at is an instant; LI makes it zone-invariant.
+    'created-at-only': {'created_at': LI('2026-09-01T23:59')},
     'event-over-created': {'event_date': iso(-5), 'created_at': iso(-1) + 'T00:00:00Z'},
     'nothing': {},
     'garbage': {'event_date': 'Q2 2025'},
@@ -726,7 +746,7 @@ att_rows = [
     dict(id='draft-new', status='Draft', event_date=iso(-3)),
     dict(id='applied-review-overdue', status='Published', review_due=iso(-1), event_date=iso(-90)),
     dict(id='unapplied-old', status='Published', event_date=iso(-200)),
-    dict(id='submitted', status='Submitted', created_at=iso(-10) + 'T09:00:00Z'),
+    dict(id='submitted', status='Submitted', created_at=LI(iso(-10) + 'T09:00')),
     dict(id='unapplied-new', status='Embedded', event_date=iso(-20)),
     dict(id='applied-current', status='Embedded', review_due=iso(100), event_date=iso(-60)),
     dict(id='rejected-only-unapplied', status='Published', event_date=iso(-100)),
@@ -752,6 +772,54 @@ und = [dict(id='jan', status='Draft', event_date='2026-01-10'),
 cases.append({'id': 'attention-undated-between-dated', 'sort': 'lessonByAttention', 'factory': True,
               'factoryArgs': [{'$map': []}, T], 'rows': und,
               'expectedOrder': attention_order(und, {}, T), 'repaired': 'LL-1'})
+
+# --- ASC-0 item 12: a lesson with no event date is dated by its created_at,
+# an instant, read as its LOCAL calendar date. 00:30 local is the previous
+# UTC date east of Greenwich (Lagos, Kolkata, Auckland); 23:30 local is the
+# next UTC date west (Los Angeles, St John's, Pago Pago). The previous engine
+# took the UTC date, so the zone sweep fails it on one side or the other.
+for tag, l in {
+    'created-0030-local': {'created_at': LI('2026-09-10T00:30')},
+    'created-2330-local': {'created_at': LI('2026-09-10T23:30')},
+    'created-today-0030': {'created_at': LI(iso(0) + 'T00:30')},
+    'created-today-2330': {'created_at': LI(iso(0) + 'T23:30')},
+    'event-date-wins-over-instant': {'event_date': '2026-09-01', 'created_at': LI('2026-09-10T00:30')},
+}.items():
+    case(f'item12-age-{tag}', 'lessonAgeDays', [l, T], o_age(l, T), 'ASC0-12')
+i12 = [dict(id='dated-9th', status='Draft', event_date='2026-09-09'),
+       dict(id='created-10th-0030', status='Draft', created_at=LI('2026-09-10T00:30')),
+       dict(id='created-8th-2330', status='Draft', created_at=LI('2026-09-08T23:30'))]
+cases.append({'id': 'item12-attention-created-instants', 'sort': 'lessonByAttention', 'factory': True,
+              'factoryArgs': [{'$map': []}, T], 'rows': i12,
+              'expectedOrder': attention_order(i12, {}, T), 'repaired': 'ASC0-12'})
+
+# --- ASC-0 RC-9: the article agrees with the status, and a list of what is
+# missing reads 'a, b and c'. The words are the engine's; the agreement is
+# decided here. Compared verbatim ("prose": "exact").
+
+
+def _article(word):
+    return 'An' if str(word)[:1].lower() in 'aeiou' else 'A'
+
+
+def _listed(xs):
+    return xs[0] if len(xs) == 1 else ', '.join(xs[:-1]) + ' and ' + xs[-1]
+
+
+for st in ('Archived', 'Superseded', 'Obsolete'):
+    l = dict(id='L1', status=st)
+    case(f'rc9-final-article-{st.lower()}', 'canAdvanceLesson', [l, 'Draft', {}],
+         {'ok': False, 'reason': f'{_article(st.lower())} {st.lower()} lesson is final.'}, 'RC-9', prose='exact')
+for tag, l in [
+    ('all-three', dict(id='L1', status='Submitted')),
+    ('two', dict(id='L1', status='Submitted', description='Seal failed')),
+    ('one', dict(id='L1', status='Submitted', description='Seal failed', root_cause='Wrong elastomer')),
+]:
+    miss = o_missing(l)
+    case(f'rc9-missing-{tag}', 'canValidate', [l, 'u-other'],
+         {'ok': False, 'reason': f'This lesson is missing {_listed(miss)}. A lesson is what happened, why it '
+                                 'happened and what to do about it; the first two without the third are a story.'},
+         'RC-9', prose='exact')
 
 golden = {
     'module': 'lessonsLearned',

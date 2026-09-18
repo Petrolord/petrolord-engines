@@ -21,6 +21,15 @@
  *     {"$map": [[k, v], ...]}  a Map
  *     {"$num": "NaN"|"Infinity"|"-Infinity"}
  *     {"$undefined": true}     an explicit undefined argument
+ *     {"$localInstant": "YYYY-MM-DDTHH:MM"}  (ASC-0 item 12) the moment at
+ *                              that LOCAL wall-clock time, as the ISO
+ *                              string PostgREST sends for a timestamptz,
+ *                              in UTC: 'YYYY-MM-DDTHH:MM:SS+00:00'. So its
+ *                              UTC date differs from its local date by the
+ *                              zone, and one expectation (the local date)
+ *                              holds in every zone of the sweep. A literal
+ *                              '...T23:30:00Z' has a different local date
+ *                              per zone and cannot be a golden argument.
  *
  *   A case may carry "knownDefect": "<finding id>" when the engine and the
  *   oracle disagree and tools/validation/assurance/FINDINGS-<x>.md records
@@ -57,6 +66,12 @@ export const revive = (v) => {
     if ('$map' in v) return new Map(v.$map.map(([k, x]) => [revive(k), revive(x)]));
     if ('$num' in v) return Number(v.$num);
     if ('$undefined' in v) return undefined;
+    if ('$localInstant' in v) {
+      const [d, t] = v.$localInstant.split('T');
+      const [y, m, day] = d.split('-').map(Number);
+      const [hh, mm] = t.split(':').map(Number);
+      return new Date(y, m - 1, day, hh, mm).toISOString().replace(/\.\d{3}Z$/, '+00:00');
+    }
     return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, revive(x)]));
   }
   return v;

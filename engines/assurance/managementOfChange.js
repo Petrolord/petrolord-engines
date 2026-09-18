@@ -35,6 +35,15 @@ import {
 
 export { daysUntil, parseDateOnly, toDateOnlyString };
 
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
+// ASC-0 (RC-9): '2', '2 and 3', '2, 3 and 4'.
+const listed = (xs) => (xs.length <= 1 ? xs.join('')
+  : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
 /** Stages, in workflow order. */
 export const STAGES = Object.freeze([
   'Draft',
@@ -144,8 +153,21 @@ export const expiryState = (moc = {}, today = new Date()) => {
 export const isExpired = (moc, today = new Date()) =>
   expiryState(moc, today) === EXPIRY.EXPIRED;
 
+/**
+ * Is this change late to be implemented?
+ *
+ * Only BEFORE it is on the facility: a stage in ACTIVE_STAGES that is not
+ * in IN_EFFECT_STAGES (Draft, Screening, Review, Approval). A change in
+ * Implementation is in effect, so its target implementation date has been
+ * met or passed by the fact of it; late work after that point is carried
+ * by its overdue ACTIONS (`summarise().overdueActions`). Before ASC-0 the
+ * test used ACTIVE_STAGES alone, so a change implemented ON its target
+ * date read overdue from the next day until it closed (RC-3). The
+ * dashboard's `summarise().overdue` and the `byUrgency` rank both ask this
+ * function, so they follow it.
+ */
 export const isOverdue = (moc = {}, today = new Date()) => {
-  if (!ACTIVE_STAGES.includes(moc.stage)) return false;
+  if (!ACTIVE_STAGES.includes(moc.stage) || IN_EFFECT_STAGES.includes(moc.stage)) return false;
   const days = daysUntil(moc.target_implementation_date, today);
   return days !== null && days < 0;
 };
@@ -283,7 +305,7 @@ export const canAdvance = (moc = {}, to, { approvals = [], actions = [] } = {}) 
       ok: false,
       reason: allowed.length
         ? `A change in ${moc.stage} can only move to ${allowed.join(', ')}.`
-        : `A ${String(moc.stage).toLowerCase()} change is final.`,
+        : `${withArticle(String(moc.stage).toLowerCase())} change is final.`,
     };
   }
 
@@ -304,7 +326,7 @@ export const canAdvance = (moc = {}, to, { approvals = [], actions = [] } = {}) 
         ok: false,
         reason: moc.type === 'Emergency'
           ? `An emergency change can go in once approval level ${state.levels[0]} has signed, with the rest ratified within ${EMERGENCY_RATIFY_DAYS} days. Level ${state.levels[0]} has not signed yet.`
-          : `Approval level ${state.outstanding.join(' and ')} has not signed yet.`,
+          : `Approval level${state.outstanding.length === 1 ? '' : 's'} ${listed(state.outstanding)} ${state.outstanding.length === 1 ? 'has' : 'have'} not signed yet.`,
       };
     }
     const pre = openActions(actions, 'Pre-implementation');
@@ -321,7 +343,7 @@ export const canAdvance = (moc = {}, to, { approvals = [], actions = [] } = {}) 
     if (EXPIRING_TYPES.includes(moc.type) && !parseDateOnly(moc.expiry_date)) {
       return {
         ok: false,
-        reason: `A ${String(moc.type).toLowerCase()} change needs an expiry date before it is implemented. Without one it is a permanent change nobody decided to make.`,
+        reason: `${withArticle(String(moc.type).toLowerCase())} change needs an expiry date before it is implemented. Without one it is a permanent change nobody decided to make.`,
       };
     }
   }
@@ -333,7 +355,7 @@ export const canAdvance = (moc = {}, to, { approvals = [], actions = [] } = {}) 
         ok: false,
         reason: st.rejected.length
           ? 'An approver has rejected this emergency change after the event. It has to be reversed or resubmitted, not closed.'
-          : `Approval level ${st.outstanding.join(' and ')} has not ratified this emergency change. It cannot close until every level has signed.`,
+          : `Approval level${st.outstanding.length === 1 ? '' : 's'} ${listed(st.outstanding)} ${st.outstanding.length === 1 ? 'has' : 'have'} not ratified this emergency change. It cannot close until every level has signed.`,
       };
     }
     const post = openActions(actions, 'Post-implementation')
@@ -419,8 +441,9 @@ export const countBy = (rows = [], field, unset = 'Unspecified') => {
 };
 
 /**
- * Sort: expired temporary changes first, then overdue, then live work,
- * then everything finished. An expired temporary change outranks
+ * Sort: expired temporary changes first, then expiring soon, then
+ * overdue (late to be implemented, `isOverdue`, so never a change already
+ * in Implementation), then live work, then everything finished. An expired temporary change outranks
  * everything because it is the one that is actually on the facility
  * without authority.
  */

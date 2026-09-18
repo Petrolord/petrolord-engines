@@ -2310,6 +2310,248 @@
    ],
    "expected": null,
    "repaired": "AS15-Q2"
+  },
+  {
+   "id": "r4-one-off-filed-after-due-passed",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "due_date": "2026-08-14",
+     "last_submitted_date": "2026-08-10"
+    },
+    {
+     "$date": "2026-10-15"
+    }
+   ],
+   "expected": {
+    "status": "Compliant",
+    "daysUntil": -62,
+    "nextActionDate": {
+     "$date": "2026-08-14"
+    },
+    "reason": "Filed 2026-08-10. A one-off obligation, nothing further is due."
+   },
+   "repaired": "R4",
+   "prose": "exact"
+  },
+  {
+   "id": "r4-one-off-filed-due-ahead",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "due_date": "2026-12-01",
+     "last_submitted_date": "2026-09-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Compliant",
+    "daysUntil": 75,
+    "nextActionDate": {
+     "$date": "2026-12-01"
+    },
+    "reason": "Filed 2026-09-01. A one-off obligation, nothing further is due."
+   },
+   "repaired": "R4",
+   "prose": "exact"
+  },
+  {
+   "id": "r4-one-off-filed-due-today",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "due_date": "2026-09-17",
+     "last_submitted_date": "2026-09-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Compliant",
+    "daysUntil": 0,
+    "nextActionDate": {
+     "$date": "2026-09-17"
+    },
+    "reason": "Filed 2026-09-10. A one-off obligation, nothing further is due."
+   },
+   "repaired": "R4",
+   "prose": "exact"
+  },
+  {
+   "id": "r4-one-off-filed-permit-ahead",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "due_date": "2026-08-14",
+     "expiry_date": "2027-03-01",
+     "last_submitted_date": "2026-08-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Compliant",
+    "daysUntil": -34,
+    "nextActionDate": {
+     "$date": "2026-08-14"
+    },
+    "reason": "Filed 2026-08-10. A one-off obligation, nothing further is due. The permit expires in 165 days."
+   },
+   "repaired": "R4",
+   "prose": "exact"
+  },
+  {
+   "id": "r4-one-off-filed-permit-expires-today",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "expiry_date": "2026-09-17",
+     "last_submitted_date": "2026-08-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Compliant",
+    "daysUntil": 0,
+    "nextActionDate": {
+     "$date": "2026-09-17"
+    },
+    "reason": "Filed 2026-08-10. A one-off obligation, nothing further is due. The permit expires today."
+   },
+   "repaired": "R4",
+   "prose": "exact"
+  },
+  {
+   "id": "r4-one-off-filed-timestamp",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "due_date": "2026-08-14",
+     "last_submitted_date": "2026-08-10T09:30:00"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Compliant",
+    "daysUntil": -34,
+    "nextActionDate": {
+     "$date": "2026-08-14"
+    },
+    "reason": "Filed 2026-08-10. A one-off obligation, nothing further is due."
+   },
+   "repaired": "R4",
+   "prose": "exact"
+  },
+  {
+   "id": "r4-annual-compliant-one-day",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-09-18",
+     "lead_time_days": 0,
+     "last_submitted_date": "2026-01-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Compliant",
+    "daysUntil": 1,
+    "nextActionDate": {
+     "$date": "2026-09-18"
+    },
+    "reason": "Last filed 2026-01-10, next due in 1 day."
+   },
+   "repaired": "R4",
+   "prose": "exact"
+  },
+  {
+   "id": "r4-annual-compliant-many-days",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2027-01-10",
+     "last_submitted_date": "2026-02-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "Compliant",
+    "daysUntil": 115,
+    "nextActionDate": {
+     "$date": "2027-01-10"
+    },
+    "reason": "Last filed 2026-02-10, next due in 115 days."
+   },
+   "repaired": "R4",
+   "prose": "exact"
+  },
+  {
+   "id": "r4-on-track-one-day",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Monthly",
+     "due_date": "2026-09-18",
+     "lead_time_days": 0
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "On track",
+    "daysUntil": 1,
+    "nextActionDate": {
+     "$date": "2026-09-18"
+    },
+    "reason": "Due in 1 day. Nothing has been filed against it yet."
+   },
+   "repaired": "R4",
+   "prose": "exact"
+  },
+  {
+   "id": "r4-on-track-earlier-period",
+   "fn": "explainStatus",
+   "args": [
+    {
+     "frequency": "Monthly",
+     "due_date": "2026-12-01",
+     "last_submitted_date": "2026-01-05"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "status": "On track",
+    "daysUntil": 75,
+    "nextActionDate": {
+     "$date": "2026-12-01"
+    },
+    "reason": "Due in 75 days. The last filing (2026-01-05) was for an earlier period, so nothing has been filed for this one yet."
+   },
+   "repaired": "R4",
+   "prose": "exact"
   }
  ]
 }

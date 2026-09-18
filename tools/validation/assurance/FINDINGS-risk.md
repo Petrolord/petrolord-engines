@@ -99,3 +99,34 @@ docs/scope/AssuranceApps-STATUS.md §3k for decision.
   '4.0', ' 3 ' or `true` (Number(true) = 1) is still read as that
   level. `getRiskBand` is unchanged: it bands any positive score.
 - Negative control: the previous engine fails all 8 AS15-Q3 cases.
+
+## ASC-0 (2026-09-18): the repairs the Risk and Change course found
+
+- **RC-1, a string as-of date read as a UTC instant.** `isReviewOverdue`
+  read the risk's date through calendar.js after RS-1 but still built the
+  as-of date with `new Date(asOf)`, so `'2026-10-01'` was UTC midnight, 30
+  September west of Greenwich. Repro, `{status:'Open',
+  next_review_date:'2026-09-30'}` as of `'2026-10-01'`: `true` under UTC,
+  `false` under America/Los_Angeles and Pacific/Pago_Pago. Changed: the
+  as-of date is read through `parseDateOnly`, so a string is a calendar
+  date in every zone and an unreadable one (`'yesterday'`, an Invalid
+  Date) decides nothing (`false`, as before for an Invalid Date). Cases
+  `rc1-*` (6). They pass in UTC against the previous engine and fail west
+  of it, so the zone sweep is what gates them: Pacific/Pago_Pago (UTC-11)
+  was added to it (RC-11), and the previous engine fails the sweep in
+  America/Los_Angeles, America/St_Johns and Pacific/Pago_Pago.
+- **RC-2, a closed risk read review-overdue.** Every other overdue test in
+  the family filters to live stages; this one read the date only. Repro:
+  `{status:'Closed', next_review_date:'2026-01-10'}` -> `true`. Changed:
+  only a status in `RISK_LIVE_STATUSES` (Open, Under Review, Mitigated,
+  Realized) can be review-overdue. Closed, Draft, a status the register
+  does not have, and NO status are not overdue, the shape of
+  `peerReview.isOverdue` and `managementOfChange.isOverdue`, where a
+  record with no stage is not live. Cases `rc2-*` (10); the previous
+  engine fails all 6 not-live cases.
+- **Goldens moved:** 11 existing `review-*` cases changed ARGUMENTS only
+  (each risk now carries `status: 'Open'`, because a risk with no status
+  is no longer live); no expected value changed. 16 cases added. 124 -> 140.
+- **Not changed:** the band, score, residual and appetite rules; the
+  status vocabulary; a live risk with no or an unreadable review date is
+  still not overdue.

@@ -45,11 +45,29 @@ import {
   MS_PER_DAY,
   startOfDay,
   daysUntil,
+  localDateOf,
   parseDateOnly,
   toDateOnlyString,
 } from './calendar.js';
 
 export { daysUntil, parseDateOnly, toDateOnlyString };
+
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
+/**
+ * ASC-0 (R2): a whole percent, round half UP on the EXACT rational n/d
+ * (n, d whole counts, n >= 0, d > 0). floor((200n + d) / 2d) is
+ * floor(100n/d + 1/2), computed from integers. It replaces
+ * Math.round((n / d) * 100), which rounds the binary float of n/d: 57 of
+ * 200 is 0.285, stored as 0.28499999..., and printed 28 where the exact
+ * half rounds to 29 (23 of 40 printed 57 for 58). Exact while d < 2^45:
+ * the true quotient is at least 1/(2d) below the next whole number, far
+ * more than the float division's error.
+ */
+const halfUpPercent = (n, d) => Math.floor((200 * n + d) / (2 * d));
 
 /* ------------------------------------------------------------------ */
 /* Vocabularies. Every one of these is a database check constraint in  */
@@ -266,7 +284,7 @@ export const planProgress = (checkpoints = []) => {
     outstanding: total - resolved,
     holdPoints: blocking.length,
     holdPointsOutstanding: blockingOutstanding.length,
-    percent: total === 0 ? null : Math.round((resolved / total) * 100),
+    percent: total === 0 ? null : halfUpPercent(resolved, total),
   };
 };
 
@@ -284,7 +302,9 @@ export const isNcrOverdue = (ncr = {}, today = new Date()) => {
 
 /** How long an open non-conformance has been open. The ageing number. */
 export const ncrAgeDays = (ncr = {}, today = new Date()) => {
-  const raised = parseDateOnly(ncr.raised_date || ncr.created_at);
+  // ASC-0 (item 12): raised_date is a calendar date; the created_at
+  // fallback is an instant, read as its LOCAL calendar date.
+  const raised = localDateOf(ncr.raised_date || ncr.created_at);
   if (!raised) return null;
   const end = isNcrOpen(ncr) ? startOfDay(today) : (parseDateOnly(ncr.closed_date) || startOfDay(today));
   return Math.round((end - raised) / MS_PER_DAY);
@@ -354,7 +374,7 @@ export const canCloseNcr = (ncr = {}, capas = []) => {
       && !String(ncr.root_cause || '').trim()) {
     return {
       ok: false,
-      reason: `A ${String(ncr.severity).toLowerCase()} non-conformance needs a root cause before it closes. Closing one without it is how the same non-conformance arrives again next quarter.`,
+      reason: `${withArticle(String(ncr.severity).toLowerCase())} non-conformance needs a root cause before it closes. Closing one without it is how the same non-conformance arrives again next quarter.`,
     };
   }
 
@@ -372,7 +392,7 @@ export const canCloseNcr = (ncr = {}, capas = []) => {
     if (!corrective.length) {
       return {
         ok: false,
-        reason: `A ${String(ncr.severity).toLowerCase()} non-conformance needs at least one corrective action. A disposition deals with the item; a corrective action deals with the cause.`,
+        reason: `${withArticle(String(ncr.severity).toLowerCase())} non-conformance needs at least one corrective action. A disposition deals with the item; a corrective action deals with the cause.`,
       };
     }
     if (corrective.some(isEffectivenessFailed) && !corrective.some(isEffectivenessVerified)) {
@@ -525,7 +545,7 @@ export const canAdvancePlan = (plan = {}, to, context = {}) => {
       ok: false,
       reason: allowed.length
         ? `A plan that is ${String(plan.status).toLowerCase()} can only move to ${allowed.join(', ')}.`
-        : `A ${String(plan.status).toLowerCase()} plan is final.`,
+        : `${withArticle(String(plan.status).toLowerCase())} plan is final.`,
     };
   }
   if (to === 'Closed') return canClosePlan(plan, context);

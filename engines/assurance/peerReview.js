@@ -27,6 +27,11 @@ import {
 
 export { daysUntil, parseDateOnly, toDateOnlyString };
 
+// ASC-0 (RC-9): an article that agrees with the word it introduces. The
+// refusal was written 'A ${word}', which printed "A archived lesson" and
+// "A emergency change".
+const withArticle = (word) => `${/^[aeiou]/i.test(word) ? 'An' : 'A'} ${word}`;
+
 /** Review stages, in workflow order. */
 export const STAGES = Object.freeze([
   'Draft',
@@ -100,6 +105,77 @@ export const TRANSITION_ACTOR = Object.freeze({
   Closed: 'coordinator',
 });
 
+/**
+ * Owner decision D1 of 2026-09-18 (segregation of duties), applied to
+ * peer review at ASC-0: the author of the reviewed work never acts as its
+ * reviewer. Same shape as managementOfChange's canAssignApprover /
+ * canDecideApproval and documentControl's canAssignReviewer.
+ *
+ * The author is `peer_reviews.author_id`. `created_by` is whoever raised
+ * the review record (often the coordinator) and is not the author of the
+ * work, so it is not read here. A review with no author_id recorded
+ * cannot be checked, and nothing is refused on it.
+ */
+export const REVIEWER_ROLES = Object.freeze(['Lead Reviewer', 'Reviewer']);
+
+const isAuthor = (review, userId) =>
+  Boolean(userId) && Boolean(review?.author_id) && userId === review.author_id;
+
+/**
+ * May this person be put on the review as a reviewer?
+ *
+ * `participant` is a `peer_review_participants` row: `user_id`,
+ * `display_name`, `role`. The same question answers for
+ * `peer_reviews.lead_reviewer_id`: pass `{ user_id: lead_reviewer_id,
+ * role: 'Lead Reviewer' }`. A reviewer named by display name only (no
+ * user_id, an external reviewer) cannot be matched to the author and is
+ * allowed. Roles outside REVIEWER_ROLES (Author, Coordinator, Approver,
+ * Observer) are not reviewers and are not refused here; a row with no
+ * role is asked as a Reviewer.
+ */
+export const canAssignPeerReviewer = (review = {}, participant = {}) => {
+  const p = participant || {};
+  if (!p.user_id && !String(p.display_name || '').trim()) {
+    return { ok: false, reason: 'Choose the reviewer.' };
+  }
+  // No role given is asked as a reviewer: this is the reviewer question.
+  if (REVIEWER_ROLES.includes(p.role || 'Reviewer') && isAuthor(review, p.user_id)) {
+    return {
+      ok: false,
+      reason: 'The author of the work under review cannot review it. Choose somebody independent of the work.',
+    };
+  }
+  return { ok: true };
+};
+
+const REVIEWER_VERB = Object.freeze({
+  Verified: 'verify', Rejected: 'reject', Withdrawn: 'withdraw',
+});
+
+/**
+ * May this signed-in user move this comment to `to`?
+ *
+ * First the disposition rules (explainRefusal), then segregation of
+ * duties: a transition TRANSITION_ACTOR gives to the reviewer (Verified,
+ * Rejected, Withdrawn) is never taken by the author of the work under
+ * review, who would otherwise accept their own answer to a finding
+ * against their own work. The author's own move (Responded) and the
+ * coordinator's (Closed) are not restricted here. With no user there is
+ * nobody to check, so nothing moves.
+ */
+export const canActOnComment = (comment = {}, to, review = {}, userId) => {
+  const refusal = explainRefusal(comment || {}, to);
+  if (refusal) return { ok: false, reason: refusal };
+  if (!userId) return { ok: false, reason: 'Sign in to act on this comment.' };
+  if (TRANSITION_ACTOR[to] === 'reviewer' && isAuthor(review, userId)) {
+    return {
+      ok: false,
+      reason: `The author of the work under review cannot ${REVIEWER_VERB[to]} a comment on it. A reviewer independent of the work decides it.`,
+    };
+  }
+  return { ok: true };
+};
+
 export const canTransition = (from, to) =>
   (COMMENT_TRANSITIONS[from] || []).includes(to);
 
@@ -121,10 +197,8 @@ export const explainRefusal = (comment = {}, to) => {
   }
   if (from === to) return `This comment is already ${to.toLowerCase()}.`;
   const allowed = nextStatuses(from);
-  if (!allowed.length) return `A ${from.toLowerCase()} comment is final.`;
-  const word = from.toLowerCase();
-  const article = /^[aeiou]/.test(word) ? 'An' : 'A';
-  return `${article} ${word} comment can only go to ${allowed.join(' or ')}.`;
+  if (!allowed.length) return `${withArticle(from.toLowerCase())} comment is final.`;
+  return `${withArticle(from.toLowerCase())} comment can only go to ${allowed.join(' or ')}.`;
 };
 
 export const isResolved = (comment = {}) =>
@@ -154,8 +228,11 @@ export const canClose = (comments = []) => {
   return {
     ok: false,
     blocking,
+    // ASC-0 (RC-9): the verb agrees with the count ("1 critical comment
+    // still needs resolving").
     reason: `${counts.join(' and ')} comment${blocking.length === 1 ? '' : 's'} `
-      + 'still need resolving. Verify, close out or withdraw them first.',
+      + `still need${blocking.length === 1 ? 's' : ''} resolving. `
+      + `Verify, close out or withdraw ${blocking.length === 1 ? 'it' : 'them'} first.`,
   };
 };
 
@@ -193,6 +270,20 @@ export const isOverdue = (review = {}, today = new Date()) => {
  * else's invented project, permanently.
  */
 export const summarise = (reviews = [], comments = [], today = new Date()) => {
+  // ASC-0 (RC-4b), the AS14 rule MOC and QA already follow: a comment
+  // belongs to a review, and once that review is Closed or Cancelled it is
+  // locked, so nobody can resolve a comment left on it. Counting it kept
+  // "open" and "blocking" high for ever. The history counts
+  // (totalComments, bySeverity, byStatus) still count every comment. A
+  // comment whose review is not in `reviews` still counts, as an MOC
+  // action with an unknown change does: not knowing the parent is not a
+  // reason to hide the work.
+  const finished = new Set(reviews
+    .filter((r) => ['Closed', 'Cancelled'].includes(r.stage))
+    .map((r) => r.id)
+    .filter((id) => id !== undefined && id !== null));
+  const liveComments = comments.filter((c) => !finished.has(c.review_id));
+
   const byStage = Object.fromEntries(STAGES.map((s) => [s, 0]));
   reviews.forEach((r) => {
     if (byStage[r.stage] !== undefined) byStage[r.stage] += 1;
@@ -213,8 +304,8 @@ export const summarise = (reviews = [], comments = [], today = new Date()) => {
     totalComments: comments.length,
     bySeverity,
     byStatus,
-    openComments: comments.filter((c) => !isResolved(c)).length,
-    blockingComments: comments.filter(isBlocking).length,
+    openComments: liveComments.filter((c) => !isResolved(c)).length,
+    blockingComments: liveComments.filter(isBlocking).length,
   };
 };
 

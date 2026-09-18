@@ -26,6 +26,11 @@ AssuranceApps-STATUS.md section 3 (AS2), in standard ISO 31000 5x5 terms:
   * A review due today is not overdue; one due yesterday is. The due
     date is a calendar date (calendar.js's rule: local midnight), an
     unreadable one is no date and so not overdue.
+  * ASC-0 RC-1: the as-of date is a calendar date by the same rule, a
+    string as much as a Date; an unreadable as-of date decides nothing.
+  * ASC-0 RC-2: only a LIVE risk (Open, Under Review, Mitigated,
+    Realized) carries a review obligation, like every other overdue test
+    in the family. Closed, Draft, an unknown status or none: not overdue.
   * deriveRiskFields: rating is the INHERENT band (STATUS 3.2: the stored
     band agrees with the stored score, risk_score, which is inherent).
   * countByBand counts every risk into exactly one of the five bands.
@@ -89,11 +94,17 @@ def appetite(r):
     return WITHIN if res <= t else ABOVE
 
 
+LIVE = ('Open', 'Under Review', 'Mitigated', 'Realized')
+
+
 def overdue(r, as_of):
-    due = to_date(r.get('next_review_date'))
-    if due is None:
+    if not isinstance(r, dict) or r.get('status') not in LIVE:
         return False
-    return due < to_date(as_of)
+    today = to_date(as_of)
+    due = to_date(r.get('next_review_date'))
+    if due is None or today is None:
+        return False
+    return due < today
 
 
 def derive(r):
@@ -205,21 +216,48 @@ def build():
     # harness cannot pin a zone-dependent defect. Due-today is pinned with a
     # Date instead, and the strings stay a day or more away from the edge.
     T = D('2026-09-17')
-    c.add('review-due-today-date', 'isReviewOverdue', [{'next_review_date': D('2026-09-17')}, T], False)
-    c.add('review-due-yesterday-date', 'isReviewOverdue', [{'next_review_date': D('2026-09-16')}, T], True)
+    # ASC-0 RC-2: every date case below is asked of an Open risk; before
+    # RC-2 they carried no status, which is now "not known to be live".
+    L = {'status': 'Open'}
+
+    def rv(cid, risk, as_of, defect=None):
+        c.add(cid, 'isReviewOverdue', [risk, as_of], overdue(risk, as_of), defect=defect)
+
+    rv('review-due-today-date', {**L, 'next_review_date': D('2026-09-17')}, T)
+    rv('review-due-yesterday-date', {**L, 'next_review_date': D('2026-09-16')}, T)
     # RS-1: the string form of 'due today'. Held in every zone by the sweep;
     # before the repair it read overdue west of Greenwich (UTC parse).
-    c.add('review-due-today-string', 'isReviewOverdue', [{'next_review_date': '2026-09-17'}, T], False, defect='RS-1')
-    c.add('review-due-yesterday', 'isReviewOverdue', [{'next_review_date': '2026-09-16'}, T], True)
-    c.add('review-due-tomorrow', 'isReviewOverdue', [{'next_review_date': '2026-09-18'}, T], False)
-    c.add('review-due-last-year', 'isReviewOverdue', [{'next_review_date': '2025-09-17'}, T], True)
-    c.add('review-across-dst', 'isReviewOverdue', [{'next_review_date': '2026-03-07'}, D('2026-03-09')], True)
-    c.add('review-none', 'isReviewOverdue', [{}, T], False)
-    c.add('review-empty', 'isReviewOverdue', [{'next_review_date': ''}, T], False)
-    c.add('review-garbage', 'isReviewOverdue', [{'next_review_date': 'garbage'}, T], False)
-    c.add('review-no-arg-risk', 'isReviewOverdue', [UNDEF, T], False)
-    c.add('review-feb-30', 'isReviewOverdue', [{'next_review_date': '2026-02-30'}, D('2026-03-05')],
-          False, defect='RS-1')
+    rv('review-due-today-string', {**L, 'next_review_date': '2026-09-17'}, T, 'RS-1')
+    rv('review-due-yesterday', {**L, 'next_review_date': '2026-09-16'}, T)
+    rv('review-due-tomorrow', {**L, 'next_review_date': '2026-09-18'}, T)
+    rv('review-due-last-year', {**L, 'next_review_date': '2025-09-17'}, T)
+    rv('review-across-dst', {**L, 'next_review_date': '2026-03-07'}, D('2026-03-09'))
+    rv('review-none', {**L}, T)
+    rv('review-empty', {**L, 'next_review_date': ''}, T)
+    rv('review-garbage', {**L, 'next_review_date': 'garbage'}, T)
+    rv('review-no-arg-risk', UNDEF, T)
+    rv('review-feb-30', {**L, 'next_review_date': '2026-02-30'}, D('2026-03-05'), 'RS-1')
+
+    # ASC-0 RC-1: a STRING as-of date is a calendar date. The previous
+    # engine read it as a UTC instant, the day before west of Greenwich, so
+    # these hold in UTC and fail under America/Los_Angeles, St John's and
+    # Pacific/Pago_Pago in the zone sweep.
+    rv('rc1-string-asof-day-after', {**L, 'next_review_date': '2026-09-30'}, '2026-10-01', 'RC-1')
+    rv('rc1-string-asof-due-day', {**L, 'next_review_date': '2026-09-30'}, '2026-09-30', 'RC-1')
+    rv('rc1-timestamp-asof', {**L, 'next_review_date': '2026-09-30'}, '2026-10-01T00:00:00Z', 'RC-1')
+    rv('rc1-string-asof-year-end', {**L, 'next_review_date': '2026-12-31'}, '2027-01-01', 'RC-1')
+    rv('rc1-unreadable-asof', {**L, 'next_review_date': '2020-01-01'}, 'yesterday', 'RC-1')
+    rv('rc1-invalid-date-asof', {**L, 'next_review_date': '2020-01-01'}, D(None), 'RC-1')
+
+    # ASC-0 RC-2: only a live risk can be review-overdue.
+    for st in LIVE:
+        rv(f'rc2-live-{st.lower().replace(" ", "-")}', {'status': st, 'next_review_date': '2026-01-10'}, T, 'RC-2')
+    for tag, st in [('closed', 'Closed'), ('draft', 'Draft'), ('no-status', UNDEF),
+                    ('null-status', None), ('unknown-status', 'Archived'), ('lower-case-open', 'open')]:
+        risk = {'next_review_date': '2026-01-10'}
+        if st is not UNDEF:
+            risk['status'] = st
+        rv(f'rc2-not-live-{tag}', risk, T, 'RC-2')
 
     # deriveRiskFields
     der = {

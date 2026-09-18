@@ -150,9 +150,16 @@ def o_is_expired(moc, today):
     return o_expiry_state(moc, today) == 'Expired'
 
 
+# ASC-0 RC-3: overdue against the target implementation date is a
+# question only BEFORE the change is on the facility. Implementation is
+# in effect (its expiry runs, IN_EFFECT below), so it is not late to be
+# implemented; late work there is carried by overdue actions.
+PRE_EFFECT = ['Draft', 'Screening', 'Review', 'Approval']
+
+
 def o_is_overdue(moc, today):
     moc = moc or {}
-    if get(moc, 'stage') not in ACTIVE:
+    if get(moc, 'stage') not in PRE_EFFECT:
         return False
     n = days_until(get(moc, 'target_implementation_date'), today)
     return n is not None and n < 0
@@ -350,10 +357,12 @@ def urgency_order(rows, today):
 cases = []
 
 
-def case(cid, fn, args, expected, defect=None):
+def case(cid, fn, args, expected, defect=None, prose=None):
     c = {'id': cid, 'fn': fn, 'args': args, 'expected': expected}
     if defect:
         c['repaired'] = defect
+    if prose:
+        c['prose'] = prose  # 'exact': reason compared verbatim (ASC-0 RC-9)
     cases.append(c)
 
 
@@ -450,6 +459,31 @@ for tag, v in [('null', None), ('garbage', 'Q4'), ('invalid-date', INVALID_DATE)
     moc = {'stage': 'Review', 'target_implementation_date': v}
     case(f'overdue-review-{tag}', 'isOverdue', [moc, T], o_is_overdue(moc, T))
 case('overdue-empty', 'isOverdue', [{}, T], False)
+# ASC-0 RC-3: the course's repro. A change implemented ON its target date
+# is in effect and reads overdue from the next day under the old rule.
+AS_OF = D('2026-10-01')
+rc3 = {'stage': 'Implementation', 'type': 'Permanent', 'target_implementation_date': '2026-09-26',
+       'actual_implementation_date': '2026-09-26'}
+case('rc3-implemented-on-target', 'isOverdue', [rc3, AS_OF], o_is_overdue(rc3, AS_OF), 'RC-3')
+rc3_temp = {'stage': 'Implementation', 'type': 'Temporary', 'expiry_date': '2026-12-31',
+            'target_implementation_date': '2026-06-01'}
+case('rc3-temporary-in-effect-long-past-target', 'isOverdue', [rc3_temp, AS_OF], o_is_overdue(rc3_temp, AS_OF), 'RC-3')
+for stage in ('Draft', 'Screening', 'Review', 'Approval'):
+    m = {'stage': stage, 'target_implementation_date': '2026-09-26'}
+    case(f'rc3-pre-effect-{stage}-still-overdue', 'isOverdue', [m, AS_OF], o_is_overdue(m, AS_OF), 'RC-3')
+rc3_records = [
+    {'id': 'r1', 'stage': 'Implementation', 'type': 'Permanent', 'target_implementation_date': '2026-09-26'},
+    {'id': 'r2', 'stage': 'Implementation', 'type': 'Temporary', 'expiry_date': '2027-01-01',
+     'target_implementation_date': '2026-08-01'},
+    {'id': 'r3', 'stage': 'Approval', 'type': 'Permanent', 'target_implementation_date': '2026-09-20'},
+    {'id': 'r4', 'stage': 'Review', 'type': 'Permanent', 'target_implementation_date': '2026-10-20'},
+]
+rc3_actions = [
+    {'moc_id': 'r1', 'action_type': 'Implementation', 'status': 'Open', 'due_date': '2026-09-28'},
+    {'moc_id': 'r2', 'action_type': 'Post-implementation', 'status': 'Open', 'due_date': '2026-10-15'},
+]
+case('rc3-summarise-in-effect-not-overdue', 'summarise', [rc3_records, {'actions': rc3_actions}, AS_OF],
+     o_summarise(rc3_records, {'actions': rc3_actions}, AS_OF), 'RC-3')
 
 # --- approvalState
 A = lambda i, lv, st: {'id': i, 'level': lv, 'status': st}  # noqa: E731
@@ -710,12 +744,77 @@ urg_rows = [
 ]
 sort_case('urgency-register', urg_rows, T)
 sort_case('urgency-empty', [], T)
+# ASC-0 RC-3: a change in Implementation past its target date ranks with
+# live work, after the changes still late to be implemented.
+sort_case('rc3-urgency-in-effect-ranks-as-live', [
+    {'id': 'impl-past-target', 'stage': 'Implementation', 'type': 'Permanent',
+     'target_implementation_date': iso(-30)},
+    {'id': 'live-future', 'stage': 'Review', 'type': 'Permanent', 'target_implementation_date': iso(10)},
+    {'id': 'approval-late', 'stage': 'Approval', 'type': 'Permanent', 'target_implementation_date': iso(-3)},
+    {'id': 'closed', 'stage': 'Closed', 'type': 'Permanent', 'target_implementation_date': iso(-60)},
+], T, 'RC-3')
 sort_case('urgency-lead-edge', [
     {'id': 'edge-plus-1', 'stage': 'Implementation', 'type': 'Temporary', 'expiry_date': iso(LEAD + 1)},
     {'id': 'edge', 'stage': 'Implementation', 'type': 'Temporary', 'expiry_date': iso(LEAD)},
     {'id': 'expired-today-minus-1', 'stage': 'Implementation', 'type': 'Temporary', 'expiry_date': iso(-1)},
     {'id': 'today', 'stage': 'Implementation', 'type': 'Temporary', 'expiry_date': iso(0)},
 ], T)
+
+# --- ASC-0 RC-9: refusal sentences agree in number and article. The words
+# are the engine's; the agreement (level/levels, has/have, a/an, the list)
+# is decided here. Compared verbatim ("prose": "exact").
+
+
+def _article(word):
+    return 'An' if str(word)[:1].lower() in 'aeiou' else 'A'
+
+
+def _listed(xs):
+    xs = [str(x) for x in xs]
+    return xs[0] if len(xs) == 1 else ', '.join(xs[:-1]) + ' and ' + xs[-1]
+
+
+def _levels_sentence(outstanding, verb_tail):
+    n = len(outstanding)
+    return (f"Approval level{'' if n == 1 else 's'} {_listed(outstanding)} "
+            f"{'has' if n == 1 else 'have'} {verb_tail}")
+
+
+def _refused(reason):
+    return {'ok': False, 'reason': reason}
+
+
+def AP(lv, st):
+    return {'level': lv, 'status': st}
+
+
+perm_appr = {'type': 'Permanent', 'stage': 'Approval'}
+for tag, appr in [
+    ('one-level', [AP(1, 'Approved'), AP(2, 'Pending')]),
+    ('two-levels', [AP(1, 'Approved'), AP(2, 'Pending'), AP(3, 'Pending')]),
+    ('three-levels', [AP(1, 'Approved'), AP(2, 'Pending'), AP(3, 'Pending'), AP(4, 'Pending')]),
+]:
+    out = o_approval_state(appr)['outstanding']
+    case(f'rc9-signed-{tag}', 'canAdvance', [perm_appr, 'Implementation', {'approvals': appr}],
+         _refused(_levels_sentence(out, 'not signed yet.')), 'RC-9', prose='exact')
+em_live = {'type': 'Emergency', 'stage': 'Implementation', 'expiry_date': iso(30)}
+for tag, appr in [
+    ('one-level', [AP(1, 'Approved'), AP(2, 'Pending')]),
+    ('two-levels', [AP(1, 'Approved'), AP(2, 'Pending'), AP(3, 'Pending')]),
+]:
+    out = o_approval_state(appr)['outstanding']
+    case(f'rc9-ratified-{tag}', 'canAdvance', [em_live, 'Closed', {'approvals': appr}],
+         _refused(_levels_sentence(out, 'not ratified this emergency change.')
+                  + ' It cannot close until every level has signed.'), 'RC-9', prose='exact')
+for typ in ('Emergency', 'Temporary'):
+    m = {'type': typ, 'stage': 'Approval'}
+    case(f'rc9-expiry-article-{typ.lower()}', 'canAdvance',
+         [m, 'Implementation', {'approvals': [AP(1, 'Approved')]}],
+         _refused(f'{_article(typ.lower())} {typ.lower()} change needs an expiry date before it is implemented. '
+                  'Without one it is a permanent change nobody decided to make.'), 'RC-9', prose='exact')
+for stage in ('Closed', 'Approved', 'Implemented', 'Rejected'):
+    case(f'rc9-final-article-{stage.lower()}', 'canAdvance', [{'stage': stage}, 'Draft', {}],
+         _refused(f'{_article(stage.lower())} {stage.lower()} change is final.'), 'RC-9', prose='exact')
 
 golden = {
     'module': 'managementOfChange',
