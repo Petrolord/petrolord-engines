@@ -1,0 +1,1305 @@
+{
+ "module": "riskScoring",
+ "generatedBy": "tools/validation/assurance/oracle_risk.py",
+ "description": "ISO 31000 5x5 likelihood x impact scoring, bands, per-axis residual, appetite, review overdue and band counts, from the module docstring and STATUS section 3.",
+ "cases": [
+  {
+   "id": "score-1x1",
+   "fn": "calculateRiskScore",
+   "args": [
+    1,
+    1
+   ],
+   "expected": 1
+  },
+  {
+   "id": "score-1x2",
+   "fn": "calculateRiskScore",
+   "args": [
+    1,
+    2
+   ],
+   "expected": 2
+  },
+  {
+   "id": "score-1x3",
+   "fn": "calculateRiskScore",
+   "args": [
+    1,
+    3
+   ],
+   "expected": 3
+  },
+  {
+   "id": "score-1x4",
+   "fn": "calculateRiskScore",
+   "args": [
+    1,
+    4
+   ],
+   "expected": 4
+  },
+  {
+   "id": "score-1x5",
+   "fn": "calculateRiskScore",
+   "args": [
+    1,
+    5
+   ],
+   "expected": 5
+  },
+  {
+   "id": "score-2x1",
+   "fn": "calculateRiskScore",
+   "args": [
+    2,
+    1
+   ],
+   "expected": 2
+  },
+  {
+   "id": "score-2x2",
+   "fn": "calculateRiskScore",
+   "args": [
+    2,
+    2
+   ],
+   "expected": 4
+  },
+  {
+   "id": "score-2x3",
+   "fn": "calculateRiskScore",
+   "args": [
+    2,
+    3
+   ],
+   "expected": 6
+  },
+  {
+   "id": "score-2x4",
+   "fn": "calculateRiskScore",
+   "args": [
+    2,
+    4
+   ],
+   "expected": 8
+  },
+  {
+   "id": "score-2x5",
+   "fn": "calculateRiskScore",
+   "args": [
+    2,
+    5
+   ],
+   "expected": 10
+  },
+  {
+   "id": "score-3x1",
+   "fn": "calculateRiskScore",
+   "args": [
+    3,
+    1
+   ],
+   "expected": 3
+  },
+  {
+   "id": "score-3x2",
+   "fn": "calculateRiskScore",
+   "args": [
+    3,
+    2
+   ],
+   "expected": 6
+  },
+  {
+   "id": "score-3x3",
+   "fn": "calculateRiskScore",
+   "args": [
+    3,
+    3
+   ],
+   "expected": 9
+  },
+  {
+   "id": "score-3x4",
+   "fn": "calculateRiskScore",
+   "args": [
+    3,
+    4
+   ],
+   "expected": 12
+  },
+  {
+   "id": "score-3x5",
+   "fn": "calculateRiskScore",
+   "args": [
+    3,
+    5
+   ],
+   "expected": 15
+  },
+  {
+   "id": "score-4x1",
+   "fn": "calculateRiskScore",
+   "args": [
+    4,
+    1
+   ],
+   "expected": 4
+  },
+  {
+   "id": "score-4x2",
+   "fn": "calculateRiskScore",
+   "args": [
+    4,
+    2
+   ],
+   "expected": 8
+  },
+  {
+   "id": "score-4x3",
+   "fn": "calculateRiskScore",
+   "args": [
+    4,
+    3
+   ],
+   "expected": 12
+  },
+  {
+   "id": "score-4x4",
+   "fn": "calculateRiskScore",
+   "args": [
+    4,
+    4
+   ],
+   "expected": 16
+  },
+  {
+   "id": "score-4x5",
+   "fn": "calculateRiskScore",
+   "args": [
+    4,
+    5
+   ],
+   "expected": 20
+  },
+  {
+   "id": "score-5x1",
+   "fn": "calculateRiskScore",
+   "args": [
+    5,
+    1
+   ],
+   "expected": 5
+  },
+  {
+   "id": "score-5x2",
+   "fn": "calculateRiskScore",
+   "args": [
+    5,
+    2
+   ],
+   "expected": 10
+  },
+  {
+   "id": "score-5x3",
+   "fn": "calculateRiskScore",
+   "args": [
+    5,
+    3
+   ],
+   "expected": 15
+  },
+  {
+   "id": "score-5x4",
+   "fn": "calculateRiskScore",
+   "args": [
+    5,
+    4
+   ],
+   "expected": 20
+  },
+  {
+   "id": "score-5x5",
+   "fn": "calculateRiskScore",
+   "args": [
+    5,
+    5
+   ],
+   "expected": 25
+  },
+  {
+   "id": "band-1",
+   "fn": "getRiskBand",
+   "args": [
+    1
+   ],
+   "expected": "Low"
+  },
+  {
+   "id": "band-2",
+   "fn": "getRiskBand",
+   "args": [
+    2
+   ],
+   "expected": "Low"
+  },
+  {
+   "id": "band-3",
+   "fn": "getRiskBand",
+   "args": [
+    3
+   ],
+   "expected": "Low"
+  },
+  {
+   "id": "band-4",
+   "fn": "getRiskBand",
+   "args": [
+    4
+   ],
+   "expected": "Low"
+  },
+  {
+   "id": "band-5",
+   "fn": "getRiskBand",
+   "args": [
+    5
+   ],
+   "expected": "Medium"
+  },
+  {
+   "id": "band-6",
+   "fn": "getRiskBand",
+   "args": [
+    6
+   ],
+   "expected": "Medium"
+  },
+  {
+   "id": "band-8",
+   "fn": "getRiskBand",
+   "args": [
+    8
+   ],
+   "expected": "Medium"
+  },
+  {
+   "id": "band-9",
+   "fn": "getRiskBand",
+   "args": [
+    9
+   ],
+   "expected": "Medium"
+  },
+  {
+   "id": "band-10",
+   "fn": "getRiskBand",
+   "args": [
+    10
+   ],
+   "expected": "High"
+  },
+  {
+   "id": "band-12",
+   "fn": "getRiskBand",
+   "args": [
+    12
+   ],
+   "expected": "High"
+  },
+  {
+   "id": "band-15",
+   "fn": "getRiskBand",
+   "args": [
+    15
+   ],
+   "expected": "Critical"
+  },
+  {
+   "id": "band-16",
+   "fn": "getRiskBand",
+   "args": [
+    16
+   ],
+   "expected": "Critical"
+  },
+  {
+   "id": "band-20",
+   "fn": "getRiskBand",
+   "args": [
+    20
+   ],
+   "expected": "Critical"
+  },
+  {
+   "id": "band-25",
+   "fn": "getRiskBand",
+   "args": [
+    25
+   ],
+   "expected": "Critical"
+  },
+  {
+   "id": "score-zero-l",
+   "fn": "calculateRiskScore",
+   "args": [
+    0,
+    3
+   ],
+   "expected": 0
+  },
+  {
+   "id": "score-six-i",
+   "fn": "calculateRiskScore",
+   "args": [
+    3,
+    6
+   ],
+   "expected": 0
+  },
+  {
+   "id": "score-9x9",
+   "fn": "calculateRiskScore",
+   "args": [
+    9,
+    9
+   ],
+   "expected": 0
+  },
+  {
+   "id": "score-neg",
+   "fn": "calculateRiskScore",
+   "args": [
+    -1,
+    3
+   ],
+   "expected": 0
+  },
+  {
+   "id": "score-null",
+   "fn": "calculateRiskScore",
+   "args": [
+    null,
+    3
+   ],
+   "expected": 0
+  },
+  {
+   "id": "score-undefined",
+   "fn": "calculateRiskScore",
+   "args": [
+    3,
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "score-empty",
+   "fn": "calculateRiskScore",
+   "args": [
+    "",
+    4
+   ],
+   "expected": 0
+  },
+  {
+   "id": "score-text",
+   "fn": "calculateRiskScore",
+   "args": [
+    "high",
+    4
+   ],
+   "expected": 0
+  },
+  {
+   "id": "score-nan",
+   "fn": "calculateRiskScore",
+   "args": [
+    {
+     "$num": "NaN"
+    },
+    2
+   ],
+   "expected": 0
+  },
+  {
+   "id": "score-numeric-strings",
+   "fn": "calculateRiskScore",
+   "args": [
+    "3",
+    "5"
+   ],
+   "expected": 15
+  },
+  {
+   "id": "score-no-args",
+   "fn": "calculateRiskScore",
+   "args": [],
+   "expected": 0
+  },
+  {
+   "id": "band-zero",
+   "fn": "getRiskBand",
+   "args": [
+    0
+   ],
+   "expected": "None"
+  },
+  {
+   "id": "band-negative",
+   "fn": "getRiskBand",
+   "args": [
+    -3
+   ],
+   "expected": "None"
+  },
+  {
+   "id": "band-null",
+   "fn": "getRiskBand",
+   "args": [
+    null
+   ],
+   "expected": "None"
+  },
+  {
+   "id": "band-undefined",
+   "fn": "getRiskBand",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": "None"
+  },
+  {
+   "id": "band-nan",
+   "fn": "getRiskBand",
+   "args": [
+    {
+     "$num": "NaN"
+    }
+   ],
+   "expected": "None"
+  },
+  {
+   "id": "band-text",
+   "fn": "getRiskBand",
+   "args": [
+    "x"
+   ],
+   "expected": "None"
+  },
+  {
+   "id": "band-string-15",
+   "fn": "getRiskBand",
+   "args": [
+    "15"
+   ],
+   "expected": "Critical"
+  },
+  {
+   "id": "band-string-14",
+   "fn": "getRiskBand",
+   "args": [
+    "14"
+   ],
+   "expected": "High"
+  },
+  {
+   "id": "band-half",
+   "fn": "getRiskBand",
+   "args": [
+    0.5
+   ],
+   "expected": "None"
+  },
+  {
+   "id": "band-4.5",
+   "fn": "getRiskBand",
+   "args": [
+    4.5
+   ],
+   "expected": "Low"
+  },
+  {
+   "id": "band-9.5",
+   "fn": "getRiskBand",
+   "args": [
+    9.5
+   ],
+   "expected": "Medium"
+  },
+  {
+   "id": "band-14.5",
+   "fn": "getRiskBand",
+   "args": [
+    14.5
+   ],
+   "expected": "High"
+  },
+  {
+   "id": "band-26",
+   "fn": "getRiskBand",
+   "args": [
+    26
+   ],
+   "expected": "Critical"
+  },
+  {
+   "id": "band-30",
+   "fn": "getRiskBand",
+   "args": [
+    30
+   ],
+   "expected": "Critical"
+  },
+  {
+   "id": "residual-unassessed",
+   "fn": "calculateResidualScore",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 5
+    }
+   ],
+   "expected": 20
+  },
+  {
+   "id": "residual-both",
+   "fn": "calculateResidualScore",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 5,
+     "residual_likelihood": 2,
+     "residual_impact": 3
+    }
+   ],
+   "expected": 6
+  },
+  {
+   "id": "residual-likelihood-only",
+   "fn": "calculateResidualScore",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 5,
+     "residual_likelihood": 2
+    }
+   ],
+   "expected": 10
+  },
+  {
+   "id": "residual-impact-only",
+   "fn": "calculateResidualScore",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 5,
+     "residual_impact": 1
+    }
+   ],
+   "expected": 4
+  },
+  {
+   "id": "residual-null-axes",
+   "fn": "calculateResidualScore",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 3,
+     "residual_likelihood": null,
+     "residual_impact": null
+    }
+   ],
+   "expected": 9
+  },
+  {
+   "id": "residual-off-scale",
+   "fn": "calculateResidualScore",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 3,
+     "residual_likelihood": 7,
+     "residual_impact": 2
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "residual-no-inherent",
+   "fn": "calculateResidualScore",
+   "args": [
+    {}
+   ],
+   "expected": 0
+  },
+  {
+   "id": "residual-no-arg",
+   "fn": "calculateResidualScore",
+   "args": [],
+   "expected": 0
+  },
+  {
+   "id": "residual-form-empty-both",
+   "fn": "calculateResidualScore",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 5,
+     "residual_likelihood": "",
+     "residual_impact": ""
+    }
+   ],
+   "expected": 20,
+   "repaired": "RS-2"
+  },
+  {
+   "id": "residual-form-empty-impact",
+   "fn": "calculateResidualScore",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 5,
+     "residual_likelihood": 2,
+     "residual_impact": ""
+    }
+   ],
+   "expected": 10,
+   "repaired": "RS-2"
+  },
+  {
+   "id": "appetite-no-target",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 3
+    }
+   ],
+   "expected": "Not set"
+  },
+  {
+   "id": "appetite-null-target",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 3,
+     "target_score": null
+    }
+   ],
+   "expected": "Not set"
+  },
+  {
+   "id": "appetite-zero-target",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 3,
+     "target_score": 0
+    }
+   ],
+   "expected": "Not set"
+  },
+  {
+   "id": "appetite-negative-target",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 3,
+     "target_score": -4
+    }
+   ],
+   "expected": "Not set"
+  },
+  {
+   "id": "appetite-text-target",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 3,
+     "target_score": "low"
+    }
+   ],
+   "expected": "Not set"
+  },
+  {
+   "id": "appetite-empty-target",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 3,
+     "target_score": ""
+    }
+   ],
+   "expected": "Not set"
+  },
+  {
+   "id": "appetite-at-target",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 3,
+     "target_score": 9
+    }
+   ],
+   "expected": "Within appetite"
+  },
+  {
+   "id": "appetite-one-above",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 2,
+     "impact": 5,
+     "target_score": 9
+    }
+   ],
+   "expected": "Above appetite"
+  },
+  {
+   "id": "appetite-residual-within",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 5,
+     "impact": 5,
+     "residual_likelihood": 2,
+     "residual_impact": 2,
+     "target_score": 6
+    }
+   ],
+   "expected": "Within appetite"
+  },
+  {
+   "id": "appetite-residual-above",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 5,
+     "impact": 5,
+     "residual_likelihood": 3,
+     "target_score": 12
+    }
+   ],
+   "expected": "Above appetite"
+  },
+  {
+   "id": "appetite-string-target",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 2,
+     "impact": 3,
+     "target_score": "6"
+    }
+   ],
+   "expected": "Within appetite"
+  },
+  {
+   "id": "appetite-unscored",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "target_score": 10
+    }
+   ],
+   "expected": "Not set"
+  },
+  {
+   "id": "appetite-no-arg",
+   "fn": "getAppetiteStatus",
+   "args": [],
+   "expected": "Not set"
+  },
+  {
+   "id": "appetite-form-empty-residual",
+   "fn": "getAppetiteStatus",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 4,
+     "residual_likelihood": "",
+     "residual_impact": "",
+     "target_score": 8
+    }
+   ],
+   "expected": "Above appetite",
+   "repaired": "RS-2"
+  },
+  {
+   "id": "review-due-today-date",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": {
+      "$date": "2026-09-17"
+     }
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-due-yesterday-date",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": {
+      "$date": "2026-09-16"
+     }
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-due-today-string",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false,
+   "repaired": "RS-1"
+  },
+  {
+   "id": "review-due-yesterday",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-due-tomorrow",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-due-last-year",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2025-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-across-dst",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-03-07"
+    },
+    {
+     "$date": "2026-03-09"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "review-none",
+   "fn": "isReviewOverdue",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-empty",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": ""
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-garbage",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "garbage"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-no-arg-risk",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "$undefined": true
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "review-feb-30",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "next_review_date": "2026-02-30"
+    },
+    {
+     "$date": "2026-03-05"
+    }
+   ],
+   "expected": false,
+   "repaired": "RS-1"
+  },
+  {
+   "id": "derive-critical-mitigated",
+   "fn": "deriveRiskFields",
+   "args": [
+    {
+     "likelihood": 5,
+     "impact": 4,
+     "residual_likelihood": 2,
+     "residual_impact": 2,
+     "target_score": 6
+    }
+   ],
+   "expected": {
+    "inherentScore": 20,
+    "inherentBand": "Critical",
+    "residualScore": 4,
+    "residualBand": "Low",
+    "rating": "Critical",
+    "appetite_status": "Within appetite"
+   }
+  },
+  {
+   "id": "derive-3x5-boundary",
+   "fn": "deriveRiskFields",
+   "args": [
+    {
+     "likelihood": 3,
+     "impact": 5
+    }
+   ],
+   "expected": {
+    "inherentScore": 15,
+    "inherentBand": "Critical",
+    "residualScore": 15,
+    "residualBand": "Critical",
+    "rating": "Critical",
+    "appetite_status": "Not set"
+   }
+  },
+  {
+   "id": "derive-unscored",
+   "fn": "deriveRiskFields",
+   "args": [
+    {}
+   ],
+   "expected": {
+    "inherentScore": 0,
+    "inherentBand": "None",
+    "residualScore": 0,
+    "residualBand": "None",
+    "rating": "None",
+    "appetite_status": "Not set"
+   }
+  },
+  {
+   "id": "derive-partial-residual",
+   "fn": "deriveRiskFields",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 3,
+     "residual_impact": 1,
+     "target_score": 4
+    }
+   ],
+   "expected": {
+    "inherentScore": 12,
+    "inherentBand": "High",
+    "residualScore": 4,
+    "residualBand": "Low",
+    "rating": "High",
+    "appetite_status": "Within appetite"
+   }
+  },
+  {
+   "id": "derive-above",
+   "fn": "deriveRiskFields",
+   "args": [
+    {
+     "likelihood": 2,
+     "impact": 2,
+     "target_score": 3
+    }
+   ],
+   "expected": {
+    "inherentScore": 4,
+    "inherentBand": "Low",
+    "residualScore": 4,
+    "residualBand": "Low",
+    "rating": "Low",
+    "appetite_status": "Above appetite"
+   }
+  },
+  {
+   "id": "derive-no-arg",
+   "fn": "deriveRiskFields",
+   "args": [],
+   "expected": {
+    "inherentScore": 0,
+    "inherentBand": "None",
+    "residualScore": 0,
+    "residualBand": "None",
+    "rating": "None",
+    "appetite_status": "Not set"
+   }
+  },
+  {
+   "id": "derive-form-empty-residual",
+   "fn": "deriveRiskFields",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 5,
+     "residual_likelihood": 2,
+     "residual_impact": "",
+     "target_score": 8
+    }
+   ],
+   "expected": {
+    "inherentScore": 20,
+    "inherentBand": "Critical",
+    "residualScore": 10,
+    "residualBand": "High",
+    "rating": "Critical",
+    "appetite_status": "Above appetite"
+   },
+   "repaired": "RS-2"
+  },
+  {
+   "id": "bands-inherent",
+   "fn": "countByBand",
+   "args": [
+    [
+     {
+      "likelihood": 5,
+      "impact": 5
+     },
+     {
+      "likelihood": 3,
+      "impact": 5,
+      "residual_likelihood": 1
+     },
+     {
+      "likelihood": 2,
+      "impact": 5,
+      "residual_likelihood": 1,
+      "residual_impact": 1
+     },
+     {
+      "likelihood": 3,
+      "impact": 3
+     },
+     {
+      "likelihood": 1,
+      "impact": 4
+     },
+     {
+      "likelihood": 9,
+      "impact": 9
+     },
+     {},
+     {
+      "likelihood": 2,
+      "impact": 2,
+      "residual_impact": 5
+     }
+    ]
+   ],
+   "expected": {
+    "Critical": 2,
+    "High": 1,
+    "Medium": 1,
+    "Low": 2,
+    "None": 2
+   }
+  },
+  {
+   "id": "bands-residual",
+   "fn": "countByBand",
+   "args": [
+    [
+     {
+      "likelihood": 5,
+      "impact": 5
+     },
+     {
+      "likelihood": 3,
+      "impact": 5,
+      "residual_likelihood": 1
+     },
+     {
+      "likelihood": 2,
+      "impact": 5,
+      "residual_likelihood": 1,
+      "residual_impact": 1
+     },
+     {
+      "likelihood": 3,
+      "impact": 3
+     },
+     {
+      "likelihood": 1,
+      "impact": 4
+     },
+     {
+      "likelihood": 9,
+      "impact": 9
+     },
+     {},
+     {
+      "likelihood": 2,
+      "impact": 2,
+      "residual_impact": 5
+     }
+    ],
+    {
+     "residual": true
+    }
+   ],
+   "expected": {
+    "Critical": 1,
+    "High": 1,
+    "Medium": 2,
+    "Low": 2,
+    "None": 2
+   }
+  },
+  {
+   "id": "bands-residual-false",
+   "fn": "countByBand",
+   "args": [
+    [
+     {
+      "likelihood": 5,
+      "impact": 5
+     },
+     {
+      "likelihood": 3,
+      "impact": 5,
+      "residual_likelihood": 1
+     },
+     {
+      "likelihood": 2,
+      "impact": 5,
+      "residual_likelihood": 1,
+      "residual_impact": 1
+     },
+     {
+      "likelihood": 3,
+      "impact": 3
+     },
+     {
+      "likelihood": 1,
+      "impact": 4
+     },
+     {
+      "likelihood": 9,
+      "impact": 9
+     },
+     {},
+     {
+      "likelihood": 2,
+      "impact": 2,
+      "residual_impact": 5
+     }
+    ],
+    {
+     "residual": false
+    }
+   ],
+   "expected": {
+    "Critical": 2,
+    "High": 1,
+    "Medium": 1,
+    "Low": 2,
+    "None": 2
+   }
+  },
+  {
+   "id": "bands-empty",
+   "fn": "countByBand",
+   "args": [
+    []
+   ],
+   "expected": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 0,
+    "Low": 0,
+    "None": 0
+   }
+  },
+  {
+   "id": "bands-no-arg",
+   "fn": "countByBand",
+   "args": [],
+   "expected": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 0,
+    "Low": 0,
+    "None": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,1508 @@
+{
+ "module": "documentControl",
+ "generatedBy": "tools/validation/assurance/oracle_documents.py",
+ "description": "Controlled-document review state, review date, revision numbering, confidentiality, counts, sort and number prefix, from the method statements and STATUS section 3c.",
+ "cases": [
+  {
+   "id": "cal-parse-string",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "cal-parse-null",
+   "fn": "parseDateOnly",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "cal-parse-garbage",
+   "fn": "parseDateOnly",
+   "args": [
+    "next week"
+   ],
+   "expected": null
+  },
+  {
+   "id": "cal-days-today",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-17",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "cal-days-past",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-10",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": -7
+  },
+  {
+   "id": "cal-days-none",
+   "fn": "daysUntil",
+   "args": [
+    "",
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "cal-ymd-date",
+   "fn": "toDateOnlyString",
+   "args": [
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": "2026-03-08"
+  },
+  {
+   "id": "cal-ymd-nonsense",
+   "fn": "toDateOnlyString",
+   "args": [
+    "nonsense"
+   ],
+   "expected": null
+  },
+  {
+   "id": "state-status-Draft",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Draft",
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not in force"
+  },
+  {
+   "id": "state-status-In Review",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "In Review",
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not in force"
+  },
+  {
+   "id": "state-status-Approved",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Approved",
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Review overdue"
+  },
+  {
+   "id": "state-status-Published",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Review overdue"
+  },
+  {
+   "id": "state-status-Superseded",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Superseded",
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not in force"
+  },
+  {
+   "id": "state-status-Obsolete",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Obsolete",
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not in force"
+  },
+  {
+   "id": "state-status-Rejected",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Rejected",
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not in force"
+  },
+  {
+   "id": "state-status-published",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "published",
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not in force"
+  },
+  {
+   "id": "state-status-Archived",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Archived",
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not in force"
+  },
+  {
+   "id": "state-status-None",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": null,
+     "next_review_date": "2026-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not in force"
+  },
+  {
+   "id": "state-no-date",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "No review scheduled"
+  },
+  {
+   "id": "state-empty-date",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Approved",
+     "next_review_date": ""
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "No review scheduled"
+  },
+  {
+   "id": "state-yesterday",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Review overdue"
+  },
+  {
+   "id": "state-today",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Review due soon"
+  },
+  {
+   "id": "state-plus-30",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-10-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Review due soon"
+  },
+  {
+   "id": "state-plus-31",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Review scheduled"
+  },
+  {
+   "id": "state-far",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Approved",
+     "next_review_date": "2028-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Review scheduled"
+  },
+  {
+   "id": "state-date-object-today",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Approved",
+     "next_review_date": {
+      "$date": "2026-09-17"
+     }
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Review due soon"
+  },
+  {
+   "id": "state-dst-us-edge",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-04-07"
+    },
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": "Review due soon"
+  },
+  {
+   "id": "state-dst-us-edge-31",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-04-08"
+    },
+    {
+     "$date": "2026-03-08"
+    }
+   ],
+   "expected": "Review scheduled"
+  },
+  {
+   "id": "state-dst-nz-edge",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-05-05"
+    },
+    {
+     "$date": "2026-04-05"
+    }
+   ],
+   "expected": "Review due soon"
+  },
+  {
+   "id": "state-no-arg",
+   "fn": "reviewState",
+   "args": [
+    {
+     "$undefined": true
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Not in force"
+  },
+  {
+   "id": "state-garbage-date",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "tbc"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "No review scheduled",
+   "repaired": "DC-1"
+  },
+  {
+   "id": "state-impossible-date",
+   "fn": "reviewState",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-02-30"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "No review scheduled",
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "overdue-yes",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-09-16"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-today",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Published",
+     "next_review_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-not-in-force",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Superseded",
+     "next_review_date": "2019-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-draft",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Draft",
+     "next_review_date": "2019-01-01"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-no-date",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "status": "Approved"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-undefined-doc",
+   "fn": "isReviewOverdue",
+   "args": [
+    {
+     "$undefined": true
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "nrd-24",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    24
+   ],
+   "expected": {
+    "$date": "2028-09-17"
+   }
+  },
+  {
+   "id": "nrd-12",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    12
+   ],
+   "expected": {
+    "$date": "2027-09-17"
+   }
+  },
+  {
+   "id": "nrd-1",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    1
+   ],
+   "expected": {
+    "$date": "2026-10-17"
+   }
+  },
+  {
+   "id": "nrd-jan31-1",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-01-31",
+    1
+   ],
+   "expected": {
+    "$date": "2026-02-28"
+   }
+  },
+  {
+   "id": "nrd-jan31-1-leap",
+   "fn": "nextReviewDate",
+   "args": [
+    "2028-01-31",
+    1
+   ],
+   "expected": {
+    "$date": "2028-02-29"
+   }
+  },
+  {
+   "id": "nrd-leapday-12",
+   "fn": "nextReviewDate",
+   "args": [
+    "2028-02-29",
+    12
+   ],
+   "expected": {
+    "$date": "2029-02-28"
+   }
+  },
+  {
+   "id": "nrd-leapday-48",
+   "fn": "nextReviewDate",
+   "args": [
+    "2028-02-29",
+    48
+   ],
+   "expected": {
+    "$date": "2032-02-29"
+   }
+  },
+  {
+   "id": "nrd-aug31-6",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-08-31",
+    6
+   ],
+   "expected": {
+    "$date": "2027-02-28"
+   }
+  },
+  {
+   "id": "nrd-may31-1",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-05-31",
+    1
+   ],
+   "expected": {
+    "$date": "2026-06-30"
+   }
+  },
+  {
+   "id": "nrd-dec-1",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-12-10",
+    1
+   ],
+   "expected": {
+    "$date": "2027-01-10"
+   }
+  },
+  {
+   "id": "nrd-36",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-03-08",
+    36
+   ],
+   "expected": {
+    "$date": "2029-03-08"
+   }
+  },
+  {
+   "id": "nrd-string-period",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    "24"
+   ],
+   "expected": {
+    "$date": "2028-09-17"
+   }
+  },
+  {
+   "id": "nrd-timestamp-issue",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17T15:00:00Z",
+    24
+   ],
+   "expected": {
+    "$date": "2028-09-17"
+   }
+  },
+  {
+   "id": "nrd-date-object",
+   "fn": "nextReviewDate",
+   "args": [
+    {
+     "$date": "2026-10-31"
+    },
+    1
+   ],
+   "expected": {
+    "$date": "2026-11-30"
+   }
+  },
+  {
+   "id": "nrd-zero",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    0
+   ],
+   "expected": null
+  },
+  {
+   "id": "nrd-negative",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    -12
+   ],
+   "expected": null
+  },
+  {
+   "id": "nrd-null-period",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "nrd-no-period",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "nrd-text-period",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    "two years"
+   ],
+   "expected": null
+  },
+  {
+   "id": "nrd-nan",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-09-17",
+    {
+     "$num": "NaN"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "nrd-no-issue",
+   "fn": "nextReviewDate",
+   "args": [
+    null,
+    24
+   ],
+   "expected": null
+  },
+  {
+   "id": "nrd-garbage-issue",
+   "fn": "nextReviewDate",
+   "args": [
+    "soon",
+    24
+   ],
+   "expected": null
+  },
+  {
+   "id": "nrd-impossible-issue",
+   "fn": "nextReviewDate",
+   "args": [
+    "2026-02-30",
+    12
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "rev-01",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "01"
+   ],
+   "expected": "02"
+  },
+  {
+   "id": "rev-09",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "09"
+   ],
+   "expected": "10"
+  },
+  {
+   "id": "rev-10",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "10"
+   ],
+   "expected": "11"
+  },
+  {
+   "id": "rev-99",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "99"
+   ],
+   "expected": "100"
+  },
+  {
+   "id": "rev-1",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "1"
+   ],
+   "expected": "02"
+  },
+  {
+   "id": "rev-001",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "001"
+   ],
+   "expected": "002"
+  },
+  {
+   "id": "rev-099",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "099"
+   ],
+   "expected": "100"
+  },
+  {
+   "id": "rev-999",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "999"
+   ],
+   "expected": "1000"
+  },
+  {
+   "id": "rev-00",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "00"
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "rev-padded-space",
+   "fn": "nextRevisionNumber",
+   "args": [
+    " 07 "
+   ],
+   "expected": "08"
+  },
+  {
+   "id": "rev-number",
+   "fn": "nextRevisionNumber",
+   "args": [
+    3
+   ],
+   "expected": "04"
+  },
+  {
+   "id": "rev-zero",
+   "fn": "nextRevisionNumber",
+   "args": [
+    0
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "rev-null",
+   "fn": "nextRevisionNumber",
+   "args": [
+    null
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "rev-undefined",
+   "fn": "nextRevisionNumber",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "rev-empty",
+   "fn": "nextRevisionNumber",
+   "args": [
+    ""
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "rev-letter",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "A"
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "rev-prefixed",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "Rev 3"
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "rev-decimal",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "1.5"
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "rev-negative",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "-1"
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "rev-v2",
+   "fn": "nextRevisionNumber",
+   "args": [
+    "v2"
+   ],
+   "expected": "01"
+  },
+  {
+   "id": "conf-default-Public",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Public"
+   ],
+   "expected": false
+  },
+  {
+   "id": "conf-default-Internal",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Internal"
+   ],
+   "expected": false
+  },
+  {
+   "id": "conf-default-Confidential",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Confidential"
+   ],
+   "expected": true
+  },
+  {
+   "id": "conf-default-Restricted",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Restricted"
+   ],
+   "expected": true
+  },
+  {
+   "id": "conf-default-Secret",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Secret"
+   ],
+   "expected": false
+  },
+  {
+   "id": "conf-default-None",
+   "fn": "atLeastConfidential",
+   "args": [
+    null
+   ],
+   "expected": false
+  },
+  {
+   "id": "conf-Public-vs-Public",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Public",
+    "Public"
+   ],
+   "expected": true
+  },
+  {
+   "id": "conf-Public-vs-Restricted",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Public",
+    "Restricted"
+   ],
+   "expected": false
+  },
+  {
+   "id": "conf-Internal-vs-Public",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Internal",
+    "Public"
+   ],
+   "expected": true
+  },
+  {
+   "id": "conf-Internal-vs-Restricted",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Internal",
+    "Restricted"
+   ],
+   "expected": false
+  },
+  {
+   "id": "conf-Confidential-vs-Public",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Confidential",
+    "Public"
+   ],
+   "expected": true
+  },
+  {
+   "id": "conf-Confidential-vs-Restricted",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Confidential",
+    "Restricted"
+   ],
+   "expected": false
+  },
+  {
+   "id": "conf-Restricted-vs-Public",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Restricted",
+    "Public"
+   ],
+   "expected": true
+  },
+  {
+   "id": "conf-Restricted-vs-Restricted",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Restricted",
+    "Restricted"
+   ],
+   "expected": true
+  },
+  {
+   "id": "conf-unknown-floor",
+   "fn": "atLeastConfidential",
+   "args": [
+    "Restricted",
+    "Top secret"
+   ],
+   "expected": false
+  },
+  {
+   "id": "conf-lowercase",
+   "fn": "atLeastConfidential",
+   "args": [
+    "restricted"
+   ],
+   "expected": false
+  },
+  {
+   "id": "summary-mixed",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "status": "Published",
+      "next_review_date": "2026-09-01"
+     },
+     {
+      "status": "Published",
+      "next_review_date": "2026-09-17"
+     },
+     {
+      "status": "Approved",
+      "next_review_date": "2026-10-17"
+     },
+     {
+      "status": "Approved",
+      "next_review_date": "2026-10-18"
+     },
+     {
+      "status": "Published"
+     },
+     {
+      "status": "In Review",
+      "next_review_date": "2020-01-01"
+     },
+     {
+      "status": "In Review"
+     },
+     {
+      "status": "Draft"
+     },
+     {
+      "status": "Superseded",
+      "next_review_date": "2019-01-01"
+     },
+     {
+      "status": "Obsolete"
+     },
+     {
+      "status": "Rejected"
+     },
+     {
+      "status": "Withdrawn"
+     },
+     {}
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 13,
+    "byStatus": {
+     "Draft": 1,
+     "In Review": 2,
+     "Approved": 2,
+     "Published": 3,
+     "Superseded": 1,
+     "Obsolete": 1,
+     "Rejected": 1
+    },
+    "inReview": 2,
+    "published": 3,
+    "overdue": 1,
+    "dueSoon": 2
+   }
+  },
+  {
+   "id": "summary-empty",
+   "fn": "summarise",
+   "args": [
+    [],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 0,
+    "byStatus": {
+     "Draft": 0,
+     "In Review": 0,
+     "Approved": 0,
+     "Published": 0,
+     "Superseded": 0,
+     "Obsolete": 0,
+     "Rejected": 0
+    },
+    "inReview": 0,
+    "published": 0,
+    "overdue": 0,
+    "dueSoon": 0
+   }
+  },
+  {
+   "id": "summary-later-today",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "status": "Published",
+      "next_review_date": "2026-09-01"
+     },
+     {
+      "status": "Published",
+      "next_review_date": "2026-09-17"
+     },
+     {
+      "status": "Approved",
+      "next_review_date": "2026-10-17"
+     },
+     {
+      "status": "Approved",
+      "next_review_date": "2026-10-18"
+     },
+     {
+      "status": "Published"
+     },
+     {
+      "status": "In Review",
+      "next_review_date": "2020-01-01"
+     },
+     {
+      "status": "In Review"
+     },
+     {
+      "status": "Draft"
+     },
+     {
+      "status": "Superseded",
+      "next_review_date": "2019-01-01"
+     },
+     {
+      "status": "Obsolete"
+     },
+     {
+      "status": "Rejected"
+     },
+     {
+      "status": "Withdrawn"
+     },
+     {}
+    ],
+    {
+     "$date": "2026-10-18"
+    }
+   ],
+   "expected": {
+    "total": 13,
+    "byStatus": {
+     "Draft": 1,
+     "In Review": 2,
+     "Approved": 2,
+     "Published": 3,
+     "Superseded": 1,
+     "Obsolete": 1,
+     "Rejected": 1
+    },
+    "inReview": 2,
+    "published": 3,
+    "overdue": 3,
+    "dueSoon": 1
+   }
+  },
+  {
+   "id": "countby-dept",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "department": "HSE"
+     },
+     {
+      "department": "Drilling"
+     },
+     {
+      "department": "HSE"
+     },
+     {
+      "department": ""
+     },
+     {},
+     {
+      "department": "Drilling"
+     },
+     {
+      "department": "Subsurface"
+     },
+     {
+      "department": "Drilling"
+     }
+    ],
+    "department"
+   ],
+   "expected": [
+    {
+     "name": "Drilling",
+     "count": 3
+    },
+    {
+     "name": "HSE",
+     "count": 2
+    },
+    {
+     "name": "Unspecified",
+     "count": 2
+    },
+    {
+     "name": "Subsurface",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countby-unset-label",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "department": "HSE"
+     },
+     {
+      "department": "Drilling"
+     },
+     {
+      "department": "HSE"
+     },
+     {
+      "department": ""
+     },
+     {},
+     {
+      "department": "Drilling"
+     },
+     {
+      "department": "Subsurface"
+     },
+     {
+      "department": "Drilling"
+     }
+    ],
+    "department",
+    "None"
+   ],
+   "expected": [
+    {
+     "name": "Drilling",
+     "count": 3
+    },
+    {
+     "name": "HSE",
+     "count": 2
+    },
+    {
+     "name": "None",
+     "count": 2
+    },
+    {
+     "name": "Subsurface",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countby-empty",
+   "fn": "countBy",
+   "args": [
+    [],
+    "department"
+   ],
+   "expected": []
+  },
+  {
+   "id": "urgency-mixed",
+   "sort": "byReviewUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [
+    {
+     "id": "draft",
+     "status": "Draft",
+     "next_review_date": "2020-01-01"
+    },
+    {
+     "id": "sched-late",
+     "status": "Published",
+     "next_review_date": "2028-01-01"
+    },
+    {
+     "id": "unscheduled",
+     "status": "Published"
+    },
+    {
+     "id": "overdue-recent",
+     "status": "Published",
+     "next_review_date": "2026-09-16"
+    },
+    {
+     "id": "soon-late",
+     "status": "Approved",
+     "next_review_date": "2026-10-17"
+    },
+    {
+     "id": "sched-early",
+     "status": "Approved",
+     "next_review_date": "2026-10-18"
+    },
+    {
+     "id": "overdue-old",
+     "status": "Approved",
+     "next_review_date": "2025-01-01"
+    },
+    {
+     "id": "soon-today",
+     "status": "Published",
+     "next_review_date": "2026-09-17"
+    },
+    {
+     "id": "superseded-undated",
+     "status": "Superseded"
+    },
+    {
+     "id": "obsolete-dated",
+     "status": "Obsolete",
+     "next_review_date": "2019-06-01"
+    },
+    {
+     "id": "unscheduled-2",
+     "status": "Approved",
+     "next_review_date": ""
+    }
+   ],
+   "expectedOrder": [
+    "overdue-old",
+    "overdue-recent",
+    "soon-today",
+    "soon-late",
+    "sched-early",
+    "sched-late",
+    "unscheduled",
+    "unscheduled-2",
+    "obsolete-dated",
+    "draft",
+    "superseded-undated"
+   ]
+  },
+  {
+   "id": "urgency-empty",
+   "sort": "byReviewUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "rows": [],
+   "expectedOrder": []
+  },
+  {
+   "id": "prefix-plain",
+   "fn": "documentPrefix",
+   "args": [
+    "HSE",
+    "Procedure"
+   ],
+   "expected": "HSE-PRO"
+  },
+  {
+   "id": "prefix-spaces",
+   "fn": "documentPrefix",
+   "args": [
+    "Health & Safety",
+    "Work instruction"
+   ],
+   "expected": "HEA-WOR"
+  },
+  {
+   "id": "prefix-short",
+   "fn": "documentPrefix",
+   "args": [
+    "IT",
+    "SOP"
+   ],
+   "expected": "IT-SOP"
+  },
+  {
+   "id": "prefix-lower",
+   "fn": "documentPrefix",
+   "args": [
+    "drilling",
+    "policy"
+   ],
+   "expected": "DRI-POL"
+  },
+  {
+   "id": "prefix-null-both",
+   "fn": "documentPrefix",
+   "args": [
+    null,
+    null
+   ],
+   "expected": "GEN-DOC"
+  },
+  {
+   "id": "prefix-empty",
+   "fn": "documentPrefix",
+   "args": [
+    "",
+    ""
+   ],
+   "expected": "GEN-DOC"
+  },
+  {
+   "id": "prefix-symbols-only",
+   "fn": "documentPrefix",
+   "args": [
+    "&-/",
+    "***"
+   ],
+   "expected": "GEN-DOC"
+  },
+  {
+   "id": "prefix-digits",
+   "fn": "documentPrefix",
+   "args": [
+    "3D Seismic",
+    "2024 plan"
+   ],
+   "expected": "3DS-202"
+  },
+  {
+   "id": "prefix-accent",
+   "fn": "documentPrefix",
+   "args": [
+    "Géologie",
+    "Étude"
+   ],
+   "expected": "GOL-TUD"
+  },
+  {
+   "id": "prefix-one-char",
+   "fn": "documentPrefix",
+   "args": [
+    "X",
+    "y"
+   ],
+   "expected": "X-Y"
+  },
+  {
+   "id": "prefix-null-dept",
+   "fn": "documentPrefix",
+   "args": [
+    null,
+    "Drawing"
+   ],
+   "expected": "GEN-DRA"
+  }
+ ]
+}
