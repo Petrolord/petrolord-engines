@@ -296,3 +296,39 @@ describe('AS15 owner decisions', () => {
   });
 });
 
+
+describe('ASC-0 R4: explainStatus says what is true', () => {
+  it('a filed One-off past its due date is discharged, never "next due in -62 days"', () => {
+    const r = explainStatus({
+      frequency: 'One-off', due_date: '2026-08-14', last_submitted_date: '2026-08-10',
+    }, new Date(2026, 9, 15));
+    expect(r.status).toBe('Compliant');
+    expect(r.reason).toBe('Filed 2026-08-10. A one-off obligation, nothing further is due.');
+    expect(r.daysUntil).toBe(-62);
+  });
+
+  it('names a permit expiry that is still ahead', () => {
+    expect(explainStatus({
+      frequency: 'One-off', expiry_date: '2026-09-17', last_submitted_date: '2026-08-10',
+    }, TODAY).reason).toBe('Filed 2026-08-10. A one-off obligation, nothing further is due. The permit expires today.');
+  });
+
+  it('no reason prints a negative count or "1 days"', () => {
+    const cases = [
+      { frequency: 'One-off', due_date: '2026-01-01', last_submitted_date: '2025-12-01' },
+      { frequency: 'Annual', due_date: '2026-09-18', lead_time_days: 0, last_submitted_date: '2026-01-10' },
+      { frequency: 'Monthly', due_date: '2026-09-18', lead_time_days: 0 },
+      { frequency: 'Monthly', due_date: '2026-09-18' },
+      { frequency: 'Monthly', due_date: '2026-09-16' },
+      { expiry_date: '2026-09-16' },
+    ];
+    cases.forEach((o) => {
+      const { reason } = explainStatus(o, TODAY);
+      expect(reason).not.toMatch(/(^|\s)-\d/);
+      expect(reason).not.toMatch(/\b1 days\b/);
+      expect(reason).not.toMatch(/\bin 0 days\b/);
+    });
+    expect(explainStatus(cases[1], TODAY).reason).toBe('Last filed 2026-01-10, next due in 1 day.');
+    expect(explainStatus(cases[2], TODAY).reason).toBe('Due in 1 day. Nothing has been filed against it yet.');
+  });
+});

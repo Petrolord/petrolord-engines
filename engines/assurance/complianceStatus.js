@@ -230,6 +230,10 @@ const submittedThisPeriod = (obligation, submitted, due) => {
   return !start || submitted >= start;
 };
 
+// ASC-0 (R4): 'today', 'in 1 day', 'in 12 days'. Only called with a count
+// that is not negative.
+const inDays = (n) => (n === 0 ? 'today' : `in ${n} day${n === 1 ? '' : 's'}`);
+
 /**
  * The same answer with its reason, for the detail page and tooltips.
  * A status a user cannot account for is a status they will overwrite.
@@ -256,12 +260,27 @@ export const explainStatus = (obligation = {}, today = new Date()) => {
         : `Due in ${days} day${days === 1 ? '' : 's'}, inside the ${leadTime(obligation)} day lead time set for this obligation.`;
       break;
     case STATUS.COMPLIANT:
-      reason = `Last filed ${obligation.last_submitted_date}, next due in ${days} days.`;
+      // ASC-0 (R4): a filed One-off is Compliant whatever its due date
+      // (AS13-0), so "next due in N days" printed a negative N ("next due
+      // in -62 days") or a due date that is not coming. It says what is
+      // true instead: filed, and nothing further is due. A permit expiry
+      // still ahead is named, because that date still comes.
+      if (obligation.frequency === 'One-off') {
+        reason = `Filed ${toDateOnlyString(obligation.last_submitted_date)}. A one-off obligation, nothing further is due.`;
+        if (expiryDays !== null && expiryDays >= 0) {
+          reason += ` The permit expires ${inDays(expiryDays)}.`;
+        }
+      } else {
+        // Every other Compliant obligation is outside its lead time, so
+        // days is at least 1 here.
+        reason = `Last filed ${obligation.last_submitted_date}, next due ${inDays(days)}.`;
+      }
       break;
     case STATUS.ON_TRACK:
+      // Outside the lead time, so days is at least 1; "1 day" agrees (RC-9 sweep).
       reason = obligation.last_submitted_date
-        ? `Due in ${days} days. The last filing (${obligation.last_submitted_date}) was for an earlier period, so nothing has been filed for this one yet.`
-        : `Due in ${days} days. Nothing has been filed against it yet.`;
+        ? `Due ${inDays(days)}. The last filing (${obligation.last_submitted_date}) was for an earlier period, so nothing has been filed for this one yet.`
+        : `Due ${inDays(days)}. Nothing has been filed against it yet.`;
       break;
     case STATUS.NO_DATE:
       reason = 'No due date or expiry date has been set, so nothing can fall due.';
