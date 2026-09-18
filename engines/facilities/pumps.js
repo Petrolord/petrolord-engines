@@ -569,7 +569,7 @@ export const viscosityCorrection = ({
     // the trim warning above: at whole percent a correction of 59.75
     // read "60 percent" under a flag that only fires below 60.
     warning: B > 40
-      ? 'B above 40 is outside the published correlation: this service needs a positive-displacement pump or vendor viscous test data, not a corrected centrifugal curve'
+      ? 'B above 40 is outside the published correlation, so a corrected centrifugal curve cannot be used here: this service needs a positive-displacement pump or vendor viscous test data'
       : (cEta < 0.6
         ? `the efficiency correction is ${(cEta * 100).toFixed(1)} percent: a centrifugal pump is a poor choice for a fluid this viscous`
         : null),

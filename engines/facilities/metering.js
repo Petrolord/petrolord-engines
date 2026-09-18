@@ -473,6 +473,6 @@ export const straightRunDiameters = ({ beta, upstreamFitting = 'singleElbow' }) 
     upstreamDiameters: need,
     downstreamDiameters: beta <= 0.5 ? 4 : 5,
     tableMaxBeta,
-    note: 'these are table values, not a calculation: they depend on the fitting and the beta, and a flow conditioner shortens them substantially. They are this engine\'s stated table data and are not cited to a document in this repository',
+    note: 'these are table values and nothing here calculates them: they depend on the fitting and the beta, and a flow conditioner shortens them substantially. They are this engine\'s stated table data and are not cited to a document in this repository',
   };
 };

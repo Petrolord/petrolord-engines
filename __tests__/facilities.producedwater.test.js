@@ -686,7 +686,7 @@ describe('API 421 basins and plate packs, against a marched droplet', () => {
     expect(apiSeparator({ ...basin, flowM3S: 0 }).error).toMatch(/positive flow/);
     // F of zero used to give a cut of EXACTLY zero, which the train
     // then read as a broken device and silently deleted from the train
-    expect(apiSeparator({ ...basin, shortCircuitF: 0 }).error).toMatch(/not a perfect separator/);
+    expect(apiSeparator({ ...basin, shortCircuitF: 0 }).error).toMatch(/at an F of zero or less the separator is undefined/);
     expect(apiSeparator({ ...basin, shortCircuitF: -2 }).error).toMatch(/must be positive/);
     // and 1e9 used to give a five metre droplet with no refusal
     expect(apiSeparator({ ...basin, shortCircuitF: 1e9 }).error).toMatch(/holds it to 5/);
@@ -992,7 +992,7 @@ describe('the media filter: ONE route, marched', () => {
         near('its filter coefficient at the reference droplet', r.filterCoefficientPerM, row.lambdaAtRefPerM, 1e-12),
         near('the removal of a reference droplet', r.removalAtRefDroplet, row.removalAtRefDroplet, 1e-4, 'abs'),
         r.loadingFloorMHr === row.loadingFloorMHr ? null
-          : `the engine answers above ${r.loadingFloorMHr} m/hr and the oracle built this golden against a floor of ${row.loadingFloorMHr} m/hr`,
+          : `the engine answers at and above ${r.loadingFloorMHr} m/hr and the oracle built this golden against a floor of ${row.loadingFloorMHr} m/hr`,
       );
     });
     expect(n).toBeGreaterThanOrEqual(8);
@@ -1005,7 +1005,7 @@ describe('the media filter: ONE route, marched', () => {
     // golden did not check
     const r = mediaFilter({ flowM3S: 0.09201, areaM2: 16, bedDepthM: 0.9 });
     expect(r.removalFraction).toBeUndefined();
-    expect(r.cutBasis).toMatch(/not a second opinion/);
+    expect(r.cutBasis).toMatch(/the cut size and the train come from one model/);
   });
 
   test('THE FC7 DEFECT: the bed depth and the grain size move the answer', () => {
@@ -1096,6 +1096,18 @@ describe('the media filter: ONE route, marched', () => {
     // sit at the same loading rate, so there is no band left in which a
     // clamp at the declared floor could flatten an answer
     expect(DECLARED_CONSTANTS.filterMinLoadingMHr).toBe(1);
+  });
+
+  test('the bed answers AT the floor and refuses only below it, which is what its refusal says', () => {
+    // flow in m3/s that loads 1 m2 of bed at exactly `mHr` m/hr
+    const at = (mHr) => mediaFilter({ flowM3S: mHr / 3600, areaM2: 1 });
+    const floor = DECLARED_CONSTANTS.filterMinLoadingMHr;
+    const onFloor = at(floor);
+    expect(onFloor.error).toBeUndefined();
+    expect(onFloor.loadingMHr).toBe(floor);
+    expect(Number.isFinite(onFloor.d50cMicron)).toBe(true);
+    const below = at(floor * (1 - 1e-9));
+    expect(below.error).toMatch(/this module answers at the floor and above it/);
   });
 
   test('NEGATIVE CONTROL: the filter gate fires when a low-rate clamp comes back', () => {

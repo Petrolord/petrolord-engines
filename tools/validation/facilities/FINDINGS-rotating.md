@@ -157,3 +157,12 @@ inventing a second unsourced model on top of the first. The efficiency the
 return implies is **computed and reported** as `impliedEfficiencyRatio`
 instead, because the defect was that a reader who divided the returned power
 into the returned head and flow got a number the module never mentioned.
+
+## Owner copy rule sweep, 2026-09-18
+
+Every user-facing string in `engines/facilities/` was parsed out of the source (Babel AST, every string and template literal) and checked for dashes, the `, not ` contrastive the course gate `gate_copy_rule.py` enforces, `is not A, it is B` and `and not`. The strings below were rewritten; meaning is kept, and no number, key or branch moved. Every golden regenerates byte for byte and the tests that pinned the old wording now pin the new.
+
+| file | string | before | after |
+|---|---|---|---|
+| `compression.js` | hot-stage warning | the valves and the lube oil become the limit, not the thermodynamics | at this temperature the valves and the lube oil set the limit, ahead of the thermodynamics |
+| `pumps.js` | viscosity correction warning, B above 40 | this service needs a positive-displacement pump or vendor viscous test data, not a corrected centrifugal curve | B above 40 is outside the published correlation, so a corrected centrifugal curve cannot be used here: this service needs a positive-displacement pump or vendor viscous test data |

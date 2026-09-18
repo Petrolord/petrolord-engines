@@ -663,7 +663,7 @@ describe('inhibitor efficiency against availability', () => {
       inhibitorEfficiencyPct: 100, inhibitorAvailabilityPct: 95,
     });
     expect(perfect.effectiveInhibitionPct).toBeCloseTo(95, 9);
-    expect(perfect.note).toMatch(/not a prediction/);
+    expect(perfect.note).toMatch(/only the arithmetic of the number typed in and predicts nothing/);
     say(`${rows.length} efficiency and availability pairs against an 8760 hour duty cycle,`,
       'plus the removed 99.9 ceiling');
   });
@@ -681,7 +681,7 @@ describe('inhibitor efficiency against availability', () => {
     const def = at(90, 95);
     expect(def.effectiveInhibitionPct).toBeCloseTo(85.5, 9);
     expect(def.warning).toMatch(/85\.5 percent effective/);
-    expect(def.warning).toMatch(/availability, not efficiency/);
+    expect(def.warning).toMatch(/availability is what limits it/);
     expect(def.inhibitorShortfallPp).toBeCloseTo(4.5, 9);
     // and at any efficiency, not just above 90
     expect(at(90, 50).effectiveInhibitionPct).toBeCloseTo(45, 9);
@@ -1005,11 +1005,11 @@ describe('the whole screen', () => {
     expect(noCo2.category).toBeNull();
     expect(noCo2.life).toBeNull();
     expect(noCo2.withheld.why).toMatch(/no CO2/);
-    expect(noCo2.rate.note).toMatch(/does not apply, not that the line is not corroding/);
+    expect(noCo2.rate.note).toMatch(/only that the model does not apply, and it says nothing about whether the line is corroding/);
     const oilWet = screen({ ...base, flowRegime: 'oilWet' });
     expect(oilWet.category).toBeNull();
     expect(oilWet.life).toBeNull();
-    expect(oilWet.withheld.why).toMatch(/zero because that was assumed/);
+    expect(oilWet.withheld.why).toMatch(/zero by assumption, and nothing was calculated to reach it/);
     expect(oilWet.rate.effectiveInhibitionPct).toBeNull();
     // mixed is NOT withheld, but it is marked as a bound
     const mixed = screen(base);

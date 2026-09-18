@@ -1192,7 +1192,7 @@ describe('the hot day', () => {
     expect(h.regime).toBe('colder than design');
     expect(h.dutyFraction).toBeGreaterThan(1);
     expect(h.dutyFraction).toBeCloseTo(1.354839, 6);
-    expect(h.note).toMatch(/capability, not a delivered duty/);
+    expect(h.note).toMatch(/capability that the plant may never draw on/);
     expect(h.processOutF).toBeLessThan(150);
     // at the design ambient it is exactly the design point
     const same = airCooler({

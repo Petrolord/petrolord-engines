@@ -548,3 +548,13 @@ are now golden rows and a capstone must not reuse them.**
 **The digest is the teaching truth for this wave, once it exists.** RECON.md,
 this file and the engine source are PROVENANCE, and no lesson may quote any
 of them.
+
+## Owner copy rule sweep, 2026-09-18
+
+Every user-facing string in `engines/facilities/` was parsed out of the source (Babel AST, every string and template literal) and checked for dashes, the `, not ` contrastive the course gate `gate_copy_rule.py` enforces, `is not A, it is B` and `and not`. The strings below were rewritten; meaning is kept, and no number, key or branch moved. Every golden regenerates byte for byte and the tests that pinned the old wording now pin the new.
+
+| file | string | before | after |
+|---|---|---|---|
+| `heatTransfer.js` | 1-2 shell log mean note | this is the log mean, not the corrected driving force | this is the uncorrected log mean, before F is applied |
+| `heatTransfer.js` | shell-pass bound refusal | a design limit declared by this module, not a published one, and it exists because | a design limit this module declares for itself, and no publication sets it. It exists because |
+| `heatTransfer.js` | cold-day air cooler note | This is a capability, not a delivered duty: a plant | This is a capability that the plant may never draw on: a plant |

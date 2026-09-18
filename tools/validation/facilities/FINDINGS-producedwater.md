@@ -836,3 +836,18 @@ is written.
   carries its own inlined 60 for the same warning. That file is the
   foundation's, not this repository's, and it is reported rather than
   edited from here.
+
+## Owner copy rule sweep, 2026-09-18
+
+Every user-facing string in `engines/facilities/` was parsed out of the source (Babel AST, every string and template literal) and checked for dashes, the `, not ` contrastive the course gate `gate_copy_rule.py` enforces, `is not A, it is B` and `and not`. The strings below were rewritten; meaning is kept, and no number, key or branch moved. Every golden regenerates byte for byte and the tests that pinned the old wording now pin the new.
+
+| file | string | before | after |
+|---|---|---|---|
+| `producedWater.js` | API separator refusal, F of zero or less | an F of zero or less is not a perfect separator, it is an undefined one | at an F of zero or less the separator is undefined |
+| `producedWater.js` | hydrocyclone overload warning | The cut size gets WORSE from here, not better, and | The cut size gets WORSE from here as the flow rises, and |
+| `producedWater.js` | media filter cutBasis | integrated over the droplet distribution, not a second opinion | integrated over the droplet distribution, so the cut size and the train come from one model |
+| `producedWater.js` | bed-floor refusal (WORDING WAS FALSE) | m/hr floor this module answers above: the filter | m/hr floor: this module answers at the floor and above it, and the filter |
+
+**The bed-floor refusal said the module answers ABOVE the floor.** The code refuses `loadingMHr < filterMinLoadingMHr` and answers AT 1 m/hr, which is what FC7's two-right-answer questions tripped on. The refusal now says it answers at the floor and above it, and a new test pins both halves: exactly 1 m/hr answers with a finite cut, 1 m/hr less one part in 1e9 refuses with that wording.
+
+**The `medianOfBins` comment gave the grid step as 6.5 percent of a diameter.** At the defaults (60 bins, 4 sigma either side, sigma 0.7) the log step is 8 x 0.7 / 60 = 0.0933, a factor of 1.0978 per bin, 9.8 percent. Measured off `dropletBins` itself: `dHiMicron / dLoMicron` = 1.097827616823376. Comment corrected; no code moved.

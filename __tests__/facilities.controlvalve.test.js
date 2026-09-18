@@ -109,7 +109,7 @@ describe('the stated constants are pinned by literal, against silent change', ()
     const a = valveAuthority({ dpValvePsi: 60, dpSystemTotalPsi: 100 });
     expect(a.thresholds.good).toBe(0.5);
     expect(a.thresholds.acceptable).toBe(0.25);
-    expect(a.thresholdBasis).toMatch(/not a value read from a standard/);
+    expect(a.thresholdBasis).toMatch(/no standard in this package supplies them/);
     expect(travelCheck({ cvRequiredNormal: 50, cvRated: 100 }).rangeability).toBe(50);
   });
 
