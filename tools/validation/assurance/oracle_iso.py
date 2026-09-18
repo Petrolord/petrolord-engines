@@ -333,8 +333,15 @@ def can_advance_audit(audit, to, ctx=None):
 
 
 def audit_overdue(a, today):
-    """Still open (Reported counts: not finished until its findings are) past planned end."""
-    if a.get('status') not in AUDIT_OPEN:
+    """Not delivered by its planned end (ASC-1, E3).
+
+    An audit is delivered when its report is issued, so Reported, Closed and
+    Cancelled are never late; only the three stages before the report can
+    be. Reported is still OPEN (AUDIT_OPEN, findings pending closure); open
+    and overdue are different questions. Modelled from ISO 19011 §6.5 (the
+    audit report is issued within the agreed period) and the lead's ruling.
+    """
+    if a.get('status') not in ('Planned', 'In progress', 'Fieldwork complete'):
         return False
     n = days_until(a.get('planned_end'), today)
     return n is not None and n < 0
@@ -907,6 +914,21 @@ def build():
                    ('audit-overdue-cancelled', au(status='Cancelled', planned_end='2026-08-01')),
                    ('audit-overdue-nodate', au(status='In progress'))]:
         c.add(cid, 'isAuditOverdue', [a, T], audit_overdue(a, T))
+    # ASC-1 (E3): overdue means not delivered by the planned end. The
+    # course's repro first: a Reported audit six weeks past its planned end
+    # (awaiting finding closure) is open, and it is not late.
+    for cid, a in [('e3-reported-past-end', au(status='Reported', planned_end='2026-08-06')),
+                   ('e3-fieldwork-complete-past-end',
+                    au(status='Fieldwork complete', planned_end='2026-08-06')),
+                   ('e3-in-progress-past-end', au(status='In progress', planned_end='2026-08-06')),
+                   ('e3-reported-no-date', au(status='Reported'))]:
+        c.add(cid, 'isAuditOverdue', [a, T], audit_overdue(a, T),
+              defect='E3' if a['status'] == 'Reported' and a.get('planned_end') else None)
+    e3 = {'audits': [au(id='r', status='Reported', planned_end='2026-08-06'),
+                     au(id='f', status='Fieldwork complete', planned_end='2026-08-06'),
+                     au(id='k', status='Closed', planned_end='2026-08-06')]}
+    c.add('e3-summary-reported-open-not-overdue', 'summarise', [e3, T], summarise(e3, T),
+          defect='E3')
 
     # --- findings ---------------------------------------------------------
     for s in ['Open', 'Correction proposed', 'Action in progress', 'Verification', 'Closed',

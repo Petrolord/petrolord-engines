@@ -444,13 +444,28 @@ export const canAdvanceAudit = (audit = {}, to, context = {}) => {
 /* ------------------------------------------------------------------ */
 
 /**
- * An audit still open past its planned end. Named at AS11 so the hub
+ * An audit not yet delivered by its planned end. Named at AS11 so the hub
  * asks this module rather than restating the rule; `summarise()` uses
- * it too. Reported counts as open here because an ISO audit is not
- * finished until its findings are closed.
+ * it too.
+ *
+ * ASC-1 (E3): overdue asks whether the audit was DELIVERED by its planned
+ * end, and an audit is delivered when it is Reported. So only Planned,
+ * In progress and Fieldwork complete can be overdue. This is the rule
+ * `auditManagement.isAuditOverdue` has always applied (false for
+ * Reported, Closed and Cancelled); the two modules count the same audits
+ * against the same date, so the ISO dashboard and the Audit Manager can
+ * no longer disagree about one audit. Before ASC-1 this predicate used
+ * AUDIT_OPEN_STATUSES and so kept a Reported audit overdue forever.
+ * Reported stays in AUDIT_OPEN_STATUSES: the audit is still open for
+ * every other purpose (its findings are pending closure, `auditsOpen`
+ * counts it); it is only no longer late.
  */
+export const AUDIT_UNDELIVERED_STATUSES = Object.freeze([
+  'Planned', 'In progress', 'Fieldwork complete',
+]);
+
 export const isAuditOverdue = (audit = {}, today = new Date()) =>
-  AUDIT_OPEN_STATUSES.includes(audit.status)
+  AUDIT_UNDELIVERED_STATUSES.includes(audit.status)
   && (daysUntil(audit.planned_end, today) ?? 1) < 0;
 
 export const isFindingOpen = (finding = {}) =>

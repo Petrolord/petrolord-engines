@@ -2486,7 +2486,7 @@
      "$date": "2026-09-17"
     }
    ],
-   "expected": true
+   "expected": false
   },
   {
    "id": "audit-overdue-closed",
@@ -2546,6 +2546,185 @@
     }
    ],
    "expected": false
+  },
+  {
+   "id": "e3-reported-past-end",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Reported",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "planned_end": "2026-08-06"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false,
+   "repaired": "E3"
+  },
+  {
+   "id": "e3-fieldwork-complete-past-end",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "planned_end": "2026-08-06"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "e3-in-progress-past-end",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "In progress",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities.",
+     "planned_end": "2026-08-06"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "e3-reported-no-date",
+   "fn": "isAuditOverdue",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "IA-2026-001",
+     "standard_id": "s1",
+     "audit_type": "Internal",
+     "status": "Reported",
+     "lead_auditor_id": "u9",
+     "conclusion": "Conforms, with two minor nonconformities."
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "e3-summary-reported-open-not-overdue",
+   "fn": "summarise",
+   "args": [
+    {
+     "audits": [
+      {
+       "id": "r",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Reported",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "planned_end": "2026-08-06"
+      },
+      {
+       "id": "f",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "planned_end": "2026-08-06"
+      },
+      {
+       "id": "k",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Closed",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities.",
+       "planned_end": "2026-08-06"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "standards": 0,
+    "certified": 0,
+    "clauses": 0,
+    "applicable": 0,
+    "excluded": 0,
+    "byClauseStatus": {
+     "Not assessed": 0,
+     "Conformant": 0,
+     "Partially conformant": 0,
+     "Nonconformant": 0,
+     "Not applicable": 0
+    },
+    "evidencedClaims": 0,
+    "unevidencedClaims": 0,
+    "notAssessed": 0,
+    "reviewsOverdue": 0,
+    "reviewsDueSoon": 0,
+    "audits": 3,
+    "byAuditStatus": {
+     "Planned": 0,
+     "In progress": 0,
+     "Fieldwork complete": 1,
+     "Reported": 1,
+     "Closed": 1,
+     "Cancelled": 0
+    },
+    "auditsOpen": 2,
+    "auditsOverdue": 1,
+    "clausesCovered": 0,
+    "clausesNeverAudited": 0,
+    "clausesStale": 0,
+    "findings": 0,
+    "openFindings": 0,
+    "byFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openByFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openMajor": 0,
+    "findingsOverdue": 0,
+    "actions": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "actionsAwaitingEffectiveness": 0,
+    "actionsVerifiedEffective": 0,
+    "actionsFoundIneffective": 0
+   },
+   "repaired": "E3"
   },
   {
    "id": "finding-open-open",
@@ -7373,7 +7552,7 @@
      "Cancelled": 1
     },
     "auditsOpen": 3,
-    "auditsOverdue": 2,
+    "auditsOverdue": 1,
     "clausesCovered": 0,
     "clausesNeverAudited": 6,
     "clausesStale": 1,

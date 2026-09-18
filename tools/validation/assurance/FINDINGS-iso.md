@@ -198,3 +198,42 @@ Negative control: against the pre-AS15 engine every case above fails
 - 206 -> 216. The previous engine fails the two R3 cases with a lapsed
   certificate (the repro and day -1; day 0 and day 1 read the same before
   and after) and the five R5 cases other than ISO 9001.
+
+## ASC-1 (2026-09-18): E3, a Reported audit is not overdue
+
+- **Repro:** `isAuditOverdue({status:'Reported', planned_end:'2026-08-06'},
+  2026-09-17)` -> `true`, and `summarise({audits:[that]}).auditsOverdue`
+  -> 1. `auditManagement.isAuditOverdue` on the same audit -> `false`.
+  The ISO predicate was `AUDIT_OPEN_STATUSES.includes(status)`, and
+  Reported is open (its findings may still be pending closure), so a
+  delivered audit stayed "overdue" until it was closed. Both modules
+  measure the same thing, whether the audit was delivered by its planned
+  end, and on the same audit the ISO dashboard and the Audit Manager
+  disagreed.
+- **Lead's ruling, applied:** align ISO with auditManagement. New
+  `AUDIT_UNDELIVERED_STATUSES` (Planned, In progress, Fieldwork
+  complete); `isAuditOverdue` asks that list and its doc comment says why
+  the two modules now agree. `AUDIT_OPEN_STATUSES` is unchanged: Reported
+  stays open for every other purpose (`summarise().auditsOpen`, findings
+  pending closure).
+- **Consumers followed:** `isAuditOverdue` itself and
+  `summarise().auditsOverdue` are the only ISO outputs that use it.
+  `certificationReadiness` does not ask about audit lateness, and the one
+  urgency sort (`findingByUrgency`) ranks findings, so neither moved.
+  Suite callers of the ISO export: the Assurance hub's "Audits overdue"
+  tile (through `summarise`).
+- **Oracle:** `audit_overdue` asks the three undelivered stages (it no
+  longer reads `AUDIT_OPEN`). Independent statement of the rule; it does
+  not import `oracle_audit.py`.
+- **Goldens moved (2, expected only):** `audit-overdue-reported` (true ->
+  false) and `summary-mixed` (`auditsOverdue` 2 -> 1; its a5 is Reported
+  and past its planned end). No other field moved. Added `e3-*` (5): the
+  repro, Fieldwork complete and In progress past their end (still
+  overdue), Reported with no date, and a summary where the Reported audit
+  is open and not overdue. 216 -> 221.
+- **Jest:** `assurance.copy.test.js` checks the two modules agree for
+  every audit status on four dates around today.
+- **Remaining difference (not changed):** an audit with no status or an
+  unknown one is never overdue in ISO; auditManagement judges it by date.
+  The status column is not null in both tables, so no stored row reaches
+  it.

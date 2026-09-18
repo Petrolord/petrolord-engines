@@ -22,8 +22,8 @@ way the engine imports AS8's.
 - A cancellation reason in the patch wins, even when it is blank (`??`).
 - Rule 2 (a critical nonconformance must raise a finding) applies to ad-hoc
   audits as well, as the migration trigger does.
-- `isAuditOverdue` stops at Reported here, whereas AS8 keeps a Reported
-  audit overdue.
+- `isAuditOverdue` stops at Reported here, whereas AS8 kept a Reported
+  audit overdue until ASC-1 (E3) aligned AS8 with this module.
 - `findingByAttention` tie-breaks on the due date, else the raised date,
   and dated findings sort before undated ones.
 
@@ -124,3 +124,11 @@ Negative control: against the pre-AS15 engine every case above fails.
   (58), 29 of 200 (15), 1 of 8 (13, where the float agreed). The previous
   engine fails 4 (all but the 1-of-8 pair). No existing case moved. 175
   -> 181.
+
+## ASC-1 (2026-09-18): E3, ISO agrees with this module
+
+`isoCompliance.isAuditOverdue` now returns false for a Reported audit, as
+`isAuditOverdue` here always has (see FINDINGS-iso.md, ASC-1). Nothing in
+this module changed and no golden here moved (181 cases). The shared
+jest check in `assurance.copy.test.js` compares the two predicates for
+every audit status.

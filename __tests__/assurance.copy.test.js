@@ -19,6 +19,13 @@ import {
   certificationReadiness,
 } from '../engines/assurance/isoCompliance.js';
 import { canAdvancePlan } from '../engines/assurance/qualityAssurance.js';
+import { isAuditOverdue as auditIsAuditOverdue } from '../engines/assurance/auditManagement.js';
+import {
+  AUDIT_OPEN_STATUSES,
+  AUDIT_STATUSES,
+  isAuditOverdue as isoIsAuditOverdue,
+  summarise as isoSummarise,
+} from '../engines/assurance/isoCompliance.js';
 
 const TODAY = new Date(2026, 8, 18);
 const ap = (level, status) => ({ level, status });
@@ -109,5 +116,41 @@ describe('count agreement', () => {
       .toBe('1 critical comment still needs resolving. Verify, close out or withdraw it first.');
     expect(canClose([{ severity: 'Critical', status: 'Open' }, { severity: 'Major', status: 'Open' }]).reason)
       .toBe('1 critical and 1 major comments still need resolving. Verify, close out or withdraw them first.');
+  });
+});
+
+/**
+ * ASC-1, found by the NextGen compliance course writers.
+ *   E3: the ISO and audit modules disagreed about a Reported audit past
+ *       its planned end. Overdue asks "delivered by the planned end?".
+ */
+describe('ASC-1 E3: one answer to "is this audit overdue"', () => {
+  const past = { planned_end: '2026-08-06' };
+  const T = new Date(2026, 8, 17);
+
+  it('a Reported audit past its planned end is open and not overdue, in both modules', () => {
+    const reported = { ...past, status: 'Reported' };
+    expect(AUDIT_OPEN_STATUSES).toContain('Reported');
+    expect(isoIsAuditOverdue(reported, T)).toBe(false);
+    expect(auditIsAuditOverdue(reported, T)).toBe(false);
+  });
+
+  it('agrees with auditManagement for every audit status, past and future', () => {
+    AUDIT_STATUSES.forEach((status) => {
+      ['2026-08-06', '2026-09-16', '2026-09-17', '2026-10-01'].forEach((planned_end) => {
+        const a = { status, planned_end };
+        expect([status, planned_end, isoIsAuditOverdue(a, T)])
+          .toEqual([status, planned_end, auditIsAuditOverdue(a, T)]);
+      });
+    });
+  });
+
+  it('summarise counts the Reported audit as open and not as overdue', () => {
+    const s = isoSummarise({ audits: [
+      { id: 'r', status: 'Reported', ...past },
+      { id: 'f', status: 'Fieldwork complete', ...past },
+    ] }, T);
+    expect(s.auditsOpen).toBe(2);
+    expect(s.auditsOverdue).toBe(1);
   });
 });
