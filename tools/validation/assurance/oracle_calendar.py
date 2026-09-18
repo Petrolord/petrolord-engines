@@ -40,6 +40,14 @@ class D:
         self.ymd = ymd
 
 
+class LI:
+    """ASC-0 item 12: an instant at a LOCAL wall-clock time, 'YYYY-MM-DDTHH:MM'.
+    The runner hands the engine that moment as a UTC ISO string, so the
+    moment's local calendar date is the date written here, in every zone."""
+    def __init__(self, local):
+        self.local = local
+
+
 class _Undef:
     pass
 
@@ -52,6 +60,8 @@ def enc(v):
     """Python value -> golden JSON with the contract's tagged forms."""
     if isinstance(v, D):
         return {'$date': v.ymd}
+    if isinstance(v, LI):
+        return {'$localInstant': v.local}
     if isinstance(v, _dt.date):
         return {'$date': f'{v.year:04d}-{v.month:02d}-{v.day:02d}'}
     if isinstance(v, _Undef):
@@ -188,6 +198,16 @@ def pynum(x):
 # ---------------------------------------------------------------- calendar
 
 _YMD = re.compile(r'(\d{4})-(\d{2})-(\d{2})')
+
+
+def local_date_of(v):
+    """ASC-0 item 12, the oracle's localDateOf: the LOCAL calendar date of an
+    instant (an LI, whose local wall-clock date is given); anything else
+    reads as to_date reads it. A literal instant string with an offset has a
+    zone-dependent local date and is never used as a golden argument."""
+    if isinstance(v, LI):
+        return to_date(v.local[:10])
+    return to_date(v)
 
 
 def to_date(v):
@@ -337,6 +357,21 @@ def build():
     c.add('days-garbage', 'daysUntil', ['soon', T], None)
     c.add('days-invalid-date-object', 'daysUntil', [D(None), T], None)
     c.add('days-feb-30', 'daysUntil', ['2026-02-30', T], None, defect='CAL-1')
+
+    # ASC-0 item 12: localDateOf, the local calendar date of an instant. The
+    # instants are LOCAL wall-clock times (LI), sent to the engine as UTC ISO
+    # strings, so 23:30 local is a different UTC date east of Greenwich and
+    # 00:30 local a different one west, and the zone sweep sees both.
+    for cid, v in [
+        ('local-2330', LI('2026-09-17T23:30')), ('local-0030', LI('2026-09-18T00:30')),
+        ('local-midnight', LI('2026-09-18T00:00')), ('local-2359-year-end', LI('2026-12-31T23:59')),
+        ('local-0000-new-year', LI('2027-01-01T00:00')), ('local-nz-dst-start', LI('2026-09-27T03:30')),
+        ('local-us-dst-end', LI('2026-11-01T01:30')),
+        ('date-only-string', '2026-09-17'), ('date-object', D('2026-09-17')),
+        ('invalid-date-object', D(None)), ('null', None), ('empty', ''), ('garbage', 'yesterday'),
+        ('impossible-with-time', '2026-02-30T10:00:00Z'),
+    ]:
+        c.add(f'item12-{cid}', 'localDateOf', [v], local_date_of(v), defect='ASC0-12')
 
     # toDateOnlyString
     c.add('ymd-string', 'toDateOnlyString', ['2026-09-17'], '2026-09-17')

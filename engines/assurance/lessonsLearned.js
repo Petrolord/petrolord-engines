@@ -34,6 +34,7 @@
  */
 
 import { parseDateOnly, daysUntil, toDateOnlyString } from './qualityAssurance.js';
+import { localDateOf } from './calendar.js';
 
 export { parseDateOnly, daysUntil, toDateOnlyString };
 
@@ -343,8 +344,12 @@ export const isReviewDueSoon = (lesson = {}, today = new Date()) => {
   return days !== null && days >= 0 && days <= REVIEW_LEAD_DAYS;
 };
 
+// ASC-0 (item 12): the event date is a calendar date; the created_at
+// fallback is an instant, read as its LOCAL calendar date (localDateOf).
+const raisedOn = (lesson) => localDateOf(lesson.event_date || lesson.created_at);
+
 export const lessonAgeDays = (lesson = {}, today = new Date()) => {
-  const raised = parseDateOnly(lesson.event_date || lesson.created_at);
+  const raised = raisedOn(lesson);
   if (!raised) return null;
   return Math.max(0, -daysUntil(raised, today));
 };
@@ -459,8 +464,8 @@ export const lessonByAttention = (applicationsByLesson = new Map(), today = new 
     };
     const diff = rank(a) - rank(b);
     if (diff !== 0) return diff;
-    const da = parseDateOnly(b.event_date || b.created_at);
-    const db = parseDateOnly(a.event_date || a.created_at);
+    const da = raisedOn(b);
+    const db = raisedOn(a);
     if (da && db) return da - db;
     // Undated last, as the sibling comparators do. Returning 0 here made
     // the order non-transitive, so the sort could return anything (LL-1).

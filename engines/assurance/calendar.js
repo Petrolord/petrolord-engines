@@ -52,6 +52,28 @@ export const parseDateOnly = (value) => {
   return d;
 };
 
+/**
+ * The LOCAL calendar date of a value that may be an instant (ASC-0 item 12).
+ *
+ * A timestamptz such as '2026-09-17T23:30:00+00:00' is a moment, and its
+ * leading YYYY-MM-DD is the UTC date: in Lagos a row created at 00:30 local
+ * time is dated the day before. A string with a time part is therefore read
+ * as the instant it names and its local calendar date taken, the way
+ * daysUntil takes today. A date-only string stays that calendar date, and a
+ * Date or anything else reads exactly as parseDateOnly reads it. An
+ * impossible date (2026-02-30T10:00Z) is no date, as ever.
+ *
+ * For the fallbacks from a date column to a row's created_at (lesson age,
+ * NCR age). parseDateOnly itself is unchanged: a date column that arrives
+ * as a timestamp keeps its leading date.
+ */
+export const localDateOf = (value) => {
+  const day = parseDateOnly(value);
+  if (!day || typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/.test(value)) return day;
+  const instant = new Date(value);
+  return Number.isNaN(instant.getTime()) ? day : parseDateOnly(instant);
+};
+
 export const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
 /** Whole days from today to the date: negative when it has passed, null when there is none. */

@@ -84,3 +84,20 @@ caller. The guard is in the Suite hook test.
 - Golden cases `rc9-*` (6), verbatim (`"prose": "exact"`); the previous
   engine fails 3 (archived, obsolete, all-three). No existing case moved.
   333 -> 339.
+
+## ASC-0 item 12 (2026-09-18): created_at is an instant
+
+- `lessonAgeDays` and `lessonByAttention` date a lesson with no
+  `event_date` by `created_at`, now read through calendar.js's
+  `localDateOf` (its local calendar date). Repro, TZ=Africa/Lagos:
+  `lessonAgeDays({created_at:'2026-09-17T23:30:00+00:00'}, new Date(2026,8,20))`
+  -> 3 (dated the 17th, the UTC date); now 2 (00:30 on the 18th local).
+  See FINDINGS-calendar.md for the rule and the harness tag.
+- Goldens moved (ARGUMENTS only, no expected value): `age-created-at-only`
+  (created_at '2026-09-01T23:59:00Z' -> `$localInstant` '2026-09-01T23:59',
+  age still 17) and `attention-register` / `attention-empty-map` (the
+  'submitted' row's created_at '...T09:00:00Z' -> `$localInstant`
+  '...T09:00', order unchanged). A literal instant's local date differs by
+  zone, so the old arguments could not stay under the new rule. Added
+  `item12-*` (6): 00:30 and 23:30 local, created today, event date wins,
+  and an attention sort. 339 -> 345.

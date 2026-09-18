@@ -4949,7 +4949,9 @@
    "fn": "lessonAgeDays",
    "args": [
     {
-     "created_at": "2026-09-01T23:59:00Z"
+     "created_at": {
+      "$localInstant": "2026-09-01T23:59"
+     }
     },
     {
      "$date": "2026-09-18"
@@ -7957,7 +7959,9 @@
     {
      "id": "submitted",
      "status": "Submitted",
-     "created_at": "2026-09-08T09:00:00Z"
+     "created_at": {
+      "$localInstant": "2026-09-08T09:00"
+     }
     },
     {
      "id": "unapplied-new",
@@ -8036,7 +8040,9 @@
     {
      "id": "submitted",
      "status": "Submitted",
-     "created_at": "2026-09-08T09:00:00Z"
+     "created_at": {
+      "$localInstant": "2026-09-08T09:00"
+     }
     }
    ],
    "expectedOrder": [
@@ -8082,6 +8088,127 @@
     "undated"
    ],
    "repaired": "LL-1"
+  },
+  {
+   "id": "item12-age-created-0030-local",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "created_at": {
+      "$localInstant": "2026-09-10T00:30"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 8,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-age-created-2330-local",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "created_at": {
+      "$localInstant": "2026-09-10T23:30"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 8,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-age-created-today-0030",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "created_at": {
+      "$localInstant": "2026-09-18T00:30"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 0,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-age-created-today-2330",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "created_at": {
+      "$localInstant": "2026-09-18T23:30"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 0,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-age-event-date-wins-over-instant",
+   "fn": "lessonAgeDays",
+   "args": [
+    {
+     "event_date": "2026-09-01",
+     "created_at": {
+      "$localInstant": "2026-09-10T00:30"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 17,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-attention-created-instants",
+   "sort": "lessonByAttention",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$map": []
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "rows": [
+    {
+     "id": "dated-9th",
+     "status": "Draft",
+     "event_date": "2026-09-09"
+    },
+    {
+     "id": "created-10th-0030",
+     "status": "Draft",
+     "created_at": {
+      "$localInstant": "2026-09-10T00:30"
+     }
+    },
+    {
+     "id": "created-8th-2330",
+     "status": "Draft",
+     "created_at": {
+      "$localInstant": "2026-09-08T23:30"
+     }
+    }
+   ],
+   "expectedOrder": [
+    "created-10th-0030",
+    "dated-9th",
+    "created-8th-2330"
+   ],
+   "repaired": "ASC0-12"
   },
   {
    "id": "rc9-final-article-archived",

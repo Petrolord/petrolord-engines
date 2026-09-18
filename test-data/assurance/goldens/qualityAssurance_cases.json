@@ -5176,7 +5176,9 @@
    "args": [
     {
      "status": "Open",
-     "created_at": "2026-06-10T21:15:00Z"
+     "created_at": {
+      "$localInstant": "2026-06-10T21:15"
+     }
     },
     {
      "$date": "2026-09-18"
@@ -5285,6 +5287,76 @@
     }
    ],
    "expected": 400
+  },
+  {
+   "id": "item12-age-created-0030-local",
+   "fn": "ncrAgeDays",
+   "args": [
+    {
+     "status": "Open",
+     "created_at": {
+      "$localInstant": "2026-09-10T00:30"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 8,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-age-created-2330-local",
+   "fn": "ncrAgeDays",
+   "args": [
+    {
+     "status": "Open",
+     "created_at": {
+      "$localInstant": "2026-09-10T23:30"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 8,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-age-closed-created-0030",
+   "fn": "ncrAgeDays",
+   "args": [
+    {
+     "status": "Closed",
+     "created_at": {
+      "$localInstant": "2026-09-01T00:30"
+     },
+     "closed_date": "2026-09-05"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 4,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-age-raised-date-wins",
+   "fn": "ncrAgeDays",
+   "args": [
+    {
+     "status": "Open",
+     "raised_date": "2026-09-01",
+     "created_at": {
+      "$localInstant": "2026-09-10T00:30"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 17,
+   "repaired": "ASC0-12"
   },
   {
    "id": "age-across-us-dst",
@@ -8665,7 +8737,9 @@
       {
        "status": "Verification",
        "severity": "Major",
-       "created_at": "2026-09-16T08:00:00Z"
+       "created_at": {
+        "$localInstant": "2026-09-16T08:00"
+       }
       },
       {
        "status": "Open",
@@ -9007,7 +9081,9 @@
       {
        "status": "Verification",
        "severity": "Major",
-       "created_at": "2026-09-16T08:00:00Z"
+       "created_at": {
+        "$localInstant": "2026-09-16T08:00"
+       }
       },
       {
        "status": "Open",
@@ -11814,7 +11890,9 @@
      {
       "status": "Verification",
       "severity": "Major",
-      "created_at": "2026-09-16T08:00:00Z"
+      "created_at": {
+       "$localInstant": "2026-09-16T08:00"
+      }
      },
      {
       "status": "Open",

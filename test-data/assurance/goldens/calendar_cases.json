@@ -558,6 +558,168 @@
    "repaired": "CAL-1"
   },
   {
+   "id": "item12-local-2330",
+   "fn": "localDateOf",
+   "args": [
+    {
+     "$localInstant": "2026-09-17T23:30"
+    }
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   },
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-local-0030",
+   "fn": "localDateOf",
+   "args": [
+    {
+     "$localInstant": "2026-09-18T00:30"
+    }
+   ],
+   "expected": {
+    "$date": "2026-09-18"
+   },
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-local-midnight",
+   "fn": "localDateOf",
+   "args": [
+    {
+     "$localInstant": "2026-09-18T00:00"
+    }
+   ],
+   "expected": {
+    "$date": "2026-09-18"
+   },
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-local-2359-year-end",
+   "fn": "localDateOf",
+   "args": [
+    {
+     "$localInstant": "2026-12-31T23:59"
+    }
+   ],
+   "expected": {
+    "$date": "2026-12-31"
+   },
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-local-0000-new-year",
+   "fn": "localDateOf",
+   "args": [
+    {
+     "$localInstant": "2027-01-01T00:00"
+    }
+   ],
+   "expected": {
+    "$date": "2027-01-01"
+   },
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-local-nz-dst-start",
+   "fn": "localDateOf",
+   "args": [
+    {
+     "$localInstant": "2026-09-27T03:30"
+    }
+   ],
+   "expected": {
+    "$date": "2026-09-27"
+   },
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-local-us-dst-end",
+   "fn": "localDateOf",
+   "args": [
+    {
+     "$localInstant": "2026-11-01T01:30"
+    }
+   ],
+   "expected": {
+    "$date": "2026-11-01"
+   },
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-date-only-string",
+   "fn": "localDateOf",
+   "args": [
+    "2026-09-17"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   },
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-date-object",
+   "fn": "localDateOf",
+   "args": [
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   },
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-invalid-date-object",
+   "fn": "localDateOf",
+   "args": [
+    {
+     "$date": null
+    }
+   ],
+   "expected": null,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-null",
+   "fn": "localDateOf",
+   "args": [
+    null
+   ],
+   "expected": null,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-empty",
+   "fn": "localDateOf",
+   "args": [
+    ""
+   ],
+   "expected": null,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-garbage",
+   "fn": "localDateOf",
+   "args": [
+    "yesterday"
+   ],
+   "expected": null,
+   "repaired": "ASC0-12"
+  },
+  {
+   "id": "item12-impossible-with-time",
+   "fn": "localDateOf",
+   "args": [
+    "2026-02-30T10:00:00Z"
+   ],
+   "expected": null,
+   "repaired": "ASC0-12"
+  },
+  {
    "id": "ymd-string",
    "fn": "toDateOnlyString",
    "args": [

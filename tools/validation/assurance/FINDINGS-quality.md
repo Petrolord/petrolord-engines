@@ -96,3 +96,12 @@ Negative control: the previous engine fails every `repaired` case above
   1 of 8 (13). The previous engine fails 3. No existing case moved (none
   sat on a half the float gets wrong). 414 -> 418. Mean ages
   (`meanOpenNcrAgeDays`) are not percentages and did not change.
+- **ASC-0 item 12, created_at is an instant.** `ncrAgeDays` dates an NCR
+  with no `raised_date` by `created_at`, now read through calendar.js's
+  `localDateOf` (its local calendar date), so `summarise().oldestOpenNcrDays`,
+  `meanOpenNcrAgeDays` and `ncrAgeing` follow. Goldens moved (ARGUMENTS
+  only, no expected value): `age-open-created-at-only` and the one
+  created_at-only NCR in `summarise-full`, `summarise-a-month-later` and
+  `ageing-register` (literal '...Z' instants -> `$localInstant` at the same
+  wall-clock time; every expected value unchanged). Added `item12-age-*`
+  (4). 418 -> 422.

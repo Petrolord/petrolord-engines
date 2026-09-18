@@ -45,6 +45,7 @@ import {
   MS_PER_DAY,
   startOfDay,
   daysUntil,
+  localDateOf,
   parseDateOnly,
   toDateOnlyString,
 } from './calendar.js';
@@ -301,7 +302,9 @@ export const isNcrOverdue = (ncr = {}, today = new Date()) => {
 
 /** How long an open non-conformance has been open. The ageing number. */
 export const ncrAgeDays = (ncr = {}, today = new Date()) => {
-  const raised = parseDateOnly(ncr.raised_date || ncr.created_at);
+  // ASC-0 (item 12): raised_date is a calendar date; the created_at
+  // fallback is an instant, read as its LOCAL calendar date.
+  const raised = localDateOf(ncr.raised_date || ncr.created_at);
   if (!raised) return null;
   const end = isNcrOpen(ncr) ? startOfDay(today) : (parseDateOnly(ncr.closed_date) || startOfDay(today));
   return Math.round((end - raised) / MS_PER_DAY);
