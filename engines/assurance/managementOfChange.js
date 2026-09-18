@@ -269,6 +269,19 @@ export const canAdvance = (moc = {}, to, { approvals = [], actions = [] } = {}) 
  * expire in less than 7 days", naming two changes that do not exist.
  */
 export const summarise = (records = [], { actions = [] } = {}, today = new Date()) => {
+  // AS14: an action belongs to a change. Once that change is closed,
+  // rejected or cancelled its record is locked, so an action left
+  // unfinished on it is not open work anybody can do. Counting it kept
+  // "open actions" and "overdue actions" high for ever on a dashboard
+  // whose changes were all finished. An action whose change is not in
+  // `records` still counts: not knowing the parent is not a reason to
+  // hide the work.
+  const finished = new Set(records
+    .filter((m) => TERMINAL_STAGES.includes(m.stage))
+    .map((m) => m.id)
+    .filter((id) => id !== undefined && id !== null));
+  const liveActions = actions.filter((a) => !finished.has(a.moc_id));
+
   const byStage = Object.fromEntries(STAGES.map((s) => [s, 0]));
   const byRisk = Object.fromEntries(RISK_LEVELS.map((r) => [r, 0]));
   records.forEach((m) => {
@@ -285,8 +298,8 @@ export const summarise = (records = [], { actions = [] } = {}, today = new Date(
     expired: records.filter((m) => isExpired(m, today)).length,
     expiringSoon: records.filter((m) => expiryState(m, today) === EXPIRY.EXPIRING).length,
     overdue: records.filter((m) => isOverdue(m, today)).length,
-    openActions: actions.filter((a) => !['Complete', 'Cancelled'].includes(a.status)).length,
-    overdueActions: actions.filter((a) => {
+    openActions: liveActions.filter((a) => !['Complete', 'Cancelled'].includes(a.status)).length,
+    overdueActions: liveActions.filter((a) => {
       if (['Complete', 'Cancelled'].includes(a.status)) return false;
       const d = daysUntil(a.due_date, today);
       return d !== null && d < 0;

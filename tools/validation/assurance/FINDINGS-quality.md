@@ -53,3 +53,26 @@ waiver: the date, who decided, and a reason. It clears the point for plan
 closure exactly as a waiver does, so it cannot be the quieter route.
 Other point types may still be marked not applicable freely. Cases
 `decide-hold-na-*`, `decide-witness-not-applicable-bare`.
+
+## AS14 (2026-09-18): three rules the Suite had no answer to
+
+- **QA-AS14-1.** `summarise` counted inspection points on closed,
+  superseded and cancelled plans as outstanding and overdue, and
+  corrective actions on voided NCRs as open, overdue and awaiting an
+  effectiveness check. Nobody can act on either (the parent is locked).
+  Work counts now skip them; totals, failures and the effectiveness
+  record still include them. A child whose parent is not supplied still
+  counts. Cases `summarise-children-of-finished-parents`,
+  `summarise-unknown-parents-still-count`.
+- **QA-AS14-2.** `canRemoveCheckpoint` (new). Deleting an unreleased
+  hold point cleared `canClosePlan` without anyone verifying, waiving or
+  setting it aside, and left no trace. A finished plan keeps its points,
+  a point with a result recorded is evidence, and a hold point outside
+  Draft is released as Not applicable (who, when, why), never deleted.
+  Cases `remove-*`.
+- **QA-AS14-3.** `canRaiseNcr` (new). An NCR could be raised against a
+  closed plan. No plan is allowed; a finished plan is not. Cases
+  `raise-ncr-*`.
+
+Negative control: the previous engine fails every `repaired` case above
+(the two new functions do not exist in it).

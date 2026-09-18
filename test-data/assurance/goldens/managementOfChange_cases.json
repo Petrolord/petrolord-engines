@@ -3847,6 +3847,192 @@
    }
   },
   {
+   "id": "summarise-actions-on-finished-changes",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "live",
+      "stage": "Implementation",
+      "type": "Permanent"
+     },
+     {
+      "id": "rej",
+      "stage": "Rejected",
+      "type": "Permanent"
+     },
+     {
+      "id": "can",
+      "stage": "Cancelled",
+      "type": "Temporary",
+      "expiry_date": "2026-09-15"
+     },
+     {
+      "id": "clo",
+      "stage": "Closed",
+      "type": "Permanent"
+     },
+     {
+      "id": "dra",
+      "stage": "Draft",
+      "type": "Permanent"
+     }
+    ],
+    {
+     "actions": [
+      {
+       "moc_id": "live",
+       "status": "Open",
+       "due_date": "2026-09-17"
+      },
+      {
+       "moc_id": "rej",
+       "status": "Open",
+       "due_date": "2026-08-09"
+      },
+      {
+       "moc_id": "can",
+       "status": "In progress",
+       "due_date": "2026-09-16"
+      },
+      {
+       "moc_id": "clo",
+       "status": "Open",
+       "due_date": "2026-09-09"
+      },
+      {
+       "moc_id": "dra",
+       "status": "Open",
+       "due_date": "2026-09-13"
+      },
+      {
+       "moc_id": "not-loaded",
+       "status": "Open",
+       "due_date": "2026-09-13"
+      },
+      {
+       "status": "Open",
+       "due_date": "2026-09-12"
+      },
+      {
+       "moc_id": "rej",
+       "status": "Complete",
+       "due_date": "2026-08-09"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 5,
+    "byStage": {
+     "Draft": 1,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 0,
+     "Implementation": 1,
+     "Closed": 1,
+     "Rejected": 1,
+     "Cancelled": 1
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 2,
+    "awaitingApproval": 0,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 0,
+    "openActions": 4,
+    "overdueActions": 4
+   },
+   "repaired": "MOC-AS14-1"
+  },
+  {
+   "id": "summarise-actions-parents-not-supplied",
+   "fn": "summarise",
+   "args": [
+    [],
+    {
+     "actions": [
+      {
+       "moc_id": "live",
+       "status": "Open",
+       "due_date": "2026-09-17"
+      },
+      {
+       "moc_id": "rej",
+       "status": "Open",
+       "due_date": "2026-08-09"
+      },
+      {
+       "moc_id": "can",
+       "status": "In progress",
+       "due_date": "2026-09-16"
+      },
+      {
+       "moc_id": "clo",
+       "status": "Open",
+       "due_date": "2026-09-09"
+      },
+      {
+       "moc_id": "dra",
+       "status": "Open",
+       "due_date": "2026-09-13"
+      },
+      {
+       "moc_id": "not-loaded",
+       "status": "Open",
+       "due_date": "2026-09-13"
+      },
+      {
+       "status": "Open",
+       "due_date": "2026-09-12"
+      },
+      {
+       "moc_id": "rej",
+       "status": "Complete",
+       "due_date": "2026-08-09"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 0,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 0,
+     "Implementation": 0,
+     "Closed": 0,
+     "Rejected": 0,
+     "Cancelled": 0
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 0,
+    "awaitingApproval": 0,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 0,
+    "openActions": 7,
+    "overdueActions": 7
+   }
+  },
+  {
    "id": "summarise-unreadable-expiry",
    "fn": "summarise",
    "args": [

@@ -6958,6 +6958,2422 @@
    }
   },
   {
+   "id": "summarise-children-of-finished-parents",
+   "fn": "summarise",
+   "args": [
+    {
+     "plans": [
+      {
+       "id": "p-active",
+       "status": "Active"
+      },
+      {
+       "id": "p-closed",
+       "status": "Closed"
+      },
+      {
+       "id": "p-sup",
+       "status": "Superseded"
+      },
+      {
+       "id": "p-cancel",
+       "status": "Cancelled"
+      },
+      {
+       "id": "p-draft",
+       "status": "Draft"
+      }
+     ],
+     "checkpoints": [
+      {
+       "id": "a1",
+       "point_type": "Hold point",
+       "status": "Pending",
+       "plan_id": "p-active",
+       "planned_date": "2026-09-16"
+      },
+      {
+       "id": "a2",
+       "point_type": "Witness point",
+       "status": "Failed",
+       "plan_id": "p-active"
+      },
+      {
+       "id": "c1",
+       "point_type": "Hold point",
+       "status": "Pending",
+       "plan_id": "p-closed",
+       "planned_date": "2026-08-29"
+      },
+      {
+       "id": "c2",
+       "point_type": "Witness point",
+       "status": "Failed",
+       "plan_id": "p-closed"
+      },
+      {
+       "id": "s1",
+       "point_type": "Review point",
+       "status": "In progress",
+       "plan_id": "p-sup",
+       "planned_date": "2026-09-17"
+      },
+      {
+       "id": "x1",
+       "point_type": "Hold point",
+       "status": "Notified",
+       "plan_id": "p-cancel",
+       "planned_date": "2026-09-15"
+      },
+      {
+       "id": "d1",
+       "point_type": "Hold point",
+       "status": "Pending",
+       "plan_id": "p-draft"
+      },
+      {
+       "id": "o1",
+       "point_type": "Hold point",
+       "status": "Pending",
+       "plan_id": "p-not-loaded",
+       "planned_date": "2026-09-14"
+      },
+      {
+       "id": "n1",
+       "point_type": "Monitor point",
+       "status": "Pending",
+       "planned_date": "2026-09-14"
+      }
+     ],
+     "ncrs": [
+      {
+       "id": "n-open",
+       "status": "Open",
+       "severity": "Major",
+       "raised_date": "2026-09-13"
+      },
+      {
+       "id": "n-void",
+       "status": "Voided",
+       "severity": "Critical",
+       "raised_date": "2026-07-30"
+      },
+      {
+       "id": "n-closed",
+       "status": "Closed",
+       "severity": "Minor",
+       "raised_date": "2026-07-30"
+      }
+     ],
+     "capas": [
+      {
+       "ncr_id": "n-open",
+       "status": "Open",
+       "due_date": "2026-09-17"
+      },
+      {
+       "ncr_id": "n-void",
+       "status": "Open",
+       "due_date": "2026-08-19"
+      },
+      {
+       "ncr_id": "n-void",
+       "status": "In progress",
+       "due_date": "2026-09-16"
+      },
+      {
+       "ncr_id": "n-void",
+       "status": "Complete"
+      },
+      {
+       "effectiveness_verified": false,
+       "effectiveness_checked_at": "2026-09-17",
+       "effectiveness_verified_by": "u-3",
+       "ncr_id": "n-void",
+       "status": "Complete"
+      },
+      {
+       "ncr_id": "n-closed",
+       "status": "Complete"
+      },
+      {
+       "ncr_id": "n-unknown",
+       "status": "Open",
+       "due_date": "2026-09-09"
+      },
+      {
+       "status": "Open",
+       "due_date": "2026-09-09"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "plans": 5,
+    "activePlans": 1,
+    "livePlans": 2,
+    "byPlanStatus": {
+     "Draft": 1,
+     "Under review": 0,
+     "Active": 1,
+     "Superseded": 1,
+     "Closed": 1,
+     "Cancelled": 1
+    },
+    "checkpoints": 9,
+    "checkpointsOutstanding": 5,
+    "checkpointsOverdue": 3,
+    "holdPointsOutstanding": 3,
+    "checkpointsFailed": 2,
+    "ncrs": 3,
+    "openNcrs": 1,
+    "bySeverity": {
+     "Critical": 1,
+     "Major": 1,
+     "Minor": 1,
+     "Observation": 0
+    },
+    "openBySeverity": {
+     "Critical": 0,
+     "Major": 1,
+     "Minor": 0,
+     "Observation": 0
+    },
+    "ncrsOverdue": 0,
+    "seriousOpen": 1,
+    "concessions": 0,
+    "oldestOpenNcrDays": 5,
+    "meanOpenNcrAgeDays": 5,
+    "capas": 8,
+    "openCapas": 3,
+    "overdueCapas": 3,
+    "capasAwaitingEffectiveness": 1,
+    "capasVerifiedEffective": 0,
+    "capasFoundIneffective": 1
+   },
+   "repaired": "QA-AS14-1"
+  },
+  {
+   "id": "summarise-unknown-parents-still-count",
+   "fn": "summarise",
+   "args": [
+    {
+     "checkpoints": [
+      {
+       "id": "a1",
+       "point_type": "Hold point",
+       "status": "Pending",
+       "plan_id": "p-active",
+       "planned_date": "2026-09-16"
+      },
+      {
+       "id": "a2",
+       "point_type": "Witness point",
+       "status": "Failed",
+       "plan_id": "p-active"
+      },
+      {
+       "id": "c1",
+       "point_type": "Hold point",
+       "status": "Pending",
+       "plan_id": "p-closed",
+       "planned_date": "2026-08-29"
+      },
+      {
+       "id": "c2",
+       "point_type": "Witness point",
+       "status": "Failed",
+       "plan_id": "p-closed"
+      },
+      {
+       "id": "s1",
+       "point_type": "Review point",
+       "status": "In progress",
+       "plan_id": "p-sup",
+       "planned_date": "2026-09-17"
+      },
+      {
+       "id": "x1",
+       "point_type": "Hold point",
+       "status": "Notified",
+       "plan_id": "p-cancel",
+       "planned_date": "2026-09-15"
+      },
+      {
+       "id": "d1",
+       "point_type": "Hold point",
+       "status": "Pending",
+       "plan_id": "p-draft"
+      },
+      {
+       "id": "o1",
+       "point_type": "Hold point",
+       "status": "Pending",
+       "plan_id": "p-not-loaded",
+       "planned_date": "2026-09-14"
+      },
+      {
+       "id": "n1",
+       "point_type": "Monitor point",
+       "status": "Pending",
+       "planned_date": "2026-09-14"
+      }
+     ],
+     "capas": [
+      {
+       "ncr_id": "n-open",
+       "status": "Open",
+       "due_date": "2026-09-17"
+      },
+      {
+       "ncr_id": "n-void",
+       "status": "Open",
+       "due_date": "2026-08-19"
+      },
+      {
+       "ncr_id": "n-void",
+       "status": "In progress",
+       "due_date": "2026-09-16"
+      },
+      {
+       "ncr_id": "n-void",
+       "status": "Complete"
+      },
+      {
+       "effectiveness_verified": false,
+       "effectiveness_checked_at": "2026-09-17",
+       "effectiveness_verified_by": "u-3",
+       "ncr_id": "n-void",
+       "status": "Complete"
+      },
+      {
+       "ncr_id": "n-closed",
+       "status": "Complete"
+      },
+      {
+       "ncr_id": "n-unknown",
+       "status": "Open",
+       "due_date": "2026-09-09"
+      },
+      {
+       "status": "Open",
+       "due_date": "2026-09-09"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "plans": 0,
+    "activePlans": 0,
+    "livePlans": 0,
+    "byPlanStatus": {
+     "Draft": 0,
+     "Under review": 0,
+     "Active": 0,
+     "Superseded": 0,
+     "Closed": 0,
+     "Cancelled": 0
+    },
+    "checkpoints": 9,
+    "checkpointsOutstanding": 9,
+    "checkpointsOverdue": 6,
+    "holdPointsOutstanding": 5,
+    "checkpointsFailed": 2,
+    "ncrs": 0,
+    "openNcrs": 0,
+    "bySeverity": {
+     "Critical": 0,
+     "Major": 0,
+     "Minor": 0,
+     "Observation": 0
+    },
+    "openBySeverity": {
+     "Critical": 0,
+     "Major": 0,
+     "Minor": 0,
+     "Observation": 0
+    },
+    "ncrsOverdue": 0,
+    "seriousOpen": 0,
+    "concessions": 0,
+    "oldestOpenNcrDays": null,
+    "meanOpenNcrAgeDays": null,
+    "capas": 8,
+    "openCapas": 5,
+    "overdueCapas": 5,
+    "capasAwaitingEffectiveness": 2,
+    "capasVerifiedEffective": 0,
+    "capasFoundIneffective": 1
+   }
+  },
+  {
+   "id": "remove-Draft-hold-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Pending"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-witness-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Pending"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-hold-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Notified"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-witness-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Notified"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-hold-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "In progress"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-witness-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "In progress"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-hold-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Passed"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-witness-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Passed"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-hold-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Failed"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-witness-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Failed"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-hold-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Waived"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-witness-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Waived"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-hold-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Draft-witness-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Draft",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-hold-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Pending"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-witness-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Pending"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-hold-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Notified"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-witness-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Notified"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-hold-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "In progress"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-witness-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "In progress"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-hold-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Passed"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-witness-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Passed"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-hold-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Failed"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-witness-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Failed"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-hold-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Waived"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-witness-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Waived"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-hold-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Under review-witness-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Under review",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-hold-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Pending"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-witness-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Pending"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-hold-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Notified"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-witness-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Notified"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-hold-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "In progress"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-witness-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "In progress"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-hold-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Passed"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-witness-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Passed"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-hold-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Failed"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-witness-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Failed"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-hold-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Waived"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-witness-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Waived"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-hold-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Active-witness-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Active",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-hold-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Pending"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-witness-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Pending"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-hold-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Notified"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-witness-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Notified"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-hold-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "In progress"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-witness-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "In progress"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-hold-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Passed"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-witness-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Passed"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-hold-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Failed"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-witness-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Failed"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-hold-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Waived"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-witness-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Waived"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-hold-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Superseded-witness-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-hold-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Pending"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-witness-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Pending"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-hold-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Notified"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-witness-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Notified"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-hold-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "In progress"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-witness-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "In progress"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-hold-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Passed"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-witness-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Passed"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-hold-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Failed"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-witness-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Failed"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-hold-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Waived"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-witness-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Waived"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-hold-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Closed-witness-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Closed",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-hold-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Pending"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-witness-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Pending"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-hold-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Notified"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-witness-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Notified"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-hold-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "In progress"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-witness-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "In progress"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-hold-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Passed"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-witness-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Passed"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-hold-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Failed"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-witness-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Failed"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-hold-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Waived"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-witness-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Waived"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-hold-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Cancelled-witness-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-hold-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Pending"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-witness-Pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Pending"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-hold-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Notified"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-witness-Notified",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Notified"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-hold-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "In progress"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-witness-In progress",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "In progress"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-hold-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Passed"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-witness-Passed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Passed"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-hold-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Failed"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-witness-Failed",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Failed"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-hold-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Waived"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-witness-Waived",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Waived"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-hold-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-Archived-witness-Not applicable",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Not applicable"
+    },
+    {
+     "status": "Archived",
+     "plan_code": "QAP-1"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-pending-with-result-date",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Pending",
+     "result_date": "2026-09-17"
+    },
+    {
+     "status": "Active"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-2"
+  },
+  {
+   "id": "remove-no-status-is-pending",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "item_no": "7",
+     "point_type": "Witness point"
+    },
+    {
+     "status": "Active"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "remove-hold-plan-unknown",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Pending"
+    },
+    null
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "remove-hold-no-plan-arg",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Hold point",
+     "status": "Pending"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "remove-witness-plan-unknown",
+   "fn": "canRemoveCheckpoint",
+   "args": [
+    {
+     "id": "r",
+     "point_type": "Witness point",
+     "status": "Pending"
+    },
+    null
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "raise-ncr-plan-Draft",
+   "fn": "canRaiseNcr",
+   "args": [
+    {
+     "status": "Draft",
+     "plan_code": "QAP-9"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-3"
+  },
+  {
+   "id": "raise-ncr-plan-Under review",
+   "fn": "canRaiseNcr",
+   "args": [
+    {
+     "status": "Under review",
+     "plan_code": "QAP-9"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-3"
+  },
+  {
+   "id": "raise-ncr-plan-Active",
+   "fn": "canRaiseNcr",
+   "args": [
+    {
+     "status": "Active",
+     "plan_code": "QAP-9"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-3"
+  },
+  {
+   "id": "raise-ncr-plan-Superseded",
+   "fn": "canRaiseNcr",
+   "args": [
+    {
+     "status": "Superseded",
+     "plan_code": "QAP-9"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-3"
+  },
+  {
+   "id": "raise-ncr-plan-Closed",
+   "fn": "canRaiseNcr",
+   "args": [
+    {
+     "status": "Closed",
+     "plan_code": "QAP-9"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-3"
+  },
+  {
+   "id": "raise-ncr-plan-Cancelled",
+   "fn": "canRaiseNcr",
+   "args": [
+    {
+     "status": "Cancelled",
+     "plan_code": "QAP-9"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "QA-AS14-3"
+  },
+  {
+   "id": "raise-ncr-plan-Archived",
+   "fn": "canRaiseNcr",
+   "args": [
+    {
+     "status": "Archived",
+     "plan_code": "QAP-9"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "QA-AS14-3"
+  },
+  {
+   "id": "raise-ncr-no-plan",
+   "fn": "canRaiseNcr",
+   "args": [
+    null
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "raise-ncr-undefined-plan",
+   "fn": "canRaiseNcr",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
    "id": "countBy-root-cause",
    "fn": "countBy",
    "args": [
