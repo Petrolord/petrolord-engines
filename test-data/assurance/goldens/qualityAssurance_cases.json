@@ -770,6 +770,82 @@
     {}
    ],
    "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "decide-hold-na-signed-no-reason",
+   "fn": "canDecideCheckpoint",
+   "args": [
+    {
+     "id": "c1",
+     "point_type": "Hold point",
+     "status": "Pending",
+     "item_no": "4.2"
+    },
+    "Not applicable",
+    {
+     "result_date": "2026-09-18",
+     "verified_by": "u-9"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "decide-hold-na-signed-with-reason",
+   "fn": "canDecideCheckpoint",
+   "args": [
+    {
+     "id": "c1",
+     "point_type": "Hold point",
+     "status": "Pending",
+     "item_no": "4.2"
+    },
+    "Not applicable",
+    {
+     "result_date": "2026-09-18",
+     "verified_by": "u-9",
+     "remarks": "Scope removed by MOC-2026-014"
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "decide-hold-na-reason-unsigned",
+   "fn": "canDecideCheckpoint",
+   "args": [
+    {
+     "id": "c1",
+     "point_type": "Hold point",
+     "status": "Pending",
+     "item_no": "4.2"
+    },
+    "Not applicable",
+    {
+     "remarks": "not in scope"
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "decide-witness-not-applicable-bare",
+   "fn": "canDecideCheckpoint",
+   "args": [
+    {
+     "id": "c2",
+     "point_type": "Witness point",
+     "status": "Notified"
+    },
+    "Not applicable",
+    {}
+   ],
+   "expected": {
     "ok": true
    }
   },

@@ -712,6 +712,81 @@
    "expected": "No date set"
   },
   {
+   "id": "st-one-off-filed-past-due",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "due_date": "2026-06-30",
+     "last_submitted_date": "2026-06-28"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Compliant"
+  },
+  {
+   "id": "st-one-off-filed-late",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "due_date": "2026-06-30",
+     "last_submitted_date": "2026-07-10"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Compliant"
+  },
+  {
+   "id": "st-one-off-unfiled-past-due",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "due_date": "2026-06-30"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Overdue"
+  },
+  {
+   "id": "st-one-off-filed-but-expired",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "frequency": "One-off",
+     "due_date": "2026-06-30",
+     "expiry_date": "2026-09-01",
+     "last_submitted_date": "2026-06-28"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Expired"
+  },
+  {
+   "id": "st-annual-filed-past-due",
+   "fn": "deriveStatus",
+   "args": [
+    {
+     "frequency": "Annual",
+     "due_date": "2026-06-30",
+     "last_submitted_date": "2026-06-28"
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": "Overdue"
+  },
+  {
    "id": "st-unknown-lifecycle",
    "fn": "deriveStatus",
    "args": [

@@ -43,3 +43,13 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## AS13-0 (2026-09-18): a One-off obligation filed is discharged
+
+Found by the AS13 help review in the Suite (Regulatory Compliance): a
+One-off obligation filed on time turned Overdue the day after its due
+date and stayed in Needs attention for good. Filing does not move a
+one-off's due date (`rollForward` has no period for it), and no
+lifecycle value means "done". `deriveStatus` now treats a filed One-off
+as Compliant. An expired permit still outranks it, and an unfiled one
+still goes Overdue. Cases `st-one-off-*` and `st-annual-filed-past-due`.

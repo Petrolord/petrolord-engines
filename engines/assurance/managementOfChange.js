@@ -108,6 +108,7 @@ export const EXPIRY = Object.freeze({
   WITHIN: 'Within expiry',
   NONE: 'No expiry',
   NOT_APPLICABLE: 'Permanent change',
+  CLOSED_OUT: 'Closed out',
 });
 
 /**
@@ -121,7 +122,11 @@ export const EXPIRY = Object.freeze({
 export const expiryState = (moc = {}, today = new Date()) => {
   if (!EXPIRING_TYPES.includes(moc.type)) return EXPIRY.NOT_APPLICABLE;
   if (!IN_EFFECT_STAGES.includes(moc.stage)) return EXPIRY.NONE;
-  if (moc.stage === 'Closed') return EXPIRY.NOT_APPLICABLE;
+  // A temporary change that has been closed out was removed or made
+  // permanent through its own MOC. It is no longer tracked against its
+  // expiry, and it is not a permanent change either: the Register CSV
+  // used to export it as one (AS13-0).
+  if (moc.stage === 'Closed') return EXPIRY.CLOSED_OUT;
   if (!moc.expiry_date) return EXPIRY.NONE;
   const days = daysUntil(moc.expiry_date, today);
   // An unreadable expiry is no expiry. `null <= 14` is true in JavaScript,

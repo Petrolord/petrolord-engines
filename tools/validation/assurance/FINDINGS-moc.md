@@ -76,3 +76,8 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## AS13-0 (2026-09-18): O1 decided
+
+A closed Temporary or Emergency change now reads `EXPIRY.CLOSED_OUT`
+("Closed out"). It no longer exports as "Permanent change".

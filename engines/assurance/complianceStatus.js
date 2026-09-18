@@ -184,6 +184,13 @@ export const deriveStatus = (obligation = {}, today = new Date()) => {
   if (!due && !expiry) return STATUS.NO_DATE;
 
   if (expiry && daysUntil(expiry, today) < 0) return STATUS.EXPIRED;
+  // A One-off obligation has no next period. Once something is filed
+  // against it, it is done, and its due date passing does not make it
+  // overdue. It stayed in Needs attention for good before AS13-0: filing
+  // leaves a one-off's due date where it is (rollForward has no period
+  // for it), so the next rule fired the day after the deadline. An
+  // expired permit still outranks it above.
+  if (obligation.frequency === 'One-off' && submitted) return STATUS.COMPLIANT;
   if (due && daysUntil(due, today) < 0) return STATUS.OVERDUE;
 
   const next = nextActionDate(obligation);

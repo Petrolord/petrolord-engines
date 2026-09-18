@@ -142,7 +142,7 @@ def o_expiry_state(moc, today):
             return 'Expiring soon'
         return 'Within expiry'
     if stage == 'Closed':
-        return 'Permanent change'
+        return 'Closed out'  # AS13-0: a closed temporary change is closed out
     return 'No expiry'
 
 

@@ -45,3 +45,11 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## AS13-0 (2026-09-18): O1 decided
+
+A HOLD point set to "Not applicable" now needs the same record as a
+waiver: the date, who decided, and a reason. It clears the point for plan
+closure exactly as a waiver does, so it cannot be the quieter route.
+Other point types may still be marked not applicable freely. Cases
+`decide-hold-na-*`, `decide-witness-not-applicable-bare`.
