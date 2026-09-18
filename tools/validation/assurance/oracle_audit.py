@@ -209,11 +209,21 @@ def audit_overdue(a, today):
     return n is not None and n < 0
 
 
+def audit_outstanding(a):
+    """ASC-0 R1, under AS15-Q11: an audit is outstanding until it is
+    reported, closed, or cancelled with a written reason. One rule for the
+    programme's progress and the dashboard's summary alike."""
+    if a.get('status') not in DONE:
+        return True
+    reason = a.get('cancellation_reason')
+    return a.get('status') == 'Cancelled' and not (isinstance(reason, str) and reason.strip())
+
+
 def programme_progress(audits=None, today=None):
     audits = audits or []
     total = len(audits)
     reported = sum(1 for a in audits if a.get('status') in DELIVERED)
-    outstanding = [a for a in audits if a.get('status') not in DONE]
+    outstanding = [a for a in audits if audit_outstanding(a)]
     return {
         'total': total,
         'reported': reported,
@@ -285,7 +295,7 @@ def summarise(data=None, today=None):
         'activeTemplates': sum(1 for t in temps if t.get('status') == 'Active'),
         'audits': len(audits),
         'byAuditStatus': tally(audits, 'status', AUDIT_STATUSES),
-        'auditsOutstanding': sum(1 for a in audits if a.get('status') not in DONE),
+        'auditsOutstanding': sum(1 for a in audits if audit_outstanding(a)),
         'auditsOverdue': sum(1 for a in audits if audit_overdue(a, today)),
         'auditsReported': sum(1 for a in audits if a.get('status') in DELIVERED),
         'auditsCancelled': sum(1 for a in audits if a.get('status') == 'Cancelled'),
@@ -621,6 +631,33 @@ def build():
                     [au(id=f'a{i}', status='Reported' if i == 0 else 'Planned',
                         planned_end='2026-12-01') for i in range(8)])]:
         c.add(cid, 'programmeProgress', [a, T], programme_progress(a, T))
+
+    # ASC-0 R1: one authority for "outstanding" under AS15-Q11. The
+    # compliance course's repro: a cancellation with no reason inside a
+    # programme is outstanding, in programmeProgress AND in summarise.
+    r1_audits = [
+        au(id='a1', status='Reported'),
+        au(id='a2', status='Cancelled', cancellation_reason=None),
+        au(id='a3', status='Cancelled', cancellation_reason='Plant shutdown'),
+        au(id='a4', status='Planned', planned_end='2026-09-01'),
+    ]
+    r1_blank = [
+        au(id='b1', status='Cancelled', cancellation_reason='   '),
+        au(id='b2', status='Cancelled', cancellation_reason=''),
+        au(id='b3', status='Cancelled', cancellation_reason='Asset sold.'),
+        au(id='b4', status='Closed'),
+    ]
+    R1_T = date('2026-10-15')
+    c.add('r1-programme-reasonless-cancellation', 'programmeProgress', [r1_audits, R1_T],
+          programme_progress(r1_audits, R1_T), 'R1')
+    c.add('r1-programme-blank-reasons', 'programmeProgress', [r1_blank, T],
+          programme_progress(r1_blank, T), 'R1')
+    c.add('r1-summarise-reasonless-cancellation', 'summarise', [{'audits': r1_audits}, R1_T],
+          summarise({'audits': r1_audits}, R1_T), 'R1')
+    c.add('r1-summarise-blank-reasons', 'summarise', [{'audits': r1_blank}, T],
+          summarise({'audits': r1_blank}, T), 'R1')
+    assert (programme_progress(r1_audits, R1_T)['outstanding']
+            == summarise({'audits': r1_audits}, R1_T)['auditsOutstanding'] == 2)
 
     for cid, p, patch in [('approve-ok', pg(status='Draft'), {}),
                           ('approve-no-date', pg(status='Draft', approved_at=None), {}),

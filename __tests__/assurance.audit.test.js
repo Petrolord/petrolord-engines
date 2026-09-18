@@ -449,5 +449,19 @@ describe('AS15 owner decision Q11: the engine does not trust the stored row', ()
       expect(v.reason).toMatch(/AUD-2026-009/);
     });
   });
+
+  // ASC-0 R1: one authority. The Programmes page and the dashboard read
+  // the same audits, so they must print the same outstanding count.
+  it('summarise counts outstanding audits exactly as programmeProgress does', () => {
+    const asOf = new Date(2026, 9, 15);
+    const audits = [
+      audit({ id: 'a1', status: 'Reported' }),
+      audit({ id: 'a2', status: 'Cancelled', cancellation_reason: null }),
+      audit({ id: 'a3', status: 'Cancelled', cancellation_reason: 'Plant shutdown' }),
+      audit({ id: 'a4', status: 'Planned', planned_end: '2026-09-01' }),
+    ];
+    expect(programmeProgress(audits, asOf).outstanding).toBe(2);
+    expect(summarise({ audits }, asOf).auditsOutstanding).toBe(2);
+  });
 });
 

@@ -357,6 +357,17 @@ export const isAuditOverdue = (audit = {}, today = new Date()) => {
 export const PROGRAMME_DONE_STATUSES = Object.freeze(['Reported', 'Closed', 'Cancelled']);
 
 /**
+ * The one authority for "outstanding" (ASC-0, R1). An audit is outstanding
+ * until it is reported, closed, or cancelled WITH a written reason (AS15
+ * §3k.4 Q11: a cancellation counts as done only with its reason).
+ * programmeProgress, canCompleteProgramme and summarise all ask this, so
+ * the Programmes page and the dashboard cannot print different counts for
+ * the same audits; summarise used to count a reasonless cancellation done.
+ */
+const isOutstandingAudit = (a = {}) => !PROGRAMME_DONE_STATUSES.includes(a.status)
+  || (a.status === 'Cancelled' && !String(a.cancellation_reason || '').trim());
+
+/**
  * How the programme actually went: performed, cancelled with a reason,
  * and still outstanding.
  *
@@ -369,8 +380,7 @@ export const programmeProgress = (audits = [], today = new Date()) => {
   const reported = audits.filter((a) => ['Reported', 'Closed'].includes(a.status)).length;
   const cancelled = audits.filter((a) => a.status === 'Cancelled').length;
   // AS15 (§3k.4 Q11): a cancellation counts as done only with its reason.
-  const outstanding = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status)
-    || (a.status === 'Cancelled' && !String(a.cancellation_reason || '').trim()));
+  const outstanding = audits.filter(isOutstandingAudit);
   return {
     total,
     reported,
@@ -397,8 +407,7 @@ export const canCompleteProgramme = (programme = {}, audits = []) => {
     return { ok: false, reason: `This programme is already ${String(programme.status).toLowerCase()}.` };
   }
   // AS15 (§3k.4 Q11): a cancellation counts as done only with its reason.
-  const outstanding = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status)
-    || (a.status === 'Cancelled' && !String(a.cancellation_reason || '').trim()));
+  const outstanding = audits.filter(isOutstandingAudit);
   if (outstanding.length) {
     const codes = outstanding.map((a) => a.audit_code).filter(Boolean);
     return {
@@ -497,7 +506,8 @@ export const summarise = (
     }
   });
 
-  const live = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status));
+  // ASC-0 (R1): the same rule as programmeProgress().outstanding.
+  const live = audits.filter(isOutstandingAudit);
 
   return {
     programmes: programmes.length,

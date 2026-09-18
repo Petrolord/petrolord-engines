@@ -4003,6 +4003,370 @@
    }
   },
   {
+   "id": "r1-programme-reasonless-cancellation",
+   "fn": "programmeProgress",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": null
+     },
+     {
+      "id": "a3",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": "Plant shutdown"
+     },
+     {
+      "id": "a4",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Planned",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-01"
+     }
+    ],
+    {
+     "$date": "2026-10-15"
+    }
+   ],
+   "expected": {
+    "total": 4,
+    "reported": 1,
+    "cancelled": 2,
+    "outstanding": 2,
+    "overdue": 1,
+    "percent": 25
+   },
+   "repaired": "R1"
+  },
+  {
+   "id": "r1-programme-blank-reasons",
+   "fn": "programmeProgress",
+   "args": [
+    [
+     {
+      "id": "b1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": "   "
+     },
+     {
+      "id": "b2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": ""
+     },
+     {
+      "id": "b3",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": "Asset sold."
+     },
+     {
+      "id": "b4",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Closed",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 4,
+    "reported": 1,
+    "cancelled": 3,
+    "outstanding": 2,
+    "overdue": 0,
+    "percent": 25
+   },
+   "repaired": "R1"
+  },
+  {
+   "id": "r1-summarise-reasonless-cancellation",
+   "fn": "summarise",
+   "args": [
+    {
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Reported",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05"
+      },
+      {
+       "id": "a2",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Cancelled",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05",
+       "cancellation_reason": null
+      },
+      {
+       "id": "a3",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Cancelled",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05",
+       "cancellation_reason": "Plant shutdown"
+      },
+      {
+       "id": "a4",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Planned",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-10-15"
+    }
+   ],
+   "expected": {
+    "programmes": 0,
+    "activeProgrammes": 0,
+    "templates": 0,
+    "activeTemplates": 0,
+    "audits": 4,
+    "byAuditStatus": {
+     "Planned": 1,
+     "In progress": 0,
+     "Fieldwork complete": 0,
+     "Reported": 1,
+     "Closed": 0,
+     "Cancelled": 2
+    },
+    "auditsOutstanding": 2,
+    "auditsOverdue": 1,
+    "auditsReported": 1,
+    "auditsCancelled": 2,
+    "answers": 0,
+    "answersOutstanding": 0,
+    "nonconformances": 0,
+    "notApplicable": 0,
+    "findings": 0,
+    "openFindings": 0,
+    "byFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openByFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openMajor": 0,
+    "stopWork": 0,
+    "stopWorkOpen": 0,
+    "findingsOverdue": 0,
+    "actions": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "actionsAwaitingEffectiveness": 0,
+    "actionsVerifiedEffective": 0,
+    "actionsFoundIneffective": 0
+   },
+   "repaired": "R1"
+  },
+  {
+   "id": "r1-summarise-blank-reasons",
+   "fn": "summarise",
+   "args": [
+    {
+     "audits": [
+      {
+       "id": "b1",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Cancelled",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05",
+       "cancellation_reason": "   "
+      },
+      {
+       "id": "b2",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Cancelled",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05",
+       "cancellation_reason": ""
+      },
+      {
+       "id": "b3",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Cancelled",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05",
+       "cancellation_reason": "Asset sold."
+      },
+      {
+       "id": "b4",
+       "audit_code": "AUD-2026-001",
+       "template_id": "t1",
+       "audit_type": "Contractor",
+       "status": "Closed",
+       "lead_auditor_id": "u1",
+       "auditee_id": "u2",
+       "conclusion": "One nonconformity, closed on site.",
+       "planned_start": "2026-09-01",
+       "planned_end": "2026-09-05"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "programmes": 0,
+    "activeProgrammes": 0,
+    "templates": 0,
+    "activeTemplates": 0,
+    "audits": 4,
+    "byAuditStatus": {
+     "Planned": 0,
+     "In progress": 0,
+     "Fieldwork complete": 0,
+     "Reported": 0,
+     "Closed": 1,
+     "Cancelled": 3
+    },
+    "auditsOutstanding": 2,
+    "auditsOverdue": 0,
+    "auditsReported": 1,
+    "auditsCancelled": 3,
+    "answers": 0,
+    "answersOutstanding": 0,
+    "nonconformances": 0,
+    "notApplicable": 0,
+    "findings": 0,
+    "openFindings": 0,
+    "byFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openByFindingType": {
+     "Major nonconformity": 0,
+     "Minor nonconformity": 0,
+     "Observation": 0,
+     "Opportunity for improvement": 0
+    },
+    "openMajor": 0,
+    "stopWork": 0,
+    "stopWorkOpen": 0,
+    "findingsOverdue": 0,
+    "actions": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "actionsAwaitingEffectiveness": 0,
+    "actionsVerifiedEffective": 0,
+    "actionsFoundIneffective": 0
+   },
+   "repaired": "R1"
+  },
+  {
    "id": "approve-ok",
    "fn": "canApproveProgramme",
    "args": [
