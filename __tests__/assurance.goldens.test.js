@@ -7,10 +7,10 @@
  * JavaScript. The runner and the file contract are in
  * __tests__/helpers/assuranceGoldens.js.
  *
- * A second pass replays every case in child processes under five time
- * zones, because every Assurance rule that falls due does so on a calendar
- * date and AS3 found a UTC parse that moved a permit's expiry by a day west
- * of Greenwich.
+ * A second pass replays every case in child processes under six time
+ * zones (ASC-0 added Pacific/Pago_Pago, UTC-11), because every Assurance
+ * rule that falls due does so on a calendar date and AS3 found a UTC parse
+ * that moved a permit's expiry by a day west of Greenwich.
  */
 import fs from 'fs';
 import path from 'path';
@@ -78,6 +78,11 @@ const ZONES = {
   'America/St_Johns': 210,
   'Asia/Kolkata': -330,
   'Pacific/Auckland': -780,
+  // ASC-0 (RC-11): the far west. A UTC read of a calendar date shows only
+  // west of Greenwich, and RC-1 (a string as-of date) was invisible to a
+  // gate whose one western zone had not been handed that input. UTC-11,
+  // no daylight saving.
+  'Pacific/Pago_Pago': 660,
 };
 
 const CHILD = (goldenDir, enginesDir, helper) => `

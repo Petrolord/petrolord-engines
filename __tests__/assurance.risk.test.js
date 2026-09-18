@@ -152,19 +152,42 @@ describe('review dates', () => {
   });
 
   it('a review due today is not yet overdue', () => {
-    expect(isReviewOverdue({ next_review_date: '2026-09-16' }, asOf)).toBe(false);
+    expect(isReviewOverdue({ status: 'Open', next_review_date: '2026-09-16' }, asOf)).toBe(false);
   });
 
   it('yesterday is overdue', () => {
-    expect(isReviewOverdue({ next_review_date: '2026-09-15' }, asOf)).toBe(true);
+    expect(isReviewOverdue({ status: 'Open', next_review_date: '2026-09-15' }, asOf)).toBe(true);
   });
 
   it('tomorrow is not', () => {
-    expect(isReviewOverdue({ next_review_date: '2026-09-17' }, asOf)).toBe(false);
+    expect(isReviewOverdue({ status: 'Open', next_review_date: '2026-09-17' }, asOf)).toBe(false);
   });
 
   it('an unparseable date is not silently treated as overdue', () => {
-    expect(isReviewOverdue({ next_review_date: 'soon' }, asOf)).toBe(false);
+    expect(isReviewOverdue({ status: 'Open', next_review_date: 'soon' }, asOf)).toBe(false);
+  });
+
+  // RC-2 (ASC-0): only a live risk carries a review obligation.
+  it.each(['Open', 'Under Review', 'Mitigated', 'Realized'])('a %s risk can be review-overdue', (status) => {
+    expect(isReviewOverdue({ status, next_review_date: '2026-01-10' }, asOf)).toBe(true);
+  });
+
+  it.each(['Closed', 'Draft', undefined, 'Archived'])('a risk whose status is %s is never review-overdue', (status) => {
+    expect(isReviewOverdue({ status, next_review_date: '2026-01-10' }, asOf)).toBe(false);
+  });
+
+  // RC-1 (ASC-0): a string as-of date is a calendar date in every zone.
+  it('reads a string as-of date as a calendar date', () => {
+    const risk = { status: 'Open', next_review_date: '2026-09-30' };
+    expect(isReviewOverdue(risk, '2026-10-01')).toBe(true);
+    expect(isReviewOverdue(risk, '2026-09-30')).toBe(false);
+    expect(isReviewOverdue(risk, '2026-10-01T00:00:00Z')).toBe(true);
+  });
+
+  it('an unreadable as-of date decides nothing', () => {
+    const risk = { status: 'Open', next_review_date: '2020-01-01' };
+    expect(isReviewOverdue(risk, 'yesterday')).toBe(false);
+    expect(isReviewOverdue(risk, new Date(NaN))).toBe(false);
   });
 });
 
