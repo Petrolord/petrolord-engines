@@ -144,7 +144,15 @@ export const DEFAULT_FINDING_TYPE_BY_CRITICALITY = Object.freeze({
 /* Checklist execution                                                */
 /* ------------------------------------------------------------------ */
 
-export const isAnswered = (response = {}) => ANSWERED_RESULTS.includes(response.result);
+/**
+ * Owner decision AS15 (§3k.4 Q11): the engine no longer trusts the
+ * stored row. "Not applicable" without a reason is not an answer, the
+ * same rule the database constraint and the form enforce at write time,
+ * so a row that reached the table by any other route cannot report an
+ * audit.
+ */
+export const isAnswered = (response = {}) => ANSWERED_RESULTS.includes(response.result)
+  && (response.result !== 'Not applicable' || Boolean(String(response.note || '').trim()));
 
 /**
  * How far through its checklist an audit is.
@@ -355,7 +363,9 @@ export const programmeProgress = (audits = [], today = new Date()) => {
   const total = audits.length;
   const reported = audits.filter((a) => ['Reported', 'Closed'].includes(a.status)).length;
   const cancelled = audits.filter((a) => a.status === 'Cancelled').length;
-  const outstanding = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status));
+  // AS15 (§3k.4 Q11): a cancellation counts as done only with its reason.
+  const outstanding = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status)
+    || (a.status === 'Cancelled' && !String(a.cancellation_reason || '').trim()));
   return {
     total,
     reported,
@@ -381,7 +391,9 @@ export const canCompleteProgramme = (programme = {}, audits = []) => {
   if (['Complete', 'Cancelled'].includes(programme.status)) {
     return { ok: false, reason: `This programme is already ${String(programme.status).toLowerCase()}.` };
   }
-  const outstanding = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status));
+  // AS15 (§3k.4 Q11): a cancellation counts as done only with its reason.
+  const outstanding = audits.filter((a) => !PROGRAMME_DONE_STATUSES.includes(a.status)
+    || (a.status === 'Cancelled' && !String(a.cancellation_reason || '').trim()));
   if (outstanding.length) {
     const codes = outstanding.map((a) => a.audit_code).filter(Boolean);
     return {

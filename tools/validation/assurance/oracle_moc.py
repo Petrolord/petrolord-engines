@@ -189,15 +189,70 @@ def o_can_advance(moc, to, ctx=None):
         return {'ok': False}
     if to == 'Implementation':
         st = o_approval_state(approvals)
-        if not st['complete']:
+        # AS15 Q9: an Emergency change needs only its LOWEST approval level
+        # signed (and no rejection) before it goes in; the rest ratify after.
+        emergency_ok = (get(moc, 'type') == 'Emergency' and bool(st['levels'])
+                        and not st['rejected'] and st['levels'][0] not in st['outstanding'])
+        if not st['complete'] and not emergency_ok:
             return {'ok': False}
         if still_open(actions, 'Pre-implementation'):
             return {'ok': False}
         if get(moc, 'type') in EXPIRING and cal_date(get(moc, 'expiry_date')) is None:
             return {'ok': False}
     if to == 'Closed':
+        # AS15 Q9: an emergency change cannot close until every level ratified.
+        if get(moc, 'type') == 'Emergency' and not o_approval_state(approvals)['complete']:
+            return {'ok': False}
         if still_open(actions, 'Implementation') or still_open(actions, 'Post-implementation'):
             return {'ok': False}
+    return {'ok': True}
+
+
+RATIFY_DAYS = 7
+IN_EFFECT = ['Implementation', 'Closed']
+
+
+def o_ratification(moc, approvals, today):
+    """AS15 Q9. Only an Emergency change that is in effect needs
+    ratification. Every level signed: Ratified. Otherwise the window is
+    implementation date + 7 days: on or before its last day Awaiting,
+    after it Overdue; no readable implementation date is Overdue."""
+    moc = moc or {}
+    if get(moc, 'type') != 'Emergency' or get(moc, 'stage') not in IN_EFFECT:
+        return {'state': 'Not required', 'dueDate': None, 'outstanding': []}
+    st = o_approval_state(approvals or [])
+    if st['complete']:
+        return {'state': 'Ratified', 'dueDate': None, 'outstanding': []}
+    went = cal_date(get(moc, 'actual_implementation_date'))
+    due = went + dt.timedelta(days=RATIFY_DAYS) if went else None
+    left = (due - cal_date(today)).days if due else None
+    return {
+        'state': 'Ratification overdue' if left is None or left < 0 else 'Awaiting ratification',
+        'dueDate': due.isoformat() if due else None,
+        'outstanding': st['outstanding'],
+    }
+
+
+def o_can_assign_approver(moc, approver):
+    """AS15 D1. Someone must be named, and not the change's originator."""
+    if not js_truthy(approver):
+        return {'ok': False}
+    if approver == get(moc or {}, 'originator_id'):
+        return {'ok': False}
+    return {'ok': True}
+
+
+def o_can_decide_approval(approval, moc, user):
+    """AS15 D1. Only a pending approval, only by its assignee, never by the
+    originator (even when the originator was assigned)."""
+    approval = approval or {}
+    status = get(approval, 'status')
+    if js_truthy(status) and status != 'Pending':
+        return {'ok': False}
+    if not js_truthy(user) or user != get(approval, 'approver_id'):
+        return {'ok': False}
+    if user == get(moc or {}, 'originator_id'):
+        return {'ok': False}
     return {'ok': True}
 
 
@@ -208,6 +263,15 @@ def o_summarise(records, ctx, today):
     # An action whose change is not supplied still counts.
     finished = {get(m, 'id') for m in records if get(m, 'stage') in ('Closed', 'Rejected', 'Cancelled')} - {None}
     actions = [a for a in (ctx.get('actions') or []) if get(a, 'moc_id') not in finished]
+    approvals = ctx.get('approvals') or []
+
+    def rat_of(m):
+        # An approval belongs to the change whose id it carries; a change
+        # with no id has none.
+        mid = get(m, 'id')
+        mine = [] if mid is None else [a for a in approvals if get(a, 'moc_id') == mid]
+        return o_ratification(m, mine, today)['state']
+
     by_stage = {s: sum(1 for m in records if get(m, 'stage') == s) for s in ALL_STAGES}
     by_risk = {r: sum(1 for m in records if get(m, 'risk_level') == r) for r in RISKS}
     open_actions = [a for a in actions if get(a, 'status') not in DONE]
@@ -224,6 +288,8 @@ def o_summarise(records, ctx, today):
         'overdue': sum(1 for m in records if o_is_overdue(m, today)),
         'openActions': len(open_actions),
         'overdueActions': len(overdue_actions),
+        'ratificationPending': sum(1 for m in records if rat_of(m) == 'Awaiting ratification'),
+        'ratificationOverdue': sum(1 for m in records if rat_of(m) == 'Ratification overdue'),
     }
 
 
@@ -519,6 +585,103 @@ case('summarise-actions-parents-not-supplied', 'summarise', [[], {'actions': as1
      o_summarise([], {'actions': as14_actions}, T))
 case('summarise-unreadable-expiry', 'summarise', [[bad | {'stage': 'Implementation'}], {}, T],
      o_summarise([bad], {}, T), 'MOC-1')
+
+# --- AS15 Q9: emergency-change authority (reduced up front, ratified within 7 days)
+signed1 = [{'level': 1, 'status': 'Approved'}]
+two_levels_first = [{'level': 1, 'status': 'Approved'}, {'level': 2, 'status': 'Pending'}]
+two_levels_second = [{'level': 1, 'status': 'Pending'}, {'level': 2, 'status': 'Approved'}]
+two_levels_rej = [{'level': 1, 'status': 'Approved'}, {'level': 2, 'status': 'Rejected'}]
+levels_23 = [{'level': 2, 'status': 'Approved'}, {'level': 3, 'status': 'Pending'}]
+levels_23_hi = [{'level': 2, 'status': 'Pending'}, {'level': 3, 'status': 'Approved'}]
+em = {'type': 'Emergency', 'stage': 'Approval', 'expiry_date': iso(30)}
+tmp = {'type': 'Temporary', 'stage': 'Approval', 'expiry_date': iso(30)}
+perm = {'type': 'Permanent', 'stage': 'Approval'}
+for tag, moc, appr in [
+    ('emergency-first-level-only', em, two_levels_first),
+    ('emergency-second-level-only', em, two_levels_second),
+    ('emergency-rejected-later-level', em, two_levels_rej),
+    ('emergency-levels-2-3-lowest-signed', em, levels_23),
+    ('emergency-levels-2-3-highest-signed', em, levels_23_hi),
+    ('emergency-no-approvers', em, []),
+    ('emergency-all-signed', em, [{'level': 1, 'status': 'Approved'}, {'level': 2, 'status': 'Approved'}]),
+    ('temporary-first-level-only', tmp, two_levels_first),
+    ('permanent-first-level-only', perm, two_levels_first),
+    ('emergency-first-level-only-no-expiry', {'type': 'Emergency', 'stage': 'Approval'}, two_levels_first),
+]:
+    case(f'advance-impl-{tag}', 'canAdvance', [moc, 'Implementation', {'approvals': appr}],
+         o_can_advance(moc, 'Implementation', {'approvals': appr}), 'AS15-Q9')
+em_in = {'type': 'Emergency', 'stage': 'Implementation', 'expiry_date': iso(30)}
+for tag, appr in [('unratified', two_levels_first), ('ratified', [{'level': 1, 'status': 'Approved'}, {'level': 2, 'status': 'Approved'}]),
+                  ('rejected-after', two_levels_rej)]:
+    case(f'advance-close-emergency-{tag}', 'canAdvance', [em_in, 'Closed', {'approvals': appr}],
+         o_can_advance(em_in, 'Closed', {'approvals': appr}), 'AS15-Q9')
+case('advance-close-temporary-unratified-is-not-gated', 'canAdvance',
+     [{'type': 'Temporary', 'stage': 'Implementation', 'expiry_date': iso(30)}, 'Closed', {'approvals': two_levels_first}],
+     o_can_advance({'type': 'Temporary', 'stage': 'Implementation', 'expiry_date': iso(30)}, 'Closed', {'approvals': two_levels_first}))
+
+def em_at(stage, went):
+    m = {'type': 'Emergency', 'stage': stage, 'expiry_date': iso(30)}
+    if went is not None:
+        m['actual_implementation_date'] = went
+    return m
+
+for tag, moc, appr in [
+    ('day-7-pending', em_at('Implementation', iso(-7) + 'T10:00:00'), two_levels_first),
+    ('day-8-overdue', em_at('Implementation', iso(-8) + 'T10:00:00'), two_levels_first),
+    ('same-day', em_at('Implementation', iso(0)), two_levels_first),
+    ('no-implementation-date', em_at('Implementation', None), two_levels_first),
+    ('unreadable-implementation-date', em_at('Implementation', 'last week'), two_levels_first),
+    ('complete', em_at('Implementation', iso(-30)), [{'level': 1, 'status': 'Approved'}, {'level': 2, 'status': 'Approved'}]),
+    ('closed-complete', em_at('Closed', iso(-30)), [{'level': 1, 'status': 'Approved'}]),
+    ('rejected-after', em_at('Implementation', iso(-2)), two_levels_rej),
+    ('no-approvals', em_at('Implementation', iso(-2)), []),
+    ('levels-2-3', em_at('Implementation', iso(-3)), levels_23),
+    ('still-in-approval', em_at('Approval', None), two_levels_first),
+    ('cancelled', em_at('Cancelled', iso(-30)), two_levels_first),
+    ('temporary', {'type': 'Temporary', 'stage': 'Implementation', 'expiry_date': iso(30),
+                   'actual_implementation_date': iso(-30)}, two_levels_first),
+    ('permanent', {'type': 'Permanent', 'stage': 'Implementation'}, []),
+]:
+    case(f'ratification-{tag}', 'ratificationState', [moc, appr, T], o_ratification(moc, appr, T), 'AS15-Q9')
+case('ratification-no-args', 'ratificationState', [], o_ratification({}, [], T))
+
+rat_records = [
+    dict(em_at('Implementation', iso(-3)), id='p'),
+    dict(em_at('Implementation', iso(-20)), id='o'),
+    dict(em_at('Implementation', None), id='nodate'),
+    dict(em_at('Closed', iso(-40)), id='done'),
+    dict(em_at('Implementation', iso(-1))),  # no id: owns no approvals
+    {'id': 'perm', 'type': 'Permanent', 'stage': 'Implementation'},
+]
+rat_appr = [
+    {'moc_id': 'p', 'level': 1, 'status': 'Approved'}, {'moc_id': 'p', 'level': 2, 'status': 'Pending'},
+    {'moc_id': 'o', 'level': 1, 'status': 'Approved'}, {'moc_id': 'o', 'level': 2, 'status': 'Pending'},
+    {'moc_id': 'done', 'level': 1, 'status': 'Approved'},
+    {'level': 1, 'status': 'Approved'},  # no moc_id: belongs to nobody
+]
+case('summarise-ratification', 'summarise', [rat_records, {'approvals': rat_appr}, T],
+     o_summarise(rat_records, {'approvals': rat_appr}, T), 'AS15-Q9')
+
+# --- AS15 D1: segregation of duties
+orig = {'originator_id': 'u-orig'}
+for tag, approver in [('independent', 'u-app'), ('originator', 'u-orig'), ('nobody', None), ('empty', '')]:
+    case(f'assign-approver-{tag}', 'canAssignApprover', [orig, approver],
+         o_can_assign_approver(orig, approver), 'AS15-D1')
+case('assign-approver-no-originator-recorded', 'canAssignApprover', [{}, 'u-app'],
+     o_can_assign_approver({}, 'u-app'))
+pend = {'approver_id': 'u-app', 'status': 'Pending', 'level': 1}
+for tag, appr, moc, user in [
+    ('assignee', pend, orig, 'u-app'),
+    ('non-assignee', pend, orig, 'u-other'),
+    ('not-signed-in', pend, orig, None),
+    ('originator-not-assigned', pend, orig, 'u-orig'),
+    ('originator-who-is-assignee', dict(pend, approver_id='u-orig'), orig, 'u-orig'),
+    ('already-approved', dict(pend, status='Approved'), orig, 'u-app'),
+    ('already-rejected', dict(pend, status='Rejected'), orig, 'u-app'),
+    ('no-status-is-pending', {'approver_id': 'u-app'}, orig, 'u-app'),
+]:
+    case(f'decide-approval-{tag}', 'canDecideApproval', [appr, moc, user],
+         o_can_decide_approval(appr, moc, user), 'AS15-D1')
 
 # --- countBy
 rows = [{'category': 'Software or IT'}, {'category': 'Facility or hardware'}, {'category': ''},

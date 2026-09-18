@@ -24,9 +24,11 @@ import {
   FINDING_TYPES,
   NONCONFORMITY_TYPES,
   auditIndependence,
+  COVERAGE_COUNTING_STATUSES,
   canAdvanceAudit,
   canCloseAudit,
   canCloseFinding,
+  canExamineClause,
   canReportAudit,
   canSetClauseStatus,
   certificationReadiness,
@@ -410,8 +412,9 @@ describe('coverage is counted over the certification cycle', () => {
     }),
   ];
   const audits = [
-    audit({ id: 'a1', audit_type: 'Internal' }),
-    audit({ id: 'a2', audit_type: 'Certification' }),
+    // Reported: since AS15 (Q4) only reported results are coverage.
+    audit({ id: 'a1', audit_type: 'Internal', status: 'Reported' }),
+    audit({ id: 'a2', audit_type: 'Certification', status: 'Reported' }),
   ];
 
   it('excludes clauses that do not apply', () => {
@@ -478,7 +481,7 @@ describe('certification readiness is a list of blockers, not a percentage', () =
     clauses: [evidenced({ id: 'c1' })],
     findings: [],
     actions: [],
-    audits: [audit({ id: 'a1', audit_type: 'Internal' })],
+    audits: [audit({ id: 'a1', audit_type: 'Internal', status: 'Reported' })],
     auditClauses: [cover({ audit_id: 'a1', clause_id: 'c1', examined_on: '2026-09-10' })],
   };
 
@@ -649,3 +652,65 @@ describe('summary, sorting and grouping', () => {
     }), TODAY)).toBe(false);
   });
 });
+
+describe('AS15 owner decisions', () => {
+  const ready = {
+    clauses: [evidenced({ id: 'c1' })],
+    findings: [],
+    actions: [],
+    audits: [audit({ id: 'a1', status: 'Reported' })],
+    auditClauses: [cover({ audit_id: 'a1', clause_id: 'c1', examined_on: '2026-09-10' })],
+  };
+
+  it('Q4: only a Reported or Closed audit\'s examinations are coverage', () => {
+    expect(COVERAGE_COUNTING_STATUSES).toEqual(['Reported', 'Closed']);
+    ['Planned', 'In progress', 'Fieldwork complete', 'Cancelled'].forEach((status) => {
+      const [row] = clauseCoverage({ ...ready, audits: [audit({ id: 'a1', status })] }, TODAY);
+      expect(row.lastExaminedOn).toBeNull();
+      expect(row.covered).toBe(false);
+    });
+    ['Reported', 'Closed'].forEach((status) => {
+      const [row] = clauseCoverage({ ...ready, audits: [audit({ id: 'a1', status })] }, TODAY);
+      expect(row.covered).toBe(true);
+    });
+  });
+
+  it('Q4: an unreported examination leaves the clause blocking readiness as never audited', () => {
+    const v = certificationReadiness(standard(),
+      { ...ready, audits: [audit({ id: 'a1', status: 'In progress' })] }, TODAY);
+    expect(v.ready).toBe(false);
+    expect(v.counts.neverAudited).toBe(1);
+  });
+
+  it('Q5: the clause owner may not record its examination result', () => {
+    const v = canExamineClause(clause({ owner_id: 'u5', clause_ref: '7.1.5' }), 'u5');
+    expect(v.ok).toBe(false);
+    expect(v.reason).toMatch(/7\.1\.5/);
+    expect(canExamineClause(clause({ owner_id: 'u5' }), 'u6').ok).toBe(true);
+    expect(canExamineClause(clause({ owner_id: null }), 'u6').ok).toBe(true);
+    expect(canExamineClause(clause({ owner_id: 'u5' })).ok).toBe(true);
+  });
+
+  it('Q6: a lapsed certificate is a serious item, listed after the other serious ones', () => {
+    const lapsed = certificationReadiness(
+      standard({ certificate_expires: '2026-09-16' }),
+      { ...ready, clauses: [...ready.clauses, clause({ id: 'c2', clause_ref: '8.5.1' })] }, TODAY);
+    const sev = lapsed.blockers.map((b) => b.severity);
+    expect(sev).toEqual([...sev].sort((a, b) =>
+      ['blocking', 'serious', 'watch'].indexOf(a) - ['blocking', 'serious', 'watch'].indexOf(b)));
+    const cert = lapsed.blockers.find((b) => /certificate expired/.test(b.text));
+    expect(cert).toMatchObject({ severity: 'serious', count: 1 });
+    expect(cert.text).toMatch(/1 day ago/);
+  });
+
+  it('Q6: expiring inside 90 days is a watch item, never blocking; 91 days says nothing', () => {
+    const today = certificationReadiness(standard({ certificate_expires: '2026-09-17' }), ready, TODAY);
+    expect(today.ready).toBe(true);
+    expect(today.blockers).toEqual([expect.objectContaining({ severity: 'watch', count: 1 })]);
+    const at90 = certificationReadiness(standard({ certificate_expires: '2026-12-16' }), ready, TODAY);
+    expect(at90.blockers.map((b) => b.severity)).toEqual(['watch']);
+    const at91 = certificationReadiness(standard({ certificate_expires: '2026-12-17' }), ready, TODAY);
+    expect(at91.blockers).toEqual([]);
+  });
+});
+

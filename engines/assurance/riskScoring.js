@@ -63,7 +63,11 @@ export const NO_BAND = 'None';
 
 const clampLevel = (value) => {
   const n = Number(value);
-  if (!Number.isFinite(n)) return null;
+  // Owner decision AS15 (§3k.4 Q3): the scale is five whole levels. 2.5
+  // is not a level, and multiplying it produced scores (6.25, 7.5) that
+  // no cell of the matrix holds. A fraction is unscored, like any other
+  // value off the scale.
+  if (!Number.isInteger(n)) return null;
   if (n < SCALE_MIN || n > SCALE_MAX) return null;
   return n;
 };

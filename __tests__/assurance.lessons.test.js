@@ -369,3 +369,13 @@ describe('search, dates and summary', () => {
       .toEqual([{ name: 'Equipment', count: 1 }, { name: 'Unspecified', count: 1 }]);
   });
 });
+
+describe('AS15: validation by typed name', () => {
+  it('refuses the author as the person validating, even when they type another name', () => {
+    const l = complete({ author_id: 'u-author' });
+    const v = canValidate(l, 'u-author', { validator_name: 'An External Reviewer' });
+    expect(v.ok).toBe(false);
+    expect(v.reason).toMatch(/somebody else's name/);
+    expect(canValidate(l, 'u-colleague', { validator_name: 'An External Reviewer' }).ok).toBe(true);
+  });
+});

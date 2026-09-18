@@ -105,3 +105,45 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## AS15 (2026-09-18): owner decisions
+
+The owner delegated the open §3k.4 questions (Suite
+AssuranceApps-STATUS.md). Three changed this module.
+
+- **AS15-Q4, coverage counts reported results only.** `clauseCoverage`,
+  and everything built on it (`clauseCoverageByStandard`, `summarise`,
+  `certificationReadiness`), counted an examination from an audit that was
+  Planned, In progress, Fieldwork complete or Cancelled. ISO 9001
+  §9.2.2(c) asks for audit results to be reported. Now only Reported and
+  Closed audits count (`COVERAGE_COUNTING_STATUSES`). An audit with no
+  status counts for nothing. A later examination in an unreported audit
+  does not displace an earlier reported one. The fixtures of the older
+  coverage and readiness cases were given Reported/Closed audits so they
+  still test the cycle arithmetic. `summary-mixed` deliberately keeps a
+  Fieldwork-complete audit and moves. Cases `coverage-only-reported-results`,
+  `coverage-by-standard-only-reported`, `summary-only-reported-results`,
+  `ready-unreported-examinations-are-never-audited`,
+  `coverage-audit-with-no-status`.
+- **AS15-Q5, independence for every examiner.** New
+  `canExamineClause(clause, examinerId)`: whoever records a clause's
+  examination result may not own the clause. There is no audit-team table,
+  so the examiner is the signed-in person recording the result. Before
+  this, only the lead auditor was checked. Cases `examine-*`.
+- **AS15-Q6, the certificate is a listed item.** A lapsed certificate
+  was only a count. It is now a `serious` item (certification cannot be
+  claimed, and surveillance becomes recertification). It is not
+  `blocking`, because the management system is not made unready by it.
+  A certificate inside the 90-day lead (0 to 90 days) is a `watch` item.
+  At 91 days nothing is listed, and an unreadable date lists nothing.
+  Cases `ready-cert-*`, `ready-messy`, `ready-one-year-cycle-expired`,
+  `ready-cert-90-days`.
+- **Engine defect found while writing the oracle (fixed).** The AS15 edit
+  pushed the certificate entry after the watch items. That broke the
+  module's blocking, serious, watch ordering: `ready-messy` listed a
+  `serious` item after three `watch` items. `certificationReadiness` now
+  stable-sorts the list by severity before the "no applicable clauses"
+  entry is put first. Case `ready-cert-lapsed-sits-among-serious`.
+
+Negative control: against the pre-AS15 engine every case above fails
+(canExamineClause does not exist there).

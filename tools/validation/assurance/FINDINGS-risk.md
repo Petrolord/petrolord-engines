@@ -88,3 +88,14 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## AS15 (2026-09-18): owner decision Q3
+
+- **AS15-Q3, fractional levels.** Likelihood and impact are the five
+  whole levels. 2.5, '3.5', 4.9 and 1.01 are off the scale and unscored
+  (score 0, band None), including as a residual axis, where the rule
+  does not fall back to the inherent level because an assessed but
+  invalid value is not a missing one. A whole number written as 3.0,
+  '4.0', ' 3 ' or `true` (Number(true) = 1) is still read as that
+  level. `getRiskBand` is unchanged: it bands any positive score.
+- Negative control: the previous engine fails all 8 AS15-Q3 cases.

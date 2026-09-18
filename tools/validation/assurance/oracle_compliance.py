@@ -24,6 +24,16 @@ frequency's months (Monthly 1, Quarterly 3, Semi-annual 6, Annual 12,
 Biennial 24), clamped to the target month's last day; One-off, Other
 and anything unknown have no next occurrence (None).
 
+AS15 owner decisions (2026-09-18):
+  Q1. An unreadable `today` is refused (RangeError), whatever the
+      obligation, instead of every comparison quietly failing open.
+  Q2. A filing makes an obligation Compliant only when it was made in
+      the CURRENT period: on or after the date one frequency (in months,
+      clamped to month end) before the next due date. One-off, Other and
+      an unknown frequency have no period, nor does an obligation with no
+      due date, so any readable filing counts for them. periodStart
+      returns that start date, or None.
+
 byUrgency: worst status first in STATUS_SEVERITY order, then the nearer
 next action date, undated last. summarise counts every status and
 'attention' = Expired + Overdue + Due soon.
@@ -59,7 +69,29 @@ def next_action(o):
     return min(ds) if ds else None
 
 
+class InvalidToday(Exception):
+    pass
+
+
+def period_start(due, freq):
+    d = to_date(due)
+    m = MONTHS.get(freq)
+    if d is None or not m:
+        return None
+    return add_months(d, -m)
+
+
+def filed_this_period(o):
+    filed = to_date(o.get('last_submitted_date'))
+    if filed is None:
+        return False
+    start = period_start(o.get('due_date'), o.get('frequency'))
+    return start is None or filed >= start
+
+
 def status(o, today):
+    if to_date(today) is None:
+        raise InvalidToday()
     lc = o.get('lifecycle') or 'Active'
     if lc in (DRAFT, SUPERSEDED, NOT_APPLICABLE):
         return lc
@@ -76,7 +108,7 @@ def status(o, today):
         return OVERDUE
     if (next_action(o) - t).days <= lead(o):
         return DUE_SOON
-    return COMPLIANT if to_date(o.get('last_submitted_date')) is not None else ON_TRACK
+    return COMPLIANT if filed_this_period(o) else ON_TRACK
 
 
 def explain(o, today):
@@ -263,6 +295,66 @@ def build():
                       ('roll-no-date', None, 'Annual'), ('roll-garbage-date', 'soon', 'Annual')]:
         c.add(cid, 'rollForward', [d, f], None)
     c.add('roll-impossible-date', 'rollForward', ['2026-02-30', 'Monthly'], None, defect='CAL-1')
+
+    # ---- AS15 owner decisions
+    # Q1: an unreadable today is refused, for any obligation
+    # Tagged repaired only where the old engine answered instead of
+    # throwing (an Invalid Date failed open). A string or null today
+    # already threw a TypeError before, so those cases are untagged.
+    for cid, o, today, tag in [
+        ('as15-q1-invalid-date-active', {'due_date': '2027-01-01'}, D(None), 'AS15-Q1'),
+        ('as15-q1-garbage-string', {'due_date': '2027-01-01', 'last_submitted_date': '2026-09-01'}, 'someday', None),
+        ('as15-q1-null-today', {'expiry_date': '2020-01-01'}, None, None),
+        ('as15-q1-draft-too', {'lifecycle': 'Draft'}, D(None), 'AS15-Q1'),
+        ('as15-q1-impossible-today', {'due_date': '2027-01-01'}, '2026-02-30', None),
+    ]:
+        c.throws(cid, 'deriveStatus', [o, today], defect=tag)
+    c.throws('as15-q1-explain', 'explainStatus', [{'due_date': '2027-01-01'}, D(None)], defect='AS15-Q1')
+    c.throws('as15-q1-summarise', 'summarise', [[{'due_date': '2027-01-01'}], 'tbc'])
+    c.throws('as15-q1-summarise-invalid-date', 'summarise', [[{'due_date': '2027-01-01'}], D(None)],
+             defect='AS15-Q1')
+    c.add('as15-q1-summarise-empty-ok', 'summarise', [[], D(None)], summarise([], T))
+
+    # Q2: evidence must be from the current period
+    q2 = [
+        ('stale-monthly', {'frequency': 'Monthly', 'due_date': '2026-11-30', 'last_submitted_date': '2024-10-15'}),
+        ('stale-annual', {'frequency': 'Annual', 'due_date': '2027-06-30', 'last_submitted_date': '2026-06-29'}),
+        ('annual-at-period-start', {'frequency': 'Annual', 'due_date': '2027-06-30', 'last_submitted_date': '2026-06-30'}),
+        ('annual-inside-period', {'frequency': 'Annual', 'due_date': '2027-06-30', 'last_submitted_date': '2026-09-01'}),
+        ('quarterly-day-before-start', {'frequency': 'Quarterly', 'due_date': '2026-12-31', 'last_submitted_date': '2026-09-29'}),
+        ('quarterly-at-clamped-start', {'frequency': 'Quarterly', 'due_date': '2026-12-31', 'last_submitted_date': '2026-09-30'}),
+        ('semiannual-stale', {'frequency': 'Semi-annual', 'due_date': '2027-03-31', 'last_submitted_date': '2026-09-29'}),
+        ('semiannual-clamped-start', {'frequency': 'Semi-annual', 'due_date': '2027-03-31', 'last_submitted_date': '2026-09-30'}),
+        ('biennial-inside', {'frequency': 'Biennial', 'due_date': '2027-12-01', 'last_submitted_date': '2025-12-01'}),
+        ('biennial-stale', {'frequency': 'Biennial', 'due_date': '2027-12-01', 'last_submitted_date': '2025-11-30'}),
+        ('other-any-age', {'frequency': 'Other', 'due_date': '2027-06-30', 'last_submitted_date': '2019-01-01'}),
+        ('unknown-freq-any-age', {'frequency': 'Weekly', 'due_date': '2027-06-30', 'last_submitted_date': '2019-01-01'}),
+        ('no-freq-any-age', {'due_date': '2027-06-30', 'last_submitted_date': '2019-01-01'}),
+        ('expiry-only-any-age', {'frequency': 'Annual', 'expiry_date': '2027-06-30', 'last_submitted_date': '2019-01-01'}),
+        ('stale-still-due-soon', {'frequency': 'Monthly', 'due_date': '2026-10-01', 'last_submitted_date': '2025-01-01'}),
+    ]
+    # Stale filings are the repaired cases; the rest are controls that
+    # read the same before and after (inside the period, at its first
+    # day, periodless frequencies, no due date, due soon regardless).
+    stale = {'stale-monthly', 'stale-annual', 'quarterly-day-before-start', 'semiannual-stale', 'biennial-stale'}
+    for cid, o in q2:
+        c.add('as15-q2-' + cid, 'deriveStatus', [o, T], status(o, T),
+              defect='AS15-Q2' if cid in stale else None)
+    for cid in ['stale-monthly', 'stale-annual', 'annual-inside-period']:
+        o = dict(q2)[cid]
+        c.add('as15-q2-explain-' + cid, 'explainStatus', [o, T], explain(o, T),
+              defect='AS15-Q2' if cid in stale else None)
+    # periodStart, including month-end roll back
+    for cid, d, f in [
+        ('ps-monthly-mar31', '2026-03-31', 'Monthly'), ('ps-monthly-mar31-leap', '2028-03-31', 'Monthly'),
+        ('ps-monthly-jan15', '2027-01-15', 'Monthly'), ('ps-quarterly-may31', '2026-05-31', 'Quarterly'),
+        ('ps-annual-leapday', '2028-02-29', 'Annual'), ('ps-semiannual-aug31', '2026-08-31', 'Semi-annual'),
+        ('ps-biennial', '2027-12-01', 'Biennial'), ('ps-date-object', D('2026-07-31'), 'Monthly'),
+        ('ps-one-off', '2026-09-17', 'One-off'), ('ps-other', '2026-09-17', 'Other'),
+        ('ps-no-freq', '2026-09-17', None), ('ps-no-date', None, 'Annual'),
+        ('ps-garbage-date', 'soon', 'Annual'), ('ps-impossible-date', '2026-02-30', 'Monthly'),
+    ]:
+        c.add(cid, 'periodStart', [d, f], period_start(d, f), defect='AS15-Q2')
     return c
 
 

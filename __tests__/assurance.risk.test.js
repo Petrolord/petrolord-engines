@@ -213,3 +213,17 @@ describe('counts', () => {
     expect(total).toBe(risks.length);
   });
 });
+
+describe('AS15 owner decision Q3: whole levels only', () => {
+  it('leaves a fractional level unscored', () => {
+    expect(calculateRiskScore(2.5, 4)).toBe(0);
+    expect(calculateRiskScore(3, '3.5')).toBe(0);
+    expect(calculateResidualScore({ likelihood: 4, impact: 5, residual_likelihood: 1.5 })).toBe(0);
+  });
+
+  it('still reads a whole number however it is written', () => {
+    expect(calculateRiskScore(3.0, '4')).toBe(12);
+    expect(calculateRiskScore('4.0', 2)).toBe(8);
+  });
+});
+

@@ -3536,7 +3536,9 @@
     "expiringSoon": 2,
     "overdue": 3,
     "openActions": 5,
-    "overdueActions": 2
+    "overdueActions": 2,
+    "ratificationPending": 0,
+    "ratificationOverdue": 1
    }
   },
   {
@@ -3573,7 +3575,9 @@
     "expiringSoon": 0,
     "overdue": 0,
     "openActions": 0,
-    "overdueActions": 0
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
    }
   },
   {
@@ -3642,7 +3646,9 @@
     "expiringSoon": 1,
     "overdue": 2,
     "openActions": 0,
-    "overdueActions": 0
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 1
    }
   },
   {
@@ -3713,7 +3719,9 @@
     "expiringSoon": 0,
     "overdue": 0,
     "openActions": 0,
-    "overdueActions": 0
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
    }
   },
   {
@@ -3843,7 +3851,9 @@
     "expiringSoon": 2,
     "overdue": 4,
     "openActions": 0,
-    "overdueActions": 0
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 1
    }
   },
   {
@@ -3949,7 +3959,9 @@
     "expiringSoon": 0,
     "overdue": 0,
     "openActions": 4,
-    "overdueActions": 4
+    "overdueActions": 4,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
    },
    "repaired": "MOC-AS14-1"
   },
@@ -4029,7 +4041,9 @@
     "expiringSoon": 0,
     "overdue": 0,
     "openActions": 7,
-    "overdueActions": 7
+    "overdueActions": 7,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
    }
   },
   {
@@ -4072,9 +4086,1151 @@
     "expiringSoon": 0,
     "overdue": 0,
     "openActions": 0,
-    "overdueActions": 0
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
    },
    "repaired": "MOC-1"
+  },
+  {
+   "id": "advance-impl-emergency-first-level-only",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-second-level-only",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Pending"
+      },
+      {
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-rejected-later-level",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Rejected"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-levels-2-3-lowest-signed",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 2,
+       "status": "Approved"
+      },
+      {
+       "level": 3,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-levels-2-3-highest-signed",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "level": 3,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-no-approvers",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": []
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-all-signed",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-temporary-first-level-only",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-permanent-first-level-only",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-first-level-only-no-expiry",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-close-emergency-unratified",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-close-emergency-ratified",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-close-emergency-rejected-after",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Rejected"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-close-temporary-unratified-is-not-gated",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ratification-day-7-pending",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-11T10:00:00"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-18",
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-day-8-overdue",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-10T10:00:00"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratification overdue",
+    "dueDate": "2026-09-17",
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-same-day",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-18"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-25",
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-no-implementation-date",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratification overdue",
+    "dueDate": null,
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-unreadable-implementation-date",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "last week"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratification overdue",
+    "dueDate": null,
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-complete",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-08-19"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Approved"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratified",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-closed-complete",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Closed",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-08-19"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratified",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-rejected-after",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-16"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Rejected"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-23",
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-no-approvals",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-16"
+    },
+    [],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-23",
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-levels-2-3",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-15"
+    },
+    [
+     {
+      "level": 2,
+      "status": "Approved"
+     },
+     {
+      "level": 3,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-22",
+    "outstanding": [
+     3
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-still-in-approval",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-cancelled",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Cancelled",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-08-19"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-temporary",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-08-19"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-permanent",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Implementation"
+    },
+    [],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-no-args",
+   "fn": "ratificationState",
+   "args": [],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   }
+  },
+  {
+   "id": "summarise-ratification",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "type": "Emergency",
+      "stage": "Implementation",
+      "expiry_date": "2026-10-18",
+      "actual_implementation_date": "2026-09-15",
+      "id": "p"
+     },
+     {
+      "type": "Emergency",
+      "stage": "Implementation",
+      "expiry_date": "2026-10-18",
+      "actual_implementation_date": "2026-08-29",
+      "id": "o"
+     },
+     {
+      "type": "Emergency",
+      "stage": "Implementation",
+      "expiry_date": "2026-10-18",
+      "id": "nodate"
+     },
+     {
+      "type": "Emergency",
+      "stage": "Closed",
+      "expiry_date": "2026-10-18",
+      "actual_implementation_date": "2026-08-09",
+      "id": "done"
+     },
+     {
+      "type": "Emergency",
+      "stage": "Implementation",
+      "expiry_date": "2026-10-18",
+      "actual_implementation_date": "2026-09-17"
+     },
+     {
+      "id": "perm",
+      "type": "Permanent",
+      "stage": "Implementation"
+     }
+    ],
+    {
+     "approvals": [
+      {
+       "moc_id": "p",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "moc_id": "p",
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "moc_id": "o",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "moc_id": "o",
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "moc_id": "done",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 1,
+       "status": "Approved"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 6,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 0,
+     "Implementation": 5,
+     "Closed": 1,
+     "Rejected": 0,
+     "Cancelled": 0
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 5,
+    "awaitingApproval": 0,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "ratificationPending": 2,
+    "ratificationOverdue": 2
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "assign-approver-independent",
+   "fn": "canAssignApprover",
+   "args": [
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-approver-originator",
+   "fn": "canAssignApprover",
+   "args": [
+    {
+     "originator_id": "u-orig"
+    },
+    "u-orig"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-approver-nobody",
+   "fn": "canAssignApprover",
+   "args": [
+    {
+     "originator_id": "u-orig"
+    },
+    null
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-approver-empty",
+   "fn": "canAssignApprover",
+   "args": [
+    {
+     "originator_id": "u-orig"
+    },
+    ""
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-approver-no-originator-recorded",
+   "fn": "canAssignApprover",
+   "args": [
+    {},
+    "u-app"
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "decide-approval-assignee",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-non-assignee",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-other"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-not-signed-in",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    null
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-originator-not-assigned",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-orig"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-originator-who-is-assignee",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-orig",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-orig"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-already-approved",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Approved",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-already-rejected",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Rejected",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-no-status-is-pending",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app"
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
   },
   {
    "id": "countBy-category",

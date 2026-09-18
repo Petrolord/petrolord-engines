@@ -90,3 +90,29 @@ nobody can finish them and the dashboard number never fell. They are now
 skipped; an action whose change is not in `records` still counts. Case
 `summarise-actions-on-finished-changes` fails against the previous
 engine.
+
+## AS15 (2026-09-18): owner decisions
+
+- **AS15-Q9, emergency-change authority.** An Emergency change may enter
+  Implementation once its LOWEST approval level has an Approved row and
+  nothing is rejected (CCPS: reduced authority up front). Every remaining
+  level must sign within `EMERGENCY_RATIFY_DAYS` (7) of
+  `actual_implementation_date`, and the change cannot close until they
+  have. `ratificationState`: day 7 after implementation reads Awaiting
+  ratification, day 8 Ratification overdue; no readable implementation
+  date reads Overdue (fails closed). `summarise` gains
+  `ratificationPending` and `ratificationOverdue`. Temporary and
+  Permanent changes still need every level first.
+- **AS15-D1, segregation of duties.** `canAssignApprover` refuses the
+  originator; `canDecideApproval` allows only the assignee, only while
+  Pending, and never the originator even when assigned.
+- **Engine bug fixed in passing (found by the oracle's reading of "an
+  approval belongs to the change whose id it carries"):** the first AS15
+  draft of `summarise` matched approvals with `a.moc_id === m.id`, so a
+  record with no id picked up every approval with no `moc_id`
+  (undefined === undefined). A record with no id now owns no approvals.
+  Case `summarise-ratification`.
+
+Negative control: against origin/main the new `AS15-*` cases fail (the
+new exports do not exist; emergency implementation on a first-level
+signature is refused; closing an unratified emergency change is allowed).

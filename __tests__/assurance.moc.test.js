@@ -34,6 +34,11 @@ import {
   parseDateOnly,
   summarise,
   toDateOnlyString,
+  EMERGENCY_RATIFY_DAYS,
+  RATIFICATION,
+  canAssignApprover,
+  canDecideApproval,
+  ratificationState,
 } from '../engines/assurance/managementOfChange.js';
 
 const TODAY = new Date(2026, 8, 17); // 17 September 2026, local midnight
@@ -310,5 +315,69 @@ describe('AS14: actions on finished changes', () => {
     const s = summarise(records, { actions }, TODAY);
     expect(s.openActions).toBe(2);
     expect(s.overdueActions).toBe(1);
+  });
+});
+
+describe('AS15: emergency-change authority', () => {
+  const em = (over = {}) => moc({ type: 'Emergency', stage: 'Approval', expiry_date: '2026-10-30', ...over });
+  const first = [approval({ level: 1 }), approval({ level: 2, status: 'Pending' })];
+
+  it('an emergency change goes in once its first level has signed; other types still need every level', () => {
+    expect(canAdvance(em(), 'Implementation', { approvals: first }).ok).toBe(true);
+    expect(canAdvance(moc({ stage: 'Approval', type: 'Temporary', expiry_date: '2026-10-30' }),
+      'Implementation', { approvals: first }).ok).toBe(false);
+    const late = [approval({ level: 1, status: 'Pending' }), approval({ level: 2 })];
+    expect(canAdvance(em(), 'Implementation', { approvals: late }).ok).toBe(false);
+    const rejected = [approval({ level: 1 }), approval({ level: 2, status: 'Rejected' })];
+    expect(canAdvance(em(), 'Implementation', { approvals: rejected }).ok).toBe(false);
+    expect(canAdvance(em(), 'Implementation', { approvals: [] }).ok).toBe(false);
+  });
+
+  it('cannot close until every level has ratified', () => {
+    const live = em({ stage: 'Implementation' });
+    const v = canAdvance(live, 'Closed', { approvals: first });
+    expect(v.ok).toBe(false);
+    expect(v.reason).toMatch(/level 2/);
+    expect(canAdvance(live, 'Closed', { approvals: [approval({ level: 1 }), approval({ level: 2 })] }).ok).toBe(true);
+  });
+
+  it('gives seven days after implementation, then reads overdue; no date reads overdue', () => {
+    expect(EMERGENCY_RATIFY_DAYS).toBe(7);
+    const at = (d) => ratificationState(em({ stage: 'Implementation', actual_implementation_date: d }), first, TODAY);
+    expect(at('2026-09-10T09:00:00').state).toBe(RATIFICATION.PENDING);
+    expect(at('2026-09-10T09:00:00').dueDate).toBe('2026-09-17');
+    expect(at('2026-09-09').state).toBe(RATIFICATION.OVERDUE);
+    expect(at(null).state).toBe(RATIFICATION.OVERDUE);
+    expect(ratificationState(em({ stage: 'Implementation' }),
+      [approval({ level: 1 }), approval({ level: 2 })], TODAY).state).toBe(RATIFICATION.COMPLETE);
+    expect(ratificationState(moc({ stage: 'Implementation' }), [], TODAY).state)
+      .toBe(RATIFICATION.NOT_REQUIRED);
+  });
+
+  it('summarise counts pending and overdue ratifications by change id', () => {
+    const records = [
+      em({ id: 'p', stage: 'Implementation', actual_implementation_date: '2026-09-15' }),
+      em({ id: 'o', stage: 'Implementation', actual_implementation_date: '2026-08-01' }),
+    ];
+    const approvals = ['p', 'o'].flatMap((id) => first.map((a) => ({ ...a, moc_id: id })));
+    const s = summarise(records, { approvals }, TODAY);
+    expect(s.ratificationPending).toBe(1);
+    expect(s.ratificationOverdue).toBe(1);
+  });
+});
+
+describe('AS15: segregation of duties on approvals', () => {
+  const change = { originator_id: 'u-orig' };
+  it('the originator cannot be assigned or decide', () => {
+    expect(canAssignApprover(change, 'u-orig').ok).toBe(false);
+    expect(canAssignApprover(change, 'u-app').ok).toBe(true);
+    expect(canDecideApproval({ approver_id: 'u-orig', status: 'Pending' }, change, 'u-orig').ok).toBe(false);
+  });
+  it('only the assignee decides, and only while pending', () => {
+    const a = { approver_id: 'u-app', status: 'Pending' };
+    expect(canDecideApproval(a, change, 'u-app').ok).toBe(true);
+    expect(canDecideApproval(a, change, 'u-other').reason).toMatch(/reassign/);
+    expect(canDecideApproval(a, change, null).ok).toBe(false);
+    expect(canDecideApproval({ ...a, status: 'Approved' }, change, 'u-app').ok).toBe(false);
   });
 });

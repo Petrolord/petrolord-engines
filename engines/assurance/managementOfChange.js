@@ -187,6 +187,84 @@ export const approvalState = (approvals = []) => {
   };
 };
 
+/**
+ * Owner decision AS15 (§3k.4 Q9, emergency-change authority). An
+ * emergency change is made to stop harm now, and CCPS practice gives it
+ * REDUCED authority up front with the full review after the event. So
+ * an Emergency change may be implemented once its FIRST approval level
+ * has signed (and nobody has rejected it); every remaining level must
+ * then sign within EMERGENCY_RATIFY_DAYS of implementation, the change
+ * cannot close until they have, and one that runs past the window is
+ * flagged. Permanent and Temporary changes still need every level first.
+ */
+export const EMERGENCY_RATIFY_DAYS = 7;
+
+export const RATIFICATION = Object.freeze({
+  NOT_REQUIRED: 'Not required',
+  PENDING: 'Awaiting ratification',
+  OVERDUE: 'Ratification overdue',
+  COMPLETE: 'Ratified',
+});
+
+const firstLevelSigned = (approvals = []) => {
+  const state = approvalState(approvals);
+  if (!state.levels.length || state.rejected.length) return false;
+  return !state.outstanding.includes(state.levels[0]);
+};
+
+/**
+ * Where an emergency change stands on its after-the-event approvals.
+ * Returns `{ state, dueDate, outstanding }`. An implemented emergency
+ * change with no recorded implementation date is OVERDUE: the window
+ * cannot be shown to be open, so it fails closed.
+ */
+export const ratificationState = (moc = {}, approvals = [], today = new Date()) => {
+  if (moc.type !== 'Emergency' || !IN_EFFECT_STAGES.includes(moc.stage)) {
+    return { state: RATIFICATION.NOT_REQUIRED, dueDate: null, outstanding: [] };
+  }
+  const st = approvalState(approvals);
+  if (st.complete) return { state: RATIFICATION.COMPLETE, dueDate: null, outstanding: [] };
+  const went = parseDateOnly(moc.actual_implementation_date);
+  const due = went
+    ? new Date(went.getFullYear(), went.getMonth(), went.getDate() + EMERGENCY_RATIFY_DAYS)
+    : null;
+  const days = due ? daysUntil(due, today) : null;
+  return {
+    state: days === null || days < 0 ? RATIFICATION.OVERDUE : RATIFICATION.PENDING,
+    dueDate: due ? toDateOnlyString(due) : null,
+    outstanding: st.outstanding,
+  };
+};
+
+/**
+ * Owner decision AS15 (segregation of duties). An approval is decided by
+ * the person it is assigned to, and nobody approves their own change.
+ * Before this, role labels were not enforced: any member of the
+ * organization could decide any level of any change, including the
+ * originator approving their own. The database enforces the same rule
+ * (AS15 migration). To cover an absence, reassign the approval.
+ */
+export const canAssignApprover = (moc = {}, approverId) => {
+  if (!approverId) return { ok: false, reason: 'Choose the approver.' };
+  if (approverId === moc.originator_id) {
+    return { ok: false, reason: 'The originator of a change cannot approve it. Choose somebody independent of the change.' };
+  }
+  return { ok: true };
+};
+
+export const canDecideApproval = (approval = {}, moc = {}, userId) => {
+  if (approval.status && approval.status !== 'Pending') {
+    return { ok: false, reason: `This approval is already ${String(approval.status).toLowerCase()}.` };
+  }
+  if (!userId || userId !== approval.approver_id) {
+    return { ok: false, reason: 'Only the person this approval is assigned to can decide it. If they are unavailable, reassign it.' };
+  }
+  if (userId === moc.originator_id) {
+    return { ok: false, reason: 'The originator of a change cannot approve it.' };
+  }
+  return { ok: true };
+};
+
 const openActions = (actions = [], type) =>
   actions.filter((a) => a.action_type === type
     && !['Complete', 'Cancelled'].includes(a.status));
@@ -220,10 +298,13 @@ export const canAdvance = (moc = {}, to, { approvals = [], actions = [] } = {}) 
         reason: 'No approvers have been assigned, so there is nothing to approve. Add the approval levels this change needs.',
       };
     }
-    if (state.outstanding.length) {
+    const emergencyReady = moc.type === 'Emergency' && firstLevelSigned(approvals);
+    if (state.outstanding.length && !emergencyReady) {
       return {
         ok: false,
-        reason: `Approval level ${state.outstanding.join(' and ')} has not signed yet.`,
+        reason: moc.type === 'Emergency'
+          ? `An emergency change can go in once approval level ${state.levels[0]} has signed, with the rest ratified within ${EMERGENCY_RATIFY_DAYS} days. Level ${state.levels[0]} has not signed yet.`
+          : `Approval level ${state.outstanding.join(' and ')} has not signed yet.`,
       };
     }
     const pre = openActions(actions, 'Pre-implementation');
@@ -246,6 +327,15 @@ export const canAdvance = (moc = {}, to, { approvals = [], actions = [] } = {}) 
   }
 
   if (to === 'Closed') {
+    const st = approvalState(approvals);
+    if (moc.type === 'Emergency' && !st.complete) {
+      return {
+        ok: false,
+        reason: st.rejected.length
+          ? 'An approver has rejected this emergency change after the event. It has to be reversed or resubmitted, not closed.'
+          : `Approval level ${st.outstanding.join(' and ')} has not ratified this emergency change. It cannot close until every level has signed.`,
+      };
+    }
     const post = openActions(actions, 'Post-implementation')
       .concat(openActions(actions, 'Implementation'));
     if (post.length) {
@@ -268,7 +358,7 @@ export const canAdvance = (moc = {}, to, { approvals = [], actions = [] } = {}) 
  * carried a hardcoded warning that "MOC-2026-015 and MOC-2026-033
  * expire in less than 7 days", naming two changes that do not exist.
  */
-export const summarise = (records = [], { actions = [] } = {}, today = new Date()) => {
+export const summarise = (records = [], { actions = [], approvals = [] } = {}, today = new Date()) => {
   // AS14: an action belongs to a change. Once that change is closed,
   // rejected or cancelled its record is locked, so an action left
   // unfinished on it is not open work anybody can do. Counting it kept
@@ -281,6 +371,11 @@ export const summarise = (records = [], { actions = [] } = {}, today = new Date(
     .map((m) => m.id)
     .filter((id) => id !== undefined && id !== null));
   const liveActions = actions.filter((a) => !finished.has(a.moc_id));
+
+  // A record with no id owns no approvals: without the guard it matched
+  // every approval that has no moc_id (undefined === undefined).
+  const approvalsOf = (m) => (m.id === undefined || m.id === null
+    ? [] : approvals.filter((a) => a.moc_id === m.id));
 
   const byStage = Object.fromEntries(STAGES.map((s) => [s, 0]));
   const byRisk = Object.fromEntries(RISK_LEVELS.map((r) => [r, 0]));
@@ -299,6 +394,11 @@ export const summarise = (records = [], { actions = [] } = {}, today = new Date(
     expiringSoon: records.filter((m) => expiryState(m, today) === EXPIRY.EXPIRING).length,
     overdue: records.filter((m) => isOverdue(m, today)).length,
     openActions: liveActions.filter((a) => !['Complete', 'Cancelled'].includes(a.status)).length,
+    // AS15: emergency changes in effect that still lack approvals.
+    ratificationPending: records.filter((m) => ratificationState(
+      m, approvalsOf(m), today).state === RATIFICATION.PENDING).length,
+    ratificationOverdue: records.filter((m) => ratificationState(
+      m, approvalsOf(m), today).state === RATIFICATION.OVERDUE).length,
     overdueActions: liveActions.filter((a) => {
       if (['Complete', 'Cancelled'].includes(a.status)) return false;
       const d = daysUntil(a.due_date, today);

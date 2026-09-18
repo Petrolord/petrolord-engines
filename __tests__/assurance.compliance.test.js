@@ -27,6 +27,7 @@ import {
   daysUntil,
   deriveStatus,
   explainStatus,
+  periodStart,
   nextActionDate,
   parseDateOnly,
   rollForward,
@@ -259,3 +260,39 @@ describe('rolling the next due date forward after a submission', () => {
     expect(rollForward(null, 'Annual')).toBeNull();
   });
 });
+
+describe('AS15 owner decisions', () => {
+  it('Q1: refuses an unreadable today instead of failing open', () => {
+    const o = { due_date: '2020-01-01' };
+    expect(() => deriveStatus(o, new Date('garbage'))).toThrow(RangeError);
+    expect(() => deriveStatus(o, null)).toThrow(RangeError);
+    expect(() => deriveStatus({ lifecycle: 'Draft' }, new Date(NaN))).toThrow(RangeError);
+    expect(() => summarise([o], new Date(NaN))).toThrow(RangeError);
+    expect(summarise([], new Date(NaN)).total).toBe(0);
+  });
+
+  it('Q2: a filing from an earlier period does not make an obligation Compliant', () => {
+    const annual = { frequency: 'Annual', due_date: '2027-06-30' };
+    expect(deriveStatus({ ...annual, last_submitted_date: '2026-06-29' }, TODAY)).toBe(STATUS.ON_TRACK);
+    expect(deriveStatus({ ...annual, last_submitted_date: '2026-06-30' }, TODAY)).toBe(STATUS.COMPLIANT);
+    expect(explainStatus({ ...annual, last_submitted_date: '2026-06-29' }, TODAY).reason)
+      .toMatch(/earlier period/);
+  });
+
+  it('Q2: periods without a length accept a filing of any age', () => {
+    expect(deriveStatus({ frequency: 'Other', due_date: '2027-06-30', last_submitted_date: '2019-01-01' }, TODAY))
+      .toBe(STATUS.COMPLIANT);
+    expect(deriveStatus({ due_date: '2027-06-30', last_submitted_date: '2019-01-01' }, TODAY))
+      .toBe(STATUS.COMPLIANT);
+  });
+
+  it('Q2: periodStart rolls back a frequency, clamped to month end', () => {
+    const ymd = (d) => [d.getFullYear(), d.getMonth() + 1, d.getDate()];
+    expect(ymd(periodStart('2026-03-31', 'Monthly'))).toEqual([2026, 2, 28]);
+    expect(ymd(periodStart('2028-03-31', 'Monthly'))).toEqual([2028, 2, 29]);
+    expect(ymd(periodStart('2026-12-31', 'Quarterly'))).toEqual([2026, 9, 30]);
+    expect(periodStart('2026-09-17', 'One-off')).toBeNull();
+    expect(periodStart(null, 'Annual')).toBeNull();
+  });
+});
+
