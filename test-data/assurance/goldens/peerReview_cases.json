@@ -1791,6 +1791,792 @@
    }
   },
   {
+   "id": "rc4b-cancelled-review-critical-open",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "a",
+      "stage": "Cancelled"
+     }
+    ],
+    [
+     {
+      "review_id": "a",
+      "severity": "Critical",
+      "status": "Open"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 1,
+    "byStage": {
+     "Draft": 0,
+     "In Review": 0,
+     "Verification": 0,
+     "Closed": 0,
+     "Cancelled": 1
+    },
+    "active": 0,
+    "overdue": 0,
+    "totalComments": 1,
+    "bySeverity": {
+     "Critical": 1,
+     "Major": 0,
+     "Minor": 0,
+     "Editorial": 0
+    },
+    "byStatus": {
+     "Open": 1,
+     "Responded": 0,
+     "Verified": 0,
+     "Closed": 0,
+     "Rejected": 0,
+     "Withdrawn": 0
+    },
+    "openComments": 0,
+    "blockingComments": 0
+   },
+   "repaired": "RC-4b"
+  },
+  {
+   "id": "rc4b-finished-parents-skipped",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "live",
+      "stage": "In Review",
+      "due_date": "2026-09-30"
+     },
+     {
+      "id": "closed",
+      "stage": "Closed"
+     },
+     {
+      "id": "cancelled",
+      "stage": "Cancelled"
+     },
+     {
+      "id": "verif",
+      "stage": "Verification"
+     },
+     {
+      "stage": "Closed"
+     }
+    ],
+    [
+     {
+      "review_id": "live",
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "review_id": "live",
+      "severity": "Minor",
+      "status": "Responded"
+     },
+     {
+      "review_id": "closed",
+      "severity": "Major",
+      "status": "Rejected"
+     },
+     {
+      "review_id": "closed",
+      "severity": "Minor",
+      "status": "Open"
+     },
+     {
+      "review_id": "closed",
+      "severity": "Critical",
+      "status": "Verified"
+     },
+     {
+      "review_id": "cancelled",
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "review_id": "cancelled",
+      "severity": "Editorial",
+      "status": "Open"
+     },
+     {
+      "review_id": "verif",
+      "severity": "Major",
+      "status": "Responded"
+     },
+     {
+      "review_id": "unknown",
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "severity": "Major",
+      "status": "Open"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 5,
+    "byStage": {
+     "Draft": 0,
+     "In Review": 1,
+     "Verification": 1,
+     "Closed": 2,
+     "Cancelled": 1
+    },
+    "active": 2,
+    "overdue": 0,
+    "totalComments": 10,
+    "bySeverity": {
+     "Critical": 4,
+     "Major": 3,
+     "Minor": 2,
+     "Editorial": 1
+    },
+    "byStatus": {
+     "Open": 6,
+     "Responded": 2,
+     "Verified": 1,
+     "Closed": 0,
+     "Rejected": 1,
+     "Withdrawn": 0
+    },
+    "openComments": 5,
+    "blockingComments": 4
+   },
+   "repaired": "RC-4b"
+  },
+  {
+   "id": "rc4b-no-reviews-supplied-all-count",
+   "fn": "summarise",
+   "args": [
+    [],
+    [
+     {
+      "review_id": "live",
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "review_id": "live",
+      "severity": "Minor",
+      "status": "Responded"
+     },
+     {
+      "review_id": "closed",
+      "severity": "Major",
+      "status": "Rejected"
+     },
+     {
+      "review_id": "closed",
+      "severity": "Minor",
+      "status": "Open"
+     },
+     {
+      "review_id": "closed",
+      "severity": "Critical",
+      "status": "Verified"
+     },
+     {
+      "review_id": "cancelled",
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "review_id": "cancelled",
+      "severity": "Editorial",
+      "status": "Open"
+     },
+     {
+      "review_id": "verif",
+      "severity": "Major",
+      "status": "Responded"
+     },
+     {
+      "review_id": "unknown",
+      "severity": "Critical",
+      "status": "Open"
+     },
+     {
+      "severity": "Major",
+      "status": "Open"
+     }
+    ],
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": {
+    "total": 0,
+    "byStage": {
+     "Draft": 0,
+     "In Review": 0,
+     "Verification": 0,
+     "Closed": 0,
+     "Cancelled": 0
+    },
+    "active": 0,
+    "overdue": 0,
+    "totalComments": 10,
+    "bySeverity": {
+     "Critical": 4,
+     "Major": 3,
+     "Minor": 2,
+     "Editorial": 1
+    },
+    "byStatus": {
+     "Open": 6,
+     "Responded": 2,
+     "Verified": 1,
+     "Closed": 0,
+     "Rejected": 1,
+     "Withdrawn": 0
+    },
+    "openComments": 9,
+    "blockingComments": 6
+   },
+   "repaired": "RC-4b"
+  },
+  {
+   "id": "rc4a-assign-independent-reviewer",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "user_id": "u-rev",
+     "role": "Reviewer"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-author-as-reviewer",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "user_id": "u-author",
+     "role": "Reviewer"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-author-as-lead",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "user_id": "u-author",
+     "role": "Lead Reviewer"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-author-as-author",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "user_id": "u-author",
+     "role": "Author"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-author-as-observer",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "user_id": "u-author",
+     "role": "Observer"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-creator-as-reviewer",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "user_id": "u-coord",
+     "role": "Reviewer"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-external-by-name",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "display_name": "Dr A. External",
+     "role": "Reviewer"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-nobody",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "role": "Reviewer"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-blank-name",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "display_name": "   ",
+     "role": "Reviewer"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-no-participant",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-unknown-author",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r"
+    },
+    {
+     "user_id": "u-author",
+     "role": "Reviewer"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-assign-no-role",
+   "fn": "canAssignPeerReviewer",
+   "args": [
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    {
+     "user_id": "u-author"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-reviewer-verifies",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Responded",
+     "response_text": "Fixed in rev B."
+    },
+    "Verified",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-author-verifies",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Responded",
+     "response_text": "Fixed in rev B."
+    },
+    "Verified",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-author-rejects",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Responded",
+     "response_text": "Fixed in rev B."
+    },
+    "Rejected",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-author-withdraws",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Open"
+    },
+    "Withdrawn",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-reviewer-withdraws",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Open"
+    },
+    "Withdrawn",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-author-responds",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Open"
+    },
+    "Responded",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-author-responds-to-rejection",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Rejected"
+    },
+    "Responded",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-author-closes-verified",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Verified"
+    },
+    "Closed",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-lead-verifies",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Responded",
+     "response_text": "Fixed in rev B."
+    },
+    "Verified",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-lead"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-illegal-move-by-reviewer",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Open"
+    },
+    "Verified",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-verify-without-response",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Responded"
+    },
+    "Verified",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-no-user",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Responded",
+     "response_text": "Fixed in rev B."
+    },
+    "Verified",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    null
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-unknown-author-verifies",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Responded",
+     "response_text": "Fixed in rev B."
+    },
+    "Verified",
+    {
+     "id": "r"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "RC-4a"
+  },
+  {
+   "id": "rc4a-act-final-comment",
+   "fn": "canActOnComment",
+   "args": [
+    {
+     "status": "Closed"
+    },
+    "Closed",
+    {
+     "id": "r",
+     "author_id": "u-author",
+     "lead_reviewer_id": "u-lead",
+     "created_by": "u-coord"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "RC-4a"
+  },
+  {
    "id": "countby-discipline",
    "fn": "countBy",
    "args": [

@@ -56,3 +56,52 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## ASC-0 (2026-09-18): the repairs the Risk and Change course found
+
+- **RC-4a, peer review had no independence rule (owner decision D1 of
+  2026-09-18, extended to peer review by the lead).** `TRANSITION_ACTOR`
+  named a party only for a button label; nothing stopped the author of
+  the work under review from verifying or rejecting the findings against
+  it, or from being rostered as its reviewer. Added, in the shape of
+  MOC's `canAssignApprover` / `canDecideApproval`:
+  - `REVIEWER_ROLES` = Lead Reviewer, Reviewer.
+  - `canAssignPeerReviewer(review, participant)`: `participant` is a
+    `peer_review_participants` row (`user_id`, `display_name`, `role`).
+    Refused when nobody is named ("Choose the reviewer."), and when the
+    role is a reviewer role (no role counts as Reviewer) and `user_id`
+    equals `peer_reviews.author_id`. The same call answers for
+    `peer_reviews.lead_reviewer_id`. An external reviewer named by
+    display name only, a review with no `author_id`, and the author in a
+    non-reviewer role (Author, Coordinator, Approver, Observer) are
+    allowed.
+  - `canActOnComment(comment, to, review, userId)`: the disposition rules
+    first (`explainRefusal`), then no signed-in user refuses, then a
+    reviewer-owned move (`TRANSITION_ACTOR[to] === 'reviewer'`: Verified,
+    Rejected, Withdrawn) is refused when `userId` equals
+    `review.author_id`. Responded (author) and Closed (coordinator) are
+    not restricted.
+  - The author is `peer_reviews.author_id`. `created_by` (who raised the
+    record, often the coordinator) is deliberately NOT read: treating it
+    as the author would bar every coordinator who opens a review from
+    reviewing it, which D1 did not decide.
+  Cases `rc4a-*` (26). The Suite hook and a database trigger are the next
+  wave.
+- **RC-4b, `summarise` counted comments on finished reviews.** Repro:
+  `summarise([{id:'a',stage:'Cancelled'}],
+  [{review_id:'a',severity:'Critical',status:'Open'}], asOf).blockingComments`
+  -> 1, for ever, because a cancelled review is locked and nobody can
+  resolve it. Changed: `openComments` and `blockingComments` skip
+  comments whose review is in `reviews` with stage Closed or Cancelled,
+  the AS14 rule MOC and QA follow. `totalComments`, `bySeverity` and
+  `byStatus` are history and still count every comment. A comment whose
+  review is NOT in `reviews` (or has no `review_id`) still counts,
+  matching MOC's held rule for an action with an unknown change ("not
+  knowing the parent is not a reason to hide the work"). Cases `rc4b-*`
+  (3); the previous engine fails all three.
+- **Goldens moved:** none of the 151 existing cases changed (their
+  comments carry no `review_id`). 29 added. 151 -> 180.
+- **Not changed:** the disposition machine, `canClose`, the stage machine,
+  who may raise a comment (the author raising a comment on their own
+  work is not refused; D1 as ruled covers reviewing and the reviewer's
+  moves).
