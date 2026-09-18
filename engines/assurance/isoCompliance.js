@@ -519,6 +519,33 @@ export const clauseCoverage = (
   });
 };
 
+/**
+ * clauseCoverage over clauses from several standards, each clause judged
+ * against ITS OWN standard's certification cycle (`cycle_years`, default
+ * 3). Rows come back in the order the applicable clauses were given.
+ * summarise() and every register that shows coverage across standards
+ * call this, so none of them can fall back to the 3-year default for a
+ * standard that set another cycle (ISO-1, AS12 oracle; AS12b).
+ */
+export const clauseCoverageByStandard = (
+  { standards = [], clauses = [], auditClauses = [], audits = [] } = {},
+  today = new Date(),
+) => {
+  const cycleOf = new Map(standards.map((s) => [s.id, s.cycle_years || 3]));
+  const byCycle = new Map();
+  clauses.forEach((c) => {
+    const cy = cycleOf.get(c.standard_id) || 3;
+    if (!byCycle.has(cy)) byCycle.set(cy, []);
+    byCycle.get(cy).push(c);
+  });
+  const byId = new Map();
+  byCycle.forEach((group, cycleYears) => {
+    clauseCoverage({ clauses: group, auditClauses, audits, cycleYears }, today)
+      .forEach((row) => byId.set(row.clause.id, row));
+  });
+  return clauses.filter(isApplicable).map((c) => byId.get(c.id));
+};
+
 /* ------------------------------------------------------------------ */
 /* Certification readiness                                            */
 /* ------------------------------------------------------------------ */
@@ -655,19 +682,8 @@ export const summarise = (
     if (byAuditStatus[a.status] !== undefined) byAuditStatus[a.status] += 1;
   });
 
-  // Each clause against ITS standard's certification cycle, as
-  // certificationReadiness does. This used the 3-year default for every
-  // standard, so the dashboard and the readiness card disagreed on any
-  // standard with another cycle (ISO-1, AS12 oracle).
-  const cycleOf = new Map(standards.map((s) => [s.id, s.cycle_years || 3]));
-  const byCycle = new Map();
-  clauses.forEach((c) => {
-    const cy = cycleOf.get(c.standard_id) || 3;
-    if (!byCycle.has(cy)) byCycle.set(cy, []);
-    byCycle.get(cy).push(c);
-  });
-  const coverage = [...byCycle.entries()].flatMap(([cycleYears, group]) =>
-    clauseCoverage({ clauses: group, auditClauses, audits, cycleYears }, today));
+  // Each clause against ITS standard's certification cycle (ISO-1).
+  const coverage = clauseCoverageByStandard({ standards, clauses, auditClauses, audits }, today);
 
   return {
     standards: standards.length,

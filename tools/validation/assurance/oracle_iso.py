@@ -497,6 +497,19 @@ def tally(rows, field, vocab, pred=lambda r: True):
     return out
 
 
+
+def clause_coverage_by_standard(data=None, today=None):
+    """Each applicable clause against its own standard's cycle, in the given order."""
+    data = data or {}
+    cycles = {st.get('id'): (st.get('cycle_years') or 3) for st in data.get('standards', [])}
+    out = []
+    for cl in data.get('clauses', []):
+        cy = cycles.get(cl.get('standard_id')) or 3
+        rows = clause_coverage({'clauses': [cl], 'auditClauses': data.get('auditClauses', []),
+                                'audits': data.get('audits', []), 'cycleYears': cy}, today)
+        out.extend(rows)
+    return out
+
 def summarise(data=None, today=None):
     data = data or {}
     standards = data.get('standards', [])
@@ -1048,7 +1061,11 @@ def build():
     c.add('summary-honours-standard-cycle', 'summarise', [cyc, T], summarise(cyc, T), defect='ISO-1')
     c.add('ready-agrees-with-summary-cycle', 'certificationReadiness', [std(cycle_years=1), cyc, T],
           certification_readiness(std(cycle_years=1), cyc, T))
+    c.add('coverage-by-standard-own-cycle', 'clauseCoverageByStandard', [cyc, T],
+          clause_coverage_by_standard(cyc, T))
     cyc3 = dict(cyc, standards=[std()])
+    c.add('coverage-by-standard-default-cycle', 'clauseCoverageByStandard', [cyc3, T],
+          clause_coverage_by_standard(cyc3, T))
     c.add('summary-three-year-standard', 'summarise', [cyc3, T], summarise(cyc3, T))
 
     # --- countBy ----------------------------------------------------------

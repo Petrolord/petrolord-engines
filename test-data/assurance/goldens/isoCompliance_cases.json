@@ -6877,6 +6877,256 @@
    }
   },
   {
+   "id": "coverage-by-standard-own-cycle",
+   "fn": "clauseCoverageByStandard",
+   "args": [
+    {
+     "standards": [
+      {
+       "id": "s1",
+       "code": "ISO 9001:2015",
+       "certification_status": "Certified",
+       "certificate_expires": "2029-03-31",
+       "cycle_years": 1
+      }
+     ],
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2025-03-01"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": [
+    {
+     "clause": {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Conformant",
+      "evidence_reference": "QMS-PR-009 rev 4",
+      "assessed_date": "2026-06-01",
+      "assessed_by": "u1"
+     },
+     "clause_ref": "7.1.5",
+     "lastExaminedOn": "2025-03-01",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": false,
+     "stale": true
+    },
+    {
+     "clause": {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Conformant",
+      "evidence_reference": "QMS-PR-009 rev 4",
+      "assessed_date": "2026-06-01",
+      "assessed_by": "u1"
+     },
+     "clause_ref": "8.5.1",
+     "lastExaminedOn": "2026-09-01",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    }
+   ]
+  },
+  {
+   "id": "coverage-by-standard-default-cycle",
+   "fn": "clauseCoverageByStandard",
+   "args": [
+    {
+     "standards": [
+      {
+       "id": "s1",
+       "code": "ISO 9001:2015",
+       "certification_status": "Certified",
+       "certificate_expires": "2029-03-31",
+       "cycle_years": 3
+      }
+     ],
+     "clauses": [
+      {
+       "id": "c1",
+       "standard_id": "s1",
+       "clause_ref": "7.1.5",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      },
+      {
+       "id": "c2",
+       "standard_id": "s1",
+       "clause_ref": "8.5.1",
+       "applicability": "Applicable",
+       "status": "Conformant",
+       "evidence_reference": "QMS-PR-009 rev 4",
+       "assessed_date": "2026-06-01",
+       "assessed_by": "u1"
+      }
+     ],
+     "audits": [
+      {
+       "id": "a1",
+       "audit_code": "IA-2026-001",
+       "standard_id": "s1",
+       "audit_type": "Internal",
+       "status": "Fieldwork complete",
+       "lead_auditor_id": "u9",
+       "conclusion": "Conforms, with two minor nonconformities."
+      }
+     ],
+     "auditClauses": [
+      {
+       "id": "r1",
+       "audit_id": "a1",
+       "clause_id": "c1",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2025-03-01"
+      },
+      {
+       "id": "r2",
+       "audit_id": "a1",
+       "clause_id": "c2",
+       "clause_ref": "7.1.5",
+       "result": "Conformant",
+       "examined_on": "2026-09-01"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-17"
+    }
+   ],
+   "expected": [
+    {
+     "clause": {
+      "id": "c1",
+      "standard_id": "s1",
+      "clause_ref": "7.1.5",
+      "applicability": "Applicable",
+      "status": "Conformant",
+      "evidence_reference": "QMS-PR-009 rev 4",
+      "assessed_date": "2026-06-01",
+      "assessed_by": "u1"
+     },
+     "clause_ref": "7.1.5",
+     "lastExaminedOn": "2025-03-01",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    },
+    {
+     "clause": {
+      "id": "c2",
+      "standard_id": "s1",
+      "clause_ref": "8.5.1",
+      "applicability": "Applicable",
+      "status": "Conformant",
+      "evidence_reference": "QMS-PR-009 rev 4",
+      "assessed_date": "2026-06-01",
+      "assessed_by": "u1"
+     },
+     "clause_ref": "8.5.1",
+     "lastExaminedOn": "2026-09-01",
+     "lastAudit": {
+      "id": "a1",
+      "audit_code": "IA-2026-001",
+      "standard_id": "s1",
+      "audit_type": "Internal",
+      "status": "Fieldwork complete",
+      "lead_auditor_id": "u9",
+      "conclusion": "Conforms, with two minor nonconformities."
+     },
+     "lastResult": "Conformant",
+     "covered": true,
+     "stale": false
+    }
+   ]
+  },
+  {
    "id": "summary-three-year-standard",
    "fn": "summarise",
    "args": [
