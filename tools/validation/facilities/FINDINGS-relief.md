@@ -245,3 +245,14 @@ suite, records which test named it, and restores between rows.
   and 520 R while the package uses 14.696 and 519.67, and a help guide that
   asserts a number the user can change. Those are repaired in the Petrolord
   Suite repository's own pull request, against this engine.
+
+## Owner copy rule sweep, 2026-09-18
+
+Every user-facing string in `engines/facilities/` was parsed out of the source (Babel AST, every string and template literal) and checked for dashes, the `, not ` contrastive the course gate `gate_copy_rule.py` enforces, `is not A, it is B` and `and not`. The strings below were rewritten; meaning is kept, and no number, key or branch moved. Every golden regenerates byte for byte and the tests that pinned the old wording now pin the new.
+
+| file | string | before | after |
+|---|---|---|---|
+| `relief.js` | subcritical Kb note | subcritical flow uses F2, not Kb; the typed Kb was ignored | subcritical flow uses F2 in place of Kb, so the typed Kb was ignored |
+| `relief.js` | drainage refusal (WORDING WAS INCOMPLETE) | adequate drainage must be true or false, not a string | adequate drainage must be the boolean true or false |
+
+The drainage check refuses anything that is not a boolean (`typeof adequateDrainage !== 'boolean'`), so a number or null is refused too; "not a string" named one case of several.

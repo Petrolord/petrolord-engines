@@ -59,7 +59,15 @@
 
 const ABSOLUTE_ZERO_C = -273.15;
 
-/** bar to psia, exact by definition of the bar and the pound-force. */
+/**
+ * bar to psia. NOT the exact conversion. From the definitions (1 bar =
+ * 100000 Pa; 1 psi = 0.45359237 kg x 9.80665 m/s2 over 0.0254 m squared)
+ * the exact factor is 14.503773773020923. This value sits 2.770e-8 above
+ * it, 1.910e-9 relative, and its source is not recorded. It is KEPT: every
+ * figure in this module agrees with the exact factor to far better than six
+ * significant figures, and changing it would move the six-decimal figures
+ * the FC9 course and its held seed ladder were built and pinned on.
+ */
 export const BAR_TO_PSIA = 14.503773800721815;
 
 /**
@@ -313,7 +321,7 @@ export const corrosionRate = ({
       effectiveInhibitionPct: null,
       clamps,
       rateApplies: false,
-      note: 'no CO2 in the stream, so this CO2 model has nothing to predict. A rate of zero here means the model does not apply, not that the line is not corroding: any corrosion at these conditions is another mechanism.',
+      note: 'no CO2 in the stream, so this CO2 model has nothing to predict. A rate of zero here means only that the model does not apply, and it says nothing about whether the line is corroding: any corrosion at these conditions is another mechanism.',
     };
   }
 
@@ -352,7 +360,7 @@ export const corrosionRate = ({
     warning = `the inhibitor credit has been removed: the wall shear at these conditions strips the film, so the ${effPct} percent on the datasheet is not what this line sees and the rate above is the uninhibited rate`;
   } else if (effectivePct !== null && shortfallPp > INHIBITOR_SHORTFALL_PP) {
     const lossRatio = retained / Math.max(1 - effPct / 100, 1e-12);
-    warning = `a ${effPct} percent inhibitor at ${availPct} percent availability gives ${effectivePct.toFixed(1)} percent effective protection, which is ${lossRatio.toFixed(2)} times the metal loss of the datasheet number: availability, not efficiency, is what limits it`;
+    warning = `a ${effPct} percent inhibitor at ${availPct} percent availability gives ${effectivePct.toFixed(1)} percent effective protection, which is ${lossRatio.toFixed(2)} times the metal loss of the datasheet number: availability is what limits it`;
   }
 
   const notes = [];
@@ -361,7 +369,7 @@ export const corrosionRate = ({
     notes.push('the oil wet regime sets the water wetting factor to zero, so this rate is zero by assumption rather than by calculation. Whether the wall is oil wet is an input and it is the largest single lever in this model.');
   }
   if (effPct === 100) {
-    notes.push('an efficiency of 100 percent is the arithmetic of the number typed in, not a prediction: no inhibitor removes all metal loss while it is on.');
+    notes.push('an efficiency of 100 percent is only the arithmetic of the number typed in and predicts nothing: no inhibitor removes all metal loss while it is on.');
   }
 
   const margin = Math.abs(vm - vr) / Math.max(Math.min(vm, vr), 1e-12);
@@ -445,7 +453,7 @@ export const wallShearStressPa = ({
       ? `wall shear above ${FILM_STRIP_PA} Pa: at this shear an inhibitor film is taken to be stripped, so the efficiency on the datasheet is not what the line will see. The ${FILM_STRIP_PA} Pa threshold itself is not sourced in this module.`
       : null,
     note: nearSwitch
-      ? `Reynolds ${re.toFixed(0)} sits on the laminar to turbulent switch at ${SHEAR_SWITCH_RE}, where this friction factor is discontinuous and the shear jumps by about a factor of two. Read this number as a bracket, not a value.`
+      ? `Reynolds ${re.toFixed(0)} sits on the laminar to turbulent switch at ${SHEAR_SWITCH_RE}, where this friction factor is discontinuous and the shear jumps by about a factor of two. Read this number as good to within that factor of two.`
       : null,
   };
 };
@@ -577,7 +585,7 @@ export const remainingLife = ({
   }
   const remainingMm = corrosionAllowanceMm - consumedMm;
   if (remainingMm <= 0) {
-    return { error: 'the corrosion allowance is already consumed: this is an inspection and fitness-for-service question, not a design one' };
+    return { error: 'the corrosion allowance is already consumed: this is now an inspection and fitness-for-service question' };
   }
   const hasDesignLife = finite(designLifeYears) && designLifeYears > 0;
   if (!(rateMmYr > 0)) {
@@ -690,7 +698,7 @@ export const screen = ({
   } else if (rate.waterWettingFactor === 0) {
     withheld = {
       what: 'the corrosion rate category and the remaining life',
-      why: 'the wetting regime is oil wet, so the rate is zero because that was assumed and not because it was calculated. An unbounded life off a dropdown is the strongest reassurance on the screen arriving from the weakest input.',
+      why: 'the wetting regime is oil wet, so the rate is zero by assumption, and nothing was calculated to reach it. An unbounded life off a dropdown is the strongest reassurance on the screen arriving from the weakest input.',
       upperBoundMmYr: null,
     };
   }

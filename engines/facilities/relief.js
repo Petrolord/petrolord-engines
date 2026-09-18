@@ -128,7 +128,7 @@ export const gasVaporArea = ({
   return {
     areaIn2, critical, criticalRatio: rCrit,
     warning: !critical && kb !== 1.0
-      ? 'subcritical flow uses F2, not Kb; the typed Kb was ignored'
+      ? 'subcritical flow uses F2 in place of Kb, so the typed Kb was ignored'
       : (critical && p2Psia / p1Psia > 0.3 && kb === 1.0
         ? 'back pressure exceeds 30 percent of relieving pressure: a balanced-bellows valve needs its chart Kb (API 520 Fig. 30), typed here'
         : null),
@@ -293,7 +293,7 @@ export const wettedAreaFt2 = ({
 export const fireHeatInput = ({ wettedFt2, adequateDrainage = true, envFactor = 1.0 }) => {
   if (!Number.isFinite(wettedFt2) || !(wettedFt2 > 0)) return { error: 'fire case needs a positive wetted area' };
   if (typeof adequateDrainage !== 'boolean') {
-    return { error: 'adequate drainage must be true or false, not a string' };
+    return { error: 'adequate drainage must be the boolean true or false' };
   }
   const bad = coefficientError([['environment factor F', envFactor]]);
   if (bad) return { error: bad };

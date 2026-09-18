@@ -120,7 +120,7 @@ export const shellCourse = ({
   else governing = 'product design';
   let note = null;
   if (governing === 'hydrostatic test') {
-    note = 'the water test governs this course, not the product: a light product does not stress the shell as hard as the water it will be tested with, and designing for the product alone would under-thickness it';
+    note = 'the water test governs this course: a light product does not stress the shell as hard as the water it will be tested with, and designing for the product alone would under-thickness it';
   } else if (governing === 'minimum plate thickness') {
     note = `neither the product nor the water test needs this much plate: the stated minimum of ${minimumThicknessIn} in governs this course`;
   }
@@ -131,7 +131,7 @@ export const shellCourse = ({
     requiredIn: required,
     governing,
     minimumThicknessIn,
-    minimumThicknessBasis: 'a stated input. API 650 bands the minimum shell plate thickness by tank diameter and this package does not carry that band table, so this value is the caller\'s and not the standard\'s',
+    minimumThicknessBasis: 'a stated input. API 650 bands the minimum shell plate thickness by tank diameter and this package does not carry that band table, so this value is the caller\'s own and has not been checked against the standard',
     methodNote: 'the one-foot method. API 650 sets a diameter above which the variable design point method is required instead, and that limit is not carried here, so a large tank must be checked against the standard before this thickness is used',
     note,
   };

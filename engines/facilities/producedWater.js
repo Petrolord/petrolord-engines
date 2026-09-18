@@ -479,7 +479,9 @@ export const applyDevice = ({
  *
  * Interpolated in LOG diameter across the bin the median falls in. The
  * bare bin midpoint quantises the answer to the grid: on this module's
- * own 60 bins at sigma 0.7 one step is 6.5 percent of a diameter, so
+ * own 60 bins at sigma 0.7, spanning the default 4 sigma either side,
+ * one step is a factor of exp(8 x 0.7 / 60) = 1.0978 in diameter, 9.8
+ * percent, so
  * the reported median used to sit on the same value across six orders
  * of magnitude of outlet concentration, and the median of the
  * UNTREATED inlet came back 4.6 percent below the d50 it was built
@@ -633,7 +635,7 @@ export const apiSeparator = ({
   if (!(widthM > 0)) return { error: 'a gravity separator needs a positive basin width in m', widthM };
   if (!(depthM > 0)) return { error: 'a gravity separator needs a positive water depth in m', depthM };
   if (!(shortCircuitF > 0)) {
-    return { error: `the short-circuit factor F must be positive and this is ${shortCircuitF}: an F of zero or less is not a perfect separator, it is an undefined one`, shortCircuitF };
+    return { error: `the short-circuit factor F must be positive and this is ${shortCircuitF}: at an F of zero or less the separator is undefined`, shortCircuitF };
   }
   if (shortCircuitF > API_421.shortCircuitMax) {
     return { error: `the short-circuit factor F is a turbulence allowance customarily between ${API_421.shortCircuitCustomaryMin} and ${API_421.shortCircuitCustomaryMax}, and this module holds it to ${API_421.shortCircuitMax}; this is ${shortCircuitF}`, shortCircuitF };
@@ -830,7 +832,7 @@ export const hydrocyclone = ({
         ? `these liners run at ${turndownRatio.toFixed(2)} of their design flow: below about ${starvedTurndown} the centrifugal field collapses with the square of the flow and the cut size degrades fast, so shut liners in rather than running them all starved`
         : null,
       turndownRatio > overloadTurndown
-        ? `these liners run at ${turndownRatio.toFixed(2)} times their design flow: above about ${overloadTurndown} the inlet slot chokes, so the field stops rising with the flow, while the inlet shear itself makes finer droplets. The cut size gets WORSE from here, not better, and ${linersAtDesignFlow} liners would run this flow at its design point`
+        ? `these liners run at ${turndownRatio.toFixed(2)} times their design flow: above about ${overloadTurndown} the inlet slot chokes, so the field stops rising with the flow, while the inlet shear itself makes finer droplets. The cut size gets WORSE from here as the flow rises, and ${linersAtDesignFlow} liners would run this flow at its design point`
         : null,
     ]),
   };
@@ -1010,7 +1012,7 @@ export const mediaFilter = ({
     const areaAtFloorM2 = (flowM3S * 3600) / filterMinLoadingMHr;
     const claimAtFloor = (filterReferenceLoadingMHr / filterMinLoadingMHr) ** filterLoadingExponent;
     return {
-      error: `a loading of ${loadingMHr.toPrecision(3)} m/hr is below the ${filterMinLoadingMHr} m/hr floor this module answers above: the filter coefficient is DECLARED at ${filterReferenceLoadingMHr} m/hr, its loading exponent is the only velocity dependence in this model, and at the floor the declared law is already claiming ${claimAtFloor.toPrecision(4)} times the one coefficient there is any calibration for. ${areaAtFloorM2.toPrecision(4)} m2 of bed would run this flow at the floor. What a bed really does far below its design rate needs bed data this module does not carry`,
+      error: `a loading of ${loadingMHr.toPrecision(3)} m/hr is below the ${filterMinLoadingMHr} m/hr floor: this module answers at the floor and above it, and the filter coefficient is DECLARED at ${filterReferenceLoadingMHr} m/hr, its loading exponent is the only velocity dependence in this model, and at the floor the declared law is already claiming ${claimAtFloor.toPrecision(4)} times the one coefficient there is any calibration for. ${areaAtFloorM2.toPrecision(4)} m2 of bed would run this flow at the floor. What a bed really does far below its design rate needs bed data this module does not carry`,
       loadingMHr,
       areaM2,
       loadingFloorMHr: filterMinLoadingMHr,
@@ -1039,7 +1041,7 @@ export const mediaFilter = ({
     filterCoefficientPerM: lambdaAtRefPerM,
     penetrationAtRefDroplet,
     removalAtRefDroplet: 1 - penetrationAtRefDroplet,
-    cutBasis: 'depth filtration, inverted: the filter coefficient is declared at a reference droplet, a reference grain and a reference loading, it goes as the square of the droplet diameter, and the cut size is the droplet the bed removes half of over its depth. The removal the train reports is this same curve integrated over the droplet distribution, not a second opinion',
+    cutBasis: 'depth filtration, inverted: the filter coefficient is declared at a reference droplet, a reference grain and a reference loading, it goes as the square of the droplet diameter, and the cut size is the droplet the bed removes half of over its depth. The removal the train reports is this same curve integrated over the droplet distribution, so the cut size and the train come from one model',
     warning: loadingMHr > filterBreakthroughLoadingMHr
       ? `a loading of ${loadingMHr.toFixed(1)} m/hr is above the ${filterBreakthroughLoadingMHr} m/hr this module warns at: media filters lose depth capture at this rate and break through early`
       : null,

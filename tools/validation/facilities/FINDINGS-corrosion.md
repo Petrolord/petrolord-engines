@@ -501,3 +501,18 @@ the golden, the oracle and the jest suite, plus the Suite shim, the context, the
 page, three component files and two migrations. **The repair adds no import**, so
 the closure is unchanged and the Suite guard proves it by naming exactly those
 paths and no others.
+
+## Owner copy rule sweep, 2026-09-18
+
+Every user-facing string in `engines/facilities/` was parsed out of the source (Babel AST, every string and template literal) and checked for dashes, the `, not ` contrastive the course gate `gate_copy_rule.py` enforces, `is not A, it is B` and `and not`. The strings below were rewritten; meaning is kept, and no number, key or branch moved. Every golden regenerates byte for byte and the tests that pinned the old wording now pin the new.
+
+| file | string | before | after |
+|---|---|---|---|
+| `corrosion.js` | no-CO2 rate note | A rate of zero here means the model does not apply, not that the line is not corroding | A rate of zero here means only that the model does not apply, and it says nothing about whether the line is corroding |
+| `corrosion.js` | inhibitor availability warning | availability, not efficiency, is what limits it | availability is what limits it |
+| `corrosion.js` | 100 percent efficiency note | is the arithmetic of the number typed in, not a prediction | is only the arithmetic of the number typed in and predicts nothing |
+| `corrosion.js` | shear switch warning | Read this number as a bracket, not a value. | Read this number as good to within that factor of two. |
+| `corrosion.js` | allowance consumed refusal | this is an inspection and fitness-for-service question, not a design one | this is now an inspection and fitness-for-service question |
+| `corrosion.js` | oil-wet withheld why | the rate is zero because that was assumed and not because it was calculated. | the rate is zero by assumption, and nothing was calculated to reach it. |
+
+**`BAR_TO_PSIA` is not exact, and its comment said it was.** From the definitions (1 bar = 100000 Pa; 1 psi = 0.45359237 kg x 9.80665 m/s2 over 0.0254 m squared) the exact factor is 14.503773773020923, computed here in exact rational arithmetic. The engine carries 14.503773800721815, 2.770e-8 above it, 1.910e-9 relative; its source is not recorded. The VALUE IS KEPT: grading is unaffected (FC9 measured 3.5e-9 on its graded field against a 5e-7 tolerance) and changing it would move six-decimal figures the merged FC9 course and its held ladder were pinned on. Only the comment is corrected.

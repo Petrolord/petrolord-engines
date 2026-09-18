@@ -169,7 +169,7 @@ export const liquidValve = ({
     reynoldsFactorApplied: false,
     limitNote: 'sized as fully turbulent. The ISA Reynolds number factor FR is not carried by this package and this module takes no viscosity, so a heavy or a low-flow service needs the standard',
     warning: flashing
-      ? 'the outlet is at or below the vapour pressure: this service is FLASHING, not cavitating, and an anti-cavitation trim will not help it. Size for two-phase flow and use hardened trim with an expanded outlet'
+      ? 'the outlet is at or below the vapour pressure: this service is FLASHING, and an anti-cavitation trim will not help a flashing service. Size for two-phase flow and use hardened trim with an expanded outlet'
       : (choked
         ? 'choked flow: the stated pressure drop is beyond what the valve can use, so sizing on it would undersize the valve badly. The allowable drop has been used instead, and this service wants a multistage or anti-cavitation trim'
         : (sigma < SIGMA_THRESHOLDS.incipient
@@ -264,7 +264,7 @@ export const valveAuthority = ({ dpValvePsi, dpSystemTotalPsi }) => {
     authority: n,
     verdict: n >= 0.5 ? 'good' : (n >= 0.25 ? 'acceptable' : 'poor'),
     thresholds: { good: 0.5, acceptable: 0.25 },
-    thresholdBasis: 'the 0.5 and 0.25 boundaries are this engine\'s stated screen, not a value read from a standard',
+    thresholdBasis: 'the 0.5 and 0.25 boundaries are this engine\'s stated screen, and no standard in this package supplies them',
     note: n < 0.25
       ? 'authority below 0.25: the installed characteristic is badly distorted and the loop will do nearly all its work in the first few percent of travel. Take more drop across the valve or accept unstable control'
       : (n < 0.5
@@ -365,7 +365,7 @@ export const noiseIndication = ({ p1Psia, p2Psia, qScfh, gasSg, tF }) => {
     ratioBand,
     band,
     powerEffect,
-    note: 'a screening indication only: a real noise prediction needs the IEC 60534-8-3 method with valve and pipe geometry. Use this to know whether to ask the question, not to answer it. The pressure ratio sets the band and the stream power caps and floors it, and both sets of thresholds are this engine\'s stated screen',
+    note: 'a screening indication only: a real noise prediction needs the IEC 60534-8-3 method with valve and pipe geometry. Use this to decide whether that method is needed, and let that method give the answer. The pressure ratio sets the band and the stream power caps and floors it, and both sets of thresholds are this engine\'s stated screen',
     warning: band === 'high' || band === 'severe'
       ? `pressure ratio ${ratio.toFixed(2)} at ${streamPowerKw.toFixed(1)} kW of stream power: expect aerodynamic noise to need attention through multistage trim, a diffuser, heavier pipe wall or acoustic insulation`
       : null,

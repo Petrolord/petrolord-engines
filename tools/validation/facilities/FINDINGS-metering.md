@@ -1027,3 +1027,16 @@ worktree is shared.
 **H10. LOW. The `sized` result's own `error` is checked before its
 `beta`.** Recorded as the one place the Suite guards A9 correctly, so the
 repair does not treat it as broken.
+
+## Owner copy rule sweep, 2026-09-18
+
+Every user-facing string in `engines/facilities/` was parsed out of the source (Babel AST, every string and template literal) and checked for dashes, the `, not ` contrastive the course gate `gate_copy_rule.py` enforces, `is not A, it is B` and `and not`. The strings below were rewritten; meaning is kept, and no number, key or branch moved. Every golden regenerates byte for byte and the tests that pinned the old wording now pin the new.
+
+| file | string | before | after |
+|---|---|---|---|
+| `controlValve.js` | flashing warning | this service is FLASHING, not cavitating, and an anti-cavitation trim will not help it. | this service is FLASHING, and an anti-cavitation trim will not help a flashing service. |
+| `controlValve.js` | travelCheck thresholdBasis | this engine's stated screen, not a value read from a standard | this engine's stated screen, and no standard in this package supplies them |
+| `controlValve.js` | noise note | Use this to know whether to ask the question, not to answer it. | Use this to decide whether that method is needed, and let that method give the answer. |
+| `metering.js` | straight-run note | these are table values, not a calculation: they depend | these are table values and nothing here calculates them: they depend |
+| `storageTank.js` | shell course note | the water test governs this course, not the product: a light | the water test governs this course: a light |
+| `storageTank.js` | minimumThicknessBasis | so this value is the caller's and not the standard's | so this value is the caller's own and has not been checked against the standard |

@@ -417,7 +417,7 @@ export const compressionStage = ({
     // whole degrees a discharge of 300.3 F read "discharge at 300 F:
     // above about 300 F ...". Narrowed by ten, not closed.
     warning: tDischargeF > maxDischargeF
-      ? `discharge at ${tDischargeF.toFixed(1)} F is above the stated limit of ${maxDischargeF.toFixed(1)} F: the valves and the lube oil become the limit, not the thermodynamics`
+      ? `discharge at ${tDischargeF.toFixed(1)} F is above the stated limit of ${maxDischargeF.toFixed(1)} F: at this temperature the valves and the lube oil set the limit, ahead of the thermodynamics`
       : null,
   };
 };

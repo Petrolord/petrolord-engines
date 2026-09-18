@@ -346,7 +346,7 @@ export const lmtd = ({ thIn, thOut, tcIn, tcOut, arrangement = 'counter' }) => {
     return {
       ...base,
       basis: 'counter',
-      note: 'a 1-2 shell exchanger is rated on the counter-current log mean multiplied by F; this is the log mean, not the corrected driving force',
+      note: 'a 1-2 shell exchanger is rated on the counter-current log mean multiplied by F; this is the uncorrected log mean, before F is applied',
     };
   }
   return { ...base, basis: arr.arrangement };
@@ -404,7 +404,7 @@ export const lmtdCorrectionF = ({ p, r, shellPasses = 1 }) => {
   }
   if (shellPasses < 1 || shellPasses > DECLARED_BOUNDS.maxShellPasses) {
     return {
-      error: `${shellPasses} shell passes in series is outside the declared bound of 1 to ${DECLARED_BOUNDS.maxShellPasses}. This bound is a design limit declared by this module, not a published one, and it exists because F approaches 1 as the shell count grows, so an unbounded box makes any duty reachable by typing.`,
+      error: `${shellPasses} shell passes in series is outside the declared bound of 1 to ${DECLARED_BOUNDS.maxShellPasses}. This bound is a design limit this module declares for itself, and no publication sets it. It exists because F approaches 1 as the shell count grows, so an unbounded box makes any duty reachable by typing.`,
     };
   }
   if (!Number.isFinite(p) || !(p >= 0) || p >= 1) {
@@ -989,7 +989,7 @@ export const airCooler = ({
         designOutletReached: newProcessOutF <= processOutF + 1e-9,
         basis: 'effectiveness-NTU at fixed UA and fixed air mass; no arrangement and no F correction is assumed',
         note: colder
-          ? `colder than the design ambient, so the SURFACE can do more than the design duty. This is a capability, not a delivered duty: a plant holding the process at ${processOutF} F will throttle or stage the air instead, and the outlet shown is what the bundle would reach wide open.`
+          ? `colder than the design ambient, so the SURFACE can do more than the design duty. This is a capability that the plant may never draw on: a plant holding the process at ${processOutF} F will throttle or stage the air instead, and the outlet shown is what the bundle would reach wide open.`
           : (newProcessOutF > processOutF + 1e-9
             ? `the design outlet of ${processOutF} F is no longer reachable at ${checkAmbientF} F ambient: the process leaves at ${newProcessOutF.toFixed(1)} F instead, and the air rise falls from ${airRiseF} to ${newAirRiseF.toFixed(1)} F.`
             : null),
