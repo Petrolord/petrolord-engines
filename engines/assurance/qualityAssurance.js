@@ -480,7 +480,7 @@ export const canRemoveCheckpoint = (checkpoint = {}, plan = null) => {
   if (isBlockingPoint(checkpoint) && (!plan || plan.status !== 'Draft')) {
     return {
       ok: false,
-      reason: 'A hold point on a plan that has left Draft is released, not removed. Record it as Not applicable with the reason, so the plan shows who set it aside and why.',
+      reason: 'A hold point cannot be removed once its plan has left Draft. Record it as Not applicable with the reason, so the plan shows who set it aside and why.',
     };
   }
   return { ok: true };
