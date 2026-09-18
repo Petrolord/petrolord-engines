@@ -132,19 +132,23 @@ export const hasValidationRecord = (lesson = {}) =>
   && Boolean(lesson.validated_by || String(lesson.validator_name || '').trim());
 
 /**
- * May `validatorId` validate this lesson?
+ * May the signed-in person `actorId` validate this lesson?
  *
- * An external validator named in text is never blocked: the rule is
- * about an author signing their own work, not about holding a Suite
- * account.
+ * Owner decision AS15 (§3k.4 Q10, validation by typed name): `actorId` is
+ * ALWAYS the person performing the validation, even when they record an
+ * external reviewer by name. The Suite used to pass null whenever a name
+ * was typed, so an author could validate their own lesson by typing
+ * anybody's name. A typed name is still accepted, as the external
+ * reviewer who did the review, but it is recorded by somebody other than
+ * the author.
  */
-export const canValidate = (lesson = {}, validatorId, patch = {}) => {
+export const canValidate = (lesson = {}, actorId, patch = {}) => {
   const next = { ...lesson, ...patch };
   const author = next.author_id || next.created_by;
-  if (validatorId && author && validatorId === author) {
+  if (actorId && author && actorId === author) {
     return {
       ok: false,
-      reason: 'The author of a lesson cannot validate it. Ask somebody who was not involved in writing it to review it, or record an external reviewer by name.',
+      reason: 'The author of a lesson cannot validate it, and that includes recording somebody else\'s name. Ask a colleague who was not involved in writing it to validate it.',
     };
   }
   if (!hasSubstance(next)) {

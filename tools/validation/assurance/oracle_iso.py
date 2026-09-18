@@ -139,6 +139,9 @@ FINDING_FINAL = ['Closed', 'Voided']
 ACTION_DONE = ['Complete', 'Cancelled']
 REVIEW_LEAD = 30
 CERT_LEAD = 90
+# AS15-Q4 (owner decision): an examination is coverage only once its audit's
+# results have been reported, ISO 9001 9.2.2(c).
+REPORTED_STATUSES = ['Reported', 'Closed']
 
 # The audit lifecycle as the STATUS doc and the docstrings describe it: plan,
 # fieldwork, report, close; cancellation from anywhere before the report;
@@ -267,6 +270,15 @@ def audit_independence(audit, in_scope=None):
     return {'ok': False, 'clauses': [c['clause_ref'] for c in owned if present(c.get('clause_ref'))]}
 
 
+def can_examine_clause(clause, examiner):
+    """AS15-Q5, ISO 19011 for every auditor: whoever records the result
+    of examining a clause may not be that clause's owner."""
+    clause = clause or {}
+    if present(examiner) and present(clause.get('owner_id')) and examiner == clause.get('owner_id'):
+        return refuse()
+    return allow()
+
+
 def examined(row):
     return row.get('result') in EXAMINED
 
@@ -388,6 +400,8 @@ def last_examinations(audit_clauses, audits):
         a = by_id.get(row.get('audit_id'))
         if a is None or a.get('audit_type') != 'Internal':
             continue  # 9.2: only the organization's own programme counts
+        if a.get('status') not in REPORTED_STATUSES:
+            continue  # AS15-Q4, 9.2.2(c): only REPORTED results count
         when = parse_date(row.get('examined_on')) or parse_date(a.get('actual_end'))
         if when is None:
             continue
@@ -449,15 +463,20 @@ def certification_readiness(standard, data=None, today=None):
 
     # Order: blocking, serious, watch; within each, the order the module
     # lists them (taken from the code, see FINDINGS-iso.md).
+    # AS15-Q6: the certificate's own position is a listed item. Lapsed:
+    # serious (the system is not unready, but certification cannot be
+    # claimed and surveillance becomes recertification). Inside the 90-day
+    # lead: watch. Each is one item, in its severity group, after the rest.
+    cert = days_until(standard.get('certificate_expires'), today)
+    cert_lapsed = 1 if cert is not None and cert < 0 else 0
+    cert_near = 1 if cert is not None and 0 <= cert <= CERT_LEAD else 0
     listed = [('blocking', open_major), ('blocking', never), ('blocking', unevidenced),
               ('blocking', nonconf), ('serious', stale), ('serious', not_assessed),
-              ('serious', a_overdue), ('watch', open_minor), ('watch', reviews),
-              ('watch', f_overdue)]
+              ('serious', a_overdue), ('serious', cert_lapsed), ('watch', open_minor),
+              ('watch', reviews), ('watch', f_overdue), ('watch', cert_near)]
     blockers = [{'severity': s, 'count': n} for s, n in listed if n > 0]
     if not appl:
         blockers.insert(0, {'severity': 'blocking', 'count': 0})
-
-    cert = days_until(standard.get('certificate_expires'), today)
     return {
         'ready': not any(b['severity'] == 'blocking' for b in blockers),
         'blockers': blockers,
@@ -928,9 +947,10 @@ def build():
                cl(id='c3', clause_ref='9.2'),
                cl(id='c4', clause_ref='8.3', applicability='Not applicable',
                   status='Not applicable', applicability_justification='no design')]
-    audits = [au(id='a1', actual_end='2026-06-30'),
-              au(id='a2', audit_type='Certification', audit_code='CB-2026'),
-              au(id='a3', audit_code='IA-2023-004', actual_end='2023-09-20')]
+    # Reported/Closed so these cases keep testing the cycle arithmetic (AS15-Q4)
+    audits = [au(id='a1', status='Reported', actual_end='2026-06-30'),
+              au(id='a2', status='Reported', audit_type='Certification', audit_code='CB-2026'),
+              au(id='a3', status='Closed', audit_code='IA-2023-004', actual_end='2023-09-20')]
     ac_rows = [
         cov(id='r1', audit_id='a1', clause_id='c1', examined_on='2023-09-17'),  # exactly at cutoff
         cov(id='r2', audit_id='a3', clause_id='c2', examined_on='2023-09-16'),  # one day before
@@ -956,7 +976,7 @@ def build():
     # 29 February: three years back is 28 Feb 2025 (ISO-3)
     leap = date('2028-02-29')
     dl = {'clauses': [cl(id='c1'), cl(id='c2', clause_ref='8.5.1')],
-          'audits': [au()],
+          'audits': [au(status='Reported')],
           'auditClauses': [cov(id='r1', clause_id='c1', examined_on='2025-02-28'),
                            cov(id='r2', clause_id='c2', examined_on='2025-02-27')]}
     c.add('coverage-leap-day-boundary', 'clauseCoverage', [dl, leap], clause_coverage(dl, leap),
@@ -977,7 +997,7 @@ def build():
                     cl(id='c4', clause_ref='8.3', applicability='Not applicable',
                        status='Not applicable', applicability_justification='no design')]
     good_cov = [cov(id='r1', clause_id='c1'), cov(id='r2', clause_id='c2')]
-    ready_data = {'clauses': good_clauses, 'auditClauses': good_cov, 'audits': [au()],
+    ready_data = {'clauses': good_clauses, 'auditClauses': good_cov, 'audits': [au(status='Reported')],
                   'findings': [fi(status='Closed')], 'actions': []}
     c.add('ready-clean', 'certificationReadiness', [std(), ready_data, T],
           certification_readiness(std(), ready_data, T))
@@ -1006,14 +1026,14 @@ def build():
                  ac(id='x3', finding_id='f4', due_date='2026-01-01'),  # other standard's finding
                  ac(id='x4', finding_id='f1', due_date='2026-01-01', status='Complete')]
     messy = {'clauses': messy_clauses, 'auditClauses': messy_cov,
-             'audits': [au(), au(id='a3', actual_end='2022-05-10')],
+             'audits': [au(status='Reported'), au(id='a3', status='Closed', actual_end='2022-05-10')],
              'findings': messy_find, 'actions': messy_act}
     s_exp = std(certificate_expires='2026-11-01')
     c.add('ready-messy', 'certificationReadiness', [s_exp, messy, T],
-          certification_readiness(s_exp, messy, T))
+          certification_readiness(s_exp, messy, T), defect='AS15-Q6')
     s_one = std(cycle_years=1, certificate_expires='2026-09-16')
     c.add('ready-one-year-cycle-expired', 'certificationReadiness', [s_one, ready_data, T],
-          certification_readiness(s_one, ready_data, T))
+          certification_readiness(s_one, ready_data, T), defect='AS15-Q6')
     s_zero = std(cycle_years=0, certificate_expires=None)
     c.add('ready-cycle-zero-defaults', 'certificationReadiness', [s_zero, messy, T],
           certification_readiness(s_zero, messy, T))
@@ -1026,7 +1046,7 @@ def build():
           certification_readiness({'code': 'ISO 45001'}, messy, T))
     s90 = std(certificate_expires='2026-12-16')
     c.add('ready-cert-90-days', 'certificationReadiness', [s90, ready_data, T],
-          certification_readiness(s90, ready_data, T))
+          certification_readiness(s90, ready_data, T), defect='AS15-Q6')
     s91 = std(certificate_expires='2026-12-17')
     c.add('ready-cert-91-days', 'certificationReadiness', [s91, ready_data, T],
           certification_readiness(s91, ready_data, T))
@@ -1051,11 +1071,12 @@ def build():
         ],
         'auditClauses': messy_cov,
     }
-    c.add('summary-mixed', 'summarise', [sum_data, T], summarise(sum_data, T))
+    # a1 is Fieldwork complete here on purpose: its examination no longer counts
+    c.add('summary-mixed', 'summarise', [sum_data, T], summarise(sum_data, T), defect='AS15-Q4')
     c.add('summary-empty', 'summarise', [{}, T], summarise({}, T))
     # a one-year cycle standard: the summary must agree with readiness (ISO-1)
     cyc = {'standards': [std(cycle_years=1)], 'clauses': [ev(id='c1'), ev(id='c2', clause_ref='8.5.1')],
-           'audits': [au()],
+           'audits': [au(status='Reported')],
            'auditClauses': [cov(id='r1', clause_id='c1', examined_on='2025-03-01'),
                             cov(id='r2', clause_id='c2', examined_on='2026-09-01')]}
     c.add('summary-honours-standard-cycle', 'summarise', [cyc, T], summarise(cyc, T), defect='ISO-1')
@@ -1067,6 +1088,65 @@ def build():
     c.add('coverage-by-standard-default-cycle', 'clauseCoverageByStandard', [cyc3, T],
           clause_coverage_by_standard(cyc3, T))
     c.add('summary-three-year-standard', 'summarise', [cyc3, T], summarise(cyc3, T))
+
+    # --- AS15-Q4: only reported results are coverage -----------------------
+    q4_clauses = [cl(id='c1'), cl(id='c2', clause_ref='8.5.1'), cl(id='c3', clause_ref='9.2'),
+                  cl(id='c5', clause_ref='7.2'), cl(id='c6', clause_ref='7.5')]
+    q4_audits = [au(id='p', status='Planned'), au(id='i', status='In progress'),
+                 au(id='f', status='Fieldwork complete'), au(id='x', status='Cancelled'),
+                 au(id='r', status='Reported'), au(id='k', status='Closed')]
+    q4_rows = [cov(id='q1', audit_id='p', clause_id='c1'),
+               cov(id='q2', audit_id='i', clause_id='c2'),
+               cov(id='q3', audit_id='f', clause_id='c3'),
+               cov(id='q4', audit_id='x', clause_id='c5'),
+               cov(id='q5', audit_id='r', clause_id='c6'),
+               cov(id='q6', audit_id='k', clause_id='c1', examined_on='2025-01-10'),
+               # a later examination in an unreported audit does not replace a reported one
+               cov(id='q7', audit_id='i', clause_id='c6', examined_on='2026-09-10')]
+    q4 = {'clauses': q4_clauses, 'auditClauses': q4_rows, 'audits': q4_audits}
+    c.add('coverage-only-reported-results', 'clauseCoverage', [q4, T], clause_coverage(q4, T),
+          defect='AS15-Q4')
+    q4s = dict(q4, standards=[std()])
+    c.add('coverage-by-standard-only-reported', 'clauseCoverageByStandard', [q4s, T],
+          clause_coverage_by_standard(q4s, T), defect='AS15-Q4')
+    c.add('summary-only-reported-results', 'summarise', [q4s, T], summarise(q4s, T),
+          defect='AS15-Q4')
+    q4r = dict(q4, clauses=[ev(id=x['id'], clause_ref=x['clause_ref']) for x in q4_clauses])
+    c.add('ready-unreported-examinations-are-never-audited', 'certificationReadiness',
+          [std(), q4r, T], certification_readiness(std(), q4r, T), defect='AS15-Q4')
+    q4_none = {'clauses': [cl(id='c1')],
+               'audits': [{k: v for k, v in au(id='n').items() if k != 'status'}],
+               'auditClauses': [cov(id='q', audit_id='n', clause_id='c1')]}
+    c.add('coverage-audit-with-no-status', 'clauseCoverage', [q4_none, T],
+          clause_coverage(q4_none, T), defect='AS15-Q4')
+
+    # --- AS15-Q5: every examiner is independent of the clause ---------------
+    for cid, clause, who in [
+        ('examine-owner-refused', cl(owner_id='u5'), 'u5'),
+        ('examine-other-allowed', cl(owner_id='u5'), 'u6'),
+        ('examine-unowned-allowed', cl(), 'u5'),
+        ('examine-no-examiner', cl(owner_id='u5'), None),
+        ('examine-empty-owner', cl(owner_id=''), ''),
+    ]:
+        c.add(cid, 'canExamineClause', [clause, who], can_examine_clause(clause, who),
+              defect='AS15-Q5')
+    c.add('examine-no-args', 'canExamineClause', [], allow(), defect='AS15-Q5')
+
+    # --- AS15-Q6: the certificate's position is in the list -----------------
+    for cid, exp in [('ready-cert-expired-yesterday', '2026-09-16'),
+                     ('ready-cert-expires-today', '2026-09-17'),
+                     ('ready-cert-expired-long-ago', '2020-01-01'),
+                     ('ready-cert-1-day', '2026-09-18'),
+                     ('ready-cert-91-days-still-quiet', '2026-12-17'),
+                     ('ready-cert-unreadable', 'someday')]:
+        s_c = std(certificate_expires=exp)
+        # 91 days and an unreadable date list nothing, before and after: controls
+        quiet = cid in ('ready-cert-91-days-still-quiet', 'ready-cert-unreadable')
+        c.add(cid, 'certificationReadiness', [s_c, ready_data, T],
+              certification_readiness(s_c, ready_data, T), defect=None if quiet else 'AS15-Q6')
+    s_lapsed = std(certificate_expires='2026-09-01')
+    c.add('ready-cert-lapsed-sits-among-serious', 'certificationReadiness', [s_lapsed, messy, T],
+          certification_readiness(s_lapsed, messy, T), defect='AS15-Q6')
 
     # --- countBy ----------------------------------------------------------
     rows = [{'dept': 'Ops'}, {'dept': 'QA'}, {'dept': 'QA'}, {'dept': None}, {'dept': ''},

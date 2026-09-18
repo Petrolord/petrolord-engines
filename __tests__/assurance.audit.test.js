@@ -89,8 +89,8 @@ const programme = (over = {}) => ({
 describe('the checklist is the audit', () => {
   const items = [item({ id: 'i1', item_no: '1.1' }), item({ id: 'i2', item_no: '1.2', criticality: 'Minor' })];
 
-  it('counts answers, and Not applicable IS an answer', () => {
-    expect(isAnswered(response({ result: 'Not applicable' }))).toBe(true);
+  it('counts answers, and Not applicable with its reason IS an answer', () => {
+    expect(isAnswered(response({ result: 'Not applicable', note: 'No cranes on site.' }))).toBe(true);
     expect(isAnswered(response({ result: 'Not examined' }))).toBe(false);
     expect(isAnswered({})).toBe(false);
   });
@@ -110,7 +110,7 @@ describe('the checklist is the audit', () => {
   it('counts each result separately', () => {
     const progress = checklistProgress(items, [
       response({ id: 'r1', item_id: 'i1', result: 'Nonconformant' }),
-      response({ id: 'r2', item_id: 'i2', result: 'Not applicable' }),
+      response({ id: 'r2', item_id: 'i2', result: 'Not applicable', note: 'No hot work.' }),
     ]);
     expect(progress).toMatchObject({ nonconformant: 1, notApplicable: 1, answered: 2 });
   });
@@ -354,7 +354,7 @@ describe('summary and sorting', () => {
       responses: [
         response({ id: 'r1', result: 'Conformant' }),
         response({ id: 'r2', result: 'Nonconformant' }),
-        response({ id: 'r3', result: 'Not applicable' }),
+        response({ id: 'r3', result: 'Not applicable', note: 'Not a lifting site.' }),
         response({ id: 'r4', result: 'Not examined', examined_on: null }),
       ],
       findings: [finding(), finding({ id: 'f2', stop_work: true, correction: 'x' })],
@@ -424,3 +424,30 @@ describe('the finding rules are AS8\'s, imported rather than copied', () => {
       'Draft', 'Approved', 'In progress', 'Complete', 'Cancelled']);
   });
 });
+
+describe('AS15 owner decision Q11: the engine does not trust the stored row', () => {
+  it('a Not applicable answer with no written reason is not an answer', () => {
+    ['', '   ', null, undefined].forEach((note) => {
+      expect(isAnswered(response({ result: 'Not applicable', note }))).toBe(false);
+    });
+    const items = [item({ id: 'i1', item_no: '3.1' }), item({ id: 'i2', item_no: '3.2' })];
+    const answers = [
+      response({ id: 'r1', item_id: 'i1', result: 'Not applicable', note: ' ' }),
+      response({ id: 'r2', item_id: 'i2', result: 'Conformant' }),
+    ];
+    expect(unansweredItems(items, answers).map((i) => i.item_no)).toEqual(['3.1']);
+    expect(checklistProgress(items, answers)).toMatchObject({ answered: 1, outstanding: 1 });
+  });
+
+  it('a cancelled audit with no written reason keeps the programme open', () => {
+    ['', '  ', null].forEach((cancellation_reason) => {
+      const v = canCompleteProgramme(programme(), [
+        audit({ status: 'Reported' }),
+        audit({ id: 'a2', audit_code: 'AUD-2026-009', status: 'Cancelled', cancellation_reason }),
+      ]);
+      expect(v.ok).toBe(false);
+      expect(v.reason).toMatch(/AUD-2026-009/);
+    });
+  });
+});
+

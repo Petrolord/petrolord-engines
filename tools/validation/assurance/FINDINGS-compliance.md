@@ -53,3 +53,25 @@ one-off's due date (`rollForward` has no period for it), and no
 lifecycle value means "done". `deriveStatus` now treats a filed One-off
 as Compliant. An expired permit still outranks it, and an unfiled one
 still goes Overdue. Cases `st-one-off-*` and `st-annual-filed-past-due`.
+
+## AS15 (2026-09-18): owner decisions
+
+- **AS15-Q1, an unreadable today.** `deriveStatus` (and so
+  `explainStatus`, `summarise`, `byUrgency`) now throws a RangeError when
+  `today` is not a readable date, whatever the obligation. Before, an
+  Invalid Date failed every comparison and the obligation read On track
+  or Compliant: the check failed open. A string or null `today` already
+  threw a TypeError, so those cases are kept as untagged controls. An
+  empty `summarise` still returns zero counts. A readable date STRING
+  for `today` is not a supported input (it still throws a TypeError
+  further in); the Suite always passes a Date.
+- **AS15-Q2, evidence of any age.** A filing makes a recurring
+  obligation Compliant only if it is on or after `periodStart(due,
+  frequency)`: one frequency before the next due date, clamped to month
+  end (31 Mar monthly starts 28 Feb, or 29 Feb in a leap year). One-off,
+  Other, an unknown frequency, and an obligation with no due date have
+  no period, so any readable filing counts. A stale filing reads On track
+  and `explainStatus` says the last filing was for an earlier period.
+  New export `periodStart` has 14 cases.
+- Negative control: the previous engine fails all 25 AS15-tagged cases
+  and passes every untagged one.

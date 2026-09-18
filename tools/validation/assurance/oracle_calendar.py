@@ -86,9 +86,12 @@ class Cases:
             c['repaired'] = defect
         self.cases.append(c)
 
-    def throws(self, cid, fn, args):
+    def throws(self, cid, fn, args, defect=None):
         self._id(cid)
-        self.cases.append({'id': cid, 'fn': fn, 'args': enc(list(args)), 'expectedThrows': True})
+        c = {'id': cid, 'fn': fn, 'args': enc(list(args)), 'expectedThrows': True}
+        if defect:
+            c['repaired'] = defect
+        self.cases.append(c)
 
     def sort(self, cid, name, rows, expected_order, factory_args=None, defect=None):
         self._id(cid)

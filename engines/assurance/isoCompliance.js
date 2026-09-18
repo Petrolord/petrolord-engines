@@ -103,6 +103,15 @@ export const AUDIT_TERMINAL_STATUSES = Object.freeze(['Closed', 'Cancelled']);
 /** Only an internal audit counts towards internal audit coverage. */
 export const COVERING_AUDIT_TYPES = Object.freeze(['Internal']);
 
+/**
+ * Owner decision AS15 (§3k.4 Q4): an examination counts towards a
+ * clause's audit coverage only once its audit is Reported or Closed. ISO
+ * 9001 §9.2.2(c) asks for the RESULTS of internal audits to be reported;
+ * an examination in an audit still In progress, or one later Cancelled,
+ * is not a result anybody reported.
+ */
+export const COVERAGE_COUNTING_STATUSES = Object.freeze(['Reported', 'Closed']);
+
 export const COVERAGE_RESULTS = Object.freeze([
   'Not examined', 'Conformant', 'Nonconformant', 'Observation', 'Not applicable',
 ]);
@@ -270,6 +279,26 @@ export const auditIndependence = (audit = {}, clausesInScope = []) => {
     clauses: refs,
     reason: `The lead auditor owns ${refs.length === 1 ? 'clause' : 'clauses'} ${refs.join(', ')} in this audit's own scope. An auditor may not audit their own work (ISO 19011), so either the scope or the auditor has to change.`,
   };
+};
+
+/**
+ * Owner decision AS15 (§3k.4 Q5): ISO 19011 independence applies to
+ * EVERY auditor, and it was checked for the lead auditor only. Whoever
+ * records a clause's examination result is auditing that clause, so they
+ * may not be the clause's owner. The app has no audit-team table, so the
+ * examiner is the signed-in person recording the result (stored as
+ * `examined_by`, AS15 migration). An examiner with no Suite account is
+ * not modelled: results are always recorded by a signed-in user.
+ */
+export const canExamineClause = (clause = {}, examinerId) => {
+  if (examinerId && clause.owner_id && examinerId === clause.owner_id) {
+    return {
+      ok: false,
+      reason: `You own clause ${clause.clause_ref || ''}`.trim()
+        + '. An auditor may not audit their own work (ISO 19011), so somebody else on the audit has to record this result.',
+    };
+  }
+  return { ok: true };
 };
 
 export const isCoverageExamined = (row = {}) =>
@@ -495,6 +524,7 @@ export const clauseCoverage = (
     if (!isCoverageExamined(row)) return;
     const audit = auditById.get(row.audit_id);
     if (!audit || !COVERING_AUDIT_TYPES.includes(audit.audit_type)) return;
+    if (!COVERAGE_COUNTING_STATUSES.includes(audit.status)) return;
     const when = parseDateOnly(row.examined_on) || parseDateOnly(audit.actual_end);
     if (!when) return;
     const current = lastByClause.get(row.clause_id);
@@ -615,6 +645,30 @@ export const certificationReadiness = (
     `${reviewsOverdue.length} clause review${reviewsOverdue.length === 1 ? ' is' : 's are'} past due.`);
   add('watch', overdueFindings.length,
     `${overdueFindings.length} finding${overdueFindings.length === 1 ? ' is' : 's are'} past its due date.`);
+
+  // Owner decision AS15 (§3k.4 Q6): an expired certificate was a count
+  // and never appeared in the list. It does not make the management
+  // system unready (it is why a recertification audit is booked), so it
+  // is serious rather than blocking, and it says what it changes.
+  const certExpiry = daysUntil(standard.certificate_expires, today);
+  if (certExpiry !== null && certExpiry < 0) {
+    blockers.push({
+      severity: 'serious',
+      count: 1,
+      text: `The certificate expired ${Math.abs(certExpiry)} day${Math.abs(certExpiry) === 1 ? '' : 's'} ago. The organization cannot claim certification, and a surveillance audit is no longer possible: it needs a recertification audit.`,
+    });
+  } else if (certExpiry !== null && certExpiry <= CERTIFICATE_LEAD_DAYS) {
+    blockers.push({
+      severity: 'watch',
+      count: 1,
+      text: `The certificate expires in ${certExpiry} day${certExpiry === 1 ? '' : 's'}. Book the recertification audit before then.`,
+    });
+  }
+
+  // Keep the list in severity order (blocking, serious, watch): the
+  // certificate entries above are pushed last. Array sort is stable.
+  const RANK = { blocking: 0, serious: 1, watch: 2 };
+  blockers.sort((a, b) => RANK[a.severity] - RANK[b.severity]);
 
   if (!applicable.length) {
     blockers.unshift({

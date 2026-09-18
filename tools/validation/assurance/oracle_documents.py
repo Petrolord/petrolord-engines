@@ -102,6 +102,31 @@ def urgency_order(rows, today):
                                                         date_key(to_date(r.get('next_review_date')))))]
 
 
+def can_assign_reviewer(revision, reviewer):
+    """AS15 D1: a reviewer must be named, and it is not the revision's author."""
+    if not truthy(reviewer):
+        return {'ok': False}
+    author = (revision or {}).get('created_by')
+    if truthy(author) and reviewer == author:
+        return {'ok': False}
+    return {'ok': True}
+
+
+def can_decide_task(task, revision, user):
+    """AS15 D1: only a pending task, only by its assigned reviewer, never by
+    the revision's author (even if the author was assigned)."""
+    task = task or {}
+    status = task.get('status')
+    if truthy(status) and status != 'Pending':
+        return {'ok': False}
+    if not truthy(user) or user != task.get('reviewer_id'):
+        return {'ok': False}
+    author = (revision or {}).get('created_by')
+    if truthy(author) and user == author:
+        return {'ok': False}
+    return {'ok': True}
+
+
 def build():
     c = Cases('documentControl', 'tools/validation/assurance/oracle_documents.py',
               'Controlled-document review state, review date, revision numbering, confidentiality, '
@@ -238,6 +263,28 @@ def build():
         'prefix-one-char': ('X', 'y'), 'prefix-null-dept': (None, 'Drawing'),
     }.items():
         c.add(cid, 'documentPrefix', [dep, cat], prefix(dep, cat))
+
+    # AS15 D1: segregation of duties on review tasks
+    rev = {'created_by': 'u-author'}
+    for tag, who in [('independent', 'u-rev'), ('author', 'u-author'), ('nobody', None), ('empty', '')]:
+        c.add(f'assign-reviewer-{tag}', 'canAssignReviewer', [rev, who],
+              can_assign_reviewer(rev, who), 'AS15-D1')
+    c.add('assign-reviewer-author-unknown', 'canAssignReviewer', [{}, 'u-rev'],
+          can_assign_reviewer({}, 'u-rev'))
+    task = {'reviewer_id': 'u-rev', 'status': 'Pending'}
+    for tag, t, r, who in [
+        ('assignee', task, rev, 'u-rev'),
+        ('non-assignee', task, rev, 'u-other'),
+        ('not-signed-in', task, rev, None),
+        ('author-not-assigned', task, rev, 'u-author'),
+        ('author-who-is-assignee', dict(task, reviewer_id='u-author'), rev, 'u-author'),
+        ('already-approved', dict(task, status='Approved'), rev, 'u-rev'),
+        ('closed-by-round', dict(task, status='Closed'), rev, 'u-rev'),
+        ('no-status-is-pending', {'reviewer_id': 'u-rev'}, rev, 'u-rev'),
+        ('author-unknown', task, {}, 'u-rev'),
+    ]:
+        c.add(f'decide-task-{tag}', 'canDecideReviewTask', [t, r, who],
+              can_decide_task(t, r, who), 'AS15-D1')
     return c
 
 

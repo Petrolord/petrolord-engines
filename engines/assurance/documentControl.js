@@ -189,3 +189,36 @@ export const documentPrefix = (department, category) => {
   };
   return `${part(department, 'GEN')}-${part(category, 'DOC')}`;
 };
+
+/* ------------------------------------------------------------------ */
+/* Segregation of duties (owner decision AS15)                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A review task is decided by the reviewer it is assigned to, and the
+ * author of a revision does not review it. Before AS15 any member of the
+ * organization could approve any task, the author included, so a
+ * controlled document could be approved by the person who wrote it. The
+ * database enforces the same rule (AS15 migration).
+ */
+export const canAssignReviewer = (revision = {}, reviewerId) => {
+  if (!reviewerId) return { ok: false, reason: 'Choose the reviewer.' };
+  if (revision.created_by && reviewerId === revision.created_by) {
+    return { ok: false, reason: 'The author of a revision cannot review it. Choose somebody independent of the draft.' };
+  }
+  return { ok: true };
+};
+
+export const canDecideReviewTask = (task = {}, revision = {}, userId) => {
+  if (task.status && task.status !== 'Pending') {
+    return { ok: false, reason: `This review task is already ${String(task.status).toLowerCase()}.` };
+  }
+  if (!userId || userId !== task.reviewer_id) {
+    return { ok: false, reason: 'Only the reviewer this task is assigned to can decide it.' };
+  }
+  if (revision.created_by && userId === revision.created_by) {
+    return { ok: false, reason: 'The author of a revision cannot approve it.' };
+  }
+  return { ok: true };
+};
+

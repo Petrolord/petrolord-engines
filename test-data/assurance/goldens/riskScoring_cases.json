@@ -435,6 +435,135 @@
    "expected": 15
   },
   {
+   "id": "as15-q3-half-likelihood",
+   "fn": "calculateRiskScore",
+   "args": [
+    2.5,
+    4
+   ],
+   "expected": 0,
+   "repaired": "AS15-Q3"
+  },
+  {
+   "id": "as15-q3-half-impact",
+   "fn": "calculateRiskScore",
+   "args": [
+    3,
+    2.5
+   ],
+   "expected": 0,
+   "repaired": "AS15-Q3"
+  },
+  {
+   "id": "as15-q3-both-fractional",
+   "fn": "calculateRiskScore",
+   "args": [
+    2.5,
+    2.5
+   ],
+   "expected": 0,
+   "repaired": "AS15-Q3"
+  },
+  {
+   "id": "as15-q3-string-fraction",
+   "fn": "calculateRiskScore",
+   "args": [
+    "3.5",
+    4
+   ],
+   "expected": 0,
+   "repaired": "AS15-Q3"
+  },
+  {
+   "id": "as15-q3-near-five",
+   "fn": "calculateRiskScore",
+   "args": [
+    4.9,
+    5
+   ],
+   "expected": 0,
+   "repaired": "AS15-Q3"
+  },
+  {
+   "id": "as15-q3-just-above-one",
+   "fn": "calculateRiskScore",
+   "args": [
+    1.01,
+    3
+   ],
+   "expected": 0,
+   "repaired": "AS15-Q3"
+  },
+  {
+   "id": "as15-q3-whole-float",
+   "fn": "calculateRiskScore",
+   "args": [
+    3.0,
+    4.0
+   ],
+   "expected": 12
+  },
+  {
+   "id": "as15-q3-string-whole-float",
+   "fn": "calculateRiskScore",
+   "args": [
+    "4.0",
+    "2"
+   ],
+   "expected": 8
+  },
+  {
+   "id": "as15-q3-true-is-one",
+   "fn": "calculateRiskScore",
+   "args": [
+    true,
+    5
+   ],
+   "expected": 5
+  },
+  {
+   "id": "as15-q3-spaced-string",
+   "fn": "calculateRiskScore",
+   "args": [
+    " 3 ",
+    3
+   ],
+   "expected": 9
+  },
+  {
+   "id": "as15-q3-residual-fraction",
+   "fn": "calculateResidualScore",
+   "args": [
+    {
+     "likelihood": 4,
+     "impact": 5,
+     "residual_likelihood": 1.5,
+     "residual_impact": 2
+    }
+   ],
+   "expected": 0,
+   "repaired": "AS15-Q3"
+  },
+  {
+   "id": "as15-q3-derive-fraction",
+   "fn": "deriveRiskFields",
+   "args": [
+    {
+     "likelihood": 2.5,
+     "impact": 4
+    }
+   ],
+   "expected": {
+    "inherentScore": 0,
+    "inherentBand": "None",
+    "residualScore": 0,
+    "residualBand": "None",
+    "rating": "None",
+    "appetite_status": "Not set"
+   },
+   "repaired": "AS15-Q3"
+  },
+  {
    "id": "score-no-args",
    "fn": "calculateRiskScore",
    "args": [],

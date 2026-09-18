@@ -1503,6 +1503,232 @@
     "Drawing"
    ],
    "expected": "GEN-DRA"
+  },
+  {
+   "id": "assign-reviewer-independent",
+   "fn": "canAssignReviewer",
+   "args": [
+    {
+     "created_by": "u-author"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-reviewer-author",
+   "fn": "canAssignReviewer",
+   "args": [
+    {
+     "created_by": "u-author"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-reviewer-nobody",
+   "fn": "canAssignReviewer",
+   "args": [
+    {
+     "created_by": "u-author"
+    },
+    null
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-reviewer-empty",
+   "fn": "canAssignReviewer",
+   "args": [
+    {
+     "created_by": "u-author"
+    },
+    ""
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-reviewer-author-unknown",
+   "fn": "canAssignReviewer",
+   "args": [
+    {},
+    "u-rev"
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "decide-task-assignee",
+   "fn": "canDecideReviewTask",
+   "args": [
+    {
+     "reviewer_id": "u-rev",
+     "status": "Pending"
+    },
+    {
+     "created_by": "u-author"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-task-non-assignee",
+   "fn": "canDecideReviewTask",
+   "args": [
+    {
+     "reviewer_id": "u-rev",
+     "status": "Pending"
+    },
+    {
+     "created_by": "u-author"
+    },
+    "u-other"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-task-not-signed-in",
+   "fn": "canDecideReviewTask",
+   "args": [
+    {
+     "reviewer_id": "u-rev",
+     "status": "Pending"
+    },
+    {
+     "created_by": "u-author"
+    },
+    null
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-task-author-not-assigned",
+   "fn": "canDecideReviewTask",
+   "args": [
+    {
+     "reviewer_id": "u-rev",
+     "status": "Pending"
+    },
+    {
+     "created_by": "u-author"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-task-author-who-is-assignee",
+   "fn": "canDecideReviewTask",
+   "args": [
+    {
+     "reviewer_id": "u-author",
+     "status": "Pending"
+    },
+    {
+     "created_by": "u-author"
+    },
+    "u-author"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-task-already-approved",
+   "fn": "canDecideReviewTask",
+   "args": [
+    {
+     "reviewer_id": "u-rev",
+     "status": "Approved"
+    },
+    {
+     "created_by": "u-author"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-task-closed-by-round",
+   "fn": "canDecideReviewTask",
+   "args": [
+    {
+     "reviewer_id": "u-rev",
+     "status": "Closed"
+    },
+    {
+     "created_by": "u-author"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-task-no-status-is-pending",
+   "fn": "canDecideReviewTask",
+   "args": [
+    {
+     "reviewer_id": "u-rev"
+    },
+    {
+     "created_by": "u-author"
+    },
+    "u-rev"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-task-author-unknown",
+   "fn": "canDecideReviewTask",
+   "args": [
+    {
+     "reviewer_id": "u-rev",
+     "status": "Pending"
+    },
+    {},
+    "u-rev"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
   }
  ]
 }

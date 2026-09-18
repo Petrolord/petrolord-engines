@@ -9,6 +9,9 @@ AssuranceApps-STATUS.md section 3 (AS2), in standard ISO 31000 5x5 terms:
     scale, or missing, is refused: the score is 0, "the only score that
     maps to NO_BAND. It never guesses a level." (STATUS 3.2: a 9x9 must
     not score 81.)
+  * AS15 owner decision Q3 (2026-09-18): a level is one of the five
+    WHOLE levels. A fraction (2.5, '3.5') is off the scale and so
+    unscored; a whole number written as '3', 3.0 or '4.0' is that level.
   * Score = likelihood x impact.
   * Bands, inclusive lower bounds: Critical >= 15, High >= 10, Medium >= 5,
     Low >= 1, and 'None' for a score of 0 (or anything not positive).
@@ -45,6 +48,8 @@ def level(v):
     if n != n or n in (float('inf'), float('-inf')):
         return None
     if n < 1 or n > 5:
+        return None
+    if n != int(n):
         return None
     return n
 
@@ -126,6 +131,22 @@ def build():
     }.items():
         c.add(cid, 'calculateRiskScore', [l, i], 0)
     c.add('score-numeric-strings', 'calculateRiskScore', ['3', '5'], 15)
+    # AS15 Q3: fractions are not levels
+    for cid, (l, i) in {
+        'as15-q3-half-likelihood': (2.5, 4), 'as15-q3-half-impact': (3, 2.5),
+        'as15-q3-both-fractional': (2.5, 2.5), 'as15-q3-string-fraction': ('3.5', 4),
+        'as15-q3-near-five': (4.9, 5), 'as15-q3-just-above-one': (1.01, 3),
+    }.items():
+        c.add(cid, 'calculateRiskScore', [l, i], score(l, i), defect='AS15-Q3')
+    for cid, (l, i) in {
+        'as15-q3-whole-float': (3.0, 4.0), 'as15-q3-string-whole-float': ('4.0', '2'),
+        'as15-q3-true-is-one': (True, 5), 'as15-q3-spaced-string': (' 3 ', 3),
+    }.items():
+        c.add(cid, 'calculateRiskScore', [l, i], score(l, i))
+    frac = {'likelihood': 4, 'impact': 5, 'residual_likelihood': 1.5, 'residual_impact': 2}
+    c.add('as15-q3-residual-fraction', 'calculateResidualScore', [frac], residual(frac), defect='AS15-Q3')
+    c.add('as15-q3-derive-fraction', 'deriveRiskFields', [{'likelihood': 2.5, 'impact': 4}],
+          derive({'likelihood': 2.5, 'impact': 4}), defect='AS15-Q3')
     c.add('score-no-args', 'calculateRiskScore', [], 0)
     # bands: edges and the unscored
     for cid, s in {

@@ -897,6 +897,125 @@
    }
   },
   {
+   "id": "validate-author-types-external-name",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-author",
+    {
+     "validator_name": "Jane Okafor (external)"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q10"
+  },
+  {
+   "id": "validate-author-types-colleague-name",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-author",
+    {
+     "validator_name": "u-other"
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q10"
+  },
+  {
+   "id": "validate-author-falls-back-types-name",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-clerk",
+    {
+     "validator_name": "Someone Else",
+     "author_id": null
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q10"
+  },
+  {
+   "id": "validate-colleague-records-external-name",
+   "fn": "canValidate",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "u-other",
+    {
+     "validator_name": "Jane Okafor (external)"
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-Q10"
+  },
+  {
+   "id": "advance-validated-author-typed-name",
+   "fn": "canAdvanceLesson",
+   "args": [
+    {
+     "description": "Seal failed on restart",
+     "root_cause": "Dry running at start-up",
+     "recommendation": "Prime the pump before restart",
+     "id": "L1",
+     "status": "Submitted",
+     "author_id": "u-author",
+     "created_by": "u-clerk"
+    },
+    "Validated",
+    {
+     "validatorId": "u-author",
+     "patch": {
+      "validator_name": "An Outsider"
+     }
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q10"
+  },
+  {
    "id": "changed-Adopted",
    "fn": "didChangeSomething",
    "args": [

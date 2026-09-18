@@ -593,7 +593,8 @@
      "examined_on": "2026-09-02"
     }
    ],
-   "expected": true
+   "expected": false,
+   "repaired": "AS15-Q11"
   },
   {
    "id": "answered-not-examined",
@@ -645,6 +646,206 @@
     {}
    ],
    "expected": false
+  },
+  {
+   "id": "answered-na-blank-reason",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": "Not applicable",
+     "examined_on": "2026-09-02",
+     "note": ""
+    }
+   ],
+   "expected": false,
+   "repaired": "AS15-Q11"
+  },
+  {
+   "id": "answered-na-whitespace-reason",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": "Not applicable",
+     "examined_on": "2026-09-02",
+     "note": "  \t "
+    }
+   ],
+   "expected": false,
+   "repaired": "AS15-Q11"
+  },
+  {
+   "id": "answered-na-null-reason",
+   "fn": "isAnswered",
+   "args": [
+    {
+     "id": "r1",
+     "audit_id": "a1",
+     "item_id": "i1",
+     "result": "Not applicable",
+     "examined_on": "2026-09-02",
+     "note": null
+    }
+   ],
+   "expected": false,
+   "repaired": "AS15-Q11"
+  },
+  {
+   "id": "progress-na-without-reason-is-outstanding",
+   "fn": "checklistProgress",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "2.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "2.2",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "n1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02",
+      "note": " "
+     },
+     {
+      "id": "n2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02",
+      "note": "No cranes on site."
+     }
+    ]
+   ],
+   "expected": {
+    "total": 2,
+    "answered": 1,
+    "outstanding": 1,
+    "conformant": 0,
+    "nonconformant": 0,
+    "observations": 0,
+    "notApplicable": 2,
+    "percent": 50
+   },
+   "repaired": "AS15-Q11"
+  },
+  {
+   "id": "unanswered-na-without-reason",
+   "fn": "unansweredItems",
+   "args": [
+    [
+     {
+      "id": "i1",
+      "template_id": "t1",
+      "item_no": "2.1",
+      "criticality": "Critical"
+     },
+     {
+      "id": "i2",
+      "template_id": "t1",
+      "item_no": "2.2",
+      "criticality": "Minor"
+     }
+    ],
+    [
+     {
+      "id": "n1",
+      "audit_id": "a1",
+      "item_id": "i1",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02",
+      "note": " "
+     },
+     {
+      "id": "n2",
+      "audit_id": "a1",
+      "item_id": "i2",
+      "result": "Not applicable",
+      "examined_on": "2026-09-02",
+      "note": "No cranes on site."
+     }
+    ]
+   ],
+   "expected": [
+    {
+     "id": "i1",
+     "template_id": "t1",
+     "item_no": "2.1",
+     "criticality": "Critical"
+    }
+   ],
+   "repaired": "AS15-Q11"
+  },
+  {
+   "id": "report-refused-over-na-without-reason",
+   "fn": "canReportAudit",
+   "args": [
+    {
+     "id": "a1",
+     "audit_code": "AUD-2026-001",
+     "template_id": "t1",
+     "audit_type": "Contractor",
+     "status": "Fieldwork complete",
+     "lead_auditor_id": "u1",
+     "auditee_id": "u2",
+     "conclusion": "One nonconformity, closed on site.",
+     "planned_start": "2026-09-01",
+     "planned_end": "2026-09-05"
+    },
+    {
+     "items": [
+      {
+       "id": "i1",
+       "template_id": "t1",
+       "item_no": "2.1",
+       "criticality": "Critical"
+      },
+      {
+       "id": "i2",
+       "template_id": "t1",
+       "item_no": "2.2",
+       "criticality": "Minor"
+      }
+     ],
+     "responses": [
+      {
+       "id": "n1",
+       "audit_id": "a1",
+       "item_id": "i1",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": " "
+      },
+      {
+       "id": "n2",
+       "audit_id": "a1",
+       "item_id": "i2",
+       "result": "Not applicable",
+       "examined_on": "2026-09-02",
+       "note": "No cranes on site."
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q11"
   },
   {
    "id": "progress-mixed",
@@ -4179,7 +4380,7 @@
    }
   },
   {
-   "id": "complete-cancelled-no-reason-trusts-status",
+   "id": "complete-cancelled-no-reason-outstanding",
    "fn": "canCompleteProgramme",
    "args": [
     {
@@ -4196,18 +4397,122 @@
       "audit_code": "AUD-2026-001",
       "template_id": "t1",
       "audit_type": "Contractor",
-      "status": "Cancelled",
+      "status": "Reported",
       "lead_auditor_id": "u1",
       "auditee_id": "u2",
       "conclusion": "One nonconformity, closed on site.",
       "planned_start": "2026-09-01",
       "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": null
      }
     ]
    ],
    "expected": {
-    "ok": true
-   }
+    "ok": false
+   },
+   "repaired": "AS15-Q11"
+  },
+  {
+   "id": "complete-cancelled-blank-reason-outstanding",
+   "fn": "canCompleteProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": ""
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q11"
+  },
+  {
+   "id": "complete-cancelled-whitespace-reason-outstanding",
+   "fn": "canCompleteProgramme",
+   "args": [
+    {
+     "id": "p1",
+     "title": "2026 HSE audit programme",
+     "programme_year": 2026,
+     "status": "In progress",
+     "approved_at": "2026-01-10",
+     "approved_by": "u9"
+    },
+    [
+     {
+      "id": "a1",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Reported",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05"
+     },
+     {
+      "id": "a2",
+      "audit_code": "AUD-2026-001",
+      "template_id": "t1",
+      "audit_type": "Contractor",
+      "status": "Cancelled",
+      "lead_auditor_id": "u1",
+      "auditee_id": "u2",
+      "conclusion": "One nonconformity, closed on site.",
+      "planned_start": "2026-09-01",
+      "planned_end": "2026-09-05",
+      "cancellation_reason": "   "
+     }
+    ]
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q11"
   },
   {
    "id": "next-programme-draft",

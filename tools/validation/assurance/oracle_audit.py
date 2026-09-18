@@ -68,10 +68,18 @@ def half_up_percent(num, den):
 # ---------------------------------------------------------------------------
 
 def answered(r):
-    # An answer is one of the four results; "Not applicable" IS an answer.
-    # Its reason is enforced where the answer is written (the form and the
-    # audit_responses_na_needs_reason constraint), see FINDINGS-audit.md.
-    return (r or {}).get('result') in ANSWERS
+    # An answer is one of the four results; "Not applicable" IS an answer,
+    # and an answer has a reason. AS15-Q11 (owner decision): the rule is
+    # checked here too rather than trusted to the form and the
+    # audit_responses_na_needs_reason constraint, so a N/A with no written
+    # reason (blank or whitespace) is not an answer, however it was stored.
+    r = r or {}
+    if r.get('result') not in ANSWERS:
+        return False
+    if r.get('result') == 'Not applicable':
+        note = r.get('note')
+        return isinstance(note, str) and note.strip() != ''
+    return True
 
 
 def _by_item(responses):
@@ -87,7 +95,7 @@ def checklist_progress(items=None, responses=None):
     by = _by_item(responses)
     res = [by.get(i.get('id'), {}).get('result') for i in items]
     total = len(items)
-    n_ans = sum(1 for x in res if x in ANSWERS)
+    n_ans = sum(1 for i in items if answered(by.get(i.get('id'))))  # AS15-Q11: via answered()
     return {
         'total': total,
         'answered': n_ans,
@@ -229,8 +237,13 @@ def can_approve_programme(p, patch=None):
 def can_complete_programme(p, audits=None):
     if p.get('status') in ('Complete', 'Cancelled'):
         return refuse()
-    if any(a.get('status') not in DONE for a in audits or []):
-        return refuse()
+    for a in audits or []:
+        if a.get('status') not in DONE:
+            return refuse()
+        # AS15-Q11: a cancellation is "done" only with its written reason.
+        reason = a.get('cancellation_reason')
+        if a.get('status') == 'Cancelled' and not (isinstance(reason, str) and reason.strip()):
+            return refuse()
     return allow()
 
 
@@ -413,10 +426,26 @@ def build():
     for r_ in ['Conformant', 'Nonconformant', 'Observation', 'Not applicable', 'Not examined',
                None]:
         name = (r_ or 'unset').replace(' ', '-').lower()
-        c.add('answered-' + name, 'isAnswered', [rs(result=r_)], answered(rs(result=r_)))
+        c.add('answered-' + name, 'isAnswered', [rs(result=r_)], answered(rs(result=r_)),
+              'AS15-Q11' if r_ == 'Not applicable' else None)
     c.add('answered-na-with-reason', 'isAnswered',
           [rs(result='Not applicable', note='No lifting on this site.')], True)
     c.add('answered-empty', 'isAnswered', [{}], False)
+    for cid, note in [('answered-na-blank-reason', ''), ('answered-na-whitespace-reason', '  \t '),
+                      ('answered-na-null-reason', None)]:
+        r_ = rs(result='Not applicable', note=note)
+        c.add(cid, 'isAnswered', [r_], answered(r_), 'AS15-Q11')
+    # a checklist that "finished" by marking items N/A with no reason
+    na_items = [it(id='i1', item_no='2.1'), it(id='i2', item_no='2.2', criticality='Minor')]
+    na_resp = [rs(id='n1', item_id='i1', result='Not applicable', note=' '),
+               rs(id='n2', item_id='i2', result='Not applicable', note='No cranes on site.')]
+    c.add('progress-na-without-reason-is-outstanding', 'checklistProgress', [na_items, na_resp],
+          checklist_progress(na_items, na_resp), 'AS15-Q11')
+    c.add('unanswered-na-without-reason', 'unansweredItems', [na_items, na_resp],
+          unanswered_items(na_items, na_resp), 'AS15-Q11')
+    c.add('report-refused-over-na-without-reason', 'canReportAudit',
+          [au(), {'items': na_items, 'responses': na_resp}],
+          can_report_audit(au(), {'items': na_items, 'responses': na_resp}), 'AS15-Q11')
 
     items = [it(id='i1', item_no='1.1'), it(id='i2', item_no='1.2', criticality='Minor'),
              it(id='i3', item_no='1.3', criticality='Major'),
@@ -615,10 +644,14 @@ def build():
         ('complete-cancelled-programme', pg(status='Cancelled'), []),
     ]:
         c.add(cid, 'canCompleteProgramme', [p, a], can_complete_programme(p, a))
-    # A Cancelled audit with no reason cannot be stored (audit_records_cancel_needs_reason);
-    # the engine trusts the status, as the programme trigger does. See FINDINGS-audit.md.
-    c.add('complete-cancelled-no-reason-trusts-status', 'canCompleteProgramme',
-          [pg(), [au(status='Cancelled')]], can_complete_programme(pg(), [au(status='Cancelled')]))
+    # AS15-Q11: a Cancelled audit with no reason should never be stored
+    # (audit_records_cancel_needs_reason), and the engine no longer trusts
+    # that it was not: it stays outstanding. Was complete-cancelled-no-reason-trusts-status.
+    for cid, reason in [('complete-cancelled-no-reason-outstanding', None),
+                        ('complete-cancelled-blank-reason-outstanding', ''),
+                        ('complete-cancelled-whitespace-reason-outstanding', '   ')]:
+        a_ = [au(id='a1', status='Reported'), au(id='a2', status='Cancelled', cancellation_reason=reason)]
+        c.add(cid, 'canCompleteProgramme', [pg(), a_], can_complete_programme(pg(), a_), 'AS15-Q11')
 
     for s in ['Draft', 'Approved', 'In progress', 'Complete', 'Cancelled', 'Nope']:
         c.add('next-programme-' + s.replace(' ', '-').lower(), 'nextProgrammeStatuses', [s],

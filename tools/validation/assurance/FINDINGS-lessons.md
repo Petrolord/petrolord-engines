@@ -53,3 +53,20 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## AS15 (2026-09-18): owner decisions
+
+- **AS15-Q10, validation by typed name.** `canValidate`'s second argument
+  is the ACTOR, the signed-in person doing the validation, whatever
+  external name they type. The rule itself did not change; the defect was
+  that the Suite passed null whenever a name was typed, so an author
+  could validate their own lesson by typing any name. The new cases pin
+  the contract: the author as actor is refused with a typed name in the
+  patch, and a colleague recording an external name is allowed. An actor
+  of null still passes the engine (`validate-external-no-id`): the
+  engine cannot know who is signed in, and the Suite hook must always
+  pass it (it does from AS15).
+
+Negative control: these cases have the same verdict on origin/main (the
+engine rule is unchanged); what changed is the reason text and the
+caller. The guard is in the Suite hook test.

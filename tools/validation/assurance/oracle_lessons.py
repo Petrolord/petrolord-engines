@@ -173,6 +173,9 @@ def o_has_validation(l):
 
 
 def o_can_validate(lesson, validator_id=None, patch=None):
+    # AS15 Q10: the second argument is the ACTOR, the signed-in person doing
+    # the validation, whatever external name they type into the patch. The
+    # author is refused as actor, typed name or not.
     nxt = dict(lesson or {})
     nxt.update(arg(patch, {}))
     author = get(nxt, 'author_id') if js_truthy(get(nxt, 'author_id')) else get(nxt, 'created_by')
@@ -476,6 +479,17 @@ valid = [
 for tag, l, vid, patch in valid:
     case(f'validate-{tag}', 'canValidate', [l, vid, patch], o_can_validate(l, vid, patch))
 case('validate-no-patch', 'canValidate', [L, 'u-other', UNDEF], o_can_validate(L, 'u-other'))
+# AS15 Q10: typing a reviewer's name does not let the author validate.
+for tag, actor, patch in [
+    ('author-types-external-name', 'u-author', {'validator_name': 'Jane Okafor (external)'}),
+    ('author-types-colleague-name', 'u-author', {'validator_name': 'u-other'}),
+    ('author-falls-back-types-name', 'u-clerk', {'validator_name': 'Someone Else', 'author_id': None}),
+    ('colleague-records-external-name', 'u-other', {'validator_name': 'Jane Okafor (external)'}),
+]:
+    case(f'validate-{tag}', 'canValidate', [L, actor, patch], o_can_validate(L, actor, patch), 'AS15-Q10')
+case('advance-validated-author-typed-name', 'canAdvanceLesson',
+     [L, 'Validated', {'validatorId': 'u-author', 'patch': {'validator_name': 'An Outsider'}}],
+     o_can_validate(L, 'u-author', {'validator_name': 'An Outsider'}), 'AS15-Q10')
 
 # --- applications
 for o in OUTCOMES + ['Pending', None]:

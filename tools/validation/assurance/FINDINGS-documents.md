@@ -54,3 +54,14 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## AS15 (2026-09-18): owner decisions
+
+- **AS15-D1, segregation of duties.** `canAssignReviewer` refuses a
+  reviewer who authored the revision (`created_by`); `canDecideReviewTask`
+  allows only the assigned reviewer, only while Pending, and never the
+  author even when assigned. Before AS15 any member could approve any
+  task, the author included. Cases `assign-reviewer-*`, `decide-task-*`.
+
+Negative control: both exports are absent on origin/main, so every
+`AS15-D1` case fails there.

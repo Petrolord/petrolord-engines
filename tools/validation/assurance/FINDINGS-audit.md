@@ -61,3 +61,26 @@ instead of `"knownDefect"`, so it is gated like any other case and a
 regression fails the suite. The ambiguities listed above for the owner
 were NOT changed; they are recorded in the Suite's
 docs/scope/AssuranceApps-STATUS.md §3k for decision.
+
+## AS15 (2026-09-18): owner decisions
+
+- **AS15-Q11, the engine no longer trusts the stored row.** Both AS10
+  reason rules were enforced only at write time (the form, plus the
+  `audit_responses_na_needs_reason` and
+  `audit_records_cancel_needs_reason` constraints), and the engine
+  believed the status:
+  - `isAnswered` now treats "Not applicable" with a blank, whitespace-only
+    or missing note as unanswered. So `checklistProgress`,
+    `unansweredItems` and `canReportAudit` refuse a checklist that was
+    emptied by unexplained N/A.
+  - `canCompleteProgramme` treats a Cancelled audit with no written
+    `cancellation_reason` as outstanding.
+  - The oracle's `checklist_progress` now counts through `answered()`.
+    Case `complete-cancelled-no-reason-trusts-status` is replaced by
+    `complete-cancelled-{no,blank,whitespace}-reason-outstanding`. Also
+    `answered-na-*`, `answered-not-applicable`,
+    `progress-na-without-reason-is-outstanding`,
+    `unanswered-na-without-reason` and
+    `report-refused-over-na-without-reason`.
+
+Negative control: against the pre-AS15 engine every case above fails.

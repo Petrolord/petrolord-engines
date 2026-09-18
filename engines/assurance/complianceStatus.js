@@ -172,6 +172,12 @@ const leadTime = (obligation) => {
  *      done it".
  */
 export const deriveStatus = (obligation = {}, today = new Date()) => {
+  // Owner decision AS15 (§3k.4 Q1): an unreadable `today` is a caller's
+  // bug, and it used to FAIL OPEN: every comparison with it was false, so
+  // every obligation read On track or Compliant. Refuse instead.
+  if (!parseDateOnly(today)) {
+    throw new RangeError('deriveStatus needs a valid date for today.');
+  }
   const lifecycle = obligation.lifecycle || 'Active';
   if (lifecycle === 'Draft') return STATUS.DRAFT;
   if (lifecycle === 'Superseded') return STATUS.SUPERSEDED;
@@ -198,7 +204,30 @@ export const deriveStatus = (obligation = {}, today = new Date()) => {
     return STATUS.DUE_SOON;
   }
 
-  return submitted ? STATUS.COMPLIANT : STATUS.ON_TRACK;
+  return submittedThisPeriod(obligation, submitted, due) ? STATUS.COMPLIANT : STATUS.ON_TRACK;
+};
+
+/**
+ * Owner decision AS15 (§3k.4 Q2): evidence counts towards Compliant only
+ * if it was filed in the CURRENT period. A monthly return filed two years
+ * ago used to keep an obligation Compliant for good. The period starts one
+ * frequency before the next due date (the date rollForward rolled from).
+ * One-off and Other have no period, so any filing counts, and so does an
+ * obligation with no due date to count back from.
+ */
+export const periodStart = (dueDate, frequency) => {
+  const months = FREQUENCY_MONTHS[frequency];
+  const due = parseDateOnly(dueDate);
+  if (!months || !due) return null;
+  const start = new Date(due.getFullYear(), due.getMonth() - months, due.getDate());
+  if (start.getDate() !== due.getDate()) start.setDate(0);
+  return start;
+};
+
+const submittedThisPeriod = (obligation, submitted, due) => {
+  if (!submitted) return false;
+  const start = periodStart(due, obligation.frequency);
+  return !start || submitted >= start;
 };
 
 /**
@@ -230,7 +259,9 @@ export const explainStatus = (obligation = {}, today = new Date()) => {
       reason = `Last filed ${obligation.last_submitted_date}, next due in ${days} days.`;
       break;
     case STATUS.ON_TRACK:
-      reason = `Due in ${days} days. Nothing has been filed against it yet.`;
+      reason = obligation.last_submitted_date
+        ? `Due in ${days} days. The last filing (${obligation.last_submitted_date}) was for an earlier period, so nothing has been filed for this one yet.`
+        : `Due in ${days} days. Nothing has been filed against it yet.`;
       break;
     case STATUS.NO_DATE:
       reason = 'No due date or expiry date has been set, so nothing can fall due.';

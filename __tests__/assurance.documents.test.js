@@ -31,6 +31,8 @@ import {
   reviewState,
   summarise,
   toDateOnlyString,
+  canAssignReviewer,
+  canDecideReviewTask,
 } from '../engines/assurance/documentControl.js';
 
 const TODAY = new Date(2026, 8, 17); // 17 September 2026, local midnight
@@ -178,5 +180,21 @@ describe('document number prefixes', () => {
     // '--001' would start a sequence nothing else can ever match.
     expect(documentPrefix('', '')).toBe('GEN-DOC');
     expect(documentPrefix('!!!', 'SOP')).toBe('GEN-SOP');
+  });
+});
+
+describe('AS15: segregation of duties on review tasks', () => {
+  const rev = { created_by: 'u-author' };
+  it('the author is never the reviewer', () => {
+    expect(canAssignReviewer(rev, 'u-author').ok).toBe(false);
+    expect(canAssignReviewer(rev, 'u-rev').ok).toBe(true);
+    expect(canAssignReviewer(rev, null).ok).toBe(false);
+    expect(canDecideReviewTask({ reviewer_id: 'u-author', status: 'Pending' }, rev, 'u-author').ok).toBe(false);
+  });
+  it('only the assigned reviewer decides a pending task', () => {
+    const t = { reviewer_id: 'u-rev', status: 'Pending' };
+    expect(canDecideReviewTask(t, rev, 'u-rev').ok).toBe(true);
+    expect(canDecideReviewTask(t, rev, 'u-other').ok).toBe(false);
+    expect(canDecideReviewTask({ ...t, status: 'Closed' }, rev, 'u-rev').ok).toBe(false);
   });
 });
