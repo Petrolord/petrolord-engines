@@ -147,9 +147,9 @@ describe('clauses: a conformity claim is evidence, a date and a name', () => {
   it('REFUSES an exclusion with no justification and ALLOWS one with it (ISO 9001 4.3)', () => {
     const bare = canSetClauseStatus(clause(), 'Not applicable', {
       applicability: 'Not applicable',
-    });
+    }, standard());
     expect(bare.ok).toBe(false);
-    expect(bare.reason).toMatch(/4\.3/);
+    expect(bare.reason).toMatch(/ISO 9001:2015 §4\.3/);
     expect(canSetClauseStatus(clause(), 'Not applicable', {
       applicability: 'Not applicable',
       applicability_justification: 'The organization holds no design authority.',
@@ -714,3 +714,48 @@ describe('AS15 owner decisions', () => {
   });
 });
 
+describe('ASC-0 repairs', () => {
+  const ready = {
+    clauses: [evidenced({ id: 'c1' })],
+    findings: [],
+    actions: [],
+    audits: [audit({ id: 'a1', status: 'Reported' })],
+    auditClauses: [cover({ audit_id: 'a1', clause_id: 'c1', examined_on: '2026-09-10' })],
+  };
+  const flags = (expires, asOf = TODAY) => {
+    const { counts } = certificationReadiness(standard({ certificate_expires: expires }), ready, asOf);
+    return [counts.certificateDays, counts.certificateExpiring, counts.certificateExpired];
+  };
+
+  it('R3: expiring and expired partition the line, with the day of expiry expiring', () => {
+    expect(flags('2026-09-16')).toEqual([-1, false, true]);
+    expect(flags('2026-09-17')).toEqual([0, true, false]);
+    expect(flags('2026-12-16')).toEqual([90, true, false]);
+    expect(flags('2026-12-17')).toEqual([91, false, false]);
+    // the Compliance course's repro: lapsed 15 days
+    expect(flags('2026-09-30', new Date(2026, 9, 15))).toEqual([-15, false, true]);
+  });
+
+  it('R3: on the day of expiry the blocker says today', () => {
+    const r = certificationReadiness(standard({ certificate_expires: '2026-09-17' }), ready, TODAY);
+    expect(r.blockers.map((b) => b.text)).toContain('The certificate expires today. Book the recertification audit now.');
+  });
+
+  it('R5: the never-audited blocker names the standard the register holds', () => {
+    const never = { ...ready, auditClauses: [] };
+    const text = (s) => certificationReadiness(s, never, TODAY).blockers
+      .find((b) => /internal audit/.test(b.text)).text;
+    expect(text(standard())).toMatch(/ISO 9001:2015 §9\.2 requires the organization to audit its own system\.$/);
+    expect(text(standard({ code: 'ISO 14001:2015' }))).toMatch(/ISO 14001:2015 §9\.2 requires/);
+    expect(text(standard({ code: 'ISO 14001:2015' }))).not.toMatch(/9001/);
+    expect(text(standard({ code: 'API Q1' }))).toMatch(/API Q1 requires the organization to audit its own system\.$/);
+    expect(text({ id: 's1' })).toMatch(/The standard requires the organization to audit its own system\.$/);
+  });
+
+  it('R5: the not-applicable refusal names the standard, or none', () => {
+    const na = (s) => canSetClauseStatus(clause(), 'Not applicable', { applicability: 'Not applicable' }, s).reason;
+    expect(na(standard({ code: 'ISO 14001:2015' })))
+      .toBe('Say why this requirement of ISO 14001:2015 does not apply. A requirement determined not applicable keeps its justification on record.');
+    expect(na(undefined)).not.toMatch(/ISO/);
+  });
+});

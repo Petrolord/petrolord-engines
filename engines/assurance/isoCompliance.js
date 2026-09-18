@@ -176,6 +176,41 @@ export const ACTION_STATUSES = Object.freeze(['Open', 'In progress', 'Complete',
 export const REVIEW_LEAD_DAYS = 30;
 export const CERTIFICATE_LEAD_DAYS = 90;
 
+/*
+ * ASC-0 (R5): a sentence cites the standard the register holds, read
+ * from the standard record's `code` (then `title`), and falls back to
+ * standard-neutral words when no record is passed. It used to cite
+ * "ISO 9001" for every standard, so an ISO 14001 register was told what
+ * ISO 9001 requires.
+ *
+ * Clause numbers are cited only where they are known to hold: internal
+ * audit is clause 9.2 in ISO 9001, ISO 14001 and ISO 45001 alike (the
+ * harmonized structure), and the kept justification for a requirement
+ * determined not applicable is ISO 9001 §4.3 alone. Any other code is
+ * named without a clause number.
+ */
+const standardLabel = (standard) => String(standard?.code || standard?.title || '').trim();
+const INTERNAL_AUDIT_9_2 = /\bISO\s*(9001|14001|45001)\b/i;
+const ISO_9001 = /\bISO\s*9001\b/i;
+
+const internalAuditRequirement = (standard) => {
+  const label = standardLabel(standard);
+  if (!label) return 'The standard requires the organization to audit its own system.';
+  return INTERNAL_AUDIT_9_2.test(label)
+    ? `${label} §9.2 requires the organization to audit its own system.`
+    : `${label} requires the organization to audit its own system.`;
+};
+
+const notApplicableJustification = (standard) => {
+  const label = standardLabel(standard);
+  if (ISO_9001.test(label)) {
+    return `${label} §4.3 requires the justification for a requirement determined not applicable to be kept. Say why this one does not apply.`;
+  }
+  return label
+    ? `Say why this requirement of ${label} does not apply. A requirement determined not applicable keeps its justification on record.`
+    : 'Say why this requirement does not apply. A requirement determined not applicable keeps its justification on record.';
+};
+
 /* ------------------------------------------------------------------ */
 /* Clauses                                                            */
 /* ------------------------------------------------------------------ */
@@ -205,8 +240,12 @@ export const hasEvidenceRecord = (clause = {}) =>
  * The old app's Add Clause modal set `status: 'Compliant'` on every
  * clause it created, with no evidence, no date and no assessor, and
  * toasted that it had been successfully registered.
+ *
+ * `standard` is the clause's `iso_standards` record (ASC-0, R5): the
+ * not-applicable refusal names it. Without it the refusal is
+ * standard-neutral.
  */
-export const canSetClauseStatus = (clause = {}, status, patch = {}) => {
+export const canSetClauseStatus = (clause = {}, status, patch = {}, standard = null) => {
   if (!CLAUSE_STATUSES.includes(status)) {
     return { ok: false, reason: `${status} is not a clause status.` };
   }
@@ -222,7 +261,7 @@ export const canSetClauseStatus = (clause = {}, status, patch = {}) => {
     if (!String(next.applicability_justification || '').trim()) {
       return {
         ok: false,
-        reason: 'ISO 9001:2015 §4.3 requires the justification for a requirement determined not applicable to be kept. Say why this one does not apply.',
+        reason: notApplicableJustification(standard),
       };
     }
     return { ok: true };
@@ -633,7 +672,7 @@ export const certificationReadiness = (
   add('blocking', openMajor.length,
     `${openMajor.length} major nonconformit${openMajor.length === 1 ? 'y is' : 'ies are'} open. A certification body will not recommend certification over one.`);
   add('blocking', neverAudited.length,
-    `${neverAudited.length} applicable clause${neverAudited.length === 1 ? ' has' : 's have'} never been examined by an internal audit. ISO 9001 §9.2 requires the organization to audit its own system.`);
+    `${neverAudited.length} applicable clause${neverAudited.length === 1 ? ' has' : 's have'} never been examined by an internal audit. ${internalAuditRequirement(standard)}`);
   add('blocking', unevidenced.length,
     `${unevidenced.length} clause${unevidenced.length === 1 ? ' is' : 's are'} marked conformant with no evidence, date or assessor recorded.`);
   add('blocking', nonconformant.length,
@@ -666,7 +705,11 @@ export const certificationReadiness = (
     blockers.push({
       severity: 'watch',
       count: 1,
-      text: `The certificate expires in ${certExpiry} day${certExpiry === 1 ? '' : 's'}. Book the recertification audit before then.`,
+      // ASC-0: day 0 is the last day of the certificate (not yet expired),
+      // and "expires in 0 days" read as a count ahead.
+      text: certExpiry === 0
+        ? 'The certificate expires today. Book the recertification audit now.'
+        : `The certificate expires in ${certExpiry} day${certExpiry === 1 ? '' : 's'}. Book the recertification audit before then.`,
     });
   }
 
@@ -705,7 +748,12 @@ export const certificationReadiness = (
       openMinor: openMinor.length,
       overdueActions: overdueActions.length,
       certificateDays: certDays,
-      certificateExpiring: certDays !== null && certDays <= CERTIFICATE_LEAD_DAYS,
+      // ASC-0 (R3): the two flags partition the line. Expired is after the
+      // expiry date (certDays < 0); expiring is the lead window up to and
+      // including the day of expiry (0 <= certDays <= 90), the same day the
+      // family treats as not yet expired. A lapsed certificate used to read
+      // expiring AND expired, because this had no lower bound.
+      certificateExpiring: certDays !== null && certDays >= 0 && certDays <= CERTIFICATE_LEAD_DAYS,
       certificateExpired: certDays !== null && certDays < 0,
     },
     coverage,
