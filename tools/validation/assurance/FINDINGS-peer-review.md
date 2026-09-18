@@ -98,7 +98,8 @@ docs/scope/AssuranceApps-STATUS.md §3k for decision.
   review is NOT in `reviews` (or has no `review_id`) still counts,
   matching MOC's held rule for an action with an unknown change ("not
   knowing the parent is not a reason to hide the work"). Cases `rc4b-*`
-  (3); the previous engine fails all three.
+  (3); the previous engine fails the two with a finished parent (the
+  third, with no reviews supplied, reads the same before and after).
 - **Goldens moved:** none of the 151 existing cases changed (their
   comments carry no `review_id`). 29 added. 151 -> 180.
 - **Not changed:** the disposition machine, `canClose`, the stage machine,

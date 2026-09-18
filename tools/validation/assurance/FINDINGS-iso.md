@@ -195,5 +195,6 @@ Negative control: against the pre-AS15 engine every case above fails
   so a caller that passes nothing now gets the neutral wording. Cases
   `r5-*` (6) compare the refusal verbatim (`"prose": "exact"`), the
   blocker is covered in jest (blocker `text` is prose-stripped).
-- 206 -> 216. The previous engine fails the R3 cases other than day 1 and
-  the R5 cases other than ISO 9001.
+- 206 -> 216. The previous engine fails the two R3 cases with a lapsed
+  certificate (the repro and day -1; day 0 and day 1 read the same before
+  and after) and the five R5 cases other than ISO 9001.
