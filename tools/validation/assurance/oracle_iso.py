@@ -216,6 +216,36 @@ def evidenced(c):
         and assessor_named(c)
 
 
+def evidence_gaps(c):
+    """ASC-1 (E8): what the evidence record lacks, in the record's own order."""
+    gaps = []
+    if not written(c.get('evidence_reference')):
+        gaps.append('evidence reference')
+    if not present(c.get('assessed_date')):
+        gaps.append('assessed date')
+    if not assessor_named(c):
+        gaps.append('assessor')
+    return gaps
+
+
+def unevidenced_text(claims_without):
+    """ASC-1 (E8): the readiness sentence, true whichever parts are missing.
+
+    One shared gap set: name it ("with no A, B or C recorded"). Differing
+    gap sets: say the record is incomplete and list what a complete one
+    holds. Count agrees with the verb (1 clause is, n clauses are).
+    """
+    n = len(claims_without)
+    subject = f'{n} clause is' if n == 1 else f'{n} clauses are'
+    gap_sets = {tuple(evidence_gaps(c)) for c in claims_without}
+    if len(gap_sets) == 1:
+        (gaps,) = gap_sets
+        named = gaps[0] if len(gaps) == 1 else ', '.join(gaps[:-1]) + ' or ' + gaps[-1]
+        return f'{subject} marked conformant with no {named} recorded.'
+    return (f'{subject} marked conformant without a complete evidence record '
+            '(evidence reference, assessed date and assessor).')
+
+
 def can_set_clause_status(clause, status, patch=None):
     patch = patch or {}
     if status not in CLAUSE_STATUSES:
@@ -1111,6 +1141,56 @@ def build():
         sx = std(certificate_expires=exp)
         c.add(f'r3-cert-{tag}', 'certificationReadiness', [sx, ready_data, T],
               certification_readiness(sx, ready_data, T), defect='R3')
+
+    # --- ASC-1 (E8): the unevidenced-claim sentence, verbatim -------------
+    # Each fixture is otherwise ready (every clause examined in a Reported
+    # audit this cycle, no findings, certificate years away), so the one
+    # listed item is the sentence under test and the whole result can be
+    # compared with its prose ("prose": "exact").
+    for cid, x in [('e8-parts-none-missing', ev()),
+                   ('e8-parts-evidence', ev(evidence_reference=None)),
+                   ('e8-parts-evidence-blank', ev(evidence_reference='   ')),
+                   ('e8-parts-date', ev(assessed_date=None)),
+                   ('e8-parts-assessor', ev(assessed_by=None)),
+                   ('e8-parts-assessor-name', ev(assessed_by=None, assessor_name='J. Okafor')),
+                   ('e8-parts-all', cl(status='Conformant'))]:
+        c.add(cid, 'missingEvidenceParts', [x], evidence_gaps(x), defect='E8')
+
+    def e8_case(cid, clauses):
+        data = {'clauses': clauses,
+                'auditClauses': [cov(id='e' + x['id'], clause_id=x['id'],
+                                     clause_ref=x['clause_ref']) for x in clauses],
+                'audits': [au(status='Reported')], 'findings': [], 'actions': []}
+        got = certification_readiness(std(), data, T)
+        without = [x for x in clauses if claims(x) and not evidenced(x)]
+        got['blockers'][0]['text'] = unevidenced_text(without)
+        # a claim with no assessed date is also never assessed (serious);
+        # that item's words are the module's, pinned alongside
+        unassessed = sum(1 for x in clauses if not assessed(x))
+        if unassessed:
+            got['blockers'][1]['text'] = (
+                f'{unassessed} applicable clause has never been assessed at all.' if unassessed == 1
+                else f'{unassessed} applicable clauses have never been assessed at all.')
+        assert len(got['blockers']) == 1 + (1 if unassessed else 0), cid
+        c.add(cid, 'certificationReadiness', [std(), data, T], got, defect='E8', prose='exact')
+
+    # the course's repro: clause 5.2 is assessed, dated and signed; only the
+    # evidence reference is missing
+    e8_case('e8-course-5-2-evidence-only',
+            [ev(id='c1', clause_ref='4.1'), ev(id='c2', clause_ref='5.2', evidence_reference=None)])
+    e8_case('e8-two-evidence-only',
+            [ev(id='c1', clause_ref='5.2', evidence_reference=None),
+             ev(id='c2', clause_ref='6.2', evidence_reference='')])
+    e8_case('e8-one-all-three', [cl(id='c1', clause_ref='5.2', status='Conformant')])
+    e8_case('e8-two-all-three', [cl(id='c1', clause_ref='5.2', status='Conformant'),
+                                 cl(id='c2', clause_ref='6.2', status='Partially conformant')])
+    e8_case('e8-one-date-and-assessor',
+            [ev(id='c1', clause_ref='7.1', assessed_date=None, assessed_by=None)])
+    e8_case('e8-one-assessor-only', [ev(id='c1', clause_ref='7.1', assessed_by=None)])
+    e8_case('e8-mixed-gaps',
+            [ev(id='c1', clause_ref='5.2', evidence_reference=None),
+             ev(id='c2', clause_ref='7.1', assessed_by=None),
+             ev(id='c3', clause_ref='8.1')])
 
     # --- summarise --------------------------------------------------------
     standards = [std(), std(id='s2', code='ISO 14001:2015', certification_status='Seeking certification')]

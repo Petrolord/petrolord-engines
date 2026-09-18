@@ -235,6 +235,41 @@ export const hasEvidenceRecord = (clause = {}) =>
   && Boolean(clause.assessed_by || String(clause.assessor_name || '').trim());
 
 /**
+ * Which parts of the evidence record a clause lacks, in a fixed order:
+ * 'evidence reference', 'assessed date', 'assessor'. Empty when
+ * `hasEvidenceRecord` holds. ASC-1 (E8): the readiness sentence names
+ * these rather than claiming all three are missing.
+ */
+export const missingEvidenceParts = (clause = {}) => [
+  !String(clause.evidence_reference || '').trim() && 'evidence reference',
+  !clause.assessed_date && 'assessed date',
+  !(clause.assessed_by || String(clause.assessor_name || '').trim()) && 'assessor',
+].filter(Boolean);
+
+const listWith = (items, conj) => (items.length < 2
+  ? items.join('')
+  : `${items.slice(0, -1).join(', ')} ${conj} ${items[items.length - 1]}`);
+
+/**
+ * The readiness sentence for conformity claims without a complete
+ * evidence record (ASC-1, E8). It used to say "with no evidence, date or
+ * assessor recorded" whatever was missing, so a clause that was assessed
+ * and dated but lacked only its evidence reference read as if nothing had
+ * been recorded. When every clause lacks the same parts the sentence names
+ * them; when they differ it says the record is incomplete and lists what a
+ * complete one holds.
+ */
+const unevidencedSentence = (clauses) => {
+  const n = clauses.length;
+  const lead = `${n} clause${n === 1 ? ' is' : 's are'} marked conformant`;
+  const sets = new Set(clauses.map((c) => missingEvidenceParts(c).join('|')));
+  if (sets.size === 1) {
+    return `${lead} with no ${listWith(missingEvidenceParts(clauses[0]), 'or')} recorded.`;
+  }
+  return `${lead} without a complete evidence record (evidence reference, assessed date and assessor).`;
+};
+
+/**
  * May this clause be moved to `status`, and if not, why not?
  *
  * The old app's Add Clause modal set `status: 'Compliant'` on every
@@ -689,7 +724,7 @@ export const certificationReadiness = (
   add('blocking', neverAudited.length,
     `${neverAudited.length} applicable clause${neverAudited.length === 1 ? ' has' : 's have'} never been examined by an internal audit. ${internalAuditRequirement(standard)}`);
   add('blocking', unevidenced.length,
-    `${unevidenced.length} clause${unevidenced.length === 1 ? ' is' : 's are'} marked conformant with no evidence, date or assessor recorded.`);
+    unevidenced.length ? unevidencedSentence(unevidenced) : '');
   add('blocking', nonconformant.length,
     `${nonconformant.length} clause${nonconformant.length === 1 ? ' is' : 's are'} assessed nonconformant and not yet resolved.`);
   add('serious', staleAudited.length,

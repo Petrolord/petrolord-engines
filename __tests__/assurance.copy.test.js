@@ -24,6 +24,7 @@ import {
   AUDIT_OPEN_STATUSES,
   AUDIT_STATUSES,
   isAuditOverdue as isoIsAuditOverdue,
+  missingEvidenceParts,
   summarise as isoSummarise,
 } from '../engines/assurance/isoCompliance.js';
 
@@ -123,6 +124,8 @@ describe('count agreement', () => {
  * ASC-1, found by the NextGen compliance course writers.
  *   E3: the ISO and audit modules disagreed about a Reported audit past
  *       its planned end. Overdue asks "delivered by the planned end?".
+ *   E8: the readiness sentence said evidence, date and assessor were all
+ *       missing when only the evidence reference was.
  */
 describe('ASC-1 E3: one answer to "is this audit overdue"', () => {
   const past = { planned_end: '2026-08-06' };
@@ -152,5 +155,45 @@ describe('ASC-1 E3: one answer to "is this audit overdue"', () => {
     ] }, T);
     expect(s.auditsOpen).toBe(2);
     expect(s.auditsOverdue).toBe(1);
+  });
+});
+
+describe('ASC-1 E8: the unevidenced-claim sentence names what is missing', () => {
+  const T = new Date(2026, 8, 17);
+  const std = { id: 's1', code: 'ISO 9001:2015', cycle_years: 3, certificate_expires: '2029-03-31' };
+  const ev = (o) => ({
+    id: 'c1', standard_id: 's1', clause_ref: '4.1', applicability: 'Applicable', status: 'Conformant',
+    evidence_reference: 'QMS-PR-009 rev 4', assessed_date: '2026-06-01', assessed_by: 'u1', ...o,
+  });
+  const sentence = (clauses) => certificationReadiness(std, {
+    clauses,
+    audits: [{ id: 'a1', status: 'Reported', audit_type: 'Internal', standard_id: 's1' }],
+    auditClauses: clauses.map((c) => ({ id: `r${c.id}`, audit_id: 'a1', clause_id: c.id, result: 'Conformant', examined_on: '2026-09-02' })),
+  }, T).blockers[0].text;
+
+  it('names the evidence reference alone for the course case (clause 5.2)', () => {
+    expect(sentence([ev({}), ev({ id: 'c2', clause_ref: '5.2', evidence_reference: null })]))
+      .toBe('1 clause is marked conformant with no evidence reference recorded.');
+  });
+
+  it('keeps number agreement and names a shared gap', () => {
+    expect(sentence([ev({ evidence_reference: '' }), ev({ id: 'c2', evidence_reference: null })]))
+      .toBe('2 clauses are marked conformant with no evidence reference recorded.');
+    expect(sentence([ev({ assessed_date: null, assessed_by: null })]))
+      .toBe('1 clause is marked conformant with no assessed date or assessor recorded.');
+    expect(sentence([ev({ evidence_reference: null, assessed_date: null, assessed_by: null })]))
+      .toBe('1 clause is marked conformant with no evidence reference, assessed date or assessor recorded.');
+  });
+
+  it('says the record is incomplete when the clauses lack different things', () => {
+    expect(sentence([ev({ evidence_reference: null }), ev({ id: 'c2', assessed_by: null })]))
+      .toBe('2 clauses are marked conformant without a complete evidence record (evidence reference, assessed date and assessor).');
+  });
+
+  it('missingEvidenceParts lists the gaps in the record\'s order', () => {
+    expect(missingEvidenceParts(ev({}))).toEqual([]);
+    expect(missingEvidenceParts({ status: 'Conformant' }))
+      .toEqual(['evidence reference', 'assessed date', 'assessor']);
+    expect(missingEvidenceParts(ev({ assessed_by: null, assessor_name: 'J. Okafor' }))).toEqual([]);
   });
 });
