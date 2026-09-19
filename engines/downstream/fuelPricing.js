@@ -192,8 +192,27 @@ export const landedCost = ({
   const bases = { fob: fob.amount, cf: fob.amount, cif: fob.amount };
   let running = fob.amount;
 
+  // MD3-0. A percentage charge can only bite on a base that exists when the
+  // walk reaches it. `bases` starts every base at FOB, so a freight-stage
+  // charge on C&F, or an insurance-stage charge on CIF, used to be computed
+  // on FOB without a word. The one that is legitimate, insurance quoted on
+  // CIF (the usual marine quote), is circular and is solved in closed form:
+  // CIF = (C&F + other insurance) / (1 - sum of the CIF rates). Any other
+  // forward reference is refused on its line.
+  const invalid = [];
+  const knownStages = new Set(['freight', 'insurance', 'landed']);
+  charges.filter((c) => !knownStages.has(c.stage || 'landed')).forEach((c) => {
+    invalid.push(`${c.label || c.id || 'unnamed charge'} has an unknown stage "${c.stage}"`);
+  });
+  const forward = (stage, basis) => (stage === 'freight' && (basis === CHARGE_BASIS.PERCENT_OF_CF || basis === CHARGE_BASIS.PERCENT_OF_CIF));
   const walk = (stage, freezeAs) => {
-    at(stage).forEach((c) => {
+    const onCif = stage === 'insurance' ? at(stage).filter((c) => c.basis === CHARGE_BASIS.PERCENT_OF_CIF) : [];
+    at(stage).filter((c) => !onCif.includes(c)).forEach((c) => {
+      if (forward(stage, c.basis)) {
+        invalid.push(`${c.label || c.id || 'unnamed charge'} is a percentage of a value that is not formed until after freight`);
+        lines.push({ key: c.id || c.label, label: c.label, basis: BASIS_LABEL[c.basis] || c.basis, rate: num(c.amount, null), amount: null, stage, required: true, note: c.note || null });
+        return;
+      }
       const r = chargeAmount(c, q, bases);
       if (r.missing) missing.push(c.label || c.id || 'unnamed charge');
       lines.push({
@@ -203,6 +222,25 @@ export const landedCost = ({
       });
       if (Number.isFinite(r.amount)) running += r.amount;
     });
+    if (onCif.length > 0) {
+      const rates = onCif.map((c) => num(c.amount));
+      onCif.filter((c, i) => !Number.isFinite(rates[i])).forEach((c) => missing.push(c.label || c.id || 'unnamed charge'));
+      const sumRate = rates.filter(Number.isFinite).reduce((s2, r) => s2 + r / 100, 0);
+      if (!(sumRate < 1)) {
+        invalid.push('The insurance rates on CIF add up to 100 percent or more');
+      } else {
+        const cifTotal = running / (1 - sumRate);
+        onCif.forEach((c, i) => {
+          const amount = Number.isFinite(rates[i]) ? (rates[i] / 100) * cifTotal : null;
+          lines.push({
+            key: c.id || c.label, label: c.label, basis: BASIS_LABEL[c.basis] || c.basis,
+            rate: Number.isFinite(rates[i]) ? rates[i] : null, amount, stage,
+            required: !Number.isFinite(rates[i]), note: c.note || null,
+          });
+          if (Number.isFinite(amount)) running += amount;
+        });
+      }
+    }
     if (freezeAs) bases[freezeAs] = running;
   };
 
@@ -211,6 +249,9 @@ export const landedCost = ({
   walk('insurance', 'cif');
   const cif = running;
   walk('landed');
+  if (invalid.length > 0) {
+    return { error: `${invalid.join('; ')}.`, complete: false, lines, invalidCharges: invalid };
+  }
 
   const loss = num(oceanLossPercent, 0);
   const outturn = {
@@ -432,13 +473,20 @@ export const truckingEconomics = ({
   const depreciationPerTrip = capex !== null && life !== null && life > 0 && tripsPerYear > 0
     ? capex / (life * tripsPerYear) : null;
 
-  const variableCost = num(maintenancePerKm, 0) * roundTripKm + num(tyresPerKm, 0) * roundTripKm;
+  // MD3-0: a cost box left BLANK ('' or null) used to be 0 with the lane
+  // reported complete. Left out of the call entirely it still defaults to 0,
+  // as the signature says; blank is a missing input and is named.
+  const blank = (v) => v === '' || v === null;
+  const perKm = blank(maintenancePerKm) || blank(tyresPerKm)
+    ? null
+    : num(maintenancePerKm, 0) * roundTripKm + num(tyresPerKm, 0) * roundTripKm;
+  const orMissing = (v) => (blank(v) ? null : num(v, 0));
   const components = [
     { label: 'Diesel', amount: fuelCost, required: fuelCost === null },
-    { label: 'Driver', amount: num(driverCostPerTrip, 0), required: false },
-    { label: 'Maintenance and tyres', amount: variableCost, required: false },
-    { label: 'Tolls and levies', amount: num(tollsAndLeviesPerTrip, 0), required: false },
-    { label: 'Overhead', amount: num(overheadPerTrip, 0), required: false },
+    { label: 'Driver', amount: orMissing(driverCostPerTrip), required: blank(driverCostPerTrip) },
+    { label: 'Maintenance and tyres', amount: perKm, required: perKm === null },
+    { label: 'Tolls and levies', amount: orMissing(tollsAndLeviesPerTrip), required: blank(tollsAndLeviesPerTrip) },
+    { label: 'Overhead', amount: orMissing(overheadPerTrip), required: blank(overheadPerTrip) },
     { label: 'Truck depreciation', amount: depreciationPerTrip, required: depreciationPerTrip === null },
   ];
   const missing = components.filter((c) => c.required).map((c) => c.label);

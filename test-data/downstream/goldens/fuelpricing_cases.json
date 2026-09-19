@@ -1,0 +1,226 @@
+{
+ "fleet": {
+  "demandLitresPerDay": 180000,
+  "tripsNeededPerDay": 4.0,
+  "trucksRequired": 9,
+  "utilisation": 0.9074074074074076
+ },
+ "landed": {
+  "floor": {
+   "cf": 25900000,
+   "cif": 25900000,
+   "complete": false,
+   "lines": {
+    "demurrage": null,
+    "duty": null,
+    "finance": null,
+    "fob": 25900000,
+    "freight": null,
+    "insurance": null,
+    "jetty": null,
+    "port": null,
+    "regulator": null,
+    "storage": null
+   },
+   "missing": [
+    "freight",
+    "insurance",
+    "duty",
+    "port",
+    "regulator",
+    "jetty",
+    "storage",
+    "finance",
+    "demurrage"
+   ],
+   "outturnLitres": 49416107.38255033,
+   "perLitreLocal": 812.3869346733669,
+   "perLitreUsd": 0.5241206030150755,
+   "quantities": {
+    "bbl": 312379.8637664267,
+    "litres": 49664429.53020134,
+    "m3": 49664.42953020134,
+    "tonnes": 37000
+   },
+   "totalUsd": 25900000
+  },
+  "full": {
+   "cf": 26936000,
+   "cif": 26976404.0,
+   "complete": true,
+   "lines": {
+    "demurrage": 60000,
+    "duty": 4046460.5999999996,
+    "finance": 404646.06,
+    "fob": 25900000,
+    "freight": 1036000,
+    "insurance": 40404.0,
+    "jetty": 54630.87248322148,
+    "port": 118400.0,
+    "regulator": 104295.3020134228,
+    "storage": 119194.63087248322
+   },
+   "missing": [],
+   "outturnLitres": 49416107.38255033,
+   "perLitreLocal": 1000.0838064548418,
+   "perLitreUsd": 0.6452153590031238,
+   "quantities": {
+    "bbl": 312379.8637664267,
+    "litres": 49664429.53020134,
+    "m3": 49664.42953020134,
+    "tonnes": 37000
+   },
+   "totalUsd": 31884031.465369128
+  },
+  "insuranceOnCif": {
+   "cf": 26936000,
+   "cif": 26976464.69704557,
+   "complete": true,
+   "lines": {
+    "demurrage": 60000,
+    "duty": 4046469.704556835,
+    "finance": 404646.97045568353,
+    "fob": 25900000,
+    "freight": 1036000,
+    "insurance": 40464.697045568355,
+    "jetty": 54630.87248322148,
+    "port": 118400.0,
+    "regulator": 104295.3020134228,
+    "storage": 119194.63087248322
+   },
+   "missing": [],
+   "outturnLitres": 49416107.38255033,
+   "perLitreLocal": 1000.086024429827,
+   "perLitreUsd": 0.6452167899547271,
+   "quantities": {
+    "bbl": 312379.8637664267,
+    "litres": 49664429.53020134,
+    "m3": 49664.42953020134,
+    "tonnes": 37000
+   },
+   "totalUsd": 31884102.177427214
+  }
+ },
+ "lane": {
+  "costPerLitreDelivered": 13.519539078156313,
+  "costPerTrip": 607162.5,
+  "cycleHours": 24.5,
+  "deliveredLitres": 44910.0,
+  "dieselLitres": 304.0,
+  "inputs": {
+   "averageSpeedKmh": 40,
+   "dieselPricePerLitre": 1150,
+   "dischargeHours": 1.5,
+   "distanceKm": 400,
+   "driverCostPerTrip": 60000,
+   "fuelConsumptionLPer100Km": 38,
+   "loadHours": 2,
+   "maintenancePerKm": 45,
+   "overheadPerTrip": 40000,
+   "payloadLitres": 45000,
+   "queueHours": 1,
+   "tollsAndLeviesPerTrip": 25000,
+   "transitLossPercent": 0.2,
+   "truckCapitalCost": 90000000,
+   "truckLifeYears": 8,
+   "tyresPerKm": 25,
+   "workingDaysPerYear": 300,
+   "workingHoursPerDay": 12
+  },
+  "items": {
+   "Diesel": 349600.0,
+   "Driver": 60000,
+   "Maintenance and tyres": 56000,
+   "Overhead": 40000,
+   "Tolls and levies": 25000,
+   "Truck depreciation": 76562.50000000001
+  },
+  "tripsPerDay": 0.4897959183673469,
+  "tripsPerYear": 146.93877551020407
+ },
+ "provenance": {
+  "engine": "engines/downstream/fuelPricing.js",
+  "method": "a cargo invoice over outturn litres; insurance on CIF by fixed-point iteration; closed-form FX breakeven; integer fleet search; exact Erlang C",
+  "oracle": "tools/validation/downstream/oracle_fuelpricing.py",
+  "published": "none: every rate is synthetic; the engine ships none and neither does this file"
+ },
+ "pump": {
+  "breakevenFx": 1811.4976109700608,
+  "byRecipient": {
+   "Chain": 30,
+   "Dealer": 35,
+   "Government": 95.02024798411314,
+   "Marketer": 20,
+   "Product (landed)": 1000.0838064548418,
+   "Terminal": 25,
+   "Transporter": 13.5195
+  },
+  "cap": 1400.0,
+  "elements": [
+   [
+    "depot",
+    "Terminal",
+    "per_litre",
+    25
+   ],
+   [
+    "bridging",
+    "Chain",
+    "per_litre",
+    30
+   ],
+   [
+    "transport",
+    "Transporter",
+    "per_litre",
+    13.5195
+   ],
+   [
+    "marketer",
+    "Marketer",
+    "per_litre",
+    20
+   ],
+   [
+    "dealer",
+    "Dealer",
+    "per_litre",
+    35
+   ],
+   [
+    "levies",
+    "Government",
+    "per_litre",
+    10
+   ],
+   [
+    "vat",
+    "Government",
+    "percent_of_running",
+    7.5
+   ]
+  ],
+  "price": 1218.6235544389551
+ },
+ "rates": {
+  "demurrage": 60000,
+  "duty": 15,
+  "finance": 1.5,
+  "freight": 28,
+  "insurance": 0.15,
+  "jetty": 1.1,
+  "port": 3.2,
+  "regulator": 0.0021,
+  "storage": 2.4
+ },
+ "station": {
+  "offered": 9.0,
+  "payloadFitsUllage": false,
+  "peakTransactionsPerHour": 240.0,
+  "reorderLevelLitres": 13500.0,
+  "serviceMinutes": 2.25,
+  "stable": false,
+  "ullageAtReorderLitres": 31500.0,
+  "usableTankLitres": 42000
+ }
+}

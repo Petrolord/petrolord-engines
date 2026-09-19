@@ -1,0 +1,988 @@
+{
+ "days": [
+  {
+   "closingDippedM3": 3600.0,
+   "deliveriesM3": 640.0,
+   "direction": "loss",
+   "expectedClosingM3": 3608.0,
+   "knownLossM3": 2.0,
+   "name": "a loss beyond tolerance",
+   "openingM3": 3450.0,
+   "receiptsM3": 800.0,
+   "tolerancePercentOfThroughput": 0.5,
+   "unaccountedM3": -8.0,
+   "withinTolerance": false
+  },
+  {
+   "closingDippedM3": 3611.0,
+   "deliveriesM3": 640.0,
+   "direction": "gain",
+   "expectedClosingM3": 3608.0,
+   "knownLossM3": 2.0,
+   "name": "a gain inside tolerance",
+   "openingM3": 3450.0,
+   "receiptsM3": 800.0,
+   "tolerancePercentOfThroughput": 0.5,
+   "unaccountedM3": 3.0,
+   "withinTolerance": true
+  },
+  {
+   "closingDippedM3": 3450.5,
+   "deliveriesM3": 0.0,
+   "direction": "gain",
+   "expectedClosingM3": 3450.0,
+   "knownLossM3": 0.0,
+   "name": "no movement, a small gain, so zero tolerance",
+   "openingM3": 3450.0,
+   "receiptsM3": 0.0,
+   "tolerancePercentOfThroughput": 0.5,
+   "unaccountedM3": 0.5,
+   "withinTolerance": false
+  }
+ ],
+ "dips": [
+  {
+   "dip": 7200,
+   "gross": 2975.0,
+   "name": "Suite default T-01 at 7,200 mm with 60 mm of water",
+   "table": [
+    {
+     "heightMm": 0,
+     "volumeM3": 0
+    },
+    {
+     "heightMm": 600,
+     "volumeM3": 250
+    },
+    {
+     "heightMm": 1200,
+     "volumeM3": 500
+    },
+    {
+     "heightMm": 1800,
+     "volumeM3": 750
+    },
+    {
+     "heightMm": 2400,
+     "volumeM3": 1000
+    },
+    {
+     "heightMm": 3000,
+     "volumeM3": 1250
+    },
+    {
+     "heightMm": 3600,
+     "volumeM3": 1500
+    },
+    {
+     "heightMm": 4200,
+     "volumeM3": 1750
+    },
+    {
+     "heightMm": 4800,
+     "volumeM3": 2000
+    },
+    {
+     "heightMm": 5400,
+     "volumeM3": 2250
+    },
+    {
+     "heightMm": 6000,
+     "volumeM3": 2500
+    },
+    {
+     "heightMm": 6600,
+     "volumeM3": 2750
+    },
+    {
+     "heightMm": 7200,
+     "volumeM3": 3000
+    },
+    {
+     "heightMm": 7800,
+     "volumeM3": 3250
+    },
+    {
+     "heightMm": 8400,
+     "volumeM3": 3500
+    },
+    {
+     "heightMm": 9000,
+     "volumeM3": 3750
+    },
+    {
+     "heightMm": 9600,
+     "volumeM3": 4000
+    },
+    {
+     "heightMm": 10200,
+     "volumeM3": 4250
+    },
+    {
+     "heightMm": 10800,
+     "volumeM3": 4500
+    },
+    {
+     "heightMm": 11400,
+     "volumeM3": 4750
+    },
+    {
+     "heightMm": 12000,
+     "volumeM3": 5000
+    }
+   ],
+   "water": 60
+  },
+  {
+   "dip": 6137,
+   "geometry": 1927.995411508056,
+   "gross": 1927.995411508056,
+   "name": "vertical cylinder, 20 m, dip between entries",
+   "table": [
+    {
+     "heightMm": 0,
+     "volumeM3": 0.0
+    },
+    {
+     "heightMm": 250,
+     "volumeM3": 78.53981633974483
+    },
+    {
+     "heightMm": 500,
+     "volumeM3": 157.07963267948966
+    },
+    {
+     "heightMm": 750,
+     "volumeM3": 235.61944901923448
+    },
+    {
+     "heightMm": 1000,
+     "volumeM3": 314.1592653589793
+    },
+    {
+     "heightMm": 1250,
+     "volumeM3": 392.69908169872417
+    },
+    {
+     "heightMm": 1500,
+     "volumeM3": 471.23889803846896
+    },
+    {
+     "heightMm": 1750,
+     "volumeM3": 549.7787143782139
+    },
+    {
+     "heightMm": 2000,
+     "volumeM3": 628.3185307179587
+    },
+    {
+     "heightMm": 2250,
+     "volumeM3": 706.8583470577036
+    },
+    {
+     "heightMm": 2500,
+     "volumeM3": 785.3981633974483
+    },
+    {
+     "heightMm": 2750,
+     "volumeM3": 863.9379797371931
+    },
+    {
+     "heightMm": 3000,
+     "volumeM3": 942.4777960769379
+    },
+    {
+     "heightMm": 3250,
+     "volumeM3": 1021.0176124166827
+    },
+    {
+     "heightMm": 3500,
+     "volumeM3": 1099.5574287564277
+    },
+    {
+     "heightMm": 3750,
+     "volumeM3": 1178.0972450961724
+    },
+    {
+     "heightMm": 4000,
+     "volumeM3": 1256.6370614359173
+    },
+    {
+     "heightMm": 4250,
+     "volumeM3": 1335.1768777756622
+    },
+    {
+     "heightMm": 4500,
+     "volumeM3": 1413.716694115407
+    },
+    {
+     "heightMm": 4750,
+     "volumeM3": 1492.2565104551518
+    },
+    {
+     "heightMm": 5000,
+     "volumeM3": 1570.7963267948967
+    },
+    {
+     "heightMm": 5250,
+     "volumeM3": 1649.3361431346414
+    },
+    {
+     "heightMm": 5500,
+     "volumeM3": 1727.8759594743863
+    },
+    {
+     "heightMm": 5750,
+     "volumeM3": 1806.4157758141312
+    },
+    {
+     "heightMm": 6000,
+     "volumeM3": 1884.9555921538758
+    },
+    {
+     "heightMm": 6250,
+     "volumeM3": 1963.4954084936207
+    },
+    {
+     "heightMm": 6500,
+     "volumeM3": 2042.0352248333654
+    },
+    {
+     "heightMm": 6750,
+     "volumeM3": 2120.57504117311
+    },
+    {
+     "heightMm": 7000,
+     "volumeM3": 2199.1148575128555
+    },
+    {
+     "heightMm": 7250,
+     "volumeM3": 2277.6546738526004
+    },
+    {
+     "heightMm": 7500,
+     "volumeM3": 2356.194490192345
+    },
+    {
+     "heightMm": 7750,
+     "volumeM3": 2434.7343065320897
+    },
+    {
+     "heightMm": 8000,
+     "volumeM3": 2513.2741228718346
+    },
+    {
+     "heightMm": 8250,
+     "volumeM3": 2591.8139392115795
+    },
+    {
+     "heightMm": 8500,
+     "volumeM3": 2670.3537555513244
+    },
+    {
+     "heightMm": 8750,
+     "volumeM3": 2748.893571891069
+    },
+    {
+     "heightMm": 9000,
+     "volumeM3": 2827.433388230814
+    },
+    {
+     "heightMm": 9250,
+     "volumeM3": 2905.9732045705587
+    },
+    {
+     "heightMm": 9500,
+     "volumeM3": 2984.5130209103036
+    },
+    {
+     "heightMm": 9750,
+     "volumeM3": 3063.0528372500485
+    },
+    {
+     "heightMm": 10000,
+     "volumeM3": 3141.5926535897934
+    },
+    {
+     "heightMm": 10250,
+     "volumeM3": 3220.1324699295383
+    },
+    {
+     "heightMm": 10500,
+     "volumeM3": 3298.6722862692827
+    },
+    {
+     "heightMm": 10750,
+     "volumeM3": 3377.2121026090276
+    },
+    {
+     "heightMm": 11000,
+     "volumeM3": 3455.7519189487725
+    },
+    {
+     "heightMm": 11250,
+     "volumeM3": 3534.2917352885174
+    },
+    {
+     "heightMm": 11500,
+     "volumeM3": 3612.8315516282623
+    },
+    {
+     "heightMm": 11750,
+     "volumeM3": 3691.371367968007
+    },
+    {
+     "heightMm": 12000,
+     "volumeM3": 3769.9111843077517
+    },
+    {
+     "heightMm": 12250,
+     "volumeM3": 3848.451000647497
+    },
+    {
+     "heightMm": 12500,
+     "volumeM3": 3926.9908169872415
+    },
+    {
+     "heightMm": 12750,
+     "volumeM3": 4005.5306333269864
+    },
+    {
+     "heightMm": 13000,
+     "volumeM3": 4084.070449666731
+    },
+    {
+     "heightMm": 13250,
+     "volumeM3": 4162.610266006476
+    },
+    {
+     "heightMm": 13500,
+     "volumeM3": 4241.15008234622
+    },
+    {
+     "heightMm": 13750,
+     "volumeM3": 4319.689898685966
+    },
+    {
+     "heightMm": 14000,
+     "volumeM3": 4398.229715025711
+    },
+    {
+     "heightMm": 14250,
+     "volumeM3": 4476.769531365455
+    },
+    {
+     "heightMm": 14500,
+     "volumeM3": 4555.309347705201
+    },
+    {
+     "heightMm": 14750,
+     "volumeM3": 4633.849164044946
+    },
+    {
+     "heightMm": 15000,
+     "volumeM3": 4712.38898038469
+    }
+   ],
+   "water": 0
+  },
+  {
+   "dip": 9421,
+   "geometry": 2900.946656324815,
+   "gross": 2900.946656324815,
+   "name": "vertical cylinder, water between entries",
+   "table": [
+    {
+     "heightMm": 0,
+     "volumeM3": 0.0
+    },
+    {
+     "heightMm": 250,
+     "volumeM3": 78.53981633974483
+    },
+    {
+     "heightMm": 500,
+     "volumeM3": 157.07963267948966
+    },
+    {
+     "heightMm": 750,
+     "volumeM3": 235.61944901923448
+    },
+    {
+     "heightMm": 1000,
+     "volumeM3": 314.1592653589793
+    },
+    {
+     "heightMm": 1250,
+     "volumeM3": 392.69908169872417
+    },
+    {
+     "heightMm": 1500,
+     "volumeM3": 471.23889803846896
+    },
+    {
+     "heightMm": 1750,
+     "volumeM3": 549.7787143782139
+    },
+    {
+     "heightMm": 2000,
+     "volumeM3": 628.3185307179587
+    },
+    {
+     "heightMm": 2250,
+     "volumeM3": 706.8583470577036
+    },
+    {
+     "heightMm": 2500,
+     "volumeM3": 785.3981633974483
+    },
+    {
+     "heightMm": 2750,
+     "volumeM3": 863.9379797371931
+    },
+    {
+     "heightMm": 3000,
+     "volumeM3": 942.4777960769379
+    },
+    {
+     "heightMm": 3250,
+     "volumeM3": 1021.0176124166827
+    },
+    {
+     "heightMm": 3500,
+     "volumeM3": 1099.5574287564277
+    },
+    {
+     "heightMm": 3750,
+     "volumeM3": 1178.0972450961724
+    },
+    {
+     "heightMm": 4000,
+     "volumeM3": 1256.6370614359173
+    },
+    {
+     "heightMm": 4250,
+     "volumeM3": 1335.1768777756622
+    },
+    {
+     "heightMm": 4500,
+     "volumeM3": 1413.716694115407
+    },
+    {
+     "heightMm": 4750,
+     "volumeM3": 1492.2565104551518
+    },
+    {
+     "heightMm": 5000,
+     "volumeM3": 1570.7963267948967
+    },
+    {
+     "heightMm": 5250,
+     "volumeM3": 1649.3361431346414
+    },
+    {
+     "heightMm": 5500,
+     "volumeM3": 1727.8759594743863
+    },
+    {
+     "heightMm": 5750,
+     "volumeM3": 1806.4157758141312
+    },
+    {
+     "heightMm": 6000,
+     "volumeM3": 1884.9555921538758
+    },
+    {
+     "heightMm": 6250,
+     "volumeM3": 1963.4954084936207
+    },
+    {
+     "heightMm": 6500,
+     "volumeM3": 2042.0352248333654
+    },
+    {
+     "heightMm": 6750,
+     "volumeM3": 2120.57504117311
+    },
+    {
+     "heightMm": 7000,
+     "volumeM3": 2199.1148575128555
+    },
+    {
+     "heightMm": 7250,
+     "volumeM3": 2277.6546738526004
+    },
+    {
+     "heightMm": 7500,
+     "volumeM3": 2356.194490192345
+    },
+    {
+     "heightMm": 7750,
+     "volumeM3": 2434.7343065320897
+    },
+    {
+     "heightMm": 8000,
+     "volumeM3": 2513.2741228718346
+    },
+    {
+     "heightMm": 8250,
+     "volumeM3": 2591.8139392115795
+    },
+    {
+     "heightMm": 8500,
+     "volumeM3": 2670.3537555513244
+    },
+    {
+     "heightMm": 8750,
+     "volumeM3": 2748.893571891069
+    },
+    {
+     "heightMm": 9000,
+     "volumeM3": 2827.433388230814
+    },
+    {
+     "heightMm": 9250,
+     "volumeM3": 2905.9732045705587
+    },
+    {
+     "heightMm": 9500,
+     "volumeM3": 2984.5130209103036
+    },
+    {
+     "heightMm": 9750,
+     "volumeM3": 3063.0528372500485
+    },
+    {
+     "heightMm": 10000,
+     "volumeM3": 3141.5926535897934
+    },
+    {
+     "heightMm": 10250,
+     "volumeM3": 3220.1324699295383
+    },
+    {
+     "heightMm": 10500,
+     "volumeM3": 3298.6722862692827
+    },
+    {
+     "heightMm": 10750,
+     "volumeM3": 3377.2121026090276
+    },
+    {
+     "heightMm": 11000,
+     "volumeM3": 3455.7519189487725
+    },
+    {
+     "heightMm": 11250,
+     "volumeM3": 3534.2917352885174
+    },
+    {
+     "heightMm": 11500,
+     "volumeM3": 3612.8315516282623
+    },
+    {
+     "heightMm": 11750,
+     "volumeM3": 3691.371367968007
+    },
+    {
+     "heightMm": 12000,
+     "volumeM3": 3769.9111843077517
+    },
+    {
+     "heightMm": 12250,
+     "volumeM3": 3848.451000647497
+    },
+    {
+     "heightMm": 12500,
+     "volumeM3": 3926.9908169872415
+    },
+    {
+     "heightMm": 12750,
+     "volumeM3": 4005.5306333269864
+    },
+    {
+     "heightMm": 13000,
+     "volumeM3": 4084.070449666731
+    },
+    {
+     "heightMm": 13250,
+     "volumeM3": 4162.610266006476
+    },
+    {
+     "heightMm": 13500,
+     "volumeM3": 4241.15008234622
+    },
+    {
+     "heightMm": 13750,
+     "volumeM3": 4319.689898685966
+    },
+    {
+     "heightMm": 14000,
+     "volumeM3": 4398.229715025711
+    },
+    {
+     "heightMm": 14250,
+     "volumeM3": 4476.769531365455
+    },
+    {
+     "heightMm": 14500,
+     "volumeM3": 4555.309347705201
+    },
+    {
+     "heightMm": 14750,
+     "volumeM3": 4633.849164044946
+    },
+    {
+     "heightMm": 15000,
+     "volumeM3": 4712.38898038469
+    }
+   ],
+   "water": 187
+  },
+  {
+   "dip": 1730,
+   "geometry": 50.658940094324954,
+   "gross": 50.653006161618016,
+   "name": "horizontal cylinder, 3 m by 12 m, dip 1,730 mm",
+   "table": [
+    {
+     "heightMm": 0,
+     "volumeM3": 0.0
+    },
+    {
+     "heightMm": 250,
+     "volumeM3": 3.3761667095103256
+    },
+    {
+     "heightMm": 500,
+     "volumeM3": 9.29244624033538
+    },
+    {
+     "heightMm": 750,
+     "volumeM3": 16.58299093121822
+    },
+    {
+     "heightMm": 1000,
+     "volumeM3": 24.750622893962344
+    },
+    {
+     "heightMm": 1250,
+     "volumeM3": 33.45334284720588
+    },
+    {
+     "heightMm": 1500,
+     "volumeM3": 42.411500823462205
+    },
+    {
+     "heightMm": 1750,
+     "volumeM3": 51.36965879971852
+    },
+    {
+     "heightMm": 2000,
+     "volumeM3": 60.072378752962074
+    },
+    {
+     "heightMm": 2250,
+     "volumeM3": 68.2400107157062
+    },
+    {
+     "heightMm": 2500,
+     "volumeM3": 75.53055540658903
+    },
+    {
+     "heightMm": 2750,
+     "volumeM3": 81.4468349374141
+    },
+    {
+     "heightMm": 3000,
+     "volumeM3": 84.82300164692441
+    }
+   ],
+   "water": 0
+  }
+ ],
+ "farm": {
+  "dailyThroughputM3": 1440,
+  "daysOfCover": 0.7777777777777778,
+  "pumpableStockM3": 1120,
+  "tanks": [
+   {
+    "capacityM3": 5000,
+    "heelM3": 120,
+    "stockM3": 90
+   },
+   {
+    "capacityM3": 3000,
+    "heelM3": 80,
+    "stockM3": 1200
+   }
+  ],
+  "ullageM3": 6710
+ },
+ "provenance": {
+  "engine": "engines/downstream/terminalDepot.js",
+  "method": "strapping from tank geometry; Erlang C by the exact factorial form and Little's law; a day ledger",
+  "oracle": "tools/validation/downstream/oracle_terminaldepot.py",
+  "published": "none: no coefficient table is shipped; tanks are geometric or the Suite sample"
+ },
+ "queues": [
+  {
+   "arrivalsPerHour": 5,
+   "averageWaitMinutes": 115.73913043478261,
+   "bays": 2,
+   "loadMinutes": 22.0,
+   "name": "Suite default rack: 5 trucks an hour, 22 minutes, 2 bays",
+   "offered": 1.8333333333333333,
+   "probabilityOfWaiting": 0.8768115942028986,
+   "queueLength": 9.644927536231885,
+   "utilisation": 0.9166666666666666
+  },
+  {
+   "arrivalsPerHour": 11,
+   "averageWaitMinutes": 48.00830646752919,
+   "bays": 5,
+   "loadMinutes": 25.0,
+   "name": "busy rack: 11 an hour, 25 minutes, 5 bays",
+   "offered": 4.583333333333333,
+   "probabilityOfWaiting": 0.8001384411254865,
+   "queueLength": 8.801522852380351,
+   "utilisation": 0.9166666666666666
+  },
+  {
+   "arrivalsPerHour": 4,
+   "averageWaitMinutes": 48.0,
+   "bays": 1,
+   "loadMinutes": 12.0,
+   "name": "one bay at 80 percent",
+   "offered": 0.8,
+   "probabilityOfWaiting": 0.8,
+   "queueLength": 3.2,
+   "utilisation": 0.8
+  },
+  {
+   "arrivalsPerHour": 150,
+   "averageWaitMinutes": 5.0001997516955,
+   "bays": 6,
+   "loadMinutes": 2.25,
+   "name": "forecourt peak: 150 an hour, 2.25 minutes, 6 nozzles",
+   "offered": 5.625,
+   "probabilityOfWaiting": 0.8333666252825834,
+   "queueLength": 12.50049937923875,
+   "utilisation": 0.9375
+  }
+ ],
+ "refusals": [
+  {
+   "dip": 50,
+   "name": "dip below a table that starts above the floor",
+   "table": [
+    {
+     "heightMm": 100,
+     "volumeM3": 10
+    },
+    {
+     "heightMm": 1000,
+     "volumeM3": 100
+    }
+   ],
+   "water": 0
+  },
+  {
+   "dip": 500,
+   "name": "water above the product dip",
+   "table": [
+    {
+     "heightMm": 0,
+     "volumeM3": 0
+    },
+    {
+     "heightMm": 600,
+     "volumeM3": 250
+    },
+    {
+     "heightMm": 1200,
+     "volumeM3": 500
+    },
+    {
+     "heightMm": 1800,
+     "volumeM3": 750
+    },
+    {
+     "heightMm": 2400,
+     "volumeM3": 1000
+    },
+    {
+     "heightMm": 3000,
+     "volumeM3": 1250
+    },
+    {
+     "heightMm": 3600,
+     "volumeM3": 1500
+    },
+    {
+     "heightMm": 4200,
+     "volumeM3": 1750
+    },
+    {
+     "heightMm": 4800,
+     "volumeM3": 2000
+    },
+    {
+     "heightMm": 5400,
+     "volumeM3": 2250
+    },
+    {
+     "heightMm": 6000,
+     "volumeM3": 2500
+    },
+    {
+     "heightMm": 6600,
+     "volumeM3": 2750
+    },
+    {
+     "heightMm": 7200,
+     "volumeM3": 3000
+    },
+    {
+     "heightMm": 7800,
+     "volumeM3": 3250
+    },
+    {
+     "heightMm": 8400,
+     "volumeM3": 3500
+    },
+    {
+     "heightMm": 9000,
+     "volumeM3": 3750
+    },
+    {
+     "heightMm": 9600,
+     "volumeM3": 4000
+    },
+    {
+     "heightMm": 10200,
+     "volumeM3": 4250
+    },
+    {
+     "heightMm": 10800,
+     "volumeM3": 4500
+    },
+    {
+     "heightMm": 11400,
+     "volumeM3": 4750
+    },
+    {
+     "heightMm": 12000,
+     "volumeM3": 5000
+    }
+   ],
+   "water": 800
+  },
+  {
+   "dip": -5,
+   "name": "a negative dip",
+   "table": [
+    {
+     "heightMm": 0,
+     "volumeM3": 0
+    },
+    {
+     "heightMm": 600,
+     "volumeM3": 250
+    },
+    {
+     "heightMm": 1200,
+     "volumeM3": 500
+    },
+    {
+     "heightMm": 1800,
+     "volumeM3": 750
+    },
+    {
+     "heightMm": 2400,
+     "volumeM3": 1000
+    },
+    {
+     "heightMm": 3000,
+     "volumeM3": 1250
+    },
+    {
+     "heightMm": 3600,
+     "volumeM3": 1500
+    },
+    {
+     "heightMm": 4200,
+     "volumeM3": 1750
+    },
+    {
+     "heightMm": 4800,
+     "volumeM3": 2000
+    },
+    {
+     "heightMm": 5400,
+     "volumeM3": 2250
+    },
+    {
+     "heightMm": 6000,
+     "volumeM3": 2500
+    },
+    {
+     "heightMm": 6600,
+     "volumeM3": 2750
+    },
+    {
+     "heightMm": 7200,
+     "volumeM3": 3000
+    },
+    {
+     "heightMm": 7800,
+     "volumeM3": 3250
+    },
+    {
+     "heightMm": 8400,
+     "volumeM3": 3500
+    },
+    {
+     "heightMm": 9000,
+     "volumeM3": 3750
+    },
+    {
+     "heightMm": 9600,
+     "volumeM3": 4000
+    },
+    {
+     "heightMm": 10200,
+     "volumeM3": 4250
+    },
+    {
+     "heightMm": 10800,
+     "volumeM3": 4500
+    },
+    {
+     "heightMm": 11400,
+     "volumeM3": 4750
+    },
+    {
+     "heightMm": 12000,
+     "volumeM3": 5000
+    }
+   ],
+   "water": 0
+  },
+  {
+   "dip": 500,
+   "name": "a water cut the table cannot convert (below a table that starts above the floor)",
+   "table": [
+    {
+     "heightMm": 100,
+     "volumeM3": 10
+    },
+    {
+     "heightMm": 1000,
+     "volumeM3": 100
+    }
+   ],
+   "water": 50
+  }
+ ]
+}
