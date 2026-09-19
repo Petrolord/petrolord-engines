@@ -203,3 +203,28 @@ describe('edges', () => {
     expect(r.field).toBe('periods');
   });
 });
+
+describe('a refusal names one input, in its field and in its message', () => {
+  // nioshHeatAssessment renames a refused period field from periods[i] to
+  // wbgtPeriods[i] or metabolicPeriods[i]. The message has to be renamed with
+  // it: a message saying "periods[0].wbgtC" beside a field saying
+  // "wbgtPeriods[0].wbgtC" points a caller at an input that does not exist.
+  const heat = G.refusals.filter((c) => c.fn === 'nioshHeatAssessment' && /^(wbgt|metabolic)Periods\[/.test(c.field));
+  test('the golden carries at least one renamed per-period heat refusal', () => {
+    expect(heat.length).toBeGreaterThan(0);
+  });
+  test.each(heat.map((c) => [c.id, c]))('%s: the message starts with the field it names', (_id, c) => {
+    const r = call(c.fn, c.args);
+    expect(r.field).toBe(c.field);
+    expect(r.error.startsWith(r.field)).toBe(true);
+  });
+  test('the same holds for a refused metabolic period', () => {
+    const r = E.nioshHeatAssessment({
+      acclimatized: true,
+      wbgtPeriods: [{ wbgtC: 28, durationMin: 60 }],
+      metabolicPeriods: [{ metabolicRateW: 'heavy', durationMin: 60 }],
+    });
+    expect(r.field).toBe('metabolicPeriods[0].metabolicRateW');
+    expect(r.error.startsWith(r.field)).toBe(true);
+  });
+});
