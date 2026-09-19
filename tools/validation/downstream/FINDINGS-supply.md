@@ -102,3 +102,22 @@ litre load cannot discharge at the default reorder level.
   course must say so.
 - **H2.** The VCF coefficient tables and any published rate stay unshipped,
   by the package's rule.
+
+## MD3-1 (2026-09-19): found by the NextGen course foundation
+
+- **T8. `rackQueue` accepted a load time of 0 minutes:** 60/0 is Infinity,
+  which passed the positive-rate check and reported a perfect rack. Refused.
+- **T9. `throughputEconomics` read a blank throughput or fee as 0** (a
+  margin of minus the fixed cost for a terminal nobody described). Both are
+  required now; a blank cost or loss is taken as zero and named in
+  `assumedZero`. **`tankFarmCover` read 0 turns a year with no throughput**
+  while reading days of cover as unknown; both are unknown now.
+- **T10. The engine's own VCF test typed a coefficient that reads as a
+  published table value.** This package ships no coefficient table, so the
+  tests use a synthetic K0 of 600.
+- **Oracle:** `oracle_terminaldepot.py` now exports `day_ledger()` and
+  `farm_cover()` so a course oracle check can call them rather than copy
+  lines out of `main()`. The golden is byte-identical.
+
+Gate: four new assertions; three new plants in `negcontrol_md3.sh` (21 in
+all, all caught).

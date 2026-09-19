@@ -189,8 +189,10 @@ export const feasibilityStreams = ({
   // MD2-0. This module's num() reads a blank as ZERO, which is right for a
   // yield table and wrong here: a blank crude price made crude free, a blank
   // capex made the plant free, and a blank utilisation read as 100 percent.
-  // The money and the size are required; the schedule terms keep their
-  // stated defaults only when they are absent, never when they are blank.
+  // The money and the size are required. The schedule terms (on-stream days,
+  // utilisation, project life, construction years) take their stated default
+  // when absent OR blank. MD2-1: this comment used to say blank did not, and
+  // construction years alone read a blank as 0 where absent gave 2.
   const absent = (v) => v === null || v === undefined || v === '';
   const need = [
     ['capacity', capacityBpd], ['crude cost', crudeCostPerBbl], ['capital cost', capex],
@@ -213,7 +215,7 @@ export const feasibilityStreams = ({
   const annualBbl = cap * runDays * util;
 
   const years = [];
-  const build = Math.max(0, Math.round(num(constructionYears, 0)));
+  const build = Math.max(0, Math.round(num(constructionYears, 2)));
   const life = Math.max(1, Math.round(num(projectLife, 20)));
 
   for (let y = 0; y < build + life; y += 1) {
@@ -271,8 +273,12 @@ export const feasibilityEconomics = ({ streams, discountRate, taxRate, startYear
   if (!streams || streams.error || !Array.isArray(streams.years) || streams.years.length === 0) {
     return { error: streams?.error ?? 'No streams to value.' };
   }
-  const r = Number(discountRate);
-  const t = Number(taxRate);
+  // MD2-1: Number('') and Number(null) are 0, so a blank tax rate used to
+  // value the plant tax-free (NPV 94.02 against 61.80 at 30 percent on the
+  // course case). Absent or blank is refused.
+  const given = (v) => !(v === null || v === undefined || v === '');
+  const r = given(discountRate) ? Number(discountRate) : NaN;
+  const t = given(taxRate) ? Number(taxRate) : NaN;
   if (!Number.isFinite(r) || !Number.isFinite(t)) {
     return { error: 'A discount rate and a tax rate are needed to value the project.' };
   }
