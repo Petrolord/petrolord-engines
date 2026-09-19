@@ -3634,6 +3634,198 @@
    "source": "oracle"
   },
   {
+   "id": "chi2-isf-tiny-2-1e-16",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-16,
+    2
+   ],
+   "expected": 73.68272297580947,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-2-1e-17",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-17,
+    2
+   ],
+   "expected": 78.28789316179756,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-2-1e-20",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-20,
+    2
+   ],
+   "expected": 92.10340371976183,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-2-1e-30",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-30,
+    2
+   ],
+   "expected": 138.15510557964274,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-4-1e-16",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-16,
+    4
+   ],
+   "expected": 81.13741837837642,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-4-1e-17",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-17,
+    4
+   ],
+   "expected": 85.85292706666331,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-4-1e-20",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-20,
+    4
+   ],
+   "expected": 99.9663959741815,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-4-1e-30",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-30,
+    4
+   ],
+   "expected": 146.77366344605045,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-22-1e-16",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-16,
+    22
+   ],
+   "expected": 126.79972766619824,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-22-1e-17",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-17,
+    22
+   ],
+   "expected": 132.2286769907027,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-22-1e-20",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-20,
+    22
+   ],
+   "expected": 148.30164095486904,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-22-1e-30",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-30,
+    22
+   ],
+   "expected": 200.28629513966308,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-200-1e-16",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-16,
+    200
+   ],
+   "expected": 411.2877568305242,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-200-1e-17",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-17,
+    200
+   ],
+   "expected": 420.01207540098807,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-200-1e-20",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-20,
+    200
+   ],
+   "expected": 445.31384252221835,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
+   "id": "chi2-isf-tiny-200-1e-30",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-30,
+    200
+   ],
+   "expected": 522.9757156658035,
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here"
+  },
+  {
    "id": "garwood-95-count-0",
    "fn": "rateConfidenceInterval",
    "args": {

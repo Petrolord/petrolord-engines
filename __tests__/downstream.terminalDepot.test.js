@@ -31,10 +31,12 @@ describe('dips and strapping', () => {
     expect(out.error).toMatch(/invents capacity/);
   });
 
-  it('says when a dip is under the heel rather than returning a negative', () => {
+  it('refuses a negative dip rather than reading it as an empty tank', () => {
+    // MD3-0: this used to return 0 with a heel note. A tape cannot read below
+    // zero, so a negative dip is a typing error and is refused.
     const out = volumeAtDip({ strapping: STRAPPING, heightMm: -50 });
-    expect(out.volumeM3).toBe(0);
-    expect(out.note).toMatch(/heel/);
+    expect(out.volumeM3).toBeNull();
+    expect(out.error).toMatch(/cannot be negative/);
   });
 
   it('needs a table and a reading', () => {

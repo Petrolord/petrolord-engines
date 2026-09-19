@@ -681,9 +681,11 @@ export const nioshHeatAssessment = ({ wbgtPeriods, metabolicPeriods, acclimatize
     return refuse('acclimatized', 'acclimatized must be true (REL) or false (RAL)');
   }
   const w = wbgtTwaC(wbgtPeriods);
-  if (w.error) return { ...w, field: w.field.replace(/^periods/, 'wbgtPeriods') };
+  // The field AND the message are renamed together, so a caller that prints the
+  // message names the same input the `field` names.
+  if (w.error) return { ...w, field: w.field.replace(/^periods/, 'wbgtPeriods'), error: w.error.replace(/^periods/, 'wbgtPeriods') };
   const m = metabolicRateTwaW(metabolicPeriods);
-  if (m.error) return { ...m, field: m.field.replace(/^periods/, 'metabolicPeriods') };
+  if (m.error) return { ...m, field: m.field.replace(/^periods/, 'metabolicPeriods'), error: m.error.replace(/^periods/, 'metabolicPeriods') };
   if (Math.abs(w.totalDurationMin - 60) > 1e-9) {
     return refuse('wbgtPeriods', `wbgtPeriods total ${w.totalDurationMin} min: the NIOSH limits apply to a 1-hour TWA`);
   }

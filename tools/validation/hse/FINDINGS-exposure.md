@@ -119,3 +119,13 @@ swapped: GREEN, expected; REL 11.5 to 11: GREEN, expected.
 The heat equations and WBGT weights are checked for transcription only: no
 public printed value reproduces them. A course must not present them as
 independently verified.
+
+## 7. Repair after merge: a refusal message naming a renamed field
+
+Found by the H2 course foundation (NextGen digest section 10). `nioshHeatAssessment`
+renamed a refused per-period `field` from `periods[i]...` to `wbgtPeriods[i]...`
+or `metabolicPeriods[i]...` and left the message saying `periods[i]...`. The
+message is now renamed with the field. No figure moves and the golden is
+unchanged; the jest suite gains a guard (the message starts with the field it
+names), proved red without the repair on the golden case heat-bad-wbgt-row and on
+a refused metabolic period.

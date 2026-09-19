@@ -62,7 +62,17 @@ export const volumeAtDip = ({ strapping, heightMm }) => {
 
   const h = num(heightMm);
   if (!Number.isFinite(h)) return { volumeM3: null, error: 'No dip reading.' };
-  if (h <= pts[0].h) return { volumeM3: pts[0].v, note: h < pts[0].h ? 'Dip is below the first strapping entry; the tank is at or under its heel.' : null };
+  if (h < 0) return { volumeM3: null, error: 'A dip cannot be negative.' };
+  if (h < pts[0].h) {
+    // MD3-0: this used to return the first entry's volume for any dip below
+    // it, so a 50 mm dip on a table starting at 100 mm read the 100 mm
+    // volume. The table says nothing below its first entry unless that entry
+    // is the empty tank.
+    return pts[0].v === 0
+      ? { volumeM3: 0, note: null }
+      : { volumeM3: null, error: 'The dip is below the first strapping entry. The table does not cover this height; extend it down to the tank floor.' };
+  }
+  if (h === pts[0].h) return { volumeM3: pts[0].v, note: null };
   if (h > pts[pts.length - 1].h) {
     return {
       volumeM3: null,
@@ -127,9 +137,20 @@ export const dipToStandardVolume = ({ strapping, heightMm, vcf, waterMm = 0 }) =
 
   // Free water sits under the product and is not product. Subtracting it is
   // the difference between a stock figure and a stock figure that is right.
-  const water = volumeAtDip({ strapping, heightMm: num(waterMm, 0) });
-  const waterM3 = num(waterMm, 0) > 0 && water.volumeM3 !== null ? water.volumeM3 : 0;
-  const grossM3 = Math.max(0, total.volumeM3 - waterM3);
+  // MD3-0: a water cut the table could not convert used to count as NO water,
+  // and water above the product dip was clamped to an empty tank. Both are
+  // refused now: a stock that cannot take its water out is not a stock.
+  const wmm = num(waterMm, 0);
+  if (wmm < 0) return { grossM3: null, standardM3: null, volumeM3: null, error: 'A water cut cannot be negative.' };
+  if (wmm > num(heightMm)) {
+    return { grossM3: null, standardM3: null, volumeM3: null, error: 'The water cut is above the product dip. Check both readings.' };
+  }
+  const water = wmm > 0 ? volumeAtDip({ strapping, heightMm: wmm }) : { volumeM3: 0 };
+  if (water.volumeM3 === null) {
+    return { grossM3: null, standardM3: null, volumeM3: null, error: `The water cut cannot be converted: ${water.error}` };
+  }
+  const waterM3 = water.volumeM3;
+  const grossM3 = total.volumeM3 - waterM3;
   const f = num(vcf, NaN);
   return {
     grossM3,
@@ -164,7 +185,15 @@ export const reconcileStock = ({
   openingM3, receiptsM3 = 0, deliveriesM3 = 0, knownLossM3 = 0, closingDippedM3,
   tolerancePercentOfThroughput = 0.5,
 }) => {
-  const opening = num(openingM3, 0);
+  // MD3-0: a missing opening stock used to be 0, so the whole tank read as a
+  // gain. It is required: a day cannot be closed without the stock it opened on.
+  const opening = num(openingM3, NaN);
+  if (!Number.isFinite(opening)) {
+    return {
+      expectedClosingM3: null, dippedClosingM3: null, unaccountedM3: null, withinTolerance: null,
+      error: 'No opening stock, so the day cannot be closed. The opening stock is yesterday\'s closing dip.',
+    };
+  }
   const receipts = num(receiptsM3, 0);
   const deliveries = num(deliveriesM3, 0);
   const known = num(knownLossM3, 0);
@@ -260,9 +289,14 @@ export const trendUnaccounted = (days = []) => {
 export const rackQueue = ({ arrivalsPerHour, loadMinutes, bays }) => {
   const lambda = num(arrivalsPerHour);
   const serviceRate = 60 / num(loadMinutes, NaN); // trucks per hour per bay
-  const c = Math.max(1, Math.round(num(bays, 1)));
+  // MD3-0: bays used to be rounded and floored at 1, so a rack typed with 0
+  // bays (or 2.5) was solved as something else without a word.
+  const c = num(bays, NaN);
   if (!(lambda > 0) || !(serviceRate > 0)) {
     return { error: 'Arrival rate and load time are both needed.', utilisation: null };
+  }
+  if (!(Number.isInteger(c) && c >= 1)) {
+    return { error: 'The number of bays must be a whole number, one or more.', utilisation: null };
   }
 
   const offered = lambda / serviceRate;          // erlangs
@@ -322,14 +356,20 @@ export const tankFarmCover = ({ tanks = [], dailyThroughputM3 }) => {
   const heel = tanks.reduce((s, t) => s + num(t.heelM3, 0), 0);
   const working = Math.max(0, capacity - heel);
   const stock = tanks.reduce((s, t) => s + num(t.stockM3, 0), 0);
+  // MD3-0: pumpable stock and ullage are TANK BY TANK. Netting the farm's heel
+  // against the farm's stock let a tank below its heel lend "pumpable" volume
+  // to another tank, which a pump cannot do.
+  const pumpable = tanks.reduce((s, t) => s + Math.max(0, num(t.stockM3, 0) - num(t.heelM3, 0)), 0);
+  const ullage = tanks.reduce((s, t) => s + Math.max(0, num(t.capacityM3, 0) - num(t.stockM3, 0)), 0);
   const daily = num(dailyThroughputM3, 0);
   return {
     capacityM3: capacity,
     heelM3: heel,
     workingCapacityM3: working,
     stockM3: stock,
-    ullageM3: Math.max(0, capacity - stock),
-    daysOfCover: daily > 0 ? Math.max(0, stock - heel) / daily : null,
+    pumpableStockM3: pumpable,
+    ullageM3: ullage,
+    daysOfCover: daily > 0 ? pumpable / daily : null,
     turnsPerYear: working > 0 ? (daily * 365) / working : null,
   };
 };
@@ -356,10 +396,15 @@ export const throughputEconomics = ({
   const fixed = num(fixedCostPerPeriod, 0);
   const margin = revenue - variable - fixed;
 
-  const lossTonnes = num(lossM3, 0) * num(productDensityKgM3, 0) / 1000;
+  // MD3-0: a missing density used to make the loss weigh nothing, so a
+  // supplied emission factor produced ZERO emissions. Without a density there
+  // are no tonnes, and the carbon side says so.
+  const rho = num(productDensityKgM3, NaN);
+  const hasRho = Number.isFinite(rho) && rho > 0;
+  const lossTonnes = hasRho ? num(lossM3, 0) * rho / 1000 : null;
   const factor = num(lossEmissionFactorKgCo2ePerTonne, NaN);
-  const emissionsKgCo2e = Number.isFinite(factor) ? lossTonnes * factor : null;
-  const throughputTonnes = volume * num(productDensityKgM3, 0) / 1000;
+  const emissionsKgCo2e = Number.isFinite(factor) && hasRho ? lossTonnes * factor : null;
+  const throughputTonnes = hasRho ? volume * rho / 1000 : null;
 
   return {
     revenue,
@@ -374,8 +419,10 @@ export const throughputEconomics = ({
     kgCo2ePerTonneThroughput: emissionsKgCo2e !== null && throughputTonnes > 0
       ? emissionsKgCo2e / throughputTonnes
       : null,
-    carbonNote: Number.isFinite(factor)
-      ? null
-      : 'No emission factor supplied, so the carbon side is not computed. Factors are published, versioned data; an invented one would be worse than none.',
+    carbonNote: !Number.isFinite(factor)
+      ? 'No emission factor supplied, so the carbon side is not computed. Factors are published, versioned data; an invented one would be worse than none.'
+      : !hasRho
+        ? 'No product density supplied, so the loss has no weight and the carbon side is not computed.'
+        : null,
   };
 };
