@@ -373,6 +373,15 @@ def build():
             c.add(f'chi2-ppf-{df}-{p}', 'chiSquareQuantile', [p, df], chi2_q(p, df), tol=TOL_SPECIAL)
         for q in [1e-12, 0.005, 0.025, 0.05]:
             c.add(f'chi2-isf-{df}-{q}', 'chiSquareQuantileUpper', [q, df], chi2_q_upper(q, df), tol=TOL_SPECIAL)
+    # Tiny upper tails. Here the lower-tail route chi2.ppf(1 - q) cannot work:
+    # 1 - q rounds to a double that has lost the digits of q (at q = 1e-16 it
+    # is off by 0.1 to 0.3 percent) or to exactly 1 (q below 2^-54, about 5.6e-17), so
+    # only a solve on the upper tail itself is finite and correct. The test
+    # file pins both halves of that.
+    for df in [2, 4, 22, 200]:
+        for q in [1e-16, 1e-17, 1e-20, 1e-30]:
+            c.add(f'chi2-isf-tiny-{df}-{q}', 'chiSquareQuantileUpper', [q, df], chi2_q_upper(q, df), tol=TOL_SPECIAL,
+                  note='upper tail below double resolution of 1 - q: the lower-tail route at 1 - q is off or NaN here')
 
     # ---- Garwood exact Poisson intervals ----
     for n in [0, 1, 2, 3, 5, 10, 32, 100, 1000]:

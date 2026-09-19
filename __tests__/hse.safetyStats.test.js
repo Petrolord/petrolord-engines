@@ -171,6 +171,43 @@ describe('interval and test agree with each other', () => {
   });
 });
 
+describe('tiny upper tails: why the upper limit is solved on the upper tail', () => {
+  const tiny = G.cases.filter((c) => c.id.startsWith('chi2-isf-tiny-'));
+
+  test('the golden carries tiny-q upper quantiles down to 1e-30', () => {
+    expect(tiny.length).toBeGreaterThanOrEqual(16);
+    expect(Math.min(...tiny.map((c) => c.args[0]))).toBeLessThanOrEqual(1e-30);
+  });
+
+  test('the upper-tail route stays finite and matches the oracle at every tiny q', () => {
+    tiny.forEach((c) => {
+      const [q, df] = c.args;
+      const x = S.chiSquareQuantileUpper(q, df);
+      expect([c.id, Number.isFinite(x)]).toEqual([c.id, true]);
+      expect([c.id, Math.abs(x - c.expected) <= 1e-10 * c.expected]).toEqual([c.id, true]);
+    });
+  });
+
+  test('the lower-tail route at p = 1 - q does not: off at 1e-16, NaN from 1e-17', () => {
+    tiny.forEach((c) => {
+      const [q, df] = c.args;
+      const x = S.chiSquareQuantile(1 - q, df);
+      if (q <= 1e-17) {
+        // 1 - q rounds to exactly 1, which the lower-tail quantile refuses
+        expect([c.id, 1 - q, Number.isNaN(x)]).toEqual([c.id, 1, true]);
+      } else {
+        // 1 - 1e-16 rounds to 1 - 1.11e-16: the digits of q are gone, and the
+        // result misses the oracle by 0.1 to 0.3 percent, far outside its 1e-10 gate
+        expect([c.id, Math.abs(x - c.expected) > 5e-4 * c.expected]).toEqual([c.id, true]);
+      }
+    });
+  });
+
+  test('the rationale is not 0.975 rounding: 1 - 0.025 is exactly 0.975 in doubles', () => {
+    expect(1 - 0.025).toBe(0.975);
+  });
+});
+
 describe('u-chart', () => {
   test('lower limits are floored at zero and flagged', () => {
     const c = G.cases.find((x) => x.id === 'uchart-one-high-month');
@@ -209,6 +246,23 @@ describe('refusals are by name, never silent defaults', () => {
     const r = S.incidenceRate(args);
     expect(r.field).toBe(field);
     expect(r.rate).toBeUndefined();
+  });
+
+  test('pseRate without a base names only the bases it accepts', () => {
+    const r = S.pseRate({ tier: 1, pseCount: 1, exposureHours: 1000 });
+    expect(r.field).toBe('base');
+    expect(r.error).toMatch(/^base /);
+    expect(r.error).toMatch(/200,000/);
+    expect(r.error).toMatch(/1,000,000/);
+    expect(r.error).not.toMatch(/100,000,000|FAR/);
+    // and the base it does not suggest is indeed refused
+    expect(S.pseRate({ tier: 1, pseCount: 1, exposureHours: 1000, base: 1e8 }).field).toBe('base');
+  });
+
+  test('the other rates without a base still offer all three named bases', () => {
+    const r = S.incidenceRate({ count: 1, exposureHours: 1000 });
+    expect(r.field).toBe('base');
+    expect(r.error).toMatch(/100,000,000 for FAR/);
   });
 
   test('the error text obeys the copy rule (no dashes as punctuation)', () => {
