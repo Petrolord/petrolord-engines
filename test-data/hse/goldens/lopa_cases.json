@@ -1,0 +1,1658 @@
+{
+ "module": "lopa",
+ "generatedBy": "tools/validation/hse/oracle_lopa.py",
+ "description": "LOPA (CCPS 2001) scenario frequency, required RRF and SIL; IEC 61508-6:2010 Annex B low-demand PFDavg; bands per IEC 61508-1 Table 2. Route A exact rationals, route B time-dependent average.",
+ "tolerances": {
+  "routeA": "relative 1e-12 (route A is exact; the engine is IEEE double)",
+  "published": "engine rounded to the printed three significant figures equals the printed value",
+  "routeB": "engine >= route B for every case (Annex B is conservative); and for DU-only, MRT = 0, PTC = 1 cases |engine/routeB - 1| <= 1.5 lambdaDU T1",
+  "maxInterval": "relative 1e-9"
+ },
+ "bands": [
+  {
+   "pfdAvg": 1.0,
+   "sil": null,
+   "state": "NOT_SIL_RATED"
+  },
+  {
+   "pfdAvg": 0.5,
+   "sil": null,
+   "state": "NOT_SIL_RATED"
+  },
+  {
+   "pfdAvg": 0.1,
+   "sil": null,
+   "state": "NOT_SIL_RATED"
+  },
+  {
+   "pfdAvg": 0.09999,
+   "sil": 1,
+   "state": "SIL"
+  },
+  {
+   "pfdAvg": 0.01,
+   "sil": 1,
+   "state": "SIL"
+  },
+  {
+   "pfdAvg": 0.0099999,
+   "sil": 2,
+   "state": "SIL"
+  },
+  {
+   "pfdAvg": 0.001,
+   "sil": 2,
+   "state": "SIL"
+  },
+  {
+   "pfdAvg": 0.005,
+   "sil": 2,
+   "state": "SIL"
+  },
+  {
+   "pfdAvg": 0.0001,
+   "sil": 3,
+   "state": "SIL"
+  },
+  {
+   "pfdAvg": 1e-05,
+   "sil": 4,
+   "state": "SIL"
+  },
+  {
+   "pfdAvg": 9.9e-06,
+   "sil": 4,
+   "state": "BELOW_SIL4_TABLE_FLOOR"
+  },
+  {
+   "pfdAvg": 1e-06,
+   "sil": 4,
+   "state": "BELOW_SIL4_TABLE_FLOOR"
+  }
+ ],
+ "rrfOutcomes": [
+  {
+   "rrf": 0.5,
+   "outcome": "NO_SIF_REQUIRED",
+   "requiredSil": null,
+   "requiredSifPfdAvg": null
+  },
+  {
+   "rrf": 1.0,
+   "outcome": "NO_SIF_REQUIRED",
+   "requiredSil": null,
+   "requiredSifPfdAvg": null
+  },
+  {
+   "rrf": 1.0001,
+   "outcome": "RISK_REDUCTION_BELOW_SIL1",
+   "requiredSil": null,
+   "requiredSifPfdAvg": 0.9999000099990001
+  },
+  {
+   "rrf": 10.0,
+   "outcome": "RISK_REDUCTION_BELOW_SIL1",
+   "requiredSil": null,
+   "requiredSifPfdAvg": 0.1
+  },
+  {
+   "rrf": 10.0001,
+   "outcome": "SIL1",
+   "requiredSil": 1,
+   "requiredSifPfdAvg": 0.0999990000099999
+  },
+  {
+   "rrf": 100.0,
+   "outcome": "SIL1",
+   "requiredSil": 1,
+   "requiredSifPfdAvg": 0.01
+  },
+  {
+   "rrf": 100.0001,
+   "outcome": "SIL2",
+   "requiredSil": 2,
+   "requiredSifPfdAvg": 0.00999999000001
+  },
+  {
+   "rrf": 1000.0,
+   "outcome": "SIL2",
+   "requiredSil": 2,
+   "requiredSifPfdAvg": 0.001
+  },
+  {
+   "rrf": 1000.0001,
+   "outcome": "SIL3",
+   "requiredSil": 3,
+   "requiredSifPfdAvg": 0.00099999990000001
+  },
+  {
+   "rrf": 10000.0,
+   "outcome": "SIL3",
+   "requiredSil": 3,
+   "requiredSifPfdAvg": 0.0001
+  },
+  {
+   "rrf": 10000.0001,
+   "outcome": "BEYOND_SIL3_REDESIGN",
+   "requiredSil": null,
+   "requiredSifPfdAvg": 9.999999900000001e-05,
+   "pfdInSil4Band": true
+  },
+  {
+   "rrf": 20000.0,
+   "outcome": "BEYOND_SIL3_REDESIGN",
+   "requiredSil": null,
+   "requiredSifPfdAvg": 5e-05,
+   "pfdInSil4Band": true
+  },
+  {
+   "rrf": 100000.0,
+   "outcome": "BEYOND_SIL3_REDESIGN",
+   "requiredSil": null,
+   "requiredSifPfdAvg": 1e-05,
+   "pfdInSil4Band": true
+  },
+  {
+   "rrf": 200000.0,
+   "outcome": "BEYOND_SIL3_REDESIGN",
+   "requiredSil": null,
+   "requiredSifPfdAvg": 5e-06,
+   "pfdInSil4Band": false
+  }
+ ],
+ "lopa": [
+  {
+   "id": "tank-overflow-below-sil1",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "BPCS level loop failure 0.1/yr, ignition 1, presence 0.5, fatality 0.5, dike 0.01, alarm+operator 0.1; TMEL 1e-5 fatality: f 2.5e-5, RRF 2.5, needs reduction below the SIL 1 range",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.1,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [],
+    "conditionalModifiers": [
+     {
+      "name": "ignition",
+      "probability": 1
+     },
+     {
+      "name": "presence",
+      "probability": 0.5
+     },
+     {
+      "name": "fatality",
+      "probability": 0.5
+     }
+    ],
+    "ipls": [
+     {
+      "name": "dike",
+      "pfd": 0.01,
+      "independent": true
+     },
+     {
+      "name": "high level alarm and operator response",
+      "pfd": 0.1,
+      "independent": true
+     }
+    ]
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.025,
+    "iplProduct": 0.001,
+    "credited": [
+     "dike",
+     "high level alarm and operator response"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 2.5e-05,
+    "requiredRrf": 2.5,
+    "requiredRrfExact": "5/2",
+    "outcome": "RISK_REDUCTION_BELOW_SIL1",
+    "requiredSil": null,
+    "requiredSifPfdAvg": 0.4,
+    "mitigatedFrequencyPerYr": 2.5e-05,
+    "meetsTmel": false
+   }
+  },
+  {
+   "id": "rrf-exactly-100",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "f without SIF 1e-3 against TMEL 1e-5; the double product is 100.00000000000001, the exact ratio 100: SIL 1",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.1,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [],
+    "conditionalModifiers": [],
+    "ipls": [
+     {
+      "name": "relief valve",
+      "pfd": 0.1,
+      "independent": true
+     },
+     {
+      "name": "dike",
+      "pfd": 0.1,
+      "independent": true
+     }
+    ]
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.1,
+    "iplProduct": 0.01,
+    "credited": [
+     "relief valve",
+     "dike"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 0.001,
+    "requiredRrf": 100.0,
+    "requiredRrfExact": "100/1",
+    "outcome": "SIL1",
+    "requiredSil": 1,
+    "requiredSifPfdAvg": 0.01,
+    "mitigatedFrequencyPerYr": 0.001,
+    "meetsTmel": false
+   }
+  },
+  {
+   "id": "rrf-exactly-1000",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "exact RRF 1000 (double 1000.0000000000001): SIL 2",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.1,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [],
+    "conditionalModifiers": [
+     {
+      "name": "presence",
+      "probability": 0.2
+     }
+    ],
+    "ipls": [
+     {
+      "name": "check valve",
+      "pfd": 0.5,
+      "independent": true
+     }
+    ]
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.02,
+    "iplProduct": 0.5,
+    "credited": [
+     "check valve"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 0.01,
+    "requiredRrf": 1000.0,
+    "requiredRrfExact": "1000/1",
+    "outcome": "SIL2",
+    "requiredSil": 2,
+    "requiredSifPfdAvg": 0.001,
+    "mitigatedFrequencyPerYr": 0.01,
+    "meetsTmel": false
+   }
+  },
+  {
+   "id": "rrf-exactly-10000",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "exact RRF 10000 (double 10000.000000000002): SIL 3, not beyond",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.1,
+    "tmelPerYr": 1e-06,
+    "enablingConditions": [],
+    "conditionalModifiers": [
+     {
+      "name": "presence",
+      "probability": 0.2
+     }
+    ],
+    "ipls": [
+     {
+      "name": "check valve",
+      "pfd": 0.5,
+      "independent": true
+     }
+    ]
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.02,
+    "iplProduct": 0.5,
+    "credited": [
+     "check valve"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 0.01,
+    "requiredRrf": 10000.0,
+    "requiredRrfExact": "10000/1",
+    "outcome": "SIL3",
+    "requiredSil": 3,
+    "requiredSifPfdAvg": 0.0001,
+    "mitigatedFrequencyPerYr": 0.01,
+    "meetsTmel": false
+   }
+  },
+  {
+   "id": "rrf-exactly-10",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "exact RRF 10 (double 10.000000000000002) is below SIL 1",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.1,
+    "tmelPerYr": 0.001,
+    "enablingConditions": [],
+    "conditionalModifiers": [],
+    "ipls": [
+     {
+      "name": "check valve",
+      "pfd": 0.1,
+      "independent": true
+     }
+    ]
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.1,
+    "iplProduct": 0.1,
+    "credited": [
+     "check valve"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 0.01,
+    "requiredRrf": 10.0,
+    "requiredRrfExact": "10/1",
+    "outcome": "RISK_REDUCTION_BELOW_SIL1",
+    "requiredSil": null,
+    "requiredSifPfdAvg": 0.1,
+    "mitigatedFrequencyPerYr": 0.01,
+    "meetsTmel": false
+   }
+  },
+  {
+   "id": "f-equals-tmel",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "f exactly TMEL: no SIF required",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.1,
+    "tmelPerYr": 0.0001,
+    "enablingConditions": [],
+    "conditionalModifiers": [],
+    "ipls": [
+     {
+      "name": "relief",
+      "pfd": 0.01,
+      "independent": true
+     },
+     {
+      "name": "dike",
+      "pfd": 0.1,
+      "independent": true
+     }
+    ]
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.1,
+    "iplProduct": 0.001,
+    "credited": [
+     "relief",
+     "dike"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 0.0001,
+    "requiredRrf": 1.0,
+    "requiredRrfExact": "1/1",
+    "outcome": "NO_SIF_REQUIRED",
+    "requiredSil": null,
+    "requiredSifPfdAvg": null,
+    "mitigatedFrequencyPerYr": 0.0001,
+    "meetsTmel": true
+   }
+  },
+  {
+   "id": "ipl-sufficient",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "the IPLs already meet TMEL: no SIF, meetsTmel true",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.1,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [],
+    "conditionalModifiers": [
+     {
+      "name": "occupancy",
+      "probability": 0.1
+     }
+    ],
+    "ipls": [
+     {
+      "name": "relief valve",
+      "pfd": 0.01,
+      "independent": true
+     },
+     {
+      "name": "dike",
+      "pfd": 0.01,
+      "independent": true
+     }
+    ]
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.01,
+    "iplProduct": 0.0001,
+    "credited": [
+     "relief valve",
+     "dike"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 1e-06,
+    "requiredRrf": 0.1,
+    "requiredRrfExact": "1/10",
+    "outcome": "NO_SIF_REQUIRED",
+    "requiredSil": null,
+    "requiredSifPfdAvg": null,
+    "mitigatedFrequencyPerYr": 1e-06,
+    "meetsTmel": true
+   }
+  },
+  {
+   "id": "beyond-sil3-sil4-band",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "RRF 2e4: beyond SIL 3, in the SIL 4 band, redesign",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.2,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [],
+    "conditionalModifiers": [],
+    "ipls": []
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.2,
+    "iplProduct": 1.0,
+    "credited": [],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 0.2,
+    "requiredRrf": 20000.0,
+    "requiredRrfExact": "20000/1",
+    "outcome": "BEYOND_SIL3_REDESIGN",
+    "requiredSil": null,
+    "requiredSifPfdAvg": 5e-05,
+    "pfdInSil4Band": true,
+    "mitigatedFrequencyPerYr": 0.2,
+    "meetsTmel": false
+   }
+  },
+  {
+   "id": "beyond-sil4-band",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "RRF 2e5: below the SIL 4 band, redesign",
+   "args": {
+    "initiatingEventFrequencyPerYr": 2,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [],
+    "conditionalModifiers": [],
+    "ipls": []
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 2.0,
+    "iplProduct": 1.0,
+    "credited": [],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 2.0,
+    "requiredRrf": 200000.0,
+    "requiredRrfExact": "200000/1",
+    "outcome": "BEYOND_SIL3_REDESIGN",
+    "requiredSil": null,
+    "requiredSifPfdAvg": 5e-06,
+    "pfdInSil4Band": false,
+    "mitigatedFrequencyPerYr": 2.0,
+    "meetsTmel": false
+   }
+  },
+  {
+   "id": "non-independent-not-credited",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "the BPCS alarm on the same loop as the initiating cause is not independent",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.1,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [],
+    "conditionalModifiers": [],
+    "ipls": [
+     {
+      "name": "BPCS alarm (same loop)",
+      "pfd": 0.1,
+      "independent": false
+     },
+     {
+      "name": "unaudited procedure",
+      "pfd": 0.1,
+      "independent": true,
+      "auditable": false
+     },
+     {
+      "name": "relief valve",
+      "pfd": 0.01,
+      "independent": true
+     }
+    ]
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.1,
+    "iplProduct": 0.01,
+    "credited": [
+     "relief valve"
+    ],
+    "notCredited": [
+     "BPCS alarm (same loop)",
+     "unaudited procedure"
+    ],
+    "mitigatedFrequencyWithoutSifPerYr": 0.001,
+    "requiredRrf": 100.0,
+    "requiredRrfExact": "100/1",
+    "outcome": "SIL1",
+    "requiredSil": 1,
+    "requiredSifPfdAvg": 0.01,
+    "mitigatedFrequencyPerYr": 0.001,
+    "meetsTmel": false
+   }
+  },
+  {
+   "id": "enabling-and-sif",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "enabling condition 0.3, then a proposed SIF of PFD 2e-3 against the requirement",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.5,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [
+     {
+      "name": "in startup mode",
+      "probability": 0.3
+     }
+    ],
+    "conditionalModifiers": [
+     {
+      "name": "ignition",
+      "probability": 0.6
+     }
+    ],
+    "ipls": [
+     {
+      "name": "relief valve",
+      "pfd": 0.01,
+      "independent": true
+     }
+    ],
+    "sifPfdAvg": 0.002
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.09,
+    "iplProduct": 0.01,
+    "credited": [
+     "relief valve"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 0.0009,
+    "requiredRrf": 90.0,
+    "requiredRrfExact": "90/1",
+    "outcome": "SIL1",
+    "requiredSil": 1,
+    "requiredSifPfdAvg": 0.011111111111111112,
+    "mitigatedFrequencyPerYr": 1.8e-06,
+    "meetsTmel": true
+   }
+  },
+  {
+   "id": "sif-just-short",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "a SIL 2 SIF of PFD 5e-3 against a required 3.33e-3: same band, still fails the target",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.3,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [],
+    "conditionalModifiers": [],
+    "ipls": [
+     {
+      "name": "relief valve",
+      "pfd": 0.01,
+      "independent": true
+     }
+    ],
+    "sifPfdAvg": 0.005
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.3,
+    "iplProduct": 0.01,
+    "credited": [
+     "relief valve"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 0.003,
+    "requiredRrf": 300.0,
+    "requiredRrfExact": "300/1",
+    "outcome": "SIL2",
+    "requiredSil": 2,
+    "requiredSifPfdAvg": 0.0033333333333333335,
+    "mitigatedFrequencyPerYr": 1.5e-05,
+    "meetsTmel": false
+   }
+  },
+  {
+   "id": "rrf-just-above-100",
+   "source": "ORACLE-DERIVED (CCPS 2001 method; scenario numbers illustrative, not the book example)",
+   "note": "RRF 100.00001 is SIL 2",
+   "args": {
+    "initiatingEventFrequencyPerYr": 0.10000001,
+    "tmelPerYr": 1e-05,
+    "enablingConditions": [],
+    "conditionalModifiers": [],
+    "ipls": [
+     {
+      "name": "relief valve",
+      "pfd": 0.01,
+      "independent": true
+     }
+    ]
+   },
+   "expected": {
+    "unmitigatedFrequencyPerYr": 0.10000001,
+    "iplProduct": 0.01,
+    "credited": [
+     "relief valve"
+    ],
+    "notCredited": [],
+    "mitigatedFrequencyWithoutSifPerYr": 0.0010000001,
+    "requiredRrf": 100.00001,
+    "requiredRrfExact": "10000001/100000",
+    "outcome": "SIL2",
+    "requiredSil": 2,
+    "requiredSifPfdAvg": 0.0099999990000001,
+    "mitigatedFrequencyPerYr": 0.0010000001,
+    "meetsTmel": false
+   }
+  }
+ ],
+ "pfdPublished": [
+  {
+   "id": "dolan-pt-2oo3",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table",
+   "params": {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 5e-07,
+    "lambdaDdPerHour": 8e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.1,
+    "betaD": 0.1
+   },
+   "expected": {
+    "pfdAvg": 0.0002357643752576,
+    "rrf": 4241.522914169639,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 1.57243752576e-05,
+    "ccf": 0.00022004,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.0002355759252103623,
+    "departure": 0.0007999546094084042
+   },
+   "printed": "2.36E-04"
+  },
+  {
+   "id": "dolan-ai-2oo3",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table",
+   "params": {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 7.06e-09,
+    "lambdaDdPerHour": 8.86e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.02,
+    "betaD": 0.01
+   },
+   "expected": {
+    "pfdAvg": 6.966788464413837e-07,
+    "rrf": 1435381.6038881794,
+    "sil": 4,
+    "state": "BELOW_SIL4_TABLE_FLOOR",
+    "independent": 6.213246441383752e-09,
+    "ccf": 6.904656e-07,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 6.955742842662924e-07,
+    "departure": 0.0015879859277092567
+   },
+   "printed": "6.97E-07"
+  },
+  {
+   "id": "dolan-cpu-1oo2",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 4.9e-09,
+    "lambdaDdPerHour": 1.28e-06,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.02,
+    "betaD": 0.01
+   },
+   "expected": {
+    "pfdAvg": 5.339536756069703e-07,
+    "rrf": 1872821.6429323251,
+    "sil": 4,
+    "state": "BELOW_SIL4_TABLE_FLOOR",
+    "independent": 1.5296756069703364e-09,
+    "ccf": 5.32424e-07,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 5.335452207919532e-07,
+    "departure": 0.0007655486341173745
+   },
+   "printed": "5.34E-07"
+  },
+  {
+   "id": "dolan-do-1oo2",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 6.81e-09,
+    "lambdaDdPerHour": 8.61e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.02,
+    "betaD": 0.01
+   },
+   "expected": {
+    "pfdAvg": 6.684589549154514e-07,
+    "rrf": 1495978.1638746732,
+    "sil": 4,
+    "state": "BELOW_SIL4_TABLE_FLOOR",
+    "independent": 1.9333549154514096e-09,
+    "ccf": 6.665256e-07,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 6.681135380887821e-07,
+    "departure": 0.0005170031843051426
+   },
+   "printed": "6.68E-07"
+  },
+  {
+   "id": "dolan-valve-1oo2",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 2.1e-06,
+    "lambdaDdPerHour": 4e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 120,
+    "mrtHours": 120,
+    "beta": 0.1,
+    "betaD": 0.1
+   },
+   "expected": {
+    "pfdAvg": 0.00104876764032,
+    "rrf": 953.500052399481,
+    "sil": 2,
+    "state": "SIL",
+    "independent": 9.896764032e-05,
+    "ccf": 0.0009498,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.0010437891952454561,
+    "departure": 0.00476958862691923
+   },
+   "printed": "1.05E-03"
+  },
+  {
+   "id": "dolan-pt-2oo3-beta15",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table (beta x 1.5 for 2oo3 per Annex D Table D.5)",
+   "params": {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 5e-07,
+    "lambdaDdPerHour": 8e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.15,
+    "betaD": 0.15
+   },
+   "expected": {
+    "pfdAvg": 0.0003440857544736,
+    "rrf": 2906.2522554293223,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 1.40257544736e-05,
+    "ccf": 0.00033006,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.00034387545966282755,
+    "departure": 0.000611543525026903
+   },
+   "printed": "3.44E-04"
+  },
+  {
+   "id": "dolan-valve-1oo2-ptc85",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table (PTC table; T2 = 10 years is NOT printed in the text, inferred because it reproduces every printed PTC row)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 2.1e-06,
+    "lambdaDdPerHour": 4e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 120,
+    "mrtHours": 120,
+    "beta": 0.1,
+    "betaD": 0.1,
+    "proofTestCoverage": 0.85,
+    "lifetimeHours": 87600
+   },
+   "expected": {
+    "pfdAvg": 0.0027137830826172,
+    "rrf": 368.489289510785,
+    "sil": 2,
+    "state": "SIL",
+    "independent": 0.0005222530826172,
+    "ccf": 0.00219153,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.0026382880990327654,
+    "departure": 0.02861514010244459
+   },
+   "printed": "2.71E-03"
+  },
+  {
+   "id": "dolan-pt-2oo3-ptc90",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table (PTC table; T2 = 10 years is NOT printed in the text, inferred because it reproduces every printed PTC row); the row prints beta 10% but only 15% (the x1.5 table) reproduces 6.76E-04",
+   "params": {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 5e-07,
+    "lambdaDdPerHour": 8e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.15,
+    "betaD": 0.15,
+    "proofTestCoverage": 0.9,
+    "lifetimeHours": 87600
+   },
+   "expected": {
+    "pfdAvg": 0.0006760603581036,
+    "rrf": 1479.1578710591389,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 5.03503581036e-05,
+    "ccf": 0.00062571,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.000669710252832798,
+    "departure": 0.009481869575598934
+   },
+   "printed": "6.76E-04"
+  },
+  {
+   "id": "dolan-cpu-1oo2-ptc98",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table (PTC table; T2 = 10 years is NOT printed in the text, inferred because it reproduces every printed PTC row)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 4.9e-09,
+    "lambdaDdPerHour": 1.28e-06,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.02,
+    "betaD": 0.01,
+    "proofTestCoverage": 0.98,
+    "lifetimeHours": 87600
+   },
+   "expected": {
+    "pfdAvg": 6.115827798656929e-07,
+    "rrf": 1635101.6296103136,
+    "sil": 4,
+    "state": "BELOW_SIL4_TABLE_FLOOR",
+    "independent": 1.895579865692845e-09,
+    "ccf": 6.096872e-07,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 6.110648388416667e-07,
+    "departure": 0.0008476040365994475
+   },
+   "printed": "6.12E-07"
+  },
+  {
+   "id": "dolan-do-1oo2-ptc98",
+   "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table (PTC table; T2 = 10 years is NOT printed in the text, inferred because it reproduces every printed PTC row)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 6.81e-09,
+    "lambdaDdPerHour": 8.61e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.02,
+    "betaD": 0.01,
+    "proofTestCoverage": 0.98,
+    "lifetimeHours": 87600
+   },
+   "expected": {
+    "pfdAvg": 7.764169446728482e-07,
+    "rrf": 1287967.7689432204,
+    "sil": 4,
+    "state": "BELOW_SIL4_TABLE_FLOOR",
+    "independent": 2.511264672848163e-09,
+    "ccf": 7.7390568e-07,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 7.759124003537223e-07,
+    "departure": 0.0006502593835282511
+   },
+   "printed": "7.76E-07"
+  }
+ ],
+ "sifPublished": {
+  "id": "dolan-sif-total",
+  "source": "PUBLISHED: 61508 Association, Dolan (2024), SIL Calculations: Practical Guidance in the use of IEC 61508-6:2010, results table",
+  "subsystems": [
+   {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 5e-07,
+    "lambdaDdPerHour": 8e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.1,
+    "betaD": 0.1,
+    "name": "initiators"
+   },
+   {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 7.06e-09,
+    "lambdaDdPerHour": 8.86e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.02,
+    "betaD": 0.01,
+    "name": "A I/P"
+   },
+   {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 4.9e-09,
+    "lambdaDdPerHour": 1.28e-06,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.02,
+    "betaD": 0.01,
+    "name": "CPU"
+   },
+   {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 6.81e-09,
+    "lambdaDdPerHour": 8.61e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.02,
+    "betaD": 0.01,
+    "name": "D O/P"
+   },
+   {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 2.1e-06,
+    "lambdaDdPerHour": 4e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 120,
+    "mrtHours": 120,
+    "beta": 0.1,
+    "betaD": 0.1,
+    "name": "final elements"
+   }
+  ],
+  "expected": {
+   "pfdAvg": 0.0012864311070545638,
+   "rrf": 777.3443867426514,
+   "sil": 2,
+   "state": "SIL"
+  },
+  "printed": {
+   "pfdAvg": "1.29E-03",
+   "rrf": "777"
+  }
+ },
+ "pfdDerived": [
+  {
+   "id": "tr84-1oo1",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo1",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760
+   },
+   "expected": {
+    "pfdAvg": 0.00876,
+    "rrf": 114.15525114155251,
+    "sil": 2,
+    "state": "SIL",
+    "independent": 0.00876,
+    "ccf": 0.0,
+    "dominant": "independent"
+   },
+   "routeB": {
+    "pfdAvg": 0.008709064890924363,
+    "departure": 0.0058485164266850465,
+    "tolerance": 0.02628
+   },
+   "note": "lambdaDU T/2"
+  },
+  {
+   "id": "tr84-1oo1-with-dd",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo1",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "lambdaDdPerHour": 5e-06,
+    "mttrHours": 24
+   },
+   "expected": {
+    "pfdAvg": 0.00888,
+    "rrf": 112.61261261261261,
+    "sil": 2,
+    "state": "SIL",
+    "independent": 0.00888,
+    "ccf": 0.0,
+    "dominant": "independent"
+   },
+   "routeB": {
+    "pfdAvg": 0.008828005530260702,
+    "departure": 0.005889718754827689
+   },
+   "note": "lambdaDU T/2 + lambdaDD MTTR"
+  },
+  {
+   "id": "tr84-2oo2",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "2oo2",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760
+   },
+   "expected": {
+    "pfdAvg": 0.01752,
+    "rrf": 57.077625570776256,
+    "sil": 1,
+    "state": "SIL",
+    "independent": 0.01752,
+    "ccf": 0.0,
+    "dominant": "independent"
+   },
+   "routeB": {
+    "pfdAvg": 0.01731714650086212,
+    "departure": 0.011714025698620789,
+    "tolerance": 0.02628
+   },
+   "routeB2oo2WithBeta": {
+    "beta": 0.1,
+    "pfdAvg": 0.01646084492242597
+   },
+   "note": "lambdaDU T; Annex B carries no beta"
+  },
+  {
+   "id": "tr84-1oo2-beta5",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "beta": 0.05
+   },
+   "expected": {
+    "pfdAvg": 0.000530340912,
+    "rrf": 1885.5795911140267,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 9.2340912e-05,
+    "ccf": 0.000438,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.0005290094069177521,
+    "departure": 0.0025169780817431153,
+    "tolerance": 0.02628
+   }
+  },
+  {
+   "id": "tr84-2oo3-beta5",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "beta": 0.05
+   },
+   "expected": {
+    "pfdAvg": 0.000715022736,
+    "rrf": 1398.5569264471612,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 0.000277022736,
+    "ccf": 0.000438,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.0007090256726332284,
+    "departure": 0.00845817520894454,
+    "tolerance": 0.02628
+   }
+  },
+  {
+   "id": "tr84-1oo3-beta5",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo3",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "beta": 0.05
+   },
+   "expected": {
+    "pfdAvg": 0.000439152691604496,
+    "rrf": 2277.1123099493766,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 1.152691604496e-06,
+    "ccf": 0.000438,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.00043900127406001574,
+    "departure": 0.00034491367890554514,
+    "tolerance": 0.02628
+   }
+  },
+  {
+   "id": "1oo2-beta0",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "beta": 0
+   },
+   "expected": {
+    "pfdAvg": 0.0001023168,
+    "rrf": 9773.566022393194,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 0.0001023168,
+    "ccf": 0.0,
+    "dominant": "independent"
+   },
+   "routeB": {
+    "pfdAvg": 0.00010098328098658939,
+    "departure": 0.013205344492497773,
+    "tolerance": 0.02628
+   },
+   "note": "beta = 0: pure independent, (lambda T)^2/3"
+  },
+  {
+   "id": "1oo2-beta1",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "beta": 1
+   },
+   "expected": {
+    "pfdAvg": 0.00876,
+    "rrf": 114.15525114155251,
+    "sil": 2,
+    "state": "SIL",
+    "independent": 0.0,
+    "ccf": 0.00876,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.008709064890924363,
+    "departure": 0.0058485164266850465,
+    "tolerance": 0.02628
+   },
+   "note": "beta = 1: redundancy buys nothing, equals 1oo1"
+  },
+  {
+   "id": "2oo3-beta0",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "beta": 0
+   },
+   "expected": {
+    "pfdAvg": 0.0003069504,
+    "rrf": 3257.8553407977315,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 0.0003069504,
+    "ccf": 0.0,
+    "dominant": "independent"
+   },
+   "routeB": {
+    "pfdAvg": 0.0003003168069413307,
+    "departure": 0.02208865073597166,
+    "tolerance": 0.02628
+   }
+  },
+  {
+   "id": "2oo3-beta1",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "beta": 1
+   },
+   "expected": {
+    "pfdAvg": 0.00876,
+    "rrf": 114.15525114155251,
+    "sil": 2,
+    "state": "SIL",
+    "independent": 0.0,
+    "ccf": 0.00876,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.008709064890924363,
+    "departure": 0.0058485164266850465,
+    "tolerance": 0.02628
+   },
+   "note": "beta = 1: equals 1oo1"
+  },
+  {
+   "id": "1oo3-beta0",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo3",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "beta": 0
+   },
+   "expected": {
+    "pfdAvg": 1.344442752e-06,
+    "rrf": 743802.5892232264,
+    "sil": 4,
+    "state": "BELOW_SIL4_TABLE_FLOOR",
+    "independent": 1.344442752e-06,
+    "ccf": 0.0,
+    "dominant": "independent"
+   },
+   "routeB": {
+    "pfdAvg": 1.3165180092193943e-06,
+    "departure": 0.02121106022481478,
+    "tolerance": 0.02628
+   }
+  },
+  {
+   "id": "1oo3-beta1",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo3",
+    "lambdaDuPerHour": 2e-06,
+    "proofTestIntervalHours": 8760,
+    "beta": 1
+   },
+   "expected": {
+    "pfdAvg": 0.00876,
+    "rrf": 114.15525114155251,
+    "sil": 2,
+    "state": "SIL",
+    "independent": 0.0,
+    "ccf": 0.00876,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.008709064890924363,
+    "departure": 0.0058485164266850465,
+    "tolerance": 0.02628
+   }
+  },
+  {
+   "id": "1oo2-ccf-dominated",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 5e-07,
+    "proofTestIntervalHours": 8760,
+    "beta": 0.1
+   },
+   "expected": {
+    "pfdAvg": 0.000224179788,
+    "rrf": 4460.705440581468,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 5.179788e-06,
+    "ccf": 0.000219,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.0002241308356822407,
+    "departure": 0.0002184095624784277,
+    "tolerance": 0.00657
+   },
+   "note": "beta lambda T/2 = 2.19e-4 against an independent 5.2e-6: common cause is 98 percent"
+  },
+  {
+   "id": "1oo2-full-annexb",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 1e-06,
+    "lambdaDdPerHour": 4e-06,
+    "proofTestIntervalHours": 17520,
+    "mttrHours": 72,
+    "mrtHours": 72,
+    "beta": 0.05,
+    "betaD": 0.025
+   },
+   "expected": {
+    "pfdAvg": 0.0005552044992,
+    "rrf": 1801.1381417854332,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 0.0001064044992,
+    "ccf": 0.0004488,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.000545634667457934,
+    "departure": 0.017538899767221672
+   },
+   "note": "DD- and MRT-heavy: where the equivalent-down-time convention departs most from route B"
+  },
+  {
+   "id": "1oo2-mrt-ne-mttr",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 1e-06,
+    "lambdaDdPerHour": 5e-06,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 168,
+    "beta": 0.05,
+    "betaD": 0.02
+   },
+   "expected": {
+    "pfdAvg": 0.00025548534068,
+    "rrf": 3914.1188975398713,
+    "sil": 3,
+    "state": "SIL",
+    "independent": 2.728534068e-05,
+    "ccf": 0.0002282,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.00025277915549431053,
+    "departure": 0.010705729198269953
+   },
+   "note": "MRT (168 h, a DU failure found at test) differs from MTTR (8 h, a detected failure): the only rows that tell the two apart"
+  },
+  {
+   "id": "1oo1-mrt-ne-mttr",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo1",
+    "lambdaDuPerHour": 1e-06,
+    "lambdaDdPerHour": 5e-06,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 168
+   },
+   "expected": {
+    "pfdAvg": 0.004588,
+    "rrf": 217.9598953792502,
+    "sil": 2,
+    "state": "SIL",
+    "independent": 0.004588,
+    "ccf": 0.0,
+    "dominant": "independent"
+   },
+   "routeB": {
+    "pfdAvg": 0.004574307642290407,
+    "departure": 0.0029933180669801107
+   }
+  },
+  {
+   "id": "1oo1-long-interval",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo1",
+    "lambdaDuPerHour": 1e-05,
+    "proofTestIntervalHours": 43800
+   },
+   "expected": {
+    "pfdAvg": 0.219,
+    "rrf": 4.566210045662101,
+    "sil": null,
+    "state": "NOT_SIL_RATED",
+    "independent": 0.219,
+    "ccf": 0.0,
+    "dominant": "independent"
+   },
+   "routeB": {
+    "pfdAvg": 0.19024151337281742,
+    "departure": 0.15116830242421586,
+    "tolerance": 0.657
+   },
+   "note": "lambda T = 0.438: the rare-event form visibly overstates"
+  },
+  {
+   "id": "1oo3-full-ptc",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo3",
+    "lambdaDuPerHour": 3e-06,
+    "lambdaDdPerHour": 1e-06,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.05,
+    "betaD": 0.02,
+    "proofTestCoverage": 0.9,
+    "lifetimeHours": 87600
+   },
+   "expected": {
+    "pfdAvg": 0.0012771386632866007,
+    "rrf": 783.0003340644239,
+    "sil": 2,
+    "state": "SIL",
+    "independent": 2.7478663286600605e-05,
+    "ccf": 0.00124966,
+    "dominant": "common cause"
+   },
+   "routeB": {
+    "pfdAvg": 0.0012684495199591814,
+    "departure": 0.006850208219321807
+   }
+  }
+ ],
+ "sensitivity": {
+  "id": "sens-1oo2",
+  "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+  "params": {
+   "architecture": "1oo2",
+   "lambdaDuPerHour": 2e-06,
+   "lambdaDdPerHour": 1e-06,
+   "mttrHours": 8,
+   "mrtHours": 8,
+   "beta": 0.05,
+   "betaD": 0.025
+  },
+  "intervalsHours": [
+   2190.0,
+   4380.0,
+   8760,
+   17520,
+   35040
+  ],
+  "rows": [
+   {
+    "proofTestIntervalHours": 2190.0,
+    "pfdAvg": 0.00011653496425,
+    "sil": 3,
+    "state": "SIL"
+   },
+   {
+    "proofTestIntervalHours": 4380.0,
+    "pfdAvg": 0.00024381487466666667,
+    "sil": 3,
+    "state": "SIL"
+   },
+   {
+    "proofTestIntervalHours": 8760,
+    "pfdAvg": 0.000533612708,
+    "sil": 3,
+    "state": "SIL"
+   },
+   {
+    "proofTestIntervalHours": 17520,
+    "pfdAvg": 0.0012541604246666667,
+    "sil": 2,
+    "state": "SIL"
+   },
+   {
+    "proofTestIntervalHours": 35040,
+    "pfdAvg": 0.003259064058,
+    "sil": 2,
+    "state": "SIL"
+   }
+  ]
+ },
+ "maxInterval": [
+  {
+   "id": "maxT-1oo1",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo1",
+    "lambdaDuPerHour": 2e-06
+   },
+   "targetPfdAvg": 0.01,
+   "expected": {
+    "state": "FOUND",
+    "proofTestIntervalHours": 10000.0,
+    "route": "linear"
+   }
+  },
+  {
+   "id": "maxT-1oo1-dd-mrt",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo1",
+    "lambdaDuPerHour": 2e-06,
+    "lambdaDdPerHour": 3e-06,
+    "mttrHours": 24,
+    "mrtHours": 24
+   },
+   "targetPfdAvg": 0.005,
+   "expected": {
+    "state": "FOUND",
+    "proofTestIntervalHours": 4880.0,
+    "route": "linear"
+   }
+  },
+  {
+   "id": "maxT-1oo2",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo2",
+    "lambdaDuPerHour": 2e-06,
+    "lambdaDdPerHour": 1e-06,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.05,
+    "betaD": 0.025
+   },
+   "targetPfdAvg": 0.001,
+   "expected": {
+    "state": "FOUND",
+    "proofTestIntervalHours": 14680.34523635893,
+    "route": "quadratic formula"
+   }
+  },
+  {
+   "id": "maxT-2oo3",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "2oo3",
+    "lambdaDuPerHour": 5e-07,
+    "lambdaDdPerHour": 8e-07,
+    "proofTestIntervalHours": 8760,
+    "mttrHours": 8,
+    "mrtHours": 8,
+    "beta": 0.1,
+    "betaD": 0.1
+   },
+   "targetPfdAvg": 0.001,
+   "expected": {
+    "state": "FOUND",
+    "proofTestIntervalHours": 31760.774594270508,
+    "route": "quadratic formula"
+   }
+  },
+  {
+   "id": "maxT-1oo3",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo3",
+    "lambdaDuPerHour": 5e-06,
+    "beta": 0.02
+   },
+   "targetPfdAvg": 0.001,
+   "expected": {
+    "state": "FOUND",
+    "proofTestIntervalHours": 17072.71050983525,
+    "route": "bisection on the exact cubic"
+   }
+  },
+  {
+   "id": "maxT-unachievable",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo1",
+    "lambdaDuPerHour": 1e-06,
+    "lambdaDdPerHour": 0.001,
+    "mttrHours": 24
+   },
+   "targetPfdAvg": 0.01,
+   "expected": {
+    "state": "UNACHIEVABLE",
+    "floorPfdAvg": 0.024
+   }
+  },
+  {
+   "id": "maxT-capped",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo1",
+    "lambdaDuPerHour": 1e-08,
+    "proofTestCoverage": 0.9,
+    "lifetimeHours": 87600
+   },
+   "targetPfdAvg": 0.01,
+   "expected": {
+    "state": "CAPPED_AT_LIFETIME",
+    "proofTestIntervalHours": 87600.0
+   }
+  }
+ ]
+}

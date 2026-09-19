@@ -452,6 +452,20 @@ and its consumers.
   ignoring each standard's certification cycle, findings ageing after
   closure and a 29 February cycle start rolled to 1 March. The
   `FINDINGS-*.md` files keep the owner questions that were not changed.
+- `engines/hse/lopa.js` (HSE H3, 2026-09-19) — Layer of Protection
+  Analysis and SIL determination / verification: scenario frequency
+  (CCPS 2001: IEF x conditional modifiers x credited IPL PFDs), required
+  RRF and SIL against a supplied TMEL with explicit NO_SIF_REQUIRED,
+  below-SIL1 and BEYOND_SIL3_REDESIGN states; low-demand PFDavg by the
+  full IEC 61508-6:2010 Annex B simplified equations (1oo1, 1oo2, 2oo2,
+  2oo3, 1oo3; DD/MTTR, MRT, beta/betaD, optional proof test coverage),
+  which reduce to the ISA-TR84.00.02 forms; proof test interval
+  sensitivity and the longest interval meeting a target. No failure-rate
+  data and no architectural-constraint table are embedded. Goldens
+  (`test-data/hse/goldens/lopa_cases.json`): the 61508 Association worked
+  SIF (Dolan 2024) to every printed digit, plus an exact-rational oracle
+  and a time-dependent quadrature route (`tools/validation/hse/`,
+  FINDINGS-lopa.md, negcontrol_lopa.sh).
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
