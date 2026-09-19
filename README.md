@@ -463,6 +463,24 @@ and its consumers.
   (scipy + mpmath, not stdlib), anchored on the BLS worked example and
   IOGP 2024 published figures; findings and the negative control in
   `tools/validation/hse/`.
+- `engines/hse/exposure.js` (HSE H2, 2026-09-19): occupational hygiene
+  exposure, written here first. Noise dose, reference duration and TWA
+  per 29 CFR 1910.95 Appendix A with OSHA PEL, OSHA action level and
+  NIOSH REL presets (each carries the TWA constant its source prints,
+  16.61 or 10.0), the OSHA extended-shift action level, hearing protector
+  estimates (Appendix B, the OTM 50 percent field derating and dual
+  protection, NIOSH type derating), LEX,8h, weekly LEX and HSE exposure
+  points, the 1910.1000(d) 8-hour TWA and mixture index, the 15-minute
+  STEL, Brief and Scala factors, WBGT and the NIOSH 2016 RAL/REL. No
+  licensed limit table is embedded: limits are inputs. Gate:
+  `hse.exposure.test.js` replays `test-data/hse/goldens/exposure_cases.json`
+  (written by `tools/validation/hse/oracle_exposure.py`) against the
+  engine, checks 372 cases against the value the source prints, pins
+  five published errata and 57 refusals by field name;
+  `tools/validation/hse/negcontrol_exposure.sh` records what the gate can
+  and cannot catch (the heat-limit equations and WBGT weights have no
+  printed value that reproduces them, so a change made to both engine and
+  oracle passes).
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
