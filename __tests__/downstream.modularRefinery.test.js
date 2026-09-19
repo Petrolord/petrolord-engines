@@ -180,7 +180,11 @@ describe('the annual streams', () => {
       constructionYears: 0, capex: 10e6,
     });
     expect(immediate.years[0].producing).toBe(true);
-    expect(immediate.years.every((y) => y.capex === 0)).toBe(true);
+    // MD2-0: this used to assert every year's capex was 0, which is the
+    // defect: 10 million of capital vanished from the streams. With no
+    // construction period it is spent in year 0.
+    expect(immediate.years[0].capex).toBe(10e6);
+    expect(immediate.years.slice(1).every((y) => y.capex === 0)).toBe(true);
   });
 });
 

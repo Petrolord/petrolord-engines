@@ -77,6 +77,51 @@ export const planRefinery = ({ crudes = [], units = [], products = [], streams =
   if (crudes.length === 0) return { status: 'invalid', error: 'The plan needs at least one crude.' };
   if (products.length === 0) return { status: 'invalid', error: 'The plan needs at least one product to sell.' };
 
+  // MD2-0 input rules. Every one below used to be a silent number.
+  //  - A price or cost nobody typed is not zero: a crude with a blank cost
+  //    was free, a product with a blank price was worthless, a unit with a
+  //    blank operating cost ran for nothing. Each is refused, named.
+  //  - A limit nobody typed is no limit; a typed limit is that limit, and
+  //    ZERO IS ZERO. `cap > 0 ? cap : Infinity` used to turn a reformer
+  //    typed as shut (capacity 0) into an unlimited one, and the default
+  //    plan's margin jumped from 21.9 to 32.0 million.
+  const given = (v) => !(v === null || v === undefined || v === '' || v === Infinity);
+  const label = (x, i, kind) => x.name || x.id || `${kind} ${i + 1}`;
+  const missing = [
+    ...crudes.filter((cr) => !Number.isFinite(Number(cr.cost)) || !given(cr.cost)).map((cr, i) => `the cost of ${label(cr, i, 'crude')}`),
+    ...units.filter((u) => !Number.isFinite(Number(u.opex)) || !given(u.opex)).map((u, i) => `the operating cost of ${label(u, i, 'unit')}`),
+    ...products.filter((pr) => !Number.isFinite(Number(pr.price)) || !given(pr.price)).map((pr, i) => `the price of ${label(pr, i, 'product')}`),
+  ];
+  if (missing.length > 0) {
+    return { status: 'invalid', error: `Missing ${missing.join(', ')}. Enter 0 where the value really is zero.`, missing };
+  }
+  const limit = (v, what) => {
+    if (!given(v)) return Infinity;
+    const x = Number(v);
+    if (!(x >= 0)) throw new RangeError(`${what} must be zero or more; leave it blank for no limit.`);
+    return x;
+  };
+  let lo;
+  let hi;
+  try {
+    lo = [
+      ...crudes.map(() => 0),
+      ...units.map(() => 0),
+      ...products.map((pr) => (given(pr.minDemand) ? limit(pr.minDemand, `${pr.name || pr.id} minimum demand`) : 0)),
+    ];
+    hi = [
+      ...crudes.map((cr) => limit(cr.available, `${cr.name || cr.id} availability`)),
+      ...units.map((u) => limit(u.capacity, `${u.name || u.id} capacity`)),
+      ...products.map((pr) => limit(pr.maxDemand, `${pr.name || pr.id} maximum demand`)),
+    ];
+  } catch (e) {
+    return { status: 'invalid', error: e.message };
+  }
+  const crossed = products.filter((pr, i) => lo[crudes.length + units.length + i] > hi[crudes.length + units.length + i]);
+  if (crossed.length > 0) {
+    return { status: 'invalid', error: `${crossed.map((pr) => pr.name || pr.id).join(', ')} has a minimum demand above its maximum.` };
+  }
+
   const nC = crudes.length;
   const nU = units.length;
   const nP = products.length;
@@ -89,21 +134,6 @@ export const planRefinery = ({ crudes = [], units = [], products = [], streams =
   units.forEach((u, i) => { c[idx.unit(i)] = -num(u.opex); });
   products.forEach((pr, i) => { c[idx.product(i)] = num(pr.price); });
 
-  const lo = new Array(n).fill(0);
-  const hi = new Array(n).fill(Infinity);
-  crudes.forEach((cr, i) => {
-    const cap = num(cr.available, Infinity);
-    hi[idx.crude(i)] = cap > 0 ? cap : Infinity;
-  });
-  units.forEach((u, i) => {
-    const cap = num(u.capacity, Infinity);
-    hi[idx.unit(i)] = cap > 0 ? cap : Infinity;
-  });
-  products.forEach((pr, i) => {
-    lo[idx.product(i)] = Math.max(0, num(pr.minDemand, 0));
-    const cap = num(pr.maxDemand, Infinity);
-    hi[idx.product(i)] = cap > 0 ? cap : Infinity;
-  });
 
   const A = [];
   const b = [];
@@ -124,6 +154,25 @@ export const planRefinery = ({ crudes = [], units = [], products = [], streams =
     ops.push('>=');
     rowMeta.push({ kind: 'stream', id: streamId, name: `${streamId} balance` });
   });
+
+  // Every barrel of crude runs through the crude unit. A unit with NO FEED is
+  // a crude unit (atmospheric distillation): its throughput is the crude run.
+  // Without this row nothing tied the two together, so at the Suite's default
+  // plan the crude distillation unit showed 0 throughput and 0 percent
+  // utilisation beside 2.9 million barrels of crude, its capacity never bound
+  // and its operating cost (1.20 a barrel, 3.5 million over the month) was
+  // never charged. Where no unit is feedless the plan has no crude unit and no
+  // such row is written, as before.
+  const crudeUnits = units.map((u, i) => (u.feed ? null : i)).filter((i) => i !== null);
+  if (crudeUnits.length > 0) {
+    const row = new Array(n).fill(0);
+    crudes.forEach((cr, i) => { row[idx.crude(i)] = 1; });
+    crudeUnits.forEach((i) => { row[idx.unit(i)] = -1; });
+    A.push(row);
+    b.push(0);
+    ops.push('=');
+    rowMeta.push({ kind: 'crude-unit', id: 'crude', name: 'crude through the crude unit' });
+  }
 
   const lp = solveLP({ c, A, b, ops, lo, hi, maximize: true });
 
@@ -146,8 +195,9 @@ export const planRefinery = ({ crudes = [], units = [], products = [], streams =
   }));
   const unitRuns = units.map((u, i) => ({
     id: u.id, name: u.name, throughput: x[idx.unit(i)],
-    capacity: num(u.capacity, Infinity),
-    utilisation: num(u.capacity) > 0 ? x[idx.unit(i)] / num(u.capacity) : null,
+    capacity: hi[idx.unit(i)],
+    utilisation: Number.isFinite(hi[idx.unit(i)]) && hi[idx.unit(i)] > 0 ? x[idx.unit(i)] / hi[idx.unit(i)] : null,
+    crudeUnit: !u.feed,
     cost: x[idx.unit(i)] * num(u.opex),
   }));
   const productMakes = products.map((pr, i) => ({
@@ -221,12 +271,12 @@ export const planRefinery = ({ crudes = [], units = [], products = [], streams =
  */
 export const cascadeToSchedule = ({ plan, periodStart, periodDays = 30, cargoSize = 500000 }) => {
   if (!plan || plan.status !== 'optimal') return { events: [], note: 'No optimal plan to cascade.' };
+  // Calendar arithmetic in UTC. It used local setDate and then printed the
+  // UTC date, so west of Greenwich a schedule crossing a daylight-saving
+  // change put every later event on the previous day.
   const start = new Date(periodStart || Date.now());
-  const dayAt = (d) => {
-    const dt = new Date(start);
-    dt.setDate(dt.getDate() + d);
-    return dt.toISOString().split('T')[0];
-  };
+  const startUtc = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+  const dayAt = (d) => new Date(startUtc + d * 86400000).toISOString().split('T')[0];
 
   const events = [];
   let seq = 0;

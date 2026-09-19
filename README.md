@@ -370,6 +370,13 @@ and its consumers.
   and `lp.simplex.golden`, and a planted-defect battery
   (`negcontrol_md1.sh`); findings in `FINDINGS-crude.md`. The other
   eight modules have no oracle yet and stay gated for their courses.
+  MD2-0 (2026-09-19) did the same for `refineryPlanning.js`,
+  `streamModel.js` (the variance) and `modularRefinery.js`: oracles
+  `oracle_refineryplanning.py` (on `exact_simplex.py`, a rational simplex
+  that returns only certificate-proved optima) and
+  `oracle_modularrefinery.py`, gate `downstream.refinery.golden`, battery
+  `negcontrol_md2.sh`, findings `FINDINGS-refinery.md`. It added the
+  opt-in `lossCarryForward` to `engines/economics/screening.js`.
 
 - `engines/economics/` — the Economics module (EC0 extraction wave,
   2026-09-08; plan of record in the Suite at

@@ -27,8 +27,11 @@
  * economics engine's job, and this engine deliberately produces the annual
  * volume and cost streams for that engine to consume rather than growing a
  * seventh NPV implementation. The Economics module spent a whole phase
- * removing the fifth and sixth.
+ * removing the fifth and sixth. feasibilityEconomics (below) is the one
+ * place those streams meet the Suite's screening engine, calculateEconomics.
  */
+
+import { calculateEconomics } from '../economics/screening.js';
 
 /**
  * Numeric coercion that treats ABSENCE as absent.
@@ -93,9 +96,11 @@ export const scaleComparison = ({
     modularPerBpd: modular.perBpd,
     stickBuiltCost: stick.cost,
     stickBuiltPerBpd: stick.perBpd,
-    // Below the reference size the modular case costs MORE in total and less
-    // per barrel than the six-tenths rule implies; above it, the reverse.
-    // Reporting the ratio makes the crossover visible.
+    // Below the reference size the modular case costs LESS than the
+    // six-tenths rule implies, in total and per barrel alike (a fraction
+    // raised to 0.9 is smaller than the same fraction raised to 0.6); above
+    // it, MORE. MD2-0: this comment used to say the opposite of below the
+    // reference. The ratio makes the crossover, at the reference size, visible.
     ratio: stick.cost > 0 && modular.cost !== null ? modular.cost / stick.cost : null,
   };
 });
@@ -181,9 +186,30 @@ export const feasibilityStreams = ({
   crudeCostPerBbl, slate, fixedOpexPerYear, variableOpexPerBbl,
   projectLife = 20, constructionYears = 2, capex,
 }) => {
-  const cap = num(capacityBpd);
+  // MD2-0. This module's num() reads a blank as ZERO, which is right for a
+  // yield table and wrong here: a blank crude price made crude free, a blank
+  // capex made the plant free, and a blank utilisation read as 100 percent.
+  // The money and the size are required; the schedule terms keep their
+  // stated defaults only when they are absent, never when they are blank.
+  const absent = (v) => v === null || v === undefined || v === '';
+  const need = [
+    ['capacity', capacityBpd], ['crude cost', crudeCostPerBbl], ['capital cost', capex],
+    ['fixed operating cost', fixedOpexPerYear], ['variable operating cost', variableOpexPerBbl],
+  ].filter(([, v]) => absent(v) || !Number.isFinite(Number(v))).map(([k]) => k);
+  if (need.length > 0) {
+    return { error: `Missing ${need.join(', ')}. Enter 0 where the value really is zero.`, years: [], missing: need };
+  }
+  const util = num(utilisation, 0.9);
+  if (!(util >= 0 && util <= 1)) {
+    // It used to be clamped, so a utilisation typed as a percentage (90)
+    // quietly became 100 percent.
+    return { error: 'Utilisation is a fraction between 0 and 1 (0.9 for 90 percent).', years: [] };
+  }
   const runDays = num(onstreamDays, 340);
-  const util = Math.min(1, Math.max(0, num(utilisation, 1)));
+  if (!(runDays > 0 && runDays <= 366)) {
+    return { error: 'On-stream days must be between 1 and 366.', years: [] };
+  }
+  const cap = num(capacityBpd);
   const annualBbl = cap * runDays * util;
 
   const years = [];
@@ -204,8 +230,10 @@ export const feasibilityStreams = ({
       // operating one.
       fixedOpex: producing ? num(fixedOpexPerYear) : 0,
       variableOpex: throughput * num(variableOpexPerBbl),
-      // Capital spread evenly across the construction years.
-      capex: producing ? 0 : (build > 0 ? num(capex) / build : 0),
+      // Capital spread evenly across the construction years. With no
+      // construction period it is spent in year 0, the first operating year.
+      // It used to vanish from the streams entirely.
+      capex: build > 0 ? (producing ? 0 : num(capex) / build) : (y === 0 ? num(capex) : 0),
     });
   }
 
@@ -216,6 +244,57 @@ export const feasibilityStreams = ({
     capexPerBpd: cap > 0 ? num(capex) / cap : null,
     grossMarginPerBbl: num(slate?.grossValuePerBbl) - num(crudeCostPerBbl) - num(variableOpexPerBbl),
   };
+};
+
+/**
+ * Value the streams through the Suite's screening economics engine.
+ *
+ * The Suite page did this itself and fed PRODUCT REVENUE IN AS A NEGATIVE
+ * OPERATING COST, with the production row empty. The engine therefore saw no
+ * revenue at all, so its royalty (a share of gross revenue) was always zero
+ * whatever rate was typed, and its revenue and cost totals were meaningless.
+ * Here revenue goes in as revenue: product barrels at the slate's value per
+ * barrel of crude.
+ *
+ * Two choices are made here, and stated:
+ *  - NO ROYALTY. A royalty is a charge on producing petroleum; a refinery
+ *    buys its crude and pays none. The page's royalty box is removed.
+ *  - LOSSES CARRY FORWARD. The plant is built before it earns; the capital is
+ *    expensed in the construction years, and with no carry-forward that whole
+ *    deduction was thrown away. Carried forward, it shelters the first
+ *    operating years, which is how a company's losses are treated for income
+ *    tax.
+ *
+ * @returns {object} calculateEconomics' result, plus the inputs it was given
+ */
+export const feasibilityEconomics = ({ streams, discountRate, taxRate, startYear = new Date().getFullYear() }) => {
+  if (!streams || streams.error || !Array.isArray(streams.years) || streams.years.length === 0) {
+    return { error: streams?.error ?? 'No streams to value.' };
+  }
+  const r = Number(discountRate);
+  const t = Number(taxRate);
+  if (!Number.isFinite(r) || !Number.isFinite(t)) {
+    return { error: 'A discount rate and a tax rate are needed to value the project.' };
+  }
+  const ys = streams.years;
+  const mm = (v) => v / 1e6;
+  const inputs = {
+    startYear,
+    projectLife: ys.length,
+    discountRate: r,
+    fiscalType: 'TaxRoyalty',
+    production: { oil: ys.map((y) => y.crudeBbl), gas: ys.map(() => 0) },
+    // Revenue per barrel of crude run: the slate's gross value.
+    price: { oil: ys.map((y) => (y.crudeBbl > 0 ? y.revenue / y.crudeBbl : 0)), gas: ys.map(() => 0) },
+    capex: ys.map((y) => mm(y.capex)),
+    opexFixed: ys.map((y) => mm(y.fixedOpex + y.crudeCost)),
+    opexVariable: ys.map((y) => mm(y.variableOpex)),
+    abandonment: ys.map(() => 0),
+    royaltyRate: 0,
+    taxRate: t,
+    lossCarryForward: true,
+  };
+  return { ...calculateEconomics(inputs), inputs };
 };
 
 /**
