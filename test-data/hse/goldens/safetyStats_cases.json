@@ -1,0 +1,4550 @@
+{
+ "module": "safetyStats",
+ "generatedBy": "tools/validation/hse/oracle_safetystats.py",
+ "description": "Incidence, FAR, severity and API 754 PSE rates; pooled and rolling rates; Garwood exact Poisson intervals; conditional exact rate comparison; u-chart. Published values carry their source; everything else is oracle-derived with scipy and mpmath.",
+ "cases": [
+  {
+   "id": "bls-trir-abc-company",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 7,
+    "exposureHours": 400000,
+    "base": 200000
+   },
+   "expected": {
+    "rate": 3.5,
+    "basis.base": 200000,
+    "basis.baseLabel": "per 200,000 hours (OSHA/BLS: 100 full-time workers, 40 h x 50 weeks)"
+   },
+   "tol": 1e-12,
+   "source": "published",
+   "published": {
+    "field": "rate",
+    "value": 3.5,
+    "decimals": 1,
+    "ref": "BLS, How to compute a firm's incidence rate (bls.gov/iif/overview/compute-nonfatal-incidence-rates.htm): (7 x 200,000) / 400,000 = 3.5"
+   }
+  },
+  {
+   "id": "bls-dart-abc-company",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 3,
+    "exposureHours": 400000,
+    "base": 200000
+   },
+   "expected": {
+    "rate": 1.5
+   },
+   "tol": 1e-12,
+   "source": "published",
+   "published": {
+    "field": "rate",
+    "value": 1.5,
+    "decimals": 1,
+    "ref": "BLS, How to compute a firm's incidence rate (bls.gov/iif/overview/compute-nonfatal-incidence-rates.htm): DART (3 x 200,000) / 400,000 = 1.5"
+   }
+  },
+  {
+   "id": "iogp-far-2024",
+   "fn": "fatalAccidentRate",
+   "args": {
+    "fatalities": 32,
+    "exposureHours": 4158877000
+   },
+   "expected": {
+    "rate": 0.7694384806283042,
+    "basis.base": 100000000
+   },
+   "tol": 1e-12,
+   "source": "published",
+   "published": {
+    "field": "rate",
+    "value": 0.77,
+    "decimals": 2,
+    "ref": "IOGP Safety performance indicators, 2024 data (report 2024s) section 1.2 (32 fatalities, FAR 0.77) and Table 38A (4,158,877 thousand work hours)"
+   }
+  },
+  {
+   "id": "iogp-far-2023",
+   "fn": "fatalAccidentRate",
+   "args": {
+    "fatalities": 27,
+    "exposureHours": 3291382000
+   },
+   "expected": {
+    "rate": 0.8203241070164448
+   },
+   "tol": 1e-12,
+   "source": "published",
+   "published": {
+    "field": "rate",
+    "value": 0.82,
+    "decimals": 2,
+    "ref": "IOGP Safety performance indicators, 2024 data (report 2024s) section 1.2 (27 fatalities in 2023, FAR 0.82) and Table 38A (3,291,382 thousand)"
+   }
+  },
+  {
+   "id": "iogp-far-2024-as-incidence-rate",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 32,
+    "exposureHours": 4158877000,
+    "base": 100000000
+   },
+   "expected": {
+    "rate": 0.7694384806283042,
+    "basis.baseLabel": "per 100,000,000 hours (FAR, IOGP)"
+   },
+   "tol": 1e-12,
+   "source": "published",
+   "published": {
+    "field": "rate",
+    "value": 0.77,
+    "decimals": 2,
+    "ref": "IOGP Safety performance indicators, 2024 data (report 2024s) section 1.2"
+   }
+  },
+  {
+   "id": "iogp-fir-2024",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 21,
+    "exposureHours": 4158877000,
+    "base": 100000000
+   },
+   "expected": {
+    "rate": 0.5049440029123247
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "IOGP FIR (fatal incidents per 100 million hours): 21 incidents in 2024 (section 1.2). The report prints no overall FIR figure in its text, so the value is oracle-derived."
+  },
+  {
+   "id": "iogp-trir-2024",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 3071,
+    "exposureHours": 3795000000,
+    "base": 1000000
+   },
+   "expected": {
+    "rate": 0.8092226613965744,
+    "basis.baseLabel": "per 1,000,000 hours (IOGP)"
+   },
+   "tol": 1e-12,
+   "source": "published",
+   "published": {
+    "field": "rate",
+    "value": 0.81,
+    "decimals": 2,
+    "ref": "IOGP Safety performance indicators, 2024 data (report 2024s) section 2.5 (3,071 recordables over 3,795 million hours with MTC reported) and 1.3 (TRIR 0.81); the hours are printed to the nearest million"
+   }
+  },
+  {
+   "id": "iogp-far-five-year-2020-2024",
+   "fn": "pooledRate",
+   "args": {
+    "counts": [
+     14,
+     20,
+     33,
+     27,
+     32
+    ],
+    "exposureHours": [
+     2544201000,
+     2679026000,
+     2579000000,
+     3291382000,
+     4158877000
+    ],
+    "base": 100000000
+   },
+   "expected": {
+    "rate": 0.8260948411950682,
+    "count": 126,
+    "exposureHours": 15252486000.0,
+    "periodRates": [
+     0.5502709888094534,
+     0.7465399738561701,
+     1.2795657231485071,
+     0.8203241070164448,
+     0.7694384806283042
+    ],
+    "meanOfPeriodRates": 0.833227854691776,
+    "periodsWithoutHours": 0
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "IOGP five-year rolling average rule (published in the 2024 report, section 3.5 box): sum of fatalities 2020-2024 over sum of work hours / 100,000,000. Inputs published (Table 5 OVERALL, Table 38A OVERALL); the pooled value itself is oracle-derived because the report shows it only on a chart. It differs from the mean of the five annual FARs, which is the point."
+  },
+  {
+   "id": "iogp-far-five-year-rolling-window",
+   "fn": "rollingRate",
+   "args": {
+    "counts": [
+     14,
+     20,
+     33,
+     27,
+     32
+    ],
+    "exposureHours": [
+     2544201000,
+     2679026000,
+     2579000000,
+     3291382000,
+     4158877000
+    ],
+    "base": 100000000,
+    "windowPeriods": 5
+   },
+   "expected": {
+    "windows": [
+     {
+      "startIndex": 0,
+      "endIndex": 4,
+      "count": 126,
+      "exposureHours": 15252486000.0,
+      "rate": 0.8260948411950682,
+      "meanOfPeriodRates": 0.833227854691776,
+      "periodsWithoutHours": 0
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "rate-zero-count",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 0,
+    "exposureHours": 123456,
+    "base": 200000
+   },
+   "expected": {
+    "rate": 0.0
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "rate-very-small-exposure",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 1,
+    "exposureHours": 40,
+    "base": 200000
+   },
+   "expected": {
+    "rate": 5000.0
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "one week of one worker: a rate of 5000 per 200,000 hours, arithmetically right and meaningless without its interval"
+  },
+  {
+   "id": "rate-iogp-ltif",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 4,
+    "exposureHours": 2750000,
+    "base": 1000000
+   },
+   "expected": {
+    "rate": 1.4545454545454546
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "rate-custom-base",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 5,
+    "exposureHours": 90000,
+    "base": 100000
+   },
+   "expected": {
+    "rate": 5.555555555555555,
+    "basis.baseLabel": "per 100000 hours"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "far-zero",
+   "fn": "fatalAccidentRate",
+   "args": {
+    "fatalities": 0,
+    "exposureHours": 5000000.0
+   },
+   "expected": {
+    "rate": 0.0
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "severity-osha-base",
+   "fn": "severityRate",
+   "args": {
+    "daysLost": 312,
+    "exposureHours": 400000,
+    "base": 200000
+   },
+   "expected": {
+    "rate": 156.0
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "severity-million-base",
+   "fn": "severityRate",
+   "args": {
+    "daysLost": 45.5,
+    "exposureHours": 1830000,
+    "base": 1000000
+   },
+   "expected": {
+    "rate": 24.863387978142075
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "pse-tier1-200k",
+   "fn": "pseRate",
+   "args": {
+    "tier": 1,
+    "pseCount": 2,
+    "exposureHours": 1650000,
+    "base": 200000
+   },
+   "expected": {
+    "rate": 0.24242424242424243,
+    "tier": 1
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "API Guide to Reporting Process Safety Events (2022) section 3.3 formula; values oracle-derived (the guide prints no worked example)"
+  },
+  {
+   "id": "pse-tier2-1m",
+   "fn": "pseRate",
+   "args": {
+    "tier": 2,
+    "pseCount": 9,
+    "exposureHours": 1650000,
+    "base": 1000000
+   },
+   "expected": {
+    "rate": 5.454545454545454,
+    "tier": 2
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-zero-hours",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 1,
+    "exposureHours": 0,
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "exposureHours"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-negative-hours",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 1,
+    "exposureHours": -5,
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "exposureHours"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-missing-base",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 1,
+    "exposureHours": 1000
+   },
+   "expected": {
+    "error": true,
+    "field": "base"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-fractional-count",
+   "fn": "incidenceRate",
+   "args": {
+    "count": 1.5,
+    "exposureHours": 1000,
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "count"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-negative-count",
+   "fn": "incidenceRate",
+   "args": {
+    "count": -1,
+    "exposureHours": 1000,
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "count"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-far-zero-hours",
+   "fn": "fatalAccidentRate",
+   "args": {
+    "fatalities": 1,
+    "exposureHours": 0
+   },
+   "expected": {
+    "error": true,
+    "field": "exposureHours"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-severity-negative-days",
+   "fn": "severityRate",
+   "args": {
+    "daysLost": -1,
+    "exposureHours": 1000,
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "daysLost"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-severity-missing-base",
+   "fn": "severityRate",
+   "args": {
+    "daysLost": 3,
+    "exposureHours": 1000
+   },
+   "expected": {
+    "error": true,
+    "field": "base"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-pse-tier-3",
+   "fn": "pseRate",
+   "args": {
+    "tier": 3,
+    "pseCount": 1,
+    "exposureHours": 1000,
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "tier"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-pse-tier-missing",
+   "fn": "pseRate",
+   "args": {
+    "pseCount": 1,
+    "exposureHours": 1000,
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "tier"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-pse-base-100m",
+   "fn": "pseRate",
+   "args": {
+    "tier": 1,
+    "pseCount": 1,
+    "exposureHours": 1000,
+    "base": 100000000
+   },
+   "expected": {
+    "error": true,
+    "field": "base"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-ci-confidence-95",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 1,
+    "exposureHours": 1000,
+    "base": 200000,
+    "confidence": 95
+   },
+   "expected": {
+    "error": true,
+    "field": "confidence"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-ci-zero-hours",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 0,
+    "exposureHours": 0,
+    "base": 200000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "error": true,
+    "field": "exposureHours"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-compare-no-events",
+   "fn": "compareRates",
+   "args": {
+    "count1": 0,
+    "exposureHours1": 1000,
+    "count2": 0,
+    "exposureHours2": 1000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "error": true,
+    "field": "count1"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-compare-zero-hours",
+   "fn": "compareRates",
+   "args": {
+    "count1": 1,
+    "exposureHours1": 1000,
+    "count2": 2,
+    "exposureHours2": 0,
+    "confidence": 0.95
+   },
+   "expected": {
+    "error": true,
+    "field": "exposureHours2"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-pooled-length-mismatch",
+   "fn": "pooledRate",
+   "args": {
+    "counts": [
+     1,
+     2
+    ],
+    "exposureHours": [
+     1000
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "exposureHours"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-pooled-events-without-hours",
+   "fn": "pooledRate",
+   "args": {
+    "counts": [
+     1,
+     2
+    ],
+    "exposureHours": [
+     1000,
+     0
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "exposureHours[1]"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-pooled-all-zero-hours",
+   "fn": "pooledRate",
+   "args": {
+    "counts": [
+     0,
+     0
+    ],
+    "exposureHours": [
+     0,
+     0
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "exposureHours"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-rolling-no-window",
+   "fn": "rollingRate",
+   "args": {
+    "counts": [
+     1,
+     2
+    ],
+    "exposureHours": [
+     1000,
+     1000
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "windowPeriods"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-rolling-window-too-long",
+   "fn": "rollingRate",
+   "args": {
+    "counts": [
+     1,
+     2
+    ],
+    "exposureHours": [
+     1000,
+     1000
+    ],
+    "base": 200000,
+    "windowPeriods": 12
+   },
+   "expected": {
+    "error": true,
+    "field": "windowPeriods"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-uchart-zero-hours-point",
+   "fn": "uChart",
+   "args": {
+    "counts": [
+     1,
+     0,
+     2
+    ],
+    "exposureHours": [
+     1000,
+     0,
+     1000
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "exposureHours[1]"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "refuse-uchart-no-events",
+   "fn": "uChart",
+   "args": {
+    "counts": [
+     0,
+     0
+    ],
+    "exposureHours": [
+     1000,
+     1000
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "error": true,
+    "field": "counts"
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "rolling-12-month-zero-hour-month",
+   "fn": "rollingRate",
+   "args": {
+    "counts": [
+     0,
+     1,
+     0,
+     0,
+     2,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     3,
+     0,
+     1
+    ],
+    "exposureHours": [
+     21000,
+     20500,
+     400,
+     22000,
+     23000,
+     0,
+     19000,
+     21500,
+     22500,
+     20000,
+     18000,
+     24000,
+     22000,
+     1200
+    ],
+    "base": 200000,
+    "windowPeriods": 12
+   },
+   "expected": {
+    "windows": [
+     {
+      "startIndex": 0,
+      "endIndex": 11,
+      "count": 7,
+      "exposureHours": 211900.0,
+      "rate": 6.606890042472864,
+      "meanOfPeriodRates": 5.548753708880962,
+      "periodsWithoutHours": 1
+     },
+     {
+      "startIndex": 1,
+      "endIndex": 12,
+      "count": 7,
+      "exposureHours": 212900.0,
+      "rate": 6.575857209957727,
+      "meanOfPeriodRates": 5.548753708880962,
+      "periodsWithoutHours": 1
+     },
+     {
+      "startIndex": 2,
+      "endIndex": 13,
+      "count": 7,
+      "exposureHours": 193600.0,
+      "rate": 7.231404958677686,
+      "meanOfPeriodRates": 19.813350900307423,
+      "periodsWithoutHours": 1
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "month 5 has no hours (a shutdown): it adds nothing to the pooled rate and has no rate of its own. Month 2 (400 hours, 0 events) and month 13 (1,200 hours, 1 event) show how a thin month drags the mean of monthly rates while barely moving the pooled rate."
+  },
+  {
+   "id": "pooled-12-months",
+   "fn": "pooledRate",
+   "args": {
+    "counts": [
+     0,
+     1,
+     0,
+     0,
+     2,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     3
+    ],
+    "exposureHours": [
+     21000,
+     20500,
+     400,
+     22000,
+     23000,
+     0,
+     19000,
+     21500,
+     22500,
+     20000,
+     18000,
+     24000
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "rate": 6.606890042472864,
+    "count": 7,
+    "exposureHours": 211900.0,
+    "periodRates": [
+     0.0,
+     9.75609756097561,
+     0.0,
+     0.0,
+     17.391304347826086,
+     null,
+     0.0,
+     0.0,
+     8.88888888888889,
+     0.0,
+     0.0,
+     25.0
+    ],
+    "meanOfPeriodRates": 5.548753708880962,
+    "periodsWithoutHours": 1
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "rolling-window-without-hours",
+   "fn": "rollingRate",
+   "args": {
+    "counts": [
+     0,
+     0,
+     0,
+     1
+    ],
+    "exposureHours": [
+     0,
+     0,
+     0,
+     5000
+    ],
+    "base": 200000,
+    "windowPeriods": 2
+   },
+   "expected": {
+    "windows": [
+     {
+      "startIndex": 0,
+      "endIndex": 1,
+      "count": 0,
+      "exposureHours": 0.0,
+      "rate": null,
+      "meanOfPeriodRates": null,
+      "periodsWithoutHours": 2
+     },
+     {
+      "startIndex": 1,
+      "endIndex": 2,
+      "count": 0,
+      "exposureHours": 0.0,
+      "rate": null,
+      "meanOfPeriodRates": null,
+      "periodsWithoutHours": 2
+     },
+     {
+      "startIndex": 2,
+      "endIndex": 3,
+      "count": 1,
+      "exposureHours": 5000.0,
+      "rate": 40.0,
+      "meanOfPeriodRates": 40.0,
+      "periodsWithoutHours": 1
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "the first two windows have no hours at all: rate and mean are null, never 0"
+  },
+  {
+   "id": "loggamma-0.5",
+   "fn": "logGamma",
+   "args": [
+    0.5
+   ],
+   "expected": 0.5723649429247001,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "loggamma-1",
+   "fn": "logGamma",
+   "args": [
+    1
+   ],
+   "expected": 0.0,
+   "tol": 1e-14,
+   "source": "oracle",
+   "note": "absolute tolerance where ln Gamma is 0"
+  },
+  {
+   "id": "loggamma-1.5",
+   "fn": "logGamma",
+   "args": [
+    1.5
+   ],
+   "expected": -0.12078223763524522,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "loggamma-2",
+   "fn": "logGamma",
+   "args": [
+    2
+   ],
+   "expected": 0.0,
+   "tol": 1e-14,
+   "source": "oracle",
+   "note": "absolute tolerance where ln Gamma is 0"
+  },
+  {
+   "id": "loggamma-3.7",
+   "fn": "logGamma",
+   "args": [
+    3.7
+   ],
+   "expected": 1.428072326665388,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "loggamma-10",
+   "fn": "logGamma",
+   "args": [
+    10
+   ],
+   "expected": 12.801827480081469,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "loggamma-50.5",
+   "fn": "logGamma",
+   "args": [
+    50.5
+   ],
+   "expected": 146.51925549072064,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "loggamma-100",
+   "fn": "logGamma",
+   "args": [
+    100
+   ],
+   "expected": 359.1342053695754,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "loggamma-1000",
+   "fn": "logGamma",
+   "args": [
+    1000
+   ],
+   "expected": 5905.220423209181,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "loggamma-100000",
+   "fn": "logGamma",
+   "args": [
+    100000
+   ],
+   "expected": 1051287.7089736569,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-0.5-0.01",
+   "fn": "regularizedGammaP",
+   "args": [
+    0.5,
+    0.01
+   ],
+   "expected": 0.1124629160182849,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-0.5-0.01",
+   "fn": "regularizedGammaQ",
+   "args": [
+    0.5,
+    0.01
+   ],
+   "expected": 0.8875370839817152,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-0.5-3",
+   "fn": "regularizedGammaP",
+   "args": [
+    0.5,
+    3
+   ],
+   "expected": 0.9856941215645704,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-0.5-3",
+   "fn": "regularizedGammaQ",
+   "args": [
+    0.5,
+    3
+   ],
+   "expected": 0.01430587843542964,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-1-1",
+   "fn": "regularizedGammaP",
+   "args": [
+    1,
+    1
+   ],
+   "expected": 0.6321205588285577,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-1-1",
+   "fn": "regularizedGammaQ",
+   "args": [
+    1,
+    1
+   ],
+   "expected": 0.36787944117144233,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-2.5-0.7",
+   "fn": "regularizedGammaP",
+   "args": [
+    2.5,
+    0.7
+   ],
+   "expected": 0.07568672719833305,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-2.5-0.7",
+   "fn": "regularizedGammaQ",
+   "args": [
+    2.5,
+    0.7
+   ],
+   "expected": 0.924313272801667,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-5-4",
+   "fn": "regularizedGammaP",
+   "args": [
+    5,
+    4
+   ],
+   "expected": 0.37116306482012645,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-5-4",
+   "fn": "regularizedGammaQ",
+   "args": [
+    5,
+    4
+   ],
+   "expected": 0.6288369351798735,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-5-6",
+   "fn": "regularizedGammaP",
+   "args": [
+    5,
+    6
+   ],
+   "expected": 0.7149434996833688,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-5-6",
+   "fn": "regularizedGammaQ",
+   "args": [
+    5,
+    6
+   ],
+   "expected": 0.2850565003166312,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-5-20",
+   "fn": "regularizedGammaP",
+   "args": [
+    5,
+    20
+   ],
+   "expected": 0.9999830552560699,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-5-20",
+   "fn": "regularizedGammaQ",
+   "args": [
+    5,
+    20
+   ],
+   "expected": 1.6944743930067385e-05,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-10-9.5",
+   "fn": "regularizedGammaP",
+   "args": [
+    10,
+    9.5
+   ],
+   "expected": 0.4781739777627926,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-10-9.5",
+   "fn": "regularizedGammaQ",
+   "args": [
+    10,
+    9.5
+   ],
+   "expected": 0.5218260222372074,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-10-11.5",
+   "fn": "regularizedGammaP",
+   "args": [
+    10,
+    11.5
+   ],
+   "expected": 0.7112054604513287,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-10-11.5",
+   "fn": "regularizedGammaQ",
+   "args": [
+    10,
+    11.5
+   ],
+   "expected": 0.28879453954867124,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-32-20",
+   "fn": "regularizedGammaP",
+   "args": [
+    32,
+    20
+   ],
+   "expected": 0.008091754669835116,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-32-20",
+   "fn": "regularizedGammaQ",
+   "args": [
+    32,
+    20
+   ],
+   "expected": 0.9919082453301649,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-33-50",
+   "fn": "regularizedGammaP",
+   "args": [
+    33,
+    50
+   ],
+   "expected": 0.9956070677677689,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-33-50",
+   "fn": "regularizedGammaQ",
+   "args": [
+    33,
+    50
+   ],
+   "expected": 0.004392932232231152,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-100-90",
+   "fn": "regularizedGammaP",
+   "args": [
+    100,
+    90
+   ],
+   "expected": 0.15822098918643016,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-100-90",
+   "fn": "regularizedGammaQ",
+   "args": [
+    100,
+    90
+   ],
+   "expected": 0.8417790108135699,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-100-125",
+   "fn": "regularizedGammaP",
+   "args": [
+    100,
+    125
+   ],
+   "expected": 0.9906208683311739,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-100-125",
+   "fn": "regularizedGammaQ",
+   "args": [
+    100,
+    125
+   ],
+   "expected": 0.009379131668826096,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-500.5-480",
+   "fn": "regularizedGammaP",
+   "args": [
+    500.5,
+    480
+   ],
+   "expected": 0.18030685630218243,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-500.5-480",
+   "fn": "regularizedGammaQ",
+   "args": [
+    500.5,
+    480
+   ],
+   "expected": 0.8196931436978175,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaP-1000-1100",
+   "fn": "regularizedGammaP",
+   "args": [
+    1000,
+    1100
+   ],
+   "expected": 0.99894067674607,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "gammaQ-1000-1100",
+   "fn": "regularizedGammaQ",
+   "args": [
+    1000,
+    1100
+   ],
+   "expected": 0.0010593232539299773,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    1
+   ],
+   "expected": 1.5707963267948968e-20,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    1
+   ],
+   "expected": 1.5707963350195673e-08,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    1
+   ],
+   "expected": 3.92704222205159e-05,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    1
+   ],
+   "expected": 0.000982069117175256,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    1
+   ],
+   "expected": 0.003932140000019523,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    1
+   ],
+   "expected": 0.4549364231195728,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    1
+   ],
+   "expected": 3.8414588206941245,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    1
+   ],
+   "expected": 5.023886187314887,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    1
+   ],
+   "expected": 7.879438576622416,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-1-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    1
+   ],
+   "expected": 50.844127911818155,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-1-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    1
+   ],
+   "expected": 7.879438576622418,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-1-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    1
+   ],
+   "expected": 5.023886187314889,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-1-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    1
+   ],
+   "expected": 3.841458820694126,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    2
+   ],
+   "expected": 2.0000000001e-10,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    2
+   ],
+   "expected": 0.00020001000066671669,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    2
+   ],
+   "expected": 0.010025083647088564,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    2
+   ],
+   "expected": 0.05063561596857975,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    2
+   ],
+   "expected": 0.10258658877510107,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    2
+   ],
+   "expected": 1.3862943611198906,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    2
+   ],
+   "expected": 5.99146454710798,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    2
+   ],
+   "expected": 7.377758908227871,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    2
+   ],
+   "expected": 10.59663473309607,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-2-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    2
+   ],
+   "expected": 55.262042231857095,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-2-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    2
+   ],
+   "expected": 10.596634733096073,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-2-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    2
+   ],
+   "expected": 7.3777589082278725,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-2-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    2
+   ],
+   "expected": 5.991464547107982,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-3-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    3
+   ],
+   "expected": 5.20939762143448e-07,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-3-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    3
+   ],
+   "expected": 0.005214832329027978,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-3-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    3
+   ],
+   "expected": 0.07172177458649198,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-3-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    3
+   ],
+   "expected": 0.21579528262389788,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-3-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    3
+   ],
+   "expected": 0.3518463177492714,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-3-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    3
+   ],
+   "expected": 2.365973884375338,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-3-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    3
+   ],
+   "expected": 7.814727903251178,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-3-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    3
+   ],
+   "expected": 9.348403604496147,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-3-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    3
+   ],
+   "expected": 12.83815646659865,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-3-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    3
+   ],
+   "expected": 58.919755683202155,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-3-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    3
+   ],
+   "expected": 12.838156466598651,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-3-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    3
+   ],
+   "expected": 9.348403604496148,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-3-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    3
+   ],
+   "expected": 7.81472790325118,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-4-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    4
+   ],
+   "expected": 2.8284404581659484e-05,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-4-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    4
+   ],
+   "expected": 0.028418475243555,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-4-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    4
+   ],
+   "expected": 0.20698909349618208,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-4-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    4
+   ],
+   "expected": 0.4844185570879298,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-4-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    4
+   ],
+   "expected": 0.7107230213973241,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-4-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    4
+   ],
+   "expected": 3.356693980033321,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-4-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    4
+   ],
+   "expected": 9.487729036781154,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-4-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    4
+   ],
+   "expected": 11.143286781877794,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-4-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    4
+   ],
+   "expected": 14.860259000560243,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-4-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    4
+   ],
+   "expected": 62.1997463915383,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-4-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    4
+   ],
+   "expected": 14.860259000560244,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-4-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    4
+   ],
+   "expected": 11.143286781877798,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-4-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    4
+   ],
+   "expected": 9.487729036781156,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-5-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    5
+   ],
+   "expected": 0.00032335571462496933,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-5-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    5
+   ],
+   "expected": 0.08217737582841544,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-5-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    5
+   ],
+   "expected": 0.41174190383249887,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-5-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    5
+   ],
+   "expected": 0.8312116134866624,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-5-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    5
+   ],
+   "expected": 1.1454762260617692,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-5-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    5
+   ],
+   "expected": 4.351460191095527,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-5-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    5
+   ],
+   "expected": 11.070497693516351,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-5-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    5
+   ],
+   "expected": 12.832501994030025,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-5-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    5
+   ],
+   "expected": 16.749602343639044,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-5-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    5
+   ],
+   "expected": 65.23863621336784,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-5-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    5
+   ],
+   "expected": 16.749602343639044,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-5-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    5
+   ],
+   "expected": 12.832501994030029,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-5-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    5
+   ],
+   "expected": 11.070497693516353,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-10-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    10
+   ],
+   "expected": 0.05233106563190541,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-10-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    10
+   ],
+   "expected": 0.8889203579128958,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-10-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    10
+   ],
+   "expected": 2.155856481304639,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-10-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    10
+   ],
+   "expected": 3.2469727802368413,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-10-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    10
+   ],
+   "expected": 3.94029913611906,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-10-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    10
+   ],
+   "expected": 9.341817765591967,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-10-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    10
+   ],
+   "expected": 18.307038053275143,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-10-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    10
+   ],
+   "expected": 20.483177350807395,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-10-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    10
+   ],
+   "expected": 25.18817957197117,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-10-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    10
+   ],
+   "expected": 78.47164656283849,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-10-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    10
+   ],
+   "expected": 25.188179571971173,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-10-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    10
+   ],
+   "expected": 20.483177350807395,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-10-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    10
+   ],
+   "expected": 18.307038053275146,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-14-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    14
+   ],
+   "expected": 0.2560477742134369,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-14-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    14
+   ],
+   "expected": 2.0607978551857737,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-14-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    14
+   ],
+   "expected": 4.074674957399342,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-14-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    14
+   ],
+   "expected": 5.628726103039733,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-14-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    14
+   ],
+   "expected": 6.570631383789344,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-14-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    14
+   ],
+   "expected": 13.339274149099543,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-14-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    14
+   ],
+   "expected": 23.684791304840576,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-14-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    14
+   ],
+   "expected": 26.118948045037367,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-14-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    14
+   ],
+   "expected": 31.319349622595286,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-14-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    14
+   ],
+   "expected": 87.76834579009258,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-14-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    14
+   ],
+   "expected": 31.31934962259529,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-14-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    14
+   ],
+   "expected": 26.11894804503737,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-14-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    14
+   ],
+   "expected": 23.68479130484058,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-20-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    20
+   ],
+   "expected": 0.9454441852127046,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-20-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    20
+   ],
+   "expected": 4.395162716449103,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-20-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    20
+   ],
+   "expected": 7.433844262934235,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-20-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    20
+   ],
+   "expected": 9.590777392264867,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-20-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    20
+   ],
+   "expected": 10.850811394182585,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-20-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    20
+   ],
+   "expected": 19.337429229428263,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-20-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    20
+   ],
+   "expected": 31.41043284423092,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-20-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    20
+   ],
+   "expected": 34.16960690283834,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-20-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    20
+   ],
+   "expected": 39.996846312938644,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-20-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    20
+   ],
+   "expected": 100.55976898985737,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-20-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    20
+   ],
+   "expected": 39.996846312938644,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-20-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    20
+   ],
+   "expected": 34.16960690283834,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-20-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    20
+   ],
+   "expected": 31.410432844230925,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-21-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    21
+   ],
+   "expected": 1.1049208329629157,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-21-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    21
+   ],
+   "expected": 4.83480746497142,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-21-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    21
+   ],
+   "expected": 8.033653420232731,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-21-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    21
+   ],
+   "expected": 10.282897782522863,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-21-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    21
+   ],
+   "expected": 11.591305208820737,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-21-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    21
+   ],
+   "expected": 20.337227563547927,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-21-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    21
+   ],
+   "expected": 32.6705733409173,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-21-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    21
+   ],
+   "expected": 35.47887590572725,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-21-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    21
+   ],
+   "expected": 41.4010647714176,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-21-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    21
+   ],
+   "expected": 102.59540891340116,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-21-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    21
+   ],
+   "expected": 41.4010647714176,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-21-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    21
+   ],
+   "expected": 35.47887590572726,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-21-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    21
+   ],
+   "expected": 32.67057334091731,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-40-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    40
+   ],
+   "expected": 6.0649346306151255,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-40-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    40
+   ],
+   "expected": 14.883060650623532,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-40-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    40
+   ],
+   "expected": 20.706535316970083,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-40-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    40
+   ],
+   "expected": 24.433039170807888,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-40-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    40
+   ],
+   "expected": 26.50930319669311,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-40-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    40
+   ],
+   "expected": 39.335344846611335,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-40-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    40
+   ],
+   "expected": 55.75847927888703,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-40-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    40
+   ],
+   "expected": 59.3417071431712,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-40-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    40
+   ],
+   "expected": 66.76596183280391,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-40-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    40
+   ],
+   "expected": 138.14808940978898,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-40-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    40
+   ],
+   "expected": 66.76596183280392,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-40-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    40
+   ],
+   "expected": 59.3417071431712,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-40-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    40
+   ],
+   "expected": 55.75847927888703,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-64-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    64
+   ],
+   "expected": 15.814027614557528,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-64-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    64
+   ],
+   "expected": 30.17289807902295,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-64-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    64
+   ],
+   "expected": 38.60977848653723,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-64-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    64
+   ],
+   "expected": 43.77595262256912,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-64-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    64
+   ],
+   "expected": 46.594905224813964,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-64-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    64
+   ],
+   "expected": 63.334582023531965,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-64-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    64
+   ],
+   "expected": 83.67526074272098,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-64-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    64
+   ],
+   "expected": 88.00405100649752,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-64-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    64
+   ],
+   "expected": 96.87811348951793,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-64-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    64
+   ],
+   "expected": 178.32229468555988,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-64-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    64
+   ],
+   "expected": 96.87811348951793,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-64-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    64
+   ],
+   "expected": 88.00405100649752,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-64-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    64
+   ],
+   "expected": 83.67526074272098,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-66-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    66
+   ],
+   "expected": 16.74359950785671,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-66-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    66
+   ],
+   "expected": 31.526098996571665,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-66-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    66
+   ],
+   "expected": 40.158235665452345,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-66-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    66
+   ],
+   "expected": 45.43136314545968,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-66-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    66
+   ],
+   "expected": 48.30537793497176,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-66-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    66
+   ],
+   "expected": 65.33454376845442,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-66-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    66
+   ],
+   "expected": 85.96490744123095,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-66-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    66
+   ],
+   "expected": 90.34890415884092,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-66-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    66
+   ],
+   "expected": 99.33042963366314,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-66-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    66
+   ],
+   "expected": 181.52622302650568,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-66-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    66
+   ],
+   "expected": 99.33042963366316,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-66-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    66
+   ],
+   "expected": 90.34890415884094,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-66-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    66
+   ],
+   "expected": 85.96490744123096,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-100-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    100
+   ],
+   "expected": 34.39982390912482,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-100-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    100
+   ],
+   "expected": 55.724598450501695,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-100-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    100
+   ],
+   "expected": 67.32756330547917,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-100-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    100
+   ],
+   "expected": 74.22192747492373,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-100-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    100
+   ],
+   "expected": 77.92946516501726,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-100-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    100
+   ],
+   "expected": 99.33412923598846,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-100-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    100
+   ],
+   "expected": 124.34211340400408,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-100-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    100
+   ],
+   "expected": 129.5611971858366,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-100-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    100
+   ],
+   "expected": 140.16948944231362,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-100-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    100
+   ],
+   "expected": 233.81056795920782,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-100-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    100
+   ],
+   "expected": 140.16948944231365,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-100-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    100
+   ],
+   "expected": 129.5611971858366,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-100-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    100
+   ],
+   "expected": 124.34211340400408,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-200-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    200
+   ],
+   "expected": 97.76618410759191,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-200-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    200
+   ],
+   "expected": 134.01547647108782,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-200-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    200
+   ],
+   "expected": 152.24099168737837,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-200-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    200
+   ],
+   "expected": 162.72798250184627,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-200-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    200
+   ],
+   "expected": 168.27855443662838,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-200-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    200
+   ],
+   "expected": 199.33372983863097,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-200-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    200
+   ],
+   "expected": 233.99426889232492,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-200-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    200
+   ],
+   "expected": 241.05789550631093,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-200-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    200
+   ],
+   "expected": 255.26415545152312,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-200-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    200
+   ],
+   "expected": 374.4959107271329,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-200-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    200
+   ],
+   "expected": 255.26415545152315,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-200-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    200
+   ],
+   "expected": 241.05789550631093,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-200-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    200
+   ],
+   "expected": 233.99426889232492,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1000-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    1000
+   ],
+   "expected": 741.268071719353,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1000-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    1000
+   ],
+   "expected": 842.1681465654505,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1000-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    1000
+   ],
+   "expected": 888.5635231814683,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1000-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    1000
+   ],
+   "expected": 914.257153799259,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1000-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    1000
+   ],
+   "expected": 927.594363020979,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1000-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    1000
+   ],
+   "expected": 999.333412403381,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1000-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    1000
+   ],
+   "expected": 1074.679448803441,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1000-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    1000
+   ],
+   "expected": 1089.5309127749135,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-1000-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    1000
+   ],
+   "expected": 1118.9480663231916,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-1000-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    1000
+   ],
+   "expected": 1347.620053856608,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-1000-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    1000
+   ],
+   "expected": 1118.9480663231916,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-1000-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    1000
+   ],
+   "expected": 1089.5309127749135,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-1000-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    1000
+   ],
+   "expected": 1074.679448803441,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2001-1e-10",
+   "fn": "chiSquareQuantile",
+   "args": [
+    1e-10,
+    2001
+   ],
+   "expected": 1624.4970564207877,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2001-0.0001",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.0001,
+    2001
+   ],
+   "expected": 1774.2377393487359,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2001-0.005",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.005,
+    2001
+   ],
+   "expected": 1841.8073697720326,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2001-0.025",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.025,
+    2001
+   ],
+   "expected": 1878.9150482883376,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2001-0.05",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.05,
+    2001
+   ],
+   "expected": 1898.0936915281518,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2001-0.5",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.5,
+    2001
+   ],
+   "expected": 2000.3333728341727,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2001-0.95",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.95,
+    2001
+   ],
+   "expected": 2106.180243465289,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2001-0.975",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.975,
+    2001
+   ],
+   "expected": 2126.873291113057,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-ppf-2001-0.995",
+   "fn": "chiSquareQuantile",
+   "args": [
+    0.995,
+    2001
+   ],
+   "expected": 2167.7050233475343,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-2001-1e-12",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    1e-12,
+    2001
+   ],
+   "expected": 2478.840027465783,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-2001-0.005",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.005,
+    2001
+   ],
+   "expected": 2167.7050233475343,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-2001-0.025",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.025,
+    2001
+   ],
+   "expected": 2126.873291113057,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "chi2-isf-2001-0.05",
+   "fn": "chiSquareQuantileUpper",
+   "args": [
+    0.05,
+    2001
+   ],
+   "expected": 2106.180243465289,
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-95-count-0",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 0,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 0.0,
+    "lower": 0.0,
+    "upper": 3.6888794541139354,
+    "countLower": 0.0,
+    "countUpper": 3.6888794541139354
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-95-count-1",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 1,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 1.0,
+    "lower": 0.025317807984289897,
+    "upper": 5.571643390938897,
+    "countLower": 0.025317807984289897,
+    "countUpper": 5.571643390938897
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-95-count-2",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 2,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 2.0,
+    "lower": 0.242209278543965,
+    "upper": 7.22468766772396,
+    "countLower": 0.242209278543965,
+    "countUpper": 7.22468766772396
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-95-count-3",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 3,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 3.0,
+    "lower": 0.6186721228956015,
+    "upper": 8.767273069742325,
+    "countLower": 0.6186721228956015,
+    "countUpper": 8.767273069742325
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-95-count-5",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 5,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 5.0,
+    "lower": 1.6234863901184209,
+    "upper": 11.668332079322669,
+    "countLower": 1.6234863901184209,
+    "countUpper": 11.668332079322669
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-95-count-10",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 10,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 10.0,
+    "lower": 4.795388696132434,
+    "upper": 18.39035604201778,
+    "countLower": 4.795388696132434,
+    "countUpper": 18.39035604201778
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-95-count-32",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 32,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 32.0,
+    "lower": 21.887976311284564,
+    "upper": 45.17445207942046,
+    "countLower": 21.887976311284564,
+    "countUpper": 45.17445207942046
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-95-count-100",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 100,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 100.0,
+    "lower": 81.36399125092315,
+    "upper": 121.62679379242638,
+    "countLower": 81.36399125092315,
+    "countUpper": 121.62679379242638
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-95-count-1000",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 1000,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 1000.0,
+    "lower": 938.9730184076952,
+    "upper": 1063.952136016302,
+    "countLower": 938.9730184076952,
+    "countUpper": 1063.952136016302
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-0.9-count-0",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 0,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.9
+   },
+   "expected": {
+    "lower": 0.0,
+    "upper": 2.9957322735539913,
+    "countLower": 0.0,
+    "countUpper": 2.9957322735539913
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-0.9-count-1",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 1,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.9
+   },
+   "expected": {
+    "lower": 0.05129329438755052,
+    "upper": 4.743864518390579,
+    "countLower": 0.05129329438755052,
+    "countUpper": 4.743864518390579
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-0.99-count-4",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 4,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.99
+   },
+   "expected": {
+    "lower": 0.6722065435074053,
+    "upper": 12.594089785985584,
+    "countLower": 0.6722065435074053,
+    "countUpper": 12.594089785985584
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-0.99-count-0",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 0,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.99
+   },
+   "expected": {
+    "lower": 0.0,
+    "upper": 5.298317366548035,
+    "countLower": 0.0,
+    "countUpper": 5.298317366548035
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-0.8-count-12",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 12,
+    "exposureHours": 1,
+    "base": 1,
+    "confidence": 0.8
+   },
+   "expected": {
+    "lower": 7.8293420262564135,
+    "upper": 17.781585635961733,
+    "countLower": 7.8293420262564135,
+    "countUpper": 17.781585635961733
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-bls-abc-company",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 7,
+    "exposureHours": 400000,
+    "base": 200000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 3.5,
+    "lower": 1.4071815257599334,
+    "upper": 7.211337680851189
+   },
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "the BLS example rate 3.5 with its 95 percent exact interval (interval oracle-derived)"
+  },
+  {
+   "id": "garwood-iogp-far-2024",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 32,
+    "exposureHours": 4158877000,
+    "base": 100000000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 0.7694384806283042,
+    "lower": 0.5262953511557222,
+    "upper": 1.0862175553501694
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "garwood-zero-events-small-exposure",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 0,
+    "exposureHours": 2000,
+    "base": 200000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 0.0,
+    "lower": 0.0,
+    "upper": 368.88794541139356
+   },
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "a clean year for one worker: rate 0, upper limit 368.9 per 200,000 hours"
+  },
+  {
+   "id": "garwood-one-event-tiny-exposure",
+   "fn": "rateConfidenceInterval",
+   "args": {
+    "count": 1,
+    "exposureHours": 40,
+    "base": 200000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rate": 5000.0,
+    "lower": 126.58903992144948,
+    "upper": 27858.216954694486
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "compare-large-exposure",
+   "fn": "compareRates",
+   "args": {
+    "count1": 26,
+    "exposureHours1": 3200000000,
+    "count2": 6,
+    "exposureHours2": 958877000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rateRatio": 1.2984792708333333,
+    "rateRatioLower": 0.5226763664086459,
+    "rateRatioUpper": 3.857745557397501,
+    "upperUnbounded": false,
+    "pValue": 0.7385326482962202,
+    "lowerTail": 0.7801722215059351,
+    "upperTail": 0.3692663241481101,
+    "expectedProportion": 0.7694384806283042
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "compare-small-counts",
+   "fn": "compareRates",
+   "args": {
+    "count1": 10,
+    "exposureHours1": 100000,
+    "count2": 3,
+    "exposureHours2": 120000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rateRatio": 4.0,
+    "rateRatioLower": 1.0299380588397427,
+    "rateRatioUpper": 22.61846826290348,
+    "upperUnbounded": false,
+    "pValue": 0.04406689101966869,
+    "lowerTail": 0.995441463398968,
+    "upperTail": 0.022033445509834344,
+    "expectedProportion": 0.45454545454545453
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "compare-equal-rates",
+   "fn": "compareRates",
+   "args": {
+    "count1": 5,
+    "exposureHours1": 250000,
+    "count2": 10,
+    "exposureHours2": 500000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rateRatio": 1.0,
+    "rateRatioLower": 0.26819372918916706,
+    "rateRatioUpper": 3.2109967424184607,
+    "upperUnbounded": false,
+    "pValue": 1.0,
+    "lowerTail": 0.6183718383567474,
+    "upperTail": 0.595935216529036,
+    "expectedProportion": 0.3333333333333333
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "compare-first-zero",
+   "fn": "compareRates",
+   "args": {
+    "count1": 0,
+    "exposureHours1": 180000,
+    "count2": 6,
+    "exposureHours2": 210000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rateRatio": 0.0,
+    "rateRatioLower": 0.0,
+    "rateRatioUpper": 0.9908630600135443,
+    "upperUnbounded": false,
+    "pValue": 0.048748148103643626,
+    "lowerTail": 0.024374074051821813,
+    "upperTail": 1.0,
+    "expectedProportion": 0.46153846153846156
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "compare-second-zero",
+   "fn": "compareRates",
+   "args": {
+    "count1": 4,
+    "exposureHours1": 90000,
+    "count2": 0,
+    "exposureHours2": 150000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rateRatio": null,
+    "rateRatioLower": 1.1002066989334895,
+    "rateRatioUpper": null,
+    "upperUnbounded": true,
+    "pValue": 0.03955078125,
+    "lowerTail": 1.0,
+    "upperTail": 0.019775390625,
+    "expectedProportion": 0.375
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "compare-one-event-each",
+   "fn": "compareRates",
+   "args": {
+    "count1": 1,
+    "exposureHours1": 50000,
+    "count2": 1,
+    "exposureHours2": 50000,
+    "confidence": 0.9
+   },
+   "expected": {
+    "rateRatio": 1.0,
+    "rateRatioLower": 0.025978352085154092,
+    "rateRatioUpper": 38.49358868961784,
+    "upperUnbounded": false,
+    "pValue": 1.0,
+    "lowerTail": 0.75,
+    "upperTail": 0.75,
+    "expectedProportion": 0.5
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "compare-large-counts",
+   "fn": "compareRates",
+   "args": {
+    "count1": 3071,
+    "exposureHours1": 3795000000,
+    "count2": 2764,
+    "exposureHours2": 3291382000,
+    "confidence": 0.95
+   },
+   "expected": {
+    "rateRatio": 0.9636255071319754,
+    "rateRatioLower": 0.9150586858196768,
+    "rateRatioUpper": 1.0148057228481766,
+    "upperUnbounded": false,
+    "pValue": 0.16154724363963877,
+    "lowerTail": 0.08077362181981938,
+    "upperTail": 0.9230823284715147,
+    "expectedProportion": 0.5355342119575264
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "compare-borderline-99",
+   "fn": "compareRates",
+   "args": {
+    "count1": 18,
+    "exposureHours1": 400000,
+    "count2": 7,
+    "exposureHours2": 420000,
+    "confidence": 0.99
+   },
+   "expected": {
+    "rateRatio": 2.7,
+    "rateRatioLower": 0.8408169449142582,
+    "rateRatioUpper": 10.762373156869959,
+    "upperUnbounded": false,
+    "pValue": 0.032147922459966324,
+    "lowerTail": 0.9947991214190123,
+    "upperTail": 0.016073961229983162,
+    "expectedProportion": 0.4878048780487805
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "uchart-one-high-month",
+   "fn": "uChart",
+   "args": {
+    "counts": [
+     2,
+     1,
+     3,
+     0,
+     2,
+     9,
+     1,
+     2,
+     0,
+     1,
+     2,
+     1
+    ],
+    "exposureHours": [
+     48000,
+     52000,
+     61000,
+     30000,
+     55000,
+     50000,
+     47000,
+     20000,
+     15000,
+     58000,
+     60000,
+     49000
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "centre": 8.807339449541285,
+    "points": [
+     {
+      "index": 0,
+      "count": 2,
+      "exposureHours": 48000,
+      "exposureUnits": 0.24,
+      "u": 8.333333333333334,
+      "lcl": 0.0,
+      "ucl": 26.980815434002768,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 1,
+      "count": 1,
+      "exposureHours": 52000,
+      "exposureUnits": 0.26,
+      "u": 3.8461538461538463,
+      "lcl": 0.0,
+      "ucl": 26.26785039521872,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 2,
+      "count": 3,
+      "exposureHours": 61000,
+      "exposureUnits": 0.305,
+      "u": 9.836065573770492,
+      "lcl": 0.0,
+      "ucl": 24.928403467416512,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 3,
+      "count": 0,
+      "exposureHours": 30000,
+      "exposureUnits": 0.15,
+      "u": 0.0,
+      "lcl": 0.0,
+      "ucl": 31.79517029484892,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 4,
+      "count": 2,
+      "exposureHours": 55000,
+      "exposureUnits": 0.275,
+      "u": 7.2727272727272725,
+      "lcl": 0.0,
+      "ucl": 25.784977688318953,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 5,
+      "count": 9,
+      "exposureHours": 50000,
+      "exposureUnits": 0.25,
+      "u": 36.0,
+      "lcl": 0.0,
+      "ucl": 26.613636655403212,
+      "lclFloored": true,
+      "signal": "above"
+     },
+     {
+      "index": 6,
+      "count": 1,
+      "exposureHours": 47000,
+      "exposureUnits": 0.235,
+      "u": 4.25531914893617,
+      "lcl": 0.0,
+      "ucl": 27.173132704865864,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 7,
+      "count": 2,
+      "exposureHours": 20000,
+      "exposureUnits": 0.1,
+      "u": 20.0,
+      "lcl": 0.0,
+      "ucl": 36.96156738174919,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 8,
+      "count": 0,
+      "exposureHours": 15000,
+      "exposureUnits": 0.075,
+      "u": 0.0,
+      "lcl": 0.0,
+      "ucl": 41.31704160051392,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 9,
+      "count": 1,
+      "exposureHours": 58000,
+      "exposureUnits": 0.29,
+      "u": 3.4482758620689653,
+      "lcl": 0.0,
+      "ucl": 25.340071356159402,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 10,
+      "count": 2,
+      "exposureHours": 60000,
+      "exposureUnits": 0.3,
+      "u": 6.666666666666667,
+      "lcl": 0.0,
+      "ucl": 25.0621905250276,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 11,
+      "count": 1,
+      "exposureHours": 49000,
+      "exposureUnits": 0.245,
+      "u": 4.081632653061225,
+      "lcl": 0.0,
+      "ucl": 26.794415881095627,
+      "lclFloored": true,
+      "signal": null
+     }
+    ],
+    "outOfControl": [
+     5
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "12 months, varying hours; month 5 (9 events in 50,000 hours) is above its limit; every lower limit is floored at 0"
+  },
+  {
+   "id": "uchart-positive-lcl-with-a-low-point",
+   "fn": "uChart",
+   "args": {
+    "counts": [
+     48,
+     52,
+     61,
+     0,
+     55,
+     47,
+     50
+    ],
+    "exposureHours": [
+     5000000,
+     5200000,
+     6100000,
+     4800000,
+     5500000,
+     4700000,
+     5000000
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "centre": 1.7245179063360883,
+    "points": [
+     {
+      "index": 0,
+      "count": 48,
+      "exposureHours": 5000000,
+      "exposureUnits": 25.0,
+      "u": 1.92,
+      "lcl": 0.93659249978989,
+      "ucl": 2.5124433128822865,
+      "lclFloored": false,
+      "signal": null
+     },
+     {
+      "index": 1,
+      "count": 52,
+      "exposureHours": 5200000,
+      "exposureUnits": 26.0,
+      "u": 2.0,
+      "lcl": 0.9518934787909743,
+      "ucl": 2.497142333881202,
+      "lclFloored": false,
+      "signal": null
+     },
+     {
+      "index": 2,
+      "count": 61,
+      "exposureHours": 6100000,
+      "exposureUnits": 30.5,
+      "u": 2.0,
+      "lcl": 1.0111637612609405,
+      "ucl": 2.4378720514112358,
+      "lclFloored": false,
+      "signal": null
+     },
+     {
+      "index": 3,
+      "count": 0,
+      "exposureHours": 4800000,
+      "exposureUnits": 24.0,
+      "u": 0.0,
+      "lcl": 0.920344905747264,
+      "ucl": 2.5286909069249126,
+      "lclFloored": false,
+      "signal": "below"
+     },
+     {
+      "index": 4,
+      "count": 55,
+      "exposureHours": 5500000,
+      "exposureUnits": 27.5,
+      "u": 2.0,
+      "lcl": 0.9732605080781641,
+      "ucl": 2.4757753045940123,
+      "lclFloored": false,
+      "signal": null
+     },
+     {
+      "index": 5,
+      "count": 47,
+      "exposureHours": 4700000,
+      "exposureUnits": 23.5,
+      "u": 2.0,
+      "lcl": 0.911834901557242,
+      "ucl": 2.5372009111149345,
+      "lclFloored": false,
+      "signal": null
+     },
+     {
+      "index": 6,
+      "count": 50,
+      "exposureHours": 5000000,
+      "exposureUnits": 25.0,
+      "u": 2.0,
+      "lcl": 0.93659249978989,
+      "ucl": 2.5124433128822865,
+      "lclFloored": false,
+      "signal": null
+     }
+    ],
+    "outOfControl": [
+     3
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "large exposure gives positive lower limits; a month with 0 events in 4.8 million hours falls below its lower limit (a signal worth investigating as under-reporting)"
+  },
+  {
+   "id": "uchart-small-exposure-wide-limits",
+   "fn": "uChart",
+   "args": {
+    "counts": [
+     3,
+     0,
+     1
+    ],
+    "exposureHours": [
+     2000,
+     2000,
+     400000
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "centre": 1.9801980198019802,
+    "points": [
+     {
+      "index": 0,
+      "count": 3,
+      "exposureHours": 2000,
+      "exposureUnits": 0.01,
+      "u": 300.0,
+      "lcl": 0.0,
+      "ucl": 44.1960507036195,
+      "lclFloored": true,
+      "signal": "above"
+     },
+     {
+      "index": 1,
+      "count": 0,
+      "exposureHours": 2000,
+      "exposureUnits": 0.01,
+      "u": 0.0,
+      "lcl": 0.0,
+      "ucl": 44.1960507036195,
+      "lclFloored": true,
+      "signal": null
+     },
+     {
+      "index": 2,
+      "count": 1,
+      "exposureHours": 400000,
+      "exposureUnits": 2.0,
+      "u": 0.5,
+      "lcl": 0.0,
+      "ucl": 4.965309590431948,
+      "lclFloored": true,
+      "signal": null
+     }
+    ],
+    "outOfControl": [
+     0
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "two thin periods: limits scale with 1/sqrt(n_i)"
+  },
+  {
+   "id": "uchart-points-on-the-limits",
+   "fn": "uChart",
+   "args": {
+    "counts": [
+     18,
+     0
+    ],
+    "exposureHours": [
+     1800000,
+     1800000
+    ],
+    "base": 200000
+   },
+   "expected": {
+    "centre": 1.0,
+    "points": [
+     {
+      "index": 0,
+      "count": 18,
+      "exposureHours": 1800000,
+      "exposureUnits": 9.0,
+      "u": 2.0,
+      "lcl": 0.0,
+      "ucl": 2.0,
+      "lclFloored": false,
+      "signal": null
+     },
+     {
+      "index": 1,
+      "count": 0,
+      "exposureHours": 1800000,
+      "exposureUnits": 9.0,
+      "u": 0.0,
+      "lcl": 0.0,
+      "ucl": 2.0,
+      "lclFloored": false,
+      "signal": null
+     }
+    ],
+    "outOfControl": []
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "ubar = 1 and n = 9 per point, so the limits are exactly 0 and 2 and the points sit exactly on them: under the strict rule (Montgomery: a point OUTSIDE the limits) neither signals"
+  }
+ ]
+}
