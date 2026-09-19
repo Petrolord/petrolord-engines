@@ -240,7 +240,9 @@ describe('route economics', () => {
 
 describe('the abatement, and the claim this app exists to stop', () => {
   const gas = richGas();
-  const base = { gas, volumeMMscfd: 10, onstreamDays: 350, flareDestructionEfficiency: 0.92 };
+  // MD4-0: the abatement needs the recovery (gas not recovered is still
+  // flared); a full recovery keeps these cases about the counterfactual.
+  const base = { gas, volumeMMscfd: 10, onstreamDays: 350, flareDestructionEfficiency: 0.92, recoveryFraction: 1 };
 
   it('refuses to report an abatement until the counterfactual is declared', () => {
     const a = abatement({ ...base, gwpMethane: 28 });
@@ -258,26 +260,29 @@ describe('the abatement, and the claim this app exists to stop', () => {
     expect(a.grossClaimIfNoCounterfactual).toBeCloseTo(a.flareCo2eTonnes, 3);
   });
 
-  it('computes the flare CO2 from the carbon, atom by atom', () => {
+  it('computes the flare CO2 from the hydrocarbon carbon, atom by atom, plus the CO2 in the gas', () => {
+    // MD4-0 (40 CFR 98.233(n)): the gas's own CO2 passes through; it is not
+    // burned, and its unburned share is not methane.
     const a = abatement({ ...base, gwpMethane: 28 });
     const lbmol = (10 * 1e6 * 350) / SCF_PER_LBMOL;
-    const carbon = lbmol * gas.carbonPerMol;
-    expect(a.flareCo2Tonnes).toBeCloseTo((carbon * 0.92 * 44.009) / LB_PER_KG / 1000, 2);
+    const carbon = lbmol * (0.92 * gas.hydrocarbonCarbonPerMol + gas.co2MoleFraction);
+    expect(a.flareCo2Tonnes).toBeCloseTo((carbon * 44.009) / LB_PER_KG / 1000, 2);
   });
 
-  it('conserves carbon between the CO2 and the methane slip', () => {
+  it('slips the methane in the gas, not every unburned carbon as if it were methane', () => {
+    // This test used to assert the defect: that the CO2 and the methane
+    // together held every carbon in the gas. Unburned ethane and heavier
+    // are not methane.
     const a = abatement({ ...base, gwpMethane: 28 });
-    const carbonInCo2 = (a.flareCo2Tonnes * 1000 * LB_PER_KG) / 44.009;
-    const carbonInCh4 = (a.flareCh4Tonnes * 1000 * LB_PER_KG) / 16.043;
     const lbmol = (10 * 1e6 * 350) / SCF_PER_LBMOL;
-    expect(carbonInCo2 + carbonInCh4).toBeCloseTo(lbmol * gas.carbonPerMol, 0);
+    expect(a.flareCh4Tonnes).toBeCloseTo((lbmol * 0.78 * 0.08 * 16.043) / LB_PER_KG / 1000, 2);
   });
 
   it('shows how much of a flare is the methane it fails to burn', () => {
     const a = abatement({ ...base, gwpMethane: 28 });
     // Eight percent of the carbon escaping unburned carries close to half
     // the flare's CO2e. That is why the destruction efficiency is required.
-    expect(a.methaneShareOfFlareCo2e).toBeGreaterThan(0.4);
+    expect(a.methaneShareOfFlareCo2e).toBeGreaterThan(0.3);
     const better = abatement({ ...base, flareDestructionEfficiency: 0.99, gwpMethane: 28 });
     expect(better.methaneShareOfFlareCo2e).toBeLessThan(a.methaneShareOfFlareCo2e);
     expect(better.flareCo2eTonnes).toBeLessThan(a.flareCo2eTonnes);
@@ -359,16 +364,17 @@ describe('carbon credit sensitivity', () => {
     });
     expect(standsAlone.standsAloneWithoutCredits).toBe(true);
     expect(standsAlone.creditPriceNeeded).toBe(0);
-    expect(standsAlone.verdict).toMatch(/upside, not the case/i);
+    expect(standsAlone.verdict).toMatch(/stands without them/i);
 
     const bet = creditSensitivity({
       netAbatementTonnesCo2ePerYear: t, creditPrices: [2, 10, 25],
       grossMarginPerYear: 500000, hurdleMarginPerYear: 2000000,
     });
     expect(bet.standsAloneWithoutCredits).toBe(false);
-    // The first price tested that clears, which is the honest answer to
-    // "what do we need carbon to be worth".
-    expect(bet.creditPriceNeeded).toBe(25);
+    // MD4-0: the breakeven in closed form, (hurdle - margin) / tonnes. It
+    // used to be the first tested price that cleared, in the order typed.
+    expect(bet.creditPriceNeeded).toBeCloseTo(12.5, 9);
+    expect(bet.lowestTestedClearingPrice).toBe(25);
     expect(bet.verdict).toMatch(/bet on the credit price/i);
   });
 
@@ -377,8 +383,9 @@ describe('carbon credit sensitivity', () => {
       netAbatementTonnesCo2ePerYear: t, creditPrices: [1, 2],
       grossMarginPerYear: 0, hurdleMarginPerYear: 10000000,
     });
-    expect(r.creditPriceNeeded).toBeNull();
-    expect(r.verdict).toMatch(/does not clear the hurdle at any/i);
+    expect(r.lowestTestedClearingPrice).toBeNull();
+    expect(r.creditPriceNeeded).toBeCloseTo(10000000 / t, 6);
+    expect(r.verdict).toMatch(/above every price tested/i);
   });
 });
 
@@ -397,7 +404,7 @@ describe('the bid comparison', () => {
   ];
   const economics = [
     routeEconomics({ route: route('cng'), gas, volumeMMscfd: 10, productUnitPerMscf: 20, recoveryFraction: 0.9, pricePerProductUnit: 0.6, referenceCapitalCost: 30000000, referenceCapacityMMscfd: 8, fixedOpexPerYear: 2500000, variableOpexPerMscf: 0.4 }),
-    routeEconomics({ route: route('lpg_extraction'), gas, volumeMMscfd: 10, productUnitPerMscf: 0.02, recoveryFraction: 0.85, pricePerProductUnit: 500, referenceCapitalCost: 45000000, referenceCapacityMMscfd: 12, fixedOpexPerYear: 3000000, variableOpexPerMscf: 0.3 }),
+    routeEconomics({ route: route('lpg_extraction'), gas, volumeMMscfd: 10, productUnitPerMscf: 0.0045, recoveryFraction: 0.85, pricePerProductUnit: 500, referenceCapitalCost: 45000000, referenceCapacityMMscfd: 12, fixedOpexPerYear: 3000000, variableOpexPerMscf: 0.3 }),
   ];
 
   it('keeps a route that failed screening in the table', () => {
@@ -424,7 +431,7 @@ describe('the bid comparison', () => {
 
   it('carries the abatement across when there is one', () => {
     const a = abatement({
-      gas, volumeMMscfd: 10, flareDestructionEfficiency: 0.92, gwpMethane: 28,
+      gas, volumeMMscfd: 10, flareDestructionEfficiency: 0.92, gwpMethane: 28, recoveryFraction: 0.9,
       counterfactualLabel: 'displacing diesel',
       productCombustionTonnesCo2ePerYear: 190000, displacedFuelTonnesCo2ePerYear: 240000,
     });

@@ -57,6 +57,23 @@ const round = (v, dp = 6) => (Number.isFinite(v)
 // Unit bridges, stated rather than buried. The compression engine is in
 // field units; everything a rollout engineer types is metric.
 export const PSI_PER_BAR = 14.503773773;
+
+/**
+ * Every pressure in this module is ABSOLUTE, in bar(a) (MD4-0). The page
+ * labelled them "bar", and a CNG station's suction is usually quoted gauge:
+ * 4 bar(g) is 5 bar(a), a quarter more gas per stroke at the first stage.
+ */
+export const PRESSURE_BASIS = 'absolute (bar(a))';
+
+/** A box left empty ('' or null), as opposed to a value left out of the call. */
+const isBlank = (v) => v === '' || v === null;
+
+/**
+ * A value with a stated default: omitted from the call it takes the
+ * default; left blank it is missing (MD4-0: blank used to take the default
+ * too, so an emptied box silently became somebody else's number).
+ */
+const withDefault = (v, fallback) => (v === undefined ? fallback : num(v));
 export const M3_PER_SCF = 0.02831684659;
 export const KJ_PER_KWH = 3600;
 
@@ -84,16 +101,26 @@ export const assetFloat = ({ unitsPerDay, cycleStages = [], sparesFraction = 0 }
   if (!Number.isFinite(rate) || rate <= 0) {
     return { error: 'A positive throughput per day is required.' };
   }
-  const stages = cycleStages
-    .map((s) => ({ label: s.label, days: num(s.days) }))
-    .filter((s) => Number.isFinite(s.days));
-  const missing = cycleStages.length - stages.length;
-  if (stages.length === 0) {
+  const all = cycleStages.map((s) => ({ label: s.label, days: num(s.days) }));
+  if (all.length === 0) {
     return { error: 'At least one cycle stage with a duration is required.' };
   }
+  // MD4-0: a stage with no duration used to be dropped and the fleet sized
+  // on the rest, so an emptied "At the customer" box cut the cylinder fleet
+  // by most of itself and the page still printed a fleet. It is refused.
+  const unsized = all.filter((s) => !Number.isFinite(s.days)).map((s) => s.label);
+  if (unsized.length) {
+    return { error: `No duration for ${unsized.join(', ')}. A stage left out shrinks the fleet by the assets in it, so the fleet is not sized without it.` };
+  }
+  if (all.some((s) => s.days < 0)) return { error: 'A stage cannot take negative days.' };
+  const stages = all;
+  const missing = 0;
+  const spareFrac = num(sparesFraction, 0);
+  if (!(spareFrac >= 0)) return { error: 'The spares allowance cannot be negative.' };
   const cycleDays = stages.reduce((s, x) => s + x.days, 0);
+  if (!(cycleDays > 0)) return { error: 'The cycle must take some time.' };
   const inCirculation = rate * cycleDays;
-  const spares = inCirculation * num(sparesFraction, 0);
+  const spares = inCirculation * spareFrac;
   const total = Math.ceil(inCirculation + spares);
   const dominant = stages.reduce((a, b) => (b.days > a.days ? b : a), stages[0]);
 
@@ -101,6 +128,7 @@ export const assetFloat = ({ unitsPerDay, cycleStages = [], sparesFraction = 0 }
     error: null,
     complete: missing === 0,
     missingStages: missing,
+    assumedZero: isBlank(sparesFraction) ? ['spares allowance'] : [],
     cycleDays: round(cycleDays, 4),
     stages: stages.map((s) => ({
       ...s, share: cycleDays > 0 ? round(s.days / cycleDays, 6) : null,
@@ -170,7 +198,13 @@ export const lpgBlendProperties = ({ components = [] }) => {
     molarMassKgKmol: num(c.molarMassKgKmol),
     latentHeatKJkg: num(c.latentHeatKJkg),
   }));
-  const vSum = rows.reduce((s, r) => s + (Number.isFinite(r.volumeFraction) ? r.volumeFraction : 0), 0);
+  // MD4-0: a component with a blank fraction used to poison every property
+  // to null while the call reported no error.
+  if (rows.length === 0 || rows.some((r) => !Number.isFinite(r.volumeFraction))) {
+    return { error: 'Every component needs a volume fraction.' };
+  }
+  if (rows.some((r) => r.volumeFraction < 0)) return { error: 'A volume fraction cannot be negative.' };
+  const vSum = rows.reduce((s, r) => s + r.volumeFraction, 0);
   if (!(vSum > 0)) return { error: 'Component volume fractions are required.' };
   if (rows.some((r) => !Number.isFinite(r.liquidDensityKgM3))) {
     return { error: 'A liquid density is required for every component; it is not assumed.' };
@@ -213,9 +247,18 @@ export const lpgBlendProperties = ({ components = [] }) => {
  * force for the product and the vessel, so this app implements the
  * arithmetic and refuses to supply the limit.
  */
+/** How a code states the maximum fill (MD4-0). */
+export const FILL_RATIO_BASIS = {
+  LIQUID_VOLUME: 'liquid_volume',
+  WATER_CAPACITY_MASS: 'water_capacity_mass',
+};
+/** Water at 15 C, kg/m3, for a filling density stated on water capacity. */
+export const WATER_KG_M3 = 999.1;
+
 export const lpgStorageSizing = ({
   vesselCapacityM3, maxFillRatio, liquidDensityKgM3,
   demandTonnesPerDay, deliveryTonnes = null, leadTimeDays = 0, safetyDays = 0,
+  fillRatioBasis = FILL_RATIO_BASIS.LIQUID_VOLUME,
 }) => {
   const cap = num(vesselCapacityM3);
   const fill = num(maxFillRatio);
@@ -228,16 +271,36 @@ export const lpgStorageSizing = ({
     };
   }
   if (fill <= 0 || fill >= 1) return { error: 'The maximum fill ratio must lie between 0 and 1.' };
+  if (!Object.values(FILL_RATIO_BASIS).includes(fillRatioBasis)) {
+    return { error: `Unknown fill ratio basis "${fillRatioBasis}". Use ${Object.values(FILL_RATIO_BASIS).join(' or ')}.` };
+  }
   if (!Number.isFinite(rho) || rho <= 0) return { error: 'A liquid density is required; it is not assumed.' };
   if (!Number.isFinite(demand) || demand <= 0) return { error: 'A demand is required.' };
 
-  const usableM3 = cap * fill;
-  const usableTonnes = (usableM3 * rho) / 1000;
+  // MD4-0: the two ways a code states the limit. A liquid-volume ratio
+  // (for example 0.85 of the vessel) is a volume; a filling density (NFPA 58
+  // style, a percentage of the WATER capacity by weight, for example 0.42)
+  // is a mass, and read as a volume it halves the usable stock.
+  const usableTonnes = fillRatioBasis === FILL_RATIO_BASIS.WATER_CAPACITY_MASS
+    ? (cap * WATER_KG_M3 * fill) / 1000
+    : (cap * fill * rho) / 1000;
+  const usableM3 = (usableTonnes * 1000) / rho;
+  if (usableM3 >= cap) {
+    return { error: 'At this density the filling density fills the vessel liquid-full. Check the limit and its basis.' };
+  }
   const coverDays = usableTonnes / demand;
-  const safetyTonnes = demand * num(safetyDays, 0);
-  const reorderTonnes = demand * num(leadTimeDays, 0) + safetyTonnes;
+  // MD4-0: a blank lead time or safety stock read as 0, so the reorder
+  // point fell to an empty vessel. Blank is missing; omitted keeps the 0.
+  const lead = withDefault(leadTimeDays, 0);
+  const safety = withDefault(safetyDays, 0);
+  const missingInputs = [];
+  if (!Number.isFinite(lead)) missingInputs.push('lead time');
+  if (!Number.isFinite(safety)) missingInputs.push('safety stock');
+  const reorderKnown = missingInputs.length === 0;
+  const safetyTonnes = Number.isFinite(safety) ? demand * safety : null;
+  const reorderTonnes = reorderKnown ? demand * lead + safetyTonnes : null;
   const load = num(deliveryTonnes, null);
-  const ullageAtReorder = usableTonnes - reorderTonnes;
+  const ullageAtReorder = reorderKnown ? usableTonnes - reorderTonnes : null;
 
   return {
     error: null,
@@ -246,13 +309,15 @@ export const lpgStorageSizing = ({
     // The vapour space is not spare capacity; it is the reason the vessel
     // does not fail, so it is reported rather than left as a subtraction.
     vapourSpaceM3: round(cap - usableM3, 4),
+    fillRatioBasis,
     coverDays: round(coverDays, 3),
+    missingInputs,
     safetyStockTonnes: round(safetyTonnes, 4),
     reorderAtTonnes: round(reorderTonnes, 4),
     ullageAtReorderTonnes: round(ullageAtReorder, 4),
     deliveryTonnes: load,
-    deliveryFitsUllage: load === null ? null : load <= ullageAtReorder,
-    deliveryWarning: load !== null && load > ullageAtReorder
+    deliveryFitsUllage: load === null || !reorderKnown ? null : load <= ullageAtReorder,
+    deliveryWarning: load !== null && reorderKnown && load > ullageAtReorder
       ? `A ${load} tonne delivery does not fit the ${round(ullageAtReorder, 2)} tonnes of room at the reorder point. Order earlier or order a part load.`
       : null,
     deliveriesPerMonth: load === null || load <= 0 ? null : round((demand * 30) / load, 3),
@@ -288,6 +353,17 @@ export const vaporizerDuty = ({
   const cpV = num(vapourCpKJkgK, null);
   const tOut = num(outletTempC, null);
 
+  // MD4-0: a liquid entering ABOVE the boiling point it was given made the
+  // "warm the liquid" term negative and cut the duty. At the page's
+  // defaults (inlet 25 C against n-butane's atmospheric -0.5 C) it took
+  // 8.9 kW off a 55.5 kW boil. A liquid above its boiling point is not
+  // liquid: the boiling point must be the one at the vaporizer pressure.
+  if (tIn !== null && tBp !== null && tIn > tBp) {
+    return { error: `The liquid enters at ${tIn} C, above the boiling point given (${tBp} C). A liquid above its boiling point is not liquid: give the boiling point at the vaporizer's operating pressure.` };
+  }
+  if (tOut !== null && tBp !== null && tOut < tBp) {
+    return { error: `The vapour leaves at ${tOut} C, below the boiling point given (${tBp} C), so it would condense. Give an outlet above the boiling point at the vaporizer's pressure.` };
+  }
   const sensibleLiquid = cpL !== null && tIn !== null && tBp !== null
     ? m * cpL * (tBp - tIn) : null;
   const latent = m * hfg;
@@ -303,11 +379,13 @@ export const vaporizerDuty = ({
   const missing = terms.filter((t) => t.kJPerHr === null).map((t) => t.label);
   const totalKJHr = known.reduce((s, t) => s + t.kJPerHr, 0);
   const margin = num(designMarginPercent, 0);
+  if (!(margin >= 0)) return { error: 'The design margin cannot be negative.' };
 
   return {
     error: null,
     complete: missing.length === 0,
     missingTerms: missing,
+    assumedZero: isBlank(designMarginPercent) ? ['design margin'] : [],
     terms: terms.map((t) => ({
       ...t,
       kW: t.kJPerHr === null ? null : round(t.kJPerHr / KJ_PER_KWH, 6),
@@ -337,8 +415,8 @@ export const bottlingPlant = ({
   const demand = num(cylindersPerDay);
   const fillMin = num(fillMinutesPerCylinder);
   const pos = num(positions);
-  const hours = num(shiftHoursPerDay, 8);
-  const avail = num(availabilityFraction, 1);
+  const hours = withDefault(shiftHoursPerDay, 8);
+  const avail = withDefault(availabilityFraction, 1);
   if (![demand, fillMin, pos].every((v) => Number.isFinite(v) && v > 0)) {
     return { error: 'Demand, fill time and a position count are required and must be positive.' };
   }
@@ -350,7 +428,14 @@ export const bottlingPlant = ({
   // A queue has a whole number of servers. Availability gives a fractional
   // count of working positions, so it is rounded HERE and reported, rather
   // than being rounded silently inside the queue model where nobody sees it.
-  const queuePositions = Math.max(1, Math.round(effectivePositions));
+  // MD4-0: it was rounded to the NEAREST whole position (14.5 working ran
+  // the queue on 15) and floored at 1 (0.4 working ran it on 1). The queue
+  // now runs on the positions that are wholly working, the floor, and fewer
+  // than one is refused.
+  const queuePositions = Math.floor(effectivePositions + 1e-9);
+  if (queuePositions < 1) {
+    return { error: `Only ${round(effectivePositions, 3)} positions are working on average: fewer than one.` };
+  }
   const queue = rackQueue({
     arrivalsPerHour, loadMinutes: fillMin, bays: queuePositions,
   });
@@ -365,7 +450,7 @@ export const bottlingPlant = ({
     // What the queue model actually ran on, and why it differs.
     queuePositions,
     positionRoundingNote: queuePositions === effectivePositions ? null
-      : `The queue is computed on ${queuePositions} working positions, rounded from ${round(effectivePositions, 2)}, because a queue has a whole number of servers. The throughput capacity below uses the unrounded figure.`,
+      : `The queue is computed on ${queuePositions} working positions, rounded down from ${round(effectivePositions, 2)}, because a queue has a whole number of servers. The throughput capacity below uses the unrounded figure.`,
     minimumPositionsForThroughput: minimumPositions,
     queue,
     throughputCapacityPerDay: round((effectivePositions * hours * 60) / fillMin, 2),
@@ -402,10 +487,11 @@ export const gasMassInVessel = ({
   const v = num(volumeM3);
   const p = num(pressureBar);
   const t = num(temperatureC);
-  const sg = num(gasSg, 0.6);
+  const sg = withDefault(gasSg, 0.6);
   if (!Number.isFinite(v) || v <= 0) return { error: 'A vessel volume is required.' };
   if (!Number.isFinite(p) || p <= 0) return { error: 'A pressure is required.' };
   if (!Number.isFinite(t)) return { error: 'A temperature is required.' };
+  if (!(sg > 0)) return { error: 'A gas specific gravity is required.' };
 
   const pPsia = p * PSI_PER_BAR;
   const tF = t * 9 / 5 + 32;
@@ -433,7 +519,8 @@ export const gasMassInVessel = ({
       : 'Outside the range the Dranchuk-Abou-Kassem correlation was fitted over. The value is an extrapolation and should be checked against measured data.',
     massKg: round(realKg, 6),
     idealMassKg: round(idealKg, 6),
-    // Positive means the ideal gas law UNDERSTATES what the vessel holds.
+    pressureBasis: PRESSURE_BASIS,
+    // Above one means the ideal gas law UNDERSTATES what the vessel holds.
     realVersusIdeal: round(realKg / idealKg, 6),
   };
 };
@@ -443,15 +530,24 @@ export const gasMassInVessel = ({
  * compressor.
  *
  * The physics that makes a cascade a cascade: a bank can only push gas into
- * a vehicle while its pressure EXCEEDS the vehicle's. Once they equalise the
- * bank is finished for that vehicle no matter how much gas it still holds,
+ * a vehicle while its pressure EXCEEDS the vehicle's. Each vehicle is
+ * filled from the lowest bank first: the vehicle and the bank EQUALISE (the
+ * gas they hold between them is conserved, at one common pressure), then
+ * the next bank up takes the vehicle higher, until the vehicle reaches its
+ * target. A low bank that has fallen below the target still does useful
+ * work: it takes the vehicle from its start to the bank's own pressure,
  * which is why stations run three banks at different pressures instead of
- * one big one. Gas left in a bank below the vehicle's target is real gas and
- * is reported as unusable rather than counted as inventory.
+ * one big one.
  *
- * Each fill is modelled as taking gas from the lowest bank that can still
- * deliver, which is how a cascade is actually sequenced, and the bank
- * pressure is updated after every fill rather than treated as constant.
+ * MD4-0: this used to count only the gas each bank held ABOVE THE TARGET as
+ * deliverable, which is not a cascade: a bank below the target could never
+ * give anything. At the page's defaults (three 1.5 m3 banks at 250 bar(a),
+ * a 0.08 m3 vehicle from 20 to 200) it reported 10 fills and 849 kg
+ * "stranded"; equalising, the same banks fill 33 (efficiency 13.9 to 45.8 percent).
+ *
+ * Isothermal at the stated temperature: the heat of a fast fill is not
+ * modelled, so a real fill settles lower than this and the count is a
+ * ceiling in that one respect.
  */
 export const cascadeFills = ({
   banks = [], vehicleTankM3, vehicleStartBar, vehicleTargetBar,
@@ -460,103 +556,108 @@ export const cascadeFills = ({
   const vTank = num(vehicleTankM3);
   const pStart = num(vehicleStartBar);
   const pTarget = num(vehicleTargetBar);
-  const t = num(temperatureC, 15);
+  const t = withDefault(temperatureC, 15);
+  const sg = withDefault(gasSg, 0.6);
   if (!Number.isFinite(vTank) || vTank <= 0) return { error: 'A vehicle tank volume is required.' };
-  if (!Number.isFinite(pStart) || !Number.isFinite(pTarget) || pTarget <= pStart) {
+  if (!Number.isFinite(pStart) || !Number.isFinite(pTarget) || pStart <= 0 || pTarget <= pStart) {
     return { error: 'A start and a higher target pressure are required.' };
   }
+  if (!Number.isFinite(t)) return { error: 'A temperature is required.' };
+  if (!(sg > 0)) return { error: 'A gas specific gravity is required.' };
   const parsed = banks.map((b, i) => ({
     label: b.label || `Bank ${i + 1}`,
     volumeM3: num(b.volumeM3),
     pressureBar: num(b.pressureBar),
   }));
+  if (parsed.length === 0) return { error: 'At least one bank is required.' };
   if (parsed.some((b) => !Number.isFinite(b.volumeM3) || !Number.isFinite(b.pressureBar))) {
     return { error: 'Every bank needs a volume and a pressure.' };
   }
+  if (parsed.some((b) => b.volumeM3 <= 0 || b.pressureBar <= 0)) {
+    return { error: 'Every bank needs a positive volume and pressure.' };
+  }
 
   const massAt = (volumeM3, pressureBar) => {
-    const r = gasMassInVessel({ volumeM3, pressureBar, temperatureC: t, gasSg });
+    const r = gasMassInVessel({ volumeM3, pressureBar, temperatureC: t, gasSg: sg });
     return r.error ? NaN : r.massKg;
   };
-  const pressureForMass = (volumeM3, targetKg, hiBar) => {
-    // Z depends on pressure, so invert by bisection rather than by algebra.
-    let lo = 0.01; let hi = hiBar;
-    for (let i = 0; i < 60; i += 1) {
-      const mid = (lo + hi) / 2;
-      if (massAt(volumeM3, mid) > targetKg) hi = mid; else lo = mid;
+  // Z depends on pressure, so pressure is found from mass by bisection.
+  const bisect = (f, lo, hi) => {
+    let a = lo; let b = hi;
+    for (let i = 0; i < 100; i += 1) {
+      const mid = (a + b) / 2;
+      if (f(mid) > 0) b = mid; else a = mid;
     }
-    return (lo + hi) / 2;
+    return (a + b) / 2;
   };
+  const pressureForMass = (volumeM3, targetKg, hiBar) => bisect(
+    (p) => massAt(volumeM3, p) - targetKg, 1e-6, hiBar,
+  );
 
-  const state = parsed.map((b) => ({ ...b, currentBar: b.pressureBar }));
   const perFillKg = massAt(vTank, pTarget) - massAt(vTank, pStart);
   if (!Number.isFinite(perFillKg) || perFillKg <= 0) {
     return { error: 'The fill does not add gas at these pressures.' };
   }
 
-  /**
-   * A bank is exhausted when the gas it can still DELIVER runs out, which is
-   * not the same as its pressure reaching the target: bisection lands a hair
-   * above, and a bank sitting a hair above the target delivers nothing while
-   * still testing as usable. Judging exhaustion on deliverable mass rather
-   * than on pressure is what makes the sequence terminate correctly.
-   */
-  const EPS_KG = 1e-6;
+  const state = parsed.map((b) => ({ ...b, currentBar: b.pressureBar }));
   const fills = [];
-  let guard = 0;
-  let shortfallKg = null;
-  while (guard < num(maxFills, 500)) {
-    guard += 1;
-    // Draw from the lowest bank that can still deliver and work upward,
-    // taking from as many banks as one fill needs. That is how a cascade is
-    // sequenced, and it is why the low bank is emptied before the high bank
-    // is touched.
-    const candidates = state
-      .map((b) => ({ b, available: massAt(b.volumeM3, b.currentBar) - massAt(b.volumeM3, pTarget) }))
-      .filter((x) => x.available > EPS_KG)
-      .sort((a, x) => a.b.currentBar - x.b.currentBar);
-    const totalAvailable = candidates.reduce((s, x) => s + x.available, 0);
-    if (totalAvailable + EPS_KG < perFillKg) {
-      // A part fill is not a fill. What is left is reported rather than
-      // counted, because a vehicle that leaves under-filled did not get one.
-      shortfallKg = round(totalAvailable, 4);
-      break;
-    }
-    let remaining = perFillKg;
+  let nextVehicleReachesBar = null;
+  const limit = num(maxFills, 500);
+  const TOL_BAR = 1e-9;
+  while (fills.length < limit) {
+    const before = state.map((b) => b.currentBar);
+    let pv = pStart;
     const used = [];
-    for (let i = 0; i < candidates.length && remaining > EPS_KG; i += 1) {
-      const x = candidates[i];
-      const take = Math.min(x.available, remaining);
-      x.b.currentBar = pressureForMass(
-        x.b.volumeM3, massAt(x.b.volumeM3, x.b.currentBar) - take, x.b.pressureBar,
-      );
-      remaining -= take;
-      used.push(x.b.label);
+    // Lowest bank first, and upward.
+    const order = [...state].sort((a, b) => a.currentBar - b.currentBar);
+    for (let i = 0; i < order.length && pv < pTarget - TOL_BAR; i += 1) {
+      const b = order[i];
+      if (b.currentBar <= pv + TOL_BAR) continue;
+      const total = massAt(b.volumeM3, b.currentBar) + massAt(vTank, pv);
+      const pEq = bisect((p) => massAt(b.volumeM3, p) + massAt(vTank, p) - total, pv, b.currentBar);
+      if (pEq >= pTarget) {
+        const take = massAt(vTank, pTarget) - massAt(vTank, pv);
+        b.currentBar = pressureForMass(b.volumeM3, massAt(b.volumeM3, b.currentBar) - take, b.currentBar);
+        pv = pTarget;
+      } else {
+        b.currentBar = pEq;
+        pv = pEq;
+      }
+      used.push(b.label);
+    }
+    if (pv < pTarget - 1e-6) {
+      // A part fill is not a fill. The banks are reported as they stood
+      // after the last whole fill, and how far the next vehicle would get.
+      state.forEach((b, i) => { b.currentBar = before[i]; });
+      nextVehicleReachesBar = round(pv, 3);
+      break;
     }
     fills.push({ fill: fills.length + 1, banks: used });
   }
 
-  const strandedKg = state.reduce((s, b) => s + massAt(b.volumeM3, Math.min(b.currentBar, pTarget)), 0);
   const totalKg = parsed.reduce((s, b) => s + massAt(b.volumeM3, b.pressureBar), 0);
+  const leftKg = state.reduce((s, b) => s + massAt(b.volumeM3, b.currentBar), 0);
   const deliveredKg = fills.length * perFillKg;
 
   return {
     error: null,
     kgPerFill: round(perFillKg, 4),
     fillsBeforeRecharge: fills.length,
+    fills,
     deliveredKg: round(deliveredKg, 3),
     storedKg: round(totalKg, 3),
-    // Gas below the vehicle's target pressure cannot be delivered by the
-    // cascade at all. It is inventory, and it is not usable.
-    strandedBelowTargetKg: round(strandedKg, 3),
+    // What the banks still hold after the last whole fill. The compressor
+    // has to bring it back up; it is inventory, and it is not a fill.
+    leftInBanksKg: round(leftKg, 3),
     cascadeEfficiency: totalKg > 0 ? round(deliveredKg / totalKg, 6) : null,
     banksAfter: state.map((b) => ({
       label: b.label, startBar: round(b.pressureBar, 3), endBar: round(b.currentBar, 3),
     })),
-    // Gas that is above the target but not enough for a whole fill.
-    partialFillAvailableKg: shortfallKg,
-    hitFillLimit: guard >= num(maxFills, 500),
-    note: 'A bank delivers only while its pressure exceeds the vehicle tank. That is why a station runs several banks at different pressures rather than one large one.',
+    // How far the next vehicle would get before the compressor is needed.
+    nextVehicleReachesBar,
+    hitFillLimit: fills.length >= limit,
+    pressureBasis: PRESSURE_BASIS,
+    note: 'Each vehicle equalises with the lowest bank above it, then the next bank up, until it reaches its target. A bank delivers only while its pressure exceeds the vehicle tank. Isothermal: the heat of a fast fill is not modelled.',
   };
 };
 
@@ -578,8 +679,9 @@ export const cngCompression = ({
   const pS = num(suctionBar);
   const pD = num(dischargeBar);
   const tS = num(suctionTempC);
-  const sg = num(gasSg, 0.6);
+  const sg = withDefault(gasSg, 0.6);
   if (!Number.isFinite(kgHr) || kgHr <= 0) return { error: 'A throughput is required.' };
+  if (!(sg > 0)) return { error: 'A gas specific gravity is required.' };
   if (!Number.isFinite(pS) || !Number.isFinite(pD) || pD <= pS) {
     return { error: 'A suction pressure and a higher discharge pressure are required.' };
   }
@@ -589,7 +691,8 @@ export const cngCompression = ({
   // scf = (kg / M[kg/kmol]) * 1000 mol/kmol ... done in consistent SI-to-field
   // terms via the molar mass and the standard molar volume.
   const molarMass = sg * 28.9625;
-  const SCF_PER_KMOL = 836.6; // 379.49 scf/lbmol x 2.20462 lbmol/kmol
+  // 379.49 scf/lbmol x 2.20462262 lbmol/kmol (it was typed as 836.6).
+  const SCF_PER_KMOL = 379.49 / 0.45359237;
   const scfPerHour = (kgHr / molarMass) * SCF_PER_KMOL;
   const qMMscfd = (scfPerHour * 24) / 1e6;
 
@@ -625,6 +728,7 @@ export const cngCompression = ({
     specificEnergyKWhPerKg: kgHr > 0 ? round((train.totalBrakeHp * HP_TO_KW) / kgHr, 6) : null,
     coolingDutyKW: round((train.totalCoolingBtuHr * 0.29307107) / 1000, 3),
     finalDischargeC: round((train.finalDischargeF - 32) * 5 / 9, 2),
+    pressureBasis: PRESSURE_BASIS,
     basis: 'Staging, polytropic head and real-gas Z from the Facilities compression engine; this converts units and does not reimplement the thermodynamics.',
   };
 };
@@ -647,6 +751,10 @@ export const cngDispensing = ({
     return { error: 'Arrivals, fill time and a dispenser count are required and must be positive.' };
   }
   const queue = rackQueue({ arrivalsPerHour: arr, loadMinutes: fill, bays });
+  // MD4-0: a refusal inside the queue (2.5 dispensers) came back under an
+  // error-free result. A forecourt that cannot keep up is an answer and is
+  // kept; any other refusal is passed up.
+  if (queue.error && queue.stable !== false) return { error: queue.error };
   const kg = num(kgPerFill, null);
   return {
     error: null,
@@ -696,7 +804,7 @@ export const conversionEconomics = ({
     pricePerUnit: newPrice,
     energyPerUnitMJ: newEnergy = null,
     emissionFactorKgCo2ePerUnit: newEf = null,
-    efficiencyRatio = 1,
+    efficiencyRatio = null,
   } = {},
   conversionCost, annualExtraMaintenance = 0,
 }) => {
@@ -713,8 +821,10 @@ export const conversionEconomics = ({
   if (nc === null) {
     const be = num(baseEnergy, null);
     const ne = num(newEnergy, null);
-    const eta = num(efficiencyRatio, 1);
-    if (be === null || ne === null || !(ne > 0) || !(eta > 0)) {
+    // MD4-0: the efficiency ratio defaulted to 1 (omitted or blank) while
+    // the refusal below said it was not assumed. It is required now.
+    const eta = num(efficiencyRatio, null);
+    if (be === null || ne === null || !(be > 0) || !(ne > 0) || !(eta > 0)) {
       return {
         error: 'Either a measured consumption on the new fuel, or both fuels\' energy content and an efficiency ratio, are required. Neither is assumed.',
       };
@@ -729,6 +839,7 @@ export const conversionEconomics = ({
   const baseCost = baseUnits * bp;
   const newCost = newUnits * np;
   const maintenance = num(annualExtraMaintenance, 0);
+  const assumedZero = isBlank(annualExtraMaintenance) ? ['extra maintenance'] : [];
   const annualSaving = baseCost - newCost - maintenance;
   const capex = num(conversionCost, null);
 
@@ -740,6 +851,7 @@ export const conversionEconomics = ({
   return {
     error: null,
     consumptionSource: derived ? 'derived from energy equivalence' : 'as measured',
+    assumedZero,
     newFuelConsumptionPer100Km: round(nc, 6),
     baseFuel: {
       label: baseLabel, unitsPerYear: round(baseUnits, 3), costPerYear: round(baseCost, 2),

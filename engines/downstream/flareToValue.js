@@ -62,7 +62,30 @@ const round = (v, dp = 6) => (Number.isFinite(v)
   ? Math.round(v * 10 ** dp) / 10 ** dp
   : null);
 
-/** One lb-mol of an ideal gas at standard conditions, by definition. */
+/** A box left empty ('' or null), as opposed to a value left out of the call. */
+const isBlank = (v) => v === '' || v === null;
+
+/**
+ * On-stream days. Omitted from the call it takes the stated 350; left
+ * blank it is missing (MD4-0: blank used to read as 350 too), and it must
+ * lie in (0, 366].
+ */
+const onstreamDaysOf = (v) => {
+  if (v === undefined) return { value: 350, error: null };
+  const d = num(v);
+  if (!(d > 0 && d <= 366)) {
+    return { value: null, error: 'On-stream days are required, more than 0 and no more than 366.' };
+  }
+  return { value: d, error: null };
+};
+
+/**
+ * One lb-mol of an ideal gas at 60 F and 14.696 psia: R T / P with
+ * R = 8.314462618 J/(mol K), T = 288.7056 K, P = 101325 Pa, over
+ * 0.45359237 kg/lb and 0.028316846592 m3/ft3, is 379.48 to 379.49. The
+ * oracle derives it; it is a convention of the standard conditions, not a
+ * definition.
+ */
 export const SCF_PER_LBMOL = 379.49;
 export const LB_PER_KG = 2.20462262;
 export const GAL_PER_FT3 = 7.480519;
@@ -107,10 +130,19 @@ export const GAS_REFERENCE_NOTE = 'Molar masses and carbon numbers are definitio
  * removed before anything is liquefied.
  */
 export const characteriseGas = ({ components = [] }) => {
+  // MD4-0: a component with no carbon number used to count as carbon-free,
+  // so a hydrocarbon typed without one burned to nothing at the flare. It is
+  // taken from the reference by code, and refused when the code is unknown.
+  const carbonOf = (c) => {
+    const typed = num(c.c, null);
+    if (typed !== null) return typed;
+    const r = GAS_COMPONENT_REFERENCE.find((x) => x.code === c.code);
+    return r ? r.c : NaN;
+  };
   const rows = components.map((c) => ({
     code: c.code,
     y: num(c.moleFraction),
-    c: num(c.c, 0),
+    c: carbonOf(c),
     molarMassLbLbmol: num(c.molarMassLbLbmol),
     ghvBtuScf: num(c.ghvBtuScf, null),
     liquidDensityLbGal: num(c.liquidDensityLbGal, null),
@@ -119,6 +151,13 @@ export const characteriseGas = ({ components = [] }) => {
   }));
   if (rows.some((r) => !Number.isFinite(r.y))) {
     return { error: 'Every component needs a mole fraction.' };
+  }
+  if (rows.some((r) => r.y < 0)) {
+    return { error: 'A mole fraction cannot be negative.' };
+  }
+  const noCarbon = rows.filter((r) => !Number.isFinite(r.c)).map((r) => r.code);
+  if (noCarbon.length) {
+    return { error: `No carbon number for ${noCarbon.join(', ')}. The flare's CO2 is counted atom by atom, so it is not assumed.` };
   }
   const sum = rows.reduce((s, r) => s + r.y, 0);
   if (!(sum > 0)) return { error: 'The gas composition sums to nothing.' };
@@ -129,7 +168,20 @@ export const characteriseGas = ({ components = [] }) => {
   const inertFraction = norm.filter((r) => r.inert).reduce((s, r) => s + r.y, 0);
   const co2Fraction = norm.filter((r) => r.code === 'CO2').reduce((s, r) => s + r.y, 0);
   const carbonPerMol = norm.reduce((s, r) => s + r.y * r.c, 0);
+  // MD4-0: the flare's CO2 and methane follow 40 CFR 98.233(n): the
+  // hydrocarbons burn (carbon atom by atom), the CO2 in the gas passes
+  // through unburned, and the methane that escapes is the METHANE in the
+  // gas, not every unburned carbon counted as if it were methane.
+  const hydrocarbonCarbonPerMol = norm
+    .filter((r) => !r.inert && r.code !== 'CO2').reduce((s, r) => s + r.y * r.c, 0);
+  const methaneFraction = norm.filter((r) => r.code === 'C1').reduce((s, r) => s + r.y, 0);
   const molarMass = norm.reduce((s, r) => s + r.y * r.molarMassLbLbmol, 0);
+  // Mass in a thousand standard cubic feet, and the part of it that is
+  // propane and heavier. These are the physical ceilings on a route's yield.
+  const lbPerMscf = (rs) => rs.reduce((s, r) => s + (1000 / SCF_PER_LBMOL) * r.y * r.molarMassLbLbmol, 0);
+  const kgPerMscf = lbPerMscf(norm) / LB_PER_KG;
+  const c3PlusRows = norm.filter((r) => ['C3', 'IC4', 'NC4', 'C5'].includes(r.code));
+  const c3PlusKgPerMscf = lbPerMscf(c3PlusRows) / LB_PER_KG;
 
   // Gallons of liquid per Mscf, from first principles:
   //   lbmol per Mscf = 1000 / 379.49
@@ -138,9 +190,13 @@ export const characteriseGas = ({ components = [] }) => {
   const lbmolPerMscf = 1000 / SCF_PER_LBMOL;
   const nglRows = norm.filter((r) => r.recoverableAsNgl);
   const missingDensity = nglRows.filter((r) => r.liquidDensityLbGal === null).map((r) => r.code);
+  // MD4-0: a component with no liquid density used to be left out of the
+  // sum, so the liquids content was a partial figure the richness verdict
+  // was then read from. Like the heating value, it is now missing, not partial.
   const gpmOf = (codes) => {
-    const set = nglRows.filter((r) => codes.includes(r.code) && r.liquidDensityLbGal !== null);
-    return set.reduce(
+    const all = nglRows.filter((r) => codes.includes(r.code));
+    if (all.some((r) => r.liquidDensityLbGal === null)) return NaN;
+    return all.reduce(
       (s, r) => s + (lbmolPerMscf * r.y * r.molarMassLbLbmol) / r.liquidDensityLbGal, 0,
     );
   };
@@ -156,13 +212,22 @@ export const characteriseGas = ({ components = [] }) => {
     inertMoleFraction: round(inertFraction, 8),
     co2MoleFraction: round(co2Fraction, 8),
     carbonPerMol: round(carbonPerMol, 8),
+    hydrocarbonCarbonPerMol: round(hydrocarbonCarbonPerMol, 8),
+    methaneMoleFraction: round(methaneFraction, 8),
     molarMassLbLbmol: round(molarMass, 6),
+    kgPerMscf: round(kgPerMscf, 8),
+    c3PlusKgPerMscf: round(c3PlusKgPerMscf, 8),
+    rawMoleFractionSum: round(sum, 8),
+    normalisationNote: Math.abs(sum - 1) > 1e-6
+      ? `The mole fractions summed to ${round(sum, 6)} and were scaled to one. Check the analysis if that was not intended.`
+      : null,
     // The number that decides whether liquids extraction is a conversation.
     gpmC2Plus: round(gpmC2Plus, 6),
     gpmC3Plus: round(gpmC3Plus, 6),
     gpmBasis: 'Derived from the composition and the component liquid densities: gallons per Mscf follows from the moles in a thousand cubic feet, the molar mass and the liquid density.',
     missingLiquidDensity: missingDensity,
-    richness: gpmC3Plus >= 2.5 ? 'rich' : gpmC3Plus >= 1 ? 'moderate' : 'lean',
+    richness: !Number.isFinite(gpmC3Plus) ? null
+      : gpmC3Plus >= 2.5 ? 'rich' : gpmC3Plus >= 1 ? 'moderate' : 'lean',
   };
 };
 
@@ -182,6 +247,7 @@ export const characteriseGas = ({ components = [] }) => {
 export const ROUTE_TEMPLATES = [
   {
     id: 'cng', label: 'Compressed natural gas',
+    yieldBasis: { unit: 'kg', ceiling: 'gas mass' },
     requirements: [
       { key: 'minVolumeMMscfd', label: 'Minimum volume', unit: 'MMscfd', limit: null, direction: 'min' },
       { key: 'maxInertFraction', label: 'Maximum inerts', unit: 'mole fraction', limit: null, direction: 'max' },
@@ -190,6 +256,7 @@ export const ROUTE_TEMPLATES = [
   },
   {
     id: 'mini_lng', label: 'Mini LNG',
+    yieldBasis: { unit: 't', ceiling: 'gas mass' },
     requirements: [
       { key: 'minVolumeMMscfd', label: 'Minimum volume', unit: 'MMscfd', limit: null, direction: 'min' },
       { key: 'maxCo2Fraction', label: 'Maximum CO2 before treatment', unit: 'mole fraction', limit: null, direction: 'max', note: 'CO2 freezes in a liquefaction train and must be removed first. The limit is the licensor\'s.' },
@@ -198,6 +265,7 @@ export const ROUTE_TEMPLATES = [
   },
   {
     id: 'lpg_extraction', label: 'LPG and condensate extraction',
+    yieldBasis: { unit: 't', ceiling: 'propane and heavier' },
     requirements: [
       { key: 'minVolumeMMscfd', label: 'Minimum volume', unit: 'MMscfd', limit: null, direction: 'min' },
       { key: 'minGpmC3Plus', label: 'Minimum liquids content', unit: 'gal/Mscf of C3+', limit: null, direction: 'min', note: 'Below this the liquids do not pay for the plant, whatever the gas is worth.' },
@@ -205,6 +273,7 @@ export const ROUTE_TEMPLATES = [
   },
   {
     id: 'gas_to_power', label: 'Gas to power or gas to wire',
+    yieldBasis: { unit: 'MWh', ceiling: 'heating value' },
     requirements: [
       { key: 'minVolumeMMscfd', label: 'Minimum volume', unit: 'MMscfd', limit: null, direction: 'min' },
       { key: 'minGhvBtuScf', label: 'Minimum heating value', unit: 'Btu/scf', limit: null, direction: 'min' },
@@ -212,6 +281,31 @@ export const ROUTE_TEMPLATES = [
     ],
   },
 ];
+
+/** One MWh in International Table Btu: 3.6e9 J over 1055.05585262 J/Btu. */
+export const BTU_PER_MWH = 3.6e9 / 1055.05585262;
+
+/**
+ * The most product one Mscf of this gas can physically make, in the route's
+ * yield unit (MD4-0). The page's LPG route used to default to 0.02 t/Mscf
+ * from a gas holding 0.0056 t of propane and heavier per Mscf: 3.6 times
+ * what was there. A yield is a design outcome and is the user's; a yield
+ * above what the gas contains is not a design, and is refused.
+ */
+export const yieldCeiling = ({ yieldBasis, gas }) => {
+  if (!yieldBasis || !gas || gas.error) return null;
+  const perUnit = { kg: 1, t: 1 / 1000 };
+  if (yieldBasis.ceiling === 'gas mass' && perUnit[yieldBasis.unit]) {
+    return gas.kgPerMscf === null ? null : gas.kgPerMscf * perUnit[yieldBasis.unit];
+  }
+  if (yieldBasis.ceiling === 'propane and heavier' && perUnit[yieldBasis.unit]) {
+    return gas.c3PlusKgPerMscf === null ? null : gas.c3PlusKgPerMscf * perUnit[yieldBasis.unit];
+  }
+  if (yieldBasis.ceiling === 'heating value' && yieldBasis.unit === 'MWh') {
+    return gas.ghvBtuScf === null ? null : (gas.ghvBtuScf * 1000) / BTU_PER_MWH;
+  }
+  return null;
+};
 
 export const ROUTE_TEMPLATE_NOTE = 'Requirement limits are yours to set. They are commercial and technology-specific rather than physical law: a licensor\'s CO2 limit is a design choice and the minimum viable volume moves with the market.';
 
@@ -293,13 +387,23 @@ export const routeEconomics = ({
 }) => {
   if (!gas || gas.error) return { error: 'A characterised gas is required.' };
   const v = num(volumeMMscfd);
-  const days = num(onstreamDays, 350);
+  const days = onstreamDaysOf(onstreamDays);
   const yieldPerMscf = num(productUnitPerMscf);
   const rec = num(recoveryFraction);
   const price = num(pricePerProductUnit, null);
   if (!(v > 0)) return { error: 'A gas volume is required.' };
-  if (!Number.isFinite(yieldPerMscf)) {
-    return { error: `Route "${route.label}" needs a product yield per Mscf.` };
+  if (days.error) return { error: days.error };
+  if (!(yieldPerMscf > 0)) {
+    return { error: `Route "${route.label}" needs a positive product yield per Mscf.` };
+  }
+  const template = ROUTE_TEMPLATES.find((t) => t.id === route.id);
+  const yieldBasis = route.yieldBasis || (template ? template.yieldBasis : null);
+  const ceiling = yieldCeiling({ yieldBasis, gas });
+  if (ceiling !== null && yieldPerMscf > ceiling * (1 + 1e-9)) {
+    return {
+      error: `Route "${route.label}" yields ${round(yieldPerMscf, 6)} ${yieldBasis.unit} per Mscf, more than the ${round(ceiling, 6)} ${yieldBasis.unit} the gas holds (${yieldBasis.ceiling}). A yield above what the gas contains is refused.`,
+      yieldCeilingPerMscf: round(ceiling, 8),
+    };
   }
   if (!Number.isFinite(rec) || rec <= 0 || rec > 1) {
     return {
@@ -307,7 +411,7 @@ export const routeEconomics = ({
     };
   }
 
-  const mscfPerYear = v * 1000 * days;
+  const mscfPerYear = v * 1000 * days.value;
   const productPerYear = mscfPerYear * yieldPerMscf * rec;
   const revenue = price === null ? null : productPerYear * price;
 
@@ -317,6 +421,11 @@ export const routeEconomics = ({
     capacity: v,
     exponent: num(scalingExponent, SCALING_EXPONENT.MODULAR),
   });
+  // MD4-0: a blank cost box was read as 0 without a word. It is still taken
+  // as zero, and named, so the margin says what it rests on.
+  const assumedZero = [];
+  if (isBlank(fixedOpexPerYear)) assumedZero.push('fixed operating cost');
+  if (isBlank(variableOpexPerMscf)) assumedZero.push('variable operating cost');
   const opex = num(fixedOpexPerYear, 0) + mscfPerYear * num(variableOpexPerMscf, 0);
 
   return {
@@ -324,7 +433,10 @@ export const routeEconomics = ({
     routeId: route.id,
     label: route.label,
     mscfPerYear: round(mscfPerYear, 3),
+    onstreamDays: days.value,
     recoveryFraction: rec,
+    yieldCeilingPerMscf: round(ceiling, 8),
+    assumedZero,
     productPerYear: round(productPerYear, 4),
     productUnitLabel,
     pricePerProductUnit: price,
@@ -375,6 +487,8 @@ export const routeEconomics = ({
 export const abatement = ({
   gas, volumeMMscfd, onstreamDays = 350,
   flareDestructionEfficiency,
+  flareCombustionEfficiency = null,
+  recoveryFraction,
   productCombustionTonnesCo2ePerYear = null,
   displacedFuelTonnesCo2ePerYear = null,
   gwpMethane = null,
@@ -382,32 +496,63 @@ export const abatement = ({
 }) => {
   if (!gas || gas.error) return { error: 'A characterised gas is required.' };
   const v = num(volumeMMscfd);
-  const days = num(onstreamDays, 350);
+  const days = onstreamDaysOf(onstreamDays);
   const eta = num(flareDestructionEfficiency);
   if (!(v > 0)) return { error: 'A gas volume is required.' };
+  if (days.error) return { error: days.error };
   if (!Number.isFinite(eta) || eta <= 0 || eta > 1) {
     return { error: 'A flare destruction efficiency in (0, 1] is required. For a flare it is most of the answer and it is contested, so it is not assumed.' };
   }
+  // 40 CFR 98.233(n) separates the DESTRUCTION efficiency (hydrocarbon
+  // destroyed; it sets the methane) from the COMBUSTION efficiency
+  // (hydrocarbon oxidised to CO2; it sets the CO2). Without a combustion
+  // efficiency the destruction efficiency stands in for it, and the result
+  // says so.
+  const etaCInput = num(flareCombustionEfficiency, null);
+  if (etaCInput !== null && !(etaCInput > 0 && etaCInput <= eta)) {
+    return { error: 'A flare combustion efficiency must lie in (0, 1] and cannot exceed the destruction efficiency.' };
+  }
+  const etaC = etaCInput === null ? eta : etaCInput;
 
-  // Moles of gas a year, and the carbon in them.
-  const scfPerYear = v * 1e6 * days;
+  // Moles of gas a year.
+  const scfPerYear = v * 1e6 * days.value;
   const lbmolPerYear = scfPerYear / SCF_PER_LBMOL;
-  const carbonLbmol = lbmolPerYear * gas.carbonPerMol;
   const tonnesFrom = (lbmol, mw) => (lbmol * mw) / LB_PER_KG / 1000;
 
-  const flareCo2 = tonnesFrom(carbonLbmol * eta, 44.009);
-  const flareCh4Lbmol = carbonLbmol * (1 - eta);
-  const flareCh4 = tonnesFrom(flareCh4Lbmol, 16.043);
+  // MD4-0: every unburned carbon used to be counted as methane, and the CO2
+  // already in the gas was "burned" with the fuel, so its unburned share
+  // became methane too. At the page's gas (78 percent methane, 1.30 carbon
+  // per mole) that overstated the methane slip by 67 percent.
+  const hcCarbon = gas.hydrocarbonCarbonPerMol;
+  const yCo2 = gas.co2MoleFraction;
+  const yCh4 = gas.methaneMoleFraction;
+  const flareCo2 = tonnesFrom(lbmolPerYear * (etaC * hcCarbon + yCo2), 44.009);
+  const flareCh4 = tonnesFrom(lbmolPerYear * yCh4 * (1 - eta), 16.043);
   const gwp = num(gwpMethane, null);
   const flareCo2e = gwp === null ? null : flareCo2 + flareCh4 * gwp;
+
+  // MD4-0: the recovery. Gas the plant does not recover is still flared,
+  // so only the recovered share of the flare is avoided. The abatement used
+  // to credit the whole flare to a plant recovering 90 percent of it.
+  const rec = num(recoveryFraction, null);
+  const recOk = rec !== null && rec > 0 && rec <= 1;
+  const avoidedCo2e = flareCo2e === null || !recOk ? null : flareCo2e * rec;
 
   const productCo2e = num(productCombustionTonnesCo2ePerYear, null);
   const displacedCo2e = num(displacedFuelTonnesCo2ePerYear, null);
   const counterfactualDeclared = !!counterfactualLabel
     && productCo2e !== null && displacedCo2e !== null;
 
-  const net = flareCo2e === null || !counterfactualDeclared
-    ? null : flareCo2e - productCo2e + displacedCo2e;
+  const net = avoidedCo2e === null || !counterfactualDeclared
+    ? null : avoidedCo2e - productCo2e + displacedCo2e;
+
+  const blockedBy = gwp === null
+    ? 'no methane global warming potential supplied'
+    : !recOk
+      ? 'no recovery fraction in (0, 1]: gas the plant does not recover is still flared'
+      : !counterfactualDeclared
+        ? 'the counterfactual is not declared: what the product displaces, and what burning it emits'
+        : null;
 
   return {
     error: null,
@@ -415,7 +560,15 @@ export const abatement = ({
     flareCo2Tonnes: round(flareCo2, 3),
     flareCh4Tonnes: round(flareCh4, 3),
     flareCo2eTonnes: round(flareCo2e, 3),
+    destructionEfficiency: eta,
+    combustionEfficiency: etaC,
+    combustionEfficiencyNote: etaCInput === null
+      ? 'No combustion efficiency was given, so the destruction efficiency stands in for it. 40 CFR 98.233(n) puts combustion 1.5 points below destruction, so the CO2 here is slightly high.'
+      : null,
+    basis: '40 CFR 98.233(n): CO2 = the CO2 in the gas plus the combustion efficiency times the hydrocarbon carbon; CH4 = the methane in the gas times one less the destruction efficiency. Unburned ethane and heavier are not methane and carry no GWP here.',
     gwpMethane: gwp,
+    recoveryFraction: recOk ? rec : null,
+    avoidedFlareCo2eTonnes: round(avoidedCo2e, 3),
     productCombustionTonnesCo2ePerYear: productCo2e,
     displacedFuelTonnesCo2ePerYear: displacedCo2e,
     counterfactualLabel,
@@ -423,11 +576,7 @@ export const abatement = ({
     netAbatementTonnesCo2ePerYear: round(net, 3),
     // The claim the app exists to stop.
     grossClaimIfNoCounterfactual: round(flareCo2e, 3),
-    blockedBy: gwp === null
-      ? 'no methane global warming potential supplied'
-      : !counterfactualDeclared
-        ? 'the counterfactual is not declared: what the product displaces, and what burning it emits'
-        : null,
+    blockedBy,
     warning: counterfactualDeclared ? null
       : 'No abatement is reported. The flare\'s gross emission is not the abatement: recover the gas and somebody burns it, and if that displaces a dirtier fuel the abatement is larger while if it displaces nothing it is smaller. State what the product displaces and what burning it emits.',
     // Useful even before the counterfactual: the flare's own footprint.
@@ -455,8 +604,22 @@ export const creditSensitivity = ({
       error: 'No net abatement to sell. Declare the counterfactual first: a credit computed from a gross flare figure is a credit that cannot be issued.',
     };
   }
+  // MD4-0: a project that ADDS emissions used to "sell" negative credits,
+  // which read as a cost that grew with the credit price. There is nothing
+  // to issue, so it is refused.
+  if (!(t > 0)) {
+    return {
+      error: `The net abatement is ${round(t, 3)} tCO2e a year: the project does not abate, so there are no credits to sell.`,
+    };
+  }
   const margin = num(grossMarginPerYear, null);
-  const hurdle = num(hurdleMarginPerYear, 0);
+  // MD4-0: a blank hurdle read as 0. Omitted it keeps the stated 0; blank
+  // it is missing, and no verdict is given without it.
+  const hurdle = isBlank(hurdleMarginPerYear) ? null : num(hurdleMarginPerYear, NaN);
+  if (hurdle !== null && !Number.isFinite(hurdle)) {
+    return { error: 'The hurdle margin is not a number.' };
+  }
+  const known = margin !== null && hurdle !== null;
   const points = creditPrices.map((p) => {
     const price = num(p);
     const creditRevenue = Number.isFinite(price) ? t * price : null;
@@ -465,11 +628,28 @@ export const creditSensitivity = ({
       creditPrice: price,
       creditRevenuePerYear: round(creditRevenue, 2),
       totalMarginPerYear: round(total, 2),
-      clearsHurdle: total === null ? null : total >= hurdle,
+      clearsHurdle: total === null || hurdle === null ? null : total >= hurdle,
     };
   });
-  const standsAlone = margin === null ? null : margin >= hurdle;
-  const firstClearing = points.find((p) => p.clearsHurdle);
+  const standsAlone = known ? margin >= hurdle : null;
+  // MD4-0: the price needed used to be the FIRST price in the list that
+  // cleared, in the order typed, so "60, 15" reported 60. It is now the
+  // breakeven in closed form, (hurdle - margin) / tonnes, and the lowest
+  // tested price that clears is reported beside it.
+  const breakeven = !known ? null : standsAlone ? 0 : (hurdle - margin) / t;
+  const clearing = points.filter((p) => p.clearsHurdle).map((p) => p.creditPrice);
+  const lowestClearing = clearing.length ? Math.min(...clearing) : null;
+
+  let verdict;
+  if (!known) {
+    verdict = margin === null
+      ? 'No margin for this route, so whether it needs credits cannot be said. Supply its price and costs.'
+      : 'No hurdle margin, so whether it needs credits cannot be said.';
+  } else if (standsAlone) {
+    verdict = 'Clears the hurdle on its own. Credits are upside; the case stands without them.';
+  } else {
+    verdict = `Needs a credit price of ${round(breakeven, 2)} per tonne to clear the hurdle${lowestClearing === null && points.length ? ', above every price tested' : ''}. This is a bet on the credit price.`;
+  }
 
   return {
     error: null,
@@ -478,13 +658,10 @@ export const creditSensitivity = ({
     hurdleMarginPerYear: hurdle,
     // The distinction that matters for a bid.
     standsAloneWithoutCredits: standsAlone,
-    creditPriceNeeded: standsAlone ? 0
-      : firstClearing ? firstClearing.creditPrice : null,
-    verdict: standsAlone
-      ? 'Clears the hurdle on its own. Credits are upside, not the case.'
-      : firstClearing
-        ? `Only clears the hurdle at a credit price of ${firstClearing.creditPrice} or above. This is a bet on the credit price.`
-        : 'Does not clear the hurdle at any credit price tested.',
+    breakevenCreditPrice: round(breakeven, 6),
+    lowestTestedClearingPrice: lowestClearing,
+    creditPriceNeeded: round(breakeven, 6),
+    verdict,
   };
 };
 
@@ -516,10 +693,15 @@ export const compareRoutes = ({ screenings = [], economics = [], abatements = {}
     };
   });
 
-  const eligible = rows.filter((r) => r.verdict !== 'fails' && r.valuePerMscf !== null);
-  const best = eligible.length
-    ? eligible.reduce((a, b) => (b.valuePerMscf > a.valuePerMscf ? b : a))
-    : null;
+  // MD4-0: a route nobody had screened (every limit unset, which is how the
+  // page opens) used to be crowned "best on value". The best is now drawn
+  // only from routes that PASS; the leader among routes not fully screened
+  // is reported apart, as provisional.
+  const top = (list) => (list.length
+    ? list.reduce((a, b) => (b.valuePerMscf > a.valuePerMscf ? b : a)) : null);
+  const valued = rows.filter((r) => r.valuePerMscf !== null);
+  const best = top(valued.filter((r) => r.verdict === 'passes'));
+  const provisional = top(valued.filter((r) => r.verdict !== 'fails'));
 
   return {
     rows,
@@ -527,8 +709,11 @@ export const compareRoutes = ({ screenings = [], economics = [], abatements = {}
     screenedOut: rows.filter((r) => r.verdict === 'fails').map((r) => r.label),
     notFullyScreened: rows.filter((r) => r.verdict === 'not fully screened').map((r) => r.label),
     bestByValuePerMscf: best ? best.routeId : null,
+    leaderNotFullyScreened: !best && provisional ? provisional.routeId : null,
     rankingNote: best
       ? 'Ranked on gross margin per Mscf, which ignores the capital. Compare that against the capital column before concluding, and value the shortlist in the sanctioned economics engine.'
-      : 'No route both passes screening and has a value; supply the missing prices and limits.',
+      : provisional
+        ? `No route passes screening yet, so none is ranked best. ${provisional.label} leads on value among routes not fully screened; set the limits before relying on it.`
+        : 'No route both passes screening and has a value; supply the missing prices and limits.',
   };
 };
