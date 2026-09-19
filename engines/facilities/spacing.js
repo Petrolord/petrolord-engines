@@ -132,6 +132,21 @@ export const flareSetbackM = ({
 };
 
 /**
+ * Thomas (1963) mean visible flame height of a pool fire in still air:
+ *
+ *     H / D = 42 (m" / (rho_air sqrt(g D)))^0.61
+ *
+ * m" in kg/(m2 s), D in m, rho_air in kg/m3 (1.2 unless stated), g =
+ * 9.80665 m/s2. Exported so that the HSE consequence engine
+ * (engines/hse/consequence.js) uses this one expression rather than a
+ * copy of it; poolFireSetbackM below calls it with the same defaults it
+ * always used, so its results are unchanged bit for bit. Inputs are not
+ * validated here: both callers validate before calling.
+ */
+export const thomasFlameHeightM = ({ poolDiameterM, burnRateKgM2S, airDensityKgM3 = 1.2 }) => poolDiameterM * 42
+  * (burnRateKgM2S / (airDensityKgM3 * Math.sqrt(9.80665 * poolDiameterM))) ** 0.61;
+
+/**
  * Setback from a liquid pool fire, by a POINT-SOURCE model.
  *
  * What the code does, and all it does:
@@ -167,11 +182,7 @@ export const poolFireSetbackM = ({
   const areaM2 = (Math.PI * poolDiameterM * poolDiameterM) / 4;
   const mDotKgS = burnRateKgM2S * areaM2;
   const qKw = mDotKgS * lhvKjKg;
-  // Thomas (1963) flame height for a pool fire in still air:
-  // H/D = 42 (m" / (rho_air sqrt(g D)))^0.61
-  const rhoAir = 1.2;
-  const flameHeightM = poolDiameterM * 42
-    * (burnRateKgM2S / (rhoAir * Math.sqrt(9.80665 * poolDiameterM))) ** 0.61;
+  const flameHeightM = thomasFlameHeightM({ poolDiameterM, burnRateKgM2S });
   // Point-source distance from the pool centre, then referenced to the
   // pool edge as a setback.
   const rFromCentreM = Math.sqrt(
