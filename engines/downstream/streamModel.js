@@ -279,6 +279,14 @@ export const attributeVariance = ({ events, planLedger = LEDGER.PLAN, actualLedg
     const actualUnitCost = a.quantity > 0 ? a.cost / a.quantity : 0;
     const volumeVariance = (a.quantity - p.quantity) * planUnitCost;
     const priceVariance = (actualUnitCost - planUnitCost) * a.quantity;
+    const totalVariance = a.cost - p.cost;
+    // A DELIVERY's `cost` is what it was sold for; every other event's is
+    // what it cost. So the same positive gap is good news on a delivery and
+    // bad news on a receipt, and the two cannot be added as they stand. The
+    // line says which it is, and marginEffect puts both on one footing:
+    // positive when the gap helped the margin.
+    const direction = p.type === EVENT_TYPE.DELIVERY ? 'revenue' : 'cost';
+    const sign = direction === 'revenue' ? 1 : -1;
     lines.push({
       materialId: p.materialId,
       type: p.type,
@@ -286,18 +294,38 @@ export const attributeVariance = ({ events, planLedger = LEDGER.PLAN, actualLedg
       actualQuantity: a.quantity,
       planCost: p.cost,
       actualCost: a.cost,
-      totalVariance: a.cost - p.cost,
+      totalVariance,
       volumeVariance,
       priceVariance,
+      // Zero unless a ledger moved money with no quantity (a demurrage bill
+      // on a cargo that never came): then neither a volume nor a price
+      // explains it, and it is shown rather than folded into either.
+      unexplained: totalVariance - volumeVariance - priceVariance,
+      direction,
+      marginEffect: sign * totalVariance,
       costed: p.costed && a.costed,
     });
   });
 
-  const total = lines.reduce((acc, l) => ({
-    totalVariance: acc.totalVariance + l.totalVariance,
-    volumeVariance: acc.volumeVariance + l.volumeVariance,
-    priceVariance: acc.priceVariance + l.priceVariance,
-  }), { totalVariance: 0, volumeVariance: 0, priceVariance: 0 });
+  // Totals. They used to add revenue gaps and cost gaps together as if they
+  // were the same kind of number, so selling more and paying more both
+  // counted up. Now the headline total is ON MARGIN (each line signed by its
+  // direction), and cost and revenue are also totalled apart.
+  const sumOf = (rows, signed) => rows.reduce((acc, l) => {
+    const k = signed ? (l.direction === 'revenue' ? 1 : -1) : 1;
+    return {
+      totalVariance: acc.totalVariance + k * l.totalVariance,
+      volumeVariance: acc.volumeVariance + k * l.volumeVariance,
+      priceVariance: acc.priceVariance + k * l.priceVariance,
+      unexplained: acc.unexplained + k * l.unexplained,
+    };
+  }, { totalVariance: 0, volumeVariance: 0, priceVariance: 0, unexplained: 0 });
+  const total = {
+    ...sumOf(lines, true),
+    basis: 'margin: a revenue gap counts as it is, a cost gap with its sign reversed',
+    cost: sumOf(lines.filter((l) => l.direction === 'cost'), false),
+    revenue: sumOf(lines.filter((l) => l.direction === 'revenue'), false),
+  };
 
   return { lines, unmatched, total };
 };

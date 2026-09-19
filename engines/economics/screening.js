@@ -82,6 +82,13 @@ export const calculateEconomics = (inputs, options = {}) => {
     costRecoveryCap = 100,
     profitSplitContractor = 100,
     capexDepreciationYears = 1, // 1 = immediate expensing (tax only; cash is always in-year)
+    // MD2-0. OFF by default, so every existing caller and golden is unchanged.
+    // With it off, a year whose taxable income is negative pays no tax and
+    // its loss is simply gone. For a project that spends its capital before
+    // it earns anything (a refinery built over two years) that throws the
+    // whole capital deduction away. On, a loss is carried forward without
+    // limit and set against later taxable income (TaxRoyalty only).
+    lossCarryForward = false,
   } = inputs;
 
   // Straight-line depreciation schedule for the tax calculation.
@@ -103,6 +110,7 @@ export const calculateEconomics = (inputs, options = {}) => {
   let totalRoyalty = 0;
   let totalGovTake = 0;
   let pscUnrecoveredPool = 0;
+  let lossPool = 0;
 
   for (let i = 0; i < projectLife; i++) {
     const year = startYear + i;
@@ -135,7 +143,13 @@ export const calculateEconomics = (inputs, options = {}) => {
         // Taxable income deducts depreciation, not cash CAPEX; with the
         // default capexDepreciationYears = 1 the two are identical.
         const taxableIncome = netRevenue - annualOpex - annualAbex - depreciation[i];
-        tax = taxableIncome > 0 ? taxableIncome * (taxRate / 100) : 0;
+        if (lossCarryForward) {
+          const afterRelief = taxableIncome - lossPool;
+          lossPool = afterRelief < 0 ? -afterRelief : 0;
+          tax = afterRelief > 0 ? afterRelief * (taxRate / 100) : 0;
+        } else {
+          tax = taxableIncome > 0 ? taxableIncome * (taxRate / 100) : 0;
+        }
 
         contractorNCF = netRevenue - totalCostOutflow - tax;
         governmentShare = royalty + tax;
@@ -183,6 +197,7 @@ export const calculateEconomics = (inputs, options = {}) => {
       tax,
       depreciation: depreciation[i],
       pscUnrecoveredCost: fiscalType === 'TaxRoyalty' ? 0 : pscUnrecoveredPool,
+      taxLossCarriedForward: fiscalType === 'TaxRoyalty' && lossCarryForward ? lossPool : 0,
       ncf: contractorNCF,
       cumulativeNCF,
       govTake: governmentShare
