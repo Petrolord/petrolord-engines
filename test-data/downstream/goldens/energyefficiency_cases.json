@@ -1,0 +1,268 @@
+{
+ "condensate": {
+  "annualTonnesCo2e": 943.0871717647059,
+  "annualValueFloor": 166262.73882352942,
+  "annualValueFull": 229334.73882352942,
+  "energySavedGJPerYear": 16840.842352941178,
+  "extraCondensateTonnesPerYear": 52560.0,
+  "fuel": 134726.73882352942,
+  "treatment": 63072.0,
+  "water": 31536.0
+ },
+ "efficiency": {
+  "HHV@3": {
+   "dryPercent": 7.211663249586052,
+   "efficiencyPercent": 80.0945025857043,
+   "moisturePercent": 11.19383416470964
+  },
+  "HHV@6": {
+   "dryPercent": 8.61451215381443,
+   "efficiencyPercent": 78.69165368147593,
+   "moisturePercent": 11.19383416470964
+  },
+  "LHV@3": {
+   "dryPercent": 7.987007471837478,
+   "efficiencyPercent": 88.84266645133985,
+   "moisturePercent": 1.670326076822674
+  },
+  "LHV@6": {
+   "dryPercent": 9.540680222790485,
+   "efficiencyPercent": 87.28899370038684,
+   "moisturePercent": 1.670326076822674
+  }
+ },
+ "excessAir": {
+  "0": 1.5557538194652854e-59,
+  "10": 0.8215769019944061,
+  "3": 0.15033401486510814,
+  "6": 0.3610188988049285
+ },
+ "heater": {
+  "combustionAirTempC": 25,
+  "flueGasCpKJkgK": "1.10",
+  "radiationLossPercent": "1.5",
+  "stackTempC": 220,
+  "unburnedLossPercent": 0,
+  "waterLatentHeatKJkg": 2442,
+  "waterVapourCpKJkgK": "1.95"
+ },
+ "intensity": {
+  "gap": 20.0,
+  "intensityMJPerTonne": 720.0,
+  "peer": 700,
+  "totalEnergyGJ": 1080000.0,
+  "versusPeer": 1.0285714285714285,
+  "withoutPowerIntensity": 640.0
+ },
+ "molarMasses": {
+  "CO2": 44.009,
+  "H2O": 18.015,
+  "N2": 28.014,
+  "N2atm": 28.161002504617098,
+  "O2": 31.998,
+  "SO2": 64.058
+ },
+ "pinch": {
+  "10": {
+   "coldUtilityKW": 0.0,
+   "heatRecoveredKW": 420.0,
+   "hotUtilityKW": 67.5,
+   "pinchColdC": null,
+   "pinchHotC": null,
+   "pinchShiftedC": null,
+   "thresholdProblem": true
+  },
+  "20": {
+   "coldUtilityKW": 40.0,
+   "heatRecoveredKW": 380.0,
+   "hotUtilityKW": 107.5,
+   "pinchColdC": 70.0,
+   "pinchHotC": 90.0,
+   "pinchShiftedC": 80.0,
+   "thresholdProblem": false
+  },
+  "30": {
+   "coldUtilityKW": 95.0,
+   "heatRecoveredKW": 325.0,
+   "hotUtilityKW": 162.5,
+   "pinchColdC": 60.0,
+   "pinchHotC": 90.0,
+   "pinchShiftedC": 75.0,
+   "thresholdProblem": false
+  }
+ },
+ "pinchStreams": [
+  {
+   "cpKWperK": 2.0,
+   "label": "H1 reactor effluent",
+   "supplyC": 150,
+   "targetC": 60
+  },
+  {
+   "cpKWperK": 8.0,
+   "label": "H2 product cooler",
+   "supplyC": 90,
+   "targetC": 60
+  },
+  {
+   "cpKWperK": 2.5,
+   "label": "C1 feed preheat",
+   "supplyC": 20,
+   "targetC": 125
+  },
+  {
+   "cpKWperK": 3.0,
+   "label": "C2 reboiler feed",
+   "supplyC": 25,
+   "targetC": 100
+  }
+ ],
+ "priceSaving": {
+  "annualTonnesCo2e": 672,
+  "annualValue": 96000,
+  "costPerTonneCo2e": -82.3119810704942
+ },
+ "provenance": {
+  "engine": "engines/downstream/energyEfficiency.js",
+  "method": "a species ledger and a mass balance in exact rationals; excess air by bisection; a loss ledger and a duty ledger; an isentropic nozzle; pinch by the largest heat deficit, no cascade; a levelised PV ledger",
+  "oracle": "tools/validation/downstream/oracle_energyefficiency.py",
+  "published": "air O2 0.20946 and 28.9647 kg/kmol (Engineering ToolBox, PINNED); water latent heat 44.004 kJ/mol from CODATA formation enthalpies (NIST WebBook). Costs, Cd, radiation loss and emission factor are SYNTHETIC."
+ },
+ "saving": {
+  "annualEnergySavedGJ": 8743.956102465556,
+  "differenceShortcut": 0.0155367275095301,
+  "fuelSavingFraction": 0.01748791220493111
+ },
+ "stoichiometry": {
+  "mixed": {
+   "at3": {
+    "dryFlueGasKgPerKmolFuel": 344.11604919759276,
+    "excessAirFraction": 0.1513921618334858,
+    "fuelPlusAirKg": 382.84812919759275,
+    "wetFlueGasKg": 382.8482991975928
+   },
+   "co2PerKmolFuel": 1.23,
+   "fuel": [
+    {
+     "code": "CH4",
+     "moleFraction": 0.7
+    },
+    {
+     "code": "C3H8",
+     "moleFraction": 0.1
+    },
+    {
+     "code": "C4H10",
+     "moleFraction": 0.05
+    },
+    {
+     "code": "H2",
+     "moleFraction": 0.1
+    },
+    {
+     "code": "CO2",
+     "moleFraction": 0.03
+    },
+    {
+     "code": "N2",
+     "moleFraction": 0.02
+    }
+   ],
+   "fuelMolarMassKgKmol": 20.62798,
+   "h2oPerKmolFuel": 2.15,
+   "hhvMJPerKmolFuel": 1017.935,
+   "lhvMJPerKmolFuel": 923.175,
+   "n2PerKmolFuel": 8.606262293516663,
+   "o2PerKmolFuel": 2.275,
+   "stoichAirKgPerKgFuel": 15.250800318452027,
+   "stoichAirPerKmolFuel": 10.861262293516662
+  },
+  "page": {
+   "at3": {
+    "dryFlueGasKgPerKmolFuel": 311.5223350651956,
+    "excessAirFraction": 0.15033401486510814,
+    "fuelPlusAirKg": 348.2729350651956,
+    "wetFlueGasKg": 348.2729350651956
+   },
+   "co2PerKmolFuel": 1.06,
+   "fuel": [
+    {
+     "code": "CH4",
+     "moleFraction": 0.9
+    },
+    {
+     "code": "C2H6",
+     "moleFraction": 0.08
+    },
+    {
+     "code": "N2",
+     "moleFraction": 0.02
+    }
+   ],
+   "fuelMolarMassKgKmol": 17.40458,
+   "h2oPerKmolFuel": 2.04,
+   "hhvMJPerKmolFuel": 926.576,
+   "lhvMJPerKmolFuel": 836.628,
+   "n2PerKmolFuel": 7.870296954072376,
+   "o2PerKmolFuel": 2.08,
+   "stoichAirKgPerKgFuel": 16.525999029314132,
+   "stoichAirPerKmolFuel": 9.930296954072377
+  },
+  "testGas": {
+   "at3": {
+    "dryFlueGasKgPerKmolFuel": 321.5384001003009,
+    "excessAirFraction": 0.15006780030012518,
+    "fuelPlusAirKg": 359.3699001003009,
+    "wetFlueGasKg": 359.3699001003009
+   },
+   "co2PerKmolFuel": 1.1,
+   "fuel": [
+    {
+     "code": "CH4",
+     "moleFraction": 0.9
+    },
+    {
+     "code": "C2H6",
+     "moleFraction": 0.1
+    }
+   ],
+   "fuelMolarMassKgKmol": 17.4457,
+   "h2oPerKmolFuel": 2.1,
+   "hhvMJPerKmolFuel": 957.79,
+   "lhvMJPerKmolFuel": 865.2,
+   "n2PerKmolFuel": 8.114489640026735,
+   "o2PerKmolFuel": 2.15,
+   "stoichAirKgPerKgFuel": 17.041899326279964,
+   "stoichAirPerKmolFuel": 10.264489640026735
+  }
+ },
+ "threshold": {
+  "coldUtilityKW": 1470.0,
+  "heatRecoveredKW": 30.0,
+  "hotUtilityKW": 0.0,
+  "pinchColdC": null,
+  "pinchHotC": null,
+  "pinchShiftedC": null,
+  "thresholdProblem": true
+ },
+ "trap": {
+  "1.135": {
+   "annualCost": 6153.878530548006,
+   "annualFuelGJ": 781.9045662343349,
+   "annualTonnesCo2e": 43.786655709122755,
+   "criticalPressureRatio": 0.5774304000110734,
+   "kgPerHour": 28.09990196597263,
+   "population40TonnesPerYear": 9846.20564887681,
+   "tonnesPerYear": 246.15514122192025
+  },
+  "1.3": {
+   "annualCost": 6460.468658973612,
+   "annualFuelGJ": 820.8595472578236,
+   "annualTonnesCo2e": 45.96813464643812,
+   "criticalPressureRatio": 0.545727733814065,
+   "kgPerHour": 29.499856890290463,
+   "population40TonnesPerYear": 10336.749854357779,
+   "tonnesPerYear": 258.4187463589445
+  }
+ }
+}
