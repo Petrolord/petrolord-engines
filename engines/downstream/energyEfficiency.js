@@ -43,6 +43,8 @@
  * efficiencies on different bases.
  */
 
+import { abatementCost } from './carbonAbatement.js';
+
 /** Missing stays missing. */
 const num = (v, fallback = NaN) => {
   if (v === null || v === undefined || v === '') return fallback;
@@ -59,9 +61,22 @@ const round = (v, dp = 6) => (Number.isFinite(v)
   ? Math.round(v * 10 ** dp) / 10 ** dp
   : null);
 
+/** A box the caller left empty, as distinct from an argument left out. */
+const blank = (v) => v === null || v === '';
+
 /** Mole fraction of oxygen in dry air. A measured composition, not a guess. */
 export const O2_MOLE_FRACTION_DRY_AIR = 0.20946;
 export const AIR_MOLAR_MASS = 28.9647;
+/** O2 from the IUPAC conventional atomic weight of oxygen, 15.999. */
+export const O2_MOLAR_MASS = 31.998;
+/**
+ * "Atmospheric nitrogen": everything in dry air that is not oxygen (N2 with
+ * its argon and CO2), at the molar mass that makes air's own mass balance
+ * close. Carrying the argon at the molar mass of N2 lost about 1.1 kg of
+ * flue gas per kilomole of methane burned (MD5-0).
+ */
+export const ATMOSPHERIC_N2_MOLAR_MASS = (AIR_MOLAR_MASS - O2_MOLE_FRACTION_DRY_AIR * O2_MOLAR_MASS)
+  / (1 - O2_MOLE_FRACTION_DRY_AIR);
 
 export const HEATING_VALUE_BASIS = { LHV: 'LHV', HHV: 'HHV' };
 
@@ -152,6 +167,10 @@ export const combustionStoichiometry = ({ components = [] }) => {
       h2oPerKmolFuel: round(h2o, 8),
       so2PerKmolFuel: round(so2, 8),
       n2PerKmolFuel: round(airN2 + fuelN2, 8),
+      // Split, because the two are different gases by mass: the air's
+      // share carries its argon.
+      airN2PerKmolFuel: round(airN2, 8),
+      fuelN2PerKmolFuel: round(fuelN2, 8),
     },
     lhvMJPerKmolFuel: haveLhv ? round(norm.reduce((s, r) => s + r.y * r.lhvMJKmol, 0), 6) : null,
     hhvMJPerKmolFuel: haveHhv ? round(norm.reduce((s, r) => s + r.y * r.hhvMJKmol, 0), 6) : null,
@@ -263,8 +282,11 @@ export const stackLossEfficiency = ({
   const P = st.products;
   const dryMolPerKmolFuel = P.co2PerKmolFuel + P.so2PerKmolFuel + P.n2PerKmolFuel
     + ea.excessAirFraction * st.stoichAirPerKmolFuel;
-  const dryMassKg = P.co2PerKmolFuel * 44.010 + P.so2PerKmolFuel * 64.066
-    + P.n2PerKmolFuel * 28.014 + ea.excessAirFraction * st.stoichAirPerKmolFuel * AIR_MOLAR_MASS;
+  const airN2 = Number.isFinite(P.airN2PerKmolFuel) ? P.airN2PerKmolFuel : P.n2PerKmolFuel;
+  const fuelN2 = Number.isFinite(P.fuelN2PerKmolFuel) ? P.fuelN2PerKmolFuel : 0;
+  const dryMassKg = P.co2PerKmolFuel * 44.009 + P.so2PerKmolFuel * 64.058
+    + airN2 * ATMOSPHERIC_N2_MOLAR_MASS + fuelN2 * 28.014
+    + ea.excessAirFraction * st.stoichAirPerKmolFuel * AIR_MOLAR_MASS;
   const dryLossKJ = dryMassKg * cpFlue * (tStack - tAir);
 
   // Moisture from burning hydrogen.
@@ -351,7 +373,10 @@ export const excessAirSaving = ({
       error: 'A minimum safe stack oxygen is required and is not defaulted. Below some excess air a burner makes carbon monoxide, and where that point sits depends on the burner, the fuel and the draught control.',
     };
   }
-  if (Number.isFinite(tgt) && tgt < floor) {
+  if (!Number.isFinite(tgt)) {
+    return { error: 'The target stack oxygen is required, so that it can be checked against the declared safe floor.' };
+  }
+  if (tgt < floor) {
     return {
       error: `A target of ${tgt} percent oxygen is below the ${floor} percent declared safe for this burner. Raise the target or re-declare the floor after a combustion test.`,
       belowSafeFloor: true,
@@ -397,18 +422,27 @@ export const excessAirSaving = ({
  */
 export const steamTrapLoss = ({
   orificeDiameterMm, upstreamPressureBarA, dischargeCoefficient,
-  steamDensityKgM3, specificHeatRatio = 1.3,
+  steamDensityKgM3, specificHeatRatio,
   hoursPerYear = 8760, steamCostPerTonne = null,
   steamEnergyMJPerTonne = null, emissionFactorKgCo2ePerGJ = null,
-  boilerEfficiencyFraction = 1,
+  boilerEfficiencyFraction = null,
 }) => {
   const d = num(orificeDiameterMm);
   const p = num(upstreamPressureBarA);
   const cd = num(dischargeCoefficient);
   const rho = num(steamDensityKgM3);
-  const k = num(specificHeatRatio, 1.3);
+  const k = num(specificHeatRatio);
   if (![d, p, rho].every((v) => Number.isFinite(v) && v > 0)) {
     return { error: 'An orifice diameter, an upstream pressure and a steam density are required.' };
+  }
+  // No default: 1.3 is the superheated value, and a trap usually passes
+  // saturated steam (about 1.135 dry, by Zeuner). The two differ by five
+  // percent in the loss.
+  if (!Number.isFinite(k) || k <= 1) {
+    return { error: 'An isentropic exponent above 1 is required: about 1.3 for superheated steam and about 1.135 for dry saturated steam.' };
+  }
+  if (blank(hoursPerYear) || !(num(hoursPerYear) > 0) || num(hoursPerYear) > 8784) {
+    return { error: 'Hours in service a year are required, between 0 and 8784. A blank is not read as a full year.' };
   }
   if (!Number.isFinite(cd) || cd <= 0 || cd > 1) {
     return { error: 'A discharge coefficient in (0, 1] is required and is not defaulted: it depends on the orifice and on how the trap failed.' };
@@ -425,8 +459,11 @@ export const steamTrapLoss = ({
   const cost = num(steamCostPerTonne, null);
   const energyPerTonne = num(steamEnergyMJPerTonne, null);
   const ef = num(emissionFactorKgCo2ePerGJ, null);
-  const eta = num(boilerEfficiencyFraction, 1);
-  const fuelGJ = energyPerTonne === null || !(eta > 0)
+  // The boiler efficiency is required for fuel, as it is for condensate:
+  // read as 1 it understated the fuel and the carbon of every trap.
+  const eta = num(boilerEfficiencyFraction, null);
+  const etaOk = eta !== null && eta > 0 && eta <= 1;
+  const fuelGJ = energyPerTonne === null || !etaOk
     ? null : (tonnesPerYear * energyPerTonne) / 1000 / eta;
 
   return {
@@ -440,6 +477,9 @@ export const steamTrapLoss = ({
     annualTonnesCo2e: fuelGJ === null || ef === null ? null : round((fuelGJ * ef) / 1000, 8),
     carbonNote: fuelGJ === null || ef === null
       ? 'Carbon needs the steam energy content, the boiler efficiency and an emission factor. Without them it is absent rather than zero.'
+      : null,
+    fuelNote: energyPerTonne !== null && !etaOk
+      ? 'Fuel needs a boiler efficiency in (0, 1]. It is not assumed to be 1.'
       : null,
   };
 };
@@ -474,6 +514,9 @@ export const condensateReturnValue = ({
   }
   if (!Number.isFinite(eta) || eta <= 0 || eta > 1) {
     return { error: 'A boiler efficiency in (0, 1] is required: the fuel saved depends on it and it is not assumed.' };
+  }
+  if (blank(hoursPerYear) || !(num(hoursPerYear) > 0) || num(hoursPerYear) > 8784) {
+    return { error: 'Hours in service a year are required, between 0 and 8784. A blank is not read as a full year.' };
   }
   const hours = num(hoursPerYear, 8760);
   const extraTonnesPerYear = flow * (tgt - cur) * hours;
@@ -533,6 +576,10 @@ export const energyIntensity = ({
   const totalGJ = rows.reduce((s, r) => s + (Number.isFinite(r.energyGJ) ? r.energyGJ : 0), 0);
   const intensity = (totalGJ * 1000) / t;
   const peer = num(peerIntensityMJPerTonne, null);
+  const peerOk = peer !== null && peer > 0;
+  // An intensity with a stream missing is a FLOOR, and a floor compared with
+  // a peer flatters the plant. No comparison until it is complete.
+  const comparable = peerOk && missing.length === 0;
 
   return {
     error: null,
@@ -546,8 +593,11 @@ export const energyIntensity = ({
     complete: missing.length === 0,
     missingStreams: missing,
     peerIntensityMJPerTonne: peer,
-    versusPeer: peer === null || !(peer > 0) ? null : round(intensity / peer, 6),
-    gapMJPerTonne: peer === null ? null : round(intensity - peer, 4),
+    versusPeer: comparable ? round(intensity / peer, 6) : null,
+    gapMJPerTonne: comparable ? round(intensity - peer, 4) : null,
+    peerNote: peerOk && missing.length
+      ? 'Not compared with the peer: a stream is missing, so the intensity is a floor and would flatter the plant.'
+      : (peer !== null && !peerOk ? 'A peer intensity must be positive.' : null),
     disclaimer: 'This is the plant\'s own energy per tonne of throughput. It is NOT the Solomon Energy Intensity Index, which is a proprietary benchmark with its own standard-energy methodology. Any peer figure compared here is one you supplied and have the right to use.',
   };
 };
@@ -586,6 +636,9 @@ export const pinchTargets = ({ streams = [], minimumApproachC }) => {
   }));
   if (parsed.some((s) => !Number.isFinite(s.supplyC) || !Number.isFinite(s.targetC) || !Number.isFinite(s.cpKWperK))) {
     return { error: 'Every stream needs a supply temperature, a target temperature and a heat capacity flowrate.' };
+  }
+  if (parsed.some((s) => s.cpKWperK < 0)) {
+    return { error: 'A heat capacity flowrate cannot be negative. Whether a stream is hot or cold is set by its supply and target temperatures.' };
   }
   const active = parsed.filter((s) => s.supplyC !== s.targetC && s.cpKWperK !== 0);
   if (active.length === 0) return { error: 'No stream changes temperature, so there is nothing to target.' };
@@ -647,9 +700,12 @@ export const pinchTargets = ({ streams = [], minimumApproachC }) => {
   });
   const qcMin = feasible;
 
-  // The pinch is where the feasible cascade touches zero.
+  // The pinch is where the feasible cascade touches zero INSIDE the range.
+  // A zero at the top is a zero hot utility and a zero at the bottom a zero
+  // cold utility: that is a threshold problem, and reporting either end as
+  // a pinch invents a constraint.
   const TOL = 1e-9;
-  const zeroPoints = cascade.filter((p) => Math.abs(p.heatFlowKW) < 1e-6);
+  const zeroPoints = cascade.slice(1, -1).filter((p) => Math.abs(p.heatFlowKW) < 1e-6);
   const pinchShifted = zeroPoints.length ? zeroPoints[0].shiftedC : null;
 
   const totalHotDuty = typed.filter((s) => s.hot).reduce((a, s) => a + s.duty, 0);
@@ -721,15 +777,37 @@ export const compositeCurve = ({ streams = [], side = 'hot' }) => {
  */
 export const priceSaving = ({
   energySavedGJ, fuelCostPerGJ = null, emissionFactorKgCo2ePerGJ = null,
-  implementationCost = null,
+  implementationCost = null, lifeYears = null, discountRate = null,
+  energyBasis = null, fuelCostBasis = null, emissionFactorBasis = null,
 }) => {
   const gj = num(energySavedGJ);
   if (!Number.isFinite(gj)) return { error: 'An energy saving is required.' };
+  // A gigajoule on LHV and one on HHV are different amounts of fuel. Where
+  // two of the three bases are declared they must agree.
+  const declared = [['energy saving', energyBasis], ['fuel price', fuelCostBasis],
+    ['emission factor', emissionFactorBasis]].filter(([, b]) => b);
+  const bases = [...new Set(declared.map(([, b]) => b))];
+  if (bases.length > 1) {
+    return {
+      error: `The ${declared.map(([n, b]) => `${n} is on ${b}`).join(', the ')}. A gigajoule on one heating value basis is a different amount of fuel on the other, so they cannot be multiplied together.`,
+    };
+  }
   const cost = num(fuelCostPerGJ, null);
   const ef = num(emissionFactorKgCo2ePerGJ, null);
   const capex = num(implementationCost, null);
   const annualValue = cost === null ? null : gj * cost;
   const tCo2 = ef === null ? null : (gj * ef) / 1000;
+  // The cost per tonne is the Carbon Studio's annualised abatement cost, by
+  // its own function: a one-off cost set against ONE year's saving and ONE
+  // year's tonnes mixed a stock with a flow (MD5-0).
+  const life = num(lifeYears, null);
+  const abatement = capex === null || tCo2 === null || !(tCo2 > 0)
+    || (capex !== 0 && (life === null || blank(discountRate)))
+    ? null
+    : abatementCost({
+      label: 'saving', capitalCost: capex, annualSavings: annualValue ?? 0,
+      tonnesAbatedPerYear: tCo2, lifeYears: life, discountRate: num(discountRate, 0),
+    });
 
   return {
     error: null,
@@ -741,8 +819,14 @@ export const priceSaving = ({
       ? null : round(capex / annualValue, 8),
     // The number a marginal abatement cost curve is built from, handed over
     // rather than ranked here: that is the Carbon Studio's job at DS9.
-    costPerTonneCo2e: capex === null || tCo2 === null || tCo2 === 0
-      ? null : round((capex - (annualValue ?? 0)) / tCo2, 6),
+    costPerTonneCo2e: abatement && !abatement.error ? abatement.costPerTonne : null,
+    costPerTonneNote: capex !== null && tCo2 !== null && capex !== 0
+      && (life === null || blank(discountRate))
+      ? 'A cost per tonne needs the measure life and a discount rate, to annualise the implementation cost against a yearly saving.'
+      : (abatement && abatement.error ? abatement.error : null),
+    basis: bases[0] || null,
+    basisNote: bases.length ? null
+      : 'No heating value basis declared. The saving, the fuel price and the emission factor must all be on the same one (IPCC default factors are on net calorific value, which is LHV).',
     carbonNote: ef === null
       ? 'No emission factor supplied, so the carbon figure is absent rather than zero.' : null,
     valueNote: cost === null
