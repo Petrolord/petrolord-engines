@@ -452,6 +452,17 @@ and its consumers.
   ignoring each standard's certification cycle, findings ageing after
   closure and a 29 February cycle start rolled to 1 March. The
   `FINDINGS-*.md` files keep the owner questions that were not changed.
+- `engines/hse/safetyStats.js` (HSE H1, 2026-09-19): incidence, FAR,
+  severity and API RP 754 PSE rates with the base always named by the
+  caller (200,000 OSHA/BLS, 1,000,000 IOGP, 100,000,000 FAR); pooled and
+  rolling rates, sum-then-divide, with the mean of period rates shown
+  beside them; the Garwood exact Poisson interval (its own inverse
+  regularised gamma, gated to 1e-10 against mpmath and scipy); the
+  conditional exact comparison of two rates; the u-chart. Goldens in
+  `test-data/hse/goldens/` from `tools/validation/hse/oracle_safetystats.py`
+  (scipy + mpmath, not stdlib), anchored on the BLS worked example and
+  IOGP 2024 published figures; findings and the negative control in
+  `tools/validation/hse/`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
