@@ -1,8 +1,8 @@
 # FINDINGS: safetyStats (oracle_safetystats.py, HSE H1)
 
-Golden: `test-data/hse/goldens/safetyStats_cases.json`, 321 cases (22 of
+Golden: `test-data/hse/goldens/safetyStats_cases.json`, 337 cases (22 of
 them refusals), written by `tools/validation/hse/oracle_safetystats.py`.
-Gate: `__tests__/hse.safetyStats.test.js` (353 tests) calls the engine on
+Gate: `__tests__/hse.safetyStats.test.js` (375 tests) calls the engine on
 every case. Negative control: `tools/validation/hse/negcontrol_safetystats.sh`.
 
 The oracle is NOT stdlib: it needs scipy and mpmath (run here with scipy
@@ -83,8 +83,19 @@ are NOT carried as published goldens; they are a sanity check only.
    bad data.
 4. **Garwood interval**, central (alpha/2 per tail), lower limit 0 at
    N = 0. The upper limit is solved on the upper tail at alpha/2 directly,
-   not as chi2(1 - alpha/2), because 1 - 0.025 is not exactly 0.975 in
-   floating point; `chiSquareQuantileUpper` exists for that reason.
+   not as chi2(1 - alpha/2). The reason is NOT rounding at the usual levels
+   (an earlier draft said 1 - 0.025 is not exactly 0.975; it is, `1 - 0.025
+   === 0.975` is true in IEEE doubles). The measured reason: the lower-tail
+   route at p = 1 - q loses the digits of q as q shrinks. With the engine's
+   own functions, `chiSquareQuantile(1 - q, df)` against
+   `chiSquareQuantileUpper(q, df)` (oracle agreement 1e-10) is 1e-6
+   relative off at q = 1e-12, 2e-5 at 1e-14, 0.1 to 0.3 percent at 1e-16
+   (df 2: 73.47 against 73.68), and NaN from q below 2^-54 (about 5.6e-17),
+   where 1 - q is exactly 1; the upper-tail solve stays finite and matches
+   the oracle down to q = 1e-30. `chiSquareQuantileUpper` exists for that
+   reason. The goldens carry `chi2-isf-tiny-*` cases (df 2, 4, 22, 200; q
+   1e-16 to 1e-30) and the test file pins both halves: the upper route
+   matches, the lower route at 1 - q is off or NaN.
 5. **Chi-square quantile.** Wilson-Hilferty start (the Numerical Recipes
    power-law start for shape <= 1), safeguarded Halley iterations inside a
    bisection bracket, solving on whichever tail is smaller. P and Q by the
@@ -129,8 +140,8 @@ ratio to fatalities.
 
 ## Negative control (run 2026-09-19)
 
-Baseline 353 passed. Every ENGINE plant went RED, then the engine was
-restored and the suite returned to 353 passed.
+Baseline 375 passed. Every ENGINE plant went RED, then the engine was
+restored and the suite returned to 375 passed. Re-run 2026-09-19 after the tiny-q goldens and the pseRate hint test were added.
 
 | plant (engine) | failed tests |
 |---|---|
@@ -139,7 +150,7 @@ restored and the suite returned to 353 passed.
 | Garwood upper df 2N+2 -> 2N | 19 |
 | Garwood lower df 2N -> 2N+2 | 14 |
 | Garwood upper at alpha, not alpha/2 | 19 |
-| gamma inversion always on the lower tail | 16 |
+| gamma inversion always on the lower tail | 33 |
 | gamma series stops at 1e-6 | 110 |
 | Lanczos coefficient truncated to 13 figures | 2 |
 | compare: one tail, not doubled | 8 |
@@ -150,9 +161,9 @@ restored and the suite returned to 353 passed.
 | u-chart: a point ON the limit signals | 2 |
 | u-chart: centre as the mean of the u_i | 3 |
 | FAR on a 1,000,000 base | 5 |
-| a silent default base of 200,000 | 2 |
+| a silent default base of 200,000 | 3 |
 | events in a month with no hours accepted | 1 |
-| API 754 base check removed | 2 |
+| API 754 base check removed | 3 |
 
 | plant (oracle, golden regenerated) | result |
 |---|---|

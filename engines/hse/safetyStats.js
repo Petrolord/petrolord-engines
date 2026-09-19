@@ -73,9 +73,11 @@ const checkHours = (field, v) => {
   return null;
 };
 
-const checkBase = (field, v) => {
+const ALL_BASES_HINT = '200,000 for OSHA/BLS, 1,000,000 for IOGP, 100,000,000 for FAR';
+
+const checkBase = (field, v, hint = ALL_BASES_HINT) => {
   if (v === undefined || v === null) {
-    return refuse(field, 'is required: name the base (200,000 for OSHA/BLS, 1,000,000 for IOGP, 100,000,000 for FAR); there is no default');
+    return refuse(field, `is required: name the base (${hint}); there is no default`);
   }
   if (!Number.isFinite(v) || !(v > 0)) return refuse(field, 'must be a finite number of hours above zero');
   return null;
@@ -159,7 +161,8 @@ export const severityRate = ({ daysLost, exposureHours, base } = {}) => {
  */
 export const pseRate = ({ tier, pseCount, exposureHours, base } = {}) => {
   if (tier !== 1 && tier !== 2) return refuse('tier', 'must be 1 or 2: classify the events against API RP 754 before rating them');
-  const bad = firstError(checkCount('pseCount', pseCount), checkHours('exposureHours', exposureHours), checkBase('base', base));
+  const bad = firstError(checkCount('pseCount', pseCount), checkHours('exposureHours', exposureHours),
+    checkBase('base', base, '200,000 for OSHA/BLS or 1,000,000 for IOGP, the two API RP 754 accepts'));
   if (bad) return bad;
   if (base !== RATE_BASES.OSHA_200K && base !== RATE_BASES.IOGP_1M) {
     return refuse('base', 'must be 200,000 or 1,000,000 for an API RP 754 PSE rate');
@@ -447,7 +450,11 @@ export const rateConfidenceInterval = ({ count, exposureHours, base, confidence 
   if (bad) return bad;
   const alpha = 1 - confidence;
   // chi2(alpha/2; 2N)/2 is the Gamma(N) quantile; the upper limit is solved
-  // on the upper tail at alpha/2 directly.
+  // on the upper tail at alpha/2 directly. Not because 1 - alpha/2 rounds
+  // (1 - 0.025 === 0.975 exactly in doubles) but because the lower-tail
+  // route at p = 1 - q loses the digits of q as q shrinks: at q = 1e-16 it
+  // is 0.1 to 0.3 percent off, and below 2^-54 (about 5.6e-17) 1 - q is exactly 1 and
+  // it returns NaN, while the upper-tail solve stays finite and accurate.
   const countLower = count === 0 ? 0 : chiSquareQuantile(alpha / 2, 2 * count) / 2;
   const countUpper = chiSquareQuantileUpper(alpha / 2, 2 * count + 2) / 2;
   const scale = base / exposureHours;
