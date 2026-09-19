@@ -181,6 +181,25 @@ describe('refusals and the inputs that used to fail open', () => {
     expect(r.achieved.find((a) => a.id === 'sulfurPpm').applied).toBe(false);
   });
 
+  it('prints no achieved value for a property a stream in the recipe lacks (MD1-1)', () => {
+    const r = optimiseBlend({
+      components: pool.map((c) => (c.id === 'fcc' ? { ...c, sulfurPpm: undefined } : c)), specs, targetVolume: 1000,
+    });
+    const s = r.achieved.find((a) => a.id === 'sulfurPpm');
+    expect(s.applied).toBe(false);
+    if (r.recipe.find((x) => x.id === 'fcc').volume > 0) expect(s.value).toBeNull();
+  });
+
+  it('prints no achieved RON when reformate, in the recipe, has none (volume basis, MD1-1)', () => {
+    const r = optimiseBlend({
+      components: pool.map((c) => (c.id === 'reformate' ? { ...c, ron: undefined } : c)), specs, targetVolume: 1000,
+    });
+    expect(r.recipe.find((x) => x.id === 'reformate').volume).toBeGreaterThan(0);
+    const ron = r.achieved.find((a) => a.id === 'ron');
+    expect(ron.applied).toBe(false);
+    expect(ron.value).toBeNull();
+  });
+
   it('judges binding relative to the limit, so a 35,000 ppm sulfur limit can bind', () => {
     expect(BINDING_TOLERANCE).toBe(1e-7);
     const fo = G.cases.find((c) => c.template === 'fuel_oil_380');

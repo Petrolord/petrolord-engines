@@ -185,3 +185,21 @@ and none is quoted from memory. Every golden is synthetic and every pool is
 labelled illustrative. What the gate proves is that the engines compute
 correctly what they say they compute: exactly for the LP, to physical
 inventories for the properties, to a re-solve for every sensitivity.
+
+## MD1-1 (2026-09-19): found by the NextGen course foundation
+
+- **C14. `netbackValue` valued a cut with no yield as a zero-yield cut** and
+  reported the netback complete (Kwale Light with a partial Ebocha assay:
+  48.3393, complete true, LPG and naphtha unknown). The cut is now named in
+  `unyieldedCuts`, its yield is null and the netback is not complete, as an
+  unpriced cut already was. The oracle's `netback_cargo` also skipped a
+  missing yield, so the gate asserts this directly.
+- **C15. `propertyOfBlend` dropped a stream with no value from the
+  denominator,** so a skipped specification still printed an achieved value
+  (Apapa, isomerate's sulfur blank: 60.5648 ppm beside "not applied"). A
+  stream IN the recipe without the value makes the property unknown now, on
+  every basis.
+- **C16. The no-SARA message said "No SARA analysis supplied" when some
+  crudes carried SARA.** It now says SARA was not supplied for every crude.
+
+Gate: three new assertions; three new plants in `negcontrol_md1.sh`.

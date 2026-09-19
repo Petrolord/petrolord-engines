@@ -11,7 +11,7 @@ import fs from 'fs';
 import { execFileSync } from 'child_process';
 import path from 'path';
 import { planRefinery, reconcilePeriod } from '../engines/downstream/refineryPlanning.js';
-import { attributeVariance, makeEvent, LEDGER, EVENT_TYPE } from '../engines/downstream/streamModel.js';
+import { attributeVariance, dualLedgerTotals, makeEvent, LEDGER, EVENT_TYPE } from '../engines/downstream/streamModel.js';
 import {
   feasibilityStreams, feasibilityEconomics, productSlate, scaleComparison, CONFIGURATIONS,
   SUPPLY_SCENARIOS, SCALING_EXPONENT,
@@ -136,6 +136,16 @@ describe('the variance, signed by what it does to margin', () => {
     expect(rel(rec.total.totalVariance, V.marginEffect)).toBe(true);
   });
 
+  it('totals a ledger with spend and sales kept apart (MD2-1)', () => {
+    const plan = events.filter((e) => e.ledger === LEDGER.PLAN);
+    const t = dualLedgerTotals(plan, LEDGER.PLAN);
+    const spend = V.lines.filter((l) => l.direction === 'cost').reduce((s, l) => s + l.plan[1], 0);
+    const sales = V.lines.filter((l) => l.direction === 'revenue').reduce((s, l) => s + l.plan[1], 0);
+    expect(rel(t.cost, spend)).toBe(true);
+    expect(rel(t.revenue, sales)).toBe(true);
+    expect(rel(t.margin, sales - spend)).toBe(true);
+  });
+
   it('shows money moved with no quantity as unexplained rather than hiding it', () => {
     const odd = [
       makeEvent({ id: 'p', ledger: LEDGER.PLAN, type: EVENT_TYPE.RECEIPT, materialId: 'x', quantity: 100, cost: 8000 }),
@@ -217,6 +227,17 @@ describe('modular refinery: the inputs that used to fail open', () => {
     ['crudeCostPerBbl', 'capacityBpd', 'capex'].forEach((k) => {
       expect(feasibilityStreams({ ...base, [k]: '' }).error).toMatch(/Missing/);
     });
+  });
+  it('refuses a blank tax or discount rate rather than valuing the plant tax-free (MD2-1)', () => {
+    const st = feasibilityStreams(base);
+    ['', null, undefined].forEach((blank) => {
+      expect(feasibilityEconomics({ streams: st, discountRate: 12, taxRate: blank }).error).toMatch(/tax rate/);
+      expect(feasibilityEconomics({ streams: st, discountRate: blank, taxRate: 30 }).error).toMatch(/discount rate/);
+    });
+  });
+  it('reads a blank construction period as its stated default of 2, like the other schedule terms (MD2-1)', () => {
+    expect(feasibilityStreams({ ...base, constructionYears: '' }).years.filter((y) => !y.producing)).toHaveLength(2);
+    expect(feasibilityStreams(base).years.filter((y) => !y.producing)).toHaveLength(2);
   });
   it('refuses a utilisation typed as a percentage instead of clamping it to 100 percent', () => {
     expect(feasibilityStreams({ ...base, utilisation: 90 }).error).toMatch(/fraction between 0 and 1/);

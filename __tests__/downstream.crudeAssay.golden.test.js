@@ -180,6 +180,23 @@ describe('the inputs that used to fail open', () => {
     expect(out.basis).toBe('none');
   });
 
+  it('names a cut with no yield and does not call the netback complete (MD1-1)', () => {
+    const cuts = [{ id: 'a', name: 'A', yieldVolPercent: 60 }, { id: 'b', name: 'B', yieldVolPercent: null }];
+    const nb = netbackValue({ cuts, prices: { a: 80, b: 90 }, processingCostPerBbl: 0, freightPerBbl: 0, lossPercent: 0 });
+    expect(nb.unyieldedCuts).toEqual(['B']);
+    expect(nb.complete).toBe(false);
+    expect(nb.rows[1].yieldVolPercent).toBeNull();
+    expect(nb.grossValue).toBeCloseTo(48, 12);
+  });
+
+  it('says SARA was not supplied for every crude when only some carry it (MD1-1)', () => {
+    const out = screenBlendStability({
+      components: [{ api: 18, sara: { saturates: 30, aromatics: 40, resins: 20, asphaltenes: 10 } }, { api: 45 }],
+      massFractions: [0.5, 0.5],
+    });
+    expect(out.message).toMatch(/SARA was not supplied for every crude/);
+  });
+
   it('names a cost left blank rather than hiding the zero, and refuses a loss over 100 percent', () => {
     const cuts = [{ id: 'a', name: 'A', yieldVolPercent: 100 }];
     expect(netbackValue({ cuts, prices: { a: 80 } }).assumedZero).toEqual(['processing cost', 'freight', 'losses']);

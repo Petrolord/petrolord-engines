@@ -73,6 +73,10 @@ plant $P "    { label: 'Driver', amount: orMissing(driverCostPerTrip), required:
 plant $P "  const trucks = Math.ceil(tripsNeeded / trips);" "  const trucks = Math.round(tripsNeeded / trips);" "fuel: fleet rounded instead of ceiled"
 plant $P "      amount = (a / 100) * running;" "      amount = (a / 100) * landed;" "fuel: VAT on landed instead of the running total"
 
+plant $T "  const serviceRate = load > 0 ? 60 / load : NaN; // trucks per hour per bay" "  const serviceRate = 60 / load; // trucks per hour per bay" "terminal: a 0 minute load is a perfect rack again (MD3-1)"
+plant $T "    turnsPerYear: working > 0 && daily > 0 ? (daily * 365) / working : null," "    turnsPerYear: working > 0 ? (daily * 365) / working : null," "terminal: 0 turns with no throughput again (MD3-1)"
+plant $T "  if (blank(throughputM3) || blank(feePerM3)" "  if (false && blank(throughputM3) || false && blank(feePerM3)" "terminal: a blank fee is 0 again (MD3-1)"
+
 echo
 echo "planted: $total   survivors: $survivors"
 [ "$survivors" -eq 0 ]

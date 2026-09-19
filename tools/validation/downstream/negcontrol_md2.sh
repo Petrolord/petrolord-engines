@@ -73,6 +73,10 @@ plant $M "  MODULAR: 0.9," "  MODULAR: 0.85," "modular: move the held modular ex
 plant $E "      npv += cf.ncf / Math.pow(1 + discountRate / 100, i + 0.5);" "      npv += cf.ncf / Math.pow(1 + discountRate / 100, i + 1);" "screening: end-year discounting"
 plant $E "          lossPool = afterRelief < 0 ? -afterRelief : 0;" "          lossPool = 0;" "screening: the loss pool forgets"
 
+plant $S "    else if (e.type === EVENT_TYPE.DELIVERY) revenue += e.cost;" "" "ledger totals: sales summed into cost again (MD2-1)"
+plant $M "  const t = given(taxRate) ? Number(taxRate) : NaN;" "  const t = Number(taxRate);" "modular: a blank tax rate is 0 again (MD2-1)"
+plant $M "  const build = Math.max(0, Math.round(num(constructionYears, 2)));" "  const build = Math.max(0, Math.round(num(constructionYears, 0)));" "modular: a blank construction period is 0 again (MD2-1)"
+
 echo
 echo "planted: $total   survivors: $survivors"
 [ "$survivors" -eq 0 ]

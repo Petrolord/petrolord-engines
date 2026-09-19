@@ -399,6 +399,9 @@ export const screenBlendStability = ({ components, massFractions }) => {
   // no evidence of stability and the result is stable: null, not true. It used
   // to return true, which the app drew as a green tick. A missing API used to
   // pass as well: NaN failed both comparisons and the blend came back stable.
+  // MD1-1: some crudes may carry SARA while others do not; the message used to
+  // say none was supplied.
+  const sparse = components.some((c) => c.sara);
   const apis = components.map((c) => (Number.isFinite(num(c.api)) ? num(c.api) : apiFromSg(num(c.sg))));
   if (apis.some((a) => !Number.isFinite(a))) {
     return {
@@ -417,8 +420,8 @@ export const screenBlendStability = ({ components, massFractions }) => {
     contrast,
     stable: flagged ? false : null,
     message: flagged
-      ? `No SARA analysis supplied. On gravity contrast alone (${contrast.toFixed(1)} degrees API, with a light paraffinic component) this is the combination that classically drops asphaltenes. Supply SARA for a colloidal instability index, and spot test before commingling.`
-      : 'No SARA analysis supplied, so this is an API-contrast screen only. The gravity spread is not the classic heavy-plus-light-paraffinic combination, which is not evidence that the blend is stable. Supply SARA for a real index.',
+      ? `${sparse ? 'SARA was not supplied for every crude.' : 'No SARA analysis supplied.'} On gravity contrast alone (${contrast.toFixed(1)} degrees API, with a light paraffinic component) this is the combination that classically drops asphaltenes. Supply SARA for a colloidal instability index, and spot test before commingling.`
+      : `${sparse ? 'SARA was not supplied for every crude' : 'No SARA analysis supplied'}, so this is an API-contrast screen only. The gravity spread is not the classic heavy-plus-light-paraffinic combination, which is not evidence that the blend is stable. Supply SARA for a real index.`,
   };
 };
 
@@ -554,20 +557,26 @@ export const netbackValue = ({
   if (!(loss >= 0 && loss <= 100)) {
     return { error: 'Losses must be between 0 and 100 percent.', netback: null };
   }
+  // MD1-1: a cut with NO YIELD (cutYields returns null where the curve says
+  // nothing) used to be valued as a zero-yield cut and the netback reported
+  // complete. It is now named in unyieldedCuts, its yield stays null, and the
+  // netback is not complete, exactly as an unpriced cut is.
   const rows = (cuts || []).map((cut) => {
-    const yieldFraction = num(cut.yieldVolPercent, 0) / 100;
+    const y = num(cut.yieldVolPercent, NaN);
     const price = num(prices?.[cut.id], NaN);
+    const known = Number.isFinite(y);
     return {
       id: cut.id,
       name: cut.name,
-      yieldVolPercent: num(cut.yieldVolPercent, 0),
+      yieldVolPercent: known ? y : null,
       pricePerBbl: Number.isFinite(price) ? price : null,
-      valuePerBblCrude: Number.isFinite(price) ? yieldFraction * price : null,
+      valuePerBblCrude: known && Number.isFinite(price) ? (y / 100) * price : null,
     };
   });
 
   const priced = rows.filter((r) => r.valuePerBblCrude !== null);
-  const unpriced = rows.filter((r) => r.valuePerBblCrude === null);
+  const unyielded = rows.filter((r) => r.yieldVolPercent === null);
+  const unpriced = rows.filter((r) => r.yieldVolPercent !== null && r.pricePerBbl === null);
   const grossValue = priced.reduce((s, r) => s + r.valuePerBblCrude, 0);
   const afterLosses = grossValue * (1 - loss / 100);
   const netback = afterLosses - num(processingCostPerBbl, 0) - num(freightPerBbl, 0);
@@ -582,8 +591,9 @@ export const netbackValue = ({
     // Named, not silently excluded: a cut with no price is a gap in the
     // valuation and the total is only as complete as this list is empty.
     unpricedCuts: unpriced.map((r) => r.name || r.id),
+    unyieldedCuts: unyielded.map((r) => r.name || r.id),
     assumedZero,
-    complete: unpriced.length === 0,
+    complete: unpriced.length === 0 && unyielded.length === 0,
     marker: marker === null || marker === undefined ? null : {
       netback: num(marker),
       differential: netback - num(marker),

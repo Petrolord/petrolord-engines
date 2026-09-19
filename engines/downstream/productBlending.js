@@ -179,7 +179,7 @@ export const propertyOfBlend = ({ components, volumes, spec }) => {
     let unknown = false;
     components.forEach((c, i) => {
       const value = num(c[spec.id]);
-      if (!Number.isFinite(value)) return;
+      if (!Number.isFinite(value)) { if (volumes[i] > 0) unknown = true; return; }
       const sg = basisWeight(c, spec);
       if (sg === null) { if (volumes[i] > 0) unknown = true; return; }
       const w = sg * volumes[i];
@@ -195,7 +195,7 @@ export const propertyOfBlend = ({ components, volumes, spec }) => {
     let covered = 0;
     components.forEach((c, i) => {
       const idx = contributionValue(c, spec);
-      if (idx === null) return;
+      if (idx === null) { if (volumes[i] > 0) covered = NaN; return; }
       // Viscosity's index is blended on mass, RVP's on volume. The spec says
       // which through indexOnMass, because getting this wrong is a real error
       // and not a detail.
@@ -210,14 +210,19 @@ export const propertyOfBlend = ({ components, volumes, spec }) => {
     return spec.fromIndex ? spec.fromIndex(blendedIndex) : blendedIndex;
   }
 
+  // MD1-1: a component IN the recipe with no value used to drop out of the
+  // denominator, so a skipped specification still printed an achieved value
+  // (60.5648 ppm beside "not applied"). The property is unknown instead.
   let weighted = 0;
   let covered = 0;
+  let unknown = false;
   components.forEach((c, i) => {
     const value = num(c[spec.id]);
-    if (!Number.isFinite(value)) return;
+    if (!Number.isFinite(value)) { if (volumes[i] > 0) unknown = true; return; }
     weighted += volumes[i] * value;
     covered += volumes[i];
   });
+  if (unknown) return null;
   return covered > 0 ? weighted / covered : null;
 };
 

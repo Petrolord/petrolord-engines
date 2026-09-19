@@ -78,6 +78,9 @@ describe.each(TD.queues.map((q) => [q.name, q]))('rack: %s', (_n, g) => {
 });
 
 describe('rack refusals', () => {
+  it('refuses a load time of 0 rather than reporting a perfect rack (MD3-1)', () => {
+    expect(rackQueue({ arrivalsPerHour: 5, loadMinutes: 0, bays: 2 }).error).toMatch(/needed/);
+  });
   it('refuses 0 bays and a fractional bay rather than solving something else', () => {
     expect(rackQueue({ arrivalsPerHour: 5, loadMinutes: 22, bays: 0 }).error).toMatch(/whole number/);
     expect(rackQueue({ arrivalsPerHour: 5, loadMinutes: 22, bays: 2.5 }).error).toMatch(/whole number/);
@@ -108,6 +111,16 @@ describe('the tank farm', () => {
     expect(rel(r.pumpableStockM3, TD.farm.pumpableStockM3)).toBe(true);
     expect(rel(r.ullageM3, TD.farm.ullageM3)).toBe(true);
     expect(rel(r.daysOfCover, TD.farm.daysOfCover)).toBe(true);
+  });
+  it('says nothing about turns without a throughput, as it says nothing about cover (MD3-1)', () => {
+    const r = tankFarmCover({ tanks: TD.farm.tanks });
+    expect(r.daysOfCover).toBeNull();
+    expect(r.turnsPerYear).toBeNull();
+  });
+  it('refuses a blank throughput or fee and names a blank cost as taken to be zero (MD3-1)', () => {
+    expect(throughputEconomics({ throughputM3: '', feePerM3: 8 }).error).toMatch(/Throughput and the throughput fee/);
+    expect(throughputEconomics({ throughputM3: 1440, feePerM3: null }).error).toMatch(/Throughput and the throughput fee/);
+    expect(throughputEconomics({ throughputM3: 1440, feePerM3: 8, fixedCostPerPeriod: '' }).assumedZero).toEqual(['fixed cost']);
   });
   it('does not weigh a loss with no density as nothing', () => {
     const r = throughputEconomics({ throughputM3: 1440, feePerM3: 8, lossM3: 5, lossEmissionFactorKgCo2ePerTonne: 30 });

@@ -80,6 +80,12 @@ plant $C "const f = (target - pts[i - 1].v) / (pts[i].v - pts[i - 1].v);" "const
 plant $C "const afterLosses = grossValue * (1 - loss / 100);" "const afterLosses = grossValue;" "crude: drop the losses from the netback"
 plant $C "const massRaw = volume.map((v, i) => v * sgs[i]);" "const massRaw = volume.map((v) => v);" "crude: mass fractions taken as volume fractions"
 
+plant $C "    complete: unpriced.length === 0 && unyielded.length === 0," "    complete: unpriced.length === 0," "crude: a netback with an unyielded cut reads complete again (MD1-1)"
+plant $P "    if (!Number.isFinite(value)) { if (volumes[i] > 0) unknown = true; return; }
+    weighted += volumes[i] * value;" "    if (!Number.isFinite(value)) return;
+    weighted += volumes[i] * value;" "blend: a volume property with a missing stream prints a value again (MD1-1)"
+plant $C "  const sparse = components.some((c) => c.sara);" "  const sparse = false;" "crude: SARA on some crudes reported as none (MD1-1)"
+
 echo
 echo "planted: $total   survivors: $survivors"
 [ "$survivors" -eq 0 ]
