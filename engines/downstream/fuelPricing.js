@@ -253,7 +253,15 @@ export const landedCost = ({
     return { error: `${invalid.join('; ')}.`, complete: false, lines, invalidCharges: invalid };
   }
 
+  // MD3-2: a BLANK ocean loss ('' or null) used to be zero loss with the
+  // build-up reported complete, which understates the cost per litre sold.
+  // It is a missing rate now, so the total is a FLOOR. Left out of the call
+  // entirely it still takes the signature's stated 0.
+  if (oceanLossPercent === '' || oceanLossPercent === null) missing.push('Ocean loss');
   const loss = num(oceanLossPercent, 0);
+  if (!(loss >= 0 && loss < 100)) {
+    return { error: 'The ocean loss must be at least 0 and under 100 percent.', complete: false, lines };
+  }
   const outturn = {
     litres: q.litres * (1 - loss / 100),
     m3: q.m3 * (1 - loss / 100),

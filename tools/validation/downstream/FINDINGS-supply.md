@@ -121,3 +121,11 @@ litre load cannot discharge at the default reorder level.
 
 Gate: four new assertions; three new plants in `negcontrol_md3.sh` (21 in
 all, all caught).
+
+## MD3-2 (2026-09-19): found by the supply course extension round
+
+- **F4. `landedCost` read a blank ocean loss as zero loss** and reported the
+  build-up complete, understating the cost per litre sold. A blank ('' or
+  null) is now a missing rate (the total is a FLOOR); omitted from the call it
+  still takes the stated 0. A loss of 100 percent or more is refused. The
+  Suite page always supplies a value, so the page was not exposed.
