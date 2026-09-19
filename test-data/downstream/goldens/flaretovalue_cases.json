@@ -1,0 +1,680 @@
+{
+ "counterfactual": {
+  "avoidedFlareCo2eTonnes": 239245.96729785958,
+  "counterfactualLabel": "CNG displacing diesel",
+  "displacedFuelTonnesCo2ePerYear": 180000,
+  "flareCh4Tonnes": 1046.9926443339377,
+  "flareCo2Tonnes": 234628.47175202597,
+  "flareCo2eTonnes": 265828.8525531773,
+  "flareCombustionEfficiency": null,
+  "flareDestructionEfficiency": 0.98,
+  "gwpMethane": 29.8,
+  "methaneShareOfFlareCo2e": 0.1173701819854559,
+  "name": "counterfactual declared: CNG displacing diesel",
+  "netAbatementTonnesCo2ePerYear": 269245.9672978596,
+  "onstreamDays": 350,
+  "productCombustionTonnesCo2ePerYear": 150000,
+  "recoveryFraction": 0.9,
+  "subpartWCh4Tonnes": 1048.32,
+  "subpartWCo2Tonnes": 234617.04,
+  "volumeMMscfd": 10
+ },
+ "credits": [
+  {
+   "breakevenCreditPrice": 41.666666666666664,
+   "hurdle": 4000000,
+   "lowestTestedClearingPrice": 45,
+   "margin": 1500000,
+   "name": "a bet: the breakeven lies between tested prices",
+   "points": [
+    {
+     "clearsHurdle": true,
+     "creditPrice": 60,
+     "creditRevenuePerYear": 3600000.0,
+     "totalMarginPerYear": 5100000.0
+    },
+    {
+     "clearsHurdle": false,
+     "creditPrice": 5,
+     "creditRevenuePerYear": 300000.0,
+     "totalMarginPerYear": 1800000.0
+    },
+    {
+     "clearsHurdle": false,
+     "creditPrice": 15,
+     "creditRevenuePerYear": 900000.0,
+     "totalMarginPerYear": 2400000.0
+    },
+    {
+     "clearsHurdle": true,
+     "creditPrice": 45,
+     "creditRevenuePerYear": 2700000.0,
+     "totalMarginPerYear": 4200000.0
+    },
+    {
+     "clearsHurdle": false,
+     "creditPrice": 30,
+     "creditRevenuePerYear": 1800000.0,
+     "totalMarginPerYear": 3300000.0
+    }
+   ],
+   "prices": [
+    60,
+    5,
+    15,
+    45,
+    30
+   ],
+   "standsAloneWithoutCredits": false,
+   "t": 60000
+  },
+  {
+   "breakevenCreditPrice": 0.0,
+   "hurdle": 4000000,
+   "lowestTestedClearingPrice": 5,
+   "margin": 5000000,
+   "name": "stands alone",
+   "points": [
+    {
+     "clearsHurdle": true,
+     "creditPrice": 5,
+     "creditRevenuePerYear": 300000.0,
+     "totalMarginPerYear": 5300000.0
+    },
+    {
+     "clearsHurdle": true,
+     "creditPrice": 15,
+     "creditRevenuePerYear": 900000.0,
+     "totalMarginPerYear": 5900000.0
+    }
+   ],
+   "prices": [
+    5,
+    15
+   ],
+   "standsAloneWithoutCredits": true,
+   "t": 60000
+  },
+  {
+   "breakevenCreditPrice": 166.66666666666666,
+   "hurdle": 10000000,
+   "lowestTestedClearingPrice": null,
+   "margin": 0,
+   "name": "no tested price clears",
+   "points": [
+    {
+     "clearsHurdle": false,
+     "creditPrice": 1,
+     "creditRevenuePerYear": 60000.0,
+     "totalMarginPerYear": 60000.0
+    },
+    {
+     "clearsHurdle": false,
+     "creditPrice": 2,
+     "creditRevenuePerYear": 120000.0,
+     "totalMarginPerYear": 120000.0
+    }
+   ],
+   "prices": [
+    1,
+    2
+   ],
+   "standsAloneWithoutCredits": false,
+   "t": 60000
+  },
+  {
+   "breakevenCreditPrice": null,
+   "hurdle": 4000000,
+   "lowestTestedClearingPrice": null,
+   "margin": null,
+   "name": "no margin: no verdict",
+   "points": [
+    {
+     "clearsHurdle": null,
+     "creditPrice": 5,
+     "creditRevenuePerYear": 300000.0,
+     "totalMarginPerYear": null
+    },
+    {
+     "clearsHurdle": null,
+     "creditPrice": 15,
+     "creditRevenuePerYear": 900000.0,
+     "totalMarginPerYear": null
+    }
+   ],
+   "prices": [
+    5,
+    15
+   ],
+   "standsAloneWithoutCredits": null,
+   "t": 60000
+  }
+ ],
+ "flares": [
+  {
+   "avoidedFlareCo2eTonnes": 239245.96729785958,
+   "flareCh4Tonnes": 1046.9926443339377,
+   "flareCo2Tonnes": 234628.47175202597,
+   "flareCo2eTonnes": 265828.8525531773,
+   "flareCombustionEfficiency": null,
+   "flareDestructionEfficiency": 0.98,
+   "gwpMethane": 29.8,
+   "methaneShareOfFlareCo2e": 0.1173701819854559,
+   "name": "Suite gas, 98 percent destruction, GWP 29.8, 90 percent recovered",
+   "onstreamDays": 350,
+   "recoveryFraction": 0.9,
+   "subpartWCh4Tonnes": 1048.32,
+   "subpartWCo2Tonnes": 234617.04,
+   "volumeMMscfd": 10
+  },
+  {
+   "avoidedFlareCo2eTonnes": 236064.56429105243,
+   "flareCh4Tonnes": 1046.9926443339377,
+   "flareCo2Tonnes": 231093.57952224027,
+   "flareCo2eTonnes": 262293.9603233916,
+   "flareCombustionEfficiency": 0.965,
+   "flareDestructionEfficiency": 0.98,
+   "gwpMethane": 29.8,
+   "methaneShareOfFlareCo2e": 0.11895196047474092,
+   "name": "Subpart W tier 1 pair: 98 destruction, 96.5 combustion",
+   "onstreamDays": 350,
+   "recoveryFraction": 0.9,
+   "subpartWCh4Tonnes": 1048.32,
+   "subpartWCo2Tonnes": 231082.32,
+   "volumeMMscfd": 10
+  },
+  {
+   "avoidedFlareCo2eTonnes": 284084.60875322367,
+   "flareCh4Tonnes": 4187.970577335751,
+   "flareCo2Tonnes": 216954.01060309744,
+   "flareCo2eTonnes": 334217.18676849845,
+   "flareCombustionEfficiency": 0.905,
+   "flareDestructionEfficiency": 0.92,
+   "gwpMethane": 28,
+   "methaneShareOfFlareCo2e": 0.35085920415764094,
+   "name": "tier 3 pair: 92 destruction, 90.5 combustion, GWP 28",
+   "onstreamDays": 350,
+   "recoveryFraction": 0.85,
+   "subpartWCh4Tonnes": 4193.28,
+   "subpartWCo2Tonnes": 216943.44,
+   "volumeMMscfd": 10
+  }
+ ],
+ "gasRefusals": [
+  {
+   "components": [
+    {
+     "c": 1,
+     "code": "C1",
+     "ghvBtuScf": 1010,
+     "inert": false,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 16.043,
+     "moleFraction": 1.1,
+     "recoverableAsNgl": false
+    },
+    {
+     "c": 2,
+     "code": "C2",
+     "ghvBtuScf": 1770,
+     "inert": false,
+     "liquidDensityLbGal": 2.971,
+     "molarMassLbLbmol": 30.07,
+     "moleFraction": -0.1,
+     "recoverableAsNgl": true
+    }
+   ],
+   "name": "a negative mole fraction"
+  },
+  {
+   "components": [
+    {
+     "c": 1,
+     "code": "C1",
+     "ghvBtuScf": 1010,
+     "inert": false,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 16.043,
+     "moleFraction": 0.9,
+     "recoverableAsNgl": false
+    },
+    {
+     "c": null,
+     "code": "XX",
+     "ghvBtuScf": 1770,
+     "inert": false,
+     "liquidDensityLbGal": 2.971,
+     "molarMassLbLbmol": 30.07,
+     "moleFraction": 0.1,
+     "recoverableAsNgl": true
+    }
+   ],
+   "name": "an unknown component with no carbon number"
+  },
+  {
+   "components": [
+    {
+     "c": 1,
+     "code": "C1",
+     "ghvBtuScf": 1010,
+     "inert": false,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 16.043,
+     "moleFraction": "",
+     "recoverableAsNgl": false
+    }
+   ],
+   "name": "a blank mole fraction"
+  }
+ ],
+ "gases": [
+  {
+   "c3PlusKgPerMscf": 5.5818551851305696,
+   "carbonPerMol": 1.3,
+   "co2MoleFraction": 0.02,
+   "components": [
+    {
+     "c": 1,
+     "code": "C1",
+     "ghvBtuScf": 1010,
+     "inert": false,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 16.043,
+     "moleFraction": 0.78,
+     "recoverableAsNgl": false
+    },
+    {
+     "c": 2,
+     "code": "C2",
+     "ghvBtuScf": 1770,
+     "inert": false,
+     "liquidDensityLbGal": 2.971,
+     "molarMassLbLbmol": 30.07,
+     "moleFraction": 0.09,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 3,
+     "code": "C3",
+     "ghvBtuScf": 2516,
+     "inert": false,
+     "liquidDensityLbGal": 4.233,
+     "molarMassLbLbmol": 44.096,
+     "moleFraction": 0.05,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 4,
+     "code": "IC4",
+     "ghvBtuScf": 3252,
+     "inert": false,
+     "liquidDensityLbGal": 4.695,
+     "molarMassLbLbmol": 58.122,
+     "moleFraction": 0.01,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 4,
+     "code": "NC4",
+     "ghvBtuScf": 3263,
+     "inert": false,
+     "liquidDensityLbGal": 4.872,
+     "molarMassLbLbmol": 58.122,
+     "moleFraction": 0.02,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 5,
+     "code": "C5",
+     "ghvBtuScf": 4010,
+     "inert": false,
+     "liquidDensityLbGal": 5.253,
+     "molarMassLbLbmol": 72.15,
+     "moleFraction": 0.01,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 0,
+     "code": "N2",
+     "ghvBtuScf": 0,
+     "inert": true,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 28.014,
+     "moleFraction": 0.02,
+     "recoverableAsNgl": false
+    },
+    {
+     "c": 1,
+     "code": "CO2",
+     "ghvBtuScf": 0,
+     "inert": true,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 44.01,
+     "moleFraction": 0.02,
+     "recoverableAsNgl": false
+    }
+   ],
+   "ghvBtuScf": 1210.78,
+   "gpmC2Plus": 5.089744133482202,
+   "gpmC3Plus": 2.689403099328931,
+   "hydrocarbonCarbonPerMol": 1.28,
+   "inertMoleFraction": 0.04,
+   "kgPerMscf": 25.495407673360564,
+   "methaneMoleFraction": 0.78,
+   "molarMassLbLbmol": 21.33028,
+   "name": "Suite default gas (1.30 carbon per mole, 2 percent CO2)",
+   "rawMoleFractionSum": 1.0,
+   "richness": "rich"
+  },
+  {
+   "c3PlusKgPerMscf": 0.5270655128598909,
+   "carbonPerMol": 1.02,
+   "co2MoleFraction": 0.01,
+   "components": [
+    {
+     "c": 1,
+     "code": "C1",
+     "ghvBtuScf": 1010,
+     "inert": false,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 16.043,
+     "moleFraction": 0.94,
+     "recoverableAsNgl": false
+    },
+    {
+     "c": 2,
+     "code": "C2",
+     "ghvBtuScf": 1770,
+     "inert": false,
+     "liquidDensityLbGal": 2.971,
+     "molarMassLbLbmol": 30.07,
+     "moleFraction": 0.02,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 3,
+     "code": "C3",
+     "ghvBtuScf": 2516,
+     "inert": false,
+     "liquidDensityLbGal": 4.233,
+     "molarMassLbLbmol": 44.096,
+     "moleFraction": 0.01,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 0,
+     "code": "N2",
+     "ghvBtuScf": 0,
+     "inert": true,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 28.014,
+     "moleFraction": 0.02,
+     "recoverableAsNgl": false
+    },
+    {
+     "c": 1,
+     "code": "CO2",
+     "ghvBtuScf": 0,
+     "inert": true,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 44.01,
+     "moleFraction": 0.01,
+     "recoverableAsNgl": false
+    }
+   ],
+   "ghvBtuScf": 1009.96,
+   "gpmC2Plus": 0.8079143284449372,
+   "gpmC3Plus": 0.27450520974421033,
+   "hydrocarbonCarbonPerMol": 1.01,
+   "inertMoleFraction": 0.03,
+   "kgPerMscf": 20.466770471657224,
+   "methaneMoleFraction": 0.94,
+   "molarMassLbLbmol": 17.12316,
+   "name": "lean gas",
+   "rawMoleFractionSum": 1.0,
+   "richness": "lean"
+  },
+  {
+   "c3PlusKgPerMscf": 2.7740290150520575,
+   "carbonPerMol": 1.2105263157894737,
+   "co2MoleFraction": 0.05263157894736842,
+   "components": [
+    {
+     "c": 1,
+     "code": "C1",
+     "ghvBtuScf": 1010,
+     "inert": false,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 16.043,
+     "moleFraction": 0.75,
+     "recoverableAsNgl": false
+    },
+    {
+     "c": 2,
+     "code": "C2",
+     "ghvBtuScf": 1770,
+     "inert": false,
+     "liquidDensityLbGal": 2.971,
+     "molarMassLbLbmol": 30.07,
+     "moleFraction": 0.1,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 3,
+     "code": "C3",
+     "ghvBtuScf": 2516,
+     "inert": false,
+     "liquidDensityLbGal": 4.233,
+     "molarMassLbLbmol": 44.096,
+     "moleFraction": 0.05,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 1,
+     "code": "CO2",
+     "ghvBtuScf": 0,
+     "inert": true,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 44.01,
+     "moleFraction": 0.05,
+     "recoverableAsNgl": false
+    }
+   ],
+   "ghvBtuScf": 1116.1052631578948,
+   "gpmC2Plus": 4.252180676025985,
+   "gpmC3Plus": 1.4447642618116334,
+   "hydrocarbonCarbonPerMol": 1.1578947368421053,
+   "inertMoleFraction": 0.05263157894736842,
+   "kgPerMscf": 24.464688808341112,
+   "methaneMoleFraction": 0.7894736842105263,
+   "molarMassLbLbmol": 20.467947368421054,
+   "name": "an analysis summing to 0.95, scaled to one",
+   "rawMoleFractionSum": 0.95,
+   "richness": "moderate"
+  },
+  {
+   "c3PlusKgPerMscf": 6.108896792624312,
+   "carbonPerMol": 1.25,
+   "co2MoleFraction": 0.0,
+   "components": [
+    {
+     "c": 1,
+     "code": "C1",
+     "ghvBtuScf": 1010,
+     "inert": false,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 16.043,
+     "moleFraction": 0.9,
+     "recoverableAsNgl": false
+    },
+    {
+     "c": 3,
+     "code": "C3",
+     "ghvBtuScf": 2516,
+     "inert": false,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 44.096,
+     "moleFraction": 0.05,
+     "recoverableAsNgl": true
+    },
+    {
+     "c": 4,
+     "code": "NC4",
+     "ghvBtuScf": 3263,
+     "inert": false,
+     "liquidDensityLbGal": 4.872,
+     "molarMassLbLbmol": 58.122,
+     "moleFraction": 0.05,
+     "recoverableAsNgl": true
+    }
+   ],
+   "ghvBtuScf": 1197.95,
+   "gpmC2Plus": null,
+   "gpmC3Plus": null,
+   "hydrocarbonCarbonPerMol": 1.25,
+   "inertMoleFraction": 0.0,
+   "kgPerMscf": 23.367017303623285,
+   "methaneMoleFraction": 0.9,
+   "molarMassLbLbmol": 19.5496,
+   "name": "propane with no liquid density: liquids missing, not partial",
+   "rawMoleFractionSum": 1.0,
+   "richness": null
+  },
+  {
+   "c3PlusKgPerMscf": 5.270655128598909,
+   "carbonPerMol": 1.2,
+   "co2MoleFraction": 0.0,
+   "components": [
+    {
+     "c": 1,
+     "code": "C1",
+     "ghvBtuScf": 1010,
+     "inert": false,
+     "liquidDensityLbGal": null,
+     "molarMassLbLbmol": 16.043,
+     "moleFraction": 0.9,
+     "recoverableAsNgl": false
+    },
+    {
+     "c": null,
+     "code": "C3",
+     "ghvBtuScf": 2516,
+     "inert": false,
+     "liquidDensityLbGal": 4.233,
+     "molarMassLbLbmol": 44.096,
+     "moleFraction": 0.1,
+     "recoverableAsNgl": true
+    }
+   ],
+   "ghvBtuScf": 1160.6,
+   "gpmC2Plus": 2.7450520974421035,
+   "gpmC3Plus": 2.7450520974421035,
+   "hydrocarbonCarbonPerMol": 1.2,
+   "inertMoleFraction": 0.0,
+   "kgPerMscf": 22.52877563959788,
+   "methaneMoleFraction": 0.9,
+   "molarMassLbLbmol": 18.8483,
+   "name": "a hydrocarbon typed without a carbon number takes it from the reference",
+   "rawMoleFractionSum": 1.0,
+   "richness": "rich"
+  }
+ ],
+ "mainBefore": {
+  "flareCh4Tonnes": 1744.9877405565628
+ },
+ "provenance": {
+  "derivedScfPerLbmol": 379.4840844191405,
+  "engine": "engines/downstream/flareToValue.js",
+  "method": "exact rationals in kg and m3; 40 CFR 98.233(n) by moles, cross-checked by the rule's W-36 densities; ledgers",
+  "oracle": "tools/validation/downstream/oracle_flaretovalue.py",
+  "published": "40 CFR 98.233(n) and (v) as read at law.cornell.edu 2026-09-19; heating values and liquid densities are the engine's labelled typical table, pinned not validated"
+ },
+ "routes": [
+  {
+   "capitalCost": 36672478.82035982,
+   "fixedOpexPerYear": 2500000,
+   "grossMarginPerYear": 33900000.0,
+   "mscfPerYear": 3500000.0,
+   "onstreamDays": 350,
+   "operatingCostPerYear": 3900000.0,
+   "pricePerProductUnit": 0.6,
+   "productPerYear": 63000000.0,
+   "productUnitPerMscf": 20,
+   "recoveryFraction": 0.9,
+   "referenceCapacityMMscfd": 8,
+   "referenceCapitalCost": 30000000,
+   "revenuePerYear": 37800000.0,
+   "routeId": "cng",
+   "valuePerMscf": 9.685714285714285,
+   "variableOpexPerMscf": 0.4,
+   "volumeMMscfd": 10,
+   "yieldCeilingPerMscf": 25.495407673360564
+  },
+  {
+   "capitalCost": 48229805.81413319,
+   "fixedOpexPerYear": 6000000,
+   "grossMarginPerYear": 19639600.0,
+   "mscfPerYear": 3500000.0,
+   "onstreamDays": 350,
+   "operatingCostPerYear": 8450000.0,
+   "pricePerProductUnit": 480,
+   "productPerYear": 58520.0,
+   "productUnitPerMscf": 0.019,
+   "recoveryFraction": 0.88,
+   "referenceCapacityMMscfd": 20,
+   "referenceCapitalCost": 90000000,
+   "revenuePerYear": 28089600.0,
+   "routeId": "mini_lng",
+   "valuePerMscf": 5.611314285714286,
+   "variableOpexPerMscf": 0.7,
+   "volumeMMscfd": 10,
+   "yieldCeilingPerMscf": 0.025495407673360563
+  },
+  {
+   "capitalCost": 38189976.60551341,
+   "fixedOpexPerYear": 3000000,
+   "grossMarginPerYear": 2643750.0,
+   "mscfPerYear": 3500000.0,
+   "onstreamDays": 350,
+   "operatingCostPerYear": 4050000.0,
+   "pricePerProductUnit": 500,
+   "productPerYear": 13387.5,
+   "productUnitPerMscf": 0.0045,
+   "recoveryFraction": 0.85,
+   "referenceCapacityMMscfd": 12,
+   "referenceCapitalCost": 45000000,
+   "revenuePerYear": 6693750.0,
+   "routeId": "lpg_extraction",
+   "valuePerMscf": 0.7553571428571428,
+   "variableOpexPerMscf": 0.3,
+   "volumeMMscfd": 10,
+   "yieldCeilingPerMscf": 0.00558185518513057
+  },
+  {
+   "capitalCost": 38183923.946388386,
+   "fixedOpexPerYear": 4000000,
+   "grossMarginPerYear": 13701250.0,
+   "mscfPerYear": 3500000.0,
+   "onstreamDays": 350,
+   "operatingCostPerYear": 5750000.0,
+   "pricePerProductUnit": 65,
+   "productPerYear": 299250.0,
+   "productUnitPerMscf": 0.09,
+   "recoveryFraction": 0.95,
+   "referenceCapacityMMscfd": 15,
+   "referenceCapitalCost": 55000000,
+   "revenuePerYear": 19451250.0,
+   "routeId": "gas_to_power",
+   "valuePerMscf": 3.9146428571428573,
+   "variableOpexPerMscf": 0.5,
+   "volumeMMscfd": 10,
+   "yieldCeilingPerMscf": 0.3548445903431232
+  }
+ ],
+ "yieldAboveCeiling": {
+  "note": "the page default before MD4-0: 3.6 times the propane-plus in the gas",
+  "productUnitPerMscf": 0.02,
+  "routeId": "lpg_extraction",
+  "yieldCeilingPerMscf": 0.00558185518513057
+ }
+}

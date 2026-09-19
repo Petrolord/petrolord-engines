@@ -1,0 +1,376 @@
+{
+ "blends": [
+  {
+   "components": [
+    {
+     "code": "propane",
+     "latentHeatKJkg": 425,
+     "liquidDensityKgM3": 508,
+     "molarMassKgKmol": 44.096,
+     "volumeFraction": 0.4
+    },
+    {
+     "code": "butane",
+     "latentHeatKJkg": 385,
+     "liquidDensityKgM3": 584,
+     "molarMassKgKmol": 58.122,
+     "volumeFraction": 0.6
+    }
+   ],
+   "densityKgM3": 553.6,
+   "latentHeatKJkg": 399.6820809248555,
+   "massFractions": [
+    0.3670520231213873,
+    0.6329479768786127
+   ],
+   "molarMassKgKmol": 52.045600935010896,
+   "name": "Suite default 40/60 by volume"
+  },
+  {
+   "components": [
+    {
+     "code": "propane",
+     "latentHeatKJkg": 425,
+     "liquidDensityKgM3": 508,
+     "molarMassKgKmol": 44.096,
+     "volumeFraction": 0.95
+    },
+    {
+     "code": "butane",
+     "latentHeatKJkg": 385,
+     "liquidDensityKgM3": 584,
+     "molarMassKgKmol": 58.122,
+     "volumeFraction": 0.05
+    }
+   ],
+   "densityKgM3": 511.8,
+   "latentHeatKJkg": 422.7178585384916,
+   "massFractions": [
+    0.9429464634622899,
+    0.057053536537710045
+   ],
+   "molarMassKgKmol": 44.71159634147956,
+   "name": "commercial propane 95/5"
+  }
+ ],
+ "bottling": [
+  {
+   "availabilityFraction": 0.9,
+   "averageWaitMinutes": 0.984979266771804,
+   "cylindersPerDay": 2400,
+   "effectivePositions": 14.4,
+   "fillMinutesPerCylinder": 2.5,
+   "name": "Suite default: 16 positions at 0.9",
+   "positions": 16,
+   "probabilityOfWaiting": 0.5909875600630824,
+   "queueLength": 4.92489633385902,
+   "queuePositions": 14,
+   "shiftHoursPerDay": 8,
+   "stable": true,
+   "throughputCapacityPerDay": 2764.8,
+   "utilisation": 0.8928571428571429
+  },
+  {
+   "availabilityFraction": 0.97,
+   "averageWaitMinutes": 0.3721889069219385,
+   "cylindersPerDay": 2200,
+   "effectivePositions": 14.55,
+   "fillMinutesPerCylinder": 2.5,
+   "name": "14.55 working: the floor is 14, rounding said 15",
+   "positions": 15,
+   "probabilityOfWaiting": 0.3783920553706375,
+   "queueLength": 1.7058658233922182,
+   "queuePositions": 14,
+   "shiftHoursPerDay": 8,
+   "stable": true,
+   "throughputCapacityPerDay": 2793.6,
+   "utilisation": 0.8184523809523809
+  }
+ ],
+ "cascadeMainBefore": {
+  "cascadeEfficiency": 0.138689,
+  "fillsBeforeRecharge": 10,
+  "note": "origin/main counted only gas above the vehicle target as deliverable"
+ },
+ "cascades": [
+  {
+   "banks": [
+    {
+     "label": "Low",
+     "pressureBar": 250,
+     "volumeM3": 1.5
+    },
+    {
+     "label": "Mid",
+     "pressureBar": 250,
+     "volumeM3": 1.5
+    },
+    {
+     "label": "High",
+     "pressureBar": 250,
+     "volumeM3": 1.5
+    }
+   ],
+   "cascadeEfficiency": 0.4576731203698787,
+   "deliveredKg": 457.97889854345635,
+   "endBar": [
+    62.974587197739005,
+    127.0420316217068,
+    200.19992637958381
+   ],
+   "fillsBeforeRecharge": 33,
+   "gasSg": 0.6,
+   "kgPerFill": 13.878148440710799,
+   "leftInBanksKg": 542.6892162309719,
+   "name": "Suite default: three 1.5 m3 banks at 250, a 0.08 m3 vehicle 20 to 200",
+   "nextVehicleReachesBar": 195.56434008510334,
+   "storedKg": 1000.6681147744279,
+   "temperatureC": 15,
+   "vehicleStartBar": 20,
+   "vehicleTankM3": 0.08,
+   "vehicleTargetBar": 200
+  },
+  {
+   "banks": [
+    {
+     "label": "Low",
+     "pressureBar": 150,
+     "volumeM3": 1.5
+    },
+    {
+     "label": "Mid",
+     "pressureBar": 220,
+     "volumeM3": 1.5
+    },
+    {
+     "label": "High",
+     "pressureBar": 280,
+     "volumeM3": 1.5
+    }
+   ],
+   "cascadeEfficiency": 0.39498840923174344,
+   "deliveredKg": 346.95371101777,
+   "endBar": [
+    60.2285792159317,
+    119.01096347331246,
+    205.0925481085881
+   ],
+   "fillsBeforeRecharge": 25,
+   "gasSg": 0.6,
+   "kgPerFill": 13.878148440710799,
+   "leftInBanksKg": 531.4358895596215,
+   "name": "a staged cascade: 150, 220, 280",
+   "nextVehicleReachesBar": 199.54030517635059,
+   "storedKg": 878.3896005773905,
+   "temperatureC": 15,
+   "vehicleStartBar": 20,
+   "vehicleTankM3": 0.08,
+   "vehicleTargetBar": 200
+  },
+  {
+   "banks": [
+    {
+     "label": "Low",
+     "pressureBar": 180,
+     "volumeM3": 1.5
+    },
+    {
+     "label": "Mid",
+     "pressureBar": 180,
+     "volumeM3": 1.5
+    },
+    {
+     "label": "High",
+     "pressureBar": 180,
+     "volumeM3": 1.5
+    }
+   ],
+   "cascadeEfficiency": 0.0,
+   "deliveredKg": 0.0,
+   "endBar": [
+    180,
+    180,
+    180
+   ],
+   "fillsBeforeRecharge": 0,
+   "gasSg": 0.6,
+   "kgPerFill": 13.878148440710799,
+   "leftInBanksKg": 774.6327022851107,
+   "name": "banks at 180 cannot finish a 200 fill",
+   "nextVehicleReachesBar": 179.9766648197537,
+   "storedKg": 774.6327022851107,
+   "temperatureC": 15,
+   "vehicleStartBar": 20,
+   "vehicleTankM3": 0.08,
+   "vehicleTargetBar": 200
+  }
+ ],
+ "compression": {
+  "dischargeBar": 250,
+  "gasSg": 0.6,
+  "qMMscfd": 0.28886741088144735,
+  "suctionBar": 4,
+  "suctionPsia": 58.015095092,
+  "throughputKgPerHour": 250
+ },
+ "conversion": [
+  {
+   "annualSaving": 2920000.0,
+   "efficiencyRatio": 1,
+   "name": "Suite default, energy equivalence at a ratio of 1",
+   "newFuelConsumptionPer100Km": 8.0,
+   "savingPerKm": 73.0,
+   "simplePaybackYears": 0.3082191780821918
+  },
+  {
+   "annualSaving": 2742222.222222222,
+   "efficiencyRatio": 0.9,
+   "name": "a converted engine at 0.9",
+   "newFuelConsumptionPer100Km": 8.88888888888889,
+   "savingPerKm": 68.55555555555556,
+   "simplePaybackYears": 0.32820097244732577
+  }
+ ],
+ "dispensing": [
+  {
+   "averageWaitMinutes": 1.6666666666666667,
+   "dispensers": 2,
+   "fillMinutes": 5,
+   "name": "Suite default: 12 an hour, 5 minutes, 2 dispensers",
+   "probabilityOfWaiting": 0.3333333333333333,
+   "queueLength": 0.3333333333333333,
+   "stable": true,
+   "utilisation": 0.5,
+   "vehiclesPerHour": 12
+  }
+ ],
+ "floats": [
+  {
+   "cycleDays": 25.0,
+   "fleetRequired": 66000,
+   "inCirculation": 60000.0,
+   "name": "Suite cylinder float",
+   "sparesAllowance": 6000.0,
+   "sparesFraction": 0.1,
+   "stageDays": [
+    21,
+    1,
+    2,
+    1
+   ],
+   "unitsPerDay": 2400
+  },
+  {
+   "cycleDays": 2.25,
+   "fleetRequired": 8,
+   "inCirculation": 6.75,
+   "name": "Suite trailer float",
+   "sparesAllowance": 1.0125,
+   "sparesFraction": 0.15,
+   "stageDays": [
+    0.25,
+    0.4,
+    1.2,
+    0.4
+   ],
+   "unitsPerDay": 3
+  }
+ ],
+ "provenance": {
+  "engine": "engines/downstream/lpgCng.js",
+  "method": "DAK by bisection (Hall-Yarborough as a plausibility check); a cascade mass ledger by false position; exact Erlang C; ledgers",
+  "oracle": "tools/validation/downstream/oracle_lpgcng.py",
+  "published": "none validated: DAK and Sutton coefficients pinned as the package method spec; LPG properties are the engine's labelled typical table"
+ },
+ "storage": [
+  {
+   "coverDays": 7.842666666666666,
+   "deliveryFitsUllage": true,
+   "deliveryTonnes": 15,
+   "demandTonnesPerDay": 6,
+   "fillRatioBasis": "liquid_volume",
+   "leadTimeDays": 3,
+   "liquidDensityKgM3": 553.6,
+   "maxFillRatio": 0.85,
+   "name": "page vessel, 0.85 of the liquid volume",
+   "reorderAtTonnes": 30.0,
+   "safetyDays": 2,
+   "ullageAtReorderTonnes": 17.056,
+   "usableM3": 85.0,
+   "usableTonnes": 47.056,
+   "vesselCapacityM3": 100
+  },
+  {
+   "coverDays": 6.9937,
+   "deliveryFitsUllage": false,
+   "deliveryTonnes": 15,
+   "demandTonnesPerDay": 6,
+   "fillRatioBasis": "water_capacity_mass",
+   "leadTimeDays": 3,
+   "liquidDensityKgM3": 553.6,
+   "maxFillRatio": 0.42,
+   "name": "page vessel, a 0.42 filling density on water capacity",
+   "reorderAtTonnes": 30.0,
+   "safetyDays": 2,
+   "ullageAtReorderTonnes": 11.9622,
+   "usableM3": 75.79877167630057,
+   "usableTonnes": 41.9622,
+   "vesselCapacityM3": 100
+  }
+ ],
+ "vaporizer": {
+  "boilingPointC": 12,
+  "designDutyKW": 74.63034682080925,
+  "designMarginPercent": 20,
+  "dutyKW": 62.19195568400771,
+  "inletTempC": 5,
+  "latentHeatKJkg": 399.6820809248555,
+  "liquidCpKJkgK": 2.5,
+  "massFlowKgHr": 500,
+  "name": "boiling point 12 C at the vaporizer pressure, inlet 5 C",
+  "outletTempC": 30,
+  "termsKW": [
+   2.4305555555555554,
+   55.51140012845215,
+   4.25
+  ],
+  "vapourCpKJkgK": 1.7
+ },
+ "vaporizerBefore": {
+  "latentAloneKW": 55.51140012845215,
+  "mainDutyKW": 50.31695568400771,
+  "name": "the page default: inlet 25 C against n-butane atmospheric -0.5 C"
+ },
+ "vessels": [
+  {
+   "gasSg": 0.6,
+   "hallYarboroughZ": 0.8139052963644506,
+   "idealMassKg": 271.99802893261443,
+   "massKg": 333.5560382581426,
+   "pressureBar": 250,
+   "temperatureC": 15,
+   "volumeM3": 1.5,
+   "z": 0.8154492730906949
+  },
+  {
+   "gasSg": 0.6,
+   "hallYarboroughZ": 0.7660844735312939,
+   "idealMassKg": 11.605249234458215,
+   "massKg": 15.093135237000526,
+   "pressureBar": 200,
+   "temperatureC": 15,
+   "volumeM3": 0.08,
+   "z": 0.768909113462932
+  },
+  {
+   "gasSg": 0.65,
+   "hallYarboroughZ": 0.807644893412429,
+   "idealMassKg": 74.68917231881005,
+   "massKg": 92.41656218092548,
+   "pressureBar": 100,
+   "temperatureC": 30,
+   "volumeM3": 1.0,
+   "z": 0.8081795141068955
+  }
+ ]
+}

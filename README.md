@@ -383,6 +383,10 @@ and its consumers.
   invoice, insurance on CIF by fixed point), gate `downstream.supply.golden`,
   battery `negcontrol_md3.sh`, findings `FINDINGS-supply.md`. The three
   Commercial & Trading course engines (MD1 to MD3) are now all gated.
+  MD4-0 (2026-09-19): `flareToValue.js` and `lpgCng.js`, oracles
+  `oracle_flaretovalue.py` and `oracle_lpgcng.py`, gate
+  `downstream.gasvalue.golden`, battery `negcontrol_md4.sh`, findings
+  `FINDINGS-gasvalue.md`.
 
 - `engines/economics/` — the Economics module (EC0 extraction wave,
   2026-09-08; plan of record in the Suite at
