@@ -359,9 +359,17 @@ and its consumers.
   straight into the Suite's vendored copy of this package and never
   upstreamed them, so every `git subtree pull` into the Suite saw them
   as deleted upstream; they were moved here byte for byte on 2026-09-14
-  with their twelve test files (tests embed their own fixtures, there is
-  no test-data directory). `lib/lp/simplex.js` is the dense simplex
-  solver (`solveLP`, `LP_STATUS`) the two LP modules share.
+  with their twelve test files, which are self-consistency identities.
+  `lib/lp/simplex.js` is the dense simplex solver (`solveLP`,
+  `LP_STATUS`) the two LP modules share. VALIDATION (MD-0, per course
+  wave): MD1-0 (2026-09-19) put `crudeAssay.js`, `productBlending.js`
+  and `simplex.js` behind stdlib oracles in `tools/validation/downstream/`
+  (the LP by exact rational vertex enumeration), goldens in
+  `test-data/downstream/goldens/`, the gates
+  `downstream.crudeAssay.golden`, `downstream.productBlending.golden`
+  and `lp.simplex.golden`, and a planted-defect battery
+  (`negcontrol_md1.sh`); findings in `FINDINGS-crude.md`. The other
+  eight modules have no oracle yet and stay gated for their courses.
 
 - `engines/economics/` — the Economics module (EC0 extraction wave,
   2026-09-08; plan of record in the Suite at

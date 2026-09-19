@@ -184,24 +184,39 @@ export const blendViscosity = (viscositiesCSt, massFractions) => {
 // Distillation and cut yields
 // ---------------------------------------------------------------------------
 
+/** A curve's usable points, sorted by temperature. */
+const curvePoints = (curve) => [...(curve || [])]
+  .map((p) => ({ v: num(p.volumePercent), t: num(p.temperatureF) }))
+  .filter((p) => Number.isFinite(p.v) && Number.isFinite(p.t))
+  .sort((a, b) => a.t - b.t);
+
 /**
  * Interpolate a TBP curve: the volume percent distilled at a temperature.
  *
- * The curve is [{ volumePercent, temperatureF }] in increasing order. Linear
- * between points, clamped at the ends: below the initial boiling point
- * nothing has distilled, above the final point everything has. Clamping
- * rather than extrapolating matters, because extrapolating a distillation
- * curve past its last measured point invents yield.
+ * The curve is [{ volumePercent, temperatureF }]. Linear between measured
+ * points. OUTSIDE the measured range the answer is known only where the curve
+ * itself says so: below a first point at 0 percent nothing has distilled, and
+ * above a last point at 100 percent everything has. Anywhere else outside the
+ * range the value is NOT KNOWN and this returns null.
+ *
+ * It used to clamp flat instead, which is extrapolation by another name: a
+ * curve whose last point is 85 percent at 900 F reported 85 percent at 1000 F,
+ * so a 900 to 1000 F slice came out empty and its barrels were handed to the
+ * residue. Below the first point it returned 0 for a curve starting at, say,
+ * 5 percent, while the Suite's own blended curve returned 5 for the same
+ * question: two answers to one question, both invented.
  */
 export const volumePercentAt = (curve, temperatureF) => {
-  const pts = [...(curve || [])]
-    .map((p) => ({ v: num(p.volumePercent), t: num(p.temperatureF) }))
-    .filter((p) => Number.isFinite(p.v) && Number.isFinite(p.t))
-    .sort((a, b) => a.t - b.t);
+  const pts = curvePoints(curve);
   if (pts.length === 0) return null;
   const t = num(temperatureF);
-  if (t <= pts[0].t) return pts[0].v === 0 ? 0 : Math.min(pts[0].v, t < pts[0].t ? 0 : pts[0].v);
-  if (t >= pts[pts.length - 1].t) return pts[pts.length - 1].v;
+  if (!Number.isFinite(t)) return null;
+  const first = pts[0];
+  const last = pts[pts.length - 1];
+  if (t < first.t) return first.v === 0 ? 0 : null;
+  if (t > last.t) return last.v === 100 ? 100 : null;
+  if (t === first.t) return first.v;
+  if (t === last.t) return last.v;
   for (let i = 1; i < pts.length; i += 1) {
     if (t <= pts[i].t) {
       const span = pts[i].t - pts[i - 1].t;
@@ -211,6 +226,60 @@ export const volumePercentAt = (curve, temperatureF) => {
     }
   }
   return pts[pts.length - 1].v;
+};
+
+/**
+ * Temperature at which a curve reaches a volume percent: the inverse of
+ * volumePercentAt, linear between measured points, null outside them.
+ *
+ * Where the curve is flat across the requested percent (two points at the same
+ * volume) the lowest temperature reaching it is returned.
+ */
+export const temperatureAtVolumePercent = (curve, volumePercent) => {
+  const pts = curvePoints(curve);
+  const target = num(volumePercent);
+  if (pts.length === 0 || !Number.isFinite(target)) return null;
+  for (let i = 0; i < pts.length; i += 1) {
+    if (pts[i].v === target) return pts[i].t;
+    if (i > 0 && pts[i - 1].v < target && pts[i].v > target) {
+      const f = (target - pts[i - 1].v) / (pts[i].v - pts[i - 1].v);
+      return pts[i - 1].t + f * (pts[i].t - pts[i - 1].t);
+    }
+  }
+  return null;
+};
+
+/**
+ * The distillation curve of a blend.
+ *
+ * Yields are additive on VOLUME: at any temperature the blend has distilled
+ * sum(f_i * V_i(T)), where f_i is each crude's volume fraction. So the blended
+ * curve is formed at every temperature any component measured, never by
+ * averaging temperatures. A temperature at which some component's curve says
+ * nothing (volumePercentAt is null) is left out, because the blend's value
+ * there is not known either.
+ *
+ * This used to live in the Suite's CrudeAssayContext as a second copy of the
+ * interpolation, which disagreed with volumePercentAt below a curve's first
+ * point. It lives here now and the app calls it.
+ *
+ * @param {{curve: {volumePercent:number, temperatureF:number}[]}[]} components
+ * @param {number[]} volumeFractions  summing to one
+ */
+export const blendDistillationCurves = (components, volumeFractions) => {
+  const temps = new Set();
+  (components || []).forEach((c) => curvePoints(c.curve).forEach((p) => temps.add(p.t)));
+  return [...temps].sort((a, b) => a - b).flatMap((temperatureF) => {
+    let volumePercent = 0;
+    for (let i = 0; i < components.length; i += 1) {
+      const f = volumeFractions[i] ?? 0;
+      if (!(f > 0)) continue;
+      const v = volumePercentAt(components[i].curve, temperatureF);
+      if (v === null) return [];
+      volumePercent += f * v;
+    }
+    return [{ temperatureF, volumePercent }];
+  });
 };
 
 /**
@@ -232,7 +301,9 @@ export const cutYields = ({ curve, cuts }) => {
     const upper = cut.toF === null || cut.toF === undefined
       ? 100
       : volumePercentAt(curve, cut.toF);
-    const yieldPct = lower === null || upper === null ? null : Math.max(0, upper - lower);
+    const inverted = cut.fromF !== null && cut.fromF !== undefined && cut.toF !== null && cut.toF !== undefined
+      && num(cut.toF) < num(cut.fromF);
+    const yieldPct = lower === null || upper === null || inverted ? null : upper - lower;
     return {
       id: cut.id,
       name: cut.name,
@@ -242,12 +313,17 @@ export const cutYields = ({ curve, cuts }) => {
     };
   });
   const total = rows.reduce((s, r) => s + (r.yieldVolPercent ?? 0), 0);
+  // A cut whose bound lies outside the measured curve, or whose bounds are
+  // inverted, has no yield to report. It is named rather than zeroed, and the
+  // set cannot close while any cut is unknown.
+  const unknownCuts = rows.filter((r) => r.yieldVolPercent === null).map((r) => r.name || r.id);
   return {
     cuts: rows,
     totalVolPercent: total,
+    unknownCuts,
     // A real assay closes to 100 within rounding. A gap means the cut set
     // does not cover the curve, which is the user's to resolve, not ours.
-    closes: Math.abs(total - 100) < 0.5,
+    closes: unknownCuts.length === 0 && Math.abs(total - 100) < 0.5,
   };
 };
 
@@ -303,29 +379,46 @@ export const screenBlendStability = ({ components, massFractions }) => {
     if (cii === null) {
       return { basis: 'none', message: 'The blended SARA has no aromatics or resins, so the index cannot be formed.', stable: null };
     }
-    const stable = cii < CII_BANDS.STABLE;
+    // Three bands, three answers. The middle band is neither: it used to come
+    // back stable: false beside a message saying "Uncertain".
+    const stable = cii < CII_BANDS.STABLE ? true : cii < CII_BANDS.UNSTABLE ? null : false;
+    const band = cii < CII_BANDS.STABLE ? 'stable' : cii < CII_BANDS.UNSTABLE ? 'uncertain' : 'unstable';
     const message = cii < CII_BANDS.STABLE
       ? 'Screens stable on the colloidal instability index. Asphaltenes are held by the aromatics and resins present.'
       : cii < CII_BANDS.UNSTABLE
         ? 'Uncertain. The index sits in the band where blends go either way; spot test to ASTM D7112 or D7157 before commingling.'
         : 'Screens unstable. The saturate and asphaltene load is high against the aromatics and resins holding it. Do not commingle without a lab test.';
-    return { basis: 'cii', cii, blendedSara: mix, stable, message };
+    return { basis: 'cii', cii, blendedSara: mix, stable, band, message };
   }
 
   // No SARA: the API-contrast screen, which is a heuristic and is labelled one.
-  const apis = components.map((c) => num(c.api));
+  //
+  // It can RAISE a flag and it cannot clear one. Its two thresholds (a 15
+  // degree spread, a lightest crude above 35 API) are a rule of thumb, not a
+  // measurement of the asphaltenes, so not seeing the classic combination is
+  // no evidence of stability and the result is stable: null, not true. It used
+  // to return true, which the app drew as a green tick. A missing API used to
+  // pass as well: NaN failed both comparisons and the blend came back stable.
+  const apis = components.map((c) => (Number.isFinite(num(c.api)) ? num(c.api) : apiFromSg(num(c.sg))));
+  if (apis.some((a) => !Number.isFinite(a))) {
+    return {
+      basis: 'none',
+      stable: null,
+      message: 'No SARA analysis and not every crude has a gravity, so no stability screen was made. Supply SARA for a colloidal instability index.',
+    };
+  }
   const heaviest = Math.min(...apis);
   const lightest = Math.max(...apis);
   const contrast = lightest - heaviest;
   const paraffinicDiluent = lightest > 35;
-  const stable = !(contrast > 15 && paraffinicDiluent);
+  const flagged = contrast > 15 && paraffinicDiluent;
   return {
     basis: 'api-contrast',
     contrast,
-    stable,
-    message: stable
-      ? 'No SARA analysis supplied, so this is an API-contrast screen only: the gravity spread is not the classic heavy-plus-light-paraffinic combination that destabilises asphaltenes. Supply SARA for a real index.'
-      : `No SARA analysis supplied. On gravity contrast alone (${contrast.toFixed(1)} degrees API, with a light paraffinic component) this is the combination that classically drops asphaltenes. Supply SARA for a colloidal instability index, and spot test before commingling.`,
+    stable: flagged ? false : null,
+    message: flagged
+      ? `No SARA analysis supplied. On gravity contrast alone (${contrast.toFixed(1)} degrees API, with a light paraffinic component) this is the combination that classically drops asphaltenes. Supply SARA for a colloidal instability index, and spot test before commingling.`
+      : 'No SARA analysis supplied, so this is an API-contrast screen only. The gravity spread is not the classic heavy-plus-light-paraffinic combination, which is not evidence that the blend is stable. Supply SARA for a real index.',
   };
 };
 
@@ -348,12 +441,49 @@ export const blendCrudes = (components) => {
   if (!Array.isArray(components) || components.length === 0) {
     return { error: 'No components to blend.' };
   }
-  const withSg = components.map((c) => ({ ...c, sg: c.sg ?? sgFromApi(c.api) }));
+  const label = (c, i) => c.name || c.id || `crude ${i + 1}`;
+  const withSg = components.map((c) => {
+    const sg = Number.isFinite(num(c.sg)) ? num(c.sg) : sgFromApi(c.api);
+    return { ...c, sg: Number.isFinite(sg) && sg > 0 ? sg : null };
+  });
+
+  // Every refusal below used to be a silent number. A crude with no gravity
+  // dropped out of a mass-basis blend and made the volume-basis one NaN; a
+  // crude given by mass beside crudes given by volume was blended as zero; a
+  // negative share was clamped to zero.
+  const noGravity = withSg.filter((c) => c.sg === null).map(label);
+  if (noGravity.length > 0) {
+    return { error: `No API or specific gravity for ${noGravity.join(', ')}. Every property here is weighted by density.` };
+  }
+  const given = (v) => v !== undefined && v !== null && v !== '';
+  const byVolume = withSg.filter((c) => given(c.volumeFraction));
+  const byMass = withSg.filter((c) => given(c.massFraction));
+  if (byVolume.length > 0 && byVolume.length < withSg.length) {
+    return { error: 'Give every crude a volume share, or give every crude a mass share. The two cannot be mixed.' };
+  }
+  if (byVolume.length === 0 && byMass.length < withSg.length) {
+    return { error: 'Give every crude a volume share or a mass share.' };
+  }
+  const shares = withSg.map((c) => num(byVolume.length > 0 ? c.volumeFraction : c.massFraction));
+  if (shares.some((v) => !(v >= 0))) {
+    return { error: 'A blend share must be a number of zero or more.' };
+  }
+  if (!(shares.reduce((s, v) => s + v, 0) > 0)) {
+    return { error: 'The blend shares add up to zero.' };
+  }
+
   const { volume, mass, sgBlend, apiBlend } = resolveFractions(withSg);
 
+  // A property blends only when EVERY crude in the blend carries it. A crude
+  // with a blank sulfur is not a sulfur-free crude; it used to be read as one,
+  // which lowered the blend's sulfur by that crude's whole mass share, the
+  // exact failure this file's num() was written to prevent.
+  const missing = {};
   const massProperty = (key) => {
     const values = withSg.map((c) => c[key]);
-    if (values.every((v) => v === undefined || v === null)) return null;
+    if (values.every((v) => !given(v))) return null;
+    const without = withSg.filter((c, i) => mass[i] > 0 && !Number.isFinite(num(c[key]))).map(label);
+    if (without.length > 0) { missing[key] = without; return null; }
     return blendOnMass(values.map((v) => num(v, 0)), mass);
   };
 
@@ -361,28 +491,33 @@ export const blendCrudes = (components) => {
   const viscosity = viscosities.every((v) => Number.isFinite(num(v)))
     ? blendViscosity(viscosities.map((v) => num(v)), mass)
     : null;
+  const properties = {
+    sg: sgBlend,
+    api: apiBlend,
+    sulfurWtPct: massProperty('sulfurWtPct'),
+    tanMgKohG: massProperty('tanMgKohG'),
+    nitrogenWtPct: massProperty('nitrogenWtPct'),
+    nickelPpm: massProperty('nickelPpm'),
+    vanadiumPpm: massProperty('vanadiumPpm'),
+    viscosityCSt: viscosity,
+  };
+  const massBasis = (key) => (missing[key]
+    ? `not blended: no value for ${missing[key].join(', ')}`
+    : 'mass');
 
   return {
     fractions: withSg.map((c, i) => ({
       id: c.id, name: c.name, volumeFraction: volume[i], massFraction: mass[i],
     })),
-    properties: {
-      sg: sgBlend,
-      api: apiBlend,
-      sulfurWtPct: massProperty('sulfurWtPct'),
-      tanMgKohG: massProperty('tanMgKohG'),
-      nitrogenWtPct: massProperty('nitrogenWtPct'),
-      nickelPpm: massProperty('nickelPpm'),
-      vanadiumPpm: massProperty('vanadiumPpm'),
-      viscosityCSt: viscosity,
-    },
+    properties,
+    missing,
     bases: {
       api: 'computed from the volume-blended specific gravity, never averaged directly',
-      sulfurWtPct: 'mass',
-      tanMgKohG: 'mass',
-      nitrogenWtPct: 'mass',
-      nickelPpm: 'mass',
-      vanadiumPpm: 'mass',
+      sulfurWtPct: massBasis('sulfurWtPct'),
+      tanMgKohG: massBasis('tanMgKohG'),
+      nitrogenWtPct: massBasis('nitrogenWtPct'),
+      nickelPpm: massBasis('nickelPpm'),
+      vanadiumPpm: massBasis('vanadiumPpm'),
       viscosityCSt: viscosity === null ? 'not blended: a component viscosity is missing or outside the index domain' : 'Refutas index on mass fraction',
     },
     stability: screenBlendStability({ components: withSg, massFractions: mass }),
@@ -408,8 +543,17 @@ export const blendCrudes = (components) => {
  * they show up commercially.
  */
 export const netbackValue = ({
-  cuts, prices, processingCostPerBbl = 0, freightPerBbl = 0, lossPercent = 0, marker = null,
+  cuts, prices, processingCostPerBbl, freightPerBbl, lossPercent, marker = null,
 }) => {
+  // A cost left blank is taken as zero, because a netback with no freight is
+  // a legitimate question, but it is NAMED so a zero nobody typed is visible.
+  const assumedZero = [
+    ['processing cost', processingCostPerBbl], ['freight', freightPerBbl], ['losses', lossPercent],
+  ].filter(([, v]) => !Number.isFinite(num(v))).map(([k]) => k);
+  const loss = num(lossPercent, 0);
+  if (!(loss >= 0 && loss <= 100)) {
+    return { error: 'Losses must be between 0 and 100 percent.', netback: null };
+  }
   const rows = (cuts || []).map((cut) => {
     const yieldFraction = num(cut.yieldVolPercent, 0) / 100;
     const price = num(prices?.[cut.id], NaN);
@@ -425,7 +569,7 @@ export const netbackValue = ({
   const priced = rows.filter((r) => r.valuePerBblCrude !== null);
   const unpriced = rows.filter((r) => r.valuePerBblCrude === null);
   const grossValue = priced.reduce((s, r) => s + r.valuePerBblCrude, 0);
-  const afterLosses = grossValue * (1 - Math.max(0, num(lossPercent, 0)) / 100);
+  const afterLosses = grossValue * (1 - loss / 100);
   const netback = afterLosses - num(processingCostPerBbl, 0) - num(freightPerBbl, 0);
 
   return {
@@ -438,6 +582,7 @@ export const netbackValue = ({
     // Named, not silently excluded: a cut with no price is a gap in the
     // valuation and the total is only as complete as this list is empty.
     unpricedCuts: unpriced.map((r) => r.name || r.id),
+    assumedZero,
     complete: unpriced.length === 0,
     marker: marker === null || marker === undefined ? null : {
       netback: num(marker),
@@ -484,15 +629,20 @@ export const d86ToTbp = (d86, coefficients) => {
   const { a, b } = coefficients.fifty;
   const tbp50 = a * (t50 ** b);
   const result = new Map([[50, tbp50]]);
+  // A difference that cannot be converted (a D86 point missing, or its anchor
+  // not yet converted because the table is out of order) is named, not dropped.
+  const skipped = [];
 
   coefficients.differences.forEach(({ from, to, a: ca, b: cb }) => {
     const tFrom = byPercent.get(from);
     const tTo = byPercent.get(to);
-    if (!Number.isFinite(tFrom) || !Number.isFinite(tTo)) return;
+    const anchor = result.get(from);
+    if (!Number.isFinite(tFrom) || !Number.isFinite(tTo) || !Number.isFinite(anchor)) {
+      skipped.push({ from, to });
+      return;
+    }
     const observed = Math.abs(tTo - tFrom);
     const converted = ca * (observed ** cb);
-    const anchor = result.get(from);
-    if (!Number.isFinite(anchor)) return;
     result.set(to, to > from ? anchor + converted : anchor - converted);
   });
 
@@ -501,6 +651,7 @@ export const d86ToTbp = (d86, coefficients) => {
     curve: [...result.entries()]
       .map(([volumePercent, temperatureF]) => ({ volumePercent, temperatureF }))
       .sort((x, y) => x.volumePercent - y.volumePercent),
-    note: 'Converted with caller-supplied API 3A1.1 coefficients. The conversion is only as good as that table.',
+    skipped,
+    note: 'Converted with caller-supplied API 3A1.1 coefficients, applied to temperatures in degrees F. The conversion is only as good as that table.',
   };
 };
