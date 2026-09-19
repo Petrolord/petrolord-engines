@@ -61,7 +61,10 @@ X_O2 = F('0.20946')
 M_AIR = F('28.9647')
 M['N2atm'] = (M_AIR - X_O2 * M['O2']) / (1 - X_O2)
 
-# name: (c, h, o, s, n, molar mass as the engine's reference lists it, LHV, HHV)
+# name: (c, h, o, s, n, molar mass, LHV, HHV). Since MD45-1 the molar mass
+# is BUILT from the atom counts and the atomic weights below (the engine
+# builds its table the same way); the table's 44.096, 58.122 and CO2 44.010
+# came from older atomic weights and kept the mass balance from closing.
 REF = {
     'CH4': (1, 4, 0, 0, 0, F('16.043'), F('802.6'), F('890.8')),
     'C2H6': (2, 6, 0, 0, 0, F('30.070'), F('1428.6'), F('1560.7')),
@@ -71,6 +74,10 @@ REF = {
     'CO2': (1, 0, 2, 0, 0, F('44.010'), F(0), F(0)),
     'N2': (0, 0, 0, 0, 2, F('28.014'), F(0), F(0)),
 }
+
+
+REF = {k: v[:5] + (v[0] * AW['C'] + v[1] * AW['H'] + v[2] * AW['O'] + v[3] * AW['S'] + v[4] * AW['N'],) + v[6:]
+       for k, v in REF.items()}
 
 
 def fl(x):
@@ -145,17 +152,48 @@ def efficiency(st, o2pct, heater, basis):
     return {'excessAirFraction': e, 'dry': dry, 'moisture': moist, 'eff': 100 - dry - moist - rad - unb}
 
 
-def trap_nozzle(d_mm, p_bar, cd, rho, k, hours):
-    d_mm, p, cd, rho, k = (float(x) for x in (d_mm, p_bar, cd, rho, k))
+ATMOSPHERE_BAR_A = 1.01325  # 101,325 Pa by definition
+
+
+def trap_nozzle(d_mm, p_bar, cd, rho, k, hours, p_down_bar=ATMOSPHERE_BAR_A):
+    """An isentropic nozzle from stagnation (p0, rho0). The throat sits at the
+    larger of the downstream pressure and the critical pressure; the throat
+    density follows the isentrope and the velocity the enthalpy drop,
+    v = sqrt(2 k/(k-1) p0/rho0 (1 - (pt/p0)^((k-1)/k))). At the critical
+    pressure v is the throat sound speed. The engine uses the collapsed
+    choked-flux formula and, since MD45-1, the collapsed subsonic one."""
+    d_mm, p, cd, rho, k, pd = (float(x) for x in (d_mm, p_bar, cd, rho, k, p_down_bar))
     p0 = p * 1e5
     ratio = (2 / (k + 1)) ** (k / (k - 1))
-    p_star = p0 * ratio
-    rho_star = rho * (2 / (k + 1)) ** (1 / (k - 1))
-    a_star = math.sqrt(k * p_star / rho_star)
-    g = cd * rho_star * a_star
+    choked = pd / p <= ratio
+    if choked:
+        p_star = p0 * ratio
+        rho_star = rho * (2 / (k + 1)) ** (1 / (k - 1))
+        a_star = math.sqrt(k * p_star / rho_star)
+        g = cd * rho_star * a_star
+    else:
+        pt = pd * 1e5
+        rho_t = rho * (pt / p0) ** (1 / k)
+        v = math.sqrt(2 * k / (k - 1) * p0 / rho * (1 - (pt / p0) ** ((k - 1) / k)))
+        g = cd * rho_t * v
     area = math.pi * (d_mm / 1000) ** 2 / 4
     kgh = g * area * 3600
-    return {'kgPerHour': kgh, 'tonnesPerYear': kgh * hours / 1000, 'criticalPressureRatio': ratio}
+    return {'kgPerHour': kgh, 'tonnesPerYear': kgh * hours / 1000, 'criticalPressureRatio': ratio,
+            'pressureRatio': pd / p, 'choked': choked, 'downstreamPressureBarA': pd}
+
+
+def duty_ledger(eff_current_pct, eff_target_pct, annual_fuel_gj=None, duty=1000):
+    """The tuning saving as a DUTY LEDGER: at a fixed duty the fuel is the
+    duty over the efficiency, so the fuel at each efficiency is written out
+    and the saving is the fuel saved over the current fuel. Never a formula
+    for the fraction. Exported in MD45-1 (it lived inside main())."""
+    duty = F(str(duty))
+    ec, et = F(str(eff_current_pct)), F(str(eff_target_pct))
+    fuel_c, fuel_t = duty / (ec / 100), duty / (et / 100)
+    frac = (fuel_c - fuel_t) / fuel_c
+    return {'fuelCurrent': fuel_c, 'fuelTarget': fuel_t, 'fuelSavingFraction': frac,
+            'annualEnergySavedGJ': None if annual_fuel_gj is None else F(str(annual_fuel_gj)) * frac,
+            'differenceShortcut': (et - ec) / 100}
 
 
 def pinch_by_deficit(streams, dtmin):
@@ -237,12 +275,9 @@ def main():
             r = efficiency(st, o2, PAGE_HEATER, basis)
             eff[f'{basis}@{o2}'] = {'efficiencyPercent': fl(r['eff']), 'dryPercent': fl(r['dry']), 'moisturePercent': fl(r['moisture'])}
     # the tuning saving as a DUTY LEDGER: a fixed duty of 1000 GJ
-    duty = F(1000)
-    e6, e3 = F(str(eff['LHV@6']['efficiencyPercent'])), F(str(eff['LHV@3']['efficiencyPercent']))
-    fuel6, fuel3 = duty / (e6 / 100), duty / (e3 / 100)
-    saving_fraction = (fuel6 - fuel3) / fuel6
-    saving = {'fuelSavingFraction': fl(saving_fraction), 'annualEnergySavedGJ': fl(500000 * saving_fraction),
-              'differenceShortcut': fl((e3 - e6) / 100)}
+    led = duty_ledger(eff['LHV@6']['efficiencyPercent'], eff['LHV@3']['efficiencyPercent'], 500000)
+    saving = {'fuelSavingFraction': fl(led['fuelSavingFraction']), 'annualEnergySavedGJ': fl(led['annualEnergySavedGJ']),
+              'differenceShortcut': fl(led['differenceShortcut'])}
 
     trap = {}
     for k in ('1.3', '1.135'):
@@ -271,7 +306,45 @@ def main():
     # price saving: 12000 GJ at 8 a GJ, EF 56, 250000 over 10 years at 10 percent (all SYNTHETIC)
     lev = levelised(250000, 12000 * 8, F(12000 * 56, 1000), 10, '0.1')
 
+    # MD45-1. F6: the trap tested against the critical pressure ratio. The
+    # page trap (3 mm, 11 bar a, 5.6 kg/m3, Cd 0.7, k 1.135) to atmosphere
+    # is choked; into an 8 bar a header it is not; the recon's 1.2 bar a
+    # trap (0.7 kg/m3) to atmosphere is not.
+    trap_md45 = [
+        {'name': 'page trap to atmosphere, downstream left out', 'args': {'orificeDiameterMm': 3, 'upstreamPressureBarA': 11, 'dischargeCoefficient': 0.7,
+                                                                        'steamDensityKgM3': 5.6, 'specificHeatRatio': 1.135, 'hoursPerYear': 8760},
+         **trap_nozzle(3, 11, SYNTH_CD, '5.6', '1.135', 8760)},
+        {'name': 'page trap into an 8 bar a header', 'args': {'orificeDiameterMm': 3, 'upstreamPressureBarA': 11, 'dischargeCoefficient': 0.7,
+                                                              'steamDensityKgM3': 5.6, 'specificHeatRatio': 1.135, 'hoursPerYear': 8760,
+                                                              'downstreamPressureBarA': 8},
+         **trap_nozzle(3, 11, SYNTH_CD, '5.6', '1.135', 8760, 8)},
+        {'name': 'a 1.2 bar a trap to atmosphere', 'args': {'orificeDiameterMm': 3, 'upstreamPressureBarA': 1.2, 'dischargeCoefficient': 0.7,
+                                                            'steamDensityKgM3': 0.7, 'specificHeatRatio': 1.135, 'hoursPerYear': 8760},
+         **trap_nozzle(3, '1.2', SYNTH_CD, '0.7', '1.135', 8760)},
+        {'name': 'page trap exactly at a 5 bar a header (choked)', 'args': {'orificeDiameterMm': 3, 'upstreamPressureBarA': 11, 'dischargeCoefficient': 0.7,
+                                                                           'steamDensityKgM3': 5.6, 'specificHeatRatio': 1.135, 'hoursPerYear': 8760,
+                                                                           'downstreamPressureBarA': 5},
+         **trap_nozzle(3, 11, SYNTH_CD, '5.6', '1.135', 8760, 5)},
+    ]
+    trap_refusals = [
+        {'name': 'a blank downstream pressure', 'downstreamPressureBarA': ''},
+        {'name': 'a downstream pressure at the upstream one', 'downstreamPressureBarA': 11},
+        {'name': 'a negative downstream pressure', 'downstreamPressureBarA': -1},
+    ]
+    # F2: the basis in any case is LHV or HHV; anything else is refused.
+    basis_cases = {'hhv': 'HHV', 'Lhv': 'LHV', ' HHV ': 'HHV'}
+    basis_refusals = ['Btu', 'GCV', '', None]
+    # F7 and F5: losses below zero, and a condensate target below the current.
+    loss_refusals = [{'name': 'a negative radiation loss', 'radiationLossPercent': -3},
+                     {'name': 'a negative unburned loss', 'unburnedLossPercent': -1}]
+    condensate_refusal = {'steamTonnesPerHour': 20, 'currentReturnFraction': 0.7, 'targetReturnFraction': 0.4, 'condensateTempC': 90,
+                          'makeupTempC': 25, 'boilerEfficiencyFraction': 0.85, 'hoursPerYear': 8760}
+
     doc = {
+        'md45': {'traps': trap_md45, 'trapRefusals': trap_refusals, 'basisCases': basis_cases, 'basisRefusals': basis_refusals,
+                 'lossRefusals': loss_refusals, 'condensateBelowCurrent': condensate_refusal,
+                 'dutyLedger': {'current': eff['LHV@6']['efficiencyPercent'], 'target': eff['LHV@3']['efficiencyPercent'], 'annualFuelGJ': 500000,
+                                'fuelSavingFraction': fl(led['fuelSavingFraction']), 'annualEnergySavedGJ': fl(led['annualEnergySavedGJ'])}},
         'provenance': {
             'oracle': 'tools/validation/downstream/oracle_energyefficiency.py',
             'method': 'a species ledger and a mass balance in exact rationals; excess air by bisection; a loss ledger and a duty ledger; an isentropic nozzle; pinch by the largest heat deficit, no cascade; a levelised PV ledger',

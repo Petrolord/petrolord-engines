@@ -54,6 +54,131 @@
   "versusPeer": 1.0285714285714285,
   "withoutPowerIntensity": 640.0
  },
+ "md45": {
+  "basisCases": {
+   " HHV ": "HHV",
+   "Lhv": "LHV",
+   "hhv": "HHV"
+  },
+  "basisRefusals": [
+   "Btu",
+   "GCV",
+   "",
+   null
+  ],
+  "condensateBelowCurrent": {
+   "boilerEfficiencyFraction": 0.85,
+   "condensateTempC": 90,
+   "currentReturnFraction": 0.7,
+   "hoursPerYear": 8760,
+   "makeupTempC": 25,
+   "steamTonnesPerHour": 20,
+   "targetReturnFraction": 0.4
+  },
+  "dutyLedger": {
+   "annualEnergySavedGJ": 8743.956102465556,
+   "annualFuelGJ": 500000,
+   "current": 87.28899370038684,
+   "fuelSavingFraction": 0.01748791220493111,
+   "target": 88.84266645133985
+  },
+  "lossRefusals": [
+   {
+    "name": "a negative radiation loss",
+    "radiationLossPercent": -3
+   },
+   {
+    "name": "a negative unburned loss",
+    "unburnedLossPercent": -1
+   }
+  ],
+  "trapRefusals": [
+   {
+    "downstreamPressureBarA": "",
+    "name": "a blank downstream pressure"
+   },
+   {
+    "downstreamPressureBarA": 11,
+    "name": "a downstream pressure at the upstream one"
+   },
+   {
+    "downstreamPressureBarA": -1,
+    "name": "a negative downstream pressure"
+   }
+  ],
+  "traps": [
+   {
+    "args": {
+     "dischargeCoefficient": 0.7,
+     "hoursPerYear": 8760,
+     "orificeDiameterMm": 3,
+     "specificHeatRatio": 1.135,
+     "steamDensityKgM3": 5.6,
+     "upstreamPressureBarA": 11
+    },
+    "choked": true,
+    "criticalPressureRatio": 0.5774304000110734,
+    "downstreamPressureBarA": 1.01325,
+    "kgPerHour": 28.09990196597263,
+    "name": "page trap to atmosphere, downstream left out",
+    "pressureRatio": 0.09211363636363636,
+    "tonnesPerYear": 246.15514122192025
+   },
+   {
+    "args": {
+     "dischargeCoefficient": 0.7,
+     "downstreamPressureBarA": 8,
+     "hoursPerYear": 8760,
+     "orificeDiameterMm": 3,
+     "specificHeatRatio": 1.135,
+     "steamDensityKgM3": 5.6,
+     "upstreamPressureBarA": 11
+    },
+    "choked": false,
+    "criticalPressureRatio": 0.5774304000110734,
+    "downstreamPressureBarA": 8.0,
+    "kgPerHour": 26.40032751149785,
+    "name": "page trap into an 8 bar a header",
+    "pressureRatio": 0.7272727272727273,
+    "tonnesPerYear": 231.26686900072116
+   },
+   {
+    "args": {
+     "dischargeCoefficient": 0.7,
+     "hoursPerYear": 8760,
+     "orificeDiameterMm": 3,
+     "specificHeatRatio": 1.135,
+     "steamDensityKgM3": 0.7,
+     "upstreamPressureBarA": 1.2
+    },
+    "choked": false,
+    "criticalPressureRatio": 0.5774304000110734,
+    "downstreamPressureBarA": 1.01325,
+    "kgPerHour": 2.5741103901784386,
+    "name": "a 1.2 bar a trap to atmosphere",
+    "pressureRatio": 0.844375,
+    "tonnesPerYear": 22.549207017963123
+   },
+   {
+    "args": {
+     "dischargeCoefficient": 0.7,
+     "downstreamPressureBarA": 5,
+     "hoursPerYear": 8760,
+     "orificeDiameterMm": 3,
+     "specificHeatRatio": 1.135,
+     "steamDensityKgM3": 5.6,
+     "upstreamPressureBarA": 11
+    },
+    "choked": true,
+    "criticalPressureRatio": 0.5774304000110734,
+    "downstreamPressureBarA": 5.0,
+    "kgPerHour": 28.09990196597263,
+    "name": "page trap exactly at a 5 bar a header (choked)",
+    "pressureRatio": 0.45454545454545453,
+    "tonnesPerYear": 246.15514122192025
+   }
+  ]
+ },
  "molarMasses": {
   "CO2": 44.009,
   "H2O": 18.015,
@@ -138,7 +263,7 @@
    "at3": {
     "dryFlueGasKgPerKmolFuel": 344.11604919759276,
     "excessAirFraction": 0.1513921618334858,
-    "fuelPlusAirKg": 382.84812919759275,
+    "fuelPlusAirKg": 382.8482991975928,
     "wetFlueGasKg": 382.8482991975928
    },
    "co2PerKmolFuel": 1.23,
@@ -168,13 +293,13 @@
      "moleFraction": 0.02
     }
    ],
-   "fuelMolarMassKgKmol": 20.62798,
+   "fuelMolarMassKgKmol": 20.62815,
    "h2oPerKmolFuel": 2.15,
    "hhvMJPerKmolFuel": 1017.935,
    "lhvMJPerKmolFuel": 923.175,
    "n2PerKmolFuel": 8.606262293516663,
    "o2PerKmolFuel": 2.275,
-   "stoichAirKgPerKgFuel": 15.250800318452027,
+   "stoichAirKgPerKgFuel": 15.250674634081198,
    "stoichAirPerKmolFuel": 10.861262293516662
   },
   "page": {
@@ -250,18 +375,24 @@
    "annualCost": 6153.878530548006,
    "annualFuelGJ": 781.9045662343349,
    "annualTonnesCo2e": 43.786655709122755,
+   "choked": true,
    "criticalPressureRatio": 0.5774304000110734,
+   "downstreamPressureBarA": 1.01325,
    "kgPerHour": 28.09990196597263,
    "population40TonnesPerYear": 9846.20564887681,
+   "pressureRatio": 0.09211363636363636,
    "tonnesPerYear": 246.15514122192025
   },
   "1.3": {
    "annualCost": 6460.468658973612,
    "annualFuelGJ": 820.8595472578236,
    "annualTonnesCo2e": 45.96813464643812,
+   "choked": true,
    "criticalPressureRatio": 0.545727733814065,
+   "downstreamPressureBarA": 1.01325,
    "kgPerHour": 29.499856890290463,
    "population40TonnesPerYear": 10336.749854357779,
+   "pressureRatio": 0.09211363636363636,
    "tonnesPerYear": 258.4187463589445
   }
  }

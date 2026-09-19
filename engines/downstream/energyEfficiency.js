@@ -43,7 +43,7 @@
  * efficiencies on different bases.
  */
 
-import { abatementCost } from './carbonAbatement.js';
+import { abatementCost, MW_CO2 } from './carbonAbatement.js';
 
 /** Missing stays missing. */
 const num = (v, fallback = NaN) => {
@@ -67,18 +67,39 @@ const blank = (v) => v === null || v === '';
 /** Mole fraction of oxygen in dry air. A measured composition, not a guess. */
 export const O2_MOLE_FRACTION_DRY_AIR = 0.20946;
 export const AIR_MOLAR_MASS = 28.9647;
+/**
+ * IUPAC conventional atomic weights (CIAAW 2024 table), the one source every
+ * molar mass in this module is built from, as the carbon engine's MW_CO2,
+ * MW_CH4 and MW_C are (MD45-1).
+ */
+export const ATOMIC_WEIGHT = Object.freeze({ C: 12.011, H: 1.008, O: 15.999, N: 14.007, S: 32.06 });
+const built = ({ c = 0, h = 0, o = 0, s = 0, n = 0 }) => Math.round((c * ATOMIC_WEIGHT.C
+  + h * ATOMIC_WEIGHT.H + o * ATOMIC_WEIGHT.O + s * ATOMIC_WEIGHT.S + n * ATOMIC_WEIGHT.N) * 1000) / 1000;
 /** O2 from the IUPAC conventional atomic weight of oxygen, 15.999. */
 export const O2_MOLAR_MASS = 31.998;
 /**
  * "Atmospheric nitrogen": everything in dry air that is not oxygen (N2 with
  * its argon and CO2), at the molar mass that makes air's own mass balance
- * close. Carrying the argon at the molar mass of N2 lost about 1.1 kg of
- * flue gas per kilomole of methane burned (MD5-0).
+ * close. It is derived from all three air constants:
+ * (AIR_MOLAR_MASS - O2_MOLE_FRACTION_DRY_AIR x O2_MOLAR_MASS)
+ * / (1 - O2_MOLE_FRACTION_DRY_AIR), about 28.161 kg/kmol. Carrying the
+ * argon at the molar mass of N2 lost about 1.1 kg of flue gas per kilomole
+ * of methane burned (MD5-0).
  */
 export const ATMOSPHERIC_N2_MOLAR_MASS = (AIR_MOLAR_MASS - O2_MOLE_FRACTION_DRY_AIR * O2_MOLAR_MASS)
   / (1 - O2_MOLE_FRACTION_DRY_AIR);
 
 export const HEATING_VALUE_BASIS = { LHV: 'LHV', HHV: 'HHV' };
+
+/**
+ * The flue gas products' molar masses, built from ATOMIC_WEIGHT. CO2 is the
+ * carbon engine's MW_CO2 itself, so an inert CO2 in the fuel weighs the same
+ * going in and coming out (MD45-1: the fuel table said 44.010 and the flue
+ * gas 44.009, a mass balance that could not close).
+ */
+export const PRODUCT_MOLAR_MASS = Object.freeze({
+  CO2: MW_CO2, H2O: built({ h: 2, o: 1 }), SO2: built({ s: 1, o: 2 }), N2: built({ n: 2 }),
+});
 
 /**
  * Fuel components. The ATOM COUNTS ARE DEFINITIONAL - they come from the
@@ -87,14 +108,20 @@ export const HEATING_VALUE_BASIS = { LHV: 'LHV', HHV: 'HHV' };
  * a caller passes its own or accepts these knowing what they are.
  */
 export const FUEL_REFERENCE = [
-  { code: 'CH4', label: 'Methane', c: 1, h: 4, o: 0, s: 0, n: 0, molarMassKgKmol: 16.043, typicalLhvMJKmol: 802.6, typicalHhvMJKmol: 890.8 },
-  { code: 'C2H6', label: 'Ethane', c: 2, h: 6, o: 0, s: 0, n: 0, molarMassKgKmol: 30.070, typicalLhvMJKmol: 1428.6, typicalHhvMJKmol: 1560.7 },
-  { code: 'C3H8', label: 'Propane', c: 3, h: 8, o: 0, s: 0, n: 0, molarMassKgKmol: 44.096, typicalLhvMJKmol: 2043.1, typicalHhvMJKmol: 2219.2 },
-  { code: 'C4H10', label: 'Butane', c: 4, h: 10, o: 0, s: 0, n: 0, molarMassKgKmol: 58.122, typicalLhvMJKmol: 2657.3, typicalHhvMJKmol: 2877.5 },
-  { code: 'H2', label: 'Hydrogen', c: 0, h: 2, o: 0, s: 0, n: 0, molarMassKgKmol: 2.016, typicalLhvMJKmol: 241.8, typicalHhvMJKmol: 285.8 },
-  { code: 'CO2', label: 'Carbon dioxide (inert)', c: 1, h: 0, o: 2, s: 0, n: 0, molarMassKgKmol: 44.010, typicalLhvMJKmol: 0, typicalHhvMJKmol: 0, inert: true },
-  { code: 'N2', label: 'Nitrogen (inert)', c: 0, h: 0, o: 0, s: 0, n: 2, molarMassKgKmol: 28.014, typicalLhvMJKmol: 0, typicalHhvMJKmol: 0, inert: true },
+  { code: 'CH4', label: 'Methane', c: 1, h: 4, o: 0, s: 0, n: 0, molarMassKgKmol: null, typicalLhvMJKmol: 802.6, typicalHhvMJKmol: 890.8 },
+  { code: 'C2H6', label: 'Ethane', c: 2, h: 6, o: 0, s: 0, n: 0, molarMassKgKmol: null, typicalLhvMJKmol: 1428.6, typicalHhvMJKmol: 1560.7 },
+  { code: 'C3H8', label: 'Propane', c: 3, h: 8, o: 0, s: 0, n: 0, molarMassKgKmol: null, typicalLhvMJKmol: 2043.1, typicalHhvMJKmol: 2219.2 },
+  { code: 'C4H10', label: 'Butane', c: 4, h: 10, o: 0, s: 0, n: 0, molarMassKgKmol: null, typicalLhvMJKmol: 2657.3, typicalHhvMJKmol: 2877.5 },
+  { code: 'H2', label: 'Hydrogen', c: 0, h: 2, o: 0, s: 0, n: 0, molarMassKgKmol: null, typicalLhvMJKmol: 241.8, typicalHhvMJKmol: 285.8 },
+  { code: 'CO2', label: 'Carbon dioxide (inert)', c: 1, h: 0, o: 2, s: 0, n: 0, molarMassKgKmol: null, typicalLhvMJKmol: 0, typicalHhvMJKmol: 0, inert: true },
+  { code: 'N2', label: 'Nitrogen (inert)', c: 0, h: 0, o: 0, s: 0, n: 2, molarMassKgKmol: null, typicalLhvMJKmol: 0, typicalHhvMJKmol: 0, inert: true },
 ];
+
+// Molar masses BUILT from the atom counts and ATOMIC_WEIGHT (MD45-1). The
+// table carried propane at 44.096 and butane at 58.122 (older atomic
+// weights) and CO2 at 44.010, while the flue gas was weighed at the IUPAC
+// values, so fuel and air in never quite equalled flue gas out.
+FUEL_REFERENCE.forEach((r) => { r.molarMassKgKmol = r.code === 'CO2' ? MW_CO2 : built(r); });
 
 export const FUEL_REFERENCE_NOTE = 'Atom counts are definitional and drive the stoichiometry. Heating values are typical: the fuel analysis governs, and a measured value should replace these.';
 
@@ -175,7 +202,7 @@ export const combustionStoichiometry = ({ components = [] }) => {
     lhvMJPerKmolFuel: haveLhv ? round(norm.reduce((s, r) => s + r.y * r.lhvMJKmol, 0), 6) : null,
     hhvMJPerKmolFuel: haveHhv ? round(norm.reduce((s, r) => s + r.y * r.hhvMJKmol, 0), 6) : null,
     heatingValueNote: haveLhv && haveHhv ? null
-      : 'A heating value missing on any component makes the mixture value missing, not partial.',
+      : 'A heating value missing on any component leaves the mixture value missing too. No partial average is reported.',
   };
 };
 
@@ -199,7 +226,10 @@ export const excessAirFromFlueOxygen = ({ stoichiometry, dryO2Percent }) => {
   const o2pc = num(dryO2Percent);
   if (!Number.isFinite(o2pc)) return { error: 'A measured dry stack oxygen is required.' };
   if (o2pc < 0 || o2pc >= O2_MOLE_FRACTION_DRY_AIR * 100) {
-    return { error: `Stack oxygen must lie between 0 and ${round(O2_MOLE_FRACTION_DRY_AIR * 100, 2)} percent.` };
+    // The bound stated as the test applies it (MD45-1: the message said
+    // 20.95 and refused 20.946).
+    const airO2 = round(O2_MOLE_FRACTION_DRY_AIR * 100, 6);
+    return { error: `Stack oxygen must be 0 percent or more and below ${airO2} percent, the oxygen in dry air. A reading of ${airO2} percent is air with no fuel burned.` };
   }
   const o2s = st.o2PerKmolFuel;
   const dryProductsStoich = st.products.co2PerKmolFuel + st.products.so2PerKmolFuel
@@ -247,7 +277,7 @@ export const excessAirFromFlueOxygen = ({ stoichiometry, dryO2Percent }) => {
 export const stackLossEfficiency = ({
   stoichiometry, excessAir,
   stackTempC, combustionAirTempC,
-  basis = HEATING_VALUE_BASIS.LHV,
+  basis: basisIn = HEATING_VALUE_BASIS.LHV,
   flueGasCpKJkgK, waterVapourCpKJkgK, waterLatentHeatKJkg,
   radiationLossPercent,
   unburnedLossPercent = 0,
@@ -257,6 +287,13 @@ export const stackLossEfficiency = ({
   const ea = excessAir;
   if (!st || st.error) return { error: 'Valid stoichiometry is required.' };
   if (!ea || ea.error) return { error: 'A valid excess-air result is required.' };
+  // The basis is LHV or HHV, in any case, and is reported in upper case.
+  // Anything else is refused: it was computed on LHV and returned under
+  // the caller's label, a label that contradicted its own number (MD45-1).
+  const basis = typeof basisIn === 'string' ? basisIn.trim().toUpperCase() : null;
+  if (basis !== HEATING_VALUE_BASIS.LHV && basis !== HEATING_VALUE_BASIS.HHV) {
+    return { error: `The heating value basis must be LHV or HHV. "${basisIn}" is neither, and an efficiency on an unknown basis cannot be compared with anything.` };
+  }
   const tStack = num(stackTempC);
   const tAir = num(combustionAirTempC);
   const cpFlue = num(flueGasCpKJkgK);
@@ -269,6 +306,11 @@ export const stackLossEfficiency = ({
     return {
       error: 'A radiation and convection loss is required and is not defaulted. It comes off a published chart against surface area and firing rate, which this module does not reproduce.',
     };
+  }
+  // A loss below zero would raise the efficiency (MD45-1).
+  if (rad < 0) return { error: 'The radiation and convection loss cannot be negative: a loss below zero would add to the efficiency.' };
+  if (num(unburnedLossPercent, 0) < 0) {
+    return { error: 'The unburned and other loss cannot be negative: a loss below zero would add to the efficiency.' };
   }
   const heatingValue = basis === HEATING_VALUE_BASIS.HHV
     ? st.hhvMJPerKmolFuel : st.lhvMJPerKmolFuel;
@@ -284,13 +326,13 @@ export const stackLossEfficiency = ({
     + ea.excessAirFraction * st.stoichAirPerKmolFuel;
   const airN2 = Number.isFinite(P.airN2PerKmolFuel) ? P.airN2PerKmolFuel : P.n2PerKmolFuel;
   const fuelN2 = Number.isFinite(P.fuelN2PerKmolFuel) ? P.fuelN2PerKmolFuel : 0;
-  const dryMassKg = P.co2PerKmolFuel * 44.009 + P.so2PerKmolFuel * 64.058
-    + airN2 * ATMOSPHERIC_N2_MOLAR_MASS + fuelN2 * 28.014
+  const dryMassKg = P.co2PerKmolFuel * PRODUCT_MOLAR_MASS.CO2 + P.so2PerKmolFuel * PRODUCT_MOLAR_MASS.SO2
+    + airN2 * ATMOSPHERIC_N2_MOLAR_MASS + fuelN2 * PRODUCT_MOLAR_MASS.N2
     + ea.excessAirFraction * st.stoichAirPerKmolFuel * AIR_MOLAR_MASS;
   const dryLossKJ = dryMassKg * cpFlue * (tStack - tAir);
 
   // Moisture from burning hydrogen.
-  const h2oMassKg = P.h2oPerKmolFuel * 18.015;
+  const h2oMassKg = P.h2oPerKmolFuel * PRODUCT_MOLAR_MASS.H2O;
   const cpV = num(waterVapourCpKJkgK, null);
   const hfg = num(waterLatentHeatKJkg, null);
   let moistureLossKJ = null;
@@ -407,14 +449,21 @@ export const excessAirSaving = ({
 // Steam
 // ---------------------------------------------------------------------------
 
+/** One standard atmosphere, bar a (101,325 Pa by definition). */
+export const ATMOSPHERE_BAR_A = 1.01325;
+
 /**
- * Steam lost through a failed trap, as choked flow through an orifice.
+ * Steam lost through a failed trap, as isentropic flow through an orifice.
  *
- * A trap that has failed open is a hole in the steam system, and above a
- * pressure ratio of about two the flow through a hole is CHOKED: it depends
- * on the upstream pressure and not at all on what is downstream. That is
- * why a failed trap venting to atmosphere and one venting to a condensate
- * header lose nearly the same steam, which surprises people.
+ * A trap that has failed open is a hole in the steam system. While the
+ * downstream pressure is at or below the critical fraction of the upstream
+ * one, (2/(k+1))^(k/(k-1)), about 0.58 for saturated steam, the flow is
+ * CHOKED: it depends on the upstream pressure alone. That is why a failed
+ * trap venting to atmosphere and one venting to a low-pressure condensate
+ * header lose the same steam, which surprises people. Above the critical
+ * ratio the flow is subsonic and the downstream pressure matters; until
+ * MD45-1 this reported choked flow at any pressure. The downstream pressure
+ * left out of the call is the stated atmosphere; left blank it is missing.
  *
  * The discharge coefficient is REQUIRED: it depends on the orifice geometry
  * and on how the trap failed, and a default would put a spurious precision
@@ -422,7 +471,7 @@ export const excessAirSaving = ({
  */
 export const steamTrapLoss = ({
   orificeDiameterMm, upstreamPressureBarA, dischargeCoefficient,
-  steamDensityKgM3, specificHeatRatio,
+  steamDensityKgM3, specificHeatRatio, downstreamPressureBarA,
   hoursPerYear = 8760, steamCostPerTonne = null,
   steamEnergyMJPerTonne = null, emissionFactorKgCo2ePerGJ = null,
   boilerEfficiencyFraction = null,
@@ -447,11 +496,29 @@ export const steamTrapLoss = ({
   if (!Number.isFinite(cd) || cd <= 0 || cd > 1) {
     return { error: 'A discharge coefficient in (0, 1] is required and is not defaulted: it depends on the orifice and on how the trap failed.' };
   }
+  const downstreamGiven = downstreamPressureBarA !== undefined;
+  if (blank(downstreamPressureBarA)) {
+    return { error: `A downstream pressure is required when the box is there. Left out, a trap venting to atmosphere (${ATMOSPHERE_BAR_A} bar a) is the stated default.` };
+  }
+  const p2 = downstreamGiven ? num(downstreamPressureBarA) : ATMOSPHERE_BAR_A;
+  if (!Number.isFinite(p2) || p2 < 0) {
+    return { error: 'The downstream pressure must be an absolute pressure of zero or more, in bar a.' };
+  }
+  if (p2 >= p) {
+    return { error: `The downstream pressure (${p2} bar a) is not below the upstream pressure (${p} bar a), so no steam flows through the trap.` };
+  }
   const areaM2 = Math.PI * (d / 1000) ** 2 / 4;
   const pPa = p * 1e5;
+  const pressureRatio = p2 / p;
+  const criticalPressureRatio = (2 / (k + 1)) ** (k / (k - 1));
+  const choked = pressureRatio <= criticalPressureRatio;
   // Choked mass flux: G = Cd x sqrt( k x rho x P x (2/(k+1))^((k+1)/(k-1)) ).
+  // Subsonic: G = Cd x sqrt( 2 rho P k/(k-1) (r^(2/k) - r^((k+1)/k)) ).
   const term = (2 / (k + 1)) ** ((k + 1) / (k - 1));
-  const massFluxKgM2s = cd * Math.sqrt(k * rho * pPa * term);
+  const massFluxKgM2s = choked
+    ? cd * Math.sqrt(k * rho * pPa * term)
+    : cd * Math.sqrt(2 * rho * pPa * (k / (k - 1))
+      * (pressureRatio ** (2 / k) - pressureRatio ** ((k + 1) / k)));
   const kgPerHour = massFluxKgM2s * areaM2 * 3600;
   const hours = num(hoursPerYear, 8760);
   const tonnesPerYear = (kgPerHour * hours) / 1000;
@@ -470,8 +537,15 @@ export const steamTrapLoss = ({
     error: null,
     kgPerHour: round(kgPerHour, 8),
     tonnesPerYear: round(tonnesPerYear, 8),
-    choked: true,
-    chokedNote: 'Choked flow: the loss depends on the upstream pressure and not on what is downstream, so a trap blowing into a condensate header loses much the same steam as one blowing to atmosphere.',
+    downstreamPressureBarA: p2,
+    pressureRatio: round(pressureRatio, 8),
+    criticalPressureRatio: round(criticalPressureRatio, 8),
+    choked,
+    chokedNote: choked
+      ? `Choked flow: the pressure ratio ${round(pressureRatio, 4)} is at or below the critical ${round(criticalPressureRatio, 4)}, so the loss depends on the upstream pressure alone.`
+      : `Subsonic flow: the pressure ratio ${round(pressureRatio, 4)} is above the critical ${round(criticalPressureRatio, 4)}, so the downstream pressure lowers the loss.`,
+    downstreamNote: downstreamGiven ? null
+      : `No downstream pressure was given, so the trap is taken to vent to atmosphere (${ATMOSPHERE_BAR_A} bar a).`,
     annualCost: cost === null ? null : round(tonnesPerYear * cost, 2),
     annualFuelGJ: fuelGJ === null ? null : round(fuelGJ, 8),
     annualTonnesCo2e: fuelGJ === null || ef === null ? null : round((fuelGJ * ef) / 1000, 8),
@@ -512,6 +586,11 @@ export const condensateReturnValue = ({
   if ([cur, tgt].some((v) => v < 0 || v > 1)) {
     return { error: 'Return fractions must lie between 0 and 1.' };
   }
+  // A target below the current return is less condensate back, a cost
+  // priced as a negative saving (MD45-1).
+  if (tgt < cur) {
+    return { error: `The target return (${tgt}) is below the current return (${cur}). Returning less condensate is a cost, so there is nothing to value.` };
+  }
   if (!Number.isFinite(eta) || eta <= 0 || eta > 1) {
     return { error: 'A boiler efficiency in (0, 1] is required: the fuel saved depends on it and it is not assumed.' };
   }
@@ -544,7 +623,7 @@ export const condensateReturnValue = ({
     complete: missing.length === 0,
     missingInputs: missing,
     valueNote: missing.length
-      ? `A floor, not the value: ${missing.join(', ')} not priced. The treatment cost is the one usually left out.`
+      ? `A floor on the value: ${missing.join(', ')} not priced. The treatment cost is the one usually left out.`
       : null,
     annualTonnesCo2e: ef === null ? null : round((fuelGJ * ef) / 1000, 8),
   };

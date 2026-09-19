@@ -84,8 +84,12 @@ def inventory(lines, gwp_label, gwp_values):
         gwp = F(1) if ln['gas'] == 'CO2' else (F(str(gwp_values[ln['gas']])) if ln['gas'] in gwp_values else None)
         if ln['activity'] is None:
             blocked.append({'label': ln['label'], 'reason': 'no activity data'}); continue
+        if ln['activity'] < 0:
+            blocked.append({'label': ln['label'], 'reason': 'a negative activity'}); continue
         if ln['factor'] is None:
             blocked.append({'label': ln['label'], 'reason': 'no factor value'}); continue
+        if ln['factor'] < 0:
+            blocked.append({'label': ln['label'], 'reason': 'a negative factor'}); continue
         if gwp is None:
             blocked.append({'label': ln['label'], 'reason': 'gwp'}); continue
         t = F(str(ln['activity'])) * F(str(ln['factor'])) * gwp
@@ -122,7 +126,9 @@ def levelised(m, r):
             'actsOn': m.get('actsOn', [])}
 
 
-def curve(costed, source_emissions, target):
+def curve(costed, source_emissions, target, refused=()):
+    """refused: (label, reason) pairs for measures the cost function refused;
+    they are named and carry no tonnes (MD45-1)."""
     idx = list(range(len(costed)))
     rank = sorted(idx, key=lambda i: (costed[i]['costPerTonne'] is None,
                                        costed[i]['costPerTonne'] if costed[i]['costPerTonne'] is not None else 0, i))
@@ -143,13 +149,33 @@ def curve(costed, source_emissions, target):
         claimed = sum(F(str(m['tonnesAbatedPerYear'])) for m in ms)
         if s in source_emissions and source_emissions[s] is not None and claimed > F(str(source_emissions[s])):
             over.append({'sourceId': s, 'claimedTonnes': fl(claimed), 'emittedTonnes': float(source_emissions[s])})
+    # MD45-1: a claim is checkable only against a source whose emission is
+    # given AND a number of zero or more. A measure naming no source is
+    # unchecked too. Any unchecked claim leaves the verdict unassessed.
+    def checkable(s):
+        v = source_emissions.get(s)
+        return isinstance(v, (int, float)) and not isinstance(v, bool) and v == v and v >= 0
+    unchecked = []
+    for m in costed:
+        if not m['actsOn']:
+            unchecked.append((m['label'], None))
+        for s in m['actsOn']:
+            if not checkable(s):
+                unchecked.append((m['label'], s))
+    unchecked_sources = []
+    for _, s in unchecked:
+        if s is not None and s not in unchecked_sources:
+            unchecked_sources.append(s)
     net_all = sum(F(str(m['netAnnualCost'])) for m in costed)
-    meets = None if target is None or over else cum >= F(str(target))
+    meets = None if target is None or over or unchecked else cum >= F(str(target))
     return {'order': [costed[i]['label'] for i in rank], 'steps': steps, 'totalAbatementTonnes': fl(cum),
             'paysForItselfMeasures': [costed[i]['label'] for i in rank if costed[i]['paysForItself']],
             'weightedAverageCostPerTonne': fl(net_all / cum) if cum else None,
             'interactions': interactions, 'overClaims': over, 'additive': not interactions,
-            'meetsTarget': meets, 'targetTonnes': fl(F(str(target))) if target is not None else None}
+            'meetsTarget': meets, 'targetTonnes': fl(F(str(target))) if target is not None else None,
+            'uncheckedSources': unchecked_sources,
+            'unsourcedMeasures': [lab for lab, s in unchecked if s is None],
+            'refusedMeasures': [{'label': lab, 'reasonContains': why} for lab, why in refused]}
 
 
 def path(base, measures, y0, y1, pct):
@@ -161,6 +187,8 @@ def path(base, measures, y0, y1, pct):
         abated = sum((F(str(m['tonnesAbatedPerYear'])) for m in measures
                       if m.get('startYear') is not None and m.get('tonnesAbatedPerYear') is not None and m['startYear'] <= y), F(0))
         em = base - abated
+        if em < 0:
+            return {'refused': True, 'overAbatedYear': y}
         rows.append({'year': y, 'abatedTonnes': fl(abated), 'emissionsTonnes': fl(em), 'targetTonnes': fl(target),
                      'unabatedGapTonnes': fl(max(F(0), em - target))})
     short = [r['year'] for r in rows if r['unabatedGapTonnes'] > 1e-9]
@@ -214,6 +242,39 @@ def main():
     target = F(str(filled_inv['totalTonnes'])) * 30 / 100
     page_curve = curve(costed, src, fl(target))
     no_flare_measure = curve(costed[:3], src, fl(target))
+
+    # MD45-1 F1. The page AS IT OPENS: the flare is refused (blank
+    # destruction efficiency), so the page passes the heaters alone, and the
+    # target is 30 percent of the partial inventory. Before MD45-1 the
+    # engine said "met" here on the unchecked flare and steam claims.
+    src_open = {'heaters': heaters['co2Tonnes']}
+    target_open = F(str(open_inv['totalTonnes'])) * 30 / 100
+    curve_open = curve(costed, src_open, fl(target_open))
+    # Every source given (steam SYNTHETIC 25,000 t), no over-claim: a verdict
+    # again, as an upper bound because two measures act on the heaters.
+    src_all = dict(src, steam=25000)
+    curve_checked = curve(costed[:3], src_all, fl(target))
+    curve_checked_met = curve(costed[:3], src_all, 5000)
+    # All four page measures with every source given: the flare claim is the
+    # only thing between the curve and a verdict, so the over-claim alone
+    # must keep the verdict unassessed.
+    curve_over_all_given = curve(costed, src_all, 5000)
+    # MD45-1 F8: every box filled but the flare's destruction efficiency.
+    # The flare is refused; as a blocked line it keeps the inventory NOT
+    # reportable. Dropped (as the page did), the rest read reportable.
+    refused_lines = [ln for ln in filled_lines if not ln['label'].startswith('Flaring')] + [
+        {'label': 'Flaring', 'error': 'A destruction efficiency is required'}]
+    inv_refused = inventory(refused_lines, 'IPCC AR6 GWP100 (fossil CH4)', ar6)
+    inv_dropped = inventory(refused_lines[:-1], 'IPCC AR6 GWP100 (fossil CH4)', ar6)
+    # A source given with no computed emission, and a measure naming none.
+    src_blank_steam = dict(src, steam=None)
+    curve_blank_steam = curve(costed[:3], src_blank_steam, 5000)
+    curve_negative_steam = curve(costed[:3], dict(src, steam=-5), 5000)
+    unsourced = [dict(costed[0], actsOn=[])]
+    curve_unsourced = curve(unsourced, src_all, 100)
+    # MD45-1 F3: a refused measure is named with the engine's reason.
+    curve_refused = curve(costed[:1], src_all, 5000,
+                          refused=[('Repair failed steam traps', 'no capital cost')])
     page_path = path(filled_inv['totalTonnes'], PAGE_MEASURES, 2026, 2032, 30)
     unsched = PAGE_MEASURES[:3] + [dict(PAGE_MEASURES[3], startYear=None)]
     path_unsched = path(filled_inv['totalTonnes'], unsched, 2026, 2032, 30)
@@ -248,6 +309,32 @@ def main():
         'curveWithoutFlareRecovery': no_flare_measure,
         'path': {'baselineTonnes': filled_inv['totalTonnes'], 'startYear': 2026, 'endYear': 2032, 'targetPercent': 30, **page_path},
         'pathUnscheduled': path_unsched,
+        'md45': {
+            'curveAtOpen': {'sourceEmissions': src_open, **curve_open},
+            'curveAllSourcesChecked': {'sourceEmissions': src_all, **curve_checked},
+            'curveAllSourcesCheckedMet': {'sourceEmissions': src_all, **curve_checked_met},
+            'curveOverClaimAllGiven': {'sourceEmissions': src_all, **curve_over_all_given},
+            'inventoryFlareRefused': {'refusedAsLine': inv_refused, 'refusedDropped': inv_dropped},
+            'curveSourceNotComputed': {'sourceEmissions': src_blank_steam, **curve_blank_steam},
+            'curveNegativeSource': {'sourceEmissions': dict(src, steam=-5), **curve_negative_steam},
+            'curveUnsourcedMeasure': {'sourceEmissions': src_all, 'measures': unsourced, **curve_unsourced},
+            'curveWithRefused': {'sourceEmissions': src_all, **curve_refused,
+                                 'refusedArgs': {'label': 'Repair failed steam traps', 'capitalCost': '', 'annualSavings': 240000,
+                                                 'tonnesAbatedPerYear': 1400, 'lifeYears': 3, 'discountRate': 0.1, 'actsOn': ['steam']}},
+            'negativeLines': [
+                {'name': 'a negative activity', 'line': {'label': 'neg activity', 'scope': 1, 'gas': 'CO2', 'activity': -100, 'factor': 2, 'sourced': True},
+                 **inventory([{'label': 'neg activity', 'scope': 1, 'gas': 'CO2', 'activity': -100, 'factor': 2, 'sourced': True}], 'AR6', ar6)},
+                {'name': 'a negative factor', 'line': {'label': 'neg factor', 'scope': 1, 'gas': 'CO2', 'activity': 100, 'factor': -2, 'sourced': True},
+                 **inventory([{'label': 'neg factor', 'scope': 1, 'gas': 'CO2', 'activity': 100, 'factor': -2, 'sourced': True}], 'AR6', ar6)},
+            ],
+            'gwpRefusals': [
+                {'name': 'a negative methane potential', 'label': 'x', 'values': {'CH4': -5, 'N2O': 273}},
+                {'name': 'a zero methane potential', 'label': 'x', 'values': {'CH4': 0}},
+            ],
+            'pathOverAbated': {'baselineTonnes': 1000, 'startYear': 2026, 'endYear': 2027,
+                               'measures': [{'label': 'x', 'tonnesAbatedPerYear': 1500, 'startYear': 2026}],
+                               **path(1000, [{'label': 'x', 'tonnesAbatedPerYear': 1500, 'startYear': 2026}], 2026, 2027, 30)},
+        },
         'abatementRefusals': [
             {'name': 'negative abatement', 'args': {'label': 'X', 'capitalCost': 0, 'tonnesAbatedPerYear': -10}},
             {'name': 'blank capital', 'args': {'label': 'X', 'capitalCost': '', 'tonnesAbatedPerYear': 10, 'lifeYears': 5, 'discountRate': 0.1}},

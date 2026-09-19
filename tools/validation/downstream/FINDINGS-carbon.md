@@ -256,3 +256,122 @@ synthetic 56 kg/GJ and a synthetic 0.43 t/MWh and say so.
 - **H4. Combustion N2O is not computed.** Only CO2 and escaped methane come
   out of the atom balance; N2O needs an emission factor line, which the page
   allows.
+
+## MD45-1 (2026-09-19): found by the NextGen course foundation (`carbon`)
+
+The course recon (F1 to F7) and its writers (F8, F9 and a message) found
+eleven things; all repaired. **No graded figure and no numeric golden on
+the page or capstone paths moved.** One verdict golden moved
+(`curveWithoutFlareRecovery.meetsTarget` false to null, F1) and three mass
+figures of the synthetic `mixed` fuel moved (molar masses, below).
+
+### F1. AT DEFAULTS: the curve said "met" on claims no source could check
+
+MD5-0's Suite repair (C11) leaves a source that did not compute out of
+`sourceEmissions`, and the curve only checked claims against sources it
+was given. As the Carbon Studio opens, the flare is refused (blank
+destruction efficiency), so only the heaters are passed, and the 9,000 t
+flare gas recovery claim and the 1,400 t steam trap claim were never
+checked:
+
+| page defaults | meetsTarget | targetBasis |
+|---|---|---|
+| before | true (15,300 t against 9,167.95 t) | "upper bound: measures interact" |
+| after | null | "not assessed: no computed emission to check the claims on steam, flare" |
+
+A claim is now checked only against a source whose emission is given AND
+a number of zero or more. A source left out, given blank or NaN, given
+negative, and a measure that names no source at all are listed in
+`uncheckedClaims` (measure, source, reason) and `uncheckedSources`, and
+any of them leaves `meetsTarget` null. With every source given and no
+over-claim the verdict returns, as an upper bound where measures interact.
+DECISION: a "not met" is also withheld while a claim is unchecked (the
+ruling's null), although an upper bound below the target would support
+it; one rule is easier to teach and to show. DECISION: a measure naming no
+source is unchecked too, since its claim cannot be tested against anything.
+The page never passes a steam emission, so its verdict stays unassessed
+until it does; the Suite page names the unchecked sources.
+
+### The other findings
+
+- **F2. `stackLossEfficiency` labelled a basis it did not use.** Any basis
+  but exactly 'HHV' was computed on LHV and returned under the caller's
+  label ('hhv' gave 89.821412 labelled 'hhv'; on HHV it is 80.803591).
+  The basis is now read case-insensitively, trimmed and reported in upper
+  case ('hhv' gives 80.803591, 'HHV'); anything else, blank or null is
+  refused. DECISION: case-insensitive (a select or a typed 'lhv' means LHV),
+  never a caller's string as the label.
+- **F3. `abatementCurve` dropped a refused measure silently.** It now lists
+  `refusedMeasures` (label, the engine's reason) with a `refusedNote`, and
+  every `abatementCost` refusal carries its label.
+- **F4. A negative activity or factor made a negative line** (-200 t) and
+  the inventory stayed reportable. The line is now blocked ("a negative
+  activity" / "a negative factor: an emission line cannot remove tonnes")
+  and the inventory is not reportable. Removals are reported apart from
+  an inventory.
+- **F5. `condensateReturnValue` valued a target below the current return**
+  (-52,560 t, -229,334.74 a year). Refused.
+- **F6. `steamTrapLoss` said "choked" at any pressure.** It now takes
+  `downstreamPressureBarA` (left out: the stated atmosphere,
+  `ATMOSPHERE_BAR_A` 1.01325, named in `downstreamNote`; blank: refused;
+  at or above upstream: refused), tests the ratio against the critical
+  (2/(k+1))^(k/(k-1)) and uses the subsonic isentropic flux above it. It
+  returns `pressureRatio`, `criticalPressureRatio` and `choked`.
+
+  | trap (3 mm, Cd 0.7, k 1.135) | before kg/h | after kg/h |
+  |---|---|---|
+  | 11 bar a to atmosphere (page, capstone shape) | 28.0999 choked | 28.0999 choked (unchanged) |
+  | 11 bar a into an 8 bar a header | 28.0999 "choked" | 26.4003 subsonic |
+  | 1.2 bar a to atmosphere (0.7 kg/m3) | 3.2814 "choked" | 2.5741 subsonic |
+
+  The oracle's nozzle now puts the throat at the larger of the downstream
+  and critical pressures and takes the velocity from the enthalpy drop.
+- **F7.** `decarbonisationPath` refuses a year whose measures abate more
+  than the baseline (it drew -500 t) and names the year; `makeGwpSet`
+  refuses a potential of zero or below (the set is then not declared);
+  `stackLossEfficiency` refuses a negative radiation loss (94.32 percent at
+  -3) and a negative unburned loss.
+- **F8. A refused combustion left no trace in the inventory.** The page
+  builds its atom-balance lines only from results that computed, so a
+  refused flare was neither blocked nor counted: with every other box
+  filled the inventory read reportable. New `atomBalanceLines({ label,
+  combustion, gwpSet, excluded })` returns the CO2 and escaped-methane lines
+  (factor 1, "Atom balance (conservation of mass)"), or ONE blocked line
+  carrying the refusal, so the inventory stays not reportable while it
+  stands; `excluded` is a source left out of the boundary on purpose.
+- **F9. The stack oxygen refusal said "between 0 and 20.95 percent"** and
+  refused 20.946. It now states the bound it applies: 0 or more and below
+  20.946 percent, the oxygen in dry air.
+- **Capital-life message.** "makes every measure look expensive" was
+  untrue (two page measures still come out negative on one year). Now:
+  "Set against one year's saving, a one-off capital cost overstates the cost
+  per tonne of a capital measure."
+- **One source of molar masses.** `energyEfficiency` now builds every
+  molar mass from `ATOMIC_WEIGHT` (IUPAC 2024), exports
+  `PRODUCT_MOLAR_MASS`, and takes CO2 from the carbon engine's `MW_CO2`.
+  `FUEL_REFERENCE` carried CO2 at 44.010, propane 44.096 and butane 58.122
+  (older atomic weights) while the flue gas was weighed at the IUPAC values,
+  so fuel and air in never quite equalled flue gas out; now CO2 44.009,
+  propane 44.097, butane 58.124 and the balance closes to the engine's
+  rounding (the gate tightened from 1e-6 to 1e-8). Moved goldens, synthetic
+  `mixed` fuel only: fuel molar mass 20.62798 to 20.62815 kg/kmol, air
+  15.2508003 to 15.2506746 kg/kg, fuel plus air 382.848129 to 382.848299 kg.
+  Not graded. `ATMOSPHERIC_N2_MOLAR_MASS` is now labelled as derived from
+  all three air constants (MD5-0 E8 above says "the two").
+- **Copy rule.** Four engine strings carried "X, not Y": the atom balance
+  method, the inventory disclaimer, the heating value note and the
+  condensate floor note. Reworded; the golden test sweeps every string in
+  both engines. The course digest quotes three of them verbatim and must be
+  rebuilt on this engine.
+- **Oracle.** `oracle_energyefficiency.py` exports `duty_ledger()` (the
+  tuning saving the course check transcribed from `main()`), and
+  `trap_nozzle()` takes a downstream pressure.
+
+Gate: `downstream.carbon.golden.test.js` now runs 122 cases, every one
+calling the engine; `negcontrol_md5.sh` part 1 runs against the pinned
+pre-repair engines (13f0936 and f0aef14: `origin/main` goes green once a
+repair merges), and part 3 plants 26 reversals of these repairs (logic
+flips, a loosened tolerance, a moved default and constants, the old copy
+back). 61 planted, 61 caught, both part 1 runs red. The first run had two
+survivors (a negative source emission read as checked: a golden case
+added; one stale anchor after the molar mass change: re-anchored).
