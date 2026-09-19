@@ -1,4 +1,18 @@
 {
+ "constants": {
+  "flareMolarMass": {
+   "CH4": 16.043,
+   "CO2": 44.009
+  },
+  "flareMolarMassFromIupac2024": {
+   "CH4": 16.043,
+   "CO2": 44.009
+  },
+  "richnessGpm": {
+   "moderate": 1.0,
+   "rich": 2.5
+  }
+ },
  "counterfactual": {
   "avoidedFlareCo2eTonnes": 239245.96729785958,
   "counterfactualLabel": "CNG displacing diesel",

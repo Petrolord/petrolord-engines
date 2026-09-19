@@ -11,9 +11,10 @@
  */
 import fs from 'fs';
 import path from 'path';
+import { createRequire } from 'module';
 import {
   characteriseGas, screenRoute, routeEconomics, abatement, creditSensitivity, compareRoutes,
-  ROUTE_TEMPLATES, SCF_PER_LBMOL,
+  ROUTE_TEMPLATES, SCF_PER_LBMOL, FLARE_MOLAR_MASS, RICHNESS_GPM,
 } from '../engines/downstream/flareToValue.js';
 import {
   assetFloat, lpgBlendProperties, lpgStorageSizing, vaporizerDuty, bottlingPlant,
@@ -400,5 +401,94 @@ describe.each(LC.conversion.map((c) => [c.name, c]))('conversion: %s', (_n, g) =
     expect(conversionEconomics({ ...args, newFuel: { ...args.newFuel, efficiencyRatio: '' } }).error).toMatch(/efficiency ratio/);
     const { efficiencyRatio, ...nf } = args.newFuel; // eslint-disable-line no-unused-vars
     expect(conversionEconomics({ ...args, newFuel: nf }).error).toMatch(/efficiency ratio/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// MD45-1: what the gasvalue course foundations found
+// ---------------------------------------------------------------------------
+
+describe('MD45-1 F-R4: the flare molar masses and the richness edges are exported', () => {
+  it('weighs the flare at the molar masses the oracle pins, which are the IUPAC 2024 ones', () => {
+    expect(FLARE_MOLAR_MASS.CO2).toBe(FV.constants.flareMolarMass.CO2);
+    expect(FLARE_MOLAR_MASS.CH4).toBe(FV.constants.flareMolarMass.CH4);
+    expect(rel(FLARE_MOLAR_MASS.CO2, FV.constants.flareMolarMassFromIupac2024.CO2, 1e-12)).toBe(true);
+    expect(rel(FLARE_MOLAR_MASS.CH4, FV.constants.flareMolarMassFromIupac2024.CH4, 1e-12)).toBe(true);
+  });
+  it('an all-CO2 and an all-methane flare give the exported molar masses back', () => {
+    // A million lb-mol of CO2 passes through; half a million of methane escapes.
+    const days = 1;
+    const volume = SCF_PER_LBMOL; // MMscfd, so a million lb-mol a day
+    const co2 = characteriseGas({ components: [{ code: 'CO2', moleFraction: 1, c: 1, molarMassLbLbmol: 44.01, ghvBtuScf: 0, liquidDensityLbGal: null, recoverableAsNgl: false, inert: true }] });
+    const ch4 = characteriseGas({ components: [{ code: 'C1', moleFraction: 1, c: 1, molarMassLbLbmol: 16.043, ghvBtuScf: 1010, liquidDensityLbGal: null, recoverableAsNgl: false }] });
+    const a = abatement({ gas: co2, volumeMMscfd: volume, onstreamDays: days, flareDestructionEfficiency: 1, recoveryFraction: 1 });
+    const b = abatement({ gas: ch4, volumeMMscfd: volume, onstreamDays: days, flareDestructionEfficiency: 0.5, flareCombustionEfficiency: 0.5, recoveryFraction: 1 });
+    const lbToT = 1 / 2.20462262 / 1000;
+    expect(rel(a.flareCo2Tonnes, 1e6 * FV.constants.flareMolarMass.CO2 * lbToT, 1e-7)).toBe(true);
+    expect(rel(b.flareCh4Tonnes, 0.5e6 * FV.constants.flareMolarMass.CH4 * lbToT, 1e-7)).toBe(true);
+  });
+  it('the richness bands are the oracle\'s edges', () => {
+    expect(RICHNESS_GPM).toEqual(FV.constants.richnessGpm);
+  });
+  it('names each gas by the oracle\'s edges across a propane sweep', () => {
+    const word = (g) => (g >= FV.constants.richnessGpm.rich ? 'rich' : g >= FV.constants.richnessGpm.moderate ? 'moderate' : 'lean');
+    const c1 = FV.gases[0].components.find((c) => c.code === 'C1');
+    const c3 = FV.gases[0].components.find((c) => c.code === 'C3');
+    const seen = new Set();
+    for (let i = 0; i <= 200; i += 1) {
+      const x = i * 0.0005;
+      const comps = [{ ...c1, moleFraction: 1 - x }, { ...c3, moleFraction: x }];
+      const r = characteriseGas({ components: comps });
+      expect(r.richness).toBe(word(r.gpmC3Plus));
+      seen.add(r.richness);
+    }
+    expect([...seen].sort()).toEqual(['lean', 'moderate', 'rich']);
+  });
+});
+
+// The owner copy rule: no em or en dash, no "X, not Y" contrastive.
+const CONTRAST = /\b\w+, not (a |an |the )?\w+/i;
+const clean = (t) => !/[\u2014\u2013]/.test(t) && !CONTRAST.test(t);
+
+describe('MD45-1 F-R3: the engine notes keep the owner copy rule', () => {
+  it('the heating value note on a gas missing one', () => {
+    const g = characteriseGas({ components: FV.gases[0].components.map((c, i) => (i === 0 ? { ...c, ghvBtuScf: null } : c)) });
+    expect(g.ghvBtuScf).toBeNull();
+    expect(g.ghvNote).toMatch(/missing/);
+    expect(clean(g.ghvNote)).toBe(true);
+  });
+  it('the blend note on a property missing', () => {
+    const r = lpgBlendProperties({ components: [
+      { code: 'a', volumeFraction: 0.5, liquidDensityKgM3: 508, latentHeatKJkg: 425 },
+      { code: 'b', volumeFraction: 0.5, liquidDensityKgM3: 584, latentHeatKJkg: null },
+    ] });
+    expect(r.note).toMatch(/missing for the blend/);
+    expect(clean(r.note)).toBe(true);
+  });
+  it('the vaporizer floor note', () => {
+    const r = vaporizerDuty({ ...LC.vaporizer, boilingPointC: '' });
+    expect(r.note).toMatch(/floor/);
+    expect(clean(r.note)).toBe(true);
+  });
+  it('no string in either engine breaks it', () => {
+    const require = createRequire(__filename);
+    const { parse } = require('@babel/parser');
+    const bad = [];
+    ['flareToValue.js', 'lpgCng.js'].forEach((f) => {
+      const src = fs.readFileSync(path.join(__dirname, '..', 'engines', 'downstream', f), 'utf8');
+      const walk = (n) => {
+        if (!n || typeof n.type !== 'string') return;
+        const text = n.type === 'StringLiteral' ? n.value
+          : n.type === 'TemplateLiteral' ? n.quasis.map((q) => q.value.cooked).join('X') : null;
+        if (text !== null && !clean(text)) bad.push(`${f}:${n.loc.start.line} ${text}`);
+        Object.keys(n).forEach((k) => {
+          if (k === 'loc' || k.endsWith('Comments')) return;
+          const v = n[k];
+          if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === 'object') walk(v);
+        });
+      };
+      walk(parse(src, { sourceType: 'module' }).program);
+    });
+    expect(bad).toEqual([]);
   });
 });

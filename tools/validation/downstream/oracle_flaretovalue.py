@@ -70,6 +70,9 @@ M3_PER_GAL = F('0.003785411784')
 SCF_PER_LBMOL = F('379.49')
 MW_CO2 = F('44.009')
 MW_CH4 = F('16.043')
+# The richness words' lower edges, gal of C3+ per Mscf (the engine's stated
+# screening bands; exported by the engine as RICHNESS_GPM since MD45-1).
+RICHNESS_GPM = {'rich': F('2.5'), 'moderate': F(1)}
 BTU_J = F('1055.05585262')
 
 
@@ -123,7 +126,7 @@ def characterise(comps):
     out['gpmC2Plus'] = gpm(('C2', 'C3', 'IC4', 'NC4', 'C5'))
     out['gpmC3Plus'] = gpm(('C3', 'IC4', 'NC4', 'C5'))
     g = out['gpmC3Plus']
-    out['richness'] = None if g is None else ('rich' if g >= 2.5 else 'moderate' if g >= 1 else 'lean')
+    out['richness'] = None if g is None else ('rich' if g >= RICHNESS_GPM['rich'] else 'moderate' if g >= RICHNESS_GPM['moderate'] else 'lean')
     out['rawMoleFractionSum'] = float(tot)
     return out
 
@@ -194,6 +197,17 @@ def credits(t, prices, margin, hurdle):
             'lowestTestedClearingPrice': min(clearing) if clearing else None}
 
 
+def net_abatement(avoided, product_combustion, displaced_fuel):
+    """The net abatement ledger: the flare emission the recovered share
+    avoids, less what burning the product emits, plus the fuel it displaces
+    (tCO2e a year). None unless all three are declared, as the engine
+    reports it only against a declared counterfactual. Exported in MD45-1
+    (it lived inside main())."""
+    if avoided is None or product_combustion is None or displaced_fuel is None:
+        return None
+    return avoided - product_combustion + displaced_fuel
+
+
 def main():
     s = derived_scf_per_lbmol()
     assert abs(s / SCF_PER_LBMOL - 1) < F('5e-5'), float(s)
@@ -231,7 +245,7 @@ def main():
     cf = dict(flares[0])
     cf.update({'name': 'counterfactual declared: CNG displacing diesel', 'counterfactualLabel': 'CNG displacing diesel',
                'productCombustionTonnesCo2ePerYear': 150000, 'displacedFuelTonnesCo2ePerYear': 180000})
-    cf['netAbatementTonnesCo2ePerYear'] = cf['avoidedFlareCo2eTonnes'] - 150000 + 180000
+    cf['netAbatementTonnesCo2ePerYear'] = net_abatement(cf['avoidedFlareCo2eTonnes'], 150000, 180000)
     # what main's engine said for the same inputs: every unburned carbon as
     # methane, the gas's CO2 burned, the whole flare credited
     old_ch4 = float(10 * 10 ** 6 * 350 / SCF_PER_LBMOL * F('1.30') * F('0.02') * MW_CH4 * KG_PER_LB / 1000)
@@ -273,6 +287,9 @@ def main():
             'derivedScfPerLbmol': float(s),
         },
         'gases': gases, 'gasRefusals': gas_refusals, 'flares': flares, 'counterfactual': cf,
+        'constants': {'flareMolarMass': {'CO2': float(MW_CO2), 'CH4': float(MW_CH4)},
+                      'flareMolarMassFromIupac2024': {'CO2': float(F('12.011') + 2 * F('15.999')), 'CH4': float(F('12.011') + 4 * F('1.008'))},
+                      'richnessGpm': {k: float(v) for k, v in RICHNESS_GPM.items()}},
         'mainBefore': before, 'routes': routes, 'yieldAboveCeiling': over, 'credits': credit_cases,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)

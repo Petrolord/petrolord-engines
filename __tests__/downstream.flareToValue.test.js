@@ -88,7 +88,7 @@ describe('characterising the gas', () => {
       components: [comp('C1', 0.9), { ...ref('C2'), moleFraction: 0.1, ghvBtuScf: null }],
     });
     expect(g.ghvBtuScf).toBeNull();
-    expect(g.ghvNote).toMatch(/missing, not partial/i);
+    expect(g.ghvNote).toMatch(/missing too/i);
   });
 
   it('names a component whose liquid density it does not have', () => {
