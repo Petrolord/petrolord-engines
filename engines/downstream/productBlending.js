@@ -83,6 +83,24 @@ export const BLEND_BASIS = {
  */
 export const RVP_INDEX_EXPONENT = 1.25;
 
+/** Relative tolerance for calling a specification binding. */
+export const BINDING_TOLERANCE = 1e-7;
+
+/**
+ * dIndex/dProperty at a limit, for converting a row price to a price per unit
+ * of the property. 1 for a spec that blends the property itself. Central
+ * difference, so any caller-supplied index works without a derivative.
+ */
+const indexSlopeAt = (spec, limit) => {
+  if (spec.basis !== BLEND_BASIS.INDEX) return 1;
+  if (!spec.toIndex || !Number.isFinite(limit)) return null;
+  const h = 1e-6 * Math.max(1, Math.abs(limit));
+  const up = spec.toIndex(limit + h);
+  const dn = spec.toIndex(limit - h);
+  if (!Number.isFinite(up) || !Number.isFinite(dn)) return null;
+  return (up - dn) / (2 * h);
+};
+
 export const rvpIndex = (rvp, exponent = RVP_INDEX_EXPONENT) => {
   const v = num(rvp);
   if (!(v >= 0)) return null;
@@ -121,11 +139,27 @@ const contributionValue = (component, spec) => {
   return raw;
 };
 
-/** Density weight for a mass-basis property; 1 for the others. */
+/** A component's specific gravity, from sg or api; null when it has neither. */
+const specificGravity = (component) => {
+  const sg = Number.isFinite(num(component.sg)) ? num(component.sg) : sgFromApi(num(component.api));
+  return Number.isFinite(sg) && sg > 0 ? sg : null;
+};
+
+/** Whether a spec weights its property by density: mass basis, or an index blended on mass. */
+const needsDensity = (spec) => spec.basis === BLEND_BASIS.MASS
+  || (spec.basis === BLEND_BASIS.INDEX && Boolean(spec.indexOnMass));
+
+/**
+ * Density weight for a mass-basis property; 1 for the others.
+ *
+ * A component with no density has NO weight to give, and this returns null
+ * rather than a stand-in. It used to return 1, which blended a gasoline pool's
+ * sulfur as if every stream were as dense as water and still reported the
+ * specification as met and binding.
+ */
 const basisWeight = (component, spec) => {
   if (spec.basis !== BLEND_BASIS.MASS) return 1;
-  const sg = Number.isFinite(num(component.sg)) ? num(component.sg) : sgFromApi(num(component.api));
-  return Number.isFinite(sg) ? sg : 1;
+  return specificGravity(component);
 };
 
 /**
@@ -142,13 +176,17 @@ export const propertyOfBlend = ({ components, volumes, spec }) => {
   if (spec.basis === BLEND_BASIS.MASS) {
     let mass = 0;
     let weighted = 0;
+    let unknown = false;
     components.forEach((c, i) => {
-      const w = basisWeight(c, spec) * volumes[i];
       const value = num(c[spec.id]);
       if (!Number.isFinite(value)) return;
+      const sg = basisWeight(c, spec);
+      if (sg === null) { if (volumes[i] > 0) unknown = true; return; }
+      const w = sg * volumes[i];
       mass += w;
       weighted += w * value;
     });
+    if (unknown) return null;
     return mass > 0 ? weighted / mass : null;
   }
 
@@ -161,7 +199,9 @@ export const propertyOfBlend = ({ components, volumes, spec }) => {
       // Viscosity's index is blended on mass, RVP's on volume. The spec says
       // which through indexOnMass, because getting this wrong is a real error
       // and not a detail.
-      const w = (spec.indexOnMass ? basisWeight(c, { basis: BLEND_BASIS.MASS }) : 1) * volumes[i];
+      const sg = spec.indexOnMass ? basisWeight(c, { basis: BLEND_BASIS.MASS }) : 1;
+      if (sg === null) { if (volumes[i] > 0) covered = NaN; return; }
+      const w = sg * volumes[i];
       weighted += w * idx;
       covered += w;
     });
@@ -201,12 +241,50 @@ export const optimiseBlend = ({ components, specs, targetVolume }) => {
   }
 
   const n = components.length;
-  const cost = components.map((c) => num(c.cost, 0));
-  const lo = components.map((c) => Math.max(0, num(c.minVolume, 0)));
-  const hi = components.map((c) => {
-    const cap = num(c.maxVolume, Infinity);
-    return cap > 0 ? cap : Infinity;
+  const label = (c, i) => c.name || c.id || `component ${i + 1}`;
+
+  // A cost nobody supplied is not a free component. It used to be read as 0,
+  // which let the least-cost recipe fill up on whatever had a blank price.
+  const unpriced = components.filter((c) => !Number.isFinite(num(c.cost))).map(label);
+  if (unpriced.length > 0) {
+    return {
+      status: 'invalid',
+      error: `No cost for ${unpriced.join(', ')}. A least-cost recipe needs a price on every component; remove the component or give it one.`,
+      unpricedComponents: unpriced,
+    };
+  }
+  const cost = components.map((c) => num(c.cost));
+
+  // Availability. ABSENT means unlimited; a typed number means exactly that
+  // number, and zero means none. The old rule read `cap > 0 ? cap : Infinity`,
+  // so a tank typed as empty became an unlimited supply.
+  const isAbsent = (v) => v === undefined || v === null || v === '' || v === Infinity;
+  const badBounds = [];
+  const lo = components.map((c, i) => {
+    if (isAbsent(c.minVolume)) return 0;
+    const v = num(c.minVolume);
+    if (!(v >= 0)) badBounds.push(`${label(c, i)} minimum`);
+    return v;
   });
+  const hi = components.map((c, i) => {
+    if (isAbsent(c.maxVolume)) return Infinity;
+    const v = num(c.maxVolume);
+    if (!(v >= 0)) badBounds.push(`${label(c, i)} maximum`);
+    return v;
+  });
+  if (badBounds.length > 0) {
+    return {
+      status: 'invalid',
+      error: `${badBounds.join(', ')} must be a number of zero or more. Leave a maximum blank for no limit.`,
+    };
+  }
+  const crossed = components.filter((c, i) => lo[i] > hi[i]).map(label);
+  if (crossed.length > 0) {
+    return {
+      status: 'invalid',
+      error: `${crossed.join(', ')} has a minimum above its maximum.`,
+    };
+  }
 
   const A = [];
   const b = [];
@@ -235,15 +313,18 @@ export const optimiseBlend = ({ components, specs, targetVolume }) => {
       });
       return;
     }
-    const weights = components.map((c, i) => basisWeight(c, spec)
-      * (spec.basis === BLEND_BASIS.INDEX && spec.indexOnMass
-        ? basisWeight(c, { basis: BLEND_BASIS.MASS })
-        : 1)
-      * values[i]);
-    const denominators = components.map((c) => basisWeight(c, spec)
-      * (spec.basis === BLEND_BASIS.INDEX && spec.indexOnMass
-        ? basisWeight(c, { basis: BLEND_BASIS.MASS })
-        : 1));
+    if (needsDensity(spec) && components.some((c) => specificGravity(c) === null)) {
+      skipped.push({
+        id: spec.id,
+        name: spec.name,
+        reason: 'This property blends on mass and not every component has a density (sg or API), so the specification was not applied.',
+      });
+      return;
+    }
+    // Mass weighting for a mass-basis property or a mass-blended index; the
+    // two cases are the same weight and never apply together.
+    const denominators = components.map((c) => (needsDensity(spec) ? specificGravity(c) : 1));
+    const weights = denominators.map((d, i) => d * values[i]);
 
     // sum(w_i v_i) / sum(d_i v_i) <= limit  becomes  sum((w_i - limit d_i) v_i) <= 0,
     // which is linear. The same rearrangement gives the lower limit.
@@ -254,7 +335,10 @@ export const optimiseBlend = ({ components, specs, targetVolume }) => {
       A.push(weights.map((w, i) => w - limit * denominators[i]));
       b.push(0);
       ops.push('<=');
-      rowMeta.push({ kind: 'spec', specId: spec.id, name: `${spec.name} maximum`, bound: 'max', limit: spec.max });
+      rowMeta.push({
+        kind: 'spec', specId: spec.id, name: `${spec.name} maximum`, bound: 'max', limit: spec.max,
+        unit: spec.unit ?? null, denominators, indexSlope: indexSlopeAt(spec, num(spec.max)),
+      });
     }
     if (spec.min !== undefined && spec.min !== null) {
       const limit = spec.basis === BLEND_BASIS.INDEX && spec.toIndex
@@ -263,7 +347,10 @@ export const optimiseBlend = ({ components, specs, targetVolume }) => {
       A.push(weights.map((w, i) => w - limit * denominators[i]));
       b.push(0);
       ops.push('>=');
-      rowMeta.push({ kind: 'spec', specId: spec.id, name: `${spec.name} minimum`, bound: 'min', limit: spec.min });
+      rowMeta.push({
+        kind: 'spec', specId: spec.id, name: `${spec.name} minimum`, bound: 'min', limit: spec.min,
+        unit: spec.unit ?? null, denominators, indexSlope: indexSlopeAt(spec, num(spec.min)),
+      });
     }
   });
 
@@ -303,15 +390,18 @@ export const optimiseBlend = ({ components, specs, targetVolume }) => {
     const skippedHere = skipped.some((s) => s.id === spec.id);
     let giveaway = null;
     let binding = false;
+    // Binding is judged relative to the limit: 1e-7 absolute is a tight test
+    // on an octane of 91 and no test at all on a sulfur limit of 35,000 ppm.
+    const atLimit = (gap, limit) => Math.abs(gap) <= BINDING_TOLERANCE * Math.max(1, Math.abs(limit));
     if (value !== null && !skippedHere) {
       if (spec.max !== undefined && spec.max !== null) {
         giveaway = num(spec.max) - value;   // positive means better than required
-        binding = Math.abs(giveaway) < 1e-7;
+        binding = atLimit(giveaway, num(spec.max));
       }
       if (spec.min !== undefined && spec.min !== null) {
         const over = value - num(spec.min);
         giveaway = giveaway === null ? over : Math.min(giveaway, over);
-        binding = binding || Math.abs(over) < 1e-7;
+        binding = binding || atLimit(over, num(spec.min));
       }
     }
     return {
@@ -331,13 +421,41 @@ export const optimiseBlend = ({ components, specs, targetVolume }) => {
     };
   });
 
-  // Shadow prices, named. The volume row's price is the marginal cost of one
-  // more barrel of product; a spec row's price is what one unit of relief on
-  // that specification would be worth.
-  const shadowPrices = rowMeta.map((meta, i) => ({
-    ...meta,
-    price: lp.shadowPrices ? lp.shadowPrices[i] : null,
-  }));
+  // Shadow prices, named, and in the units a person reads them in.
+  //
+  // The LP prices each ROW: the change in cost per unit of the row's
+  // right-hand side. For the volume row that is already the marginal cost of
+  // a barrel. For a spec row it is not a price per ppm or per psi: the row is
+  // sum((w_i - L d_i) v_i) <= 0, so one unit of its right-hand side is
+  // 1/sum(d_i v_i) units of the property, or of its INDEX where the property
+  // blends through one. This module used to hand the row price over as "what
+  // one unit of relief would save", which at the Suite's default gasoline pool
+  // put sulfur relief at 0.072 against a re-solved 55.01 per ppm and RVP at
+  // 0.267 against 578.91 per psi, with the sign reversed.
+  //
+  // Moving the limit L by dL moves the row by dL * sum(d_i v_i), in index
+  // units for an index spec, so d(cost)/dL = rowPrice * sum(d_i v_i) *
+  // dIndex/dL. Relief is raising a maximum or lowering a minimum; its value is
+  // reported as money saved per unit of the property, positive when relief
+  // saves money.
+  const shadowPrices = rowMeta.map((meta, i) => {
+    const rowPrice = lp.shadowPrices ? lp.shadowPrices[i] : null;
+    const { denominators, indexSlope, ...named } = meta;
+    if (meta.kind !== 'spec') {
+      return { ...named, price: rowPrice, rowPrice, per: 'bbl' };
+    }
+    const scale = denominators.reduce((s, d, k) => s + d * volumes[k], 0);
+    const dCostdLimit = rowPrice === null || indexSlope === null ? null : rowPrice * scale * indexSlope;
+    const reliefValue = dCostdLimit === null ? null : (meta.bound === 'max' ? -dCostdLimit : dCostdLimit);
+    return {
+      ...named,
+      // Money saved by one unit of relief on the specification, per unit of
+      // the property (per ppm, per psi, per octane number).
+      price: reliefValue === null ? null : reliefValue + 0,
+      rowPrice,
+      per: meta.unit || 'unit',
+    };
+  });
 
   return {
     status: 'optimal',

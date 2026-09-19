@@ -1,0 +1,1000 @@
+{
+ "blendedDefault": {
+  "appGridT50F": 690,
+  "curve": [
+   {
+    "temperatureF": 80,
+    "volumePercent": 0.0
+   },
+   {
+    "temperatureF": 100,
+    "volumePercent": 0.9230769230769231
+   },
+   {
+    "temperatureF": 210,
+    "volumePercent": 8.2
+   },
+   {
+    "temperatureF": 300,
+    "volumePercent": 15.68421052631579
+   },
+   {
+    "temperatureF": 400,
+    "volumePercent": 25.636363636363637
+   },
+   {
+    "temperatureF": 520,
+    "volumePercent": 39.0
+   },
+   {
+    "temperatureF": 560,
+    "volumePercent": 43.88235294117647
+   },
+   {
+    "temperatureF": 690,
+    "volumePercent": 57.8
+   },
+   {
+    "temperatureF": 760,
+    "volumePercent": 64.66666666666666
+   },
+   {
+    "temperatureF": 900,
+    "volumePercent": 75.25
+   },
+   {
+    "temperatureF": 1080,
+    "volumePercent": 86.11428571428571
+   },
+   {
+    "temperatureF": 1250,
+    "volumePercent": 93.1875
+   },
+   {
+    "temperatureF": 1400,
+    "volumePercent": 98.4
+   },
+   {
+    "temperatureF": 1500,
+    "volumePercent": 100.0
+   }
+  ],
+  "name": "Suite default pair, blended curve",
+  "netback": {
+   "grossValue": 76.61647576262747,
+   "lossValue": 0.38308237881313734,
+   "netback": 69.73339338381433
+  },
+  "netbackInputs": {
+   "freightPerBbl": 2.0,
+   "lossPercent": 0.5,
+   "prices": {
+    "diesel": 101,
+    "kerosene": 96,
+    "lpg": 55,
+    "naphtha": 78,
+    "residue": 44,
+    "vgo": 72
+   },
+   "processingCostPerBbl": 4.5
+  },
+  "sg": 0.8726749752918262,
+  "t50F": 617.1428571428571,
+  "watsonKAtT50": 11.745212764251535,
+  "why": "the curve, T50 and Watson K the studio shows; its own copy took T50 as the first grid point past 50",
+  "yields": [
+   {
+    "id": "lpg",
+    "yieldVolPercent": 0.46153846153846156
+   },
+   {
+    "id": "naphtha",
+    "yieldVolPercent": 20.198748619801254
+   },
+   {
+    "id": "kerosene",
+    "yieldVolPercent": 16.11244019138756
+   },
+   {
+    "id": "diesel",
+    "yieldVolPercent": 16.744919786096254
+   },
+   {
+    "id": "vgo",
+    "yieldVolPercent": 27.768067226890764
+   },
+   {
+    "id": "residue",
+    "yieldVolPercent": 18.714285714285708
+   }
+  ]
+ },
+ "blendedWithTruncated": {
+  "curve": [
+   {
+    "temperatureF": 120,
+    "volumePercent": 4.038461538461538
+   },
+   {
+    "temperatureF": 210,
+    "volumePercent": 10.96153846153846
+   },
+   {
+    "temperatureF": 380,
+    "volumePercent": 26.447368421052634
+   },
+   {
+    "temperatureF": 400,
+    "volumePercent": 28.636363636363637
+   },
+   {
+    "temperatureF": 560,
+    "volumePercent": 47.72727272727273
+   },
+   {
+    "temperatureF": 600,
+    "volumePercent": 52.0
+   },
+   {
+    "temperatureF": 760,
+    "volumePercent": 68.88888888888889
+   },
+   {
+    "temperatureF": 780,
+    "volumePercent": 70.625
+   },
+   {
+    "temperatureF": 900,
+    "volumePercent": 81.875
+   }
+  ],
+  "why": "a temperature where the truncated crude says nothing is left out of the blend"
+ },
+ "blends": [
+  {
+   "components": [
+    {
+     "api": 35.4,
+     "name": "Light sweet (example)",
+     "nickelPpm": 5,
+     "nitrogenWtPct": 0.1,
+     "sulfurWtPct": 0.15,
+     "tanMgKohG": 0.3,
+     "vanadiumPpm": 1,
+     "viscosityCSt": 5,
+     "volumeFraction": 60000
+    },
+    {
+     "api": 24.0,
+     "name": "Medium sour (example)",
+     "nickelPpm": 22,
+     "nitrogenWtPct": 0.22,
+     "sulfurWtPct": 2.2,
+     "tanMgKohG": 0.45,
+     "vanadiumPpm": 60,
+     "viscosityCSt": 45,
+     "volumeFraction": 40000
+    }
+   ],
+   "massFractions": [
+    0.5829064100962139,
+    0.41709358990378614
+   ],
+   "name": "Suite default pair, 60/40 by volume",
+   "properties": {
+    "api": 30.645133075096822,
+    "nickelPpm": 12.090591028364363,
+    "nitrogenWtPct": 0.1500512307884543,
+    "sg": 0.8726749752918262,
+    "sulfurWtPct": 1.0050418593027617,
+    "tanMgKohG": 0.3625640384855679,
+    "vanadiumPpm": 25.60852180432338,
+    "viscosityCSt": 10.569965509456775
+   },
+   "volumeFractions": [
+    0.6,
+    0.4
+   ],
+   "why": "what the Crude Assay studio blends with nothing typed"
+  },
+  {
+   "components": [
+    {
+     "api": 20.0,
+     "name": "Twenty",
+     "sulfurWtPct": 2.0,
+     "volumeFraction": 50000
+    },
+    {
+     "api": 40.0,
+     "name": "Forty",
+     "sulfurWtPct": 0.1,
+     "volumeFraction": 50000
+    }
+   ],
+   "massFractions": [
+    0.5309597523219814,
+    0.4690402476780186
+   ],
+   "name": "20 and 40 API, 50/50",
+   "properties": {
+    "api": 29.380804953560386,
+    "nickelPpm": null,
+    "nitrogenWtPct": null,
+    "sg": 0.879533142818655,
+    "sulfurWtPct": 1.1088235294117648,
+    "tanMgKohG": null,
+    "vanadiumPpm": null,
+    "viscosityCSt": null
+   },
+   "volumeFractions": [
+    0.5,
+    0.5
+   ],
+   "why": "API does not blend linearly: 29.38, not 30"
+  },
+  {
+   "components": [
+    {
+     "api": 35.4,
+     "massFraction": 28.30366136456425,
+     "name": "Light sweet (example)",
+     "nickelPpm": 5,
+     "nitrogenWtPct": 0.1,
+     "sulfurWtPct": 0.15,
+     "tanMgKohG": 0.3,
+     "vanadiumPpm": 1,
+     "viscosityCSt": 5
+    },
+    {
+     "api": 24.0,
+     "massFraction": 50.63109412374891,
+     "name": "Medium sour (example)",
+     "nickelPpm": 22,
+     "nitrogenWtPct": 0.22,
+     "sulfurWtPct": 2.2,
+     "tanMgKohG": 0.45,
+     "vanadiumPpm": 60,
+     "viscosityCSt": 45
+    },
+    {
+     "api": 18.0,
+     "massFraction": 21.06524451168684,
+     "name": "Heavy",
+     "nickelPpm": 60,
+     "nitrogenWtPct": 0.4,
+     "sulfurWtPct": 3.4,
+     "tanMgKohG": 1.8,
+     "vanadiumPpm": 180,
+     "viscosityCSt": 900
+    }
+   ],
+   "massFractions": [
+    0.2830366136456425,
+    0.5063109412374891,
+    0.2106524451168684
+   ],
+   "name": "three crudes given by mass",
+   "properties": {
+    "api": 25.9627027248591,
+    "nickelPpm": 25.193170482465074,
+    "nitrogenWtPct": 0.2239530464835592,
+    "sg": 0.8986255002065386,
+    "sulfurWtPct": 1.872557876166675,
+    "tanMgKohG": 0.691925308860926,
+    "vanadiumPpm": 68.57913320893131,
+    "viscosityCSt": 31.176931773213454
+   },
+   "volumeFractions": [
+    0.3,
+    0.5,
+    0.2
+   ],
+   "why": "the mass route through resolveFractions"
+  },
+  {
+   "cii": 1.5998344994774691,
+   "components": [
+    {
+     "api": 16.0,
+     "name": "Heavy asphaltenic",
+     "sara": {
+      "aromatics": 38,
+      "asphaltenes": 12,
+      "resins": 18,
+      "saturates": 32
+     },
+     "sulfurWtPct": 3.1,
+     "volumeFraction": 55000
+    },
+    {
+     "api": 52.0,
+     "name": "Paraffinic condensate",
+     "sara": {
+      "aromatics": 10,
+      "asphaltenes": 0.2,
+      "resins": 1.8,
+      "saturates": 88
+     },
+     "sulfurWtPct": 0.02,
+     "volumeFraction": 45000
+    }
+   ],
+   "massFractions": [
+    0.6032576210400479,
+    0.3967423789599522
+   ],
+   "name": "heavy asphaltenic with a paraffinic condensate",
+   "properties": {
+    "api": 30.282725642558262,
+    "nickelPpm": null,
+    "nitrogenWtPct": null,
+    "sg": 0.8746298434397082,
+    "sulfurWtPct": 1.8780334728033472,
+    "tanMgKohG": null,
+    "vanadiumPpm": null,
+    "viscosityCSt": null
+   },
+   "sara": {
+    "aromatics": 26.89121338912134,
+    "asphaltenes": 7.318439928272565,
+    "resins": 11.572773460848776,
+    "saturates": 54.21757322175732
+   },
+   "stable": false,
+   "volumeFractions": [
+    0.55,
+    0.45
+   ],
+   "why": "the CII lands in the unstable band"
+  },
+  {
+   "cii": 0.7378224324555144,
+   "components": [
+    {
+     "api": 16.0,
+     "name": "Heavy asphaltenic",
+     "sara": {
+      "aromatics": 38,
+      "asphaltenes": 12,
+      "resins": 18,
+      "saturates": 32
+     },
+     "sulfurWtPct": 3.1,
+     "volumeFraction": 85000
+    },
+    {
+     "api": 28.0,
+     "name": "Aromatic medium",
+     "sara": {
+      "aromatics": 46,
+      "asphaltenes": 2,
+      "resins": 21,
+      "saturates": 31
+     },
+     "sulfurWtPct": 1.1,
+     "volumeFraction": 15000
+    }
+   ],
+   "massFractions": [
+    0.8597019657577679,
+    0.14029803424223208
+   ],
+   "name": "heavy asphaltenic with an aromatic medium",
+   "properties": {
+    "api": 17.683576410906767,
+    "nickelPpm": null,
+    "nitrogenWtPct": null,
+    "sg": 0.948495829127039,
+    "sulfurWtPct": 2.8194039315155357,
+    "tanMgKohG": null,
+    "vanadiumPpm": null,
+    "viscosityCSt": null
+   },
+   "sara": {
+    "aromatics": 39.12238427393786,
+    "asphaltenes": 10.59701965757768,
+    "resins": 18.420894102726695,
+    "saturates": 31.85970196575777
+   },
+   "stable": null,
+   "volumeFractions": [
+    0.85,
+    0.15
+   ],
+   "why": "the CII lands in the uncertain band"
+  },
+  {
+   "cii": 0.6093114350863659,
+   "components": [
+    {
+     "api": 28.0,
+     "name": "Aromatic medium",
+     "sara": {
+      "aromatics": 46,
+      "asphaltenes": 2,
+      "resins": 21,
+      "saturates": 31
+     },
+     "sulfurWtPct": 1.1,
+     "volumeFraction": 90000
+    },
+    {
+     "api": 52.0,
+     "name": "Paraffinic condensate",
+     "sara": {
+      "aromatics": 10,
+      "asphaltenes": 0.2,
+      "resins": 1.8,
+      "saturates": 88
+     },
+     "sulfurWtPct": 0.02,
+     "volumeFraction": 10000
+    }
+   ],
+   "massFractions": [
+    0.9119271120927664,
+    0.08807288790723357
+   ],
+   "name": "aromatic medium with a little condensate",
+   "properties": {
+    "api": 30.113749309773596,
+    "nickelPpm": null,
+    "nitrogenWtPct": null,
+    "sg": 0.8755443185021312,
+    "sulfurWtPct": 1.004881281060188,
+    "tanMgKohG": null,
+    "vanadiumPpm": null,
+    "viscosityCSt": null
+   },
+   "sara": {
+    "aromatics": 42.8293760353396,
+    "asphaltenes": 1.8414688017669798,
+    "resins": 19.309000552181118,
+    "saturates": 36.02015461071231
+   },
+   "stable": true,
+   "volumeFractions": [
+    0.9,
+    0.1
+   ],
+   "why": "the CII lands in the stable band"
+  }
+ ],
+ "curves": [
+  {
+   "curve": [
+    {
+     "temperatureF": 80,
+     "volumePercent": 0
+    },
+    {
+     "temperatureF": 210,
+     "volumePercent": 10
+    },
+    {
+     "temperatureF": 400,
+     "volumePercent": 30
+    },
+    {
+     "temperatureF": 560,
+     "volumePercent": 50
+    },
+    {
+     "temperatureF": 760,
+     "volumePercent": 70
+    },
+    {
+     "temperatureF": 1080,
+     "volumePercent": 90
+    },
+    {
+     "temperatureF": 1400,
+     "volumePercent": 100
+    }
+   ],
+   "cuts": [
+    {
+     "fromF": null,
+     "id": "lpg",
+     "name": "LPG / Light ends",
+     "toF": 90
+    },
+    {
+     "fromF": 90,
+     "id": "naphtha",
+     "name": "Naphtha",
+     "toF": 350
+    },
+    {
+     "fromF": 350,
+     "id": "kerosene",
+     "name": "Kerosene / Jet",
+     "toF": 500
+    },
+    {
+     "fromF": 500,
+     "id": "diesel",
+     "name": "Diesel / Gasoil",
+     "toF": 650
+    },
+    {
+     "fromF": 650,
+     "id": "vgo",
+     "name": "Vacuum gasoil",
+     "toF": 1000
+    },
+    {
+     "fromF": 1000,
+     "id": "residue",
+     "name": "Vacuum residue",
+     "toF": null
+    }
+   ],
+   "name": "Light sweet on the default cuts",
+   "probes": [
+    {
+     "t": 50,
+     "v": 0.0
+    },
+    {
+     "t": 80,
+     "v": 0
+    },
+    {
+     "t": 100,
+     "v": 1.5384615384615385
+    },
+    {
+     "t": 115,
+     "v": 2.692307692307692
+    },
+    {
+     "t": 120,
+     "v": 3.076923076923077
+    },
+    {
+     "t": 450,
+     "v": 36.25
+    },
+    {
+     "t": 900,
+     "v": 78.75
+    },
+    {
+     "t": 950,
+     "v": 81.875
+    },
+    {
+     "t": 1400,
+     "v": 100.0
+    },
+    {
+     "t": 1600,
+     "v": 100.0
+    }
+   ],
+   "rows": [
+    {
+     "id": "lpg",
+     "yieldVolPercent": 0.7692307692307693
+    },
+    {
+     "id": "naphtha",
+     "yieldVolPercent": 23.967611336032387
+    },
+    {
+     "id": "kerosene",
+     "yieldVolPercent": 17.763157894736842
+    },
+    {
+     "id": "diesel",
+     "yieldVolPercent": 16.5
+    },
+    {
+     "id": "vgo",
+     "yieldVolPercent": 26.0
+    },
+    {
+     "id": "residue",
+     "yieldVolPercent": 15.0
+    }
+   ],
+   "totalVolPercent": 100.0,
+   "unknownCount": 0,
+   "why": "the studio default"
+  },
+  {
+   "curve": [
+    {
+     "temperatureF": 100,
+     "volumePercent": 0
+    },
+    {
+     "temperatureF": 300,
+     "volumePercent": 10
+    },
+    {
+     "temperatureF": 520,
+     "volumePercent": 30
+    },
+    {
+     "temperatureF": 690,
+     "volumePercent": 50
+    },
+    {
+     "temperatureF": 900,
+     "volumePercent": 70
+    },
+    {
+     "temperatureF": 1250,
+     "volumePercent": 90
+    },
+    {
+     "temperatureF": 1500,
+     "volumePercent": 100
+    }
+   ],
+   "cuts": [
+    {
+     "fromF": null,
+     "id": "lpg",
+     "name": "LPG / Light ends",
+     "toF": 90
+    },
+    {
+     "fromF": 90,
+     "id": "naphtha",
+     "name": "Naphtha",
+     "toF": 350
+    },
+    {
+     "fromF": 350,
+     "id": "kerosene",
+     "name": "Kerosene / Jet",
+     "toF": 500
+    },
+    {
+     "fromF": 500,
+     "id": "diesel",
+     "name": "Diesel / Gasoil",
+     "toF": 650
+    },
+    {
+     "fromF": 650,
+     "id": "vgo",
+     "name": "Vacuum gasoil",
+     "toF": 1000
+    },
+    {
+     "fromF": 1000,
+     "id": "residue",
+     "name": "Vacuum residue",
+     "toF": null
+    }
+   ],
+   "name": "Medium sour on the default cuts",
+   "probes": [
+    {
+     "t": 50,
+     "v": 0.0
+    },
+    {
+     "t": 80,
+     "v": 0.0
+    },
+    {
+     "t": 100,
+     "v": 0
+    },
+    {
+     "t": 115,
+     "v": 0.75
+    },
+    {
+     "t": 120,
+     "v": 1.0
+    },
+    {
+     "t": 450,
+     "v": 23.636363636363633
+    },
+    {
+     "t": 900,
+     "v": 70.0
+    },
+    {
+     "t": 950,
+     "v": 72.85714285714286
+    },
+    {
+     "t": 1400,
+     "v": 96.0
+    },
+    {
+     "t": 1600,
+     "v": 100.0
+    }
+   ],
+   "rows": [
+    {
+     "id": "lpg",
+     "yieldVolPercent": 0.0
+    },
+    {
+     "id": "naphtha",
+     "yieldVolPercent": 14.545454545454545
+    },
+    {
+     "id": "kerosene",
+     "yieldVolPercent": 13.636363636363635
+    },
+    {
+     "id": "diesel",
+     "yieldVolPercent": 17.112299465240646
+    },
+    {
+     "id": "vgo",
+     "yieldVolPercent": 30.420168067226882
+    },
+    {
+     "id": "residue",
+     "yieldVolPercent": 24.285714285714292
+    }
+   ],
+   "totalVolPercent": 100.0,
+   "unknownCount": 0,
+   "why": "the studio default"
+  },
+  {
+   "curve": [
+    {
+     "temperatureF": 120,
+     "volumePercent": 5
+    },
+    {
+     "temperatureF": 380,
+     "volumePercent": 25
+    },
+    {
+     "temperatureF": 600,
+     "volumePercent": 50
+    },
+    {
+     "temperatureF": 780,
+     "volumePercent": 70
+    },
+    {
+     "temperatureF": 900,
+     "volumePercent": 85
+    }
+   ],
+   "cuts": [
+    {
+     "fromF": null,
+     "id": "lpg",
+     "name": "LPG / Light ends",
+     "toF": 90
+    },
+    {
+     "fromF": 90,
+     "id": "naphtha",
+     "name": "Naphtha",
+     "toF": 350
+    },
+    {
+     "fromF": 350,
+     "id": "kerosene",
+     "name": "Kerosene / Jet",
+     "toF": 500
+    },
+    {
+     "fromF": 500,
+     "id": "diesel",
+     "name": "Diesel / Gasoil",
+     "toF": 650
+    },
+    {
+     "fromF": 650,
+     "id": "vgo",
+     "name": "Vacuum gasoil",
+     "toF": 1000
+    },
+    {
+     "fromF": 1000,
+     "id": "residue",
+     "name": "Vacuum residue",
+     "toF": null
+    }
+   ],
+   "name": "truncated assay on the default cuts",
+   "probes": [
+    {
+     "t": 50,
+     "v": null
+    },
+    {
+     "t": 80,
+     "v": null
+    },
+    {
+     "t": 100,
+     "v": null
+    },
+    {
+     "t": 115,
+     "v": null
+    },
+    {
+     "t": 120,
+     "v": 5
+    },
+    {
+     "t": 450,
+     "v": 32.95454545454545
+    },
+    {
+     "t": 900,
+     "v": 85.0
+    },
+    {
+     "t": 950,
+     "v": null
+    },
+    {
+     "t": 1400,
+     "v": null
+    },
+    {
+     "t": 1600,
+     "v": null
+    }
+   ],
+   "rows": [
+    {
+     "id": "lpg",
+     "yieldVolPercent": null
+    },
+    {
+     "id": "naphtha",
+     "yieldVolPercent": null
+    },
+    {
+     "id": "kerosene",
+     "yieldVolPercent": 15.94405594405594
+    },
+    {
+     "id": "diesel",
+     "yieldVolPercent": 16.919191919191924
+    },
+    {
+     "id": "vgo",
+     "yieldVolPercent": null
+    },
+    {
+     "id": "residue",
+     "yieldVolPercent": null
+    }
+   ],
+   "totalVolPercent": 32.863247863247864,
+   "unknownCount": 4,
+   "why": "starts at 5 percent and stops at 85: the LPG cut, the 900-1000 slice and the residue have no yield"
+  },
+  {
+   "curve": [
+    {
+     "temperatureF": 120,
+     "volumePercent": 5
+    },
+    {
+     "temperatureF": 380,
+     "volumePercent": 25
+    },
+    {
+     "temperatureF": 600,
+     "volumePercent": 50
+    },
+    {
+     "temperatureF": 780,
+     "volumePercent": 70
+    },
+    {
+     "temperatureF": 900,
+     "volumePercent": 85
+    }
+   ],
+   "cuts": [
+    {
+     "fromF": 120,
+     "id": "a",
+     "name": "A",
+     "toF": 380
+    },
+    {
+     "fromF": 380,
+     "id": "b",
+     "name": "B",
+     "toF": 700
+    },
+    {
+     "fromF": 700,
+     "id": "c",
+     "name": "C",
+     "toF": 900
+    }
+   ],
+   "name": "truncated assay on cuts inside the curve",
+   "probes": [
+    {
+     "t": 50,
+     "v": null
+    },
+    {
+     "t": 80,
+     "v": null
+    },
+    {
+     "t": 100,
+     "v": null
+    },
+    {
+     "t": 115,
+     "v": null
+    },
+    {
+     "t": 120,
+     "v": 5
+    },
+    {
+     "t": 450,
+     "v": 32.95454545454545
+    },
+    {
+     "t": 900,
+     "v": 85.0
+    },
+    {
+     "t": 950,
+     "v": null
+    },
+    {
+     "t": 1400,
+     "v": null
+    },
+    {
+     "t": 1600,
+     "v": null
+    }
+   ],
+   "rows": [
+    {
+     "id": "a",
+     "yieldVolPercent": 20.0
+    },
+    {
+     "id": "b",
+     "yieldVolPercent": 36.111111111111114
+    },
+    {
+     "id": "c",
+     "yieldVolPercent": 23.888888888888886
+    }
+   ],
+   "totalVolPercent": 80.0,
+   "unknownCount": 0,
+   "why": "every bound inside the measured range"
+  }
+ ],
+ "provenance": {
+  "engine": "engines/downstream/crudeAssay.js",
+  "heldConstants": {
+   "ciiStable": 0.7,
+   "ciiUnstable": 0.9,
+   "refutasA": 14.534,
+   "refutasB": 10.975
+  },
+  "method": "cargo inventories in barrels and pounds; Refutas by bisection; yields by segment overlap; T50 by bisection",
+  "oracle": "tools/validation/downstream/oracle_crudeassay.py",
+  "published": "none: every crude here is illustrative and every number follows from stated definitions"
+ }
+}

@@ -292,9 +292,13 @@ describe('cut yields', () => {
     expect(partial.closes).toBe(false);
   });
 
-  it('never returns a negative yield from inverted bounds', () => {
+  it('never returns a negative yield from inverted bounds, and never a silent zero either', () => {
+    // MD1-0: an inverted cut used to report 0, which reads as a measured empty
+    // cut. It has no yield, and it is named so the set cannot close over it.
     const out = cutYields({ curve, cuts: [{ id: 'x', name: 'X', fromF: 800, toF: 300 }] });
-    expect(out.cuts[0].yieldVolPercent).toBe(0);
+    expect(out.cuts[0].yieldVolPercent).toBeNull();
+    expect(out.unknownCuts).toEqual(['X']);
+    expect(out.closes).toBe(false);
   });
 });
 
@@ -351,12 +355,16 @@ describe('compatibility', () => {
     expect(out.message).toMatch(/Supply SARA/);
   });
 
-  it('does not flag a narrow gravity spread on the fallback', () => {
+  it('does not flag a narrow gravity spread on the fallback, and does not clear it either', () => {
+    // MD1-0: the heuristic can raise a flag and cannot clear one. Not seeing
+    // the classic combination is no evidence the asphaltenes are held, so the
+    // answer is null (not screened), not true (a green tick in the app).
     const out = screenBlendStability({
       components: [{ api: 30 }, { api: 34 }],
       massFractions: [0.5, 0.5],
     });
-    expect(out.stable).toBe(true);
+    expect(out.stable).toBeNull();
+    expect(out.message).toMatch(/not evidence that the blend is stable/);
   });
 
   it('reaches the screen through blendCrudes', () => {
@@ -471,7 +479,9 @@ describe('the whole blend, end to end', () => {
     expect(out.properties.api).toBeLessThan(35.4);
     expect(out.properties.sulfurWtPct).toBeGreaterThan(0.15);
     expect(out.properties.sulfurWtPct).toBeLessThan(0.18);
-    expect(out.stability.stable).toBe(true);
+    // No SARA was given, so no stability verdict can be reached (MD1-0).
+    expect(out.stability.basis).toBe('api-contrast');
+    expect(out.stability.stable).toBeNull();
   });
 
   it('refuses an empty blend rather than returning zeroes', () => {
