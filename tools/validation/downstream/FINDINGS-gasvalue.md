@@ -250,3 +250,46 @@ was routed.
 - **D5.** Omitted-from-the-call keeps each stated default; blank ('' or
   null) is missing. This keeps every existing caller's behaviour and closes
   the page's blank boxes, as MD3 did.
+
+## MD45-1 (2026-09-19): found by the NextGen course foundation (`gasvalue`)
+
+The course recon (F-R1 to F-R4) found no wrong number on a graded path; it
+found coverage and copy gaps. All repaired, no golden number moved.
+
+- **F-R1. Four oracle ledgers were inline in `main()`.** `oracle_flaretovalue.py`
+  now exports `net_abatement()`; `oracle_lpgcng.py` exports `storage()` (both
+  fill-ratio bases), `vaporizer()` (the three terms and the margin) and
+  `conversion()` (energy equivalence, saving, payback). `main()` calls them
+  and both goldens regenerate byte-identical (apart from the constants block
+  below), so a course oracle check can call them instead of transcribing.
+- **F-R3. Three engine strings broke the owner copy rule** ("X, not Y"):
+  `characteriseGas` ghvNote, `lpgBlendProperties` note and the
+  `vaporizerDuty` floor note. Reworded: "A heating value missing on any
+  component leaves the mixture value missing too. No partial average is
+  reported."; "... reported as missing for the blend. It is never averaged
+  over the components that have it."; "... It is a floor: the full duty is at
+  least this." A sweep of every string literal and template in both engines
+  (em dash, en dash, the contrastive) now finds none, and the golden test
+  runs that sweep. The course digest quotes the old ghvNote and floor note
+  verbatim and must be rebuilt on this engine.
+- **F-R4. The flare molar masses and the richness edges were inline.**
+  Exported as `FLARE_MOLAR_MASS` ({ CO2: 44.009, CH4: 16.043 }, IUPAC 2024
+  built, the carbon engine's MW_CO2 and MW_CH4) and `RICHNESS_GPM`
+  ({ rich: 2.5, moderate: 1 } gal C3+/Mscf); `abatement` and
+  `characteriseGas` read them. The oracle carries both and the golden test
+  checks the engine against them (an all-CO2 and an all-methane flare give
+  the molar masses back; a methane-propane sweep crosses both edges).
+- **44.009 against the table's 44.010, explained, not changed.**
+  `GAS_COMPONENT_REFERENCE` lists CO2 at 44.010 lb/lbmol, the tabulated
+  (GPA-style, older atomic weights: 44.0095) value used for the gas's mass
+  and liquids, while the flare's tonnes are weighed at FLARE_MOLAR_MASS. The
+  two differ by 2.3e-5 relative; changing the table would move the route
+  ceilings the course grades against for no physical gain. Stated in the
+  engine beside the constant.
+
+Gate: 12 new assertions in `downstream.gasvalue.golden.test.js`;
+`negcontrol_md4.sh` part 1 now runs against the pinned pre-repair engines
+(5c0cb97 and f0aef14; `origin/main` goes green once a repair merges) and
+part 3 plants 8 reversals of these repairs. 39 planted, 39 caught, both
+part 1 runs red (three MD4-0 anchors that read the inline 44.009 and
+16.043 now read FLARE_MOLAR_MASS).

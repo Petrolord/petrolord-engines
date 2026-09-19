@@ -72,7 +72,7 @@ describe('combustion stoichiometry', () => {
       components: [comp('CH4', 0.9), { ...ref('C2H6'), moleFraction: 0.1, lhvMJKmol: null }],
     });
     expect(st.lhvMJPerKmolFuel).toBeNull();
-    expect(st.heatingValueNote).toMatch(/missing, not partial/i);
+    expect(st.heatingValueNote).toMatch(/missing too/i);
   });
 
   it('refuses an empty or unlabelled composition', () => {
@@ -284,7 +284,10 @@ describe('steam trap loss', () => {
   it('is choked, so it depends on the upstream pressure alone', () => {
     const r = steamTrapLoss(base);
     expect(r.choked).toBe(true);
-    expect(r.chokedNote).toMatch(/not on what is downstream/i);
+    // MD45-1: choked is now a test against the critical pressure ratio (to
+    // atmosphere when no downstream pressure is given); the note wording
+    // changed with it, so this assertion was updated.
+    expect(r.chokedNote).toMatch(/upstream pressure alone/i);
     // Doubling the pressure at fixed density raises the flow by root two.
     const hi = steamTrapLoss({ ...base, upstreamPressureBarA: 22 });
     expect(hi.kgPerHour / r.kgPerHour).toBeCloseTo(Math.SQRT2, 6);

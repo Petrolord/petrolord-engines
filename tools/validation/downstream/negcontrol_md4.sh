@@ -6,7 +6,9 @@
 # golden gate, and requires each plant to turn it red. It restores every
 # file afterwards, whatever happens.
 #
-# Part 1 runs the gate against origin/main's UNREPAIRED engines.
+# Part 1 runs the gate against the engines before MD4-0 (5c0cb97) and before
+# MD45-1 (f0aef14). Both are pinned: origin/main moves once a repair merges,
+# and a part 1 read from it would go green on the repaired engines.
 # Part 2 plants single-line defects: logic flips, the defects MD4-0 repaired,
 # blanks read as 0 or as a default again, and small constant moves that only
 # a tight tolerance catches.
@@ -27,10 +29,12 @@ gate_red() { ! npx jest $GATES --silent >/dev/null 2>&1; }
 survivors=0
 total=0
 
-echo "== part 1: the gate against origin/main's unrepaired engines"
-for f in "${FILES[@]}"; do git show "origin/main:$f" > "$f"; done
-if gate_red; then echo "   RED, as it must be"; else echo "   GREEN: the gate cannot see the repaired defects"; survivors=$((survivors + 1)); fi
-restore
+for base in 5c0cb97 f0aef14; do
+  echo "== part 1: the gate against the unrepaired engines at $base"
+  for f in "${FILES[@]}"; do git show "$base:$f" > "$f"; done
+  if gate_red; then echo "   RED, as it must be"; else echo "   GREEN: the gate cannot see the repaired defects"; survivors=$((survivors + 1)); fi
+  restore
+done
 
 plant() {
   local file="$1" from="$2" to="$3" label="$4"
@@ -51,11 +55,11 @@ PY
 echo "== part 2: planted defects"
 F=engines/downstream/flareToValue.js
 L=engines/downstream/lpgCng.js
-plant $F "tonnesFrom(lbmolPerYear * (etaC * hcCarbon + yCo2), 44.009)" "tonnesFrom(lbmolPerYear * etaC * (hcCarbon + yCo2), 44.009)" "flare: the gas's CO2 burned with the fuel again"
-plant $F "tonnesFrom(lbmolPerYear * yCh4 * (1 - eta), 16.043)" "tonnesFrom(lbmolPerYear * gas.carbonPerMol * (1 - eta), 16.043)" "flare: every unburned carbon counted as methane again"
+plant $F "tonnesFrom(lbmolPerYear * (etaC * hcCarbon + yCo2), FLARE_MOLAR_MASS.CO2)" "tonnesFrom(lbmolPerYear * etaC * (hcCarbon + yCo2), FLARE_MOLAR_MASS.CO2)" "flare: the gas's CO2 burned with the fuel again"
+plant $F "tonnesFrom(lbmolPerYear * yCh4 * (1 - eta), FLARE_MOLAR_MASS.CH4)" "tonnesFrom(lbmolPerYear * gas.carbonPerMol * (1 - eta), FLARE_MOLAR_MASS.CH4)" "flare: every unburned carbon counted as methane again"
 plant $F "flareCo2e * rec;" "flareCo2e;" "flare: the whole flare credited to a partial recovery"
 plant $F ".filter((r) => !r.inert && r.code !== 'CO2')" ".filter(() => true)" "flare: hydrocarbon carbon includes the inerts"
-plant $F "tonnesFrom(lbmolPerYear * (etaC * hcCarbon + yCo2), 44.009)" "tonnesFrom(lbmolPerYear * (etaC * hcCarbon + yCo2), 44.01)" "flare: CO2 molar mass moved in the fifth figure"
+plant $F "export const FLARE_MOLAR_MASS = Object.freeze({ CO2: 44.009," "export const FLARE_MOLAR_MASS = Object.freeze({ CO2: 44.0095," "flare: CO2 molar mass moved in the fifth figure"
 plant $F "if (ceiling !== null && yieldPerMscf > ceiling * (1 + 1e-9)) {" "if (false) {" "flare: a yield above what the gas holds accepted"
 plant $F "const all = nglRows.filter((r) => codes.includes(r.code));" "const all = nglRows.filter((r) => codes.includes(r.code) && r.liquidDensityLbGal !== null);" "flare: liquids content a partial sum again"
 plant $F "const typed = num(c.c, null);" "const typed = num(c.c, 0);" "flare: a missing carbon number burns nothing"
@@ -82,6 +86,16 @@ plant $L "  const SCF_PER_KMOL = 379.49 / 0.45359237;" "  const SCF_PER_KMOL = 8
 plant $L "  if (queue.error && queue.stable !== false) return { error: queue.error };" "" "dispensing: a queue refusal hidden under a clean result"
 plant $L "  if (rows.length === 0 || rows.some((r) => !Number.isFinite(r.volumeFraction))) {" "  if (false) {" "blend: a blank volume fraction accepted"
 plant $L "  const massTotal = norm.reduce((s, r) => s + r.v * r.liquidDensityKgM3, 0);" "  const massTotal = norm.reduce((s, r) => s + r.v * r.liquidDensityKgM3, 0) * 1.000001;" "blend: mass fractions off by a part in a million"
+
+echo "== part 3: MD45-1 repairs reversed"
+plant $F "export const FLARE_MOLAR_MASS = Object.freeze({ CO2: 44.009, CH4: 16.043 });" "export const FLARE_MOLAR_MASS = Object.freeze({ CO2: 44.01, CH4: 16.043 });" "flare F-R4: CO2 molar mass moved to the table's 44.010"
+plant $F "export const FLARE_MOLAR_MASS = Object.freeze({ CO2: 44.009, CH4: 16.043 });" "export const FLARE_MOLAR_MASS = Object.freeze({ CO2: 44.009, CH4: 16.04 });" "flare F-R4: CH4 molar mass moved"
+plant $F "  const flareCo2 = tonnesFrom(lbmolPerYear * (etaC * hcCarbon + yCo2), FLARE_MOLAR_MASS.CO2);" "  const flareCo2 = tonnesFrom(lbmolPerYear * (etaC * hcCarbon + yCo2), 44.01);" "flare F-R4: the flare weighed off the exported constant"
+plant $F "export const RICHNESS_GPM = Object.freeze({ rich: 2.5, moderate: 1 });" "export const RICHNESS_GPM = Object.freeze({ rich: 2.4, moderate: 1 });" "flare F-R4: the rich edge moved"
+plant $F "gpmC3Plus >= RICHNESS_GPM.moderate ? 'moderate' : 'lean'," "gpmC3Plus >= 1.1 ? 'moderate' : 'lean'," "flare F-R4: the word decided off the exported edge"
+plant $F "leaves the mixture value missing too. No partial average is reported." "makes the mixture value missing, not partial." "flare F-R3: the contrastive back in the heating value note"
+plant $L "reported as missing for the blend. It is never averaged over the components that have it." "reported as missing for the blend, not averaged over the components that have it." "lpg F-R3: the contrastive back in the blend note"
+plant $L "It is a floor: the full duty is at least this." "It is a floor, not the duty." "lpg F-R3: the contrastive back in the vaporizer note"
 
 echo
 echo "planted: $total   survivors: $survivors"

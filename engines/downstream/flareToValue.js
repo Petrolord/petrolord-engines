@@ -90,6 +90,23 @@ export const SCF_PER_LBMOL = 379.49;
 export const LB_PER_KG = 2.20462262;
 export const GAL_PER_FT3 = 7.480519;
 
+/**
+ * The molar masses the flare's tonnes are weighed at (kg/kmol), from the
+ * IUPAC conventional atomic weights C 12.011, O 15.999, H 1.008, as the
+ * carbon engine's MW_CO2 and MW_CH4. Exported in MD45-1 so a reader takes
+ * them from the engine instead of asking it about an all-CO2 flare.
+ * (GAS_COMPONENT_REFERENCE carries CO2 at 44.010, its tabulated value.)
+ */
+export const FLARE_MOLAR_MASS = Object.freeze({ CO2: 44.009, CH4: 16.043 });
+
+/**
+ * The richness words and their lower edges in gallons of C3+ per Mscf:
+ * rich at 2.5 and above, moderate at 1 and above, lean below 1. Screening
+ * words, labelled as such; a route's own liquids limit governs. Exported in
+ * MD45-1.
+ */
+export const RICHNESS_GPM = Object.freeze({ rich: 2.5, moderate: 1 });
+
 // ---------------------------------------------------------------------------
 // The gas that is actually there
 // ---------------------------------------------------------------------------
@@ -100,7 +117,12 @@ export const GAL_PER_FT3 = 7.480519;
  * Atom counts and molar masses are DEFINITIONAL. Heating values and liquid
  * densities are a LABELLED REFERENCE - they vary with the source and the
  * gas analysis governs - and nothing here reads them unless a caller passes
- * one in.
+ * one in. *
+ * CO2 is tabulated at 44.010 (the GPA-style value on the older atomic
+ * weights, 44.0095) for the gas's mass and liquids; the flare's tonnes are
+ * weighed at FLARE_MOLAR_MASS (44.009, IUPAC 2024). The two differ by
+ * 2.3e-5 relative, and the table is kept so the route ceilings the course
+ * grades do not move (MD45-1, stated rather than merged).
  */
 export const GAS_COMPONENT_REFERENCE = [
   { code: 'C1', label: 'Methane', c: 1, molarMassLbLbmol: 16.043, typicalGhvBtuScf: 1010, liquidDensityLbGal: null, recoverableAsNgl: false },
@@ -208,7 +230,7 @@ export const characteriseGas = ({ components = [] }) => {
     normalised: norm.map((r) => ({ code: r.code, moleFraction: round(r.y, 8) })),
     ghvBtuScf: round(ghv, 4),
     ghvNote: haveGhv ? null
-      : 'A heating value missing on any component makes the mixture value missing, not partial.',
+      : 'A heating value missing on any component leaves the mixture value missing too. No partial average is reported.',
     inertMoleFraction: round(inertFraction, 8),
     co2MoleFraction: round(co2Fraction, 8),
     carbonPerMol: round(carbonPerMol, 8),
@@ -227,7 +249,7 @@ export const characteriseGas = ({ components = [] }) => {
     gpmBasis: 'Derived from the composition and the component liquid densities: gallons per Mscf follows from the moles in a thousand cubic feet, the molar mass and the liquid density.',
     missingLiquidDensity: missingDensity,
     richness: !Number.isFinite(gpmC3Plus) ? null
-      : gpmC3Plus >= 2.5 ? 'rich' : gpmC3Plus >= 1 ? 'moderate' : 'lean',
+      : gpmC3Plus >= RICHNESS_GPM.rich ? 'rich' : gpmC3Plus >= RICHNESS_GPM.moderate ? 'moderate' : 'lean',
   };
 };
 
@@ -526,8 +548,8 @@ export const abatement = ({
   const hcCarbon = gas.hydrocarbonCarbonPerMol;
   const yCo2 = gas.co2MoleFraction;
   const yCh4 = gas.methaneMoleFraction;
-  const flareCo2 = tonnesFrom(lbmolPerYear * (etaC * hcCarbon + yCo2), 44.009);
-  const flareCh4 = tonnesFrom(lbmolPerYear * yCh4 * (1 - eta), 16.043);
+  const flareCo2 = tonnesFrom(lbmolPerYear * (etaC * hcCarbon + yCo2), FLARE_MOLAR_MASS.CO2);
+  const flareCh4 = tonnesFrom(lbmolPerYear * yCh4 * (1 - eta), FLARE_MOLAR_MASS.CH4);
   const gwp = num(gwpMethane, null);
   const flareCo2e = gwp === null ? null : flareCo2 + flareCh4 * gwp;
 

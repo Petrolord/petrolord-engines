@@ -196,6 +196,48 @@ def blend(comps):
             'molarMassKgKmol': float(tm / sum(moles))}
 
 
+WATER_KG_M3 = F('999.1')
+
+
+def storage(cap, fill, basis, rho, demand, lead, safety, load):
+    """The LPG storage ledger on either fill-ratio basis: liquid volume
+    (capacity x fill x density) or water capacity by mass (capacity x 999.1
+    x fill), then the cover, the reorder point and the ullage. Exported in
+    MD45-1 (it lived inside main())."""
+    cap, fill, rho = F(str(cap)), F(str(fill)), F(str(rho))
+    demand, lead, safety, load = F(str(demand)), F(str(lead)), F(str(safety)), F(str(load))
+    usable_t = cap * fill * rho / 1000 if basis == 'liquid_volume' else cap * WATER_KG_M3 * fill / 1000
+    reorder = demand * (lead + safety)
+    return {'usableTonnes': float(usable_t), 'usableM3': float(usable_t * 1000 / rho),
+            'coverDays': float(usable_t / demand), 'reorderAtTonnes': float(reorder),
+            'ullageAtReorderTonnes': float(usable_t - reorder), 'deliveryFitsUllage': load <= usable_t - reorder}
+
+
+def vaporizer(m, cpl, tin, tbp, lat, cpv, tout, margin):
+    """The vaporizer ledger: warm the liquid to its boiling point at the
+    vaporizer pressure, boil it, superheat the vapour, then the design
+    margin. kW. Exported in MD45-1 (it lived inside main())."""
+    terms = [m * cpl * (tbp - tin), m * lat, m * cpv * (tout - tbp)]
+    return {'termsKW': [t / 3600 for t in terms], 'dutyKW': sum(terms) / 3600,
+            'designDutyKW': sum(terms) / 3600 * (1 + margin / 100)}
+
+
+def conversion(km, base_consumption, base_price, base_energy, new_price, new_energy, efficiency_ratio,
+               conversion_cost, extra_maintenance):
+    """The conversion ledger by energy equivalence: the new fuel's
+    consumption from the base fuel's energy over the new fuel's energy and
+    the efficiency ratio, the two fuel bills, the saving and the simple
+    payback. Exported in MD45-1 (it lived inside main())."""
+    nc = F(str(base_consumption)) * F(str(base_energy)) / (F(str(new_energy)) * F(str(efficiency_ratio)))
+    km = F(str(km))
+    base_cost = F(str(base_consumption)) / 100 * km * F(str(base_price))
+    new_cost = nc / 100 * km * F(str(new_price))
+    saving = base_cost - new_cost - F(str(extra_maintenance))
+    return {'newFuelConsumptionPer100Km': float(nc), 'annualSaving': float(saving),
+            'simplePaybackYears': float(F(str(conversion_cost)) / saving) if saving > 0 else None,
+            'savingPerKm': float(saving / km)}
+
+
 def main():
     page_lpg = [
         {'code': 'propane', 'volumeFraction': 0.4, 'liquidDensityKgM3': 508, 'molarMassKgKmol': 44.096, 'latentHeatKJkg': 425},
@@ -206,27 +248,19 @@ def main():
                **blend([dict(page_lpg[0], volumeFraction=0.95), dict(page_lpg[1], volumeFraction=0.05)])}]
     rho = blends[0]['densityKgM3']
 
-    storage = []
+    stores = []
     for name, fill, basis in [('page vessel, 0.85 of the liquid volume', 0.85, 'liquid_volume'),
                               ('page vessel, a 0.42 filling density on water capacity', 0.42, 'water_capacity_mass')]:
-        cap, demand, lead, safety, load = F(100), F(6), F(3), F(2), F(15)
-        usable_t = cap * F(str(fill)) * F(str(rho)) / 1000 if basis == 'liquid_volume' else cap * F('999.1') * F(str(fill)) / 1000
-        reorder = demand * (lead + safety)
-        storage.append({'name': name, 'vesselCapacityM3': 100, 'maxFillRatio': fill, 'fillRatioBasis': basis,
-                        'liquidDensityKgM3': rho, 'demandTonnesPerDay': 6, 'leadTimeDays': 3, 'safetyDays': 2,
-                        'deliveryTonnes': 15, 'usableTonnes': float(usable_t),
-                        'usableM3': float(usable_t * 1000 / F(str(rho))), 'coverDays': float(usable_t / demand),
-                        'reorderAtTonnes': float(reorder), 'ullageAtReorderTonnes': float(usable_t - reorder),
-                        'deliveryFitsUllage': load <= usable_t - reorder})
+        stores.append({'name': name, 'vesselCapacityM3': 100, 'maxFillRatio': fill, 'fillRatioBasis': basis,
+                       'liquidDensityKgM3': rho, 'demandTonnesPerDay': 6, 'leadTimeDays': 3, 'safetyDays': 2,
+                       'deliveryTonnes': 15, **storage(100, fill, basis, rho, 6, 3, 2, 15)})
 
     lat = blends[0]['latentHeatKJkg']
     m_, cpl, tin, tbp, cpv, tout, marg = 500, 2.5, 5, 12, 1.7, 30, 20
-    terms = [m_ * cpl * (tbp - tin), m_ * lat, m_ * cpv * (tout - tbp)]
-    vaporizer = {'name': 'boiling point 12 C at the vaporizer pressure, inlet 5 C',
-                 'massFlowKgHr': m_, 'latentHeatKJkg': lat, 'liquidCpKJkgK': cpl, 'inletTempC': tin,
-                 'boilingPointC': tbp, 'vapourCpKJkgK': cpv, 'outletTempC': tout, 'designMarginPercent': marg,
-                 'termsKW': [t / 3600 for t in terms], 'dutyKW': sum(terms) / 3600,
-                 'designDutyKW': sum(terms) / 3600 * (1 + marg / 100)}
+    vap = {'name': 'boiling point 12 C at the vaporizer pressure, inlet 5 C',
+           'massFlowKgHr': m_, 'latentHeatKJkg': lat, 'liquidCpKJkgK': cpl, 'inletTempC': tin,
+           'boilingPointC': tbp, 'vapourCpKJkgK': cpv, 'outletTempC': tout, 'designMarginPercent': marg,
+           **vaporizer(m_, cpl, tin, tbp, lat, cpv, tout, marg)}
     vaporizer_before = {'name': 'the page default: inlet 25 C against n-butane atmospheric -0.5 C',
                         'mainDutyKW': (500 * 2.5 * (-0.5 - 25) + 500 * lat + 500 * 1.7 * (15 + 0.5)) / 3600,
                         'latentAloneKW': 500 * lat / 3600}
@@ -288,13 +322,7 @@ def main():
     conv = []
     for name, eff in [('Suite default, energy equivalence at a ratio of 1', 1), ('a converted engine at 0.9', 0.9)]:
         km, bc, bp, be, np_, ne, capex, maint = 40000, 12, 950, 32, 500, 48, 900000, 40000
-        nc = F(bc) * be / (F(ne) * F(str(eff)))
-        base_cost = F(bc, 100) * km * bp
-        new_cost = nc / 100 * km * np_
-        saving = base_cost - new_cost - maint
-        conv.append({'name': name, 'efficiencyRatio': eff, 'newFuelConsumptionPer100Km': float(nc),
-                     'annualSaving': float(saving), 'simplePaybackYears': float(F(capex) / saving),
-                     'savingPerKm': float(saving / km)})
+        conv.append({'name': name, 'efficiencyRatio': eff, **conversion(km, bc, bp, be, np_, ne, eff, capex, maint)})
 
     doc = {
         'provenance': {
@@ -303,7 +331,7 @@ def main():
             'engine': 'engines/downstream/lpgCng.js',
             'published': 'none validated: DAK and Sutton coefficients pinned as the package method spec; LPG properties are the engine\'s labelled typical table',
         },
-        'blends': blends, 'storage': storage, 'vaporizer': vaporizer, 'vaporizerBefore': vaporizer_before,
+        'blends': blends, 'storage': stores, 'vaporizer': vap, 'vaporizerBefore': vaporizer_before,
         'bottling': bottling, 'dispensing': dispensing, 'floats': floats, 'vessels': vessels,
         'cascades': cascades, 'cascadeMainBefore': main_before, 'compression': compression, 'conversion': conv,
     }

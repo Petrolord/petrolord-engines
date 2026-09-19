@@ -141,7 +141,7 @@ describe('LPG blend properties', () => {
     // Averaging over the components that have it would return a confident
     // number built from half the blend.
     expect(r.latentHeatKJkg).toBeNull();
-    expect(r.note).toMatch(/not averaged/i);
+    expect(r.note).toMatch(/never averaged/i);
   });
 
   it('requires a density for every component', () => {

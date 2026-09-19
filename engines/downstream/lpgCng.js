@@ -233,7 +233,7 @@ export const lpgBlendProperties = ({ components = [] }) => {
     molarMassKgKmol: round(molarMassKgKmol, 6),
     molarMassBasis: 'mole',
     note: latentHeatKJkg === null || molarMassKgKmol === null
-      ? 'A property missing on any component is reported as missing for the blend, not averaged over the components that have it.'
+      ? 'A property missing on any component is reported as missing for the blend. It is never averaged over the components that have it.'
       : null,
   };
 };
@@ -394,7 +394,7 @@ export const vaporizerDuty = ({
     dutyKW: round(totalKJHr / KJ_PER_KWH, 6),
     designDutyKW: round((totalKJHr / KJ_PER_KWH) * (1 + margin / 100), 6),
     note: missing.length
-      ? `Duty covers only the terms supplied. Missing: ${missing.join(', ')}. It is a floor, not the duty.`
+      ? `Duty covers only the terms supplied. Missing: ${missing.join(', ')}. It is a floor: the full duty is at least this.`
       : null,
   };
 };

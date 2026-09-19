@@ -15,13 +15,15 @@ import path from 'path';
 import {
   makeFactor, makeGwpSet, combustionCo2FromCarbon, emissionLine, buildInventory,
   carbonIntensity, abatementCost, abatementCurve, decarbonisationPath, MW_CO2, MW_CH4, MW_C,
+  atomBalanceLines,
 } from '../engines/downstream/carbonAbatement.js';
 import {
   combustionStoichiometry, excessAirFromFlueOxygen, stackLossEfficiency, excessAirSaving,
   steamTrapLoss, condensateReturnValue, energyIntensity, pinchTargets, priceSaving,
   FUEL_REFERENCE, HEATING_VALUE_BASIS, O2_MOLE_FRACTION_DRY_AIR, AIR_MOLAR_MASS,
-  ATMOSPHERIC_N2_MOLAR_MASS,
+  ATMOSPHERIC_N2_MOLAR_MASS, ATMOSPHERE_BAR_A, PRODUCT_MOLAR_MASS,
 } from '../engines/downstream/energyEfficiency.js';
+import { createRequire } from 'module';
 
 const load = (f) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'test-data', 'downstream', 'goldens', f), 'utf8'));
 const CA = load('carbonabatement_cases.json');
@@ -209,10 +211,13 @@ describe('the page curve', () => {
     expect(c.meetsTarget).toBeNull();
     expect(c.targetBasis).toMatch(/exceed/);
   });
-  it('without the over-claim, meets it only as an upper bound', () => {
+  it('without the over-claim, the steam claim still cannot be checked (MD45-1 F1; MD5-0 said "upper bound")', () => {
     const d = abatementCurve({ measures: costed.slice(0, 3), sourceEmissions: CA.sourceEmissions, targetTonnes: CA.curveWithoutFlareRecovery.targetTonnes });
     expect(d.meetsTarget).toBe(CA.curveWithoutFlareRecovery.meetsTarget);
-    expect(d.targetBasis).toMatch(/upper bound/);
+    expect(d.meetsTarget).toBeNull();
+    expect(d.uncheckedSources).toEqual(CA.curveWithoutFlareRecovery.uncheckedSources);
+    expect(d.targetBasis).toMatch(/not assessed/);
+    expect(d.targetBasis).toMatch(/steam/);
   });
 });
 
@@ -295,7 +300,10 @@ describe.each(Object.entries(EE.stoichiometry))('stoichiometry, species ledger: 
     expect(rel(r.dryFlueGasKgPerKmolFuel, g.at3.dryFlueGasKgPerKmolFuel, 1e-6)).toBe(true);
     const out = r.dryFlueGasKgPerKmolFuel + r.moistureKgPerKmolFuel;
     const inn = st.fuelMolarMassKgKmol + ea.actualAirPerKmolFuel * AIR_MOLAR_MASS;
-    expect(Math.abs(out - inn) / inn).toBeLessThan(1e-6);
+    // MD45-1: tightened from 1e-6. With every molar mass built from the same
+    // atomic weights the balance closes to the engine's rounding.
+    expect(Math.abs(out - inn) / inn).toBeLessThan(1e-8);
+    expect(rel(st.fuelMolarMassKgKmol, g.fuelMolarMassKgKmol, 1e-9)).toBe(true);
   });
 });
 
@@ -456,5 +464,283 @@ describe('the dual ledger hands on a levelised cost per tonne (MD5-0 E1)', () =>
     expect(r.error).toMatch(/cannot be multiplied together/);
     expect(priceSaving({ energySavedGJ: 1, energyBasis: 'LHV', emissionFactorBasis: 'LHV' }).basis).toBe('LHV');
     expect(priceSaving({ energySavedGJ: 1 }).basisNote).toMatch(/No heating value basis declared/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// MD45-1: what the carbon course foundations found
+// ---------------------------------------------------------------------------
+
+const M45 = CA.md45;
+const E45 = EE.md45;
+const costedPage = () => CA.measures.map((m) => abatementCost({ ...m, discountRate: CA.discountRate }));
+
+describe('MD45-1 F1: a claim that cannot be checked against its source leaves the target unassessed', () => {
+  it('AT THE PAGE DEFAULTS: the flare refused and left out, the verdict is no longer "met"', () => {
+    const g = M45.curveAtOpen;
+    const c = abatementCurve({ measures: costedPage(), sourceEmissions: g.sourceEmissions, targetTonnes: g.targetTonnes });
+    expect(rel(c.totalAbatementTonnes, g.totalAbatementTonnes)).toBe(true);
+    expect(c.totalAbatementTonnes).toBeGreaterThan(c.targetTonnes); // it WOULD have said met
+    expect(c.meetsTarget).toBe(g.meetsTarget);
+    expect(c.meetsTarget).toBeNull();
+    expect(c.overClaims).toEqual([]);
+    expect(c.uncheckedSources).toEqual(g.uncheckedSources);
+    expect(c.targetBasis).toMatch(/not assessed/);
+    g.uncheckedSources.forEach((sid) => expect(c.targetBasis).toContain(sid));
+    expect(c.uncheckedClaims.find((u) => u.sourceId === 'flare').reason).toMatch(/no emission was given/);
+  });
+  it('with every source given and no over-claim, a verdict again as an upper bound', () => {
+    [M45.curveAllSourcesChecked, M45.curveAllSourcesCheckedMet].forEach((g) => {
+      const c = abatementCurve({ measures: costedPage().slice(0, 3), sourceEmissions: g.sourceEmissions, targetTonnes: g.targetTonnes });
+      expect(c.meetsTarget).toBe(g.meetsTarget);
+      expect(c.uncheckedSources).toEqual([]);
+      expect(c.targetBasis).toMatch(/upper bound/);
+    });
+    expect(M45.curveAllSourcesCheckedMet.meetsTarget).toBe(true);
+  });
+  it('every source given, the flare over-claimed: the over-claim alone keeps it unassessed (MD5-0 C7)', () => {
+    const g = M45.curveOverClaimAllGiven;
+    const c = abatementCurve({ measures: costedPage(), sourceEmissions: g.sourceEmissions, targetTonnes: g.targetTonnes });
+    expect(c.uncheckedSources).toEqual([]);
+    expect(c.overClaims.map((o) => o.sourceId)).toEqual(['flare']);
+    expect(c.meetsTarget).toBe(g.meetsTarget);
+    expect(c.meetsTarget).toBeNull();
+    expect(c.targetBasis).toMatch(/exceed/);
+  });
+  it('a source given with no computed emission is unchecked and named', () => {
+    const g = M45.curveSourceNotComputed;
+    const c = abatementCurve({ measures: costedPage().slice(0, 3), sourceEmissions: g.sourceEmissions, targetTonnes: g.targetTonnes });
+    expect(c.meetsTarget).toBeNull();
+    expect(c.uncheckedSources).toEqual(g.uncheckedSources);
+    expect(c.uncheckedClaims[0].reason).toMatch(/given with no computed emission/);
+    const nan = abatementCurve({ measures: costedPage().slice(0, 3), sourceEmissions: { ...g.sourceEmissions, steam: NaN }, targetTonnes: g.targetTonnes });
+    expect(nan.meetsTarget).toBeNull();
+  });
+  it('a source given as a negative emission is unchecked and named', () => {
+    const g = M45.curveNegativeSource;
+    const c = abatementCurve({ measures: costedPage().slice(0, 3), sourceEmissions: g.sourceEmissions, targetTonnes: g.targetTonnes });
+    expect(g.meetsTarget).toBeNull();
+    expect(c.meetsTarget).toBeNull();
+    expect(c.uncheckedSources).toEqual(g.uncheckedSources);
+  });
+  it('a measure that names no source is unchecked and named', () => {
+    const g = M45.curveUnsourcedMeasure;
+    const c = abatementCurve({ measures: [{ ...costedPage()[0], actsOn: [] }], sourceEmissions: g.sourceEmissions, targetTonnes: g.targetTonnes });
+    expect(c.meetsTarget).toBeNull();
+    expect(c.uncheckedClaims.map((u) => u.measure)).toEqual(g.unsourcedMeasures);
+    expect(c.targetBasis).toMatch(/names no source/);
+  });
+});
+
+describe('MD45-1 F3: a refused measure is named in the curve', () => {
+  it('lists it with the engine\'s reason and keeps its tonnes out', () => {
+    const g = M45.curveWithRefused;
+    const refused = abatementCost(g.refusedArgs);
+    expect(refused.error).toBeTruthy();
+    expect(refused.label).toBe(g.refusedArgs.label);
+    const c = abatementCurve({ measures: [costedPage()[0], refused], sourceEmissions: g.sourceEmissions, targetTonnes: g.targetTonnes });
+    expect(rel(c.totalAbatementTonnes, g.totalAbatementTonnes)).toBe(true);
+    expect(c.meetsTarget).toBe(g.meetsTarget);
+    expect(c.refusedMeasures.map((m) => m.label)).toEqual(g.refusedMeasures.map((m) => m.label));
+    g.refusedMeasures.forEach((m, i) => expect(c.refusedMeasures[i].reason).toContain(m.reasonContains));
+    expect(c.refusedNote).toMatch(/refused/);
+    expect(abatementCurve({ measures: [costedPage()[0]] }).refusedMeasures).toEqual([]);
+  });
+});
+
+describe('MD45-1 F4: a negative activity or factor is a blocked line, and the inventory is not reportable', () => {
+  const gwp = makeGwpSet({ label: 'AR6', values: CA.inventoryFilled.gwp });
+  M45.negativeLines.forEach((g) => {
+    it(g.name, () => {
+      const f = makeFactor({ label: 'f', value: g.line.factor, unit: 't/t', gas: g.line.gas, source: 's', version: '1' });
+      const l = emissionLine({ label: g.line.label, scope: g.line.scope, activity: g.line.activity, factor: f, gwpSet: gwp });
+      expect(l.tCo2e).toBeNull();
+      expect(l.blockedBy).toContain(g.blocked[0].reason);
+      const inv = buildInventory({ lines: [l], gwpSet: gwp });
+      expect(inv.reportable).toBe(g.reportable);
+      expect(inv.reportable).toBe(false);
+      expect(inv.totalTonnes).toBe(g.totalTonnes);
+    });
+  });
+});
+
+describe('MD45-1 F7: a potential of zero or below, and a path below zero, are refused', () => {
+  M45.gwpRefusals.forEach((g) => {
+    it(g.name, () => {
+      const set = makeGwpSet({ label: g.label, values: g.values });
+      expect(set.error).toMatch(/must be positive/);
+      expect(set.declared).toBe(false);
+    });
+  });
+  it('a positive set is still declared, with no error', () => {
+    const set = makeGwpSet({ label: 'AR6', values: CA.inventoryFilled.gwp });
+    expect(set.error).toBeNull();
+    expect(set.declared).toBe(true);
+  });
+  it('a path whose measures abate more than the baseline', () => {
+    const g = M45.pathOverAbated;
+    expect(g.refused).toBe(true);
+    const p = decarbonisationPath({ baselineTonnes: g.baselineTonnes, measures: g.measures, startYear: g.startYear, endYear: g.endYear });
+    expect(p.error).toMatch(/below zero/);
+    expect(p.overAbatedYear).toBe(g.overAbatedYear);
+  });
+});
+
+describe('MD45-1 F2: the heating value basis is LHV or HHV, in any case', () => {
+  const st = stoich(EE.stoichiometry.page.fuel);
+  Object.entries(E45.basisCases).forEach(([typed, meant]) => {
+    it(`"${typed}" is ${meant}, on ${meant}'s number`, () => {
+      const r = heater(st, 3, typed);
+      expect(r.error).toBeNull();
+      expect(r.basis).toBe(meant);
+      expect(Math.abs(r.efficiencyPercent - EE.efficiency[`${meant}@3`].efficiencyPercent)).toBeLessThan(2e-6);
+    });
+  });
+  E45.basisRefusals.forEach((typed) => {
+    it(`refuses ${JSON.stringify(typed)}`, () => {
+      expect(heater(st, 3, typed).error).toMatch(/LHV or HHV/);
+    });
+  });
+});
+
+describe('MD45-1 F7: a loss below zero is refused', () => {
+  const st = stoich(EE.stoichiometry.page.fuel);
+  E45.lossRefusals.forEach(({ name, ...over }) => {
+    it(name, () => {
+      const ea = excessAirFromFlueOxygen({ stoichiometry: st, dryO2Percent: 3 });
+      const args = {
+        stoichiometry: st, excessAir: ea, ...Object.fromEntries(Object.entries(EE.heater).map(([k, v]) => [k, Number(v)])), basis: 'LHV', ...over,
+      };
+      expect(stackLossEfficiency(args).error).toMatch(/cannot be negative/);
+    });
+  });
+});
+
+describe('MD45-1 F5: a condensate target below the current return is refused', () => {
+  it('refuses it', () => {
+    expect(condensateReturnValue(E45.condensateBelowCurrent).error).toMatch(/below the current return/);
+  });
+  it('a target equal to the current is a value of zero, not refused', () => {
+    const r = condensateReturnValue({ ...E45.condensateBelowCurrent, targetReturnFraction: 0.7 });
+    expect(r.error).toBeNull();
+    expect(r.extraCondensateTonnesPerYear).toBe(0);
+  });
+});
+
+describe('MD45-1 F6: the trap tests choked flow against the critical pressure ratio', () => {
+  E45.traps.forEach((g) => {
+    it(g.name, () => {
+      const r = steamTrapLoss(g.args);
+      expect(r.error).toBeNull();
+      expect(r.choked).toBe(g.choked);
+      expect(rel(r.criticalPressureRatio, g.criticalPressureRatio, 1e-7)).toBe(true);
+      expect(rel(r.pressureRatio, g.pressureRatio, 1e-7)).toBe(true);
+      expect(rel(r.kgPerHour, g.kgPerHour, 1e-9)).toBe(true);
+      expect(r.downstreamPressureBarA).toBe(g.downstreamPressureBarA);
+      expect(r.chokedNote).toMatch(g.choked ? /^Choked/ : /^Subsonic/);
+      if (g.args.downstreamPressureBarA === undefined) expect(r.downstreamNote).toMatch(/atmosphere/);
+      else expect(r.downstreamNote).toBeNull();
+    });
+  });
+  it('the stated atmosphere is 1.01325 bar a', () => {
+    expect(ATMOSPHERE_BAR_A).toBe(1.01325);
+  });
+  E45.trapRefusals.forEach((g) => {
+    it(`refuses ${g.name}`, () => {
+      const r = steamTrapLoss({ ...E45.traps[0].args, downstreamPressureBarA: g.downstreamPressureBarA });
+      expect(r.error).toBeTruthy();
+    });
+  });
+});
+
+describe('MD45-1: the oracle duty ledger is a function now, and the engine matches it', () => {
+  it('matches the exported duty_ledger()', () => {
+    const g = E45.dutyLedger;
+    const st = stoich(EE.stoichiometry.page.fuel);
+    const r = excessAirSaving({
+      current: heater(st, 6, 'LHV'), target: heater(st, 3, 'LHV'), minimumSafeO2Percent: 2, targetO2Percent: 3, annualFuelEnergyGJ: g.annualFuelGJ,
+    });
+    expect(Math.abs(r.fuelSavingFraction - g.fuelSavingFraction)).toBeLessThan(1e-7);
+    expect(Math.abs(r.annualEnergySavedGJ - g.annualEnergySavedGJ)).toBeLessThan(0.05);
+  });
+});
+
+const CONTRAST = /\b\w+, not (a |an |the )?\w+/i;
+const clean = (t) => !/[\u2014\u2013]/.test(t) && !CONTRAST.test(t);
+
+describe('MD45-1: no string in either engine breaks the owner copy rule', () => {
+  it('sweeps every string literal and template', () => {
+    const require = createRequire(__filename);
+    const { parse } = require('@babel/parser');
+    const bad = [];
+    ['carbonAbatement.js', 'energyEfficiency.js'].forEach((f) => {
+      const src = fs.readFileSync(path.join(__dirname, '..', 'engines', 'downstream', f), 'utf8');
+      const walk = (n) => {
+        if (!n || typeof n.type !== 'string') return;
+        const text = n.type === 'StringLiteral' ? n.value
+          : n.type === 'TemplateLiteral' ? n.quasis.map((q) => q.value.cooked).join('X') : null;
+        if (text !== null && !clean(text)) bad.push(`${f}:${n.loc.start.line} ${text}`);
+        Object.keys(n).forEach((k) => {
+          if (k === 'loc' || k.endsWith('Comments')) return;
+          const v = n[k];
+          if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === 'object') walk(v);
+        });
+      };
+      walk(parse(src, { sourceType: 'module' }).program);
+    });
+    expect(bad).toEqual([]);
+  });
+});
+
+describe('MD45-1 F8: a refused combustion is a blocked line, never a missing one', () => {
+  const g = M45.inventoryFlareRefused;
+  const gwpSet = makeGwpSet({ label: 'IPCC AR6 GWP100 (fossil CH4)', values: CA.inventoryFilled.gwp });
+  const others = CA.inventoryFilled.lines.filter((l) => !l.label.startsWith('Flaring')).map((l) => factorLine(l, gwpSet));
+  const refused = combustionCo2FromCarbon({ fuelKmolPerYear: 45000, carbonPerKmolFuel: 1.4, destructionEfficiencyFraction: '' });
+  it('the refused flare, dropped as the page dropped it, left the rest reportable', () => {
+    const inv = buildInventory({ lines: others, gwpSet });
+    expect(inv.reportable).toBe(g.refusedDropped.reportable);
+    expect(inv.reportable).toBe(true);
+  });
+  it('through atomBalanceLines it is blocked with the refusal, and the inventory is not reportable', () => {
+    const lines = atomBalanceLines({ label: 'Flaring', combustion: refused, gwpSet });
+    expect(lines).toHaveLength(1);
+    const inv = buildInventory({ lines: [...others, ...lines], gwpSet });
+    expect(inv.reportable).toBe(g.refusedAsLine.reportable);
+    expect(inv.reportable).toBe(false);
+    expect(inv.blockedLines.map((b) => b.label)).toEqual(g.refusedAsLine.blocked.map((b) => b.label));
+    expect(inv.blockedLines[0].reason).toBe(refused.error);
+    expect(rel(inv.totalTonnes, g.refusedAsLine.totalTonnes, 1e-9)).toBe(true);
+  });
+  it('a computed flare becomes its CO2 and methane lines at the ledger\'s tonnes', () => {
+    const flare = combustionCo2FromCarbon(CA.combustion.flare98);
+    const lines = atomBalanceLines({ label: 'Flaring', combustion: flare, gwpSet });
+    expect(lines.map((l) => l.label)).toEqual(['Flaring (CO2)', 'Flaring (unburned CH4)']);
+    const inv = buildInventory({ lines: [...others, ...lines], gwpSet });
+    expect(rel(inv.totalTonnes, CA.inventoryFilled.totalTonnes, 1e-9)).toBe(true);
+    expect(inv.reportable).toBe(true);
+  });
+  it('a source left out of the boundary on purpose adds nothing', () => {
+    expect(atomBalanceLines({ label: 'Flaring', combustion: refused, gwpSet, excluded: true })).toEqual([]);
+  });
+});
+
+describe('MD45-1 F9 and one source of molar masses', () => {
+  it('the stack oxygen refusal states the bound the test applies', () => {
+    const st = stoich(EE.stoichiometry.page.fuel);
+    const r = excessAirFromFlueOxygen({ stoichiometry: st, dryO2Percent: O2_MOLE_FRACTION_DRY_AIR * 100 });
+    expect(r.error).toContain('below 20.946 percent');
+    expect(r.error).not.toMatch(/20\.95\b/);
+    expect(excessAirFromFlueOxygen({ stoichiometry: st, dryO2Percent: 20.9 }).error).toBeNull();
+  });
+  it('the flue gas products are the oracle\'s built molar masses, and CO2 is the carbon engine\'s', () => {
+    expect(PRODUCT_MOLAR_MASS.CO2).toBe(MW_CO2);
+    ['CO2', 'H2O', 'SO2', 'N2'].forEach((k) => expect(rel(PRODUCT_MOLAR_MASS[k], EE.molarMasses[k], 1e-12)).toBe(true));
+    expect(FUEL_REFERENCE.find((r) => r.code === 'CO2').molarMassKgKmol).toBe(MW_CO2);
+  });
+  it('the capital-life refusal says what is true: it overstates a capital measure', () => {
+    const r = abatementCost({ label: 'X', capitalCost: 1000, tonnesAbatedPerYear: 10, discountRate: 0.1 });
+    expect(r.error).toMatch(/overstates the cost per tonne/);
+    expect(r.error).not.toMatch(/every measure/);
   });
 });
