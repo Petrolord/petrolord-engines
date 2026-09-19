@@ -377,6 +377,12 @@ and its consumers.
   `oracle_modularrefinery.py`, gate `downstream.refinery.golden`, battery
   `negcontrol_md2.sh`, findings `FINDINGS-refinery.md`. It added the
   opt-in `lossCarryForward` to `engines/economics/screening.js`.
+  MD3-0 (2026-09-19) did the same for `terminalDepot.js` and
+  `fuelPricing.js`: oracles `oracle_terminaldepot.py` (strapping from tank
+  geometry, exact factorial Erlang C) and `oracle_fuelpricing.py` (a cargo
+  invoice, insurance on CIF by fixed point), gate `downstream.supply.golden`,
+  battery `negcontrol_md3.sh`, findings `FINDINGS-supply.md`. The three
+  Commercial & Trading course engines (MD1 to MD3) are now all gated.
 
 - `engines/economics/` — the Economics module (EC0 extraction wave,
   2026-09-08; plan of record in the Suite at
