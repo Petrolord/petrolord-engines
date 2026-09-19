@@ -52,9 +52,16 @@ const round = (v, dp = 6) => (Number.isFinite(v)
   ? Math.round(v * 10 ** dp) / 10 ** dp
   : null);
 
+/** A box the caller left empty, as distinct from an argument left out. */
+const blank = (v) => v === null || v === '';
+
 export const SCOPE = { ONE: 1, TWO: 2 };
 
-/** Relative molecular masses. Definitional, from the atomic masses. */
+/**
+ * Relative molecular masses, from the IUPAC conventional atomic weights
+ * (C 12.011, O 15.999, H 1.008): CO2 = 12.011 + 2 x 15.999 and
+ * CH4 = 12.011 + 4 x 1.008. Checked in MD5-0 against CIAAW (2024 table).
+ */
 export const MW_CO2 = 44.009;
 export const MW_C = 12.011;
 export const MW_CH4 = 16.043;
@@ -109,6 +116,7 @@ export const makeGwpSet = ({ label, values = {} }) => {
     declared: !!label && entries.length > 0,
     gases: entries.map(([g]) => g),
     note: 'Global warming potentials differ between IPCC assessment reports. An inventory on one report is not comparable with one on another, so the set is stated on every result.',
+    methaneNote: 'AR6 gives methane two 100-year values: fossil (29.8) and non-fossil (27.0). This set holds one. The atom balance here counts carbon that escapes a burner or a flare as methane and NOT as CO2, so the oxidation CO2 is counted nowhere else and the fossil value is the consistent one for vented, fugitive and unburned fossil methane alike.',
   };
 };
 
@@ -141,10 +149,19 @@ export const combustionCo2FromCarbon = ({
 }) => {
   const kmol = num(fuelKmolPerYear);
   const c = num(carbonPerKmolFuel);
-  const eta = num(destructionEfficiencyFraction, 1);
   if (!Number.isFinite(kmol) || !Number.isFinite(c)) {
     return { error: 'A fuel quantity and the carbon per kilomole of fuel are required.' };
   }
+  if (kmol < 0 || c < 0) {
+    return { error: 'A fuel quantity and a carbon content cannot be negative.' };
+  }
+  // Left out of the call, complete combustion is the stated default. Left
+  // BLANK, it is missing: for a flare the destruction efficiency IS the
+  // answer, and reading an empty box as 100 percent is the best case.
+  if (blank(destructionEfficiencyFraction)) {
+    return { error: 'A destruction efficiency is required. It is not read as 100 percent: for a flare it is the answer, and it is contested.' };
+  }
+  const eta = num(destructionEfficiencyFraction, 1);
   if (!(eta > 0) || eta > 1) {
     return { error: 'The destruction efficiency must lie in (0, 1].' };
   }
@@ -164,7 +181,7 @@ export const combustionCo2FromCarbon = ({
     destructionEfficiencyFraction: eta,
     method: 'Atom balance: carbon in equals CO2 out. This is conservation of mass, not an empirical factor, so it needs no source document.',
     unburnedNote: eta === 1 ? null
-      : 'Carbon that escaped combustion is counted as methane, which is the usual and conservative assumption. Override it if you have measured otherwise.',
+      : 'Carbon that escaped combustion is counted as methane, which is the usual and conservative assumption, and not as CO2. Use the fossil methane potential for it. Override it if you have measured otherwise.',
   };
 };
 
@@ -178,7 +195,7 @@ export const emissionLine = ({
   label, scope = SCOPE.ONE, activity, activityUnit, factor, gwpSet,
 }) => {
   const a = num(activity, null);
-  if (!factor) return { error: 'A registered emission factor is required.' };
+  if (!factor) return { error: 'A registered emission factor is required.', label };
   const gwp = gwpFor(gwpSet, factor.gas);
   const tonnesGas = a === null || !factor.hasValue ? null : a * factor.value;
   const tCo2e = tonnesGas === null || gwp === null ? null : tonnesGas * gwp;
@@ -217,7 +234,17 @@ export const emissionLine = ({
  * a working number ends up in a regulatory return.
  */
 export const buildInventory = ({ lines = [], gwpSet }) => {
-  const rows = lines.filter((l) => l && !l.error);
+  // A line that could not even be built, and a line on a scope this
+  // inventory does not total, are BLOCKED and named. Dropping them left the
+  // inventory reportable with a line missing from it.
+  const rows = lines.filter(Boolean).map((l) => {
+    if (l.error) return { label: l.label || 'Unnamed line', scope: null, tCo2e: null, provenanceComplete: false, blockedBy: l.error };
+    const s = Number(l.scope);
+    if (s !== SCOPE.ONE && s !== SCOPE.TWO) {
+      return { ...l, tCo2e: null, blockedBy: `scope ${l.scope} is not Scope 1 or Scope 2, which is all this inventory totals` };
+    }
+    return s === l.scope ? l : { ...l, scope: s };
+  });
   const scopeTotal = (s) => rows
     .filter((l) => l.scope === s && Number.isFinite(l.tCo2e))
     .reduce((a, l) => a + l.tCo2e, 0);
@@ -283,6 +310,10 @@ export const carbonIntensity = ({
     totalIntensity: round(inventory.totalTonnes / d, 8),
     unit: `tCO2e per ${denominatorUnit}`,
     gwpSetLabel: inventory.gwpSetLabel,
+    // An intensity inherits its inventory's status: a working number
+    // divided by a tonnage is still a working number.
+    reportable: inventory.reportable === true,
+    notReportableBecause: inventory.notReportableBecause || null,
     comparabilityNote: `Comparable only with an intensity on the same boundary (${boundaryLabel}) and the same global warming potential set${inventory.gwpSetLabel ? ` (${inventory.gwpSetLabel})` : ''}.`,
   };
 };
@@ -309,12 +340,30 @@ export const abatementCost = ({
 }) => {
   const t = num(tonnesAbatedPerYear);
   if (!Number.isFinite(t)) return { error: `Measure "${label}" needs an annual abatement.` };
+  if (t < 0) {
+    return { error: `Measure "${label}" has a negative abatement. A measure that adds emissions is not an abatement, and its cost per tonne would change sign.` };
+  }
+  // A BLANK capital cost is missing: read as 0 it moves the measure to the
+  // cheap end of the curve. Left out of the call it is the stated 0.
+  if (blank(capitalCost)) {
+    return { error: `Measure "${label}" has no capital cost. Enter 0 if it needs none: a blank is not read as free.` };
+  }
   const capex = num(capitalCost, 0);
   const life = num(lifeYears, null);
-  const r = num(discountRate, 0);
   if (capex !== 0 && (life === null || life <= 0)) {
     return { error: `Measure "${label}" has a capital cost, so it needs a life to annualise it over. Comparing a one-off capital cost against a recurring saving makes every measure look expensive.` };
   }
+  if (capex !== 0 && blank(discountRate)) {
+    return { error: `Measure "${label}" has a capital cost, so it needs a discount rate. A blank is not read as 0, which would annualise straight-line and move the measure down the curve.` };
+  }
+  const r = num(discountRate, 0);
+  if (!Number.isFinite(r) || r <= -1 || r >= 1) {
+    return { error: 'The discount rate is a fraction greater than -1 and below 1 (0.1 for ten percent).' };
+  }
+  // Blank running figures are taken as 0 and NAMED, as throughputEconomics does.
+  const assumedZero = [
+    ['annual savings', annualSavings], ['annual cost', annualCost],
+  ].filter(([, v]) => blank(v)).map(([n]) => n);
   // Capital recovery factor. At a zero rate this is simple straight-line.
   const crf = life === null ? 0
     : (r === 0 ? 1 / life : (r * (1 + r) ** life) / ((1 + r) ** life - 1));
@@ -330,6 +379,7 @@ export const abatementCost = ({
     capitalRecoveryFactor: round(crf, 8),
     costPerTonne: t === 0 ? null : round(netAnnualCost / t, 6),
     paysForItself: t !== 0 && netAnnualCost < 0,
+    assumedZero,
     actsOn,
   };
 };
@@ -415,7 +465,13 @@ export const abatementCurve = ({ measures = [], sourceEmissions = {}, targetTonn
       ? 'Measures listed here act on the same source, so their abatements are NOT additive and the cumulative curve is an upper bound. Resolving the overlap needs an engineering judgement about sequencing, which is why it is surfaced rather than solved.'
       : null,
     targetTonnes: target,
-    meetsTarget: target === null ? null : cumulative >= target,
+    // A curve whose claims exceed what a source emits cannot meet anything:
+    // the tonnes it adds up do not exist. Where measures only interact, the
+    // total is an upper bound and the verdict says so.
+    meetsTarget: target === null || overClaims.length ? null : cumulative >= target,
+    targetBasis: target === null ? null
+      : overClaims.length ? 'not assessed: claims exceed what a source emits'
+        : interactions.length ? 'upper bound: measures interact' : 'additive',
     // Naming the residual is the point. A wedge labelled "further measures"
     // is not a plan.
     residualToTargetTonnes: target === null ? null : round(Math.max(0, target - cumulative), 6),
@@ -439,10 +495,22 @@ export const decarbonisationPath = ({
   if (!Number.isFinite(base) || !Number.isFinite(y0) || !Number.isFinite(y1) || y1 < y0) {
     return { error: 'A baseline and a valid year range are required.' };
   }
+  if (!(base > 0)) {
+    return { error: 'The baseline must be a positive tonnage. An inventory that computed nothing is not a baseline of zero.' };
+  }
+  // A measure with no start year or no abatement is NAMED, not dropped.
+  const unscheduled = measures.filter((m) => m && !m.error && (
+    !Number.isFinite(num(m.startYear)) || !Number.isFinite(num(m.tonnesAbatedPerYear))
+  )).map((m) => ({
+    label: m.label,
+    reason: !Number.isFinite(num(m.startYear)) ? 'no start year' : 'no abatement',
+  }));
+  const scheduled = measures.filter((m) => m && !m.error
+    && Number.isFinite(num(m.startYear)) && Number.isFinite(num(m.tonnesAbatedPerYear)));
   const rows = [];
   for (let y = y0; y <= y1; y += 1) {
-    const live = measures.filter((m) => !m.error && num(m.startYear, y1 + 1) <= y);
-    const abated = live.reduce((a, m) => a + num(m.tonnesAbatedPerYear, 0), 0);
+    const live = scheduled.filter((m) => num(m.startYear) <= y);
+    const abated = live.reduce((a, m) => a + num(m.tonnesAbatedPerYear), 0);
     const target = num(targetByYear[y], null);
     const emissions = base - abated;
     rows.push({
@@ -463,6 +531,7 @@ export const decarbonisationPath = ({
     rows,
     firstShortfallYear: gaps.length ? gaps[0].year : null,
     finalGapTonnes: rows.length ? rows[rows.length - 1].unabatedGapTonnes : null,
+    unscheduledMeasures: unscheduled,
     gapNote: gaps.length
       ? 'The gap is reported as unabated with no measure identified. It is deliberately not drawn as a wedge of future measures, because a wedge with nothing behind it is not a plan.'
       : null,

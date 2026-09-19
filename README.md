@@ -377,6 +377,13 @@ and its consumers.
   `oracle_modularrefinery.py`, gate `downstream.refinery.golden`, battery
   `negcontrol_md2.sh`, findings `FINDINGS-refinery.md`. It added the
   opt-in `lossCarryForward` to `engines/economics/screening.js`.
+  MD5-0 (2026-09-19, run beside MD4-0) did the same for
+  `carbonAbatement.js` and `energyEfficiency.js`: oracles
+  `oracle_carbonabatement.py` (combustion by mass, a levelised PV ledger)
+  and `oracle_energyefficiency.py` (a species ledger whose mass balance
+  must close, pinch by the largest heat deficit), gate
+  `downstream.carbon.golden`, battery `negcontrol_md5.sh`, findings
+  `FINDINGS-carbon.md`.
   MD3-0 (2026-09-19) did the same for `terminalDepot.js` and
   `fuelPricing.js`: oracles `oracle_terminaldepot.py` (strapping from tank
   geometry, exact factorial Erlang C) and `oracle_fuelpricing.py` (a cargo
