@@ -164,6 +164,14 @@ describe('the landed cost', () => {
     expect(Math.abs(r.cif - g.cif)).toBeLessThan(0.01);
   });
 
+  it('counts a blank ocean loss as a missing rate, and refuses one of 100 percent or more (MD3-2)', () => {
+    const r = landedCost({ ...cargo, oceanLossPercent: '', charges: charges(FP.rates) });
+    expect(r.complete).toBe(false);
+    expect(r.missingRates).toContain('Ocean loss');
+    expect(r.basisOfTotal).toMatch(/FLOOR/);
+    expect(landedCost({ ...cargo, oceanLossPercent: 100, charges: charges(FP.rates) }).error).toMatch(/ocean loss/);
+  });
+
   it('refuses a freight-stage charge on a value formed after freight, and an unknown stage', () => {
     const bad = [{ id: 'x', label: 'Odd freight', basis: CHARGE_BASIS.PERCENT_OF_CF, stage: 'freight', amount: 1 }];
     expect(landedCost({ ...cargo, charges: bad }).error).toMatch(/not formed until after freight/);

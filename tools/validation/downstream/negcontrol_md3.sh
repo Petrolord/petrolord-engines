@@ -77,6 +77,8 @@ plant $T "  const serviceRate = load > 0 ? 60 / load : NaN; // trucks per hour p
 plant $T "    turnsPerYear: working > 0 && daily > 0 ? (daily * 365) / working : null," "    turnsPerYear: working > 0 ? (daily * 365) / working : null," "terminal: 0 turns with no throughput again (MD3-1)"
 plant $T "  if (blank(throughputM3) || blank(feePerM3)" "  if (false && blank(throughputM3) || false && blank(feePerM3)" "terminal: a blank fee is 0 again (MD3-1)"
 
+plant $P "  if (oceanLossPercent === '' || oceanLossPercent === null) missing.push('Ocean loss');" "" "fuel: a blank ocean loss is zero loss again (MD3-2)"
+
 echo
 echo "planted: $total   survivors: $survivors"
 [ "$survivors" -eq 0 ]
