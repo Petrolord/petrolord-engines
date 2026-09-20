@@ -24,8 +24,8 @@ SUITE=__tests__/hse.qra.test.js
 PY=${PY:-/root/hseenv/bin/python}
 FILTER=${1:-}
 TMP=$(mktemp -d)
-cp "$ENGINE" "$TMP/engine.bak"; cp "$ORACLE" "$TMP/oracle.bak"; cp "$GOLDEN" "$TMP/golden.bak"
-restore() { cp "$TMP/engine.bak" "$ENGINE"; cp "$TMP/oracle.bak" "$ORACLE"; cp "$TMP/golden.bak" "$GOLDEN"; }
+cp "$ENGINE" "$TMP/engine.bak"; cp "$ORACLE" "$TMP/oracle.bak"; cp "$GOLDEN" "$TMP/golden.bak"; cp "$SUITE" "$TMP/suite.bak"
+restore() { cp "$TMP/engine.bak" "$ENGINE"; cp "$TMP/oracle.bak" "$ORACLE"; cp "$TMP/golden.bak" "$GOLDEN"; cp "$TMP/suite.bak" "$SUITE"; }
 trap restore EXIT
 
 plant() { # file from to
@@ -62,6 +62,31 @@ run_case() { # kind name engine_from engine_to oracle_from oracle_to
   else
     echo "GREEN [$kind] $name -- NOT CAUGHT"
   fi
+}
+
+
+# A TOLERANCE plant perturbs the engine by a small relative amount and says
+# what it expects. Two rows make one argument: the perturbation is caught at
+# the tolerance the suite ships, and the SAME perturbation is missed once that
+# tolerance is loosened. That is what shows the number is load-bearing and not
+# decoration. `expect` is RED or GREEN; a row that does not match is reported
+# as MISMATCH and is a finding.
+run_tol() { # expect name engine_from engine_to suite_from suite_to
+  want=$1; name=$2; ef=$3; et=$4; sf=$5; st=$6
+  [ -n "$FILTER" ] && case "$name" in *"$FILTER"*) ;; *) return ;; esac
+  restore
+  plant "$ENGINE" "$ef" "$et" || { echo "SKIP  $name (engine target missing)"; return; }
+  if [ -n "$sf" ]; then plant "$SUITE" "$sf" "$st" || { echo "SKIP  $name (suite target missing)"; return; }; fi
+  out=$(timeout 300 npx jest "$SUITE" 2>&1)
+  if echo "$out" | grep -q "Tests:.*failed"; then
+    got=RED; n=$(echo "$out" | grep -E "^Tests:" | grep -oE "[0-9]+ failed" | head -1)
+  elif echo "$out" | grep -q "Test suite failed to run"; then
+    got=RED; n="suite failed to run"
+  else
+    got=GREEN; n="NOT CAUGHT"
+  fi
+  if [ "$got" = "$want" ]; then echo "$got   [TOL] $name -- $n (expected $want)"
+  else echo "MISMATCH [TOL] $name -- got $got, expected $want -- $n"; fi
 }
 
 echo "=== baseline ==="
@@ -169,8 +194,68 @@ run_case SHARED "contour interpolation linear in both (single rule: expected GRE
   "if (a > 0 && b > 0) t = (Math.log10(level)" "if (false) t = (Math.log10(level)" \
   "            t = (math.log10(level) - math.log10(A)) / (math.log10(B) - math.log10(A))" "            t = (level - A) / (B - A)"
 
+echo "=== FAIL-OPEN plants: revert each prototype-chain fix (all must be RED) ==="
+# Every row here restores the code as it stood before 2026-09-20. Each one
+# made the engine answer a bogus preset with a RESULT instead of a refusal.
+run_case ENGINE "fail-open: ownPreset reverted to a prototype-walking truthiness test (all four presets at once)" \
+  "const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);" \
+  "const ownPreset = (table, key) => !!table[key];" "" ""
+run_case ENGINE "fail-open: ALARP preset unchecked ('constructor' returned BROADLY_ACCEPTABLE)" \
+  "if (!ownPreset(TOLERABILITY_PRESETS, thresholds)) return refuse('thresholds'," "if (false) return refuse('thresholds'," "" ""
+run_case ENGINE "fail-open: F-N criterion preset unchecked ('valueOf' returned BELOW, i.e. compliant)" \
+  "if (!ownPreset(FN_CRITERIA, criterion)) return refuse('criterion'," "if (false) return refuse('criterion'," "" ""
+run_case ENGINE "fail-open: PB Table 4.5 substance unchecked (returned a result with no probability)" \
+  "if (!ownPreset(PB_DIRECT_IGNITION_STATIONARY, substance)) return refuse('substance'," "if (false) return refuse('substance'," "" ""
+run_case ENGINE "fail-open: PB Table 5.3 period unchecked ('toString' gave a NaN fraction of deaths)" \
+  "if (!ownPreset(PB_FRACTION_INDOORS, period)) return refuse('period'," "if (false) return refuse('period'," "" ""
+run_case ENGINE "fail-open: event tree totals back on an object literal ('constructor' concatenated, '__proto__' vanished)" \
+  "  const totals = new Map();
+  outcomes.forEach((o) => { totals.set(o.outcome, (totals.get(o.outcome) || 0) + o.frequencyPerYr); });
+  const outcomeTotals = Object.fromEntries(totals);" \
+  "  const outcomeTotals = {};
+  outcomes.forEach((o) => { outcomeTotals[o.outcome] = (outcomeTotals[o.outcome] || 0) + o.frequencyPerYr; });" "" ""
+
+echo "=== TOLERANCE plants (a small perturbation, caught; then missed once loosened) ==="
+run_tol RED   "LSIR out by 1e-9 relative, at the shipped RTOL of 1e-12" \
+  "const lsir = contributions.reduce((a, c) => a + c.contributionPerYr, 0);" \
+  "const lsir = contributions.reduce((a, c) => a + c.contributionPerYr, 0) * (1 + 1e-9);" "" ""
+run_tol GREEN "the SAME 1e-9 perturbation, with the suite RTOL loosened to 1e-6" \
+  "const lsir = contributions.reduce((a, c) => a + c.contributionPerYr, 0);" \
+  "const lsir = contributions.reduce((a, c) => a + c.contributionPerYr, 0) * (1 + 1e-9);" \
+  "const RTOL = 1e-12;" "const RTOL = 1e-6;"
+run_tol RED   "toxic probability integral out by 1e-5 relative, at the route tolerance of 1e-6" \
+  "const PI = 2 * (h / 3) * s;" "const PI = 2 * (h / 3) * s * (1 + 1e-5);" "" ""
+# both places the suite spends this tolerance must be loosened: the first
+# attempt loosened only one of the two and the other still caught the plant,
+# which is itself worth knowing.
+run_tol GREEN "the SAME 1e-5 perturbation, with BOTH toxic tolerances loosened to 1e-3" \
+  "const PI = 2 * (h / 3) * s;" "const PI = 2 * (h / 3) * s * (1 + 1e-5);" \
+  ", 1e-6)" ", 1e-3)"
+run_tol RED   "CBA present value out by 1e-3 relative, against the checklist's GBP 1" \
+  "const pvBenefit = npv(benefitFlows, benefitDiscountRate, 0, 1);" \
+  "const pvBenefit = npv(benefitFlows, benefitDiscountRate, 0, 1) * (1 + 1e-3);" "" ""
+# This row is expected RED, and that is the finding. Loosening the published
+# checklist tolerance from GBP 1 to GBP 1000 does NOT hide the perturbation:
+# seven independent assertions cover this present value (the checklist
+# example, the R2P2 footnote at 1e-12, the DF boundary verdict, three route-B
+# closed-form annuity comparisons at 1e-11, and the canonical-npv identity,
+# which is an exact toBe and has no tolerance to loosen at all). No single
+# tolerance is load-bearing here because no single tolerance stands alone.
+run_tol RED   "the SAME 1e-3 perturbation, with the checklist tolerance loosened to GBP 1000 (six other assertions still catch it)" \
+  "const pvBenefit = npv(benefitFlows, benefitDiscountRate, 0, 1);" \
+  "const pvBenefit = npv(benefitFlows, benefitDiscountRate, 0, 1) * (1 + 1e-3);" \
+  "toBeLessThan(c.printedAbsTol);" "toBeLessThan(1000);"
+run_tol RED   "PB Appendix 6.B contribution out by 1 percent, against a value printed to 2 significant figures" \
+  "const pd = cl.probability * pci;" "const pd = cl.probability * pci * 1.01;" "" ""
+run_tol RED   "branch-sum tolerance loosened from 1e-9 to 1e-3 (0.4000001 must still be refused)" \
+  "export const BRANCH_SUM_TOLERANCE = 1e-9;" "export const BRANCH_SUM_TOLERANCE = 1e-3;" "" ""
+run_tol RED   "boundary snap loosened from 1e-9 to 1e-2 (bands must not drift a percent)" \
+  "export const BOUNDARY_SNAP = 1e-9;" "export const BOUNDARY_SNAP = 1e-2;" "" ""
+
 restore
 echo "=== restored; verifying clean ==="
 cmp -s "$GOLDEN" "$TMP/golden.bak" && echo "golden restored byte-identical"
+cmp -s "$SUITE" "$TMP/suite.bak" && echo "suite restored byte-identical"
+cmp -s "$ENGINE" "$TMP/engine.bak" && echo "engine restored byte-identical"
 "$PY" "$ORACLE" >/dev/null && cmp -s "$GOLDEN" "$TMP/golden.bak" && echo "oracle regenerates the golden byte-identical"
 npx jest "$SUITE" 2>&1 | grep -E "^Tests:"

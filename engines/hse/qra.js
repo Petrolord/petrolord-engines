@@ -90,6 +90,15 @@ const nonNegative = (v) => isNum(v) && v >= 0;
 const probability = (v) => isNum(v) && v >= 0 && v <= 1;
 const given = (v) => v !== undefined && v !== null;
 
+/**
+ * Is `key` a preset this table actually defines? A plain `table[key]` walks
+ * the prototype chain, so 'constructor', 'toString' and '__proto__' would
+ * all return a truthy function and pass a `if (!row)` guard, after which the
+ * engine reads undefined coefficients and reports a risk as acceptable. Every
+ * preset lookup here goes through this instead. See FINDINGS-qra.md section 9.
+ */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
 /** -1 below, 0 at (within BOUNDARY_SNAP relative), +1 above. */
 const compare = (value, threshold) => {
   if (Math.abs(value - threshold) <= BOUNDARY_SNAP * Math.abs(threshold)) return 0;
@@ -148,8 +157,12 @@ export const eventTree = ({ initiatingFrequencyPerYr, tree } = {}) => {
   };
   const bad = walk(tree, 'tree', [], 1);
   if (bad) return bad;
-  const outcomeTotals = {};
-  outcomes.forEach((o) => { outcomeTotals[o.outcome] = (outcomeTotals[o.outcome] || 0) + o.frequencyPerYr; });
+  // a Map, not an object literal: an outcome named 'constructor' or
+  // '__proto__' would otherwise concatenate onto an inherited value or be
+  // swallowed by the prototype setter. Object.fromEntries defines own keys.
+  const totals = new Map();
+  outcomes.forEach((o) => { totals.set(o.outcome, (totals.get(o.outcome) || 0) + o.frequencyPerYr); });
+  const outcomeTotals = Object.fromEntries(totals);
   return {
     outcomes,
     outcomeTotalsPerYr: outcomeTotals,
@@ -235,8 +248,8 @@ export const PB_DIRECT_IGNITION_STATIONARY = Object.freeze({
  * 100 kg/s (1000 and 10,000 kg) fall in it.
  */
 export const pbDirectIgnitionProbability = ({ releaseType, massRateKgS, massKg, substance } = {}) => {
+  if (!ownPreset(PB_DIRECT_IGNITION_STATIONARY, substance)) return refuse('substance', `must be one of ${Object.keys(PB_DIRECT_IGNITION_STATIONARY).join(', ')} (PB Table 4.7 classifies reactivity)`);
   const row = PB_DIRECT_IGNITION_STATIONARY[substance];
-  if (!row) return refuse('substance', `must be one of ${Object.keys(PB_DIRECT_IGNITION_STATIONARY).join(', ')} (PB Table 4.7 classifies reactivity)`);
   let x;
   let lo;
   let hi;
@@ -456,9 +469,8 @@ export const FN_CRITERIA = Object.freeze({
 
 const criterionSpec = (criterion) => {
   if (typeof criterion === 'string') {
-    const c = FN_CRITERIA[criterion];
-    if (!c) return refuse('criterion', `unknown preset '${criterion}'; one of ${Object.keys(FN_CRITERIA).join(', ')}, or give { constantC, exponentAlpha } or { points }`);
-    return { ...c, preset: criterion };
+    if (!ownPreset(FN_CRITERIA, criterion)) return refuse('criterion', `unknown preset '${criterion}'; one of ${Object.keys(FN_CRITERIA).join(', ')}, or give { constantC, exponentAlpha } or { points }`);
+    return { ...FN_CRITERIA[criterion], preset: criterion };
   }
   if (!criterion || typeof criterion !== 'object') return refuse('criterion', 'a preset name, { constantC, exponentAlpha, minFatalities?, maxFatalities? } or { points } is required');
   if (given(criterion.points)) {
@@ -591,8 +603,8 @@ export const alarpBand = ({ individualRiskPerYr, thresholds } = {}) => {
   if (!nonNegative(individualRiskPerYr)) return refuse('individualRiskPerYr', 'must be 0 or more per year');
   let t;
   if (typeof thresholds === 'string') {
+    if (!ownPreset(TOLERABILITY_PRESETS, thresholds)) return refuse('thresholds', `unknown preset '${thresholds}'; one of ${Object.keys(TOLERABILITY_PRESETS).join(', ')}, or give { unacceptableAbovePerYr, broadlyAcceptableAtOrBelowPerYr }`);
     t = TOLERABILITY_PRESETS[thresholds];
-    if (!t) return refuse('thresholds', `unknown preset '${thresholds}'; one of ${Object.keys(TOLERABILITY_PRESETS).join(', ')}, or give { unacceptableAbovePerYr, broadlyAcceptableAtOrBelowPerYr }`);
   } else if (thresholds && typeof thresholds === 'object') {
     t = thresholds;
     if (!positive(t.unacceptableAbovePerYr)) return refuse('thresholds.unacceptableAbovePerYr', 'must be above 0 per year');
@@ -758,7 +770,7 @@ export const pbFatalityFractions = ({
     if (!probability(fractionIndoors)) return refuse('fractionIndoors', 'must be a fraction in [0, 1]');
     fin = fractionIndoors;
   } else {
-    if (!(period in PB_FRACTION_INDOORS)) return refuse('period', "must be 'day' or 'night' (PB Table 5.3), or give fractionIndoors");
+    if (!ownPreset(PB_FRACTION_INDOORS, period)) return refuse('period', "must be 'day' or 'night' (PB Table 5.3), or give fractionIndoors");
     fin = PB_FRACTION_INDOORS[period];
   }
   let PE;

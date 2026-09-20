@@ -3262,6 +3262,86 @@
     ]
    },
    "field": "scenarios[0].fatalityProbabilities"
+  },
+  {
+   "fn": "alarpBand",
+   "args": {
+    "individualRiskPerYr": 0.01,
+    "thresholds": "constructor"
+   },
+   "field": "thresholds"
+  },
+  {
+   "fn": "alarpBand",
+   "args": {
+    "individualRiskPerYr": 0.01,
+    "thresholds": "toString"
+   },
+   "field": "thresholds"
+  },
+  {
+   "fn": "fnCriterionComparison",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.01,
+      "fatalities": 100
+     }
+    ],
+    "criterion": "valueOf"
+   },
+   "field": "criterion"
+  },
+  {
+   "fn": "fnCriterionComparison",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.01,
+      "fatalities": 100
+     }
+    ],
+    "criterion": "__proto__"
+   },
+   "field": "criterion"
+  },
+  {
+   "fn": "pbDirectIgnitionProbability",
+   "args": {
+    "releaseType": "continuous",
+    "massRateKgS": 50,
+    "substance": "constructor"
+   },
+   "field": "substance"
+  },
+  {
+   "fn": "pbDirectIgnitionProbability",
+   "args": {
+    "releaseType": "continuous",
+    "massRateKgS": 50,
+    "substance": "hasOwnProperty"
+   },
+   "field": "substance"
+  },
+  {
+   "fn": "pbFatalityFractions",
+   "args": {
+    "effect": "toxic",
+    "probabilityOfDeath": 0.5,
+    "period": "toString"
+   },
+   "field": "period"
+  },
+  {
+   "fn": "pbFatalityFractions",
+   "args": {
+    "effect": "toxic",
+    "probabilityOfDeath": 0.5,
+    "period": "constructor"
+   },
+   "field": "period"
   }
  ]
 }

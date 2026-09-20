@@ -545,8 +545,11 @@ and its consumers.
   and pool fire probit transects into IR contours. Gate:
   `hse.qra.test.js` replays `test-data/hse/goldens/qra_cases.json`
   (written by `tools/validation/hse/oracle_qra.py`); findings, errata,
-  dropped scope and the negative controls in
-  `tools/validation/hse/FINDINGS-qra.md` and `negcontrol_qra.sh`.
+  dropped scope, the fail-opens closed and the negative controls in
+  `tools/validation/hse/FINDINGS-qra.md` and `negcontrol_qra.sh`. It
+  re-grades nothing: point-source flare and pool radiation stay with FC1,
+  FC5 and `engines/facilities/`, and the probits, plume and solid flame
+  stay with `engines/hse/consequence.js`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,

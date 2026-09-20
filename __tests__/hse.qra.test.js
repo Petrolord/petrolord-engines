@@ -57,6 +57,45 @@ describe('golden file', () => {
 });
 
 /* ------------------------------------------------------------------ */
+describe('what this engine does not re-grade', () => {
+  // H5 consumes consequence results; it does not recompute them. The live
+  // NextGen courses FC1 and FC5 grade point-source flare and pool radiation
+  // and setbacks (engines/facilities/relief.js and spacing.js), and H4
+  // (engines/hse/consequence.js) owns the source terms, the plume, the solid
+  // flame and the probits. None of that is re-exposed or restated here.
+  test('no radiation, setback, plume or probit is re-exported from qra.js', () => {
+    [
+      'radiationIntensity', 'distanceForIntensity', 'flareSetbackM', 'poolFireSetbackM',
+      'RADIATION_LEVELS', 'thermalProbit', 'toxicProbit', 'probabilityToProbit',
+      'gaussianPlume', 'poolFireSolidFlame', 'poolFireFlameLength', 'poolBurningRate',
+    ].forEach((name) => expect(Q[name]).toBeUndefined());
+  });
+
+  test('the thermal transect IS the H4 probit, bit for bit (reuse, not a second transcription)', () => {
+    const fluxes = [1000, 4730, 12500, 35000];
+    const r = Q.thermalFatalityTransect({ heatFluxesWM2: fluxes, exposureTimeS: 20, coefficients: 'purple-book' });
+    expect(r.error).toBeUndefined();
+    fluxes.forEach((q, i) => {
+      const h4 = C.thermalProbit({ coefficients: 'purple-book', heatFluxWM2: q, exposureTimeS: 20 });
+      expect(r.probabilities[i]).toBe(h4.probability);
+    });
+  });
+
+  test('the pool fire transect IS the H4 solid flame, bit for bit', () => {
+    const c = G.transects.poolFire[0];
+    const r = Q.poolFireFatalityTransect(c.args);
+    expect(r.error).toBeUndefined();
+    const { distancesFromCentreM, exposureTimeS, coefficients, ...pf } = c.args;
+    const radiated = r.points.filter((p) => p.state === 'RADIATION');
+    expect(radiated.length).toBeGreaterThan(0);
+    radiated.forEach((p) => {
+      const h4 = C.poolFireSolidFlame({ ...pf, distanceFromCentreM: p.distanceFromCentreM });
+      expect(p.heatFluxWM2).toBe(h4.heatFluxWM2);
+    });
+  });
+});
+
+/* ------------------------------------------------------------------ */
 describe('event trees', () => {
   test.each(G.eventTrees.trees.map((c) => [c.id, c]))('%s: outcomes, totals, exact route and conservation', (id, c) => {
     const r = Q.eventTree(c.args);
@@ -91,6 +130,29 @@ describe('event trees', () => {
     const r = Q.eventTree({ initiatingFrequencyPerYr: 1, tree: { branches: [{ name: 'a', probability: 0.7 }, { name: 'b', probability: 0.2 }, { name: 'c', probability: 0.1 }] } });
     expect(r.error).toBeUndefined();
   });
+
+  // Fail-open closed 2026-09-20 (FINDINGS-qra.md section 9). The outcome
+  // totals were accumulated into an object literal, so an outcome named
+  // 'constructor' concatenated onto the inherited Object constructor
+  // (giving the string "function Object() { [native code] }0.5") and one
+  // named '__proto__' hit the prototype setter and vanished from the
+  // totals altogether, losing its frequency without any refusal.
+  test.each([['constructor'], ['__proto__'], ['toString'], ['hasOwnProperty']])(
+    'an outcome named %s is a plain key of outcomeTotalsPerYr, with its own frequency',
+    (name) => {
+      const r = Q.eventTree({
+        initiatingFrequencyPerYr: 2e-3,
+        tree: { branches: [{ name, probability: 0.25 }, { name: 'other', probability: 0.75 }] },
+      });
+      expect(r.error).toBeUndefined();
+      expect(Object.prototype.hasOwnProperty.call(r.outcomeTotalsPerYr, name)).toBe(true);
+      expectClose(r.outcomeTotalsPerYr[name], 2e-3 * 0.25);
+      expectClose(r.outcomeTotalsPerYr.other, 2e-3 * 0.75);
+      const totals = Object.values(r.outcomeTotalsPerYr).reduce((a, b) => a + b, 0);
+      expectClose(totals, 2e-3, 1e-12);
+      expect(JSON.parse(JSON.stringify(r.outcomeTotalsPerYr))[name]).toBe(2e-3 * 0.25);
+    },
+  );
 
   test.each(G.eventTrees.directIgnition.map((c, i) => [i, c]))('PB Table 4.5 cell %p', (i, c) => {
     const r = Q.pbDirectIgnitionProbability(c.args);

@@ -5,7 +5,7 @@ written by `oracle_qra.py`. The oracle runs on Python 3.12 in the venv
 `/root/hseenv` with numpy 2.5.3 and scipy 1.18.1. It never calls the
 JavaScript. For the pool fire transect it imports the H4 oracle's own
 transcriptions of Thomas, Raj and Mudan from `oracle_consequence.py`, and
-does not run that oracle's `main()`. Gate: `__tests__/hse.qra.test.js`, 156
+does not run that oracle's `main()`. Gate: `__tests__/hse.qra.test.js`, 171
 tests, and every golden in it is called through the engine. Negative controls:
 `negcontrol_qra.sh`.
 
@@ -130,7 +130,8 @@ ORACLE-DERIVED (everything else):
 - 1 chlorine grid point, where the 30 minute cap applies;
 - 2 thermal transects, 2 pool fire transects (still air, and wind with
   overhang), and 1 LSIR transect with contours;
-- 46 refusals, each checked by field name.
+- 54 refusals, each checked by field name (8 of them the fail-opens of
+  section 9).
 
 ## 4. Errata and inconsistencies found in the sources
 
@@ -259,10 +260,14 @@ ORACLE-DERIVED (everything else):
 
 ## 8. Negative controls (negcontrol_qra.sh)
 
-Run 2026-09-19. The baseline was 156 passed. Each row plants one defect,
-runs the suite and restores the files. At the end the golden was restored
-byte-identical, the oracle regenerated it byte-identical (it is seeded), and
-the suite passed 156 again.
+Run 2026-09-19, and re-run in full on 2026-09-20 after the fail-open fixes
+(section 9) with 15 rows added. The baseline is 171 passed. Each row plants
+one defect, runs the suite and restores the files. At the end the golden, the
+engine and the suite were all restored byte-identical, the oracle regenerated
+the golden byte-identical (it is seeded), and the suite passed 171 again.
+
+57 rows: 53 RED, 4 GREEN, 0 unexplained. Every GREEN is expected and named
+below.
 
 | kind | plant | result |
 |---|---|---|
@@ -308,16 +313,129 @@ the suite passed 156 again.
 | SHARED | VROM C 1e-3 -> 1e-2 in both (caught by the Bevi art. 13 points) | RED, 1 |
 | SHARED | clothing factor 0.14 -> 1 in both (single transcription) | GREEN (not caught) |
 | SHARED | contour interpolation linear in both (single rule) | GREEN (not caught) |
+| ENGINE | fail-open: `ownPreset` reverted to a prototype-walking truthiness test (all four presets at once) | RED, 8 |
+| ENGINE | fail-open: ALARP preset unchecked ('constructor' returned BROADLY_ACCEPTABLE) | RED, 3 |
+| ENGINE | fail-open: F-N criterion preset unchecked ('valueOf' returned BELOW, i.e. compliant) | RED, 3 |
+| ENGINE | fail-open: PB Table 4.5 substance unchecked (a result with no probability) | RED, 3 |
+| ENGINE | fail-open: PB Table 5.3 period unchecked ('toString' gave a NaN Fd) | RED, 3 |
+| ENGINE | fail-open: event tree totals back on an object literal | RED, 4 |
+| TOL | LSIR out by 1e-9 relative, at the shipped RTOL of 1e-12 | RED, 2 |
+| TOL | the SAME 1e-9 perturbation, with the suite RTOL loosened to 1e-6 | GREEN (by design) |
+| TOL | toxic PI out by 1e-5 relative, at the route tolerance of 1e-6 | RED, 2 |
+| TOL | the SAME 1e-5 perturbation, with BOTH toxic tolerances loosened to 1e-3 | GREEN (by design) |
+| TOL | CBA present value out by 1e-3 relative, against the checklist's GBP 1 | RED, 7 |
+| TOL | the SAME 1e-3 perturbation, with the checklist tolerance loosened to GBP 1000 | RED, 7 (see below) |
+| TOL | PB App. 6.B contribution out by 1 percent, against 2 printed significant figures | RED, 3 |
+| TOL | branch-sum tolerance loosened from 1e-9 to 1e-3 | RED, 1 |
+| TOL | boundary snap loosened from 1e-9 to 1e-2 | RED, 4 |
 
-The rows cover the brief's seven plants and 21 more.
-- All 28 ENGINE plants and all 6 ORACLE plants go red.
+- All 34 ENGINE plants and all 6 ORACLE plants go red, including the 6 that
+  revert a fail-open fix from section 9.
 - Six SHARED plants are caught by a published value or a second route.
-- The two GREEN rows are the honest limit. Only my transcription stands
-  behind the PB fraction factors (0.1, 0.14, 0.025, Table 5.3), because the
-  PB prints no numeric example for them. The contour interpolation is a
-  presentation rule that I chose.
+- **The two SHARED GREEN rows are the honest limit**, unchanged. Only my
+  transcription stands behind the PB fraction factors (0.1, 0.14, 0.025,
+  Table 5.3), because the PB prints no numeric example for them. The contour
+  interpolation is a presentation rule that I chose.
 
-## 9. Doubts, for the owner
+**On the TOLERANCE rows.** A logic flip is easy to catch; a tolerance that is
+simply too slack catches nothing and looks identical to a passing gate. These
+rows are therefore in pairs: a small perturbation, then the SAME perturbation
+with the tolerance that should have caught it loosened. Two pairs behave as
+designed, which is what shows those numbers are load-bearing rather than
+decorative.
+
+The CBA pair does NOT, and that is the more interesting result. Loosening the
+published checklist tolerance from GBP 1 to GBP 1000 still leaves the plant
+red, because **seven independent assertions cover that present value**: the
+checklist worked example, the R2P2 footnote at 1e-12, the DF boundary
+verdict, three route-B closed-form annuity comparisons at 1e-11, and the
+identity against `cashflow.ts` `npv`, which is an exact `toBe` with no
+tolerance to loosen at all. No single tolerance is load-bearing there because
+no single tolerance stands alone.
+
+One honest note on how that row was arrived at: the first version of the
+toxic pair loosened only one of the two places the suite spends the 1e-6
+tolerance, and the other one caught the plant. The row was widened to cover
+both, and it then went GREEN as designed. The mismatch was in my plant, not
+in the gate.
+
+## 9. Fail-opens found and closed
+
+Hunted for deliberately on 2026-09-20, after the engine was already written
+and passing 156 tests. Every one of these was found by probing the engine
+with inputs it was never given in the goldens, not by reading the code.
+
+**All six are the same defect.** A preset is looked up as `table[key]`, which
+walks the prototype chain. `'constructor'`, `'toString'`, `'valueOf'`,
+`'hasOwnProperty'` and `'__proto__'` are therefore "found" in every object
+literal, and the truthy function they return walks straight through a
+`if (!row) return refuse(...)` guard. The engine then reads undefined
+coefficients off a function and, because `NaN` comparisons are all false,
+falls through to the SAFE side of every threshold. A typo in a preset name
+is enough.
+
+| # | call | what it returned before | what it returns now |
+|---|---|---|---|
+| 1 | `alarpBand({ individualRiskPerYr: 1e-2, thresholds: 'constructor' })` | `band: 'BROADLY_ACCEPTABLE'`, `alarpDemonstrationRequired: false`, `thresholds: {}` in the basis. A risk of 1 in 100 per year, ten times the R2P2 worker limit, declared broadly acceptable with no ALARP demonstration required. | refuses `thresholds` |
+| 2 | `fnCriterionComparison({ ..., criterion: 'valueOf' })` | `state: 'BELOW'`, `maxRatio: 0`, `checks: []`, `criterion: {}`. A societal risk curve declared compliant against a criterion that does not exist. | refuses `criterion` |
+| 3 | `pbDirectIgnitionProbability({ ..., substance: 'constructor' })` | `{ band: 'medium', basis: {...} }` with **no `probability` field at all**. A caller reading `.probability` gets `undefined`, and `undefined * frequency` is `NaN`. | refuses `substance` |
+| 4 | `pbFatalityFractions({ effect: 'toxic', probabilityOfDeath: 0.5, period: 'toString' })` | `fractionIndoors` set to a function and `fractionOfDeaths: NaN`, with a `basis` that still cites PB Table 5.3. | refuses `period` |
+| 5 | `eventTree(...)` with a branch named `constructor` | `outcomeTotalsPerYr.constructor` was the **string** `"function Object() { [native code] }0.5"`: the frequency concatenated onto the inherited constructor instead of being added to it. | a plain numeric key |
+| 6 | `eventTree(...)` with a branch named `__proto__` | the outcome was **silently missing** from `outcomeTotalsPerYr`. Its frequency vanished, and the totals no longer summed to f0, with no refusal and no warning. | a plain numeric key |
+
+Closed by one helper and one accumulator:
+
+- `ownPreset(table, key)` is `Object.prototype.hasOwnProperty.call`, and every
+  preset lookup in the file goes through it: `TOLERABILITY_PRESETS`,
+  `FN_CRITERIA`, `PB_DIRECT_IGNITION_STATIONARY` and `PB_FRACTION_INDOORS`.
+  The `period in PB_FRACTION_INDOORS` test had the same hole (`in` also walks
+  the chain) and went the same way.
+- `eventTree` accumulates into a `Map` and returns `Object.fromEntries`,
+  which defines own properties, so no outcome name can reach the prototype.
+
+Gated by 8 new refusal cases in the golden (54 refusals, up from 46) and a
+4-case parameterised test on event tree outcome names. Six new ENGINE rows in
+the battery revert each fix and all six go red (section 8).
+
+**The same pattern is live in a MERGED engine, and is NOT fixed here.**
+`engines/hse/exposure.js` (H2) has two exploitable copies:
+
+- line 128, `NOISE_CRITERIA[criterion]` behind `if (!preset)`;
+- line 361, `NIOSH_NRR_DERATING[protectorType]` behind
+  `if (factor === undefined)`, after which `factor * nrrDb` is `NaN` and
+  `Math.max(0, NaN)` is `NaN`.
+
+Two more lookups are safe only by accident, because a later check catches the
+undefined field: `consequence.js` line 597 `POOL_FIRE_FUELS[fuel]` (saved by
+`!positive(mInf)`) and line 363 `BRIGGS_RURAL[cls]` (the class is validated
+against a list first). This is for the lead: it is a change to merged H2 and
+H4 engines with their own goldens, so it belongs in its own pull request, not
+in H5.
+
+## 10. What this engine does not re-grade
+
+H5 consumes consequence results. It does not recompute them.
+
+- The live NextGen courses **FC1 and FC5** grade point-source flare and pool
+  radiation and setbacks, in `engines/facilities/relief.js`
+  (`radiationIntensity`, `distanceForIntensity`, `RADIATION_LEVELS`) and
+  `engines/facilities/spacing.js` (`flareSetbackM`, `poolFireSetbackM`).
+- **H4** (`engines/hse/consequence.js`) owns the source terms, the Gaussian
+  plume, the solid flame and every probit.
+
+`qra.js` exports none of those names, and a test asserts it. Two further
+tests assert that the transects ARE the H4 functions bit for bit
+(`thermalFatalityTransect` against `thermalProbit`, `poolFireFatalityTransect`
+against `poolFireSolidFlame`), so the reuse claim is gated rather than
+asserted in a comment. The FAR base is likewise checked bit for bit against
+`safetyStats.fatalAccidentRate`.
+
+What H5 adds on top of H4 is the risk bookkeeping H4 has no view of: event
+tree frequencies, the summation of f x Pd into an individual risk, occupancy,
+PLL, the F-N curve, the criterion comparison, ALARP banding and the
+cost-benefit test.
+
+## 11. Doubts, for the owner
 
 1. **Which way a boundary falls** (section 5). Every source read supports
    "at the threshold is not above it", but R2P2's bias to safety could argue

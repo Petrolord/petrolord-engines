@@ -590,6 +590,23 @@ def main():
         {'fn': 'poolFireFatalityTransect', 'args': {'distancesFromCentreM': [30], 'exposureTimeS': 30, 'poolDiameterM': 20, 'burningFluxKgM2S': 0.055, 'heatOfCombustionJKg': 4.4e7, 'sep': {'method': 'mudan-diameter'}}, 'field': 'transmissivity'},
         {'fn': 'lsirTransect', 'args': {'distancesM': [10, 10], 'scenarios': [{'name': 'a', 'frequencyPerYr': 1e-4, 'fatalityProbabilities': [1, 0.5]}]}, 'field': 'distancesM[1]'},
         {'fn': 'lsirTransect', 'args': {'distancesM': [10, 20], 'scenarios': [{'name': 'a', 'frequencyPerYr': 1e-4, 'fatalityProbabilities': [1]}]}, 'field': 'scenarios[0].fatalityProbabilities'},
+
+        # Fail-opens closed 2026-09-20 (FINDINGS-qra.md section 9). A preset
+        # looked up as table[key] walks the prototype chain, so an unknown
+        # name that happens to be an Object.prototype key returned a truthy
+        # function and passed the `if (!row)` guard. Before the fix each of
+        # these returned a RESULT, not a refusal: alarpBand said
+        # BROADLY_ACCEPTABLE, fnCriterionComparison said BELOW (compliant),
+        # pbDirectIgnitionProbability returned no probability at all, and
+        # pbFatalityFractions returned a NaN fraction of deaths.
+        {'fn': 'alarpBand', 'args': {'individualRiskPerYr': 1e-2, 'thresholds': 'constructor'}, 'field': 'thresholds'},
+        {'fn': 'alarpBand', 'args': {'individualRiskPerYr': 1e-2, 'thresholds': 'toString'}, 'field': 'thresholds'},
+        {'fn': 'fnCriterionComparison', 'args': {'scenarios': [{'name': 'a', 'frequencyPerYr': 1e-2, 'fatalities': 100}], 'criterion': 'valueOf'}, 'field': 'criterion'},
+        {'fn': 'fnCriterionComparison', 'args': {'scenarios': [{'name': 'a', 'frequencyPerYr': 1e-2, 'fatalities': 100}], 'criterion': '__proto__'}, 'field': 'criterion'},
+        {'fn': 'pbDirectIgnitionProbability', 'args': {'releaseType': 'continuous', 'massRateKgS': 50, 'substance': 'constructor'}, 'field': 'substance'},
+        {'fn': 'pbDirectIgnitionProbability', 'args': {'releaseType': 'continuous', 'massRateKgS': 50, 'substance': 'hasOwnProperty'}, 'field': 'substance'},
+        {'fn': 'pbFatalityFractions', 'args': {'effect': 'toxic', 'probabilityOfDeath': 0.5, 'period': 'toString'}, 'field': 'period'},
+        {'fn': 'pbFatalityFractions', 'args': {'effect': 'toxic', 'probabilityOfDeath': 0.5, 'period': 'constructor'}, 'field': 'period'},
     ]
 
     g.update({
