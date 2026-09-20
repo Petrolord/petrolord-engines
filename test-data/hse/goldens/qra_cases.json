@@ -1,0 +1,3347 @@
+{
+ "module": "qra",
+ "generatedBy": "tools/validation/hse/oracle_qra.py",
+ "description": "HSE H5 quantitative risk assessment: event trees, LSIR, IRPA, PLL, FAR, F-N and criteria, ALARP, cost-benefit, PB fractions, consequence linkage.",
+ "tolerances": {
+  "routeA": "relative 1e-12 (sums and products of doubles)",
+  "toxicIntegral": "relative 1e-9 (engine Simpson on 4000 intervals vs scipy quad)",
+  "poolFire": "relative 1e-10",
+  "published": "per case, stated with the case"
+ },
+ "eventTrees": {
+  "trees": [
+   {
+    "id": "flammable-default",
+    "source": "ORACLE-DERIVED: PB 4.8 split with illustrative ignition probabilities",
+    "args": {
+     "initiatingFrequencyPerYr": 0.001,
+     "tree": {
+      "branches": [
+       {
+        "name": "immediate ignition",
+        "probability": 0.2,
+        "outcome": "jet or pool fire"
+       },
+       {
+        "name": "no immediate ignition",
+        "probability": 0.8,
+        "next": {
+         "branches": [
+          {
+           "name": "delayed ignition",
+           "probability": 0.5,
+           "next": {
+            "branches": [
+             {
+              "name": "flash fire",
+              "probability": 0.6
+             },
+             {
+              "name": "explosion",
+              "probability": 0.4
+             }
+            ]
+           }
+          },
+          {
+           "name": "no ignition",
+           "probability": 0.5
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "expected": {
+     "outcomes": [
+      {
+       "path": [
+        "immediate ignition"
+       ],
+       "outcome": "jet or pool fire",
+       "probability": 0.2,
+       "frequencyPerYr": 0.0002
+      },
+      {
+       "path": [
+        "no immediate ignition",
+        "delayed ignition",
+        "flash fire"
+       ],
+       "outcome": "flash fire",
+       "probability": 0.24,
+       "frequencyPerYr": 0.00024
+      },
+      {
+       "path": [
+        "no immediate ignition",
+        "delayed ignition",
+        "explosion"
+       ],
+       "outcome": "explosion",
+       "probability": 0.16000000000000003,
+       "frequencyPerYr": 0.00016000000000000004
+      },
+      {
+       "path": [
+        "no immediate ignition",
+        "no ignition"
+       ],
+       "outcome": "no ignition",
+       "probability": 0.4,
+       "frequencyPerYr": 0.0004
+      }
+     ],
+     "outcomeTotalsPerYr": {
+      "jet or pool fire": 0.0002,
+      "flash fire": 0.00024,
+      "explosion": 0.00016000000000000004,
+      "no ignition": 0.0004
+     }
+    },
+    "routeB": {
+     "exactFrequencies": [
+      0.0002,
+      0.00024,
+      0.00016,
+      0.0004
+     ],
+     "exactTotal": 0.001,
+     "f0": 0.001
+    }
+   },
+   {
+    "id": "flammable-pb-table-4.5-large-gas",
+    "source": "ORACLE-DERIVED: direct ignition 0.7 (PB Table 4.5, > 100 kg/s, average/high reactivity), delayed 0.3 illustrative",
+    "args": {
+     "initiatingFrequencyPerYr": 2.5e-05,
+     "tree": {
+      "branches": [
+       {
+        "name": "immediate ignition",
+        "probability": 0.7,
+        "outcome": "jet or pool fire"
+       },
+       {
+        "name": "no immediate ignition",
+        "probability": 0.30000000000000004,
+        "next": {
+         "branches": [
+          {
+           "name": "delayed ignition",
+           "probability": 0.3,
+           "next": {
+            "branches": [
+             {
+              "name": "flash fire",
+              "probability": 0.6
+             },
+             {
+              "name": "explosion",
+              "probability": 0.4
+             }
+            ]
+           }
+          },
+          {
+           "name": "no ignition",
+           "probability": 0.7
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "expected": {
+     "outcomes": [
+      {
+       "path": [
+        "immediate ignition"
+       ],
+       "outcome": "jet or pool fire",
+       "probability": 0.7,
+       "frequencyPerYr": 1.75e-05
+      },
+      {
+       "path": [
+        "no immediate ignition",
+        "delayed ignition",
+        "flash fire"
+       ],
+       "outcome": "flash fire",
+       "probability": 0.054000000000000006,
+       "frequencyPerYr": 1.3500000000000002e-06
+      },
+      {
+       "path": [
+        "no immediate ignition",
+        "delayed ignition",
+        "explosion"
+       ],
+       "outcome": "explosion",
+       "probability": 0.036000000000000004,
+       "frequencyPerYr": 9.000000000000002e-07
+      },
+      {
+       "path": [
+        "no immediate ignition",
+        "no ignition"
+       ],
+       "outcome": "no ignition",
+       "probability": 0.21000000000000002,
+       "frequencyPerYr": 5.2500000000000006e-06
+      }
+     ],
+     "outcomeTotalsPerYr": {
+      "jet or pool fire": 1.75e-05,
+      "flash fire": 1.3500000000000002e-06,
+      "explosion": 9.000000000000002e-07,
+      "no ignition": 5.2500000000000006e-06
+     }
+    },
+    "routeB": {
+     "exactFrequencies": [
+      1.75e-05,
+      1.3500000000000002e-06,
+      9.000000000000002e-07,
+      5.2500000000000006e-06
+     ],
+     "exactTotal": 2.5e-05,
+     "f0": 2.5e-05
+    }
+   },
+   {
+    "id": "three-way-with-pooled-outcome",
+    "source": "ORACLE-DERIVED: 0.9 + 0.07 + 0.03 sums to 1 only within rounding; two leaves pool into \"fire\"",
+    "args": {
+     "initiatingFrequencyPerYr": 0.013,
+     "tree": {
+      "branches": [
+       {
+        "name": "isolation succeeds",
+        "probability": 0.9,
+        "next": {
+         "branches": [
+          {
+           "name": "small fire",
+           "probability": 0.05,
+           "outcome": "fire"
+          },
+          {
+           "name": "no fire",
+           "probability": 0.95,
+           "outcome": "safe"
+          }
+         ]
+        }
+       },
+       {
+        "name": "isolation fails",
+        "probability": 0.07,
+        "next": {
+         "branches": [
+          {
+           "name": "large fire",
+           "probability": 0.3,
+           "outcome": "fire"
+          },
+          {
+           "name": "no fire",
+           "probability": 0.7,
+           "outcome": "safe"
+          }
+         ]
+        }
+       },
+       {
+        "name": "isolation unavailable",
+        "probability": 0.03,
+        "outcome": "escalation"
+       }
+      ]
+     }
+    },
+    "expected": {
+     "outcomes": [
+      {
+       "path": [
+        "isolation succeeds",
+        "small fire"
+       ],
+       "outcome": "fire",
+       "probability": 0.045000000000000005,
+       "frequencyPerYr": 0.000585
+      },
+      {
+       "path": [
+        "isolation succeeds",
+        "no fire"
+       ],
+       "outcome": "safe",
+       "probability": 0.855,
+       "frequencyPerYr": 0.011115
+      },
+      {
+       "path": [
+        "isolation fails",
+        "large fire"
+       ],
+       "outcome": "fire",
+       "probability": 0.021,
+       "frequencyPerYr": 0.000273
+      },
+      {
+       "path": [
+        "isolation fails",
+        "no fire"
+       ],
+       "outcome": "safe",
+       "probability": 0.049,
+       "frequencyPerYr": 0.000637
+      },
+      {
+       "path": [
+        "isolation unavailable"
+       ],
+       "outcome": "escalation",
+       "probability": 0.03,
+       "frequencyPerYr": 0.00039
+      }
+     ],
+     "outcomeTotalsPerYr": {
+      "fire": 0.000858,
+      "safe": 0.011752,
+      "escalation": 0.00039
+     }
+    },
+    "routeB": {
+     "exactFrequencies": [
+      0.000585,
+      0.011115,
+      0.000273,
+      0.000637,
+      0.00039
+     ],
+     "exactTotal": 0.013,
+     "f0": 0.013
+    }
+   },
+   {
+    "id": "zero-probability-branch",
+    "source": "ORACLE-DERIVED: a zero branch is allowed",
+    "args": {
+     "initiatingFrequencyPerYr": 0.0004,
+     "tree": {
+      "branches": [
+       {
+        "name": "a",
+        "probability": 0.0
+       },
+       {
+        "name": "b",
+        "probability": 1.0
+       }
+      ]
+     }
+    },
+    "expected": {
+     "outcomes": [
+      {
+       "path": [
+        "a"
+       ],
+       "outcome": "a",
+       "probability": 0.0,
+       "frequencyPerYr": 0.0
+      },
+      {
+       "path": [
+        "b"
+       ],
+       "outcome": "b",
+       "probability": 1.0,
+       "frequencyPerYr": 0.0004
+      }
+     ],
+     "outcomeTotalsPerYr": {
+      "a": 0.0,
+      "b": 0.0004
+     }
+    },
+    "routeB": {
+     "exactFrequencies": [
+      0.0,
+      0.0004
+     ],
+     "exactTotal": 0.0004,
+     "f0": 0.0004
+    }
+   }
+  ],
+  "flammable": [
+   {
+    "id": "builder-default-split",
+    "source": "ORACLE-DERIVED: flammableReleaseEventTree with the PB 0.6 / 0.4 split",
+    "args": {
+     "initiatingFrequencyPerYr": 0.001,
+     "immediateIgnitionProbability": 0.2,
+     "delayedIgnitionProbability": 0.5
+    },
+    "expectedTotals": {
+     "jet or pool fire": 0.0002,
+     "flash fire": 0.00024,
+     "explosion": 0.00016,
+     "no ignition": 0.0004
+    }
+   },
+   {
+    "id": "builder-custom-split",
+    "source": "ORACLE-DERIVED: caller split 0.75 / 0.25",
+    "args": {
+     "initiatingFrequencyPerYr": 0.0003,
+     "immediateIgnitionProbability": 0.065,
+     "delayedIgnitionProbability": 0.1,
+     "vapourCloudSplit": {
+      "flashFire": 0.75,
+      "explosion": 0.25
+     },
+     "immediateOutcome": "pool fire"
+    },
+    "expectedTotals": {
+     "pool fire": 1.95e-05,
+     "flash fire": 2.10375e-05,
+     "explosion": 7.0125e-06,
+     "no ignition": 0.00025245
+    }
+   }
+  ],
+  "directIgnition": [
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "k1-liquid",
+     "massRateKgS": 5.0
+    },
+    "probability": 0.065,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "k1-liquid",
+     "massRateKgS": 10.0
+    },
+    "probability": 0.065,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "k1-liquid",
+     "massRateKgS": 100.0
+    },
+    "probability": 0.065,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "k1-liquid",
+     "massRateKgS": 100.0001
+    },
+    "probability": 0.065,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "k1-liquid",
+     "massKg": 999.0
+    },
+    "probability": 0.065,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "k1-liquid",
+     "massKg": 1000.0
+    },
+    "probability": 0.065,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "k1-liquid",
+     "massKg": 10000.0
+    },
+    "probability": 0.065,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "k1-liquid",
+     "massKg": 20000.0
+    },
+    "probability": 0.065,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "gas-low-reactivity",
+     "massRateKgS": 5.0
+    },
+    "probability": 0.02,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "gas-low-reactivity",
+     "massRateKgS": 10.0
+    },
+    "probability": 0.04,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "gas-low-reactivity",
+     "massRateKgS": 100.0
+    },
+    "probability": 0.04,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "gas-low-reactivity",
+     "massRateKgS": 100.0001
+    },
+    "probability": 0.09,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "gas-low-reactivity",
+     "massKg": 999.0
+    },
+    "probability": 0.02,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "gas-low-reactivity",
+     "massKg": 1000.0
+    },
+    "probability": 0.04,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "gas-low-reactivity",
+     "massKg": 10000.0
+    },
+    "probability": 0.04,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "gas-low-reactivity",
+     "massKg": 20000.0
+    },
+    "probability": 0.09,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "gas-average-high-reactivity",
+     "massRateKgS": 5.0
+    },
+    "probability": 0.2,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "gas-average-high-reactivity",
+     "massRateKgS": 10.0
+    },
+    "probability": 0.5,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "gas-average-high-reactivity",
+     "massRateKgS": 100.0
+    },
+    "probability": 0.5,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "continuous",
+     "substance": "gas-average-high-reactivity",
+     "massRateKgS": 100.0001
+    },
+    "probability": 0.7,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "gas-average-high-reactivity",
+     "massKg": 999.0
+    },
+    "probability": 0.2,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "gas-average-high-reactivity",
+     "massKg": 1000.0
+    },
+    "probability": 0.5,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "gas-average-high-reactivity",
+     "massKg": 10000.0
+    },
+    "probability": 0.5,
+    "source": "ORACLE-DERIVED: PB Table 4.5 band edge: the printed middle band \"10 - 100\" is read as closed (a judgement)"
+   },
+   {
+    "args": {
+     "releaseType": "instantaneous",
+     "substance": "gas-average-high-reactivity",
+     "massKg": 20000.0
+    },
+    "probability": 0.7,
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Table 4.5"
+   }
+  ]
+ },
+ "individualRisk": {
+  "lsir": [
+   {
+    "id": "three-scenarios",
+    "source": "ORACLE-DERIVED: PB 6.1 / 6.2 sum",
+    "args": {
+     "scenarios": [
+      {
+       "name": "jet fire",
+       "frequencyPerYr": 0.0002,
+       "fatalityProbability": 0.3
+      },
+      {
+       "name": "flash fire",
+       "frequencyPerYr": 0.00024,
+       "fatalityProbability": 1.0
+      },
+      {
+       "name": "explosion",
+       "frequencyPerYr": 0.00016,
+       "fatalityProbability": 0.02
+      }
+     ]
+    },
+    "expected": {
+     "lsirPerYr": 0.0003032,
+     "contributions": [
+      6e-05,
+      0.00024,
+      3.2000000000000003e-06
+     ]
+    },
+    "monteCarloSanity": {
+     "samples": 2000000,
+     "seed": 20260919,
+     "estimate": 0.00030311190000000004,
+     "standardError": 2.1211996605694622e-07,
+     "note": "not a golden; within 4 standard errors"
+    }
+   },
+   {
+    "id": "with-zero-frequency",
+    "source": "ORACLE-DERIVED: PB 6.1 / 6.2 sum",
+    "args": {
+     "scenarios": [
+      {
+       "name": "toxic",
+       "frequencyPerYr": 1.84e-08,
+       "fatalityProbability": 0.381
+      },
+      {
+       "name": "unused",
+       "frequencyPerYr": 0.0,
+       "fatalityProbability": 0.9
+      }
+     ]
+    },
+    "expected": {
+     "lsirPerYr": 7.0104e-09,
+     "contributions": [
+      7.0104e-09,
+      0.0
+     ]
+    },
+    "monteCarloSanity": {
+     "samples": 2000000,
+     "seed": 20260919,
+     "estimate": 7.002460399999999e-09,
+     "standardError": 6.318451227951356e-12,
+     "note": "not a golden; within 4 standard errors"
+    }
+   }
+  ],
+  "pbAppendix6bContribution": {
+   "id": "pb-appendix-6b-contribution",
+   "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Appendix 6.B step 6: 5e-7 x 0.0368 x 0.381 = 7.0e-9 per year",
+   "args": {
+    "scenarios": [
+     {
+      "name": "pipe rupture, D 5.0, sector 196-225",
+      "frequencyPerYr": 1.84e-08,
+      "fatalityProbability": 0.381
+     }
+    ]
+   },
+   "printed": 7e-09,
+   "printedDecimals": 10
+  },
+  "irpa": [
+   {
+    "id": "operator-two-areas",
+    "source": "ORACLE-DERIVED: IRPA = sum LSIR x occupancy",
+    "args": {
+     "locations": [
+      {
+       "name": "process area",
+       "lsirPerYr": 0.0003,
+       "hoursPerYr": 1200
+      },
+      {
+       "name": "control room",
+       "lsirPerYr": 2e-06,
+       "occupancyFraction": 0.1,
+       "vulnerabilityFactor": 0.5
+      }
+     ]
+    },
+    "expected": {
+     "irpaPerYr": 4.119589041095891e-05,
+     "totalOccupancyFraction": 0.236986301369863
+    }
+   },
+   {
+    "id": "full-occupancy",
+    "source": "ORACLE-DERIVED: occupancy exactly 1 is allowed",
+    "args": {
+     "locations": [
+      {
+       "name": "a",
+       "lsirPerYr": 1e-05,
+       "occupancyFraction": 0.6
+      },
+      {
+       "name": "b",
+       "lsirPerYr": 4e-05,
+       "occupancyFraction": 0.4
+      }
+     ]
+    },
+    "expected": {
+     "irpaPerYr": 2.2000000000000003e-05,
+     "totalOccupancyFraction": 1.0
+    }
+   }
+  ],
+  "pll": [
+   {
+    "id": "fractional-and-zero-N",
+    "source": "ORACLE-DERIVED: PLL = sum f N; N need not be whole (PB 6.3)",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.001,
+       "fatalities": 0.4
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 2e-05,
+       "fatalities": 12
+      },
+      {
+       "name": "c",
+       "frequencyPerYr": 3e-07,
+       "fatalities": 150
+      },
+      {
+       "name": "d",
+       "frequencyPerYr": 0.01,
+       "fatalities": 0
+      }
+     ]
+    },
+    "expected": {
+     "pllPerYr": 0.0006850000000000001
+    }
+   }
+  ],
+  "far": [
+   {
+    "id": "platform",
+    "source": "ORACLE-DERIVED: FAR = PLL x 1e8 / hours",
+    "args": {
+     "pllPerYr": 0.0069,
+     "exposedHoursPerYr": 525600.0
+    },
+    "expected": {
+     "far": 1.312785388127854
+    }
+   },
+   {
+    "id": "whole-count",
+    "source": "ORACLE-DERIVED: equals safetyStats.fatalAccidentRate for a whole count",
+    "args": {
+     "pllPerYr": 3,
+     "exposedHoursPerYr": 25000000.0
+    },
+    "expected": {
+     "far": 12.0
+    }
+   }
+  ]
+ },
+ "fn": {
+  "curves": [
+   {
+    "id": "mixed",
+    "source": "ORACLE-DERIVED: PB 6.6, brute force",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.0001,
+       "fatalities": 15
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 5e-06,
+       "fatalities": 120
+      },
+      {
+       "name": "c",
+       "frequencyPerYr": 0.001,
+       "fatalities": 0
+      },
+      {
+       "name": "d",
+       "frequencyPerYr": 3e-05,
+       "fatalities": 15
+      },
+      {
+       "name": "e",
+       "frequencyPerYr": 0.002,
+       "fatalities": 1.5
+      },
+      {
+       "name": "f",
+       "frequencyPerYr": 7e-07,
+       "fatalities": 900
+      }
+     ]
+    },
+    "expected": {
+     "points": [
+      {
+       "fatalities": 1.5,
+       "cumulativeFrequencyPerYr": 0.0021357
+      },
+      {
+       "fatalities": 15,
+       "cumulativeFrequencyPerYr": 0.00013570000000000002
+      },
+      {
+       "fatalities": 120,
+       "cumulativeFrequencyPerYr": 5.7000000000000005e-06
+      },
+      {
+       "fatalities": 900,
+       "cumulativeFrequencyPerYr": 7e-07
+      }
+     ],
+     "expectedFatalitiesPerYr": 0.00618,
+     "zeroFatalityFrequencyPerYr": 0.001
+    },
+    "routeB": {
+     "grid": [
+      {
+       "n": 0.5,
+       "F": 0.0021357
+      },
+      {
+       "n": 1.0,
+       "F": 0.0021357
+      },
+      {
+       "n": 1.5,
+       "F": 0.0021357
+      },
+      {
+       "n": 2.0,
+       "F": 0.00013570000000000002
+      },
+      {
+       "n": 7.0,
+       "F": 0.00013570000000000002
+      },
+      {
+       "n": 15.0,
+       "F": 0.00013570000000000002
+      },
+      {
+       "n": 15.0000001,
+       "F": 5.7000000000000005e-06
+      },
+      {
+       "n": 49.99,
+       "F": 5.7000000000000005e-06
+      },
+      {
+       "n": 50.0,
+       "F": 5.7000000000000005e-06
+      },
+      {
+       "n": 120.0,
+       "F": 5.7000000000000005e-06
+      },
+      {
+       "n": 899.0,
+       "F": 7e-07
+      },
+      {
+       "n": 900.0,
+       "F": 7e-07
+      },
+      {
+       "n": 901.0,
+       "F": 0
+      }
+     ],
+     "areaUnderCurve": 0.00618
+    }
+   },
+   {
+    "id": "compliant",
+    "source": "ORACLE-DERIVED: PB 6.6, brute force",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 5e-06,
+       "fatalities": 12
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 5e-08,
+       "fatalities": 110
+      },
+      {
+       "name": "c",
+       "frequencyPerYr": 0.001,
+       "fatalities": 2
+      }
+     ]
+    },
+    "expected": {
+     "points": [
+      {
+       "fatalities": 2,
+       "cumulativeFrequencyPerYr": 0.00100505
+      },
+      {
+       "fatalities": 12,
+       "cumulativeFrequencyPerYr": 5.050000000000001e-06
+      },
+      {
+       "fatalities": 110,
+       "cumulativeFrequencyPerYr": 5e-08
+      }
+     ],
+     "expectedFatalitiesPerYr": 0.0020655,
+     "zeroFatalityFrequencyPerYr": 0
+    },
+    "routeB": {
+     "grid": [
+      {
+       "n": 0.5,
+       "F": 0.00100505
+      },
+      {
+       "n": 1.0,
+       "F": 0.00100505
+      },
+      {
+       "n": 1.5,
+       "F": 0.00100505
+      },
+      {
+       "n": 2.0,
+       "F": 0.00100505
+      },
+      {
+       "n": 7.0,
+       "F": 5.050000000000001e-06
+      },
+      {
+       "n": 15.0,
+       "F": 5e-08
+      },
+      {
+       "n": 15.0000001,
+       "F": 5e-08
+      },
+      {
+       "n": 49.99,
+       "F": 5e-08
+      },
+      {
+       "n": 50.0,
+       "F": 5e-08
+      },
+      {
+       "n": 120.0,
+       "F": 0
+      },
+      {
+       "n": 899.0,
+       "F": 0
+      },
+      {
+       "n": 900.0,
+       "F": 0
+      },
+      {
+       "n": 901.0,
+       "F": 0
+      }
+     ],
+     "areaUnderCurve": 0.0020655
+    }
+   },
+   {
+    "id": "all-zero",
+    "source": "ORACLE-DERIVED: PB 6.6, brute force",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.01,
+       "fatalities": 0
+      }
+     ]
+    },
+    "expected": {
+     "points": [],
+     "expectedFatalitiesPerYr": 0.0,
+     "zeroFatalityFrequencyPerYr": 0.01
+    },
+    "routeB": {
+     "grid": [
+      {
+       "n": 0.5,
+       "F": 0
+      },
+      {
+       "n": 1.0,
+       "F": 0
+      },
+      {
+       "n": 1.5,
+       "F": 0
+      },
+      {
+       "n": 2.0,
+       "F": 0
+      },
+      {
+       "n": 7.0,
+       "F": 0
+      },
+      {
+       "n": 15.0,
+       "F": 0
+      },
+      {
+       "n": 15.0000001,
+       "F": 0
+      },
+      {
+       "n": 49.99,
+       "F": 0
+      },
+      {
+       "n": 50.0,
+       "F": 0
+      },
+      {
+       "n": 120.0,
+       "F": 0
+      },
+      {
+       "n": 899.0,
+       "F": 0
+      },
+      {
+       "n": 900.0,
+       "F": 0
+      },
+      {
+       "n": 901.0,
+       "F": 0
+      }
+     ],
+     "areaUnderCurve": 0.0
+    }
+   },
+   {
+    "id": "r2p2-touch",
+    "source": "ORACLE-DERIVED: PB 6.6, brute force",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.00015,
+       "fatalities": 50
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 5e-05,
+       "fatalities": 80
+      }
+     ]
+    },
+    "expected": {
+     "points": [
+      {
+       "fatalities": 50,
+       "cumulativeFrequencyPerYr": 0.00019999999999999998
+      },
+      {
+       "fatalities": 80,
+       "cumulativeFrequencyPerYr": 5e-05
+      }
+     ],
+     "expectedFatalitiesPerYr": 0.0115,
+     "zeroFatalityFrequencyPerYr": 0
+    },
+    "routeB": {
+     "grid": [
+      {
+       "n": 0.5,
+       "F": 0.00019999999999999998
+      },
+      {
+       "n": 1.0,
+       "F": 0.00019999999999999998
+      },
+      {
+       "n": 1.5,
+       "F": 0.00019999999999999998
+      },
+      {
+       "n": 2.0,
+       "F": 0.00019999999999999998
+      },
+      {
+       "n": 7.0,
+       "F": 0.00019999999999999998
+      },
+      {
+       "n": 15.0,
+       "F": 0.00019999999999999998
+      },
+      {
+       "n": 15.0000001,
+       "F": 0.00019999999999999998
+      },
+      {
+       "n": 49.99,
+       "F": 0.00019999999999999998
+      },
+      {
+       "n": 50.0,
+       "F": 0.00019999999999999998
+      },
+      {
+       "n": 120.0,
+       "F": 0
+      },
+      {
+       "n": 899.0,
+       "F": 0
+      },
+      {
+       "n": 900.0,
+       "F": 0
+      },
+      {
+       "n": 901.0,
+       "F": 0
+      }
+     ],
+     "areaUnderCurve": 0.011499999999999998
+    }
+   },
+   {
+    "id": "r2p2-over",
+    "source": "ORACLE-DERIVED: PB 6.6, brute force",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.00015,
+       "fatalities": 60
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 6e-05,
+       "fatalities": 80
+      }
+     ]
+    },
+    "expected": {
+     "points": [
+      {
+       "fatalities": 60,
+       "cumulativeFrequencyPerYr": 0.00020999999999999998
+      },
+      {
+       "fatalities": 80,
+       "cumulativeFrequencyPerYr": 6e-05
+      }
+     ],
+     "expectedFatalitiesPerYr": 0.0138,
+     "zeroFatalityFrequencyPerYr": 0
+    },
+    "routeB": {
+     "grid": [
+      {
+       "n": 0.5,
+       "F": 0.00020999999999999998
+      },
+      {
+       "n": 1.0,
+       "F": 0.00020999999999999998
+      },
+      {
+       "n": 1.5,
+       "F": 0.00020999999999999998
+      },
+      {
+       "n": 2.0,
+       "F": 0.00020999999999999998
+      },
+      {
+       "n": 7.0,
+       "F": 0.00020999999999999998
+      },
+      {
+       "n": 15.0,
+       "F": 0.00020999999999999998
+      },
+      {
+       "n": 15.0000001,
+       "F": 0.00020999999999999998
+      },
+      {
+       "n": 49.99,
+       "F": 0.00020999999999999998
+      },
+      {
+       "n": 50.0,
+       "F": 0.00020999999999999998
+      },
+      {
+       "n": 120.0,
+       "F": 0
+      },
+      {
+       "n": 899.0,
+       "F": 0
+      },
+      {
+       "n": 900.0,
+       "F": 0
+      },
+      {
+       "n": 901.0,
+       "F": 0
+      }
+     ],
+     "areaUnderCurve": 0.013799999999999998
+    }
+   },
+   {
+    "id": "line-touch",
+    "source": "ORACLE-DERIVED: PB 6.6, brute force",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.0005,
+       "fatalities": 20
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 1e-06,
+       "fatalities": 4
+      }
+     ]
+    },
+    "expected": {
+     "points": [
+      {
+       "fatalities": 4,
+       "cumulativeFrequencyPerYr": 0.000501
+      },
+      {
+       "fatalities": 20,
+       "cumulativeFrequencyPerYr": 0.0005
+      }
+     ],
+     "expectedFatalitiesPerYr": 0.010004,
+     "zeroFatalityFrequencyPerYr": 0
+    },
+    "routeB": {
+     "grid": [
+      {
+       "n": 0.5,
+       "F": 0.000501
+      },
+      {
+       "n": 1.0,
+       "F": 0.000501
+      },
+      {
+       "n": 1.5,
+       "F": 0.000501
+      },
+      {
+       "n": 2.0,
+       "F": 0.000501
+      },
+      {
+       "n": 7.0,
+       "F": 0.0005
+      },
+      {
+       "n": 15.0,
+       "F": 0.0005
+      },
+      {
+       "n": 15.0000001,
+       "F": 0.0005
+      },
+      {
+       "n": 49.99,
+       "F": 0
+      },
+      {
+       "n": 50.0,
+       "F": 0
+      },
+      {
+       "n": 120.0,
+       "F": 0
+      },
+      {
+       "n": 899.0,
+       "F": 0
+      },
+      {
+       "n": 900.0,
+       "F": 0
+      },
+      {
+       "n": 901.0,
+       "F": 0
+      }
+     ],
+     "areaUnderCurve": 0.010004
+    }
+   }
+  ],
+  "comparisons": [
+   {
+    "id": "mixed-vs-vrom",
+    "source": "ORACLE-DERIVED: PB Figure 6.8 / Bevi line",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.0001,
+       "fatalities": 15
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 5e-06,
+       "fatalities": 120
+      },
+      {
+       "name": "c",
+       "frequencyPerYr": 0.001,
+       "fatalities": 0
+      },
+      {
+       "name": "d",
+       "frequencyPerYr": 3e-05,
+       "fatalities": 15
+      },
+      {
+       "name": "e",
+       "frequencyPerYr": 0.002,
+       "fatalities": 1.5
+      },
+      {
+       "name": "f",
+       "frequencyPerYr": 7e-07,
+       "fatalities": 900
+      }
+     ],
+     "criterion": "vrom-establishments"
+    },
+    "expected": {
+     "state": "EXCEEDS",
+     "checks": [
+      {
+       "fatalities": 15,
+       "curveFrequencyPerYr": 0.00013570000000000002,
+       "criterionFrequencyPerYr": 4.444444444444444e-06,
+       "ratio": 30.532500000000006,
+       "state": "EXCEEDS",
+       "exceedsOverFatalities": {
+        "from": 10,
+        "to": 15
+       }
+      },
+      {
+       "fatalities": 120,
+       "curveFrequencyPerYr": 5.7000000000000005e-06,
+       "criterionFrequencyPerYr": 6.944444444444444e-08,
+       "ratio": 82.08000000000001,
+       "state": "EXCEEDS",
+       "exceedsOverFatalities": {
+        "from": 15,
+        "to": 120
+       }
+      },
+      {
+       "fatalities": 900,
+       "curveFrequencyPerYr": 7e-07,
+       "criterionFrequencyPerYr": 1.2345679012345679e-09,
+       "ratio": 567.0,
+       "state": "EXCEEDS",
+       "exceedsOverFatalities": {
+        "from": 120,
+        "to": 900
+       }
+      }
+     ],
+     "maxRatio": 567.0
+    },
+    "routeB": {
+     "gridMaxRatio": 566.9999999999999
+    }
+   },
+   {
+    "id": "compliant-vs-vrom",
+    "source": "ORACLE-DERIVED: below the line everywhere",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 5e-06,
+       "fatalities": 12
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 5e-08,
+       "fatalities": 110
+      },
+      {
+       "name": "c",
+       "frequencyPerYr": 0.001,
+       "fatalities": 2
+      }
+     ],
+     "criterion": "vrom-establishments"
+    },
+    "expected": {
+     "state": "BELOW",
+     "checks": [
+      {
+       "fatalities": 12,
+       "curveFrequencyPerYr": 5.050000000000001e-06,
+       "criterionFrequencyPerYr": 6.944444444444445e-06,
+       "ratio": 0.7272000000000001,
+       "state": "BELOW"
+      },
+      {
+       "fatalities": 110,
+       "curveFrequencyPerYr": 5e-08,
+       "criterionFrequencyPerYr": 8.264462809917355e-08,
+       "ratio": 0.605,
+       "state": "BELOW"
+      }
+     ],
+     "maxRatio": 0.7272000000000001
+    },
+    "routeB": {
+     "gridMaxRatio": 0.7271860681404757
+    }
+   },
+   {
+    "id": "mixed-vs-line-nmax",
+    "source": "ORACLE-DERIVED: a caller line with nMax inside a step",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.0001,
+       "fatalities": 15
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 5e-06,
+       "fatalities": 120
+      },
+      {
+       "name": "c",
+       "frequencyPerYr": 0.001,
+       "fatalities": 0
+      },
+      {
+       "name": "d",
+       "frequencyPerYr": 3e-05,
+       "fatalities": 15
+      },
+      {
+       "name": "e",
+       "frequencyPerYr": 0.002,
+       "fatalities": 1.5
+      },
+      {
+       "name": "f",
+       "frequencyPerYr": 7e-07,
+       "fatalities": 900
+      }
+     ],
+     "criterion": {
+      "constantC": 0.01,
+      "exponentAlpha": 1,
+      "minFatalities": 1,
+      "maxFatalities": 500
+     }
+    },
+    "expected": {
+     "state": "BELOW",
+     "checks": [
+      {
+       "fatalities": 1.5,
+       "curveFrequencyPerYr": 0.0021357,
+       "criterionFrequencyPerYr": 0.006666666666666667,
+       "ratio": 0.32035499999999995,
+       "state": "BELOW"
+      },
+      {
+       "fatalities": 15,
+       "curveFrequencyPerYr": 0.00013570000000000002,
+       "criterionFrequencyPerYr": 0.0006666666666666666,
+       "ratio": 0.20355000000000004,
+       "state": "BELOW"
+      },
+      {
+       "fatalities": 120,
+       "curveFrequencyPerYr": 5.7000000000000005e-06,
+       "criterionFrequencyPerYr": 8.333333333333333e-05,
+       "ratio": 0.0684,
+       "state": "BELOW"
+      },
+      {
+       "fatalities": 500,
+       "curveFrequencyPerYr": 7e-07,
+       "criterionFrequencyPerYr": 2e-05,
+       "ratio": 0.034999999999999996,
+       "state": "BELOW"
+      }
+     ],
+     "maxRatio": 0.32035499999999995
+    },
+    "routeB": {
+     "gridMaxRatio": 0.3203472873004754
+    }
+   },
+   {
+    "id": "line-touch",
+    "source": "ORACLE-DERIVED: the curve corner lies exactly on F = 0.01 / N",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.0005,
+       "fatalities": 20
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 1e-06,
+       "fatalities": 4
+      }
+     ],
+     "criterion": {
+      "constantC": 0.01,
+      "exponentAlpha": 1
+     }
+    },
+    "expected": {
+     "state": "TOUCHES",
+     "checks": [
+      {
+       "fatalities": 4,
+       "curveFrequencyPerYr": 0.000501,
+       "criterionFrequencyPerYr": 0.0025,
+       "ratio": 0.20040000000000002,
+       "state": "BELOW"
+      },
+      {
+       "fatalities": 20,
+       "curveFrequencyPerYr": 0.0005,
+       "criterionFrequencyPerYr": 0.0005,
+       "ratio": 1.0,
+       "state": "AT_LINE"
+      }
+     ],
+     "maxRatio": 1.0
+    },
+    "routeB": {
+     "gridMaxRatio": 1.0
+    }
+   },
+   {
+    "id": "r2p2-touch",
+    "source": "ORACLE-DERIVED: F(50) = 1.5e-4 + 5e-5 = 2e-4, exactly the R2P2 point: not \"more than\"",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.00015,
+       "fatalities": 50
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 5e-05,
+       "fatalities": 80
+      }
+     ],
+     "criterion": "r2p2-para-136"
+    },
+    "expected": {
+     "state": "TOUCHES",
+     "checks": [
+      {
+       "fatalities": 50,
+       "curveFrequencyPerYr": 0.00019999999999999998,
+       "criterionFrequencyPerYr": 0.0002,
+       "ratio": 0.9999999999999999,
+       "state": "AT_LINE"
+      }
+     ],
+     "maxRatio": 0.9999999999999999
+    },
+    "routeB": {
+     "gridMaxRatio": null
+    }
+   },
+   {
+    "id": "r2p2-over",
+    "source": "ORACLE-DERIVED: F(50) = 2.1e-4 > 1 in 5000",
+    "args": {
+     "scenarios": [
+      {
+       "name": "a",
+       "frequencyPerYr": 0.00015,
+       "fatalities": 60
+      },
+      {
+       "name": "b",
+       "frequencyPerYr": 6e-05,
+       "fatalities": 80
+      }
+     ],
+     "criterion": "r2p2-para-136"
+    },
+    "expected": {
+     "state": "EXCEEDS",
+     "checks": [
+      {
+       "fatalities": 50,
+       "curveFrequencyPerYr": 0.00020999999999999998,
+       "criterionFrequencyPerYr": 0.0002,
+       "ratio": 1.0499999999999998,
+       "state": "EXCEEDS"
+      }
+     ],
+     "maxRatio": 1.0499999999999998
+    },
+    "routeB": {
+     "gridMaxRatio": null
+    }
+   }
+  ],
+  "beviPoints": [
+   {
+    "fatalities": 10,
+    "printed": 1e-05
+   },
+   {
+    "fatalities": 100,
+    "printed": 1e-07
+   },
+   {
+    "fatalities": 1000,
+    "printed": 1e-09
+   }
+  ]
+ },
+ "alarp": [
+  {
+   "id": "agriculture 1999/00, 1 in 12 984",
+   "source": "PUBLISHED: UK HSE R2P2 (2001) para 128 box: worker rates \"normally well below the upper limit\" of 1 in 1000",
+   "args": {
+    "individualRiskPerYr": 7.701786814540974e-05,
+    "thresholds": "r2p2-workers"
+   },
+   "expected": {
+    "band": "TOLERABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "construction 1999/00, 1 in 21 438",
+   "source": "PUBLISHED: UK HSE R2P2 (2001) para 128 box",
+   "args": {
+    "individualRiskPerYr": 4.664614236402649e-05,
+    "thresholds": "r2p2-workers"
+   },
+   "expected": {
+    "band": "TOLERABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "mining and quarrying 1999/00, 1 in 14 564",
+   "source": "PUBLISHED: UK HSE R2P2 (2001) para 128 box",
+   "args": {
+    "individualRiskPerYr": 6.866245536940401e-05,
+    "thresholds": "r2p2-workers"
+   },
+   "expected": {
+    "band": "TOLERABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "service sector 1999/00, 1 in 388 565",
+   "source": "PUBLISHED: UK HSE R2P2 (2001) para 128 box (still above 1 in a million)",
+   "args": {
+    "individualRiskPerYr": 2.5735719892424693e-06,
+    "thresholds": "r2p2-workers"
+   },
+   "expected": {
+    "band": "TOLERABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "public, gas 1994/5-1998/9, 1 in 1 510 000",
+   "source": "PUBLISHED: UK HSE R2P2 (2001) para 128 box: \"below the limit of what is often regarded as broadly acceptable\"",
+   "args": {
+    "individualRiskPerYr": 6.622516556291391e-07,
+    "thresholds": "r2p2-public"
+   },
+   "expected": {
+    "band": "BROADLY_ACCEPTABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "exactly 1e-3: not \"more than\"",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 0.001,
+    "thresholds": "r2p2-workers"
+   },
+   "expected": {
+    "band": "TOLERABLE",
+    "atBoundary": "unacceptable"
+   }
+  },
+  {
+   "id": "1e-4 x 10 = 0.0010000000000000002 snaps to 1e-3",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 0.001,
+    "thresholds": "r2p2-workers"
+   },
+   "expected": {
+    "band": "TOLERABLE",
+    "atBoundary": "unacceptable"
+   }
+  },
+  {
+   "id": "just above",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 0.001001,
+    "thresholds": "r2p2-workers"
+   },
+   "expected": {
+    "band": "UNACCEPTABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "public limit exactly",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 0.0001,
+    "thresholds": "r2p2-public"
+   },
+   "expected": {
+    "band": "TOLERABLE",
+    "atBoundary": "unacceptable"
+   }
+  },
+  {
+   "id": "public, above",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 0.0002,
+    "thresholds": "r2p2-public"
+   },
+   "expected": {
+    "band": "UNACCEPTABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "exactly 1e-6: at or below",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 1e-06,
+    "thresholds": "r2p2-workers"
+   },
+   "expected": {
+    "band": "BROADLY_ACCEPTABLE",
+    "atBoundary": "broadly-acceptable"
+   }
+  },
+  {
+   "id": "1e-7 relative above 1e-6 is outside the snap",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 1.0000001e-06,
+    "thresholds": "r2p2-public"
+   },
+   "expected": {
+    "band": "TOLERABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "zero risk",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 0.0,
+    "thresholds": "r2p2-public"
+   },
+   "expected": {
+    "band": "BROADLY_ACCEPTABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "user thresholds",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 5e-05,
+    "thresholds": {
+     "unacceptableAbovePerYr": 0.0001,
+     "broadlyAcceptableAtOrBelowPerYr": 1e-05
+    }
+   },
+   "expected": {
+    "band": "TOLERABLE",
+    "atBoundary": null
+   }
+  },
+  {
+   "id": "user lower edge",
+   "source": "ORACLE-DERIVED: boundary convention",
+   "args": {
+    "individualRiskPerYr": 1e-05,
+    "thresholds": {
+     "unacceptableAbovePerYr": 0.0001,
+     "broadlyAcceptableAtOrBelowPerYr": 1e-05
+    }
+   },
+   "expected": {
+    "band": "BROADLY_ACCEPTABLE",
+    "atBoundary": "broadly-acceptable"
+   }
+  }
+ ],
+ "costBenefit": [
+  {
+   "id": "hse-cba-checklist-example",
+   "source": "PUBLISHED: UK HSE CBA checklist (2003) worked example: 6684 + 2072 + 512 + 15 = 9,283; \"up to ... 93,000 (9300 x 10)\"",
+   "args": {
+    "deltaPllPerYr": 0.0002,
+    "vpf": 1336800,
+    "otherHarms": [
+     {
+      "name": "permanently incapacitating injury",
+      "expectedCasesPerYr": 0.0004,
+      "valuePerCase": 207200
+     },
+     {
+      "name": "serious injury",
+      "expectedCasesPerYr": 0.001,
+      "valuePerCase": 20500
+     },
+     {
+      "name": "slight injury",
+      "expectedCasesPerYr": 0.002,
+      "valuePerCase": 300
+     }
+    ],
+    "lifetimeYears": 25,
+    "capitalCost": 93000,
+    "disproportionFactor": 10
+   },
+   "expected": {
+    "presentValueBenefit": 9283.5,
+    "fatalityBenefitPerYr": 267.36,
+    "maximumReasonablyPracticableCost": 92835.00000000001,
+    "verdict": "GROSSLY_DISPROPORTIONATE"
+   },
+   "printed": {
+    "fatalities": 6684,
+    "permanent": 2072,
+    "serious": 512,
+    "slight": 15,
+    "total": 9283,
+    "maxCost": 93000
+   },
+   "printedAbsTol": 1.0,
+   "printedMaxCostRelTol": 0.01
+  },
+  {
+   "id": "r2p2-vpf-footnote",
+   "source": "PUBLISHED: UK HSE R2P2 (2001) App. 3 para 13 margin: a VPF of 1 000 000 means a 1 in 100 000 risk reduction is worth about 10",
+   "args": {
+    "deltaPllPerYr": 1e-05,
+    "vpf": 1000000.0,
+    "lifetimeYears": 1,
+    "capitalCost": 10,
+    "disproportionFactor": 1
+   },
+   "expected": {
+    "presentValueBenefit": 10.0,
+    "verdict": "NOT_GROSSLY_DISPROPORTIONATE",
+    "atBoundary": true
+   },
+   "printed": 10
+  },
+  {
+   "id": "discounted-cba-2003-rates",
+   "source": "ORACLE-DERIVED: year-end discounting",
+   "args": {
+    "deltaPllPerYr": 0.0003,
+    "vpf": 1600000.0,
+    "lifetimeYears": 20,
+    "capitalCost": 250000,
+    "annualCost": 4000,
+    "disproportionFactor": 6,
+    "benefitDiscountRate": 0.015,
+    "costDiscountRate": 0.035
+   },
+   "expected": {
+    "presentValueBenefit": 8240.946616839334,
+    "presentValueCost": 306849.6132078092,
+    "costPerFatalityPrevented": 51141602.201301545,
+    "costToBenefitRatio": 37.234753175175385,
+    "verdict": "GROSSLY_DISPROPORTIONATE"
+   },
+   "routeB": {
+    "presentValueBenefit": 8240.946616839336,
+    "presentValueCost": 306849.6132078092
+   }
+  },
+  {
+   "id": "r2p2-6pc-with-4pc-uprating",
+   "source": "ORACLE-DERIVED: year-end discounting",
+   "args": {
+    "deltaPllPerYr": 0.001,
+    "vpf": 1000000.0,
+    "lifetimeYears": 30,
+    "capitalCost": 180000,
+    "annualCost": 2500,
+    "disproportionFactor": 3,
+    "benefitDiscountRate": 0.06,
+    "costDiscountRate": 0.06,
+    "benefitGrowthRate": 0.04
+   },
+   "expected": {
+    "presentValueBenefit": 22635.165016561714,
+    "presentValueCost": 214412.07787872353,
+    "costPerFatalityPrevented": 7147069.262624118,
+    "costToBenefitRatio": 9.47252108486253,
+    "verdict": "GROSSLY_DISPROPORTIONATE"
+   },
+   "routeB": {
+    "presentValueBenefit": 22635.16501656172,
+    "presentValueCost": 214412.07787872353
+   }
+  },
+  {
+   "id": "grossly-disproportionate",
+   "source": "ORACLE-DERIVED: year-end discounting",
+   "args": {
+    "deltaPllPerYr": 1e-05,
+    "vpf": 2000000.0,
+    "lifetimeYears": 10,
+    "capitalCost": 5000000.0,
+    "disproportionFactor": 10
+   },
+   "expected": {
+    "presentValueBenefit": 200.0,
+    "presentValueCost": 5000000.0,
+    "costPerFatalityPrevented": 50000000000.0,
+    "costToBenefitRatio": 25000.0,
+    "verdict": "GROSSLY_DISPROPORTIONATE"
+   },
+   "routeB": {
+    "presentValueBenefit": 200.0,
+    "presentValueCost": 5000000.0
+   }
+  },
+  {
+   "id": "exactly-at-df",
+   "source": "ORACLE-DERIVED: cost = DF x benefit exactly: not grossly disproportionate",
+   "args": {
+    "deltaPllPerYr": 0.0002,
+    "vpf": 1500000.0,
+    "lifetimeYears": 10,
+    "capitalCost": 9000.000000000002,
+    "disproportionFactor": 3
+   },
+   "expected": {
+    "verdict": "NOT_GROSSLY_DISPROPORTIONATE",
+    "atBoundary": true
+   }
+  }
+ ],
+ "pbFractions": [
+  {
+   "id": "toxic-day",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "toxic",
+    "probabilityOfDeath": 0.835,
+    "period": "day"
+   },
+   "expected": {
+    "probabilityOfDeath": 0.835,
+    "fractionDyingIndoors": 0.0835,
+    "fractionDyingOutdoors": 0.835,
+    "fractionIndoors": 0.93,
+    "fractionOfDeaths": 0.13610499999999995
+   }
+  },
+  {
+   "id": "toxic-night",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "toxic",
+    "probabilityOfDeath": 0.4,
+    "period": "night"
+   },
+   "expected": {
+    "probabilityOfDeath": 0.4,
+    "fractionDyingIndoors": 0.04,
+    "fractionDyingOutdoors": 0.4,
+    "fractionIndoors": 0.99,
+    "fractionOfDeaths": 0.04360000000000001
+   }
+  },
+  {
+   "id": "fire-envelope",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "fire",
+    "insideFlameEnvelope": true,
+    "period": "day"
+   },
+   "expected": {
+    "probabilityOfDeath": 1,
+    "fractionDyingIndoors": 1,
+    "fractionDyingOutdoors": 1,
+    "fractionIndoors": 0.93,
+    "fractionOfDeaths": 1.0
+   }
+  },
+  {
+   "id": "fire-35kW-exact",
+   "source": "ORACLE-DERIVED: threshold edge as the PB figures print it (>= 35 kW/m2; > 0.3 and > 0.1 barg)",
+   "args": {
+    "effect": "fire",
+    "heatFluxWM2": 35000,
+    "fireDurationS": 10,
+    "period": "day"
+   },
+   "expected": {
+    "probabilityOfDeath": 1,
+    "fractionDyingIndoors": 1,
+    "fractionDyingOutdoors": 1,
+    "fractionIndoors": 0.93,
+    "fractionOfDeaths": 1.0
+   }
+  },
+  {
+   "id": "fire-12kW-60s-capped",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "fire",
+    "heatFluxWM2": 12000,
+    "fireDurationS": 60,
+    "period": "night"
+   },
+   "expected": {
+    "probabilityOfDeath": 0.049406121527908284,
+    "fractionDyingIndoors": 0,
+    "fractionDyingOutdoors": 0.00691685701390716,
+    "fractionIndoors": 0.99,
+    "fractionOfDeaths": 6.916857013907167e-05
+   }
+  },
+  {
+   "id": "fire-20kW-8s",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "fire",
+    "heatFluxWM2": 20000,
+    "fireDurationS": 8,
+    "fractionIndoors": 0.5
+   },
+   "expected": {
+    "probabilityOfDeath": 0.012138231865048784,
+    "fractionDyingIndoors": 0,
+    "fractionDyingOutdoors": 0.00169935246110683,
+    "fractionIndoors": 0.5,
+    "fractionOfDeaths": 0.000849676230553415
+   }
+  },
+  {
+   "id": "fire-zero-flux",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "fire",
+    "heatFluxWM2": 0,
+    "fireDurationS": 8,
+    "period": "day"
+   },
+   "expected": {
+    "probabilityOfDeath": 0,
+    "fractionDyingIndoors": 0,
+    "fractionDyingOutdoors": 0,
+    "fractionIndoors": 0.93,
+    "fractionOfDeaths": 0.0
+   }
+  },
+  {
+   "id": "flash-in",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "flash-fire",
+    "insideFlameEnvelope": true,
+    "period": "night"
+   },
+   "expected": {
+    "probabilityOfDeath": 1,
+    "fractionDyingIndoors": 1,
+    "fractionDyingOutdoors": 1,
+    "fractionIndoors": 0.99,
+    "fractionOfDeaths": 1.0
+   }
+  },
+  {
+   "id": "flash-out",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "flash-fire",
+    "insideFlameEnvelope": false,
+    "period": "night"
+   },
+   "expected": {
+    "probabilityOfDeath": 0,
+    "fractionDyingIndoors": 0,
+    "fractionDyingOutdoors": 0,
+    "fractionIndoors": 0.99,
+    "fractionOfDeaths": 0.0
+   }
+  },
+  {
+   "id": "vce-0.3-exact",
+   "source": "ORACLE-DERIVED: threshold edge as the PB figures print it (>= 35 kW/m2; > 0.3 and > 0.1 barg)",
+   "args": {
+    "effect": "explosion",
+    "peakOverpressurePa": 30000,
+    "period": "day"
+   },
+   "expected": {
+    "probabilityOfDeath": 0,
+    "fractionDyingIndoors": 0.025,
+    "fractionDyingOutdoors": 0,
+    "fractionIndoors": 0.93,
+    "fractionOfDeaths": 0.023250000000000003
+   }
+  },
+  {
+   "id": "vce-0.31",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "explosion",
+    "peakOverpressurePa": 31000,
+    "period": "day"
+   },
+   "expected": {
+    "probabilityOfDeath": 1,
+    "fractionDyingIndoors": 1,
+    "fractionDyingOutdoors": 1,
+    "fractionIndoors": 0.93,
+    "fractionOfDeaths": 1.0
+   }
+  },
+  {
+   "id": "vce-0.1-exact",
+   "source": "ORACLE-DERIVED: threshold edge as the PB figures print it (>= 35 kW/m2; > 0.3 and > 0.1 barg)",
+   "args": {
+    "effect": "explosion",
+    "peakOverpressurePa": 10000,
+    "period": "day"
+   },
+   "expected": {
+    "probabilityOfDeath": 0,
+    "fractionDyingIndoors": 0,
+    "fractionDyingOutdoors": 0,
+    "fractionIndoors": 0.93,
+    "fractionOfDeaths": 0.0
+   }
+  },
+  {
+   "id": "vce-0.2",
+   "source": "ORACLE-DERIVED: the rules of PB Figures 5.2 to 5.5, Table 5.3 and eq. 6.13 applied; the PB prints no numeric example",
+   "args": {
+    "effect": "explosion",
+    "peakOverpressurePa": 20000,
+    "period": "night"
+   },
+   "expected": {
+    "probabilityOfDeath": 0,
+    "fractionDyingIndoors": 0.025,
+    "fractionDyingOutdoors": 0,
+    "fractionIndoors": 0.99,
+    "fractionOfDeaths": 0.02475
+   }
+  }
+ ],
+ "toxicGridPoint": {
+  "pbAppendix6b": {
+   "id": "pb-appendix-6b",
+   "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Appendix 6.B: C 21.3 g/m3, Pr 5.97, Pcl 0.835, PI 72 m, ECW 86.2 m, Pci 0.456, Pd 0.381, dIR 7.0e-9",
+   "args": {
+    "massRateKgS": 100,
+    "windSpeedMS": 5,
+    "distanceM": 361,
+    "sigmaYM": 28.8,
+    "sigmaZM": 10.3,
+    "releaseHeightM": 1,
+    "receptorHeightM": 1,
+    "coefficients": "pb-carbon-monoxide",
+    "exposureMinutes": 30,
+    "windSectors": 12,
+    "cutoffProbability": 0.01,
+    "frequencyPerYr": 5e-07,
+    "weatherDirectionProbability": 0.0368
+   },
+   "expected": {
+    "centrelineConcentrationMgM3": 21260.62666896749,
+    "centrelineProbit": 5.965809509556761,
+    "centrelineProbability": 0.8329302454299676,
+    "cutoffHalfWidthM": 73.90056860743624,
+    "probabilityIntegralM": 71.88295678119572,
+    "effectiveCloudWidthM": 86.30129254591895,
+    "coverageProbability": 0.45657431481117156,
+    "probabilityOfDeath": 0.3802945560926884,
+    "contributionPerYr": 6.9974198321054665e-09
+   },
+   "printed": {
+    "centrelineConcentrationMgM3": 21300,
+    "centrelineProbit": 5.97,
+    "centrelineProbability": 0.835,
+    "probabilityIntegralM": 72,
+    "effectiveCloudWidthM": 86.2,
+    "coverageProbability": 0.456,
+    "probabilityOfDeath": 0.381,
+    "contributionPerYr": 7e-09,
+    "weatherDirectionProbability": 0.0368
+   },
+   "printedChainTolerances": {
+    "centrelineConcentrationMgM3": 0.005,
+    "centrelineProbit": 0.001,
+    "centrelineProbability": 0.003,
+    "probabilityIntegralM": 0.007,
+    "effectiveCloudWidthM": 0.002,
+    "coverageProbability": 0.002,
+    "probabilityOfDeath": 0.002,
+    "contributionPerYr": 0.005
+   },
+   "printedStepwise": {
+    "ecw": 86.22754491017965,
+    "pci": 0.45603842973478276,
+    "pd": 0.38076,
+    "dir": 7.0104e-09,
+    "pmPphi": 0.036816
+   }
+  },
+  "derived": [
+   {
+    "id": "chlorine-ground-release-60min-capped",
+    "source": "ORACLE-DERIVED: PB chlorine probit, 60 min capped to 30",
+    "args": {
+     "massRateKgS": 20,
+     "windSpeedMS": 3,
+     "distanceM": 250,
+     "sigmaYM": 22,
+     "sigmaZM": 9,
+     "releaseHeightM": 0,
+     "receptorHeightM": 1,
+     "coefficients": "pb-chlorine",
+     "exposureMinutes": 60
+    },
+    "expected": {
+     "centrelineConcentrationMgM3": 10651.550919721732,
+     "centrelineProbit": 8.101607272681143,
+     "centrelineProbability": 0.9990376343944027,
+     "cutoffHalfWidthM": 61.81650607477162,
+     "probabilityIntegralM": 92.02607955521785,
+     "effectiveCloudWidthM": 92.11472760082985,
+     "coverageProbability": 0.7037046830033049,
+     "probabilityOfDeath": 0.7030274618198848
+    }
+   }
+  ]
+ },
+ "transects": {
+  "thermal": [
+   {
+    "id": "eisenberg-30s",
+    "source": "ORACLE-DERIVED: Eisenberg (OSD/30 Table 17) at 30 s",
+    "args": {
+     "heatFluxesWM2": [
+      60000.0,
+      25000.0,
+      12500.0,
+      6300.0,
+      4000.0,
+      1600.0,
+      0.0
+     ],
+     "exposureTimeS": 30
+    },
+    "expected": [
+     0.9973023088102371,
+     0.4184585121073649,
+     0.0050588445553579236,
+     4.5416370516359677e-07,
+     5.198949364271665e-11,
+     4.462007845726445e-22,
+     0.0
+    ]
+   },
+   {
+    "id": "purple-book-20s",
+    "source": "ORACLE-DERIVED: PB 5.4 at 20 s",
+    "args": {
+     "heatFluxesWM2": [
+      60000.0,
+      25000.0,
+      12500.0,
+      6300.0,
+      4000.0,
+      1600.0,
+      0.0
+     ],
+     "exposureTimeS": 20,
+     "coefficients": "purple-book"
+    },
+    "expected": [
+     0.9999392076571156,
+     0.8036253492913241,
+     0.0653559845294812,
+     5.9048156176516104e-05,
+     3.321487591074588e-08,
+     7.4337274915672e-18,
+     0.0
+    ]
+   }
+  ],
+  "poolFire": [
+   {
+    "id": "still-air-20m",
+    "source": "ORACLE-DERIVED: H4 oracle Thomas, Raj / Mudan, YB 6.19 SEP, then Eisenberg at 60 s; PB Figure 5.4 flame envelope",
+    "args": {
+     "distancesFromCentreM": [
+      0.0,
+      10.0,
+      12.0,
+      15.0,
+      20.0,
+      30.0,
+      45.0,
+      60.0,
+      90.0
+     ],
+     "exposureTimeS": 60,
+     "poolDiameterM": 20.0,
+     "burningFluxKgM2S": 0.055,
+     "heatOfCombustionJKg": 44000000.0,
+     "sep": {
+      "method": "mudan-diameter"
+     },
+     "transmissivity": 0.8
+    },
+    "expected": [
+     {
+      "distanceFromCentreM": 0.0,
+      "state": "IN_FLAME_ENVELOPE",
+      "heatFluxWM2": null,
+      "probability": 1.0
+     },
+     {
+      "distanceFromCentreM": 10.0,
+      "state": "IN_FLAME_ENVELOPE",
+      "heatFluxWM2": null,
+      "probability": 1.0
+     },
+     {
+      "distanceFromCentreM": 12.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 12825.89960278113,
+      "probability": 0.23901576267353586
+     },
+     {
+      "distanceFromCentreM": 15.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 9826.616755713494,
+      "probability": 0.05275720363954857
+     },
+     {
+      "distanceFromCentreM": 20.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 6908.830317770283,
+      "probability": 0.0023923221609851693
+     },
+     {
+      "distanceFromCentreM": 30.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 3900.510979043427,
+      "probability": 9.094759498918487e-07
+     },
+     {
+      "distanceFromCentreM": 45.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 1970.2370193399868,
+      "probability": 6.072456364379415e-13
+     },
+     {
+      "distanceFromCentreM": 60.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 1151.684289169447,
+      "probability": 2.0097583651332165e-19
+     },
+     {
+      "distanceFromCentreM": 90.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 519.5216320066048,
+      "probability": 1.0986884422773094e-31
+     }
+    ],
+    "tiltDeg": 0.0
+   },
+   {
+    "id": "wind-5ms-overhang",
+    "source": "ORACLE-DERIVED: H4 oracle Thomas, Raj / Mudan, YB 6.19 SEP, then Eisenberg at 60 s; PB Figure 5.4 flame envelope",
+    "args": {
+     "distancesFromCentreM": [
+      5.0,
+      15.0,
+      20.0,
+      30.0,
+      45.0,
+      60.0,
+      90.0
+     ],
+     "exposureTimeS": 60,
+     "poolDiameterM": 20.0,
+     "burningFluxKgM2S": 0.055,
+     "heatOfCombustionJKg": 44000000.0,
+     "sep": {
+      "method": "mudan-diameter"
+     },
+     "transmissivity": 0.8,
+     "flameLengthMethod": "thomas-wind",
+     "windSpeed10mMS": 5.0,
+     "airKinematicViscosityM2S": 1.5e-05
+    },
+    "expected": [
+     {
+      "distanceFromCentreM": 5.0,
+      "state": "IN_FLAME_ENVELOPE",
+      "heatFluxWM2": null,
+      "probability": 1.0
+     },
+     {
+      "distanceFromCentreM": 15.0,
+      "state": "IN_FLAME_ENVELOPE",
+      "heatFluxWM2": null,
+      "probability": 1.0
+     },
+     {
+      "distanceFromCentreM": 20.0,
+      "state": "IN_FLAME_ENVELOPE",
+      "heatFluxWM2": null,
+      "probability": 1.0
+     },
+     {
+      "distanceFromCentreM": 30.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 7565.584078214087,
+      "probability": 0.00601566661644988
+     },
+     {
+      "distanceFromCentreM": 45.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 2288.1220671424485,
+      "probability": 2.152887991408199e-11
+     },
+     {
+      "distanceFromCentreM": 60.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 999.6247165734133,
+      "probability": 2.260620057809872e-21
+     },
+     {
+      "distanceFromCentreM": 90.0,
+      "state": "RADIATION",
+      "heatFluxWM2": 350.28960883982313,
+      "probability": 6.193821657811204e-39
+     }
+    ],
+    "tiltDeg": 52.2410144823453
+   }
+  ],
+  "lsir": {
+   "id": "pool-and-flash-fire",
+   "source": "ORACLE-DERIVED: PB 6.1 / 6.2 along a transect; contours per PB 6.3",
+   "args": {
+    "distancesM": [
+     0.0,
+     10.0,
+     12.0,
+     15.0,
+     20.0,
+     30.0,
+     45.0,
+     60.0,
+     90.0
+    ],
+    "scenarios": [
+     {
+      "name": "pool fire",
+      "frequencyPerYr": 0.0002,
+      "fatalityProbabilities": [
+       1.0,
+       1.0,
+       0.23901576267353586,
+       0.05275720363954857,
+       0.0023923221609851693,
+       9.094759498918487e-07,
+       6.072456364379415e-13,
+       2.0097583651332165e-19,
+       1.0986884422773094e-31
+      ]
+     },
+     {
+      "name": "flash fire",
+      "frequencyPerYr": 3e-06,
+      "fatalityProbabilities": [
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "lsirPerYr": [
+     0.000203,
+     0.000203,
+     5.080315253470717e-05,
+     1.3551440727909715e-05,
+     3.478464432197034e-06,
+     3.0001818951899786e-06,
+     1.214491272875883e-16,
+     4.019516730266433e-23,
+     2.1973768845546189e-35
+    ],
+    "contours": [
+     {
+      "levelPerYr": 0.0001,
+      "crossingsM": [
+       11.02225163082237
+      ]
+     },
+     {
+      "levelPerYr": 1e-05,
+      "crossingsM": [
+       16.117388575569464
+      ]
+     },
+     {
+      "levelPerYr": 1e-06,
+      "crossingsM": [
+       30.68867350739888
+      ]
+     },
+     {
+      "levelPerYr": 1e-07,
+      "crossingsM": [
+       32.13198691331668
+      ]
+     },
+     {
+      "levelPerYr": 1e-08,
+      "crossingsM": [
+       33.57530031923448
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "refusals": [
+  {
+   "fn": "eventTree",
+   "args": {
+    "initiatingFrequencyPerYr": 0.001,
+    "tree": {
+     "branches": [
+      {
+       "name": "a",
+       "probability": 0.6
+      },
+      {
+       "name": "b",
+       "probability": 0.3
+      }
+     ]
+    }
+   },
+   "field": "tree.branches"
+  },
+  {
+   "fn": "eventTree",
+   "args": {
+    "initiatingFrequencyPerYr": 0.001,
+    "tree": {
+     "branches": [
+      {
+       "name": "a",
+       "probability": 0.6
+      },
+      {
+       "name": "b",
+       "probability": 0.4000001
+      }
+     ]
+    }
+   },
+   "field": "tree.branches"
+  },
+  {
+   "fn": "eventTree",
+   "args": {
+    "initiatingFrequencyPerYr": 0.001,
+    "tree": {
+     "branches": [
+      {
+       "name": "a",
+       "probability": 0.5,
+       "next": {
+        "branches": [
+         {
+          "name": "x",
+          "probability": 0.5
+         },
+         {
+          "name": "y",
+          "probability": 0.6
+         }
+        ]
+       }
+      },
+      {
+       "name": "b",
+       "probability": 0.5
+      }
+     ]
+    }
+   },
+   "field": "tree.branches[0].next.branches"
+  },
+  {
+   "fn": "eventTree",
+   "args": {
+    "initiatingFrequencyPerYr": 0.001,
+    "tree": {
+     "branches": [
+      {
+       "name": "a",
+       "probability": 1.2
+      },
+      {
+       "name": "b",
+       "probability": -0.2
+      }
+     ]
+    }
+   },
+   "field": "tree.branches[0].probability"
+  },
+  {
+   "fn": "eventTree",
+   "args": {
+    "initiatingFrequencyPerYr": 0.001,
+    "tree": {
+     "branches": [
+      {
+       "name": "a",
+       "probability": 0.5
+      },
+      {
+       "name": "a",
+       "probability": 0.5
+      }
+     ]
+    }
+   },
+   "field": "tree.branches[1].name"
+  },
+  {
+   "fn": "eventTree",
+   "args": {
+    "initiatingFrequencyPerYr": 0,
+    "tree": {
+     "branches": [
+      {
+       "name": "a",
+       "probability": 1
+      }
+     ]
+    }
+   },
+   "field": "initiatingFrequencyPerYr"
+  },
+  {
+   "fn": "eventTree",
+   "args": {
+    "initiatingFrequencyPerYr": 0.001,
+    "tree": {
+     "branches": []
+    }
+   },
+   "field": "tree.branches"
+  },
+  {
+   "fn": "flammableReleaseEventTree",
+   "args": {
+    "initiatingFrequencyPerYr": 0.001,
+    "immediateIgnitionProbability": 0.1,
+    "delayedIgnitionProbability": 0.3,
+    "vapourCloudSplit": {
+     "flashFire": 0.6,
+     "explosion": 0.6
+    }
+   },
+   "field": "vapourCloudSplit"
+  },
+  {
+   "fn": "flammableReleaseEventTree",
+   "args": {
+    "initiatingFrequencyPerYr": 0.001,
+    "immediateIgnitionProbability": 1.1,
+    "delayedIgnitionProbability": 0.3
+   },
+   "field": "immediateIgnitionProbability"
+  },
+  {
+   "fn": "pbDirectIgnitionProbability",
+   "args": {
+    "releaseType": "continuous",
+    "massRateKgS": 5,
+    "substance": "gas"
+   },
+   "field": "substance"
+  },
+  {
+   "fn": "pbDirectIgnitionProbability",
+   "args": {
+    "releaseType": "puff",
+    "massKg": 5,
+    "substance": "k1-liquid"
+   },
+   "field": "releaseType"
+  },
+  {
+   "fn": "locationIndividualRisk",
+   "args": {
+    "scenarios": []
+   },
+   "field": "scenarios"
+  },
+  {
+   "fn": "locationIndividualRisk",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.0001,
+      "fatalityProbability": 1.5
+     }
+    ]
+   },
+   "field": "scenarios[0].fatalityProbability"
+  },
+  {
+   "fn": "locationIndividualRisk",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": -0.0001,
+      "fatalityProbability": 0.5
+     }
+    ]
+   },
+   "field": "scenarios[0].frequencyPerYr"
+  },
+  {
+   "fn": "individualRiskPerAnnum",
+   "args": {
+    "locations": [
+     {
+      "name": "a",
+      "lsirPerYr": 0.0001,
+      "occupancyFraction": 1.2
+     }
+    ]
+   },
+   "field": "locations[0].occupancyFraction"
+  },
+  {
+   "fn": "individualRiskPerAnnum",
+   "args": {
+    "locations": [
+     {
+      "name": "a",
+      "lsirPerYr": 0.0001,
+      "occupancyFraction": 0.7
+     },
+     {
+      "name": "b",
+      "lsirPerYr": 1e-05,
+      "occupancyFraction": 0.4
+     }
+    ]
+   },
+   "field": "locations"
+  },
+  {
+   "fn": "individualRiskPerAnnum",
+   "args": {
+    "locations": [
+     {
+      "name": "a",
+      "lsirPerYr": 0.0001,
+      "hoursPerYr": 9000
+     }
+    ]
+   },
+   "field": "locations[0].hoursPerYr"
+  },
+  {
+   "fn": "individualRiskPerAnnum",
+   "args": {
+    "locations": [
+     {
+      "name": "a",
+      "lsirPerYr": 0.0001
+     }
+    ]
+   },
+   "field": "locations[0].occupancyFraction"
+  },
+  {
+   "fn": "individualRiskPerAnnum",
+   "args": {
+    "locations": [
+     {
+      "name": "a",
+      "lsirPerYr": 0.0001,
+      "occupancyFraction": 0.5,
+      "vulnerabilityFactor": 2
+     }
+    ]
+   },
+   "field": "locations[0].vulnerabilityFactor"
+  },
+  {
+   "fn": "potentialLossOfLife",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.0001,
+      "fatalities": -1
+     }
+    ]
+   },
+   "field": "scenarios[0].fatalities"
+  },
+  {
+   "fn": "potentialLossOfLife",
+   "args": {},
+   "field": "scenarios"
+  },
+  {
+   "fn": "fatalAccidentRateFromPll",
+   "args": {
+    "pllPerYr": 0.001,
+    "exposedHoursPerYr": 0
+   },
+   "field": "exposedHoursPerYr"
+  },
+  {
+   "fn": "fnCurve",
+   "args": {
+    "scenarios": []
+   },
+   "field": "scenarios"
+  },
+  {
+   "fn": "fnCriterionComparison",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.0001,
+      "fatalities": 5
+     }
+    ],
+    "criterion": "hse-line"
+   },
+   "field": "criterion"
+  },
+  {
+   "fn": "fnCriterionComparison",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.0001,
+      "fatalities": 5
+     }
+    ],
+    "criterion": {
+     "constantC": 0.001
+    }
+   },
+   "field": "criterion.exponentAlpha"
+  },
+  {
+   "fn": "fnCriterionComparison",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.0001,
+      "fatalities": 5
+     }
+    ],
+    "criterion": {
+     "constantC": 0.001,
+     "exponentAlpha": 1,
+     "minFatalities": 10,
+     "maxFatalities": 5
+    }
+   },
+   "field": "criterion.maxFatalities"
+  },
+  {
+   "fn": "alarpBand",
+   "args": {
+    "individualRiskPerYr": 1e-05,
+    "thresholds": "hse"
+   },
+   "field": "thresholds"
+  },
+  {
+   "fn": "alarpBand",
+   "args": {
+    "individualRiskPerYr": 1e-05,
+    "thresholds": {
+     "unacceptableAbovePerYr": 1e-06,
+     "broadlyAcceptableAtOrBelowPerYr": 0.0001
+    }
+   },
+   "field": "thresholds.broadlyAcceptableAtOrBelowPerYr"
+  },
+  {
+   "fn": "alarpBand",
+   "args": {
+    "individualRiskPerYr": -1e-05,
+    "thresholds": "r2p2-public"
+   },
+   "field": "individualRiskPerYr"
+  },
+  {
+   "fn": "costBenefit",
+   "args": {
+    "deltaPllPerYr": 0.0001,
+    "lifetimeYears": 10,
+    "capitalCost": 100000.0,
+    "disproportionFactor": 3
+   },
+   "field": "vpf"
+  },
+  {
+   "fn": "costBenefit",
+   "args": {
+    "deltaPllPerYr": 0.0001,
+    "vpf": 1000000.0,
+    "lifetimeYears": 10,
+    "capitalCost": 100000.0,
+    "disproportionFactor": 0.5
+   },
+   "field": "disproportionFactor"
+  },
+  {
+   "fn": "costBenefit",
+   "args": {
+    "deltaPllPerYr": 0.0001,
+    "vpf": 1000000.0,
+    "lifetimeYears": 10,
+    "capitalCost": 100000.0
+   },
+   "field": "disproportionFactor"
+  },
+  {
+   "fn": "costBenefit",
+   "args": {
+    "deltaPllPerYr": 0,
+    "vpf": 1000000.0,
+    "lifetimeYears": 10,
+    "capitalCost": 100000.0,
+    "disproportionFactor": 3
+   },
+   "field": "deltaPllPerYr"
+  },
+  {
+   "fn": "costBenefit",
+   "args": {
+    "deltaPllPerYr": -0.0001,
+    "vpf": 1000000.0,
+    "lifetimeYears": 10,
+    "capitalCost": 100000.0,
+    "disproportionFactor": 3
+   },
+   "field": "deltaPllPerYr"
+  },
+  {
+   "fn": "costBenefit",
+   "args": {
+    "deltaPllPerYr": 0.0001,
+    "vpf": 1000000.0,
+    "lifetimeYears": 12.5,
+    "capitalCost": 100000.0,
+    "disproportionFactor": 3
+   },
+   "field": "lifetimeYears"
+  },
+  {
+   "fn": "costBenefit",
+   "args": {
+    "deltaPllPerYr": 0.0001,
+    "vpf": 1000000.0,
+    "lifetimeYears": 10,
+    "capitalCost": 100000.0,
+    "disproportionFactor": 3,
+    "costDiscountRate": -1
+   },
+   "field": "costDiscountRate"
+  },
+  {
+   "fn": "pbFatalityFractions",
+   "args": {
+    "effect": "toxic",
+    "probabilityOfDeath": 0.5
+   },
+   "field": "period"
+  },
+  {
+   "fn": "pbFatalityFractions",
+   "args": {
+    "effect": "toxic",
+    "probabilityOfDeath": 0.5,
+    "period": "day",
+    "fractionIndoors": 0.9
+   },
+   "field": "fractionIndoors"
+  },
+  {
+   "fn": "pbFatalityFractions",
+   "args": {
+    "effect": "fire",
+    "heatFluxWM2": 10000,
+    "period": "day"
+   },
+   "field": "fireDurationS"
+  },
+  {
+   "fn": "pbFatalityFractions",
+   "args": {
+    "effect": "bleve",
+    "period": "day"
+   },
+   "field": "effect"
+  },
+  {
+   "fn": "toxicPlumeGridPointRisk",
+   "args": {
+    "massRateKgS": 100,
+    "windSpeedMS": 5,
+    "distanceM": 361,
+    "sigmaYM": 28.8,
+    "sigmaZM": 10.3,
+    "coefficients": "pb-carbon-monoxide",
+    "exposureMinutes": 30,
+    "windSectors": 0
+   },
+   "field": "windSectors"
+  },
+  {
+   "fn": "toxicPlumeGridPointRisk",
+   "args": {
+    "massRateKgS": 100,
+    "windSpeedMS": 0,
+    "distanceM": 361,
+    "sigmaYM": 28.8,
+    "sigmaZM": 10.3,
+    "coefficients": "pb-carbon-monoxide",
+    "exposureMinutes": 30
+   },
+   "field": "windSpeedMS"
+  },
+  {
+   "fn": "thermalFatalityTransect",
+   "args": {
+    "heatFluxesWM2": [
+     1000,
+     -5
+    ],
+    "exposureTimeS": 20
+   },
+   "field": "heatFluxesWM2[1]"
+  },
+  {
+   "fn": "poolFireFatalityTransect",
+   "args": {
+    "distancesFromCentreM": [
+     30
+    ],
+    "exposureTimeS": 30,
+    "poolDiameterM": 20,
+    "burningFluxKgM2S": 0.055,
+    "heatOfCombustionJKg": 44000000.0,
+    "sep": {
+     "method": "mudan-diameter"
+    }
+   },
+   "field": "transmissivity"
+  },
+  {
+   "fn": "lsirTransect",
+   "args": {
+    "distancesM": [
+     10,
+     10
+    ],
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.0001,
+      "fatalityProbabilities": [
+       1,
+       0.5
+      ]
+     }
+    ]
+   },
+   "field": "distancesM[1]"
+  },
+  {
+   "fn": "lsirTransect",
+   "args": {
+    "distancesM": [
+     10,
+     20
+    ],
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.0001,
+      "fatalityProbabilities": [
+       1
+      ]
+     }
+    ]
+   },
+   "field": "scenarios[0].fatalityProbabilities"
+  },
+  {
+   "fn": "alarpBand",
+   "args": {
+    "individualRiskPerYr": 0.01,
+    "thresholds": "constructor"
+   },
+   "field": "thresholds"
+  },
+  {
+   "fn": "alarpBand",
+   "args": {
+    "individualRiskPerYr": 0.01,
+    "thresholds": "toString"
+   },
+   "field": "thresholds"
+  },
+  {
+   "fn": "fnCriterionComparison",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.01,
+      "fatalities": 100
+     }
+    ],
+    "criterion": "valueOf"
+   },
+   "field": "criterion"
+  },
+  {
+   "fn": "fnCriterionComparison",
+   "args": {
+    "scenarios": [
+     {
+      "name": "a",
+      "frequencyPerYr": 0.01,
+      "fatalities": 100
+     }
+    ],
+    "criterion": "__proto__"
+   },
+   "field": "criterion"
+  },
+  {
+   "fn": "pbDirectIgnitionProbability",
+   "args": {
+    "releaseType": "continuous",
+    "massRateKgS": 50,
+    "substance": "constructor"
+   },
+   "field": "substance"
+  },
+  {
+   "fn": "pbDirectIgnitionProbability",
+   "args": {
+    "releaseType": "continuous",
+    "massRateKgS": 50,
+    "substance": "hasOwnProperty"
+   },
+   "field": "substance"
+  },
+  {
+   "fn": "pbFatalityFractions",
+   "args": {
+    "effect": "toxic",
+    "probabilityOfDeath": 0.5,
+    "period": "toString"
+   },
+   "field": "period"
+  },
+  {
+   "fn": "pbFatalityFractions",
+   "args": {
+    "effect": "toxic",
+    "probabilityOfDeath": 0.5,
+    "period": "constructor"
+   },
+   "field": "period"
+  }
+ ]
+}
