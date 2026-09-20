@@ -288,7 +288,10 @@ export const trendUnaccounted = (days = []) => {
  */
 export const rackQueue = ({ arrivalsPerHour, loadMinutes, bays }) => {
   const lambda = num(arrivalsPerHour);
-  const serviceRate = 60 / num(loadMinutes, NaN); // trucks per hour per bay
+  // MD3-1: a load time of 0 made the service rate 60/0 = Infinity, which
+  // passed the check below and reported a perfect rack. It must be positive.
+  const load = num(loadMinutes, NaN);
+  const serviceRate = load > 0 ? 60 / load : NaN; // trucks per hour per bay
   // MD3-0: bays used to be rounded and floored at 1, so a rack typed with 0
   // bays (or 2.5) was solved as something else without a word.
   const c = num(bays, NaN);
@@ -370,7 +373,9 @@ export const tankFarmCover = ({ tanks = [], dailyThroughputM3 }) => {
     pumpableStockM3: pumpable,
     ullageM3: ullage,
     daysOfCover: daily > 0 ? pumpable / daily : null,
-    turnsPerYear: working > 0 ? (daily * 365) / working : null,
+    // MD3-1: with no throughput supplied this used to read 0 turns a year
+    // while days of cover read null; both are unknown without throughput.
+    turnsPerYear: working > 0 && daily > 0 ? (daily * 365) / working : null,
   };
 };
 
@@ -390,6 +395,16 @@ export const throughputEconomics = ({
   throughputM3, feePerM3, variableCostPerM3 = 0, fixedCostPerPeriod = 0,
   lossM3 = 0, productDensityKgM3, lossEmissionFactorKgCo2ePerTonne = null,
 }) => {
+  // MD3-1: a blank throughput or fee used to be 0, so the page showed a
+  // margin of minus the fixed cost for a terminal nobody had described.
+  // Throughput and fee are required; a blank cost or loss is taken as zero
+  // and NAMED in assumedZero, as the netback does.
+  const blank = (v) => v === null || v === undefined || v === '';
+  if (blank(throughputM3) || blank(feePerM3) || !Number.isFinite(Number(throughputM3)) || !Number.isFinite(Number(feePerM3))) {
+    return { error: 'Throughput and the throughput fee are both needed for the money answer.', margin: null };
+  }
+  const assumedZero = [['variable cost', variableCostPerM3], ['fixed cost', fixedCostPerPeriod], ['loss', lossM3]]
+    .filter(([, v]) => v === '' || v === null).map(([k]) => k);
   const volume = num(throughputM3, 0);
   const revenue = volume * num(feePerM3, 0);
   const variable = volume * num(variableCostPerM3, 0);
@@ -407,6 +422,7 @@ export const throughputEconomics = ({
   const throughputTonnes = hasRho ? volume * rho / 1000 : null;
 
   return {
+    assumedZero,
     revenue,
     variableCost: variable,
     fixedCost: fixed,

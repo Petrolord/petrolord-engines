@@ -1,0 +1,1172 @@
+{
+ "abatementRefusals": [
+  {
+   "args": {
+    "capitalCost": 0,
+    "label": "X",
+    "tonnesAbatedPerYear": -10
+   },
+   "name": "negative abatement"
+  },
+  {
+   "args": {
+    "capitalCost": "",
+    "discountRate": 0.1,
+    "label": "X",
+    "lifeYears": 5,
+    "tonnesAbatedPerYear": 10
+   },
+   "name": "blank capital"
+  },
+  {
+   "args": {
+    "capitalCost": 1000,
+    "discountRate": "",
+    "label": "X",
+    "lifeYears": 5,
+    "tonnesAbatedPerYear": 10
+   },
+   "name": "capital with a blank rate"
+  },
+  {
+   "args": {
+    "capitalCost": 1000,
+    "discountRate": 10,
+    "label": "X",
+    "lifeYears": 5,
+    "tonnesAbatedPerYear": 10
+   },
+   "name": "a rate typed as a percentage"
+  },
+  {
+   "args": {
+    "capitalCost": 1000,
+    "discountRate": 0.1,
+    "label": "X",
+    "tonnesAbatedPerYear": 10
+   },
+   "name": "capital with no life"
+  }
+ ],
+ "combustion": {
+  "flare100": {
+   "carbonKmolPerYear": 63000.0,
+   "carbonPerKmolFuel": 1.4,
+   "ch4Tonnes": 0.0,
+   "co2Tonnes": 2772.567,
+   "destructionEfficiencyFraction": 1.0,
+   "fuelKmolPerYear": 45000.0
+  },
+  "flare98": {
+   "carbonKmolPerYear": 63000.0,
+   "carbonPerKmolFuel": 1.4,
+   "ch4Tonnes": 20.21418,
+   "co2Tonnes": 2717.11566,
+   "destructionEfficiencyFraction": 0.98,
+   "fuelKmolPerYear": 45000.0
+  },
+  "heaters": {
+   "carbonKmolPerYear": 694400.0,
+   "carbonPerKmolFuel": 1.12,
+   "ch4Tonnes": 0.0,
+   "co2Tonnes": 30559.8496,
+   "destructionEfficiencyFraction": 1.0,
+   "fuelKmolPerYear": 620000.0
+  },
+  "methane98": {
+   "carbonKmolPerYear": 1000.0,
+   "carbonPerKmolFuel": 1.0,
+   "ch4Tonnes": 0.32086,
+   "co2Tonnes": 43.12882,
+   "destructionEfficiencyFraction": 0.98,
+   "fuelKmolPerYear": 1000.0
+  }
+ },
+ "combustionRefusals": [
+  {
+   "args": {
+    "carbonPerKmolFuel": 1.4,
+    "destructionEfficiencyFraction": "",
+    "fuelKmolPerYear": 45000
+   },
+   "name": "blank destruction efficiency"
+  },
+  {
+   "args": {
+    "carbonPerKmolFuel": 1.4,
+    "destructionEfficiencyFraction": null,
+    "fuelKmolPerYear": 45000
+   },
+   "name": "null destruction efficiency"
+  },
+  {
+   "args": {
+    "carbonPerKmolFuel": 1.4,
+    "destructionEfficiencyFraction": 0,
+    "fuelKmolPerYear": 45000
+   },
+   "name": "zero destruction efficiency"
+  },
+  {
+   "args": {
+    "carbonPerKmolFuel": 1.4,
+    "destructionEfficiencyFraction": 1.2,
+    "fuelKmolPerYear": 45000
+   },
+   "name": "destruction efficiency above one"
+  },
+  {
+   "args": {
+    "carbonPerKmolFuel": 1.4,
+    "destructionEfficiencyFraction": 1,
+    "fuelKmolPerYear": -1
+   },
+   "name": "negative fuel"
+  },
+  {
+   "args": {
+    "carbonPerKmolFuel": 1.4,
+    "destructionEfficiencyFraction": 1,
+    "fuelKmolPerYear": ""
+   },
+   "name": "blank fuel"
+  }
+ ],
+ "costed": [
+  {
+   "actsOn": [
+    "heaters"
+   ],
+   "annualisedCapital": 5275.949615894908,
+   "capitalRecoveryFactor": 0.26379748079474535,
+   "costPerTonne": -160.80450042678345,
+   "label": "Tune the fired heaters",
+   "netAnnualCost": -144724.0503841051,
+   "paysForItself": true,
+   "tonnesAbatedPerYear": 900.0
+  },
+  {
+   "actsOn": [
+    "steam"
+   ],
+   "annualisedCapital": 24126.888217522657,
+   "capitalRecoveryFactor": 0.40211480362537766,
+   "costPerTonne": -154.19507984462666,
+   "label": "Repair failed steam traps",
+   "netAnnualCost": -215873.11178247735,
+   "paysForItself": true,
+   "tonnesAbatedPerYear": 1400.0
+  },
+  {
+   "actsOn": [
+    "heaters"
+   ],
+   "annualisedCapital": 420716.0860395911,
+   "capitalRecoveryFactor": 0.13147377688737222,
+   "costPerTonne": -14.820978490102227,
+   "label": "Heat integration project",
+   "netAnnualCost": -59283.91396040891,
+   "paysForItself": true,
+   "tonnesAbatedPerYear": 4000.0
+  },
+  {
+   "actsOn": [
+    "flare"
+   ],
+   "annualisedCapital": 723105.7728805472,
+   "capitalRecoveryFactor": 0.13147377688737222,
+   "costPerTonne": 60.345085875616356,
+   "label": "Flare gas recovery",
+   "netAnnualCost": 543105.7728805472,
+   "paysForItself": false,
+   "tonnesAbatedPerYear": 9000.0
+  }
+ ],
+ "curve": {
+  "additive": false,
+  "interactions": [
+   "heaters"
+  ],
+  "meetsTarget": null,
+  "order": [
+   "Tune the fired heaters",
+   "Repair failed steam traps",
+   "Heat integration project",
+   "Flare gas recovery"
+  ],
+  "overClaims": [
+   {
+    "claimedTonnes": 9000.0,
+    "emittedTonnes": 3319.498224,
+    "sourceId": "flare"
+   }
+  ],
+  "paysForItselfMeasures": [
+   "Tune the fired heaters",
+   "Repair failed steam traps",
+   "Heat integration project"
+  ],
+  "refusedMeasures": [],
+  "steps": [
+   {
+    "end": 900.0,
+    "label": "Tune the fired heaters",
+    "start": 0.0
+   },
+   {
+    "end": 2300.0,
+    "label": "Repair failed steam traps",
+    "start": 900.0
+   },
+   {
+    "end": 6300.0,
+    "label": "Heat integration project",
+    "start": 2300.0
+   },
+   {
+    "end": 15300.0,
+    "label": "Flare gas recovery",
+    "start": 6300.0
+   }
+  ],
+  "targetTonnes": 17191.0043472,
+  "totalAbatementTonnes": 15300.0,
+  "uncheckedSources": [
+   "steam"
+  ],
+  "unsourcedMeasures": [],
+  "weightedAverageCostPerTonne": 8.05390174859842
+ },
+ "curveWithoutFlareRecovery": {
+  "additive": false,
+  "interactions": [
+   "heaters"
+  ],
+  "meetsTarget": null,
+  "order": [
+   "Tune the fired heaters",
+   "Repair failed steam traps",
+   "Heat integration project"
+  ],
+  "overClaims": [],
+  "paysForItselfMeasures": [
+   "Tune the fired heaters",
+   "Repair failed steam traps",
+   "Heat integration project"
+  ],
+  "refusedMeasures": [],
+  "steps": [
+   {
+    "end": 900.0,
+    "label": "Tune the fired heaters",
+    "start": 0.0
+   },
+   {
+    "end": 2300.0,
+    "label": "Repair failed steam traps",
+    "start": 900.0
+   },
+   {
+    "end": 6300.0,
+    "label": "Heat integration project",
+    "start": 2300.0
+   }
+  ],
+  "targetTonnes": 17191.0043472,
+  "totalAbatementTonnes": 6300.0,
+  "uncheckedSources": [
+   "steam"
+  ],
+  "unsourcedMeasures": [],
+  "weightedAverageCostPerTonne": -66.6477898614272
+ },
+ "discountRate": 0.1,
+ "gwp": {
+  "AR5": {
+   "CH4_fossil": 30.0,
+   "CH4_nonfossil": 28.0,
+   "N2O": 265.0
+  },
+  "AR6": {
+   "CH4_fossil": 29.8,
+   "CH4_nonfossil": 27.0,
+   "N2O": 273.0
+  }
+ },
+ "inventoryAtOpen": {
+  "blocked": [
+   {
+    "label": "Vented and fugitive methane",
+    "reason": "gwp"
+   },
+   {
+    "label": "Purchased electricity",
+    "reason": "no factor value"
+   }
+  ],
+  "gwpDeclared": false,
+  "ledger": [
+   {
+    "label": "Fired heaters and boilers (CO2)",
+    "tCo2e": 30559.8496
+   }
+  ],
+  "lines": [
+   {
+    "activity": 30559.8496,
+    "factor": 1,
+    "gas": "CO2",
+    "label": "Fired heaters and boilers (CO2)",
+    "scope": 1,
+    "sourced": true
+   },
+   {
+    "activity": 180,
+    "factor": 1,
+    "gas": "CH4",
+    "label": "Vented and fugitive methane",
+    "scope": 1,
+    "sourced": false
+   },
+   {
+    "activity": 42000,
+    "factor": null,
+    "gas": "CO2",
+    "label": "Purchased electricity",
+    "scope": 2,
+    "sourced": false
+   }
+  ],
+  "reportable": false,
+  "scope1Tonnes": 30559.8496,
+  "scope2Tonnes": 0.0,
+  "totalTonnes": 30559.8496,
+  "unsourced": []
+ },
+ "inventoryFilled": {
+  "blocked": [],
+  "gwp": {
+   "CH4": 29.8,
+   "N2O": 273.0
+  },
+  "gwpDeclared": true,
+  "gwpLabel": "IPCC AR6 GWP100 (fossil CH4)",
+  "ledger": [
+   {
+    "label": "Fired heaters and boilers (CO2)",
+    "tCo2e": 30559.8496
+   },
+   {
+    "label": "Flaring (CO2)",
+    "tCo2e": 2717.11566
+   },
+   {
+    "label": "Flaring (unburned CH4)",
+    "tCo2e": 602.382564
+   },
+   {
+    "label": "Vented and fugitive methane",
+    "tCo2e": 5364.0
+   },
+   {
+    "label": "Purchased electricity",
+    "tCo2e": 18060.0
+   }
+  ],
+  "lines": [
+   {
+    "activity": 30559.8496,
+    "factor": 1,
+    "gas": "CO2",
+    "label": "Fired heaters and boilers (CO2)",
+    "scope": 1,
+    "sourced": true
+   },
+   {
+    "activity": 2717.11566,
+    "factor": 1,
+    "gas": "CO2",
+    "label": "Flaring (CO2)",
+    "scope": 1,
+    "sourced": true
+   },
+   {
+    "activity": 20.21418,
+    "factor": 1,
+    "gas": "CH4",
+    "label": "Flaring (unburned CH4)",
+    "scope": 1,
+    "sourced": true
+   },
+   {
+    "activity": 180,
+    "factor": 1,
+    "gas": "CH4",
+    "label": "Vented and fugitive methane",
+    "scope": 1,
+    "sourced": true
+   },
+   {
+    "activity": 42000,
+    "factor": 0.43,
+    "gas": "CO2",
+    "label": "Purchased electricity",
+    "scope": 2,
+    "sourced": true
+   }
+  ],
+  "reportable": true,
+  "scope1Tonnes": 39243.347824,
+  "scope2Tonnes": 18060.0,
+  "totalTonnes": 57303.347824,
+  "unsourced": []
+ },
+ "inventoryFilledAR5": {
+  "blocked": [],
+  "gwp": {
+   "CH4": 30.0,
+   "N2O": 265.0
+  },
+  "gwpDeclared": true,
+  "ledger": [
+   {
+    "label": "Fired heaters and boilers (CO2)",
+    "tCo2e": 30559.8496
+   },
+   {
+    "label": "Flaring (CO2)",
+    "tCo2e": 2717.11566
+   },
+   {
+    "label": "Flaring (unburned CH4)",
+    "tCo2e": 606.4254
+   },
+   {
+    "label": "Vented and fugitive methane",
+    "tCo2e": 5400.0
+   },
+   {
+    "label": "Purchased electricity",
+    "tCo2e": 18060.0
+   }
+  ],
+  "reportable": true,
+  "scope1Tonnes": 39283.39066,
+  "scope2Tonnes": 18060.0,
+  "totalTonnes": 57343.39066,
+  "unsourced": []
+ },
+ "md45": {
+  "curveAllSourcesChecked": {
+   "additive": false,
+   "interactions": [
+    "heaters"
+   ],
+   "meetsTarget": false,
+   "order": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "overClaims": [],
+   "paysForItselfMeasures": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "refusedMeasures": [],
+   "sourceEmissions": {
+    "flare": 3319.498224,
+    "heaters": 30559.8496,
+    "steam": 25000
+   },
+   "steps": [
+    {
+     "end": 900.0,
+     "label": "Tune the fired heaters",
+     "start": 0.0
+    },
+    {
+     "end": 2300.0,
+     "label": "Repair failed steam traps",
+     "start": 900.0
+    },
+    {
+     "end": 6300.0,
+     "label": "Heat integration project",
+     "start": 2300.0
+    }
+   ],
+   "targetTonnes": 17191.0043472,
+   "totalAbatementTonnes": 6300.0,
+   "uncheckedSources": [],
+   "unsourcedMeasures": [],
+   "weightedAverageCostPerTonne": -66.6477898614272
+  },
+  "curveAllSourcesCheckedMet": {
+   "additive": false,
+   "interactions": [
+    "heaters"
+   ],
+   "meetsTarget": true,
+   "order": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "overClaims": [],
+   "paysForItselfMeasures": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "refusedMeasures": [],
+   "sourceEmissions": {
+    "flare": 3319.498224,
+    "heaters": 30559.8496,
+    "steam": 25000
+   },
+   "steps": [
+    {
+     "end": 900.0,
+     "label": "Tune the fired heaters",
+     "start": 0.0
+    },
+    {
+     "end": 2300.0,
+     "label": "Repair failed steam traps",
+     "start": 900.0
+    },
+    {
+     "end": 6300.0,
+     "label": "Heat integration project",
+     "start": 2300.0
+    }
+   ],
+   "targetTonnes": 5000.0,
+   "totalAbatementTonnes": 6300.0,
+   "uncheckedSources": [],
+   "unsourcedMeasures": [],
+   "weightedAverageCostPerTonne": -66.6477898614272
+  },
+  "curveAtOpen": {
+   "additive": false,
+   "interactions": [
+    "heaters"
+   ],
+   "meetsTarget": null,
+   "order": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project",
+    "Flare gas recovery"
+   ],
+   "overClaims": [],
+   "paysForItselfMeasures": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "refusedMeasures": [],
+   "sourceEmissions": {
+    "heaters": 30559.8496
+   },
+   "steps": [
+    {
+     "end": 900.0,
+     "label": "Tune the fired heaters",
+     "start": 0.0
+    },
+    {
+     "end": 2300.0,
+     "label": "Repair failed steam traps",
+     "start": 900.0
+    },
+    {
+     "end": 6300.0,
+     "label": "Heat integration project",
+     "start": 2300.0
+    },
+    {
+     "end": 15300.0,
+     "label": "Flare gas recovery",
+     "start": 6300.0
+    }
+   ],
+   "targetTonnes": 9167.95488,
+   "totalAbatementTonnes": 15300.0,
+   "uncheckedSources": [
+    "steam",
+    "flare"
+   ],
+   "unsourcedMeasures": [],
+   "weightedAverageCostPerTonne": 8.05390174859842
+  },
+  "curveNegativeSource": {
+   "additive": false,
+   "interactions": [
+    "heaters"
+   ],
+   "meetsTarget": null,
+   "order": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "overClaims": [
+    {
+     "claimedTonnes": 1400.0,
+     "emittedTonnes": -5.0,
+     "sourceId": "steam"
+    }
+   ],
+   "paysForItselfMeasures": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "refusedMeasures": [],
+   "sourceEmissions": {
+    "flare": 3319.498224,
+    "heaters": 30559.8496,
+    "steam": -5
+   },
+   "steps": [
+    {
+     "end": 900.0,
+     "label": "Tune the fired heaters",
+     "start": 0.0
+    },
+    {
+     "end": 2300.0,
+     "label": "Repair failed steam traps",
+     "start": 900.0
+    },
+    {
+     "end": 6300.0,
+     "label": "Heat integration project",
+     "start": 2300.0
+    }
+   ],
+   "targetTonnes": 5000.0,
+   "totalAbatementTonnes": 6300.0,
+   "uncheckedSources": [
+    "steam"
+   ],
+   "unsourcedMeasures": [],
+   "weightedAverageCostPerTonne": -66.6477898614272
+  },
+  "curveOverClaimAllGiven": {
+   "additive": false,
+   "interactions": [
+    "heaters"
+   ],
+   "meetsTarget": null,
+   "order": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project",
+    "Flare gas recovery"
+   ],
+   "overClaims": [
+    {
+     "claimedTonnes": 9000.0,
+     "emittedTonnes": 3319.498224,
+     "sourceId": "flare"
+    }
+   ],
+   "paysForItselfMeasures": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "refusedMeasures": [],
+   "sourceEmissions": {
+    "flare": 3319.498224,
+    "heaters": 30559.8496,
+    "steam": 25000
+   },
+   "steps": [
+    {
+     "end": 900.0,
+     "label": "Tune the fired heaters",
+     "start": 0.0
+    },
+    {
+     "end": 2300.0,
+     "label": "Repair failed steam traps",
+     "start": 900.0
+    },
+    {
+     "end": 6300.0,
+     "label": "Heat integration project",
+     "start": 2300.0
+    },
+    {
+     "end": 15300.0,
+     "label": "Flare gas recovery",
+     "start": 6300.0
+    }
+   ],
+   "targetTonnes": 5000.0,
+   "totalAbatementTonnes": 15300.0,
+   "uncheckedSources": [],
+   "unsourcedMeasures": [],
+   "weightedAverageCostPerTonne": 8.05390174859842
+  },
+  "curveSourceNotComputed": {
+   "additive": false,
+   "interactions": [
+    "heaters"
+   ],
+   "meetsTarget": null,
+   "order": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "overClaims": [],
+   "paysForItselfMeasures": [
+    "Tune the fired heaters",
+    "Repair failed steam traps",
+    "Heat integration project"
+   ],
+   "refusedMeasures": [],
+   "sourceEmissions": {
+    "flare": 3319.498224,
+    "heaters": 30559.8496,
+    "steam": null
+   },
+   "steps": [
+    {
+     "end": 900.0,
+     "label": "Tune the fired heaters",
+     "start": 0.0
+    },
+    {
+     "end": 2300.0,
+     "label": "Repair failed steam traps",
+     "start": 900.0
+    },
+    {
+     "end": 6300.0,
+     "label": "Heat integration project",
+     "start": 2300.0
+    }
+   ],
+   "targetTonnes": 5000.0,
+   "totalAbatementTonnes": 6300.0,
+   "uncheckedSources": [
+    "steam"
+   ],
+   "unsourcedMeasures": [],
+   "weightedAverageCostPerTonne": -66.6477898614272
+  },
+  "curveUnsourcedMeasure": {
+   "additive": true,
+   "interactions": [],
+   "measures": [
+    {
+     "actsOn": [],
+     "annualisedCapital": 5275.949615894908,
+     "capitalRecoveryFactor": 0.26379748079474535,
+     "costPerTonne": -160.80450042678345,
+     "label": "Tune the fired heaters",
+     "netAnnualCost": -144724.0503841051,
+     "paysForItself": true,
+     "tonnesAbatedPerYear": 900.0
+    }
+   ],
+   "meetsTarget": null,
+   "order": [
+    "Tune the fired heaters"
+   ],
+   "overClaims": [],
+   "paysForItselfMeasures": [
+    "Tune the fired heaters"
+   ],
+   "refusedMeasures": [],
+   "sourceEmissions": {
+    "flare": 3319.498224,
+    "heaters": 30559.8496,
+    "steam": 25000
+   },
+   "steps": [
+    {
+     "end": 900.0,
+     "label": "Tune the fired heaters",
+     "start": 0.0
+    }
+   ],
+   "targetTonnes": 100.0,
+   "totalAbatementTonnes": 900.0,
+   "uncheckedSources": [],
+   "unsourcedMeasures": [
+    "Tune the fired heaters"
+   ],
+   "weightedAverageCostPerTonne": -160.80450042678345
+  },
+  "curveWithRefused": {
+   "additive": true,
+   "interactions": [],
+   "meetsTarget": false,
+   "order": [
+    "Tune the fired heaters"
+   ],
+   "overClaims": [],
+   "paysForItselfMeasures": [
+    "Tune the fired heaters"
+   ],
+   "refusedArgs": {
+    "actsOn": [
+     "steam"
+    ],
+    "annualSavings": 240000,
+    "capitalCost": "",
+    "discountRate": 0.1,
+    "label": "Repair failed steam traps",
+    "lifeYears": 3,
+    "tonnesAbatedPerYear": 1400
+   },
+   "refusedMeasures": [
+    {
+     "label": "Repair failed steam traps",
+     "reasonContains": "no capital cost"
+    }
+   ],
+   "sourceEmissions": {
+    "flare": 3319.498224,
+    "heaters": 30559.8496,
+    "steam": 25000
+   },
+   "steps": [
+    {
+     "end": 900.0,
+     "label": "Tune the fired heaters",
+     "start": 0.0
+    }
+   ],
+   "targetTonnes": 5000.0,
+   "totalAbatementTonnes": 900.0,
+   "uncheckedSources": [],
+   "unsourcedMeasures": [],
+   "weightedAverageCostPerTonne": -160.80450042678345
+  },
+  "gwpRefusals": [
+   {
+    "label": "x",
+    "name": "a negative methane potential",
+    "values": {
+     "CH4": -5,
+     "N2O": 273
+    }
+   },
+   {
+    "label": "x",
+    "name": "a zero methane potential",
+    "values": {
+     "CH4": 0
+    }
+   }
+  ],
+  "inventoryFlareRefused": {
+   "refusedAsLine": {
+    "blocked": [
+     {
+      "label": "Flaring",
+      "reason": "error"
+     }
+    ],
+    "gwpDeclared": true,
+    "ledger": [
+     {
+      "label": "Fired heaters and boilers (CO2)",
+      "tCo2e": 30559.8496
+     },
+     {
+      "label": "Vented and fugitive methane",
+      "tCo2e": 5364.0
+     },
+     {
+      "label": "Purchased electricity",
+      "tCo2e": 18060.0
+     }
+    ],
+    "reportable": false,
+    "scope1Tonnes": 35923.8496,
+    "scope2Tonnes": 18060.0,
+    "totalTonnes": 53983.8496,
+    "unsourced": []
+   },
+   "refusedDropped": {
+    "blocked": [],
+    "gwpDeclared": true,
+    "ledger": [
+     {
+      "label": "Fired heaters and boilers (CO2)",
+      "tCo2e": 30559.8496
+     },
+     {
+      "label": "Vented and fugitive methane",
+      "tCo2e": 5364.0
+     },
+     {
+      "label": "Purchased electricity",
+      "tCo2e": 18060.0
+     }
+    ],
+    "reportable": true,
+    "scope1Tonnes": 35923.8496,
+    "scope2Tonnes": 18060.0,
+    "totalTonnes": 53983.8496,
+    "unsourced": []
+   }
+  },
+  "negativeLines": [
+   {
+    "blocked": [
+     {
+      "label": "neg activity",
+      "reason": "a negative activity"
+     }
+    ],
+    "gwpDeclared": true,
+    "ledger": [],
+    "line": {
+     "activity": -100,
+     "factor": 2,
+     "gas": "CO2",
+     "label": "neg activity",
+     "scope": 1,
+     "sourced": true
+    },
+    "name": "a negative activity",
+    "reportable": false,
+    "scope1Tonnes": 0.0,
+    "scope2Tonnes": 0.0,
+    "totalTonnes": 0.0,
+    "unsourced": []
+   },
+   {
+    "blocked": [
+     {
+      "label": "neg factor",
+      "reason": "a negative factor"
+     }
+    ],
+    "gwpDeclared": true,
+    "ledger": [],
+    "line": {
+     "activity": 100,
+     "factor": -2,
+     "gas": "CO2",
+     "label": "neg factor",
+     "scope": 1,
+     "sourced": true
+    },
+    "name": "a negative factor",
+    "reportable": false,
+    "scope1Tonnes": 0.0,
+    "scope2Tonnes": 0.0,
+    "totalTonnes": 0.0,
+    "unsourced": []
+   }
+  ],
+  "pathOverAbated": {
+   "baselineTonnes": 1000,
+   "endYear": 2027,
+   "measures": [
+    {
+     "label": "x",
+     "startYear": 2026,
+     "tonnesAbatedPerYear": 1500
+    }
+   ],
+   "overAbatedYear": 2026,
+   "refused": true,
+   "startYear": 2026
+  }
+ },
+ "measures": [
+  {
+   "actsOn": [
+    "heaters"
+   ],
+   "annualCost": 0,
+   "annualSavings": 150000,
+   "capitalCost": 20000,
+   "label": "Tune the fired heaters",
+   "lifeYears": 5,
+   "startYear": 2027,
+   "tonnesAbatedPerYear": 900
+  },
+  {
+   "actsOn": [
+    "steam"
+   ],
+   "annualCost": 0,
+   "annualSavings": 240000,
+   "capitalCost": 60000,
+   "label": "Repair failed steam traps",
+   "lifeYears": 3,
+   "startYear": 2027,
+   "tonnesAbatedPerYear": 1400
+  },
+  {
+   "actsOn": [
+    "heaters"
+   ],
+   "annualCost": 0,
+   "annualSavings": 480000,
+   "capitalCost": 3200000,
+   "label": "Heat integration project",
+   "lifeYears": 15,
+   "startYear": 2029,
+   "tonnesAbatedPerYear": 4000
+  },
+  {
+   "actsOn": [
+    "flare"
+   ],
+   "annualCost": 120000,
+   "annualSavings": 300000,
+   "capitalCost": 5500000,
+   "label": "Flare gas recovery",
+   "lifeYears": 15,
+   "startYear": 2030,
+   "tonnesAbatedPerYear": 9000
+  }
+ ],
+ "molarMasses": {
+  "C": 12.011,
+  "CH4": 16.043,
+  "CO2": 44.009
+ },
+ "path": {
+  "baselineTonnes": 57303.347824,
+  "endYear": 2032,
+  "firstShortfallYear": 2027,
+  "rows": [
+   {
+    "abatedTonnes": 0.0,
+    "emissionsTonnes": 57303.347824,
+    "targetTonnes": 57303.347824,
+    "unabatedGapTonnes": 0.0,
+    "year": 2026
+   },
+   {
+    "abatedTonnes": 2300.0,
+    "emissionsTonnes": 55003.347824,
+    "targetTonnes": 54438.1804328,
+    "unabatedGapTonnes": 565.1673912,
+    "year": 2027
+   },
+   {
+    "abatedTonnes": 2300.0,
+    "emissionsTonnes": 55003.347824,
+    "targetTonnes": 51573.0130416,
+    "unabatedGapTonnes": 3430.3347824,
+    "year": 2028
+   },
+   {
+    "abatedTonnes": 6300.0,
+    "emissionsTonnes": 51003.347824,
+    "targetTonnes": 48707.8456504,
+    "unabatedGapTonnes": 2295.5021736,
+    "year": 2029
+   },
+   {
+    "abatedTonnes": 15300.0,
+    "emissionsTonnes": 42003.347824,
+    "targetTonnes": 45842.6782592,
+    "unabatedGapTonnes": 0.0,
+    "year": 2030
+   },
+   {
+    "abatedTonnes": 15300.0,
+    "emissionsTonnes": 42003.347824,
+    "targetTonnes": 42977.510868,
+    "unabatedGapTonnes": 0.0,
+    "year": 2031
+   },
+   {
+    "abatedTonnes": 15300.0,
+    "emissionsTonnes": 42003.347824,
+    "targetTonnes": 40112.3434768,
+    "unabatedGapTonnes": 1891.0043472,
+    "year": 2032
+   }
+  ],
+  "startYear": 2026,
+  "targetPercent": 30,
+  "unscheduled": []
+ },
+ "pathUnscheduled": {
+  "firstShortfallYear": 2027,
+  "rows": [
+   {
+    "abatedTonnes": 0.0,
+    "emissionsTonnes": 57303.347824,
+    "targetTonnes": 57303.347824,
+    "unabatedGapTonnes": 0.0,
+    "year": 2026
+   },
+   {
+    "abatedTonnes": 2300.0,
+    "emissionsTonnes": 55003.347824,
+    "targetTonnes": 54438.1804328,
+    "unabatedGapTonnes": 565.1673912,
+    "year": 2027
+   },
+   {
+    "abatedTonnes": 2300.0,
+    "emissionsTonnes": 55003.347824,
+    "targetTonnes": 51573.0130416,
+    "unabatedGapTonnes": 3430.3347824,
+    "year": 2028
+   },
+   {
+    "abatedTonnes": 6300.0,
+    "emissionsTonnes": 51003.347824,
+    "targetTonnes": 48707.8456504,
+    "unabatedGapTonnes": 2295.5021736,
+    "year": 2029
+   },
+   {
+    "abatedTonnes": 6300.0,
+    "emissionsTonnes": 51003.347824,
+    "targetTonnes": 45842.6782592,
+    "unabatedGapTonnes": 5160.6695648,
+    "year": 2030
+   },
+   {
+    "abatedTonnes": 6300.0,
+    "emissionsTonnes": 51003.347824,
+    "targetTonnes": 42977.510868,
+    "unabatedGapTonnes": 8025.836956,
+    "year": 2031
+   },
+   {
+    "abatedTonnes": 6300.0,
+    "emissionsTonnes": 51003.347824,
+    "targetTonnes": 40112.3434768,
+    "unabatedGapTonnes": 10891.0043472,
+    "year": 2032
+   }
+  ],
+  "unscheduled": [
+   "Flare gas recovery"
+  ]
+ },
+ "provenance": {
+  "atomicWeights": "IUPAC conventional: C 12.011, O 15.999, H 1.008 (CIAAW 2024)",
+  "engine": "engines/downstream/carbonAbatement.js",
+  "method": "combustion by mass in exact rationals; the inventory as a ledger; the abatement cost levelised from a year-by-year PV ledger; the curve by explicit rank; the path as a year ledger",
+  "oracle": "tools/validation/downstream/oracle_carbonabatement.py",
+  "published": "GWP100 inputs only (the engine ships none): GHG Protocol, IPCC Global Warming Potential Values v2.0 (2024-08-07), from IPCC AR6 WG1 ch.7 7.6.1.1 and AR5 WG1 ch.8; 100-year horizon. Every other rate and factor is synthetic."
+ },
+ "sourceEmissions": {
+  "flare": 3319.498224,
+  "heaters": 30559.8496
+ }
+}

@@ -253,7 +253,15 @@ export const landedCost = ({
     return { error: `${invalid.join('; ')}.`, complete: false, lines, invalidCharges: invalid };
   }
 
+  // MD3-2: a BLANK ocean loss ('' or null) used to be zero loss with the
+  // build-up reported complete, which understates the cost per litre sold.
+  // It is a missing rate now, so the total is a FLOOR. Left out of the call
+  // entirely it still takes the signature's stated 0.
+  if (oceanLossPercent === '' || oceanLossPercent === null) missing.push('Ocean loss');
   const loss = num(oceanLossPercent, 0);
+  if (!(loss >= 0 && loss < 100)) {
+    return { error: 'The ocean loss must be at least 0 and under 100 percent.', complete: false, lines };
+  }
   const outturn = {
     litres: q.litres * (1 - loss / 100),
     m3: q.m3 * (1 - loss / 100),
@@ -729,7 +737,7 @@ export const PUMP_TEMPLATE = [
   { id: 'marketer', label: 'Marketer margin', basis: PRICE_ELEMENT_BASIS.PER_LITRE, amount: null, recipient: 'Marketer' },
   { id: 'dealer', label: 'Dealer margin', basis: PRICE_ELEMENT_BASIS.PER_LITRE, amount: null, recipient: 'Dealer' },
   { id: 'levies', label: 'Statutory levies at the pump', basis: PRICE_ELEMENT_BASIS.PER_LITRE, amount: null, recipient: 'Government' },
-  { id: 'vat', label: 'Value added tax', basis: PRICE_ELEMENT_BASIS.PERCENT_OF_RUNNING, amount: null, recipient: 'Government', note: 'Applies to some products and not others in some markets. Set to zero where the product is exempt, rather than deleting the line, so the exemption is visible.' },
+  { id: 'vat', label: 'Value added tax', basis: PRICE_ELEMENT_BASIS.PERCENT_OF_RUNNING, amount: null, recipient: 'Government', note: 'Applies to some products in some markets and is exempt on others. Where the product is exempt, set the line to zero and keep it, so the exemption is visible.' },
 ];
 
 /**

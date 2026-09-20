@@ -127,3 +127,32 @@ the same fraction to the 0.6). The page did not print it.
   offers no capital-allowance schedule from commissioning. Carry-forward
   covers the refinery case; a fuller allowance model belongs to the Economics
   module, not here.
+
+## MD2-1 (2026-09-19): three more, found by the NextGen course foundation
+
+The refinery course foundation read every function in scope and stopped on
+four items. Three are repaired here; one is HELD.
+
+- **R7. `dualLedgerTotals` summed sales into `cost`.** Same class as R4 in a
+  sibling function: on the course's teaching month it reported 121,082,150 as
+  cost, which is spend 60,658,650 plus sales 60,423,500. Spend (`cost`), sales
+  (`revenue`) and `margin` are now apart. No Suite page calls it.
+- **M7. `feasibilityEconomics` read a blank or null tax or discount rate as
+  0** (`Number('')` is 0), valuing the plant tax-free: NPV 94.02 against 61.80
+  at 30 percent on the course case. Refused now. The Suite page supplies its
+  own defaults, so the page was not exposed.
+- **M8. A comment contradicted the code:** it said the schedule terms take
+  their defaults only when absent, never when blank; the code read blank as
+  the default for on-stream days, utilisation and life, and read a blank
+  construction period as 0 where absent gave 2. Now every schedule term,
+  construction years included, reads blank or absent as its stated default,
+  and the comment says so.
+- **H3 HELD. `materialBalance` cannot close a refinery's tanks.** It treats a
+  unit run as moving nothing, so a crude consumed by the crude unit never
+  leaves its tank (on the course's teaching month an Escravos tank shows
+  -724,500 unaccounted). No Suite page uses it and no oracle covers it. A
+  repair needs a design (a unit run as feed out and products in), not a
+  patch; it is taught as a limit and never graded.
+
+Gate: three new assertions in `downstream.refinery.golden`, three new plants
+in `negcontrol_md2.sh` (19 in all, all caught).

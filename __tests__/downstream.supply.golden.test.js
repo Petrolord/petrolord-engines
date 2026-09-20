@@ -78,6 +78,9 @@ describe.each(TD.queues.map((q) => [q.name, q]))('rack: %s', (_n, g) => {
 });
 
 describe('rack refusals', () => {
+  it('refuses a load time of 0 rather than reporting a perfect rack (MD3-1)', () => {
+    expect(rackQueue({ arrivalsPerHour: 5, loadMinutes: 0, bays: 2 }).error).toMatch(/needed/);
+  });
   it('refuses 0 bays and a fractional bay rather than solving something else', () => {
     expect(rackQueue({ arrivalsPerHour: 5, loadMinutes: 22, bays: 0 }).error).toMatch(/whole number/);
     expect(rackQueue({ arrivalsPerHour: 5, loadMinutes: 22, bays: 2.5 }).error).toMatch(/whole number/);
@@ -108,6 +111,16 @@ describe('the tank farm', () => {
     expect(rel(r.pumpableStockM3, TD.farm.pumpableStockM3)).toBe(true);
     expect(rel(r.ullageM3, TD.farm.ullageM3)).toBe(true);
     expect(rel(r.daysOfCover, TD.farm.daysOfCover)).toBe(true);
+  });
+  it('says nothing about turns without a throughput, as it says nothing about cover (MD3-1)', () => {
+    const r = tankFarmCover({ tanks: TD.farm.tanks });
+    expect(r.daysOfCover).toBeNull();
+    expect(r.turnsPerYear).toBeNull();
+  });
+  it('refuses a blank throughput or fee and names a blank cost as taken to be zero (MD3-1)', () => {
+    expect(throughputEconomics({ throughputM3: '', feePerM3: 8 }).error).toMatch(/Throughput and the throughput fee/);
+    expect(throughputEconomics({ throughputM3: 1440, feePerM3: null }).error).toMatch(/Throughput and the throughput fee/);
+    expect(throughputEconomics({ throughputM3: 1440, feePerM3: 8, fixedCostPerPeriod: '' }).assumedZero).toEqual(['fixed cost']);
   });
   it('does not weigh a loss with no density as nothing', () => {
     const r = throughputEconomics({ throughputM3: 1440, feePerM3: 8, lossM3: 5, lossEmissionFactorKgCo2ePerTonne: 30 });
@@ -149,6 +162,14 @@ describe('the landed cost', () => {
     const ins = r.lines.find((l) => l.key === 'insurance');
     expect(Math.abs(ins.amount - g.lines.insurance)).toBeLessThan(0.01);
     expect(Math.abs(r.cif - g.cif)).toBeLessThan(0.01);
+  });
+
+  it('counts a blank ocean loss as a missing rate, and refuses one of 100 percent or more (MD3-2)', () => {
+    const r = landedCost({ ...cargo, oceanLossPercent: '', charges: charges(FP.rates) });
+    expect(r.complete).toBe(false);
+    expect(r.missingRates).toContain('Ocean loss');
+    expect(r.basisOfTotal).toMatch(/FLOOR/);
+    expect(landedCost({ ...cargo, oceanLossPercent: 100, charges: charges(FP.rates) }).error).toMatch(/ocean loss/);
   });
 
   it('refuses a freight-stage charge on a value formed after freight, and an unknown stage', () => {

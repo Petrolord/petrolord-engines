@@ -80,6 +80,27 @@ def erlang_exact(lam, mu, c):
             'averageWaitMinutes': float(Wq_h * 60), 'queueLength': float(lam * Wq_h)}
 
 
+def day_ledger(name, opening, rec, dlv, known, dipped, tol):
+    """One day closed as a ledger. Exported so a course oracle_check can call it."""
+    expected = opening + rec - dlv - known
+    gap = dipped - expected
+    through = rec + dlv
+    return {'name': name, 'openingM3': opening, 'receiptsM3': rec, 'deliveriesM3': dlv,
+            'knownLossM3': known, 'closingDippedM3': dipped, 'tolerancePercentOfThroughput': tol,
+            'expectedClosingM3': expected, 'unaccountedM3': gap,
+            'withinTolerance': abs(gap) <= through * tol / 100,
+            'direction': 'balanced' if abs(gap) <= 1e-9 else ('gain' if gap > 0 else 'loss')}
+
+
+def farm_cover(tanks, daily):
+    """Pumpable stock and ullage tank by tank. Exported for the same reason."""
+    out = {'tanks': tanks, 'dailyThroughputM3': daily,
+           'pumpableStockM3': sum(max(0, t['stockM3'] - t['heelM3']) for t in tanks),
+           'ullageM3': sum(max(0, t['capacityM3'] - t['stockM3']) for t in tanks)}
+    out['daysOfCover'] = out['pumpableStockM3'] / daily
+    return out
+
+
 def main():
     suite = [{'heightMm': round(i / 20 * 12000), 'volumeM3': round(i / 20 * 5000)} for i in range(21)]
     vt, area = vertical_table(20.0, 15000, 250)
@@ -114,27 +135,14 @@ def main():
                        **erlang_exact(lam, mu, bays)})
 
     # day ledger: opening stock from yesterday's close, movements, the dip
-    days = []
-    for name, opening, rec, dlv, known, dipped, tol in [
+    days = [day_ledger(*row) for row in [
         ('a loss beyond tolerance', 3450.0, 800.0, 640.0, 2.0, 3600.0, 0.5),
         ('a gain inside tolerance', 3450.0, 800.0, 640.0, 2.0, 3611.0, 0.5),
         ('no movement, a small gain, so zero tolerance', 3450.0, 0.0, 0.0, 0.0, 3450.5, 0.5),
-    ]:
-        expected = opening + rec - dlv - known
-        gap = dipped - expected
-        through = rec + dlv
-        days.append({'name': name, 'openingM3': opening, 'receiptsM3': rec, 'deliveriesM3': dlv,
-                     'knownLossM3': known, 'closingDippedM3': dipped, 'tolerancePercentOfThroughput': tol,
-                     'expectedClosingM3': expected, 'unaccountedM3': gap,
-                     'withinTolerance': abs(gap) <= through * tol / 100,
-                     'direction': 'balanced' if abs(gap) <= 1e-9 else ('gain' if gap > 0 else 'loss')})
+    ]]
 
-    farm_tanks = [{'capacityM3': 5000, 'heelM3': 120, 'stockM3': 90},
-                  {'capacityM3': 3000, 'heelM3': 80, 'stockM3': 1200}]
-    farm = {'tanks': farm_tanks, 'dailyThroughputM3': 1440,
-            'pumpableStockM3': sum(max(0, t['stockM3'] - t['heelM3']) for t in farm_tanks),
-            'ullageM3': sum(max(0, t['capacityM3'] - t['stockM3']) for t in farm_tanks)}
-    farm['daysOfCover'] = farm['pumpableStockM3'] / farm['dailyThroughputM3']
+    farm = farm_cover([{'capacityM3': 5000, 'heelM3': 120, 'stockM3': 90},
+                       {'capacityM3': 3000, 'heelM3': 80, 'stockM3': 1200}], 1440)
 
     doc = {
         'provenance': {

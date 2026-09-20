@@ -201,12 +201,18 @@ export const materialBalance = ({ events, openingByMaterial = {}, ledger = LEDGE
  */
 export const dualLedgerTotals = (events, ledger = LEDGER.ACTUAL) => {
   const rows = events.filter((e) => e.ledger === ledger);
+  // MD2-1: a DELIVERY's `cost` is what it sold for (see attributeVariance),
+  // and this used to add it into `cost` with every receipt and unit run, so
+  // spend and sales were summed as one number. They are kept apart now.
   let cost = 0;
+  let revenue = 0;
   let emissions = 0;
   let uncosted = 0;
   let unattributedEmissions = 0;
   rows.forEach((e) => {
-    if (e.cost === null) uncosted += 1; else cost += e.cost;
+    if (e.cost === null) uncosted += 1;
+    else if (e.type === EVENT_TYPE.DELIVERY) revenue += e.cost;
+    else cost += e.cost;
     if (e.emissionsKgCo2e === null) {
       // Only count it as a gap where the event emits by its nature.
       if (EMITTING_TYPES.has(e.type)) unattributedEmissions += 1;
@@ -218,6 +224,8 @@ export const dualLedgerTotals = (events, ledger = LEDGER.ACTUAL) => {
     ledger,
     events: rows.length,
     cost,
+    revenue,
+    margin: revenue - cost,
     emissionsKgCo2e: emissions,
     uncostedEvents: uncosted,
     unattributedEmissionEvents: unattributedEmissions,

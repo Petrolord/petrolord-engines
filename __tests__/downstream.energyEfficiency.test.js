@@ -72,7 +72,7 @@ describe('combustion stoichiometry', () => {
       components: [comp('CH4', 0.9), { ...ref('C2H6'), moleFraction: 0.1, lhvMJKmol: null }],
     });
     expect(st.lhvMJPerKmolFuel).toBeNull();
-    expect(st.heatingValueNote).toMatch(/missing, not partial/i);
+    expect(st.heatingValueNote).toMatch(/missing too/i);
   });
 
   it('refuses an empty or unlabelled composition', () => {
@@ -134,8 +134,10 @@ describe('stack-loss efficiency', () => {
   it('is a hundred minus its losses, and says where they went', () => {
     const r = stackLossEfficiency(base);
     const sum = r.losses.reduce((s, l) => s + l.percent, 0);
-    expect(sum).toBeCloseTo(r.totalLossPercent, 6);
-    expect(r.efficiencyPercent).toBeCloseTo(100 - sum, 6);
+    // Each loss is rounded to 6 dp on its own, so their sum can sit one unit
+    // of the sixth place off the rounded total (MD5-0 moved the dry loss).
+    expect(sum).toBeCloseTo(r.totalLossPercent, 5);
+    expect(r.efficiencyPercent).toBeCloseTo(100 - sum, 5);
     // The indirect method exists to say where, so every loss is separate.
     expect(r.losses.map((l) => l.label)).toEqual(expect.arrayContaining([
       'Dry flue gas', 'Moisture from hydrogen', 'Radiation and convection',
@@ -263,7 +265,7 @@ describe('what tuning the excess air is worth', () => {
 describe('steam trap loss', () => {
   const base = {
     orificeDiameterMm: 3, upstreamPressureBarA: 11, dischargeCoefficient: 0.7,
-    steamDensityKgM3: 5.6, hoursPerYear: 8760,
+    steamDensityKgM3: 5.6, hoursPerYear: 8760, specificHeatRatio: 1.3,
   };
 
   it('requires a discharge coefficient rather than defaulting one', () => {
@@ -282,7 +284,10 @@ describe('steam trap loss', () => {
   it('is choked, so it depends on the upstream pressure alone', () => {
     const r = steamTrapLoss(base);
     expect(r.choked).toBe(true);
-    expect(r.chokedNote).toMatch(/not on what is downstream/i);
+    // MD45-1: choked is now a test against the critical pressure ratio (to
+    // atmosphere when no downstream pressure is given); the note wording
+    // changed with it, so this assertion was updated.
+    expect(r.chokedNote).toMatch(/upstream pressure alone/i);
     // Doubling the pressure at fixed density raises the flow by root two.
     const hi = steamTrapLoss({ ...base, upstreamPressureBarA: 22 });
     expect(hi.kgPerHour / r.kgPerHour).toBeCloseTo(Math.SQRT2, 6);
@@ -566,14 +571,24 @@ describe('the dual ledger', () => {
     expect(r.valueNote).toMatch(/energy only/i);
   });
 
-  it('hands over an abatement cost rather than ranking it here', () => {
+  it('hands over an ANNUALISED abatement cost rather than ranking it here', () => {
+    // MD5-0: this test used to assert (capex - one year's value) / one year's
+    // tonnes, which set a one-off cost against a single year. The cost per
+    // tonne is now the Carbon Studio's own annualised figure.
     const r = priceSaving({
       energySavedGJ: 12000, fuelCostPerGJ: 8,
       emissionFactorKgCo2ePerGJ: 56, implementationCost: 250000,
+      lifeYears: 10, discountRate: 0.1,
     });
-    // A measure that pays for itself has a negative cost per tonne, which
-    // is the whole left-hand side of an abatement curve. Ranking is DS9.
-    expect(r.costPerTonneCo2e).toBeCloseTo((250000 - 96000) / r.annualTonnesCo2e, 4);
+    const crf = (0.1 * 1.1 ** 10) / (1.1 ** 10 - 1);
+    expect(r.costPerTonneCo2e).toBeCloseTo((250000 * crf - 96000) / r.annualTonnesCo2e, 4);
+    // Without a life the one-off cost cannot be set against a yearly saving.
+    const bare = priceSaving({
+      energySavedGJ: 12000, fuelCostPerGJ: 8,
+      emissionFactorKgCo2ePerGJ: 56, implementationCost: 250000,
+    });
+    expect(bare.costPerTonneCo2e).toBeNull();
+    expect(bare.costPerTonneNote).toMatch(/measure life and a discount rate/);
   });
 
   it('reports no payback rather than a negative one', () => {
