@@ -530,6 +530,23 @@ and its consumers.
   `test-data/hse/goldens/consequence_cases.json` (written by
   `tools/validation/hse/oracle_consequence.py`); findings, errata and
   dropped scope in `tools/validation/hse/FINDINGS-consequence.md`.
+- `engines/hse/qra.js` (HSE H5, 2026-09-19): quantitative risk
+  assessment. Event trees with every branch set checked to sum to 1 (and
+  a flammable-release builder with the Purple Book 0.6 / 0.4 flash fire /
+  explosion split and its Table 4.5 direct ignition), location-specific
+  individual risk, IRPA over occupied locations, PLL, FAR on the
+  safetyStats 1e8 base, F-N curves ("N or more") against the Purple Book /
+  Bevi line F = 1e-3 / N^2 or the single R2P2 point (50 deaths, 1 in 5000),
+  R2P2 ALARP banding with a stated boundary convention, cost-benefit with
+  the HSE gross disproportion test (cost / benefit > DF; VPF and DF are
+  inputs; discounting through the canonical `economics/cashflow.ts` npv),
+  the Purple Book indoor / outdoor fatality fractions, and the H4 link:
+  the toxic plume probability of death at a grid point (PB Appendix 6.B)
+  and pool fire probit transects into IR contours. Gate:
+  `hse.qra.test.js` replays `test-data/hse/goldens/qra_cases.json`
+  (written by `tools/validation/hse/oracle_qra.py`); findings, errata,
+  dropped scope and the negative controls in
+  `tools/validation/hse/FINDINGS-qra.md` and `negcontrol_qra.sh`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
