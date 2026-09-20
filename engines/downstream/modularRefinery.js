@@ -132,7 +132,7 @@ export const CONFIGURATIONS = {
   conversion: {
     id: 'conversion',
     name: 'Conversion',
-    description: 'Adds a cracking unit, so residue becomes transport fuel instead of fuel oil. More capital, and a far better product slate on a heavy crude.',
+    description: 'Adds a cracking unit, so residue that would leave as fuel oil becomes transport fuel. More capital, and a far better product slate on a heavy crude.',
     units: ['Crude distillation', 'Naphtha reformer', 'Diesel hydrotreater', 'Fluid catalytic cracker'],
     productYields: { lpg: 0.05, gasoline: 0.34, kerosene: 0.12, diesel: 0.33, fuelOil: 0.14, loss: 0.02 },
   },
