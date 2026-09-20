@@ -737,7 +737,7 @@ export const PUMP_TEMPLATE = [
   { id: 'marketer', label: 'Marketer margin', basis: PRICE_ELEMENT_BASIS.PER_LITRE, amount: null, recipient: 'Marketer' },
   { id: 'dealer', label: 'Dealer margin', basis: PRICE_ELEMENT_BASIS.PER_LITRE, amount: null, recipient: 'Dealer' },
   { id: 'levies', label: 'Statutory levies at the pump', basis: PRICE_ELEMENT_BASIS.PER_LITRE, amount: null, recipient: 'Government' },
-  { id: 'vat', label: 'Value added tax', basis: PRICE_ELEMENT_BASIS.PERCENT_OF_RUNNING, amount: null, recipient: 'Government', note: 'Applies to some products and not others in some markets. Set to zero where the product is exempt, rather than deleting the line, so the exemption is visible.' },
+  { id: 'vat', label: 'Value added tax', basis: PRICE_ELEMENT_BASIS.PERCENT_OF_RUNNING, amount: null, recipient: 'Government', note: 'Applies to some products in some markets and is exempt on others. Where the product is exempt, set the line to zero and keep it, so the exemption is visible.' },
 ];
 
 /**
