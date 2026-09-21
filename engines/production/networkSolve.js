@@ -631,6 +631,16 @@ export const solveNetwork = ({
  *
  * returns { ok, branchStreams, nodeStreams, code, error }
  */
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 export const propagateStreams = ({
   network, flows, wellStreams, tolerance = DEFAULT_TOLERANCE_RELATIVE,
 }) => {
@@ -639,7 +649,7 @@ export const propagateStreams = ({
   // that could have caught it is false against a NaN.
   const streamFields = ['qoStbd', 'qwStbd', 'qgMscfd', 'massLbD'];
   for (const nd of network.nodes) {
-    const s = wellStreams?.[nd.id];
+    const s = ownValue(wellStreams, nd.id);
     if (!s) continue;
     const bad = streamFields.filter((f) => !Number.isFinite(s[f]));
     if (bad.length) {
@@ -695,8 +705,8 @@ export const propagateStreams = ({
     visited += 1;
     const node = network.nodeById.get(id);
     let here = nodeStreams.get(id);
-    if (node.kind === 'well' && wellStreams?.[id]) {
-      here = add(here, wellStreams[id]);
+    if (node.kind === 'well' && ownValue(wellStreams, id)) {
+      here = add(here, ownValue(wellStreams, id));
       nodeStreams.set(id, here);
     }
     const outs = outgoing.get(id);
@@ -794,8 +804,8 @@ export const checkConservation = ({ network, flows, wellRates }) => {
  */
 export const diagnose = ({ network, pressures, flows }) => {
   const rows = network.branches.map((b) => {
-    const q = flows[b.id] ?? NaN;
-    const dp = pressures[b.from] - pressures[b.to];
+    const q = ownValue(flows, b.id) ?? NaN;
+    const dp = ownValue(pressures, b.from) - ownValue(pressures, b.to);
     return {
       id: b.id,
       label: b.label || b.id,
@@ -881,9 +891,9 @@ export const solveLinearNetwork = ({ network, conductance, wellSlope }) => {
   if (!x) return { ok: false, error: 'singular' };
   const pressures = {};
   for (const node of network.nodes) {
-    pressures[node.id] = node.kind === 'sink'
+    setOwn(pressures, node.id, node.kind === 'sink'
       ? node.pressurePsia
-      : x[index.get(node.id)];
+      : x[index.get(node.id)]);
   }
   return { ok: true, pressures };
 };

@@ -48,12 +48,21 @@ export const calculateTotalRiskScore = (risks) => {
     return risks.reduce((sum, risk) => sum + (riskScore(risk) ?? 0), 0);
 };
 
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 export const aggregateRisksByType = (risks) => {
     const types = {};
     risks.forEach(risk => {
         const type = risk.type || 'Other';
-        if (!types[type]) types[type] = 0;
-        types[type]++;
+        setOwn(types, type, (ownValue(types, type) || 0) + 1);
     });
     return types;
 };

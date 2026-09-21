@@ -349,7 +349,13 @@ export function parseLas(text) {
         // never mixed into the log data; the importer maps Core /
         // Lithology blocks to intervals (lasBlocks.js)
         const key = name;
-        if (!blocks[key]) blocks[key] = { name: key, columns: [], params: {}, rows: [] };
+        // Own keys only: a block named 'constructor' or '__proto__' used to
+        // read an inherited member here and crash the import.
+        if (!Object.prototype.hasOwnProperty.call(blocks, key)) {
+          Object.defineProperty(blocks, key, {
+            value: { name: key, columns: [], params: {}, rows: [] }, writable: true, enumerable: true, configurable: true,
+          });
+        }
         const kind = m[2].toUpperCase();
         if (kind === 'DEFINITION') {
           for (const line of sec.lines) {
