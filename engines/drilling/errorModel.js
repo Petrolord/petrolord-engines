@@ -27,7 +27,7 @@ import { ISCWSA_MWD_REV4 } from './data/iscwsaMwdRev4.js';
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
-const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 
 const DEG = Math.PI / 180;
@@ -428,6 +428,9 @@ export function computeErrorModel(stations, header, { model = 'ISCWSA MWD Rev4' 
   const sources = [];
   const totalCov = Array.from({ length: s.n }, zeros33);
   for (const [code, spec] of Object.entries(def.codes)) {
+    // Own keys only: a custom model's `fn` of 'constructor' or 'toString'
+    // would call an inherited member as a weighting function.
+    if (!ownPreset(WEIGHT_FNS, spec.fn)) throw new Error(`Error model term ${code}: unknown weighting function "${spec.fn}".`);
     const dpde = WEIGHT_FNS[spec.fn](s, h);
     const eDIA = dpde.map((row) => [
       row[0] * spec.magnitude, row[1] * spec.magnitude, row[2] * spec.magnitude,

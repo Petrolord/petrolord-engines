@@ -249,7 +249,9 @@ export const phFactor = ({ ph, phReference = PH_REFERENCE }) => {
 const REGIMES = { waterwet: 'waterWet', oilwet: 'oilWet', intermittent: 'intermittent' };
 const normaliseRegime = (s) => {
   if (typeof s !== 'string') return null;
-  return REGIMES[s.replace(/[^a-z]/gi, '').toLowerCase()] || null;
+  const key = s.replace(/[^a-z]/gi, '').toLowerCase();
+  // Own keys only: 'constructor' used to come back as a regime (a function).
+  return (Object.prototype.hasOwnProperty.call(REGIMES, key) ? REGIMES[key] : null) || null;
 };
 
 /** How far the effective protection may fall short before it is called out, in percentage points. */

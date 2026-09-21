@@ -23,6 +23,13 @@
 import { COMPONENTS, buildBipMatrix } from './components.js';
 import { R_PSIA } from './units.js';
 
+/** Own-property lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownValue = (table, key) => (
+  table != null && Object.prototype.hasOwnProperty.call(table, key) ? table[key] : undefined
+);
+
 /** PR omega-a / omega-b (exact algebraic values, Monograph 20 eq. 4.21). */
 export const OMEGA_A = 0.457235529;
 export const OMEGA_B = 0.077796074;
@@ -50,15 +57,17 @@ export function kappaPR78(omega) {
  */
 export function mixtureFromKeys(keys, extra = {}, extraBip = {}) {
   const comps = keys.map((k) => {
-    const c = COMPONENTS[k] || extra[k];
+    const c = ownValue(COMPONENTS, k) || ownValue(extra, k);
     if (!c) throw new Error(`Unknown EOS component: ${k}`);
     return { key: k, ...c };
   });
   const base = buildBipMatrix(keys);
   const bip = base.map((row, i) => row.map((v, j) => {
     const a = keys[i]; const b = keys[j];
-    if (extraBip[a] && extraBip[a][b] !== undefined) return extraBip[a][b];
-    if (extraBip[b] && extraBip[b][a] !== undefined) return extraBip[b][a];
+    const ab = ownValue(ownValue(extraBip, a), b);
+    if (ab !== undefined) return ab;
+    const ba = ownValue(ownValue(extraBip, b), a);
+    if (ba !== undefined) return ba;
     return v;
   }));
   return { keys, comps, bip };

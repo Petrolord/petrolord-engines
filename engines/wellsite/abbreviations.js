@@ -13,7 +13,7 @@ import { LITHOLOGIES, GRAIN_SIZES } from '../stratigraphy/lithology.js';
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
-const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 
 const LITH_ABBREV = Object.freeze({
@@ -112,8 +112,11 @@ export function term(profile, table, code, { short = true } = {}) {
   const p = profile || PETROLORD_PROFILE;
   if (!short) return { label: longName(table, code), fallback: false, code };
   if (code == null || code === '') return { label: '', fallback: false, code: null };
-  const own = p.overrides && p.overrides[table] && p.overrides[table][code];
-  const label = (p.terms && p.terms[table] && p.terms[table][code]) || longName(table, code) || code;
+  // Own keys only: a code of 'constructor' used to come back labelled with
+  // a function read off the prototype chain.
+  const at = (obj, key) => (obj != null && Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : undefined);
+  const own = at(at(p.overrides, table), code);
+  const label = at(at(p.terms, table), code) || longName(table, code) || code;
   return { label, fallback: !!(p.overrides && !own && p.id !== PETROLORD_PROFILE.id), code };
 }
 
