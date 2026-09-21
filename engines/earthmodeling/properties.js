@@ -9,31 +9,17 @@
 
 import { NULL_VALUE } from '../../lib/gridding/numeric';
 
-/** Gaussian elimination with partial pivoting (n is tiny — wells). */
-export function solveDense(a, b) {
-  const n = b.length;
-  const m = a.map((row, i) => [...row, b[i]]);
-  for (let col = 0; col < n; col++) {
-    let piv = col;
-    for (let r = col + 1; r < n; r++) {
-      if (Math.abs(m[r][col]) > Math.abs(m[piv][col])) piv = r;
-    }
-    if (Math.abs(m[piv][col]) < 1e-14) throw new Error('Singular system.');
-    [m[col], m[piv]] = [m[piv], m[col]];
-    for (let r = col + 1; r < n; r++) {
-      const f = m[r][col] / m[col][col];
-      if (f === 0) continue;
-      for (let c = col; c <= n; c++) m[r][c] -= f * m[col][c];
-    }
-  }
-  const x = new Array(n).fill(0);
-  for (let r = n - 1; r >= 0; r--) {
-    let s = m[r][n];
-    for (let c = r + 1; c < n; c++) s -= m[r][c] * x[c];
-    x[r] = s / m[r][r];
-  }
-  return x;
-}
+// solveDense moved to lib/linalg (PT11d) so the petrophysics mineral solver
+// shares it; re-exported here so existing importers keep working.
+import { solveDense } from '../../lib/linalg/solveDense';
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
+
+export { solveDense };
 
 /** Weighted arithmetic mean; throws on empty input / zero weight. */
 export function weightedMean(values, weights) {
@@ -175,7 +161,7 @@ export function populateZoneProperty(spec, labels, pointsByBlock, allPoints, met
   const z = new Float64Array(spec.nx * spec.ny).fill(NULL_VALUE);
   const provenance = [];
   const LADDER = { krige: ['krige', 'trend', 'constant'], trend: ['trend', 'constant'], constant: ['constant'] };
-  const ladder = LADDER[method];
+  const ladder = ownPreset(LADDER, method) ? LADDER[method] : undefined;
   if (!ladder) throw new Error(`Unknown population method "${method}".`);
   for (const block of blocks) {
     let pts = pointsByBlock[block] || [];

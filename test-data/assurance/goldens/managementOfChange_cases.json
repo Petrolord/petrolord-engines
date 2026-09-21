@@ -1,0 +1,6054 @@
+{
+ "module": "managementOfChange",
+ "generatedBy": "tools/validation/assurance/oracle_moc.py",
+ "description": "Independent stdlib-Python oracle for the MOC rules: expiry of temporary and emergency changes (lead window 14 days), the multi-level approval gate where an empty approval list is not a passed gate, action ordering before implementation and closure, the dashboard summary and the urgency sort. Findings: FINDINGS-moc.md.",
+ "cases": [
+  {
+   "id": "parse-plain",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-18"
+   ],
+   "expected": {
+    "$date": "2026-09-18"
+   }
+  },
+  {
+   "id": "parse-timestamp-prefix",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-09-17T23:30:00Z"
+   ],
+   "expected": {
+    "$date": "2026-09-17"
+   }
+  },
+  {
+   "id": "parse-date-object",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$date": "2026-02-28"
+    }
+   ],
+   "expected": {
+    "$date": "2026-02-28"
+   }
+  },
+  {
+   "id": "parse-null",
+   "fn": "parseDateOnly",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-empty",
+   "fn": "parseDateOnly",
+   "args": [
+    ""
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-garbage",
+   "fn": "parseDateOnly",
+   "args": [
+    "next shutdown"
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-invalid-date",
+   "fn": "parseDateOnly",
+   "args": [
+    {
+     "$date": null
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-leap-day",
+   "fn": "parseDateOnly",
+   "args": [
+    "2028-02-29"
+   ],
+   "expected": {
+    "$date": "2028-02-29"
+   }
+  },
+  {
+   "id": "parse-us-format",
+   "fn": "parseDateOnly",
+   "args": [
+    "09/18/2026"
+   ],
+   "expected": null
+  },
+  {
+   "id": "parse-30-february",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-02-30"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "parse-month-13",
+   "fn": "parseDateOnly",
+   "args": [
+    "2026-13-01"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "parse-non-leap-29-feb",
+   "fn": "parseDateOnly",
+   "args": [
+    "2027-02-29"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "days-today",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-18",
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 0
+  },
+  {
+   "id": "days-tomorrow",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-19",
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 1
+  },
+  {
+   "id": "days-yesterday",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-17",
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": -1
+  },
+  {
+   "id": "days-across-year",
+   "fn": "daysUntil",
+   "args": [
+    "2027-01-01",
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 105
+  },
+  {
+   "id": "days-across-us-dst-end",
+   "fn": "daysUntil",
+   "args": [
+    "2026-11-02",
+    {
+     "$date": "2026-10-31"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "days-across-eu-dst-start",
+   "fn": "daysUntil",
+   "args": [
+    "2026-03-30",
+    {
+     "$date": "2026-03-28"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "days-across-nz-dst-start",
+   "fn": "daysUntil",
+   "args": [
+    "2026-09-28",
+    {
+     "$date": "2026-09-26"
+    }
+   ],
+   "expected": 2
+  },
+  {
+   "id": "days-null",
+   "fn": "daysUntil",
+   "args": [
+    null,
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "days-garbage",
+   "fn": "daysUntil",
+   "args": [
+    "soon",
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": null
+  },
+  {
+   "id": "days-date-object",
+   "fn": "daysUntil",
+   "args": [
+    {
+     "$date": "2026-10-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": 30
+  },
+  {
+   "id": "days-30-february",
+   "fn": "daysUntil",
+   "args": [
+    "2026-02-30",
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "tods-string",
+   "fn": "toDateOnlyString",
+   "args": [
+    "2026-09-18T10:00:00Z"
+   ],
+   "expected": "2026-09-18"
+  },
+  {
+   "id": "tods-date",
+   "fn": "toDateOnlyString",
+   "args": [
+    {
+     "$date": "2026-01-05"
+    }
+   ],
+   "expected": "2026-01-05"
+  },
+  {
+   "id": "tods-null",
+   "fn": "toDateOnlyString",
+   "args": [
+    null
+   ],
+   "expected": null
+  },
+  {
+   "id": "tods-garbage",
+   "fn": "toDateOnlyString",
+   "args": [
+    "x"
+   ],
+   "expected": null
+  },
+  {
+   "id": "tods-30-february",
+   "fn": "toDateOnlyString",
+   "args": [
+    "2026-02-30"
+   ],
+   "expected": null,
+   "repaired": "CAL-1"
+  },
+  {
+   "id": "next-Draft",
+   "fn": "nextStages",
+   "args": [
+    "Draft"
+   ],
+   "expected": [
+    "Screening",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-Screening",
+   "fn": "nextStages",
+   "args": [
+    "Screening"
+   ],
+   "expected": [
+    "Review",
+    "Rejected",
+    "Cancelled",
+    "Draft"
+   ]
+  },
+  {
+   "id": "next-Review",
+   "fn": "nextStages",
+   "args": [
+    "Review"
+   ],
+   "expected": [
+    "Approval",
+    "Rejected",
+    "Cancelled",
+    "Screening"
+   ]
+  },
+  {
+   "id": "next-Approval",
+   "fn": "nextStages",
+   "args": [
+    "Approval"
+   ],
+   "expected": [
+    "Implementation",
+    "Rejected",
+    "Cancelled",
+    "Review"
+   ]
+  },
+  {
+   "id": "next-Implementation",
+   "fn": "nextStages",
+   "args": [
+    "Implementation"
+   ],
+   "expected": [
+    "Closed",
+    "Cancelled"
+   ]
+  },
+  {
+   "id": "next-Closed",
+   "fn": "nextStages",
+   "args": [
+    "Closed"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-Rejected",
+   "fn": "nextStages",
+   "args": [
+    "Rejected"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-Cancelled",
+   "fn": "nextStages",
+   "args": [
+    "Cancelled"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-Approved",
+   "fn": "nextStages",
+   "args": [
+    "Approved"
+   ],
+   "expected": []
+  },
+  {
+   "id": "next-None",
+   "fn": "nextStages",
+   "args": [
+    null
+   ],
+   "expected": []
+  },
+  {
+   "id": "expiry-Permanent-Draft-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Draft",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Screening-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Screening",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Review-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Review",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Review-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Review",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Review-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Review",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Review-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Review",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Review-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Review",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Review-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Review",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Approval-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Implementation-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Implementation",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Implementation-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Implementation",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Implementation-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Implementation-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Implementation-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Implementation",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Implementation-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Implementation",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Closed-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Closed",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Closed-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Closed",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Closed-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Closed",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Closed-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Closed",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Closed-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Closed",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Closed-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Closed",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Rejected-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Rejected",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Permanent-Cancelled-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Cancelled",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Temporary-Draft-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Draft",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Screening-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Screening",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Review-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Review",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Review-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Review",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Review-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Review",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Review-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Review",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Review-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Review",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Review-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Review",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Approval-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Approval",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Implementation-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Expired"
+  },
+  {
+   "id": "expiry-Temporary-Implementation-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Expiring soon"
+  },
+  {
+   "id": "expiry-Temporary-Implementation-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Expiring soon"
+  },
+  {
+   "id": "expiry-Temporary-Implementation-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Within expiry"
+  },
+  {
+   "id": "expiry-Temporary-Implementation-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Within expiry"
+  },
+  {
+   "id": "expiry-Temporary-Implementation-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Expired"
+  },
+  {
+   "id": "expiry-Temporary-Closed-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Closed",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Temporary-Closed-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Closed",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Temporary-Closed-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Closed",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Temporary-Closed-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Closed",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Temporary-Closed-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Closed",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Temporary-Closed-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Closed",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Temporary-Rejected-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Rejected",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-Cancelled-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Cancelled",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Draft-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Draft",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Screening-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Screening",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Review-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Review",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Review-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Review",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Review-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Review",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Review-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Review",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Review-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Review",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Review-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Review",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Approval-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Implementation-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Expired"
+  },
+  {
+   "id": "expiry-Emergency-Implementation-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Expiring soon"
+  },
+  {
+   "id": "expiry-Emergency-Implementation-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Expiring soon"
+  },
+  {
+   "id": "expiry-Emergency-Implementation-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Within expiry"
+  },
+  {
+   "id": "expiry-Emergency-Implementation-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Within expiry"
+  },
+  {
+   "id": "expiry-Emergency-Implementation-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Expired"
+  },
+  {
+   "id": "expiry-Emergency-Closed-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Closed",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Emergency-Closed-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Closed",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Emergency-Closed-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Closed",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Emergency-Closed-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Closed",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Emergency-Closed-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Closed",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Emergency-Closed-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Closed",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Closed out"
+  },
+  {
+   "id": "expiry-Emergency-Rejected-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Rejected",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-Cancelled-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Cancelled",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-None-Draft-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Draft",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Screening-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Screening",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Review-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Review",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Review-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Review",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Review-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Review",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Review-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Review",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Review-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Review",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Review-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Review",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Approval-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Approval",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Implementation-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Implementation",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Implementation-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Implementation",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Implementation-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Implementation",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Implementation-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Implementation",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Implementation-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Implementation",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Implementation-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Implementation",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Closed-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Closed",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Closed-today",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Closed",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Closed-lead-edge",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Closed",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Closed-lead-plus-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Closed",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Closed-far",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Closed",
+     "expiry_date": "2027-04-06"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Closed-past-400",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Closed",
+     "expiry_date": "2025-08-14"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Rejected-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Rejected",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-None-Cancelled-past-1",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": null,
+     "stage": "Cancelled",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-Temporary-no-date-null",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": null
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-no-date-empty",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": ""
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Temporary-no-date-undefined",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": {
+      "$undefined": true
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-no-date-null",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": null
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-no-date-empty",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": ""
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-Emergency-no-date-undefined",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": {
+      "$undefined": true
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry"
+  },
+  {
+   "id": "expiry-empty-object",
+   "fn": "expiryState",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "Permanent change"
+  },
+  {
+   "id": "expiry-unreadable-date",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "after turnaround"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry",
+   "repaired": "MOC-1"
+  },
+  {
+   "id": "expiry-30-february",
+   "fn": "expiryState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-02-30"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": "No expiry",
+   "repaired": "MOC-1,CAL-1"
+  },
+  {
+   "id": "isExpired-temp-impl-past",
+   "fn": "isExpired",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isExpired-temp-impl-today",
+   "fn": "isExpired",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isExpired-emerg-impl-past",
+   "fn": "isExpired",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-08-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "isExpired-temp-review-past",
+   "fn": "isExpired",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Review",
+     "expiry_date": "2026-08-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isExpired-temp-closed-past",
+   "fn": "isExpired",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Closed",
+     "expiry_date": "2026-08-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isExpired-temp-cancelled-past",
+   "fn": "isExpired",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Cancelled",
+     "expiry_date": "2026-08-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isExpired-perm-impl-past",
+   "fn": "isExpired",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Implementation",
+     "expiry_date": "2026-08-19"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "isExpired-temp-impl-date-object",
+   "fn": "isExpired",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": {
+      "$date": "2026-09-16"
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-Draft-past",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Draft",
+     "target_implementation_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-Draft-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Draft",
+     "target_implementation_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Screening-past",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Screening",
+     "target_implementation_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-Screening-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Screening",
+     "target_implementation_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Review-past",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Review",
+     "target_implementation_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-Review-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Review",
+     "target_implementation_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Approval-past",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Approval",
+     "target_implementation_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": true
+  },
+  {
+   "id": "overdue-Approval-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Approval",
+     "target_implementation_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Implementation-past",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Implementation",
+     "target_implementation_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Implementation-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Implementation",
+     "target_implementation_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Closed-past",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Closed",
+     "target_implementation_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Closed-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Closed",
+     "target_implementation_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Rejected-past",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Rejected",
+     "target_implementation_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Rejected-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Rejected",
+     "target_implementation_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Cancelled-past",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Cancelled",
+     "target_implementation_date": "2026-09-17"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-Cancelled-today",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Cancelled",
+     "target_implementation_date": "2026-09-18"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-review-null",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Review",
+     "target_implementation_date": null
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-review-garbage",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Review",
+     "target_implementation_date": "Q4"
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-review-invalid-date",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Review",
+     "target_implementation_date": {
+      "$date": null
+     }
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "overdue-empty",
+   "fn": "isOverdue",
+   "args": [
+    {},
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": false
+  },
+  {
+   "id": "rc3-implemented-on-target",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Implementation",
+     "type": "Permanent",
+     "target_implementation_date": "2026-09-26",
+     "actual_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-temporary-in-effect-long-past-target",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Implementation",
+     "type": "Temporary",
+     "expiry_date": "2026-12-31",
+     "target_implementation_date": "2026-06-01"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": false,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-pre-effect-Draft-still-overdue",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Draft",
+     "target_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-pre-effect-Screening-still-overdue",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Screening",
+     "target_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-pre-effect-Review-still-overdue",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Review",
+     "target_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-pre-effect-Approval-still-overdue",
+   "fn": "isOverdue",
+   "args": [
+    {
+     "stage": "Approval",
+     "target_implementation_date": "2026-09-26"
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": true,
+   "repaired": "RC-3"
+  },
+  {
+   "id": "rc3-summarise-in-effect-not-overdue",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "r1",
+      "stage": "Implementation",
+      "type": "Permanent",
+      "target_implementation_date": "2026-09-26"
+     },
+     {
+      "id": "r2",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "expiry_date": "2027-01-01",
+      "target_implementation_date": "2026-08-01"
+     },
+     {
+      "id": "r3",
+      "stage": "Approval",
+      "type": "Permanent",
+      "target_implementation_date": "2026-09-20"
+     },
+     {
+      "id": "r4",
+      "stage": "Review",
+      "type": "Permanent",
+      "target_implementation_date": "2026-10-20"
+     }
+    ],
+    {
+     "actions": [
+      {
+       "moc_id": "r1",
+       "action_type": "Implementation",
+       "status": "Open",
+       "due_date": "2026-09-28"
+      },
+      {
+       "moc_id": "r2",
+       "action_type": "Post-implementation",
+       "status": "Open",
+       "due_date": "2026-10-15"
+      }
+     ]
+    },
+    {
+     "$date": "2026-10-01"
+    }
+   ],
+   "expected": {
+    "total": 4,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 1,
+     "Approval": 1,
+     "Implementation": 2,
+     "Closed": 0,
+     "Rejected": 0,
+     "Cancelled": 0
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 4,
+    "awaitingApproval": 1,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 1,
+    "openActions": 2,
+    "overdueActions": 1,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
+   },
+   "repaired": "RC-3"
+  },
+  {
+   "id": "approvals-empty",
+   "fn": "approvalState",
+   "args": [
+    []
+   ],
+   "expected": {
+    "levels": [],
+    "rejected": [],
+    "outstanding": [],
+    "complete": false
+   }
+  },
+  {
+   "id": "approvals-one-approved",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "level": 1,
+      "status": "Approved"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     1
+    ],
+    "rejected": [],
+    "outstanding": [],
+    "complete": true
+   }
+  },
+  {
+   "id": "approvals-one-pending",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "level": 1,
+      "status": "Pending"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     1
+    ],
+    "rejected": [],
+    "outstanding": [
+     1
+    ],
+    "complete": false
+   }
+  },
+  {
+   "id": "approvals-one-delegated",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "level": 1,
+      "status": "Delegated"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     1
+    ],
+    "rejected": [],
+    "outstanding": [
+     1
+    ],
+    "complete": false
+   }
+  },
+  {
+   "id": "approvals-two-levels-both",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a2",
+      "level": 2,
+      "status": "Approved"
+     },
+     {
+      "id": "a1",
+      "level": 1,
+      "status": "Approved"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     1,
+     2
+    ],
+    "rejected": [],
+    "outstanding": [],
+    "complete": true
+   }
+  },
+  {
+   "id": "approvals-two-levels-l2-pending",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "id": "a2",
+      "level": 2,
+      "status": "Pending"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     1,
+     2
+    ],
+    "rejected": [],
+    "outstanding": [
+     2
+    ],
+    "complete": false
+   }
+  },
+  {
+   "id": "approvals-level-any-one-signs",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "level": 1,
+      "status": "Pending"
+     },
+     {
+      "id": "a2",
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "id": "a3",
+      "level": 2,
+      "status": "Approved"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     1,
+     2
+    ],
+    "rejected": [],
+    "outstanding": [],
+    "complete": true
+   }
+  },
+  {
+   "id": "approvals-rejected-beside-approved",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "id": "a2",
+      "level": 1,
+      "status": "Rejected"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     1
+    ],
+    "rejected": [
+     {
+      "id": "a2",
+      "level": 1,
+      "status": "Rejected"
+     }
+    ],
+    "outstanding": [],
+    "complete": false
+   }
+  },
+  {
+   "id": "approvals-rejected-only",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "level": 3,
+      "status": "Rejected"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     3
+    ],
+    "rejected": [
+     {
+      "id": "a1",
+      "level": 3,
+      "status": "Rejected"
+     }
+    ],
+    "outstanding": [
+     3
+    ],
+    "complete": false
+   }
+  },
+  {
+   "id": "approvals-level-default-one",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a1",
+      "status": "Approved"
+     },
+     {
+      "id": "a2",
+      "level": null,
+      "status": "Pending"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     1
+    ],
+    "rejected": [],
+    "outstanding": [],
+    "complete": true
+   }
+  },
+  {
+   "id": "approvals-unsorted-three",
+   "fn": "approvalState",
+   "args": [
+    [
+     {
+      "id": "a3",
+      "level": 3,
+      "status": "Pending"
+     },
+     {
+      "id": "a1",
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "id": "a2",
+      "level": 2,
+      "status": "Delegated"
+     },
+     {
+      "id": "a4",
+      "level": 10,
+      "status": "Approved"
+     }
+    ]
+   ],
+   "expected": {
+    "levels": [
+     1,
+     2,
+     3,
+     10
+    ],
+    "rejected": [],
+    "outstanding": [
+     2,
+     3
+    ],
+    "complete": false
+   }
+  },
+  {
+   "id": "approvals-default-arg",
+   "fn": "approvalState",
+   "args": [
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "levels": [],
+    "rejected": [],
+    "outstanding": [],
+    "complete": false
+   }
+  },
+  {
+   "id": "advance-illegal-skip-to-impl",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Review",
+     "type": "Permanent"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-illegal-draft-to-approval",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Draft"
+    },
+    "Approval",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-closed-final",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Closed"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-rejected-final",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Rejected"
+    },
+    "Review",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-cancelled-final",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Cancelled"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-unknown-stage",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Approved"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-not-a-stage-target",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Draft"
+    },
+    "Approved",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-draft-to-screening",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Draft"
+    },
+    "Screening",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-draft-cancel",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Draft"
+    },
+    "Cancelled",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-screening-back-to-draft",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Screening"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-review-to-approval",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Review"
+    },
+    "Approval",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-approval-back-to-review",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Approval"
+    },
+    "Review",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-approval-reject-no-approvers",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Approval"
+    },
+    "Rejected",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-impl-empty-approvals",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": []
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-no-context",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "$undefined": true
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-all-signed",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-impl-level2-pending",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-only-delegated",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Delegated"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-rejection-against",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 1,
+       "status": "Rejected"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-pre-open",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ],
+     "actions": [
+      {
+       "action_type": "Pre-implementation",
+       "status": "In progress"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-pre-no-status",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ],
+     "actions": [
+      {
+       "action_type": "Pre-implementation"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-pre-closed-post-open",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ],
+     "actions": [
+      {
+       "action_type": "Pre-implementation",
+       "status": "Complete"
+      },
+      {
+       "action_type": "Pre-implementation",
+       "status": "Cancelled"
+      },
+      {
+       "action_type": "Post-implementation",
+       "status": "Open"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-impl-temp-with-expiry",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Approval",
+     "expiry_date": "2026-12-17"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ],
+     "actions": [
+      {
+       "action_type": "Pre-implementation",
+       "status": "Complete"
+      },
+      {
+       "action_type": "Pre-implementation",
+       "status": "Cancelled"
+      },
+      {
+       "action_type": "Post-implementation",
+       "status": "Open"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-impl-temp-no-expiry",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-emergency-no-expiry",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": ""
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-emergency-with-expiry",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-09-25"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-impl-temp-expiry-already-past",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Approval",
+     "expiry_date": "2026-09-15"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-close-all-done",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Implementation"
+    },
+    "Closed",
+    {
+     "actions": [
+      {
+       "action_type": "Implementation",
+       "status": "Complete"
+      },
+      {
+       "action_type": "Post-implementation",
+       "status": "Cancelled"
+      },
+      {
+       "action_type": "Pre-implementation",
+       "status": "Open"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-close-post-open",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Implementation"
+    },
+    "Closed",
+    {
+     "actions": [
+      {
+       "action_type": "Post-implementation",
+       "status": "Open"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-close-impl-action-open",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Implementation"
+    },
+    "Closed",
+    {
+     "actions": [
+      {
+       "action_type": "Implementation",
+       "status": "In progress"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-close-no-actions",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Implementation",
+     "type": "Temporary",
+     "expiry_date": "2026-09-13"
+    },
+    "Closed",
+    {}
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-impl-cancel",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Implementation"
+    },
+    "Cancelled",
+    {
+     "actions": [
+      {
+       "action_type": "Post-implementation",
+       "status": "Open"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "advance-impl-back-to-approval",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Implementation"
+    },
+    "Approval",
+    {}
+   ],
+   "expected": {
+    "ok": false
+   }
+  },
+  {
+   "id": "advance-impl-temp-unreadable-expiry",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Approval",
+     "expiry_date": "next shutdown"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "id": "a1",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "id": "a2",
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "MOC-1"
+  },
+  {
+   "id": "summarise-register",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "m1",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "risk_level": "High",
+      "expiry_date": "2026-09-08",
+      "target_implementation_date": "2026-08-09"
+     },
+     {
+      "id": "m2",
+      "stage": "Implementation",
+      "type": "Emergency",
+      "risk_level": "Critical",
+      "expiry_date": "2026-10-02"
+     },
+     {
+      "id": "m3",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "risk_level": "Medium",
+      "expiry_date": "2026-10-03"
+     },
+     {
+      "id": "m4",
+      "stage": "Approval",
+      "type": "Permanent",
+      "risk_level": "Low",
+      "target_implementation_date": "2026-09-17"
+     },
+     {
+      "id": "m5",
+      "stage": "Approval",
+      "type": "Temporary",
+      "risk_level": "High",
+      "expiry_date": "2026-06-10",
+      "target_implementation_date": "2026-09-18"
+     },
+     {
+      "id": "m6",
+      "stage": "Closed",
+      "type": "Temporary",
+      "risk_level": "Low",
+      "expiry_date": "2026-06-10",
+      "target_implementation_date": "2026-03-02"
+     },
+     {
+      "id": "m7",
+      "stage": "Cancelled",
+      "type": "Emergency",
+      "risk_level": "Critical",
+      "expiry_date": "2026-09-13",
+      "target_implementation_date": "2026-09-13"
+     },
+     {
+      "id": "m8",
+      "stage": "Rejected",
+      "type": "Permanent",
+      "risk_level": "Extreme"
+     },
+     {
+      "id": "m9",
+      "stage": "Draft",
+      "type": "Permanent",
+      "target_implementation_date": "2026-09-15"
+     },
+     {
+      "id": "m10",
+      "stage": "Screening",
+      "type": "Permanent",
+      "risk_level": "Medium",
+      "target_implementation_date": "TBC"
+     },
+     {
+      "id": "m11",
+      "stage": "Review",
+      "type": "Permanent",
+      "risk_level": "Low"
+     },
+     {
+      "id": "m12",
+      "stage": "Archived",
+      "type": "Permanent",
+      "risk_level": "Low",
+      "target_implementation_date": "2026-09-09"
+     },
+     {
+      "id": "m13",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "risk_level": "High",
+      "expiry_date": "2026-09-18"
+     }
+    ],
+    {
+     "actions": [
+      {
+       "status": "Open",
+       "due_date": "2026-09-17"
+      },
+      {
+       "status": "In progress",
+       "due_date": "2026-09-18"
+      },
+      {
+       "status": "Complete",
+       "due_date": "2026-08-29"
+      },
+      {
+       "status": "Cancelled",
+       "due_date": "2026-08-29"
+      },
+      {
+       "status": "Open"
+      },
+      {
+       "status": "Open",
+       "due_date": "someday"
+      },
+      {
+       "due_date": "2026-09-16"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 13,
+    "byStage": {
+     "Draft": 1,
+     "Screening": 1,
+     "Review": 1,
+     "Approval": 2,
+     "Implementation": 4,
+     "Closed": 1,
+     "Rejected": 1,
+     "Cancelled": 1
+    },
+    "byRisk": {
+     "Low": 4,
+     "Medium": 2,
+     "High": 3,
+     "Critical": 2
+    },
+    "active": 9,
+    "awaitingApproval": 2,
+    "expired": 1,
+    "expiringSoon": 2,
+    "overdue": 2,
+    "openActions": 5,
+    "overdueActions": 2,
+    "ratificationPending": 0,
+    "ratificationOverdue": 1
+   }
+  },
+  {
+   "id": "summarise-empty",
+   "fn": "summarise",
+   "args": [
+    [],
+    {},
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 0,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 0,
+     "Implementation": 0,
+     "Closed": 0,
+     "Rejected": 0,
+     "Cancelled": 0
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 0,
+    "awaitingApproval": 0,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
+   }
+  },
+  {
+   "id": "summarise-no-context",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "m1",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "risk_level": "High",
+      "expiry_date": "2026-09-08",
+      "target_implementation_date": "2026-08-09"
+     },
+     {
+      "id": "m2",
+      "stage": "Implementation",
+      "type": "Emergency",
+      "risk_level": "Critical",
+      "expiry_date": "2026-10-02"
+     },
+     {
+      "id": "m3",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "risk_level": "Medium",
+      "expiry_date": "2026-10-03"
+     },
+     {
+      "id": "m4",
+      "stage": "Approval",
+      "type": "Permanent",
+      "risk_level": "Low",
+      "target_implementation_date": "2026-09-17"
+     }
+    ],
+    {
+     "$undefined": true
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 4,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 1,
+     "Implementation": 3,
+     "Closed": 0,
+     "Rejected": 0,
+     "Cancelled": 0
+    },
+    "byRisk": {
+     "Low": 1,
+     "Medium": 1,
+     "High": 1,
+     "Critical": 1
+    },
+    "active": 4,
+    "awaitingApproval": 1,
+    "expired": 1,
+    "expiringSoon": 1,
+    "overdue": 1,
+    "openActions": 0,
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 1
+   }
+  },
+  {
+   "id": "summarise-only-finished",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "m6",
+      "stage": "Closed",
+      "type": "Temporary",
+      "risk_level": "Low",
+      "expiry_date": "2026-06-10",
+      "target_implementation_date": "2026-03-02"
+     },
+     {
+      "id": "m7",
+      "stage": "Cancelled",
+      "type": "Emergency",
+      "risk_level": "Critical",
+      "expiry_date": "2026-09-13",
+      "target_implementation_date": "2026-09-13"
+     },
+     {
+      "id": "m8",
+      "stage": "Rejected",
+      "type": "Permanent",
+      "risk_level": "Extreme"
+     }
+    ],
+    {
+     "actions": [
+      {
+       "status": "Complete",
+       "due_date": "2026-08-29"
+      },
+      {
+       "status": "Cancelled",
+       "due_date": "2026-08-29"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 3,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 0,
+     "Implementation": 0,
+     "Closed": 1,
+     "Rejected": 1,
+     "Cancelled": 1
+    },
+    "byRisk": {
+     "Low": 1,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 1
+    },
+    "active": 0,
+    "awaitingApproval": 0,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
+   }
+  },
+  {
+   "id": "summarise-lead-edge-moves-a-day-later",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "m1",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "risk_level": "High",
+      "expiry_date": "2026-09-08",
+      "target_implementation_date": "2026-08-09"
+     },
+     {
+      "id": "m2",
+      "stage": "Implementation",
+      "type": "Emergency",
+      "risk_level": "Critical",
+      "expiry_date": "2026-10-02"
+     },
+     {
+      "id": "m3",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "risk_level": "Medium",
+      "expiry_date": "2026-10-03"
+     },
+     {
+      "id": "m4",
+      "stage": "Approval",
+      "type": "Permanent",
+      "risk_level": "Low",
+      "target_implementation_date": "2026-09-17"
+     },
+     {
+      "id": "m5",
+      "stage": "Approval",
+      "type": "Temporary",
+      "risk_level": "High",
+      "expiry_date": "2026-06-10",
+      "target_implementation_date": "2026-09-18"
+     },
+     {
+      "id": "m6",
+      "stage": "Closed",
+      "type": "Temporary",
+      "risk_level": "Low",
+      "expiry_date": "2026-06-10",
+      "target_implementation_date": "2026-03-02"
+     },
+     {
+      "id": "m7",
+      "stage": "Cancelled",
+      "type": "Emergency",
+      "risk_level": "Critical",
+      "expiry_date": "2026-09-13",
+      "target_implementation_date": "2026-09-13"
+     },
+     {
+      "id": "m8",
+      "stage": "Rejected",
+      "type": "Permanent",
+      "risk_level": "Extreme"
+     },
+     {
+      "id": "m9",
+      "stage": "Draft",
+      "type": "Permanent",
+      "target_implementation_date": "2026-09-15"
+     },
+     {
+      "id": "m10",
+      "stage": "Screening",
+      "type": "Permanent",
+      "risk_level": "Medium",
+      "target_implementation_date": "TBC"
+     },
+     {
+      "id": "m11",
+      "stage": "Review",
+      "type": "Permanent",
+      "risk_level": "Low"
+     },
+     {
+      "id": "m12",
+      "stage": "Archived",
+      "type": "Permanent",
+      "risk_level": "Low",
+      "target_implementation_date": "2026-09-09"
+     },
+     {
+      "id": "m13",
+      "stage": "Implementation",
+      "type": "Temporary",
+      "risk_level": "High",
+      "expiry_date": "2026-09-18"
+     }
+    ],
+    {},
+    {
+     "$date": "2026-09-19"
+    }
+   ],
+   "expected": {
+    "total": 13,
+    "byStage": {
+     "Draft": 1,
+     "Screening": 1,
+     "Review": 1,
+     "Approval": 2,
+     "Implementation": 4,
+     "Closed": 1,
+     "Rejected": 1,
+     "Cancelled": 1
+    },
+    "byRisk": {
+     "Low": 4,
+     "Medium": 2,
+     "High": 3,
+     "Critical": 2
+    },
+    "active": 9,
+    "awaitingApproval": 2,
+    "expired": 2,
+    "expiringSoon": 2,
+    "overdue": 3,
+    "openActions": 0,
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 1
+   }
+  },
+  {
+   "id": "summarise-actions-on-finished-changes",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "id": "live",
+      "stage": "Implementation",
+      "type": "Permanent"
+     },
+     {
+      "id": "rej",
+      "stage": "Rejected",
+      "type": "Permanent"
+     },
+     {
+      "id": "can",
+      "stage": "Cancelled",
+      "type": "Temporary",
+      "expiry_date": "2026-09-15"
+     },
+     {
+      "id": "clo",
+      "stage": "Closed",
+      "type": "Permanent"
+     },
+     {
+      "id": "dra",
+      "stage": "Draft",
+      "type": "Permanent"
+     }
+    ],
+    {
+     "actions": [
+      {
+       "moc_id": "live",
+       "status": "Open",
+       "due_date": "2026-09-17"
+      },
+      {
+       "moc_id": "rej",
+       "status": "Open",
+       "due_date": "2026-08-09"
+      },
+      {
+       "moc_id": "can",
+       "status": "In progress",
+       "due_date": "2026-09-16"
+      },
+      {
+       "moc_id": "clo",
+       "status": "Open",
+       "due_date": "2026-09-09"
+      },
+      {
+       "moc_id": "dra",
+       "status": "Open",
+       "due_date": "2026-09-13"
+      },
+      {
+       "moc_id": "not-loaded",
+       "status": "Open",
+       "due_date": "2026-09-13"
+      },
+      {
+       "status": "Open",
+       "due_date": "2026-09-12"
+      },
+      {
+       "moc_id": "rej",
+       "status": "Complete",
+       "due_date": "2026-08-09"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 5,
+    "byStage": {
+     "Draft": 1,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 0,
+     "Implementation": 1,
+     "Closed": 1,
+     "Rejected": 1,
+     "Cancelled": 1
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 2,
+    "awaitingApproval": 0,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 0,
+    "openActions": 4,
+    "overdueActions": 4,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
+   },
+   "repaired": "MOC-AS14-1"
+  },
+  {
+   "id": "summarise-actions-parents-not-supplied",
+   "fn": "summarise",
+   "args": [
+    [],
+    {
+     "actions": [
+      {
+       "moc_id": "live",
+       "status": "Open",
+       "due_date": "2026-09-17"
+      },
+      {
+       "moc_id": "rej",
+       "status": "Open",
+       "due_date": "2026-08-09"
+      },
+      {
+       "moc_id": "can",
+       "status": "In progress",
+       "due_date": "2026-09-16"
+      },
+      {
+       "moc_id": "clo",
+       "status": "Open",
+       "due_date": "2026-09-09"
+      },
+      {
+       "moc_id": "dra",
+       "status": "Open",
+       "due_date": "2026-09-13"
+      },
+      {
+       "moc_id": "not-loaded",
+       "status": "Open",
+       "due_date": "2026-09-13"
+      },
+      {
+       "status": "Open",
+       "due_date": "2026-09-12"
+      },
+      {
+       "moc_id": "rej",
+       "status": "Complete",
+       "due_date": "2026-08-09"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 0,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 0,
+     "Implementation": 0,
+     "Closed": 0,
+     "Rejected": 0,
+     "Cancelled": 0
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 0,
+    "awaitingApproval": 0,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 0,
+    "openActions": 7,
+    "overdueActions": 7,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
+   }
+  },
+  {
+   "id": "summarise-unreadable-expiry",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "type": "Temporary",
+      "stage": "Implementation",
+      "expiry_date": "after turnaround"
+     }
+    ],
+    {},
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 1,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 0,
+     "Implementation": 1,
+     "Closed": 0,
+     "Rejected": 0,
+     "Cancelled": 0
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 1,
+    "awaitingApproval": 0,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "ratificationPending": 0,
+    "ratificationOverdue": 0
+   },
+   "repaired": "MOC-1"
+  },
+  {
+   "id": "advance-impl-emergency-first-level-only",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-second-level-only",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Pending"
+      },
+      {
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-rejected-later-level",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Rejected"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-levels-2-3-lowest-signed",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 2,
+       "status": "Approved"
+      },
+      {
+       "level": 3,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-levels-2-3-highest-signed",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "level": 3,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-no-approvers",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": []
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-all-signed",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-temporary-first-level-only",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-permanent-first-level-only",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-impl-emergency-first-level-only-no-expiry",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-close-emergency-unratified",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-close-emergency-ratified",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-close-emergency-rejected-after",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Rejected"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "advance-close-temporary-unratified-is-not-gated",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ratification-day-7-pending",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-11T10:00:00"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-18",
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-day-8-overdue",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-10T10:00:00"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratification overdue",
+    "dueDate": "2026-09-17",
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-same-day",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-18"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-25",
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-no-implementation-date",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratification overdue",
+    "dueDate": null,
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-unreadable-implementation-date",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "last week"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratification overdue",
+    "dueDate": null,
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-complete",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-08-19"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Approved"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratified",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-closed-complete",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Closed",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-08-19"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Ratified",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-rejected-after",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-16"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Rejected"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-23",
+    "outstanding": [
+     2
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-no-approvals",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-16"
+    },
+    [],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-23",
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-levels-2-3",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-09-15"
+    },
+    [
+     {
+      "level": 2,
+      "status": "Approved"
+     },
+     {
+      "level": 3,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Awaiting ratification",
+    "dueDate": "2026-09-22",
+    "outstanding": [
+     3
+    ]
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-still-in-approval",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval",
+     "expiry_date": "2026-10-18"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-cancelled",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Cancelled",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-08-19"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-temporary",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18",
+     "actual_implementation_date": "2026-08-19"
+    },
+    [
+     {
+      "level": 1,
+      "status": "Approved"
+     },
+     {
+      "level": 2,
+      "status": "Pending"
+     }
+    ],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-permanent",
+   "fn": "ratificationState",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Implementation"
+    },
+    [],
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "ratification-no-args",
+   "fn": "ratificationState",
+   "args": [],
+   "expected": {
+    "state": "Not required",
+    "dueDate": null,
+    "outstanding": []
+   }
+  },
+  {
+   "id": "summarise-ratification",
+   "fn": "summarise",
+   "args": [
+    [
+     {
+      "type": "Emergency",
+      "stage": "Implementation",
+      "expiry_date": "2026-10-18",
+      "actual_implementation_date": "2026-09-15",
+      "id": "p"
+     },
+     {
+      "type": "Emergency",
+      "stage": "Implementation",
+      "expiry_date": "2026-10-18",
+      "actual_implementation_date": "2026-08-29",
+      "id": "o"
+     },
+     {
+      "type": "Emergency",
+      "stage": "Implementation",
+      "expiry_date": "2026-10-18",
+      "id": "nodate"
+     },
+     {
+      "type": "Emergency",
+      "stage": "Closed",
+      "expiry_date": "2026-10-18",
+      "actual_implementation_date": "2026-08-09",
+      "id": "done"
+     },
+     {
+      "type": "Emergency",
+      "stage": "Implementation",
+      "expiry_date": "2026-10-18",
+      "actual_implementation_date": "2026-09-17"
+     },
+     {
+      "id": "perm",
+      "type": "Permanent",
+      "stage": "Implementation"
+     }
+    ],
+    {
+     "approvals": [
+      {
+       "moc_id": "p",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "moc_id": "p",
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "moc_id": "o",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "moc_id": "o",
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "moc_id": "done",
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 1,
+       "status": "Approved"
+      }
+     ]
+    },
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "expected": {
+    "total": 6,
+    "byStage": {
+     "Draft": 0,
+     "Screening": 0,
+     "Review": 0,
+     "Approval": 0,
+     "Implementation": 5,
+     "Closed": 1,
+     "Rejected": 0,
+     "Cancelled": 0
+    },
+    "byRisk": {
+     "Low": 0,
+     "Medium": 0,
+     "High": 0,
+     "Critical": 0
+    },
+    "active": 5,
+    "awaitingApproval": 0,
+    "expired": 0,
+    "expiringSoon": 0,
+    "overdue": 0,
+    "openActions": 0,
+    "overdueActions": 0,
+    "ratificationPending": 2,
+    "ratificationOverdue": 2
+   },
+   "repaired": "AS15-Q9"
+  },
+  {
+   "id": "assign-approver-independent",
+   "fn": "canAssignApprover",
+   "args": [
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-approver-originator",
+   "fn": "canAssignApprover",
+   "args": [
+    {
+     "originator_id": "u-orig"
+    },
+    "u-orig"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-approver-nobody",
+   "fn": "canAssignApprover",
+   "args": [
+    {
+     "originator_id": "u-orig"
+    },
+    null
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-approver-empty",
+   "fn": "canAssignApprover",
+   "args": [
+    {
+     "originator_id": "u-orig"
+    },
+    ""
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "assign-approver-no-originator-recorded",
+   "fn": "canAssignApprover",
+   "args": [
+    {},
+    "u-app"
+   ],
+   "expected": {
+    "ok": true
+   }
+  },
+  {
+   "id": "decide-approval-assignee",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-non-assignee",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-other"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-not-signed-in",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    null
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-originator-not-assigned",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-orig"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-originator-who-is-assignee",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-orig",
+     "status": "Pending",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-orig"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-already-approved",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Approved",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-already-rejected",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app",
+     "status": "Rejected",
+     "level": 1
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": false
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "decide-approval-no-status-is-pending",
+   "fn": "canDecideApproval",
+   "args": [
+    {
+     "approver_id": "u-app"
+    },
+    {
+     "originator_id": "u-orig"
+    },
+    "u-app"
+   ],
+   "expected": {
+    "ok": true
+   },
+   "repaired": "AS15-D1"
+  },
+  {
+   "id": "countBy-category",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "category": "Software or IT"
+     },
+     {
+      "category": "Facility or hardware"
+     },
+     {
+      "category": ""
+     },
+     {
+      "category": "Facility or hardware"
+     },
+     {},
+     {
+      "category": null
+     },
+     {
+      "category": "Other"
+     },
+     {
+      "category": "Software or IT"
+     },
+     {
+      "category": "Software or IT"
+     }
+    ],
+    "category"
+   ],
+   "expected": [
+    {
+     "name": "Software or IT",
+     "count": 3
+    },
+    {
+     "name": "Unspecified",
+     "count": 3
+    },
+    {
+     "name": "Facility or hardware",
+     "count": 2
+    },
+    {
+     "name": "Other",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countBy-custom-unset",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "category": "Software or IT"
+     },
+     {
+      "category": "Facility or hardware"
+     },
+     {
+      "category": ""
+     },
+     {
+      "category": "Facility or hardware"
+     },
+     {},
+     {
+      "category": null
+     },
+     {
+      "category": "Other"
+     },
+     {
+      "category": "Software or IT"
+     },
+     {
+      "category": "Software or IT"
+     }
+    ],
+    "category",
+    "None given"
+   ],
+   "expected": [
+    {
+     "name": "Software or IT",
+     "count": 3
+    },
+    {
+     "name": "None given",
+     "count": 3
+    },
+    {
+     "name": "Facility or hardware",
+     "count": 2
+    },
+    {
+     "name": "Other",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countBy-empty",
+   "fn": "countBy",
+   "args": [
+    [],
+    "category"
+   ],
+   "expected": []
+  },
+  {
+   "id": "countBy-tie-keeps-first-seen",
+   "fn": "countBy",
+   "args": [
+    [
+     {
+      "r": "B"
+     },
+     {
+      "r": "A"
+     },
+     {
+      "r": "A"
+     },
+     {
+      "r": "B"
+     },
+     {
+      "r": "C"
+     }
+    ],
+    "r"
+   ],
+   "expected": [
+    {
+     "name": "B",
+     "count": 2
+    },
+    {
+     "name": "A",
+     "count": 2
+    },
+    {
+     "name": "C",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "countBy-null-row",
+   "fn": "countBy",
+   "args": [
+    [
+     null,
+     {
+      "stage": "Draft"
+     }
+    ],
+    "stage"
+   ],
+   "expected": [
+    {
+     "name": "Unspecified",
+     "count": 1
+    },
+    {
+     "name": "Draft",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "urgency-register",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "rows": [
+    {
+     "id": "finished",
+     "stage": "Closed",
+     "type": "Permanent",
+     "target_implementation_date": "2025-11-22"
+    },
+    {
+     "id": "live-late",
+     "stage": "Review",
+     "type": "Permanent",
+     "target_implementation_date": "2026-10-28"
+    },
+    {
+     "id": "overdue-b",
+     "stage": "Review",
+     "type": "Permanent",
+     "target_implementation_date": "2026-09-16"
+    },
+    {
+     "id": "expired-b",
+     "stage": "Implementation",
+     "type": "Temporary",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "id": "expiring",
+     "stage": "Implementation",
+     "type": "Emergency",
+     "expiry_date": "2026-09-21"
+    },
+    {
+     "id": "live-undated",
+     "stage": "Draft",
+     "type": "Permanent"
+    },
+    {
+     "id": "overdue-a",
+     "stage": "Approval",
+     "type": "Permanent",
+     "target_implementation_date": "2026-08-29"
+    },
+    {
+     "id": "expired-a",
+     "stage": "Implementation",
+     "type": "Emergency",
+     "expiry_date": "2026-07-30"
+    },
+    {
+     "id": "live-soon",
+     "stage": "Screening",
+     "type": "Permanent",
+     "target_implementation_date": "2026-09-23"
+    },
+    {
+     "id": "rejected",
+     "stage": "Rejected",
+     "type": "Temporary",
+     "expiry_date": "2026-09-09"
+    },
+    {
+     "id": "within",
+     "stage": "Implementation",
+     "type": "Temporary",
+     "expiry_date": "2026-12-27"
+    }
+   ],
+   "expectedOrder": [
+    "expired-a",
+    "expired-b",
+    "expiring",
+    "overdue-a",
+    "overdue-b",
+    "live-soon",
+    "live-late",
+    "within",
+    "live-undated",
+    "finished",
+    "rejected"
+   ]
+  },
+  {
+   "id": "urgency-empty",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "rows": [],
+   "expectedOrder": []
+  },
+  {
+   "id": "rc3-urgency-in-effect-ranks-as-live",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "rows": [
+    {
+     "id": "impl-past-target",
+     "stage": "Implementation",
+     "type": "Permanent",
+     "target_implementation_date": "2026-08-19"
+    },
+    {
+     "id": "live-future",
+     "stage": "Review",
+     "type": "Permanent",
+     "target_implementation_date": "2026-09-28"
+    },
+    {
+     "id": "approval-late",
+     "stage": "Approval",
+     "type": "Permanent",
+     "target_implementation_date": "2026-09-15"
+    },
+    {
+     "id": "closed",
+     "stage": "Closed",
+     "type": "Permanent",
+     "target_implementation_date": "2026-07-20"
+    }
+   ],
+   "expectedOrder": [
+    "approval-late",
+    "impl-past-target",
+    "live-future",
+    "closed"
+   ],
+   "repaired": "RC-3"
+  },
+  {
+   "id": "urgency-lead-edge",
+   "sort": "byUrgency",
+   "factory": true,
+   "factoryArgs": [
+    {
+     "$date": "2026-09-18"
+    }
+   ],
+   "rows": [
+    {
+     "id": "edge-plus-1",
+     "stage": "Implementation",
+     "type": "Temporary",
+     "expiry_date": "2026-10-03"
+    },
+    {
+     "id": "edge",
+     "stage": "Implementation",
+     "type": "Temporary",
+     "expiry_date": "2026-10-02"
+    },
+    {
+     "id": "expired-today-minus-1",
+     "stage": "Implementation",
+     "type": "Temporary",
+     "expiry_date": "2026-09-17"
+    },
+    {
+     "id": "today",
+     "stage": "Implementation",
+     "type": "Temporary",
+     "expiry_date": "2026-09-18"
+    }
+   ],
+   "expectedOrder": [
+    "expired-today-minus-1",
+    "today",
+    "edge",
+    "edge-plus-1"
+   ]
+  },
+  {
+   "id": "rc9-signed-one-level",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval level 2 has not signed yet."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-signed-two-levels",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "level": 3,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval levels 2 and 3 have not signed yet."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-signed-three-levels",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Permanent",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "level": 3,
+       "status": "Pending"
+      },
+      {
+       "level": 4,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval levels 2, 3 and 4 have not signed yet."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-ratified-one-level",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval level 2 has not ratified this emergency change. It cannot close until every level has signed."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-ratified-two-levels",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Implementation",
+     "expiry_date": "2026-10-18"
+    },
+    "Closed",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      },
+      {
+       "level": 2,
+       "status": "Pending"
+      },
+      {
+       "level": 3,
+       "status": "Pending"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "Approval levels 2 and 3 have not ratified this emergency change. It cannot close until every level has signed."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-expiry-article-emergency",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Emergency",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "An emergency change needs an expiry date before it is implemented. Without one it is a permanent change nobody decided to make."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-expiry-article-temporary",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "type": "Temporary",
+     "stage": "Approval"
+    },
+    "Implementation",
+    {
+     "approvals": [
+      {
+       "level": 1,
+       "status": "Approved"
+      }
+     ]
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "A temporary change needs an expiry date before it is implemented. Without one it is a permanent change nobody decided to make."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-closed",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Closed"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "A closed change is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-approved",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Approved"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "An approved change is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-implemented",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Implemented"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "An implemented change is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  },
+  {
+   "id": "rc9-final-article-rejected",
+   "fn": "canAdvance",
+   "args": [
+    {
+     "stage": "Rejected"
+    },
+    "Draft",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "reason": "A rejected change is final."
+   },
+   "repaired": "RC-9",
+   "prose": "exact"
+  }
+ ]
+}

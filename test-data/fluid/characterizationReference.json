@@ -1,0 +1,15 @@
+{
+  "_source": "Anchor data for the FS4 characterization and transport gates. Specific gravities (60/60) from the standard GPSA Engineering Data Book / Whitson & Brule Monograph 20 Appendix A compilation; normal boiling points come from the already-committed NIST table (nistVaporPressure.json). Dilute-gas viscosity anchors from the NIST WebBook reference correlations (methane: Lemmon & Jacobsen 2004; nitrogen: Lemmon & Jacobsen 2004) at 300 K, 1 atm.",
+  "_gate": "alkaneRecovery: run Kesler-Lee/Lee-Kesler on a pure n-alkane's measured Tb + SG and require the predicted Tc/Pc/omega to land within the stated bands of the FS1 library values. The bands are honest correlation-accuracy bands (Kesler-Lee is calibrated on petroleum fractions, not pure components) set at ~1.5x observed error. diluteViscosity: LBC/Stiel-Thodos dilute-gas viscosity at 1 atm within relTol of the measured value.",
+  "alkaneRecovery": [
+    { "key": "nC5", "sg": 0.6311, "tcRelTol": 0.01, "pcRelTol": 0.08, "omegaAbsTol": 0.06 },
+    { "key": "nC6", "sg": 0.664, "tcRelTol": 0.01, "pcRelTol": 0.08, "omegaAbsTol": 0.06 }
+  ],
+  "soreideSmoke": [
+    { "key": "nC6", "sg": 0.664, "relTol": 0.08, "note": "nC6 (MW 86) sits below the Soreide C7+ calibration range; the ~6% high prediction documented here is the expected edge behavior, gated at 8% to catch transcription typos only" }
+  ],
+  "diluteViscosity": [
+    { "key": "C1", "tK": 300.0, "muCp": 0.0111, "relTol": 0.1, "note": "NIST WebBook, methane 300 K / 1 atm ~ 11.1 uPa-s" },
+    { "key": "N2", "tK": 300.0, "muCp": 0.0179, "relTol": 0.1, "note": "NIST WebBook, nitrogen 300 K / 1 atm ~ 17.9 uPa-s" }
+  ]
+}

@@ -1,0 +1,540 @@
+[
+ {
+  "id": "E01",
+  "label": "flotation: delete the attachment term from the rate",
+  "eng": [
+   "(1.5 * interceptionCoefficient * attachmentEfficiency",
+   "(1.5 * interceptionCoefficient"
+  ]
+ },
+ {
+  "id": "E02",
+  "label": "flotation: default bubble 300 -> 150 um",
+  "eng": [
+   "bubbleMicronDefault: 300,",
+   "bubbleMicronDefault: 150,"
+  ]
+ },
+ {
+  "id": "E03",
+  "label": "flotation: attachment efficiency 0.01 -> 0.02",
+  "eng": [
+   "attachmentEfficiency: 0.01,",
+   "attachmentEfficiency: 0.02,"
+  ]
+ },
+ {
+  "id": "E04",
+  "label": "flotation: drop the residence time from the cut inversion",
+  "eng": [
+   "rateCoefficientPerSPerM2 * residenceS",
+   "rateCoefficientPerSPerM2"
+  ]
+ },
+ {
+  "id": "E05",
+  "label": "hydrocyclone: g field turndown^2 -> turndown^1.5",
+  "eng": [
+   "gFieldAtDesign * fieldTurndown * fieldTurndown",
+   "gFieldAtDesign * fieldTurndown ** 1.5"
+  ]
+ },
+ {
+  "id": "E06",
+  "label": "hydrocyclone: the residence scale (liner length 0.7 -> 0.35 m)",
+  "eng": [
+   "linerLengthM: 0.7,",
+   "linerLengthM: 0.35,"
+  ]
+ },
+ {
+  "id": "E07",
+  "label": "hydrocyclone: gFieldAtDesign 1000 -> 2000",
+  "eng": [
+   "gFieldAtDesign: 1000,",
+   "gFieldAtDesign: 2000,"
+  ]
+ },
+ {
+  "id": "E08",
+  "label": "media filter: cut size scale (reference droplet 20 -> 30 um)",
+  "eng": [
+   "filterReferenceDropletMicron: 20,",
+   "filterReferenceDropletMicron: 30,"
+  ]
+ },
+ {
+  "id": "E09",
+  "label": "media filter: cut size exponent 0.5 -> 0.25",
+  "eng": [
+   "Math.sqrt(Math.LN2 / (lambdaAtRefPerM * bedDepthM))",
+   "(Math.LN2 / (lambdaAtRefPerM * bedDepthM)) ** 0.25"
+  ]
+ },
+ {
+  "id": "E10",
+  "label": "plate pack: efficiencyFactor 0.7 -> 0.9",
+  "eng": [
+   "plateEfficiencyFactor: 0.7,",
+   "plateEfficiencyFactor: 0.9,"
+  ]
+ },
+ {
+  "id": "E11",
+  "label": "plate pack: drop nPlates from the effective area",
+  "eng": [
+   "plateAreaM2 * nPlates * efficiencyFactor",
+   "plateAreaM2 * efficiencyFactor"
+  ]
+ },
+ {
+  "id": "E12",
+  "label": "API 421: shortCircuitF default 1.5 -> 1.2",
+  "eng": [
+   "shortCircuitFDefault: 1.5,",
+   "shortCircuitFDefault: 1.2,"
+  ]
+ },
+ {
+  "id": "E13",
+  "label": "API 421: the 15 mm/s velocity limit -> 30 mm/s",
+  "eng": [
+   "horizontalVelocityLimitMS: 0.015,",
+   "horizontalVelocityLimitMS: 0.030,"
+  ]
+ },
+ {
+  "id": "E14",
+  "label": "dropletBins: spanSigma 4 -> 3",
+  "eng": [
+   "defaultSpanSigma: 4,",
+   "defaultSpanSigma: 3,"
+  ]
+ },
+ {
+  "id": "E15",
+  "label": "gradeEfficiency: default sharpness 3 -> 2.5",
+  "eng": [
+   "defaultSharpness: 3,",
+   "defaultSharpness: 2.5,"
+  ]
+ },
+ {
+  "id": "E16",
+  "label": "oilDensityKgM3: thermal expansion 0.0007 -> 0.0009",
+  "eng": [
+   "crudeThermalExpansionPerC: 0.0007,",
+   "crudeThermalExpansionPerC: 0.0009,"
+  ]
+ },
+ {
+  "id": "E17",
+  "label": "hydrocyclone: liner design flow 0.0006 -> 0.0012",
+  "eng": [
+   "designFlowPerLinerM3S: 0.0006,",
+   "designFlowPerLinerM3S: 0.0012,"
+  ]
+ },
+ {
+  "id": "E18",
+  "label": "media filter: loading exponent 0.5 -> 0.4",
+  "eng": [
+   "filterLoadingExponent: 0.5,",
+   "filterLoadingExponent: 0.4,"
+  ]
+ },
+ {
+  "id": "E19",
+  "label": "media filter: drop bedDepthM from the cut size",
+  "eng": [
+   "Math.LN2 / (lambdaAtRefPerM * bedDepthM)",
+   "Math.LN2 / (lambdaAtRefPerM * 0.9)"
+  ]
+ },
+ {
+  "id": "E20",
+  "label": "gravity devices: Stokes cut inversion 18 -> 20",
+  "eng": [
+   "Math.sqrt((18 * muPaS * riseMS)",
+   "Math.sqrt((20 * muPaS * riseMS)"
+  ]
+ },
+ {
+  "id": "E21",
+  "label": "medianOfBins: threshold 0.5 -> 0.65",
+  "eng": [
+   "if (acc + f >= 0.5)",
+   "if (acc + f >= 0.65)"
+  ]
+ },
+ {
+  "id": "E22",
+  "label": "dropletBins: nBins 60 -> 40",
+  "eng": [
+   "defaultNBins: 60,",
+   "defaultNBins: 40,"
+  ]
+ },
+ {
+  "id": "E23",
+  "label": "applyDevice: drop the outlet normalisation",
+  "eng": [
+   "b.volumeFraction / survivingVolume",
+   "b.volumeFraction"
+  ]
+ },
+ {
+  "id": "E24",
+  "label": "stokesRiseMS: the Stokes constant 18 -> 20",
+  "eng": [
+   "/ (18 * muPaS)",
+   "/ (20 * muPaS)"
+  ]
+ },
+ {
+  "id": "E25",
+  "label": "waterViscosityPaS: salinity multiplier 1.8 -> 2.5",
+  "eng": [
+   "salinityViscosityMultiplier: 1.8,",
+   "salinityViscosityMultiplier: 2.5,"
+  ]
+ },
+ {
+  "id": "E26",
+  "label": "waterDensityKgM3: brine density slope 700 -> 900",
+  "eng": [
+   "brineDensitySlopeKgM3: 700,",
+   "brineDensitySlopeKgM3: 900,"
+  ]
+ },
+ {
+  "id": "E27",
+  "label": "erf: the A&S series coefficient 0.3275911 -> 0.3285911",
+  "eng": [
+   "0.3275911",
+   "0.3285911"
+  ]
+ },
+ {
+  "id": "B1",
+  "label": "BOTH: the gravity cut inversion 18 -> 20",
+  "eng": [
+   "Math.sqrt((18 * muPaS * riseMS)",
+   "Math.sqrt((20 * muPaS * riseMS)"
+  ],
+  "ora": [
+   "d = math.sqrt(18.0 * mu * design_rise",
+   "d = math.sqrt(20.0 * mu * design_rise"
+  ],
+  "oraOptional": true,
+  "regen": true
+ },
+ {
+  "id": "B2",
+  "label": "BOTH: Stokes rise 18 -> 20",
+  "eng": [
+   "/ (18 * muPaS)",
+   "/ (20 * muPaS)"
+  ],
+  "ora": [
+   "(rho_w - rho_o) / (18.0 * mu)",
+   "(rho_w - rho_o) / (20.0 * mu)"
+  ],
+  "oraOptional": true,
+  "regen": true
+ },
+ {
+  "id": "B3",
+  "label": "BOTH: salinity multiplier 1.8 -> 2.5",
+  "eng": [
+   "salinityViscosityMultiplier: 1.8,",
+   "salinityViscosityMultiplier: 2.5,"
+  ],
+  "ora": [
+   "\"salinityViscosityMultiplier\": 1.8,",
+   "\"salinityViscosityMultiplier\": 2.5,"
+  ],
+  "regen": true
+ },
+ {
+  "id": "B4",
+  "label": "BOTH: brine density slope 700 -> 900",
+  "eng": [
+   "brineDensitySlopeKgM3: 700,",
+   "brineDensitySlopeKgM3: 900,"
+  ],
+  "ora": [
+   "\"brineDensitySlopeKgM3\": 700.0,",
+   "\"brineDensitySlopeKgM3\": 900.0,"
+  ],
+  "regen": true
+ },
+ {
+  "id": "B5",
+  "label": "BOTH: filter loading exponent 0.5 -> 0.4",
+  "eng": [
+   "filterLoadingExponent: 0.5,",
+   "filterLoadingExponent: 0.4,"
+  ],
+  "ora": [
+   "\"filterLoadingExponent\": 0.5,",
+   "\"filterLoadingExponent\": 0.4,"
+  ],
+  "regen": true
+ },
+ {
+  "id": "B6",
+  "label": "BOTH: crude thermal expansion 0.0007 -> 0.0009",
+  "eng": [
+   "crudeThermalExpansionPerC: 0.0007,",
+   "crudeThermalExpansionPerC: 0.0009,"
+  ],
+  "ora": [
+   "\"crudeThermalExpansionPerC\": 0.0007,",
+   "\"crudeThermalExpansionPerC\": 0.0009,"
+  ],
+  "regen": true
+ },
+ {
+  "id": "B7",
+  "label": "BOTH: Vogel constant 247.8 -> 250",
+  "eng": [
+   "vogelB: 247.8,",
+   "vogelB: 250,"
+  ],
+  "ora": [
+   "\"vogelB\": 247.8,",
+   "\"vogelB\": 250,"
+  ],
+  "regen": true
+ },
+ {
+  "id": "B8",
+  "label": "BOTH: grade efficiency r/(1+r) -> r/(0.9+r)",
+  "eng": [
+   "return r / (1 + r);",
+   "return r / (0.9 + r);"
+  ],
+  "ora": [
+   "return r / (1.0 + r)",
+   "return r / (0.9 + r)"
+  ],
+  "regen": true
+ },
+ {
+  "id": "H1",
+  "label": "HARNESS SELF-TEST: a plant that breaks parsing must never be scored GREEN",
+  "eng": [
+   "export const medianOfBins = (bins) => {",
+   "export const medianOfBins = (bins) => { ((("
+  ],
+  "expectNoResult": true
+ },
+ {
+  "id": "P01",
+  "label": "filter: the low-rate clamp restored above the floor, max(loading, 4)",
+  "eng": [
+   "(filterReferenceLoadingMHr / loadingMHr) ** filterLoadingExponent",
+   "(filterReferenceLoadingMHr / Math.max(loadingMHr, 4)) ** filterLoadingExponent"
+  ]
+ },
+ {
+  "id": "P02",
+  "label": "filter: the floor refusal switched off, so it answers below it again",
+  "eng": [
+   "  if (loadingMHr < filterMinLoadingMHr) {",
+   "  if (false) {"
+  ]
+ },
+ {
+  "id": "P03",
+  "label": "filter: the declared floor 1 -> 0.001 m/hr (a floor that refuses nothing)",
+  "eng": [
+   "  filterMinLoadingMHr: 1,",
+   "  filterMinLoadingMHr: 0.001,"
+  ]
+ },
+ {
+  "id": "P04",
+  "label": "filter: the declared floor 1 -> 5 m/hr (it refuses beds it can answer for)",
+  "eng": [
+   "  filterMinLoadingMHr: 1,",
+   "  filterMinLoadingMHr: 5,"
+  ]
+ },
+ {
+  "id": "P05",
+  "label": "filter: the refusal stops saying what bed would run this flow at the floor",
+  "eng": [
+   "${areaAtFloorM2.toPrecision(4)} m2 of bed would run this flow at the floor. ",
+   ""
+  ]
+ },
+ {
+  "id": "P06",
+  "label": "filter: the refusal blames the flow instead of the loading",
+  "eng": [
+   "      error: `a loading of ${loadingMHr.toPrecision(3)} m/hr is below",
+   "      error: `a filter needs a positive flow in m3/s -- a loading of ${loadingMHr.toPrecision(3)} m/hr is below"
+  ]
+ },
+ {
+  "id": "P07",
+  "label": "filter: the return stops reporting the floor it judged against",
+  "eng": [
+   "    loadingFloorMHr: filterMinLoadingMHr,\n    bedDepthM,",
+   "    bedDepthM,"
+  ]
+ },
+ {
+  "id": "P08",
+  "label": "filter: the refusal stops reporting the bed the flow wants",
+  "eng": [
+   "      areaAtFloorM2,\n    };",
+   "    };"
+  ]
+ },
+ {
+  "id": "P09",
+  "label": "BOTH: the clamp restored in the engine AND the oracle at max(loading, 4)",
+  "eng": [
+   "(filterReferenceLoadingMHr / loadingMHr) ** filterLoadingExponent",
+   "(filterReferenceLoadingMHr / Math.max(loadingMHr, 4)) ** filterLoadingExponent"
+  ],
+  "ora": [
+   "        C[\"filterReferenceLoadingMHr\"] / loading_mhr",
+   "        C[\"filterReferenceLoadingMHr\"] / max(loading_mhr, 4.0)"
+  ],
+  "regen": true
+ },
+ {
+  "id": "P10",
+  "label": "BOTH: the declared floor 1 -> 0.001 in the engine and the oracle",
+  "eng": [
+   "  filterMinLoadingMHr: 1,",
+   "  filterMinLoadingMHr: 0.001,"
+  ],
+  "ora": [
+   "    \"filterMinLoadingMHr\": 1.0,",
+   "    \"filterMinLoadingMHr\": 0.001,"
+  ],
+  "regen": true
+ },
+ {
+  "id": "P11",
+  "label": "flotation: the bare 60 re-inlined beside the declared constant",
+  "eng": [
+   "      residenceS < flotationResidenceWarnS",
+   "      residenceS < 60"
+  ]
+ },
+ {
+  "id": "P12",
+  "label": "flotation: the threshold inlined at a DIFFERENT number, 120 s",
+  "eng": [
+   "      residenceS < flotationResidenceWarnS",
+   "      residenceS < 120"
+  ]
+ },
+ {
+  "id": "P13",
+  "label": "flotation: the declared residence threshold 60 -> 45 s",
+  "eng": [
+   "  flotationResidenceWarnS: 60,",
+   "  flotationResidenceWarnS: 45,"
+  ]
+ },
+ {
+  "id": "P14",
+  "label": "BOTH: the residence threshold 60 -> 45 in the engine and the oracle",
+  "eng": [
+   "  flotationResidenceWarnS: 60,",
+   "  flotationResidenceWarnS: 45,"
+  ],
+  "ora": [
+   "    \"flotationResidenceWarnS\": 60.0,",
+   "    \"flotationResidenceWarnS\": 45.0,"
+  ],
+  "regen": true
+ },
+ {
+  "id": "P15",
+  "label": "flotation: the return stops reporting the threshold it judged against",
+  "eng": [
+   "    residenceWarnS: flotationResidenceWarnS,\n",
+   ""
+  ]
+ },
+ {
+  "id": "P16",
+  "label": "flotation: the warning stops quoting the threshold",
+  "eng": [
+   "is under the ${flotationResidenceWarnS} s this module warns below",
+   "is on the short side"
+  ]
+ },
+ {
+  "id": "P17",
+  "label": "grid: the nBins floor inlined again at a different number",
+  "eng": [
+   "nBins < minNBins",
+   "nBins < 25"
+  ]
+ },
+ {
+  "id": "P18",
+  "label": "grid: the span floor inlined again at a different number",
+  "eng": [
+   "spanSigma < minSpanSigma",
+   "spanSigma < 5"
+  ]
+ },
+ {
+  "id": "P19",
+  "label": "medianOfBins: the bin-midpoint fallback restored",
+  "eng": [
+   "    if (!(b.volumeFraction >= 0)) return NaN;\n    // no edges, no median: the midpoint is the quantised answer\n    if (!(b.dLoMicron > 0) || !(b.dHiMicron > b.dLoMicron)) return NaN;",
+   "    if (!(b.volumeFraction >= 0)) return NaN;"
+  ]
+ },
+ {
+  "id": "P20",
+  "label": "medianOfBins: the midpoint returned ALWAYS, edges or no edges",
+  "eng": [
+   "      if (!(f > 0)) return NaN;\n      const within = (0.5 - acc) / f;\n      return Math.exp(Math.log(b.dLoMicron) + within * Math.log(b.dHiMicron / b.dLoMicron));",
+   "      return b.dMicron;"
+  ]
+ },
+ {
+  "id": "P21",
+  "label": "medianOfBins: the edge check moved from UP FRONT to the straddling bin, so a bad grid below the median passes",
+  "eng": [
+   "    if (!(b.volumeFraction >= 0)) return NaN;\n    // no edges, no median: the midpoint is the quantised answer\n    if (!(b.dLoMicron > 0) || !(b.dHiMicron > b.dLoMicron)) return NaN;\n    total += b.volumeFraction;\n  }\n  if (!(total > 0)) return NaN;\n  let acc = 0;\n  for (const b of bins) {\n    const f = b.volumeFraction / total;\n    if (acc + f >= 0.5) {\n      if (!(f > 0)) return NaN;\n      const within = (0.5 - acc) / f;\n      return Math.exp(Math.log(b.dLoMicron) + within * Math.log(b.dHiMicron / b.dLoMicron));\n    }",
+   "    if (!(b.volumeFraction >= 0)) return NaN;\n    total += b.volumeFraction;\n  }\n  if (!(total > 0)) return NaN;\n  let acc = 0;\n  for (const b of bins) {\n    const f = b.volumeFraction / total;\n    if (acc + f >= 0.5) {\n      if (!(f > 0)) return NaN;\n      if (!(b.dLoMicron > 0) || !(b.dHiMicron > b.dLoMicron)) return NaN;\n      const within = (0.5 - acc) / f;\n      return Math.exp(Math.log(b.dLoMicron) + within * Math.log(b.dHiMicron / b.dLoMicron));\n    }"
+  ]
+ },
+ {
+  "id": "P22",
+  "label": "filter: the floor comparison inlined at a different number, 0.001 m/hr",
+  "eng": [
+   "  if (loadingMHr < filterMinLoadingMHr) {",
+   "  if (loadingMHr < 0.001) {"
+  ]
+ },
+ {
+  "id": "P23",
+  "label": "grid: the span floor inlined between the declared value and the goldens, 3.5",
+  "eng": [
+   "spanSigma < minSpanSigma",
+   "spanSigma < 3.5"
+  ]
+ },
+ {
+  "id": "P24",
+  "label": "grid: the nBins floor inlined just above the declared value, 11",
+  "eng": [
+   "nBins < minNBins",
+   "nBins < 11"
+  ]
+ }
+]

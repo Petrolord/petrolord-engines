@@ -12,29 +12,90 @@
 // the shared src/lib/gridding/gridmath.js at its second consumer
 // (Earth Modeling); re-exported here so this module's API is unchanged.
 
+import { makeDepthFrame } from '../welldata/checkshots.js';
+
 export {
   resampleTo,
   combine,
   isochore,
+  thickness,
   scalarAdd,
+  maskOutsidePolygon,
+  convertZUnit,
   surfaceStats,
 } from '../../lib/gridding/gridmath';
 
 /**
- * Control points {x,y,z} for a named top across wells (a structure
- * map): surface X/Y from the well, z = the top's MD. Wells lacking the
- * top are skipped.
- * @param {Array<{surface_x,surface_y,tops:Array<{name,md_m}>}>} wells
+ * Depth references a structure map can be built in. `tvdss` and `tvd`
+ * produce ELEVATION values (negative below datum, the geo_surfaces
+ * convention since 2026-09-05); `md` is the raw measured depth,
+ * positive, kept for attribute-style uses and legacy callers.
  */
-export function topsToPoints(wells, topName) {
-  const pts = [];
-  for (const w of wells) {
+export const STRUCTURE_DEPTH_REFS = ['md', 'tvd', 'tvdss'];
+/** Where a top's control point is posted: the borehole position at the
+ *  top's MD (what Petrel maps) or the wellhead. */
+export const STRUCTURE_PLACEMENTS = ['borehole', 'surface'];
+/** Fixed skip reasons, rendered by the workstation. */
+export const CONTROL_POINT_SKIP_REASONS = Object.freeze({
+  no_top: 'no such top',
+  no_location: 'no surface location',
+  bad_md: 'non-numeric top depth',
+  bad_survey: 'unusable deviation survey',
+  above_survey: 'top above the survey',
+});
+
+/**
+ * Control points for a named top across wells (a structure map), placed
+ * through each well's depth frame (survey + KB).
+ * @param {Array<{name, surface_x, surface_y, kb_m?, td_md_m?, deviation?, tops:Array<{name, md_m}>}>} wells
+ * @param {string} topName
+ * @param {{depthRef?: 'md'|'tvd'|'tvdss', placement?: 'borehole'|'surface'}} [opts]
+ * @returns {{points: Array<{x, y, z, well, md, extrapolated}>,
+ *   skipped: Array<{well, reason, detail?}>, extrapolated: number,
+ *   depthRef: string, placement: string}}
+ */
+export function topsToControlPoints(wells, topName, { depthRef = 'tvdss', placement = 'borehole' } = {}) {
+  if (!STRUCTURE_DEPTH_REFS.includes(depthRef)) throw new Error(`Unknown depth reference "${depthRef}" (expected md, tvd or tvdss).`);
+  if (!STRUCTURE_PLACEMENTS.includes(placement)) throw new Error(`Unknown placement "${placement}" (expected borehole or surface).`);
+  const points = [];
+  const skipped = [];
+  let extrapolated = 0;
+  for (const w of wells || []) {
+    const well = w.name;
     const t = (w.tops || []).find((x) => x.name === topName);
-    if (t && Number.isFinite(t.md_m) && Number.isFinite(w.surface_x)) {
-      pts.push({ x: w.surface_x, y: w.surface_y, z: t.md_m, well: w.name });
+    if (!t) { skipped.push({ well, reason: 'no_top' }); continue; }
+    if (!Number.isFinite(w.surface_x) || !Number.isFinite(w.surface_y)) { skipped.push({ well, reason: 'no_location' }); continue; }
+    const md = Number(t.md_m);
+    if (!Number.isFinite(md)) { skipped.push({ well, reason: 'bad_md', detail: String(t.md_m) }); continue; }
+    let frame;
+    try {
+      frame = makeDepthFrame({ deviation: w.deviation, kbM: w.kb_m ?? 0, tdMdM: w.td_md_m });
+    } catch (e) {
+      skipped.push({ well, reason: 'bad_survey', detail: e.message });
+      continue;
     }
+    let p;
+    try {
+      p = frame.mdToPosition(md);
+    } catch (e) {
+      skipped.push({ well, reason: 'above_survey', detail: e.message });
+      continue;
+    }
+    const z = depthRef === 'md' ? md : depthRef === 'tvd' ? -p.tvd : -p.tvdss;
+    const x = placement === 'borehole' ? w.surface_x + p.x : w.surface_x;
+    const y = placement === 'borehole' ? w.surface_y + p.y : w.surface_y;
+    if (p.extrapolated) extrapolated += 1;
+    points.push({ x, y, z, well, md, extrapolated: p.extrapolated });
   }
-  return pts;
+  return { points, skipped, extrapolated, depthRef, placement };
+}
+
+/**
+ * The control points alone (array shape kept for existing callers).
+ * Default: TVDSS elevation at the borehole position.
+ */
+export function topsToPoints(wells, topName, opts) {
+  return topsToControlPoints(wells, topName, opts).points;
 }
 
 /**

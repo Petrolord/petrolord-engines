@@ -1,0 +1,17 @@
+{
+  "_source": "NIST Chemistry WebBook (SRD 69), phase-change data: normal boiling points; CO2 saturation at 273.15 K (sublimes at 1 atm, so an above-triple-point saturation datum is used instead).",
+  "_gate": "PR78 purePsat at the listed temperature must reproduce the measured pressure within relTol. Tolerances are honest per-component bands set at ~1.5x the observed FS2 error; they document PR78 accuracy (sub-1% for most paraffins, worse at low reduced temperature - H2S sits at Tr 0.57 where PR is known to overpredict).",
+  "points": [
+    { "key": "N2", "tK": 77.355, "pKPa": 101.325, "relTol": 0.005, "note": "NBP" },
+    { "key": "CO2", "tK": 273.15, "pKPa": 3485.0, "relTol": 0.02, "note": "saturation at 0 degC, NIST WebBook" },
+    { "key": "H2S", "tK": 212.84, "pKPa": 101.325, "relTol": 0.12, "note": "NBP; Tr=0.57, low-Tr PR overprediction" },
+    { "key": "C1", "tK": 111.67, "pKPa": 101.325, "relTol": 0.015, "note": "NBP" },
+    { "key": "C2", "tK": 184.55, "pKPa": 101.325, "relTol": 0.01, "note": "NBP" },
+    { "key": "C3", "tK": 231.06, "pKPa": 101.325, "relTol": 0.01, "note": "NBP" },
+    { "key": "iC4", "tK": 261.42, "pKPa": 101.325, "relTol": 0.04, "note": "NBP" },
+    { "key": "nC4", "tK": 272.66, "pKPa": 101.325, "relTol": 0.01, "note": "NBP" },
+    { "key": "iC5", "tK": 300.98, "pKPa": 101.325, "relTol": 0.01, "note": "NBP" },
+    { "key": "nC5", "tK": 309.21, "pKPa": 101.325, "relTol": 0.01, "note": "NBP" },
+    { "key": "nC6", "tK": 341.88, "pKPa": 101.325, "relTol": 0.015, "note": "NBP" }
+  ]
+}

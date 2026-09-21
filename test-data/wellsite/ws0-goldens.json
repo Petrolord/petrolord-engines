@@ -1,0 +1,59 @@
+{
+  "deviated": {
+    "expected": {
+      "mdOfTvd1600": null,
+      "tvdAt1600": 1597.0293206395183,
+      "tvdAt1750": 1734.2253804929803,
+      "tvdAt1900Extrapolated": 1864.129191060646
+    },
+    "kbElevM": 25.0,
+    "stations": [
+      {
+        "azi": 0,
+        "inc": 0,
+        "md": 0
+      },
+      {
+        "azi": 0,
+        "inc": 0,
+        "md": 1400
+      },
+      {
+        "azi": 90,
+        "inc": 30,
+        "md": 1750
+      }
+    ]
+  },
+  "pumps": {
+    "duplex_7p25x14_rod2p5_90": {
+      "bblPerStroke": 0.20170452832707184,
+      "fieldBblPerStroke": 0.20182365000000002,
+      "m3PerStroke": 0.032068457333449304,
+      "theoreticalM3PerStroke": 0.03563161925938812
+    },
+    "triplex_6x12_97": {
+      "bblPerStroke": 0.10176661916823332,
+      "fieldBblPerStroke": 0.10182672000000001,
+      "m3PerStroke": 0.01617959949552537,
+      "theoreticalM3PerStroke": 0.016679999479923064
+    }
+  },
+  "vertical": {
+    "entry": {
+      "datum": "GL",
+      "kind": "bit_depth",
+      "reference": "MD",
+      "unit": "ft",
+      "value": 3000
+    },
+    "expected": {
+      "displayFtRt": 3068.897637795276,
+      "mdM": 935.4000000000001,
+      "tvdM": 935.4000000000001,
+      "tvdssM": 910.4000000000001
+    },
+    "glElevM": 4.0,
+    "kbElevM": 25.0
+  }
+}

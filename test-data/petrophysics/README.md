@@ -34,12 +34,32 @@ that is only a dual implementation while the two sides stay separate.
     noise); DT inverted through Wyllie the same way; NPHI = φ + 0.30·s
     − 0.08·(gas); RT = exact Archie inversion of `sw_target` where
     s < 0.01, conductivity blend elsewhere.
+  - PT11d adds `PEF` from the same mixture: the type well is quartz +
+    clay + fluid by construction (RHOB = 2.65 − 1.65·φ − 0.10·s is
+    v_q·2.65 + s·2.55 + φ·1.0; NPHI = φ + 0.30·s off the gas zone), so
+    U = v_q·U_q + s·U_c + φ·0.398 with U = Pe·ρe, ρe = (ρb+0.1883)/1.0704,
+    Pe quartz 1.81 and clay 3.45; PEF = U/ρe(RHOB) and shares RHOB's
+    nulls. Note the forward model's quartz neutron endpoint is 0.0 (the
+    v1 construction reads NPHI = φ in clean sand), not the chart-book
+    −0.02 the engine's default table carries; the MINERAL golden stores
+    its own table.
 - `goldens.json` — oracle outputs on the type well for the parameter
   set recorded in `typewell.json.params`: IGR + 5 Vsh models, PHID,
   Wyllie + RHG sonic porosity, ND avg/rms, Sw (Archie / Simandoux
   classic / Indonesia), zone cutoff flags + net-pay summaries, and a
   Pickett fit on an exact synthetic water line (recovers m = 2,
   a·Rw = 0.05 to f64 noise).
+- `goldens.json.EFFECTIVE` (fixture v3, PT9 2026-09-07) — the same
+  default recipe re-run on the SHALE-CORRECTED effective porosity
+  PHIE = PHID − Vsh·φ_sh with φ_sh = `params.phi_shale` (the density
+  tool's exact shale point (ρ_ma − ρ_sh)/(ρ_ma − ρ_fl)): PHIE,
+  PHIE_LINEAR, Archie / modified-Simandoux / temperature-path Sw,
+  Buckles Swirr, Timur k, BVW, zone summaries (with `k_gm_md`), and the
+  PS3 zoned patches. Every pre-existing key stays on PHID and
+  byte-identical (verified at regeneration). Anchor: GR = 20 + 100·s
+  makes IGR ≡ s, so the LINEAR-Vsh correction recovers the construction
+  `phi_true` at every sample to f64 noise, and the default-recipe PHIE
+  equals PHID wherever the rock is clean — genfixtures.py asserts both.
 - `analytic_cases.json` — hand-derivable scalar cases. Derivations:
   - `archie_basic`: a=1, m=n=2, φ=0.2, Rw=0.04, Rt=10 →
     Sw = √(0.04/(0.04·10)) = √0.1 ≈ 0.316227766…
@@ -51,8 +71,35 @@ that is only a dual implementation while the two sides stay separate.
   - `arps_75_to_150`: 0.1·(75+6.77)/(150+6.77).
   - `sp_quicklook`: K = 61+0.133·150 = 80.95;
     Rwe = 0.5·10^(−100/80.95).
+  - `bk_check_point_150f` (PT11a): A = 0.131·10^(1/log10(150/19.9)−2)
+    = 0.0181, B = 10^(0.0426/log10(150/50.8)) = 1.232,
+    Rw = (0.05+A)/(B−0.025) = 0.0564 (the owner's check point).
+  - `bk_inverse_roundtrip`: rwe_to_rw(rw_to_rwe(0.12, 200), 200) = 0.12.
+  - `bk_rmfe_x085` / `bk_rmfe_inverse`: Rmf 0.5 at 75 °F exceeds 0.1 so
+    Rmfe = 0.85·Rmf(150 °F); Rmf 0.05 goes through the chart inverse.
+  - `sp_chain_typewell`: SSP solved so the full chain returns the type
+    well's Rw = 0.05 at 150 °F; the uncorrected Rwe = 0.0425 is what
+    the pre-PT11a quicklook would have applied.
   - `simandoux/indonesia_vsh0_equals_archie`: shaly-sand models must
     degenerate exactly to Archie at Vsh = 0.
+
+- `MINERAL` (PT11d): the three-mineral solve {quartz, calcite, clay}
+  with the stored endpoint table and fluid: `V_QUARTZ`, `V_CALCITE`,
+  `V_CLAY`, `PHI_MM`, `MM_RES` (the excursion outside 0..1, 0 when
+  accepted) and `MM_FLAG` (0 accepted, 1 singular, 2 out of range, 3
+  missing). Off the gas zone the solve recovers `phi_true`, the shale
+  fraction and zero calcite to 1e-9 (asserted at generation); the gas
+  zone (2010-2030 m, NPHI lowered by 0.08) is refused with flag 2,
+  which is the fixed-fluid assumption failing as it should.
+- `COND` (PS8, PT11c): conditioning goldens on derived inputs. PT11c
+  adds `tiePairs` ([reference, target] depths), `GR_TIE_SHIFTED`
+  (stretch and squeeze through those ties) and `SHIFT_CURVE`
+  (z − warp(z), positive where the curve moves deeper, the block
+  shift's sign). One rule changed with PT11c and moved one sample of
+  `GR_SHIFTED` (index 92, None → 120): a read that lands exactly on a
+  raw sample is that sample, so the identity warp returns the input
+  byte for byte; only a read BETWEEN samples needs both brackets
+  finite (gaps are still never bridged).
 
 ## Numeric contract (for the G2.1 jest suites)
 
@@ -75,11 +122,20 @@ that is only a dual implementation while the two sides stay separate.
 
 ## Published-example anchor (RESOLVED — owner accepted 2026-07-13)
 
-The layer-4 end-to-end published worked example (plan §8 Q4) is NOT
-here yet — open web sources were login-gated/bot-blocked on
-2026-07-13 and no coefficients or citations were guessed. When the
-owner supplies a page-referenced example (e.g. Asquith & Krygowski),
-it lands as `published_case.json` beside these with its full
-citation. The SP chain is the documented QUICKLOOK approximation
-(Rmfe ≈ Rmf, Rw ≈ Rwe) until the Bateman & Konen (1977) conversion
-can be cited from the page.
+No page-referenced worked example (Asquith & Krygowski or equivalent) is
+on file yet; when the owner supplies one it lands as `published_case.json`
+beside these with its full citation. The SP chain is complete since PT11a
+(2026-09-10): Rmf -> Rmfe (0.85 rule or the chart inverse), Rwe from SSP
+and K, and Rwe -> Rw by the Bateman & Konen (1977, The Log Analyst 18(5)
+p. 3-11) fit to chart SP-2, with the limits stated in `engines/petrophysics/rw.js`.
+Chart readings for its golden gate live in `chart_points.json`: 31 read
+2026-09-10 (28 on the fresh side, Rw 1.0 to 5.0 ohm.m at all seven
+printed temperatures 75 to 500 F; 3 near NaCl saturation at 75 F). They
+REFUTE the fit on both sides (36 to 92 percent low fresh, 13 to 24
+percent high saline), so the engine accepts only Rwe 0.02 (at 75 F,
+Arps to formation T) to 0.1 ohm.m and refuses elsewhere. Five
+label-anchored 75 F readings inside that band (Rweq 0.02 to 0.06, read
+later the same day) put the fit within 10 percent (+9.3 to -4.2), the
+declared `fit_residual_accepted` gate 2 uses inside the band (reading
+precision is 3 percent; the fit is an approximation and says so); other
+temperatures inside the band are unread and gate 2 says so.

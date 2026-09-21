@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
 /**
  * Compaction Model Parameters (Sclater & Christie, 1980)
  * φ(z) = φ0 * exp(-c * z)
@@ -39,5 +45,5 @@ export const LithologyCompaction = {
   
   export const getCompactionParams = (lithology) => {
     const key = lithology?.toLowerCase();
-    return LithologyCompaction[key] || LithologyCompaction.default;
+    return (ownPreset(LithologyCompaction, key) ? LithologyCompaction[key] : null) || LithologyCompaction.default;
   };

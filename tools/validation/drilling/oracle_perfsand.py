@@ -197,6 +197,18 @@ def self_asserts():
     assert abs(s['d50M'] - 100.0 * UM) < 1e-12, s['d50M']
     assert abs(s['d10M'] - 1000.0 * UM * 10.0 ** -0.2) < 1e-12
     assert abs(s['uniformity'] - 10.0) < 1e-9, s['uniformity']
+    # The CDP sweep visits the interval BOTTOM at every step size, including
+    # the ones that do not divide the interval. This is the assertion the
+    # old shape would have failed: 2450 to 2550 at 30 m stopped at 2540.
+    assert cdp_mds(2450.0, 2550.0, 10.0)[-1] == 2550.0
+    assert len(cdp_mds(2450.0, 2550.0, 10.0)) == 11
+    assert cdp_mds(2450.0, 2550.0, 30.0)[-1] == 2550.0
+    assert len(cdp_mds(2450.0, 2550.0, 30.0)) == 5
+    assert cdp_mds(2450.0, 2550.0, 150.0) == [2450.0, 2550.0]
+    for st in (7.0, 10.0, 13.0, 25.0, 30.0, 40.0, 99.0, 100.0, 150.0):
+        mds = cdp_mds(2450.0, 2550.0, st)
+        assert mds[0] == 2450.0 and mds[-1] == 2550.0, (st, mds)
+        assert all(b > a for a, b in zip(mds, mds[1:])), (st, mds)
     # Saucier + screen.
     sc = saucier(120.0 * UM)
     assert abs(sc['bandMinM'] - 600e-6) < 1e-12 and abs(sc['bandMaxM'] - 720e-6) < 1e-12
@@ -235,13 +247,34 @@ SIEVE = [
 INTERVAL = dict(topMdM=2450.0, bottomMdM=2550.0)
 BOOST = 1.0
 STEP = 10.0
+RAGGED_STEP = 30.0  # deliberately does not divide the 100 m interval
 
 
-def cdp_profile(stations, tvd, sv, shmax, shmin, pp, ucs, geometry):
+def cdp_mds(top, bottom, step):
+    """The measured depths a sweep must visit.
+
+    Built as a list rather than as a while loop, deliberately: the engine's
+    loop and a transcription of it would share any endpoint mistake, and the
+    endpoint is exactly where this went wrong. Whole steps from the top, then
+    the bottom itself whenever the last whole step falls short of it. The
+    interval BOTTOM is always screened.
+    """
+    n = int(math.floor((bottom - top) / step + 1e-9))
+    mds = [top + i * step for i in range(n + 1)]
+    if mds[-1] < bottom - 1e-9:
+        mds.append(bottom)
+    else:
+        mds[-1] = bottom
+    return mds
+
+
+def cdp_profile(stations, tvd, sv, shmax, shmin, pp, ucs, geometry,
+                top=None, bottom=None, step=None):
+    top = INTERVAL['topMdM'] if top is None else top
+    bottom = INTERVAL['bottomMdM'] if bottom is None else bottom
+    step = STEP if step is None else step
     rows = []
-    md = INTERVAL['topMdM']
-    while md <= INTERVAL['bottomMdM'] + 1e-9:
-        m = min(md, INTERVAL['bottomMdM'])
+    for m in cdp_mds(top, bottom, step):
         z = tvd_of(stations, m)
         at = lambda arr: float(np.interp(z, tvd, arr))  # noqa: E731
         svz, sxz, snz, ppz, uz = at(sv), at(shmax), at(shmin), at(pp), at(ucs)
@@ -251,9 +284,6 @@ def cdp_profile(stations, tvd, sv, shmax, shmin, pp, ucs, geometry):
             s1, s2 = sxz, snz
         pc = pwf_crit(s1, s2, uz, BOOST)
         rows.append(dict(mdM=m, tvdM=z, ppPa=ppz, pwfCritPa=pc, cdpPa=ppz - pc))
-        if m >= INTERVAL['bottomMdM']:
-            break
-        md += STEP
     governing = min(rows, key=lambda r: r['cdpPa'])
     return rows, governing
 
@@ -291,6 +321,14 @@ def main():
                                       ucs, geometry)
         cdp[geometry] = dict(rows=rows, governing=governing)
 
+    # A step that does NOT divide the interval. The golden's own 10 m step
+    # divides 100 m evenly, so it cannot tell an endpoint-inclusive sweep
+    # from one that stops at the last whole step. This case can.
+    ragged_rows, ragged_gov = cdp_profile(stations, tvd, sv, shmax, shmin, pp,
+                                          ucs, 'perf-tunnel', step=RAGGED_STEP)
+    ragged = dict(stepMdM=RAGGED_STEP, rows=ragged_rows, governing=ragged_gov,
+                  interval=INTERVAL, geometry='perf-tunnel')
+
     # The sanding closed-form fixture (self-asserted above).
     fixture = dict(inputs=dict(s1Pa=60e6, s2Pa=45e6, ucsPa=40e6, boostFactor=1.0),
                    expected=dict(pwfCritPa=pwf_crit(60e6, 45e6, 40e6)))
@@ -320,7 +358,7 @@ def main():
         'gravel': {'expected': sauc,
                    'screenGaugeThou': gauge,
                    'advisorIndication': ind},
-        'sanding': {'fixture': fixture, 'cdp': cdp},
+        'sanding': {'fixture': fixture, 'cdp': cdp, 'cdpRagged': ragged},
     })
 
 

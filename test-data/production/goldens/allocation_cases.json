@@ -1,0 +1,7058 @@
+{
+ "allocation": {
+  "days": [
+   {
+    "allocated": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-25",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 691.0429447852761,
+       "oil": 1176.923076923077,
+       "water": 325.7142857142857
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 640.0,
+       "oil": 1200.0,
+       "water": 300.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 188.95705521472394,
+       "oil": 523.0769230769231,
+       "water": 54.285714285714285
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 175.0,
+       "oil": 533.3333333333334,
+       "water": 50.0
+      },
+      "uptime": 0.8333333333333334,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0797546012269938,
+     "oil": 0.9807692307692307,
+     "water": 1.0857142857142856
+    },
+    "measured": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "theoretical": {
+     "gas": 815.0,
+     "oil": 1733.3333333333335,
+     "water": 350.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-26",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 661.0823529411765,
+       "oil": 1106.0869565217392,
+       "water": 324.1666666666667
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 640.0,
+       "oil": 1200.0,
+       "water": 300.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 216.91764705882352,
+       "oil": 589.9130434782609,
+       "water": 64.83333333333333
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0329411764705883,
+     "oil": 0.9217391304347826,
+     "water": 1.0805555555555555
+    },
+    "measured": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-27",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 659.5764705882353,
+       "oil": 1103.4782608695652,
+       "water": 331.6666666666667
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 640.0,
+       "oil": 1200.0,
+       "water": 300.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 216.42352941176472,
+       "oil": 588.5217391304348,
+       "water": 66.33333333333333
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0305882352941176,
+     "oil": 0.9195652173913044,
+     "water": 1.1055555555555556
+    },
+    "measured": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 874.0,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-28",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 686.3312883435583,
+       "oil": 1168.6153846153845,
+       "water": 348.85714285714283
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 640.0,
+       "oil": 1200.0,
+       "water": 300.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 187.66871165644173,
+       "oil": 519.3846153846154,
+       "water": 58.142857142857146
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 175.0,
+       "oil": 533.3333333333334,
+       "water": 50.0
+      },
+      "uptime": 0.8333333333333334,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0723926380368098,
+     "oil": 0.9738461538461538,
+     "water": 1.1628571428571428
+    },
+    "measured": {
+     "gas": 874.0,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "theoretical": {
+     "gas": 815.0,
+     "oil": 1733.3333333333335,
+     "water": 350.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-29",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 656.564705882353,
+       "oil": 1098.2608695652175,
+       "water": 346.6666666666667
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 640.0,
+       "oil": 1200.0,
+       "water": 300.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 215.43529411764706,
+       "oil": 585.7391304347826,
+       "water": 69.33333333333333
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0258823529411765,
+     "oil": 0.9152173913043479,
+     "water": 1.1555555555555554
+    },
+    "measured": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-30",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 655.0588235294117,
+       "oil": 1095.6521739130435,
+       "water": 354.1666666666667
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 640.0,
+       "oil": 1200.0,
+       "water": 300.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 214.94117647058823,
+       "oil": 584.3478260869565,
+       "water": 70.83333333333333
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0235294117647058,
+     "oil": 0.9130434782608695,
+     "water": 1.1805555555555556
+    },
+    "measured": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-31",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 681.6196319018405,
+       "oil": 1160.3076923076922,
+       "water": 372.0
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 640.0,
+       "oil": 1200.0,
+       "water": 300.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 186.38036809815952,
+       "oil": 515.6923076923077,
+       "water": 62.0
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 175.0,
+       "oil": 533.3333333333334,
+       "water": 50.0
+      },
+      "uptime": 0.8333333333333334,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0650306748466258,
+     "oil": 0.9669230769230769,
+     "water": 1.24
+    },
+    "measured": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "theoretical": {
+     "gas": 815.0,
+     "oil": 1733.3333333333335,
+     "water": 350.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-01",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 652.0470588235294,
+       "oil": 1090.4347826086957,
+       "water": 369.1666666666667
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 640.0,
+       "oil": 1200.0,
+       "water": 300.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 213.95294117647057,
+       "oil": 581.5652173913044,
+       "water": 73.83333333333333
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0188235294117647,
+     "oil": 0.908695652173913,
+     "water": 1.2305555555555556
+    },
+    "measured": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-02",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 650.5411764705882,
+       "oil": 1087.8260869565217,
+       "water": 376.6666666666667
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 640.0,
+       "oil": 1200.0,
+       "water": 300.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 213.45882352941177,
+       "oil": 580.1739130434783,
+       "water": 75.33333333333333
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.016470588235294,
+     "oil": 0.9065217391304348,
+     "water": 1.2555555555555555
+    },
+    "measured": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 862.0,
+     "oil": 1664.0,
+     "water": 461.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-03",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 0.0,
+       "oil": 0.0,
+       "water": 0.0
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 0.0,
+       "oil": 0.0,
+       "water": 0.0
+      },
+      "uptime": 0.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 862.0,
+       "oil": 1664.0,
+       "water": 461.0
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 175.0,
+       "oil": 533.3333333333334,
+       "water": 50.0
+      },
+      "uptime": 0.8333333333333334,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 4.925714285714286,
+     "oil": 3.1199999999999997,
+     "water": 9.22
+    },
+    "measured": {
+     "gas": 862.0,
+     "oil": 1664.0,
+     "water": 461.0
+    },
+    "theoretical": {
+     "gas": 175.0,
+     "oil": 533.3333333333334,
+     "water": 50.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 860.0,
+     "oil": 1660.0,
+     "water": 470.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-04",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 0.0,
+       "oil": 0.0,
+       "water": 0.0
+      },
+      "testId": "t-p1-a",
+      "theoretical": {
+       "gas": 0.0,
+       "oil": 0.0,
+       "water": 0.0
+      },
+      "uptime": 0.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 860.0,
+       "oil": 1660.0,
+       "water": 470.0
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 4.095238095238095,
+     "oil": 2.59375,
+     "water": 7.833333333333333
+    },
+    "measured": {
+     "gas": 860.0,
+     "oil": 1660.0,
+     "water": 470.0
+    },
+    "theoretical": {
+     "gas": 210.0,
+     "oil": 640.0,
+     "water": 60.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-05",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 638.2682926829268,
+       "oil": 1001.7777777777778,
+       "water": 429.44827586206895
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 219.73170731707316,
+       "oil": 654.2222222222222,
+       "water": 49.55172413793103
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0463414634146342,
+     "oil": 1.0222222222222221,
+     "water": 0.8258620689655173
+    },
+    "measured": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 856.0,
+     "oil": 1651.9999999999998,
+     "water": 488.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": -2.2737367544323206e-13,
+     "water": 0.0
+    },
+    "date": "2025-02-06",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 665.171974522293,
+       "oil": 1069.7973568281936,
+       "water": 445.1929824561403
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 190.828025477707,
+       "oil": 582.2026431718061,
+       "water": 42.80701754385965
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 175.0,
+       "oil": 533.3333333333334,
+       "water": 50.0
+      },
+      "uptime": 0.8333333333333334,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0904458598726114,
+     "oil": 1.0916299559471365,
+     "water": 0.856140350877193
+    },
+    "measured": {
+     "gas": 856.0,
+     "oil": 1652.0,
+     "water": 488.0
+    },
+    "theoretical": {
+     "gas": 785.0,
+     "oil": 1513.3333333333335,
+     "water": 570.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-07",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 635.2926829268292,
+       "oil": 996.9382716049382,
+       "water": 445.58620689655174
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 218.70731707317074,
+       "oil": 651.0617283950618,
+       "water": 51.41379310344828
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0414634146341464,
+     "oil": 1.017283950617284,
+     "water": 0.8568965517241379
+    },
+    "measured": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-08",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 633.8048780487804,
+       "oil": 994.5185185185185,
+       "water": 453.6551724137931
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 218.1951219512195,
+       "oil": 649.4814814814815,
+       "water": 52.3448275862069
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0390243902439025,
+     "oil": 1.0148148148148148,
+     "water": 0.8724137931034482
+    },
+    "measured": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-09",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 660.5095541401274,
+       "oil": 1062.0264317180615,
+       "water": 469.82456140350877
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 189.4904458598726,
+       "oil": 577.9735682819384,
+       "water": 45.175438596491226
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 175.0,
+       "oil": 533.3333333333334,
+       "water": 50.0
+      },
+      "uptime": 0.8333333333333334,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0828025477707006,
+     "oil": 1.0837004405286343,
+     "water": 0.9035087719298246
+    },
+    "measured": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "theoretical": {
+     "gas": 785.0,
+     "oil": 1513.3333333333335,
+     "water": 570.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-10",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 630.829268292683,
+       "oil": 989.679012345679,
+       "water": 469.7931034482759
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 217.17073170731706,
+       "oil": 646.320987654321,
+       "water": 54.206896551724135
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0341463414634147,
+     "oil": 1.0098765432098766,
+     "water": 0.903448275862069
+    },
+    "measured": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-11",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 629.3414634146342,
+       "oil": 987.2592592592592,
+       "water": 477.86206896551727
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 216.65853658536585,
+       "oil": 644.7407407407408,
+       "water": 55.13793103448276
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0317073170731708,
+     "oil": 1.0074074074074073,
+     "water": 0.9189655172413793
+    },
+    "measured": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-12",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 655.8471337579617,
+       "oil": 1054.2555066079294,
+       "water": 494.4561403508772
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 188.15286624203821,
+       "oil": 573.7444933920705,
+       "water": 47.54385964912281
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 175.0,
+       "oil": 533.3333333333334,
+       "water": 50.0
+      },
+      "uptime": 0.8333333333333334,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0751592356687898,
+     "oil": 1.075770925110132,
+     "water": 0.9508771929824561
+    },
+    "measured": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "theoretical": {
+     "gas": 785.0,
+     "oil": 1513.3333333333335,
+     "water": 570.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 842.0,
+     "oil": 1624.0,
+     "water": 551.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-13",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 626.3658536585366,
+       "oil": 982.4197530864197,
+       "water": 494.0
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 215.6341463414634,
+       "oil": 641.5802469135803,
+       "water": 57.0
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.026829268292683,
+     "oil": 1.002469135802469,
+     "water": 0.95
+    },
+    "measured": {
+     "gas": 842.0,
+     "oil": 1624.0,
+     "water": 551.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 840.0,
+     "oil": 1620.0,
+     "water": 560.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-14",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 624.8780487804878,
+       "oil": 980.0,
+       "water": 502.0689655172414
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 215.1219512195122,
+       "oil": 640.0,
+       "water": 57.93103448275862
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.024390243902439,
+     "oil": 1.0,
+     "water": 0.9655172413793104
+    },
+    "measured": {
+     "gas": 840.0,
+     "oil": 1620.0,
+     "water": 560.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 838.0,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-15",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 651.1847133757962,
+       "oil": 1046.4845814977973,
+       "water": 519.0877192982456
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 186.81528662420382,
+       "oil": 569.5154185022027,
+       "water": 49.91228070175438
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 175.0,
+       "oil": 533.3333333333334,
+       "water": 50.0
+      },
+      "uptime": 0.8333333333333334,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.067515923566879,
+     "oil": 1.0678414096916298,
+     "water": 0.9982456140350877
+    },
+    "measured": {
+     "gas": 838.0,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "theoretical": {
+     "gas": 785.0,
+     "oil": 1513.3333333333335,
+     "water": 570.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-16",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 621.9024390243902,
+       "oil": 975.1604938271605,
+       "water": 518.2068965517242
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 214.09756097560975,
+       "oil": 636.8395061728395,
+       "water": 59.793103448275865
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0195121951219512,
+     "oil": 0.9950617283950617,
+     "water": 0.996551724137931
+    },
+    "measured": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-17",
+    "entries": [
+     {
+      "allocated": {
+       "gas": 620.4146341463414,
+       "oil": 972.7407407407408,
+       "water": 526.2758620689655
+      },
+      "testId": "t-p1-b",
+      "theoretical": {
+       "gas": 610.0,
+       "oil": 980.0,
+       "water": 520.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p1",
+      "wellName": "P-1"
+     },
+     {
+      "allocated": {
+       "gas": 213.58536585365854,
+       "oil": 635.2592592592592,
+       "water": 60.724137931034484
+      },
+      "testId": "t-p2-a",
+      "theoretical": {
+       "gas": 210.0,
+       "oil": 640.0,
+       "water": 60.0
+      },
+      "uptime": 1.0,
+      "wellId": "w-p2",
+      "wellName": "P-2"
+     }
+    ],
+    "factors": {
+     "gas": 1.0170731707317073,
+     "oil": 0.9925925925925926,
+     "water": 1.0120689655172415
+    },
+    "measured": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   }
+  ],
+  "diagnosticCounts": {
+   "factor_out_of_band": 6,
+   "no_test_in_force": 24
+  },
+  "grand": {
+   "allocated_gas": 20568.0,
+   "allocated_oil": 39696.0,
+   "allocated_water": 11604.0,
+   "days": 24,
+   "measured_gas": 20568.0,
+   "measured_oil": 39696.0,
+   "measured_water": 11604.0,
+   "theoretical_gas": 18450.0,
+   "theoretical_oil": 38046.666666666664,
+   "theoretical_water": 10820.0
+  },
+  "settings": {
+   "basis": "test",
+   "defaultHours": 24,
+   "factorWarnHigh": 1.3,
+   "factorWarnLow": 0.7,
+   "includeInvalidTests": false,
+   "maxTestAgeDays": 180,
+   "useUptime": true
+  },
+  "wells": [
+   {
+    "allocated": {
+     "gas": 14287.675390037755,
+     "oil": 23200.64298809341,
+     "water": 9394.52938380434
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 13690.0,
+     "oil": 23540.0,
+     "water": 9460.0
+    },
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   },
+   {
+    "allocated": {
+     "gas": 6280.324609962243,
+     "oil": 16495.357011906588,
+     "water": 2209.470616195662
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 4760.0,
+     "oil": 14506.666666666668,
+     "water": 1360.0
+    },
+    "wellId": "w-p2",
+    "wellName": "P-2"
+   }
+  ]
+ },
+ "allocationAged120": {
+  "days": [
+   {
+    "allocated": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-25",
+    "factors": {
+     "gas": 1.375,
+     "oil": 1.4166666666666667,
+     "water": 1.2666666666666666
+    },
+    "measured": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "theoretical": {
+     "gas": 640.0,
+     "oil": 1200.0,
+     "water": 300.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-26",
+    "factors": {
+     "gas": 1.371875,
+     "oil": 1.4133333333333333,
+     "water": 1.2966666666666666
+    },
+    "measured": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "theoretical": {
+     "gas": 640.0,
+     "oil": 1200.0,
+     "water": 300.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-27",
+    "factors": {
+     "gas": 1.36875,
+     "oil": 1.41,
+     "water": 1.3266666666666667
+    },
+    "measured": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "theoretical": {
+     "gas": 640.0,
+     "oil": 1200.0,
+     "water": 300.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 874.0,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-28",
+    "factors": {
+     "gas": 1.365625,
+     "oil": 1.4066666666666667,
+     "water": 1.3566666666666667
+    },
+    "measured": {
+     "gas": 874.0,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "theoretical": {
+     "gas": 640.0,
+     "oil": 1200.0,
+     "water": 300.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-29",
+    "factors": {
+     "gas": 1.3625,
+     "oil": 1.4033333333333333,
+     "water": 1.3866666666666667
+    },
+    "measured": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "theoretical": {
+     "gas": 640.0,
+     "oil": 1200.0,
+     "water": 300.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-30",
+    "factors": {
+     "gas": 1.359375,
+     "oil": 1.4,
+     "water": 1.4166666666666667
+    },
+    "measured": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "theoretical": {
+     "gas": 640.0,
+     "oil": 1200.0,
+     "water": 300.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-31",
+    "factors": {
+     "gas": 1.35625,
+     "oil": 1.3966666666666667,
+     "water": 1.4466666666666668
+    },
+    "measured": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "theoretical": {
+     "gas": 640.0,
+     "oil": 1200.0,
+     "water": 300.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-01",
+    "factors": {
+     "gas": 1.353125,
+     "oil": 1.3933333333333333,
+     "water": 1.4766666666666666
+    },
+    "measured": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "theoretical": {
+     "gas": 640.0,
+     "oil": 1200.0,
+     "water": 300.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-02",
+    "factors": {
+     "gas": 1.35,
+     "oil": 1.39,
+     "water": 1.5066666666666666
+    },
+    "measured": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "theoretical": {
+     "gas": 640.0,
+     "oil": 1200.0,
+     "water": 300.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-03",
+    "factors": {
+     "gas": null,
+     "oil": null,
+     "water": null
+    },
+    "measured": {
+     "gas": 862.0,
+     "oil": 1664.0,
+     "water": 461.0
+    },
+    "theoretical": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-04",
+    "factors": {
+     "gas": null,
+     "oil": null,
+     "water": null
+    },
+    "measured": {
+     "gas": 860.0,
+     "oil": 1660.0,
+     "water": 470.0
+    },
+    "theoretical": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-05",
+    "factors": {
+     "gas": 1.4065573770491804,
+     "oil": 1.689795918367347,
+     "water": 0.9211538461538461
+    },
+    "measured": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 856.0,
+     "oil": 1652.0,
+     "water": 488.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-06",
+    "factors": {
+     "gas": 1.4032786885245903,
+     "oil": 1.6857142857142857,
+     "water": 0.9384615384615385
+    },
+    "measured": {
+     "gas": 856.0,
+     "oil": 1652.0,
+     "water": 488.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-07",
+    "factors": {
+     "gas": 1.4,
+     "oil": 1.6816326530612244,
+     "water": 0.9557692307692308
+    },
+    "measured": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-08",
+    "factors": {
+     "gas": 1.3967213114754098,
+     "oil": 1.6775510204081632,
+     "water": 0.9730769230769231
+    },
+    "measured": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-09",
+    "factors": {
+     "gas": 1.3934426229508197,
+     "oil": 1.6734693877551021,
+     "water": 0.9903846153846154
+    },
+    "measured": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-10",
+    "factors": {
+     "gas": 1.3901639344262295,
+     "oil": 1.6693877551020408,
+     "water": 1.0076923076923077
+    },
+    "measured": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-11",
+    "factors": {
+     "gas": 1.3868852459016394,
+     "oil": 1.6653061224489796,
+     "water": 1.025
+    },
+    "measured": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-12",
+    "factors": {
+     "gas": 1.383606557377049,
+     "oil": 1.6612244897959183,
+     "water": 1.0423076923076924
+    },
+    "measured": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 842.0,
+     "oil": 1624.0,
+     "water": 551.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-13",
+    "factors": {
+     "gas": 1.380327868852459,
+     "oil": 1.6571428571428573,
+     "water": 1.0596153846153846
+    },
+    "measured": {
+     "gas": 842.0,
+     "oil": 1624.0,
+     "water": 551.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 840.0,
+     "oil": 1620.0,
+     "water": 560.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-14",
+    "factors": {
+     "gas": 1.3770491803278688,
+     "oil": 1.653061224489796,
+     "water": 1.0769230769230769
+    },
+    "measured": {
+     "gas": 840.0,
+     "oil": 1620.0,
+     "water": 560.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 838.0,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-15",
+    "factors": {
+     "gas": 1.3737704918032787,
+     "oil": 1.6489795918367347,
+     "water": 1.0942307692307693
+    },
+    "measured": {
+     "gas": 838.0,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-16",
+    "factors": {
+     "gas": 1.3704918032786886,
+     "oil": 1.6448979591836734,
+     "water": 1.1115384615384616
+    },
+    "measured": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-17",
+    "factors": {
+     "gas": 1.3672131147540985,
+     "oil": 1.6408163265306122,
+     "water": 1.1288461538461538
+    },
+    "measured": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "theoretical": {
+     "gas": 610.0,
+     "oil": 980.0,
+     "water": 520.0
+    }
+   }
+  ],
+  "diagnosticCounts": {
+   "factor_out_of_band": 51,
+   "no_basis": 6,
+   "no_test_in_force": 48
+  },
+  "grand": {
+   "allocated_gas": 18846.0,
+   "allocated_oil": 36372.0,
+   "allocated_water": 10673.0,
+   "days": 24,
+   "measured_gas": 20568.0,
+   "measured_oil": 39696.0,
+   "measured_water": 11604.0,
+   "theoretical_gas": 13690.0,
+   "theoretical_oil": 23540.0,
+   "theoretical_water": 9460.0
+  },
+  "settings": {
+   "basis": "test",
+   "defaultHours": 24,
+   "factorWarnHigh": 1.3,
+   "factorWarnLow": 0.7,
+   "includeInvalidTests": false,
+   "maxTestAgeDays": 120,
+   "useUptime": true
+  },
+  "wells": [
+   {
+    "allocated": {
+     "gas": 18846.0,
+     "oil": 36372.0,
+     "water": 10673.0
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 13690.0,
+     "oil": 23540.0,
+     "water": 9460.0
+    },
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   }
+  ]
+ },
+ "allocationLedgerBasis": {
+  "days": [
+   {
+    "allocated": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-25",
+    "factors": {
+     "gas": 1.1046025099980743,
+     "oil": 1.0029498525073746,
+     "water": 0.6686217012719189
+    },
+    "measured": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "theoretical": {
+     "gas": 796.666667,
+     "oil": 1695.0,
+     "water": 568.333333
+    }
+   },
+   {
+    "allocated": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-26",
+    "factors": {
+     "gas": 1.0578313253012048,
+     "oil": 0.9448467966573816,
+     "water": 0.6638225255972696
+    },
+    "measured": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 586.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-27",
+    "factors": {
+     "gas": 1.0554216867469879,
+     "oil": 0.9426183844011142,
+     "water": 0.6722972972972973
+    },
+    "measured": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 592.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 874.0000000000001,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "closure": {
+     "gas": 1.1368683772161603e-13,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-28",
+    "factors": {
+     "gas": 1.0970711292480875,
+     "oil": 0.9958702064896755,
+     "water": 0.6941444006220263
+    },
+    "measured": {
+     "gas": 874.0,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "theoretical": {
+     "gas": 796.666667,
+     "oil": 1695.0,
+     "water": 586.333333
+    }
+   },
+   {
+    "allocated": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-29",
+    "factors": {
+     "gas": 1.0506024096385542,
+     "oil": 0.9381615598885794,
+     "water": 0.6887417218543046
+    },
+    "measured": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 604.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-30",
+    "factors": {
+     "gas": 1.0481927710843373,
+     "oil": 0.935933147632312,
+     "water": 0.6967213114754098
+    },
+    "measured": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 610.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-31",
+    "factors": {
+     "gas": 1.0895397484981006,
+     "oil": 0.9887905604719764,
+     "water": 0.7181467185428277
+    },
+    "measured": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "theoretical": {
+     "gas": 796.666667,
+     "oil": 1695.0,
+     "water": 604.333333
+    }
+   },
+   {
+    "allocated": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-01",
+    "factors": {
+     "gas": 1.0433734939759036,
+     "oil": 0.9314763231197771,
+     "water": 0.7122186495176849
+    },
+    "measured": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 622.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-02",
+    "factors": {
+     "gas": 1.0409638554216867,
+     "oil": 0.9292479108635098,
+     "water": 0.7197452229299363
+    },
+    "measured": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 628.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 862.0,
+     "oil": 1664.0,
+     "water": 461.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-03",
+    "factors": {
+     "gas": 4.383050840028727,
+     "oil": 3.053211009174312,
+     "water": 1.7180124244944255
+    },
+    "measured": {
+     "gas": 862.0,
+     "oil": 1664.0,
+     "water": 461.0
+    },
+    "theoretical": {
+     "gas": 196.666667,
+     "oil": 545.0,
+     "water": 268.333333
+    }
+   },
+   {
+    "allocated": {
+     "gas": 860.0,
+     "oil": 1660.0,
+     "water": 470.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-04",
+    "factors": {
+     "gas": 3.739130434782609,
+     "oil": 2.5736434108527133,
+     "water": 1.6785714285714286
+    },
+    "measured": {
+     "gas": 860.0,
+     "oil": 1660.0,
+     "water": 470.0
+    },
+    "theoretical": {
+     "gas": 230.0,
+     "oil": 645.0,
+     "water": 280.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-05",
+    "factors": {
+     "gas": 1.033734939759036,
+     "oil": 0.9225626740947075,
+     "water": 0.7414860681114551
+    },
+    "measured": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 646.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 856.0000000000001,
+     "oil": 1652.0,
+     "water": 487.99999999999994
+    },
+    "closure": {
+     "gas": 1.1368683772161603e-13,
+     "oil": 0.0,
+     "water": -5.684341886080802e-14
+    },
+    "date": "2025-02-06",
+    "factors": {
+     "gas": 1.0744769869981268,
+     "oil": 0.9746312684365782,
+     "water": 0.7621030717137444
+    },
+    "measured": {
+     "gas": 856.0,
+     "oil": 1652.0,
+     "water": 488.0
+    },
+    "theoretical": {
+     "gas": 796.666667,
+     "oil": 1695.0,
+     "water": 640.333333
+    }
+   },
+   {
+    "allocated": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-07",
+    "factors": {
+     "gas": 1.0289156626506024,
+     "oil": 0.9181058495821727,
+     "water": 0.7553191489361702
+    },
+    "measured": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 658.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-08",
+    "factors": {
+     "gas": 1.0265060240963855,
+     "oil": 0.9158774373259053,
+     "water": 0.7620481927710844
+    },
+    "measured": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 664.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-09",
+    "factors": {
+     "gas": 1.06694560624814,
+     "oil": 0.967551622418879,
+     "water": 0.7822784814087486
+    },
+    "measured": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "theoretical": {
+     "gas": 796.666667,
+     "oil": 1695.0,
+     "water": 658.333333
+    }
+   },
+   {
+    "allocated": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-10",
+    "factors": {
+     "gas": 1.0216867469879518,
+     "oil": 0.9114206128133705,
+     "water": 0.7751479289940828
+    },
+    "measured": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 676.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-11",
+    "factors": {
+     "gas": 1.0192771084337349,
+     "oil": 0.909192200557103,
+     "water": 0.781524926686217
+    },
+    "measured": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 682.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-12",
+    "factors": {
+     "gas": 1.0594142254981531,
+     "oil": 0.96047197640118,
+     "water": 0.8013799905378906
+    },
+    "measured": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "theoretical": {
+     "gas": 796.666667,
+     "oil": 1695.0,
+     "water": 676.333333
+    }
+   },
+   {
+    "allocated": {
+     "gas": 842.0,
+     "oil": 1624.0000000000002,
+     "water": 551.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 2.2737367544323206e-13,
+     "water": 0.0
+    },
+    "date": "2025-02-13",
+    "factors": {
+     "gas": 1.0144578313253012,
+     "oil": 0.9047353760445682,
+     "water": 0.7939481268011528
+    },
+    "measured": {
+     "gas": 842.0,
+     "oil": 1624.0,
+     "water": 551.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 694.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 840.0,
+     "oil": 1620.0000000000002,
+     "water": 560.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 2.2737367544323206e-13,
+     "water": 0.0
+    },
+    "date": "2025-02-14",
+    "factors": {
+     "gas": 1.0120481927710843,
+     "oil": 0.9025069637883009,
+     "water": 0.8
+    },
+    "measured": {
+     "gas": 840.0,
+     "oil": 1620.0,
+     "water": 560.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 700.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 838.0000000000001,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "closure": {
+     "gas": 1.1368683772161603e-13,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-15",
+    "factors": {
+     "gas": 1.0518828447481663,
+     "oil": 0.9533923303834808,
+     "water": 0.8194911189723912
+    },
+    "measured": {
+     "gas": 838.0,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "theoretical": {
+     "gas": 796.666667,
+     "oil": 1695.0,
+     "water": 694.333333
+    }
+   },
+   {
+    "allocated": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-16",
+    "factors": {
+     "gas": 1.0072289156626506,
+     "oil": 0.898050139275766,
+     "water": 0.8117977528089888
+    },
+    "measured": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 712.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-17",
+    "factors": {
+     "gas": 1.0048192771084337,
+     "oil": 0.8958217270194986,
+     "water": 0.8175487465181058
+    },
+    "measured": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "theoretical": {
+     "gas": 830.0,
+     "oil": 1795.0,
+     "water": 718.0
+    }
+   }
+  ],
+  "diagnosticCounts": {
+   "factor_out_of_band": 12
+  },
+  "grand": {
+   "allocated_gas": 20568.0,
+   "allocated_oil": 39696.0,
+   "allocated_water": 11604.0,
+   "days": 24,
+   "measured_gas": 20568.0,
+   "measured_oil": 39696.0,
+   "measured_water": 11604.0,
+   "theoretical_gas": 18453.333336,
+   "theoretical_oil": 39980.0,
+   "theoretical_water": 14768.666664
+  },
+  "settings": {
+   "basis": "ledger",
+   "defaultHours": 24,
+   "factorWarnHigh": 1.3,
+   "factorWarnLow": 0.7,
+   "includeInvalidTests": false,
+   "maxTestAgeDays": 180,
+   "useUptime": true
+  },
+  "wells": [
+   {
+    "allocated": {
+     "gas": 13805.395975320422,
+     "oil": 23740.847158199194,
+     "water": 6131.415996774628
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 13200.0,
+     "oil": 25300.0,
+     "water": 8142.0
+    },
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   },
+   {
+    "allocated": {
+     "gas": 5828.668787669218,
+     "oil": 14772.954721491795,
+     "water": 1307.2094423741137
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 4533.333336,
+     "oil": 13600.0,
+     "water": 1586.666664
+    },
+    "wellId": "w-p2",
+    "wellName": "P-2"
+   },
+   {
+    "allocated": {
+     "gas": 933.9352370103612,
+     "oil": 1182.1981203090106,
+     "water": 4165.374560851257
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 720.0,
+     "oil": 1080.0,
+     "water": 5040.0
+    },
+    "wellId": "w-p3",
+    "wellName": "P-3"
+   }
+  ]
+ },
+ "allocationNoUptime": {
+  "days": [
+   {
+    "allocated": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-25",
+    "factors": {
+     "gas": 1.035294117647059,
+     "oil": 0.9239130434782609,
+     "water": 1.0555555555555556
+    },
+    "measured": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-26",
+    "factors": {
+     "gas": 1.0329411764705883,
+     "oil": 0.9217391304347826,
+     "water": 1.0805555555555555
+    },
+    "measured": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-27",
+    "factors": {
+     "gas": 1.0305882352941176,
+     "oil": 0.9195652173913044,
+     "water": 1.1055555555555556
+    },
+    "measured": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 874.0,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-28",
+    "factors": {
+     "gas": 1.0282352941176471,
+     "oil": 0.9173913043478261,
+     "water": 1.1305555555555555
+    },
+    "measured": {
+     "gas": 874.0,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-29",
+    "factors": {
+     "gas": 1.0258823529411765,
+     "oil": 0.9152173913043479,
+     "water": 1.1555555555555554
+    },
+    "measured": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-30",
+    "factors": {
+     "gas": 1.0235294117647058,
+     "oil": 0.9130434782608695,
+     "water": 1.1805555555555556
+    },
+    "measured": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-31",
+    "factors": {
+     "gas": 1.0211764705882354,
+     "oil": 0.9108695652173913,
+     "water": 1.2055555555555555
+    },
+    "measured": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-01",
+    "factors": {
+     "gas": 1.0188235294117647,
+     "oil": 0.908695652173913,
+     "water": 1.2305555555555556
+    },
+    "measured": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-02",
+    "factors": {
+     "gas": 1.016470588235294,
+     "oil": 0.9065217391304348,
+     "water": 1.2555555555555555
+    },
+    "measured": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 862.0,
+     "oil": 1664.0,
+     "water": 461.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-03",
+    "factors": {
+     "gas": 1.0141176470588236,
+     "oil": 0.9043478260869565,
+     "water": 1.2805555555555554
+    },
+    "measured": {
+     "gas": 862.0,
+     "oil": 1664.0,
+     "water": 461.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 860.0,
+     "oil": 1660.0,
+     "water": 470.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-04",
+    "factors": {
+     "gas": 1.011764705882353,
+     "oil": 0.9021739130434783,
+     "water": 1.3055555555555556
+    },
+    "measured": {
+     "gas": 860.0,
+     "oil": 1660.0,
+     "water": 470.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-05",
+    "factors": {
+     "gas": 1.0463414634146342,
+     "oil": 1.0222222222222221,
+     "water": 0.8258620689655173
+    },
+    "measured": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 856.0,
+     "oil": 1652.0,
+     "water": 488.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-06",
+    "factors": {
+     "gas": 1.0439024390243903,
+     "oil": 1.019753086419753,
+     "water": 0.8413793103448276
+    },
+    "measured": {
+     "gas": 856.0,
+     "oil": 1652.0,
+     "water": 488.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-07",
+    "factors": {
+     "gas": 1.0414634146341464,
+     "oil": 1.017283950617284,
+     "water": 0.8568965517241379
+    },
+    "measured": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-08",
+    "factors": {
+     "gas": 1.0390243902439025,
+     "oil": 1.0148148148148148,
+     "water": 0.8724137931034482
+    },
+    "measured": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-09",
+    "factors": {
+     "gas": 1.0365853658536586,
+     "oil": 1.0123456790123457,
+     "water": 0.8879310344827587
+    },
+    "measured": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-10",
+    "factors": {
+     "gas": 1.0341463414634147,
+     "oil": 1.0098765432098766,
+     "water": 0.903448275862069
+    },
+    "measured": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-11",
+    "factors": {
+     "gas": 1.0317073170731708,
+     "oil": 1.0074074074074073,
+     "water": 0.9189655172413793
+    },
+    "measured": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-12",
+    "factors": {
+     "gas": 1.0292682926829269,
+     "oil": 1.0049382716049382,
+     "water": 0.9344827586206896
+    },
+    "measured": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 842.0,
+     "oil": 1624.0,
+     "water": 551.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-13",
+    "factors": {
+     "gas": 1.026829268292683,
+     "oil": 1.002469135802469,
+     "water": 0.95
+    },
+    "measured": {
+     "gas": 842.0,
+     "oil": 1624.0,
+     "water": 551.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 840.0,
+     "oil": 1620.0,
+     "water": 560.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-14",
+    "factors": {
+     "gas": 1.024390243902439,
+     "oil": 1.0,
+     "water": 0.9655172413793104
+    },
+    "measured": {
+     "gas": 840.0,
+     "oil": 1620.0,
+     "water": 560.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 838.0,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-15",
+    "factors": {
+     "gas": 1.0219512195121951,
+     "oil": 0.9975308641975309,
+     "water": 0.9810344827586207
+    },
+    "measured": {
+     "gas": 838.0,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-16",
+    "factors": {
+     "gas": 1.0195121951219512,
+     "oil": 0.9950617283950617,
+     "water": 0.996551724137931
+    },
+    "measured": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-17",
+    "factors": {
+     "gas": 1.0170731707317073,
+     "oil": 0.9925925925925926,
+     "water": 1.0120689655172415
+    },
+    "measured": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   }
+  ],
+  "diagnosticCounts": {
+   "factor_out_of_band": 1,
+   "no_test_in_force": 24
+  },
+  "grand": {
+   "allocated_gas": 20568.0,
+   "allocated_oil": 39696.0,
+   "allocated_water": 11604.0,
+   "days": 24,
+   "measured_gas": 20568.0,
+   "measured_oil": 39696.0,
+   "measured_water": 11604.0,
+   "theoretical_gas": 20010.0,
+   "theoretical_oil": 41300.0,
+   "theoretical_water": 11500.0
+  },
+  "settings": {
+   "basis": "test",
+   "defaultHours": 24,
+   "factorWarnHigh": 1.3,
+   "factorWarnLow": 0.7,
+   "includeInvalidTests": false,
+   "maxTestAgeDays": 180,
+   "useUptime": false
+  },
+  "wells": [
+   {
+    "allocated": {
+     "gas": 15387.086083213771,
+     "oil": 24886.54428341385,
+     "water": 10108.040229885057
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 14970.0,
+     "oil": 25940.0,
+     "water": 10060.0
+    },
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   },
+   {
+    "allocated": {
+     "gas": 5180.913916786227,
+     "oil": 14809.455716586152,
+     "water": 1495.9597701149426
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 5040.0,
+     "oil": 15360.0,
+     "water": 1440.0
+    },
+    "wellId": "w-p2",
+    "wellName": "P-2"
+   }
+  ]
+ },
+ "allocationWithInvalidTests": {
+  "days": [
+   {
+    "allocated": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-25",
+    "factors": {
+     "gas": 1.0797546012269938,
+     "oil": 0.9807692307692307,
+     "water": 1.0857142857142856
+    },
+    "measured": {
+     "gas": 880.0,
+     "oil": 1700.0,
+     "water": 380.0
+    },
+    "theoretical": {
+     "gas": 815.0,
+     "oil": 1733.3333333333335,
+     "water": 350.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-26",
+    "factors": {
+     "gas": 1.0329411764705883,
+     "oil": 0.9217391304347826,
+     "water": 1.0805555555555555
+    },
+    "measured": {
+     "gas": 878.0,
+     "oil": 1696.0,
+     "water": 389.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-27",
+    "factors": {
+     "gas": 1.0305882352941176,
+     "oil": 0.9195652173913044,
+     "water": 1.1055555555555556
+    },
+    "measured": {
+     "gas": 876.0,
+     "oil": 1692.0,
+     "water": 398.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 874.0,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-28",
+    "factors": {
+     "gas": 1.0723926380368098,
+     "oil": 0.9738461538461538,
+     "water": 1.1628571428571428
+    },
+    "measured": {
+     "gas": 874.0,
+     "oil": 1688.0,
+     "water": 407.0
+    },
+    "theoretical": {
+     "gas": 815.0,
+     "oil": 1733.3333333333335,
+     "water": 350.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-29",
+    "factors": {
+     "gas": 1.0258823529411765,
+     "oil": 0.9152173913043479,
+     "water": 1.1555555555555554
+    },
+    "measured": {
+     "gas": 872.0,
+     "oil": 1684.0,
+     "water": 416.0
+    },
+    "theoretical": {
+     "gas": 850.0,
+     "oil": 1840.0,
+     "water": 360.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-30",
+    "factors": {
+     "gas": 4.142857142857143,
+     "oil": 2.625,
+     "water": 7.083333333333333
+    },
+    "measured": {
+     "gas": 870.0,
+     "oil": 1680.0,
+     "water": 425.0
+    },
+    "theoretical": {
+     "gas": 210.0,
+     "oil": 640.0,
+     "water": 60.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-01-31",
+    "factors": {
+     "gas": 4.96,
+     "oil": 3.1424999999999996,
+     "water": 8.68
+    },
+    "measured": {
+     "gas": 868.0,
+     "oil": 1676.0,
+     "water": 434.0
+    },
+    "theoretical": {
+     "gas": 175.0,
+     "oil": 533.3333333333334,
+     "water": 50.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-01",
+    "factors": {
+     "gas": 4.123809523809523,
+     "oil": 2.6125,
+     "water": 7.383333333333334
+    },
+    "measured": {
+     "gas": 866.0,
+     "oil": 1672.0,
+     "water": 443.0
+    },
+    "theoretical": {
+     "gas": 210.0,
+     "oil": 640.0,
+     "water": 60.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-02",
+    "factors": {
+     "gas": 4.114285714285714,
+     "oil": 2.60625,
+     "water": 7.533333333333333
+    },
+    "measured": {
+     "gas": 864.0,
+     "oil": 1668.0,
+     "water": 452.0
+    },
+    "theoretical": {
+     "gas": 210.0,
+     "oil": 640.0,
+     "water": 60.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 862.0,
+     "oil": 1664.0,
+     "water": 461.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-03",
+    "factors": {
+     "gas": 4.925714285714286,
+     "oil": 3.1199999999999997,
+     "water": 9.22
+    },
+    "measured": {
+     "gas": 862.0,
+     "oil": 1664.0,
+     "water": 461.0
+    },
+    "theoretical": {
+     "gas": 175.0,
+     "oil": 533.3333333333334,
+     "water": 50.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 860.0,
+     "oil": 1660.0,
+     "water": 470.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-04",
+    "factors": {
+     "gas": 4.095238095238095,
+     "oil": 2.59375,
+     "water": 7.833333333333333
+    },
+    "measured": {
+     "gas": 860.0,
+     "oil": 1660.0,
+     "water": 470.0
+    },
+    "theoretical": {
+     "gas": 210.0,
+     "oil": 640.0,
+     "water": 60.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-05",
+    "factors": {
+     "gas": 1.0463414634146342,
+     "oil": 1.0222222222222221,
+     "water": 0.8258620689655173
+    },
+    "measured": {
+     "gas": 858.0,
+     "oil": 1656.0,
+     "water": 479.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 856.0,
+     "oil": 1651.9999999999998,
+     "water": 488.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": -2.2737367544323206e-13,
+     "water": 0.0
+    },
+    "date": "2025-02-06",
+    "factors": {
+     "gas": 1.0904458598726114,
+     "oil": 1.0916299559471365,
+     "water": 0.856140350877193
+    },
+    "measured": {
+     "gas": 856.0,
+     "oil": 1652.0,
+     "water": 488.0
+    },
+    "theoretical": {
+     "gas": 785.0,
+     "oil": 1513.3333333333335,
+     "water": 570.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-07",
+    "factors": {
+     "gas": 1.0414634146341464,
+     "oil": 1.017283950617284,
+     "water": 0.8568965517241379
+    },
+    "measured": {
+     "gas": 854.0,
+     "oil": 1648.0,
+     "water": 497.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-08",
+    "factors": {
+     "gas": 1.0390243902439025,
+     "oil": 1.0148148148148148,
+     "water": 0.8724137931034482
+    },
+    "measured": {
+     "gas": 852.0,
+     "oil": 1644.0,
+     "water": 506.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-09",
+    "factors": {
+     "gas": 1.0828025477707006,
+     "oil": 1.0837004405286343,
+     "water": 0.9035087719298246
+    },
+    "measured": {
+     "gas": 850.0,
+     "oil": 1640.0,
+     "water": 515.0
+    },
+    "theoretical": {
+     "gas": 785.0,
+     "oil": 1513.3333333333335,
+     "water": 570.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-10",
+    "factors": {
+     "gas": 1.0341463414634147,
+     "oil": 1.0098765432098766,
+     "water": 0.903448275862069
+    },
+    "measured": {
+     "gas": 848.0,
+     "oil": 1636.0,
+     "water": 524.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-11",
+    "factors": {
+     "gas": 1.0317073170731708,
+     "oil": 1.0074074074074073,
+     "water": 0.9189655172413793
+    },
+    "measured": {
+     "gas": 846.0,
+     "oil": 1632.0,
+     "water": 533.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-12",
+    "factors": {
+     "gas": 1.0751592356687898,
+     "oil": 1.075770925110132,
+     "water": 0.9508771929824561
+    },
+    "measured": {
+     "gas": 844.0,
+     "oil": 1628.0,
+     "water": 542.0
+    },
+    "theoretical": {
+     "gas": 785.0,
+     "oil": 1513.3333333333335,
+     "water": 570.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 842.0,
+     "oil": 1624.0,
+     "water": 551.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-13",
+    "factors": {
+     "gas": 1.026829268292683,
+     "oil": 1.002469135802469,
+     "water": 0.95
+    },
+    "measured": {
+     "gas": 842.0,
+     "oil": 1624.0,
+     "water": 551.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 840.0,
+     "oil": 1620.0,
+     "water": 560.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-14",
+    "factors": {
+     "gas": 1.024390243902439,
+     "oil": 1.0,
+     "water": 0.9655172413793104
+    },
+    "measured": {
+     "gas": 840.0,
+     "oil": 1620.0,
+     "water": 560.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 838.0,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-15",
+    "factors": {
+     "gas": 1.067515923566879,
+     "oil": 1.0678414096916298,
+     "water": 0.9982456140350877
+    },
+    "measured": {
+     "gas": 838.0,
+     "oil": 1616.0,
+     "water": 569.0
+    },
+    "theoretical": {
+     "gas": 785.0,
+     "oil": 1513.3333333333335,
+     "water": 570.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-16",
+    "factors": {
+     "gas": 1.0195121951219512,
+     "oil": 0.9950617283950617,
+     "water": 0.996551724137931
+    },
+    "measured": {
+     "gas": 836.0,
+     "oil": 1612.0,
+     "water": 578.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   },
+   {
+    "allocated": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "closure": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "date": "2025-02-17",
+    "factors": {
+     "gas": 1.0170731707317073,
+     "oil": 0.9925925925925926,
+     "water": 1.0120689655172415
+    },
+    "measured": {
+     "gas": 834.0,
+     "oil": 1608.0,
+     "water": 587.0
+    },
+    "theoretical": {
+     "gas": 820.0,
+     "oil": 1620.0,
+     "water": 580.0
+    }
+   }
+  ],
+  "diagnosticCounts": {
+   "factor_out_of_band": 18,
+   "no_test_in_force": 3
+  },
+  "grand": {
+   "allocated_gas": 20568.0,
+   "allocated_oil": 39696.0,
+   "allocated_water": 11604.0,
+   "days": 24,
+   "measured_gas": 20568.0,
+   "measured_oil": 39696.0,
+   "measured_water": 11604.0,
+   "theoretical_gas": 15890.0,
+   "theoretical_oil": 33246.66666666667,
+   "theoretical_water": 9620.0
+  },
+  "settings": {
+   "basis": "test",
+   "defaultHours": 24,
+   "factorWarnHigh": 1.3,
+   "factorWarnLow": 0.7,
+   "includeInvalidTests": true,
+   "maxTestAgeDays": 180,
+   "useUptime": true
+  },
+  "wells": [
+   {
+    "allocated": {
+     "gas": 8919.591300687613,
+     "oil": 20929.577747692547,
+     "water": 3681.470616195662
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 4760.0,
+     "oil": 14506.666666666668,
+     "water": 1360.0
+    },
+    "wellId": "w-p2",
+    "wellName": "P-2"
+   },
+   {
+    "allocated": {
+     "gas": 11648.408699312387,
+     "oil": 18766.422252307457,
+     "water": 7922.529383804338
+    },
+    "days": 24,
+    "theoretical": {
+     "gas": 11130.0,
+     "oil": 18740.0,
+     "water": 8260.0
+    },
+    "wellId": "w-p1",
+    "wellName": "P-1"
+   },
+   {
+    "allocated": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "days": 21,
+    "theoretical": {
+     "gas": 0.0,
+     "oil": 0.0,
+     "water": 0.0
+    },
+    "wellId": "w-p3",
+    "wellName": "P-3"
+   }
+  ]
+ },
+ "description": "Production back-allocation goldens: the metered facility total split across the wells in proportion to what each was capable of producing (its latest valid well test scaled by the hours it was on), the volume-weighted monthly factors that fall out of it, the imbalance against the wells own meters, the well-test data QC, and the nodal cross-check of a test against its well model. Independent stdlib oracle (tools/validation/production/oracle_allocation.py) written from the method statement: every split taken as a SHARE of the total (measured * theoretical_i / sum theoretical) where the engine multiplies by a precomputed factor, every test in force found by BISECTING an explicit validity-interval list where the engine scans and breaks, every monthly factor formed as the THEORETICAL-WEIGHTED MEAN of the daily factors where the engine divides one month total by another, all date arithmetic done on the calendar where the engine uses epoch day numbers, and the nodal crossing written down as a QUADRATIC ROOT where the engine is handed a bisecting solver. Field units: stb for oil and water, Mscf for gas, stb/d and Mscf/d for test rates, hours 0-24, psia, dates ISO yyyy-mm-dd.",
+ "field": {
+  "ledger": [
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-01-25",
+    "water_stb": 300.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 166.666667,
+    "ginj_mscf": 0.0,
+    "hours_on": 20.0,
+    "oil_stb": 500.0,
+    "prod_date": "2025-01-25",
+    "water_stb": 58.333333,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-01-25",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-01-25",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-01-26",
+    "water_stb": 306.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-01-26",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-01-26",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-01-26",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-01-27",
+    "water_stb": 312.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-01-27",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-01-27",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-01-27",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-01-28",
+    "water_stb": 318.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 166.666667,
+    "ginj_mscf": 0.0,
+    "hours_on": 20.0,
+    "oil_stb": 500.0,
+    "prod_date": "2025-01-28",
+    "water_stb": 58.333333,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-01-28",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-01-28",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-01-29",
+    "water_stb": 324.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-01-29",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-01-29",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-01-29",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-01-30",
+    "water_stb": 330.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-01-30",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-01-30",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-01-30",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-01-31",
+    "water_stb": 336.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 166.666667,
+    "ginj_mscf": 0.0,
+    "hours_on": 20.0,
+    "oil_stb": 500.0,
+    "prod_date": "2025-01-31",
+    "water_stb": 58.333333,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-01-31",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-01-31",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-01",
+    "water_stb": 342.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-01",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-01",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-01",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-02",
+    "water_stb": 348.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-02",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-02",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-02",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 0.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-03",
+    "water_stb": 0.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 166.666667,
+    "ginj_mscf": 0.0,
+    "hours_on": 20.0,
+    "oil_stb": 500.0,
+    "prod_date": "2025-02-03",
+    "water_stb": 58.333333,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-03",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-03",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 0.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-04",
+    "water_stb": 0.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-04",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-04",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-04",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-05",
+    "water_stb": 366.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-05",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-05",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-05",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-06",
+    "water_stb": 372.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 166.666667,
+    "ginj_mscf": 0.0,
+    "hours_on": 20.0,
+    "oil_stb": 500.0,
+    "prod_date": "2025-02-06",
+    "water_stb": 58.333333,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-06",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-06",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-07",
+    "water_stb": 378.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-07",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-07",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-07",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-08",
+    "water_stb": 384.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-08",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-08",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-08",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-09",
+    "water_stb": 390.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 166.666667,
+    "ginj_mscf": 0.0,
+    "hours_on": 20.0,
+    "oil_stb": 500.0,
+    "prod_date": "2025-02-09",
+    "water_stb": 58.333333,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-09",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-09",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-10",
+    "water_stb": 396.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-10",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-10",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-10",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-11",
+    "water_stb": 402.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-11",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-11",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-11",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-12",
+    "water_stb": 408.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 166.666667,
+    "ginj_mscf": 0.0,
+    "hours_on": 20.0,
+    "oil_stb": 500.0,
+    "prod_date": "2025-02-12",
+    "water_stb": 58.333333,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-12",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-12",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-13",
+    "water_stb": 414.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-13",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-13",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-13",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-14",
+    "water_stb": 420.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-14",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-14",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-14",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-15",
+    "water_stb": 426.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 166.666667,
+    "ginj_mscf": 0.0,
+    "hours_on": 20.0,
+    "oil_stb": 500.0,
+    "prod_date": "2025-02-15",
+    "water_stb": 58.333333,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-15",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-15",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-16",
+    "water_stb": 432.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-16",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-16",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-16",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   },
+   {
+    "gas_mscf": 600.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 1150.0,
+    "prod_date": "2025-02-17",
+    "water_stb": 438.0,
+    "well_id": "w-p1",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 200.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 600.0,
+    "prod_date": "2025-02-17",
+    "water_stb": 70.0,
+    "well_id": "w-p2",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 30.0,
+    "ginj_mscf": 0.0,
+    "hours_on": null,
+    "oil_stb": 45.0,
+    "prod_date": "2025-02-17",
+    "water_stb": 210.0,
+    "well_id": "w-p3",
+    "winj_stb": 0.0
+   },
+   {
+    "gas_mscf": 0.0,
+    "ginj_mscf": 0.0,
+    "hours_on": 24.0,
+    "oil_stb": 0.0,
+    "prod_date": "2025-02-17",
+    "water_stb": 0.0,
+    "well_id": "w-i1",
+    "winj_stb": 3000.0
+   }
+  ],
+  "tests": [
+   {
+    "duration_hours": 12.0,
+    "gas_rate_mscfd": 640.0,
+    "id": "t-p1-a",
+    "is_valid": true,
+    "oil_rate_stbd": 1200.0,
+    "test_date": "2024-12-20",
+    "thp_psia": 320.0,
+    "water_rate_stbd": 300.0,
+    "well_id": "w-p1"
+   },
+   {
+    "duration_hours": 2.0,
+    "gas_rate_mscfd": 0.0,
+    "id": "t-p1-bad",
+    "is_valid": false,
+    "oil_rate_stbd": 0.0,
+    "test_date": "2025-01-30",
+    "thp_psia": 300.0,
+    "water_rate_stbd": 0.0,
+    "well_id": "w-p1"
+   },
+   {
+    "duration_hours": 24.0,
+    "gas_rate_mscfd": 610.0,
+    "id": "t-p1-b",
+    "is_valid": true,
+    "oil_rate_stbd": 980.0,
+    "test_date": "2025-02-05",
+    "thp_psia": 305.0,
+    "water_rate_stbd": 520.0,
+    "well_id": "w-p1"
+   },
+   {
+    "duration_hours": 18.0,
+    "gas_rate_mscfd": 210.0,
+    "id": "t-p2-a",
+    "is_valid": true,
+    "oil_rate_stbd": 640.0,
+    "test_date": "2024-09-15",
+    "thp_psia": 280.0,
+    "water_rate_stbd": 60.0,
+    "well_id": "w-p2"
+   },
+   {
+    "duration_hours": 3.0,
+    "gas_rate_mscfd": 0.0,
+    "id": "t-p3-a",
+    "is_valid": false,
+    "oil_rate_stbd": 0.0,
+    "test_date": "2025-01-28",
+    "thp_psia": 0.0,
+    "water_rate_stbd": 0.0,
+    "well_id": "w-p3"
+   }
+  ],
+  "totals": [
+   {
+    "gas_mscf": 880.0,
+    "oil_stb": 1700.0,
+    "total_date": "2025-01-25",
+    "water_stb": 380.0
+   },
+   {
+    "gas_mscf": 878.0,
+    "oil_stb": 1696.0,
+    "total_date": "2025-01-26",
+    "water_stb": 389.0
+   },
+   {
+    "gas_mscf": 876.0,
+    "oil_stb": 1692.0,
+    "total_date": "2025-01-27",
+    "water_stb": 398.0
+   },
+   {
+    "gas_mscf": 874.0,
+    "oil_stb": 1688.0,
+    "total_date": "2025-01-28",
+    "water_stb": 407.0
+   },
+   {
+    "gas_mscf": 872.0,
+    "oil_stb": 1684.0,
+    "total_date": "2025-01-29",
+    "water_stb": 416.0
+   },
+   {
+    "gas_mscf": 870.0,
+    "oil_stb": 1680.0,
+    "total_date": "2025-01-30",
+    "water_stb": 425.0
+   },
+   {
+    "gas_mscf": 868.0,
+    "oil_stb": 1676.0,
+    "total_date": "2025-01-31",
+    "water_stb": 434.0
+   },
+   {
+    "gas_mscf": 866.0,
+    "oil_stb": 1672.0,
+    "total_date": "2025-02-01",
+    "water_stb": 443.0
+   },
+   {
+    "gas_mscf": 864.0,
+    "oil_stb": 1668.0,
+    "total_date": "2025-02-02",
+    "water_stb": 452.0
+   },
+   {
+    "gas_mscf": 862.0,
+    "oil_stb": 1664.0,
+    "total_date": "2025-02-03",
+    "water_stb": 461.0
+   },
+   {
+    "gas_mscf": 860.0,
+    "oil_stb": 1660.0,
+    "total_date": "2025-02-04",
+    "water_stb": 470.0
+   },
+   {
+    "gas_mscf": 858.0,
+    "oil_stb": 1656.0,
+    "total_date": "2025-02-05",
+    "water_stb": 479.0
+   },
+   {
+    "gas_mscf": 856.0,
+    "oil_stb": 1652.0,
+    "total_date": "2025-02-06",
+    "water_stb": 488.0
+   },
+   {
+    "gas_mscf": 854.0,
+    "oil_stb": 1648.0,
+    "total_date": "2025-02-07",
+    "water_stb": 497.0
+   },
+   {
+    "gas_mscf": 852.0,
+    "oil_stb": 1644.0,
+    "total_date": "2025-02-08",
+    "water_stb": 506.0
+   },
+   {
+    "gas_mscf": 850.0,
+    "oil_stb": 1640.0,
+    "total_date": "2025-02-09",
+    "water_stb": 515.0
+   },
+   {
+    "gas_mscf": 848.0,
+    "oil_stb": 1636.0,
+    "total_date": "2025-02-10",
+    "water_stb": 524.0
+   },
+   {
+    "gas_mscf": 846.0,
+    "oil_stb": 1632.0,
+    "total_date": "2025-02-11",
+    "water_stb": 533.0
+   },
+   {
+    "gas_mscf": 844.0,
+    "oil_stb": 1628.0,
+    "total_date": "2025-02-12",
+    "water_stb": 542.0
+   },
+   {
+    "gas_mscf": 842.0,
+    "oil_stb": 1624.0,
+    "total_date": "2025-02-13",
+    "water_stb": 551.0
+   },
+   {
+    "gas_mscf": 840.0,
+    "oil_stb": 1620.0,
+    "total_date": "2025-02-14",
+    "water_stb": 560.0
+   },
+   {
+    "gas_mscf": 838.0,
+    "oil_stb": 1616.0,
+    "total_date": "2025-02-15",
+    "water_stb": 569.0
+   },
+   {
+    "gas_mscf": 836.0,
+    "oil_stb": 1612.0,
+    "total_date": "2025-02-16",
+    "water_stb": 578.0
+   },
+   {
+    "gas_mscf": 834.0,
+    "oil_stb": 1608.0,
+    "total_date": "2025-02-17",
+    "water_stb": 587.0
+   }
+  ],
+  "wells": [
+   {
+    "id": "w-p1",
+    "name": "P-1",
+    "well_type": "producer"
+   },
+   {
+    "id": "w-p2",
+    "name": "P-2",
+    "well_type": "producer"
+   },
+   {
+    "id": "w-p3",
+    "name": "P-3",
+    "well_type": "producer"
+   },
+   {
+    "id": "w-i1",
+    "name": "I-1",
+    "well_type": "injector"
+   },
+   {
+    "id": "w-o1",
+    "name": "O-1",
+    "well_type": "observation"
+   }
+  ]
+ },
+ "imbalance": [
+  {
+   "date": "2025-01-25",
+   "gas": {
+    "booked": 796.666667,
+    "imbalance": 83.33333300000004,
+    "imbalancePct": 10.460250999807432,
+    "measured": 880.0
+   },
+   "oil": {
+    "booked": 1695.0,
+    "imbalance": 5.0,
+    "imbalancePct": 0.2949852507374631,
+    "measured": 1700.0
+   },
+   "water": {
+    "booked": 568.333333,
+    "imbalance": -188.33333300000004,
+    "imbalancePct": -33.13782987280812,
+    "measured": 380.0
+   }
+  },
+  {
+   "date": "2025-01-26",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 48.0,
+    "imbalancePct": 5.783132530120482,
+    "measured": 878.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -99.0,
+    "imbalancePct": -5.515320334261839,
+    "measured": 1696.0
+   },
+   "water": {
+    "booked": 586.0,
+    "imbalance": -197.0,
+    "imbalancePct": -33.617747440273035,
+    "measured": 389.0
+   }
+  },
+  {
+   "date": "2025-01-27",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 46.0,
+    "imbalancePct": 5.542168674698795,
+    "measured": 876.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -103.0,
+    "imbalancePct": -5.738161559888579,
+    "measured": 1692.0
+   },
+   "water": {
+    "booked": 592.0,
+    "imbalance": -194.0,
+    "imbalancePct": -32.77027027027027,
+    "measured": 398.0
+   }
+  },
+  {
+   "date": "2025-01-28",
+   "gas": {
+    "booked": 796.666667,
+    "imbalance": 77.33333300000004,
+    "imbalancePct": 9.707112924808744,
+    "measured": 874.0
+   },
+   "oil": {
+    "booked": 1695.0,
+    "imbalance": -7.0,
+    "imbalancePct": -0.41297935103244837,
+    "measured": 1688.0
+   },
+   "water": {
+    "booked": 586.333333,
+    "imbalance": -179.33333300000004,
+    "imbalancePct": -30.58555993779737,
+    "measured": 407.0
+   }
+  },
+  {
+   "date": "2025-01-29",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 42.0,
+    "imbalancePct": 5.0602409638554215,
+    "measured": 872.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -111.0,
+    "imbalancePct": -6.183844011142061,
+    "measured": 1684.0
+   },
+   "water": {
+    "booked": 604.0,
+    "imbalance": -188.0,
+    "imbalancePct": -31.125827814569533,
+    "measured": 416.0
+   }
+  },
+  {
+   "date": "2025-01-30",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 40.0,
+    "imbalancePct": 4.819277108433735,
+    "measured": 870.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -115.0,
+    "imbalancePct": -6.406685236768802,
+    "measured": 1680.0
+   },
+   "water": {
+    "booked": 610.0,
+    "imbalance": -185.0,
+    "imbalancePct": -30.327868852459016,
+    "measured": 425.0
+   }
+  },
+  {
+   "date": "2025-01-31",
+   "gas": {
+    "booked": 796.666667,
+    "imbalance": 71.33333300000004,
+    "imbalancePct": 8.953974849810058,
+    "measured": 868.0
+   },
+   "oil": {
+    "booked": 1695.0,
+    "imbalance": -19.0,
+    "imbalancePct": -1.12094395280236,
+    "measured": 1676.0
+   },
+   "water": {
+    "booked": 604.333333,
+    "imbalance": -170.33333300000004,
+    "imbalancePct": -28.185328145717232,
+    "measured": 434.0
+   }
+  },
+  {
+   "date": "2025-02-01",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 36.0,
+    "imbalancePct": 4.337349397590361,
+    "measured": 866.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -123.0,
+    "imbalancePct": -6.852367688022285,
+    "measured": 1672.0
+   },
+   "water": {
+    "booked": 622.0,
+    "imbalance": -179.0,
+    "imbalancePct": -28.778135048231512,
+    "measured": 443.0
+   }
+  },
+  {
+   "date": "2025-02-02",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 34.0,
+    "imbalancePct": 4.096385542168675,
+    "measured": 864.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -127.0,
+    "imbalancePct": -7.075208913649026,
+    "measured": 1668.0
+   },
+   "water": {
+    "booked": 628.0,
+    "imbalance": -176.0,
+    "imbalancePct": -28.02547770700637,
+    "measured": 452.0
+   }
+  },
+  {
+   "date": "2025-02-03",
+   "gas": {
+    "booked": 196.666667,
+    "imbalance": 665.333333,
+    "imbalancePct": 338.3050840028728,
+    "measured": 862.0
+   },
+   "oil": {
+    "booked": 545.0,
+    "imbalance": 1119.0,
+    "imbalancePct": 205.3211009174312,
+    "measured": 1664.0
+   },
+   "water": {
+    "booked": 268.333333,
+    "imbalance": 192.66666700000002,
+    "imbalancePct": 71.80124244944255,
+    "measured": 461.0
+   }
+  },
+  {
+   "date": "2025-02-04",
+   "gas": {
+    "booked": 230.0,
+    "imbalance": 630.0,
+    "imbalancePct": 273.9130434782609,
+    "measured": 860.0
+   },
+   "oil": {
+    "booked": 645.0,
+    "imbalance": 1015.0,
+    "imbalancePct": 157.36434108527132,
+    "measured": 1660.0
+   },
+   "water": {
+    "booked": 280.0,
+    "imbalance": 190.0,
+    "imbalancePct": 67.85714285714286,
+    "measured": 470.0
+   }
+  },
+  {
+   "date": "2025-02-05",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 28.0,
+    "imbalancePct": 3.3734939759036147,
+    "measured": 858.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -139.0,
+    "imbalancePct": -7.743732590529248,
+    "measured": 1656.0
+   },
+   "water": {
+    "booked": 646.0,
+    "imbalance": -167.0,
+    "imbalancePct": -25.851393188854487,
+    "measured": 479.0
+   }
+  },
+  {
+   "date": "2025-02-06",
+   "gas": {
+    "booked": 796.666667,
+    "imbalance": 59.33333300000004,
+    "imbalancePct": 7.447698699812684,
+    "measured": 856.0
+   },
+   "oil": {
+    "booked": 1695.0,
+    "imbalance": -43.0,
+    "imbalancePct": -2.5368731563421827,
+    "measured": 1652.0
+   },
+   "water": {
+    "booked": 640.333333,
+    "imbalance": -152.33333300000004,
+    "imbalancePct": -23.78969282862556,
+    "measured": 488.0
+   }
+  },
+  {
+   "date": "2025-02-07",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 24.0,
+    "imbalancePct": 2.891566265060241,
+    "measured": 854.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -147.0,
+    "imbalancePct": -8.18941504178273,
+    "measured": 1648.0
+   },
+   "water": {
+    "booked": 658.0,
+    "imbalance": -161.0,
+    "imbalancePct": -24.46808510638298,
+    "measured": 497.0
+   }
+  },
+  {
+   "date": "2025-02-08",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 22.0,
+    "imbalancePct": 2.6506024096385543,
+    "measured": 852.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -151.0,
+    "imbalancePct": -8.412256267409472,
+    "measured": 1644.0
+   },
+   "water": {
+    "booked": 664.0,
+    "imbalance": -158.0,
+    "imbalancePct": -23.795180722891565,
+    "measured": 506.0
+   }
+  },
+  {
+   "date": "2025-02-09",
+   "gas": {
+    "booked": 796.666667,
+    "imbalance": 53.33333300000004,
+    "imbalancePct": 6.694560624813997,
+    "measured": 850.0
+   },
+   "oil": {
+    "booked": 1695.0,
+    "imbalance": -55.0,
+    "imbalancePct": -3.2448377581120944,
+    "measured": 1640.0
+   },
+   "water": {
+    "booked": 658.333333,
+    "imbalance": -143.33333300000004,
+    "imbalancePct": -21.772151859125145,
+    "measured": 515.0
+   }
+  },
+  {
+   "date": "2025-02-10",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 18.0,
+    "imbalancePct": 2.1686746987951806,
+    "measured": 848.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -159.0,
+    "imbalancePct": -8.857938718662952,
+    "measured": 1636.0
+   },
+   "water": {
+    "booked": 676.0,
+    "imbalance": -152.0,
+    "imbalancePct": -22.485207100591715,
+    "measured": 524.0
+   }
+  },
+  {
+   "date": "2025-02-11",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 16.0,
+    "imbalancePct": 1.9277108433734942,
+    "measured": 846.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -163.0,
+    "imbalancePct": -9.080779944289693,
+    "measured": 1632.0
+   },
+   "water": {
+    "booked": 682.0,
+    "imbalance": -149.0,
+    "imbalancePct": -21.8475073313783,
+    "measured": 533.0
+   }
+  },
+  {
+   "date": "2025-02-12",
+   "gas": {
+    "booked": 796.666667,
+    "imbalance": 47.33333300000004,
+    "imbalancePct": 5.94142254981531,
+    "measured": 844.0
+   },
+   "oil": {
+    "booked": 1695.0,
+    "imbalance": -67.0,
+    "imbalancePct": -3.9528023598820057,
+    "measured": 1628.0
+   },
+   "water": {
+    "booked": 676.333333,
+    "imbalance": -134.33333300000004,
+    "imbalancePct": -19.862000946210948,
+    "measured": 542.0
+   }
+  },
+  {
+   "date": "2025-02-13",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 12.0,
+    "imbalancePct": 1.4457831325301205,
+    "measured": 842.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -171.0,
+    "imbalancePct": -9.526462395543176,
+    "measured": 1624.0
+   },
+   "water": {
+    "booked": 694.0,
+    "imbalance": -143.0,
+    "imbalancePct": -20.605187319884728,
+    "measured": 551.0
+   }
+  },
+  {
+   "date": "2025-02-14",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 10.0,
+    "imbalancePct": 1.2048192771084338,
+    "measured": 840.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -175.0,
+    "imbalancePct": -9.749303621169917,
+    "measured": 1620.0
+   },
+   "water": {
+    "booked": 700.0,
+    "imbalance": -140.0,
+    "imbalancePct": -20.0,
+    "measured": 560.0
+   }
+  },
+  {
+   "date": "2025-02-15",
+   "gas": {
+    "booked": 796.666667,
+    "imbalance": 41.33333300000004,
+    "imbalancePct": 5.188284474816623,
+    "measured": 838.0
+   },
+   "oil": {
+    "booked": 1695.0,
+    "imbalance": -79.0,
+    "imbalancePct": -4.660766961651917,
+    "measured": 1616.0
+   },
+   "water": {
+    "booked": 694.333333,
+    "imbalance": -125.33333300000004,
+    "imbalancePct": -18.050888102760872,
+    "measured": 569.0
+   }
+  },
+  {
+   "date": "2025-02-16",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 6.0,
+    "imbalancePct": 0.7228915662650602,
+    "measured": 836.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -183.0,
+    "imbalancePct": -10.194986072423399,
+    "measured": 1612.0
+   },
+   "water": {
+    "booked": 712.0,
+    "imbalance": -134.0,
+    "imbalancePct": -18.820224719101123,
+    "measured": 578.0
+   }
+  },
+  {
+   "date": "2025-02-17",
+   "gas": {
+    "booked": 830.0,
+    "imbalance": 4.0,
+    "imbalancePct": 0.48192771084337355,
+    "measured": 834.0
+   },
+   "oil": {
+    "booked": 1795.0,
+    "imbalance": -187.0,
+    "imbalancePct": -10.417827298050138,
+    "measured": 1608.0
+   },
+   "water": {
+    "booked": 718.0,
+    "imbalance": -131.0,
+    "imbalancePct": -18.245125348189415,
+    "measured": 587.0
+   }
+  }
+ ],
+ "monthlyFactors": [
+  {
+   "allocated": {
+    "gas": 4691.276217971851,
+    "oil": 7909.324414715719,
+    "water": 2403.2380952380954
+   },
+   "factors": {
+    "gas": 1.0471598700830025,
+    "oil": 0.9415862398471094,
+    "water": 1.1443990929705217
+   },
+   "periodMonth": "2025-01-01",
+   "theoretical": {
+    "gas": 4480.0,
+    "oil": 8400.0,
+    "water": 2100.0
+   },
+   "wellId": "w-p1",
+   "wellName": "P-1"
+  },
+  {
+   "allocated": {
+    "gas": 1426.723782028149,
+    "oil": 3906.6755852842807,
+    "water": 445.76190476190476
+   },
+   "factors": {
+    "gas": 1.0452188879327096,
+    "oil": 0.939104708001029,
+    "water": 1.142979242979243
+   },
+   "periodMonth": "2025-01-01",
+   "theoretical": {
+    "gas": 1365.0,
+    "oil": 4160.0,
+    "water": 390.0
+   },
+   "wellId": "w-p2",
+   "wellName": "P-2"
+  },
+  {
+   "allocated": {
+    "gas": 9596.399172065907,
+    "oil": 15291.318573377695,
+    "water": 6991.291288566243
+   },
+   "factors": {
+    "gas": 1.0419543074990127,
+    "oil": 1.0099946217554618,
+    "water": 0.9499037076856308
+   },
+   "periodMonth": "2025-02-01",
+   "theoretical": {
+    "gas": 9210.0,
+    "oil": 15140.0,
+    "water": 7360.0
+   },
+   "wellId": "w-p1",
+   "wellName": "P-1"
+  },
+  {
+   "allocated": {
+    "gas": 4853.600827934093,
+    "oil": 12588.681426622305,
+    "water": 1763.7087114337567
+   },
+   "factors": {
+    "gas": 1.4296320553561395,
+    "oil": 1.2166895708720011,
+    "water": 1.8182564035399555
+   },
+   "periodMonth": "2025-02-01",
+   "theoretical": {
+    "gas": 3395.0,
+    "oil": 10346.666666666666,
+    "water": 970.0
+   },
+   "wellId": "w-p2",
+   "wellName": "P-2"
+  }
+ ],
+ "noBasis": {
+  "allocation": {
+   "days": [
+    {
+     "allocated": {
+      "gas": 235.0,
+      "oil": 520.0,
+      "water": 120.0
+     },
+     "closure": {
+      "gas": 0.0,
+      "oil": 0.0,
+      "water": 0.0
+     },
+     "date": "2025-03-01",
+     "entries": [
+      {
+       "allocated": {
+        "gas": 176.25,
+        "oil": 378.1818181818182,
+        "water": 96.0
+       },
+       "testId": "nt-1",
+       "theoretical": {
+        "gas": 180.0,
+        "oil": 400.0,
+        "water": 100.0
+       },
+       "uptime": 1.0,
+       "wellId": "n-p1",
+       "wellName": "N-1"
+      },
+      {
+       "allocated": {
+        "gas": 58.75,
+        "oil": 141.8181818181818,
+        "water": 24.0
+       },
+       "testId": "nt-2",
+       "theoretical": {
+        "gas": 60.0,
+        "oil": 150.0,
+        "water": 25.0
+       },
+       "uptime": 0.5,
+       "wellId": "n-p2",
+       "wellName": "N-2"
+      }
+     ],
+     "factors": {
+      "gas": 0.9791666666666666,
+      "oil": 0.9454545454545454,
+      "water": 0.96
+     },
+     "measured": {
+      "gas": 235.0,
+      "oil": 520.0,
+      "water": 120.0
+     },
+     "theoretical": {
+      "gas": 240.0,
+      "oil": 550.0,
+      "water": 125.0
+     }
+    },
+    {
+     "allocated": {
+      "gas": 0.0,
+      "oil": 0.0,
+      "water": 0.0
+     },
+     "closure": {
+      "gas": 0.0,
+      "oil": 0.0,
+      "water": 0.0
+     },
+     "date": "2025-03-02",
+     "entries": [
+      {
+       "allocated": {
+        "gas": 0.0,
+        "oil": 0.0,
+        "water": 0.0
+       },
+       "testId": "nt-1",
+       "theoretical": {
+        "gas": 0.0,
+        "oil": 0.0,
+        "water": 0.0
+       },
+       "uptime": 0.0,
+       "wellId": "n-p1",
+       "wellName": "N-1"
+      },
+      {
+       "allocated": {
+        "gas": 0.0,
+        "oil": 0.0,
+        "water": 0.0
+       },
+       "testId": "nt-2",
+       "theoretical": {
+        "gas": 0.0,
+        "oil": 0.0,
+        "water": 0.0
+       },
+       "uptime": 0.0,
+       "wellId": "n-p2",
+       "wellName": "N-2"
+      }
+     ],
+     "factors": {
+      "gas": null,
+      "oil": null,
+      "water": null
+     },
+     "measured": {
+      "gas": 140.0,
+      "oil": 310.0,
+      "water": 60.0
+     },
+     "theoretical": {
+      "gas": 0.0,
+      "oil": 0.0,
+      "water": 0.0
+     }
+    }
+   ],
+   "diagnosticCounts": {
+    "no_basis": 3
+   },
+   "grand": {
+    "allocated_gas": 235.0,
+    "allocated_oil": 520.0,
+    "allocated_water": 120.0,
+    "days": 2,
+    "measured_gas": 375.0,
+    "measured_oil": 830.0,
+    "measured_water": 180.0,
+    "theoretical_gas": 240.0,
+    "theoretical_oil": 550.0,
+    "theoretical_water": 125.0
+   },
+   "settings": {
+    "basis": "test",
+    "defaultHours": 24,
+    "factorWarnHigh": 1.3,
+    "factorWarnLow": 0.7,
+    "includeInvalidTests": false,
+    "maxTestAgeDays": 180,
+    "useUptime": true
+   },
+   "wells": [
+    {
+     "allocated": {
+      "gas": 176.25,
+      "oil": 378.1818181818182,
+      "water": 96.0
+     },
+     "days": 2,
+     "theoretical": {
+      "gas": 180.0,
+      "oil": 400.0,
+      "water": 100.0
+     },
+     "wellId": "n-p1",
+     "wellName": "N-1"
+    },
+    {
+     "allocated": {
+      "gas": 58.75,
+      "oil": 141.8181818181818,
+      "water": 24.0
+     },
+     "days": 2,
+     "theoretical": {
+      "gas": 60.0,
+      "oil": 150.0,
+      "water": 25.0
+     },
+     "wellId": "n-p2",
+     "wellName": "N-2"
+    }
+   ]
+  },
+  "field": {
+   "ledger": [
+    {
+     "gas_mscf": 180.0,
+     "ginj_mscf": 0.0,
+     "hours_on": 24.0,
+     "oil_stb": 400.0,
+     "prod_date": "2025-03-01",
+     "water_stb": 100.0,
+     "well_id": "n-p1",
+     "winj_stb": 0.0
+    },
+    {
+     "gas_mscf": 60.0,
+     "ginj_mscf": 0.0,
+     "hours_on": 12.0,
+     "oil_stb": 150.0,
+     "prod_date": "2025-03-01",
+     "water_stb": 25.0,
+     "well_id": "n-p2",
+     "winj_stb": 0.0
+    },
+    {
+     "gas_mscf": 0.0,
+     "ginj_mscf": 0.0,
+     "hours_on": 0.0,
+     "oil_stb": 0.0,
+     "prod_date": "2025-03-02",
+     "water_stb": 0.0,
+     "well_id": "n-p1",
+     "winj_stb": 0.0
+    },
+    {
+     "gas_mscf": 0.0,
+     "ginj_mscf": 0.0,
+     "hours_on": 0.0,
+     "oil_stb": 0.0,
+     "prod_date": "2025-03-02",
+     "water_stb": 0.0,
+     "well_id": "n-p2",
+     "winj_stb": 0.0
+    }
+   ],
+   "tests": [
+    {
+     "duration_hours": 12.0,
+     "gas_rate_mscfd": 180.0,
+     "id": "nt-1",
+     "is_valid": true,
+     "oil_rate_stbd": 400.0,
+     "test_date": "2025-03-01",
+     "water_rate_stbd": 100.0,
+     "well_id": "n-p1"
+    },
+    {
+     "duration_hours": 12.0,
+     "gas_rate_mscfd": 120.0,
+     "id": "nt-2",
+     "is_valid": true,
+     "oil_rate_stbd": 300.0,
+     "test_date": "2025-03-01",
+     "water_rate_stbd": 50.0,
+     "well_id": "n-p2"
+    }
+   ],
+   "totals": [
+    {
+     "gas_mscf": 235.0,
+     "oil_stb": 520.0,
+     "total_date": "2025-03-01",
+     "water_stb": 120.0
+    },
+    {
+     "gas_mscf": 140.0,
+     "oil_stb": 310.0,
+     "total_date": "2025-03-02",
+     "water_stb": 60.0
+    }
+   ],
+   "wells": [
+    {
+     "id": "n-p1",
+     "name": "N-1",
+     "well_type": "producer"
+    },
+    {
+     "id": "n-p2",
+     "name": "N-2",
+     "well_type": "producer"
+    }
+   ]
+  }
+ },
+ "nodalCrossCheck": {
+  "instrument": {
+   "A": 950.0,
+   "B": 0.00035,
+   "J": 1.8,
+   "pr": 2600.0
+  },
+  "results": [
+   {
+    "deviationPct": null,
+    "measuredStbd": 700.0,
+    "nodalStbd": null,
+    "status": "dead",
+    "testId": "n-dead",
+    "wellId": "w-n1"
+   },
+   {
+    "deviationPct": -54.23611820318044,
+    "measuredStbd": 600.0,
+    "nodalStbd": 1311.0775931636508,
+    "status": "off",
+    "testId": "n-low",
+    "wellId": "w-n1"
+   },
+   {
+    "deviationPct": 44.91895902326194,
+    "measuredStbd": 1900.0,
+    "nodalStbd": 1311.0775931636508,
+    "status": "off",
+    "testId": "n-high",
+    "wellId": "w-n1"
+   },
+   {
+    "deviationPct": null,
+    "measuredStbd": 1100.0,
+    "nodalStbd": null,
+    "status": "no-thp",
+    "testId": "n-nothp",
+    "wellId": "w-n1"
+   },
+   {
+    "deviationPct": null,
+    "measuredStbd": 800.0,
+    "nodalStbd": null,
+    "status": "no-model",
+    "testId": "n-nomodel",
+    "wellId": "w-n2"
+   },
+   {
+    "deviationPct": -9.997699132921532,
+    "measuredStbd": 1180.0,
+    "nodalStbd": 1311.0775931636508,
+    "status": "ok",
+    "testId": "n-ok",
+    "wellId": "w-n1"
+   }
+  ],
+  "settings": {
+   "minRateStbd": 1,
+   "tolerancePct": 35
+  },
+  "tests": [
+   {
+    "gas_rate_mscfd": 500.0,
+    "id": "n-ok",
+    "oil_rate_stbd": 1180.0,
+    "test_date": "2025-01-04",
+    "thp_psia": 320.0,
+    "water_rate_stbd": 200.0,
+    "well_id": "w-n1"
+   },
+   {
+    "gas_rate_mscfd": 300.0,
+    "id": "n-low",
+    "oil_rate_stbd": 600.0,
+    "test_date": "2025-01-11",
+    "thp_psia": 320.0,
+    "water_rate_stbd": 200.0,
+    "well_id": "w-n1"
+   },
+   {
+    "gas_rate_mscfd": 800.0,
+    "id": "n-high",
+    "oil_rate_stbd": 1900.0,
+    "test_date": "2025-01-18",
+    "thp_psia": 320.0,
+    "water_rate_stbd": 200.0,
+    "well_id": "w-n1"
+   },
+   {
+    "gas_rate_mscfd": 300.0,
+    "id": "n-dead",
+    "oil_rate_stbd": 700.0,
+    "test_date": "2025-01-25",
+    "thp_psia": 1800.0,
+    "water_rate_stbd": 100.0,
+    "well_id": "w-n1"
+   },
+   {
+    "gas_rate_mscfd": 450.0,
+    "id": "n-nothp",
+    "oil_rate_stbd": 1100.0,
+    "test_date": "2025-02-01",
+    "thp_psia": null,
+    "water_rate_stbd": 150.0,
+    "well_id": "w-n1"
+   },
+   {
+    "gas_rate_mscfd": 300.0,
+    "id": "n-nomodel",
+    "oil_rate_stbd": 800.0,
+    "test_date": "2025-02-01",
+    "thp_psia": 300.0,
+    "water_rate_stbd": 100.0,
+    "well_id": "w-n2"
+   }
+  ]
+ },
+ "testInForce": [
+  {
+   "date": "2024-12-19",
+   "maxTestAgeDays": 180,
+   "testId": null,
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2024-12-20",
+   "maxTestAgeDays": 180,
+   "testId": "t-p1-a",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2025-01-25",
+   "maxTestAgeDays": 180,
+   "testId": "t-p1-a",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2025-02-04",
+   "maxTestAgeDays": 180,
+   "testId": "t-p1-a",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2025-02-05",
+   "maxTestAgeDays": 180,
+   "testId": "t-p1-b",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2025-02-17",
+   "maxTestAgeDays": 180,
+   "testId": "t-p1-b",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2024-12-19",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2024-12-20",
+   "maxTestAgeDays": 120,
+   "testId": "t-p1-a",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2025-01-25",
+   "maxTestAgeDays": 120,
+   "testId": "t-p1-a",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2025-02-04",
+   "maxTestAgeDays": 120,
+   "testId": "t-p1-a",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2025-02-05",
+   "maxTestAgeDays": 120,
+   "testId": "t-p1-b",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2025-02-17",
+   "maxTestAgeDays": 120,
+   "testId": "t-p1-b",
+   "wellId": "w-p1"
+  },
+  {
+   "date": "2024-12-19",
+   "maxTestAgeDays": 180,
+   "testId": "t-p2-a",
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2024-12-20",
+   "maxTestAgeDays": 180,
+   "testId": "t-p2-a",
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2025-01-25",
+   "maxTestAgeDays": 180,
+   "testId": "t-p2-a",
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2025-02-04",
+   "maxTestAgeDays": 180,
+   "testId": "t-p2-a",
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2025-02-05",
+   "maxTestAgeDays": 180,
+   "testId": "t-p2-a",
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2025-02-17",
+   "maxTestAgeDays": 180,
+   "testId": "t-p2-a",
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2024-12-19",
+   "maxTestAgeDays": 120,
+   "testId": "t-p2-a",
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2024-12-20",
+   "maxTestAgeDays": 120,
+   "testId": "t-p2-a",
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2025-01-25",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2025-02-04",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2025-02-05",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2025-02-17",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p2"
+  },
+  {
+   "date": "2024-12-19",
+   "maxTestAgeDays": 180,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2024-12-20",
+   "maxTestAgeDays": 180,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2025-01-25",
+   "maxTestAgeDays": 180,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2025-02-04",
+   "maxTestAgeDays": 180,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2025-02-05",
+   "maxTestAgeDays": 180,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2025-02-17",
+   "maxTestAgeDays": 180,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2024-12-19",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2024-12-20",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2025-01-25",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2025-02-04",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2025-02-05",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p3"
+  },
+  {
+   "date": "2025-02-17",
+   "maxTestAgeDays": 120,
+   "testId": null,
+   "wellId": "w-p3"
+  }
+ ],
+ "testQc": {
+  "ledger": [
+   {
+    "gas_mscf": 250.0,
+    "hours_on": 24.0,
+    "oil_stb": 500.0,
+    "prod_date": "2024-10-01",
+    "water_stb": 100.0,
+    "well_id": "w-q1"
+   },
+   {
+    "gas_mscf": 260.0,
+    "hours_on": 24.0,
+    "oil_stb": 515.0,
+    "prod_date": "2024-11-01",
+    "water_stb": 110.0,
+    "well_id": "w-q1"
+   },
+   {
+    "gas_mscf": 120.0,
+    "hours_on": 12.0,
+    "oil_stb": 240.0,
+    "prod_date": "2024-12-01",
+    "water_stb": 60.0,
+    "well_id": "w-q1"
+   },
+   {
+    "gas_mscf": 260.0,
+    "hours_on": 24.0,
+    "oil_stb": 520.0,
+    "prod_date": "2025-01-05",
+    "water_stb": 105.0,
+    "well_id": "w-q1"
+   },
+   {
+    "gas_mscf": 320.0,
+    "hours_on": 24.0,
+    "oil_stb": 640.0,
+    "prod_date": "2025-01-12",
+    "water_stb": 427.0,
+    "well_id": "w-q1"
+   }
+  ],
+  "results": [
+   {
+    "codes": [
+     "zero_rate",
+     "no_ledger"
+    ],
+    "severity": "high",
+    "testDate": "2025-01-26",
+    "testId": "q-7",
+    "wellId": "w-q1"
+   },
+   {
+    "codes": [
+     "rate_outlier",
+     "ledger_mismatch",
+     "watercut_mismatch"
+    ],
+    "severity": "high",
+    "testDate": "2025-01-05",
+    "testId": "q-4",
+    "wellId": "w-q1"
+   },
+   {
+    "codes": [
+     "short_duration",
+     "no_ledger"
+    ],
+    "severity": "medium",
+    "testDate": "2025-01-20",
+    "testId": "q-6",
+    "wellId": "w-q1"
+   },
+   {
+    "codes": [
+     "watercut_mismatch"
+    ],
+    "severity": "medium",
+    "testDate": "2025-01-12",
+    "testId": "q-5",
+    "wellId": "w-q1"
+   }
+  ],
+  "tests": [
+   {
+    "duration_hours": 12.0,
+    "gas_rate_mscfd": 250.0,
+    "id": "q-1",
+    "is_valid": true,
+    "oil_rate_stbd": 500.0,
+    "test_date": "2024-10-01",
+    "water_rate_stbd": 100.0,
+    "well_id": "w-q1"
+   },
+   {
+    "duration_hours": 12.0,
+    "gas_rate_mscfd": 260.0,
+    "id": "q-2",
+    "is_valid": true,
+    "oil_rate_stbd": 520.0,
+    "test_date": "2024-11-01",
+    "water_rate_stbd": 110.0,
+    "well_id": "w-q1"
+   },
+   {
+    "duration_hours": 12.0,
+    "gas_rate_mscfd": 240.0,
+    "id": "q-3",
+    "is_valid": true,
+    "oil_rate_stbd": 480.0,
+    "test_date": "2024-12-01",
+    "water_rate_stbd": 120.0,
+    "well_id": "w-q1"
+   },
+   {
+    "duration_hours": 12.0,
+    "gas_rate_mscfd": 700.0,
+    "id": "q-4",
+    "is_valid": true,
+    "oil_rate_stbd": 1500.0,
+    "test_date": "2025-01-05",
+    "water_rate_stbd": 100.0,
+    "well_id": "w-q1"
+   },
+   {
+    "duration_hours": 12.0,
+    "gas_rate_mscfd": 320.0,
+    "id": "q-5",
+    "is_valid": true,
+    "oil_rate_stbd": 650.0,
+    "test_date": "2025-01-12",
+    "water_rate_stbd": 130.0,
+    "well_id": "w-q1"
+   },
+   {
+    "duration_hours": 2.5,
+    "gas_rate_mscfd": 250.0,
+    "id": "q-6",
+    "is_valid": true,
+    "oil_rate_stbd": 505.0,
+    "test_date": "2025-01-20",
+    "water_rate_stbd": 105.0,
+    "well_id": "w-q1"
+   },
+   {
+    "duration_hours": 12.0,
+    "gas_rate_mscfd": 0.0,
+    "id": "q-7",
+    "is_valid": true,
+    "oil_rate_stbd": 0.0,
+    "test_date": "2025-01-26",
+    "water_rate_stbd": 0.0,
+    "well_id": "w-q1"
+   }
+  ],
+  "well": {
+   "id": "w-q1",
+   "name": "Q-1",
+   "well_type": "producer"
+  }
+ }
+}

@@ -1,0 +1,90 @@
+{
+  "fixture": "las3_intervals_30.las",
+  "blocks": [
+    "Core",
+    "Lithology",
+    "Tops"
+  ],
+  "skipped": [
+    {
+      "block": "Core",
+      "reason": "1 row without a numeric top below base were dropped"
+    },
+    {
+      "block": "Tops",
+      "reason": "not an interval block"
+    }
+  ],
+  "intervals": [
+    {
+      "kind": "core_description",
+      "top_md_m": 1500.000048,
+      "base_md_m": 1500.999792,
+      "code": "sandstone",
+      "label": "Sandstone",
+      "properties": {
+        "grain_size": "f_sand",
+        "description": "Fine sandstone, cross-bedded"
+      },
+      "source": "import"
+    },
+    {
+      "kind": "core_description",
+      "top_md_m": 1500.999792,
+      "base_md_m": 1501.4996640000002,
+      "code": "shale",
+      "label": "Shale",
+      "properties": {
+        "grain_size": "clay",
+        "description": "Grey shale, laminated"
+      },
+      "source": "import"
+    },
+    {
+      "kind": "core_description",
+      "top_md_m": 1501.4996640000002,
+      "base_md_m": 1502.4994080000001,
+      "code": "sandstone",
+      "label": "Sandstone",
+      "properties": {
+        "grain_size": "m_sand",
+        "description": "Sandstone with shale stringers"
+      },
+      "source": "import"
+    },
+    {
+      "kind": "lithology",
+      "top_md_m": 1500.0,
+      "base_md_m": 1501.5,
+      "code": "limestone",
+      "label": "Limestone",
+      "properties": {
+        "colour_text": "grey"
+      },
+      "source": "import"
+    },
+    {
+      "kind": "lithology",
+      "top_md_m": 1501.5,
+      "base_md_m": 1503.0,
+      "code": "dolomite",
+      "label": "Dolomite",
+      "properties": {
+        "colour_text": "buff"
+      },
+      "source": "import"
+    },
+    {
+      "kind": "lithology",
+      "top_md_m": 1503.0,
+      "base_md_m": 1504.5,
+      "code": "MARBLE",
+      "label": "MARBLE",
+      "properties": {
+        "colour_text": "white",
+        "lithology_text": "MARBLE"
+      },
+      "source": "import"
+    }
+  ]
+}

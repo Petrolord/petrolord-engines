@@ -258,7 +258,7 @@ export async function scanGeometry(reader, mapping = {}, opts = {}) {
     warnings.push('Traces are not inline-sorted; Phase 1 ingestion requires inline-sorted input.');
   }
   if (nIl <= 1 && nXl <= 1 && totalTraces > 1) {
-    warnings.push('Mapping yields a single (inline, crossline) pair for every trace — '
+    warnings.push('Mapping yields a single (inline, crossline) pair for every trace, '
       + 'these byte positions are almost certainly wrong.');
   }
 

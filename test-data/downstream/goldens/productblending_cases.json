@@ -1,0 +1,1231 @@
+{
+ "cases": [
+  {
+   "achieved": {
+    "density": 0.7640452182255308,
+    "mon": 85.26634486378701,
+    "ron": 96.26631580066045,
+    "rvp": 9.000000000000002,
+    "sulfurPpm": 50.0
+   },
+   "components": [
+    {
+     "cost": 92,
+     "density": 0.8,
+     "id": "reformate",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Reformate",
+     "ron": 100,
+     "rvp": 3.0,
+     "sg": 0.8,
+     "sulfurPpm": 2
+    },
+    {
+     "cost": 84,
+     "density": 0.75,
+     "id": "fcc",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 80,
+     "name": "FCC gasoline",
+     "ron": 92,
+     "rvp": 6.0,
+     "sg": 0.75,
+     "sulfurPpm": 120
+    },
+    {
+     "cost": 89,
+     "density": 0.66,
+     "id": "isomerate",
+     "maxVolume": 300,
+     "minVolume": 0,
+     "mon": 85,
+     "name": "Isomerate",
+     "ron": 87,
+     "rvp": 13.0,
+     "sg": 0.66,
+     "sulfurPpm": 1
+    },
+    {
+     "cost": 55,
+     "density": 0.58,
+     "id": "butane",
+     "maxVolume": 80,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Butane",
+     "ron": 94,
+     "rvp": 52.0,
+     "sg": 0.58,
+     "sulfurPpm": 1
+    }
+   ],
+   "marginalBarrel": {
+    "down": 86.12277102593987,
+    "up": 86.12277102593987
+   },
+   "name": "Suite default gasoline pool, 50 ppm template",
+   "relief": [
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "ron",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "mon",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 55.011384754134454,
+     "specId": "sulfurPpm",
+     "tightenSide": 55.01138475914035
+    },
+    {
+     "bound": "max",
+     "relaxSide": 578.9051649267557,
+     "specId": "rvp",
+     "tightenSide": 578.9051702744525
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    }
+   ],
+   "specOverride": false,
+   "specs": [
+    {
+     "id": "ron",
+     "max": null,
+     "min": 91,
+     "rule": "volume"
+    },
+    {
+     "id": "mon",
+     "max": null,
+     "min": 81,
+     "rule": "volume"
+    },
+    {
+     "id": "sulfurPpm",
+     "max": 50,
+     "min": null,
+     "rule": "mass"
+    },
+    {
+     "id": "rvp",
+     "max": 9.0,
+     "min": null,
+     "rule": "rvp"
+    },
+    {
+     "id": "density",
+     "max": 0.775,
+     "min": 0.72,
+     "rule": "volume"
+    }
+   ],
+   "status": "optimal",
+   "targetVolume": 1000,
+   "template": "gasoline_50ppm",
+   "totalCost": 86122.77102593987,
+   "unique": true,
+   "volumes": [
+    516.0028236735195,
+    414.85057069033275,
+    0.0,
+    69.14660563614774
+   ],
+   "why": "what the Product Blending Optimizer solves with nothing typed; sulfur and RVP bind"
+  },
+  {
+   "achieved": {
+    "density": 0.7515273412539599,
+    "mon": 84.84046229081333,
+    "ron": 94.86300574358653,
+    "rvp": 9.0,
+    "sulfurPpm": 50.0
+   },
+   "components": [
+    {
+     "cost": 92,
+     "density": 0.8,
+     "id": "reformate",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Reformate",
+     "ron": 100,
+     "rvp": 3.0,
+     "sg": 0.8,
+     "sulfurPpm": 2
+    },
+    {
+     "cost": 84,
+     "density": 0.75,
+     "id": "fcc",
+     "maxVolume": 600,
+     "minVolume": 300,
+     "mon": 80,
+     "name": "FCC gasoline",
+     "ron": 92,
+     "rvp": 6.0,
+     "sg": 0.75,
+     "sulfurPpm": 120
+    },
+    {
+     "cost": 89,
+     "density": 0.66,
+     "id": "isomerate",
+     "maxVolume": 300,
+     "minVolume": 120,
+     "mon": 85,
+     "name": "Isomerate",
+     "ron": 87,
+     "rvp": 13.0,
+     "sg": 0.66,
+     "sulfurPpm": 1
+    },
+    {
+     "cost": 55,
+     "density": 0.58,
+     "id": "butane",
+     "maxVolume": 80,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Butane",
+     "ron": 94,
+     "rvp": 52.0,
+     "sg": 0.58,
+     "sulfurPpm": 1
+    }
+   ],
+   "marginalBarrel": {
+    "down": 86.12277102593987,
+    "up": 86.12277102593987
+   },
+   "name": "Suite default pool with component floors",
+   "relief": [
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "ron",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "mon",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 54.11009549799944,
+     "specId": "sulfurPpm",
+     "tightenSide": 54.110095502923315
+    },
+    {
+     "bound": "max",
+     "relaxSide": 578.9051649267557,
+     "specId": "rvp",
+     "tightenSide": 578.9051702744525
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    }
+   ],
+   "specOverride": false,
+   "specs": [
+    {
+     "id": "ron",
+     "max": null,
+     "min": 91,
+     "rule": "volume"
+    },
+    {
+     "id": "mon",
+     "max": null,
+     "min": 81,
+     "rule": "volume"
+    },
+    {
+     "id": "sulfurPpm",
+     "max": 50,
+     "min": null,
+     "rule": "mass"
+    },
+    {
+     "id": "rvp",
+     "max": 9.0,
+     "min": null,
+     "rule": "rvp"
+    },
+    {
+     "id": "density",
+     "max": 0.775,
+     "min": 0.72,
+     "rule": "volume"
+    }
+   ],
+   "status": "optimal",
+   "targetVolume": 1000,
+   "template": "gasoline_50ppm",
+   "totalCost": 86480.48637949266,
+   "unique": true,
+   "volumes": [
+    420.1134650120744,
+    408.8375232429622,
+    120.0,
+    51.04901174496337
+   ],
+   "why": "floors shift every spec row off zero, which is where the LP dual sign went wrong"
+  },
+  {
+   "achieved": {
+    "density": 0.7378778877887788,
+    "mon": 84.1780198019802,
+    "ron": 92.88046204620463,
+    "rvp": 7.474768312296112,
+    "sulfurPpm": 50.0
+   },
+   "components": [
+    {
+     "cost": 92,
+     "density": 0.8,
+     "id": "reformate",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Reformate",
+     "ron": 100,
+     "rvp": 3.0,
+     "sg": 0.8,
+     "sulfurPpm": 2
+    },
+    {
+     "cost": 84,
+     "density": 0.75,
+     "id": "fcc",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 80,
+     "name": "FCC gasoline",
+     "ron": 92,
+     "rvp": 6.0,
+     "sg": 0.75,
+     "sulfurPpm": 120
+    },
+    {
+     "cost": 89,
+     "density": 0.66,
+     "id": "isomerate",
+     "maxVolume": 300,
+     "minVolume": 0,
+     "mon": 85,
+     "name": "Isomerate",
+     "ron": 87,
+     "rvp": 13.0,
+     "sg": 0.66,
+     "sulfurPpm": 1
+    },
+    {
+     "cost": 55,
+     "density": 0.58,
+     "id": "butane",
+     "maxVolume": 0,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Butane",
+     "ron": 94,
+     "rvp": 52.0,
+     "sg": 0.58,
+     "sulfurPpm": 1
+    }
+   ],
+   "marginalBarrel": {
+    "down": 88.62046204620462,
+    "up": 88.62046204620462
+   },
+   "name": "Suite default pool, butane tank empty",
+   "relief": [
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "ron",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "mon",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 64.93974809665052,
+     "specId": "sulfurPpm",
+     "tightenSide": 64.93974810379461
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "rvp",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    }
+   ],
+   "specOverride": false,
+   "specs": [
+    {
+     "id": "ron",
+     "max": null,
+     "min": 91,
+     "rule": "volume"
+    },
+    {
+     "id": "mon",
+     "max": null,
+     "min": 81,
+     "rule": "volume"
+    },
+    {
+     "id": "sulfurPpm",
+     "max": 50,
+     "min": null,
+     "rule": "mass"
+    },
+    {
+     "id": "rvp",
+     "max": 9.0,
+     "min": null,
+     "rule": "rvp"
+    },
+    {
+     "id": "density",
+     "max": 0.775,
+     "min": 0.72,
+     "rule": "volume"
+    }
+   ],
+   "status": "optimal",
+   "targetVolume": 1000,
+   "template": "gasoline_50ppm",
+   "totalCost": 87880.46204620462,
+   "unique": true,
+   "volumes": [
+    297.55775577557756,
+    402.44224422442244,
+    300.0,
+    0.0
+   ],
+   "why": "a typed maximum of zero is none; the engine used to read it as unlimited"
+  },
+  {
+   "components": [
+    {
+     "cost": 92,
+     "density": 0.8,
+     "id": "reformate",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Reformate",
+     "ron": 100,
+     "rvp": 3.0,
+     "sg": 0.8,
+     "sulfurPpm": 2
+    },
+    {
+     "cost": 84,
+     "density": 0.75,
+     "id": "fcc",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 80,
+     "name": "FCC gasoline",
+     "ron": 92,
+     "rvp": 6.0,
+     "sg": 0.75,
+     "sulfurPpm": 120
+    },
+    {
+     "cost": 89,
+     "density": 0.66,
+     "id": "isomerate",
+     "maxVolume": 300,
+     "minVolume": 0,
+     "mon": 85,
+     "name": "Isomerate",
+     "ron": 87,
+     "rvp": 13.0,
+     "sg": 0.66,
+     "sulfurPpm": 1
+    },
+    {
+     "cost": 55,
+     "density": 0.58,
+     "id": "butane",
+     "maxVolume": 80,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Butane",
+     "ron": 94,
+     "rvp": 52.0,
+     "sg": 0.58,
+     "sulfurPpm": 1
+    }
+   ],
+   "name": "Suite default pool, 10 ppm template",
+   "specOverride": false,
+   "specs": [
+    {
+     "id": "ron",
+     "max": null,
+     "min": 95,
+     "rule": "volume"
+    },
+    {
+     "id": "mon",
+     "max": null,
+     "min": 85,
+     "rule": "volume"
+    },
+    {
+     "id": "sulfurPpm",
+     "max": 10,
+     "min": null,
+     "rule": "mass"
+    },
+    {
+     "id": "rvp",
+     "max": 8.5,
+     "min": null,
+     "rule": "rvp"
+    },
+    {
+     "id": "density",
+     "max": 0.775,
+     "min": 0.72,
+     "rule": "volume"
+    }
+   ],
+   "status": "infeasible",
+   "targetVolume": 1000,
+   "template": "gasoline_10ppm",
+   "why": "the tighter template; the FCC stream has to leave"
+  },
+  {
+   "achieved": {
+    "density": 0.7668772955102102,
+    "mon": 85.88536030304702,
+    "ron": 96.8,
+    "rvp": 9.0,
+    "sulfurPpm": 41.883284456315934
+   },
+   "components": [
+    {
+     "cost": 92,
+     "density": 0.8,
+     "id": "reformate",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Reformate",
+     "ron": 100,
+     "rvp": 3.0,
+     "sg": 0.8,
+     "sulfurPpm": 2
+    },
+    {
+     "cost": 84,
+     "density": 0.75,
+     "id": "fcc",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 80,
+     "name": "FCC gasoline",
+     "ron": 92,
+     "rvp": 6.0,
+     "sg": 0.75,
+     "sulfurPpm": 120
+    },
+    {
+     "cost": 89,
+     "density": 0.66,
+     "id": "isomerate",
+     "maxVolume": 300,
+     "minVolume": 0,
+     "mon": 85,
+     "name": "Isomerate",
+     "ron": 87,
+     "rvp": 13.0,
+     "sg": 0.66,
+     "sulfurPpm": 1
+    },
+    {
+     "cost": 55,
+     "density": 0.58,
+     "id": "butane",
+     "maxVolume": 80,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Butane",
+     "ron": 94,
+     "rvp": 52.0,
+     "sg": 0.58,
+     "sulfurPpm": 1
+    }
+   ],
+   "marginalBarrel": {
+    "down": 86.57093786748776,
+    "up": 86.57093786748776
+   },
+   "name": "Suite default pool, octane minimum 96.8",
+   "relief": [
+    {
+     "bound": "min",
+     "relaxSide": 839.760371587747,
+     "specId": "ron",
+     "tightenSide": 839.760371587747
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "mon",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "sulfurPpm",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 509.9754106622856,
+     "specId": "rvp",
+     "tightenSide": 509.9754153732367
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    }
+   ],
+   "specOverride": true,
+   "specs": [
+    {
+     "id": "ron",
+     "max": null,
+     "min": 96.8,
+     "rule": "volume"
+    },
+    {
+     "id": "mon",
+     "max": null,
+     "min": 81,
+     "rule": "volume"
+    },
+    {
+     "id": "sulfurPpm",
+     "max": 50,
+     "min": null,
+     "rule": "mass"
+    },
+    {
+     "id": "rvp",
+     "max": 9.0,
+     "min": null,
+     "rule": "rvp"
+    },
+    {
+     "id": "density",
+     "max": 0.775,
+     "min": 0.72,
+     "rule": "volume"
+    }
+   ],
+   "status": "optimal",
+   "targetVolume": 1000,
+   "template": "gasoline_50ppm",
+   "totalCost": 86570.93786748777,
+   "unique": true,
+   "volumes": [
+    582.02369247974,
+    346.07107743922,
+    0.0,
+    71.90523008103999
+   ],
+   "why": "an octane minimum that binds, so a >= row is priced"
+  },
+  {
+   "achieved": {
+    "cetane": 48.0,
+    "density": 0.845,
+    "flashPointC": 76.49754098360656,
+    "sulfurPpm": 34.6002716073334,
+    "viscosityCSt": 3.095292435929312
+   },
+   "components": [
+    {
+     "cetane": 51,
+     "cost": 104,
+     "density": 0.842,
+     "flashPointC": 72,
+     "id": "htgo",
+     "maxVolume": 700,
+     "minVolume": 0,
+     "name": "Hydrotreated gasoil",
+     "sg": 0.842,
+     "sulfurPpm": 8,
+     "viscosityCSt": 3.4
+    },
+    {
+     "cetane": 45,
+     "cost": 110,
+     "density": 0.8,
+     "flashPointC": 45,
+     "id": "kero",
+     "maxVolume": 300,
+     "minVolume": 0,
+     "name": "Kerosene",
+     "sg": 0.8,
+     "sulfurPpm": 5,
+     "viscosityCSt": 1.4
+    },
+    {
+     "cetane": 28,
+     "cost": 88,
+     "density": 0.925,
+     "flashPointC": 68,
+     "id": "lco",
+     "maxVolume": 250,
+     "minVolume": 0,
+     "name": "Hydrotreated LCO",
+     "sg": 0.925,
+     "sulfurPpm": 30,
+     "viscosityCSt": 2.6
+    },
+    {
+     "cetane": 53,
+     "cost": 92,
+     "density": 0.86,
+     "flashPointC": 110,
+     "id": "hvgo",
+     "maxVolume": 300,
+     "minVolume": 0,
+     "name": "Light vacuum gasoil",
+     "sg": 0.86,
+     "sulfurPpm": 90,
+     "viscosityCSt": 6.5
+    }
+   ],
+   "marginalBarrel": {
+    "down": 103.1639344262295,
+    "up": 103.1639344262295
+   },
+   "name": "diesel pool, 50 ppm template",
+   "relief": [
+    {
+     "bound": "min",
+     "relaxSide": 118.85245901639344,
+     "specId": "cetane",
+     "tightenSide": 118.85245901639344
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "sulfurPpm",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 159836.0655737705,
+     "specId": "density",
+     "tightenSide": 159836.0655737705
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "viscosityCSt",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "viscosityCSt",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "flashPointC",
+     "tightenSide": 0.0
+    }
+   ],
+   "specOverride": false,
+   "specs": [
+    {
+     "id": "cetane",
+     "max": null,
+     "min": 48,
+     "rule": "volume"
+    },
+    {
+     "id": "sulfurPpm",
+     "max": 50,
+     "min": null,
+     "rule": "mass"
+    },
+    {
+     "id": "density",
+     "max": 0.845,
+     "min": 0.82,
+     "rule": "volume"
+    },
+    {
+     "id": "viscosityCSt",
+     "max": 4.5,
+     "min": 2.0,
+     "rule": "refutas"
+    },
+    {
+     "id": "flashPointC",
+     "max": null,
+     "min": 55,
+     "rule": "volume"
+    }
+   ],
+   "status": "optimal",
+   "targetVolume": 1000,
+   "template": "diesel_50ppm",
+   "totalCost": 100355.73770491804,
+   "unique": true,
+   "volumes": [
+    364.75409836065575,
+    241.80327868852459,
+    93.44262295081967,
+    300.0
+   ],
+   "why": "viscosity through the Refutas index on MASS, cetane and flash linear on volume"
+  },
+  {
+   "achieved": {
+    "cetane": 48.0,
+    "density": 0.8438417391304348,
+    "flashPointC": 76.02521739130435,
+    "sulfurPpm": 34.47055186527867,
+    "viscosityCSt": 3.045133910352763
+   },
+   "components": [
+    {
+     "cetane": 51,
+     "cost": 104,
+     "density": 0.842,
+     "flashPointC": 72,
+     "id": "htgo",
+     "maxVolume": 700,
+     "minVolume": 0,
+     "name": "Hydrotreated gasoil",
+     "sg": 0.842,
+     "sulfurPpm": 8,
+     "viscosityCSt": 3.4
+    },
+    {
+     "cetane": 45,
+     "cost": 110,
+     "density": 0.8,
+     "flashPointC": 45,
+     "id": "kero",
+     "maxVolume": 300,
+     "minVolume": 260,
+     "name": "Kerosene",
+     "sg": 0.8,
+     "sulfurPpm": 5,
+     "viscosityCSt": 1.4
+    },
+    {
+     "cetane": 28,
+     "cost": 88,
+     "density": 0.925,
+     "flashPointC": 68,
+     "id": "lco",
+     "maxVolume": 250,
+     "minVolume": 0,
+     "name": "Hydrotreated LCO",
+     "sg": 0.925,
+     "sulfurPpm": 30,
+     "viscosityCSt": 2.6
+    },
+    {
+     "cetane": 53,
+     "cost": 92,
+     "density": 0.86,
+     "flashPointC": 110,
+     "id": "hvgo",
+     "maxVolume": 300,
+     "minVolume": 0,
+     "name": "Light vacuum gasoil",
+     "sg": 0.86,
+     "sulfurPpm": 90,
+     "viscosityCSt": 6.5
+    }
+   ],
+   "marginalBarrel": {
+    "down": 101.91304347826087,
+    "up": 101.91304347826087
+   },
+   "name": "diesel pool with a kerosene floor",
+   "relief": [
+    {
+     "bound": "min",
+     "relaxSide": 695.6521739130435,
+     "specId": "cetane",
+     "tightenSide": 695.6521739130435
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "sulfurPpm",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "viscosityCSt",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "viscosityCSt",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "flashPointC",
+     "tightenSide": 0.0
+    }
+   ],
+   "specOverride": false,
+   "specs": [
+    {
+     "id": "cetane",
+     "max": null,
+     "min": 48,
+     "rule": "volume"
+    },
+    {
+     "id": "sulfurPpm",
+     "max": 50,
+     "min": null,
+     "rule": "mass"
+    },
+    {
+     "id": "density",
+     "max": 0.845,
+     "min": 0.82,
+     "rule": "volume"
+    },
+    {
+     "id": "viscosityCSt",
+     "max": 4.5,
+     "min": 2.0,
+     "rule": "refutas"
+    },
+    {
+     "id": "flashPointC",
+     "max": null,
+     "min": 55,
+     "rule": "volume"
+    }
+   ],
+   "status": "optimal",
+   "targetVolume": 1000,
+   "template": "diesel_50ppm",
+   "totalCost": 100540.86956521739,
+   "unique": true,
+   "volumes": [
+    351.30434782608694,
+    260.0,
+    88.69565217391305,
+    300.0
+   ],
+   "why": "a binding floor on kerosene moves the optimum and shifts every spec row off zero"
+  },
+  {
+   "achieved": {
+    "density": 0.9886621631791196,
+    "flashPointC": 201.9898671530191,
+    "sulfurPpm": 32215.017698706077,
+    "viscosityCSt": 380.0000000000006
+   },
+   "components": [
+    {
+     "cost": 58,
+     "density": 1.01,
+     "flashPointC": 250,
+     "id": "vr",
+     "maxVolume": 800,
+     "minVolume": 0,
+     "name": "Vacuum residue",
+     "sg": 1.01,
+     "sulfurPpm": 42000,
+     "viscosityCSt": 18000
+    },
+    {
+     "cost": 66,
+     "density": 0.955,
+     "flashPointC": 200,
+     "id": "lsr",
+     "maxVolume": 500,
+     "minVolume": 0,
+     "name": "Low-sulfur residue",
+     "sg": 0.955,
+     "sulfurPpm": 6000,
+     "viscosityCSt": 900
+    },
+    {
+     "cost": 80,
+     "density": 0.93,
+     "flashPointC": 70,
+     "id": "lco",
+     "maxVolume": 400,
+     "minVolume": 0,
+     "name": "LCO cutter",
+     "sg": 0.93,
+     "sulfurPpm": 3000,
+     "viscosityCSt": 3.0
+    },
+    {
+     "cost": 95,
+     "density": 0.85,
+     "flashPointC": 70,
+     "id": "go",
+     "maxVolume": 400,
+     "minVolume": 0,
+     "name": "Gasoil cutter",
+     "sg": 0.85,
+     "sulfurPpm": 1000,
+     "viscosityCSt": 4.0
+    }
+   ],
+   "marginalBarrel": {
+    "down": 63.86790512574211,
+    "up": 63.86790512574211
+   },
+   "name": "fuel oil pool, 380 cSt template",
+   "relief": [
+    {
+     "bound": "max",
+     "relaxSide": 5.075773052011337,
+     "specId": "viscosityCSt",
+     "tightenSide": 5.075694027034391
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "sulfurPpm",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "max",
+     "relaxSide": 0.0,
+     "specId": "density",
+     "tightenSide": 0.0
+    },
+    {
+     "bound": "min",
+     "relaxSide": 0.0,
+     "specId": "flashPointC",
+     "tightenSide": 0.0
+    }
+   ],
+   "specOverride": false,
+   "specs": [
+    {
+     "id": "viscosityCSt",
+     "max": 380,
+     "min": null,
+     "rule": "refutas"
+    },
+    {
+     "id": "sulfurPpm",
+     "max": 35000,
+     "min": null,
+     "rule": "mass"
+    },
+    {
+     "id": "density",
+     "max": 0.991,
+     "min": null,
+     "rule": "volume"
+    },
+    {
+     "id": "flashPointC",
+     "max": null,
+     "min": 60,
+     "rule": "volume"
+    }
+   ],
+   "status": "optimal",
+   "targetVolume": 1000,
+   "template": "fuel_oil_380",
+   "totalCost": 63867.90512574211,
+   "unique": true,
+   "volumes": [
+    733.2770397389951,
+    0.0,
+    266.72296026100497,
+    0.0
+   ],
+   "why": "a 35,000 ppm sulfur limit, where an absolute binding tolerance means nothing"
+  },
+  {
+   "components": [
+    {
+     "cost": 92,
+     "density": 0.8,
+     "id": "reformate",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Reformate",
+     "ron": 100,
+     "rvp": 3.0,
+     "sg": 0.8,
+     "sulfurPpm": 2
+    },
+    {
+     "cost": 84,
+     "density": 0.75,
+     "id": "fcc",
+     "maxVolume": 600,
+     "minVolume": 0,
+     "mon": 80,
+     "name": "FCC gasoline",
+     "ron": 92,
+     "rvp": 6.0,
+     "sg": 0.75,
+     "sulfurPpm": 120
+    },
+    {
+     "cost": 89,
+     "density": 0.66,
+     "id": "isomerate",
+     "maxVolume": 300,
+     "minVolume": 0,
+     "mon": 85,
+     "name": "Isomerate",
+     "ron": 87,
+     "rvp": 13.0,
+     "sg": 0.66,
+     "sulfurPpm": 1
+    },
+    {
+     "cost": 55,
+     "density": 0.58,
+     "id": "butane",
+     "maxVolume": 80,
+     "minVolume": 0,
+     "mon": 89,
+     "name": "Butane",
+     "ron": 94,
+     "rvp": 52.0,
+     "sg": 0.58,
+     "sulfurPpm": 1
+    }
+   ],
+   "name": "Suite default pool, infeasible octane",
+   "specOverride": true,
+   "specs": [
+    {
+     "id": "ron",
+     "max": null,
+     "min": 101,
+     "rule": "volume"
+    },
+    {
+     "id": "sulfurPpm",
+     "max": 50,
+     "min": null,
+     "rule": "mass"
+    }
+   ],
+   "status": "infeasible",
+   "targetVolume": 1000,
+   "template": "gasoline_50ppm",
+   "why": "no recipe from these streams reaches 101 RON"
+  }
+ ],
+ "provenance": {
+  "engine": "engines/downstream/productBlending.js",
+  "heldConstants": {
+   "refutasA": 14.534,
+   "refutasB": 10.975,
+   "rvpIndexExponent": 1.25
+  },
+  "method": "exact vertex enumeration on physically built rows; properties from physical inventories; relief by exact re-solve",
+  "oracle": "tools/validation/downstream/oracle_productblending.py",
+  "published": "none: an optimum and its sensitivities are facts of the stated problem; pools are illustrative"
+ }
+}

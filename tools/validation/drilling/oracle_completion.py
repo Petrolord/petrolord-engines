@@ -191,6 +191,19 @@ def clearance(rows, profile):
     return out
 
 
+# The single row a reader is shown as "the worst". Rank by STATUS first,
+# because a FAIL anywhere outranks any PASS, and then by the TIGHTEST
+# clearance within that status, because a status class with several members
+# has a member that is worse than the others. Written independently of the
+# JS reduce, which is the point of an oracle.
+def worst_clearance(rows):
+    order = {'FAIL': 3, 'UNKNOWN': 2, 'WARN': 1, 'PASS': 0}
+    def key(r):
+        cl = r['clearanceM']
+        return (order[r['status']], -(cl if cl is not None else -1e9))
+    return max(rows, key=key)
+
+
 def through_bore(rows):
     out = []
     cur = float('inf')
@@ -277,6 +290,12 @@ def main():
     packer_md = packer['bottomMdM']
 
     cl = clearance(rows, profile)
+    cl_worst = worst_clearance(cl)
+    # Self-assert: on this all-PASS string the worst row must be the TIGHTEST
+    # clearance, which is the production packer through the 7" liner, and not
+    # simply the first row of the list.
+    assert cl_worst['clearanceM'] == min(r['clearanceM'] for r in cl), cl_worst
+    assert cl_worst['name'] != cl[0]['name'], 'worst must not degenerate to the first row'
     tb_rows, tb_min, tb_ctrl = through_bore(rows)
     vols = volumes(rows, profile, packer_md, TD_MD)
 
@@ -316,6 +335,7 @@ def main():
             'stackRows': [{'name': r['name'], 'topMdM': r['topMdM'],
                            'bottomMdM': r['bottomMdM']} for r in rows],
             'clearance': cl,
+            'clearanceWorst': cl_worst,
             'throughBore': {'rows': tb_rows, 'minIdM': tb_min,
                             'controlling': tb_ctrl},
             'volumes': vols,

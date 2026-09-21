@@ -1,0 +1,5460 @@
+{
+ "module": "consequence",
+ "generatedBy": "tools/validation/hse/oracle_consequence.py",
+ "description": "HSE H4 consequence modelling: source terms, Gaussian plume, pool fire solid flame, TNT and Kinney-Graham, probits.",
+ "tolerances": {
+  "routeA": "relative 1e-10 for closed forms (both sides IEEE double; pow chains)",
+  "roots": "relative 1e-9",
+  "probability": "absolute 2e-7 (engine erf is Abramowitz and Stegun 7.1.26)",
+  "viewFactorRouteB": "absolute 1e-9 between closed form and 400 x 400 Gauss-Legendre",
+  "published": "per case, stated with the case"
+ },
+ "sourceTerms": {
+  "liquid": [
+   {
+    "id": "yb-acrylonitrile-500s",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) 2.6.4.1: acrylonitrile, d 0.1 m, Cd 0.62, rho 812.5, level 11.12 m at 500 s, printed qS = 58.44 kg/s",
+    "args": {
+     "dischargeCoefficient": 0.62,
+     "holeDiameterM": 0.1,
+     "liquidDensityKgM3": 812.5,
+     "liquidHeadM": 11.12
+    },
+    "expected": {
+     "massRateKgS": 58.42956724664144
+    },
+    "printed": 58.44,
+    "publishedRelTol": 0.0005,
+    "routeB": 58.42956724664144
+   },
+   {
+    "id": "pressurised-water",
+    "source": "ORACLE-DERIVED: illustrative inputs",
+    "args": {
+     "dischargeCoefficient": 0.62,
+     "holeDiameterM": 0.0254,
+     "liquidDensityKgM3": 1000,
+     "liquidHeadM": 0,
+     "pressureAboveLiquidPa": 801325.0
+    },
+    "expected": {
+     "massRateKgS": 11.75473984901228
+    }
+   },
+   {
+    "id": "head-and-pressure",
+    "source": "ORACLE-DERIVED: illustrative inputs",
+    "args": {
+     "dischargeCoefficient": 0.82,
+     "holeAreaM2": 0.001,
+     "liquidDensityKgM3": 700,
+     "liquidHeadM": 4.5,
+     "pressureAboveLiquidPa": 300000.0
+    },
+    "expected": {
+     "massRateKgS": 14.70048299677939
+    }
+   },
+   {
+    "id": "rounded-orifice",
+    "source": "ORACLE-DERIVED: illustrative inputs",
+    "args": {
+     "dischargeCoefficient": 0.96,
+     "holeDiameterM": 0.05,
+     "liquidDensityKgM3": 850,
+     "liquidHeadM": 2.0
+    },
+    "expected": {
+     "massRateKgS": 10.034838381475838
+    },
+    "routeB": 10.03483838147584
+   }
+  ],
+  "gas": [
+   {
+    "id": "yb-hydrogen-t0",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) 2.6.2.1 / Table 2.3: hydrogen 50 bar, 288.15 K, d 0.1 m, Cd 0.62, printed 15.31 kg/s at t = 0; gamma NOT printed, 1.405 inferred (1.40 gives 15.29)",
+    "args": {
+     "dischargeCoefficient": 0.62,
+     "holeDiameterM": 0.1,
+     "upstreamPressurePa": 5000000.0,
+     "upstreamTemperatureK": 288.15,
+     "molarMassKgMol": 0.002016,
+     "heatCapacityRatio": 1.405
+    },
+    "expected": {
+     "massRateKgS": 15.311759654908865,
+     "choked": true
+    },
+    "printed": 15.31,
+    "printedDecimals": 2,
+    "routeB": 15.311759654908874
+   },
+   {
+    "id": "methane-choked",
+    "source": "ORACLE-DERIVED: illustrative inputs",
+    "args": {
+     "dischargeCoefficient": 0.62,
+     "holeDiameterM": 0.025,
+     "upstreamPressurePa": 7000000.0,
+     "upstreamTemperatureK": 300,
+     "molarMassKgMol": 0.016043,
+     "heatCapacityRatio": 1.31
+    },
+    "expected": {
+     "massRateKgS": 3.614864204767901,
+     "choked": true,
+     "outflowCoefficientPsi": 1.0
+    },
+    "routeB": 3.614864204767902
+   },
+   {
+    "id": "nitrogen-subsonic",
+    "source": "ORACLE-DERIVED: illustrative inputs",
+    "args": {
+     "dischargeCoefficient": 0.62,
+     "holeDiameterM": 0.01,
+     "upstreamPressurePa": 150000.0,
+     "upstreamTemperatureK": 293.15,
+     "molarMassKgMol": 0.028013,
+     "heatCapacityRatio": 1.4
+    },
+    "expected": {
+     "massRateKgS": 0.016119953695313955,
+     "choked": false,
+     "outflowCoefficientPsi": 0.9507206159488377
+    },
+    "routeB": 0.01611995369531396
+   },
+   {
+    "id": "air-barely-subsonic",
+    "source": "ORACLE-DERIVED: illustrative inputs",
+    "args": {
+     "dischargeCoefficient": 0.8,
+     "holeDiameterM": 0.02,
+     "upstreamPressurePa": 190000.0,
+     "upstreamTemperatureK": 293.15,
+     "molarMassKgMol": 0.028965,
+     "heatCapacityRatio": 1.4
+    },
+    "expected": {
+     "massRateKgS": 0.11271054789993008,
+     "choked": false,
+     "outflowCoefficientPsi": 0.9999449604811181
+    },
+    "routeB": 0.11271054789993014
+   },
+   {
+    "id": "air-barely-choked",
+    "source": "ORACLE-DERIVED: illustrative inputs",
+    "args": {
+     "dischargeCoefficient": 0.8,
+     "holeDiameterM": 0.02,
+     "upstreamPressurePa": 192000.0,
+     "upstreamTemperatureK": 293.15,
+     "molarMassKgMol": 0.028965,
+     "heatCapacityRatio": 1.4
+    },
+    "expected": {
+     "massRateKgS": 0.11390324389967266,
+     "choked": true,
+     "outflowCoefficientPsi": 1.0
+    },
+    "routeB": 0.1139032438996727
+   },
+   {
+    "id": "co2-high-gamma-low",
+    "source": "ORACLE-DERIVED: illustrative inputs",
+    "args": {
+     "dischargeCoefficient": 1.0,
+     "holeAreaM2": 0.0002,
+     "upstreamPressurePa": 400000.0,
+     "upstreamTemperatureK": 310,
+     "molarMassKgMol": 0.04401,
+     "heatCapacityRatio": 1.29,
+     "ambientPressurePa": 250000.0
+    },
+    "expected": {
+     "massRateKgS": 0.21688520699740607,
+     "choked": false,
+     "outflowCoefficientPsi": 0.9859335104303928
+    },
+    "routeB": 0.21688520699740618
+   }
+  ],
+  "pools": [
+   {
+    "id": "yb-benzene-pool",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) 6.6.3: V 28.3 m3, delta 0.02 m, printed D = 42.445 m and A = 1415 m2",
+    "args": {
+     "spillVolumeM3": 28.3,
+     "poolThicknessM": 0.02
+    },
+    "expected": {
+     "areaM2": 1415.0,
+     "equivalentDiameterM": 42.445658856946196,
+     "containment": "UNCONFINED_STATED_THICKNESS"
+    },
+    "printed": {
+     "equivalentDiameterM": 42.445,
+     "areaM2": 1415
+    }
+   },
+   {
+    "id": "bund-confined",
+    "source": "ORACLE-DERIVED: illustrative bund",
+    "args": {
+     "spillVolumeM3": 150,
+     "bundAreaM2": 900,
+     "bundWallHeightM": 1.2
+    },
+    "expected": {
+     "areaM2": 900,
+     "depthM": 0.16666666666666666,
+     "equivalentDiameterM": 33.851375012865375,
+     "containment": "CONFINED"
+    }
+   },
+   {
+    "id": "bund-exactly-full",
+    "source": "ORACLE-DERIVED: depth equal to the wall height is still confined",
+    "args": {
+     "spillVolumeM3": 1080,
+     "bundAreaM2": 900,
+     "bundWallHeightM": 1.2
+    },
+    "expected": {
+     "areaM2": 900,
+     "depthM": 1.2,
+     "equivalentDiameterM": 33.851375012865375,
+     "containment": "CONFINED"
+    }
+   }
+  ],
+  "evaporation": [
+   {
+    "id": "hexane-10m",
+    "source": "ORACLE-DERIVED: Mackay and Matsugu per YB 3.24; illustrative properties",
+    "args": {
+     "poolDiameterM": 10.0,
+     "windSpeed10mMS": 5.0,
+     "vapourPressurePa": 16000.0,
+     "molarMassKgMol": 0.08618,
+     "liquidTemperatureK": 293.15,
+     "schmidtNumber": 0.8
+    },
+    "expected": {
+     "massTransferCoefficientMS": 0.015139063352399923,
+     "evaporationFluxKgM2S": 0.008564487802983401,
+     "evaporationRateKgS": 0.672653299090301
+    }
+   },
+   {
+    "id": "toluene-3m",
+    "source": "ORACLE-DERIVED: Mackay and Matsugu per YB 3.24; illustrative properties",
+    "args": {
+     "poolDiameterM": 3.0,
+     "windSpeed10mMS": 2.0,
+     "vapourPressurePa": 2900.0,
+     "molarMassKgMol": 0.09214,
+     "liquidTemperatureK": 293.15,
+     "schmidtNumber": 0.8
+    },
+    "expected": {
+     "massTransferCoefficientMS": 0.00845711938957927,
+     "evaporationFluxKgM2S": 0.0009271384317563856,
+     "evaporationRateKgS": 0.006553555393649901
+    }
+   },
+   {
+    "id": "methanol-sc",
+    "source": "ORACLE-DERIVED: Mackay and Matsugu per YB 3.24; illustrative properties",
+    "args": {
+     "poolDiameterM": 20.0,
+     "windSpeed10mMS": 8.0,
+     "vapourPressurePa": 13000.0,
+     "molarMassKgMol": 0.03204,
+     "liquidTemperatureK": 293.15,
+     "schmidtNumber": 1.2
+    },
+    "expected": {
+     "massTransferCoefficientMS": 0.015424750565299905,
+     "evaporationFluxKgM2S": 0.0026359060439060124,
+     "evaporationRateKgS": 0.8280943063088063
+    }
+   }
+  ],
+  "erratumTable28": {
+   "printedT0MassRateKgS": 60.915,
+   "printedT0LevelM": 11.2,
+   "bernoulliAtThatLevel": 58.63936888126098
+  }
+ },
+ "dispersion": {
+  "briggsTable": {
+   "A": {
+    "sy1": 0.22,
+    "sy2": 0.0001,
+    "sz1": 0.2,
+    "sz2": 0.0,
+    "sz3": 0.0
+   },
+   "B": {
+    "sy1": 0.16,
+    "sy2": 0.0001,
+    "sz1": 0.12,
+    "sz2": 0.0,
+    "sz3": 0.0
+   },
+   "C": {
+    "sy1": 0.11,
+    "sy2": 0.0001,
+    "sz1": 0.08,
+    "sz2": 0.0002,
+    "sz3": -0.5
+   },
+   "D": {
+    "sy1": 0.08,
+    "sy2": 0.0001,
+    "sz1": 0.06,
+    "sz2": 0.0015,
+    "sz3": -0.5
+   },
+   "E": {
+    "sy1": 0.06,
+    "sy2": 0.0001,
+    "sz1": 0.03,
+    "sz2": 0.0003,
+    "sz3": -1.0
+   },
+   "F": {
+    "sy1": 0.04,
+    "sy2": 0.0001,
+    "sz1": 0.016,
+    "sz2": 0.0003,
+    "sz3": -1.0
+   }
+  },
+  "sigmas": [
+   {
+    "stabilityClass": "A",
+    "downwindDistanceM": 50.0,
+    "sigmaYM": 10.972602697183962,
+    "sigmaZM": 10.0,
+    "warning": true
+   },
+   {
+    "stabilityClass": "A",
+    "downwindDistanceM": 100.0,
+    "sigmaYM": 21.890818184619764,
+    "sigmaZM": 20.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "A",
+    "downwindDistanceM": 500.0,
+    "sigmaYM": 107.34900802433864,
+    "sigmaZM": 100.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "A",
+    "downwindDistanceM": 1000.0,
+    "sigmaYM": 209.7617696340303,
+    "sigmaZM": 200.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "A",
+    "downwindDistanceM": 5000.0,
+    "sigmaYM": 898.1462390204987,
+    "sigmaZM": 1000.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "A",
+    "downwindDistanceM": 10000.0,
+    "sigmaYM": 1555.6349186104044,
+    "sigmaZM": 2000.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "A",
+    "downwindDistanceM": 20000.0,
+    "sigmaYM": 2540.3411844343536,
+    "sigmaZM": 4000.0,
+    "warning": true
+   },
+   {
+    "stabilityClass": "B",
+    "downwindDistanceM": 50.0,
+    "sigmaYM": 7.980074688861063,
+    "sigmaZM": 6.0,
+    "warning": true
+   },
+   {
+    "stabilityClass": "B",
+    "downwindDistanceM": 100.0,
+    "sigmaYM": 15.920595043359828,
+    "sigmaZM": 12.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "B",
+    "downwindDistanceM": 500.0,
+    "sigmaYM": 78.07200583588265,
+    "sigmaZM": 60.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "B",
+    "downwindDistanceM": 1000.0,
+    "sigmaYM": 152.55401427929476,
+    "sigmaZM": 120.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "B",
+    "downwindDistanceM": 5000.0,
+    "sigmaYM": 653.1972647421809,
+    "sigmaZM": 600.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "B",
+    "downwindDistanceM": 10000.0,
+    "sigmaYM": 1131.3708498984759,
+    "sigmaZM": 1200.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "B",
+    "downwindDistanceM": 20000.0,
+    "sigmaYM": 1847.5208614068026,
+    "sigmaZM": 2400.0,
+    "warning": true
+   },
+   {
+    "stabilityClass": "C",
+    "downwindDistanceM": 50.0,
+    "sigmaYM": 5.486301348591981,
+    "sigmaZM": 3.9801487608399566,
+    "warning": true
+   },
+   {
+    "stabilityClass": "C",
+    "downwindDistanceM": 100.0,
+    "sigmaYM": 10.945409092309882,
+    "sigmaZM": 7.921180343813394,
+    "warning": false
+   },
+   {
+    "stabilityClass": "C",
+    "downwindDistanceM": 500.0,
+    "sigmaYM": 53.67450401216932,
+    "sigmaZM": 38.13850356982369,
+    "warning": false
+   },
+   {
+    "stabilityClass": "C",
+    "downwindDistanceM": 1000.0,
+    "sigmaYM": 104.88088481701514,
+    "sigmaZM": 73.02967433402215,
+    "warning": false
+   },
+   {
+    "stabilityClass": "C",
+    "downwindDistanceM": 5000.0,
+    "sigmaYM": 449.07311951024934,
+    "sigmaZM": 282.842712474619,
+    "warning": false
+   },
+   {
+    "stabilityClass": "C",
+    "downwindDistanceM": 10000.0,
+    "sigmaYM": 777.8174593052022,
+    "sigmaZM": 461.8802153517006,
+    "warning": false
+   },
+   {
+    "stabilityClass": "C",
+    "downwindDistanceM": 20000.0,
+    "sigmaYM": 1270.1705922171768,
+    "sigmaZM": 715.5417527999327,
+    "warning": true
+   },
+   {
+    "stabilityClass": "D",
+    "downwindDistanceM": 50.0,
+    "sigmaYM": 3.9900373444305317,
+    "sigmaZM": 2.893456933022473,
+    "warning": true
+   },
+   {
+    "stabilityClass": "D",
+    "downwindDistanceM": 100.0,
+    "sigmaYM": 7.960297521679914,
+    "sigmaZM": 5.595028849441883,
+    "warning": false
+   },
+   {
+    "stabilityClass": "D",
+    "downwindDistanceM": 500.0,
+    "sigmaYM": 39.036002917941325,
+    "sigmaZM": 22.677868380553637,
+    "warning": false
+   },
+   {
+    "stabilityClass": "D",
+    "downwindDistanceM": 1000.0,
+    "sigmaYM": 76.27700713964738,
+    "sigmaZM": 37.94733192202055,
+    "warning": false
+   },
+   {
+    "stabilityClass": "D",
+    "downwindDistanceM": 5000.0,
+    "sigmaYM": 326.59863237109045,
+    "sigmaZM": 102.89915108550531,
+    "warning": false
+   },
+   {
+    "stabilityClass": "D",
+    "downwindDistanceM": 10000.0,
+    "sigmaYM": 565.6854249492379,
+    "sigmaZM": 150.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "D",
+    "downwindDistanceM": 20000.0,
+    "sigmaYM": 923.7604307034013,
+    "sigmaZM": 215.5263624321299,
+    "warning": true
+   },
+   {
+    "stabilityClass": "E",
+    "downwindDistanceM": 50.0,
+    "sigmaYM": 2.992528008322899,
+    "sigmaZM": 1.4778325123152711,
+    "warning": true
+   },
+   {
+    "stabilityClass": "E",
+    "downwindDistanceM": 100.0,
+    "sigmaYM": 5.970223141259935,
+    "sigmaZM": 2.912621359223301,
+    "warning": false
+   },
+   {
+    "stabilityClass": "E",
+    "downwindDistanceM": 500.0,
+    "sigmaYM": 29.27700218845599,
+    "sigmaZM": 13.043478260869566,
+    "warning": false
+   },
+   {
+    "stabilityClass": "E",
+    "downwindDistanceM": 1000.0,
+    "sigmaYM": 57.20775535473553,
+    "sigmaZM": 23.076923076923073,
+    "warning": false
+   },
+   {
+    "stabilityClass": "E",
+    "downwindDistanceM": 5000.0,
+    "sigmaYM": 244.94897427831782,
+    "sigmaZM": 60.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "E",
+    "downwindDistanceM": 10000.0,
+    "sigmaYM": 424.2640687119285,
+    "sigmaZM": 75.00000000000001,
+    "warning": false
+   },
+   {
+    "stabilityClass": "E",
+    "downwindDistanceM": 20000.0,
+    "sigmaYM": 692.820323027551,
+    "sigmaZM": 85.71428571428572,
+    "warning": true
+   },
+   {
+    "stabilityClass": "F",
+    "downwindDistanceM": 50.0,
+    "sigmaYM": 1.9950186722152659,
+    "sigmaZM": 0.788177339901478,
+    "warning": true
+   },
+   {
+    "stabilityClass": "F",
+    "downwindDistanceM": 100.0,
+    "sigmaYM": 3.980148760839957,
+    "sigmaZM": 1.5533980582524274,
+    "warning": false
+   },
+   {
+    "stabilityClass": "F",
+    "downwindDistanceM": 500.0,
+    "sigmaYM": 19.518001458970662,
+    "sigmaZM": 6.9565217391304355,
+    "warning": false
+   },
+   {
+    "stabilityClass": "F",
+    "downwindDistanceM": 1000.0,
+    "sigmaYM": 38.13850356982369,
+    "sigmaZM": 12.307692307692307,
+    "warning": false
+   },
+   {
+    "stabilityClass": "F",
+    "downwindDistanceM": 5000.0,
+    "sigmaYM": 163.29931618554522,
+    "sigmaZM": 32.0,
+    "warning": false
+   },
+   {
+    "stabilityClass": "F",
+    "downwindDistanceM": 10000.0,
+    "sigmaYM": 282.84271247461896,
+    "sigmaZM": 40.00000000000001,
+    "warning": false
+   },
+   {
+    "stabilityClass": "F",
+    "downwindDistanceM": 20000.0,
+    "sigmaYM": 461.88021535170066,
+    "sigmaZM": 45.71428571428572,
+    "warning": true
+   }
+  ],
+  "plume": [
+   {
+    "id": "pb-co-361m",
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Appendix 6.B: Q 100 kg/s, u 5 m/s, h = z = 1 m, sigma_y 28.8 m, sigma_z 10.3 m (as printed), C = 21.3 g/m3",
+    "args": {
+     "massRateKgS": 100,
+     "windSpeedMS": 5,
+     "downwindDistanceM": 361,
+     "receptorHeightM": 1,
+     "releaseHeightM": 1,
+     "sigmaYM": 28.8,
+     "sigmaZM": 10.3
+    },
+    "expected": {
+     "concentrationKgM3": 0.02126062666896749
+    },
+    "printed": {
+     "concentrationGM3": 21.3
+    },
+    "routeB": 1.0
+   },
+   {
+    "id": "ground-D-1km",
+    "source": "ORACLE-DERIVED: Briggs rural sigmas, ALOHA Table 13",
+    "args": {
+     "massRateKgS": 1.0,
+     "windSpeedMS": 3.0,
+     "downwindDistanceM": 1000,
+     "stabilityClass": "D"
+    },
+    "expected": {
+     "concentrationKgM3": 3.665675206709604e-05,
+     "sigmaYM": 76.27700713964738,
+     "sigmaZM": 37.94733192202055
+    },
+    "warning": false,
+    "routeB": 0.9999999999999998
+   },
+   {
+    "id": "ground-F-500m",
+    "source": "ORACLE-DERIVED: Briggs rural sigmas, ALOHA Table 13",
+    "args": {
+     "massRateKgS": 0.5,
+     "windSpeedMS": 2.0,
+     "downwindDistanceM": 500,
+     "stabilityClass": "F"
+    },
+    "expected": {
+     "concentrationKgM3": 0.0005860877487265675,
+     "sigmaYM": 19.518001458970662,
+     "sigmaZM": 6.9565217391304355
+    },
+    "warning": false,
+    "routeB": 1.0
+   },
+   {
+    "id": "ground-A-200m",
+    "source": "ORACLE-DERIVED: Briggs rural sigmas, ALOHA Table 13",
+    "args": {
+     "massRateKgS": 2.0,
+     "windSpeedMS": 1.5,
+     "downwindDistanceM": 200,
+     "stabilityClass": "A"
+    },
+    "expected": {
+     "concentrationKgM3": 0.0002435433535941413,
+     "sigmaYM": 43.566491890973666,
+     "sigmaZM": 40.0
+    },
+    "warning": false,
+    "routeB": 1.0
+   },
+   {
+    "id": "elevated-C-2km",
+    "source": "ORACLE-DERIVED: Briggs rural sigmas, ALOHA Table 13",
+    "args": {
+     "massRateKgS": 5.0,
+     "windSpeedMS": 4.0,
+     "downwindDistanceM": 2000,
+     "stabilityClass": "C",
+     "releaseHeightM": 50
+    },
+    "expected": {
+     "concentrationKgM3": 1.3683084795904587e-05,
+     "sigmaYM": 200.83160441856091,
+     "sigmaZM": 135.22468075656266
+    },
+    "warning": false,
+    "routeB": 1.0000000000000002
+   },
+   {
+    "id": "offaxis-E-800m",
+    "source": "ORACLE-DERIVED: Briggs rural sigmas, ALOHA Table 13",
+    "args": {
+     "massRateKgS": 1.0,
+     "windSpeedMS": 2.5,
+     "downwindDistanceM": 800,
+     "stabilityClass": "E",
+     "crosswindDistanceM": 40,
+     "receptorHeightM": 2,
+     "releaseHeightM": 10
+    },
+    "expected": {
+     "concentrationKgM3": 8.532268801872239e-05,
+     "sigmaYM": 46.18802153517006,
+     "sigmaZM": 19.35483870967742
+    },
+    "warning": false,
+    "routeB": 1.0
+   },
+   {
+    "id": "ppm-chlorine-D",
+    "source": "ORACLE-DERIVED: Briggs rural sigmas, ALOHA Table 13",
+    "args": {
+     "massRateKgS": 1.0,
+     "windSpeedMS": 3.0,
+     "downwindDistanceM": 1500,
+     "stabilityClass": "D",
+     "molarMassGMol": 70.906,
+     "temperatureK": 293.15
+    },
+    "expected": {
+     "concentrationKgM3": 1.899309400537877e-05,
+     "sigmaYM": 111.90057698883764,
+     "sigmaZM": 49.923017660270624,
+     "concentrationPpm": 6.443475812341957
+    },
+    "warning": false,
+    "routeB": 1.0
+   },
+   {
+    "id": "below-100m-B",
+    "source": "ORACLE-DERIVED: Briggs rural sigmas, ALOHA Table 13",
+    "args": {
+     "massRateKgS": 1.0,
+     "windSpeedMS": 2.0,
+     "downwindDistanceM": 60,
+     "stabilityClass": "B"
+    },
+    "expected": {
+     "concentrationKgM3": 0.0023094863116969815,
+     "sigmaYM": 9.571328955383729,
+     "sigmaZM": 7.199999999999999
+    },
+    "warning": true,
+    "routeB": 1.0000000000000002
+   }
+  ],
+  "distance": [
+   {
+    "id": "D-ground-100mg",
+    "source": "ORACLE-DERIVED: brentq on the reflected plume, Briggs rural",
+    "args": {
+     "massRateKgS": 1.0,
+     "windSpeedMS": 3.0,
+     "stabilityClass": "D",
+     "targetConcentrationMgM3": 100
+    },
+    "expected": {
+     "peakConcentrationMgM3": 22122531.67841284,
+     "state": "REACHED",
+     "nearDistanceM": null,
+     "farDistanceM": 554.3804756752443
+    }
+   },
+   {
+    "id": "F-ground-50mg",
+    "source": "ORACLE-DERIVED: brentq on the reflected plume, Briggs rural",
+    "args": {
+     "massRateKgS": 0.5,
+     "windSpeedMS": 2.0,
+     "stabilityClass": "F",
+     "targetConcentrationMgM3": 50
+    },
+    "expected": {
+     "peakConcentrationMgM3": 124383319.92992829,
+     "state": "REACHED",
+     "nearDistanceM": null,
+     "farDistanceM": 2115.2109994840785
+    }
+   },
+   {
+    "id": "D-elevated-two-roots",
+    "source": "ORACLE-DERIVED: brentq on the reflected plume, Briggs rural",
+    "args": {
+     "massRateKgS": 1.0,
+     "windSpeedMS": 3.0,
+     "stabilityClass": "D",
+     "releaseHeightM": 30,
+     "targetConcentrationMgM3": 1
+    },
+    "expected": {
+     "peakConcentrationMgM3": 51.499614400343916,
+     "state": "REACHED",
+     "nearDistanceM": 147.306891073411,
+     "farDistanceM": 11768.932972658615
+    }
+   },
+   {
+    "id": "D-elevated-not-reached",
+    "source": "ORACLE-DERIVED: brentq on the reflected plume, Briggs rural",
+    "args": {
+     "massRateKgS": 1.0,
+     "windSpeedMS": 3.0,
+     "stabilityClass": "D",
+     "releaseHeightM": 100,
+     "targetConcentrationMgM3": 1000
+    },
+    "expected": {
+     "peakConcentrationMgM3": 3.045582711947479,
+     "state": "NOT_REACHED",
+     "nearDistanceM": null,
+     "farDistanceM": null
+    }
+   },
+   {
+    "id": "F-beyond-range",
+    "source": "ORACLE-DERIVED: brentq on the reflected plume, Briggs rural",
+    "args": {
+     "massRateKgS": 50.0,
+     "windSpeedMS": 1.0,
+     "stabilityClass": "F",
+     "targetConcentrationMgM3": 0.1
+    },
+    "expected": {
+     "peakConcentrationMgM3": 24876663985.98566,
+     "state": "BEYOND_SEARCH_RANGE",
+     "nearDistanceM": null,
+     "farDistanceM": null
+    }
+   }
+  ],
+  "conversions": [
+   {
+    "id": "ccohs-17.031",
+    "source": "PUBLISHED: CCOHS: mg/m3 = ppm x MW / 24.45 at 25 C, 760 torr; engine uses R T / P = 24.465 L/mol, gate 0.1 percent",
+    "args": {
+     "concentrationPpm": 100.0,
+     "molarMassGMol": 17.031
+    },
+    "printed": 69.65644171779141,
+    "expected": {
+     "concentrationMgM3": 69.61258522938546
+    }
+   },
+   {
+    "id": "ccohs-34.08",
+    "source": "PUBLISHED: CCOHS: mg/m3 = ppm x MW / 24.45 at 25 C, 760 torr; engine uses R T / P = 24.465 L/mol, gate 0.1 percent",
+    "args": {
+     "concentrationPpm": 100.0,
+     "molarMassGMol": 34.08
+    },
+    "printed": 139.38650306748465,
+    "expected": {
+     "concentrationMgM3": 139.2987437389147
+    }
+   },
+   {
+    "id": "ccohs-70.906",
+    "source": "PUBLISHED: CCOHS: mg/m3 = ppm x MW / 24.45 at 25 C, 760 torr; engine uses R T / P = 24.465 L/mol, gate 0.1 percent",
+    "args": {
+     "concentrationPpm": 100.0,
+     "molarMassGMol": 70.906
+    },
+    "printed": 290.00408997955014,
+    "expected": {
+     "concentrationMgM3": 289.8215001042103
+    }
+   },
+   {
+    "id": "ccohs-92.14",
+    "source": "PUBLISHED: CCOHS: mg/m3 = ppm x MW / 24.45 at 25 C, 760 torr; engine uses R T / P = 24.465 L/mol, gate 0.1 percent",
+    "args": {
+     "concentrationPpm": 100.0,
+     "molarMassGMol": 92.14
+    },
+    "printed": 376.85071574642126,
+    "expected": {
+     "concentrationMgM3": 376.6134462471714
+    }
+   },
+   {
+    "id": "ccohs-28.01",
+    "source": "PUBLISHED: CCOHS: mg/m3 = ppm x MW / 24.45 at 25 C, 760 torr; engine uses R T / P = 24.465 L/mol, gate 0.1 percent",
+    "args": {
+     "concentrationPpm": 100.0,
+     "molarMassGMol": 28.01
+    },
+    "printed": 114.560327198364,
+    "expected": {
+     "concentrationMgM3": 114.48819871264675
+    }
+   },
+   {
+    "id": "hot-low-pressure",
+    "source": "ORACLE-DERIVED: ideal gas at 350 K, 90 kPa",
+    "args": {
+     "concentrationPpm": 250.0,
+     "molarMassGMol": 64.066,
+     "temperatureK": 350.0,
+     "pressurePa": 90000.0
+    },
+    "expected": {
+     "concentrationMgM3": 495.34513060559783
+    }
+   }
+  ]
+ },
+ "fires": {
+  "burningRate": [
+   {
+    "id": "gasoline-0.5",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "gasoline",
+     "poolDiameterM": 0.5
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.03575342379888646
+    }
+   },
+   {
+    "id": "gasoline-2",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "gasoline",
+     "poolDiameterM": 2.0
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.054175243274873726
+    }
+   },
+   {
+    "id": "gasoline-20",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "gasoline",
+     "poolDiameterM": 20.0
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.055
+    }
+   },
+   {
+    "id": "lng-0.5",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "lng",
+     "poolDiameterM": 0.5
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.03299791479032204
+    }
+   },
+   {
+    "id": "lng-2",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "lng",
+     "poolDiameterM": 2.0
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.06935735364773796
+    }
+   },
+   {
+    "id": "lng-20",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "lng",
+     "poolDiameterM": 20.0
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.07799999997824215
+    }
+   },
+   {
+    "id": "methanol-0.5",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "methanol",
+     "poolDiameterM": 0.5
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.015
+    }
+   },
+   {
+    "id": "methanol-2",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "methanol",
+     "poolDiameterM": 2.0
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.015
+    }
+   },
+   {
+    "id": "methanol-20",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "methanol",
+     "poolDiameterM": 20.0
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.015
+    }
+   },
+   {
+    "id": "benzene-0.5",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "benzene",
+     "poolDiameterM": 0.5
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.06296457784509923
+    }
+   },
+   {
+    "id": "benzene-2",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "benzene",
+     "poolDiameterM": 2.0
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.08461609061987793
+    }
+   },
+   {
+    "id": "benzene-20",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) Table 6.5 (Babrauskas 1983) coefficients; value by YB 6.66",
+    "args": {
+     "method": "babrauskas",
+     "fuel": "benzene",
+     "poolDiameterM": 20.0
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.085
+    }
+   },
+   {
+    "id": "burgess-hexane",
+    "source": "ORACLE-DERIVED: Burgess YB 6.67, illustrative hexane properties",
+    "args": {
+     "method": "burgess",
+     "heatOfCombustionJKg": 44700000.0,
+     "heatOfVaporisationJKg": 335000.0,
+     "liquidHeatCapacityJKgK": 2260,
+     "boilingPointK": 341.9,
+     "ambientTemperatureK": 293.15
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.10040995114280901
+    }
+   },
+   {
+    "id": "burgess-at-boiling-point",
+    "source": "ORACLE-DERIVED: Tb = Ta: no sensible heat term",
+    "args": {
+     "method": "burgess",
+     "heatOfCombustionJKg": 46000000.0,
+     "heatOfVaporisationJKg": 426000.0,
+     "liquidHeatCapacityJKgK": 2500,
+     "boilingPointK": 293.15,
+     "ambientTemperatureK": 293.15
+    },
+    "expected": {
+     "burningFluxKgM2S": 0.107981220657277
+    }
+   }
+  ],
+  "flameLength": [
+   {
+    "id": "still-gasoline-10m",
+    "source": "ORACLE-DERIVED: Thomas (1963) still air; YB 6.12 to 6.14 with wind",
+    "args": {
+     "method": "thomas-still-air",
+     "poolDiameterM": 10.0,
+     "burningFluxKgM2S": 0.055,
+     "airDensityKgM3": 1.2,
+     "windSpeed10mMS": 0.0
+    },
+    "expected": {
+     "flameLengthM": 15.818167311930013
+    }
+   },
+   {
+    "id": "still-lng-30m",
+    "source": "ORACLE-DERIVED: Thomas (1963) still air; YB 6.12 to 6.14 with wind",
+    "args": {
+     "method": "thomas-still-air",
+     "poolDiameterM": 30.0,
+     "burningFluxKgM2S": 0.078,
+     "airDensityKgM3": 1.2,
+     "windSpeed10mMS": 0.0
+    },
+    "expected": {
+     "flameLengthM": 42.00605570183727
+    }
+   },
+   {
+    "id": "still-rho-1.16",
+    "source": "ORACLE-DERIVED: Thomas (1963) still air; YB 6.12 to 6.14 with wind",
+    "args": {
+     "method": "thomas-still-air",
+     "poolDiameterM": 5.0,
+     "burningFluxKgM2S": 0.04,
+     "airDensityKgM3": 1.16,
+     "windSpeed10mMS": 0.0
+    },
+    "expected": {
+     "flameLengthM": 8.214040855471206
+    }
+   },
+   {
+    "id": "wind-below-uc",
+    "source": "ORACLE-DERIVED: Thomas (1963) still air; YB 6.12 to 6.14 with wind",
+    "args": {
+     "method": "thomas-wind",
+     "poolDiameterM": 20.0,
+     "burningFluxKgM2S": 0.055,
+     "airDensityKgM3": 1.2,
+     "windSpeed10mMS": 1.0
+    },
+    "expected": {
+     "flameLengthM": 23.789196706829053,
+     "characteristicWindSpeedMS": 2.0792691255076843,
+     "scaledWindSpeed": 1.0
+    }
+   },
+   {
+    "id": "wind-above-uc",
+    "source": "ORACLE-DERIVED: Thomas (1963) still air; YB 6.12 to 6.14 with wind",
+    "args": {
+     "method": "thomas-wind",
+     "poolDiameterM": 20.0,
+     "burningFluxKgM2S": 0.055,
+     "airDensityKgM3": 1.2,
+     "windSpeed10mMS": 8.0
+    },
+    "expected": {
+     "flameLengthM": 17.926360595062906,
+     "characteristicWindSpeedMS": 2.0792691255076843,
+     "scaledWindSpeed": 3.8475057903082566
+    }
+   }
+  ],
+  "tilt": [
+   {
+    "id": "tilt-10-3",
+    "source": "ORACLE-DERIVED: YB 6.16, 6.68 to 6.70",
+    "args": {
+     "poolDiameterM": 10.0,
+     "windSpeed10mMS": 3.0,
+     "airKinematicViscosityM2S": 1.5e-05
+    },
+    "expected": {
+     "tiltDeg": 47.79808243761699,
+     "froudeNumber": 0.09177445916801355,
+     "reynoldsNumber": 2000000.0
+    }
+   },
+   {
+    "id": "tilt-42.4457-5",
+    "source": "ORACLE-DERIVED: YB 6.16, 6.68 to 6.70",
+    "args": {
+     "poolDiameterM": 42.445658856946196,
+     "windSpeed10mMS": 5.0,
+     "airKinematicViscosityM2S": 7.5133e-06
+    },
+    "expected": {
+     "tiltDeg": 50.82869741925505,
+     "froudeNumber": 0.060060100398880524,
+     "reynoldsNumber": 28247014.532193705
+    }
+   },
+   {
+    "id": "tilt-5-12",
+    "source": "ORACLE-DERIVED: YB 6.16, 6.68 to 6.70",
+    "args": {
+     "poolDiameterM": 5.0,
+     "windSpeed10mMS": 12.0,
+     "airKinematicViscosityM2S": 1.5e-05
+    },
+    "expected": {
+     "tiltDeg": 66.25559931596288,
+     "froudeNumber": 2.9367826933764336,
+     "reynoldsNumber": 4000000.0
+    }
+   }
+  ],
+  "viewFactor": [
+   {
+    "id": "yb-pool-example-vf",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) 6.6.3 step 12: a 2.20396, b 4.712, tilt 50.8286 deg, printed Fv 0.091915, Fh 0.029146",
+    "args": {
+     "flameRadiusM": 1.0,
+     "flameLengthM": 2.20396,
+     "distanceFromAxisM": 4.712,
+     "tiltDeg": 50.8286
+    },
+    "expected": {
+     "viewFactorVertical": 0.0919158442942375,
+     "viewFactorHorizontal": 0.029147159519385568,
+     "viewFactorMax": 0.09642654893944418
+    },
+    "printed": {
+     "viewFactorVertical": 0.091915,
+     "viewFactorHorizontal": 0.029146
+    },
+    "printedAbsTol": 2e-06,
+    "routeB": {
+     "viewFactorVertical": 0.09191584429424006,
+     "viewFactorHorizontal": 0.029147159519385835
+    }
+   },
+   {
+    "id": "yb-jet-example-vf",
+    "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) 6.6.2 step 29: a 11.18, b 14.43166, tilt 2.00843 deg, printed Fv 0.02665, Fh 0.00934",
+    "args": {
+     "flameRadiusM": 1.0,
+     "flameLengthM": 11.18,
+     "distanceFromAxisM": 14.43166,
+     "tiltDeg": 2.00843
+    },
+    "expected": {
+     "viewFactorVertical": 0.02664975270587962,
+     "viewFactorHorizontal": 0.009341560802464012,
+     "viewFactorMax": 0.028239583522259498
+    },
+    "printed": {
+     "viewFactorVertical": 0.02665,
+     "viewFactorHorizontal": 0.00934
+    },
+    "printedAbsTol": 5e-06,
+    "routeB": {
+     "viewFactorVertical": 0.026649752705880467,
+     "viewFactorHorizontal": 0.009341560802464307
+    }
+   },
+   {
+    "id": "vertical-h2-x2",
+    "source": "ORACLE-DERIVED: Mudan tilted-cylinder closed form",
+    "args": {
+     "flameRadiusM": 2.5,
+     "flameLengthM": 5.0,
+     "distanceFromAxisM": 5.0,
+     "tiltDeg": 0.0
+    },
+    "expected": {
+     "viewFactorVertical": 0.23611743073459468,
+     "viewFactorHorizontal": 0.1261513308657115,
+     "viewFactorMax": 0.2677043133307649
+    },
+    "routeB": {
+     "viewFactorVertical": 0.23611743073459918,
+     "viewFactorHorizontal": 0.12615133086571742
+    }
+   },
+   {
+    "id": "vertical-h5-x3",
+    "source": "ORACLE-DERIVED: Mudan tilted-cylinder closed form",
+    "args": {
+     "flameRadiusM": 2.5,
+     "flameLengthM": 12.5,
+     "distanceFromAxisM": 7.5,
+     "tiltDeg": 0.0
+    },
+    "expected": {
+     "viewFactorVertical": 0.1619852853564757,
+     "viewFactorHorizontal": 0.09111602674362942,
+     "viewFactorMax": 0.1858530683135596
+    },
+    "routeB": {
+     "viewFactorVertical": 0.16198528535647763,
+     "viewFactorHorizontal": 0.09111602674363395
+    }
+   },
+   {
+    "id": "tilt-40-toward",
+    "source": "ORACLE-DERIVED: Mudan tilted-cylinder closed form",
+    "args": {
+     "flameRadiusM": 2.5,
+     "flameLengthM": 7.5,
+     "distanceFromAxisM": 7.5,
+     "tiltDeg": 40.0
+    },
+    "expected": {
+     "viewFactorVertical": 0.24167353091478078,
+     "viewFactorHorizontal": 0.21964496704068948,
+     "viewFactorMax": 0.3265731267130274
+    },
+    "routeB": {
+     "viewFactorVertical": 0.2416735309147907,
+     "viewFactorHorizontal": 0.2196449670406989
+    }
+   },
+   {
+    "id": "tilt-40-away",
+    "source": "ORACLE-DERIVED: Mudan tilted-cylinder closed form",
+    "args": {
+     "flameRadiusM": 2.5,
+     "flameLengthM": 7.5,
+     "distanceFromAxisM": 7.5,
+     "tiltDeg": -40.0
+    },
+    "expected": {
+     "viewFactorVertical": 0.0793204459888225,
+     "viewFactorHorizontal": 0.01850058239473538,
+     "viewFactorMax": 0.08144939963443623
+    },
+    "routeB": {
+     "viewFactorVertical": 0.07932044598882344,
+     "viewFactorHorizontal": 0.01850058239473626
+    }
+   },
+   {
+    "id": "tilt-60-away-close",
+    "source": "ORACLE-DERIVED: Mudan tilted-cylinder closed form",
+    "args": {
+     "flameRadiusM": 2.5,
+     "flameLengthM": 7.5,
+     "distanceFromAxisM": 5.5,
+     "tiltDeg": -60.0
+    },
+    "expected": {
+     "viewFactorVertical": 0.07130500798973445,
+     "viewFactorHorizontal": 0.011208372770438658,
+     "viewFactorMax": 0.07218054990492387
+    },
+    "routeB": {
+     "viewFactorVertical": 0.07130500798973377,
+     "viewFactorHorizontal": 0.011208372770439217
+    }
+   },
+   {
+    "id": "near-overhang",
+    "source": "ORACLE-DERIVED: Mudan tilted-cylinder closed form",
+    "args": {
+     "flameRadiusM": 2.5,
+     "flameLengthM": 7.5,
+     "distanceFromAxisM": 8.0,
+     "tiltDeg": 45.0
+    },
+    "expected": {
+     "viewFactorVertical": 0.23972806849912592,
+     "viewFactorHorizontal": 0.22230617937707076,
+     "viewFactorMax": 0.3269397256614007
+    },
+    "routeB": {
+     "viewFactorVertical": 0.23972806849913614,
+     "viewFactorHorizontal": 0.22230617937707964
+    }
+   },
+   {
+    "id": "slender-far",
+    "source": "ORACLE-DERIVED: Mudan tilted-cylinder closed form",
+    "args": {
+     "flameRadiusM": 2.5,
+     "flameLengthM": 50.0,
+     "distanceFromAxisM": 50.0,
+     "tiltDeg": 10.0
+    },
+    "expected": {
+     "viewFactorVertical": 0.02374370681221416,
+     "viewFactorHorizontal": 0.01086776481267641,
+     "viewFactorMax": 0.026112677480642093
+    },
+    "routeB": {
+     "viewFactorVertical": 0.023743706812214938,
+     "viewFactorHorizontal": 0.010867764812676813
+    }
+   }
+  ],
+  "rajTable": [
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 0.1,
+    "printed": 132,
+    "computed1e3": 132.06822844479117
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 0.1,
+    "printed": 330,
+    "computed1e3": 330.74182422870166
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 0.1,
+    "printed": 356,
+    "computed1e3": 356.13504637802066
+   },
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 0.2,
+    "printed": 242,
+    "computed1e3": 242.89698015507042
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 0.2,
+    "printed": 415,
+    "computed1e3": 415.452422117686
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 0.2,
+    "printed": 481,
+    "computed1e3": 481.248021307002
+   },
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 0.5,
+    "printed": 332,
+    "computed1e3": 332.39810895803015
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 0.5,
+    "printed": 449,
+    "computed1e3": 449.954324562476
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 0.5,
+    "printed": 559,
+    "computed1e3": 559.417015321619
+   },
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 1.0,
+    "printed": 354,
+    "computed1e3": 354.55290849574203
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 1.0,
+    "printed": 453,
+    "computed1e3": 453.87347444341316
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 1.0,
+    "printed": 575,
+    "computed1e3": 575.9417468165732
+   },
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 2.0,
+    "printed": 360,
+    "computed1e3": 360.9777075676871
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 2.0,
+    "printed": 454,
+    "computed1e3": 454.4573580408914
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 2.0,
+    "printed": 580,
+    "computed1e3": 580.3760812079781
+   },
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 3.0,
+    "printed": 362,
+    "computed1e3": 362.2179002874951
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 3.0,
+    "printed": 454,
+    "computed1e3": 454.5191074288232
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 3.0,
+    "printed": 581,
+    "computed1e3": 581.1965470532115
+   },
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 5.0,
+    "printed": 362,
+    "computed1e3": 362.8594654295843
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 5.0,
+    "printed": 454,
+    "computed1e3": 454.53973596353694
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 5.0,
+    "printed": 581,
+    "computed1e3": 581.6127261517286
+   },
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 6.0,
+    "printed": 362,
+    "computed1e3": 362.9701922118188
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 6.0,
+    "printed": 454,
+    "computed1e3": 454.5421424120752
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 6.0,
+    "printed": 581,
+    "computed1e3": 581.6836938258145
+   },
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 10.0,
+    "printed": 363,
+    "computed1e3": 363.1314911486206
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 10.0,
+    "printed": 454,
+    "computed1e3": 454.544738252073
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 10.0,
+    "printed": 581,
+    "computed1e3": 581.7863860013108
+   },
+   {
+    "table": "Fh",
+    "xr": 1.1,
+    "hr": 20.0,
+    "printed": 363,
+    "computed1e3": 363.19962536883276
+   },
+   {
+    "table": "Fv",
+    "xr": 1.1,
+    "hr": 20.0,
+    "printed": 455,
+    "computed1e3": 454.5453649626493
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.1,
+    "hr": 20.0,
+    "printed": 581,
+    "computed1e3": 581.8294051327147
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 0.1,
+    "printed": 44,
+    "computed1e3": 44.362853624842636
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 0.1,
+    "printed": 196,
+    "computed1e3": 196.35478898576744
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 0.2,
+    "printed": 120,
+    "computed1e3": 120.87257460507536
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 0.2,
+    "printed": 308,
+    "computed1e3": 308.345748385333
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 0.2,
+    "printed": 331,
+    "computed1e3": 331.1907001094243
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 0.5,
+    "printed": 243,
+    "computed1e3": 243.8762186460201
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 0.5,
+    "printed": 397,
+    "computed1e3": 397.1235658058949
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 0.5,
+    "printed": 466,
+    "computed1e3": 466.0286863911602
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 1.0,
+    "printed": 291,
+    "computed1e3": 291.40046615418527
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 1.0,
+    "printed": 413,
+    "computed1e3": 413.3309846999621
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 1.0,
+    "printed": 505,
+    "computed1e3": 505.7239707468064
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 2.0,
+    "printed": 307,
+    "computed1e3": 307.57070271190105
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 2.0,
+    "printed": 416,
+    "computed1e3": 416.2038289098911
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 2.0,
+    "printed": 517,
+    "computed1e3": 517.5184676569007
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 3.0,
+    "printed": 310,
+    "computed1e3": 310.8606954239083
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 3.0,
+    "printed": 416,
+    "computed1e3": 416.5265731755369
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 3.0,
+    "printed": 519,
+    "computed1e3": 519.7391250625565
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 5.0,
+    "printed": 312,
+    "computed1e3": 312.58670729116625
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 5.0,
+    "printed": 416,
+    "computed1e3": 416.636065317916
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 5.0,
+    "printed": 520,
+    "computed1e3": 520.860884016767
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 6.0,
+    "printed": 312,
+    "computed1e3": 312.8863099191395
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 6.0,
+    "printed": 416,
+    "computed1e3": 416.6489230275561
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 6.0,
+    "printed": 521,
+    "computed1e3": 521.0510224487024
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 10.0,
+    "printed": 313,
+    "computed1e3": 313.32366535757086
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 10.0,
+    "printed": 416,
+    "computed1e3": 416.6628231246577
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 10.0,
+    "printed": 521,
+    "computed1e3": 521.324877065456
+   },
+   {
+    "table": "Fh",
+    "xr": 1.2,
+    "hr": 20.0,
+    "printed": 314,
+    "computed1e3": 313.50873648793714
+   },
+   {
+    "table": "Fv",
+    "xr": 1.2,
+    "hr": 20.0,
+    "printed": 417,
+    "computed1e3": 416.66618564518416
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 20.0,
+    "printed": 521,
+    "computed1e3": 521.438815312372
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 0.1,
+    "printed": 20,
+    "computed1e3": 20.153274984380655
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 0.1,
+    "printed": 130,
+    "computed1e3": 130.48946240990875
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 0.1,
+    "printed": 132,
+    "computed1e3": 132.0365642260622
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 0.2,
+    "printed": 65,
+    "computed1e3": 65.12553145277965
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 0.2,
+    "printed": 227,
+    "computed1e3": 227.61049429086466
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 0.2,
+    "printed": 236,
+    "computed1e3": 236.7443176896517
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 0.5,
+    "printed": 178,
+    "computed1e3": 178.30131334760944
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 0.5,
+    "printed": 344,
+    "computed1e3": 344.51744536801044
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 0.5,
+    "printed": 387,
+    "computed1e3": 387.9221938796264
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 1.0,
+    "printed": 242,
+    "computed1e3": 242.86597247293824
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 1.0,
+    "printed": 376,
+    "computed1e3": 376.6148788956547
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 1.0,
+    "printed": 448,
+    "computed1e3": 448.13239962182456
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 2.0,
+    "printed": 268,
+    "computed1e3": 268.9586911558384
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 2.0,
+    "printed": 383,
+    "computed1e3": 383.431180224221
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 2.0,
+    "printed": 468,
+    "computed1e3": 468.35696590997844
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 3.0,
+    "printed": 274,
+    "computed1e3": 274.6080150884233
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 3.0,
+    "printed": 384,
+    "computed1e3": 384.25169756022007
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 3.0,
+    "printed": 472,
+    "computed1e3": 472.29114858179855
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 5.0,
+    "printed": 277,
+    "computed1e3": 277.6242653904046
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 5.0,
+    "printed": 384,
+    "computed1e3": 384.5353150337824
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 5.0,
+    "printed": 474,
+    "computed1e3": 474.281183731436
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 6.0,
+    "printed": 278,
+    "computed1e3": 278.15165090931185
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 6.0,
+    "printed": 384,
+    "computed1e3": 384.5688934110811
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 6.0,
+    "printed": 474,
+    "computed1e3": 474.61729286131066
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 10.0,
+    "printed": 278,
+    "computed1e3": 278.92358844868323
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 10.0,
+    "printed": 384,
+    "computed1e3": 384.60529344351244
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 10.0,
+    "printed": 475,
+    "computed1e3": 475.0995684463003
+   },
+   {
+    "table": "Fh",
+    "xr": 1.3,
+    "hr": 20.0,
+    "printed": 279,
+    "computed1e3": 279.2509855743558
+   },
+   {
+    "table": "Fv",
+    "xr": 1.3,
+    "hr": 20.0,
+    "printed": 385,
+    "computed1e3": 384.6141206091943
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.3,
+    "hr": 20.0,
+    "printed": 475,
+    "computed1e3": 475.29899507176845
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 0.1,
+    "printed": 11,
+    "computed1e3": 11.005035491837258
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 0.1,
+    "printed": 94,
+    "computed1e3": 94.27497938137981
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 0.1,
+    "printed": 94,
+    "computed1e3": 94.91513337469524
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 0.2,
+    "printed": 38,
+    "computed1e3": 38.549445819559466
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 0.2,
+    "printed": 173,
+    "computed1e3": 173.04561684692814
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 0.5,
+    "printed": 130,
+    "computed1e3": 130.86040057822933
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 0.5,
+    "printed": 296,
+    "computed1e3": 296.073400689493
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 0.5,
+    "printed": 323,
+    "computed1e3": 323.7034183250707
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 1.0,
+    "printed": 203,
+    "computed1e3": 203.2659190516344
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 1.0,
+    "printed": 342,
+    "computed1e3": 342.9477133985374
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 1.0,
+    "printed": 398,
+    "computed1e3": 398.66046703076915
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 2.0,
+    "printed": 238,
+    "computed1e3": 238.1592376949471
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 2.0,
+    "printed": 354,
+    "computed1e3": 354.8875505575236
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 2.0,
+    "printed": 427,
+    "computed1e3": 427.3932568959847
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 3.0,
+    "printed": 246,
+    "computed1e3": 246.2601403149922
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 3.0,
+    "printed": 356,
+    "computed1e3": 356.43844066716673
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 3.0,
+    "printed": 433,
+    "computed1e3": 433.23483088643854
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 5.0,
+    "printed": 250,
+    "computed1e3": 250.676291926347
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 5.0,
+    "printed": 356,
+    "computed1e3": 356.9863210914653
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 5.0,
+    "printed": 436,
+    "computed1e3": 436.2084785745938
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 6.0,
+    "printed": 251,
+    "computed1e3": 251.45523772837896
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 6.0,
+    "printed": 357,
+    "computed1e3": 357.05181644230794
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 6.0,
+    "printed": 436,
+    "computed1e3": 436.710128352649
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 10.0,
+    "printed": 252,
+    "computed1e3": 252.5991089553396
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 10.0,
+    "printed": 357,
+    "computed1e3": 357.1230481074495
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 10.0,
+    "printed": 437,
+    "computed1e3": 437.42791558677095
+   },
+   {
+    "table": "Fh",
+    "xr": 1.4,
+    "hr": 20.0,
+    "printed": 253,
+    "computed1e3": 253.08559930287777
+   },
+   {
+    "table": "Fv",
+    "xr": 1.4,
+    "hr": 20.0,
+    "printed": 357,
+    "computed1e3": 357.1403733155593
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 20.0,
+    "printed": 437,
+    "computed1e3": 437.72316231434894
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 0.1,
+    "printed": 6,
+    "computed1e3": 6.7448309595367375
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 0.1,
+    "printed": 71,
+    "computed1e3": 71.99681805351008
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 0.1,
+    "printed": 72,
+    "computed1e3": 72.31206368582605
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 0.2,
+    "printed": 24,
+    "computed1e3": 24.662856844818915
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 0.2,
+    "printed": 135,
+    "computed1e3": 135.83512029729164
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 0.2,
+    "printed": 138,
+    "computed1e3": 138.05591770702088
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 0.5,
+    "printed": 97,
+    "computed1e3": 97.13836577970085
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 0.5,
+    "printed": 253,
+    "computed1e3": 253.84338821551495
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 0.5,
+    "printed": 271,
+    "computed1e3": 271.79464278584226
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 1.0,
+    "printed": 170,
+    "computed1e3": 170.4679569087692
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 1.0,
+    "printed": 312,
+    "computed1e3": 312.0143948832492
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 1.0,
+    "printed": 355,
+    "computed1e3": 355.5450842678185
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 2.0,
+    "printed": 212,
+    "computed1e3": 212.44198246228157
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 2.0,
+    "printed": 329,
+    "computed1e3": 329.68198777554204
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 2.0,
+    "printed": 392,
+    "computed1e3": 392.2012353067453
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 3.0,
+    "printed": 222,
+    "computed1e3": 222.94961904317108
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 3.0,
+    "printed": 332,
+    "computed1e3": 332.1710542497035
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 3.0,
+    "printed": 400,
+    "computed1e3": 400.05517358591254
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 5.0,
+    "printed": 228,
+    "computed1e3": 228.81575730772957
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 5.0,
+    "printed": 333,
+    "computed1e3": 333.07227237825134
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 5.0,
+    "printed": 404,
+    "computed1e3": 404.0962625656439
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 6.0,
+    "printed": 229,
+    "computed1e3": 229.86103625401256
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 6.0,
+    "printed": 333,
+    "computed1e3": 333.1812099838746
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 6.0,
+    "printed": 404,
+    "computed1e3": 404.77872309953153
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 10.0,
+    "printed": 231,
+    "computed1e3": 231.40190033253717
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 10.0,
+    "printed": 333,
+    "computed1e3": 333.3001397540653
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 10.0,
+    "printed": 405,
+    "computed1e3": 405.7534012643504
+   },
+   {
+    "table": "Fh",
+    "xr": 1.5,
+    "hr": 20.0,
+    "printed": 232,
+    "computed1e3": 232.05937505857935
+   },
+   {
+    "table": "Fv",
+    "xr": 1.5,
+    "hr": 20.0,
+    "printed": 333,
+    "computed1e3": 333.3291661915185
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.5,
+    "hr": 20.0,
+    "printed": 406,
+    "computed1e3": 406.15254103170565
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 0.1,
+    "printed": 1,
+    "computed1e3": 1.3419369710631313
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 0.1,
+    "printed": 28,
+    "computed1e3": 28.474476482298794
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 0.1,
+    "printed": 28,
+    "computed1e3": 28.506080154509025
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 0.2,
+    "printed": 5,
+    "computed1e3": 5.235679484547751
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 0.2,
+    "printed": 56,
+    "computed1e3": 56.02506944202961
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 0.2,
+    "printed": 56,
+    "computed1e3": 56.26918113540621
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 0.5,
+    "printed": 27,
+    "computed1e3": 27.93804693180429
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 0.5,
+    "printed": 126,
+    "computed1e3": 126.39413890485216
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 0.5,
+    "printed": 129,
+    "computed1e3": 129.4450185053977
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 1.0,
+    "printed": 73,
+    "computed1e3": 73.75686736910895
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 1.0,
+    "printed": 194,
+    "computed1e3": 194.68234947316833
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 1.0,
+    "printed": 208,
+    "computed1e3": 208.18571680232333
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 2.0,
+    "printed": 126,
+    "computed1e3": 126.15133086571146
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 2.0,
+    "printed": 236,
+    "computed1e3": 236.11743073459465
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 2.0,
+    "printed": 267,
+    "computed1e3": 267.7043133307648
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 3.0,
+    "printed": 145,
+    "computed1e3": 145.69620379759976
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 3.0,
+    "printed": 245,
+    "computed1e3": 245.03164335420038
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 3.0,
+    "printed": 285,
+    "computed1e3": 285.07523576398523
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 5.0,
+    "printed": 158,
+    "computed1e3": 158.41104211474703
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 5.0,
+    "printed": 248,
+    "computed1e3": 248.8012810592753
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 5.0,
+    "printed": 294,
+    "computed1e3": 294.9510734352677
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 6.0,
+    "printed": 160,
+    "computed1e3": 160.8391153738873
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 6.0,
+    "printed": 249,
+    "computed1e3": 249.2921321165823
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 6.0,
+    "printed": 296,
+    "computed1e3": 296.67454924459923
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 10.0,
+    "printed": 164,
+    "computed1e3": 164.51703988489754
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 10.0,
+    "printed": 249,
+    "computed1e3": 249.8424269342946
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 10.0,
+    "printed": 299,
+    "computed1e3": 299.14393644014797
+   },
+   {
+    "table": "Fh",
+    "xr": 2.0,
+    "hr": 20.0,
+    "printed": 166,
+    "computed1e3": 166.12359518178874
+   },
+   {
+    "table": "Fv",
+    "xr": 2.0,
+    "hr": 20.0,
+    "printed": 250,
+    "computed1e3": 249.98004631615052
+   },
+   {
+    "table": "Fmax",
+    "xr": 2.0,
+    "hr": 20.0,
+    "printed": 300,
+    "computed1e3": 300.14508563750894
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 0.1,
+    "printed": 9,
+    "computed1e3": 9.876633452341169
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 0.1,
+    "printed": 9,
+    "computed1e3": 9.879433051795269
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 0.2,
+    "printed": 19,
+    "computed1e3": 19.666832315578606
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 0.2,
+    "printed": 19,
+    "computed1e3": 19.689021849719627
+   },
+   {
+    "table": "Fh",
+    "xr": 3.0,
+    "hr": 0.5,
+    "printed": 5,
+    "computed1e3": 5.582596702284856
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 0.5,
+    "printed": 47,
+    "computed1e3": 47.72404036785333
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 0.5,
+    "printed": 48,
+    "computed1e3": 48.04944760320201
+   },
+   {
+    "table": "Fh",
+    "xr": 3.0,
+    "hr": 1.0,
+    "printed": 19,
+    "computed1e3": 19.29468722619573
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 1.0,
+    "printed": 86,
+    "computed1e3": 86.77977599741884
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 1.0,
+    "printed": 88,
+    "computed1e3": 88.89890031557708
+   },
+   {
+    "table": "Fh",
+    "xr": 3.0,
+    "hr": 2.0,
+    "printed": 50,
+    "computed1e3": 50.1047828919826
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 2.0,
+    "printed": 132,
+    "computed1e3": 132.23708440034284
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 2.0,
+    "printed": 141,
+    "computed1e3": 141.41122925480886
+   },
+   {
+    "table": "Fh",
+    "xr": 3.0,
+    "hr": 3.0,
+    "printed": 71,
+    "computed1e3": 71.2821051273393
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 3.0,
+    "printed": 150,
+    "computed1e3": 150.73594253433384
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 3.0,
+    "printed": 166,
+    "computed1e3": 166.74070553736735
+   },
+   {
+    "table": "Fh",
+    "xr": 3.0,
+    "hr": 5.0,
+    "printed": 91,
+    "computed1e3": 91.11602674362946
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 5.0,
+    "printed": 161,
+    "computed1e3": 161.98528535647569
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 5.0,
+    "printed": 185,
+    "computed1e3": 185.85306831355962
+   },
+   {
+    "table": "Fh",
+    "xr": 3.0,
+    "hr": 6.0,
+    "printed": 95,
+    "computed1e3": 95.71566639424604
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 6.0,
+    "printed": 163,
+    "computed1e3": 163.7854202330165
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 6.0,
+    "printed": 189,
+    "computed1e3": 189.70280091290275
+   },
+   {
+    "table": "Fh",
+    "xr": 3.0,
+    "hr": 10.0,
+    "printed": 103,
+    "computed1e3": 103.32275022454051
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 10.0,
+    "printed": 165,
+    "computed1e3": 165.98188768729983
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 10.0,
+    "printed": 195,
+    "computed1e3": 195.5136254950079
+   },
+   {
+    "table": "Fh",
+    "xr": 3.0,
+    "hr": 20.0,
+    "printed": 107,
+    "computed1e3": 106.91740146242793
+   },
+   {
+    "table": "Fv",
+    "xr": 3.0,
+    "hr": 20.0,
+    "printed": 167,
+    "computed1e3": 166.57733163387135
+   },
+   {
+    "table": "Fmax",
+    "xr": 3.0,
+    "hr": 20.0,
+    "printed": 197,
+    "computed1e3": 197.93771280314104
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 0.1,
+    "printed": 5,
+    "computed1e3": 5.029449678811715
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 0.1,
+    "printed": 5,
+    "computed1e3": 5.030093977510767
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 0.2,
+    "printed": 10,
+    "computed1e3": 10.038682999701601
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 0.2,
+    "printed": 10,
+    "computed1e3": 10.043815557853405
+   },
+   {
+    "table": "Fh",
+    "xr": 4.0,
+    "hr": 0.5,
+    "printed": 1,
+    "computed1e3": 1.9649407606474263
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 0.5,
+    "printed": 24,
+    "computed1e3": 24.750523180297545
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 0.5,
+    "printed": 24,
+    "computed1e3": 24.828398858792724
+   },
+   {
+    "table": "Fh",
+    "xr": 4.0,
+    "hr": 1.0,
+    "printed": 7,
+    "computed1e3": 7.31792234290801
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 1.0,
+    "printed": 47,
+    "computed1e3": 47.226374457002215
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 1.0,
+    "printed": 47,
+    "computed1e3": 47.78998254623895
+   },
+   {
+    "table": "Fh",
+    "xr": 4.0,
+    "hr": 2.0,
+    "printed": 22,
+    "computed1e3": 22.95694582818576
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 2.0,
+    "printed": 80,
+    "computed1e3": 80.73602672022419
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 2.0,
+    "printed": 83,
+    "computed1e3": 83.93644841382682
+   },
+   {
+    "table": "Fh",
+    "xr": 4.0,
+    "hr": 3.0,
+    "printed": 38,
+    "computed1e3": 38.02320694852618
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 3.0,
+    "printed": 100,
+    "computed1e3": 100.01374086552528
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 3.0,
+    "printed": 106,
+    "computed1e3": 106.99772253915918
+   },
+   {
+    "table": "Fh",
+    "xr": 4.0,
+    "hr": 5.0,
+    "printed": 57,
+    "computed1e3": 57.33616623397404
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 5.0,
+    "printed": 115,
+    "computed1e3": 115.9768457704865
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 5.0,
+    "printed": 129,
+    "computed1e3": 129.37567280320175
+   },
+   {
+    "table": "Fh",
+    "xr": 4.0,
+    "hr": 6.0,
+    "printed": 62,
+    "computed1e3": 62.83739604706215
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 6.0,
+    "printed": 119,
+    "computed1e3": 119.1509422968763
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 6.0,
+    "printed": 134,
+    "computed1e3": 134.70517952999762
+   },
+   {
+    "table": "Fh",
+    "xr": 4.0,
+    "hr": 10.0,
+    "printed": 73,
+    "computed1e3": 73.05400144162982
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 10.0,
+    "printed": 123,
+    "computed1e3": 123.4787635092941
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 10.0,
+    "printed": 143,
+    "computed1e3": 143.47087566617077
+   },
+   {
+    "table": "Fh",
+    "xr": 4.0,
+    "hr": 20.0,
+    "printed": 78,
+    "computed1e3": 78.44835433675094
+   },
+   {
+    "table": "Fv",
+    "xr": 4.0,
+    "hr": 20.0,
+    "printed": 125,
+    "computed1e3": 124.79245684001502
+   },
+   {
+    "table": "Fmax",
+    "xr": 4.0,
+    "hr": 20.0,
+    "printed": 147,
+    "computed1e3": 147.40183710629742
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 0.1,
+    "printed": 3,
+    "computed1e3": 3.0502830174762905
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 0.1,
+    "printed": 3,
+    "computed1e3": 3.0505055356386963
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 0.2,
+    "printed": 6,
+    "computed1e3": 6.093533744307722
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 0.2,
+    "printed": 6,
+    "computed1e3": 6.095309573801623
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 0.5,
+    "printed": 15,
+    "computed1e3": 15.112293948296562
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 0.5,
+    "printed": 15,
+    "computed1e3": 15.139576909914947
+   },
+   {
+    "table": "Fh",
+    "xr": 5.0,
+    "hr": 1.0,
+    "printed": 3,
+    "computed1e3": 3.4847645382418926
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 1.0,
+    "printed": 29,
+    "computed1e3": 29.397731334121517
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 1.0,
+    "printed": 29,
+    "computed1e3": 29.60355031884146
+   },
+   {
+    "table": "Fh",
+    "xr": 5.0,
+    "hr": 2.0,
+    "printed": 11,
+    "computed1e3": 11.974557854978626
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 2.0,
+    "printed": 53,
+    "computed1e3": 53.23939362818377
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 2.0,
+    "printed": 54,
+    "computed1e3": 54.569433474417934
+   },
+   {
+    "table": "Fh",
+    "xr": 5.0,
+    "hr": 3.0,
+    "printed": 21,
+    "computed1e3": 21.824698965338268
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 3.0,
+    "printed": 69,
+    "computed1e3": 69.80451502952808
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 3.0,
+    "printed": 73,
+    "computed1e3": 73.13677463106536
+   },
+   {
+    "table": "Fh",
+    "xr": 5.0,
+    "hr": 5.0,
+    "printed": 37,
+    "computed1e3": 37.73258798329484
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 5.0,
+    "printed": 86,
+    "computed1e3": 86.9833072224078
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 5.0,
+    "printed": 94,
+    "computed1e3": 94.81478751368306
+   },
+   {
+    "table": "Fh",
+    "xr": 5.0,
+    "hr": 6.0,
+    "printed": 43,
+    "computed1e3": 43.14617585239513
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 6.0,
+    "printed": 91,
+    "computed1e3": 91.1031081836769
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 6.0,
+    "printed": 100,
+    "computed1e3": 100.8036150711498
+   },
+   {
+    "table": "Fh",
+    "xr": 5.0,
+    "hr": 10.0,
+    "printed": 54,
+    "computed1e3": 54.545790448170074
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 10.0,
+    "printed": 97,
+    "computed1e3": 97.43545079185365
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 10.0,
+    "printed": 111,
+    "computed1e3": 111.66427506874084
+   },
+   {
+    "table": "Fh",
+    "xr": 5.0,
+    "hr": 20.0,
+    "printed": 61,
+    "computed1e3": 61.40439241067009
+   },
+   {
+    "table": "Fv",
+    "xr": 5.0,
+    "hr": 20.0,
+    "printed": 100,
+    "computed1e3": 99.62954270676137
+   },
+   {
+    "table": "Fmax",
+    "xr": 5.0,
+    "hr": 20.0,
+    "printed": 117,
+    "computed1e3": 117.03223994815252
+   },
+   {
+    "table": "Fv",
+    "xr": 10.0,
+    "hr": 0.2,
+    "printed": 1,
+    "computed1e3": 1.3845264935599781
+   },
+   {
+    "table": "Fmax",
+    "xr": 10.0,
+    "hr": 0.2,
+    "printed": 1,
+    "computed1e3": 1.384608717494703
+   },
+   {
+    "table": "Fv",
+    "xr": 10.0,
+    "hr": 0.5,
+    "printed": 3,
+    "computed1e3": 3.4555902566317935
+   },
+   {
+    "table": "Fmax",
+    "xr": 10.0,
+    "hr": 0.5,
+    "printed": 3,
+    "computed1e3": 3.456870552294726
+   },
+   {
+    "table": "Fv",
+    "xr": 10.0,
+    "hr": 1.0,
+    "printed": 6,
+    "computed1e3": 6.870695396512427
+   },
+   {
+    "table": "Fmax",
+    "xr": 10.0,
+    "hr": 1.0,
+    "printed": 6,
+    "computed1e3": 6.880812212008918
+   },
+   {
+    "table": "Fh",
+    "xr": 10.0,
+    "hr": 2.0,
+    "printed": 1,
+    "computed1e3": 1.4412868360444113
+   },
+   {
+    "table": "Fv",
+    "xr": 10.0,
+    "hr": 2.0,
+    "printed": 13,
+    "computed1e3": 13.429914533928166
+   },
+   {
+    "table": "Fmax",
+    "xr": 10.0,
+    "hr": 2.0,
+    "printed": 13,
+    "computed1e3": 13.507031951260423
+   },
+   {
+    "table": "Fh",
+    "xr": 10.0,
+    "hr": 3.0,
+    "printed": 3,
+    "computed1e3": 3.0691851350988086
+   },
+   {
+    "table": "Fv",
+    "xr": 10.0,
+    "hr": 3.0,
+    "printed": 19,
+    "computed1e3": 19.426408828112613
+   },
+   {
+    "table": "Fmax",
+    "xr": 10.0,
+    "hr": 3.0,
+    "printed": 19,
+    "computed1e3": 19.667365287462456
+   },
+   {
+    "table": "Fh",
+    "xr": 10.0,
+    "hr": 5.0,
+    "printed": 7,
+    "computed1e3": 7.278302551600051
+   },
+   {
+    "table": "Fv",
+    "xr": 10.0,
+    "hr": 5.0,
+    "printed": 29,
+    "computed1e3": 29.21142820068957
+   },
+   {
+    "table": "Fmax",
+    "xr": 10.0,
+    "hr": 5.0,
+    "printed": 30,
+    "computed1e3": 30.104505070780846
+   },
+   {
+    "table": "Fh",
+    "xr": 10.0,
+    "hr": 6.0,
+    "printed": 9,
+    "computed1e3": 9.523230910191552
+   },
+   {
+    "table": "Fv",
+    "xr": 10.0,
+    "hr": 6.0,
+    "printed": 32,
+    "computed1e3": 32.96864799285438
+   },
+   {
+    "table": "Fmax",
+    "xr": 10.0,
+    "hr": 6.0,
+    "printed": 34,
+    "computed1e3": 34.316521931069424
+   },
+   {
+    "table": "Fh",
+    "xr": 10.0,
+    "hr": 10.0,
+    "printed": 17,
+    "computed1e3": 17.2748260115257
+   },
+   {
+    "table": "Fv",
+    "xr": 10.0,
+    "hr": 10.0,
+    "printed": 42,
+    "computed1e3": 42.18860109963815
+   },
+   {
+    "table": "Fmax",
+    "xr": 10.0,
+    "hr": 10.0,
+    "printed": 45,
+    "computed1e3": 45.58835022758418
+   },
+   {
+    "table": "Fh",
+    "xr": 10.0,
+    "hr": 20.0,
+    "printed": 26,
+    "computed1e3": 26.316944193424465
+   },
+   {
+    "table": "Fv",
+    "xr": 10.0,
+    "hr": 20.0,
+    "printed": 48,
+    "computed1e3": 48.361039854986295
+   },
+   {
+    "table": "Fmax",
+    "xr": 10.0,
+    "hr": 20.0,
+    "printed": 55,
+    "computed1e3": 55.05789432529536
+   },
+   {
+    "table": "Fv",
+    "xr": 20.0,
+    "hr": 1.0,
+    "printed": 1,
+    "computed1e3": 1.654539711210349
+   },
+   {
+    "table": "Fmax",
+    "xr": 20.0,
+    "hr": 1.0,
+    "printed": 1,
+    "computed1e3": 1.6551000015536461
+   },
+   {
+    "table": "Fv",
+    "xr": 20.0,
+    "hr": 2.0,
+    "printed": 3,
+    "computed1e3": 3.2913119863914035
+   },
+   {
+    "table": "Fmax",
+    "xr": 20.0,
+    "hr": 2.0,
+    "printed": 3,
+    "computed1e3": 3.2957439902366006
+   },
+   {
+    "table": "Fv",
+    "xr": 20.0,
+    "hr": 3.0,
+    "printed": 4,
+    "computed1e3": 4.893396994346552
+   },
+   {
+    "table": "Fmax",
+    "xr": 20.0,
+    "hr": 3.0,
+    "printed": 4,
+    "computed1e3": 4.908079018503423
+   },
+   {
+    "table": "Fh",
+    "xr": 20.0,
+    "hr": 5.0,
+    "printed": 1,
+    "computed1e3": 1.0109094894710289
+   },
+   {
+    "table": "Fv",
+    "xr": 20.0,
+    "hr": 5.0,
+    "printed": 7,
+    "computed1e3": 7.934459193823221
+   },
+   {
+    "table": "Fmax",
+    "xr": 20.0,
+    "hr": 5.0,
+    "printed": 7,
+    "computed1e3": 7.998598670664032
+   },
+   {
+    "table": "Fh",
+    "xr": 20.0,
+    "hr": 6.0,
+    "printed": 1,
+    "computed1e3": 1.416132165198994
+   },
+   {
+    "table": "Fv",
+    "xr": 20.0,
+    "hr": 6.0,
+    "printed": 9,
+    "computed1e3": 9.349819592034061
+   },
+   {
+    "table": "Fmax",
+    "xr": 20.0,
+    "hr": 6.0,
+    "printed": 9,
+    "computed1e3": 9.456455821971314
+   },
+   {
+    "table": "Fh",
+    "xr": 20.0,
+    "hr": 10.0,
+    "printed": 3,
+    "computed1e3": 3.396470346720495
+   },
+   {
+    "table": "Fv",
+    "xr": 20.0,
+    "hr": 10.0,
+    "printed": 14,
+    "computed1e3": 14.160132521015358
+   },
+   {
+    "table": "Fmax",
+    "xr": 20.0,
+    "hr": 10.0,
+    "printed": 14,
+    "computed1e3": 14.561777495514358
+   },
+   {
+    "table": "Fh",
+    "xr": 20.0,
+    "hr": 20.0,
+    "printed": 8,
+    "computed1e3": 8.28370886263944
+   },
+   {
+    "table": "Fv",
+    "xr": 20.0,
+    "hr": 20.0,
+    "printed": 21,
+    "computed1e3": 20.773358622761158
+   },
+   {
+    "table": "Fmax",
+    "xr": 20.0,
+    "hr": 20.0,
+    "printed": 22,
+    "computed1e3": 22.36408417509683
+   }
+  ],
+  "rajTableMisprints": [
+   {
+    "table": "Fmax",
+    "xr": 1.2,
+    "hr": 0.1,
+    "printed": 210,
+    "computed1e3": 201.3039143667715
+   },
+   {
+    "table": "Fmax",
+    "xr": 1.4,
+    "hr": 0.2,
+    "printed": 117,
+    "computed1e3": 177.28746510379412
+   }
+  ],
+  "overhangDeparture": [
+   {
+    "a": 2.0,
+    "b": 1.5,
+    "tiltDeg": 30.0,
+    "closedFormFv": 0.39451566203472166,
+    "routeBFv": 0.40125154504174154,
+    "closedFormFh": 0.4334707797715951,
+    "routeBFh": 0.43347077977161763
+   },
+   {
+    "a": 3.0,
+    "b": 2.5,
+    "tiltDeg": 45.0,
+    "closedFormFv": 0.29140167255676636,
+    "routeBFv": 0.29768877022175055,
+    "closedFormFh": 0.35001510923270635,
+    "routeBFh": 0.35001510923272333
+   },
+   {
+    "a": 3.0,
+    "b": 2.2,
+    "tiltDeg": 60.0,
+    "closedFormFv": 0.3037652095416729,
+    "routeBFv": 0.37421542893065274,
+    "closedFormFh": 0.6097190978496976,
+    "routeBFh": 0.6097190978497293
+   }
+  ],
+  "transmissivity": [
+   {
+    "id": "bagster-1193.5-10",
+    "source": "ORACLE-DERIVED: Bagster YB 6.29; the endpoints 1e4 and 1e5 are inside",
+    "args": {
+     "waterVapourPartialPressurePa": 1193.5,
+     "pathLengthM": 10.0
+    },
+    "expected": {
+     "transmissivity": 0.8678353796614422
+    }
+   },
+   {
+    "id": "bagster-1193.5-50",
+    "source": "ORACLE-DERIVED: Bagster YB 6.29; the endpoints 1e4 and 1e5 are inside",
+    "args": {
+     "waterVapourPartialPressurePa": 1193.5,
+     "pathLengthM": 50.0
+    },
+    "expected": {
+     "transmissivity": 0.7508100045324129
+    }
+   },
+   {
+    "id": "bagster-1705-58",
+    "source": "ORACLE-DERIVED: Bagster YB 6.29; the endpoints 1e4 and 1e5 are inside",
+    "args": {
+     "waterVapourPartialPressurePa": 1705.0,
+     "pathLengthM": 58.0
+    },
+    "expected": {
+     "transmissivity": 0.7174434178404638
+    }
+   },
+   {
+    "id": "bagster-2000-5",
+    "source": "ORACLE-DERIVED: Bagster YB 6.29; the endpoints 1e4 and 1e5 are inside",
+    "args": {
+     "waterVapourPartialPressurePa": 2000.0,
+     "pathLengthM": 5.0
+    },
+    "expected": {
+     "transmissivity": 0.8817619811251353
+    }
+   },
+   {
+    "id": "bagster-1000-100",
+    "source": "ORACLE-DERIVED: Bagster YB 6.29; the endpoints 1e4 and 1e5 are inside",
+    "args": {
+     "waterVapourPartialPressurePa": 1000.0,
+     "pathLengthM": 100.0
+    },
+    "expected": {
+     "transmissivity": 0.7167230462518225
+    }
+   }
+  ],
+  "ybPoolFire": {
+   "id": "yb-benzene-pool-fire",
+   "source": "PUBLISHED: TNO Yellow Book CPR 14E (2005) 6.6.3 steps 1 to 13 (benzene, confined, u10 5 m/s, X 100 m from the centre, tau 0.71474 from Hottel charts)",
+   "args": {
+    "poolDiameterM": 42.445658856946196,
+    "burningFluxKgM2S": 0.085,
+    "heatOfCombustionJKg": 40150000.0,
+    "flameLengthMethod": "thomas-wind",
+    "airDensityKgM3": 1.2243,
+    "windSpeed10mMS": 5.0,
+    "airKinematicViscosityM2S": 7.5133e-06,
+    "sep": {
+     "method": "radiative-fraction-soot",
+     "radiativeFraction": 0.4,
+     "sootFraction": 0.8
+    },
+    "distanceFromCentreM": 100.0,
+    "transmissivity": 0.71474
+   },
+   "expected": {
+    "flameLengthM": 46.775287572677435,
+    "tiltDeg": 50.82869741925505,
+    "surfaceEmissivePowerWM2": 66484.31657209028,
+    "viewFactorVertical": 0.09192378022819521,
+    "viewFactorHorizontal": 0.02915175340366005,
+    "viewFactorMax": 0.09643550226938903,
+    "heatFluxWM2": 4582.518673491579
+   },
+   "intermediate": {
+    "characteristicWindSpeedMS": 3.0687511839054475,
+    "scaledWindSpeed": 1.6293272736555813,
+    "lengthToDiameter": 1.102004040750629,
+    "froudeNumber": 0.060060100398880524,
+    "reynoldsNumber": 28247014.532193705,
+    "tiltParameter": 1.9431537893361708,
+    "sepMudan": 20736.39595685971,
+    "sepMax": 252421.58286045137
+   },
+   "printed": {
+    "equivalentDiameterM": 42.445,
+    "characteristicWindSpeedMS": 3.06866,
+    "scaledWindSpeed": 1.62937,
+    "lengthToDiameter": 1.101938,
+    "flameLengthM": 46.7725,
+    "froudeNumber": 0.0545,
+    "reynoldsNumber": 28240000.0,
+    "tiltParameter": 1.94315,
+    "tiltDeg": 50.8286,
+    "sepMudan": 21000.0,
+    "sepMax": 252400.0,
+    "sepAct": 66000.0,
+    "viewFactorVertical": 0.091915,
+    "viewFactorHorizontal": 0.029146,
+    "viewFactorMax": 0.0964,
+    "heatFluxWM2": 4581.0
+   },
+   "publishedRelTol": {
+    "characteristicWindSpeedMS": 0.0001,
+    "scaledWindSpeed": 0.0001,
+    "lengthToDiameter": 0.0001,
+    "flameLengthM": 0.0001,
+    "reynoldsNumber": 0.001,
+    "tiltParameter": 1e-05,
+    "tiltDeg": 1e-05,
+    "sepMudan": 0.02,
+    "sepMax": 0.001,
+    "sepAct": 0.01,
+    "viewFactorVertical": 0.0001,
+    "viewFactorHorizontal": 0.0002,
+    "viewFactorMax": 0.001,
+    "heatFluxWM2": 0.001
+   },
+   "errata": {
+    "froudeNumber": "printed 0.0545 is wrong: 5^2 / (9.80665 x 42.445) = 0.06006, and the printed tan/cos 1.94315 and tilt 50.8286 follow only from 0.06006"
+   }
+  }
+ },
+ "explosions": {
+  "tnt": [
+   {
+    "id": "propane-10t-3pct",
+    "source": "ORACLE-DERIVED: YB 5.1, illustrative",
+    "args": {
+     "fuelMassKg": 10000.0,
+     "heatOfCombustionJKg": 46350000.0,
+     "yieldFactor": 0.03,
+     "tntBlastEnergyJKg": 4600000.0
+    },
+    "expected": {
+     "tntMassKg": 3022.8260869565215
+    }
+   },
+   {
+    "id": "methane-1t-10pct",
+    "source": "ORACLE-DERIVED: YB 5.1, illustrative",
+    "args": {
+     "fuelMassKg": 1000.0,
+     "heatOfCombustionJKg": 50000000.0,
+     "yieldFactor": 0.1,
+     "tntBlastEnergyJKg": 4680000.0
+    },
+    "expected": {
+     "tntMassKg": 1068.3760683760684
+    }
+   }
+  ],
+  "kinneyGraham": [
+   {
+    "id": "cbu-1kg-5m",
+    "source": "PUBLISHED: CBU International Conference 2020 (Prague) Tables 1 and 2, column \"Kinney\", 101.325 kPa; the paper prints the formula with 800 and 0.049, but its column reproduces 808 and 0.048",
+    "args": {
+     "distanceM": 5.0,
+     "tntMassKg": 1.0
+    },
+    "expected": {
+     "scaledDistanceMKg13": 5.0,
+     "overpressurePa": 29238.106780401038
+    },
+    "printedKPa": 29.24,
+    "publishedRelTol": 0.0005
+   },
+   {
+    "id": "cbu-0.5kg-5m",
+    "source": "PUBLISHED: CBU International Conference 2020 (Prague) Tables 1 and 2, column \"Kinney\", 101.325 kPa; the paper prints the formula with 800 and 0.049, but its column reproduces 808 and 0.048",
+    "args": {
+     "distanceM": 5.0,
+     "tntMassKg": 0.5
+    },
+    "expected": {
+     "scaledDistanceMKg13": 6.299605249474365,
+     "overpressurePa": 19626.65722997168
+    },
+    "printedKPa": 19.63,
+    "publishedRelTol": 0.0005
+   },
+   {
+    "id": "cbu-0.1kg-5m",
+    "source": "PUBLISHED: CBU International Conference 2020 (Prague) Tables 1 and 2, column \"Kinney\", 101.325 kPa; the paper prints the formula with 800 and 0.049, but its column reproduces 808 and 0.048",
+    "args": {
+     "distanceM": 5.0,
+     "tntMassKg": 0.1
+    },
+    "expected": {
+     "scaledDistanceMKg13": 10.772173450159418,
+     "overpressurePa": 9065.696932798988
+    },
+    "printedKPa": 9.066,
+    "publishedRelTol": 0.0005
+   },
+   {
+    "id": "cbu-0.1kg-2m",
+    "source": "PUBLISHED: CBU International Conference 2020 (Prague) Tables 1 and 2, column \"Kinney\", 101.325 kPa; the paper prints the formula with 800 and 0.049, but its column reproduces 808 and 0.048",
+    "args": {
+     "distanceM": 2.0,
+     "tntMassKg": 0.1
+    },
+    "expected": {
+     "scaledDistanceMKg13": 4.308869380063767,
+     "overpressurePa": 38707.783752959964
+    },
+    "printedKPa": 38.71,
+    "publishedRelTol": 0.0005
+   },
+   {
+    "id": "cbu-0.1kg-1m",
+    "source": "PUBLISHED: CBU International Conference 2020 (Prague) Tables 1 and 2, column \"Kinney\", 101.325 kPa; the paper prints the formula with 800 and 0.049, but its column reproduces 808 and 0.048",
+    "args": {
+     "distanceM": 1.0,
+     "tntMassKg": 0.1
+    },
+    "expected": {
+     "scaledDistanceMKg13": 2.1544346900318834,
+     "overpressurePa": 174869.45911890545
+    },
+    "printedKPa": 174.87,
+    "publishedRelTol": 0.0005
+   },
+   {
+    "id": "z-0.05",
+    "source": "ORACLE-DERIVED: Kinney and Graham closed form",
+    "args": {
+     "scaledDistanceMKg13": 0.05
+    },
+    "expected": {
+     "overpressureRatio": 552.5470701107894,
+     "overpressurePa": 55986831.878975734
+    }
+   },
+   {
+    "id": "z-0.3",
+    "source": "ORACLE-DERIVED: Kinney and Graham closed form",
+    "args": {
+     "scaledDistanceMKg13": 0.3
+    },
+    "expected": {
+     "overpressureRatio": 91.31639319285092,
+     "overpressurePa": 9252633.54026562
+    }
+   },
+   {
+    "id": "z-1",
+    "source": "ORACLE-DERIVED: Kinney and Graham closed form",
+    "args": {
+     "scaledDistanceMKg13": 1.0
+    },
+    "expected": {
+     "overpressureRatio": 9.955978325124335,
+     "overpressurePa": 1008789.5037932232
+    }
+   },
+   {
+    "id": "z-3",
+    "source": "ORACLE-DERIVED: Kinney and Graham closed form",
+    "args": {
+     "scaledDistanceMKg13": 3.0
+    },
+    "expected": {
+     "overpressureRatio": 0.8126781720619312,
+     "overpressurePa": 82344.61578417517
+    }
+   },
+   {
+    "id": "z-10",
+    "source": "ORACLE-DERIVED: Kinney and Graham closed form",
+    "args": {
+     "scaledDistanceMKg13": 10.0
+    },
+    "expected": {
+     "overpressureRatio": 0.09854787784542246,
+     "overpressurePa": 9985.36372268743
+    }
+   },
+   {
+    "id": "z-25",
+    "source": "ORACLE-DERIVED: Kinney and Graham closed form",
+    "args": {
+     "scaledDistanceMKg13": 25.0
+    },
+    "expected": {
+     "overpressureRatio": 0.034115414295731554,
+     "overpressurePa": 3456.7443535149996
+    }
+   },
+   {
+    "id": "z-40",
+    "source": "ORACLE-DERIVED: Kinney and Graham closed form",
+    "args": {
+     "scaledDistanceMKg13": 40.0
+    },
+    "expected": {
+     "overpressureRatio": 0.02093398749331934,
+     "overpressurePa": 2121.136282760582
+    }
+   }
+  ],
+  "kinneyGrahamMonotoneOnRange": true,
+  "inverse": [
+   {
+    "id": "inv-100kg-6895Pa",
+    "source": "ORACLE-DERIVED: brentq on Kinney and Graham",
+    "args": {
+     "tntMassKg": 100.0,
+     "overpressurePa": 6894.757293168361
+    },
+    "expected": {
+     "scaledDistanceMKg13": 13.449094455200465,
+     "distanceM": 62.425166645462006
+    }
+   },
+   {
+    "id": "inv-100kg-20684Pa",
+    "source": "ORACLE-DERIVED: brentq on Kinney and Graham",
+    "args": {
+     "tntMassKg": 100.0,
+     "overpressurePa": 20684.271879505082
+    },
+    "expected": {
+     "scaledDistanceMKg13": 6.101444910464641,
+     "distanceM": 28.320398565316196
+    }
+   },
+   {
+    "id": "inv-1000kg-3447Pa",
+    "source": "ORACLE-DERIVED: brentq on Kinney and Graham",
+    "args": {
+     "tntMassKg": 1000.0,
+     "overpressurePa": 3447.3786465841804
+    },
+    "expected": {
+     "scaledDistanceMKg13": 25.06409727471307,
+     "distanceM": 250.64097274713066
+    }
+   },
+   {
+    "id": "inv-5kg-100000Pa",
+    "source": "ORACLE-DERIVED: brentq on Kinney and Graham",
+    "args": {
+     "tntMassKg": 5.0,
+     "overpressurePa": 100000.0
+    },
+    "expected": {
+     "scaledDistanceMKg13": 2.7494332277460307,
+     "distanceM": 4.701464686439385
+    }
+   }
+  ]
+ },
+ "probits": {
+  "table51": [
+   {
+    "probability": 0.01,
+    "printedProbit": 2.67,
+    "probit": 2.6736521259591592
+   },
+   {
+    "probability": 0.02,
+    "printedProbit": 2.95,
+    "probit": 2.946251089368177
+   },
+   {
+    "probability": 0.03,
+    "printedProbit": 3.12,
+    "probit": 3.119206391848749
+   },
+   {
+    "probability": 0.04,
+    "printedProbit": 3.25,
+    "probit": 3.24931392874783
+   },
+   {
+    "probability": 0.05,
+    "printedProbit": 3.36,
+    "probit": 3.355146373048527
+   },
+   {
+    "probability": 0.06,
+    "printedProbit": 3.45,
+    "probit": 3.4452264054031465
+   },
+   {
+    "probability": 0.07,
+    "printedProbit": 3.52,
+    "probit": 3.5242089718208294
+   },
+   {
+    "probability": 0.08,
+    "printedProbit": 3.59,
+    "probit": 3.594928439690367
+   },
+   {
+    "probability": 0.09,
+    "printedProbit": 3.66,
+    "probit": 3.6592449663097835
+   },
+   {
+    "probability": 0.1,
+    "printedProbit": 3.72,
+    "probit": 3.7184484344553996
+   },
+   {
+    "probability": 0.11,
+    "printedProbit": 3.77,
+    "probit": 3.77347187996339
+   },
+   {
+    "probability": 0.13,
+    "printedProbit": 3.87,
+    "probit": 3.873608870961199
+   },
+   {
+    "probability": 0.14,
+    "printedProbit": 3.92,
+    "probit": 3.919680659185044
+   },
+   {
+    "probability": 0.15,
+    "printedProbit": 3.96,
+    "probit": 3.96356661050621
+   },
+   {
+    "probability": 0.16,
+    "printedProbit": 4.01,
+    "probit": 4.005542116790247
+   },
+   {
+    "probability": 0.17,
+    "printedProbit": 4.05,
+    "probit": 4.045834746853806
+   },
+   {
+    "probability": 0.18,
+    "printedProbit": 4.08,
+    "probit": 4.084634912157186
+   },
+   {
+    "probability": 0.19,
+    "printedProbit": 4.12,
+    "probit": 4.122103704948771
+   },
+   {
+    "probability": 0.2,
+    "printedProbit": 4.16,
+    "probit": 4.158378766427086
+   },
+   {
+    "probability": 0.21,
+    "printedProbit": 4.19,
+    "probit": 4.193578752981759
+   },
+   {
+    "probability": 0.22,
+    "printedProbit": 4.23,
+    "probit": 4.227806785811315
+   },
+   {
+    "probability": 0.23,
+    "printedProbit": 4.26,
+    "probit": 4.261153150814787
+   },
+   {
+    "probability": 0.24,
+    "printedProbit": 4.29,
+    "probit": 4.293697437159913
+   },
+   {
+    "probability": 0.25,
+    "printedProbit": 4.33,
+    "probit": 4.325510249803918
+   },
+   {
+    "probability": 0.26,
+    "printedProbit": 4.36,
+    "probit": 4.356654594607083
+   },
+   {
+    "probability": 0.27,
+    "printedProbit": 4.39,
+    "probit": 4.387187008983373
+   },
+   {
+    "probability": 0.28,
+    "printedProbit": 4.42,
+    "probit": 4.417158492728784
+   },
+   {
+    "probability": 0.29,
+    "printedProbit": 4.45,
+    "probit": 4.446615280444327
+   },
+   {
+    "probability": 0.3,
+    "printedProbit": 4.48,
+    "probit": 4.475599487291959
+   },
+   {
+    "probability": 0.31,
+    "printedProbit": 4.5,
+    "probit": 4.504149652652547
+   },
+   {
+    "probability": 0.32,
+    "printedProbit": 4.53,
+    "probit": 4.532301200885492
+   },
+   {
+    "probability": 0.33,
+    "printedProbit": 4.56,
+    "probit": 4.560086834326766
+   },
+   {
+    "probability": 0.34,
+    "printedProbit": 4.59,
+    "probit": 4.587536870558595
+   },
+   {
+    "probability": 0.35,
+    "printedProbit": 4.61,
+    "probit": 4.614679533592432
+   },
+   {
+    "probability": 0.36,
+    "printedProbit": 4.64,
+    "probit": 4.641541206748807
+   },
+   {
+    "probability": 0.37,
+    "printedProbit": 4.67,
+    "probit": 4.668146653563183
+   },
+   {
+    "probability": 0.38,
+    "printedProbit": 4.69,
+    "probit": 4.6945192119006025
+   },
+   {
+    "probability": 0.39,
+    "printedProbit": 4.72,
+    "probit": 4.720680965552546
+   },
+   {
+    "probability": 0.4,
+    "printedProbit": 4.75,
+    "probit": 4.7466528968642
+   },
+   {
+    "probability": 0.41,
+    "printedProbit": 4.77,
+    "probit": 4.772455023358851
+   },
+   {
+    "probability": 0.42,
+    "printedProbit": 4.8,
+    "probit": 4.798106520858149
+   },
+   {
+    "probability": 0.43,
+    "printedProbit": 4.82,
+    "probit": 4.823625835219139
+   },
+   {
+    "probability": 0.44,
+    "printedProbit": 4.85,
+    "probit": 4.849030784503222
+   },
+   {
+    "probability": 0.45,
+    "printedProbit": 4.87,
+    "probit": 4.874338653144926
+   },
+   {
+    "probability": 0.46,
+    "printedProbit": 4.9,
+    "probit": 4.89956627948853
+   },
+   {
+    "probability": 0.47,
+    "printedProbit": 4.92,
+    "probit": 4.92473013790017
+   },
+   {
+    "probability": 0.48,
+    "printedProbit": 4.95,
+    "probit": 4.949846416535267
+   },
+   {
+    "probability": 0.49,
+    "printedProbit": 4.97,
+    "probit": 4.974931091741289
+   },
+   {
+    "probability": 0.5,
+    "printedProbit": 5.0,
+    "probit": 5.0
+   },
+   {
+    "probability": 0.51,
+    "printedProbit": 5.03,
+    "probit": 5.025068908258711
+   },
+   {
+    "probability": 0.52,
+    "printedProbit": 5.05,
+    "probit": 5.050153583464733
+   },
+   {
+    "probability": 0.53,
+    "printedProbit": 5.08,
+    "probit": 5.07526986209983
+   },
+   {
+    "probability": 0.54,
+    "printedProbit": 5.1,
+    "probit": 5.10043372051147
+   },
+   {
+    "probability": 0.55,
+    "printedProbit": 5.13,
+    "probit": 5.1256613468550745
+   },
+   {
+    "probability": 0.56,
+    "printedProbit": 5.15,
+    "probit": 5.150969215496778
+   },
+   {
+    "probability": 0.57,
+    "printedProbit": 5.18,
+    "probit": 5.176374164780861
+   },
+   {
+    "probability": 0.58,
+    "printedProbit": 5.2,
+    "probit": 5.201893479141851
+   },
+   {
+    "probability": 0.59,
+    "printedProbit": 5.23,
+    "probit": 5.227544976641149
+   },
+   {
+    "probability": 0.6,
+    "printedProbit": 5.25,
+    "probit": 5.2533471031358
+   },
+   {
+    "probability": 0.61,
+    "printedProbit": 5.28,
+    "probit": 5.279319034447454
+   },
+   {
+    "probability": 0.62,
+    "printedProbit": 5.31,
+    "probit": 5.3054807880993975
+   },
+   {
+    "probability": 0.63,
+    "printedProbit": 5.33,
+    "probit": 5.331853346436817
+   },
+   {
+    "probability": 0.64,
+    "printedProbit": 5.36,
+    "probit": 5.358458793251193
+   },
+   {
+    "probability": 0.65,
+    "printedProbit": 5.39,
+    "probit": 5.385320466407568
+   },
+   {
+    "probability": 0.66,
+    "printedProbit": 5.41,
+    "probit": 5.412463129441405
+   },
+   {
+    "probability": 0.67,
+    "printedProbit": 5.44,
+    "probit": 5.439913165673234
+   },
+   {
+    "probability": 0.68,
+    "printedProbit": 5.47,
+    "probit": 5.467698799114508
+   },
+   {
+    "probability": 0.69,
+    "printedProbit": 5.5,
+    "probit": 5.495850347347453
+   },
+   {
+    "probability": 0.7,
+    "printedProbit": 5.52,
+    "probit": 5.5244005127080404
+   },
+   {
+    "probability": 0.71,
+    "printedProbit": 5.55,
+    "probit": 5.553384719555673
+   },
+   {
+    "probability": 0.72,
+    "printedProbit": 5.58,
+    "probit": 5.582841507271216
+   },
+   {
+    "probability": 0.73,
+    "printedProbit": 5.61,
+    "probit": 5.612812991016627
+   },
+   {
+    "probability": 0.74,
+    "printedProbit": 5.64,
+    "probit": 5.643345405392917
+   },
+   {
+    "probability": 0.75,
+    "printedProbit": 5.67,
+    "probit": 5.674489750196082
+   },
+   {
+    "probability": 0.76,
+    "printedProbit": 5.71,
+    "probit": 5.706302562840087
+   },
+   {
+    "probability": 0.77,
+    "printedProbit": 5.74,
+    "probit": 5.738846849185213
+   },
+   {
+    "probability": 0.78,
+    "printedProbit": 5.77,
+    "probit": 5.772193214188685
+   },
+   {
+    "probability": 0.79,
+    "printedProbit": 5.81,
+    "probit": 5.806421247018241
+   },
+   {
+    "probability": 0.8,
+    "printedProbit": 5.84,
+    "probit": 5.841621233572914
+   },
+   {
+    "probability": 0.81,
+    "printedProbit": 5.88,
+    "probit": 5.877896295051229
+   },
+   {
+    "probability": 0.82,
+    "printedProbit": 5.92,
+    "probit": 5.9153650878428135
+   },
+   {
+    "probability": 0.83,
+    "printedProbit": 5.95,
+    "probit": 5.954165253146194
+   },
+   {
+    "probability": 0.84,
+    "printedProbit": 5.99,
+    "probit": 5.994457883209753
+   },
+   {
+    "probability": 0.85,
+    "printedProbit": 6.04,
+    "probit": 6.03643338949379
+   },
+   {
+    "probability": 0.86,
+    "printedProbit": 6.08,
+    "probit": 6.080319340814956
+   },
+   {
+    "probability": 0.87,
+    "printedProbit": 6.13,
+    "probit": 6.126391129038801
+   },
+   {
+    "probability": 0.89,
+    "printedProbit": 6.23,
+    "probit": 6.22652812003661
+   },
+   {
+    "probability": 0.9,
+    "printedProbit": 6.28,
+    "probit": 6.2815515655446
+   },
+   {
+    "probability": 0.91,
+    "printedProbit": 6.34,
+    "probit": 6.3407550336902165
+   },
+   {
+    "probability": 0.92,
+    "printedProbit": 6.41,
+    "probit": 6.405071560309633
+   },
+   {
+    "probability": 0.93,
+    "printedProbit": 6.48,
+    "probit": 6.475791028179171
+   },
+   {
+    "probability": 0.94,
+    "printedProbit": 6.55,
+    "probit": 6.5547735945968535
+   },
+   {
+    "probability": 0.95,
+    "printedProbit": 6.64,
+    "probit": 6.644853626951472
+   },
+   {
+    "probability": 0.96,
+    "printedProbit": 6.75,
+    "probit": 6.7506860712521695
+   },
+   {
+    "probability": 0.97,
+    "printedProbit": 6.88,
+    "probit": 6.880793608151251
+   },
+   {
+    "probability": 0.98,
+    "printedProbit": 7.05,
+    "probit": 7.053748910631823
+   },
+   {
+    "probability": 0.99,
+    "printedProbit": 7.33,
+    "probit": 7.326347874040841
+   }
+  ],
+  "table51Misprints": [
+   {
+    "probability": 0.12,
+    "printedProbit": 3.82,
+    "probit": 3.8250132079339094
+   },
+   {
+    "probability": 0.88,
+    "printedProbit": 6.18,
+    "probit": 6.174986792066091
+   }
+  ],
+  "thermal": [
+   {
+    "id": "eisenberg-10kW-30s",
+    "source": "ORACLE-DERIVED: OSD/30 Table 17 and PB 5.4 coefficients",
+    "args": {
+     "coefficients": "eisenberg",
+     "heatFluxWM2": 10000.0,
+     "exposureTimeS": 30.0
+    },
+    "expected": {
+     "probit": 1.6665557478081272,
+     "probability": 0.0004288892969918861
+    }
+   },
+   {
+    "id": "eisenberg-35kW-20s",
+    "source": "ORACLE-DERIVED: OSD/30 Table 17 and PB 5.4 coefficients",
+    "args": {
+     "coefficients": "eisenberg",
+     "heatFluxWM2": 35000.0,
+     "exposureTimeS": 20.0
+    },
+    "expected": {
+     "probit": 4.904662670182082,
+     "probability": 0.46202344638531995
+    }
+   },
+   {
+    "id": "tsao-perry-20kW-20s",
+    "source": "ORACLE-DERIVED: OSD/30 Table 17 and PB 5.4 coefficients",
+    "args": {
+     "coefficients": "tsao-perry",
+     "heatFluxWM2": 20000.0,
+     "exposureTimeS": 20.0
+    },
+    "expected": {
+     "probit": 5.094507447362506,
+     "probability": 0.5376469666068704
+    }
+   },
+   {
+    "id": "lees-12.5kW-60s",
+    "source": "ORACLE-DERIVED: OSD/30 Table 17 and PB 5.4 coefficients",
+    "args": {
+     "coefficients": "lees",
+     "heatFluxWM2": 12500.0,
+     "exposureTimeS": 60.0
+    },
+    "expected": {
+     "probit": 4.149345681719886,
+     "probability": 0.19748070311479343
+    }
+   },
+   {
+    "id": "purple-book-20kW-20s",
+    "source": "ORACLE-DERIVED: OSD/30 Table 17 and PB 5.4 coefficients",
+    "args": {
+     "coefficients": "purple-book",
+     "heatFluxWM2": 20000.0,
+     "exposureTimeS": 20.0
+    },
+    "expected": {
+     "probit": 5.092978799621534,
+     "probability": 0.5370397981490269
+    }
+   }
+  ],
+  "briefEisenbergForm": {
+   "heatFluxWM2": 10000.0,
+   "exposureTimeS": 30.0,
+   "probit": 1.6665557478081237
+  },
+  "lethalDose": [
+   {
+    "id": "eisenberg",
+    "source": "PUBLISHED: UK HSE SPC/Tech/OSD/30 Table 17, lethal thermal dose (kW/m2)^(4/3) s",
+    "a": -14.9,
+    "b": 2.56,
+    "printed1": 960,
+    "printed50": 2380,
+    "expected1": 957.8659695919313,
+    "expected50": 2376.626917866442,
+    "publishedRelTol": 0.005
+   },
+   {
+    "id": "tsao-perry",
+    "source": "PUBLISHED: UK HSE SPC/Tech/OSD/30 Table 17, lethal thermal dose (kW/m2)^(4/3) s",
+    "a": -12.8,
+    "b": 2.56,
+    "printed1": 420,
+    "printed50": 1046,
+    "expected1": 421.74267860025503,
+    "expected50": 1046.4146698952802,
+    "publishedRelTol": 0.005
+   },
+   {
+    "id": "lees",
+    "source": "PUBLISHED: UK HSE SPC/Tech/OSD/30 Table 17, lethal thermal dose (kW/m2)^(4/3) s",
+    "a": -10.7,
+    "b": 1.99,
+    "printed1": 828,
+    "printed50": 2670,
+    "expected1": 829.1724904510884,
+    "expected50": 2668.9682037955554,
+    "publishedRelTol": 0.005
+   }
+  ],
+  "tnoOsdRowDoesNotReproduce": {
+   "a": -15.3,
+   "b": 3.02,
+   "printed1": 389,
+   "printed50": 841,
+   "computed1": 384.3449432418542,
+   "computed50": 830.355817438362
+  },
+  "osdTable18": [
+   {
+    "exposureTimeS": 10,
+    "heatFluxWM2": 10000.0,
+    "printedPercent": 0,
+    "percent": 0.0026062162920534476
+   },
+   {
+    "exposureTimeS": 10,
+    "heatFluxWM2": 20000.0,
+    "printedPercent": 5,
+    "percent": 4.648358689221754
+   },
+   {
+    "exposureTimeS": 10,
+    "heatFluxWM2": 30000.0,
+    "printedPercent": 39,
+    "percent": 38.36296402073187
+   },
+   {
+    "exposureTimeS": 20,
+    "heatFluxWM2": 10000.0,
+    "printedPercent": 1,
+    "percent": 1.1560330976011257
+   },
+   {
+    "exposureTimeS": 20,
+    "heatFluxWM2": 20000.0,
+    "printedPercent": 53,
+    "percent": 53.76469666068704
+   },
+   {
+    "exposureTimeS": 20,
+    "heatFluxWM2": 30000.0,
+    "printedPercent": 93,
+    "percent": 93.03623349800624
+   },
+   {
+    "exposureTimeS": 30,
+    "heatFluxWM2": 10000.0,
+    "printedPercent": 11,
+    "percent": 10.870503177755165
+   },
+   {
+    "exposureTimeS": 30,
+    "heatFluxWM2": 20000.0,
+    "printedPercent": 87,
+    "percent": 87.12874637033572
+   },
+   {
+    "exposureTimeS": 30,
+    "heatFluxWM2": 30000.0,
+    "printedPercent": 100,
+    "percent": 99.40734143778069
+   },
+   {
+    "exposureTimeS": 40,
+    "heatFluxWM2": 10000.0,
+    "printedPercent": 31,
+    "percent": 30.96022310037308
+   },
+   {
+    "exposureTimeS": 40,
+    "heatFluxWM2": 20000.0,
+    "printedPercent": 97,
+    "percent": 96.91861044216195
+   },
+   {
+    "exposureTimeS": 40,
+    "heatFluxWM2": 30000.0,
+    "printedPercent": 100,
+    "percent": 99.94289356529384
+   },
+   {
+    "exposureTimeS": 50,
+    "heatFluxWM2": 10000.0,
+    "printedPercent": 53,
+    "percent": 52.96019654643761
+   },
+   {
+    "exposureTimeS": 50,
+    "heatFluxWM2": 20000.0,
+    "printedPercent": 99,
+    "percent": 99.26606718721044
+   },
+   {
+    "exposureTimeS": 50,
+    "heatFluxWM2": 30000.0,
+    "printedPercent": 100,
+    "percent": 99.99344011180237
+   },
+   {
+    "exposureTimeS": 60,
+    "heatFluxWM2": 10000.0,
+    "printedPercent": 71,
+    "percent": 70.57505268788078
+   },
+   {
+    "exposureTimeS": 60,
+    "heatFluxWM2": 20000.0,
+    "printedPercent": 100,
+    "percent": 99.81751709731525
+   },
+   {
+    "exposureTimeS": 60,
+    "heatFluxWM2": 30000.0,
+    "printedPercent": 100,
+    "percent": 99.9991104179876
+   }
+  ],
+  "toxic": [
+   {
+    "id": "pb-co-appendix-6b",
+    "source": "PUBLISHED: TNO Purple Book CPR 18E (1999) Appendix 6.B step 4.3: CO 21,300 mg/m3, 30 min, printed Pr 5.97 and P 0.835 (read from Table 5.1)",
+    "args": {
+     "coefficients": "pb-carbon-monoxide",
+     "concentrationMgM3": 21300.0,
+     "exposureMinutes": 30.0
+    },
+    "expected": {
+     "probit": 5.967659733359671,
+     "probability": 0.8333928327913551
+    },
+    "printed": {
+     "probit": 5.97,
+     "probability": 0.835
+    },
+    "printedProbabilityAbsTol": 0.002
+   },
+   {
+    "id": "pb-chlorine-ppm-converted",
+    "source": "ORACLE-DERIVED: PB chlorine (mg/m3) given ppm, converted at 25 C 1 atm",
+    "args": {
+     "coefficients": "pb-chlorine",
+     "concentrationPpm": 50.0,
+     "exposureMinutes": 10.0,
+     "molarMassGMol": 70.906
+    },
+    "expected": {
+     "probit": 1.643454846038627,
+     "probability": 0.00039461416217231854
+    }
+   },
+   {
+    "id": "lees-ammonia-ppm",
+    "source": "ORACLE-DERIVED: Lees ammonia (ppm)",
+    "args": {
+     "coefficients": "lees-ammonia",
+     "concentrationPpm": 12000.0,
+     "exposureMinutes": 20.0
+    },
+    "expected": {
+     "probit": 4.3949538425244015,
+     "probability": 0.2725741640219723
+    }
+   }
+  ],
+  "leesLc": [
+   {
+    "preset": "lees-acrolein",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 93,
+    "ppm": 93.56768478410528
+   },
+   {
+    "preset": "lees-acrolein",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 16,
+    "ppm": 15.594614130684214
+   },
+   {
+    "preset": "lees-acrolein",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 291,
+    "ppm": 291.04820804455863
+   },
+   {
+    "preset": "lees-acrolein",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 48,
+    "ppm": 48.5080346740931
+   },
+   {
+    "preset": "lees-ammonia",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 15057,
+    "ppm": 15071.976372566096
+   },
+   {
+    "preset": "lees-ammonia",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 6147,
+    "ppm": 6153.1085880118435
+   },
+   {
+    "preset": "lees-ammonia",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 28264,
+    "ppm": 28263.74304743528
+   },
+   {
+    "preset": "lees-ammonia",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 11539,
+    "ppm": 11538.624781225346
+   },
+   {
+    "preset": "lees-benzene",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 18096,
+    "ppm": 18108.127507019446
+   },
+   {
+    "preset": "lees-benzene",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 7388,
+    "ppm": 7392.612098242342
+   },
+   {
+    "preset": "lees-benzene",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 22545,
+    "ppm": 22552.08790293866
+   },
+   {
+    "preset": "lees-benzene",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 9204,
+    "ppm": 9206.851332765475
+   },
+   {
+    "preset": "lees-carbon-monoxide",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 11810,
+    "ppm": 11825.76181187749
+   },
+   {
+    "preset": "lees-carbon-monoxide",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 1968,
+    "ppm": 1970.9603019795818
+   },
+   {
+    "preset": "lees-carbon-monoxide",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 22169,
+    "ppm": 22176.27502385552
+   },
+   {
+    "preset": "lees-carbon-monoxide",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 3695,
+    "ppm": 3696.0458373092533
+   },
+   {
+    "preset": "lees-chlorine",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 173,
+    "ppm": 173.08583611739462
+   },
+   {
+    "preset": "lees-chlorine",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 71,
+    "ppm": 70.6619966984347
+   },
+   {
+    "preset": "lees-chlorine",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 613,
+    "ppm": 612.841985783716
+   },
+   {
+    "preset": "lees-chlorine",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 250,
+    "ppm": 250.1916930206811
+   },
+   {
+    "preset": "lees-hydrogen-chloride",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 3464,
+    "ppm": 3471.6600202314794
+   },
+   {
+    "preset": "lees-hydrogen-chloride",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 577,
+    "ppm": 578.6100033719133
+   },
+   {
+    "preset": "lees-hydrogen-chloride",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 11106,
+    "ppm": 11109.5689951575
+   },
+   {
+    "preset": "lees-hydrogen-chloride",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 1851,
+    "ppm": 1851.5948325262502
+   },
+   {
+    "preset": "lees-hydrogen-sulphide",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 897,
+    "ppm": 898.4049634640684
+   },
+   {
+    "preset": "lees-hydrogen-sulphide",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 256,
+    "ppm": 256.63177577009196
+   },
+   {
+    "preset": "lees-hydrogen-sulphide",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 1543,
+    "ppm": 1542.9492271190984
+   },
+   {
+    "preset": "lees-hydrogen-sulphide",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 441,
+    "ppm": 440.747565053387
+   },
+   {
+    "preset": "lees-nitrogen-dioxide",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 160,
+    "ppm": 159.99727807439314
+   },
+   {
+    "preset": "lees-nitrogen-dioxide",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 65,
+    "ppm": 65.31861525274232
+   },
+   {
+    "preset": "lees-nitrogen-dioxide",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 367,
+    "ppm": 367.2325613433285
+   },
+   {
+    "preset": "lees-nitrogen-dioxide",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 150,
+    "ppm": 149.92206537107955
+   },
+   {
+    "preset": "lees-phosgene",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 77,
+    "ppm": 76.99994142016004
+   },
+   {
+    "preset": "lees-phosgene",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 13,
+    "ppm": 12.833323570026673
+   },
+   {
+    "preset": "lees-phosgene",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 145,
+    "ppm": 144.73947351252588
+   },
+   {
+    "preset": "lees-phosgene",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 24,
+    "ppm": 24.123245585420978
+   },
+   {
+    "preset": "lees-sulphur-dioxide",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 1241,
+    "ppm": 1243.4369129454235
+   },
+   {
+    "preset": "lees-sulphur-dioxide",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 207,
+    "ppm": 207.23948549090392
+   },
+   {
+    "preset": "lees-sulphur-dioxide",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 3764,
+    "ppm": 3764.6840928158113
+   },
+   {
+    "preset": "lees-sulphur-dioxide",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 627,
+    "ppm": 627.4473488026352
+   },
+   {
+    "preset": "lees-toluene",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 5352,
+    "ppm": 5393.547531153323
+   },
+   {
+    "preset": "lees-toluene",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 2614,
+    "ppm": 2633.9893229853783
+   },
+   {
+    "preset": "lees-toluene",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 51965,
+    "ppm": 52185.83090593535
+   },
+   {
+    "preset": "lees-toluene",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 25377,
+    "ppm": 25485.43803932347
+   },
+   {
+    "preset": "lees-hydrogen-fluoride",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 19652,
+    "ppm": 19582.82682927822
+   },
+   {
+    "preset": "lees-hydrogen-fluoride",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 3260,
+    "ppm": 3263.8044715463698
+   },
+   {
+    "preset": "lees-hydrogen-fluoride",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 39184,
+    "ppm": 39183.55005584494
+   },
+   {
+    "preset": "lees-hydrogen-fluoride",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 6531,
+    "ppm": 6530.591675974157
+   },
+   {
+    "preset": "lees-hydrogen-cyanide",
+    "probability": 0.01,
+    "exposureMinutes": 5,
+    "printedPpm": 564,
+    "ppm": 564.3419470344855
+   },
+   {
+    "preset": "lees-hydrogen-cyanide",
+    "probability": 0.01,
+    "exposureMinutes": 30,
+    "printedPpm": 161,
+    "ppm": 161.2057834705002
+   },
+   {
+    "preset": "lees-hydrogen-cyanide",
+    "probability": 0.5,
+    "exposureMinutes": 5,
+    "printedPpm": 969,
+    "ppm": 969.2187893200249
+   },
+   {
+    "preset": "lees-hydrogen-cyanide",
+    "probability": 0.5,
+    "exposureMinutes": 30,
+    "printedPpm": 277,
+    "ppm": 276.8599341369119
+   }
+  ],
+  "leesLcMisprints": [],
+  "hscPrinted": [
+   {
+    "probability": 0.01,
+    "printedPsig": 2.4,
+    "psig": 2.407474310765375,
+    "publishedRelTol": 0.01
+   },
+   {
+    "probability": 0.5,
+    "printedPsig": 13.1,
+    "psig": 13.15290090935123,
+    "publishedRelTol": 0.01
+   },
+   {
+    "probability": 0.95,
+    "printedPsig": 43.5,
+    "psig": 43.69638699101668,
+    "publishedRelTol": 0.01
+   }
+  ],
+  "overpressure": [
+   {
+    "id": "hsc-5psi",
+    "source": "ORACLE-DERIVED: HSC probit",
+    "args": {
+     "coefficients": "hsc",
+     "overpressurePa": 34473.786465841804
+    },
+    "expected": {
+     "probit": 3.6749299400347173,
+     "probability": 0.09257395767475324
+    }
+   }
+  ]
+ },
+ "refusals": [
+  {
+   "fn": "liquidOrificeDischarge",
+   "args": {
+    "dischargeCoefficient": 0.62,
+    "holeDiameterM": 0.1,
+    "liquidDensityKgM3": 800,
+    "liquidHeadM": -1
+   },
+   "field": "liquidHeadM"
+  },
+  {
+   "fn": "liquidOrificeDischarge",
+   "args": {
+    "dischargeCoefficient": 1.2,
+    "holeDiameterM": 0.1,
+    "liquidDensityKgM3": 800,
+    "liquidHeadM": 1
+   },
+   "field": "dischargeCoefficient"
+  },
+  {
+   "fn": "liquidOrificeDischarge",
+   "args": {
+    "dischargeCoefficient": 0.62,
+    "holeDiameterM": 0.1,
+    "liquidDensityKgM3": 800,
+    "liquidHeadM": 0
+   },
+   "field": "pressureAboveLiquidPa"
+  },
+  {
+   "fn": "gasOrificeDischarge",
+   "args": {
+    "dischargeCoefficient": 0.62,
+    "holeDiameterM": 0.01,
+    "upstreamPressurePa": 101325.0,
+    "upstreamTemperatureK": 300,
+    "molarMassKgMol": 0.028,
+    "heatCapacityRatio": 1.4
+   },
+   "field": "upstreamPressurePa"
+  },
+  {
+   "fn": "gasOrificeDischarge",
+   "args": {
+    "dischargeCoefficient": 0.62,
+    "holeDiameterM": 0.01,
+    "upstreamPressurePa": 500000.0,
+    "upstreamTemperatureK": 300,
+    "molarMassKgMol": 0.028,
+    "heatCapacityRatio": 1.0
+   },
+   "field": "heatCapacityRatio"
+  },
+  {
+   "fn": "gasOrificeDischarge",
+   "args": {
+    "dischargeCoefficient": 0.62,
+    "holeDiameterM": -0.01,
+    "upstreamPressurePa": 500000.0,
+    "upstreamTemperatureK": 300,
+    "molarMassKgMol": 0.028,
+    "heatCapacityRatio": 1.4
+   },
+   "field": "holeDiameterM"
+  },
+  {
+   "fn": "poolFromSpill",
+   "args": {
+    "spillVolumeM3": 1200,
+    "bundAreaM2": 900,
+    "bundWallHeightM": 1.2
+   },
+   "field": "spillVolumeM3"
+  },
+  {
+   "fn": "poolFromSpill",
+   "args": {
+    "spillVolumeM3": 10
+   },
+   "field": "bundAreaM2"
+  },
+  {
+   "fn": "poolFromSpill",
+   "args": {
+    "spillVolumeM3": -5,
+    "bundAreaM2": 100
+   },
+   "field": "spillVolumeM3"
+  },
+  {
+   "fn": "poolEvaporationMackayMatsugu",
+   "args": {
+    "poolDiameterM": 5,
+    "windSpeed10mMS": 3,
+    "vapourPressurePa": 120000,
+    "molarMassKgMol": 0.044,
+    "liquidTemperatureK": 231
+   },
+   "field": "vapourPressurePa"
+  },
+  {
+   "fn": "poolEvaporationMackayMatsugu",
+   "args": {
+    "poolDiameterM": 5,
+    "windSpeed10mMS": 0,
+    "vapourPressurePa": 1000,
+    "molarMassKgMol": 0.09,
+    "liquidTemperatureK": 293
+   },
+   "field": "windSpeed10mMS"
+  },
+  {
+   "fn": "briggsRuralSigmas",
+   "args": {
+    "stabilityClass": "G",
+    "downwindDistanceM": 500
+   },
+   "field": "stabilityClass"
+  },
+  {
+   "fn": "briggsRuralSigmas",
+   "args": {
+    "downwindDistanceM": 500
+   },
+   "field": "stabilityClass"
+  },
+  {
+   "fn": "gaussianPlume",
+   "args": {
+    "massRateKgS": 1,
+    "windSpeedMS": 3,
+    "downwindDistanceM": 0,
+    "stabilityClass": "D"
+   },
+   "field": "downwindDistanceM"
+  },
+  {
+   "fn": "gaussianPlume",
+   "args": {
+    "massRateKgS": 1,
+    "windSpeedMS": 0,
+    "downwindDistanceM": 100,
+    "stabilityClass": "D"
+   },
+   "field": "windSpeedMS"
+  },
+  {
+   "fn": "gaussianPlume",
+   "args": {
+    "massRateKgS": -1,
+    "windSpeedMS": 3,
+    "downwindDistanceM": 100,
+    "stabilityClass": "D"
+   },
+   "field": "massRateKgS"
+  },
+  {
+   "fn": "gaussianPlume",
+   "args": {
+    "massRateKgS": 1,
+    "windSpeedMS": 3,
+    "downwindDistanceM": 100,
+    "stabilityClass": "D",
+    "sigmaYM": 5,
+    "sigmaZM": 3
+   },
+   "field": "stabilityClass"
+  },
+  {
+   "fn": "cylinderViewFactor",
+   "args": {
+    "flameRadiusM": 5,
+    "flameLengthM": 10,
+    "distanceFromAxisM": 5
+   },
+   "field": "distanceFromAxisM"
+  },
+  {
+   "fn": "cylinderViewFactor",
+   "args": {
+    "flameRadiusM": 1,
+    "flameLengthM": 3,
+    "distanceFromAxisM": 2.5,
+    "tiltDeg": 45
+   },
+   "field": "tiltDeg"
+  },
+  {
+   "fn": "cylinderViewFactor",
+   "args": {
+    "flameRadiusM": 1,
+    "flameLengthM": 3,
+    "distanceFromAxisM": 5,
+    "tiltDeg": 90
+   },
+   "field": "tiltDeg"
+  },
+  {
+   "fn": "atmosphericTransmissivityBagster",
+   "args": {
+    "waterVapourPartialPressurePa": 1193.5,
+    "pathLengthM": 100
+   },
+   "field": "pathLengthM"
+  },
+  {
+   "fn": "atmosphericTransmissivityBagster",
+   "args": {
+    "waterVapourPartialPressurePa": 1193.5,
+    "pathLengthM": 5
+   },
+   "field": "pathLengthM"
+  },
+  {
+   "fn": "poolBurningRate",
+   "args": {
+    "method": "burgess",
+    "heatOfCombustionJKg": 50000000.0,
+    "heatOfVaporisationJKg": 500000.0,
+    "liquidHeatCapacityJKgK": 3000,
+    "boilingPointK": 112,
+    "ambientTemperatureK": 288
+   },
+   "field": "boilingPointK"
+  },
+  {
+   "fn": "poolBurningRate",
+   "args": {
+    "method": "babrauskas",
+    "fuel": "diesel",
+    "poolDiameterM": 5
+   },
+   "field": "fuel"
+  },
+  {
+   "fn": "kinneyGrahamOverpressure",
+   "args": {
+    "scaledDistanceMKg13": 0.04
+   },
+   "field": "scaledDistanceMKg13"
+  },
+  {
+   "fn": "kinneyGrahamOverpressure",
+   "args": {
+    "scaledDistanceMKg13": 41
+   },
+   "field": "scaledDistanceMKg13"
+  },
+  {
+   "fn": "kinneyGrahamOverpressure",
+   "args": {
+    "distanceM": 0,
+    "tntMassKg": 1
+   },
+   "field": "distanceM"
+  },
+  {
+   "fn": "kinneyGrahamOverpressure",
+   "args": {
+    "distanceM": 10,
+    "tntMassKg": -1
+   },
+   "field": "tntMassKg"
+  },
+  {
+   "fn": "distanceForOverpressure",
+   "args": {
+    "tntMassKg": 1,
+    "overpressurePa": 100
+   },
+   "field": "overpressurePa"
+  },
+  {
+   "fn": "tntEquivalentMass",
+   "args": {
+    "fuelMassKg": 1000,
+    "heatOfCombustionJKg": 50000000.0,
+    "yieldFactor": 0.1,
+    "tntBlastEnergyJKg": 4680
+   },
+   "field": "tntBlastEnergyJKg"
+  },
+  {
+   "fn": "tntEquivalentMass",
+   "args": {
+    "fuelMassKg": 1000,
+    "heatOfCombustionJKg": 50000000.0,
+    "yieldFactor": 0,
+    "tntBlastEnergyJKg": 4680000.0
+   },
+   "field": "yieldFactor"
+  },
+  {
+   "fn": "thermalProbit",
+   "args": {
+    "coefficients": "tno",
+    "heatFluxWM2": 10000.0,
+    "exposureTimeS": 10
+   },
+   "field": "coefficients"
+  },
+  {
+   "fn": "thermalProbit",
+   "args": {
+    "coefficients": "eisenberg",
+    "heatFluxWM2": 0,
+    "exposureTimeS": 10
+   },
+   "field": "heatFluxWM2"
+  },
+  {
+   "fn": "toxicProbit",
+   "args": {
+    "coefficients": "pb-chlorine",
+    "concentrationPpm": 50,
+    "exposureMinutes": 10
+   },
+   "field": "molarMassGMol"
+  },
+  {
+   "fn": "toxicProbit",
+   "args": {
+    "coefficients": "lees-chlorine",
+    "concentrationPpm": 50,
+    "concentrationMgM3": 145,
+    "exposureMinutes": 10
+   },
+   "field": "concentrationPpm"
+  }
+ ]
+}

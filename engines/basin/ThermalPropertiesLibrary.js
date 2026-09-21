@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
 /**
  * Thermal Properties Library
  * Values are approximate averages for standard lithologies
@@ -44,5 +50,5 @@ export const ThermalProperties = {
   
   export const getThermalProps = (lithology) => {
     const key = lithology?.toLowerCase();
-    return ThermalProperties[key] || ThermalProperties.default;
+    return (ownPreset(ThermalProperties, key) ? ThermalProperties[key] : null) || ThermalProperties.default;
   };

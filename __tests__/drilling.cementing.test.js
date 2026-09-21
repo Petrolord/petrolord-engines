@@ -227,3 +227,69 @@ describe('oracle golden agreement (cementing_cases.json)', () => {
     expect(ids).toEqual(expect.arrayContaining(['density-hierarchy', 'standoff', 'no-free-fall', 'float-holds', 'annular-velocity']));
   });
 });
+
+// Two places here print a value beside the threshold it is being judged
+// against, and both rounded the value coarsely enough to render AS that
+// threshold: a failed standoff item read "Minimum standoff 67% vs the API
+// 67% target", and a peak ECD a tenth of a unit over the fracture EMW read
+// as two identical numbers with one said to exceed the other. Precision is
+// the whole fix; no arithmetic moves. Note that the collision is narrowed,
+// not removed: a value inside half of the last printed digit still lands on
+// the threshold, and the rounding overstates as readily as it understates.
+describe('checklist and warning numbers do not read as their own thresholds', () => {
+  const hb = (fann) => fitModels(fann).herschelBulkley;
+
+  test('a standoff short of the API target does not print as the target', () => {
+    // Two decimals rather than one here: centralizer spacing is chosen to
+    // just meet 67 percent, so real standoffs cluster in the immediate
+    // neighbourhood of the target and one decimal would still be reached by
+    // the values this check sees most.
+    const list = placementChecklist({
+      placement: { freeFall: false, floatDiffPa: 1 },
+      standoff: { minStandoff: 0.6672 },
+      mudInHole: { kind: 'mud', densityKgM3: 1440 },
+      fluids: [{ kind: 'tail', densityKgM3: 1900 }],
+      pumpRateM3s: 0,
+    });
+    const item = list.items.find((i) => i.id === 'standoff');
+    expect(item.ok).toBe(false);                       // 66.72 is short of 67
+    expect(100 * 0.6672).toBeLessThan(100 * API_TARGET_STANDOFF);
+    expect(100 * 0.6672).toBeGreaterThan(100 * API_TARGET_STANDOFF - 0.5);
+    expect(item.detail).toContain('Minimum standoff 66.72%');
+    expect(item.detail).not.toMatch(/standoff 67(\.0+)?% vs/);
+    expect(item.detail).toContain('the API 67% target');   // the target is untouched
+  });
+
+  test('an ECD over the fracture EMW does not print as the fracture EMW', () => {
+    const c = golden.cases[0];
+    const mud = { kind: 'mud', densityKgM3: 1440, rheology: hb(c.mudFann) };
+    const vols = jobVolumes({
+      stations: c.stations, holeSections: c.holeSections, casing: c.casing,
+      tocMd: c.tocMd, excessOpenHolePct: c.excessOpenHolePct,
+      leadTailSplitMd: c.leadTailSplitMd,
+    });
+    const fluids = [
+      { kind: 'tail', densityKgM3: 1900, volumeM3: vols.slurryM3, rheology: hb(c.tailFann) },
+      { kind: 'displacement', densityKgM3: 1440, volumeM3: vols.displacementM3, rheology: hb(c.mudFann) },
+    ];
+    // The golden case's pump rate raised a quarter, which lifts the peak ECD
+    // to about a quarter of a unit above the whole number below it: inside
+    // the old collision band, clear of the one a decimal leaves.
+    const place = (fracEmwKgM3) => simulatePlacement({
+      stations: c.stations, holeSections: c.holeSections, casing: c.casing,
+      mudInHole: mud, fluids, pumpRateM3s: c.pumpRateM3s * 1.25,
+      tocMd: c.tocMd, excessOpenHolePct: c.excessOpenHolePct, fracEmwKgM3,
+    });
+    const peak = place(null).maxEcdPrevShoeKgM3;
+    const fracEmwKgM3 = Math.floor(peak);
+    expect(peak - fracEmwKgM3).toBeGreaterThan(0.05);
+    expect(peak - fracEmwKgM3).toBeLessThan(0.5);
+    expect(Math.round(peak)).toBe(fracEmwKgM3);          // what the old print gave
+
+    const w = place(fracEmwKgM3).warnings.find((m) => m.includes('above the fracture EMW'));
+    expect(w).toBeDefined();
+    expect(w).toContain(`peaks at ${peak.toFixed(1)} kg/m3`);
+    expect(w).not.toMatch(new RegExp(`peaks at ${fracEmwKgM3} kg`));
+    expect(w).toContain(`above the fracture EMW ${fracEmwKgM3} kg/m3`);
+  });
+});
