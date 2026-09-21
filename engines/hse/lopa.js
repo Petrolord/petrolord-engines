@@ -84,7 +84,9 @@ export const DECADE_SNAP = 1e-9;
  * three meets the same words (HSE H3 follow-up: lopaScenario said it in RRF
  * terms, silFromPfdAvg in PFD terms, and the two read as different rules).
  */
-export const BAND_CONVENTION = 'IEC 61508-1 Table 2 / IEC 61511-1 low demand: SIL n holds 10^-(n+1) <= PFDavg < 10^-n, equivalently 10^n < RRF <= 10^(n+1); a value within 1e-9 relative of a decade is that decade, and an exact decade belongs to the higher-PFD (lower-SIL) band';
+// Its first sentence is silFromPfdAvg's old basis word for word, which live
+// NextGen lessons quote; the RRF form and the snap are appended after it.
+export const BAND_CONVENTION = 'IEC 61508-1 Table 2 / IEC 61511-1 low demand: SIL n holds 10^-(n+1) <= PFDavg < 10^-n; an exact decade belongs to the higher-PFD band. Equivalently 10^n < RRF <= 10^(n+1), and a value within 1e-9 relative of a decade is that decade.';
 
 export const HOURS_PER_YEAR = 8760;
 

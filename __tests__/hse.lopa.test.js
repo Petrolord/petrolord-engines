@@ -351,6 +351,8 @@ describe('proof test interval', () => {
     // It states both forms and the exact-decade rule.
     expect(BAND_CONVENTION).toMatch(/10\^-\(n\+1\) <= PFDavg < 10\^-n/);
     expect(BAND_CONVENTION).toMatch(/10\^n < RRF <= 10\^\(n\+1\)/);
-    expect(BAND_CONVENTION).toMatch(/higher-PFD \(lower-SIL\) band/);
+    expect(BAND_CONVENTION).toMatch(/1e-9 relative of a decade is that decade/);
+    // silFromPfdAvg's old basis survives word for word as the first sentence.
+    expect(BAND_CONVENTION.startsWith('IEC 61508-1 Table 2 / IEC 61511-1 low demand: SIL n holds 10^-(n+1) <= PFDavg < 10^-n; an exact decade belongs to the higher-PFD band')).toBe(true);
   });
 });

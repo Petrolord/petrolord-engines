@@ -257,5 +257,6 @@ The first run found two real gaps, both now repaired:
 10^(n+1)"), `silFromPfdAvg` in PFD terms with the exact-decade rule, and
 `pfdAvgSubsystem` in PFD terms without it. They are one rule, and all three
 now print the exported `BAND_CONVENTION`, which gives both forms, the
-1e-9 snap and the exact-decade rule. Text only: no band decision moved, and
+1e-9 snap and the exact-decade rule. Its first sentence is silFromPfdAvg's
+old basis word for word, so lessons that quote it still quote the engine. Text only: no band decision moved, and
 a gate asserts all three carry the same string.
