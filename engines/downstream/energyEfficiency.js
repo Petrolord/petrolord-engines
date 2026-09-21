@@ -441,7 +441,7 @@ export const excessAirSaving = ({
     fuelSavingFraction: round(savingFraction, 10),
     fuelSavingPercent: round(savingFraction * 100, 6),
     annualEnergySavedGJ: annual === null ? null : round(annual * savingFraction, 6),
-    method: 'Fuel scales inversely with efficiency at the same duty, so the saving is (target - current) / target. Subtracting the efficiency percentages divides by a hundred instead of by the target efficiency, and understates the saving.',
+    method: 'Fuel scales inversely with efficiency at the same duty, so the saving is (target - current) / target. The divisor is the target efficiency. Subtracting the efficiency percentages divides by a hundred and understates the saving.',
   };
 };
 
@@ -550,7 +550,7 @@ export const steamTrapLoss = ({
     annualFuelGJ: fuelGJ === null ? null : round(fuelGJ, 8),
     annualTonnesCo2e: fuelGJ === null || ef === null ? null : round((fuelGJ * ef) / 1000, 8),
     carbonNote: fuelGJ === null || ef === null
-      ? 'Carbon needs the steam energy content, the boiler efficiency and an emission factor. Without them it is absent rather than zero.'
+      ? 'Carbon needs the steam energy content, the boiler efficiency and an emission factor. Without them the carbon figure is left blank.'
       : null,
     fuelNote: energyPerTonne !== null && !etaOk
       ? 'Fuel needs a boiler efficiency in (0, 1]. It is not assumed to be 1.'
@@ -677,7 +677,7 @@ export const energyIntensity = ({
     peerNote: peerOk && missing.length
       ? 'Not compared with the peer: a stream is missing, so the intensity is a floor and would flatter the plant.'
       : (peer !== null && !peerOk ? 'A peer intensity must be positive.' : null),
-    disclaimer: 'This is the plant\'s own energy per tonne of throughput. It is NOT the Solomon Energy Intensity Index, which is a proprietary benchmark with its own standard-energy methodology. Any peer figure compared here is one you supplied and have the right to use.',
+    disclaimer: 'This is the plant\'s own energy per tonne of throughput. It is independent of the Solomon Energy Intensity Index, a proprietary benchmark with its own standard-energy methodology. Any peer figure compared here is one you supplied and have the right to use.',
   };
 };
 
@@ -808,7 +808,7 @@ export const pinchTargets = ({ streams = [], minimumApproachC }) => {
     // The energy balance the whole thing must satisfy.
     heatRecoveredKW: round(totalHotDuty - qcMin, 6),
     balanceCheck: round((qhMin + totalHotDuty) - (qcMin + totalColdDuty), 6),
-    crossPinchNote: 'Heat carried across the pinch costs twice: one unit more hot utility and one unit more cold utility. That is what makes the pinch the constraint rather than a curiosity.',
+    crossPinchNote: 'Heat carried across the pinch costs twice: one unit more hot utility and one unit more cold utility. That double cost is what makes the pinch the constraint on the design.',
   };
 };
 
@@ -907,7 +907,7 @@ export const priceSaving = ({
     basisNote: bases.length ? null
       : 'No heating value basis declared. The saving, the fuel price and the emission factor must all be on the same one (IPCC default factors are on net calorific value, which is LHV).',
     carbonNote: ef === null
-      ? 'No emission factor supplied, so the carbon figure is absent rather than zero.' : null,
+      ? 'No emission factor supplied, so the carbon figure is left blank.' : null,
     valueNote: cost === null
       ? 'No fuel cost supplied, so the saving is in energy only.' : null,
   };

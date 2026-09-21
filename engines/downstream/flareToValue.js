@@ -332,7 +332,7 @@ export const yieldCeiling = ({ yieldBasis, gas }) => {
   return null;
 };
 
-export const ROUTE_TEMPLATE_NOTE = 'Requirement limits are yours to set. They are commercial and technology-specific rather than physical law: a licensor\'s CO2 limit is a design choice and the minimum viable volume moves with the market.';
+export const ROUTE_TEMPLATE_NOTE = 'Requirement limits are yours to set. They are commercial and technology-specific: a licensor\'s CO2 limit is a design choice and the minimum viable volume moves with the market.';
 
 /**
  * Screen a gas against a route.
@@ -590,7 +590,7 @@ export const abatement = ({
     combustionEfficiencyNote: etaCInput === null
       ? 'No combustion efficiency was given, so the destruction efficiency stands in for it. 40 CFR 98.233(n) puts combustion 1.5 points below destruction, so the CO2 here is slightly high.'
       : null,
-    basis: '40 CFR 98.233(n): CO2 = the CO2 in the gas plus the combustion efficiency times the hydrocarbon carbon; CH4 = the methane in the gas times one less the destruction efficiency. Unburned ethane and heavier are not methane and carry no GWP here.',
+    basis: '40 CFR 98.233(n): CO2 = the CO2 in the gas plus the combustion efficiency times the hydrocarbon carbon; CH4 = the methane in the gas times one less the destruction efficiency. Unburned ethane and heavier carry no GWP here.',
     gwpMethane: gwp,
     recoveryFraction: recOk ? rec : null,
     avoidedFlareCo2eTonnes: round(avoidedCo2e, 3),
@@ -603,7 +603,7 @@ export const abatement = ({
     grossClaimIfNoCounterfactual: round(flareCo2e, 3),
     blockedBy,
     warning: counterfactualDeclared ? null
-      : 'No abatement is reported. The flare\'s gross emission is not the abatement: recover the gas and somebody burns it, and if that displaces a dirtier fuel the abatement is larger while if it displaces nothing it is smaller. State what the product displaces and what burning it emits.',
+      : 'No abatement is reported. The flare\'s gross emission is the starting point, and the abatement depends on what the recovered product displaces: recover the gas and somebody burns it, and if that displaces a dirtier fuel the abatement is larger while if it displaces nothing it is smaller. State what the product displaces and what burning it emits.',
     // Useful even before the counterfactual: the flare's own footprint.
     methaneShareOfFlareCo2e: flareCo2e === null || flareCo2e === 0 || gwp === null
       ? null : round((flareCh4 * gwp) / flareCo2e, 6),
@@ -642,7 +642,7 @@ export const creditSensitivity = ({
   // it is missing, and no verdict is given without it.
   const hurdle = isBlank(hurdleMarginPerYear) ? null : num(hurdleMarginPerYear, NaN);
   if (hurdle !== null && !Number.isFinite(hurdle)) {
-    return { error: 'The hurdle margin is not a number.' };
+    return { error: 'The hurdle margin must be a number.' };
   }
   const known = margin !== null && hurdle !== null;
   const points = creditPrices.map((p) => {

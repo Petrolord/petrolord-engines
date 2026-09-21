@@ -210,7 +210,7 @@ describe('the inventory', () => {
 
   it('says it is not a compliance register', () => {
     expect(buildInventory({ lines: good(), gwpSet }).disclaimer)
-      .toMatch(/not a regulatory compliance register/i);
+      .toMatch(/belong in the compliance register/i);
   });
 });
 
@@ -420,7 +420,7 @@ describe('the decarbonisation path', () => {
     // A wedge labelled "further measures" with nothing behind it is not a
     // plan, and treating it as one is how these roadmaps stop meaning
     // anything.
-    expect(p.gapNote).toMatch(/not drawn as a wedge/i);
+    expect(p.gapNote).toMatch(/wedge is drawn only for an identified measure/i);
     expect(p.rows.find((r) => r.year === 2028).unabatedGapTonnes).toBeCloseTo(50000 - 900 - 46000, 6);
   });
 

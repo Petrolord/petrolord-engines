@@ -275,3 +275,61 @@ const signature = (rel, text) => {
     expect(found[0].text).toContain('--');
   });
 });
+
+/**
+ * THE CONTRASTIVE GATE, DOWNSTREAM ONLY (B3 follow-up, 21 September 2026).
+ *
+ * The owner's copy rule also bars the contrastive shapes: "X, not Y",
+ * "X rather than Y", "instead of Y", "is not a Z", and a capitalised NOT
+ * set against something. Live NextGen lessons quote downstream engine
+ * strings verbatim, so this domain was swept and is held clean here. It reads
+ * every string literal in engines/downstream (every field, since the quoted
+ * strings are disclaimers, methods and notes as often as errors), with
+ * comments removed first. Other domains are not yet swept, so it does not
+ * read them.
+ */
+const literalsIn = (raw) => {
+  const text = stripComments(raw);
+  const out = [];
+  let i = 0;
+  while (i < text.length) {
+    const q = text[i];
+    if (q === '`' || q === "'" || q === '"') {
+      let j = i + 1;
+      while (j < text.length) {
+        if (text[j] === '\\') { j += 2; continue; }
+        if (text[j] === q) break;
+        if (q !== '`' && text[j] === '\n') break;
+        j += 1;
+      }
+      out.push({ text: text.slice(i, j + 1), line: text.slice(0, i).split('\n').length });
+      i = j + 1;
+      continue;
+    }
+    i += 1;
+  }
+  return out;
+};
+
+const CONTRASTIVE = /, not (an?|the) |\brather than\b|\binstead of\b|\b(is|are) not (an?|the) |\bNOT\b/;
+
+describe('downstream copy: no contrastive shapes (B3)', () => {
+  const DOWNSTREAM = path.join(ENGINES, 'downstream');
+
+  it('no downstream string literal uses a contrastive shape', () => {
+    const hits = [];
+    sourceFiles(DOWNSTREAM).forEach((f) => {
+      const raw = fs.readFileSync(f, 'utf8');
+      literalsIn(raw).forEach((lit) => {
+        if (isExempt(raw, lit.line)) return;
+        if (CONTRASTIVE.test(lit.text)) hits.push(`${path.relative(ROOT, f)}:${lit.line}  ${lit.text.slice(0, 140)}`);
+      });
+    });
+    expect(hits.join('\n')).toBe('');
+  });
+
+  it('the gate can fail', () => {
+    const lits = literalsIn("const a = { note: 'surfaced rather than solved' }; // rather than\nconst b = 'A FLOOR, not a cost';");
+    expect(lits.filter((l) => CONTRASTIVE.test(l.text))).toHaveLength(2);
+  });
+});

@@ -421,7 +421,7 @@ export const screenBlendStability = ({ components, massFractions }) => {
     stable: flagged ? false : null,
     message: flagged
       ? `${sparse ? 'SARA was not supplied for every crude.' : 'No SARA analysis supplied.'} On gravity contrast alone (${contrast.toFixed(1)} degrees API, with a light paraffinic component) this is the combination that classically drops asphaltenes. Supply SARA for a colloidal instability index, and spot test before commingling.`
-      : `${sparse ? 'SARA was not supplied for every crude' : 'No SARA analysis supplied'}, so this is an API-contrast screen only. The gravity spread is not the classic heavy-plus-light-paraffinic combination, which is not evidence that the blend is stable. Supply SARA for a real index.`,
+      : `${sparse ? 'SARA was not supplied for every crude' : 'No SARA analysis supplied'}, so this is an API-contrast screen only. The gravity spread falls outside the classic heavy-plus-light-paraffinic combination, and that alone says nothing about whether the blend is stable. Supply SARA for a real index.`,
   };
 };
 

@@ -121,7 +121,7 @@ export const makeGwpSet = ({ label, values = {} }) => {
     declared: !!label && entries.length > 0,
     gases: entries.map(([g]) => g),
     note: 'Global warming potentials differ between IPCC assessment reports. An inventory on one report is not comparable with one on another, so the set is stated on every result.',
-    methaneNote: 'AR6 gives methane two 100-year values: fossil (29.8) and non-fossil (27.0). This set holds one. The atom balance here counts carbon that escapes a burner or a flare as methane and NOT as CO2, so the oxidation CO2 is counted nowhere else and the fossil value is the consistent one for vented, fugitive and unburned fossil methane alike.',
+    methaneNote: 'AR6 gives methane two 100-year values: fossil (29.8) and non-fossil (27.0). This set holds one. The atom balance here counts carbon that escapes a burner or a flare as methane, so the oxidation CO2 is counted nowhere else and the fossil value is the consistent one for vented, fugitive and unburned fossil methane alike.',
   };
 };
 
@@ -186,7 +186,7 @@ export const combustionCo2FromCarbon = ({
     destructionEfficiencyFraction: eta,
     method: 'Atom balance: carbon in equals CO2 out. This is conservation of mass, so it needs no source document.',
     unburnedNote: eta === 1 ? null
-      : 'Carbon that escaped combustion is counted as methane, which is the usual and conservative assumption, and not as CO2. Use the fossil methane potential for it. Override it if you have measured otherwise.',
+      : 'Carbon that escaped combustion is counted as methane, which is the usual and conservative assumption. Use the fossil methane potential for it. Override it if you have measured otherwise.',
   };
 };
 
@@ -325,7 +325,7 @@ export const buildInventory = ({ lines = [], gwpSet }) => {
     computed: true,
     reportable: reasons.length === 0,
     notReportableBecause: reasons.length ? reasons : null,
-    disclaimer: 'This is a quantitative inventory. It is not a regulatory compliance register: obligations, evidence and deadlines belong in the compliance register, and keeping a second copy of them here would create two records that could disagree.',
+    disclaimer: 'This is a quantitative inventory of tonnes. Obligations, evidence and deadlines belong in the compliance register, which keeps the one record of them; a second copy here would create two records that could disagree.',
   };
 };
 
@@ -391,7 +391,7 @@ export const abatementCost = ({
   const t = num(tonnesAbatedPerYear);
   if (!Number.isFinite(t)) return { error: `Measure "${label}" needs an annual abatement.`, label };
   if (t < 0) {
-    return { error: `Measure "${label}" has a negative abatement. A measure that adds emissions is not an abatement, and its cost per tonne would change sign.`, label };
+    return { error: `Measure "${label}" has a negative abatement. A measure that adds emissions has no place on an abatement curve, and its cost per tonne would change sign.`, label };
   }
   // A BLANK capital cost is missing: read as 0 it moves the measure to the
   // cheap end of the curve. Left out of the call it is the stated 0.
@@ -550,7 +550,7 @@ export const abatementCurve = ({ measures = [], sourceEmissions = {}, targetTonn
     overClaims,
     additive: interactions.length === 0,
     interactionNote: interactions.length
-      ? 'Measures listed here act on the same source, so their abatements are NOT additive and the cumulative curve is an upper bound. Resolving the overlap needs an engineering judgement about sequencing, which is why it is surfaced rather than solved.'
+      ? 'Measures listed here act on the same source, so their abatements overlap and the cumulative curve is an upper bound. Resolving the overlap needs an engineering judgement about sequencing, so the overlap is flagged here and the sequencing is left to that judgement.'
       : null,
     targetTonnes: target,
     // A curve whose claims exceed what a source emits cannot meet anything:
@@ -594,7 +594,7 @@ export const decarbonisationPath = ({
     return { error: 'A baseline and a valid year range are required.' };
   }
   if (!(base > 0)) {
-    return { error: 'The baseline must be a positive tonnage. An inventory that computed nothing is not a baseline of zero.' };
+    return { error: 'The baseline must be a positive tonnage. An inventory that computed nothing leaves the baseline unknown.' };
   }
   // A measure with no start year or no abatement is NAMED, not dropped.
   const unscheduled = measures.filter((m) => m && !m.error && (
@@ -639,7 +639,7 @@ export const decarbonisationPath = ({
     finalGapTonnes: rows.length ? rows[rows.length - 1].unabatedGapTonnes : null,
     unscheduledMeasures: unscheduled,
     gapNote: gaps.length
-      ? 'The gap is reported as unabated with no measure identified. It is deliberately not drawn as a wedge of future measures, because a wedge with nothing behind it is not a plan.'
+      ? 'The gap is reported as unabated with no measure identified. A wedge is drawn only for an identified measure, because a plan needs a named measure behind every wedge.'
       : null,
   };
 };

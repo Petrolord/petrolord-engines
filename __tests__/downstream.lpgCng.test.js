@@ -13,7 +13,9 @@ import {
   assetFloat, lpgBlendProperties, lpgStorageSizing, vaporizerDuty, bottlingPlant,
   gasMassInVessel, cascadeFills, cngCompression, cngDispensing, conversionEconomics,
   LPG_REFERENCE, LPG_PROPERTY_NOTE, DAK_RANGE, PSI_PER_BAR,
+  BOTTLING_QUEUE_VOCABULARY, CNG_QUEUE_VOCABULARY,
 } from '../engines/downstream/lpgCng.js';
+import { rackQueue, RACK_VOCABULARY } from '../engines/downstream/terminalDepot.js';
 
 const propane = LPG_REFERENCE.find((r) => r.code === 'propane');
 const butane = LPG_REFERENCE.find((r) => r.code === 'butane');
@@ -589,7 +591,7 @@ describe('the conversion decision', () => {
       ...base, newFuel: { ...base.newFuel, emissionFactorKgCo2ePerUnit: null },
     });
     expect(missing.kgCo2eAvoidedPerYear).toBeNull();
-    expect(missing.carbonNote).toMatch(/absent rather than zero/i);
+    expect(missing.carbonNote).toMatch(/it is left blank/i);
   });
 
   it('does not assume a switch cuts carbon just because it cuts cost', () => {
@@ -630,5 +632,58 @@ describe('missing stays missing', () => {
     }).error).toMatch(/fill ratio is required/i);
     expect(assetFloat({ unitsPerDay: '', cycleStages: [{ label: 'A', days: 1 }] }).error).toBeTruthy();
     expect(vaporizerDuty({ massFlowKgHr: 500, latentHeatKJkg: '' }).error).toMatch(/latent heat/i);
+  });
+});
+
+describe('each queue speaks its own facility (B3 copy follow-up)', () => {
+  // The carousel and the CNG forecourt run the loading rack's M/M/c model.
+  // They used to print the rack's words ("Add a bay", "the number of bays")
+  // to a user who has filling positions or dispensers. Words only: the queue
+  // numbers are the rack model's, and are gated by the tests above.
+  const RACK_WORDS = /\bbays?\b|\brack\b|\bload faster\b/i;
+
+  it('an overloaded carousel talks about filling positions and cylinders', () => {
+    const r = bottlingPlant({
+      cylindersPerDay: 2400, fillMinutesPerCylinder: 2.5, positions: 3,
+      shiftHoursPerDay: 8, availabilityFraction: 0.9,
+    });
+    expect(r.queue.stable).toBe(false);
+    expect(r.queue.error).toBe(BOTTLING_QUEUE_VOCABULARY.overload);
+    expect(r.queue.error).toMatch(/filling position/);
+    expect(r.queue.error).not.toMatch(RACK_WORDS);
+  });
+
+  it('an overloaded CNG forecourt talks about dispensers and vehicles', () => {
+    const r = cngDispensing({ vehiclesPerHour: 40, fillMinutes: 6, dispensers: 2 });
+    expect(r.error).toBeNull();
+    expect(r.queue.error).toBe(CNG_QUEUE_VOCABULARY.overload);
+    expect(r.queue.error).toMatch(/Add a dispenser/);
+    expect(r.queue.error).not.toMatch(RACK_WORDS);
+  });
+
+  it('a fractional dispenser count is refused in dispenser words', () => {
+    const r = cngDispensing({ vehiclesPerHour: 6, fillMinutes: 5, dispensers: 2.5 });
+    expect(r.error).toBe(CNG_QUEUE_VOCABULARY.wholeServers);
+    expect(r.error).not.toMatch(RACK_WORDS);
+  });
+
+  it('the vocabulary moves no number', () => {
+    const args = { arrivalsPerHour: 20, loadMinutes: 5, bays: 2 };
+    const rack = rackQueue(args);
+    const cng = rackQueue({ ...args, vocabulary: CNG_QUEUE_VOCABULARY });
+    const { error: e1, ...n1 } = rack;
+    const { error: e2, ...n2 } = cng;
+    expect(n2).toEqual(n1);
+    expect(e1).toBeNull();
+    expect(e2).toBeNull();
+    // The loading rack keeps its own words.
+    expect(rackQueue({ ...args, arrivalsPerHour: 60 }).error).toBe(RACK_VOCABULARY.overload);
+    expect(RACK_VOCABULARY.overload).toMatch(/Add a bay/);
+  });
+
+  it('the new sentences keep the copy rule', () => {
+    const contrastive = /—|–|, not |\brather than\b|\binstead of\b|\bis not an? /i;
+    [...Object.values(BOTTLING_QUEUE_VOCABULARY), ...Object.values(CNG_QUEUE_VOCABULARY)]
+      .forEach((s) => expect(s).not.toMatch(contrastive));
   });
 });

@@ -13,6 +13,7 @@ import {
   solveCrossing, priceSensitivity,
   CHARGE_BASIS, PRICE_ELEMENT_BASIS, IMPORT_TEMPLATE, PUMP_TEMPLATE,
   RATE_DISCLAIMER, PRODUCT_REFERENCE, LITRES_PER_M3, M3_PER_BBL,
+  FORECOURT_QUEUE_VOCABULARY,
 } from '../engines/downstream/fuelPricing.js';
 
 const PMS = 745;
@@ -132,6 +133,7 @@ describe('the landed-cost build-up', () => {
     expect(r.complete).toBe(false);
     expect(r.missingRates).toContain('Statutory levy');
     expect(r.basisOfTotal).toMatch(/floor/i);
+    expect(r.basisOfTotal).toBe('A FLOOR: 1 rate(s) not supplied, so the full landed cost is at least this.');
     // The line is present and visible, not dropped.
     expect(r.lines.find((l) => l.key === 'nimasa').required).toBe(true);
   });
@@ -194,6 +196,7 @@ describe('the pump-price build-up', () => {
     const r = buildPumpPrice({ landedPerLitre: 700, elements: [...elements, { id: 'new', label: 'New levy', basis: PRICE_ELEMENT_BASIS.PER_LITRE, amount: null }] });
     expect(r.complete).toBe(false);
     expect(r.basisOfPrice).toMatch(/floor/i);
+    expect(r.basisOfPrice).toBe('A FLOOR: 1 rate(s) not supplied, so the full price is at least this.');
     expect(r.missingRates).toContain('New levy');
   });
 
@@ -295,7 +298,7 @@ describe('trucking economics', () => {
     const r = truckingEconomics(lane);
     expect(r.kgCo2ePerTrip).toBeNull();
     expect(r.kgCo2ePerLitreDelivered).toBeNull();
-    expect(r.carbonNote).toMatch(/absent rather than zero/i);
+    expect(r.carbonNote).toMatch(/carbon figure is left blank/i);
     const withEf = truckingEconomics({ ...lane, dieselEmissionFactorKgCo2ePerLitre: 2.68 });
     expect(withEf.kgCo2ePerTrip).toBeCloseTo(withEf.dieselLitresPerTrip * 2.68, 2);
     expect(withEf.carbonNote).toBeNull();
@@ -370,6 +373,19 @@ describe('station sizing', () => {
     const r = stationSizing({ ...station, nozzles: 2 });
     expect(r.queue.stable).toBe(false);
     expect(r.queue.averageWaitMinutes).toBeNull();
+  });
+
+  it('speaks of nozzles, the forecourt servers (B3 copy follow-up)', () => {
+    const over = stationSizing({ ...station, nozzles: 2 });
+    expect(over.queue.error).toBe(FORECOURT_QUEUE_VOCABULARY.overload);
+    expect(over.queue.error).toMatch(/Add a nozzle/);
+    expect(over.queue.error).not.toMatch(/\bbays?\b|\brack\b/i);
+    expect(stationSizing({ ...station, nozzles: 2.5 }).queue.error).toBe(FORECOURT_QUEUE_VOCABULARY.wholeServers);
+  });
+
+  it('keeps the copy rule in the forecourt sentences', () => {
+    const contrastive = /\u2014|\u2013|, not |\brather than\b|\binstead of\b|\bis not an? /i;
+    Object.values(FORECOURT_QUEUE_VOCABULARY).forEach((s) => expect(s).not.toMatch(contrastive));
   });
 
   it('counts cover on usable stock, not on tank capacity', () => {
