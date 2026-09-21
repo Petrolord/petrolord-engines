@@ -22,7 +22,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  ARCHITECTURES, DECADE_SNAP, LOPA_OUTCOME, PFD_STATE, SIL_BANDS_LOW_DEMAND,
+  ARCHITECTURES, BAND_CONVENTION, DECADE_SNAP, LOPA_OUTCOME, PFD_STATE, SIL_BANDS_LOW_DEMAND,
   decadeOf, lopaScenario, maxProofTestInterval, outcomeFromRequiredRrf,
   pfdAvgSif, pfdAvgSubsystem, proofTestSensitivity, silFromPfdAvg,
 } from '../engines/hse/lopa';
@@ -287,6 +287,16 @@ describe('proof test interval', () => {
 
   test.each(G.maxInterval.map((c) => [c.id, c]))('longest interval: %s', (id, c) => {
     const r = maxProofTestInterval(c.params, c.targetPfdAvg);
+    if (c.expected.state === 'REFUSED') {
+      // The search refuses the way pfdAvgSubsystem does: an error naming the
+      // field, and no state or interval that could be read as an answer.
+      expect(r.error).toMatch(/outside the rare-event range/);
+      expect(r.field).toBe(c.expected.field);
+      expect(r.state).toBeUndefined();
+      expect(r.proofTestIntervalHours).toBeUndefined();
+      expect(r.error).toContain(`floor of ${c.expected.floorPfdAvg}`);
+      return;
+    }
     expect(r.state).toBe(c.expected.state);
     if (c.expected.proofTestIntervalHours !== undefined) {
       expect(rel(r.proofTestIntervalHours, c.expected.proofTestIntervalHours)).toBeLessThan(1e-9);
@@ -298,5 +308,49 @@ describe('proof test interval', () => {
     expect(maxProofTestInterval({ architecture: '1oo1', lambdaDuPerHour: 1e-6 }, 0).field).toBe('targetPfdAvg');
     const r = maxProofTestInterval({ architecture: '1oo1', lambdaDuPerHour: 0, lambdaDdPerHour: 1e-6, mttrHours: 8 }, 1e-2);
     expect(r.state).toBe('INTERVAL_INDEPENDENT');
+  });
+
+  test('refuses a floor of PFDavg 1 or more on every path, as pfdAvgSubsystem does', () => {
+    // pfdAvgSubsystem refuses these parameters at any interval.
+    const dd = { architecture: '1oo1', lambdaDuPerHour: 1e-6, lambdaDdPerHour: 1e-3, mttrHours: 2000 };
+    expect(pfdAvgSubsystem({ ...dd, proofTestIntervalHours: 1 }).error).toMatch(/not a probability/);
+    expect(maxProofTestInterval(dd, 1e-2).field).toBe('lambdaDdPerHour');
+    // lambdaDU = 0 used to return INTERVAL_INDEPENDENT with a PFDavg of 2.
+    const r = maxProofTestInterval({ ...dd, lambdaDuPerHour: 0 }, 1e-2);
+    expect(r.field).toBe('lambdaDdPerHour');
+    expect(r.pfdAvg).toBeUndefined();
+    // DU only, with an MRT so long that lambdaDU x MRT alone reaches 1.
+    expect(maxProofTestInterval({ architecture: '1oo1', lambdaDuPerHour: 1e-3, mrtHours: 2000 }, 1e-2).field).toBe('mrtHours');
+    // The uncovered part under PTC < 1 over a long lifetime.
+    expect(maxProofTestInterval({
+      architecture: '1oo1', lambdaDuPerHour: 1e-4, proofTestCoverage: 0.5, lifetimeHours: 1e5,
+    }, 1e-2).field).toBe('lifetimeHours');
+    // Just below 1 is still an answer: UNACHIEVABLE with the floor reported.
+    const near = maxProofTestInterval({ ...dd, mttrHours: 900 }, 1e-2);
+    expect(near.state).toBe('UNACHIEVABLE');
+    expect(near.floorPfdAvg).toBeCloseTo(0.9, 12);
+  });
+
+  test('the rare-event warning fires on exactly the goldens FINDINGS-lopa section 4 lists', () => {
+    // FINDINGS-lopa.md section 4 names these three. With PTC < 1 the product
+    // is lambdaDU x T2 (the uncovered part runs the whole lifetime), which is
+    // why two PTC rows warn at a one-year proof test interval.
+    const warned = [...G.pfdPublished, ...G.pfdDerived]
+      .filter((c) => pfdAvgSubsystem(c.params).warnings.some((w) => /rare-event/.test(w)))
+      .map((c) => c.id)
+      .sort();
+    expect(warned).toEqual(['1oo1-long-interval', '1oo3-full-ptc', 'dolan-valve-1oo2-ptc85']);
+  });
+
+  test('every band statement is the one BAND_CONVENTION', () => {
+    const sc = lopaScenario({ initiatingEventFrequencyPerYr: 0.1, tmelPerYr: 1e-5 });
+    const sub = pfdAvgSubsystem({ architecture: '1oo1', lambdaDuPerHour: 1e-6, proofTestIntervalHours: 8760 });
+    expect(silFromPfdAvg(5e-3).basis).toBe(BAND_CONVENTION);
+    expect(sc.basis.bandConvention).toBe(BAND_CONVENTION);
+    expect(sub.basis.bandConvention).toBe(BAND_CONVENTION);
+    // It states both forms and the exact-decade rule.
+    expect(BAND_CONVENTION).toMatch(/10\^-\(n\+1\) <= PFDavg < 10\^-n/);
+    expect(BAND_CONVENTION).toMatch(/10\^n < RRF <= 10\^\(n\+1\)/);
+    expect(BAND_CONVENTION).toMatch(/higher-PFD \(lower-SIL\) band/);
   });
 });

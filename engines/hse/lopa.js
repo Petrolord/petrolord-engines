@@ -78,6 +78,14 @@
 
 export const DECADE_SNAP = 1e-9;
 
+/**
+ * The one statement of the band convention. silFromPfdAvg, lopaScenario and
+ * pfdAvgSubsystem all print it, so a reader who meets the band in any of the
+ * three meets the same words (HSE H3 follow-up: lopaScenario said it in RRF
+ * terms, silFromPfdAvg in PFD terms, and the two read as different rules).
+ */
+export const BAND_CONVENTION = 'IEC 61508-1 Table 2 / IEC 61511-1 low demand: SIL n holds 10^-(n+1) <= PFDavg < 10^-n, equivalently 10^n < RRF <= 10^(n+1); a value within 1e-9 relative of a decade is that decade, and an exact decade belongs to the higher-PFD (lower-SIL) band';
+
 export const HOURS_PER_YEAR = 8760;
 
 /** Low-demand SIL bands, PFDavg, lower bound inclusive, upper exclusive. */
@@ -142,7 +150,7 @@ export const silFromPfdAvg = (pfdAvg) => {
     return refuse('pfdAvg', 'must be a probability above 0 and no more than 1');
   }
   const n = negLog10Ceil(pfdAvg) - 1; // p in [10^-(n+1), 10^-n) is SIL n
-  const basis = 'IEC 61508-1 Table 2 / IEC 61511-1 low demand: SIL n holds 10^-(n+1) <= PFDavg < 10^-n; an exact decade belongs to the higher-PFD band';
+  const basis = BAND_CONVENTION;
   if (n < 1) return { pfdAvg, rrf: 1 / pfdAvg, sil: null, state: PFD_STATE.NOT_SIL_RATED, basis };
   if (n > 4) {
     return {
@@ -282,7 +290,7 @@ export const lopaScenario = ({
       method: 'CCPS (2001) Layer of Protection Analysis: f = IEF x prod(enabling) x prod(conditional modifiers) x prod(PFD of credited IPLs); RRF = f / TMEL; required PFDavg = TMEL / f; SIL band low demand per IEC 61511-1',
       units: 'frequencies per year; probabilities and PFDs dimensionless',
       creditRule: 'an IPL is credited once, and only when flagged independent === true and not flagged auditable === false',
-      bandConvention: 'SIL n: 10^n < RRF <= 10^(n+1); values within 1e-9 relative of a decade are the decade',
+      bandConvention: BAND_CONVENTION,
       bindingTarget: 'the SIF must achieve requiredSifPfdAvg itself; the SIL band alone does not guarantee it',
     },
   };
@@ -476,7 +484,7 @@ export const pfdAvgSubsystem = (params = {}) => {
         mttrHours: v.mttr, mrtHours: v.mrt, beta: v.b, betaD: v.bD,
         proofTestCoverage: v.ptc, lifetimeHours: v.t2,
       },
-      bandConvention: 'SIL n holds 10^-(n+1) <= PFDavg < 10^-n (low demand)',
+      bandConvention: BAND_CONVENTION,
     },
   };
 };
@@ -522,6 +530,8 @@ export const proofTestSensitivity = (params = {}, intervalsHours = []) => {
  *   UNACHIEVABLE          the T1-independent floor (DD, MTTR, MRT, and the
  *                         uncovered part under PTC) already reaches the target
  *   INTERVAL_INDEPENDENT  lambdaDU is zero: T1 does not enter
+ * and a refusal (error + field), the one pfdAvgSubsystem gives, when the
+ * floor itself reaches a PFDavg of 1.
  * With PTC < 1 the interval is capped by the lifetime T2 (state CAPPED_AT_LIFETIME).
  */
 export const maxProofTestInterval = (params = {}, targetPfdAvg) => {
@@ -530,8 +540,18 @@ export const maxProofTestInterval = (params = {}, targetPfdAvg) => {
   if (probe.error) return probe;
   const at = (t1) => pfdCore({ ...probe, t1 }).pfdAvg;
   const basis = { method: 'bisection on T1 of the Annex B PFDavg, which is non-decreasing in T1', target: targetPfdAvg };
-  if (probe.lDU === 0) return { state: 'INTERVAL_INDEPENDENT', proofTestIntervalHours: null, pfdAvg: at(1), basis };
+  // The T1-independent floor (DD with MTTR, MRT, the uncovered part under
+  // PTC). pfdAvgSubsystem refuses a PFDavg of 1 or more because the
+  // simplified equations have left their rare-event range; the search used
+  // to skip that refusal and report such a floor as UNACHIEVABLE (or, with
+  // lambdaDU = 0, as an INTERVAL_INDEPENDENT PFDavg above 1). It refuses the
+  // same way now. A refusal path only: every finite answer is unchanged.
   const floor = at(0);
+  if (!isNum(floor) || floor >= 1) {
+    const field = probe.lDD > 0 ? 'lambdaDdPerHour' : (probe.ptc < 1 ? 'lifetimeHours' : 'mrtHours');
+    return refuse(field, `the simplified equations give a floor of ${Number(floor.toPrecision(6))} here, before any proof test interval is added. A PFDavg of 1 or more lies outside the rare-event range they assume; use an exact (Markov) model`);
+  }
+  if (probe.lDU === 0) return { state: 'INTERVAL_INDEPENDENT', proofTestIntervalHours: null, pfdAvg: at(1), basis };
   if (floor >= targetPfdAvg) return { state: 'UNACHIEVABLE', proofTestIntervalHours: null, floorPfdAvg: floor, basis };
   const cap = probe.t2 ?? Infinity;
   if (Number.isFinite(cap) && at(cap) <= targetPfdAvg) {

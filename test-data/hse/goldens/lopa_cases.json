@@ -1653,6 +1653,22 @@
     "state": "CAPPED_AT_LIFETIME",
     "proofTestIntervalHours": 87600.0
    }
+  },
+  {
+   "id": "maxT-refused-floor",
+   "source": "ORACLE-DERIVED (illustrative failure rates, not data)",
+   "params": {
+    "architecture": "1oo1",
+    "lambdaDuPerHour": 1e-06,
+    "lambdaDdPerHour": 0.001,
+    "mttrHours": 2000
+   },
+   "targetPfdAvg": 0.01,
+   "expected": {
+    "state": "REFUSED",
+    "field": "lambdaDdPerHour",
+    "floorPfdAvg": 2.0
+   }
   }
  ]
 }

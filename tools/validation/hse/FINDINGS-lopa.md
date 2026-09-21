@@ -2,7 +2,7 @@
 
 Engine: `engines/hse/lopa.js`. Golden: `test-data/hse/goldens/lopa_cases.json`
 (written by `oracle_lopa.py`, stdlib only, never calls the JavaScript).
-Gate: `__tests__/hse.lopa.test.js` (91 tests); every golden is called
+Gate: `__tests__/hse.lopa.test.js` (95 tests since 2026-09-21; 91 when the controls below were run); every golden is called
 through the engine. Negative controls: `negcontrol_lopa.sh`.
 
 ## 1. What was checked against a source, and what the brief had right
@@ -137,6 +137,28 @@ Measured departures (engine / route B - 1):
 The last row is why the engine warns above lT = 0.1 and refuses outright
 once the linearised value reaches 1.
 
+**Which goldens carry the rare-event warning (2026-09-21).** Three do, and
+a gate (`the rare-event warning fires on exactly the goldens FINDINGS-lopa
+section 4 lists`) holds the list to this table:
+
+| golden | product the engine tests | value | route B departure |
+|---|---|---|---|
+| `1oo1-long-interval` | lDU x T1 | 0.438 | +15.1% |
+| `dolan-valve-1oo2-ptc85` | lDU x T2 (PTC 0.85, T2 = 10 y) | 0.184 | +2.9% |
+| `1oo3-full-ptc` | lDU x T2 (PTC 0.9, T2 = 10 y) | 0.2628 | +0.69% |
+
+Until this note only the first was documented. The other two warn because,
+with PTC < 1, the engine forms the product with the lifetime T2 and the
+WHOLE lambdaDU. Only the uncovered share (1 - PTC) lambdaDU actually runs
+for T2: that product is 0.0276 for the valve and 0.0263 for the 1oo3 row,
+both inside the rare-event range, and route B agrees with Annex B to 2.9%
+and 0.69%. On these two rows the warning is conservative: it fires where
+the linearisation error is small. The PFDavg values are unaffected (the
+warning is text), and the published valve row still reproduces its printed
+2.71E-03. Whether the PTC product should use (1 - PTC) lDU T2 + PTC lDU T1
+is an owner question (section 7, item 7); changing it would change which
+results carry a warning, so it is left as it is.
+
 Tolerances:
 - engine vs route A: 1e-12 relative (route A is exact rationals).
 - engine vs printed: equal at three significant figures.
@@ -144,7 +166,15 @@ Tolerances:
   DU-only rows with MRT = 0 and PTC = 1, also |engine / route B - 1| <=
   1.5 lDU T1. That is the first-order bound derived above; the largest
   coefficient is 1.25, for 2oo3.
-- longest proof test interval: 1e-9 relative. The oracle solves the exact
+- longest proof test interval: 1e-9 relative. The golden
+  `maxT-refused-floor` (lambdaDD x MTTR = 2) is a refusal: the floor
+  reaches a PFDavg of 1 before any interval is added, and the engine must
+  refuse with the field that carries the floor, as pfdAvgSubsystem refuses
+  any PFDavg of 1 or more. Until 2026-09-21 the search skipped that
+  refusal and returned UNACHIEVABLE with a floor above 1 (or, with
+  lambdaDU = 0, INTERVAL_INDEPENDENT with a PFDavg above 1). The oracle
+  decides the refusal from the exact floor coefficient; no finite answer
+  moved. The oracle solves the exact
   polynomial in T1, by the quadratic formula or, for 1oo3, by bisection on
   the exact cubic. The engine bisects the formula itself.
 
@@ -217,3 +247,15 @@ The first run found two real gaps, both now repaired:
 6. **DECADE_SNAP = 1e-9 is a chosen tolerance.** An RRF deliberately
    entered as 100.0000001 (1e-9 relative above 100) would be read as
    exactly 100.
+7. **The rare-event warning under PTC < 1** uses lambdaDU x T2 for the
+   whole lambdaDU (section 4). It over-fires on two PTC goldens. Text only;
+   left for an owner decision.
+
+## 8. One band wording (2026-09-21)
+
+`lopaScenario` stated the band in RRF terms ("SIL n: 10^n < RRF <=
+10^(n+1)"), `silFromPfdAvg` in PFD terms with the exact-decade rule, and
+`pfdAvgSubsystem` in PFD terms without it. They are one rule, and all three
+now print the exported `BAND_CONVENTION`, which gives both forms, the
+1e-9 snap and the exact-decade rule. Text only: no band decision moved, and
+a gate asserts all three carry the same string.
