@@ -36,6 +36,12 @@
 import { parseDateOnly, daysUntil, toDateOnlyString } from './qualityAssurance.js';
 import { localDateOf } from './calendar.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
+
 export { parseDateOnly, daysUntil, toDateOnlyString };
 
 // ASC-0 (RC-9): an article that agrees with the word it introduces. The
@@ -256,7 +262,7 @@ export const LESSON_TRANSITIONS = Object.freeze({
   Superseded: Object.freeze([]),
 });
 
-export const nextLessonStatuses = (status) => LESSON_TRANSITIONS[status] || [];
+export const nextLessonStatuses = (status) => (ownPreset(LESSON_TRANSITIONS, status) ? LESSON_TRANSITIONS[status] : []);
 
 /**
  * May this lesson be marked Embedded?
@@ -405,7 +411,7 @@ export const summarise = (
 ) => {
   const byStatus = Object.fromEntries(LESSON_STATUSES.map((s) => [s, 0]));
   lessons.forEach((l) => {
-    if (byStatus[l.status] !== undefined) byStatus[l.status] += 1;
+    if (ownPreset(byStatus, l.status)) byStatus[l.status] += 1;
   });
 
   const byLesson = new Map();

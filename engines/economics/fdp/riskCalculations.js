@@ -24,13 +24,23 @@ export const calculateConsolidatedRiskScore = (risks = []) => {
 /** How many risks in the register have not been scored. */
 export const countUnscoredRisks = (risks = []) => risks.filter((r) => riskScore(r) === null).length;
 
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 export const calculateRiskExposure = (risks = []) => {
     // Expected Monetary Value (EMV) approximation
     // Using simple probability factors based on 1-5 scale
     const probFactors = { 1: 0.05, 2: 0.20, 3: 0.40, 4: 0.60, 5: 0.85 };
     
     return risks.reduce((total, risk) => {
-        const prob = probFactors[risk.probability] || 0;
+        const prob = ownValue(probFactors, risk.probability) || 0;
         const cost = parseFloat(risk.costImpact) || 0;
         return total + (prob * cost);
     }, 0);
@@ -39,7 +49,7 @@ export const calculateRiskExposure = (risks = []) => {
 export const aggregateRisksBySource = (risks = []) => {
     return risks.reduce((acc, risk) => {
         const source = risk.source || 'Other';
-        acc[source] = (acc[source] || 0) + 1;
+        setOwn(acc, source, (ownValue(acc, source) || 0) + 1);
         return acc;
     }, {});
 };

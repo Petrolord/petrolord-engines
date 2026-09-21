@@ -72,6 +72,12 @@ import {
   toDateOnlyString,
 } from './isoCompliance.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
+
 /* ------------------------------------------------------------------ */
 /* Shared with AS8, re-exported so this app's pages have one import.   */
 /* ------------------------------------------------------------------ */
@@ -338,7 +344,7 @@ export const AUDIT_TRANSITIONS = Object.freeze({
   Cancelled: Object.freeze([]),
 });
 
-export const nextAuditStatuses = (status) => AUDIT_TRANSITIONS[status] || [];
+export const nextAuditStatuses = (status) => (ownPreset(AUDIT_TRANSITIONS, status) ? AUDIT_TRANSITIONS[status] : []);
 
 export const canAdvanceAudit = (audit = {}, to, context = {}) => {
   const allowed = nextAuditStatuses(audit.status);
@@ -438,7 +444,7 @@ export const PROGRAMME_TRANSITIONS = Object.freeze({
   Cancelled: Object.freeze([]),
 });
 
-export const nextProgrammeStatuses = (status) => PROGRAMME_TRANSITIONS[status] || [];
+export const nextProgrammeStatuses = (status) => (ownPreset(PROGRAMME_TRANSITIONS, status) ? PROGRAMME_TRANSITIONS[status] : []);
 
 export const canAdvanceProgramme = (programme = {}, to, context = {}) => {
   const allowed = nextProgrammeStatuses(programme.status);
@@ -506,14 +512,14 @@ export const summarise = (
 ) => {
   const byAuditStatus = Object.fromEntries(AUDIT_STATUSES.map((s) => [s, 0]));
   audits.forEach((a) => {
-    if (byAuditStatus[a.status] !== undefined) byAuditStatus[a.status] += 1;
+    if (ownPreset(byAuditStatus, a.status)) byAuditStatus[a.status] += 1;
   });
 
   const byFindingType = Object.fromEntries(FINDING_TYPES.map((t) => [t, 0]));
   const openByFindingType = Object.fromEntries(FINDING_TYPES.map((t) => [t, 0]));
   findings.forEach((f) => {
-    if (byFindingType[f.finding_type] !== undefined) byFindingType[f.finding_type] += 1;
-    if (isFindingOpen(f) && openByFindingType[f.finding_type] !== undefined) {
+    if (ownPreset(byFindingType, f.finding_type)) byFindingType[f.finding_type] += 1;
+    if (isFindingOpen(f) && ownPreset(openByFindingType, f.finding_type)) {
       openByFindingType[f.finding_type] += 1;
     }
   });

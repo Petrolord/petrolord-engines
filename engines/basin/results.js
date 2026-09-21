@@ -16,7 +16,11 @@ export function alignSeriesByAge(timeSteps, perLayerSeries, layers, pick = (e) =
         const point = { age };
         layers.forEach((layer, li) => {
             const e = maps[li].get(age);
-            if (e !== undefined) point[layer.name] = pick(e);
+            // defineProperty, not assignment: a layer named '__proto__' was
+            // silently dropped from the series.
+            if (e !== undefined) {
+                Object.defineProperty(point, layer.name, { value: pick(e), writable: true, enumerable: true, configurable: true });
+            }
         });
         return point;
     });

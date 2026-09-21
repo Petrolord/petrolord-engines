@@ -50,10 +50,20 @@ export const calculateWellCount = (reserves, avgWellEur) => {
     return Math.ceil(reserves / avgWellEur);
 };
 
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 export const aggregateWellsByType = (wells) => {
     return wells.reduce((acc, well) => {
         const type = well.type || 'Other';
-        acc[type] = (acc[type] || 0) + 1;
+        setOwn(acc, type, (ownValue(acc, type) || 0) + 1);
         return acc;
     }, {});
 };

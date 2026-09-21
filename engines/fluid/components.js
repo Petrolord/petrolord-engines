@@ -54,10 +54,13 @@ const BIP_TABLE = {
 /** Symmetric BIP lookup; unknown pairs (incl. HC-HC and self) return 0. */
 export function getBip(a, b) {
   if (a === b) return 0;
-  const row = BIP_TABLE[a];
-  if (row && row[b] !== undefined) return row[b];
-  const rev = BIP_TABLE[b];
-  if (rev && rev[a] !== undefined) return rev[a];
+  // Own properties only: `BIP_TABLE[a]` walks the prototype chain, so a
+  // key such as 'constructor' or 'toString' would read a function as a kij.
+  const has = (t, k) => t != null && Object.prototype.hasOwnProperty.call(t, k);
+  const row = has(BIP_TABLE, a) ? BIP_TABLE[a] : undefined;
+  if (row && has(row, b)) return row[b];
+  const rev = has(BIP_TABLE, b) ? BIP_TABLE[b] : undefined;
+  if (rev && has(rev, a)) return rev[a];
   return 0;
 }
 

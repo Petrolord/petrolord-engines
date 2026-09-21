@@ -317,11 +317,14 @@ export const BTU_PER_MWH = 3.6e9 / 1055.05585262;
 export const yieldCeiling = ({ yieldBasis, gas }) => {
   if (!yieldBasis || !gas || gas.error) return null;
   const perUnit = { kg: 1, t: 1 / 1000 };
-  if (yieldBasis.ceiling === 'gas mass' && perUnit[yieldBasis.unit]) {
-    return gas.kgPerMscf === null ? null : gas.kgPerMscf * perUnit[yieldBasis.unit];
+  // Own keys only: 'constructor' used to read a function here, the ceiling
+  // came out NaN and a yield above what the gas holds was never refused.
+  const factor = Object.prototype.hasOwnProperty.call(perUnit, yieldBasis.unit) ? perUnit[yieldBasis.unit] : undefined;
+  if (yieldBasis.ceiling === 'gas mass' && factor) {
+    return gas.kgPerMscf === null ? null : gas.kgPerMscf * factor;
   }
-  if (yieldBasis.ceiling === 'propane and heavier' && perUnit[yieldBasis.unit]) {
-    return gas.c3PlusKgPerMscf === null ? null : gas.c3PlusKgPerMscf * perUnit[yieldBasis.unit];
+  if (yieldBasis.ceiling === 'propane and heavier' && factor) {
+    return gas.c3PlusKgPerMscf === null ? null : gas.c3PlusKgPerMscf * factor;
   }
   if (yieldBasis.ceiling === 'heating value' && yieldBasis.unit === 'MWh') {
     return gas.ghvBtuScf === null ? null : (gas.ghvBtuScf * 1000) / BTU_PER_MWH;
@@ -352,7 +355,7 @@ export const screenRoute = ({ route, gas, volumeMMscfd }) => {
 
   const checks = (route.requirements || []).map((r) => {
     const limit = num(r.limit, null);
-    const actual = values[r.key];
+    const actual = Object.prototype.hasOwnProperty.call(values, r.key) ? values[r.key] : undefined;
     if (limit === null) {
       return { ...r, actual: round(actual, 6), status: 'unchecked', margin: null };
     }

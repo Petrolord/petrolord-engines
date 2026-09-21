@@ -12,6 +12,12 @@
 
 import { LITHOLOGIES, GRAIN_SIZES, resolveLithology, resolveGrainSize } from '../stratigraphy/lithology.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
+
 export { LITHOLOGIES, GRAIN_SIZES, resolveLithology, resolveGrainSize };
 
 const T = (code, name, abbrev, aliases = [], extra = {}) => Object.freeze({ code, name, abbrev, aliases: Object.freeze(aliases), ...extra });
@@ -185,7 +191,7 @@ const norm = (s) => String(s ?? '').trim().toLowerCase().replace(/[\s_\-.]+/g, '
 const indexes = new Map();
 function indexFor(table) {
   if (indexes.has(table)) return indexes.get(table);
-  const list = TABLES[table];
+  const list = ownPreset(TABLES, table) ? TABLES[table] : undefined;
   const map = new Map();
   for (const t of list || []) {
     map.set(norm(t.code), t);
@@ -205,7 +211,7 @@ export function resolveTerm(table, text) {
   if (!k) return null;
   const idx = indexFor(table);
   if (idx.has(k)) return idx.get(k);
-  return prefixOf(TABLES[table], text);
+  return prefixOf(ownPreset(TABLES, table) ? TABLES[table] : undefined, text);
 }
 
 function prefixOf(list, text) {
@@ -237,7 +243,7 @@ export function resolveColour(text) {
 
 /** Options for a table as {code, name, abbrev} (the screens' pickers). */
 export function optionsFor(table) {
-  return (TABLES[table] || []).map((t) => ({ code: t.code, name: t.name, abbrev: t.abbrev || t.code }));
+  return (ownPreset(TABLES, table) ? TABLES[table] : []).map((t) => ({ code: t.code, name: t.name, abbrev: t.abbrev || t.code }));
 }
 
 export function emptyComponent() {
@@ -248,7 +254,7 @@ export function emptyComponent() {
 }
 
 function codeOf(v) { return typeof v === 'string' ? v : v && v.code; }
-function has(table, code) { return !!code && (TABLES[table] || []).some((t) => t.code === code); }
+function has(table, code) { return !!code && (ownPreset(TABLES, table) ? TABLES[table] : []).some((t) => t.code === code); }
 
 /**
  * Validate a description. Errors block saving; warnings do not.

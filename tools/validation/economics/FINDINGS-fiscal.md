@@ -439,3 +439,13 @@ the NextGen repo). Each fix is gated in `economics.screening.test.js` or
 - **EC3-8.** Nothing bounded a belief. Capex and opex percentiles below 0 and
   efficiency percentiles outside 0 to 100 are refused by name; a fitted draw
   past a limit is held at it and counted in `clippedDraws`, with a note.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `metricLabel` and friends printed `undefined (undiscounted)` for an inherited metric key; they now throw `Unknown fiscal metric`.

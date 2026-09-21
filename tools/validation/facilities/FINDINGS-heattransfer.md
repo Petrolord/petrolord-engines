@@ -558,3 +558,13 @@ Every user-facing string in `engines/facilities/` was parsed out of the source (
 | `heatTransfer.js` | 1-2 shell log mean note | this is the log mean, not the corrected driving force | this is the uncorrected log mean, before F is applied |
 | `heatTransfer.js` | shell-pass bound refusal | a design limit declared by this module, not a published one, and it exists because | a design limit this module declares for itself, and no publication sets it. It exists because |
 | `heatTransfer.js` | cold-day air cooler note | This is a capability, not a delivered duty: a plant | This is a capability that the plant may never draw on: a plant |
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `tubeCount` with an inherited layout crashed with a TypeError; it now returns the layout error.

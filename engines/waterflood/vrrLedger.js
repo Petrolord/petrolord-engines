@@ -253,6 +253,16 @@ export function interpolateFvfTrack(fvfTable, pressures) {
 // Validate an allocation matrix. Row sums above 1 (beyond float noise) are
 // errors; below 1 is a warning (out-of-zone remainder), negative or
 // non-finite fractions are errors.
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 export function validateAllocation(allocation) {
   const errors = [];
   const warnings = [];
@@ -267,7 +277,7 @@ export function validateAllocation(allocation) {
       }
       sum += f;
     });
-    rowSums[inj] = sum;
+    setOwn(rowSums, inj, sum);
     // Six decimals, not three, because both messages name the threshold
     // beside the sum: three decimals turned three producers at 0.333333
     // into "fractions sum to 1.000" in a warning that only fires when
@@ -283,7 +293,7 @@ export function validateAllocation(allocation) {
 }
 
 const allocFrac = (allocation, inj, prod) => {
-  const f = parseFloat(allocation?.[inj]?.[prod]);
+  const f = parseFloat(ownValue(ownValue(allocation, inj), prod));
   return Number.isFinite(f) && f > 0 ? f : 0;
 };
 
@@ -298,15 +308,16 @@ export function allocateInjection(rows, allocation) {
     const wi = num(r.winj_stb);
     const gi = num(r.ginj_mscf);
     if (wi <= 0 && gi <= 0) return;
-    const injRow = allocation?.[String(r.well ?? '').trim()] || {};
+    const injRow = ownValue(allocation, String(r.well ?? '').trim()) || {};
     let allocatedFrac = 0;
     Object.keys(injRow).forEach((prod) => {
       const f = allocFrac(allocation, String(r.well).trim(), prod);
       if (f <= 0) return;
       allocatedFrac += f;
-      if (!perProducer[prod]) perProducer[prod] = { winj_stb: 0, ginj_mscf: 0 };
-      perProducer[prod].winj_stb += wi * f;
-      perProducer[prod].ginj_mscf += gi * f;
+      if (!hasOwn(perProducer, prod)) setOwn(perProducer, prod, { winj_stb: 0, ginj_mscf: 0 });
+      const acc = ownValue(perProducer, prod);
+      acc.winj_stb += wi * f;
+      acc.ginj_mscf += gi * f;
     });
     const rest = Math.max(0, 1 - allocatedFrac);
     unallocated.winj_stb += wi * rest;

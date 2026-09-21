@@ -829,3 +829,13 @@ the metric tiles: the closing point is a new category on the x axis (a day
 label among month labels) and the two line counts belong beside the forecast
 tile, with the flagged lines marked in the Cost Breakdown table.
 
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- EXPLOITABLE (severe). `aggregateReserves` with a fluid of `'__proto__'` passed the fluid check and wrote its running totals onto `Object.prototype` (`count`, `p90Sum` ... all NaN on every object); the other inherited names silently dropped the reservoir. It now refuses the fluid by name.
+- EXPLOITABLE. `calculateCostByPhase`, `aggregateRisksByType`, `aggregateRisksBySource` and `aggregateWellsByType` turned a count into a string for an inherited name and lost a `'__proto__'` row; `calculateRiskExposure` gave a NaN EMV for an inherited probability. They now total own keys only.

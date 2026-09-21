@@ -101,3 +101,13 @@ caller. The guard is in the Suite hook test.
   zone, so the old arguments could not stay under the new rule. Added
   `item12-*` (6): 00:30 and 23:30 local, created today, event date wins,
   and an attention sort. 339 -> 345.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `nextLessonStatuses` returned a function for an inherited status; it now returns `[]`. `summarise` counts own keys only.

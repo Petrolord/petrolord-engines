@@ -78,6 +78,16 @@ const num = (v, fallback = 0) => {
   return Number.isFinite(n) ? n : fallback;
 };
 
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  key of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 /**
  * A material: crude, intermediate, finished product or fuel gas.
  *
@@ -165,22 +175,23 @@ export const signedQuantity = (event) => {
 export const materialBalance = ({ events, openingByMaterial = {}, ledger = LEDGER.ACTUAL, closingByMaterial = null }) => {
   const byMaterial = {};
   events.filter((e) => e.ledger === ledger).forEach((e) => {
-    if (!byMaterial[e.materialId]) {
-      byMaterial[e.materialId] = {
+    if (!hasOwn(byMaterial, e.materialId)) {
+      setOwn(byMaterial, e.materialId, {
         materialId: e.materialId,
-        opening: num(openingByMaterial[e.materialId]),
+        opening: num(ownValue(openingByMaterial, e.materialId)),
         in: 0, out: 0,
-      };
+      });
     }
+    const row = ownValue(byMaterial, e.materialId);
     const q = signedQuantity(e);
-    if (q > 0) byMaterial[e.materialId].in += q;
-    else byMaterial[e.materialId].out += -q;
+    if (q > 0) row.in += q;
+    else row.out += -q;
   });
 
   return Object.values(byMaterial).map((row) => {
     const computedClosing = row.opening + row.in - row.out;
-    const reported = closingByMaterial && closingByMaterial[row.materialId] !== undefined
-      ? num(closingByMaterial[row.materialId])
+    const reported = closingByMaterial && ownValue(closingByMaterial, row.materialId) !== undefined
+      ? num(ownValue(closingByMaterial, row.materialId))
       : null;
     return {
       ...row,

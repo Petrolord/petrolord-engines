@@ -156,3 +156,13 @@ four items. Three are repaired here; one is HELD.
 
 Gate: three new assertions in `downstream.refinery.golden`, three new plants
 in `negcontrol_md2.sh` (19 in all, all caught).
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- EXPLOITABLE (severe). `materialBalance` with a material id of `'__proto__'` dropped that material and wrote `in`/`out` onto `Object.prototype`, so every object in the page then carried `in: NaN`. Other inherited ids also vanished from the balance. Rows are now stored and read as own keys, and the opening and closing maps are read by own key.

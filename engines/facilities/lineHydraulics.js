@@ -46,6 +46,12 @@
 // composes this module's chain, so it has ONE definition for the package.
 import { CUFT_PER_BBL } from '../../lib/units/fieldUnits.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
+
 const FT_PER_MILE = 5280;
 const S_PER_DAY = 86400;
 const GC = 32.174; // lbm.ft / (lbf.s2)
@@ -357,7 +363,7 @@ export const gasOutletPressure = ({ equation = 'weymouth', qScfd, ...rest }) => 
   const forms = {
     weymouth: weymouthQ, panhandleA: panhandleAQ, panhandleB: panhandleBQ, general: generalFlowQ,
   };
-  const form = forms[equation];
+  const form = ownPreset(forms, equation) ? forms[equation] : undefined;
   if (!form) return { error: `unknown gas flow equation '${equation}'` };
   if (!(qScfd > 0)) return { error: 'outlet-pressure solve needs a positive rate' };
   if (!(rest.p1Psia > 0)) return { error: 'outlet-pressure solve needs a positive inlet pressure' };

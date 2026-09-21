@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
 /**
  * Flow measurement: orifice plates, turbine meters and uncertainty
  * (Facilities F12b).
@@ -443,7 +449,7 @@ export const STRAIGHT_RUN_WITHHELD_FITTINGS = {
 
 export const straightRunDiameters = ({ beta, upstreamFitting = 'singleElbow' }) => {
   if (!(beta > 0) || beta >= 1) return { error: 'a valid beta is needed' };
-  if (STRAIGHT_RUN_WITHHELD_FITTINGS[upstreamFitting]) {
+  if (ownPreset(STRAIGHT_RUN_WITHHELD_FITTINGS, upstreamFitting)) {
     return {
       withheld: true,
       upstreamDiameters: null,
@@ -457,7 +463,7 @@ export const straightRunDiameters = ({ beta, upstreamFitting = 'singleElbow' }) 
     reducer: [[0.2, 5], [0.4, 5], [0.5, 8], [0.6, 9], [0.67, 12], [0.75, 13]],
     fullBoreValve: [[0.2, 12], [0.4, 12], [0.5, 12], [0.6, 14], [0.67, 19], [0.75, 24]],
   };
-  const rows = table[upstreamFitting];
+  const rows = ownPreset(table, upstreamFitting) ? table[upstreamFitting] : undefined;
   if (!rows) return { error: `no straight-run table for '${upstreamFitting}'` };
   const tableMaxBeta = rows[rows.length - 1][0];
   if (beta > tableMaxBeta) {

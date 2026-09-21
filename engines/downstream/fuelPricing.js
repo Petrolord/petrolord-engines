@@ -36,6 +36,13 @@
 
 import { rackQueue } from './terminalDepot.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+const basisLabelOf = (key) => (ownPreset(BASIS_LABEL, key) ? BASIS_LABEL[key] : undefined);
+
+
 /**
  * Numeric coercion that treats ABSENCE as absent.
  *
@@ -182,7 +189,7 @@ export const landedCost = ({
 
   const missing = [];
   const lines = [{
-    key: 'fob', label: 'FOB cargo value', basis: BASIS_LABEL[fobBasis] || fobBasis,
+    key: 'fob', label: 'FOB cargo value', basis: basisLabelOf(fobBasis) || fobBasis,
     rate: num(fobPrice, null), amount: fob.amount, stage: 'fob',
   }];
 
@@ -210,13 +217,13 @@ export const landedCost = ({
     at(stage).filter((c) => !onCif.includes(c)).forEach((c) => {
       if (forward(stage, c.basis)) {
         invalid.push(`${c.label || c.id || 'unnamed charge'} is a percentage of a value that is not formed until after freight`);
-        lines.push({ key: c.id || c.label, label: c.label, basis: BASIS_LABEL[c.basis] || c.basis, rate: num(c.amount, null), amount: null, stage, required: true, note: c.note || null });
+        lines.push({ key: c.id || c.label, label: c.label, basis: basisLabelOf(c.basis) || c.basis, rate: num(c.amount, null), amount: null, stage, required: true, note: c.note || null });
         return;
       }
       const r = chargeAmount(c, q, bases);
       if (r.missing) missing.push(c.label || c.id || 'unnamed charge');
       lines.push({
-        key: c.id || c.label, label: c.label, basis: BASIS_LABEL[c.basis] || c.basis,
+        key: c.id || c.label, label: c.label, basis: basisLabelOf(c.basis) || c.basis,
         rate: num(c.amount, null), amount: r.amount, stage,
         required: r.missing, note: c.note || null,
       });
@@ -233,7 +240,7 @@ export const landedCost = ({
         onCif.forEach((c, i) => {
           const amount = Number.isFinite(rates[i]) ? (rates[i] / 100) * cifTotal : null;
           lines.push({
-            key: c.id || c.label, label: c.label, basis: BASIS_LABEL[c.basis] || c.basis,
+            key: c.id || c.label, label: c.label, basis: basisLabelOf(c.basis) || c.basis,
             rate: Number.isFinite(rates[i]) ? rates[i] : null, amount, stage,
             required: !Number.isFinite(rates[i]), note: c.note || null,
           });
@@ -359,7 +366,7 @@ export const buildPumpPrice = ({ landedPerLitre, elements = [], capPerLitre = nu
     if (Number.isFinite(amount)) running += amount;
     lines.push({
       key: el.id || el.label, label: el.label,
-      basis: BASIS_LABEL[el.basis] || el.basis || 'per litre',
+      basis: basisLabelOf(el.basis) || el.basis || 'per litre',
       rate: Number.isFinite(a) ? a : null,
       amount: round(amount, 4), running: round(running, 4),
       required: !Number.isFinite(a), recipient: el.recipient || null, note: el.note || null,

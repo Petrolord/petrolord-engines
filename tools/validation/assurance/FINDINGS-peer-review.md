@@ -116,3 +116,13 @@ docs/scope/AssuranceApps-STATUS.md §3k for decision.
   unchanged). Golden cases `rc9-close-*` (4) compare the sentence
   verbatim; the previous engine fails the two single-comment cases. 184
   cases in total.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `canTransition` threw a TypeError and `nextStatuses`/`nextStages` returned a function for an inherited status; they now refuse or return `[]`. The tallies count own keys only.

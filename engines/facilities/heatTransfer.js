@@ -709,7 +709,8 @@ export const tubeCount = ({
   if (!(bundleClearanceIn >= 0)) {
     return { error: `the bundle-to-shell clearance must be zero or positive inches; it was ${show(bundleClearanceIn)}` };
   }
-  const layout = BUNDLE_K[String(layoutDeg)];
+  // Own keys only: a layout of 'constructor' read a function and gave NaN tubes.
+  const layout = Object.prototype.hasOwnProperty.call(BUNDLE_K, String(layoutDeg)) ? BUNDLE_K[String(layoutDeg)] : undefined;
   if (!layout) {
     return { error: `this module carries bundle constants for 30, 45 and 90 degree layouts only; ${show(layoutDeg)} was given` };
   }

@@ -267,3 +267,13 @@ Negative control: against the pre-AS15 engine every case above fails
   all 14 (the export does not exist there, and every sentence differs).
 - **Not changed (for the owner):** "marked conformant" also covers a
   Partially conformant claim, as it did before.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `nextAuditStatuses` returned a function for an inherited status; it now returns `[]`. The dashboard tallies count own keys only.

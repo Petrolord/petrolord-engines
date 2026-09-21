@@ -516,3 +516,13 @@ Every user-facing string in `engines/facilities/` was parsed out of the source (
 | `corrosion.js` | oil-wet withheld why | the rate is zero because that was assumed and not because it was calculated. | the rate is zero by assumption, and nothing was calculated to reach it. |
 
 **`BAR_TO_PSIA` is not exact, and its comment said it was.** From the definitions (1 bar = 100000 Pa; 1 psi = 0.45359237 kg x 9.80665 m/s2 over 0.0254 m squared) the exact factor is 14.503773773020923, computed here in exact rational arithmetic. The engine carries 14.503773800721815, 2.770e-8 above it, 1.910e-9 relative; its source is not recorded. The VALUE IS KEPT: grading is unaffected (FC9 measured 3.5e-9 on its graded field against a 5e-7 tolerance) and changing it would move six-decimal figures the merged FC9 course and its held ladder were pinned on. Only the comment is corrected.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- EXPLOITABLE. `corrosionRate` accepted `flowRegime: 'constructor'` as a regime (a function) and returned a water wet rate; it now refuses the regime.

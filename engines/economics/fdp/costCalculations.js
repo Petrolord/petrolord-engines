@@ -29,12 +29,21 @@ export const calculateTotalOPEX = (costItems) => {
         .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
 };
 
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 export const calculateCostByPhase = (costItems) => {
     const phases = {};
     costItems.forEach(item => {
         const phase = item.phase || 'Unassigned';
-        if (!phases[phase]) phases[phase] = 0;
-        phases[phase] += (parseFloat(item.amount) || 0);
+        setOwn(phases, phase, (ownValue(phases, phase) || 0) + (parseFloat(item.amount) || 0));
     });
     return phases;
 };

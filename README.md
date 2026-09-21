@@ -570,6 +570,24 @@ and its consumers.
   differenceInDays, addDays, light `format` tokens), pinned against the
   real library in `test-data/dates/`; UTC assumed.
 
+## Own-property lookups (2026-09-21)
+
+A preset or table read as `TABLE[key]` walks the prototype chain, so
+`'constructor'`, `'toString'`, `'valueOf'`, `'hasOwnProperty'` and
+`'__proto__'` are found in every object literal and pass a falsy guard; a
+running total keyed by a caller's name loses a `'__proto__'` row and can
+write onto `Object.prototype`. The rule for every engine: read a table
+with a caller key through an own-property check
+(`Object.prototype.hasOwnProperty.call`), and store caller-named rows with
+`Object.defineProperty` or a Map. `engines/hse/qra.js` was the first file
+repaired (H5); the repo-wide sweep closed the rest across assurance,
+basin, dca, downstream, drilling, earthmodeling, economics, facilities,
+fluid, hse, mapping, mbal, petrophysics, production, rockphysics,
+seismolord, sim, waterflood, welldata, wellsite, welltest and `lib/`.
+`__tests__/prototypeChainLookups.test.js` calls each repaired function with
+all five names and is red on the unrepaired code. Domain notes are in the
+matching `tools/validation/<domain>/FINDINGS-*.md`.
+
 ## Consumption (git subtree)
 
 Both consumers vendor this repo at `packages/engines/`:

@@ -65,7 +65,8 @@ export const UNIT_KINDS = {
 
 export const UNIT_SYSTEMS = ['oilfield', 'si'];
 
-const kindOf = (kind) => UNIT_KINDS[kind] || UNIT_KINDS.dimensionless;
+// Own keys only: 'constructor' used to read a function and throw on .fromOil.
+const kindOf = (kind) => (Object.prototype.hasOwnProperty.call(UNIT_KINDS, kind) ? UNIT_KINDS[kind] : null) || UNIT_KINDS.dimensionless;
 
 /** Unit label for a kind in the active system. */
 export const unitLabel = (kind, system) =>

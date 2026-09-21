@@ -134,3 +134,13 @@ still goes Overdue. Cases `st-one-off-*` and `st-annual-filed-past-due`.
 - **Goldens:** no existing case moved (reasons are prose-stripped). 159 ->
   171. The previous engine fails the 7 default and unusable cases and
   passes the 5 own-lead-time and due-today controls.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `periodStart` and `rollForward` read an inherited frequency; they now return null for it, as for any other unknown frequency.
