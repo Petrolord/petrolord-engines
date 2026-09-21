@@ -495,6 +495,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1039994854.2401032,
       "cit_chargeable_profit": 979994854.2401032,
       "cit_loss_carryforward": 0.0,
@@ -544,12 +546,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.45061856780012927,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 86.17027413401138,
      "government_take_pct_discounted": 86.17027413401138,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 135185570.34003878,
      "npv_profile": [
       {
@@ -562,7 +567,7 @@
       },
       {
        "npv": 135185570.34003878,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 135185570.34003878,
@@ -588,6 +593,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.4506185678001293,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -769,12 +775,15 @@
      "discounted_payback_years": 1.3666666666666667,
      "discounting_convention": "end_year",
      "dpi": 0.4318181818181817,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 80.76923076923077,
      "government_take_pct_discounted": 82.27611940298507,
-     "irr": 200.0,
+     "irr": 199.99999999999997,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 21590909.090909086,
      "npv_profile": [
       {
@@ -809,6 +818,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.33 years",
      "payback_years": 1.3333333333333333,
+     "profitability_index": 1.4318181818181817,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_boe": 2000000.0,
@@ -895,6 +905,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 54000000.0,
       "real_net_cash_flow": -40500000.0,
       "revenue": 100000000.0,
       "royalty": 10000000.0,
@@ -920,6 +931,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 28000000.0,
       "real_net_cash_flow": 39500000.0,
       "revenue": 100000000.0,
       "royalty": 10000000.0,
@@ -933,12 +945,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.05738636363636367,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PSC",
      "government_take_pct": 101.0,
      "government_take_pct_discounted": 105.0,
-     "irr": -2.4691358024691,
+     "irr": -2.469135802469095,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -4590909.090909094,
      "npv_profile": [
       {
@@ -973,6 +988,8 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.9426136363636364,
+     "psc_unrecovered_cost_at_cessation": 28000000.0,
      "pv_basis": "nominal",
      "pv_capex": 80000000.0,
      "total_boe": 2000000.0,
@@ -1076,6 +1093,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1039994854.2401032,
       "cit_chargeable_profit": 979994854.2401032,
       "cit_loss_carryforward": 0.0,
@@ -1125,12 +1144,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.45061856780012927,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 86.17027413401138,
      "government_take_pct_discounted": 86.17027413401138,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 135185570.34003878,
      "npv_profile": [
       {
@@ -1143,7 +1165,7 @@
       },
       {
        "npv": 135185570.34003878,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 135185570.34003878,
@@ -1169,6 +1191,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.4506185678001293,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -1329,6 +1352,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1039994854.2401032,
       "cit_chargeable_profit": 979994854.2401032,
       "cit_loss_carryforward": 0.0,
@@ -1378,12 +1403,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.39861882508812385,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PIA",
      "government_take_pct": 87.76617416609338,
      "government_take_pct_discounted": 87.76617416609338,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 119585647.52643716,
      "npv_profile": [
       {
@@ -1396,7 +1424,7 @@
       },
       {
        "npv": 119585647.52643716,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 119585647.52643716,
@@ -1422,6 +1450,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.398618825088124,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -1580,6 +1609,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1042110641.4118657,
       "cit_chargeable_profit": 982110641.4118657,
       "cit_loss_carryforward": 0.0,
@@ -1629,12 +1660,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.4011577696942389,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PIA",
      "government_take_pct": 87.68825259250418,
      "government_take_pct_discounted": 87.68825259250418,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 120347330.90827167,
      "npv_profile": [
       {
@@ -1647,7 +1681,7 @@
       },
       {
        "npv": 120347330.90827167,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 120347330.90827167,
@@ -1673,6 +1707,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.401157769694239,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -1774,6 +1809,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 50000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 10000000.0,
       "cit_assessable_profit": 96074778.5468606,
       "cit_chargeable_profit": 86074778.5468606,
       "cit_loss_carryforward": 0.0,
@@ -1822,6 +1859,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 10000000.0,
       "cit_assessable_profit": 32603322.817088544,
       "cit_chargeable_profit": 22603322.817088544,
       "cit_loss_carryforward": 0.0,
@@ -1871,12 +1910,15 @@
      "discounted_payback_years": 1.8071510450774417,
      "discounting_convention": "end_year",
      "dpi": 0.048128949217967426,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 97.56380799234606,
      "government_take_pct_discounted": 98.33516213396967,
-     "irr": 36.28180335124779,
+     "irr": 36.2818033512478,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 2406447.4608983714,
      "npv_profile": [
       {
@@ -1889,7 +1931,7 @@
       },
       {
        "npv": 2406447.4608983714,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 2267349.808729872,
@@ -1915,6 +1957,7 @@
      "opex_usd_per_boe": 13.333333333333334,
      "payback": "1.73 years",
      "payback_years": 1.733773677343129,
+     "profitability_index": 1.0481289492179675,
      "pv_basis": "real",
      "pv_capex": 50000000.0,
      "total_boe": 3000000.0,
@@ -2024,6 +2067,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 100000000.0,
+      "cit_allowance_carryforward": 6675073.817713131,
+      "cit_allowance_claimed": 5324926.182286869,
       "cit_assessable_profit": 7987389.273430303,
       "cit_chargeable_profit": 2662463.091143434,
       "cit_loss_carryforward": 0.0,
@@ -2070,17 +2115,21 @@
      }
     ],
     "kpis": {
+     "cit_allowance_unused_at_cessation": 6675073.817713131,
      "cpr_forfeited_at_cessation": 8000000.0,
      "discount_rate_applied_pct": 6.796116504854366,
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.9555725116777757,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": null,
      "government_take_pct_discounted": null,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -95557251.16777757,
      "npv_profile": [
       {
@@ -2093,7 +2142,7 @@
       },
       {
        "npv": -95557251.16777757,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": -95557251.16777757,
@@ -2119,6 +2168,7 @@
      "opex_usd_per_boe": 40.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.04442748832222432,
      "pv_basis": "real",
      "pv_capex": 100000000.0,
      "total_boe": 1000000.0,
@@ -2269,12 +2319,18 @@
      "discounted_payback_years": 1.3666666666666667,
      "discounting_convention": "end_year",
      "dpi": 0.2797520661157024,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 86.94214876033057,
      "government_take_pct_discounted": 87.77095375722543,
-     "irr": 173.04470732217604,
+     "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": [
+      -73.04470732217594,
+      173.04470732217598
+     ],
+     "irr_status": "multiple-roots",
      "npv": 13987603.30578512,
      "npv_profile": [
       {
@@ -2309,6 +2365,7 @@
      "opex_usd_per_boe": 14.925373134328359,
      "payback": "1.33 years",
      "payback_years": 1.3333333333333333,
+     "profitability_index": 1.2797520661157025,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "tax_losses_unused_at_cessation": 14200000.0,
@@ -2445,12 +2502,15 @@
      "discounting_convention": "end_year",
      "dpi": 0.4318181818181817,
      "economic_limit_year": 2031,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 80.76923076923077,
      "government_take_pct_discounted": 82.27611940298507,
-     "irr": 200.0,
+     "irr": 199.99999999999997,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 21590909.090909086,
      "npv_profile": [
       {
@@ -2485,6 +2545,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.33 years",
      "payback_years": 1.3333333333333333,
+     "profitability_index": 1.4318181818181817,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_boe": 2000000.0,
@@ -2595,12 +2656,15 @@
      "discounting_convention": "end_year",
      "dpi": -0.25,
      "economic_limit_year": 2030,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 131.25,
      "government_take_pct_discounted": 131.25,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -12500000.0,
      "npv_profile": [
       {
@@ -2635,6 +2699,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.75,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_boe": 1000000.0,
@@ -2743,6 +2808,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 400000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 80000000.0,
       "cit_assessable_profit": 377319921.88628244,
       "cit_chargeable_profit": 297319921.88628244,
       "cit_loss_carryforward": 0.0,
@@ -2791,6 +2858,8 @@
       "applied_gas_price": 4.59,
       "applied_oil_price": 81.6,
       "capex": 121200000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104240000.0,
       "cit_assessable_profit": 294918771.2592065,
       "cit_chargeable_profit": 190678771.25920647,
       "cit_loss_carryforward": 0.0,
@@ -2839,6 +2908,8 @@
       "applied_gas_price": 4.6818,
       "applied_oil_price": 83.232,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104239999.99999999,
       "cit_assessable_profit": 231200533.05251253,
       "cit_chargeable_profit": 126960533.05251254,
       "cit_loss_carryforward": 0.0,
@@ -2887,6 +2958,8 @@
       "applied_gas_price": 4.775436000000001,
       "applied_oil_price": 84.89664000000002,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104240000.0,
       "cit_assessable_profit": 180592487.75828534,
       "cit_chargeable_profit": 76352487.75828534,
       "cit_loss_carryforward": 0.0,
@@ -2935,6 +3008,8 @@
       "applied_gas_price": 4.87094472,
       "applied_oil_price": 86.5945728,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 93421648.55080754,
       "cit_assessable_profit": 140858212.69548288,
       "cit_chargeable_profit": 47436564.144675344,
       "cit_loss_carryforward": 0.0,
@@ -2983,6 +3058,8 @@
       "applied_gas_price": 4.9683636144,
       "applied_oil_price": 88.32646425600001,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 24240000.0,
       "cit_assessable_profit": 99359656.72083905,
       "cit_chargeable_profit": 75119656.72083905,
       "cit_loss_carryforward": 0.0,
@@ -3033,12 +3110,15 @@
      "discounting_convention": "end_year",
      "dpi": 0.3983885214284405,
      "economic_limit_year": 2030,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 71.10240356470288,
      "government_take_pct_discounted": 77.44992242648453,
-     "irr": 43.92693503545888,
+     "irr": 43.92693503545889,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 203250580.205128,
      "npv_profile": [
       {
@@ -3051,7 +3131,7 @@
       },
       {
        "npv": 203250580.205128,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 190843174.01227164,
@@ -3077,6 +3157,7 @@
      "opex_usd_per_boe": 15.35675099681116,
      "payback": "2.89 years",
      "payback_years": 2.8920336875191075,
+     "profitability_index": 1.3983885214284406,
      "pv_basis": "real",
      "pv_capex": 510181818.1818182,
      "total_boe": 29839896.843750004,
@@ -3267,12 +3348,15 @@
      "discounted_payback_years": 1.5,
      "discounting_convention": "end_year",
      "dpi": 0.24999999999999992,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 87.5,
      "government_take_pct_discounted": 88.91129032258065,
-     "irr": 119.99999999999709,
+     "irr": 119.99999999999713,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 12499999.999999996,
      "npv_profile": [
       {
@@ -3307,6 +3391,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.45 years",
      "payback_years": 1.4545454545454546,
+     "profitability_index": 1.25,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_abandonment_cost": 10000000.0,
@@ -3463,12 +3548,18 @@
      "discounted_payback_years": 1.3666666666666667,
      "discounting_convention": "end_year",
      "dpi": 0.2815552216378662,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 87.5,
      "government_take_pct_discounted": 87.68404101485474,
-     "irr": 170.41594578792282,
+     "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": [
+      -42.5718549166544,
+      190.52164436441086
+     ],
+     "irr_status": "multiple-roots",
      "npv": 14077761.08189331,
      "npv_profile": [
       {
@@ -3503,6 +3594,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.33 years",
      "payback_years": 1.3333333333333333,
+     "profitability_index": 1.2815552216378663,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "tax_losses_unused_at_cessation": 5000000.0,
@@ -3630,12 +3722,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.2727272727272728,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 125.0,
      "government_take_pct_discounted": 142.8571428571429,
-     "irr": -20.0,
+     "irr": -19.999999999999996,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -13636363.63636364,
      "npv_profile": [
       {
@@ -3670,6 +3765,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.7272727272727272,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_boe": 1000000.0,
@@ -3792,12 +3888,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.3181818181818183,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 131.25,
      "government_take_pct_discounted": 150.00000000000003,
      "irr": -25.0,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -15909090.909090914,
      "npv_profile": [
       {
@@ -3832,6 +3931,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.6818181818181817,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_boe": 1000000.0,
@@ -3927,12 +4027,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -1.0,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": null,
      "government_take_pct_discounted": null,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -50000000.0,
      "npv_profile": [
       {
@@ -3967,6 +4070,7 @@
      "opex_usd_per_boe": null,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.0,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "tax_losses_unused_at_cessation": 5000000.0,
@@ -4057,6 +4161,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 100000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 0.0,
       "cit_assessable_profit": -12056305.363284849,
       "cit_chargeable_profit": -12056305.363284849,
       "cit_loss_carryforward": 12056305.363284849,
@@ -4105,6 +4211,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 20000000.0,
       "cit_assessable_profit": 230216614.08544266,
       "cit_chargeable_profit": 210216614.08544266,
       "cit_loss_carryforward": 0.0,
@@ -4154,12 +4262,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.05475212035184413,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 96.40262160969706,
      "government_take_pct_discounted": 102.64154966609776,
-     "irr": 5.890726074340637,
+     "irr": 5.890726074340631,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -5475212.035184413,
      "npv_profile": [
       {
@@ -4172,7 +4283,7 @@
       },
       {
        "npv": -5475212.035184413,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": -7047943.158266991,
@@ -4198,6 +4309,7 @@
      "opex_usd_per_boe": 18.181818181818183,
      "payback": "1.94 years",
      "payback_years": 1.9443697640697657,
+     "profitability_index": 0.9452478796481558,
      "pv_basis": "real",
      "pv_capex": 100000000.0,
      "total_boe": 5500000.0,
@@ -4308,6 +4420,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 100000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 0.0,
       "cit_assessable_profit": -12056305.363284849,
       "cit_chargeable_profit": -12056305.363284849,
       "cit_loss_carryforward": 0.0,
@@ -4356,6 +4470,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 20000000.0,
       "cit_assessable_profit": 230216614.08544266,
       "cit_chargeable_profit": 210216614.08544266,
       "cit_loss_carryforward": 0.0,
@@ -4405,12 +4521,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.08763295316080302,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 97.90965978010766,
      "government_take_pct_discounted": 104.22790563495101,
      "irr": 3.422943127350299,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -8763295.316080302,
      "npv_profile": [
       {
@@ -4423,7 +4542,7 @@
       },
       {
        "npv": -8763295.316080302,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": -10299373.946639389,
@@ -4449,6 +4568,7 @@
      "opex_usd_per_boe": 18.181818181818183,
      "payback": "1.97 years",
      "payback_years": 1.9669034449818952,
+     "profitability_index": 0.912367046839197,
      "pv_basis": "real",
      "pv_capex": 100000000.0,
      "total_boe": 5500000.0,
@@ -4565,12 +4685,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.8083125,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": null,
      "government_take_pct_discounted": null,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -32332500.0,
      "npv_profile": [
       {
@@ -4605,6 +4728,7 @@
      "opex_usd_per_boe": 7.842105263157895,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.1916875,
      "pv_basis": "nominal",
      "pv_capex": 40000000.0,
      "total_boe": 190000.0,
@@ -4725,12 +4849,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.85,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": null,
      "government_take_pct_discounted": null,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -25500000.0,
      "npv_profile": [
       {
@@ -4765,6 +4892,7 @@
      "opex_usd_per_boe": 7.5,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.15000000000000002,
      "pv_basis": "nominal",
      "pv_capex": 30000000.0,
      "total_boe": 100000.0,
@@ -4852,12 +4980,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": null,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 55.00000000000001,
      "government_take_pct_discounted": 55.00000000000001,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 3375000.0,
      "npv_profile": [
       {
@@ -4892,6 +5023,7 @@
      "opex_usd_per_boe": 0.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": null,
      "pv_basis": "nominal",
      "pv_capex": 0.0,
      "total_boe": 100000.0,
@@ -4981,12 +5113,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.8375,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": null,
      "government_take_pct_discounted": null,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -25125000.0,
      "npv_profile": [
       {
@@ -5021,6 +5156,7 @@
      "opex_usd_per_boe": 0.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.16249999999999998,
      "pv_basis": "nominal",
      "pv_capex": 30000000.0,
      "total_boe": 100000.0,
@@ -5109,12 +5245,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.825,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": null,
      "government_take_pct_discounted": null,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -20625000.0,
      "npv_profile": [
       {
@@ -5149,6 +5288,7 @@
      "opex_usd_per_boe": 5.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.17500000000000004,
      "pv_basis": "nominal",
      "pv_capex": 25000000.0,
      "total_boe": 100000.0,
@@ -5267,12 +5407,15 @@
      "discounted_payback_years": 1.2026315789473685,
      "discounting_convention": "end_year",
      "dpi": 0.5509090909090908,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 74.16666666666667,
      "government_take_pct_discounted": 75.56451612903227,
      "irr": 442.8571428571448,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 2754545.454545454,
      "npv_profile": [
       {
@@ -5307,6 +5450,7 @@
      "opex_usd_per_boe": 4.166666666666667,
      "payback": "1.18 years",
      "payback_years": 1.1842105263157894,
+     "profitability_index": 1.5509090909090908,
      "pv_basis": "nominal",
      "pv_capex": 5000000.0,
      "total_boe": 240000.0,
@@ -5493,6 +5637,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 20000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 4000000.0,
       "cit_assessable_profit": 53600000.0,
       "cit_chargeable_profit": 49600000.0,
       "cit_loss_carryforward": 0.0,
@@ -5542,12 +5688,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.869,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 71.03333333333333,
      "government_take_pct_discounted": 71.03333333333333,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 17380000.0,
      "npv_profile": [
       {
@@ -5560,7 +5709,7 @@
       },
       {
        "npv": 17380000.0,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 17380000.0,
@@ -5586,6 +5735,7 @@
      "opex_usd_per_boe": 3.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.869,
      "pv_basis": "real",
      "pv_capex": 20000000.0,
      "total_boe": 3333333.3333333335,
@@ -5688,6 +5838,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 20000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 4000000.0,
       "cit_assessable_profit": 53600000.0,
       "cit_chargeable_profit": 49600000.0,
       "cit_loss_carryforward": 0.0,
@@ -5737,12 +5889,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.1,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 103.33333333333334,
      "government_take_pct_discounted": 103.33333333333334,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -2000000.0,
      "npv_profile": [
       {
@@ -5755,7 +5910,7 @@
       },
       {
        "npv": -2000000.0,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": -2000000.0,
@@ -5781,6 +5936,7 @@
      "opex_usd_per_boe": 3.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.9,
      "pv_basis": "real",
      "pv_capex": 20000000.0,
      "total_boe": 3333333.3333333335,
@@ -5882,6 +6038,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 200000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 40000000.0,
       "cit_assessable_profit": 363759886.051427,
       "cit_chargeable_profit": 323759886.051427,
       "cit_loss_carryforward": 0.0,
@@ -5931,12 +6089,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.06509688631544486,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 105.08569424339412,
      "government_take_pct_discounted": 105.08569424339412,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -13019377.263088971,
      "npv_profile": [
       {
@@ -5949,7 +6110,7 @@
       },
       {
        "npv": -13019377.263088971,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": -13019377.263088971,
@@ -5975,6 +6136,7 @@
      "opex_usd_per_boe": 9.70873786407767,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.9349031136845551,
      "pv_basis": "real",
      "pv_capex": 200000000.0,
      "total_boe": 10300000.0,
@@ -6063,6 +6225,7 @@
       "oil_bbl": 500000.0,
       "opex": 5000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 27000000.0,
       "real_net_cash_flow": -20250000.0,
       "revenue": 50000000.0,
       "royalty": 5000000.0,
@@ -6089,6 +6252,7 @@
       "oil_bbl": 500000.0,
       "opex": 5000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 14000000.0,
       "real_net_cash_flow": 19750000.0,
       "revenue": 50000000.0,
       "royalty": 5000000.0,
@@ -6103,12 +6267,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.05738636363636367,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PSC",
      "government_take_pct": 101.0,
      "government_take_pct_discounted": 105.0,
-     "irr": -2.4691358024691,
+     "irr": -2.469135802469095,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -2295454.545454547,
      "npv_profile": [
       {
@@ -6143,6 +6310,8 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.9426136363636364,
+     "psc_unrecovered_cost_at_cessation": 14000000.0,
      "pv_basis": "nominal",
      "pv_capex": 40000000.0,
      "total_boe": 1000000.0,
@@ -6245,6 +6414,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 100000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 20000000.0,
       "cit_assessable_profit": 1458613825.0881238,
       "cit_chargeable_profit": 1438613825.0881238,
       "cit_loss_carryforward": 0.0,
@@ -6294,12 +6465,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 8.905643319344835,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 42.61827758154101,
      "government_take_pct_discounted": 42.61827758154101,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 890564331.9344835,
      "npv_profile": [
       {
@@ -6312,7 +6486,7 @@
       },
       {
        "npv": 890564331.9344835,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 890564331.9344835,
@@ -6338,6 +6512,7 @@
      "opex_usd_per_boe": 4.566210045662101,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 9.905643319344835,
      "pv_basis": "real",
      "pv_capex": 100000000.0,
      "total_boe": 21900000.0,
@@ -6440,6 +6615,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 50000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 10000000.0,
       "cit_assessable_profit": 729306912.5440619,
       "cit_chargeable_profit": 719306912.5440619,
       "cit_loss_carryforward": 0.0,
@@ -6490,12 +6667,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 8.905643319344835,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 42.61827758154101,
      "government_take_pct_discounted": 42.61827758154101,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 445282165.96724176,
      "npv_profile": [
       {
@@ -6508,7 +6688,7 @@
       },
       {
        "npv": 445282165.96724176,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 445282165.96724176,
@@ -6534,6 +6714,7 @@
      "opex_usd_per_boe": 4.566210045662101,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 9.905643319344835,
      "pv_basis": "real",
      "pv_capex": 50000000.0,
      "total_boe": 10950000.0,
@@ -6636,6 +6817,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 100000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 20000000.0,
       "cit_assessable_profit": 691156912.5440619,
       "cit_chargeable_profit": 671156912.5440619,
       "cit_loss_carryforward": 0.0,
@@ -6685,12 +6868,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 3.7253091596724177,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 44.891876336206835,
      "government_take_pct_discounted": 44.891876336206835,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 372530915.96724176,
      "npv_profile": [
       {
@@ -6703,7 +6889,7 @@
       },
       {
        "npv": 372530915.96724176,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 372530915.96724176,
@@ -6729,6 +6915,7 @@
      "opex_usd_per_boe": 9.132420091324201,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 4.725309159672418,
      "pv_basis": "real",
      "pv_capex": 100000000.0,
      "total_boe": 10950000.0,
@@ -6830,6 +7017,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 100000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 20000000.0,
       "cit_assessable_profit": 1458613825.0881238,
       "cit_chargeable_profit": 1438613825.0881238,
       "cit_loss_carryforward": 0.0,
@@ -6879,12 +7068,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 4.4902597703172455,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PIA",
      "government_take_pct": 71.06791385104869,
      "government_take_pct_discounted": 71.06791385104869,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 449025977.0317246,
      "npv_profile": [
       {
@@ -6897,7 +7089,7 @@
       },
       {
        "npv": 449025977.0317246,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 449025977.0317246,
@@ -6923,6 +7115,7 @@
      "opex_usd_per_boe": 4.566210045662101,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 5.4902597703172455,
      "pv_basis": "real",
      "pv_capex": 100000000.0,
      "total_boe": 21900000.0,
@@ -7024,6 +7217,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 100000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 20000000.0,
       "cit_assessable_profit": 1458613825.0881238,
       "cit_chargeable_profit": 1438613825.0881238,
       "cit_loss_carryforward": 0.0,
@@ -7073,12 +7268,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 6.938271464221462,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PIA",
      "government_take_pct": 55.294642627439025,
      "government_take_pct_discounted": 55.294642627439025,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 693827146.4221462,
      "npv_profile": [
       {
@@ -7091,7 +7289,7 @@
       },
       {
        "npv": 693827146.4221462,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 693827146.4221462,
@@ -7117,6 +7315,7 @@
      "opex_usd_per_boe": 4.566210045662101,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 7.938271464221462,
      "pv_basis": "real",
      "pv_capex": 100000000.0,
      "total_boe": 21900000.0,
@@ -7218,6 +7417,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 30000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 6000000.0,
       "cit_assessable_profit": 174045176.6784165,
       "cit_chargeable_profit": 168045176.6784165,
       "cit_loss_carryforward": 0.0,
@@ -7267,12 +7468,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 2.097290591872288,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 65.73054588443974,
      "government_take_pct_discounted": 65.73054588443974,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 62918717.75616865,
      "npv_profile": [
       {
@@ -7285,7 +7489,7 @@
       },
       {
        "npv": 62918717.75616865,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 62918717.75616865,
@@ -7311,6 +7515,7 @@
      "opex_usd_per_boe": 6.8493150684931505,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 3.097290591872288,
      "pv_basis": "real",
      "pv_capex": 30000000.0,
      "total_boe": 2920000.0,
@@ -7412,6 +7617,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 50000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 10000000.0,
       "cit_assessable_profit": 220000000.0,
       "cit_chargeable_profit": 210000000.0,
       "cit_loss_carryforward": 0.0,
@@ -7461,12 +7668,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 2.03,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 52.12264150943396,
      "government_take_pct_discounted": 52.12264150943396,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 101500000.0,
      "npv_profile": [
       {
@@ -7479,7 +7689,7 @@
       },
       {
        "npv": 101500000.0,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 101500000.0,
@@ -7505,6 +7715,7 @@
      "opex_usd_per_boe": 8.219178082191782,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 3.03,
      "pv_basis": "real",
      "pv_capex": 50000000.0,
      "total_boe": 3650000.0,
@@ -7606,6 +7817,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 50000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 10000000.0,
       "cit_assessable_profit": 205218970.8480206,
       "cit_chargeable_profit": 195218970.8480206,
       "cit_loss_carryforward": 0.0,
@@ -7655,12 +7868,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.8289422813601548,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 80.44947449622276,
      "government_take_pct_discounted": 80.44947449622276,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 41447114.06800774,
      "npv_profile": [
       {
@@ -7673,7 +7889,7 @@
       },
       {
        "npv": 41447114.06800774,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 41447114.06800774,
@@ -7699,6 +7915,7 @@
      "opex_usd_per_boe": 8.219178082191782,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.8289422813601548,
      "pv_basis": "real",
      "pv_capex": 50000000.0,
      "total_boe": 3650000.0,
@@ -7802,6 +8019,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 140.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1830315491.1103158,
       "cit_chargeable_profit": 1770315491.1103158,
       "cit_loss_carryforward": 0.0,
@@ -7851,12 +8070,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 1.438519363887895,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 79.17704177725604,
      "government_take_pct_discounted": 79.17704177725604,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 431555809.1663685,
      "npv_profile": [
       {
@@ -7869,7 +8091,7 @@
       },
       {
        "npv": 431555809.1663685,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 431555809.1663685,
@@ -7895,6 +8117,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 2.4385193638878953,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -8055,6 +8278,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 200.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 2626150000.0,
       "cit_chargeable_profit": 2566150000.0,
       "cit_loss_carryforward": 0.0,
@@ -8104,12 +8329,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 2.4333125,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 76.95363062352013,
      "government_take_pct_discounted": 76.95363062352013,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 729993750.0,
      "npv_profile": [
       {
@@ -8122,7 +8350,7 @@
       },
       {
        "npv": 729993750.0,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 729993750.0,
@@ -8148,6 +8376,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 3.4333125,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -8386,12 +8615,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": null,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 60.0,
      "government_take_pct_discounted": 60.00000000000001,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 109421487.60330577,
      "npv_profile": [
       {
@@ -8426,6 +8658,7 @@
      "opex_usd_per_boe": 0.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": null,
      "pv_basis": "nominal",
      "pv_capex": 0.0,
      "total_boe": 4000000.0,
@@ -8552,12 +8785,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": null,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 60.0,
      "government_take_pct_discounted": 60.0,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 76181818.18181819,
      "npv_profile": [
       {
@@ -8592,6 +8828,7 @@
      "opex_usd_per_boe": 0.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": null,
      "pv_basis": "nominal",
      "pv_capex": 0.0,
      "total_boe": 2000000.0,
@@ -8684,12 +8921,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": null,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 60.0,
      "government_take_pct_discounted": 60.0,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 48000000.0,
      "npv_profile": [
       {
@@ -8724,6 +8964,7 @@
      "opex_usd_per_boe": 0.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": null,
      "pv_basis": "nominal",
      "pv_capex": 0.0,
      "total_boe": 1000000.0,
@@ -8867,12 +9108,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": null,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 60.0,
      "government_take_pct_discounted": 60.0,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 91867768.59504132,
      "npv_profile": [
       {
@@ -8907,6 +9151,7 @@
      "opex_usd_per_boe": 0.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": null,
      "pv_basis": "nominal",
      "pv_capex": 0.0,
      "total_boe": 3000000.0,
@@ -9022,12 +9267,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": null,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 60.0,
      "government_take_pct_discounted": 60.0,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 80000000.0,
      "npv_profile": [
       {
@@ -9062,6 +9310,7 @@
      "opex_usd_per_boe": 0.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": null,
      "pv_basis": "nominal",
      "pv_capex": 0.0,
      "total_boe": 2000000.0,
@@ -9178,12 +9427,15 @@
      "discounted_payback_years": 1.3503184713375798,
      "discounting_convention": "end_year",
      "dpi": 0.46363636363636357,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 80.11152416356877,
      "government_take_pct_discounted": 81.5884476534296,
-     "irr": 214.0,
+     "irr": 214.0000000000029,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 23181818.18181818,
      "npv_profile": [
       {
@@ -9218,6 +9470,7 @@
      "opex_usd_per_boe": 10.25,
      "payback": "1.32 years",
      "payback_years": 1.3184713375796178,
+     "profitability_index": 1.4636363636363636,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_boe": 2000000.0,
@@ -9344,12 +9597,15 @@
      "discounted_payback_years": 1.3666666666666667,
      "discounting_convention": "mid_year",
      "dpi": 0.4318181818181817,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 80.76923076923077,
      "government_take_pct_discounted": 82.27611940298507,
-     "irr": 200.0,
+     "irr": 199.99999999999997,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 20586124.08598437,
      "npv_profile": [
       {
@@ -9384,6 +9640,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.33 years",
      "payback_years": 1.3333333333333333,
+     "profitability_index": 1.4318181818181817,
      "pv_basis": "nominal",
      "pv_capex": 47673129.46227961,
      "total_boe": 2000000.0,
@@ -9510,12 +9767,15 @@
      "discounted_payback_years": 1.3666666666666667,
      "discounting_convention": "end_year",
      "dpi": 0.4318181818181818,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 80.76923076923077,
      "government_take_pct_discounted": 82.27611940298507,
-     "irr": 200.0,
+     "irr": 199.99999999999997,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 23750000.0,
      "npv_profile": [
       {
@@ -9550,6 +9810,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.33 years",
      "payback_years": 1.3333333333333333,
+     "profitability_index": 1.4318181818181819,
      "pv_basis": "nominal",
      "pv_capex": 55000000.0,
      "total_boe": 2000000.0,
@@ -9679,12 +9940,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": null,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 58.333333333333336,
      "government_take_pct_discounted": 58.333333333333336,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 37500000.0,
      "npv_profile": [
       {
@@ -9719,6 +9983,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": null,
      "pv_basis": "nominal",
      "pv_capex": 0.0,
      "sunk_net_cash_flow": -12500000.0,
@@ -9873,12 +10138,15 @@
      "discounted_payback_years": 2.4400000000000004,
      "discounting_convention": "end_year",
      "dpi": 0.34710743801652877,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 78.84615384615384,
      "government_take_pct_discounted": 83.65758754863813,
-     "irr": 35.39392014169426,
+     "irr": 35.393920141694245,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 17355371.90082644,
      "npv_profile": [
       {
@@ -9913,6 +10181,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "2.27 years",
      "payback_years": 2.2666666666666666,
+     "profitability_index": 1.3471074380165287,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "schedule_shift_years": 1,
@@ -10011,6 +10280,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 60.0,
+      "psc_cost_pool_after": 54000000.0,
       "real_net_cash_flow": -37800000.0,
       "revenue": 100000000.0,
       "royalty": 10000000.0,
@@ -10036,6 +10306,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 40.0,
+      "psc_cost_pool_after": 28000000.0,
       "real_net_cash_flow": 36800000.0,
       "revenue": 100000000.0,
       "royalty": 10000000.0,
@@ -10049,12 +10320,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.054318181818181835,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PSC",
      "government_take_pct": 101.0,
      "government_take_pct_discounted": 104.73267326732673,
-     "irr": -2.6455026455019834,
+     "irr": -2.645502645501975,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -4345454.545454547,
      "npv_profile": [
       {
@@ -10089,6 +10363,8 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.9456818181818182,
+     "psc_unrecovered_cost_at_cessation": 28000000.0,
      "pv_basis": "nominal",
      "pv_capex": 80000000.0,
      "total_boe": 2000000.0,
@@ -10175,6 +10451,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 54000000.0,
       "psc_itc_carryforward": 26500000.0,
       "psc_itc_used": 13500000.0,
       "real_net_cash_flow": -27000000.0,
@@ -10202,6 +10479,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 28000000.0,
       "psc_itc_carryforward": 13000000.0,
       "psc_itc_used": 13500000.0,
       "real_net_cash_flow": 53000000.0,
@@ -10217,12 +10495,15 @@
      "discounted_payback_years": 1.560377358490566,
      "discounting_convention": "end_year",
      "dpi": 0.26477272727272727,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PSC",
      "government_take_pct": 74.0,
      "government_take_pct_discounted": 76.93069306930693,
-     "irr": 96.29629629629488,
+     "irr": 96.2962962962949,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 21181818.18181818,
      "npv_profile": [
       {
@@ -10257,6 +10538,8 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.51 years",
      "payback_years": 1.509433962264151,
+     "profitability_index": 1.2647727272727272,
+     "psc_unrecovered_cost_at_cessation": 28000000.0,
      "pv_basis": "nominal",
      "pv_capex": 80000000.0,
      "total_boe": 2000000.0,
@@ -10358,6 +10641,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 40.0,
+      "psc_cost_pool_after": 54000000.0,
       "real_net_cash_flow": -43200000.0,
       "revenue": 100000000.0,
       "royalty": 10000000.0,
@@ -10383,6 +10667,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 30.0,
+      "psc_cost_pool_after": 28000000.0,
       "real_net_cash_flow": 34100000.0,
       "revenue": 100000000.0,
       "royalty": 10000000.0,
@@ -10396,12 +10681,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.15250000000000005,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PSC",
      "government_take_pct": 109.1,
      "government_take_pct_discounted": 113.2871287128713,
-     "irr": -21.06481481481751,
+     "irr": -21.0648148148175,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -12200000.000000004,
      "npv_profile": [
       {
@@ -10436,6 +10724,8 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.8474999999999999,
+     "psc_unrecovered_cost_at_cessation": 28000000.0,
      "pv_basis": "nominal",
      "pv_capex": 80000000.0,
      "total_boe": 2000000.0,
@@ -10539,6 +10829,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1039994854.2401032,
       "cit_chargeable_profit": 979994854.2401032,
       "cit_loss_carryforward": 0.0,
@@ -10589,12 +10881,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.48000257287994824,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 114.73153676357899,
      "government_take_pct_discounted": 114.73153676357899,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -144000771.86398447,
      "npv_profile": [
       {
@@ -10607,7 +10902,7 @@
       },
       {
        "npv": -144000771.86398447,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": -144000771.86398447,
@@ -10633,6 +10928,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.5199974271200518,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -10794,6 +11090,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1039994854.2401032,
       "cit_chargeable_profit": 979994854.2401032,
       "cit_loss_carryforward": 0.0,
@@ -10843,12 +11141,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.45061856780012927,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 86.17027413401138,
      "government_take_pct_discounted": 86.17027413401138,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 135185570.34003878,
      "npv_profile": [
       {
@@ -10861,7 +11162,7 @@
       },
       {
        "npv": 135185570.34003878,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 135185570.34003878,
@@ -10887,6 +11188,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.4506185678001293,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -11075,12 +11377,15 @@
      "discounted_payback_years": 1.4714285714285715,
      "discounting_convention": "end_year",
      "dpi": 0.3363636363636363,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 83.33333333333334,
      "government_take_pct_discounted": 86.19402985074626,
      "irr": 133.3333333333343,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 16818181.818181816,
      "npv_profile": [
       {
@@ -11115,6 +11420,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.43 years",
      "payback_years": 1.4285714285714286,
+     "profitability_index": 1.3363636363636364,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_abandonment_cost": 10000000.0,
@@ -11206,6 +11512,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 54000000.0,
       "real_net_cash_flow": -40500000.0,
       "revenue": 100000000.0,
       "royalty": 10000000.0,
@@ -11233,6 +11540,7 @@
       "oil_bbl": 1000000.0,
       "opex": 10000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 38000000.0,
       "real_net_cash_flow": 29500000.0,
       "revenue": 100000000.0,
       "royalty": 10000000.0,
@@ -11248,12 +11556,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.1710227272727273,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PSC",
      "government_take_pct": 112.22222222222223,
      "government_take_pct_discounted": 114.90099009900992,
      "irr": -27.160493827160103,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -13681818.181818184,
      "npv_profile": [
       {
@@ -11288,6 +11599,8 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.8289772727272727,
+     "psc_unrecovered_cost_at_cessation": 38000000.0,
      "pv_basis": "nominal",
      "pv_capex": 80000000.0,
      "total_abandonment_cost": 10000000.0,
@@ -11396,6 +11709,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1039994854.2401032,
       "cit_chargeable_profit": 979994854.2401032,
       "cit_loss_carryforward": 0.0,
@@ -11449,12 +11764,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.41061856780012923,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 86.99888439682968,
      "government_take_pct_discounted": 87.39789561738733,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 123185570.34003878,
      "npv_profile": [
       {
@@ -11467,7 +11785,7 @@
       },
       {
        "npv": 123185570.34003878,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 123185570.34003878,
@@ -11493,6 +11811,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.4106185678001293,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_abandonment_cost": 30000000.0,
@@ -11659,24 +11978,26 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 150000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 30000000.0,
       "cit_assessable_profit": 519997427.1200516,
       "cit_chargeable_profit": 489997427.1200516,
       "cit_loss_carryforward": 0.0,
       "cit_loss_offset_used": 0.0,
-      "cit_tax": 142499228.1360155,
+      "cit_tax": 137999228.1360155,
       "condensate_bbl": 0.0,
       "cpr_cap": 474500000.0,
       "cpr_costs_claimed": 121250000.0,
       "cpr_deferred_to_next": 0.0,
-      "cumulative_cash_flow": 61592785.17001939,
-      "cumulative_nominal": 61592785.17001939,
+      "cumulative_cash_flow": 55592785.17001939,
+      "cumulative_nominal": 55592785.17001939,
       "cumulative_oil_bbl_lifetime": 18250000.0,
-      "cumulative_real": 61592785.17001939,
-      "decom_fund_contribution": 15000000.0,
-      "decom_fund_tax_relief": 9000000.0,
+      "cumulative_real": 55592785.17001939,
+      "decom_fund_contribution": 30000000.0,
+      "decom_fund_tax_relief": 18000000.0,
       "depreciation": 30000000.0,
       "dev_levy_tax": 0.0,
-      "discounted_cash_flow": 61592785.17001939,
+      "discounted_cash_flow": 55592785.17001939,
       "fiscal_framework": "pia_only",
       "gas_mscf": 0.0,
       "gross_revenue": 730000000.0,
@@ -11685,10 +12006,10 @@
       "hct_chargeable_profit": 474684927.1200516,
       "hct_loss_carryforward": 0.0,
       "hct_loss_offset_used": 0.0,
-      "hct_tax": 137905478.13601547,
+      "hct_tax": 133405478.13601547,
       "nddc": 7500000.0,
-      "netCashFlow": 61592785.17001939,
-      "net_cash_flow": 61592785.17001939,
+      "netCashFlow": 55592785.17001939,
+      "net_cash_flow": 55592785.17001939,
       "oil_bbl": 9125000.0,
       "opex": 91250000.0,
       "price_royalty": 17452572.87994843,
@@ -11696,10 +12017,10 @@
       "prod_alw_eligible_bbl": 18250000.0,
       "production_allowance": 22812500.0,
       "production_royalty": 91250000.0,
-      "real_net_cash_flow": 61592785.17001939,
+      "real_net_cash_flow": 55592785.17001939,
       "revenue": 730000000.0,
       "royalty": 108702572.87994844,
-      "tax": 293404641.95003223,
+      "tax": 284404641.95003223,
       "taxable_income": 964682354.2401032,
       "tet_tax": 12999935.67800129,
       "working_interest_pct": 50.0,
@@ -11712,80 +12033,84 @@
      "discount_rate_applied_pct": 6.796116504854366,
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
-     "dpi": 0.41061856780012923,
-     "engine_version": "3.9.0",
+     "dpi": 0.37061856780012925,
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
-     "government_take_pct": 86.57377979945082,
-     "government_take_pct_discounted": 87.39789561738733,
+     "government_take_pct": 87.88168170680777,
+     "government_take_pct_discounted": 88.62551710076329,
      "irr": null,
-     "npv": 61592785.17001939,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
+     "npv": 55592785.17001939,
      "npv_profile": [
       {
-       "npv": 61592785.17001939,
+       "npv": 55592785.17001939,
        "rate_pct": 0
       },
       {
-       "npv": 61592785.17001939,
+       "npv": 55592785.17001939,
        "rate_pct": 5
       },
       {
-       "npv": 61592785.17001939,
-       "rate_pct": 6.796116504854366
+       "npv": 55592785.17001939,
+       "rate_pct": 6.8
       },
       {
-       "npv": 61592785.17001939,
+       "npv": 55592785.17001939,
        "rate_pct": 8
       },
       {
-       "npv": 61592785.17001939,
+       "npv": 55592785.17001939,
        "rate_pct": 10
       },
       {
-       "npv": 61592785.17001939,
+       "npv": 55592785.17001939,
        "rate_pct": 12
       },
       {
-       "npv": 61592785.17001939,
+       "npv": 55592785.17001939,
        "rate_pct": 15
       },
       {
-       "npv": 61592785.17001939,
+       "npv": 55592785.17001939,
        "rate_pct": 20
       }
      ],
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.3706185678001293,
      "pv_basis": "real",
      "pv_capex": 150000000.0,
      "total_abandonment_cost": 30000000.0,
      "total_boe": 9125000.0,
      "total_capex": 150000000.0,
-     "total_cit": 142499228.1360155,
+     "total_cit": 137999228.1360155,
      "total_condensate_bbl": 0.0,
-     "total_decom_fund_contributions": 15000000.0,
+     "total_decom_fund_contributions": 30000000.0,
      "total_dev_levy": 0.0,
      "total_gas_mscf": 0.0,
      "total_hcdt": 2550000.0,
-     "total_hct": 137905478.13601547,
+     "total_hct": 133405478.13601547,
      "total_nddc": 7500000.0,
-     "total_net_cash_flow": 61592785.17001939,
-     "total_net_cash_flow_nominal": 61592785.17001939,
-     "total_net_cash_flow_real": 61592785.17001939,
+     "total_net_cash_flow": 55592785.17001939,
+     "total_net_cash_flow_nominal": 55592785.17001939,
+     "total_net_cash_flow_real": 55592785.17001939,
      "total_oil_bbl": 9125000.0,
      "total_opex": 91250000.0,
      "total_production_allowance": 22812500.0,
      "total_revenue": 730000000.0,
      "total_royalties": 108702572.87994844,
-     "total_tax": 293404641.95003223,
+     "total_tax": 284404641.95003223,
      "total_tet": 12999935.67800129,
      "unit_technical_cost_usd_per_boe": 29.726027397260275,
      "working_interest_pct": 50.0
     }
    },
    "name": "pia_sinking_fund_wi_50",
-   "note": "Sinking fund at 50 percent WI: the contribution is WI-scaled with the other monetary lines while abandonment_cost_funded stays the full amount (see FINDINGS).",
+   "note": "Sinking fund at 50 percent WI: abandonment_cost_usd is the share under both funding modes, so the fund collects the entered 30,000,000 and abandonment_cost_funded and total_abandonment_cost report the same share number (EC1-3).",
    "opexRows": [
     {
      "date": "2025-01-01",
@@ -11888,26 +12213,27 @@
       "applied_cond_price": 0.0,
       "applied_gas_price": 0.0,
       "applied_oil_price": 100.0,
-      "capex": 50000000.0,
+      "capex": 30000000.0,
       "condensate_bbl": 0.0,
       "cumulative_cash_flow": -7500000.0,
       "cumulative_nominal": -7500000.0,
       "cumulative_real": -7500000.0,
-      "depreciation": 5000000.0,
+      "depreciation": 3000000.0,
       "discounted_cash_flow": -7500000.0,
       "gas_mscf": 0.0,
-      "gross_revenue": 100000000.0,
+      "gross_revenue": 60000000.0,
       "loss_carryforward": 0.0,
       "loss_offset_used": 0.0,
       "netCashFlow": -7500000.0,
       "net_cash_flow": -7500000.0,
-      "oil_bbl": 1000000.0,
-      "opex": 10000000.0,
+      "oil_bbl": 600000.0,
+      "opex": 6000000.0,
       "real_net_cash_flow": -7500000.0,
-      "revenue": 100000000.0,
+      "revenue": 60000000.0,
       "royalty": 12000000.0,
       "tax": 19500000.0,
       "taxable_income": 39000000.0,
+      "working_interest_pct": 60.0,
       "year": 2030
      },
      {
@@ -11920,21 +12246,22 @@
       "cumulative_cash_flow": 5000000.0,
       "cumulative_nominal": 5000000.0,
       "cumulative_real": 5000000.0,
-      "depreciation": 5000000.0,
+      "depreciation": 3000000.0,
       "discounted_cash_flow": 11363636.363636363,
       "gas_mscf": 0.0,
-      "gross_revenue": 100000000.0,
+      "gross_revenue": 60000000.0,
       "loss_carryforward": 0.0,
       "loss_offset_used": 0.0,
       "netCashFlow": 12500000.0,
       "net_cash_flow": 12500000.0,
-      "oil_bbl": 1000000.0,
-      "opex": 10000000.0,
+      "oil_bbl": 600000.0,
+      "opex": 6000000.0,
       "real_net_cash_flow": 12500000.0,
-      "revenue": 100000000.0,
+      "revenue": 60000000.0,
       "royalty": 12000000.0,
       "tax": 19500000.0,
       "taxable_income": 39000000.0,
+      "working_interest_pct": 60.0,
       "year": 2031
      }
     ],
@@ -11943,13 +12270,16 @@
      "discount_rate_applied_pct": 10.0,
      "discounted_payback_years": 1.6600000000000001,
      "discounting_convention": "end_year",
-     "dpi": 0.07727272727272727,
-     "engine_version": "3.9.0",
+     "dpi": 0.12878787878787878,
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
-     "government_take_pct": 95.83333333333334,
-     "government_take_pct_discounted": 96.5725806451613,
+     "government_take_pct": 92.64705882352942,
+     "government_take_pct_discounted": 93.96306818181819,
      "irr": 66.66666666666569,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 3863636.3636363633,
      "npv_profile": [
       {
@@ -11984,21 +12314,22 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.60 years",
      "payback_years": 1.6,
+     "profitability_index": 1.128787878787879,
      "pv_basis": "nominal",
-     "pv_capex": 50000000.0,
+     "pv_capex": 30000000.0,
      "total_abandonment_cost": 10000000.0,
-     "total_boe": 2000000.0,
-     "total_capex": 50000000.0,
+     "total_boe": 1200000.0,
+     "total_capex": 30000000.0,
      "total_condensate_bbl": 0.0,
      "total_gas_mscf": 0.0,
      "total_net_cash_flow": 5000000.0,
      "total_net_cash_flow_nominal": 5000000.0,
      "total_net_cash_flow_real": 5000000.0,
-     "total_oil_bbl": 2000000.0,
-     "total_opex": 20000000.0,
-     "total_revenue": 200000000.0,
+     "total_oil_bbl": 1200000.0,
+     "total_opex": 12000000.0,
+     "total_revenue": 120000000.0,
      "total_tax": 39000000.0,
-     "unit_technical_cost_usd_per_boe": 40.0,
+     "unit_technical_cost_usd_per_boe": 43.333333333333336,
      "working_interest_pct": 60.0
     }
    },
@@ -12073,6 +12404,7 @@
       "oil_bbl": 500000.0,
       "opex": 5000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 27000000.0,
       "real_net_cash_flow": -20250000.0,
       "revenue": 50000000.0,
       "royalty": 5000000.0,
@@ -12100,6 +12432,7 @@
       "oil_bbl": 500000.0,
       "opex": 5000000.0,
       "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 14000000.0,
       "real_net_cash_flow": 9750000.0,
       "revenue": 50000000.0,
       "royalty": 5000000.0,
@@ -12115,12 +12448,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.2846590909090909,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "PSC",
      "government_take_pct": 126.25,
      "government_take_pct_discounted": 130.92592592592592,
      "irr": -51.85185185185111,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -11386363.636363637,
      "npv_profile": [
       {
@@ -12155,6 +12491,8 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.7153409090909091,
+     "psc_unrecovered_cost_at_cessation": 14000000.0,
      "pv_basis": "nominal",
      "pv_capex": 40000000.0,
      "total_abandonment_cost": 10000000.0,
@@ -12282,12 +12620,15 @@
      "discounted_payback_years": 1.275,
      "discounting_convention": "end_year",
      "dpi": 0.5272727272727272,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 76.92307692307693,
      "government_take_pct_discounted": 78.35820895522389,
      "irr": 300.0,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 26363636.36363636,
      "npv_profile": [
       {
@@ -12322,6 +12663,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.25 years",
      "payback_years": 1.25,
+     "profitability_index": 1.5272727272727273,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_boe": 2000000.0,
@@ -12448,12 +12790,15 @@
      "discounted_payback_years": 1.275,
      "discounting_convention": "end_year",
      "dpi": 0.5272727272727272,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 76.92307692307693,
      "government_take_pct_discounted": 78.35820895522389,
      "irr": 300.0,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 26363636.36363636,
      "npv_profile": [
       {
@@ -12488,6 +12833,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.25 years",
      "payback_years": 1.25,
+     "profitability_index": 1.5272727272727273,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_boe": 2000000.0,
@@ -12614,13 +12960,16 @@
      "discounted_payback_years": 1.3666666666666667,
      "discounting_convention": "end_year",
      "dpi": 0.4318181818181817,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "fx_ngn_per_usd": 1500.0,
      "government_take_pct": 80.76923076923077,
      "government_take_pct_discounted": 82.27611940298507,
-     "irr": 200.0,
+     "irr": 199.99999999999997,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 21590909.090909086,
      "npv_ngn": 32386363636.36363,
      "npv_profile": [
@@ -12656,6 +13005,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.33 years",
      "payback_years": 1.3333333333333333,
+     "profitability_index": 1.4318181818181817,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "total_boe": 2000000.0,
@@ -12730,26 +13080,27 @@
       "applied_cond_price": 0.0,
       "applied_gas_price": 0.0,
       "applied_oil_price": 100.0,
-      "capex": 50000000.0,
+      "capex": 30000000.0,
       "condensate_bbl": 0.0,
       "cumulative_cash_flow": -7500000.0,
       "cumulative_nominal": -7500000.0,
       "cumulative_real": -7500000.0,
-      "depreciation": 5000000.0,
+      "depreciation": 3000000.0,
       "discounted_cash_flow": -7500000.0,
       "gas_mscf": 0.0,
-      "gross_revenue": 100000000.0,
+      "gross_revenue": 60000000.0,
       "loss_carryforward": 0.0,
       "loss_offset_used": 0.0,
       "netCashFlow": -7500000.0,
       "net_cash_flow": -7500000.0,
-      "oil_bbl": 1000000.0,
-      "opex": 10000000.0,
+      "oil_bbl": 600000.0,
+      "opex": 6000000.0,
       "real_net_cash_flow": -7500000.0,
-      "revenue": 100000000.0,
+      "revenue": 60000000.0,
       "royalty": 12000000.0,
       "tax": 19500000.0,
       "taxable_income": 39000000.0,
+      "working_interest_pct": 60.0,
       "year": 2030
      },
      {
@@ -12761,21 +13112,22 @@
       "cumulative_cash_flow": 15000000.0,
       "cumulative_nominal": 15000000.0,
       "cumulative_real": 15000000.0,
-      "depreciation": 5000000.0,
+      "depreciation": 3000000.0,
       "discounted_cash_flow": 20454545.454545453,
       "gas_mscf": 0.0,
-      "gross_revenue": 100000000.0,
+      "gross_revenue": 60000000.0,
       "loss_carryforward": 0.0,
       "loss_offset_used": 0.0,
       "netCashFlow": 22500000.0,
       "net_cash_flow": 22500000.0,
-      "oil_bbl": 1000000.0,
-      "opex": 10000000.0,
+      "oil_bbl": 600000.0,
+      "opex": 6000000.0,
       "real_net_cash_flow": 22500000.0,
-      "revenue": 100000000.0,
+      "revenue": 60000000.0,
       "royalty": 12000000.0,
       "tax": 19500000.0,
       "taxable_income": 39000000.0,
+      "working_interest_pct": 60.0,
       "year": 2031
      }
     ],
@@ -12783,13 +13135,16 @@
      "discount_rate_applied_pct": 10.0,
      "discounted_payback_years": 1.3666666666666667,
      "discounting_convention": "end_year",
-     "dpi": 0.25909090909090904,
-     "engine_version": "3.9.0",
+     "dpi": 0.43181818181818177,
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
-     "government_take_pct": 88.46153846153845,
-     "government_take_pct_discounted": 89.36567164179104,
-     "irr": 200.0,
+     "government_take_pct": 80.76923076923077,
+     "government_take_pct_discounted": 82.27611940298509,
+     "irr": 199.99999999999997,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 12954545.454545453,
      "npv_profile": [
       {
@@ -12824,25 +13179,26 @@
      "opex_usd_per_boe": 10.0,
      "payback": "1.33 years",
      "payback_years": 1.3333333333333333,
+     "profitability_index": 1.4318181818181817,
      "pv_basis": "nominal",
-     "pv_capex": 50000000.0,
-     "total_boe": 2000000.0,
-     "total_capex": 50000000.0,
+     "pv_capex": 30000000.0,
+     "total_boe": 1200000.0,
+     "total_capex": 30000000.0,
      "total_condensate_bbl": 0.0,
      "total_gas_mscf": 0.0,
      "total_net_cash_flow": 15000000.0,
      "total_net_cash_flow_nominal": 15000000.0,
      "total_net_cash_flow_real": 15000000.0,
-     "total_oil_bbl": 2000000.0,
-     "total_opex": 20000000.0,
-     "total_revenue": 200000000.0,
+     "total_oil_bbl": 1200000.0,
+     "total_opex": 12000000.0,
+     "total_revenue": 120000000.0,
      "total_tax": 39000000.0,
      "unit_technical_cost_usd_per_boe": 35.0,
      "working_interest_pct": 60.0
     }
    },
    "name": "jv_wi_60",
-   "note": "JV at 60 percent WI scales inside the regime.",
+   "note": "JV at 60 percent WI: every monetary line and the volumes report the share, as PSC and PIA do, so government take matches the 100 percent run (EC1-4).",
    "opexRows": [
     {
      "total_opex_usd": 10000000,
@@ -12930,6 +13286,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 400000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 80000000.0,
       "cit_assessable_profit": 377319921.88628244,
       "cit_chargeable_profit": 297319921.88628244,
       "cit_loss_carryforward": 0.0,
@@ -12978,6 +13336,8 @@
       "applied_gas_price": 4.59,
       "applied_oil_price": 81.6,
       "capex": 121200000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104240000.0,
       "cit_assessable_profit": 294918771.2592065,
       "cit_chargeable_profit": 190678771.25920647,
       "cit_loss_carryforward": 0.0,
@@ -13026,6 +13386,8 @@
       "applied_gas_price": 4.6818,
       "applied_oil_price": 83.232,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104239999.99999999,
       "cit_assessable_profit": 231200533.05251253,
       "cit_chargeable_profit": 126960533.05251254,
       "cit_loss_carryforward": 0.0,
@@ -13074,6 +13436,8 @@
       "applied_gas_price": 4.775436000000001,
       "applied_oil_price": 84.89664000000002,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104240000.0,
       "cit_assessable_profit": 180592487.75828534,
       "cit_chargeable_profit": 76352487.75828534,
       "cit_loss_carryforward": 0.0,
@@ -13122,6 +13486,8 @@
       "applied_gas_price": 4.87094472,
       "applied_oil_price": 86.5945728,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 93421648.55080754,
       "cit_assessable_profit": 140858212.69548288,
       "cit_chargeable_profit": 47436564.144675344,
       "cit_loss_carryforward": 0.0,
@@ -13170,6 +13536,8 @@
       "applied_gas_price": 4.9683636144,
       "applied_oil_price": 88.32646425600001,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 24240000.0,
       "cit_assessable_profit": 99359656.72083905,
       "cit_chargeable_profit": 75119656.72083905,
       "cit_loss_carryforward": 0.0,
@@ -13219,12 +13587,15 @@
      "discounted_payback_years": 3.154942044246006,
      "discounting_convention": "end_year",
      "dpi": 0.3983885214284405,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 71.10240356470288,
      "government_take_pct_discounted": 77.44992242648453,
-     "irr": 43.92693503545888,
+     "irr": 43.92693503545889,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 203250580.205128,
      "npv_profile": [
       {
@@ -13237,7 +13608,7 @@
       },
       {
        "npv": 203250580.205128,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 190843174.01227164,
@@ -13263,6 +13634,7 @@
      "opex_usd_per_boe": 15.35675099681116,
      "payback": "2.89 years",
      "payback_years": 2.8920336875191075,
+     "profitability_index": 1.3983885214284406,
      "pv_basis": "real",
      "pv_capex": 510181818.1818182,
      "total_boe": 29839896.843750004,
@@ -13420,6 +13792,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 400000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 80000000.0,
       "cit_assessable_profit": 377319921.88628244,
       "cit_chargeable_profit": 297319921.88628244,
       "cit_loss_carryforward": 0.0,
@@ -13468,6 +13842,8 @@
       "applied_gas_price": 4.59,
       "applied_oil_price": 81.6,
       "capex": 121200000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104240000.0,
       "cit_assessable_profit": 294918771.2592065,
       "cit_chargeable_profit": 190678771.25920647,
       "cit_loss_carryforward": 0.0,
@@ -13516,6 +13892,8 @@
       "applied_gas_price": 4.6818,
       "applied_oil_price": 83.232,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104239999.99999999,
       "cit_assessable_profit": 231200533.05251253,
       "cit_chargeable_profit": 126960533.05251254,
       "cit_loss_carryforward": 0.0,
@@ -13564,6 +13942,8 @@
       "applied_gas_price": 4.775436000000001,
       "applied_oil_price": 84.89664000000002,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104240000.0,
       "cit_assessable_profit": 180592487.75828534,
       "cit_chargeable_profit": 76352487.75828534,
       "cit_loss_carryforward": 0.0,
@@ -13612,6 +13992,8 @@
       "applied_gas_price": 4.87094472,
       "applied_oil_price": 86.5945728,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 93421648.55080754,
       "cit_assessable_profit": 140858212.69548288,
       "cit_chargeable_profit": 47436564.144675344,
       "cit_loss_carryforward": 0.0,
@@ -13660,6 +14042,8 @@
       "applied_gas_price": 4.9683636144,
       "applied_oil_price": 88.32646425600001,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 24240000.0,
       "cit_assessable_profit": 99359656.72083905,
       "cit_chargeable_profit": 75119656.72083905,
       "cit_loss_carryforward": 0.0,
@@ -13709,12 +14093,15 @@
      "discounted_payback_years": 3.1549420442460065,
      "discounting_convention": "end_year",
      "dpi": 0.3983885214284403,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 71.10240356470288,
      "government_take_pct_discounted": 77.44992242648453,
-     "irr": 43.92693503545888,
+     "irr": 43.92693503545889,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 203250580.2051279,
      "npv_profile": [
       {
@@ -13749,6 +14136,7 @@
      "opex_usd_per_boe": 15.35675099681116,
      "payback": "2.89 years",
      "payback_years": 2.8920336875191075,
+     "profitability_index": 1.3983885214284402,
      "pv_basis": "nominal",
      "pv_capex": 510181818.1818182,
      "total_boe": 29839896.843750004,
@@ -13907,6 +14295,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 400000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 80000000.0,
       "cit_assessable_profit": 377319921.88628244,
       "cit_chargeable_profit": 297319921.88628244,
       "cit_loss_carryforward": 0.0,
@@ -13955,6 +14345,8 @@
       "applied_gas_price": 4.59,
       "applied_oil_price": 81.6,
       "capex": 121200000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104240000.0,
       "cit_assessable_profit": 294918771.2592065,
       "cit_chargeable_profit": 190678771.25920647,
       "cit_loss_carryforward": 0.0,
@@ -14003,6 +14395,8 @@
       "applied_gas_price": 4.6818,
       "applied_oil_price": 83.232,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104239999.99999999,
       "cit_assessable_profit": 231200533.05251253,
       "cit_chargeable_profit": 126960533.05251254,
       "cit_loss_carryforward": 0.0,
@@ -14051,6 +14445,8 @@
       "applied_gas_price": 4.775436000000001,
       "applied_oil_price": 84.89664000000002,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 104240000.0,
       "cit_assessable_profit": 180592487.75828534,
       "cit_chargeable_profit": 76352487.75828534,
       "cit_loss_carryforward": 0.0,
@@ -14099,6 +14495,8 @@
       "applied_gas_price": 4.87094472,
       "applied_oil_price": 86.5945728,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 93421648.55080754,
       "cit_assessable_profit": 140858212.69548288,
       "cit_chargeable_profit": 47436564.144675344,
       "cit_loss_carryforward": 0.0,
@@ -14147,6 +14545,8 @@
       "applied_gas_price": 4.9683636144,
       "applied_oil_price": 88.32646425600001,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 24240000.0,
       "cit_assessable_profit": 99359656.72083905,
       "cit_chargeable_profit": 75119656.72083905,
       "cit_loss_carryforward": 0.0,
@@ -14196,12 +14596,15 @@
      "discounted_payback_years": 3.154942044246006,
      "discounting_convention": "mid_year",
      "dpi": 0.39838852142844056,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 71.10240356470288,
      "government_take_pct_discounted": 77.44992242648453,
-     "irr": 43.92693503545888,
+     "irr": 43.92693503545889,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 196677221.27276278,
      "npv_profile": [
       {
@@ -14214,7 +14617,7 @@
       },
       {
        "npv": 196677221.27276278,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 183638929.81497943,
@@ -14240,6 +14643,7 @@
      "opex_usd_per_boe": 15.35675099681116,
      "payback": "2.89 years",
      "payback_years": 2.8920336875191075,
+     "profitability_index": 1.3983885214284406,
      "pv_basis": "real",
      "pv_capex": 493681947.8823523,
      "total_boe": 29839896.843750004,
@@ -14576,12 +14980,15 @@
      "discounted_payback_years": 3.1659966428227677,
      "discounting_convention": "end_year",
      "dpi": 0.598241375895996,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 69.2572685063957,
      "government_take_pct_discounted": 75.45777915232506,
-     "irr": 47.90202040678996,
+     "irr": 47.902020406789944,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": 88104638.99559215,
      "npv_profile": [
       {
@@ -14594,7 +15001,7 @@
       },
       {
        "npv": 88104638.99559215,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 82498878.86460194,
@@ -14620,6 +15027,7 @@
      "opex_usd_per_boe": 18.334474709208422,
      "payback": "2.89 years",
      "payback_years": 2.889357478700107,
+     "profitability_index": 1.598241375895996,
      "pv_basis": "real",
      "pv_capex": 147272727.27272728,
      "total_boe": 7275094.749609374,
@@ -14793,12 +15201,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -1.3818181818181818,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": null,
      "government_take_pct_discounted": null,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": -69090909.0909091,
      "npv_profile": [
       {
@@ -14833,6 +15244,7 @@
      "opex_usd_per_boe": null,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": -0.38181818181818183,
      "pv_basis": "nominal",
      "pv_capex": 50000000.0,
      "tax_losses_unused_at_cessation": 30000000.0,
@@ -14928,12 +15340,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": null,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "nta_2025",
      "fiscal_regime": "JV",
      "government_take_pct": 61.111111111111114,
      "government_take_pct_discounted": 61.111111111111114,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 35000000.0,
      "npv_profile": [
       {
@@ -14968,6 +15383,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": null,
      "pv_basis": "nominal",
      "pv_capex": 0.0,
      "total_boe": 1000000.0,
@@ -15064,6 +15480,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1045094854.2401032,
       "cit_chargeable_profit": 985094854.2401032,
       "cit_loss_carryforward": 0.0,
@@ -15113,12 +15531,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.45699356780012923,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 85.97462196009833,
      "government_take_pct_discounted": 85.97462196009833,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 137098070.34003878,
      "npv_profile": [
       {
@@ -15131,7 +15552,7 @@
       },
       {
        "npv": 137098070.34003878,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 137098070.34003878,
@@ -15157,6 +15578,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.4569935678001293,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -15317,6 +15739,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1039994854.2401032,
       "cit_chargeable_profit": 979994854.2401032,
       "cit_loss_carryforward": 0.0,
@@ -15366,12 +15790,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.7670751858801633,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 76.4580505612226,
      "government_take_pct_discounted": 76.4580505612226,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 230122555.764049,
      "npv_profile": [
       {
@@ -15384,7 +15811,7 @@
       },
       {
        "npv": 230122555.764049,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 230122555.764049,
@@ -15410,6 +15837,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.7670751858801634,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -15570,6 +15998,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
       "cit_assessable_profit": 1039994854.2401032,
       "cit_chargeable_profit": 979994854.2401032,
       "cit_loss_carryforward": 0.0,
@@ -15619,12 +16049,15 @@
      "discounted_payback_years": 0.0,
      "discounting_convention": "end_year",
      "dpi": 0.9253034949201806,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 71.60193877482821,
      "government_take_pct_discounted": 71.60193877482821,
      "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "no-sign-change",
      "npv": 277591048.4760542,
      "npv_profile": [
       {
@@ -15637,7 +16070,7 @@
       },
       {
        "npv": 277591048.4760542,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": 277591048.4760542,
@@ -15663,6 +16096,7 @@
      "opex_usd_per_boe": 10.0,
      "payback": "Year 0",
      "payback_years": 0.0,
+     "profitability_index": 1.9253034949201806,
      "pv_basis": "real",
      "pv_capex": 300000000.0,
      "total_boe": 18250000.0,
@@ -15821,6 +16255,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 200000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 18000000.0,
       "cit_assessable_profit": 86074778.5468606,
       "cit_chargeable_profit": 68074778.5468606,
       "cit_loss_carryforward": 0.0,
@@ -15869,6 +16305,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 0.0,
       "cit_assessable_profit": 72506645.63417709,
       "cit_chargeable_profit": 72506645.63417709,
       "cit_loss_carryforward": 0.0,
@@ -15917,6 +16355,8 @@
       "applied_gas_price": 4.5,
       "applied_oil_price": 80.0,
       "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 0.0,
       "cit_assessable_profit": 72733966.30801675,
       "cit_chargeable_profit": 72733966.30801675,
       "cit_loss_carryforward": 0.0,
@@ -15968,12 +16408,15 @@
      "discounted_payback_years": null,
      "discounting_convention": "end_year",
      "dpi": -0.433146035308916,
-     "engine_version": "3.9.0",
+     "engine_version": "3.10.0",
      "fiscal_framework": "pia_only",
      "fiscal_regime": "PIA",
      "government_take_pct": 139.71406766663398,
      "government_take_pct_discounted": 155.66720156386492,
-     "irr": -33.729167986728136,
+     "irr": -33.72916798672813,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
      "npv": -86629207.0617832,
      "npv_profile": [
       {
@@ -15986,7 +16429,7 @@
       },
       {
        "npv": -86629207.0617832,
-       "rate_pct": 6.796116504854366
+       "rate_pct": 6.8
       },
       {
        "npv": -87831323.80216727,
@@ -16012,6 +16455,7 @@
      "opex_usd_per_boe": 15.0,
      "payback": "Beyond project life",
      "payback_years": null,
+     "profitability_index": 0.566853964691084,
      "pv_basis": "real",
      "pv_capex": 200000000.0,
      "total_boe": 6000000.0,
@@ -16066,158 +16510,1540 @@
      "year": 2027
     }
    ]
+  },
+  {
+   "capexRows": [
+    {
+     "amount_usd": 90000000,
+     "year": 2030
+    }
+   ],
+   "cfg": {
+    "base_year": 2030,
+    "capex_escalator_pct": 0,
+    "condensate_price_escalator_pct": 0,
+    "condensate_price_usd_bbl": 0,
+    "discount_rate_pct": 9,
+    "fiscal_regime": "JV",
+    "gas_price_escalator_pct": 0,
+    "gas_price_usd_mscf": 0,
+    "inflation_rate_pct": 2.5,
+    "jv_royalty_pct": 20,
+    "jv_tax_rate_pct": 50,
+    "jv_working_interest_pct": 100,
+    "oil_price_escalator_pct": 1.5,
+    "oil_price_usd_bbl": 100,
+    "opex_escalator_pct": 3.5,
+    "present_value_basis": "real"
+   },
+   "expected": {
+    "cashFlowData": [
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 90000000.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": -44500000.0,
+      "cumulative_nominal": -44500000.0,
+      "cumulative_real": -44500000.0,
+      "depreciation": 9000000.0,
+      "discounted_cash_flow": -44500000.0,
+      "gas_mscf": 0.0,
+      "gross_revenue": 120000000.0,
+      "loss_carryforward": 0.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": -44500000.0,
+      "net_cash_flow": -44500000.0,
+      "oil_bbl": 1200000.0,
+      "opex": 14000000.0,
+      "real_net_cash_flow": -44500000.0,
+      "revenue": 120000000.0,
+      "royalty": 24000000.0,
+      "tax": 36500000.0,
+      "taxable_income": 73000000.0,
+      "year": 2030
+     },
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 101.49999999999999,
+      "capex": 0.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": -9152682.926829271,
+      "cumulative_nominal": -8269000.000000007,
+      "cumulative_real": -9152682.926829271,
+      "depreciation": 9000000.0,
+      "discounted_cash_flow": 33239449.541284394,
+      "gas_mscf": 0.0,
+      "gross_revenue": 97439999.99999999,
+      "loss_carryforward": 0.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": 36230999.99999999,
+      "net_cash_flow": 36230999.99999999,
+      "oil_bbl": 960000.0,
+      "opex": 14489999.999999998,
+      "real_net_cash_flow": 35347317.07317073,
+      "revenue": 97439999.99999999,
+      "royalty": 19487999.999999996,
+      "tax": 27230999.999999993,
+      "taxable_income": 54461999.999999985,
+      "year": 2031
+     },
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 103.02249999999998,
+      "capex": 0.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": 18116739.559785843,
+      "cumulative_nominal": 20380936.999999993,
+      "cumulative_real": 18116739.559785843,
+      "depreciation": 9000000.0,
+      "discounted_cash_flow": 24114078.78124736,
+      "gas_mscf": 0.0,
+      "gross_revenue": 79121280.0,
+      "loss_carryforward": 0.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": 28649937.0,
+      "net_cash_flow": 28649937.0,
+      "oil_bbl": 768000.0000000001,
+      "opex": 14997149.999999998,
+      "real_net_cash_flow": 27269422.486615114,
+      "revenue": 79121280.0,
+      "royalty": 15824256.0,
+      "tax": 19649937.0,
+      "taxable_income": 39299874.0,
+      "year": 2032
+     },
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 104.56783749999997,
+      "capex": 0.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": 38952250.70466186,
+      "cumulative_nominal": 42818503.61899999,
+      "cumulative_real": 38952250.70466186,
+      "depreciation": 9000000.0,
+      "discounted_cash_flow": 17325918.275961373,
+      "gas_mscf": 0.0,
+      "gross_revenue": 64246479.35999999,
+      "loss_carryforward": 0.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": 22437566.618999995,
+      "net_cash_flow": 22437566.618999995,
+      "oil_bbl": 614400.0000000001,
+      "opex": 15522050.249999996,
+      "real_net_cash_flow": 20835511.14487602,
+      "revenue": 64246479.35999999,
+      "royalty": 12849295.872,
+      "tax": 13437566.618999995,
+      "taxable_income": 26875133.23799999,
+      "year": 2033
+     },
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 106.13635506249996,
+      "capex": 0.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": 54656538.66775842,
+      "cumulative_nominal": 60153099.110752985,
+      "cumulative_real": 54656538.66775842,
+      "depreciation": 9000000.0,
+      "discounted_cash_flow": 12280264.469974913,
+      "gas_mscf": 0.0,
+      "gross_revenue": 52168141.24031999,
+      "loss_carryforward": 0.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": 17334595.491752997,
+      "net_cash_flow": 17334595.491752997,
+      "oil_bbl": 491520.0000000001,
+      "opex": 16065322.008749995,
+      "real_net_cash_flow": 15704287.963096557,
+      "revenue": 52168141.24031999,
+      "royalty": 10433628.248063998,
+      "tax": 8334595.491752999,
+      "taxable_income": 16669190.983505998,
+      "year": 2034
+     }
+    ],
+    "kpis": {
+     "discount_rate_applied_pct": 6.341463414634174,
+     "discounted_payback_years": 2.466969962272518,
+     "discounting_convention": "end_year",
+     "dpi": 0.4717745674274226,
+     "engine_version": "3.10.0",
+     "fiscal_framework": "nta_2025",
+     "fiscal_regime": "JV",
+     "government_take_pct": 75.73506871435332,
+     "government_take_pct_discounted": 79.71087619915514,
+     "irr": 54.65727923687955,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
+     "npv": 42459711.068468034,
+     "npv_profile": [
+      {
+       "npv": 54656538.66775842,
+       "rate_pct": 0
+      },
+      {
+       "npv": 44816736.037793964,
+       "rate_pct": 5
+      },
+      {
+       "npv": 42459711.068468034,
+       "rate_pct": 6.34
+      },
+      {
+       "npv": 39691152.76968404,
+       "rate_pct": 8
+      },
+      {
+       "npv": 36550905.30404664,
+       "rate_pct": 10
+      },
+      {
+       "npv": 33609785.37534059,
+       "rate_pct": 12
+      },
+      {
+       "npv": 29535062.980427325,
+       "rate_pct": 15
+      },
+      {
+       "npv": 23524225.318341322,
+       "rate_pct": 20
+      }
+     ],
+     "opex_usd_per_boe": 18.61081088835425,
+     "payback": "2.29 years",
+     "payback_years": 2.288621926114532,
+     "profitability_index": 1.4717745674274225,
+     "pv_basis": "real",
+     "pv_capex": 90000000.0,
+     "total_boe": 4033920.0000000005,
+     "total_capex": 90000000.0,
+     "total_condensate_bbl": 0.0,
+     "total_gas_mscf": 0.0,
+     "total_net_cash_flow": 54656538.66775842,
+     "total_net_cash_flow_nominal": 60153099.110752985,
+     "total_net_cash_flow_real": 54656538.66775842,
+     "total_oil_bbl": 4033920.0000000005,
+     "total_opex": 75074522.25874999,
+     "total_revenue": 412975900.60032,
+     "total_tax": 105153099.11075298,
+     "unit_technical_cost_usd_per_boe": 40.921615267221455,
+     "working_interest_pct": 100.0
+    }
+   },
+   "name": "jv_real_fisher_profile",
+   "note": "Real basis whose Fisher rate is 6.3414634 percent: the profile point is labelled 6.34 and evaluated at the exact rate, so it IS the headline NPV (EC1-1).",
+   "opexRows": [
+    {
+     "total_opex_usd": 14000000,
+     "year": 2030
+    },
+    {
+     "total_opex_usd": 14000000,
+     "year": 2031
+    },
+    {
+     "total_opex_usd": 14000000,
+     "year": 2032
+    },
+    {
+     "total_opex_usd": 14000000,
+     "year": 2033
+    },
+    {
+     "total_opex_usd": 14000000,
+     "year": 2034
+    }
+   ],
+   "prodRows": [
+    {
+     "well1_oil_bbl": 1200000.0,
+     "year": 2030
+    },
+    {
+     "well1_oil_bbl": 960000.0,
+     "year": 2031
+    },
+    {
+     "well1_oil_bbl": 768000.0000000001,
+     "year": 2032
+    },
+    {
+     "well1_oil_bbl": 614400.0000000001,
+     "year": 2033
+    },
+    {
+     "well1_oil_bbl": 491520.0000000001,
+     "year": 2034
+    }
+   ]
+  },
+  {
+   "capexRows": [
+    {
+     "amount_usd": 50000000,
+     "year": 2030
+    }
+   ],
+   "cfg": {
+    "abandonment_cost_usd": 20000000,
+    "abandonment_year": 2032,
+    "base_year": 2030,
+    "capex_escalator_pct": 0,
+    "condensate_price_escalator_pct": 0,
+    "condensate_price_usd_bbl": 0,
+    "discount_rate_pct": 10,
+    "fiscal_regime": "JV",
+    "gas_price_escalator_pct": 0,
+    "gas_price_usd_mscf": 0,
+    "inflation_rate_pct": 0,
+    "jv_royalty_pct": 20,
+    "jv_tax_rate_pct": 50,
+    "jv_working_interest_pct": 100,
+    "oil_price_escalator_pct": 0,
+    "oil_price_usd_bbl": 100,
+    "opex_escalator_pct": 0,
+    "present_value_basis": "nominal"
+   },
+   "expected": {
+    "cashFlowData": [
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 50000000.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": -12500000.0,
+      "cumulative_nominal": -12500000.0,
+      "cumulative_real": -12500000.0,
+      "depreciation": 5000000.0,
+      "discounted_cash_flow": -12500000.0,
+      "gas_mscf": 0.0,
+      "gross_revenue": 100000000.0,
+      "loss_carryforward": 0.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": -12500000.0,
+      "net_cash_flow": -12500000.0,
+      "oil_bbl": 1000000.0,
+      "opex": 10000000.0,
+      "real_net_cash_flow": -12500000.0,
+      "revenue": 100000000.0,
+      "royalty": 20000000.0,
+      "tax": 32500000.0,
+      "taxable_income": 65000000.0,
+      "year": 2030
+     },
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 0.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": 25000000.0,
+      "cumulative_nominal": 25000000.0,
+      "cumulative_real": 25000000.0,
+      "depreciation": 5000000.0,
+      "discounted_cash_flow": 34090909.090909086,
+      "gas_mscf": 0.0,
+      "gross_revenue": 100000000.0,
+      "loss_carryforward": 0.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": 37500000.0,
+      "net_cash_flow": 37500000.0,
+      "oil_bbl": 1000000.0,
+      "opex": 10000000.0,
+      "real_net_cash_flow": 37500000.0,
+      "revenue": 100000000.0,
+      "royalty": 20000000.0,
+      "tax": 32500000.0,
+      "taxable_income": 65000000.0,
+      "year": 2031
+     },
+     {
+      "abandonment_cost": 20000000.0,
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 0.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": 5000000.0,
+      "cumulative_nominal": 5000000.0,
+      "cumulative_real": 5000000.0,
+      "depreciation": 5000000.0,
+      "discounted_cash_flow": -16528925.619834708,
+      "gas_mscf": 0.0,
+      "gross_revenue": 0.0,
+      "loss_carryforward": 5000000.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": -20000000.0,
+      "net_cash_flow": -20000000.0,
+      "oil_bbl": 0.0,
+      "opex": 0.0,
+      "real_net_cash_flow": -20000000.0,
+      "revenue": 0.0,
+      "royalty": 0.0,
+      "tax": 0.0,
+      "taxable_income": -5000000.0,
+      "year": 2032
+     }
+    ],
+    "kpis": {
+     "abandonment_year": 2032,
+     "discount_rate_applied_pct": 10.0,
+     "discounted_payback_years": 1.3666666666666667,
+     "discounting_convention": "end_year",
+     "dpi": 0.10123966942148756,
+     "engine_version": "3.10.0",
+     "fiscal_framework": "nta_2025",
+     "fiscal_regime": "JV",
+     "government_take_pct": 95.45454545454545,
+     "government_take_pct_discounted": 95.1923076923077,
+     "irr": null,
+     "irr_root_above_band": false,
+     "irr_roots": [
+      -30.622577482982905,
+      130.62257748298293
+     ],
+     "irr_status": "multiple-roots",
+     "npv": 5061983.471074378,
+     "npv_profile": [
+      {
+       "npv": 5000000.0,
+       "rate_pct": 0
+      },
+      {
+       "npv": 5073696.145124719,
+       "rate_pct": 5
+      },
+      {
+       "npv": 5075445.816186551,
+       "rate_pct": 8
+      },
+      {
+       "npv": 5061983.471074378,
+       "rate_pct": 10
+      },
+      {
+       "npv": 5038265.306122448,
+       "rate_pct": 12
+      },
+      {
+       "npv": 4985822.306238184,
+       "rate_pct": 15
+      },
+      {
+       "npv": 4861111.11111111,
+       "rate_pct": 20
+      }
+     ],
+     "opex_usd_per_boe": 10.0,
+     "payback": "1.33 years",
+     "payback_years": 1.3333333333333333,
+     "profitability_index": 1.1012396694214877,
+     "pv_basis": "nominal",
+     "pv_capex": 50000000.0,
+     "tax_losses_unused_at_cessation": 5000000.0,
+     "total_abandonment_cost": 20000000.0,
+     "total_boe": 2000000.0,
+     "total_capex": 50000000.0,
+     "total_condensate_bbl": 0.0,
+     "total_gas_mscf": 0.0,
+     "total_net_cash_flow": 5000000.0,
+     "total_net_cash_flow_nominal": 5000000.0,
+     "total_net_cash_flow_real": 5000000.0,
+     "total_oil_bbl": 2000000.0,
+     "total_opex": 20000000.0,
+     "total_revenue": 200000000.0,
+     "total_tax": 65000000.0,
+     "unit_technical_cost_usd_per_boe": 45.0,
+     "working_interest_pct": 100.0
+    }
+   },
+   "name": "jv_abandonment_two_irr_roots",
+   "note": "Terminal negative flow: two rates in the band zero the NPV, so irr is null with irr_status multiple-roots and both roots listed (EC1-2).",
+   "opexRows": [
+    {
+     "total_opex_usd": 10000000,
+     "year": 2030
+    },
+    {
+     "total_opex_usd": 10000000,
+     "year": 2031
+    }
+   ],
+   "prodRows": [
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2030
+    },
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2031
+    }
+   ]
+  },
+  {
+   "capexRows": [
+    {
+     "amount_usd": 200000000,
+     "year": 2030
+    }
+   ],
+   "cfg": {
+    "base_year": 2030,
+    "capex_escalator_pct": 0,
+    "condensate_price_escalator_pct": 0,
+    "condensate_price_usd_bbl": 0,
+    "discount_rate_pct": 10,
+    "fiscal_regime": "PSC",
+    "gas_price_escalator_pct": 0,
+    "gas_price_usd_mscf": 0,
+    "inflation_rate_pct": 0,
+    "oil_price_escalator_pct": 0,
+    "oil_price_usd_bbl": 100,
+    "opex_escalator_pct": 0,
+    "present_value_basis": "nominal",
+    "psc_contractor_profit_share_pct": 50,
+    "psc_cost_oil_cap_pct": 40,
+    "psc_royalty_pct": 10,
+    "psc_tax_rate_pct": 50
+   },
+   "expected": {
+    "cashFlowData": [
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 200000000.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": -160500000.0,
+      "cumulative_nominal": -160500000.0,
+      "cumulative_real": -160500000.0,
+      "depreciation": 20000000.0,
+      "discounted_cash_flow": -160500000.0,
+      "gas_mscf": 0.0,
+      "gross_revenue": 100000000.0,
+      "netCashFlow": -160500000.0,
+      "net_cash_flow": -160500000.0,
+      "oil_bbl": 1000000.0,
+      "opex": 10000000.0,
+      "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 174000000.0,
+      "real_net_cash_flow": -160500000.0,
+      "revenue": 100000000.0,
+      "royalty": 10000000.0,
+      "tax": 13500000.0,
+      "taxable_income": 27000000.0,
+      "year": 2030
+     },
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 0.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": -121000000.0,
+      "cumulative_nominal": -121000000.0,
+      "cumulative_real": -121000000.0,
+      "depreciation": 20000000.0,
+      "discounted_cash_flow": 35909090.90909091,
+      "gas_mscf": 0.0,
+      "gross_revenue": 100000000.0,
+      "netCashFlow": 39500000.0,
+      "net_cash_flow": 39500000.0,
+      "oil_bbl": 1000000.0,
+      "opex": 10000000.0,
+      "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 148000000.0,
+      "real_net_cash_flow": 39500000.0,
+      "revenue": 100000000.0,
+      "royalty": 10000000.0,
+      "tax": 13500000.0,
+      "taxable_income": 27000000.0,
+      "year": 2031
+     }
+    ],
+    "kpis": {
+     "discount_rate_applied_pct": 10.0,
+     "discounted_payback_years": null,
+     "discounting_convention": "end_year",
+     "dpi": -0.6229545454545454,
+     "engine_version": "3.10.0",
+     "fiscal_framework": "nta_2025",
+     "fiscal_regime": "PSC",
+     "government_take_pct": null,
+     "government_take_pct_discounted": null,
+     "irr": -75.38940809968918,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
+     "npv": -124590909.0909091,
+     "npv_profile": [
+      {
+       "npv": -121000000.0,
+       "rate_pct": 0
+      },
+      {
+       "npv": -122880952.38095239,
+       "rate_pct": 5
+      },
+      {
+       "npv": -123925925.92592593,
+       "rate_pct": 8
+      },
+      {
+       "npv": -124590909.0909091,
+       "rate_pct": 10
+      },
+      {
+       "npv": -125232142.85714287,
+       "rate_pct": 12
+      },
+      {
+       "npv": -126152173.91304347,
+       "rate_pct": 15
+      },
+      {
+       "npv": -127583333.33333333,
+       "rate_pct": 20
+      }
+     ],
+     "opex_usd_per_boe": 10.0,
+     "payback": "Beyond project life",
+     "payback_years": null,
+     "profitability_index": 0.3770454545454546,
+     "psc_unrecovered_cost_at_cessation": 148000000.0,
+     "pv_basis": "nominal",
+     "pv_capex": 200000000.0,
+     "total_boe": 2000000.0,
+     "total_capex": 200000000.0,
+     "total_condensate_bbl": 0.0,
+     "total_gas_mscf": 0.0,
+     "total_net_cash_flow": -121000000.0,
+     "total_net_cash_flow_nominal": -121000000.0,
+     "total_net_cash_flow_real": -121000000.0,
+     "total_oil_bbl": 2000000.0,
+     "total_opex": 20000000.0,
+     "total_revenue": 200000000.0,
+     "total_tax": 27000000.0,
+     "unit_technical_cost_usd_per_boe": 110.0
+    }
+   },
+   "name": "psc_pool_unrecovered_at_cessation",
+   "note": "A capex the cost oil cap cannot recover: every row reports psc_cost_pool_after and the KPI reports the pool cessation forfeits (EC1-5).",
+   "opexRows": [
+    {
+     "total_opex_usd": 10000000,
+     "year": 2030
+    },
+    {
+     "total_opex_usd": 10000000,
+     "year": 2031
+    }
+   ],
+   "prodRows": [
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2030
+    },
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2031
+    }
+   ]
+  },
+  {
+   "capexRows": [
+    {
+     "amount_usd": 50000000,
+     "year": 2030
+    }
+   ],
+   "cfg": {
+    "abandonment_cost_usd": 10000000,
+    "abandonment_funding_mode": "sinking_fund",
+    "base_year": 2030,
+    "capex_escalator_pct": 0,
+    "condensate_price_escalator_pct": 0,
+    "condensate_price_usd_bbl": 0,
+    "discount_rate_pct": 10,
+    "fiscal_regime": "JV",
+    "gas_price_escalator_pct": 0,
+    "gas_price_usd_mscf": 0,
+    "inflation_rate_pct": 0,
+    "jv_royalty_pct": 20,
+    "jv_tax_rate_pct": 50,
+    "jv_working_interest_pct": 60,
+    "oil_price_escalator_pct": 0,
+    "oil_price_usd_bbl": 100,
+    "opex_escalator_pct": 0,
+    "present_value_basis": "nominal"
+   },
+   "expected": {
+    "cashFlowData": [
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 30000000.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": -10000000.0,
+      "cumulative_nominal": -10000000.0,
+      "cumulative_real": -10000000.0,
+      "decom_fund_contribution": 5000000.0,
+      "depreciation": 3000000.0,
+      "discounted_cash_flow": -10000000.0,
+      "gas_mscf": 0.0,
+      "gross_revenue": 60000000.0,
+      "loss_carryforward": 0.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": -10000000.0,
+      "net_cash_flow": -10000000.0,
+      "oil_bbl": 600000.0,
+      "opex": 6000000.0,
+      "real_net_cash_flow": -10000000.0,
+      "revenue": 60000000.0,
+      "royalty": 12000000.0,
+      "tax": 17000000.0,
+      "taxable_income": 34000000.0,
+      "working_interest_pct": 60.0,
+      "year": 2030
+     },
+     {
+      "abandonment_cost_funded": 10000000.0,
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 0.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": 10000000.0,
+      "cumulative_nominal": 10000000.0,
+      "cumulative_real": 10000000.0,
+      "decom_fund_contribution": 5000000.0,
+      "depreciation": 3000000.0,
+      "discounted_cash_flow": 18181818.18181818,
+      "gas_mscf": 0.0,
+      "gross_revenue": 60000000.0,
+      "loss_carryforward": 0.0,
+      "loss_offset_used": 0.0,
+      "netCashFlow": 20000000.0,
+      "net_cash_flow": 20000000.0,
+      "oil_bbl": 600000.0,
+      "opex": 6000000.0,
+      "real_net_cash_flow": 20000000.0,
+      "revenue": 60000000.0,
+      "royalty": 12000000.0,
+      "tax": 17000000.0,
+      "taxable_income": 34000000.0,
+      "working_interest_pct": 60.0,
+      "year": 2031
+     }
+    ],
+    "kpis": {
+     "abandonment_funding_mode": "sinking_fund",
+     "abandonment_year": 2031,
+     "discount_rate_applied_pct": 10.0,
+     "discounted_payback_years": 1.55,
+     "discounting_convention": "end_year",
+     "dpi": 0.27272727272727265,
+     "engine_version": "3.10.0",
+     "fiscal_framework": "nta_2025",
+     "fiscal_regime": "JV",
+     "government_take_pct": 85.29411764705883,
+     "government_take_pct_discounted": 88.80597014925374,
+     "irr": 100.00000000000003,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
+     "npv": 8181818.18181818,
+     "npv_profile": [
+      {
+       "npv": 10000000.0,
+       "rate_pct": 0
+      },
+      {
+       "npv": 9047619.047619049,
+       "rate_pct": 5
+      },
+      {
+       "npv": 8518518.518518519,
+       "rate_pct": 8
+      },
+      {
+       "npv": 8181818.18181818,
+       "rate_pct": 10
+      },
+      {
+       "npv": 7857142.8571428545,
+       "rate_pct": 12
+      },
+      {
+       "npv": 7391304.34782609,
+       "rate_pct": 15
+      },
+      {
+       "npv": 6666666.666666668,
+       "rate_pct": 20
+      }
+     ],
+     "opex_usd_per_boe": 10.0,
+     "payback": "1.50 years",
+     "payback_years": 1.5,
+     "profitability_index": 1.2727272727272727,
+     "pv_basis": "nominal",
+     "pv_capex": 30000000.0,
+     "total_abandonment_cost": 10000000.0,
+     "total_boe": 1200000.0,
+     "total_capex": 30000000.0,
+     "total_condensate_bbl": 0.0,
+     "total_decom_fund_contributions": 10000000.0,
+     "total_gas_mscf": 0.0,
+     "total_net_cash_flow": 10000000.0,
+     "total_net_cash_flow_nominal": 10000000.0,
+     "total_net_cash_flow_real": 10000000.0,
+     "total_oil_bbl": 1200000.0,
+     "total_opex": 12000000.0,
+     "total_revenue": 120000000.0,
+     "total_tax": 34000000.0,
+     "unit_technical_cost_usd_per_boe": 43.333333333333336,
+     "working_interest_pct": 60.0
+    }
+   },
+   "name": "jv_sinking_fund_wi_60",
+   "note": "JV sinking fund at 60 percent WI: the share collects the entered 10,000,000, at 5,000,000 a year (EC1-3).",
+   "opexRows": [
+    {
+     "total_opex_usd": 10000000,
+     "year": 2030
+    },
+    {
+     "total_opex_usd": 10000000,
+     "year": 2031
+    }
+   ],
+   "prodRows": [
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2030
+    },
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2031
+    }
+   ]
+  },
+  {
+   "capexRows": [
+    {
+     "amount_usd": 80000000,
+     "year": 2030
+    }
+   ],
+   "cfg": {
+    "abandonment_cost_usd": 10000000,
+    "abandonment_funding_mode": "sinking_fund",
+    "base_year": 2030,
+    "capex_escalator_pct": 0,
+    "condensate_price_escalator_pct": 0,
+    "condensate_price_usd_bbl": 0,
+    "discount_rate_pct": 10,
+    "fiscal_regime": "PSC",
+    "gas_price_escalator_pct": 0,
+    "gas_price_usd_mscf": 0,
+    "inflation_rate_pct": 0,
+    "oil_price_escalator_pct": 0,
+    "oil_price_usd_bbl": 100,
+    "opex_escalator_pct": 0,
+    "present_value_basis": "nominal",
+    "psc_contractor_profit_share_pct": 50,
+    "psc_cost_oil_cap_pct": 40,
+    "psc_royalty_pct": 10,
+    "psc_tax_rate_pct": 50,
+    "psc_working_interest_pct": 50
+   },
+   "expected": {
+    "cashFlowData": [
+     {
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 40000000.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": -25250000.0,
+      "cumulative_nominal": -25250000.0,
+      "cumulative_real": -25250000.0,
+      "decom_fund_contribution": 5000000.0,
+      "depreciation": 4000000.0,
+      "discounted_cash_flow": -25250000.0,
+      "gas_mscf": 0.0,
+      "gross_revenue": 50000000.0,
+      "netCashFlow": -25250000.0,
+      "net_cash_flow": -25250000.0,
+      "oil_bbl": 500000.0,
+      "opex": 5000000.0,
+      "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 32000000.0,
+      "real_net_cash_flow": -25250000.0,
+      "revenue": 50000000.0,
+      "royalty": 5000000.0,
+      "tax": 6750000.0,
+      "taxable_income": 13500000.0,
+      "working_interest_pct": 50.0,
+      "year": 2030
+     },
+     {
+      "abandonment_cost_funded": 10000000.0,
+      "applied_cond_price": 0.0,
+      "applied_gas_price": 0.0,
+      "applied_oil_price": 100.0,
+      "capex": 0.0,
+      "condensate_bbl": 0.0,
+      "cumulative_cash_flow": -10500000.0,
+      "cumulative_nominal": -10500000.0,
+      "cumulative_real": -10500000.0,
+      "decom_fund_contribution": 5000000.0,
+      "depreciation": 4000000.0,
+      "discounted_cash_flow": 13409090.909090908,
+      "gas_mscf": 0.0,
+      "gross_revenue": 50000000.0,
+      "netCashFlow": 14750000.0,
+      "net_cash_flow": 14750000.0,
+      "oil_bbl": 500000.0,
+      "opex": 5000000.0,
+      "psc_contractor_share_pct": 50.0,
+      "psc_cost_pool_after": 24000000.0,
+      "real_net_cash_flow": 14750000.0,
+      "revenue": 50000000.0,
+      "royalty": 5000000.0,
+      "tax": 6750000.0,
+      "taxable_income": 13500000.0,
+      "working_interest_pct": 50.0,
+      "year": 2031
+     }
+    ],
+    "kpis": {
+     "abandonment_funding_mode": "sinking_fund",
+     "abandonment_year": 2031,
+     "discount_rate_applied_pct": 10.0,
+     "discounted_payback_years": null,
+     "discounting_convention": "end_year",
+     "dpi": -0.29602272727272727,
+     "engine_version": "3.10.0",
+     "fiscal_framework": "nta_2025",
+     "fiscal_regime": "PSC",
+     "government_take_pct": 126.25,
+     "government_take_pct_discounted": 125.79207920792079,
+     "irr": -41.58415841583919,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
+     "npv": -11840909.090909092,
+     "npv_profile": [
+      {
+       "npv": -10500000.0,
+       "rate_pct": 0
+      },
+      {
+       "npv": -11202380.952380953,
+       "rate_pct": 5
+      },
+      {
+       "npv": -11592592.592592593,
+       "rate_pct": 8
+      },
+      {
+       "npv": -11840909.090909092,
+       "rate_pct": 10
+      },
+      {
+       "npv": -12080357.142857144,
+       "rate_pct": 12
+      },
+      {
+       "npv": -12423913.04347826,
+       "rate_pct": 15
+      },
+      {
+       "npv": -12958333.333333332,
+       "rate_pct": 20
+      }
+     ],
+     "opex_usd_per_boe": 10.0,
+     "payback": "Beyond project life",
+     "payback_years": null,
+     "profitability_index": 0.7039772727272727,
+     "psc_unrecovered_cost_at_cessation": 24000000.0,
+     "pv_basis": "nominal",
+     "pv_capex": 40000000.0,
+     "total_abandonment_cost": 10000000.0,
+     "total_boe": 1000000.0,
+     "total_capex": 40000000.0,
+     "total_condensate_bbl": 0.0,
+     "total_decom_fund_contributions": 10000000.0,
+     "total_gas_mscf": 0.0,
+     "total_net_cash_flow": -10500000.0,
+     "total_net_cash_flow_nominal": -10500000.0,
+     "total_net_cash_flow_real": -10500000.0,
+     "total_oil_bbl": 1000000.0,
+     "total_opex": 10000000.0,
+     "total_revenue": 100000000.0,
+     "total_tax": 13500000.0,
+     "unit_technical_cost_usd_per_boe": 60.0,
+     "working_interest_pct": 50.0
+    }
+   },
+   "name": "psc_sinking_fund_wi_50",
+   "note": "PSC sinking fund at 50 percent WI: the share collects the entered 10,000,000 (EC1-3).",
+   "opexRows": [
+    {
+     "total_opex_usd": 10000000,
+     "year": 2030
+    },
+    {
+     "total_opex_usd": 10000000,
+     "year": 2031
+    }
+   ],
+   "prodRows": [
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2030
+    },
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2031
+    }
+   ]
+  },
+  {
+   "capexRows": [
+    {
+     "amount_usd": 300000000,
+     "year": 2025
+    }
+   ],
+   "cfg": {
+    "base_year": 2025,
+    "capex_escalator_pct": 0,
+    "condensate_price_escalator_pct": 0,
+    "condensate_price_usd_bbl": 70,
+    "discount_rate_pct": 10,
+    "fiscal_regime": "PIA",
+    "gas_price_escalator_pct": 0,
+    "gas_price_usd_mscf": 4.5,
+    "inflation_rate_pct": 3,
+    "jv_royalty_pct": 10,
+    "jv_tax_rate_pct": 50,
+    "jv_working_interest_pct": 100,
+    "oil_price_escalator_pct": 0,
+    "oil_price_usd_bbl": 80,
+    "opex_escalator_pct": 0,
+    "pia_apply_minimum_etr": false,
+    "pia_capex_recovery_years": 5,
+    "pia_cit_rate_pct": 30,
+    "pia_cpr_limit_pct": 65,
+    "pia_deep_offshore_hct_custom_rate_pct": null,
+    "pia_deep_offshore_hct_interpretation": "conservative_zero",
+    "pia_development_levy_rate_pct": 4,
+    "pia_hct_rate_override_pct": null,
+    "pia_lease_status": "converted",
+    "pia_license_type": "PML",
+    "pia_marginal_field_pre_2021": false,
+    "pia_minimum_etr_pct": 15,
+    "pia_nddc_levy_fixed_usd": 15000000,
+    "pia_nddc_levy_pct_of_opex": 3,
+    "pia_new_lease_prod_alw_cap_deep_bbl": 500000000,
+    "pia_new_lease_prod_alw_cap_onshore_bbl": 50000000,
+    "pia_new_lease_prod_alw_cap_shallow_bbl": 100000000,
+    "pia_prior_cumulative_oil_bbl": 0,
+    "pia_prior_year_opex_usd": 170000000,
+    "pia_production_allowance_pct_of_price": 20,
+    "pia_production_allowance_per_bbl_converted": 2.5,
+    "pia_production_allowance_per_bbl_new": 8,
+    "pia_terrain": "shallow_water",
+    "pia_tet_rate_pct": 2.5,
+    "pia_under_nta_2025_override": "auto",
+    "pia_water_depth_m": 100,
+    "present_value_basis": "real",
+    "psc_contractor_profit_share_pct": 50,
+    "psc_cost_oil_cap_pct": 80,
+    "psc_royalty_pct": 10,
+    "psc_tax_rate_pct": 50
+   },
+   "expected": {
+    "cashFlowData": [
+     {
+      "applied_cond_price": 70.0,
+      "applied_gas_price": 4.5,
+      "applied_oil_price": 80.0,
+      "capex": 300000000.0,
+      "cit_allowance_carryforward": 6675073.817713131,
+      "cit_allowance_claimed": 5324926.182286869,
+      "cit_assessable_profit": 7987389.273430303,
+      "cit_chargeable_profit": 2662463.091143434,
+      "cit_loss_carryforward": 0.0,
+      "cit_loss_offset_used": 0.0,
+      "cit_tax": 798738.9273430301,
+      "condensate_bbl": 0.0,
+      "cpr_cap": 52000000.0,
+      "cpr_costs_claimed": 52000000.0,
+      "cpr_deferred_to_next": 48000000.0,
+      "cumulative_cash_flow": -295557251.1677776,
+      "cumulative_nominal": -295557251.1677776,
+      "cumulative_oil_bbl_lifetime": 1000000.0,
+      "cumulative_real": -295557251.1677776,
+      "depreciation": 60000000.0,
+      "dev_levy_tax": 0.0,
+      "discounted_cash_flow": -295557251.1677776,
+      "fiscal_framework": "pia_only",
+      "gas_mscf": 0.0,
+      "gross_revenue": 80000000.0,
+      "hcdt": 5100000.0,
+      "hct_assessable_profit": 22987389.273430303,
+      "hct_chargeable_profit": 8487389.273430303,
+      "hct_loss_carryforward": 0.0,
+      "hct_loss_offset_used": 0.0,
+      "hct_tax": 2546216.782029091,
+      "nddc": 15000000.0,
+      "netCashFlow": -295557251.1677776,
+      "net_cash_flow": -295557251.1677776,
+      "oil_bbl": 1000000.0,
+      "opex": 40000000.0,
+      "price_royalty": 1912610.726569691,
+      "prod_alw_cap_applied": false,
+      "prod_alw_eligible_bbl": 1000000.0,
+      "production_allowance": 2500000.0,
+      "production_royalty": 10000000.0,
+      "real_net_cash_flow": -295557251.1677776,
+      "revenue": 80000000.0,
+      "royalty": 11912610.726569692,
+      "tax": 3544640.4412078783,
+      "taxable_income": 11149852.364573736,
+      "tet_tax": 199684.73183575756,
+      "year": 2025
+     },
+     {
+      "applied_cond_price": 70.0,
+      "applied_gas_price": 4.5,
+      "applied_oil_price": 80.0,
+      "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 66675073.817713134,
+      "cit_assessable_profit": 305019936.90253127,
+      "cit_chargeable_profit": 238344863.08481812,
+      "cit_loss_carryforward": 0.0,
+      "cit_loss_offset_used": 0.0,
+      "cit_tax": 71503458.92544544,
+      "condensate_bbl": 0.0,
+      "cpr_cap": 312000000.0,
+      "cpr_costs_claimed": 148000000.0,
+      "cpr_deferred_to_next": 0.0,
+      "cumulative_cash_flow": -101008708.95053178,
+      "cumulative_nominal": -95172252.68401441,
+      "cumulative_oil_bbl_lifetime": 7000000.0,
+      "cumulative_real": -101008708.95053178,
+      "depreciation": 60000000.0,
+      "dev_levy_tax": 0.0,
+      "discounted_cash_flow": 182168180.43978474,
+      "fiscal_framework": "pia_only",
+      "gas_mscf": 0.0,
+      "gross_revenue": 480000000.0,
+      "hcdt": 1200000.0,
+      "hct_assessable_profit": 320019936.90253127,
+      "hct_chargeable_profit": 245019936.90253127,
+      "hct_loss_carryforward": 0.0,
+      "hct_loss_offset_used": 0.0,
+      "hct_tax": 73505981.07075937,
+      "nddc": 15000000.0,
+      "netCashFlow": 200384998.4837632,
+      "net_cash_flow": 200384998.4837632,
+      "oil_bbl": 6000000.0,
+      "opex": 40000000.0,
+      "price_royalty": 10780063.097468771,
+      "prod_alw_cap_applied": false,
+      "prod_alw_eligible_bbl": 6000000.0,
+      "production_allowance": 15000000.0,
+      "production_royalty": 60000000.0,
+      "real_net_cash_flow": 194548542.21724582,
+      "revenue": 480000000.0,
+      "royalty": 70780063.09746876,
+      "tax": 152634938.41876808,
+      "taxable_income": 483364799.9873494,
+      "tet_tax": 7625498.422563281,
+      "year": 2026
+     }
+    ],
+    "kpis": {
+     "discount_rate_applied_pct": 6.796116504854366,
+     "discounted_payback_years": null,
+     "discounting_convention": "end_year",
+     "dpi": -0.3779635690933095,
+     "engine_version": "3.10.0",
+     "fiscal_framework": "pia_only",
+     "fiscal_regime": "PIA",
+     "government_take_pct": 152.87347371334135,
+     "government_take_pct_discounted": 180.99219337713777,
+     "irr": -32.200953388211204,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
+     "npv": -113389070.72799286,
+     "npv_profile": [
+      {
+       "npv": -101008708.95053178,
+       "rate_pct": 0
+      },
+      {
+       "npv": -110272925.24659112,
+       "rate_pct": 5
+      },
+      {
+       "npv": -113389070.72799286,
+       "rate_pct": 6.8
+      },
+      {
+       "npv": -115419712.07773519,
+       "rate_pct": 8
+      },
+      {
+       "npv": -118694940.06119052,
+       "rate_pct": 10
+      },
+      {
+       "npv": -121853195.61666527,
+       "rate_pct": 12
+      },
+      {
+       "npv": -126384605.76147687,
+       "rate_pct": 15
+      },
+      {
+       "npv": -133433465.9867394,
+       "rate_pct": 20
+      }
+     ],
+     "opex_usd_per_boe": 11.428571428571429,
+     "payback": "Beyond project life",
+     "payback_years": null,
+     "profitability_index": 0.6220364309066905,
+     "pv_basis": "real",
+     "pv_capex": 300000000.0,
+     "total_boe": 7000000.0,
+     "total_capex": 300000000.0,
+     "total_cit": 72302197.85278846,
+     "total_condensate_bbl": 0.0,
+     "total_dev_levy": 0.0,
+     "total_gas_mscf": 0.0,
+     "total_hcdt": 6300000.0,
+     "total_hct": 76052197.85278846,
+     "total_nddc": 30000000.0,
+     "total_net_cash_flow": -101008708.95053178,
+     "total_net_cash_flow_nominal": -95172252.68401441,
+     "total_net_cash_flow_real": -101008708.95053178,
+     "total_oil_bbl": 7000000.0,
+     "total_opex": 80000000.0,
+     "total_production_allowance": 17500000.0,
+     "total_revenue": 560000000.0,
+     "total_royalties": 82692673.82403846,
+     "total_tax": 156179578.85997596,
+     "total_tet": 7825183.154399038,
+     "unit_technical_cost_usd_per_boe": 54.285714285714285
+    }
+   },
+   "name": "pia_cit_allowance_restricted_carry",
+   "note": "CITA restriction binds in 2025 (5,324,926.18 claimed of 12,000,000 available) and the 6,675,073.82 it disallows is carried and claimed in 2026 (EC1-6).",
+   "opexRows": [
+    {
+     "total_opex_usd": 40000000,
+     "year": 2025
+    },
+    {
+     "total_opex_usd": 40000000,
+     "year": 2026
+    }
+   ],
+   "prodRows": [
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2025
+    },
+    {
+     "well1_oil_bbl": 6000000,
+     "year": 2026
+    }
+   ]
+  },
+  {
+   "capexRows": [
+    {
+     "amount_usd": 300000000,
+     "year": 2025
+    }
+   ],
+   "cfg": {
+    "base_year": 2025,
+    "capex_escalator_pct": 0,
+    "cit_restricted_allowance_carryforward": false,
+    "condensate_price_escalator_pct": 0,
+    "condensate_price_usd_bbl": 70,
+    "discount_rate_pct": 10,
+    "fiscal_regime": "PIA",
+    "gas_price_escalator_pct": 0,
+    "gas_price_usd_mscf": 4.5,
+    "inflation_rate_pct": 3,
+    "jv_royalty_pct": 10,
+    "jv_tax_rate_pct": 50,
+    "jv_working_interest_pct": 100,
+    "oil_price_escalator_pct": 0,
+    "oil_price_usd_bbl": 80,
+    "opex_escalator_pct": 0,
+    "pia_apply_minimum_etr": false,
+    "pia_capex_recovery_years": 5,
+    "pia_cit_rate_pct": 30,
+    "pia_cpr_limit_pct": 65,
+    "pia_deep_offshore_hct_custom_rate_pct": null,
+    "pia_deep_offshore_hct_interpretation": "conservative_zero",
+    "pia_development_levy_rate_pct": 4,
+    "pia_hct_rate_override_pct": null,
+    "pia_lease_status": "converted",
+    "pia_license_type": "PML",
+    "pia_marginal_field_pre_2021": false,
+    "pia_minimum_etr_pct": 15,
+    "pia_nddc_levy_fixed_usd": 15000000,
+    "pia_nddc_levy_pct_of_opex": 3,
+    "pia_new_lease_prod_alw_cap_deep_bbl": 500000000,
+    "pia_new_lease_prod_alw_cap_onshore_bbl": 50000000,
+    "pia_new_lease_prod_alw_cap_shallow_bbl": 100000000,
+    "pia_prior_cumulative_oil_bbl": 0,
+    "pia_prior_year_opex_usd": 170000000,
+    "pia_production_allowance_pct_of_price": 20,
+    "pia_production_allowance_per_bbl_converted": 2.5,
+    "pia_production_allowance_per_bbl_new": 8,
+    "pia_terrain": "shallow_water",
+    "pia_tet_rate_pct": 2.5,
+    "pia_under_nta_2025_override": "auto",
+    "pia_water_depth_m": 100,
+    "present_value_basis": "real",
+    "psc_contractor_profit_share_pct": 50,
+    "psc_cost_oil_cap_pct": 80,
+    "psc_royalty_pct": 10,
+    "psc_tax_rate_pct": 50
+   },
+   "expected": {
+    "cashFlowData": [
+     {
+      "applied_cond_price": 70.0,
+      "applied_gas_price": 4.5,
+      "applied_oil_price": 80.0,
+      "capex": 300000000.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 5324926.182286869,
+      "cit_assessable_profit": 7987389.273430303,
+      "cit_chargeable_profit": 2662463.091143434,
+      "cit_loss_carryforward": 0.0,
+      "cit_loss_offset_used": 0.0,
+      "cit_tax": 798738.9273430301,
+      "condensate_bbl": 0.0,
+      "cpr_cap": 52000000.0,
+      "cpr_costs_claimed": 52000000.0,
+      "cpr_deferred_to_next": 48000000.0,
+      "cumulative_cash_flow": -295557251.1677776,
+      "cumulative_nominal": -295557251.1677776,
+      "cumulative_oil_bbl_lifetime": 1000000.0,
+      "cumulative_real": -295557251.1677776,
+      "depreciation": 60000000.0,
+      "dev_levy_tax": 0.0,
+      "discounted_cash_flow": -295557251.1677776,
+      "fiscal_framework": "pia_only",
+      "gas_mscf": 0.0,
+      "gross_revenue": 80000000.0,
+      "hcdt": 5100000.0,
+      "hct_assessable_profit": 22987389.273430303,
+      "hct_chargeable_profit": 8487389.273430303,
+      "hct_loss_carryforward": 0.0,
+      "hct_loss_offset_used": 0.0,
+      "hct_tax": 2546216.782029091,
+      "nddc": 15000000.0,
+      "netCashFlow": -295557251.1677776,
+      "net_cash_flow": -295557251.1677776,
+      "oil_bbl": 1000000.0,
+      "opex": 40000000.0,
+      "price_royalty": 1912610.726569691,
+      "prod_alw_cap_applied": false,
+      "prod_alw_eligible_bbl": 1000000.0,
+      "production_allowance": 2500000.0,
+      "production_royalty": 10000000.0,
+      "real_net_cash_flow": -295557251.1677776,
+      "revenue": 80000000.0,
+      "royalty": 11912610.726569692,
+      "tax": 3544640.4412078783,
+      "taxable_income": 11149852.364573736,
+      "tet_tax": 199684.73183575756,
+      "year": 2025
+     },
+     {
+      "applied_cond_price": 70.0,
+      "applied_gas_price": 4.5,
+      "applied_oil_price": 80.0,
+      "capex": 0.0,
+      "cit_allowance_carryforward": 0.0,
+      "cit_allowance_claimed": 60000000.0,
+      "cit_assessable_profit": 305019936.90253127,
+      "cit_chargeable_profit": 245019936.90253127,
+      "cit_loss_carryforward": 0.0,
+      "cit_loss_offset_used": 0.0,
+      "cit_tax": 73505981.07075939,
+      "condensate_bbl": 0.0,
+      "cpr_cap": 312000000.0,
+      "cpr_costs_claimed": 148000000.0,
+      "cpr_deferred_to_next": 0.0,
+      "cumulative_cash_flow": -102952905.20811817,
+      "cumulative_nominal": -97174774.82932839,
+      "cumulative_oil_bbl_lifetime": 7000000.0,
+      "cumulative_real": -102952905.20811817,
+      "depreciation": 60000000.0,
+      "dev_levy_tax": 0.0,
+      "discounted_cash_flow": 180347705.76222655,
+      "fiscal_framework": "pia_only",
+      "gas_mscf": 0.0,
+      "gross_revenue": 480000000.0,
+      "hcdt": 1200000.0,
+      "hct_assessable_profit": 320019936.90253127,
+      "hct_chargeable_profit": 245019936.90253127,
+      "hct_loss_carryforward": 0.0,
+      "hct_loss_offset_used": 0.0,
+      "hct_tax": 73505981.07075937,
+      "nddc": 15000000.0,
+      "netCashFlow": 198382476.3384492,
+      "net_cash_flow": 198382476.3384492,
+      "oil_bbl": 6000000.0,
+      "opex": 40000000.0,
+      "price_royalty": 10780063.097468771,
+      "prod_alw_cap_applied": false,
+      "prod_alw_eligible_bbl": 6000000.0,
+      "production_allowance": 15000000.0,
+      "production_royalty": 60000000.0,
+      "real_net_cash_flow": 192604345.95965943,
+      "revenue": 480000000.0,
+      "royalty": 70780063.09746876,
+      "tax": 154637460.56408206,
+      "taxable_income": 490039873.80506253,
+      "tet_tax": 7625498.422563281,
+      "year": 2026
+     }
+    ],
+    "kpis": {
+     "discount_rate_applied_pct": 6.796116504854366,
+     "discounted_payback_years": null,
+     "discounting_convention": "end_year",
+     "dpi": -0.3840318180185035,
+     "engine_version": "3.10.0",
+     "fiscal_framework": "pia_only",
+     "fiscal_regime": "PIA",
+     "government_take_pct": 153.98598601629357,
+     "government_take_pct_discounted": 182.29253243253646,
+     "irr": -32.87849458789277,
+     "irr_root_above_band": false,
+     "irr_roots": null,
+     "irr_status": "ok",
+     "npv": -115209545.40555105,
+     "npv_profile": [
+      {
+       "npv": -102952905.20811817,
+       "rate_pct": 0
+      },
+      {
+       "npv": -112124540.73000672,
+       "rate_pct": 5
+      },
+      {
+       "npv": -115209545.40555105,
+       "rate_pct": 6.8
+      },
+      {
+       "npv": -117219893.79772258,
+       "rate_pct": 8
+      },
+      {
+       "npv": -120462391.20445085,
+       "rate_pct": 10
+      },
+      {
+       "npv": -123589085.1323674,
+       "rate_pct": 12
+      },
+      {
+       "npv": -128075211.20285633,
+       "rate_pct": 15
+      },
+      {
+       "npv": -135053629.53472808,
+       "rate_pct": 20
+      }
+     ],
+     "opex_usd_per_boe": 11.428571428571429,
+     "payback": "Beyond project life",
+     "payback_years": null,
+     "profitability_index": 0.6159681819814965,
+     "pv_basis": "real",
+     "pv_capex": 300000000.0,
+     "total_boe": 7000000.0,
+     "total_capex": 300000000.0,
+     "total_cit": 74304719.99810241,
+     "total_condensate_bbl": 0.0,
+     "total_dev_levy": 0.0,
+     "total_gas_mscf": 0.0,
+     "total_hcdt": 6300000.0,
+     "total_hct": 76052197.85278846,
+     "total_nddc": 30000000.0,
+     "total_net_cash_flow": -102952905.20811817,
+     "total_net_cash_flow_nominal": -97174774.82932839,
+     "total_net_cash_flow_real": -102952905.20811817,
+     "total_oil_bbl": 7000000.0,
+     "total_opex": 80000000.0,
+     "total_production_allowance": 17500000.0,
+     "total_revenue": 560000000.0,
+     "total_royalties": 82692673.82403846,
+     "total_tax": 158182101.00528994,
+     "total_tet": 7825183.154399038,
+     "unit_technical_cost_usd_per_boe": 54.285714285714285
+    }
+   },
+   "name": "pia_cit_allowance_no_carry",
+   "note": "The same field with the carryforward switched off, which is the pre-v3.10 rule: the disallowed allowance is lost and 2026 pays more CIT (EC1-6).",
+   "opexRows": [
+    {
+     "total_opex_usd": 40000000,
+     "year": 2025
+    },
+    {
+     "total_opex_usd": 40000000,
+     "year": 2026
+    }
+   ],
+   "prodRows": [
+    {
+     "well1_oil_bbl": 1000000,
+     "year": 2025
+    },
+    {
+     "well1_oil_bbl": 6000000,
+     "year": 2026
+    }
+   ]
   }
  ],
  "description": "Economics cash flow goldens for engines/economics/cashflow.ts (the Suite EPE engine v3.9.0, extracted EC0 2026-09-08). Emitted by the independent stdlib oracle tools/validation/economics/oracle_cashflow.py, written from the engine header, docs/scope/EPE.md and the harness derivations, never from the TypeScript: IRR by a 0.001 bracket scan and bisection to 1e-13 (smallest root) against the engine Newton-then-bisection; breakeven oil price bisected to 1e-9 USD/bbl against the engine 0.001 bracket midpoint; every fiscal line and every KPI recomputed. Units: money USD (NGN mirrors where fx_ngn_per_usd is set), oil and condensate bbl, gas Mscf, boe at 6 Mscf per bbl, percent inputs 0 to 100, irr and government take in percent, discount_rate_applied_pct in percent, payback in years. Discounting is YEAR-END from the valuation year (0.5 added under mid_year) on the real basis (Fisher real rate, cash flows deflated by (1 + inflation) ^ (year - base_year)) or the nominal basis. `cases` carry full cashFlowData rows and kpis; `errors` carry the ingestion failures the engine must throw with a substring of the message; `irr` carries flow vectors with the oracle IRR (percent) and payback; `breakeven` carries the exact breakeven price and the NPV there; `sweeps` carry KPI curves. `disagreements` lists every quantity where the engine and the oracle legitimately differ, with both numbers and the method statement that decides it (see FINDINGS-cashflow.md).",
- "disagreements": [
-  {
-   "case": "allowance_cap_midyear",
-   "engine": {
-    "npv": 2405993.7171979304,
-    "rate_pct": 6.8
-   },
-   "gap": -453.74370044097304,
-   "gap_unit": "USD",
-   "method_statement": "Engine header v3.8: \"the applied rate is included so the curve always passes through the headline NPV\". The engine rounds the applied rate to two decimals before labelling and evaluating the point, so on a real basis whose Fisher rate is not a round percentage the point misses the headline NPV by the gap recorded here.",
-   "oracle": {
-    "npv": 2406447.4608983714,
-    "rate_pct": 6.796116504854366
-   },
-   "quantity": "kpis.npv_profile applied-rate point"
-  },
-  {
-   "case": "elt_pia_multiyear",
-   "engine": {
-    "npv": 203209583.7852923,
-    "rate_pct": 6.8
-   },
-   "gap": -40996.419835716486,
-   "gap_unit": "USD",
-   "method_statement": "Engine header v3.8: \"the applied rate is included so the curve always passes through the headline NPV\". The engine rounds the applied rate to two decimals before labelling and evaluating the point, so on a real basis whose Fisher rate is not a round percentage the point misses the headline NPV by the gap recorded here.",
-   "oracle": {
-    "npv": 203250580.205128,
-    "rate_pct": 6.796116504854366
-   },
-   "quantity": "kpis.npv_profile applied-rate point"
-  },
-  {
-   "case": "pia_loss_relief",
-   "engine": {
-    "npv": -5480342.365053147,
-    "rate_pct": 6.8
-   },
-   "gap": -5130.329868733883,
-   "gap_unit": "USD",
-   "method_statement": "Engine header v3.8: \"the applied rate is included so the curve always passes through the headline NPV\". The engine rounds the applied rate to two decimals before labelling and evaluating the point, so on a real basis whose Fisher rate is not a round percentage the point misses the headline NPV by the gap recorded here.",
-   "oracle": {
-    "npv": -5475212.035184413,
-    "rate_pct": 6.796116504854366
-   },
-   "quantity": "kpis.npv_profile applied-rate point"
-  },
-  {
-   "case": "pia_loss_relief_killswitch",
-   "engine": {
-    "npv": -8768306.083631963,
-    "rate_pct": 6.8
-   },
-   "gap": -5010.767551660538,
-   "gap_unit": "USD",
-   "method_statement": "Engine header v3.8: \"the applied rate is included so the curve always passes through the headline NPV\". The engine rounds the applied rate to two decimals before labelling and evaluating the point, so on a real basis whose Fisher rate is not a round percentage the point misses the headline NPV by the gap recorded here.",
-   "oracle": {
-    "npv": -8763295.316080302,
-    "rate_pct": 6.796116504854366
-   },
-   "quantity": "kpis.npv_profile applied-rate point"
-  },
-  {
-   "case": "multiyear_pia_real",
-   "engine": {
-    "npv": 203209583.7852923,
-    "rate_pct": 6.8
-   },
-   "gap": -40996.419835716486,
-   "gap_unit": "USD",
-   "method_statement": "Engine header v3.8: \"the applied rate is included so the curve always passes through the headline NPV\". The engine rounds the applied rate to two decimals before labelling and evaluating the point, so on a real basis whose Fisher rate is not a round percentage the point misses the headline NPV by the gap recorded here.",
-   "oracle": {
-    "npv": 203250580.205128,
-    "rate_pct": 6.796116504854366
-   },
-   "quantity": "kpis.npv_profile applied-rate point"
-  },
-  {
-   "case": "multiyear_pia_midyear_real",
-   "engine": {
-    "npv": 196633975.5938872,
-    "rate_pct": 6.8
-   },
-   "gap": -43245.67887556553,
-   "gap_unit": "USD",
-   "method_statement": "Engine header v3.8: \"the applied rate is included so the curve always passes through the headline NPV\". The engine rounds the applied rate to two decimals before labelling and evaluating the point, so on a real basis whose Fisher rate is not a round percentage the point misses the headline NPV by the gap recorded here.",
-   "oracle": {
-    "npv": 196677221.27276278,
-    "rate_pct": 6.796116504854366
-   },
-   "quantity": "kpis.npv_profile applied-rate point"
-  },
-  {
-   "case": "multiyear_jv_real",
-   "engine": {
-    "npv": 88086010.81351402,
-    "rate_pct": 6.8
-   },
-   "gap": -18628.182078123093,
-   "gap_unit": "USD",
-   "method_statement": "Engine header v3.8: \"the applied rate is included so the curve always passes through the headline NPV\". The engine rounds the applied rate to two decimals before labelling and evaluating the point, so on a real basis whose Fisher rate is not a round percentage the point misses the headline NPV by the gap recorded here.",
-   "oracle": {
-    "npv": 88104638.99559215,
-    "rate_pct": 6.796116504854366
-   },
-   "quantity": "kpis.npv_profile applied-rate point"
-  },
-  {
-   "case": "pia_cpr_carry_two_years",
-   "engine": {
-    "npv": -86633142.54388376,
-    "rate_pct": 6.8
-   },
-   "gap": -3935.482100561261,
-   "gap_unit": "USD",
-   "method_statement": "Engine header v3.8: \"the applied rate is included so the curve always passes through the headline NPV\". The engine rounds the applied rate to two decimals before labelling and evaluating the point, so on a real basis whose Fisher rate is not a round percentage the point misses the headline NPV by the gap recorded here.",
-   "oracle": {
-    "npv": -86629207.0617832,
-    "rate_pct": 6.796116504854366
-   },
-   "quantity": "kpis.npv_profile applied-rate point"
-  },
-  {
-   "case": "irr:two_roots_2_and_6",
-   "engine": {
-    "irr_pct": 5.999999999999566
-   },
-   "gap": 3.999999999996655,
-   "gap_unit": "percentage points",
-   "method_statement": "Engine header v3.5: \"irr(): Newton now falls back to bisection when unconverged and returns null when no sign change brackets a root.\" It does not say which root is reported when the profile has several. The oracle reports the root nearest zero on the positive side (the hurdle-rate region); the engine reports the root Newton reaches from 10 percent. Both zero the NPV; the choice is an owner decision.",
-   "oracle": {
-    "irr_pct": 2.0000000000029106
-   },
-   "quantity": "irr on a multi-root profile"
-  },
-  {
-   "case": "irr:three_roots_0_7_33",
-   "engine": {
-    "irr_pct": 7.350889359324948
-   },
-   "gap": 7.3508893593220375,
-   "gap_unit": "percentage points",
-   "method_statement": "Engine header v3.5: \"irr(): Newton now falls back to bisection when unconverged and returns null when no sign change brackets a root.\" It does not say which root is reported when the profile has several. The oracle reports the root nearest zero on the positive side (the hurdle-rate region); the engine reports the root Newton reaches from 10 percent. Both zero the NPV; the choice is an owner decision.",
-   "oracle": {
-    "irr_pct": 2.9103830456733705e-12
-   },
-   "quantity": "irr on a multi-root profile"
-  }
- ],
- "engine_version": "3.9.0",
+ "disagreements": [],
+ "engine_version": "3.10.0",
  "errors": [
   {
    "capexRows": [],
@@ -16486,7 +18312,10 @@
     -12500000,
     37500000
    ],
-   "irr_pct": 200.0,
+   "irr_pct": 199.99999999999997,
+   "irr_root_above_band": false,
+   "irr_roots": null,
+   "irr_status": "ok",
    "name": "jv_analytic",
    "payback": "1.33 years",
    "payback_years": 1.3333333333333333
@@ -16498,6 +18327,9 @@
     -3
    ],
    "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": null,
+   "irr_status": "no-root",
    "name": "no_real_root",
    "payback": "1.33 years",
    "payback_years": 1.3333333333333333
@@ -16508,7 +18340,13 @@
     230,
     -132
    ],
-   "irr_pct": 10.000000000002911,
+   "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": [
+    10.000000000002919,
+    20.000000000002906
+   ],
+   "irr_status": "multiple-roots",
    "name": "two_roots_10_and_20",
    "payback": "1.43 years",
    "payback_years": 1.434782608695652
@@ -16520,6 +18358,9 @@
     5
    ],
    "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": null,
+   "irr_status": "no-sign-change",
    "name": "all_positive",
    "payback": "Year 0",
    "payback_years": 0.0
@@ -16530,6 +18371,9 @@
     -5
    ],
    "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": null,
+   "irr_status": "no-sign-change",
    "name": "all_negative",
    "payback": "Beyond project life",
    "payback_years": null
@@ -16544,6 +18388,9 @@
     300
    ],
    "irr_pct": 15.238237116628445,
+   "irr_root_above_band": false,
+   "irr_roots": null,
+   "irr_status": "ok",
    "name": "conventional_five_year",
    "payback": "4.33 years",
    "payback_years": 4.333333333333333
@@ -16557,7 +18404,10 @@
     0,
     2500
    ],
-   "irr_pct": 20.112443398145842,
+   "irr_pct": 20.112443398145846,
+   "irr_root_above_band": false,
+   "irr_roots": null,
+   "irr_status": "ok",
    "name": "late_payout",
    "payback": "5.40 years",
    "payback_years": 5.4
@@ -16567,7 +18417,10 @@
     -1000,
     1001
    ],
-   "irr_pct": 0.10000000000291039,
+   "irr_pct": 0.10000000000291048,
+   "irr_root_above_band": false,
+   "irr_roots": null,
+   "irr_status": "ok",
    "name": "tiny_return",
    "payback": "2.00 years",
    "payback_years": 1.999000999000999
@@ -16578,7 +18431,10 @@
     500,
     400
    ],
-   "irr_pct": -6.992647456322448,
+   "irr_pct": -6.992647456322432,
+   "irr_root_above_band": false,
+   "irr_roots": null,
+   "irr_status": "ok",
    "name": "loss_making",
    "payback": "Beyond project life",
    "payback_years": null
@@ -16590,22 +18446,26 @@
     250
    ],
    "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": null,
+   "irr_status": "no-root",
    "name": "sign_change_late",
    "payback": "2.80 years",
    "payback_years": 2.8
   },
   {
-   "disagreement": {
-    "engine_irr_pct": 5.999999999999566,
-    "method_statement": "Engine header v3.5: \"irr(): Newton now falls back to bisection when unconverged and returns null when no sign change brackets a root.\" It does not say which root is reported when the profile has several. The oracle reports the root nearest zero on the positive side (the hurdle-rate region); the engine reports the root Newton reaches from 10 percent. Both zero the NPV; the choice is an owner decision.",
-    "oracle_irr_pct": 2.0000000000029106
-   },
    "flows": [
     -100,
     208,
     -108.12
    ],
-   "irr_pct": 2.0000000000029106,
+   "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": [
+    2.000000000002912,
+    6.000000000000005
+   ],
+   "irr_status": "multiple-roots",
    "name": "two_roots_2_and_6",
    "payback": "1.48 years",
    "payback_years": 1.4807692307692308
@@ -16616,7 +18476,13 @@
     255,
     -157.5
    ],
-   "irr_pct": 5.000000000002911,
+   "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": [
+    5.000000000002915,
+    50.0
+   ],
+   "irr_status": "multiple-roots",
    "name": "two_roots_5_and_50",
    "payback": "1.39 years",
    "payback_years": 1.392156862745098
@@ -16627,24 +18493,32 @@
     37500000,
     -9000000
    ],
-   "irr_pct": 173.6931687685283,
+   "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": [
+    -73.69316876852825,
+    173.69316876852824
+   ],
+   "irr_status": "multiple-roots",
    "name": "two_roots_minus73_and_173",
    "payback": "1.33 years",
    "payback_years": 1.3333333333333333
   },
   {
-   "disagreement": {
-    "engine_irr_pct": 7.350889359324948,
-    "method_statement": "Engine header v3.5: \"irr(): Newton now falls back to bisection when unconverged and returns null when no sign change brackets a root.\" It does not say which root is reported when the profile has several. The oracle reports the root nearest zero on the positive side (the hurdle-rate region); the engine reports the root Newton reaches from 10 percent. Both zero the NPV; the choice is an owner decision.",
-    "oracle_irr_pct": 2.9103830456733705e-12
-   },
    "flows": [
     -100,
     340,
     -382.4,
     142.4
    ],
-   "irr_pct": 2.9103830456733705e-12,
+   "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": [
+    2.910383045673373e-12,
+    7.3508893593243645,
+    32.64911064067564
+   ],
+   "irr_status": "multiple-roots",
    "name": "three_roots_0_7_33",
    "payback": "1.29 years",
    "payback_years": 1.2941176470588236
@@ -16656,10 +18530,46 @@
     -454,
     184.8
    ],
-   "irr_pct": 9.99999999999709,
+   "irr_pct": null,
+   "irr_root_above_band": false,
+   "irr_roots": [
+    9.9999999999971,
+    19.999999999997087,
+    40.00000000000292
+   ],
+   "irr_status": "multiple-roots",
    "name": "three_roots_10_20_40",
    "payback": "1.27 years",
    "payback_years": 1.2702702702702702
+  },
+  {
+   "flows": [
+    -1,
+    1000
+   ],
+   "irr_pct": null,
+   "irr_root_above_band": true,
+   "irr_roots": null,
+   "irr_status": "above-clamp",
+   "name": "above_band_only",
+   "payback": "1.00 years",
+   "payback_years": 1.001
+  },
+  {
+   "flows": [
+    -1,
+    30,
+    -200
+   ],
+   "irr_pct": null,
+   "irr_root_above_band": true,
+   "irr_roots": [
+    900.0
+   ],
+   "irr_status": "multiple-roots",
+   "name": "one_in_band_one_above",
+   "payback": "1.03 years",
+   "payback_years": 1.0333333333333334
   }
  ],
  "sweeps": {
@@ -16981,7 +18891,7 @@
       "economic_limit_year": 2034,
       "government_take_pct": 75.64168575816751,
       "government_take_pct_discounted": 82.64356374106244,
-      "irr": 26.994753517836223,
+      "irr": 26.994753517836212,
       "npv": 153012318.4463398,
       "payback_years": 3.6748718406321483,
       "total_revenue": 2804697205.5884094,
@@ -17143,7 +19053,7 @@
       "economic_limit_year": 2030,
       "government_take_pct": 105.77924667572209,
       "government_take_pct_discounted": 121.13843143964982,
-      "irr": -4.344628031903993,
+      "irr": -4.344628031903987,
       "npv": -76483227.8065852,
       "payback_years": null,
       "total_revenue": 1532137562.5314307,
@@ -17305,7 +19215,7 @@
       "economic_limit_year": 2028,
       "government_take_pct": 202.40605043678494,
       "government_take_pct_discounted": 244.96213432629133,
-      "irr": -42.272490438775264,
+      "irr": -42.27249043877528,
       "npv": -192240981.8163231,
       "payback_years": null,
       "total_revenue": 1035116137.5999999,
@@ -17586,7 +19496,7 @@
       "dpi": 0.992703258149711,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 69.2572685063957,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 148905488.72245666,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -17699,7 +19609,7 @@
       "dpi": 0.8970663543492986,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 70.47086123523658,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 134032267.06160107,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -17812,7 +19722,7 @@
       "dpi": 0.8109009623546116,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 71.6992724348658,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 120699489.39662874,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -17925,7 +19835,7 @@
       "dpi": 0.7330242856050307,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 72.94089744255639,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 108708884.61991589,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -18038,7 +19948,7 @@
       "dpi": 0.6624263128517602,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 74.19421291970761,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 97891888.45476013,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -18151,7 +20061,7 @@
       "dpi": 0.598241375895996,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 75.45777915232506,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 88104638.99559215,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -18264,7 +20174,7 @@
       "dpi": 0.5397248664841972,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 76.73024093044121,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 79223900.04464464,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -18377,7 +20287,7 @@
       "dpi": 0.48623409643919385,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 78.01032724185217,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 71143725.68952414,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -18490,7 +20400,7 @@
       "dpi": 0.437212499949348,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 79.29684999699438,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 63772719.82019801,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -18603,7 +20513,7 @@
       "dpi": 0.3921765433870316,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 80.58870198068647,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 57031775.292554766,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -18716,7 +20626,7 @@
       "dpi": 0.3507048376181738,
       "government_take_pct": 69.2572685063957,
       "government_take_pct_discounted": 81.88485420426606,
-      "irr": 47.90202040678996,
+      "irr": 47.902020406789944,
       "npv": 50852201.454635195,
       "payback_years": 2.889357478700107,
       "total_revenue": 767745022.6734018,
@@ -19276,7 +21186,7 @@
       "dpi": 0.2812945842104688,
       "government_take_pct": 71.48377352193116,
       "government_take_pct_discounted": 79.72035431197256,
-      "irr": 32.406947842918456,
+      "irr": 32.40694784291846,
       "npv": 143511382.41719556,
       "payback_years": 3.2318419570321377,
       "total_revenue": 1891169782.4931717,
@@ -19415,7 +21325,7 @@
       "dpi": 0.3983885214284405,
       "government_take_pct": 71.10240356470288,
       "government_take_pct_discounted": 77.44992242648453,
-      "irr": 43.92693503545888,
+      "irr": 43.92693503545889,
       "npv": 203250580.205128,
       "payback_years": 2.8920336875191075,
       "total_revenue": 2120990416.8728862,
@@ -19554,7 +21464,7 @@
       "dpi": 0.5113896459712021,
       "government_take_pct": 70.98681413240976,
       "government_take_pct_discounted": 76.1733068300834,
-      "irr": 56.68843432396824,
+      "irr": 56.68843432396822,
       "npv": 260901699.3809442,
       "payback_years": 2.637336927554009,
       "total_revenue": 2350811051.2526007,
@@ -19693,7 +21603,7 @@
       "dpi": 0.6206302429539441,
       "government_take_pct": 71.01510264714963,
       "government_take_pct_discounted": 75.42928389010706,
-      "irr": 71.10073928024792,
+      "irr": 71.10073928024794,
       "npv": 316634265.7688668,
       "payback_years": 2.4223053181409466,
       "total_revenue": 2580631685.632315,

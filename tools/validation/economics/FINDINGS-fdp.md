@@ -195,3 +195,647 @@ month ends, leap days, negative differences, sub-day remainders, fractional
 and NaN amounts and the format ties. Machine timezone UTC (`date` and
 Intl.DateTimeFormat().resolvedOptions().timeZone both UTC); the gate refuses
 to compare under any other zone.
+
+## EC5-0 repair (2026-09-14, owner decision before the EC5 course)
+
+Engine: engines/economics/afe.js. This section supersedes sections 6 and 7
+and the clock caveat in the afe.js header. Oracle, goldens and gate were
+regenerated: afe_cases.json now holds 20 splits, 32 metric sets, 7 metric
+refusals and 24 S-curves. The evm, cpiSpi and gantt sections regenerated
+byte-identical, because projectControls.js was not touched.
+
+**The clock (RESOLVED).** Before: calculateMetrics took its time progress
+from `new Date()`, so SPI on a window that spans today changed every day. On
+2026-01-01..2027-12-31 with 1000 budget at 40 percent progress it was
+1.1390625 on 2026-09-14 and would read differently tomorrow. A fourth
+argument was ignored. After: calculateMetrics(afe, costItems, invoices,
+asOf) and generateSCurveData(afe, costItems, invoices, asOf) take asOf, a
+Date or an ISO date string. They read the clock only as the default. The
+same window gives 1.1390625 as of 2026-09-14 (256 of 729 whole days) and
+0.6877358490566039 as of 2027-03-01, on any day. An invalid asOf throws
+AfeInputError('asOf is not a valid date'). The gate proves the clock is not
+read: two different faked todays give identical output with asOf, and
+different output without it. calculateMetrics also returns plannedValue
+(budget x time progress) and timeProgress.
+
+**Section 7, SPI before the start (RESOLVED).** Before: SPI = EV / 0 was
+Infinity with value earned and NaN without, and the app printed a verdict on
+it. After: SPI is null whenever planned value is not positive, which covers
+before the start and on the start day. The goldens "future window with
+progress" and "future window with no progress" now expect null and carry no
+DISAGREEMENT note. The empty-budget guard (SPI 1) is unchanged.
+
+**Section 6, two forecast rules (RESOLVED).** Before: the metric tiles used
+an entered forecast only when positive, while the S-curve took any non-zero
+entered forecast. A -50 forecast on a 1200 budget showed EAC 1200 on the
+tiles and a curve that ran negative. After: both use the exported
+itemForecast(item). That is the entered forecast when Number(forecast) > 0,
+else max(budget, actual + commitment). The -50 case gives 1200 in both
+places. The gate checks that the last forecast point of a bucket-aligned
+future window equals Math.round of the itemForecast sum.
+
+**S-curve bounded to the window.** Before: the monthly walk ran
+`while (currentDate <= end || currentDate <= now)`. A 2020 AFE emitted 81
+points on 2026-09-14 and gained one a month, so the goldens could pin only
+the points inside the window plus an after-window invariant. After: the walk
+stops at the end, and the 2020 AFE gives 12 points on any day. Actual and
+Forecast split at asOf: a bucket on or before asOf shows the invoices to
+date, and a later bucket shows Actual null with the linear projection.
+Every S-curve golden now pins the exact point list. A window whose end is
+before its start still returns [].
+
+**Negative inputs.**
+- Negative progress: calculateMetrics throws AfeInputError when any item has
+  a finite Number(progress) < 0. The message names the item (code, else
+  description, else index) and the value, for example `Cost item "CMP-02"
+  has negative progress (-20 percent). Progress runs from 0 to 100 percent.`
+  Before, -20 on a 1000 line gave EV -200 and CPI -2. Progress above 100 is
+  still accepted (golden "progress beyond 100 percent earns beyond the
+  budget").
+- Negative working interest: calculatePartnerCosts returns valid false with
+  a note naming each such partner and its value, for example `Partner "B"
+  has a negative working interest (-20.00 percent). Correct the interests
+  before billing.` Before, -20 on a 1000 cost billed the partner -200, gave
+  the operator 120 percent and returned valid true. When the total is also
+  over 100, both sentences are given, the negative one first. The allocation
+  is still returned unchanged, and the conservation identity still holds
+  (gated on every split golden).
+
+**Section 8 is unchanged.** A null invoice date is still new Date(null), the
+epoch, and still counts in every bucket (golden "past window, all invoices
+unpaid: none dated"). It remains an open finding.
+
+## EC6-0 repair (2026-09-15, owner decision before the EC6 course)
+
+Engines: engines/economics/fdp/scenarioCalculations.js, economics.js,
+subsurfaceCalculations.js, fdpCalculations.js, scheduleCalculations.js,
+conceptCalculations.js, the new inputError.js, and
+engines/economics/projectControls.js. This section supersedes sections 2, 3,
+4, 9 and 11. Both oracles and both goldens were regenerated: fdp_cases.json
+now holds 19 scenarios, 10 scenario refusals, 4 sensitivity sweeps, 9
+concepts, 14 schedules (6 of them refusals) and 12 plans; afe_cases.json
+gains 7 EVM refusals. The AFE partnerSplit, metrics and sCurve sections
+regenerated byte-identical, because afe.js was not touched.
+
+The owner scoped this wave. What was repaired is below. What was left as a
+finding, by decision, is listed at the end.
+
+**The scenario cards read the capex nobody enters (RESOLVED).** Before:
+`runScenario` read `concept.capex`. The concept form has never had such a
+field; it collects `drillingCapex`, `facilitiesCapex` and `subseaCapex`, and
+`parseFloat(undefined) || 100` priced every scenario in the app at $100MM. A
+concept entered as 400 + 1200 + 300 showed NPV $3,507.6MM and IRR 676.4
+percent; on its own capex it is $1,791.4MM and 30.0 percent. After:
+`conceptCapexMM` adds the three fields, accepts a single `capex` when a
+caller has already totalled them, and refuses a concept that carries none of
+the four. Golden "the three capex fields are added"; the gate pins both the
+repaired figures and the ones the app used to show.
+
+**Silent defaults (RESOLVED).** Before: a missing operating cost became $10MM
+a year, a missing peak rate 50 kbpd, and a blank or zero oil price $70/bbl
+while the card printed "$0/bbl". A non-numeric royalty or discount rate fell
+back to the default without saying so, and `Number('')` being 0 meant a
+blank royalty field ran the case at a zero royalty rate (section 4). After:
+an absent figure is refused by name (FdpInputError, engines/economics/fdp/
+inputError.js), a blank fiscal field takes DEFAULT_FISCAL and says which,
+anything unreadable is refused, and a zero someone actually typed is
+honoured. Ten refusals are goldened, each with a negative control showing
+the same input used to produce a full set of economics.
+
+**The Economics tab ran an illustrative profile (RESOLVED in the engine).**
+`buildFdpCaseInputs` is split out of `runFdpCase`, and `runFdpSensitivity`
+runs the sanctioned screening sweep (plus and minus 30 percent on price,
+capex, opex and production) over the case actually in front of the user.
+`scenarioSensitivity` does the same for one scenario card. This replaces the
+hard-coded five-bar tornado around "Base Case ($245MM)" that the app drew
+whatever the plan said. Four sweeps are goldened against an independent
+rebuild, and the gate proves the base NPV in the sweep is the case's own NPV.
+
+**Section 2, CPM (RESOLVED).** Before: `calculateCPM` passed the caller's own
+`float` back out and called every activity with a zero or absent float
+critical; it computed nothing. On the textbook network (A3 then B4, D5, F2,
+with C2 and E3 in parallel) it marked all six critical. After: a forward
+pass, a backward pass, float = LS - ES, critical at zero float, plus
+`calculateNetworkDuration` and `criticalPaths` (which lists every zero-float
+chain, so a tie returns both). The engine now equals the oracle's two-pass
+reference on every golden schedule: A-B-D-F at 14 days with four days of
+float on C and E; the app's own example gives act-1, act-3, act-4, act-6,
+act-7 at 330 days with 20 days of float on Detailed Engineering and the
+Drilling Campaign. A cycle, a dependency on an id that is not in the
+schedule, a duplicate id, a missing id and a negative or unreadable duration
+are refused, all six goldened. The gate keeps the retired passthrough beside
+the reference as a negative control: if the disagreement list ever empties,
+the repair has been undone.
+
+**Section 3, project duration (RESOLVED).** It still answers "how long is the
+window" (the network's own length is `calculateNetworkDuration`), but it
+counts whole CALENDAR days rather than subtracting timestamps, and returns
+null rather than NaN when an activity has no readable date. Date-only
+strings parse as local midnight, so the same schedule reports the same
+length in every time zone: Oct 30 to Nov 3 is 4 days in UTC, Los Angeles,
+Lagos and Tokyo alike, where it used to be 4 in UTC and 3 in Los Angeles.
+
+**Section 11, the concept schedule (RESOLVED).** `calculateConceptSchedule`
+did its month arithmetic on a UTC midnight while reading local fields, so
+2024-03-01 plus 24 months landed on a different day depending on the
+reader's zone, and it fell back to the clock when a concept had no start
+date, which made it unreproducible. After: local parsing, local month
+arithmetic, local formatting, and a concept with no start date is refused
+unless the caller states `today` (the as-of rule afe.js already follows).
+2024-03-01 FPSO gives 2027-03-01 in all four zones.
+
+**Reserves: oil added to gas, and summed percentiles (RESOLVED).**
+`aggregateReserves` reduced every row of the reserves table into one set of
+totals whatever fluid it held, so the example's 85 MMbbl of oil and 30 Bcf
+of gas came out as "Total (P50) 115" and the summary card called that 115
+MMbbl of oil. It added the P90 and P10 columns the same way. After: totals
+per fluid, each in its own unit, with `percentileNote` saying in words that a
+sum of P90s is not the P90 of the sum. A row whose fluid is missing or
+unknown is refused by row name. `reservesP50(aggregate, fluid)` is the
+accessor for the volumetric cards.
+
+**The completeness check read a key nothing writes (RESOLVED).**
+`calculateCompleteness` and `validateFDPData` read
+`state.subsurface.reserves.p50`. The plan keeps its reserves in
+`reserves.breakdown` (the table) and its totals in `reserves.summary`, which
+only Load example ever wrote, so a fully entered plan scored 78 percent and
+failed validation with "Reserves (P50) not estimated". After: the new
+`planReservesP50` reads the table first and falls back to the summary, a gas
+only plan passes, and an unreadable table reads as no reserves rather than
+throwing on a completeness screen.
+
+**Section 9, calculateEVM (RESOLVED).** Before: every figure came back as a
+toFixed(2) string, so callers compared them as text and one card read
+`parseFloat(kpis.percentComplete || 1)`, turning "0.00" into 0 and printing
+"Behind Schedule" on a project with no costs at all; percent complete was
+the string "NaN" whenever planned value was zero, which was every project in
+the app; a cost index of 1.00 was invented whenever actual cost was zero;
+`baselineBudget` was accepted and never read; and anything unreadable was
+taken as zero, so a cost pasted as "$1,200" counted as nothing while a
+negative planned cost and a 150 percent complete were taken as typed. After:
+numbers, `pv`/`ev`/`ac` aliases beside the long names (the card that read
+`kpis.ev` now finds it), null for an index with no denominator and for
+percent complete with no planned value, the unused argument dropped, and
+seven refusals goldened. `formatTasksForGantt` parses date-only strings as
+local midnight (a 2026-03-01 task used to draw on Feb 28 west of Greenwich),
+returns null rather than an Invalid Date, and keeps `task_category`, which
+the stage managers filter on and the reshape used to drop.
+
+**Left as findings by owner decision (EC6, 2026-09-15).** These were put to
+the owner with the repairs above and deliberately not taken into this wave.
+They are taught in the course instead:
+- Section 1, the screening IRR clamp: a scenario at $12/bbl still shows IRR
+  1000.0 percent, coloured green, on an NPV of -$740.3MM.
+- The FDP risk banding: five different scales across the register, the HSE
+  tab, the matrix and response planning (a score of 12 reads High, Medium
+  and critical on three screens), `mitigation` saved against
+  `mitigationStrategy` read, and three example HSE risks sharing one id.
+- Report Autopilot: the pre-filled Alpha Prospect / A-21 / ROP 150 ft/hr /
+  NPT 5 percent that the edge function sends to the model as "Reported
+  figures", the ignored GPT-4 toggle, Max Pages not being a document cap,
+  the dead /dashboard/automation Back route and the missing help guide.
+- Time-phased planned value in projectControls.js. Planned value is still
+  the whole budget of every task in scope, so the schedule index is a
+  progress ratio and cannot tell early from late. The engine says so in
+  `spiBasis`, and EC6 grades earned value on afe.js, which is time-phased
+  against an as-of date.
+- Section 8 (a null invoice date counts from the epoch) and section 12
+  (decommissioning at 15 percent of the unscaled base) are unchanged.
+- The screening sweep scales production without scaling the variable
+  operating cost that production implies (screening.js
+  runSensitivityAnalysis, shared with the other economics apps). Noted here
+  because runFdpSensitivity inherits it.
+
+## EC6-1 repair (2026-09-15, owner: implement the recommendations)
+
+Engines: engines/economics/screening.js, fdp/costCalculations.js,
+fdp/facilitiesCalculations.js, fdp/hseCalculations.js,
+fdp/riskCalculations.js, fdp/riskModel.js, afe.js, projectControls.js.
+Oracles and goldens regenerated on all three sides (screening, fdp, afe).
+This section closes sections 1, 5, 8, 10 and 12, and the four items EC6-0
+left as findings by decision.
+
+**Section 1, the IRR clamp (RESOLVED).** Before: Newton ran from 10 percent
+between a lower clamp of -99 percent and an upper clamp of 1000 percent, and
+whatever it stopped at was reported. A project whose net present value is
+negative at every rate from -99 percent to 1e14 percent showed an IRR of
+1000.0 percent, and on a scenario card that 1000 was coloured green for
+clearing the 15 percent hurdle. After: the search must land strictly inside
+the clamps AND the net present value there must be zero to within a
+tolerance scaled by the size of the cash flow. When it does not, the engine
+sweeps the band and bisects every sign change, and `metrics.irr` is null
+with `metrics.irrStatus` saying why:
+
+| status | what it means |
+|---|---|
+| `ok` | one root in the band, reported |
+| `no-sign-change` | every period the same sign, no IRR exists |
+| `multiple-roots` | the flow changes sign more than once; every root is in `irrRoots` |
+| `above-clamp` | still positive at 1000 percent: the rate is higher than the band |
+| `no-root` | nothing in the band zeroes the net present value |
+
+What this recovers: the -36.67468836383813 percent root Newton used to run
+past on the 100000 capex case; the 21 percent root of a cash flow of order
+1e-7 $MM that used to trip the absolute derivative guard and come back as
+the 10 percent starting guess; both roots (10 and 20 percent) of the
+two-root case, reported as a pair rather than one of them picked. Every
+`ENGINE_IRR_PINS` entry in oracle_screening.py and every `ENGINE_REPORTED`
+entry in oracle_fdp.py is gone, because there is no disagreement left to
+pin. Descartes' rule keeps the cost down: a flow that changes sign once has
+at most one root, so Newton's answer is trusted there and the sweep only
+runs when it has already failed or the flow changes sign more than once (so
+the 10,000 iteration Monte Carlo does not pay for it). `getPortfolioMetrics`
+averages only the projects that HAVE a rate, and reports how many
+(`irrProjectCount`); a project with none used to be averaged in as a zero.
+
+**Section 5, the price deck (RESOLVED).** `calculateCashFlows` padded a
+short deck with 70 $/bbl while `runFdpCase` read a missing price as 0, so
+the same profile gave $178.99MM through one door and -$66.92MM through the
+other. A deck that does not cover the profile is refused by
+FdpInputError, naming the years it has no price for.
+
+**Section 8, the undated invoice (RESOLVED).** An invoice with a NULL date
+was `new Date(null)`, the first of January 1970, so it counted in every
+bucket of the S-curve from the first one and inflated actual spend from day
+one. `invoiceDate` returns null for anything it cannot read, those invoices
+are off the curve, and `countUndatedInvoices` plus `calculateMetrics`'s new
+`undatedInvoices` field tell the app how many to ask about.
+
+**Section 10, the missing risk factor (RESOLVED).** `probability * impact`
+with a factor missing is NaN, and NaN fails every band comparison, so an
+unscored risk was counted as Low and the portfolio health went UP the less
+of the register was filled in. `riskScore` returns null for an unscored
+risk; the consolidated score sums the scored ones, `aggregateRisksByLevel`
+and `calculateRiskMatrix` count an `Unscored` band, and the health is taken
+over the scored risks only.
+
+**The five banding scales (RESOLVED).** `getRiskLevel` in riskModel.js is
+the one scale: 20 Critical, 12 High, 6 Medium, below Low. `calculateRiskMatrix`
+banded on 15 and 8 with no Critical band at all, so a score of 12 read High
+on the register and Medium on the HSE tab; it now returns low / medium /
+high / critical / unscored on the register's scale, and the gate walks all
+25 cells of the 5 by 5 to prove the two screens agree.
+
+**Section 12, decommissioning (RESOLVED).** It was 15 percent of the
+UNSCALED base capex, so a 150,000 bbl/d FPSO decommissioned for the same
+$180MM as a 50,000 bbl/d one. It is 15 percent of the capex the facility
+actually carries.
+
+**Time-phased planned value (RESOLVED).** `calculateEVM(tasks, { asOf })`
+spreads each task's budget evenly across its own planned window and cuts it
+off at the as-of date, which is the definition afe.js already follows, so
+the two apps mean the same thing by SPI. Before, planned value was the whole
+budget of every task, so the index was earned value over budget at
+completion: a project half done on time and a project half done a year late
+both read 0.50, and it could never read above 1. The ratio it really was is
+still reported, as `completionRatio`. A costed task with no planned dates
+makes the time-phased number impossible, so `spi` and `plannedValue` are
+null and `spiBasis` says how many tasks are missing dates. `asOf` is a
+parameter, not the clock.
+
+**The sensitivity sweep (RESOLVED).** `runSensitivityAnalysis` scaled the
+production volume without scaling the variable operating cost that volume
+implies, so a 30 percent cut in production kept the full profile's operating
+cost and the production bar of the tornado moved the NPV exactly as far as
+the price bar. Volume now carries its own cost, and the gate pins the
+production spread below the price spread.
+
+**Still open after this wave.**
+- **FIXED 2026-09-15 (EC2-5).** `fiscalRegime.calculateIRR` (Fiscal Regime
+  Designer) had the same shape of defect as section 1 in its own bisection: it
+  returned 0 when NPV(0) <= 0 and returned the search bound when the root was
+  beyond it. It now uses this section's contract from
+  `engines/economics/irrContract.js` (FINDINGS-fiscal.md, EC2 decisions).
+- **FIXED 2026-09-15 (EC1-10).** `getPortfolioMetrics` read `chanceOfSuccess`
+  with `|| 1.0`, so a stated chance of 0 was read as certainty. It reads
+  `?? 1` and refuses a present chance outside 0 to 1 by project; the
+  disagreement pin in screening_cases.json is gone (FINDINGS-fiscal.md S6).
+
+## EC5-3, EC5-5, EC5-8 and CPI: FIXED 2026-09-15 (owner decisions)
+
+Engine: engines/economics/afe.js. Oracle tools/validation/economics/oracle_afe.py
+regenerated twice, byte-identical: afe_cases.json now holds 20 splits, 33
+metric sets, 11 metric refusals and 26 S-curves (evm, evmRefusals, cpiSpi and
+gantt unchanged). Gate __tests__/economics.afe.test.js, 152 tests. This
+section supersedes the empty-budget guard in "EC5-0 repair" and its sentence
+that progress above 100 is still accepted.
+
+**EC5-3, SPI on an empty or zero-budget AFE (FIXED).** Before: the zero-budget
+guard returned SPI 1 before planned value was considered, so an AFE with
+nothing in it read SPI 1 while a budgeted AFE with zero planned value read
+null. After: `spi` is null with `spiStatus: 'no-budget'` whenever the budget is
+not above 0, and null with `spiStatus: 'no-planned-value'` when there is a
+budget but no planned value yet; a reported SPI has `spiStatus: 'ok'`. Goldens
+renamed from the old behaviour: "suite test: empty AFE", "future window, zero
+budget: the guard gives 1", "asOf before the start, zero budget: the guard
+gives 1" (now "...SPI null, no budget"), and "zero budget with actuals" (SPI 1
+to null). Gates: "EC5-3 and CPI: an undefined ratio is null" and the negative
+control "the retired zero-budget guard (SPI 1) fails the no-budget goldens".
+
+**CPI with nothing spent (FIXED).** Before: CPI was 1 whenever actuals were 0,
+whatever had been earned (110 earned on no spend read 1). After: `cpi` is null
+with `cpiStatus: 'no-spend'` whenever actuals are not above 0, and
+`cpiStatus: 'ok'` otherwise. New golden "value earned with no spend: CPI
+null". Negative control: the retired rule (1 when nothing is spent) disagrees
+on every no-spend golden and agrees wherever CPI is defined.
+
+**EC5-8, progress above 100 percent (FIXED).** Before: negative progress was
+refused, yet 150 percent earned 150 percent of the budget. After:
+calculateMetrics throws AfeInputError for any item whose Number(progress) is
+below 0 or above 100 (infinities included; non-numeric progress is still 0),
+naming the first such item:
+`Cost item "<label>" has progress above 100 percent (<value> percent). Progress runs from 0 to 100 percent.`
+The negative-progress message is unchanged. The golden "progress beyond 100
+percent earns beyond the budget" is now the refusal "progress beyond 100
+percent is refused"; exactly 100 is accepted (new golden). Negative control:
+the retired check (negative only) lets every over-100 golden through.
+
+**EC5-5, the S-curve in other time zones (FIXED).** Before: the window was
+parsed in UTC but months were stepped with local `setMonth`, labelled with
+local `toLocaleDateString`, counted with local `differenceInDays` and cut at a
+local-midnight asOf. A window opening 2027-02-01 drawn in Los Angeles was
+labelled from "Jan 27", and Planned moved wherever a count crossed a clock
+change. After: window dates, invoice dates and asOf are read in UTC (a
+date-only asOf is that day's UTC midnight; a time with no zone is read as UTC
+wall-clock time), the step is `setUTCMonth`, days are whole UTC days, and the
+label is a fixed English short month and two-digit year of the UTC date. UTC
+output is unchanged: every existing S-curve golden kept its points. Gate
+"EC5-5: the S-curve is identical under five TZ values" spawns node under TZ
+UTC, America/Los_Angeles, Africa/Lagos, Asia/Tokyo and Pacific/Kiritimati,
+checks each child's real offset, and requires every S-curve golden plus six
+input-form probes to match the UTC child exactly. Negative control: the
+retired walk, restated in the child, equals the engine in UTC but reads "Jan
+27" in Los Angeles and differs there on more than ten goldens.
+
+## EC6-2, EC6-4 and EC6-9 (FIXED 2026-09-15, owner decisions)
+
+Engines: engines/economics/fdp/facilitiesCalculations.js,
+scheduleCalculations.js, scenarioCalculations.js. The oracle rules were
+rewritten from the method statements below and fdp_cases.json regenerated
+(twice, byte-identical): 22 scenarios (3 new), 20 flow assurance cases each
+carrying the retired band beside it, 14 schedules. Every retired rule has a
+negative control in __tests__/economics.fdp.test.js, and the new gates fail
+against the pre-repair engines.
+
+**EC6-2, the flow assurance band (FIXED 2026-09-15).** Before:
+`calculateFlowAssuranceRisk` banded its hazard score as `level` Low, Medium
+or High (above 2 Medium, above 5 High). Those are the words of the risk
+register's single scale (riskModel.js getRiskLevel: 20 Critical, 12 High,
+6 Medium), which bands probability x impact, a different quantity. A subsea
+tie-back scores 3: Medium on the flow assurance card, Low on the register.
+After: the `level` key is retired and absent. The result is `score`,
+`hazards` (the hazard names in the order they were raised), `contributions`
+(one entry per trigger: `trigger`, `points`, `hazards`; the points sum to the
+score) and the existing `risks` detail unchanged. Consumer to update: the
+Suite's FlowAssuranceAnalysis.jsx reads `analysis.level` for its badge
+colour and text; it should show the score and the named hazards instead.
+Golden: the score 3 tie-back case carries a note; the gate restates the
+retired band for every case (3 reads Medium) against getRiskLevel(3) = Low.
+
+**EC6-4, the empty plan's duration (FIXED 2026-09-15).** Before:
+`calculateProjectDuration([])` returned 0, a zero-day window, while a plan
+whose activities carry no dates returned null. After: an empty or absent plan
+returns null, the same unknown window. Golden renamed "empty schedule: no
+window, so the duration is null"; every schedule case now carries
+`retiredProjectDuration`, and the gate proves the empty plan is the only case
+that moved (retired 0, now null).
+
+**EC6-9, the partial concept capex (FIXED 2026-09-15).** Before:
+`conceptCapexMM` refused only a concept with all of `drillingCapex`,
+`facilitiesCapex` and `subseaCapex` blank. A concept with some blank was
+summed silently and screened on a partial capex that read like a complete
+one: an FPSO concept with its facilities capex omitted screened at 1350.0000
+against 2250.0000. After: the partial sum is kept (a partial concept is
+legitimate in early screening), and the new `conceptCapex` returns
+`capexMM`, `capexStatus` ('complete' or 'partial') and `capexMissing` (the
+blank field names, in the form's order). `runScenario` adds `capexStatus`
+and `capexMissing` beside `cashflow` and `metrics`. A total `capex` is
+complete; typed zeros are entered; an all-blank concept is still refused
+with the same message. `conceptCapexMM` and `scenarioCase` keep their
+signatures. Goldens: "a partial concept: the facilities capex is left blank"
+(1350, partial, facilitiesCapex missing), "the same concept with its
+facilities capex entered is complete" (2250), "a blank string capex field is
+missing", and "only one capex field is entered" renamed to say it is partial
+with two fields named missing. Consumer to update: the Suite's
+ScenarioManager.jsx reads only `metrics` from `runScenario` and should mark a
+partial card.
+
+## EC6-1, EC6-3 and EC6-8: FIXED 2026-09-15 (owner decisions)
+
+Engines: engines/economics/fdp/fdpCalculations.js, facilitiesCalculations.js,
+economics.js, costCalculations.js, scenarioCalculations.js,
+wellCalculations.js. The oracle rules were written from the method
+statements below and fdp_cases.json regenerated (twice, byte-identical):
+19 plan cases (7 new), 36 flow assurance cases (16 new) plus 5 flow
+assurance refusals, 11 abandonment resolutions, 5 abandonment refusals and
+7 screening cases run with and without the end-of-life cost. Gate
+__tests__/economics.fdp.test.js, 300 tests, green under TZ UTC,
+Africa/Lagos, America/Los_Angeles, Asia/Tokyo and Pacific/Kiritimati. Every
+retired rule has a negative control.
+
+**EC6-1, the reserves against the profile (FIXED 2026-09-15).** Before:
+nothing reconciled the concept's screening production profile with the
+plan's reserves. The EGINA plan's FPSO concept produces 229.9293 MMbbl over
+20 years against an oil P50 of 130.0000 MMbbl (a ratio of 1.7687), and
+130 MMbbl at 12 MMbbl a well implies 11 wells against the 4 the plan
+carries, and the plan scored 100 percent complete with a clean validation.
+After: `calculateCompleteness` and `validateFDPData` both carry
+`reservesCheck` (exported on its own as `planReservesCheck`), and
+completeness carries `completeWithWarnings`, true when the score is 100 and
+the check has warnings. The check is NON-BLOCKING and caps nothing: the
+shape is not a reservoir forecast, so a cap would invent one. It reports
+`status` ('checked' or 'incomplete' with `missing` naming what is absent),
+`profileSource` ('concept-profile' or 'screening-shape'), `profileYears`,
+`profileVolumeMMbbl`, `oilP50MMbbl`, `profileToP50Ratio`, `marginFraction`
+(0.1), `recoveryPerWellMMbbl` (12) with `recoveryPerWellSource` stating
+where the 12 comes from (wellCalculations.js
+SCREENING_RECOVERY_PER_WELL_MMBBL, the figure the worked example golden
+counts wells at), `impliedWells`, `carriedWells`, `wellsRatio` and
+`warnings`. The two warning codes are `profile-exceeds-p50` (the ratio is
+more than 10 percent above the P50, the margin chosen and stated on the
+result) and `implied-wells-exceed-carried`. The score and `isValid` are
+unchanged; the warning messages are appended to `validation.warnings` so
+the screen cannot show a complete plan with nothing to say. Negative
+control: the retired result compared nothing at all, so the restated
+retired validation is silent on every golden that now warns.
+
+**EC6-3, the corrosion screen (FIXED 2026-09-15).** Before:
+`calculateFlowAssuranceRisk` fired the corrosion trigger at
+`(fluidProperties?.h2s || 0) > 0`, always at High and always worth 4 points,
+and a blank H2S read as 0, so an unmeasured fluid read as sweet and 1 ppm at
+100 psia scored exactly what 5 percent H2S at 5000 psia scored. After: the
+new `screenSourService` (also on the result as `corrosion`) takes the H2S
+partial pressure, the mole fraction (ppm over a million) times the total
+pressure in psia, against the NACE MR0175 / ISO 15156 sour service
+threshold of 0.05 psia (the standard states 0.3 kPa; psia x 6.894757 gives
+kPa). Four statuses:
+
+| status | when |
+|---|---|
+| `not-measured` | H2S blank or absent. No severity is claimed |
+| `sour-severity-needs-pressure` | H2S measured, no operating pressure |
+| `below-sour-threshold` | partial pressure below 0.05 psia |
+| `sour-service` | partial pressure at or above 0.05 psia |
+
+A measured 0 ppm is the one case that needs no pressure: its partial
+pressure is 0 at any pressure, so it is known to be below the threshold.
+The corrosion points (4) and the High corrosion risk are scored on
+`sour-service` alone; the retired trigger label 'H2S present' is gone and
+the trigger reads 'H2S partial pressure at or above 0.05 psia'. The shape
+is additive: `score`, `hazards`, `contributions` and `risks` are unchanged
+in meaning and `corrosion` is new, carrying `status`, `h2sPpm`,
+`operatingPressurePsia`, `h2sPartialPressurePsia`, `h2sPartialPressureKpa`,
+`thresholdPsia`, `thresholdKpa`, `standard` and `message`. A negative or
+unreadable H2S, and a pressure that is unreadable or not above zero, are
+refused by name. New input read: `fluidProperties.operatingPressurePsia`.
+The corrosion verdict moves on 10 of the 36 flow assurance goldens.
+Negative control: the retired trigger, restated, fires on every golden the
+golden says it fired on, and disagrees with the sour service status on
+those 10.
+
+**EC6-8, the end-of-life cost (FIXED 2026-09-15).** Before:
+`buildFdpCaseInputs` set the abandonment row to zeros, an ABEX cost item was
+only flagged on the cost screen and facility decommissioning was display
+only, so a known cost never reached the NPV and the NPV was overstated by
+its discounted after-tax value. After: `resolveAbandonment({costItems,
+facilities, selectedFacilityId})` and `planAbandonment(state)` return
+`abandonmentSource` ('abex-item', 'decommissioning-estimate' or 'none'),
+`abandonmentMM` and `abandonmentBasis`, and `runFdpCase`,
+`runFdpSensitivity`, `calculateCashFlows` (sixth argument; the rows gain
+`abex`) and `runScenario` / `scenarioCase` / `scenarioSensitivity` (third
+argument) charge it in the FINAL PRODUCTION YEAR. The result carries
+`abandonmentSource`, `abandonmentMM` and `abandonmentYear` beside the
+economics. An ABEX item replaces the decommissioning estimate and is never
+added to it; a typed zero is a figure and still names its source; with
+several facilities and none selected nothing is charged and the basis says
+so; a cost with no production year to fall in is refused.
+
+What it moves on the EGINA plan case (2250 capex, 95 opex, the 60 kbpd
+shape, 70 $/bbl):
+
+| case | abandonment | NPV before | NPV after |
+|---|---|---|---|
+| the plan ABEX item | 260.0000 | 2047.5653 | 2015.4123 |
+| no ABEX item, the FPSO estimate | 204.5029 | 2047.5653 | 2023.2777 |
+| neither | 0 | 2047.5653 | 2047.5653 |
+
+CONSEQUENCE, AND IT IS NOT SMALL. A final year that pays the abandonment
+usually has a negative net cash flow, so the flow changes sign twice and
+the IRR contract (irrContract.js, EC6-1) reports `irr` null with
+`irrStatus` 'multiple-roots' and both roots in `irrRoots`. On this case the
+roots are -44.3414 and 29.5779 percent where the rate used to read
+29.5998. That is the honest answer for such a flow and this wave leaves the
+contract alone, but every screen that prints an IRR must handle the null.
+
+THE EC6 CAPSTONE (checked, 2026-09-15). The NextGen course EC6 lab
+(src/components/course/panels/fdp/fdpLab.js, `ukotRuns`) calls
+`SC.runScenario(scenario, concept)` and `E.runFdpSensitivity(kase)` with no
+abandonment argument, so every one of the eighteen graded UKOT fields is
+byte-for-byte what it was: ukot_base_npv_mm 1717.6860327539478,
+ukot_base_irr_pct 37.66903234346082, ukot_alternative_npv_mm
+721.0656772144272, ukot_stress_npv_mm -771.0011900805065,
+ukot_price_swing_mm 2202.685546432514, ukot_concept_capex_mm 1320,
+ukot_platform_capex_mm 743.1213581482968 and
+ukot_platform_decommissioning_mm 111.46820372224452 all verified unchanged
+against the live engine. UKOT_COSTS does carry an ABEX item of 190, so IF
+the lab is ever re-derived to pass `planAbandonment` into the runs, the
+graded values move: base NPV 1717.6860 to 1694.0732, base IRR 37.6690 to
+null ('multiple-roots', roots -43.2259 and 37.6593), alternative NPV
+721.0657 to 695.4146, stress NPV -771.0012 to -797.9292 and the price swing
+2202.6855 to 2206.7510. That would need a capstone migration and a new
+answer for the IRR field.
+
+**Consumers to update (the Suite).**
+- `src/components/fdp/modules/generation/FDPGenerationOverview.jsx` shows
+  the completeness score and "Ready" or "Needs Review" only. It should show
+  `completeness.reservesCheck.warnings` and stop reading 100 percent as
+  clean when `completeWithWarnings` is true.
+- `src/components/fdp/modules/facilities/FlowAssuranceAnalysis.jsx` still
+  reads the `level` EC6-2 retired, hard-codes a "Corrosion High" tile and
+  passes a mock fluid `{ api: 28, h2s: 10, co2: 2 }` with no pressure, which
+  now screens as 'sour-severity-needs-pressure'. It should read
+  `analysis.corrosion` and collect the H2S and the operating pressure.
+- `src/components/fdp/modules/cost/EconomicsAnalysis.jsx` calls
+  `calculateCashFlows` with five arguments, so its NPV, IRR and payback are
+  still the pre-abandonment ones. It should pass `planAbandonment(state)`,
+  show the source and the amount, and handle a null IRR.
+- `src/components/fdp/modules/scenarios/ScenarioManager.jsx` can pass the
+  same abandonment into `runScenario` so a card and the Economics tab agree.
+- `src/components/fdp/modules/facilities/FacilitiesCostEstimation.jsx`
+  already shows the decommissioning estimate; it is now the fallback the
+  case uses when no ABEX item exists, which is worth saying on the screen.
+
+
+## EC5-1, the negative forecast flag and EC5-9b: FIXED 2026-09-15 (owner decisions)
+
+Engine: engines/economics/afe.js. Oracle
+tools/validation/economics/oracle_afe.py regenerated twice, byte-identical:
+afe_cases.json now holds 20 splits, 38 metric sets, 11 metric refusals and 30
+S-curves (evm, evmRefusals, cpiSpi and gantt unchanged). Gate
+__tests__/economics.afe.test.js, 173 tests.
+
+**EC5-1, a forecast below the money already spent (FIXED).** Before:
+`itemForecast` took any positive entered forecast as the line's estimate at
+completion, so a line with 900 spent and committed and 850 typed reported a
+saving of 50 on money already gone, with nothing on the screen to say so.
+After: the typed value is still the EAC, because a re-baseline is legitimate
+and a silent floor would hide the entry. The line is FLAGGED instead. The new
+`itemForecastCheck(item)` returns `{ forecast, committed, forecastBelowCommitted,
+forecastBelowCommittedBy, forecastIgnored }`, where committed is actual +
+commitment and forecastBelowCommittedBy is committed less the forecast (0 when
+not flagged; equal to committed is not below it). `itemForecast` is that
+function's `forecast` and is unchanged, so no total moves.
+
+**A negative entered forecast (FIXED).** Before: a negative forecast fell
+through to max(budget, actual + commitment) silently, while negative progress
+was refused outright. After: the fallback still gives the EAC (the same
+number), and the line carries `forecastIgnored: 'negative'`. A zero, blank or
+non-numeric forecast is no forecast at all and carries null: only a number
+below 0 is an ignored entry.
+
+**The metrics.** `calculateMetrics` returns `lineForecasts`, one entry per
+cost item in order (`index`, `label` = code, else description, else the index,
+and the itemForecastCheck fields), and the counts
+`linesForecastBelowCommitted` and `linesForecastIgnored`. New goldens: a
+forecast 50 below committed and kept, a forecast equal to committed, the same
+in strings, and a six-line set where two negative forecasts are flagged
+ignored and an unnamed line is flagged 60 below committed. Negative control:
+the retired rule restated computes the same EAC for every golden line and has
+nothing to report.
+
+**EC5-9b, the S-curve closed short of the window (FIXED).** Before: the
+monthly walk stopped at the last month step on or before the end date, which
+is usually short of it, so the last Planned sat below the budget and the last
+Forecast below the EAC. The course's OFON-1 ended on "Nov 27" with Forecast
+24949669 against a budget of 27050000, while the EAC is 27600000: an overrun
+drawn as an underrun. After: the curve CLOSES on a point dated the window end
+in UTC, labelled by its day ("30 Nov 27") and carrying `windowEnd: true`,
+where Planned is the budget total and Forecast is the EAC, both rounded. Its
+Actual follows the bucket rule (the invoices dated on or before the end when
+the end is on or before asOf, else null), so the actual series is unchanged.
+When a month step lands exactly on the end date it is replaced by the closing
+point, so no date is listed twice. Every other point carries
+`windowEnd: false`. A window with no valid dates, or one ending before it
+starts, still has no points at all. The UTC discipline of EC5-5 is untouched,
+and the zone sweep replays the closing point in all five zones.
+
+Goldens: every S-curve case gained the closing point and carries
+`retiredLastPoint`, the point the retired walk ended on, which is the negative
+control; four new cases cover OFON-1 read mid-window and after the end, an
+invoice dated on the end day, and a window whose last step is the end date.
+
+**Consumers to update.** The Suite's AFEDashboard draws the S-curve and shows
+the metric tiles: the closing point is a new category on the x axis (a day
+label among month labels) and the two line counts belong beside the forecast
+tile, with the flagged lines marked in the Cost Breakdown table.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- EXPLOITABLE (severe). `aggregateReserves` with a fluid of `'__proto__'` passed the fluid check and wrote its running totals onto `Object.prototype` (`count`, `p90Sum` ... all NaN on every object); the other inherited names silently dropped the reservoir. It now refuses the fluid by name.
+- EXPLOITABLE. `calculateCostByPhase`, `aggregateRisksByType`, `aggregateRisksBySource` and `aggregateWellsByType` turned a count into a string for an inherited name and lost a `'__proto__'` row; `calculateRiskExposure` gave a NaN EMV for an inherited probability. They now total own keys only.

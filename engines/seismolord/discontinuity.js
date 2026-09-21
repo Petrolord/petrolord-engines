@@ -24,6 +24,12 @@
 
 import { NULL_VALUE } from './manifest';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
+
 const NULL_LIM = 1.0e29;
 const isNull = (v) => Math.abs(v) > NULL_LIM;
 
@@ -113,7 +119,7 @@ export const DISCONTINUITY_DEFS = {
  *   dead and are excluded by the compute
  */
 export function makeNeighborhoodCompute(name, params, { dtUs }) {
-  const def = DISCONTINUITY_DEFS[name];
+  const def = ownPreset(DISCONTINUITY_DEFS, name) ? DISCONTINUITY_DEFS[name] : undefined;
   if (!def) throw new Error(`Unknown discontinuity attribute "${name}".`);
   if (!(dtUs > 0)) throw new Error(`Discontinuity compute needs a positive dt, got ${dtUs}.`);
   const dtMs = dtUs / 1000;

@@ -1,8 +1,44 @@
 {
  "apiSeparator": [
   {
-   "d50cMicron": 188.08064304382347,
+   "cutReynolds": 0.024250471540106247,
+   "d50cMicron": 44.331032702069805,
    "depthM": 1.2,
+   "designRiseMS": 0.0003125,
+   "expectVelocityWarning": false,
+   "flowM3S": 0.005,
+   "horizontalVelocityMS": 0.0020833333333333333,
+   "lengthM": 12.0,
+   "muPaS": 0.0005784420855434671,
+   "overflowRateMS": 0.00020833333333333335,
+   "residenceS": 5760.0,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705,
+   "widthM": 2.0
+  },
+  {
+   "cutReynolds": 0.06660013259339868,
+   "d50cMicron": 99.12886399949606,
+   "depthM": 1.0,
+   "designRiseMS": 0.0006,
+   "expectVelocityWarning": false,
+   "flowM3S": 0.004,
+   "horizontalVelocityMS": 0.0026666666666666666,
+   "lengthM": 8.0,
+   "muPaS": 0.0008904389816146542,
+   "overflowRateMS": 0.0003333333333333333,
+   "residenceS": 3000.0,
+   "rhoOil": 897.2805305559106,
+   "rhoWater": 997.0751176664442,
+   "shortCircuitF": 1.8,
+   "widthM": 1.5
+  },
+  {
+   "cutReynolds": 1.851948670281893,
+   "d50cMicron": 188.0806430438169,
+   "depthM": 1.2,
+   "designRiseMS": 0.005625,
+   "expectVelocityWarning": true,
    "flowM3S": 0.09,
    "horizontalVelocityMS": 0.0375,
    "lengthM": 12.0,
@@ -15,18 +51,106 @@
    "widthM": 2.0
   },
   {
-   "d50cMicron": 271.4755745619202,
-   "depthM": 1.0,
+   "cutReynolds": 0.07911722208550867,
+   "d50cMicron": 54.820774259593634,
+   "depthM": 0.75,
+   "designRiseMS": 0.00078,
+   "expectVelocityWarning": true,
    "flowM3S": 0.03,
-   "horizontalVelocityMS": 0.02,
-   "lengthM": 8.0,
-   "muPaS": 0.0008904389816146542,
-   "overflowRateMS": 0.0025,
-   "residenceS": 400.0,
-   "rhoOil": 897.2805305559106,
-   "rhoWater": 997.0751176664442,
-   "shortCircuitF": 1.8,
-   "widthM": 1.5
+   "horizontalVelocityMS": 0.016,
+   "lengthM": 20.0,
+   "muPaS": 0.0005881413395490372,
+   "overflowRateMS": 0.0006,
+   "residenceS": 1250.0,
+   "rhoOil": 808.0302052035398,
+   "rhoWater": 1088.2106423795603,
+   "shortCircuitF": 1.3,
+   "widthM": 2.5
+  }
+ ],
+ "binGrid": [
+  {
+   "d50": 30,
+   "medianMicron": 30,
+   "midpointMedianMicron": 28.632164392009408,
+   "nBins": 60,
+   "sigma": 0.7,
+   "spanSigma": 4,
+   "truncatedTailFraction": 6.334248366623996e-05
+  },
+  {
+   "d50": 30,
+   "medianMicron": 30,
+   "midpointMedianMicron": 27.32669459236837,
+   "nBins": 30,
+   "sigma": 0.7,
+   "spanSigma": 4,
+   "truncatedTailFraction": 6.334248366623996e-05
+  },
+  {
+   "d50": 12,
+   "medianMicron": 12,
+   "midpointMedianMicron": 12.742038558544317,
+   "nBins": 60,
+   "sigma": 0.9,
+   "spanSigma": 4,
+   "truncatedTailFraction": 6.334248366623996e-05
+  },
+  {
+   "d50": 30,
+   "medianMicron": 30,
+   "midpointMedianMicron": 28.30006349620477,
+   "nBins": 60,
+   "sigma": 0.7,
+   "spanSigma": 5,
+   "truncatedTailFraction": 5.733031437360481e-07
+  },
+  {
+   "d50": 30,
+   "medianMicron": 30,
+   "midpointMedianMicron": 29.479567069952196,
+   "nBins": 240,
+   "sigma": 0.7,
+   "spanSigma": 6,
+   "truncatedTailFraction": 1.9731752898266564e-09
+  }
+ ],
+ "bubbleRise": [
+  {
+   "dMicron": 300,
+   "dragCoefficient": 2.612549798231865,
+   "muPaS": 0.00058955,
+   "reynolds": 19.963489411291565,
+   "rhoGasKgM3": 1.2,
+   "rhoWater": 1013.06,
+   "vTerminalMS": 0.038725824671217046
+  },
+  {
+   "dMicron": 80,
+   "dragCoefficient": 36.6766342080785,
+   "muPaS": 0.00058955,
+   "reynolds": 0.7337145034144558,
+   "rhoGasKgM3": 1.2,
+   "rhoWater": 1013.06,
+   "vTerminalMS": 0.005337312023572054
+  },
+  {
+   "dMicron": 20,
+   "dragCoefficient": 1895.1549950658089,
+   "muPaS": 0.00058955,
+   "reynolds": 0.012758789920116363,
+   "rhoGasKgM3": 1.2,
+   "rhoWater": 1013.06,
+   "vTerminalMS": 0.00037124872156657073
+  },
+  {
+   "dMicron": 1000,
+   "dragCoefficient": 1.0372475037980662,
+   "muPaS": 0.001002,
+   "reynolds": 111.78335684671923,
+   "rhoGasKgM3": 1.2,
+   "rhoWater": 998.2,
+   "vTerminalMS": 0.11220889957965605
   }
  ],
  "cdf": [
@@ -59,26 +183,567 @@
    "d": 60,
    "d50": 15,
    "sigma": 0.9
+  },
+  {
+   "cdf": 3.5144720467172874e-11,
+   "d": 0.5,
+   "d50": 25,
+   "sigma": 0.6
+  },
+  {
+   "cdf": 0.999998090353095,
+   "d": 400,
+   "d50": 25,
+   "sigma": 0.6
+  }
+ ],
+ "declaredConstants": {
+  "attachmentEfficiency": 0.01,
+  "brineDensitySlopeKgM3": 700.0,
+  "bubbleMicronDefault": 300.0,
+  "coreRadiusFraction": 0.5,
+  "crudeReferenceWaterKgM3": 999.0,
+  "crudeThermalExpansionPerC": 0.0007,
+  "defaultNBins": 60,
+  "defaultSharpness": 3,
+  "defaultSpanSigma": 4,
+  "designFlowPerLinerM3S": 0.0006,
+  "filterBreakthroughLoadingMHr": 25.0,
+  "filterCoefficientPerM": 3.5,
+  "filterLoadingExponent": 0.5,
+  "filterMinLoadingMHr": 1.0,
+  "filterReferenceDropletMicron": 20.0,
+  "filterReferenceLoadingMHr": 10.0,
+  "filterReferenceMediaMicron": 800.0,
+  "flotationCellDepthM": 3.0,
+  "flotationGasDensityKgM3": 1.2,
+  "flotationResidenceWarnS": 60.0,
+  "gFieldAtDesign": 1000.0,
+  "gasHoldupWarn": 0.2,
+  "gasRatioDefault": 0.2,
+  "interceptionCoefficient": 1.5,
+  "interceptionSharpness": 2,
+  "linerDiameterM": 0.035,
+  "linerLengthM": 0.7,
+  "overloadTurndown": 1.3,
+  "plateEfficiencyFactor": 0.7,
+  "salinityViscosityMultiplier": 1.8,
+  "shortCircuitFDefault": 1.5,
+  "starvedTurndown": 0.5,
+  "vogelA": 2.414e-05,
+  "vogelB": 247.8,
+  "vogelC": 140.0
+ },
+ "flotation": [
+  {
+   "bubbleReynolds": 19.963731419667678,
+   "bubbleRiseMS": 0.03872597240267934,
+   "cellVolumeM3": 8.0,
+   "d50cMicron": 18.616325756890856,
+   "expectHoldupWarning": false,
+   "expectResidenceWarning": false,
+   "flowM3S": 0.09201,
+   "gasHoldup": 0.17819436341700634,
+   "muPaS": 0.000589546583548071,
+   "nCells": 4,
+   "planAreaM2": 2.6666666666666665,
+   "residenceS": 347.78828388218676,
+   "residenceWarnS": 60.0,
+   "rhoOil": 844.4071852110092,
+   "rhoWater": 1013.062545462991,
+   "superficialGasMS": 0.00690075
+  },
+  {
+   "attachmentEfficiency": 0.01,
+   "bubbleMicron": 80,
+   "bubbleReynolds": 0.7337258533730385,
+   "bubbleRiseMS": 0.005337350246218956,
+   "cellDepthM": 3.0,
+   "cellVolumeM3": 8.0,
+   "d50cMicron": 6.619138046894525,
+   "expectHoldupWarning": false,
+   "expectResidenceWarning": false,
+   "flowM3S": 0.09201,
+   "gasDensityKgM3": 1.2,
+   "gasHoldup": 0.1939375255977039,
+   "gasRatio": 0.03,
+   "muPaS": 0.000589546583548071,
+   "nCells": 4,
+   "planAreaM2": 2.6666666666666665,
+   "residenceS": 347.78828388218676,
+   "residenceWarnS": 60.0,
+   "rhoOil": 844.4071852110092,
+   "rhoWater": 1013.062545462991,
+   "superficialGasMS": 0.0010351125
+  },
+  {
+   "attachmentEfficiency": 0.01,
+   "bubbleMicron": 300,
+   "bubbleReynolds": 20.50991637084461,
+   "bubbleRiseMS": 0.03905533049158353,
+   "cellDepthM": 3.0,
+   "cellVolumeM3": 8.0,
+   "d50cMicron": 18.616325756890856,
+   "expectHoldupWarning": false,
+   "expectResidenceWarning": false,
+   "flowM3S": 0.05,
+   "gasDensityKgM3": 1.2,
+   "gasHoldup": 0.09601762301840283,
+   "gasRatio": 0.2,
+   "muPaS": 0.0005784420855434671,
+   "nCells": 4,
+   "planAreaM2": 2.6666666666666665,
+   "residenceS": 640.0,
+   "residenceWarnS": 60.0,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705,
+   "superficialGasMS": 0.0037500000000000007
+  },
+  {
+   "attachmentEfficiency": 0.01,
+   "bubbleMicron": 300,
+   "bubbleReynolds": 20.50991637084461,
+   "bubbleRiseMS": 0.03905533049158353,
+   "cellDepthM": 3.0,
+   "cellVolumeM3": 8.0,
+   "d50cMicron": 18.616325756890856,
+   "expectHoldupWarning": true,
+   "expectResidenceWarning": true,
+   "flowM3S": 1.0,
+   "gasDensityKgM3": 1.2,
+   "gasHoldup": 1.9203524603680566,
+   "gasRatio": 0.2,
+   "muPaS": 0.0005784420855434671,
+   "nCells": 4,
+   "planAreaM2": 2.6666666666666665,
+   "residenceS": 32.0,
+   "residenceWarnS": 60.0,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705,
+   "superficialGasMS": 0.07500000000000001
+  },
+  {
+   "attachmentEfficiency": 0.01,
+   "bubbleMicron": 600,
+   "bubbleReynolds": 47.236855458139,
+   "bubbleRiseMS": 0.07030820567672771,
+   "cellDepthM": 4.0,
+   "cellVolumeM3": 20.0,
+   "d50cMicron": 57.680575699208376,
+   "expectHoldupWarning": false,
+   "expectResidenceWarning": false,
+   "flowM3S": 0.05,
+   "gasDensityKgM3": 1.2,
+   "gasHoldup": 0.0711154544746833,
+   "gasRatio": 0.5,
+   "muPaS": 0.0008904389816146542,
+   "nCells": 1,
+   "planAreaM2": 5.0,
+   "residenceS": 400.0,
+   "residenceWarnS": 60.0,
+   "rhoOil": 897.2805305559106,
+   "rhoWater": 997.0751176664442,
+   "superficialGasMS": 0.005
+  },
+  {
+   "attachmentEfficiency": 0.01,
+   "bubbleMicron": 300,
+   "bubbleReynolds": 19.963731419667678,
+   "bubbleRiseMS": 0.03872597240267934,
+   "cellDepthM": 3.0,
+   "cellVolumeM3": 6.1,
+   "d50cMicron": 74.46530302756342,
+   "expectHoldupWarning": false,
+   "expectResidenceWarning": false,
+   "flowM3S": 0.1,
+   "gasDensityKgM3": 1.2,
+   "gasHoldup": 0.06349786050233541,
+   "gasRatio": 0.05,
+   "muPaS": 0.000589546583548071,
+   "nCells": 1,
+   "planAreaM2": 2.033333333333333,
+   "residenceS": 60.99999999999999,
+   "residenceWarnS": 60.0,
+   "rhoOil": 844.4071852110092,
+   "rhoWater": 1013.062545462991,
+   "superficialGasMS": 0.0024590163934426236
+  },
+  {
+   "attachmentEfficiency": 0.01,
+   "bubbleMicron": 300,
+   "bubbleReynolds": 19.963731419667678,
+   "bubbleRiseMS": 0.03872597240267934,
+   "cellDepthM": 3.0,
+   "cellVolumeM3": 5.9,
+   "d50cMicron": 74.46530302756342,
+   "expectHoldupWarning": false,
+   "expectResidenceWarning": true,
+   "flowM3S": 0.1,
+   "gasDensityKgM3": 1.2,
+   "gasHoldup": 0.0656503303498722,
+   "gasRatio": 0.05,
+   "muPaS": 0.000589546583548071,
+   "nCells": 1,
+   "planAreaM2": 1.9666666666666668,
+   "residenceS": 59.0,
+   "residenceWarnS": 60.0,
+   "rhoOil": 844.4071852110092,
+   "rhoWater": 1013.062545462991,
+   "superficialGasMS": 0.0025423728813559325
+  }
+ ],
+ "hydrocyclone": [
+  {
+   "d50cMicron": 4.5062226022069405,
+   "expectOverloadWarning": false,
+   "expectStarvedWarning": false,
+   "flowM3S": 0.012,
+   "gField": 1000.0000000000006,
+   "idealD50cMicron": 4.5062226022069405,
+   "mcCaptureFractionAtCut": 0.500455,
+   "muPaS": 0.0005784420855434671,
+   "nLiners": 20,
+   "residenceS": 1.122464875188853,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705,
+   "shearPenalty": 1.0,
+   "turndownRatio": 1.0000000000000002
+  },
+  {
+   "d50cMicron": 4.649249029576404,
+   "expectOverloadWarning": false,
+   "expectStarvedWarning": false,
+   "flowM3S": 0.09201,
+   "gField": 918.6024414062503,
+   "idealD50cMicron": 4.649249029576404,
+   "mcCaptureFractionAtCut": 0.500455,
+   "muPaS": 0.000589546583548071,
+   "nLiners": 160,
+   "residenceS": 1.1711403979798927,
+   "rhoOil": 844.4071852110092,
+   "rhoWater": 1013.062545462991,
+   "shearPenalty": 1.0,
+   "turndownRatio": 0.9584374999999999
+  },
+  {
+   "coreRadiusFraction": 0.5,
+   "d50cMicron": 7.805006497237658,
+   "designFlowPerLinerM3S": 0.0006,
+   "expectOverloadWarning": false,
+   "expectStarvedWarning": true,
+   "flowM3S": 0.004,
+   "gField": 111.11111111111116,
+   "gFieldAtDesign": 1000.0,
+   "idealD50cMicron": 7.805006497237658,
+   "linerDiameterM": 0.035,
+   "linerLengthM": 0.7,
+   "mcCaptureFractionAtCut": 0.500455,
+   "muPaS": 0.0005784420855434671,
+   "nLiners": 20,
+   "residenceS": 3.3673946255665594,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705,
+   "shearPenalty": 1.0,
+   "turndownRatio": 0.33333333333333337
+  },
+  {
+   "coreRadiusFraction": 0.5,
+   "d50cMicron": 4.560252311594059,
+   "designFlowPerLinerM3S": 0.0006,
+   "expectOverloadWarning": true,
+   "expectStarvedWarning": false,
+   "flowM3S": 0.018,
+   "gField": 1690.0000000000005,
+   "gFieldAtDesign": 1000.0,
+   "idealD50cMicron": 4.2453638626167765,
+   "linerDiameterM": 0.035,
+   "linerLengthM": 0.7,
+   "mcCaptureFractionAtCut": 0.500455,
+   "muPaS": 0.0005784420855434671,
+   "nLiners": 20,
+   "residenceS": 0.7483099167925689,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705,
+   "shearPenalty": 1.0741723110591492,
+   "turndownRatio": 1.5
+  },
+  {
+   "coreRadiusFraction": 0.5,
+   "d50cMicron": 3.154806021895063,
+   "designFlowPerLinerM3S": 0.0006,
+   "expectOverloadWarning": false,
+   "expectStarvedWarning": false,
+   "flowM3S": 0.03,
+   "gField": 1562.5000000000007,
+   "gFieldAtDesign": 1000.0,
+   "idealD50cMicron": 3.154806021895063,
+   "linerDiameterM": 0.035,
+   "linerLengthM": 0.7,
+   "mcCaptureFractionAtCut": 0.500455,
+   "muPaS": 0.0005881413395490372,
+   "nLiners": 40,
+   "residenceS": 0.8979719001510825,
+   "rhoOil": 808.0302052035398,
+   "rhoWater": 1088.2106423795603,
+   "shearPenalty": 1.0,
+   "turndownRatio": 1.2500000000000002
   }
  ],
  "mediaFilter": [
   {
    "areaM2": 6.0,
-   "bedDepthM": 0.9,
-   "filterCoefficientPerM": 3.5,
+   "d50cMicron": 12.346912086371177,
+   "expectBreakthroughWarning": true,
    "flowM3S": 0.05,
-   "lambdaPerM": 2.02072594216369,
+   "lambdaAtRefPerM": 2.02072594216369,
+   "loadingFloorMHr": 1.0,
    "loadingMHr": 30.0,
-   "removalFraction": 0.8377693255922852
+   "referenceDropletMicron": 20.0,
+   "removalAtRefDroplet": 0.8377693255922852
+  },
+  {
+   "areaM2": 16.0,
+   "bedDepthM": 0.9,
+   "d50cMicron": 11.253365623099487,
+   "expectBreakthroughWarning": false,
+   "filterCoefficientPerM": 3.5,
+   "flowM3S": 0.09201,
+   "lambdaAtRefPerM": 2.432535964549933,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 20.70225,
+   "mediaMicron": 800.0,
+   "referenceDropletMicron": 20.0,
+   "removalAtRefDroplet": 0.8880163276352419
   },
   {
    "areaM2": 4.0,
    "bedDepthM": 1.2,
+   "d50cMicron": 13.70660598555191,
+   "expectBreakthroughWarning": true,
    "filterCoefficientPerM": 3.5,
    "flowM3S": 0.09,
-   "lambdaPerM": 1.2297746456210363,
+   "lambdaAtRefPerM": 1.2297746456210363,
+   "loadingFloorMHr": 1.0,
    "loadingMHr": 81.0,
-   "removalFraction": 0.7714005701839403
+   "mediaMicron": 800.0,
+   "referenceDropletMicron": 20.0,
+   "removalAtRefDroplet": 0.7714005701839403
+  },
+  {
+   "areaM2": 16.0,
+   "bedDepthM": 3.0,
+   "d50cMicron": 8.875096128362049,
+   "expectBreakthroughWarning": false,
+   "filterCoefficientPerM": 4.2,
+   "flowM3S": 0.05,
+   "lambdaAtRefPerM": 1.1732734739687898,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 11.25,
+   "mediaMicron": 1200.0,
+   "referenceDropletMicron": 20.0,
+   "removalAtRefDroplet": 0.9704044180324776
+  },
+  {
+   "areaM2": 16.0,
+   "bedDepthM": 0.1,
+   "d50cMicron": 33.760096869298465,
+   "expectBreakthroughWarning": false,
+   "filterCoefficientPerM": 3.5,
+   "flowM3S": 0.09201,
+   "lambdaAtRefPerM": 2.432535964549933,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 20.70225,
+   "mediaMicron": 800.0,
+   "referenceDropletMicron": 20.0,
+   "removalAtRefDroplet": 0.21592850938063513
+  },
+  {
+   "areaM2": 1.2,
+   "bedDepthM": 0.9,
+   "d50cMicron": 6.943178904658703,
+   "expectBreakthroughWarning": false,
+   "filterCoefficientPerM": 3.5,
+   "flowM3S": 0.001,
+   "lambdaAtRefPerM": 6.390096504226938,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 3.0,
+   "mediaMicron": 800.0,
+   "referenceDropletMicron": 20.0,
+   "removalAtRefDroplet": 0.9968233048619147
+  },
+  {
+   "areaM2": 2.0,
+   "bedDepthM": 0.9,
+   "d50cMicron": 6.110773244646422,
+   "expectBreakthroughWarning": false,
+   "filterCoefficientPerM": 3.5,
+   "flowM3S": 0.001,
+   "lambdaAtRefPerM": 8.249579113843055,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 1.8,
+   "mediaMicron": 800.0,
+   "referenceDropletMicron": 20.0,
+   "removalAtRefDroplet": 0.9994044347888542
+  },
+  {
+   "areaM2": 4.0,
+   "bedDepthM": 1.1,
+   "d50cMicron": 3.562820542140293,
+   "expectBreakthroughWarning": false,
+   "filterCoefficientPerM": 3.5,
+   "flowM3S": 0.0012,
+   "lambdaAtRefPerM": 19.85573909976752,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 1.0799999999999998,
+   "mediaMicron": 650.0,
+   "referenceDropletMicron": 20.0,
+   "removalAtRefDroplet": 0.999999999676961
+  }
+ ],
+ "mediaFilterFloor": [
+  {
+   "areaAtFloorM2": 3.6,
+   "areaM2": 20.0,
+   "expectRefusal": true,
+   "flowM3S": 0.001,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 0.18000000000000002,
+   "referenceLoadingMHr": 10.0
+  },
+  {
+   "areaAtFloorM2": 3.6,
+   "areaM2": 200.0,
+   "expectRefusal": true,
+   "flowM3S": 0.001,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 0.018000000000000002,
+   "referenceLoadingMHr": 10.0
+  },
+  {
+   "areaAtFloorM2": 3.6,
+   "areaM2": 600.0,
+   "expectRefusal": true,
+   "flowM3S": 0.001,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 0.006,
+   "referenceLoadingMHr": 10.0
+  },
+  {
+   "areaAtFloorM2": 3.6,
+   "areaM2": 2000.0,
+   "expectRefusal": true,
+   "flowM3S": 0.001,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 0.0018,
+   "referenceLoadingMHr": 10.0
+  },
+  {
+   "areaAtFloorM2": 3.6,
+   "areaM2": 3.61,
+   "expectRefusal": true,
+   "flowM3S": 0.001,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 0.997229916897507,
+   "referenceLoadingMHr": 10.0
+  },
+  {
+   "areaAtFloorM2": 3.6,
+   "areaM2": 3.6,
+   "expectRefusal": false,
+   "flowM3S": 0.001,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 1.0,
+   "referenceLoadingMHr": 10.0
+  },
+  {
+   "areaAtFloorM2": 3.6,
+   "areaM2": 3.5,
+   "expectRefusal": false,
+   "flowM3S": 0.001,
+   "loadingFloorMHr": 1.0,
+   "loadingMHr": 1.0285714285714287,
+   "referenceLoadingMHr": 10.0
+  }
+ ],
+ "oilDensity": [
+  {
+   "apiGravity": 32,
+   "rhoOil": 844.4071852110092,
+   "sg60": 0.8654434250764526,
+   "tC": 48.888888888888886
+  },
+  {
+   "apiGravity": 25,
+   "rhoOil": 897.2805305559106,
+   "sg60": 0.9041533546325878,
+   "tC": 25
+  },
+  {
+   "apiGravity": 40,
+   "rhoOil": 781.2979083498542,
+   "sg60": 0.8250728862973761,
+   "tC": 90
+  },
+  {
+   "apiGravity": 15,
+   "rhoOil": 934.8881896382253,
+   "sg60": 0.9658703071672355,
+   "tC": 60
+  },
+  {
+   "apiGravity": 8,
+   "rhoOil": 1013.3225806451612,
+   "sg60": 1.014336917562724,
+   "tC": 15.56
+  },
+  {
+   "apiGravity": 55,
+   "rhoOil": 755.5987012439679,
+   "sg60": 0.7587131367292225,
+   "tC": 20
+  }
+ ],
+ "plateInterceptor": [
+  {
+   "channelHeightIndependence": 2.2093438190040615e-14,
+   "cutReynolds": 0.003703549223297455,
+   "d50cMicron": 23.695933710430765,
+   "designRiseMS": 8.928571428571429e-05,
+   "effectiveAreaM2": 56.0,
+   "flowM3S": 0.005,
+   "muPaS": 0.0005784420855434671,
+   "nPlates": 40,
+   "plateAreaM2": 2.0,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705
+  },
+  {
+   "channelHeightIndependence": 2.1871393585115584e-14,
+   "cutReynolds": 0.28283091518719455,
+   "d50cMicron": 100.53333247915502,
+   "designRiseMS": 0.0016071428571428571,
+   "effectiveAreaM2": 56.0,
+   "efficiencyFactor": 0.7,
+   "flowM3S": 0.09,
+   "muPaS": 0.0005784420855434671,
+   "nPlates": 40,
+   "plateAreaM2": 2.0,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705
+  },
+  {
+   "channelHeightIndependence": 2.1538326677728037e-14,
+   "cutReynolds": 0.04245945751265544,
+   "d50cMicron": 85.31654208855107,
+   "designRiseMS": 0.00044444444444444447,
+   "effectiveAreaM2": 45.0,
+   "efficiencyFactor": 0.5,
+   "flowM3S": 0.02,
+   "muPaS": 0.0008904389816146542,
+   "nPlates": 60,
+   "plateAreaM2": 1.5,
+   "rhoOil": 897.2805305559106,
+   "rhoWater": 997.0751176664442
   }
  ],
  "properties": [
@@ -101,79 +766,277 @@
    "tdsPpm": 150000
   },
   {
-   "muPaS": 0.000356145206843525,
+   "muPaS": 0.00035614520684352493,
    "rhoWater": 1021.163325485853,
    "tC": 90,
    "tdsPpm": 80000
+  },
+  {
+   "muPaS": 0.0015012041732283725,
+   "rhoWater": 999.9918842454146,
+   "tC": 5,
+   "tdsPpm": 0
+  },
+  {
+   "muPaS": 0.000589546583548071,
+   "rhoWater": 1013.062545462991,
+   "tC": 48.888888888888886,
+   "tdsPpm": 35000
+  },
+  {
+   "muPaS": 0.0004296284882632198,
+   "rhoWater": 1168.09662933253,
+   "tC": 100,
+   "tdsPpm": 300000
   }
  ],
  "removal": [
   {
    "d50": 30,
    "d50cMicron": 15,
-   "removalFraction": 0.7773483787650809,
+   "removalFraction": 0.7773631213611298,
    "sharpness": 3,
-   "sigma": 0.7
+   "sigma": 0.7,
+   "spanSigma": 4
   },
   {
    "d50": 30,
    "d50cMicron": 30,
-   "removalFraction": 0.49981006769701636,
+   "removalFraction": 0.4998043670207563,
    "sharpness": 3,
-   "sigma": 0.7
+   "sigma": 0.7,
+   "spanSigma": 4
   },
   {
    "d50": 30,
    "d50cMicron": 60,
-   "removalFraction": 0.22218178031660027,
+   "removalFraction": 0.22215669732930465,
    "sharpness": 3,
-   "sigma": 0.7
+   "sigma": 0.7,
+   "spanSigma": 4
   },
   {
    "d50": 15,
    "d50cMicron": 20,
-   "removalFraction": 0.4079620674354397,
+   "removalFraction": 0.4079497811256117,
    "sharpness": 2,
-   "sigma": 0.9
+   "sigma": 0.9,
+   "spanSigma": 4
   },
   {
    "d50": 50,
    "d50cMicron": 10,
-   "removalFraction": 0.9831044058275114,
+   "removalFraction": 0.983132162781098,
    "sharpness": 4,
-   "sigma": 0.6
+   "sigma": 0.6,
+   "spanSigma": 4
+  },
+  {
+   "d50": 30,
+   "d50cMicron": 12,
+   "removalFraction": 0.7966806093317702,
+   "sharpness": 2,
+   "sigma": 0.7,
+   "spanSigma": 4
   }
  ],
- "stokes": [
+ "rise": [
+  {
+   "apiGravity": 25,
+   "creepingReynolds": 8.546429589799894e-06,
+   "dMicron": 5,
+   "muPaS": 0.0008904389816146542,
+   "rhoOil": 897.2805305559106,
+   "rhoWater": 997.0751176664442,
+   "stokesOverTerminal": 1.000049455273265,
+   "tC": 25,
+   "tdsPpm": 0,
+   "terminalReynolds": 8.54600694469112e-06,
+   "vCreepingMS": 1.5264795852479785e-06,
+   "vTerminalMS": 1.5264040965162724e-06
+  },
   {
    "apiGravity": 32,
+   "creepingReynolds": 0.007515543738353948,
    "dMicron": 30,
    "muPaS": 0.0005784420855434671,
    "rhoOil": 843.7347356697247,
    "rhoWater": 1012.5633428732705,
+   "stokesOverTerminal": 1.005191955868781,
    "tC": 50,
    "tdsPpm": 35000,
-   "vMS": 0.00014311225809902084
+   "terminalReynolds": 0.007476724912564896,
+   "vCreepingMS": 0.00014311225809902081,
+   "vTerminalMS": 0.00014237306343675403
   },
   {
    "apiGravity": 25,
+   "creepingReynolds": 6.837143671839916e-05,
    "dMicron": 10,
    "muPaS": 0.0008904389816146542,
    "rhoOil": 897.2805305559106,
    "rhoWater": 997.0751176664442,
+   "stokesOverTerminal": 1.0002063424695835,
    "tC": 25,
    "tdsPpm": 0,
-   "vMS": 6.105918340991914e-06
+   "terminalReynolds": 6.83573316977625e-05,
+   "vCreepingMS": 6.105918340991914e-06,
+   "vTerminalMS": 6.104658690641723e-06
   },
   {
    "apiGravity": 40,
+   "creepingReynolds": 1.0774178958440481,
    "dMicron": 100,
    "muPaS": 0.00039537099011475237,
    "rhoOil": 781.2979083498542,
    "rhoWater": 1070.163325485853,
+   "stokesOverTerminal": 1.1439505755572177,
    "tC": 90,
    "tdsPpm": 150000,
-   "vMS": 0.003980511853681962
+   "terminalReynolds": 0.9418395504711716,
+   "vCreepingMS": 0.003980511853681961,
+   "vTerminalMS": 0.003479618734177441
+  },
+  {
+   "apiGravity": 32,
+   "creepingReynolds": 4.349272996732613,
+   "dMicron": 250,
+   "muPaS": 0.0005784420855434671,
+   "rhoOil": 843.7347356697247,
+   "rhoWater": 1012.5633428732705,
+   "stokesOverTerminal": 1.3372655485029987,
+   "tC": 50,
+   "tdsPpm": 35000,
+   "terminalReynolds": 3.2523630041927003,
+   "vCreepingMS": 0.009938351256876452,
+   "vTerminalMS": 0.00743184573026796
+  }
+ ],
+ "train": [
+  {
+   "devices": [
+    {
+     "d50cMicron": 100.0,
+     "name": "CPI",
+     "sharpness": 3
+    },
+    {
+     "d50cMicron": 4.6,
+     "name": "Hydrocyclone",
+     "sharpness": 3
+    },
+    {
+     "d50cMicron": 11.2,
+     "name": "Walnut shell filter",
+     "sharpness": 2
+    }
+   ],
+   "inletD50Micron": 30,
+   "inletMedianMicron": 30.00345216547531,
+   "inletOiwPpm": 500,
+   "label": "the Suite's own shipped default train",
+   "outletMedianMicron": 7.280600558667057,
+   "outletOiwPpm": 6.388447863760494,
+   "samples": 400000,
+   "sigma": 0.7,
+   "spanSigma": 4,
+   "stages": [
+    {
+     "name": "CPI",
+     "outletMedianMicron": 27.755868624310082,
+     "outletOiwPpm": 452.86400341137124
+    },
+    {
+     "name": "Hydrocyclone",
+     "outletMedianMicron": 8.944189728822558,
+     "outletOiwPpm": 10.985141689382251
+    },
+    {
+     "name": "Walnut shell filter",
+     "outletMedianMicron": 7.280600558667057,
+     "outletOiwPpm": 6.388447863760494
+    }
+   ]
+  },
+  {
+   "devices": [
+    {
+     "d50cMicron": 12,
+     "name": "A",
+     "sharpness": 3
+    },
+    {
+     "d50cMicron": 12,
+     "name": "B",
+     "sharpness": 3
+    },
+    {
+     "d50cMicron": 12,
+     "name": "C",
+     "sharpness": 3
+    }
+   ],
+   "inletD50Micron": 30,
+   "inletMedianMicron": 30.00345216547531,
+   "inletOiwPpm": 500,
+   "label": "three identical devices, to show the coupling",
+   "outletMedianMicron": 8.385841051588649,
+   "outletOiwPpm": 21.720063944166842,
+   "samples": 400000,
+   "sigma": 0.7,
+   "spanSigma": 4,
+   "stages": [
+    {
+     "name": "A",
+     "outletMedianMicron": 13.214748720466167,
+     "outletOiwPpm": 78.66400891409164
+    },
+    {
+     "name": "B",
+     "outletMedianMicron": 9.822628123011949,
+     "outletOiwPpm": 35.22821670042632
+    },
+    {
+     "name": "C",
+     "outletMedianMicron": 8.385841051588649,
+     "outletOiwPpm": 21.720063944166842
+    }
+   ]
+  },
+  {
+   "devices": [
+    {
+     "d50cMicron": 60,
+     "name": "CPI",
+     "sharpness": 3
+    },
+    {
+     "d50cMicron": 18,
+     "name": "IGF",
+     "sharpness": 2
+    }
+   ],
+   "inletD50Micron": 12,
+   "inletMedianMicron": 12.001775428572088,
+   "inletOiwPpm": 2000,
+   "label": "fine sheared inlet water",
+   "outletMedianMicron": 8.162947020546362,
+   "outletOiwPpm": 1233.5534821592773,
+   "samples": 400000,
+   "sigma": 0.9,
+   "spanSigma": 4,
+   "stages": [
+    {
+     "name": "CPI",
+     "outletMedianMicron": 11.117510291403313,
+     "outletOiwPpm": 1863.5299248133713
+    },
+    {
+     "name": "IGF",
+     "outletMedianMicron": 8.162947020546362,
+     "outletOiwPpm": 1233.5534821592773
+    }
+   ]
   }
  ]
 }

@@ -24,6 +24,12 @@
 
 import { ISCWSA_MWD_REV4 } from './data/iscwsaMwdRev4.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
+
 const DEG = Math.PI / 180;
 const DEFAULT_G = 9.80665;
 
@@ -405,7 +411,7 @@ const SINGULAR_FNS = new Set(['ABXY_TI2', 'XYM3', 'XYM4']);
  * }.
  */
 export function computeErrorModel(stations, header, { model = 'ISCWSA MWD Rev4' } = {}) {
-  const def = typeof model === 'string' ? ERROR_MODELS[model] : model;
+  const def = typeof model === 'string' ? (ownPreset(ERROR_MODELS, model) ? ERROR_MODELS[model] : undefined) : model;
   if (!def) throw new Error(`Unknown error model: ${model}`);
   if (!Number.isFinite(header?.bTotalNT) || !Number.isFinite(header?.dipDeg)) {
     throw new Error('Error model needs a geomagnetic reference: header.bTotalNT and header.dipDeg (from WMM2025 magnetics or a survey-provider report).');
@@ -422,6 +428,9 @@ export function computeErrorModel(stations, header, { model = 'ISCWSA MWD Rev4' 
   const sources = [];
   const totalCov = Array.from({ length: s.n }, zeros33);
   for (const [code, spec] of Object.entries(def.codes)) {
+    // Own keys only: a custom model's `fn` of 'constructor' or 'toString'
+    // would call an inherited member as a weighting function.
+    if (!ownPreset(WEIGHT_FNS, spec.fn)) throw new Error(`Error model term ${code}: unknown weighting function "${spec.fn}".`);
     const dpde = WEIGHT_FNS[spec.fn](s, h);
     const eDIA = dpde.map((row) => [
       row[0] * spec.magnitude, row[1] * spec.magnitude, row[2] * spec.magnitude,

@@ -1296,7 +1296,7 @@
     "mode": 7.16016733556343,
     "max": 62.5,
     "exact": false,
-    "note": "the stated median sits too near the P10 for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum)"
+    "note": "the stated median sits too near the 10th percentile for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum)"
    },
    "normalCDF": [
     0.022750062887256395,

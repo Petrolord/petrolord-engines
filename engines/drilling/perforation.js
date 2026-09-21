@@ -68,7 +68,8 @@ export function karakasTariq({
   if (!(spfPerM > 0)) throw new Error('Shot density must be positive.');
   if (!(rwM > 0)) throw new Error('Wellbore radius must be positive.');
   if (!(khOverKv > 0)) throw new Error('kH/kV must be positive.');
-  const tbl = KT_PHASING_TABLE[phasingDeg];
+  // Own keys only: a phasing of 'constructor' read a function and ran on.
+  const tbl = Object.prototype.hasOwnProperty.call(KT_PHASING_TABLE, phasingDeg) ? KT_PHASING_TABLE[phasingDeg] : undefined;
   if (!tbl) throw new Error(`Phasing ${phasingDeg} deg is not in the SPE 18247 tables (${KT_PHASINGS_DEG.join(', ')}).`);
 
   const warnings = [];

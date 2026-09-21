@@ -7,14 +7,24 @@
 // calendar month. Wells without a matching scenario are reported, not
 // silently dropped.
 
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 /** Most recent scenario per well for a stream, from the scenario list. */
 export function latestScenarioByWell(scenarios, stream) {
   const byWell = {};
   for (const sc of scenarios || []) {
     if (sc.stream !== stream || !sc.wellId) continue;
-    const prev = byWell[sc.wellId];
+    const prev = ownValue(byWell, sc.wellId);
     if (!prev || new Date(sc.createdAt) > new Date(prev.createdAt)) {
-      byWell[sc.wellId] = sc;
+      setOwn(byWell, sc.wellId, sc);
     }
   }
   return byWell;

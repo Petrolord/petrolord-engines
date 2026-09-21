@@ -4,6 +4,26 @@
   {
    "expected": {
     "baseBreakeven": 175.15000162269325,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 1000.0,
+      "p90": 1300.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
     "cdfY": [
      0.0033333333333333335,
      0.006666666666666667,
@@ -306,6 +326,11 @@
      0.9966666666666667,
      1.0
     ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
     "distributionFits": {
      "capex": {
       "exact": true,
@@ -330,7 +355,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 178.18 per barrel, with a 90 percent chance of being below 219.42. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 20260829: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 178.18 per barrel, and its 90th percentile is 219.42: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 20260829: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 180.0853730556394,
      "p10": 144.1379624353947,
@@ -645,19 +670,22 @@
       "high": 215.51089574216473,
       "low": 148.24273887637892,
       "name": "Total CAPEX",
-      "swing": 67.26815686578581
+      "swing": 67.26815686578581,
+      "unreachable": false
      },
      {
       "high": 185.4529428946164,
       "low": 165.93158048465676,
       "name": "Prod. Efficiency",
-      "swing": 19.521362409959636
+      "swing": 19.521362409959636,
+      "unreachable": false
      },
      {
       "high": 185.30342359547365,
       "low": 168.38105364083964,
       "name": "Annual OPEX",
-      "swing": 16.922369954634007
+      "swing": 16.922369954634007,
+      "unreachable": false
      }
     ],
     "tornadoData": {
@@ -675,6 +703,11 @@
       -26.90726274631433,
       -9.21842113803649,
       -6.768947981853614
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
      ],
      "y": [
       "Total CAPEX",
@@ -763,6 +796,26 @@
   {
    "expected": {
     "baseBreakeven": 175.15000162269325,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 1000.0,
+      "p90": 1300.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
     "cdfY": [
      0.0033333333333333335,
      0.006666666666666667,
@@ -1065,6 +1118,11 @@
      0.9966666666666667,
      1.0
     ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
     "distributionFits": {
      "capex": {
       "exact": true,
@@ -1089,7 +1147,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 179.27 per barrel, with a 90 percent chance of being below 219.89. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 12345: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 179.27 per barrel, and its 90th percentile is 219.89: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 12345: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 182.12782184508188,
      "p10": 145.42916519597208,
@@ -1404,19 +1462,22 @@
       "high": 215.51089574216473,
       "low": 148.24273887637892,
       "name": "Total CAPEX",
-      "swing": 67.26815686578581
+      "swing": 67.26815686578581,
+      "unreachable": false
      },
      {
       "high": 185.4529428946164,
       "low": 165.93158048465676,
       "name": "Prod. Efficiency",
-      "swing": 19.521362409959636
+      "swing": 19.521362409959636,
+      "unreachable": false
      },
      {
       "high": 185.30342359547365,
       "low": 168.38105364083964,
       "name": "Annual OPEX",
-      "swing": 16.922369954634007
+      "swing": 16.922369954634007,
+      "unreachable": false
      }
     ],
     "tornadoData": {
@@ -1434,6 +1495,11 @@
       -26.90726274631433,
       -9.21842113803649,
       -6.768947981853614
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
      ],
      "y": [
       "Total CAPEX",
@@ -1523,6 +1589,26 @@
   {
    "expected": {
     "baseBreakeven": 175.15000162269325,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 1000.0,
+      "p90": 1300.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
     "cdfY": [
      0.0033333333333333335,
      0.006666666666666667,
@@ -1825,6 +1911,11 @@
      0.9966666666666667,
      1.0
     ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
     "distributionFits": {
      "capex": {
       "exact": true,
@@ -1849,7 +1940,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 179.22 per barrel, with a 90 percent chance of being below 215.81. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 179.22 per barrel, and its 90th percentile is 215.81: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 181.4423149937127,
      "p10": 150.7141535501849,
@@ -2164,19 +2255,22 @@
       "high": 215.51089574216473,
       "low": 148.24273887637892,
       "name": "Total CAPEX",
-      "swing": 67.26815686578581
+      "swing": 67.26815686578581,
+      "unreachable": false
      },
      {
       "high": 185.4529428946164,
       "low": 165.93158048465676,
       "name": "Prod. Efficiency",
-      "swing": 19.521362409959636
+      "swing": 19.521362409959636,
+      "unreachable": false
      },
      {
       "high": 185.30342359547365,
       "low": 168.38105364083964,
       "name": "Annual OPEX",
-      "swing": 16.922369954634007
+      "swing": 16.922369954634007,
+      "unreachable": false
      }
     ],
     "tornadoData": {
@@ -2194,6 +2288,11 @@
       -26.90726274631433,
       -9.21842113803649,
       -6.768947981853614
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
      ],
      "y": [
       "Total CAPEX",
@@ -2283,6 +2382,26 @@
   {
    "expected": {
     "baseBreakeven": 175.15000162269325,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 1000.0,
+      "p90": 1300.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
     "cdfY": [
      0.0033333333333333335,
      0.006666666666666667,
@@ -2585,6 +2704,11 @@
      0.9966666666666667,
      1.0
     ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
     "distributionFits": {
      "capex": {
       "exact": true,
@@ -2609,7 +2733,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 176.51 per barrel, with a 90 percent chance of being below 219.18. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 1: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 176.51 per barrel, and its 90th percentile is 219.18: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 1: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 180.56029530788499,
      "p10": 147.39436554605436,
@@ -2924,19 +3048,22 @@
       "high": 215.51089574216473,
       "low": 148.24273887637892,
       "name": "Total CAPEX",
-      "swing": 67.26815686578581
+      "swing": 67.26815686578581,
+      "unreachable": false
      },
      {
       "high": 185.4529428946164,
       "low": 165.93158048465676,
       "name": "Prod. Efficiency",
-      "swing": 19.521362409959636
+      "swing": 19.521362409959636,
+      "unreachable": false
      },
      {
       "high": 185.30342359547365,
       "low": 168.38105364083964,
       "name": "Annual OPEX",
-      "swing": 16.922369954634007
+      "swing": 16.922369954634007,
+      "unreachable": false
      }
     ],
     "tornadoData": {
@@ -2954,6 +3081,11 @@
       -26.90726274631433,
       -9.21842113803649,
       -6.768947981853614
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
      ],
      "y": [
       "Total CAPEX",
@@ -3043,6 +3175,26 @@
   {
    "expected": {
     "baseBreakeven": 175.15000162269325,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 1000.0,
+      "p90": 1300.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
     "cdfY": [
      0.0033333333333333335,
      0.006666666666666667,
@@ -3345,6 +3497,11 @@
      0.9966666666666667,
      1.0
     ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
     "distributionFits": {
      "capex": {
       "exact": true,
@@ -3369,7 +3526,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 179.43 per barrel, with a 90 percent chance of being below 221.29. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 2: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 179.43 per barrel, and its 90th percentile is 221.29: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 2: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 181.83294124459732,
      "p10": 144.08103058708252,
@@ -3684,19 +3841,22 @@
       "high": 215.51089574216473,
       "low": 148.24273887637892,
       "name": "Total CAPEX",
-      "swing": 67.26815686578581
+      "swing": 67.26815686578581,
+      "unreachable": false
      },
      {
       "high": 185.4529428946164,
       "low": 165.93158048465676,
       "name": "Prod. Efficiency",
-      "swing": 19.521362409959636
+      "swing": 19.521362409959636,
+      "unreachable": false
      },
      {
       "high": 185.30342359547365,
       "low": 168.38105364083964,
       "name": "Annual OPEX",
-      "swing": 16.922369954634007
+      "swing": 16.922369954634007,
+      "unreachable": false
      }
     ],
     "tornadoData": {
@@ -3714,6 +3874,11 @@
       -26.90726274631433,
       -9.21842113803649,
       -6.768947981853614
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
      ],
      "y": [
       "Total CAPEX",
@@ -3803,6 +3968,26 @@
   {
    "expected": {
     "baseBreakeven": 210.4257206831602,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 1000.0,
+      "p90": 1300.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
     "cdfY": [
      0.0033333333333333335,
      0.006666666666666667,
@@ -4105,6 +4290,11 @@
      0.9966666666666667,
      1.0
     ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
     "distributionFits": {
      "capex": {
       "exact": true,
@@ -4129,7 +4319,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 214.98 per barrel, with a 90 percent chance of being below 251.21. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 214.98 per barrel, and its 90th percentile is 251.21: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 216.67756928926386,
      "p10": 184.53823003827966,
@@ -4444,19 +4634,22 @@
       "high": 250.78661480263165,
       "low": 183.51845793684586,
       "name": "Total CAPEX",
-      "swing": 67.26815686578578
+      "swing": 67.26815686578578,
+      "unreachable": false
      },
      {
       "high": 222.80370425275785,
       "low": 199.35068275246755,
       "name": "Prod. Efficiency",
-      "swing": 23.453021500290305
+      "swing": 23.453021500290305,
+      "unreachable": false
      },
      {
       "high": 220.5791426559406,
       "low": 203.65677270130658,
       "name": "Annual OPEX",
-      "swing": 16.922369954634007
+      "swing": 16.922369954634007,
+      "unreachable": false
      }
     ],
     "tornadoData": {
@@ -4474,6 +4667,11 @@
       -26.90726274631433,
       -11.075037930692645,
       -6.768947981853614
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
      ],
      "y": [
       "Total CAPEX",
@@ -4562,7 +4760,27 @@
   },
   {
    "expected": {
-    "baseBreakeven": 160.4099923256054,
+    "baseBreakeven": 177.62654025885976,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 990.9830056250526,
+      "p90": 1300.0,
+      "source": "fitted"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 65.45084971874738,
+      "p90": 75.0,
+      "source": "fitted"
+     }
+    },
     "cdfY": [
      0.0033333333333333335,
      0.006666666666666667,
@@ -4865,13 +5083,18 @@
      0.9966666666666667,
      1.0
     ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
     "distributionFits": {
      "capex": {
       "exact": false,
       "max": 1550.0,
       "min": 759.4302079790101,
       "mode": 759.4309619366204,
-      "note": "the stated median sits too near the P10 for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum)"
+      "note": "the stated median sits too near the 10th percentile for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum)"
      },
      "efficiency": {
       "exact": true,
@@ -4885,11 +5108,11 @@
       "max": 77.02848968388169,
       "min": 37.5,
       "mode": 77.02845182033687,
-      "note": "the stated median sits too near the P90 for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum)"
+      "note": "the stated median sits too near the 90th percentile for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum)"
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 179.33 per barrel, with a 90 percent chance of being below 217.75. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly. capex: the stated median sits too near the P10 for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum) opex: the stated median sits too near the P90 for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum)",
+    "insights": "The median breakeven oil price is 179.33 per barrel, and its 90th percentile is 217.75: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly. capex: the stated median sits too near the 10th percentile for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum) opex: the stated median sits too near the 90th percentile for any triangular to pass through all three points; the fit uses the most right-skewed triangular there is (mode at the maximum) capex: the base case and the tornado use the fitted triangle's 10th, 50th and 90th percentiles, 800.00, 990.98 and 1300.00, so they describe the same belief the sample is drawn from. opex: the base case and the tornado use the fitted triangle's 10th, 50th and 90th percentiles, 50.00, 65.45 and 75.00, so they describe the same belief the sample is drawn from.",
     "kpis": {
      "mean": 182.54093847185712,
      "p10": 150.9868088832148,
@@ -5201,39 +5424,47 @@
     "seed": 7,
     "sensitivity": [
      {
-      "high": 224.98742291675978,
-      "low": 157.719266050974,
+      "high": 219.20054756247498,
+      "low": 151.9323906966892,
       "name": "Total CAPEX",
-      "swing": 67.26815686578578
+      "swing": 67.26815686578578,
+      "unreachable": false
      },
      {
-      "high": 169.84587422711164,
-      "low": 151.96736115057357,
+      "high": 188.07516027408678,
+      "low": 168.27777498207766,
       "name": "Prod. Efficiency",
-      "swing": 17.87851307653807
+      "swing": 19.797385292009125,
+      "unreachable": false
      },
      {
-      "high": 161.0868871237908,
-      "low": 144.16451716915674,
+      "high": 184.09031041132994,
+      "low": 167.1679404566959,
       "name": "Annual OPEX",
-      "swing": 16.922369954634064
+      "swing": 16.922369954634036,
+      "unreachable": false
      }
     ],
     "tornadoData": {
      "base": [
-      160.4099923256054,
-      160.4099923256054,
-      160.4099923256054
+      177.62654025885976,
+      177.62654025885976,
+      177.62654025885976
      ],
      "high": [
-      64.57743059115438,
-      9.435881901506235,
-      0.6768947981854012
+      41.57400730361522,
+      10.448620015227021,
+      6.463770152470175
      ],
      "low": [
-      -2.690726274631402,
-      -8.442631175031835,
-      -16.245475156448663
+      -25.694149562170566,
+      -9.348765276782103,
+      -10.45859980216386
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
      ],
      "y": [
       "Total CAPEX",
@@ -5318,7 +5549,7 @@
      }
     ]
    },
-   "note": "Medians too near the P10 (capex) and the P90 (opex): both fits clamp and the insight carries both notes."
+   "note": "Medians too near the 10th percentile (capex) and the 90th percentile (opex): both fits clamp and the insight carries both notes. EC3-5: the base case and the tornado use both fitted triangles' own percentiles, and say so."
   },
   {
    "expected": {
@@ -5430,6 +5661,26 @@
   {
    "expected": {
     "baseBreakeven": 498.037154578465,
+    "beliefs": {
+     "capex": {
+      "p10": 2800.0,
+      "p50": 3400.0,
+      "p90": 4200.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
     "cdfY": [
      0.015384615384615385,
      0.03076923076923077,
@@ -5497,6 +5748,11 @@
      0.9846153846153847,
      1.0
     ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
     "distributionFits": {
      "capex": {
       "exact": true,
@@ -5521,7 +5777,7 @@
      }
     },
     "excludedIterations": 55,
-    "insights": "The P50 breakeven oil price is 449.57 per barrel, with a 90 percent chance of being below 486.68. Breakeven is most sensitive to Total CAPEX and Annual OPEX. Run seed 5: the same inputs and seed reproduce this result exactly. 55 of 120 iterations did not break even below 500 dollars a barrel and are excluded from the statistics.",
+    "insights": "The median breakeven oil price is 449.57 per barrel, and its 90th percentile is 486.68: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Annual OPEX. Run seed 5: the same inputs and seed reproduce this result exactly. 55 of 120 iterations did not break even below 500 dollars a barrel and are excluded from the statistics. Total CAPEX has no breakeven below 500 dollars a barrel at one end of its range, so that side of its bar is left open. Annual OPEX has no breakeven below 500 dollars a barrel at one end of its range, so that side of its bar is left open. Prod. Efficiency has no breakeven below 500 dollars a barrel at one end of its range, so that side of its bar is left open.",
     "kpis": {
      "mean": 446.84315879264796,
      "p10": 397.3403825151038,
@@ -5601,19 +5857,22 @@
       "high": null,
       "low": 417.315366339522,
       "name": "Total CAPEX",
-      "swing": 0.0
+      "swing": null,
+      "unreachable": true
      },
      {
       "high": null,
       "low": 491.2682065966113,
       "name": "Annual OPEX",
-      "swing": 0.0
+      "swing": null,
+      "unreachable": true
      },
      {
       "high": null,
       "low": 471.8246727585457,
       "name": "Prod. Efficiency",
-      "swing": 0.0
+      "swing": null,
+      "unreachable": true
      }
     ],
     "tornadoData": {
@@ -5623,14 +5882,19 @@
       498.037154578465
      ],
      "high": [
-      0.0,
-      0.0,
-      0.0
+      null,
+      null,
+      null
      ],
      "low": [
       -80.72178823894302,
       -6.768947981853671,
       -26.212481819919276
+     ],
+     "unreachable": [
+      true,
+      true,
+      true
      ],
      "y": [
       "Total CAPEX",
@@ -5715,11 +5979,2190 @@
      }
     ]
    },
-   "note": "Capex so large that part of the sample cannot break even below $500: those iterations are excluded and counted."
+   "note": "Capex so large that part of the sample cannot break even below $500: those iterations are excluded and counted. B1: the capex bar has no breakeven at its adverse end, so that side is null and the bar sorts FIRST (it used to read 0 and sort last)."
+  },
+  {
+   "expected": {
+    "baseBreakeven": 391.90759395321055,
+    "beliefs": {
+     "capex": {
+      "p10": 2000.0,
+      "p50": 2611.1456180001683,
+      "p90": 3600.0,
+      "source": "fitted"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
+    "cdfY": [
+     0.009433962264150943,
+     0.018867924528301886,
+     0.02830188679245283,
+     0.03773584905660377,
+     0.04716981132075472,
+     0.05660377358490566,
+     0.0660377358490566,
+     0.07547169811320754,
+     0.08490566037735849,
+     0.09433962264150944,
+     0.10377358490566038,
+     0.11320754716981132,
+     0.12264150943396226,
+     0.1320754716981132,
+     0.14150943396226415,
+     0.1509433962264151,
+     0.16037735849056603,
+     0.16981132075471697,
+     0.1792452830188679,
+     0.18867924528301888,
+     0.19811320754716982,
+     0.20754716981132076,
+     0.2169811320754717,
+     0.22641509433962265,
+     0.2358490566037736,
+     0.24528301886792453,
+     0.25471698113207547,
+     0.2641509433962264,
+     0.27358490566037735,
+     0.2830188679245283,
+     0.29245283018867924,
+     0.3018867924528302,
+     0.3113207547169811,
+     0.32075471698113206,
+     0.330188679245283,
+     0.33962264150943394,
+     0.3490566037735849,
+     0.3584905660377358,
+     0.36792452830188677,
+     0.37735849056603776,
+     0.3867924528301887,
+     0.39622641509433965,
+     0.4056603773584906,
+     0.41509433962264153,
+     0.42452830188679247,
+     0.4339622641509434,
+     0.44339622641509435,
+     0.4528301886792453,
+     0.46226415094339623,
+     0.4716981132075472,
+     0.4811320754716981,
+     0.49056603773584906,
+     0.5,
+     0.5094339622641509,
+     0.5188679245283019,
+     0.5283018867924528,
+     0.5377358490566038,
+     0.5471698113207547,
+     0.5566037735849056,
+     0.5660377358490566,
+     0.5754716981132075,
+     0.5849056603773585,
+     0.5943396226415094,
+     0.6037735849056604,
+     0.6132075471698113,
+     0.6226415094339622,
+     0.6320754716981132,
+     0.6415094339622641,
+     0.6509433962264151,
+     0.660377358490566,
+     0.6698113207547169,
+     0.6792452830188679,
+     0.6886792452830188,
+     0.6981132075471698,
+     0.7075471698113207,
+     0.7169811320754716,
+     0.7264150943396226,
+     0.7358490566037735,
+     0.7452830188679245,
+     0.7547169811320755,
+     0.7641509433962265,
+     0.7735849056603774,
+     0.7830188679245284,
+     0.7924528301886793,
+     0.8018867924528302,
+     0.8113207547169812,
+     0.8207547169811321,
+     0.8301886792452831,
+     0.839622641509434,
+     0.8490566037735849,
+     0.8584905660377359,
+     0.8679245283018868,
+     0.8773584905660378,
+     0.8867924528301887,
+     0.8962264150943396,
+     0.9056603773584906,
+     0.9150943396226415,
+     0.9245283018867925,
+     0.9339622641509434,
+     0.9433962264150944,
+     0.9528301886792453,
+     0.9622641509433962,
+     0.9716981132075472,
+     0.9811320754716981,
+     0.9905660377358491,
+     1.0
+    ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
+    "distributionFits": {
+     "capex": {
+      "exact": false,
+      "max": 4400.0,
+      "min": 1870.1766655328324,
+      "mode": 1870.1790781971854,
+      "note": "the stated median sits too near the 10th percentile for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum)"
+     },
+     "efficiency": {
+      "exact": true,
+      "max": 99.04508497187474,
+      "min": 80.95491502812527,
+      "mode": 90.0,
+      "note": null
+     },
+     "opex": {
+      "exact": true,
+      "max": 87.13525491562422,
+      "min": 43.300313969378834,
+      "mode": 53.54004326750739,
+      "note": null
+     }
+    },
+    "excludedIterations": 14,
+    "insights": "The median breakeven oil price is 371.74 per barrel, and its 90th percentile is 446.04: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 5: the same inputs and seed reproduce this result exactly. 14 of 120 iterations did not break even below 500 dollars a barrel and are excluded from the statistics. Total CAPEX has no breakeven below 500 dollars a barrel at one end of its range, so that side of its bar is left open. capex: the stated median sits too near the 10th percentile for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum) capex: the base case and the tornado use the fitted triangle's 10th, 50th and 90th percentiles, 2000.00, 2611.15 and 3600.00, so they describe the same belief the sample is drawn from.",
+    "kpis": {
+     "mean": 372.77615419276725,
+     "p10": 306.35257805028664,
+     "p50": 371.74177524789764,
+     "p90": 446.0434027960604
+    },
+    "sample": [
+     279.90896479481694,
+     285.4763476909053,
+     290.47256012606687,
+     293.53785570151325,
+     295.10747724651173,
+     296.12577382274117,
+     297.5141570884511,
+     299.2321220524424,
+     301.8053719707747,
+     305.86245088645376,
+     306.35257805028664,
+     306.6706303172674,
+     307.08746197831954,
+     307.2299487270417,
+     308.7357727908486,
+     310.819832746298,
+     312.35074138737906,
+     313.19724899765384,
+     315.5137565628746,
+     316.26159113048567,
+     318.8000631176675,
+     325.9200953557216,
+     326.51811187540704,
+     326.52027024993146,
+     326.66355906101705,
+     327.2265434900143,
+     330.6874274249369,
+     331.9273112622279,
+     334.3956262545783,
+     334.94437573341486,
+     336.9118472065342,
+     337.0581676266866,
+     338.7255068056636,
+     339.6021479387224,
+     347.5105600007636,
+     347.7447266569036,
+     348.8013552657985,
+     351.2349171387805,
+     351.44059927430226,
+     351.50568709429126,
+     353.6537693682733,
+     353.8231664854952,
+     355.9389877251059,
+     358.04705709769905,
+     358.50032301893384,
+     360.22863323003696,
+     362.8539339555681,
+     362.95032809480676,
+     363.9564485998203,
+     364.5611739474881,
+     366.6617717134269,
+     366.7997563522817,
+     367.2448024086467,
+     371.74177524789764,
+     372.12229573017265,
+     373.56321939282935,
+     373.6357352415342,
+     375.61527577230356,
+     379.1675348600553,
+     379.5828519379362,
+     381.64189282073727,
+     384.54671764629904,
+     385.40320401083505,
+     387.868239627762,
+     388.9410061292523,
+     390.5492497225079,
+     391.01146478947373,
+     391.4339808522473,
+     393.8703441798519,
+     394.38137139348703,
+     394.4311189898068,
+     394.9499594627497,
+     402.3125940082476,
+     403.2394085736412,
+     407.3701053322839,
+     407.82226352004284,
+     408.3088952550613,
+     409.3291688571058,
+     409.42914244497314,
+     410.8908382615673,
+     411.02276995013017,
+     412.5103093382453,
+     414.2785237395172,
+     415.76320894806815,
+     416.5951275428752,
+     417.1297431072356,
+     418.6273912646093,
+     418.84942303266666,
+     421.65023025832676,
+     422.4969705455154,
+     424.2985654003056,
+     426.1693057409367,
+     427.4589151163968,
+     432.34480812252366,
+     442.34938353450394,
+     446.0434027960604,
+     446.3403917076154,
+     447.149446909263,
+     454.4152263511744,
+     464.7302001202553,
+     467.4555338889653,
+     471.4611189086793,
+     482.88749267618346,
+     484.9866306826659,
+     489.88193035773077,
+     495.59494543213793
+    ],
+    "seed": 5,
+    "sensitivity": [
+     {
+      "high": null,
+      "low": 309.6863153542648,
+      "name": "Total CAPEX",
+      "swing": null,
+      "unreachable": true
+     },
+     {
+      "high": 414.9609818328113,
+      "low": 371.280878481989,
+      "name": "Prod. Efficiency",
+      "swing": 43.680103350822264,
+      "unreachable": false
+     },
+     {
+      "high": 402.061015925991,
+      "low": 385.13864597135705,
+      "name": "Annual OPEX",
+      "swing": 16.92236995463395,
+      "unreachable": false
+     }
+    ],
+    "tornadoData": {
+     "base": [
+      391.90759395321055,
+      391.90759395321055,
+      391.90759395321055
+     ],
+     "high": [
+      null,
+      23.053387879600734,
+      10.15342197278045
+     ],
+     "low": [
+      -82.22127859894573,
+      -20.62671547122153,
+      -6.7689479818535006
+     ],
+     "unreachable": [
+      true,
+      false,
+      false
+     ],
+     "y": [
+      "Total CAPEX",
+      "Prod. Efficiency",
+      "Annual OPEX"
+     ]
+    }
+   },
+   "id": "mc_one_bar_unreachable",
+   "inputs": {
+    "discountRate": 10,
+    "iterations": 120,
+    "productionData": {
+     "data": [
+      {
+       "oil_production_bbl": 3000000.0,
+       "year": 2026
+      },
+      {
+       "oil_production_bbl": 2550000.0,
+       "year": 2027
+      },
+      {
+       "oil_production_bbl": 2167499.9999999995,
+       "year": 2028
+      },
+      {
+       "oil_production_bbl": 1842374.9999999998,
+       "year": 2029
+      },
+      {
+       "oil_production_bbl": 1566018.7499999998,
+       "year": 2030
+      },
+      {
+       "oil_production_bbl": 1331115.9374999998,
+       "year": 2031
+      },
+      {
+       "oil_production_bbl": 1131448.5468749998,
+       "year": 2032
+      },
+      {
+       "oil_production_bbl": 961731.2648437498,
+       "year": 2033
+      },
+      {
+       "oil_production_bbl": 817471.5751171873,
+       "year": 2034
+      },
+      {
+       "oil_production_bbl": 694850.8388496091,
+       "year": 2035
+      }
+     ]
+    },
+    "royaltyRate": 12.5,
+    "seed": 5,
+    "targetNpv": 0,
+    "taxRate": 30,
+    "variables": [
+     {
+      "id": 1,
+      "name": "Total CAPEX ($MM)",
+      "p10": 2000,
+      "p50": 2400,
+      "p90": 3600
+     },
+     {
+      "id": 2,
+      "name": "Annual OPEX ($MM/year)",
+      "p10": 50,
+      "p50": 60,
+      "p90": 75
+     },
+     {
+      "id": 3,
+      "name": "Production Efficiency (%)",
+      "p10": 85,
+      "p50": 90,
+      "p90": 95
+     }
+    ]
+   },
+   "note": "B1: only the capex bar is open (no breakeven below $500 at capex 3600). It is null on that side and sorts FIRST; the retired rule drew it at 0 with a zero swing and sorted it LAST, below both reachable bars."
+  },
+  {
+   "expected": {
+    "baseBreakeven": 165.93158048465676,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 1000.0,
+      "p90": 1300.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 90.0,
+      "p50": 95.0,
+      "p90": 99.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
+    "cdfY": [
+     0.0033333333333333335,
+     0.006666666666666667,
+     0.01,
+     0.013333333333333334,
+     0.016666666666666666,
+     0.02,
+     0.023333333333333334,
+     0.02666666666666667,
+     0.03,
+     0.03333333333333333,
+     0.03666666666666667,
+     0.04,
+     0.043333333333333335,
+     0.04666666666666667,
+     0.05,
+     0.05333333333333334,
+     0.056666666666666664,
+     0.06,
+     0.06333333333333334,
+     0.06666666666666667,
+     0.07,
+     0.07333333333333333,
+     0.07666666666666666,
+     0.08,
+     0.08333333333333333,
+     0.08666666666666667,
+     0.09,
+     0.09333333333333334,
+     0.09666666666666666,
+     0.1,
+     0.10333333333333333,
+     0.10666666666666667,
+     0.11,
+     0.11333333333333333,
+     0.11666666666666667,
+     0.12,
+     0.12333333333333334,
+     0.12666666666666668,
+     0.13,
+     0.13333333333333333,
+     0.13666666666666666,
+     0.14,
+     0.14333333333333334,
+     0.14666666666666667,
+     0.15,
+     0.15333333333333332,
+     0.15666666666666668,
+     0.16,
+     0.16333333333333333,
+     0.16666666666666666,
+     0.17,
+     0.17333333333333334,
+     0.17666666666666667,
+     0.18,
+     0.18333333333333332,
+     0.18666666666666668,
+     0.19,
+     0.19333333333333333,
+     0.19666666666666666,
+     0.2,
+     0.20333333333333334,
+     0.20666666666666667,
+     0.21,
+     0.21333333333333335,
+     0.21666666666666667,
+     0.22,
+     0.22333333333333333,
+     0.22666666666666666,
+     0.23,
+     0.23333333333333334,
+     0.23666666666666666,
+     0.24,
+     0.24333333333333335,
+     0.24666666666666667,
+     0.25,
+     0.25333333333333335,
+     0.25666666666666665,
+     0.26,
+     0.2633333333333333,
+     0.26666666666666666,
+     0.27,
+     0.2733333333333333,
+     0.27666666666666667,
+     0.28,
+     0.2833333333333333,
+     0.2866666666666667,
+     0.29,
+     0.29333333333333333,
+     0.2966666666666667,
+     0.3,
+     0.30333333333333334,
+     0.30666666666666664,
+     0.31,
+     0.31333333333333335,
+     0.31666666666666665,
+     0.32,
+     0.3233333333333333,
+     0.32666666666666666,
+     0.33,
+     0.3333333333333333,
+     0.33666666666666667,
+     0.34,
+     0.3433333333333333,
+     0.3466666666666667,
+     0.35,
+     0.35333333333333333,
+     0.3566666666666667,
+     0.36,
+     0.36333333333333334,
+     0.36666666666666664,
+     0.37,
+     0.37333333333333335,
+     0.37666666666666665,
+     0.38,
+     0.38333333333333336,
+     0.38666666666666666,
+     0.39,
+     0.3933333333333333,
+     0.39666666666666667,
+     0.4,
+     0.4033333333333333,
+     0.4066666666666667,
+     0.41,
+     0.41333333333333333,
+     0.4166666666666667,
+     0.42,
+     0.42333333333333334,
+     0.4266666666666667,
+     0.43,
+     0.43333333333333335,
+     0.43666666666666665,
+     0.44,
+     0.44333333333333336,
+     0.44666666666666666,
+     0.45,
+     0.4533333333333333,
+     0.45666666666666667,
+     0.46,
+     0.4633333333333333,
+     0.4666666666666667,
+     0.47,
+     0.47333333333333333,
+     0.4766666666666667,
+     0.48,
+     0.48333333333333334,
+     0.4866666666666667,
+     0.49,
+     0.49333333333333335,
+     0.49666666666666665,
+     0.5,
+     0.5033333333333333,
+     0.5066666666666667,
+     0.51,
+     0.5133333333333333,
+     0.5166666666666667,
+     0.52,
+     0.5233333333333333,
+     0.5266666666666666,
+     0.53,
+     0.5333333333333333,
+     0.5366666666666666,
+     0.54,
+     0.5433333333333333,
+     0.5466666666666666,
+     0.55,
+     0.5533333333333333,
+     0.5566666666666666,
+     0.56,
+     0.5633333333333334,
+     0.5666666666666667,
+     0.57,
+     0.5733333333333334,
+     0.5766666666666667,
+     0.58,
+     0.5833333333333334,
+     0.5866666666666667,
+     0.59,
+     0.5933333333333334,
+     0.5966666666666667,
+     0.6,
+     0.6033333333333334,
+     0.6066666666666667,
+     0.61,
+     0.6133333333333333,
+     0.6166666666666667,
+     0.62,
+     0.6233333333333333,
+     0.6266666666666667,
+     0.63,
+     0.6333333333333333,
+     0.6366666666666667,
+     0.64,
+     0.6433333333333333,
+     0.6466666666666666,
+     0.65,
+     0.6533333333333333,
+     0.6566666666666666,
+     0.66,
+     0.6633333333333333,
+     0.6666666666666666,
+     0.67,
+     0.6733333333333333,
+     0.6766666666666666,
+     0.68,
+     0.6833333333333333,
+     0.6866666666666666,
+     0.69,
+     0.6933333333333334,
+     0.6966666666666667,
+     0.7,
+     0.7033333333333334,
+     0.7066666666666667,
+     0.71,
+     0.7133333333333334,
+     0.7166666666666667,
+     0.72,
+     0.7233333333333334,
+     0.7266666666666667,
+     0.73,
+     0.7333333333333333,
+     0.7366666666666667,
+     0.74,
+     0.7433333333333333,
+     0.7466666666666667,
+     0.75,
+     0.7533333333333333,
+     0.7566666666666667,
+     0.76,
+     0.7633333333333333,
+     0.7666666666666667,
+     0.77,
+     0.7733333333333333,
+     0.7766666666666666,
+     0.78,
+     0.7833333333333333,
+     0.7866666666666666,
+     0.79,
+     0.7933333333333333,
+     0.7966666666666666,
+     0.8,
+     0.8033333333333333,
+     0.8066666666666666,
+     0.81,
+     0.8133333333333334,
+     0.8166666666666667,
+     0.82,
+     0.8233333333333334,
+     0.8266666666666667,
+     0.83,
+     0.8333333333333334,
+     0.8366666666666667,
+     0.84,
+     0.8433333333333334,
+     0.8466666666666667,
+     0.85,
+     0.8533333333333334,
+     0.8566666666666667,
+     0.86,
+     0.8633333333333333,
+     0.8666666666666667,
+     0.87,
+     0.8733333333333333,
+     0.8766666666666667,
+     0.88,
+     0.8833333333333333,
+     0.8866666666666667,
+     0.89,
+     0.8933333333333333,
+     0.8966666666666666,
+     0.9,
+     0.9033333333333333,
+     0.9066666666666666,
+     0.91,
+     0.9133333333333333,
+     0.9166666666666666,
+     0.92,
+     0.9233333333333333,
+     0.9266666666666666,
+     0.93,
+     0.9333333333333333,
+     0.9366666666666666,
+     0.94,
+     0.9433333333333334,
+     0.9466666666666667,
+     0.95,
+     0.9533333333333334,
+     0.9566666666666667,
+     0.96,
+     0.9633333333333334,
+     0.9666666666666667,
+     0.97,
+     0.9733333333333334,
+     0.9766666666666667,
+     0.98,
+     0.9833333333333333,
+     0.9866666666666667,
+     0.99,
+     0.9933333333333333,
+     0.9966666666666667,
+     1.0
+    ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 19,
+     "opex": 0
+    },
+    "distributionFits": {
+     "capex": {
+      "exact": true,
+      "max": 1542.705098312484,
+      "min": 666.0062793875767,
+      "mode": 870.8008653501478,
+      "note": null
+     },
+     "efficiency": {
+      "exact": true,
+      "max": 102.13123094620278,
+      "min": 85.95491502812526,
+      "mode": 96.07014306431923,
+      "note": null
+     },
+     "opex": {
+      "exact": true,
+      "max": 87.13525491562422,
+      "min": 43.300313969378834,
+      "mode": 53.54004326750739,
+      "note": null
+     }
+    },
+    "excludedIterations": 0,
+    "insights": "The median breakeven oil price is 169.79 per barrel, and its 90th percentile is 205.94: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Annual OPEX. Run seed 7: the same inputs and seed reproduce this result exactly. efficiency: the fitted triangle runs past the physical limit of 100 percent, so 19 of 300 draws were held at that limit.",
+    "kpis": {
+     "mean": 172.4774166610526,
+     "p10": 142.85747023074532,
+     "p50": 169.78975946471272,
+     "p90": 205.94475594820813
+    },
+    "sample": [
+     115.78398842381989,
+     117.436416538997,
+     119.20357002062488,
+     124.05112408978867,
+     124.630523746465,
+     125.57620677291301,
+     126.97794061351564,
+     127.03200619611671,
+     128.26503793011835,
+     128.63657655871867,
+     131.21743527197293,
+     131.3639729606464,
+     132.5544850834038,
+     133.7401802109318,
+     135.05101353139034,
+     135.43072009413046,
+     135.47964879640068,
+     135.93078764967564,
+     136.21107543515893,
+     137.58018503582284,
+     138.09501918695847,
+     138.77500191105761,
+     139.02368211554472,
+     139.67442782807484,
+     139.6871912766936,
+     140.49462972437266,
+     140.65245391236996,
+     140.93883953787048,
+     141.0416904775326,
+     141.13909017181024,
+     142.85747023074532,
+     142.94467058529895,
+     143.24594601209134,
+     143.48240243697379,
+     144.00247156561835,
+     144.17534450059281,
+     144.3227133625969,
+     144.35257057397513,
+     144.62881478472747,
+     145.1831592322843,
+     145.66589908361985,
+     145.78864005064,
+     145.866806784216,
+     145.90406940592754,
+     146.62057319225156,
+     146.7741331805621,
+     146.91280224281957,
+     147.05131953452855,
+     147.29327830265933,
+     147.3291209719294,
+     147.50126363758292,
+     147.898491490995,
+     148.51519014643537,
+     148.52639271857683,
+     148.53273771876297,
+     149.17759447073337,
+     149.4294953937333,
+     149.50044759136236,
+     149.78512227137992,
+     150.55934040469512,
+     151.17152027402608,
+     151.31107953824966,
+     151.87709139926338,
+     151.96717083040565,
+     152.20424180022482,
+     152.41345408509022,
+     152.7258055164043,
+     152.9759848792995,
+     153.54611469241323,
+     153.57101305427486,
+     154.20929094126626,
+     154.24056311517364,
+     154.43143273705908,
+     154.59087815181036,
+     154.63082359240752,
+     154.92785744580712,
+     155.298805473715,
+     155.407849942746,
+     155.68205146429904,
+     155.89263996070372,
+     156.07971820312764,
+     156.98147212453674,
+     157.27020270516402,
+     157.6775095281144,
+     157.96913898703625,
+     158.17597197275163,
+     158.18573124248775,
+     158.26148302927913,
+     158.77514342912252,
+     158.79476466838025,
+     158.81493799772664,
+     158.92394167126272,
+     158.96174919400386,
+     159.21170973768344,
+     159.5260073806391,
+     159.54638738115412,
+     159.74901103183885,
+     159.76505578515292,
+     160.0951440330851,
+     160.91001773747274,
+     160.995768512651,
+     161.0071323772043,
+     161.0608272060323,
+     161.4702358723473,
+     161.51457166425786,
+     161.59663678720207,
+     161.69252375742553,
+     161.70891986160697,
+     161.92296260334422,
+     162.22225747976995,
+     162.4021841068939,
+     162.62532557904422,
+     162.83679828950562,
+     163.3157367460741,
+     163.81803096144586,
+     163.87745504136166,
+     164.10805082422618,
+     164.29851124552633,
+     164.4865773391086,
+     164.56007430235758,
+     164.6869502382021,
+     164.80297920654695,
+     164.88276813712565,
+     164.8846418033488,
+     165.26743273671138,
+     165.3982606698961,
+     165.59780154008408,
+     165.9412905413731,
+     166.05560241739477,
+     166.11188873041158,
+     166.68623800639267,
+     166.81978524759322,
+     167.14312105627116,
+     167.21406247828207,
+     167.83821976099017,
+     167.8386517824946,
+     167.9268978564694,
+     168.19138330486078,
+     168.20369286407646,
+     168.2895959748056,
+     168.49787267090713,
+     168.93298752229768,
+     169.00060706099578,
+     169.04780837213454,
+     169.18168737298095,
+     169.27559964737432,
+     169.28824143008435,
+     169.40974234064618,
+     169.58318954117365,
+     169.75075772848203,
+     169.78975946471272,
+     170.3258074205349,
+     170.79923096205732,
+     170.96686045697436,
+     171.1648458766564,
+     171.39012490613743,
+     171.61682265728663,
+     171.6340694886722,
+     172.14073065905444,
+     172.35304865851938,
+     172.71336628101335,
+     173.7424022556432,
+     173.8430600344649,
+     173.95997801308485,
+     174.39451181971418,
+     174.59060365498829,
+     174.6073333771723,
+     174.78519585475965,
+     174.8254565151141,
+     175.3522517986846,
+     175.92990545791693,
+     176.23763239623955,
+     176.29836606177403,
+     176.66428389484133,
+     176.84000239679858,
+     176.86821930639252,
+     178.1795758903308,
+     178.32005321888144,
+     178.34376744280294,
+     178.45929020023254,
+     178.54079126087544,
+     178.80563620097797,
+     178.8197369067366,
+     179.6006250815605,
+     179.9348702873728,
+     180.1921317226713,
+     180.27431851023326,
+     180.5522569906164,
+     181.95804587367752,
+     181.99476882833423,
+     182.1459318218405,
+     182.17154644532627,
+     182.64548520601522,
+     183.47408035767606,
+     183.54856707603577,
+     183.5509733292693,
+     184.22580849144097,
+     184.32191295486223,
+     184.37072832336725,
+     184.530492392459,
+     185.00163211004326,
+     185.58746500065652,
+     185.61545563638018,
+     185.63592110146067,
+     185.72020418737253,
+     185.90052428907057,
+     186.02492199893425,
+     186.38181910755694,
+     186.6180905554269,
+     187.15226471184403,
+     187.33676907502047,
+     187.53465050233314,
+     188.1733786920397,
+     188.23791173293705,
+     188.24699460288846,
+     188.37513416400947,
+     188.69084195997092,
+     188.71848908176867,
+     188.82029328844823,
+     188.83710271957682,
+     189.21705130054582,
+     189.2242220064192,
+     189.78998416983157,
+     189.84043528026723,
+     189.95653754579763,
+     190.2848225736165,
+     190.72831695090548,
+     190.92542677237452,
+     191.43164534459052,
+     191.55663811673168,
+     191.731375063779,
+     191.75958559973242,
+     191.9394349906034,
+     192.25801351156676,
+     192.66652119710386,
+     192.66737622188867,
+     192.68108241470838,
+     192.77370978402138,
+     193.37214483087558,
+     193.94286367147998,
+     194.0432608547713,
+     194.0946191284164,
+     194.3027826779237,
+     194.81441231339863,
+     195.79037119277905,
+     196.4407295088714,
+     196.54353103704096,
+     196.72416716217006,
+     196.80386442583455,
+     197.10445193704388,
+     197.38529665701924,
+     198.07792431902226,
+     198.2420519637481,
+     198.4488085436256,
+     198.8105637406211,
+     198.89124317881164,
+     199.73281335213372,
+     200.81068135524617,
+     201.1380400100394,
+     201.37770543969586,
+     201.53584237305898,
+     201.8586810583476,
+     202.05895088678525,
+     202.4776265564268,
+     202.61810631631795,
+     203.3251018212111,
+     204.0479239582848,
+     205.16901443354618,
+     205.19374416506926,
+     205.68319637560612,
+     205.94475594820813,
+     206.10865848731714,
+     206.3194661620321,
+     206.42144165513722,
+     207.40856159606074,
+     207.49902967457697,
+     207.60079119466673,
+     207.85585071730287,
+     208.31116715336287,
+     208.42516084219486,
+     208.91557318669874,
+     208.95331904633872,
+     209.1730750209061,
+     209.77172248475551,
+     211.0958652127066,
+     212.07706966072527,
+     212.51598972002068,
+     212.90198675588803,
+     213.26625917307442,
+     215.43128351969767,
+     215.48070956805714,
+     219.65314480587517,
+     220.01054933721258,
+     222.0297613386677,
+     223.13759150164537,
+     224.49153090460118,
+     224.7280028093753,
+     228.64284951487497,
+     229.12367776420118,
+     236.7080221556802
+    ],
+    "seed": 7,
+    "sensitivity": [
+     {
+      "high": 204.1682170188929,
+      "low": 140.44048946183267,
+      "name": "Total CAPEX",
+      "swing": 63.727727557060234,
+      "unreachable": false
+     },
+     {
+      "high": 175.55061182729085,
+      "low": 159.5188929229007,
+      "name": "Annual OPEX",
+      "swing": 16.031718904390146,
+      "unreachable": false
+     },
+     {
+      "high": 175.15000162269325,
+      "low": 159.2272742024484,
+      "name": "Prod. Efficiency",
+      "swing": 15.922727420244854,
+      "unreachable": false
+     }
+    ],
+    "tornadoData": {
+     "base": [
+      165.93158048465676,
+      165.93158048465676,
+      165.93158048465676
+     ],
+     "high": [
+      38.23663653423614,
+      9.619031342634088,
+      9.21842113803649
+     ],
+     "low": [
+      -25.491091022824094,
+      -6.412687561756059,
+      -6.704306282208364
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
+     ],
+     "y": [
+      "Total CAPEX",
+      "Annual OPEX",
+      "Prod. Efficiency"
+     ]
+    }
+   },
+   "id": "mc_efficiency_past_100",
+   "inputs": {
+    "discountRate": 10,
+    "iterations": 300,
+    "productionData": {
+     "data": [
+      {
+       "oil_production_bbl": 3000000.0,
+       "year": 2026
+      },
+      {
+       "oil_production_bbl": 2550000.0,
+       "year": 2027
+      },
+      {
+       "oil_production_bbl": 2167499.9999999995,
+       "year": 2028
+      },
+      {
+       "oil_production_bbl": 1842374.9999999998,
+       "year": 2029
+      },
+      {
+       "oil_production_bbl": 1566018.7499999998,
+       "year": 2030
+      },
+      {
+       "oil_production_bbl": 1331115.9374999998,
+       "year": 2031
+      },
+      {
+       "oil_production_bbl": 1131448.5468749998,
+       "year": 2032
+      },
+      {
+       "oil_production_bbl": 961731.2648437498,
+       "year": 2033
+      },
+      {
+       "oil_production_bbl": 817471.5751171873,
+       "year": 2034
+      },
+      {
+       "oil_production_bbl": 694850.8388496091,
+       "year": 2035
+      }
+     ]
+    },
+    "royaltyRate": 12.5,
+    "seed": 7,
+    "targetNpv": 0,
+    "taxRate": 30,
+    "variables": [
+     {
+      "id": 1,
+      "name": "Total CAPEX ($MM)",
+      "p10": 800,
+      "p50": 1000,
+      "p90": 1300
+     },
+     {
+      "id": 2,
+      "name": "Annual OPEX ($MM/year)",
+      "p10": 50,
+      "p50": 60,
+      "p90": 75
+     },
+     {
+      "id": 3,
+      "name": "Production Efficiency (%)",
+      "p10": 90,
+      "p50": 95,
+      "p90": 99
+     }
+    ]
+   },
+   "note": "EC3-8: efficiency 90 / 95 / 99 fits EXACTLY a triangle whose maximum is above 100 percent; draws past it are held at 100 and counted. (90 / 96 / 99, the example in the EC3 wave notes, does not: its median is too near the 90th percentile, the fit clamps and tops out at 99.73.)"
+  },
+  {
+   "expected": {
+    "error": "OPEX percentiles must not be negative.",
+    "refused": true,
+    "throws": true
+   },
+   "id": "mc_refuses_negative_opex",
+   "inputs": {
+    "discountRate": 10,
+    "iterations": 300,
+    "productionData": {
+     "data": [
+      {
+       "oil_production_bbl": 3000000.0,
+       "year": 2026
+      },
+      {
+       "oil_production_bbl": 2550000.0,
+       "year": 2027
+      },
+      {
+       "oil_production_bbl": 2167499.9999999995,
+       "year": 2028
+      },
+      {
+       "oil_production_bbl": 1842374.9999999998,
+       "year": 2029
+      },
+      {
+       "oil_production_bbl": 1566018.7499999998,
+       "year": 2030
+      },
+      {
+       "oil_production_bbl": 1331115.9374999998,
+       "year": 2031
+      },
+      {
+       "oil_production_bbl": 1131448.5468749998,
+       "year": 2032
+      },
+      {
+       "oil_production_bbl": 961731.2648437498,
+       "year": 2033
+      },
+      {
+       "oil_production_bbl": 817471.5751171873,
+       "year": 2034
+      },
+      {
+       "oil_production_bbl": 694850.8388496091,
+       "year": 2035
+      }
+     ]
+    },
+    "royaltyRate": 12.5,
+    "seed": 7,
+    "targetNpv": 0,
+    "taxRate": 30,
+    "variables": [
+     {
+      "id": 1,
+      "name": "Total CAPEX ($MM)",
+      "p10": 800,
+      "p50": 1000,
+      "p90": 1300
+     },
+     {
+      "id": 2,
+      "name": "Annual OPEX ($MM/year)",
+      "p10": -5,
+      "p50": 60,
+      "p90": 75
+     },
+     {
+      "id": 3,
+      "name": "Production Efficiency (%)",
+      "p10": 85,
+      "p50": 90,
+      "p90": 95
+     }
+    ]
+   },
+   "note": "EC3-8: a negative opex percentile is refused by name."
+  },
+  {
+   "expected": {
+    "error": "Production efficiency percentiles must lie between 0 and 100 percent.",
+    "refused": true,
+    "throws": true
+   },
+   "id": "mc_refuses_efficiency_above_100",
+   "inputs": {
+    "discountRate": 10,
+    "iterations": 300,
+    "productionData": {
+     "data": [
+      {
+       "oil_production_bbl": 3000000.0,
+       "year": 2026
+      },
+      {
+       "oil_production_bbl": 2550000.0,
+       "year": 2027
+      },
+      {
+       "oil_production_bbl": 2167499.9999999995,
+       "year": 2028
+      },
+      {
+       "oil_production_bbl": 1842374.9999999998,
+       "year": 2029
+      },
+      {
+       "oil_production_bbl": 1566018.7499999998,
+       "year": 2030
+      },
+      {
+       "oil_production_bbl": 1331115.9374999998,
+       "year": 2031
+      },
+      {
+       "oil_production_bbl": 1131448.5468749998,
+       "year": 2032
+      },
+      {
+       "oil_production_bbl": 961731.2648437498,
+       "year": 2033
+      },
+      {
+       "oil_production_bbl": 817471.5751171873,
+       "year": 2034
+      },
+      {
+       "oil_production_bbl": 694850.8388496091,
+       "year": 2035
+      }
+     ]
+    },
+    "royaltyRate": 12.5,
+    "seed": 7,
+    "targetNpv": 0,
+    "taxRate": 30,
+    "variables": [
+     {
+      "id": 1,
+      "name": "Total CAPEX ($MM)",
+      "p10": 800,
+      "p50": 1000,
+      "p90": 1300
+     },
+     {
+      "id": 2,
+      "name": "Annual OPEX ($MM/year)",
+      "p10": 50,
+      "p50": 60,
+      "p90": 75
+     },
+     {
+      "id": 3,
+      "name": "Production Efficiency (%)",
+      "p10": 90,
+      "p50": 98,
+      "p90": 102
+     }
+    ]
+   },
+   "note": "EC3-8: an efficiency percentile above 100 is refused by name."
+  },
+  {
+   "expected": {
+    "baseBreakeven": 147.95213856352538,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 1000.0,
+      "p90": 1300.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 15.999999999999998,
+      "p50": 19.81966011250105,
+      "p90": 26.0,
+      "source": "fitted"
+     }
+    },
+    "cdfY": [
+     0.0033333333333333335,
+     0.006666666666666667,
+     0.01,
+     0.013333333333333334,
+     0.016666666666666666,
+     0.02,
+     0.023333333333333334,
+     0.02666666666666667,
+     0.03,
+     0.03333333333333333,
+     0.03666666666666667,
+     0.04,
+     0.043333333333333335,
+     0.04666666666666667,
+     0.05,
+     0.05333333333333334,
+     0.056666666666666664,
+     0.06,
+     0.06333333333333334,
+     0.06666666666666667,
+     0.07,
+     0.07333333333333333,
+     0.07666666666666666,
+     0.08,
+     0.08333333333333333,
+     0.08666666666666667,
+     0.09,
+     0.09333333333333334,
+     0.09666666666666666,
+     0.1,
+     0.10333333333333333,
+     0.10666666666666667,
+     0.11,
+     0.11333333333333333,
+     0.11666666666666667,
+     0.12,
+     0.12333333333333334,
+     0.12666666666666668,
+     0.13,
+     0.13333333333333333,
+     0.13666666666666666,
+     0.14,
+     0.14333333333333334,
+     0.14666666666666667,
+     0.15,
+     0.15333333333333332,
+     0.15666666666666668,
+     0.16,
+     0.16333333333333333,
+     0.16666666666666666,
+     0.17,
+     0.17333333333333334,
+     0.17666666666666667,
+     0.18,
+     0.18333333333333332,
+     0.18666666666666668,
+     0.19,
+     0.19333333333333333,
+     0.19666666666666666,
+     0.2,
+     0.20333333333333334,
+     0.20666666666666667,
+     0.21,
+     0.21333333333333335,
+     0.21666666666666667,
+     0.22,
+     0.22333333333333333,
+     0.22666666666666666,
+     0.23,
+     0.23333333333333334,
+     0.23666666666666666,
+     0.24,
+     0.24333333333333335,
+     0.24666666666666667,
+     0.25,
+     0.25333333333333335,
+     0.25666666666666665,
+     0.26,
+     0.2633333333333333,
+     0.26666666666666666,
+     0.27,
+     0.2733333333333333,
+     0.27666666666666667,
+     0.28,
+     0.2833333333333333,
+     0.2866666666666667,
+     0.29,
+     0.29333333333333333,
+     0.2966666666666667,
+     0.3,
+     0.30333333333333334,
+     0.30666666666666664,
+     0.31,
+     0.31333333333333335,
+     0.31666666666666665,
+     0.32,
+     0.3233333333333333,
+     0.32666666666666666,
+     0.33,
+     0.3333333333333333,
+     0.33666666666666667,
+     0.34,
+     0.3433333333333333,
+     0.3466666666666667,
+     0.35,
+     0.35333333333333333,
+     0.3566666666666667,
+     0.36,
+     0.36333333333333334,
+     0.36666666666666664,
+     0.37,
+     0.37333333333333335,
+     0.37666666666666665,
+     0.38,
+     0.38333333333333336,
+     0.38666666666666666,
+     0.39,
+     0.3933333333333333,
+     0.39666666666666667,
+     0.4,
+     0.4033333333333333,
+     0.4066666666666667,
+     0.41,
+     0.41333333333333333,
+     0.4166666666666667,
+     0.42,
+     0.42333333333333334,
+     0.4266666666666667,
+     0.43,
+     0.43333333333333335,
+     0.43666666666666665,
+     0.44,
+     0.44333333333333336,
+     0.44666666666666666,
+     0.45,
+     0.4533333333333333,
+     0.45666666666666667,
+     0.46,
+     0.4633333333333333,
+     0.4666666666666667,
+     0.47,
+     0.47333333333333333,
+     0.4766666666666667,
+     0.48,
+     0.48333333333333334,
+     0.4866666666666667,
+     0.49,
+     0.49333333333333335,
+     0.49666666666666665,
+     0.5,
+     0.5033333333333333,
+     0.5066666666666667,
+     0.51,
+     0.5133333333333333,
+     0.5166666666666667,
+     0.52,
+     0.5233333333333333,
+     0.5266666666666666,
+     0.53,
+     0.5333333333333333,
+     0.5366666666666666,
+     0.54,
+     0.5433333333333333,
+     0.5466666666666666,
+     0.55,
+     0.5533333333333333,
+     0.5566666666666666,
+     0.56,
+     0.5633333333333334,
+     0.5666666666666667,
+     0.57,
+     0.5733333333333334,
+     0.5766666666666667,
+     0.58,
+     0.5833333333333334,
+     0.5866666666666667,
+     0.59,
+     0.5933333333333334,
+     0.5966666666666667,
+     0.6,
+     0.6033333333333334,
+     0.6066666666666667,
+     0.61,
+     0.6133333333333333,
+     0.6166666666666667,
+     0.62,
+     0.6233333333333333,
+     0.6266666666666667,
+     0.63,
+     0.6333333333333333,
+     0.6366666666666667,
+     0.64,
+     0.6433333333333333,
+     0.6466666666666666,
+     0.65,
+     0.6533333333333333,
+     0.6566666666666666,
+     0.66,
+     0.6633333333333333,
+     0.6666666666666666,
+     0.67,
+     0.6733333333333333,
+     0.6766666666666666,
+     0.68,
+     0.6833333333333333,
+     0.6866666666666666,
+     0.69,
+     0.6933333333333334,
+     0.6966666666666667,
+     0.7,
+     0.7033333333333334,
+     0.7066666666666667,
+     0.71,
+     0.7133333333333334,
+     0.7166666666666667,
+     0.72,
+     0.7233333333333334,
+     0.7266666666666667,
+     0.73,
+     0.7333333333333333,
+     0.7366666666666667,
+     0.74,
+     0.7433333333333333,
+     0.7466666666666667,
+     0.75,
+     0.7533333333333333,
+     0.7566666666666667,
+     0.76,
+     0.7633333333333333,
+     0.7666666666666667,
+     0.77,
+     0.7733333333333333,
+     0.7766666666666666,
+     0.78,
+     0.7833333333333333,
+     0.7866666666666666,
+     0.79,
+     0.7933333333333333,
+     0.7966666666666666,
+     0.8,
+     0.8033333333333333,
+     0.8066666666666666,
+     0.81,
+     0.8133333333333334,
+     0.8166666666666667,
+     0.82,
+     0.8233333333333334,
+     0.8266666666666667,
+     0.83,
+     0.8333333333333334,
+     0.8366666666666667,
+     0.84,
+     0.8433333333333334,
+     0.8466666666666667,
+     0.85,
+     0.8533333333333334,
+     0.8566666666666667,
+     0.86,
+     0.8633333333333333,
+     0.8666666666666667,
+     0.87,
+     0.8733333333333333,
+     0.8766666666666667,
+     0.88,
+     0.8833333333333333,
+     0.8866666666666667,
+     0.89,
+     0.8933333333333333,
+     0.8966666666666666,
+     0.9,
+     0.9033333333333333,
+     0.9066666666666666,
+     0.91,
+     0.9133333333333333,
+     0.9166666666666666,
+     0.92,
+     0.9233333333333333,
+     0.9266666666666666,
+     0.93,
+     0.9333333333333333,
+     0.9366666666666666,
+     0.94,
+     0.9433333333333334,
+     0.9466666666666667,
+     0.95,
+     0.9533333333333334,
+     0.9566666666666667,
+     0.96,
+     0.9633333333333334,
+     0.9666666666666667,
+     0.97,
+     0.9733333333333334,
+     0.9766666666666667,
+     0.98,
+     0.9833333333333333,
+     0.9866666666666667,
+     0.99,
+     0.9933333333333333,
+     0.9966666666666667,
+     1.0
+    ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
+    "distributionFits": {
+     "capex": {
+      "exact": true,
+      "max": 1542.705098312484,
+      "min": 666.0062793875767,
+      "mode": 870.8008653501478,
+      "note": null
+     },
+     "efficiency": {
+      "exact": true,
+      "max": 99.04508497187474,
+      "min": 80.95491502812527,
+      "mode": 90.0,
+      "note": null
+     },
+     "opex": {
+      "exact": false,
+      "max": 31.0,
+      "min": 15.188604159580201,
+      "mode": 15.188619238732407,
+      "note": "the stated median sits too near the 10th percentile for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum)"
+     }
+    },
+    "excludedIterations": 0,
+    "insights": "The median breakeven oil price is 152.08 per barrel, and its 90th percentile is 188.66: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 7: the same inputs and seed reproduce this result exactly. opex: the stated median sits too near the 10th percentile for any triangular to pass through all three points; the fit uses the most left-skewed triangular there is (mode at the minimum) opex: the base case and the tornado use the fitted triangle's 10th, 50th and 90th percentiles, 16.00, 19.82 and 26.00, so they describe the same belief the sample is drawn from.",
+    "kpis": {
+     "mean": 153.6440786951242,
+     "p10": 123.3823441146213,
+     "p50": 152.07838506959723,
+     "p90": 188.6551906855174
+    },
+    "sample": [
+     98.60706511404129,
+     102.51070194187929,
+     103.81372116219396,
+     104.21915848565367,
+     104.75174270302998,
+     105.57627052105332,
+     107.66338346268537,
+     108.75487865595206,
+     110.17245777061083,
+     110.57912020118758,
+     112.12101963707761,
+     112.43780600220552,
+     112.45738523142387,
+     113.26656478302245,
+     115.40515336026536,
+     116.83410330625502,
+     117.13521900605303,
+     118.21902070772005,
+     118.26655426796115,
+     118.31299060163622,
+     118.418446654931,
+     118.67170090932946,
+     118.74807891200962,
+     119.2234721289696,
+     119.23470510952785,
+     120.25079779760281,
+     120.65105851623646,
+     120.7798952579301,
+     121.65255121816801,
+     123.05592530728732,
+     123.3823441146213,
+     123.39215274226989,
+     123.6427819787776,
+     123.79153183909443,
+     124.11021894151168,
+     125.49541583599154,
+     126.12357723993718,
+     126.15347709973415,
+     126.15455649802007,
+     126.32061144129419,
+     126.73296107487998,
+     126.75588428613555,
+     126.86594921807591,
+     127.22588658596877,
+     127.43520485985914,
+     127.89700557519689,
+     128.11504552609628,
+     128.53086101262144,
+     128.85249437950574,
+     128.86132461075343,
+     129.00243364504038,
+     129.13486038749522,
+     129.4723475641232,
+     129.67485187329257,
+     129.78180271069334,
+     129.84298221671935,
+     130.11855031274368,
+     130.5773450785417,
+     130.79166801242508,
+     130.8261937260454,
+     130.93749682202076,
+     130.94412101110296,
+     131.091827132577,
+     131.37966979116078,
+     131.6579833944312,
+     131.6995132529457,
+     132.418066538895,
+     132.60453201621706,
+     132.63917732605512,
+     132.8023312266186,
+     132.86903518796672,
+     133.53189319567352,
+     133.71937172633034,
+     133.89702487050587,
+     134.03354381382917,
+     134.79499835195895,
+     135.3765502696589,
+     135.47387321436477,
+     135.50234516761975,
+     135.73126964879512,
+     135.94494587456768,
+     136.02117960696086,
+     136.18639542788168,
+     136.2798631994583,
+     136.40631581436998,
+     136.9590760248399,
+     137.12887460788332,
+     137.19397190298523,
+     137.2885117566957,
+     137.50112036151063,
+     138.4099658388958,
+     138.77436822195415,
+     139.1873624222958,
+     139.3233806086732,
+     139.88372098149313,
+     139.9414903280421,
+     140.2940308280374,
+     140.30323333914316,
+     140.51108358265424,
+     140.90500865756397,
+     141.1492840708525,
+     141.40503876358602,
+     141.47441915102814,
+     141.88228254966197,
+     142.40507348847638,
+     142.48573888122857,
+     142.53824666760843,
+     142.6757316868772,
+     142.6962934865279,
+     142.97619769032676,
+     143.64012955254077,
+     143.8208787934614,
+     143.83304686242914,
+     143.95259508535182,
+     144.0719578835717,
+     144.10368809837217,
+     144.19975492581247,
+     144.54571384322753,
+     144.63557496553426,
+     144.933873216783,
+     144.95670167372256,
+     145.0335493133646,
+     145.0933840904006,
+     145.15098322795404,
+     145.15795862918594,
+     145.16308577361082,
+     145.31842770775128,
+     145.3865617282794,
+     145.47853062788516,
+     146.01598090415837,
+     146.14767879931782,
+     146.25298631847943,
+     146.4144292708082,
+     146.7800709716103,
+     147.04165111604266,
+     148.0627520035992,
+     148.62580209297926,
+     148.73392639555698,
+     148.99449507223272,
+     149.0670387960086,
+     149.42678085937152,
+     149.5282470042272,
+     149.63793282929976,
+     149.95380183332404,
+     150.18637172326243,
+     150.6584946775336,
+     150.70107353634597,
+     150.82596338512292,
+     151.0683658221759,
+     151.5142494556627,
+     152.07838506959723,
+     152.1403292769339,
+     152.29096327609017,
+     152.34698795946076,
+     152.45865713221883,
+     152.58782387543954,
+     152.60120145744315,
+     152.78809266299658,
+     153.03016332537544,
+     153.19609415126308,
+     153.6403584420053,
+     153.7423460109527,
+     154.00513469462672,
+     154.02451551314533,
+     154.07284419541355,
+     154.3655758727159,
+     154.61657007862217,
+     155.01690954681888,
+     155.52719292284957,
+     155.73696960802198,
+     155.74998977917528,
+     156.07230371393052,
+     156.39991854865266,
+     156.49245898101185,
+     156.5598066868651,
+     157.20761777564363,
+     157.7735799799193,
+     157.93713808094626,
+     158.31195979766633,
+     158.5638261014855,
+     158.83430633568415,
+     159.05720065287397,
+     160.32186638242223,
+     160.45336830856215,
+     160.45503443183725,
+     160.47637754430917,
+     161.84668690716626,
+     161.98123790349777,
+     162.23647912848418,
+     162.48035170103006,
+     162.66812429622632,
+     163.27288514159386,
+     163.7058320560745,
+     164.90096933524885,
+     165.55108878332612,
+     165.8199019534188,
+     166.0652672053342,
+     166.14229884227552,
+     166.19712537327618,
+     166.19884985437795,
+     166.28788893805103,
+     166.4796348879445,
+     166.58138626298444,
+     166.68903309141933,
+     166.72318253901267,
+     167.31830314018688,
+     168.45242301003475,
+     168.59697340771066,
+     168.61269054141462,
+     168.61687481922388,
+     169.0599472095854,
+     169.06786119044367,
+     169.12588154792093,
+     169.17644990824814,
+     169.18061710124533,
+     169.2713365787594,
+     169.37196044491512,
+     169.49434987511088,
+     169.69874385368104,
+     169.84436313046623,
+     169.85232873133037,
+     169.89311083814044,
+     170.53809354942248,
+     170.55240729366744,
+     170.72742246536833,
+     170.85840856831493,
+     171.21362520630984,
+     171.77025913779616,
+     172.22779831848698,
+     172.85372662110012,
+     172.85904495553825,
+     173.33319473101426,
+     173.71230295413886,
+     173.76081370231242,
+     174.03250864645372,
+     174.48827499995684,
+     174.53399892438887,
+     175.03296175388067,
+     175.32776000236555,
+     175.48213868787946,
+     176.56656679721516,
+     176.68774113027072,
+     177.5315867189243,
+     177.595045055029,
+     177.64974403256284,
+     177.75667253423083,
+     179.92855311587618,
+     181.10915734939096,
+     181.2420872320769,
+     182.15538043817148,
+     182.2364981115576,
+     182.48379508940525,
+     182.67686085498042,
+     183.06377070404153,
+     183.88204660523638,
+     183.93827468779313,
+     184.3463728191278,
+     184.47073243143714,
+     184.48076987151697,
+     184.7247875736618,
+     184.89921804986838,
+     185.08782104334313,
+     185.10302340470906,
+     185.6317677855985,
+     186.6230546464538,
+     186.97495066928732,
+     187.5374730437435,
+     187.68359435489026,
+     188.24838278511476,
+     188.3492863655577,
+     188.6551906855174,
+     188.91537722870603,
+     189.9815864193554,
+     190.2098996962274,
+     190.3719555493759,
+     190.55473513560116,
+     190.94438703359526,
+     191.16660808110458,
+     191.33589038489157,
+     191.74870101461397,
+     191.96303393819926,
+     192.93002822398606,
+     193.17540146003387,
+     193.43742226594662,
+     195.0746543521544,
+     195.93605923252937,
+     196.84958340828166,
+     196.9620049060848,
+     198.07353434015835,
+     199.1442423250903,
+     200.62243505692618,
+     201.49965342569868,
+     202.9702870641182,
+     203.0793005945373,
+     204.22244802832967,
+     205.89985252018147,
+     207.76897193806747,
+     210.32551349578463,
+     210.74669962452052,
+     217.087499817504
+    ],
+    "seed": 7,
+    "sensitivity": [
+     {
+      "high": 188.3130326829969,
+      "low": 121.04487581721109,
+      "name": "Total CAPEX",
+      "swing": 67.2681568657858,
+      "unreachable": false
+     },
+     {
+      "high": 156.65520553785046,
+      "low": 140.16518390228725,
+      "name": "Prod. Efficiency",
+      "swing": 16.49002163556321,
+      "unreachable": false
+     },
+     {
+      "high": 152.13557848439095,
+      "low": 145.3666305025373,
+      "name": "Annual OPEX",
+      "swing": 6.768947981853643,
+      "unreachable": false
+     }
+    ],
+    "tornadoData": {
+     "base": [
+      147.95213856352538,
+      147.95213856352538,
+      147.95213856352538
+     ],
+     "high": [
+      40.36089411947151,
+      8.703066974325083,
+      4.183439920865567
+     ],
+     "low": [
+      -26.907262746314288,
+      -7.786954661238127,
+      -2.585508060988076
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
+     ],
+     "y": [
+      "Total CAPEX",
+      "Prod. Efficiency",
+      "Annual OPEX"
+     ]
+    }
+   },
+   "id": "mc_ec3_5_narrow_opex",
+   "inputs": {
+    "discountRate": 10,
+    "iterations": 300,
+    "productionData": {
+     "data": [
+      {
+       "oil_production_bbl": 3000000.0,
+       "year": 2026
+      },
+      {
+       "oil_production_bbl": 2550000.0,
+       "year": 2027
+      },
+      {
+       "oil_production_bbl": 2167499.9999999995,
+       "year": 2028
+      },
+      {
+       "oil_production_bbl": 1842374.9999999998,
+       "year": 2029
+      },
+      {
+       "oil_production_bbl": 1566018.7499999998,
+       "year": 2030
+      },
+      {
+       "oil_production_bbl": 1331115.9374999998,
+       "year": 2031
+      },
+      {
+       "oil_production_bbl": 1131448.5468749998,
+       "year": 2032
+      },
+      {
+       "oil_production_bbl": 961731.2648437498,
+       "year": 2033
+      },
+      {
+       "oil_production_bbl": 817471.5751171873,
+       "year": 2034
+      },
+      {
+       "oil_production_bbl": 694850.8388496091,
+       "year": 2035
+      }
+     ]
+    },
+    "royaltyRate": 12.5,
+    "seed": 7,
+    "targetNpv": 0,
+    "taxRate": 30,
+    "variables": [
+     {
+      "id": 1,
+      "name": "Total CAPEX ($MM)",
+      "p10": 800,
+      "p50": 1000,
+      "p90": 1300
+     },
+     {
+      "id": 2,
+      "name": "Annual OPEX ($MM/year)",
+      "p10": 16,
+      "p50": 17,
+      "p90": 26
+     },
+     {
+      "id": 3,
+      "name": "Production Efficiency (%)",
+      "p10": 85,
+      "p50": 90,
+      "p90": 95
+     }
+    ]
+   },
+   "note": "EC3-5, the FINDINGS shape: opex 16 / 17 / 26 clamps; the base case and the tornado run at the fitted median, not the stated 17."
   },
   {
    "expected": {
     "baseBreakeven": 175.15000162269325,
+    "beliefs": {
+     "capex": {
+      "p10": 800.0,
+      "p50": 1000.0,
+      "p90": 1300.0,
+      "source": "stated"
+     },
+     "efficiency": {
+      "p10": 85.0,
+      "p50": 90.0,
+      "p90": 95.0,
+      "source": "stated"
+     },
+     "opex": {
+      "p10": 50.0,
+      "p50": 60.0,
+      "p90": 75.0,
+      "source": "stated"
+     }
+    },
     "cdfY": [
      0.0005,
      0.001,
@@ -7722,6 +10165,11 @@
      0.9995,
      1.0
     ],
+    "clippedDraws": {
+     "capex": 0,
+     "efficiency": 0,
+     "opex": 0
+    },
     "distributionFits": {
      "capex": {
       "exact": true,
@@ -7746,7 +10194,7 @@
      }
     },
     "excludedIterations": 0,
-    "insights": "The P50 breakeven oil price is 177.47 per barrel, with a 90 percent chance of being below 219.39. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 20260829: the same inputs and seed reproduce this result exactly.",
+    "insights": "The median breakeven oil price is 177.47 per barrel, and its 90th percentile is 219.39: a 90 percent chance the breakeven price is below that. Breakeven is most sensitive to Total CAPEX and Prod. Efficiency. Run seed 20260829: the same inputs and seed reproduce this result exactly.",
     "kpis": {
      "mean": 180.63636929285826,
      "p10": 146.92506238523035,
@@ -9761,19 +12209,22 @@
       "high": 215.51089574216473,
       "low": 148.24273887637892,
       "name": "Total CAPEX",
-      "swing": 67.26815686578581
+      "swing": 67.26815686578581,
+      "unreachable": false
      },
      {
       "high": 185.4529428946164,
       "low": 165.93158048465676,
       "name": "Prod. Efficiency",
-      "swing": 19.521362409959636
+      "swing": 19.521362409959636,
+      "unreachable": false
      },
      {
       "high": 185.30342359547365,
       "low": 168.38105364083964,
       "name": "Annual OPEX",
-      "swing": 16.922369954634007
+      "swing": 16.922369954634007,
+      "unreachable": false
      }
     ],
     "tornadoData": {
@@ -9791,6 +12242,11 @@
       -26.90726274631433,
       -9.21842113803649,
       -6.768947981853614
+     ],
+     "unreachable": [
+      false,
+      false,
+      false
      ],
      "y": [
       "Total CAPEX",

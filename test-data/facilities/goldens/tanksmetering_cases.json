@@ -1,4 +1,36 @@
 {
+ "capacity": [
+  {
+   "bblPerFt": 1692.6131847912354,
+   "crossSectionFt2": 9503.317777109123,
+   "diameterFt": 110.0,
+   "fillHeightFt": 30.0,
+   "heightFt": 36.0,
+   "nominalBbl": 60934.07465248447,
+   "nominalFt3": 342119.43997592846,
+   "workingBbl": 50778.39554373706
+  },
+  {
+   "bblPerFt": 322.2959320461989,
+   "crossSectionFt2": 1809.557368467721,
+   "diameterFt": 48.0,
+   "fillHeightFt": 24.0,
+   "heightFt": 24.0,
+   "nominalBbl": 7735.102369108775,
+   "nominalFt3": 43429.37684322531,
+   "workingBbl": 7735.102369108775
+  },
+  {
+   "bblPerFt": 3147.421211388661,
+   "crossSectionFt2": 17671.458676442584,
+   "diameterFt": 150.0,
+   "fillHeightFt": 44.0,
+   "heightFt": 48.0,
+   "nominalBbl": 151076.2181466557,
+   "nominalFt3": 848230.0164692441,
+   "workingBbl": 138486.5333011011
+  }
+ ],
  "cd": [
   {
    "beta": 0.3,
@@ -8,7 +40,7 @@
   },
   {
    "beta": 0.5,
-   "cd": 0.6037702963266368,
+   "cd": 0.6037702963266369,
    "pipeIdIn": 10.02,
    "reynolds": 500000.0
   },
@@ -20,9 +52,215 @@
   },
   {
    "beta": 0.4,
-   "cd": 0.609865466895758,
+   "cd": 0.6098654668957582,
    "pipeIdIn": 4.026,
    "reynolds": 10000.0
+  },
+  {
+   "beta": 0.45,
+   "cd": 0.6045264711287855,
+   "pipeIdIn": 2.067,
+   "reynolds": 300000.0
+  }
+ ],
+ "evaporative": [
+  {
+   "diameterFt": 110.0,
+   "expansionFactorKe": 0.03975128644939965,
+   "molecularWeight": 65.0,
+   "saturationFactorKs": 0.5571030640668524,
+   "standingLossLbYr": 13168.006970666627,
+   "tempSwingF": 20.0,
+   "throughputBbl": 450000.0,
+   "totalLossLbYr": 56478.71090281488,
+   "vapourDensityLbFt3": 0.01714214626875394,
+   "vapourPressurePsia": 1.5,
+   "vapourSpaceFt3": 95033.17777109124,
+   "vapourSpaceHeightFt": 10.0,
+   "workingLossLbYr": 43310.70393214825
+  },
+  {
+   "diameterFt": 110.0,
+   "expansionFactorKe": 0.04903897019925939,
+   "molecularWeight": 65.0,
+   "saturationFactorKs": 0.3205128205128205,
+   "standingLossLbYr": 24922.33861833813,
+   "tempSwingF": 20.0,
+   "throughputBbl": 450000.0,
+   "totalLossLbYr": 140417.54910406677,
+   "vapourDensityLbFt3": 0.04571239005001051,
+   "vapourPressurePsia": 4.0,
+   "vapourSpaceFt3": 95033.17777109124,
+   "vapourSpaceHeightFt": 10.0,
+   "workingLossLbYr": 115495.21048572865
+  },
+  {
+   "diameterFt": 110.0,
+   "expansionFactorKe": 0.03975128644939965,
+   "molecularWeight": 65.0,
+   "saturationFactorKs": 0.3861003861003861,
+   "standingLossLbYr": 18252.179546213585,
+   "tempSwingF": 20.0,
+   "throughputBbl": 450000.0,
+   "totalLossLbYr": 61562.88347836184,
+   "vapourDensityLbFt3": 0.01714214626875394,
+   "vapourPressurePsia": 1.5,
+   "vapourSpaceFt3": 190066.3555421825,
+   "vapourSpaceHeightFt": 20.0,
+   "workingLossLbYr": 43310.70393214825
+  },
+  {
+   "diameterFt": 48.0,
+   "expansionFactorKe": 0.057703271345188004,
+   "molecularWeight": 72.0,
+   "saturationFactorKs": 0.7971938775510204,
+   "standingLossLbYr": 1846.136993582188,
+   "tempSwingF": 30.0,
+   "throughputBbl": 30000.0,
+   "totalLossLbYr": 3551.9124099867954,
+   "vapourDensityLbFt3": 0.010127052564925403,
+   "vapourPressurePsia": 0.8,
+   "vapourSpaceFt3": 10857.344210806328,
+   "vapourSpaceHeightFt": 6.0,
+   "workingLossLbYr": 1705.7754164046075
+  }
+ ],
+ "fireBandEdges": [
+  {
+   "areaFt2": 200.0,
+   "ratioAcrossEdge": 0.9996092944941922
+  },
+  {
+   "areaFt2": 1000.0,
+   "ratioAcrossEdge": 1.0006895018706499
+  },
+  {
+   "areaFt2": 2800.0,
+   "ratioAcrossEdge": 0.9998683569017236
+  }
+ ],
+ "fireDuty": [
+  {
+   "environmentFactor": 1.0,
+   "qBtuHr": 3000000.0,
+   "wettedFt2": 150.0
+  },
+  {
+   "environmentFactor": 1.0,
+   "qBtuHr": 3980000.0,
+   "wettedFt2": 199.0
+  },
+  {
+   "environmentFactor": 1.0,
+   "qBtuHr": 4009740.5007639313,
+   "wettedFt2": 201.0
+  },
+  {
+   "environmentFactor": 1.0,
+   "qBtuHr": 9367173.385254065,
+   "wettedFt2": 900.0
+  },
+  {
+   "environmentFactor": 1.0,
+   "qBtuHr": 9952985.2432811,
+   "wettedFt2": 1001.0
+  },
+  {
+   "environmentFactor": 1.0,
+   "qBtuHr": 14089436.42197444,
+   "wettedFt2": 2799.0
+  },
+  {
+   "environmentFactor": 1.0,
+   "qBtuHr": 14093408.621821424,
+   "wettedFt2": 2801.0
+  },
+  {
+   "environmentFactor": 1.0,
+   "qBtuHr": 22665990.28516961,
+   "wettedFt2": 5000.0
+  },
+  {
+   "environmentFactor": 0.3,
+   "qBtuHr": 2810152.015576219,
+   "wettedFt2": 900.0
+  }
+ ],
+ "movement": [
+  {
+   "drawBblPerHr": 700.0,
+   "fillBblPerHr": 450.0,
+   "highVolatility": false,
+   "inbreathingScfh": 3930.2083333333335,
+   "outbreathingScfh": 2526.5625
+  },
+  {
+   "drawBblPerHr": 700.0,
+   "fillBblPerHr": 450.0,
+   "highVolatility": true,
+   "inbreathingScfh": 3930.2083333333335,
+   "outbreathingScfh": 5053.125
+  },
+  {
+   "drawBblPerHr": 1200.0,
+   "fillBblPerHr": 0.0,
+   "highVolatility": false,
+   "inbreathingScfh": 6737.5,
+   "outbreathingScfh": 0.0
+  }
+ ],
+ "normalVent": [
+  {
+   "drawBblPerHr": 700.0,
+   "fillBblPerHr": 450.0,
+   "governing": "vacuum (inbreathing)",
+   "highVolatility": false,
+   "inbreathingScfh": 12930.208333333334,
+   "insulated": false,
+   "latitudeFactor": 1.0,
+   "nominalBbl": 9000.0,
+   "outbreathingScfh": 7926.5625,
+   "thermalInbreathingScfh": 9000.0,
+   "vacuumGoverns": true
+  },
+  {
+   "drawBblPerHr": 100.0,
+   "fillBblPerHr": 1500.0,
+   "governing": "pressure (outbreathing)",
+   "highVolatility": true,
+   "inbreathingScfh": 9561.458333333334,
+   "insulated": false,
+   "latitudeFactor": 1.0,
+   "nominalBbl": 9000.0,
+   "outbreathingScfh": 25843.75,
+   "thermalInbreathingScfh": 9000.0,
+   "vacuumGoverns": false
+  },
+  {
+   "drawBblPerHr": 700.0,
+   "fillBblPerHr": 450.0,
+   "governing": "vacuum (inbreathing)",
+   "highVolatility": false,
+   "inbreathingScfh": 6180.208333333334,
+   "insulated": true,
+   "latitudeFactor": 1.0,
+   "nominalBbl": 9000.0,
+   "outbreathingScfh": 3876.5625,
+   "thermalInbreathingScfh": 2250.0,
+   "vacuumGoverns": true
+  },
+  {
+   "drawBblPerHr": 0.0,
+   "fillBblPerHr": 0.0,
+   "governing": "vacuum (inbreathing)",
+   "highVolatility": true,
+   "inbreathingScfh": 10000.0,
+   "insulated": false,
+   "latitudeFactor": 1.0,
+   "nominalBbl": 10000.0,
+   "outbreathingScfh": 10000.0,
+   "thermalInbreathingScfh": 10000.0,
+   "vacuumGoverns": true
   }
  ],
  "orifice": [
@@ -42,7 +280,7 @@
   },
   {
    "beta": 0.49900199600798406,
-   "cd": 0.6023952555608697,
+   "cd": 0.6023952555608698,
    "densityLbFt3": 4.0,
    "dpInH2O": 50.0,
    "expansibility": 0.9994190008350915,
@@ -67,6 +305,43 @@
    "pipeIdIn": 4.026,
    "reynolds": 1315266.5532289378,
    "viscosityCp": 0.011
+  },
+  {
+   "beta": 0.4837929366231253,
+   "cd": 0.6043699597926193,
+   "densityLbFt3": 2.2,
+   "dpInH2O": 150.0,
+   "expansibility": 0.9961608485748765,
+   "k": 1.3,
+   "massLbHr": 4041.289934494518,
+   "orificeIdIn": 1.0,
+   "p1Psia": 400.0,
+   "pipeIdIn": 2.067,
+   "reynolds": 1122603.7514789267,
+   "viscosityCp": 0.011
+  }
+ ],
+ "permanent": [
+  {
+   "beta": 0.3,
+   "cd": 0.6035,
+   "dpInH2O": 100.0,
+   "lossFraction": 0.8967136962196937,
+   "lossInH2O": 89.67136962196936
+  },
+  {
+   "beta": 0.7,
+   "cd": 0.6045,
+   "dpInH2O": 100.0,
+   "lossFraction": 0.5131719346972893,
+   "lossInH2O": 51.31719346972893
+  },
+  {
+   "beta": 0.5,
+   "cd": 0.605,
+   "dpInH2O": 250.0,
+   "lossFraction": 0.7325938584419077,
+   "lossInH2O": 183.14846461047694
   }
  ],
  "shell": [
@@ -101,9 +376,60 @@
    "testStressPsi": 24900.0
   }
  ],
+ "sizing": [
+  {
+   "beta": 0.5936103980637024,
+   "densityLbFt3": 2.5,
+   "dpInH2O": 90.0,
+   "k": 1.3,
+   "orificeIdIn": 3.6002470642563553,
+   "p1Psia": 500.0,
+   "pipeIdIn": 6.065,
+   "targetMassLbHr": 45000.0,
+   "viscosityCp": 0.012
+  },
+  {
+   "beta": 0.6225019907843772,
+   "densityLbFt3": 4.0,
+   "dpInH2O": 120.0,
+   "k": 1.28,
+   "orificeIdIn": 6.237469947659459,
+   "p1Psia": 900.0,
+   "pipeIdIn": 10.02,
+   "targetMassLbHr": 200000.0,
+   "viscosityCp": 0.013
+  }
+ ],
+ "transmitter": [
+  {
+   "accuracyPctOfSpan": 0.075,
+   "differentialTurndown": 2.0,
+   "dpInH2O": 100.0,
+   "flowTurndown": 1.4142135623730951,
+   "spanInH2O": 200.0,
+   "uncertaintyPctOfReading": 0.15
+  },
+  {
+   "accuracyPctOfSpan": 0.075,
+   "differentialTurndown": 10.0,
+   "dpInH2O": 10.0,
+   "flowTurndown": 3.1622776601683795,
+   "spanInH2O": 100.0,
+   "uncertaintyPctOfReading": 0.75
+  },
+  {
+   "accuracyPctOfSpan": 0.1,
+   "differentialTurndown": 1.25,
+   "dpInH2O": 80.0,
+   "flowTurndown": 1.118033988749895,
+   "spanInH2O": 100.0,
+   "uncertaintyPctOfReading": 0.125
+  }
+ ],
  "uncertainty": [
   {
    "beta": 0.5,
+   "label": "typed differential",
    "monteCarloPct": 0.6230763867594361,
    "uncertainties": {
     "bore": 0.05,
@@ -116,11 +442,25 @@
   },
   {
    "beta": 0.65,
+   "label": "typed differential, loose",
    "monteCarloPct": 1.1550888148039336,
    "uncertainties": {
     "bore": 0.05,
     "cd": 0.5,
     "dp": 2.0,
+    "eps": 0.2,
+    "pipe": 0.1,
+    "rho": 0.3
+   }
+  },
+  {
+   "beta": 0.5,
+   "label": "transmitter fed, 40 of 200 in H2O",
+   "monteCarloPct": 0.6005934077564645,
+   "uncertainties": {
+    "bore": 0.05,
+    "cd": 0.5,
+    "dp": 0.375,
     "eps": 0.2,
     "pipe": 0.1,
     "rho": 0.3

@@ -86,7 +86,9 @@ export function computeWell(curves, params) {
 
   // PT11d: 'mineral' reads the porosity the Studio solved from the mineral
   // model (curves.PHI_MM); an explicit choice, absent means missing
-  const phiT = { density: outputs.PHID, sonic: outputs.PHIS, nd: outputs.PHIND, mineral: curves.PHI_MM || null }[p.phiSource];
+  const phiSources = { density: outputs.PHID, sonic: outputs.PHIS, nd: outputs.PHIND, mineral: curves.PHI_MM || null };
+  // Own keys only: a phiSource of 'constructor' used to store a function as PHIT.
+  const phiT = Object.prototype.hasOwnProperty.call(phiSources, p.phiSource) ? phiSources[p.phiSource] : undefined;
   if (phiT) outputs.PHIT = phiT;
   else missing.push(`${p.phiSource} porosity inputs`);
   if (phiT && outputs.VSH) {

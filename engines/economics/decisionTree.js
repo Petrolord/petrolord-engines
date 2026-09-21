@@ -30,12 +30,151 @@
 //   probability-weighted sum of branch values minus branch costs; decision
 //   nodes to the MAX over branch values minus branch costs (rational
 //   risk-neutral actor). Probabilities at a chance node must sum to 1.
+// - Ties at a decision are reported (EC4-1) at two precisions: the exact
+//   value band, which the optimal-path marking uses, and the card precision
+//   a reader sees. A screen shows every tied branch instead of recommending
+//   whichever was listed first, and its words come from the card set.
+// - Costs and payoffs are read strictly (EC4-4): omitted is 0, and anything
+//   present that is not a finite number, or a negative cost, is refused by
+//   node label.
 // - EVPI / EVII follow the standard prior/posterior construction
 //   (Newendorp & Schuyler; Mian): EVII derives the signal marginals and
 //   posteriors from priors and likelihoods via Bayes, so its inputs CANNOT
 //   be probabilistically inconsistent. 0 <= EVII <= EVPI always holds.
 
 const PROB_TOL = 1e-6;
+// EC4-8 (2026-09-15, owner decision): every comparison against PROB_TOL adds
+// this binary representation allowance, the same 1e-12 impliedPriors uses
+// (D1, EC4-0). Three branches typed 0.333333 sum to 0.999999, exactly 1e-6
+// short in the typed decimals but 1.0000000000287557e-6 short in binary
+// floating point, so without it the engine refused a sum on its own edge.
+// A sum genuinely off by more than 1e-6 is still refused.
+const REPRESENTATION_ALLOWANCE = 1e-12;
+const offOne = (sum) => Math.abs(sum - 1) > PROB_TOL + REPRESENTATION_ALLOWANCE;
+
+// EC4-1 (2026-09-15, owner decision): exact ties are reported, never hidden.
+// Two values tie when |a - b| <= TIE_RELATIVE * max(1, |best|), where best is
+// the largest value being compared: relative to the best for values above 1
+// in magnitude, absolute (1e-9) below that. Float residue inside that band is
+// a tie. Every decision node result, and every best-action result, carries
+// `tiedIndices` (every index within the band of the best, in listed order)
+// and `indifferent` (tiedIndices.length > 1). The single index the optimal
+// path marking needs (`bestBranchIndex`, `actionIndex`) is the FIRST listed
+// of the tied indices; the value (`emv`) is the largest. Before, the first
+// strictly greater value won, so a tie silently recommended the first
+// listed branch, and float residue could recommend a later one.
+export const TIE_RELATIVE = 1e-9;
+const tieBand = (best) => TIE_RELATIVE * Math.max(1, Math.abs(best));
+
+/**
+ * Money at card precision: 2 decimal places, half away from zero on the
+ * magnitude (with the representation allowance, so a value that is an exact
+ * half cent in decimals rounds the way the decimals do), and negative zero
+ * normalised so nothing ever reads "-0.00". This is the EC4-2 rounding the
+ * VOI Analyzer's cards and verdict already share; the Analyzer imports it
+ * from here so one rounding serves the numbers and the words.
+ */
+export function cardValue(v) {
+  const magnitude = Number((Math.abs(v) + REPRESENTATION_ALLOWANCE).toFixed(2));
+  return magnitude === 0 ? 0 : (v < 0 ? -magnitude : magnitude);
+}
+
+// EC4-1, second precision (2026-09-15, owner decision via the lead): a
+// sentence a reader sees must agree with the numbers beside it. So every
+// result reports TWO tie sets, side by side:
+//
+//   tiedIndices / indifferent
+//       the exact value band above. This is the engine's internal truth and
+//       what the optimal-path marking and `bestBranchIndex` use.
+//   tiedIndicesAtCardPrecision / indifferentAtCardPrecision
+//       every index whose value ROUNDS to the same card as the best does.
+//       Guidance wording uses this set, so a gap of 0.0001 that both cards
+//       print as 0.00 reads as indifferent, while a gap the cards show still
+//       names one action.
+//
+// The two sets are measured independently and neither contains the other in
+// every case: values a ten-billionth apart that straddle a rounding boundary
+// (0.005 against 0.0049999999) are an exact tie printed on two different
+// cards, and the result says exactly that.
+function bestWithTies(values) {
+  let best = -Infinity;
+  for (const v of values) if (v > best) best = v;
+  const band = tieBand(best);
+  const bestCard = cardValue(best);
+  const tiedIndices = [];
+  const tiedIndicesAtCardPrecision = [];
+  values.forEach((v, i) => {
+    if (Math.abs(best - v) <= band) tiedIndices.push(i);
+    if (cardValue(v) === bestCard) tiedIndicesAtCardPrecision.push(i);
+  });
+  return {
+    best,
+    index: tiedIndices[0],
+    tiedIndices,
+    indifferent: tiedIndices.length > 1,
+    tiedIndicesAtCardPrecision,
+    indifferentAtCardPrecision: tiedIndicesAtCardPrecision.length > 1,
+  };
+}
+
+// EC4-4 (2026-09-15, owner decision): no silent defaults for money. A cost
+// or payoff that is OMITTED (undefined) is 0. One that is PRESENT must be a
+// finite number, or a string holding one; a blank string, null, a
+// non-numeric value, NaN or an infinity is REFUSED naming the node (or the
+// action) and the field. A negative cost is refused: a receipt is a payoff.
+// Before, a cost read as `Number(cost) || 0` (blank, null, "abc" and NaN all
+// became 0, and -5 became a receipt of 5) and a null or blank payoff was 0.
+const shown = (v) => (typeof v === 'string' ? `"${v}"` : String(v));
+
+function readAmount(raw) {
+  if (raw === undefined) return { kind: 'omitted', value: 0 };
+  if (raw === null || (typeof raw === 'string' && raw.trim() === '')) return { kind: 'blank' };
+  if (typeof raw !== 'number' && typeof raw !== 'string') return { kind: 'notNumber' };
+  const v = Number(raw);
+  return Number.isFinite(v) ? { kind: 'number', value: v } : { kind: 'notNumber' };
+}
+
+/**
+ * A cost as a number of 0 or more (omitted is 0). `subject` names what
+ * carries it (`Branch "Drill"`, `Action "Drill"`); `nodeLabel` is appended
+ * by DecisionTreeError as (at node "...").
+ */
+export function costValue(cost, subject, nodeLabel = null) {
+  const r = readAmount(cost);
+  if (r.kind === 'blank') {
+    throw new DecisionTreeError(`${subject} has a blank cost; a cost must be a number of 0 or more`, nodeLabel);
+  }
+  if (r.kind === 'notNumber') {
+    throw new DecisionTreeError(
+      `${subject} has a cost that is not a finite number (${shown(cost)}); a cost must be a number of 0 or more`, nodeLabel);
+  }
+  if (r.value < 0) {
+    throw new DecisionTreeError(
+      `${subject} has a negative cost (${r.value}); a cost cannot be negative: enter a receipt as a payoff`, nodeLabel);
+  }
+  return r.value;
+}
+
+function readPayoff(payoff, subject, nodeLabel) {
+  if (payoff !== null && typeof payoff === 'object') {
+    const m = readAmount(payoff.mean);
+    if (m.kind !== 'number') {
+      throw new DecisionTreeError(subject === 'Terminal payoff'
+        ? 'Distribution payoff has no finite mean'
+        : `${subject} is a distribution with no finite mean`, nodeLabel);
+    }
+    return m.value;
+  }
+  const r = readAmount(payoff);
+  if (r.kind === 'blank') {
+    throw new DecisionTreeError(`${subject} is blank; a payoff must be a finite number`, nodeLabel);
+  }
+  if (r.kind === 'notNumber') {
+    throw new DecisionTreeError(
+      `${subject} is not a finite number (${shown(payoff)}); a payoff must be a finite number`, nodeLabel);
+  }
+  return r.value;
+}
 
 export class DecisionTreeError extends Error {
   constructor(message, nodeLabel = null) {
@@ -45,26 +184,20 @@ export class DecisionTreeError extends Error {
   }
 }
 
-// EMV basis of a terminal payoff: a plain number, or `.mean` of a
-// distribution summary object.
-export function payoffValue(payoff) {
-  if (payoff == null) return 0;
-  if (typeof payoff === 'object') {
-    const m = Number(payoff.mean);
-    if (!Number.isFinite(m)) {
-      throw new DecisionTreeError('Distribution payoff has no finite mean');
-    }
-    return m;
-  }
-  const v = Number(payoff);
-  if (!Number.isFinite(v)) throw new DecisionTreeError('Terminal payoff is not a number');
-  return v;
+// EMV basis of a terminal payoff: a plain number (or a string holding one),
+// or `.mean` of a distribution summary object. An omitted payoff is 0; a
+// present one that is blank, null or not a finite number is refused (EC4-4),
+// naming `nodeLabel` when given.
+export function payoffValue(payoff, nodeLabel = null) {
+  return readPayoff(payoff, 'Terminal payoff', nodeLabel);
 }
 
 /**
  * EMV rollback. Returns an annotated deep copy of the tree:
  *   every node gains `emv`;
- *   decision nodes gain `bestBranchIndex`;
+ *   decision nodes gain `bestBranchIndex` (the first listed of the tied
+ *   best branches), `tiedIndices` and `indifferent`, plus
+ *   `tiedIndicesAtCardPrecision` and `indifferentAtCardPrecision` (EC4-1);
  *   decision/chance branches gain `branchValue` (child EMV minus branch cost)
  *   and `onOptimalPath` (true for every branch reachable by always taking
  *   the best decision at each decision node).
@@ -80,7 +213,7 @@ function evaluate(node) {
     throw new DecisionTreeError('Missing node');
   }
   if (node.type === 'terminal') {
-    return { ...node, emv: payoffValue(node.payoff) };
+    return { ...node, emv: payoffValue(node.payoff, node.label) };
   }
   const branches = node.branches || [];
   if (branches.length === 0) {
@@ -96,10 +229,10 @@ function evaluate(node) {
       }
       pSum += p;
       const child = evaluate(b.node);
-      const branchValue = child.emv - (Number(b.cost) || 0);
+      const branchValue = child.emv - costValue(b.cost, `Branch "${b.label ?? ''}"`, node.label);
       return { ...b, node: child, branchValue };
     });
-    if (Math.abs(pSum - 1) > PROB_TOL) {
+    if (offOne(pSum)) {
       throw new DecisionTreeError(`Chance branch probabilities sum to ${pSum.toFixed(6)}, expected 1`, node.label);
     }
     const emv = annBranches.reduce((s, b) => s + Number(b.probability) * b.branchValue, 0);
@@ -109,14 +242,20 @@ function evaluate(node) {
   if (node.type === 'decision') {
     const annBranches = branches.map((b) => {
       const child = evaluate(b.node);
-      const branchValue = child.emv - (Number(b.cost) || 0);
+      const branchValue = child.emv - costValue(b.cost, `Branch "${b.label ?? ''}"`, node.label);
       return { ...b, node: child, branchValue };
     });
-    let best = 0;
-    for (let i = 1; i < annBranches.length; i++) {
-      if (annBranches[i].branchValue > annBranches[best].branchValue) best = i;
-    }
-    return { ...node, branches: annBranches, emv: annBranches[best].branchValue, bestBranchIndex: best };
+    const t = bestWithTies(annBranches.map((b) => b.branchValue));
+    return {
+      ...node,
+      branches: annBranches,
+      emv: t.best,
+      bestBranchIndex: t.index,
+      tiedIndices: t.tiedIndices,
+      indifferent: t.indifferent,
+      tiedIndicesAtCardPrecision: t.tiedIndicesAtCardPrecision,
+      indifferentAtCardPrecision: t.indifferentAtCardPrecision,
+    };
   }
 
   throw new DecisionTreeError(`Unknown node type "${node.type}"`, node.label);
@@ -144,7 +283,7 @@ function validateLottery(outcomes, actions) {
   if (!outcomes?.length) throw new DecisionTreeError('No outcomes given');
   if (!actions?.length) throw new DecisionTreeError('No actions given');
   const pSum = outcomes.reduce((s, o) => s + Number(o.probability), 0);
-  if (Math.abs(pSum - 1) > PROB_TOL) {
+  if (offOne(pSum)) {
     throw new DecisionTreeError(`Outcome probabilities sum to ${pSum.toFixed(6)}, expected 1`);
   }
   for (const a of actions) {
@@ -152,22 +291,39 @@ function validateLottery(outcomes, actions) {
       throw new DecisionTreeError(`Action "${a.label ?? ''}" needs one payoff per outcome`);
     }
   }
+  // EC4-4: every cost and payoff is read before anything is computed.
+  for (const a of actions) {
+    actionCost(a);
+    outcomes.forEach((_, i) => actionPayoff(a, outcomes, i));
+  }
 }
 
-const actionValue = (a, probs) =>
-  probs.reduce((s, p, i) => s + p * payoffValue(a.payoffs[i]), 0) - (Number(a.cost) || 0);
+const actionCost = (a) => costValue(a.cost, `Action "${a.label ?? ''}"`);
+const actionPayoff = (a, outcomes, i) =>
+  readPayoff(a.payoffs[i], `Payoff of action "${a.label ?? ''}" for outcome "${outcomes[i].label ?? i}"`, null);
 
-/** EMV of the best action under the given outcome probabilities. */
+const actionValue = (a, outcomes, probs) =>
+  probs.reduce((s, p, i) => s + p * actionPayoff(a, outcomes, i), 0) - actionCost(a);
+
+/**
+ * EMV of the best action under the given outcome probabilities.
+ * `actionIndex` is the first listed of `tiedIndices`; `indifferent` is true
+ * when more than one action ties for the best on value, and
+ * `indifferentAtCardPrecision` when more than one rounds to the best card
+ * (EC4-1). Guidance wording reads the card-precision pair.
+ */
 export function bestActionEmv(outcomes, actions, probs = null) {
   validateLottery(outcomes, actions);
   const p = probs ?? outcomes.map((o) => Number(o.probability));
-  let best = -Infinity;
-  let bestIndex = 0;
-  actions.forEach((a, i) => {
-    const v = actionValue(a, p);
-    if (v > best) { best = v; bestIndex = i; }
-  });
-  return { emv: best, actionIndex: bestIndex };
+  const t = bestWithTies(actions.map((a) => actionValue(a, outcomes, p)));
+  return {
+    emv: t.best,
+    actionIndex: t.index,
+    tiedIndices: t.tiedIndices,
+    indifferent: t.indifferent,
+    tiedIndicesAtCardPrecision: t.tiedIndicesAtCardPrecision,
+    indifferentAtCardPrecision: t.indifferentAtCardPrecision,
+  };
 }
 
 /**
@@ -179,7 +335,7 @@ export function evpi(outcomes, actions) {
   const priors = outcomes.map((o) => Number(o.probability));
   const emvPrior = bestActionEmv(outcomes, actions).emv;
   const evWithPerfect = priors.reduce((s, p, i) => {
-    const bestHere = Math.max(...actions.map((a) => payoffValue(a.payoffs[i]) - (Number(a.cost) || 0)));
+    const bestHere = Math.max(...actions.map((a) => actionPayoff(a, outcomes, i) - actionCost(a)));
     return s + p * bestHere;
   }, 0);
   return { evpi: evWithPerfect - emvPrior, emvPrior, evWithPerfect };
@@ -198,12 +354,13 @@ export function evpi(outcomes, actions) {
  */
 export function evii(outcomes, actions, signals, infoCost = 0) {
   validateLottery(outcomes, actions);
+  const netCost = costValue(infoCost, 'The information');
   if (!signals?.length) throw new DecisionTreeError('No signals given');
   const priors = outcomes.map((o) => Number(o.probability));
 
   for (let i = 0; i < outcomes.length; i++) {
     const colSum = signals.reduce((s, sig) => s + Number(sig.likelihoods?.[i] ?? NaN), 0);
-    if (!Number.isFinite(colSum) || Math.abs(colSum - 1) > PROB_TOL) {
+    if (!Number.isFinite(colSum) || offOne(colSum)) {
       throw new DecisionTreeError(
         `Likelihoods P(signal | "${outcomes[i].label ?? i}") sum to ${colSum.toFixed(6)}, expected 1`);
     }
@@ -216,15 +373,20 @@ export function evii(outcomes, actions, signals, infoCost = 0) {
     const joint = priors.map((p, i) => p * Number(sig.likelihoods[i]));
     const pSignal = joint.reduce((s, j) => s + j, 0);
     const posterior = pSignal > 0 ? joint.map((j) => j / pSignal) : priors;
-    const { emv, actionIndex } = bestActionEmv(outcomes, actions, posterior);
-    evWithInfo += pSignal * emv;
-    return { label: sig.label, pSignal, posterior, emv, bestActionIndex: actionIndex };
+    const best = bestActionEmv(outcomes, actions, posterior);
+    evWithInfo += pSignal * best.emv;
+    return {
+      label: sig.label, pSignal, posterior, emv: best.emv, bestActionIndex: best.actionIndex,
+      tiedActionIndices: best.tiedIndices, indifferent: best.indifferent,
+      tiedActionIndicesAtCardPrecision: best.tiedIndicesAtCardPrecision,
+      indifferentAtCardPrecision: best.indifferentAtCardPrecision,
+    };
   });
 
   const eviiGross = evWithInfo - emvPrior;
   return {
     evii: eviiGross,
-    netEvii: eviiGross - (Number(infoCost) || 0),
+    netEvii: eviiGross - netCost,
     emvPrior,
     evWithInfo,
     perSignal,
@@ -246,7 +408,10 @@ export function impliedPriors(outcomes, indicators) {
   const implied = outcomes.map((_, i) =>
     indicators.reduce((s, ind) => s + Number(ind.probability) * Number(ind.posteriors?.[i] ?? 0), 0));
   const deltas = implied.map((v, i) => v - stated[i]);
-  const consistent = deltas.every((d) => Math.abs(d) <= 0.005);
+  // The 1e-12 absorbs binary representation error, so a delta that is
+  // exactly half a percent in the typed decimals (0.305 against 0.3) is
+  // consistent as the method states; EC4-0 resolved finding D1 this way.
+  const consistent = deltas.every((d) => Math.abs(d) <= 0.005 + 1e-12);
   return { stated, implied, deltas, consistent };
 }
 
@@ -268,7 +433,7 @@ export function buildInformationTree({ outcomes, actions, signals, infoCost = 0,
     label: 'Choose action',
     branches: actions.map((a) => ({
       label: a.label,
-      cost: Number(a.cost) || 0,
+      cost: costValue(a.cost, `Action "${a.label ?? ''}"`),
       node: {
         type: 'chance',
         label: `${a.label} outcome`,
@@ -306,7 +471,7 @@ export function buildInformationTree({ outcomes, actions, signals, infoCost = 0,
     type: 'decision',
     label: 'Information decision',
     branches: [
-      { label: infoLabel, cost: Number(infoCost) || 0, node: withInfo },
+      { label: infoLabel, cost: costValue(infoCost, 'The information'), node: withInfo },
       { label: 'No further information', cost: 0, node: withoutInfo },
     ],
   };

@@ -23,39 +23,49 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { runFdpCase, paybackYears, DEFAULT_FISCAL } from '../engines/economics/fdp/economics.js';
+import {
+  runFdpCase, runFdpSensitivity, buildFdpCaseInputs, paybackYears, DEFAULT_FISCAL,
+  resolveAbandonment, planAbandonment, ABANDONMENT_SOURCES,
+} from '../engines/economics/fdp/economics.js';
 import {
   calculateCashFlows, calculateNPV, calculateIRR, calculatePaybackPeriod,
   calculateTotalCAPEX, calculateTotalOPEX, calculateCostByPhase,
 } from '../engines/economics/fdp/costCalculations.js';
 import {
   runScenario, scenarioNPV, scenarioIRR, scenarioPayback, conceptProfileKbpd,
+  conceptCapex, conceptCapexMM, scenarioCase, scenarioSensitivity,
 } from '../engines/economics/fdp/scenarioCalculations.js';
 import {
   calculateConceptCost, calculateConceptSchedule, calculateReservesImpact,
 } from '../engines/economics/fdp/conceptCalculations.js';
 import {
   calculateRecoveryFactor, calculateOOIP, calculateRecoverableReserves, calculatePressureGradient,
-  calculateTemperatureGradient, calculateRiskScore, aggregateReserves,
+  calculateTemperatureGradient, calculateRiskScore, aggregateReserves, reservesP50,
 } from '../engines/economics/fdp/subsurfaceCalculations.js';
 import {
   calculateDrillingTime, calculateDrillingCost, calculateWellCount, aggregateWellsByType, calculateTotalDrillingCost,
+  SCREENING_RECOVERY_PER_WELL_MMBBL,
 } from '../engines/economics/fdp/wellCalculations.js';
 import {
   calculateFacilityCapacity, calculateFacilityCost, calculateFlowAssuranceRisk, identifyBottlenecks,
+  screenSourService, SOUR_SERVICE_THRESHOLD_PSIA, CORROSION_STATUSES,
 } from '../engines/economics/fdp/facilitiesCalculations.js';
 import {
   calculateRiskMatrix, calculateTotalRiskScore, aggregateRisksByType, calculateComplianceScore,
 } from '../engines/economics/fdp/hseCalculations.js';
 import {
   calculateConsolidatedRiskScore, calculateRiskExposure, aggregateRisksBySource, aggregateRisksByLevel,
-  calculatePortfolioHealth,
+  calculatePortfolioHealth, countUnscoredRisks,
 } from '../engines/economics/fdp/riskCalculations.js';
 import {
   calculateProjectDuration, calculateCPM, calculateResourceRequirements, identifyMilestones,
+  calculateNetworkDuration, criticalPaths,
 } from '../engines/economics/fdp/scheduleCalculations.js';
-import { calculateCompleteness, validateFDPData } from '../engines/economics/fdp/fdpCalculations.js';
-import { getRiskLevel, RiskTypes, RiskStatus } from '../engines/economics/fdp/riskModel.js';
+import {
+  calculateCompleteness, validateFDPData, planReservesP50, planReservesCheck, RESERVES_PROFILE_MARGIN,
+} from '../engines/economics/fdp/fdpCalculations.js';
+import { FdpInputError } from '../engines/economics/fdp/inputError.js';
+import { getRiskLevel, riskScore, RiskTypes, RiskStatus } from '../engines/economics/fdp/riskModel.js';
 import { calculateEconomics } from '../engines/economics/screening.js';
 
 const G = JSON.parse(fs.readFileSync(path.join(__dirname, '../test-data/economics/goldens/fdp_cases.json'), 'utf8'));
@@ -75,6 +85,35 @@ const expectNum = (actual, expected, tol) => {
 };
 
 const deck = (prices) => prices.map((p) => ({ oil_price_usd: p }));
+
+/**
+ * EC6-3: the corrosion screen. Strings, the threshold and the status are
+ * exact; the partial pressures are compared to a tolerance because the
+ * oracle reaches them by a different road (ppm x pressure over a million,
+ * where the engine takes the mole fraction first, and its own psi to kPa
+ * conversion from the definition of the pound-force per square inch).
+ */
+const expectCorrosion = (actual, expected) => {
+  ['status', 'message', 'standard', 'thresholdPsia', 'thresholdKpa']
+    .forEach((k) => expect(actual[k]).toEqual(expected[k]));
+  ['h2sPpm', 'operatingPressurePsia', 'h2sPartialPressurePsia', 'h2sPartialPressureKpa'].forEach((k) => {
+    if (expected[k] === null) expect(actual[k]).toBeNull();
+    else expect(Math.abs(actual[k] - expected[k])).toBeLessThanOrEqual(1e-12);
+  });
+};
+
+/** EC6-1: the plan reserves check. Volumes and ratios to a tolerance. */
+const expectReservesCheck = (actual, expected) => {
+  ['status', 'profileSource', 'recoveryPerWellSource', 'profileYears', 'impliedWells',
+    'carriedWells', 'recoveryPerWellMMbbl', 'marginFraction']
+    .forEach((k) => expect(actual[k]).toEqual(expected[k]));
+  expect(actual.missing).toEqual(expected.missing);
+  expect(actual.warnings).toEqual(expected.warnings);
+  ['profileVolumeMMbbl', 'oilP50MMbbl', 'profileToP50Ratio', 'wellsRatio'].forEach((k) => {
+    if (expected[k] === null) expect(actual[k]).toBeNull();
+    else expect(Math.abs(actual[k] - expected[k])).toBeLessThanOrEqual(1e-9);
+  });
+};
 
 // ---------------------------------------------------------------------------
 // (c) The Suite's own tests, ported.
@@ -186,7 +225,7 @@ describe('Suite port: costCalculations delegation', () => {
 });
 
 describe('Suite port: scenarioCalculations delegation', () => {
-  const concept = { capex: 800, opex: 60, peakProduction: 50 };
+  const concept = { drillingCapex: 300, facilitiesCapex: 400, subseaCapex: 100, opex: 60, peakProduction: 50 };
   const scenario = { oilPrice: 75, discountRate: 10 };
 
   test('the concept profile plateaus then declines', () => {
@@ -313,8 +352,16 @@ describe('identities', () => {
     for (let p = 1; p <= 5; p += 1) for (let i = 1; i <= 5; i += 1) risks.push({ probability: p, impact: i });
     const lv = aggregateRisksByLevel(risks);
     expect(lv.Critical + lv.High + lv.Medium + lv.Low).toBe(25);
+    expect(lv.Unscored).toBe(0);
     const m = calculateRiskMatrix(risks);
-    expect(m.low + m.medium + m.high).toBe(m.total);
+    // EC6-1: the HSE matrix bands on the SAME scale as the register, so the
+    // two screens agree about what a score of 12 is. It used to band on 15
+    // and 8 and had no Critical band at all.
+    expect(m.low + m.medium + m.high + m.critical + m.unscored).toBe(m.total);
+    expect(m.critical).toBe(lv.Critical);
+    expect(m.high).toBe(lv.High);
+    expect(m.medium).toBe(lv.Medium);
+    expect(m.low).toBe(lv.Low);
     expect(calculateTotalRiskScore(risks)).toBe(15 * 15);
     expect(calculateConsolidatedRiskScore(risks)).toBe(225);
     expect(calculateRiskScore(4, 5)).toBe(20);
@@ -349,6 +396,21 @@ describe('identities', () => {
     expect(validateFDPData(full).isValid).toBe(true);
   });
 
+  test('EC6-0: the plan reads its reserves from the table, not from a key nothing writes', () => {
+    const state = {
+      subsurface: { reserves: { summary: { p50: 0 }, breakdown: [
+        { name: 'A', fluid: 'Oil', p50: 85 }, { name: 'B', fluid: 'Gas', p50: 30 },
+      ] } },
+    };
+    expect(planReservesP50(state)).toBe(85);
+    expect(planReservesP50(state, 'Gas')).toBe(30);
+    // the old path, still honoured for a plan that carries only a summary
+    expect(planReservesP50({ subsurface: { reserves: { summary: { p50: 115 } } } })).toBe(115);
+    // a full table no longer fails validation for want of a summary
+    expect(validateFDPData({ ...state, fieldData: { fieldName: 'X' }, economics: { capex: 1 } }).errors)
+      .not.toContain('Reserves (P50) not estimated.');
+  });
+
   test('calculateResourceRequirements is an empty stub and returns an empty profile', () => {
     expect(calculateResourceRequirements([{ resources: { crew: 5, cost: 10 } }])).toEqual({});
   });
@@ -375,29 +437,41 @@ describe('golden: runFdpCase and the costCalculations view', () => {
     ['npv', 'payback', 'maxExposure', 'totalRevenue', 'totalCapex', 'totalOpex', 'totalTax', 'totalRoyalty', 'totalGovTake']
       .forEach((k) => expectNum(r.metrics[k], e.metrics[k], MONEY));
 
-    // IRR. Three outcomes: the same root by two methods; a root the engine
-    // cannot reach (beyond its clamp, or none at all), where the golden pins
-    // the engine's own number as a DISAGREEMENT beside the oracle's; or no
-    // sign change, where 0 is the documented convention.
-    if (e.engineReported) {
-      // The engine's published number, pinned; and the gap to the oracle,
-      // which must be real (a pin that could be removed silently is no pin).
-      expect(e.engineReported.label).toMatch(/^DISAGREEMENT/);
-      expectNum(r.metrics.irr, e.engineReported.irr, IRR);
-      if (e.metrics.irr !== null) expect(Math.abs(e.metrics.irr - e.engineReported.irr)).toBeGreaterThan(100);
-      if (e.irrBeyondEngineClamp) expect(e.irrRootsPercent[0]).toBeGreaterThan(1000);
-      if (e.irrNoRoot) expect(e.irrRootsPercent).toBeNull();
+    // IRR. EC6-1: a rate is reported only when it is a single root inside
+    // the band the engine searches, and `irrStatus` carries the reason when
+    // there is none. There are no disagreements left to pin.
+    expect(r.metrics.irrStatus).toBe(e.metrics.irrStatus);
+    if (e.metrics.irr === null) {
+      expect(r.metrics.irr).toBeNull();
+      if (e.irrBeyondEngineClamp) {
+        expect(e.metrics.irrStatus).toBe('above-clamp');
+        expect(e.irrRootsPercent[0]).toBeGreaterThan(1000);
+      }
+      if (e.irrNoRoot) {
+        expect(e.metrics.irrStatus).toBe('no-root');
+        expect(e.irrRootsPercent).toBeNull();
+      }
     } else {
-      expect(e.metrics.irr).not.toBeNull();
       expectNum(r.metrics.irr, e.metrics.irr, IRR);
+      // and it really is a root of this cash flow
+      const rate = r.metrics.irr / 100;
+      const npvAtIrr = r.cashflow.reduce((sum, cf, i) => sum + cf.ncf / (1 + rate) ** (i + 0.5), 0);
+      const scale = r.cashflow.reduce((sum, cf) => sum + Math.abs(cf.ncf), 0);
+      expect(Math.abs(npvAtIrr) / scale).toBeLessThan(1e-8);
     }
     if (e.paybackYears === null) expect(paybackYears(r)).toBeNull();
     else expectNum(paybackYears(r), e.paybackYears, MONEY);
 
-    // costCalculations builds the same case from a price deck (missing
-    // rows default to 70 there, which the oracle models separately).
-    const rows = calculateCashFlows(capexMM, annualOpexMM, productionKbpd, deck(pricesUsd), fiscal);
+    // costCalculations builds the same case from a price deck. EC6-1: a deck
+    // that does not cover the profile is refused rather than padded with 70,
+    // which is what made the two doors disagree.
     const cc = e.costCalculations;
+    if (cc.priceDeckRefused) {
+      expect(() => calculateCashFlows(capexMM, annualOpexMM, productionKbpd, deck(pricesUsd), fiscal))
+        .toThrow(FdpInputError);
+      return;
+    }
+    const rows = calculateCashFlows(capexMM, annualOpexMM, productionKbpd, deck(pricesUsd), fiscal);
     expect(rows).toHaveLength(cc.rows.length);
     rows.forEach((row, i) => Object.keys(cc.rows[i]).forEach((k) => expectNum(row[k], cc.rows[i][k], MONEY)));
     expectNum(calculateNPV(rows), cc.npv, MONEY);
@@ -413,7 +487,7 @@ describe('golden: runFdpCase and the costCalculations view', () => {
     G.fdpCase.forEach((c) => {
       const e = c.expected;
       if (e.metrics.irr !== null && e.irrExists && e.costCalculations.irr !== null && e.metrics.irr > 0
-          && !e.costCalculations.priceDeckPaddedTo70) {
+          && !e.costCalculations.priceDeckRefused) {
         expect(Math.abs(e.metrics.irr - e.costCalculations.irr)).toBeLessThan(1e-6);
       }
     });
@@ -443,6 +517,13 @@ describe('golden: scenarios', () => {
     // The resolved inputs are what the engine actually ran: capex row 0 and
     // the opex of a producing year say so.
     expect(r.cashflow[0].capex).toBe(e.resolved.capexMM);
+    // EC6-9: the card says whether the capex it screened is complete.
+    expect(r.capexStatus).toBe(e.capexStatus);
+    expect(r.capexMissing).toEqual(e.capexMissing);
+    expect(r.capexStatus === 'partial').toBe(e.capexMissing.length > 0);
+    expect(conceptCapex(concept)).toEqual({
+      capexMM: e.resolved.capexMM, capexStatus: e.capexStatus, capexMissing: e.capexMissing,
+    });
     const varOpex = (e.productionKbpd[0] * 1000 * 365 * DEFAULT_FISCAL.variableOpexPerBbl) / 1e6;
     expectNum(r.cashflow[1].opex, e.resolved.annualOpexMM + varOpex, MONEY);
     expectNum(r.cashflow[1].royalty, r.cashflow[1].grossRevenue * (e.resolved.royaltyRate / 100), MONEY);
@@ -489,7 +570,33 @@ describe('golden: subsurface', () => {
 
   test.each(G.subsurface.aggregateReserves.map((c) => [c.name, c]))('aggregate %s', (_n, c) => {
     const a = aggregateReserves(c.inputs);
-    ['p10', 'p50', 'p90', 'recoverable'].forEach((k) => expectNum(a[k], c.expected[k], RATIO));
+    expect(a.fluids).toEqual(c.expected.fluids);
+    expect(a.percentileNote).toBe(c.expected.percentileNote);
+    Object.keys(c.expected.byFluid).forEach((f) => {
+      const e = c.expected.byFluid[f];
+      expect(a.byFluid[f].units).toBe(e.units);
+      expect(a.byFluid[f].count).toBe(e.count);
+      ['p90Sum', 'p50Sum', 'p10Sum', 'recoverableSum'].forEach((k) => expectNum(a.byFluid[f][k], e[k], RATIO));
+    });
+  });
+
+  test.each(G.subsurface.aggregateReservesRefusals.map((c) => [c.name, c]))('aggregate refuses %s', (_n, c) => {
+    expect(() => aggregateReserves(c.inputs)).toThrow(FdpInputError);
+    try {
+      aggregateReserves(c.inputs);
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
+    }
+  });
+
+  test('EC6-0: oil and gas never land in the same total', () => {
+    const rows = [{ name: 'A', fluid: 'Oil', p50: 85 }, { name: 'B', fluid: 'Gas', p50: 30 }];
+    const a = aggregateReserves(rows);
+    expect(reservesP50(a)).toBe(85);
+    expect(reservesP50(a, 'Gas')).toBe(30);
+    // the retired total, for the record: it read 115 and was labelled MMbbl
+    expect(Object.values(a.byFluid).reduce((s, t) => s + t.p50Sum, 0)).toBe(115);
+    expect(a.percentileNote).toMatch(/sum of P90s is not the P90 of the sum/);
   });
 
   test('every cell of the risk score matrix', () => {
@@ -539,7 +646,95 @@ describe('golden: facilities', () => {
 
   test.each(G.facilities.flowAssurance.map((c) => [JSON.stringify(c.inputs), c]))('flow assurance %s', (_n, c) => {
     const fluid = c.inputs.fluidProperties;
-    expect(calculateFlowAssuranceRisk(c.inputs.facility, fluid === null ? undefined : fluid)).toEqual(c.expected);
+    const r = calculateFlowAssuranceRisk(c.inputs.facility, fluid === null ? undefined : fluid);
+    const { corrosion, ...rest } = r;
+    const { corrosion: expectedCorrosion, ...expectedRest } = c.expected;
+    expect(rest).toEqual(expectedRest);
+    expectCorrosion(corrosion, expectedCorrosion);
+    expectCorrosion(screenSourService(fluid === null ? undefined : fluid), expectedCorrosion);
+    expect(CORROSION_STATUSES).toContain(corrosion.status);
+    // EC6-3: the corrosion points are scored on the sour service status alone.
+    expect(r.contributions.some((x) => x.hazards.includes('Corrosion')))
+      .toBe(corrosion.status === 'sour-service');
+    // EC6-2: the score is the sum of its named contributions, and no band.
+    expect(r.contributions.reduce((sum, x) => sum + x.points, 0)).toBe(r.score);
+    expect(r.contributions.flatMap((x) => x.hazards)).toEqual(r.hazards);
+    expect(r.risks.map((x) => x.type)).toEqual(r.hazards);
+    expect(r).not.toHaveProperty('level');
+  });
+
+  test('EC6-2 NEGATIVE CONTROL: the retired band borrowed the register words for a different quantity', () => {
+    // The retired rule, restated: High above 5, Medium above 2, Low otherwise.
+    const retiredBand = (score) => (score > 5 ? 'High' : score > 2 ? 'Medium' : 'Low');
+    G.facilities.flowAssurance.forEach((c) => expect(retiredBand(c.expected.score)).toBe(c.retired.level));
+    const three = G.facilities.flowAssurance.find((c) => c.expected.score === 3 && c.note);
+    expect(three.inputs.facility.type).toBe('Subsea Tie-back');
+    expect(three.retired.level).toBe('Medium');
+    expect(getRiskLevel(3).level).toBe('Low');
+    const r = calculateFlowAssuranceRisk(three.inputs.facility, undefined);
+    expect(r.score).toBe(3);
+    expect(r.hazards).toEqual(['Hydrates', 'Wax']);
+    expect(r.level).toBeUndefined();
+    // Across the goldens the retired band and the register disagree on
+    // some score, so the retirement is a change and not a relabel.
+    const disagree = G.facilities.flowAssurance
+      .filter((c) => c.retired.level !== getRiskLevel(c.expected.score).level);
+    expect(disagree.length).toBeGreaterThan(0);
+  });
+
+  test('EC6-3: the corrosion screen is the H2S partial pressure against the NACE threshold', () => {
+    expect(SOUR_SERVICE_THRESHOLD_PSIA).toBe(0.05);
+    // 100 ppm at 1000 psia is 0.1 psia, twice the threshold.
+    const sour = screenSourService({ h2s: 100, operatingPressurePsia: 1000 });
+    expect(sour.status).toBe('sour-service');
+    expect(sour.h2sPartialPressurePsia).toBeCloseTo(0.1, 12);
+    expect(sour.h2sPartialPressureKpa).toBeCloseTo(0.1 * 6.894757293168361, 12);
+    // the same 100 ppm at 400 psia is 0.04 psia, below it
+    expect(screenSourService({ h2s: 100, operatingPressurePsia: 400 }).status).toBe('below-sour-threshold');
+    // blank, measured without a pressure, and a measured zero
+    expect(screenSourService(undefined).status).toBe('not-measured');
+    expect(screenSourService({ api: 30 }).status).toBe('not-measured');
+    expect(screenSourService({ h2s: '' }).status).toBe('not-measured');
+    expect(screenSourService({ h2s: 50 }).status).toBe('sour-severity-needs-pressure');
+    expect(screenSourService({ h2s: 0 }).status).toBe('below-sour-threshold');
+    expect(screenSourService({ h2s: 0 }).h2sPartialPressurePsia).toBe(0);
+    // the messages carry the numbers and no severity is claimed without them
+    expect(screenSourService(undefined).message).toMatch(/not measured/);
+    expect(screenSourService({ h2s: 50 }).message).toMatch(/enter the operating pressure in psia/);
+  });
+
+  test.each(G.facilities.flowAssuranceRefusals.map((c) => [c.name, c]))('refuses %s', (_n, c) => {
+    expect(() => calculateFlowAssuranceRisk({ type: 'FPSO' }, c.inputs)).toThrow(FdpInputError);
+    try {
+      screenSourService(c.inputs);
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
+    }
+  });
+
+  test('EC6-3 NEGATIVE CONTROL: the retired trigger fired at any H2S above zero, always High', () => {
+    // The retired rule, restated: `(fluidProperties?.h2s || 0) > 0` scored 4
+    // points and a High corrosion risk, and a blank H2S was 0, so it read
+    // as sweet.
+    const retiredFired = (fluid) => ((fluid?.h2s || 0) > 0);
+    G.facilities.flowAssurance.forEach((c) => {
+      const fluid = c.inputs.fluidProperties === null ? undefined : c.inputs.fluidProperties;
+      expect(retiredFired(fluid)).toBe(c.retired.corrosionFired);
+    });
+    const disagree = G.facilities.flowAssurance
+      .filter((c) => c.retired.corrosionFired !== (c.expected.corrosion.status === 'sour-service'));
+    expect(disagree.length).toBeGreaterThan(0);
+    // 1 ppm at 100 psia is 0.0001 psia, five hundred times below the
+    // threshold, and it used to score the same 4 points as 5 percent H2S.
+    const trace = { api: 32, h2s: 1, operatingPressurePsia: 100 };
+    const severe = { api: 32, h2s: 50000, operatingPressurePsia: 5000 };
+    expect(retiredFired(trace)).toBe(true);
+    expect(retiredFired(severe)).toBe(true);
+    expect(calculateFlowAssuranceRisk({ type: 'FPSO' }, trace).score).toBe(0);
+    expect(calculateFlowAssuranceRisk({ type: 'FPSO' }, severe).score).toBe(4);
+    // and a blank H2S is no longer an answer at all
+    expect(retiredFired(undefined)).toBe(false);
+    expect(calculateFlowAssuranceRisk({ type: 'FPSO' }, undefined).corrosion.status).toBe('not-measured');
   });
 
   test('bottlenecks', () => {
@@ -575,65 +770,187 @@ describe('golden: risk management', () => {
 });
 
 describe('golden: schedule', () => {
-  test.each(G.schedule.map((c) => [c.name, c]))('%s', (_n, c) => {
+  const runnable = G.schedule.filter((c) => !c.expected.refused);
+
+  test.each(runnable.map((c) => [c.name, c]))('%s', (_n, c) => {
     const e = c.expected;
     const dur = calculateProjectDuration(c.inputs);
-    if (e.projectDuration === null) expect(Number.isNaN(dur)).toBe(true);
+    if (e.projectDuration === null) expect(dur).toBeNull();
     else expect(dur).toBe(e.projectDuration);
-
-    // What the engine returns is the passthrough, pinned exactly.
-    const cpm = calculateCPM(c.inputs);
-    expect(cpm).toHaveLength(e.cpmPassthrough.length);
-    cpm.forEach((a, i) => {
-      expect(a.id).toBe(e.cpmPassthrough[i].id);
-      expect(a.isCritical).toBe(e.cpmPassthrough[i].isCritical);
-      // a truthy string float passes through as the string it was
-      expect(a.float).toBe(e.cpmPassthrough[i].float);
-    });
     expect(identifyMilestones(c.inputs).map((a) => a.id)).toEqual(e.milestones);
 
-    // The DISAGREEMENT: a real critical path (two independent passes in
-    // the oracle agree) against the passthrough. Every activity where they
-    // differ is listed in the golden; the gate pins that list so it cannot
-    // silently change in either direction.
-    if (c.inputs.length) {
-      expect(e.cpmReference.passesAgree).toBe(true);
-      const realCritical = new Set(e.cpmReference.criticalActivities);
-      const differing = cpm.filter((a) => a.isCritical !== realCritical.has(a.id)).map((a) => a.id);
-      expect(differing).toEqual(e.criticalityDisagreements);
-      // and the reference itself satisfies CPM's own identities
-      e.cpmReference.activities.forEach((a) => {
-        expect(a.ef).toBeCloseTo(a.es + (c.inputs.find((x) => x.id === a.id).duration || 0), 9);
-        expect(a.float).toBeCloseTo(a.ls - a.es, 9);
-        expect(a.float).toBeGreaterThanOrEqual(-1e-9);
-        expect(a.lf).toBeLessThanOrEqual(e.cpmReference.projectDurationDays + 1e-9);
-      });
-      e.cpmReference.criticalPaths.forEach((p) => {
-        const total = p.reduce((s, id) => s + (c.inputs.find((x) => x.id === id).duration || 0), 0);
-        expect(total).toBeCloseTo(e.cpmReference.projectDurationDays, 9);
-      });
+    const cpm = calculateCPM(c.inputs);
+    expect(cpm).toHaveLength(c.inputs.length);
+    if (!c.inputs.length) return;
+
+    // The engine against the independent reference: the oracle computes the
+    // same table two other ways (Kahn order and memoised recursion) and
+    // asserts they agree before emitting it.
+    expect(e.cpmReference.passesAgree).toBe(true);
+    const byId = new Map(e.cpmReference.activities.map((a) => [a.id, a]));
+    cpm.forEach((a) => {
+      const r = byId.get(a.id);
+      ['es', 'ef', 'ls', 'lf', 'float'].forEach((k) => expect(a[k]).toBeCloseTo(r[k], 9));
+      expect(a.isCritical).toBe(r.isCritical);
+    });
+    expect(calculateNetworkDuration(c.inputs)).toBeCloseTo(e.cpmReference.projectDurationDays, 9);
+    expect(criticalPaths(c.inputs)).toEqual(e.cpmReference.criticalPaths);
+
+    // CPM's own identities, on the engine's table.
+    cpm.forEach((a) => {
+      const duration = Number(a.duration) || 0;
+      expect(a.ef).toBeCloseTo(a.es + duration, 9);
+      expect(a.float).toBeCloseTo(a.ls - a.es, 9);
+      expect(a.float).toBeGreaterThanOrEqual(-1e-9);
+      expect(a.lf).toBeLessThanOrEqual(e.cpmReference.projectDurationDays + 1e-9);
+    });
+    e.cpmReference.criticalPaths.forEach((path) => {
+      const total = path.reduce((sum, id) => sum + (Number(c.inputs.find((x) => x.id === id).duration) || 0), 0);
+      expect(total).toBeCloseTo(e.cpmReference.projectDurationDays, 9);
+    });
+
+    // NEGATIVE CONTROL: the retired passthrough called these activities
+    // critical, and the method does not. If this list ever empties the
+    // repair has been undone.
+    const retired = new Set(e.retiredPassthrough.filter((a) => a.isCritical).map((a) => a.id));
+    const nowCritical = new Set(cpm.filter((a) => a.isCritical).map((a) => a.id));
+    const differing = c.inputs.map((a) => a.id).filter((id) => retired.has(id) !== nowCritical.has(id));
+    expect(differing).toEqual(e.criticalityDisagreements);
+  });
+
+  test.each(G.schedule.filter((c) => c.expected.refused).map((c) => [c.name, c]))('refuses %s', (_n, c) => {
+    expect(() => calculateCPM(c.inputs)).toThrow(FdpInputError);
+    try {
+      calculateCPM(c.inputs);
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
     }
   });
 
-  test('the example schedule: the engine calls every activity critical, the method does not', () => {
+  test('the textbook network: A-B-D-F at 14 days, four days of float on C and E', () => {
+    const c = G.schedule.find((x) => x.name.startsWith('textbook network'));
+    const cpm = calculateCPM(c.inputs);
+    expect(cpm.filter((a) => a.isCritical).map((a) => a.id)).toEqual(['A', 'B', 'D', 'F']);
+    expect(cpm.find((a) => a.id === 'C').float).toBe(4);
+    expect(cpm.find((a) => a.id === 'E').float).toBe(4);
+    expect(calculateNetworkDuration(c.inputs)).toBe(14);
+    expect(criticalPaths(c.inputs)).toEqual([['A', 'B', 'D', 'F']]);
+    // what the app used to show on this network
+    expect(c.expected.retiredPassthrough.every((a) => a.isCritical)).toBe(true);
+    expect(c.expected.criticalityDisagreements).toEqual(['C', 'E']);
+  });
+
+  test('the example schedule: act-2 and act-5 carry float the passthrough denied', () => {
     const c = G.schedule.find((x) => x.name.startsWith('example schedule'));
-    expect(calculateCPM(c.inputs).every((a) => a.isCritical)).toBe(true);
-    expect(c.expected.cpmReference.criticalPaths).toEqual([['act-1', 'act-3', 'act-4', 'act-6', 'act-7']]);
-    expect(c.expected.criticalityDisagreements).toEqual(['act-2', 'act-5']);
+    const cpm = calculateCPM(c.inputs);
+    expect(cpm.filter((a) => a.isCritical).map((a) => a.id)).toEqual(['act-1', 'act-3', 'act-4', 'act-6', 'act-7']);
+    expect(cpm.find((a) => a.id === 'act-2').float).toBe(20);
+    expect(cpm.find((a) => a.id === 'act-5').float).toBe(20);
     expect(c.expected.cpmReference.projectDurationDays).toBe(330);
+    expect(c.expected.criticalityDisagreements).toEqual(['act-2', 'act-5']);
   });
 
   test('a diamond with equal legs: both paths are critical (a tie, listed twice)', () => {
     const c = G.schedule.find((x) => x.name.startsWith('diamond'));
-    expect(c.expected.cpmReference.criticalPaths).toEqual([['A', 'B', 'D'], ['A', 'C', 'D']]);
+    expect(criticalPaths(c.inputs)).toEqual([['A', 'B', 'D'], ['A', 'C', 'D']]);
     expect(c.expected.criticalityDisagreements).toEqual([]);
+  });
+
+  test('EC6-4 NEGATIVE CONTROL: only the empty plan moved, and it used to read 0', () => {
+    const moved = G.schedule.filter((c) => !c.expected.refused
+      && c.expected.retiredProjectDuration !== c.expected.projectDuration);
+    expect(moved.map((c) => c.inputs.length)).toEqual([0]);
+    expect(moved[0].expected.retiredProjectDuration).toBe(0);
+    expect(moved[0].expected.projectDuration).toBeNull();
+    expect(calculateProjectDuration(moved[0].inputs)).toBeNull();
+    expect(calculateProjectDuration(undefined)).toBeNull();
+  });
+
+  test('EC6-0: a span with no readable dates is null, and the count is in calendar days', () => {
+    expect(calculateProjectDuration([{ id: 'a', duration: 3 }])).toBeNull();
+    // EC6-4: an empty plan is null too (it was 0)
+    expect(calculateProjectDuration([])).toBeNull();
+    expect(calculateProjectDuration([
+      { id: 'a', startDate: '2026-10-30', endDate: '2026-11-03' },
+    ])).toBe(4);
   });
 });
 
 describe('golden: plan completeness and validation', () => {
   test.each(G.plan.map((c) => [c.name, c]))('%s', (_n, c) => {
-    expect(calculateCompleteness(c.inputs)).toEqual(c.expected.completeness);
-    expect(validateFDPData(c.inputs)).toEqual(c.expected.validation);
+    const { reservesCheck, ...completeness } = calculateCompleteness(c.inputs);
+    const { reservesCheck: expectedCheck, ...expectedCompleteness } = c.expected.completeness;
+    expect(completeness).toEqual(expectedCompleteness);
+    expectReservesCheck(reservesCheck, expectedCheck);
+    expect(reservesCheck).toEqual(planReservesCheck(c.inputs));
+
+    const { reservesCheck: validationCheck, ...validation } = validateFDPData(c.inputs);
+    const { reservesCheck: expectedValidationCheck, ...expectedValidation } = c.expected.validation;
+    expect(validation).toEqual(expectedValidation);
+    expectReservesCheck(validationCheck, expectedValidationCheck);
+  });
+});
+
+describe('EC6-1: the reserves check against the profile', () => {
+  const egina = G.plan.find((c) => c.name.startsWith('EC6-1: the EGINA plan'));
+
+  test('the headline case: a screening shape far above the P50, on too few wells', () => {
+    const check = planReservesCheck(egina.inputs);
+    expect(check.status).toBe('checked');
+    expect(check.profileVolumeMMbbl).toBeCloseTo(229.9293, 4);
+    expect(check.oilP50MMbbl).toBe(130);
+    expect(check.profileToP50Ratio).toBeCloseTo(229.9293 / 130, 6);
+    expect(check.impliedWells).toBe(11);
+    expect(check.carriedWells).toBe(4);
+    expect(check.wellsRatio).toBeCloseTo(11 / 4, 12);
+    expect(check.recoveryPerWellMMbbl).toBe(SCREENING_RECOVERY_PER_WELL_MMBBL);
+    expect(check.warnings.map((w) => w.code))
+      .toEqual(['profile-exceeds-p50', 'implied-wells-exceed-carried']);
+    // Non-blocking and uncapped: the score is what it always was, the plan
+    // is valid, and the warnings are on the result instead.
+    const completeness = calculateCompleteness(egina.inputs);
+    expect(completeness.score).toBe(100);
+    expect(completeness.completeWithWarnings).toBe(true);
+    const validation = validateFDPData(egina.inputs);
+    expect(validation.isValid).toBe(true);
+    expect(validation.warnings).toEqual(expect.arrayContaining(check.warnings.map((w) => w.message)));
+  });
+
+  test('a profile within the margin and wells enough raises nothing', () => {
+    const within = G.plan.find((c) => c.name.includes('within the margin'));
+    const check = planReservesCheck(within.inputs);
+    expect(check.status).toBe('checked');
+    expect(check.profileToP50Ratio).toBeLessThanOrEqual(1 + RESERVES_PROFILE_MARGIN);
+    expect(check.warnings).toEqual([]);
+    expect(calculateCompleteness(within.inputs).completeWithWarnings).toBe(false);
+  });
+
+  test('NEGATIVE CONTROL: the retired result compared nothing, so it was silent on every one of them', () => {
+    // The retired rule, restated: completeness was the nine section checks
+    // and validation was the six field checks, and NEITHER looked at the
+    // profile, the reserves or the well count. Restating it is restating
+    // silence, so the control is that the silence disagrees.
+    const retiredValidationWarnings = (state) => {
+      const warnings = [];
+      if ((state.wells?.list?.length || 0) === 0) warnings.push('No wells defined in the drilling program.');
+      if ((state.facilities?.list?.length || 0) === 0) warnings.push('No facilities concepts selected.');
+      if ((state.costs?.items?.length || 0) === 0) warnings.push('Cost breakdown is empty.');
+      return warnings;
+    };
+    const warned = G.plan.filter((c) => c.expected.completeness.reservesCheck.warnings.length);
+    expect(warned.length).toBeGreaterThan(0);
+    warned.forEach((c) => {
+      const retired = retiredValidationWarnings(c.inputs);
+      const now = validateFDPData(c.inputs).warnings;
+      expect(retired).toEqual(now.slice(0, retired.length));
+      // every reserves warning is new, and the retired result had no check
+      expect(now.length).toBeGreaterThan(retired.length);
+      expect(calculateCompleteness(c.inputs).reservesCheck.warnings.length).toBeGreaterThan(0);
+    });
+    // and the EGINA plan is the one that used to read 100 percent complete
+    // and perfectly clean
+    expect(retiredValidationWarnings(egina.inputs)).toEqual([]);
+    expect(calculateCompleteness(egina.inputs).score).toBe(100);
   });
 });
 
@@ -649,6 +966,140 @@ describe('golden: cost items', () => {
     } else {
       expect(() => calculateCostByPhase(items)).toThrow(TypeError);
     }
+  });
+});
+
+describe('golden: scenario refusals', () => {
+  test.each(G.scenarioRefusals.map((c) => [c.name, c]))('refuses %s', (_n, c) => {
+    const { scenario, concept } = c.inputs;
+    expect(() => runScenario(scenario, concept)).toThrow(FdpInputError);
+    try {
+      runScenario(scenario, concept);
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
+    }
+  });
+
+  test('NEGATIVE CONTROL: every refused case used to return a full set of economics', () => {
+    // The retired defaults: capex 100, opex 10, peak 50 kbpd, price $70,
+    // and a fiscal rate that did not parse fell back to DEFAULT_FISCAL.
+    // Restated here (runFdpCase carries no guards) to show that these
+    // inputs really did produce a card rather than an error, so the
+    // refusals above are a change in behaviour and not a change in wording.
+    const retiredProfile = (peak) => {
+      const p = [];
+      for (let y = 1; y <= 20; y += 1) p.push(y <= 3 ? peak : peak * 0.9 ** (y - 3));
+      return p;
+    };
+    G.scenarioRefusals.forEach((c) => {
+      const { scenario, concept } = c.inputs;
+      const productionKbpd = retiredProfile(parseFloat(concept.peakProduction) || 50);
+      const asBefore = runFdpCase({
+        capexMM: parseFloat(concept.capex) || 100,
+        annualOpexMM: parseFloat(concept.opex) || 10,
+        productionKbpd,
+        pricesUsd: new Array(productionKbpd.length).fill(parseFloat(scenario.oilPrice) || 70),
+        fiscal: { discountRate: 10, royaltyRate: DEFAULT_FISCAL.royaltyRate, taxRate: DEFAULT_FISCAL.taxRate },
+      });
+      expect(Number.isFinite(asBefore.metrics.npv)).toBe(true);
+    });
+  });
+
+  test('the headline case: the three capex fields are read, not the field nobody writes', () => {
+    const concept = {
+      drillingCapex: 400, facilitiesCapex: 1200, subseaCapex: 300, opex: 60, peakProduction: 50,
+    };
+    expect(conceptCapexMM(concept)).toBe(1900);
+    const r = runScenario({ oilPrice: 70, discountRate: 10 }, concept);
+    expect(r.metrics.npv).toBeCloseTo(1791.4, 0);
+    expect(r.metrics.irr).toBeCloseTo(30.0, 0);
+    // what the app showed while the capex fell back to 100
+    const retired = runScenario({ oilPrice: 70, discountRate: 10 },
+      { capex: 100, opex: 60, peakProduction: 50 });
+    expect(retired.metrics.npv).toBeCloseTo(3507.6, 0);
+    expect(retired.metrics.irr).toBeCloseTo(676.4, 0);
+  });
+});
+
+describe('EC6-9: a partial concept capex is screened and named', () => {
+  const partial = G.scenario.find((c) => c.name === 'a partial concept: the facilities capex is left blank');
+  const complete = G.scenario.find((c) => c.name === 'the same concept with its facilities capex entered is complete');
+
+  test('the golden pair: 1350 partial with facilitiesCapex missing, 2250 complete', () => {
+    expect(partial.expected.resolved.capexMM).toBe(1350);
+    expect(partial.expected.capexStatus).toBe('partial');
+    expect(partial.expected.capexMissing).toEqual(['facilitiesCapex']);
+    expect(complete.expected.resolved.capexMM).toBe(2250);
+    expect(complete.expected.capexStatus).toBe('complete');
+    expect(complete.expected.capexMissing).toEqual([]);
+    const r = runScenario(partial.inputs.scenario, partial.inputs.concept);
+    expect(r.capexStatus).toBe('partial');
+    expect(r.capexMissing).toEqual(['facilitiesCapex']);
+  });
+
+  test('NEGATIVE CONTROL: the retired result carried the partial sum with nothing to say so', () => {
+    // The retired card: the screening result of the same case, no status.
+    const asBefore = runFdpCase(scenarioCase(partial.inputs.scenario, partial.inputs.concept));
+    expect(asBefore).not.toHaveProperty('capexStatus');
+    expect(asBefore).not.toHaveProperty('capexMissing');
+    expect(asBefore.cashflow[0].capex).toBe(1350);
+    // and that partial NPV is not the complete concept's NPV
+    expectNum(asBefore.metrics.npv, partial.expected.npv, MONEY);
+    expect(partial.expected.npv - complete.expected.npv).toBeGreaterThan(1);
+  });
+
+  test('an all-blank concept is still refused, and a total capex is complete', () => {
+    expect(() => conceptCapex({ drillingCapex: '', subseaCapex: null })).toThrow(FdpInputError);
+    expect(conceptCapex({ capex: 1900 })).toEqual({ capexMM: 1900, capexStatus: 'complete', capexMissing: [] });
+    expect(conceptCapex({ drillingCapex: 0, facilitiesCapex: 0, subseaCapex: 0 }).capexStatus).toBe('complete');
+  });
+});
+
+describe('golden: the sensitivity sweep', () => {
+  test.each(G.sensitivity.map((c) => [c.name, c]))('%s', (_n, c) => {
+    const i = c.inputs;
+    const sens = runFdpSensitivity({
+      capexMM: i.capexMM,
+      annualOpexMM: i.annualOpexMM,
+      productionKbpd: i.productionKbpd,
+      pricesUsd: i.pricesUsd,
+      fiscal: i.fiscal || {},
+    });
+    expect(sens.map((x) => x.name)).toEqual(c.expected.map((x) => x.name));
+    sens.forEach((x, k) => {
+      expectNum(x.lowParamNPV, c.expected[k].lowParamNPV, MONEY);
+      expectNum(x.highParamNPV, c.expected[k].highParamNPV, MONEY);
+      expectNum(x.baseNPV, c.expected[k].baseNPV, MONEY);
+    });
+  });
+
+  test('the sweep is about the case in front of the user, not a fixed picture', () => {
+    const base = {
+      capexMM: 800,
+      annualOpexMM: 60,
+      productionKbpd: new Array(10).fill(50),
+      pricesUsd: new Array(10).fill(70),
+    };
+    const a = runFdpSensitivity(base);
+    const b = runFdpSensitivity({ ...base, capexMM: 1600 });
+    expect(Math.abs(a[0].baseNPV - b[0].baseNPV)).toBeGreaterThan(1);
+    // the base NPV in the sweep is the case's own NPV
+    expectNum(a[0].baseNPV, runFdpCase(base).metrics.npv, MONEY);
+    // and the scenario wrapper sweeps the same case the card shows
+    const concept = { drillingCapex: 800, opex: 60, peakProduction: 50 };
+    const scenario = { oilPrice: 70, discountRate: 10 };
+    expectNum(scenarioSensitivity(scenario, concept)[0].baseNPV,
+      runScenario(scenario, concept).metrics.npv, MONEY);
+  });
+
+  test('buildFdpCaseInputs is the case runFdpCase runs', () => {
+    const p = {
+      capexMM: 500, annualOpexMM: 20, productionKbpd: [10, 20], pricesUsd: [60, 60],
+    };
+    const inputs = buildFdpCaseInputs(p);
+    expect(inputs.capex[0]).toBe(500);
+    expect(inputs.projectLife).toBe(3);
+    expect(inputs.production.oil[1]).toBeCloseTo(10 * 1000 * 365, 9);
   });
 });
 
@@ -696,23 +1147,48 @@ describe('golden: the worked example, end to end', () => {
 
   test('reserves and volumetrics', () => {
     const agg = aggregateReserves(I.reservoirs);
-    ['p10', 'p50', 'p90', 'recoverable'].forEach((k) => expectNum(agg[k], E.reserves[k], 1e-9));
+    expect(agg.fluids).toEqual(E.reserves.fluids);
+    Object.keys(E.reserves.byFluid).forEach((f) => {
+      ['p90Sum', 'p50Sum', 'p10Sum', 'recoverableSum'].forEach(
+        (k) => expectNum(agg.byFluid[f][k], E.reserves.byFluid[f][k], 1e-9),
+      );
+      expect(agg.byFluid[f].units).toBe(E.reserves.byFluid[f].units);
+    });
+    const oilP50 = reservesP50(agg);
     const z = I.zone;
     const o = calculateOOIP(z.area, z.thickness, z.porosity, z.sw, z.bo);
     expectNum(o, E.ooip, 1e-6);
-    expectNum(calculateRecoveryFactor(o, agg.p50 * 1e6), E.recoveryFactor, RATIO);
-    expect(calculateWellCount(agg.p50, 12)).toBe(E.wellCountAt12MMbbl);
+    expectNum(calculateRecoveryFactor(o, oilP50 * 1e6), E.recoveryFactor, RATIO);
+    expect(calculateWellCount(oilP50, 12)).toBe(E.wellCountAt12MMbbl);
+    // the volumetrics read OIL, in MMbbl: the gas row is not in this number
+    expect(oilP50).toBe(85);
   });
 
   test('schedule', () => {
     expect(identifyMilestones(I.schedule).map((a) => a.id)).toEqual(E.schedule.milestones);
-    expect(Number.isNaN(calculateProjectDuration(I.schedule))).toBe(true);
+    // the example carries start and end, not startDate and endDate
+    expect(calculateProjectDuration(I.schedule)).toBeNull();
     const cpm = calculateCPM(I.schedule);
-    cpm.forEach((a, i) => {
-      expect(a.isCritical).toBe(E.schedule.cpmPassthrough[i].isCritical);
-      expect(a.float).toBe(E.schedule.cpmPassthrough[i].float);
+    const byId = new Map(E.schedule.cpmReference.activities.map((a) => [a.id, a]));
+    cpm.forEach((a) => {
+      expect(a.isCritical).toBe(byId.get(a.id).isCritical);
+      expect(a.float).toBeCloseTo(byId.get(a.id).float, 9);
     });
     expect(E.schedule.cpmReference.criticalActivities).toEqual(['act-1', 'act-3', 'act-4', 'act-6', 'act-7']);
+    expect(cpm.filter((a) => a.isCritical).map((a) => a.id)).toEqual(E.schedule.cpmReference.criticalActivities);
+  });
+
+  test('the example sensitivity sweep', () => {
+    const sens = runFdpSensitivity({
+      capexMM: 1500, annualOpexMM: 65, productionKbpd: conceptProfileKbpd({ peakProduction: 150 }),
+      pricesUsd: new Array(20).fill(70),
+    });
+    expect(sens.map((x) => x.name)).toEqual(E.sensitivity.map((x) => x.name));
+    sens.forEach((x, i) => {
+      expectNum(x.lowParamNPV, E.sensitivity[i].lowParamNPV, MONEY);
+      expectNum(x.highParamNPV, E.sensitivity[i].highParamNPV, MONEY);
+      expectNum(x.baseNPV, E.sensitivity[i].baseNPV, MONEY);
+    });
   });
 
   test('the FPSO concept scenario', () => {
@@ -720,5 +1196,168 @@ describe('golden: the worked example, end to end', () => {
     expectNum(r.metrics.npv, E.scenario.npv, MONEY);
     expectNum(r.metrics.irr, E.scenario.irr, IRR);
     expectNum(scenarioPayback(I.scenario, I.concept), E.scenario.payback, MONEY);
+  });
+});
+
+
+describe('EC6-8: the end-of-life cost is in the case', () => {
+  test.each(G.abandonment.map((c) => [c.name, c]))('resolve: %s', (_n, c) => {
+    const r = resolveAbandonment(c.inputs);
+    expect(r.abandonmentSource).toBe(c.expected.abandonmentSource);
+    expect(ABANDONMENT_SOURCES).toContain(r.abandonmentSource);
+    expectNum(r.abandonmentMM, c.expected.abandonmentMM, MONEY);
+    expect(r.abandonmentBasis).toBe(c.expected.abandonmentBasis);
+    // the plan-state door reads the same three places
+    expect(planAbandonment({
+      costs: { items: c.inputs.costItems },
+      facilities: { list: c.inputs.facilities, selectedId: c.inputs.selectedFacilityId },
+    })).toEqual(r);
+  });
+
+  test.each(G.abandonmentRefusals.map((c) => [c.name, c]))('refuses %s', (_n, c) => {
+    const run = () => (c.inputs.case
+      ? runFdpCase({ ...c.inputs.case, abandonment: c.inputs.abandonment })
+      : resolveAbandonment(c.inputs));
+    expect(run).toThrow(FdpInputError);
+    try {
+      run();
+    } catch (err) {
+      expect(err.message).toBe(c.expected.message);
+    }
+  });
+
+  test.each(G.fdpCaseAbandonment.map((c) => [c.name, c]))('%s', (_n, c) => {
+    const { capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal } = c.inputs.case;
+    const abandonment = c.inputs.abandonment;
+    const r = runFdpCase({ capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal, abandonment });
+    const e = c.expected;
+    expect(r.abandonmentSource).toBe(e.abandonmentSource);
+    expectNum(r.abandonmentMM, e.abandonmentMM, MONEY);
+    expect(r.abandonmentYear).toBe(e.abandonmentYear);
+    r.cashflow.forEach((row, i) => expectNum(row.abex, e.cashflow[i].abex, MONEY));
+    ['npv', 'payback', 'totalTax', 'totalGovTake'].forEach((k) => expectNum(r.metrics[k], e.metrics[k], MONEY));
+    expect(r.metrics.irrStatus).toBe(e.metrics.irrStatus);
+    if (e.metrics.irr === null) expect(r.metrics.irr).toBeNull();
+    else expectNum(r.metrics.irr, e.metrics.irr, IRR);
+    // the cost screen's door carries it too, and shows it in the rows
+    const rows = calculateCashFlows(capexMM, annualOpexMM, productionKbpd, deck(pricesUsd), fiscal, abandonment);
+    rows.forEach((row, i) => expectNum(row.abex, e.cashflow[i].abex, MONEY));
+    expectNum(calculateNPV(rows), e.costCalculations.npv, MONEY);
+    // and a scenario card, where the golden carries the scenario it came from
+    if (c.inputs.scenario) {
+      const sc = runScenario(c.inputs.scenario, c.inputs.concept, abandonment);
+      expectNum(sc.metrics.npv, e.metrics.npv, MONEY);
+      expect(sc.abandonmentSource).toBe(e.abandonmentSource);
+    }
+  });
+
+  test('NEGATIVE CONTROL: the retired case abandoned the field for nothing', () => {
+    // The retired rule, restated: `abandonment` was an array of zeros, so
+    // the ABEX item and the decommissioning estimate never reached the NPV.
+    G.fdpCaseAbandonment.forEach((c) => {
+      const { capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal } = c.inputs.case;
+      const asBefore = runFdpCase({ capexMM, annualOpexMM, productionKbpd, pricesUsd, fiscal });
+      expect(asBefore.abandonmentSource).toBe('none');
+      expect(asBefore.cashflow.every((row) => row.abex === 0)).toBe(true);
+      expectNum(asBefore.metrics.npv, c.retired.npv, MONEY);
+      if (c.expected.abandonmentMM > 0) {
+        // the retired NPV is the overstatement, every time
+        expect(asBefore.metrics.npv).toBeGreaterThan(c.expected.metrics.npv);
+      } else {
+        expectNum(asBefore.metrics.npv, c.expected.metrics.npv, MONEY);
+      }
+    });
+    const charged = G.fdpCaseAbandonment.filter((c) => c.expected.abandonmentMM > 0);
+    expect(charged.length).toBeGreaterThan(0);
+  });
+
+  test('an ABEX item replaces the decommissioning estimate and is never added to it', () => {
+    const items = [{ name: 'Abandonment provision', type: 'ABEX', amount: 260 }];
+    const facilities = [{ id: 'f1', name: 'FPSO', type: 'FPSO', nameplateCapacity: 60000 }];
+    const both = resolveAbandonment({ costItems: items, facilities });
+    const estimateOnly = resolveAbandonment({ facilities });
+    expect(both.abandonmentSource).toBe('abex-item');
+    expect(both.abandonmentMM).toBe(260);
+    expect(estimateOnly.abandonmentSource).toBe('decommissioning-estimate');
+    expect(estimateOnly.abandonmentMM).toBeCloseTo(calculateFacilityCost(facilities[0]).decommissioning, 12);
+    expect(both.abandonmentMM).toBeLessThan(260 + estimateOnly.abandonmentMM);
+  });
+});
+
+describe('EC6-1: the findings this wave closed', () => {
+  test('section 10: an unscored risk cannot improve the register', () => {
+    const scored = [{ probability: 5, impact: 5 }, { probability: 4, impact: 3 }];
+    const withUnscored = [...scored, { impact: 4 }, { probability: 3 }];
+    // The score no longer goes NaN, the unscored risks are counted as such,
+    // and the health is the same as the register that leaves them out.
+    expect(calculateConsolidatedRiskScore(withUnscored)).toBe(calculateConsolidatedRiskScore(scored));
+    expect(Number.isNaN(calculateConsolidatedRiskScore(withUnscored))).toBe(false);
+    expect(aggregateRisksByLevel(withUnscored).Unscored).toBe(2);
+    expect(calculatePortfolioHealth(withUnscored)).toBe(calculatePortfolioHealth(scored));
+    // Before: the two unscored risks each counted as Low, and the health
+    // improved because the register was less complete.
+    const asLow = [...scored, { probability: 1, impact: 1 }, { probability: 1, impact: 1 }];
+    expect(calculatePortfolioHealth(asLow)).toBeGreaterThan(calculatePortfolioHealth(scored));
+  });
+
+  test('one banding scale: the HSE matrix and the register agree on every score', () => {
+    for (let p = 1; p <= 5; p += 1) {
+      for (let i = 1; i <= 5; i += 1) {
+        const risk = [{ probability: p, impact: i }];
+        const m = calculateRiskMatrix(risk);
+        const level = getRiskLevel(p * i).level.toLowerCase();
+        expect(m[level]).toBe(1);
+      }
+    }
+    // The old boundaries, for the record: a score of 12 was High on the
+    // register and Medium here, and 15 to 19 was High in both but for
+    // different reasons.
+    expect(getRiskLevel(12).level).toBe('High');
+    expect(calculateRiskMatrix([{ probability: 3, impact: 4 }]).high).toBe(1);
+    expect(calculateRiskMatrix([{ probability: 3, impact: 4 }]).medium).toBe(0);
+  });
+
+  test('section 12: decommissioning scales with the facility', () => {
+    const small = calculateFacilityCost({ type: 'FPSO', nameplateCapacity: 50000 });
+    const large = calculateFacilityCost({ type: 'FPSO', nameplateCapacity: 150000 });
+    expect(large.capex).toBeGreaterThan(small.capex);
+    expect(large.decommissioning).toBeGreaterThan(small.decommissioning);
+    // it is 15 percent of the capex the facility actually carries
+    expect(small.decommissioning).toBeCloseTo(small.capex * 0.15, 9);
+    expect(large.decommissioning).toBeCloseTo(large.capex * 0.15, 9);
+  });
+
+  test('section 5: a price deck that does not cover the profile is refused, not padded', () => {
+    const profile = [10, 20, 30];
+    const short = [{ oil_price_usd: 70 }, { oil_price_usd: 70 }];
+    expect(() => calculateCashFlows(800, 60, profile, short)).toThrow(FdpInputError);
+    try {
+      calculateCashFlows(800, 60, profile, short);
+    } catch (err) {
+      expect(err.message).toMatch(/no price for production year 3/);
+    }
+    // A full deck is unchanged, and now agrees with runFdpCase exactly.
+    const full = [{ oil_price_usd: 70 }, { oil_price_usd: 70 }, { oil_price_usd: 70 }];
+    const rows = calculateCashFlows(800, 60, profile, full);
+    const direct = runFdpCase({
+      capexMM: 800, annualOpexMM: 60, productionKbpd: profile, pricesUsd: [70, 70, 70],
+    });
+    rows.forEach((row, i) => expect(row.netCashFlow).toBeCloseTo(direct.cashflow[i].ncf, 9));
+  });
+
+  test('the sensitivity sweep carries the variable operating cost with the volume', () => {
+    const p = {
+      capexMM: 800, annualOpexMM: 60, productionKbpd: new Array(10).fill(50),
+      pricesUsd: new Array(10).fill(70),
+    };
+    const sweep = runFdpSensitivity(p);
+    const production = sweep.find((x) => x.name === 'Production');
+    const price = sweep.find((x) => x.name === 'Oil Price');
+    // Before EC6-1 the production sweep scaled the volume alone, so it moved
+    // the NPV exactly as far as the price sweep. Volume costs money to
+    // produce; price does not.
+    const productionSpread = Math.abs(production.highParamNPV - production.lowParamNPV);
+    const priceSpread = Math.abs(price.highParamNPV - price.lowParamNPV);
+    expect(productionSpread).toBeLessThan(priceSpread);
   });
 });

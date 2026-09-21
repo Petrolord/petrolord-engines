@@ -18,10 +18,12 @@
  *     engine never pretends a table value is a calculation.
  *
  *  2. COMPUTED SETBACK. Thermal radiation from a flare or a pool fire
- *     IS calculable, from the same API 521 point-source model the
- *     relief engine uses and from published pool-fire correlations. A
- *     radiation setback is therefore computed from the duty, not read
- *     off a chart, and it moves when the duty moves.
+ *     IS calculable. Both setbacks here use the API 521 point-source
+ *     model the relief engine uses; the pool fire takes its heat
+ *     release from a burning rate and uses the Thomas flame height only
+ *     to flag the near field (see poolFireSetbackM). A radiation
+ *     setback is therefore computed from the duty and moves when the
+ *     duty moves.
  *
  * Distances in metres throughout; the Suite layer converts.
  */
@@ -130,10 +132,41 @@ export const flareSetbackM = ({
 };
 
 /**
- * Setback from a liquid pool fire, from the published solid-flame
- * correlations: burning rate per unit area, flame height by the
- * Thomas correlation, and a view-factor-based intensity that reduces
- * to the point source far from the flame.
+ * Thomas (1963) mean visible flame height of a pool fire in still air:
+ *
+ *     H / D = 42 (m" / (rho_air sqrt(g D)))^0.61
+ *
+ * m" in kg/(m2 s), D in m, rho_air in kg/m3 (1.2 unless stated), g =
+ * 9.80665 m/s2. Exported so that the HSE consequence engine
+ * (engines/hse/consequence.js) uses this one expression rather than a
+ * copy of it; poolFireSetbackM below calls it with the same defaults it
+ * always used, so its results are unchanged bit for bit. Inputs are not
+ * validated here: both callers validate before calling.
+ */
+export const thomasFlameHeightM = ({ poolDiameterM, burnRateKgM2S, airDensityKgM3 = 1.2 }) => poolDiameterM * 42
+  * (burnRateKgM2S / (airDensityKgM3 * Math.sqrt(9.80665 * poolDiameterM))) ** 0.61;
+
+/**
+ * Setback from a liquid pool fire, by a POINT-SOURCE model.
+ *
+ * What the code does, and all it does:
+ *  - heat release Q = burning rate per unit area x pool area x LHV
+ *  - intensity at distance R from the pool centre by a single point
+ *    source, q = tau F Q / (4 pi R^2), solved for the R at which q
+ *    equals the allowable (`radiusFromCentreM`)
+ *  - setback from the pool edge = R - D/2
+ *  - flame height by the Thomas (1963) correlation, used ONLY to flag
+ *    when R falls inside the flame height, where a point source
+ *    under-predicts the intensity and the result is a lower bound
+ *
+ * No view factor and no solid-flame surface emissive power are
+ * computed. A near-field design case needs a solid-flame model, which
+ * this function does not provide.
+ *
+ * When R is not beyond the pool edge (R <= D/2) there is no setback to
+ * add outside the pool: `setbackFromEdgeM` is 0 and `setbackStatus` is
+ * 'within-pool-edge' with a note saying so. Otherwise `setbackStatus`
+ * is 'beyond-pool-edge'.
  *
  * A pool fire is the case a tank spacing table is silently encoding,
  * and computing it makes the table's assumptions visible: a small bund
@@ -149,24 +182,26 @@ export const poolFireSetbackM = ({
   const areaM2 = (Math.PI * poolDiameterM * poolDiameterM) / 4;
   const mDotKgS = burnRateKgM2S * areaM2;
   const qKw = mDotKgS * lhvKjKg;
-  // Thomas (1963) flame height for a pool fire in still air:
-  // H/D = 42 (m" / (rho_air sqrt(g D)))^0.61
-  const rhoAir = 1.2;
-  const flameHeightM = poolDiameterM * 42
-    * (burnRateKgM2S / (rhoAir * Math.sqrt(9.80665 * poolDiameterM))) ** 0.61;
-  // Point-source distance, measured from the flame centre, then
-  // referenced to the pool edge as a setback.
+  const flameHeightM = thomasFlameHeightM({ poolDiameterM, burnRateKgM2S });
+  // Point-source distance from the pool centre, then referenced to the
+  // pool edge as a setback.
   const rFromCentreM = Math.sqrt(
     (transmissivity * fractionRadiated * qKw) / (4 * Math.PI * allowableKwM2),
   );
-  const setbackM = Math.max(0, rFromCentreM - poolDiameterM / 2);
+  const withinEdge = rFromCentreM <= poolDiameterM / 2;
+  const notes = [];
+  if (withinEdge) {
+    notes.push(`the point-source radius of ${rFromCentreM.toFixed(1)} m lies within the pool edge at ${(poolDiameterM / 2).toFixed(1)} m from the centre, so the setback from the edge is reported as 0 with setbackStatus 'within-pool-edge': a point source says nothing reliable this close to the fire`);
+  }
+  if (rFromCentreM < flameHeightM) {
+    notes.push('the computed radius is inside the flame height, so the point-source model is being used close to the flame where it under-predicts: treat this as a lower bound and use a solid-flame view factor for design');
+  }
   return {
     areaM2, burnRateKgS: mDotKgS, qKw, flameHeightM,
     radiusFromCentreM: rFromCentreM,
-    setbackFromEdgeM: setbackM,
-    note: rFromCentreM < flameHeightM
-      ? 'the computed radius is inside the flame height, so the point-source model is being used close to the flame where it under-predicts: treat this as a lower bound and use a solid-flame view factor for design'
-      : null,
+    setbackFromEdgeM: withinEdge ? 0 : rFromCentreM - poolDiameterM / 2,
+    setbackStatus: withinEdge ? 'within-pool-edge' : 'beyond-pool-edge',
+    note: notes.length ? notes.join('. ') : null,
   };
 };
 
@@ -176,12 +211,34 @@ export const poolFireSetbackM = ({
 
 /**
  * Check every pair of placed items against the spacing table, and any
- * item against a computed radiation setback where one applies. Returns
- * the violations sorted worst first, so a layout review is a list to
- * work through rather than a map to squint at.
+ * item against a computed radiation setback where one applies.
  *
  * `items`: [{ id, name, type, lat, lon }]
  * `radiationSources`: [{ id, setbackM, allowableKwM2, label }]
+ *
+ * Contract (FC1-0, 2026-09-15):
+ *  - `skipped`: [{ id, reason }]. An item without finite coordinates is
+ *    skipped once ('bad-coordinates'); a radiation source whose id is
+ *    not a placed item is skipped ('radiation-source-not-placed').
+ *  - `unknownPairs`: type pairs the table has no figure for.
+ *  - `checked` counts only comparisons with a POSITIVE requirement
+ *    between two items that both have coordinates. A table figure of 0
+ *    (or a radiation setback of 0) is no requirement and is counted in
+ *    `zeroRequirementPairs` instead.
+ *  - `pass`: true when at least one comparison was checked and none
+ *    failed, false when any failed, and null when nothing was checked
+ *    (`passStatus` 'nothing-checked'; otherwise 'checked'). `pass`
+ *    speaks only for the comparisons checked.
+ *  - `complete`: false when anything was skipped or any type pair was
+ *    unknown, because then the layout was not fully judged.
+ *  - `violations` are sorted by absolute shortfall in metres, largest
+ *    first (ties: larger shortfall fraction, then the order found).
+ *    Two named rankings are returned, and neither is called "worst"
+ *    on its own: `worstAbsolute` is the largest shortfall in metres,
+ *    `worstRelative` the largest shortfall as a fraction of its
+ *    requirement (ties: larger shortfall in metres, then the order
+ *    found). A 2 m shortfall on a 3 m figure is the worst relative
+ *    breach, while 40 m short of 90 m is the worst absolute one.
  */
 export const checkLayout = ({
   items, table = SPACING_TABLE_M, radiationSources = [],
@@ -189,54 +246,68 @@ export const checkLayout = ({
   if (!Array.isArray(items)) return { error: 'a list of placed items is needed' };
   const violations = [];
   const unknownPairs = [];
+  const skipped = [];
   let checked = 0;
+  let zeroRequirementPairs = 0;
+
+  const placed = (it) => Number.isFinite(it?.lat) && Number.isFinite(it?.lon);
+  for (const it of items) {
+    if (!placed(it)) skipped.push({ id: it?.id ?? null, reason: 'bad-coordinates' });
+  }
+
+  const record = (v) => violations.push({ ...v, order: violations.length });
 
   for (let i = 0; i < items.length; i += 1) {
     for (let j = i + 1; j < items.length; j += 1) {
       const a = items[i];
       const b = items[j];
+      if (!placed(a) || !placed(b)) continue;
       const required = requiredSpacingM({ typeA: a.type, typeB: b.type, table });
       if (required === null) {
         unknownPairs.push({ typeA: a.type, typeB: b.type });
         continue;
       }
+      if (!(required > 0)) { zeroRequirementPairs += 1; continue; }
       const d = haversineM({ lat1: a.lat, lon1: a.lon, lat2: b.lat, lon2: b.lon });
-      if (d.error) continue;
       checked += 1;
-      if (required > 0 && d.distanceM < required) {
-        violations.push({
+      if (d.distanceM < required) {
+        record({
           kind: 'spacing',
           aId: a.id, aName: a.name, aType: a.type,
           bId: b.id, bName: b.name, bType: b.type,
           actualM: d.distanceM,
           requiredM: required,
           shortfallM: required - d.distanceM,
-          severity: (required - d.distanceM) / required,
+          shortfallFraction: (required - d.distanceM) / required,
         });
       }
     }
   }
 
-  // Radiation setbacks: each source against every other item.
+  // Radiation setbacks: each source against every other placed item.
   for (const src of radiationSources) {
     const source = items.find((it) => it.id === src.id);
-    if (!source || !(src.setbackM > 0)) continue;
+    if (!source) {
+      skipped.push({ id: src.id ?? null, reason: 'radiation-source-not-placed' });
+      continue;
+    }
+    if (!placed(source)) continue; // already skipped as bad-coordinates
     for (const other of items) {
-      if (other.id === source.id) continue;
+      if (other.id === source.id || !placed(other)) continue;
+      if (!(src.setbackM > 0)) { zeroRequirementPairs += 1; continue; }
       const d = haversineM({
         lat1: source.lat, lon1: source.lon, lat2: other.lat, lon2: other.lon,
       });
-      if (d.error) continue;
       checked += 1;
       if (d.distanceM < src.setbackM) {
-        violations.push({
+        record({
           kind: 'radiation',
           aId: source.id, aName: source.name, aType: source.type,
           bId: other.id, bName: other.name, bType: other.type,
           actualM: d.distanceM,
           requiredM: src.setbackM,
           shortfallM: src.setbackM - d.distanceM,
-          severity: (src.setbackM - d.distanceM) / src.setbackM,
+          shortfallFraction: (src.setbackM - d.distanceM) / src.setbackM,
           allowableKwM2: src.allowableKwM2,
           label: src.label,
         });
@@ -244,13 +315,30 @@ export const checkLayout = ({
     }
   }
 
-  violations.sort((x, y) => y.severity - x.severity);
+  const byAbsolute = (x, y) => (y.shortfallM - x.shortfallM)
+    || (y.shortfallFraction - x.shortfallFraction) || (x.order - y.order);
+  const byRelative = (x, y) => (y.shortfallFraction - x.shortfallFraction)
+    || (y.shortfallM - x.shortfallM) || (x.order - y.order);
+  const worstRelative = violations.length ? [...violations].sort(byRelative)[0] : null;
+  violations.sort(byAbsolute);
+  const strip = (v) => {
+    if (!v) return null;
+    const { order, ...rest } = v;
+    return rest;
+  };
+  const out = violations.map(strip);
+  const nothingChecked = checked === 0;
   return {
     checked,
-    violations,
-    worst: violations[0] || null,
+    zeroRequirementPairs,
+    violations: out,
+    worstAbsolute: out[0] || null,
+    worstRelative: strip(worstRelative),
     unknownPairs,
-    pass: violations.length === 0,
+    skipped,
+    complete: skipped.length === 0 && unknownPairs.length === 0,
+    pass: nothingChecked ? null : violations.length === 0,
+    passStatus: nothingChecked ? 'nothing-checked' : 'checked',
   };
 };
 

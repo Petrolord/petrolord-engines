@@ -46,9 +46,14 @@ describe('the erosional velocity limit', () => {
         mixtureDensityLbFt3: row.rhoLbFt3, cFactor: row.cFactor,
       });
       expect(rel(v, row.erosionalFtS)).toBeLessThan(1e-9);
+      // 1e-12, not 1e-6. This is the ONE value in this golden that crosses
+      // the barrel to cubic foot conversion, and at 1e-6 it hid a truncated
+      // 5.614583 sitting 5.94e-8 from the oracle's exact barrel while
+      // engines/facilities/lineHydraulics.js, one import away in the same
+      // chain, carried the exact one. FC2-0 gave the package one barrel.
       expect(rel(erosionalRateBpd({
         idIn: 2.441, mixtureDensityLbFt3: row.rhoLbFt3, cFactor: row.cFactor,
-      }), row.maxRateBpd_2441)).toBeLessThan(1e-6);
+      }), row.maxRateBpd_2441)).toBeLessThan(1e-12);
     });
     // a denser fluid erodes at a lower velocity, and doubling C doubles it
     const light = erosionalVelocityFtS({ mixtureDensityLbFt3: 5, cFactor: 100 });
@@ -62,7 +67,7 @@ describe('the erosional velocity limit', () => {
     expect(rel(pipeAreaFt2(2.441), G.pipeAreaFt2_2441)).toBeLessThan(1e-9);
     G.velocity.forEach((row) => {
       expect(rel(mixtureVelocityFtS({ inSituBpd: row.inSituBpd, idIn: row.idIn }),
-        row.velocityFtS)).toBeLessThan(1e-6);
+        row.velocityFtS)).toBeLessThan(1e-12);   // the barrel again: see above
     });
     // velocity goes as one over area, so twice the diameter is a quarter the speed
     expect(rel(mixtureVelocityFtS({ inSituBpd: 5000, idIn: 4 }),

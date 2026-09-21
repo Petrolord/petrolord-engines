@@ -103,6 +103,12 @@
  */
 import { fitArpsModel, generateForecast } from '../dca/arps.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
+
 const MS_DAY = 24 * 60 * 60 * 1000;
 
 const dayNumber = (isoDate) => Math.round(new Date(`${isoDate}T00:00:00Z`).getTime() / MS_DAY);
@@ -717,7 +723,7 @@ export const FIT_STREAMS = {
  *  skips shut-in days (rate null); zero rates are dropped either way
  *  (the Arps fit is log-space). */
 export function rateSeriesForFit(points, stream = 'oil', basis = 'producing') {
-  const def = FIT_STREAMS[stream] || FIT_STREAMS.oil;
+  const def = (ownPreset(FIT_STREAMS, stream) ? FIT_STREAMS[stream] : null) || FIT_STREAMS.oil;
   const key = basis === 'calendar' ? def.calendarKey : def.key;
   return (points || [])
     .filter((p) => Number.isFinite(p[key]) && p[key] > 0)

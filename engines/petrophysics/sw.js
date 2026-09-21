@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
 // Water saturation models (Petrophysics Studio G2.1). Shared engine
 // conventions in vsh.js: UNCLAMPED cores (Sw > 1 is information —
 // wrong parameters, bad hole; the UI flags it), NaN on invalid input
@@ -41,7 +47,7 @@ export const SW_METHODS = { archie: swArchie, simandoux: swSimandoux, indonesia:
  * @returns {Float64Array}
  */
 export function swCurve({ rt, phi, vsh }, { method, rw, rsh, a = 1, m = 2, n = 2 }) {
-  if (!SW_METHODS[method]) throw new Error(`Unknown Sw method "${method}".`);
+  if (!ownPreset(SW_METHODS, method)) throw new Error(`Unknown Sw method "${method}".`);
   if (method !== 'archie' && !vsh) throw new Error(`${method} needs a Vsh curve.`);
   const out = new Float64Array(rt.length);
   for (let k = 0; k < rt.length; k++) {

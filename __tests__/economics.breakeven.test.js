@@ -24,7 +24,9 @@ import {
   solveBreakevenPrice,
   npvAtPrice,
   DEFAULT_SEED,
+  BELIEF_BOUNDS,
 } from '../engines/economics/breakeven.js';
+import { triInvCDF, mulberry32 } from '../lib/stats/stats.js';
 import { calculateEconomics } from '../engines/economics/screening.js';
 
 const G = JSON.parse(fs.readFileSync(
@@ -34,6 +36,7 @@ const G = JSON.parse(fs.readFileSync(
 
 const PRICE = 1e-8;
 const near = (a, b, tol) => expect(Math.abs(a - b)).toBeLessThanOrEqual(tol);
+const nearOrNull = (a, b, tol) => (b === null ? expect(a).toBeNull() : near(a, b, tol));
 
 const rows = Array.from({ length: 10 }, (_, i) => ({
   year: 2026 + i,
@@ -147,6 +150,12 @@ describe('probabilistic run', () => {
     expect(r.insights).toContain(String(DEFAULT_SEED));
   });
 
+  test('the insight carries no P-label on the breakeven price (EC3-0, Suite percentile convention)', () => {
+    const r = generateBreakevenData({ ...inputs, seed: 7 });
+    expect(r.insights).not.toMatch(/\bP(10|50|90)\b/);
+    expect(r.insights).toMatch(/^The median breakeven oil price is [0-9.]+ per barrel, and its 90th percentile is [0-9.]+: a 90 percent chance the breakeven price is below that\./);
+  });
+
   test('percentiles are ordered and bracket the deterministic base case', () => {
     const r = generateBreakevenData({ ...inputs, seed: 7 });
     expect(r.kpis.p10).toBeLessThan(r.kpis.p50);
@@ -223,9 +232,15 @@ describe('golden agreement: generateBreakevenData, the whole seeded sample', () 
     expect(r.plotData.cdf.x).toEqual(r.plotData.histogram.x);
     r.plotData.cdf.y.forEach((y, i) => near(y, e.cdfY[i], 1e-12));
     ['p10', 'p50', 'p90', 'mean'].forEach((k) => near(r.kpis[k], e.kpis[k], PRICE));
-    near(r.baseBreakeven, e.baseBreakeven, PRICE);
+    nearOrNull(r.baseBreakeven, e.baseBreakeven, PRICE);
     expect(r.tornadoData.y).toEqual(e.tornadoData.y);
-    ['low', 'high', 'base'].forEach((k) => r.tornadoData[k].forEach((v, i) => near(v, e.tornadoData[k][i], PRICE)));
+    expect(r.tornadoData.unreachable).toEqual(e.tornadoData.unreachable);
+    ['low', 'high', 'base'].forEach((k) => r.tornadoData[k].forEach((v, i) => nearOrNull(v, e.tornadoData[k][i], PRICE)));
+    expect(r.clippedDraws).toEqual(e.clippedDraws);
+    ['capex', 'opex', 'efficiency'].forEach((k) => {
+      expect(r.beliefs[k].source).toBe(e.beliefs[k].source);
+      ['p10', 'p50', 'p90'].forEach((q) => near(r.beliefs[k][q], e.beliefs[k][q], 1e-9));
+    });
     ['capex', 'opex', 'efficiency'].forEach((k) => {
       near(r.distributionFits[k].min, e.distributionFits[k].min, 1e-9);
       near(r.distributionFits[k].mode, e.distributionFits[k].mode, 1e-9);
@@ -251,10 +266,84 @@ describe('golden agreement: generateBreakevenData, the whole seeded sample', () 
     });
   });
 
+  test.each(G.monteCarlo.filter((c) => c.expected.refused).map((c) => [c.id, c]))('EC3-8 refused: %s', (_id, c) => {
+    expect(() => generateBreakevenData(c.inputs)).toThrow(c.expected.error);
+  });
+
   test('when no iteration breaks even below $500 the engine throws, as the oracle recorded', () => {
     const c = G.monteCarlo.find((x) => x.id === 'mc_all_unreachable_throws');
     expect(c.expected.throws).toBe(true);
     expect(c.expected.excludedIterations).toBe(c.inputs.iterations);
     expect(() => generateBreakevenData(c.inputs)).toThrow(/No iteration broke even/);
+  });
+});
+
+describe('EC3 repairs (owner decisions 2026-09-15)', () => {
+  const byId = (id) => G.monteCarlo.find((c) => c.id === id);
+
+  test('B1: an end with no breakeven is null, its bar is flagged, and it sorts FIRST', () => {
+    const r = generateBreakevenData(byId('mc_one_bar_unreachable').inputs);
+    expect(r.tornadoData.unreachable).toEqual([true, false, false]);
+    expect(r.tornadoData.y[0]).toBe('Total CAPEX');
+    expect([r.tornadoData.low[0], r.tornadoData.high[0]]).toContain(null);
+    expect(r.insights).toMatch(/Total CAPEX has no breakeven below 500 dollars a barrel at one end of its range/);
+    // Negative control: the retired rule (a zero swing) sorts that bar last.
+    const zeroed = [...r.tornadoData.y.map((name, i) => ({
+      name,
+      swing: r.tornadoData.unreachable[i] ? 0 : Math.abs(r.tornadoData.high[i] - r.tornadoData.low[i]),
+    }))].sort((a, b) => b.swing - a.swing);
+    expect(zeroed[zeroed.length - 1].name).toBe('Total CAPEX');
+  });
+
+  test('EC3-5: a clamped fit runs the base case at the fitted median, not the stated one', () => {
+    const c = byId('mc_ec3_5_narrow_opex');
+    const r = generateBreakevenData(c.inputs);
+    const f = r.distributionFits.opex;
+    expect(f.exact).toBe(false);
+    expect(r.beliefs.opex.source).toBe('fitted');
+    near(r.beliefs.opex.p50, triInvCDF(0.5, f.min, f.mode, f.max), 1e-12);
+    expect(r.beliefs.opex.p50).toBeGreaterThan(17.5);
+    const args = {
+      rows: c.inputs.productionData.data, discountRate: 10, royaltyRate: 12.5, taxRate: 30,
+      capexMM: 1000, efficiency: 0.9,
+    };
+    near(r.baseBreakeven, solveBreakevenPrice({ ...args, opexMM: r.beliefs.opex.p50 }, 0), PRICE);
+    // Negative control: the stated median gives a different base case.
+    expect(Math.abs(r.baseBreakeven - solveBreakevenPrice({ ...args, opexMM: 17 }, 0))).toBeGreaterThan(0.01);
+    expect(r.insights).toMatch(/opex: the base case and the tornado use the fitted triangle's 10th, 50th and 90th percentiles/);
+    // An exact fit keeps the stated numbers.
+    expect(r.beliefs.capex).toEqual({ p10: 800, p50: 1000, p90: 1300, source: 'stated' });
+  });
+
+  test('EC3-8: efficiency 90 / 95 / 99 fits exactly past 100 percent; draws are held at 100 and counted', () => {
+    const c = byId('mc_efficiency_past_100');
+    const r = generateBreakevenData(c.inputs);
+    expect(r.distributionFits.efficiency.exact).toBe(true);
+    expect(r.distributionFits.efficiency.max).toBeGreaterThan(100);
+    expect(r.clippedDraws.efficiency).toBeGreaterThan(0);
+    expect(r.insights).toContain(`efficiency: the fitted triangle runs past the physical limit of 100 percent, so ${r.clippedDraws.efficiency} of ${c.inputs.iterations} draws were held at that limit.`);
+    expect(BELIEF_BOUNDS.efficiency.max).toBe(100);
+    // Negative control: the same fit sampled without the hold would book
+    // more than the reservoir delivers on exactly that many draws.
+    const f = r.distributionFits.efficiency;
+    const rng = mulberry32(c.inputs.seed);
+    let past = 0;
+    for (let i = 0; i < c.inputs.iterations; i += 1) {
+      rng(); rng();
+      if (triInvCDF(rng(), f.min, f.mode, f.max) > 100) past += 1;
+    }
+    expect(past).toBe(r.clippedDraws.efficiency);
+  });
+
+  test('EC3-8: the refusals name the variable and the limit', () => {
+    expect(byId('mc_refuses_negative_opex').expected.error).toBe('OPEX percentiles must not be negative.');
+    expect(byId('mc_refuses_efficiency_above_100').expected.error).toBe('Production efficiency percentiles must lie between 0 and 100 percent.');
+  });
+
+  test('an ordinary run is untouched: no clipping, stated beliefs, nothing unreachable', () => {
+    const r = generateBreakevenData(byId('mc_seed_7').inputs);
+    expect(r.clippedDraws).toEqual({ capex: 0, opex: 0, efficiency: 0 });
+    expect(Object.values(r.beliefs).map((b) => b.source)).toEqual(['stated', 'stated', 'stated']);
+    expect(r.tornadoData.unreachable).toEqual([false, false, false]);
   });
 });

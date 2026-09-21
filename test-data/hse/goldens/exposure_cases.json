@@ -1,0 +1,9346 @@
+{
+ "cases": [
+  {
+   "args": [
+    80,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 32.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-80",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.500000001,
+     "value": 32.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    81,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 27.857618025475972
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-81",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 27.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    82,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 24.251465064166368
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-82",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 24.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    83,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 21.112126572366307
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-83",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 21.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    84,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 18.379173679952558
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-84",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 18.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    85,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 16.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-85",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.500000001,
+     "value": 16.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    86,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 13.928809012737986
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-86",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 13.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    87,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 12.125732532083184
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-87",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 12.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    88,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 10.556063286183154
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-88",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 10.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    89,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 9.18958683997628
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-89",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 9.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    90,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 8.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-90",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.500000001,
+     "value": 8.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    91,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 6.964404506368993
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-91",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 7.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    92,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 6.062866266041593
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-92",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 6.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    93,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 5.278031643091578
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-93",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 5.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    94,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 4.59479341998814
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-94",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 4.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    95,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 4.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-95",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.500000001,
+     "value": 4.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    96,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 3.482202253184497
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-96",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 3.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    97,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 3.0314331330207964
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-97",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 3.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    98,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 2.639015821545789
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-98",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 2.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    99,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 2.29739670999407
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-99",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 2.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    100,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 2.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-100",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.500000001,
+     "value": 2.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    101,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 1.7411011265922482
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-101",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 1.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    102,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 1.5157165665103984
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-102",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 1.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    103,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 1.3195079107728946
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-103",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 1.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    104,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 1.1486983549970353
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-104",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 1.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    105,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 1.0000000000000002
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-105",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.500000001,
+     "value": 1.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    106,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.8705505632961242
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-106",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.87
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    107,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.7578582832551991
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-107",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.76
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    108,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.6597539553864472
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-108",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.66
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    109,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.5743491774985175
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-109",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.57
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    110,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.5
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-110",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.050000001,
+     "value": 0.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    111,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.4352752816480621
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-111",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.44
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    112,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.37892914162759955
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-112",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.38
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    113,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.3298769776932236
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-113",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.33
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    114,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.2871745887492589
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-114",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.29
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    115,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.25
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-115",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.25
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    116,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.21763764082403114
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-116",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.22
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    117,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.18946457081379975
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-117",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.19
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    118,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.16493848884661186
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-118",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.16
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    119,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.1435872943746293
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-119",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.14
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    120,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.12500000000000006
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-120",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.125
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    121,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.10881882041201546
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-121",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0050000010000000004,
+     "value": 0.11
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    122,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.09473228540689992
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-122",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.095
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    123,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.08246924442330592
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-123",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.082
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    124,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.07179364718731471
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-124",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.072
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    125,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.06250000000000001
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-125",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.063
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    126,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.05440941020600777
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-126",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.054
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    127,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.04736614270344995
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-127",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.047
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    128,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.04123462221165296
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-128",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.041
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    129,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.035896823593657354
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-129",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.036
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    130,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.03125000000000001
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "g16a-130",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.000500001,
+     "value": 0.031
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a"
+  },
+  {
+   "args": [
+    80,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 25.39841683149119
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-80",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 25.4
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    81,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 20.158736798317967
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-81",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 20.166666666666668
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    82,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 16.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-82",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 16.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    83,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 12.699208415745595
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-83",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 12.7
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    84,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 10.079368399158986
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-84",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 10.083333333333334
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    85,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 8.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-85",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 8.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    86,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 6.349604207872798
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-86",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 6.35
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    87,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 5.039684199579493
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-87",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 5.033333333333333
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    88,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 4.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-88",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 4.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    89,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 3.174802103936399
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-89",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 3.1666666666666665
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    90,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 2.5198420997897464
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-90",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 2.5166666666666666
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    91,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 2.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-91",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 2.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    92,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 1.5874010519681996
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-92",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 1.5833333333333335
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    93,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 1.2599210498948734
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-93",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 1.2666666666666666
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    94,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 1.0000000000000002
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-94",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 1.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    95,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.7937005259840998
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-95",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.7936111111111112
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    96,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.6299605249474365
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-96",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.63
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    97,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.5
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-97",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    98,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.39685026299205
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-98",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.3969444444444445
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    100,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.25
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-100",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.25
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    101,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.19842513149602498
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-101",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.1983333333333333
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    102,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.15749013123685915
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-102",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.1575
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    103,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.12500000000000006
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-103",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.125
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    104,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.09921256574801245
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-104",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.09916666666666667
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    105,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.07874506561842957
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-105",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0786111111111111
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    106,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.06250000000000001
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-106",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0625
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    107,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.049606282874006216
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-107",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.04972222222222222
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    108,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.03937253280921478
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-108",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.03944444444444444
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    109,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.03125000000000001
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-109",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.03138888888888889
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    110,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.024803141437003105
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-110",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.024722222222222222
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    111,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.019686266404607407
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-111",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.01972222222222222
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    112,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.015625
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-112",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.015555555555555555
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    113,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.012401570718501563
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-113",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0125
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    114,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.009843133202303693
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-114",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.009722222222222222
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    115,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0078125
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-115",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0077777777777777776
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    116,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.006200785359250774
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-116",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.006111111111111111
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    117,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.004921566601151851
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-117",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.005
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    118,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0039062500000000035
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-118",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0038888888888888888
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    119,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0031003926796253902
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-119",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0030555555555555557
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    120,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0024607833005759277
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-120",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0025
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    121,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0019531250000000013
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-121",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0019444444444444444
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    122,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.001550196339812695
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-122",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0016666666666666668
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    123,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0012303916502879617
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-123",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0011111111111111111
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    124,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0009765625000000007
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-124",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0008333333333333334
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    125,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0007750981699063475
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-125",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0008333333333333334
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    126,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0006151958251439818
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-126",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0005555555555555556
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    127,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0004882812500000002
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-127",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0002777777777777778
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    128,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.00038754908495317367
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-128",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0002777777777777778
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    129,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 0.0003075979125719903
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-129",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 0.0002777787777777778,
+     "value": 0.0002777777777777778
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1"
+  },
+  {
+   "args": [
+    89.9,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "belowThreshold": true,
+    "referenceDurationH": null
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "ref-below-pel-threshold",
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19) (PEL threshold 90 dBA)"
+  },
+  {
+   "args": [
+    90,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 8.0
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "ref-at-pel-threshold",
+   "published": {
+    "referenceDurationH": {
+     "tolerance": 1e-09,
+     "value": 8.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19)"
+  },
+  {
+   "args": [
+    79.99,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "belowThreshold": true,
+    "referenceDurationH": null
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "ref-below-hc-threshold",
+   "source": "29 CFR 1910.95(d)(2)(i): levels from 80 to 130 dB are integrated"
+  },
+  {
+   "args": [
+    94,
+    {
+     "criterionLevelDbA": 85,
+     "exchangeRateDb": 3,
+     "thresholdDbA": 80
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "belowThreshold": false,
+    "referenceDurationH": 1.0000000000000002
+   },
+   "fn": "noiseReferenceDurationH",
+   "id": "ref-custom-85-3",
+   "source": "definition"
+  },
+  {
+   "args": [
+    32,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "levelDbA": 80.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-32",
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a read backwards"
+  },
+  {
+   "args": [
+    16,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "levelDbA": 85.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-16",
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a read backwards"
+  },
+  {
+   "args": [
+    8,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "levelDbA": 90.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-8",
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a read backwards"
+  },
+  {
+   "args": [
+    4,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "levelDbA": 95.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-4",
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a read backwards"
+  },
+  {
+   "args": [
+    2,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "levelDbA": 100.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-2",
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a read backwards"
+  },
+  {
+   "args": [
+    1,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "levelDbA": 105.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-1",
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a read backwards"
+  },
+  {
+   "args": [
+    0.5,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "levelDbA": 110.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-0.5",
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a read backwards"
+  },
+  {
+   "args": [
+    0.25,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "levelDbA": 115.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-0.25",
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a read backwards"
+  },
+  {
+   "args": [
+    0.125,
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "levelDbA": 120.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-0.125",
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a read backwards"
+  },
+  {
+   "args": [
+    0.25,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "levelDbA": 100.0
+   },
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-niosh-15min",
+   "published": {
+    "levelDbA": {
+     "tolerance": 1e-09,
+     "value": 100.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1 (100 dBA, 15 min)"
+  },
+  {
+   "args": [
+    10,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 73.39
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-10",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 73.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    15,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 76.31487581291486
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-15",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 76.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    20,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 78.39010822797873
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-20",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 78.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    25,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 79.99978354404254
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-25",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 80.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    30,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 81.31498404089359
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-30",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 81.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    35,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 82.42697021665808
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-35",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 82.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    40,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 83.39021645595746
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-40",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 83.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    45,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 84.23985985380845
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-45",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 84.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    50,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 84.99989177202127
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-50",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 85.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    55,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 85.68742427249938
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-55",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 85.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    60,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 86.31509226887232
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-60",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 86.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    65,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 86.89249085383783
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-65",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 86.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    70,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 87.4270784446368
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-70",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 87.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    75,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 87.92476758493613
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-75",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 87.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    80,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.39032468393619
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-80",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 88.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    81,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.47993616357438
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-81",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 88.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    82,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.56844808809353
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-82",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 88.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    83,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.65588711436659
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-83",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 88.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    84,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.74227894148785
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-84",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 88.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    85,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.82764835611441
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-85",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 88.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    86,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.91201927515566
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-86",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 88.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    87,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.99541478599525
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-87",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    88,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.0778571844143
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-88",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    89,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.159368010372
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-89",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    90,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.23996808178718
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-90",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    91,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.31967752645336
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-91",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    92,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.39851581220967
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-92",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    93,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.47650177548087
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-93",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    94,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.55365364829099
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-94",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    95,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.62998908384776
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-95",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    96,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.70552518078723
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-96",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    97,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.78027850616233
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-97",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    98,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.85426511725234
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-98",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    99,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.92750058226531
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-99",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    100,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.0
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-100",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    101,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.0717780185297
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-101",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    102,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.14284885296546
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-102",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    103,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.21322630235291
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-103",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    104,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.28292376575274
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-104",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    105,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.35195425755167
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-105",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    106,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.42033042204784
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-106",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    107,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.48806454735133
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-107",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    108,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.55516857863823
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-108",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    109,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.62165413079376
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-109",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    110,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.68753250047811
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-110",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    111,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.75281467764638
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-111",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    112,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.81751135655172
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-112",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    113,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.8816329462596
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-113",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    114,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.94518958069881
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-114",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    116,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.07064720105912
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-116",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 91.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    117,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.13256716360374
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-117",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 91.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    118,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.19396014135474
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-118",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 91.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    119,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.25483502872993
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-119",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 91.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    120,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.31520049685105
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-120",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 91.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    125,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.60967531606381
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-125",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 91.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    130,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.89259908181656
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-130",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 91.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    135,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 92.16484389470205
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-135",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 92.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    140,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 92.42718667261553
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-140",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 92.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    145,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 92.68032251712293
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-145",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 92.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    150,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 92.92487581291486
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-150",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 92.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    155,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 93.16140950660854
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-155",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 93.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    160,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 93.39043291191491
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-160",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 93.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    165,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 93.61240831339298
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-165",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 93.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    170,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 93.82775658409312
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-170",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 93.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    175,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 94.03686198867935
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-175",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 94.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    180,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 94.24007630976591
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-180",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 94.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    185,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 94.43772240877406
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-185",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 94.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    190,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 94.63009731182649
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-190",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 94.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    195,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 94.81747489473142
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-195",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 94.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    200,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 95.00010822797873
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-200",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 95.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    210,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 95.3520624855304
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-210",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 95.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    220,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 95.68764072845684
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-220",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 95.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    230,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 96.00829935625222
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-230",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 96.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    240,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 96.31530872482978
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-240",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 96.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    250,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 96.60978354404254
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-250",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 96.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    260,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 96.89270730979528
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-260",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 96.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    270,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 97.16495212268077
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-270",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 97.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    280,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 97.42729490059426
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-280",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 97.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    290,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 97.68043074510166
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-290",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 97.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    300,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 97.92498404089359
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-300",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 97.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    310,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 98.16151773458726
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-310",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 98.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    320,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 98.39054113989364
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-320",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 98.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    330,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 98.6125165413717
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-330",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 98.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    340,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 98.82786481207185
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-340",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 98.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    350,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 99.03697021665808
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-350",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 99.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    360,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 99.24018453774464
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-360",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 99.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    370,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 99.43783063675278
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-370",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 99.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    380,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 99.63020553980522
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-380",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 99.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    390,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 99.81758312271015
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-390",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 99.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    400,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 100.00021645595746
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-400",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 100.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    410,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 100.1783398601148
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-410",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 100.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    420,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 100.35217071350912
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-420",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 100.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    430,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 100.52191104717693
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-430",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 100.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    440,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 100.68774895643557
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-440",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 100.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    450,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 100.84985985380845
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-450",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 100.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    460,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.00840758423095
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-460",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 101.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    470,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.16354542031226
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-470",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 101.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    480,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.3154169528085
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-480",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 101.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    490,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.46415688927361
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-490",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 101.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    500,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.60989177202127
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-500",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 101.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    510,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.75274062498673
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-510",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 101.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    520,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.89281553777401
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-520",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 101.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    530,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 102.03022219406911
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-530",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    540,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 102.1650603506595
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-540",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    550,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 102.2974242724994
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-550",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    560,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 102.42740312857299
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-560",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    570,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 102.55508135272008
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-570",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    580,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 102.68053897308039
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-580",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    590,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 102.80385191337601
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-590",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    600,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 102.92509226887232
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-600",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    610,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.04432855952884
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-610",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    620,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.16162596256599
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-620",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    630,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.27704652642399
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-630",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    640,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.39064936787237
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-640",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    650,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.50249085383783
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-650",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    660,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.61262476935043
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-660",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    670,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.72110247286072
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-670",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    680,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.82797304005058
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-680",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    690,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.93328339714581
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-690",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    700,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.0370784446368
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-700",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    710,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.13940117222384
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-710",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    720,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.24029276572337
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-720",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    730,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.33979270660078
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-730",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    740,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.43793886473152
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-740",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    750,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.53476758493613
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-750",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    760,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.63031376778395
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-760",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    770,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.72461094511492
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-770",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    780,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.81769135068888
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-780",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    790,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.90958598633424
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-790",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    800,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.00032468393619
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-800",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    810,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.08993616357438
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-810",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    820,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.17844808809353
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-820",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    830,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.26588711436659
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-830",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    840,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.35227894148785
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-840",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    850,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.43764835611441
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-850",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    860,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.52201927515566
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-860",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    870,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.60541478599525
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-870",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    880,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.6878571844143
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-880",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.7
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    890,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.769368010372
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-890",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    900,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.84996808178718
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-900",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.8
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    910,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.92967752645336
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-910",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.9
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    920,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.00851581220968
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-920",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    930,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.08650177548085
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-930",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.1
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    940,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.16365364829099
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-940",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    950,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.23998908384776
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-950",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.2
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    960,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.31552518078723
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-960",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    970,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.39027850616233
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-970",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.4
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    980,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.46426511725234
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-980",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    990,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.5375005822653
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-990",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.5
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    999,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.60278275943357
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-999",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.6
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1"
+  },
+  {
+   "args": [
+    20,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 78.01029995663981
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-20",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 78.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    2000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 98.01029995663981
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-2000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 98.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    450000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 121.53212513775344
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-450000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 121.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    30,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 79.77121254719663
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-30",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 79.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    2500,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 98.97940008672037
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-2500",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 99.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    500000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 121.98970004336019
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-500000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 122.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    40,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 81.02059991327963
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-40",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 81.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    3000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 99.77121254719663
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-3000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 99.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    600000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 122.78151250383644
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-600000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 122.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    50,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 81.98970004336019
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-50",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 82.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    3500,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 100.44068044350276
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-3500",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 100.4
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    700000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 123.45098040014257
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-700000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 123.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    60,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 82.78151250383644
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-60",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 82.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    4000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.02059991327963
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-4000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 101.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    800000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 124.03089986991944
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-800000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 124.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    70,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 83.45098040014257
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-70",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 83.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    4500,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.53212513775344
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-4500",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 101.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    900000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 124.54242509439325
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-900000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 124.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    80,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 84.03089986991944
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-80",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 84.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    5000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 101.98970004336019
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-5000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    1000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 125.0
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-1000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 125.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    90,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 84.54242509439325
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-90",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 84.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    6000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 102.78151250383644
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-6000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 102.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    1100000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 125.41392685158226
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-1100000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 125.4
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    100,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 85.0
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-100",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 85.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    7000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 103.45098040014257
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-7000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 103.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    1200000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 125.79181246047625
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-1200000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 125.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    110,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 85.41392685158225
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-110",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 85.4
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    8000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.03089986991944
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-8000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    1300000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 126.13943352306836
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-1300000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 126.1
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    120,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 85.79181246047625
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-120",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 85.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    9000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 104.54242509439325
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-9000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 104.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    1400000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 126.46128035678238
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-1400000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 126.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    130,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 86.13943352306836
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-130",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 86.1
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    10000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.0
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-10000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    1600000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 127.04119982655925
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-1600000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 127.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    140,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 86.46128035678238
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-140",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 86.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    12000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 105.79181246047625
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-12000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 105.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    1800000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 127.55272505103306
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-1800000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 127.6
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    150,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 86.76091259055681
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-150",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 86.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    14000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 106.46128035678238
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-14000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 106.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    2000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 128.0102999566398
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-2000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 128.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    170,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 87.30448921378274
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-170",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 87.3
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    16000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 107.04119982655925
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-16000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 107.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    2200000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 128.42422680822207
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-2200000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 128.4
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    200,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.01029995663981
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-200",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 88.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    18000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 107.55272505103306
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-18000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 107.6
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    2400000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 128.80211241711606
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-2400000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 128.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    250,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 88.97940008672037
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-250",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    20000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 108.01029995663981
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-20000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 108.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    2600000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 129.14973347970817
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-2600000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 129.1
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    300,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.77121254719663
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-300",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    25000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 108.97940008672037
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-25000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 109.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    2800000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 129.47158031342218
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-2800000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 129.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    350,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 90.44068044350276
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-350",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 90.4
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    30000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 109.77121254719663
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-30000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 109.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    3000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 129.77121254719663
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-3000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 129.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    400,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.02059991327963
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-400",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 91.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    35000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 110.44068044350276
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-35000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 110.4
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    3500000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 130.44068044350274
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-3500000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 130.4
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    450,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.53212513775344
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-450",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 91.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    40000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 111.02059991327963
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-40000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 111.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    4000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 131.02059991327963
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-4000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 131.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    500,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 91.98970004336019
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-500",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 92.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    45000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 111.53212513775344
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-45000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 111.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    4500000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 131.53212513775344
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-4500000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 131.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    550,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 92.40362689494243
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-550",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 92.4
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    5000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 131.9897000433602
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-5000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 132.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    600,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 92.78151250383644
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-600",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 92.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    60000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 112.78151250383644
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-60000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 112.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    6000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 132.78151250383644
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-6000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 132.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    650,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 93.12913356642855
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-650",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 93.1
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    70000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 113.45098040014257
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-70000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 113.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    7000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 133.45098040014256
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-7000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 133.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    700,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 93.45098040014257
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-700",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 93.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    80000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 114.03089986991944
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-80000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 114.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    8000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 134.03089986991944
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-8000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 134.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    750,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 93.750612633917
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-750",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 93.8
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    90000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 114.54242509439325
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-90000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 114.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    9000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 134.54242509439325
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-9000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 134.5
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    800,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 94.03089986991944
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-800",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 94.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    100000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 115.0
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-100000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 115.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    10000000,
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 135.0
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-10000000",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 135.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2"
+  },
+  {
+   "args": [
+    91,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 89.31967752645336
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "appA-text-91pct",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.050000001,
+     "value": 89.3
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), section II text (\"91 percent ... 89.3 dB\")"
+  },
+  {
+   "args": [
+    132,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "twaDbA": 92.00273299732916
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "otm-132pct",
+   "published": {
+    "twaDbA": {
+     "tolerance": 0.500000001,
+     "value": 92.0
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19) (a TWA of 92 dBA is a dose of 132 percent)"
+  },
+  {
+   "args": [
+    87,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "dosePct": 65.97598944888239
+   },
+   "fn": "noiseDoseFromTwaPct",
+   "id": "otm-87dBA-66pct",
+   "published": {
+    "dosePct": {
+     "tolerance": 0.500000001,
+     "value": 66.0
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19) (87 dBA TWA is a dose of 66 percent)"
+  },
+  {
+   "args": [
+    85,
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "dosePct": 50.00075016857287
+   },
+   "fn": "noiseDoseFromTwaPct",
+   "id": "inverse-85-is-50pct",
+   "published": {
+    "dosePct": {
+     "tolerance": 0.050000001,
+     "value": 50.0
+    }
+   },
+   "source": "29 CFR 1910.95(c)(1): 85 dB \"or, equivalently, a dose of fifty percent\""
+  },
+  {
+   "args": [
+    90,
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "dosePct": 100.0
+   },
+   "fn": "noiseDoseFromTwaPct",
+   "id": "inverse-90-is-100pct",
+   "published": {
+    "dosePct": {
+     "tolerance": 1e-09,
+     "value": 100.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19)"
+  },
+  {
+   "args": [
+    800,
+    {
+     "criterionLevelDbA": 85,
+     "exchangeRateDb": 3,
+     "thresholdDbA": 80
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "twaDbA": 94.0
+   },
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "twa-custom-exact-coefficient",
+   "source": "definition, by bisection"
+  },
+  {
+   "args": [
+    94,
+    {
+     "criterionLevelDbA": 85,
+     "exchangeRateDb": 3,
+     "thresholdDbA": 80
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "dosePct": 800.0
+   },
+   "fn": "noiseDoseFromTwaPct",
+   "id": "dose-custom-exact-coefficient",
+   "source": "definition"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 8,
+      "levelDbA": 90
+     }
+    ],
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "contributions.0.dosePct": 100.0,
+    "contributions.0.integrated": true,
+    "dosePct": 100.0,
+    "exceedsLimit": false,
+    "limitDosePct": 100,
+    "totalDurationH": 8.0,
+    "twaDbA": 90.0
+   },
+   "fn": "noiseDose",
+   "id": "dose-at-criterion",
+   "published": {
+    "dosePct": {
+     "tolerance": 1e-09,
+     "value": 100.0
+    },
+    "twaDbA": {
+     "tolerance": 1e-09,
+     "value": 90.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19) I(2): a constant 8-hour level has a TWA equal to it"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 2,
+      "levelDbA": 95
+     },
+     {
+      "durationH": 4,
+      "levelDbA": 90
+     },
+     {
+      "durationH": 1,
+      "levelDbA": 100
+     }
+    ],
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "contributions.0.dosePct": 50.0,
+    "contributions.0.integrated": true,
+    "contributions.1.dosePct": 50.0,
+    "contributions.1.integrated": true,
+    "contributions.2.dosePct": 50.0,
+    "contributions.2.integrated": true,
+    "dosePct": 150.0,
+    "exceedsLimit": true,
+    "limitDosePct": 100,
+    "totalDurationH": 7.0,
+    "twaDbA": 92.92487581291486
+   },
+   "fn": "noiseDose",
+   "id": "dose-mixed-pel",
+   "published": {
+    "dosePct": {
+     "tolerance": 1e-09,
+     "value": 150.0
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19) I(1)(ii) with Table G-16a T: 2/4 + 4/8 + 1/2 = 1.5"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 8,
+      "levelDbA": 88
+     }
+    ],
+    "OSHA_PEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "contributions.0.dosePct": 0.0,
+    "contributions.0.integrated": false,
+    "dosePct": 0.0,
+    "exceedsLimit": false,
+    "limitDosePct": 100,
+    "totalDurationH": 8.0,
+    "twaDbA": null
+   },
+   "fn": "noiseDose",
+   "id": "dose-below-pel-threshold-ignored",
+   "published": {
+    "dosePct": {
+     "tolerance": 1e-09,
+     "value": 0.0
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19): noise below 90 dBA is not integrated for the PEL"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 8,
+      "levelDbA": 88
+     }
+    ],
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "published",
+   "expect": {
+    "contributions.0.dosePct": 75.7858283255199,
+    "contributions.0.integrated": true,
+    "dosePct": 75.78582832551992,
+    "exceedsLimit": true,
+    "limitDosePct": 50,
+    "totalDurationH": 8.0,
+    "twaDbA": 87.99995670880851
+   },
+   "fn": "noiseDose",
+   "id": "dose-88-counted-for-hc",
+   "published": {
+    "dosePct": {
+     "tolerance": 0.3773584915660378,
+     "value": 75.47169811320755
+    }
+   },
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table G-16a (88 dB, T = 10.6 h)"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 2,
+      "levelDbA": 79
+     },
+     {
+      "durationH": 4,
+      "levelDbA": 85
+     },
+     {
+      "durationH": 2,
+      "levelDbA": 92
+     }
+    ],
+    "OSHA_ACTION_LEVEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "contributions.0.dosePct": 0.0,
+    "contributions.0.integrated": false,
+    "contributions.1.dosePct": 25.0,
+    "contributions.1.integrated": true,
+    "contributions.2.dosePct": 32.98769776932235,
+    "contributions.2.integrated": true,
+    "dosePct": 57.98769776932235,
+    "exceedsLimit": true,
+    "limitDosePct": 50,
+    "totalDurationH": 8.0,
+    "twaDbA": 86.06900874601558
+   },
+   "fn": "noiseDose",
+   "id": "dose-hc-mixed-thresholds",
+   "source": "oracle; 79 dB is below the 80 dB threshold"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 2,
+      "levelDbA": 79
+     },
+     {
+      "durationH": 4,
+      "levelDbA": 85
+     },
+     {
+      "durationH": 2,
+      "levelDbA": 92
+     }
+    ],
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "contributions.0.dosePct": 0.0,
+    "contributions.0.integrated": false,
+    "contributions.1.dosePct": 0.0,
+    "contributions.1.integrated": false,
+    "contributions.2.dosePct": 32.98769776932235,
+    "contributions.2.integrated": true,
+    "dosePct": 32.98769776932235,
+    "exceedsLimit": false,
+    "limitDosePct": 100,
+    "totalDurationH": 8.0,
+    "twaDbA": 81.99982683523403
+   },
+   "fn": "noiseDose",
+   "id": "dose-same-shift-pel",
+   "source": "oracle; only 92 dB counts"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 4,
+      "levelDbA": 88
+     },
+     {
+      "durationH": 2,
+      "levelDbA": 91
+     },
+     {
+      "durationH": 2,
+      "levelDbA": 70
+     }
+    ],
+    "NIOSH_REL"
+   ],
+   "basis": "published",
+   "expect": {
+    "contributions.0.dosePct": 100.0,
+    "contributions.0.integrated": true,
+    "contributions.1.dosePct": 100.0,
+    "contributions.1.integrated": true,
+    "contributions.2.dosePct": 0.0,
+    "contributions.2.integrated": false,
+    "dosePct": 200.0,
+    "exceedsLimit": true,
+    "limitDosePct": 100,
+    "totalDurationH": 8.0,
+    "twaDbA": 88.01029995663981
+   },
+   "fn": "noiseDose",
+   "id": "dose-niosh-mixed",
+   "published": {
+    "dosePct": {
+     "tolerance": 2e-09,
+     "value": 200.0
+    }
+   },
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix Table 1-1 (88 dBA 4 h, 91 dBA 2 h): 4/4 + 2/2 = 2"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 10,
+      "levelDbA": 90
+     }
+    ],
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "contributions.0.dosePct": 125.0,
+    "contributions.0.integrated": true,
+    "dosePct": 125.0,
+    "exceedsLimit": true,
+    "limitDosePct": 100,
+    "totalDurationH": 10.0,
+    "twaDbA": 91.60967531606381
+   },
+   "fn": "noiseDose",
+   "id": "dose-10h-shift",
+   "source": "oracle; the PEL is not reduced for a long shift, the dose grows"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 0,
+      "levelDbA": 100
+     },
+     {
+      "durationH": 8,
+      "levelDbA": 90
+     }
+    ],
+    "OSHA_PEL"
+   ],
+   "basis": "oracle",
+   "expect": {
+    "contributions.0.dosePct": 0.0,
+    "contributions.0.integrated": true,
+    "contributions.1.dosePct": 100.0,
+    "contributions.1.integrated": true,
+    "dosePct": 100.0,
+    "exceedsLimit": false,
+    "limitDosePct": 100,
+    "totalDurationH": 8.0,
+    "twaDbA": 90.0
+   },
+   "fn": "noiseDose",
+   "id": "dose-zero-duration",
+   "source": "oracle"
+  },
+  {
+   "args": [
+    10
+   ],
+   "basis": "published",
+   "expect": {
+    "actionLevelDbA": 83.39021645595746
+   },
+   "fn": "oshaActionLevelForShiftDbA",
+   "id": "otm-al-extended",
+   "published": {
+    "actionLevelDbA": {
+     "tolerance": 0.050000001,
+     "value": 83.4
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), worked AL10"
+  },
+  {
+   "args": [
+    8
+   ],
+   "basis": "published",
+   "expect": {
+    "actionLevelDbA": 84.99989177202127
+   },
+   "fn": "oshaActionLevelForShiftDbA",
+   "id": "otm-al-table-8h",
+   "published": {
+    "actionLevelDbA": {
+     "tolerance": 0.050000001,
+     "value": 85.0
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), Table IV-3"
+  },
+  {
+   "args": [
+    9
+   ],
+   "basis": "published",
+   "expect": {
+    "actionLevelDbA": 84.15024837417027
+   },
+   "fn": "oshaActionLevelForShiftDbA",
+   "id": "otm-al-table-9h",
+   "published": {
+    "actionLevelDbA": {
+     "tolerance": 0.050000001,
+     "value": 84.2
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), Table IV-3"
+  },
+  {
+   "args": [
+    10
+   ],
+   "basis": "published",
+   "expect": {
+    "actionLevelDbA": 83.39021645595746
+   },
+   "fn": "oshaActionLevelForShiftDbA",
+   "id": "otm-al-table-10h",
+   "published": {
+    "actionLevelDbA": {
+     "tolerance": 0.050000001,
+     "value": 83.4
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), Table IV-3"
+  },
+  {
+   "args": [
+    12
+   ],
+   "basis": "published",
+   "expect": {
+    "actionLevelDbA": 82.07501595910641
+   },
+   "fn": "oshaActionLevelForShiftDbA",
+   "id": "otm-al-table-12h",
+   "published": {
+    "actionLevelDbA": {
+     "tolerance": 0.050000001,
+     "value": 82.1
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), Table IV-3"
+  },
+  {
+   "args": [
+    16
+   ],
+   "basis": "published",
+   "expect": {
+    "actionLevelDbA": 79.99978354404254
+   },
+   "fn": "oshaActionLevelForShiftDbA",
+   "id": "otm-al-table-16h",
+   "published": {
+    "actionLevelDbA": {
+     "tolerance": 0.050000001,
+     "value": 80.0
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), Table IV-3"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 98,
+     "method": "OSHA_FIELD_50",
+     "nrrDb": 25
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "attenuationDb": 9.0,
+    "protectedDbA": 89.0
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "otm-appE-field-50",
+   "published": {
+    "protectedDbA": {
+     "tolerance": 1e-09,
+     "value": 89.0
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), Appendix E"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 98,
+     "method": "OSHA_APPENDIX_B",
+     "nrrDb": 25
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "attenuationDb": 18,
+    "protectedDbA": 80
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "otm-appE-hc",
+   "published": {
+    "protectedDbA": {
+     "tolerance": 1e-09,
+     "value": 80.0
+    }
+   },
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), Appendix E; 29 CFR 1910.95 Appendix B (eCFR, retrieved 2026-09-19)"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 100,
+     "method": "OSHA_APPENDIX_B",
+     "nrrDb": 29,
+     "weighting": "C"
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 29,
+    "protectedDbA": 71
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "appB-c-weighted",
+   "source": "29 CFR 1910.95 Appendix B (eCFR, retrieved 2026-09-19) (i)(B)"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 105,
+     "method": "OSHA_DUAL",
+     "nrrDb": 33
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 31,
+    "protectedDbA": 74
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "otm-dual-a",
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), Appendix E dual protection"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 108,
+     "method": "OSHA_DUAL",
+     "nrrDb": 30,
+     "weighting": "C"
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 35,
+    "protectedDbA": 73
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "otm-dual-c",
+   "source": "OSHA Technical Manual Sec. III Ch. 5 (Oregon OSHA reprint, retrieved 2026-09-19), Appendix E dual protection (no 7 dB on C-weighted data)"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 100,
+     "method": "NIOSH_TYPE",
+     "nrrDb": 30,
+     "protectorType": "earmuff"
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 15.5,
+    "creditedNrrDb": 22.5,
+    "protectedDbA": 84.5
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "niosh-earmuff-a",
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Appendix"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 100,
+     "method": "NIOSH_TYPE",
+     "nrrDb": 30,
+     "protectorType": "earmuff",
+     "weighting": "C"
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 22.5,
+    "creditedNrrDb": 22.5,
+    "protectedDbA": 77.5
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "niosh-earmuff-c",
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Appendix"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 100,
+     "method": "NIOSH_TYPE",
+     "nrrDb": 30,
+     "protectorType": "formableEarplug"
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 8.0,
+    "creditedNrrDb": 15.0,
+    "protectedDbA": 92.0
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "niosh-formableEarplug-a",
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Appendix"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 100,
+     "method": "NIOSH_TYPE",
+     "nrrDb": 30,
+     "protectorType": "formableEarplug",
+     "weighting": "C"
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 15.0,
+    "creditedNrrDb": 15.0,
+    "protectedDbA": 85.0
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "niosh-formableEarplug-c",
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Appendix"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 100,
+     "method": "NIOSH_TYPE",
+     "nrrDb": 30,
+     "protectorType": "otherEarplug"
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 2.0,
+    "creditedNrrDb": 9.0,
+    "protectedDbA": 98.0
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "niosh-otherEarplug-a",
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Appendix"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 100,
+     "method": "NIOSH_TYPE",
+     "nrrDb": 30,
+     "protectorType": "otherEarplug",
+     "weighting": "C"
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 9.0,
+    "creditedNrrDb": 9.0,
+    "protectedDbA": 91.0
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "niosh-otherEarplug-c",
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Appendix"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 92,
+     "method": "OSHA_APPENDIX_B",
+     "nrrDb": 5
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 0,
+    "protectedDbA": 92
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "nrr-below-7-floors-at-zero",
+   "source": "judgement: a protector cannot raise the exposure"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 92,
+     "method": "NIOSH_TYPE",
+     "nrrDb": 20,
+     "protectorType": "otherEarplug"
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "attenuationDb": 0,
+    "creditedNrrDb": 6.0,
+    "protectedDbA": 92
+   },
+   "fn": "hearingProtectorEstimate",
+   "id": "niosh-plug-small-nrr-floors",
+   "source": "judgement: 0.3 x 20 - 7 = -1 dB floors at zero"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 5,
+      "laeqDbA": 80
+     },
+     {
+      "durationH": 2,
+      "laeqDbA": 86
+     },
+     {
+      "durationH": 0.75,
+      "laeqDbA": 95
+     }
+    ]
+   ],
+   "basis": "published",
+   "expect": {
+    "contributions.0.exposurePoints": 19.764235376052373,
+    "contributions.0.lexDbA": 77.95880017344075,
+    "contributions.1.exposurePoints": 31.47313529485418,
+    "contributions.1.lexDbA": 79.97940008672037,
+    "contributions.2.exposurePoints": 93.75,
+    "contributions.2.lexDbA": 84.71971276399756,
+    "exceedsLowerAction": true,
+    "exceedsUpperAction": true,
+    "exposurePoints": 144.98737067090656,
+    "lexDbA": 86.6133017405007,
+    "totalDurationH": 7.75
+   },
+   "fn": "lexEightHourDbA",
+   "id": "l108-figure-26",
+   "published": {
+    "contributions.0.exposurePoints": {
+     "tolerance": 0.5,
+     "value": 20
+    },
+    "contributions.0.lexDbA": {
+     "tolerance": 0.5,
+     "value": 78
+    },
+    "contributions.1.exposurePoints": {
+     "tolerance": 0.5,
+     "value": 31
+    },
+    "contributions.1.lexDbA": {
+     "tolerance": 0.5,
+     "value": 80
+    },
+    "contributions.2.exposurePoints": {
+     "tolerance": 0.5,
+     "value": 94
+    },
+    "contributions.2.lexDbA": {
+     "tolerance": 0.5,
+     "value": 85
+    },
+    "exposurePoints": {
+     "tolerance": 0.5,
+     "value": 145
+    },
+    "lexDbA": {
+     "tolerance": 0.5,
+     "value": 87
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 8,
+      "laeqDbA": 85
+     }
+    ]
+   ],
+   "basis": "published",
+   "expect": {
+    "exposurePoints": 100.0,
+    "lexDbA": 85.0
+   },
+   "fn": "lexEightHourDbA",
+   "id": "lex-85-8h",
+   "published": {
+    "exposurePoints": {
+     "tolerance": 1e-09,
+     "value": 100.0
+    },
+    "lexDbA": {
+     "tolerance": 1e-09,
+     "value": 85.0
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 App. 3 para 5 (upper EAV is 100 points)"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 8,
+      "laeqDbA": 80
+     }
+    ]
+   ],
+   "basis": "published",
+   "expect": {
+    "exceedsLowerAction": true,
+    "exceedsUpperAction": false,
+    "exposurePoints": 31.622776601683793,
+    "lexDbA": 80.0
+   },
+   "fn": "lexEightHourDbA",
+   "id": "lex-80-is-32-points",
+   "published": {
+    "exposurePoints": {
+     "tolerance": 0.500000001,
+     "value": 32.0
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 App. 3 para 5 (lower EAV is 32 points)"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 4,
+      "laeqDbA": 88
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "lexDbA": 84.98970004336019
+   },
+   "fn": "lexEightHourDbA",
+   "id": "lex-short-shift-4h-at-88",
+   "source": "oracle (88 - 10 log10 2)"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 10,
+      "laeqDbA": 85
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "lexDbA": 85.96910013008056
+   },
+   "fn": "lexEightHourDbA",
+   "id": "lex-10h-at-85",
+   "source": "oracle (normalised to 8 h, rises above 85)"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 0,
+      "laeqDbA": 100
+     },
+     {
+      "durationH": 8,
+      "laeqDbA": 85
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "contributions.0.lexDbA": null,
+    "lexDbA": 85.0
+   },
+   "fn": "lexEightHourDbA",
+   "id": "lex-zero-task",
+   "source": "oracle; a zero-length task contributes nothing"
+  },
+  {
+   "args": [
+    {
+     "durationH": 1,
+     "laeqDbA": 80
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "exposurePoints": 3.952847075210474
+   },
+   "fn": "hseExposurePoints",
+   "id": "l108-points-per-hour-80",
+   "published": {
+    "exposurePoints": {
+     "tolerance": 0.500000001,
+     "value": 4.0
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Figure 26, points per hour"
+  },
+  {
+   "args": [
+    {
+     "durationH": 1,
+     "laeqDbA": 86
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "exposurePoints": 15.73656764742709
+   },
+   "fn": "hseExposurePoints",
+   "id": "l108-points-per-hour-86",
+   "published": {
+    "exposurePoints": {
+     "tolerance": 0.500000001,
+     "value": 16.0
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Figure 26, points per hour"
+  },
+  {
+   "args": [
+    {
+     "durationH": 1,
+     "laeqDbA": 95
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "exposurePoints": 125.0
+   },
+   "fn": "hseExposurePoints",
+   "id": "l108-points-per-hour-95",
+   "published": {
+    "exposurePoints": {
+     "tolerance": 0.500000001,
+     "value": 125.0
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Figure 26, points per hour"
+  },
+  {
+   "args": [
+    {
+     "laeqDbA": 86,
+     "targetLexDbA": 85
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "durationH": 6.354625877794252
+   },
+   "fn": "lexAllowedDurationH",
+   "id": "l108-time-to-85-at-86",
+   "published": {
+    "durationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 6.35
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Figure 26, time to LEAV/UEAV (hh:mm)"
+  },
+  {
+   "args": [
+    {
+     "laeqDbA": 95,
+     "targetLexDbA": 85
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "durationH": 0.8
+   },
+   "fn": "lexAllowedDurationH",
+   "id": "l108-time-to-85-at-95",
+   "published": {
+    "durationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 0.8
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Figure 26, time to LEAV/UEAV (hh:mm)"
+  },
+  {
+   "args": [
+    {
+     "laeqDbA": 86,
+     "targetLexDbA": 80
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "durationH": 2.009509145207664
+   },
+   "fn": "lexAllowedDurationH",
+   "id": "l108-time-to-80-at-86",
+   "published": {
+    "durationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 2.0
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Figure 26, time to LEAV/UEAV (hh:mm)"
+  },
+  {
+   "args": [
+    {
+     "laeqDbA": 95,
+     "targetLexDbA": 80
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "durationH": 0.25298221281347033
+   },
+   "fn": "lexAllowedDurationH",
+   "id": "l108-time-to-80-at-95",
+   "published": {
+    "durationH": {
+     "tolerance": 0.016666667666666666,
+     "value": 0.25
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Figure 26, time to LEAV/UEAV (hh:mm)"
+  },
+  {
+   "args": [
+    145
+   ],
+   "basis": "published",
+   "expect": {
+    "lexDbA": 86.61368002234975
+   },
+   "fn": "lexFromExposurePointsDbA",
+   "id": "l108-lex-from-145-points",
+   "published": {
+    "lexDbA": {
+     "tolerance": 0.500000001,
+     "value": 87.0
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 App. 3 para 4 and Figure 26"
+  },
+  {
+   "args": [
+    [
+     88,
+     88,
+     82,
+     82,
+     82
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "days": 5,
+    "lexWeeklyDbA": 85.40925475048485
+   },
+   "fn": "lexWeeklyDbA",
+   "id": "lex-weekly",
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Schedule 1 Part 2"
+  },
+  {
+   "args": [
+    [
+     85,
+     85,
+     85,
+     85,
+     85
+    ]
+   ],
+   "basis": "published",
+   "expect": {
+    "lexWeeklyDbA": 85.0
+   },
+   "fn": "lexWeeklyDbA",
+   "id": "lex-weekly-equal-days",
+   "published": {
+    "lexWeeklyDbA": {
+     "tolerance": 2e-09,
+     "value": 85.0
+    }
+   },
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Schedule 1 Part 2"
+  },
+  {
+   "args": [
+    [
+     90,
+     90,
+     90,
+     90
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "days": 4,
+    "lexWeeklyDbA": 89.03089986991944
+   },
+   "fn": "lexWeeklyDbA",
+   "id": "lex-weekly-four-days",
+   "source": "HSE L108 (current ed.), Schedule 1 and Appendix 3 Figure 26 Schedule 1 Part 2 (the divisor stays 5)"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 150,
+      "durationH": 2
+     },
+     {
+      "concentration": 75,
+      "durationH": 2
+     },
+     {
+      "concentration": 50,
+      "durationH": 4
+     }
+    ]
+   ],
+   "basis": "published",
+   "expect": {
+    "totalDurationH": 8.0,
+    "twa8h": 81.25
+   },
+   "fn": "chemicalTwa8h",
+   "id": "cfr-1000-d1-example",
+   "published": {
+    "twa8h": {
+     "tolerance": 1e-09,
+     "value": 81.25
+    }
+   },
+   "source": "29 CFR 1910.1000(d) (eCFR, retrieved 2026-09-19)(1)(ii)"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 40,
+      "durationH": 3
+     },
+     {
+      "concentration": 10,
+      "durationH": 2.5
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "totalDurationH": 5.5,
+    "twa8h": 18.125
+   },
+   "fn": "chemicalTwa8h",
+   "id": "twa-part-shift-zero-fill",
+   "source": "oracle; unsampled time counts as zero"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 500,
+      "limit": 1000
+     },
+     {
+      "concentration": 45,
+      "limit": 200
+     },
+     {
+      "concentration": 40,
+      "limit": 200
+     }
+    ]
+   ],
+   "basis": "published",
+   "expect": {
+    "exceeds": false,
+    "index": 0.925,
+    "terms.0": 0.5,
+    "terms.1": 0.225,
+    "terms.2": 0.2
+   },
+   "fn": "mixtureExposureIndex",
+   "id": "cfr-1000-d2-example",
+   "published": {
+    "index": {
+     "tolerance": 1e-09,
+     "value": 0.925
+    },
+    "terms.0": {
+     "tolerance": 1e-09,
+     "value": 0.5
+    },
+    "terms.1": {
+     "tolerance": 1e-09,
+     "value": 0.225
+    },
+    "terms.2": {
+     "tolerance": 1e-09,
+     "value": 0.2
+    }
+   },
+   "source": "29 CFR 1910.1000(d) (eCFR, retrieved 2026-09-19)(2)(ii)"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 60,
+      "limit": 100
+     },
+     {
+      "concentration": 25,
+      "limit": 50
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "exceeds": true,
+    "index": 1.1
+   },
+   "fn": "mixtureExposureIndex",
+   "id": "mixture-over-unity",
+   "source": "oracle"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 50,
+      "limit": 100
+     },
+     {
+      "concentration": 25,
+      "limit": 50
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "exceeds": false,
+    "index": 1.0
+   },
+   "fn": "mixtureExposureIndex",
+   "id": "mixture-exactly-unity",
+   "source": "29 CFR 1910.1000(d) (eCFR, retrieved 2026-09-19)(2)(i): \"shall not exceed unity\""
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 300,
+      "durationMin": 5
+     },
+     {
+      "concentration": 120,
+      "durationMin": 10
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "stel15Min": 180.0,
+    "totalDurationMin": 15.0
+   },
+   "fn": "chemicalStel15Min",
+   "id": "stel-15",
+   "source": "oracle"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 90,
+      "durationMin": 10
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "stel15Min": 60.0,
+    "totalDurationMin": 10.0
+   },
+   "fn": "chemicalStel15Min",
+   "id": "stel-short-sample",
+   "source": "oracle; the remainder counts as zero"
+  },
+  {
+   "args": [
+    10
+   ],
+   "basis": "published",
+   "expect": {
+    "rawRf": 0.7,
+    "rf": 0.7
+   },
+   "fn": "briefScalaDailyRf",
+   "id": "bs-daily-10h",
+   "published": {
+    "rf": {
+     "tolerance": 2e-09,
+     "value": 0.7
+    }
+   },
+   "source": "Brief and Scala (1975); BC OHS Regulation 5.50 factors; ESTA TSP note (BC 5.50 factor 0.7)"
+  },
+  {
+   "args": [
+    12
+   ],
+   "basis": "published",
+   "expect": {
+    "rawRf": 0.5,
+    "rf": 0.5
+   },
+   "fn": "briefScalaDailyRf",
+   "id": "bs-daily-12h",
+   "published": {
+    "rf": {
+     "tolerance": 2e-09,
+     "value": 0.5
+    }
+   },
+   "source": "Brief and Scala (1975); BC OHS Regulation 5.50 factors; ESTA TSP note (BC 5.50 factor 0.5)"
+  },
+  {
+   "args": [
+    16
+   ],
+   "basis": "published",
+   "expect": {
+    "rawRf": 0.25,
+    "rf": 0.25
+   },
+   "fn": "briefScalaDailyRf",
+   "id": "bs-daily-16h",
+   "published": {
+    "rf": {
+     "tolerance": 2e-09,
+     "value": 0.25
+    }
+   },
+   "source": "Brief and Scala (1975); BC OHS Regulation 5.50 factors; ESTA TSP note (BC 5.50 factor 0.25)"
+  },
+  {
+   "args": [
+    20
+   ],
+   "basis": "published",
+   "expect": {
+    "rawRf": 0.1,
+    "rf": 0.1
+   },
+   "fn": "briefScalaDailyRf",
+   "id": "bs-daily-20h",
+   "published": {
+    "rf": {
+     "tolerance": 2e-09,
+     "value": 0.1
+    }
+   },
+   "source": "Brief and Scala (1975); BC OHS Regulation 5.50 factors; ESTA TSP note (BC 5.50 factor 0.1)"
+  },
+  {
+   "args": [
+    8
+   ],
+   "basis": "oracle",
+   "expect": {
+    "rawRf": 1.0,
+    "rf": 1.0
+   },
+   "fn": "briefScalaDailyRf",
+   "id": "bs-daily-8h",
+   "source": "oracle; the factor never raises a limit"
+  },
+  {
+   "args": [
+    6
+   ],
+   "basis": "oracle",
+   "expect": {
+    "rawRf": 1.5,
+    "rf": 1.0
+   },
+   "fn": "briefScalaDailyRf",
+   "id": "bs-daily-6h",
+   "source": "oracle; the factor never raises a limit"
+  },
+  {
+   "args": [
+    24
+   ],
+   "basis": "oracle",
+   "expect": {
+    "rawRf": 0.0,
+    "rf": 0.0
+   },
+   "fn": "briefScalaDailyRf",
+   "id": "bs-daily-24h",
+   "source": "oracle; the factor never raises a limit"
+  },
+  {
+   "args": [
+    40
+   ],
+   "basis": "oracle",
+   "expect": {
+    "rawRf": 1.0,
+    "rf": 1.0
+   },
+   "fn": "briefScalaWeeklyRf",
+   "id": "bs-weekly-40h",
+   "source": "Brief and Scala (1975); BC OHS Regulation 5.50 factors; ESTA TSP note weekly form"
+  },
+  {
+   "args": [
+    48
+   ],
+   "basis": "oracle",
+   "expect": {
+    "rawRf": 0.78125,
+    "rf": 0.78125
+   },
+   "fn": "briefScalaWeeklyRf",
+   "id": "bs-weekly-48h",
+   "source": "Brief and Scala (1975); BC OHS Regulation 5.50 factors; ESTA TSP note weekly form"
+  },
+  {
+   "args": [
+    60
+   ],
+   "basis": "oracle",
+   "expect": {
+    "rawRf": 0.5625,
+    "rf": 0.5625
+   },
+   "fn": "briefScalaWeeklyRf",
+   "id": "bs-weekly-60h",
+   "source": "Brief and Scala (1975); BC OHS Regulation 5.50 factors; ESTA TSP note weekly form"
+  },
+  {
+   "args": [
+    30
+   ],
+   "basis": "oracle",
+   "expect": {
+    "rawRf": 1.4375,
+    "rf": 1.0
+   },
+   "fn": "briefScalaWeeklyRf",
+   "id": "bs-weekly-30h",
+   "source": "Brief and Scala (1975); BC OHS Regulation 5.50 factors; ESTA TSP note weekly form"
+  },
+  {
+   "args": [
+    {
+     "limit": 10,
+     "shiftHours": 12,
+     "weeklyHours": 60
+    }
+   ],
+   "basis": "published",
+   "expect": {
+    "adjustedLimit": 5.0,
+    "governingBasis": "daily",
+    "rf": 0.5
+   },
+   "fn": "briefScalaAdjustedLimit",
+   "id": "esta-glycol-12h",
+   "published": {
+    "adjustedLimit": {
+     "tolerance": 2e-09,
+     "value": 5.0
+    }
+   },
+   "source": "Brief and Scala (1975); BC OHS Regulation 5.50 factors; ESTA TSP note (ESTA: 12 h a day for 5 days, 10 mg/m3 becomes 5 mg/m3)"
+  },
+  {
+   "args": [
+    {
+     "limit": 100,
+     "shiftHours": 10,
+     "weeklyHours": 70
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "adjustedLimit": 43.75,
+    "governingBasis": "weekly",
+    "rf": 0.4375
+   },
+   "fn": "briefScalaAdjustedLimit",
+   "id": "bs-weekly-governs",
+   "source": "oracle; the smaller factor governs"
+  },
+  {
+   "args": [
+    {
+     "dryBulbC": 32,
+     "globeC": 45,
+     "naturalWetBulbC": 25
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "form": "outdoor",
+    "wbgtC": 29.7
+   },
+   "fn": "wbgtOutdoorC",
+   "id": "wbgt-outdoor",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 9.3.2 (oracle arithmetic)"
+  },
+  {
+   "args": [
+    {
+     "globeC": 38.2,
+     "naturalWetBulbC": 24.6
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "form": "indoor",
+    "wbgtC": 28.68
+   },
+   "fn": "wbgtIndoorC",
+   "id": "wbgt-indoor",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 9.3.2 (oracle arithmetic)"
+  },
+  {
+   "args": [
+    {
+     "globeC": 30,
+     "naturalWetBulbC": 30
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "wbgtC": 30.0
+   },
+   "fn": "wbgtIndoorC",
+   "id": "wbgt-indoor-equal-temps",
+   "source": "the weights sum to 1"
+  },
+  {
+   "args": [
+    {
+     "dryBulbC": 30,
+     "globeC": 30,
+     "naturalWetBulbC": 30
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "wbgtC": 30.0
+   },
+   "fn": "wbgtOutdoorC",
+   "id": "wbgt-outdoor-equal-temps",
+   "source": "the weights sum to 1"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationMin": 45,
+      "wbgtC": 31
+     },
+     {
+      "durationMin": 15,
+      "wbgtC": 24
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "totalDurationMin": 60.0,
+    "wbgtTwaC": 29.25
+   },
+   "fn": "wbgtTwaC",
+   "id": "wbgt-twa-work-rest",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 1.1.1 hourly TWA"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationMin": 45,
+      "metabolicRateW": 400
+     },
+     {
+      "durationMin": 15,
+      "metabolicRateW": 120
+     }
+    ]
+   ],
+   "basis": "oracle",
+   "expect": {
+    "metabolicRateTwaW": 330.0,
+    "totalDurationMin": 60.0
+   },
+   "fn": "metabolicRateTwaW",
+   "id": "metabolic-twa",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 1.1.3 1-hour TWA"
+  },
+  {
+   "args": [
+    117
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 32.91586258991914
+   },
+   "fn": "nioshRecommendedExposureLimitC",
+   "id": "rel-117W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    117
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 30.73857934937912
+   },
+   "fn": "nioshRecommendedAlertLimitC",
+   "id": "ral-117W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    200
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 30.23815504986422
+   },
+   "fn": "nioshRecommendedExposureLimitC",
+   "id": "rel-200W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    200
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 27.455477061137863
+   },
+   "fn": "nioshRecommendedAlertLimitC",
+   "id": "ral-200W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    300
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 28.213105570723883
+   },
+   "fn": "nioshRecommendedExposureLimitC",
+   "id": "rel-300W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    300
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 24.97259030845276
+   },
+   "fn": "nioshRecommendedAlertLimitC",
+   "id": "ral-300W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    348.9
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 27.45893885134673
+   },
+   "fn": "nioshRecommendedExposureLimitC",
+   "id": "rel-348.9W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    348.9
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 24.04791633078164
+   },
+   "fn": "nioshRecommendedAlertLimitC",
+   "id": "ral-348.9W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    400
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 26.776310099728434
+   },
+   "fn": "nioshRecommendedExposureLimitC",
+   "id": "rel-400W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    400
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 23.21095412227573
+   },
+   "fn": "nioshRecommendedAlertLimitC",
+   "id": "ral-400W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    465
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 26.024291041765533
+   },
+   "fn": "nioshRecommendedExposureLimitC",
+   "id": "rel-465W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    465
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 22.28891336425165
+   },
+   "fn": "nioshRecommendedAlertLimitC",
+   "id": "ral-465W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    580
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 24.920578074026224
+   },
+   "fn": "nioshRecommendedExposureLimitC",
+   "id": "rel-580W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    580
+   ],
+   "basis": "oracle",
+   "expect": {
+    "limitWbgtC": 20.935665290762586
+   },
+   "fn": "nioshRecommendedAlertLimitC",
+   "id": "ral-580W",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 8.1 equation (oracle arithmetic)"
+  },
+  {
+   "args": [
+    {
+     "acclimatized": true,
+     "metabolicPeriods": [
+      {
+       "durationMin": 45,
+       "metabolicRateW": 400
+      },
+      {
+       "durationMin": 15,
+       "metabolicRateW": 120
+      }
+     ],
+     "wbgtPeriods": [
+      {
+       "durationMin": 45,
+       "wbgtC": 31
+      },
+      {
+       "durationMin": 15,
+       "wbgtC": 24
+      }
+     ]
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "criterion": "NIOSH_REL",
+    "exceeds": true,
+    "limitWbgtC": 27.737089691404297,
+    "marginC": -1.5129103085957034,
+    "metabolicRateTwaW": 330.0,
+    "wbgtTwaC": 29.25
+   },
+   "fn": "nioshHeatAssessment",
+   "id": "heat-assessment-rel",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 (oracle arithmetic)"
+  },
+  {
+   "args": [
+    {
+     "acclimatized": false,
+     "metabolicPeriods": [
+      {
+       "durationMin": 45,
+       "metabolicRateW": 400
+      },
+      {
+       "durationMin": 15,
+       "metabolicRateW": 120
+      }
+     ],
+     "wbgtPeriods": [
+      {
+       "durationMin": 45,
+       "wbgtC": 31
+      },
+      {
+       "durationMin": 15,
+       "wbgtC": 24
+      }
+     ]
+    }
+   ],
+   "basis": "oracle",
+   "expect": {
+    "criterion": "NIOSH_RAL",
+    "exceeds": true,
+    "limitWbgtC": 24.388953447721782,
+    "marginC": -4.861046552278218,
+    "metabolicRateTwaW": 330.0,
+    "wbgtTwaC": 29.25
+   },
+   "fn": "nioshHeatAssessment",
+   "id": "heat-assessment-ral",
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 (oracle arithmetic)"
+  }
+ ],
+ "description": "Occupational hygiene exposure (noise dose and TWA, LEX,8h, hearing protectors, chemical TWA, STEL, mixture and Brief and Scala, WBGT and NIOSH heat limits). expect = oracle value, agreement to oracleTolerance; published = printed value and the tolerance its printed precision allows.",
+ "errata": [
+  {
+   "args": [
+    99,
+    "NIOSH_REL"
+   ],
+   "fn": "noiseReferenceDurationH",
+   "id": "niosh-t11-99",
+   "key": "referenceDurationH",
+   "printed": 0.3163888888888889,
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-1",
+   "tolerance": 0.0002777777777777778,
+   "why": "formula gives 18 min 53.9 s, printed 18 min 59 s"
+  },
+  {
+   "args": [
+    115,
+    "OSHA_PEL"
+   ],
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "a1-115",
+   "key": "twaDbA",
+   "printed": 91.1,
+   "source": "29 CFR 1910.95 Appendix A (eCFR, retrieved 2026-09-19), Table A-1",
+   "tolerance": 0.05,
+   "why": "formula gives 91.008, printed 91.1 (neighbours 114 -> 90.9 and 116 -> 91.1 agree)"
+  },
+  {
+   "args": [
+    50000,
+    "NIOSH_REL"
+   ],
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "niosh-t12-50000",
+   "key": "twaDbA",
+   "printed": 102.0,
+   "source": "NIOSH 98-126 (1998), section 1.1 and Tables 1-1, 1-2, Appendix, Table 1-2",
+   "tolerance": 0.05,
+   "why": "formula gives 111.99, printed 102.0 (a transposed digit for 112.0)"
+  },
+  {
+   "args": [
+    348.9
+   ],
+   "fn": "nioshRecommendedExposureLimitC",
+   "id": "niosh-heat-example-rel",
+   "key": "limitWbgtC",
+   "printed": 27.8,
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 1.1.3",
+   "tolerance": 0.05,
+   "why": "section 1.1.3 example reads 27.8 C off Figure 8-2 at 300 kcal/h (348.9 W); the section 8.1 equation gives 27.459"
+  },
+  {
+   "args": [
+    348.9
+   ],
+   "fn": "nioshRecommendedAlertLimitC",
+   "id": "niosh-heat-example-ral",
+   "key": "limitWbgtC",
+   "printed": 25.0,
+   "source": "NIOSH 2016-106, sections 8.1 and 9.3.2 1.1.3",
+   "tolerance": 0.5,
+   "why": "section 1.1.3 example reads 25 C off Figure 8-1 at 348.9 W; the section 8.1 equation gives 24.048"
+  }
+ ],
+ "generatedBy": "tools/validation/hse/oracle_exposure.py",
+ "module": "exposure",
+ "oracleTolerance": 1e-09,
+ "refusals": [
+  {
+   "args": [
+    "loud",
+    "OSHA_PEL"
+   ],
+   "field": "levelDbA",
+   "fn": "noiseReferenceDurationH",
+   "id": "ref-level-nan"
+  },
+  {
+   "args": [
+    90,
+    "ACGIH"
+   ],
+   "field": "criterion",
+   "fn": "noiseReferenceDurationH",
+   "id": "ref-bad-preset"
+  },
+  {
+   "args": [
+    90,
+    {
+     "criterionLevelDbA": 90,
+     "exchangeRateDb": 0,
+     "thresholdDbA": 80
+    }
+   ],
+   "field": "exchangeRateDb",
+   "fn": "noiseReferenceDurationH",
+   "id": "ref-exchange-zero"
+  },
+  {
+   "args": [
+    90,
+    {
+     "exchangeRateDb": 5
+    }
+   ],
+   "field": "criterionLevelDbA",
+   "fn": "noiseReferenceDurationH",
+   "id": "ref-criterion-missing"
+  },
+  {
+   "args": [
+    100,
+    {
+     "criterionLevelDbA": 90,
+     "exchangeRateDb": 5,
+     "twaCoefficientDb": -16.61
+    }
+   ],
+   "field": "twaCoefficientDb",
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "ref-coefficient-negative"
+  },
+  {
+   "args": [
+    100,
+    {
+     "criterionLevelDbA": 90,
+     "exchangeRateDb": 5,
+     "limitDosePct": 0
+    }
+   ],
+   "field": "limitDosePct",
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "ref-limit-zero"
+  },
+  {
+   "args": [
+    0,
+    "OSHA_PEL"
+   ],
+   "field": "referenceDurationH",
+   "fn": "noiseLevelForReferenceDurationDbA",
+   "id": "level-for-T-zero"
+  },
+  {
+   "args": [
+    0,
+    "OSHA_PEL"
+   ],
+   "field": "dosePct",
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "twa-dose-zero"
+  },
+  {
+   "args": [
+    -5,
+    "OSHA_PEL"
+   ],
+   "field": "dosePct",
+   "fn": "noiseTwaFromDoseDbA",
+   "id": "twa-dose-negative"
+  },
+  {
+   "args": [
+    null,
+    "OSHA_PEL"
+   ],
+   "field": "twaDbA",
+   "fn": "noiseDoseFromTwaPct",
+   "id": "dose-from-twa-null"
+  },
+  {
+   "args": [
+    [],
+    "OSHA_PEL"
+   ],
+   "field": "periods",
+   "fn": "noiseDose",
+   "id": "dose-empty"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": -1,
+      "levelDbA": 90
+     }
+    ],
+    "OSHA_PEL"
+   ],
+   "field": "periods[0].durationH",
+   "fn": "noiseDose",
+   "id": "dose-negative-duration"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 4,
+      "levelDbA": 90
+     },
+     {
+      "durationH": 4
+     }
+    ],
+    "OSHA_PEL"
+   ],
+   "field": "periods[1].levelDbA",
+   "fn": "noiseDose",
+   "id": "dose-missing-level"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 20,
+      "levelDbA": 90
+     },
+     {
+      "durationH": 5,
+      "levelDbA": 85
+     }
+    ],
+    "OSHA_PEL"
+   ],
+   "field": "periods",
+   "fn": "noiseDose",
+   "id": "dose-over-24h"
+  },
+  {
+   "args": [
+    0
+   ],
+   "field": "shiftHours",
+   "fn": "oshaActionLevelForShiftDbA",
+   "id": "al-shift-zero"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 95
+    }
+   ],
+   "field": "nrrDb",
+   "fn": "hearingProtectorEstimate",
+   "id": "hp-no-nrr"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 95,
+     "nrrDb": -3
+    }
+   ],
+   "field": "nrrDb",
+   "fn": "hearingProtectorEstimate",
+   "id": "hp-negative-nrr"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 95,
+     "nrrDb": 25,
+     "weighting": "Z"
+    }
+   ],
+   "field": "weighting",
+   "fn": "hearingProtectorEstimate",
+   "id": "hp-bad-weighting"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 95,
+     "method": "HALF",
+     "nrrDb": 25
+    }
+   ],
+   "field": "method",
+   "fn": "hearingProtectorEstimate",
+   "id": "hp-bad-method"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 95,
+     "method": "OSHA_FIELD_50",
+     "nrrDb": 25,
+     "weighting": "C"
+    }
+   ],
+   "field": "weighting",
+   "fn": "hearingProtectorEstimate",
+   "id": "hp-field50-c"
+  },
+  {
+   "args": [
+    {
+     "exposureDb": 95,
+     "method": "NIOSH_TYPE",
+     "nrrDb": 25
+    }
+   ],
+   "field": "protectorType",
+   "fn": "hearingProtectorEstimate",
+   "id": "hp-niosh-no-type"
+  },
+  {
+   "args": [
+    {
+     "nrrDb": 25
+    }
+   ],
+   "field": "exposureDb",
+   "fn": "hearingProtectorEstimate",
+   "id": "hp-no-exposure"
+  },
+  {
+   "args": [
+    []
+   ],
+   "field": "periods",
+   "fn": "lexEightHourDbA",
+   "id": "lex-empty"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 0,
+      "laeqDbA": 90
+     }
+    ]
+   ],
+   "field": "periods",
+   "fn": "lexEightHourDbA",
+   "id": "lex-zero-time"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 1,
+      "laeqDbA": "x"
+     }
+    ]
+   ],
+   "field": "periods[0].laeqDbA",
+   "fn": "lexEightHourDbA",
+   "id": "lex-bad-level"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationH": 25,
+      "laeqDbA": 80
+     }
+    ]
+   ],
+   "field": "periods",
+   "fn": "lexEightHourDbA",
+   "id": "lex-over-24h"
+  },
+  {
+   "args": [
+    [
+     80,
+     80,
+     80,
+     80,
+     80,
+     80,
+     80,
+     80
+    ]
+   ],
+   "field": "dailyLexDbA",
+   "fn": "lexWeeklyDbA",
+   "id": "lexw-eight-days"
+  },
+  {
+   "args": [
+    [
+     80,
+     null
+    ]
+   ],
+   "field": "dailyLexDbA[1]",
+   "fn": "lexWeeklyDbA",
+   "id": "lexw-bad-day"
+  },
+  {
+   "args": [
+    []
+   ],
+   "field": "dailyLexDbA",
+   "fn": "lexWeeklyDbA",
+   "id": "lexw-empty"
+  },
+  {
+   "args": [
+    {
+     "durationH": -1,
+     "laeqDbA": 85
+    }
+   ],
+   "field": "durationH",
+   "fn": "hseExposurePoints",
+   "id": "points-negative-time"
+  },
+  {
+   "args": [
+    {
+     "durationH": 1
+    }
+   ],
+   "field": "laeqDbA",
+   "fn": "hseExposurePoints",
+   "id": "points-no-level"
+  },
+  {
+   "args": [
+    0
+   ],
+   "field": "exposurePoints",
+   "fn": "lexFromExposurePointsDbA",
+   "id": "lex-from-points-zero"
+  },
+  {
+   "args": [
+    {
+     "laeqDbA": 90
+    }
+   ],
+   "field": "targetLexDbA",
+   "fn": "lexAllowedDurationH",
+   "id": "allowed-no-target"
+  },
+  {
+   "args": [
+    {
+     "targetLexDbA": 85
+    }
+   ],
+   "field": "laeqDbA",
+   "fn": "lexAllowedDurationH",
+   "id": "allowed-no-level"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": -1,
+      "durationH": 8
+     }
+    ]
+   ],
+   "field": "periods[0].concentration",
+   "fn": "chemicalTwa8h",
+   "id": "twa8-negative-conc"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 1,
+      "durationH": 25
+     }
+    ]
+   ],
+   "field": "periods",
+   "fn": "chemicalTwa8h",
+   "id": "twa8-over-24"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 1,
+      "durationMin": 16
+     }
+    ]
+   ],
+   "field": "periods",
+   "fn": "chemicalStel15Min",
+   "id": "stel-over-15"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 1
+     }
+    ]
+   ],
+   "field": "periods[0].durationMin",
+   "fn": "chemicalStel15Min",
+   "id": "stel-no-duration"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 1,
+      "limit": 0
+     }
+    ]
+   ],
+   "field": "components[0].limit",
+   "fn": "mixtureExposureIndex",
+   "id": "mix-zero-limit"
+  },
+  {
+   "args": [
+    [
+     {
+      "concentration": 1,
+      "limit": 5
+     },
+     {
+      "concentration": -2,
+      "limit": 5
+     }
+    ]
+   ],
+   "field": "components[1].concentration",
+   "fn": "mixtureExposureIndex",
+   "id": "mix-negative-conc"
+  },
+  {
+   "args": [
+    []
+   ],
+   "field": "components",
+   "fn": "mixtureExposureIndex",
+   "id": "mix-empty"
+  },
+  {
+   "args": [
+    0
+   ],
+   "field": "shiftHours",
+   "fn": "briefScalaDailyRf",
+   "id": "bs-daily-zero"
+  },
+  {
+   "args": [
+    25
+   ],
+   "field": "shiftHours",
+   "fn": "briefScalaDailyRf",
+   "id": "bs-daily-25"
+  },
+  {
+   "args": [
+    200
+   ],
+   "field": "weeklyHours",
+   "fn": "briefScalaWeeklyRf",
+   "id": "bs-weekly-200"
+  },
+  {
+   "args": [
+    {
+     "limit": 10
+    }
+   ],
+   "field": "shiftHours",
+   "fn": "briefScalaAdjustedLimit",
+   "id": "bs-adjust-no-schedule"
+  },
+  {
+   "args": [
+    {
+     "shiftHours": 10
+    }
+   ],
+   "field": "limit",
+   "fn": "briefScalaAdjustedLimit",
+   "id": "bs-adjust-no-limit"
+  },
+  {
+   "args": [
+    {
+     "limit": 10,
+     "weeklyHours": -4
+    }
+   ],
+   "field": "weeklyHours",
+   "fn": "briefScalaAdjustedLimit",
+   "id": "bs-adjust-bad-week"
+  },
+  {
+   "args": [
+    {
+     "dryBulbC": 30,
+     "naturalWetBulbC": 25
+    }
+   ],
+   "field": "globeC",
+   "fn": "wbgtOutdoorC",
+   "id": "wbgt-missing-globe"
+  },
+  {
+   "args": [
+    {
+     "globeC": 20,
+     "naturalWetBulbC": -300
+    }
+   ],
+   "field": "naturalWetBulbC",
+   "fn": "wbgtIndoorC",
+   "id": "wbgt-below-absolute-zero"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationMin": 0,
+      "wbgtC": 30
+     }
+    ]
+   ],
+   "field": "periods",
+   "fn": "wbgtTwaC",
+   "id": "wbgt-twa-zero-time"
+  },
+  {
+   "args": [
+    [
+     {
+      "durationMin": 60,
+      "metabolicRateW": 0
+     }
+    ]
+   ],
+   "field": "periods[0].metabolicRateW",
+   "fn": "metabolicRateTwaW",
+   "id": "metabolic-zero"
+  },
+  {
+   "args": [
+    0
+   ],
+   "field": "metabolicRateW",
+   "fn": "nioshRecommendedExposureLimitC",
+   "id": "rel-zero-watts"
+  },
+  {
+   "args": [
+    -10
+   ],
+   "field": "metabolicRateW",
+   "fn": "nioshRecommendedAlertLimitC",
+   "id": "ral-negative-watts"
+  },
+  {
+   "args": [
+    {
+     "metabolicPeriods": [
+      {
+       "durationMin": 45,
+       "metabolicRateW": 400
+      },
+      {
+       "durationMin": 15,
+       "metabolicRateW": 120
+      }
+     ],
+     "wbgtPeriods": [
+      {
+       "durationMin": 45,
+       "wbgtC": 31
+      },
+      {
+       "durationMin": 15,
+       "wbgtC": 24
+      }
+     ]
+    }
+   ],
+   "field": "acclimatized",
+   "fn": "nioshHeatAssessment",
+   "id": "heat-no-acclimatization"
+  },
+  {
+   "args": [
+    {
+     "acclimatized": true,
+     "metabolicPeriods": [
+      {
+       "durationMin": 45,
+       "metabolicRateW": 400
+      },
+      {
+       "durationMin": 15,
+       "metabolicRateW": 120
+      }
+     ],
+     "wbgtPeriods": [
+      {
+       "durationMin": 50,
+       "wbgtC": 30
+      }
+     ]
+    }
+   ],
+   "field": "wbgtPeriods",
+   "fn": "nioshHeatAssessment",
+   "id": "heat-not-an-hour"
+  },
+  {
+   "args": [
+    {
+     "acclimatized": true,
+     "metabolicPeriods": [
+      {
+       "durationMin": 30,
+       "metabolicRateW": 300
+      }
+     ],
+     "wbgtPeriods": [
+      {
+       "durationMin": 45,
+       "wbgtC": 31
+      },
+      {
+       "durationMin": 15,
+       "wbgtC": 24
+      }
+     ]
+    }
+   ],
+   "field": "metabolicPeriods",
+   "fn": "nioshHeatAssessment",
+   "id": "heat-metabolic-not-an-hour"
+  },
+  {
+   "args": [
+    {
+     "acclimatized": true,
+     "metabolicPeriods": [
+      {
+       "durationMin": 45,
+       "metabolicRateW": 400
+      },
+      {
+       "durationMin": 15,
+       "metabolicRateW": 120
+      }
+     ],
+     "wbgtPeriods": [
+      {
+       "durationMin": 60
+      }
+     ]
+    }
+   ],
+   "field": "wbgtPeriods[0].wbgtC",
+   "fn": "nioshHeatAssessment",
+   "id": "heat-bad-wbgt-row"
+  }
+ ]
+}

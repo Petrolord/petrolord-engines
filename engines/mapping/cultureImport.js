@@ -222,9 +222,12 @@ export function parseDbf(dbfBuf) {
       let raw = '';
       for (let i = 0; i < f.length; i++) raw += String.fromCharCode(bytes[fo + i]);
       raw = raw.trim();
-      row[f.name] = f.type === 'N' || f.type === 'F'
-        ? (raw === '' ? null : Number(raw))
-        : raw;
+      // defineProperty, not assignment: a DBF field named '__proto__' was
+      // silently dropped (assignment replaces the prototype).
+      Object.defineProperty(row, f.name, {
+        value: f.type === 'N' || f.type === 'F' ? (raw === '' ? null : Number(raw)) : raw,
+        writable: true, enumerable: true, configurable: true,
+      });
       fo += f.length;
     }
     rows.push(row);

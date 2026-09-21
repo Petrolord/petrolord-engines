@@ -9,13 +9,30 @@
  * Metrics, scoring, and aggregation for risk management.
  */
 
-import { getRiskLevel } from './riskModel.js';
+import { getRiskLevel, riskScore } from './riskModel.js';
 
+/**
+ * EC6-1: the sum of the scored risks. This used to multiply the factors
+ * without coercion, so one risk missing a probability made the whole
+ * register's score NaN (FINDINGS-fdp.md section 10).
+ */
 export const calculateConsolidatedRiskScore = (risks = []) => {
     if (!risks.length) return 0;
-    // Simple sum of scores, could be weighted
-    return risks.reduce((sum, risk) => sum + (risk.probability * risk.impact), 0);
+    return risks.reduce((sum, risk) => sum + (riskScore(risk) ?? 0), 0);
 };
+
+/** How many risks in the register have not been scored. */
+export const countUnscoredRisks = (risks = []) => risks.filter((r) => riskScore(r) === null).length;
+
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
 
 export const calculateRiskExposure = (risks = []) => {
     // Expected Monetary Value (EMV) approximation
@@ -23,7 +40,7 @@ export const calculateRiskExposure = (risks = []) => {
     const probFactors = { 1: 0.05, 2: 0.20, 3: 0.40, 4: 0.60, 5: 0.85 };
     
     return risks.reduce((total, risk) => {
-        const prob = probFactors[risk.probability] || 0;
+        const prob = ownValue(probFactors, risk.probability) || 0;
         const cost = parseFloat(risk.costImpact) || 0;
         return total + (prob * cost);
     }, 0);
@@ -32,25 +49,33 @@ export const calculateRiskExposure = (risks = []) => {
 export const aggregateRisksBySource = (risks = []) => {
     return risks.reduce((acc, risk) => {
         const source = risk.source || 'Other';
-        acc[source] = (acc[source] || 0) + 1;
+        setOwn(acc, source, (ownValue(acc, source) || 0) + 1);
         return acc;
     }, {});
 };
 
 export const aggregateRisksByLevel = (risks = []) => {
-    const levels = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+    const levels = { Critical: 0, High: 0, Medium: 0, Low: 0, Unscored: 0 };
     risks.forEach(risk => {
-        const score = risk.probability * risk.impact;
+        const score = riskScore(risk);
+        if (score === null) {
+            levels.Unscored++;
+            return;
+        }
         const { level } = getRiskLevel(score);
         if (levels[level] !== undefined) levels[level]++;
     });
     return levels;
 };
 
+/**
+ * A health score over the SCORED risks. An unscored risk cannot improve it:
+ * before EC6-1 it counted as Low and did exactly that.
+ */
 export const calculatePortfolioHealth = (risks = []) => {
     const levels = aggregateRisksByLevel(risks);
-    const total = risks.length;
-    if (total === 0) return 100;
+    const total = risks.length - levels.Unscored;
+    if (total <= 0) return 100;
 
     // Weighted penalty for high risks
     const penalty = (levels.Critical * 10) + (levels.High * 5) + (levels.Medium * 2);

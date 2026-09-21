@@ -1,0 +1,11017 @@
+{
+ "cases": [
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0
+     ],
+     [
+      1.0,
+      0.0
+     ]
+    ],
+    "b": [
+     4.0,
+     3.0
+    ],
+    "c": [
+     1.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "textbook min, >= and <= rows",
+   "objective": 5.0,
+   "shadow": [
+    {
+     "left": 2.0,
+     "right": 2.0
+    },
+    {
+     "left": -1.0,
+     "right": -1.0
+    }
+   ],
+   "status": "optimal",
+   "why": "x=3, y=1; duals 2 and -1",
+   "x": [
+    3.0,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -1.0
+     ],
+     [
+      1.0,
+      0.0
+     ]
+    ],
+    "b": [
+     -2.0,
+     3.0
+    ],
+    "c": [
+     0.0,
+     -1.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": ">= row with a negative right-hand side, binding",
+   "objective": -5.0,
+   "shadow": [
+    {
+     "left": 1.0,
+     "right": 1.0
+    },
+    {
+     "left": -1.0,
+     "right": -1.0
+    }
+   ],
+   "status": "optimal",
+   "why": "the engine negates the row to normalise it; the dual must follow the ORIGINAL row",
+   "x": [
+    3.0,
+    5.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      1.0
+     ],
+     [
+      0.0,
+      1.0
+     ]
+    ],
+    "b": [
+     -2.0,
+     5.0
+    ],
+    "c": [
+     -1.0,
+     0.0
+    ],
+    "hi": [
+     10.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "<= row with a negative right-hand side, binding",
+   "objective": -10.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "maximise x with y - x <= -2; the row binds only through the bound on x, so its price is zero while the bound carries the value",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -1.0
+     ],
+     [
+      0.0,
+      1.0
+     ]
+    ],
+    "b": [
+     -2.0,
+     3.0
+    ],
+    "c": [
+     1.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     ">="
+    ]
+   },
+   "name": "= row with a negative right-hand side",
+   "objective": 4.0,
+   "shadow": [
+    {
+     "left": 1.0,
+     "right": 1.0
+    },
+    {
+     "left": 2.0,
+     "right": 2.0
+    }
+   ],
+   "status": "optimal",
+   "why": "the equality dual must keep the sign of the row as written",
+   "x": [
+    1.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0
+     ],
+     [
+      -20.0,
+      30.0
+     ]
+    ],
+    "b": [
+     100.0,
+     0.0
+    ],
+    "c": [
+     10.0,
+     5.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     50.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<="
+    ]
+   },
+   "name": "blend shape: <= spec row, component floor shifts rhs negative",
+   "objective": 800.0,
+   "shadow": [
+    {
+     "left": 8.0,
+     "right": 8.0
+    },
+    {
+     "left": -0.1,
+     "right": -0.1
+    }
+   ],
+   "status": "optimal",
+   "why": "the rhs is 0 as written and -A*lo after the shift, so the engine flips a row the caller never flipped",
+   "x": [
+    60.0,
+    40.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0
+     ],
+     [
+      20.0,
+      -30.0
+     ]
+    ],
+    "b": [
+     100.0,
+     0.0
+    ],
+    "c": [
+     10.0,
+     5.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     50.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     ">="
+    ]
+   },
+   "name": "blend shape: >= spec row, component floor shifts rhs negative",
+   "objective": 800.0,
+   "shadow": [
+    {
+     "left": 8.0,
+     "right": 8.0
+    },
+    {
+     "left": 0.1,
+     "right": 0.1
+    }
+   ],
+   "status": "optimal",
+   "why": "the same spec written as a minimum",
+   "x": [
+    60.0,
+    40.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0
+     ],
+     [
+      1.0,
+      1.0
+     ],
+     [
+      1.0,
+      0.0
+     ]
+    ],
+    "b": [
+     10.0,
+     10.0,
+     20.0
+    ],
+    "c": [
+     1.0,
+     -1.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "redundant equality rows",
+   "objective": -10.0,
+   "shadow": [
+    {
+     "left": null,
+     "right": null
+    },
+    {
+     "left": null,
+     "right": null
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "an artificial stays basic at zero after phase one",
+   "x": [
+    0.0,
+    10.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0,
+      1.0
+     ],
+     [
+      2.0,
+      2.0,
+      2.0
+     ],
+     [
+      0.0,
+      1.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     5.0,
+     10.0,
+     0.0
+    ],
+    "c": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "hi": [
+     3.0,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "=",
+     "="
+    ]
+   },
+   "name": "scaled duplicate equality rows",
+   "objective": -3.0,
+   "shadow": [
+    {
+     "left": null,
+     "right": null
+    },
+    {
+     "left": null,
+     "right": null
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "rank-deficient equality block",
+   "x": [
+    3.0,
+    1.0,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0
+     ],
+     [
+      1.0,
+      1.0
+     ]
+    ],
+    "b": [
+     2.0,
+     2.0,
+     4.0
+    ],
+    "c": [
+     -1.0,
+     -1.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "degenerate vertex, three rows through one point",
+   "objective": -4.0,
+   "shadow": [
+    {
+     "left": -1.0,
+     "right": 0.0
+    },
+    {
+     "left": -1.0,
+     "right": 0.0
+    },
+    {
+     "left": -1.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "the optimum sits on three constraints in two dimensions, so the duals are an interval",
+   "x": [
+    2.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      2.0
+     ],
+     [
+      3.0,
+      2.0
+     ]
+    ],
+    "b": [
+     4.0,
+     12.0,
+     18.0
+    ],
+    "c": [
+     3.0,
+     5.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "maximise, textbook",
+   "objective": 36.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 1.5,
+     "right": 1.5
+    },
+    {
+     "left": 1.0,
+     "right": 1.0
+    }
+   ],
+   "status": "optimal",
+   "why": "Hillier and Lieberman Wyndor shape: x=2, y=6, z=36, duals 0, 1.5, 1",
+   "x": [
+    2.0,
+    6.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      2.0
+     ],
+     [
+      1.0,
+      0.0
+     ]
+    ],
+    "b": [
+     2.0,
+     3.0
+    ],
+    "c": [
+     1.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     4.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "maximise with a >= row",
+   "objective": 7.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 1.0,
+     "right": 1.0
+    }
+   ],
+   "status": "optimal",
+   "why": "a binding upper bound and a slack >= row",
+   "x": [
+    3.0,
+    4.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0
+     ],
+     [
+      1.0,
+      1.0
+     ]
+    ],
+    "b": [
+     5.0,
+     3.0
+    ],
+    "c": [
+     1.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "infeasible",
+   "status": "infeasible",
+   "why": "the rows contradict"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0
+     ]
+    ],
+    "b": [
+     10.0
+    ],
+    "c": [
+     1.0
+    ],
+    "hi": [
+     4.0
+    ],
+    "lo": [
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "infeasible through bounds",
+   "status": "infeasible",
+   "why": "a row that no value inside the bounds can meet"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0
+     ]
+    ],
+    "b": [
+     10.05
+    ],
+    "c": [
+     1.0,
+     1.0
+    ],
+    "hi": [
+     5.0,
+     5.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "infeasible by a twentieth",
+   "status": "infeasible",
+   "why": "phase one ends with 0.05 left in its artificials; a loose feasibility test calls this solvable"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0
+     ]
+    ],
+    "b": [
+     10.000001
+    ],
+    "c": [
+     1.0,
+     1.0
+    ],
+    "hi": [
+     5.0,
+     5.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "infeasible by a millionth",
+   "status": "infeasible",
+   "why": "the smallest miss the engine is asked to see, ten times its 1e-7 feasibility threshold"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     1.0
+    ],
+    "c": [
+     -1.0,
+     0.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "unbounded",
+   "status": "unbounded",
+   "why": "x grows without limit"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0
+     ]
+    ],
+    "b": [
+     10.0
+    ],
+    "c": [
+     -2.0,
+     -1.0
+    ],
+    "hi": [
+     4.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "bounded only by an upper bound",
+   "objective": -14.0,
+   "shadow": [
+    {
+     "left": -1.0,
+     "right": -1.0
+    }
+   ],
+   "status": "optimal",
+   "why": "a bound, not a row, stops the objective",
+   "x": [
+    4.0,
+    6.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      -5.0,
+      -2.0,
+      -4.0
+     ],
+     [
+      -3.0,
+      -3.0,
+      3.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     5.0,
+     -3.0
+    ],
+    "c": [
+     7.0,
+     1.0,
+     -5.0,
+     -4.0
+    ],
+    "hi": [
+     null,
+     12.0,
+     7.0,
+     9.0
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "="
+    ]
+   },
+   "name": "fuzz-found: an equality row broken at the returned optimum",
+   "objective": -44.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.8,
+     "right": null
+    }
+   ],
+   "status": "optimal",
+   "why": "the engine returned x = (0, 3, 7, 9), where the equality row reads -33 against -3",
+   "x": [
+    0.0,
+    3.0,
+    7.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      3.0,
+      -5.0,
+      -5.0,
+      2.0
+     ],
+     [
+      0.0,
+      4.0,
+      -1.0,
+      -4.0,
+      0.0
+     ],
+     [
+      6.0,
+      -2.0,
+      0.0,
+      2.0,
+      -3.0
+     ],
+     [
+      5.0,
+      -3.0,
+      6.0,
+      -4.0,
+      4.0
+     ]
+    ],
+    "b": [
+     -1.0,
+     11.0,
+     14.0,
+     -10.0
+    ],
+    "c": [
+     1.0,
+     -2.0,
+     8.0,
+     6.0,
+     -5.0
+    ],
+    "hi": [
+     null,
+     3.0,
+     8.0,
+     10.0,
+     null
+    ],
+    "lo": [
+     3.0,
+     2.0,
+     0.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "fuzz-found: a <= row broken at the returned optimum",
+   "objective": 27.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": null,
+     "right": -1.0
+    },
+    {
+     "left": null,
+     "right": -2.0
+    }
+   ],
+   "status": "optimal",
+   "why": "found by the same 100k fuzz; an artificial left basic at zero after phase one goes positive in phase two",
+   "x": [
+    3.0,
+    3.0,
+    0.0,
+    10.0,
+    6.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -4.0
+     ],
+     [
+      -1.0,
+      0.0
+     ]
+    ],
+    "b": [
+     -8.0,
+     14.0
+    ],
+    "c": [
+     -3.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     8.0
+    ],
+    "lo": [
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "false unbounded: a bounded problem with a degenerate >= row",
+   "objective": 6.0,
+   "shadow": [
+    {
+     "left": 0.75,
+     "right": null
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "x + y <= 2 with y >= 2 pins x = 0; the engine reported unbounded",
+   "x": [
+    0.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0
+     ]
+    ],
+    "b": [
+     3.0
+    ],
+    "c": [
+     1.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "lower bounds lift the origin",
+   "objective": 4.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "the bound already satisfies the row, which prices at zero",
+   "x": [
+    2.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -4.0,
+      -5.0
+     ],
+     [
+      -5.0,
+      -2.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     19.0,
+     11.0
+    ],
+    "c": [
+     4.0,
+     9.0,
+     -3.0
+    ],
+    "hi": [
+     7.0,
+     7.0,
+     12.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     3.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 1",
+   "objective": 82.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    7.0,
+    7.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      -5.0
+     ],
+     [
+      2.0,
+      6.0
+     ],
+     [
+      -2.0,
+      5.0
+     ],
+     [
+      -3.0,
+      3.0
+     ],
+     [
+      4.0,
+      6.0
+     ]
+    ],
+    "b": [
+     -1.0,
+     -1.0,
+     16.0,
+     -10.0,
+     0.0
+    ],
+    "c": [
+     -4.0,
+     1.0
+    ],
+    "hi": [
+     10.0,
+     6.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "=",
+     "<=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 2",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -3.0,
+      6.0
+     ],
+     [
+      -2.0,
+      -1.0,
+      3.0
+     ],
+     [
+      -2.0,
+      -1.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     3.0,
+     -5.0,
+     13.0
+    ],
+    "c": [
+     -6.0,
+     4.0,
+     6.0
+    ],
+    "hi": [
+     null,
+     1.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 3",
+   "objective": -8.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 3.0,
+     "right": 3.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    1.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      -4.0
+     ],
+     [
+      4.0,
+      3.0
+     ]
+    ],
+    "b": [
+     14.0,
+     19.0
+    ],
+    "c": [
+     -4.0,
+     -3.0
+    ],
+    "hi": [
+     null,
+     5.0
+    ],
+    "lo": [
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 4",
+   "objective": -19.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -1.0,
+     "right": -1.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -5.0,
+      -4.0,
+      4.0,
+      -1.0
+     ],
+     [
+      -5.0,
+      0.0,
+      -1.0,
+      0.0,
+      6.0
+     ],
+     [
+      -2.0,
+      5.0,
+      -4.0,
+      0.0,
+      3.0
+     ],
+     [
+      -1.0,
+      5.0,
+      -1.0,
+      -4.0,
+      0.0
+     ]
+    ],
+    "b": [
+     -7.0,
+     0.0,
+     16.0,
+     -1.0
+    ],
+    "c": [
+     9.0,
+     -2.0,
+     2.0,
+     -5.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     4.0,
+     null,
+     6.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 5",
+   "objective": -26.27,
+   "shadow": [
+    {
+     "left": -0.24,
+     "right": -0.24
+    },
+    {
+     "left": -2.05,
+     "right": -2.05
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 1.01,
+     "right": 1.01
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.92,
+    4.0,
+    1.4,
+    4.67,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      4.0
+     ],
+     [
+      6.0,
+      2.0
+     ]
+    ],
+    "b": [
+     2.0,
+     -8.0
+    ],
+    "c": [
+     7.0,
+     1.0
+    ],
+    "hi": [
+     6.0,
+     10.0
+    ],
+    "lo": [
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 6",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      4.0,
+      6.0,
+      3.0,
+      5.0
+     ],
+     [
+      3.0,
+      3.0,
+      1.0,
+      -5.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     9.0,
+     -5.0
+    ],
+    "c": [
+     2.0,
+     8.0,
+     1.0,
+     7.0,
+     -2.0
+    ],
+    "hi": [
+     6.0,
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     2.0,
+     0.0,
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 7",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      1.0,
+      -2.0,
+      1.0
+     ],
+     [
+      1.0,
+      6.0,
+      5.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     4.0,
+     2.0
+    ],
+    "c": [
+     -3.0,
+     -3.0,
+     -6.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 8",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      -1.0,
+      -2.0,
+      -1.0,
+      2.0
+     ],
+     [
+      5.0,
+      0.0,
+      -3.0,
+      1.0,
+      0.0
+     ],
+     [
+      2.0,
+      6.0,
+      -1.0,
+      -4.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     -8.0,
+     0.0,
+     -1.0
+    ],
+    "c": [
+     8.0,
+     9.0,
+     1.0,
+     7.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     null,
+     13.0,
+     13.0,
+     11.0
+    ],
+    "lo": [
+     3.0,
+     2.0,
+     3.0,
+     3.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 9",
+   "objective": 81.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -0.8333333333333334,
+     "right": -0.8333333333333334
+    },
+    {
+     "left": 1.5,
+     "right": 1.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    2.3333333333333335,
+    6.0,
+    3.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      3.0,
+      -2.0,
+      6.0
+     ]
+    ],
+    "b": [
+     20.0
+    ],
+    "c": [
+     -3.0,
+     1.0,
+     0.0,
+     8.0
+    ],
+    "hi": [
+     9.0,
+     5.0,
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 10",
+   "objective": -3.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    9.0,
+    0.0,
+    26.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      4.0,
+      6.0,
+      -5.0
+     ],
+     [
+      -2.0,
+      5.0,
+      3.0,
+      5.0
+     ]
+    ],
+    "b": [
+     12.0,
+     11.0
+    ],
+    "c": [
+     1.0,
+     5.0,
+     8.0,
+     1.0
+    ],
+    "hi": [
+     6.0,
+     null,
+     null,
+     9.0
+    ],
+    "lo": [
+     2.0,
+     3.0,
+     2.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 11",
+   "objective": 36.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -0.5,
+     "right": -0.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    5.0,
+    3.0,
+    2.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      0.0,
+      -1.0,
+      6.0
+     ],
+     [
+      0.0,
+      5.0,
+      0.0,
+      -1.0
+     ],
+     [
+      6.0,
+      -1.0,
+      2.0,
+      3.0
+     ]
+    ],
+    "b": [
+     15.0,
+     8.0,
+     15.0
+    ],
+    "c": [
+     5.0,
+     -6.0,
+     4.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     9.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 12",
+   "objective": -17.366666666666667,
+   "shadow": [
+    {
+     "left": -2.3333333333333335,
+     "right": -2.3333333333333335
+    },
+    {
+     "left": -1.0333333333333334,
+     "right": -1.0333333333333334
+    },
+    {
+     "left": 0.8333333333333334,
+     "right": 0.8333333333333334
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.36666666666666664,
+    2.2,
+    3.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      6.0,
+      -1.0,
+      -1.0
+     ],
+     [
+      -2.0,
+      -1.0,
+      2.0,
+      1.0
+     ],
+     [
+      3.0,
+      -1.0,
+      0.0,
+      6.0
+     ]
+    ],
+    "b": [
+     -10.0,
+     7.0,
+     12.0
+    ],
+    "c": [
+     5.0,
+     5.0,
+     -4.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     4.0,
+     null,
+     null
+    ],
+    "lo": [
+     3.0,
+     3.0,
+     2.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 13",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      1.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     10.0
+    ],
+    "c": [
+     -1.0,
+     -6.0,
+     -5.0
+    ],
+    "hi": [
+     null,
+     null,
+     12.0
+    ],
+    "lo": [
+     3.0,
+     3.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 14",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      6.0,
+      1.0,
+      -5.0
+     ],
+     [
+      2.0,
+      2.0,
+      -3.0,
+      -2.0
+     ],
+     [
+      1.0,
+      0.0,
+      -5.0,
+      4.0
+     ]
+    ],
+    "b": [
+     5.0,
+     1.0,
+     10.0
+    ],
+    "c": [
+     9.0,
+     -3.0,
+     -3.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     3.0,
+     1.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 15",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      3.0,
+      -4.0,
+      -3.0,
+      -4.0
+     ],
+     [
+      -3.0,
+      4.0,
+      -4.0,
+      6.0,
+      4.0
+     ]
+    ],
+    "b": [
+     9.0,
+     9.0
+    ],
+    "c": [
+     -6.0,
+     4.0,
+     -1.0,
+     -5.0,
+     -5.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     1.0,
+     null
+    ],
+    "lo": [
+     2.0,
+     2.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 16",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      -2.0,
+      1.0,
+      0.0,
+      6.0
+     ]
+    ],
+    "b": [
+     -4.0
+    ],
+    "c": [
+     -2.0,
+     -4.0,
+     1.0,
+     -6.0,
+     8.0
+    ],
+    "hi": [
+     7.0,
+     null,
+     null,
+     null,
+     7.0
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 17",
+   "objective": -8.0,
+   "shadow": [
+    {
+     "left": 2.0,
+     "right": 2.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    2.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      -5.0,
+      3.0,
+      -2.0,
+      2.0
+     ]
+    ],
+    "b": [
+     2.0
+    ],
+    "c": [
+     2.0,
+     -3.0,
+     -1.0,
+     -1.0,
+     7.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     8.0,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0,
+     0.0,
+     2.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 18",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      -4.0,
+      -3.0,
+      -4.0
+     ],
+     [
+      2.0,
+      3.0,
+      -1.0,
+      4.0
+     ]
+    ],
+    "b": [
+     3.0,
+     12.0
+    ],
+    "c": [
+     -3.0,
+     4.0,
+     8.0,
+     2.0
+    ],
+    "hi": [
+     6.0,
+     3.0,
+     4.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     2.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 19",
+   "objective": 11.5,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -1.5,
+     "right": -1.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.5,
+    1.0,
+    2.0,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      3.0,
+      -2.0
+     ],
+     [
+      -5.0,
+      3.0,
+      6.0
+     ]
+    ],
+    "b": [
+     5.0,
+     5.0
+    ],
+    "c": [
+     3.0,
+     1.0,
+     6.0
+    ],
+    "hi": [
+     null,
+     10.0,
+     5.0
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 20",
+   "objective": 1.6666666666666667,
+   "shadow": [
+    {
+     "left": -0.5,
+     "right": 0.0
+    },
+    {
+     "left": 0.3333333333333333,
+     "right": 0.8333333333333334
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    1.6666666666666667,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      5.0
+     ]
+    ],
+    "b": [
+     7.0
+    ],
+    "c": [
+     6.0,
+     4.0
+    ],
+    "hi": [
+     null,
+     6.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 21",
+   "objective": 5.6,
+   "shadow": [
+    {
+     "left": 0.8,
+     "right": 0.8
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    1.4
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      1.0,
+      -3.0
+     ],
+     [
+      -1.0,
+      -2.0,
+      6.0
+     ],
+     [
+      -4.0,
+      0.0,
+      -2.0
+     ],
+     [
+      2.0,
+      5.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     15.0,
+     -1.0,
+     6.0,
+     14.0
+    ],
+    "c": [
+     -3.0,
+     6.0,
+     -2.0
+    ],
+    "hi": [
+     null,
+     null,
+     5.0
+    ],
+    "lo": [
+     2.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 22",
+   "objective": 2.958041958041958,
+   "shadow": [
+    {
+     "left": -0.9790209790209791,
+     "right": -0.9790209790209791
+    },
+    {
+     "left": -0.4125874125874126,
+     "right": -0.4125874125874126
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 1.2307692307692308,
+     "right": 1.2307692307692308
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.6363636363636362,
+    2.13986013986014,
+    0.986013986013986
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -2.0
+    ],
+    "c": [
+     1.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     3.0
+    ],
+    "lo": [
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 23",
+   "objective": 1.0,
+   "shadow": [
+    {
+     "left": -0.5,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      6.0,
+      1.0
+     ],
+     [
+      2.0,
+      -4.0,
+      -3.0
+     ],
+     [
+      2.0,
+      -5.0,
+      -4.0
+     ],
+     [
+      5.0,
+      -4.0,
+      1.0
+     ]
+    ],
+    "b": [
+     8.0,
+     -11.0,
+     14.0,
+     9.0
+    ],
+    "c": [
+     7.0,
+     0.0,
+     7.0
+    ],
+    "hi": [
+     6.0,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 24",
+   "objective": 17.0,
+   "shadow": [
+    {
+     "left": -2.0,
+     "right": -2.0
+    },
+    {
+     "left": -3.0,
+     "right": -3.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    0.9285714285714286,
+    2.4285714285714284
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -2.0,
+      -5.0,
+      3.0,
+      6.0
+     ],
+     [
+      -4.0,
+      -1.0,
+      1.0,
+      1.0,
+      0.0
+     ]
+    ],
+    "b": [
+     12.0,
+     13.0
+    ],
+    "c": [
+     7.0,
+     -4.0,
+     0.0,
+     -6.0,
+     8.0
+    ],
+    "hi": [
+     null,
+     null,
+     2.0,
+     9.0,
+     12.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0,
+     2.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 25",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      -3.0,
+      1.0,
+      2.0
+     ]
+    ],
+    "b": [
+     6.0
+    ],
+    "c": [
+     4.0,
+     7.0,
+     -2.0,
+     -6.0
+    ],
+    "hi": [
+     8.0,
+     4.0,
+     null,
+     6.0
+    ],
+    "lo": [
+     3.0,
+     0.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 26",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -1.0
+     ],
+     [
+      2.0,
+      5.0
+     ],
+     [
+      2.0,
+      3.0
+     ]
+    ],
+    "b": [
+     -2.0,
+     0.0,
+     17.0
+    ],
+    "c": [
+     0.0,
+     -5.0
+    ],
+    "hi": [
+     null,
+     3.0
+    ],
+    "lo": [
+     1.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 27",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      -3.0,
+      -1.0,
+      0.0
+     ],
+     [
+      2.0,
+      -5.0,
+      6.0,
+      -4.0
+     ],
+     [
+      0.0,
+      3.0,
+      -4.0,
+      5.0
+     ],
+     [
+      2.0,
+      -1.0,
+      -1.0,
+      0.0
+     ]
+    ],
+    "b": [
+     10.0,
+     16.0,
+     -6.0,
+     -4.0
+    ],
+    "c": [
+     6.0,
+     -4.0,
+     6.0,
+     4.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     1.0
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 28",
+   "objective": 38.6,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 4.6,
+     "right": 4.6
+    },
+    {
+     "left": 5.8,
+     "right": 5.8
+    },
+    {
+     "left": -1.6,
+     "right": -1.6
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.7,
+    3.8,
+    5.6,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      3.0
+     ]
+    ],
+    "b": [
+     -6.0
+    ],
+    "c": [
+     9.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 29",
+   "objective": 19.333333333333332,
+   "shadow": [
+    {
+     "left": 0.6666666666666666,
+     "right": 0.6666666666666666
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    0.6666666666666666
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      4.0,
+      5.0,
+      1.0
+     ],
+     [
+      1.0,
+      -5.0,
+      2.0,
+      1.0
+     ],
+     [
+      4.0,
+      -2.0,
+      0.0,
+      3.0
+     ],
+     [
+      -1.0,
+      -1.0,
+      -4.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     1.0,
+     19.0,
+     20.0,
+     15.0
+    ],
+    "c": [
+     7.0,
+     1.0,
+     2.0,
+     7.0
+    ],
+    "hi": [
+     2.0,
+     null,
+     5.0,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<=",
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 30",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      -3.0
+     ],
+     [
+      1.0,
+      -3.0
+     ],
+     [
+      -3.0,
+      -1.0
+     ],
+     [
+      -5.0,
+      2.0
+     ]
+    ],
+    "b": [
+     -2.0,
+     -4.0,
+     11.0,
+     -11.0
+    ],
+    "c": [
+     -5.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "=",
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 31",
+   "objective": -30.076923076923077,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 3.076923076923077,
+     "right": 3.076923076923077
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 1.6153846153846154,
+     "right": 1.6153846153846154
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.1538461538461537,
+    2.3846153846153846
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      2.0,
+      -4.0,
+      -5.0,
+      -2.0
+     ],
+     [
+      1.0,
+      4.0,
+      -4.0,
+      4.0,
+      0.0
+     ],
+     [
+      -1.0,
+      0.0,
+      -4.0,
+      5.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     9.0,
+     -2.0,
+     8.0
+    ],
+    "c": [
+     2.0,
+     4.0,
+     1.0,
+     -6.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     5.0,
+     null,
+     1.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     3.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 32",
+   "objective": 21.75,
+   "shadow": [
+    {
+     "left": 0.75,
+     "right": 0.75
+    },
+    {
+     "left": -1.0,
+     "right": -1.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    5.0,
+    2.0,
+    3.75,
+    0.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      3.0
+     ],
+     [
+      3.0,
+      4.0
+     ],
+     [
+      3.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     -3.0,
+     6.0,
+     0.0
+    ],
+    "c": [
+     1.0,
+     3.0
+    ],
+    "hi": [
+     5.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 33",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      4.0,
+      0.0
+     ]
+    ],
+    "b": [
+     14.0
+    ],
+    "c": [
+     8.0,
+     7.0,
+     8.0
+    ],
+    "hi": [
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 34",
+   "objective": 32.5,
+   "shadow": [
+    {
+     "left": 1.75,
+     "right": 1.75
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    3.5,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -3.0
+    ],
+    "c": [
+     2.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 35",
+   "objective": 6.0,
+   "shadow": [
+    {
+     "left": -2.0,
+     "right": -2.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      6.0,
+      0.0,
+      2.0
+     ]
+    ],
+    "b": [
+     11.0
+    ],
+    "c": [
+     -1.0,
+     3.0,
+     7.0,
+     9.0
+    ],
+    "hi": [
+     5.0,
+     12.0,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 36",
+   "objective": 19.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    5.0,
+    2.0,
+    0.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      4.0,
+      -5.0,
+      -3.0,
+      -5.0
+     ],
+     [
+      -3.0,
+      2.0,
+      1.0,
+      -2.0,
+      -5.0
+     ],
+     [
+      4.0,
+      5.0,
+      -4.0,
+      2.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -6.0,
+     -1.0,
+     -11.0
+    ],
+    "c": [
+     9.0,
+     -4.0,
+     0.0,
+     8.0,
+     -2.0
+    ],
+    "hi": [
+     null,
+     null,
+     11.0,
+     null,
+     10.0
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     3.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">=",
+     ">="
+    ]
+   },
+   "name": "random 37",
+   "objective": -119.0,
+   "shadow": [
+    {
+     "left": -1.0,
+     "right": -1.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    24.75,
+    11.0,
+    0.0,
+    10.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      2.0,
+      2.0
+     ],
+     [
+      4.0,
+      -5.0,
+      5.0
+     ]
+    ],
+    "b": [
+     19.0,
+     7.0
+    ],
+    "c": [
+     -2.0,
+     -6.0,
+     6.0
+    ],
+    "hi": [
+     null,
+     4.0,
+     11.0
+    ],
+    "lo": [
+     3.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 38",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      -3.0,
+      0.0
+     ],
+     [
+      -3.0,
+      4.0
+     ]
+    ],
+    "b": [
+     12.0,
+     -8.0,
+     16.0
+    ],
+    "c": [
+     5.0,
+     4.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 39",
+   "objective": 8.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      3.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     8.0
+    ],
+    "c": [
+     -1.0,
+     1.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     3.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 40",
+   "objective": 2.0,
+   "shadow": [
+    {
+     "left": -0.2,
+     "right": -0.2
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    4.0,
+    0.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      0.0,
+      0.0
+     ],
+     [
+      4.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "b": [
+     -3.0,
+     18.0
+    ],
+    "c": [
+     2.0,
+     7.0,
+     -2.0
+    ],
+    "hi": [
+     7.0,
+     null,
+     12.0
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 41",
+   "objective": -1.0,
+   "shadow": [
+    {
+     "left": -0.6666666666666666,
+     "right": -0.6666666666666666
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    3.0,
+    12.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      -3.0,
+      6.0,
+      6.0,
+      0.0
+     ],
+     [
+      3.0,
+      -1.0,
+      0.0,
+      -1.0,
+      1.0
+     ],
+     [
+      4.0,
+      1.0,
+      6.0,
+      3.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -5.0,
+     4.0,
+     18.0
+    ],
+    "c": [
+     -6.0,
+     -2.0,
+     -4.0,
+     -1.0,
+     -5.0
+    ],
+    "hi": [
+     10.0,
+     3.0,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     3.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 42",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      -2.0
+     ],
+     [
+      4.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     -1.0,
+     19.0
+    ],
+    "c": [
+     3.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 43",
+   "objective": 6.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      -4.0
+     ],
+     [
+      -1.0,
+      2.0
+     ]
+    ],
+    "b": [
+     13.0,
+     -9.0
+    ],
+    "c": [
+     -2.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     6.0
+    ],
+    "lo": [
+     0.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 44",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      0.0,
+      6.0,
+      -2.0
+     ],
+     [
+      0.0,
+      4.0,
+      4.0,
+      6.0
+     ],
+     [
+      -3.0,
+      -3.0,
+      -4.0,
+      6.0
+     ],
+     [
+      -3.0,
+      1.0,
+      -1.0,
+      -5.0
+     ],
+     [
+      -1.0,
+      -5.0,
+      6.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -8.0,
+     20.0,
+     -7.0,
+     -4.0,
+     -6.0
+    ],
+    "c": [
+     -1.0,
+     3.0,
+     -5.0,
+     0.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     9.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     ">=",
+     "=",
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 45",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      2.0,
+      -5.0
+     ],
+     [
+      2.0,
+      -1.0,
+      -4.0
+     ],
+     [
+      2.0,
+      2.0,
+      2.0
+     ],
+     [
+      3.0,
+      1.0,
+      -1.0
+     ],
+     [
+      -1.0,
+      -2.0,
+      4.0
+     ]
+    ],
+    "b": [
+     5.0,
+     17.0,
+     -7.0,
+     8.0,
+     -2.0
+    ],
+    "c": [
+     4.0,
+     -6.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     ">=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 46",
+   "objective": -76.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -10.0,
+     "right": -10.0
+    },
+    {
+     "left": -2.0,
+     "right": -2.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    15.0,
+    7.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      6.0,
+      -2.0
+     ],
+     [
+      5.0,
+      0.0,
+      3.0
+     ],
+     [
+      -4.0,
+      -5.0,
+      2.0
+     ],
+     [
+      6.0,
+      0.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     -2.0,
+     7.0,
+     15.0,
+     18.0
+    ],
+    "c": [
+     -3.0,
+     9.0,
+     5.0
+    ],
+    "hi": [
+     null,
+     10.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     ">=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 47",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      -4.0,
+      0.0,
+      -1.0,
+      -5.0
+     ],
+     [
+      1.0,
+      2.0,
+      -2.0,
+      3.0,
+      1.0
+     ],
+     [
+      0.0,
+      -5.0,
+      3.0,
+      -5.0,
+      5.0
+     ],
+     [
+      -4.0,
+      3.0,
+      1.0,
+      5.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     0.0,
+     8.0,
+     0.0,
+     11.0
+    ],
+    "c": [
+     -2.0,
+     2.0,
+     9.0,
+     9.0,
+     6.0
+    ],
+    "hi": [
+     null,
+     null,
+     5.0,
+     null,
+     null
+    ],
+    "lo": [
+     3.0,
+     0.0,
+     0.0,
+     1.0,
+     3.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "=",
+     "=",
+     "="
+    ]
+   },
+   "name": "random 48",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     16.0
+    ],
+    "c": [
+     -6.0,
+     -2.0
+    ],
+    "hi": [
+     11.0,
+     6.0
+    ],
+    "lo": [
+     2.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 49",
+   "objective": -12.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      -1.0,
+      -3.0
+     ],
+     [
+      1.0,
+      -2.0,
+      -3.0
+     ],
+     [
+      0.0,
+      3.0,
+      -2.0
+     ],
+     [
+      6.0,
+      -1.0,
+      -4.0
+     ],
+     [
+      -5.0,
+      6.0,
+      1.0
+     ]
+    ],
+    "b": [
+     6.0,
+     12.0,
+     16.0,
+     11.0,
+     7.0
+    ],
+    "c": [
+     3.0,
+     -1.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     ">=",
+     ">=",
+     "="
+    ]
+   },
+   "name": "random 50",
+   "objective": 15.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.8666666666666667,
+     "right": 0.8666666666666667
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -0.6,
+     "right": -0.6
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    6.0,
+    6.0,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      2.0,
+      6.0,
+      3.0
+     ],
+     [
+      1.0,
+      5.0,
+      3.0,
+      -2.0
+     ],
+     [
+      0.0,
+      -4.0,
+      -2.0,
+      -1.0
+     ],
+     [
+      6.0,
+      -1.0,
+      1.0,
+      -3.0
+     ],
+     [
+      4.0,
+      5.0,
+      -3.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     7.0,
+     -12.0,
+     19.0,
+     19.0,
+     13.0
+    ],
+    "c": [
+     -6.0,
+     1.0,
+     4.0,
+     -1.0
+    ],
+    "hi": [
+     null,
+     null,
+     3.0,
+     11.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     ">=",
+     "<=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 51",
+   "objective": -58.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -1.0,
+     "right": -1.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      5.0,
+      -4.0
+     ],
+     [
+      5.0,
+      5.0,
+      -1.0
+     ],
+     [
+      2.0,
+      2.0,
+      2.0
+     ],
+     [
+      -3.0,
+      -3.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     16.0,
+     20.0,
+     14.0,
+     17.0
+    ],
+    "c": [
+     -3.0,
+     0.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "<=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 52",
+   "objective": 12.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 1.5,
+     "right": 1.5
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    1.0,
+    5.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      2.0
+     ]
+    ],
+    "b": [
+     13.0
+    ],
+    "c": [
+     -6.0,
+     -5.0
+    ],
+    "hi": [
+     null,
+     3.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 53",
+   "objective": -23.4,
+   "shadow": [
+    {
+     "left": -1.2,
+     "right": -1.2
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.4,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      5.0
+     ],
+     [
+      -5.0,
+      0.0
+     ],
+     [
+      -3.0,
+      4.0
+     ]
+    ],
+    "b": [
+     -6.0,
+     19.0,
+     -7.0
+    ],
+    "c": [
+     0.0,
+     4.0
+    ],
+    "hi": [
+     4.0,
+     5.0
+    ],
+    "lo": [
+     2.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">=",
+     ">="
+    ]
+   },
+   "name": "random 54",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      4.0,
+      -4.0,
+      3.0
+     ],
+     [
+      5.0,
+      -4.0,
+      -1.0,
+      1.0
+     ],
+     [
+      -1.0,
+      5.0,
+      6.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     12.0,
+     17.0,
+     2.0
+    ],
+    "c": [
+     -5.0,
+     -1.0,
+     2.0,
+     4.0
+    ],
+    "hi": [
+     3.0,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 55",
+   "objective": 82.25,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -2.25,
+     "right": -2.25
+    },
+    {
+     "left": -6.25,
+     "right": -6.25
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.75,
+    1.0,
+    3.0,
+    20.25
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      -5.0,
+      3.0,
+      1.0
+     ],
+     [
+      -4.0,
+      -1.0,
+      -1.0,
+      6.0
+     ]
+    ],
+    "b": [
+     15.0,
+     -10.0
+    ],
+    "c": [
+     0.0,
+     7.0,
+     7.0,
+     -1.0
+    ],
+    "hi": [
+     5.0,
+     null,
+     7.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 56",
+   "objective": 55.1764705882353,
+   "shadow": [
+    {
+     "left": -1.6470588235294117,
+     "right": -1.6470588235294117
+    },
+    {
+     "left": 1.2352941176470589,
+     "right": 1.2352941176470589
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.5294117647058824,
+    0.8823529411764706,
+    7.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -5.0,
+      4.0,
+      6.0,
+      -5.0
+     ],
+     [
+      4.0,
+      1.0,
+      1.0,
+      0.0,
+      5.0
+     ],
+     [
+      -3.0,
+      -2.0,
+      5.0,
+      2.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -6.0,
+     -2.0,
+     -1.0
+    ],
+    "c": [
+     -2.0,
+     -6.0,
+     8.0,
+     -6.0,
+     -1.0
+    ],
+    "hi": [
+     null,
+     null,
+     3.0,
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     2.0,
+     1.0,
+     2.0,
+     3.0
+    ],
+    "maximize": true,
+    "ops": [
+     ">=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 57",
+   "objective": -23.666666666666668,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.6666666666666666,
+     "right": 0.6666666666666666
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    10.333333333333334,
+    2.0,
+    3.0,
+    2.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      6.0,
+      4.0
+     ]
+    ],
+    "b": [
+     12.0
+    ],
+    "c": [
+     -3.0,
+     -2.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null,
+     11.0
+    ],
+    "lo": [
+     2.0,
+     1.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 58",
+   "objective": -1.0,
+   "shadow": [
+    {
+     "left": 0.5,
+     "right": 0.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    1.0,
+    3.5
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      0.0,
+      3.0
+     ],
+     [
+      4.0,
+      -3.0,
+      -4.0
+     ],
+     [
+      2.0,
+      -3.0,
+      6.0
+     ]
+    ],
+    "b": [
+     1.0,
+     1.0,
+     11.0
+    ],
+    "c": [
+     1.0,
+     9.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     2.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 59",
+   "objective": 44.0,
+   "shadow": [
+    {
+     "left": -28.0,
+     "right": -28.0
+    },
+    {
+     "left": -10.5,
+     "right": -10.5
+    },
+    {
+     "left": 7.5,
+     "right": 7.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    5.0,
+    3.6666666666666665,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      3.0,
+      -4.0,
+      0.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     5.0
+    ],
+    "c": [
+     -2.0,
+     9.0,
+     9.0,
+     2.0,
+     5.0
+    ],
+    "hi": [
+     8.0,
+     null,
+     null,
+     null,
+     7.0
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     0.0,
+     2.0,
+     3.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 60",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     13.0
+    ],
+    "c": [
+     3.0,
+     4.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 61",
+   "objective": 26.25,
+   "shadow": [
+    {
+     "left": 0.75,
+     "right": 0.75
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    4.75,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      -4.0
+     ],
+     [
+      4.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     9.0,
+     11.0
+    ],
+    "c": [
+     -1.0,
+     -3.0
+    ],
+    "hi": [
+     10.0,
+     8.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 62",
+   "objective": -2.75,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -0.25,
+     "right": -0.25
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.75,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      4.0
+     ],
+     [
+      2.0,
+      1.0
+     ],
+     [
+      6.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     16.0,
+     12.0,
+     17.0
+    ],
+    "c": [
+     2.0,
+     -5.0
+    ],
+    "hi": [
+     null,
+     8.0
+    ],
+    "lo": [
+     2.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 63",
+   "objective": -12.0,
+   "shadow": [
+    {
+     "left": -1.5,
+     "right": -1.5
+    },
+    {
+     "left": 1.0,
+     "right": 1.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    4.0,
+    4.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      0.0,
+      3.0,
+      3.0
+     ],
+     [
+      -1.0,
+      -3.0,
+      -5.0,
+      4.0
+     ]
+    ],
+    "b": [
+     7.0,
+     17.0
+    ],
+    "c": [
+     -1.0,
+     -6.0,
+     8.0,
+     -4.0
+    ],
+    "hi": [
+     null,
+     null,
+     10.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     0.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 64",
+   "objective": 44.333333333333336,
+   "shadow": [
+    {
+     "left": 0.3333333333333333,
+     "right": 0.3333333333333333
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    9.666666666666666,
+    3.0,
+    10.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -3.0,
+      0.0,
+      1.0
+     ],
+     [
+      0.0,
+      0.0,
+      -1.0,
+      -5.0
+     ],
+     [
+      2.0,
+      2.0,
+      -5.0,
+      2.0
+     ],
+     [
+      -5.0,
+      4.0,
+      4.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     5.0,
+     19.0,
+     20.0,
+     12.0
+    ],
+    "c": [
+     0.0,
+     2.0,
+     -3.0,
+     4.0
+    ],
+    "hi": [
+     3.0,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     3.0,
+     3.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 65",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      -3.0
+     ],
+     [
+      1.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     -12.0,
+     -3.0
+    ],
+    "c": [
+     6.0,
+     4.0
+    ],
+    "hi": [
+     5.0,
+     10.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 66",
+   "objective": 14.869565217391305,
+   "shadow": [
+    {
+     "left": -1.2173913043478262,
+     "right": -1.2173913043478262
+    },
+    {
+     "left": -0.08695652173913043,
+     "right": -0.08695652173913043
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.6956521739130435,
+    1.173913043478261
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      -5.0,
+      -2.0,
+      5.0,
+      2.0
+     ],
+     [
+      5.0,
+      -1.0,
+      3.0,
+      -3.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     4.0,
+     1.0
+    ],
+    "c": [
+     6.0,
+     -2.0,
+     -2.0,
+     4.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     9.0,
+     4.0
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 67",
+   "objective": -28.444444444444443,
+   "shadow": [
+    {
+     "left": 0.6666666666666666,
+     "right": 0.6666666666666666
+    },
+    {
+     "left": -0.2222222222222222,
+     "right": -0.2222222222222222
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    1.0,
+    8.11111111111111,
+    3.4444444444444446,
+    4.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      -5.0,
+      1.0
+     ],
+     [
+      0.0,
+      -4.0,
+      4.0
+     ],
+     [
+      1.0,
+      -5.0,
+      0.0
+     ]
+    ],
+    "b": [
+     13.0,
+     13.0,
+     8.0
+    ],
+    "c": [
+     0.0,
+     5.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 68",
+   "objective": 15.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    23.0,
+    3.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      -4.0,
+      -2.0,
+      5.0
+     ],
+     [
+      -2.0,
+      4.0,
+      1.0,
+      5.0
+     ]
+    ],
+    "b": [
+     4.0,
+     1.0
+    ],
+    "c": [
+     -3.0,
+     -5.0,
+     -3.0,
+     0.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     4.0
+    ],
+    "lo": [
+     1.0,
+     1.0,
+     0.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 69",
+   "objective": -13.0,
+   "shadow": [
+    {
+     "left": 1.25,
+     "right": 1.25
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    2.0,
+    0.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      -4.0
+     ],
+     [
+      2.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     0.0,
+     2.0
+    ],
+    "c": [
+     5.0,
+     6.0
+    ],
+    "hi": [
+     2.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 70",
+   "objective": 5.0,
+   "shadow": [
+    {
+     "left": -3.375,
+     "right": null
+    },
+    {
+     "left": 2.5,
+     "right": 2.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      -5.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     11.0
+    ],
+    "c": [
+     1.0,
+     -1.0,
+     7.0
+    ],
+    "hi": [
+     null,
+     null,
+     7.0
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 71",
+   "objective": 10.0,
+   "shadow": [
+    {
+     "left": 0.5,
+     "right": 0.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    13.0,
+    3.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      2.0,
+      -5.0
+     ],
+     [
+      4.0,
+      -3.0,
+      6.0
+     ],
+     [
+      3.0,
+      6.0,
+      -5.0
+     ],
+     [
+      -1.0,
+      4.0,
+      1.0
+     ]
+    ],
+    "b": [
+     17.0,
+     -5.0,
+     -5.0,
+     1.0
+    ],
+    "c": [
+     8.0,
+     6.0,
+     8.0
+    ],
+    "hi": [
+     9.0,
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 72",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      0.0
+     ],
+     [
+      6.0,
+      -3.0
+     ],
+     [
+      2.0,
+      -5.0
+     ],
+     [
+      0.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     4.0,
+     13.0,
+     13.0,
+     -10.0
+    ],
+    "c": [
+     9.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 73",
+   "objective": 30.333333333333332,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -0.6666666666666666,
+     "right": -0.6666666666666666
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    1.6666666666666667
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      0.0,
+      -3.0,
+      -2.0,
+      2.0
+     ],
+     [
+      1.0,
+      4.0,
+      -2.0,
+      0.0,
+      5.0
+     ],
+     [
+      5.0,
+      -1.0,
+      3.0,
+      6.0,
+      -2.0
+     ],
+     [
+      -5.0,
+      1.0,
+      -1.0,
+      6.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -6.0,
+     -6.0,
+     9.0,
+     5.0
+    ],
+    "c": [
+     3.0,
+     4.0,
+     4.0,
+     5.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     null,
+     10.0,
+     9.0,
+     5.0
+    ],
+    "lo": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "=",
+     ">=",
+     ">="
+    ]
+   },
+   "name": "random 74",
+   "objective": 98.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 3.0,
+     "right": 3.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    5.0,
+    1.0,
+    10.0,
+    9.0,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -4.0,
+      1.0,
+      2.0,
+      -5.0
+     ],
+     [
+      5.0,
+      3.0,
+      5.0,
+      3.0,
+      2.0
+     ],
+     [
+      -2.0,
+      -3.0,
+      -1.0,
+      6.0,
+      -5.0
+     ],
+     [
+      1.0,
+      3.0,
+      -5.0,
+      -1.0,
+      6.0
+     ]
+    ],
+    "b": [
+     0.0,
+     9.0,
+     12.0,
+     15.0
+    ],
+    "c": [
+     -1.0,
+     -1.0,
+     6.0,
+     -4.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     12.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     2.0,
+     3.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 75",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      -5.0
+     ],
+     [
+      -2.0,
+      2.0
+     ],
+     [
+      -2.0,
+      3.0
+     ],
+     [
+      1.0,
+      6.0
+     ]
+    ],
+    "b": [
+     20.0,
+     1.0,
+     -11.0,
+     12.0
+    ],
+    "c": [
+     7.0,
+     4.0
+    ],
+    "hi": [
+     null,
+     8.0
+    ],
+    "lo": [
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     ">=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 76",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      5.0,
+      -2.0,
+      6.0
+     ],
+     [
+      -3.0,
+      -1.0,
+      1.0,
+      4.0
+     ],
+     [
+      5.0,
+      6.0,
+      0.0,
+      6.0
+     ]
+    ],
+    "b": [
+     19.0,
+     3.0,
+     6.0
+    ],
+    "c": [
+     -4.0,
+     -3.0,
+     -4.0,
+     7.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     5.0
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 77",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      4.0,
+      -5.0,
+      -5.0,
+      4.0
+     ]
+    ],
+    "b": [
+     6.0
+    ],
+    "c": [
+     -2.0,
+     3.0,
+     9.0,
+     5.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     5.0,
+     null,
+     4.0,
+     10.0
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     3.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 78",
+   "objective": 3.5,
+   "shadow": [
+    {
+     "left": -1.5,
+     "right": -1.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    2.0,
+    3.0,
+    4.0,
+    8.25
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      0.0,
+      2.0,
+      1.0
+     ],
+     [
+      -2.0,
+      2.0,
+      -5.0,
+      6.0
+     ],
+     [
+      -2.0,
+      -1.0,
+      -5.0,
+      -5.0
+     ],
+     [
+      -1.0,
+      -2.0,
+      0.0,
+      5.0
+     ]
+    ],
+    "b": [
+     6.0,
+     17.0,
+     -2.0,
+     -8.0
+    ],
+    "c": [
+     8.0,
+     -2.0,
+     4.0,
+     -1.0
+    ],
+    "hi": [
+     null,
+     10.0,
+     null,
+     7.0
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<=",
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 79",
+   "objective": -5.6923076923076925,
+   "shadow": [
+    {
+     "left": -1.5576923076923077,
+     "right": -1.5576923076923077
+    },
+    {
+     "left": -0.40384615384615385,
+     "right": -0.40384615384615385
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.5961538461538461,
+     "right": 0.5961538461538461
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.46153846153846156,
+    9.538461538461538,
+    3.0,
+    2.3076923076923075
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      0.0,
+      3.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     -3.0
+    ],
+    "c": [
+     6.0,
+     1.0,
+     5.0,
+     -6.0
+    ],
+    "hi": [
+     13.0,
+     null,
+     null,
+     6.0
+    ],
+    "lo": [
+     3.0,
+     1.0,
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 80",
+   "objective": -12.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    1.0,
+    1.0,
+    6.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      -4.0,
+      -1.0,
+      2.0
+     ],
+     [
+      2.0,
+      -5.0,
+      -2.0,
+      3.0
+     ],
+     [
+      6.0,
+      0.0,
+      2.0,
+      4.0
+     ],
+     [
+      5.0,
+      -3.0,
+      -2.0,
+      -4.0
+     ],
+     [
+      2.0,
+      -4.0,
+      -5.0,
+      5.0
+     ]
+    ],
+    "b": [
+     6.0,
+     0.0,
+     16.0,
+     -4.0,
+     6.0
+    ],
+    "c": [
+     -5.0,
+     -5.0,
+     5.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     7.0
+    ],
+    "lo": [
+     2.0,
+     1.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">=",
+     "=",
+     "=",
+     "="
+    ]
+   },
+   "name": "random 81",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      -3.0,
+      6.0,
+      -2.0,
+      -2.0
+     ],
+     [
+      -2.0,
+      -1.0,
+      5.0,
+      6.0,
+      2.0
+     ]
+    ],
+    "b": [
+     15.0,
+     -1.0
+    ],
+    "c": [
+     -2.0,
+     3.0,
+     2.0,
+     0.0,
+     5.0
+    ],
+    "hi": [
+     9.0,
+     2.0,
+     3.0,
+     null,
+     3.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 82",
+   "objective": -11.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      -1.0
+     ],
+     [
+      -3.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     7.0,
+     11.0
+    ],
+    "c": [
+     4.0,
+     9.0
+    ],
+    "hi": [
+     null,
+     6.0
+    ],
+    "lo": [
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 83",
+   "objective": 25.2,
+   "shadow": [
+    {
+     "left": 0.8,
+     "right": 0.8
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.8,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -2.0,
+      6.0,
+      4.0,
+      -2.0
+     ],
+     [
+      6.0,
+      -4.0,
+      3.0,
+      5.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     10.0,
+     -6.0
+    ],
+    "c": [
+     -5.0,
+     9.0,
+     7.0,
+     8.0,
+     9.0
+    ],
+    "hi": [
+     null,
+     null,
+     3.0,
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     0.0,
+     0.0,
+     3.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 84",
+   "objective": 108.5,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -2.25,
+     "right": -2.25
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    7.5,
+    0.0,
+    3.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -5.0,
+      6.0,
+      6.0,
+      0.0
+     ],
+     [
+      2.0,
+      6.0,
+      0.0,
+      -3.0,
+      1.0
+     ]
+    ],
+    "b": [
+     12.0,
+     14.0
+    ],
+    "c": [
+     7.0,
+     -4.0,
+     2.0,
+     -6.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     10.0,
+     null,
+     9.0,
+     null
+    ],
+    "lo": [
+     1.0,
+     2.0,
+     0.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 85",
+   "objective": -60.42857142857143,
+   "shadow": [
+    {
+     "left": -2.2857142857142856,
+     "right": -2.2857142857142856
+    },
+    {
+     "left": -2.5714285714285716,
+     "right": -2.5714285714285716
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    5.714285714285714,
+    0.0,
+    7.428571428571429,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      5.0,
+      2.0,
+      -4.0
+     ],
+     [
+      -3.0,
+      0.0,
+      4.0,
+      2.0
+     ]
+    ],
+    "b": [
+     -4.0,
+     19.0
+    ],
+    "c": [
+     5.0,
+     7.0,
+     8.0,
+     9.0
+    ],
+    "hi": [
+     7.0,
+     5.0,
+     5.0,
+     null
+    ],
+    "lo": [
+     2.0,
+     0.0,
+     0.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 86",
+   "objective": 250.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 4.5,
+     "right": 4.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    7.0,
+    5.0,
+    0.0,
+    20.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      4.0,
+      -1.0,
+      -4.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     -4.0
+    ],
+    "c": [
+     6.0,
+     0.0,
+     4.0,
+     5.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null,
+     6.0,
+     1.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     2.0,
+     0.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 87",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      -5.0
+     ],
+     [
+      3.0,
+      1.0
+     ]
+    ],
+    "b": [
+     3.0,
+     -1.0
+    ],
+    "c": [
+     4.0,
+     5.0
+    ],
+    "hi": [
+     null,
+     3.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     ">="
+    ]
+   },
+   "name": "random 88",
+   "objective": 4.0,
+   "shadow": [
+    {
+     "left": 1.3333333333333333,
+     "right": 1.3333333333333333
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -1.0,
+      -3.0,
+      4.0,
+      5.0
+     ],
+     [
+      -3.0,
+      -2.0,
+      1.0,
+      2.0,
+      5.0
+     ],
+     [
+      -4.0,
+      5.0,
+      0.0,
+      -4.0,
+      3.0
+     ],
+     [
+      5.0,
+      5.0,
+      -4.0,
+      6.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     17.0,
+     17.0,
+     20.0,
+     -8.0
+    ],
+    "c": [
+     -5.0,
+     3.0,
+     7.0,
+     9.0,
+     5.0
+    ],
+    "hi": [
+     null,
+     1.0,
+     1.0,
+     2.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     ">=",
+     ">=",
+     ">="
+    ]
+   },
+   "name": "random 89",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      3.0,
+      4.0,
+      -3.0,
+      5.0
+     ],
+     [
+      5.0,
+      4.0,
+      6.0,
+      -2.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     -7.0,
+     3.0
+    ],
+    "c": [
+     8.0,
+     6.0,
+     3.0,
+     3.0,
+     5.0
+    ],
+    "hi": [
+     13.0,
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     3.0,
+     2.0,
+     3.0,
+     1.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 90",
+   "objective": 108.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -1.5,
+     "right": -1.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    2.0,
+    3.0,
+    16.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      -5.0,
+      5.0,
+      -5.0,
+      3.0
+     ],
+     [
+      4.0,
+      0.0,
+      -5.0,
+      3.0,
+      0.0
+     ],
+     [
+      2.0,
+      4.0,
+      -1.0,
+      3.0,
+      3.0
+     ],
+     [
+      4.0,
+      -1.0,
+      0.0,
+      -2.0,
+      6.0
+     ],
+     [
+      4.0,
+      6.0,
+      1.0,
+      2.0,
+      2.0
+     ]
+    ],
+    "b": [
+     3.0,
+     -12.0,
+     -9.0,
+     -6.0,
+     -1.0
+    ],
+    "c": [
+     1.0,
+     4.0,
+     3.0,
+     8.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     7.0,
+     7.0,
+     null,
+     8.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     1.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     ">=",
+     "=",
+     ">=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 91",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -3.0,
+      -3.0,
+      5.0
+     ],
+     [
+      0.0,
+      2.0,
+      5.0,
+      2.0
+     ],
+     [
+      6.0,
+      2.0,
+      2.0,
+      5.0
+     ],
+     [
+      4.0,
+      0.0,
+      -2.0,
+      6.0
+     ]
+    ],
+    "b": [
+     18.0,
+     -4.0,
+     -10.0,
+     18.0
+    ],
+    "c": [
+     2.0,
+     8.0,
+     8.0,
+     -2.0
+    ],
+    "hi": [
+     4.0,
+     8.0,
+     null,
+     null
+    ],
+    "lo": [
+     3.0,
+     0.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 92",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      -5.0,
+      3.0
+     ]
+    ],
+    "b": [
+     15.0
+    ],
+    "c": [
+     5.0,
+     0.0,
+     6.0
+    ],
+    "hi": [
+     8.0,
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 93",
+   "objective": 28.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      6.0,
+      -4.0,
+      0.0
+     ],
+     [
+      5.0,
+      5.0,
+      1.0,
+      2.0
+     ],
+     [
+      2.0,
+      -1.0,
+      6.0,
+      -5.0
+     ],
+     [
+      2.0,
+      4.0,
+      -4.0,
+      5.0
+     ],
+     [
+      6.0,
+      5.0,
+      5.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     11.0,
+     -8.0,
+     18.0,
+     15.0,
+     0.0
+    ],
+    "c": [
+     -1.0,
+     4.0,
+     7.0,
+     -4.0
+    ],
+    "hi": [
+     null,
+     8.0,
+     null,
+     10.0
+    ],
+    "lo": [
+     3.0,
+     3.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">=",
+     "<=",
+     ">=",
+     "="
+    ]
+   },
+   "name": "random 94",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      -3.0,
+      6.0
+     ]
+    ],
+    "b": [
+     6.0
+    ],
+    "c": [
+     9.0,
+     -5.0,
+     7.0
+    ],
+    "hi": [
+     8.0,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 95",
+   "objective": 4.0,
+   "shadow": [
+    {
+     "left": 1.6666666666666667,
+     "right": 1.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    2.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      2.0
+     ],
+     [
+      -5.0,
+      -4.0
+     ],
+     [
+      0.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     12.0,
+     9.0,
+     8.0
+    ],
+    "c": [
+     -3.0,
+     6.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     3.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 96",
+   "objective": 63.0,
+   "shadow": [
+    {
+     "left": 3.0,
+     "right": 3.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    12.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      -5.0,
+      -2.0,
+      4.0
+     ],
+     [
+      5.0,
+      2.0,
+      -2.0,
+      3.0
+     ]
+    ],
+    "b": [
+     11.0,
+     4.0
+    ],
+    "c": [
+     8.0,
+     -3.0,
+     7.0,
+     -3.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "="
+    ]
+   },
+   "name": "random 97",
+   "objective": 38.5,
+   "shadow": [
+    {
+     "left": 7.5,
+     "right": 7.5
+    },
+    {
+     "left": -11.0,
+     "right": -11.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    0.0,
+    8.5,
+    7.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      0.0,
+      -1.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     16.0
+    ],
+    "c": [
+     -4.0,
+     -1.0,
+     -6.0,
+     -3.0
+    ],
+    "hi": [
+     null,
+     null,
+     6.0,
+     6.0
+    ],
+    "lo": [
+     1.0,
+     2.0,
+     3.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 98",
+   "objective": -30.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    2.0,
+    3.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      -4.0,
+      6.0,
+      5.0
+     ],
+     [
+      -1.0,
+      2.0,
+      -3.0,
+      -1.0
+     ],
+     [
+      -5.0,
+      -5.0,
+      -1.0,
+      0.0
+     ]
+    ],
+    "b": [
+     -11.0,
+     3.0,
+     -2.0
+    ],
+    "c": [
+     1.0,
+     3.0,
+     4.0,
+     -2.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     6.0
+    ],
+    "lo": [
+     3.0,
+     0.0,
+     3.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 99",
+   "objective": 36.833333333333336,
+   "shadow": [
+    {
+     "left": -0.16666666666666666,
+     "right": -0.16666666666666666
+    },
+    {
+     "left": 1.1666666666666667,
+     "right": 1.1666666666666667
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    8.166666666666666,
+    3.0,
+    1.3333333333333333
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      2.0,
+      3.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -11.0
+    ],
+    "c": [
+     4.0,
+     4.0,
+     1.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     1.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 100",
+   "objective": 9.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    1.0,
+    0.0,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      0.0,
+      1.0,
+      1.0
+     ],
+     [
+      -4.0,
+      3.0,
+      -1.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     7.0,
+     14.0
+    ],
+    "c": [
+     -6.0,
+     -5.0,
+     8.0,
+     3.0
+    ],
+    "hi": [
+     7.0,
+     null,
+     null,
+     2.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "="
+    ]
+   },
+   "name": "random 101",
+   "objective": -109.66666666666667,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -1.6666666666666667,
+     "right": -1.6666666666666667
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    7.0,
+    16.333333333333332,
+    1.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      4.0,
+      4.0,
+      -1.0
+     ],
+     [
+      -1.0,
+      5.0,
+      -4.0,
+      5.0
+     ]
+    ],
+    "b": [
+     16.0,
+     -12.0
+    ],
+    "c": [
+     -2.0,
+     1.0,
+     4.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     1.0,
+     2.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 102",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      3.0,
+      -1.0,
+      -3.0
+     ],
+     [
+      6.0,
+      0.0,
+      -2.0,
+      6.0
+     ]
+    ],
+    "b": [
+     14.0,
+     -9.0
+    ],
+    "c": [
+     2.0,
+     -5.0,
+     9.0,
+     1.0
+    ],
+    "hi": [
+     3.0,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 103",
+   "objective": 63.666666666666664,
+   "shadow": [
+    {
+     "left": -1.6666666666666667,
+     "right": -1.6666666666666667
+    },
+    {
+     "left": -3.6666666666666665,
+     "right": -3.6666666666666665
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    12.166666666666666,
+    13.5,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      -5.0,
+      0.0,
+      6.0,
+      5.0
+     ],
+     [
+      3.0,
+      -2.0,
+      1.0,
+      0.0,
+      4.0
+     ]
+    ],
+    "b": [
+     -10.0,
+     14.0
+    ],
+    "c": [
+     -6.0,
+     -1.0,
+     0.0,
+     -6.0,
+     6.0
+    ],
+    "hi": [
+     6.0,
+     null,
+     6.0,
+     null,
+     7.0
+    ],
+    "lo": [
+     1.0,
+     3.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "="
+    ]
+   },
+   "name": "random 104",
+   "objective": -51.0,
+   "shadow": [
+    {
+     "left": -1.0,
+     "right": -1.0
+    },
+    {
+     "left": 3.0,
+     "right": 3.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    6.0,
+    19.0,
+    6.0,
+    6.333333333333333,
+    7.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      -2.0,
+      -2.0,
+      3.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     19.0
+    ],
+    "c": [
+     8.0,
+     5.0,
+     1.0,
+     6.0,
+     -1.0
+    ],
+    "hi": [
+     null,
+     3.0,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     1.0,
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 105",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      -2.0
+     ],
+     [
+      -5.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     13.0,
+     8.0
+    ],
+    "c": [
+     -6.0,
+     7.0
+    ],
+    "hi": [
+     2.0,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 106",
+   "objective": -12.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -3.0,
+      3.0,
+      2.0
+     ]
+    ],
+    "b": [
+     -10.0
+    ],
+    "c": [
+     2.0,
+     6.0,
+     9.0,
+     0.0
+    ],
+    "hi": [
+     10.0,
+     null,
+     null,
+     7.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 107",
+   "objective": 15.5,
+   "shadow": [
+    {
+     "left": -0.5,
+     "right": -0.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.25,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      5.0,
+      6.0
+     ]
+    ],
+    "b": [
+     4.0
+    ],
+    "c": [
+     6.0,
+     3.0,
+     -4.0
+    ],
+    "hi": [
+     5.0,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 108",
+   "objective": 25.5,
+   "shadow": [
+    {
+     "left": -1.5,
+     "right": -1.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.75,
+    3.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      -2.0,
+      5.0,
+      1.0,
+      0.0
+     ]
+    ],
+    "b": [
+     2.0
+    ],
+    "c": [
+     -1.0,
+     -1.0,
+     -2.0,
+     2.0,
+     -2.0
+    ],
+    "hi": [
+     null,
+     4.0,
+     null,
+     null,
+     3.0
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     0.0,
+     3.0,
+     1.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 109",
+   "objective": 14.0,
+   "shadow": [
+    {
+     "left": 2.0,
+     "right": 2.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    4.0,
+    0.0,
+    10.0,
+    1.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      6.0
+     ]
+    ],
+    "b": [
+     -6.0
+    ],
+    "c": [
+     -5.0,
+     0.0
+    ],
+    "hi": [
+     4.0,
+     null
+    ],
+    "lo": [
+     2.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 110",
+   "objective": -10.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    0.3333333333333333
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      4.0,
+      0.0,
+      -1.0
+     ],
+     [
+      3.0,
+      -3.0,
+      -2.0,
+      -5.0
+     ],
+     [
+      -3.0,
+      -4.0,
+      -3.0,
+      -5.0
+     ],
+     [
+      6.0,
+      1.0,
+      1.0,
+      5.0
+     ]
+    ],
+    "b": [
+     3.0,
+     10.0,
+     17.0,
+     6.0
+    ],
+    "c": [
+     4.0,
+     3.0,
+     4.0,
+     9.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     3.0
+    ],
+    "lo": [
+     3.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "<=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 111",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      -3.0,
+      2.0,
+      0.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     2.0
+    ],
+    "c": [
+     6.0,
+     -1.0,
+     2.0,
+     -2.0,
+     -3.0
+    ],
+    "hi": [
+     9.0,
+     null,
+     9.0,
+     7.0,
+     7.0
+    ],
+    "lo": [
+     2.0,
+     3.0,
+     3.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 112",
+   "objective": -2.0,
+   "shadow": [
+    {
+     "left": 1.0,
+     "right": 1.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      4.0
+     ],
+     [
+      3.0,
+      4.0
+     ]
+    ],
+    "b": [
+     13.0,
+     20.0
+    ],
+    "c": [
+     0.0,
+     4.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 113",
+   "objective": 0.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      1.0
+     ],
+     [
+      -5.0,
+      2.0
+     ]
+    ],
+    "b": [
+     4.0,
+     10.0
+    ],
+    "c": [
+     -4.0,
+     -5.0
+    ],
+    "hi": [
+     9.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     ">="
+    ]
+   },
+   "name": "random 114",
+   "objective": -191.0,
+   "shadow": [
+    {
+     "left": -5.0,
+     "right": -5.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    9.0,
+    31.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -3.0
+     ],
+     [
+      3.0,
+      1.0
+     ],
+     [
+      -3.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     6.0,
+     6.0,
+     -5.0
+    ],
+    "c": [
+     -5.0,
+     -1.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 115",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      3.0,
+      1.0
+     ],
+     [
+      1.0,
+      -1.0,
+      3.0
+     ],
+     [
+      -5.0,
+      0.0,
+      5.0
+     ],
+     [
+      3.0,
+      5.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     -10.0,
+     19.0,
+     -12.0,
+     10.0
+    ],
+    "c": [
+     -4.0,
+     8.0,
+     6.0
+    ],
+    "hi": [
+     4.0,
+     null,
+     8.0
+    ],
+    "lo": [
+     2.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 116",
+   "objective": -9.6,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.8,
+     "right": 0.8
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.4,
+    0.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      0.0,
+      3.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     20.0
+    ],
+    "c": [
+     8.0,
+     -5.0,
+     0.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     null,
+     3.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 117",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      -5.0
+     ],
+     [
+      -5.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     -6.0,
+     4.0
+    ],
+    "c": [
+     2.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 118",
+   "objective": 14.4,
+   "shadow": [
+    {
+     "left": -0.4,
+     "right": -0.4
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    4.2
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      -2.0,
+      0.0,
+      6.0,
+      1.0
+     ],
+     [
+      -3.0,
+      -3.0,
+      5.0,
+      4.0,
+      5.0
+     ],
+     [
+      5.0,
+      0.0,
+      2.0,
+      5.0,
+      2.0
+     ],
+     [
+      -4.0,
+      6.0,
+      -2.0,
+      2.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     7.0,
+     12.0,
+     12.0,
+     9.0
+    ],
+    "c": [
+     6.0,
+     7.0,
+     -5.0,
+     9.0,
+     5.0
+    ],
+    "hi": [
+     6.0,
+     5.0,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     1.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "=",
+     "=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 119",
+   "objective": 141.0,
+   "shadow": [
+    {
+     "left": 0.9615384615384616,
+     "right": 0.9615384615384616
+    },
+    {
+     "left": 0.8076923076923077,
+     "right": 0.8076923076923077
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    6.0,
+    5.0,
+    0.0,
+    5.0,
+    5.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      5.0,
+      5.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     7.0
+    ],
+    "c": [
+     9.0,
+     5.0,
+     -2.0,
+     -1.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     12.0
+    ],
+    "lo": [
+     1.0,
+     1.0,
+     0.0,
+     3.0
+    ],
+    "maximize": true,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 120",
+   "objective": 32.0,
+   "shadow": [
+    {
+     "left": 1.5,
+     "right": 1.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    4.333333333333333,
+    1.0,
+    0.0,
+    12.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -2.0
+     ],
+     [
+      -4.0,
+      1.0
+     ]
+    ],
+    "b": [
+     -10.0,
+     9.0
+    ],
+    "c": [
+     -1.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     7.0
+    ],
+    "lo": [
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 121",
+   "objective": 15.5,
+   "shadow": [
+    {
+     "left": -1.5,
+     "right": -1.5
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    5.5
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      5.0,
+      -2.0,
+      0.0
+     ],
+     [
+      3.0,
+      -4.0,
+      3.0,
+      5.0
+     ],
+     [
+      -4.0,
+      -1.0,
+      -2.0,
+      6.0
+     ],
+     [
+      6.0,
+      5.0,
+      -3.0,
+      1.0
+     ],
+     [
+      0.0,
+      -5.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "b": [
+     15.0,
+     15.0,
+     -3.0,
+     19.0,
+     9.0
+    ],
+    "c": [
+     -4.0,
+     0.0,
+     1.0,
+     -2.0
+    ],
+    "hi": [
+     null,
+     3.0,
+     10.0,
+     5.0
+    ],
+    "lo": [
+     2.0,
+     0.0,
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     ">=",
+     ">=",
+     "=",
+     ">="
+    ]
+   },
+   "name": "random 122",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      2.0,
+      5.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     5.0
+    ],
+    "c": [
+     0.0,
+     4.0,
+     6.0,
+     -5.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     2.0,
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 123",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      3.0,
+      -5.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     -10.0
+    ],
+    "c": [
+     2.0,
+     8.0,
+     9.0,
+     2.0
+    ],
+    "hi": [
+     7.0,
+     null,
+     null,
+     3.0
+    ],
+    "lo": [
+     3.0,
+     3.0,
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 124",
+   "objective": 34.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    3.0,
+    0.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      4.0
+     ],
+     [
+      1.0,
+      1.0
+     ]
+    ],
+    "b": [
+     -8.0,
+     -1.0
+    ],
+    "c": [
+     -5.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     10.0
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     ">="
+    ]
+   },
+   "name": "random 125",
+   "objective": -28.0,
+   "shadow": [
+    {
+     "left": 1.0,
+     "right": 1.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    9.6,
+    10.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      -5.0,
+      -3.0,
+      6.0,
+      5.0
+     ],
+     [
+      6.0,
+      -4.0,
+      1.0,
+      6.0,
+      6.0
+     ],
+     [
+      6.0,
+      3.0,
+      3.0,
+      4.0,
+      0.0
+     ]
+    ],
+    "b": [
+     9.0,
+     20.0,
+     -4.0
+    ],
+    "c": [
+     8.0,
+     3.0,
+     7.0,
+     9.0,
+     8.0
+    ],
+    "hi": [
+     null,
+     4.0,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     2.0,
+     1.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 126",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      2.0,
+      -5.0
+     ],
+     [
+      -2.0,
+      4.0,
+      5.0
+     ]
+    ],
+    "b": [
+     16.0,
+     4.0
+    ],
+    "c": [
+     5.0,
+     -3.0,
+     2.0
+    ],
+    "hi": [
+     null,
+     null,
+     4.0
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 127",
+   "objective": 6.8,
+   "shadow": [
+    {
+     "left": 0.7,
+     "right": 0.7
+    },
+    {
+     "left": -1.1,
+     "right": -1.1
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.8,
+    2.4,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      -2.0,
+      -4.0,
+      6.0,
+      0.0
+     ],
+     [
+      6.0,
+      -2.0,
+      -1.0,
+      6.0,
+      4.0
+     ]
+    ],
+    "b": [
+     -2.0,
+     18.0
+    ],
+    "c": [
+     -5.0,
+     4.0,
+     6.0,
+     -5.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     6.0,
+     null,
+     3.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0,
+     0.0,
+     3.0
+    ],
+    "maximize": true,
+    "ops": [
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 128",
+   "objective": 4.052631578947368,
+   "shadow": [
+    {
+     "left": -1.631578947368421,
+     "right": -1.631578947368421
+    },
+    {
+     "left": 0.5263157894736842,
+     "right": 0.5263157894736842
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.42105263157894735,
+    6.0,
+    2.526315789473684,
+    3.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      3.0,
+      6.0
+     ],
+     [
+      2.0,
+      1.0
+     ],
+     [
+      1.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -12.0,
+     -4.0,
+     18.0
+    ],
+    "c": [
+     -3.0,
+     -2.0
+    ],
+    "hi": [
+     9.0,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 129",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      -3.0,
+      -4.0,
+      1.0
+     ]
+    ],
+    "b": [
+     -4.0
+    ],
+    "c": [
+     5.0,
+     6.0,
+     0.0,
+     -4.0
+    ],
+    "hi": [
+     null,
+     null,
+     4.0,
+     4.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 130",
+   "objective": -16.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    0.0,
+    2.0,
+    4.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      -3.0,
+      2.0,
+      2.0,
+      5.0
+     ]
+    ],
+    "b": [
+     -11.0
+    ],
+    "c": [
+     3.0,
+     9.0,
+     8.0,
+     -5.0,
+     8.0
+    ],
+    "hi": [
+     7.0,
+     null,
+     null,
+     9.0,
+     6.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 131",
+   "objective": -45.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    0.0,
+    0.0,
+    9.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      1.0,
+      5.0,
+      -4.0,
+      -5.0
+     ],
+     [
+      -2.0,
+      -4.0,
+      5.0,
+      1.0,
+      -5.0
+     ],
+     [
+      3.0,
+      -5.0,
+      2.0,
+      -5.0,
+      6.0
+     ]
+    ],
+    "b": [
+     -6.0,
+     -3.0,
+     -6.0
+    ],
+    "c": [
+     3.0,
+     5.0,
+     -4.0,
+     4.0,
+     -3.0
+    ],
+    "hi": [
+     null,
+     10.0,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     3.0,
+     2.0,
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "=",
+     "="
+    ]
+   },
+   "name": "random 132",
+   "objective": -4.355,
+   "shadow": [
+    {
+     "left": -0.015,
+     "right": -0.015
+    },
+    {
+     "left": -0.435,
+     "right": -0.435
+    },
+    {
+     "left": -0.875,
+     "right": -0.875
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    10.0,
+    16.085,
+    10.6,
+    10.805
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      -4.0,
+      2.0,
+      -3.0,
+      3.0
+     ],
+     [
+      -4.0,
+      5.0,
+      -1.0,
+      6.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     5.0,
+     13.0
+    ],
+    "c": [
+     -2.0,
+     9.0,
+     4.0,
+     5.0,
+     -2.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     null,
+     5.0
+    ],
+    "lo": [
+     1.0,
+     0.0,
+     0.0,
+     2.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 133",
+   "objective": -4.0,
+   "shadow": [
+    {
+     "left": 1.0,
+     "right": 1.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    0.0,
+    0.0,
+    2.0,
+    5.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      -5.0
+     ],
+     [
+      1.0,
+      3.0
+     ],
+     [
+      -5.0,
+      2.0
+     ],
+     [
+      1.0,
+      3.0
+     ],
+     [
+      6.0,
+      4.0
+     ]
+    ],
+    "b": [
+     12.0,
+     -10.0,
+     16.0,
+     -3.0,
+     -3.0
+    ],
+    "c": [
+     6.0,
+     7.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<=",
+     "=",
+     "=",
+     ">="
+    ]
+   },
+   "name": "random 134",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      1.0,
+      -4.0
+     ],
+     [
+      0.0,
+      4.0,
+      1.0
+     ],
+     [
+      1.0,
+      1.0,
+      -5.0
+     ],
+     [
+      -4.0,
+      -5.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     -8.0,
+     1.0,
+     -11.0,
+     -8.0
+    ],
+    "c": [
+     -5.0,
+     8.0,
+     -4.0
+    ],
+    "hi": [
+     null,
+     4.0,
+     3.0
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 135",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      -2.0
+     ],
+     [
+      4.0,
+      3.0
+     ]
+    ],
+    "b": [
+     -5.0,
+     8.0
+    ],
+    "c": [
+     -5.0,
+     8.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 136",
+   "objective": 18.2,
+   "shadow": [
+    {
+     "left": -9.4,
+     "right": -9.4
+    },
+    {
+     "left": -3.6,
+     "right": -3.6
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.2,
+    2.4
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      -2.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     -9.0
+    ],
+    "c": [
+     7.0,
+     -2.0,
+     -1.0
+    ],
+    "hi": [
+     1.0,
+     null,
+     6.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">="
+    ]
+   },
+   "name": "random 137",
+   "objective": -9.0,
+   "shadow": [
+    {
+     "left": 1.0,
+     "right": 1.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      0.0,
+      6.0,
+      4.0,
+      -4.0
+     ],
+     [
+      4.0,
+      5.0,
+      2.0,
+      4.0,
+      -1.0
+     ],
+     [
+      -5.0,
+      0.0,
+      3.0,
+      -5.0,
+      3.0
+     ],
+     [
+      0.0,
+      -1.0,
+      4.0,
+      2.0,
+      1.0
+     ]
+    ],
+    "b": [
+     1.0,
+     -2.0,
+     -12.0,
+     4.0
+    ],
+    "c": [
+     9.0,
+     6.0,
+     1.0,
+     -2.0,
+     6.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     null,
+     9.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     ">=",
+     "=",
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 138",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -1.0,
+      6.0,
+      6.0
+     ],
+     [
+      -1.0,
+      -2.0,
+      2.0,
+      -2.0
+     ],
+     [
+      0.0,
+      5.0,
+      -1.0,
+      -3.0
+     ],
+     [
+      6.0,
+      -3.0,
+      -4.0,
+      -3.0
+     ],
+     [
+      -4.0,
+      -1.0,
+      -1.0,
+      1.0
+     ]
+    ],
+    "b": [
+     1.0,
+     -10.0,
+     11.0,
+     2.0,
+     -11.0
+    ],
+    "c": [
+     5.0,
+     1.0,
+     2.0,
+     4.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     8.0
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     1.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     "=",
+     "<=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 139",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      3.0,
+      -3.0,
+      -3.0,
+      1.0
+     ],
+     [
+      3.0,
+      2.0,
+      3.0,
+      6.0,
+      5.0
+     ],
+     [
+      6.0,
+      -4.0,
+      2.0,
+      2.0,
+      4.0
+     ]
+    ],
+    "b": [
+     9.0,
+     16.0,
+     10.0
+    ],
+    "c": [
+     -3.0,
+     5.0,
+     4.0,
+     4.0,
+     -1.0
+    ],
+    "hi": [
+     1.0,
+     8.0,
+     null,
+     null,
+     7.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     3.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 140",
+   "objective": 28.0,
+   "shadow": [
+    {
+     "left": 1.0,
+     "right": 1.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -0.5,
+     "right": -0.5
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      0.0,
+      -1.0
+     ],
+     [
+      0.0,
+      -4.0
+     ],
+     [
+      -1.0,
+      -4.0
+     ],
+     [
+      0.0,
+      -3.0
+     ],
+     [
+      -2.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     20.0,
+     6.0,
+     13.0,
+     19.0,
+     3.0
+    ],
+    "c": [
+     -4.0,
+     -5.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<=",
+     "<=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 141",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      -2.0,
+      1.0
+     ],
+     [
+      -1.0,
+      2.0,
+      -5.0
+     ],
+     [
+      -5.0,
+      -1.0,
+      -5.0
+     ],
+     [
+      -2.0,
+      -5.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     0.0,
+     -10.0,
+     8.0,
+     7.0
+    ],
+    "c": [
+     9.0,
+     3.0,
+     3.0
+    ],
+    "hi": [
+     null,
+     6.0,
+     9.0
+    ],
+    "lo": [
+     3.0,
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 142",
+   "objective": 50.625,
+   "shadow": [
+    {
+     "left": -2.625,
+     "right": -2.625
+    },
+    {
+     "left": -1.125,
+     "right": -1.125
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    4.625,
+    3.25
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      -4.0,
+      3.0,
+      3.0
+     ],
+     [
+      5.0,
+      2.0,
+      -5.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     -7.0,
+     -9.0
+    ],
+    "c": [
+     -3.0,
+     5.0,
+     -3.0,
+     7.0
+    ],
+    "hi": [
+     3.0,
+     null,
+     null,
+     4.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     3.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 143",
+   "objective": -6.571428571428571,
+   "shadow": [
+    {
+     "left": -1.3571428571428572,
+     "right": -1.3571428571428572
+    },
+    {
+     "left": -0.21428571428571427,
+     "right": -0.21428571428571427
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    4.428571428571429,
+    6.571428571428571,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      2.0,
+      4.0,
+      3.0
+     ],
+     [
+      -5.0,
+      4.0,
+      3.0
+     ],
+     [
+      0.0,
+      1.0,
+      1.0
+     ]
+    ],
+    "b": [
+     16.0,
+     15.0,
+     4.0
+    ],
+    "c": [
+     0.0,
+     -4.0,
+     0.0
+    ],
+    "hi": [
+     null,
+     1.0,
+     6.0
+    ],
+    "lo": [
+     1.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "=",
+     ">="
+    ]
+   },
+   "name": "random 144",
+   "objective": -4.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": null,
+   "xUnique": false
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      5.0,
+      -2.0,
+      2.0
+     ],
+     [
+      -4.0,
+      2.0,
+      -3.0,
+      4.0
+     ],
+     [
+      1.0,
+      3.0,
+      5.0,
+      -3.0
+     ],
+     [
+      1.0,
+      -1.0,
+      5.0,
+      6.0
+     ],
+     [
+      5.0,
+      6.0,
+      -4.0,
+      0.0
+     ]
+    ],
+    "b": [
+     19.0,
+     2.0,
+     -3.0,
+     5.0,
+     16.0
+    ],
+    "c": [
+     9.0,
+     -2.0,
+     2.0,
+     8.0
+    ],
+    "hi": [
+     null,
+     null,
+     4.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     3.0,
+     1.0
+    ],
+    "maximize": true,
+    "ops": [
+     ">=",
+     "<=",
+     "=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 145",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      -4.0,
+      6.0
+     ],
+     [
+      3.0,
+      6.0,
+      -4.0
+     ]
+    ],
+    "b": [
+     16.0,
+     -6.0
+    ],
+    "c": [
+     7.0,
+     5.0,
+     -3.0
+    ],
+    "hi": [
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 146",
+   "objective": 3.0,
+   "shadow": [
+    {
+     "left": -0.5,
+     "right": -0.5
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    0.0,
+    3.6666666666666665
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     -3.0
+    ],
+    "c": [
+     -4.0,
+     6.0
+    ],
+    "hi": [
+     6.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<="
+    ]
+   },
+   "name": "random 147",
+   "objective": -12.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    6.0,
+    2.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      -4.0
+     ],
+     [
+      -4.0,
+      -1.0
+     ],
+     [
+      -1.0,
+      4.0
+     ]
+    ],
+    "b": [
+     3.0,
+     13.0,
+     8.0
+    ],
+    "c": [
+     5.0,
+     5.0
+    ],
+    "hi": [
+     null,
+     null
+    ],
+    "lo": [
+     2.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     "="
+    ]
+   },
+   "name": "random 148",
+   "objective": 22.5,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 1.25,
+     "right": 1.25
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    2.0,
+    2.5
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      6.0,
+      0.0,
+      -2.0
+     ],
+     [
+      2.0,
+      0.0,
+      -2.0,
+      -4.0
+     ],
+     [
+      -2.0,
+      6.0,
+      1.0,
+      3.0
+     ]
+    ],
+    "b": [
+     20.0,
+     -6.0,
+     -8.0
+    ],
+    "c": [
+     8.0,
+     5.0,
+     6.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0,
+     2.0
+    ],
+    "maximize": true,
+    "ops": [
+     "=",
+     "=",
+     "<="
+    ]
+   },
+   "name": "random 149",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -1.0,
+      2.0,
+      -1.0
+     ],
+     [
+      6.0,
+      -1.0,
+      -5.0
+     ],
+     [
+      -4.0,
+      -4.0,
+      4.0
+     ],
+     [
+      3.0,
+      0.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     -11.0,
+     13.0,
+     20.0,
+     -6.0
+    ],
+    "c": [
+     0.0,
+     2.0,
+     -5.0
+    ],
+    "hi": [
+     4.0,
+     6.0,
+     null
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 150",
+   "objective": -51.0,
+   "shadow": [
+    {
+     "left": -3.0,
+     "right": -3.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -2.0,
+     "right": -2.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    4.0,
+    2.0,
+    11.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      1.0,
+      -1.0,
+      -3.0,
+      6.0
+     ],
+     [
+      2.0,
+      2.0,
+      3.0,
+      0.0
+     ]
+    ],
+    "b": [
+     4.0,
+     7.0
+    ],
+    "c": [
+     -6.0,
+     5.0,
+     2.0,
+     -2.0
+    ],
+    "hi": [
+     8.0,
+     4.0,
+     6.0,
+     null
+    ],
+    "lo": [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "="
+    ]
+   },
+   "name": "random 151",
+   "objective": -21.166666666666668,
+   "shadow": [
+    {
+     "left": -0.3333333333333333,
+     "right": -0.3333333333333333
+    },
+    {
+     "left": -2.8333333333333335,
+     "right": -2.8333333333333335
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.5,
+    0.0,
+    0.0,
+    0.08333333333333333
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      6.0,
+      1.0,
+      -2.0
+     ],
+     [
+      -4.0,
+      5.0,
+      1.0
+     ],
+     [
+      1.0,
+      -2.0,
+      -5.0
+     ],
+     [
+      -3.0,
+      -3.0,
+      -4.0
+     ],
+     [
+      -3.0,
+      4.0,
+      5.0
+     ]
+    ],
+    "b": [
+     13.0,
+     6.0,
+     0.0,
+     -12.0,
+     20.0
+    ],
+    "c": [
+     3.0,
+     2.0,
+     -6.0
+    ],
+    "hi": [
+     null,
+     null,
+     9.0
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     "<=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 152",
+   "objective": -26.625,
+   "shadow": [
+    {
+     "left": -0.125,
+     "right": -0.125
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": -1.25,
+     "right": -1.25
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    4.375,
+    0.0,
+    6.625
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      3.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     3.0
+    ],
+    "c": [
+     6.0,
+     -4.0,
+     5.0
+    ],
+    "hi": [
+     7.0,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "="
+    ]
+   },
+   "name": "random 153",
+   "objective": -8.666666666666666,
+   "shadow": [
+    {
+     "left": -1.3333333333333333,
+     "right": -1.3333333333333333
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    7.0,
+    12.666666666666666,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      6.0,
+      3.0
+     ],
+     [
+      0.0,
+      0.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     2.0,
+     12.0
+    ],
+    "c": [
+     -5.0,
+     5.0,
+     -3.0
+    ],
+    "hi": [
+     null,
+     6.0,
+     3.0
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     2.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 154",
+   "objective": -22.0,
+   "shadow": [
+    {
+     "left": 1.0,
+     "right": 1.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    8.6,
+    6.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      5.0,
+      5.0,
+      1.0,
+      -5.0,
+      -2.0
+     ],
+     [
+      -5.0,
+      -2.0,
+      0.0,
+      1.0,
+      6.0
+     ]
+    ],
+    "b": [
+     15.0,
+     13.0
+    ],
+    "c": [
+     6.0,
+     -5.0,
+     6.0,
+     1.0,
+     0.0
+    ],
+    "hi": [
+     7.0,
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 155",
+   "status": "unbounded",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -3.0,
+      -2.0,
+      -4.0,
+      0.0,
+      6.0
+     ],
+     [
+      -5.0,
+      -2.0,
+      -1.0,
+      6.0,
+      -3.0
+     ]
+    ],
+    "b": [
+     5.0,
+     -2.0
+    ],
+    "c": [
+     8.0,
+     4.0,
+     0.0,
+     -2.0,
+     7.0
+    ],
+    "hi": [
+     null,
+     4.0,
+     5.0,
+     null,
+     4.0
+    ],
+    "lo": [
+     3.0,
+     0.0,
+     0.0,
+     2.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     ">=",
+     "<="
+    ]
+   },
+   "name": "random 156",
+   "objective": 33.666666666666664,
+   "shadow": [
+    {
+     "left": 1.0,
+     "right": 1.0
+    },
+    {
+     "left": -0.3333333333333333,
+     "right": -0.3333333333333333
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    3.0,
+    0.0,
+    0.0,
+    3.3333333333333335,
+    2.3333333333333335
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      4.0,
+      4.0,
+      3.0,
+      -3.0
+     ],
+     [
+      5.0,
+      -1.0,
+      0.0,
+      -2.0
+     ],
+     [
+      -5.0,
+      6.0,
+      0.0,
+      3.0
+     ],
+     [
+      4.0,
+      1.0,
+      -5.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     7.0,
+     4.0,
+     -7.0,
+     -6.0
+    ],
+    "c": [
+     -1.0,
+     6.0,
+     -6.0,
+     1.0
+    ],
+    "hi": [
+     null,
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "=",
+     "<=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 157",
+   "status": "infeasible",
+   "why": "seeded battery"
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -2.0,
+      1.0,
+      -2.0,
+      -5.0
+     ],
+     [
+      1.0,
+      2.0,
+      2.0,
+      -4.0
+     ],
+     [
+      5.0,
+      -3.0,
+      0.0,
+      3.0
+     ]
+    ],
+    "b": [
+     -2.0,
+     19.0,
+     -7.0
+    ],
+    "c": [
+     5.0,
+     -1.0,
+     6.0,
+     7.0
+    ],
+    "hi": [
+     null,
+     null,
+     7.0,
+     11.0
+    ],
+    "lo": [
+     0.0,
+     2.0,
+     0.0,
+     3.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     "<=",
+     ">="
+    ]
+   },
+   "name": "random 158",
+   "objective": 15.666666666666666,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.3333333333333333,
+     "right": 0.3333333333333333
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    0.0,
+    5.333333333333333,
+    0.0,
+    3.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -5.0,
+      -3.0,
+      3.0
+     ],
+     [
+      0.0,
+      4.0,
+      -5.0
+     ],
+     [
+      0.0,
+      -2.0,
+      1.0
+     ],
+     [
+      3.0,
+      -1.0,
+      -5.0
+     ]
+    ],
+    "b": [
+     -1.0,
+     -10.0,
+     18.0,
+     6.0
+    ],
+    "c": [
+     7.0,
+     3.0,
+     4.0
+    ],
+    "hi": [
+     null,
+     null,
+     null
+    ],
+    "lo": [
+     1.0,
+     2.0,
+     0.0
+    ],
+    "maximize": false,
+    "ops": [
+     "<=",
+     ">=",
+     "<=",
+     "<="
+    ]
+   },
+   "name": "random 159",
+   "objective": 13.0,
+   "shadow": [
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    },
+    {
+     "left": 0.0,
+     "right": 0.0
+    }
+   ],
+   "status": "optimal",
+   "why": "seeded battery",
+   "x": [
+    1.0,
+    2.0,
+    0.0
+   ],
+   "xUnique": true
+  },
+  {
+   "input": {
+    "A": [
+     [
+      -4.0,
+      0.0
+     ],
+     [
+      -5.0,
+      -5.0
+     ],
+     [
+      6.0,
+      -3.0
+     ],
+     [
+      -5.0,
+      -5.0
+     ],
+     [
+      -3.0,
+      -1.0
+     ]
+    ],
+    "b": [
+     -6.0,
+     -1.0,
+     1.0,
+     -4.0,
+     -9.0
+    ],
+    "c": [
+     2.0,
+     3.0
+    ],
+    "hi": [
+     4.0,
+     9.0
+    ],
+    "lo": [
+     1.0,
+     0.0
+    ],
+    "maximize": true,
+    "ops": [
+     "<=",
+     ">=",
+     "<=",
+     ">=",
+     ">="
+    ]
+   },
+   "name": "random 160",
+   "status": "infeasible",
+   "why": "seeded battery"
+  }
+ ],
+ "counts": {
+  "infeasible": 44,
+  "optimal": 124,
+  "optimalWithANegativeRhs": 62,
+  "total": 181,
+  "unbounded": 13
+ },
+ "provenance": {
+  "engine": "lib/lp/simplex.js",
+  "method": "exact rational vertex enumeration; shadow prices as exact one-sided derivatives by re-solve",
+  "oracle": "tools/validation/downstream/oracle_lp.py",
+  "published": "none: an LP optimum is a mathematical fact of the problem, so no literature value is needed or claimed"
+ }
+}

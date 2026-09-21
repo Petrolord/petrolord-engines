@@ -10,6 +10,12 @@
 import { ATTRIBUTES, TABLES, resolveLithology } from './descriptionVocabulary.js';
 import { LITHOLOGIES, GRAIN_SIZES } from '../stratigraphy/lithology.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
+
 const LITH_ABBREV = Object.freeze({
   sandstone: 'SST', siltstone: 'SLTST', shale: 'SH', marl: 'MRL', conglomerate: 'CGL', limestone: 'LST', chalk: 'CHK',
   dolomite: 'DOL', anhydrite: 'ANHY', gypsum: 'GYP', halite: 'SALT', coal: 'COAL', chert: 'CHT', volcanic: 'VOLC',
@@ -26,7 +32,7 @@ const GRAIN_NARRATIVE = Object.freeze({
 
 function tableTerms(table) {
   const out = {};
-  for (const t of TABLES[table] || []) out[t.code] = t.abbrev || t.code;
+  for (const t of (ownPreset(TABLES, table) ? TABLES[table] : [])) out[t.code] = t.abbrev || t.code;
   return out;
 }
 
@@ -106,15 +112,18 @@ export function term(profile, table, code, { short = true } = {}) {
   const p = profile || PETROLORD_PROFILE;
   if (!short) return { label: longName(table, code), fallback: false, code };
   if (code == null || code === '') return { label: '', fallback: false, code: null };
-  const own = p.overrides && p.overrides[table] && p.overrides[table][code];
-  const label = (p.terms && p.terms[table] && p.terms[table][code]) || longName(table, code) || code;
+  // Own keys only: a code of 'constructor' used to come back labelled with
+  // a function read off the prototype chain.
+  const at = (obj, key) => (obj != null && Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : undefined);
+  const own = at(at(p.overrides, table), code);
+  const label = at(at(p.terms, table), code) || longName(table, code) || code;
   return { label, fallback: !!(p.overrides && !own && p.id !== PETROLORD_PROFILE.id), code };
 }
 
 function longName(table, code) {
   if (table === 'lithology') return (LITHOLOGIES.find((l) => l.code === code) || {}).name || code;
-  if (table === 'grainSize') return GRAIN_NARRATIVE[code] || (GRAIN_SIZES.find((g) => g.code === code) || {}).name || code;
-  const t = (TABLES[table] || []).find((x) => x.code === code);
+  if (table === 'grainSize') return (ownPreset(GRAIN_NARRATIVE, code) ? GRAIN_NARRATIVE[code] : null) || (GRAIN_SIZES.find((g) => g.code === code) || {}).name || code;
+  const t = (ownPreset(TABLES, table) ? TABLES[table] : []).find((x) => x.code === code);
   return t ? t.name : code;
 }
 
@@ -173,11 +182,12 @@ export function narrative(description) {
     if (c.colour && c.colour.hue) bits.push([c.colour.modifier ? longName('colourModifier', c.colour.modifier) : null, longName('colourHue', c.colour.hue)].filter(Boolean).join(' '));
     if (c.hardness) bits.push(longName('hardness', c.hardness));
     if (c.grainSize && c.grainSize.from) {
-      const g = GRAIN_NARRATIVE[c.grainSize.from] || c.grainSize.from;
-      const g2 = c.grainSize.to ? GRAIN_NARRATIVE[c.grainSize.to] || c.grainSize.to : null;
+      const g = (ownPreset(GRAIN_NARRATIVE, c.grainSize.from) ? GRAIN_NARRATIVE[c.grainSize.from] : null) || c.grainSize.from;
+      const g2 = c.grainSize.to ? (ownPreset(GRAIN_NARRATIVE, c.grainSize.to) ? GRAIN_NARRATIVE[c.grainSize.to] : null) || c.grainSize.to : null;
       bits.push(`${g}${g2 ? ` to ${g2}` : ''} grained`);
     }
-    if (c.rounding) bits.push(c.rounding.from ? `${ROUND_NARR[c.rounding.from]} to ${ROUND_NARR[c.rounding.to]}` : ROUND_NARR[c.rounding] || c.rounding);
+    const roundNarr = (k) => (ownPreset(ROUND_NARR, k) ? ROUND_NARR[k] : undefined);
+    if (c.rounding) bits.push(c.rounding.from ? `${roundNarr(c.rounding.from)} to ${roundNarr(c.rounding.to)}` : roundNarr(c.rounding) || c.rounding);
     if (c.sorting) bits.push(longName('sorting', c.sorting));
     for (const v of listOf(c.texture)) bits.push(longName('texture', codeOf(v)));
     for (const v of listOf(c.cement)) bits.push(codeOf(v) === 'none' ? 'no visible cement' : `${longName('cement', codeOf(v))} cement`);

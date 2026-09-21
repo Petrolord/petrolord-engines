@@ -1,7 +1,7 @@
 /**
  * VENDORED VERBATIM from the Suite's src/utils/fdp/costCalculations.js in the EC0 Economics
  * extraction wave (2026-09-08). The only edit is the import: '@/utils/fdp/economics' became './economics.js'.
- * Behaviour is unchanged; the gates in __tests__/economics.fdp.test.js and the
+ * Repaired since in EC6-1 (the price deck) and EC6-8 (the end-of-life cost); the gates in __tests__/economics.fdp.test.js and the
  * independent oracle tools/validation/economics/oracle_fdp.py cover it.
  */
 /**
@@ -13,6 +13,7 @@
  */
 
 import { runFdpCase, DEFAULT_FISCAL } from './economics.js';
+import { FdpInputError } from './inputError.js';
 
 export const calculateTotalCAPEX = (costItems) => {
     if (!costItems) return 0;
@@ -28,12 +29,21 @@ export const calculateTotalOPEX = (costItems) => {
         .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
 };
 
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 export const calculateCostByPhase = (costItems) => {
     const phases = {};
     costItems.forEach(item => {
         const phase = item.phase || 'Unassigned';
-        if (!phases[phase]) phases[phase] = 0;
-        phases[phase] += (parseFloat(item.amount) || 0);
+        setOwn(phases, phase, (ownValue(phases, phase) || 0) + (parseFloat(item.amount) || 0));
     });
     return phases;
 };
@@ -52,16 +62,35 @@ export const calculateCostByPhase = (costItems) => {
  * @param {number[]} productionProfile daily rate per producing year, kbpd
  * @param {object[]} priceDeck rows carrying `oil_price_usd`
  * @param {object} [fiscal] overrides for DEFAULT_FISCAL
+ * @param {object} [abandonment] EC6-8: the end-of-life cost as
+ *   resolveAbandonment / planAbandonment returns it, charged in the final
+ *   production year and shown in each row's `abex`. Absent means none.
  * @returns {object[]} rows shaped for the economics charts
  */
-export const calculateCashFlows = (capex, annualOpex, productionProfile, priceDeck, fiscal = {}) => {
-    const prices = productionProfile.map((_, i) => priceDeck[i]?.oil_price_usd ?? 70);
+export const calculateCashFlows = (capex, annualOpex, productionProfile, priceDeck, fiscal = {}, abandonment) => {
+    // EC6-1 (FINDINGS-fdp.md section 5). A price deck shorter than the
+    // production profile used to be padded with 70 $/bbl here and with 0 in
+    // runFdpCase, so the same profile produced two different NPVs depending
+    // on which door you came in by: $178.99MM against -$66.92MM on a short
+    // deck. Neither number was asked for. A deck that does not cover the
+    // profile is refused.
+    const missing = productionProfile
+        .map((_, i) => i)
+        .filter((i) => !Number.isFinite(parseFloat(priceDeck?.[i]?.oil_price_usd)));
+    if (missing.length) {
+        throw new FdpInputError(
+            `the price deck has no price for production year${missing.length > 1 ? 's' : ''} `
+            + `${missing.map((i) => i + 1).join(', ')}: enter a price for every year of the profile`,
+        );
+    }
+    const prices = productionProfile.map((_, i) => parseFloat(priceDeck[i].oil_price_usd));
     const result = runFdpCase({
         capexMM: capex,
         annualOpexMM: annualOpex,
         productionKbpd: productionProfile,
         pricesUsd: prices,
         fiscal,
+        abandonment,
     });
     const rate = (fiscal.discountRate ?? DEFAULT_FISCAL.discountRate) / 100;
     return result.cashflow.map((cf, i) => ({
@@ -71,6 +100,7 @@ export const calculateCashFlows = (capex, annualOpex, productionProfile, priceDe
         tax: cf.tax,
         capex: cf.capex,
         opex: cf.opex,
+        abex: cf.abex,
         netCashFlow: cf.ncf,
         cumulativeCashFlow: cf.cumulativeNCF,
         // Mid-year, matching the engine that produced the cash flow.

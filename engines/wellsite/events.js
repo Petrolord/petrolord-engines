@@ -72,9 +72,19 @@ export function eventsInPeriod(events, { startUtc, endUtc }, nowUtcMs = endUtc) 
   return out.sort((a, b) => a.startUtcMs - b.startUtcMs);
 }
 
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 /** Minutes per event type over a period (the handover and daily report tables). */
 export function timeByType(events, period, nowUtcMs) {
   const out = {};
-  for (const ev of eventsInPeriod(events, period, nowUtcMs)) out[ev.type] = (out[ev.type] || 0) + ev.durationMin;
+  for (const ev of eventsInPeriod(events, period, nowUtcMs)) setOwn(out, ev.type, (ownValue(out, ev.type) || 0) + ev.durationMin);
   return out;
 }

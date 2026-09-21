@@ -21,10 +21,10 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  calculateEconomics, runSensitivityAnalysis, generateScenarios, runMonteCarlo,
+  calculateEconomics, runSensitivityAnalysis, generateScenarios, runMonteCarlo, DEFAULT_MC_SEED,
   expandQuickInputs, getPortfolioMetrics,
 } from '../engines/economics/screening.js';
-import { mulberry32 } from '../lib/stats/stats.js';
+import { mulberry32, quantile } from '../lib/stats/stats.js';
 
 const G = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', 'test-data', 'economics', 'goldens', 'screening_cases.json'),
@@ -55,19 +55,31 @@ const gateResult = (res, exp, engine) => {
   near(m.npv, em.npv, MONEY);
   ['totalRevenue', 'totalCapex', 'totalOpex', 'totalTax', 'totalRoyalty', 'totalGovTake']
     .forEach((f) => near(m[f], em[f], MONEY));
-  near(m.payback, em.payback, PAYBACK);
+  // EC3-1 / EC3-2: the first crossing, the last, and what happened between.
+  expect(m.paybackStatus).toBe(em.paybackStatus);
+  if (em.payback === null) expect(m.payback).toBeNull(); else near(m.payback, em.payback, PAYBACK);
+  if (em.paybackLast === null) expect(m.paybackLast).toBeNull(); else near(m.paybackLast, em.paybackLast, PAYBACK);
   if (em.maxExposure !== null) near(m.maxExposure, em.maxExposure, MONEY);
-  if (engine && engine.irr !== undefined) {
-    // A recorded disagreement: pin the engine's number and the oracle's.
-    near(m.irr, engine.irr, IRR);
-    expect(Math.abs(engine.irr - em.irr)).toBeGreaterThan(1);
-  } else if (em.irrRoots.length > 1) {
-    // Several roots: the engine must land on one of them.
-    const hit = em.irrRoots.some((r) => Math.abs(r - m.irr) <= IRR);
-    expect(hit).toBe(true);
+  // EC6-1: the internal rate of return, and the reason when there is none.
+  // There are no recorded IRR disagreements left; the engine agrees with
+  // the oracle case by case, including on which cases have no answer.
+  expect(m.irrStatus).toBe(em.irrStatus);
+  if (em.irr === null) {
+    expect(m.irr).toBeNull();
   } else {
     near(m.irr, em.irr, IRR);
   }
+  if (em.irrStatus === 'multiple-roots') {
+    // Every root the oracle found INSIDE the band, reported rather than one
+    // of them picked. The oracle's irrRoots also lists roots above the band.
+    const inBand = em.irrRoots.filter((r) => r > -99 && r < 1000);
+    expect(m.irrRoots).toHaveLength(inBand.length);
+    m.irrRoots.forEach((r, i) => near(r, inBand[i], IRR));
+  } else {
+    expect(m.irrRoots).toBeNull();
+  }
+  // A root above the band (lead decision 2026-09-15), on every result.
+  expect(m.irrRootAboveBand).toBe(em.irrRootAboveBand);
 };
 
 // ---------------------------------------------------------------------
@@ -163,7 +175,10 @@ describe('calculateEconomics IRR guard', () => {
       capex: [0, 0], opexFixed: [10, 10], opexVariable: [0, 0], abandonment: [0, 0],
       royaltyRate: 0, taxRate: 0,
     });
-    expect(metrics.irr).toBe(0);
+    // EC6-1: no sign change means no rate returns the money, which is null
+    // and a reason. It used to be reported as an IRR of 0.
+    expect(metrics.irr).toBeNull();
+    expect(metrics.irrStatus).toBe('no-sign-change');
   });
 
   it('solves a known mid-year IRR', () => {
@@ -217,11 +232,13 @@ describe('FDP economics on the sanctioned engine', () => {
     expect(r.metrics.payback).toBeLessThan(crossing + 1);
   });
 
-  test('a project that never pays back reports the project life (the Suite wrapper turns that into null)', () => {
+  test('a project that never pays back reports null and not-recovered (EC3-2; it used to report the project life)', () => {
     const c = byId('fdp_never_pays_back');
     const r = calculateEconomics(c.inputs);
     expect(r.cashflow.some((x) => x.cumulativeNCF >= 0)).toBe(false);
-    expect(r.metrics.payback).toBe(c.inputs.projectLife);
+    expect(r.metrics.payback).toBeNull();
+    expect(r.metrics.paybackStatus).toBe('not-recovered');
+    expect(r.metrics.payback).not.toBe(c.inputs.projectLife);
   });
 });
 
@@ -305,6 +322,7 @@ describe('ledger identities', () => {
     expect(r.metrics.payback).toBeLessThanOrEqual(i + 1);
     const rich = calculateEconomics({ ...base, capex: flat(0, 10) });
     expect(rich.metrics.payback).toBe(0);
+    expect(rich.metrics.paybackStatus).toBe('no-investment');
   });
 });
 
@@ -320,23 +338,125 @@ describe.each(['taxRoyalty', 'fdp', 'psc', 'irr', 'payback', 'depreciation', 'ho
   },
 );
 
-describe('recorded disagreements are pinned on both sides', () => {
-  test('IRR: the absolute derivative guard returns the 10 percent seed on 1e-7 $MM cash flows', () => {
+describe('EC6-1: the IRR disagreements are resolved, and the clamp is not an answer', () => {
+  test('a cash flow of order 1e-7 $MM: the 21 percent root is found, not the 10 percent seed', () => {
     const c = G.irr.find((x) => x.id === 'irr_tiny_cash_flows_derivative_guard');
-    expect(calculateEconomics(c.inputs).metrics.irr).toBe(10);
-    expect(c.expected.metrics.irr).toBeCloseTo(21, 6);
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irr).toBeCloseTo(21, 6);
+    expect(m.irrStatus).toBe('ok');
   });
 
-  test('IRR: a 9900 percent root is reported as the 1000 percent clamp', () => {
+  test('a 9900 percent root is reported as no answer and a reason, not as 1000', () => {
     const c = G.irr.find((x) => x.id === 'irr_beyond_clamp');
-    expect(calculateEconomics(c.inputs).metrics.irr).toBe(1000);
-    expect(c.expected.metrics.irr).toBeCloseTo(9900, 6);
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irr).toBeNull();
+    expect(m.irrStatus).toBe('above-clamp');
+    expect(c.expected.metrics.irrRoots[0]).toBeCloseTo(9900, 6);
   });
 
-  test('IRR: two roots at 10 and 20 percent, the engine lands on the lower one from its 10 percent start', () => {
+  test('one root inside the band and one above it: not called THE return (lead decision 2026-09-15)', () => {
+    const c = G.irr.find((x) => x.id === 'irr_root_above_band_with_one_inside');
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irr).toBeNull();
+    expect(m.irrStatus).toBe('multiple-roots');
+    expect(m.irrRootAboveBand).toBe(true);
+    expect(m.irrRoots).toHaveLength(1);
+    near(m.irrRoots[0], -20, 1e-6);
+    expect(c.expected.metrics.irrRoots.map((r) => Math.round(r))).toEqual([-20, 1500]);
+    // Negative control: the rule before it reported the in-band root as 'ok'.
+    const inBand = c.expected.metrics.irrRoots.filter((r) => r > -99 && r < 1000);
+    expect(inBand).toHaveLength(1);
+  });
+
+  test('a lone root above the band keeps above-clamp, with the flag set', () => {
+    const c = G.irr.find((x) => x.id === 'irr_beyond_clamp');
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irrStatus).toBe('above-clamp');
+    expect(m.irrRootAboveBand).toBe(true);
+  });
+
+  test('two roots: both are reported and neither is called THE return', () => {
     const c = G.irr.find((x) => x.id === 'irr_two_roots');
-    expect(c.expected.metrics.irrRoots.map((r) => Math.round(r))).toEqual([10, 20]);
-    expect(calculateEconomics(c.inputs).metrics.irr).toBeCloseTo(10, 6);
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irr).toBeNull();
+    expect(m.irrStatus).toBe('multiple-roots');
+    expect(m.irrRoots.map((r) => Math.round(r))).toEqual([10, 20]);
+  });
+
+  test('the case that ran to the clamp now reports its only, negative, root', () => {
+    const c = G.fdp.find((x) => x.id === 'fdp_never_pays_back');
+    const m = calculateEconomics(c.inputs).metrics;
+    expect(m.irrStatus).toBe('ok');
+    expect(m.irr).toBeCloseTo(-36.674688, 4);
+    // and it is a root: the mid-year NPV there is zero
+    const { cashflow } = calculateEconomics(c.inputs);
+    const npvAtIrr = cashflow.reduce((s, cf, i) => s + cf.ncf / Math.pow(1 + m.irr / 100, i + 0.5), 0);
+    const scale = cashflow.reduce((s, cf) => s + Math.abs(cf.ncf), 0);
+    expect(Math.abs(npvAtIrr) / scale).toBeLessThan(1e-9);
+  });
+
+  test('NEGATIVE CONTROL: no case anywhere reports exactly the clamp as its IRR', () => {
+    let checked = 0;
+    ['taxRoyalty', 'fdp', 'psc', 'irr', 'payback', 'depreciation', 'horizon', 'sweeps'].forEach((g) => {
+      G[g].forEach((c) => {
+        const m = calculateEconomics(c.inputs).metrics;
+        if (m.irr !== null) {
+          expect(m.irr).toBeLessThan(1000);
+          expect(m.irr).toBeGreaterThan(-99);
+        }
+        checked += 1;
+      });
+    });
+    expect(checked).toBeGreaterThan(40);
+  });
+});
+
+describe('EC3-1 and EC3-2: payback says what happened around it', () => {
+  const byId = (id) => G.payback.find((c) => c.id === id);
+
+  test('the OKPOMA shape: payback 0 at the first crossing, recrossed, and paybackLast by hand', () => {
+    const m = calculateEconomics(byId('payback_recrossed_from_first_period').inputs).metrics;
+    expect(m.payback).toBe(0);
+    expect(m.paybackStatus).toBe('recrossed');
+    // cumulative 10, -5, 55: back to non-negative two periods in, 5 short of zero with 60 coming in
+    near(m.paybackLast, 2 + 5 / 60, PAYBACK);
+    expect(m.maxExposure).toBeLessThan(0);
+  });
+
+  test('a crossing that is undone and redone: the first and the last crossing, both by hand', () => {
+    const m = calculateEconomics(byId('payback_recrossed_after_crossing').inputs).metrics;
+    near(m.payback, 1 + 100 / 150, PAYBACK);
+    near(m.paybackLast, 3 + 30 / 50, PAYBACK);
+    expect(m.paybackStatus).toBe('recrossed');
+  });
+
+  test('recrossed and never recovered for good: paybackLast is null', () => {
+    const m = calculateEconomics(byId('payback_recrossed_never_recovers').inputs).metrics;
+    expect(m.payback).toBe(0);
+    expect(m.paybackLast).toBeNull();
+    expect(m.paybackStatus).toBe('recrossed');
+  });
+
+  test('EC3-4: payback_multi_year recovers in the FIFTH period, 4.75 years, and its note now says so', () => {
+    const c = byId('payback_multi_year');
+    near(calculateEconomics(c.inputs).metrics.payback, 4 + 30 / 40, PAYBACK);
+    expect(c.note).toMatch(/4 \+ 30\/40 = 4\.75/);
+    expect(c.note).not.toMatch(/fourth period: 3 \+ 10\/40/);
+  });
+
+  test('NEGATIVE CONTROL: no case anywhere reports the project life for a cumulative that never turns non-negative', () => {
+    let never = 0;
+    ['taxRoyalty', 'fdp', 'psc', 'irr', 'payback', 'depreciation', 'horizon', 'sweeps'].forEach((g) => {
+      G[g].forEach((c) => {
+        const r = calculateEconomics(c.inputs);
+        if (!r.cashflow.some((x) => x.cumulativeNCF >= 0)) {
+          never += 1;
+          expect(r.metrics.payback).toBeNull();
+          expect(r.metrics.paybackStatus).toBe('not-recovered');
+        }
+      });
+    });
+    expect(never).toBeGreaterThan(3);
   });
 });
 
@@ -362,6 +482,19 @@ describe('sensitivity and scenarios', () => {
     ['Base', 'Low', 'High'].forEach((k) => gateResult(res[k], c.expected[k]));
     expect(res.Low.metrics.npv).toBeLessThan(res.Base.metrics.npv);
     expect(res.High.metrics.npv).toBeGreaterThan(res.Base.metrics.npv);
+  });
+
+  test('EC3-3: a scenario\'s variable opex moves with its production, by hand', () => {
+    const inputs = G.scenarios[0].inputs;
+    const res = generateScenarios(inputs);
+    const sum = (a) => a.reduce((s, v) => s + (v || 0), 0);
+    const fixed = sum(inputs.opexFixed);
+    const variable = sum(inputs.opexVariable);
+    expect(variable).toBeGreaterThan(0);
+    near(res.Low.metrics.totalOpex, 1.2 * fixed + 0.8 * variable, MONEY);
+    near(res.High.metrics.totalOpex, 0.8 * fixed + 1.2 * variable, MONEY);
+    // Negative control: the retired rule held variable opex at the base money.
+    expect(Math.abs(res.Low.metrics.totalOpex - (1.2 * fixed + variable))).toBeGreaterThan(1);
   });
 });
 
@@ -390,25 +523,61 @@ describe('expandQuickInputs', () => {
 describe('getPortfolioMetrics', () => {
   test.each(G.portfolio.map((c) => [c.id, c]))('%s', (_id, c) => {
     const m = getPortfolioMetrics(c.projects);
-    ['totalNPV', 'totalCapex', 'capitalEfficiency', 'avgIRR'].forEach((f) => near(m[f], c.expected[f], 1e-9));
-    if (c.engine) {
-      // chanceOfSuccess 0 is read as 1.0 by `|| 1.0`: pinned on both sides.
-      near(m.totalRiskedNPV, c.engine.totalRiskedNPV, 1e-9);
-      expect(c.expected.totalRiskedNPV).toBeCloseTo(20, 9);
-    } else {
-      near(m.totalRiskedNPV, c.expected.totalRiskedNPV, 1e-9);
-    }
+    ['totalNPV', 'totalCapex', 'capitalEfficiency', 'avgIRR', 'totalRiskedNPV'].forEach((f) => near(m[f], c.expected[f], 1e-9));
+    // EC1-10: no portfolio golden is a recorded disagreement any more.
+    expect(c.engine).toBeUndefined();
+  });
+
+  describe('EC1-10: a chance of success of 0 is a chance of 0', () => {
+    const golden = () => G.portfolio.find((c) => c.id === 'portfolio_zero_chance');
+
+    test('the written-off project contributes nothing; the retired `|| 1.0` rule is the negative control', () => {
+      const c = golden();
+      const m = getPortfolioMetrics(c.projects);
+      near(m.totalRiskedNPV, 20, 1e-9);
+      const retired = c.projects.reduce((t, p) => t + (p.npv || 0) * (p.chanceOfSuccess || 1.0), 0);
+      near(retired, 120, 1e-9);
+      expect(Math.abs(m.totalRiskedNPV - retired)).toBeGreaterThan(50);
+    });
+
+    test('a missing or null chance still means certainty', () => {
+      const m = getPortfolioMetrics([{ npv: 100 }, { npv: 40, chanceOfSuccess: null }, { npv: 10, chanceOfSuccess: undefined }]);
+      near(m.totalRiskedNPV, 150, 1e-9);
+    });
+
+    test('the band edges 0 and 1 are accepted', () => {
+      near(getPortfolioMetrics([{ npv: 10, chanceOfSuccess: 0 }, { npv: 7, chanceOfSuccess: 1 }]).totalRiskedNPV, 7, 1e-12);
+    });
+
+    test.each([
+      [-0.1, /project at index 1 has chanceOfSuccess -0\.1/],
+      [1.5, /project at index 1 has chanceOfSuccess 1\.5/],
+      [NaN, /chanceOfSuccess NaN/],
+      [Infinity, /chanceOfSuccess Infinity/],
+      ['0.5', /chanceOfSuccess "0\.5"/],
+      [true, /chanceOfSuccess true/],
+    ])('a present chance of %p is refused by project', (chance, message) => {
+      expect(() => getPortfolioMetrics([{ npv: 1, chanceOfSuccess: 0.5 }, { npv: 2, chanceOfSuccess: chance }]))
+        .toThrow(message);
+      // Negative control: the retired rule silently accepted every one of these.
+      expect(() => [{ npv: 2, chanceOfSuccess: chance }].reduce((t, p) => t + p.npv * (p.chanceOfSuccess || 1.0), 0))
+        .not.toThrow();
+    });
+
+    test('a named project is refused by name as well as index', () => {
+      expect(() => getPortfolioMetrics([{ name: 'Block 7', npv: 1, chanceOfSuccess: 2 }]))
+        .toThrow(/project "Block 7" \(index 0\) has chanceOfSuccess 2; a chance of success must be a number from 0 to 1/);
+    });
   });
 });
 
-describe('runMonteCarlo with a seeded stand-in for Math.random', () => {
+describe('runMonteCarlo, seeded (EC3-0)', () => {
   afterEach(() => jest.restoreAllMocks());
 
-  const seeded = G.monteCarloSeeded.filter((c) => !c.engine);
-  test.each(seeded.map((c) => [c.id, c]))('%s', async (_id, c) => {
-    jest.spyOn(Math, 'random').mockImplementation(mulberry32(c.seed));
-    const res = await runMonteCarlo(c.inputs, c.settings);
+  const gate = (res, c) => {
     const e = c.expected;
+    expect(res.seed).toBe(c.seed);
+    expect(res.iterations).toBe(c.settings.iterations);
     expect(res.allValues).toHaveLength(e.allValues.length);
     res.allValues.forEach((v, i) => near(v, e.allValues[i], MONEY));
     near(res.p10, e.p10, MONEY);
@@ -427,30 +596,107 @@ describe('runMonteCarlo with a seeded stand-in for Math.random', () => {
       near(p.value, e.cdf[i].value, MONEY);
       near(p.probability, e.cdf[i].probability, 1e-9);
     });
+  };
+
+  test.each(G.monteCarloSeeded.map((c) => [c.id, c]))('%s', async (_id, c) => {
+    gate(await runMonteCarlo(c.inputs, c.settings), c);
   });
 
-  test('an unseeded run is not reproducible (Math.random): two runs differ', async () => {
-    const c = seeded[0];
+  test('never calls Math.random', async () => {
+    const spy = jest.spyOn(Math, 'random');
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed42_100');
+    await runMonteCarlo(c.inputs, c.settings);
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  test('the same seed reproduces the run exactly; a different seed does not', async () => {
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed42_100');
     const a = await runMonteCarlo(c.inputs, c.settings);
     const b = await runMonteCarlo(c.inputs, c.settings);
-    expect(a.allValues).not.toEqual(b.allValues);
+    const d = await runMonteCarlo(c.inputs, { ...c.settings, seed: 43 });
+    expect(a.allValues).toEqual(b.allValues);
+    expect(d.allValues).not.toEqual(a.allValues);
   });
 
-  test('zero uncertainty everywhere: the oracle gives the base NPV, the engine throws (recorded)', async () => {
-    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_zero_uncertainty_throws');
-    expect(c.engine.throws).toBe(true);
-    near(c.expected.p50, c.expected.baseNPV, MONEY);
-    near(c.expected.p10, c.expected.p90, MONEY);
-    near(calculateEconomics(c.inputs).metrics.npv, c.expected.baseNPV, MONEY);
-    jest.spyOn(Math, 'random').mockImplementation(mulberry32(c.seed));
-    await expect(runMonteCarlo(c.inputs, c.settings)).rejects.toThrow();
-  });
-
-  test('fewer than 50 iterations leaves the cdf empty (recorded)', async () => {
-    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed11_40_iters_cdf_empty');
-    expect(c.expected.cdf).toEqual([]);
-    jest.spyOn(Math, 'random').mockImplementation(mulberry32(c.seed));
+  test('no seed means DEFAULT_MC_SEED, the breakeven default, reported with the result', async () => {
+    expect(DEFAULT_MC_SEED).toBe(20260829);
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_default_seed');
+    expect(c.settings.seed).toBeUndefined();
     const res = await runMonteCarlo(c.inputs, c.settings);
-    expect(res.cdf).toEqual([]);
+    expect(res.seed).toBe(DEFAULT_MC_SEED);
+  });
+
+  test('zero uncertainty everywhere: every value is the base NPV and every iteration lands in bin 0 (S4 fixed)', async () => {
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_zero_uncertainty_degenerate');
+    const res = await runMonteCarlo(c.inputs, c.settings);
+    near(res.p10, c.expected.baseNPV, MONEY);
+    near(res.p90, c.expected.baseNPV, MONEY);
+    near(calculateEconomics(c.inputs).metrics.npv, c.expected.baseNPV, MONEY);
+    expect(res.histogram[0].count).toBe(c.settings.iterations);
+  });
+
+  test('fewer than 50 iterations still draws the whole S-curve (S5 fixed)', async () => {
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed11_40_iters');
+    const res = await runMonteCarlo(c.inputs, c.settings);
+    expect(res.cdf).toHaveLength(51);
+  });
+
+  test('EC3-6: the S-curve runs from the smallest NPV to the largest and its 10 / 50 / 90 heights ARE the cards', async () => {
+    for (const c of G.monteCarloSeeded) {
+      // eslint-disable-next-line no-await-in-loop
+      const res = await runMonteCarlo(c.inputs, c.settings);
+      expect(res.cdf).toHaveLength(51);
+      expect(res.cdf[0]).toEqual({ value: res.allValues[0], probability: 0 });
+      expect(res.cdf[50]).toEqual({ value: res.allValues[res.allValues.length - 1], probability: 100 });
+      expect(res.cdf[5].probability).toBe(10);
+      expect(res.cdf[5].value).toBe(res.p10);
+      expect(res.cdf[25].value).toBe(res.p50);
+      expect(res.cdf[45].value).toBe(res.p90);
+    }
+  });
+
+  test('EC3-7: ONE price factor per iteration, applied to every year (read back through a linear ledger)', async () => {
+    // No royalty, no tax, no gas, one uncertain variable: NPV is exactly
+    // a + b * f in the price factor f, so each iteration's NPV names its f.
+    const life = 6;
+    const inputs = {
+      startYear: 2030, projectLife: life, discountRate: 10, fiscalType: 'TaxRoyalty',
+      production: { oil: [0, 900000, 800000, 700000, 600000, 500000], gas: flat(0, life) },
+      price: { oil: flat(70, life), gas: flat(0, life) },
+      capex: [120, 0, 0, 0, 0, 0], opexFixed: flat(5, life), opexVariable: flat(0, life), abandonment: flat(0, life),
+      royaltyRate: 0, taxRate: 0,
+    };
+    const settings = { iterations: 200, seed: 99, uncertainties: { reserves: 0, price: 0.25, capex: 0 } };
+    const res = await runMonteCarlo(inputs, settings);
+    const a = calculateEconomics({ ...inputs, price: { oil: flat(0, life), gas: flat(0, life) } }).metrics.npv;
+    const b = calculateEconomics(inputs).metrics.npv - a;
+    const rng = mulberry32(99);
+    const predicted = Array.from({ length: 200 }, () => a + b * (1 + 0.25 * (2 * rng() - 1))).sort((x, y) => x - y);
+    res.allValues.forEach((v, i) => near(v, predicted[i], 1e-9));
+    // Negative control: a draw per year would not collapse onto one factor.
+    const perYear = mulberry32(99);
+    const yearly = calculateEconomics({ ...inputs, price: { oil: inputs.price.oil.map((p) => p * (1 + 0.25 * (2 * perYear() - 1))), gas: flat(0, life) } }).metrics.npv;
+    expect(Math.abs(yearly - predicted[0])).toBeGreaterThan(1e-6);
+  });
+
+  test('EC3-7: reserves moves variable opex with the volume', async () => {
+    const c = G.monteCarloSeeded.find((x) => x.id === 'mc_seed42_100');
+    const inputs = { ...c.inputs, opexVariable: c.inputs.opexVariable.map((v) => v * 50) };
+    const only = { iterations: 1, seed: 5, uncertainties: { reserves: 0.2, price: 0, capex: 0 } };
+    const [npv] = (await runMonteCarlo(inputs, only)).allValues;
+    const f = 1 + 0.2 * (2 * mulberry32(5)() - 1);
+    const scaled = {
+      ...inputs,
+      production: { oil: inputs.production.oil.map((v) => v * f), gas: inputs.production.gas.map((v) => v * f) },
+      opexVariable: inputs.opexVariable.map((v) => v * f),
+    };
+    near(npv, calculateEconomics(scaled).metrics.npv, MONEY);
+    const volumeOnly = { ...scaled, opexVariable: inputs.opexVariable };
+    expect(Math.abs(npv - calculateEconomics(volumeOnly).metrics.npv)).toBeGreaterThan(1);
+  });
+
+  test.each((G.monteCarloRefused || []).map((c) => [c.id, c]))('refused: %s', async (_id, c) => {
+    expect(c.expected.throws).toBe(true);
+    await expect(runMonteCarlo(c.inputs, c.settings)).rejects.toThrow(c.expected.error);
   });
 });

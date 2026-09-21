@@ -338,6 +338,75 @@ and its consumers.
   written by `tools/validation/wellsite/gen_report_day.py` with the
   expected counts worked by hand in the test-data README.
 
+- `lib/conventions/percentile.js` — the Suite-wide percentile conventions
+  (owner decision 2026-09-09): P-labels mean probability of exceedance of an
+  OUTCOME where more is better (SPE PRMS), P90 the low case, shown low to
+  high; parameters and more-is-worse quantities never carry a P-label and use
+  "10th / 50th / 90th percentile". Moved here 2026-09-14 from the Suite's
+  `src/lib/percentileConventions.js` (which becomes a re-export shim) so the
+  NextGen courses import the same words as the apps. Words and gate helpers
+  only (`findPLabels`, `outcomeOrderViolation`), no numerics.
+
+- `engines/downstream/` — the Midstream & Downstream module (M&D DS0 to
+  DS10, 2026-08-29), eleven modules: `streamModel.js` (the shared
+  product and stream vocabulary), `crudeAssay.js`, `productBlending.js`
+  and `refineryPlanning.js` (both solved as linear programmes on
+  `lib/lp/simplex.js`), `modularRefinery.js`, `terminalDepot.js`,
+  `fuelPricing.js`, `lpgCng.js`, `energyEfficiency.js`,
+  `carbonAbatement.js` and `flareToValue.js` (which reuses
+  `engines/production/gasProperties.js` and
+  `engines/facilities/compression.js`). The DS waves wrote these
+  straight into the Suite's vendored copy of this package and never
+  upstreamed them, so every `git subtree pull` into the Suite saw them
+  as deleted upstream; they were moved here byte for byte on 2026-09-14
+  with their twelve test files, which are self-consistency identities.
+  `lib/lp/simplex.js` is the dense simplex solver (`solveLP`,
+  `LP_STATUS`) the two LP modules share. VALIDATION (MD-0, per course
+  wave): MD1-0 (2026-09-19) put `crudeAssay.js`, `productBlending.js`
+  and `simplex.js` behind stdlib oracles in `tools/validation/downstream/`
+  (the LP by exact rational vertex enumeration), goldens in
+  `test-data/downstream/goldens/`, the gates
+  `downstream.crudeAssay.golden`, `downstream.productBlending.golden`
+  and `lp.simplex.golden`, and a planted-defect battery
+  (`negcontrol_md1.sh`); findings in `FINDINGS-crude.md`. The other
+  eight modules have no oracle yet and stay gated for their courses.
+  MD2-0 (2026-09-19) did the same for `refineryPlanning.js`,
+  `streamModel.js` (the variance) and `modularRefinery.js`: oracles
+  `oracle_refineryplanning.py` (on `exact_simplex.py`, a rational simplex
+  that returns only certificate-proved optima) and
+  `oracle_modularrefinery.py`, gate `downstream.refinery.golden`, battery
+  `negcontrol_md2.sh`, findings `FINDINGS-refinery.md`. It added the
+  opt-in `lossCarryForward` to `engines/economics/screening.js`.
+  MD5-0 (2026-09-19, run beside MD4-0) did the same for
+  `carbonAbatement.js` and `energyEfficiency.js`: oracles
+  `oracle_carbonabatement.py` (combustion by mass, a levelised PV ledger)
+  and `oracle_energyefficiency.py` (a species ledger whose mass balance
+  must close, pinch by the largest heat deficit), gate
+  `downstream.carbon.golden`, battery `negcontrol_md5.sh`, findings
+  `FINDINGS-carbon.md`.
+  MD3-0 (2026-09-19) did the same for `terminalDepot.js` and
+  `fuelPricing.js`: oracles `oracle_terminaldepot.py` (strapping from tank
+  geometry, exact factorial Erlang C) and `oracle_fuelpricing.py` (a cargo
+  invoice, insurance on CIF by fixed point), gate `downstream.supply.golden`,
+  battery `negcontrol_md3.sh`, findings `FINDINGS-supply.md`. The three
+  Commercial & Trading course engines (MD1 to MD3) are now all gated.
+  MD4-0 (2026-09-19): `flareToValue.js` and `lpgCng.js`, oracles
+  `oracle_flaretovalue.py` and `oracle_lpgcng.py`, gate
+  `downstream.gasvalue.golden`, battery `negcontrol_md4.sh`, findings
+  `FINDINGS-gasvalue.md`.
+  COPY SWEEP (B3, 2026-09-21): live NextGen lessons quote downstream
+  engine strings verbatim, so the domain's user-facing strings were swept
+  for the owner's copy rule (no contrastive "X, not Y", "rather than",
+  "instead of", "is not a Z", or a capitalised NOT). Strings only: no value
+  moved. `terminalDepot.rackQueue` takes an optional `vocabulary` (its two
+  refusal sentences); the loading rack keeps `RACK_VOCABULARY`, and the
+  bottling carousel (`BOTTLING_QUEUE_VOCABULARY`: filling positions), the
+  CNG forecourt (`CNG_QUEUE_VOCABULARY`: dispensers) and the petrol
+  forecourt (`FORECOURT_QUEUE_VOCABULARY`: nozzles) speak their own. The
+  gate `downstream copy: no contrastive shapes` in
+  `__tests__/engine.copy.lint.test.js` reads every downstream string
+  literal and holds the domain clean.
+
 - `engines/economics/` — the Economics module (EC0 extraction wave,
   2026-09-08; plan of record in the Suite at
   docs/scope/NextGen-Remaining-Courses-PLAN.md section 8, which gated
@@ -380,6 +449,137 @@ and its consumers.
   clamp; the knapsack grid can pick a set over the limit or 23 percent
   short; `calculateCPM` is a passthrough; the NPV profile point at the
   applied rate is evaluated at a rate rounded to two decimals).
+- `engines/assurance/` — the Assurance & Compliance module (AS12
+  extraction wave, 2026-09-18; plan of record in the Suite at
+  docs/scope/Assurance-ROADMAP.md, which gated both NextGen assurance
+  courses on this extraction). Rules, not numerics: nine modules taken
+  from the Suite's `src/lib/` with the UI colour tokens left behind
+  (every `*_TOKENS`, `*_CHART_COLORS` and the risk band class helpers
+  stay Suite-side) and imports repointed; everything else verbatim.
+  `riskScoring.js` (ISO 31000 5x5 score, bands, residual as inherent
+  until assessed, appetite, review dates), `complianceStatus.js`
+  (obligation status: expired outranks overdue, due soon inside the
+  obligation's own lead time, compliant only with evidence; roll
+  forward), `documentControl.js` (review due calculus, revision
+  numbers, confidentiality floor), `peerReview.js` (comment disposition
+  transitions; a review cannot close over an unresolved Critical or
+  Major comment), `managementOfChange.js` (temporary change expiry,
+  every approval level signs before implementation, action closure),
+  `qualityAssurance.js` (hold points, checkpoint decisions carry a
+  verification record, NCR closure on evidence and CAPA effectiveness,
+  plan closure, NCR ageing), `isoCompliance.js` (conformity claims need
+  evidence, date and assessor; ISO 19011 independence; clause coverage
+  over the certification cycle; certification readiness as a list of
+  blockers, never a percentage; ISO 9001 10.2 finding closure),
+  `lessonsLearned.js` (an anecdote is not a lesson, an author may not
+  validate their own, Embedded is earned by an application) and
+  `auditManagement.js` (checklist completeness, critical nonconformance
+  raises a finding, lead auditor is not the auditee, a programme is
+  complete when its audits are; the finding rules are isoCompliance's,
+  imported). `calendar.js` is the one copy of the calendar date helpers
+  five Suite modules each carried byte for byte (a `YYYY-MM-DD` parses at
+  LOCAL midnight; AS3 found a UTC parse that moved a permit expiry by a
+  day). Gates: the Suite's rule tests ported (`assurance.*.test.js`),
+  and `assurance.goldens.test.js`, which runs every case in
+  `test-data/assurance/goldens/` against the engine and replays them all
+  under five time zones. The goldens are written by stdlib python
+  oracles in `tools/validation/assurance/`, from the rules as documented
+  rather than from the JavaScript, and they compute every summary
+  (1,745 cases). The oracles found thirteen engine defects, all repaired
+  in the same wave and each pinned by `"repaired"` cases: impossible dates
+  rolling over into real ones and years below 1000 misprinted
+  (calendar), a UTC parse that made a review due today overdue west of
+  Greenwich and a blank residual axis scoring 0 (risk), unreadable dates
+  reading "due soon" or passing the temporary change gate (documents,
+  MOC), a null severity sorting above Critical and "A open comment"
+  (peer review), a non-transitive lesson sort, and in ISO the dashboard
+  ignoring each standard's certification cycle, findings ageing after
+  closure and a 29 February cycle start rolled to 1 March. The
+  `FINDINGS-*.md` files keep the owner questions that were not changed.
+- `engines/hse/safetyStats.js` (HSE H1, 2026-09-19): incidence, FAR,
+  severity and API RP 754 PSE rates with the base always named by the
+  caller (200,000 OSHA/BLS, 1,000,000 IOGP, 100,000,000 FAR); pooled and
+  rolling rates, sum-then-divide, with the mean of period rates shown
+  beside them; the Garwood exact Poisson interval (its own inverse
+  regularised gamma, gated to 1e-10 against mpmath and scipy); the
+  conditional exact comparison of two rates; the u-chart. Goldens in
+  `test-data/hse/goldens/` from `tools/validation/hse/oracle_safetystats.py`
+  (scipy + mpmath, not stdlib), anchored on the BLS worked example and
+  IOGP 2024 published figures; findings and the negative control in
+  `tools/validation/hse/`.
+- `engines/hse/exposure.js` (HSE H2, 2026-09-19): occupational hygiene
+  exposure, written here first. Noise dose, reference duration and TWA
+  per 29 CFR 1910.95 Appendix A with OSHA PEL, OSHA action level and
+  NIOSH REL presets (each carries the TWA constant its source prints,
+  16.61 or 10.0), the OSHA extended-shift action level, hearing protector
+  estimates (Appendix B, the OTM 50 percent field derating and dual
+  protection, NIOSH type derating), LEX,8h, weekly LEX and HSE exposure
+  points, the 1910.1000(d) 8-hour TWA and mixture index, the 15-minute
+  STEL, Brief and Scala factors, WBGT and the NIOSH 2016 RAL/REL. No
+  licensed limit table is embedded: limits are inputs. Gate:
+  `hse.exposure.test.js` replays `test-data/hse/goldens/exposure_cases.json`
+  (written by `tools/validation/hse/oracle_exposure.py`) against the
+  engine, checks 372 cases against the value the source prints, pins
+  five published errata and 57 refusals by field name;
+  `tools/validation/hse/negcontrol_exposure.sh` records what the gate can
+  and cannot catch (the heat-limit equations and WBGT weights have no
+  printed value that reproduces them, so a change made to both engine and
+  oracle passes).
+- `engines/hse/lopa.js` (HSE H3, 2026-09-19) — Layer of Protection
+  Analysis and SIL determination / verification: scenario frequency
+  (CCPS 2001: IEF x conditional modifiers x credited IPL PFDs), required
+  RRF and SIL against a supplied TMEL with explicit NO_SIF_REQUIRED,
+  below-SIL1 and BEYOND_SIL3_REDESIGN states; low-demand PFDavg by the
+  full IEC 61508-6:2010 Annex B simplified equations (1oo1, 1oo2, 2oo2,
+  2oo3, 1oo3; DD/MTTR, MRT, beta/betaD, optional proof test coverage),
+  which reduce to the ISA-TR84.00.02 forms; proof test interval
+  sensitivity and the longest interval meeting a target. No failure-rate
+  data and no architectural-constraint table are embedded. Goldens
+  (`test-data/hse/goldens/lopa_cases.json`): the 61508 Association worked
+  SIF (Dolan 2024) to every printed digit, plus an exact-rational oracle
+  and a time-dependent quadrature route (`tools/validation/hse/`,
+  FINDINGS-lopa.md, negcontrol_lopa.sh). Follow-ups from the course
+  builds (2026-09-21): one exported `BAND_CONVENTION` is printed by
+  `silFromPfdAvg`, `lopaScenario` and `pfdAvgSubsystem`;
+  `maxProofTestInterval` refuses a floor of PFDavg 1 or more as
+  `pfdAvgSubsystem` does (golden `maxT-refused-floor`); the three goldens
+  that carry the rare-event warning are documented and gated.
+- `engines/hse/consequence.js` (HSE H4, 2026-09-19): consequence
+  modelling. Liquid and gas orifice discharge (choked at or above the
+  critical ratio), bunded pool from a spill, Mackay-Matsugu evaporation,
+  Gaussian plume with Briggs rural sigmas and the distance to a
+  concentration, pool burning rate, Thomas flame length (still-air form
+  shared with facilities/spacing.js), tilt, surface emissive power, the
+  tilted-cylinder view factor, Bagster transmissivity, the solid-flame
+  pool fire, TNT equivalence with Kinney-Graham overpressure, and
+  thermal, toxic and overpressure probits. It exports none of the
+  point-source radiation outputs FC1 and FC5 grade. Gate:
+  `hse.consequence.test.js` replays
+  `test-data/hse/goldens/consequence_cases.json` (written by
+  `tools/validation/hse/oracle_consequence.py`); findings, errata and
+  dropped scope in `tools/validation/hse/FINDINGS-consequence.md`.
+- `engines/hse/qra.js` (HSE H5, 2026-09-19): quantitative risk
+  assessment. Event trees with every branch set checked to sum to 1 (and
+  a flammable-release builder with the Purple Book 0.6 / 0.4 flash fire /
+  explosion split and its Table 4.5 direct ignition), location-specific
+  individual risk, IRPA over occupied locations, PLL, FAR on the
+  safetyStats 1e8 base, F-N curves ("N or more") against the Purple Book /
+  Bevi line F = 1e-3 / N^2 or the single R2P2 point (50 deaths, 1 in 5000),
+  R2P2 ALARP banding with a stated boundary convention, cost-benefit with
+  the HSE gross disproportion test (cost / benefit > DF; VPF and DF are
+  inputs; discounting through the canonical `economics/cashflow.ts` npv),
+  the Purple Book indoor / outdoor fatality fractions, and the H4 link:
+  the toxic plume probability of death at a grid point (PB Appendix 6.B)
+  and pool fire probit transects into IR contours. Gate:
+  `hse.qra.test.js` replays `test-data/hse/goldens/qra_cases.json`
+  (written by `tools/validation/hse/oracle_qra.py`); findings, errata,
+  dropped scope, the fail-opens closed and the negative controls in
+  `tools/validation/hse/FINDINGS-qra.md` and `negcontrol_qra.sh`. It
+  re-grades nothing: point-source flare and pool radiation stay with FC1,
+  FC5 and `engines/facilities/`, and the probits, plume and solid flame
+  stay with `engines/hse/consequence.js`. The IRPA occupancy-sum refusal
+  names the field the caller typed (occupancyFraction, hoursPerYr, or both;
+  2026-09-21).
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
@@ -388,6 +588,24 @@ and its consumers.
   4.1.0 subset the economics modules use (parseISO, isValid,
   differenceInDays, addDays, light `format` tokens), pinned against the
   real library in `test-data/dates/`; UTC assumed.
+
+## Own-property lookups (2026-09-21)
+
+A preset or table read as `TABLE[key]` walks the prototype chain, so
+`'constructor'`, `'toString'`, `'valueOf'`, `'hasOwnProperty'` and
+`'__proto__'` are found in every object literal and pass a falsy guard; a
+running total keyed by a caller's name loses a `'__proto__'` row and can
+write onto `Object.prototype`. The rule for every engine: read a table
+with a caller key through an own-property check
+(`Object.prototype.hasOwnProperty.call`), and store caller-named rows with
+`Object.defineProperty` or a Map. `engines/hse/qra.js` was the first file
+repaired (H5); the repo-wide sweep closed the rest across assurance,
+basin, dca, downstream, drilling, earthmodeling, economics, facilities,
+fluid, hse, mapping, mbal, petrophysics, production, rockphysics,
+seismolord, sim, waterflood, welldata, wellsite, welltest and `lib/`.
+`__tests__/prototypeChainLookups.test.js` calls each repaired function with
+all five names and is red on the unrepaired code. Domain notes are in the
+matching `tools/validation/<domain>/FINDINGS-*.md`.
 
 ## Consumption (git subtree)
 
@@ -474,6 +692,12 @@ functions through one-line shims at supabase/functions/_shared/.
 | `test-data/fluid/{goldens,componentReference,characterizationReference,nistVaporPressure}.json` | `src/utils/fluidstudio/eos/__tests__/` |
 | `test-data/fluid/literature-fixtures.json` | `tools/validation/fluidstudio/` |
 | `tools/validation/fluid/` | `tools/validation/fluidstudio/` |
+| `engines/downstream/` (all eleven modules) | the Suite's vendored `packages/engines/engines/downstream/` (written there directly by DS0 to DS10 and never upstreamed; moved byte for byte 2026-09-14; the Suite's `src/utils/downstream/engine/*.js` re-export shims stay) |
+| `lib/conventions/percentile.js` | `src/lib/percentileConventions.js` (verbatim; the Suite path becomes a re-export shim) |
+| `lib/lp/simplex.js` | the Suite's vendored `packages/engines/lib/lp/simplex.js` (same history; shim `src/utils/downstream/engine/simplex.js` stays) |
+| `__tests__/downstream.*.test.js`, `__tests__/lp.simplex.test.js` | the Suite's vendored `packages/engines/__tests__/` (same history) |
+| `engines/assurance/{riskScoring,complianceStatus,documentControl,peerReview,managementOfChange,qualityAssurance,isoCompliance,lessonsLearned,auditManagement}.js` | `src/lib/` (same names; the colour tokens stayed in the Suite, which keeps each path as a shim that re-exports the engine and adds them) |
+| `engines/assurance/calendar.js` | five byte-identical copies of `parseDateOnly` / `daysUntil` / `toDateOnlyString` in the Suite modules above |
 
 Import rewrites at extraction: `engines/seismolord/synthetics.js` and
 all `@/lib/*` imports became `../../lib/*` (the package has no `@/`

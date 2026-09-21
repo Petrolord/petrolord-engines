@@ -50,6 +50,38 @@ const branchAt = (root, p) => nodeAt(root, p.slice(0, -1)).branches[p[p.length -
 
 const countNodes = (n) => 1 + (n.branches || []).reduce((s, b) => s + countNodes(b.node), 0);
 
+/**
+ * A golden case can carry values JSON cannot hold (NaN, Infinity): each
+ * `nonFinite` entry names the path to the field and the value to inject.
+ */
+const revive = (c) => {
+  const clone = JSON.parse(JSON.stringify(c));
+  for (const inj of c.nonFinite || []) {
+    const target = inj.at.slice(0, -1).reduce((o, k) => o[k], clone);
+    target[inj.at[inj.at.length - 1]] = Number(inj.value);
+  }
+  return clone;
+};
+
+/** EC4-4: the refusal names what carries the field, the field and the node. */
+const expectRefusal = (call, refusal, label) => {
+  expect(call).toThrow(DecisionTreeError);
+  let err = null;
+  try { call(); } catch (e) { err = e; }
+  const phrase = {
+    blank: refusal.field === 'cost' ? 'has a blank cost' : 'is blank',
+    notNumber: refusal.field === 'cost' ? 'has a cost that is not a finite number' : 'is not a finite number',
+    noMean: 'has no finite mean',
+    negative: 'a cost cannot be negative: enter a receipt as a payoff',
+  }[refusal.kind];
+  expect(`${label}: ${err.message}`).toContain(phrase);
+  if (refusal.subject) expect(err.message).toContain(refusal.subject);
+  if (refusal.node) {
+    expect(err.message).toContain(`(at node "${refusal.node}")`);
+    expect(err.nodeLabel).toBe(refusal.node);
+  }
+};
+
 /** Walk an engine-annotated tree against the oracle's flattened expectation. */
 const expectTree = (r, expected, label) => {
   expect(countNodes(r)).toBe(expected.nodes.length);
@@ -57,7 +89,15 @@ const expectTree = (r, expected, label) => {
     const node = nodeAt(r, n.path);
     expect(node.type).toBe(n.type);
     near(node.emv, n.emv, ABS, `${label} node [${n.path}] emv`);
-    if (n.type === 'decision') expect(node.bestBranchIndex).toBe(n.bestBranchIndex);
+    if (n.type === 'decision') {
+      expect(node.bestBranchIndex).toBe(n.bestBranchIndex);
+      // EC4-1: every tied branch, in listed order, at both precisions.
+      expect(node.tiedIndices).toEqual(n.tiedIndices);
+      expect(node.indifferent).toBe(n.indifferent);
+      expect(node.tiedIndicesAtCardPrecision).toEqual(n.tiedIndicesAtCardPrecision);
+      expect(node.indifferentAtCardPrecision).toBe(n.indifferentAtCardPrecision);
+      expect(node.bestBranchIndex).toBe(n.tiedIndices[0]);
+    }
   }
   for (const b of expected.branches) {
     const br = branchAt(r, b.path);
@@ -65,7 +105,13 @@ const expectTree = (r, expected, label) => {
     expect(br.onOptimalPath).toBe(b.onOptimalPath);
   }
   near(r.emv, expected.emv, ABS, `${label} root emv`);
-  if (expected.bestBranchIndex !== undefined) expect(r.bestBranchIndex).toBe(expected.bestBranchIndex);
+  if (expected.bestBranchIndex !== undefined) {
+    expect(r.bestBranchIndex).toBe(expected.bestBranchIndex);
+    expect(r.tiedIndices).toEqual(expected.tiedIndices);
+    expect(r.indifferent).toBe(expected.indifferent);
+    expect(r.tiedIndicesAtCardPrecision).toEqual(expected.tiedIndicesAtCardPrecision);
+    expect(r.indifferentAtCardPrecision).toBe(expected.indifferentAtCardPrecision);
+  }
 };
 
 // ---------------------------------------------------------------------------
@@ -335,12 +381,22 @@ describe('Suite port: generateVoiData (delegating to the canonical decision engi
     expect(r.insights).toContain('not justified');
   });
 
-  it('warns when indicator entries contradict the stated priors', () => {
+  it('withholds the value of information when indicator entries contradict the stated priors (EC4-0)', () => {
     const inconsistent = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
     inconsistent.infoScenario.indicators[0].conditionalProbabilities[0].probability = 90;
+    inconsistent.infoScenario.indicators[0].conditionalProbabilities[1].probability = 10;
     const r = generateVoiData(inconsistent);
     expect(r.consistency.consistent).toBe(false);
+    expect(r.withheld).toBe(true);
     expect(r.insights).toContain('Consistency warning');
+    expect(r.insights).toContain('is withheld');
+    // It survived AND it said so: the withheld cards are null, not a number.
+    expect(r.kpis.voi).toBeNull();
+    expect(r.kpis.netVoi).toBeNull();
+    expect(r.kpis.emvWithInfo).toBeNull();
+    expect(Number(r.kpis.emvWithoutInfo)).toBeCloseTo(15, 2);
+    expect(Number(r.kpis.evpi)).toBeCloseTo(63, 2);
+    expect(r.insights).not.toContain('Since this is');
   });
 
   describe('the decision tree behind the diagram', () => {
@@ -369,24 +425,20 @@ describe('Suite port: generateVoiData (delegating to the canonical decision engi
       expect(chances[1]).toBeCloseTo(0.6, 10);
     });
 
-    it('still draws when posteriors contradict the priors, and is not repaired', () => {
+    it('is not drawn when posteriors contradict the priors (EC4-0: withheld with the cards)', () => {
       const contradicting = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
       contradicting.infoScenario.indicators[0].conditionalProbabilities[0].probability = 90;
       contradicting.infoScenario.indicators[0].conditionalProbabilities[1].probability = 10;
       const r = generateVoiData(contradicting);
       expect(r.consistency.consistent).toBe(false);
-      expect(r.tree).toBeTruthy();
-      const chances = r.tree.branches[0].node.branches.map((b) => b.probability);
-      expect(chances[0]).toBeCloseTo(0.4, 10);
-      expect(r.tree.branches[0].branchValue).toBeCloseTo(Number(r.kpis.emvWithInfo), 8);
+      expect(r.tree).toBeNull();
     });
 
-    it("withholds the diagram when an indicator's outcome chances do not sum to 100", () => {
+    it("refuses, in percent, an indicator whose outcome chances do not sum to 100 (EC4-0)", () => {
       const malformed = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
       malformed.infoScenario.indicators[0].conditionalProbabilities[0].probability = 90;
-      const r = generateVoiData(malformed);
-      expect(r.tree).toBeNull();
-      expect(Number(r.kpis.evpi)).toBeGreaterThan(0);
+      expect(() => generateVoiData(malformed)).toThrow(DecisionTreeError);
+      expect(() => generateVoiData(malformed)).toThrow('Outcome chances given "Positive Seismic" sum to 130 percent, expected 100');
     });
   });
 });
@@ -399,7 +451,7 @@ describe('golden: rollback', () => {
   expect(G.rollback.length).toBeGreaterThanOrEqual(12);
   for (const c of G.rollback) {
     it(`${c.id}: ${c.description}`, () => {
-      expectTree(rollback(c.tree), c.expected, c.id);
+      expectTree(rollback(revive(c).tree), c.expected, c.id);
     });
   }
 });
@@ -407,7 +459,27 @@ describe('golden: rollback', () => {
 describe('golden: rollback refusals', () => {
   for (const c of G.rollbackRefusals) {
     it(`${c.id}: refused (${c.reason})`, () => {
-      expect(() => rollback(c.tree)).toThrow(DecisionTreeError);
+      const tree = revive(c).tree;
+      expect(() => rollback(tree)).toThrow(DecisionTreeError);
+      if (c.refusal) expectRefusal(() => rollback(tree), c.refusal, c.id);
+    });
+  }
+});
+
+describe('golden: lottery refusals (EC4-4)', () => {
+  expect(G.lotteryRefusals.length).toBeGreaterThanOrEqual(9);
+  for (const c of G.lotteryRefusals) {
+    it(`${c.id}: refused (${c.reason})`, () => {
+      const r = revive(c);
+      const calls = {
+        bestActionEmv: () => bestActionEmv(r.outcomes, r.actions),
+        evpi: () => evpi(r.outcomes, r.actions),
+        evii: () => evii(r.outcomes, r.actions, r.signals, r.infoCost),
+        buildInformationTree: () => buildInformationTree({
+          outcomes: r.outcomes, actions: r.actions, signals: r.signals, infoCost: r.infoCost,
+        }),
+      };
+      for (const name of c.calls) expectRefusal(calls[name], c.refusal, `${c.id} ${name}`);
     });
   }
 });
@@ -423,6 +495,12 @@ describe('golden: EVPI', () => {
       const b = bestActionEmv(c.outcomes, c.actions);
       near(b.emv, c.expected.emvPrior, ABS, `${c.id} bestActionEmv`);
       expect(b.actionIndex).toBe(c.expected.bestActionIndex);
+      // EC4-1: the tied actions and the indifference flag, both precisions.
+      expect(b.tiedIndices).toEqual(c.expected.bestActionTiedIndices);
+      expect(b.indifferent).toBe(c.expected.indifferent);
+      expect(b.tiedIndicesAtCardPrecision).toEqual(c.expected.bestActionTiedIndicesAtCardPrecision);
+      expect(b.indifferentAtCardPrecision).toBe(c.expected.indifferentAtCardPrecision);
+      expect(b.actionIndex).toBe(c.expected.bestActionTiedIndices[0]);
     });
   }
 });
@@ -441,6 +519,10 @@ describe('golden: EVII through Bayes', () => {
         near(r.perSignal[k].pSignal, s.pSignal, ABS, `${c.id} signal ${k} pSignal`);
         near(r.perSignal[k].emv, s.emv, ABS, `${c.id} signal ${k} emv`);
         expect(r.perSignal[k].bestActionIndex).toBe(s.bestActionIndex);
+        expect(r.perSignal[k].tiedActionIndices).toEqual(s.tiedActionIndices);
+        expect(r.perSignal[k].indifferent).toBe(s.indifferent);
+        expect(r.perSignal[k].tiedActionIndicesAtCardPrecision).toEqual(s.tiedActionIndicesAtCardPrecision);
+        expect(r.perSignal[k].indifferentAtCardPrecision).toBe(s.indifferentAtCardPrecision);
         expect(r.perSignal[k].posterior).toHaveLength(s.posterior.length);
         s.posterior.forEach((p, i) => near(r.perSignal[k].posterior[i], p, ABS, `${c.id} signal ${k} posterior ${i}`));
         expect(r.perSignal[k].label).toBe(c.signals[k].label);
@@ -483,17 +565,15 @@ describe('golden: implied priors', () => {
       e.stated.forEach((v, i) => near(r.stated[i], v, ABS, `${c.id} stated ${i}`));
       e.implied.forEach((v, i) => near(r.implied[i], v, ABS, `${c.id} implied ${i}`));
       e.deltas.forEach((v, i) => near(r.deltas[i], v, ABS, `${c.id} delta ${i}`));
-      if (c.disagreement) {
-        // Recorded disagreement (FINDINGS-decision.md): the method's
-        // threshold is inclusive at exactly 0.005; the engine's float delta
-        // sits 4.4e-18 above it. Both numbers are pinned.
-        expect(e.consistent).toBe(true);
-        expect(r.consistent).toBe(c.disagreement.engineConsistent);
-        expect(r.deltas[0]).toBe(c.disagreement.engineDelta);
+      expect(c.disagreement).toBeUndefined();
+      expect(r.consistent).toBe(e.consistent);
+      if (c.id === 'justInsideTolerance') {
+        // Finding D1, resolved in EC4-0: the float delta still sits 4.4e-18
+        // above 0.005, and the engine now calls it consistent as the method
+        // does. Negative control: without the allowance it would not be.
         expect(r.deltas[0] - 0.005).toBeGreaterThan(0);
         expect(r.deltas[0] - 0.005).toBeLessThan(1e-17);
-      } else {
-        expect(r.consistent).toBe(e.consistent);
+        expect(r.deltas.every((d) => Math.abs(d) <= 0.005)).toBe(false);
       }
     });
   }
@@ -529,24 +609,65 @@ describe('golden: VOI Analyzer', () => {
   const VERDICT_TEXT = {
     acquire: 'Since this is positive',
     reject: 'not justified',
-    neutral: 'exactly pays for itself',
+    neutral: 'Since this rounds to zero, the information costs what it is worth',
   };
   for (const c of G.voi) {
     it(`${c.id}: ${c.description}`, () => {
       const r = generateVoiData(c.inputs);
       const e = c.expected;
+      expect(r.withheld).toBe(e.withheld);
       for (const k of ['emvWithoutInfo', 'emvWithInfo', 'voi', 'netVoi', 'evpi']) {
+        if (e[k] === null) {
+          expect(r.kpis[k]).toBeNull();
+          continue;
+        }
         expect(r.kpis[k]).toMatch(/^-?\d+\.\d{2}$/);
         near(Number(r.kpis[k]), e[k], KPI, `${c.id} kpi ${k}`);
+        // EC4-2: the card string is exactly the oracle's rounding, never -0.00.
+        expect(r.kpis[k]).toBe(e.cards[k]);
+        expect(r.kpis[k]).not.toBe('-0.00');
       }
+      expect(r.insights).not.toContain('-0.00');
       expect(r.insights).toContain(`'${e.optimalActionWithoutInfo}'`);
-      expect(r.insights).toContain(VERDICT_TEXT[e.verdict]);
+      // EC4-1: the tied actions without information, and how they read.
+      const best = e.bestActionWithoutInfo;
+      expect(r.bestActionWithoutInfo.actionIndex).toBe(best.actionIndex);
+      expect(r.bestActionWithoutInfo.tiedIndices).toEqual(best.tiedIndices);
+      expect(r.bestActionWithoutInfo.indifferent).toBe(best.indifferent);
+      expect(r.bestActionWithoutInfo.tiedLabels).toEqual(best.tiedLabels);
+      expect(r.bestActionWithoutInfo.tiedIndicesAtCardPrecision).toEqual(best.tiedIndicesAtCardPrecision);
+      expect(r.bestActionWithoutInfo.indifferentAtCardPrecision).toBe(best.indifferentAtCardPrecision);
+      expect(r.bestActionWithoutInfo.tiedLabelsAtCardPrecision).toEqual(best.tiedLabelsAtCardPrecision);
+      // The guidance quotes the CARD-precision set, so the sentence agrees
+      // with the EMV card printed beside it.
+      expect(e.guidance).toBe(best.indifferentAtCardPrecision ? 'indifferent' : 'names one action');
+      if (best.indifferentAtCardPrecision) {
+        expect(r.insights).toContain('both come to that figure, so the decision without new information is indifferent between them');
+        expect(r.insights).not.toContain('with the optimal decision being to');
+        for (const label of best.tiedLabelsAtCardPrecision) expect(r.insights).toContain(`'${label}'`);
+      } else {
+        expect(r.insights).toContain(`with the optimal decision being to '${e.optimalActionWithoutInfo}'`);
+      }
+      if (e.verdict === null) {
+        for (const t of Object.values(VERDICT_TEXT)) expect(r.insights).not.toContain(t);
+        expect(r.insights).toContain('is withheld');
+      } else {
+        expect(r.insights).toContain(VERDICT_TEXT[e.verdict]);
+        for (const [v, t] of Object.entries(VERDICT_TEXT)) if (v !== e.verdict) expect(r.insights).not.toContain(t);
+        // EC4-2: one rounded net VOI feeds the card and the verdict.
+        const card = Number(r.kpis.netVoi);
+        expect(e.verdict).toBe(card > 0 ? 'acquire' : card < 0 ? 'reject' : 'neutral');
+        expect(r.insights).toContain(`the Net VOI is $${r.kpis.netVoi}M.`);
+      }
       expect(r.consistency.consistent).toBe(e.consistency.consistent);
       e.consistency.implied.forEach((v, i) => near(r.consistency.implied[i], v, ABS, `${c.id} implied ${i}`));
       e.consistency.deltas.forEach((v, i) => near(r.consistency.deltas[i], v, ABS, `${c.id} delta ${i}`));
       if (e.consistency.consistent) expect(r.insights).not.toContain('Consistency warning');
       else expect(r.insights).toContain('Consistency warning');
+      // (a) withheld exactly when inconsistent, and only then without a tree.
+      expect(e.withheld).toBe(!e.consistency.consistent);
       if (!e.treePresent) {
+        expect(e.withheld).toBe(true);
         expect(r.tree).toBeNull();
         return;
       }
@@ -577,12 +698,444 @@ describe('golden: VOI Analyzer', () => {
   });
 });
 
+describe('golden: VOI Analyzer refusals (EC4-0)', () => {
+  expect(G.voiRefusals.length).toBeGreaterThanOrEqual(7);
+  for (const c of G.voiRefusals) {
+    it(`${c.id}: refused (${c.reason})`, () => {
+      expect(() => generateVoiData(c.inputs)).toThrow(DecisionTreeError);
+      let message = '';
+      try { generateVoiData(c.inputs); } catch (err) { message = err.message; }
+      if (c.refusal) {
+        // EC4-4: money, refused by what carries it and the field.
+        expectRefusal(() => generateVoiData(c.inputs), c.refusal, c.id);
+      } else if (c.sumPercent !== undefined) {
+        // The refusal names the sum IN PERCENT, the scale the form types.
+        expect(message).toContain(`sum to ${Number(c.sumPercent.toFixed(4))} percent, expected 100`);
+      } else {
+        expect(message).toMatch(/between 0 and 100 percent|No indicators given|No outcomes given/);
+      }
+    });
+  }
+});
+
 describe('golden: shape', () => {
   it('carries a description and every section', () => {
     expect(typeof G.description).toBe('string');
-    for (const k of ['rollback', 'rollbackRefusals', 'evpi', 'evii', 'eviiRefusals', 'impliedPriors', 'informationTree', 'voi']) {
+    for (const k of ['rollback', 'rollbackRefusals', 'lotteryRefusals', 'evpi', 'evii', 'eviiRefusals', 'impliedPriors', 'informationTree', 'voi', 'voiRefusals']) {
       expect(Array.isArray(G[k])).toBe(true);
       expect(G[k].length).toBeGreaterThan(0);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EC4-8 and EC4-2 (owner decisions 2026-09-15): the retired rules, restored
+// here as NEGATIVE CONTROLS, must disagree with the goldens they were retired
+// for, and the new rules must still refuse what is genuinely off.
+// ---------------------------------------------------------------------------
+
+const byId = (section, id) => {
+  const c = G[section].find((x) => x.id === id);
+  if (!c) throw new Error(`golden ${section}/${id} missing`);
+  return c;
+};
+
+describe('EC4-8: binary representation allowance on every probability tolerance', () => {
+  // The retired comparisons, exactly as they were.
+  const oldProbRefuses = (sum) => Math.abs(sum - 1) > 1e-6;
+  const oldPctRefuses = (sum) => Math.abs(sum - 100) > 1e-4;
+  const sum = (xs) => xs.reduce((s, x) => s + x, 0);
+
+  it('rollback accepts thirds typed to six places; the old strict rule refused them', () => {
+    const c = byId('rollback', 'thirdsTypedToSixPlaces');
+    const ps = c.tree.branches.map((b) => b.probability);
+    expect(oldProbRefuses(sum(ps))).toBe(true); // negative control
+    expect(Math.abs(sum(ps) - 1) - 1e-6).toBeLessThan(1e-12);
+    expectTree(rollback(c.tree), c.expected, c.id);
+    near(rollback(c.tree).emv, 34.999965, ABS, 'typed thirds are not renormalised');
+  });
+
+  it('EVPI accepts priors typed to six places; the old strict rule refused them', () => {
+    const c = byId('evpi', 'thirdsPriorsSixPlaces');
+    expect(oldProbRefuses(sum(c.outcomes.map((o) => o.probability)))).toBe(true);
+    expect(() => evpi(c.outcomes, c.actions)).not.toThrow();
+  });
+
+  it('EVII accepts a likelihood column typed to six places; the old strict rule refused it', () => {
+    const c = byId('evii', 'likelihoodColumnSixPlaces');
+    expect(oldProbRefuses(sum(c.signals.map((sg) => sg.likelihoods[0])))).toBe(true);
+    expect(() => evii(c.outcomes, c.actions, c.signals, c.infoCost)).not.toThrow();
+  });
+
+  it('the VOI Analyzer accepts outcome chances typed 33.3333; the old strict rule refused them', () => {
+    const c = byId('voi', 'thirdsOutcomeChancesFourPlaces');
+    expect(oldPctRefuses(sum(c.inputs.outcomes.map((o) => o.probability)))).toBe(true);
+    const r = generateVoiData(c.inputs);
+    expect(r.withheld).toBe(false);
+    expect(r.tree).toBeTruthy();
+  });
+
+  it('a sum genuinely off by more than the tolerance is still refused, at every site', () => {
+    expect(() => rollback(byId('rollbackRefusals', 'sumShortByTwoMillionths').tree)).toThrow('sum to 0.999998, expected 1');
+    expect(() => rollback(byId('rollbackRefusals', 'thirdsTypedToThreePlaces').tree)).toThrow('sum to 0.999000, expected 1');
+    const col = byId('eviiRefusals', 'likelihoodColumnShortByTwoMillionths');
+    expect(() => evii(col.outcomes, col.actions, col.signals)).toThrow('sum to 0.999998, expected 1');
+    const pri = byId('eviiRefusals', 'priorsShortByTwoMillionths');
+    expect(() => evii(pri.outcomes, pri.actions, pri.signals)).toThrow('Outcome probabilities sum to 0.999998, expected 1');
+    expect(() => generateVoiData(byId('voiRefusals', 'outcomeChancesShortByTwoTenThousandths').inputs))
+      .toThrow('Outcome chances sum to 99.9998 percent, expected 100');
+    expect(() => generateVoiData(byId('voiRefusals', 'thirdsOutcomeChancesThreePlaces').inputs))
+      .toThrow('Outcome chances sum to 99.999 percent, expected 100');
+  });
+});
+
+describe('EC4-2: one rounded net VOI for the card and the verdict', () => {
+  // The retired rules: verdict from the UNROUNDED net, card from toFixed(2).
+  const oldVerdict = (net) => (net > 0 ? 'acquire' : net < 0 ? 'reject' : 'neutral');
+  const unroundedNet = (r) => r.tree.branches[0].branchValue - r.tree.branches[1].branchValue;
+
+  it('cost 32.996: card 0.00 and neutral; the old unrounded verdict said acquire under that card', () => {
+    const c = byId('voi', 'netRoundsToZeroFromAbove');
+    const r = generateVoiData(c.inputs);
+    expect(r.kpis.netVoi).toBe('0.00');
+    expect(c.expected.verdict).toBe('neutral');
+    expect(r.insights).toContain('Since this rounds to zero');
+    expect(oldVerdict(unroundedNet(r))).toBe('acquire'); // negative control
+  });
+
+  it('cost 33.004: card 0.00 and neutral; the old card printed -0.00 under a reject verdict', () => {
+    const c = byId('voi', 'netRoundsToZeroFromBelow');
+    const r = generateVoiData(c.inputs);
+    expect(r.kpis.netVoi).toBe('0.00');
+    expect(c.expected.verdict).toBe('neutral');
+    expect(unroundedNet(r).toFixed(2)).toBe('-0.00'); // negative control
+    expect(oldVerdict(unroundedNet(r))).toBe('reject'); // negative control
+  });
+
+  it('cost 33: exactly zero is neutral under both rules', () => {
+    const r = generateVoiData(byId('voi', 'costExactlyValue').inputs);
+    expect(r.kpis.netVoi).toBe('0.00');
+    expect(r.insights).toContain('Since this rounds to zero');
+  });
+
+  it('half-cent boundaries round away from zero, and clear cases keep their verdicts', () => {
+    const expectations = {
+      netHalfCentAbove: ['0.01', 'Since this is positive'],
+      netHalfCentBelow: ['-0.01', 'not justified'],
+      netClearlyPositive: ['0.10', 'Since this is positive'],
+      netClearlyNegative: ['-0.10', 'not justified'],
+    };
+    for (const [id, [cardText, verdictText]] of Object.entries(expectations)) {
+      const r = generateVoiData(byId('voi', id).inputs);
+      expect(r.kpis.netVoi).toBe(cardText);
+      expect(r.insights).toContain(verdictText);
+      expect(byId('voi', id).expected.cards.netVoi).toBe(cardText);
+    }
+  });
+});
+
+describe('EC4-9: derived branch probabilities are renormalised once typed inputs pass', () => {
+  // Stated tolerance: a case typed to four places agrees with its exact
+  // thirds reference within 1e-3 $MM on every unrounded quantity. The typed
+  // stated chances (0.333333, used as typed) differ from 1/3 by 3.3e-7, and
+  // payoffs of a few hundred $MM carry that to about 1e-4.
+  const EDGE_TOL = 1e-3;
+  const pairs = [
+    ['compoundEdgeAllThirds', 'compoundEdgeAllThirdsExact'],
+    ['compoundEdgeInformative', 'compoundEdgeInformativeExact'],
+  ];
+
+  // The retired derivation, restored: the typed chances inverted by Bayes
+  // with no renormalisation, exactly as voi.js built the diagram before.
+  const oldDiagram = (inputs) => {
+    const priors = inputs.outcomes.map((o) => o.probability / 100);
+    const outcomes = inputs.outcomes.map((o) => ({ label: o.name, probability: o.probability / 100 }));
+    const actions = [
+      { label: inputs.decisionName, cost: inputs.decisionCost, payoffs: inputs.outcomes.map((o) => o.payoff) },
+      { label: `Do Not ${inputs.decisionName}`, cost: 0, payoffs: inputs.outcomes.map(() => 0) },
+    ];
+    const signals = inputs.infoScenario.indicators.map((ind) => {
+      const post = inputs.outcomes.map((o) => ind.conditionalProbabilities.find((c) => c.outcomeId === o.id).probability / 100);
+      return { label: ind.name, likelihoods: priors.map((p, i) => (p > 0 ? (post[i] * ind.probability / 100) / p : 0)) };
+    });
+    return rollback(buildInformationTree({
+      outcomes, actions, signals, infoCost: inputs.infoScenario.cost, infoLabel: `Acquire ${inputs.infoScenario.name}`,
+    }));
+  };
+
+  for (const [edgeId, exactId] of pairs) {
+    it(`${edgeId}: full cards and diagram, within ${EDGE_TOL} $MM of ${exactId}`, () => {
+      const edge = byId('voi', edgeId);
+      const exact = byId('voi', exactId);
+      const r = generateVoiData(edge.inputs);
+      expect(r.withheld).toBe(false);
+      expect(r.tree).toBeTruthy();
+      const signalNode = r.tree.branches[0].node;
+      expect(signalNode.label).toBe('Signal received');
+      near(signalNode.branches.reduce((s, b) => s + b.probability, 0), 1, 1e-12, `${edgeId} renormalised signal chances`);
+      for (const k of ['emvWithoutInfo', 'emvWithInfo', 'voi', 'netVoi', 'evpi']) {
+        near(edge.expected[k], exact.expected[k], EDGE_TOL, `${edgeId} vs ${exactId} ${k}`);
+      }
+      near(r.tree.branches[0].branchValue, exact.expected.emvWithInfo, EDGE_TOL, `${edgeId} diagram vs exact`);
+      // The cards and the diagram are still one analysis, unrounded.
+      near(r.tree.branches[0].branchValue, edge.expected.emvWithInfo, ABS, `${edgeId} tree = emvWithInfo`);
+      // Negative control: the pre-EC4-9 derivation refuses at "Signal received".
+      expect(() => oldDiagram(edge.inputs)).toThrow(DecisionTreeError);
+      expect(() => oldDiagram(edge.inputs)).toThrow('sum to 0.999998, expected 1 (at node "Signal received")');
+      // And it is the compound edge that trips it: the exact reference builds.
+      expect(() => oldDiagram(exact.inputs)).not.toThrow();
+    });
+  }
+
+  it('the strict chance node check still refuses a node typed directly', () => {
+    expect(() => rollback({
+      type: 'chance', label: 'typed', branches: [
+        { label: 'a', probability: 0.333333, node: { type: 'terminal', payoff: 1 } },
+        { label: 'b', probability: 0.333333, node: { type: 'terminal', payoff: 1 } },
+        { label: 'c', probability: 0.333332, node: { type: 'terminal', payoff: 1 } },
+      ],
+    })).toThrow('Chance branch probabilities sum to 0.999998, expected 1 (at node "typed")');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EC4-1 and EC4-4 (owner decisions 2026-09-15). Each retired rule is restored
+// here as a NEGATIVE CONTROL and must disagree with the goldens it was retired
+// for; the new rules must still discriminate what they are meant to.
+// ---------------------------------------------------------------------------
+
+describe('EC4-1: exact ties are reported, and the first listed keeps the marking', () => {
+  // The retired rule: the incumbent is replaced only on a strictly greater
+  // value, and the single winner is what a screen calls "Recommended".
+  const retiredWinner = (values) => {
+    let best = 0;
+    for (let i = 1; i < values.length; i++) if (values[i] > values[best]) best = i;
+    return best;
+  };
+  const values = (r) => r.branches.map((b) => b.branchValue);
+
+  it('an exact tie names every tied branch and says the node is indifferent', () => {
+    const c = byId('rollback', 'equalEmvTie');
+    const r = rollback(c.tree);
+    expect(r.tiedIndices).toEqual([0, 1]);
+    expect(r.indifferent).toBe(true);
+    expect(r.bestBranchIndex).toBe(0);           // the marking still has one branch
+    expect(r.branches[0].onOptimalPath).toBe(true);
+    expect(r.branches[1].onOptimalPath).toBe(false);
+    // Negative control: the retired rule reported a lone winner, which the
+    // Builder and the brief printed as the recommended first move.
+    expect(retiredWinner(values(r))).toBe(0);
+    expect(c.expected.tiedIndices).toEqual([0, 1]);
+  });
+
+  it('float residue inside the band is a tie, and the first listed still wins', () => {
+    const c = byId('rollback', 'floatResidueTie');
+    const r = rollback(c.tree);
+    // The two branches are exactly equal in decimals; in binary the second is
+    // larger by one ulp, so the retired rule recommended the SECOND branch.
+    expect(values(r)[1]).toBeGreaterThan(values(r)[0]);
+    expect(retiredWinner(values(r))).toBe(1);    // negative control
+    expect(r.bestBranchIndex).toBe(0);
+    expect(r.tiedIndices).toEqual([0, 1]);
+    expect(r.indifferent).toBe(true);
+  });
+
+  it('a gap inside the band ties; a gap outside it does not', () => {
+    const tied = rollback(byId('rollback', 'withinToleranceTie').tree);
+    expect(tied.tiedIndices).toEqual([0, 1]);
+    expect(tied.indifferent).toBe(true);
+    const apart = rollback(byId('rollback', 'nearTieOutsideTolerance').tree);
+    expect(apart.tiedIndices).toEqual([1]);
+    expect(apart.indifferent).toBe(false);
+    expect(apart.bestBranchIndex).toBe(1);
+    // The band is not wide enough to swallow the near miss: a hundredfold
+    // wider tolerance would have called it a tie.
+    const gap = Math.abs(apart.branches[1].branchValue - apart.branches[0].branchValue);
+    expect(gap).toBeGreaterThan(1e-9 * Math.max(1, Math.abs(apart.emv)));
+    expect(gap).toBeLessThan(1e-7 * Math.max(1, Math.abs(apart.emv)));
+  });
+
+  it('below unit magnitude the band is absolute, not relative', () => {
+    const c = byId('rollback', 'absoluteFloorTie');
+    const r = rollback(c.tree);
+    expect(r.tiedIndices).toEqual([0, 1]);
+    expect(r.indifferent).toBe(true);
+    expect(Math.abs(r.branches[1].branchValue - r.branches[0].branchValue)).toBeGreaterThan(0);
+  });
+
+  it('a perfect signal leaves two actions tied under the dry posterior', () => {
+    const c = byId('evii', 'perfectSignal');
+    const r = evii(c.outcomes, c.actions, c.signals, c.infoCost);
+    expect(r.perSignal[1].tiedActionIndices).toEqual([1, 2]);
+    expect(r.perSignal[1].indifferent).toBe(true);
+    expect(r.perSignal[0].indifferent).toBe(false);
+  });
+
+  it('the VOI Analyzer says indifferent instead of naming one tied action', () => {
+    const c = byId('voi', 'actionsTiedWithoutInfo');
+    const r = generateVoiData(c.inputs);
+    expect(r.bestActionWithoutInfo.indifferent).toBe(true);
+    expect(r.bestActionWithoutInfo.tiedIndices).toEqual([0, 1]);
+    expect(r.insights).toContain('indifferent between them');
+    expect(r.insights).not.toContain('with the optimal decision being to');
+    // Negative control: the retired rule named the first listed action alone.
+    const retired = `with the optimal decision being to '${r.bestActionWithoutInfo.tiedLabels[0]}'`;
+    expect(r.insights).not.toContain(retired);
+  });
+});
+
+describe('EC4-1 second precision: guidance agrees with the cards beside it', () => {
+  // The retired guidance selector: the exact value band alone.
+  const retiredGuidance = (result) => (result.bestActionWithoutInfo.indifferent
+    ? 'indifferent'
+    : `names '${result.bestActionWithoutInfo.label}'`);
+
+  it('a 0.0001 gap that both cards print as 0.00 reads as indifferent', () => {
+    const c = byId('voi', 'actionsNearTieOutsideTolerance');
+    const r = generateVoiData(c.inputs);
+    // Both cards read 0.00: the EMV without information, and the value of the
+    // action the retired rule singled out.
+    expect(r.kpis.emvWithoutInfo).toBe('0.00');
+    expect(r.bestActionWithoutInfo.indifferent).toBe(false);          // value truth is kept
+    expect(r.bestActionWithoutInfo.indifferentAtCardPrecision).toBe(true);
+    expect(r.bestActionWithoutInfo.tiedIndicesAtCardPrecision).toEqual([0, 1]);
+    expect(r.insights).toContain('both come to that figure, so the decision without new information is indifferent between them');
+    // Negative control: the pre-fix selector named one action under that 0.00 card.
+    expect(retiredGuidance(r)).toBe("names 'Drill Exploration Well'");
+    expect(c.expected.guidance).toBe('indifferent');
+  });
+
+  it('a gap the cards show still names one action', () => {
+    const c = byId('voi', 'actionsApartOnTheCards');
+    const r = generateVoiData(c.inputs);
+    expect(r.kpis.emvWithoutInfo).toBe('0.10');
+    expect(r.bestActionWithoutInfo.indifferentAtCardPrecision).toBe(false);
+    expect(r.insights).toContain("with the optimal decision being to 'Drill Exploration Well'");
+    expect(c.expected.guidance).toBe('names one action');
+  });
+
+  it('an exact tie is indifferent at both precisions', () => {
+    const r = generateVoiData(byId('voi', 'actionsTiedWithoutInfo').inputs);
+    expect(r.bestActionWithoutInfo.indifferent).toBe(true);
+    expect(r.bestActionWithoutInfo.indifferentAtCardPrecision).toBe(true);
+    expect(retiredGuidance(r)).toBe('indifferent');    // the two agree here
+  });
+
+  it('a decision node reports both sets, and they can disagree either way', () => {
+    const sameCard = rollback(byId('rollback', 'cardPrecisionTieOutsideBand').tree);
+    expect(sameCard.indifferent).toBe(false);
+    expect(sameCard.tiedIndices).toEqual([1]);
+    expect(sameCard.indifferentAtCardPrecision).toBe(true);
+    expect(sameCard.tiedIndicesAtCardPrecision).toEqual([0, 1]);
+
+    const apart = rollback(byId('rollback', 'apartOnTheCards').tree);
+    expect(apart.indifferent).toBe(false);
+    expect(apart.indifferentAtCardPrecision).toBe(false);
+
+    // An exact tie split by a rounding boundary: tied on value, two cards.
+    const boundary = rollback(byId('rollback', 'cardBoundarySplitsAnExactTie').tree);
+    expect(boundary.indifferent).toBe(true);
+    expect(boundary.tiedIndices).toEqual([0, 1]);
+    expect(boundary.indifferentAtCardPrecision).toBe(false);
+    expect(boundary.tiedIndicesAtCardPrecision).toEqual([0]);
+  });
+});
+
+describe('EC4-4: money that is present must be a number, and a cost cannot be negative', () => {
+  // The retired readers, exactly as they were: `Number(cost) || 0` and a null
+  // payoff as 0. A negative cost was accepted as a receipt.
+  const retiredCost = (c) => Number(c) || 0;
+  const retiredPayoff = (p) => {
+    if (p == null) return 0;
+    if (typeof p === 'object') {
+      const m = Number(p.mean);
+      if (!Number.isFinite(m)) throw new Error('Distribution payoff has no finite mean');
+      return m;
+    }
+    const v = Number(p);
+    if (!Number.isFinite(v)) throw new Error('Terminal payoff is not a number');
+    return v;
+  };
+
+  it('every refused cost read as a number under the retired rule', () => {
+    const costCases = G.rollbackRefusals.concat(G.lotteryRefusals)
+      .filter((c) => c.refusal && c.refusal.field === 'cost');
+    expect(costCases.length).toBeGreaterThanOrEqual(8);
+    for (const c of costCases) {
+      const raw = revive(c).refusedValue;
+      const old = retiredCost(raw);
+      // Negative control: the retired reader never refused. It handed back a
+      // usable number for every one of these.
+      expect(typeof old).toBe('number');
+      expect(Number.isNaN(old)).toBe(false);
+      if (c.refusal.kind === 'negative') expect(old).toBeLessThan(0);
+      else if (raw === Infinity) expect(old).toBe(Infinity);   // propagated, not refused
+      else expect(old).toBe(0);
+    }
+  });
+
+  it('a refused payoff read as 0, or refused without naming the node, under the retired rule', () => {
+    const payoffCases = G.rollbackRefusals.concat(G.lotteryRefusals)
+      .filter((c) => c.refusal && c.refusal.field === 'payoff');
+    expect(payoffCases.length).toBeGreaterThanOrEqual(5);
+    let silentlyZero = 0;
+    for (const c of payoffCases) {
+      const raw = revive(c).refusedValue;
+      try {
+        expect(retiredPayoff(raw)).toBe(0);      // negative control: blank, null and a blank mean were 0
+        silentlyZero += 1;
+      } catch (err) {
+        // The retired rule refused this one, but without naming the node.
+        expect(err.message).not.toContain('(at node');
+      }
+    }
+    expect(silentlyZero).toBeGreaterThanOrEqual(2);
+  });
+
+  it('an omitted cost is still 0, and a numeric string is still a number', () => {
+    const c = byId('rollback', 'omittedCostAndPayoffAreZero');
+    expectTree(rollback(c.tree), c.expected, c.id);
+    const s = byId('rollback', 'numericStringMoney');
+    expectTree(rollback(s.tree), s.expected, s.id);
+  });
+
+  it('the exact refusal wording, at a branch, a terminal and an action', () => {
+    const term = (label, payoff) => ({ type: 'terminal', label, payoff });
+    expect(() => rollback({
+      type: 'decision', label: 'Prospect decision',
+      branches: [{ label: 'Drill', cost: '', node: term('x', 10) }],
+    })).toThrow('Branch "Drill" has a blank cost; a cost must be a number of 0 or more (at node "Prospect decision")');
+    expect(() => rollback({
+      type: 'decision', label: 'Prospect decision',
+      branches: [{ label: 'Drill', cost: 'abc', node: term('x', 10) }],
+    })).toThrow('Branch "Drill" has a cost that is not a finite number ("abc"); a cost must be a number of 0 or more (at node "Prospect decision")');
+    expect(() => rollback({
+      type: 'decision', label: 'Prospect decision',
+      branches: [{ label: 'Drill', cost: -5, node: term('x', 10) }],
+    })).toThrow('Branch "Drill" has a negative cost (-5); a cost cannot be negative: enter a receipt as a payoff (at node "Prospect decision")');
+    expect(() => rollback(term('Dry hole', null)))
+      .toThrow('Terminal payoff is blank; a payoff must be a finite number (at node "Dry hole")');
+    expect(() => rollback(term('Dry hole', 'abc')))
+      .toThrow('Terminal payoff is not a finite number ("abc"); a payoff must be a finite number (at node "Dry hole")');
+    expect(() => bestActionEmv(OUTCOMES, [{ label: 'Drill', cost: null, payoffs: [1, 2] }]))
+      .toThrow('Action "Drill" has a blank cost; a cost must be a number of 0 or more');
+    expect(() => bestActionEmv(OUTCOMES, [{ label: 'Drill', cost: 0, payoffs: [null, 2] }]))
+      .toThrow('Payoff of action "Drill" for outcome "Success" is blank; a payoff must be a finite number');
+    expect(() => evii(OUTCOMES, ACTIONS, SIGNALS, -5))
+      .toThrow('The information has a negative cost (-5); a cost cannot be negative: enter a receipt as a payoff');
+  });
+
+  it('the VOI Analyzer refuses a blank survey cost and a blank decision cost', () => {
+    const blankSurvey = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
+    blankSurvey.infoScenario.cost = '';
+    expect(() => generateVoiData(blankSurvey))
+      .toThrow('Information scenario "3D Seismic Survey" has a blank cost; a cost must be a number of 0 or more');
+    const blankDecision = JSON.parse(JSON.stringify(DEFAULT_INPUTS));
+    blankDecision.decisionCost = null;
+    expect(() => generateVoiData(blankDecision))
+      .toThrow('Action "Drill Exploration Well" has a blank cost; a cost must be a number of 0 or more');
+    // Negative control: the retired reader turned both into 0 and reported cards.
+    expect(retiredCost('')).toBe(0);
+    expect(retiredCost(null)).toBe(0);
   });
 });
