@@ -111,3 +111,13 @@ of elevation and the two brackets that were wrong.
   elevation coefficient 0.0375 are the published field forms and the goldens
   pin them. They are the whole of the residual 1.5e-6 to 3.9e-5 against an SI
   oracle, and they are causes rather than tolerance problems.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `gasOutletPressure` read an inherited gas flow equation and failed later with an unrelated error; it now returns `unknown gas flow equation`.

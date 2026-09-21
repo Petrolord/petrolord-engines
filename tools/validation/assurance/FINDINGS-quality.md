@@ -105,3 +105,13 @@ Negative control: the previous engine fails every `repaired` case above
   `ageing-register` (literal '...Z' instants -> `$localInstant` at the same
   wall-clock time; every expected value unchanged). Added `item12-age-*`
   (4). 418 -> 422.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `nextPlanStatuses` returned a function for an inherited status; it now returns `[]`. The tallies count own keys only, and `ncrAgeing` counts only the listed severities.

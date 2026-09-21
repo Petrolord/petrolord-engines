@@ -1040,3 +1040,13 @@ Every user-facing string in `engines/facilities/` was parsed out of the source (
 | `metering.js` | straight-run note | these are table values, not a calculation: they depend | these are table values and nothing here calculates them: they depend |
 | `storageTank.js` | shell course note | the water test governs this course, not the product: a light | the water test governs this course: a light |
 | `storageTank.js` | minimumThicknessBasis | so this value is the caller's and not the standard's | so this value is the caller's own and has not been checked against the standard |
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- EXPLOITABLE (output). `straightRunDiameters` with an inherited fitting returned `withheld: true` with a function as its error; it now returns `no straight-run table`.

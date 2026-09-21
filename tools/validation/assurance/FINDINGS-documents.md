@@ -65,3 +65,13 @@ docs/scope/AssuranceApps-STATUS.md §3k for decision.
 
 Negative control: both exports are absent on origin/main, so every
 `AS15-D1` case fails there.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- EXPLOITABLE (output). `summarise` added a `constructor` status holding the string `function Object() { [native code] }1`; it now counts own keys only.

@@ -352,3 +352,14 @@ by import.
 6. **No Crowl and Louvar example is reproduced.** The book was not
    available, so any NextGen course grading against its worked examples
    needs those examples checked separately.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `poolBurningRate` with an inherited `fuel` refused under the wrong field (`massBurningFluxInfKgM2S`); it now refuses `fuel`.
+- `briggsRuralSigmas`: latent. The stability class list already refused these names; the table read is guarded as well.

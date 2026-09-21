@@ -129,3 +129,13 @@ all, all caught).
   null) is now a missing rate (the total is a FLOOR); omitted from the call it
   still takes the stated 0. A loss of 100 percent or more is refused. The
   Suite page always supplies a value, so the page was not exposed.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `landedCost` and `buildPumpPrice` read basis labels by own key (latent: an inherited basis printed a function as its label).

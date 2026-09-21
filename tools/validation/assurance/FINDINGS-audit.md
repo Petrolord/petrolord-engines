@@ -132,3 +132,13 @@ Negative control: against the pre-AS15 engine every case above fails.
 this module changed and no golden here moved (181 cases). The shared
 jest check in `assurance.copy.test.js` compares the two predicates for
 every audit status.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `nextAuditStatuses` and `nextProgrammeStatuses` returned a function for an inherited status; they now return `[]`. The dashboard tallies now count own keys only: an inherited status used to add a key holding the string `function Object() { [native code] }1`.

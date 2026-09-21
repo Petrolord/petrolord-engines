@@ -129,3 +129,16 @@ message is now renamed with the field. No figure moves and the golden is
 unchanged; the jest suite gains a guard (the message starts with the field it
 names), proved red without the repair on the golden case heat-bad-wbgt-row and on
 a refused metabolic period.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- EXPLOITABLE. `resolveNoiseCriterion('constructor')` returned `function Object()` as the criterion (and `'__proto__'` returned `{}`); it now refuses `criterion`.
+- EXPLOITABLE. `hearingProtectorEstimate` with an inherited `method` ran the NIOSH derating it was never asked for (83.25 dBA on the probe case); it now refuses `method`.
+- EXPLOITABLE. An inherited `protectorType` gave a NaN protected level, and every comparison against NaN is false; it now refuses `protectorType`.
+- This file is vendored into the live petrolord-hse hygiene module: re-vendor it.

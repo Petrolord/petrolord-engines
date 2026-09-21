@@ -293,3 +293,13 @@ Gate: 12 new assertions in `downstream.gasvalue.golden.test.js`;
 part 3 plants 8 reversals of these repairs. 39 planted, 39 caught, both
 part 1 runs red (three MD4-0 anchors that read the inline 44.009 and
 16.043 now read FLARE_MOLAR_MASS).
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- EXPLOITABLE (safe side). `yieldCeiling` with an inherited yield unit returned NaN, so `routeEconomics` never refused a yield above what the gas holds. It now treats the name as any unknown unit. `screenRoute` reads requirement values by own key.

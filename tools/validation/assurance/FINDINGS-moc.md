@@ -163,3 +163,13 @@ signature is refused; closing an unratified emergency change is allowed).
   (`_article`, `_listed`) around the engine's words. The previous engine
   fails 6 of them (the singular, Temporary and consonant-stage cases pass
   on both, by design). 272 -> 291 in total with RC-3.
+
+## Prototype-chain lookups (2026-09-21, repo-wide sweep)
+
+A table read as `TABLE[key]` walks the prototype chain, so `'constructor'`,
+`'toString'`, `'valueOf'`, `'hasOwnProperty'` and `'__proto__'` are found in
+every object literal. Every such read in this module now checks own
+properties only; valid keys behave exactly as before and no golden moved.
+Gate: `__tests__/prototypeChainLookups.test.js` (red on the unrepaired code).
+
+- `nextStages` returned a function for an inherited stage; it now returns `[]`. The stage and risk tallies count own keys only.
