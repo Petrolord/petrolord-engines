@@ -394,6 +394,18 @@ and its consumers.
   `oracle_flaretovalue.py` and `oracle_lpgcng.py`, gate
   `downstream.gasvalue.golden`, battery `negcontrol_md4.sh`, findings
   `FINDINGS-gasvalue.md`.
+  COPY SWEEP (B3, 2026-09-21): live NextGen lessons quote downstream
+  engine strings verbatim, so the domain's user-facing strings were swept
+  for the owner's copy rule (no contrastive "X, not Y", "rather than",
+  "instead of", "is not a Z", or a capitalised NOT). Strings only: no value
+  moved. `terminalDepot.rackQueue` takes an optional `vocabulary` (its two
+  refusal sentences); the loading rack keeps `RACK_VOCABULARY`, and the
+  bottling carousel (`BOTTLING_QUEUE_VOCABULARY`: filling positions), the
+  CNG forecourt (`CNG_QUEUE_VOCABULARY`: dispensers) and the petrol
+  forecourt (`FORECOURT_QUEUE_VOCABULARY`: nozzles) speak their own. The
+  gate `downstream copy: no contrastive shapes` in
+  `__tests__/engine.copy.lint.test.js` reads every downstream string
+  literal and holds the domain clean.
 
 - `engines/economics/` — the Economics module (EC0 extraction wave,
   2026-09-08; plan of record in the Suite at
@@ -526,7 +538,12 @@ and its consumers.
   (`test-data/hse/goldens/lopa_cases.json`): the 61508 Association worked
   SIF (Dolan 2024) to every printed digit, plus an exact-rational oracle
   and a time-dependent quadrature route (`tools/validation/hse/`,
-  FINDINGS-lopa.md, negcontrol_lopa.sh).
+  FINDINGS-lopa.md, negcontrol_lopa.sh). Follow-ups from the course
+  builds (2026-09-21): one exported `BAND_CONVENTION` is printed by
+  `silFromPfdAvg`, `lopaScenario` and `pfdAvgSubsystem`;
+  `maxProofTestInterval` refuses a floor of PFDavg 1 or more as
+  `pfdAvgSubsystem` does (golden `maxT-refused-floor`); the three goldens
+  that carry the rare-event warning are documented and gated.
 - `engines/hse/consequence.js` (HSE H4, 2026-09-19): consequence
   modelling. Liquid and gas orifice discharge (choked at or above the
   critical ratio), bunded pool from a spill, Mackay-Matsugu evaporation,
@@ -560,7 +577,9 @@ and its consumers.
   `tools/validation/hse/FINDINGS-qra.md` and `negcontrol_qra.sh`. It
   re-grades nothing: point-source flare and pool radiation stay with FC1,
   FC5 and `engines/facilities/`, and the probits, plume and solid flame
-  stay with `engines/hse/consequence.js`.
+  stay with `engines/hse/consequence.js`. The IRPA occupancy-sum refusal
+  names the field the caller typed (occupancyFraction, hoursPerYr, or both;
+  2026-09-21).
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,

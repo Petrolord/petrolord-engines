@@ -299,6 +299,13 @@ def poly_coeffs(p):
 def max_interval(p, target):
     target = F(target)
     c = poly_coeffs(p)
+    if c[0] >= 1:
+        # The simplified equations are outside their rare-event range before
+        # any interval is added; the engine refuses, as pfdAvgSubsystem does.
+        # The refused field is the floor's source: lambdaDD when there is one.
+        field = 'lambdaDdPerHour' if F(p.get('lambdaDdPerHour', 0)) > 0 else (
+            'lifetimeHours' if F(p.get('proofTestCoverage', 1)) < 1 else 'mrtHours')
+        return {'state': 'REFUSED', 'field': field, 'floorPfdAvg': float(c[0])}
     if F(p['lambdaDuPerHour']) == 0:
         return {'state': 'INTERVAL_INDEPENDENT'}
     if c[0] >= target:
@@ -516,6 +523,10 @@ def main():
                                'mttrHours': 24}, 1e-2),
         ('maxT-capped', {'architecture': '1oo1', 'lambdaDuPerHour': 1e-8, 'proofTestCoverage': 0.9,
                          'lifetimeHours': 10 * Y}, 1e-2),
+        # A floor of lambdaDD x MTTR = 2: no interval can be searched for, and
+        # the engine must refuse the way pfdAvgSubsystem refuses a PFDavg >= 1.
+        ('maxT-refused-floor', {'architecture': '1oo1', 'lambdaDuPerHour': 1e-6, 'lambdaDdPerHour': 1e-3,
+                                'mttrHours': 2000}, 1e-2),
     ]:
         maxT.append({'id': cid, 'source': ILL, 'params': params, 'targetPfdAvg': target,
                      'expected': max_interval(dict(params, proofTestIntervalHours=1), target)})

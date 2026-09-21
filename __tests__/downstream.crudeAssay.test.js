@@ -364,7 +364,7 @@ describe('compatibility', () => {
       massFractions: [0.5, 0.5],
     });
     expect(out.stable).toBeNull();
-    expect(out.message).toMatch(/not evidence that the blend is stable/);
+    expect(out.message).toMatch(/says nothing about whether the blend is stable/);
   });
 
   it('reaches the screen through blendCrudes', () => {

@@ -330,6 +330,9 @@ export const individualRiskPerAnnum = ({ locations } = {}) => {
   if (!Array.isArray(locations) || locations.length === 0) return refuse('locations', 'must be a non-empty list of { name, lsirPerYr, occupancyFraction | hoursPerYr }');
   let total = 0;
   let occ = 0;
+  let hoursTotal = 0;
+  let byFraction = 0;
+  let byHours = 0;
   const parts = [];
   for (let i = 0; i < locations.length; i += 1) {
     const l = locations[i] || {};
@@ -343,9 +346,12 @@ export const individualRiskPerAnnum = ({ locations } = {}) => {
     if (hasFrac) {
       if (!probability(l.occupancyFraction)) return refuse(`${f}.occupancyFraction`, `'${l.name}' must be a fraction of the year in [0, 1]`);
       o = l.occupancyFraction;
+      byFraction += 1;
     } else {
       if (!nonNegative(l.hoursPerYr) || l.hoursPerYr > HOURS_PER_YEAR) return refuse(`${f}.hoursPerYr`, `'${l.name}' must lie in [0, ${HOURS_PER_YEAR}] hours`);
       o = l.hoursPerYr / HOURS_PER_YEAR;
+      hoursTotal += l.hoursPerYr;
+      byHours += 1;
     }
     const v = given(l.vulnerabilityFactor) ? l.vulnerabilityFactor : 1;
     if (!probability(v)) return refuse(`${f}.vulnerabilityFactor`, `'${l.name}' must be a factor in [0, 1]`);
@@ -354,7 +360,19 @@ export const individualRiskPerAnnum = ({ locations } = {}) => {
     total += c;
     parts.push({ name: l.name, occupancyFraction: o, vulnerabilityFactor: v, contributionPerYr: c });
   }
-  if (occ > 1 + 1e-12) return refuse('locations', `the occupancy fractions sum to ${occ}: one person cannot spend more than the whole year across locations`);
+  if (occ > 1 + 1e-12) {
+    // Name the field the caller actually typed (H1 course build: a caller who
+    // gave hoursPerYr was told about occupancy fractions they never entered).
+    let message;
+    if (byHours === 0) {
+      message = `the occupancy fractions sum to ${occ}: one person cannot spend more than the whole year across locations`;
+    } else if (byFraction === 0) {
+      message = `the hoursPerYr values sum to ${hoursTotal} hours, more than the ${HOURS_PER_YEAR} hours in a year: one person cannot spend more than the whole year across locations`;
+    } else {
+      message = `the occupancyFraction values and the hoursPerYr values (as fractions of ${HOURS_PER_YEAR} hours) sum to ${occ}: one person cannot spend more than the whole year across locations`;
+    }
+    return refuse('locations', message);
+  }
   return {
     irpaPerYr: total,
     totalOccupancyFraction: occ,

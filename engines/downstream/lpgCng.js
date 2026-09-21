@@ -35,6 +35,21 @@
  */
 
 import { rackQueue } from './terminalDepot.js';
+
+/**
+ * The queue's refusals in each facility's own words. The M/M/c model is the
+ * loading rack's (terminalDepot.rackQueue); the servers here are filling
+ * positions on a bottling carousel and CNG dispensers on a forecourt.
+ */
+export const BOTTLING_QUEUE_VOCABULARY = Object.freeze({
+  wholeServers: 'The number of working filling positions must be a whole number, one or more.',
+  overload: 'The working filling positions cannot keep up with the cylinder demand. The queue of cylinders grows without limit, so no average waiting time exists. Add a filling position, shorten the fill, raise availability, or run a longer shift.',
+});
+
+export const CNG_QUEUE_VOCABULARY = Object.freeze({
+  wholeServers: 'The number of dispensers must be a whole number, one or more.',
+  overload: 'The dispensers cannot keep up with arriving vehicles. The forecourt queue grows without limit, so no average waiting time exists. Add a dispenser, shorten the fill, or spread the arrivals.',
+});
 import { naturalGasZ, suttonPseudoCriticals, toRankine } from '../production/gasProperties.js';
 import { compressorTrain } from '../facilities/compression.js';
 
@@ -438,6 +453,7 @@ export const bottlingPlant = ({
   }
   const queue = rackQueue({
     arrivalsPerHour, loadMinutes: fillMin, bays: queuePositions,
+    vocabulary: BOTTLING_QUEUE_VOCABULARY,
   });
   // The count that would just meet the demand, before any allowance for the
   // queue that count would produce.
@@ -750,7 +766,9 @@ export const cngDispensing = ({
   if (![arr, fill, bays].every((v) => Number.isFinite(v) && v > 0)) {
     return { error: 'Arrivals, fill time and a dispenser count are required and must be positive.' };
   }
-  const queue = rackQueue({ arrivalsPerHour: arr, loadMinutes: fill, bays });
+  const queue = rackQueue({
+    arrivalsPerHour: arr, loadMinutes: fill, bays, vocabulary: CNG_QUEUE_VOCABULARY,
+  });
   // MD4-0: a refusal inside the queue (2.5 dispensers) came back under an
   // error-free result. A forecourt that cannot keep up is an answer and is
   // kept; any other refusal is passed up.
@@ -873,7 +891,7 @@ export const conversionEconomics = ({
       : 'Simple payback is undiscounted. Anything needing a discount rate belongs in the sanctioned economics engine.',
     kgCo2eAvoidedPerYear: carbonAvoided === null ? null : round(carbonAvoided, 2),
     carbonNote: carbonAvoided === null
-      ? 'An emission factor for each fuel is required for the carbon figure; without both it is absent rather than zero.'
+      ? 'An emission factor for each fuel is required for the carbon figure; without both it is left blank.'
       : null,
     // Ready to hand to the sanctioned engine rather than valued here.
     annualCashFlow: {

@@ -302,7 +302,7 @@ describe('steam trap loss', () => {
     const bare = steamTrapLoss(base);
     expect(bare.annualCost).toBeNull();
     expect(bare.annualTonnesCo2e).toBeNull();
-    expect(bare.carbonNote).toMatch(/absent rather than zero/i);
+    expect(bare.carbonNote).toMatch(/carbon figure is left blank/i);
     const priced = steamTrapLoss({
       ...base, steamCostPerTonne: 25, steamEnergyMJPerTonne: 2700,
       boilerEfficiencyFraction: 0.85, emissionFactorKgCo2ePerGJ: 56,
@@ -384,7 +384,7 @@ describe('energy intensity', () => {
     // EII is proprietary with its own standard-energy methodology.
     // Computing something similar and calling it EII would be wrong in a
     // way that matters commercially.
-    expect(energyIntensity(base).disclaimer).toMatch(/NOT the Solomon Energy Intensity Index/i);
+    expect(energyIntensity(base).disclaimer).toMatch(/independent of the Solomon Energy Intensity Index/i);
   });
 
   it('compares only against a peer figure the user supplied', () => {
@@ -567,7 +567,7 @@ describe('the dual ledger', () => {
     const r = priceSaving({ energySavedGJ: 12000 });
     expect(r.annualTonnesCo2e).toBeNull();
     expect(r.annualValue).toBeNull();
-    expect(r.carbonNote).toMatch(/absent rather than zero/i);
+    expect(r.carbonNote).toMatch(/carbon figure is left blank/i);
     expect(r.valueNote).toMatch(/energy only/i);
   });
 

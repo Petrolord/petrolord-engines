@@ -340,7 +340,7 @@ export const cascadeToSchedule = ({ plan, periodStart, periodDays = 30, cargoSiz
 
   return {
     events,
-    note: 'Crude arrives in evenly spaced cargoes and units and lifts are spread evenly across the period. Tank capacity, jetty windows and turnarounds are not modelled: this is the shape of the month to read actuals against, not a berth-level schedule.',
+    note: 'Crude arrives in evenly spaced cargoes and units and lifts are spread evenly across the period. Tank capacity, jetty windows and turnarounds are not modelled: this is the shape of the month to read actuals against. Berth-level scheduling needs those constraints and a scheduling tool.',
   };
 };
 

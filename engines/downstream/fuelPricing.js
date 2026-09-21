@@ -36,6 +36,12 @@
 
 import { rackQueue } from './terminalDepot.js';
 
+/** The queue's refusals in forecourt words: the servers are nozzles. */
+export const FORECOURT_QUEUE_VOCABULARY = Object.freeze({
+  wholeServers: 'The number of nozzles must be a whole number, one or more.',
+  overload: 'The nozzles cannot keep up with peak-hour transactions. The forecourt queue grows without limit, so no average waiting time exists. Add a nozzle, shorten the transaction, or spread the peak.',
+});
+
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
@@ -304,7 +310,7 @@ export const landedCost = ({
     // Said plainly, because a floor read as a cost is how a cargo loses money.
     basisOfTotal: complete
       ? 'All supplied rates applied.'
-      : `A FLOOR, not a cost: ${missing.length} rate(s) not supplied.`,
+      : `A FLOOR: ${missing.length} rate(s) not supplied, so the full landed cost is at least this.`,
   };
 };
 
@@ -393,7 +399,7 @@ export const buildPumpPrice = ({ landedPerLitre, elements = [], capPerLitre = nu
     capCoversChain: cap !== null ? cap >= price : null,
     basisOfPrice: complete
       ? 'All supplied rates applied.'
-      : `A FLOOR, not a price: ${missing.length} rate(s) not supplied.`,
+      : `A FLOOR: ${missing.length} rate(s) not supplied, so the full price is at least this.`,
   };
 };
 
@@ -531,7 +537,7 @@ export const truckingEconomics = ({
     kgCo2ePerLitreDelivered: ef !== null && dieselLitres !== null && deliveredLitres > 0
       ? round((dieselLitres * ef) / deliveredLitres, 6) : null,
     carbonNote: ef === null
-      ? 'No diesel emission factor supplied, so the carbon figure is absent rather than zero.'
+      ? 'No diesel emission factor supplied, so the carbon figure is left blank.'
       : null,
     backhaulLoaded: !!backhaulLoaded,
   };
@@ -605,6 +611,7 @@ export const stationSizing = ({
 
   const queue = rackQueue({
     arrivalsPerHour: peakTxnPerHour, loadMinutes: serviceMinutes, bays,
+    vocabulary: FORECOURT_QUEUE_VOCABULARY,
   });
 
   const cap = num(tankCapacityLitres, null);
@@ -652,7 +659,7 @@ export const stationSizing = ({
 export const solveCrossing = ({ evaluate, lo, hi, tolerance = 1e-6, maxIterations = 200 }) => {
   const a = num(lo); const b = num(hi);
   if (!Number.isFinite(a) || !Number.isFinite(b) || a >= b) {
-    return { found: false, reason: 'The search bracket is not a valid interval.' };
+    return { found: false, reason: 'The search bracket must be a valid interval.' };
   }
   let fa = evaluate(a);
   let fb = evaluate(b);

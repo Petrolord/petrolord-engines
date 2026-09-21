@@ -285,8 +285,19 @@ export const trendUnaccounted = (days = []) => {
  * @param {number} arrivalsPerHour  trucks arriving
  * @param {number} loadMinutes      mean time on the bay
  * @param {number} bays             loading positions
+ * @param {object} [vocabulary]      the two refusal sentences, in the words
+ *   of the facility the queue stands for. A CNG forecourt, a bottling
+ *   carousel and a petrol forecourt all call this model, and each passes its
+ *   own (RACK_VOCABULARY is the loading rack's). Words only: the queue is
+ *   the same M/M/c model whichever vocabulary it speaks.
  */
-export const rackQueue = ({ arrivalsPerHour, loadMinutes, bays }) => {
+export const RACK_VOCABULARY = Object.freeze({
+  wholeServers: 'The number of bays must be a whole number, one or more.',
+  overload: 'The rack cannot keep up with arrivals. The queue grows without limit, so no average waiting time exists. Add a bay, load faster, or spread the arrivals.',
+});
+
+export const rackQueue = ({ arrivalsPerHour, loadMinutes, bays, vocabulary = RACK_VOCABULARY }) => {
+  const words = { ...RACK_VOCABULARY, ...(vocabulary || {}) };
   const lambda = num(arrivalsPerHour);
   // MD3-1: a load time of 0 made the service rate 60/0 = Infinity, which
   // passed the check below and reported a perfect rack. It must be positive.
@@ -299,7 +310,7 @@ export const rackQueue = ({ arrivalsPerHour, loadMinutes, bays }) => {
     return { error: 'Arrival rate and load time are both needed.', utilisation: null };
   }
   if (!(Number.isInteger(c) && c >= 1)) {
-    return { error: 'The number of bays must be a whole number, one or more.', utilisation: null };
+    return { error: words.wholeServers, utilisation: null };
   }
 
   const offered = lambda / serviceRate;          // erlangs
@@ -311,7 +322,7 @@ export const rackQueue = ({ arrivalsPerHour, loadMinutes, bays }) => {
       stable: false,
       // Not a number problem: the rack genuinely cannot keep up, and the
       // queue grows without limit until arrivals stop.
-      error: 'The rack cannot keep up with arrivals. The queue grows without limit, so no average waiting time exists. Add a bay, load faster, or spread the arrivals.',
+      error: words.overload,
       probabilityOfWaiting: 1,
       averageWaitMinutes: null,
       trucksPerDay: null,

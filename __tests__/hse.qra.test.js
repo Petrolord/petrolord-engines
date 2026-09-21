@@ -189,6 +189,38 @@ describe('individual risk, PLL, FAR', () => {
     expect(r.irpaPerYr).toBe(3.7e-5);
   });
 
+  test('an over-full year is refused in the terms the caller used', () => {
+    const frac = Q.individualRiskPerAnnum({ locations: [
+      { name: 'a', lsirPerYr: 1e-5, occupancyFraction: 0.7 },
+      { name: 'b', lsirPerYr: 1e-5, occupancyFraction: 0.5 },
+    ] });
+    expect(frac.field).toBe('locations');
+    expect(frac.error).toMatch(/occupancy fractions sum to 1\.2/);
+    // Hours only: the message names hoursPerYr and the hours, never a fraction.
+    const hrs = Q.individualRiskPerAnnum({ locations: [
+      { name: 'a', lsirPerYr: 1e-5, hoursPerYr: 6000 },
+      { name: 'b', lsirPerYr: 1e-5, hoursPerYr: 4000 },
+    ] });
+    expect(hrs.field).toBe('locations');
+    expect(hrs.error).toMatch(/hoursPerYr values sum to 10000 hours/);
+    expect(hrs.error).toMatch(/8760 hours in a year/);
+    expect(hrs.error).not.toMatch(/fraction/i);
+    // Mixed: both fields are named.
+    const mixed = Q.individualRiskPerAnnum({ locations: [
+      { name: 'a', lsirPerYr: 1e-5, occupancyFraction: 0.6 },
+      { name: 'b', lsirPerYr: 1e-5, hoursPerYr: 4380 },
+    ] });
+    expect(mixed.error).toMatch(/occupancyFraction values and the hoursPerYr values/);
+    expect(mixed.error).toMatch(/sum to 1\.1/);
+    // A full year in hours is accepted, and the result is unchanged.
+    const full = Q.individualRiskPerAnnum({ locations: [
+      { name: 'a', lsirPerYr: 1e-5, hoursPerYr: 4380 },
+      { name: 'b', lsirPerYr: 2e-5, hoursPerYr: 4380 },
+    ] });
+    expect(full.error).toBeUndefined();
+    expect(full.irpaPerYr).toBeCloseTo(1.5e-5, 18);
+  });
+
   test.each(G.individualRisk.pll.map((c) => [c.id, c]))('PLL %s', (id, c) => {
     expectClose(Q.potentialLossOfLife(c.args).pllPerYr, c.expected.pllPerYr);
   });

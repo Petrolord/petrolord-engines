@@ -231,7 +231,12 @@ ORACLE-DERIVED (everything else):
   fatalities prevented undiscounted (R2P2 App. 3 para 15).
 - **IRPA occupancy.** A location's occupancy above 1 is refused, and so is a
   sum above 1 across locations. Hours convert at 8760 per year (lopa.js
-  HOURS_PER_YEAR).
+  HOURS_PER_YEAR). The sum refusal names the field the caller typed
+  (2026-09-21, from the H1 course build): all fractions gives "the
+  occupancy fractions sum to ...", all hours gives "the hoursPerYr values
+  sum to N hours, more than the 8760 hours in a year", and a mix names both.
+  It used to speak of occupancy fractions to a caller who had given hours.
+  Message only; the threshold and every IRPA are unchanged.
 
 ## 6. Dropped scope, and why
 

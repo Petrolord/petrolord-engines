@@ -251,7 +251,7 @@ describe('the abatement, and the claim this app exists to stop', () => {
     expect(a.netAbatementTonnesCo2ePerYear).toBeNull();
     expect(a.counterfactualDeclared).toBe(false);
     expect(a.blockedBy).toMatch(/counterfactual is not declared/i);
-    expect(a.warning).toMatch(/gross emission is not the abatement/i);
+    expect(a.warning).toMatch(/depends on what the recovered product displaces/i);
   });
 
   it('still shows the flare its own footprint, which is a different question', () => {
