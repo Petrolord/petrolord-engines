@@ -25,6 +25,12 @@ import {
   toDateOnlyString,
 } from './calendar.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 export { daysUntil, parseDateOnly, toDateOnlyString };
 
 // ASC-0 (RC-9): an article that agrees with the word it introduces. The
@@ -167,7 +173,7 @@ export const canActOnComment = (comment = {}, to, review = {}, userId) => {
   const refusal = explainRefusal(comment || {}, to);
   if (refusal) return { ok: false, reason: refusal };
   if (!userId) return { ok: false, reason: 'Sign in to act on this comment.' };
-  if (TRANSITION_ACTOR[to] === 'reviewer' && isAuthor(review, userId)) {
+  if (ownPreset(TRANSITION_ACTOR, to) && TRANSITION_ACTOR[to] === 'reviewer' && isAuthor(review, userId)) {
     return {
       ok: false,
       reason: `The author of the work under review cannot ${REVIEWER_VERB[to]} a comment on it. A reviewer independent of the work decides it.`,
@@ -177,9 +183,9 @@ export const canActOnComment = (comment = {}, to, review = {}, userId) => {
 };
 
 export const canTransition = (from, to) =>
-  (COMMENT_TRANSITIONS[from] || []).includes(to);
+  (ownPreset(COMMENT_TRANSITIONS, from) ? COMMENT_TRANSITIONS[from] : []).includes(to);
 
-export const nextStatuses = (from) => COMMENT_TRANSITIONS[from] || [];
+export const nextStatuses = (from) => (ownPreset(COMMENT_TRANSITIONS, from) ? COMMENT_TRANSITIONS[from] : []);
 
 /**
  * Why a transition is refused, in words a user can act on.
@@ -245,7 +251,7 @@ export const STAGE_TRANSITIONS = Object.freeze({
   Cancelled: Object.freeze([]),
 });
 
-export const nextStages = (stage) => STAGE_TRANSITIONS[stage] || [];
+export const nextStages = (stage) => (ownPreset(STAGE_TRANSITIONS, stage) ? STAGE_TRANSITIONS[stage] : []);
 
 /**
  * Is this review overdue?

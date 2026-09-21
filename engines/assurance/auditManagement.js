@@ -72,6 +72,12 @@ import {
   toDateOnlyString,
 } from './isoCompliance.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 /* ------------------------------------------------------------------ */
 /* Shared with AS8, re-exported so this app's pages have one import.   */
 /* ------------------------------------------------------------------ */
@@ -338,7 +344,7 @@ export const AUDIT_TRANSITIONS = Object.freeze({
   Cancelled: Object.freeze([]),
 });
 
-export const nextAuditStatuses = (status) => AUDIT_TRANSITIONS[status] || [];
+export const nextAuditStatuses = (status) => (ownPreset(AUDIT_TRANSITIONS, status) ? AUDIT_TRANSITIONS[status] : []);
 
 export const canAdvanceAudit = (audit = {}, to, context = {}) => {
   const allowed = nextAuditStatuses(audit.status);
@@ -438,7 +444,7 @@ export const PROGRAMME_TRANSITIONS = Object.freeze({
   Cancelled: Object.freeze([]),
 });
 
-export const nextProgrammeStatuses = (status) => PROGRAMME_TRANSITIONS[status] || [];
+export const nextProgrammeStatuses = (status) => (ownPreset(PROGRAMME_TRANSITIONS, status) ? PROGRAMME_TRANSITIONS[status] : []);
 
 export const canAdvanceProgramme = (programme = {}, to, context = {}) => {
   const allowed = nextProgrammeStatuses(programme.status);

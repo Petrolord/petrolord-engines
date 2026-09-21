@@ -63,6 +63,12 @@
 
 import { AIR_MW, R_UNIVERSAL } from './gasProperties.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 /** Molecular weight of dry air and the field gas constant, ONE of each
  *  in this domain, defined by `gasProperties.js` and imported here.
  *  This file used to carry its own 28.9647 against that module's
@@ -220,7 +226,7 @@ export const criticalVelocity = ({
   correlation, sigmaDyneCm, rhoLiquidLbFt3, pPsia, tempR, z, gasSg,
   dragCoefficient, criticalWeber,
 }) => {
-  const adjustment = LOADING_ADJUSTMENT[correlation];
+  const adjustment = ownPreset(LOADING_ADJUSTMENT, correlation) ? LOADING_ADJUSTMENT[correlation] : undefined;
   if (!adjustment) {
     return { ok: false, code: 'unknownCorrelation', error: `Unknown loading correlation "${correlation}". Use turner or coleman.` };
   }

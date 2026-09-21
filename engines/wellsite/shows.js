@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
 // Wellsite Studio WS4: hydrocarbon shows (spec section 20). Every show
 // characteristic is a controlled value; the quality summary is derived
 // from them by a published scoring rule and is never typed. The wording
@@ -35,9 +41,10 @@ export const SHOW_QUALITIES = Object.freeze([
   { code: 'very_good', name: 'very good show', min: 10, max: 12 },
 ]);
 
-const has = (table, code) => (SHOW_TABLES[table] || []).some((t) => t.code === code);
-const nameOf = (table, code) => ((SHOW_TABLES[table] || []).find((t) => t.code === code) || { name: code }).name;
-const scoreOf = (table, code) => ((SHOW_TABLES[table] || []).find((t) => t.code === code) || { score: 0 }).score || 0;
+const rowsOf = (table) => (ownPreset(SHOW_TABLES, table) ? SHOW_TABLES[table] : []);
+const has = (table, code) => rowsOf(table).some((t) => t.code === code);
+const nameOf = (table, code) => (rowsOf(table).find((t) => t.code === code) || { name: code }).name;
+const scoreOf = (table, code) => (rowsOf(table).find((t) => t.code === code) || { score: 0 }).score || 0;
 
 /** Distribution percent to its 0 to 3 score band. */
 export function distributionScore(pct) {
@@ -103,7 +110,7 @@ export function showSummary(s) {
 export function showAbbrev(s) {
   const f = s.fluorescence || {};
   const c = s.cut || {};
-  const ab = (table, code) => ((SHOW_TABLES[table] || []).find((t) => t.code === code) || { abbrev: code }).abbrev;
+  const ab = (table, code) => (rowsOf(table).find((t) => t.code === code) || { abbrev: code }).abbrev;
   const bits = [];
   if (f.intensity && f.intensity !== 'none') bits.push(`${ab('fluorescenceIntensity', f.intensity)} ${ab('fluorescenceColour', f.colour)} fluor ${f.distributionPct}%`);
   if (c.speed && c.speed !== 'none') bits.push(`${ab('cutSpeed', c.speed)} ${ab('cutType', c.type)} cut${c.colour && c.colour !== 'none' ? ` ${ab('cutColour', c.colour)}` : ''}`);

@@ -14,6 +14,12 @@
  * columns come back labelled as the sums they are.
  */
 import { FdpInputError } from './inputError.js';
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
 /**
  * Subsurface Calculations Utility
  * Standard formulas for reservoir engineering calculations.
@@ -75,7 +81,7 @@ export const aggregateReserves = (reservoirs) => {
   const byFluid = {};
   (reservoirs || []).forEach((res, i) => {
     const fluid = res?.fluid;
-    if (!fluid || !RESERVES_UNITS[fluid]) {
+    if (!ownPreset(RESERVES_UNITS, fluid)) {
       const name = res?.name || `row ${i + 1}`;
       throw new FdpInputError(
         `${name}: fluid type is missing or unknown (${String(fluid)}); `

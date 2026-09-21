@@ -35,6 +35,12 @@ import {
   toDateOnlyString,
 } from './calendar.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 export { daysUntil, parseDateOnly, toDateOnlyString };
 
 /** What a person sets. */
@@ -238,7 +244,7 @@ export const deriveStatus = (obligation = {}, today = new Date()) => {
  * obligation with no due date to count back from.
  */
 export const periodStart = (dueDate, frequency) => {
-  const months = FREQUENCY_MONTHS[frequency];
+  const months = ownPreset(FREQUENCY_MONTHS, frequency) ? FREQUENCY_MONTHS[frequency] : undefined;
   const due = parseDateOnly(dueDate);
   if (!months || !due) return null;
   const start = new Date(due.getFullYear(), due.getMonth() - months, due.getDate());
@@ -367,7 +373,7 @@ export const countBy = (obligations = [], field, unset = 'Unspecified') => {
  * compute; the user sets the next date if there is one.
  */
 export const rollForward = (dueDate, frequency) => {
-  const months = FREQUENCY_MONTHS[frequency];
+  const months = ownPreset(FREQUENCY_MONTHS, frequency) ? FREQUENCY_MONTHS[frequency] : undefined;
   const from = parseDateOnly(dueDate);
   if (!months || !from) return null;
   const next = new Date(from.getFullYear(), from.getMonth() + months, from.getDate());

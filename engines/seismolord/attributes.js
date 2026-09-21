@@ -26,6 +26,12 @@
 import { fft, nextPow2 } from '../../lib/fft';
 import { NULL_VALUE } from './manifest';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 const NULL_LIM = 1.0e29;
 const isNull = (v) => Math.abs(v) > NULL_LIM;
 
@@ -257,7 +263,7 @@ export function halfWindowSamples(windowMs, dtUs) {
  * @returns {(trace: Float32Array, out: Float32Array) => void}
  */
 export function makeTraceCompute(name, params, { dtUs }) {
-  const def = ATTRIBUTE_DEFS[name];
+  const def = ownPreset(ATTRIBUTE_DEFS, name) ? ATTRIBUTE_DEFS[name] : undefined;
   if (!def) throw new Error(`Unknown attribute "${name}".`);
   if (!(dtUs > 0)) throw new Error(`Attribute compute needs a positive dt, got ${dtUs}.`);
   switch (name) {

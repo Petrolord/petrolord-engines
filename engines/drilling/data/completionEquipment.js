@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
 // Completion equipment planning catalog (Drilling D7 — Completion Design).
 //
 // Provenance: these are PLANNING-LEVEL nominal dimensions. Landing-nipple
@@ -45,8 +51,8 @@ const row = ({
 // access (seat bore for nipples, tubing ID otherwise).
 function jewelryFor(odIn, idIn) {
   const key = String(odIn);
-  const cpl = EUE_COUPLING_OD_IN[key];
-  const bores = NIPPLE_BORES_IN[key];
+  const cpl = ownPreset(EUE_COUPLING_OD_IN, key) ? EUE_COUPLING_OD_IN[key] : undefined;
+  const bores = ownPreset(NIPPLE_BORES_IN, key) ? NIPPLE_BORES_IN[key] : undefined;
   const t = (p) => ({ ...p, forTubingOdIn: odIn });
   return [
     row(t({ type: 'tubing', name: `Tubing ${odIn}" EUE`, odIn: cpl, idIn, lengthM: 100, notes: 'run length is set in the string builder; OD is the coupling OD' })),

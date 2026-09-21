@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
 /**
  * Kinetics library.
  *
@@ -63,5 +69,5 @@ export const getKerogenParams = (type) => {
     if (cleanType.includes('typeii') && !cleanType.includes('typeiii')) return KerogenKinetics.type2;
     if (cleanType.includes('typeiii')) return KerogenKinetics.type3;
 
-    return KerogenKinetics[cleanType] || KerogenKinetics.default;
+    return (ownPreset(KerogenKinetics, cleanType) ? KerogenKinetics[cleanType] : null) || KerogenKinetics.default;
 };

@@ -52,6 +52,12 @@ import {
   toDateOnlyString,
 } from './qualityAssurance.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 /* ------------------------------------------------------------------ */
 /* Reuse, stated openly.                                              */
 /*                                                                    */
@@ -457,7 +463,7 @@ export const AUDIT_TRANSITIONS = Object.freeze({
   Cancelled: Object.freeze([]),
 });
 
-export const nextAuditStatuses = (status) => AUDIT_TRANSITIONS[status] || [];
+export const nextAuditStatuses = (status) => (ownPreset(AUDIT_TRANSITIONS, status) ? AUDIT_TRANSITIONS[status] : []);
 
 export const canAdvanceAudit = (audit = {}, to, context = {}) => {
   const allowed = nextAuditStatuses(audit.status);

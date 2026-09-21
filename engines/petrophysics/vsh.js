@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
 // Shale volume from gamma ray (Petrophysics Studio G2.1). Ported from
 // the proven core of src/utils/petrophysicsCalculations.js and
 // hardened; validated against the INDEPENDENT oracle goldens
@@ -48,7 +54,7 @@ export const VSH_METHODS = {
  * @returns {Float64Array}
  */
 export function vshFromGr(gr, { grClean, grClay, method = 'linear' }) {
-  const f = VSH_METHODS[method];
+  const f = ownPreset(VSH_METHODS, method) ? VSH_METHODS[method] : undefined;
   if (!f) throw new Error(`Unknown Vsh method "${method}".`);
   const out = new Float64Array(gr.length);
   for (let k = 0; k < gr.length; k++) out[k] = f(igr(gr[k], grClean, grClay));

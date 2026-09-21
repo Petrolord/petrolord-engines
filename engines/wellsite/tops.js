@@ -7,6 +7,12 @@
 
 import { mdToTvd } from './depth.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 export const TOP_STATUSES = Object.freeze(['preliminary', 'confirmed', 'revised', 'withdrawn', 'final']);
 export const TOP_TRANSITIONS = Object.freeze({
   preliminary: ['confirmed', 'revised', 'withdrawn'],
@@ -24,7 +30,7 @@ export function formationKey(name) {
 export function canTransition(from, to) {
   if (!from) return { ok: to === 'preliminary' || to === 'confirmed', reason: to === 'preliminary' || to === 'confirmed' ? '' : 'A first call is preliminary or confirmed.' };
   if (!TOP_STATUSES.includes(to)) return { ok: false, reason: `Unknown top status ${to}.` };
-  const ok = (TOP_TRANSITIONS[from] || []).includes(to);
+  const ok = (ownPreset(TOP_TRANSITIONS, from) ? TOP_TRANSITIONS[from] : []).includes(to);
   return { ok, reason: ok ? '' : `A ${from} top cannot go straight to ${to}.` };
 }
 

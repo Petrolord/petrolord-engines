@@ -33,6 +33,12 @@ import {
   toDateOnlyString,
 } from './calendar.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 export { daysUntil, parseDateOnly, toDateOnlyString };
 
 // ASC-0 (RC-9): an article that agrees with the word it introduces. The
@@ -184,7 +190,7 @@ export const STAGE_TRANSITIONS = Object.freeze({
   Cancelled: Object.freeze([]),
 });
 
-export const nextStages = (stage) => STAGE_TRANSITIONS[stage] || [];
+export const nextStages = (stage) => (ownPreset(STAGE_TRANSITIONS, stage) ? STAGE_TRANSITIONS[stage] : []);
 
 /**
  * Has every approval level signed?

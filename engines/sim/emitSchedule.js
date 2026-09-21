@@ -7,11 +7,16 @@ import { fmt, eclDate, daysBetween } from './deckFormat.js';
 
 const PHASE_OF = { producer: 'OIL', water_injector: 'WATER', gas_injector: 'GAS' };
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
 function checkWell(w) {
   if (!w.name || !/^[A-Za-z0-9_-]{1,8}$/.test(w.name)) {
     throw new Error(`emitSchedule: well name '${w.name}' must be 1-8 plain characters`);
   }
-  if (!PHASE_OF[w.type]) throw new Error(`emitSchedule: unknown well type '${w.type}'`);
+  if (!ownPreset(PHASE_OF, w.type)) throw new Error(`emitSchedule: unknown well type '${w.type}'`);
   if (Array.isArray(w.connections)) {
     if (!w.connections.length) throw new Error(`emitSchedule: ${w.name} has an empty connections list`);
     w.connections.forEach((c) => {

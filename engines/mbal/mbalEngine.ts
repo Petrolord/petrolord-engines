@@ -2864,7 +2864,10 @@ export function runHistoryMatch(
       : defaultHistoryMatchParameters(inputs);
   const seen = new Set<string>();
   for (const key of keys) {
-    const spec = HM_PARAM_SPECS[key];
+    // `HM_PARAM_SPECS[key]` alone walks the prototype chain: 'constructor',
+    // 'toString', 'valueOf', 'hasOwnProperty' and '__proto__' are "found" in
+    // every object literal and walk straight through `if (!spec)`.
+    const spec = Object.prototype.hasOwnProperty.call(HM_PARAM_SPECS, key) ? HM_PARAM_SPECS[key] : undefined;
     if (!spec) throw new Error(`Unknown history-match parameter "${key}".`);
     if (seen.has(key)) throw new Error(`Duplicate history-match parameter "${key}".`);
     seen.add(key);

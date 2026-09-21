@@ -26,6 +26,12 @@
 import { COMPONENTS, PLUS_FRACTION_KEY, getBip } from './components.js';
 import { mixtureFromKeys } from './pr78.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 /**
  * Søreide (1989) normal boiling point from MW and specific gravity, °R.
  * Calibrated on C7+ cuts (MW ≳ 90); it runs ~5% high already at nC6.
@@ -84,7 +90,7 @@ const JY_FAMILIES = {
 };
 
 export function jhaveriYoungrenShift(mw, family = 'paraffin') {
-  const f = JY_FAMILIES[family];
+  const f = ownPreset(JY_FAMILIES, family) ? JY_FAMILIES[family] : undefined;
   if (!f) throw new Error(`Unknown Jhaveri-Youngren family: ${family}`);
   return 1 - f.a0 / mw ** f.a1;
 }

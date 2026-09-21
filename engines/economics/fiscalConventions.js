@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
 /**
  * Fiscal metric conventions (owner decision 2026-09-14, the naming wave that
  * follows EC2-1). ONE place for the names and definitions of the two take
@@ -65,7 +71,7 @@ export const basisLabel = (discountRatePct = null) => (
 );
 
 const metric = (key) => {
-    const m = FISCAL_METRICS[key];
+    const m = ownPreset(FISCAL_METRICS, key) ? FISCAL_METRICS[key] : undefined;
     if (!m) throw new Error(`Unknown fiscal metric: ${key}`);
     return m;
 };

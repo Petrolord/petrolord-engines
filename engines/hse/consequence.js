@@ -69,6 +69,12 @@ import { criticalPressureRatio } from '../facilities/relief.js';
 import { thomasFlameHeightM } from '../facilities/spacing.js';
 import { normalCDF } from '../../lib/stats/stats.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+
+
 export const G_M_S2 = 9.80665;
 export const R_J_MOL_K = 8.314462618;
 export const ATM_PA = 101325;
@@ -360,7 +366,8 @@ export const briggsRuralSigmas = ({ stabilityClass, downwindDistanceM } = {}) =>
     return refuse('stabilityClass', `must be a Pasquill-Gifford class, one of ${STABILITY_CLASSES.join(', ')}`);
   }
   if (!positive(downwindDistanceM)) return refuse('downwindDistanceM', 'must be a downwind distance above 0 m');
-  const c = BRIGGS_RURAL[cls];
+  const c = ownPreset(BRIGGS_RURAL, cls) ? BRIGGS_RURAL[cls] : undefined;
+  if (!c) return refuse('stabilityClass', `must be a Pasquill-Gifford class, one of ${STABILITY_CLASSES.join(', ')}`);
   const x = downwindDistanceM;
   const sigmaYM = (c.sy1 * x) / Math.sqrt(1 + c.sy2 * x);
   const sigmaZM = c.sz1 * x * (1 + c.sz2 * x) ** c.sz3;
@@ -594,7 +601,7 @@ export const poolBurningRate = ({
     let mInf = massBurningFluxInfKgM2S;
     let kb = kBetaPerM;
     if (fuel !== undefined && fuel !== null) {
-      const f = POOL_FIRE_FUELS[fuel];
+      const f = ownPreset(POOL_FIRE_FUELS, fuel) ? POOL_FIRE_FUELS[fuel] : undefined;
       if (!f) return refuse('fuel', `must be one of ${Object.keys(POOL_FIRE_FUELS).join(', ')}, or give massBurningFluxInfKgM2S and kBetaPerM`);
       if (mInf !== undefined || kb !== undefined) return refuse('fuel', 'give a named fuel or the two coefficients, not both');
       mInf = f.massBurningFluxInfKgM2S;
