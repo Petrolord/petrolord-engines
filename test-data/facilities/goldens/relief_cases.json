@@ -1,0 +1,500 @@
+{
+ "blowdown": [
+  {
+   "cd": 0.85,
+   "finalTR": 338.61146860078003,
+   "initialMassLb": 1782.2440750546205,
+   "k": 1.3,
+   "massRemainingLb": 333.18028916697085,
+   "mw": 19.0,
+   "orificeDIn": 1.0,
+   "p0Psia": 1014.7,
+   "pEndPsia": 114.7,
+   "t0R": 560,
+   "timeS": 268.35361412306673,
+   "volumeFt3": 500,
+   "z": 0.9
+  },
+  {
+   "cd": 0.85,
+   "finalTR": 338.61146860078003,
+   "initialMassLb": 1782.2440750546205,
+   "k": 1.3,
+   "massRemainingLb": 333.18028916697085,
+   "mw": 19.0,
+   "orificeDIn": 2.0,
+   "p0Psia": 1014.7,
+   "pEndPsia": 114.7,
+   "t0R": 560,
+   "timeS": 67.08840353076668,
+   "volumeFt3": 500,
+   "z": 0.9
+  },
+  {
+   "cd": 0.8,
+   "finalTR": 405.93110800483515,
+   "initialMassLb": 11762.01773097361,
+   "k": 1.25,
+   "massRemainingLb": 2464.2579423745756,
+   "mw": 22.0,
+   "orificeDIn": 1.5,
+   "p0Psia": 1514.7,
+   "pEndPsia": 214.7,
+   "t0R": 600,
+   "timeS": 489.17012622835927,
+   "volumeFt3": 2000,
+   "z": 0.88
+  },
+  {
+   "cd": 0.85,
+   "finalTR": 338.61146860078003,
+   "initialMassLb": 17.822440750546207,
+   "k": 1.3,
+   "massRemainingLb": 3.3318028916697084,
+   "mw": 19.0,
+   "orificeDIn": 4.0,
+   "p0Psia": 1014.7,
+   "pEndPsia": 114.7,
+   "t0R": 560,
+   "timeS": 0.16772100882691662,
+   "volumeFt3": 5,
+   "z": 0.9
+  },
+  {
+   "cd": 0.85,
+   "finalTR": 338.61146860078003,
+   "initialMassLb": 1782.2440750546205,
+   "k": 1.3,
+   "massRemainingLb": 333.18028916697085,
+   "mw": 19.0,
+   "orificeDIn": 38.0,
+   "p0Psia": 1014.7,
+   "pEndPsia": 114.7,
+   "t0R": 560,
+   "timeS": 0.1858404529938135,
+   "volumeFt3": 500,
+   "z": 0.9
+  }
+ ],
+ "dropout": [
+  {
+   "dropletMicron": 300,
+   "muVCp": 0.012,
+   "rhoLLbFt3": 31.2,
+   "rhoVLbFt3": 0.5,
+   "udFtS": 1.7389168503365746
+  },
+  {
+   "dropletMicron": 600,
+   "muVCp": 0.01,
+   "rhoLLbFt3": 43.7,
+   "rhoVLbFt3": 1.2,
+   "udFtS": 2.5290201894245925
+  },
+  {
+   "dropletMicron": 150,
+   "muVCp": 0.015,
+   "rhoLLbFt3": 50.0,
+   "rhoVLbFt3": 0.3,
+   "udFtS": 1.2029990134234
+  },
+  {
+   "dropletMicron": 450,
+   "muVCp": 0.011,
+   "rhoLLbFt3": 38.0,
+   "rhoVLbFt3": 0.75,
+   "udFtS": 2.3536456824942187
+  }
+ ],
+ "drum": [
+  {
+   "diameterFt": 8.0,
+   "ld": 1.3799561539759715,
+   "liquidAreaFraction": 0.0,
+   "liquidFraction": 0.0,
+   "qVaporAcfs": 120.0,
+   "requiredLengthFt": 11.039649231807772,
+   "udFtS": 1.73,
+   "vVaporFtS": 2.3873241463784303
+  },
+  {
+   "diameterFt": 8.0,
+   "ld": 1.3101457914762813,
+   "liquidAreaFraction": 0.052044019330913724,
+   "liquidFraction": 0.1,
+   "qVaporAcfs": 120.0,
+   "requiredLengthFt": 10.48116633181025,
+   "udFtS": 1.73,
+   "vVaporFtS": 2.5183913547266292
+  },
+  {
+   "diameterFt": 8.0,
+   "ld": 1.2864742607790178,
+   "liquidAreaFraction": 0.19550110947788446,
+   "liquidFraction": 0.25,
+   "qVaporAcfs": 120.0,
+   "requiredLengthFt": 10.291794086232143,
+   "udFtS": 1.73,
+   "vVaporFtS": 2.9674672948636007
+  },
+  {
+   "diameterFt": 8.0,
+   "ld": 1.3799561539759717,
+   "liquidAreaFraction": 0.5000000000000001,
+   "liquidFraction": 0.5,
+   "qVaporAcfs": 120.0,
+   "requiredLengthFt": 11.039649231807774,
+   "udFtS": 1.73,
+   "vVaporFtS": 4.774648292756861
+  },
+  {
+   "diameterFt": 8.0,
+   "ld": 1.7646397987989098,
+   "liquidAreaFraction": 0.8044988905221296,
+   "liquidFraction": 0.75,
+   "qVaporAcfs": 120.0,
+   "requiredLengthFt": 14.117118390391278,
+   "udFtS": 1.73,
+   "vVaporFtS": 12.211307407688455
+  },
+  {
+   "diameterFt": 5.0,
+   "ld": 0.8940281873284445,
+   "liquidAreaFraction": 0.25231578773434393,
+   "liquidFraction": 0.3,
+   "qVaporAcfs": 45.0,
+   "requiredLengthFt": 4.470140936642222,
+   "udFtS": 2.4,
+   "vVaporFtS": 3.0652394994118097
+  }
+ ],
+ "fire": [
+  {
+   "adequateDrainage": true,
+   "envFactor": 1.0,
+   "qBtuHr": 4138017.515498443,
+   "wettedFt2": 628.3
+  },
+  {
+   "adequateDrainage": false,
+   "envFactor": 1.0,
+   "qBtuHr": 6791329.672426842,
+   "wettedFt2": 628.3
+  },
+  {
+   "adequateDrainage": true,
+   "envFactor": 0.3,
+   "qBtuHr": 677104.9975739376,
+   "wettedFt2": 300.0
+  },
+  {
+   "adequateDrainage": false,
+   "envFactor": 0.85,
+   "qBtuHr": 10147123.832480533,
+   "wettedFt2": 1250.0
+  }
+ ],
+ "gas": [
+  {
+   "areaIn2": 2.5625185953906593,
+   "critical": true,
+   "criticalRatio": 0.5549289689282513,
+   "k": 1.25,
+   "kb": 1.0,
+   "kc": 1.0,
+   "kd": 0.975,
+   "mw": 19.0,
+   "p1Psia": 314.7,
+   "p2Psia": 14.7,
+   "tR": 610,
+   "wLbHr": 50000,
+   "z": 0.9
+  },
+  {
+   "areaIn2": 1.1142883446414724,
+   "critical": true,
+   "criticalRatio": 0.568392731192205,
+   "k": 1.18,
+   "kb": 1.0,
+   "kc": 1.0,
+   "kd": 0.975,
+   "mw": 44.0,
+   "p1Psia": 114.7,
+   "p2Psia": 14.7,
+   "tR": 560,
+   "wLbHr": 12000,
+   "z": 0.95
+  },
+  {
+   "areaIn2": 2.334502368507978,
+   "critical": false,
+   "criticalRatio": 0.5457277419012077,
+   "k": 1.3,
+   "kb": 1.0,
+   "kc": 1.0,
+   "kd": 0.975,
+   "mw": 22.0,
+   "p1Psia": 514.7,
+   "p2Psia": 300.0,
+   "tR": 640,
+   "wLbHr": 80000,
+   "z": 0.88
+  },
+  {
+   "areaIn2": 2.6934141072761926,
+   "critical": false,
+   "criticalRatio": 0.5457277419012077,
+   "k": 1.3,
+   "kb": 1.0,
+   "kc": 1.0,
+   "kd": 0.975,
+   "mw": 22.0,
+   "p1Psia": 514.7,
+   "p2Psia": 400.0,
+   "tR": 640,
+   "wLbHr": 80000,
+   "z": 0.88
+  },
+  {
+   "areaIn2": 2.030425555732985,
+   "critical": true,
+   "criticalRatio": 0.5368512224437576,
+   "k": 1.35,
+   "kb": 0.88,
+   "kc": 0.9,
+   "kd": 0.9,
+   "mw": 28.0,
+   "p1Psia": 214.7,
+   "p2Psia": 30.0,
+   "tR": 580,
+   "wLbHr": 25000,
+   "z": 0.92
+  }
+ ],
+ "liquid": [
+  {
+   "areaIn2": 1.3582959322553203,
+   "kc": 1.0,
+   "kd": 0.65,
+   "kv": 1.0,
+   "kw": 1.0,
+   "muCp": 0.0,
+   "p1Psig": 250,
+   "p2Psig": 50,
+   "qGpm": 500,
+   "reynolds": null,
+   "sg": 0.9
+  },
+  {
+   "areaIn2": 1.429063826513743,
+   "kc": 1.0,
+   "kd": 0.65,
+   "kv": 0.9504795426590121,
+   "kw": 1.0,
+   "muCp": 400.0,
+   "p1Psig": 250,
+   "p2Psig": 50,
+   "qGpm": 500,
+   "reynolds": 2634.9684507438574,
+   "sg": 0.9
+  },
+  {
+   "areaIn2": 3.7308218554889017,
+   "kc": 1.0,
+   "kd": 0.65,
+   "kv": 0.9948400706363606,
+   "kw": 1.0,
+   "muCp": 30.0,
+   "p1Psig": 180,
+   "p2Psig": 0,
+   "qGpm": 1200,
+   "reynolds": 60882.95801246613,
+   "sg": 1.05
+  },
+  {
+   "areaIn2": 1.3251021543587795,
+   "kc": 1.0,
+   "kd": 0.65,
+   "kv": 0.5957452346495595,
+   "kw": 1.0,
+   "muCp": 5000.0,
+   "p1Psig": 150,
+   "p2Psig": 50,
+   "qGpm": 200,
+   "reynolds": 92.42886645191088,
+   "sg": 0.95
+  },
+  {
+   "areaIn2": 2.290831403983243,
+   "kc": 1.0,
+   "kd": 0.65,
+   "kv": 1.0,
+   "kw": 1.0,
+   "muCp": 0.5,
+   "p1Psig": 300,
+   "p2Psig": 100,
+   "qGpm": 800,
+   "reynolds": 2959866.5380468722,
+   "sg": 1.0
+  }
+ ],
+ "load": [
+  {
+   "latentBtuLb": 150.0,
+   "qBtuHr": 4138017.515498443,
+   "wLbHr": 27586.78342044501
+  },
+  {
+   "latentBtuLb": 100.0,
+   "qBtuHr": 10000000.0,
+   "wLbHr": 99999.99994123535
+  },
+  {
+   "latentBtuLb": 87.5,
+   "qBtuHr": 6791329.672426842,
+   "wLbHr": 77615.19621069646
+  }
+ ],
+ "radiation": [
+  {
+   "distanceM": 100,
+   "fractionRadiated": 0.3,
+   "kWm2": 0.11936620731892089,
+   "qKw": 50000,
+   "transmissivity": 1.0
+  },
+  {
+   "distanceM": 100,
+   "fractionRadiated": 0.2,
+   "kWm2": 0.06366197723675783,
+   "qKw": 50000,
+   "transmissivity": 0.8
+  },
+  {
+   "distanceM": 35,
+   "fractionRadiated": 0.25,
+   "kWm2": 0.17539524340739399,
+   "qKw": 12000,
+   "transmissivity": 0.9
+  }
+ ],
+ "setback": [
+  {
+   "allowableKwM2": 6.31,
+   "distanceM": 5.835287663817612,
+   "fractionRadiated": 0.25,
+   "qKw": 12000,
+   "transmissivity": 0.9
+  },
+  {
+   "allowableKwM2": 1.58,
+   "distanceM": 27.486038725201865,
+   "fractionRadiated": 0.3,
+   "qKw": 50000,
+   "transmissivity": 1.0
+  }
+ ],
+ "steam": [
+  {
+   "areaIn2": 3.796611511838044,
+   "kb": 1.0,
+   "kc": 1.0,
+   "kd": 0.975,
+   "kn": 1.0,
+   "ksh": 1.0,
+   "p1Psia": 314.7,
+   "wLbHr": 60000
+  },
+  {
+   "areaIn2": 4.574230737154269,
+   "kb": 1.0,
+   "kc": 1.0,
+   "kd": 0.975,
+   "kn": 1.0,
+   "ksh": 0.83,
+   "p1Psia": 314.7,
+   "wLbHr": 60000
+  },
+  {
+   "areaIn2": 1.4421910889820537,
+   "kb": 1.0,
+   "kc": 1.0,
+   "kd": 0.975,
+   "kn": 1.0280156296140217,
+   "ksh": 1.0,
+   "p1Psia": 2014.7,
+   "wLbHr": 150000
+  },
+  {
+   "areaIn2": 0.8253488837213234,
+   "kb": 1.0,
+   "kc": 1.0,
+   "kd": 0.975,
+   "kn": 1.1674375277014435,
+   "ksh": 1.0,
+   "p1Psia": 3100.0,
+   "wLbHr": 150000
+  },
+  {
+   "areaIn2": 1.544193043322651,
+   "kb": 1.0,
+   "kc": 1.0,
+   "kd": 0.975,
+   "kn": 0.9983656014711789,
+   "ksh": 1.0,
+   "p1Psia": 1550.0,
+   "wLbHr": 120000
+  }
+ ],
+ "wetted": [
+  {
+   "areaFt2": 628.3185307179574,
+   "diameterFt": 10,
+   "lengthFt": 40,
+   "liquidLevelFt": 5,
+   "orientation": "horizontal"
+  },
+  {
+   "areaFt2": 418.8790204786838,
+   "diameterFt": 10,
+   "lengthFt": 40,
+   "liquidLevelFt": 2.5,
+   "orientation": "horizontal"
+  },
+  {
+   "areaFt2": 560.163334711241,
+   "diameterFt": 8,
+   "lengthFt": 24,
+   "liquidLevelFt": 7.9,
+   "orientation": "horizontal"
+  },
+  {
+   "areaFt2": 231.6603991656099,
+   "diameterFt": 12,
+   "lengthFt": 30,
+   "liquidLevelFt": 1.2,
+   "orientation": "horizontal"
+  },
+  {
+   "areaFt2": 376.99111843075383,
+   "diameterFt": 10,
+   "lengthFt": 40,
+   "liquidLevelFt": 12,
+   "orientation": "vertical"
+  },
+  {
+   "areaFt2": 471.2388980384877,
+   "diameterFt": 6,
+   "lengthFt": 25,
+   "liquidLevelFt": 25,
+   "orientation": "vertical"
+  },
+  {
+   "areaFt2": 0.0,
+   "diameterFt": 8,
+   "lengthFt": 30,
+   "liquidLevelFt": 0.0,
+   "orientation": "vertical"
+  }
+ ]
+}

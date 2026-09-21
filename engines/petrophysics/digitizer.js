@@ -79,7 +79,10 @@ export function resampleUniform(samples, step) {
  * shape, digitized provenance). Convenience over the three steps.
  * @param {{points: Array<{x,y}>, depthCal: [{pixel,value},{pixel,value}],
  *   valueCal: [{pixel,value},{pixel,value}], valueLog?: boolean,
- *   step: number, mnemonic: string, unit?: string, sourceImage?: string}} spec
+ *   step: number, mnemonic: string, unit?: string, sourceImage?: string,
+ *   provenance?: Object}} spec  provenance: extra keys merged AFTER the
+ *   built-in ones (mode, roi, tolerance, ai_calibration ...), so callers
+ *   can never drop `digitized: true`
  */
 export function digitizeCurve(spec) {
   const depthAxis = makeAxis(spec.depthCal[0].pixel, spec.depthCal[0].value,
@@ -104,6 +107,8 @@ export function digitizeCurve(spec) {
       value_scale: spec.valueLog ? 'log10' : 'linear',
       n_trace_points: spec.points.length,
       source_image: spec.sourceImage || null,
+      ...(spec.provenance && typeof spec.provenance === 'object' ? spec.provenance : {}),
+      digitized: true,
     },
   };
 }

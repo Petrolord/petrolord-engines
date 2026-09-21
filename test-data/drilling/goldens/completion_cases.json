@@ -198,6 +198,15 @@
     "status": "PASS"
    }
   ],
+  "clearanceWorst": {
+   "bottomMdM": 2600.5,
+   "clearanceM": 0.0046736,
+   "controlling": "7\" liner",
+   "governingDriftM": 0.1538986,
+   "name": "Production packer 7\" casing",
+   "odM": 0.149225,
+   "status": "PASS"
+  },
   "profile": [
    {
     "bottomMdM": 1650.0,

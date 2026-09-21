@@ -1,0 +1,34 @@
+{
+  "note": "Hand-derived (see README.md). The abbreviation lineage is the common mudlogging abbreviation lists as republished in wellsite geology handbooks; no numeric oracle exists for a rendering rule.",
+  "sample": {
+    "components": [
+      {
+        "lithology": "sandstone", "percent": 60, "colour": {"hue": "grey", "modifier": "light"},
+        "hardness": null, "grainSize": {"from": "f_sand", "to": "m_sand"}, "sorting": "moderate",
+        "rounding": {"from": "subangular", "to": "subrounded"}, "texture": [], "cement": ["calcareous"],
+        "accessories": [{"code": "pyrite", "amount": "trace"}], "fossils": [], "porosity": "fair", "porosityTypes": [], "extras": {}
+      },
+      {
+        "lithology": "shale", "percent": 40, "colour": {"hue": "grey", "modifier": "dark"},
+        "hardness": "firm", "grainSize": null, "sorting": null, "rounding": null, "texture": ["fissile"],
+        "cement": [], "accessories": [], "fossils": [], "porosity": null, "porosityTypes": [], "extras": {}
+      }
+    ]
+  },
+  "expected": {
+    "petrolord": "60% SST: lt gy, f-m gr, mod srt, sbang-sbrnd, calc cmt, tr pyr, fr vis por; 40% SH: dk gy, frm, fis",
+    "narrative": "Sandstone (60 percent), light grey, fine to medium grained, subangular to subrounded, moderately sorted, calcareous cement, trace pyrite, fair visible porosity. Shale (40 percent), dark grey, firm, fissile.",
+    "operator": "SST (60%) - lt gry, f-m gr, mod srt, sbang-sbrnd, calc cmt, tr pyr, fr vis por / SH (40%) - dk gry, firm, fis",
+    "operatorFallbacks": [
+      {"table": "colourModifier", "code": "light"}, {"table": "grainSize", "code": "f_sand"}, {"table": "grainSize", "code": "m_sand"},
+      {"table": "sorting", "code": "moderate"}, {"table": "rounding", "code": "subangular"}, {"table": "rounding", "code": "subrounded"},
+      {"table": "cement", "code": "calcareous"}, {"table": "amount", "code": "trace"}, {"table": "accessories", "code": "pyrite"},
+      {"table": "porosity", "code": "fair"}, {"table": "colourModifier", "code": "dark"}, {"table": "texture", "code": "fissile"}
+    ]
+  },
+  "operatorProfile": {
+    "id": "acme", "name": "Acme house style", "version": 1,
+    "terms": {"colourHue": {"grey": "gry"}, "hardness": {"firm": "firm"}, "lithology": {"sandstone": "SST", "shale": "SH"}},
+    "format": {"percentStyle": "suffix", "componentSeparator": " / ", "lithologySeparator": " - "}
+  }
+}

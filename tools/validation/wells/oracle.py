@@ -91,8 +91,14 @@ def process(path):
 def main():
     os.makedirs(GOLD_DIR, exist_ok=True)
     for fn in sorted(os.listdir(LAS_DIR)):
-        if fn.lower().endswith(".las"):
-            process(os.path.join(LAS_DIR, fn))
+        if not fn.lower().endswith(".las"):
+            continue
+        if fn.lower().endswith("_30.las"):
+            # LAS 3.0: lasio 0.32 ignores DLM and swallows the other data
+            # blocks, so these goldens come from genfixtures.py itself.
+            print(f"skip {fn} (LAS 3.0 golden written by genfixtures.py)")
+            continue
+        process(os.path.join(LAS_DIR, fn))
 
 
 if __name__ == "__main__":

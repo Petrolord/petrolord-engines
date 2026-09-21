@@ -1,0 +1,102 @@
+{
+  "curves": [
+    {
+      "descr": "DEPTH",
+      "first_finite": 1500.0,
+      "last_finite": 1509.5,
+      "mnemonic": "DEPT",
+      "n_samples": 20,
+      "null_count": 0,
+      "sum_finite_f64": 30095.0,
+      "unit": "M"
+    },
+    {
+      "descr": "GAMMA RAY",
+      "first_finite": 43.135101318359375,
+      "last_finite": 58.01890182495117,
+      "mnemonic": "GR",
+      "n_samples": 20,
+      "null_count": 4,
+      "sum_finite_f64": 723.1800994873047,
+      "unit": "GAPI"
+    },
+    {
+      "descr": "BULK DENSITY",
+      "first_finite": 2.189300060272217,
+      "last_finite": 2.2539000511169434,
+      "mnemonic": "RHOB",
+      "n_samples": 20,
+      "null_count": 0,
+      "sum_finite_f64": 44.39300036430359,
+      "unit": "G/C3"
+    },
+    {
+      "descr": "NEUTRON POROSITY",
+      "first_finite": 0.2337999939918518,
+      "last_finite": 0.15620000660419464,
+      "mnemonic": "NPHI",
+      "n_samples": 20,
+      "null_count": 0,
+      "sum_finite_f64": 3.7910000383853912,
+      "unit": "V/V"
+    },
+    {
+      "descr": "SONIC",
+      "first_finite": 399.7369079589844,
+      "last_finite": 385.62188720703125,
+      "mnemonic": "DT",
+      "n_samples": 20,
+      "null_count": 0,
+      "sum_finite_f64": 7886.470489501953,
+      "unit": "US/M"
+    }
+  ],
+  "depth_unit": "M",
+  "fixture": "las3_space_30.las",
+  "null_value": -999.25,
+  "oracle": "genfixtures.py closed-form arrays (lasio 0.32 misreads LAS 3.0)",
+  "version": 3.0,
+  "well": {
+    "COMP": {
+      "descr": "COMPANY",
+      "unit": "",
+      "value": "PETROLORD TEST"
+    },
+    "DATE": {
+      "descr": "LOG DATE",
+      "unit": "",
+      "value": "2026-09-03 12:30:00"
+    },
+    "FLD": {
+      "descr": "FIELD",
+      "unit": "",
+      "value": "KETA"
+    },
+    "STEP": {
+      "descr": "STEP",
+      "unit": "M",
+      "value": 0.5
+    },
+    "STOP": {
+      "descr": "STOP DEPTH",
+      "unit": "M",
+      "value": 1509.5
+    },
+    "STRT": {
+      "descr": "START DEPTH",
+      "unit": "M",
+      "value": 1500.0
+    },
+    "UWI": {
+      "descr": "UNIQUE WELL ID",
+      "unit": "",
+      "value": "0123456790"
+    },
+    "WELL": {
+      "descr": "WELL",
+      "unit": "",
+      "value": "KETA L3-2"
+    }
+  },
+  "wrap": "NO"
+}

@@ -55,6 +55,66 @@ describe('golden anchors', () => {
     }
   });
 
+  test('production: ESP staging and affinity anchors reproduce', async () => {
+    const { fitStageCurve, stagePerformance } = await import('../engines/production/espPump.js');
+    const { intakeStream, gasHandling, sizePump, PSI_PER_FT_SG } = await import('../engines/production/espDesign.js');
+    const G = JSON.parse(fs.readFileSync(
+      path.join(root, 'test-data', 'production', 'goldens', 'esp_cases.json'), 'utf8',
+    ));
+    const curve = fitStageCurve({ points: G.vendorCurve.points });
+    // An anchor has to be a row that HAS an answer. Item 5 withdrew the
+    // three affinity rows whose duty sits more than a tenth of the
+    // tested span past the end of the curve, and this test used to
+    // anchor on one of them.
+    const a = G.affinity.find((r) => r.ok !== false && r.hz === 50 && r.qBpd === 2500);
+    const s = stagePerformance({ curve, qBpd: a.qBpd, hz: a.hz, specificGravity: a.sg });
+    expect(close(s.headFt, a.headFt, 1e-8)).toBe(true);
+    // and the withdrawn ones are an anchor too: they refuse, on both
+    // sides, for the same reason
+    const beyond = G.affinity.filter((r) => r.ok === false);
+    expect(beyond.length).toBeGreaterThan(0);
+    beyond.forEach((r) => {
+      const out = stagePerformance({ curve, qBpd: r.qBpd, hz: r.hz, specificGravity: r.sg });
+      expect(out.ok).toBe(false);
+      expect(out.code).toBe(r.code);
+    });
+    const d = G.designs[0];
+    const stream = intakeStream({
+      qoStbd: d.inputs.qoStbd, wct: d.inputs.wct, gorScfStb: d.inputs.gorScfStb, pvt: d.inputs.pvt,
+    });
+    const gas = gasHandling({ stream, separatorEfficiency: d.inputs.separatorEfficiency });
+    expect(close(gas.pumpIntakeBpd, d.gas.pumpIntakeBpd, 1e-9)).toBe(true);
+    const sized = sizePump({
+      curve: fitStageCurve({ points: G.vendorCurve.points }),
+      qBpd: gas.pumpIntakeBpd,
+      tdhFt: d.tdhFt,
+      hz: d.inputs.hz,
+      specificGravity: d.gradientPsiPerFt / PSI_PER_FT_SG,
+    });
+    expect(sized.stages).toBeGreaterThan(0);
+  });
+
+  test('production: gas-lift dome charge and spacing anchors reproduce', async () => {
+    const { domePressureAtTemp } = await import('../engines/production/gasLiftValves.js');
+    const { spaceValves, linearTemperature } = await import('../engines/production/gasLiftDesign.js');
+    const G = JSON.parse(fs.readFileSync(
+      path.join(root, 'test-data', 'production', 'goldens', 'gaslift_cases.json'), 'utf8',
+    ));
+    const n = G.nitrogen[1];
+    expect(close(domePressureAtTemp({ pd60Psia: n.pd60Psia, tF: n.tF }), n.domeAtTempPsia, 1e-8))
+      .toBe(true);
+    const d = G.designs[0];
+    const spacing = spaceValves({
+      ...d.inputs,
+      tempAtDepthF: linearTemperature({
+        whtF: d.inputs.wht, bhtF: d.inputs.bht, refDepthFt: d.inputs.refDepth,
+      }),
+      ports: d.inputs.ports.map((idIn) => ({ idIn, label: `${idIn}` })),
+    });
+    expect(spacing.depths).toHaveLength(d.depths.length);
+    expect(Math.abs(spacing.depths[0] - d.depths[0])).toBeLessThan(0.05);
+  });
+
   test('waveform: ricker peaks at 1 at t=0', async () => {
     const { rickerWavelet } = await import('../lib/waveform.js');
     const w = rickerWavelet(25, 1, 60);

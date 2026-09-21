@@ -4,8 +4,8 @@ Committed test data for the LAS parser (`engine/lasParse.js`, Phase
 G1.2). Generated deterministically — reruns are byte-identical — by:
 
 ```
-tools/validation/wells/.venv/bin/python tools/validation/wells/genfixtures.py
-tools/validation/wells/.venv/bin/python tools/validation/wells/oracle.py
+tools/validation/wells/.venv/bin/python tools/validation/wells/genfixtures.py   # also writes the *_30 goldens
+tools/validation/wells/.venv/bin/python tools/validation/wells/oracle.py        # lasio goldens for 1.2/2.0
 ```
 
 (one-time env setup: `python3 -m venv tools/validation/wells/.venv &&
@@ -28,6 +28,8 @@ carries version/wrap/null/well-info and per-curve metadata including
 | `irregular_20.las` | STEP 0.0 with non-uniform depth increments (the depth vector is data, not arithmetic) |
 | `nullheavy_20.las` | Alternative NULL −9999.00, a 71-sample null run, one fully-null curve |
 | `quirks_20.las` | Real-world header abuse: comment/blank lines, ragged spacing, colons and quotes inside descriptions, API-code column, empty ~Params, CRLF line endings |
+| `las3_comma_30.las` | **LAS 3.0**, DLM COMMA: {F}/{E} numeric formats, a {S} lithology column and a {DT} time column (the parser skips both and names them in `skippedCurves`), array channels RHOB[1]/RHOB[2], empty fields as nulls, a quoted string containing the delimiter, `| association` tails, ~Parameter and ~Log_Parameter, ~Core_* and ~Tops_* blocks after the log data (ignored, named in `ignoredSections`), a comment inside the data |
+| `las3_space_30.las` | **LAS 3.0**, DLM SPACE, numeric only, ~Log_Data titled with an association, ragged spacing |
 
 Curves are closed-form functions of measured depth (see
 `genfixtures.py`) so any golden value can be independently recomputed —
@@ -36,5 +38,26 @@ the G1.0 acceptance run verifies GR against the formula through the
 
 Domain conventions (WellDataManager-PLAN.md): internal units are SI;
 `feet_20` exists precisely so import-layer ft→m conversion is tested
-against known raw values. LAS 3.0 is out of v1 scope and must be
-rejected with a clear message, not half-parsed.
+against known raw values.
+
+**LAS 3.0 (2026-09-03).** Supported for the log data: DLM SPACE/COMMA/TAB,
+one row per depth step, `~Log_Definition`/`~Log_Parameter`/`~Log_Data`
+(or the 2.0 names), `{FORMAT}` and `| association` tails, empty fields
+as nulls, quoted strings. Text columns ({S}, {D}, {DT}, {T}, or undeclared
+non-numeric) are skipped and reported; every other `*_Definition/*_Data`
+pair (Core, Tops, Inclinometry, ...) is ignored and reported. The
+`*_30` goldens are NOT lasio's: lasio 0.32 misreads LAS 3.0 (it ignores
+DLM and swallows the other data blocks), so `genfixtures.py` writes those
+goldens directly from the closed-form arrays it generated the files from
+(`"oracle"` field in the JSON says so) and `oracle.py` skips `*_30.las`.
+The independence rule holds: the goldens never come from the JS parser.
+
+**Checkshot conventions (PT0, 2026-09-03).** `goldens/checkshots_cases.json`
+validates `engines/welldata/checkshots.js` (MD | TVD | TVDSS, OWT | TWT,
+m | ft entered at the door and converted to the stored `{tvdss_m, twt_ms}`
+through the survey and KB). Written by `oracle_checkshots.py` from
+closed-form vertical and build-and-hold trajectories (analytic TVD and
+inverse), so the JS minimum-curvature result must agree to 1e-6 m; cases
+cover both units, all three references, extrapolation past TD, an uphill
+ambiguity, the flat-lateral refusal, non-monotonic input, and KB and survey
+rebases. The goldens never come from the JS code.

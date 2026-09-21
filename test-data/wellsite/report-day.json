@@ -1,0 +1,4475 @@
+{
+  "data": {
+    "events": [
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788760500000,
+        "family": "rig",
+        "id": "ev-conn-00",
+        "label": "Connection",
+        "mdM": 3048.0,
+        "startUtcMs": 1788759900000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788767700000,
+        "family": "rig",
+        "id": "ev-conn-01",
+        "label": "Connection",
+        "mdM": 3072.384,
+        "startUtcMs": 1788767100000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788774900000,
+        "family": "rig",
+        "id": "ev-conn-02",
+        "label": "Connection",
+        "mdM": 3096.768,
+        "startUtcMs": 1788774300000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788782100000,
+        "family": "rig",
+        "id": "ev-conn-03",
+        "label": "Connection",
+        "mdM": 3121.152,
+        "startUtcMs": 1788781500000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788789300000,
+        "family": "rig",
+        "id": "ev-conn-04",
+        "label": "Connection",
+        "mdM": 3145.536,
+        "startUtcMs": 1788788700000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788796500000,
+        "family": "rig",
+        "id": "ev-conn-05",
+        "label": "Connection",
+        "mdM": 3169.92,
+        "startUtcMs": 1788795900000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788803700000,
+        "family": "rig",
+        "id": "ev-conn-06",
+        "label": "Connection",
+        "mdM": 3194.304,
+        "startUtcMs": 1788803100000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788810900000,
+        "family": "rig",
+        "id": "ev-conn-07",
+        "label": "Connection",
+        "mdM": 3218.688,
+        "startUtcMs": 1788810300000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788818100000,
+        "family": "rig",
+        "id": "ev-conn-08",
+        "label": "Connection",
+        "mdM": 3243.072,
+        "startUtcMs": 1788817500000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788825300000,
+        "family": "rig",
+        "id": "ev-conn-09",
+        "label": "Connection",
+        "mdM": 3267.456,
+        "startUtcMs": 1788824700000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788832500000,
+        "family": "rig",
+        "id": "ev-conn-10",
+        "label": "Connection",
+        "mdM": 3291.84,
+        "startUtcMs": 1788831900000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788839700000,
+        "family": "rig",
+        "id": "ev-conn-11",
+        "label": "Connection",
+        "mdM": 3316.224,
+        "startUtcMs": 1788839100000,
+        "type": "connection"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": 1788798600000,
+        "family": "rig",
+        "id": "ev-circ",
+        "label": "Circulation",
+        "mdM": 3182.112,
+        "startUtcMs": 1788796800000,
+        "type": "circulation"
+      },
+      {
+        "by": "user-a",
+        "duration": false,
+        "endUtcMs": 1788782400000,
+        "family": "geology",
+        "id": "ev-top",
+        "label": "Top Agbada called at 10262 ft (preliminary)",
+        "mdM": 3127.8576000000003,
+        "startUtcMs": 1788782400000,
+        "type": "top_called"
+      },
+      {
+        "by": "user-a",
+        "duration": true,
+        "endUtcMs": null,
+        "family": "rig",
+        "id": "ev-open",
+        "label": "Sweep",
+        "mdM": 3328.416,
+        "startUtcMs": 1788841800000,
+        "type": "sweep"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Tray 1",
+        "captured_at": "2026-09-07T07:15:00.000Z",
+        "id": "ph-0",
+        "local_offset_min": 60,
+        "md_calc_m": 3072.384,
+        "sample_id": "s-008",
+        "variants": {
+          "original": null,
+          "thumb": {
+            "bytes": 1
+          },
+          "working": {
+            "bytes": 1
+          }
+        },
+        "well_id": "well-1"
+      },
+      {
+        "caption": "Tray 2",
+        "captured_at": "2026-09-07T09:15:00.000Z",
+        "id": "ph-1",
+        "local_offset_min": 60,
+        "md_calc_m": 3096.768,
+        "sample_id": "s-016",
+        "variants": {
+          "original": null,
+          "thumb": {
+            "bytes": 1
+          },
+          "working": {
+            "bytes": 1
+          }
+        },
+        "well_id": "well-1"
+      },
+      {
+        "caption": "Tray 3",
+        "captured_at": "2026-09-07T11:15:00.000Z",
+        "id": "ph-2",
+        "local_offset_min": 60,
+        "md_calc_m": 3121.152,
+        "sample_id": "s-024",
+        "variants": {
+          "original": null,
+          "thumb": {
+            "bytes": 1
+          },
+          "working": {
+            "bytes": 1
+          }
+        },
+        "well_id": "well-1"
+      },
+      {
+        "caption": "Tray 4",
+        "captured_at": "2026-09-07T13:15:00.000Z",
+        "id": "ph-3",
+        "local_offset_min": 60,
+        "md_calc_m": 3145.536,
+        "sample_id": "s-032",
+        "variants": {
+          "original": null,
+          "thumb": {
+            "bytes": 1
+          },
+          "working": {
+            "bytes": 1
+          }
+        },
+        "well_id": "well-1"
+      },
+      {
+        "caption": "Tray 5",
+        "captured_at": "2026-09-07T15:15:00.000Z",
+        "id": "ph-4",
+        "local_offset_min": 60,
+        "md_calc_m": 3169.92,
+        "sample_id": "s-040",
+        "variants": {
+          "original": null,
+          "thumb": {
+            "bytes": 1
+          },
+          "working": {
+            "bytes": 1
+          }
+        },
+        "well_id": "well-1"
+      },
+      {
+        "caption": "Tray 6",
+        "captured_at": "2026-09-07T17:15:00.000Z",
+        "id": "ph-5",
+        "local_offset_min": 60,
+        "md_calc_m": 3194.304,
+        "sample_id": "s-048",
+        "variants": {
+          "original": null,
+          "thumb": {
+            "bytes": 1
+          },
+          "working": {
+            "bytes": 1
+          }
+        },
+        "well_id": "well-1"
+      },
+      {
+        "caption": "Tray 7",
+        "captured_at": "2026-09-07T19:15:00.000Z",
+        "id": "ph-6",
+        "local_offset_min": 60,
+        "md_calc_m": 3218.688,
+        "sample_id": "s-056",
+        "variants": {
+          "original": null,
+          "thumb": {
+            "bytes": 1
+          },
+          "working": {
+            "bytes": 1
+          }
+        },
+        "well_id": "well-1"
+      },
+      {
+        "caption": "Tray 8",
+        "captured_at": "2026-09-07T21:15:00.000Z",
+        "id": "ph-7",
+        "local_offset_min": 60,
+        "md_calc_m": 3243.072,
+        "sample_id": "s-064",
+        "variants": {
+          "original": null,
+          "thumb": {
+            "bytes": 1
+          },
+          "working": {
+            "bytes": 1
+          }
+        },
+        "well_id": "well-1"
+      }
+    ],
+    "records": [
+      {
+        "chain_id": "bit-00",
+        "depth_kind": "bit_depth",
+        "id": "bit-00",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3048.0,
+        "occurred_at": "2026-09-07T05:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2895.6,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-01",
+        "depth_kind": "bit_depth",
+        "id": "bit-01",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3060.192,
+        "occurred_at": "2026-09-07T06:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2907.1823999999997,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-02",
+        "depth_kind": "bit_depth",
+        "id": "bit-02",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3072.384,
+        "occurred_at": "2026-09-07T07:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2918.7648,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-03",
+        "depth_kind": "bit_depth",
+        "id": "bit-03",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3084.576,
+        "occurred_at": "2026-09-07T08:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2930.3471999999997,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-04",
+        "depth_kind": "bit_depth",
+        "id": "bit-04",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3096.768,
+        "occurred_at": "2026-09-07T09:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2941.9296,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-05",
+        "depth_kind": "bit_depth",
+        "id": "bit-05",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3108.96,
+        "occurred_at": "2026-09-07T10:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2953.5119999999997,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-06",
+        "depth_kind": "bit_depth",
+        "id": "bit-06",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3121.152,
+        "occurred_at": "2026-09-07T11:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2965.0944,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-07",
+        "depth_kind": "bit_depth",
+        "id": "bit-07",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3133.344,
+        "occurred_at": "2026-09-07T12:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2976.6767999999997,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-08",
+        "depth_kind": "bit_depth",
+        "id": "bit-08",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3145.536,
+        "occurred_at": "2026-09-07T13:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2988.2592,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-09",
+        "depth_kind": "bit_depth",
+        "id": "bit-09",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3157.728,
+        "occurred_at": "2026-09-07T14:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 2999.8415999999997,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-10",
+        "depth_kind": "bit_depth",
+        "id": "bit-10",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3169.92,
+        "occurred_at": "2026-09-07T15:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3011.424,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-11",
+        "depth_kind": "bit_depth",
+        "id": "bit-11",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3182.112,
+        "occurred_at": "2026-09-07T16:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3023.0063999999998,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-12",
+        "depth_kind": "bit_depth",
+        "id": "bit-12",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3194.304,
+        "occurred_at": "2026-09-07T17:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3034.5888,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-13",
+        "depth_kind": "bit_depth",
+        "id": "bit-13",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3206.496,
+        "occurred_at": "2026-09-07T18:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3046.1711999999998,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-14",
+        "depth_kind": "bit_depth",
+        "id": "bit-14",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3218.688,
+        "occurred_at": "2026-09-07T19:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3057.7536,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-15",
+        "depth_kind": "bit_depth",
+        "id": "bit-15",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3230.88,
+        "occurred_at": "2026-09-07T20:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3069.336,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-16",
+        "depth_kind": "bit_depth",
+        "id": "bit-16",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3243.072,
+        "occurred_at": "2026-09-07T21:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3080.9184,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-17",
+        "depth_kind": "bit_depth",
+        "id": "bit-17",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3255.264,
+        "occurred_at": "2026-09-07T22:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3092.5008,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-18",
+        "depth_kind": "bit_depth",
+        "id": "bit-18",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3267.456,
+        "occurred_at": "2026-09-07T23:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3104.0832,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-19",
+        "depth_kind": "bit_depth",
+        "id": "bit-19",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3279.648,
+        "occurred_at": "2026-09-08T00:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3115.6656,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-20",
+        "depth_kind": "bit_depth",
+        "id": "bit-20",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3291.84,
+        "occurred_at": "2026-09-08T01:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3127.248,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-21",
+        "depth_kind": "bit_depth",
+        "id": "bit-21",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3304.032,
+        "occurred_at": "2026-09-08T02:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3138.8304,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-22",
+        "depth_kind": "bit_depth",
+        "id": "bit-22",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3316.224,
+        "occurred_at": "2026-09-08T03:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3150.4128,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-23",
+        "depth_kind": "bit_depth",
+        "id": "bit-23",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3328.416,
+        "occurred_at": "2026-09-08T04:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3161.9952,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "bit-24",
+        "depth_kind": "bit_depth",
+        "id": "bit-24",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3340.608,
+        "occurred_at": "2026-09-08T05:00:00.000Z",
+        "payload": {
+          "source": "manual"
+        },
+        "subtype": "bit_depth",
+        "tvd_calc_m": 3173.5776,
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "pump-0",
+        "id": "pump-0",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "occurred_at": "2026-09-07T05:00:00.000Z",
+        "payload": {
+          "spm": 60
+        },
+        "subtype": "pump_rate",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-00",
+        "id": "desc-00",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3060.192,
+        "md_calc_m": 3048.0,
+        "occurred_at": "2026-09-07T09:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-01",
+        "id": "desc-01",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3072.384,
+        "md_calc_m": 3060.192,
+        "occurred_at": "2026-09-07T10:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-02",
+        "id": "desc-02",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3084.576,
+        "md_calc_m": 3072.384,
+        "occurred_at": "2026-09-07T11:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-03",
+        "id": "desc-03",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3096.768,
+        "md_calc_m": 3084.576,
+        "occurred_at": "2026-09-07T12:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-04",
+        "id": "desc-04",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3108.96,
+        "md_calc_m": 3096.768,
+        "occurred_at": "2026-09-07T13:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-05",
+        "id": "desc-05",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3121.152,
+        "md_calc_m": 3108.96,
+        "occurred_at": "2026-09-07T14:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-06",
+        "id": "desc-06",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3133.344,
+        "md_calc_m": 3121.152,
+        "occurred_at": "2026-09-07T15:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-07",
+        "id": "desc-07",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3145.536,
+        "md_calc_m": 3133.344,
+        "occurred_at": "2026-09-07T16:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-08",
+        "id": "desc-08",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3157.728,
+        "md_calc_m": 3145.536,
+        "occurred_at": "2026-09-07T17:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-09",
+        "id": "desc-09",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3169.92,
+        "md_calc_m": 3157.728,
+        "occurred_at": "2026-09-07T18:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-10",
+        "id": "desc-10",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3182.112,
+        "md_calc_m": 3169.92,
+        "occurred_at": "2026-09-07T19:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-11",
+        "id": "desc-11",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3194.304,
+        "md_calc_m": 3182.112,
+        "occurred_at": "2026-09-07T20:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-12",
+        "id": "desc-12",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3206.496,
+        "md_calc_m": 3194.304,
+        "occurred_at": "2026-09-07T21:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-13",
+        "id": "desc-13",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3218.688,
+        "md_calc_m": 3206.496,
+        "occurred_at": "2026-09-07T22:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-14",
+        "id": "desc-14",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3230.88,
+        "md_calc_m": 3218.688,
+        "occurred_at": "2026-09-07T23:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-15",
+        "id": "desc-15",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3243.072,
+        "md_calc_m": 3230.88,
+        "occurred_at": "2026-09-08T00:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-16",
+        "id": "desc-16",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3255.264,
+        "md_calc_m": 3243.072,
+        "occurred_at": "2026-09-08T01:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-17",
+        "id": "desc-17",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3267.456,
+        "md_calc_m": 3255.264,
+        "occurred_at": "2026-09-08T02:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-18",
+        "id": "desc-18",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3279.648,
+        "md_calc_m": 3267.456,
+        "occurred_at": "2026-09-08T03:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-19",
+        "id": "desc-19",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3291.84,
+        "md_calc_m": 3279.648,
+        "occurred_at": "2026-09-08T04:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-20",
+        "id": "desc-20",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3304.032,
+        "md_calc_m": 3291.84,
+        "occurred_at": "2026-09-08T05:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-21",
+        "id": "desc-21",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3316.224,
+        "md_calc_m": 3304.032,
+        "occurred_at": "2026-09-08T06:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-22",
+        "id": "desc-22",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3328.416,
+        "md_calc_m": 3316.224,
+        "occurred_at": "2026-09-08T07:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "light"
+              },
+              "fossils": [],
+              "grainSize": {
+                "from": "f_sand",
+                "to": "m_sand"
+              },
+              "lithology": "sandstone",
+              "percent": 70,
+              "porosityTypes": [],
+              "texture": []
+            },
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "lithology": "shale",
+              "percent": 30,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "desc-23",
+        "id": "desc-23",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md2_calc_m": 3340.608,
+        "md_calc_m": 3328.416,
+        "occurred_at": "2026-09-08T08:00:00.000Z",
+        "payload": {
+          "comment": "",
+          "components": [
+            {
+              "accessories": [],
+              "cement": [],
+              "colour": {
+                "hue": "grey",
+                "modifier": "dark"
+              },
+              "fossils": [],
+              "hardness": "firm",
+              "lithology": "shale",
+              "percent": 100,
+              "porosityTypes": [],
+              "texture": [
+                "fissile"
+              ]
+            }
+          ],
+          "mode": "quick"
+        },
+        "subtype": "cuttings_description",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "show-0",
+        "id": "show-0",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3084.576,
+        "occurred_at": "2026-09-07T08:00:00.000Z",
+        "payload": {
+          "cut": {
+            "colour": "yellow",
+            "speed": "moderate",
+            "type": "streaming"
+          },
+          "fluorescence": {
+            "colour": "yellow",
+            "distributionPct": 25,
+            "intensity": "moderate"
+          },
+          "odour": "none",
+          "residue": "none",
+          "stain": "none"
+        },
+        "subtype": "show",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "show-1",
+        "id": "show-1",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3133.344,
+        "occurred_at": "2026-09-07T12:00:00.000Z",
+        "payload": {
+          "cut": {
+            "colour": "yellow",
+            "speed": "fast",
+            "type": "streaming"
+          },
+          "fluorescence": {
+            "colour": "gold",
+            "distributionPct": 25,
+            "intensity": "bright"
+          },
+          "odour": "none",
+          "residue": "none",
+          "stain": "spotty"
+        },
+        "subtype": "show",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "show-2",
+        "id": "show-2",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3169.92,
+        "occurred_at": "2026-09-07T15:00:00.000Z",
+        "payload": {
+          "cut": {
+            "colour": "yellow",
+            "speed": "fast",
+            "type": "streaming"
+          },
+          "fluorescence": {
+            "colour": "bright_yellow",
+            "distributionPct": 50,
+            "intensity": "bright"
+          },
+          "odour": "faint",
+          "residue": "none",
+          "stain": "spotty"
+        },
+        "subtype": "show",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "show-3",
+        "id": "show-3",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3243.072,
+        "occurred_at": "2026-09-07T21:00:00.000Z",
+        "payload": {
+          "cut": {
+            "colour": "yellow",
+            "speed": "slow",
+            "type": "crush"
+          },
+          "fluorescence": {
+            "colour": "dull_brown",
+            "distributionPct": 5,
+            "intensity": "dull"
+          },
+          "odour": "none",
+          "residue": "none",
+          "stain": "none"
+        },
+        "subtype": "show",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-00",
+        "id": "gas-00",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3048.0,
+        "occurred_at": "2026-09-07T05:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 0.5
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-01",
+        "id": "gas-01",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3072.384,
+        "occurred_at": "2026-09-07T07:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 0.6
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-02",
+        "id": "gas-02",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3096.768,
+        "occurred_at": "2026-09-07T09:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 0.7
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-03",
+        "id": "gas-03",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3121.152,
+        "occurred_at": "2026-09-07T11:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 0.8
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-04",
+        "id": "gas-04",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3145.536,
+        "occurred_at": "2026-09-07T13:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 0.9
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-05",
+        "id": "gas-05",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3169.92,
+        "occurred_at": "2026-09-07T15:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 1.0
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-06",
+        "id": "gas-06",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3194.304,
+        "occurred_at": "2026-09-07T17:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 1.1
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-07",
+        "id": "gas-07",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3218.688,
+        "occurred_at": "2026-09-07T19:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 1.2000000000000002
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-08",
+        "id": "gas-08",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3243.072,
+        "occurred_at": "2026-09-07T21:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 1.3
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-09",
+        "id": "gas-09",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3267.456,
+        "occurred_at": "2026-09-07T23:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 1.4
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-10",
+        "id": "gas-10",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3291.84,
+        "occurred_at": "2026-09-08T01:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 1.5
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "gas-11",
+        "id": "gas-11",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3316.224,
+        "occurred_at": "2026-09-08T03:30:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 1.6
+        },
+        "subtype": "total_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "cgas-0",
+        "id": "cgas-0",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3121.152,
+        "occurred_at": "2026-09-07T11:00:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 3.2
+        },
+        "subtype": "connection_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "cgas-1",
+        "id": "cgas-1",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3218.688,
+        "occurred_at": "2026-09-07T19:00:00.000Z",
+        "payload": {
+          "source": "external",
+          "unit": "%",
+          "value": 3.2
+        },
+        "subtype": "connection_gas",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "obs-cav",
+        "id": "obs-cav",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "md_calc_m": 3157.728,
+        "occurred_at": "2026-09-07T14:00:00.000Z",
+        "payload": {
+          "source": "manual",
+          "text": "Splintery cavings increasing"
+        },
+        "subtype": "cavings",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "obs-note",
+        "id": "obs-note",
+        "kind": "observation",
+        "local_offset_min": 60,
+        "occurred_at": "2026-09-07T22:00:00.000Z",
+        "payload": {
+          "source": "manual",
+          "text": "Sand stringers thickening"
+        },
+        "subtype": "note",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "narr-day",
+        "id": "narr-day",
+        "kind": "narrative",
+        "local_offset_min": 60,
+        "occurred_at": "2026-09-07T16:50:00.000Z",
+        "payload": {
+          "period_start": "2026-09-07T05:00:00.000Z",
+          "text": "Drilled ahead in interbedded sand and shale; good show at 10280 ft."
+        },
+        "subtype": "geological_summary",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "narr-night",
+        "id": "narr-night-v1",
+        "kind": "narrative",
+        "local_offset_min": 60,
+        "occurred_at": "2026-09-08T04:40:00.000Z",
+        "payload": {
+          "period_start": "2026-09-07T17:00:00.000Z",
+          "text": "Shale dominated."
+        },
+        "subtype": "geological_summary",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "chain_id": "narr-night",
+        "id": "narr-night-v2",
+        "kind": "narrative",
+        "local_offset_min": 60,
+        "occurred_at": "2026-09-08T04:50:00.000Z",
+        "payload": {
+          "period_start": "2026-09-07T17:00:00.000Z",
+          "text": "Shale dominated with thin sand stringers from 10800 ft."
+        },
+        "previous_version_id": "narr-night-v1",
+        "subtype": "geological_summary",
+        "version_no": 2,
+        "well_id": "well-1"
+      }
+    ],
+    "samples": [
+      {
+        "id": "s-000",
+        "md_calc_m": 3051.0480000000002,
+        "sample_no": 1,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-001",
+        "md_calc_m": 3054.096,
+        "sample_no": 2,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-002",
+        "md_calc_m": 3057.1440000000002,
+        "sample_no": 3,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-003",
+        "md_calc_m": 3060.192,
+        "sample_no": 4,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-004",
+        "md_calc_m": 3063.2400000000002,
+        "sample_no": 5,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-005",
+        "md_calc_m": 3066.288,
+        "sample_no": 6,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-006",
+        "md_calc_m": 3069.3360000000002,
+        "sample_no": 7,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-007",
+        "md_calc_m": 3072.384,
+        "sample_no": 8,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-008",
+        "md_calc_m": 3075.4320000000002,
+        "sample_no": 9,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-009",
+        "md_calc_m": 3078.48,
+        "sample_no": 10,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-010",
+        "md_calc_m": 3081.5280000000002,
+        "sample_no": 11,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-011",
+        "md_calc_m": 3084.576,
+        "sample_no": 12,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-012",
+        "md_calc_m": 3087.6240000000003,
+        "sample_no": 13,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-013",
+        "md_calc_m": 3090.672,
+        "sample_no": 14,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-014",
+        "md_calc_m": 3093.7200000000003,
+        "sample_no": 15,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-015",
+        "md_calc_m": 3096.768,
+        "sample_no": 16,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-016",
+        "md_calc_m": 3099.8160000000003,
+        "sample_no": 17,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-017",
+        "md_calc_m": 3102.864,
+        "sample_no": 18,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-018",
+        "md_calc_m": 3105.9120000000003,
+        "sample_no": 19,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-019",
+        "md_calc_m": 3108.96,
+        "sample_no": 20,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-020",
+        "md_calc_m": 3112.0080000000003,
+        "sample_no": 21,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-021",
+        "md_calc_m": 3115.056,
+        "sample_no": 22,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-022",
+        "md_calc_m": 3118.1040000000003,
+        "sample_no": 23,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-023",
+        "md_calc_m": 3121.152,
+        "sample_no": 24,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-024",
+        "md_calc_m": 3124.2000000000003,
+        "sample_no": 25,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-025",
+        "md_calc_m": 3127.248,
+        "sample_no": 26,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-026",
+        "md_calc_m": 3130.2960000000003,
+        "sample_no": 27,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-027",
+        "md_calc_m": 3133.344,
+        "sample_no": 28,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-028",
+        "md_calc_m": 3136.3920000000003,
+        "sample_no": 29,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-029",
+        "md_calc_m": 3139.44,
+        "sample_no": 30,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-030",
+        "md_calc_m": 3142.4880000000003,
+        "sample_no": 31,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-031",
+        "md_calc_m": 3145.536,
+        "sample_no": 32,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-032",
+        "md_calc_m": 3148.5840000000003,
+        "sample_no": 33,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-033",
+        "md_calc_m": 3151.632,
+        "sample_no": 34,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-034",
+        "md_calc_m": 3154.6800000000003,
+        "sample_no": 35,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-035",
+        "md_calc_m": 3157.728,
+        "sample_no": 36,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-036",
+        "md_calc_m": 3160.7760000000003,
+        "sample_no": 37,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-037",
+        "md_calc_m": 3163.824,
+        "sample_no": 38,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-038",
+        "md_calc_m": 3166.8720000000003,
+        "sample_no": 39,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-039",
+        "md_calc_m": 3169.92,
+        "sample_no": 40,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-040",
+        "md_calc_m": 3172.9680000000003,
+        "sample_no": 41,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-041",
+        "md_calc_m": 3176.016,
+        "sample_no": 42,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-042",
+        "md_calc_m": 3179.0640000000003,
+        "sample_no": 43,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-043",
+        "md_calc_m": 3182.112,
+        "sample_no": 44,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-044",
+        "md_calc_m": 3185.1600000000003,
+        "sample_no": 45,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-045",
+        "md_calc_m": 3188.208,
+        "sample_no": 46,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-046",
+        "md_calc_m": 3191.2560000000003,
+        "sample_no": 47,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-047",
+        "md_calc_m": 3194.304,
+        "sample_no": 48,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-048",
+        "md_calc_m": 3197.3520000000003,
+        "sample_no": 49,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-049",
+        "md_calc_m": 3200.4,
+        "sample_no": 50,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-050",
+        "md_calc_m": 3203.4480000000003,
+        "sample_no": 51,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-051",
+        "md_calc_m": 3206.496,
+        "sample_no": 52,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-052",
+        "md_calc_m": 3209.5440000000003,
+        "sample_no": 53,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-053",
+        "md_calc_m": 3212.592,
+        "sample_no": 54,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-054",
+        "md_calc_m": 3215.6400000000003,
+        "sample_no": 55,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-055",
+        "md_calc_m": 3218.688,
+        "sample_no": 56,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-056",
+        "md_calc_m": 3221.7360000000003,
+        "sample_no": 57,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-057",
+        "md_calc_m": 3224.784,
+        "sample_no": 58,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-058",
+        "md_calc_m": 3227.8320000000003,
+        "sample_no": 59,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-059",
+        "md_calc_m": 3230.88,
+        "sample_no": 60,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-060",
+        "md_calc_m": 3233.9280000000003,
+        "sample_no": 61,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-061",
+        "md_calc_m": 3236.976,
+        "sample_no": 62,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-062",
+        "md_calc_m": 3240.0240000000003,
+        "sample_no": 63,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-063",
+        "md_calc_m": 3243.072,
+        "sample_no": 64,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-064",
+        "md_calc_m": 3246.1200000000003,
+        "sample_no": 65,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-065",
+        "md_calc_m": 3249.168,
+        "sample_no": 66,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-066",
+        "md_calc_m": 3252.2160000000003,
+        "sample_no": 67,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-067",
+        "md_calc_m": 3255.264,
+        "sample_no": 68,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-068",
+        "md_calc_m": 3258.3120000000004,
+        "sample_no": 69,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-069",
+        "md_calc_m": 3261.36,
+        "sample_no": 70,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-070",
+        "md_calc_m": 3264.4080000000004,
+        "sample_no": 71,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-071",
+        "md_calc_m": 3267.456,
+        "sample_no": 72,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-072",
+        "md_calc_m": 3270.5040000000004,
+        "sample_no": 73,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-073",
+        "md_calc_m": 3273.552,
+        "sample_no": 74,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-074",
+        "md_calc_m": 3276.6000000000004,
+        "sample_no": 75,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-075",
+        "md_calc_m": 3279.648,
+        "sample_no": 76,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-076",
+        "md_calc_m": 3282.6960000000004,
+        "sample_no": 77,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-077",
+        "md_calc_m": 3285.744,
+        "sample_no": 78,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-078",
+        "md_calc_m": 3288.7920000000004,
+        "sample_no": 79,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-079",
+        "md_calc_m": 3291.84,
+        "sample_no": 80,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-080",
+        "md_calc_m": 3294.8880000000004,
+        "sample_no": 81,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-081",
+        "md_calc_m": 3297.936,
+        "sample_no": 82,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-082",
+        "md_calc_m": 3300.9840000000004,
+        "sample_no": 83,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-083",
+        "md_calc_m": 3304.032,
+        "sample_no": 84,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-084",
+        "md_calc_m": 3307.0800000000004,
+        "sample_no": 85,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-085",
+        "md_calc_m": 3310.128,
+        "sample_no": 86,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-086",
+        "md_calc_m": 3313.1760000000004,
+        "sample_no": 87,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-087",
+        "md_calc_m": 3316.224,
+        "sample_no": 88,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-088",
+        "md_calc_m": 3319.2720000000004,
+        "sample_no": 89,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-089",
+        "md_calc_m": 3322.32,
+        "sample_no": 90,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-090",
+        "md_calc_m": 3325.3680000000004,
+        "sample_no": 91,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-091",
+        "md_calc_m": 3328.416,
+        "sample_no": 92,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-092",
+        "md_calc_m": 3331.464,
+        "sample_no": 93,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-093",
+        "md_calc_m": 3334.512,
+        "sample_no": 94,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-094",
+        "md_calc_m": 3337.56,
+        "sample_no": 95,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      },
+      {
+        "id": "s-095",
+        "md_calc_m": 3340.608,
+        "sample_no": 96,
+        "scheduled_at": "2026-09-07T05:00:00.000Z",
+        "well_id": "well-1"
+      }
+    ],
+    "stages": [
+      {
+        "at_utc": "2026-09-07T08:15:00.000Z",
+        "id": "st-c-000",
+        "local_offset_min": 60,
+        "sample_id": "s-000",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T09:15:00.000Z",
+        "id": "st-d-000",
+        "local_offset_min": 60,
+        "sample_id": "s-000",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:15:00.000Z",
+        "id": "st-b-000",
+        "local_offset_min": 60,
+        "sample_id": "s-000",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T08:30:00.000Z",
+        "id": "st-c-001",
+        "local_offset_min": 60,
+        "sample_id": "s-001",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T09:30:00.000Z",
+        "id": "st-d-001",
+        "local_offset_min": 60,
+        "sample_id": "s-001",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:30:00.000Z",
+        "id": "st-b-001",
+        "local_offset_min": 60,
+        "sample_id": "s-001",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T08:45:00.000Z",
+        "id": "st-c-002",
+        "local_offset_min": 60,
+        "sample_id": "s-002",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T09:45:00.000Z",
+        "id": "st-d-002",
+        "local_offset_min": 60,
+        "sample_id": "s-002",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:45:00.000Z",
+        "id": "st-b-002",
+        "local_offset_min": 60,
+        "sample_id": "s-002",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T09:00:00.000Z",
+        "id": "st-c-003",
+        "local_offset_min": 60,
+        "sample_id": "s-003",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:00:00.000Z",
+        "id": "st-d-003",
+        "local_offset_min": 60,
+        "sample_id": "s-003",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:00:00.000Z",
+        "id": "st-b-003",
+        "local_offset_min": 60,
+        "sample_id": "s-003",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T09:15:00.000Z",
+        "id": "st-c-004",
+        "local_offset_min": 60,
+        "sample_id": "s-004",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:15:00.000Z",
+        "id": "st-d-004",
+        "local_offset_min": 60,
+        "sample_id": "s-004",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:15:00.000Z",
+        "id": "st-b-004",
+        "local_offset_min": 60,
+        "sample_id": "s-004",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T09:30:00.000Z",
+        "id": "st-c-005",
+        "local_offset_min": 60,
+        "sample_id": "s-005",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:30:00.000Z",
+        "id": "st-d-005",
+        "local_offset_min": 60,
+        "sample_id": "s-005",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:30:00.000Z",
+        "id": "st-b-005",
+        "local_offset_min": 60,
+        "sample_id": "s-005",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T09:45:00.000Z",
+        "id": "st-c-006",
+        "local_offset_min": 60,
+        "sample_id": "s-006",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:45:00.000Z",
+        "id": "st-d-006",
+        "local_offset_min": 60,
+        "sample_id": "s-006",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:45:00.000Z",
+        "id": "st-b-006",
+        "local_offset_min": 60,
+        "sample_id": "s-006",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:00:00.000Z",
+        "id": "st-c-007",
+        "local_offset_min": 60,
+        "sample_id": "s-007",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:00:00.000Z",
+        "id": "st-d-007",
+        "local_offset_min": 60,
+        "sample_id": "s-007",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:00:00.000Z",
+        "id": "st-b-007",
+        "local_offset_min": 60,
+        "sample_id": "s-007",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:15:00.000Z",
+        "id": "st-c-008",
+        "local_offset_min": 60,
+        "sample_id": "s-008",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:15:00.000Z",
+        "id": "st-d-008",
+        "local_offset_min": 60,
+        "sample_id": "s-008",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:15:00.000Z",
+        "id": "st-b-008",
+        "local_offset_min": 60,
+        "sample_id": "s-008",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:30:00.000Z",
+        "id": "st-c-009",
+        "local_offset_min": 60,
+        "sample_id": "s-009",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:30:00.000Z",
+        "id": "st-d-009",
+        "local_offset_min": 60,
+        "sample_id": "s-009",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:30:00.000Z",
+        "id": "st-b-009",
+        "local_offset_min": 60,
+        "sample_id": "s-009",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T10:45:00.000Z",
+        "id": "st-c-010",
+        "local_offset_min": 60,
+        "sample_id": "s-010",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:45:00.000Z",
+        "id": "st-d-010",
+        "local_offset_min": 60,
+        "sample_id": "s-010",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:45:00.000Z",
+        "id": "st-b-010",
+        "local_offset_min": 60,
+        "sample_id": "s-010",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:00:00.000Z",
+        "id": "st-c-011",
+        "local_offset_min": 60,
+        "sample_id": "s-011",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:00:00.000Z",
+        "id": "st-d-011",
+        "local_offset_min": 60,
+        "sample_id": "s-011",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:00:00.000Z",
+        "id": "st-b-011",
+        "local_offset_min": 60,
+        "sample_id": "s-011",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:15:00.000Z",
+        "id": "st-c-012",
+        "local_offset_min": 60,
+        "sample_id": "s-012",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:15:00.000Z",
+        "id": "st-d-012",
+        "local_offset_min": 60,
+        "sample_id": "s-012",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:15:00.000Z",
+        "id": "st-b-012",
+        "local_offset_min": 60,
+        "sample_id": "s-012",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:30:00.000Z",
+        "id": "st-c-013",
+        "local_offset_min": 60,
+        "sample_id": "s-013",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:30:00.000Z",
+        "id": "st-d-013",
+        "local_offset_min": 60,
+        "sample_id": "s-013",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:30:00.000Z",
+        "id": "st-b-013",
+        "local_offset_min": 60,
+        "sample_id": "s-013",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T11:45:00.000Z",
+        "id": "st-c-014",
+        "local_offset_min": 60,
+        "sample_id": "s-014",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:45:00.000Z",
+        "id": "st-d-014",
+        "local_offset_min": 60,
+        "sample_id": "s-014",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:45:00.000Z",
+        "id": "st-b-014",
+        "local_offset_min": 60,
+        "sample_id": "s-014",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:00:00.000Z",
+        "id": "st-c-015",
+        "local_offset_min": 60,
+        "sample_id": "s-015",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:00:00.000Z",
+        "id": "st-d-015",
+        "local_offset_min": 60,
+        "sample_id": "s-015",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:00:00.000Z",
+        "id": "st-b-015",
+        "local_offset_min": 60,
+        "sample_id": "s-015",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:15:00.000Z",
+        "id": "st-c-016",
+        "local_offset_min": 60,
+        "sample_id": "s-016",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:15:00.000Z",
+        "id": "st-d-016",
+        "local_offset_min": 60,
+        "sample_id": "s-016",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:15:00.000Z",
+        "id": "st-b-016",
+        "local_offset_min": 60,
+        "sample_id": "s-016",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:30:00.000Z",
+        "id": "st-c-017",
+        "local_offset_min": 60,
+        "sample_id": "s-017",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:30:00.000Z",
+        "id": "st-d-017",
+        "local_offset_min": 60,
+        "sample_id": "s-017",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:30:00.000Z",
+        "id": "st-b-017",
+        "local_offset_min": 60,
+        "sample_id": "s-017",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T12:45:00.000Z",
+        "id": "st-c-018",
+        "local_offset_min": 60,
+        "sample_id": "s-018",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:45:00.000Z",
+        "id": "st-d-018",
+        "local_offset_min": 60,
+        "sample_id": "s-018",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:45:00.000Z",
+        "id": "st-b-018",
+        "local_offset_min": 60,
+        "sample_id": "s-018",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:00:00.000Z",
+        "id": "st-c-019",
+        "local_offset_min": 60,
+        "sample_id": "s-019",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:00:00.000Z",
+        "id": "st-d-019",
+        "local_offset_min": 60,
+        "sample_id": "s-019",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:00:00.000Z",
+        "id": "st-b-019",
+        "local_offset_min": 60,
+        "sample_id": "s-019",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:15:00.000Z",
+        "id": "st-c-020",
+        "local_offset_min": 60,
+        "sample_id": "s-020",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:15:00.000Z",
+        "id": "st-d-020",
+        "local_offset_min": 60,
+        "sample_id": "s-020",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:15:00.000Z",
+        "id": "st-b-020",
+        "local_offset_min": 60,
+        "sample_id": "s-020",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:30:00.000Z",
+        "id": "st-c-021",
+        "local_offset_min": 60,
+        "sample_id": "s-021",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:30:00.000Z",
+        "id": "st-d-021",
+        "local_offset_min": 60,
+        "sample_id": "s-021",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:30:00.000Z",
+        "id": "st-b-021",
+        "local_offset_min": 60,
+        "sample_id": "s-021",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T13:45:00.000Z",
+        "id": "st-c-022",
+        "local_offset_min": 60,
+        "sample_id": "s-022",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:45:00.000Z",
+        "id": "st-d-022",
+        "local_offset_min": 60,
+        "sample_id": "s-022",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:45:00.000Z",
+        "id": "st-b-022",
+        "local_offset_min": 60,
+        "sample_id": "s-022",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:00:00.000Z",
+        "id": "st-c-023",
+        "local_offset_min": 60,
+        "sample_id": "s-023",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:00:00.000Z",
+        "id": "st-d-023",
+        "local_offset_min": 60,
+        "sample_id": "s-023",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:00:00.000Z",
+        "id": "st-b-023",
+        "local_offset_min": 60,
+        "sample_id": "s-023",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:15:00.000Z",
+        "id": "st-c-024",
+        "local_offset_min": 60,
+        "sample_id": "s-024",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:15:00.000Z",
+        "id": "st-d-024",
+        "local_offset_min": 60,
+        "sample_id": "s-024",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:15:00.000Z",
+        "id": "st-b-024",
+        "local_offset_min": 60,
+        "sample_id": "s-024",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:30:00.000Z",
+        "id": "st-c-025",
+        "local_offset_min": 60,
+        "sample_id": "s-025",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:30:00.000Z",
+        "id": "st-d-025",
+        "local_offset_min": 60,
+        "sample_id": "s-025",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:30:00.000Z",
+        "id": "st-b-025",
+        "local_offset_min": 60,
+        "sample_id": "s-025",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T14:45:00.000Z",
+        "id": "st-c-026",
+        "local_offset_min": 60,
+        "sample_id": "s-026",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:45:00.000Z",
+        "id": "st-d-026",
+        "local_offset_min": 60,
+        "sample_id": "s-026",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:45:00.000Z",
+        "id": "st-b-026",
+        "local_offset_min": 60,
+        "sample_id": "s-026",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:00:00.000Z",
+        "id": "st-c-027",
+        "local_offset_min": 60,
+        "sample_id": "s-027",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:00:00.000Z",
+        "id": "st-d-027",
+        "local_offset_min": 60,
+        "sample_id": "s-027",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:00:00.000Z",
+        "id": "st-b-027",
+        "local_offset_min": 60,
+        "sample_id": "s-027",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:15:00.000Z",
+        "id": "st-c-028",
+        "local_offset_min": 60,
+        "sample_id": "s-028",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:15:00.000Z",
+        "id": "st-d-028",
+        "local_offset_min": 60,
+        "sample_id": "s-028",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:15:00.000Z",
+        "id": "st-b-028",
+        "local_offset_min": 60,
+        "sample_id": "s-028",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:30:00.000Z",
+        "id": "st-c-029",
+        "local_offset_min": 60,
+        "sample_id": "s-029",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:30:00.000Z",
+        "id": "st-d-029",
+        "local_offset_min": 60,
+        "sample_id": "s-029",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:30:00.000Z",
+        "id": "st-b-029",
+        "local_offset_min": 60,
+        "sample_id": "s-029",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T15:45:00.000Z",
+        "id": "st-c-030",
+        "local_offset_min": 60,
+        "sample_id": "s-030",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:45:00.000Z",
+        "id": "st-d-030",
+        "local_offset_min": 60,
+        "sample_id": "s-030",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:45:00.000Z",
+        "id": "st-b-030",
+        "local_offset_min": 60,
+        "sample_id": "s-030",
+        "stage": "bagged",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:00:00.000Z",
+        "id": "st-c-031",
+        "local_offset_min": 60,
+        "sample_id": "s-031",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:00:00.000Z",
+        "id": "st-d-031",
+        "local_offset_min": 60,
+        "sample_id": "s-031",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:15:00.000Z",
+        "id": "st-c-032",
+        "local_offset_min": 60,
+        "sample_id": "s-032",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:15:00.000Z",
+        "id": "st-d-032",
+        "local_offset_min": 60,
+        "sample_id": "s-032",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:30:00.000Z",
+        "id": "st-c-033",
+        "local_offset_min": 60,
+        "sample_id": "s-033",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:30:00.000Z",
+        "id": "st-d-033",
+        "local_offset_min": 60,
+        "sample_id": "s-033",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T16:45:00.000Z",
+        "id": "st-c-034",
+        "local_offset_min": 60,
+        "sample_id": "s-034",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:45:00.000Z",
+        "id": "st-d-034",
+        "local_offset_min": 60,
+        "sample_id": "s-034",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:00:00.000Z",
+        "id": "st-c-035",
+        "local_offset_min": 60,
+        "sample_id": "s-035",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T18:00:00.000Z",
+        "id": "st-d-035",
+        "local_offset_min": 60,
+        "sample_id": "s-035",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:15:00.000Z",
+        "id": "st-c-036",
+        "local_offset_min": 60,
+        "sample_id": "s-036",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T18:15:00.000Z",
+        "id": "st-d-036",
+        "local_offset_min": 60,
+        "sample_id": "s-036",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:30:00.000Z",
+        "id": "st-c-037",
+        "local_offset_min": 60,
+        "sample_id": "s-037",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T18:30:00.000Z",
+        "id": "st-d-037",
+        "local_offset_min": 60,
+        "sample_id": "s-037",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T17:45:00.000Z",
+        "id": "st-c-038",
+        "local_offset_min": 60,
+        "sample_id": "s-038",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T18:45:00.000Z",
+        "id": "st-d-038",
+        "local_offset_min": 60,
+        "sample_id": "s-038",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T18:00:00.000Z",
+        "id": "st-c-039",
+        "local_offset_min": 60,
+        "sample_id": "s-039",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T19:00:00.000Z",
+        "id": "st-d-039",
+        "local_offset_min": 60,
+        "sample_id": "s-039",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T18:15:00.000Z",
+        "id": "st-c-040",
+        "local_offset_min": 60,
+        "sample_id": "s-040",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T19:15:00.000Z",
+        "id": "st-d-040",
+        "local_offset_min": 60,
+        "sample_id": "s-040",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T18:30:00.000Z",
+        "id": "st-c-041",
+        "local_offset_min": 60,
+        "sample_id": "s-041",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T19:30:00.000Z",
+        "id": "st-d-041",
+        "local_offset_min": 60,
+        "sample_id": "s-041",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T18:45:00.000Z",
+        "id": "st-c-042",
+        "local_offset_min": 60,
+        "sample_id": "s-042",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T19:45:00.000Z",
+        "id": "st-d-042",
+        "local_offset_min": 60,
+        "sample_id": "s-042",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T19:00:00.000Z",
+        "id": "st-c-043",
+        "local_offset_min": 60,
+        "sample_id": "s-043",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T20:00:00.000Z",
+        "id": "st-d-043",
+        "local_offset_min": 60,
+        "sample_id": "s-043",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T19:15:00.000Z",
+        "id": "st-c-044",
+        "local_offset_min": 60,
+        "sample_id": "s-044",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T20:15:00.000Z",
+        "id": "st-d-044",
+        "local_offset_min": 60,
+        "sample_id": "s-044",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T19:30:00.000Z",
+        "id": "st-c-045",
+        "local_offset_min": 60,
+        "sample_id": "s-045",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T20:30:00.000Z",
+        "id": "st-d-045",
+        "local_offset_min": 60,
+        "sample_id": "s-045",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T19:45:00.000Z",
+        "id": "st-c-046",
+        "local_offset_min": 60,
+        "sample_id": "s-046",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T20:45:00.000Z",
+        "id": "st-d-046",
+        "local_offset_min": 60,
+        "sample_id": "s-046",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T20:00:00.000Z",
+        "id": "st-c-047",
+        "local_offset_min": 60,
+        "sample_id": "s-047",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T21:00:00.000Z",
+        "id": "st-d-047",
+        "local_offset_min": 60,
+        "sample_id": "s-047",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T20:15:00.000Z",
+        "id": "st-c-048",
+        "local_offset_min": 60,
+        "sample_id": "s-048",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T21:15:00.000Z",
+        "id": "st-d-048",
+        "local_offset_min": 60,
+        "sample_id": "s-048",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T20:30:00.000Z",
+        "id": "st-c-049",
+        "local_offset_min": 60,
+        "sample_id": "s-049",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T21:30:00.000Z",
+        "id": "st-d-049",
+        "local_offset_min": 60,
+        "sample_id": "s-049",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T20:45:00.000Z",
+        "id": "st-c-050",
+        "local_offset_min": 60,
+        "sample_id": "s-050",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T21:45:00.000Z",
+        "id": "st-d-050",
+        "local_offset_min": 60,
+        "sample_id": "s-050",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T21:00:00.000Z",
+        "id": "st-c-051",
+        "local_offset_min": 60,
+        "sample_id": "s-051",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T22:00:00.000Z",
+        "id": "st-d-051",
+        "local_offset_min": 60,
+        "sample_id": "s-051",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T21:15:00.000Z",
+        "id": "st-c-052",
+        "local_offset_min": 60,
+        "sample_id": "s-052",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T22:15:00.000Z",
+        "id": "st-d-052",
+        "local_offset_min": 60,
+        "sample_id": "s-052",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T21:30:00.000Z",
+        "id": "st-c-053",
+        "local_offset_min": 60,
+        "sample_id": "s-053",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T22:30:00.000Z",
+        "id": "st-d-053",
+        "local_offset_min": 60,
+        "sample_id": "s-053",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T21:45:00.000Z",
+        "id": "st-c-054",
+        "local_offset_min": 60,
+        "sample_id": "s-054",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T22:45:00.000Z",
+        "id": "st-d-054",
+        "local_offset_min": 60,
+        "sample_id": "s-054",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T22:00:00.000Z",
+        "id": "st-c-055",
+        "local_offset_min": 60,
+        "sample_id": "s-055",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T23:00:00.000Z",
+        "id": "st-d-055",
+        "local_offset_min": 60,
+        "sample_id": "s-055",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T22:15:00.000Z",
+        "id": "st-c-056",
+        "local_offset_min": 60,
+        "sample_id": "s-056",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T23:15:00.000Z",
+        "id": "st-d-056",
+        "local_offset_min": 60,
+        "sample_id": "s-056",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T22:30:00.000Z",
+        "id": "st-c-057",
+        "local_offset_min": 60,
+        "sample_id": "s-057",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T23:30:00.000Z",
+        "id": "st-d-057",
+        "local_offset_min": 60,
+        "sample_id": "s-057",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T22:45:00.000Z",
+        "id": "st-c-058",
+        "local_offset_min": 60,
+        "sample_id": "s-058",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T23:45:00.000Z",
+        "id": "st-d-058",
+        "local_offset_min": 60,
+        "sample_id": "s-058",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T23:00:00.000Z",
+        "id": "st-c-059",
+        "local_offset_min": 60,
+        "sample_id": "s-059",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T00:00:00.000Z",
+        "id": "st-d-059",
+        "local_offset_min": 60,
+        "sample_id": "s-059",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T23:15:00.000Z",
+        "id": "st-c-060",
+        "local_offset_min": 60,
+        "sample_id": "s-060",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T00:15:00.000Z",
+        "id": "st-d-060",
+        "local_offset_min": 60,
+        "sample_id": "s-060",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T23:30:00.000Z",
+        "id": "st-c-061",
+        "local_offset_min": 60,
+        "sample_id": "s-061",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T00:30:00.000Z",
+        "id": "st-d-061",
+        "local_offset_min": 60,
+        "sample_id": "s-061",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-07T23:45:00.000Z",
+        "id": "st-c-062",
+        "local_offset_min": 60,
+        "sample_id": "s-062",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T00:45:00.000Z",
+        "id": "st-d-062",
+        "local_offset_min": 60,
+        "sample_id": "s-062",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T00:00:00.000Z",
+        "id": "st-c-063",
+        "local_offset_min": 60,
+        "sample_id": "s-063",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T01:00:00.000Z",
+        "id": "st-d-063",
+        "local_offset_min": 60,
+        "sample_id": "s-063",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T00:15:00.000Z",
+        "id": "st-c-064",
+        "local_offset_min": 60,
+        "sample_id": "s-064",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T01:15:00.000Z",
+        "id": "st-d-064",
+        "local_offset_min": 60,
+        "sample_id": "s-064",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T00:30:00.000Z",
+        "id": "st-c-065",
+        "local_offset_min": 60,
+        "sample_id": "s-065",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T01:30:00.000Z",
+        "id": "st-d-065",
+        "local_offset_min": 60,
+        "sample_id": "s-065",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T00:45:00.000Z",
+        "id": "st-c-066",
+        "local_offset_min": 60,
+        "sample_id": "s-066",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T01:45:00.000Z",
+        "id": "st-d-066",
+        "local_offset_min": 60,
+        "sample_id": "s-066",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T01:00:00.000Z",
+        "id": "st-c-067",
+        "local_offset_min": 60,
+        "sample_id": "s-067",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T02:00:00.000Z",
+        "id": "st-d-067",
+        "local_offset_min": 60,
+        "sample_id": "s-067",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T01:15:00.000Z",
+        "id": "st-c-068",
+        "local_offset_min": 60,
+        "sample_id": "s-068",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T02:15:00.000Z",
+        "id": "st-d-068",
+        "local_offset_min": 60,
+        "sample_id": "s-068",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T01:30:00.000Z",
+        "id": "st-c-069",
+        "local_offset_min": 60,
+        "sample_id": "s-069",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T02:30:00.000Z",
+        "id": "st-d-069",
+        "local_offset_min": 60,
+        "sample_id": "s-069",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T01:45:00.000Z",
+        "id": "st-c-070",
+        "local_offset_min": 60,
+        "sample_id": "s-070",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T02:45:00.000Z",
+        "id": "st-d-070",
+        "local_offset_min": 60,
+        "sample_id": "s-070",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T02:00:00.000Z",
+        "id": "st-c-071",
+        "local_offset_min": 60,
+        "sample_id": "s-071",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T03:00:00.000Z",
+        "id": "st-d-071",
+        "local_offset_min": 60,
+        "sample_id": "s-071",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T02:15:00.000Z",
+        "id": "st-c-072",
+        "local_offset_min": 60,
+        "sample_id": "s-072",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T03:15:00.000Z",
+        "id": "st-d-072",
+        "local_offset_min": 60,
+        "sample_id": "s-072",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T02:30:00.000Z",
+        "id": "st-c-073",
+        "local_offset_min": 60,
+        "sample_id": "s-073",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T03:30:00.000Z",
+        "id": "st-d-073",
+        "local_offset_min": 60,
+        "sample_id": "s-073",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T02:45:00.000Z",
+        "id": "st-c-074",
+        "local_offset_min": 60,
+        "sample_id": "s-074",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T03:45:00.000Z",
+        "id": "st-d-074",
+        "local_offset_min": 60,
+        "sample_id": "s-074",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T03:00:00.000Z",
+        "id": "st-c-075",
+        "local_offset_min": 60,
+        "sample_id": "s-075",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T04:00:00.000Z",
+        "id": "st-d-075",
+        "local_offset_min": 60,
+        "sample_id": "s-075",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T03:15:00.000Z",
+        "id": "st-c-076",
+        "local_offset_min": 60,
+        "sample_id": "s-076",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T04:15:00.000Z",
+        "id": "st-d-076",
+        "local_offset_min": 60,
+        "sample_id": "s-076",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T03:30:00.000Z",
+        "id": "st-c-077",
+        "local_offset_min": 60,
+        "sample_id": "s-077",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T04:30:00.000Z",
+        "id": "st-d-077",
+        "local_offset_min": 60,
+        "sample_id": "s-077",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T03:45:00.000Z",
+        "id": "st-c-078",
+        "local_offset_min": 60,
+        "sample_id": "s-078",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T04:45:00.000Z",
+        "id": "st-d-078",
+        "local_offset_min": 60,
+        "sample_id": "s-078",
+        "stage": "described",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T04:00:00.000Z",
+        "id": "st-c-079",
+        "local_offset_min": 60,
+        "sample_id": "s-079",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T04:15:00.000Z",
+        "id": "st-c-080",
+        "local_offset_min": 60,
+        "sample_id": "s-080",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T04:30:00.000Z",
+        "id": "st-c-081",
+        "local_offset_min": 60,
+        "sample_id": "s-081",
+        "stage": "caught",
+        "well_id": "well-1"
+      },
+      {
+        "at_utc": "2026-09-08T04:45:00.000Z",
+        "id": "st-c-082",
+        "local_offset_min": 60,
+        "sample_id": "s-082",
+        "stage": "caught",
+        "well_id": "well-1"
+      }
+    ],
+    "tops": [
+      {
+        "chain_id": "top-i1",
+        "confidence": "high",
+        "formation_key": "top_agbada",
+        "id": "top-i1",
+        "local_offset_min": 60,
+        "md_calc_m": 3127.248,
+        "name": "Top Agbada",
+        "occurred_at": "2026-09-07T11:30:00.000Z",
+        "range_base_md_m": 3130.2960000000003,
+        "range_top_md_m": 3124.2000000000003,
+        "role": "interpretation",
+        "status": "preliminary",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "basis": "GR drop and sand",
+        "chain_id": "top-c1",
+        "formation_key": "top_agbada",
+        "id": "top-c1",
+        "local_offset_min": 60,
+        "md_calc_m": 3127.8576000000003,
+        "name": "Top Agbada",
+        "occurred_at": "2026-09-07T12:00:00.000Z",
+        "role": "official",
+        "status": "preliminary",
+        "version_no": 1,
+        "well_id": "well-1"
+      },
+      {
+        "basis": "Cuttings confirm",
+        "chain_id": "top-c1",
+        "formation_key": "top_agbada",
+        "id": "top-c2",
+        "local_offset_min": 60,
+        "md_calc_m": 3127.8576000000003,
+        "name": "Top Agbada",
+        "occurred_at": "2026-09-07T13:00:00.000Z",
+        "previous_version_id": "top-c1",
+        "role": "official",
+        "status": "confirmed",
+        "version_no": 2,
+        "well_id": "well-1"
+      }
+    ]
+  },
+  "expected": {
+    "day": {
+      "events": 15,
+      "gasRows": 14,
+      "lithologyRows": 20,
+      "made_ft": 920,
+      "peakGas": "1.6 %",
+      "period": {
+        "end": "2026-09-08T05:00:00.000Z",
+        "start": "2026-09-07T05:00:00.000Z"
+      },
+      "photos": 8,
+      "shows": 4,
+      "topsCalled": 2
+    },
+    "dayTour": {
+      "bagged": 27,
+      "caught": 35,
+      "circulationMinutes": 30,
+      "connectionMinutes": 60,
+      "described": 31,
+      "events": 8,
+      "gasRows": 7,
+      "made_ft": 440,
+      "narrative": "Drilled ahead in interbedded sand and shale; good show at 10280 ft.",
+      "otherObservations": 1,
+      "period": {
+        "end": "2026-09-07T17:00:00.000Z",
+        "start": "2026-09-07T05:00:00.000Z"
+      },
+      "photos": 5,
+      "shows": 3,
+      "topsCalled": 2
+    },
+    "nightTour": {
+      "events": 7,
+      "gasRows": 7,
+      "narrative": "Shale dominated with thin sand stringers from 10800 ft.",
+      "otherObservations": 1,
+      "period": {
+        "end": "2026-09-08T05:00:00.000Z",
+        "start": "2026-09-07T17:00:00.000Z"
+      },
+      "photos": 3,
+      "shows": 1,
+      "topsCalled": 0
+    }
+  },
+  "note": "Synthetic report day, generated by tools/validation/wellsite/gen_report_day.py; expected counts worked by hand in README.md.",
+  "nowUtc": "2026-09-08T05:00:00.000Z",
+  "offsetMin": 60,
+  "well": {
+    "header": {
+      "field": "Keta",
+      "operator": "Petrolord E&P",
+      "rig": "Rig 12"
+    },
+    "id": "well-1",
+    "name": "KETA-2",
+    "settings": {
+      "report_day_start_local": "06:00",
+      "rig_offset_min": 60,
+      "tour_starts_local": [
+        "06:00",
+        "18:00"
+      ]
+    }
+  }
+}

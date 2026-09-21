@@ -1,0 +1,387 @@
+{
+ "amine": [
+  {
+   "acidMolesDay": 7904.443370940456,
+   "amineWtPct": 45,
+   "circGpm": 372.4044632927974,
+   "co2MolPct": 4.0,
+   "co2SpecMolPct": 2.0,
+   "dutyBtuPerGal": 800,
+   "gasMMscfd": 100,
+   "h2sMolPct": 1.0,
+   "h2sSpecMolPct": 0.0004,
+   "leanLoading": 0.05,
+   "reboilerMMBtuHr": 17.875414238054272,
+   "richLoading": 0.5,
+   "solutionGpd": 536262.4271416282,
+   "solutionLbPerFt3": 64.88303376623375
+  },
+  {
+   "acidMolesDay": 1581.099487453085,
+   "amineWtPct": 28,
+   "circGpm": 142.54812449987946,
+   "co2MolPct": 2.5,
+   "co2SpecMolPct": 0.5,
+   "dutyBtuPerGal": 950,
+   "gasMMscfd": 30,
+   "h2sMolPct": 0.0,
+   "h2sSpecMolPct": 0.0,
+   "leanLoading": 0.06,
+   "reboilerMMBtuHr": 8.125243096493127,
+   "richLoading": 0.4,
+   "solutionGpd": 205269.2992798264,
+   "solutionLbPerFt3": 63.6352831168831
+  },
+  {
+   "acidMolesDay": 2766.7659930941527,
+   "amineWtPct": 18,
+   "circGpm": 249.6820618108806,
+   "co2MolPct": 1.8,
+   "co2SpecMolPct": 0.4,
+   "dutyBtuPerGal": 1100,
+   "gasMMscfd": 60,
+   "h2sMolPct": 0.35,
+   "h2sSpecMolPct": 0.0001,
+   "leanLoading": 0.04,
+   "reboilerMMBtuHr": 16.479016079518125,
+   "richLoading": 0.35,
+   "solutionGpd": 359542.1690076681,
+   "solutionLbPerFt3": 63.01140779220778
+  }
+ ],
+ "contactor": [
+  {
+   "diameterFt": 2.7924316826588447,
+   "gasMMscfd": 50,
+   "gasSg": 0.65,
+   "ksFtS": 0.3,
+   "pPsia": 1000,
+   "qActFt3S": 7.785360238406282,
+   "rhoG": 3.6875243778971174,
+   "tF": 100,
+   "vAllowFtS": 1.271228783447755,
+   "z": 0.85
+  },
+  {
+   "diameterFt": 3.897762947288335,
+   "gasMMscfd": 120,
+   "gasSg": 0.7,
+   "ksFtS": 0.35,
+   "pPsia": 1200,
+   "qActFt3S": 15.289558897419946,
+   "rhoG": 4.853047942355564,
+   "tF": 110,
+   "vAllowFtS": 1.2813690479993454,
+   "z": 0.82
+  },
+  {
+   "diameterFt": 3.9001364283813005,
+   "gasMMscfd": 90,
+   "gasSg": 0.68,
+   "ksFtS": 0.3,
+   "pPsia": 950,
+   "qActFt3S": 14.532805665471244,
+   "rhoG": 3.719908074372452,
+   "tF": 105,
+   "vAllowFtS": 1.2164660325280754,
+   "z": 0.83
+  },
+  {
+   "diameterFt": 2.8121180439394253,
+   "gasMMscfd": 50,
+   "gasSg": 0.65,
+   "ksFtS": 0.3,
+   "pPsia": 1000,
+   "qActFt3S": 7.977953075585204,
+   "rhoG": 3.5985052052625948,
+   "tF": 100,
+   "vAllowFtS": 1.2845011637892096,
+   "z": 0.8710271466687576
+  },
+  {
+   "diameterFt": 4.406454191687276,
+   "gasMMscfd": 95,
+   "gasSg": 0.72,
+   "ksFtS": 0.27,
+   "pPsia": 850,
+   "qActFt3S": 18.609557683910666,
+   "rhoG": 3.2467608661846894,
+   "tF": 118,
+   "vAllowFtS": 1.2203029190450962,
+   "z": 0.8806306617405052
+  }
+ ],
+ "derived": {
+  "galPerFt3": 7.480519480519479,
+  "lbmolScfSi": 379.4827616866225,
+  "psiaFt3PerBtu": 5.403953210180598,
+  "rFieldSi": 10.73157708881907,
+  "stdPressurePsia": 14.696,
+  "stdTemperatureR": 519.67,
+  "tegLbPerFt3": 69.56883116883115,
+  "waterLbPerGalAt60F": 8.337192574038543
+ },
+ "jt": [
+  {
+   "cpBtuLbmolF": 9.5,
+   "dzdT": 1.5872353795402087e-05,
+   "gasSg": 0.65,
+   "muFPerPsi": 0.05196414189907339,
+   "pPsia": 20,
+   "tF": 100,
+   "z": 0.9972517436024732
+  },
+  {
+   "cpBtuLbmolF": 9.5,
+   "dzdT": 0.0005127892935001729,
+   "gasSg": 0.65,
+   "muFPerPsi": 0.055960310941660464,
+   "pPsia": 600,
+   "tF": 100,
+   "z": 0.9196060330139934
+  },
+  {
+   "cpBtuLbmolF": 9.5,
+   "dzdT": 0.000874844455446065,
+   "gasSg": 0.65,
+   "muFPerPsi": 0.057282671506804266,
+   "pPsia": 1000,
+   "tF": 100,
+   "z": 0.8710271466687576
+  },
+  {
+   "cpBtuLbmolF": 9.5,
+   "dzdT": 0.0012645197257154044,
+   "gasSg": 0.65,
+   "muFPerPsi": 0.07138537826094436,
+   "pPsia": 1000,
+   "tF": 60,
+   "z": 0.8289146698135956
+  },
+  {
+   "cpBtuLbmolF": 9.5,
+   "dzdT": 0.0014197365873958858,
+   "gasSg": 0.65,
+   "muFPerPsi": 0.037184349309039105,
+   "pPsia": 2500,
+   "tF": 100,
+   "z": 0.7899431597413895
+  },
+  {
+   "cpBtuLbmolF": 10.4,
+   "dzdT": 0.0010388163508860627,
+   "gasSg": 0.69,
+   "muFPerPsi": 0.06137820249865286,
+   "pPsia": 980,
+   "tF": 91,
+   "z": 0.8496141188365972
+  }
+ ],
+ "jtDrop": [
+  {
+   "cpBtuLbmolF": 9.5,
+   "dropF": 24.03784907565013,
+   "dropFConverged": 24.037829869198788,
+   "gasSg": 0.65,
+   "p1Psia": 1000,
+   "p2Psia": 600,
+   "steps": 20,
+   "t2F": 75.96215092434987,
+   "t2FConverged": 75.96217013080121,
+   "tF": 100
+  },
+  {
+   "cpBtuLbmolF": 9.5,
+   "dropF": 36.71925422367537,
+   "dropFConverged": 36.719141693573484,
+   "gasSg": 0.65,
+   "p1Psia": 1000,
+   "p2Psia": 400,
+   "steps": 20,
+   "t2F": 63.28074577632463,
+   "t2FConverged": 63.280858306426516,
+   "tF": 100
+  },
+  {
+   "cpBtuLbmolF": 10.1,
+   "dropF": 43.448408183469176,
+   "dropFConverged": 43.44819568702074,
+   "gasSg": 0.72,
+   "p1Psia": 850,
+   "p2Psia": 300,
+   "steps": 20,
+   "t2F": 31.551591816530824,
+   "t2FConverged": 31.551804312979257,
+   "tF": 75
+  }
+ ],
+ "kremser": [
+  {
+   "absorptionFactor": 1.4,
+   "fractionRemoved": 0.9580772130536155,
+   "stages": 6
+  },
+  {
+   "absorptionFactor": 2.0,
+   "fractionRemoved": 0.9333333333333333,
+   "stages": 3
+  },
+  {
+   "absorptionFactor": 0.8,
+   "fractionRemoved": 0.7689950389744179,
+   "stages": 8
+  },
+  {
+   "absorptionFactor": 1.0,
+   "fractionRemoved": 0.8333333333333334,
+   "stages": 5
+  },
+  {
+   "absorptionFactor": 3.0,
+   "fractionRemoved": 0.9230769230769231,
+   "stages": 2
+  }
+ ],
+ "teg": [
+  {
+   "absorberTF": 100,
+   "btexAbsorbedFrac": 0.15,
+   "btexInletPpmv": 100,
+   "btexLbDay": 181.82644105710477,
+   "btexMw": 92,
+   "btexTonsYear": 33.18332549292162,
+   "circGpd": 7949.999999999999,
+   "circGpm": 5.520833333333333,
+   "circulationGalPerLb": 3.0,
+   "cpTegBtuLbF": 0.55,
+   "dutyBtuPerGal": 1890.533333333333,
+   "gasMMscfd": 50,
+   "inletLbMMscf": 60,
+   "leanTegWtPct": 99.0,
+   "leanWaterLbPerGal": 0.0930000000000001,
+   "outletLbMMscf": 7,
+   "reboilerMMBtuHr": 0.6262391666666665,
+   "reboilerTF": 380,
+   "refluxRatio": 0.25,
+   "richTegWtPct": 95.57439446366782,
+   "sensiblePerGal": 1432.1999999999996,
+   "tegLbPerGal": 9.3,
+   "vaporPerGal": 458.3333333333333,
+   "waterLbDay": 2650.0,
+   "waterOverheadBtuPerLb": 1100
+  },
+  {
+   "absorberTF": 110,
+   "btexAbsorbedFrac": 0.2,
+   "btexInletPpmv": 250,
+   "btexLbDay": 1454.6115284568382,
+   "btexMw": 92,
+   "btexTonsYear": 265.46660394337295,
+   "circGpd": 41280.0,
+   "circGpm": 28.666666666666668,
+   "circulationGalPerLb": 4.0,
+   "cpTegBtuLbF": 0.55,
+   "dutyBtuPerGal": 1789.6999999999996,
+   "gasMMscfd": 120,
+   "inletLbMMscf": 90,
+   "leanTegWtPct": 99.5,
+   "leanWaterLbPerGal": 0.04650000000000005,
+   "outletLbMMscf": 4,
+   "reboilerMMBtuHr": 3.078283999999999,
+   "reboilerTF": 390,
+   "refluxRatio": 0.3,
+   "richTegWtPct": 96.89528795811519,
+   "sensiblePerGal": 1432.1999999999996,
+   "tegLbPerGal": 9.3,
+   "vaporPerGal": 357.49999999999994,
+   "waterLbDay": 10320.0,
+   "waterOverheadBtuPerLb": 1100
+  },
+  {
+   "absorberTF": 115,
+   "btexAbsorbedFrac": 0.18,
+   "btexInletPpmv": 140,
+   "btexLbDay": 457.5385696791737,
+   "btexMw": 106,
+   "btexTonsYear": 83.50078896644919,
+   "circGpd": 12837.5,
+   "circGpm": 8.914930555555555,
+   "circulationGalPerLb": 2.5,
+   "cpTegBtuLbF": 0.58,
+   "dutyBtuPerGal": 2204.025,
+   "gasMMscfd": 65,
+   "inletLbMMscf": 82,
+   "leanTegWtPct": 98.0,
+   "leanWaterLbPerGal": 0.18500000000000016,
+   "outletLbMMscf": 3,
+   "reboilerMMBtuHr": 1.1789237890625,
+   "reboilerTF": 400,
+   "refluxRatio": 0.35,
+   "richTegWtPct": 93.93782383419689,
+   "sensiblePerGal": 1529.025,
+   "tegLbPerGal": 9.25,
+   "vaporPerGal": 675.0000000000001,
+   "waterLbDay": 5135.0,
+   "waterOverheadBtuPerLb": 1250
+  }
+ ],
+ "tegDefaults": [
+  {
+   "absorberTF": 105,
+   "btexAbsorbedFrac": 0.15,
+   "btexInletPpmv": 180,
+   "btexLbDay": 523.6601502444618,
+   "btexMw": 92,
+   "btexTonsYear": 95.56797741961427,
+   "circGpd": 19320.000000000004,
+   "circGpm": 13.41666666666667,
+   "circulationGalPerLb": 3.5,
+   "cpTegBtuLbF": 0.55,
+   "dutyBtuPerGal": 1773.9071428571426,
+   "gasMMscfd": 80,
+   "inletLbMMscf": 75,
+   "leanTegWtPct": 98.5,
+   "leanWaterLbPerGal": 0.13950000000000012,
+   "outletLbMMscf": 6,
+   "reboilerMMBtuHr": 1.42799525,
+   "reboilerTF": 375,
+   "refluxRatio": 0.25,
+   "richTegWtPct": 95.56408345752607,
+   "sensiblePerGal": 1381.05,
+   "tegLbPerGal": 9.3,
+   "vaporPerGal": 392.8571428571427,
+   "waterLbDay": 5520.000000000001,
+   "waterOverheadBtuPerLb": 1100
+  }
+ ],
+ "water": [
+  {
+   "lbPerMMscf": 89.92549377790327,
+   "pPsia": 500,
+   "psatPsia": 0.9471175225939289,
+   "tF": 100,
+   "yWater": 0.0018942350451878578
+  },
+  {
+   "lbPerMMscf": 80.16822495772405,
+   "pPsia": 1000,
+   "psatPsia": 1.6887031123841285,
+   "tF": 120,
+   "yWater": 0.0016887031123841284
+  },
+  {
+   "lbPerMMscf": 60.57268758365096,
+   "pPsia": 200,
+   "psatPsia": 0.2551866056705736,
+   "tF": 60,
+   "yWater": 0.001275933028352868
+  },
+  {
+   "lbPerMMscf": 88.24997442074087,
+   "pPsia": 65,
+   "psatPsia": 0.1208311700277306,
+   "tF": 40,
+   "yWater": 0.0018589410773497015
+  }
+ ]
+}

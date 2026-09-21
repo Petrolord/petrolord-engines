@@ -1,0 +1,154 @@
+{
+  "description": "EPE PIA 2021 worked example, frozen validation fixture. Converted to JSON in the EC0 Economics engine extraction wave (2026-09-08) from the Suite's tools/validation/fixtures/epe-pia-worked-example.ts, values unchanged. Source of truth: the PIA validation case byte-validated against the published worked example during the B2 sprint (docs/scope/EPE.md section 5: byte-for-byte against the published example, 17 line items). The inputs are a verbatim local copy of the shared-DB validation case so the regression contract does not depend on database access: epe_run_configs.id 53828290-e35b-47b1-9779-5a71434d55e4, epe_cases.id c17087c1-6cc4-4c84-908b-491004f0ec2f, snapshot taken 2026-08-14 (D1, docs/scope/Economics-ROADMAP.md). Case: shallow-water PML, converted lease, 80 USD/bbl oil flat, 18.25 MMbbl in 2025 (12 equal months of 1,520,833 bbl with the December remainder of 1,520,837 making the year exactly 18,250,000 bbl, as in pia_test_production.csv), 300 MMUSD capex, 182.5 MMUSD opex, 10 percent discount, 3 percent inflation, real PV basis, PIA-only framework (base_year 2025). REGRESSION CONTRACT (EPE.md sections 6.7 and 7): every engine change must keep NPV at 135,185,570.34 USD (within 0.01) and every line item below within 0.01 USD. Units: volumes in bbl, money in USD, percent fields 0 to 100. The expected line items are the 2025 row of cashFlowData; they were derived from the byte-validated engine run, and the royalty and tax lines trace to the published PIA worked example.",
+  "cfg": {
+    "oil_price_usd_bbl": 80,
+    "gas_price_usd_mscf": 4.5,
+    "condensate_price_usd_bbl": 70,
+    "discount_rate_pct": 10,
+    "inflation_rate_pct": 3,
+    "base_year": 2025,
+    "fiscal_regime": "PIA",
+    "jv_working_interest_pct": 100,
+    "jv_royalty_pct": 10,
+    "jv_tax_rate_pct": 50,
+    "psc_royalty_pct": 10,
+    "psc_cost_oil_cap_pct": 80,
+    "psc_contractor_profit_share_pct": 50,
+    "psc_tax_rate_pct": 50,
+    "oil_price_escalator_pct": 0,
+    "gas_price_escalator_pct": 0,
+    "condensate_price_escalator_pct": 0,
+    "opex_escalator_pct": 0,
+    "capex_escalator_pct": 0,
+    "present_value_basis": "real",
+    "pia_terrain": "shallow_water",
+    "pia_license_type": "PML",
+    "pia_lease_status": "converted",
+    "pia_water_depth_m": 100,
+    "pia_marginal_field_pre_2021": false,
+    "pia_hct_rate_override_pct": null,
+    "pia_cit_rate_pct": 30,
+    "pia_tet_rate_pct": 2.5,
+    "pia_nddc_levy_pct_of_opex": 3,
+    "pia_nddc_levy_fixed_usd": 15000000,
+    "pia_prior_year_opex_usd": 170000000,
+    "pia_capex_recovery_years": 5,
+    "pia_cpr_limit_pct": 65,
+    "pia_production_allowance_per_bbl_converted": 2.5,
+    "pia_production_allowance_per_bbl_new": 8,
+    "pia_production_allowance_pct_of_price": 20,
+    "pia_under_nta_2025_override": "auto",
+    "pia_deep_offshore_hct_interpretation": "conservative_zero",
+    "pia_deep_offshore_hct_custom_rate_pct": null,
+    "pia_development_levy_rate_pct": 4,
+    "pia_apply_minimum_etr": false,
+    "pia_minimum_etr_pct": 15,
+    "pia_new_lease_prod_alw_cap_onshore_bbl": 50000000,
+    "pia_new_lease_prod_alw_cap_shallow_bbl": 100000000,
+    "pia_new_lease_prod_alw_cap_deep_bbl": 500000000,
+    "pia_prior_cumulative_oil_bbl": 0
+  },
+  "prodRows": [
+    {
+      "date": "2025-01-01",
+      "month_index": 1,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-02-01",
+      "month_index": 2,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-03-01",
+      "month_index": 3,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-04-01",
+      "month_index": 4,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-05-01",
+      "month_index": 5,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-06-01",
+      "month_index": 6,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-07-01",
+      "month_index": 7,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-08-01",
+      "month_index": 8,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-09-01",
+      "month_index": 9,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-10-01",
+      "month_index": 10,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-11-01",
+      "month_index": 11,
+      "well1_oil_bbl": 1520833
+    },
+    {
+      "date": "2025-12-01",
+      "month_index": 12,
+      "well1_oil_bbl": 1520837
+    }
+  ],
+  "capexRows": [
+    {
+      "date": "2025-01-01",
+      "category": "Drilling",
+      "amount_usd": 300000000,
+      "month_index": 1
+    }
+  ],
+  "opexRows": [
+    {
+      "date": "2025-01-01",
+      "month_index": 1,
+      "total_opex_usd": 182500000
+    }
+  ],
+  "expected": {
+    "npv": 135185570.34,
+    "line_items": {
+      "gross_revenue": 1460000000,
+      "production_royalty": 182500000,
+      "price_royalty": 34905145.75989686,
+      "royalty": 217405145.75989687,
+      "hcdt": 5100000,
+      "nddc": 15000000,
+      "hct_assessable_profit": 1054994854.2401032,
+      "production_allowance": 45625000,
+      "hct_chargeable_profit": 949369854.2401032,
+      "hct_tax": 284810956.27203095,
+      "cit_assessable_profit": 1039994854.2401032,
+      "cit_chargeable_profit": 979994854.2401032,
+      "cit_tax": 293998456.27203095,
+      "tet_tax": 25999871.356002584,
+      "dev_levy_tax": 0,
+      "tax": 604809283.9000645,
+      "cpr_cap": 949000000,
+      "cpr_costs_claimed": 242500000,
+      "cpr_deferred_to_next": 0,
+      "depreciation": 60000000,
+      "net_cash_flow": 135185570.34003878
+    }
+  }
+}

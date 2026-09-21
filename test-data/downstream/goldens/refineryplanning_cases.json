@@ -1,0 +1,1059 @@
+{
+ "cases": [
+  {
+   "crudeRuns": [
+    909090.9090909091,
+    2000000.0
+   ],
+   "crudeThroughCrudeUnits": 2909090.909090909,
+   "input": {
+    "crudes": [
+     {
+      "available": 3000000,
+      "cost": 82,
+      "id": "crude_a",
+      "name": "Light sweet",
+      "yields": {
+       "gasoil": 0.33,
+       "kero": 0.15,
+       "naphtha": 0.22,
+       "offgas": 0.02,
+       "residue": 0.28
+      }
+     },
+     {
+      "available": 2000000,
+      "cost": 74,
+      "id": "crude_b",
+      "name": "Medium sour",
+      "yields": {
+       "gasoil": 0.3,
+       "kero": 0.13,
+       "naphtha": 0.15,
+       "offgas": 0.02,
+       "residue": 0.4
+      }
+     }
+    ],
+    "products": [
+     {
+      "id": "gasoline",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Gasoline",
+      "price": 112,
+      "recipe": {
+       "reformate": 1
+      }
+     },
+     {
+      "id": "jet",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Jet",
+      "price": 106,
+      "recipe": {
+       "kero": 1
+      }
+     },
+     {
+      "id": "diesel",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Diesel",
+      "price": 101,
+      "recipe": {
+       "gasoil": 1
+      }
+     },
+     {
+      "id": "fuel_oil",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Fuel oil",
+      "price": 62,
+      "recipe": {
+       "residue": 1
+      }
+     }
+    ],
+    "streams": [
+     "naphtha",
+     "reformate",
+     "kero",
+     "gasoil",
+     "residue",
+     "offgas"
+    ],
+    "units": [
+     {
+      "capacity": 4000000,
+      "feed": "",
+      "id": "cdu",
+      "name": "Crude distillation",
+      "opex": 1.2,
+      "yields": {}
+     },
+     {
+      "capacity": 500000,
+      "feed": "naphtha",
+      "id": "reformer",
+      "name": "Reformer",
+      "opex": 3.0,
+      "yields": {
+       "offgas": 0.1,
+       "reformate": 0.85
+      }
+     }
+    ]
+   },
+   "margin": 18360000.0,
+   "name": "Suite default plan",
+   "productMakes": [
+    425000.0,
+    396363.63636363635,
+    900000.0,
+    1054545.4545454546
+   ],
+   "status": "optimal",
+   "streamBalance": [
+    {
+     "consumed": 500000.0,
+     "id": "naphtha",
+     "made": 500000.0,
+     "marginalValue": 75.5,
+     "placed": 0.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "reformate",
+     "made": 425000.0,
+     "marginalValue": 112.0,
+     "placed": 425000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "kero",
+     "made": 396363.63636363635,
+     "marginalValue": 106.0,
+     "placed": 396363.63636363635,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "gasoil",
+     "made": 900000.0,
+     "marginalValue": 101.0,
+     "placed": 900000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "residue",
+     "made": 1054545.4545454546,
+     "marginalValue": 62.0,
+     "placed": 1054545.4545454546,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "offgas",
+     "made": 108181.81818181818,
+     "marginalValue": 0.0,
+     "placed": 0.0,
+     "surplus": 108181.81818181818
+    }
+   ],
+   "unitRuns": [
+    2909090.909090909,
+    500000.0
+   ],
+   "why": "the page with nothing typed; the crude unit now carries every barrel"
+  },
+  {
+   "crudeRuns": [
+    0.0,
+    0.0
+   ],
+   "crudeThroughCrudeUnits": 0.0,
+   "input": {
+    "crudes": [
+     {
+      "available": 3000000,
+      "cost": 82,
+      "id": "crude_a",
+      "name": "Light sweet",
+      "yields": {
+       "gasoil": 0.33,
+       "kero": 0.15,
+       "naphtha": 0.22,
+       "offgas": 0.02,
+       "residue": 0.28
+      }
+     },
+     {
+      "available": 2000000,
+      "cost": 74,
+      "id": "crude_b",
+      "name": "Medium sour",
+      "yields": {
+       "gasoil": 0.3,
+       "kero": 0.13,
+       "naphtha": 0.15,
+       "offgas": 0.02,
+       "residue": 0.4
+      }
+     }
+    ],
+    "products": [
+     {
+      "id": "gasoline",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Gasoline",
+      "price": 112,
+      "recipe": {
+       "reformate": 1
+      }
+     },
+     {
+      "id": "jet",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Jet",
+      "price": 106,
+      "recipe": {
+       "kero": 1
+      }
+     },
+     {
+      "id": "diesel",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Diesel",
+      "price": 101,
+      "recipe": {
+       "gasoil": 1
+      }
+     },
+     {
+      "id": "fuel_oil",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Fuel oil",
+      "price": 62,
+      "recipe": {
+       "residue": 1
+      }
+     }
+    ],
+    "streams": [
+     "naphtha",
+     "reformate",
+     "kero",
+     "gasoil",
+     "residue",
+     "offgas"
+    ],
+    "units": [
+     {
+      "capacity": 4000000,
+      "feed": "",
+      "id": "cdu",
+      "name": "Crude distillation",
+      "opex": 1.2,
+      "yields": {}
+     },
+     {
+      "capacity": 0,
+      "feed": "naphtha",
+      "id": "reformer",
+      "name": "Reformer",
+      "opex": 3.0,
+      "yields": {
+       "offgas": 0.1,
+       "reformate": 0.85
+      }
+     }
+    ]
+   },
+   "margin": 0.0,
+   "name": "reformer shut (capacity typed 0)",
+   "productMakes": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "status": "optimal",
+   "streamBalance": [
+    {
+     "consumed": 0.0,
+     "id": "naphtha",
+     "made": 0.0,
+     "marginalValue": 0.0,
+     "placed": 0.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "reformate",
+     "made": 0.0,
+     "marginalValue": 112.0,
+     "placed": 0.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "kero",
+     "made": 0.0,
+     "marginalValue": 106.0,
+     "placed": 0.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "gasoil",
+     "made": 0.0,
+     "marginalValue": 101.0,
+     "placed": 0.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "residue",
+     "made": 0.0,
+     "marginalValue": 62.0,
+     "placed": 0.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "offgas",
+     "made": 0.0,
+     "marginalValue": 0.0,
+     "placed": 0.0,
+     "surplus": 0.0
+    }
+   ],
+   "unitRuns": [
+    0.0,
+    0.0
+   ],
+   "why": "a typed zero is zero; it used to be an unlimited reformer"
+  },
+  {
+   "crudeRuns": [
+    0.0,
+    2000000.0
+   ],
+   "crudeThroughCrudeUnits": 2000000.0,
+   "input": {
+    "crudes": [
+     {
+      "available": 3000000,
+      "cost": 82,
+      "id": "crude_a",
+      "name": "Light sweet",
+      "yields": {
+       "gasoil": 0.33,
+       "kero": 0.15,
+       "naphtha": 0.22,
+       "offgas": 0.02,
+       "residue": 0.28
+      }
+     },
+     {
+      "available": 2000000,
+      "cost": 74,
+      "id": "crude_b",
+      "name": "Medium sour",
+      "yields": {
+       "gasoil": 0.3,
+       "kero": 0.13,
+       "naphtha": 0.15,
+       "offgas": 0.02,
+       "residue": 0.4
+      }
+     }
+    ],
+    "products": [
+     {
+      "id": "gasoline",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Gasoline",
+      "price": 112,
+      "recipe": {
+       "reformate": 1
+      }
+     },
+     {
+      "id": "jet",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Jet",
+      "price": 106,
+      "recipe": {
+       "kero": 1
+      }
+     },
+     {
+      "id": "diesel",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Diesel",
+      "price": 101,
+      "recipe": {
+       "gasoil": 1
+      }
+     },
+     {
+      "id": "fuel_oil",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Fuel oil",
+      "price": 62,
+      "recipe": {
+       "residue": 1
+      }
+     }
+    ],
+    "streams": [
+     "naphtha",
+     "reformate",
+     "kero",
+     "gasoil",
+     "residue",
+     "offgas"
+    ],
+    "units": [
+     {
+      "capacity": 2000000,
+      "feed": "",
+      "id": "cdu",
+      "name": "Crude distillation",
+      "opex": 1.2,
+      "yields": {}
+     },
+     {
+      "capacity": 500000,
+      "feed": "naphtha",
+      "id": "reformer",
+      "name": "Reformer",
+      "opex": 3.0,
+      "yields": {
+       "offgas": 0.1,
+       "reformate": 0.85
+      }
+     }
+    ]
+   },
+   "margin": 15020000.0,
+   "name": "crude unit at 2,000,000",
+   "productMakes": [
+    255000.0,
+    260000.0,
+    600000.0,
+    800000.0
+   ],
+   "status": "optimal",
+   "streamBalance": [
+    {
+     "consumed": 300000.0,
+     "id": "naphtha",
+     "made": 300000.0,
+     "marginalValue": 92.2,
+     "placed": 0.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "reformate",
+     "made": 255000.0,
+     "marginalValue": 112.0,
+     "placed": 255000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "kero",
+     "made": 260000.0,
+     "marginalValue": 106.0,
+     "placed": 260000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "gasoil",
+     "made": 600000.0,
+     "marginalValue": 101.0,
+     "placed": 600000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "residue",
+     "made": 800000.0,
+     "marginalValue": 62.0,
+     "placed": 800000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "offgas",
+     "made": 70000.0,
+     "marginalValue": 0.0,
+     "placed": 0.0,
+     "surplus": 70000.0
+    }
+   ],
+   "unitRuns": [
+    2000000.0,
+    300000.0
+   ],
+   "why": "a crude unit capacity that binds"
+  },
+  {
+   "crudeRuns": [
+    0.0,
+    2000000.0
+   ],
+   "crudeThroughCrudeUnits": 2000000.0,
+   "input": {
+    "crudes": [
+     {
+      "available": 0,
+      "cost": 82,
+      "id": "crude_a",
+      "name": "Light sweet",
+      "yields": {
+       "gasoil": 0.33,
+       "kero": 0.15,
+       "naphtha": 0.22,
+       "offgas": 0.02,
+       "residue": 0.28
+      }
+     },
+     {
+      "available": 2000000,
+      "cost": 74,
+      "id": "crude_b",
+      "name": "Medium sour",
+      "yields": {
+       "gasoil": 0.3,
+       "kero": 0.13,
+       "naphtha": 0.15,
+       "offgas": 0.02,
+       "residue": 0.4
+      }
+     }
+    ],
+    "products": [
+     {
+      "id": "gasoline",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Gasoline",
+      "price": 112,
+      "recipe": {
+       "reformate": 1
+      }
+     },
+     {
+      "id": "jet",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Jet",
+      "price": 106,
+      "recipe": {
+       "kero": 1
+      }
+     },
+     {
+      "id": "diesel",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Diesel",
+      "price": 101,
+      "recipe": {
+       "gasoil": 1
+      }
+     },
+     {
+      "id": "fuel_oil",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Fuel oil",
+      "price": 62,
+      "recipe": {
+       "residue": 1
+      }
+     }
+    ],
+    "streams": [
+     "naphtha",
+     "reformate",
+     "kero",
+     "gasoil",
+     "residue",
+     "offgas"
+    ],
+    "units": [
+     {
+      "capacity": 4000000,
+      "feed": "",
+      "id": "cdu",
+      "name": "Crude distillation",
+      "opex": 1.2,
+      "yields": {}
+     },
+     {
+      "capacity": 500000,
+      "feed": "naphtha",
+      "id": "reformer",
+      "name": "Reformer",
+      "opex": 3.0,
+      "yields": {
+       "offgas": 0.1,
+       "reformate": 0.85
+      }
+     }
+    ]
+   },
+   "margin": 15020000.0,
+   "name": "light sweet unavailable (typed 0)",
+   "productMakes": [
+    255000.0,
+    260000.0,
+    600000.0,
+    800000.0
+   ],
+   "status": "optimal",
+   "streamBalance": [
+    {
+     "consumed": 300000.0,
+     "id": "naphtha",
+     "made": 300000.0,
+     "marginalValue": 92.2,
+     "placed": 0.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "reformate",
+     "made": 255000.0,
+     "marginalValue": 112.0,
+     "placed": 255000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "kero",
+     "made": 260000.0,
+     "marginalValue": 106.0,
+     "placed": 260000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "gasoil",
+     "made": 600000.0,
+     "marginalValue": 101.0,
+     "placed": 600000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "residue",
+     "made": 800000.0,
+     "marginalValue": 62.0,
+     "placed": 800000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "offgas",
+     "made": 70000.0,
+     "marginalValue": 0.0,
+     "placed": 0.0,
+     "surplus": 70000.0
+    }
+   ],
+   "unitRuns": [
+    2000000.0,
+    300000.0
+   ],
+   "why": "a crude typed as unavailable"
+  },
+  {
+   "crudeRuns": [
+    1600000.0,
+    2000000.0
+   ],
+   "crudeThroughCrudeUnits": 3600000.0,
+   "input": {
+    "crudes": [
+     {
+      "available": 3000000,
+      "cost": 82,
+      "id": "crude_a",
+      "name": "Light sweet",
+      "yields": {
+       "gasoil": 0.33,
+       "kero": 0.15,
+       "naphtha": 0.22,
+       "offgas": 0.02,
+       "residue": 0.28
+      }
+     },
+     {
+      "available": 2000000,
+      "cost": 74,
+      "id": "crude_b",
+      "name": "Medium sour",
+      "yields": {
+       "gasoil": 0.3,
+       "kero": 0.13,
+       "naphtha": 0.15,
+       "offgas": 0.02,
+       "residue": 0.4
+      }
+     }
+    ],
+    "products": [
+     {
+      "id": "gasoline",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Gasoline",
+      "price": 112,
+      "recipe": {
+       "reformate": 1
+      }
+     },
+     {
+      "id": "jet",
+      "maxDemand": 900000,
+      "minDemand": 500000,
+      "name": "Jet",
+      "price": 106,
+      "recipe": {
+       "kero": 1
+      }
+     },
+     {
+      "id": "diesel",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Diesel",
+      "price": 101,
+      "recipe": {
+       "gasoil": 1
+      }
+     },
+     {
+      "id": "fuel_oil",
+      "maxDemand": 2000000,
+      "minDemand": 900000,
+      "name": "Fuel oil",
+      "price": 62,
+      "recipe": {
+       "residue": 1
+      }
+     }
+    ],
+    "streams": [
+     "naphtha",
+     "reformate",
+     "kero",
+     "gasoil",
+     "residue",
+     "offgas"
+    ],
+    "units": [
+     {
+      "capacity": 4000000,
+      "feed": "",
+      "id": "cdu",
+      "name": "Crude distillation",
+      "opex": 1.2,
+      "yields": {}
+     },
+     {
+      "capacity": 500000,
+      "feed": "naphtha",
+      "id": "reformer",
+      "name": "Reformer",
+      "opex": 3.0,
+      "yields": {
+       "offgas": 0.1,
+       "reformate": 0.85
+      }
+     }
+    ]
+   },
+   "margin": 6884000.0,
+   "name": "demand floors on jet and fuel oil",
+   "productMakes": [
+    425000.0,
+    500000.0,
+    1128000.0,
+    1248000.0
+   ],
+   "status": "optimal",
+   "streamBalance": [
+    {
+     "consumed": 500000.0,
+     "id": "naphtha",
+     "made": 652000.0,
+     "marginalValue": 0.0,
+     "placed": 0.0,
+     "surplus": 152000.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "reformate",
+     "made": 425000.0,
+     "marginalValue": 112.0,
+     "placed": 425000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "kero",
+     "made": 500000.0,
+     "marginalValue": 216.73333333333332,
+     "placed": 500000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "gasoil",
+     "made": 1128000.0,
+     "marginalValue": 101.0,
+     "placed": 1128000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "residue",
+     "made": 1248000.0,
+     "marginalValue": 62.0,
+     "placed": 1248000.0,
+     "surplus": 0.0
+    },
+    {
+     "consumed": 0.0,
+     "id": "offgas",
+     "made": 122000.0,
+     "marginalValue": 0.0,
+     "placed": 0.0,
+     "surplus": 122000.0
+    }
+   ],
+   "unitRuns": [
+    3600000.0,
+    500000.0
+   ],
+   "why": "floors that force unprofitable barrels"
+  },
+  {
+   "input": {
+    "crudes": [
+     {
+      "available": 3000000,
+      "cost": 82,
+      "id": "crude_a",
+      "name": "Light sweet",
+      "yields": {
+       "gasoil": 0.33,
+       "kero": 0.15,
+       "naphtha": 0.22,
+       "offgas": 0.02,
+       "residue": 0.28
+      }
+     },
+     {
+      "available": 2000000,
+      "cost": 74,
+      "id": "crude_b",
+      "name": "Medium sour",
+      "yields": {
+       "gasoil": 0.3,
+       "kero": 0.13,
+       "naphtha": 0.15,
+       "offgas": 0.02,
+       "residue": 0.4
+      }
+     }
+    ],
+    "products": [
+     {
+      "id": "gasoline",
+      "maxDemand": 900000,
+      "minDemand": 0,
+      "name": "Gasoline",
+      "price": 112,
+      "recipe": {
+       "reformate": 1
+      }
+     },
+     {
+      "id": "jet",
+      "maxDemand": 2500000,
+      "minDemand": 2000000,
+      "name": "Jet",
+      "price": 106,
+      "recipe": {
+       "kero": 1
+      }
+     },
+     {
+      "id": "diesel",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Diesel",
+      "price": 101,
+      "recipe": {
+       "gasoil": 1
+      }
+     },
+     {
+      "id": "fuel_oil",
+      "maxDemand": 2000000,
+      "minDemand": 0,
+      "name": "Fuel oil",
+      "price": 62,
+      "recipe": {
+       "residue": 1
+      }
+     }
+    ],
+    "streams": [
+     "naphtha",
+     "reformate",
+     "kero",
+     "gasoil",
+     "residue",
+     "offgas"
+    ],
+    "units": [
+     {
+      "capacity": 4000000,
+      "feed": "",
+      "id": "cdu",
+      "name": "Crude distillation",
+      "opex": 1.2,
+      "yields": {}
+     },
+     {
+      "capacity": 500000,
+      "feed": "naphtha",
+      "id": "reformer",
+      "name": "Reformer",
+      "opex": 3.0,
+      "yields": {
+       "offgas": 0.1,
+       "reformate": 0.85
+      }
+     }
+    ]
+   },
+   "name": "jet floor beyond reach",
+   "status": "infeasible",
+   "why": "infeasible: no plan makes 2 million barrels of jet"
+  }
+ ],
+ "provenance": {
+  "engine": "engines/downstream/refineryPlanning.js, engines/downstream/streamModel.js",
+  "method": "exact rational simplex with a duality certificate; stream values by exact re-solve; dates by datetime.date",
+  "oracle": "tools/validation/downstream/oracle_refineryplanning.py",
+  "published": "none: the default plan is the Suite page default, labelled illustrative there"
+ },
+ "schedule": {
+  "cargoDates": [
+   "2026-03-01",
+   "2026-03-11",
+   "2026-03-21"
+  ],
+  "cargoSize": 400000,
+  "liftDates": [
+   "2026-03-07",
+   "2026-03-14",
+   "2026-03-21",
+   "2026-03-28",
+   "2026-03-30"
+  ],
+  "periodDays": 30,
+  "periodStart": "2026-03-01",
+  "runDates": [
+   "2026-03-01",
+   "2026-03-08",
+   "2026-03-15",
+   "2026-03-22",
+   "2026-03-29"
+  ],
+  "why": "a period that crosses the North American spring daylight-saving change (8 March 2026), where local calendar arithmetic printed in UTC slipped a day"
+ },
+ "variance": {
+  "costTotal": 13565,
+  "lines": [
+   {
+    "actual": [
+     1100,
+     93500
+    ],
+    "direction": "cost",
+    "marginEffect": -13500,
+    "materialId": "crude_a",
+    "plan": [
+     1000,
+     80000
+    ],
+    "priceVariance": 5500.0,
+    "totalVariance": 13500,
+    "type": "receipt",
+    "volumeVariance": 8000.0
+   },
+   {
+    "actual": [
+     1100,
+     1265
+    ],
+    "direction": "cost",
+    "marginEffect": -65,
+    "materialId": "cdu",
+    "plan": [
+     1000,
+     1200
+    ],
+    "priceVariance": -55.00000000000005,
+    "totalVariance": 65,
+    "type": "unit_run",
+    "volumeVariance": 120.0
+   },
+   {
+    "actual": [
+     320,
+     33280
+    ],
+    "direction": "revenue",
+    "marginEffect": 1480,
+    "materialId": "jet",
+    "plan": [
+     300,
+     31800
+    ],
+    "priceVariance": -640.0,
+    "totalVariance": 1480,
+    "type": "delivery",
+    "volumeVariance": 2120.0
+   }
+  ],
+  "marginEffect": -12085,
+  "revenueTotal": 1480
+ }
+}

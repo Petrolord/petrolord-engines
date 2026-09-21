@@ -293,8 +293,12 @@ export function simulatePlacement({
   }
   const floatDiffPa = headOver(endAnn) - headOver(endInside);
   if (floatDiffPa < 0) warnings.push('Inside column is heavier than the annulus at the end of the job; floats must hold the reverse U-tube.');
+  // The ECD prints at one decimal because the fracture EMW it is being
+  // compared with is printed beside it: at whole units a peak of
+  // 1712.1 against a 1712 kg/m3 EMW read as two identical numbers, one
+  // of them said to be above the other.
   if (fracEmwKgM3 != null && maxEcdShoe > fracEmwKgM3) {
-    warnings.push(`ECD at the previous shoe peaks at ${maxEcdShoe.toFixed(0)} kg/m3, above the fracture EMW ${fracEmwKgM3} kg/m3.`);
+    warnings.push(`ECD at the previous shoe peaks at ${maxEcdShoe.toFixed(1)} kg/m3, above the fracture EMW ${fracEmwKgM3} kg/m3.`);
   }
   if (freeFallAny) warnings.push('Free fall (U-tube) occurs during the job; the transient rate is not modeled, surface pressure reads zero over those steps.');
 
@@ -394,8 +398,16 @@ export function placementChecklist({
     if (chain[i].densityKgM3 < chain[i - 1].densityKgM3 - 1e-9) hierarchyOk = false;
   }
   push('density-hierarchy', hierarchyOk, 'Each pumped fluid at least as dense as the fluid ahead of it.');
+  // TWO decimals here, where one is enough elsewhere in this sweep,
+  // because the value and the target sit in one sentence AND real
+  // standoffs cluster against the target: centralizer spacing is chosen
+  // to just meet 67 percent, so designs pile up in the immediate
+  // neighbourhood of it. At whole percent a FAILED item read
+  // "Minimum standoff 67% vs the API 67% target"; at one decimal the
+  // residual band would still be reached by the very values this check
+  // sees most. The target itself reads exactly as it always has.
   push('standoff', standoff ? standoff.minStandoff >= API_TARGET_STANDOFF : false,
-    `Minimum standoff ${(100 * (standoff?.minStandoff ?? 0)).toFixed(0)}% vs the API 67% target.`);
+    `Minimum standoff ${(100 * (standoff?.minStandoff ?? 0)).toFixed(2)}% vs the API 67% target.`);
   push('no-free-fall', !placement.freeFall, 'No free-fall period during placement.');
   push('float-holds', placement.floatDiffPa >= 0, 'Annulus heavier than the inside at the end of the job (floats hold).');
   if (annulusRowsList && pumpRateM3s > 0) {

@@ -1,0 +1,31 @@
+{
+  "note": "Hand-derived (README.md): the score bands are a rule, not a measurement, so the expected values are worked by hand.",
+  "cases": [
+    {
+      "name": "bright yellow fluorescence over half the cuttings, fast streaming cut, spotty stain, faint odour",
+      "show": {"fluorescence": {"colour": "bright_yellow", "intensity": "bright", "distributionPct": 50}, "cut": {"speed": "fast", "colour": "yellow", "type": "streaming"}, "stain": "spotty", "odour": "faint", "residue": "light"},
+      "expected": {"score": 10, "quality": "very_good", "parts": {"fluorescence": 3, "distribution": 2, "cut": 3, "stain": 1, "odour": 1},
+        "text": "Indicators present: bright bright yellow fluorescence over 50 percent of the cuttings, fast streaming cut, yellow, spotty stain, faint odour, light residue. Assessed as a very good show.",
+        "abbrev": "brt brt yel fluor 50%, fst strm cut yel, spt stn, fnt odr, lt res"}
+    },
+    {
+      "name": "dull fluorescence on a few grains, slow cut, nothing else",
+      "show": {"fluorescence": {"colour": "dull_brown", "intensity": "dull", "distributionPct": 5}, "cut": {"speed": "slow", "colour": "milky", "type": "crush"}, "stain": "none", "odour": "none", "residue": "none"},
+      "expected": {"score": 3, "quality": "poor", "parts": {"fluorescence": 1, "distribution": 1, "cut": 1, "stain": 0, "odour": 0},
+        "text": "Indicators present: dull dull brown fluorescence over 5 percent of the cuttings, slow crush cut, milky white. Assessed as a poor show.",
+        "abbrev": "dl dl brn fluor 5%, slw crsh cut mky"}
+    },
+    {
+      "name": "no indicators",
+      "show": {"fluorescence": {"colour": "none", "intensity": "none", "distributionPct": 0}, "cut": {"speed": "none", "colour": "none", "type": "none"}, "stain": "none", "odour": "none", "residue": "none"},
+      "expected": {"score": 0, "quality": "none", "parts": {"fluorescence": 0, "distribution": 0, "cut": 0, "stain": 0, "odour": 0}, "text": "No hydrocarbon indicators observed.", "abbrev": "no show"}
+    },
+    {
+      "name": "moderate gold fluorescence over a quarter, moderate instant cut, even stain, strong odour",
+      "show": {"fluorescence": {"colour": "gold", "intensity": "moderate", "distributionPct": 25}, "cut": {"speed": "moderate", "colour": "amber", "type": "instant"}, "stain": "even", "odour": "strong", "residue": "moderate"},
+      "expected": {"score": 9, "quality": "good", "parts": {"fluorescence": 2, "distribution": 2, "cut": 2, "stain": 2, "odour": 1},
+        "text": "Indicators present: moderate gold fluorescence over 25 percent of the cuttings, moderate instant cut, amber, even stain, strong odour, moderate residue. Assessed as a good show.",
+        "abbrev": "mod gld fluor 25%, mod inst cut amb, evn stn, strg odr, mod res"}
+    }
+  ]
+}

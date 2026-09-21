@@ -1,3 +1,9 @@
+
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
 // Regional well cost planning benchmarks (Drilling D11).
 //
 // PROVENANCE: salvaged from the retired WellCostIQ app (D0 salvage
@@ -34,8 +40,8 @@ const round1k = (v) => Math.round(v / 1000) * 1000;
 // Deterministic prefill suggestion. Returns null on an unknown region
 // or well type (the caller offers the lists; no silent defaulting).
 export function benchmarkSuggestion({ region, wellType, mdM }) {
-  const base = REGION_BENCHMARKS[region];
-  const mod = WELL_TYPE_MODIFIERS[wellType];
+  const base = ownPreset(REGION_BENCHMARKS, region) ? REGION_BENCHMARKS[region] : undefined;
+  const mod = ownPreset(WELL_TYPE_MODIFIERS, wellType) ? WELL_TYPE_MODIFIERS[wellType] : undefined;
   if (!base || !mod || !Number.isFinite(mdM) || mdM <= 0) return null;
   const dryHoleDays = Math.max(1, Math.round(mdM * base.daysFactorPerM * mod.daysMod));
   return {

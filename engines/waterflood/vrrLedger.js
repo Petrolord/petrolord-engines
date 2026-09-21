@@ -253,6 +253,16 @@ export function interpolateFvfTrack(fvfTable, pressures) {
 // Validate an allocation matrix. Row sums above 1 (beyond float noise) are
 // errors; below 1 is a warning (out-of-zone remainder), negative or
 // non-finite fractions are errors.
+/** Own-property access. `obj[key]` walks the prototype chain, so a caller
+ *  name of 'constructor', 'toString', 'valueOf', 'hasOwnProperty' or
+ *  '__proto__' reads an inherited member, and writing '__proto__' replaces
+ *  the prototype instead of storing a row. */
+const hasOwn = (obj, key) => obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+const ownValue = (obj, key) => (hasOwn(obj, key) ? obj[key] : undefined);
+const setOwn = (obj, key, value) => Object.defineProperty(obj, key, {
+  value, writable: true, enumerable: true, configurable: true,
+});
+
 export function validateAllocation(allocation) {
   const errors = [];
   const warnings = [];
@@ -267,15 +277,23 @@ export function validateAllocation(allocation) {
       }
       sum += f;
     });
-    rowSums[inj] = sum;
-    if (sum > 1 + 1e-9) errors.push(`${inj}: allocation fractions sum to ${sum.toFixed(3)} (> 1).`);
-    else if (sum > 0 && sum < 1 - 1e-9) warnings.push(`${inj}: fractions sum to ${sum.toFixed(3)}; the remaining ${(1 - sum).toFixed(3)} counts as out-of-zone.`);
+    setOwn(rowSums, inj, sum);
+    // Six decimals, not three, because both messages name the threshold
+    // beside the sum: three decimals turned three producers at 0.333333
+    // into "fractions sum to 1.000" in a warning that only fires when
+    // they sum to LESS than 1, with "the remaining 0.000" as the
+    // out-of-zone share. The guard's tolerance is 1e-9, which is float
+    // noise, so no readable precision closes the collision completely;
+    // six decimals covers every allocation a person can actually type,
+    // which is all that reaches this branch.
+    if (sum > 1 + 1e-9) errors.push(`${inj}: allocation fractions sum to ${sum.toFixed(6)} (> 1).`);
+    else if (sum > 0 && sum < 1 - 1e-9) warnings.push(`${inj}: fractions sum to ${sum.toFixed(6)}; the remaining ${(1 - sum).toFixed(6)} counts as out-of-zone.`);
   });
   return { ok: errors.length === 0, errors, warnings, rowSums };
 }
 
 const allocFrac = (allocation, inj, prod) => {
-  const f = parseFloat(allocation?.[inj]?.[prod]);
+  const f = parseFloat(ownValue(ownValue(allocation, inj), prod));
   return Number.isFinite(f) && f > 0 ? f : 0;
 };
 
@@ -290,15 +308,16 @@ export function allocateInjection(rows, allocation) {
     const wi = num(r.winj_stb);
     const gi = num(r.ginj_mscf);
     if (wi <= 0 && gi <= 0) return;
-    const injRow = allocation?.[String(r.well ?? '').trim()] || {};
+    const injRow = ownValue(allocation, String(r.well ?? '').trim()) || {};
     let allocatedFrac = 0;
     Object.keys(injRow).forEach((prod) => {
       const f = allocFrac(allocation, String(r.well).trim(), prod);
       if (f <= 0) return;
       allocatedFrac += f;
-      if (!perProducer[prod]) perProducer[prod] = { winj_stb: 0, ginj_mscf: 0 };
-      perProducer[prod].winj_stb += wi * f;
-      perProducer[prod].ginj_mscf += gi * f;
+      if (!hasOwn(perProducer, prod)) setOwn(perProducer, prod, { winj_stb: 0, ginj_mscf: 0 });
+      const acc = ownValue(perProducer, prod);
+      acc.winj_stb += wi * f;
+      acc.ginj_mscf += gi * f;
     });
     const rest = Math.max(0, 1 - allocatedFrac);
     unallocated.winj_stb += wi * rest;
@@ -368,7 +387,7 @@ export function recommendPatternInjection(rows, pattern, allocation, fvf, opts =
   const windowPeriods = Math.max(1, Math.floor(num(opts.windowPeriods) || 3));
 
   if (!patternHasAllocation(pattern, allocation)) {
-    return { withheld: true, reason: `No allocation factors route injection to "${pattern?.name ?? 'this pattern'}" — define the injector-producer split first; even splits are never assumed.` };
+    return { withheld: true, reason: `No allocation factors route injection to "${pattern?.name ?? 'this pattern'}" , so define the injector-producer split first; even splits are never assumed.` };
   }
   const periods = buildPatternPeriods(rows, pattern, allocation);
   if (!periods.length) {
@@ -378,7 +397,7 @@ export function recommendPatternInjection(rows, pattern, allocation, fvf, opts =
   const rolling = computeRollingVRR(series, windowPeriods);
   const currentVRR = rolling[rolling.length - 1];
   if (currentVRR == null || currentVRR <= 0) {
-    return { withheld: true, reason: 'No produced voidage (or no injection) in the rolling window — nothing to scale against.' };
+    return { withheld: true, reason: 'No produced voidage, or no injection, in the rolling window, so there is nothing to scale against.' };
   }
 
   const rawScale = targetVRR / currentVRR;

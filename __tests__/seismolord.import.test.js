@@ -114,9 +114,14 @@ describe('surface import malformed-file errors', () => {
       .toThrow(/never closes/);
   });
 
-  test('rotated Irap grids are refused with the rotation named', () => {
-    const text = '-996 2 25 25\n0 25 0 25\n2 30.000000 0 0\n0 0 0 0 0 0 0\n1 2 3 4\n';
-    expect(() => parseIrapClassic(text)).toThrow(/rotation 30/);
+  test('rotated Irap grids are read with their rotation and world origin (MS5)', () => {
+    const text = '-996 2 25 25\n0 25 0 25\n2 30.000000 100 200\n0 0 0 0 0 0 0\n1 2 3 4\n';
+    const g = parseIrapClassic(text);
+    expect(g.rotation_deg).toBe(30);
+    expect(g.x0).toBe(100);
+    expect(g.y0).toBe(200);
+    const flat = parseIrapClassic('-996 2 25 25\n0 25 0 25\n2 0.000000 0 0\n0 0 0 0 0 0 0\n1 2 3 4\n');
+    expect(flat.rotation_deg).toBeUndefined();
   });
 
   test('scattered XYZ points are refused (import does not grid)', () => {

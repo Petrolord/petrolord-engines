@@ -1,0 +1,57 @@
+{
+  "description": "Three-well synthetic for the Wheeler and age-depth engines (Stratigraphy ST2). See README.md for the hand derivation.",
+  "wells": [
+    { "id": "w1", "name": "W1 proximal", "position": 0,
+      "surfaces": [
+        { "name": "Seabed", "md_m": 1500, "age_ma": 0, "surface_type": "formation_top" },
+        { "name": "MFS-1", "md_m": 1520, "age_ma": 5, "surface_type": "MFS" },
+        { "name": "MRS-1", "md_m": 1600, "age_ma": 8, "surface_type": "MRS" },
+        { "name": "SB-1", "md_m": 1680, "age_ma": 10, "hiatus_to_ma": 14, "surface_type": "SU" },
+        { "name": "Base", "md_m": 1720, "age_ma": 16, "surface_type": "formation_top" }
+      ] },
+    { "id": "w2", "name": "W2", "position": 1000,
+      "surfaces": [
+        { "name": "Seabed", "md_m": 1500, "age_ma": 0, "surface_type": "formation_top" },
+        { "name": "MFS-1", "md_m": 1560, "age_ma": 5, "surface_type": "MFS" },
+        { "name": "MRS-1", "md_m": 1620, "age_ma": 8, "surface_type": "MRS" },
+        { "name": "SB-1", "md_m": 1690, "age_ma": 10, "hiatus_to_ma": 12, "surface_type": "SU" },
+        { "name": "Base", "md_m": 1750, "age_ma": 16, "surface_type": "formation_top" }
+      ] },
+    { "id": "w3", "name": "W3 distal", "position": 2000,
+      "surfaces": [
+        { "name": "Seabed", "md_m": 1500, "age_ma": 0, "surface_type": "formation_top" },
+        { "name": "MFS-1", "md_m": 1600, "age_ma": 5, "surface_type": "MFS" },
+        { "name": "MRS-1", "md_m": 1640, "age_ma": 8, "surface_type": "MRS" },
+        { "name": "SB-1", "md_m": 1700, "age_ma": 10, "surface_type": "CC" },
+        { "name": "Base", "md_m": 1820, "age_ma": 16, "surface_type": "formation_top" }
+      ] }
+  ],
+  "expected": {
+    "age_min_ma": 0, "age_max_ma": 16,
+    "boundaries": [0, 5, 8, 10, 12, 14, 16],
+    "cells": {
+      "w1": [
+        { "kind": "deposition", "from_ma": 0, "to_ma": 5, "top_md_m": 1500, "base_md_m": 1520, "tract": null, "label": "MFS-1 to Seabed" },
+        { "kind": "deposition", "from_ma": 5, "to_ma": 8, "top_md_m": 1520, "base_md_m": 1600, "tract": "TST", "label": "TST" },
+        { "kind": "deposition", "from_ma": 8, "to_ma": 10, "top_md_m": 1600, "base_md_m": 1680, "tract": "LST", "label": "LST" },
+        { "kind": "hiatus", "from_ma": 10, "to_ma": 14, "top_md_m": 1680, "base_md_m": 1680, "tract": null, "label": "hiatus at SB-1" },
+        { "kind": "deposition", "from_ma": 14, "to_ma": 16, "top_md_m": 1680, "base_md_m": 1720, "tract": null, "label": "Base to SB-1" }
+      ],
+      "w2": [
+        { "kind": "deposition", "from_ma": 0, "to_ma": 5, "top_md_m": 1500, "base_md_m": 1560, "tract": null, "label": "MFS-1 to Seabed" },
+        { "kind": "deposition", "from_ma": 5, "to_ma": 8, "top_md_m": 1560, "base_md_m": 1620, "tract": "TST", "label": "TST" },
+        { "kind": "deposition", "from_ma": 8, "to_ma": 10, "top_md_m": 1620, "base_md_m": 1690, "tract": "LST", "label": "LST" },
+        { "kind": "hiatus", "from_ma": 10, "to_ma": 12, "top_md_m": 1690, "base_md_m": 1690, "tract": null, "label": "hiatus at SB-1" },
+        { "kind": "deposition", "from_ma": 12, "to_ma": 16, "top_md_m": 1690, "base_md_m": 1750, "tract": null, "label": "Base to SB-1" }
+      ],
+      "w3": [
+        { "kind": "deposition", "from_ma": 0, "to_ma": 5, "top_md_m": 1500, "base_md_m": 1600, "tract": null, "label": "MFS-1 to Seabed" },
+        { "kind": "deposition", "from_ma": 5, "to_ma": 8, "top_md_m": 1600, "base_md_m": 1640, "tract": "TST", "label": "TST" },
+        { "kind": "deposition", "from_ma": 8, "to_ma": 10, "top_md_m": 1640, "base_md_m": 1700, "tract": "LST", "label": "LST" },
+        { "kind": "deposition", "from_ma": 10, "to_ma": 16, "top_md_m": 1700, "base_md_m": 1820, "tract": null, "label": "Base to SB-1" }
+      ]
+    },
+    "rates_m_per_ma": { "w1": [4, 26.666666666666668, 40, 20], "w2": [12, 20, 35, 15], "w3": [20, 13.333333333333334, 30, 20] },
+    "hiatus_duration_ma": { "w1": 4, "w2": 2, "w3": 0 }
+  }
+}

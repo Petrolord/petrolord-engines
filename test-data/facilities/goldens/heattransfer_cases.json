@@ -1,0 +1,780 @@
+{
+ "airCooler": [
+  {
+   "acfm": 647278.3693787262,
+   "airDensityLbFt3": 0.07152455340154908,
+   "airLbHr": 2777777.7777777785,
+   "airOutF": 125,
+   "airRiseF": 30,
+   "ambientF": 95,
+   "areaFt2": 52125.74933768046,
+   "barometricPsia": 14.7,
+   "draftType": "forced",
+   "fanBhp": 94.0037327848273,
+   "fanEfficiency": 0.65,
+   "fanInletF": 95,
+   "lmtdF": 85.26389550109856,
+   "motorEfficiency": 0.92,
+   "motorHp": 102.17797041829054,
+   "processInF": 250,
+   "processOutF": 150,
+   "qBtuHr": 20000000.0,
+   "staticPressureInH2O": 0.6,
+   "uBtuHrFt2F": 4.5
+  },
+  {
+   "acfm": 307892.91041930177,
+   "airDensityLbFt3": 0.07217516698243896,
+   "airLbHr": 1333333.3333333335,
+   "airOutF": 115,
+   "airRiseF": 25,
+   "ambientF": 90,
+   "areaFt2": 35345.82346205109,
+   "barometricPsia": 14.7,
+   "draftType": "forced",
+   "fanBhp": 34.60092942768382,
+   "fanEfficiency": 0.7,
+   "fanInletF": 90,
+   "lmtdF": 45.26701723947198,
+   "motorEfficiency": 0.9,
+   "motorHp": 38.44547714187092,
+   "processInF": 180,
+   "processOutF": 120,
+   "qBtuHr": 8000000.0,
+   "staticPressureInH2O": 0.5,
+   "uBtuHrFt2F": 5.0
+  },
+  {
+   "acfm": 682287.205409811,
+   "airDensityLbFt3": 0.06785455733189188,
+   "airLbHr": 2777777.7777777785,
+   "airOutF": 125,
+   "airRiseF": 30,
+   "ambientF": 95,
+   "areaFt2": 52125.74933768046,
+   "barometricPsia": 14.7,
+   "draftType": "induced",
+   "fanBhp": 99.08803873889879,
+   "fanEfficiency": 0.65,
+   "fanInletF": 125,
+   "lmtdF": 85.26389550109856,
+   "motorEfficiency": 0.92,
+   "motorHp": 107.70438993358563,
+   "processInF": 250,
+   "processOutF": 150,
+   "qBtuHr": 20000000.0,
+   "staticPressureInH2O": 0.6,
+   "uBtuHrFt2F": 4.5
+  },
+  {
+   "acfm": 590210.8818530795,
+   "airDensityLbFt3": 0.05883019661244671,
+   "airLbHr": 2083333.3333333337,
+   "airOutF": 128,
+   "airRiseF": 28,
+   "ambientF": 100,
+   "areaFt2": 27645.083203524147,
+   "barometricPsia": 12.2,
+   "draftType": "forced",
+   "fanBhp": 112.3292599803613,
+   "fanEfficiency": 0.62,
+   "fanInletF": 100,
+   "lmtdF": 126.60479168150327,
+   "motorEfficiency": 0.94,
+   "motorHp": 119.49921274506522,
+   "processInF": 300,
+   "processOutF": 190,
+   "qBtuHr": 14000000.0,
+   "staticPressureInH2O": 0.75,
+   "uBtuHrFt2F": 4.0
+  }
+ ],
+ "airCoolerDefaults": {
+  "acfm": 405588.81061651174,
+  "airDensityLbFt3": 0.07243873872083047,
+  "airLbHr": 1762820.512820513,
+  "airOutF": 114,
+  "airRiseF": 26,
+  "ambientF": 88,
+  "areaFt2": 34542.10375144514,
+  "barometricPsia": 14.7,
+  "draftType": "forced",
+  "fanBhp": 58.903346654864436,
+  "fanEfficiency": 0.65,
+  "fanInletF": 88,
+  "lmtdF": 75.8218908116749,
+  "motorEfficiency": 0.92,
+  "motorHp": 64.02537679876569,
+  "note": "states no static pressure, no fan efficiency and no motor efficiency, so the engine's defaults are what this row measures",
+  "processInF": 220,
+  "processOutF": 140,
+  "qBtuHr": 11000000.0,
+  "staticPressureInH2O": 0.6,
+  "uBtuHrFt2F": 4.2
+ },
+ "areaRequired": [
+  {
+   "areaFt2": 578.7037037037038,
+   "f": 0.9,
+   "lmtdF": 80,
+   "qBtuHr": 5000000.0,
+   "uBtuHrFt2F": 120
+  },
+  {
+   "areaFt2": 286.31127074208024,
+   "f": 1.0,
+   "lmtdF": 130.06,
+   "qBtuHr": 2750000.0,
+   "uBtuHrFt2F": 73.85
+  }
+ ],
+ "capacityRate": [
+  {
+   "cBtuHrF": 27499.999999999996,
+   "cpBtuLbF": 0.55,
+   "mLbHr": 50000
+  },
+  {
+   "cBtuHrF": 79999.99999999999,
+   "cpBtuLbF": 1.0,
+   "mLbHr": 80000
+  },
+  {
+   "cBtuHrF": 84939.99999999997,
+   "cpBtuLbF": 0.62,
+   "mLbHr": 137000
+  }
+ ],
+ "ceilings": [
+  {
+   "cr": 0.25,
+   "parallel": 0.8,
+   "parallelAtHighNtu": 0.8,
+   "shell1": 0.8768943743823394,
+   "shell1AtHighNtu": 0.8768943743823431
+  },
+  {
+   "cr": 0.5,
+   "parallel": 0.6666666666666666,
+   "parallelAtHighNtu": 0.6666666666666657,
+   "shell1": 0.7639320225002103,
+   "shell1AtHighNtu": 0.7639320225002788
+  },
+  {
+   "cr": 0.8,
+   "parallel": 0.5555555555555556,
+   "parallelAtHighNtu": 0.5555555555555551,
+   "shell1": 0.6492189406417878,
+   "shell1AtHighNtu": 0.6492189406397736
+  },
+  {
+   "cr": 1.0,
+   "parallel": 0.5,
+   "parallelAtHighNtu": 0.4999999999999988,
+   "shell1": 0.585786437626905,
+   "shell1AtHighNtu": 0.5857864384298318
+  }
+ ],
+ "derivedConstants": {
+  "cpBtuToSi": 4186.799999999999,
+  "cpToLbFtHrDerived": 2.4190883105022247,
+  "cpToLbFtHrEngine": 2.4191,
+  "gasConstantPsiaFt3LbmolRDerived": 10.73157708901629,
+  "hpW": 745.6998715822702,
+  "kBtuToSi": 1.730734666371391,
+  "psiPa": 6894.757293168361,
+  "uBtuToSi": 5.678263341113487,
+  "waterLbFt3ImpliedBy6356": 62.303335431088726
+ },
+ "energyBalance": [
+  {
+   "cCold": 80000,
+   "cHot": 27500,
+   "qBtuHr": 2750000.0,
+   "tcIn": 100,
+   "tcOut": 134.37500000000006,
+   "thIn": 300,
+   "thOut": 200.00000000000006
+  },
+  {
+   "cCold": 62000,
+   "cHot": 85000,
+   "qBtuHr": 9400000.0,
+   "tcIn": 120,
+   "tcOut": 271.6129032258065,
+   "thIn": 410,
+   "thOut": 299.4117647058824
+  }
+ ],
+ "epsNtu": [
+  {
+   "arrangement": "counter",
+   "cr": 0.5,
+   "epsOde": 0.5647334016064145,
+   "ntu": 1.0,
+   "route": "RK4 counter-flow march with a linear shot"
+  },
+  {
+   "arrangement": "counter",
+   "cr": 0.8,
+   "epsOde": 0.710909424480094,
+   "ntu": 2.0,
+   "route": "RK4 counter-flow march with a linear shot"
+  },
+  {
+   "arrangement": "counter",
+   "cr": 1.0,
+   "epsOde": 0.7500000000000284,
+   "ntu": 3.0,
+   "route": "RK4 counter-flow march with a linear shot"
+  },
+  {
+   "arrangement": "counter",
+   "cr": 0.25,
+   "epsOde": 0.3775889264425708,
+   "ntu": 0.5,
+   "route": "RK4 counter-flow march with a linear shot"
+  },
+  {
+   "arrangement": "parallel",
+   "cr": 0.5,
+   "epsOde": 0.5179132265677135,
+   "ntu": 1.0,
+   "route": "RK4 parallel-flow initial-value march"
+  },
+  {
+   "arrangement": "parallel",
+   "cr": 0.7,
+   "epsOde": 0.5686039588468661,
+   "ntu": 2.0,
+   "route": "RK4 parallel-flow initial-value march"
+  },
+  {
+   "arrangement": "parallel",
+   "cr": 1.0,
+   "epsOde": 0.31606027941427906,
+   "ntu": 0.5,
+   "route": "RK4 parallel-flow initial-value march"
+  },
+  {
+   "arrangement": "shell1",
+   "cr": 0.5,
+   "epsOde": 0.5399395561060543,
+   "ntu": 1.0,
+   "route": "RK4 three-stream 1-2 shell march with the turn-around as a boundary condition"
+  },
+  {
+   "arrangement": "shell1",
+   "cr": 0.7,
+   "epsOde": 0.6342309661651361,
+   "ntu": 2.0,
+   "route": "RK4 three-stream 1-2 shell march with the turn-around as a boundary condition"
+  },
+  {
+   "arrangement": "shell1",
+   "cr": 0.9,
+   "epsOde": 0.6072100948752115,
+   "ntu": 3.0,
+   "route": "RK4 three-stream 1-2 shell march with the turn-around as a boundary condition"
+  },
+  {
+   "arrangement": "counter",
+   "cr": 0.0,
+   "epsOde": 0.7768698398515702,
+   "ntu": 1.5,
+   "route": "the Cr = 0 limit, where all three arrangements collapse onto one curve"
+  },
+  {
+   "arrangement": "parallel",
+   "cr": 0.0,
+   "epsOde": 0.7768698398515702,
+   "ntu": 1.5,
+   "route": "the Cr = 0 limit, where all three arrangements collapse onto one curve"
+  },
+  {
+   "arrangement": "shell1",
+   "cr": 0.0,
+   "epsOde": 0.7768698398515702,
+   "ntu": 1.5,
+   "route": "the Cr = 0 limit, where all three arrangements collapse onto one curve"
+  }
+ ],
+ "fCorrection": [
+  {
+   "f": 0.9453530344296925,
+   "p": 0.4,
+   "r": 0.8,
+   "shellPasses": 1
+  },
+  {
+   "f": 0.9386595996941483,
+   "p": 0.3,
+   "r": 1.5,
+   "shellPasses": 1
+  },
+  {
+   "f": 0.802278161724475,
+   "p": 0.5,
+   "r": 1.0,
+   "shellPasses": 1
+  },
+  {
+   "f": 0.9008697074656357,
+   "p": 0.25,
+   "r": 2.5,
+   "shellPasses": 1
+  },
+  {
+   "f": 0.8828892132798475,
+   "p": 0.6,
+   "r": 0.5,
+   "shellPasses": 1
+  }
+ ],
+ "fMultiShell": [
+  {
+   "f": 0.897944846831797,
+   "p": 0.6,
+   "p1": 0.4285714285714285,
+   "r": 1.0,
+   "shellPasses": 2
+  },
+  {
+   "f": 0.802278161724475,
+   "p": 0.75,
+   "p1": 0.5,
+   "r": 1.0,
+   "shellPasses": 3
+  },
+  {
+   "f": 0.9476008426075236,
+   "p": 0.7,
+   "p1": 0.48557561450748477,
+   "r": 0.5,
+   "shellPasses": 2
+  },
+  {
+   "f": 0.9262076833343226,
+   "p": 0.45,
+   "p1": 0.31628034896866086,
+   "r": 1.5,
+   "shellPasses": 2
+  },
+  {
+   "f": 0.9326363364079779,
+   "p": 0.8,
+   "p1": 0.4839168272749922,
+   "r": 0.6,
+   "shellPasses": 3
+  },
+  {
+   "f": 0.9480893941517569,
+   "p": 0.3,
+   "p1": 0.21151635881198622,
+   "r": 2.5,
+   "shellPasses": 2
+  },
+  {
+   "f": 0.9899542556029571,
+   "p": 0.55,
+   "p1": 0.2193429434752739,
+   "r": 0.8,
+   "shellPasses": 4
+  }
+ ],
+ "hotDay": [
+  {
+   "airRiseF": 30,
+   "ambientF": 95,
+   "checkAmbientF": 110,
+   "dutyFraction": 0.9032258065287035,
+   "hotAirRiseF": 27.096774195861105,
+   "hotProcessOutF": 159.67741934712967,
+   "hotQBtuHr": 18064516.13057407,
+   "processInF": 250,
+   "processOutF": 150,
+   "qBtuHr": 20000000.0,
+   "uaBtuHrF": 234565.87201956208
+  },
+  {
+   "airRiseF": 30,
+   "ambientF": 95,
+   "checkAmbientF": 120,
+   "dutyFraction": 0.838709677490939,
+   "hotAirRiseF": 25.16129032472817,
+   "hotProcessOutF": 166.1290322509061,
+   "hotQBtuHr": 16774193.54981878,
+   "processInF": 250,
+   "processOutF": 150,
+   "qBtuHr": 20000000.0,
+   "uaBtuHrF": 234565.87201956208
+  },
+  {
+   "airRiseF": 30,
+   "ambientF": 95,
+   "checkAmbientF": 130,
+   "dutyFraction": 0.7741935484531763,
+   "hotAirRiseF": 23.225806453595293,
+   "hotProcessOutF": 172.58064515468237,
+   "hotQBtuHr": 15483870.969063528,
+   "processInF": 250,
+   "processOutF": 150,
+   "qBtuHr": 20000000.0,
+   "uaBtuHrF": 234565.87201956208
+  },
+  {
+   "airRiseF": 25,
+   "ambientF": 90,
+   "checkAmbientF": 105,
+   "dutyFraction": 0.8333333333903226,
+   "hotAirRiseF": 20.833333334758063,
+   "hotProcessOutF": 129.99999999658064,
+   "hotQBtuHr": 6666666.66712258,
+   "processInF": 180,
+   "processOutF": 120,
+   "qBtuHr": 8000000.0,
+   "uaBtuHrF": 176729.11731025545
+  },
+  {
+   "airRiseF": 28,
+   "ambientF": 100,
+   "checkAmbientF": 118,
+   "dutyFraction": 0.9100000000534012,
+   "hotAirRiseF": 25.480000001495235,
+   "hotProcessOutF": 199.89999999412586,
+   "hotQBtuHr": 12740000.000747617,
+   "processInF": 300,
+   "processOutF": 190,
+   "qBtuHr": 14000000.0,
+   "uaBtuHrF": 110580.33281409659
+  }
+ ],
+ "lmtd": [
+  {
+   "dt1": 120,
+   "dt2": 100,
+   "equalEnds": false,
+   "lmtdF": 109.69629895494906,
+   "tcIn": 100,
+   "tcOut": 180,
+   "thIn": 300,
+   "thOut": 200
+  },
+  {
+   "dt1": 110,
+   "dt2": 70,
+   "equalEnds": false,
+   "lmtdF": 88.49848788996275,
+   "tcIn": 80,
+   "tcOut": 140,
+   "thIn": 250,
+   "thOut": 150
+  },
+  {
+   "dt1": 280,
+   "dt2": 280,
+   "equalEnds": true,
+   "lmtdF": 279.9999999992606,
+   "tcIn": 100,
+   "tcOut": 120,
+   "thIn": 400,
+   "thOut": 380
+  },
+  {
+   "dt1": 270,
+   "dt2": 170,
+   "equalEnds": false,
+   "lmtdF": 216.1584858006072,
+   "tcIn": 90,
+   "tcOut": 150,
+   "thIn": 420,
+   "thOut": 260
+  },
+  {
+   "dt1": 60,
+   "dt2": 80,
+   "equalEnds": false,
+   "lmtdF": 69.52118993565568,
+   "tcIn": 100,
+   "tcOut": 240,
+   "thIn": 300,
+   "thOut": 180
+  },
+  {
+   "dt1": 300,
+   "dt2": 10,
+   "equalEnds": false,
+   "lmtdF": 85.26409012254757,
+   "tcIn": 100,
+   "tcOut": 200,
+   "thIn": 500,
+   "thOut": 110
+  }
+ ],
+ "lmtdGroups": [
+  {
+   "p": 0.4,
+   "r": 1.25,
+   "tcIn": 100,
+   "tcOut": 180,
+   "thIn": 300,
+   "thOut": 200
+  },
+  {
+   "p": 0.18181818181818182,
+   "r": 2.6666666666666665,
+   "tcIn": 90,
+   "tcOut": 150,
+   "thIn": 420,
+   "thOut": 260
+  }
+ ],
+ "lmtdParallel": [
+  {
+   "lmtdF": 78.1730067454208,
+   "tcIn": 100,
+   "tcOut": 180,
+   "thIn": 300,
+   "thOut": 200
+  },
+  {
+   "lmtdF": 56.47297982365855,
+   "tcIn": 80,
+   "tcOut": 140,
+   "thIn": 250,
+   "thOut": 150
+  }
+ ],
+ "ntuFromEps": [
+  {
+   "arrangement": "counter",
+   "cr": 0.5,
+   "effectiveness": 0.6,
+   "ntu": 1.1192315758708502
+  },
+  {
+   "arrangement": "parallel",
+   "cr": 0.5,
+   "effectiveness": 0.5,
+   "ntu": 0.9241962407466009
+  },
+  {
+   "arrangement": "shell1",
+   "cr": 0.5,
+   "effectiveness": 0.55,
+   "ntu": 1.0391844293036825
+  },
+  {
+   "arrangement": "shell1",
+   "cr": 0.9,
+   "effectiveness": 0.45,
+   "ntu": 0.8747109343430044
+  },
+  {
+   "arrangement": "parallel",
+   "cr": 0.8,
+   "effectiveness": 0.35,
+   "ntu": 0.5523623740799273
+  }
+ ],
+ "tubeCount": [
+  {
+   "actualAreaFt2": 502.6548245743669,
+   "areaFt2": 500,
+   "areaPerTubeFt2": 3.141592653589793,
+   "bundleClearanceIn": 2.5,
+   "bundleDiameterIn": 14.039145120090659,
+   "doIn": 0.75,
+   "layoutDeg": 30,
+   "nTubes": 160,
+   "passes": 2,
+   "shellDiameterIn": 16.53914512009066,
+   "tubeLengthFt": 16,
+   "tubesPerPass": 80
+  },
+  {
+   "actualAreaFt2": 2004.336112990288,
+   "areaFt2": 2000,
+   "areaPerTubeFt2": 3.141592653589793,
+   "bundleClearanceIn": 2.5,
+   "bundleDiameterIn": 26.273649850481803,
+   "doIn": 0.75,
+   "layoutDeg": 30,
+   "nTubes": 638,
+   "passes": 2,
+   "shellDiameterIn": 28.773649850481803,
+   "tubeLengthFt": 16,
+   "tubesPerPass": 319
+  },
+  {
+   "actualAreaFt2": 1214.7491593880532,
+   "areaFt2": 1200,
+   "areaPerTubeFt2": 5.235987755982988,
+   "bundleClearanceIn": 3.0,
+   "bundleDiameterIn": 23.25406478117371,
+   "doIn": 1.0,
+   "layoutDeg": 30,
+   "nTubes": 232,
+   "passes": 4,
+   "shellDiameterIn": 26.25406478117371,
+   "tubeLengthFt": 20,
+   "tubesPerPass": 58
+  },
+  {
+   "actualAreaFt2": 860.7963870836033,
+   "areaFt2": 860,
+   "areaPerTubeFt2": 3.141592653589793,
+   "bundleClearanceIn": 2.5,
+   "bundleDiameterIn": 19.557351780215008,
+   "doIn": 0.75,
+   "layoutDeg": 45,
+   "nTubes": 274,
+   "passes": 2,
+   "shellDiameterIn": 22.057351780215008,
+   "tubeLengthFt": 16,
+   "tubesPerPass": 137
+  },
+  {
+   "actualAreaFt2": 860.7963870836033,
+   "areaFt2": 860,
+   "areaPerTubeFt2": 3.141592653589793,
+   "bundleClearanceIn": 2.5,
+   "bundleDiameterIn": 19.557351780215008,
+   "doIn": 0.75,
+   "layoutDeg": 90,
+   "nTubes": 274,
+   "passes": 2,
+   "shellDiameterIn": 22.057351780215008,
+   "tubeLengthFt": 16,
+   "tubesPerPass": 137
+  }
+ ],
+ "tubeFilm": [
+  {
+   "cpBtuLbF": 0.5,
+   "diIn": 0.62,
+   "hBtuHrFt2F": 309.8442513946023,
+   "kBtuHrFtF": 0.08,
+   "mLbHr": 150000,
+   "muCp": 0.5,
+   "nTubes": 200,
+   "passes": 2,
+   "pr": 7.55965097031945,
+   "re": 30561.115838738442,
+   "regime": "turbulent"
+  },
+  {
+   "cpBtuLbF": 1.0,
+   "diIn": 0.834,
+   "hBtuHrFt2F": 1129.7696508647164,
+   "kBtuHrFtF": 0.35,
+   "mLbHr": 400000,
+   "muCp": 1.2,
+   "nTubes": 300,
+   "passes": 4,
+   "pr": 8.294017064579055,
+   "re": 33658.2144418116,
+   "regime": "turbulent"
+  },
+  {
+   "cpBtuLbF": 0.5,
+   "diIn": 0.62,
+   "hBtuHrFt2F": 332.81452196183585,
+   "kBtuHrFtF": 0.08,
+   "mLbHr": 150000,
+   "muCp": 0.5,
+   "muWallCp": 0.3,
+   "nTubes": 200,
+   "passes": 2,
+   "pr": 7.55965097031945,
+   "re": 30561.115838738442,
+   "regime": "turbulent",
+   "siederTateFactor": 1.074134893462909
+  },
+  {
+   "cpBtuLbF": 0.5,
+   "diIn": 0.62,
+   "hBtuHrFt2F": 5.667096774193551,
+   "kBtuHrFtF": 0.08,
+   "mLbHr": 2000,
+   "muCp": 50,
+   "nTubes": 100,
+   "passes": 1,
+   "pr": 755.9650970319451,
+   "re": 4.074815445165125,
+   "regime": "laminar"
+  }
+ ],
+ "u": [
+  {
+   "diIn": 0.62,
+   "doIn": 0.75,
+   "foulingIn": 0.002,
+   "foulingOut": 0.001,
+   "hiBtuHrFt2F": 800,
+   "hoBtuHrFt2F": 200,
+   "kWallBtuHrFtF": 26,
+   "resistances": {
+    "insideFilm": 0.0015120967741935486,
+    "insideFouling": 0.002419354838709678,
+    "outsideFilm": 0.005,
+    "outsideFouling": 0.001,
+    "wall": 0.0002287905390519456
+   },
+   "uCleanBtuHrFt2F": 148.3484226230947,
+   "uDirtyBtuHrFt2F": 98.42285105454563
+  },
+  {
+   "diIn": 0.834,
+   "doIn": 1.0,
+   "foulingIn": 0.001,
+   "foulingOut": 0.0005,
+   "hiBtuHrFt2F": 300,
+   "hoBtuHrFt2F": 1200,
+   "kWallBtuHrFtF": 26,
+   "resistances": {
+    "insideFilm": 0.003996802557953638,
+    "insideFouling": 0.0011990407673860915,
+    "outsideFilm": 0.0008333333333333333,
+    "outsideFouling": 0.0005,
+    "wall": 0.00029090044330671395
+   },
+   "uCleanBtuHrFt2F": 195.27297497281714,
+   "uDirtyBtuHrFt2F": 146.62590833609687
+  },
+  {
+   "diIn": 0.732,
+   "doIn": 0.875,
+   "foulingIn": 0.0,
+   "foulingOut": 0.0,
+   "hiBtuHrFt2F": 1450,
+   "hoBtuHrFt2F": 340,
+   "kWallBtuHrFtF": 26,
+   "resistances": {
+    "insideFilm": 0.000824382890521952,
+    "insideFouling": 0.0,
+    "outsideFilm": 0.0029411764705882357,
+    "outsideFouling": 0.0,
+    "wall": 0.0002502210750749428
+   },
+   "uCleanBtuHrFt2F": 249.0175984197906,
+   "uDirtyBtuHrFt2F": 249.0175984197906
+  }
+ ],
+ "uDefaults": {
+  "diIn": 0.652,
+  "doIn": 0.75,
+  "hiBtuHrFt2F": 900,
+  "hoBtuHrFt2F": 250,
+  "note": "states neither kWallBtuHrFtF nor either fouling factor, so the engine's defaults are what this row measures",
+  "resistances": {
+   "insideFilm": 0.0012781186094069526,
+   "insideFouling": 0.0,
+   "outsideFilm": 0.004,
+   "outsideFouling": 0.0,
+   "wall": 0.0001683036593794503
+  },
+  "uCleanBtuHrFt2F": 183.60676984798403,
+  "uDirtyBtuHrFt2F": 183.60676984798403
+ }
+}

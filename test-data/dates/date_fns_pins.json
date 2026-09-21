@@ -1,0 +1,769 @@
+{
+ "description": "Pins of the REAL date-fns (the Suite node_modules copy) for the subset vendored in lib/dates/dates.js. Emitted by a node script run in the Suite directory with TZ = UTC (offset 0 min). Dates are epoch milliseconds; an invalid date is null; a NaN result is null; the string __undefined__ / __NaN__ stand for the JS values.",
+ "date_fns_version": "4.1.0",
+ "timezone": "UTC",
+ "parseISO": [
+  {
+   "input": "2020-01-01",
+   "ms": 1577836800000
+  },
+  {
+   "input": "2020-02-29",
+   "ms": 1582934400000
+  },
+  {
+   "input": "2019-02-29",
+   "ms": null
+  },
+  {
+   "input": "2020-13-01",
+   "ms": null
+  },
+  {
+   "input": "2020-00-10",
+   "ms": null
+  },
+  {
+   "input": "2020-01-32",
+   "ms": null
+  },
+  {
+   "input": "2020-04-31",
+   "ms": null
+  },
+  {
+   "input": "2020-12-31",
+   "ms": 1609372800000
+  },
+  {
+   "input": "2020",
+   "ms": 1577836800000
+  },
+  {
+   "input": "2020-06",
+   "ms": 1590969600000
+  },
+  {
+   "input": "202006",
+   "ms": 1590969600000
+  },
+  {
+   "input": "20200615",
+   "ms": 1592179200000
+  },
+  {
+   "input": "2020-W10",
+   "ms": 1583107200000
+  },
+  {
+   "input": "2020-W10-3",
+   "ms": 1583280000000
+  },
+  {
+   "input": "2020W103",
+   "ms": 1583280000000
+  },
+  {
+   "input": "2020-100",
+   "ms": 1586390400000
+  },
+  {
+   "input": "2020-366",
+   "ms": 1609372800000
+  },
+  {
+   "input": "2019-366",
+   "ms": null
+  },
+  {
+   "input": "2020-000",
+   "ms": null
+  },
+  {
+   "input": "2020-01-01T10:20:30",
+   "ms": 1577874030000
+  },
+  {
+   "input": "2020-01-01T10:20:30Z",
+   "ms": 1577874030000
+  },
+  {
+   "input": "2020-01-01T10:20:30+02:00",
+   "ms": 1577866830000
+  },
+  {
+   "input": "2020-01-01T10:20:30.5",
+   "ms": 1577874030500
+  },
+  {
+   "input": "2020-01-01T10:20:30,25",
+   "ms": 1577874030250
+  },
+  {
+   "input": "2020-01-01T24:00:00",
+   "ms": 1577923200000
+  },
+  {
+   "input": "2020-01-01T24:30:00",
+   "ms": null
+  },
+  {
+   "input": "2020-01-01T25:00",
+   "ms": null
+  },
+  {
+   "input": "2020-01-01 10:20",
+   "ms": 1577874000000
+  },
+  {
+   "input": "",
+   "ms": null
+  },
+  {
+   "input": "abc",
+   "ms": null
+  },
+  {
+   "input": "2020/01/01",
+   "ms": null
+  },
+  {
+   "input": "2020-1-1",
+   "ms": null
+  },
+  {
+   "input": null,
+   "ms": {
+    "throws": "TypeError"
+   }
+  },
+  {
+   "input": "__undefined__",
+   "ms": {
+    "throws": "TypeError"
+   }
+  },
+  {
+   "input": 123,
+   "ms": {
+    "throws": "TypeError"
+   }
+  },
+  {
+   "input": "+002020-01-01",
+   "ms": 1577836800000
+  },
+  {
+   "input": "-000001-01-01",
+   "ms": -62198755200000
+  },
+  {
+   "input": "2020-01-01T10:20:30+0230",
+   "ms": 1577865030000
+  },
+  {
+   "input": "2020-01-01T10:20:30-05",
+   "ms": 1577892030000
+  },
+  {
+   "input": "20",
+   "ms": 946684800000
+  },
+  {
+   "input": "2020-01-01Tfoo",
+   "ms": null
+  },
+  {
+   "input": "2020-01-01T10:60",
+   "ms": null
+  },
+  {
+   "input": "2020-01-01T10:20:30+02:60",
+   "ms": null
+  },
+  {
+   "input": "2020-01-01T10",
+   "ms": 1577872800000
+  },
+  {
+   "input": "2020-01-01T1020",
+   "ms": 1577874000000
+  },
+  {
+   "input": "2020-01-01T102030",
+   "ms": 1577874030000
+  },
+  {
+   "input": "2020-02-30",
+   "ms": null
+  },
+  {
+   "input": "0000-01-01",
+   "ms": -62167219200000
+  },
+  {
+   "input": "1900-02-29",
+   "ms": null
+  },
+  {
+   "input": "2000-02-29",
+   "ms": 951782400000
+  },
+  {
+   "input": "2100-02-29",
+   "ms": null
+  },
+  {
+   "input": "2020-01-01T00:00:00.000Z",
+   "ms": 1577836800000
+  },
+  {
+   "input": "2020-01-01T10:20:30 Z",
+   "ms": null
+  },
+  {
+   "input": "2020-01-01T10:20:30Z ",
+   "ms": null
+  },
+  {
+   "input": " 2020-01-01",
+   "ms": null
+  },
+  {
+   "input": "2020-01-01T10:20:30+02",
+   "ms": 1577866830000
+  },
+  {
+   "input": "2020-01-01T10:20:30.123456",
+   "ms": 1577874030123
+  },
+  {
+   "input": "2020-12-31T23:59:59.999",
+   "ms": 1609459199999
+  },
+  {
+   "input": "2024-02-29T12:00:00",
+   "ms": 1709208000000
+  },
+  {
+   "input": "9999-12-31",
+   "ms": 253402214400000
+  },
+  {
+   "input": "2020-01-01T10:20:30+14:00",
+   "ms": 1577823630000
+  },
+  {
+   "input": "2020-01-01T10:20:30-12:00",
+   "ms": 1577917230000
+  }
+ ],
+ "isValid": [
+  {
+   "kind": "date",
+   "input": "2020-01-01",
+   "valid": true
+  },
+  {
+   "kind": "date",
+   "input": "2019-02-29",
+   "valid": false
+  },
+  {
+   "kind": "date",
+   "input": "abc",
+   "valid": false
+  },
+  {
+   "kind": "number",
+   "input": 0,
+   "valid": true
+  },
+  {
+   "kind": "number",
+   "input": "__NaN__",
+   "valid": false
+  },
+  {
+   "kind": "number",
+   "input": 1500000000000,
+   "valid": true
+  },
+  {
+   "kind": "number",
+   "input": -1,
+   "valid": true
+  },
+  {
+   "kind": "string",
+   "input": "2020-01-01",
+   "valid": false
+  },
+  {
+   "kind": "null",
+   "input": null,
+   "valid": false
+  },
+  {
+   "kind": "undefined",
+   "input": "__undefined__",
+   "valid": false
+  },
+  {
+   "kind": "object",
+   "input": {},
+   "valid": false
+  },
+  {
+   "kind": "invalidDate",
+   "input": null,
+   "valid": false
+  },
+  {
+   "kind": "number",
+   "input": "__Infinity__",
+   "valid": false
+  },
+  {
+   "kind": "number",
+   "input": 8640000000000000,
+   "valid": true
+  },
+  {
+   "kind": "number",
+   "input": 8640000000000001,
+   "valid": false
+  }
+ ],
+ "differenceInDays": [
+  {
+   "later": "2020-03-02T00:00:00",
+   "earlier": "2020-03-01T23:59:00",
+   "days": 0
+  },
+  {
+   "later": "2020-03-01T23:59:00",
+   "earlier": "2020-03-02T00:00:00",
+   "days": 0
+  },
+  {
+   "later": "2020-03-02",
+   "earlier": "2020-03-01",
+   "days": 1
+  },
+  {
+   "later": "2020-03-01",
+   "earlier": "2020-03-02",
+   "days": -1
+  },
+  {
+   "later": "2020-03-01",
+   "earlier": "2020-03-01",
+   "days": 0
+  },
+  {
+   "later": "2020-12-31",
+   "earlier": "2020-01-01",
+   "days": 365
+  },
+  {
+   "later": "2021-01-01",
+   "earlier": "2020-01-01",
+   "days": 366
+  },
+  {
+   "later": "2019-01-01",
+   "earlier": "2020-01-01",
+   "days": -365
+  },
+  {
+   "later": "2021-03-01",
+   "earlier": "2021-02-28",
+   "days": 1
+  },
+  {
+   "later": "2020-03-01",
+   "earlier": "2020-02-28",
+   "days": 2
+  },
+  {
+   "later": "2020-03-01",
+   "earlier": "2020-02-29",
+   "days": 1
+  },
+  {
+   "later": "2020-02-29",
+   "earlier": "2019-02-28",
+   "days": 366
+  },
+  {
+   "later": "2024-02-29",
+   "earlier": "2020-02-29",
+   "days": 1461
+  },
+  {
+   "later": "2020-01-01T00:00:00.001",
+   "earlier": "2020-01-01",
+   "days": 0
+  },
+  {
+   "later": "2020-01-01",
+   "earlier": "2020-01-01T00:00:00.001",
+   "days": 0
+  },
+  {
+   "later": "2020-01-02T00:00:00",
+   "earlier": "2020-01-01T00:00:00.001",
+   "days": 0
+  },
+  {
+   "later": "2020-01-01T23:59:59.999",
+   "earlier": "2020-01-01",
+   "days": 0
+  },
+  {
+   "later": "2020-01-03T12:00:00",
+   "earlier": "2020-01-01T13:00:00",
+   "days": 1
+  },
+  {
+   "later": "2020-01-01T13:00:00",
+   "earlier": "2020-01-03T12:00:00",
+   "days": -1
+  },
+  {
+   "later": "2030-06-15T08:30:00",
+   "earlier": "2020-06-15T08:29:59",
+   "days": 3652
+  },
+  {
+   "later": "2020-06-15T08:29:59",
+   "earlier": "2030-06-15T08:30:00",
+   "days": -3652
+  },
+  {
+   "later": "abc",
+   "earlier": "2020-01-01",
+   "days": null
+  },
+  {
+   "later": "2020-01-01",
+   "earlier": "abc",
+   "days": null
+  },
+  {
+   "later": "2020-01-01T24:00:00",
+   "earlier": "2020-01-01",
+   "days": 1
+  },
+  {
+   "later": "2000-01-01",
+   "earlier": "1970-01-01",
+   "days": 10957
+  },
+  {
+   "later": "1969-12-31",
+   "earlier": "1970-01-01",
+   "days": -1
+  }
+ ],
+ "differenceInDays_ms": [
+  {
+   "laterMs": 86399999,
+   "earlierMs": 0,
+   "days": 0
+  },
+  {
+   "laterMs": -86399999,
+   "earlierMs": 0,
+   "days": 0
+  },
+  {
+   "laterMs": 86400000,
+   "earlierMs": 0,
+   "days": 1
+  },
+  {
+   "laterMs": -86400000,
+   "earlierMs": 0,
+   "days": -1
+  },
+  {
+   "laterMs": 0,
+   "earlierMs": 0,
+   "days": 0
+  },
+  {
+   "laterMs": 172800001,
+   "earlierMs": 1,
+   "days": 2
+  }
+ ],
+ "addDays": [
+  {
+   "date": "2020-01-31",
+   "amount": 1,
+   "ms": 1580515200000
+  },
+  {
+   "date": "2020-01-31",
+   "amount": 31,
+   "ms": 1583107200000
+  },
+  {
+   "date": "2020-01-31",
+   "amount": -31,
+   "ms": 1577750400000
+  },
+  {
+   "date": "2020-02-29",
+   "amount": 365,
+   "ms": 1614470400000
+  },
+  {
+   "date": "2020-02-29",
+   "amount": 366,
+   "ms": 1614556800000
+  },
+  {
+   "date": "2019-02-28",
+   "amount": 1,
+   "ms": 1551398400000
+  },
+  {
+   "date": "2020-12-31",
+   "amount": 1,
+   "ms": 1609459200000
+  },
+  {
+   "date": "2020-01-01",
+   "amount": 0,
+   "ms": 1577836800000
+  },
+  {
+   "date": "2020-01-01",
+   "amount": -1,
+   "ms": 1577750400000
+  },
+  {
+   "date": "2020-01-01",
+   "amount": 1.5,
+   "ms": 1577923200000
+  },
+  {
+   "date": "2020-01-01",
+   "amount": -1.5,
+   "ms": 1577750400000
+  },
+  {
+   "date": "2020-01-01",
+   "amount": 2.999,
+   "ms": 1578009600000
+  },
+  {
+   "date": "2020-01-01T10:20:30.5",
+   "amount": 10,
+   "ms": 1578738030500
+  },
+  {
+   "date": "2020-03-01",
+   "amount": -1,
+   "ms": 1582934400000
+  },
+  {
+   "date": "2021-03-01",
+   "amount": -1,
+   "ms": 1614470400000
+  },
+  {
+   "date": "2020-01-01",
+   "amount": 100000,
+   "ms": 10217836800000
+  },
+  {
+   "date": "2020-01-01",
+   "amount": "__NaN__",
+   "ms": null
+  },
+  {
+   "date": "abc",
+   "amount": 1,
+   "ms": null
+  },
+  {
+   "date": "2020-01-01",
+   "amount": 1000000,
+   "ms": 87977836800000
+  }
+ ],
+ "format": [
+  {
+   "date": "2020-01-05T03:04:05.006",
+   "formatStr": "yyyy-MM-dd",
+   "text": "2020-01-05"
+  },
+  {
+   "date": "2020-01-05T03:04:05.006",
+   "formatStr": "dd/MM/yyyy",
+   "text": "05/01/2020"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "yyyy",
+   "text": "2020"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "yy",
+   "text": "20"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "M/d/yyyy",
+   "text": "1/5/2020"
+  },
+  {
+   "date": "2020-01-05T03:04:05.006",
+   "formatStr": "HH:mm:ss",
+   "text": "03:04:05"
+  },
+  {
+   "date": "2020-01-05T13:04:05.006",
+   "formatStr": "yyyy-MM-dd HH:mm",
+   "text": "2020-01-05 13:04"
+  },
+  {
+   "date": "2020-01-05T13:04:05.006",
+   "formatStr": "yyyy-MM-dd'T'HH:mm:ss",
+   "text": "2020-01-05T13:04:05"
+  },
+  {
+   "date": "2020-01-05T13:04:05.006",
+   "formatStr": "h:mm a",
+   "text": "1:04 PM"
+  },
+  {
+   "date": "2020-01-05T00:04:05.006",
+   "formatStr": "h:mm aaa",
+   "text": "12:04 am"
+  },
+  {
+   "date": "2020-01-05T13:04:05.006",
+   "formatStr": "SSS",
+   "text": "006"
+  },
+  {
+   "date": "2020-01-05T13:04:05.006",
+   "formatStr": "S",
+   "text": "0"
+  },
+  {
+   "date": "2020-12-31T23:59:59.999",
+   "formatStr": "yyyy-MM-dd HH:mm:ss.SSS",
+   "text": "2020-12-31 23:59:59.999"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "yyyyy",
+   "text": "02020"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "y",
+   "text": "2020"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "M",
+   "text": "1"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "MM",
+   "text": "01"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "d",
+   "text": "5"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "dd",
+   "text": "05"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "'Year' yyyy",
+   "text": "Year 2020"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "yyyy''MM",
+   "text": "2020'01"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "''",
+   "text": "'"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "yyyy-MM-dd n",
+   "throws": "RangeError",
+   "message": "Format string contains an unescaped latin alphabet character `n`"
+  },
+  {
+   "date": "abc",
+   "formatStr": "yyyy-MM-dd",
+   "throws": "RangeError",
+   "message": "Invalid time value"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "",
+   "throws": "TypeError",
+   "message": "Cannot read properties of null (reading 'map')"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "--",
+   "text": "--"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "yyyy/MM/dd HH.mm",
+   "text": "2020/01/05 00.00"
+  },
+  {
+   "date": "2020-11-05T12:00:00",
+   "formatStr": "h a",
+   "text": "12 PM"
+  },
+  {
+   "date": "2020-11-05T00:00:00",
+   "formatStr": "hh a",
+   "text": "12 AM"
+  },
+  {
+   "date": "0005-03-04",
+   "formatStr": "yyyy-MM-dd",
+   "text": "0005-03-04"
+  },
+  {
+   "date": "0000-03-04",
+   "formatStr": "yyyy",
+   "text": "0001"
+  },
+  {
+   "date": "-000001-03-04",
+   "formatStr": "yyyy",
+   "text": "0002"
+  },
+  {
+   "date": "2020-01-05",
+   "formatStr": "yyyy 'at' HH",
+   "text": "2020 at 00"
+  }
+ ]
+}

@@ -14,6 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import {
   monthKeyOf, classifyLedgerWells, buildFieldPeriods, computeRollingVRR, flagPeriods, analyzeLedger,
+  validateAllocation,
 } from '../engines/waterflood/vrrLedger.js';
 import { computeVRRSeries } from '../engines/waterflood/vrr.js';
 
@@ -152,5 +153,33 @@ describe('analyzeLedger', () => {
     expect(r.series[2].cumulativeVRR).toBeCloseTo(fixture.oracle.cumulativeVRR_last, 9);
     expect(r.rolling[2]).toBeCloseTo((19800 + 20900) / (20245 + 19400), 12);
     expect(r.flags).toEqual(['under', 'under', 'in-band']);
+  });
+});
+
+// Both allocation messages name the threshold they are judging the sum
+// against, and at three decimals a row summing to 0.999999 read "fractions
+// sum to 1.000; the remaining 0.000 counts as out-of-zone" in a warning
+// that only fires when the row sums to LESS than 1. Six decimals is the
+// precision that survives what an operator can actually type. It does not
+// close the collision: the guard's tolerance is 1e-9, which is float noise,
+// so nothing readable could, and a sum inside 5e-7 of 1 still prints as 1.
+describe('allocation row sums print a sum that is not the 1 they are judged against', () => {
+  it('a row a whisker over 1 does not print as 1', () => {
+    const v = validateAllocation({ INJ1: { P1: 0.333334, P2: 0.333334, P3: 0.333334 } });
+    expect(v.ok).toBe(false);
+    expect(v.rowSums.INJ1).toBeGreaterThan(1);
+    expect(v.errors[0]).toContain('sum to 1.000002');
+    expect(v.errors[0]).not.toMatch(/sum to 1\.000 /);
+    expect(v.errors[0]).toContain('(> 1)');            // the threshold is untouched
+  });
+
+  it('a row a whisker under 1 does not print as 1, and neither does the remainder', () => {
+    const v = validateAllocation({ INJ1: { P1: 0.333333, P2: 0.333333, P3: 0.333333 } });
+    expect(v.ok).toBe(true);
+    expect(v.rowSums.INJ1).toBeLessThan(1);
+    expect(v.warnings[0]).toContain('sum to 0.999999');
+    expect(v.warnings[0]).toContain('the remaining 0.000001');
+    expect(v.warnings[0]).not.toMatch(/sum to 1\.000;/);
+    expect(v.warnings[0]).not.toMatch(/remaining 0\.000 /);
   });
 });
