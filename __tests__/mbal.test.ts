@@ -26,6 +26,7 @@ import {
   computeGasPerTimestep,
   computeOilPerTimestep,
   oilDriveIndices,
+  AQUIFER_PARAM_KEYS,
 } from '../engines/mbal/mbalEngine.ts';
 import { DAKE_CT_RESERVOIR, DAKE_CT_PERFORMANCE } from '../test-data/mbal/dake-9-2.ts';
 
@@ -863,5 +864,260 @@ describe('GATE 7: solver_method_used', () => {
   it('V-4: a matching solver_method warns about nothing either', () => {
     const res: any = computeMaterialBalance({ ...oilCase('pot'), solver_method: 'pot_aquifer_plot' });
     expect((res.warnings ?? []).filter((w: string) => w.includes('was not used')).length).toBe(0);
+  });
+});
+
+// ============================================================================
+// GATE 8 — inputs the engine does not read must say so (2026-09-11)
+// ============================================================================
+// `aquifer_params` is a bag of named fields the engine picks out of, defaulting
+// anything absent. So a key with the wrong name was indistinguishable from a
+// key not supplied: passing `aquifer_encroachment_angle_deg` (a perfectly
+// reasonable name) instead of `theta_degrees` left theta at 360 degrees and
+// returned OOIP = -46.9 MMSTB. Found 2026-09-11 while writing GATE 6, by making
+// exactly that mistake.
+//
+// This is the same defect class as the dead `solver_method` input: a parameter
+// the caller believes in and the engine ignores. A-1 is the original repro.
+describe('GATE 8: aquifer_params keys the engine ignores', () => {
+  const ctInputs = (aquifer_params: Record<string, unknown>) => ({
+    fluid_system: 'oil',
+    initial_pressure_psia: DAKE_CT_RESERVOIR.initial_pressure_psia,
+    bubble_point_psia: DAKE_CT_RESERVOIR.bubble_point_psia,
+    reservoir_temperature_f: DAKE_CT_RESERVOIR.reservoir_temperature_f,
+    initial_water_saturation: DAKE_CT_RESERVOIR.initial_water_saturation,
+    formation_compressibility_psi: DAKE_CT_RESERVOIR.formation_compressibility_psi,
+    water_compressibility_psi: DAKE_CT_RESERVOIR.water_compressibility_psi,
+    oil_gravity_api: DAKE_CT_RESERVOIR.oil_gravity_api,
+    gas_specific_gravity: DAKE_CT_RESERVOIR.gas_specific_gravity,
+    gas_cap_ratio_m: 0,
+    aquifer_model: 'carter_tracy',
+    aquifer_params,
+    pvt_source: 'lab_table',
+    excluded_timesteps: [],
+    production_data: DAKE_CT_PERFORMANCE.map((row, idx) => ({
+      timestep_index: idx,
+      observation_date: `${1980 + row.yr}-01-01`,
+      pressure_psia: row.p,
+      cum_oil_stb: row.Np_mmstb * 1e6,
+      cum_gas_scf: row.Np_mmstb * 1e6 * row.Rp,
+      cum_water_stb: 0,
+      bo_rb_stb: row.Bo,
+      rs_scf_stb: row.Rs,
+      bg_rb_scf: row.Bg,
+      bw_rb_stb: 1.0,
+    })),
+  }) as any;
+
+  const goodParams = {
+    aquifer_radius_ft: DAKE_CT_RESERVOIR.aquifer_radius_ft,
+    radius_ratio: DAKE_CT_RESERVOIR.aquifer_dim_radius_ratio,
+    aquifer_thickness_ft: DAKE_CT_RESERVOIR.aquifer_thickness_ft,
+    aquifer_permeability_md: DAKE_CT_RESERVOIR.aquifer_permeability_md,
+    aquifer_porosity: DAKE_CT_RESERVOIR.aquifer_porosity,
+    aquifer_water_viscosity_cp: DAKE_CT_RESERVOIR.aquifer_water_viscosity_cp,
+    theta_degrees: DAKE_CT_RESERVOIR.aquifer_encroachment_angle_deg,
+    aquifer_total_compressibility_psi: DAKE_CT_RESERVOIR.aquifer_total_compressibility_psi,
+  };
+  const ignored = (r: any) =>
+    (r.warnings ?? []).filter((w: string) => w.includes('is not a parameter this engine reads'));
+
+  it('A-1: the original repro — theta under the wrong name is named, not swallowed', () => {
+    const { theta_degrees, ...rest } = goodParams;
+    const result: any = computeMaterialBalance(
+      ctInputs({ ...rest, aquifer_encroachment_angle_deg: theta_degrees }),
+    );
+    const hit = ignored(result);
+    expect(hit.length).toBe(1);
+    expect(hit[0]).toContain('aquifer_encroachment_angle_deg');
+    expect(hit[0]).toContain('theta_degrees');
+    // And the consequence the warning describes is real: theta stayed at its
+    // 360-degree default, so this run is the -46.9 MMSTB one.
+    expect(result.estimated_ooip_stb).toBeLessThan(0);
+  });
+
+  it('A-2: the correctly-named parameter warns about nothing', () => {
+    const result: any = computeMaterialBalance(ctInputs(goodParams));
+    expect(ignored(result).length).toBe(0);
+    expect(result.estimated_ooip_stb).toBeGreaterThan(0);
+  });
+
+  it('A-3: a key with no near-miss lists the keys that do work', () => {
+    const result: any = computeMaterialBalance(ctInputs({ ...goodParams, wibble: 42 }));
+    const hit = ignored(result);
+    expect(hit.length).toBe(1);
+    expect(hit[0]).toContain('wibble');
+    expect(hit[0]).toContain('theta_degrees');
+    expect(hit[0]).toContain('aquifer_permeability_md');
+  });
+
+  it('A-4: an explicitly null extra key is "not supplied", not a typo', () => {
+    const result: any = computeMaterialBalance(ctInputs({ ...goodParams, some_future_key: null }));
+    expect(ignored(result).length).toBe(0);
+  });
+
+  it('A-5: the accepted-key list matches the declared interface', () => {
+    // Not a restatement of the list: this reads the interface out of the engine
+    // source, so adding a field to MBALInputs.aquifer_params without adding it
+    // to AQUIFER_PARAM_KEYS turns a real parameter into an "unknown key"
+    // warning and fails here first.
+    const src = fs.readFileSync(
+      path.join(__dirname, '..', 'engines', 'mbal', 'mbalEngine.ts'), 'utf8',
+    );
+    const block = src.match(/aquifer_params\?: \{([\s\S]*?)\n  \};/);
+    expect(block).not.toBeNull();
+    const declared = [...block![1].matchAll(/^\s{4}(\w+)\?:/gm)].map((m) => m[1]).sort();
+    expect(declared.length).toBeGreaterThan(0);
+    expect([...AQUIFER_PARAM_KEYS].sort()).toEqual(declared);
+  });
+});
+
+// ============================================================================
+// GATE 9 — a declared gas cap with no size is not a gas cap (2026-09-11)
+// ============================================================================
+// `gas_cap_ratio_m` defaults to 0, and m = 0 is not a small gas cap: the m·Eg
+// term drops out and the run IS the undersaturated material balance. A case
+// created as "oil with gas cap" that never received an m therefore produced the
+// no-gas-cap OOIP while every label in the studio still said gas cap. Nothing
+// said so, because the studio had no field that writes m (the only way to set
+// it was to fit it in a history match).
+describe('GATE 9: gas cap declared without a ratio', () => {
+  const pvtAt = (p: number) => {
+    const t = (3000 - p) / 200;
+    return { Bo: 1.58 + t * (1.48 - 1.58), Rs: 1040 + t * (850 - 1040), Bg: 0.00080 + t * (0.00092 - 0.00080) };
+  };
+  const pressures = [3000, 2950, 2900, 2850, 2800, 2750, 2700, 2650, 2600];
+  const Rsi = 1040;
+  const N_TRUTH = 1e7;
+  const M_TRUTH = 0.3;
+  const base = (extra: any = {}) => ({
+    fluid_system: 'oil', initial_pressure_psia: 3000, bubble_point_psia: 3000,
+    reservoir_temperature_f: 150, initial_water_saturation: 0.2,
+    formation_compressibility_psi: 1e-6, water_compressibility_psi: 1.5e-6,
+    oil_gravity_api: 35, gas_specific_gravity: 0.8,
+    aquifer_model: 'none',
+    production_data: pressures.map((p, i) => {
+      const v = pvtAt(p);
+      return {
+        timestep_index: i, pressure_psia: p, cum_oil_stb: 0, cum_gas_scf: 0,
+        cum_water_stb: 0, bo_rb_stb: v.Bo, rs_scf_stb: v.Rs, bg_rb_scf: v.Bg, bw_rb_stb: 1.0,
+      };
+    }),
+    ...extra,
+  }) as any;
+
+  // ONE history, generated from a reservoir that really does have a gas cap of
+  // m = 0.3 and N = 10 MMSTB. Every case below reads this same history; only
+  // the declared inputs differ. (Generating each case from its own m would make
+  // every run return N by construction and prove nothing.)
+  const truthSeed = base({ has_gas_cap: true, gas_cap_ratio_m: M_TRUTH });
+  const { per_timestep: truthTerms } = computeOilPerTimestep(truthSeed);
+  const HISTORY = pressures.map((p, i) => {
+    if (i === 0) return truthSeed.production_data[0];
+    const v = pvtAt(p);
+    const Bt = v.Bo + v.Bg * (Rsi - v.Rs);
+    const F = N_TRUTH * truthTerms[i].Et_rb;
+    return { ...truthSeed.production_data[i], cum_oil_stb: F / Bt, cum_gas_scf: (F / Bt) * Rsi };
+  });
+  const run = (extra: any) => computeMaterialBalance(base({ ...extra, production_data: HISTORY })) as any;
+  const capWarnings = (r: any) =>
+    (r.warnings ?? []).filter((w: string) => w.includes('flagged as having a gas cap'));
+
+  it('M-1: has_gas_cap with no m warns, and the run really is the m = 0 run', () => {
+    const flagged = run({ has_gas_cap: true });
+    expect(capWarnings(flagged).length).toBe(1);
+    expect(capWarnings(flagged)[0]).toContain('m = 0');
+    // The claim in the warning, checked against the undersaturated run on the
+    // same history: identical answer, and no gas-cap drive at all.
+    const plain = run({ has_gas_cap: false, gas_cap_ratio_m: 0 });
+    expect(flagged.estimated_ooip_stb).toBeCloseTo(plain.estimated_ooip_stb, 6);
+    expect(flagged.final_gdi ?? 0).toBe(0);
+  });
+
+  it('M-2: the silent default is not a small error — it misses the OOIP', () => {
+    const sized = run({ has_gas_cap: true, gas_cap_ratio_m: M_TRUTH });
+    expect(capWarnings(sized).length).toBe(0);
+    // Declared correctly, the engine recovers the truth it was generated from.
+    expectClose(sized.estimated_ooip_stb, N_TRUTH, 1e-9);
+    // Left to default, the same history reads as a materially different field.
+    const flagged = run({ has_gas_cap: true });
+    expect(Math.abs(flagged.estimated_ooip_stb - N_TRUTH) / N_TRUTH).toBeGreaterThan(0.05);
+  });
+
+  it('M-3: a case with no gas cap flag is silent', () => {
+    expect(capWarnings(run({ has_gas_cap: false })).length).toBe(0);
+  });
+});
+
+// ============================================================================
+// GATE 10 — a lab table printed descending is still lab data (2026-09-11)
+// ============================================================================
+// interpolateLabTable brackets on table[0] and table[length-1], so a table
+// entered in the order lab reports print it (pressure descending) put every
+// lookup "outside range": the entire table was silently discarded and the run
+// fell back to correlations, while validateLabTable emitted one "not sorted
+// ascending" warning per row describing the ordering rather than the loss.
+// Row order carries no information in a pressure-keyed lookup, so the engine
+// now sorts it.
+describe('GATE 10: PVT lab table supplied in descending pressure order', () => {
+  const ascendingTable = [
+    { pressure_psia: 2600, z_factor: 0.885, bw_rb_stb: 1.031 },
+    { pressure_psia: 2700, z_factor: 0.878, bw_rb_stb: 1.030 },
+    { pressure_psia: 2800, z_factor: 0.872, bw_rb_stb: 1.029 },
+    { pressure_psia: 2900, z_factor: 0.867, bw_rb_stb: 1.028 },
+    { pressure_psia: 3000, z_factor: 0.863, bw_rb_stb: 1.027 },
+  ];
+  const gasCase = (pvt_lab_table: any) => {
+    const pressures = [3000, 2900, 2800, 2700, 2600];
+    return {
+      fluid_system: 'gas', initial_pressure_psia: 3000,
+      reservoir_temperature_f: 180, initial_water_saturation: 0.25,
+      formation_compressibility_psi: 4e-6, water_compressibility_psi: 3e-6,
+      gas_specific_gravity: 0.65, aquifer_model: 'none', has_aquifer: false,
+      pvt_source: 'lab_table', pvt_lab_table,
+      production_data: pressures.map((p, i) => ({
+        timestep_index: i, pressure_psia: p,
+        cum_gas_scf: i * 2.0e9, cum_oil_stb: 0, cum_water_stb: 0,
+      })),
+    } as any;
+  };
+  const reordered = (r: any) =>
+    (r.warnings ?? []).filter((w: string) => w.includes('out of ascending pressure order'));
+  const notSorted = (r: any) =>
+    (r.warnings ?? []).filter((w: string) => w.includes('not sorted ascending'));
+
+  it('L-1: descending and ascending give the same answer', () => {
+    const asc: any = computeMaterialBalance(gasCase(ascendingTable));
+    const desc: any = computeMaterialBalance(gasCase([...ascendingTable].reverse()));
+    expect(desc.estimated_ogip_scf).toBeCloseTo(asc.estimated_ogip_scf, 6);
+    expect(desc.r_squared).toBeCloseTo(asc.r_squared, 9);
+  });
+
+  it('L-1b: and that answer is the lab table being used, not correlations', () => {
+    // Without this check L-1 would pass just as well if BOTH runs discarded the
+    // table. The lab z-factors differ from the Hall-Yarborough values, so a run
+    // that reads them cannot agree with a run that has no table at all.
+    const withTable: any = computeMaterialBalance(gasCase([...ascendingTable].reverse()));
+    const noTable: any = computeMaterialBalance({ ...gasCase(undefined), pvt_source: 'correlated' });
+    expect(Math.abs(withTable.estimated_ogip_scf - noTable.estimated_ogip_scf))
+      .toBeGreaterThan(1e-6 * Math.abs(noTable.estimated_ogip_scf));
+  });
+
+  it('L-2: the reordering is stated once, and not as a per-row complaint', () => {
+    const desc: any = computeMaterialBalance(gasCase([...ascendingTable].reverse()));
+    expect(reordered(desc).length).toBe(1);
+    expect(notSorted(desc).length).toBe(0);
+  });
+
+  it('L-3: an already-ascending table is left alone silently', () => {
+    const asc: any = computeMaterialBalance(gasCase(ascendingTable));
+    expect(reordered(asc).length).toBe(0);
+    expect(notSorted(asc).length).toBe(0);
+  });
+
+  it('L-4: duplicate pressures survive sorting and are still reported', () => {
+    const dupes = [...ascendingTable, { pressure_psia: 2800, z_factor: 0.9, bw_rb_stb: 1.03 }];
+    const res: any = computeMaterialBalance(gasCase(dupes));
+    expect(notSorted(res).length).toBeGreaterThan(0);
   });
 });

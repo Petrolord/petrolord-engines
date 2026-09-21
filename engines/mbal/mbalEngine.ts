@@ -150,8 +150,10 @@ export interface MBALInputs {
   //   2. Lab table interpolation at the row's pressure — if pvt_lab_table is provided
   //   3. Correlation fallback (Standing/HY/McCain/etc) — least specific
   //
-  // The table must be sorted by pressure ascending. Pressures outside the
-  // table's range fall through to correlation (and emit a warning).
+  // Rows may be given in any pressure order: computeMaterialBalance sorts the
+  // table ascending (lab reports usually print it descending) and notes that it
+  // did. Pressures outside the table's range fall through to correlation (and
+  // emit a warning).
   pvt_lab_table?: PvtLabTableRow[];
 
   // Solver
@@ -339,7 +341,8 @@ import {
  * Find the lab-table rows bracketing a given pressure and linearly interpolate
  * the requested field.
  *
- * @param table sorted lab table (ascending by pressure_psia)
+ * @param table lab table, ascending by pressure_psia (normalizeLabTable
+ *        guarantees this for anything arriving through computeMaterialBalance)
  * @param p target pressure
  * @param field which PvtLabTableRow numeric field to interpolate
  * @returns interpolated value, or null if p is outside table range or the
@@ -473,11 +476,17 @@ function linearRegression(x: number[], y: number[]): RegressionResult {
  */
 export function computeMaterialBalance(inputs: MBALInputs): MBALResult {
   validateInputs(inputs);
-  if (inputs.fluid_system === 'gas') {
-    return computeGasMBE(inputs);
-  } else {
-    return computeOilMBE(inputs);
-  }
+  // A lab table entered in the order the lab printed it (pressure descending)
+  // is a lookup table in the wrong order, not bad data. Sort it here, once, so
+  // every interpolation site downstream sees the ascending table it assumes.
+  const lab = normalizeLabTable(inputs.pvt_lab_table);
+  const prepared = lab.notes.length ? { ...inputs, pvt_lab_table: lab.table } : inputs;
+  const result = prepared.fluid_system === 'gas'
+    ? computeGasMBE(prepared)
+    : computeOilMBE(prepared);
+  return lab.notes.length
+    ? { ...result, warnings: [...lab.notes, ...(result.warnings ?? [])] }
+    : result;
 }
 
 // ============================================================================
@@ -650,7 +659,10 @@ export function computeCarterTracyWe(
   const h_aq = params.aquifer_thickness_ft;
   const phi_aq = params.aquifer_porosity;
   const theta = params.theta_degrees ?? 360;
-  const radius_ratio = params.radius_ratio ?? Infinity; // ignored — we use infinite-aquifer pD
+  // radius_ratio (reD = ra/rR) IS read: pD() below branches on it, blending the
+  // infinite-acting solution into pseudo-steady state at tD_pss = 0.4·reD².
+  // Left unset it defaults to Infinity, which is the infinite-aquifer case.
+  const radius_ratio = params.radius_ratio ?? Infinity;
   const ct = params.aquifer_total_compressibility_psi
     ?? (inputs.water_compressibility_psi + inputs.formation_compressibility_psi);
   const pi_psia = inputs.initial_pressure_psia;
@@ -1136,6 +1148,187 @@ function physicalSanityWarnings(
   return out;
 }
 
+/**
+ * Every key the engine reads out of `MBALInputs.aquifer_params`.
+ *
+ * This list is the contract. It is asserted against the declared interface by
+ * GATE 8 A-5, so adding a field to the interface without adding it here fails
+ * the build rather than turning a real parameter into an "unknown key" warning.
+ */
+export const AQUIFER_PARAM_KEYS = [
+  'initial_aquifer_water_in_place_rb',
+  'aquifer_pi_rb_d_psi',
+  'aquifer_total_compressibility_psi',
+  'radius_ratio',
+  'aquifer_thickness_ft',
+  'aquifer_porosity',
+  'aquifer_permeability_md',
+  'theta_degrees',
+  'aquifer_radius_ft',
+  'aquifer_water_viscosity_cp',
+  'reservoir_area_acres',
+  'water_salinity_ppm',
+] as const;
+
+/**
+ * Plausible names for a real parameter, mapped to the key the engine reads.
+ *
+ * Every entry here is a name a caller could reasonably expect to work: the
+ * full-word spelling (`aquifer_encroachment_angle_deg`), the unit-less
+ * spelling (`aquifer_thickness`), or the symbol the literature uses (`reD`,
+ * `W`, `J`). Getting one of these back as "unknown key, did you mean X" is the
+ * difference between a two-second fix and the silent default that produced
+ * OOIP = -46.9 MMSTB.
+ */
+const AQUIFER_PARAM_ALIASES: Record<string, string> = {
+  aquifer_encroachment_angle_deg: 'theta_degrees',
+  encroachment_angle_deg: 'theta_degrees',
+  encroachment_angle: 'theta_degrees',
+  theta_deg: 'theta_degrees',
+  theta: 'theta_degrees',
+  aquifer_angle_degrees: 'theta_degrees',
+  aquifer_thickness: 'aquifer_thickness_ft',
+  h: 'aquifer_thickness_ft',
+  aquifer_radius: 'aquifer_radius_ft',
+  reservoir_radius_ft: 'aquifer_radius_ft',
+  r_r: 'aquifer_radius_ft',
+  rr: 'aquifer_radius_ft',
+  aquifer_permeability: 'aquifer_permeability_md',
+  k: 'aquifer_permeability_md',
+  aquifer_water_viscosity: 'aquifer_water_viscosity_cp',
+  mu_w: 'aquifer_water_viscosity_cp',
+  muw: 'aquifer_water_viscosity_cp',
+  aquifer_compressibility_psi: 'aquifer_total_compressibility_psi',
+  aquifer_ct_psi: 'aquifer_total_compressibility_psi',
+  ct: 'aquifer_total_compressibility_psi',
+  aquifer_w_rb: 'initial_aquifer_water_in_place_rb',
+  aquifer_wei_rb: 'initial_aquifer_water_in_place_rb',
+  initial_aquifer_water_rb: 'initial_aquifer_water_in_place_rb',
+  w: 'initial_aquifer_water_in_place_rb',
+  wei: 'initial_aquifer_water_in_place_rb',
+  aquifer_j_rb_d_psi: 'aquifer_pi_rb_d_psi',
+  aquifer_productivity_index: 'aquifer_pi_rb_d_psi',
+  j: 'aquifer_pi_rb_d_psi',
+  re_rr: 'radius_ratio',
+  red: 'radius_ratio',
+  aquifer_radius_ratio: 'radius_ratio',
+  area_acres: 'reservoir_area_acres',
+  reservoir_area: 'reservoir_area_acres',
+  salinity_ppm: 'water_salinity_ppm',
+  aquifer_salinity_ppm: 'water_salinity_ppm',
+};
+
+/**
+ * Warn about `aquifer_params` keys the engine will not read.
+ *
+ * The engine picks named fields out of `aquifer_params` and silently defaults
+ * anything absent. A misspelt or differently-named key therefore used to be
+ * indistinguishable from not supplying it at all: passing
+ * `aquifer_encroachment_angle_deg` instead of `theta_degrees` left theta at its
+ * 360-degree default and returned OOIP = -46.9 MMSTB, caught only because the
+ * physical-sanity guard fired. This is the same class of defect as the dead
+ * `solver_method` input (a parameter the caller believes in and the engine
+ * ignores), and it is fixed the same way: say it out loud.
+ *
+ * A warning rather than a throw, deliberately. Stored cases predate this check,
+ * the run is still arithmetically valid, and the result carries the warnings
+ * array to the studio. What must never happen again is silence.
+ */
+function aquiferParamWarnings(
+  params: Record<string, unknown> | undefined,
+  aquiferModel: AquiferModel,
+): string[] {
+  if (aquiferModel === 'none' || params == null || typeof params !== 'object') return [];
+  const known = new Set<string>(AQUIFER_PARAM_KEYS);
+  const out: string[] = [];
+  for (const key of Object.keys(params)) {
+    if (known.has(key)) continue;
+    if (params[key] == null) continue; // an explicit null is "not supplied", not a typo
+    const suggestion = AQUIFER_PARAM_ALIASES[key.toLowerCase()];
+    out.push(
+      suggestion
+        ? `aquifer_params.${key} is not a parameter this engine reads; did you mean ` +
+          `"${suggestion}"? The value was IGNORED and "${suggestion}" kept its default, ` +
+          `which silently changes the answer rather than failing.`
+        : `aquifer_params.${key} is not a parameter this engine reads, so the value was ` +
+          `IGNORED. Accepted keys: ${AQUIFER_PARAM_KEYS.join(', ')}.`,
+    );
+  }
+  return out;
+}
+
+/**
+ * Warn when a case declares a gas cap but never says how big it is.
+ *
+ * `gas_cap_ratio_m` defaults to 0, and m = 0 is not "a small gas cap", it is
+ * the undersaturated MBE: the m*Eg term vanishes and the gas-cap expansion
+ * drive disappears from both the in-place estimate and the drive indices. A
+ * case created as "oil with gas cap" that never got an m therefore runs as a
+ * depletion case while the UI still calls it a gas-cap case. Same failure shape
+ * as the aquifer keys above: the input is absent, the default is silently
+ * wrong, and nothing says so.
+ */
+function gasCapWarnings(inputs: MBALInputs): string[] {
+  if (inputs.fluid_system === 'gas') return [];
+  if (!inputs.has_gas_cap) return [];
+  const m = inputs.gas_cap_ratio_m;
+  if (m != null && isFinite(m) && m > 0) return [];
+  return [
+    `This case is flagged as having a gas cap but gas_cap_ratio_m is ` +
+    `${m == null ? 'not set' : String(m)}, so the run used m = 0. That is not a small gas ` +
+    `cap, it is the undersaturated material balance: the m·Eg expansion term drops out ` +
+    `entirely, GDI is 0, and the OOIP is the no-gas-cap answer. Set the gas cap ratio in ` +
+    `the PVT & Rock tab, or fit it with a history match, or clear the gas cap flag on the ` +
+    `case.`,
+  ];
+}
+
+/**
+ * Put a PVT lab table into the ascending order `interpolateLabTable` requires.
+ *
+ * Lab reports are routinely printed with pressure descending from the initial
+ * or saturation pressure, and a table entered in that order used to be worse
+ * than useless: `interpolateLabTable` brackets on `table[0]` and
+ * `table[length-1]`, so with a descending table every lookup fell outside
+ * "range" and returned null, silently dropping the whole run back to
+ * correlations while `validateLabTable` printed one "not sorted ascending"
+ * warning per row. The user's lab data was discarded and the message described
+ * the ordering rather than the consequence.
+ *
+ * Sorting is the whole fix: the rows are a pressure-keyed lookup, so their
+ * order carries no information. Genuine structural problems (duplicate
+ * pressures, non-positive pressures, too few rows) survive sorting and are
+ * still reported by `validateLabTable`.
+ *
+ * @returns the table in ascending pressure order plus any note to surface.
+ */
+function normalizeLabTable(
+  table: PvtLabTableRow[] | undefined,
+): { table: PvtLabTableRow[] | undefined; notes: string[] } {
+  if (!table || table.length < 2) return { table, notes: [] };
+  let ascending = true;
+  for (let i = 1; i < table.length; i++) {
+    if (table[i].pressure_psia <= table[i - 1].pressure_psia) { ascending = false; break; }
+  }
+  if (ascending) return { table, notes: [] };
+  const sorted = [...table].sort((a, b) => a.pressure_psia - b.pressure_psia);
+  const strictlyAscending = sorted.every(
+    (row, i) => i === 0 || row.pressure_psia > sorted[i - 1].pressure_psia,
+  );
+  return {
+    table: sorted,
+    notes: [
+      `PVT lab table was supplied out of ascending pressure order and has been sorted ` +
+      `ascending for interpolation (${table.length} rows, ` +
+      `${sorted[0].pressure_psia} to ${sorted[sorted.length - 1].pressure_psia} psia). ` +
+      `Row order carries no information, so this does not change any interpolated value.` +
+      (strictlyAscending
+        ? ''
+        : ` Duplicate pressures remain and are reported separately.`),
+    ],
+  };
+}
+
 export function computeGasPerTimestep(inputs: MBALInputs): {
   per_timestep: PerTimestepResult[];
   meta: {
@@ -1294,7 +1487,15 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
   // For 'none' and 'pot', the regression has W (or no W) entangled with the
   // intercept/slope. For 'fetkovich' and 'carter_tracy', We[n] is computed
   // directly from user-supplied aquifer parameters via the marching scheme,
-  // and the regression then becomes a simple (F - We) vs Et through origin.
+  // and the MBE then puts (F - We) vs Et on a line through the origin.
+  //
+  // THE THEORY PUTS THE LINE THROUGH THE ORIGIN; THE FIT DOES NOT CONSTRAIN IT.
+  // Every regression here is linearRegression(), ordinary least squares with a
+  // FREE intercept. That is deliberate: a fitted intercept that comes out well
+  // away from zero is evidence the model is wrong (unmodelled aquifer support,
+  // a bad initial pressure, a different early flow regime), and forcing it to
+  // zero would hide exactly that. Read the reported intercept as a measurement,
+  // not as a definitional zero.
   // ==========================================================================
   const aquiferModel: AquiferModel = inputs.aquifer_model ?? 'none';
   const excluded = new Set(inputs.excluded_timesteps ?? []);
@@ -1343,7 +1544,8 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
     for (let i = 0; i < per_timestep.length; i++) {
       per_timestep[i].We_rb = We_array[i];
     }
-    // Now regress (F - We) vs Et through origin: slope = G
+    // Now regress (F - We) against Et: theory says the line passes through the
+    // origin with slope = G, but the fit leaves the intercept free (see above).
     const regression_x: number[] = [];
     const regression_y: number[] = [];
     for (let i = 0; i < per_timestep.length; i++) {
@@ -1358,12 +1560,12 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
       throw new Error(`${aquiferModel} regression needs at least 2 valid timesteps after excluding the initial timestep and user-excluded points. Only ${regression_x.length} remained.`);
     }
     reg = linearRegression(regression_x, regression_y);
-    G_scf = reg.slope; // through origin: F-We = G·Et
+    G_scf = reg.slope; // F - We = G·Et, so the slope is the OGIP
     // Report the user-supplied W (not derived from slope)
     W_rb = inputs.aquifer_params?.initial_aquifer_water_in_place_rb ?? 0;
 
   } else {
-    // ─── No aquifer: F = G·Et regression through origin ───
+    // ─── No aquifer: F = G·Et, a line through the origin in theory ───
     const regression_x: number[] = [];
     const regression_y: number[] = [];
     for (const r of per_timestep) {
@@ -1444,6 +1646,7 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
   warnings.push(...physicalSanityWarnings('gas', G_scf, 'scf', aquiferModel, W_rb));
   const solver_method_used = resolveSolverMethod('gas', aquiferModel);
   warnings.push(...solverMethodWarnings(inputs.solver_method, solver_method_used));
+  warnings.push(...aquiferParamWarnings(inputs.aquifer_params, aquiferModel));
 
   // Capsule 4C: correlation-validity warnings. Tpr is the most-likely-violated
   // range for gas correlations; we report it at the reservoir temperature.
@@ -1513,7 +1716,9 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
  *     Efw = Bti·(1+m) · Swi·(cw+cf)/(1-Swi) · (pi - p)
  * 
  * Solve: F/Et = N + We/Et
- *   - No aquifer: F vs Et is a straight line through origin, slope = N (OOIP)
+ *   - No aquifer: F vs Et is a straight line through the origin in theory,
+ *     slope = N (OOIP). The fit does not impose the origin: it is OLS with a
+ *     free intercept, so a large fitted intercept is evidence against the model.
  *   - With aquifer: F/Et vs We/Et linear with intercept N and slope=1
  */
 /**
@@ -1779,8 +1984,10 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
   //   (See oil pot branch below — uses F/Eo, not F/Et, per Pletcher derivation)
   //
   // Fetkovich, Carter-Tracy: We[n] computed from user-supplied parameters via
-  //                          marching scheme. Then regress (F - We) vs Et
-  //                          through origin → slope = N.
+  //                          marching scheme. Then regress (F - We) against Et,
+  //                          a line through the origin in theory → slope = N.
+  //                          As on the gas side, the fit keeps a free intercept
+  //                          so that a non-zero one stays visible as evidence.
   // ==========================================================================
   const aquiferModel = inputs.aquifer_model ?? 'none';
 
@@ -1844,7 +2051,8 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
     for (let i = 0; i < per_timestep.length; i++) {
       per_timestep[i].We_rb = We_array[i];
     }
-    // Regress (F - We) vs Et through origin: slope = N
+    // Regress (F - We) against Et: through the origin in theory, slope = N,
+    // fitted with a free intercept so a departure from the origin shows up.
     const regression_x: number[] = [];
     const regression_y: number[] = [];
     for (let i = 0; i < per_timestep.length; i++) {
@@ -1861,12 +2069,12 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
       );
     }
     reg = linearRegression(regression_x, regression_y);
-    N_stb = reg.slope; // through origin: F-We = N·Et
+    N_stb = reg.slope; // F - We = N·Et, so the slope is the OOIP
     // Report the user-supplied W (not derived from slope)
     W_rb = inputs.aquifer_params?.initial_aquifer_water_in_place_rb ?? null;
 
   } else {
-    // ─── No aquifer: F = N·Et (line through origin) ───
+    // ─── No aquifer: F = N·Et, a line through the origin in theory ───
     const regression_x: number[] = [];
     const regression_y: number[] = [];
     for (const r of per_timestep) {
@@ -1979,6 +2187,8 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
   warnings.push(...physicalSanityWarnings('oil', N_stb, 'STB', aquiferModel, W_rb));
   const solver_method_used = resolveSolverMethod(inputs.fluid_system ?? 'oil', aquiferModel);
   warnings.push(...solverMethodWarnings(inputs.solver_method, solver_method_used));
+  warnings.push(...aquiferParamWarnings(inputs.aquifer_params, aquiferModel));
+  warnings.push(...gasCapWarnings(inputs));
 
   // Capsule 4C: correlation-validity warnings for oil-side correlations.
   // For oil cases, Tpr/Ppr only matter when there's a gas cap or below-Pb path.
