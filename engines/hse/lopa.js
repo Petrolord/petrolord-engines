@@ -551,7 +551,7 @@ export const maxProofTestInterval = (params = {}, targetPfdAvg) => {
   const floor = at(0);
   if (!isNum(floor) || floor >= 1) {
     const field = probe.lDD > 0 ? 'lambdaDdPerHour' : (probe.ptc < 1 ? 'lifetimeHours' : 'mrtHours');
-    return refuse(field, `the simplified equations give a floor of ${Number(floor.toPrecision(6))} here, before any proof test interval is added. A PFDavg of 1 or more lies outside the rare-event range they assume; use an exact (Markov) model`);
+    return refuse(field, `the simplified equations give a floor of ${isNum(floor) ? Number(floor.toPrecision(6)) : String(floor)} here, before any proof test interval is added. A PFDavg of 1 or more lies outside the rare-event range they assume; use an exact (Markov) model`);
   }
   if (probe.lDU === 0) return { state: 'INTERVAL_INDEPENDENT', proofTestIntervalHours: null, pfdAvg: at(1), basis };
   if (floor >= targetPfdAvg) return { state: 'UNACHIEVABLE', proofTestIntervalHours: null, floorPfdAvg: floor, basis };
