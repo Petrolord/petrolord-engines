@@ -72,7 +72,7 @@ import { normalCDF } from '../../lib/stats/stats.js';
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
-const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 
 export const G_M_S2 = 9.80665;

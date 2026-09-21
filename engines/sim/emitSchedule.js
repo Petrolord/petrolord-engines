@@ -10,7 +10,7 @@ const PHASE_OF = { producer: 'OIL', water_injector: 'WATER', gas_injector: 'GAS'
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
-const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 function checkWell(w) {
   if (!w.name || !/^[A-Za-z0-9_-]{1,8}$/.test(w.name)) {

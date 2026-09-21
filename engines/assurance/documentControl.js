@@ -25,6 +25,11 @@ import {
   toDateOnlyString,
 } from './calendar.js';
 
+/** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
+ *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
+ *  are "found" in every object literal and walk through a falsy guard. */
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
+
 export { daysUntil, parseDateOnly, toDateOnlyString };
 
 /** Lifecycle of a controlled document. Order is the workflow order. */
@@ -136,7 +141,7 @@ export const summarise = (documents = [], today = new Date()) => {
   let overdue = 0;
   let dueSoon = 0;
   documents.forEach((d) => {
-    if (byStatus[d.status] !== undefined) byStatus[d.status] += 1;
+    if (ownPreset(byStatus, d.status)) byStatus[d.status] += 1;
     const state = reviewState(d, today);
     if (state === REVIEW.OVERDUE) overdue += 1;
     if (state === REVIEW.DUE_SOON) dueSoon += 1;

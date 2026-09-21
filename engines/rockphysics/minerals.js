@@ -2,7 +2,7 @@
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
-const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 // Mineral moduli + Voigt-Reuss-Hill mixing (Rock Physics Studio G6.1).
 // Default moduli from the Rock Physics Handbook (Mavko, Mukerji &

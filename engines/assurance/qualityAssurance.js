@@ -53,7 +53,7 @@ import {
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
-const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 
 export { daysUntil, parseDateOnly, toDateOnlyString };
@@ -572,7 +572,7 @@ export const summarise = (
 ) => {
   const byPlanStatus = Object.fromEntries(PLAN_STATUSES.map((s) => [s, 0]));
   plans.forEach((p) => {
-    if (byPlanStatus[p.status] !== undefined) byPlanStatus[p.status] += 1;
+    if (ownPreset(byPlanStatus, p.status)) byPlanStatus[p.status] += 1;
   });
 
   // AS14: work is only outstanding while somebody can still do it. A
@@ -591,8 +591,8 @@ export const summarise = (
   const bySeverity = Object.fromEntries(NCR_SEVERITIES.map((s) => [s, 0]));
   const openBySeverity = Object.fromEntries(NCR_SEVERITIES.map((s) => [s, 0]));
   ncrs.forEach((n) => {
-    if (bySeverity[n.severity] !== undefined) bySeverity[n.severity] += 1;
-    if (isNcrOpen(n) && openBySeverity[n.severity] !== undefined) openBySeverity[n.severity] += 1;
+    if (ownPreset(bySeverity, n.severity)) bySeverity[n.severity] += 1;
+    if (isNcrOpen(n) && ownPreset(openBySeverity, n.severity)) openBySeverity[n.severity] += 1;
   });
 
   const openNcrs = ncrs.filter(isNcrOpen);
@@ -658,7 +658,7 @@ export const ncrAgeing = (ncrs = [], today = new Date()) => {
     open.forEach((n) => {
       const days = ncrAgeDays(n, today);
       if (days === null) return;
-      if (days >= band.min && days <= band.max && row[n.severity] !== undefined) {
+      if (days >= band.min && days <= band.max && NCR_SEVERITIES.includes(n.severity)) {
         row[n.severity] += 1;
       }
     });

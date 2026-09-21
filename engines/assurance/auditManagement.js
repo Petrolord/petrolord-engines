@@ -75,7 +75,7 @@ import {
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
-const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 
 /* ------------------------------------------------------------------ */
@@ -512,14 +512,14 @@ export const summarise = (
 ) => {
   const byAuditStatus = Object.fromEntries(AUDIT_STATUSES.map((s) => [s, 0]));
   audits.forEach((a) => {
-    if (byAuditStatus[a.status] !== undefined) byAuditStatus[a.status] += 1;
+    if (ownPreset(byAuditStatus, a.status)) byAuditStatus[a.status] += 1;
   });
 
   const byFindingType = Object.fromEntries(FINDING_TYPES.map((t) => [t, 0]));
   const openByFindingType = Object.fromEntries(FINDING_TYPES.map((t) => [t, 0]));
   findings.forEach((f) => {
-    if (byFindingType[f.finding_type] !== undefined) byFindingType[f.finding_type] += 1;
-    if (isFindingOpen(f) && openByFindingType[f.finding_type] !== undefined) {
+    if (ownPreset(byFindingType, f.finding_type)) byFindingType[f.finding_type] += 1;
+    if (isFindingOpen(f) && ownPreset(openByFindingType, f.finding_type)) {
       openByFindingType[f.finding_type] += 1;
     }
   });

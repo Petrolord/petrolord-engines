@@ -36,7 +36,7 @@ import {
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
-const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 
 export { daysUntil, parseDateOnly, toDateOnlyString };
@@ -408,8 +408,8 @@ export const summarise = (records = [], { actions = [], approvals = [] } = {}, t
   const byStage = Object.fromEntries(STAGES.map((s) => [s, 0]));
   const byRisk = Object.fromEntries(RISK_LEVELS.map((r) => [r, 0]));
   records.forEach((m) => {
-    if (byStage[m.stage] !== undefined) byStage[m.stage] += 1;
-    if (byRisk[m.risk_level] !== undefined) byRisk[m.risk_level] += 1;
+    if (ownPreset(byStage, m.stage)) byStage[m.stage] += 1;
+    if (ownPreset(byRisk, m.risk_level)) byRisk[m.risk_level] += 1;
   });
 
   return {

@@ -28,7 +28,7 @@ import {
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
  *  are "found" in every object literal and walk through a falsy guard. */
-const ownPreset = (table, key) => typeof key === 'string' && Object.prototype.hasOwnProperty.call(table, key);
+const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 
 export { daysUntil, parseDateOnly, toDateOnlyString };
@@ -292,14 +292,14 @@ export const summarise = (reviews = [], comments = [], today = new Date()) => {
 
   const byStage = Object.fromEntries(STAGES.map((s) => [s, 0]));
   reviews.forEach((r) => {
-    if (byStage[r.stage] !== undefined) byStage[r.stage] += 1;
+    if (ownPreset(byStage, r.stage)) byStage[r.stage] += 1;
   });
 
   const bySeverity = Object.fromEntries(SEVERITIES.map((s) => [s, 0]));
   const byStatus = Object.fromEntries(COMMENT_STATUSES.map((s) => [s, 0]));
   comments.forEach((c) => {
-    if (bySeverity[c.severity] !== undefined) bySeverity[c.severity] += 1;
-    if (byStatus[c.status] !== undefined) byStatus[c.status] += 1;
+    if (ownPreset(bySeverity, c.severity)) bySeverity[c.severity] += 1;
+    if (ownPreset(byStatus, c.status)) byStatus[c.status] += 1;
   });
 
   return {
