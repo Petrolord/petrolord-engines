@@ -35,6 +35,20 @@ import {
   PSI_PER_FT_WATER,
 } from '../../engines/scal/scal.js';
 import { computeVRRSeries, summarizeVRR } from '../../engines/waterflood/vrr.js';
+import {
+  buildFieldPeriods,
+  validateAllocation,
+  allocateInjection,
+  buildPatternPeriods,
+  computeRollingVRR,
+  findFillUp,
+  attachPressure,
+  interpolateFvfTrack,
+  recommendPatternInjection,
+} from '../../engines/waterflood/vrrLedger.js';
+import { analyzeWaterflood } from '../../engines/waterflood/waterflood.js';
+import { analyzeLayeredSweep, inverseNormal } from '../../engines/waterflood/layeredSweep.js';
+import { forecastPattern } from '../../engines/waterflood/patternForecast.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = path.join(__dirname, '..', '..', 'test-data', 'ekene-dynamic');
@@ -208,6 +222,76 @@ const FLOOD_DESIGN = {
     'Ekene-4': (dateStr) => (dateStr >= '2025-01-01' ? 0.35 : 0.5),
   },
   refPressure_psia: 2050, // flowing-reservoir proxy behind the whp model
+};
+
+// ============================================================================
+// 5b. Flood-design design constants (RC4): layers, patterns, allocation,
+//     pressure surveillance. Everything downstream is derived from these.
+// ============================================================================
+
+// The Ekene sand as five non-communicating layers. Permeabilities are PLANTED
+// on an exact log-normal so the engine's Dykstra-Parsons fit recovers the
+// design back: k_i = k50 * exp(-sigma * z_i) with z_i the standard-normal
+// quantile of the (i + 0.5)/n plotting position the engine itself uses. With
+// sigma = ln 2 the recovered permeability variation is V = 1 - exp(-sigma)
+// = 0.5 EXACTLY. k50 = 250 md is the RC3 reservoir permeability, so the
+// capillary and the sweep halves of the course describe the same rock.
+//
+// Thicknesses are given in DEPTH order (top to base) and the permeability
+// order is deliberately NOT the depth order: the fastest layer sits in the
+// middle of the column. normalizeLayers reorders by k, and a reader who
+// assumes the top layer floods first is wrong.
+const LAYER_DESIGN = {
+  k50_md: 250,
+  sigma: Math.log(2),
+  n: 5,
+  // depth order (top -> base): thickness in ft, and which quantile rank
+  // (0 = fastest) that layer draws its permeability from.
+  column: [
+    { name: 'L1', h_ft: 18, rank: 3 },
+    { name: 'L2', h_ft: 22, rank: 0 },
+    { name: 'L3', h_ft: 16, rank: 2 },
+    { name: 'L4', h_ft: 14, rank: 4 },
+    { name: 'L5', h_ft: 14, rank: 1 },
+  ],
+};
+
+// Injector -> producer allocation factors. Operator judgement (inverse
+// distance on the mapped well coordinates, rounded to the nearest 0.05),
+// deliberately summing to LESS than 1 on both injectors: the shortfall is
+// out-of-zone injection, a real reportable quantity the engine books rather
+// than redistributing.
+const ALLOCATION = {
+  'Ekene-2': { 'Ekene-6': 0.45, 'Ekene-1': 0.3, 'Ekene-3': 0.15 },
+  'Ekene-4': { 'Ekene-3': 0.4, 'Ekene-6': 0.35, 'Ekene-5': 0.1 },
+};
+
+// Two flood elements. Each pattern draws injection from BOTH injectors, which
+// is what allocation factors are for.
+const PATTERNS = [
+  { name: 'North (Ekene-2 element)', producers: ['Ekene-1', 'Ekene-6'] },
+  { name: 'South (Ekene-4 element)', producers: ['Ekene-3', 'Ekene-5'] },
+];
+
+// Five-spot forecast element. The flood element is HALF the mapped oil leg
+// (one element per injector); net thickness and area come from the locked NG5
+// static volumes, so the field-unit pore volume 7758*A*h*phi can be compared
+// against the exact metric one (they differ, and the difference is the lesson).
+const PATTERN_DESIGN = {
+  elementsPerField: 2,
+  iw_design_rb_d: 2000, // the FDP design injection rate per element
+  worLimit: 25,
+  maxYears: 30,
+  Sgi_case: 0.05, // the "if the flood had started below the bubble point" case
+};
+
+// Pressure surveillance. Surveys are taken on the first of the month at a
+// six-month cadence; each reading is the closed-form tank pressure at the END
+// of the PREVIOUS month, so every survey value is hand-checkable. The cadence
+// deliberately straddles the pressure trough.
+const PRESSURE_DESIGN = {
+  survey_dates: ['2023-02-01', '2023-08-01', '2024-02-01', '2024-08-01', '2025-02-01', '2025-08-01'],
+  pvt_grid: { pMin: 1800, pMax: 3400, step: 200 },
 };
 
 // ============================================================================
@@ -655,6 +739,300 @@ assertClose('month-6 instantaneous VRR vs target', vrrSeries[6].instantaneousVRR
 say(`VRR: cumulative=${vrrSummary.cumulativeVRR}, latest=${vrrSummary.latestInstantaneousVRR}, totalProducedVoidage=${vrrSummary.totalProducedVoidage} rb`);
 
 // ============================================================================
+// E. Flood design + pattern surveillance fixture (RC4)
+// ============================================================================
+//
+// Everything below is derived by RUNNING the waterflood engines on the ledger
+// built in section D. Five blocks:
+//   E1  per-well ledger rows (the vrrLedger row schema) and the invariant that
+//       they rebuild section D's field periods exactly;
+//   E2  allocation factors, pattern periods and pattern VRR;
+//   E3  the closed-form flood-era pressure track, six-monthly surveys, the
+//       PVT grid, and VRR recomputed on a pressure-tracked Bo;
+//   E4  layered sweep (Dykstra-Parsons + Stiles) on the planted layer set;
+//   E5  five-spot pattern forecasts and the daily-surveillance diagnostics
+//       (Hall, Chan, cross-correlation lags).
+
+// ---------------------------------------------------------------- E1. rows
+// The ledger schema carries monthly VOLUMES per well; the surveillance schema
+// carries daily RATES. Same flood, two shapes: converting between them is a
+// month-length multiply and nothing else.
+const ledgerRows = surveillanceRows.map((r) => {
+  const days = daysInMonthOf(r.date);
+  return {
+    date: r.date,
+    well: r.well,
+    oil_stb: r.oil_bbl * days,
+    water_stb: r.water_bbl * days,
+    gas_mscf: r.gas_mcf * days,
+    winj_stb: r.inj_bbl * days,
+    ginj_mscf: 0,
+  };
+});
+
+const rebuiltPeriods = buildFieldPeriods(ledgerRows);
+if (rebuiltPeriods.length !== ledgerPeriods.length) {
+  throw new Error(`rebuilt period count ${rebuiltPeriods.length} != ${ledgerPeriods.length}`);
+}
+let periodMaxRel = 0;
+rebuiltPeriods.forEach((p, i) => {
+  const q = ledgerPeriods[i];
+  if (p.label !== q.label) throw new Error(`period label mismatch at ${i}: ${p.label} vs ${q.label}`);
+  for (const k of ['Np', 'Wp', 'Gp', 'Wi', 'Gi']) {
+    const rel = q[k] === 0 ? Math.abs(p[k]) : Math.abs(p[k] - q[k]) / Math.abs(q[k]);
+    if (rel > periodMaxRel) periodMaxRel = rel;
+  }
+});
+if (!(periodMaxRel < 1e-12)) throw new Error(`per-well rows do not rebuild the field periods (max rel ${periodMaxRel})`);
+say(`ledger rows: ${ledgerRows.length} rows rebuild the ${ledgerPeriods.length} field periods, max rel diff ${periodMaxRel}`);
+
+// ---------------------------------------------------------- E2. allocation
+const allocValidation = validateAllocation(ALLOCATION);
+if (!allocValidation.ok) throw new Error(`allocation invalid: ${allocValidation.errors.join('; ')}`);
+const allocated = allocateInjection(ledgerRows, ALLOCATION);
+const totalWinj = ledgerRows.reduce((s, r) => s + r.winj_stb, 0);
+const allocatedSum = Object.values(allocated.perProducer).reduce((s, v) => s + v.winj_stb, 0);
+const conservationResidual = totalWinj - (allocatedSum + allocated.unallocated.winj_stb);
+if (conservationResidual !== 0) throw new Error(`allocation does not conserve exactly: residual ${conservationResidual}`);
+say(`allocation: ${totalWinj} bbl injected = ${allocatedSum} allocated + ${allocated.unallocated.winj_stb} out-of-zone (residual ${conservationResidual})`);
+
+const patternResults = PATTERNS.map((pattern) => {
+  const periods = buildPatternPeriods(ledgerRows, pattern, ALLOCATION);
+  const series = computeVRRSeries(periods, FLOOD_DESIGN.fvf);
+  const rolling = computeRollingVRR(series, 3);
+  const last = series[series.length - 1];
+  const recommendation = recommendPatternInjection(ledgerRows, pattern, ALLOCATION, FLOOD_DESIGN.fvf, {
+    targetVRR: 1.0,
+    windowPeriods: 3,
+  });
+  return {
+    name: pattern.name,
+    producers: pattern.producers,
+    periods,
+    cumulative_vrr: last.cumulativeVRR,
+    latest_instantaneous_vrr: last.instantaneousVRR,
+    rolling3_last: rolling[rolling.length - 1],
+    total_produced_voidage_rb: last.cumProd,
+    total_injected_voidage_rb: last.cumInj,
+    fill_up: findFillUp(series),
+    recommendation,
+  };
+});
+patternResults.forEach((p) => {
+  say(`pattern ${p.name}: cumVRR=${p.cumulative_vrr}, roll3=${p.rolling3_last}, fillUp=${JSON.stringify(p.fill_up)}`);
+});
+// The field is balanced while its two elements are not: that split is the
+// whole point of pattern-level surveillance.
+const northVrr = patternResults[0].cumulative_vrr;
+const southVrr = patternResults[1].cumulative_vrr;
+if (!(northVrr > 1.15 && southVrr < 0.7 && vrrSummary.cumulativeVRR > 1.0 && vrrSummary.cumulativeVRR < 1.05)) {
+  throw new Error(`pattern split lost its teaching shape: field ${vrrSummary.cumulativeVRR}, north ${northVrr}, south ${southVrr}`);
+}
+
+// ------------------------------------------------------------ E3. pressure
+// Closed-form flood-era tank pressure. The undersaturated balance with
+// injection is  Np*Bo + (Wp - Wi)*Bw = N*Boi*(co + efwSlope)*dp  with
+// Bo = Boi*(1 + co*dp), which inverts to
+//   dp = (Np + (Wp - Wi)*Bw/Boi) / (N*(co + efwSlope) - Np*co)
+// exactly as the depletion-only form in section B, with the injected volume
+// entering as a negative withdrawal. Cumulative volumes are counted from
+// PRODUCTION_START, so the flood-era track continues the depletion track with
+// no seam.
+const dpForNetWithdrawal = (Np, Wp, Wi) => {
+  const water = ((Wp - Wi) * D.bw_rb_stb) / Boi;
+  return (Np + water) / (N * (D.co_per_psi + efwSlope) - Np * D.co_per_psi);
+};
+const npAtFloodStart = fieldNpAt(FLOOD_START);
+const pAtFloodStart = D.pi_psia - dpForNetWithdrawal(npAtFloodStart, 0, 0);
+assertClose('flood-start pressure continues the depletion track', pAtFloodStart, productionData[6].pressure_psia, 1e-15);
+
+let cumNp = npAtFloodStart;
+let cumWp = 0;
+let cumWi = 0;
+const pressureTrack = ledgerPeriods.map((p) => {
+  cumNp += p.Np;
+  cumWp += p.Wp;
+  cumWi += p.Wi;
+  return {
+    label: p.label,
+    cum_np_stb: cumNp,
+    cum_wp_stb: cumWp,
+    cum_wi_bbl: cumWi,
+    p_end_psia: D.pi_psia - dpForNetWithdrawal(cumNp, cumWp, cumWi),
+  };
+});
+// Break-even VRR: while Wp is zero the net withdrawal changes sign at
+// VRR = Boi / Bo(ledger), NOT at 1.0, because the ledger freezes Bo at the
+// flood-era 2100 psia while the tank is referenced to Boi at 3200 psia.
+const breakEvenVrr = Boi / FLOOD_DESIGN.fvf.Bo;
+const troughIndex = pressureTrack.reduce((best, r, i) => (r.p_end_psia < pressureTrack[best].p_end_psia ? i : best), 0);
+const troughPeriod = pressureTrack[troughIndex];
+say(`pressure: floodStart=${pAtFloodStart}, trough=${troughPeriod.p_end_psia} psia at ${troughPeriod.label}, end=${pressureTrack[pressureTrack.length - 1].p_end_psia}, breakEvenVRR=${breakEvenVrr}`);
+if (!(troughIndex > 0 && troughIndex < 6)) throw new Error(`pressure trough moved out of the ramp window (index ${troughIndex})`);
+
+// Surveys read the END-of-previous-month track value, so every survey number
+// is a row of the track and nothing is interpolated to make the fixture.
+const trackByLabel = new Map(pressureTrack.map((r) => [r.label, r.p_end_psia]));
+const pressureSurveys = PRESSURE_DESIGN.survey_dates.map((date) => {
+  const prev = addMonths(date, -1).slice(0, 7);
+  const p = trackByLabel.get(prev);
+  if (p == null) throw new Error(`survey ${date} has no preceding track month ${prev}`);
+  return { date, p_psia: p, reads_month: prev };
+});
+
+const attached = attachPressure(ledgerPeriods, pressureSurveys);
+const attachedTroughIndex = attached.reduce(
+  (best, r, i) => (r.pressure != null && (attached[best].pressure == null || r.pressure < attached[best].pressure) ? i : best),
+  0,
+);
+const troughMissedBy = attached[attachedTroughIndex].pressure - troughPeriod.p_end_psia;
+say(`survey cadence: true trough ${troughPeriod.label}, interpolated trough ${attached[attachedTroughIndex].label}, missed by ${troughMissedBy} psi`);
+if (attached[attachedTroughIndex].label === troughPeriod.label) {
+  throw new Error('the six-monthly survey cadence was supposed to MISS the trough month');
+}
+
+// PVT grid on the fixture's own Bo line (the same line the mbal lab table
+// samples), so interpolateFvfTrack is exact and the lesson is why.
+const pvtTable = [];
+for (let p = PRESSURE_DESIGN.pvt_grid.pMin; p <= PRESSURE_DESIGN.pvt_grid.pMax; p += PRESSURE_DESIGN.pvt_grid.step) {
+  pvtTable.push({ p, Bo: boAt(p), Bw: D.bw_rb_stb, Bg: 0, Rs: D.rsi_scf_stb });
+}
+const fvfTrack = interpolateFvfTrack(pvtTable, attached.map((r) => r.pressure));
+let fvfMaxRel = 0;
+fvfTrack.forEach((f, i) => {
+  const exact = boAt(attached[i].pressure);
+  const rel = Math.abs(f.Bo - exact) / exact;
+  if (rel > fvfMaxRel) fvfMaxRel = rel;
+});
+if (!(fvfMaxRel < 1e-14)) throw new Error(`interpolated Bo is not exact on a linear Bo line (max rel ${fvfMaxRel})`);
+
+const trackedPeriods = ledgerPeriods.map((p, i) => ({ ...p, Bo: fvfTrack[i].Bo }));
+const trackedSeries = computeVRRSeries(trackedPeriods, FLOOD_DESIGN.fvf);
+const trackedCumVrr = trackedSeries[trackedSeries.length - 1].cumulativeVRR;
+const frozenCumVrr = vrrSummary.cumulativeVRR;
+say(`VRR on a pressure-tracked Bo: ${trackedCumVrr} vs frozen ${frozenCumVrr} (${((trackedCumVrr / frozenCumVrr - 1) * 100)} pct)`);
+
+// ------------------------------------------------------- E4. layered sweep
+const layerZ = (i) => inverseNormal((i + 0.5) / LAYER_DESIGN.n);
+const layerK = (rank) => LAYER_DESIGN.k50_md * Math.exp(-LAYER_DESIGN.sigma * layerZ(rank));
+const layerColumn = LAYER_DESIGN.column.map((l) => ({ name: l.name, h_ft: l.h_ft, k_md: layerK(l.rank), quantile_rank: l.rank }));
+const netPayFt = layerColumn.reduce((s, l) => s + l.h_ft, 0);
+// Stiles capacity ratio: A = (krw/muW)/(kro/muO) * (Bo/Bw) = M * Bo/Bw.
+const stilesA = (M * FLOOD_DESIGN.fvf.Bo) / FLOOD_DESIGN.fvf.Bw;
+const sweep = analyzeLayeredSweep({
+  layers: layerColumn.map((l) => ({ h: l.h_ft, k: l.k_md })),
+  M,
+  A: stilesA,
+});
+assertClose('planted permeability variation recovers V = 0.5', sweep.V.V, 0.5, 1e-15);
+assertClose('planted sigma recovers ln 2', sweep.V.sigma, Math.log(2), 1e-15);
+const EV_FIRST_BT = sweep.dykstraParsons[0].coverage;
+say(`layers: net ${netPayFt} ft, V=${sweep.V.V}, sigma=${sweep.V.sigma}, k50=${sweep.V.k50}, A=${stilesA}, EV@firstBT=${EV_FIRST_BT}, Stiles@firstBT=${sweep.stiles[0].coverage}`);
+
+// ---------------------------------------------- E5. forecasts + diagnostics
+const M2_PER_ACRE = 4046.8564224;
+const oilAreaM2 = STATIC_FIELD.oil_cells * STATIC_FIELD.cell_size_m * STATIC_FIELD.cell_size_m;
+const oilAreaAcres = oilAreaM2 / M2_PER_ACRE;
+const elementAreaAcres = oilAreaAcres / PATTERN_DESIGN.elementsPerField;
+const netThicknessFt = (STATIC_FIELD.net_m3 / oilAreaM2) * M_TO_FT;
+const pvFieldUnits = 7758 * elementAreaAcres * netThicknessFt * STATIC_FIELD.phi;
+const pvExactRb = pvBbl / PATTERN_DESIGN.elementsPerField;
+const pvUnitRelDiff = (pvFieldUnits - pvExactRb) / pvExactRb;
+// Observed injection per element, in RESERVOIR barrels per day.
+const floodDays = daysBetween(FLOOD_START, addMonths(HISTORY_END, 1));
+const totalWiBbl = ledgerPeriods.reduce((s, p) => s + p.Wi, 0);
+const iwObservedRbD = (totalWiBbl * FLOOD_DESIGN.fvf.Bw) / floodDays / PATTERN_DESIGN.elementsPerField;
+say(`pattern element: ${elementAreaAcres} acres x ${netThicknessFt} ft, PV(7758)=${pvFieldUnits} rb vs exact ${pvExactRb} rb (${pvUnitRelDiff}), iw observed ${iwObservedRbD} rb/d over ${floodDays} d`);
+
+const displacementSpec = { krSpec: SCAL_DESIGN.krSpec, muW: SCAL_DESIGN.muW_cp, muO: SCAL_DESIGN.muO_cp };
+const basePattern = {
+  area_acres: elementAreaAcres,
+  h_ft: netThicknessFt,
+  phi: STATIC_FIELD.phi,
+  Bo: FLOOD_DESIGN.fvf.Bo,
+  Bw: FLOOD_DESIGN.fvf.Bw,
+  Sgi: 0,
+  EV: 1,
+  worLimit: PATTERN_DESIGN.worLimit,
+  maxYears: PATTERN_DESIGN.maxYears,
+};
+const forecastCases = {
+  observed: { ...basePattern, iw_bpd: iwObservedRbD },
+  design: { ...basePattern, iw_bpd: PATTERN_DESIGN.iw_design_rb_d, EV: EV_FIRST_BT },
+  fillup: { ...basePattern, iw_bpd: PATTERN_DESIGN.iw_design_rb_d, EV: EV_FIRST_BT, Sgi: PATTERN_DESIGN.Sgi_case },
+};
+const forecasts = {};
+for (const [name, pat] of Object.entries(forecastCases)) {
+  const r = forecastPattern({ displacementSpec, pattern: pat });
+  forecasts[name] = { inputs: pat, summary: r.summary, breakthrough: r.breakthrough, steps: r.series.length, warnings: r.warnings };
+  say(`forecast ${name}: BT=${r.summary.breakthrough_days} d, Np=${r.summary.Np_stb} stb, RF=${r.summary.recoveryFactorOfFloodedOOIP}, stopped=${r.summary.stopped}`);
+}
+if (forecasts.observed.summary.breakthrough_days !== null) {
+  throw new Error('the observed-rate element was supposed to stay pre-breakthrough over the whole horizon');
+}
+if (!(forecasts.design.summary.breakthrough_days > 0)) throw new Error('the design case must break through');
+
+// The observed breakthrough at Ekene-6 (2024-03-01) against the pattern
+// arithmetic: the swept pore volume implied by that date is a small fraction
+// of the element, which is what "channeling" means quantitatively.
+const e6BtDate = PRODUCERS.find((w) => w.name === 'Ekene-6').flood.btDate;
+const e6BtDays = daysBetween(FLOOD_START, e6BtDate);
+const e6AllocatedBbl = ledgerRows
+  .filter((r) => r.date < e6BtDate && r.winj_stb > 0)
+  .reduce((s, r) => {
+    const frac = ALLOCATION[r.well]?.['Ekene-6'] ?? 0;
+    return s + r.winj_stb * frac;
+  }, 0);
+const e6EAbt = forecasts.design.summary.EAbt;
+const impliedSweptPvRb = (e6AllocatedBbl * FLOOD_DESIGN.fvf.Bw) / (displacement.bl.QiBt * e6EAbt);
+const impliedSweptFraction = impliedSweptPvRb / pvExactRb;
+say(`Ekene-6 breakthrough ${e6BtDate} (${e6BtDays} d): ${e6AllocatedBbl} bbl allocated -> implied swept PV ${impliedSweptPvRb} rb = ${impliedSweptFraction} of the element`);
+
+// Daily-surveillance diagnostics. NOTE the config key case: this engine reads
+// lowercase bo/bw/bg/rs; the capitalised ledger shape silently defaults to
+// Bo = 1 and inflates VRR. Both runs are recorded so the course can show it.
+const surveillanceConfig = { bo: FLOOD_DESIGN.fvf.Bo, bw: FLOOD_DESIGN.fvf.Bw, bg: FLOOD_DESIGN.fvf.Bg, rs: FLOOD_DESIGN.fvf.Rs };
+const surveillance = analyzeWaterflood(surveillanceRows, surveillanceConfig);
+const surveillanceWrongCase = analyzeWaterflood(surveillanceRows, FLOOD_DESIGN.fvf);
+const wrongCaseRatio = surveillanceWrongCase.kpis.vrr_avg / surveillance.kpis.vrr_avg;
+say(`surveillance: cumVRR(rows-as-days)=${surveillance.kpis.vrr_avg} vs ledger volumes ${frozenCumVrr}; wrong-case config inflates by ${wrongCaseRatio}`);
+
+// Hall plots twice: on the measured absolute wellhead pressure, and on the
+// pressure ABOVE the reference (the classic Hall convention). Only the second
+// recovers the planted injectivity index.
+const deltaPRows = surveillanceRows.map((r) => ({
+  ...r,
+  whp_psi: r.whp_psi == null ? null : r.whp_psi - FLOOD_DESIGN.refPressure_psia,
+}));
+const surveillanceDeltaP = analyzeWaterflood(deltaPRows, surveillanceConfig);
+const hallOf = (a) => a.hall_plots.map((h) => ({
+  injector: h.injector,
+  slope_baseline: h.slope_baseline,
+  slope_recent: h.slope_last,
+  slope_ratio: h.slope_ratio,
+}));
+const hallDeltaP = hallOf(surveillanceDeltaP);
+const e4DeltaP = hallDeltaP.find((h) => h.injector === 'Ekene-4');
+assertClose('Hall baseline slope on delta-p is 1/II', e4DeltaP.slope_baseline, 1 / 0.5, 1e-12);
+assertClose('Hall recent slope on delta-p is 1/II after the kink', e4DeltaP.slope_recent, 1 / 0.35, 1e-12);
+assertClose('Hall slope ratio recovers the injectivity step', e4DeltaP.slope_ratio, 0.5 / 0.35, 1e-12);
+say(`Hall: absolute ratio E4=${hallOf(surveillance).find((h) => h.injector === 'Ekene-4').slope_ratio}, delta-p ratio E4=${e4DeltaP.slope_ratio}`);
+if (surveillance.alerts.injectivity_issue.length !== 0) {
+  throw new Error('the absolute-pressure Hall run was supposed to raise NO injectivity alert');
+}
+if (surveillanceDeltaP.alerts.injectivity_issue.length !== 1) {
+  throw new Error('the delta-p Hall run was supposed to raise exactly one injectivity alert');
+}
+
+const chanOf = (a) => ({
+  field: a.chan.field ? { late_slope: a.chan.field.lateSlope, code: a.chan.field.classification.code } : null,
+  producers: a.chan.producers.map((p) => ({ producer: p.producer, late_slope: p.lateSlope, code: p.classification.code })),
+});
+const lagsOf = (a) => a.pattern_lags.map((p) => ({ injector: p.injector, producer: p.producer, lag: p.lag_days, corr: p.corr, overlap: p.overlap }));
+say(`Chan: ${JSON.stringify(chanOf(surveillance))}`);
+say(`lags (rows are MONTHLY, so lag_days counts months): ${JSON.stringify(lagsOf(surveillance))}`);
+
+// ============================================================================
 // Emit fixtures
 // ============================================================================
 
@@ -784,12 +1162,141 @@ const files = {
     fvf: FLOOD_DESIGN.fvf,
     ledger_periods: ledgerPeriods,
     surveillance_rows: surveillanceRows,
+    flood_design: {
+      layers:
+        'Five non-communicating layers, permeabilities PLANTED on an exact log-normal (k = k50*exp(-sigma*z) on the engine plotting positions) so dykstraParsonsV recovers V = 0.5 and sigma = ln 2 exactly. k50 = 250 md is the RC3 reservoir permeability. Thicknesses are in DEPTH order and the permeability order is deliberately different.',
+      allocation:
+        'Operator injector-to-producer factors. Both injector rows sum to less than 1 on purpose; the shortfall is out-of-zone injection, booked by allocateInjection rather than redistributed.',
+      patterns:
+        'Two flood elements, each drawing injection from BOTH injectors. The field cumulative VRR is near 1 while North is over-injected and South is under-injected: that split is why pattern-level surveillance exists.',
+      pressure:
+        'Closed-form tank pressure with injection as a negative withdrawal: dp = (Np + (Wp - Wi)*Bw/Boi) / (N*(co + efwSlope) - Np*co). Continues the section-B depletion track with no seam. Surveys are six-monthly and read the end of the PREVIOUS month, and the cadence deliberately straddles the pressure trough.',
+      forecast:
+        'Five-spot element = half the mapped oil leg. The observed-rate case never breaks through in 30 years; the design case injects at 2000 rb/d with EV from the Dykstra-Parsons first-breakthrough coverage; the fill-up case adds Sgi 0.05.',
+      hall:
+        'Hall plots are recorded twice: on the measured absolute wellhead pressure (which dilutes the injectivity step badly and raises no alert) and on pressure above the 2050 psia reference (which recovers 1/II exactly).',
+      config_case_trap:
+        'analyzeWaterflood reads LOWERCASE bo/bw/bg/rs. Handing it the capitalised ledger fvf object silently defaults Bo to 1 and inflates cumulative VRR; the ratio is recorded in expected.surveillance.wrong_case_vrr_ratio.',
+    },
+    layers: layerColumn,
+    layer_design: {
+      k50_md: LAYER_DESIGN.k50_md,
+      sigma: LAYER_DESIGN.sigma,
+      n: LAYER_DESIGN.n,
+      net_pay_ft: netPayFt,
+      mobility_ratio: M,
+      stiles_capacity_ratio: stilesA,
+    },
+    allocation: ALLOCATION,
+    patterns: PATTERNS,
+    pattern_element: {
+      oil_area_acres: oilAreaAcres,
+      elements_per_field: PATTERN_DESIGN.elementsPerField,
+      area_acres: elementAreaAcres,
+      net_thickness_ft: netThicknessFt,
+      phi: STATIC_FIELD.phi,
+      Bo: FLOOD_DESIGN.fvf.Bo,
+      Bw: FLOOD_DESIGN.fvf.Bw,
+      pv_field_units_rb: pvFieldUnits,
+      pv_exact_rb: pvExactRb,
+      pv_unit_rel_diff: pvUnitRelDiff,
+      iw_observed_rb_d: iwObservedRbD,
+      iw_design_rb_d: PATTERN_DESIGN.iw_design_rb_d,
+      flood_days: floodDays,
+    },
+    pressure: {
+      survey_dates: PRESSURE_DESIGN.survey_dates,
+      surveys: pressureSurveys,
+      track: pressureTrack,
+      pvt_table: pvtTable,
+      p_flood_start_psia: pAtFloodStart,
+      break_even_vrr: breakEvenVrr,
+    },
+    ledger_rows: ledgerRows,
     expected: {
       cumulative_vrr: vrrSummary.cumulativeVRR,
       latest_instantaneous_vrr: vrrSummary.latestInstantaneousVRR,
       total_produced_voidage_rb: vrrSummary.totalProducedVoidage,
       total_injected_voidage_rb: vrrSummary.totalInjectedVoidage,
       instantaneous_vrr_by_month: vrrSeries.map((r) => ({ label: r.label, vrr: r.instantaneousVRR })),
+      rows_rebuild_periods_max_rel_diff: periodMaxRel,
+      allocation: {
+        row_sums: allocValidation.rowSums,
+        warnings: allocValidation.warnings,
+        per_producer: allocated.perProducer,
+        unallocated: allocated.unallocated,
+        total_injected_bbl: totalWinj,
+        allocated_bbl: allocatedSum,
+        conservation_residual: conservationResidual,
+      },
+      patterns: patternResults.map((p) => ({
+        name: p.name,
+        producers: p.producers,
+        cumulative_vrr: p.cumulative_vrr,
+        latest_instantaneous_vrr: p.latest_instantaneous_vrr,
+        rolling3_last: p.rolling3_last,
+        total_produced_voidage_rb: p.total_produced_voidage_rb,
+        total_injected_voidage_rb: p.total_injected_voidage_rb,
+        fill_up: p.fill_up,
+        recommendation: p.recommendation,
+      })),
+      pressure: {
+        trough_label: troughPeriod.label,
+        trough_psia: troughPeriod.p_end_psia,
+        end_psia: pressureTrack[pressureTrack.length - 1].p_end_psia,
+        attached: attached.map((r) => ({ label: r.label, pressure: r.pressure, dpdt: r.dpdt })),
+        interpolated_trough_label: attached[attachedTroughIndex].label,
+        interpolated_trough_psia: attached[attachedTroughIndex].pressure,
+        trough_missed_by_psi: troughMissedBy,
+        fvf_track_bo: fvfTrack.map((f) => f.Bo),
+        fvf_interpolation_max_rel_diff: fvfMaxRel,
+        cumulative_vrr_tracked_bo: trackedCumVrr,
+        cumulative_vrr_frozen_bo: frozenCumVrr,
+        tracked_vs_frozen_pct: (trackedCumVrr / frozenCumVrr - 1) * 100,
+      },
+      layered_sweep: {
+        V: sweep.V.V,
+        sigma: sweep.V.sigma,
+        k50: sweep.V.k50,
+        n: sweep.V.n,
+        dykstra_parsons: sweep.dykstraParsons.map((s) => ({
+          layerIndex: s.layerIndex,
+          k_md: s.kBroken,
+          coverage: s.coverage,
+          WOR: Number.isFinite(s.WOR) ? s.WOR : 'Infinity',
+        })),
+        stiles: sweep.stiles.map((s) => ({
+          layerIndex: s.layerIndex,
+          k_md: s.kBroken,
+          coverage: s.coverage,
+          water_cut: s.waterCut,
+        })),
+        ev_first_breakthrough: EV_FIRST_BT,
+      },
+      pattern_forecast: forecasts,
+      channeling: {
+        producer: 'Ekene-6',
+        breakthrough_date: e6BtDate,
+        breakthrough_days: e6BtDays,
+        allocated_injection_bbl: e6AllocatedBbl,
+        EAbt: e6EAbt,
+        QiBt: displacement.bl.QiBt,
+        implied_swept_pv_rb: impliedSweptPvRb,
+        implied_swept_fraction_of_element: impliedSweptFraction,
+      },
+      surveillance: {
+        kpis: surveillance.kpis,
+        cumulative_vrr_rows_as_days: surveillance.kpis.vrr_avg,
+        wrong_case_vrr_avg: surveillanceWrongCase.kpis.vrr_avg,
+        wrong_case_vrr_ratio: wrongCaseRatio,
+        hall_absolute_pressure: hallOf(surveillance),
+        hall_above_reference: hallDeltaP,
+        injectivity_alerts_absolute: surveillance.alerts.injectivity_issue,
+        injectivity_alerts_above_reference: surveillanceDeltaP.alerts.injectivity_issue,
+        chan: chanOf(surveillance),
+        pattern_lags: lagsOf(surveillance),
+        field_recommendation: surveillance.recommendations,
+      },
     },
   },
 };

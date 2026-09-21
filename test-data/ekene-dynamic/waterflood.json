@@ -2287,6 +2287,2407 @@
       "whp_psi": 2256.6517157126614
     }
   ],
+  "flood_design": {
+    "layers": "Five non-communicating layers, permeabilities PLANTED on an exact log-normal (k = k50*exp(-sigma*z) on the engine plotting positions) so dykstraParsonsV recovers V = 0.5 and sigma = ln 2 exactly. k50 = 250 md is the RC3 reservoir permeability. Thicknesses are in DEPTH order and the permeability order is deliberately different.",
+    "allocation": "Operator injector-to-producer factors. Both injector rows sum to less than 1 on purpose; the shortfall is out-of-zone injection, booked by allocateInjection rather than redistributed.",
+    "patterns": "Two flood elements, each drawing injection from BOTH injectors. The field cumulative VRR is near 1 while North is over-injected and South is under-injected: that split is why pattern-level surveillance exists.",
+    "pressure": "Closed-form tank pressure with injection as a negative withdrawal: dp = (Np + (Wp - Wi)*Bw/Boi) / (N*(co + efwSlope) - Np*co). Continues the section-B depletion track with no seam. Surveys are six-monthly and read the end of the PREVIOUS month, and the cadence deliberately straddles the pressure trough.",
+    "forecast": "Five-spot element = half the mapped oil leg. The observed-rate case never breaks through in 30 years; the design case injects at 2000 rb/d with EV from the Dykstra-Parsons first-breakthrough coverage; the fill-up case adds Sgi 0.05.",
+    "hall": "Hall plots are recorded twice: on the measured absolute wellhead pressure (which dilutes the injectivity step badly and raises no alert) and on pressure above the 2050 psia reference (which recovers 1/II exactly).",
+    "config_case_trap": "analyzeWaterflood reads LOWERCASE bo/bw/bg/rs. Handing it the capitalised ledger fvf object silently defaults Bo to 1 and inflates cumulative VRR; the ratio is recorded in expected.surveillance.wrong_case_vrr_ratio."
+  },
+  "layers": [
+    {
+      "name": "L1",
+      "h_ft": 18,
+      "k_md": 173.81198701129736,
+      "quantile_rank": 3
+    },
+    {
+      "name": "L2",
+      "h_ft": 22,
+      "k_md": 607.7507038307907,
+      "quantile_rank": 0
+    },
+    {
+      "name": "L3",
+      "h_ft": 16,
+      "k_md": 250,
+      "quantile_rank": 2
+    },
+    {
+      "name": "L4",
+      "h_ft": 14,
+      "k_md": 102.8382190362731,
+      "quantile_rank": 4
+    },
+    {
+      "name": "L5",
+      "h_ft": 14,
+      "k_md": 359.5839451276606,
+      "quantile_rank": 1
+    }
+  ],
+  "layer_design": {
+    "k50_md": 250,
+    "sigma": 0.6931471805599453,
+    "n": 5,
+    "net_pay_ft": 84,
+    "mobility_ratio": 1.2,
+    "stiles_capacity_ratio": 1.4304000000000001
+  },
+  "allocation": {
+    "Ekene-2": {
+      "Ekene-6": 0.45,
+      "Ekene-1": 0.3,
+      "Ekene-3": 0.15
+    },
+    "Ekene-4": {
+      "Ekene-3": 0.4,
+      "Ekene-6": 0.35,
+      "Ekene-5": 0.1
+    }
+  },
+  "patterns": [
+    {
+      "name": "North (Ekene-2 element)",
+      "producers": [
+        "Ekene-1",
+        "Ekene-6"
+      ]
+    },
+    {
+      "name": "South (Ekene-4 element)",
+      "producers": [
+        "Ekene-3",
+        "Ekene-5"
+      ]
+    }
+  ],
+  "pattern_element": {
+    "oil_area_acres": 417.6080946795094,
+    "elements_per_field": 2,
+    "area_acres": 208.8040473397547,
+    "net_thickness_ft": 34.585155812896204,
+    "phi": 0.2,
+    "Bo": 1.21584,
+    "Bw": 1.02,
+    "pv_field_units_rb": 11204911.22581217,
+    "pv_exact_rb": 11205422.76570545,
+    "pv_unit_rel_diff": -0.00004565110161166218,
+    "iw_observed_rb_d": 104.68747061689818,
+    "iw_design_rb_d": 2000,
+    "flood_days": 1096
+  },
+  "pressure": {
+    "survey_dates": [
+      "2023-02-01",
+      "2023-08-01",
+      "2024-02-01",
+      "2024-08-01",
+      "2025-02-01",
+      "2025-08-01"
+    ],
+    "surveys": [
+      {
+        "date": "2023-02-01",
+        "p_psia": 2092.973311798282,
+        "reads_month": "2023-01"
+      },
+      {
+        "date": "2023-08-01",
+        "p_psia": 2091.2352356587335,
+        "reads_month": "2023-07"
+      },
+      {
+        "date": "2024-02-01",
+        "p_psia": 2098.2628904903004,
+        "reads_month": "2024-01"
+      },
+      {
+        "date": "2024-08-01",
+        "p_psia": 2105.4274468043795,
+        "reads_month": "2024-07"
+      },
+      {
+        "date": "2025-02-01",
+        "p_psia": 2112.2529397049,
+        "reads_month": "2025-01"
+      },
+      {
+        "date": "2025-08-01",
+        "p_psia": 2118.5159449533567,
+        "reads_month": "2025-07"
+      }
+    ],
+    "track": [
+      {
+        "label": "2023-01",
+        "cum_np_stb": 266202.07431542396,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 4789.431168713511,
+        "p_end_psia": 2092.973311798282
+      },
+      {
+        "label": "2023-02",
+        "cum_np_stb": 270471.6536973878,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 9318.9425434513,
+        "p_end_psia": 2090.9617425106644
+      },
+      {
+        "label": "2023-03",
+        "cum_np_stb": 275198.6880131335,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 14559.143704514318,
+        "p_end_psia": 2089.543066354176
+      },
+      {
+        "label": "2023-04",
+        "cum_np_stb": 279773.2373509519,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 19848.420630873454,
+        "p_end_psia": 2088.9530115439275
+      },
+      {
+        "label": "2023-05",
+        "cum_np_stb": 284577.48420693766,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 25632.34950573184,
+        "p_end_psia": 2089.156081209666
+      },
+      {
+        "label": "2023-06",
+        "cum_np_stb": 289301.4771710272,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 31544.89909958632,
+        "p_end_psia": 2090.16534747615
+      },
+      {
+        "label": "2023-07",
+        "cum_np_stb": 294306.7469295111,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 37809.494729304744,
+        "p_end_psia": 2091.2352356587335
+      },
+      {
+        "label": "2023-08",
+        "cum_np_stb": 299482.56677643897,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 44287.55084971971,
+        "p_end_psia": 2092.342151116085
+      },
+      {
+        "label": "2023-09",
+        "cum_np_stb": 304656.4731655086,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 50763.212086279236,
+        "p_end_psia": 2093.4492388573317
+      },
+      {
+        "label": "2023-10",
+        "cum_np_stb": 310173.39318932453,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 57668.18918808729,
+        "p_end_psia": 2094.6303640200467
+      },
+      {
+        "label": "2023-11",
+        "cum_np_stb": 315615.0565299403,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 64478.97502520198,
+        "p_end_psia": 2095.7960260007603
+      },
+      {
+        "label": "2023-12",
+        "cum_np_stb": 321345.06093914347,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 71650.64854376066,
+        "p_end_psia": 2097.0241505627787
+      },
+      {
+        "label": "2024-01",
+        "cum_np_stb": 327121.214403226,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 78880.08221940637,
+        "p_end_psia": 2098.2628904903004
+      },
+      {
+        "label": "2024-02",
+        "cum_np_stb": 332510.3347192273,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 85625.10520691355,
+        "p_end_psia": 2099.419284385691
+      },
+      {
+        "label": "2024-03",
+        "cum_np_stb": 338259.273601307,
+        "cum_wp_stb": 0,
+        "cum_wi_bbl": 92820.47711172454,
+        "p_end_psia": 2100.65358677994
+      },
+      {
+        "label": "2024-04",
+        "cum_np_stb": 343807.18807092286,
+        "cum_wp_stb": 1.6550904731185703,
+        "cum_wi_bbl": 99765.98470689253,
+        "p_end_psia": 2101.845711913532
+      },
+      {
+        "label": "2024-05",
+        "cum_np_stb": 349475.0758816398,
+        "cum_wp_stb": 8.42467596473713,
+        "cum_wi_bbl": 106867.02115555204,
+        "p_end_psia": 2103.0652272880616
+      },
+      {
+        "label": "2024-06",
+        "cum_np_stb": 354892.8368280543,
+        "cum_wp_stb": 23.005835479910083,
+        "cum_wi_bbl": 113663.20097357537,
+        "p_end_psia": 2104.2330449093197
+      },
+      {
+        "label": "2024-07",
+        "cum_np_stb": 360421.1181047798,
+        "cum_wp_stb": 49.51218261737743,
+        "cum_wi_bbl": 120610.22948401935,
+        "p_end_psia": 2105.4274468043795
+      },
+      {
+        "label": "2024-08",
+        "cum_np_stb": 365874.9928343554,
+        "cum_wp_stb": 90.48141361786568,
+        "cum_wi_bbl": 127479.31678810665,
+        "p_end_psia": 2106.6091054825047
+      },
+      {
+        "label": "2024-09",
+        "cum_np_stb": 371078.7232740256,
+        "cum_wp_stb": 146.95791304754135,
+        "cum_wi_bbl": 134051.60613079905,
+        "p_end_psia": 2107.740316350444
+      },
+      {
+        "label": "2024-10",
+        "cum_np_stb": 376377.47680154076,
+        "cum_wp_stb": 226.97689921036203,
+        "cum_wi_bbl": 140767.545981308,
+        "p_end_psia": 2108.896863405769
+      },
+      {
+        "label": "2024-11",
+        "cum_np_stb": 381422.86660412204,
+        "cum_wp_stb": 330.6789913737265,
+        "cum_wi_bbl": 147191.24305499028,
+        "p_end_psia": 2110.003656523302
+      },
+      {
+        "label": "2024-12",
+        "cum_np_stb": 386548.3573519612,
+        "cum_wp_stb": 470.3411689808421,
+        "cum_wi_bbl": 153752.95256147324,
+        "p_end_psia": 2111.134800855935
+      },
+      {
+        "label": "2025-01",
+        "cum_np_stb": 391579.4293574047,
+        "cum_wp_stb": 647.6039754051079,
+        "cum_wi_bbl": 160235.96823023184,
+        "p_end_psia": 2112.2529397049
+      },
+      {
+        "label": "2025-02",
+        "cum_np_stb": 396034.4184263403,
+        "cum_wp_stb": 846.151538404334,
+        "cum_wi_bbl": 166020.30749006078,
+        "p_end_psia": 2113.2510380152585
+      },
+      {
+        "label": "2025-03",
+        "cum_np_stb": 400868.8618141224,
+        "cum_wp_stb": 1113.593719725566,
+        "cum_wi_bbl": 172351.91112459623,
+        "p_end_psia": 2114.344057235241
+      },
+      {
+        "label": "2025-04",
+        "cum_np_stb": 405443.743969574,
+        "cum_wp_stb": 1422.7399489995319,
+        "cum_wi_bbl": 178402.43717109712,
+        "p_end_psia": 2115.3890229758754
+      },
+      {
+        "label": "2025-05",
+        "cum_np_stb": 410061.8153623472,
+        "cum_wp_stb": 1798.7834144300616,
+        "cum_wi_bbl": 184577.2609649941,
+        "p_end_psia": 2116.455916333147
+      },
+      {
+        "label": "2025-06",
+        "cum_np_stb": 414419.9510653519,
+        "cum_wp_stb": 2221.5073355138893,
+        "cum_wi_bbl": 190475.76372801283,
+        "p_end_psia": 2117.4754889653677
+      },
+      {
+        "label": "2025-07",
+        "cum_np_stb": 418804.358392325,
+        "cum_wp_stb": 2725.7206722367027,
+        "cum_wi_bbl": 196492.71194201134,
+        "p_end_psia": 2118.5159449533567
+      },
+      {
+        "label": "2025-08",
+        "cum_np_stb": 423060.2476185491,
+        "cum_wp_stb": 3305.697287950257,
+        "cum_wi_bbl": 202428.35834405266,
+        "p_end_psia": 2119.5427296689413
+      },
+      {
+        "label": "2025-09",
+        "cum_np_stb": 427047.07597894105,
+        "cum_wp_stb": 3948.2369752816776,
+        "cum_wi_bbl": 208092.93939161723,
+        "p_end_psia": 2120.5229619233623
+      },
+      {
+        "label": "2025-10",
+        "cum_np_stb": 431024.66245785373,
+        "cum_wp_stb": 4704.364948875773,
+        "cum_wi_bbl": 213865.22100089816,
+        "p_end_psia": 2121.5221486790438
+      },
+      {
+        "label": "2025-11",
+        "cum_np_stb": 434728.13801649417,
+        "cum_wp_stb": 5532.468046416719,
+        "cum_wi_bbl": 219369.99926251054,
+        "p_end_psia": 2122.475305732921
+      },
+      {
+        "label": "2025-12",
+        "cum_np_stb": 438398.87644001114,
+        "cum_wp_stb": 6495.450501494912,
+        "cum_wi_bbl": 224975.42705121648,
+        "p_end_psia": 2123.4461408278908
+      }
+    ],
+    "pvt_table": [
+      {
+        "p": 1800,
+        "Bo": 1.22016,
+        "Bw": 1.02,
+        "Bg": 0,
+        "Rs": 400
+      },
+      {
+        "p": 2000,
+        "Bo": 1.21728,
+        "Bw": 1.02,
+        "Bg": 0,
+        "Rs": 400
+      },
+      {
+        "p": 2200,
+        "Bo": 1.2144,
+        "Bw": 1.02,
+        "Bg": 0,
+        "Rs": 400
+      },
+      {
+        "p": 2400,
+        "Bo": 1.21152,
+        "Bw": 1.02,
+        "Bg": 0,
+        "Rs": 400
+      },
+      {
+        "p": 2600,
+        "Bo": 1.2086400000000002,
+        "Bw": 1.02,
+        "Bg": 0,
+        "Rs": 400
+      },
+      {
+        "p": 2800,
+        "Bo": 1.20576,
+        "Bw": 1.02,
+        "Bg": 0,
+        "Rs": 400
+      },
+      {
+        "p": 3000,
+        "Bo": 1.20288,
+        "Bw": 1.02,
+        "Bg": 0,
+        "Rs": 400
+      },
+      {
+        "p": 3200,
+        "Bo": 1.2,
+        "Bw": 1.02,
+        "Bg": 0,
+        "Rs": 400
+      },
+      {
+        "p": 3400,
+        "Bo": 1.19712,
+        "Bw": 1.02,
+        "Bg": 0,
+        "Rs": 400
+      }
+    ],
+    "p_flood_start_psia": 2096.0082626669955,
+    "break_even_vrr": 0.9869719699960521
+  },
+  "ledger_rows": [
+    {
+      "date": "2023-01-01",
+      "well": "Ekene-1",
+      "oil_stb": 998.5247575266284,
+      "water_stb": 0,
+      "gas_mscf": 399.40990301065136,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-01-01",
+      "well": "Ekene-3",
+      "oil_stb": 1121.753428464457,
+      "water_stb": 0,
+      "gas_mscf": 448.70137138578286,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-01-01",
+      "well": "Ekene-5",
+      "oil_stb": 1283.1125827814571,
+      "water_stb": 0,
+      "gas_mscf": 513.2450331125829,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-01-01",
+      "well": "Ekene-6",
+      "oil_stb": 1323.643546973127,
+      "water_stb": 0,
+      "gas_mscf": 529.4574187892509,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-01-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2873.6587012281066,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-01-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 1915.7724674854046,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-02-01",
+      "well": "Ekene-1",
+      "oil_stb": 901.8933293788901,
+      "water_stb": 0,
+      "gas_mscf": 360.7573317515561,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-02-01",
+      "well": "Ekene-3",
+      "oil_stb": 1013.196645064671,
+      "water_stb": 0,
+      "gas_mscf": 405.27865802586837,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-02-01",
+      "well": "Ekene-5",
+      "oil_stb": 1158.9403973509934,
+      "water_stb": 0,
+      "gas_mscf": 463.5761589403974,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-02-01",
+      "well": "Ekene-6",
+      "oil_stb": 1195.5490101692762,
+      "water_stb": 0,
+      "gas_mscf": 478.2196040677105,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-02-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2717.7068248426726,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-02-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 1811.8045498951153,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-03-01",
+      "well": "Ekene-1",
+      "oil_stb": 998.5247575266284,
+      "water_stb": 0,
+      "gas_mscf": 399.40990301065136,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-03-01",
+      "well": "Ekene-3",
+      "oil_stb": 1121.753428464457,
+      "water_stb": 0,
+      "gas_mscf": 448.70137138578286,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-03-01",
+      "well": "Ekene-5",
+      "oil_stb": 1283.1125827814571,
+      "water_stb": 0,
+      "gas_mscf": 513.2450331125829,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-03-01",
+      "well": "Ekene-6",
+      "oil_stb": 1323.643546973127,
+      "water_stb": 0,
+      "gas_mscf": 529.4574187892509,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-03-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3144.120696637811,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-03-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2096.080464425207,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-04-01",
+      "well": "Ekene-1",
+      "oil_stb": 966.3142814773822,
+      "water_stb": 0,
+      "gas_mscf": 386.52571259095293,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-04-01",
+      "well": "Ekene-3",
+      "oil_stb": 1085.5678339978617,
+      "water_stb": 0,
+      "gas_mscf": 434.2271335991447,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-04-01",
+      "well": "Ekene-5",
+      "oil_stb": 1241.7218543046358,
+      "water_stb": 0,
+      "gas_mscf": 496.68874172185434,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-04-01",
+      "well": "Ekene-6",
+      "oil_stb": 1280.9453680385102,
+      "water_stb": 0,
+      "gas_mscf": 512.378147215404,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-04-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3173.566155815481,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-04-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2115.7107705436542,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-05-01",
+      "well": "Ekene-1",
+      "oil_stb": 998.5247575266284,
+      "water_stb": 0,
+      "gas_mscf": 399.40990301065136,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-05-01",
+      "well": "Ekene-3",
+      "oil_stb": 1121.753428464457,
+      "water_stb": 0,
+      "gas_mscf": 448.70137138578286,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-05-01",
+      "well": "Ekene-5",
+      "oil_stb": 1283.1125827814571,
+      "water_stb": 0,
+      "gas_mscf": 513.2450331125829,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-05-01",
+      "well": "Ekene-6",
+      "oil_stb": 1400.8560872132261,
+      "water_stb": 0,
+      "gas_mscf": 560.3424348852905,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-05-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3470.3573249150318,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-05-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2313.571549943355,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-06-01",
+      "well": "Ekene-1",
+      "oil_stb": 966.3142814773822,
+      "water_stb": 0,
+      "gas_mscf": 386.52571259095293,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-06-01",
+      "well": "Ekene-3",
+      "oil_stb": 1085.5678339978617,
+      "water_stb": 0,
+      "gas_mscf": 434.2271335991447,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-06-01",
+      "well": "Ekene-5",
+      "oil_stb": 1241.7218543046358,
+      "water_stb": 0,
+      "gas_mscf": 496.68874172185434,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-06-01",
+      "well": "Ekene-6",
+      "oil_stb": 1430.3889943096697,
+      "water_stb": 0,
+      "gas_mscf": 572.1555977238679,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-06-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3547.5297563126883,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-06-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2365.0198375417926,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-07-01",
+      "well": "Ekene-1",
+      "oil_stb": 1045.1225795445375,
+      "water_stb": 0,
+      "gas_mscf": 418.049031817815,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-07-01",
+      "well": "Ekene-3",
+      "oil_stb": 1121.753428464457,
+      "water_stb": 0,
+      "gas_mscf": 448.70137138578286,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-07-01",
+      "well": "Ekene-5",
+      "oil_stb": 1283.1125827814571,
+      "water_stb": 0,
+      "gas_mscf": 513.2450331125829,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-07-01",
+      "well": "Ekene-6",
+      "oil_stb": 1555.2811676934243,
+      "water_stb": 0,
+      "gas_mscf": 622.1124670773698,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-07-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3758.757377831052,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-07-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2505.838251887368,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-08-01",
+      "well": "Ekene-1",
+      "oil_stb": 1091.720401562447,
+      "water_stb": 0,
+      "gas_mscf": 436.6881606249788,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-08-01",
+      "well": "Ekene-3",
+      "oil_stb": 1168.493154650476,
+      "water_stb": 0,
+      "gas_mscf": 467.3972618601905,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-08-01",
+      "well": "Ekene-5",
+      "oil_stb": 1283.1125827814571,
+      "water_stb": 0,
+      "gas_mscf": 513.2450331125829,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-08-01",
+      "well": "Ekene-6",
+      "oil_stb": 1632.4937079335236,
+      "water_stb": 0,
+      "gas_mscf": 652.9974831734095,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-08-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3886.833672248979,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-08-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2591.2224481659864,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-09-01",
+      "well": "Ekene-1",
+      "oil_stb": 1101.598280884216,
+      "water_stb": 0,
+      "gas_mscf": 440.63931235368636,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-09-01",
+      "well": "Ekene-3",
+      "oil_stb": 1176.0318201643502,
+      "water_stb": 0,
+      "gas_mscf": 470.41272806574005,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-09-01",
+      "well": "Ekene-5",
+      "oil_stb": 1241.7218543046358,
+      "water_stb": 0,
+      "gas_mscf": 496.68874172185434,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-09-01",
+      "well": "Ekene-6",
+      "oil_stb": 1654.554433716409,
+      "water_stb": 0,
+      "gas_mscf": 661.8217734865635,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-09-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3885.3967419357145,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-09-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2590.2644946238106,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-10-01",
+      "well": "Ekene-1",
+      "oil_stb": 1184.9160455982658,
+      "water_stb": 0,
+      "gas_mscf": 473.9664182393063,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-10-01",
+      "well": "Ekene-3",
+      "oil_stb": 1261.9726070225142,
+      "water_stb": 0,
+      "gas_mscf": 504.7890428090057,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-10-01",
+      "well": "Ekene-5",
+      "oil_stb": 1283.1125827814571,
+      "water_stb": 0,
+      "gas_mscf": 513.2450331125829,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-10-01",
+      "well": "Ekene-6",
+      "oil_stb": 1786.9187884137218,
+      "water_stb": 0,
+      "gas_mscf": 714.7675153654886,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-10-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4142.986261084832,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-10-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2761.990840723222,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-11-01",
+      "well": "Ekene-1",
+      "oil_stb": 1191.7876138221047,
+      "water_stb": 0,
+      "gas_mscf": 476.715045528842,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-11-01",
+      "well": "Ekene-3",
+      "oil_stb": 1266.4958063308388,
+      "water_stb": 0,
+      "gas_mscf": 506.5983225323355,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-11-01",
+      "well": "Ekene-5",
+      "oil_stb": 1272.7649006622516,
+      "water_stb": 0,
+      "gas_mscf": 509.10596026490066,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-11-01",
+      "well": "Ekene-6",
+      "oil_stb": 1710.6150198005648,
+      "water_stb": 0,
+      "gas_mscf": 684.2460079202258,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-11-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4086.4715022688106,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-11-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2724.3143348458743,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-12-01",
+      "well": "Ekene-1",
+      "oil_stb": 1278.1116896340843,
+      "water_stb": 0,
+      "gas_mscf": 511.2446758536337,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-12-01",
+      "well": "Ekene-3",
+      "oil_stb": 1355.4520593945522,
+      "water_stb": 0,
+      "gas_mscf": 542.1808237578209,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-12-01",
+      "well": "Ekene-5",
+      "oil_stb": 1347.2682119205301,
+      "water_stb": 0,
+      "gas_mscf": 538.907284768212,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-12-01",
+      "well": "Ekene-6",
+      "oil_stb": 1749.172448253996,
+      "water_stb": 0,
+      "gas_mscf": 699.6689793015984,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-12-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4303.004111135207,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2023-12-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2868.669407423471,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-01-01",
+      "well": "Ekene-1",
+      "oil_stb": 1264.3191377033215,
+      "water_stb": 0,
+      "gas_mscf": 505.7276550813286,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-01-01",
+      "well": "Ekene-3",
+      "oil_stb": 1402.1917855805711,
+      "water_stb": 0,
+      "gas_mscf": 560.8767142322286,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-01-01",
+      "well": "Ekene-5",
+      "oil_stb": 1379.3460264900662,
+      "water_stb": 0,
+      "gas_mscf": 551.7384105960265,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-01-01",
+      "well": "Ekene-6",
+      "oil_stb": 1730.2965143085753,
+      "water_stb": 0,
+      "gas_mscf": 692.1186057234302,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-01-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4337.66020538742,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-01-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2891.7734702582807,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-02-01",
+      "well": "Ekene-1",
+      "oil_stb": 1169.9866888783667,
+      "water_stb": 0,
+      "gas_mscf": 467.99467555134675,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-02-01",
+      "well": "Ekene-3",
+      "oil_stb": 1297.5724842415693,
+      "water_stb": 0,
+      "gas_mscf": 519.0289936966277,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-02-01",
+      "well": "Ekene-5",
+      "oil_stb": 1320.364238410596,
+      "water_stb": 0,
+      "gas_mscf": 528.1456953642385,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-02-01",
+      "well": "Ekene-6",
+      "oil_stb": 1601.196904470737,
+      "water_stb": 0,
+      "gas_mscf": 640.4787617882948,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-02-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4047.0137925043127,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-02-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2698.0091950028755,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-03-01",
+      "well": "Ekene-1",
+      "oil_stb": 1238.0452769071983,
+      "water_stb": 0,
+      "gas_mscf": 495.2181107628793,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-03-01",
+      "well": "Ekene-3",
+      "oil_stb": 1373.0527884040087,
+      "water_stb": 0,
+      "gas_mscf": 549.2211153616034,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-03-01",
+      "well": "Ekene-5",
+      "oil_stb": 1443.5016556291393,
+      "water_stb": 0,
+      "gas_mscf": 577.4006622516556,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-03-01",
+      "well": "Ekene-6",
+      "oil_stb": 1694.3391611393884,
+      "water_stb": 0,
+      "gas_mscf": 677.7356644557552,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-03-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4317.223142886597,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-03-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2878.1487619243985,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-04-01",
+      "well": "Ekene-1",
+      "oil_stb": 1185.1791248726117,
+      "water_stb": 0,
+      "gas_mscf": 474.07164994904474,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-04-01",
+      "well": "Ekene-3",
+      "oil_stb": 1314.4216391098457,
+      "water_stb": 0,
+      "gas_mscf": 525.7686556439384,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-04-01",
+      "well": "Ekene-5",
+      "oil_stb": 1427.980132450331,
+      "water_stb": 0,
+      "gas_mscf": 571.1920529801324,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-04-01",
+      "well": "Ekene-6",
+      "oil_stb": 1620.3335731830805,
+      "water_stb": 1.6550904731185703,
+      "gas_mscf": 648.1334292732323,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-04-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4167.304557100798,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-04-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2778.2030380671986,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-05-01",
+      "well": "Ekene-1",
+      "oil_stb": 1211.893177294006,
+      "water_stb": 0,
+      "gas_mscf": 484.75727091760234,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-05-01",
+      "well": "Ekene-3",
+      "oil_stb": 1344.0488303369686,
+      "water_stb": 0,
+      "gas_mscf": 537.6195321347874,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-05-01",
+      "well": "Ekene-5",
+      "oil_stb": 1460.1669431310268,
+      "water_stb": 0,
+      "gas_mscf": 584.0667772524107,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-05-01",
+      "well": "Ekene-6",
+      "oil_stb": 1651.7788599549287,
+      "water_stb": 6.769585491618559,
+      "gas_mscf": 660.7115439819715,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-05-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4260.621869195706,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-05-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2840.414579463804,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-06-01",
+      "well": "Ekene-1",
+      "oil_stb": 1160.143754106064,
+      "water_stb": 0,
+      "gas_mscf": 464.05750164242573,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-06-01",
+      "well": "Ekene-3",
+      "oil_stb": 1286.6561879741575,
+      "water_stb": 0,
+      "gas_mscf": 514.6624751896629,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-06-01",
+      "well": "Ekene-5",
+      "oil_stb": 1397.8159055306237,
+      "water_stb": 0,
+      "gas_mscf": 559.1263622122494,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-06-01",
+      "well": "Ekene-6",
+      "oil_stb": 1573.1450988036602,
+      "water_stb": 14.581159515172954,
+      "gas_mscf": 629.2580395214641,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-06-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4077.7078908139965,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-06-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2718.471927209331,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-07-01",
+      "well": "Ekene-1",
+      "oil_stb": 1186.2935068422792,
+      "water_stb": 0,
+      "gas_mscf": 474.51740273691166,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-07-01",
+      "well": "Ekene-3",
+      "oil_stb": 1315.657543239799,
+      "water_stb": 0,
+      "gas_mscf": 526.2630172959197,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-07-01",
+      "well": "Ekene-5",
+      "oil_stb": 1429.3228116110163,
+      "water_stb": 0,
+      "gas_mscf": 571.7291246444065,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-07-01",
+      "well": "Ekene-6",
+      "oil_stb": 1597.0074150324076,
+      "water_stb": 26.506347137467344,
+      "gas_mscf": 638.8029660129631,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-07-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4168.217106266387,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-07-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2778.811404177592,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-08-01",
+      "well": "Ekene-1",
+      "oil_stb": 1173.491797155285,
+      "water_stb": 0,
+      "gas_mscf": 469.3967188621139,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-08-01",
+      "well": "Ekene-3",
+      "oil_stb": 1301.4598208221046,
+      "water_stb": 0,
+      "gas_mscf": 520.5839283288418,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-08-01",
+      "well": "Ekene-5",
+      "oil_stb": 1413.8984873795298,
+      "water_stb": 0,
+      "gas_mscf": 565.559394951812,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-08-01",
+      "well": "Ekene-6",
+      "oil_stb": 1565.0246242186513,
+      "water_stb": 40.96923100048825,
+      "gas_mscf": 626.0098496874605,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-08-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4121.4523824523785,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-08-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2747.634921634919,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-09-01",
+      "well": "Ekene-1",
+      "oil_stb": 1123.3821631080305,
+      "water_stb": 0,
+      "gas_mscf": 449.35286524321225,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-09-01",
+      "well": "Ekene-3",
+      "oil_stb": 1245.8857848495538,
+      "water_stb": 0,
+      "gas_mscf": 498.3543139398215,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-09-01",
+      "well": "Ekene-5",
+      "oil_stb": 1353.5231733344676,
+      "water_stb": 0,
+      "gas_mscf": 541.4092693337869,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-09-01",
+      "well": "Ekene-6",
+      "oil_stb": 1480.9393183781626,
+      "water_stb": 56.476499429675684,
+      "gas_mscf": 592.375727351265,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-09-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3943.3736056154403,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-09-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2628.9157370769603,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-10-01",
+      "well": "Ekene-1",
+      "oil_stb": 1148.7033060177596,
+      "water_stb": 0,
+      "gas_mscf": 459.4813224071038,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-10-01",
+      "well": "Ekene-3",
+      "oil_stb": 1272.5526510842699,
+      "water_stb": 1.4155201903050831,
+      "gas_mscf": 509.02106043370804,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-10-01",
+      "well": "Ekene-5",
+      "oil_stb": 1384.0317169353473,
+      "water_stb": 0,
+      "gas_mscf": 553.6126867741389,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-10-01",
+      "well": "Ekene-6",
+      "oil_stb": 1493.4658534777966,
+      "water_stb": 78.60346597251561,
+      "gas_mscf": 597.3863413911185,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-10-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 4029.5639103053722,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-10-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2686.375940203581,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-11-01",
+      "well": "Ekene-1",
+      "oil_stb": 1099.652172952358,
+      "water_stb": 0,
+      "gas_mscf": 439.86086918094315,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-11-01",
+      "well": "Ekene-3",
+      "oil_stb": 1214.1477621725915,
+      "water_stb": 5.420302509699069,
+      "gas_mscf": 485.6591048690366,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-11-01",
+      "well": "Ekene-5",
+      "oil_stb": 1324.9317530382446,
+      "water_stb": 0,
+      "gas_mscf": 529.9727012152979,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-11-01",
+      "well": "Ekene-6",
+      "oil_stb": 1406.6581144180857,
+      "water_stb": 98.28178965366537,
+      "gas_mscf": 562.6632457672343,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-11-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3854.2182442093576,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-11-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2569.4788294729055,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-12-01",
+      "well": "Ekene-1",
+      "oil_stb": 1124.4384395824816,
+      "water_stb": 0,
+      "gas_mscf": 449.77537583299255,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-12-01",
+      "well": "Ekene-3",
+      "oil_stb": 1234.5866746708462,
+      "water_stb": 12.47057247142269,
+      "gas_mscf": 493.8346698683385,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-12-01",
+      "well": "Ekene-5",
+      "oil_stb": 1354.7958432526564,
+      "water_stb": 0,
+      "gas_mscf": 541.9183373010626,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-12-01",
+      "well": "Ekene-6",
+      "oil_stb": 1411.669790333185,
+      "water_stb": 127.19160513569297,
+      "gas_mscf": 564.667916133274,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-12-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3937.0257038897853,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2024-12-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2624.68380259319,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-01-01",
+      "well": "Ekene-1",
+      "oil_stb": 1112.304229640839,
+      "water_stb": 0,
+      "gas_mscf": 444.9216918563356,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-01-01",
+      "well": "Ekene-3",
+      "oil_stb": 1211.6691512315558,
+      "water_stb": 21.930663370706892,
+      "gas_mscf": 484.6676604926223,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-01-01",
+      "well": "Ekene-5",
+      "oil_stb": 1340.1757656998145,
+      "water_stb": 0,
+      "gas_mscf": 536.0703062799258,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-01-01",
+      "well": "Ekene-6",
+      "oil_stb": 1366.9228588713186,
+      "water_stb": 155.3321430535589,
+      "gas_mscf": 546.7691435485274,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-01-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3889.8094012551583,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-01-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2593.2062675034394,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-02-01",
+      "well": "Ekene-1",
+      "oil_stb": 993.8202257457019,
+      "water_stb": 0,
+      "gas_mscf": 397.52809029828074,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-02-01",
+      "well": "Ekene-3",
+      "oil_stb": 1071.5787220629722,
+      "water_stb": 30.616534916084923,
+      "gas_mscf": 428.63148882518897,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-02-01",
+      "well": "Ekene-5",
+      "oil_stb": 1197.4186077102077,
+      "water_stb": 0,
+      "gas_mscf": 478.96744308408313,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-02-01",
+      "well": "Ekene-6",
+      "oil_stb": 1192.1715134166795,
+      "water_stb": 167.93102808314117,
+      "gas_mscf": 476.8686053666719,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-02-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3470.6035558973617,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-02-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2313.735703931575,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-03-01",
+      "well": "Ekene-1",
+      "oil_stb": 1089.5706790443794,
+      "water_stb": 0,
+      "gas_mscf": 435.82827161775185,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-03-01",
+      "well": "Ekene-3",
+      "oil_stb": 1160.0517068745164,
+      "water_stb": 48.33548778643819,
+      "gas_mscf": 464.02068274980655,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-03-01",
+      "well": "Ekene-5",
+      "oil_stb": 1312.7849199529423,
+      "water_stb": 0,
+      "gas_mscf": 525.113967981177,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-03-01",
+      "well": "Ekene-6",
+      "oil_stb": 1272.0360819103307,
+      "water_stb": 219.10669353479378,
+      "gas_mscf": 508.8144327641322,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-03-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3798.962180721274,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-03-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2532.641453814183,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-04-01",
+      "well": "Ekene-1",
+      "oil_stb": 1043.0445864650485,
+      "water_stb": 0,
+      "gas_mscf": 417.21783458601936,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-04-01",
+      "well": "Ekene-3",
+      "oil_stb": 1093.8068297440266,
+      "water_stb": 62.980651771395195,
+      "gas_mscf": 437.5227318976107,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-04-01",
+      "well": "Ekene-5",
+      "oil_stb": 1256.7272874402447,
+      "water_stb": 0,
+      "gas_mscf": 502.6909149760979,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-04-01",
+      "well": "Ekene-6",
+      "oil_stb": 1181.3034518022773,
+      "water_stb": 246.16557750257076,
+      "gas_mscf": 472.52138072091094,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-04-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3630.3156279005293,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-04-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2420.210418600353,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-05-01",
+      "well": "Ekene-1",
+      "oil_stb": 1066.5549126055575,
+      "water_stb": 0,
+      "gas_mscf": 426.621965042223,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-05-01",
+      "well": "Ekene-3",
+      "oil_stb": 1098.7469820456142,
+      "water_stb": 84.11460149631496,
+      "gas_mscf": 439.49879281824565,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-05-01",
+      "well": "Ekene-5",
+      "oil_stb": 1285.0540423851426,
+      "water_stb": 0,
+      "gas_mscf": 514.0216169540571,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-05-01",
+      "well": "Ekene-6",
+      "oil_stb": 1167.7154557368594,
+      "water_stb": 291.92886393421486,
+      "gas_mscf": 467.08618229474376,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-05-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3704.894276338176,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-05-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2469.9295175587845,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-06-01",
+      "well": "Ekene-1",
+      "oil_stb": 1021.0116233456553,
+      "water_stb": 0,
+      "gas_mscf": 408.4046493382621,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-06-01",
+      "well": "Ekene-3",
+      "oil_stb": 1030.440181102353,
+      "water_stb": 101.91166626287009,
+      "gas_mscf": 412.17607244094125,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-06-01",
+      "well": "Ekene-5",
+      "oil_stb": 1230.1805546019607,
+      "water_stb": 0,
+      "gas_mscf": 492.0722218407844,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-06-01",
+      "well": "Ekene-6",
+      "oil_stb": 1076.5033439547694,
+      "water_stb": 320.8122548209578,
+      "gas_mscf": 430.6013375819078,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-06-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3539.1016578112503,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-06-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2359.4011052075,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-07-01",
+      "well": "Ekene-1",
+      "oil_stb": 1041.7052680841894,
+      "water_stb": 2.320056276356769,
+      "gas_mscf": 416.6821072336758,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-07-01",
+      "well": "Ekene-3",
+      "oil_stb": 1029.2223714027116,
+      "water_stb": 128.65279642533895,
+      "gas_mscf": 411.68894856108454,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-07-01",
+      "well": "Ekene-5",
+      "oil_stb": 1257.9089436140005,
+      "water_stb": 0,
+      "gas_mscf": 503.1635774456002,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-07-01",
+      "well": "Ekene-6",
+      "oil_stb": 1055.5707438722234,
+      "water_stb": 373.24048402111765,
+      "gas_mscf": 422.22829754888943,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-07-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3610.16892839911,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-07-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2406.7792855994066,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-08-01",
+      "well": "Ekene-1",
+      "oil_stb": 1023.5788016362745,
+      "water_stb": 9.180078938441921,
+      "gas_mscf": 409.4315206545098,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-08-01",
+      "well": "Ekene-3",
+      "oil_stb": 991.3901351025842,
+      "water_stb": 153.9899953111844,
+      "gas_mscf": 396.5560540410337,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-08-01",
+      "well": "Ekene-5",
+      "oil_stb": 1244.3344066078218,
+      "water_stb": 0,
+      "gas_mscf": 497.73376264312867,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-08-01",
+      "well": "Ekene-6",
+      "oil_stb": 996.5858828774186,
+      "water_stb": 416.8065414639277,
+      "gas_mscf": 398.63435315096746,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-08-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3561.387841224789,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-08-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2374.258560816526,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-09-01",
+      "well": "Ekene-1",
+      "oil_stb": 968.8855515485282,
+      "water_stb": 19.773174521398538,
+      "gas_mscf": 387.55422061941124,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-09-01",
+      "well": "Ekene-3",
+      "oil_stb": 921.0355570849601,
+      "water_stb": 175.43534420665912,
+      "gas_mscf": 368.41422283398407,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-09-01",
+      "well": "Ekene-5",
+      "oil_stb": 1191.199700512152,
+      "water_stb": 0,
+      "gas_mscf": 476.4798802048608,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-09-01",
+      "well": "Ekene-6",
+      "oil_stb": 905.7075512463153,
+      "water_stb": 447.33116860336304,
+      "gas_mscf": 362.2830204985261,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-09-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3398.748628538738,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-09-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2265.832419025826,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-10-01",
+      "well": "Ekene-1",
+      "oil_stb": 974.9985428995766,
+      "water_stb": 35.94464674284153,
+      "gas_mscf": 389.9994171598306,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-10-01",
+      "well": "Ekene-3",
+      "oil_stb": 910.6517472658076,
+      "water_stb": 210.53371448416073,
+      "gas_mscf": 364.260698906323,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-10-01",
+      "well": "Ekene-5",
+      "oil_stb": 1218.049457292378,
+      "water_stb": 0,
+      "gas_mscf": 487.2197829169512,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-10-01",
+      "well": "Ekene-6",
+      "oil_stb": 873.8867314549321,
+      "water_stb": 509.6496123670929,
+      "gas_mscf": 349.5546925819729,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-10-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3463.368965568556,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-10-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2308.912643712371,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-11-01",
+      "well": "Ekene-1",
+      "oil_stb": 914.0093384603144,
+      "water_stb": 53.76525520354791,
+      "gas_mscf": 365.6037353841258,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-11-01",
+      "well": "Ekene-3",
+      "oil_stb": 839.5664457066672,
+      "water_stb": 233.74293090696986,
+      "gas_mscf": 335.8265782826669,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-11-01",
+      "well": "Ekene-5",
+      "oil_stb": 1166.0371528993367,
+      "water_stb": 0,
+      "gas_mscf": 466.41486115973464,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-11-01",
+      "well": "Ekene-6",
+      "oil_stb": 783.8626215741205,
+      "water_stb": 540.5949114304278,
+      "gas_mscf": 313.5450486296482,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-11-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3302.86695696742,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-11-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2201.911304644947,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-12-01",
+      "well": "Ekene-1",
+      "oil_stb": 910.4212607171202,
+      "water_stb": 79.16706614931479,
+      "gas_mscf": 364.16850428684813,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-12-01",
+      "well": "Ekene-3",
+      "oil_stb": 823.1264055445362,
+      "water_stb": 274.3754685148454,
+      "gas_mscf": 329.25056221781443,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-12-01",
+      "well": "Ekene-5",
+      "oil_stb": 1192.3197434159338,
+      "water_stb": 0,
+      "gas_mscf": 476.9278973663735,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-12-01",
+      "well": "Ekene-6",
+      "oil_stb": 744.8710138393743,
+      "water_stb": 609.4399204140335,
+      "gas_mscf": 297.9484055357497,
+      "winj_stb": 0,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-12-01",
+      "well": "Ekene-2",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 3363.2566732235623,
+      "ginj_mscf": 0
+    },
+    {
+      "date": "2025-12-01",
+      "well": "Ekene-4",
+      "oil_stb": 0,
+      "water_stb": 0,
+      "gas_mscf": 0,
+      "winj_stb": 2242.1711154823747,
+      "ginj_mscf": 0
+    }
+  ],
   "expected": {
     "cumulative_vrr": 1.034899536109,
     "latest_instantaneous_vrr": 1.05,
@@ -2437,6 +4838,679 @@
         "label": "2025-12",
         "vrr": 1.05
       }
-    ]
+    ],
+    "rows_rebuild_periods_max_rel_diff": 3.9364202640579826e-16,
+    "allocation": {
+      "row_sums": {
+        "Ekene-2": 0.9,
+        "Ekene-4": 0.85
+      },
+      "warnings": [
+        "Ekene-2: fractions sum to 0.900; the remaining 0.100 counts as out-of-zone.",
+        "Ekene-4: fractions sum to 0.850; the remaining 0.150 counts as out-of-zone."
+      ],
+      "per_producer": {
+        "Ekene-6": {
+          "winj_stb": 92239.92509099872,
+          "ginj_mscf": 0
+        },
+        "Ekene-1": {
+          "winj_stb": 40495.57686921897,
+          "ginj_mscf": 0
+        },
+        "Ekene-3": {
+          "winj_stb": 56243.85676280411,
+          "ginj_mscf": 0
+        },
+        "Ekene-5": {
+          "winj_stb": 8999.01708204866,
+          "ginj_mscf": 0
+        }
+      },
+      "unallocated": {
+        "winj_stb": 26997.051246145966,
+        "ginj_mscf": 0
+      },
+      "total_injected_bbl": 224975.42705121645,
+      "allocated_bbl": 197978.37580507048,
+      "conservation_residual": 0
+    },
+    "patterns": [
+      {
+        "name": "North (Ekene-2 element)",
+        "producers": [
+          "Ekene-1",
+          "Ekene-6"
+        ],
+        "cumulative_vrr": 1.2024353717815623,
+        "latest_instantaneous_vrr": 1.2425079040670826,
+        "rolling3_last": 1.240523853264427,
+        "total_produced_voidage_rb": 112596.66438357021,
+        "total_injected_voidage_rb": 135390.21199942206,
+        "fill_up": {
+          "index": 0,
+          "label": "2023-01",
+          "startedAbove": true
+        },
+        "recommendation": {
+          "withheld": false,
+          "currentVRR": 1.240523853264427,
+          "targetVRR": 1,
+          "scale": 0.8061110613621087,
+          "clamped": false,
+          "windowPeriods": 3,
+          "currentWi": 3320.2225730545156,
+          "recommendedWi": 2676.4681423234074,
+          "perInjector": [
+            {
+              "well": "Ekene-2",
+              "currentWi": 2532.3731489398847,
+              "recommendedWi": 2041.3740068568359,
+              "deltaWi": -490.99914208304875
+            },
+            {
+              "well": "Ekene-4",
+              "currentWi": 787.8494241146308,
+              "recommendedWi": 635.0941354665712,
+              "deltaWi": -152.7552886480596
+            }
+          ]
+        }
+      },
+      {
+        "name": "South (Ekene-4 element)",
+        "producers": [
+          "Ekene-3",
+          "Ekene-5"
+        ],
+        "cumulative_vrr": 0.6097477559533482,
+        "latest_instantaneous_vrr": 0.6072854843711397,
+        "rolling3_last": 0.6082528252875008,
+        "total_produced_voidage_rb": 109139.77242556904,
+        "total_injected_voidage_rb": 66547.73132174983,
+        "fill_up": null,
+        "recommendation": {
+          "withheld": false,
+          "currentVRR": 0.6082528252875008,
+          "targetVRR": 1,
+          "scale": 1.644053193714856,
+          "clamped": false,
+          "windowPeriods": 3,
+          "currentWi": 1631.9738070945923,
+          "recommendedWi": 2683.051749612857,
+          "perInjector": [
+            {
+              "well": "Ekene-4",
+              "currentWi": 1125.4991773066156,
+              "recommendedWi": 1850.3805169743844,
+              "deltaWi": 724.8813396677687
+            },
+            {
+              "well": "Ekene-2",
+              "currentWi": 506.4746297879769,
+              "recommendedWi": 832.6712326384727,
+              "deltaWi": 326.1966028504958
+            }
+          ]
+        }
+      }
+    ],
+    "pressure": {
+      "trough_label": "2023-04",
+      "trough_psia": 2088.9530115439275,
+      "end_psia": 2123.4461408278908,
+      "attached": [
+        {
+          "label": "2023-01",
+          "pressure": 2092.973311798282,
+          "dpdt": -0.14483967829573885
+        },
+        {
+          "label": "2023-02",
+          "pressure": 2092.828472119986,
+          "dpdt": -0.21725951744360827
+        },
+        {
+          "label": "2023-03",
+          "pressure": 2092.5387927633947,
+          "dpdt": -0.2896793565914777
+        },
+        {
+          "label": "2023-04",
+          "pressure": 2092.249113406803,
+          "dpdt": -0.2896793565912503
+        },
+        {
+          "label": "2023-05",
+          "pressure": 2091.959434050212,
+          "dpdt": -0.2896793565912503
+        },
+        {
+          "label": "2023-06",
+          "pressure": 2091.6697546936207,
+          "dpdt": -0.2896793565914777
+        },
+        {
+          "label": "2023-07",
+          "pressure": 2091.380075337029,
+          "dpdt": 0.07555943387160369
+        },
+        {
+          "label": "2023-08",
+          "pressure": 2091.820873561364,
+          "dpdt": 0.8060370147979938
+        },
+        {
+          "label": "2023-09",
+          "pressure": 2092.992149366625,
+          "dpdt": 1.1712758052613026
+        },
+        {
+          "label": "2023-10",
+          "pressure": 2094.1634251718865,
+          "dpdt": 1.1712758052610752
+        },
+        {
+          "label": "2023-11",
+          "pressure": 2095.3347009771473,
+          "dpdt": 1.1712758052610752
+        },
+        {
+          "label": "2023-12",
+          "pressure": 2096.5059767824087,
+          "dpdt": 1.1712758052613026
+        },
+        {
+          "label": "2024-01",
+          "pressure": 2097.67725258767,
+          "dpdt": 1.1769800336992375
+        },
+        {
+          "label": "2024-02",
+          "pressure": 2098.859936849807,
+          "dpdt": 1.1883884905751074
+        },
+        {
+          "label": "2024-03",
+          "pressure": 2100.05402956882,
+          "dpdt": 1.1940927190130424
+        },
+        {
+          "label": "2024-04",
+          "pressure": 2101.248122287833,
+          "dpdt": 1.1940927190132697
+        },
+        {
+          "label": "2024-05",
+          "pressure": 2102.4422150068467,
+          "dpdt": 1.1940927190132697
+        },
+        {
+          "label": "2024-06",
+          "pressure": 2103.6363077258598,
+          "dpdt": 1.1940927190130424
+        },
+        {
+          "label": "2024-07",
+          "pressure": 2104.830400444873,
+          "dpdt": 1.1799650767816274
+        },
+        {
+          "label": "2024-08",
+          "pressure": 2105.996237879423,
+          "dpdt": 1.1517097923183428
+        },
+        {
+          "label": "2024-09",
+          "pressure": 2107.1338200295095,
+          "dpdt": 1.1375821500867005
+        },
+        {
+          "label": "2024-10",
+          "pressure": 2108.2714021795964,
+          "dpdt": 1.1375821500869279
+        },
+        {
+          "label": "2024-11",
+          "pressure": 2109.4089843296833,
+          "dpdt": 1.1375821500869279
+        },
+        {
+          "label": "2024-12",
+          "pressure": 2110.5465664797703,
+          "dpdt": 1.1375821500867005
+        },
+        {
+          "label": "2025-01",
+          "pressure": 2111.6841486298567,
+          "dpdt": 1.114145164583988
+        },
+        {
+          "label": "2025-02",
+          "pressure": 2112.7748568089382,
+          "dpdt": 1.0672711935787902
+        },
+        {
+          "label": "2025-03",
+          "pressure": 2113.8186910170143,
+          "dpdt": 1.0438342080760776
+        },
+        {
+          "label": "2025-04",
+          "pressure": 2114.8625252250904,
+          "dpdt": 1.0438342080760776
+        },
+        {
+          "label": "2025-05",
+          "pressure": 2115.9063594331665,
+          "dpdt": 1.0438342080760776
+        },
+        {
+          "label": "2025-06",
+          "pressure": 2116.9501936412425,
+          "dpdt": 1.0438342080760776
+        },
+        {
+          "label": "2025-07",
+          "pressure": 2117.9940278493186,
+          "dpdt": 0.7828756560570582
+        },
+        {
+          "label": "2025-08",
+          "pressure": 2118.5159449533567,
+          "dpdt": 0.2609585520190194
+        },
+        {
+          "label": "2025-09",
+          "pressure": 2118.5159449533567,
+          "dpdt": 0
+        },
+        {
+          "label": "2025-10",
+          "pressure": 2118.5159449533567,
+          "dpdt": 0
+        },
+        {
+          "label": "2025-11",
+          "pressure": 2118.5159449533567,
+          "dpdt": 0
+        },
+        {
+          "label": "2025-12",
+          "pressure": 2118.5159449533567,
+          "dpdt": 0
+        }
+      ],
+      "interpolated_trough_label": "2023-07",
+      "interpolated_trough_psia": 2091.380075337029,
+      "trough_missed_by_psi": 2.427063793101752,
+      "fvf_track_bo": [
+        1.2159411843101047,
+        1.215943270001472,
+        1.215947441384207,
+        1.2159516127669419,
+        1.2159557841496769,
+        1.2159599555324119,
+        1.2159641269151467,
+        1.2159577794207164,
+        1.2159409130491206,
+        1.2159240466775247,
+        1.215907180305929,
+        1.2158903139343333,
+        1.2158734475627375,
+        1.2158564169093626,
+        1.215839221974209,
+        1.2158220270390552,
+        1.2158048321039012,
+        1.2157876371687475,
+        1.2157704422335938,
+        1.2157536541745362,
+        1.215737272991575,
+        1.2157208918086138,
+        1.2157045106256525,
+        1.2156881294426913,
+        1.21567174825973,
+        1.215656042061951,
+        1.215641010849355,
+        1.2156259796367586,
+        1.2156109484241624,
+        1.215595917211566,
+        1.2155808859989696,
+        1.2155733703926717,
+        1.2155733703926717,
+        1.2155733703926717,
+        1.2155733703926717,
+        1.2155733703926717
+      ],
+      "fvf_interpolation_max_rel_diff": 1.8266655911794395e-16,
+      "cumulative_vrr_tracked_bo": 1.0349459620241488,
+      "cumulative_vrr_frozen_bo": 1.034899536109,
+      "tracked_vs_frozen_pct": 0.004486031110162436
+    },
+    "layered_sweep": {
+      "V": 0.5,
+      "sigma": 0.6931471805599453,
+      "k50": 250.0000000000001,
+      "n": 5,
+      "dykstra_parsons": [
+        {
+          "layerIndex": 0,
+          "k_md": 607.7507038307907,
+          "coverage": 0.5146907350993352,
+          "WOR": 1.099451244867303
+        },
+        {
+          "layerIndex": 1,
+          "k_md": 359.5839451276606,
+          "coverage": 0.7006338168863273,
+          "WOR": 2.3487180336335642
+        },
+        {
+          "layerIndex": 2,
+          "k_md": 250,
+          "coverage": 0.82871309650611,
+          "WOR": 5.307953543353247
+        },
+        {
+          "layerIndex": 3,
+          "k_md": 173.81198701129736,
+          "coverage": 0.9282289679872078,
+          "WOR": 19.26213317694089
+        },
+        {
+          "layerIndex": 4,
+          "k_md": 102.8382190362731,
+          "coverage": 1,
+          "WOR": "Infinity"
+        }
+      ],
+      "stiles": [
+        {
+          "layerIndex": 0,
+          "k_md": 607.7507038307907,
+          "coverage": 0.5283542009271434,
+          "water_cut": 0.5843728303284756
+        },
+        {
+          "layerIndex": 1,
+          "k_md": 359.5839451276606,
+          "coverage": 0.712244206408273,
+          "water_cut": 0.7544492578929508
+        },
+        {
+          "layerIndex": 2,
+          "k_md": 250,
+          "coverage": 0.8365881348910084,
+          "water_cut": 0.8752362824061102
+        },
+        {
+          "layerIndex": 3,
+          "k_md": 173.81198701129736,
+          "coverage": 0.9319439266959082,
+          "water_cut": 0.9620748854997383
+        },
+        {
+          "layerIndex": 4,
+          "k_md": 102.8382190362731,
+          "coverage": 1,
+          "water_cut": 1
+        }
+      ],
+      "ev_first_breakthrough": 0.5146907350993352
+    },
+    "pattern_forecast": {
+      "observed": {
+        "inputs": {
+          "area_acres": 208.8040473397547,
+          "h_ft": 34.585155812896204,
+          "phi": 0.2,
+          "Bo": 1.21584,
+          "Bw": 1.02,
+          "Sgi": 0,
+          "EV": 1,
+          "worLimit": 25,
+          "maxYears": 30,
+          "iw_bpd": 104.68747061689818
+        },
+        "summary": {
+          "M": 1.2,
+          "EAbt": 0.6573574366303985,
+          "WiBT_bbl": 2436332.0258629364,
+          "breakthrough_days": null,
+          "Np_stb": 943473.6143609865,
+          "recoveryFactorOfFloodedOOIP": 0.1575013967147545,
+          "finalWOR": 0,
+          "elapsed_days": 10957.5,
+          "stopped": "horizon",
+          "ooip_flooded_stb": 5990255.540842473
+        },
+        "breakthrough": null,
+        "steps": 360,
+        "warnings": []
+      },
+      "design": {
+        "inputs": {
+          "area_acres": 208.8040473397547,
+          "h_ft": 34.585155812896204,
+          "phi": 0.2,
+          "Bo": 1.21584,
+          "Bw": 1.02,
+          "Sgi": 0,
+          "EV": 0.5146907350993352,
+          "worLimit": 25,
+          "maxYears": 30,
+          "iw_bpd": 2000
+        },
+        "summary": {
+          "M": 1.2,
+          "EAbt": 0.6573574366303985,
+          "WiBT_bbl": 1253957.5213374475,
+          "breakthrough_days": 639.1875,
+          "Np_stb": 1709784.4164781766,
+          "recoveryFactorOfFloodedOOIP": 0.5545614215589451,
+          "finalWOR": 31.119000015950355,
+          "elapsed_days": 2221.9375,
+          "stopped": "wor-limit",
+          "ooip_flooded_stb": 3083129.0277490774
+        },
+        "breakthrough": {
+          "t_days": 639.1875,
+          "Wi_bbl": 1278375,
+          "EAbt": 0.6573574366303985,
+          "WiBT_bbl": 1253957.5213374475,
+          "QiBt": 0.33077027444818546
+        },
+        "steps": 73,
+        "warnings": [
+          "Vertical sweep applied as a constant multiplier on the flooded volume (screening simplification)."
+        ]
+      },
+      "fillup": {
+        "inputs": {
+          "area_acres": 208.8040473397547,
+          "h_ft": 34.585155812896204,
+          "phi": 0.2,
+          "Bo": 1.21584,
+          "Bw": 1.02,
+          "Sgi": 0.05,
+          "EV": 0.5146907350993352,
+          "worLimit": 25,
+          "maxYears": 30,
+          "iw_bpd": 2000
+        },
+        "summary": {
+          "M": 1.2,
+          "EAbt": 0.6573574366303985,
+          "WiBT_bbl": 1253957.5213374475,
+          "breakthrough_days": 791.375,
+          "Np_stb": 1710241.7585443351,
+          "recoveryFactorOfFloodedOOIP": 0.5547097585445342,
+          "finalWOR": 31.990119457932582,
+          "elapsed_days": 2374.125,
+          "stopped": "wor-limit",
+          "ooip_flooded_stb": 3083129.0277490774
+        },
+        "breakthrough": {
+          "t_days": 791.375,
+          "Wi_bbl": 1294396.800223197,
+          "EAbt": 0.6573574366303985,
+          "WiBT_bbl": 1253957.5213374475,
+          "QiBt": 0.33077027444818546
+        },
+        "steps": 78,
+        "warnings": [
+          "Vertical sweep applied as a constant multiplier on the flooded volume (screening simplification).",
+          "Initial free gas: injection first refills PV*Sgi with no production response (fill-up simplification)."
+        ]
+      }
+    },
+    "channeling": {
+      "producer": "Ekene-6",
+      "breakthrough_date": "2024-03-01",
+      "breakthrough_days": 425,
+      "allocated_injection_bbl": 35106.29313483455,
+      "EAbt": 0.6573574366303985,
+      "QiBt": 0.33077027444818546,
+      "implied_swept_pv_rb": 164686.15596920124,
+      "implied_swept_fraction_of_element": 0.014697005138728762
+    },
+    "surveillance": {
+      "kpis": {
+        "avg_water_cut_pct": 3.5319799960942144,
+        "vrr_avg": 1.034709324454895,
+        "vrr_rolling": 1.05,
+        "total_injected_bbl": 7387.864548179313,
+        "total_oil_bbl": 5811.462884424147,
+        "total_water_bbl": 212.7748724914124
+      },
+      "cumulative_vrr_rows_as_days": 1.034709324454895,
+      "wrong_case_vrr_avg": 1.2263567352896008,
+      "wrong_case_vrr_ratio": 1.185218598407499,
+      "hall_absolute_pressure": [
+        {
+          "injector": "Ekene-2",
+          "slope_baseline": 18.95998132427112,
+          "slope_recent": 19.613050810491938,
+          "slope_ratio": 1.0344446270832983
+        },
+        {
+          "injector": "Ekene-4",
+          "slope_baseline": 27.439971986406658,
+          "slope_recent": 29.276719072880777,
+          "slope_ratio": 1.0669369155108472
+        }
+      ],
+      "hall_above_reference": [
+        {
+          "injector": "Ekene-2",
+          "slope_baseline": 2.0000000000000004,
+          "slope_recent": 2.0000000000000004,
+          "slope_ratio": 1
+        },
+        {
+          "injector": "Ekene-4",
+          "slope_baseline": 2.0000000000000013,
+          "slope_recent": 2.857142857142859,
+          "slope_ratio": 1.4285714285714286
+        }
+      ],
+      "injectivity_alerts_absolute": [],
+      "injectivity_alerts_above_reference": [
+        {
+          "injector": "Ekene-4",
+          "message": "Injector Ekene-4: Hall slope up 1.43× vs baseline — declining injectivity (rising skin / near-well plugging)."
+        }
+      ],
+      "chan": {
+        "field": {
+          "late_slope": 2.2114559940777454,
+          "code": "channeling"
+        },
+        "producers": [
+          {
+            "producer": "Ekene-3",
+            "late_slope": 1.6028659409443355,
+            "code": "channeling"
+          },
+          {
+            "producer": "Ekene-6",
+            "late_slope": 2.348281726147951,
+            "code": "channeling"
+          }
+        ]
+      },
+      "pattern_lags": [
+        {
+          "injector": "Ekene-2",
+          "producer": "Ekene-5",
+          "lag": 6,
+          "corr": 0.798407395054563,
+          "overlap": 29
+        },
+        {
+          "injector": "Ekene-4",
+          "producer": "Ekene-5",
+          "lag": 6,
+          "corr": 0.7984073950545626,
+          "overlap": 29
+        },
+        {
+          "injector": "Ekene-2",
+          "producer": "Ekene-3",
+          "lag": 3,
+          "corr": 0.7810227961471732,
+          "overlap": 32
+        },
+        {
+          "injector": "Ekene-4",
+          "producer": "Ekene-3",
+          "lag": 3,
+          "corr": 0.781022796147173,
+          "overlap": 32
+        },
+        {
+          "injector": "Ekene-4",
+          "producer": "Ekene-1",
+          "lag": 2,
+          "corr": 0.7771615767762312,
+          "overlap": 33
+        },
+        {
+          "injector": "Ekene-2",
+          "producer": "Ekene-1",
+          "lag": 2,
+          "corr": 0.7771615767762309,
+          "overlap": 33
+        },
+        {
+          "injector": "Ekene-2",
+          "producer": "Ekene-6",
+          "lag": 0,
+          "corr": 0.7718602890660337,
+          "overlap": 35
+        },
+        {
+          "injector": "Ekene-4",
+          "producer": "Ekene-6",
+          "lag": 0,
+          "corr": 0.7718602890660337,
+          "overlap": 35
+        }
+      ],
+      "field_recommendation": [
+        {
+          "injector": "Ekene-2",
+          "avg_inj_last30_bpd": 126.85174379772998,
+          "suggested_inj_bpd": 120.81118456926664,
+          "delta_bpd": -6.040559228463337
+        },
+        {
+          "injector": "Ekene-4",
+          "avg_inj_last30_bpd": 84.56782919848665,
+          "suggested_inj_bpd": 80.54078971284443,
+          "delta_bpd": -4.02703948564222
+        }
+      ]
+    }
   }
 }
