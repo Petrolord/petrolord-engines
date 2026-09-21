@@ -18,12 +18,13 @@
 // - Every engine-facing number in a course lesson must trace to this file.
 
 import * as fs from 'fs';
+import { createHash } from 'crypto';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
 import { fitArpsModel, calculateEUR } from '../../engines/dca/arps.js';
 import { computeMaterialBalance } from '../../engines/mbal/mbalEngine.ts';
-import { analyzeDisplacement, mobilityRatio } from '../../engines/scal/fractionalFlow.js';
+import { analyzeDisplacement, mobilityRatio, coreyKr } from '../../engines/scal/fractionalFlow.js';
 import {
   computeJTable,
   averageJCurves,
@@ -35,6 +36,13 @@ import {
   PSI_PER_FT_WATER,
 } from '../../engines/scal/scal.js';
 import { computeVRRSeries, summarizeVRR } from '../../engines/waterflood/vrr.js';
+import { simpleKrige } from '../../engines/earthmodeling/properties.js';
+import { zoneVolumes } from '../../engines/earthmodeling/volumes.js';
+import { generatePvtTable } from '../../engines/mbal/mbalEngine.ts';
+import { columnTopDepth, columnInterfaces, gridDepthRange, gridCellCount, topsArray } from '../../engines/sim/emitGrid.js';
+import { connectionsFromPath, cellAtPoint } from '../../engines/sim/wellPath.js';
+import { composeDeck, validateSpec } from '../../engines/sim/composeDeck.js';
+import { wellConnectionCount } from '../../engines/sim/emitSchedule.js';
 import {
   buildFieldPeriods,
   validateAllocation,
@@ -1300,6 +1308,544 @@ const files = {
     },
   },
 };
+
+// ============================================================================
+// E. Reservoir simulation deck fixture (RC5)
+// ============================================================================
+// The deck is where the previous four courses have to agree. Its structure is
+// the six mapped well tops kriged with the CENTRAL earth-modelling engine, its
+// layer column is RC4's Dykstra-Parsons column scaled to the mapped net pay,
+// its rock curves are RC3's Corey design, its oil PVT is the RC2 tank's own
+// designed fluid and its history is RC4's ledger. Nothing here is a new
+// implementation: every number is an engine call or a locked design constant.
+//
+// The deck's grid is in FIELD units (ft) with its origin half a cell south-west
+// of the field origin, so a well whose map coordinates are multiples of the
+// 100 m cell lands exactly on a cell centre. Ekene-2 does not (y = 1150), and
+// the depth it inherits from the nearest cell centre is a lesson rather than a
+// defect.
+
+const FT_PER_M = M_TO_FT;
+const SIM_DESIGN = {
+  cellM: 100,
+  nx: 30,
+  ny: 30,
+  // Deck coordinates are field coordinates plus half a cell, so cell (i,j)
+  // has its centre at field ((i-1)*100, (j-1)*100).
+  originOffsetM: 50,
+  // Simple kriging of TOP_SAND from the six mapped well tops. Nugget 0 makes
+  // it an exact interpolator AT THE WELL, which is the planted-parameter trick
+  // every RC wave uses. The regional mean is the one free parameter and it is
+  // CALIBRATED (below) so the deck reproduces the NG5 booked oil volume under
+  // Eclipse's own cell-centre saturation rule.
+  krig: { model: 'spherical', range: 1200, sill: 400, nugget: 0 },
+  regionalMean_m: 1570.026311,
+  // Bubble point is never crossed in the Ekene history, so the saturated
+  // branch exists to make the deck a valid live-oil deck rather than to be
+  // exercised. Rs is linear in pressure below pb and Bo shrinks with it.
+  pvt: { pSatNodes: [1000, 1500, 2000], pUndersat: [2600, 3200, 3800] },
+  gasTable: { pMin: 400, pMax: 3800, nSteps: 12 },
+  satfn: { nRows: 21 },
+  // A deviated side-track from Ekene-6 toward the crest: the Expert tier's
+  // trajectory-to-connections exercise.
+  deviated: {
+    name: 'EK6-ST',
+    from: { x: 1900, y: 1800 },
+    to: { x: 1500, y: 2100 },
+  },
+};
+
+const simGrid0 = { nx: SIM_DESIGN.nx, ny: SIM_DESIGN.ny, dx: SIM_DESIGN.cellM * FT_PER_M, dy: SIM_DESIGN.cellM * FT_PER_M };
+const cellCentreFieldXY = (i, j) => [(i - 1) * SIM_DESIGN.cellM, (j - 1) * SIM_DESIGN.cellM];
+const fieldToDeckFt = (v) => (v + SIM_DESIGN.originOffsetM) * FT_PER_M;
+const ijOfFieldXY = (x, y) => [
+  Math.floor(fieldToDeckFt(x) / simGrid0.dx) + 1,
+  Math.floor(fieldToDeckFt(y) / simGrid0.dy) + 1,
+];
+
+// --- structure: krige the six mapped tops onto the cell centres -------------
+const simControlPoints = WELL_TABLE.map((w) => ({ x: w.x, y: w.y, v: w.top_sand_m }));
+const simTargets = [];
+for (let j = 1; j <= SIM_DESIGN.ny; j += 1) {
+  for (let i = 1; i <= SIM_DESIGN.nx; i += 1) simTargets.push(cellCentreFieldXY(i, j));
+}
+const simTopsM = simpleKrige(simControlPoints, SIM_DESIGN.regionalMean_m, SIM_DESIGN.krig, simTargets);
+
+// --- layer column: RC4's proportions scaled to the mapped net pay -----------
+const simNetPayFt = netThicknessFt;
+const simLayerHSum = layerColumn.reduce((s, l) => s + l.h_ft, 0);
+const simLayers = layerColumn.map((l) => ({
+  name: l.name,
+  dz: (simNetPayFt * l.h_ft) / simLayerHSum,
+  poro: STATIC_FIELD.phi,
+  permx: l.k_md,
+  permz: l.k_md / 10, // design kv/kh; the layered-sweep model assumes no crossflow
+}));
+const simGrid = { ...simGrid0, nz: simLayers.length, layers: simLayers, tops: simTopsM.map((t) => t * FT_PER_M) };
+
+// The kriging is exact at a well only when the well sits on a cell centre.
+const simWellTops = WELL_TABLE.map((w) => {
+  const [i, j] = ijOfFieldXY(w.x, w.y);
+  const deckTopFt = columnTopDepth(simGrid, i, j);
+  const deckTopM = deckTopFt / FT_PER_M;
+  return { well: w.name, i, j, mapped_top_m: w.top_sand_m, deck_top_m: deckTopM, delta_m: deckTopM - w.top_sand_m };
+});
+simWellTops.forEach((r) => {
+  const onCentre = r.mapped_top_m != null && Math.abs(cellCentreFieldXY(r.i, r.j)[0] - WELL_TABLE.find((w) => w.name === r.well).x) < 1e-9
+    && Math.abs(cellCentreFieldXY(r.i, r.j)[1] - WELL_TABLE.find((w) => w.name === r.well).y) < 1e-9;
+  if (onCentre && Math.abs(r.delta_m) > 1e-9) {
+    throw new Error(`sim: kriging should be exact at ${r.well} (on a cell centre) but is off by ${r.delta_m} m`);
+  }
+});
+const simOffCentreWells = simWellTops.filter((r) => Math.abs(r.delta_m) > 1e-9);
+if (simOffCentreWells.length !== 1 || simOffCentreWells[0].well !== 'Ekene-2') {
+  throw new Error(`sim: expected exactly Ekene-2 off a cell centre, got ${simOffCentreWells.map((r) => r.well).join(',')}`);
+}
+
+// --- volumetrics: the SAME central engine that produced the NG5 booking -----
+const simDzM = simLayers.map((l) => l.dz / FT_PER_M);
+const simNetM = simNetPayFt / FT_PER_M;
+const simVolSpec = { dx: SIM_DESIGN.cellM, dy: SIM_DESIGN.cellM, nx: SIM_DESIGN.nx, ny: SIM_DESIGN.ny };
+// Eclipse assigns a cell to oil or water by its CENTRE depth against the
+// contact, so the deck's oil volume is a layered step function, not a taper.
+const simOilColCentreRule = simTopsM.map((t) => {
+  let d = t;
+  let oil = 0;
+  simDzM.forEach((dz) => { if (d + dz / 2 < STATIC_FIELD.owc_m_tvd) oil += dz; d += dz; });
+  return oil;
+});
+// The alternative convention: clip the COLUMN at the contact.
+const simOilColTapered = simTopsM.map((t) => Math.max(0, Math.min(simNetM, STATIC_FIELD.owc_m_tvd - t)));
+const simVolumes = (thickness) => {
+  const b = zoneVolumes(simVolSpec, thickness, thickness.map(() => 'SAND'), {
+    ntg: thickness.map(() => 1), // the deck's dz is already NET pay
+    phi: thickness.map(() => STATIC_FIELD.phi),
+    sw: thickness.map(() => STATIC_FIELD.swi),
+  }).SAND;
+  return { ...b, stoiip_stb: (b.hcpv_m3 / STATIC_FIELD.boi_rb_stb) * STATIC_FIELD.stb_per_m3 };
+};
+const simVolCentre = simVolumes(simOilColCentreRule);
+const simVolTaper = simVolumes(simOilColTapered);
+const simOilCells = simOilColCentreRule.filter((t) => t > 0).length;
+const simStoiipGapPct = (simVolCentre.stoiip_stb / STATIC_FIELD.stoiip_stb - 1) * 100;
+if (Math.abs(simStoiipGapPct) > 0.1) {
+  throw new Error(`sim: the calibrated deck should reproduce the NG5 booking within 0.1 pct, got ${simStoiipGapPct}`);
+}
+if (simOilCells <= STATIC_FIELD.oil_cells) {
+  throw new Error(`sim: matching the booked VOLUME should take more cells than the booked area (${simOilCells} vs ${STATIC_FIELD.oil_cells})`);
+}
+say(
+  `sim structure: ${simOilCells} oil cells (booking area ${STATIC_FIELD.oil_cells}), ` +
+    `deck STOIIP ${simVolCentre.stoiip_stb} stb vs booking ${STATIC_FIELD.stoiip_stb} (${simStoiipGapPct} pct)`,
+);
+
+// --- PVT: the RC2 tank's own designed oil, the central engine's gas ---------
+// The oil is DESIGNED, not correlated, because the tank model, the flood
+// ledger and the SCAL curves all used the designed fluid: Boi 1.2 at pi 3200
+// on the co 1.2e-5 undersaturated line, Rsi 400 above pb 2000. Feeding the
+// same API/gas-gravity into Standing's correlation gives Rs 421.9 and Bo
+// 1.229 instead, and that gap is course material rather than a value to seed.
+const SIM_PVT_DESIGN = { muSlopePerPsi: 2e-5, gasOil: { Sgc: 0.05, krgMax: 0.8, ng: 2.0 } };
+const boUndersat = (p) => STATIC_FIELD.boi_rb_stb * (1 + MBAL_DESIGN.co_per_psi * (MBAL_DESIGN.pi_psia - p));
+const boAtPb = boUndersat(MBAL_DESIGN.pb_psia);
+const muoAtPb = SCAL_DESIGN.muO_cp;
+const boSat = (p) => 1 + (boAtPb - 1) * (p / MBAL_DESIGN.pb_psia);
+const rsSat = (p) => (MBAL_DESIGN.rsi_scf_stb * p) / MBAL_DESIGN.pb_psia;
+const muoSat = (p) => muoAtPb * (2 - p / MBAL_DESIGN.pb_psia);
+const muoUndersat = (p) => muoAtPb * (1 + SIM_PVT_DESIGN.muSlopePerPsi * (p - MBAL_DESIGN.pb_psia));
+
+const simPvtoRecords = SIM_DESIGN.pvt.pSatNodes.map((p) => {
+  const atPb = p === MBAL_DESIGN.pb_psia;
+  return {
+    // Eclipse PVTO carries Rs in Mscf/stb in FIELD units.
+    rs: rsSat(p) / 1000,
+    p,
+    bo: atPb ? boAtPb : boSat(p),
+    muo: atPb ? muoAtPb : muoSat(p),
+    ...(atPb
+      ? { undersat: SIM_DESIGN.pvt.pUndersat.map((pu) => ({ p: pu, bo: boUndersat(pu), muo: muoUndersat(pu) })) }
+      : {}),
+  };
+});
+if (Math.abs(simPvtoRecords[simPvtoRecords.length - 1].bo - boAtPb) > 0) {
+  throw new Error('sim: the saturated branch must meet the undersaturated line exactly at pb');
+}
+if (!(boUndersat(MBAL_DESIGN.pi_psia) === STATIC_FIELD.boi_rb_stb)) {
+  throw new Error(`sim: the undersaturated line must return Boi exactly at pi, got ${boUndersat(MBAL_DESIGN.pi_psia)}`);
+}
+
+const simGasTable = generatePvtTable({
+  fluid_system: 'gas',
+  gas_specific_gravity: MBAL_DESIGN.gas_sg,
+  reservoir_temperature_f: MBAL_DESIGN.temp_f,
+  initial_pressure_psia: MBAL_DESIGN.pi_psia,
+  pressure_min_psia: SIM_DESIGN.gasTable.pMin,
+  pressure_max_psia: SIM_DESIGN.gasTable.pMax,
+  n_steps: SIM_DESIGN.gasTable.nSteps,
+});
+const simPvdg = simGasTable.rows.map((r) => ({ p: r.pressure_psia, bg: r.Bg, mug: r.gas_viscosity_cp }));
+if (!simPvdg.every((r) => r.bg > 0 && r.mug > 0)) throw new Error('sim: the gas table must be positive throughout');
+if (!simPvdg.every((r, i) => i === 0 || r.bg < simPvdg[i - 1].bg)) {
+  throw new Error('sim: Bg must fall monotonically with pressure');
+}
+
+// Fluid densities at surface conditions, from the locked gravities.
+const API_TO_SG = (api) => 141.5 / (131.5 + api);
+const WATER_DENSITY_LBFT3 = 62.428;
+const AIR_DENSITY_LBFT3 = 0.076362;
+const simDensity = {
+  oil: API_TO_SG(MBAL_DESIGN.api) * WATER_DENSITY_LBFT3,
+  water: CAP_DESIGN.gammaW * WATER_DENSITY_LBFT3,
+  gas: MBAL_DESIGN.gas_sg * AIR_DENSITY_LBFT3,
+};
+
+// --- saturation functions: RC3's Corey design, RC3's J-curve capillary ------
+const simSwof = (() => {
+  const { Swc, Sor } = SCAL_DESIGN.krSpec;
+  const rows = [];
+  const n = SIM_DESIGN.satfn.nRows - 1;
+  for (let i = 0; i <= n; i += 1) {
+    const Sw = Swc + ((1 - Sor - Swc) * i) / n;
+    const kr = coreyKr(Sw, SCAL_DESIGN.krSpec);
+    rows.push({ Sw, krw: kr.krw, krow: kr.kro, pcow: 0 });
+  }
+  // Axis closure: Eclipse needs the table to reach Sw = 1. Past 1 - Sor the
+  // oil is immobile and the water endpoint is held.
+  rows.push({ Sw: 1, krw: SCAL_DESIGN.krSpec.krwMax, krow: 0, pcow: 0 });
+  return rows;
+})();
+if (simSwof[0].Sw !== SCAL_DESIGN.krSpec.Swc) throw new Error('sim: SWOF must start at Swc');
+if (simSwof[simSwof.length - 1].Sw !== 1) throw new Error('sim: SWOF must close at Sw = 1');
+if (simSwof[0].krw !== 0) throw new Error('sim: krw must be zero at Swc');
+
+const simSgof = (() => {
+  const { Swc, Sor, kroMax, no } = SCAL_DESIGN.krSpec;
+  const { Sgc, krgMax, ng } = SIM_PVT_DESIGN.gasOil;
+  const SgMax = 1 - Swc;
+  const rows = [];
+  const n = SIM_DESIGN.satfn.nRows - 1;
+  const mobile = 1 - Swc - Sgc - Sor;
+  for (let i = 0; i <= n; i += 1) {
+    const Sg = (SgMax * i) / n;
+    const sgStar = Math.min(1, Math.max(0, (Sg - Sgc) / mobile));
+    const soStar = Math.min(1, Math.max(0, (1 - Swc - Sg - Sor) / (1 - Swc - Sor)));
+    rows.push({ Sg, krg: krgMax * sgStar ** ng, krog: kroMax * soStar ** no, pcog: 0 });
+  }
+  return rows;
+})();
+if (simSgof[0].Sg !== 0 || simSgof[0].krg !== 0) throw new Error('sim: SGOF must start at Sg = 0 with krg = 0');
+if (Math.abs(simSgof[simSgof.length - 1].Sg - (1 - SCAL_DESIGN.krSpec.Swc)) > 1e-12) {
+  throw new Error('sim: SGOF must close at Sg = 1 - Swc, the SPE1 axis lesson');
+}
+
+// --- wells: the six Ekene wells at their kriged cells -----------------------
+const simWellCell = (name) => simWellTops.find((r) => r.well === name);
+const simColumnMidFt = (i, j) => {
+  const ifc = columnInterfaces(simGrid, i, j);
+  return (ifc[0] + ifc[ifc.length - 1]) / 2;
+};
+const simProducers = WELL_TABLE.filter((w) => w.role === 'producer');
+const simInjectors = WELL_TABLE.filter((w) => w.role !== 'producer');
+const simVerticalWells = WELL_TABLE.map((w) => {
+  const c = simWellCell(w.name);
+  const producer = w.role === 'producer';
+  return {
+    name: w.name,
+    type: producer ? 'producer' : 'water_injector',
+    i: c.i,
+    j: c.j,
+    k1: 1,
+    k2: simGrid.nz,
+    refDepth: simColumnMidFt(c.i, c.j),
+    wellboreRadiusFt: 0.35,
+    control: producer
+      ? { mode: 'ORAT', rate: 1500, bhpMin: 1200 }
+      : { rate: 3000, bhpMax: 4500 },
+  };
+});
+simVerticalWells.forEach((w) => {
+  const n = wellConnectionCount(w, simGrid.nz);
+  if (n !== simGrid.nz) throw new Error(`sim: ${w.name} should connect all ${simGrid.nz} layers, got ${n}`);
+});
+
+// A deviated side-track from Ekene-6 toward the crest. The trajectory is
+// intersected against the grid by the central wellPath engine; the connection
+// list is a RESULT, never a hand-written COMPDAT.
+const simDevFrom = SIM_DESIGN.deviated.from;
+const simDevTo = SIM_DESIGN.deviated.to;
+const simDevFromCell = ijOfFieldXY(simDevFrom.x, simDevFrom.y);
+const simDevToCell = ijOfFieldXY(simDevTo.x, simDevTo.y);
+const simDevPath = [
+  {
+    x: fieldToDeckFt(simDevFrom.x),
+    y: fieldToDeckFt(simDevFrom.y),
+    depth: columnInterfaces(simGrid, simDevFromCell[0], simDevFromCell[1])[0] + 0.01,
+  },
+  {
+    x: fieldToDeckFt(simDevTo.x),
+    y: fieldToDeckFt(simDevTo.y),
+    depth: columnInterfaces(simGrid, simDevToCell[0], simDevToCell[1])[simGrid.nz] - 0.01,
+  },
+];
+const simDevConnections = connectionsFromPath(simDevPath, simGrid);
+if (!simDevConnections.length) throw new Error('sim: the deviated path missed the grid entirely');
+const simDevCells = new Set(simDevConnections.map((c) => `${c.i},${c.j}`));
+if (simDevCells.size < 2) {
+  throw new Error(`sim: a deviated path should cross more than one column, got ${simDevCells.size}`);
+}
+const simDevWell = {
+  name: SIM_DESIGN.deviated.name,
+  type: 'producer',
+  connections: simDevConnections,
+  refDepth: simColumnMidFt(simDevFromCell[0], simDevFromCell[1]),
+  wellboreRadiusFt: 0.35,
+  control: { mode: 'ORAT', rate: 1200, bhpMin: 1200 },
+};
+
+// --- history: the RC4 monthly ledger, as rates ------------------------------
+const simHistoryPeriods = floodMonths.map((date) => {
+  const days = daysInMonthOf(date);
+  const rows = ledgerRows.filter((r) => r.date === date);
+  const prod = rows
+    .filter((r) => simProducers.some((p) => p.name === r.well))
+    .map((r) => ({ name: r.well, orat: r.oil_stb / days, wrat: r.water_stb / days, grat: r.gas_mscf / days }));
+  const inj = rows
+    .filter((r) => simInjectors.some((p) => p.name === r.well) && r.winj_stb > 0)
+    .map((r) => ({ name: r.well, phase: 'WATER', rate: r.winj_stb / days }));
+  return { date, prod, inj };
+});
+const simHistoryEnd = addMonths(floodMonths[floodMonths.length - 1], 1);
+if (simHistoryPeriods[0].date !== FLOOD_START) {
+  throw new Error(`sim: the first history period must be the flood start, got ${simHistoryPeriods[0].date}`);
+}
+// The deck's history must reproduce the ledger's own volumes when the rates
+// are put back over their months: rate x days is the ledger volume exactly.
+const simHistOilStb = simHistoryPeriods.reduce(
+  (s, p) => s + p.prod.reduce((t, r) => t + r.orat * daysInMonthOf(p.date), 0), 0,
+);
+const simLedgerOilStb = ledgerRows.reduce((s, r) => s + r.oil_stb, 0);
+if (Math.abs(simHistOilStb - simLedgerOilStb) > 1e-6) {
+  throw new Error(`sim: history rates must reproduce the ledger volumes, ${simHistOilStb} vs ${simLedgerOilStb}`);
+}
+
+// --- the spec, and the deck it composes -------------------------------------
+const simDepth = gridDepthRange(simGrid);
+const simSpec = {
+  title: 'PETROLORD RC5 - EKENE FIELD, HISTORY TO 2025-12',
+  startDate: FLOOD_START,
+  grid: simGrid,
+  pvt: {
+    density: simDensity,
+    pvtw: { pref: MBAL_DESIGN.pi_psia, bw: MBAL_DESIGN.bw_rb_stb, cw: MBAL_DESIGN.cw_per_psi, muw: SCAL_DESIGN.muW_cp },
+    rock: { pref: MBAL_DESIGN.pi_psia, cr: MBAL_DESIGN.cf_per_psi },
+    pvdg: simPvdg,
+    pvtoRecords: simPvtoRecords,
+  },
+  satfn: { swof: simSwof, sgof: simSgof },
+  equil: {
+    datumDepth: simDepth.topMean,
+    datumPressure: MBAL_DESIGN.pi_psia,
+    owc: STATIC_FIELD.owc_m_tvd * M_TO_FT,
+  },
+  wells: [...simVerticalWells, simDevWell],
+  schedule: {
+    history: { periods: simHistoryPeriods, endDate: simHistoryEnd },
+    steps: [{ count: 60, dtDays: 30.4375 }],
+  },
+};
+const simValidation = validateSpec(simSpec);
+if (!simValidation.ok) throw new Error(`sim: the Ekene spec must validate, got ${simValidation.errors.join('; ')}`);
+const simDeck = composeDeck(simSpec);
+const simDeckLines = simDeck.split('\n');
+const simSections = ['RUNSPEC', 'GRID', 'PROPS', 'SOLUTION', 'SUMMARY', 'SCHEDULE'];
+simSections.forEach((sec) => {
+  if (!simDeckLines.includes(sec)) throw new Error(`sim: the deck is missing the ${sec} section`);
+});
+const simSectionOrder = simSections.map((sec) => simDeckLines.indexOf(sec));
+if (!simSectionOrder.every((v, i) => i === 0 || v > simSectionOrder[i - 1])) {
+  throw new Error('sim: deck sections are out of order');
+}
+const simKeywordCount = (kw) => simDeckLines.filter((l) => l.trim() === kw).length;
+if (simKeywordCount('WCONHIST') !== simHistoryPeriods.length) {
+  throw new Error('sim: one WCONHIST per history period is expected');
+}
+
+// --- what the validator refuses ---------------------------------------------
+// Each broken spec isolates ONE rule, so the count is a fact about the
+// validator rather than about how badly a spec can be mangled.
+// Mutating ONE well must keep the others, or the history's well-name check
+// fires for every remaining period and the case stops isolating anything.
+const withOneWellChanged = (patch) => ({
+  ...simSpec,
+  wells: simSpec.wells.map((w, idx) => (idx === 0 ? { ...w, ...patch } : w)),
+});
+const simRejections = [
+  ['no title', { ...simSpec, title: '' }],
+  ['no start date', { ...simSpec, startDate: '' }],
+  // Keep nz at 5 and drop a layer entry, so the completions stay valid and the
+  // only broken rule is the layer count itself.
+  ['layer count disagrees with nz', { ...simSpec, grid: { ...simGrid, layers: simLayers.slice(0, 4) } }],
+  ['well outside the grid', withOneWellChanged({ i: SIM_DESIGN.nx + 1 })],
+  ['completion below the deepest layer', withOneWellChanged({ k2: simGrid.nz + 1 })],
+  ['single-node PVT', { ...simSpec, pvt: { ...simSpec.pvt, pvtoRecords: [simPvtoRecords[0]] } }],
+  ['history starting off the deck start date', {
+    ...simSpec,
+    schedule: { ...simSpec.schedule, history: { ...simSpec.schedule.history, periods: [{ ...simHistoryPeriods[0], date: '2024-01-01' }] } },
+  }],
+].map(([label, spec]) => {
+  const v = validateSpec(spec);
+  if (v.ok) throw new Error(`sim: the validator should have refused "${label}"`);
+  return { case: label, errors: v.errors };
+});
+// The whole point of the set is that each case isolates ONE rule. Assert it,
+// because a case that cascades into 180 errors teaches the opposite lesson.
+simRejections.forEach((r) => {
+  if (r.errors.length > 2) {
+    throw new Error(`sim: rejection case "${r.case}" raised ${r.errors.length} errors; it should isolate one rule`);
+  }
+});
+say(
+  `sim deck: ${gridCellCount(simGrid)} cells, ${simSpec.wells.length} wells ` +
+    `(${simDevConnections.length} connections on the deviated leg across ${simDevCells.size} columns), ` +
+    `${simHistoryPeriods.length} history periods, ${simDeckLines.length} deck lines, ` +
+    `${simRejections.length} validator rules exercised`,
+);
+
+// --- what Standing's correlation would have said instead --------------------
+// Taught, never seeded: the deck carries the DESIGNED fluid because the tank
+// model, the flood ledger and the SCAL curves all used it. Running the same
+// API and gas gravity through the central correlation path gives a different
+// fluid, and a deck whose PVT disagrees with the model it was history-matched
+// against is the most common way a simulation study goes quietly wrong.
+const simCorrelationOil = generatePvtTable({
+  fluid_system: 'oil',
+  oil_gravity_api: MBAL_DESIGN.api,
+  gas_specific_gravity: MBAL_DESIGN.gas_sg,
+  reservoir_temperature_f: MBAL_DESIGN.temp_f,
+  bubble_point_psia: MBAL_DESIGN.pb_psia,
+  initial_pressure_psia: MBAL_DESIGN.pi_psia,
+  pressure_min_psia: MBAL_DESIGN.pb_psia,
+  pressure_max_psia: MBAL_DESIGN.pi_psia,
+  n_steps: 2,
+});
+const simCorrAtPi = simCorrelationOil.rows[simCorrelationOil.rows.length - 1];
+const simCorrAtPb = simCorrelationOil.rows[0];
+const simPvtDivergence = {
+  designed_boi_at_pi: STATIC_FIELD.boi_rb_stb,
+  correlated_bo_at_pi: simCorrAtPi.Bo,
+  bo_gap_pct: (simCorrAtPi.Bo / STATIC_FIELD.boi_rb_stb - 1) * 100,
+  designed_rsi: MBAL_DESIGN.rsi_scf_stb,
+  correlated_rs_at_pb: simCorrAtPb.Rs,
+  rs_gap_pct: (simCorrAtPb.Rs / MBAL_DESIGN.rsi_scf_stb - 1) * 100,
+  designed_muo_at_pb: muoAtPb,
+  correlated_muo_at_pb: simCorrAtPb.oil_viscosity_cp,
+  correlations_used: simCorrelationOil.metadata.correlations_used,
+};
+if (!(Math.abs(simPvtDivergence.bo_gap_pct) > 1)) {
+  throw new Error('sim: the designed and correlated fluids should visibly disagree, which is the lesson');
+}
+
+const simSectionLine = Object.fromEntries(simSections.map((sec) => [sec, simDeckLines.indexOf(sec)]));
+const simDeckSha = createHash('sha256').update(simDeck).digest('hex');
+
+const simFixture = {
+  _note: HEADER_NOTE,
+  design: {
+    ...SIM_DESIGN,
+    pvtDesign: SIM_PVT_DESIGN,
+    provenance: {
+      structure: 'simpleKrige (engines/earthmodeling/properties.js) on the six mapped TOP_SAND values',
+      volumetrics: 'zoneVolumes (engines/earthmodeling/volumes.js), the engine behind the NG5 booking',
+      layers: 'RC4 Dykstra-Parsons column proportions scaled to the mapped net pay',
+      oil_pvt: 'the RC2 tank design (Boi, co, Rsi, pb) — deliberately NOT a correlation',
+      gas_pvt: 'generatePvtTable gas path (Hall-Yarborough z, Lee-Gonzalez-Eakin mu)',
+      satfn: 'RC3 Corey design via coreyKr; the gas-oil set is an RC5 design constant',
+      history: 'the RC4 monthly ledger, converted to rates by month length',
+    },
+  },
+  spec: simSpec,
+  expected: {
+    grid: {
+      cell_count: gridCellCount(simGrid),
+      nx: simGrid.nx,
+      ny: simGrid.ny,
+      nz: simGrid.nz,
+      dx_ft: simGrid.dx,
+      dy_ft: simGrid.dy,
+      layer_dz_ft: simLayers.map((l) => l.dz),
+      layer_permx_md: simLayers.map((l) => l.permx),
+      net_pay_ft: simNetPayFt,
+      depth_range_ft: simDepth,
+      well_tops: simWellTops,
+      off_centre_wells: simOffCentreWells.map((r) => r.well),
+      crest_top_ft: Math.min(...simGrid.tops),
+      deepest_top_ft: Math.max(...simGrid.tops),
+    },
+    volumetrics: {
+      oil_cells_centre_rule: simOilCells,
+      booked_oil_cells: STATIC_FIELD.oil_cells,
+      centre_rule: simVolCentre,
+      column_tapered: simVolTaper,
+      booked_stoiip_stb: STATIC_FIELD.stoiip_stb,
+      centre_vs_booking_pct: simStoiipGapPct,
+      tapered_vs_booking_pct: (simVolTaper.stoiip_stb / STATIC_FIELD.stoiip_stb - 1) * 100,
+    },
+    pvt: {
+      pvto_records: simPvtoRecords,
+      pvdg: simPvdg,
+      density: simDensity,
+      bo_at_pb: boAtPb,
+      bo_at_pi: boUndersat(MBAL_DESIGN.pi_psia),
+      divergence_from_correlation: simPvtDivergence,
+    },
+    satfn: {
+      swof_rows: simSwof.length,
+      sgof_rows: simSgof.length,
+      swof_first_sw: simSwof[0].Sw,
+      swof_last_sw: simSwof[simSwof.length - 1].Sw,
+      sgof_last_sg: simSgof[simSgof.length - 1].Sg,
+      swof: simSwof,
+      sgof: simSgof,
+    },
+    wells: {
+      count: simSpec.wells.length,
+      vertical_connection_count: simGrid.nz,
+      deviated: {
+        name: SIM_DESIGN.deviated.name,
+        connections: simDevConnections,
+        connection_count: simDevConnections.length,
+        distinct_columns: simDevCells.size,
+        from_cell: { i: simDevFromCell[0], j: simDevFromCell[1] },
+        to_cell: { i: simDevToCell[0], j: simDevToCell[1] },
+      },
+    },
+    history: {
+      period_count: simHistoryPeriods.length,
+      first_period: simHistoryPeriods[0].date,
+      end_date: simHistoryEnd,
+      total_oil_stb: simHistOilStb,
+      ledger_total_oil_stb: simLedgerOilStb,
+      first_period_rates: simHistoryPeriods[0],
+    },
+    deck: {
+      line_count: simDeckLines.length,
+      section_line: simSectionLine,
+      sha256: simDeckSha,
+      wconhist_blocks: simKeywordCount('WCONHIST'),
+      wconinjh_blocks: simKeywordCount('WCONINJH'),
+      dates_blocks: simKeywordCount('DATES'),
+      tstep_blocks: simKeywordCount('TSTEP'),
+    },
+    validation: {
+      spec_is_valid: simValidation.ok,
+      rejections: simRejections,
+    },
+  },
+};
+
+// Section E is evaluated after the files map is built, so the sim fixture
+// joins it here rather than inside the literal.
+files['sim.json'] = simFixture;
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 for (const [name, obj] of Object.entries(files)) {
