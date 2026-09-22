@@ -48,6 +48,21 @@ const PRIOR_SCALE = { fTc: 0.15, fPc: 0.3, kC1: 0.25, sPlus: 0.7 };
 
 const KNOBS = ['fTc', 'fPc', 'kC1', 'sPlus'];
 
+/** Saturation-pressure bisection tolerance (the envelope.js phaseBoundaries
+ * default, passed explicitly so the step below stays tied to it). */
+const SAT_TOL_PSIA = 0.05;
+/** How far above a bisected boundary the Bo fallback evaluates the feed:
+ * five tolerances, the envelope.js classifyBoundary minimum inset. The
+ * boundary is only known to within one tolerance, so a relative step
+ * (1e-6 is 0.003 psia at 3000 psia) can land on the two-phase side. */
+const SAT_STEP_PSIA = 5 * SAT_TOL_PSIA;
+
+/** Scan window from a reference pressure: cheaper scan, and the boundary of
+ * interest cannot sit above ~2x the lab Psat inside the ET bounds. */
+const satWindow = (pRefPsia) => (Number.isFinite(pRefPsia)
+  ? { pMaxPsia: Math.min(12000, 2.5 * pRefPsia), tolPsia: SAT_TOL_PSIA }
+  : { tolPsia: SAT_TOL_PSIA });
+
 const apiToSg = (api) => 141.5 / (api + 131.5);
 const sgToApi = (sg) => 141.5 / sg - 131.5;
 
@@ -72,16 +87,17 @@ export function predictTargets({ keys, plus, z }, targets, tuning) {
   const mix = tunedMixtureWithPlusFraction(baseKeys, plus, tuning);
   const out = { psatPsia: null, totalGor: null, stoApi: null, bo: null, boBasisPsia: null };
 
+  const sep = targets.separatorTest;
+  // one scan window for every saturation pressure this call computes: the
+  // lab Psat when given, else the Bo basis pressure (the lab Pb)
+  const window = satWindow(targets.psat?.pPsia ?? sep?.resPPsia);
+
+  let psatSat = null;
   if (targets.psat) {
-    // window from the measured value: cheaper scan, and the boundary of
-    // interest cannot sit above ~2x the lab Psat inside the ET bounds
-    const window = Number.isFinite(targets.psat.pPsia)
-      ? { pMaxPsia: Math.min(12000, 2.5 * targets.psat.pPsia) } : {};
-    const sat = saturationPressure(mix, z, degFtoR(targets.psat.tF), window);
-    out.psatPsia = sat ? sat.pPsia : null;
+    psatSat = saturationPressure(mix, z, degFtoR(targets.psat.tF), window);
+    out.psatPsia = psatSat ? psatSat.pPsia : null;
   }
 
-  const sep = targets.separatorTest;
   if (sep) {
     const stages = sep.stagesF.map(([tF, pPsia]) => ({ tR: degFtoR(tF), pPsia }));
     const opts = Number.isFinite(sep.resTF) && Number.isFinite(sep.resPPsia)
@@ -92,11 +108,15 @@ export function predictTargets({ keys, plus, z }, targets, tuning) {
     let bo = res.bo?.multistage ?? null;
     let basis = sep.resPPsia ?? null;
     if (bo === null && opts.resTR) {
-      // two-phase at lab reservoir conditions: compare at the engine Psat
-      const sat = saturationPressure(mix, z, opts.resTR, {});
+      // two-phase at lab reservoir conditions: compare at the engine Psat,
+      // the same one the Psat row reports when it is at the same temperature
+      const sat = targets.psat && targets.psat.tF === sep.resTF
+        ? psatSat
+        : saturationPressure(mix, z, opts.resTR, window);
       if (sat) {
+        // step clear of the bisection band so the feed is single-phase
         const resAtSat = separatorTrain(mix, z, stages,
-          { resTR: opts.resTR, resPPsia: sat.pPsia * (1 + 1e-6) });
+          { resTR: opts.resTR, resPPsia: sat.pPsia + SAT_STEP_PSIA });
         bo = resAtSat.bo?.multistage ?? null;
         basis = sat.pPsia;
       }

@@ -91,3 +91,44 @@ describe('real anchor: Good Oil Well No. 4 joint tune (CASE 19 fixture data)', (
     expect(Math.abs(err0.stoApi) - Math.abs(err.stoApi)).toBeGreaterThan(6);
   });
 });
+
+describe('Bo fallback at the engine Psat (two-phase at the lab reservoir conditions)', () => {
+  // Good Oil Well No. 4 run away from its 220 F study temperature: the
+  // untuned model is two-phase at the lab Pb, so Bo falls back to the
+  // engine's own saturation pressure. That fallback used to rescan without
+  // the Psat window and step only (1 + 1e-6) above a boundary bisected to
+  // 0.05 psia, landing on the two-phase side and returning a null Bo at
+  // 180, 200, 260 and 280 F.
+  const lit = JSON.parse(fs.readFileSync(
+    path.join(__dirname, '..', 'test-data', 'fluid', 'literature-fixtures.json'), 'utf8',
+  ));
+  const go = lit.separatorTests.fluids[1];
+  const fluid = { keys: [...go.keys, 'C7+'], plus: go.plus, z: go.z };
+  const stagesF = [...go.stagesF, [75, 14.65]];
+  const labPb = go.resTP[1];
+
+  it.each([180, 200, 220, 240, 260, 280])('returns an untuned Bo at %i F', (tF) => {
+    const pred = predictTargets(fluid, {
+      psat: { tF, pPsia: labPb },
+      separatorTest: { stagesF, resTF: tF, resPPsia: labPb },
+    }, null);
+    expect(pred.psatPsia).toBeGreaterThan(labPb); // two-phase at the lab Pb
+    expect(pred.bo).not.toBeNull();
+    expect(pred.bo).toBeGreaterThan(1);
+    // the Bo basis is the same saturation pressure the Psat row reports
+    expect(pred.boBasisPsia).toBe(pred.psatPsia);
+  });
+
+  it('finds the basis with the Psat window when no Psat target is given', () => {
+    const withPsat = predictTargets(fluid, {
+      psat: { tF: 200, pPsia: labPb },
+      separatorTest: { stagesF, resTF: 200, resPPsia: labPb },
+    }, null);
+    const sepOnly = predictTargets(fluid, {
+      separatorTest: { stagesF, resTF: 200, resPPsia: labPb },
+    }, null);
+    expect(sepOnly.bo).not.toBeNull();
+    expect(sepOnly.boBasisPsia).toBe(withPsat.boBasisPsia);
+    expect(sepOnly.bo).toBe(withPsat.bo);
+  });
+});
