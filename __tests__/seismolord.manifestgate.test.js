@@ -36,8 +36,9 @@ const v1Manifest = (overrides = {}) => ({
 
 describe('assertManifestSupported', () => {
   test('the read ceiling covers every writer version today', () => {
-    // v1 = ingested seismic, v2 = derived volumes (W2.1), v3 = 2D lines (W5.1)
-    expect(MANIFEST_READ_MAX).toBe(3);
+    // v1 = ingested seismic, v2 = derived volumes (W2.1), v3 = 2D lines (W5.1),
+    // v4 = large-survey two-copy brick stores (display u8 + compressed f32)
+    expect(MANIFEST_READ_MAX).toBe(4);
     expect(MANIFEST_READ_MAX).toBeGreaterThanOrEqual(DERIVED_MANIFEST_VERSION);
     expect(MANIFEST_READ_MAX).toBeGreaterThanOrEqual(MANIFEST_VERSION);
   });
