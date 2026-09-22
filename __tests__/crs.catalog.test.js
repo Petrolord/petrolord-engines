@@ -12,7 +12,7 @@
 
 import proj4 from 'proj4';
 import {
-  CRS_CATALOG, catalogGet, searchCatalog, unitToMetres, M_PER_FT_US,
+  CRS_CATALOG, catalogGet, searchCatalog, unitToMetres, M_PER_FT_US, catalogPairDefs,
 } from '../lib/crs/catalog';
 import { makeTransformer, makeProjector, convertUnit } from '../lib/crs/transform';
 
@@ -101,8 +101,9 @@ describe('transform oracles', () => {
   test('Minna Mid Belt natural origin: (8.5E, 4N) -> (670553.98, 0)', () => {
     const proj = makeProjector(proj4, catalogGet('EPSG:26392').proj4);
     // fromLonLat crosses the WGS84 datum shift, so project from Minna
-    // geographic instead: the belt and EPSG:4263 share the datum.
-    const t = makeTransformer(proj4, catalogGet('EPSG:4263').proj4, catalogGet('EPSG:26392').proj4);
+    // geographic instead: the belt and EPSG:4263 share the datum, and
+    // catalogPairDefs gives both the same shift (their defaults differ).
+    const t = makeTransformer(proj4, ...catalogPairDefs('EPSG:4263', 'EPSG:26392'));
     const p = t.forward(8.5, 4);
     expect(p.x).toBeCloseTo(670553.98, 3);
     expect(p.y).toBeCloseTo(0, 3);

@@ -1,0 +1,667 @@
+{
+  "source": "EPSG Geodetic Parameter Dataset via PROJ proj.db",
+  "epsgVersion": "v12.029",
+  "epsgDate": "2025-10-02",
+  "projVersion": "9.8.1",
+  "pyprojVersion": "3.8.0",
+  "transforms": [
+    {
+      "code": "EPSG:1067",
+      "name": "Minna to WGS 84 (11)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 8.0,
+      "version": "Stat-Nga",
+      "tx": -92.1,
+      "ty": -89.9,
+      "tz": 114.9,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:3817",
+        "name": "Nigeria - offshore blocks OPL 210, 213, 217 and 218",
+        "description": "Nigeria - offshore blocks OPL 210, 213, 217 and 218.",
+        "bboxLonLat": [
+          4.41,
+          3.24,
+          6.29,
+          5.54
+        ]
+      },
+      "remarks": "Used by Statoil for deep water blocks 210, 213, 217 and 218. Parameter values interpolated from Racal Survey geocentric translation contour charts for each of these four blocks and then averaged."
+    },
+    {
+      "code": "EPSG:1167",
+      "name": "Minna to WGS 84 (1)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 44.0,
+      "version": "DMA-Cmr",
+      "tx": -81.0,
+      "ty": -84.0,
+      "tz": 115.0,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:3226",
+        "name": "Cameroon - onshore",
+        "description": "Cameroon - onshore.",
+        "bboxLonLat": [
+          8.45,
+          1.65,
+          16.21,
+          13.09
+        ]
+      },
+      "remarks": "Derived at 2 stations. Accuracy 25m in each axis. Note: Minna is used in Nigeria, not Cameroon."
+    },
+    {
+      "code": "EPSG:1168",
+      "name": "Minna to WGS 84 (2)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 15.0,
+      "version": "DMA-Nga",
+      "tx": -92.0,
+      "ty": -93.0,
+      "tz": 122.0,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:1178",
+        "name": "Nigeria",
+        "description": "Nigeria - onshore and offshore.",
+        "bboxLonLat": [
+          2.66,
+          1.92,
+          14.65,
+          13.9
+        ]
+      },
+      "remarks": "Derived at 6 stations. Accuracy 3m, 6m and 5m in X, Y and Z axes."
+    },
+    {
+      "code": "EPSG:1754",
+      "name": "Minna to WGS 84 (3)",
+      "methodCode": "EPSG:9606",
+      "method": "Position Vector transformation (geog2D domain)",
+      "accuracyM": 5.0,
+      "version": "SHL-Nga S",
+      "tx": -111.92,
+      "ty": -87.85,
+      "tz": 114.5,
+      "rx": 1.875,
+      "ry": 0.202,
+      "rz": 0.219,
+      "rotationUnit": "arc-second",
+      "scaleDifference": 0.032,
+      "scaleUnit": "parts per million",
+      "area": {
+        "extent": "EPSG:2371",
+        "name": "Nigeria - south",
+        "description": "Nigeria - onshore south.",
+        "bboxLonLat": [
+          4.35,
+          4.22,
+          9.45,
+          6.95
+        ]
+      },
+      "remarks": "Derived at 8 stations across the Niger delta. Used by Shell SPDC throughout southern Nigeria onshore, delta and shallow offshore from 1994 and by Total in OPL246. Sometimes given with parameter values to greater resolution; values here are adequate."
+    },
+    {
+      "code": "EPSG:1818",
+      "name": "Minna to WGS 84 (4)",
+      "methodCode": "EPSG:9606",
+      "method": "Position Vector transformation (geog2D domain)",
+      "accuracyM": 12.0,
+      "version": "RSL-Nga",
+      "tx": -89.0,
+      "ty": -112.0,
+      "tz": 125.9,
+      "rx": 0.0,
+      "ry": 0.0,
+      "rz": 0.814,
+      "rotationUnit": "arc-second",
+      "scaleDifference": -0.38,
+      "scaleUnit": "parts per million",
+      "area": {
+        "extent": "EPSG:1717",
+        "name": "Nigeria - offshore deep water",
+        "description": "Nigeria - offshore beyond continental shelf.",
+        "bboxLonLat": [
+          2.66,
+          1.92,
+          7.82,
+          6.14
+        ]
+      },
+      "remarks": "Concatenated via WGS 72BE."
+    },
+    {
+      "code": "EPSG:1820",
+      "name": "Minna to WGS 84 (6)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 12.0,
+      "version": "CON89-Nga",
+      "tx": -93.2,
+      "ty": -93.31,
+      "tz": 121.156,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:3813",
+        "name": "Nigeria - offshore blocks OPL 209, 219 and 220",
+        "description": "Nigeria - offshore blocks OPL 209, 219 and 220.",
+        "bboxLonLat": [
+          4.01,
+          3.25,
+          6.96,
+          5.54
+        ]
+      },
+      "remarks": "Derived by Nortech at station L40 Minna using NNPC 1989 GPS network tied to 4 ADOS stations. Used by Conoco in OPLs 219-220 to cm precision and ExxonMobil in OPL 209 to dm precision."
+    },
+    {
+      "code": "EPSG:1821",
+      "name": "Minna to WGS 84 (7)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 6.0,
+      "version": "ELF94-Nga",
+      "tx": -88.98,
+      "ty": -83.23,
+      "tz": 113.55,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:3814",
+        "name": "Nigeria - offshore blocks OML 99-102 and OPL 222 and 223",
+        "description": "Nigeria - offshore blocks OML 99-102 and OPL 222 and 223.",
+        "bboxLonLat": [
+          7.16,
+          3.25,
+          8.25,
+          4.51
+        ]
+      },
+      "remarks": "Derived by Elf Petroleum Nigeria in 1994 at 3 stations (M101 onshore, offshore platforms XSW06 and XSV39) and used in OMLs 99-102 and OPLs 222-223."
+    },
+    {
+      "code": "EPSG:1822",
+      "name": "Minna to WGS 84 (8)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 10.0,
+      "version": "SHL-Nga OPL W",
+      "tx": -92.726,
+      "ty": -90.304,
+      "tz": 115.735,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:3815",
+        "name": "Nigeria - offshore blocks OPL 209-213 and 316",
+        "description": "Nigeria - offshore blocks OPL 209-213 and 316.",
+        "bboxLonLat": [
+          3.83,
+          4.22,
+          5.17,
+          6.31
+        ]
+      },
+      "remarks": "Used by Shell SNEPCO for OPLs 209-213 and 316. Derived during 1990 Niger Delta control survey at 4 stations (XSU27, 30 31 and 35)."
+    },
+    {
+      "code": "EPSG:1823",
+      "name": "Minna to WGS 84 (9)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 8.0,
+      "version": "SHL-Nga OPL S",
+      "tx": -93.134,
+      "ty": -86.647,
+      "tz": 114.196,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:3816",
+        "name": "Nigeria - offshore blocks OPL 217-223",
+        "description": "Nigeria - offshore blocks OPL 217-223.",
+        "bboxLonLat": [
+          5.58,
+          3.24,
+          8.0,
+          3.86
+        ]
+      },
+      "remarks": "Used by Shell SNEPCO for OPLs 217-223. Derived during 1990 Niger Delta control survey at 4 stations (XSU38, 41, 44 and 45)."
+    },
+    {
+      "code": "EPSG:1824",
+      "name": "Minna to WGS 84 (10)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 25.0,
+      "version": "SHL-Nga Gongola",
+      "tx": -93.0,
+      "ty": -94.0,
+      "tz": 124.0,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:3824",
+        "name": "Nigeria - Gongola Basin",
+        "description": "Nigeria - onshore - Gongola Basin",
+        "bboxLonLat": [
+          9.41,
+          8.78,
+          12.13,
+          11.63
+        ]
+      },
+      "remarks": "Used by Shell SNEPCO for Gongola basin."
+    },
+    {
+      "code": "EPSG:6196",
+      "name": "Minna to WGS 84 (16)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 5.0,
+      "version": "ADX-Nga OPL 118",
+      "tx": -93.179,
+      "ty": -87.124,
+      "tz": 114.338,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:4127",
+        "name": "Nigeria - OML 124",
+        "description": "Nigeria - onshore - block OML 124 (formerly OPL 118).",
+        "bboxLonLat": [
+          6.72,
+          5.56,
+          6.97,
+          5.74
+        ]
+      },
+      "remarks": "Used by Addax for OPL 118 and OML 124. Derived in 1999 at 4 stations during extension into OPL 118 of control in Chevron block OML 53."
+    },
+    {
+      "code": "EPSG:15493",
+      "name": "Minna to WGS 84 (15)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 5.0,
+      "version": "MPN-Nga",
+      "tx": -94.031,
+      "ty": -83.317,
+      "tz": 116.708,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:3590",
+        "name": "Nigeria - 4\u00b0N to 5\u00b0N, 6\u00b0E to 8\u00b0E",
+        "description": "Nigeria - 4\u00b0N to 5\u00b0N and 6\u00b0E to 8\u00b0E.",
+        "bboxLonLat": [
+          5.99,
+          3.99,
+          8.01,
+          5.01
+        ]
+      },
+      "remarks": "Adopted by MPN for all joint venture operations from 1/1/1996."
+    },
+    {
+      "code": "EPSG:15705",
+      "name": "Minna to WGS 84 (12)",
+      "methodCode": "EPSG:9606",
+      "method": "Position Vector transformation (geog2D domain)",
+      "accuracyM": 8.0,
+      "version": "WGC-Nga 211",
+      "tx": -83.13,
+      "ty": -104.95,
+      "tz": 114.63,
+      "rx": 0.0,
+      "ry": 0.0,
+      "rz": 0.554,
+      "rotationUnit": "arc-second",
+      "scaleDifference": 0.0,
+      "scaleUnit": "parts per million",
+      "area": {
+        "extent": "EPSG:3819",
+        "name": "Nigeria - offshore blocks OPL 215 and 221",
+        "description": "Nigeria - offshore blocks OPL 215 and 221.",
+        "bboxLonLat": [
+          5.02,
+          3.25,
+          7.31,
+          4.23
+        ]
+      },
+      "remarks": "Derived via WGS 72(BE). Minna to WGS 72(BE) transformation derived in 1981 for Mobil E&P Nigeria (MEPCON) by Geodetic Survey through Transit translocation at six stations in southern Nigeria. Used by MEPCON in blocks OPL 215 and 221."
+    },
+    {
+      "code": "EPSG:15706",
+      "name": "Minna to WGS 84 (13)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 7.0,
+      "version": "Elf-Nga",
+      "tx": -93.6,
+      "ty": -83.7,
+      "tz": 113.8,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:1717",
+        "name": "Nigeria - offshore deep water",
+        "description": "Nigeria - offshore beyond continental shelf.",
+        "bboxLonLat": [
+          2.66,
+          1.92,
+          7.82,
+          6.14
+        ]
+      },
+      "remarks": "Used by Elf in Blocks OPL 222 and OPL 223 and by Mobil in 1994."
+    },
+    {
+      "code": "EPSG:15755",
+      "name": "Minna to WGS 84 (14)",
+      "methodCode": "EPSG:9603",
+      "method": "Geocentric translations (geog2D domain)",
+      "accuracyM": 7.0,
+      "version": "Elf-Nga-OML58",
+      "tx": -90.2,
+      "ty": -87.32,
+      "tz": 114.17,
+      "rx": null,
+      "ry": null,
+      "rz": null,
+      "rotationUnit": null,
+      "scaleDifference": null,
+      "scaleUnit": null,
+      "area": {
+        "extent": "EPSG:3113",
+        "name": "Nigeria - OML 58",
+        "description": "Nigeria - block OML 58.",
+        "bboxLonLat": [
+          6.53,
+          5.05,
+          6.84,
+          5.36
+        ]
+      },
+      "remarks": "Derived in 1995 at unspecified DMA ADOS stations and Racal stations M101 and ZVS3003. Used by Elf in onshore Block OML 58."
+    }
+  ],
+  "geographic": [
+    {
+      "transform": "EPSG:1067",
+      "lonMinna": 5.35,
+      "latMinna": 4.39,
+      "lonWgs84": 5.349270951066266,
+      "latWgs84": 4.390624338589464,
+      "op": "Minna to WGS 84 (11) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:1167",
+      "lonMinna": 12.33,
+      "latMinna": 7.37,
+      "lonWgs84": 12.329413388719308,
+      "latWgs84": 7.370342200743512,
+      "op": "Minna to WGS 84 (1) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:1168",
+      "lonMinna": 8.655,
+      "latMinna": 7.91,
+      "lonWgs84": 8.654291755491007,
+      "latWgs84": 7.910364280228854,
+      "op": "Minna to WGS 84 (2) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:1754",
+      "lonMinna": 6.9,
+      "latMinna": 5.585,
+      "lonWgs84": 6.899344151487866,
+      "latWgs84": 5.5855340964939675,
+      "op": "Minna to WGS 84 (3) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:1818",
+      "lonMinna": 5.24,
+      "latMinna": 4.03,
+      "lonWgs84": 5.239294937530691,
+      "latWgs84": 4.030756784937424,
+      "op": "Minna to WGS 84 (4) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:1820",
+      "lonMinna": 5.485,
+      "latMinna": 4.395,
+      "lonWgs84": 5.484243438296253,
+      "latWgs84": 4.395681390992769,
+      "op": "Minna to WGS 84 (6) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:1821",
+      "lonMinna": 7.705,
+      "latMinna": 3.88,
+      "lonWgs84": 7.704364804822321,
+      "latWgs84": 3.880659854544475,
+      "op": "Minna to WGS 84 (7) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:1822",
+      "lonMinna": 4.5,
+      "latMinna": 5.265,
+      "lonWgs84": 4.49925351352897,
+      "latWgs84": 5.265548939483879,
+      "op": "Minna to WGS 84 (8) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:1823",
+      "lonMinna": 6.79,
+      "latMinna": 3.55,
+      "lonWgs84": 6.789324726224685,
+      "latWgs84": 3.5506988012155074,
+      "op": "Minna to WGS 84 (9) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:1824",
+      "lonMinna": 10.77,
+      "latMinna": 10.205,
+      "lonWgs84": 10.769315821164804,
+      "latWgs84": 10.205179087254919,
+      "op": "Minna to WGS 84 (10) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:6196",
+      "lonMinna": 6.845,
+      "latMinna": 5.65,
+      "lonWgs84": 6.844319408958425,
+      "latWgs84": 5.650503133543479,
+      "op": "Minna to WGS 84 (16) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:15493",
+      "lonMinna": 7.0,
+      "latMinna": 4.5,
+      "lonWgs84": 6.9993581073858,
+      "latWgs84": 4.500632674843912,
+      "op": "Minna to WGS 84 (15) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:15705",
+      "lonMinna": 6.165,
+      "latMinna": 3.74,
+      "lonWgs84": 6.164294944262124,
+      "latWgs84": 3.740679646975284,
+      "op": "Minna to WGS 84 (12) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:15706",
+      "lonMinna": 5.24,
+      "latMinna": 4.03,
+      "lonWgs84": 5.239326389759348,
+      "latWgs84": 4.030648890827624,
+      "op": "Minna to WGS 84 (13) (with axis order normalized for visualization)"
+    },
+    {
+      "transform": "EPSG:15755",
+      "lonMinna": 6.685,
+      "latMinna": 5.205,
+      "lonWgs84": 6.684312434761439,
+      "latWgs84": 5.205540683915151,
+      "op": "Minna to WGS 84 (14) (with axis order normalized for visualization)"
+    }
+  ],
+  "projected": [
+    {
+      "crs": "EPSG:26391",
+      "transform": "EPSG:1754",
+      "x": 286131.31,
+      "y": 165839.51,
+      "lonWgs84": 4.999309014129786,
+      "latWgs84": 5.5005221277797345,
+      "op": "Inverse of Nigeria West Belt + Minna to WGS 84 (3) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26391",
+      "transform": "EPSG:1168",
+      "x": 286131.31,
+      "y": 165839.51,
+      "lonWgs84": 4.999236303736851,
+      "latWgs84": 5.500583399582604,
+      "op": "Inverse of Nigeria West Belt + Minna to WGS 84 (2) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26392",
+      "transform": "EPSG:1754",
+      "x": 504225.67,
+      "y": 110733.19,
+      "lonWgs84": 6.999352014149947,
+      "latWgs84": 5.000588132070359,
+      "op": "Inverse of Nigeria Mid Belt + Minna to WGS 84 (3) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26392",
+      "transform": "EPSG:1168",
+      "x": 504225.67,
+      "y": 110733.19,
+      "lonWgs84": 6.999268713277627,
+      "latWgs84": 5.000632774806092,
+      "op": "Inverse of Nigeria Mid Belt + Minna to WGS 84 (2) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26392",
+      "transform": "EPSG:15493",
+      "x": 504105.78,
+      "y": 55442.29,
+      "lonWgs84": 6.999358101980907,
+      "latWgs84": 4.5006326477280885,
+      "op": "Inverse of Nigeria Mid Belt + Minna to WGS 84 (15) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26393",
+      "transform": "EPSG:1168",
+      "x": 1110369.7,
+      "y": 552757.93,
+      "lonWgs84": 12.499355362962689,
+      "latWgs84": 9.000271401388654,
+      "op": "Inverse of Nigeria East Belt + Minna to WGS 84 (2) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26393",
+      "transform": "EPSG:1824",
+      "x": 945930.83,
+      "y": 663698.96,
+      "lonWgs84": 10.99932021136235,
+      "latWgs84": 10.00019793365059,
+      "op": "Inverse of Nigeria East Belt + Minna to WGS 84 (10) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26331",
+      "transform": "EPSG:15706",
+      "x": 666625.18,
+      "y": 386957.54,
+      "lonWgs84": 4.499315102070279,
+      "latWgs84": 3.500698323988509,
+      "op": "Inverse of UTM zone 31N + Minna to WGS 84 (13) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26331",
+      "transform": "EPSG:1818",
+      "x": 666625.18,
+      "y": 386957.54,
+      "lonWgs84": 4.499284059060246,
+      "latWgs84": 3.5008062472546952,
+      "op": "Inverse of UTM zone 31N + Minna to WGS 84 (4) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26332",
+      "transform": "EPSG:15706",
+      "x": 277703.88,
+      "y": 331765.74,
+      "lonWgs84": 6.999355272108308,
+      "latWgs84": 3.0007471428125085,
+      "op": "Inverse of UTM zone 32N + Minna to WGS 84 (13) (with axis order normalized for visualization)"
+    },
+    {
+      "crs": "EPSG:26332",
+      "transform": "EPSG:1818",
+      "x": 277703.88,
+      "y": 331765.74,
+      "lonWgs84": 6.999323671993042,
+      "latWgs84": 3.0008558975830835,
+      "op": "Inverse of UTM zone 32N + Minna to WGS 84 (4) (with axis order normalized for visualization)"
+    }
+  ]
+}
