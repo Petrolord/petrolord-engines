@@ -106,6 +106,46 @@ export function amplitudePercentile(data, pct, { cap = 1 << 20 } = {}) {
 }
 
 /**
+ * The sorted |amplitude| sample amplitudePercentile works from (same
+ * stride, same null rule), built once so any number of percentiles can be
+ * read off it in O(1). The slice worker attaches it to every slice, which
+ * moves the sort off the UI thread; percentileOfSorted(absAmplitudeSample(
+ * d, {cap}), p) equals amplitudePercentile(d, p, {cap}) for finite data.
+ *
+ * @param {Float32Array} data
+ * @param {{cap?: number}} [opts]
+ * @returns {Float32Array} ascending
+ */
+export function absAmplitudeSample(data, { cap = 1 << 20 } = {}) {
+  const lim = 1.0e29;
+  const stride = Math.max(1, Math.ceil(data.length / cap));
+  const out = new Float32Array(Math.ceil(data.length / stride));
+  let n = 0;
+  for (let i = 0; i < data.length; i += stride) {
+    const v = data[i];
+    if (isNull(v, lim)) continue;
+    out[n] = Math.abs(v);
+    n += 1;
+  }
+  return out.subarray(0, n).sort();
+}
+
+/**
+ * Percentile (linear interpolation, as amplitudePercentile) of an
+ * ascending sample from absAmplitudeSample.
+ * @param {Float32Array} sorted @param {number} pct in [0, 100]
+ */
+export function percentileOfSorted(sorted, pct) {
+  if (!(pct >= 0 && pct <= 100)) throw new Error(`Percentile out of range: ${pct}`);
+  if (!sorted || sorted.length === 0) return 0;
+  const pos = (pct / 100) * (sorted.length - 1);
+  const i0 = Math.floor(pos);
+  const i1 = Math.min(sorted.length - 1, i0 + 1);
+  const f = pos - i0;
+  return sorted[i0] * (1 - f) + sorted[i1] * f;
+}
+
+/**
  * Normalized wiggle deviations for one trace: the SAME amplitude
  * pipeline the density shader runs (per-trace balance scale, optional
  * AGC gain, display gain including polarity sign, symmetric clip),
