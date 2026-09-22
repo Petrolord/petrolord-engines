@@ -8,6 +8,12 @@
 // style). Malformed rows never silently vanish: parsing throws on the
 // first bad row; lattice mapping COUNTS what it skips (off-survey,
 // off-lattice, out of time range) and reports collisions.
+//
+// The import dialog now reads files through the TOLERANT readers in
+// horizonImport.js (every Charisma marker variant, IESX, EarthVision,
+// CPS-3 points, grids, generic column mapping, per-row rejects);
+// detectPickFormat/parsePickFile stay for existing callers, and
+// rowsToPickLattice is the shared landing step for both.
 
 import { NULL_VALUE } from './manifest';
 import { worldToIlxl } from './surveyGeometry';
@@ -117,7 +123,7 @@ export function rowsToPickLattice(rows, geom, lines, affine, zToSample) {
     } else {
       if (!affine) throw new Error('XYZ picks need survey coordinates to locate cells.');
       const g = worldToIlxl(affine, r.x, r.y);
-      if (!g) throw new Error('The survey affine is not invertible — cannot place XYZ picks.');
+      if (!g) throw new Error('The survey affine is not invertible, so XYZ picks cannot be placed.');
       i = Math.round(g.i);
       j = Math.round(g.j);
       // a point more than half a bin outside the survey is not ours
@@ -135,7 +141,7 @@ export function rowsToPickLattice(rows, geom, lines, affine, zToSample) {
     picks[cell] = s;
   }
   if (!placed) {
-    throw new Error('No picks landed on this volume\'s lattice — check that the file '
+    throw new Error('No picks landed on this volume\'s lattice. Check that the file '
       + 'belongs to this survey (line numbering, coordinates and time range).');
   }
   return { picks, placed, skipped, collisions };
