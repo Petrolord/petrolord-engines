@@ -341,7 +341,7 @@ export function faultSticksToLattice(faults, geom, lines, affine, zToSample) {
         } else {
           if (!affine) throw new Error('XYZ fault sticks need survey coordinates to locate cells.');
           const g = worldToIlxl(affine, r.x, r.y);
-          if (!g) throw new Error('The survey affine is not invertible — cannot place fault sticks.');
+          if (!g) throw new Error('The survey affine is not invertible, so fault sticks cannot be placed.');
           i = g.i;
           j = g.j;
         }
@@ -364,7 +364,7 @@ export function faultSticksToLattice(faults, geom, lines, affine, zToSample) {
     if (sticks.length) out.push({ name: f.name, sticks });
   }
   if (!placed) {
-    throw new Error('No fault sticks landed on this volume\'s lattice — check that the '
+    throw new Error('No fault sticks landed on this volume\'s lattice. Check that the '
       + 'file belongs to this survey (line numbering, coordinates and time range).');
   }
   return { faults: out, placed, skipped, droppedSticks };

@@ -123,7 +123,7 @@ export function rowsToPickLattice(rows, geom, lines, affine, zToSample) {
     } else {
       if (!affine) throw new Error('XYZ picks need survey coordinates to locate cells.');
       const g = worldToIlxl(affine, r.x, r.y);
-      if (!g) throw new Error('The survey affine is not invertible — cannot place XYZ picks.');
+      if (!g) throw new Error('The survey affine is not invertible, so XYZ picks cannot be placed.');
       i = Math.round(g.i);
       j = Math.round(g.j);
       // a point more than half a bin outside the survey is not ours
@@ -141,7 +141,7 @@ export function rowsToPickLattice(rows, geom, lines, affine, zToSample) {
     picks[cell] = s;
   }
   if (!placed) {
-    throw new Error('No picks landed on this volume\'s lattice — check that the file '
+    throw new Error('No picks landed on this volume\'s lattice. Check that the file '
       + 'belongs to this survey (line numbering, coordinates and time range).');
   }
   return { picks, placed, skipped, collisions };
