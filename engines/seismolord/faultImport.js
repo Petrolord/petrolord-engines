@@ -1,57 +1,290 @@
-// Fault-stick READERS — the import mirror of pickExport's fault-stick
-// writer. Two ASCII dialects:
+// Fault-stick READERS: the import mirror of pickExport's fault-stick
+// writer, tolerant of the variants real files carry. Dialects
+// (whitespace means one or more spaces or tabs):
 //
-//  - Charisma fault sticks (Petrel "Charisma fault sticks", the
-//    seismiqb FAULT_STICKS column layout): 8+ whitespace tokens per row
-//    `INLINE- <il> <xl> <x> <y> <z> <name> <stick#>`. Distinguished
-//    from a Charisma 3D HORIZON row (also INLINE-marked) by the second
-//    token: horizons carry the literal `:` there, fault sticks carry
-//    the inline number. Fault names may contain spaces — the name is
-//    every token between z and the trailing stick number.
-//  - Plain `x y z stick#` rows (generic single-fault stick export; the
-//    fault takes the caller's name).
+//  - charisma: Charisma fault sticks (Petrel "Charisma fault sticks",
+//    the seismiqb FAULT_STICKS layout, resqpy's writer):
+//    `INLINE- <il> <xl> <x> <y> <z> <name> <stick#>`. The INLINE marker
+//    may be split or joined (`INLINE-`, `INLINE -`, `INLINE-1001`,
+//    `INLINE :`, `INLINE:1001`); an XLINE marker before the crossline
+//    is accepted. Fault names may contain spaces: the name is every
+//    token between z and the trailing stick number, and a row with no
+//    name takes the caller's name. Lines with no number at all (column
+//    headers) are skipped. A file whose rows all carry inline 0 and
+//    crossline 0 (resqpy writes those placeholders) is located by X/Y.
+//    A Charisma 3D HORIZON row (XLINE marker, nothing after z) is not a
+//    fault row: detection refuses such a file.
+//  - iesx: GeoQuest IESX fault sticks (Petrel "IESX fault sticks
+//    (ASCII)", GeoFrame fault_gf card image): `PROFILE <fault> TYPE ...`
+//    starts a fault, `SNAPPING PARAMETERS` is skipped, `EOD` closes a
+//    block. Data rows use the IESX card-image columns (see
+//    horizonImport.parseIesxRow): x [1-16], y [17-32], stick (segment)
+//    index [33-35], type code [36-38], z [39-47]; token fallback
+//    x y stick code z. A new stick starts whenever the stick index
+//    changes or a PROFILE/EOD boundary passes; sticks keep file order.
+//  - xyzn: plain `x y z stick#` rows (one fault, the caller's name).
+//  - columns: generic ASCII with an explicit column mapping
+//    (importText.parseMappedColumns): x, y, z (time), stick, name
+//    (fault), optional il/xl. With no stick column, a blank line ends a
+//    stick (the DUG/.dufault convention).
 //
-// Errors are plain row-numbered domain Errors (the wellImport house
-// style); parsing throws on the first bad row. Lattice mapping COUNTS
-// what it skips (off-survey, out of time range) and what it drops
-// (sticks left with fewer than two points).
+// parseFaultSticks is tolerant: a bad row becomes a reject { line,
+// reason, column?, field?, text } and parsing continues; only a file
+// with no readable row is refused (naming the first rejects).
+// parseFaultStickFile keeps the older contract (throw on the first bad
+// row) for existing callers.
 //
 // ORDER IS LOAD-BEARING: faultBarriers walks crossings in stored stick
 // order and interpMesh lofts ribbons between consecutive sticks, so
-// sticks are emitted sorted by their file stick number and points keep
-// file order within a stick.
+// Charisma and mapped sticks are emitted sorted by their file stick
+// number, IESX sticks in file order, and points keep file order within
+// a stick.
 
 import { worldToIlxl } from './surveyGeometry';
+import {
+  createRejects, describeReject, detectLineDelimiter, isCommentLine, isNullValue,
+  isNumToken, parseMappedColumns, refuseNothingRead, splitCells, splitLines,
+  suggestMappingFromHeader, toNum, unquote,
+} from './importText';
+import {
+  commentedHeader, dropPlaceholderLineNumbers, parseCharismaTokens, parseIesxProfile, walkIesx,
+} from './horizonImport';
 
-const isComment = (s) => s.startsWith('#') || s.startsWith('!') || s.startsWith('//');
-const numbersOf = (s) => s.split(/[\s,]+/).filter(Boolean).map(Number);
+export const FAULT_FORMAT_LABELS = {
+  charisma: 'Charisma fault sticks',
+  iesx: 'IESX fault sticks',
+  xyzn: 'X/Y/Z + stick number',
+  columns: 'Generic ASCII (column mapping)',
+};
 
-/**
- * Sniff a fault-stick file's dialect from its first content line.
- * @returns {'charisma'|'xyzn'}
- */
-export function detectFaultStickFormat(text) {
-  for (const raw of text.split(/\r?\n/)) {
-    const s = raw.trim();
-    if (!s || isComment(s)) continue;
-    const tok = s.split(/\s+/);
-    if (/^INLINE/i.test(tok[0]) && tok.length >= 8 && Number.isFinite(Number(tok[1]))) {
-      return 'charisma';
-    }
-    const nums = numbersOf(s);
-    if (nums.length >= 4 && nums.slice(0, 4).every(Number.isFinite)) return 'xyzn';
-    throw new Error(`Unrecognised fault-stick file: first data line is "${s}".`);
-  }
-  throw new Error('The file is empty.');
+/** A Charisma-family row (parseCharismaTokens) that reads as a fault-stick row. */
+export function charismaFaultRow(p) {
+  if (p.error || p.values.length < 3) return false;
+  if (p.trailing.length) return isNumToken(p.trailing[p.trailing.length - 1]);
+  // `INLINE- il xl x y z stick#` with no name: a 4th number, no XLINE marker
+  return p.values.length >= 4 && !p.hasXlMarker;
 }
 
 /**
- * Parse a fault-stick file into named faults with ordered sticks.
+ * Sniff a fault-stick file's dialect (tolerant detection).
+ * @returns {{format: 'charisma'|'iesx'|'xyzn'|'columns', header?,
+ *   suggested?, delimiter?}}
+ */
+export function detectFaultFormat(text) {
+  const lines = splitLines(text);
+  let sawContent = false;
+  const comments = [];
+  let headerRow = null;
+  for (const raw of lines) {
+    const s = raw.trim();
+    if (!s) continue;
+    sawContent = true;
+    if (/^PROFILE\s/i.test(s)) return { format: 'iesx' };
+    if (isCommentLine(s)) { comments.push(s); continue; }
+    if (/INLINE/i.test(s) && /\d/.test(s)) {
+      const p = parseCharismaTokens(s);
+      if (charismaFaultRow(p)) return { format: 'charisma' };
+      throw new Error(`Unrecognised fault-stick file: "${s}" reads as a Charisma horizon row `
+        + '(no fault name or stick number after z). Import it as horizon picks.');
+    }
+    if (!/\d/.test(s)) {
+      // a header row: remember it and let the first data row decide
+      if (!headerRow) headerRow = s;
+      continue;
+    }
+    if (headerRow && !/INLINE/i.test(s)) {
+      const delimiter = detectLineDelimiter(headerRow);
+      const header = splitCells(headerRow, delimiter);
+      return { format: 'columns', header, suggested: suggestMappingFromHeader(header), delimiter };
+    }
+    const delimiter = detectLineDelimiter(s);
+    const cells = splitCells(s, delimiter);
+    const hc = commentedHeader(comments, cells);
+    if (hc) return { format: 'columns', header: hc, suggested: suggestMappingFromHeader(hc), delimiter };
+    if (cells.length >= 4 && cells.slice(0, 4).every(isNumToken)) return { format: 'xyzn', delimiter };
+    return { format: 'columns', suggested: cells.length === 3 && cells.every(isNumToken) ? { x: 0, y: 1, z: 2 } : {}, delimiter };
+  }
+  throw new Error(sawContent ? 'The file has no fault-stick rows.' : 'The file is empty.');
+}
+
+/**
+ * Sniff a fault-stick file's dialect (older contract: only the
+ * self-describing dialects; anything needing a mapping is refused).
+ * @returns {'charisma'|'iesx'|'xyzn'}
+ */
+export function detectFaultStickFormat(text) {
+  const d = detectFaultFormat(text);
+  if (d.format === 'columns') {
+    const first = splitLines(text).map((l) => l.trim()).find((s) => s && !isCommentLine(s));
+    throw new Error(`Unrecognised fault-stick file: first data line is "${first}".`);
+  }
+  return d.format;
+}
+
+const byStickNumber = (a, b) => {
+  const na = Number(a);
+  const nb = Number(b);
+  if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+  return 0;
+};
+
+/** name -> (stickKey -> points[]) accumulator, first-appearance order. */
+function faultAccumulator() {
+  const byFault = new Map();
+  return {
+    add(name, stickKey, pt) {
+      if (!byFault.has(name)) byFault.set(name, new Map());
+      const sticks = byFault.get(name);
+      if (!sticks.has(stickKey)) sticks.set(stickKey, []);
+      sticks.get(stickKey).push(pt);
+    },
+    faults(sort) {
+      return [...byFault.entries()].map(([name, sticks]) => {
+        const keys = [...sticks.keys()];
+        if (sort) keys.sort(byStickNumber);
+        return { name, sticks: keys.map((k) => sticks.get(k)) };
+      });
+    },
+  };
+}
+
+function parseCharismaFaults(text, fallbackName) {
+  const rejects = createRejects();
+  const acc = faultAccumulator();
+  let ignored = 0;
+  let nulls = 0;
+  let points = 0;
+  const all = [];
+  const lines = splitLines(text);
+  for (let i = 0; i < lines.length; i++) {
+    const s = lines[i].trim();
+    if (!s) continue;
+    if (isCommentLine(s) || !/\d/.test(s)) { ignored += 1; continue; }
+    const n = i + 1;
+    const p = parseCharismaTokens(s);
+    if (p.error) {
+      rejects.add(n, p.error === 'no INLINE marker' ? 'not a Charisma row (no INLINE marker)' : p.error,
+        { column: p.col, field: p.field, text: s });
+      continue;
+    }
+    if (p.values.length < 3) {
+      const missing = ['x', 'y', 'z'][p.values.length];
+      const found = p.trailing[0];
+      rejects.add(n, found != null ? `"${found}" is not a number (expected ${missing})`
+        : `the row ends before ${missing}`, { column: p.trailingCol, field: missing, text: s });
+      continue;
+    }
+    let stick;
+    let name;
+    if (p.trailing.length) {
+      const last = p.trailing[p.trailing.length - 1];
+      if (!isNumToken(last)) {
+        rejects.add(n, `"${last}" is not a stick number (the row must end with one)`,
+          { column: p.tokenCount, field: 'stick', text: s });
+        continue;
+      }
+      stick = toNum(last);
+      name = unquote(p.trailing.slice(0, -1).join(' '));
+    } else if (p.values.length >= 4) {
+      stick = p.values[3];
+      name = '';
+    } else {
+      rejects.add(n, 'the row ends before the stick number', { column: p.tokenCount + 1, field: 'stick', text: s });
+      continue;
+    }
+    name = name || p.name || fallbackName;
+    const [x, y, z] = p.values;
+    if (isNullValue(z)) { nulls += 1; continue; }
+    const pt = { il: p.il, xl: p.xl, x, y, z };
+    all.push(pt);
+    acc.add(name, stick, pt);
+    points += 1;
+  }
+  const lineNumbersIgnored = dropPlaceholderLineNumbers(all);
+  return { faults: acc.faults(true), points, rejects, ignored, nulls, lineNumbersIgnored };
+}
+
+function parseIesxFaults(text, fallbackName) {
+  const acc = faultAccumulator();
+  let points = 0;
+  let nulls = 0;
+  let seq = 0;
+  let prev = null;
+  const { rejects, ignored } = walkIesx(text, fallbackName, (r, n, name, block) => {
+    const key = `${name}\u0000${block}\u0000${r.seg}`;
+    if (key !== prev) { seq += 1; prev = key; }
+    if (isNullValue(r.z)) { nulls += 1; return; }
+    const pt = { x: r.x, y: r.y, z: r.z };
+    if (r.il != null) { pt.il = r.il; pt.xl = r.xl; }
+    acc.add(name, seq, pt);
+    points += 1;
+  });
+  return { faults: acc.faults(false), points, rejects, ignored, nulls };
+}
+
+function parseMappedFaults(text, mapping, fallbackName) {
+  const out = parseMappedColumns(text, { delimiter: 'auto', headerLines: 'auto', ...mapping },
+    { required: ['z'] });
+  const acc = faultAccumulator();
+  const hasStick = Number.isInteger(mapping?.columns?.stick);
+  for (const r of out.records) {
+    const pt = { z: r.z };
+    if (r.x != null && r.y != null) { pt.x = r.x; pt.y = r.y; }
+    if (r.il != null && r.xl != null) { pt.il = r.il; pt.xl = r.xl; }
+    acc.add(r.name || fallbackName, hasStick ? r.stick : r.block, pt);
+  }
+  return {
+    faults: acc.faults(true),
+    points: out.records.length,
+    rejects: out.rejects,
+    ignored: out.ignored,
+    nulls: out.nulls,
+  };
+}
+
+/**
+ * Tolerant fault-stick parse.
  *
- * Rows group by fault name (first-appearance order), then by stick
- * number (ascending); points keep file order within a stick. The
- * `xyzn` dialect has no name column — its single fault is named
- * `fallbackName`.
+ * @param {string} text
+ * @param {Object} [opts]
+ * @param {?string} [opts.format] force a dialect (else detected)
+ * @param {?Object} [opts.mapping] column mapping for 'columns'
+ * @param {string} [opts.fallbackName] name for rows with no fault name
+ * @returns {{format: string, faults: Array<{name: string,
+ *   sticks: Array<Array<{il?, xl?, x?, y?, z}>>}>, points: number,
+ *   rejects: Array<{line, reason, column?, field?, text?}>,
+ *   rejectCount: number, ignored: number, nulls: number}}
+ */
+export function parseFaultSticks(text, opts = {}) {
+  const fallbackName = opts.fallbackName || 'Imported fault';
+  const det = opts.format ? { format: opts.format } : detectFaultFormat(text);
+  const fmt = det.format;
+  let out;
+  if (fmt === 'charisma') out = parseCharismaFaults(text, fallbackName);
+  else if (fmt === 'iesx') out = parseIesxFaults(text, fallbackName);
+  else if (fmt === 'xyzn') {
+    out = parseMappedFaults(text, { columns: { x: 0, y: 1, z: 2, stick: 3 }, headerLines: 0 }, fallbackName);
+  } else if (fmt === 'columns') {
+    out = parseMappedFaults(text, opts.mapping || { columns: det.suggested || {} }, fallbackName);
+  } else {
+    throw new Error(`Unknown fault-stick format: ${fmt}`);
+  }
+  if (!out.points) throw refuseNothingRead('fault sticks', out.rejects);
+  return {
+    format: fmt,
+    faults: out.faults,
+    points: out.points,
+    rejects: out.rejects.list,
+    rejectCount: out.rejects.count,
+    ignored: out.ignored || 0,
+    nulls: out.nulls || 0,
+    ...(out.lineNumbersIgnored ? { lineNumbersIgnored: true } : {}),
+  };
+}
+
+/**
+ * Parse a fault-stick file into named faults with ordered sticks
+ * (older contract: throws on the first bad row, "Line <n>: ...").
  *
  * @returns {{format: string, faults: Array<{name: string,
  *   sticks: Array<Array<{il?: number, xl?: number, x: number,
@@ -59,55 +292,14 @@ export function detectFaultStickFormat(text) {
  */
 export function parseFaultStickFile(text, format = null, fallbackName = 'Imported fault') {
   const fmt = format || detectFaultStickFormat(text);
-  const byFault = new Map(); // name -> Map(stickNo -> points[])
-  let points = 0;
-  const raw = text.split(/\r?\n/);
-  for (let i = 0; i < raw.length; i++) {
-    const s = raw[i].trim();
-    if (!s || isComment(s)) continue;
-    const n = i + 1;
-    let name;
-    let stickNo;
-    let pt;
-    if (fmt === 'charisma') {
-      const tok = s.split(/\s+/);
-      if (tok.length < 8) {
-        throw new Error(`Line ${n}: Charisma fault-stick rows need 8 columns, got ${tok.length}.`);
-      }
-      const il = Number(tok[1]);
-      const xl = Number(tok[2]);
-      const x = Number(tok[3]);
-      const y = Number(tok[4]);
-      const z = Number(tok[5]);
-      stickNo = Number(tok[tok.length - 1]);
-      name = tok.slice(6, tok.length - 1).join(' ');
-      if (![il, xl, x, y, z].every(Number.isFinite) || !Number.isFinite(stickNo)) {
-        throw new Error(`Line ${n}: non-numeric inline/crossline/x/y/z/stick in "${s}".`);
-      }
-      if (!name) throw new Error(`Line ${n}: missing fault name in "${s}".`);
-      pt = { il, xl, x, y, z };
-    } else {
-      const v = numbersOf(s);
-      if (v.length < 4 || !v.slice(0, 4).every(Number.isFinite)) {
-        throw new Error(`Line ${n}: expected "x y z stick#", got "${s}".`);
-      }
-      name = fallbackName;
-      stickNo = v[3];
-      pt = { x: v[0], y: v[1], z: v[2] };
-    }
-    if (!byFault.has(name)) byFault.set(name, new Map());
-    const sticks = byFault.get(name);
-    if (!sticks.has(stickNo)) sticks.set(stickNo, []);
-    sticks.get(stickNo).push(pt);
-    points += 1;
-  }
-  if (!points) throw new Error('The file has no fault-stick rows.');
-  const faults = [...byFault.entries()].map(([name, sticks]) => ({
-    name,
-    sticks: [...sticks.keys()].sort((a, b) => a - b).map((k) => sticks.get(k)),
-  }));
-  return { format: fmt, faults, points };
+  const out = parseFaultSticks(text, { format: fmt, fallbackName });
+  if (out.rejectCount) throw new Error(describeReject(out.rejects[0]));
+  return { format: out.format, faults: out.faults, points: out.points };
 }
+
+/** IESX PROFILE header of a fault file names a fault ifdf. */
+export const iesxLooksLikeFaults = (text) => splitLines(text).slice(0, 50)
+  .some((l) => /^PROFILE\s/i.test(l.trim()) && /fault/i.test(parseIesxProfile(l.trim()).ifdf || ''));
 
 /**
  * Land parsed fault sticks on the volume lattice as the stored

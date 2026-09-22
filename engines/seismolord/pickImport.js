@@ -8,6 +8,12 @@
 // style). Malformed rows never silently vanish: parsing throws on the
 // first bad row; lattice mapping COUNTS what it skips (off-survey,
 // off-lattice, out of time range) and reports collisions.
+//
+// The import dialog now reads files through the TOLERANT readers in
+// horizonImport.js (every Charisma marker variant, IESX, EarthVision,
+// CPS-3 points, grids, generic column mapping, per-row rejects);
+// detectPickFormat/parsePickFile stay for existing callers, and
+// rowsToPickLattice is the shared landing step for both.
 
 import { NULL_VALUE } from './manifest';
 import { worldToIlxl } from './surveyGeometry';
