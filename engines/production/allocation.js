@@ -677,9 +677,9 @@ export function crossCheckTestsAgainstNodal({
         stableStbd: Number.isFinite(stableQ) ? stableQ : null,
         deviationPct: m.dev,
         status: 'unstable-branch',
-        message: `Test ${Math.round(oil).toLocaleString()} stb/d matches the model on its unstable low-rate branch at ${Math.round(thp)} psia `
-          + `(${Math.round(m.x.q).toLocaleString()} stb/d there, ${Math.round(Math.abs(m.dev))}% ${m.dev >= 0 ? 'above' : 'below'})`
-          + `${Number.isFinite(stableQ) ? `; the stable solution is ${Math.round(stableQ).toLocaleString()} stb/d` : ''}. `
+        message: `Test ${oil.toFixed(1)} stb/d matches the model on its unstable low-rate branch at ${thp.toFixed(1)} psia `
+          + `(${m.x.q.toFixed(1)} stb/d there, ${Math.abs(m.dev).toFixed(1)}% ${m.dev >= 0 ? 'above' : 'below'})`
+          + `${Number.isFinite(stableQ) ? `; the stable solution is ${stableQ.toFixed(1)} stb/d` : ''}. `
           + 'The well is being held back, usually by its choke, and may head or slug. The test is consistent with the model.',
       });
     };
