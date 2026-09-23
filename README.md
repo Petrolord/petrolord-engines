@@ -609,7 +609,10 @@ and its consumers.
   (z on the sample SD with its (n - 1)/sqrt(n) ceiling, sqrt(n - 1) for
   the population option, Iglewicz-Hoaglin
   modified z at 0.6745 / 3.5, Tukey fences on Hyndman-Fan R6/R7/R8
-  quantiles, Hampel through the petrophysics `despikeHampel`, Grubbs with
+  quantiles, Hampel through the petrophysics `despikeHampel` (which
+  expects NaN for a missing sample: a null input comes back as 0 at that
+  position; audited 2026-09-23, no live caller passes null, see
+  FINDINGS-quality.md open question 1), Grubbs with
   its own incomplete beta and t quantile), Mahalanobis with the
   safetyStats chi-square quantile, Shewhart individuals/MR, EWMA and
   tabular CUSUM charts, and a weighted scorecard. Every flag carries its
