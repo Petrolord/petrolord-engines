@@ -1,12 +1,12 @@
 # FINDINGS: quality (oracle_quality.py, Data & AI D1)
 
-Golden: `test-data/dataai/goldens/quality_cases.json`, 387 cases (46 of
+Golden: `test-data/dataai/goldens/quality_cases.json`, 402 cases (46 of
 them refusals; 8 published NIST/SEMATECH anchors carrying 124 printed
 figures), written by `tools/validation/dataai/oracle_quality.py`.
-Second witness: `test-data/dataai/pins/quality_pins.json`, 313 pins
+Second witness: `test-data/dataai/pins/quality_pins.json`, 342 pins
 written by `tools/validation/dataai/pin_quality.py` (numpy 2.5.3, scipy
 1.18.1, statsmodels 0.15.0, pandas 3.0.6, from `/root/daienv`).
-Gate: `__tests__/dataai.quality.test.js` (854 tests) calls the engine on
+Gate: `__tests__/dataai.quality.test.js` (903 tests) calls the engine on
 every golden, every printed figure and every pin, plus property tests.
 Negative control: `tools/validation/dataai/negcontrol_quality.sh`.
 
@@ -130,10 +130,14 @@ better on quantiles, z, MAD, Mahalanobis and the individuals chart.
    "not a spike"; the negative control shows the case still turns red
    when the petrophysics comparison becomes >=.
 3. **Sample SD (n - 1)** for z-scores and Grubbs, as NIST defines them;
-   population SD is an option for z. The result reports the ceiling
-   (n - 1) / sqrt(n) and whether the threshold is reachable: at n = 10 no
-   point can pass \|z\| > 3 (`z-unreachable-at-n10`), which the modified z
-   catches (`modz-at-n10`).
+   population SD is an option for z. The result reports the ceiling for
+   the CHOSEN SD, (n - 1) / sqrt(n) sample or sqrt(n - 1) population, and
+   whether the threshold is reachable (ceiling > threshold, strict): at
+   n = 10 with the sample SD no point can pass \|z\| > 3
+   (`z-unreachable-at-n10`), which the modified z catches (`modz-at-n10`);
+   with the population SD the ceiling at n = 10 is exactly 3. (Before the
+   foundation repair the population ceiling was wrong; see the section
+   below.)
 4. **Modified z uses 0.6745 as printed**, not 1 / 1.4826 = 0.674490 (the
    7e-5 difference is caught by the gate). MAD = 0 is refused (at least
    half the values equal the median); no fallback is invented.
@@ -196,11 +200,94 @@ better on quantiles, z, MAD, Mahalanobis and the individuals chart.
 18. **Coverage**: a step between consecutive present samples covers the
     index between them when it is at most `maxStep` (inclusive); the
     stretch before the first and after the last present sample is a hole.
+19. **Reason strings print the shortest round-trip decimal** (ECMAScript
+    Number to String): every figure parses back to exactly the number in
+    the flag or result it quotes, and every figure a reason quotes is a
+    numeric field (see the foundation repair below).
 
-## Negative control (run 2026-09-23)
+## Foundation repair (fix/dataai-quality-foundation-findings, 2026-09-23)
 
-Baseline 854 passed. Every ENGINE plant went RED (36/36), then the files
-were restored and the suite returned to 854 passed. The first run found
+The D1 course foundation found three engine defects after PR #248. All
+three are fixed in one PR, before any lesson was written.
+
+1. **Population-SD z ceiling.** `zScores({ sd: 'population' })` reported
+   the SAMPLE ceiling (n - 1) / sqrt(n) as `maxPossibleAbsZ` and decided
+   `thresholdReachable` from it. The population ceiling is sqrt(n - 1).
+   Repro: nine zeros and a one, threshold 2.9: the engine said
+   unreachable (ceiling 2.846) while flagging the one at z = 3. Now the
+   ceiling follows the chosen SD and `basis.ceiling` names the form. The
+   oracle does not copy either formula: it builds the extreme sample
+   (n - 1 zeros and a one, the configuration that attains the largest
+   \|z\|, Shiffler 1988), takes its z^2 in Fractions from the definition,
+   checks it against both closed forms or stops, and decides
+   reachability on exact squares. scipy's `zscore` on the same extreme
+   sample is pinned as the second witness. Goldens that discriminate:
+   `z-population-ceiling-reachable` (the repro), `z-sample-same-data-
+   unreachable`, the exact-ceiling boundaries `z-population-on-the-
+   ceiling-n10` (3), `z-population-on-the-ceiling-n5` (2),
+   `z-sample-on-the-ceiling-n16` (15/4), `z-sample-on-the-ceiling-n4`
+   (3/2), and just inside: `z-population-below-the-ceiling-n5` (1.9, over
+   the sample ceiling 1.789) and `z-sample-below-the-ceiling-n16` (3.7).
+   A property test checks, for n in {4, 5, 10, 16, 25} and both SDs, that
+   `thresholdReachable` equals "the extreme value is flagged" just under
+   and just over the ceiling.
+2. **Reason figures rounded to 6 significant figures.** `fmt` printed
+   `Number(x.toPrecision(6))`, so a cumulative of 1338506.2 printed as
+   1338510 and the two figures in a `cumulative-decrease` reason
+   (1338510, 1331010) disagreed with the `drop` field (7496.7). **Rule
+   chosen: the shortest round-trip decimal** (ECMAScript Number to
+   String): every printed figure parses back to exactly the double it
+   quotes, whatever its magnitude. Fixed 6 decimals was rejected because
+   it prints the default index step tolerance (1e-6 x a 0.5 step =
+   5e-7) as 0.000001 and anything smaller as 0. Consequences: computed
+   statistics print every digit their float carries (for example
+   z = 2.9999999999999996); the application rounds for display from the
+   numeric fields. Exponent form below 1e-6 and from 1e21 up
+   (`1.5e-7`), as ECMAScript prints it. Every reason template in the
+   file was audited (they all go through `fmt`; integers are indices,
+   run lengths and edit counts). Where a reason quoted a figure that was
+   in no field, the field was added: `cumulative-decrease` gains `value`
+   and `previous`; `reversal` and `irregular-step` gain `value`,
+   `previous`, `previousIndex`; `hampel` flags gain `median`, `deviation`
+   and `threshold`; the Mahalanobis result gains `level` (1 - alpha).
+   Gates: the oracle pins the exact reason text for completeness,
+   coverage, range, rate, cumulative, frozen-run and the index
+   missing/duplicate/reversal rules, laying numbers out by its own
+   implementation of ECMA-262 Number::toString from Python's shortest
+   digits (with fixed-point self-checks that stop it); new large-value
+   goldens `cumulative-large-values`, `range-large-values`,
+   `rate-large-values`, `frozen-large-value`, `coverage-large-index`,
+   `index-large-depths`, `hampel-large-values-n2.5`; and a jest property
+   that every figure in every reason of every golden output is EXACTLY
+   (===) a numeric field of the flag, the result, its basis or a
+   published constant (duplicate-identifier reasons, which quote
+   identifiers containing digits, are pinned by their golden text only).
+   Reasons for computed statistics (z, M, EWMA, CUSUM, Grubbs, d^2) are
+   not pinned as text: the oracle's exact road and the engine's float
+   road can differ in the last bit, and the round-trip text shows it.
+   The property test covers them instead.
+3. **Hampel `nSigma` not echoed.** The result now carries `halfWindow`
+   and `nSigma`, and the basis carries `halfWindow`, `nSigma` and
+   `madScale` (1.4826); the oracle emits them and every Hampel golden
+   gates them.
+
+Public output changes a course must re-cut against: every reason string
+with a non-integer or 7+ digit figure (text only; rules, indices and
+numeric fields unchanged); `zScores` with `sd: 'population'`
+(`maxPossibleAbsZ` = sqrt(n - 1), `thresholdReachable`, basis `ceiling`
+and `note`); new fields listed above. No flag decision changed: the fix
+touches reporting, not which points are flagged.
+
+The two carried open questions stay OPEN (not changed here): the
+petrophysics `despikeHampel` null to 0 conversion (open question 1) and
+the absolute pivot test in `lib/linalg/solveDense` (open question 2).
+
+## Negative control (re-run 2026-09-23 after the foundation repair)
+
+Baseline 903 passed. Every ENGINE plant went RED (41/41), then the files
+were restored and the suite returned to 903 passed. The five plants for
+the foundation repair and the three matching oracle plants are at the
+end of each table. The first run found
 two GREEN plants (phase-sum tolerance taken on the sum; Hampel on the
 threshold counted as a spike); the goldens `phasesum-tolerance-on-the-total`
 and `hampel-on-the-threshold` were added to close them, and the table
@@ -209,10 +296,10 @@ below is the re-run.
 | plant (engine) | result |
 |---|---|
 | completeness: null fraction over present, not n | RED, 4 failed |
-| coverage: a step equal to maxStep is a hole | RED, 3 failed |
-| index: duplicates only when adjacent | RED, 1 failed |
+| coverage: a step equal to maxStep is a hole | RED, 4 failed |
+| index: duplicates only when adjacent | RED, 2 failed |
 | range: exclusive bound treated as inclusive | RED, 2 failed |
-| rate: hours on 0 not read as shut in | RED, 1 failed |
+| rate: hours on 0 not read as shut in | RED, 2 failed |
 | cumulative: meter tolerance ignored | RED, 1 failed |
 | water cut on an oil basis | RED, 2 failed |
 | phase sum tolerance relative to the sum, not the total | RED, 1 failed |
@@ -220,11 +307,11 @@ below is the re-run.
 | Levenshtein substitution costs 2 | RED, 5 failed |
 | normalisation keeps leading zeros | RED, 7 failed |
 | near duplicates ignore the digit rule | RED, 3 failed |
-| quantile R7 computed as R6 | RED, 63 failed |
-| z-score defaults to the population SD | RED, 16 failed |
+| quantile R7 computed as R6 | RED, 64 failed |
+| z-score defaults to the population SD | RED, 36 failed |
 | modified z scale 1/1.4826 instead of the printed 0.6745 | RED, 4 failed |
 | modified z on a scaled MAD | RED, 13 failed |
-| Tukey k = 2 by default | RED, 6 failed |
+| Tukey k = 2 by default | RED, 7 failed |
 | a value on the fence is flagged | RED, 1 failed |
 | Hampel window one sample wider | RED, 4 failed |
 | Hampel (petrophysics): a point on the threshold is a spike | RED, 1 failed |
@@ -239,11 +326,16 @@ below is the re-run.
 | EWMA starts at the first observation | RED, 26 failed |
 | EWMA variance factor lambda/2 instead of lambda/(2 - lambda) | RED, 8 failed |
 | EWMA exact limits exponent t, not 2t | RED, 3 failed |
-| CUSUM without the max(0, .) floor | RED, 26 failed |
+| CUSUM without the max(0, .) floor | RED, 27 failed |
 | CUSUM signals AT h | RED, 2 failed |
 | CUSUM sigma units ignored | RED, 3 failed |
 | scorecard weights not normalised | RED, 6 failed |
 | scorecard tie goes to the last listed | RED, 2 failed |
+| z ceiling uses the sample form for the population SD too | RED, 12 failed |
+| reason figures rounded to 6 significant figures | RED, 9 failed |
+| reason figures rounded to 6 decimal places | RED, 3 failed |
+| Hampel nSigma not echoed in the result | RED, 7 failed |
+| Hampel nSigma not echoed in the basis | RED, 7 failed |
 
 | plant (oracle, golden regenerated) | result |
 |---|---|
@@ -251,6 +343,9 @@ below is the re-run.
 | oracle CUSUM without the floor | RED, 4 failed |
 | oracle R7 as R6 (statistics.quantiles cross-check) | STOP: the statistics.quantiles cross-check refused to write a golden |
 | oracle Grubbs t on N - 1 df | RED, 14 failed |
+| oracle z ceiling closed form sample-only | STOP: the ceiling cross-check refused to write a golden |
+| oracle z ceiling from the sample variance for both SDs | STOP: the ceiling cross-check refused to write a golden |
+| oracle number layout switches to exponent form one decade late | STOP: the layout self-check refused to write a golden |
 
 ## What could not be verified
 
