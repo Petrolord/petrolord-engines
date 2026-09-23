@@ -11,6 +11,7 @@
 
 import { DISCONTINUITY_DEFS, makeNeighborhoodCompute } from './discontinuity';
 import { faultLikelihoodVolume, FAULT_DETECT_DEFAULTS } from './faultDetect';
+import { isStructureKey, makeStructureJob } from './structureAttributes';
 
 const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number')
   && Object.prototype.hasOwnProperty.call(table, key);
@@ -63,7 +64,7 @@ export async function faultLikelihoodBlock({
 /**
  * The runNeighborhoodJob pieces for any discontinuity attribute:
  * {radius, compute} for variance, {radius, computeColumn} for the regional
- * fault likelihood.
+ * fault likelihood and the structure attributes.
  *
  * @param {string} name DISCONTINUITY_DEFS key
  * @param {Object} params the attribute's params (windowMs, radius)
@@ -73,6 +74,9 @@ export function makeDiscontinuityJob(name, params, volume) {
   const def = ownPreset(DISCONTINUITY_DEFS, name) ? DISCONTINUITY_DEFS[name] : undefined;
   if (!def) throw new Error(`Unknown discontinuity attribute "${name}".`);
   if (!def.regional) return makeNeighborhoodCompute(name, params, volume);
+  // structure attributes (edge, dip, azimuth, chaos, curvature): their own
+  // column builder and halo (structureAttributes.js)
+  if (isStructureKey(name)) return makeStructureJob(name, params, volume);
   const { dtUs, nIl, nXl, ns } = volume;
   if (!(dtUs > 0)) throw new Error(`Fault likelihood needs a positive dt, got ${dtUs}.`);
   if (!(nIl > 0 && nXl > 0 && ns > 0)) throw new Error('Fault likelihood needs the survey size (nIl, nXl, ns).');

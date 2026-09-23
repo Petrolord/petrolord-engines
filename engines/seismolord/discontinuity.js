@@ -171,6 +171,73 @@ export const DISCONTINUITY_DEFS = {
       windowMs: { label: 'Semblance window (ms)', default: 24, min: 8, max: 120 },
     },
   },
+  /** Structure attributes (structureAttributes.js): regional, built a
+   *  brick column at a time by makeDiscontinuityJob over a halo. */
+  edge: {
+    key: 'edge',
+    label: 'Edge (Sobel)',
+    unit: 'amp/trace',
+    neighborhood: true,
+    regional: true,
+    params: {
+      windowMs: { label: 'Vertical window (ms)', default: 12, min: 0, max: 200 },
+    },
+  },
+  dip: {
+    key: 'dip',
+    label: 'Dip magnitude',
+    unit: 'ms/trace',
+    neighborhood: true,
+    regional: true,
+    params: {
+      windowMs: { label: 'Vertical smoothing window (ms)', default: 24, min: 4, max: 200 },
+      radius: { label: 'Trace radius', default: 1, min: 1, max: 2 },
+    },
+  },
+  azimuth: {
+    key: 'azimuth',
+    label: 'Dip azimuth (lattice)',
+    unit: 'deg',
+    neighborhood: true,
+    regional: true,
+    params: {
+      windowMs: { label: 'Vertical smoothing window (ms)', default: 24, min: 4, max: 200 },
+      radius: { label: 'Trace radius', default: 1, min: 1, max: 2 },
+    },
+  },
+  chaos: {
+    key: 'chaos',
+    label: 'Chaos',
+    unit: 'frac',
+    neighborhood: true,
+    regional: true,
+    params: {
+      windowMs: { label: 'Vertical smoothing window (ms)', default: 24, min: 4, max: 200 },
+      radius: { label: 'Trace radius', default: 1, min: 1, max: 2 },
+    },
+  },
+  curvature_pos: {
+    key: 'curvature_pos',
+    label: 'Most positive curvature',
+    unit: 'ms/trace²',
+    neighborhood: true,
+    regional: true,
+    params: {
+      windowMs: { label: 'Vertical smoothing window (ms)', default: 24, min: 4, max: 200 },
+      radius: { label: 'Trace radius', default: 1, min: 1, max: 2 },
+    },
+  },
+  curvature_neg: {
+    key: 'curvature_neg',
+    label: 'Most negative curvature',
+    unit: 'ms/trace²',
+    neighborhood: true,
+    regional: true,
+    params: {
+      windowMs: { label: 'Vertical smoothing window (ms)', default: 24, min: 4, max: 200 },
+      radius: { label: 'Trace radius', default: 1, min: 1, max: 2 },
+    },
+  },
 };
 
 /**
