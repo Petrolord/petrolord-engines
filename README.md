@@ -608,7 +608,8 @@ and its consumers.
   so two real wells are not called near duplicates), univariate outliers
   (z on the sample SD with its (n - 1)/sqrt(n) ceiling, sqrt(n - 1) for
   the population option, Iglewicz-Hoaglin
-  modified z at 0.6745 / 3.5, Tukey fences on Hyndman-Fan R6/R7/R8
+  modified z at 0.6745 / 3.5 (refused when MAD = 0, which happens exactly
+  when more than half the present values equal the median), Tukey fences on Hyndman-Fan R6/R7/R8
   quantiles, Hampel through the petrophysics `despikeHampel` (which
   expects NaN for a missing sample: a null input comes back as 0 at that
   position; audited 2026-09-23, no live caller passes null, see

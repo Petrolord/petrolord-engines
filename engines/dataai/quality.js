@@ -655,6 +655,11 @@ export const zScores = ({ values, threshold = 3, sd = 'sample' } = {}) => {
  * Modified z-scores (Iglewicz and Hoaglin 1993, NIST 1.3.5.17):
  * M_i = 0.6745 (x_i - median) / MAD, MAD = median |x_i - median|.
  * |M| > 3.5 is labelled a potential outlier.
+ *
+ * MAD = 0 exactly when MORE than half the present values equal the
+ * median (odd n: at least (n + 1) / 2; even n: at least n / 2 + 1).
+ * Exactly half is not enough: [1, 5, 5, 9] has MAD 2. A zero MAD is
+ * refused; no fallback is invented.
  */
 export const modifiedZScores = ({ values, threshold = CONSTANTS.MODIFIED_Z_THRESHOLD } = {}) => {
   const b = checkSeries('values', values, { minPresent: 3 });
@@ -664,7 +669,7 @@ export const modifiedZScores = ({ values, threshold = CONSTANTS.MODIFIED_Z_THRES
   const { idx, x } = presentPairs(values);
   const med = median(x);
   const mad = median(x.map((v) => Math.abs(v - med)));
-  if (!(mad > 0)) return refuse('values', 'have MAD = 0: at least half the present values equal the median, so the modified z-score is undefined');
+  if (!(mad > 0)) return refuse('values', 'have MAD = 0: more than half the present values equal the median, so the modified z-score is undefined');
   const scores = values.map(() => null);
   const flags = [];
   x.forEach((v, j) => {

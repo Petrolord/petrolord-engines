@@ -66,6 +66,8 @@ describe('goldens: the engine agrees with the oracle', () => {
       expect(r.field).toBe(c.expected.field);
       // refused BY NAME: the message starts with the field it refuses
       expect(r.error.startsWith(c.expected.field.replace(/[.[].*$/, ''))).toBe(true);
+      // where the oracle pins the refusal text, the engine prints exactly that
+      if ('message' in c.expected) expect(r.error).toBe(c.expected.message);
       return;
     }
     expect(r && r.error).toBeFalsy();

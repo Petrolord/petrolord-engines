@@ -486,11 +486,23 @@ def z_ceiling_squared(n, sd):
     return c2
 
 
+# The refusal text the engine must print, pinned in the golden. The oracle
+# decides to refuse from its own exact MAD and cross-checks the stated
+# condition by counting: MAD = 0 exactly when MORE than half the present
+# values equal the median (at least half is not enough: [1, 5, 5, 9] has
+# MAD 2).
+MODZ_ZERO_MAD = 'values have MAD = 0: more than half the present values equal the median, so the modified z-score is undefined'
+
+
 def o_modz(values, threshold=3.5):
     pr = present(values)
     xs = [F(v) for _, v in pr]
     med = fmedian(xs)
     mad = fmedian([abs(x - med) for x in xs])
+    on_median = sum(1 for x in xs if x == med)
+    assert (mad == 0) == (2 * on_median > len(xs)), ('zero-MAD condition', values, mad, on_median)
+    if mad == 0:
+        return {'error': True, 'field': 'values', 'message': MODZ_ZERO_MAD}
     assert fl(med) == statistics.median([fl(x) for x in xs]) or abs(fl(med) - statistics.median([fl(x) for x in xs])) < 1e-12
     scores = [None] * len(values)
     flags = []
@@ -1070,7 +1082,15 @@ def build():
           o_modz([1.0, 1.1, 0.9, 1.05, 0.95, 1.0, 1.02, 0.98, 1.01, 100.0]),
           note='the robust score finds the wild value the z-score cannot (compare z-unreachable-at-n10)')
     c.add('modz-threshold-3', 'modifiedZScores', {'values': spiked, 'threshold': 3}, o_modz(spiked, 3))
-    c.refuse('modz-mad-zero', 'modifiedZScores', {'values': [5.0, 5.0, 5.0, 5.0, 9.0]}, 'values')
+    c.add('modz-mad-zero', 'modifiedZScores', {'values': [5.0, 5.0, 5.0, 5.0, 9.0]}, o_modz([5.0, 5.0, 5.0, 5.0, 9.0]))
+    # the zero-MAD condition is MORE than half on the median, for odd and even n
+    for cid, vals, note in [
+        ('modz-exactly-half-on-median-n4', [1.0, 5.0, 5.0, 9.0], 'exactly half (2 of 4) on the median 5: MAD 2, scored, no refusal'),
+        ('modz-exactly-half-on-median-n6', [1.0, 5.0, 5.0, 5.0, 9.0, 9.0], 'exactly half (3 of 6) on the median 5: MAD 2, scored, no refusal'),
+        ('modz-mad-zero-bare-majority-n5', [5.0, 5.0, 5.0, 6.0, 7.0], '3 of 5 on the median, the smallest odd majority: MAD 0, refused'),
+        ('modz-mad-zero-n-over-2-plus-1-n6', [1.0, 5.0, 5.0, 5.0, 5.0, 9.0], 'n / 2 + 1 = 4 of 6 on the median, the smallest even majority: MAD 0, refused'),
+    ]:
+        c.add(cid, 'modifiedZScores', {'values': vals}, o_modz(vals), note=note)
 
     for m in ('R6', 'R7', 'R8'):
         c.add(f'iqr-rhob-{m}', 'iqrFences', {'values': spiked, 'method': m}, o_iqr(spiked, 1.5, m))
