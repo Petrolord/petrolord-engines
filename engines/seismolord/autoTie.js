@@ -290,7 +290,7 @@ export function fieldTieConvention(ties, { snapDeg = 20, phaseToleranceDeg = 45 
     if (t.quality === 'poor') { outliers.push({ name: t.name, reason: 'poor tie' }); continue; }
     if (t.polarity !== polarity) { outliers.push({ name: t.name, reason: 'opposite polarity' }); continue; }
     const d = Math.abs(((t.phaseDeg - phaseDeg + 540) % 360) - 180);
-    if (d > phaseToleranceDeg) outliers.push({ name: t.name, reason: `phase ${Math.round(t.phaseDeg)} degrees` });
+    if (d > phaseToleranceDeg) outliers.push({ name: t.name, reason: `phase ${t.phaseDeg.toFixed(1)} degrees` });
   }
   const total = wNormal + wReverse;
   return {
