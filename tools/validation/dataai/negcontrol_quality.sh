@@ -117,6 +117,19 @@ run_case ENGINE "CUSUM signals AT h" $E "const up = hi > hd;" "const up = hi >= 
 run_case ENGINE "CUSUM sigma units ignored" $E "if (e) return e; scale = sigma; }" "if (e) return e; }"
 run_case ENGINE "scorecard weights not normalised" $E "weight: w[i] / wsum, contribution: (w[i] / wsum) * r.score" "weight: w[i], contribution: w[i] * r.score"
 run_case ENGINE "scorecard tie goes to the last listed" $E "if (r.score < weakest.score) weakest = r;" "if (r.score <= weakest.score) weakest = r;"
+# foundation findings (fix/dataai-quality-foundation-findings)
+run_case ENGINE "z ceiling uses the sample form for the population SD too" $E "const bound = sd === 'sample' ? (n - 1) / Math.sqrt(n) : Math.sqrt(n - 1);" "const bound = (n - 1) / Math.sqrt(n);"
+run_case ENGINE "reason figures rounded to 6 significant figures" $E "  return String(x);
+};" "  return String(Number(x.toPrecision(6)));
+};"
+run_case ENGINE "reason figures rounded to 6 decimal places" $E "  return String(x);
+};" "  return String(Number(x.toFixed(6)));
+};"
+run_case ENGINE "Hampel nSigma not echoed in the result" $E "    halfWindow,
+    nSigma,
+    points," "    halfWindow,
+    points,"
+run_case ENGINE "Hampel nSigma not echoed in the basis" $E "basis: { halfWindow, nSigma, madScale" "basis: { halfWindow, madScale"
 
 echo "=== ORACLE plants (RED or STOP: the control on the controls) ==="
 O=$ORACLE
@@ -124,6 +137,11 @@ run_case ORACLE "oracle modified z scale 0.675" $O "mz = F('0.6745') * (F(v) - m
 run_case ORACLE "oracle CUSUM without the floor" $O "hi = max(F(0), hi + v - F(target) - kd)" "hi = hi + v - F(target) - kd"
 run_case ORACLE "oracle R7 as R6 (statistics.quantiles cross-check)" $O "        h = 1 + p * (n - 1)" "        h = p * (n + 1)"
 run_case ORACLE "oracle Grubbs t on N - 1 df" $O "t = t_upper_quantile(tail, n - 2)" "t = t_upper_quantile(tail, n - 1)"
+run_case ORACLE "oracle z ceiling closed form sample-only" $O "    closed = F((n - 1) ** 2, n) if sd == 'sample' else F(n - 1)" "    closed = F((n - 1) ** 2, n)"
+run_case ORACLE "oracle z ceiling from the sample variance for both SDs" $O "    var = ss / (n - 1) if sd == 'sample' else ss / n
+    c2 =" "    var = ss / (n - 1)
+    c2 ="
+run_case ORACLE "oracle number layout switches to exponent form one decade late" $O "    elif -6 < n <= 0:" "    elif -7 < n <= 0:"
 
 restore
 echo "=== restored; verifying clean ==="

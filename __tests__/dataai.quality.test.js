@@ -292,6 +292,74 @@ describe('scorecard', () => {
   });
 });
 
+describe('foundation findings (population z ceiling, reason precision, Hampel nSigma echo)', () => {
+  test('the z ceiling follows the chosen SD and agrees with the flags on the extreme sample', () => {
+    // the extreme sample reaches the ceiling, so reachable must equal "the one is flagged"
+    [4, 5, 10, 16, 25].forEach((n) => ['sample', 'population'].forEach((sd) => {
+      const values = [...Array(n - 1).fill(0), 1];
+      const r0 = Q.zScores({ values, sd });
+      [r0.maxAbsZ - 1e-9, r0.maxAbsZ + 1e-9].forEach((threshold) => {
+        const r = Q.zScores({ values, sd, threshold });
+        expect([n, sd, threshold, r.thresholdReachable]).toEqual([n, sd, threshold, r.flags.length > 0]);
+      });
+      expect([n, sd, Math.abs(r0.maxAbsZ - r0.maxPossibleAbsZ) < 1e-12]).toEqual([n, sd, true]);
+    }));
+  });
+
+  test('the D1 repro: population SD, nine zeros and a one, threshold 2.9', () => {
+    const r = Q.zScores(byId('z-population-ceiling-reachable').args);
+    expect(r.thresholdReachable).toBe(true);
+    expect(r.flags.map((f) => f.index)).toEqual([9]);
+  });
+
+  // Every figure a reason prints must parse back to EXACTLY a number the
+  // result carries (the flag's own fields, the result's fields, its basis,
+  // or a published constant); duplicate-identifier reasons quote strings
+  // with digits in them and are left to their golden text.
+  const numbersIn = (o, out = new Set()) => {
+    if (typeof o === 'number') out.add(o);
+    else if (Array.isArray(o)) o.forEach((v) => numbersIn(v, out));
+    else if (o && typeof o === 'object') Object.values(o).forEach((v) => numbersIn(v, out));
+    return out;
+  };
+  const scalars = (r) => Object.fromEntries(Object.entries(r).filter(([k, v]) => typeof v === 'number' || k === 'basis'));
+  const FIGURE = /(?<![A-Za-z0-9_.^])-?\d+(?:\.\d+)?(?:e[+-]\d+)?/g;
+
+  test('every figure in every reason reproduces a numeric field exactly', () => {
+    let checked = 0;
+    G.cases.forEach((c) => {
+      const r = call(c);
+      (r.flags || []).forEach((f) => {
+        if (f.rule.startsWith('duplicate-') && f.rule !== 'duplicate-index') return;
+        const allowed = new Set([0, 1, ...Object.values(Q.CONSTANTS), ...numbersIn(f), ...numbersIn(scalars(r))]);
+        const figures = f.reason.match(FIGURE) || [];
+        figures.forEach((t) => {
+          checked += 1;
+          expect([c.id, f.rule, t, allowed.has(Number(t))]).toEqual([c.id, f.rule, t, true]);
+        });
+      });
+    });
+    expect(checked).toBeGreaterThan(500);
+  });
+
+  test('a cumulative drop prints figures whose difference is the drop field', () => {
+    const r = Q.cumulativeCheck(byId('cumulative-large-values').args);
+    expect(r.flags[0].reason).toBe('cumulative falls from 1338506.2 at entry 1 to 1331009.5');
+    r.flags.forEach((f) => {
+      const [a, b] = f.reason.match(FIGURE).filter((t) => t.includes('.') || Number(t) > 1000).map(Number);
+      expect(a - b).toBe(f.drop);
+    });
+  });
+
+  test('Hampel echoes halfWindow and nSigma in the result and its basis', () => {
+    ['hampel-gr-hw3', 'hampel-gr-hw5-n2', 'hampel-large-values-n2.5'].forEach((id) => {
+      const { halfWindow, nSigma = 3 } = byId(id).args;
+      const r = Q.hampel(byId(id).args);
+      expect([id, r.nSigma, r.basis.nSigma, r.halfWindow, r.basis.halfWindow]).toEqual([id, nSigma, nSigma, halfWindow, halfWindow]);
+    });
+  });
+});
+
 describe('every flag and refusal explains itself, in plain copy', () => {
   const outputs = G.cases.map((c) => [c.id, call(c)]);
 

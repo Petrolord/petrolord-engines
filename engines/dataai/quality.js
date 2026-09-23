@@ -19,7 +19,9 @@
  *                 exactly on a limit is not flagged.
  *   SD            z-scores use the SAMPLE standard deviation (n - 1), as
  *                 NIST/SEMATECH 1.3.5.17 defines the z-score; population
- *                 SD is an option.
+ *                 SD is an option. The largest possible |z| follows the
+ *                 chosen SD: (n - 1) / sqrt(n) sample, sqrt(n - 1)
+ *                 population.
  *   MAD           raw median absolute deviation, NIST 1.3.5.6. Modified z
  *                 uses 0.6745 (Iglewicz and Hoaglin, as printed in NIST
  *                 1.3.5.17); Hampel uses 1.4826 x MAD (petrophysics
@@ -38,6 +40,11 @@
  *                 chi-square (1 - alpha) quantile on p degrees of freedom,
  *                 alpha = 0.025 by default.
  *   Levenshtein   unit cost insert, delete and substitute.
+ *   reasons       every figure in a reason string is printed as the
+ *                 shortest round-trip decimal (ECMAScript Number to
+ *                 String), so it parses back to exactly the numeric field
+ *                 it quotes; every figure a reason quotes is also a
+ *                 numeric field of the flag or the result.
  *
  * Reused, by import: lib/stats (mean, median, sample and population SD),
  * engines/petrophysics/conditioning.js (despikeHampel decides the Hampel
@@ -102,11 +109,19 @@ const refuse = (field, message) => ({ error: `${field} ${message}`, field });
 
 const isMissing = (v) => v === null || v === undefined || (typeof v === 'number' && Number.isNaN(v));
 
-/** Short, stable number text for reason strings. */
+/**
+ * Number text for reason strings: the SHORTEST ROUND-TRIP decimal
+ * (ECMAScript Number::toString), so every figure printed in a reason
+ * parses back to exactly the number held in the result's fields. No
+ * rounding to a number of significant figures: a cumulative of 1338506.2
+ * prints as 1338506.2, and a computed statistic prints every digit its
+ * float carries (the application rounds for display from the numeric
+ * fields). Exponent form below 1e-6 and from 1e21 up, as ECMAScript.
+ */
 const fmt = (x) => {
   if (x === Infinity) return 'infinity';
   if (x === -Infinity) return 'minus infinity';
-  return String(Number(x.toPrecision(6)));
+  return String(x);
 };
 
 const flag = (index, rule, reason, extra = {}) => ({ index, rule, reason, ...extra });
@@ -311,9 +326,9 @@ export const indexCheck = ({ index, direction = 'increasing', expectedStep, step
   if (!(Number.isFinite(tol) && tol >= 0)) return refuse('stepTolerance', 'must be a finite number, zero or more');
   steps.forEach(({ i, prev: p, step }) => {
     if (sign * step < 0) {
-      flags.push(flag(i, 'reversal', `index goes from ${fmt(index[p])} to ${fmt(index[i])}, against the ${direction} direction`, { step }));
+      flags.push(flag(i, 'reversal', `index goes from ${fmt(index[p])} to ${fmt(index[i])}, against the ${direction} direction`, { step, value: index[i], previous: index[p], previousIndex: p }));
     } else if (step !== 0 && Math.abs(Math.abs(step) - expected) > tol) {
-      flags.push(flag(i, 'irregular-step', `step ${fmt(Math.abs(step))} from entry ${p} differs from the expected ${fmt(expected)} by more than ${fmt(tol)}`, { step: Math.abs(step) }));
+      flags.push(flag(i, 'irregular-step', `step ${fmt(Math.abs(step))} from entry ${p} differs from the expected ${fmt(expected)} by more than ${fmt(tol)}`, { step: Math.abs(step), value: index[i], previous: index[p], previousIndex: p }));
     }
   });
   flags.sort((a, b) => a.index - b.index);
@@ -379,7 +394,7 @@ export const cumulativeCheck = ({ cumulative, tolerance = 0 } = {}) => {
   cumulative.forEach((v, i) => {
     if (isMissing(v)) return;
     if (last !== null && cumulative[last] - v > tolerance) {
-      flags.push(flag(i, 'cumulative-decrease', `cumulative falls from ${fmt(cumulative[last])} at entry ${last} to ${fmt(v)}`, { drop: cumulative[last] - v, previousIndex: last }));
+      flags.push(flag(i, 'cumulative-decrease', `cumulative falls from ${fmt(cumulative[last])} at entry ${last} to ${fmt(v)}`, { drop: cumulative[last] - v, value: v, previous: cumulative[last], previousIndex: last }));
     }
     last = i;
   });
@@ -600,8 +615,11 @@ export const sampleQuantile = (values, p, method = 'R7') => {
 
 /**
  * z-scores, z_i = (x_i - mean) / s, with the SAMPLE SD by default
- * (NIST 1.3.5.17). Also reports the largest possible |z| for this n,
- * (n - 1) / sqrt(n): with n = 10, no point can pass |z| > 3.
+ * (NIST 1.3.5.17). Also reports the largest possible |z| for this n and
+ * the chosen SD, reached when n - 1 values are equal and one differs:
+ * (n - 1) / sqrt(n) with the sample SD (at n = 10 no point can pass
+ * |z| > 3), sqrt(n - 1) with the population SD (at n = 10 exactly 3).
+ * thresholdReachable is ceiling > threshold (strict, like the flags).
  */
 export const zScores = ({ values, threshold = 3, sd = 'sample' } = {}) => {
   const b = checkSeries('values', values, { minPresent: 3 });
@@ -621,7 +639,7 @@ export const zScores = ({ values, threshold = 3, sd = 'sample' } = {}) => {
     if (Math.abs(zi) > threshold) flags.push(flag(idx[j], 'z-score', `value ${fmt(v)} has z = ${fmt(zi)}, beyond the threshold ${fmt(threshold)}`, { value: v, statistic: zi }));
   });
   const n = x.length;
-  const bound = (n - 1) / Math.sqrt(n);
+  const bound = sd === 'sample' ? (n - 1) / Math.sqrt(n) : Math.sqrt(n - 1);
   return {
     n, mean: m, sd: s, z,
     maxAbsZ: Math.max(...z.filter((v) => v !== null).map(Math.abs)),
@@ -629,7 +647,7 @@ export const zScores = ({ values, threshold = 3, sd = 'sample' } = {}) => {
     thresholdReachable: bound > threshold,
     threshold,
     flags,
-    basis: { sd: sd === 'sample' ? 'sample standard deviation (n - 1)' : 'population standard deviation (n)', rule: `|z| > ${threshold}`, note: 'the largest possible |z| is (n - 1) / sqrt(n) (sample SD)' },
+    basis: { sd: sd === 'sample' ? 'sample standard deviation (n - 1)' : 'population standard deviation (n)', rule: `|z| > ${threshold}`, ceiling: sd === 'sample' ? '(n - 1) / sqrt(n), sample SD' : 'sqrt(n - 1), population SD', note: `the largest possible |z| is ${sd === 'sample' ? '(n - 1) / sqrt(n) with the sample SD' : 'sqrt(n - 1) with the population SD'}, reached when n - 1 values are equal` },
   };
 };
 
@@ -716,14 +734,16 @@ export const hampel = ({ values, halfWindow, nSigma = 3 } = {}) => {
     const thr = judged ? nSigma * CONSTANTS.HAMPEL_MAD_SCALE * mad : null;
     points.push({ index: i, value: x[i], median: med, mad, threshold: thr, windowCount: w.length, judged });
     if (out[i] !== x[i]) {
-      flags.push(flag(i, 'hampel', `value ${fmt(x[i])} is ${fmt(Math.abs(x[i] - med))} from its window median ${fmt(med)}, beyond ${fmt(nSigma)} x 1.4826 x MAD = ${fmt(thr)}`, { value: x[i], replacement: out[i] }));
+      flags.push(flag(i, 'hampel', `value ${fmt(x[i])} is ${fmt(Math.abs(x[i] - med))} from its window median ${fmt(med)}, beyond ${fmt(nSigma)} x 1.4826 x MAD = ${fmt(thr)}`, { value: x[i], replacement: out[i], median: med, deviation: Math.abs(x[i] - med), threshold: thr }));
     }
   }
   return {
+    halfWindow,
+    nSigma,
     points,
     cleaned: Array.from(out, (v) => (Number.isNaN(v) ? null : v)),
     flags,
-    basis: { rule: '|x - window median| > nSigma x 1.4826 x MAD (strict)', window: `2 x ${halfWindow} + 1 samples, truncated at the ends`, source: 'Hampel (1974); engines/petrophysics/conditioning.js despikeHampel' },
+    basis: { halfWindow, nSigma, madScale: CONSTANTS.HAMPEL_MAD_SCALE, rule: '|x - window median| > nSigma x 1.4826 x MAD (strict)', window: `2 x ${halfWindow} + 1 samples, truncated at the ends`, source: 'Hampel (1974); engines/petrophysics/conditioning.js despikeHampel' },
   };
 };
 
@@ -877,7 +897,7 @@ export const mahalanobis = ({ rows, alpha = 0.025 } = {}) => {
   const flags = keep.filter((i) => d2[i] > cutoff).map((i) => flag(i, 'mahalanobis',
     `row ${i} has squared distance ${fmt(d2[i])}, beyond the chi-square ${fmt(1 - alpha)} quantile ${fmt(cutoff)} on ${p} degrees of freedom`, { statistic: d2[i] }));
   return {
-    n, p, centre, covariance: cov, d2, cutoff, alpha, skippedRows: skipped, flags,
+    n, p, centre, covariance: cov, d2, cutoff, alpha, level: 1 - alpha, skippedRows: skipped, flags,
     basis: { covariance: 'sample covariance (n - 1), classical (not robust)', cutoff: `chi-square quantile at 1 - alpha on p = ${p} degrees of freedom`, rule: 'd^2 > cutoff' },
   };
 };
