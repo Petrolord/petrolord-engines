@@ -534,3 +534,45 @@ describe('user-facing strings', () => {
     expect(src).not.toMatch(/—/);
   });
 });
+
+describe('oil density at temperature (API MPMS 11.1 crude thermal expansion)', () => {
+  // eslint-disable-next-line global-require
+  const { oilDensityAtTLbFt3, oilDensityLbFt3: rho60, CRUDE_K0 } = require('../engines/facilities/separatorSizing');
+
+  test('at 60 degF it is the stock-tank density exactly', () => {
+    const r = oilDensityAtTLbFt3({ apiGravity: 35, tF: 60 });
+    expect(r.ctl).toBe(1);
+    expect(r.rhoLbFt3).toBe(rho60(35));
+  });
+
+  test('the expansion coefficient is the textbook size for a medium crude (35 API: about 0.00047 per degF)', () => {
+    const { alpha60 } = oilDensityAtTLbFt3({ apiGravity: 35, tF: 140 });
+    expect(alpha60).toBeGreaterThan(0.00045);
+    expect(alpha60).toBeLessThan(0.00050);
+    // lighter oils expand more
+    expect(oilDensityAtTLbFt3({ apiGravity: 45, tF: 140 }).alpha60).toBeGreaterThan(alpha60);
+    expect(oilDensityAtTLbFt3({ apiGravity: 20, tF: 140 }).alpha60).toBeLessThan(alpha60);
+  });
+
+  test('independent evaluation of the 1980 crude equation at 32 API, 140 degF', () => {
+    const rhoKg = (141.5 / (131.5 + 32)) * 999.016;
+    const a = CRUDE_K0 / rhoKg ** 2;
+    const ctl = Math.exp(-a * 80 * (1 + 0.8 * a * 80));
+    const r = oilDensityAtTLbFt3({ apiGravity: 32, tF: 140 });
+    expect(r.ctl).toBeCloseTo(ctl, 14);
+    expect(r.ctl).toBeGreaterThan(0.96);            // about 3.6 percent lighter at 140 degF
+    expect(r.ctl).toBeLessThan(0.97);
+  });
+
+  test('hotter is lighter, colder is heavier, monotonically', () => {
+    const at = (t) => oilDensityAtTLbFt3({ apiGravity: 32, tF: t }).rhoLbFt3;
+    expect(at(0)).toBeGreaterThan(at(60));
+    expect(at(60)).toBeGreaterThan(at(100));
+    expect(at(100)).toBeGreaterThan(at(200));
+  });
+
+  test('refuses a gravity or temperature that is not a number', () => {
+    expect(() => oilDensityAtTLbFt3({ apiGravity: NaN, tF: 100 })).toThrow(/apiGravity/);
+    expect(() => oilDensityAtTLbFt3({ apiGravity: 30, tF: undefined })).toThrow(/tF/);
+  });
+});

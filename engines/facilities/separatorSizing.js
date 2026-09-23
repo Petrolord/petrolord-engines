@@ -262,6 +262,36 @@ export const gasDensityLbFt3 = ({ pPsia, tF, gasSg } = {}) => {
 
 export const oilDensityLbFt3 = (apiGravity) => (141.5 / (131.5 + apiGravity)) * 62.4;
 
+/**
+ * Crude-oil thermal expansion, API MPMS Chapter 11.1 (1980) generalized
+ * crude equation: CTL = exp(-a60 * dT * (1 + 0.8 * a60 * dT)) with
+ * a60 = K0 / rho60^2 (rho60 in kg/m3, K0 = 341.0957, K1 = 0 for crude oil)
+ * and dT = T - 60 degF. a60 comes out near 0.00047 per degF for a 35 API
+ * crude, the textbook expansion of a medium crude.
+ */
+export const CRUDE_K0 = 341.0957;
+const WATER_60F_KG_M3 = 999.016;
+
+/**
+ * Oil density at a temperature: the 60 degF density from API gravity,
+ * times CTL. Gas-free oil at atmospheric pressure: dissolved gas and the
+ * (small) liquid compressibility are not included, which is the basis the
+ * separator sizing literature uses for the liquid phase. At 60 degF it is
+ * oilDensityLbFt3 exactly.
+ * @returns {{ rhoLbFt3: number, ctl: number, alpha60: number }}
+ */
+export const oilDensityAtTLbFt3 = ({ apiGravity, tF } = {}) => {
+  need(isNum(apiGravity) && apiGravity > -131.5 && apiGravity < 100, 'apiGravity',
+    `apiGravity must be a finite oil gravity between -131.5 and 100 degAPI (got ${apiGravity})`);
+  need(isNum(tF), 'tF', `tF must be a finite temperature in degF (got ${tF})`);
+  const rho60 = oilDensityLbFt3(apiGravity);
+  const rho60Kg = (141.5 / (131.5 + apiGravity)) * WATER_60F_KG_M3;
+  const alpha60 = CRUDE_K0 / (rho60Kg * rho60Kg);
+  const dT = tF - 60;
+  const ctl = Math.exp(-alpha60 * dT * (1 + 0.8 * alpha60 * dT));
+  return { rhoLbFt3: rho60 * ctl, ctl, alpha60 };
+};
+
 /** Terminal (settling) velocity by Souders-Brown. */
 export const terminalVelocityFtS = ({ k, rhoLLbFt3, rhoGLbFt3 }) => {
   if (!(k > 0) || !(rhoLLbFt3 > rhoGLbFt3) || !(rhoGLbFt3 > 0)) {
