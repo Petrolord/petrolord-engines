@@ -1738,6 +1738,54 @@
    "witness": "statsmodels.robust.mad"
   },
   {
+   "id": "modz-exactly-half-on-median-n4:median",
+   "case": "modz-exactly-half-on-median-n4",
+   "field": "median",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.median"
+  },
+  {
+   "id": "modz-exactly-half-on-median-n4:mad",
+   "case": "modz-exactly-half-on-median-n4",
+   "field": "mad",
+   "value": 2.0,
+   "tol": 1e-12,
+   "witness": "scipy.stats.median_abs_deviation"
+  },
+  {
+   "id": "modz-exactly-half-on-median-n4:mad",
+   "case": "modz-exactly-half-on-median-n4",
+   "field": "mad",
+   "value": 2.0,
+   "tol": 1e-12,
+   "witness": "statsmodels.robust.mad"
+  },
+  {
+   "id": "modz-exactly-half-on-median-n6:median",
+   "case": "modz-exactly-half-on-median-n6",
+   "field": "median",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.median"
+  },
+  {
+   "id": "modz-exactly-half-on-median-n6:mad",
+   "case": "modz-exactly-half-on-median-n6",
+   "field": "mad",
+   "value": 2.0,
+   "tol": 1e-12,
+   "witness": "scipy.stats.median_abs_deviation"
+  },
+  {
+   "id": "modz-exactly-half-on-median-n6:mad",
+   "case": "modz-exactly-half-on-median-n6",
+   "field": "mad",
+   "value": 2.0,
+   "tol": 1e-12,
+   "witness": "statsmodels.robust.mad"
+  },
+  {
    "id": "iqr-rhob-R6:q1",
    "case": "iqr-rhob-R6",
    "field": "q1",

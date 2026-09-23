@@ -130,6 +130,9 @@ run_case ENGINE "Hampel nSigma not echoed in the result" $E "    halfWindow,
     points," "    halfWindow,
     points,"
 run_case ENGINE "Hampel nSigma not echoed in the basis" $E "basis: { halfWindow, nSigma, madScale" "basis: { halfWindow, madScale"
+# zero-MAD wording (fix/dataai-zero-mad-wording): the refusal states the exact condition
+run_case ENGINE "zero-MAD refusal says at least half (the old wording)" $E "MAD = 0: more than half the present values" "MAD = 0: at least half the present values"
+run_case ENGINE "zero-MAD refused at least half on the median" $E "if (!(mad > 0)) return refuse('values', 'have MAD" "if (!(mad > 0) || 2 * x.filter((v) => v === med).length >= x.length) return refuse('values', 'have MAD"
 
 echo "=== ORACLE plants (RED or STOP: the control on the controls) ==="
 O=$ORACLE
@@ -142,6 +145,11 @@ run_case ORACLE "oracle z ceiling from the sample variance for both SDs" $O "   
     c2 =" "    var = ss / (n - 1)
     c2 ="
 run_case ORACLE "oracle number layout switches to exponent form one decade late" $O "    elif -6 < n <= 0:" "    elif -7 < n <= 0:"
+run_case ORACLE "oracle zero-MAD refusal says at least half (the old wording)" $O "MAD = 0: more than half the present values" "MAD = 0: at least half the present values"
+run_case ORACLE "oracle refuses at least half on the median" $O "    if mad == 0:
+        return {'error': True, 'field': 'values', 'message': MODZ_ZERO_MAD}" "    if 2 * on_median >= len(xs):
+        return {'error': True, 'field': 'values', 'message': MODZ_ZERO_MAD}"
+run_case ORACLE "oracle cross-check states at least half" $O "assert (mad == 0) == (2 * on_median > len(xs))" "assert (mad == 0) == (2 * on_median >= len(xs))"
 
 restore
 echo "=== restored; verifying clean ==="

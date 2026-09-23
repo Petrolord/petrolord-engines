@@ -17,8 +17,8 @@
 /**
  * Hampel filter (Hampel 1974; Pearson et al. 2016 review): replace
  * x[i] with the window median where |x[i] - median| exceeds
- * nSigma * 1.4826 * MAD. A zero-MAD window (at least half the samples
- * identical) treats ANY deviation from the median as a spike — the
+ * nSigma * 1.4826 * MAD. A zero-MAD window (more than half the samples
+ * equal to the window median) treats ANY deviation from the median as a spike — the
  * strict inequality handles it. NaN passes through and never enters a
  * window.
  */
