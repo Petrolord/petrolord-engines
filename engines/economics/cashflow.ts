@@ -161,6 +161,11 @@
 //     run) when uploaded rows have no recognizable columns, no usable dates,
 //     or a price is unset for a stream with nonzero volumes
 //
+// v3.11 changes (2026-09-23, found by the Ekene demo kit economics build):
+//   - The economic limit never trims a year that carries capex. It used to,
+//     so at a low trial price every year went, NPV came out exactly 0 and
+//     computeBreakevenOilPrice returned null whenever the limit was on.
+//
 // v3.4 changes (Petroleum Economics Studio capability round, 2026-08-16):
 //   - Economic limit test (cfg.apply_economic_limit): trailing years whose
 //     escalated revenue no longer covers inflated opex are trimmed before the
@@ -200,7 +205,7 @@
 import { solveIrrInBand } from './irrContract.js';
 
 // Stamped into kpis.engine_version on every run (Wave A provenance).
-export const ENGINE_VERSION = '3.10.0';
+export const ENGINE_VERSION = '3.11.0';
 
 // ============================================================================
 // TYPES
@@ -1280,7 +1285,17 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
       const opex = (annualOpex.get(year) || 0) * Math.pow(1 + opexEscalator, t);
       return rev - royalty - opex;
     };
-    while (years.length > 1 && netOperatingIncome(years[years.length - 1]) < 0) {
+    // v3.11: never trim a year that carries capital. The limit is the
+    // decision to stop producing; it cannot un-spend committed capex. Before
+    // this, a low trial price trimmed every year including the capex years,
+    // so NPV came out exactly 0 and computeBreakevenOilPrice (which needs a
+    // negative NPV at its low bound) returned null whenever the limit was on.
+    const lastCapexYear = Math.max(-Infinity, ...Array.from(annualCapex.entries())
+      .filter(([, amount]) => amount !== 0)
+      .map(([y]) => y));
+    while (years.length > 1
+      && years[years.length - 1] > lastCapexYear
+      && netOperatingIncome(years[years.length - 1]) < 0) {
       years.pop();
       yearsTrimmedByLimit++;
     }
