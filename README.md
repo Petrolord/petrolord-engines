@@ -606,13 +606,16 @@ and its consumers.
   non-decreasing, liquid-basis water cut, phase sums, frozen runs),
   uniqueness (stated identifier normalisation, Levenshtein, a digit rule
   so two real wells are not called near duplicates), univariate outliers
-  (z on the sample SD with its (n - 1)/sqrt(n) ceiling, Iglewicz-Hoaglin
+  (z on the sample SD with its (n - 1)/sqrt(n) ceiling, sqrt(n - 1) for
+  the population option, Iglewicz-Hoaglin
   modified z at 0.6745 / 3.5, Tukey fences on Hyndman-Fan R6/R7/R8
   quantiles, Hampel through the petrophysics `despikeHampel`, Grubbs with
   its own incomplete beta and t quantile), Mahalanobis with the
   safetyStats chi-square quantile, Shewhart individuals/MR, EWMA and
   tabular CUSUM charts, and a weighted scorecard. Every flag carries its
-  rule and reason; every refusal names its field. Gate:
+  rule and reason (figures printed as the shortest round-trip decimal, so
+  each parses back to exactly the field it quotes); every refusal names
+  its field. Gate:
   `dataai.quality.test.js` replays `test-data/dataai/goldens/quality_cases.json`
   (written by the stdlib oracle `tools/validation/dataai/oracle_quality.py`,
   anchored on the NIST/SEMATECH e-Handbook worked examples in 1.3.5.17.1,

@@ -56,6 +56,7 @@ import os
 import random
 import statistics
 import unicodedata
+from decimal import Decimal
 from fractions import Fraction as F
 from functools import lru_cache
 
@@ -71,6 +72,52 @@ NIST = 'NIST/SEMATECH e-Handbook of Statistical Methods (itl.nist.gov/div898/han
 
 def fl(x):
     return float(x)
+
+
+def js_num(x):
+    """The engine's reason-string rule, written from ECMA-262 Number::toString
+    (radix 10): the shortest decimal digits s (k of them) that round-trip,
+    with value s x 10^(n - k), laid out as
+      k <= n <= 21      digits then n - k zeros
+      0 < n <= 21       digits with the point after n of them
+      -6 < n <= 0       0. then -n zeros then the digits
+      otherwise         d[.ddd]e+/-(n - 1)
+    Python's repr gives the same shortest round-trip digits (both are the
+    Steele-White / Gay shortest representation); only the layout differs,
+    so the layout is rebuilt here from the digits. Infinities are words."""
+    x = float(x)
+    if x == math.inf:
+        return 'infinity'
+    if x == -math.inf:
+        return 'minus infinity'
+    if x == 0:
+        return '0'
+    sign = '-' if x < 0 else ''
+    d = Decimal(repr(abs(x))).normalize()
+    t = d.as_tuple()
+    digits = ''.join(str(v) for v in t.digits)
+    k = len(digits)
+    n = t.exponent + k
+    if k <= n <= 21:
+        body = digits + '0' * (n - k)
+    elif 0 < n <= 21:
+        body = digits[:n] + '.' + digits[n:]
+    elif -6 < n <= 0:
+        body = '0.' + '0' * (-n) + digits
+    else:
+        e = n - 1
+        body = (digits if k == 1 else digits[0] + '.' + digits[1:]) + 'e' + ('+' if e >= 0 else '-') + str(abs(e))
+    return sign + body
+
+
+def check_js_num():
+    """Fixed points of the layout rule, from the ECMA-262 examples and the
+    D1 finding (a cumulative of 1338506.2 must not print as 1338510)."""
+    for v, want in [(1338506.2, '1338506.2'), (1331009.5, '1331009.5'), (0.1 + 0.2, '0.30000000000000004'),
+                    (100.0, '100'), (1e21, '1e+21'), (123456789012345680000.0, '123456789012345680000'),
+                    (1e-6, '0.000001'), (1e-7, '1e-7'), (1.5e-7, '1.5e-7'), (-2.5, '-2.5'), (3.0, '3'),
+                    (2.9999999999999996, '2.9999999999999996'), (-273.15, '-273.15'), (5e-324, '5e-324')]:
+        assert js_num(v) == want, ('js_num layout', v, js_num(v), want)
 
 
 class Cases:
@@ -129,7 +176,9 @@ def o_completeness(values):
         'n': n, 'missing': m, 'present': n - m,
         'nullFraction': fl(F(m, n)), 'completeness': fl(F(n - m, n)),
         'gapRuns': runs, 'longestGap': max([r['length'] for r in runs], default=0),
-        'flags': [{'index': r['start'], 'rule': 'missing-run', 'end': r['end'], 'length': r['length']} for r in runs],
+        'flags': [{'index': r['start'], 'rule': 'missing-run', 'end': r['end'], 'length': r['length'],
+                   'reason': (f"sample {r['start']} is missing" if r['length'] == 1
+                              else f"samples {r['start']} to {r['end']} are missing ({r['length']} in a row)")} for r in runs],
     }
 
 
@@ -162,7 +211,8 @@ def o_coverage(index, values, start, end, max_step):
         'coverage': fl(cov / (end - start)), 'coveredLength': fl(cov), 'intervalLength': fl(end - start),
         'covered': [{'from': fl(a), 'to': fl(b)} for a, b in merged],
         'uncovered': [{'from': fl(a), 'to': fl(b)} for a, b in holes],
-        'flags': [{'index': None, 'rule': 'coverage-hole', 'from': fl(a), 'to': fl(b)} for a, b in holes],
+        'flags': [{'index': None, 'rule': 'coverage-hole', 'from': fl(a), 'to': fl(b),
+                   'reason': f'no data from {js_num(a)} to {js_num(b)}'} for a, b in holes],
     }
 
 
@@ -176,9 +226,11 @@ def o_range(values, lo, hi, lo_excl=False, hi_excl=False):
         below = v <= lo if lo_excl else v < lo
         above = v >= hi if hi_excl else v > hi
         if below:
-            flags.append({'index': i, 'rule': 'below-minimum', 'value': v})
+            flags.append({'index': i, 'rule': 'below-minimum', 'value': v,
+                          'reason': f'value {js_num(v)} is below the minimum {js_num(lo)}' + (' (the minimum itself is not allowed)' if lo_excl else '')})
         elif above:
-            flags.append({'index': i, 'rule': 'above-maximum', 'value': v})
+            flags.append({'index': i, 'rule': 'above-maximum', 'value': v,
+                          'reason': f'value {js_num(v)} is above the maximum {js_num(hi)}' + (' (the maximum itself is not allowed)' if hi_excl else '')})
     return {'checked': checked, 'failed': len(flags), 'flags': flags}
 
 
@@ -190,24 +242,27 @@ def o_index(index, direction='increasing', expected_step=None, step_tol=None):
     steps = []
     for i, v in enumerate(index):
         if missing(v):
-            flags.append({'index': i, 'rule': 'missing-index'})
+            flags.append({'index': i, 'rule': 'missing-index', 'reason': f'index entry {i} is missing'})
             continue
         if v in first_seen:
-            flags.append({'index': i, 'rule': 'duplicate-index', 'firstIndex': first_seen[v]})
+            flags.append({'index': i, 'rule': 'duplicate-index', 'firstIndex': first_seen[v],
+                          'reason': f'index value {js_num(v)} repeats entry {first_seen[v]}'})
         else:
             first_seen[v] = i
         if last is not None:
-            steps.append((i, F(v) - F(index[last])))
+            steps.append((i, F(v) - F(index[last]), last))
         last = i
-    fwd = [abs(s) for _, s in steps if sign * s > 0]
+    fwd = [abs(s) for _, s, _ in steps if sign * s > 0]
     exp = F(expected_step) if expected_step is not None else fmedian(fwd)
     # the engine's default tolerance is computed in floats: 1e-6 x expected
     tol = F(step_tol) if step_tol is not None else F(1e-6 * fl(exp))
-    for i, s in steps:
+    for i, s, p in steps:
+        where = {'value': index[i], 'previous': index[p], 'previousIndex': p}
         if sign * s < 0:
-            flags.append({'index': i, 'rule': 'reversal'})
+            flags.append({'index': i, 'rule': 'reversal', 'step': fl(s), **where,
+                          'reason': f'index goes from {js_num(index[p])} to {js_num(index[i])}, against the {direction} direction'})
         elif s != 0 and abs(abs(s) - exp) > tol:
-            flags.append({'index': i, 'rule': 'irregular-step'})
+            flags.append({'index': i, 'rule': 'irregular-step', 'step': fl(abs(s)), **where})
     flags.sort(key=lambda f: f['index'])  # stable: same-index flags keep order
     cnt = lambda r: sum(1 for f in flags if f['rule'] == r)
     return {
@@ -225,9 +280,10 @@ def o_rate(rates, hours_on=None, status=None):
         checked += 1
         shut = (status is not None and status[i] == 'shut-in') or (hours_on is not None and hours_on[i] == 0)
         if q < 0:
-            flags.append({'index': i, 'rule': 'negative-rate'})
+            flags.append({'index': i, 'rule': 'negative-rate', 'reason': f'rate {js_num(q)} is negative'})
         elif shut and q > 0:
-            flags.append({'index': i, 'rule': 'rate-while-shut-in'})
+            why = "status is 'shut-in'" if status is not None and status[i] == 'shut-in' else 'hours on is 0'
+            flags.append({'index': i, 'rule': 'rate-while-shut-in', 'reason': f'rate {js_num(q)} is reported while the well is shut in ({why})'})
     return {'checked': checked, 'failed': len(flags), 'flags': flags}
 
 
@@ -238,7 +294,9 @@ def o_cumulative(cum, tol=0):
     prev = None
     for i, v in present(cum):
         if prev is not None and F(cum[prev]) - F(v) > F(tol):
-            flags.append({'index': i, 'rule': 'cumulative-decrease', 'drop': fl(F(cum[prev]) - F(v)), 'previousIndex': prev})
+            flags.append({'index': i, 'rule': 'cumulative-decrease', 'drop': fl(F(cum[prev]) - F(v)), 'value': v,
+                          'previous': cum[prev], 'previousIndex': prev,
+                          'reason': f'cumulative falls from {js_num(cum[prev])} at entry {prev} to {js_num(v)}'})
         prev = i
     return {'failed': len(flags), 'flags': flags}
 
@@ -290,7 +348,9 @@ def o_frozen(values, min_run=5, tol=0):
         if j - i + 1 >= min_run:
             runs.append({'start': i, 'end': j, 'length': j - i + 1, 'value': values[i]})
         i = j + 1
-    return {'runs': runs, 'flags': [{'index': r['start'], 'rule': 'frozen-run', 'length': r['length']} for r in runs]}
+    return {'runs': runs, 'flags': [{'index': r['start'], 'rule': 'frozen-run', 'length': r['length'],
+                                     'reason': f"{r['length']} values in a row from entry {r['start']} to {r['end']} stay at {js_num(r['value'])}"}
+                                    for r in runs]}
 
 
 # ---------------------------------------------------------------- uniqueness
@@ -401,9 +461,29 @@ def o_z(values, threshold=3, sd='sample'):
         z[i] = zi
         if abs(zi) > threshold:
             flags.append({'index': i, 'rule': 'z-score'})
-    bound = (n - 1) / math.sqrt(n)
+    c2 = z_ceiling_squared(n, sd)
     return {'n': n, 'mean': fl(m), 'sd': s, 'z': z, 'maxAbsZ': max(abs(v) for v in z if v is not None),
-            'maxPossibleAbsZ': bound, 'thresholdReachable': bound > threshold, 'flags': flags}
+            'maxPossibleAbsZ': math.sqrt(c2), 'thresholdReachable': c2 > F(threshold) ** 2, 'threshold': threshold,
+            'flags': flags}
+
+
+def z_ceiling_squared(n, sd):
+    """The largest possible z^2 for n values under the chosen SD, EXACT.
+    Road: |z| is largest when n - 1 values are equal and one differs
+    (Shiffler 1988), so build that extreme sample (n - 1 zeros and a one)
+    and take its z^2 in Fractions from the definition. It is then checked
+    against the two closed forms, (n - 1)^2 / n (sample SD) and n - 1
+    (population SD), or the oracle stops. The comparison with the
+    threshold is made on the exact squares, so a threshold sitting on the
+    ceiling is decided without rounding."""
+    xs = [F(0)] * (n - 1) + [F(1)]
+    m = sum(xs) / n
+    ss = sum((x - m) ** 2 for x in xs)
+    var = ss / (n - 1) if sd == 'sample' else ss / n
+    c2 = (xs[-1] - m) ** 2 / var
+    closed = F((n - 1) ** 2, n) if sd == 'sample' else F(n - 1)
+    assert c2 == closed, ('z ceiling cross-check', n, sd, c2, closed)
+    return c2
 
 
 def o_modz(values, threshold=3.5):
@@ -456,8 +536,10 @@ def o_hampel(values, half, nsig=3):
         pts.append({'median': fl(med), 'mad': fl(mad), 'threshold': fl(thr), 'judged': True, 'windowCount': len(w)})
         if abs(F(values[i]) - med) > thr:
             cleaned[i] = fl(med)
-            flags.append({'index': i, 'rule': 'hampel', 'replacement': fl(med)})
-    return {'points': pts, 'cleaned': cleaned, 'flags': flags}
+            flags.append({'index': i, 'rule': 'hampel', 'replacement': fl(med), 'median': fl(med),
+                          'deviation': fl(abs(F(values[i]) - med)), 'threshold': fl(thr)})
+    return {'halfWindow': half, 'nSigma': nsig, 'basis': {'halfWindow': half, 'nSigma': nsig, 'madScale': 1.4826},
+            'points': pts, 'cleaned': cleaned, 'flags': flags}
 
 
 # ---- Student t (closed form for integer df), Grubbs, incomplete beta
@@ -596,7 +678,7 @@ def o_mahalanobis(rows, alpha=0.025):
         d2[i] = fl(sum(dev[a] * inv[a][b] * dev[b] for a in range(p) for b in range(p)))
     cut = chi2_ppf(1 - alpha, p)
     return {'n': n, 'p': p, 'centre': [fl(v) for v in mu], 'covariance': [[fl(v) for v in row] for row in cov],
-            'd2': d2, 'cutoff': cut, 'skippedRows': skipped,
+            'd2': d2, 'cutoff': cut, 'level': fl(1 - F(alpha)), 'skippedRows': skipped,
             'flags': [{'index': i, 'rule': 'mahalanobis'} for i in keep if d2[i] > cut]}
 
 
@@ -806,6 +888,8 @@ def build():
           o_coverage(depth, vals, 1002.0, 1025.0, 0.5))
     c.add('coverage-full', 'coverage', {'index': depth, 'values': [1.0] * 41, 'start': 1000.0, 'end': 1020.0, 'maxStep': 0.5},
           o_coverage(depth, [1.0] * 41, 1000.0, 1020.0, 0.5))
+    c.add('coverage-large-index', 'coverage', {'index': [100000.25, 100000.75, 100003.75], 'values': [1, 1, 1], 'start': 100000, 'end': 100004.125, 'maxStep': 0.5},
+          o_coverage([100000.25, 100000.75, 100003.75], [1, 1, 1], 100000, 100004.125, 0.5), note='hole endpoints print at full precision')
     c.add('coverage-step-exactly-max', 'coverage', {'index': [0, 2, 4], 'values': [1, 1, 1], 'start': 0, 'end': 4, 'maxStep': 2},
           o_coverage([0, 2, 4], [1, 1, 1], 0, 4, 2), note='a step equal to maxStep covers (at most, inclusive)')
     c.refuse('coverage-unsorted', 'coverage', {'index': [0, 2, 1], 'values': [1, 1, 1], 'start': 0, 'end': 2, 'maxStep': 1}, 'index[2]')
@@ -825,6 +909,9 @@ def build():
           note='the same numbers in degF are all physical: units change the verdict, and they are never converted')
     gr = normal_series(11, 60, 75, 30, 1)
     gr[7], gr[33] = 320.0, 400.0
+    lv = [12345678.9, 1.23e-7, -1.5e-7, 9999999.75, -1234567.25]
+    c.add('range-large-values', 'rangeCheck', {'values': lv, 'min': 0, 'max': 10000000}, o_range(lv, 0, 10000000),
+          note='reason figures at full precision, exponent form below 1e-6 as ECMAScript prints it')
     c.add('range-caller-gr-plausibility', 'rangeCheck', {'values': gr, 'min': 0, 'max': 300}, o_range(gr, 0, 300))
     c.add('range-caller-exclusive', 'rangeCheck', {'values': [0.0, 0.5, 1.0], 'min': 0, 'max': 1, 'minExclusive': True, 'maxExclusive': True},
           o_range([0.0, 0.5, 1.0], 0, 1, True, True))
@@ -848,6 +935,9 @@ def build():
     c.add('index-decreasing', 'indexCheck', {'index': dec, 'direction': 'decreasing'}, o_index(dec, 'decreasing'))
     c.add('index-tolerance', 'indexCheck', {'index': [0, 1, 2.05, 3, 4], 'expectedStep': 1, 'stepTolerance': 0.1},
           o_index([0, 1, 2.05, 3, 4], expected_step=1, step_tol=0.1))
+    bigd = [12345.678901, 12346.178901, 12346.678901, 12346.178901, 12347.178901]
+    c.add('index-large-depths', 'indexCheck', {'index': bigd, 'expectedStep': 0.5, 'stepTolerance': 1e-3}, o_index(bigd, expected_step=0.5, step_tol=1e-3),
+          note='duplicate and reversal reasons print the depths at full precision')
     c.add('index-nonadjacent-duplicate', 'indexCheck', {'index': [1, 2, 3, 2, 4]}, o_index([1, 2, 3, 2, 4]),
           note='the second 2 is both a duplicate and a reversal')
     c.refuse('index-too-short', 'indexCheck', {'index': [1]}, 'index')
@@ -858,6 +948,9 @@ def build():
     hours = [24, 24, 24, 0, 0, 24, 24, 12]
     c.add('rate-negative-and-shut-in-hours', 'rateCheck', {'rates': rates, 'hoursOn': hours}, o_rate(rates, hours_on=hours))
     status = ['producing', 'producing', 'shut-in', 'shut-in', 'producing', 'shut-in', 'producing', 'producing']
+    lr = [1234567.8, -0.00012345678, 2500000.125]
+    c.add('rate-large-values', 'rateCheck', {'rates': lr, 'hoursOn': [24, 24, 0]}, o_rate(lr, hours_on=[24, 24, 0]),
+          note='reason figures at full precision')
     c.add('rate-shut-in-status', 'rateCheck', {'rates': rates, 'status': status}, o_rate(rates, status=status))
     c.refuse('rate-hours-length', 'rateCheck', {'rates': [1.0, 2.0], 'hoursOn': [24]}, 'hoursOn')
     c.refuse('rate-hours-negative', 'rateCheck', {'rates': [1.0], 'hoursOn': [-1]}, 'hoursOn[0]')
@@ -865,6 +958,9 @@ def build():
     # ======================= consistency =======================
     cum = [0, 1200, 2400, 2350, 3600, None, 4700, 4700, 4699.5, 6000]
     c.add('cumulative-drops', 'cumulativeCheck', {'cumulative': cum}, o_cumulative(cum))
+    big = [1320000.0, 1338506.2, 1331009.5, 1345000.25, 98765432.1, 98765432.0]
+    c.add('cumulative-large-values', 'cumulativeCheck', {'cumulative': big}, o_cumulative(big),
+          note='reason figures at full precision (foundation finding 2): 1338506.2 used to print as 1338510, and the two printed figures then disagreed with drop 7496.7')
     c.add('cumulative-drops-with-tolerance', 'cumulativeCheck', {'cumulative': cum, 'tolerance': 1}, o_cumulative(cum, 1),
           note='a 0.5 drop is inside a 1-unit meter tolerance; the 50 drop is not')
 
@@ -897,6 +993,8 @@ def build():
     c.add('frozen-default', 'frozenRuns', {'values': fr}, o_frozen(fr))
     c.add('frozen-min3', 'frozenRuns', {'values': fr, 'minRun': 3}, o_frozen(fr, 3))
     tp = [2500.0, 2500.2, 2499.9, 2500.1, 2500.0, 2512.0, 2530.0]
+    fz = [1338500.0] + [1338506.2] * 5 + [1338507.9]
+    c.add('frozen-large-value', 'frozenRuns', {'values': fz}, o_frozen(fz), note='the stuck value prints as 1338506.2, not 1338510')
     c.add('frozen-tolerance', 'frozenRuns', {'values': tp, 'minRun': 4, 'tolerance': 0.25}, o_frozen(tp, 4, 0.25),
           note='a gauge wandering 0.2 psi around 2500 counts as stuck at a 0.25 tolerance')
     c.refuse('frozen-minrun-one', 'frozenRuns', {'values': [1.0], 'minRun': 1}, 'minRun')
@@ -942,6 +1040,28 @@ def build():
     ten = [1.0] * 9 + [100.0]
     c.add('z-unreachable-at-n10', 'zScores', {'values': ten}, o_z(ten),
           note='one wild value among ten: its z is exactly (n - 1)/sqrt(n) = 2.846 and |z| > 3 cannot fire')
+    # the ceiling follows the chosen SD (foundation finding 1): n - 1 zeros and a one
+    nine = [0.0] * 9 + [1.0]
+    c.add('z-population-ceiling-reachable', 'zScores', {'values': nine, 'sd': 'population', 'threshold': 2.9},
+          o_z(nine, 2.9, 'population'),
+          note='population SD: the ceiling is sqrt(n - 1) = 3 at n = 10, so 2.9 IS reachable and the one is flagged at z = 3 (the D1 repro: the engine used to report the sample ceiling 2.846 and unreachable while flagging)')
+    c.add('z-sample-same-data-unreachable', 'zScores', {'values': nine, 'threshold': 2.9}, o_z(nine, 2.9),
+          note='the same ten values with the sample SD: ceiling (n - 1)/sqrt(n) = 2.846, 2.9 is out of reach and nothing is flagged')
+    c.add('z-population-on-the-ceiling-n10', 'zScores', {'values': nine, 'sd': 'population', 'threshold': 3},
+          o_z(nine, 3, 'population'), note='threshold exactly on the population ceiling 3: not reachable (strict), not flagged')
+    five = [0.0] * 4 + [1.0]
+    c.add('z-population-on-the-ceiling-n5', 'zScores', {'values': five, 'sd': 'population', 'threshold': 2},
+          o_z(five, 2, 'population'), note='population ceiling sqrt(4) = 2 exactly; the one sits on it and is not flagged')
+    c.add('z-population-below-the-ceiling-n5', 'zScores', {'values': five, 'sd': 'population', 'threshold': 1.9},
+          o_z(five, 1.9, 'population'), note='1.9 is under the population ceiling 2 (and over the sample ceiling 1.789): reachable, flagged')
+    sixteen = [0.0] * 15 + [1.0]
+    c.add('z-sample-on-the-ceiling-n16', 'zScores', {'values': sixteen, 'threshold': 3.75}, o_z(sixteen, 3.75),
+          note='sample ceiling (n - 1)/sqrt(n) = 15/4 = 3.75 exactly; threshold on it: not reachable, not flagged')
+    c.add('z-sample-below-the-ceiling-n16', 'zScores', {'values': sixteen, 'threshold': 3.7}, o_z(sixteen, 3.7),
+          note='3.7 is under the sample ceiling 3.75: reachable, the one is flagged')
+    four = [0.0, 0.0, 0.0, 1.0]
+    c.add('z-sample-on-the-ceiling-n4', 'zScores', {'values': four, 'threshold': 1.5}, o_z(four, 1.5),
+          note='sample ceiling 3/2 exactly at n = 4')
     c.refuse('z-constant', 'zScores', {'values': [2.0, 2.0, 2.0]}, 'values')
     c.refuse('z-too-few', 'zScores', {'values': [1.0, None, 2.0]}, 'values')
 
@@ -976,6 +1096,9 @@ def build():
     on = [-1.0, 0.0, 1.4826, 1.0, 0.0]
     c.add('hampel-on-the-threshold', 'hampel', {'values': on, 'halfWindow': 2, 'nSigma': 1}, o_hampel(on, 2, 1),
           note='the centre point sits on its threshold: median 0, MAD 1, nSigma 1, so |x - median| = 1 x 1.4826 x 1; strict, NOT a spike')
+    bigl = [1338506.2, 1338506.7, 1338507.1, 1338650.3, 1338506.9, 1338507.4, 1338506.8]
+    c.add('hampel-large-values-n2.5', 'hampel', {'values': bigl, 'halfWindow': 3, 'nSigma': 2.5}, o_hampel(bigl, 3, 2.5),
+          note='nSigma is echoed in the result and its basis (foundation finding 3); a spike on a large baseline keeps every digit in its reason')
     c.refuse('hampel-no-window', 'hampel', {'values': [1.0, 2.0]}, 'halfWindow')
 
     for side in ('two-sided', 'max', 'min'):
@@ -1076,6 +1199,7 @@ def build():
 
 
 def main():
+    check_js_num()
     c = build()
     out = {
         'module': 'quality',

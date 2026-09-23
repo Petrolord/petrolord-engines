@@ -1566,6 +1566,7 @@
     "maxAbsZ": 2.4687646112124506,
     "maxPossibleAbsZ": 2.4748737341529163,
     "thresholdReachable": false,
+    "threshold": 3,
     "flags": []
    },
    "tol": 1e-12,
@@ -1784,13 +1785,15 @@
       "index": 1,
       "rule": "missing-run",
       "end": 2,
-      "length": 2
+      "length": 2,
+      "reason": "samples 1 to 2 are missing (2 in a row)"
      },
      {
       "index": 5,
       "rule": "missing-run",
       "end": 5,
-      "length": 1
+      "length": 1,
+      "reason": "sample 5 is missing"
      }
     ]
    },
@@ -1833,13 +1836,15 @@
       "index": 0,
       "rule": "missing-run",
       "end": 1,
-      "length": 2
+      "length": 2,
+      "reason": "samples 0 to 1 are missing (2 in a row)"
      },
      {
       "index": 4,
       "rule": "missing-run",
       "end": 4,
-      "length": 1
+      "length": 1,
+      "reason": "sample 4 is missing"
      }
     ]
    },
@@ -1875,7 +1880,8 @@
       "index": 0,
       "rule": "missing-run",
       "end": 2,
-      "length": 3
+      "length": 3,
+      "reason": "samples 0 to 2 are missing (3 in a row)"
      }
     ]
    },
@@ -1909,7 +1915,8 @@
       "index": 0,
       "rule": "missing-run",
       "end": 0,
-      "length": 1
+      "length": 1,
+      "reason": "sample 0 is missing"
      }
     ]
    },
@@ -2067,37 +2074,43 @@
       "index": 3,
       "rule": "missing-run",
       "end": 5,
-      "length": 3
+      "length": 3,
+      "reason": "samples 3 to 5 are missing (3 in a row)"
      },
      {
       "index": 20,
       "rule": "missing-run",
       "end": 22,
-      "length": 3
+      "length": 3,
+      "reason": "samples 20 to 22 are missing (3 in a row)"
      },
      {
       "index": 37,
       "rule": "missing-run",
       "end": 51,
-      "length": 15
+      "length": 15,
+      "reason": "samples 37 to 51 are missing (15 in a row)"
      },
      {
       "index": 54,
       "rule": "missing-run",
       "end": 56,
-      "length": 3
+      "length": 3,
+      "reason": "samples 54 to 56 are missing (3 in a row)"
      },
      {
       "index": 71,
       "rule": "missing-run",
       "end": 73,
-      "length": 3
+      "length": 3,
+      "reason": "samples 71 to 73 are missing (3 in a row)"
      },
      {
       "index": 88,
       "rule": "missing-run",
       "end": 90,
-      "length": 3
+      "length": 3,
+      "reason": "samples 88 to 90 are missing (3 in a row)"
      }
     ]
    },
@@ -2199,19 +2212,22 @@
       "index": null,
       "rule": "coverage-hole",
       "from": 1.0,
-      "to": 3.0
+      "to": 3.0,
+      "reason": "no data from 1 to 3"
      },
      {
       "index": null,
       "rule": "coverage-hole",
       "from": 5.0,
-      "to": 10.0
+      "to": 10.0,
+      "reason": "no data from 5 to 10"
      },
      {
       "index": null,
       "rule": "coverage-hole",
       "from": 11.0,
-      "to": 12.0
+      "to": 12.0,
+      "reason": "no data from 11 to 12"
      }
     ]
    },
@@ -2342,13 +2358,15 @@
       "index": null,
       "rule": "coverage-hole",
       "from": 1005.5,
-      "to": 1008.0
+      "to": 1008.0,
+      "reason": "no data from 1005.5 to 1008"
      },
      {
       "index": null,
       "rule": "coverage-hole",
       "from": 1020.0,
-      "to": 1025.0
+      "to": 1025.0,
+      "reason": "no data from 1020 to 1025"
      }
     ]
    },
@@ -2464,6 +2482,65 @@
    },
    "tol": 1e-12,
    "source": "oracle"
+  },
+  {
+   "id": "coverage-large-index",
+   "fn": "coverage",
+   "args": {
+    "index": [
+     100000.25,
+     100000.75,
+     100003.75
+    ],
+    "values": [
+     1,
+     1,
+     1
+    ],
+    "start": 100000,
+    "end": 100004.125,
+    "maxStep": 0.5
+   },
+   "expected": {
+    "coverage": 0.12121212121212122,
+    "coveredLength": 0.5,
+    "intervalLength": 4.125,
+    "covered": [
+     {
+      "from": 100000.25,
+      "to": 100000.75
+     }
+    ],
+    "uncovered": [
+     {
+      "from": 100000.0,
+      "to": 100000.25
+     },
+     {
+      "from": 100000.75,
+      "to": 100004.125
+     }
+    ],
+    "flags": [
+     {
+      "index": null,
+      "rule": "coverage-hole",
+      "from": 100000.0,
+      "to": 100000.25,
+      "reason": "no data from 100000 to 100000.25"
+     },
+     {
+      "index": null,
+      "rule": "coverage-hole",
+      "from": 100000.75,
+      "to": 100004.125,
+      "reason": "no data from 100000.75 to 100004.125"
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "hole endpoints print at full precision"
   },
   {
    "id": "coverage-step-exactly-max",
@@ -2593,12 +2670,14 @@
      {
       "index": 2,
       "rule": "below-minimum",
-      "value": -0.02
+      "value": -0.02,
+      "reason": "value -0.02 is below the minimum 0"
      },
      {
       "index": 4,
       "rule": "above-maximum",
-      "value": 1.3
+      "value": 1.3,
+      "reason": "value 1.3 is above the maximum 1"
      }
     ]
    },
@@ -2625,12 +2704,14 @@
      {
       "index": 1,
       "rule": "below-minimum",
-      "value": 0.0
+      "value": 0.0,
+      "reason": "value 0 is below the minimum 0 (the minimum itself is not allowed)"
      },
      {
       "index": 2,
       "rule": "below-minimum",
-      "value": -1.0
+      "value": -1.0,
+      "reason": "value -1 is below the minimum 0 (the minimum itself is not allowed)"
      }
     ]
    },
@@ -2656,7 +2737,8 @@
      {
       "index": 1,
       "rule": "below-minimum",
-      "value": -3.0
+      "value": -3.0,
+      "reason": "value -3 is below the minimum 0"
      }
     ]
    },
@@ -2682,7 +2764,8 @@
      {
       "index": 0,
       "rule": "below-minimum",
-      "value": -300.0
+      "value": -300.0,
+      "reason": "value -300 is below the minimum -273.15"
      }
     ]
    },
@@ -2709,6 +2792,48 @@
    "tol": 1e-12,
    "source": "oracle",
    "note": "the same numbers in degF are all physical: units change the verdict, and they are never converted"
+  },
+  {
+   "id": "range-large-values",
+   "fn": "rangeCheck",
+   "args": {
+    "values": [
+     12345678.9,
+     1.23e-07,
+     -1.5e-07,
+     9999999.75,
+     -1234567.25
+    ],
+    "min": 0,
+    "max": 10000000
+   },
+   "expected": {
+    "checked": 5,
+    "failed": 3,
+    "flags": [
+     {
+      "index": 0,
+      "rule": "above-maximum",
+      "value": 12345678.9,
+      "reason": "value 12345678.9 is above the maximum 10000000"
+     },
+     {
+      "index": 2,
+      "rule": "below-minimum",
+      "value": -1.5e-07,
+      "reason": "value -1.5e-7 is below the minimum 0"
+     },
+     {
+      "index": 4,
+      "rule": "below-minimum",
+      "value": -1234567.25,
+      "reason": "value -1234567.25 is below the minimum 0"
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "reason figures at full precision, exponent form below 1e-6 as ECMAScript prints it"
   },
   {
    "id": "range-caller-gr-plausibility",
@@ -2786,17 +2911,20 @@
      {
       "index": 7,
       "rule": "above-maximum",
-      "value": 320.0
+      "value": 320.0,
+      "reason": "value 320 is above the maximum 300"
      },
      {
       "index": 13,
       "rule": "below-minimum",
-      "value": -2.4
+      "value": -2.4,
+      "reason": "value -2.4 is below the minimum 0"
      },
      {
       "index": 33,
       "rule": "above-maximum",
-      "value": 400.0
+      "value": 400.0,
+      "reason": "value 400 is above the maximum 300"
      }
     ]
    },
@@ -2824,12 +2952,14 @@
      {
       "index": 0,
       "rule": "below-minimum",
-      "value": 0.0
+      "value": 0.0,
+      "reason": "value 0 is below the minimum 0 (the minimum itself is not allowed)"
      },
      {
       "index": 2,
       "rule": "above-maximum",
-      "value": 1.0
+      "value": 1.0,
+      "reason": "value 1 is above the maximum 1 (the maximum itself is not allowed)"
      }
     ]
    },
@@ -2998,31 +3128,54 @@
      {
       "index": 10,
       "rule": "duplicate-index",
-      "firstIndex": 9
+      "firstIndex": 9,
+      "reason": "index value 1001.3716 repeats entry 9"
      },
      {
       "index": 11,
-      "rule": "irregular-step"
+      "rule": "irregular-step",
+      "step": 0.3048000000000002,
+      "value": 1001.6764,
+      "previous": 1001.3716,
+      "previousIndex": 10
      },
      {
       "index": 20,
-      "rule": "irregular-step"
+      "rule": "irregular-step",
+      "step": 0.3048000000000002,
+      "value": 1003.2004,
+      "previous": 1002.8956,
+      "previousIndex": 19
      },
      {
       "index": 21,
-      "rule": "reversal"
+      "rule": "reversal",
+      "step": -0.15239999999994325,
+      "value": 1003.048,
+      "previous": 1003.2004,
+      "previousIndex": 20,
+      "reason": "index goes from 1003.2004 to 1003.048, against the increasing direction"
      },
      {
       "index": 22,
-      "rule": "irregular-step"
+      "rule": "irregular-step",
+      "step": 0.3048000000000002,
+      "value": 1003.3528,
+      "previous": 1003.048,
+      "previousIndex": 21
      },
      {
       "index": 25,
-      "rule": "missing-index"
+      "rule": "missing-index",
+      "reason": "index entry 25 is missing"
      },
      {
       "index": 26,
-      "rule": "irregular-step"
+      "rule": "irregular-step",
+      "step": 0.3048000000000002,
+      "value": 1003.9624,
+      "previous": 1003.6576,
+      "previousIndex": 24
      }
     ]
    },
@@ -3059,16 +3212,25 @@
     "flags": [
      {
       "index": 4,
-      "rule": "irregular-step"
+      "rule": "irregular-step",
+      "step": 2.0,
+      "value": 5,
+      "previous": 3,
+      "previousIndex": 3
      },
      {
       "index": 7,
       "rule": "duplicate-index",
-      "firstIndex": 6
+      "firstIndex": 6,
+      "reason": "index value 7 repeats entry 6"
      },
      {
       "index": 9,
-      "rule": "irregular-step"
+      "rule": "irregular-step",
+      "step": 22.0,
+      "value": 30,
+      "previous": 8,
+      "previousIndex": 8
      }
     ]
    },
@@ -3100,11 +3262,20 @@
     "flags": [
      {
       "index": 3,
-      "rule": "reversal"
+      "rule": "reversal",
+      "step": 0.5,
+      "value": 2998.5,
+      "previous": 2998,
+      "previousIndex": 2,
+      "reason": "index goes from 2998 to 2998.5, against the decreasing direction"
      },
      {
       "index": 4,
-      "rule": "irregular-step"
+      "rule": "irregular-step",
+      "step": 2.5,
+      "value": 2996,
+      "previous": 2998.5,
+      "previousIndex": 3
      }
     ]
    },
@@ -3138,6 +3309,57 @@
    "source": "oracle"
   },
   {
+   "id": "index-large-depths",
+   "fn": "indexCheck",
+   "args": {
+    "index": [
+     12345.678901,
+     12346.178901,
+     12346.678901,
+     12346.178901,
+     12347.178901
+    ],
+    "expectedStep": 0.5,
+    "stepTolerance": 0.001
+   },
+   "expected": {
+    "expectedStep": 0.5,
+    "missing": 0,
+    "duplicates": 1,
+    "reversals": 1,
+    "irregularSteps": 1,
+    "monotonic": false,
+    "flags": [
+     {
+      "index": 3,
+      "rule": "duplicate-index",
+      "firstIndex": 1,
+      "reason": "index value 12346.178901 repeats entry 1"
+     },
+     {
+      "index": 3,
+      "rule": "reversal",
+      "step": -0.5,
+      "value": 12346.178901,
+      "previous": 12346.678901,
+      "previousIndex": 2,
+      "reason": "index goes from 12346.678901 to 12346.178901, against the increasing direction"
+     },
+     {
+      "index": 4,
+      "rule": "irregular-step",
+      "step": 1.0,
+      "value": 12347.178901,
+      "previous": 12346.178901,
+      "previousIndex": 3
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "duplicate and reversal reasons print the depths at full precision"
+  },
+  {
    "id": "index-nonadjacent-duplicate",
    "fn": "indexCheck",
    "args": {
@@ -3160,15 +3382,25 @@
      {
       "index": 3,
       "rule": "duplicate-index",
-      "firstIndex": 1
+      "firstIndex": 1,
+      "reason": "index value 2 repeats entry 1"
      },
      {
       "index": 3,
-      "rule": "reversal"
+      "rule": "reversal",
+      "step": -1.0,
+      "value": 2,
+      "previous": 3,
+      "previousIndex": 2,
+      "reason": "index goes from 3 to 2, against the increasing direction"
      },
      {
       "index": 4,
-      "rule": "irregular-step"
+      "rule": "irregular-step",
+      "step": 2.0,
+      "value": 4,
+      "previous": 2,
+      "previousIndex": 3
      }
     ]
    },
@@ -3256,16 +3488,53 @@
     "flags": [
      {
       "index": 2,
-      "rule": "negative-rate"
+      "rule": "negative-rate",
+      "reason": "rate -4 is negative"
      },
      {
       "index": 4,
-      "rule": "rate-while-shut-in"
+      "rule": "rate-while-shut-in",
+      "reason": "rate 35 is reported while the well is shut in (hours on is 0)"
      }
     ]
    },
    "tol": 1e-12,
    "source": "oracle"
+  },
+  {
+   "id": "rate-large-values",
+   "fn": "rateCheck",
+   "args": {
+    "rates": [
+     1234567.8,
+     -0.00012345678,
+     2500000.125
+    ],
+    "hoursOn": [
+     24,
+     24,
+     0
+    ]
+   },
+   "expected": {
+    "checked": 3,
+    "failed": 2,
+    "flags": [
+     {
+      "index": 1,
+      "rule": "negative-rate",
+      "reason": "rate -0.00012345678 is negative"
+     },
+     {
+      "index": 2,
+      "rule": "rate-while-shut-in",
+      "reason": "rate 2500000.125 is reported while the well is shut in (hours on is 0)"
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "reason figures at full precision"
   },
   {
    "id": "rate-shut-in-status",
@@ -3298,11 +3567,13 @@
     "flags": [
      {
       "index": 2,
-      "rule": "negative-rate"
+      "rule": "negative-rate",
+      "reason": "rate -4 is negative"
      },
      {
       "index": 5,
-      "rule": "rate-while-shut-in"
+      "rule": "rate-while-shut-in",
+      "reason": "rate 110 is reported while the well is shut in (status is 'shut-in')"
      }
     ]
    },
@@ -3370,18 +3641,64 @@
       "index": 3,
       "rule": "cumulative-decrease",
       "drop": 50.0,
-      "previousIndex": 2
+      "value": 2350,
+      "previous": 2400,
+      "previousIndex": 2,
+      "reason": "cumulative falls from 2400 at entry 2 to 2350"
      },
      {
       "index": 8,
       "rule": "cumulative-decrease",
       "drop": 0.5,
-      "previousIndex": 7
+      "value": 4699.5,
+      "previous": 4700,
+      "previousIndex": 7,
+      "reason": "cumulative falls from 4700 at entry 7 to 4699.5"
      }
     ]
    },
    "tol": 1e-12,
    "source": "oracle"
+  },
+  {
+   "id": "cumulative-large-values",
+   "fn": "cumulativeCheck",
+   "args": {
+    "cumulative": [
+     1320000.0,
+     1338506.2,
+     1331009.5,
+     1345000.25,
+     98765432.1,
+     98765432.0
+    ]
+   },
+   "expected": {
+    "failed": 2,
+    "flags": [
+     {
+      "index": 2,
+      "rule": "cumulative-decrease",
+      "drop": 7496.699999999953,
+      "value": 1331009.5,
+      "previous": 1338506.2,
+      "previousIndex": 1,
+      "reason": "cumulative falls from 1338506.2 at entry 1 to 1331009.5"
+     },
+     {
+      "index": 5,
+      "rule": "cumulative-decrease",
+      "drop": 0.09999999403953552,
+      "value": 98765432.0,
+      "previous": 98765432.1,
+      "previousIndex": 4,
+      "reason": "cumulative falls from 98765432.1 at entry 4 to 98765432"
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "reason figures at full precision (foundation finding 2): 1338506.2 used to print as 1338510, and the two printed figures then disagreed with drop 7496.7"
   },
   {
    "id": "cumulative-drops-with-tolerance",
@@ -3408,7 +3725,10 @@
       "index": 3,
       "rule": "cumulative-decrease",
       "drop": 50.0,
-      "previousIndex": 2
+      "value": 2350,
+      "previous": 2400,
+      "previousIndex": 2,
+      "reason": "cumulative falls from 2400 at entry 2 to 2350"
      }
     ]
    },
@@ -3838,12 +4158,14 @@
      {
       "index": 2,
       "rule": "frozen-run",
-      "length": 6
+      "length": 6,
+      "reason": "6 values in a row from entry 2 to 7 stay at 3.3"
      },
      {
       "index": 14,
       "rule": "frozen-run",
-      "length": 5
+      "length": 5,
+      "reason": "5 values in a row from entry 14 to 18 stay at 7"
      }
     ]
    },
@@ -3902,22 +4224,61 @@
      {
       "index": 2,
       "rule": "frozen-run",
-      "length": 6
+      "length": 6,
+      "reason": "6 values in a row from entry 2 to 7 stay at 3.3"
      },
      {
       "index": 10,
       "rule": "frozen-run",
-      "length": 3
+      "length": 3,
+      "reason": "3 values in a row from entry 10 to 12 stay at 7"
      },
      {
       "index": 14,
       "rule": "frozen-run",
-      "length": 5
+      "length": 5,
+      "reason": "5 values in a row from entry 14 to 18 stay at 7"
      }
     ]
    },
    "tol": 1e-12,
    "source": "oracle"
+  },
+  {
+   "id": "frozen-large-value",
+   "fn": "frozenRuns",
+   "args": {
+    "values": [
+     1338500.0,
+     1338506.2,
+     1338506.2,
+     1338506.2,
+     1338506.2,
+     1338506.2,
+     1338507.9
+    ]
+   },
+   "expected": {
+    "runs": [
+     {
+      "start": 1,
+      "end": 5,
+      "length": 5,
+      "value": 1338506.2
+     }
+    ],
+    "flags": [
+     {
+      "index": 1,
+      "rule": "frozen-run",
+      "length": 5,
+      "reason": "5 values in a row from entry 1 to 5 stay at 1338506.2"
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "the stuck value prints as 1338506.2, not 1338510"
   },
   {
    "id": "frozen-tolerance",
@@ -3948,7 +4309,8 @@
      {
       "index": 0,
       "rule": "frozen-run",
-      "length": 5
+      "length": 5,
+      "reason": "5 values in a row from entry 0 to 4 stay at 2500"
      }
     ]
    },
@@ -8649,6 +9011,7 @@
     "maxAbsZ": 4.7104062468424175,
     "maxPossibleAbsZ": 6.084869844593311,
     "thresholdReachable": true,
+    "threshold": 3,
     "flags": [
      {
       "index": 27,
@@ -8754,8 +9117,9 @@
      0.598949285427076
     ],
     "maxAbsZ": 4.771982798203738,
-    "maxPossibleAbsZ": 6.084869844593311,
+    "maxPossibleAbsZ": 6.164414002968976,
     "thresholdReachable": true,
+    "threshold": 3,
     "flags": [
      {
       "index": 27,
@@ -8863,6 +9227,7 @@
     "maxAbsZ": 4.7104062468424175,
     "maxPossibleAbsZ": 6.084869844593311,
     "thresholdReachable": true,
+    "threshold": 2,
     "flags": [
      {
       "index": 5,
@@ -8911,13 +9276,377 @@
      2.846049894151541
     ],
     "maxAbsZ": 2.846049894151541,
-    "maxPossibleAbsZ": 2.846049894151541,
+    "maxPossibleAbsZ": 2.8460498941515415,
     "thresholdReachable": false,
+    "threshold": 3,
     "flags": []
    },
    "tol": 1e-12,
    "source": "oracle",
    "note": "one wild value among ten: its z is exactly (n - 1)/sqrt(n) = 2.846 and |z| > 3 cannot fire"
+  },
+  {
+   "id": "z-population-ceiling-reachable",
+   "fn": "zScores",
+   "args": {
+    "values": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "sd": "population",
+    "threshold": 2.9
+   },
+   "expected": {
+    "n": 10,
+    "mean": 0.1,
+    "sd": 0.3,
+    "z": [
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     3.0
+    ],
+    "maxAbsZ": 3.0,
+    "maxPossibleAbsZ": 3.0,
+    "thresholdReachable": true,
+    "threshold": 2.9,
+    "flags": [
+     {
+      "index": 9,
+      "rule": "z-score"
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "population SD: the ceiling is sqrt(n - 1) = 3 at n = 10, so 2.9 IS reachable and the one is flagged at z = 3 (the D1 repro: the engine used to report the sample ceiling 2.846 and unreachable while flagging)"
+  },
+  {
+   "id": "z-sample-same-data-unreachable",
+   "fn": "zScores",
+   "args": {
+    "values": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "threshold": 2.9
+   },
+   "expected": {
+    "n": 10,
+    "mean": 0.1,
+    "sd": 0.31622776601683794,
+    "z": [
+     -0.31622776601683794,
+     -0.31622776601683794,
+     -0.31622776601683794,
+     -0.31622776601683794,
+     -0.31622776601683794,
+     -0.31622776601683794,
+     -0.31622776601683794,
+     -0.31622776601683794,
+     -0.31622776601683794,
+     2.8460498941515415
+    ],
+    "maxAbsZ": 2.8460498941515415,
+    "maxPossibleAbsZ": 2.8460498941515415,
+    "thresholdReachable": false,
+    "threshold": 2.9,
+    "flags": []
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "the same ten values with the sample SD: ceiling (n - 1)/sqrt(n) = 2.846, 2.9 is out of reach and nothing is flagged"
+  },
+  {
+   "id": "z-population-on-the-ceiling-n10",
+   "fn": "zScores",
+   "args": {
+    "values": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "sd": "population",
+    "threshold": 3
+   },
+   "expected": {
+    "n": 10,
+    "mean": 0.1,
+    "sd": 0.3,
+    "z": [
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     -0.33333333333333337,
+     3.0
+    ],
+    "maxAbsZ": 3.0,
+    "maxPossibleAbsZ": 3.0,
+    "thresholdReachable": false,
+    "threshold": 3,
+    "flags": []
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "threshold exactly on the population ceiling 3: not reachable (strict), not flagged"
+  },
+  {
+   "id": "z-population-on-the-ceiling-n5",
+   "fn": "zScores",
+   "args": {
+    "values": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "sd": "population",
+    "threshold": 2
+   },
+   "expected": {
+    "n": 5,
+    "mean": 0.2,
+    "sd": 0.4,
+    "z": [
+     -0.5,
+     -0.5,
+     -0.5,
+     -0.5,
+     2.0
+    ],
+    "maxAbsZ": 2.0,
+    "maxPossibleAbsZ": 2.0,
+    "thresholdReachable": false,
+    "threshold": 2,
+    "flags": []
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "population ceiling sqrt(4) = 2 exactly; the one sits on it and is not flagged"
+  },
+  {
+   "id": "z-population-below-the-ceiling-n5",
+   "fn": "zScores",
+   "args": {
+    "values": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "sd": "population",
+    "threshold": 1.9
+   },
+   "expected": {
+    "n": 5,
+    "mean": 0.2,
+    "sd": 0.4,
+    "z": [
+     -0.5,
+     -0.5,
+     -0.5,
+     -0.5,
+     2.0
+    ],
+    "maxAbsZ": 2.0,
+    "maxPossibleAbsZ": 2.0,
+    "thresholdReachable": true,
+    "threshold": 1.9,
+    "flags": [
+     {
+      "index": 4,
+      "rule": "z-score"
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "1.9 is under the population ceiling 2 (and over the sample ceiling 1.789): reachable, flagged"
+  },
+  {
+   "id": "z-sample-on-the-ceiling-n16",
+   "fn": "zScores",
+   "args": {
+    "values": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "threshold": 3.75
+   },
+   "expected": {
+    "n": 16,
+    "mean": 0.0625,
+    "sd": 0.25,
+    "z": [
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     3.75
+    ],
+    "maxAbsZ": 3.75,
+    "maxPossibleAbsZ": 3.75,
+    "thresholdReachable": false,
+    "threshold": 3.75,
+    "flags": []
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "sample ceiling (n - 1)/sqrt(n) = 15/4 = 3.75 exactly; threshold on it: not reachable, not flagged"
+  },
+  {
+   "id": "z-sample-below-the-ceiling-n16",
+   "fn": "zScores",
+   "args": {
+    "values": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "threshold": 3.7
+   },
+   "expected": {
+    "n": 16,
+    "mean": 0.0625,
+    "sd": 0.25,
+    "z": [
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     -0.25,
+     3.75
+    ],
+    "maxAbsZ": 3.75,
+    "maxPossibleAbsZ": 3.75,
+    "thresholdReachable": true,
+    "threshold": 3.7,
+    "flags": [
+     {
+      "index": 15,
+      "rule": "z-score"
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "3.7 is under the sample ceiling 3.75: reachable, the one is flagged"
+  },
+  {
+   "id": "z-sample-on-the-ceiling-n4",
+   "fn": "zScores",
+   "args": {
+    "values": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "threshold": 1.5
+   },
+   "expected": {
+    "n": 4,
+    "mean": 0.25,
+    "sd": 0.5,
+    "z": [
+     -0.5,
+     -0.5,
+     -0.5,
+     1.5
+    ],
+    "maxAbsZ": 1.5,
+    "maxPossibleAbsZ": 1.5,
+    "thresholdReachable": false,
+    "threshold": 1.5,
+    "flags": []
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "sample ceiling 3/2 exactly at n = 4"
   },
   {
    "id": "z-constant",
@@ -9675,6 +10404,13 @@
     "halfWindow": 3
    },
    "expected": {
+    "halfWindow": 3,
+    "nSigma": 3,
+    "basis": {
+     "halfWindow": 3,
+     "nSigma": 3,
+     "madScale": 1.4826
+    },
     "points": [
      {
       "median": 63.19,
@@ -10081,32 +10817,50 @@
      {
       "index": 9,
       "rule": "hampel",
-      "replacement": 65.46
+      "replacement": 65.46,
+      "median": 65.46,
+      "deviation": 74.54,
+      "threshold": 17.791199999999968
      },
      {
       "index": 10,
       "rule": "hampel",
-      "replacement": 65.46
+      "replacement": 65.46,
+      "median": 65.46,
+      "deviation": 72.54,
+      "threshold": 17.791199999999968
      },
      {
       "index": 13,
       "rule": "hampel",
-      "replacement": 61.64
+      "replacement": 61.64,
+      "median": 61.64,
+      "deviation": 5.600000000000001,
+      "threshold": 4.403322000000009
      },
      {
       "index": 22,
       "rule": "hampel",
-      "replacement": 60.92
+      "replacement": 60.92,
+      "median": 60.92,
+      "deviation": 6.109999999999996,
+      "threshold": 4.647951000000008
      },
      {
       "index": 23,
       "rule": "hampel",
-      "replacement": 60.42
+      "replacement": 60.42,
+      "median": 60.42,
+      "deviation": 5.129999999999999,
+      "threshold": 4.8703410000000105
      },
      {
       "index": 30,
       "rule": "hampel",
-      "replacement": 58.64
+      "replacement": 58.64,
+      "median": 58.64,
+      "deviation": 53.64,
+      "threshold": 18.280457999999996
      }
     ]
    },
@@ -10173,6 +10927,13 @@
     "nSigma": 2
    },
    "expected": {
+    "halfWindow": 5,
+    "nSigma": 2,
+    "basis": {
+     "halfWindow": 5,
+     "nSigma": 2,
+     "madScale": 1.4826
+    },
     "points": [
      {
       "median": 61.349999999999994,
@@ -10579,37 +11340,58 @@
      {
       "index": 9,
       "rule": "hampel",
-      "replacement": 62.37
+      "replacement": 62.37,
+      "median": 62.37,
+      "deviation": 77.63,
+      "threshold": 9.16246799999999
      },
      {
       "index": 10,
       "rule": "hampel",
-      "replacement": 62.37
+      "replacement": 62.37,
+      "median": 62.37,
+      "deviation": 75.63,
+      "threshold": 9.16246799999999
      },
      {
       "index": 22,
       "rule": "hampel",
-      "replacement": 60.42
+      "replacement": 60.42,
+      "median": 60.42,
+      "deviation": 5.609999999999996,
+      "threshold": 4.581234000000005
      },
      {
       "index": 23,
       "rule": "hampel",
-      "replacement": 60.42
+      "replacement": 60.42,
+      "median": 60.42,
+      "deviation": 5.129999999999999,
+      "threshold": 4.81845
      },
      {
       "index": 30,
       "rule": "hampel",
-      "replacement": 60.11
+      "replacement": 60.11,
+      "median": 60.11,
+      "deviation": 55.11,
+      "threshold": 4.358843999999997
      },
      {
       "index": 38,
       "rule": "hampel",
-      "replacement": 61.13
+      "replacement": 61.13,
+      "median": 61.13,
+      "deviation": 7.43,
+      "threshold": 6.049007999999997
      },
      {
       "index": 45,
       "rule": "hampel",
-      "replacement": 59.334999999999994
+      "replacement": 59.334999999999994,
+      "median": 59.334999999999994,
+      "deviation": 8.465,
+      "threshold": 5.530098000000006
      }
     ]
    },
@@ -10631,6 +11413,13 @@
     "halfWindow": 1
    },
    "expected": {
+    "halfWindow": 1,
+    "nSigma": 3,
+    "basis": {
+     "halfWindow": 1,
+     "nSigma": 3,
+     "madScale": 1.4826
+    },
     "points": [
      {
       "median": null,
@@ -10696,6 +11485,13 @@
     "halfWindow": 2
    },
    "expected": {
+    "halfWindow": 2,
+    "nSigma": 3,
+    "basis": {
+     "halfWindow": 2,
+     "nSigma": 3,
+     "madScale": 1.4826
+    },
     "points": [
      {
       "median": 2.0,
@@ -10760,7 +11556,10 @@
      {
       "index": 3,
       "rule": "hampel",
-      "replacement": 2.0
+      "replacement": 2.0,
+      "median": 2.0,
+      "deviation": 0.10000000000000009,
+      "threshold": 0.0
      }
     ]
    },
@@ -10783,6 +11582,13 @@
     "nSigma": 1
    },
    "expected": {
+    "halfWindow": 2,
+    "nSigma": 1,
+    "basis": {
+     "halfWindow": 2,
+     "nSigma": 1,
+     "madScale": 1.4826
+    },
     "points": [
      {
       "median": 0.0,
@@ -10831,13 +11637,115 @@
      {
       "index": 4,
       "rule": "hampel",
-      "replacement": 1.0
+      "replacement": 1.0,
+      "median": 1.0,
+      "deviation": 1.0,
+      "threshold": 0.7155027599999999
      }
     ]
    },
    "tol": 1e-12,
    "source": "oracle",
    "note": "the centre point sits on its threshold: median 0, MAD 1, nSigma 1, so |x - median| = 1 x 1.4826 x 1; strict, NOT a spike"
+  },
+  {
+   "id": "hampel-large-values-n2.5",
+   "fn": "hampel",
+   "args": {
+    "values": [
+     1338506.2,
+     1338506.7,
+     1338507.1,
+     1338650.3,
+     1338506.9,
+     1338507.4,
+     1338506.8
+    ],
+    "halfWindow": 3,
+    "nSigma": 2.5
+   },
+   "expected": {
+    "halfWindow": 3,
+    "nSigma": 2.5,
+    "basis": {
+     "halfWindow": 3,
+     "nSigma": 2.5,
+     "madScale": 1.4826
+    },
+    "points": [
+     {
+      "median": 1338506.9,
+      "mad": 0.4500000000698492,
+      "threshold": 1.6679250002588961,
+      "judged": true,
+      "windowCount": 4
+     },
+     {
+      "median": 1338506.9,
+      "mad": 0.20000000018626451,
+      "threshold": 0.7413000006903894,
+      "judged": true,
+      "windowCount": 5
+     },
+     {
+      "median": 1338507.0,
+      "mad": 0.34999999997671694,
+      "threshold": 1.2972749999137014,
+      "judged": true,
+      "windowCount": 6
+     },
+     {
+      "median": 1338506.9,
+      "mad": 0.20000000018626451,
+      "threshold": 0.7413000006903894,
+      "judged": true,
+      "windowCount": 7
+     },
+     {
+      "median": 1338507.0,
+      "mad": 0.25,
+      "threshold": 0.926625,
+      "judged": true,
+      "windowCount": 6
+     },
+     {
+      "median": 1338507.1,
+      "mad": 0.2999999998137355,
+      "threshold": 1.1119499993096105,
+      "judged": true,
+      "windowCount": 5
+     },
+     {
+      "median": 1338507.15,
+      "mad": 0.2999999999301508,
+      "threshold": 1.111949999741104,
+      "judged": true,
+      "windowCount": 4
+     }
+    ],
+    "cleaned": [
+     1338506.2,
+     1338506.7,
+     1338507.1,
+     1338506.9,
+     1338506.9,
+     1338507.4,
+     1338506.8
+    ],
+    "flags": [
+     {
+      "index": 3,
+      "rule": "hampel",
+      "replacement": 1338506.9,
+      "median": 1338506.9,
+      "deviation": 143.4000000001397,
+      "threshold": 0.7413000006903894
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "nSigma is echoed in the result and its basis (foundation finding 3); a spike on a large baseline keeps every digit in its reason"
   },
   {
    "id": "hampel-no-window",
@@ -12808,6 +13716,7 @@
      0.10284643951113584
     ],
     "cutoff": 7.37775890822787,
+    "level": 0.975,
     "skippedRows": [
      22
     ],
@@ -13050,6 +13959,7 @@
      0.10284643951113584
     ],
     "cutoff": 13.815510557964274,
+    "level": 0.999,
     "skippedRows": [
      22
     ],
@@ -13332,6 +14242,7 @@
      0.5098628757214292
     ],
     "cutoff": 9.348403604496145,
+    "level": 0.975,
     "skippedRows": [],
     "flags": [
      {
@@ -13400,6 +14311,7 @@
      6.094798705574962
     ],
     "cutoff": 5.023886187314886,
+    "level": 0.975,
     "skippedRows": [],
     "flags": [
      {
@@ -13633,6 +14545,7 @@
      1.4211995701030125
     ],
     "cutoff": 13.276704135987622,
+    "level": 0.99,
     "skippedRows": [],
     "flags": [
      {

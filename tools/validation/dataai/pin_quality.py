@@ -72,6 +72,9 @@ def main():
             it = iter(z)
             pin(c, 'z', [None if v is None else float(next(it)) for v in a['values']], lib='scipy.stats.zscore')
             pin(c, 'sd', float(np.std(x, ddof=ddof)), lib='numpy.std')
+            # the ceiling: scipy's largest |z| on the extreme sample (n - 1 equal values and one other)
+            ext = np.r_[np.zeros(len(x) - 1), 1.0]
+            pin(c, 'maxPossibleAbsZ', float(np.max(np.abs(stats.zscore(ext, ddof=ddof)))), lib='scipy.stats.zscore (extreme sample)')
         elif fn == 'modifiedZScores':
             x = present(a['values'])
             pin(c, 'median', float(np.median(x)), lib='numpy.median')
