@@ -20,11 +20,17 @@
 //   np.gradient(np.unwrap(np.angle(a))) / (2*pi*dt_s) — central
 //   differences inside, one-sided at the edges, unwrap period 2*pi.
 // - Float64 math throughout; the brick store casts to float32 on write.
+// - Spectral decomposition calls horizonAmplitude.isofrequencyAt at every
+//   sample (the validated isofrequency kernel, unchanged); relative
+//   acoustic impedance is the running sum high-passed by a centred boxcar
+//   of the running sum. Both are pinned by test-data/seismolord/structure/
+//   gen_structure.py.
 //
 // Pure math, worker-safe, no I/O.
 
 import { fft, nextPow2 } from '../../lib/fft';
 import { NULL_VALUE } from './manifest';
+import { isofrequencyAt } from './horizonAmplitude';
 
 /** Own-property preset lookup. `TABLE[key]` walks the prototype chain, so
  *  'constructor', 'toString', 'valueOf', 'hasOwnProperty' and '__proto__'
@@ -33,7 +39,9 @@ const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'nu
 
 
 const NULL_LIM = 1.0e29;
-const isNull = (v) => Math.abs(v) > NULL_LIM;
+// Math.* in hot loops is much slower inside jest's vm context; alias it once.
+const M = Math;
+const isNull = (v) => M.abs(v) > NULL_LIM;
 
 /**
  * Analytic signal of one trace (nulls zero-filled, see recipe above).
@@ -215,6 +223,55 @@ export function traceAgcTrace(trace, halfWindow, out) {
 }
 
 /**
+ * Spectral decomposition: at every sample z, the windowed amplitude
+ * spectrum magnitude at freqHz, computed by horizonAmplitude.isofrequencyAt
+ * (the validated horizon isofrequency kernel: samples z +- hw clamped to
+ * the trace, nulls zero-filled, Hann taper, zero-pad to nextpow2(4n), |X|
+ * at bin round(freqHz * nfft * dt_s)). Null where the input sample is null.
+ * @param {number} freqHz @param {number} hw half-window, samples (>= 2)
+ * @param {number} dtUs sample interval in microseconds
+ */
+export function spectralTrace(trace, freqHz, hw, dtUs, out) {
+  const ns = trace.length;
+  const dtS = dtUs * 1e-6;
+  const NULL_F32 = M.fround(NULL_VALUE);
+  // isofrequencyAt recognises nulls as the float32 null; normalise any
+  // |v| > 1e29 to it so float64 inputs behave the same
+  const at = (s) => (isNull(trace[s]) ? NULL_F32 : trace[s]);
+  for (let z = 0; z < ns; z++) {
+    if (isNull(trace[z])) { out[z] = NULL_VALUE; continue; }
+    const v = isofrequencyAt(at, ns, z, { freqHz, hw, dtS });
+    out[z] = v === NULL_F32 ? NULL_VALUE : v;
+  }
+}
+
+/**
+ * Relative acoustic impedance: the running sum of the trace (nulls as 0),
+ * high-passed by subtracting the centred boxcar mean of the running sum
+ * over [s - hw, s + hw] clamped to the trace (edge windows shrink). Null
+ * where the input sample is null.
+ * @param {number} hw half-window, samples (>= 1)
+ */
+export function raiTrace(trace, hw, out) {
+  const ns = trace.length;
+  const c = new Float64Array(ns);
+  let acc = 0;
+  for (let s = 0; s < ns; s++) {
+    const v = trace[s];
+    if (!isNull(v)) acc += v;
+    c[s] = acc;
+  }
+  const pre = new Float64Array(ns + 1);
+  for (let s = 0; s < ns; s++) pre[s + 1] = pre[s] + c[s];
+  for (let s = 0; s < ns; s++) {
+    const lo = M.max(0, s - hw);
+    const hi = M.min(ns - 1, s + hw);
+    out[s] = c[s] - (pre[hi + 1] - pre[lo]) / (hi - lo + 1);
+  }
+  maskNulls(trace, out);
+}
+
+/**
  * Attribute registry — one entry per derived-volume attribute. `params`
  * documents the tunables (ms so the UI is sample-rate independent);
  * makeTraceCompute converts to samples against the volume's dt.
@@ -243,6 +300,21 @@ export const ATTRIBUTE_DEFS = {
     label: 'AGC amplitude',
     unit: 'amp',
     params: { windowMs: { label: 'Window length (ms)', default: 500, min: 20, max: 2000 } },
+  },
+  spectral: {
+    key: 'spectral',
+    label: 'Spectral decomposition',
+    unit: 'amp',
+    params: {
+      freqHz: { label: 'Frequency (Hz)', default: 30, min: 2, max: 250 },
+      windowMs: { label: 'Window length (ms)', default: 40, min: 8, max: 400 },
+    },
+  },
+  rai: {
+    key: 'rai',
+    label: 'Relative acoustic impedance',
+    unit: 'rel',
+    params: { lowCutMs: { label: 'Trend window (ms)', default: 200, min: 20, max: 2000 } },
   },
 };
 
@@ -282,6 +354,19 @@ export function makeTraceCompute(name, params, { dtUs }) {
     case 'agc': {
       const hw = halfWindowSamples(params?.windowMs ?? def.params.windowMs.default, dtUs);
       return (trace, out) => traceAgcTrace(trace, hw, out);
+    }
+    case 'spectral': {
+      const freqHz = params?.freqHz ?? def.params.freqHz.default;
+      const nyquist = 1 / (2 * dtUs * 1e-6);
+      if (!(freqHz > 0) || !(freqHz <= nyquist)) {
+        throw new Error(`Frequency ${freqHz} Hz is outside the usable range up to ${nyquist} Hz for this sample interval.`);
+      }
+      const hw = M.max(2, halfWindowSamples(params?.windowMs ?? def.params.windowMs.default, dtUs));
+      return (trace, out) => spectralTrace(trace, freqHz, hw, dtUs, out);
+    }
+    case 'rai': {
+      const hw = halfWindowSamples(params?.lowCutMs ?? def.params.lowCutMs.default, dtUs);
+      return (trace, out) => raiTrace(trace, hw, out);
     }
     default:
       throw new Error(`Unknown attribute "${name}".`);

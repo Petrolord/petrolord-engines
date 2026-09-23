@@ -73,6 +73,16 @@ and its consumers.
   extraction, the interval attribute's span walker) and `flatten.js`
   (per-trace offsets that hang a section on a horizon, a median datum;
   the renderer applies them in the shader, never to stored data).
+  Seismolord structure attributes (2026-09-23): `structureAttributes.js`
+  adds Sobel edge and the gradient structure tensor family (dip magnitude,
+  dip azimuth in the lattice frame, chaos, most positive and most negative
+  curvature after Al-Dossary and Marfurt 2006) as regional
+  `DISCONTINUITY_DEFS` entries that `makeDiscontinuityJob` builds a brick
+  column at a time over `structureHalo`, and `attributes.js` gains
+  spectral decomposition (the `isofrequencyAt` kernel at every sample) and
+  relative acoustic impedance. Golden: the self-asserting numpy oracle
+  `test-data/seismolord/structure/gen_structure.py`; the column and whole
+  volume runs are proven equal in `seismolord.structure.test.js`.
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
