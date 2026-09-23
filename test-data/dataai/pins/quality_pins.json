@@ -1,0 +1,3023 @@
+{
+ "module": "quality",
+ "generatedBy": "tools/validation/dataai/pin_quality.py",
+ "versions": {
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "statsmodels": "0.15.0",
+  "pandas": "3.0.6"
+ },
+ "note": "second witness on the golden inputs; the stdlib oracle is the first",
+ "pins": [
+  {
+   "id": "nist-6.3.2.2-individuals-flowrate:mrBar",
+   "case": "nist-6.3.2.2-individuals-flowrate",
+   "field": "mrBar",
+   "value": 1.8777777777777784,
+   "tol": 1e-12,
+   "witness": "numpy.diff"
+  },
+  {
+   "id": "nist-6.3.2.2-individuals-flowrate:centre",
+   "case": "nist-6.3.2.2-individuals-flowrate",
+   "field": "centre",
+   "value": 50.81,
+   "tol": 1e-12,
+   "witness": "numpy.mean"
+  },
+  {
+   "id": "nist-6.3.2.4-ewma:ewma",
+   "case": "nist-6.3.2.4-ewma",
+   "field": "ewma",
+   "value": [
+    50.6,
+    49.52,
+    50.564,
+    50.184799999999996,
+    50.15935999999999,
+    49.21155199999999,
+    49.74808639999999,
+    49.853660479999995,
+    50.25756233599999,
+    50.33029363519999,
+    50.111205544639986,
+    49.35784388124799,
+    49.52049071687359,
+    50.05434350181151,
+    49.37804045126805,
+    49.92462831588763,
+    50.72723982112134,
+    51.22906787478493,
+    51.94034751234945,
+    51.988243258644616
+   ],
+   "tol": 1e-12,
+   "witness": "pandas.Series.ewm(adjust=False)"
+  },
+  {
+   "id": "nist-1.3.5.17.1-grubbs-max:tCritical",
+   "case": "nist-1.3.5.17.1-grubbs-max",
+   "field": "tCritical",
+   "value": 3.5212227105092646,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "nist-1.3.5.17.1-grubbs-max:critical",
+   "case": "nist-1.3.5.17.1-grubbs-max",
+   "field": "critical",
+   "value": 2.031652001549949,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "nist-1.3.5.17-zscore-uranium:z",
+   "case": "nist-1.3.5.17-zscore-uranium",
+   "field": "z",
+   "value": [
+    -0.4493752441566246,
+    -0.4354973633053234,
+    -0.3938637207514198,
+    -0.35412251649542104,
+    -0.28473311223891506,
+    -0.28284067394101026,
+    -0.2683319803237396,
+    2.46876461121245
+   ],
+   "tol": 1e-12,
+   "witness": "scipy.stats.zscore"
+  },
+  {
+   "id": "nist-1.3.5.17-zscore-uranium:sd",
+   "case": "nist-1.3.5.17-zscore-uranium",
+   "field": "sd",
+   "value": 15.852564404987783,
+   "tol": 1e-12,
+   "witness": "numpy.std"
+  },
+  {
+   "id": "nist-1.3.5.17-modified-z-uranium:median",
+   "case": "nist-1.3.5.17-modified-z-uranium",
+   "field": "median",
+   "value": 201.37,
+   "tol": 1e-12,
+   "witness": "numpy.median"
+  },
+  {
+   "id": "nist-1.3.5.17-modified-z-uranium:mad",
+   "case": "nist-1.3.5.17-modified-z-uranium",
+   "field": "mad",
+   "value": 0.9950000000000045,
+   "tol": 1e-12,
+   "witness": "scipy.stats.median_abs_deviation"
+  },
+  {
+   "id": "nist-1.3.5.17-modified-z-uranium:mad",
+   "case": "nist-1.3.5.17-modified-z-uranium",
+   "field": "mad",
+   "value": 0.9950000000000045,
+   "tol": 1e-12,
+   "witness": "statsmodels.robust.mad"
+  },
+  {
+   "id": "nist-7.2.6.2-p90-R6:value",
+   "case": "nist-7.2.6.2-p90-R6",
+   "field": "",
+   "value": 95.19807,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "nist-7.2.6.2-p90-R7:value",
+   "case": "nist-7.2.6.2-p90-R7",
+   "field": "",
+   "value": 95.19568,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "nist-7.2.6.2-p90-R8:value",
+   "case": "nist-7.2.6.2-p90-R8",
+   "field": "",
+   "value": 95.19724333333333,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R6-0:value",
+   "case": "quantile-wafers-R6-0",
+   "field": "",
+   "value": 95.061,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R6-0.05:value",
+   "case": "quantile-wafers-R6-0.05",
+   "field": "",
+   "value": 95.061,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R6-0.25:value",
+   "case": "quantile-wafers-R6-0.25",
+   "field": "",
+   "value": 95.10974999999999,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R6-0.5:value",
+   "case": "quantile-wafers-R6-0.5",
+   "field": "",
+   "value": 95.1579,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R6-0.75:value",
+   "case": "quantile-wafers-R6-0.75",
+   "field": "",
+   "value": 95.189575,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R6-0.9:value",
+   "case": "quantile-wafers-R6-0.9",
+   "field": "",
+   "value": 95.19807,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R6-1:value",
+   "case": "quantile-wafers-R6-1",
+   "field": "",
+   "value": 95.199,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R7-0:value",
+   "case": "quantile-wafers-R7-0",
+   "field": "",
+   "value": 95.061,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R7-0.05:value",
+   "case": "quantile-wafers-R7-0.05",
+   "field": "",
+   "value": 95.078325,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R7-0.25:value",
+   "case": "quantile-wafers-R7-0.25",
+   "field": "",
+   "value": 95.11625000000001,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R7-0.5:value",
+   "case": "quantile-wafers-R7-0.5",
+   "field": "",
+   "value": 95.1579,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R7-0.75:value",
+   "case": "quantile-wafers-R7-0.75",
+   "field": "",
+   "value": 95.181325,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R7-0.9:value",
+   "case": "quantile-wafers-R7-0.9",
+   "field": "",
+   "value": 95.19568,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R7-1:value",
+   "case": "quantile-wafers-R7-1",
+   "field": "",
+   "value": 95.199,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R8-0:value",
+   "case": "quantile-wafers-R8-0",
+   "field": "",
+   "value": 95.061,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R8-0.05:value",
+   "case": "quantile-wafers-R8-0.05",
+   "field": "",
+   "value": 95.061,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R8-0.25:value",
+   "case": "quantile-wafers-R8-0.25",
+   "field": "",
+   "value": 95.11191666666666,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R8-0.5:value",
+   "case": "quantile-wafers-R8-0.5",
+   "field": "",
+   "value": 95.1579,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R8-0.75:value",
+   "case": "quantile-wafers-R8-0.75",
+   "field": "",
+   "value": 95.186825,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R8-0.9:value",
+   "case": "quantile-wafers-R8-0.9",
+   "field": "",
+   "value": 95.19724333333333,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-wafers-R8-1:value",
+   "case": "quantile-wafers-R8-1",
+   "field": "",
+   "value": 95.199,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R6-0:value",
+   "case": "quantile-uranium-R6-0",
+   "field": "",
+   "value": 199.31,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R6-0.05:value",
+   "case": "quantile-uranium-R6-0.05",
+   "field": "",
+   "value": 199.31,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R6-0.25:value",
+   "case": "quantile-uranium-R6-0.25",
+   "field": "",
+   "value": 199.695,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R6-0.5:value",
+   "case": "quantile-uranium-R6-0.5",
+   "field": "",
+   "value": 201.37,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R6-0.75:value",
+   "case": "quantile-uranium-R6-0.75",
+   "field": "",
+   "value": 202.1225,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R6-0.9:value",
+   "case": "quantile-uranium-R6-0.9",
+   "field": "",
+   "value": 245.57,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R6-1:value",
+   "case": "quantile-uranium-R6-1",
+   "field": "",
+   "value": 245.57,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R7-0:value",
+   "case": "quantile-uranium-R7-0",
+   "field": "",
+   "value": 199.31,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R7-0.05:value",
+   "case": "quantile-uranium-R7-0.05",
+   "field": "",
+   "value": 199.387,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R7-0.25:value",
+   "case": "quantile-uranium-R7-0.25",
+   "field": "",
+   "value": 200.025,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R7-0.5:value",
+   "case": "quantile-uranium-R7-0.5",
+   "field": "",
+   "value": 201.37,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R7-0.75:value",
+   "case": "quantile-uranium-R7-0.75",
+   "field": "",
+   "value": 202.0075,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R7-0.9:value",
+   "case": "quantile-uranium-R7-0.9",
+   "field": "",
+   "value": 215.197,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R7-1:value",
+   "case": "quantile-uranium-R7-1",
+   "field": "",
+   "value": 245.57,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R8-0:value",
+   "case": "quantile-uranium-R8-0",
+   "field": "",
+   "value": 199.31,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R8-0.05:value",
+   "case": "quantile-uranium-R8-0.05",
+   "field": "",
+   "value": 199.31,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R8-0.25:value",
+   "case": "quantile-uranium-R8-0.25",
+   "field": "",
+   "value": 199.805,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R8-0.5:value",
+   "case": "quantile-uranium-R8-0.5",
+   "field": "",
+   "value": 201.37,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R8-0.75:value",
+   "case": "quantile-uranium-R8-0.75",
+   "field": "",
+   "value": 202.08416666666668,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R8-0.9:value",
+   "case": "quantile-uranium-R8-0.9",
+   "field": "",
+   "value": 238.33833333333337,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-uranium-R8-1:value",
+   "case": "quantile-uranium-R8-1",
+   "field": "",
+   "value": 245.57,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R6-0:value",
+   "case": "quantile-five-R6-0",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R6-0.05:value",
+   "case": "quantile-five-R6-0.05",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R6-0.25:value",
+   "case": "quantile-five-R6-0.25",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R6-0.5:value",
+   "case": "quantile-five-R6-0.5",
+   "field": "",
+   "value": 3.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R6-0.75:value",
+   "case": "quantile-five-R6-0.75",
+   "field": "",
+   "value": 4.5,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R6-0.9:value",
+   "case": "quantile-five-R6-0.9",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R6-1:value",
+   "case": "quantile-five-R6-1",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R7-0:value",
+   "case": "quantile-five-R7-0",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R7-0.05:value",
+   "case": "quantile-five-R7-0.05",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R7-0.25:value",
+   "case": "quantile-five-R7-0.25",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R7-0.5:value",
+   "case": "quantile-five-R7-0.5",
+   "field": "",
+   "value": 3.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R7-0.75:value",
+   "case": "quantile-five-R7-0.75",
+   "field": "",
+   "value": 4.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R7-0.9:value",
+   "case": "quantile-five-R7-0.9",
+   "field": "",
+   "value": 4.6,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R7-1:value",
+   "case": "quantile-five-R7-1",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R8-0:value",
+   "case": "quantile-five-R8-0",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R8-0.05:value",
+   "case": "quantile-five-R8-0.05",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R8-0.25:value",
+   "case": "quantile-five-R8-0.25",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R8-0.5:value",
+   "case": "quantile-five-R8-0.5",
+   "field": "",
+   "value": 3.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R8-0.75:value",
+   "case": "quantile-five-R8-0.75",
+   "field": "",
+   "value": 4.333333333333333,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R8-0.9:value",
+   "case": "quantile-five-R8-0.9",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-five-R8-1:value",
+   "case": "quantile-five-R8-1",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R6-0:value",
+   "case": "quantile-two-R6-0",
+   "field": "",
+   "value": 10.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R6-0.05:value",
+   "case": "quantile-two-R6-0.05",
+   "field": "",
+   "value": 10.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R6-0.25:value",
+   "case": "quantile-two-R6-0.25",
+   "field": "",
+   "value": 10.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R6-0.5:value",
+   "case": "quantile-two-R6-0.5",
+   "field": "",
+   "value": 15.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R6-0.75:value",
+   "case": "quantile-two-R6-0.75",
+   "field": "",
+   "value": 20.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R6-0.9:value",
+   "case": "quantile-two-R6-0.9",
+   "field": "",
+   "value": 20.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R6-1:value",
+   "case": "quantile-two-R6-1",
+   "field": "",
+   "value": 20.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R7-0:value",
+   "case": "quantile-two-R7-0",
+   "field": "",
+   "value": 10.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R7-0.05:value",
+   "case": "quantile-two-R7-0.05",
+   "field": "",
+   "value": 10.5,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R7-0.25:value",
+   "case": "quantile-two-R7-0.25",
+   "field": "",
+   "value": 12.5,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R7-0.5:value",
+   "case": "quantile-two-R7-0.5",
+   "field": "",
+   "value": 15.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R7-0.75:value",
+   "case": "quantile-two-R7-0.75",
+   "field": "",
+   "value": 17.5,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R7-0.9:value",
+   "case": "quantile-two-R7-0.9",
+   "field": "",
+   "value": 19.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R7-1:value",
+   "case": "quantile-two-R7-1",
+   "field": "",
+   "value": 20.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R8-0:value",
+   "case": "quantile-two-R8-0",
+   "field": "",
+   "value": 10.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R8-0.05:value",
+   "case": "quantile-two-R8-0.05",
+   "field": "",
+   "value": 10.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R8-0.25:value",
+   "case": "quantile-two-R8-0.25",
+   "field": "",
+   "value": 10.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R8-0.5:value",
+   "case": "quantile-two-R8-0.5",
+   "field": "",
+   "value": 15.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R8-0.75:value",
+   "case": "quantile-two-R8-0.75",
+   "field": "",
+   "value": 20.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R8-0.9:value",
+   "case": "quantile-two-R8-0.9",
+   "field": "",
+   "value": 20.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-two-R8-1:value",
+   "case": "quantile-two-R8-1",
+   "field": "",
+   "value": 20.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R6-0:value",
+   "case": "quantile-gr60-R6-0",
+   "field": "",
+   "value": 27.8,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R6-0.05:value",
+   "case": "quantile-gr60-R6-0.05",
+   "field": "",
+   "value": 42.619,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R6-0.25:value",
+   "case": "quantile-gr60-R6-0.25",
+   "field": "",
+   "value": 67.5325,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R6-0.5:value",
+   "case": "quantile-gr60-R6-0.5",
+   "field": "",
+   "value": 90.56,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R6-0.75:value",
+   "case": "quantile-gr60-R6-0.75",
+   "field": "",
+   "value": 100.33,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R6-0.9:value",
+   "case": "quantile-gr60-R6-0.9",
+   "field": "",
+   "value": 113.42699999999999,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R6-1:value",
+   "case": "quantile-gr60-R6-1",
+   "field": "",
+   "value": 122.38,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R7-0:value",
+   "case": "quantile-gr60-R7-0",
+   "field": "",
+   "value": 27.8,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R7-0.05:value",
+   "case": "quantile-gr60-R7-0.05",
+   "field": "",
+   "value": 48.541,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R7-0.25:value",
+   "case": "quantile-gr60-R7-0.25",
+   "field": "",
+   "value": 69.0775,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R7-0.5:value",
+   "case": "quantile-gr60-R7-0.5",
+   "field": "",
+   "value": 90.56,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R7-0.75:value",
+   "case": "quantile-gr60-R7-0.75",
+   "field": "",
+   "value": 99.93,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R7-0.9:value",
+   "case": "quantile-gr60-R7-0.9",
+   "field": "",
+   "value": 109.72300000000001,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R7-1:value",
+   "case": "quantile-gr60-R7-1",
+   "field": "",
+   "value": 122.38,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R8-0:value",
+   "case": "quantile-gr60-R8-0",
+   "field": "",
+   "value": 27.8,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R8-0.05:value",
+   "case": "quantile-gr60-R8-0.05",
+   "field": "",
+   "value": 44.592999999999996,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R8-0.25:value",
+   "case": "quantile-gr60-R8-0.25",
+   "field": "",
+   "value": 68.0475,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R8-0.5:value",
+   "case": "quantile-gr60-R8-0.5",
+   "field": "",
+   "value": 90.56,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R8-0.75:value",
+   "case": "quantile-gr60-R8-0.75",
+   "field": "",
+   "value": 100.19666666666667,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R8-0.9:value",
+   "case": "quantile-gr60-R8-0.9",
+   "field": "",
+   "value": 112.19233333333334,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-gr60-R8-1:value",
+   "case": "quantile-gr60-R8-1",
+   "field": "",
+   "value": 122.38,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R6-0:value",
+   "case": "quantile-with-missing-R6-0",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R6-0.05:value",
+   "case": "quantile-with-missing-R6-0.05",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R6-0.25:value",
+   "case": "quantile-with-missing-R6-0.25",
+   "field": "",
+   "value": 1.5,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R6-0.5:value",
+   "case": "quantile-with-missing-R6-0.5",
+   "field": "",
+   "value": 3.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R6-0.75:value",
+   "case": "quantile-with-missing-R6-0.75",
+   "field": "",
+   "value": 4.5,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R6-0.9:value",
+   "case": "quantile-with-missing-R6-0.9",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R6-1:value",
+   "case": "quantile-with-missing-R6-1",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R7-0:value",
+   "case": "quantile-with-missing-R7-0",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R7-0.05:value",
+   "case": "quantile-with-missing-R7-0.05",
+   "field": "",
+   "value": 1.2,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R7-0.25:value",
+   "case": "quantile-with-missing-R7-0.25",
+   "field": "",
+   "value": 2.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R7-0.5:value",
+   "case": "quantile-with-missing-R7-0.5",
+   "field": "",
+   "value": 3.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R7-0.75:value",
+   "case": "quantile-with-missing-R7-0.75",
+   "field": "",
+   "value": 4.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R7-0.9:value",
+   "case": "quantile-with-missing-R7-0.9",
+   "field": "",
+   "value": 4.6,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R7-1:value",
+   "case": "quantile-with-missing-R7-1",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R8-0:value",
+   "case": "quantile-with-missing-R8-0",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R8-0.05:value",
+   "case": "quantile-with-missing-R8-0.05",
+   "field": "",
+   "value": 1.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R8-0.25:value",
+   "case": "quantile-with-missing-R8-0.25",
+   "field": "",
+   "value": 1.6666666666666667,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R8-0.5:value",
+   "case": "quantile-with-missing-R8-0.5",
+   "field": "",
+   "value": 3.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R8-0.75:value",
+   "case": "quantile-with-missing-R8-0.75",
+   "field": "",
+   "value": 4.333333333333333,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R8-0.9:value",
+   "case": "quantile-with-missing-R8-0.9",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "quantile-with-missing-R8-1:value",
+   "case": "quantile-with-missing-R8-1",
+   "field": "",
+   "value": 5.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "z-rhob-two-spikes:z",
+   "case": "z-rhob-two-spikes",
+   "field": "z",
+   "value": [
+    -0.27001415454973915,
+    -0.3818628218618975,
+    0.2500821484517965,
+    -0.2476444210873075,
+    0.08790158084916752,
+    2.83937879672826,
+    0.4625946163448961,
+    0.07671671411795045,
+    0.7813633181845467,
+    0.043162113924304184,
+    -0.13020332040954186,
+    -0.5104887892708803,
+    null,
+    -0.05190925329103227,
+    0.4010778493232084,
+    0.8652498186686661,
+    -0.48811905580844855,
+    -0.6111525898518215,
+    0.8428800852062345,
+    0.06553184738673586,
+    0.12704861440842108,
+    0.13264104777403085,
+    0.07112428075234314,
+    -0.018354653097383523,
+    -0.8628120913041796,
+    0.12704861440842108,
+    0.17738051469889418,
+    -4.710406246842422,
+    -0.3818628218618975,
+    0.00960751373065544,
+    1.0442076863681196,
+    0.40667028268881816,
+    -0.48811905580844855,
+    0.037569680558694404,
+    -0.5608206895613509,
+    -0.3035687547433879,
+    0.4402248828824644,
+    0.6247751839475251,
+    -0.48811905580844855,
+    0.5912205837538789
+   ],
+   "tol": 1e-12,
+   "witness": "scipy.stats.zscore"
+  },
+  {
+   "id": "z-rhob-two-spikes:sd",
+   "case": "z-rhob-two-spikes",
+   "field": "sd",
+   "value": 0.1788130380148566,
+   "tol": 1e-12,
+   "witness": "numpy.std"
+  },
+  {
+   "id": "z-rhob-population-sd:z",
+   "case": "z-rhob-population-sd",
+   "field": "z",
+   "value": [
+    -0.2735439011543046,
+    -0.38685470460643157,
+    0.25335133489808537,
+    -0.2508817404638792,
+    0.08905066989250182,
+    2.8764964348148236,
+    0.4686418614571254,
+    0.07771958954728787,
+    0.7915776512956867,
+    0.043726348511651025,
+    -0.13190539683914645,
+    -0.5171621285763782,
+    null,
+    -0.05258783442265881,
+    0.4063209195584549,
+    0.8765607538847826,
+    -0.49449996788595285,
+    -0.6191418516832913,
+    0.8538985931943572,
+    0.06638850920207642,
+    0.1287094511007444,
+    0.13437499127335262,
+    0.07205404937468214,
+    -0.018594593387019454,
+    -0.8740911594505789,
+    0.1287094511007444,
+    0.17969931265420344,
+    -4.771982798203743,
+    -0.38685470460643157,
+    0.009733107476011667,
+    1.0578580394081858,
+    0.4119864597310632,
+    -0.49449996788595285,
+    0.03806080833904279,
+    -0.5681519901298347,
+    -0.30753714218994394,
+    0.4459797007667,
+    0.6329425264627089,
+    -0.49449996788595285,
+    0.598949285427072
+   ],
+   "tol": 1e-12,
+   "witness": "scipy.stats.zscore"
+  },
+  {
+   "id": "z-rhob-population-sd:sd",
+   "case": "z-rhob-population-sd",
+   "field": "sd",
+   "value": 0.17650567634047246,
+   "tol": 1e-12,
+   "witness": "numpy.std"
+  },
+  {
+   "id": "z-rhob-threshold-2:z",
+   "case": "z-rhob-threshold-2",
+   "field": "z",
+   "value": [
+    -0.27001415454973915,
+    -0.3818628218618975,
+    0.2500821484517965,
+    -0.2476444210873075,
+    0.08790158084916752,
+    2.83937879672826,
+    0.4625946163448961,
+    0.07671671411795045,
+    0.7813633181845467,
+    0.043162113924304184,
+    -0.13020332040954186,
+    -0.5104887892708803,
+    null,
+    -0.05190925329103227,
+    0.4010778493232084,
+    0.8652498186686661,
+    -0.48811905580844855,
+    -0.6111525898518215,
+    0.8428800852062345,
+    0.06553184738673586,
+    0.12704861440842108,
+    0.13264104777403085,
+    0.07112428075234314,
+    -0.018354653097383523,
+    -0.8628120913041796,
+    0.12704861440842108,
+    0.17738051469889418,
+    -4.710406246842422,
+    -0.3818628218618975,
+    0.00960751373065544,
+    1.0442076863681196,
+    0.40667028268881816,
+    -0.48811905580844855,
+    0.037569680558694404,
+    -0.5608206895613509,
+    -0.3035687547433879,
+    0.4402248828824644,
+    0.6247751839475251,
+    -0.48811905580844855,
+    0.5912205837538789
+   ],
+   "tol": 1e-12,
+   "witness": "scipy.stats.zscore"
+  },
+  {
+   "id": "z-rhob-threshold-2:sd",
+   "case": "z-rhob-threshold-2",
+   "field": "sd",
+   "value": 0.1788130380148566,
+   "tol": 1e-12,
+   "witness": "numpy.std"
+  },
+  {
+   "id": "z-unreachable-at-n10:z",
+   "case": "z-unreachable-at-n10",
+   "field": "z",
+   "value": [
+    -0.316227766016838,
+    -0.316227766016838,
+    -0.316227766016838,
+    -0.316227766016838,
+    -0.316227766016838,
+    -0.316227766016838,
+    -0.316227766016838,
+    -0.316227766016838,
+    -0.316227766016838,
+    2.8460498941515415
+   ],
+   "tol": 1e-12,
+   "witness": "scipy.stats.zscore"
+  },
+  {
+   "id": "z-unreachable-at-n10:sd",
+   "case": "z-unreachable-at-n10",
+   "field": "sd",
+   "value": 31.306548835666952,
+   "tol": 1e-12,
+   "witness": "numpy.std"
+  },
+  {
+   "id": "modz-rhob-two-spikes:median",
+   "case": "modz-rhob-two-spikes",
+   "field": "median",
+   "value": 2.454,
+   "tol": 1e-12,
+   "witness": "numpy.median"
+  },
+  {
+   "id": "modz-rhob-two-spikes:mad",
+   "case": "modz-rhob-two-spikes",
+   "field": "mad",
+   "value": 0.06600000000000028,
+   "tol": 1e-12,
+   "witness": "scipy.stats.median_abs_deviation"
+  },
+  {
+   "id": "modz-rhob-two-spikes:mad",
+   "case": "modz-rhob-two-spikes",
+   "field": "mad",
+   "value": 0.06600000000000028,
+   "tol": 1e-12,
+   "witness": "statsmodels.robust.mad"
+  },
+  {
+   "id": "modz-at-n10:median",
+   "case": "modz-at-n10",
+   "field": "median",
+   "value": 1.005,
+   "tol": 1e-12,
+   "witness": "numpy.median"
+  },
+  {
+   "id": "modz-at-n10:mad",
+   "case": "modz-at-n10",
+   "field": "mad",
+   "value": 0.03500000000000003,
+   "tol": 1e-12,
+   "witness": "scipy.stats.median_abs_deviation"
+  },
+  {
+   "id": "modz-at-n10:mad",
+   "case": "modz-at-n10",
+   "field": "mad",
+   "value": 0.03500000000000003,
+   "tol": 1e-12,
+   "witness": "statsmodels.robust.mad"
+  },
+  {
+   "id": "modz-threshold-3:median",
+   "case": "modz-threshold-3",
+   "field": "median",
+   "value": 2.454,
+   "tol": 1e-12,
+   "witness": "numpy.median"
+  },
+  {
+   "id": "modz-threshold-3:mad",
+   "case": "modz-threshold-3",
+   "field": "mad",
+   "value": 0.06600000000000028,
+   "tol": 1e-12,
+   "witness": "scipy.stats.median_abs_deviation"
+  },
+  {
+   "id": "modz-threshold-3:mad",
+   "case": "modz-threshold-3",
+   "field": "mad",
+   "value": 0.06600000000000028,
+   "tol": 1e-12,
+   "witness": "statsmodels.robust.mad"
+  },
+  {
+   "id": "iqr-rhob-R6:q1",
+   "case": "iqr-rhob-R6",
+   "field": "q1",
+   "value": 2.374,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-rhob-R6:q3",
+   "case": "iqr-rhob-R6",
+   "field": "q3",
+   "value": 2.515,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-rhob-R7:q1",
+   "case": "iqr-rhob-R7",
+   "field": "q1",
+   "value": 2.3810000000000002,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-rhob-R7:q3",
+   "case": "iqr-rhob-R7",
+   "field": "q3",
+   "value": 2.5145,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-rhob-R7:iqr",
+   "case": "iqr-rhob-R7",
+   "field": "iqr",
+   "value": 0.13349999999999973,
+   "tol": 1e-12,
+   "witness": "scipy.stats.iqr"
+  },
+  {
+   "id": "iqr-rhob-R8:q1",
+   "case": "iqr-rhob-R8",
+   "field": "q1",
+   "value": 2.376333333333333,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-rhob-R8:q3",
+   "case": "iqr-rhob-R8",
+   "field": "q3",
+   "value": 2.5148333333333333,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-far-out:q1",
+   "case": "iqr-far-out",
+   "field": "q1",
+   "value": 2.3810000000000002,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-far-out:q3",
+   "case": "iqr-far-out",
+   "field": "q3",
+   "value": 2.5145,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-far-out:iqr",
+   "case": "iqr-far-out",
+   "field": "iqr",
+   "value": 0.13349999999999973,
+   "tol": 1e-12,
+   "witness": "scipy.stats.iqr"
+  },
+  {
+   "id": "iqr-small-sample:q1",
+   "case": "iqr-small-sample",
+   "field": "q1",
+   "value": 1.75,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-small-sample:q3",
+   "case": "iqr-small-sample",
+   "field": "q3",
+   "value": 6.5,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-small-sample:iqr",
+   "case": "iqr-small-sample",
+   "field": "iqr",
+   "value": 4.75,
+   "tol": 1e-12,
+   "witness": "scipy.stats.iqr"
+  },
+  {
+   "id": "iqr-exactly-on-both-fences:q1",
+   "case": "iqr-exactly-on-both-fences",
+   "field": "q1",
+   "value": 2.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-exactly-on-both-fences:q3",
+   "case": "iqr-exactly-on-both-fences",
+   "field": "q3",
+   "value": 6.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-exactly-on-both-fences:iqr",
+   "case": "iqr-exactly-on-both-fences",
+   "field": "iqr",
+   "value": 4.0,
+   "tol": 1e-12,
+   "witness": "scipy.stats.iqr"
+  },
+  {
+   "id": "iqr-just-past-the-fence:q1",
+   "case": "iqr-just-past-the-fence",
+   "field": "q1",
+   "value": 2.25,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-just-past-the-fence:q3",
+   "case": "iqr-just-past-the-fence",
+   "field": "q3",
+   "value": 6.0,
+   "tol": 1e-12,
+   "witness": "numpy.quantile"
+  },
+  {
+   "id": "iqr-just-past-the-fence:iqr",
+   "case": "iqr-just-past-the-fence",
+   "field": "iqr",
+   "value": 3.75,
+   "tol": 1e-12,
+   "witness": "scipy.stats.iqr"
+  },
+  {
+   "id": "grubbs-uranium-two-sided-0.05:tCritical",
+   "case": "grubbs-uranium-two-sided-0.05",
+   "field": "tCritical",
+   "value": 4.1151701175957145,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-two-sided-0.05:critical",
+   "case": "grubbs-uranium-two-sided-0.05",
+   "field": "critical",
+   "value": 2.1266450871954685,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-two-sided-0.01:tCritical",
+   "case": "grubbs-uranium-two-sided-0.01",
+   "field": "tCritical",
+   "value": 5.7089638957809274,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-two-sided-0.01:critical",
+   "case": "grubbs-uranium-two-sided-0.01",
+   "field": "critical",
+   "value": 2.274365127079893,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-max-0.05:tCritical",
+   "case": "grubbs-uranium-max-0.05",
+   "field": "tCritical",
+   "value": 3.5212227105092646,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-max-0.05:critical",
+   "case": "grubbs-uranium-max-0.05",
+   "field": "critical",
+   "value": 2.031652001549949,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-max-0.01:tCritical",
+   "case": "grubbs-uranium-max-0.01",
+   "field": "tCritical",
+   "value": 4.980693513519424,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-max-0.01:critical",
+   "case": "grubbs-uranium-max-0.01",
+   "field": "critical",
+   "value": 2.220833451510427,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-min-0.05:tCritical",
+   "case": "grubbs-uranium-min-0.05",
+   "field": "tCritical",
+   "value": 3.5212227105092646,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-min-0.05:critical",
+   "case": "grubbs-uranium-min-0.05",
+   "field": "critical",
+   "value": 2.031652001549949,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-min-0.01:tCritical",
+   "case": "grubbs-uranium-min-0.01",
+   "field": "tCritical",
+   "value": 4.980693513519424,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-uranium-min-0.01:critical",
+   "case": "grubbs-uranium-min-0.01",
+   "field": "critical",
+   "value": 2.220833451510427,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-rhob-two-spikes:tCritical",
+   "case": "grubbs-rhob-two-spikes",
+   "field": "tCritical",
+   "value": 3.4855620151192603,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-rhob-two-spikes:critical",
+   "case": "grubbs-rhob-two-spikes",
+   "field": "critical",
+   "value": 3.0252838875900463,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n3:tCritical",
+   "case": "grubbs-normal-n3",
+   "field": "tCritical",
+   "value": 38.18845929702562,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n3:critical",
+   "case": "grubbs-normal-n3",
+   "field": "critical",
+   "value": 1.1543048513440386,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n4:tCritical",
+   "case": "grubbs-normal-n4",
+   "field": "tCritical",
+   "value": 8.8602000346543,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n4:critical",
+   "case": "grubbs-normal-n4",
+   "field": "critical",
+   "value": 1.4812500000000002,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n7:tCritical",
+   "case": "grubbs-normal-n7",
+   "field": "tCritical",
+   "value": 4.381752962166306,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n7:critical",
+   "case": "grubbs-normal-n7",
+   "field": "critical",
+   "value": 2.0199685076795975,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n20:tCritical",
+   "case": "grubbs-normal-n20",
+   "field": "tCritical",
+   "value": 3.5101041304634215,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n20:critical",
+   "case": "grubbs-normal-n20",
+   "field": "critical",
+   "value": 2.708245645805754,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n51:tCritical",
+   "case": "grubbs-normal-n51",
+   "field": "tCritical",
+   "value": 3.507051358422745,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n51:critical",
+   "case": "grubbs-normal-n51",
+   "field": "critical",
+   "value": 3.136164956057793,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n100:tCritical",
+   "case": "grubbs-normal-n100",
+   "field": "tCritical",
+   "value": 3.600812169635367,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "grubbs-normal-n100:critical",
+   "case": "grubbs-normal-n100",
+   "field": "critical",
+   "value": 3.384082901154891,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.25-1:value",
+   "case": "tquantile-0.25-1",
+   "field": "",
+   "value": 1.0000000000000002,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.25-2:value",
+   "case": "tquantile-0.25-2",
+   "field": "",
+   "value": 0.8164965809277261,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.25-3:value",
+   "case": "tquantile-0.25-3",
+   "field": "",
+   "value": 0.7648923284043444,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.25-5:value",
+   "case": "tquantile-0.25-5",
+   "field": "",
+   "value": 0.7266868438004226,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.25-6:value",
+   "case": "tquantile-0.25-6",
+   "field": "",
+   "value": 0.7175581964914126,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.25-10:value",
+   "case": "tquantile-0.25-10",
+   "field": "",
+   "value": 0.6998120613124317,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.25-29:value",
+   "case": "tquantile-0.25-29",
+   "field": "",
+   "value": 0.6830438608216131,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.25-98:value",
+   "case": "tquantile-0.25-98",
+   "field": "",
+   "value": 0.677001438780685,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.1-1:value",
+   "case": "tquantile-0.1-1",
+   "field": "",
+   "value": 3.0776835371752536,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.1-2:value",
+   "case": "tquantile-0.1-2",
+   "field": "",
+   "value": 1.8856180831641267,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.1-3:value",
+   "case": "tquantile-0.1-3",
+   "field": "",
+   "value": 1.6377443536962089,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.1-5:value",
+   "case": "tquantile-0.1-5",
+   "field": "",
+   "value": 1.4758840488244813,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.1-6:value",
+   "case": "tquantile-0.1-6",
+   "field": "",
+   "value": 1.439755747265148,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.1-10:value",
+   "case": "tquantile-0.1-10",
+   "field": "",
+   "value": 1.3721836411103359,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.1-29:value",
+   "case": "tquantile-0.1-29",
+   "field": "",
+   "value": 1.3114336473015509,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.1-98:value",
+   "case": "tquantile-0.1-98",
+   "field": "",
+   "value": 1.2902499038902862,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.05-1:value",
+   "case": "tquantile-0.05-1",
+   "field": "",
+   "value": 6.313751514675044,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.05-2:value",
+   "case": "tquantile-0.05-2",
+   "field": "",
+   "value": 2.9199855803537256,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.05-3:value",
+   "case": "tquantile-0.05-3",
+   "field": "",
+   "value": 2.353363434801824,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.05-5:value",
+   "case": "tquantile-0.05-5",
+   "field": "",
+   "value": 2.015048373333024,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.05-6:value",
+   "case": "tquantile-0.05-6",
+   "field": "",
+   "value": 1.943180280515305,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.05-10:value",
+   "case": "tquantile-0.05-10",
+   "field": "",
+   "value": 1.812461122811676,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.05-29:value",
+   "case": "tquantile-0.05-29",
+   "field": "",
+   "value": 1.6991270265334977,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.05-98:value",
+   "case": "tquantile-0.05-98",
+   "field": "",
+   "value": 1.6605512170657335,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.025-1:value",
+   "case": "tquantile-0.025-1",
+   "field": "",
+   "value": 12.706204736174705,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.025-2:value",
+   "case": "tquantile-0.025-2",
+   "field": "",
+   "value": 4.302652729749464,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.025-3:value",
+   "case": "tquantile-0.025-3",
+   "field": "",
+   "value": 3.1824463052837086,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.025-5:value",
+   "case": "tquantile-0.025-5",
+   "field": "",
+   "value": 2.5705818356363155,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.025-6:value",
+   "case": "tquantile-0.025-6",
+   "field": "",
+   "value": 2.4469118511449794,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.025-10:value",
+   "case": "tquantile-0.025-10",
+   "field": "",
+   "value": 2.2281388519862753,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.025-29:value",
+   "case": "tquantile-0.025-29",
+   "field": "",
+   "value": 2.045229642132704,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.025-98:value",
+   "case": "tquantile-0.025-98",
+   "field": "",
+   "value": 1.9844674545084817,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.01-1:value",
+   "case": "tquantile-0.01-1",
+   "field": "",
+   "value": 31.82051595377396,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.01-2:value",
+   "case": "tquantile-0.01-2",
+   "field": "",
+   "value": 6.964556734283274,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.01-3:value",
+   "case": "tquantile-0.01-3",
+   "field": "",
+   "value": 4.5407028585681335,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.01-5:value",
+   "case": "tquantile-0.01-5",
+   "field": "",
+   "value": 3.364929998907218,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.01-6:value",
+   "case": "tquantile-0.01-6",
+   "field": "",
+   "value": 3.142668403291007,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.01-10:value",
+   "case": "tquantile-0.01-10",
+   "field": "",
+   "value": 2.763769458112696,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.01-29:value",
+   "case": "tquantile-0.01-29",
+   "field": "",
+   "value": 2.4620213601504126,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.01-98:value",
+   "case": "tquantile-0.01-98",
+   "field": "",
+   "value": 2.3650024104869267,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.003125-1:value",
+   "case": "tquantile-0.003125-1",
+   "field": "",
+   "value": 101.85589106543786,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.003125-2:value",
+   "case": "tquantile-0.003125-2",
+   "field": "",
+   "value": 12.589740561191844,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.003125-3:value",
+   "case": "tquantile-0.003125-3",
+   "field": "",
+   "value": 6.895230518289815,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.003125-5:value",
+   "case": "tquantile-0.003125-5",
+   "field": "",
+   "value": 4.5257162586536355,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.003125-6:value",
+   "case": "tquantile-0.003125-6",
+   "field": "",
+   "value": 4.1151701175957145,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.003125-10:value",
+   "case": "tquantile-0.003125-10",
+   "field": "",
+   "value": 3.447721188954614,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.003125-29:value",
+   "case": "tquantile-0.003125-29",
+   "field": "",
+   "value": 2.948540623359028,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.003125-98:value",
+   "case": "tquantile-0.003125-98",
+   "field": "",
+   "value": 2.7947091449230577,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.001-1:value",
+   "case": "tquantile-0.001-1",
+   "field": "",
+   "value": 318.30883898555044,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.001-2:value",
+   "case": "tquantile-0.001-2",
+   "field": "",
+   "value": 22.327124770119873,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.001-3:value",
+   "case": "tquantile-0.001-3",
+   "field": "",
+   "value": 10.214531852407385,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.001-5:value",
+   "case": "tquantile-0.001-5",
+   "field": "",
+   "value": 5.893429531356009,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.001-6:value",
+   "case": "tquantile-0.001-6",
+   "field": "",
+   "value": 5.207626238725374,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.001-10:value",
+   "case": "tquantile-0.001-10",
+   "field": "",
+   "value": 4.143700494046589,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.001-29:value",
+   "case": "tquantile-0.001-29",
+   "field": "",
+   "value": 3.396240288356803,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.001-98:value",
+   "case": "tquantile-0.001-98",
+   "field": "",
+   "value": 3.1754862836069067,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.0001-1:value",
+   "case": "tquantile-0.0001-1",
+   "field": "",
+   "value": 3183.0987571181513,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.0001-2:value",
+   "case": "tquantile-0.0001-2",
+   "field": "",
+   "value": 70.70007107496428,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.0001-3:value",
+   "case": "tquantile-0.0001-3",
+   "field": "",
+   "value": 22.203742273204178,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.0001-5:value",
+   "case": "tquantile-0.0001-5",
+   "field": "",
+   "value": 9.677566300882592,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.0001-6:value",
+   "case": "tquantile-0.0001-6",
+   "field": "",
+   "value": 8.024792773116376,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.0001-10:value",
+   "case": "tquantile-0.0001-10",
+   "field": "",
+   "value": 5.693820101457513,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.0001-29:value",
+   "case": "tquantile-0.0001-29",
+   "field": "",
+   "value": 4.25389411843228,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-0.0001-98:value",
+   "case": "tquantile-0.0001-98",
+   "field": "",
+   "value": 3.8646098552987342,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-1e-06-1:value",
+   "case": "tquantile-1e-06-1",
+   "field": "",
+   "value": 318309.8861827435,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-1e-06-2:value",
+   "case": "tquantile-1e-06-2",
+   "field": "",
+   "value": 707.1057205259339,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-1e-06-3:value",
+   "case": "tquantile-1e-06-3",
+   "field": "",
+   "value": 103.29946778041935,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-1e-06-5:value",
+   "case": "tquantile-1e-06-5",
+   "field": "",
+   "value": 24.771029720515948,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-1e-06-6:value",
+   "case": "tquantile-1e-06-6",
+   "field": "",
+   "value": 17.83031450065549,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-1e-06-10:value",
+   "case": "tquantile-1e-06-10",
+   "field": "",
+   "value": 9.751995490940581,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-1e-06-29:value",
+   "case": "tquantile-1e-06-29",
+   "field": "",
+   "value": 5.917105540459563,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "tquantile-1e-06-98:value",
+   "case": "tquantile-1e-06-98",
+   "field": "",
+   "value": 5.05518467637724,
+   "tol": 1e-10,
+   "witness": "scipy.stats.t.isf"
+  },
+  {
+   "id": "ibeta-int-0.3-2-3:value",
+   "case": "ibeta-int-0.3-2-3",
+   "field": "",
+   "value": 0.34829999999999994,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-int-0.5-1-1:value",
+   "case": "ibeta-int-0.5-1-1",
+   "field": "",
+   "value": 0.5,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-int-0.9-5-2:value",
+   "case": "ibeta-int-0.9-5-2",
+   "field": "",
+   "value": 0.885735,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-int-0.01-3-7:value",
+   "case": "ibeta-int-0.01-3-7",
+   "field": "",
+   "value": 8.0294765381128e-05,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-int-0.75-10-10:value",
+   "case": "ibeta-int-0.75-10-10",
+   "field": "",
+   "value": 0.9910967206960777,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-int-0.2-1-4:value",
+   "case": "ibeta-int-0.2-1-4",
+   "field": "",
+   "value": 0.5904,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-int-0.6-7-1:value",
+   "case": "ibeta-int-0.6-7-1",
+   "field": "",
+   "value": 0.027993599999999987,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-int-0.999-4-6:value",
+   "case": "ibeta-int-0.999-4-6",
+   "field": "",
+   "value": 0.9999999999999999,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-1-0.5:value",
+   "case": "ibeta-half-1-0.5",
+   "field": "",
+   "value": 0.7048327646991335,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-1-1.5:value",
+   "case": "ibeta-half-1-1.5",
+   "field": "",
+   "value": 0.3743340836219977,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-1-3.0:value",
+   "case": "ibeta-half-1-3.0",
+   "field": "",
+   "value": 0.20483276469913345,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-2-0.5:value",
+   "case": "ibeta-half-2-0.5",
+   "field": "",
+   "value": 0.6666666666666666,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-2-1.5:value",
+   "case": "ibeta-half-2-1.5",
+   "field": "",
+   "value": 0.2723931248910011,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-2-3.0:value",
+   "case": "ibeta-half-2-3.0",
+   "field": "",
+   "value": 0.09546596626670913,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-3-0.5:value",
+   "case": "ibeta-half-3-0.5",
+   "field": "",
+   "value": 0.6514479648481513,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-3-1.5:value",
+   "case": "ibeta-half-3-1.5",
+   "field": "",
+   "value": 0.23058386524482294,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-3-3.0:value",
+   "case": "ibeta-half-3-3.0",
+   "field": "",
+   "value": 0.0576688856224373,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-8-0.5:value",
+   "case": "ibeta-half-8-0.5",
+   "field": "",
+   "value": 0.6305360755569767,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-8-1.5:value",
+   "case": "ibeta-half-8-1.5",
+   "field": "",
+   "value": 0.17200329195191122,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-8-3.0:value",
+   "case": "ibeta-half-8-3.0",
+   "field": "",
+   "value": 0.01707168123378265,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-25-0.5:value",
+   "case": "ibeta-half-25-0.5",
+   "field": "",
+   "value": 0.6214477851902286,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-25-1.5:value",
+   "case": "ibeta-half-25-1.5",
+   "field": "",
+   "value": 0.14613846513801942,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "ibeta-half-25-3.0:value",
+   "case": "ibeta-half-25-3.0",
+   "field": "",
+   "value": 0.006038179565143493,
+   "tol": 1e-10,
+   "witness": "scipy.special.betainc"
+  },
+  {
+   "id": "mahal-phi-rhob-2d:d2",
+   "case": "mahal-phi-rhob-2d",
+   "field": "d2",
+   "value": [
+    0.4798939657091097,
+    2.700767214225021,
+    0.19339603612512155,
+    0.03185021933959526,
+    3.0208472367877754,
+    2.110665368527967,
+    0.021929036146400786,
+    1.1999419506878062,
+    17.9003441219739,
+    0.33007564057820793,
+    5.915864635271088,
+    0.4996414514983843,
+    1.5861696391664304,
+    2.00974510905685,
+    2.617578054558207,
+    0.6570322467232631,
+    0.1178683083821117,
+    1.0131674124598669,
+    1.241233398525843,
+    0.24983020712594953,
+    0.3572326828101862,
+    2.2058321397733667,
+    null,
+    2.8320697301656765,
+    1.4629861683849028,
+    5.103747130836548,
+    0.058207257447086234,
+    0.3787205325542473,
+    3.5419927858774845,
+    1.8284880526127916,
+    2.8738907298377714,
+    1.1387893831206641,
+    2.624876671769497,
+    3.629720738551431,
+    0.10061657579101455,
+    0.9905251044129233,
+    2.150040333372508,
+    0.5577516414646502,
+    0.16382464883686654,
+    0.10284643951112106
+   ],
+   "tol": 1e-09,
+   "witness": "numpy.cov + numpy.linalg.inv"
+  },
+  {
+   "id": "mahal-phi-rhob-2d:cutoff",
+   "case": "mahal-phi-rhob-2d",
+   "field": "cutoff",
+   "value": 7.377758908227871,
+   "tol": 1e-10,
+   "witness": "scipy.stats.chi2.ppf"
+  },
+  {
+   "id": "mahal-phi-rhob-alpha-0.001:d2",
+   "case": "mahal-phi-rhob-alpha-0.001",
+   "field": "d2",
+   "value": [
+    0.4798939657091097,
+    2.700767214225021,
+    0.19339603612512155,
+    0.03185021933959526,
+    3.0208472367877754,
+    2.110665368527967,
+    0.021929036146400786,
+    1.1999419506878062,
+    17.9003441219739,
+    0.33007564057820793,
+    5.915864635271088,
+    0.4996414514983843,
+    1.5861696391664304,
+    2.00974510905685,
+    2.617578054558207,
+    0.6570322467232631,
+    0.1178683083821117,
+    1.0131674124598669,
+    1.241233398525843,
+    0.24983020712594953,
+    0.3572326828101862,
+    2.2058321397733667,
+    null,
+    2.8320697301656765,
+    1.4629861683849028,
+    5.103747130836548,
+    0.058207257447086234,
+    0.3787205325542473,
+    3.5419927858774845,
+    1.8284880526127916,
+    2.8738907298377714,
+    1.1387893831206641,
+    2.624876671769497,
+    3.629720738551431,
+    0.10061657579101455,
+    0.9905251044129233,
+    2.150040333372508,
+    0.5577516414646502,
+    0.16382464883686654,
+    0.10284643951112106
+   ],
+   "tol": 1e-09,
+   "witness": "numpy.cov + numpy.linalg.inv"
+  },
+  {
+   "id": "mahal-phi-rhob-alpha-0.001:cutoff",
+   "case": "mahal-phi-rhob-alpha-0.001",
+   "field": "cutoff",
+   "value": 13.815510557964274,
+   "tol": 1e-10,
+   "witness": "scipy.stats.chi2.ppf"
+  },
+  {
+   "id": "mahal-3d:d2",
+   "case": "mahal-3d",
+   "field": "d2",
+   "value": [
+    0.5083645125487294,
+    2.7055295282983325,
+    0.9411719670043978,
+    0.22391029738937487,
+    3.0429932173039487,
+    2.1107523698048247,
+    0.5173541260316306,
+    1.3459186041943854,
+    19.333659758707032,
+    0.3654227727683786,
+    5.932486248465504,
+    0.6090875685570736,
+    1.6512905022428805,
+    2.1684354180426553,
+    2.8529290468178563,
+    0.7874217952112577,
+    0.3198341595637804,
+    1.386884219530334,
+    1.4143430242614157,
+    0.2747548962042053,
+    0.3725181654732773,
+    2.92283568606743,
+    3.01392326261798,
+    2.0536444367728985,
+    5.139754476142514,
+    0.09153670127273808,
+    0.6303638483086901,
+    3.7518181874291785,
+    2.0619237782557436,
+    3.5460792046588168,
+    30.341605587214996,
+    2.726481580358468,
+    3.6353210821798276,
+    0.10121054664487904,
+    1.0184457944260958,
+    2.281483361787998,
+    0.8653895827765344,
+    0.44325780894199224,
+    0.5098628757214195
+   ],
+   "tol": 1e-09,
+   "witness": "numpy.cov + numpy.linalg.inv"
+  },
+  {
+   "id": "mahal-3d:cutoff",
+   "case": "mahal-3d",
+   "field": "cutoff",
+   "value": 9.348403604496148,
+   "tol": 1e-10,
+   "witness": "scipy.stats.chi2.ppf"
+  },
+  {
+   "id": "mahal-1d-equals-z-squared:d2",
+   "case": "mahal-1d-equals-z-squared",
+   "field": "d2",
+   "value": [
+    0.201938110060826,
+    0.18965795344588884,
+    0.15512863052415243,
+    0.12540275668904974,
+    0.0810729452052586,
+    0.07999884683540488,
+    0.07200205166445979,
+    6.09479870557496
+   ],
+   "tol": 1e-09,
+   "witness": "numpy.cov + numpy.linalg.inv"
+  },
+  {
+   "id": "mahal-1d-equals-z-squared:cutoff",
+   "case": "mahal-1d-equals-z-squared",
+   "field": "cutoff",
+   "value": 5.023886187314888,
+   "tol": 1e-10,
+   "witness": "scipy.stats.chi2.ppf"
+  },
+  {
+   "id": "mahal-4d:d2",
+   "case": "mahal-4d",
+   "field": "d2",
+   "value": [
+    2.883814652707789,
+    1.228495598075766,
+    0.750863898845324,
+    15.461554725605625,
+    2.3658537794079746,
+    3.2053119185649876,
+    6.625852920151878,
+    0.24979655334442852,
+    7.301717196898271,
+    5.624761147296322,
+    3.032125646268909,
+    5.470103157098708,
+    1.0230780652197486,
+    3.8695940564512448,
+    4.336328964694953,
+    0.7985998642736296,
+    8.391628265222556,
+    0.8073917654279572,
+    1.8485253327298015,
+    3.633180224958482,
+    5.450071981870298,
+    3.3958214572786694,
+    3.260257845655051,
+    3.5640714118486243,
+    1.421199570103013
+   ],
+   "tol": 1e-09,
+   "witness": "numpy.cov + numpy.linalg.inv"
+  },
+  {
+   "id": "mahal-4d:cutoff",
+   "case": "mahal-4d",
+   "field": "cutoff",
+   "value": 13.276704135987622,
+   "tol": 1e-10,
+   "witness": "scipy.stats.chi2.ppf"
+  },
+  {
+   "id": "individuals-rate-drop:mrBar",
+   "case": "individuals-rate-drop",
+   "field": "mrBar",
+   "value": 56.71379310344828,
+   "tol": 1e-12,
+   "witness": "numpy.diff"
+  },
+  {
+   "id": "individuals-rate-drop:centre",
+   "case": "individuals-rate-drop",
+   "field": "centre",
+   "value": 1500.3066666666666,
+   "tol": 1e-12,
+   "witness": "numpy.mean"
+  },
+  {
+   "id": "ewma-drift-0.2:ewma",
+   "case": "ewma-drift-0.2",
+   "field": "ewma",
+   "value": [
+    9.832,
+    9.9482,
+    9.79656,
+    9.806048,
+    9.8418384,
+    9.79787072,
+    9.772296576000002,
+    9.811237260800002,
+    9.859789808640002,
+    9.874031846912002,
+    9.947225477529603,
+    9.818980382023682,
+    9.886584305618946,
+    9.912267444495157,
+    9.941613955596125,
+    10.020291164476902,
+    10.118632931581523,
+    10.102506345265219,
+    10.108005076212175,
+    10.13300406096974,
+    10.090203248775792,
+    9.820962599020636,
+    9.92097007921651,
+    9.994376063373208,
+    10.000700850698566,
+    9.943760680558853,
+    10.120408544447082,
+    10.137726835557668,
+    10.215181468446135,
+    10.349545174756908,
+    10.376436139805527,
+    10.323148911844422,
+    10.459719129475538,
+    10.55617530358043,
+    10.377340242864346,
+    10.291872194291477,
+    10.328697755433183,
+    10.475558204346546,
+    10.528446563477237,
+    10.824957250781791
+   ],
+   "tol": 1e-12,
+   "witness": "pandas.Series.ewm(adjust=False)"
+  },
+  {
+   "id": "ewma-drift-0.3:ewma",
+   "case": "ewma-drift-0.3",
+   "field": "ewma",
+   "value": [
+    9.748,
+    9.947499999999998,
+    9.720249999999998,
+    9.757374999999998,
+    9.825662499999998,
+    9.764563749999999,
+    9.736194625,
+    9.8054362375,
+    9.88000536625,
+    9.895303756375,
+    9.9987126294625,
+    9.790898840623749,
+    9.900729188436623,
+    9.935010431905635,
+    9.972207302333944,
+    10.08104511163376,
+    10.21033157814363,
+    10.15863210470054,
+    10.150042473290378,
+    10.174929731303264,
+    10.098150811912284,
+    9.691905568338598,
+    9.880633897837019,
+    10.002843728485912,
+    10.009790609940138,
+    9.921653426958095,
+    10.193257398870667,
+    10.197380179209468,
+    10.295666125446626,
+    10.473066287812639,
+    10.476346401468847,
+    10.366442481028193,
+    10.558309736719735,
+    10.673416815703813,
+    10.36999177099267,
+    10.243994239694867,
+    10.313595967786407,
+    10.538417177450484,
+    10.598892024215338,
+    11.022524416950736
+   ],
+   "tol": 1e-12,
+   "witness": "pandas.Series.ewm(adjust=False)"
+  },
+  {
+   "id": "ewma-drift-1.0:ewma",
+   "case": "ewma-drift-1.0",
+   "field": "ewma",
+   "value": [
+    9.16,
+    10.413,
+    9.19,
+    9.844,
+    9.985,
+    9.622,
+    9.67,
+    9.967,
+    10.054,
+    9.931,
+    10.24,
+    9.306,
+    10.157,
+    10.015,
+    10.059,
+    10.335,
+    10.512,
+    10.038,
+    10.13,
+    10.233,
+    9.919,
+    8.744,
+    10.321,
+    10.288,
+    10.026,
+    9.716,
+    10.827,
+    10.207,
+    10.525,
+    10.887,
+    10.484,
+    10.11,
+    11.006,
+    10.942,
+    9.662,
+    9.95,
+    10.476,
+    11.063,
+    10.74,
+    12.011
+   ],
+   "tol": 1e-12,
+   "witness": "pandas.Series.ewm(adjust=False)"
+  },
+  {
+   "id": "ewma-drift-exact-limits:ewma",
+   "case": "ewma-drift-exact-limits",
+   "field": "ewma",
+   "value": [
+    9.832,
+    9.9482,
+    9.79656,
+    9.806048,
+    9.8418384,
+    9.79787072,
+    9.772296576000002,
+    9.811237260800002,
+    9.859789808640002,
+    9.874031846912002,
+    9.947225477529603,
+    9.818980382023682,
+    9.886584305618946,
+    9.912267444495157,
+    9.941613955596125,
+    10.020291164476902,
+    10.118632931581523,
+    10.102506345265219,
+    10.108005076212175,
+    10.13300406096974,
+    10.090203248775792,
+    9.820962599020636,
+    9.92097007921651,
+    9.994376063373208,
+    10.000700850698566,
+    9.943760680558853,
+    10.120408544447082,
+    10.137726835557668,
+    10.215181468446135,
+    10.349545174756908,
+    10.376436139805527,
+    10.323148911844422,
+    10.459719129475538,
+    10.55617530358043,
+    10.377340242864346,
+    10.291872194291477,
+    10.328697755433183,
+    10.475558204346546,
+    10.528446563477237,
+    10.824957250781791
+   ],
+   "tol": 1e-12,
+   "witness": "pandas.Series.ewm(adjust=False)"
+  },
+  {
+   "id": "ewma-nist-exact-limits:ewma",
+   "case": "ewma-nist-exact-limits",
+   "field": "ewma",
+   "value": [
+    50.6,
+    49.52,
+    50.564,
+    50.184799999999996,
+    50.15935999999999,
+    49.21155199999999,
+    49.74808639999999,
+    49.853660479999995,
+    50.25756233599999,
+    50.33029363519999,
+    50.111205544639986,
+    49.35784388124799,
+    49.52049071687359,
+    50.05434350181151,
+    49.37804045126805,
+    49.92462831588763,
+    50.72723982112134,
+    51.22906787478493,
+    51.94034751234945,
+    51.988243258644616
+   ],
+   "tol": 1e-12,
+   "witness": "pandas.Series.ewm(adjust=False)"
+  }
+ ]
+}
