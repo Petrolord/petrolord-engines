@@ -539,3 +539,52 @@ describe('cross-checking a test against its own well', () => {
     expect(tight.find((r) => r.testId === 'n-ok').status).toBe('off');
   });
 });
+
+describe('nodal cross-check: a test on the unstable, choke-held branch agrees with the model', () => {
+  // Found by the Ekene demo kit (2026-09-23): at the test's wellhead
+  // pressure the model crosses twice, a stable 460 stb/d and an unstable
+  // 29.4 stb/d; the choke-held test sits on the second and was flagged 'off'.
+  const tests = (oil, extra = {}) => [{
+    id: `t-${oil}`, well_id: 'w1', well: { name: 'Ekene-1' }, test_date: '2025-12-01',
+    oil_rate_stbd: oil, water_rate_stbd: 1, gas_rate_mscfd: oil * 0.4, thp_psia: 300, ...extra,
+  }];
+  const wellModels = new Map([['w1', { any: true }]]);
+  const buildModel = () => ({ ipr: {}, vlp: { rates: { wct: 0 } } });
+  const twoCrossings = () => ({
+    intersections: [{ q: 29.4, pwf: 1800, stable: false }, { q: 460, pwf: 1500, stable: true }],
+    op: { q: 460, pwf: 1500, stable: true },
+  });
+  const check = (oil, solveNode = twoCrossings) => crossCheckTestsAgainstNodal({
+    tests: tests(oil), wellModels, buildModel, solveNode,
+  })[0];
+
+  test('a 29.37 stb/d test is reported on the unstable branch, with both rates', () => {
+    const r = check(29.37);
+    expect(r.status).toBe('unstable-branch');
+    expect(r.nodalStbd).toBe(29.4);
+    expect(r.stableStbd).toBe(460);
+    expect(Math.abs(r.deviationPct)).toBeLessThan(1);
+    expect(r.message).toMatch(/held back, usually by its choke/);
+  });
+
+  test('a test near the stable crossing still agrees, and one near neither still disagrees', () => {
+    expect(check(440).status).toBe('ok');
+    const off = check(200);
+    expect(off.status).toBe('off');
+    expect(off.nodalStbd).toBe(460);
+  });
+
+  test('with no stable solution, a test on the unstable crossing is not called dead', () => {
+    const onlyUnstable = () => ({ intersections: [{ q: 30, pwf: 1790, stable: false }], op: null });
+    expect(check(29, onlyUnstable).status).toBe('unstable-branch');
+    expect(check(300, onlyUnstable).status).toBe('dead');
+  });
+
+  test('ranked after real disagreements and before the checks that could not run', () => {
+    const rows = crossCheckTestsAgainstNodal({
+      tests: [...tests(29.37), ...tests(200).map((t) => ({ ...t, id: 't-off' })), ...tests(50, { thp_psia: null }).map((t) => ({ ...t, id: 't-nothp' }))],
+      wellModels, buildModel, solveNode: twoCrossings,
+    });
+    expect(rows.map((r) => r.status)).toEqual(['off', 'unstable-branch', 'no-thp']);
+  });
+});
