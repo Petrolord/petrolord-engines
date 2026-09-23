@@ -619,8 +619,10 @@ export const SWEEP_MODES = ['horizontal2', 'horizontal3', 'vertical2'];
 /**
  * Sweep candidate diameters and report the whole family, so the L/D
  * choice is read off a table rather than pinned by an assumption.
- * Customary slenderness is 3 to 5 for horizontal separators and 2 to 4
- * for vertical ones.
+ * Customary slenderness (Arnold and Stewart) is 3 to 4 for a two-phase
+ * horizontal separator, 3 to 5 for a three-phase one and 2 to 4 for a
+ * vertical one; the band is an input, and the defaults below are the widest
+ * horizontal band.
  *
  * Rows come back sorted by diameter, smallest first. Each row carries:
  *  - `feasible`: the vessel at that diameter works. It is false when
