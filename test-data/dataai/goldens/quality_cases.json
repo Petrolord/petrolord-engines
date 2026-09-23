@@ -3716,6 +3716,47 @@
    "source": "oracle"
   },
   {
+   "id": "phasesum-tolerance-on-the-total",
+   "fn": "phaseSumCheck",
+   "args": {
+    "parts": {
+     "oil": [
+      60.0,
+      60.0
+     ],
+     "water": [
+      50.5,
+      49.5
+     ]
+    },
+    "total": [
+     100.0,
+     100.0
+    ],
+    "relTolerance": 0.1
+   },
+   "expected": {
+    "parts": [
+     "oil",
+     "water"
+    ],
+    "sums": [
+     110.5,
+     109.5
+    ],
+    "failed": 1,
+    "flags": [
+     {
+      "index": 0,
+      "rule": "phase-sum-mismatch"
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "parts sum to 110.5 against 100: 10.5 is beyond 10 percent of the TOTAL (10) though inside 10 percent of the sum (11.05)"
+  },
+  {
    "id": "phasesum-no-parts",
    "fn": "phaseSumCheck",
    "args": {
@@ -10726,6 +10767,77 @@
    "tol": 1e-12,
    "source": "oracle",
    "note": "MAD 0 in the window: any departure from the median is a spike (strict inequality)"
+  },
+  {
+   "id": "hampel-on-the-threshold",
+   "fn": "hampel",
+   "args": {
+    "values": [
+     -1.0,
+     0.0,
+     1.4826,
+     1.0,
+     0.0
+    ],
+    "halfWindow": 2,
+    "nSigma": 1
+   },
+   "expected": {
+    "points": [
+     {
+      "median": 0.0,
+      "mad": 1.0,
+      "threshold": 1.4826,
+      "judged": true,
+      "windowCount": 3
+     },
+     {
+      "median": 0.5,
+      "mad": 0.7413,
+      "threshold": 1.09905138,
+      "judged": true,
+      "windowCount": 4
+     },
+     {
+      "median": 0.0,
+      "mad": 1.0,
+      "threshold": 1.4826,
+      "judged": true,
+      "windowCount": 5
+     },
+     {
+      "median": 0.5,
+      "mad": 0.5,
+      "threshold": 0.7413,
+      "judged": true,
+      "windowCount": 4
+     },
+     {
+      "median": 1.0,
+      "mad": 0.4825999999999999,
+      "threshold": 0.7155027599999999,
+      "judged": true,
+      "windowCount": 3
+     }
+    ],
+    "cleaned": [
+     -1.0,
+     0.0,
+     1.4826,
+     1.0,
+     1.0
+    ],
+    "flags": [
+     {
+      "index": 4,
+      "rule": "hampel",
+      "replacement": 1.0
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "the centre point sits on its threshold: median 0, MAD 1, nSigma 1, so |x - median| = 1 x 1.4826 x 1; strict, NOT a spike"
   },
   {
    "id": "hampel-no-window",

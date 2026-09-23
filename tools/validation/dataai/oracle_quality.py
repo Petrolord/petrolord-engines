@@ -887,6 +887,9 @@ def build():
     alloc = {'A': [40.0, 41.0], 'B': [30.0, 30.0], 'C': [30.0, 29.2]}
     c.add('phasesum-allocation', 'phaseSumCheck', {'parts': alloc, 'total': [100.0, 100.0], 'relTolerance': 0.001},
           o_phasesum(alloc, [100.0, 100.0], 0.001))
+    c.add('phasesum-tolerance-on-the-total', 'phaseSumCheck', {'parts': {'oil': [60.0, 60.0], 'water': [50.5, 49.5]}, 'total': [100.0, 100.0], 'relTolerance': 0.1},
+          o_phasesum({'oil': [60.0, 60.0], 'water': [50.5, 49.5]}, [100.0, 100.0], 0.1),
+          note='parts sum to 110.5 against 100: 10.5 is beyond 10 percent of the TOTAL (10) though inside 10 percent of the sum (11.05)')
     c.refuse('phasesum-no-parts', 'phaseSumCheck', {'parts': {}, 'total': [1.0]}, 'parts')
     c.refuse('phasesum-length', 'phaseSumCheck', {'parts': {'oil': [1.0]}, 'total': [1.0, 2.0]}, 'parts.oil')
 
@@ -970,6 +973,9 @@ def build():
           o_hampel([1.0, None, None, 9.0, None, 1.0], 1), note='no window holds three present samples: nothing is judged')
     c.add('hampel-zero-mad', 'hampel', {'values': [2.0, 2.0, 2.0, 2.1, 2.0, 2.0, 2.0], 'halfWindow': 2},
           o_hampel([2.0, 2.0, 2.0, 2.1, 2.0, 2.0, 2.0], 2), note='MAD 0 in the window: any departure from the median is a spike (strict inequality)')
+    on = [-1.0, 0.0, 1.4826, 1.0, 0.0]
+    c.add('hampel-on-the-threshold', 'hampel', {'values': on, 'halfWindow': 2, 'nSigma': 1}, o_hampel(on, 2, 1),
+          note='the centre point sits on its threshold: median 0, MAD 1, nSigma 1, so |x - median| = 1 x 1.4826 x 1; strict, NOT a spike')
     c.refuse('hampel-no-window', 'hampel', {'values': [1.0, 2.0]}, 'halfWindow')
 
     for side in ('two-sided', 'max', 'min'):
