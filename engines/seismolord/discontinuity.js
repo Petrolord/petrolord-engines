@@ -30,8 +30,12 @@ import { NULL_VALUE } from './manifest';
 const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 
+// Module-level alias: hot loops call M.* (a bare global Math lookup is
+// markedly slower inside sandboxed runners such as jest's vm context; the
+// aligner below ran 18x slower in detectFaults when it moved here without it).
+const M = Math;
 const NULL_LIM = 1.0e29;
-const isNull = (v) => Math.abs(v) > NULL_LIM;
+const isNull = (v) => M.abs(v) > NULL_LIM;
 
 /**
  * Windowed semblance variance for one output trace.
@@ -48,7 +52,7 @@ export function varianceTrace(center, neighborhood, halfWindow, out) {
     out.fill(NULL_VALUE);
     return;
   }
-  const hw = Math.max(0, Math.floor(halfWindow));
+  const hw = M.max(0, M.floor(halfWindow));
   const nTr = neighborhood.length;
 
   // Per-lag prefix sums over the neighborhood: sum, sum of squares and
@@ -75,8 +79,8 @@ export function varianceTrace(center, neighborhood, halfWindow, out) {
     }
     let num = 0;
     let den = 0;
-    const w0 = Math.max(0, t - hw);
-    const w1 = Math.min(ns - 1, t + hw);
+    const w0 = M.max(0, t - hw);
+    const w1 = M.min(ns - 1, t + hw);
     for (let w = w0; w <= w1; w++) {
       const n = rowN[w];
       if (n === 0) continue;
@@ -119,18 +123,18 @@ export function makeAligner(ns, hw, maxLag) {
     }
     const out = new Float32Array(ns);
     for (let t = 0; t < ns; t++) {
-      const w0 = Math.max(0, t - hw);
-      const w1 = Math.min(ns, t + hw + 1);
+      const w0 = M.max(0, t - hw);
+      const w1 = M.min(ns, t + hw + 1);
       const ec = preC[w1] - preC[w0];
       let best = 0;
       let bestCc = -Infinity;
       for (let q = 0; q < nl; q++) {
         const lag = q - maxLag;
-        const a0 = Math.min(ns, Math.max(0, w0 + lag));
-        const a1 = Math.min(ns, Math.max(0, w1 + lag));
+        const a0 = M.min(ns, M.max(0, w0 + lag));
+        const a1 = M.min(ns, M.max(0, w1 + lag));
         const eo = preO[a1] - preO[a0];
-        const cc = (pre[q * (ns + 1) + w1] - pre[q * (ns + 1) + w0]) / Math.sqrt(ec * eo + 1e-30);
-        if (cc > bestCc + 1e-9 || (Math.abs(cc - bestCc) <= 1e-9 && Math.abs(lag) < Math.abs(best))) {
+        const cc = (pre[q * (ns + 1) + w1] - pre[q * (ns + 1) + w0]) / M.sqrt(ec * eo + 1e-30);
+        if (cc > bestCc + 1e-9 || (M.abs(cc - bestCc) <= 1e-9 && M.abs(lag) < M.abs(best))) {
           bestCc = cc;
           best = lag;
         }
@@ -188,13 +192,13 @@ export function makeNeighborhoodCompute(name, params, { dtUs }) {
   const dtMs = dtUs / 1000;
   const windowMs = params?.windowMs ?? def.params.windowMs.default;
   if (!(windowMs > 0)) throw new Error(`Vertical window ${windowMs} ms is not usable.`);
-  const hw = Math.max(1, Math.round(windowMs / 2 / dtMs));
-  const radius = Math.max(1, Math.min(4, Math.floor(params?.radius ?? def.params.radius.default)));
+  const hw = M.max(1, M.round(windowMs / 2 / dtMs));
+  const radius = M.max(1, M.min(4, M.floor(params?.radius ?? def.params.radius.default)));
   // dip steering: each neighbour is aligned to the centre by up to maxLag
   // samples before semblance (faultDetect's aligner), so dipping
   // reflectors stop reading as discontinuity
-  const dipSteerMs = Math.max(0, params?.dipSteerMs ?? def.params.dipSteerMs.default);
-  const maxLag = Math.round(dipSteerMs / dtMs);
+  const dipSteerMs = M.max(0, params?.dipSteerMs ?? def.params.dipSteerMs.default);
+  const maxLag = M.round(dipSteerMs / dtMs);
   let aligner = null;
   let alignerNs = -1;
 
