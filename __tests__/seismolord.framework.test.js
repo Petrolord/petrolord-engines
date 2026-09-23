@@ -14,6 +14,7 @@ import {
   mistieTable, mistieStats, leaveOneWellOut, predictTops, approxLevelGrid, faultBarriersForTop, tuningMask,
 } from '../engines/seismolord/framework';
 import { NULL_VALUE } from '../engines/seismolord/manifest';
+import { detectFaults } from '../engines/seismolord/faultDetect';
 
 const NULL_F32 = Math.fround(NULL_VALUE);
 const isNull = (v) => !Number.isFinite(v) || Math.abs(v) > 1e29;
@@ -187,6 +188,19 @@ describe('faulted field (default: one normal fault, 40 m throw)', () => {
     const good = wrong(fw);
     expect(bad).toBeGreaterThan(30);
     expect(good).toBeLessThan(bad / 5);
+  }, 120000);
+
+  test('end to end: automatically detected faults work as barriers as well as the true fault does', async () => {
+    const det = await detectFaults({ getTrace: f.getTrace, geom: f.geom, dtMs: f.dtMs });
+    expect(det.faults.length).toBeGreaterThanOrEqual(1);
+    const auto = await buildFramework(f, { faults: det.faults });
+    const tuneS = auto.match.tuningMs / f.dtMs;
+    for (const name of ['TOP_A', 'TOP_B', 'SU', 'TOP_E']) {
+      const mask = tuningMask(name, auto.order, auto.tracked, f.geom, tuneS);
+      const s = score(auto.tracked.get(name), f.truth.horizons[name], mask);
+      expect(s.accuracy).toBeGreaterThan(0.97);
+      expect(s.coverage).toBeGreaterThan(0.75);
+    }
   }, 120000);
 
   test('prognosis: the planned well meets each horizon within 8 m of the true top', () => {
