@@ -279,8 +279,9 @@ and `note`); new fields listed above. No flag decision changed: the fix
 touches reporting, not which points are flagged.
 
 The two carried open questions stay OPEN (not changed here): the
-petrophysics `despikeHampel` null to 0 conversion (open question 1) and
-the absolute pivot test in `lib/linalg/solveDense` (open question 2).
+petrophysics `despikeHampel` null to 0 conversion (open question 1,
+since audited as not live, see below) and the absolute pivot test in
+`lib/linalg/solveDense` (open question 2).
 
 ## Negative control (re-run 2026-09-23 after the foundation repair)
 
@@ -362,12 +363,50 @@ below is the re-run.
 
 ## Open questions for the lead
 
-1. **`despikeHampel` turns null into 0.** It starts from
-   `Float64Array.from(x)`, and `Float64Array.from([null])` is `[0]`, so a
-   caller that passes null for a missing sample gets a zero that then
-   enters windows as a real value. `quality.hampel` converts missing to
-   NaN first, so D1 is unaffected; the petrophysics callers were not
-   audited here and the function was not changed.
+1. **`despikeHampel` turns null into 0. AUDITED 2026-09-23: NOT LIVE,
+   engine unchanged.** It starts from `Float64Array.from(x)`, and
+   `Float64Array.from([null])` is `[0]`, so a caller that passes null for
+   a missing sample gets 0 at that position in the OUTPUT. (Correction to
+   the earlier wording here: the null does not enter any window. The
+   window reads the input `x`, where `Number.isFinite(null)` is false,
+   so neighbouring decisions are unaffected; only the returned array
+   carries the 0.) Direct call, windows 2 and 3 sigma:
+   `[50, 52, null, 51, 400, 53, null, 50, 52, 51, 50]` returns
+   `[50, 52, 0, 51, 53, 53, 0, 50, 52, 51, 50]`.
+
+   Every caller was audited (engines, Suite main 113d4caf6, NextGen main
+   and the `feat/d1-dataqc-course` branch):
+   - engines: `engines/dataai/quality.js` `hampel` maps missing to NaN
+     before the call and maps NaN back to null in `cleaned`. No other
+     engine imports `conditioning.js` (the facilities "conditioning"
+     hits are gas conditioning and matrix condition numbers).
+   - Suite: the only production caller is Petrophysics Studio
+     `components/ConditioningDialog.jsx` (Despike op), fed from
+     `wellData.curves`. Every curve there is a typed array: the registry
+     backend `downloadCurve` (`src/lib/wellsRegistry.js`) returns a
+     `Float32Array` of the stored float32 bytes, LAS import
+     (`welldata/lasImport.js` `prepareLogs`) writes nulls as NaN into a
+     `Float32Array`, and the harness in-memory backend maps null to NaN
+     into a `Float64Array`. A typed array cannot hold null. Repro through
+     that path: a LAS 2.0 file with `NULL. -999.25` at two GR samples,
+     `parseLas` then `prepareLogs` then `despikeHampel(gr.data, 2, 3)`
+     returns NaN at both null samples (and 53 for the 400 spike), the
+     same as the engine intends. The harness backend's curves were
+     checked: all `Float64Array`, 0 null entries. The Data Quality Studio
+     reaches it only through `quality.hampel`, covered above.
+   - NextGen: vendors `conditioning.js` but nothing imports it. The live
+     courses mention despiking only as prose (porepressure beginner m06
+     l01, seismolord beginner m02 l04 describes the separate 3-point
+     median in `seismolord/synthetics.js`, seismolord intermediate m05
+     l02, welltest intermediate m01 l01, plus bank questions in the
+     dc11, dc19 and rc7 migrations); none quotes a `despikeHampel`
+     output. The D1 `dataqc` branch quotes Hampel figures through
+     `quality.hampel`, which is unaffected.
+
+   Contract for any future caller: pass NaN for a missing sample (or go
+   through `quality.hampel`). If a caller ever needs to pass plain JS
+   arrays with null, fix the engine then (seed `out` with NaN for
+   non-finite inputs) with a golden and a negcontrol plant.
 2. **`solveDense` singular test is absolute** (pivot below 1e-14). For
    Mahalanobis on variables with very small variance (below about 1e-7
    in the caller's units) a well-conditioned covariance could be refused
