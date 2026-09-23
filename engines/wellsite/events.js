@@ -21,6 +21,8 @@ export const EVENT_TYPES = Object.freeze([
   { code: 'top_called', name: 'Top called', duration: false, family: 'geology', hotkey: 'T' },
   { code: 'user_defined', name: 'Other event', duration: true, family: 'other', hotkey: 'U' },
 ]);
+// Rig events during which the hole is not deepened: the bit depth is held through them for lag.
+export const NON_DEEPENING_EVENTS = Object.freeze(['connection', 'trip_in', 'trip_out', 'circulation', 'sweep', 'casing', 'logging']);
 export const EVENT_CODES = Object.freeze(EVENT_TYPES.map((e) => e.code));
 export const eventType = (code) => EVENT_TYPES.find((e) => e.code === code) || null;
 

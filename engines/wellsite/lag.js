@@ -275,6 +275,52 @@ export function bitDepthAt(history, utcMs) {
   return history[history.length - 1].mdM;
 }
 
+/**
+ * The bit depth history with the bit held still through periods when the
+ * hole is not being deepened (connections, trips, circulating). Between two
+ * recorded depths the depth change is spread over the time that is NOT in a
+ * hold, so bitDepthAt stays linear in drilling time rather than clock time.
+ * A pair of records whose whole interval is a hold keeps the plain straight
+ * line (the depth moved, so something was drilled; the record says so).
+ * holds: [{ startMs, endMs }] (endMs null = still open, taken as +Infinity).
+ */
+export function bitHistoryWithHolds(history, holds) {
+  if (!history || history.length < 2 || !holds || !holds.length) return history || [];
+  const hs = holds
+    .map((h) => ({ a: h.startMs, b: Number.isFinite(h.endMs) ? h.endMs : Infinity }))
+    .filter((h) => Number.isFinite(h.a) && h.b > h.a)
+    .sort((x, y) => x.a - y.a);
+  if (!hs.length) return history;
+  // merged, non-overlapping hold intervals
+  const merged = [];
+  for (const h of hs) {
+    const last = merged[merged.length - 1];
+    if (last && h.a <= last.b) last.b = Math.max(last.b, h.b); else merged.push({ ...h });
+  }
+  const out = [history[0]];
+  for (let i = 1; i < history.length; i += 1) {
+    const p = history[i - 1];
+    const q = history[i];
+    const inside = merged
+      .map((h) => ({ a: Math.max(h.a, p.utcMs), b: Math.min(h.b, q.utcMs) }))
+      .filter((h) => h.b > h.a);
+    const held = inside.reduce((s, h) => s + (h.b - h.a), 0);
+    const drillMs = (q.utcMs - p.utcMs) - held;
+    if (!inside.length || q.mdM === p.mdM || !(drillMs > 0)) { out.push(q); continue; }
+    const rate = (q.mdM - p.mdM) / drillMs;
+    let t = p.utcMs;
+    let md = p.mdM;
+    for (const h of inside) {
+      md += rate * (h.a - t);
+      if (h.a > p.utcMs) out.push({ utcMs: h.a, mdM: md });
+      if (h.b < q.utcMs) out.push({ utcMs: h.b, mdM: md });
+      t = h.b;
+    }
+    out.push(q);
+  }
+  return out;
+}
+
 /** The first instant the bit reached a depth (null if it has not). */
 export function cutTimeOf(history, mdM) {
   if (!history || !history.length) return null;
@@ -386,7 +432,8 @@ export function lagReadout({ nowUtcMs, bitMdM, bitDepthHistory, pumpLog, lagCtx 
     out.bottomsUpUtcMs = bu.reached ? bu.arrivalUtcMs : null;
     const lagged = laggedDepthNow({ nowUtcMs, bitDepthHistory, pumpLog, lagCtx });
     out.laggedMdM = lagged.laggedMdM;
-    out.note = lagged.note || (out.spmNow === 0 ? 'Pumps are off, lag time is undefined until circulation restarts.' : '');
+    // pumps off is the state that matters now, so it leads; the lagged-depth note follows it
+    out.note = [out.spmNow === 0 ? 'Pumps are off, lag time is undefined until circulation restarts.' : '', lagged.note].filter(Boolean).join(' ');
   } catch (e) { out.note = e.message; }
   return out;
 }
