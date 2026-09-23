@@ -52,6 +52,18 @@
 //    hypot(p, q) < AZIMUTH_MIN_DIP = 1e-6 samples per trace (the direction
 //    of a zero vector is undefined).
 //
+// 4b. azimuth_north. The same down-dip direction on the MAP: the time
+//    gradient (p, q) per index step becomes a gradient per metre through
+//    the survey affine (world = origin + il * ilVec + xl * xlVec), whose
+//    Jacobian J has columns ilVec and xlVec: G = J^-T (p, q). Unequal
+//    inline and crossline spacing and a skewed grid are therefore
+//    honoured, which the lattice angle is not. Value: atan2(Gx, Gy) in
+//    degrees, [0, 360), clockwise from grid north (+Y of the projected
+//    coordinates; true north differs by the CRS's meridian convergence).
+//    Null exactly where azimuth is null. Needs the survey's MEASURED
+//    affine: the legacy two-corner fallback cannot represent rotation, so
+//    it is refused with the reason.
+//
 // 5. chaos. 1 - (lambda1 - lambda2)/lambda1 = lambda2/lambda1, clamped to
 //    [0, 1]; planar 0, isotropic 1; a zero tensor is 0.
 //
@@ -91,8 +103,50 @@ export const DIP_CAP = 20;
 export const AZIMUTH_MIN_DIP = 1e-6;
 
 /** The structure attribute keys (all regional DISCONTINUITY_DEFS entries). */
-export const STRUCTURE_KEYS = ['edge', 'dip', 'azimuth', 'chaos', 'curvature_pos', 'curvature_neg'];
-const TENSOR_KEYS = new Set(['dip', 'azimuth', 'chaos', 'curvature_pos', 'curvature_neg']);
+export const STRUCTURE_KEYS = ['edge', 'dip', 'azimuth', 'azimuth_north', 'chaos', 'curvature_pos', 'curvature_neg'];
+const TENSOR_KEYS = new Set(['dip', 'azimuth', 'azimuth_north', 'chaos', 'curvature_pos', 'curvature_neg']);
+
+/**
+ * The map-gradient transform of a survey affine: G = J^-T g, with
+ * J = [[ilVec.x, xlVec.x], [ilVec.y, xlVec.y]] (recipe 4b).
+ * @param {{ilVec: {x, y}, xlVec: {x, y}, legacyAxisAligned?: boolean}} affine
+ *   engine form (surveyGeometry.surveyAffine)
+ * @returns {{gx: [number, number], gy: [number, number]}} Gx = gx . (p, q),
+ *   Gy = gy . (p, q)
+ */
+export function mapGradientTransform(affine) {
+  if (!affine?.ilVec || !affine?.xlVec) {
+    throw new Error('Dip azimuth from grid north needs the survey orientation (its inline and crossline vectors).');
+  }
+  if (affine.legacyAxisAligned) {
+    throw new Error('This survey was imported before its orientation was measured, so a map azimuth could be wrong. Re-import the SEG-Y to measure it, or use Dip azimuth (lattice).');
+  }
+  const a = affine.ilVec.x;
+  const b = affine.ilVec.y;
+  const c = affine.xlVec.x;
+  const d = affine.xlVec.y;
+  const det = a * d - b * c;
+  if (![a, b, c, d].every(Number.isFinite) || !(M.abs(det) > 0)) {
+    throw new Error('The survey orientation is degenerate (its inline and crossline vectors are parallel or zero).');
+  }
+  return { gx: [d / det, -b / det], gy: [-c / det, a / det] };
+}
+
+/**
+ * Down-dip azimuth clockwise from grid north, degrees in [0, 360), of a
+ * time gradient (p, q) per index step; null (NULL_VALUE) below
+ * AZIMUTH_MIN_DIP samples per trace.
+ * @param {{gx: number[], gy: number[]}} T mapGradientTransform result
+ */
+export function northAzimuth(p, q, T) {
+  if (!(M.hypot(p, q) >= AZIMUTH_MIN_DIP)) return NULL_VALUE;
+  const gxv = T.gx[0] * p + T.gx[1] * q;
+  const gyv = T.gy[0] * p + T.gy[1] * q;
+  let az = (M.atan2(gxv, gyv) * 180) / M.PI;
+  if (az < 0) az += 360;
+  if (az >= 360) az -= 360;
+  return az;
+}
 const CURVATURE_KEYS = new Set(['curvature_pos', 'curvature_neg']);
 
 export const isStructureKey = (name) => typeof name === 'string' && STRUCTURE_KEYS.includes(name);
@@ -290,7 +344,7 @@ function diff3(has1, v1, has0, v0, hasM, vM) {
 }
 
 /** Structure-tensor attributes for the block cells. */
-function tensorBlock(R, ns, b, name, hw, r, dtMs, out) {
+function tensorBlock(R, ns, b, name, hw, r, dtMs, out, mapT = null) {
   const { tr, nRi, nRj } = R;
   const curv = CURVATURE_KEYS.has(name);
   const e = curv ? 1 : 0;
@@ -410,6 +464,7 @@ function tensorBlock(R, ns, b, name, hw, r, dtMs, out) {
         if (!inBlock) continue;
         if (name === 'dip') out[oIdx] = M.hypot(d.p, d.q) * dtMs;
         else if (name === 'chaos') out[oIdx] = d.chaos;
+        else if (name === 'azimuth_north') out[oIdx] = d.zero ? NULL_VALUE : northAzimuth(d.p, d.q, mapT);
         else {
           const mag = M.hypot(d.p, d.q);
           if (d.zero || mag < AZIMUTH_MIN_DIP) out[oIdx] = NULL_VALUE;
@@ -470,9 +525,10 @@ function tensorBlock(R, ns, b, name, hw, r, dtMs, out) {
  * @returns {Float32Array}
  */
 export function structureBlock({
-  name, getTrace, nIl, nXl, ns, dtMs, il0, il1, xl0, xl1, params = {}, halo,
+  name, getTrace, nIl, nXl, ns, dtMs, il0, il1, xl0, xl1, params = {}, halo, affine = null,
 }) {
   const { hw, radius } = structureParams(name, params, dtMs);
+  const mapT = name === 'azimuth_north' ? mapGradientTransform(affine) : null;
   const h = halo ?? structureHalo(name, params);
   if (!(h >= 0)) throw new Error(`Halo ${h} is not usable.`);
   const ri0 = M.max(0, il0 - h);
@@ -483,33 +539,40 @@ export function structureBlock({
   const b = { i0: il0 - ri0, i1: il1 - ri0, j0: xl0 - rj0, j1: xl1 - rj0 };
   const out = new Float32Array((il1 - il0 + 1) * (xl1 - xl0 + 1) * ns);
   if (name === 'edge') edgeBlock(R, ns, b, hw, out);
-  else if (TENSOR_KEYS.has(name)) tensorBlock(R, ns, b, name, hw, radius, dtMs, out);
+  else if (TENSOR_KEYS.has(name)) tensorBlock(R, ns, b, name, hw, radius, dtMs, out, mapT);
   return out;
 }
 
 /** The whole survey in one block: (il, then xl)*ns. */
-export function structureVolume({ name, getTrace, nIl, nXl, ns, dtMs, params = {} }) {
+export function structureVolume({
+  name, getTrace, nIl, nXl, ns, dtMs, params = {}, affine = null,
+}) {
   return structureBlock({
-    name, getTrace, nIl, nXl, ns, dtMs, il0: 0, il1: nIl - 1, xl0: 0, xl1: nXl - 1, params, halo: 0,
+    name, getTrace, nIl, nXl, ns, dtMs, il0: 0, il1: nIl - 1, xl0: 0, xl1: nXl - 1, params, halo: 0, affine,
   });
 }
 
 /**
  * The runNeighborhoodJob pieces for a structure attribute.
  * @param {string} name @param {Object} params
- * @param {{dtUs: number, nIl: number, nXl: number, ns: number}} volume
+ * @param {{dtUs: number, nIl: number, nXl: number, ns: number, affine?: Object}} volume
+ *   affine (engine form, surveyGeometry.surveyAffine) is required by
+ *   azimuth_north
  * @returns {{radius: number, computeColumn: Function}}
  */
-export function makeStructureJob(name, params, { dtUs, nIl, nXl, ns }) {
+export function makeStructureJob(name, params, {
+  dtUs, nIl, nXl, ns, affine = null,
+}) {
   if (!(dtUs > 0)) throw new Error(`Structure attributes need a positive dt, got ${dtUs}.`);
   if (!(nIl > 0 && nXl > 0 && ns > 0)) throw new Error('Structure attributes need the survey size (nIl, nXl, ns).');
   const dtMs = dtUs / 1000;
   structureParams(name, params, dtMs);           // validate early
+  if (name === 'azimuth_north') mapGradientTransform(affine);
   const halo = structureHalo(name, params);
   return {
     radius: halo,
     computeColumn: ({ getTrace, il0, il1, xl0, xl1 }) => structureBlock({
-      name, getTrace, nIl, nXl, ns, dtMs, il0, il1, xl0, xl1, params, halo,
+      name, getTrace, nIl, nXl, ns, dtMs, il0, il1, xl0, xl1, params, halo, affine,
     }),
   };
 }

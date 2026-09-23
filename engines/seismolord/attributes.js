@@ -20,8 +20,9 @@
 //   np.gradient(np.unwrap(np.angle(a))) / (2*pi*dt_s) — central
 //   differences inside, one-sided at the edges, unwrap period 2*pi.
 // - Float64 math throughout; the brick store casts to float32 on write.
-// - Spectral decomposition calls horizonAmplitude.isofrequencyAt at every
-//   sample (the validated isofrequency kernel, unchanged); relative
+// - Spectral decomposition follows horizonAmplitude.isofrequencyAt at every
+//   sample (edge windows call it; interior windows use an equivalent
+//   prefix-sum form, see spectralTrace); relative
 //   acoustic impedance is the running sum high-passed by a centred boxcar
 //   of the running sum. Both are pinned by test-data/seismolord/structure/
 //   gen_structure.py.
@@ -224,10 +225,23 @@ export function traceAgcTrace(trace, halfWindow, out) {
 
 /**
  * Spectral decomposition: at every sample z, the windowed amplitude
- * spectrum magnitude at freqHz, computed by horizonAmplitude.isofrequencyAt
- * (the validated horizon isofrequency kernel: samples z +- hw clamped to
- * the trace, nulls zero-filled, Hann taper, zero-pad to nextpow2(4n), |X|
- * at bin round(freqHz * nfft * dt_s)). Null where the input sample is null.
+ * spectrum magnitude at freqHz with the horizon isofrequency recipe
+ * (horizonAmplitude.isofrequencyAt: samples z +- hw clamped to the trace,
+ * nulls zero-filled, Hann taper over the n actual samples, zero-pad to
+ * nfft = nextpow2(4n), |X| at bin k = round(freqHz * nfft * dt_s)).
+ * Null where the input sample is null.
+ *
+ * Fast path (same value in exact arithmetic): every interior window has the
+ * same n = 2hw + 1, nfft and k, and the Hann taper is three complex
+ * exponentials, 0.5 - 0.25 e^{i a m} - 0.25 e^{-i a m} with a = 2 pi/(n-1),
+ * so X = sum_m w[m] x[s0+m] e^{-i w m} (w = 2 pi k/nfft) is
+ *   0.5 A(w) - 0.25 A(w - a) - 0.25 A(w + a),
+ *   A(b) = e^{i b s0} (P_b[s0 + n] - P_b[s0]),  P_b[s] = sum_{u<s} x[u] e^{-i b u},
+ * three prefix sums per trace: O(1) per sample in place of an nfft-point
+ * FFT (nfft = 512 for a 400 ms window at 4 ms). The shrinking edge windows
+ * (at most 2hw samples per trace) still call isofrequencyAt. Gated equal
+ * to isofrequencyAt within 1e-9 of the trace's peak spectral amplitude.
+ *
  * @param {number} freqHz @param {number} hw half-window, samples (>= 2)
  * @param {number} dtUs sample interval in microseconds
  */
@@ -238,10 +252,52 @@ export function spectralTrace(trace, freqHz, hw, dtUs, out) {
   // isofrequencyAt recognises nulls as the float32 null; normalise any
   // |v| > 1e29 to it so float64 inputs behave the same
   const at = (s) => (isNull(trace[s]) ? NULL_F32 : trace[s]);
+  const n = 2 * hw + 1;
+  const interior = n >= 4 && ns >= n;
+  let P = null;
+  let w = 0;
+  let a = 0;
+  if (interior) {
+    const nfft = nextPow2(4 * n);
+    const k = M.min(nfft / 2, M.max(0, M.round(freqHz * nfft * dtS)));
+    w = (2 * M.PI * k) / nfft;
+    a = (2 * M.PI) / (n - 1);
+    // P[f] for f = 0: w, 1: w - a, 2: w + a; interleaved re, im
+    P = new Float64Array(6 * (ns + 1));
+    const bs = [w, w - a, w + a];
+    for (let u = 0; u < ns; u++) {
+      const x = isNull(trace[u]) ? 0 : trace[u];
+      const o = 6 * u;
+      for (let f = 0; f < 3; f++) {
+        const ph = bs[f] * u;
+        P[o + 6 + 2 * f] = P[o + 2 * f] + x * M.cos(ph);
+        P[o + 7 + 2 * f] = P[o + 2 * f + 1] - x * M.sin(ph);
+      }
+    }
+  }
+  const bs = [w, w - a, w + a];
+  const cf = [0.5, -0.25, -0.25];
   for (let z = 0; z < ns; z++) {
     if (isNull(trace[z])) { out[z] = NULL_VALUE; continue; }
-    const v = isofrequencyAt(at, ns, z, { freqHz, hw, dtS });
-    out[z] = v === NULL_F32 ? NULL_VALUE : v;
+    if (!interior || z - hw < 0 || z + hw > ns - 1) {
+      const v = isofrequencyAt(at, ns, z, { freqHz, hw, dtS });
+      out[z] = v === NULL_F32 ? NULL_VALUE : v;
+      continue;
+    }
+    // the centre sample is live, so the window is never all-null
+    const s0 = z - hw;
+    let re = 0;
+    let im = 0;
+    for (let f = 0; f < 3; f++) {
+      const dr = P[6 * (s0 + n) + 2 * f] - P[6 * s0 + 2 * f];
+      const di = P[6 * (s0 + n) + 2 * f + 1] - P[6 * s0 + 2 * f + 1];
+      const ph = bs[f] * s0;
+      const c = M.cos(ph);
+      const sn = M.sin(ph);
+      re += cf[f] * (dr * c - di * sn);
+      im += cf[f] * (dr * sn + di * c);
+    }
+    out[z] = M.hypot(re, im);
   }
 }
 

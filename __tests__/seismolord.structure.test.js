@@ -69,8 +69,17 @@ const G = (() => {
 })();
 const DT_MS = GOLDEN.dt_us / 1000;
 
+/** A rotated survey with unequal bins (25 m inline step, 12.5 m
+ *  crossline step, 30 degrees): azimuth_north needs one, the others
+ *  ignore it. */
+const TEST_AFFINE = {
+  origin: { x: 500000, y: 6000000 },
+  ilVec: { x: 25 * Math.cos(Math.PI / 6), y: 25 * Math.sin(Math.PI / 6) },
+  xlVec: { x: -12.5 * Math.sin(Math.PI / 6), y: 12.5 * Math.cos(Math.PI / 6) },
+};
+
 const volumeOf = (src, name, params, dtMs = 4) => structureVolume({
-  name, getTrace: src.getTrace, nIl: src.nIl, nXl: src.nXl, ns: src.ns, dtMs, params,
+  name, getTrace: src.getTrace, nIl: src.nIl, nXl: src.nXl, ns: src.ns, dtMs, params, affine: TEST_AFFINE,
 });
 
 /** Max error against a golden volume; throws on a null-mask mismatch. */
@@ -129,7 +138,7 @@ function brickStore(src, B) {
 async function runJob(src, name, params, B, dtMs = 4) {
   const { grid, bricks } = brickStore(src, B);
   const job = makeDiscontinuityJob(name, params, {
-    dtUs: dtMs * 1000, nIl: src.nIl, nXl: src.nXl, ns: src.ns,
+    dtUs: dtMs * 1000, nIl: src.nIl, nXl: src.nXl, ns: src.ns, affine: TEST_AFFINE,
   });
   const outBricks = new Map();
   await runNeighborhoodJob({
@@ -419,7 +428,7 @@ describe('a brick column at a time equals the whole volume', () => {
   const blk = { il0: 8, il1: 15, xl0: 8, xl1: 15 };
   const blockDiff = (name, params, halo) => {
     const out = structureBlock({
-      name, getTrace: SRC.getTrace, nIl: SRC.nIl, nXl: SRC.nXl, ns: SRC.ns, dtMs: 4, ...blk, params, halo,
+      name, getTrace: SRC.getTrace, nIl: SRC.nIl, nXl: SRC.nXl, ns: SRC.ns, dtMs: 4, ...blk, params, halo, affine: TEST_AFFINE,
     });
     const w = wholeOf(name, params);
     const nJ = blk.xl1 - blk.xl0 + 1;

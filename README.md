@@ -83,6 +83,13 @@ and its consumers.
   relative acoustic impedance. Golden: the self-asserting numpy oracle
   `test-data/seismolord/structure/gen_structure.py`; the column and whole
   volume runs are proven equal in `seismolord.structure.test.js`.
+  Follow-up (2026-09-23): `azimuth_north` (Dip azimuth, grid north) maps
+  the time gradient through the survey affine (G = J^-T g), so rotation,
+  unequal bins and skew are honoured; it needs `volume.affine` and refuses
+  the legacy two-corner fallback. `spectralTrace` computes interior
+  windows from three prefix sums (Hann = three exponentials), O(1) per
+  sample, equal to `isofrequencyAt` within 1e-9 of peak and about 20x
+  faster at a 400 ms window (`seismolord.geoazimuth.spectral.test.js`).
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
