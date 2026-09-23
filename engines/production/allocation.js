@@ -583,6 +583,10 @@ export const DEFAULT_NODAL_CHECK_SETTINGS = {
  * `status` is one of:
  *   'ok'        the test agrees with the well's model
  *   'off'       it does not, by more than the tolerance
+ *   'unstable-branch'  it matches the model's unstable low-rate crossing
+ *               (a well held back, usually by its choke; may head or
+ *               slug) rather than the stable solution; nodalStbd is that
+ *               crossing and stableStbd the stable one
  *   'dead'      the model says the well should not flow at that pressure
  *   'no-model'  the well has no model to check against
  *   'no-thp'    the test recorded no tubing head pressure
@@ -651,7 +655,38 @@ export function crossCheckTestsAgainstNodal({
       return;
     }
 
+    // A test can sit on the model's other, unstable crossing: a well held
+    // back (usually by its choke) on the low-rate side of the tubing curve.
+    // That test agrees with the model, so it is reported as such (with the
+    // heading warning that goes with that branch), not as a disagreement
+    // with the stable solution it was never at.
+    const unstableMatch = () => {
+      if (!(oil > s.minRateStbd)) return null;
+      const cand = (solved?.intersections || [])
+        .filter((x) => x && !x.stable && Number.isFinite(x.q) && x.q > s.minRateStbd)
+        .map((x) => ({ x, dev: ((oil - x.q) / x.q) * 100 }))
+        .filter((c) => Math.abs(c.dev) < s.tolerancePct)
+        .sort((a, b) => Math.abs(a.dev) - Math.abs(b.dev));
+      return cand.length ? cand[0] : null;
+    };
+    const pushUnstable = (m) => {
+      const stableQ = solved?.op?.q;
+      results.push({
+        ...base,
+        nodalStbd: m.x.q,
+        stableStbd: Number.isFinite(stableQ) ? stableQ : null,
+        deviationPct: m.dev,
+        status: 'unstable-branch',
+        message: `Test ${oil.toFixed(1)} stb/d matches the model on its unstable low-rate branch at ${thp.toFixed(1)} psia `
+          + `(${m.x.q.toFixed(1)} stb/d there, ${Math.abs(m.dev).toFixed(1)}% ${m.dev >= 0 ? 'above' : 'below'})`
+          + `${Number.isFinite(stableQ) ? `; the stable solution is ${stableQ.toFixed(1)} stb/d` : ''}. `
+          + 'The well is being held back, usually by its choke, and may head or slug. The test is consistent with the model.',
+      });
+    };
+
     if (!solved?.op) {
+      const m = unstableMatch();
+      if (m) { pushUnstable(m); return; }
       results.push({
         ...base,
         nodalStbd: null,
@@ -672,6 +707,10 @@ export function crossCheckTestsAgainstNodal({
     }
     const deviationPct = ((oil - nodal) / nodal) * 100;
     const off = Math.abs(deviationPct) >= s.tolerancePct;
+    if (off) {
+      const m = unstableMatch();
+      if (m) { pushUnstable(m); return; }
+    }
     results.push({
       ...base,
       nodalStbd: nodal,
@@ -683,7 +722,9 @@ export function crossCheckTestsAgainstNodal({
     });
   });
 
-  const RANK = { dead: 0, off: 1, 'no-thp': 2, 'no-model': 3, ok: 4 };
+  const RANK = {
+    dead: 0, off: 1, 'unstable-branch': 2, 'no-thp': 3, 'no-model': 4, ok: 5,
+  };
   return results.sort((a, b) => RANK[a.status] - RANK[b.status]
     || Math.abs(b.deviationPct || 0) - Math.abs(a.deviationPct || 0));
 }
