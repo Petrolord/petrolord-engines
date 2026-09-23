@@ -30,8 +30,12 @@ import { NULL_VALUE } from './manifest';
 const ownPreset = (table, key) => (typeof key === 'string' || typeof key === 'number') && Object.prototype.hasOwnProperty.call(table, key);
 
 
+// Module-level alias: hot loops call M.* (a bare global Math lookup is
+// markedly slower inside sandboxed runners such as jest's vm context; the
+// aligner below ran 18x slower in detectFaults when it moved here without it).
+const M = Math;
 const NULL_LIM = 1.0e29;
-const isNull = (v) => Math.abs(v) > NULL_LIM;
+const isNull = (v) => M.abs(v) > NULL_LIM;
 
 /**
  * Windowed semblance variance for one output trace.
@@ -48,7 +52,7 @@ export function varianceTrace(center, neighborhood, halfWindow, out) {
     out.fill(NULL_VALUE);
     return;
   }
-  const hw = Math.max(0, Math.floor(halfWindow));
+  const hw = M.max(0, M.floor(halfWindow));
   const nTr = neighborhood.length;
 
   // Per-lag prefix sums over the neighborhood: sum, sum of squares and
@@ -75,8 +79,8 @@ export function varianceTrace(center, neighborhood, halfWindow, out) {
     }
     let num = 0;
     let den = 0;
-    const w0 = Math.max(0, t - hw);
-    const w1 = Math.min(ns - 1, t + hw);
+    const w0 = M.max(0, t - hw);
+    const w1 = M.min(ns - 1, t + hw);
     for (let w = w0; w <= w1; w++) {
       const n = rowN[w];
       if (n === 0) continue;
@@ -92,6 +96,55 @@ export function varianceTrace(center, neighborhood, halfWindow, out) {
   }
 }
 
+/**
+ * Dip steering for semblance: returns a copy of `other` in which every
+ * sample t is taken from t + lag(t), lag(t) in [-maxLag, maxLag] being the
+ * shift that maximises the normalised cross-correlation with `center`
+ * over the window [t - hw, t + hw] (ties keep the smaller |lag|). Local
+ * dip and small time steps (velocity shadows under a fault, tuning) are
+ * aligned away; a fault throw larger than maxLag still leaves a misfit.
+ * Nulls are treated as zero amplitude while correlating.
+ */
+export function makeAligner(ns, hw, maxLag) {
+  const nl = 2 * maxLag + 1;
+  const pre = new Float64Array(nl * (ns + 1));
+  const preC = new Float64Array(ns + 1);
+  const preO = new Float64Array(ns + 1);
+  const val = (tr, t) => (t < 0 || t >= ns || isNull(tr[t]) ? 0 : tr[t]);
+  return (center, other) => {
+    for (let t = 0; t < ns; t++) {
+      const c = val(center, t);
+      const o = val(other, t);
+      preC[t + 1] = preC[t] + c * c;
+      preO[t + 1] = preO[t] + o * o;
+      for (let q = 0; q < nl; q++) {
+        pre[q * (ns + 1) + t + 1] = pre[q * (ns + 1) + t] + c * val(other, t + q - maxLag);
+      }
+    }
+    const out = new Float32Array(ns);
+    for (let t = 0; t < ns; t++) {
+      const w0 = M.max(0, t - hw);
+      const w1 = M.min(ns, t + hw + 1);
+      const ec = preC[w1] - preC[w0];
+      let best = 0;
+      let bestCc = -Infinity;
+      for (let q = 0; q < nl; q++) {
+        const lag = q - maxLag;
+        const a0 = M.min(ns, M.max(0, w0 + lag));
+        const a1 = M.min(ns, M.max(0, w1 + lag));
+        const eo = preO[a1] - preO[a0];
+        const cc = (pre[q * (ns + 1) + w1] - pre[q * (ns + 1) + w0]) / M.sqrt(ec * eo + 1e-30);
+        if (cc > bestCc + 1e-9 || (M.abs(cc - bestCc) <= 1e-9 && M.abs(lag) < M.abs(best))) {
+          bestCc = cc;
+          best = lag;
+        }
+      }
+      out[t] = isNull(center[t]) ? center[t] : val(other, t + best);
+    }
+    return out;
+  };
+}
+
 /** Discontinuity registry (neighborhood attributes — these run through
  *  runNeighborhoodJob, not the per-trace pipeline). */
 export const DISCONTINUITY_DEFS = {
@@ -103,6 +156,19 @@ export const DISCONTINUITY_DEFS = {
     params: {
       windowMs: { label: 'Vertical window (ms)', default: 40, min: 4, max: 400 },
       radius: { label: 'Trace radius', default: 1, min: 1, max: 2 },
+      dipSteerMs: { label: 'Dip steering (ms, 0 = off)', default: 0, min: 0, max: 40 },
+    },
+  },
+  /** Regional attribute: computed a brick column at a time by
+   *  discontinuityJobs.makeDiscontinuityJob (faultDetect's stage 1). */
+  fault_likelihood: {
+    key: 'fault_likelihood',
+    label: 'Fault likelihood',
+    unit: 'frac',
+    neighborhood: true,
+    regional: true,
+    params: {
+      windowMs: { label: 'Semblance window (ms)', default: 24, min: 8, max: 120 },
     },
   },
 };
@@ -121,12 +187,20 @@ export const DISCONTINUITY_DEFS = {
 export function makeNeighborhoodCompute(name, params, { dtUs }) {
   const def = ownPreset(DISCONTINUITY_DEFS, name) ? DISCONTINUITY_DEFS[name] : undefined;
   if (!def) throw new Error(`Unknown discontinuity attribute "${name}".`);
+  if (def.regional) throw new Error(`"${name}" is a regional attribute: build it with makeDiscontinuityJob.`);
   if (!(dtUs > 0)) throw new Error(`Discontinuity compute needs a positive dt, got ${dtUs}.`);
   const dtMs = dtUs / 1000;
   const windowMs = params?.windowMs ?? def.params.windowMs.default;
   if (!(windowMs > 0)) throw new Error(`Vertical window ${windowMs} ms is not usable.`);
-  const hw = Math.max(1, Math.round(windowMs / 2 / dtMs));
-  const radius = Math.max(1, Math.min(4, Math.floor(params?.radius ?? def.params.radius.default)));
+  const hw = M.max(1, M.round(windowMs / 2 / dtMs));
+  const radius = M.max(1, M.min(4, M.floor(params?.radius ?? def.params.radius.default)));
+  // dip steering: each neighbour is aligned to the centre by up to maxLag
+  // samples before semblance (faultDetect's aligner), so dipping
+  // reflectors stop reading as discontinuity
+  const dipSteerMs = M.max(0, params?.dipSteerMs ?? def.params.dipSteerMs.default);
+  const maxLag = M.round(dipSteerMs / dtMs);
+  let aligner = null;
+  let alignerNs = -1;
 
   const isLive = (tr) => {
     for (let s = 0; s < tr.length; s++) {
@@ -147,7 +221,14 @@ export function makeNeighborhoodCompute(name, params, { dtUs }) {
       for (let di = -radius; di <= radius; di++) {
         for (let dj = -radius; dj <= radius; dj++) {
           const tr = getTrace(il + di, xl + dj);
-          if (tr && isLive(tr)) hood.push(tr);
+          if (!tr || !isLive(tr)) continue;
+          if (maxLag > 0 && (di !== 0 || dj !== 0)) {
+            if (alignerNs !== center.length) {
+              aligner = makeAligner(center.length, hw, maxLag);
+              alignerNs = center.length;
+            }
+            hood.push(aligner(center, tr));
+          } else hood.push(tr);
         }
       }
       varianceTrace(center, hood, hw, out);
