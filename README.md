@@ -597,6 +597,28 @@ and its consumers.
   stay with `engines/hse/consequence.js`. The IRPA occupancy-sum refusal
   names the field the caller typed (occupancyFraction, hoursPerYr, or both;
   2026-09-21).
+- `engines/dataai/quality.js` (Data & AI D1, 2026-09-23): oilfield data
+  quality for the Data Quality Studio and the `dataqc` course.
+  Completeness (null fraction, gap runs, coverage of an interval),
+  validity (caller or definitional range limits keyed by unit and never
+  converted, depth/time index duplicates, reversals and irregular steps,
+  negative rates, rate while shut in), consistency (cumulatives
+  non-decreasing, liquid-basis water cut, phase sums, frozen runs),
+  uniqueness (stated identifier normalisation, Levenshtein, a digit rule
+  so two real wells are not called near duplicates), univariate outliers
+  (z on the sample SD with its (n - 1)/sqrt(n) ceiling, Iglewicz-Hoaglin
+  modified z at 0.6745 / 3.5, Tukey fences on Hyndman-Fan R6/R7/R8
+  quantiles, Hampel through the petrophysics `despikeHampel`, Grubbs with
+  its own incomplete beta and t quantile), Mahalanobis with the
+  safetyStats chi-square quantile, Shewhart individuals/MR, EWMA and
+  tabular CUSUM charts, and a weighted scorecard. Every flag carries its
+  rule and reason; every refusal names its field. Gate:
+  `dataai.quality.test.js` replays `test-data/dataai/goldens/quality_cases.json`
+  (written by the stdlib oracle `tools/validation/dataai/oracle_quality.py`,
+  anchored on the NIST/SEMATECH e-Handbook worked examples in 1.3.5.17.1,
+  6.3.2.2, 6.3.2.3, 6.3.2.4 and 7.2.6.2) and the numpy/scipy/statsmodels/
+  pandas pins in `test-data/dataai/pins/` (`pin_quality.py`); findings,
+  errata and the negative control in `tools/validation/dataai/`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
