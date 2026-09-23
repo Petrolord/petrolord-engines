@@ -148,45 +148,69 @@ export function buildSyntheticField(overrides = {}) {
   const baseDepth = (itf, il, xl) => itf.z0 + itf.gIl * il * (binM / 25) + itf.gXl * xl * (binM / 25)
     + itf.fold * Math.sin(il / 9) * Math.cos(xl / 11);
 
-  /** Fault throw to add at a footwall depth z for a lattice point. */
-  const throwAt = (il, xl, z) => {
-    let add = 0;
-    for (const f of faultGeo) {
-      const d = f.signedDist(il, xl);
-      const planeD = (z - f.zRefM) / f.tanDip;   // fault moves toward the hanging wall with depth
-      if (d > planeD) add += f.throwM;
-    }
-    return add;
-  };
-
   const suIndex = interfaces.findIndex((i) => i.unconformity);
 
   /**
-   * Depths of every interface at a lattice point (TVDSS m), null where a
-   * layer is truncated by the unconformity (absent).
+   * The unfaulted column at a lattice point: intervals {zTop, v, rho,
+   * name} from datum down (name = the interface at the interval's top;
+   * null for the overburden). Layers below the unconformity that rise
+   * above it are eroded (absent).
    */
-  const depthsAt = (il, xl) => {
-    const zf = interfaces.map((itf) => baseDepth(itf, il, xl));
-    const su = suIndex >= 0 ? zf[suIndex] : null;
-    const out = zf.map((z, k) => {
-      const itf = interfaces[k];
-      if (itf.belowUnconformity && su != null && z <= su + 1e-9) return null; // eroded
-      return z;
-    });
-    // monotonic above the unconformity (thin beds stay ordered)
-    return out.map((z) => (z == null ? null : z + throwAt(il, xl, z)));
-  };
-
-  /** Interval stack at a point: [{zTop, v, rho}] from datum down. */
-  const columnAt = (il, xl) => {
-    const zs = depthsAt(il, xl);
-    const layers = [{ zTop: 0, v: overburden.v, rho: overburden.rho, name: null }];
+  const unfaultedColumn = (il, xl) => {
+    const zs = interfaces.map((itf) => baseDepth(itf, il, xl));
+    const su = suIndex >= 0 ? zs[suIndex] : null;
     const present = interfaces
       .map((itf, k) => ({ itf, z: zs[k] }))
-      .filter((p) => p.z != null)
+      .filter((p) => !(p.itf.belowUnconformity && su != null && p.z <= su + 1e-9))
       .sort((a, b) => a.z - b.z);
-    for (const p of present) layers.push({ zTop: p.z, v: p.itf.v, rho: p.itf.rho, name: p.itf.name });
-    return layers;
+    const col = [{ zTop: 0, v: overburden.v, rho: overburden.rho, name: null }];
+    for (const p of present) col.push({ zTop: p.z, v: p.itf.v, rho: p.itf.rho, name: p.itf.name });
+    return col;
+  };
+
+  /**
+   * Rigid-body normal faulting of a column: above the fault plane (the
+   * hanging wall, depth < zc) the column is the unfaulted one shifted
+   * down by the throw; below it (the footwall) it is the unfaulted one.
+   * Interfaces that land in neither part are cut out (the missing section
+   * a well sees crossing a normal fault). The plane itself starts a new
+   * interval with no name: time is integrated through the right rock on
+   * each side, and no fault-plane reflection is emitted (a steep plane
+   * rarely images).
+   */
+  const applyFault = (col, f, il, xl) => {
+    const zc = f.zRefM + f.signedDist(il, xl) * f.tanDip;   // plane depth in this column
+    if (!(zc > 0)) return col;                               // plane above datum: all footwall
+    const T = f.throwM;
+    const out = [];
+    // hanging wall: the column shifted by T, clipped to [0, zc)
+    for (let k = 0; k < col.length; k++) {
+      const top = k === 0 ? 0 : col[k].zTop + T;
+      if (top >= zc) break;
+      out.push({ ...col[k], zTop: top });
+    }
+    // footwall from zc: the interval containing zc starts there, unnamed
+    let k = col.length - 1;
+    while (k > 0 && col[k].zTop > zc) k -= 1;
+    out.push({ ...col[k], zTop: zc, name: null });
+    for (let j = k + 1; j < col.length; j++) out.push(col[j]);
+    return out;
+  };
+
+  /** Interval stack at a point: [{zTop, v, rho, name}] from datum down. */
+  const columnAt = (il, xl) => {
+    let col = unfaultedColumn(il, xl);
+    for (const f of faultGeo) col = applyFault(col, f, il, xl);
+    return col;
+  };
+
+  /**
+   * Depths of every interface at a lattice point (TVDSS m), null where a
+   * layer is eroded by the unconformity or cut out by a fault.
+   */
+  const depthsAt = (il, xl) => {
+    const col = columnAt(il, xl);
+    return interfaces.map((itf) => col.find((c) => c.name === itf.name)?.zTop ?? null);
   };
 
   /** TWT (ms) of a depth z at a lattice point. */
@@ -203,13 +227,14 @@ export function buildSyntheticField(overrides = {}) {
     return t;
   };
 
-  /** Interface two-way times at a point: name -> {twtMs, rc} (present only). */
+  /** Interface two-way times at a point: [{name, twtMs, zM, rc}] (present only). */
   const eventsAt = (il, xl) => {
     const col = columnAt(il, xl);
     const out = [];
     let t = 0;
     for (let k = 1; k < col.length; k++) {
       t += (2 * (col[k].zTop - col[k - 1].zTop) / col[k - 1].v) * 1000;
+      if (!col[k].name) continue;                         // the fault plane: no event
       const i1 = col[k - 1].v * col[k - 1].rho;
       const i2 = col[k].v * col[k].rho;
       out.push({
@@ -383,15 +408,61 @@ export function buildSyntheticField(overrides = {}) {
   }
 
   // ---- fault truth --------------------------------------------------------
-  const faultTruth = faultGeo.map((f) => ({
-    name: f.name,
-    throwM: f.throwM,
-    dipDeg: f.dipDeg,
-    /** Lattice xl of the fault at inline il and depth z (m), or null. */
-    lineAt: { il0: f.il0, xl0: f.xl0, dIl: f.dIl, dXl: f.dXl, zRefM: f.zRefM },
-    /** Signed map distance (m) from the fault plane at depth z: > 0 hanging wall. */
-    sideAt: (il, xl, z) => f.signedDist(il, xl) - (z - f.zRefM) / f.tanDip,
-  }));
+  /** Depth (m) at a lattice point for a two-way time (bisection on twtAtDepth). */
+  const depthAtTwt = (il, xl, tMs) => {
+    let lo = 0;
+    let hi = 6000;
+    for (let it = 0; it < 40; it++) {
+      const mid = (lo + hi) / 2;
+      if (twtAtDepth(il, xl, mid) < tMs) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  };
+
+  const faultTruth = faultGeo.map((f) => {
+    const sideAt = (il, xl, z) => f.signedDist(il, xl) - (z - f.zRefM) / f.tanDip;
+    return {
+      name: f.name,
+      throwM: f.throwM,
+      dipDeg: f.dipDeg,
+      lineAt: {
+        il0: f.il0, xl0: f.xl0, dIl: f.dIl, dXl: f.dXl, zRefM: f.zRefM,
+      },
+      /** Signed map distance (m) from the fault plane at depth z: > 0 hanging wall. */
+      sideAt,
+      /**
+       * The true fault as lattice sticks (the shape seismic_faults stores):
+       * one stick per `everyIl` inlines, a point every `sStep` samples
+       * where the plane crosses the inline (footwall side of the time
+       * shift, found by scanning crosslines at half-cell steps).
+       */
+      sticksLattice({ everyIl = 5, sStep = 10, s0 = 60, s1 = ns - 10 } = {}) {
+        const sticks = [];
+        const ils = [];
+        for (let il = 0; il < nIl; il += everyIl) ils.push(il);
+        if (ils[ils.length - 1] !== nIl - 1) ils.push(nIl - 1);   // reach the survey edge
+        for (const il of ils) {
+          const points = [];
+          for (let sm = s0; sm <= s1; sm += sStep) {
+            const tMs = sm * dtMs;
+            let prev = null;
+            for (let xl = 0; xl <= nXl - 1; xl += 0.5) {
+              const z = depthAtTwt(il, Math.round(xl), tMs);
+              const d = sideAt(il, xl, z);
+              if (prev && (prev.d <= 0) !== (d <= 0)) {
+                const t = prev.d / (prev.d - d);
+                points.push({ il, xl: prev.xl + t * (xl - prev.xl), s: sm });
+                break;
+              }
+              prev = { xl, d };
+            }
+          }
+          if (points.length >= 3) sticks.push({ points });
+        }
+        return sticks;
+      },
+    };
+  });
 
   const vMean = interfaces.reduce((a, i) => a + i.v, 0) / interfaces.length;
 
@@ -405,6 +476,7 @@ export function buildSyntheticField(overrides = {}) {
     traceAt,
     depthsAt,
     twtAtDepth,
+    depthAtTwt,
     eventsAt,
     truth: {
       horizons,
