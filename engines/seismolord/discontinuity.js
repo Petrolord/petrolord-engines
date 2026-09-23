@@ -205,6 +205,19 @@ export const DISCONTINUITY_DEFS = {
       radius: { label: 'Trace radius', default: 1, min: 1, max: 2 },
     },
   },
+  /** Needs the survey affine (volume.affine for makeDiscontinuityJob). */
+  azimuth_north: {
+    key: 'azimuth_north',
+    label: 'Dip azimuth (grid north)',
+    unit: 'deg',
+    neighborhood: true,
+    regional: true,
+    needsAffine: true,
+    params: {
+      windowMs: { label: 'Vertical smoothing window (ms)', default: 24, min: 4, max: 200 },
+      radius: { label: 'Trace radius', default: 1, min: 1, max: 2 },
+    },
+  },
   chaos: {
     key: 'chaos',
     label: 'Chaos',
