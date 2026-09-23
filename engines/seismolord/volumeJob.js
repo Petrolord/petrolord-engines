@@ -155,11 +155,11 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
  * @param {() => boolean} [p.shouldCancel]
  */
 export async function runNeighborhoodJob({
-  geom, radius, compute, fetchBrick, onBrick, onProgress, shouldCancel,
+  geom, radius, compute, computeColumn, fetchBrick, onBrick, onProgress, shouldCancel,
 }) {
   const { nIl, nXl, ns, brickSize: b } = geom;
   const [ni, nj, nk] = geom.grid;
-  if (!compute) throw new Error('A neighborhood compute is required.');
+  if (!compute && !computeColumn) throw new Error('A neighborhood compute is required.');
   if (!onBrick) throw new Error('onBrick callback is required.');
   if (!(radius >= 1) || radius >= b) {
     throw new Error(`Neighborhood radius ${radius} must be >= 1 and below the brick size ${b}.`);
@@ -225,6 +225,13 @@ export async function runNeighborhoodJob({
 
       const liMax = Math.min(b, nIl - bi * b);
       const ljMax = Math.min(b, nXl - bj * b);
+      // a column compute (regional attributes such as fault likelihood)
+      // answers the whole column at once from the ring, (li*ljMax + lj)*ns
+      const column = computeColumn
+        ? await computeColumn({
+          getTrace, il0: bi * b, il1: bi * b + liMax - 1, xl0: bj * b, xl1: bj * b + ljMax - 1, shouldCancel,
+        })
+        : null;
       for (let li = 0; li < liMax; li++) {
         for (let lj = 0; lj < ljMax; lj++) {
           const il = bi * b + li;
@@ -237,7 +244,12 @@ export async function runNeighborhoodJob({
           if (!anyLive) continue;       // dead / padding trace stays null
           traceCount += 1;
 
-          compute(getTrace, il, xl, outTrace);
+          if (column) {
+            const c0 = (li * ljMax + lj) * ns;
+            for (let k = 0; k < ns; k++) outTrace[k] = column[c0 + k];
+          } else {
+            compute(getTrace, il, xl, outTrace);
+          }
 
           const base = (li * b + lj) * b;
           for (let k = 0; k < ns; k++) {

@@ -33,7 +33,7 @@
 // Pure math, worker-safe, no I/O, no dependencies.
 
 import { NULL_VALUE } from './manifest';
-import { varianceTrace } from './discontinuity';
+import { varianceTrace, makeAligner } from './discontinuity';
 import { VolumeJobCancelledError } from './volumeJob';
 
 // Module-level alias: hot loops call M.* (a bare global Math lookup is
@@ -216,60 +216,59 @@ export function sliceOrientation(slice, nIl, nXl, r, strikeOut, linOut) {
   }
 }
 
-/**
- * Dip steering for semblance: returns a copy of `other` in which every
- * sample t is taken from t + lag(t), lag(t) in [-maxLag, maxLag] being the
- * shift that maximises the normalised cross-correlation with `center`
- * over the window [t - hw, t + hw] (ties keep the smaller |lag|). Local
- * dip and small time steps (velocity shadows under a fault, tuning) are
- * aligned away; a fault throw larger than maxLag still leaves a misfit.
- * Nulls are treated as zero amplitude while correlating.
- */
-function makeAligner(ns, hw, maxLag) {
-  const nl = 2 * maxLag + 1;
-  const pre = new Float64Array(nl * (ns + 1));
-  const preC = new Float64Array(ns + 1);
-  const preO = new Float64Array(ns + 1);
-  const val = (tr, t) => (t < 0 || t >= ns || isNull(tr[t]) ? 0 : tr[t]);
-  return (center, other) => {
-    for (let t = 0; t < ns; t++) {
-      const c = val(center, t);
-      const o = val(other, t);
-      preC[t + 1] = preC[t] + c * c;
-      preO[t + 1] = preO[t] + o * o;
-      for (let q = 0; q < nl; q++) {
-        pre[q * (ns + 1) + t + 1] = pre[q * (ns + 1) + t] + c * val(other, t + q - maxLag);
-      }
-    }
-    const out = new Float32Array(ns);
-    for (let t = 0; t < ns; t++) {
-      const w0 = M.max(0, t - hw);
-      const w1 = M.min(ns, t + hw + 1);
-      const ec = preC[w1] - preC[w0];
-      let best = 0;
-      let bestCc = -Infinity;
-      for (let q = 0; q < nl; q++) {
-        const lag = q - maxLag;
-        const a0 = M.min(ns, M.max(0, w0 + lag));
-        const a1 = M.min(ns, M.max(0, w1 + lag));
-        const eo = preO[a1] - preO[a0];
-        const cc = (pre[q * (ns + 1) + w1] - pre[q * (ns + 1) + w0]) / M.sqrt(ec * eo + 1e-30);
-        if (cc > bestCc + 1e-9 || (M.abs(cc - bestCc) <= 1e-9 && M.abs(lag) < M.abs(best))) {
-          bestCc = cc;
-          best = lag;
-        }
-      }
-      out[t] = isNull(center[t]) ? center[t] : val(other, t + best);
-    }
-    return out;
-  };
-}
 
 /** Smallest angle between two axial directions (radians, mod pi), degrees. */
 function axialDiffDeg(a, b) {
   let d = M.abs(a - b) % M.PI;
   if (d > M.PI / 2) d = M.PI - d;
   return d * DEG;
+}
+
+/**
+ * Data quality from the semblance itself: the reflector coherence, 1 minus
+ * the median variance over the strongest windows (the top 30 percent by
+ * power, i.e. the reflectors). Signal is coherent across the neighbourhood
+ * and noise is not, so noise lowers it: on the synthetic field it reads
+ * 0.96 clean, 0.88 at signal to noise 6 and 0.76 at 3 (white noise; 0.89
+ * and 0.82 for band-limited noise at 6 and 3). Residual dip and wavelet
+ * interference keep it a little below 1 even on clean data, so it is a
+ * ranking of data quality, not a signal-to-noise ratio.
+ *
+ * @param {number[]} pow window power per sampled window
+ * @param {number[]} vari semblance variance per sampled window
+ * @returns {{coherence: number|null, windows: number}}
+ */
+export function estimateQuality(pow, vari) {
+  const idx = [];
+  for (let k = 0; k < pow.length; k++) if (pow[k] > 0) idx.push(k);
+  if (idx.length < 50) return { coherence: null, windows: idx.length };
+  idx.sort((a, b) => pow[b] - pow[a]);
+  const top = idx.slice(0, M.max(50, M.floor(idx.length * 0.3)));
+  const vs = top.map((k) => vari[k]).sort((a, b) => a - b);
+  return { coherence: 1 - vs[vs.length >> 1], windows: top.length };
+}
+
+/**
+ * Threshold scale for a reflector coherence: 1 (the defaults) at 0.95 and
+ * above, 0.5 at 0.80 and below, linear between. Noise compresses the
+ * likelihood (its peak on the synthetic fault falls from about 0.27 clean
+ * to 0.10 at signal to noise 3) while the background's high tail falls
+ * with it, so the fault stays about twice the background's 99.9th
+ * percentile: halved thresholds find it again (every stick point within 2
+ * cells at signal to noise 3) and still propose nothing in unfaulted noisy
+ * data. Clean data keeps the defaults, which hold back weaker lineaments
+ * such as channel edges.
+ *
+ * @param {number|null} coherence
+ * @param {'auto'|'standard'|'high'} [sensitivity='auto']
+ * @returns {number}
+ */
+export function thresholdScale(coherence, sensitivity = 'auto') {
+  if (sensitivity === 'standard') return 1;
+  if (sensitivity === 'high') return 0.5;
+  if (coherence == null || !Number.isFinite(coherence)) return 1;
+  const t = (coherence - 0.8) / (0.95 - 0.8);
+  return 0.5 + 0.5 * M.min(1, M.max(0, t));
 }
 
 /**
@@ -287,12 +286,17 @@ function axialDiffDeg(a, b) {
  * @param {number} [p.tensorRadius=2] structure-tensor radius (cells)
  * @param {number} [p.strikeHalfLength=5] strike smoothing half-length (cells)
  * @param {number} [p.verticalHalf=3] vertical smoothing half-length (samples)
+ * @param {(il:number, xl:number) => Promise<?Float32Array>|?Float32Array} [p.getVarianceTrace]
+ *   instead of getTrace: a precomputed variance volume (0..1, e.g. the
+ *   Variance attribute), which replaces the dip-steered semblance; data
+ *   quality is then unknown (qualityOut.coherence stays null)
+ * @param {Object} [p.qualityOut] receives {coherence, windows} (estimateQuality)
  * @param {(done:number, total:number, phase:string) => void} [p.onProgress]
  * @param {() => boolean} [p.shouldCancel] polled per inline and per slice
  * @returns {Promise<Float32Array>} nIl*nXl*ns, index (il*nXl + xl)*ns + s
  */
 export async function faultLikelihoodVolume({
-  getTrace, geom,
+  getTrace, getVarianceTrace, geom,
   halfWindow = FAULT_DETECT_DEFAULTS.halfWindow,
   radius = FAULT_DETECT_DEFAULTS.radius,
   maxLag = FAULT_DETECT_DEFAULTS.maxLag,
@@ -300,11 +304,52 @@ export async function faultLikelihoodVolume({
   tensorRadius = FAULT_DETECT_DEFAULTS.tensorRadius,
   strikeHalfLength = FAULT_DETECT_DEFAULTS.strikeHalfLength,
   verticalHalf = FAULT_DETECT_DEFAULTS.verticalHalf,
+  qualityOut = null,
   onProgress, shouldCancel,
 }) {
   const { nIl, nXl, ns } = checkGeom(geom);
-  if (typeof getTrace !== 'function') throw new Error('Fault detection needs a getTrace function.');
+  if (typeof getTrace !== 'function' && typeof getVarianceTrace !== 'function') {
+    throw new Error('Fault detection needs a getTrace or a getVarianceTrace function.');
+  }
   const r = M.max(1, M.floor(radius));
+  const nTr = nIl * nXl;
+  const { variance, lateral } = getVarianceTrace
+    ? await readVarianceVolume({ getVarianceTrace, nIl, nXl, ns, onProgress, shouldCancel })
+    : await semblanceVolume({
+      getTrace, nIl, nXl, ns, r, halfWindow, maxLag, qualityOut, onProgress, shouldCancel,
+    });
+  if (qualityOut && getVarianceTrace) Object.assign(qualityOut, { coherence: null, windows: 0 });
+  return likelihoodFromVariance({
+    variance, lateral, nIl, nXl, ns, backgroundRadius, tensorRadius, strikeHalfLength, verticalHalf, onProgress, shouldCancel,
+  });
+}
+
+/** Variance volume read from a precomputed attribute (nulls = 0, clamped 0..1). */
+async function readVarianceVolume({
+  getVarianceTrace, nIl, nXl, ns, onProgress, shouldCancel,
+}) {
+  const nTr = nIl * nXl;
+  const variance = new Float32Array(nTr * ns);
+  for (let il = 0; il < nIl; il++) {
+    if (shouldCancel && shouldCancel()) throw new VolumeJobCancelledError();
+    for (let xl = 0; xl < nXl; xl++) {
+      const tr = await getVarianceTrace(il, xl);
+      if (!tr) continue;
+      const base = (il * nXl + xl) * ns;
+      for (let s = 0; s < ns && s < tr.length; s++) {
+        const v = tr[s];
+        variance[base + s] = isNull(v) ? 0 : v < 0 ? 0 : v > 1 ? 1 : v;
+      }
+    }
+    if (onProgress) onProgress(il + 1, nIl, 'read');
+  }
+  return { variance, lateral: new Float32Array(nTr * ns) };
+}
+
+/** Stage 1a: every trace read once, then dip-steered semblance variance. */
+async function semblanceVolume({
+  getTrace, nIl, nXl, ns, r, halfWindow, maxLag, qualityOut, onProgress, shouldCancel,
+}) {
   const nTr = nIl * nXl;
 
   // 1. read every trace once (the volume is held as one cube)
@@ -329,6 +374,11 @@ export async function faultLikelihoodVolume({
   // 2. dip-steered semblance variance per trace (nulls become 0: no evidence)
   const variance = new Float32Array(nTr * ns);
   const outTr = new Float32Array(ns);
+  // data quality: (window power, variance, neighbourhood size) samples
+  const qStride = M.max(1, M.ceil((nTr * ns) / 300000));
+  const qPow = [];
+  const qVar = [];
+  const winPow = new Float64Array(ns + 1);
   const aligner = makeAligner(ns, halfWindow, maxLag);
   for (let il = 0; il < nIl; il++) {
     if (shouldCancel && shouldCancel()) throw new VolumeJobCancelledError();
@@ -349,12 +399,34 @@ export async function faultLikelihoodVolume({
       }
       varianceTrace(center, hood, halfWindow, outTr);
       for (let s = 0; s < ns; s++) variance[b0 + s] = isNull(outTr[s]) ? 0 : outTr[s];
+      if (qualityOut) {
+        for (let s = 0; s < ns; s++) {
+          const v = center[s];
+          winPow[s + 1] = winPow[s] + (isNull(v) ? 0 : v * v);
+        }
+        for (let s = (b0 % qStride); s < ns; s += qStride) {
+          if (isNull(outTr[s])) continue;
+          const w0 = M.max(0, s - halfWindow);
+          const w1 = M.min(ns, s + halfWindow + 1);
+          qPow.push((winPow[w1] - winPow[w0]) / (w1 - w0));
+          qVar.push(outTr[s]);
+        }
+      }
     }
     if (onProgress) onProgress(il + 1, nIl, 'variance');
   }
 
+  if (qualityOut) Object.assign(qualityOut, estimateQuality(qPow, qVar));
+  // the trace cube's memory is reused for the lateral result
+  return { variance, lateral: cube };
+}
+
+/** Stage 1b: lateral contrast, orientation, strike smoothing, vertical average. */
+function likelihoodFromVariance({
+  variance, lateral, nIl, nXl, ns, backgroundRadius, tensorRadius, strikeHalfLength, verticalHalf, onProgress, shouldCancel,
+}) {
+  const nTr = nIl * nXl;
   // 3. per slice: contrast, orientation, strike smoothing
-  const lateral = cube; // reuse the trace cube's memory for the lateral result
   const slice = new Float32Array(nTr);
   const bg = new Float32Array(nTr);
   const strike = new Float32Array(nTr);
@@ -398,6 +470,29 @@ export async function faultLikelihoodVolume({
     }
   }
   if (onProgress) onProgress(ns, ns, 'done');
+  return out;
+}
+
+/** A precomputed fault likelihood volume (the Fault likelihood attribute):
+ *  nulls = 0, clamped 0..1. */
+async function readLikelihoodVolume({
+  getLikelihoodTrace, geom, onProgress, shouldCancel,
+}) {
+  const { nIl, nXl, ns } = geom;
+  const out = new Float32Array(nIl * nXl * ns);
+  for (let il = 0; il < nIl; il++) {
+    if (shouldCancel && shouldCancel()) throw new VolumeJobCancelledError();
+    for (let xl = 0; xl < nXl; xl++) {
+      const tr = await getLikelihoodTrace(il, xl);
+      if (!tr) continue;
+      const base = (il * nXl + xl) * ns;
+      for (let s = 0; s < ns && s < tr.length; s++) {
+        const v = tr[s];
+        out[base + s] = isNull(v) ? 0 : v < 0 ? 0 : v > 1 ? 1 : v;
+      }
+    }
+    if (onProgress) onProgress(il + 1, nIl, 'read');
+  }
   return out;
 }
 
@@ -896,28 +991,53 @@ export function patchToSticks(patch, geom, opts = {}) {
  * params.confidenceFloor or with fewer than two sticks are not proposed.
  *
  * @param {Object} p
- * @param {Function} p.getTrace see faultLikelihoodVolume
+ * @param {Function} [p.getTrace] see faultLikelihoodVolume (the seismic)
+ * @param {Function} [p.getVarianceTrace] instead: a variance volume, which
+ *   replaces the dip-steered semblance (see faultLikelihoodVolume)
+ * @param {Function} [p.getLikelihoodTrace] instead: a fault likelihood
+ *   volume (the Fault likelihood attribute), which replaces stage 1; data
+ *   quality is unknown with either, so params.sensitivity decides
+ *   ('auto' then means 'standard')
  * @param {{nIl:number, nXl:number, ns:number}} p.geom
  * @param {number} [p.dtMs=4] sample rate; when params.windowMs or
  *   params.minHeightMs are given they are converted to samples with it
- * @param {Object} [p.params] any FAULT_DETECT_DEFAULTS key, plus windowMs
- *   and minHeightMs
+ * @param {Object} [p.params] any FAULT_DETECT_DEFAULTS key, plus windowMs,
+ *   minHeightMs and sensitivity ('auto' | 'standard' | 'high'): auto scales
+ *   the default high and low thresholds by thresholdScale(coherence); an
+ *   explicit high or low is used as given
  * @param {Function} [p.onProgress]
  * @param {Function} [p.shouldCancel]
  * @returns {Promise<{likelihood: Float32Array, faults: Array<{name:string,
  *   sticks:Array, confidence:number, stats:Object}>, patches: Array<{voxels:
- *   Int32Array, stats:Object}>, params:Object}>} patches[k] is the voxel
+ *   Int32Array, stats:Object}>, params:Object, quality: {coherence: number|null,
+ *   thresholdScale: number, sensitivity: string}}>} patches[k] is the voxel
  *   patch behind faults[k] (kept apart so faults stay small and jsonb-friendly)
  */
 export async function detectFaults({
-  getTrace, geom, dtMs = 4, params = {}, onProgress, shouldCancel,
+  getTrace, getVarianceTrace, getLikelihoodTrace, geom, dtMs = 4, params = {}, onProgress, shouldCancel,
 }) {
   const P = { ...FAULT_DETECT_DEFAULTS, ...params };
   if (params.windowMs != null) P.halfWindow = M.max(1, M.round(params.windowMs / 2 / dtMs));
   if (params.minHeightMs != null) P.minHeightSamples = M.max(1, M.round(params.minHeightMs / dtMs));
-  const likelihood = await faultLikelihoodVolume({
-    getTrace, geom, ...P, onProgress, shouldCancel,
-  });
+  const quality = {};
+  const likelihood = getLikelihoodTrace
+    ? await readLikelihoodVolume({
+      getLikelihoodTrace, geom: checkGeom(geom), onProgress, shouldCancel,
+    })
+    : await faultLikelihoodVolume({
+      getTrace: getVarianceTrace ? undefined : getTrace,
+      getVarianceTrace,
+      geom,
+      ...P,
+      qualityOut: quality,
+      onProgress,
+      shouldCancel,
+    });
+  // noisy data: the thresholds follow the data's own coherence unless the
+  // caller set them
+  const scale = thresholdScale(quality.coherence, params.sensitivity ?? 'auto');
+  if (params.high == null) P.high = FAULT_DETECT_DEFAULTS.high * scale;
+  if (params.low == null) P.low = FAULT_DETECT_DEFAULTS.low * scale;
   const orientation = new Float32Array(likelihood.length);
   const thinned = thinFaults(likelihood, geom, { tensorRadius: P.tensorRadius, orientationOut: orientation });
   const patches = extractFaultPatches(thinned, geom, { ...P, orientation });
@@ -938,5 +1058,8 @@ export async function detectFaults({
   }
   return {
     likelihood, faults, patches: kept, params: P,
+    quality: {
+      coherence: quality.coherence ?? null, thresholdScale: scale, sensitivity: params.sensitivity ?? 'auto',
+    },
   };
 }
