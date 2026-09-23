@@ -9,7 +9,7 @@
 import g from '../test-data/wellsite/lag-goldens.json';
 import {
   engineGeometry, stringAtBit, stationsToBit, annulusSections, lagStrokesAt, lagTimeMin, validatePumpLog, spmAt,
-  strokesBetween, timeForStrokes, bitDepthAt, cutTimeOf, arrivalPrediction, laggedDepthNow, lagReadout,
+  strokesBetween, timeForStrokes, bitDepthAt, bitHistoryWithHolds, cutTimeOf, arrivalPrediction, laggedDepthNow, lagReadout,
   geometryWithRiser, lagLegsAt, ratesAt, volumeBetween, timeForVolume, legArrival,
 } from '../engines/wellsite/lag';
 
@@ -105,6 +105,37 @@ describe('bit depth history', () => {
   });
 });
 
+describe('bit held through non-deepening events (Ekene kit finding 2026-09-23)', () => {
+  const hist = [{ utcMs: T0, mdM: 3000 }, { utcMs: T0 + 60 * MIN, mdM: 3030 }];
+  test('a connection from 20 to 30 min: 30 m over 50 min of drilling, held at 3012 m through it', () => {
+    const h = bitHistoryWithHolds(hist, [{ startMs: T0 + 20 * MIN, endMs: T0 + 30 * MIN }]);
+    near(bitDepthAt(h, T0 + 20 * MIN), 3012, 1e-9);
+    near(bitDepthAt(h, T0 + 25 * MIN), 3012, 1e-9);
+    near(bitDepthAt(h, T0 + 30 * MIN), 3012, 1e-9);
+    near(bitDepthAt(h, T0 + 40 * MIN), 3018, 1e-9);
+    expect(bitDepthAt(h, T0 + 60 * MIN)).toBe(3030);
+    // negative control: without the hold the straight line puts the bit 3 m deeper at the end of the connection
+    near(bitDepthAt(hist, T0 + 30 * MIN), 3015, 1e-9);
+    // the cut time of a depth moves with it
+    near(cutTimeOf(h, 3018), T0 + 40 * MIN, 1);
+  });
+  test('circulating from the first record: the bit stays on bottom until drilling resumes', () => {
+    const h = bitHistoryWithHolds(hist, [{ startMs: T0 - 5 * MIN, endMs: T0 + 30 * MIN }]);
+    near(bitDepthAt(h, T0 + 30 * MIN), 3000, 1e-9);
+    near(bitDepthAt(h, T0 + 45 * MIN), 3015, 1e-9);
+  });
+  test('overlapping holds merge; an open hold runs to the next record; a whole-interval hold keeps the line', () => {
+    const h = bitHistoryWithHolds(hist, [{ startMs: T0 + 10 * MIN, endMs: T0 + 25 * MIN }, { startMs: T0 + 20 * MIN, endMs: T0 + 30 * MIN }]);
+    near(bitDepthAt(h, T0 + 30 * MIN), 3000 + 30 * (10 / 40), 1e-9);
+    const open = bitHistoryWithHolds(hist, [{ startMs: T0 + 40 * MIN, endMs: null }]);
+    near(bitDepthAt(open, T0 + 40 * MIN), 3030, 1e-9);
+    const whole = bitHistoryWithHolds(hist, [{ startMs: T0 - MIN, endMs: T0 + 61 * MIN }]);
+    near(bitDepthAt(whole, T0 + 30 * MIN), 3015, 1e-9);
+    expect(bitHistoryWithHolds(hist, [])).toBe(hist);
+    expect(bitHistoryWithHolds([], [{ startMs: T0, endMs: T0 + MIN }])).toEqual([]);
+  });
+});
+
 describe('reference cases', () => {
   test('G1 constant 60 spm: arrival after the lag time; lagged depth while drilling ahead at 50 ft/hr', () => {
     const log = [{ utcMs: T0 - 600 * MIN, spm: 60 }];
@@ -146,6 +177,14 @@ describe('reference cases', () => {
     expect(l.converged).toBe(false);
     expect(l.laggedMdM).toBeNull();
     expect(l.note).toMatch(/not reached surface yet/);
+  });
+  test('pumps off before the first cuttings are up: the readout leads with the pumps-off note', () => {
+    const hist = [{ utcMs: T0, mdM: bit }];
+    const log = [{ utcMs: T0, spm: 60 }, { utcMs: T0 + 5 * MIN, spm: 0 }];
+    const r = lagReadout({ nowUtcMs: T0 + 10 * MIN, bitMdM: bit, bitDepthHistory: hist, pumpLog: log, lagCtx: ctx });
+    expect(r.note).toBe('Pumps are off, lag time is undefined until circulation restarts. Cuttings from the start of the record have not reached surface yet.');
+    const on = lagReadout({ nowUtcMs: T0 + 10 * MIN, bitMdM: bit, bitDepthHistory: hist, pumpLog: log.slice(0, 1), lagCtx: ctx });
+    expect(on.note).toBe('Cuttings from the start of the record have not reached surface yet.');
   });
 });
 

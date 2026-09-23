@@ -1,5 +1,5 @@
 /** WS2 event vocabulary and timeline arithmetic. */
-import { EVENT_TYPES, EVENT_CODES, startEvent, endEvent, validateEvents, eventsInPeriod, timeByType, openEvents } from '../engines/wellsite/events';
+import { EVENT_TYPES, EVENT_CODES, NON_DEEPENING_EVENTS, startEvent, endEvent, validateEvents, eventsInPeriod, timeByType, openEvents } from '../engines/wellsite/events';
 
 const MIN = 60000;
 const T0 = Date.parse('2026-09-07T06:00:00Z');
@@ -39,4 +39,10 @@ test('validation catches overlapping open rig events; a period clips durations',
   const inP = eventsInPeriod([a2, b2, gas], period, T0 + 60 * MIN);
   expect(inP.map((e) => [e.type, e.durationMin, e.stillOpen])).toEqual([['drilling', 5, false], ['gas_event', 7, true], ['connection', 2, false]]);
   expect(timeByType([a2, b2, gas], period, T0 + 60 * MIN)).toEqual({ drilling: 5, gas_event: 7, connection: 2 });
+});
+
+test('non-deepening events are duration events from the vocabulary, and drilling and coring are not among them', () => {
+  for (const c of NON_DEEPENING_EVENTS) expect(EVENT_TYPES.find((e) => e.code === c).duration).toBe(true);
+  expect(NON_DEEPENING_EVENTS).not.toContain('drilling');
+  expect(NON_DEEPENING_EVENTS).not.toContain('coring');
 });
