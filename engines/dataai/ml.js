@@ -336,29 +336,36 @@ const fitRows = (X, trainIndices) => {
   return { rows: pick(X, trainIndices), idx: [...trainIndices] };
 };
 
+const ROW_NOUNS = ['training rows', 'rows passed'];
+
 /**
  * Standardisation (z) fitted on the training rows only: the rows of X, or
  * the rows trainIndices picks. Returns the fitted centre and scale per
  * feature; applyScaler applies them to any rows.
+ *
+ * `rowNoun` names the fitted rows in the refusal messages: 'training rows'
+ * (default, every supervised caller) or 'rows passed' (cluster.js, where
+ * the rows are clustered or decomposed and nothing is trained or held out).
  */
-export const fitStandardScaler = ({ X, trainIndices, names, sd = 'population' } = {}) => {
+export const fitStandardScaler = ({ X, trainIndices, names, sd = 'population', rowNoun = 'training rows' } = {}) => {
   const bad = checkMatrix('X', X);
   if (bad) return bad;
   const p = X[0].length;
   const nm = checkNames(names, p);
   if (nm.bad) return nm.bad;
   if (sd !== 'population' && sd !== 'sample') return refuse('sd', "must be 'population' or 'sample'");
+  if (!ROW_NOUNS.includes(rowNoun)) return refuse('rowNoun', "must be 'training rows' or 'rows passed'");
   const fr = fitRows(X, trainIndices);
   if (fr.bad) return fr.bad;
   const rows = fr.rows;
   const n = rows.length;
-  if (sd === 'sample' && n < 2) return refuse('X', 'must have at least 2 training rows for the sample standard deviation');
+  if (sd === 'sample' && n < 2) return refuse('X', `must have at least 2 ${rowNoun} for the sample standard deviation`);
   const centre = [];
   const scale = [];
   for (let j = 0; j < p; j += 1) {
     const col = rows.map((r) => r[j]);
     if (col.every((v) => v === col[0])) {
-      return refuse(`X.${nm.names[j]}`, `has zero variance on the ${n} training rows (every value is ${fmt(col[0])}): standardising would divide by zero, so drop the feature or fit on rows where it varies`);
+      return refuse(`X.${nm.names[j]}`, `has zero variance on the ${n} ${rowNoun} (every value is ${fmt(col[0])}): standardising would divide by zero, so drop the feature or fit on rows where it varies`);
     }
     const m = statsMean(col);
     let s2 = 0;
@@ -382,13 +389,17 @@ export const fitStandardScaler = ({ X, trainIndices, names, sd = 'population' } 
   };
 };
 
-/** Min-max scaling to [0, 1] fitted on the training rows only; new rows are not clipped. */
-export const fitMinMaxScaler = ({ X, trainIndices, names } = {}) => {
+/**
+ * Min-max scaling to [0, 1] fitted on the training rows only; new rows are
+ * not clipped. `rowNoun` as for fitStandardScaler.
+ */
+export const fitMinMaxScaler = ({ X, trainIndices, names, rowNoun = 'training rows' } = {}) => {
   const bad = checkMatrix('X', X);
   if (bad) return bad;
   const p = X[0].length;
   const nm = checkNames(names, p);
   if (nm.bad) return nm.bad;
+  if (!ROW_NOUNS.includes(rowNoun)) return refuse('rowNoun', "must be 'training rows' or 'rows passed'");
   const fr = fitRows(X, trainIndices);
   if (fr.bad) return fr.bad;
   const rows = fr.rows;
@@ -401,7 +412,7 @@ export const fitMinMaxScaler = ({ X, trainIndices, names } = {}) => {
     let lo = col[0];
     let hi = col[0];
     for (let i = 1; i < col.length; i += 1) { if (col[i] < lo) lo = col[i]; if (col[i] > hi) hi = col[i]; }
-    if (lo === hi) return refuse(`X.${nm.names[j]}`, `has zero range on the ${rows.length} training rows (every value is ${fmt(lo)}): min-max scaling would divide by zero, so drop the feature or fit on rows where it varies`);
+    if (lo === hi) return refuse(`X.${nm.names[j]}`, `has zero range on the ${rows.length} ${rowNoun} (every value is ${fmt(lo)}): min-max scaling would divide by zero, so drop the feature or fit on rows where it varies`);
     min.push(lo); max.push(hi); centre.push(lo); scale.push(hi - lo);
   }
   return {

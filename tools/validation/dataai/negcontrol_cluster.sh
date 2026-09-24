@@ -6,7 +6,8 @@
 # this file: each row plants ONE defect, runs the suite, and records whether
 # it went red.
 #
-#   ENGINE  plants go in engines/dataai/cluster.js alone. All must go RED.
+#   ENGINE  plants go in engines/dataai/cluster.js alone (or, for the
+#           scaler's row noun, in engines/dataai/ml.js alone). All must go RED.
 #   ORACLE  plants go in tools/validation/dataai/oracle_cluster.py alone,
 #           with the golden regenerated. All must go RED or STOP (the
 #           oracle refused to write a golden).
@@ -19,12 +20,13 @@ cd "$(dirname "$0")/../../.." || exit 1
 PY=${PY:-python3}
 FILTER=${1:-}
 ENGINE=engines/dataai/cluster.js
+ML=engines/dataai/ml.js
 ORACLE=tools/validation/dataai/oracle_cluster.py
 GOLDEN=test-data/dataai/goldens/cluster_cases.json
 TEST=__tests__/dataai.cluster.test.js
 TMP=$(mktemp -d)
-cp "$ENGINE" "$TMP/engine.bak"; cp "$ORACLE" "$TMP/oracle.bak"; cp "$GOLDEN" "$TMP/golden.bak"
-restore() { cp "$TMP/engine.bak" "$ENGINE"; cp "$TMP/oracle.bak" "$ORACLE"; cp "$TMP/golden.bak" "$GOLDEN"; }
+cp "$ENGINE" "$TMP/engine.bak"; cp "$ML" "$TMP/ml.bak"; cp "$ORACLE" "$TMP/oracle.bak"; cp "$GOLDEN" "$TMP/golden.bak"
+restore() { cp "$TMP/engine.bak" "$ENGINE"; cp "$TMP/ml.bak" "$ML"; cp "$TMP/oracle.bak" "$ORACLE"; cp "$TMP/golden.bak" "$GOLDEN"; }
 trap restore EXIT
 
 plant() { # file from to
@@ -77,7 +79,7 @@ npx jest "$TEST" 2>&1 | grep -E "^Tests:"
 
 echo "=== ENGINE plants (all must be RED) ==="
 # PCA
-run_case ENGINE "correlation PCA standardised with the population SD" $E "const fit = fitStandardScaler({ X, names, sd: 'sample' });" "const fit = fitStandardScaler({ X, names });"
+run_case ENGINE "correlation PCA standardised with the population SD" $E "const fit = fitStandardScaler({ X, names, sd: 'sample', rowNoun: 'rows passed' });" "const fit = fitStandardScaler({ X, names, rowNoun: 'rows passed' });"
 run_case ENGINE "covariance divisor n, not n - 1" $E "S[a][b] = s / (n - 1); S[b][a] = S[a][b];" "S[a][b] = s / n; S[b][a] = S[a][b];"
 run_case ENGINE "sign rule flipped (largest loading negative)" $E "return v[lead] < 0 ? v.map((x) => -x) : v;" "return v[lead] > 0 ? v.map((x) => -x) : v;"
 run_case ENGINE "sign rule on the FIRST loading, not the largest" $E "while (Math.abs(v[lead]) < mx * (1 - DEFAULTS.SIGN_TIE_REL)) lead += 1;" "while (false) lead += 1;"
@@ -96,7 +98,7 @@ run_case ENGINE "empty cluster left empty (no relocation)" $E "if (empties.lengt
 run_case ENGINE "iterations count centre updates, not assignment passes" $E "iterations: best.iterations," "iterations: best.iterations - 1,"
 run_case ENGINE "the LAST run wins, not the lowest inertia" $E "if (!best || res.inertia < best.inertia - best.inertia * DEFAULTS.TIE_REL) {" "if (true) {"
 run_case ENGINE "each nInit run restarts the seed (identical starts)" $E "const picks = kmeansPP(A, n, p, k, rng);" "const picks = kmeansPP(A, n, p, k, mulberry32(seed));"
-run_case ENGINE "clustering scaler on the sample SD" $E "fitStandardScaler({ X, names })" "fitStandardScaler({ X, names, sd: 'sample' })"
+run_case ENGINE "clustering scaler on the sample SD" $E "fitStandardScaler({ X, names, rowNoun })" "fitStandardScaler({ X, names, rowNoun, sd: 'sample' })"
 # silhouette
 run_case ENGINE "a singleton scores 1, not 0" $E "if (size[li] === 1) { values[i] = 0; continue; }" "if (size[li] === 1) { values[i] = 1; continue; }"
 run_case ENGINE "a divides by the cluster size, not size - 1" $E "const a = sums[i * K + li] / (size[li] - 1);" "const a = sums[i * K + li] / size[li];"
@@ -127,6 +129,20 @@ run_case ENGINE "majority tie to the class that sorts LAST" $E "for (let c = 1; 
 run_case ENGINE "minSamplesLeaf ignored" $E "if (nL < minSamplesLeaf || nR < minSamplesLeaf) continue;" "if (false) continue;"
 run_case ENGINE "importances not normalised" $E "importance.map((v) => (tot > 0 ? v / tot : 0));" "importance.map((v) => (tot > 0 ? v : 0));"
 run_case ENGINE "maxDepth counted from 1" $E "if (pure || depth >= maxDepth ||" "if (pure || depth >= maxDepth - 1 ||"
+# foundation findings (PR fix/dataai-cluster-foundation-findings)
+run_case ENGINE "pca constant refusal in the old wording (training rows)" $E "fitStandardScaler({ X, names, sd: 'sample', rowNoun: 'rows passed' })" "fitStandardScaler({ X, names, sd: 'sample' })"
+run_case ENGINE "clustering standard scaler in the old wording (training rows)" $E "fitStandardScaler({ X, names, rowNoun }) :" "fitStandardScaler({ X, names }) :"
+run_case ENGINE "clustering min-max scaler in the old wording (training rows)" $E ": fitMinMaxScaler({ X, names, rowNoun });" ": fitMinMaxScaler({ X, names });"
+run_case ENGINE "kNN refusal says rows passed (its rows ARE training rows)" $E "scaleFit(X, scale, names, 'training rows')" "scaleFit(X, scale, names, 'rows passed')"
+run_case ENGINE "ml.js standard scaler ignores the row noun" $ML "has zero variance on the \${n} \${rowNoun} (every" "has zero variance on the \${n} training rows (every"
+run_case ENGINE "ml.js min-max scaler ignores the row noun" $ML "has zero range on the \${rows.length} \${rowNoun} (every" "has zero range on the \${rows.length} training rows (every"
+run_case ENGINE "pca warning overwritten (the last one wins)" $E "if (warnings.length) out.warning = warnings.join('; ');" "if (warnings.length) out.warning = warnings[warnings.length - 1];"
+run_case ENGINE "pca warnings in the other order" $E "if (warnings.length) out.warning = warnings.join('; ');" "if (warnings.length) out.warning = [...warnings].reverse().join('; ');"
+run_case ENGINE "pca maxSweeps ignored (always 50)" $E "const eig = jacobiEigen(S, maxSweeps);" "const eig = jacobiEigen(S, DEFAULTS.JACOBI_MAX_SWEEPS);"
+run_case ENGINE "pca maxSweeps 0 accepted" $E "if (!isInt(maxSweeps) || maxSweeps < 1)" "if (!isInt(maxSweeps) || maxSweeps < 0)"
+run_case ENGINE "repeated-eigenvalue warning in the old wording" $E " differ by at most 1e-10 times the largest eigenvalue, so the directions" " are equal to within 1e-10 of the largest, so the directions"
+run_case ENGINE "cutTree id reuse not checked" $E "if (mergedAt.has(id)) return" "if (false) return"
+run_case ENGINE "cutTree reuse message names the later step" $E "which linkageMatrix[\${mergedAt.get(id)}] already merged" "which linkageMatrix[\${s}] already merged"
 # matching and ARI
 run_case ENGINE "one-to-one greedy (first free facies, no optimum)" $E "if (t.M[c][f] + rest === target) {" "if (true) {"
 run_case ENGINE "ARI special case scores 0" $E "if (mx - expected === 0) return 1;" "if (mx - expected === 0) return 0;"
@@ -142,6 +158,10 @@ run_case ORACLE "oracle Ward height without the factor 2" $O "return (2 * D(na *
 run_case ORACLE "oracle ARI special case 0" $O "    if mx == expected:
         return F(1)" "    if mx == expected:
         return F(0)"
+run_case ORACLE "oracle constant rule in the old wording" $O "on the {len(X)} {rows} (every value" "on the {len(X)} training rows (every value"
+run_case ORACLE "oracle keeps only the last pca warning" $O "return '; '.join(parts) if parts else None" "return parts[-1] if parts else None"
+run_case ORACLE "oracle repeated-eigenvalue rule in the old wording" $O " differ by at most 1e-10 times the largest eigenvalue, so the directions" " are equal to within 1e-10 of the largest, so the directions"
+run_case ORACLE "oracle has no id reuse rule" $O "            if i in first:" "            if False:"
 
 restore
 echo "=== restored; verifying clean ==="

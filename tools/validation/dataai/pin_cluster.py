@@ -148,9 +148,12 @@ def main():
             q = a.get('nComponents', p)
             if a.get('matrix', 'correlation') == 'covariance':
                 m = PCA(n_components=q, svd_solver='full').fit(X)
+                if 'eigenvalues' in e and 'explainedVariance' not in e:
+                    pin(c, 'eigenvalues', np.linalg.eigvalsh(np.cov(X.T))[::-1], 'numpy eigvalsh of cov (divisor n - 1)')
                 if 'explainedVariance' in e:
                     pin(c, 'explainedVariance', m.explained_variance_, 'sklearn PCA explained_variance_')
-                pin(c, 'explainedVarianceRatio', m.explained_variance_ratio_, 'sklearn PCA explained_variance_ratio_')
+                if 'explainedVarianceRatio' in e:
+                    pin(c, 'explainedVarianceRatio', m.explained_variance_ratio_, 'sklearn PCA explained_variance_ratio_')
                 if 'components' in e:
                     pin(c, 'components', m.components_, 'sklearn PCA components_ (svd_flip: largest |loading| positive)')
                 if 'scores' in e:
@@ -161,8 +164,11 @@ def main():
                 Z = StandardScaler().fit_transform(X)
                 m = PCA(n_components=q, svd_solver='full').fit(Z)
                 pin(c, 'explainedVarianceRatio', m.explained_variance_ratio_, 'sklearn PCA on StandardScaler rows')
-                pin(c, 'components', m.components_, 'sklearn PCA components_ on StandardScaler rows')
-                pin(c, 'scores', m.transform(Z) * math.sqrt((n - 1) / n), 'sklearn PCA transform x sqrt((n - 1) / n)')
+                # the warning cases pin eigenvalues and ratios only: their components are not unique
+                if 'components' in e:
+                    pin(c, 'components', m.components_, 'sklearn PCA components_ on StandardScaler rows')
+                if 'scores' in e:
+                    pin(c, 'scores', m.transform(Z) * math.sqrt((n - 1) / n), 'sklearn PCA transform x sqrt((n - 1) / n)')
         elif fn == 'pcaTransform':
             fa = a['model']['args']
             X = np.array(fa['X'], dtype=float)

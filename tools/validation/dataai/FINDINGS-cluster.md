@@ -1,15 +1,15 @@
 # FINDINGS: cluster (oracle_cluster.py, Data & AI D3, electrofacies)
 
-Golden: `test-data/dataai/goldens/cluster_cases.json`, 126 cases (54 of
+Golden: `test-data/dataai/goldens/cluster_cases.json`, 145 cases (68 of
 them refusals, every refusal message pinned in full), written by
 `tools/validation/dataai/oracle_cluster.py`. Second witness:
-`test-data/dataai/pins/cluster_pins.json`, 158 pins and 18 recorded skips,
+`test-data/dataai/pins/cluster_pins.json`, 169 pins and 18 recorded skips,
 written by `tools/validation/dataai/pin_cluster.py` (numpy, scipy,
 scikit-learn 1.9.1 from `/root/daienv`; exact versions in the pin file).
-Gate: `__tests__/dataai.cluster.test.js` (316 tests) calls the engine on
+Gate: `__tests__/dataai.cluster.test.js` (349 tests) calls the engine on
 every golden, the published figures and every pin, plus property tests and
 the row-cap boundaries. Negative control: `negcontrol_cluster.sh`
-(40/40 engine plants red, 4/4 oracle plants red). Timing: `timing_cluster.mjs` (table below). Regenerating the golden and the pins is byte-identical (sha256 checked).
+(52/52 engine plants red, 6/6 oracle plants red and 1 stopped). Timing: `timing_cluster.mjs` (table below). Regenerating the golden and the pins is byte-identical (sha256 checked).
 
 The oracle is STDLIB ONLY (python 3.12: `fractions`, `decimal` at 60
 digits, `itertools`, `random` for the synthetic inputs). It reads no
@@ -98,7 +98,10 @@ The 18 skips, each a documented convention difference:
 
 1. **Scaling is imported from ml.js** (fitStandardScaler, fitMinMaxScaler,
    applyScaler), default `scale: 'standard'` (population SD, a constant
-   log refused by name with ml.js's message). Clustering fits the scaler on
+   log refused by name with ml.js's message, the fitted rows named by the
+   scaler's `rowNoun`: "rows passed" for pca, kmeans, silhouette, elbow and
+   agglomerative, "training rows" for kNN; see "Foundation findings
+   repaired" below). Clustering fits the scaler on
    the rows clustered; kNN on the TRAINING rows only and applies it
    unchanged to the new rows. The same option applies in the silhouette so
    it scores the space k-means clustered. Input checks are cluster.js's
@@ -112,10 +115,15 @@ The 18 skips, each a documented convention difference:
    feature-score correlation); `components` are the unit eigenvectors.
 3. **Jacobi convergence**: cyclic sweeps; an off-diagonal entry at or
    below 2^-52 sqrt(|a_pp a_qq|) is zeroed; stop after the first sweep
-   needing no rotation, at most 50 (never reached in any golden).
+   needing no rotation, at most `maxSweeps` (default 50; the default is
+   never reached in any golden, `maxSweeps: 1` makes it reachable).
    Eigenvalues sorted descending, equal values keep column order; a
-   rounding value below zero is reported as 0. Eigenvalues within 1e-10 of
-   the largest are flagged with a warning (directions not unique).
+   rounding value below zero is reported as 0. Neighbouring eigenvalues
+   (in sorted order) that differ by at most 1e-10 times the largest,
+   |lambda_k - lambda_k+1| <= 1e-10 x lambda_1 (inclusive), are flagged
+   with a warning (directions not unique). When
+   both warnings apply both are kept: non-convergence first, then the
+   repeated eigenvalues, joined by '; '.
 4. **Sign convention**: in each component the first loading whose absolute
    value is within 1e-9 (relative) of the largest is made positive. This
    is scikit-learn's rule (largest absolute loading positive) made robust
@@ -205,6 +213,7 @@ The 18 skips, each a documented convention difference:
 | matching one-to-one | clusters = facies | clusters > facies | match-perfect, match-more-clusters-than-facies |
 | tie bands (distance, merge, run) | within 1e-12 relative, inclusive | beyond | kmeans-assignment-tie-lower-centre, agglomerative-grid-ties-*, knn-equidistant-lower-row |
 | sign rule | within 1e-9 of the largest, inclusive | | pca-two-features-sign-tie |
+| pca repeated eigenvalues | \|lambda_k - lambda_k+1\| <= 1e-10 x lambda_1, inclusive (flagged) | above (not flagged) | pca-warning-repeated-only, pca-warning-both (exact repeats); no golden sits on the edge itself: a difference of two doubles near lambda_1 is a whole number of ulps while 1e-10 x lambda_1 rounds to a full 53-bit mantissa, and a search of 4,001 neighbouring inputs found no exact hit |
 
 ## Salvage review: Suite src/utils/logFaciesCalculations.js
 
@@ -263,26 +272,101 @@ CART): k-means with the default nInit 10 takes 1.6 s, CART 0.26 s. The
 elbow over eight k at 50k takes 2.4 s with nInit 1; the app should run it
 on a sample or show progress.
 
+## Foundation findings repaired (2026-09-24)
+
+Found by the D3 course foundation; branch
+`fix/dataai-cluster-foundation-findings`.
+
+**E1: constant-feature refusals named training rows where nothing is
+trained.** The refusal came from ml.js's scaler and read "X.CALI has zero
+variance on the 30 training rows ...". Clustering and PCA have no training
+rows. The smaller clean change was an option on the scaler (a cluster.js
+wrapper would have had to repeat the constant check or rewrite ml.js's
+text): `fitStandardScaler` and `fitMinMaxScaler` take `rowNoun`,
+`'training rows'` (default) or `'rows passed'` (anything else refused:
+"rowNoun must be 'training rows' or 'rows passed'"). Every ml.js caller
+keeps the default, so ml.js's own messages and its goldens and pins are
+byte-identical (ml_cases.json and ml_pins.json untouched; ml jest green).
+Which function says what:
+
+| function | rows named | message (standard scaler; min-max says "zero range" and "min-max scaling") |
+|---|---|---|
+| pca (correlation) | rows passed | X.CALI has zero variance on the 30 rows passed (every value is 8.5): standardising would divide by zero, so drop the feature or fit on rows where it varies |
+| pca (covariance) | none | no scaler: a constant column is kept and adds a zero eigenvalue (`pca-ekene-constant-cali-covariance`) |
+| kmeans, silhouette, agglomerative | rows passed | X.RHOB has zero variance on the 3 rows passed (every value is 2.3): ... |
+| elbow | rows passed | through its first kmeans run, same text |
+| knnClassify | training rows | X.RHOB has zero variance on the 3 training rows (every value is 2.3): ... (kNN fits its scaler on the labelled training rows, so the noun is exact) |
+| any, `scale: 'none'` | none | no scaler, no refusal (`kmeans-constant-log-none`) |
+
+**PCA warnings overwrote each other.** A Jacobi non-convergence warning
+replaced a repeated-eigenvalue warning. Both are now kept in `warning`,
+non-convergence first (it qualifies every figure, the repeated test
+included), joined by "; ". To make non-convergence reachable, `pca` takes
+`maxSweeps` (default 50, "maxSweeps must be a whole number, 1 or more").
+The non-convergence text now states the count exactly and the plural:
+"Jacobi did not converge in 1 sweep (the last sweep still rotated): the
+eigenvalues and components shown are those after sweep 1". Goldens: a
+correlation matrix of two 2 x 2 blocks built from orthogonal +-1 (Hadamard)
+columns has eigenvalues 1 + 1/sqrt 2 and 1 - 1/sqrt 2, each twice, and
+exact zeros across the blocks; the oracle computes them in Fractions (one
+square root in Decimal) and derives the sweep facts from the stated rule
+(sweep 1 rotates each block to diagonal and leaves the exact zeros at zero,
+so sweep 2 needs no rotation): `pca-warning-repeated-only` (default,
+converged at sweep 2, repeated warning alone), `pca-warning-both`
+(`maxSweeps: 1`), `pca-warning-nonconverged-only` (one block, distinct
+eigenvalues, `maxSweeps: 1`).
+
+**cutTree accepted a hand-built linkage matrix that reused an id.** It
+now refuses the first reuse: "linkageMatrix[2] merges id 4, which
+linkageMatrix[1] already merged: each row id (0 to 3) and each cluster id
+(4 to 5) may be merged once only" (`cut-tree-reuse-row-id`,
+`cut-tree-reuse-cluster-id`). The ids are checked in row order, id1 before
+id2. A matrix from `agglomerative` never reuses an id (the oracle asserts
+it on the grid tree).
+
+**Nothing else changed.** Proof: every one of the 145 golden cases was
+run through the origin/main engine (4dfbb29) and this branch's engine and
+the whole outputs compared. 129 identical; 10 differ in the refusal text
+alone (the constant-feature cases, old wording "training rows"); 6 differ
+because the old engine had no such input (4 `maxSweeps` cases it ignored,
+2 id-reuse matrices it accepted). No label, centre, eigenvalue, flag, basis
+or number of any other case differs. The oracle diff agrees: of the 126
+previous cases, 124 are byte-identical and 2 differ in `message` only;
+19 cases added. The pins: all 158 previous pins identical, 11 added, the
+18 skips unchanged. Oracle and pins regenerate byte-identically
+(`OMP_NUM_THREADS=1` for the pins).
+
+**The repeated-eigenvalue warning now states the exact test** (lead's
+follow-up, same PR). It said "are equal to within 1e-10 of the largest";
+the test is |lambda_k - lambda_k+1| <= 1e-10 x lambda_1 (inclusive, as the
+code's `<=`). It now reads "eigenvalues 1 and 2, 3 and 4 differ by at most
+1e-10 times the largest eigenvalue, so the directions of those components
+are not unique: the loadings shown are one valid choice". Proof that only
+the text moved: all 145 cases run through the previous commit's engine
+and this one, 143 identical, 2 (`pca-warning-repeated-only`,
+`pca-warning-both`) differ in `warning` alone; in the golden file the same
+2 cases differ in `warning` alone; the pins are byte-identical.
+
 ## Negative control
 
-Run 2026-09-24 (`negcontrol_cluster.sh`, full log reproduced here): baseline 316 passed; **40/40 engine plants red**, 4/4 oracle plants red; restored and re-verified 316 passed. The plant list covers every convention in the decisions above, including the salvage defect (new rows scaled with their own scaler), the row cap off by one, the tie bands removed, and scikit-learn's vote-tie rule.
+Run 2026-09-24 on `fix/dataai-cluster-foundation-findings` (`negcontrol_cluster.sh`, full log reproduced here): baseline 349 passed; **52/52 engine plants red** (12 new: the old "training rows" wording planted in pca, the clustering standard and min-max scalers and in ml.js's two messages, "rows passed" planted in kNN, the pca warning overwritten and reordered, maxSweeps ignored or 0 accepted, the cutTree reuse check removed or naming the wrong step), 6/6 oracle plants red and 1 stopped (the oracle with no reuse rule cannot write the reuse refusals); restored and re-verified 349 passed. The first run (2026-09-24, 316 tests) had 40/40 engine and 4/4 oracle plants red. The plant list covers every convention in the decisions above, including the salvage defect (new rows scaled with their own scaler), the row cap off by one, the tie bands removed, and scikit-learn's vote-tie rule.
 
 | kind | plant | tests failed | first failure |
 |---|---|---|---|
-| ENGINE | correlation PCA standardised with the population SD | 12 | goldens: the engine agrees with the oracle › pca-iris-correlation |
-| ENGINE | covariance divisor n, not n - 1 | 12 | goldens: the engine agrees with the oracle › pca-iris-covariance |
+| ENGINE | correlation PCA standardised with the population SD | 18 | goldens: the engine agrees with the oracle › pca-iris-correlation |
+| ENGINE | covariance divisor n, not n - 1 | 20 | goldens: the engine agrees with the oracle › pca-iris-covariance |
 | ENGINE | sign rule flipped (largest loading negative) | 18 | goldens: the engine agrees with the oracle › pca-iris-covariance |
 | ENGINE | sign rule on the FIRST loading, not the largest | 13 | goldens: the engine agrees with the oracle › pca-iris-covariance |
-| ENGINE | Jacobi stops after one sweep | 26 | goldens: the engine agrees with the oracle › pca-iris-covariance |
-| ENGINE | eigenvalues sorted ascending | 31 | goldens: the engine agrees with the oracle › pca-iris-covariance |
+| ENGINE | Jacobi stops after one sweep | 32 | goldens: the engine agrees with the oracle › pca-iris-covariance |
+| ENGINE | eigenvalues sorted ascending | 42 | goldens: the engine agrees with the oracle › pca-iris-covariance |
 | ENGINE | loadings scaled by the eigenvalue, not its square root | 5 | goldens: the engine agrees with the oracle › pca-iris-covariance |
-| ENGINE | k-means++ first centre floor(u (n - 1)) | 37 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ENGINE | k-means++ first centre floor(u (n - 1)) | 38 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
 | ENGINE | k-means++ weights by D, not D^2 | 44 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
 | ENGINE | assignment tie to the HIGHER centre | 3 | goldens: the engine agrees with the oracle › kmeans-assignment-tie-lower-centre |
 | ENGINE | empty cluster left empty (no relocation) | 4 | goldens: the engine agrees with the oracle › kmeans-empty-cluster-relocated |
-| ENGINE | iterations count centre updates, not assignment passes | 27 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
-| ENGINE | the LAST run wins, not the lowest inertia | 42 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
-| ENGINE | each nInit run restarts the seed (identical starts) | 23 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ENGINE | iterations count centre updates, not assignment passes | 29 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ENGINE | the LAST run wins, not the lowest inertia | 45 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ENGINE | each nInit run restarts the seed (identical starts) | 24 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
 | ENGINE | clustering scaler on the sample SD | 39 | goldens: the engine agrees with the oracle › kmeans-iris-k3-standard-seed7 |
 | ENGINE | a singleton scores 1, not 0 | 6 | goldens: the engine agrees with the oracle › silhouette-singleton-zero |
 | ENGINE | a divides by the cluster size, not size - 1 | 22 | goldens: the engine agrees with the oracle › silhouette-iris-kmeans-none |
@@ -306,13 +390,28 @@ Run 2026-09-24 (`negcontrol_cluster.sh`, full log reproduced here): baseline 316
 | ENGINE | minSamplesLeaf ignored | 10 | goldens: the engine agrees with the oracle › cart-iris-depth5-leaf5 |
 | ENGINE | importances not normalised | 7 | goldens: the engine agrees with the oracle › cart-iris-depth3 |
 | ENGINE | maxDepth counted from 1 | 11 | goldens: the engine agrees with the oracle › cart-iris-depth3 |
+| ENGINE | pca constant refusal in the old wording (training rows) | 3 | goldens: the engine agrees with the oracle › pca-constant-feature-correlation |
+| ENGINE | clustering standard scaler in the old wording (training rows) | 7 | goldens: the engine agrees with the oracle › kmeans-constant-log |
+| ENGINE | clustering min-max scaler in the old wording (training rows) | 3 | goldens: the engine agrees with the oracle › kmeans-constant-log-minmax |
+| ENGINE | kNN refusal says rows passed (its rows ARE training rows) | 3 | goldens: the engine agrees with the oracle › knn-constant-log-training |
+| ENGINE | ml.js standard scaler ignores the row noun | 10 | goldens: the engine agrees with the oracle › pca-constant-feature-correlation |
+| ENGINE | ml.js min-max scaler ignores the row noun | 3 | goldens: the engine agrees with the oracle › kmeans-constant-log-minmax |
+| ENGINE | pca warning overwritten (the last one wins) | 2 | goldens: the engine agrees with the oracle › pca-warning-both |
+| ENGINE | pca warnings in the other order | 2 | goldens: the engine agrees with the oracle › pca-warning-both |
+| ENGINE | pca maxSweeps ignored (always 50) | 3 | goldens: the engine agrees with the oracle › pca-warning-both |
+| ENGINE | pca maxSweeps 0 accepted | 1 | goldens: the engine agrees with the oracle › pca-maxsweeps-0 |
+| ENGINE | cutTree id reuse not checked | 2 | goldens: the engine agrees with the oracle › cut-tree-reuse-row-id |
+| ENGINE | cutTree reuse message names the later step | 2 | goldens: the engine agrees with the oracle › cut-tree-reuse-row-id |
 | ENGINE | one-to-one greedy (first free facies, no optimum) | 5 | goldens: the engine agrees with the oracle › match-iris-one-to-one |
 | ENGINE | ARI special case scores 0 | 4 | goldens: the engine agrees with the oracle › ari-both-one-cluster |
 | ENGINE | ARI expected index over n^2 / 2 pairs | 16 | goldens: the engine agrees with the oracle › ari-iris-kmeans |
-| ORACLE | oracle k-means++ first draw from n - 1 | 14 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ORACLE | oracle k-means++ first draw from n - 1 | 15 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
 | ORACLE | oracle singleton silhouette 1 | 2 | goldens: the engine agrees with the oracle › silhouette-singleton-zero |
 | ORACLE | oracle Ward height without the factor 2 | 3 | goldens: the engine agrees with the oracle › agglomerative-ekene90-ward-k4 |
 | ORACLE | oracle ARI special case 0 | 2 | goldens: the engine agrees with the oracle › ari-both-one-cluster |
+| ORACLE | oracle constant rule in the old wording | 10 | goldens: the engine agrees with the oracle › pca-constant-feature-correlation |
+| ORACLE | oracle keeps only the last pca warning | 1 | goldens: the engine agrees with the oracle › pca-warning-both |
+| ORACLE | oracle has no id reuse rule | STOP | the oracle refused to write a golden (cut_tree_reuse returns nothing to refuse with) |
 
 ## Open questions
 

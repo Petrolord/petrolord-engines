@@ -779,6 +779,104 @@ def ekene_facies(seed=3303, per_well=30):
 
 # ------------------------------------------------------------------ cases
 
+# ------------------------------------------------------------------ stated message rules
+# Written from the rules in FINDINGS-cluster.md (section "Refusal and warning
+# wording"), never copied from the engine's output.
+
+def constant_refusal(X, names, scaler, rows):
+    """The first constant column (in column order) refused by the scaler.
+
+    rows is 'rows passed' (the rows clustered or decomposed: pca correlation,
+    kmeans, silhouette, elbow, agglomerative) or 'training rows' (kNN)."""
+    assert rows in ('rows passed', 'training rows')
+    p = len(X[0])
+    for j in range(p):
+        col = [r[j] for r in X]
+        if all(v == col[0] for v in col):
+            name = names[j] if names else f'x{j + 1}'
+            what, verb = ('variance', 'standardising') if scaler == 'standard' else ('range', 'min-max scaling')
+            return (f'X.{name}',
+                    f'X.{name} has zero {what} on the {len(X)} {rows} (every value is {js_num(col[0])}): '
+                    f'{verb} would divide by zero, so drop the feature or fit on rows where it varies')
+    raise AssertionError('no constant column')
+
+
+def pca_warning(converged, max_sweeps, repeated):
+    """Both warnings kept: non-convergence first, then repeated eigenvalues, joined by '; '."""
+    parts = []
+    if not converged:
+        parts.append(f'Jacobi did not converge in {max_sweeps} sweep{"" if max_sweeps == 1 else "s"} (the last sweep still rotated): '
+                     f'the eigenvalues and components shown are those after sweep {max_sweeps}')
+    if repeated:
+        parts.append('eigenvalues ' + ', '.join(f'{a + 1} and {b + 1}' for a, b in repeated)
+                     + ' differ by at most 1e-10 times the largest eigenvalue, so the directions of those components are not unique: the loadings shown are one valid choice')
+    return '; '.join(parts) if parts else None
+
+
+def cut_tree_reuse(Zl):
+    """First reuse of an id in a hand-built linkage matrix: (field, message) or None."""
+    n = len(Zl) + 1
+    first = {}
+    for s, r in enumerate(Zl):
+        for i in (r[0], r[1]):
+            if i in first:
+                return (f'linkageMatrix[{s}]',
+                        f'linkageMatrix[{s}] merges id {i}, which linkageMatrix[{first[i]}] already merged: '
+                        f'each row id (0 to {n - 1}) and each cluster id ({n} to {2 * n - 3}) may be merged once only')
+            first[i] = s
+    return None
+
+
+def o_pca_blocks(X, max_sweeps):
+    """Correlation PCA of a matrix made of 2 x 2 blocks, exact in Fractions.
+
+    The cross-block covariances are exactly zero (checked), so each block
+    [[1, r], [r, 1]] contributes eigenvalues 1 + r and 1 - r with r from
+    Fractions (r^2 exact, one square root in Decimal). Jacobi facts from the
+    stated rule: sweep 1 meets a non-zero off-diagonal, so it rotates; a
+    rotation of a 2 x 2 block zeroes it and leaves the exact zeros outside it
+    at zero, so sweep 2 needs no rotation (converged at sweep 2), and with
+    maxSweeps = 1 the run stops unconverged after sweep 1."""
+    n, p = len(X), len(X[0])
+    assert p % 2 == 0
+    cols = [[F(r[j]) for r in X] for j in range(p)]
+    mu = [sum(c) / n for c in cols]
+    cov = [[sum((cols[a][i] - mu[a]) * (cols[b][i] - mu[b]) for i in range(n)) / (n - 1) for b in range(p)] for a in range(p)]
+    vals = []
+    for a in range(p):
+        for b in range(p):
+            if a // 2 != b // 2:
+                assert cov[a][b] == 0, (a, b)
+    for blk in range(0, p, 2):
+        r2 = cov[blk][blk + 1] ** 2 / (cov[blk][blk] * cov[blk + 1][blk + 1])
+        r = dec(r2).sqrt() * (1 if cov[blk][blk + 1] > 0 else -1)
+        vals += [1 + r, 1 - r]
+    vals.sort(reverse=True)
+    band = D('1e-10') * vals[0]
+    repeated = []
+    for k in range(p - 1):
+        g = abs(vals[k] - vals[k + 1])
+        if g <= band:
+            assert g == 0, 'only exact repeats are claimed'
+            repeated.append([k, k + 1])
+        else:
+            assert g > D('1e-3') * vals[0], 'a gap near the repeated band would be ambiguous'
+    total = sum(vals)
+    converged = max_sweeps >= 2
+    out = {
+        'eigenvalues': [fl(v) for v in vals],
+        'explainedVarianceRatio': [fl(v / total) for v in vals],
+        'totalVariance': fl(total),
+        'repeatedEigenvalues': repeated,
+        'converged': converged,
+        'jacobiSweeps': 2 if converged else 1,
+    }
+    w = pca_warning(converged, max_sweeps, repeated)
+    if w:
+        out['warning'] = w
+    return out
+
+
 class Cases:
     def __init__(self):
         self.cases = []
@@ -833,8 +931,31 @@ def build():
     c.refuse('pca-ncomp-5-of-4', 'pca', {'X': IX, 'nComponents': 5}, 'nComponents', 'nComponents must be a whole number from 1 to 4 (the number of features)')
     c.refuse('pca-ncomp-0', 'pca', {'X': IX, 'nComponents': 0}, 'nComponents', 'nComponents must be a whole number from 1 to 4 (the number of features)')
     c.refuse('pca-matrix-bad', 'pca', {'X': IX, 'matrix': 'kernel'}, 'matrix', "matrix must be 'correlation' or 'covariance'")
-    c.refuse('pca-constant-feature-correlation', 'pca', {'X': [[1, 5], [2, 5], [3, 5]], 'names': ['GR', 'CAL']}, 'X.CAL',
-             'X.CAL has zero variance on the 3 training rows (every value is 5): standardising would divide by zero, so drop the feature or fit on rows where it varies')
+    Xc = [[1, 5], [2, 5], [3, 5]]
+    c.refuse('pca-constant-feature-correlation', 'pca', {'X': Xc, 'names': ['GR', 'CAL']}, *constant_refusal(Xc, ['GR', 'CAL'], 'standard', 'rows passed'),
+             note='PCA has no training rows: the refusal names the rows passed')
+    # the course example: 30 Ekene rows with a constant caliper
+    EC = [r + [8.5] for r in EX[:30]]
+    ECN = LOG_NAMES + ['CALI']
+    c.refuse('pca-ekene-constant-cali', 'pca', {'X': EC, 'names': ECN}, *constant_refusal(EC, ECN, 'standard', 'rows passed'))
+    c.add('pca-ekene-constant-cali-covariance', 'pca', {'X': EC, 'names': ECN, 'matrix': 'covariance'},
+          {'eigenvalues': o_pca(EX[:30], LOG_NAMES, 'covariance')[0]['eigenvalues'] + [0.0]}, abs_floor=1e-11,
+          note='covariance PCA does not scale, so a constant column is kept and adds a zero eigenvalue')
+    c.refuse('pca-maxsweeps-0', 'pca', {'X': IX, 'maxSweeps': 0}, 'maxSweeps', 'maxSweeps must be a whole number, 1 or more')
+    c.refuse('pca-maxsweeps-fraction', 'pca', {'X': IX, 'maxSweeps': 1.5}, 'maxSweeps', 'maxSweeps must be a whole number, 1 or more')
+    # warnings: two 2 x 2 blocks from orthogonal +-1 (Hadamard) columns, correlation 1/sqrt 2 in each
+    # block and exactly 0 across, so the eigenvalues repeat in pairs
+    h1, h2, h3, h4 = [1, 1, 1, 1, -1, -1, -1, -1], [1, 1, -1, -1, 1, 1, -1, -1], [1, -1, 1, -1, 1, -1, 1, -1], [1, -1, -1, 1, -1, 1, 1, -1]
+    HB = [[60 + 10 * h1[i], 60 + 10 * (h1[i] + h2[i]), 2.4 + 0.1 * h3[i], 2.4 + 0.1 * (h3[i] + h4[i])] for i in range(8)]
+    HB = [[fl(v) for v in r] for r in HB]
+    c.add('pca-warning-repeated-only', 'pca', {'X': HB, 'names': LOG_NAMES}, o_pca_blocks(HB, 50), tol=1e-12, abs_floor=1e-12,
+          note='eigenvalues repeat in pairs (1 + 1/sqrt 2 twice, 1 - 1/sqrt 2 twice); Jacobi converges at sweep 2: the repeated-eigenvalue warning alone')
+    c.add('pca-warning-both', 'pca', {'X': HB, 'names': LOG_NAMES, 'maxSweeps': 1}, o_pca_blocks(HB, 1), tol=1e-12, abs_floor=1e-12,
+          note='maxSweeps 1: sweep 1 rotated, so Jacobi has not converged, and the eigenvalues repeat: both warnings, non-convergence first')
+    t2b = o_pca_blocks(two, 1)
+    assert t2b['repeatedEigenvalues'] == []
+    c.add('pca-warning-nonconverged-only', 'pca', {'X': two, 'maxSweeps': 1}, t2b, tol=1e-12, abs_floor=1e-12,
+          note='one 2 x 2 block: one rotation diagonalises it, but the stopping rule needs a sweep with no rotation: the non-convergence warning alone')
     c.refuse('pca-all-constant-covariance', 'pca', {'X': [[1, 5], [1, 5], [1, 5]], 'matrix': 'covariance'}, 'X',
              'X has zero total variance (every column is constant), so there are no principal components')
     c.refuse('pca-missing-value', 'pca', {'X': [[1, 2], [None, 3], [2, 2]]}, 'X[1][0]', 'X[1][0] must be a finite number: fill or drop missing values first')
@@ -889,8 +1010,14 @@ def build():
     c.refuse('kmeans-scale-bad', 'kmeans', {'X': T, 'k': 2, 'seed': 1, 'scale': 'log'}, 'scale', "scale must be 'standard', 'minmax' or 'none'")
     c.refuse('kmeans-ninit-0', 'kmeans', {'X': T, 'k': 2, 'seed': 1, 'nInit': 0}, 'nInit', 'nInit must be a whole number, 1 or more')
     c.refuse('kmeans-maxiter-0', 'kmeans', {'X': T, 'k': 2, 'seed': 1, 'maxIter': 0}, 'maxIter', 'maxIter must be a whole number, 1 or more')
-    c.refuse('kmeans-constant-log', 'kmeans', {'X': [[1, 2.3], [2, 2.3], [3, 2.3]], 'k': 2, 'seed': 1, 'names': ['GR', 'RHOB']}, 'X.RHOB',
-             'X.RHOB has zero variance on the 3 training rows (every value is 2.3): standardising would divide by zero, so drop the feature or fit on rows where it varies')
+    XK = [[1, 2.3], [2, 2.3], [3, 2.3]]
+    c.refuse('kmeans-constant-log', 'kmeans', {'X': XK, 'k': 2, 'seed': 1, 'names': ['GR', 'RHOB']}, *constant_refusal(XK, ['GR', 'RHOB'], 'standard', 'rows passed'))
+    c.refuse('kmeans-constant-log-minmax', 'kmeans', {'X': XK, 'k': 2, 'seed': 1, 'names': ['GR', 'RHOB'], 'scale': 'minmax'},
+             *constant_refusal(XK, ['GR', 'RHOB'], 'minmax', 'rows passed'))
+    c.refuse('kmeans-constant-unnamed', 'kmeans', {'X': XK, 'k': 2, 'seed': 1}, *constant_refusal(XK, None, 'standard', 'rows passed'))
+    c.refuse('kmeans-ekene-constant-cali', 'kmeans', {'X': EC, 'k': 4, 'seed': 11, 'names': ECN}, *constant_refusal(EC, ECN, 'standard', 'rows passed'))
+    c.add('kmeans-constant-log-none', 'kmeans', {'X': XK, 'k': 2, 'seed': 1, 'scale': 'none'}, o_kmeans(XK, 2, seed=1, scale='none')[0],
+          note="scale 'none' fits no scaler, so a constant column is used as given")
     c.refuse('assign-bad-model', 'assignClusters', {'model': {'kind': 'pca'}, 'X': [[1]]}, 'model', 'model must be the result of kmeans')
     c.refuse('assign-columns', 'assignClusters', {'model': {'__fit__': 'kmeans', 'args': {'X': EX, 'k': 2, 'seed': 1}}, 'X': [[1, 2]]}, 'X', 'X must have 4 columns, as the model was fitted on')
 
@@ -914,6 +1041,7 @@ def build():
     c.refuse('silhouette-labels-length', 'silhouette', {'X': S1, 'labels': [0, 1]}, 'labels', 'labels must be an array of 4 labels, one per row')
     c.refuse('silhouette-mixed-labels', 'silhouette', {'X': S1, 'labels': [0, 1, 'a', 1]}, 'labels[2]', 'labels[2] must be the same type as labels[0]: all strings or all numbers')
     c.refuse('silhouette-sample-too-big', 'silhouette', {'X': S1, 'labels': [0, 0, 1, 1], 'sampleSize': 5, 'seed': 1}, 'sampleSize', 'sampleSize must be a whole number from 2 to 4')
+    c.refuse('silhouette-constant-log', 'silhouette', {'X': XK, 'labels': [0, 0, 1], 'names': ['GR', 'RHOB']}, *constant_refusal(XK, ['GR', 'RHOB'], 'standard', 'rows passed'))
     c.refuse('silhouette-sample-no-seed', 'silhouette', {'X': S1, 'labels': [0, 0, 1, 1], 'sampleSize': 3}, 'seed', 'seed must be a whole number from 0 to 4294967295')
 
     # ---------------- elbow
@@ -937,6 +1065,8 @@ def build():
     c.add('elbow-iris-2-5-ninit1', 'elbow', {'X': IX, 'kMin': 2, 'kMax': 5, 'seed': 4, 'nInit': 1, 'scale': 'none'}, {'table': rows, 'bestSilhouetteK': None}, tol=1e-9)
     c.refuse('elbow-kmax-below-kmin', 'elbow', {'X': EX, 'kMin': 4, 'kMax': 3, 'seed': 1}, 'kMax', 'kMax must be a whole number from kMin (4) to 180 (the number of rows)')
     c.refuse('elbow-kmin-0', 'elbow', {'X': EX, 'kMin': 0, 'seed': 1}, 'kMin', 'kMin must be a whole number, 1 or more')
+    c.refuse('elbow-constant-log', 'elbow', {'X': XK, 'kMax': 2, 'seed': 1, 'names': ['GR', 'RHOB']}, *constant_refusal(XK, ['GR', 'RHOB'], 'standard', 'rows passed'),
+             note='elbow refuses through its first kmeans run')
     c.refuse('elbow-silhouette-flag', 'elbow', {'X': EX, 'seed': 1, 'withSilhouette': 'yes'}, 'withSilhouette', 'withSilhouette must be true or false')
 
     # ---------------- agglomerative
@@ -966,6 +1096,14 @@ def build():
     c.refuse('cut-tree-k0', 'cutTree', {'linkageMatrix': r['linkageMatrix'], 'k': 0}, 'k', 'k must be a whole number from 1 to 6 (the number of rows)')
     c.refuse('cut-tree-bad-row', 'cutTree', {'linkageMatrix': [[0, 1, 1, 2], [2, 9, 1, 3]], 'k': 1}, 'linkageMatrix[1]',
              'linkageMatrix[1] must be [id1, id2, height, size] with whole ids 0 <= id1 < id2 < 4')
+    c.refuse('agglomerative-constant-log', 'agglomerative', {'X': XK, 'names': ['GR', 'RHOB']}, *constant_refusal(XK, ['GR', 'RHOB'], 'standard', 'rows passed'))
+    c.refuse('agglomerative-constant-log-minmax', 'agglomerative', {'X': XK, 'names': ['GR', 'RHOB'], 'scale': 'minmax'}, *constant_refusal(XK, ['GR', 'RHOB'], 'minmax', 'rows passed'))
+    for cid, Zh, note in (
+            ('cut-tree-reuse-row-id', [[0, 1, 1, 2], [0, 2, 1.5, 2], [3, 5, 2, 4]], 'row 0 is merged twice (steps 0 and 1)'),
+            ('cut-tree-reuse-cluster-id', [[0, 1, 1, 2], [2, 4, 1.5, 3], [3, 4, 2, 4]], 'cluster 4 (made at step 0) is merged twice (steps 1 and 2)'),
+    ):
+        c.refuse(cid, 'cutTree', {'linkageMatrix': Zh, 'k': 2}, *cut_tree_reuse(Zh), note=note)
+    assert cut_tree_reuse(r['linkageMatrix']) is None
     c.refuse('cut-tree-empty', 'cutTree', {'linkageMatrix': [], 'k': 1}, 'linkageMatrix', 'linkageMatrix must be the non-empty linkageMatrix of agglomerative')
 
     # ---------------- kNN (train on four wells, classify the other two)
@@ -990,6 +1128,10 @@ def build():
           note='rows 0 and 2 are both 2 from the new row; the lower row (0) is the second neighbour; the 1 to 1 vote goes to b (nearest)')
     del Kd
     c.refuse('knn-k-above-n', 'knnClassify', {'X': K, 'y': Ky, 'Xnew': [[1]], 'k': 6}, 'k', 'k must be a whole number from 1 to 5 (the training rows)')
+    c.refuse('knn-constant-log-training', 'knnClassify', {'X': XK, 'y': ['a', 'b', 'a'], 'Xnew': [[1.5, 2.4]], 'k': 1, 'names': ['GR', 'RHOB']},
+             *constant_refusal(XK, ['GR', 'RHOB'], 'standard', 'training rows'), note='kNN fits its scaler on the labelled training rows, so they are named')
+    c.refuse('knn-constant-log-training-minmax', 'knnClassify', {'X': XK, 'y': ['a', 'b', 'a'], 'Xnew': [[1.5, 2.4]], 'k': 1, 'scale': 'minmax'},
+             *constant_refusal(XK, None, 'minmax', 'training rows'))
     c.refuse('knn-columns', 'knnClassify', {'X': K, 'y': Ky, 'Xnew': [[1, 2]]}, 'Xnew', 'Xnew must have 1 column, like X')
     c.refuse('knn-y-length', 'knnClassify', {'X': K, 'y': ['a'], 'Xnew': [[1]]}, 'y', 'y must be an array of 5 labels, one per row')
     c.refuse('knn-y-null', 'knnClassify', {'X': K, 'y': ['a', None, 'a', 'b', 'c'], 'Xnew': [[1]]}, 'y[1]', 'y[1] must be a string or a finite number')

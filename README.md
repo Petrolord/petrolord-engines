@@ -669,7 +669,9 @@ and its consumers.
   classificationReport, and the adjusted Rand index. Distance and merge
   ties are judged in a stated 1e-12 relative band so decimal log values
   cannot let rounding pick the winner. Scaling and metrics are imported
-  from ml.js. Gate: `dataai.cluster.test.js` replays
+  from ml.js; a constant log is refused naming the rows it was fitted on
+  ("the N rows passed" when clustering or in PCA, "the N training rows"
+  for kNN). Gate: `dataai.cluster.test.js` replays
   `test-data/dataai/goldens/cluster_cases.json` (stdlib oracle
   `tools/validation/dataai/oracle_cluster.py`: bisection eigenvalues,
   linkage heights from their definitions, brute-force matching, pair-count
