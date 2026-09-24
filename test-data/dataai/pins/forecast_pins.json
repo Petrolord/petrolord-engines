@@ -3297,6 +3297,42 @@
    "library": "scipy L-BFGS-B minimiser"
   },
   {
+   "id": "damped-phi-at-upper-bound:sse:atMost",
+   "case": "damped-phi-at-upper-bound",
+   "field": "sse",
+   "value": 47.59214089718283,
+   "tol": 1e-09,
+   "compare": "atMost",
+   "library": "scipy L-BFGS-B minimum of the scored SSE (statsmodels recursions)"
+  },
+  {
+   "id": "damped-phi-at-upper-bound:params.alpha",
+   "case": "damped-phi-at-upper-bound",
+   "field": "params.alpha",
+   "value": 0.665727104227041,
+   "tol": 1e-06,
+   "abs": 1e-06,
+   "library": "scipy L-BFGS-B minimiser"
+  },
+  {
+   "id": "damped-phi-at-upper-bound:params.beta",
+   "case": "damped-phi-at-upper-bound",
+   "field": "params.beta",
+   "value": 1.0,
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "scipy L-BFGS-B minimiser"
+  },
+  {
+   "id": "damped-phi-at-upper-bound:params.phi",
+   "case": "damped-phi-at-upper-bound",
+   "field": "params.phi",
+   "value": 0.98,
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "scipy L-BFGS-B minimiser"
+  },
+  {
    "id": "acc-basic:mae",
    "case": "acc-basic",
    "field": "mae",
@@ -4219,6 +4255,11 @@
    "holt-linear-exact",
    "statsmodels own fit",
    "statsmodels' own optimiser stops at a different point: alpha 0.005, beta 0.0001, scored SSE 0 against the engine's 0"
+  ],
+  [
+   "damped-phi-at-upper-bound",
+   "statsmodels own fit",
+   "statsmodels' own optimiser stops at its beta <= alpha limit: alpha 0.793925, beta 0.793925, phi 0.98, scored SSE 52.58576465 against the engine's 47.5921409"
   ],
   [
    "acc-zero-actual",

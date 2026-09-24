@@ -928,6 +928,8 @@ def build():
     fit_case(c, 'damped-ekene2-fit-phi-fixed', w2, 'damped', phi=0.9, h=6, note='phi fixed, alpha and beta estimated')
     fit_case(c, 'holt-linear-exact', [10, 12, 14, 16, 18, 20, 22, 24], 'holt', h=3,
              note='an exact line: every (alpha, beta) gives SSE 0, so the grid tie keeps its first point (0, 0) and no step improves')
+    fit_case(c, 'damped-phi-at-upper-bound', [1000, 962, 921, 885, 846, 810, 771, 735, 697, 660, 622, 585, 548, 510, 473, 436, 398, 361], 'damped', h=6,
+             note='a steady straight-line decline: the SSE keeps falling as phi rises, so the fitted phi stops on its upper bound 0.98 (beta on 1) and atBounds lists both')
 
     # ---------------- fitSmoothing refusals
     R = lambda cid, args, field, msg, note=None: c.refuse(cid, 'fitSmoothing', args, field, msg, note)
