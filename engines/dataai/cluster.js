@@ -13,7 +13,10 @@
  *               is ml.js fitStandardScaler / fitMinMaxScaler (population SD,
  *               a constant feature refused by name) fitted on the rows being
  *               clustered, or on the TRAINING rows for kNN; imported, not
- *               re-implemented.
+ *               re-implemented. A constant feature's refusal names the rows
+ *               it was fitted on: "on the N rows passed" for pca
+ *               (correlation), kmeans, silhouette, elbow and agglomerative;
+ *               "on the N training rows" for knnClassify.
  *   distance    Euclidean on the scaled features everywhere (k-means,
  *               silhouette, agglomerative, kNN).
  *   PCA         matrix 'correlation' (default: features standardised with
@@ -21,7 +24,10 @@
  *               'covariance' (centred, divisor n - 1). Eigenvalues by cyclic
  *               Jacobi rotations; an off-diagonal entry at or below
  *               eps x sqrt(|a_pp a_qq|) (eps = 2^-52) is set to zero; stops
- *               after the first sweep that needs no rotation (at most 50).
+ *               after the first sweep that needs no rotation (at most
+ *               maxSweeps, default 50). Warnings: a Jacobi non-convergence
+ *               warning first, then a repeated-eigenvalue warning, joined
+ *               by '; ' when both apply.
  *               Sorted descending, equal values keep column order. A
  *               computed eigenvalue below zero (rounding) is reported as 0.
  *               Sign: in each component the first loading whose absolute
@@ -151,13 +157,18 @@ const checkNames = (names, p) => {
 
 const SCALES = ['standard', 'minmax', 'none'];
 
-/** Fits the named scaler on X (ml.js) and returns the scaled rows. */
-const scaleFit = (X, scale, names) => {
+/**
+ * Fits the named scaler on X (ml.js) and returns the scaled rows. `rowNoun`
+ * names the fitted rows in a constant-feature refusal: 'rows passed' where
+ * X is clustered (kmeans, silhouette, agglomerative, and elbow through
+ * kmeans), 'training rows' for kNN, whose X is the labelled training set.
+ */
+const scaleFit = (X, scale, names, rowNoun) => {
   if (!SCALES.includes(scale)) return { bad: refuse('scale', "must be 'standard', 'minmax' or 'none'") };
   const bn = checkNames(names, X[0].length);
   if (bn) return { bad: bn };
   if (scale === 'none') return { Z: X, scaler: null };
-  const fit = scale === 'standard' ? fitStandardScaler({ X, names }) : fitMinMaxScaler({ X, names });
+  const fit = scale === 'standard' ? fitStandardScaler({ X, names, rowNoun }) : fitMinMaxScaler({ X, names, rowNoun });
   if (fit.error) return { bad: fit };
   return { Z: applyScaler({ scaler: fit, X }).X, scaler: { kind: fit.kind, centre: fit.centre, scale: fit.scale } };
 };
@@ -189,13 +200,13 @@ const shuffledRows = (n, seed) => {
 /* PCA. */
 
 /** Cyclic Jacobi eigen-decomposition of a symmetric matrix. */
-const jacobiEigen = (S) => {
+const jacobiEigen = (S, maxSweeps) => {
   const p = S.length;
   const A = S.map((r) => r.slice());
   const V = Array.from({ length: p }, (_, i) => Array.from({ length: p }, (__, j) => (i === j ? 1 : 0)));
   let sweeps = 0;
   let converged = false;
-  while (sweeps < DEFAULTS.JACOBI_MAX_SWEEPS) {
+  while (sweeps < maxSweeps) {
     sweeps += 1;
     let rotations = 0;
     for (let a = 0; a < p - 1; a += 1) {
@@ -241,7 +252,7 @@ const MATRICES = ['correlation', 'covariance'];
  * score); `scores` are the centred (and, for correlation, sample-SD
  * standardised) rows times the components.
  */
-export const pca = ({ X, names, matrix = 'correlation', nComponents } = {}) => {
+export const pca = ({ X, names, matrix = 'correlation', nComponents, maxSweeps = DEFAULTS.JACOBI_MAX_SWEEPS } = {}) => {
   const bad = checkMatrix('X', X, 2);
   if (bad) return bad;
   const n = X.length;
@@ -249,9 +260,10 @@ export const pca = ({ X, names, matrix = 'correlation', nComponents } = {}) => {
   if (!MATRICES.includes(matrix)) return refuse('matrix', "must be 'correlation' or 'covariance'");
   const q = nComponents === undefined ? p : nComponents;
   if (!isInt(q) || q < 1 || q > p) return refuse('nComponents', `must be a whole number from 1 to ${p} (the number of features)`);
+  if (!isInt(maxSweeps) || maxSweeps < 1) return refuse('maxSweeps', 'must be a whole number, 1 or more');
   let centre; let scale;
   if (matrix === 'correlation') {
-    const fit = fitStandardScaler({ X, names, sd: 'sample' });
+    const fit = fitStandardScaler({ X, names, sd: 'sample', rowNoun: 'rows passed' });
     if (fit.error) return fit;
     centre = fit.centre; scale = fit.scale;
   } else {
@@ -272,7 +284,7 @@ export const pca = ({ X, names, matrix = 'correlation', nComponents } = {}) => {
   let trace = 0;
   for (let j = 0; j < p; j += 1) trace += S[j][j];
   if (!(trace > 0)) return refuse('X', 'has zero total variance (every column is constant), so there are no principal components');
-  const eig = jacobiEigen(S);
+  const eig = jacobiEigen(S, maxSweeps);
   const order = eig.values.map((v, j) => j).sort((a, b) => eig.values[b] - eig.values[a] || a - b);
   const values = order.map((j) => Math.max(0, eig.values[j]));
   const components = order.map((j) => {
@@ -317,15 +329,19 @@ export const pca = ({ X, names, matrix = 'correlation', nComponents } = {}) => {
       matrix: matrix === 'correlation'
         ? 'correlation matrix: features standardised with the SAMPLE SD (n - 1), so each score variance equals its eigenvalue and the eigenvalues sum to the number of features'
         : 'covariance matrix of the centred features, divisor n - 1 (as scikit-learn PCA explained_variance_)',
-      eigen: 'cyclic Jacobi rotations; an off-diagonal entry at or below 2^-52 x sqrt(|a_pp a_qq|) is set to zero; stops after the first sweep needing no rotation (at most 50 sweeps); eigenvalues sorted descending, equal values keep column order, a rounding value below zero reported as 0',
+      eigen: `cyclic Jacobi rotations; an off-diagonal entry at or below 2^-52 x sqrt(|a_pp a_qq|) is set to zero; stops after the first sweep needing no rotation (at most ${maxSweeps} sweeps); eigenvalues sorted descending, equal values keep column order, a rounding value below zero reported as 0`,
       sign: 'in each component the first loading whose absolute value is within 1e-9 (relative) of the largest is made positive (scikit-learn: the largest absolute loading positive)',
       loadings: 'component x sqrt(eigenvalue); in the correlation form, the correlation of the feature with the score',
       scores: 'centred (and for correlation, standardised) rows times the unit components',
       ratio: 'eigenvalue / sum of all eigenvalues',
     },
   };
-  if (repeated.length) out.warning = `eigenvalues ${repeated.map(([a, b]) => `${a + 1} and ${b + 1}`).join(', ')} are equal to within 1e-10 of the largest, so the directions of those components are not unique: the loadings shown are one valid choice`;
-  if (!eig.converged) out.warning = `Jacobi did not converge in ${DEFAULTS.JACOBI_MAX_SWEEPS} sweeps`;
+  // Both warnings are kept, non-convergence first (it qualifies every
+  // figure, the repeated-eigenvalue test included), joined by '; '.
+  const warnings = [];
+  if (!eig.converged) warnings.push(`Jacobi did not converge in ${maxSweeps} sweep${maxSweeps === 1 ? '' : 's'} (the last sweep still rotated): the eigenvalues and components shown are those after sweep ${maxSweeps}`);
+  if (repeated.length) warnings.push(`eigenvalues ${repeated.map(([a, b]) => `${a + 1} and ${b + 1}`).join(', ')} are equal to within 1e-10 of the largest, so the directions of those components are not unique: the loadings shown are one valid choice`);
+  if (warnings.length) out.warning = warnings.join('; ');
   return out;
 };
 
@@ -449,7 +465,7 @@ export const kmeans = ({ X, k, seed, nInit, maxIter = DEFAULTS.KMEANS_MAX_ITER, 
   const n = X.length; const p = X[0].length;
   if (!isInt(k) || k < 1 || k > n) return refuse('k', `must be a whole number from 1 to ${n} (the number of rows)`);
   if (!isInt(maxIter) || maxIter < 1) return refuse('maxIter', 'must be a whole number, 1 or more');
-  const sf = scaleFit(X, scale, names);
+  const sf = scaleFit(X, scale, names, 'rows passed');
   if (sf.bad) return sf.bad;
   const Z = sf.Z;
   const A = flat(Z);
@@ -586,7 +602,7 @@ export const silhouette = ({ X, labels, scale = 'standard', names, sampleSize, s
   } else if (n > DEFAULTS.SILHOUETTE_MAX_ROWS) {
     return refuse('X', `has ${n} rows, above the ${DEFAULTS.SILHOUETTE_MAX_ROWS} the silhouette computes in full (every pair of rows): give sampleSize and seed to score a seeded sample`);
   }
-  const sf = scaleFit(X, scale, names);
+  const sf = scaleFit(X, scale, names, 'rows passed');
   if (sf.bad) return sf.bad;
   const Z = rows ? rows.map((i) => sf.Z[i]) : sf.Z;
   const lab = rows ? rows.map((i) => labels[i]) : labels;
@@ -691,7 +707,7 @@ export const agglomerative = ({ X, linkage = 'ward', k, scale = 'standard', name
   if (!LINKAGES.includes(linkage)) return refuse('linkage', "must be 'ward', 'complete' or 'average'");
   if (n > DEFAULTS.AGGLOMERATIVE_MAX_ROWS) return refuse('X', `has ${n} rows, above the ${DEFAULTS.AGGLOMERATIVE_MAX_ROWS} agglomerative clustering accepts (it holds every pairwise distance, n(n - 1)/2 of them): cluster a sample or use kmeans`);
   if (k !== undefined && (!isInt(k) || k < 1 || k > n)) return refuse('k', `must be a whole number from 1 to ${n} (the number of rows)`);
-  const sf = scaleFit(X, scale, names);
+  const sf = scaleFit(X, scale, names, 'rows passed');
   if (sf.bad) return sf.bad;
   const A = flat(sf.Z);
   const idx = (i, j) => (i < j ? i * n - (i * (i + 1)) / 2 + (j - i - 1) : j * n - (j * (j + 1)) / 2 + (i - j - 1));
@@ -780,10 +796,15 @@ export const agglomerative = ({ X, linkage = 'ward', k, scale = 'standard', name
 export const cutTree = ({ linkageMatrix, k } = {}) => {
   if (!Array.isArray(linkageMatrix) || linkageMatrix.length < 1) return refuse('linkageMatrix', 'must be the non-empty linkageMatrix of agglomerative');
   const n = linkageMatrix.length + 1;
+  const mergedAt = new Map(); // id -> the step that merged it
   for (let s = 0; s < n - 1; s += 1) {
     const r = linkageMatrix[s];
     if (!Array.isArray(r) || r.length !== 4 || !isInt(r[0]) || !isInt(r[1]) || r[0] < 0 || r[1] >= n + s || r[0] >= r[1]) {
       return refuse(`linkageMatrix[${s}]`, `must be [id1, id2, height, size] with whole ids 0 <= id1 < id2 < ${n + s}`);
+    }
+    for (const id of [r[0], r[1]]) {
+      if (mergedAt.has(id)) return refuse(`linkageMatrix[${s}]`, `merges id ${id}, which linkageMatrix[${mergedAt.get(id)}] already merged: each row id (0 to ${n - 1}) and each cluster id (${n} to ${2 * n - 3}) may be merged once only`);
+      mergedAt.set(id, s);
     }
   }
   if (!isInt(k) || k < 1 || k > n) return refuse('k', `must be a whole number from 1 to ${n} (the number of rows)`);
@@ -809,7 +830,7 @@ export const knnClassify = ({ X, y, Xnew, k = 5, scale = 'standard', names } = {
   if (Xnew[0].length !== p) return refuse('Xnew', `must have ${p} column${p === 1 ? '' : 's'}, like X`);
   if (!isInt(k) || k < 1 || k > n) return refuse('k', `must be a whole number from 1 to ${n} (the training rows)`);
   if (n * Xnew.length > DEFAULTS.KNN_MAX_PAIRS) return refuse('Xnew', `has ${Xnew.length} rows against ${n} training rows, ${n * Xnew.length} distance pairs, above the ${DEFAULTS.KNN_MAX_PAIRS} kNN computes: classify fewer rows at a time or thin the training rows`);
-  const sf = scaleFit(X, scale, names);
+  const sf = scaleFit(X, scale, names, 'training rows');
   if (sf.bad) return sf.bad;
   const A = flat(sf.Z);
   const B = flat(scaleApply(sf.scaler, Xnew));
