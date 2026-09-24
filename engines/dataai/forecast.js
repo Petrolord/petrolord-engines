@@ -70,7 +70,11 @@
  *               replacement from the scored in-sample residuals, index
  *               floor(u x m), u from one mulberry32(seed) stream (lib/stats)
  *               drawn path by path, step by step; the simulated value
- *               updates the state. Per step the 10th, 50th and 90th
+ *               updates the state. Residuals are drawn as fitted, without
+ *               centring (their mean is not subtracted), as FPP3 5.5 and
+ *               statsmodels simulate do: a method whose residuals have a
+ *               non-zero mean drifts, so on a declining well a flat method's
+ *               paths can fall below its own point forecast. Per step the 10th, 50th and 90th
  *               percentiles by lib/stats quantile (simple-statistics 7.8.8
  *               rule on the n sorted values, idx = n p: idx not whole gives
  *               the ceil(idx)-th smallest; idx whole and n even the mean of
@@ -474,7 +478,7 @@ export const forecastIntervals = ({ y, method, alpha, beta, phi, initialLevel, i
     basis: {
       method: methodBasis(method),
       fit: r.free.length ? FIT_BASIS : 'all parameters given: no estimation',
-      bootstrap: `${nSims} path${nSims === 1 ? '' : 's'}; each step adds a residual drawn with replacement from the ${m} scored in-sample residuals (index floor(u x ${m}), u from mulberry32(${seed}), path by path, step by step) to the one-step forecast, and the simulated value updates the state`,
+      bootstrap: `${nSims} path${nSims === 1 ? '' : 's'}; each step adds a residual drawn with replacement from the ${m} scored in-sample residuals (index floor(u x ${m}), u from mulberry32(${seed}), path by path, step by step) to the one-step forecast, and the simulated value updates the state; residuals are drawn as fitted without centring (their mean is not subtracted), so a method whose residuals have a non-zero mean drifts: on a declining well a flat method's paths can fall below its own point forecast`,
       percentiles: 'per step, lib/stats quantile at 0.1, 0.5, 0.9 of the simulated values (idx = nSims x p on the sorted values: idx not whole takes the ceil(idx)-th smallest, idx whole with nSims even the mean of the idx-th and (idx+1)-th, idx whole with nSims odd the (idx+1)-th); production is an outcome where more is better, so P90 (low) is the 10th percentile and P10 (high) the 90th',
       nonNegative: nonNegative ? 'a negative percentile is reported as 0 (clippedToZero counts them)' : 'percentiles reported as simulated, negatives included',
     },
