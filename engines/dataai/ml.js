@@ -68,8 +68,10 @@
  *                 updates with converged false. A step that lowers the
  *                 penalised log likelihood by more than 1e-12 x (1 + |l|)
  *                 is halved, up to 30 times; the full-step test means a
- *                 halved step can never fake convergence. Separation is
- *                 tested FIRST by linear programming (lib/lp): with l2 = 0
+ *                 halved step can never fake convergence. The Newton
+ *                 system is solved by solveSPD (relative pivot rule).
+ *                 Separation is tested FIRST by the dual linear
+ *                 programmes of Stiemke and Gordan (lib/lp): with l2 = 0
  *                 a separated sample is refused, with l2 > 0 it is fitted
  *                 and reported.
  *   metrics       R^2 on a test set uses the mean of the TEST targets
@@ -87,8 +89,11 @@
  *   reasons       figures in messages print as the shortest round-trip
  *                 decimal (ECMAScript Number to String).
  *
- * Reused, by import: lib/stats (mulberry32, mean), lib/linalg/solveDense
- * (the Newton step), lib/lp/simplex (the separation test).
+ * Reused, by import: lib/stats (mulberry32, mean), lib/lp/simplex (the
+ * separation test). The Newton system is solved by this module's own
+ * scale-aware Cholesky (solveSPD), NOT lib/linalg/solveDense, whose
+ * absolute 1e-14 pivot test refuses well-conditioned systems with small
+ * entries (FINDINGS-ml.md).
  *
  * Validation: tools/validation/dataai/oracle_ml.py (stdlib python, written
  * from the equations) writes test-data/dataai/goldens/ml_cases.json; the
@@ -100,7 +105,6 @@
  */
 
 import { mulberry32, mean as statsMean } from '../../lib/stats/stats.js';
-import { solveDense } from '../../lib/linalg/solveDense.js';
 import { solveLP, LP_STATUS } from '../../lib/lp/simplex.js';
 
 /* ------------------------------------------------------------------ */
@@ -112,7 +116,6 @@ export const DEFAULTS = Object.freeze({
   LOGISTIC_MAX_ITER: 100,
   STEP_HALVINGS: 30,
   LOG_LOSS_EPS: 1e-15,
-  SEPARATION_TOL: 1e-7, // LP objective above this means separation
   WHOLE_TOL: 1e-9, // a size product this close to a whole number is that number
 });
 
@@ -395,8 +398,9 @@ export const fitMinMaxScaler = ({ X, trainIndices, names } = {}) => {
   const max = [];
   for (let j = 0; j < p; j += 1) {
     const col = rows.map((r) => r[j]);
-    const lo = Math.min(...col);
-    const hi = Math.max(...col);
+    let lo = col[0];
+    let hi = col[0];
+    for (let i = 1; i < col.length; i += 1) { if (col[i] < lo) lo = col[i]; if (col[i] > hi) hi = col[i]; }
     if (lo === hi) return refuse(`X.${nm.names[j]}`, `has zero range on the ${rows.length} training rows (every value is ${fmt(lo)}): min-max scaling would divide by zero, so drop the feature or fit on rows where it varies`);
     min.push(lo); max.push(hi); centre.push(lo); scale.push(hi - lo);
   }
@@ -792,33 +796,140 @@ export const ridge = ({ X, y, lambda, names, maxCondition = DEFAULTS.MAX_CONDITI
 };
 
 /* ------------------------------------------------------------------ */
+/* Scale-aware symmetric positive definite solve. */
+
+/**
+ * Cholesky factor of a symmetric matrix after scaling it to unit diagonal
+ * (Hs = D^-1/2 H D^-1/2). The rule is RELATIVE: a diagonal entry at or
+ * below zero, or a pivot of the unit-diagonal factorisation at or below
+ * p x machine epsilon (p x 2.220446049250313e-16), means singular to
+ * working precision. Scaling a variable by any factor leaves the decision
+ * unchanged, unlike an absolute pivot threshold.
+ */
+const cholScaled = (H) => {
+  const p = H.length;
+  const tol = p * Number.EPSILON;
+  const r = new Array(p);
+  for (let k = 0; k < p; k += 1) {
+    if (!(H[k][k] > 0)) return { singular: true, k, pivot: H[k][k], diagonal: true, tol };
+    r[k] = Math.sqrt(H[k][k]);
+  }
+  const L = Array.from({ length: p }, () => new Array(p).fill(0));
+  for (let j = 0; j < p; j += 1) {
+    let d = H[j][j] / (r[j] * r[j]);
+    for (let k = 0; k < j; k += 1) d -= L[j][k] * L[j][k];
+    if (!(d > tol)) return { singular: true, k: j, pivot: d, diagonal: false, tol };
+    const ljj = Math.sqrt(d);
+    L[j][j] = ljj;
+    for (let i = j + 1; i < p; i += 1) {
+      let v = H[i][j] / (r[i] * r[j]);
+      for (let k = 0; k < j; k += 1) v -= L[i][k] * L[j][k];
+      L[i][j] = v / ljj;
+    }
+  }
+  let minPivot = Infinity;
+  for (let j = 0; j < p; j += 1) minPivot = Math.min(minPivot, L[j][j] * L[j][j]);
+  return { L, r, minPivot, tol };
+};
+
+const cholSolve = ({ L, r }, b) => {
+  const p = L.length;
+  const z = new Array(p);
+  for (let i = 0; i < p; i += 1) {
+    let s = b[i] / r[i];
+    for (let k = 0; k < i; k += 1) s -= L[i][k] * z[k];
+    z[i] = s / L[i][i];
+  }
+  const x = new Array(p);
+  for (let i = p - 1; i >= 0; i -= 1) {
+    let s = z[i];
+    for (let k = i + 1; k < p; k += 1) s -= L[k][i] * x[k];
+    x[i] = s / L[i][i];
+  }
+  return x.map((v, i) => v / r[i]);
+};
+
+const singularText = (f) => (f.diagonal
+  ? `diagonal entry ${f.k + 1} is ${fmt(f.pivot)}, at or below zero, so the matrix is not positive definite`
+  : `pivot ${f.k + 1} of the Cholesky factorisation of the unit-diagonal scaled matrix is ${fmt(f.pivot)}, at or below p x machine epsilon = ${fmt(f.tol)}`);
+
+/**
+ * Solves A x = b for a symmetric positive definite A (the Newton system of
+ * the logistic fit) by Cholesky on the unit-diagonal scaling of A, with the
+ * relative singularity rule of cholScaled. Only the lower triangle of A is
+ * read. Returns x, the smallest scaled pivot and the rule.
+ */
+export const solveSPD = ({ A, b } = {}) => {
+  if (!Array.isArray(A) || A.length === 0) return refuse('A', 'must be a non-empty square array of rows');
+  const p = A.length;
+  for (let i = 0; i < p; i += 1) {
+    if (!Array.isArray(A[i]) || A[i].length !== p) return refuse(`A[${i}]`, `must be an array of ${p} numbers (A is square)`);
+    for (let j = 0; j < p; j += 1) if (!isNum(A[i][j])) return refuse(`A[${i}][${j}]`, 'must be a finite number');
+  }
+  const bb = checkVector('b', b, p);
+  if (bb) return bb;
+  const f = cholScaled(A);
+  if (f.singular) return refuse('A', `is singular to working precision: ${singularText(f)}`);
+  return {
+    x: cholSolve(f, b),
+    minScaledPivot: f.minPivot,
+    pivotTolerance: f.tol,
+    basis: {
+      method: 'Cholesky of D^-1/2 A D^-1/2 (unit diagonal), D = diag(A); lower triangle read',
+      rule: 'singular when a diagonal entry is at or below zero or a scaled pivot is at or below p x machine epsilon; the rule is relative, so rescaling a variable never changes it',
+    },
+  };
+};
+
+/* ------------------------------------------------------------------ */
 /* Logistic regression. */
 
 const sigmoid = (t) => (t >= 0 ? 1 / (1 + Math.exp(-t)) : Math.exp(t) / (1 + Math.exp(t)));
 const softplus = (t) => (t > 0 ? t + Math.log1p(Math.exp(-t)) : Math.log1p(Math.exp(t)));
 
 /**
- * Separation test by linear programming on the design with every column
- * divided by its largest absolute value. With s_i = +1 for y = 1 and -1
- * for y = 0, the sample is separated when some beta with |beta_j| <= 1
- * has s_i x_i'beta >= 0 for every row and a positive sum; it is
- * COMPLETELY separated when some beta has every s_i x_i'beta >= t > 0.
+ * Separation test by linear programming, on the DUAL side so the tableau
+ * has p (or p + 1) rows whatever the number of samples. S is the design
+ * with row i multiplied by s_i (+1 for y = 1, -1 for y = 0) and every
+ * column divided by its largest absolute value.
+ *
+ *   Stiemke's theorem: exactly one holds, (a) some beta has S beta >= 0
+ *   and S beta != 0 (the sample is separated, completely or
+ *   quasi-completely), or (b) some weights w > 0 have S'w = 0. The LP
+ *   S'w = 0, w >= 1 is feasible exactly when (b) holds.
+ *   Gordan's theorem: exactly one holds, (a) some beta has S beta > 0
+ *   (complete separation), or (b) some w >= 0, w != 0 has S'w = 0. The LP
+ *   S'w = 0, sum w = 1, w >= 0 is feasible exactly when (b) holds.
+ *
+ * Feasibility is lib/lp's phase one (infeasible when the artificial sum
+ * left is above 1e-7). The second LP runs only when the first finds
+ * separation.
  */
 const separationTest = (A, y) => {
   const n = A.length;
   const p = A[0].length;
-  const mx = [];
-  for (let j = 0; j < p; j += 1) mx.push(Math.max(...A.map((r) => Math.abs(r[j]))) || 1);
-  const S = A.map((r, i) => r.map((v, j) => (y[i] === 1 ? 1 : -1) * v / mx[j]));
-  const c = new Array(p).fill(0);
-  S.forEach((r) => r.forEach((v, j) => { c[j] += v; }));
-  const quasi = solveLP({ c, A: S, b: new Array(n).fill(0), ops: new Array(n).fill('>='), lo: new Array(p).fill(-1), hi: new Array(p).fill(1), maximize: true });
-  const quasiValue = quasi.status === LP_STATUS.OPTIMAL ? quasi.objective + 0 : 0;
-  if (!(quasiValue > DEFAULTS.SEPARATION_TOL)) return { detected: false, type: 'none', lpObjective: quasiValue };
-  const Ac = S.map((r) => [...r, -1]);
-  const comp = solveLP({ c: [...new Array(p).fill(0), 1], A: Ac, b: new Array(n).fill(0), ops: new Array(n).fill('>='), lo: [...new Array(p).fill(-1), 0], hi: [...new Array(p).fill(1), 1], maximize: true });
-  const margin = comp.status === LP_STATUS.OPTIMAL ? comp.objective : 0;
-  return { detected: true, type: margin > DEFAULTS.SEPARATION_TOL ? 'complete' : 'quasi-complete', lpObjective: quasiValue, margin };
+  const cols = [];
+  for (let j = 0; j < p; j += 1) {
+    let mx = 0;
+    for (let i = 0; i < n; i += 1) { const v = Math.abs(A[i][j]); if (v > mx) mx = v; }
+    if (mx === 0) mx = 1;
+    const col = new Array(n);
+    for (let i = 0; i < n; i += 1) col[i] = ((y[i] === 1 ? 1 : -1) * A[i][j]) / mx;
+    cols.push(col);
+  }
+  const zeros = new Array(n).fill(0);
+  const stiemke = solveLP({ c: zeros, A: cols, b: new Array(p).fill(0), ops: new Array(p).fill('='), lo: new Array(n).fill(1), hi: new Array(n).fill(Infinity) });
+  if (stiemke.status === LP_STATUS.ITERATION_LIMIT) return { undecided: true, lpIterations: stiemke.iterations };
+  if (stiemke.status === LP_STATUS.OPTIMAL) return { detected: false, type: 'none', certificate: 'Stiemke weights w >= 1 with S\'w = 0', lpIterations: stiemke.iterations };
+  const gordan = solveLP({ c: zeros, A: [...cols, new Array(n).fill(1)], b: [...new Array(p).fill(0), 1], ops: new Array(p + 1).fill('='), lo: zeros, hi: new Array(n).fill(Infinity) });
+  if (gordan.status === LP_STATUS.ITERATION_LIMIT) return { undecided: true, lpIterations: stiemke.iterations + gordan.iterations };
+  const complete = gordan.status !== LP_STATUS.OPTIMAL;
+  return {
+    detected: true,
+    type: complete ? 'complete' : 'quasi-complete',
+    certificate: complete ? 'no Gordan weights exist: some beta has S beta > 0' : 'Gordan weights w >= 0, sum 1, with S\'w = 0 exist: no strict separator',
+    lpIterations: stiemke.iterations + gordan.iterations,
+  };
 };
 
 const penLogLik = (A, y, beta, l2, pen) => {
@@ -863,6 +974,7 @@ export const logistic = ({ X, y, names, intercept = true, l2 = 0, tol = DEFAULTS
     if (!(kappa <= DEFAULTS.MAX_CONDITION)) return refuse('X', `is rank deficient or too ill-conditioned for an unpenalised fit: the scaled condition number ${fmt(kappa)} is above ${fmt(DEFAULTS.MAX_CONDITION)}; add an L2 penalty (l2 > 0) or drop collinear features`);
   }
   const separation = separationTest(A, y);
+  if (separation.undecided) return refuse('y', `could not be tested for separation: the linear programme stopped at its iteration limit after ${separation.lpIterations} pivots`);
   if (separation.detected && l2 === 0) {
     return refuse('y', `is ${separation.type === 'complete' ? 'completely' : 'quasi-completely'} separated by a linear combination of the features (${separation.type === 'complete' ? 'every row lies strictly on its own class side of a hyperplane' : 'every row lies on or on its own class side of a hyperplane, some exactly on it'}), so the maximum likelihood coefficients are infinite: add an L2 penalty (l2 > 0) or remove the separating feature`);
   }
@@ -889,10 +1001,11 @@ export const logistic = ({ X, y, names, intercept = true, l2 = 0, tol = DEFAULTS
       for (let k = 0; k < j; k += 1) H[k][j] = H[j][k];
       if (pen[j]) { g[j] -= l2 * beta[j]; H[j][j] += l2; }
     }
-    let delta;
-    try { delta = solveDense(H, g); } catch (e) {
-      return refuse('X', `gives a singular Newton system at iteration ${iterations + 1} (the weighted information matrix X'WX${l2 > 0 ? ' + l2 P' : ''} is not invertible): add an L2 penalty or drop collinear features`);
+    const fac = cholScaled(H);
+    if (fac.singular) {
+      return refuse('X', `gives a singular Newton system at iteration ${iterations + 1} (X'WX${l2 > 0 ? ' + l2 P' : ''}): ${singularText(fac)}; add an L2 penalty or drop collinear features`);
     }
+    const delta = cholSolve(fac, g);
     let step = 1;
     let next = beta.map((b, j) => b + delta[j]);
     let nextVal = penLogLik(A, y, next, l2, pen);
@@ -905,7 +1018,9 @@ export const logistic = ({ X, y, names, intercept = true, l2 = 0, tol = DEFAULTS
       nextVal = penLogLik(A, y, next, l2, pen);
     }
     halvings += h;
-    const change = Math.max(...delta.map(Math.abs)); // the FULL Newton step, before any halving
+    // the FULL Newton step, before any halving
+    let change = 0;
+    for (let j = 0; j < p; j += 1) change = Math.max(change, Math.abs(delta[j]));
     beta = next; cur = nextVal; iterations += 1;
     trace.push({ iteration: iterations, maxChange: change, logLikelihood: cur.ll, stepHalvings: h });
     if (change <= tol) { converged = true; break; }
@@ -926,9 +1041,8 @@ export const logistic = ({ X, y, names, intercept = true, l2 = 0, tol = DEFAULTS
   }
   for (let j = 0; j < p; j += 1) if (pen[j]) I[j][j] += l2;
   let se = null;
-  try {
-    se = allNames.map((_, j) => { const e = new Array(p).fill(0); e[j] = 1; return Math.sqrt(solveDense(I, e)[j]); });
-  } catch (e) { se = null; }
+  const fi = cholScaled(I);
+  if (!fi.singular) se = allNames.map((_, j) => { const e = new Array(p).fill(0); e[j] = 1; return Math.sqrt(cholSolve(fi, e)[j]); });
   const out = {
     kind: 'logistic',
     intercept,
@@ -948,10 +1062,11 @@ export const logistic = ({ X, y, names, intercept = true, l2 = 0, tol = DEFAULTS
     probabilities: probs,
     basis: {
       method: 'Newton-Raphson (IRLS) from beta = 0; a step is halved while it lowers the penalised log likelihood by more than 1e-12 x (1 + |log likelihood|), up to 30 halvings',
-      convergence: `converged when the largest absolute component of the full Newton step is at most tol ${fmt(tol)}; at most maxIter ${maxIter} updates`,
+      convergence: `converged when the largest absolute component of the full Newton step is at most tol ${fmt(tol)} (in coefficient units: set tol to the scale of the coefficients when features are in very small or very large units); at most maxIter ${maxIter} updates`,
+      newtonSolve: 'Cholesky on the unit-diagonal scaled Hessian (solveSPD); singular when a scaled pivot is at or below p x machine epsilon',
       penalty: l2 > 0 ? `(l2 / 2) x sum beta_j^2 on the non-intercept coefficients, l2 = ${fmt(l2)}; scikit-learn C = 1 / l2` : 'none (maximum likelihood)',
       standardErrors: l2 > 0 ? 'sqrt(diag((X\'WX + l2 P)^-1)) at the solution, P the penalty pattern' : 'sqrt(diag((X\'WX)^-1)) at the solution, W = p(1 - p)',
-      separation: 'linear programme on the column-scaled design (lib/lp): separated when the LP objective is above 1e-7, complete when a positive margin is also above 1e-7',
+      separation: 'dual linear programmes on the column-scaled, sign-flipped design (lib/lp): separated when S\'w = 0, w >= 1 is infeasible (Stiemke), complete when S\'w = 0, sum w = 1, w >= 0 is also infeasible (Gordan); infeasible means an artificial sum above 1e-7 after phase one',
     },
   };
   if (!converged) {
