@@ -2776,6 +2776,94 @@
    "witness": "sklearn PCA transform x sqrt((n - 1) / n)"
   },
   {
+   "id": "pca-ekene-constant-cali-covariance:eigenvalues",
+   "case": "pca-ekene-constant-cali-covariance",
+   "field": "eigenvalues",
+   "value": [
+    875.4885684077104,
+    0.43869215236833425,
+    0.0020120174477693317,
+    0.0009871891403981747,
+    0.0
+   ],
+   "tol": 1e-10,
+   "witness": "numpy eigvalsh of cov (divisor n - 1)"
+  },
+  {
+   "id": "pca-warning-repeated-only:eigenvalues",
+   "case": "pca-warning-repeated-only",
+   "field": "eigenvalues",
+   "value": [
+    1.7071067811865475,
+    1.7071067811865475,
+    0.2928932188134524,
+    0.2928932188134524
+   ],
+   "tol": 1e-10,
+   "witness": "numpy eigh of corrcoef"
+  },
+  {
+   "id": "pca-warning-repeated-only:explainedVarianceRatio",
+   "case": "pca-warning-repeated-only",
+   "field": "explainedVarianceRatio",
+   "value": [
+    0.426776695296637,
+    0.42677669529663664,
+    0.07322330470336312,
+    0.0732233047033631
+   ],
+   "tol": 1e-10,
+   "witness": "sklearn PCA on StandardScaler rows"
+  },
+  {
+   "id": "pca-warning-both:eigenvalues",
+   "case": "pca-warning-both",
+   "field": "eigenvalues",
+   "value": [
+    1.7071067811865475,
+    1.7071067811865475,
+    0.2928932188134524,
+    0.2928932188134524
+   ],
+   "tol": 1e-10,
+   "witness": "numpy eigh of corrcoef"
+  },
+  {
+   "id": "pca-warning-both:explainedVarianceRatio",
+   "case": "pca-warning-both",
+   "field": "explainedVarianceRatio",
+   "value": [
+    0.426776695296637,
+    0.42677669529663664,
+    0.07322330470336312,
+    0.0732233047033631
+   ],
+   "tol": 1e-10,
+   "witness": "sklearn PCA on StandardScaler rows"
+  },
+  {
+   "id": "pca-warning-nonconverged-only:eigenvalues",
+   "case": "pca-warning-nonconverged-only",
+   "field": "eigenvalues",
+   "value": [
+    1.8049844718999242,
+    0.1950155281000756
+   ],
+   "tol": 1e-10,
+   "witness": "numpy eigh of corrcoef"
+  },
+  {
+   "id": "pca-warning-nonconverged-only:explainedVarianceRatio",
+   "case": "pca-warning-nonconverged-only",
+   "field": "explainedVarianceRatio",
+   "value": [
+    0.9024922359499622,
+    0.0975077640500378
+   ],
+   "tol": 1e-10,
+   "witness": "sklearn PCA on StandardScaler rows"
+  },
+  {
    "id": "kmeans-iris-k3-none-seed3:labels",
    "case": "kmeans-iris-k3-none-seed3",
    "field": "labels",
@@ -5379,6 +5467,51 @@
    ],
    "tol": 1e-10,
    "witness": "sklearn KMeans cluster_centers_"
+  },
+  {
+   "id": "kmeans-constant-log-none:labels",
+   "case": "kmeans-constant-log-none",
+   "field": "labels",
+   "value": [
+    1,
+    0,
+    0
+   ],
+   "tol": 1e-10,
+   "witness": "sklearn KMeans(init = oracle start) labels_"
+  },
+  {
+   "id": "kmeans-constant-log-none:inertia",
+   "case": "kmeans-constant-log-none",
+   "field": "inertia",
+   "value": 0.5,
+   "tol": 1e-10,
+   "witness": "sklearn KMeans inertia_"
+  },
+  {
+   "id": "kmeans-constant-log-none:centres",
+   "case": "kmeans-constant-log-none",
+   "field": "centres",
+   "value": [
+    [
+     2.5,
+     2.3
+    ],
+    [
+     1.0,
+     2.3
+    ]
+   ],
+   "tol": 1e-10,
+   "witness": "sklearn KMeans cluster_centers_"
+  },
+  {
+   "id": "kmeans-constant-log-none:iterations",
+   "case": "kmeans-constant-log-none",
+   "field": "iterations",
+   "value": 2,
+   "tol": 1e-10,
+   "witness": "sklearn KMeans n_iter_"
   },
   {
    "id": "silhouette-iris-kmeans-none:values",
