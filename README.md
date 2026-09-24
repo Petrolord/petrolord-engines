@@ -681,6 +681,31 @@ and its consumers.
   boundary table, the salvage review of the Suite's
   logFaciesCalculations.js and the negative control in
   `tools/validation/dataai/FINDINGS-cluster.md` and `negcontrol_cluster.sh`.
+- `engines/dataai/forecast.js` (Data & AI D4, 2026-09-24): data-driven
+  production forecasting for the Production Forecasting ML Workbench and
+  the `forecastml` course. Simple exponential smoothing, Holt's linear
+  trend and the Gardner-McKenzie damped trend (FPP3 component form,
+  initialised at the first observation with y_2 spent on the trend start),
+  fitted by one-step SSE with a deterministic optimiser (a stated coarse
+  grid with an earlier-point tie rule, then compass search in the box
+  alpha, beta in [0, 1], phi in [0.8, 0.98], stopping at a step of 2^-30);
+  rolling-origin expanding-window backtests with refit or held parameters;
+  MAE, RMSE, ME, MAPE (null with the reason on a zero actual), sMAPE (0 to
+  200) and MASE (in-sample lag-m naive scale); residual bootstrap
+  intervals from one lib/stats mulberry32 stream with the lib/stats
+  quantile rule and P90/P50/P10 labels from `lib/conventions/percentile.js`;
+  and an Arps baseline imported from `engines/dca/arps.js` (fitArpsModel,
+  never re-implemented) compared on the same origins and ranked with a
+  stated tie rule. Gate: `dataai.forecast.test.js` replays
+  `test-data/dataai/goldens/forecast_cases.json` (stdlib oracle
+  `tools/validation/dataai/oracle_forecast.py`: error-correction
+  recursions in Decimal, a zoom-grid fit, exact metrics, integer
+  mulberry32) with the NIST/SEMATECH e-Handbook 6.4.3 examples as the
+  published anchors, and the statsmodels/scipy/scikit-learn pins in
+  `test-data/dataai/pins/forecast_pins.json` (`pin_forecast.py`,
+  convention differences listed); findings, the boundary table and the
+  negative control in `tools/validation/dataai/FINDINGS-forecast.md` and
+  `negcontrol_forecast.sh`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
