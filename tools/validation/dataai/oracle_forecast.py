@@ -346,7 +346,8 @@ def o_fit(y, method, alpha=None, beta=None, phi=None, initial_level=None, initia
         'forecast': [fl(v) for v in fc],
     }
     if free:
-        out['optimiser'] = {'gridStart': grid_start, 'converged': True, 'free': free}
+        at = [f'{nm} = {js_num(p[nm])}' for nm in free if float(p[nm]) in bounds(nm)]
+        out['optimiser'] = {'gridStart': grid_start, 'converged': True, 'free': free, 'atBounds': at}
     else:
         out['optimiser'] = None
     state = {'p': p, 'l': l, 'tr': tr, 'fitted': fitted, 'scored_from': scored_from}
@@ -909,6 +910,7 @@ def build():
     fit_case(c, 'damped-ekene1-fixed', w1, 'damped', alpha=0.4, beta=0.15, phi=0.9, h=24)
     fit_case(c, 'damped-ekene2-phi-1', w2, 'damped', alpha=0.5, beta=0.2, phi=1, h=6, note='phi = 1 is Holt (property test compares)')
     fit_case(c, 'damped-ekene2-phi-0.8', w2, 'damped', alpha=0.5, beta=0.2, phi=0.8, h=6)
+    fit_case(c, 'damped-phi-0.5-fixed', w2, 'damped', alpha=0.5, beta=0.2, phi=0.5, h=6, note='a fixed phi may sit below the 0.8 to 0.98 search range')
     fit_case(c, 'ses-alpha-0', w2, 'ses', alpha=0, h=3, note='alpha 0: the level never moves from y_1')
     fit_case(c, 'ses-alpha-1', w2, 'ses', alpha=1, h=3, note='alpha 1: the naive forecast')
     fit_case(c, 'holt-beta-0', w3, 'holt', alpha=0.3, beta=0, h=4, note='beta 0: the trend stays y_2 - y_1')
