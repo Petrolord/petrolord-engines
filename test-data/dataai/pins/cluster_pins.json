@@ -2938,7 +2938,7 @@
    "id": "kmeans-iris-k3-none-seed3:inertia",
    "case": "kmeans-iris-k3-none-seed3",
    "field": "inertia",
-   "value": 78.85144142614601,
+   "value": 78.851441426146,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },
@@ -3140,7 +3140,7 @@
    "id": "kmeans-iris-k3-standard-seed7:inertia",
    "case": "kmeans-iris-k3-standard-seed7",
    "field": "inertia",
-   "value": 139.82543466174204,
+   "value": 139.825434661742,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },
@@ -3342,7 +3342,7 @@
    "id": "kmeans-iris-k3-standard-seed2026:inertia",
    "case": "kmeans-iris-k3-standard-seed2026",
    "field": "inertia",
-   "value": 140.0327527742865,
+   "value": 140.03275277428654,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },
@@ -3782,7 +3782,7 @@
    "id": "kmeans-ekene-k2:inertia",
    "case": "kmeans-ekene-k2",
    "field": "inertia",
-   "value": 205.6962087563454,
+   "value": 205.69620875634544,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },
@@ -4008,7 +4008,7 @@
    "id": "kmeans-ekene-k3:inertia",
    "case": "kmeans-ekene-k3",
    "field": "inertia",
-   "value": 82.4546008056389,
+   "value": 82.45460080563886,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },
@@ -4240,7 +4240,7 @@
    "id": "kmeans-ekene-k4:inertia",
    "case": "kmeans-ekene-k4",
    "field": "inertia",
-   "value": 46.166527028484495,
+   "value": 46.16652702848449,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },
@@ -4478,7 +4478,7 @@
    "id": "kmeans-ekene-k5:inertia",
    "case": "kmeans-ekene-k5",
    "field": "inertia",
-   "value": 40.44340033675907,
+   "value": 40.443400336759076,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },
@@ -4722,7 +4722,7 @@
    "id": "kmeans-ekene-k4-minmax:inertia",
    "case": "kmeans-ekene-k4-minmax",
    "field": "inertia",
-   "value": 3.575945027061883,
+   "value": 3.5759450270618833,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },
@@ -4960,7 +4960,7 @@
    "id": "kmeans-ekene-k1:inertia",
    "case": "kmeans-ekene-k1",
    "field": "inertia",
-   "value": 720.0000000000001,
+   "value": 720.0,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },
@@ -5273,7 +5273,7 @@
    "id": "kmeans-maxiter-2:inertia",
    "case": "kmeans-maxiter-2",
    "field": "inertia",
-   "value": 53.28331036418703,
+   "value": 53.283310364186995,
    "tol": 1e-10,
    "witness": "sklearn KMeans inertia_"
   },

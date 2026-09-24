@@ -44,6 +44,10 @@ import json
 import math
 import os
 
+# one thread: scikit-learn KMeans sums inertia in OpenMP chunks, and the
+# last bit then depends on the thread count (regeneration must be byte-identical)
+os.environ.setdefault('OMP_NUM_THREADS', '1')
+
 import numpy as np
 import scipy
 import sklearn

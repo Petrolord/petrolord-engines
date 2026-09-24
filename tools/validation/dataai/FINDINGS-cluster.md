@@ -9,7 +9,7 @@ scikit-learn 1.9.1 from `/root/daienv`; exact versions in the pin file).
 Gate: `__tests__/dataai.cluster.test.js` (316 tests) calls the engine on
 every golden, the published figures and every pin, plus property tests and
 the row-cap boundaries. Negative control: `negcontrol_cluster.sh`
-(results below). Timing: `timing_cluster.mjs` (table below).
+(40/40 engine plants red, 4/4 oracle plants red). Timing: `timing_cluster.mjs` (table below). Regenerating the golden and the pins is byte-identical (sha256 checked).
 
 The oracle is STDLIB ONLY (python 3.12: `fractions`, `decimal` at 60
 digits, `itertools`, `random` for the synthetic inputs). It reads no
@@ -265,7 +265,54 @@ on a sample or show progress.
 
 ## Negative control
 
-NEGCONTROL_RESULTS
+Run 2026-09-24 (`negcontrol_cluster.sh`, full log reproduced here): baseline 316 passed; **40/40 engine plants red**, 4/4 oracle plants red; restored and re-verified 316 passed. The plant list covers every convention in the decisions above, including the salvage defect (new rows scaled with their own scaler), the row cap off by one, the tie bands removed, and scikit-learn's vote-tie rule.
+
+| kind | plant | tests failed | first failure |
+|---|---|---|---|
+| ENGINE | correlation PCA standardised with the population SD | 12 | goldens: the engine agrees with the oracle › pca-iris-correlation |
+| ENGINE | covariance divisor n, not n - 1 | 12 | goldens: the engine agrees with the oracle › pca-iris-covariance |
+| ENGINE | sign rule flipped (largest loading negative) | 18 | goldens: the engine agrees with the oracle › pca-iris-covariance |
+| ENGINE | sign rule on the FIRST loading, not the largest | 13 | goldens: the engine agrees with the oracle › pca-iris-covariance |
+| ENGINE | Jacobi stops after one sweep | 26 | goldens: the engine agrees with the oracle › pca-iris-covariance |
+| ENGINE | eigenvalues sorted ascending | 31 | goldens: the engine agrees with the oracle › pca-iris-covariance |
+| ENGINE | loadings scaled by the eigenvalue, not its square root | 5 | goldens: the engine agrees with the oracle › pca-iris-covariance |
+| ENGINE | k-means++ first centre floor(u (n - 1)) | 37 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ENGINE | k-means++ weights by D, not D^2 | 44 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ENGINE | assignment tie to the HIGHER centre | 3 | goldens: the engine agrees with the oracle › kmeans-assignment-tie-lower-centre |
+| ENGINE | empty cluster left empty (no relocation) | 4 | goldens: the engine agrees with the oracle › kmeans-empty-cluster-relocated |
+| ENGINE | iterations count centre updates, not assignment passes | 27 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ENGINE | the LAST run wins, not the lowest inertia | 42 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ENGINE | each nInit run restarts the seed (identical starts) | 23 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ENGINE | clustering scaler on the sample SD | 39 | goldens: the engine agrees with the oracle › kmeans-iris-k3-standard-seed7 |
+| ENGINE | a singleton scores 1, not 0 | 6 | goldens: the engine agrees with the oracle › silhouette-singleton-zero |
+| ENGINE | a divides by the cluster size, not size - 1 | 22 | goldens: the engine agrees with the oracle › silhouette-iris-kmeans-none |
+| ENGINE | silhouette on squared distances | 22 | goldens: the engine agrees with the oracle › silhouette-iris-kmeans-none |
+| ENGINE | Ward Lance-Williams with + nt d_ab^2 | 11 | goldens: the engine agrees with the oracle › agglomerative-ekene90-ward-k4 |
+| ENGINE | average linkage unweighted (WPGMA) | 5 | goldens: the engine agrees with the oracle › agglomerative-ekene90-average-k4 |
+| ENGINE | complete linkage takes the min (single linkage) | 10 | goldens: the engine agrees with the oracle › agglomerative-ekene90-complete-k4 |
+| ENGINE | merge tie to the HIGHEST ids | 6 | goldens: the engine agrees with the oracle › agglomerative-iris-complete-k3 |
+| ENGINE | no merge tie band (exact float equality) | 2 | goldens: the engine agrees with the oracle › agglomerative-iris-complete-k3 |
+| ENGINE | linkage row with the larger id first | 12 | goldens: the engine agrees with the oracle › agglomerative-ekene90-ward-k4 |
+| ENGINE | new cluster id n + s + 1 | 28 | goldens: the engine agrees with the oracle › agglomerative-ekene90-ward-k4 |
+| ENGINE | cut after n - k - 1 merges | 28 | goldens: the engine agrees with the oracle › agglomerative-ekene90-ward-k4 |
+| ENGINE | row cap off by one (3,001 accepted) | 1 | row caps and boundaries › agglomerative: 3,000 rows are clustered, 3,001 refused |
+| ENGINE | vote tie to the label that sorts first (scikit-learn) | 2 | goldens: the engine agrees with the oracle › knn-vote-tie-nearest-b |
+| ENGINE | kNN new rows scaled with their own scaler (the salvage defect) | 7 | goldens: the engine agrees with the oracle › knn-ekene-wells-k1 |
+| ENGINE | equidistant neighbours to the HIGHER row | 2 | goldens: the engine agrees with the oracle › knn-iris-k7 |
+| ENGINE | threshold at the lower value, not the midpoint | 6 | goldens: the engine agrees with the oracle › cart-iris-depth3 |
+| ENGINE | split tie to the HIGHER feature | 8 | goldens: the engine agrees with the oracle › cart-iris-depth3 |
+| ENGINE | zero-decrease split allowed | 1 | goldens: the engine agrees with the oracle › cart-xor-no-split |
+| ENGINE | majority tie to the class that sorts LAST | 7 | goldens: the engine agrees with the oracle › cart-iris-depth3 |
+| ENGINE | minSamplesLeaf ignored | 10 | goldens: the engine agrees with the oracle › cart-iris-depth5-leaf5 |
+| ENGINE | importances not normalised | 7 | goldens: the engine agrees with the oracle › cart-iris-depth3 |
+| ENGINE | maxDepth counted from 1 | 11 | goldens: the engine agrees with the oracle › cart-iris-depth3 |
+| ENGINE | one-to-one greedy (first free facies, no optimum) | 5 | goldens: the engine agrees with the oracle › match-iris-one-to-one |
+| ENGINE | ARI special case scores 0 | 4 | goldens: the engine agrees with the oracle › ari-both-one-cluster |
+| ENGINE | ARI expected index over n^2 / 2 pairs | 16 | goldens: the engine agrees with the oracle › ari-iris-kmeans |
+| ORACLE | oracle k-means++ first draw from n - 1 | 14 | goldens: the engine agrees with the oracle › kmeans-iris-k3-none-seed3 |
+| ORACLE | oracle singleton silhouette 1 | 2 | goldens: the engine agrees with the oracle › silhouette-singleton-zero |
+| ORACLE | oracle Ward height without the factor 2 | 3 | goldens: the engine agrees with the oracle › agglomerative-ekene90-ward-k4 |
+| ORACLE | oracle ARI special case 0 | 2 | goldens: the engine agrees with the oracle › ari-both-one-cluster |
 
 ## Open questions
 
