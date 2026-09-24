@@ -30404,6 +30404,551 @@
    "source": "oracle"
   },
   {
+   "id": "spd-tiny-entries",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      2e-16,
+      1e-16
+     ],
+     [
+      1e-16,
+      3e-16
+     ]
+    ],
+    "b": [
+     1e-16,
+     2e-16
+    ]
+   },
+   "expected": {
+    "x": [
+     0.2,
+     0.6
+    ],
+    "minScaledPivot": 0.8333333333333334,
+    "pivotTolerance": 4.440892098500626e-16
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "well conditioned (scaled pivots near 1) with every entry below 1e-14: the absolute pivot rule of lib/linalg solveDense refuses it"
+  },
+  {
+   "id": "spd-tiny-hessian-3x3",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      10.0,
+      3e-09,
+      2e-09
+     ],
+     [
+      3e-09,
+      4e-18,
+      1e-18
+     ],
+     [
+      2e-09,
+      1e-18,
+      3e-18
+     ]
+    ],
+    "b": [
+     1.0,
+     2e-09,
+     -1e-09
+    ]
+   },
+   "expected": {
+    "x": [
+     0.025316455696202556,
+     620253164.556962,
+     -556962025.3164557
+    ],
+    "minScaledPivot": 0.775,
+    "pivotTolerance": 6.661338147750939e-16
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "the shape of a logistic Hessian with one feature in units of 1e-9: the second pivot is about 3e-18 in absolute terms, about 0.8 once scaled"
+  },
+  {
+   "id": "spd-mixed-scales",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      10000000000.0,
+      0.5,
+      50000.0
+     ],
+     [
+      0.5,
+      1e-10,
+      1e-06
+     ],
+     [
+      50000.0,
+      1e-06,
+      1.0
+     ]
+    ],
+    "b": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "expected": {
+    "x": [
+     -0.8333416664833333,
+     13888916665.833332,
+     27779.16665833333
+    ],
+    "minScaledPivot": 0.72,
+    "pivotTolerance": 6.661338147750939e-16
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "diagonal from 1e-10 to 1e10; scaled it is [[1, 0.5, 0.5], [0.5, 1, 0.1], [0.5, 0.1, 1]], well conditioned; the raw condition number is about 1e20"
+  },
+  {
+   "id": "spd-identity-large",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      1e+20,
+      0.0
+     ],
+     [
+      0.0,
+      1e+20
+     ]
+    ],
+    "b": [
+     1e+20,
+     2e+20
+    ]
+   },
+   "expected": {
+    "x": [
+     1.0,
+     2.0
+    ],
+    "minScaledPivot": 1.0,
+    "pivotTolerance": 4.440892098500626e-16
+   },
+   "tol": 1e-12,
+   "source": "oracle"
+  },
+  {
+   "id": "spd-singular-exact",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      1.0,
+      2.0
+     ],
+     [
+      2.0,
+      4.0
+     ]
+    ],
+    "b": [
+     1.0,
+     2.0
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "A",
+    "message": "A is singular to working precision: pivot 2 of the Cholesky factorisation of the unit-diagonal scaled matrix is 0, at or below p x machine epsilon = 4.440892098500626e-16"
+   },
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "rank one: the second scaled pivot is exactly 0"
+  },
+  {
+   "id": "spd-singular-tiny",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      1e-20,
+      2e-20
+     ],
+     [
+      2e-20,
+      4e-20
+     ]
+    ],
+    "b": [
+     1.0,
+     2.0
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "A",
+    "messageStartsWith": "A is singular to working precision: pivot 2 of the Cholesky factorisation of the unit-diagonal scaled matrix is ",
+    "messageEndsWith": ", at or below p x machine epsilon = 4.440892098500626e-16"
+   },
+   "tol": 1e-10,
+   "source": "oracle",
+   "note": "the same rank-one matrix at 1e-20: refused by the relative rule too (exact scaled pivot 0; the float pivot is rounding)"
+  },
+  {
+   "id": "spd-zero-diagonal",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0
+     ]
+    ],
+    "b": [
+     1.0,
+     1.0
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "A",
+    "message": "A is singular to working precision: diagonal entry 1 is 0, at or below zero, so the matrix is not positive definite"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "spd-negative-diagonal",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      -2.0
+     ]
+    ],
+    "b": [
+     1.0,
+     1.0
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "A",
+    "message": "A is singular to working precision: diagonal entry 2 is -2, at or below zero, so the matrix is not positive definite"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "spd-not-square",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      1.0,
+      0.0
+     ],
+     [
+      0.0
+     ]
+    ],
+    "b": [
+     1.0,
+     1.0
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "A[1]"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "spd-b-length",
+   "fn": "solveSPD",
+   "args": {
+    "A": [
+     [
+      1.0
+     ]
+    ],
+    "b": [
+     1.0,
+     2.0
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "b"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "logistic-compressibility-per-pa",
+   "fn": "logistic",
+   "args": {
+    "X": [
+     [
+      7.346e-10
+     ],
+     [
+      7.958e-10
+     ],
+     [
+      5.448e-10
+     ],
+     [
+      2.337e-10
+     ],
+     [
+      7.436e-10
+     ],
+     [
+      5.524e-10
+     ],
+     [
+      6.774e-10
+     ],
+     [
+      5.363e-10
+     ],
+     [
+      6.235e-10
+     ],
+     [
+      5.284e-10
+     ],
+     [
+      1.839e-10
+     ],
+     [
+      5.094e-10
+     ],
+     [
+      6.89e-10
+     ],
+     [
+      4.767e-10
+     ],
+     [
+      5.263e-10
+     ],
+     [
+      7.34e-10
+     ],
+     [
+      3.854e-10
+     ],
+     [
+      7.172e-10
+     ],
+     [
+      4.802e-10
+     ],
+     [
+      2.635e-10
+     ],
+     [
+      1.545e-10
+     ],
+     [
+      8.392e-10
+     ],
+     [
+      7.376e-10
+     ],
+     [
+      4.59e-10
+     ],
+     [
+      6.452e-10
+     ],
+     [
+      2.547e-10
+     ],
+     [
+      6.269e-10
+     ],
+     [
+      5.451e-10
+     ],
+     [
+      7.485e-10
+     ],
+     [
+      6.572e-10
+     ],
+     [
+      6.212e-10
+     ],
+     [
+      8.518e-10
+     ],
+     [
+      3.848e-10
+     ],
+     [
+      6.41e-10
+     ],
+     [
+      6.938e-10
+     ],
+     [
+      6.429e-10
+     ],
+     [
+      6.13e-10
+     ],
+     [
+      7.746e-10
+     ],
+     [
+      8.362e-10
+     ],
+     [
+      5.296e-10
+     ]
+    ],
+    "y": [
+     0,
+     1,
+     1,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     0
+    ],
+    "names": [
+     "CF"
+    ],
+    "tol": 0.1
+   },
+   "expected": {
+    "kind": "logistic",
+    "intercept": true,
+    "l2": 0,
+    "names": [
+     "intercept",
+     "CF"
+    ],
+    "n": 40,
+    "coefficients": [
+     -4.035397177887702,
+     6833879972.635157
+    ],
+    "standardErrors": [
+     1.6247283142351672,
+     2621523461.4419184
+    ],
+    "logLikelihood": -22.732605982561562,
+    "deviance": 45.465211965123125,
+    "nullDeviance": 55.451774444795625,
+    "iterations": 6,
+    "converged": true,
+    "stepHalvings": 0,
+    "probabilities": [
+     0.7280538704967486,
+     0.80266022519061,
+     0.4225535884790978,
+     0.0802969337718358,
+     0.7400591422014584,
+     0.4352747519123079,
+     0.6442533239666585,
+     0.40844742781508003,
+     0.556143979519088,
+     0.39547032640400726,
+     0.05848903734844951,
+     0.36488618875119766,
+     0.6622072704877306,
+     0.31481869186108713,
+     0.3920445444401659,
+     0.7272412819774682,
+     0.1975591936773719,
+     0.7038838411916466,
+     0.32000082412750414,
+     0.09668004401718186,
+     0.04835774795789933,
+     0.8454818184882325,
+     0.7320939885511669,
+     0.28932876863698814,
+     0.5923822281161648,
+     0.09155387827300689,
+     0.5618718070351839,
+     0.42305391196782305,
+     0.7464489379281996,
+     0.6120241720895868,
+     0.5522606968124514,
+     0.8563994936578426,
+     0.19690997649976197,
+     0.5854336655434571,
+     0.6695053638414931,
+     0.5885814506819625,
+     0.5383672397577304,
+     0.7787033833310616,
+     0.8427844258257822,
+     0.3974325573675095
+    ],
+    "separation": {
+     "detected": false,
+     "type": "none"
+    }
+   },
+   "tol": 1e-09,
+   "source": "oracle",
+   "note": "rock compressibility in 1/Pa (about 6e-10): the Hessian entry for CF is about 1e-18, so lib/linalg solveDense (absolute pivot 1e-14) refused the Newton step; the scale-aware Cholesky fits it. tol is in coefficient units, and the CF coefficient is about 1e9, so tol 0.1 is a relative 1e-10 (1e-3 would put one Newton step, 2.5e-4, within a factor 100 of tol)"
+  },
+  {
    "id": "predict-ols",
    "fn": "predict",
    "args": {

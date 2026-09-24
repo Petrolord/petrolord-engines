@@ -103,8 +103,20 @@ run_case ENGINE "ridge standardises with the sample SD" $E "const scaler = fitSt
 run_case ENGINE "ridge effective df on d, not d^2" $E "(di * di) / (di * di + lambda)" "di / (di + lambda)"
 # logistic
 run_case ENGINE "logistic stops at 1e-6" $E "if (change <= tol) { converged = true; break; }" "if (change <= 1e-6) { converged = true; break; }"
-run_case ENGINE "separation never detected" $E "if (!(quasiValue > DEFAULTS.SEPARATION_TOL)) return" "if (true) return"
-run_case ENGINE "quasi-complete separation called complete" $E "type: margin > DEFAULTS.SEPARATION_TOL ? 'complete' : 'quasi-complete'" "type: margin >= 0 ? 'complete' : 'quasi-complete'"
+run_case ENGINE "complete separation missed (Gordan LP ignored)" $E "if (gordan.status !== LP_STATUS.OPTIMAL) {" "if (false) {"
+run_case ENGINE "quasi-complete separation missed (Stiemke infeasible read as none)" $E "return { detected: true, type: 'quasi-complete'," "return { detected: false, type: 'none',"
+run_case ENGINE "quasi-complete separation called complete" $E "return { detected: true, type: 'quasi-complete'," "return { detected: true, type: 'complete',"
+run_case ENGINE "Newton solve with the ABSOLUTE 1e-14 pivot test (solveDense's rule)" $E "    if (!(d > tol)) return { singular: true, k: j, pivot: d, diagonal: false, tol };" "    if (!(d * r[j] * r[j] > 1e-14)) return { singular: true, k: j, pivot: d, diagonal: false, tol };"
+run_case ENGINE "Newton solve without the unit-diagonal scaling (pivot of A against p eps)" $E "    let d = H[j][j] / (r[j] * r[j]);" "    let d = H[j][j] / (r[j] * r[j]) * H[j][j];"
+run_case ENGINE "min-max by Math.min(...col) spread (RangeError past about 125k rows)" $E "    let lo = col[0];
+    let hi = col[0];
+    for (let i = 1; i < col.length; i += 1) { if (col[i] < lo) lo = col[i]; if (col[i] > hi) hi = col[i]; }" "    const lo = Math.min(...col);
+    const hi = Math.max(...col);"
+run_case ENGINE "separation LP with the Stiemke test run first on complete separation (pivot guard)" $E "  if (gordan.status !== LP_STATUS.OPTIMAL) {
+    return { detected: true, type: 'complete'" "  if (gordan.status !== LP_STATUS.OPTIMAL) {
+    const extra = solveLP({ c: zeros, A: cols, b: new Array(p).fill(0), ops: new Array(p).fill('='), lo: new Array(n).fill(1), hi: inf });
+    gordan.iterations += extra.iterations;
+    return { detected: true, type: 'complete'"
 run_case ENGINE "logistic L2 penalises the intercept" $E "const pen = allNames.map((nmj) => nmj !== 'intercept');" "const pen = allNames.map(() => true);"
 run_case ENGINE "probability 0.5 predicted as class 1" $E "classes: pr.map((v) => (v > 0.5 ? 1 : 0))" "classes: pr.map((v) => (v >= 0.5 ? 1 : 0))"
 # metrics

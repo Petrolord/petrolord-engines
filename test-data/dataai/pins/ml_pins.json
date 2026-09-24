@@ -1713,6 +1713,114 @@
    "witness": "sklearn LogisticRegression newton-cholesky, C = 1 / l2"
   },
   {
+   "id": "spd-tiny-entries:x",
+   "case": "spd-tiny-entries",
+   "field": "x",
+   "value": [
+    0.2,
+    0.6
+   ],
+   "tol": 1e-10,
+   "witness": "numpy.linalg.solve (LAPACK gesv)"
+  },
+  {
+   "id": "spd-tiny-entries:minScaledPivot",
+   "case": "spd-tiny-entries",
+   "field": "minScaledPivot",
+   "value": 0.8333333333333336,
+   "tol": 1e-10,
+   "witness": "numpy.linalg.cholesky of the unit-diagonal scaling"
+  },
+  {
+   "id": "spd-tiny-hessian-3x3:x",
+   "case": "spd-tiny-hessian-3x3",
+   "field": "x",
+   "value": [
+    0.025316455696202556,
+    620253164.556962,
+    -556962025.3164557
+   ],
+   "tol": 1e-10,
+   "witness": "numpy.linalg.solve (LAPACK gesv)"
+  },
+  {
+   "id": "spd-tiny-hessian-3x3:minScaledPivot",
+   "case": "spd-tiny-hessian-3x3",
+   "field": "minScaledPivot",
+   "value": 0.7749999999999998,
+   "tol": 1e-10,
+   "witness": "numpy.linalg.cholesky of the unit-diagonal scaling"
+  },
+  {
+   "id": "spd-mixed-scales:x",
+   "case": "spd-mixed-scales",
+   "field": "x",
+   "value": [
+    -0.8333416664833335,
+    13888916665.833336,
+    27779.166658333346
+   ],
+   "tol": 1e-10,
+   "witness": "numpy.linalg.solve (LAPACK gesv)"
+  },
+  {
+   "id": "spd-mixed-scales:minScaledPivot",
+   "case": "spd-mixed-scales",
+   "field": "minScaledPivot",
+   "value": 0.72,
+   "tol": 1e-10,
+   "witness": "numpy.linalg.cholesky of the unit-diagonal scaling"
+  },
+  {
+   "id": "spd-identity-large:x",
+   "case": "spd-identity-large",
+   "field": "x",
+   "value": [
+    1.0,
+    2.0
+   ],
+   "tol": 1e-10,
+   "witness": "numpy.linalg.solve (LAPACK gesv)"
+  },
+  {
+   "id": "spd-identity-large:minScaledPivot",
+   "case": "spd-identity-large",
+   "field": "minScaledPivot",
+   "value": 1.0,
+   "tol": 1e-10,
+   "witness": "numpy.linalg.cholesky of the unit-diagonal scaling"
+  },
+  {
+   "id": "logistic-compressibility-per-pa:coefficients",
+   "case": "logistic-compressibility-per-pa",
+   "field": "coefficients",
+   "value": [
+    -4.0353971778877025,
+    6833879972.635158
+   ],
+   "tol": 1e-10,
+   "witness": "statsmodels Logit on the feature rescaled to unit maximum, coefficients converted back"
+  },
+  {
+   "id": "logistic-compressibility-per-pa:standardErrors",
+   "case": "logistic-compressibility-per-pa",
+   "field": "standardErrors",
+   "value": [
+    1.6247283142351727,
+    2621523461.441928
+   ],
+   "tol": 1e-10,
+   "witness": "statsmodels Logit bse, rescaled feature, converted back"
+  },
+  {
+   "id": "logistic-compressibility-per-pa:logLikelihood",
+   "case": "logistic-compressibility-per-pa",
+   "field": "logLikelihood",
+   "value": -22.73260598256156,
+   "tol": 1e-10,
+   "witness": "statsmodels Logit llf, rescaled feature"
+  },
+  {
    "id": "metrics-ols-test-wells:rmse",
    "case": "metrics-ols-test-wells",
    "field": "rmse",

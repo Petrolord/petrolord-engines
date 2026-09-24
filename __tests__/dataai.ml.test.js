@@ -13,6 +13,7 @@
 import fs from 'fs';
 import path from 'path';
 import * as ML from '../engines/dataai/ml';
+import { syntheticWells } from '../tools/validation/dataai/synthetic_wells';
 
 const read = (...p) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', ...p), 'utf8'));
 const G = read('test-data', 'dataai', 'goldens', 'ml_cases.json');
@@ -311,6 +312,42 @@ describe('evaluation: learning curve and leakage', () => {
   test('permutation importance is reproducible from its seed', () => {
     const a = args('perm-ols-r2');
     expect(ML.permutationImportance(a)).toEqual(ML.permutationImportance(a));
+  });
+});
+
+describe('scale: app-sized inputs stay linear (tools/validation/dataai/timing_ml.mjs has the timing table)', () => {
+  // Complexity guards, not stopwatches: the separation LP pivot count must
+  // not grow with n the way the old primal LP (n constraint rows) did, and
+  // nothing may hit the ~125k spread-argument limit. The time budgets are
+  // generous (about 10x a Node 18 run) so the test cannot flake.
+  const big = syntheticWells(20000, 8);
+
+  test('separation LP pivots are bounded at 20,000 rows x 8 features: overlap and complete separation', () => {
+    const t0 = Date.now();
+    const a = ML.logistic({ X: big.X, y: big.label });
+    const b = ML.logistic({ X: big.X, y: big.separatedLabel, l2: 1 });
+    const c = ML.logistic({ X: big.X, y: big.separatedLabel });
+    expect([a.converged, a.separation.type, b.separation.type, c.field]).toEqual([true, 'none', 'complete', 'y']);
+    expect(a.separation.lpPivots).toBeLessThanOrEqual(100);
+    expect(b.separation.lpPivots).toBeLessThanOrEqual(400);
+    expect(Date.now() - t0).toBeLessThan(20000);
+  });
+
+  test('OLS, ridge and permutation importance at 20,000 rows run within a generous budget', () => {
+    const t0 = Date.now();
+    const o = ML.ols({ X: big.X, y: big.y });
+    const r = ML.ridge({ X: big.X, y: big.y, lambda: 1 });
+    const pi = ML.permutationImportance({ model: o, X: big.X, y: big.y, metric: 'r2', nRepeats: 5, seed: 1 });
+    expect([o.error, r.error, pi.error]).toEqual([undefined, undefined, undefined]);
+    expect(Date.now() - t0).toBeLessThan(20000);
+  });
+
+  test('150,000 rows pass through the scalers, k-fold and ROC (no spread-argument limit)', () => {
+    const huge = syntheticWells(150000, 3);
+    expect(ML.fitMinMaxScaler({ X: huge.X }).error).toBeUndefined();
+    expect(ML.fitStandardScaler({ X: huge.X }).error).toBeUndefined();
+    expect(ML.groupKFold({ groups: huge.groups, k: 5, seed: 1 }).folds.length).toBe(5);
+    expect(ML.rocCurve({ yTrue: huge.label, scores: huge.y }).error).toBeUndefined();
   });
 });
 

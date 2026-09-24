@@ -163,6 +163,40 @@ def inverse(A):
     return [[cols[k][i] for k in range(n)] for i in range(n)]
 
 
+EPS64 = F(1, 2 ** 52)  # machine epsilon, 2.220446049250313e-16
+
+
+def o_solve_spd(A, b):
+    """The relative singularity rule of solveSPD, in exact arithmetic: the
+    LDL' pivots d_k of A (Fractions); the pivot of the unit-diagonal
+    scaling is d_k / A_kk; singular when a diagonal entry is at or below
+    zero or a scaled pivot is at or below p x machine epsilon. Otherwise
+    the exact solution."""
+    p = len(A)
+    M = [[F(v) for v in r] for r in A]
+    for k in range(p):
+        if M[k][k] <= 0:
+            return {'error': True, 'field': 'A',
+                    'message': f'A is singular to working precision: diagonal entry {k + 1} is {js_num(float(M[k][k]))}, at or below zero, so the matrix is not positive definite'}
+    tol = p * EPS64
+    W = [row[:] for row in M]
+    pivots = []
+    for k in range(p):
+        d = W[k][k]
+        sp = d / M[k][k]
+        if sp <= tol:
+            return {'error': True, 'field': 'A', 'scaledPivot': sp, 'k': k,
+                    'starts': f'A is singular to working precision: pivot {k + 1} of the Cholesky factorisation of the unit-diagonal scaled matrix is ',
+                    'ends': f', at or below p x machine epsilon = {js_num(float(tol))}'}
+        pivots.append(sp)
+        for i in range(k + 1, p):
+            f = W[i][k] / d
+            for j in range(k + 1, p):
+                W[i][j] -= f * W[k][j]
+    x = gauss_jordan(M, [[F(v) for v in b]])[0]
+    return {'x': [fl(v) for v in x], 'minScaledPivot': fl(min(pivots)), 'pivotTolerance': fl(tol)}
+
+
 def jacobi_eigen(S):
     """Eigenvalues of a symmetric Decimal matrix by cyclic Jacobi rotations."""
     n = len(S)
@@ -1169,6 +1203,45 @@ def build():
     c.refuse('logistic-bad-l2', 'logistic', {'X': x8, 'y': y8, 'l2': -1}, 'l2')
     c.refuse('logistic-bad-tol', 'logistic', {'X': x8, 'y': y8, 'tol': 0}, 'tol')
     c.refuse('logistic-bad-maxiter', 'logistic', {'X': x8, 'y': y8, 'maxIter': 0}, 'maxIter')
+
+    # ---------------- scale-aware Newton solve (solveSPD) and a tiny-unit logistic fit
+    def spd_case(cid, A, b, note=None, float_pivot_exact=False):
+        r = o_solve_spd(A, b)
+        if r.get('error'):
+            if 'message' in r:
+                c.refuse(cid, 'solveSPD', {'A': A, 'b': b}, 'A', r['message'], note=note)
+            elif float_pivot_exact:
+                # the float scaled pivot is exact here (every quantity is a small power of two)
+                c.refuse(cid, 'solveSPD', {'A': A, 'b': b}, 'A', r['starts'] + js_num(float(r['scaledPivot'])) + r['ends'], note=note)
+            else:
+                c.refuse(cid, 'solveSPD', {'A': A, 'b': b}, 'A', starts=r['starts'], ends=r['ends'], note=note)
+            return r
+        c.add(cid, 'solveSPD', {'A': A, 'b': b}, r, tol=1e-12, note=note)
+        return r
+    spd_case('spd-tiny-entries', [[2e-16, 1e-16], [1e-16, 3e-16]], [1e-16, 2e-16],
+             note='well conditioned (scaled pivots near 1) with every entry below 1e-14: the absolute pivot rule of lib/linalg solveDense refuses it')
+    spd_case('spd-tiny-hessian-3x3', [[10.0, 3e-9, 2e-9], [3e-9, 4e-18, 1e-18], [2e-9, 1e-18, 3e-18]], [1.0, 2e-9, -1e-9],
+             note='the shape of a logistic Hessian with one feature in units of 1e-9: the second pivot is about 3e-18 in absolute terms, about 0.8 once scaled')
+    spd_case('spd-mixed-scales', [[1e10, 0.5, 5e4], [0.5, 1e-10, 1e-6], [5e4, 1e-6, 1.0]], [1.0, 1.0, 1.0],
+             note='diagonal from 1e-10 to 1e10; scaled it is [[1, 0.5, 0.5], [0.5, 1, 0.1], [0.5, 0.1, 1]], well conditioned; the raw condition number is about 1e20')
+    spd_case('spd-identity-large', [[1e20, 0.0], [0.0, 1e20]], [1e20, 2e20])
+    spd_case('spd-singular-exact', [[1.0, 2.0], [2.0, 4.0]], [1.0, 2.0], note='rank one: the second scaled pivot is exactly 0', float_pivot_exact=True)
+    spd_case('spd-singular-tiny', [[1e-20, 2e-20], [2e-20, 4e-20]], [1.0, 2.0],
+             note='the same rank-one matrix at 1e-20: refused by the relative rule too (exact scaled pivot 0; the float pivot is rounding)')
+    spd_case('spd-zero-diagonal', [[0.0, 0.0], [0.0, 1.0]], [1.0, 1.0])
+    spd_case('spd-negative-diagonal', [[1.0, 0.0], [0.0, -2.0]], [1.0, 1.0])
+    c.refuse('spd-not-square', 'solveSPD', {'A': [[1.0, 0.0], [0.0]], 'b': [1.0, 1.0]}, 'A[1]')
+    c.refuse('spd-b-length', 'solveSPD', {'A': [[1.0]], 'b': [1.0, 2.0]}, 'b')
+    rng = random.Random(4242)
+    cf = []
+    lab = []
+    for _ in range(40):
+        v = round(gauss(rng, 6e-10, 2e-10), 13)
+        cf.append([v])
+        lab.append(1 if (v - 6e-10) / 2e-10 + gauss(rng, 0, 1.0) > 0 else 0)
+    out, _ = o_logistic(cf, lab, names=['CF'], tol=0.1)
+    c.add('logistic-compressibility-per-pa', 'logistic', {'X': cf, 'y': lab, 'names': ['CF'], 'tol': 0.1}, out, tol=1e-9,
+          note='rock compressibility in 1/Pa (about 6e-10): the Hessian entry for CF is about 1e-18, so lib/linalg solveDense (absolute pivot 1e-14) refused the Newton step; the scale-aware Cholesky fits it. tol is in coefficient units, and the CF coefficient is about 1e9, so tol 0.1 is a relative 1e-10 (1e-3 would put one Newton step, 2.5e-4, within a factor 100 of tol)')
 
     # ---------------- predict
     olsm = o_ols(trX, trY, names)

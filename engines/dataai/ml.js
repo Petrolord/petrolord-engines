@@ -71,7 +71,7 @@
  *                 halved step can never fake convergence. The Newton
  *                 system is solved by solveSPD (relative pivot rule).
  *                 Separation is tested FIRST by the dual linear
- *                 programmes of Stiemke and Gordan (lib/lp): with l2 = 0
+ *                 programmes of Gordan and Stiemke (lib/lp): with l2 = 0
  *                 a separated sample is refused, with l2 > 0 it is fitted
  *                 and reported.
  *   metrics       R^2 on a test set uses the mean of the TEST targets
@@ -621,6 +621,14 @@ const forwardSolveT = (R, g) => {
 
 const REFINE_STEPS = 2;
 
+/** R of the Householder QR of A with unit-length columns (no solve). */
+const equilibratedR = (A) => {
+  const p = A[0].length;
+  const d = new Array(p).fill(0);
+  for (let j = 0; j < p; j += 1) { let s = 0; for (let i = 0; i < A.length; i += 1) s = Math.hypot(s, A[i][j]); d[j] = s; }
+  return householderQR(A.map((r) => r.map((v, j) => v / d[j]))).R;
+};
+
 const qrSolve = (A, y) => {
   const m = A.length;
   const p = A[0].length;
@@ -889,21 +897,22 @@ const softplus = (t) => (t > 0 ? t + Math.log1p(Math.exp(-t)) : Math.log1p(Math.
 
 /**
  * Separation test by linear programming, on the DUAL side so the tableau
- * has p (or p + 1) rows whatever the number of samples. S is the design
- * with row i multiplied by s_i (+1 for y = 1, -1 for y = 0) and every
- * column divided by its largest absolute value.
+ * has p + 1 (or p) rows whatever the number of samples; every pivot is
+ * O(p n) and the pivot count does not grow with n (FINDINGS-ml.md has the
+ * timings). S is the design with row i multiplied by s_i (+1 for y = 1,
+ * -1 for y = 0) and every column divided by its largest absolute value.
  *
- *   Stiemke's theorem: exactly one holds, (a) some beta has S beta >= 0
- *   and S beta != 0 (the sample is separated, completely or
- *   quasi-completely), or (b) some weights w > 0 have S'w = 0. The LP
- *   S'w = 0, w >= 1 is feasible exactly when (b) holds.
  *   Gordan's theorem: exactly one holds, (a) some beta has S beta > 0
- *   (complete separation), or (b) some w >= 0, w != 0 has S'w = 0. The LP
- *   S'w = 0, sum w = 1, w >= 0 is feasible exactly when (b) holds.
+ *   (COMPLETE separation), or (b) some w >= 0, w != 0, has S'w = 0.
+ *   Tested first, by the LP  S'w = 0, sum w = 1, w >= 0.
+ *   Stiemke's theorem: exactly one holds, (a) some beta has S beta >= 0
+ *   and S beta != 0 (separated, completely or quasi-completely), or
+ *   (b) some w > 0 has S'w = 0. Tested only when Gordan's LP is feasible,
+ *   by the LP  S'w = 0, w >= 1  (feasible: not separated; infeasible:
+ *   quasi-complete separation).
  *
- * Feasibility is lib/lp's phase one (infeasible when the artificial sum
- * left is above 1e-7). The second LP runs only when the first finds
- * separation.
+ * Feasibility is lib/lp's phase one: infeasible when the artificial sum
+ * left after phase one is above 1e-7.
  */
 const separationTest = (A, y) => {
   const n = A.length;
@@ -918,18 +927,17 @@ const separationTest = (A, y) => {
     cols.push(col);
   }
   const zeros = new Array(n).fill(0);
-  const stiemke = solveLP({ c: zeros, A: cols, b: new Array(p).fill(0), ops: new Array(p).fill('='), lo: new Array(n).fill(1), hi: new Array(n).fill(Infinity) });
-  if (stiemke.status === LP_STATUS.ITERATION_LIMIT) return { undecided: true, lpIterations: stiemke.iterations };
-  if (stiemke.status === LP_STATUS.OPTIMAL) return { detected: false, type: 'none', certificate: 'Stiemke weights w >= 1 with S\'w = 0', lpIterations: stiemke.iterations };
-  const gordan = solveLP({ c: zeros, A: [...cols, new Array(n).fill(1)], b: [...new Array(p).fill(0), 1], ops: new Array(p + 1).fill('='), lo: zeros, hi: new Array(n).fill(Infinity) });
-  if (gordan.status === LP_STATUS.ITERATION_LIMIT) return { undecided: true, lpIterations: stiemke.iterations + gordan.iterations };
-  const complete = gordan.status !== LP_STATUS.OPTIMAL;
-  return {
-    detected: true,
-    type: complete ? 'complete' : 'quasi-complete',
-    certificate: complete ? 'no Gordan weights exist: some beta has S beta > 0' : 'Gordan weights w >= 0, sum 1, with S\'w = 0 exist: no strict separator',
-    lpIterations: stiemke.iterations + gordan.iterations,
-  };
+  const inf = new Array(n).fill(Infinity);
+  const gordan = solveLP({ c: zeros, A: [...cols, new Array(n).fill(1)], b: [...new Array(p).fill(0), 1], ops: new Array(p + 1).fill('='), lo: zeros, hi: inf });
+  if (gordan.status === LP_STATUS.ITERATION_LIMIT) return { undecided: true, lpPivots: gordan.iterations };
+  if (gordan.status !== LP_STATUS.OPTIMAL) {
+    return { detected: true, type: 'complete', certificate: 'no w >= 0 with sum 1 and S\'w = 0 (Gordan): some beta has S beta > 0', lpPivots: gordan.iterations };
+  }
+  const stiemke = solveLP({ c: zeros, A: cols, b: new Array(p).fill(0), ops: new Array(p).fill('='), lo: new Array(n).fill(1), hi: inf });
+  const pivots = gordan.iterations + stiemke.iterations;
+  if (stiemke.status === LP_STATUS.ITERATION_LIMIT) return { undecided: true, lpPivots: pivots };
+  if (stiemke.status === LP_STATUS.OPTIMAL) return { detected: false, type: 'none', certificate: 'weights w >= 1 with S\'w = 0 (Stiemke)', lpPivots: pivots };
+  return { detected: true, type: 'quasi-complete', certificate: 'no w >= 1 with S\'w = 0 (Stiemke), but w >= 0 with sum 1 and S\'w = 0 exists (Gordan): no strict separator', lpPivots: pivots };
 };
 
 const penLogLik = (A, y, beta, l2, pen) => {
@@ -969,12 +977,11 @@ export const logistic = ({ X, y, names, intercept = true, l2 = 0, tol = DEFAULTS
   const pen = allNames.map((nmj) => nmj !== 'intercept');
   if (l2 === 0) {
     if (n <= p) return refuse('X', `must have more rows than coefficients without a penalty (${n} rows for ${p} coefficients)`);
-    const s = qrSolve(A, new Array(n).fill(0));
-    const kappa = condFrom(singularValues(s.Rs));
+    const kappa = condFrom(singularValues(equilibratedR(A)));
     if (!(kappa <= DEFAULTS.MAX_CONDITION)) return refuse('X', `is rank deficient or too ill-conditioned for an unpenalised fit: the scaled condition number ${fmt(kappa)} is above ${fmt(DEFAULTS.MAX_CONDITION)}; add an L2 penalty (l2 > 0) or drop collinear features`);
   }
   const separation = separationTest(A, y);
-  if (separation.undecided) return refuse('y', `could not be tested for separation: the linear programme stopped at its iteration limit after ${separation.lpIterations} pivots`);
+  if (separation.undecided) return refuse('y', `could not be tested for separation: a separation linear programme stopped at its iteration limit (${separation.lpPivots} pivots)`);
   if (separation.detected && l2 === 0) {
     return refuse('y', `is ${separation.type === 'complete' ? 'completely' : 'quasi-completely'} separated by a linear combination of the features (${separation.type === 'complete' ? 'every row lies strictly on its own class side of a hyperplane' : 'every row lies on or on its own class side of a hyperplane, some exactly on it'}), so the maximum likelihood coefficients are infinite: add an L2 penalty (l2 > 0) or remove the separating feature`);
   }
@@ -1066,7 +1073,7 @@ export const logistic = ({ X, y, names, intercept = true, l2 = 0, tol = DEFAULTS
       newtonSolve: 'Cholesky on the unit-diagonal scaled Hessian (solveSPD); singular when a scaled pivot is at or below p x machine epsilon',
       penalty: l2 > 0 ? `(l2 / 2) x sum beta_j^2 on the non-intercept coefficients, l2 = ${fmt(l2)}; scikit-learn C = 1 / l2` : 'none (maximum likelihood)',
       standardErrors: l2 > 0 ? 'sqrt(diag((X\'WX + l2 P)^-1)) at the solution, P the penalty pattern' : 'sqrt(diag((X\'WX)^-1)) at the solution, W = p(1 - p)',
-      separation: 'dual linear programmes on the column-scaled, sign-flipped design (lib/lp): separated when S\'w = 0, w >= 1 is infeasible (Stiemke), complete when S\'w = 0, sum w = 1, w >= 0 is also infeasible (Gordan); infeasible means an artificial sum above 1e-7 after phase one',
+      separation: 'dual linear programmes on the column-scaled, sign-flipped design S (lib/lp): COMPLETE when S\'w = 0, sum w = 1, w >= 0 is infeasible (Gordan); otherwise QUASI-COMPLETE when S\'w = 0, w >= 1 is infeasible (Stiemke), else none; infeasible means an artificial sum above 1e-7 after phase one',
     },
   };
   if (!converged) {
@@ -1325,14 +1332,39 @@ const checkMetric = (metric, kind) => {
 };
 
 /** Scores a fitted model on rows with the named metric. */
-const scoreModel = (model, X, y, metric) => {
-  const pr = predict({ model, X });
-  if (pr.error) return pr;
+/**
+ * Model output without validation or row copies: the same summation order
+ * as predict, with column j read from override (a permuted column) when
+ * given. Values are probabilities for logistic.
+ */
+const modelOutput = (model, X, j = -1, override = null) => {
+  const q = model.coefficients.length - (model.intercept ? 1 : 0);
+  const off = model.intercept ? 1 : 0;
+  const c = model.coefficients;
+  const n = X.length;
+  const values = new Array(n);
+  for (let i = 0; i < n; i += 1) {
+    const r = X[i];
+    let s = model.intercept ? c[0] : 0;
+    for (let k = 0; k < q; k += 1) s += (k === j ? override[i] : r[k]) * c[k + off];
+    values[i] = model.kind === 'logistic' ? sigmoid(s) : s;
+  }
+  return model.kind === 'logistic' ? { values, classes: values.map((v) => (v > 0.5 ? 1 : 0)) } : { values };
+};
+
+const scoreOutput = (pr, y, metric) => {
   if (metric === 'accuracy') return { value: pr.classes.reduce((a, c, i) => a + (c === y[i] ? 1 : 0), 0) / y.length };
   if (metric === 'logLoss') { const r = logLoss({ yTrue: y, probabilities: pr.values }); return r.error ? r : { value: r.logLoss }; }
   if (metric === 'auc') { const r = rocCurve({ yTrue: y, scores: pr.values }); return r.error ? r : { value: r.auc }; }
   const r = regressionMetrics({ yTrue: y, yPred: pr.values });
   return r.error ? r : { value: r[metric] };
+};
+
+/** Scores a fitted model on rows with the named metric. */
+const scoreModel = (model, X, y, metric) => {
+  const pr = predict({ model, X });
+  if (pr.error) return pr;
+  return scoreOutput(pr, y, metric);
 };
 
 const checkXyGroups = (X, y, groups, kind) => {
@@ -1377,8 +1409,8 @@ export const permutationImportance = ({ model, X, y, metric, nRepeats = 5, seed 
     const drops = [];
     for (let r = 0; r < nRepeats; r += 1) {
       const perm = shuffleInPlace(X.map((_, i) => i), rng);
-      const Xp = X.map((row, i) => { const c = row.slice(); c[j] = X[perm[i]][j]; return c; });
-      const sc = scoreModel(model, Xp, y, m);
+      const col = perm.map((pi) => X[pi][j]);
+      const sc = scoreOutput(modelOutput(model, X, j, col), y, m);
       if (sc.error) return sc;
       drops.push(hib ? base.value - sc.value : sc.value - base.value);
     }

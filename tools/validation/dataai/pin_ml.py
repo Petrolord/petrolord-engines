@@ -131,6 +131,18 @@ def main():
             if a.get('maxIter') is not None:
                 continue
             A = sm.add_constant(X, has_constant='add') if icpt else X
+            colmax = np.abs(X).max(axis=0)
+            if l2 == 0 and colmax.min() < 1e-6:
+                # both libraries fail on features in units of 1e-9 (statsmodels does not
+                # converge, sklearn stops 65 percent off); the witness fits the feature
+                # rescaled to unit maximum and converts the coefficients back
+                As = sm.add_constant(X / colmax, has_constant='add') if icpt else X / colmax
+                res = sm.Logit(y, As).fit(method='newton', tol=1e-14, maxiter=200, disp=0)
+                scale = np.concatenate([[1.0], colmax]) if icpt else colmax
+                pin(c, 'coefficients', res.params / scale, 'statsmodels Logit on the feature rescaled to unit maximum, coefficients converted back')
+                pin(c, 'standardErrors', res.bse / scale, 'statsmodels Logit bse, rescaled feature, converted back')
+                pin(c, 'logLikelihood', float(res.llf), 'statsmodels Logit llf, rescaled feature')
+                continue
             if l2 == 0:
                 res = sm.Logit(y, A).fit(method='newton', tol=1e-14, maxiter=200, disp=0)
                 pin(c, 'coefficients', res.params, 'statsmodels Logit (newton)')
@@ -142,6 +154,12 @@ def main():
                                    solver='newton-cholesky', tol=1e-14, max_iter=1000).fit(X, y)
             coef = ([float(m.intercept_[0])] if icpt else []) + list(map(float, m.coef_[0]))
             pin(c, 'coefficients', coef, 'sklearn LogisticRegression newton-cholesky' + ('' if l2 == 0 else ', C = 1 / l2'))
+        elif fn == 'solveSPD':
+            A = np.array(a['A'], dtype=float)
+            pin(c, 'x', np.linalg.solve(A, np.array(a['b'], dtype=float)), 'numpy.linalg.solve (LAPACK gesv)')
+            dg = np.sqrt(np.diag(A))
+            Ls = np.linalg.cholesky(A / np.outer(dg, dg))
+            pin(c, 'minScaledPivot', float(np.min(np.diag(Ls)) ** 2) if A.shape[0] == 1 else float(min(np.diag(Ls) ** 2)), 'numpy.linalg.cholesky of the unit-diagonal scaling')
         elif fn == 'fitStandardScaler':
             X = np.array(a['X'], dtype=float)
             if 'trainIndices' in a:
