@@ -809,7 +809,7 @@ def pca_warning(converged, max_sweeps, repeated):
                      f'the eigenvalues and components shown are those after sweep {max_sweeps}')
     if repeated:
         parts.append('eigenvalues ' + ', '.join(f'{a + 1} and {b + 1}' for a, b in repeated)
-                     + ' are equal to within 1e-10 of the largest, so the directions of those components are not unique: the loadings shown are one valid choice')
+                     + ' differ by at most 1e-10 times the largest eigenvalue, so the directions of those components are not unique: the loadings shown are one valid choice')
     return '; '.join(parts) if parts else None
 
 

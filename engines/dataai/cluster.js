@@ -340,7 +340,7 @@ export const pca = ({ X, names, matrix = 'correlation', nComponents, maxSweeps =
   // figure, the repeated-eigenvalue test included), joined by '; '.
   const warnings = [];
   if (!eig.converged) warnings.push(`Jacobi did not converge in ${maxSweeps} sweep${maxSweeps === 1 ? '' : 's'} (the last sweep still rotated): the eigenvalues and components shown are those after sweep ${maxSweeps}`);
-  if (repeated.length) warnings.push(`eigenvalues ${repeated.map(([a, b]) => `${a + 1} and ${b + 1}`).join(', ')} are equal to within 1e-10 of the largest, so the directions of those components are not unique: the loadings shown are one valid choice`);
+  if (repeated.length) warnings.push(`eigenvalues ${repeated.map(([a, b]) => `${a + 1} and ${b + 1}`).join(', ')} differ by at most 1e-10 times the largest eigenvalue, so the directions of those components are not unique: the loadings shown are one valid choice`);
   if (warnings.length) out.warning = warnings.join('; ');
   return out;
 };

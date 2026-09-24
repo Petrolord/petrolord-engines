@@ -14362,7 +14362,7 @@
     ],
     "converged": true,
     "jacobiSweeps": 2,
-    "warning": "eigenvalues 1 and 2, 3 and 4 are equal to within 1e-10 of the largest, so the directions of those components are not unique: the loadings shown are one valid choice"
+    "warning": "eigenvalues 1 and 2, 3 and 4 differ by at most 1e-10 times the largest eigenvalue, so the directions of those components are not unique: the loadings shown are one valid choice"
    },
    "tol": 1e-12,
    "source": "oracle",
@@ -14457,7 +14457,7 @@
     ],
     "converged": false,
     "jacobiSweeps": 1,
-    "warning": "Jacobi did not converge in 1 sweep (the last sweep still rotated): the eigenvalues and components shown are those after sweep 1; eigenvalues 1 and 2, 3 and 4 are equal to within 1e-10 of the largest, so the directions of those components are not unique: the loadings shown are one valid choice"
+    "warning": "Jacobi did not converge in 1 sweep (the last sweep still rotated): the eigenvalues and components shown are those after sweep 1; eigenvalues 1 and 2, 3 and 4 differ by at most 1e-10 times the largest eigenvalue, so the directions of those components are not unique: the loadings shown are one valid choice"
    },
    "tol": 1e-12,
    "source": "oracle",

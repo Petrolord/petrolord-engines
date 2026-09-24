@@ -140,6 +140,7 @@ run_case ENGINE "pca warning overwritten (the last one wins)" $E "if (warnings.l
 run_case ENGINE "pca warnings in the other order" $E "if (warnings.length) out.warning = warnings.join('; ');" "if (warnings.length) out.warning = [...warnings].reverse().join('; ');"
 run_case ENGINE "pca maxSweeps ignored (always 50)" $E "const eig = jacobiEigen(S, maxSweeps);" "const eig = jacobiEigen(S, DEFAULTS.JACOBI_MAX_SWEEPS);"
 run_case ENGINE "pca maxSweeps 0 accepted" $E "if (!isInt(maxSweeps) || maxSweeps < 1)" "if (!isInt(maxSweeps) || maxSweeps < 0)"
+run_case ENGINE "repeated-eigenvalue warning in the old wording" $E " differ by at most 1e-10 times the largest eigenvalue, so the directions" " are equal to within 1e-10 of the largest, so the directions"
 run_case ENGINE "cutTree id reuse not checked" $E "if (mergedAt.has(id)) return" "if (false) return"
 run_case ENGINE "cutTree reuse message names the later step" $E "which linkageMatrix[\${mergedAt.get(id)}] already merged" "which linkageMatrix[\${s}] already merged"
 # matching and ARI
@@ -159,6 +160,7 @@ run_case ORACLE "oracle ARI special case 0" $O "    if mx == expected:
         return F(0)"
 run_case ORACLE "oracle constant rule in the old wording" $O "on the {len(X)} {rows} (every value" "on the {len(X)} training rows (every value"
 run_case ORACLE "oracle keeps only the last pca warning" $O "return '; '.join(parts) if parts else None" "return parts[-1] if parts else None"
+run_case ORACLE "oracle repeated-eigenvalue rule in the old wording" $O " differ by at most 1e-10 times the largest eigenvalue, so the directions" " are equal to within 1e-10 of the largest, so the directions"
 run_case ORACLE "oracle has no id reuse rule" $O "            if i in first:" "            if False:"
 
 restore

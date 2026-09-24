@@ -118,8 +118,10 @@ The 18 skips, each a documented convention difference:
    needing no rotation, at most `maxSweeps` (default 50; the default is
    never reached in any golden, `maxSweeps: 1` makes it reachable).
    Eigenvalues sorted descending, equal values keep column order; a
-   rounding value below zero is reported as 0. Eigenvalues within 1e-10 of
-   the largest are flagged with a warning (directions not unique). When
+   rounding value below zero is reported as 0. Neighbouring eigenvalues
+   (in sorted order) that differ by at most 1e-10 times the largest,
+   |lambda_k - lambda_k+1| <= 1e-10 x lambda_1 (inclusive), are flagged
+   with a warning (directions not unique). When
    both warnings apply both are kept: non-convergence first, then the
    repeated eigenvalues, joined by '; '.
 4. **Sign convention**: in each component the first loading whose absolute
@@ -211,6 +213,7 @@ The 18 skips, each a documented convention difference:
 | matching one-to-one | clusters = facies | clusters > facies | match-perfect, match-more-clusters-than-facies |
 | tie bands (distance, merge, run) | within 1e-12 relative, inclusive | beyond | kmeans-assignment-tie-lower-centre, agglomerative-grid-ties-*, knn-equidistant-lower-row |
 | sign rule | within 1e-9 of the largest, inclusive | | pca-two-features-sign-tie |
+| pca repeated eigenvalues | \|lambda_k - lambda_k+1\| <= 1e-10 x lambda_1, inclusive (flagged) | above (not flagged) | pca-warning-repeated-only, pca-warning-both (exact repeats); no golden sits on the edge itself: a difference of two doubles near lambda_1 is a whole number of ulps while 1e-10 x lambda_1 rounds to a full 53-bit mantissa, and a search of 4,001 neighbouring inputs found no exact hit |
 
 ## Salvage review: Suite src/utils/logFaciesCalculations.js
 
@@ -333,9 +336,16 @@ previous cases, 124 are byte-identical and 2 differ in `message` only;
 18 skips unchanged. Oracle and pins regenerate byte-identically
 (`OMP_NUM_THREADS=1` for the pins).
 
-Wording left as it was (not in this repair's scope, noted for the course):
-the repeated-eigenvalue warning says "equal to within 1e-10 of the
-largest"; the exact test is |lambda_k - lambda_k+1| <= 1e-10 x lambda_1.
+**The repeated-eigenvalue warning now states the exact test** (lead's
+follow-up, same PR). It said "are equal to within 1e-10 of the largest";
+the test is |lambda_k - lambda_k+1| <= 1e-10 x lambda_1 (inclusive, as the
+code's `<=`). It now reads "eigenvalues 1 and 2, 3 and 4 differ by at most
+1e-10 times the largest eigenvalue, so the directions of those components
+are not unique: the loadings shown are one valid choice". Proof that only
+the text moved: all 145 cases run through the previous commit's engine
+and this one, 143 identical, 2 (`pca-warning-repeated-only`,
+`pca-warning-both`) differ in `warning` alone; in the golden file the same
+2 cases differ in `warning` alone; the pins are byte-identical.
 
 ## Negative control
 
