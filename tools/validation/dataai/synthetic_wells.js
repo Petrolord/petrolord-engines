@@ -5,6 +5,7 @@
 // `separatedLabel` is 1 exactly when feature 1 is above 1, a complete
 // separation. Used by __tests__/dataai.ml.test.js and timing_ml.mjs.
 import { mulberry32 } from '../../../lib/stats/stats.js';
+import { calculateArpsHyperbolic } from '../../../engines/dca/arps.js';
 
 export const syntheticWells = (n, p, seed = 20260924) => {
   const rng = mulberry32(seed);
@@ -52,4 +53,37 @@ export const syntheticFacies = (n, p = 4, seed = 20260924) => {
     groups.push(`W${String(Math.floor(i / 500)).padStart(4, '0')}`);
   }
   return { X, facies, groups };
+};
+
+// Seeded synthetic Ekene monthly production for the forecast.js scale
+// checks (Data & AI D4). Each well: an Arps hyperbolic decline (qi 600 to
+// 1,500 bbl/d, Di 0.04 to 0.10 per month, b 0.2 to 0.9, from
+// engines/dca/arps.js calculateArpsHyperbolic), multiplicative noise of 6
+// percent, a shut-in of 2 to 4 months (rate 0) starting between months 30
+// and 69 when the well is long enough, and a workover on restart that lifts
+// the rate by 25 percent. Rates are monthly average bbl/d rounded to 0.1.
+// Used by __tests__/dataai.forecast.test.js and timing_forecast.mjs.
+export const syntheticProduction = (nWells, nMonths, seed = 20260924) => {
+  const rng = mulberry32(seed);
+  const gauss = () => { const u = 1 - rng(); const v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const wells = [];
+  for (let w = 0; w < nWells; w += 1) {
+    const qi = 600 + 900 * rng(); const Di = 0.04 + 0.06 * rng(); const b = 0.2 + 0.7 * rng();
+    const shutStart = 30 + Math.floor(40 * rng()); const shutLen = 2 + Math.floor(3 * rng());
+    const hasShutIn = shutStart + shutLen < nMonths;
+    const rate = [];
+    for (let t = 0; t < nMonths; t += 1) {
+      const noise = 1 + 0.06 * gauss();
+      if (hasShutIn && t >= shutStart && t < shutStart + shutLen) { rate.push(0); continue; }
+      const lift = hasShutIn && t >= shutStart + shutLen ? 1.25 : 1;
+      rate.push(Math.round(10 * Math.max(0, calculateArpsHyperbolic(qi, Di, b, t) * lift * noise)) / 10);
+    }
+    wells.push({
+      well: `EKENE-P${String(w + 1).padStart(2, '0')}`,
+      rate,
+      shutIn: hasShutIn ? [shutStart, shutStart + shutLen - 1] : null,
+      workover: hasShutIn ? shutStart + shutLen : null,
+    });
+  }
+  return wells;
 };
