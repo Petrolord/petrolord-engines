@@ -31,8 +31,9 @@
  *               floor(u n); then u x (sum of D^2) picks the first row whose
  *               running sum of D^2 (rows in order) is above it. nInit runs
  *               draw from the same stream in turn; the lowest inertia wins,
- *               a tie keeps the earlier run. Lloyd passes: each row goes to
- *               the nearest centre, an exact tie to the lower centre index;
+ *               a tie (within 1e-12) keeps the earlier run. Lloyd passes: each row goes to
+ *               the nearest centre, squared distances within 1e-12 (relative)
+ *               of the smallest tied and going to the lower centre index;
  *               centres become member means. Converged when a pass gives
  *               the same labels as the pass before; `iterations` counts
  *               assignment passes (scikit-learn n_iter_). Empty cluster: it
@@ -52,8 +53,10 @@
  *               other). Ids as scipy: rows 0 to n - 1, the cluster made at
  *               step s is n + s. Refused above 3,000 rows (O(n^2) memory).
  *               Cut labels number clusters by their first row.
- *   kNN         the k nearest training rows by distance, an equal distance
- *               to the lower training row; majority vote, a tied vote to
+ *   kNN         the k nearest training rows, taken one at a time: the lowest
+ *               row among those whose squared distance is within 1e-12
+ *               (relative) of the smallest remaining (decimal data put
+ *               equal distances a rounding apart, so equality is banded); majority vote, a tied vote to
  *               the tied label whose nearest member comes first.
  *   CART        Gini; candidate thresholds at midpoints a/2 + b/2 of
  *               consecutive distinct values (a if that rounds to b); x at or
@@ -92,7 +95,7 @@ export const DEFAULTS = Object.freeze({
   KMEANS_N_INIT: 10,
   SILHOUETTE_MAX_ROWS: 10000,
   AGGLOMERATIVE_MAX_ROWS: 3000,
-  MERGE_TIE_REL: 1e-12,
+  TIE_REL: 1e-12, // distances (and merge heights) this close to the smallest are tied
   KNN_MAX_PAIRS: 200000000, // training rows x new rows
   CART_MAX_DEPTH: 5,
   MATCH_MAX_LABELS: 50,
@@ -367,17 +370,25 @@ const kmeansPP = (A, n, p, k, rng) => {
   return picks;
 };
 
-/** Nearest centre (exact tie to the lower index); returns labels, squared distances and inertia. */
+/**
+ * Nearest centre; squared distances within TIE_REL (relative) of the
+ * smallest are tied and the lower centre index wins. Returns the inertia.
+ */
 const assignRows = (A, n, p, C, k, labels, d2) => {
   let inertia = 0;
+  const ds = new Float64Array(k);
   for (let i = 0; i < n; i += 1) {
-    let best = -1; let bd = Infinity;
+    let m = Infinity;
     for (let c = 0; c < k; c += 1) {
       let s = 0;
       for (let j = 0; j < p; j += 1) { const d = A[i * p + j] - C[c * p + j]; s += d * d; }
-      if (s < bd) { bd = s; best = c; }
+      ds[c] = s;
+      if (s < m) m = s;
     }
-    labels[i] = best; d2[i] = bd; inertia += bd;
+    const thr = m + m * DEFAULTS.TIE_REL;
+    let best = 0;
+    while (ds[best] > thr) best += 1;
+    labels[i] = best; d2[i] = ds[best]; inertia += ds[best];
   }
   return inertia;
 };
@@ -470,7 +481,7 @@ export const kmeans = ({ X, k, seed, nInit, maxIter = DEFAULTS.KMEANS_MAX_ITER, 
   starts.forEach((s, r) => {
     const res = lloyd(A, n, p, k, s.C, maxIter);
     runs.push({ run: r, inertia: res.inertia, iterations: res.iterations, converged: res.converged, initialRows: s.picks });
-    if (!best || res.inertia < best.inertia) { best = { ...res, start: s }; bestRun = r; }
+    if (!best || res.inertia < best.inertia - best.inertia * DEFAULTS.TIE_REL) { best = { ...res, start: s }; bestRun = r; }
   });
   const centres = toRows(best.C, k, p);
   const sizes = new Array(k).fill(0);
@@ -503,11 +514,11 @@ export const kmeans = ({ X, k, seed, nInit, maxIter = DEFAULTS.KMEANS_MAX_ITER, 
       init: init === undefined
         ? 'k-means++ (one candidate per step) from one mulberry32(seed) stream: first centre row floor(u n), then u x sum D^2 picks the first row whose running sum of D^2 is above it; nInit runs draw in turn from the same stream'
         : 'the given centres (original units, scaled with the fitted scaler)',
-      assignment: 'nearest centre by Euclidean distance on the scaled features; an exact tie goes to the lower centre index',
+      assignment: 'nearest centre by Euclidean distance on the scaled features; squared distances within 1e-12 (relative) of the smallest are tied and go to the lower centre index',
       update: 'centre = mean of its rows; an empty cluster takes the row farthest from its current centre (ties to the lower row) among clusters with at least 2 rows',
       convergence: `converged when an assignment pass returns the labels of the pass before; iterations counts assignment passes (scikit-learn n_iter_); at most maxIter ${maxIter}`,
       inertia: 'sum of squared distances of the rows to their centres, on the scaled features',
-      best: 'lowest inertia over the runs; a tie keeps the earlier run',
+      best: 'lowest inertia over the runs; a run within 1e-12 (relative) of the best so far does not replace it',
     },
   };
   if (!best.converged) out.warning = `did not converge in ${maxIter} assignment passes: the labels printed come from one more pass against the last centres`;
@@ -524,7 +535,7 @@ export const assignClusters = ({ model, X } = {}) => {
   const n = Z.length; const p = model.p;
   const labels = new Int32Array(n); const d2 = new Float64Array(n);
   assignRows(flat(Z), n, p, flat(model.centres), model.k, labels, d2);
-  return { labels: Array.from(labels), distances: Array.from(d2, Math.sqrt), basis: { rule: 'scaled with the fitted scaler, then the nearest centre; an exact tie goes to the lower centre index' } };
+  return { labels: Array.from(labels), distances: Array.from(d2, Math.sqrt), basis: { rule: 'scaled with the fitted scaler, then the nearest centre; squared distances within 1e-12 (relative) of the smallest are tied and go to the lower centre index' } };
 };
 
 /* ------------------------------------------------------------------ */
@@ -706,7 +717,7 @@ export const agglomerative = ({ X, linkage = 'ward', k, scale = 'standard', name
   for (let step = 0; step < n - 1; step += 1) {
     let m = Infinity;
     for (let s = 0; s < n; s += 1) if (active[s] && nnd[s] < m) m = nnd[s];
-    const thr = m + m * DEFAULTS.MERGE_TIE_REL;
+    const thr = m + m * DEFAULTS.TIE_REL;
     let a = -1; let nCand = 0;
     for (let s = 0; s < n; s += 1) if (active[s] && nnd[s] <= thr) { nCand += 1; if (a < 0 || ids[s] < ids[a]) a = s; }
     let b = -1; let nPart = 0;
@@ -795,7 +806,7 @@ export const knnClassify = ({ X, y, Xnew, k = 5, scale = 'standard', names } = {
   if (L.bad) return L.bad;
   const bn = checkMatrix('Xnew', Xnew);
   if (bn) return bn;
-  if (Xnew[0].length !== p) return refuse('Xnew', `must have ${p} columns, like X`);
+  if (Xnew[0].length !== p) return refuse('Xnew', `must have ${p} column${p === 1 ? '' : 's'}, like X`);
   if (!isInt(k) || k < 1 || k > n) return refuse('k', `must be a whole number from 1 to ${n} (the training rows)`);
   if (n * Xnew.length > DEFAULTS.KNN_MAX_PAIRS) return refuse('Xnew', `times X is ${n * Xnew.length} distance pairs (${Xnew.length} x ${n}), above the ${DEFAULTS.KNN_MAX_PAIRS} kNN computes: classify fewer rows at a time or thin the training rows`);
   const sf = scaleFit(X, scale, names);
@@ -804,17 +815,35 @@ export const knnClassify = ({ X, y, Xnew, k = 5, scale = 'standard', names } = {
   const B = flat(scaleApply(sf.scaler, Xnew));
   const m = Xnew.length;
   const predictions = new Array(m); const neighbours = new Array(m); const distances = new Array(m); const votes = new Array(m);
-  const bi = new Int32Array(k); const bd = new Float64Array(k);
+  const bd = new Float64Array(k);
+  const all = new Float64Array(n);
+  const bi = new Array(k);
   let tiedVotes = 0;
   for (let r = 0; r < m; r += 1) {
+    // the k-th smallest squared distance, by a sorted buffer
     let cnt = 0;
     for (let i = 0; i < n; i += 1) {
       let s = 0; for (let t = 0; t < p; t += 1) { const d = B[r * p + t] - A[i * p + t]; s += d * d; }
-      if (cnt === k && s >= bd[k - 1]) continue; // equal distance: the earlier (lower) row stays
+      all[i] = s;
+      if (cnt === k && s >= bd[k - 1]) continue;
       let q = cnt === k ? k - 1 : cnt;
-      while (q > 0 && bd[q - 1] > s) { bd[q] = bd[q - 1]; bi[q] = bi[q - 1]; q -= 1; }
-      bd[q] = s; bi[q] = i;
+      while (q > 0 && bd[q - 1] > s) { bd[q] = bd[q - 1]; q -= 1; }
+      bd[q] = s;
       if (cnt < k) cnt += 1;
+    }
+    // candidates within the tie band of the k-th; then take k greedily: the
+    // lowest row among those within the band of the smallest remaining
+    const lim = bd[k - 1] + bd[k - 1] * DEFAULTS.TIE_REL;
+    const cand = [];
+    for (let i = 0; i < n; i += 1) if (all[i] <= lim) cand.push(i);
+    cand.sort((a, b) => all[a] - all[b] || a - b);
+    const taken = new Uint8Array(cand.length);
+    for (let q = 0; q < k; q += 1) {
+      let first = 0; while (taken[first]) first += 1;
+      const thr = all[cand[first]] + all[cand[first]] * DEFAULTS.TIE_REL;
+      let pick = first;
+      for (let z = first; z < cand.length && all[cand[z]] <= thr; z += 1) if (!taken[z] && cand[z] < cand[pick]) pick = z;
+      taken[pick] = 1; bi[q] = cand[pick]; bd[q] = all[cand[pick]];
     }
     const count = new Map(); const first = new Map();
     for (let q = 0; q < k; q += 1) { const lab = y[bi[q]]; count.set(lab, (count.get(lab) || 0) + 1); if (!first.has(lab)) first.set(lab, q); }
@@ -825,7 +854,7 @@ export const knnClassify = ({ X, y, Xnew, k = 5, scale = 'standard', names } = {
     }
     if (tie) tiedVotes += 1;
     predictions[r] = win;
-    neighbours[r] = Array.from(bi);
+    neighbours[r] = bi.slice();
     distances[r] = Array.from(bd, Math.sqrt);
     votes[r] = L.classes.filter((c) => count.has(c)).map((c) => ({ label: c, count: count.get(c) }));
   }
@@ -841,7 +870,7 @@ export const knnClassify = ({ X, y, Xnew, k = 5, scale = 'standard', names } = {
     basis: {
       scaling: scale === 'none' ? 'features used as given (no scaling)' : `${scale} scaler (ml.js) fitted on the TRAINING rows only and applied unchanged to the new rows`,
       distance: 'Euclidean on the scaled features',
-      neighbours: 'the k nearest training rows; an equal distance goes to the lower training row',
+      neighbours: 'the k nearest training rows, taken one at a time: the lowest row among those whose squared distance is within 1e-12 (relative) of the smallest remaining',
       vote: 'majority of the k labels; a tied vote goes to the tied label whose nearest member comes first in the neighbour order (scikit-learn takes the label that sorts first)',
       cap: `training rows x new rows at most ${DEFAULTS.KNN_MAX_PAIRS}`,
     },
