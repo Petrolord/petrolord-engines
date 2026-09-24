@@ -636,9 +636,12 @@ and its consumers.
   residual SE, R^2, adjusted R^2, raw and scaled condition numbers;
   refused above a scaled condition number of 1e8); ridge in closed form on
   standardised features with the intercept unpenalised (lambda =
-  scikit-learn alpha); binary logistic regression by Newton with a stated
-  stopping rule and separation detected by linear programming (lib/lp)
-  before fitting; RMSE, MAE, R^2, confusion matrix, per-class and
+  scikit-learn alpha); binary logistic regression by Newton (its Newton
+  system solved by its own scale-aware Cholesky, `solveSPD`, with a
+  relative pivot rule instead of lib/linalg solveDense) with a stated
+  stopping rule, and separation decided before fitting by the dual Gordan
+  and Stiemke linear programmes (lib/lp, p rows whatever n; timed to 200k
+  rows); RMSE, MAE, R^2, confusion matrix, per-class and
   macro/weighted precision, recall and F1 with a stated zero division,
   ROC with tied scores grouped, trapezoid AUC, clipped log loss; seeded
   permutation importance, a learning curve by well count and a leakage
