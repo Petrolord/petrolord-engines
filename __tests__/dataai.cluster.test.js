@@ -252,10 +252,12 @@ describe('row caps and boundaries', () => {
     expect(CL.silhouette({ X: big.X, labels: lab }).error).toBe('X has 10001 rows, above the 10000 the silhouette computes in full (every pair of rows): give sampleSize and seed to score a seeded sample');
     expect(CL.silhouette({ X: big.X, labels: lab, sampleSize: 2000, seed: 1 }).n).toBe(2000);
   });
-  test('kNN: the pair cap is inclusive', () => {
-    const X = [[0], [1]];
-    expect(CL.knnClassify({ X, y: ['a', 'b'], Xnew: [[0.2]], k: 1 }).predictions).toEqual(['a']);
-    expect(CL.DEFAULTS.KNN_MAX_PAIRS).toBe(200000000);
+  test('kNN: 10,000 x 10,000 pairs (the cap, 1e8) are classified, 10,001 x 10,000 refused', () => {
+    expect(CL.DEFAULTS.KNN_MAX_PAIRS).toBe(100000000);
+    const X = Array.from({ length: 10000 }, (_, i) => [i]);
+    const y = X.map((r) => (r[0] % 2 ? 'odd' : 'even'));
+    expect(CL.knnClassify({ X, y, Xnew: X, k: 1 }).predictions).toEqual(y);
+    expect(CL.knnClassify({ X, y, Xnew: [...X, [0.5]], k: 1 }).error).toBe('Xnew has 10001 rows against 10000 training rows, 100010000 distance pairs, above the 100000000 kNN computes: classify fewer rows at a time or thin the training rows');
   });
 });
 

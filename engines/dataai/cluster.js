@@ -96,7 +96,7 @@ export const DEFAULTS = Object.freeze({
   SILHOUETTE_MAX_ROWS: 10000,
   AGGLOMERATIVE_MAX_ROWS: 3000,
   TIE_REL: 1e-12, // distances (and merge heights) this close to the smallest are tied
-  KNN_MAX_PAIRS: 200000000, // training rows x new rows
+  KNN_MAX_PAIRS: 100000000, // training rows x new rows
   CART_MAX_DEPTH: 5,
   MATCH_MAX_LABELS: 50,
 });
@@ -808,7 +808,7 @@ export const knnClassify = ({ X, y, Xnew, k = 5, scale = 'standard', names } = {
   if (bn) return bn;
   if (Xnew[0].length !== p) return refuse('Xnew', `must have ${p} column${p === 1 ? '' : 's'}, like X`);
   if (!isInt(k) || k < 1 || k > n) return refuse('k', `must be a whole number from 1 to ${n} (the training rows)`);
-  if (n * Xnew.length > DEFAULTS.KNN_MAX_PAIRS) return refuse('Xnew', `times X is ${n * Xnew.length} distance pairs (${Xnew.length} x ${n}), above the ${DEFAULTS.KNN_MAX_PAIRS} kNN computes: classify fewer rows at a time or thin the training rows`);
+  if (n * Xnew.length > DEFAULTS.KNN_MAX_PAIRS) return refuse('Xnew', `has ${Xnew.length} rows against ${n} training rows, ${n * Xnew.length} distance pairs, above the ${DEFAULTS.KNN_MAX_PAIRS} kNN computes: classify fewer rows at a time or thin the training rows`);
   const sf = scaleFit(X, scale, names);
   if (sf.bad) return sf.bad;
   const A = flat(sf.Z);
