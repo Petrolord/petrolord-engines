@@ -13,6 +13,7 @@
 import fs from 'fs';
 import path from 'path';
 import * as CL from '../engines/dataai/cluster';
+import * as ML from '../engines/dataai/ml';
 import { syntheticFacies } from '../tools/validation/dataai/synthetic_wells';
 
 const read = (...p) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', ...p), 'utf8'));
@@ -290,5 +291,35 @@ describe('every result explains itself, in plain copy', () => {
         expect([fn, typeof r.error, typeof r.field]).toEqual([fn, 'string', 'string']);
       });
     });
+  });
+});
+
+describe('constant-feature refusals name the rows they were fitted on', () => {
+  // The expected texts are the goldens (oracle); this block checks the
+  // split between functions and that ml.js keeps its supervised wording.
+  const refusal = (id) => call(byId(id)).error;
+  test('the clustering and PCA functions say "rows passed"; kNN says "training rows"', () => {
+    ['pca-constant-feature-correlation', 'pca-ekene-constant-cali', 'kmeans-constant-log', 'kmeans-constant-log-minmax', 'silhouette-constant-log',
+      'elbow-constant-log', 'agglomerative-constant-log', 'agglomerative-constant-log-minmax']
+      .forEach((id) => expect([id, / rows passed \(every value is /.test(refusal(id)), /training/.test(refusal(id))]).toEqual([id, true, false]));
+    ['knn-constant-log-training', 'knn-constant-log-training-minmax']
+      .forEach((id) => expect([id, / training rows \(every value is /.test(refusal(id))]).toEqual([id, true]));
+  });
+  test('ml.js scalers keep "training rows" by default and refuse an unknown row noun', () => {
+    const X = [[1, 2.3], [2, 2.3]];
+    expect(ML.fitStandardScaler({ X }).error).toBe('X.x2 has zero variance on the 2 training rows (every value is 2.3): standardising would divide by zero, so drop the feature or fit on rows where it varies');
+    expect(ML.fitMinMaxScaler({ X }).error).toBe('X.x2 has zero range on the 2 training rows (every value is 2.3): min-max scaling would divide by zero, so drop the feature or fit on rows where it varies');
+    expect(ML.fitStandardScaler({ X, rowNoun: 'rows passed' }).error).toBe('X.x2 has zero variance on the 2 rows passed (every value is 2.3): standardising would divide by zero, so drop the feature or fit on rows where it varies');
+    expect(ML.fitStandardScaler({ X, sd: 'sample', rowNoun: 'rows passed' }).error).toMatch(/^X\.x2 has zero variance on the 2 rows passed /);
+    ['rows', 'Training rows', null].forEach((rowNoun) => {
+      expect(ML.fitStandardScaler({ X, rowNoun })).toEqual({ error: "rowNoun must be 'training rows' or 'rows passed'", field: 'rowNoun' });
+      expect(ML.fitMinMaxScaler({ X, rowNoun })).toEqual({ error: "rowNoun must be 'training rows' or 'rows passed'", field: 'rowNoun' });
+    });
+  });
+  test('pca warnings: both kept, non-convergence first, joined by "; "', () => {
+    const w = call(byId('pca-warning-both')).warning.split('; ');
+    expect(w.length).toBe(2);
+    expect(w[0]).toBe(call(byId('pca-warning-nonconverged-only')).warning);
+    expect(w[1]).toBe(call(byId('pca-warning-repeated-only')).warning);
   });
 });
