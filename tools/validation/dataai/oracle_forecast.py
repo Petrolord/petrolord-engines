@@ -671,7 +671,7 @@ def arps_reason(y, model, subject, plural):
         return None, f"{subject} {'have' if plural else 'has'} {npos} positive value{'' if npos == 1 else 's'}: fitArpsModel needs at least 3 (it drops zero and negative rates)"
     if res == 'none':
         kind = 'exponential, harmonic or hyperbolic' if model == 'Auto-Select' else model.lower()
-        return None, f"{subject} {'give' if plural else 'gives'} no Arps fit: fitArpsModel found no {kind} fit with qi > 0 and Di > 0 on the {npos} positive values (a series that does not decline cannot be fitted)"
+        return None, f"{subject} {'give' if plural else 'gives'} no Arps fit: fitArpsModel found no {kind} fit with finite qi > 0 and Di > 0 on the {npos} positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)"
     return res, None
 
 
@@ -942,6 +942,7 @@ def build():
     R('fit-beta-string', {'y': w1, 'method': 'holt', 'beta': '0.2'}, 'beta', 'beta must be a number from 0 to 1 (inclusive)')
     R('fit-beta-ses', {'y': w1, 'method': 'ses', 'beta': 0.2}, 'beta', "beta applies to 'holt' and 'damped' only: 'ses' has no trend")
     R('fit-trend-ses', {'y': w1, 'method': 'ses', 'initialTrend': 1}, 'initialTrend', "initialTrend applies to 'holt' and 'damped' only: 'ses' has no trend")
+    R('fit-phi-ses', {'y': w1, 'method': 'ses', 'phi': 0.9}, 'phi', "phi applies to 'damped' only: 'ses' has no trend to damp")
     R('fit-phi-holt', {'y': w1, 'method': 'holt', 'phi': 0.9}, 'phi', "phi applies to 'damped' only: 'holt' is the damped method with phi = 1")
     R('fit-phi-0', {'y': w1, 'method': 'damped', 'phi': 0}, 'phi', 'phi must be a number above 0 and at most 1 when given (when fitted it is searched from 0.8 to 0.98)')
     R('fit-phi-above-1', {'y': w1, 'method': 'damped', 'phi': 1.01}, 'phi', 'phi must be a number above 0 and at most 1 when given (when fitted it is searched from 0.8 to 0.98)')

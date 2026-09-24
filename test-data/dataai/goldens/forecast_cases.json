@@ -10076,6 +10076,83 @@
    "source": "oracle"
   },
   {
+   "id": "fit-phi-ses",
+   "fn": "fitSmoothing",
+   "args": {
+    "y": [
+     1024.5,
+     928.2,
+     802.5,
+     875.0,
+     766.0,
+     780.2,
+     649.3,
+     684.0,
+     682.0,
+     644.1,
+     563.9,
+     592.5,
+     567.3,
+     549.7,
+     534.8,
+     553.2,
+     520.8,
+     503.2,
+     477.4,
+     438.4,
+     409.9,
+     416.1,
+     383.8,
+     381.8,
+     398.9,
+     0.0,
+     0.0,
+     0.0,
+     385.3,
+     407.2,
+     409.2,
+     372.4,
+     402.3,
+     394.9,
+     404.1,
+     333.8,
+     312.8,
+     335.1,
+     333.8,
+     302.4,
+     316.5,
+     337.2,
+     310.2,
+     308.5,
+     286.0,
+     321.7,
+     263.9,
+     272.4,
+     280.8,
+     279.4,
+     274.8,
+     281.1,
+     285.3,
+     236.0,
+     238.5,
+     243.5,
+     267.4,
+     228.5,
+     195.7,
+     240.6
+    ],
+    "method": "ses",
+    "phi": 0.9
+   },
+   "expected": {
+    "error": true,
+    "field": "phi",
+    "message": "phi applies to 'damped' only: 'ses' has no trend to damp"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
    "id": "fit-phi-holt",
    "fn": "fitSmoothing",
    "args": {
@@ -22050,7 +22127,7 @@
    "expected": {
     "error": true,
     "field": "y",
-    "message": "y gives no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with qi > 0 and Di > 0 on the 5 positive values (a series that does not decline cannot be fitted)"
+    "message": "y gives no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with finite qi > 0 and Di > 0 on the 5 positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)"
    },
    "tol": 1e-10,
    "source": "oracle",
@@ -22094,7 +22171,7 @@
    "expected": {
     "error": true,
     "field": "y",
-    "message": "y gives no Arps fit: fitArpsModel found no exponential fit with qi > 0 and Di > 0 on the 5 positive values (a series that does not decline cannot be fitted)"
+    "message": "y gives no Arps fit: fitArpsModel found no exponential fit with finite qi > 0 and Di > 0 on the 5 positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)"
    },
    "tol": 1e-10,
    "source": "oracle"
@@ -24117,7 +24194,7 @@
      },
      {
       "method": "arps",
-      "error": "at origin 5 the 5 training values give no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with qi > 0 and Di > 0 on the 5 positive values (a series that does not decline cannot be fitted)",
+      "error": "at origin 5 the 5 training values give no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with finite qi > 0 and Di > 0 on the 5 positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)",
       "mae": null,
       "rmse": null,
       "mape": null,
@@ -24513,7 +24590,7 @@
      },
      {
       "method": "arps",
-      "error": "at origin 5 the 5 training values give no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with qi > 0 and Di > 0 on the 5 positive values (a series that does not decline cannot be fitted)",
+      "error": "at origin 5 the 5 training values give no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with finite qi > 0 and Di > 0 on the 5 positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)",
       "mae": null,
       "rmse": null,
       "mape": null,

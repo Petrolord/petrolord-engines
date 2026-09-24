@@ -71,7 +71,11 @@
  *               floor(u x m), u from one mulberry32(seed) stream (lib/stats)
  *               drawn path by path, step by step; the simulated value
  *               updates the state. Per step the 10th, 50th and 90th
- *               percentiles by lib/stats quantile. Labels follow
+ *               percentiles by lib/stats quantile (simple-statistics 7.8.8
+ *               rule on the n sorted values, idx = n p: idx not whole gives
+ *               the ceil(idx)-th smallest; idx whole and n even the mean of
+ *               the idx-th and (idx+1)-th smallest; idx whole and n odd the
+ *               (idx+1)-th smallest). Labels follow
  *               lib/conventions/percentile.js: production is an outcome
  *               where more is better, so P90 (low) is the 10th percentile
  *               and P10 (high) the 90th. nonNegative (default true)
@@ -147,7 +151,8 @@ const checkSpec = ({ method, alpha, beta, phi, initialLevel, initialTrend }) => 
   if (bad) return { bad };
   if (method === 'ses' && beta !== undefined) return { bad: refuse('beta', "applies to 'holt' and 'damped' only: 'ses' has no trend") };
   if (method === 'ses' && initialTrend !== undefined) return { bad: refuse('initialTrend', "applies to 'holt' and 'damped' only: 'ses' has no trend") };
-  if (method !== 'damped' && phi !== undefined) return { bad: refuse('phi', "applies to 'damped' only: 'holt' is the damped method with phi = 1") };
+  if (method === 'ses' && phi !== undefined) return { bad: refuse('phi', "applies to 'damped' only: 'ses' has no trend to damp") };
+  if (method === 'holt' && phi !== undefined) return { bad: refuse('phi', "applies to 'damped' only: 'holt' is the damped method with phi = 1") };
   if (phi !== undefined && !(isNum(phi) && phi > 0 && phi <= 1)) return { bad: refuse('phi', 'must be a number above 0 and at most 1 when given (when fitted it is searched from 0.8 to 0.98)') };
   if (initialLevel !== undefined && !isNum(initialLevel)) return { bad: refuse('initialLevel', 'must be a finite number when given') };
   if (initialTrend !== undefined && !isNum(initialTrend)) return { bad: refuse('initialTrend', 'must be a finite number when given') };
@@ -470,7 +475,7 @@ export const forecastIntervals = ({ y, method, alpha, beta, phi, initialLevel, i
       method: methodBasis(method),
       fit: r.free.length ? FIT_BASIS : 'all parameters given: no estimation',
       bootstrap: `${nSims} paths; each step adds a residual drawn with replacement from the ${m} scored in-sample residuals (index floor(u x ${m}), u from mulberry32(${seed}), path by path, step by step) to the one-step forecast, and the simulated value updates the state`,
-      percentiles: 'per step, lib/stats quantile at 0.1, 0.5, 0.9 of the simulated values; production is an outcome where more is better, so P90 (low) is the 10th percentile and P10 (high) the 90th',
+      percentiles: 'per step, lib/stats quantile at 0.1, 0.5, 0.9 of the simulated values (idx = nSims x p on the sorted values: idx not whole takes the ceil(idx)-th smallest, idx whole with nSims even the mean of the idx-th and (idx+1)-th, idx whole with nSims odd the (idx+1)-th); production is an outcome where more is better, so P90 (low) is the 10th percentile and P10 (high) the 90th',
       nonNegative: nonNegative ? 'a negative percentile is reported as 0 (clippedToZero counts them)' : 'percentiles reported as simulated, negatives included',
     },
   };
@@ -578,7 +583,7 @@ const arpsFit = (y, modelType, subject, plural) => {
   if (nPos < 3) return { reason: `${subject} ${plural ? 'have' : 'has'} ${nPos} positive value${nPos === 1 ? '' : 's'}: fitArpsModel needs at least 3 (it drops zero and negative rates)` };
   const fit = fitArpsModel(data, modelType);
   const p = fit.parameters;
-  if (!p || p.modelType === 'None') return { reason: `${subject} ${plural ? 'give' : 'gives'} no Arps fit: fitArpsModel found no ${modelType === 'Auto-Select' ? 'exponential, harmonic or hyperbolic' : modelType.toLowerCase()} fit with qi > 0 and Di > 0 on the ${nPos} positive values (a series that does not decline cannot be fitted)` };
+  if (!p || p.modelType === 'None') return { reason: `${subject} ${plural ? 'give' : 'gives'} no Arps fit: fitArpsModel found no ${modelType === 'Auto-Select' ? 'exponential, harmonic or hyperbolic' : modelType.toLowerCase()} fit with finite qi > 0 and Di > 0 on the ${nPos} positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)` };
   return { fit, p, t0: firstPos, nPos };
 };
 
