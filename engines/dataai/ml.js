@@ -28,14 +28,17 @@
  *                 shuffled, then the first nTest groups are the test set.
  *   test size     ceil(testFraction x count), where a product within 1e-9
  *                 of a whole number is taken as that whole number (so
- *                 0.3 x 10 gives 3, not 4).
+ *                 0.28 x 25 = 7.000000000000001 gives 7, not 8).
  *   k-fold        sorted ids shuffled once, then dealt round robin: the
  *                 group at shuffled position q goes to fold q mod k.
  *   OLS           Householder QR of the design with every column scaled to
- *                 unit Euclidean length (equilibration), then back
- *                 substitution; RSS from the part of Q'y outside the
- *                 column space. Standard errors s x sqrt(diag((X'X)^-1))
- *                 with s^2 = RSS / (n - p), p counting the intercept.
+ *                 unit Euclidean length (equilibration), back
+ *                 substitution, then two steps of iterative refinement
+ *                 by corrected semi-normal equations (Bjorck) with the
+ *                 residual y - X beta and the gradient X'r carried in
+ *                 double-double (Dekker TwoProduct, Knuth TwoSum). RSS is
+ *                 the sum of squares of that final residual. Standard
+ *                 errors s x sqrt(diag((X'X)^-1)) with s^2 = RSS / (n - p), p counting the intercept.
  *                 R^2 about the mean of y with an intercept, about zero
  *                 without one (uncentred), as NIST StRD and statsmodels.
  *                 Adjusted R^2 = 1 - (1 - R^2)(n - c) / (n - p), c = 1 with
@@ -45,9 +48,12 @@
  *                 scaledConditionNumber is that of the design with unit
  *                 length columns (Belsley). A fit is REFUSED when the
  *                 scaled condition number is above maxCondition (default
- *                 1e8): above it, fewer than about 16 - log10(kappa^2) = 0
- *                 reliable digits can be promised for some coefficients.
- *                 A value exactly at the limit is fitted.
+ *                 1e8).
+ *                 At kappa = 1e8, kappa^2 x machine epsilon
+ *                 (2.2e-16) is about 2, the classical worst-case bound for
+ *                 a least squares solution, so no digit can be guaranteed
+ *                 for some coefficient. A value exactly at the limit is
+ *                 fitted.
  *   ridge         minimises sum (y - b0 - z'b)^2 + lambda x sum b_j^2 on
  *                 features standardised with the POPULATION SD of the
  *                 training rows; the intercept is NOT penalised (y is
@@ -57,10 +63,12 @@
  *   logistic      binary, labels 0 and 1, Newton-Raphson (IRLS) from
  *                 beta = 0, the intercept unpenalised under the optional
  *                 L2 term (l2 / 2) x sum beta_j^2. Stops when the largest
- *                 absolute change in any coefficient is at most tol
- *                 (default 1e-10), or after maxIter (default 100) updates
- *                 with converged false. A step that lowers the penalised
- *                 log likelihood is halved, up to 30 times. Separation is
+ *                 absolute component of the full Newton step is at most
+ *                 tol (default 1e-10), or after maxIter (default 100)
+ *                 updates with converged false. A step that lowers the
+ *                 penalised log likelihood by more than 1e-12 x (1 + |l|)
+ *                 is halved, up to 30 times; the full-step test means a
+ *                 halved step can never fake convergence. Separation is
  *                 tested FIRST by linear programming (lib/lp): with l2 = 0
  *                 a separated sample is refused, with l2 > 0 it is fitted
  *                 and reported.
@@ -570,6 +578,57 @@ const designMatrix = (X, intercept) => (intercept ? X.map((r) => [1, ...r]) : X.
  * Least squares by Householder QR on the equilibrated design. Returns the
  * coefficients, R of the scaled design and the Q'y tail sum of squares.
  */
+/**
+ * y - sum_j a_j (z_j / d_j) with the products and sums carried in
+ * double-double (Dekker TwoProduct via the Veltkamp split, Knuth TwoSum),
+ * so the refinement step sees the residual to about twice working
+ * precision.
+ */
+const SPLIT = 134217729; // 2^27 + 1
+const twoProd = (a, b) => {
+  const p = a * b;
+  let t = SPLIT * a; const ah = t - (t - a); const al = a - ah;
+  t = SPLIT * b; const bh = t - (t - b); const bl = b - bh;
+  return [p, ((ah * bh - p) + ah * bl + al * bh) + al * bl];
+};
+const twoSum = (a, b) => { const s = a + b; const bb = s - a; return [s, (a - (s - bb)) + (b - bb)]; };
+const compensatedResidual = (y, row, beta) => {
+  let hi = y; let lo = 0;
+  for (let j = 0; j < row.length; j += 1) {
+    const [ph, pl] = twoProd(row[j], -beta[j]);
+    const [sh, sl] = twoSum(hi, ph);
+    hi = sh; lo += sl + pl;
+  }
+  return twoSum(hi, lo); // [head, tail]: the residual to about twice working precision
+};
+
+/** sum_i a_i (r_i head + r_i tail), products and sums in double-double. */
+const compensatedDot = (a, r) => {
+  let hi = 0; let lo = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    for (let h = 0; h < 2; h += 1) {
+      const [ph, pl] = twoProd(a[i], r[i][h]);
+      const [sh, sl] = twoSum(hi, ph);
+      hi = sh; lo += sl + pl;
+    }
+  }
+  return hi + lo;
+};
+
+/** Solves R'w = g for upper triangular R (forward substitution on R'). */
+const forwardSolveT = (R, g) => {
+  const p = R.length;
+  const w = new Array(p).fill(0);
+  for (let i = 0; i < p; i += 1) {
+    let s = g[i];
+    for (let k = 0; k < i; k += 1) s -= R[k][i] * w[k];
+    w[i] = s / R[i][i];
+  }
+  return w;
+};
+
+const REFINE_STEPS = 2;
+
 const qrSolve = (A, y) => {
   const m = A.length;
   const p = A[0].length;
@@ -579,9 +638,23 @@ const qrSolve = (A, y) => {
   const qr = householderQR(As);
   const c = qr.applyQt(y);
   const z = backSolve(qr.R, c.slice(0, p));
-  let rss = 0;
-  for (let i = p; i < m; i += 1) rss += c[i] * c[i];
-  return { beta: z.map((v, j) => v / d[j]), d, Rs: qr.R, rss, c, qr };
+  // iterative refinement by corrected semi-normal equations (Bjorck) in the
+  // ORIGINAL units: the residual r = y - A beta and the gradient A'r are
+  // carried in double-double, the correction solves R'R dz = D^-1 A'r with
+  // the same R and is unscaled, beta_j += dz_j / d_j
+  const beta = z.map((v, j) => v / d[j]);
+  for (let it = 0; it < REFINE_STEPS; it += 1) {
+    const r = y.map((v, i) => compensatedResidual(v, A[i], beta));
+    const g = new Array(p).fill(0);
+    for (let j = 0; j < p; j += 1) g[j] = compensatedDot(A.map((row) => row[j]), r) / d[j];
+    const dz = backSolve(qr.R, forwardSolveT(qr.R, g));
+    for (let j = 0; j < p; j += 1) beta[j] += dz[j] / d[j];
+  }
+  // the final residual, in double-double, and its sum of squares
+  const rr = y.map((v, i) => compensatedResidual(v, A[i], beta));
+  const residuals = rr.map(([h, t]) => h + t);
+  const rss = compensatedDot(residuals, rr);
+  return { beta, d, Rs: qr.R, rss, residuals };
 };
 
 const conditionNumbers = (Rs, d) => {
@@ -632,8 +705,7 @@ export const ols = ({ X, y, names, intercept = true, maxCondition = DEFAULTS.MAX
     for (let k = 0; k < p; k += 1) q += row[k] * row[k];
     return Math.sqrt(sigma2 * q) / s.d[j];
   });
-  const tail = s.c.map((v, i) => (i < p ? 0 : v));
-  const residuals = s.qr.applyQ(tail);
+  const residuals = s.residuals;
   const fitted = y.map((v, i) => v - residuals[i]);
   const r2 = 1 - s.rss / tss;
   const cdf = intercept ? 1 : 0;
@@ -657,13 +729,13 @@ export const ols = ({ X, y, names, intercept = true, maxCondition = DEFAULTS.MAX
     fitted,
     residuals,
     basis: {
-      method: 'Householder QR of the design with unit-length columns, then back substitution',
+      method: 'Householder QR of the design with unit-length columns, back substitution, then two steps of iterative refinement by corrected semi-normal equations with the residual and gradient in double-double',
       standardErrors: 's x sqrt(diag((X\'X)^-1)), s^2 = RSS / (n - p), p counting the intercept',
       rSquared: intercept ? '1 - RSS / sum (y - mean y)^2 (centred)' : '1 - RSS / sum y^2 (uncentred, no intercept)',
       adjustedRSquared: `1 - (1 - R^2)(n - ${cdf}) / (n - p)`,
       conditionNumber: '2-norm condition number of the design as given (singular values by one-sided Jacobi on R)',
       scaledConditionNumber: `2-norm condition number of the design with unit-length columns; refused above maxCondition ${fmt(maxCondition)}`,
-      residuals: 'Q applied to the part of Q\'y outside the column space, so sum of squares = rss',
+      residuals: 'y - X beta at the refined beta, carried in double-double; rss is their sum of squares',
     },
   };
 };
@@ -753,7 +825,7 @@ const separationTest = (A, y) => {
   const c = new Array(p).fill(0);
   S.forEach((r) => r.forEach((v, j) => { c[j] += v; }));
   const quasi = solveLP({ c, A: S, b: new Array(n).fill(0), ops: new Array(n).fill('>='), lo: new Array(p).fill(-1), hi: new Array(p).fill(1), maximize: true });
-  const quasiValue = quasi.status === LP_STATUS.OPTIMAL ? quasi.objective : 0;
+  const quasiValue = quasi.status === LP_STATUS.OPTIMAL ? quasi.objective + 0 : 0;
   if (!(quasiValue > DEFAULTS.SEPARATION_TOL)) return { detected: false, type: 'none', lpObjective: quasiValue };
   const Ac = S.map((r) => [...r, -1]);
   const comp = solveLP({ c: [...new Array(p).fill(0), 1], A: Ac, b: new Array(n).fill(0), ops: new Array(n).fill('>='), lo: [...new Array(p).fill(-1), 0], hi: [...new Array(p).fill(1), 1], maximize: true });
@@ -837,13 +909,15 @@ export const logistic = ({ X, y, names, intercept = true, l2 = 0, tol = DEFAULTS
     let next = beta.map((b, j) => b + delta[j]);
     let nextVal = penLogLik(A, y, next, l2, pen);
     let h = 0;
-    while (nextVal.pll < cur.pll && h < DEFAULTS.STEP_HALVINGS) {
+    // a decrease within rounding (1e-12 x (1 + |l|)) is not a decrease
+    const floor = cur.pll - 1e-12 * (1 + Math.abs(cur.pll));
+    while (nextVal.pll < floor && h < DEFAULTS.STEP_HALVINGS) {
       step /= 2; h += 1;
       next = beta.map((b, j) => b + step * delta[j]);
       nextVal = penLogLik(A, y, next, l2, pen);
     }
     halvings += h;
-    const change = Math.max(...next.map((b, j) => Math.abs(b - beta[j])));
+    const change = Math.max(...delta.map(Math.abs)); // the FULL Newton step, before any halving
     beta = next; cur = nextVal; iterations += 1;
     trace.push({ iteration: iterations, maxChange: change, logLikelihood: cur.ll, stepHalvings: h });
     if (change <= tol) { converged = true; break; }
@@ -885,15 +959,15 @@ export const logistic = ({ X, y, names, intercept = true, l2 = 0, tol = DEFAULTS
     separation,
     probabilities: probs,
     basis: {
-      method: 'Newton-Raphson (IRLS) from beta = 0, full step halved while the penalised log likelihood falls (up to 30 halvings)',
-      convergence: `converged when the largest absolute coefficient change in an update is at most tol ${fmt(tol)}; at most maxIter ${maxIter} updates`,
+      method: 'Newton-Raphson (IRLS) from beta = 0; a step is halved while it lowers the penalised log likelihood by more than 1e-12 x (1 + |log likelihood|), up to 30 halvings',
+      convergence: `converged when the largest absolute component of the full Newton step is at most tol ${fmt(tol)}; at most maxIter ${maxIter} updates`,
       penalty: l2 > 0 ? `(l2 / 2) x sum beta_j^2 on the non-intercept coefficients, l2 = ${fmt(l2)}; scikit-learn C = 1 / l2` : 'none (maximum likelihood)',
       standardErrors: l2 > 0 ? 'sqrt(diag((X\'WX + l2 P)^-1)) at the solution, P the penalty pattern' : 'sqrt(diag((X\'WX)^-1)) at the solution, W = p(1 - p)',
       separation: 'linear programme on the column-scaled design (lib/lp): separated when the LP objective is above 1e-7, complete when a positive margin is also above 1e-7',
     },
   };
   if (!converged) {
-    out.warning = `did not converge in ${maxIter} updates: the last largest coefficient change was ${fmt(trace[trace.length - 1].maxChange)}, above tol ${fmt(tol)}`;
+    out.warning = `did not converge in ${maxIter} updates: the last full Newton step had a largest component of ${fmt(trace[trace.length - 1].maxChange)}, above tol ${fmt(tol)}`;
   }
   return out;
 };
@@ -1067,7 +1141,7 @@ const checkBinary = (yTrue) => {
  * ROC curve with the positive label 1. Thresholds are the distinct scores
  * in descending order; rows with EQUAL scores move together, so a tie
  * between classes is one diagonal step. The curve starts at (0, 0) with
- * threshold infinity. AUC by the trapezoid rule over the points.
+ * threshold null. AUC by the trapezoid rule over the points.
  */
 export const rocCurve = ({ yTrue, scores } = {}) => {
   const b = checkBinary(yTrue);
@@ -1078,7 +1152,7 @@ export const rocCurve = ({ yTrue, scores } = {}) => {
   const N = yTrue.length - P;
   if (P === 0 || N === 0) return refuse('yTrue', `must contain both classes (found ${P} positive and ${N} negative), or the ROC curve is undefined`);
   const order = yTrue.map((_, i) => i).sort((a, c) => scores[c] - scores[a] || a - c);
-  const fpr = [0]; const tpr = [0]; const thresholds = [Infinity];
+  const fpr = [0]; const tpr = [0]; const thresholds = [null];
   let tp = 0; let fp = 0;
   for (let q = 0; q < order.length;) {
     const s = scores[order[q]];
@@ -1096,7 +1170,7 @@ export const rocCurve = ({ yTrue, scores } = {}) => {
       positive: 'label 1; a row is called positive when its score is at or above the threshold',
       ties: 'equal scores are one threshold: their rows move together, a diagonal step when the classes are mixed',
       auc: 'trapezoid rule over the curve points (equals the Mann-Whitney probability with ties counted one half)',
-      start: 'the curve starts at (0, 0) with threshold infinity',
+      start: 'the curve starts at (0, 0) with threshold null (no row called positive; scikit-learn prints infinity)',
     },
   };
 };
