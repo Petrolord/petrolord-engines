@@ -9,7 +9,7 @@ written by `tools/validation/dataai/pin_forecast.py` (numpy 2.5.3, scipy
 Gate: `__tests__/dataai.forecast.test.js` (453 tests) calls the engine on
 every golden, the published NIST figures and every pin, plus property
 tests, the Ekene scale run and the row cap. Negative control:
-`negcontrol_forecast.sh` (51/51 engine plants red, 5/5 oracle plants red
+`negcontrol_forecast.sh` (63/63 engine plants red, 5/5 oracle plants red
 and 1 stopped). Timing: `timing_forecast.mjs` (table below).
 
 The oracle is STDLIB ONLY (python 3.12: `fractions`, `decimal` at 60
@@ -231,6 +231,18 @@ rules, the draft wordings, error sign, MAPE/sMAPE/MASE/RMSE definitions,
 bootstrap draw, pool, state update, percentile labels and level, one
 stream per call, backtest origins, refit, window leakage, MASE scale
 window, Arps time base and window, ranking ties and direction.
+
+Re-run 2026-09-24 on `fix/dataai-forecast-foundation-findings` after the
+message repair: baseline 453 passed; **63/63 engine plants red** (the 51
+above, one retargeted to the new label, plus 12 that restore each replaced
+wording: the doubled training-window label in backtests and in the
+comparison, the doubled zero-scale count, "then 1 actuals", "leaves fewer
+than 1 actuals", "y has 1 values", "must have 1 values", the pool residual
+singular, the old Arps window subject, basis "1 paths", the missing
+uncentred-residual clause and "y[o..o+0]"); 5/5 oracle plants red and 1
+stopped; restored and re-verified 453 passed. The first run gave 62/63:
+the old comparison label stayed green because no golden had an Arps fit
+with a MASE-null window (fixed by `cmp-clean-m12-short-window`).
 
 ## Timings (Node v18.19.1, this host; `timing_forecast.mjs`)
 
