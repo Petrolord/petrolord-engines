@@ -72541,6 +72541,955 @@
    "source": "oracle"
   },
   {
+   "id": "cart-ekene-gr-rhob-depth3",
+   "fn": "cartFit",
+   "args": {
+    "X": [
+     [
+      113.5,
+      2.42
+     ],
+     [
+      66.9,
+      2.468
+     ],
+     [
+      80.2,
+      2.418
+     ],
+     [
+      67.2,
+      2.362
+     ],
+     [
+      78.5,
+      2.458
+     ],
+     [
+      81.1,
+      2.41
+     ],
+     [
+      71.4,
+      2.479
+     ],
+     [
+      67.0,
+      2.382
+     ],
+     [
+      90.2,
+      2.43
+     ],
+     [
+      78.5,
+      2.413
+     ],
+     [
+      76.6,
+      2.48
+     ],
+     [
+      74.6,
+      2.46
+     ],
+     [
+      87.7,
+      2.468
+     ],
+     [
+      92.5,
+      2.48
+     ],
+     [
+      80.0,
+      2.395
+     ],
+     [
+      79.0,
+      2.444
+     ],
+     [
+      75.5,
+      2.43
+     ],
+     [
+      95.9,
+      2.445
+     ],
+     [
+      67.9,
+      2.483
+     ],
+     [
+      61.1,
+      2.439
+     ],
+     [
+      14.1,
+      2.612
+     ],
+     [
+      22.0,
+      2.693
+     ],
+     [
+      25.9,
+      2.55
+     ],
+     [
+      35.7,
+      2.71
+     ],
+     [
+      21.3,
+      2.596
+     ],
+     [
+      21.4,
+      2.6
+     ],
+     [
+      26.8,
+      2.648
+     ],
+     [
+      134.3,
+      2.508
+     ],
+     [
+      35.2,
+      2.718
+     ],
+     [
+      39.0,
+      2.634
+     ],
+     [
+      31.4,
+      2.571
+     ],
+     [
+      33.6,
+      2.661
+     ],
+     [
+      30.8,
+      2.615
+     ],
+     [
+      23.0,
+      2.683
+     ],
+     [
+      28.0,
+      2.694
+     ],
+     [
+      36.4,
+      2.578
+     ],
+     [
+      37.4,
+      2.568
+     ],
+     [
+      31.6,
+      2.605
+     ],
+     [
+      31.0,
+      2.68
+     ],
+     [
+      34.6,
+      2.617
+     ],
+     [
+      25.2,
+      2.698
+     ],
+     [
+      23.6,
+      2.642
+     ],
+     [
+      18.9,
+      2.634
+     ],
+     [
+      28.1,
+      2.604
+     ],
+     [
+      34.1,
+      2.666
+     ],
+     [
+      13.2,
+      2.574
+     ],
+     [
+      37.0,
+      2.685
+     ],
+     [
+      36.3,
+      2.655
+     ],
+     [
+      21.6,
+      2.625
+     ],
+     [
+      34.5,
+      2.565
+     ],
+     [
+      30.1,
+      2.58
+     ],
+     [
+      36.5,
+      2.634
+     ],
+     [
+      29.6,
+      2.628
+     ],
+     [
+      34.6,
+      2.582
+     ],
+     [
+      25.8,
+      2.596
+     ],
+     [
+      31.0,
+      2.615
+     ],
+     [
+      132.7,
+      2.483
+     ],
+     [
+      107.1,
+      2.571
+     ],
+     [
+      127.4,
+      2.626
+     ],
+     [
+      110.9,
+      2.567
+     ],
+     [
+      34.7,
+      2.332
+     ],
+     [
+      60.8,
+      2.282
+     ],
+     [
+      30.9,
+      2.673
+     ],
+     [
+      41.7,
+      2.654
+     ],
+     [
+      24.2,
+      2.701
+     ],
+     [
+      80.2,
+      2.42
+     ],
+     [
+      88.4,
+      2.43
+     ],
+     [
+      69.9,
+      2.51
+     ],
+     [
+      82.2,
+      2.421
+     ],
+     [
+      76.6,
+      2.365
+     ],
+     [
+      118.7,
+      2.532
+     ],
+     [
+      117.8,
+      2.521
+     ],
+     [
+      125.1,
+      2.491
+     ],
+     [
+      124.6,
+      2.454
+     ],
+     [
+      115.0,
+      2.577
+     ],
+     [
+      114.5,
+      2.47
+     ],
+     [
+      127.6,
+      2.581
+     ],
+     [
+      122.2,
+      2.537
+     ],
+     [
+      99.8,
+      2.5
+     ],
+     [
+      113.6,
+      2.432
+     ],
+     [
+      109.5,
+      2.548
+     ],
+     [
+      111.0,
+      2.502
+     ],
+     [
+      118.8,
+      2.57
+     ],
+     [
+      134.1,
+      2.542
+     ],
+     [
+      145.1,
+      2.557
+     ],
+     [
+      105.5,
+      2.504
+     ],
+     [
+      109.5,
+      2.463
+     ],
+     [
+      111.2,
+      2.533
+     ],
+     [
+      109.0,
+      2.492
+     ],
+     [
+      139.7,
+      2.555
+     ],
+     [
+      25.4,
+      2.671
+     ],
+     [
+      17.8,
+      2.698
+     ],
+     [
+      20.9,
+      2.621
+     ],
+     [
+      26.1,
+      2.646
+     ],
+     [
+      28.7,
+      2.624
+     ],
+     [
+      30.0,
+      2.601
+     ],
+     [
+      33.3,
+      2.616
+     ],
+     [
+      33.0,
+      2.694
+     ],
+     [
+      52.0,
+      2.314
+     ],
+     [
+      43.7,
+      2.344
+     ],
+     [
+      53.4,
+      2.347
+     ],
+     [
+      39.5,
+      2.26
+     ],
+     [
+      41.2,
+      2.292
+     ],
+     [
+      57.1,
+      2.329
+     ],
+     [
+      43.8,
+      2.368
+     ],
+     [
+      49.5,
+      2.336
+     ],
+     [
+      64.4,
+      2.378
+     ],
+     [
+      39.4,
+      2.336
+     ],
+     [
+      42.3,
+      2.32
+     ],
+     [
+      46.0,
+      2.341
+     ],
+     [
+      31.6,
+      2.32
+     ],
+     [
+      42.0,
+      2.308
+     ],
+     [
+      45.9,
+      2.355
+     ],
+     [
+      48.3,
+      2.326
+     ],
+     [
+      56.5,
+      2.308
+     ],
+     [
+      57.3,
+      2.329
+     ],
+     [
+      33.9,
+      2.341
+     ],
+     [
+      88.0,
+      2.42
+     ],
+     [
+      71.0,
+      2.393
+     ],
+     [
+      48.0,
+      2.332
+     ]
+    ],
+    "y": [
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "shale",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "sandstone",
+     "sandstone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "shaly_sand",
+     "shaly_sand",
+     "sandstone"
+    ],
+    "names": [
+     "GR",
+     "RHOB"
+    ],
+    "maxDepth": 3,
+    "minSamplesLeaf": 2
+   },
+   "expected": {
+    "classes": [
+     "limestone",
+     "sandstone",
+     "shale",
+     "shaly_sand"
+    ],
+    "names": [
+     "GR",
+     "RHOB"
+    ],
+    "p": 2,
+    "nodes": [
+     {
+      "id": 0,
+      "depth": 0,
+      "n": 120,
+      "counts": [
+       46,
+       22,
+       25,
+       27
+      ],
+      "gini": 0.7254166666666667,
+      "prediction": "limestone",
+      "leaf": false,
+      "featureIndex": 0,
+      "feature": "GR",
+      "threshold": 39.2,
+      "left": 1,
+      "right": 4,
+      "impurityDecrease": 0.2771527777777778
+     },
+     {
+      "id": 1,
+      "depth": 1,
+      "n": 48,
+      "counts": [
+       45,
+       3,
+       0,
+       0
+      ],
+      "gini": 0.1171875,
+      "prediction": "limestone",
+      "leaf": false,
+      "featureIndex": 1,
+      "feature": "RHOB",
+      "threshold": 2.4455,
+      "left": 2,
+      "right": 3,
+      "impurityDecrease": 0.046875
+     },
+     {
+      "id": 2,
+      "depth": 2,
+      "n": 3,
+      "counts": [
+       0,
+       3,
+       0,
+       0
+      ],
+      "gini": 0.0,
+      "prediction": "sandstone",
+      "leaf": true
+     },
+     {
+      "id": 3,
+      "depth": 2,
+      "n": 45,
+      "counts": [
+       45,
+       0,
+       0,
+       0
+      ],
+      "gini": 0.0,
+      "prediction": "limestone",
+      "leaf": true
+     },
+     {
+      "id": 4,
+      "depth": 1,
+      "n": 72,
+      "counts": [
+       1,
+       19,
+       25,
+       27
+      ],
+      "gini": 0.6689814814814815,
+      "prediction": "shaly_sand",
+      "leaf": false,
+      "featureIndex": 0,
+      "feature": "GR",
+      "threshold": 97.85,
+      "left": 5,
+      "right": 8,
+      "impurityDecrease": 0.19007339279078408
+     },
+     {
+      "id": 5,
+      "depth": 2,
+      "n": 46,
+      "counts": [
+       1,
+       19,
+       0,
+       26
+      ],
+      "gini": 0.5094517958412098,
+      "prediction": "shaly_sand",
+      "leaf": false,
+      "featureIndex": 0,
+      "feature": "GR",
+      "threshold": 65.65,
+      "left": 6,
+      "right": 7,
+      "impurityDecrease": 0.16433747412008282
+     },
+     {
+      "id": 6,
+      "depth": 3,
+      "n": 21,
+      "counts": [
+       1,
+       19,
+       0,
+       1
+      ],
+      "gini": 0.17687074829931973,
+      "prediction": "sandstone",
+      "leaf": true
+     },
+     {
+      "id": 7,
+      "depth": 3,
+      "n": 25,
+      "counts": [
+       0,
+       0,
+       0,
+       25
+      ],
+      "gini": 0.0,
+      "prediction": "shaly_sand",
+      "leaf": true
+     },
+     {
+      "id": 8,
+      "depth": 2,
+      "n": 26,
+      "counts": [
+       0,
+       0,
+       25,
+       1
+      ],
+      "gini": 0.07396449704142012,
+      "prediction": "shale",
+      "leaf": false,
+      "featureIndex": 1,
+      "feature": "RHOB",
+      "threshold": 2.443,
+      "left": 9,
+      "right": 10,
+      "impurityDecrease": 0.007692307692307693
+     },
+     {
+      "id": 9,
+      "depth": 3,
+      "n": 2,
+      "counts": [
+       0,
+       0,
+       1,
+       1
+      ],
+      "gini": 0.5,
+      "prediction": "shale",
+      "leaf": true
+     },
+     {
+      "id": 10,
+      "depth": 3,
+      "n": 24,
+      "counts": [
+       0,
+       0,
+       24,
+       0
+      ],
+      "gini": 0.0,
+      "prediction": "shale",
+      "leaf": true
+     }
+    ],
+    "nNodes": 11,
+    "nLeaves": 6,
+    "depth": 3,
+    "featureImportances": [
+     0.9204710011945199,
+     0.07952899880548012
+    ],
+    "trainingPredictions": [
+     "shale",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "sandstone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "shale",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "sandstone",
+     "sandstone",
+     "limestone",
+     "sandstone",
+     "limestone",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shaly_sand",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "shale",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "limestone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "sandstone",
+     "shaly_sand",
+     "shaly_sand",
+     "sandstone"
+    ],
+    "trainingAccuracy": 0.975,
+    "printed": "|--- GR <= 39.2\n|   |--- RHOB <= 2.4455\n|   |   |--- class: sandstone (n = 3, counts 0/3/0/0)\n|   |--- RHOB >  2.4455\n|   |   |--- class: limestone (n = 45, counts 45/0/0/0)\n|--- GR >  39.2\n|   |--- GR <= 97.85\n|   |   |--- GR <= 65.65\n|   |   |   |--- class: sandstone (n = 21, counts 1/19/0/1)\n|   |   |--- GR >  65.65\n|   |   |   |--- class: shaly_sand (n = 25, counts 0/0/0/25)\n|   |--- GR >  97.85\n|   |   |--- RHOB <= 2.443\n|   |   |   |--- class: shale (n = 2, counts 0/0/1/1)\n|   |   |--- RHOB >  2.443\n|   |   |   |--- class: shale (n = 24, counts 0/0/24/0)"
+   },
+   "tol": 1e-12,
+   "source": "oracle",
+   "note": "GR and RHOB only: no two splits tie, so scikit-learn grows the same tree"
+  },
+  {
    "id": "cart-ekene-min-split-40",
    "fn": "cartFit",
    "args": {

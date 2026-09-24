@@ -109,6 +109,7 @@ describe('second witness: scikit-learn / scipy pins', () => {
     const r = call(byId(p.case));
     let v = get(r, p.field);
     if (p.transform === 'canonical') v = (() => { const m = new Map(); return v.map((x) => { if (!m.has(x)) m.set(x, m.size); return m.get(x); }); })();
+    if (p.transform === 'splitThresholds') v = v.filter((nd) => !nd.leaf).map((nd) => nd.threshold);
     if (p.transform === 'sortedHeights') v = [...v].sort((a, b) => a - b);
     expect(diff(v, p.value, p.tol, `${p.case}.${p.field}`, p.abs ?? FLOOR)).toEqual([]);
   });

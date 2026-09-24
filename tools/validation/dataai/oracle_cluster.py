@@ -1007,6 +1007,10 @@ def build():
     c.add('cart-ekene-depth4-leaf3', 'cartFit', {'X': Xtr_t, 'y': ytr, 'names': LOG_NAMES, 'maxDepth': 4, 'minSamplesLeaf': 3}, t, tol=1e-12)
     c.add('cart-predict-ekene-test-wells', 'cartPredict', {'model': {'__fit__': 'cartFit', 'args': {'X': Xtr_t, 'y': ytr, 'names': LOG_NAMES, 'maxDepth': 4, 'minSamplesLeaf': 3}}, 'X': Xte},
           {'predictions': [epred(r)['prediction'] for r in Xte], 'leaves': [epred(r)['id'] for r in Xte]})
+    X2 = [r[:2] for r in Xtr_t]
+    t, _ = o_cart(X2, ytr, LOG_NAMES[:2], 3, msl=2)
+    c.add('cart-ekene-gr-rhob-depth3', 'cartFit', {'X': X2, 'y': ytr, 'names': LOG_NAMES[:2], 'maxDepth': 3, 'minSamplesLeaf': 2}, t, tol=1e-12,
+          note='GR and RHOB only: no two splits tie, so scikit-learn grows the same tree')
     t, _ = o_cart(Xtr_t, ytr, LOG_NAMES, 6, mss=40)
     c.add('cart-ekene-min-split-40', 'cartFit', {'X': Xtr_t, 'y': ytr, 'names': LOG_NAMES, 'maxDepth': 6, 'minSamplesSplit': 40}, t, tol=1e-12)
     XOR = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]
