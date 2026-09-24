@@ -11138,7 +11138,7 @@
     "maseScale": null,
     "m": 1,
     "notes": {
-     "mase": "MASE is undefined: the lag-1 naive forecast has zero in-sample error on the 3 values of insample (every y[t] - y[t - 1] is 0), so the scale is 0"
+     "mase": "MASE is undefined: insample has 3 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
     }
    },
    "tol": 1e-10,
@@ -11332,6 +11332,26 @@
     "error": true,
     "field": "forecast",
     "message": "forecast must have 3 values, one per actual (it has 2)"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "acc-forecast-length-one",
+   "fn": "accuracy",
+   "args": {
+    "actual": [
+     1
+    ],
+    "forecast": [
+     1,
+     2
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "forecast",
+    "message": "forecast must have 1 value, one per actual (it has 2)"
    },
    "tol": 1e-10,
    "source": "oracle"
@@ -15990,7 +16010,7 @@
      "smape": 8.61111111111111,
      "mase": null,
      "notes": {
-      "mase": "MASE is undefined: at origin 3 the lag-1 naive forecast has zero in-sample error on the 3 values of the 3 training values (every y[t] - y[t - 1] is 0), so the scale is 0"
+      "mase": "MASE is undefined: at origin 3 the training window has 3 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
      }
     },
     "byHorizon": [
@@ -16004,7 +16024,7 @@
       "smape": 4.444444444444445,
       "mase": null,
       "notes": {
-       "mase": "MASE is undefined: at origin 3 the lag-1 naive forecast has zero in-sample error on the 3 values of the 3 training values (every y[t] - y[t - 1] is 0), so the scale is 0"
+       "mase": "MASE is undefined: at origin 3 the training window has 3 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
       }
      },
      {
@@ -16017,7 +16037,7 @@
       "smape": 12.777777777777779,
       "mase": null,
       "notes": {
-       "mase": "MASE is undefined: at origin 3 the lag-1 naive forecast has zero in-sample error on the 3 values of the 3 training values (every y[t] - y[t - 1] is 0), so the scale is 0"
+       "mase": "MASE is undefined: at origin 3 the training window has 3 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
       }
      }
     ],
@@ -16027,6 +16047,485 @@
    "source": "oracle",
    "abs": 1e-09,
    "note": "the first window is constant: MASE null naming the origin"
+  },
+  {
+   "id": "bt-ses-window-short-m12",
+   "fn": "backtest",
+   "args": {
+    "y": [
+     1024.5,
+     928.2,
+     802.5,
+     875.0,
+     766.0,
+     780.2,
+     649.3,
+     684.0,
+     682.0,
+     644.1,
+     563.9,
+     592.5,
+     567.3,
+     549.7,
+     534.8,
+     553.2,
+     520.8,
+     503.2,
+     477.4,
+     438.4,
+     409.9,
+     416.1,
+     383.8,
+     381.8,
+     398.9,
+     0.0,
+     0.0,
+     0.0,
+     385.3,
+     407.2,
+     409.2,
+     372.4,
+     402.3,
+     394.9,
+     404.1,
+     333.8,
+     312.8,
+     335.1,
+     333.8,
+     302.4,
+     316.5,
+     337.2,
+     310.2,
+     308.5,
+     286.0,
+     321.7,
+     263.9,
+     272.4,
+     280.8,
+     279.4,
+     274.8,
+     281.1,
+     285.3,
+     236.0,
+     238.5,
+     243.5,
+     267.4,
+     228.5,
+     195.7,
+     240.6
+    ],
+    "method": "ses",
+    "firstOrigin": 12,
+    "horizon": 3,
+    "step": 12,
+    "refit": true,
+    "m": 12,
+    "alpha": 0.3
+   },
+   "expected": {
+    "method": "ses",
+    "firstOrigin": 12,
+    "horizon": 3,
+    "step": 12,
+    "refit": true,
+    "origins": [
+     12,
+     24,
+     36,
+     48
+    ],
+    "perOrigin": [
+     {
+      "origin": 12,
+      "trainN": 12,
+      "params": {
+       "alpha": 0.3
+      },
+      "forecast": [
+       642.469570155939,
+       642.469570155939,
+       642.469570155939
+      ],
+      "actual": [
+       567.3,
+       549.7,
+       534.8
+      ],
+      "errors": [
+       -75.16957015593904,
+       -92.76957015593895,
+       -107.66957015593904
+      ],
+      "maseScale": null
+     },
+     {
+      "origin": 24,
+      "trainN": 24,
+      "params": {
+       "alpha": 0.3
+      },
+      "forecast": [
+       417.7173902722821,
+       417.7173902722821,
+       417.7173902722821
+      ],
+      "actual": [
+       398.9,
+       0.0,
+       0.0
+      ],
+      "errors": [
+       -18.817390272282097,
+       -417.7173902722821,
+       -417.7173902722821
+      ],
+      "maseScale": 271.31666666666666
+     },
+     {
+      "origin": 36,
+      "trainN": 36,
+      "params": {
+       "alpha": 0.3
+      },
+      "forecast": [
+       363.94356385795896,
+       363.94356385795896,
+       363.94356385795896
+      ],
+      "actual": [
+       312.8,
+       335.1,
+       333.8
+      ],
+      "errors": [
+       -51.14356385795895,
+       -28.84356385795894,
+       -30.143563857958952
+      ],
+      "maseScale": 230.19583333333333
+     },
+     {
+      "origin": 48,
+      "trainN": 48,
+      "params": {
+       "alpha": 0.3
+      },
+      "forecast": [
+       290.4445949833217,
+       290.4445949833217,
+       290.4445949833217
+      ],
+      "actual": [
+       280.8,
+       279.4,
+       274.8
+      ],
+      "errors": [
+       -9.644594983321669,
+       -11.044594983321703,
+       -15.644594983321669
+      ],
+      "maseScale": 202.08055555555555
+     }
+    ],
+    "overall": {
+     "n": 12,
+     "me": -106.3604464840421,
+     "mae": 106.3604464840421,
+     "rmse": 177.9501635747709,
+     "mape": null,
+     "smape": 41.307168606303335,
+     "mase": null,
+     "notes": {
+      "mape": "MAPE is undefined: the actual at index 25 (origin 24, step 2) is 0 and MAPE divides by each actual",
+      "mase": "MASE is undefined: at origin 12 the training window has 12 values, so the lag-12 naive forecast has no in-sample error (it needs more than 12)"
+     }
+    },
+    "byHorizon": [
+     {
+      "step": 1,
+      "n": 4,
+      "me": -38.69377981737544,
+      "mae": 38.69377981737544,
+      "rmse": 46.67237081661231,
+      "mape": 9.438164551009338,
+      "smape": 8.881752383101896,
+      "mase": null,
+      "notes": {
+       "mase": "MASE is undefined: at origin 12 the training window has 12 values, so the lag-12 naive forecast has no in-sample error (it needs more than 12)"
+      }
+     },
+     {
+      "step": 2,
+      "n": 4,
+      "me": -137.5937798173754,
+      "mae": 137.5937798173754,
+      "rmse": 214.50404747765103,
+      "mape": null,
+      "smape": 56.92294928837519,
+      "mase": null,
+      "notes": {
+       "mape": "MAPE is undefined: the actual at index 25 (origin 24, step 2) is 0 and MAPE divides by each actual",
+       "mase": "MASE is undefined: at origin 12 the training window has 12 values, so the lag-12 naive forecast has no in-sample error (it needs more than 12)"
+      }
+     },
+     {
+      "step": 3,
+      "n": 4,
+      "me": -142.79377981737542,
+      "mae": 142.79377981737542,
+      "rmse": 216.35268791241174,
+      "mape": null,
+      "smape": 58.11680414743291,
+      "mase": null,
+      "notes": {
+       "mape": "MAPE is undefined: the actual at index 26 (origin 24, step 3) is 0 and MAPE divides by each actual",
+       "mase": "MASE is undefined: at origin 12 the training window has 12 values, so the lag-12 naive forecast has no in-sample error (it needs more than 12)"
+      }
+     }
+    ],
+    "m": 12
+   },
+   "tol": 1e-10,
+   "source": "oracle",
+   "abs": 1e-09,
+   "note": "the first window has 12 values at lag 12: MASE null, the reason names the origin and the training window once"
+  },
+  {
+   "id": "bt-ses-flat-six",
+   "fn": "backtest",
+   "args": {
+    "y": [
+     7.0,
+     7.0,
+     7.0,
+     7.0,
+     7.0,
+     7.0,
+     8.0,
+     9.0,
+     10.0,
+     11.0,
+     12.0
+    ],
+    "method": "ses",
+    "firstOrigin": 6,
+    "horizon": 2,
+    "step": 1,
+    "refit": true,
+    "m": 1,
+    "alpha": 0.5
+   },
+   "expected": {
+    "method": "ses",
+    "firstOrigin": 6,
+    "horizon": 2,
+    "step": 1,
+    "refit": true,
+    "origins": [
+     6,
+     7,
+     8,
+     9
+    ],
+    "perOrigin": [
+     {
+      "origin": 6,
+      "trainN": 6,
+      "params": {
+       "alpha": 0.5
+      },
+      "forecast": [
+       7.0,
+       7.0
+      ],
+      "actual": [
+       8.0,
+       9.0
+      ],
+      "errors": [
+       1.0,
+       2.0
+      ],
+      "maseScale": null
+     },
+     {
+      "origin": 7,
+      "trainN": 7,
+      "params": {
+       "alpha": 0.5
+      },
+      "forecast": [
+       7.5,
+       7.5
+      ],
+      "actual": [
+       9.0,
+       10.0
+      ],
+      "errors": [
+       1.5,
+       2.5
+      ],
+      "maseScale": 0.16666666666666666
+     },
+     {
+      "origin": 8,
+      "trainN": 8,
+      "params": {
+       "alpha": 0.5
+      },
+      "forecast": [
+       8.25,
+       8.25
+      ],
+      "actual": [
+       10.0,
+       11.0
+      ],
+      "errors": [
+       1.75,
+       2.75
+      ],
+      "maseScale": 0.2857142857142857
+     },
+     {
+      "origin": 9,
+      "trainN": 9,
+      "params": {
+       "alpha": 0.5
+      },
+      "forecast": [
+       9.125,
+       9.125
+      ],
+      "actual": [
+       11.0,
+       12.0
+      ],
+      "errors": [
+       1.875,
+       2.875
+      ],
+      "maseScale": 0.375
+     }
+    ],
+    "overall": {
+     "n": 8,
+     "me": 2.03125,
+     "mae": 2.03125,
+     "rmse": 2.1185564070847867,
+     "mape": 19.986584595959595,
+     "smape": 22.33607076671286,
+     "mase": null,
+     "notes": {
+      "mase": "MASE is undefined: at origin 6 the training window has 6 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
+     }
+    },
+    "byHorizon": [
+     {
+      "step": 1,
+      "n": 4,
+      "me": 1.53125,
+      "mae": 1.53125,
+      "rmse": 1.5674920254980567,
+      "mape": 15.928030303030303,
+      "smape": 17.331693519900785,
+      "mase": null,
+      "notes": {
+       "mase": "MASE is undefined: at origin 6 the training window has 6 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
+      }
+     },
+     {
+      "step": 2,
+      "n": 4,
+      "me": 2.53125,
+      "mae": 2.53125,
+      "rmse": 2.553337276976937,
+      "mape": 24.04513888888889,
+      "smape": 27.340448013524938,
+      "mase": null,
+      "notes": {
+       "mase": "MASE is undefined: at origin 6 the training window has 6 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
+      }
+     }
+    ],
+    "m": 1
+   },
+   "tol": 1e-10,
+   "source": "oracle",
+   "abs": 1e-09,
+   "note": "the first window is 6 equal values: MASE null, the count printed once"
+  },
+  {
+   "id": "bt-h1-series-too-short",
+   "fn": "backtest",
+   "args": {
+    "y": [
+     5,
+     4,
+     3
+    ],
+    "method": "holt",
+    "firstOrigin": 3,
+    "horizon": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "y",
+    "message": "y has 3 values: a backtest with horizon 1 needs at least 4 ('holt' needs 3 training values, then 1 actual)"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "bt-h1-first-too-large",
+   "fn": "backtest",
+   "args": {
+    "y": [
+     71,
+     70,
+     69,
+     68,
+     64,
+     65,
+     72,
+     78,
+     75,
+     75,
+     75,
+     70
+    ],
+    "method": "ses",
+    "firstOrigin": 12,
+    "horizon": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "firstOrigin",
+    "message": "firstOrigin must be a whole number from 2 to 11 ('ses' needs 2 training values; an origin above 11 leaves no actual)"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "bt-y-one-value",
+   "fn": "backtest",
+   "args": {
+    "y": [
+     5
+    ],
+    "method": "ses",
+    "firstOrigin": 1,
+    "horizon": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "y",
+    "message": "y has 1 value: a backtest with horizon 1 needs at least 3 ('ses' needs 2 training values, then 1 actual)"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
   },
   {
    "id": "bt-horizon-0",
@@ -24386,7 +24885,7 @@
      },
      {
       "method": "arps",
-      "error": "at origin 5 the 5 training values give no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with finite qi > 0 and Di > 0 on the 5 positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)",
+      "error": "at origin 5 the training window gives no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with finite qi > 0 and Di > 0 on the 5 positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)",
       "mae": null,
       "rmse": null,
       "mape": null,
@@ -24571,7 +25070,7 @@
       "smape": 0.0,
       "mase": null,
       "notes": {
-       "mase": "MASE is undefined: at origin 5 the lag-1 naive forecast has zero in-sample error on the 5 values of the 5 training values (every y[t] - y[t - 1] is 0), so the scale is 0"
+       "mase": "MASE is undefined: at origin 5 the training window has 5 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
       }
      },
      {
@@ -24672,7 +25171,7 @@
       "smape": 0.0,
       "mase": null,
       "notes": {
-       "mase": "MASE is undefined: at origin 5 the lag-1 naive forecast has zero in-sample error on the 5 values of the 5 training values (every y[t] - y[t - 1] is 0), so the scale is 0"
+       "mase": "MASE is undefined: at origin 5 the training window has 5 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
       }
      },
      {
@@ -24777,12 +25276,12 @@
       "smape": 0.0,
       "mase": null,
       "notes": {
-       "mase": "MASE is undefined: at origin 5 the lag-1 naive forecast has zero in-sample error on the 5 values of the 5 training values (every y[t] - y[t - 1] is 0), so the scale is 0"
+       "mase": "MASE is undefined: at origin 5 the training window has 5 values and the lag-1 naive forecast has zero in-sample error on them (every y[t] - y[t - 1] is 0), so the scale is 0"
       }
      },
      {
       "method": "arps",
-      "error": "at origin 5 the 5 training values give no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with finite qi > 0 and Di > 0 on the 5 positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)",
+      "error": "at origin 5 the training window gives no Arps fit: fitArpsModel found no exponential, harmonic or hyperbolic fit with finite qi > 0 and Di > 0 on the 5 positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)",
       "mae": null,
       "rmse": null,
       "mape": null,
@@ -24822,6 +25321,232 @@
     }
    },
    "note": "every method forecasts the constant exactly: MAE 0 for all three ties, so the listed order stands; Arps cannot fit a flat series"
+  },
+  {
+   "id": "cmp-arps-window-one-positive",
+   "fn": "compareWithArps",
+   "args": {
+    "y": [
+     0.0,
+     50.0,
+     0.0,
+     0.0,
+     40.0,
+     30.0,
+     20.0,
+     10.0,
+     5.0
+    ],
+    "firstOrigin": 4,
+    "horizon": 2,
+    "methods": [
+     "ses"
+    ]
+   },
+   "expected": {
+    "firstOrigin": 4,
+    "horizon": 2,
+    "step": 1,
+    "refit": true,
+    "arpsModel": "Auto-Select",
+    "rankBy": "mase",
+    "origins": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "rows": [
+     {
+      "method": "ses",
+      "origins": [
+       4,
+       5,
+       6,
+       7
+      ],
+      "perOrigin": [
+       {
+        "origin": 4,
+        "trainN": 4,
+        "params": {
+         "alpha": 0.0
+        },
+        "forecast": [
+         0.0,
+         0.0
+        ],
+        "actual": [
+         40.0,
+         30.0
+        ],
+        "errors": [
+         40.0,
+         30.0
+        ],
+        "maseScale": 33.333333333333336
+       },
+       {
+        "origin": 5,
+        "trainN": 5,
+        "params": {
+         "alpha": 0.17438784837722776
+        },
+        "forecast": [
+         11.8824957996654,
+         11.8824957996654
+        ],
+        "actual": [
+         30.0,
+         20.0
+        ],
+        "errors": [
+         18.1175042003346,
+         8.1175042003346
+        ],
+        "maseScale": 35.0
+       },
+       {
+        "origin": 6,
+        "trainN": 6,
+        "params": {
+         "alpha": 0.2540527426172048
+        },
+        "forecast": [
+         19.135002163706304,
+         19.135002163706304
+        ],
+        "actual": [
+         20.0,
+         10.0
+        ],
+        "errors": [
+         0.8649978362936974,
+         -9.135002163706302
+        ],
+        "maseScale": 30.0
+       },
+       {
+        "origin": 7,
+        "trainN": 7,
+        "params": {
+         "alpha": 0.25738029778003685
+        },
+        "forecast": [
+         19.465870167208113,
+         19.465870167208113
+        ],
+        "actual": [
+         10.0,
+         5.0
+        ],
+        "errors": [
+         -9.465870167208113,
+         -14.465870167208113
+        ],
+        "maseScale": 26.666666666666668
+       }
+      ],
+      "n": 8,
+      "me": 8.004157967355047,
+      "mae": 16.27084359188568,
+      "rmse": 20.239807361966992,
+      "mape": 97.57878968802873,
+      "smape": 98.38364158846389,
+      "mase": 0.5100431580580613
+     },
+     {
+      "method": "arps",
+      "error": "at origin 4 the training window has 1 positive value: fitArpsModel needs at least 3 (it drops zero and negative rates)",
+      "mae": null,
+      "rmse": null,
+      "mape": null,
+      "smape": null,
+      "mase": null
+     }
+    ],
+    "ranking": [
+     "ses"
+    ],
+    "best": "ses",
+    "unranked": [
+     "arps"
+    ]
+   },
+   "tol": 1e-10,
+   "source": "oracle",
+   "abs": 1e-09,
+   "fieldTol": {
+    "perOrigin": {
+     "rel": 1e-05,
+     "abs": 0.001
+    },
+    "overall": {
+     "rel": 1e-05,
+     "abs": 1e-07
+    },
+    "byHorizon": {
+     "rel": 1e-05,
+     "abs": 1e-07
+    },
+    "rows": {
+     "rel": 1e-05,
+     "abs": 0.001
+    }
+   },
+   "note": "the first training window has 1 positive value: the Arps row carries the refusal, the window named once"
+  },
+  {
+   "id": "cmp-h1-series-too-short",
+   "fn": "compareWithArps",
+   "args": {
+    "y": [
+     5,
+     4,
+     3
+    ],
+    "firstOrigin": 3,
+    "horizon": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "y",
+    "message": "y has 3 values: a backtest with horizon 1 needs at least 4 (the comparison needs 3 training values, then 1 actual)"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
+  },
+  {
+   "id": "cmp-h1-first-too-large",
+   "fn": "compareWithArps",
+   "args": {
+    "y": [
+     71,
+     70,
+     69,
+     68,
+     64,
+     65,
+     72,
+     78,
+     75,
+     75,
+     75,
+     70
+    ],
+    "firstOrigin": 12,
+    "horizon": 1,
+    "methods": [
+     "ses"
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "firstOrigin",
+    "message": "firstOrigin must be a whole number from 3 to 11 (the comparison needs 3 training values; an origin above 11 leaves no actual)"
+   },
+   "tol": 1e-10,
+   "source": "oracle"
   },
   {
    "id": "cmp-methods-empty",

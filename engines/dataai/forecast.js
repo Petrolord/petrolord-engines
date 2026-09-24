@@ -376,7 +376,7 @@ const naiveScale = (train, m, label) => {
   if (train.length <= m) return { reason: `MASE is undefined: ${label} has ${train.length} value${train.length === 1 ? '' : 's'}, so the lag-${m} naive forecast has no in-sample error (it needs more than ${m})` };
   let s = 0;
   for (let t = m; t < train.length; t += 1) s += Math.abs(train[t] - train[t - m]);
-  if (s === 0) return { reason: `MASE is undefined: the lag-${m} naive forecast has zero in-sample error on the ${train.length} values of ${label} (every y[t] - y[t - ${m}] is 0), so the scale is 0` };
+  if (s === 0) return { reason: `MASE is undefined: ${label} has ${train.length} values and the lag-${m} naive forecast has zero in-sample error on them (every y[t] - y[t - ${m}] is 0), so the scale is 0` };
   return { q: s / (train.length - m) };
 };
 
@@ -398,7 +398,7 @@ export const accuracy = ({ actual, forecast, insample, m = 1 } = {}) => {
   const bad = checkSeries('actual', actual, 1, 'at least 1 actual is needed')
     || checkSeries('forecast', forecast, 1, 'at least 1 forecast is needed');
   if (bad) return bad;
-  if (forecast.length !== actual.length) return refuse('forecast', `must have ${actual.length} values, one per actual (it has ${forecast.length})`);
+  if (forecast.length !== actual.length) return refuse('forecast', `must have ${actual.length} value${actual.length === 1 ? '' : 's'}, one per actual (it has ${forecast.length})`);
   if (!isInt(m) || m < 1) return refuse('m', 'must be a whole number, 1 or more (1 is the non-seasonal naive; 12 is a monthly seasonal naive)');
   let qs = null; let qReason = null; let scale = null;
   if (insample === undefined) qReason = 'MASE needs insample (the training series) to scale by its in-sample naive error';
@@ -435,7 +435,7 @@ export const forecastIntervals = ({ y, method, alpha, beta, phi, initialLevel, i
   if (typeof nonNegative !== 'boolean') return refuse('nonNegative', 'must be true or false');
   const r = fitCore(y, s.spec, h);
   const pool = r.residuals.slice(r.scoredFrom);
-  if (pool.length < 2) return refuse('y', `has ${y.length} values, which leave ${pool.length} scored residual: the bootstrap resamples at least 2, so '${method}' needs at least ${r.scoredFrom + 2} values here`);
+  if (pool.length < 2) return refuse('y', `has ${y.length} values, which leave ${pool.length} scored residual${pool.length === 1 ? '' : 's'}: the bootstrap resamples at least 2, so '${method}' needs at least ${r.scoredFrom + 2} values here`);
   const { alpha: a, beta: b, phi: ph0 } = r.params;
   const ph = method === 'damped' ? ph0 : 1;
   const trendOn = method !== 'ses';
@@ -474,7 +474,7 @@ export const forecastIntervals = ({ y, method, alpha, beta, phi, initialLevel, i
     basis: {
       method: methodBasis(method),
       fit: r.free.length ? FIT_BASIS : 'all parameters given: no estimation',
-      bootstrap: `${nSims} paths; each step adds a residual drawn with replacement from the ${m} scored in-sample residuals (index floor(u x ${m}), u from mulberry32(${seed}), path by path, step by step) to the one-step forecast, and the simulated value updates the state`,
+      bootstrap: `${nSims} path${nSims === 1 ? '' : 's'}; each step adds a residual drawn with replacement from the ${m} scored in-sample residuals (index floor(u x ${m}), u from mulberry32(${seed}), path by path, step by step) to the one-step forecast, and the simulated value updates the state`,
       percentiles: 'per step, lib/stats quantile at 0.1, 0.5, 0.9 of the simulated values (idx = nSims x p on the sorted values: idx not whole takes the ceil(idx)-th smallest, idx whole with nSims even the mean of the idx-th and (idx+1)-th, idx whole with nSims odd the (idx+1)-th); production is an outcome where more is better, so P90 (low) is the 10th percentile and P10 (high) the 90th',
       nonNegative: nonNegative ? 'a negative percentile is reported as 0 (clippedToZero counts them)' : 'percentiles reported as simulated, negatives included',
     },
@@ -490,8 +490,8 @@ const checkBacktest = (y, minTrain, firstOrigin, horizon, step, what) => {
   if (!isInt(horizon) || horizon < 1) return refuse('horizon', 'must be a whole number, 1 or more');
   if (!isInt(step) || step < 1) return refuse('step', 'must be a whole number, 1 or more');
   const hi = y.length - horizon;
-  if (hi < minTrain) return refuse('y', `has ${y.length} values: a backtest with horizon ${horizon} needs at least ${minTrain + horizon} (${what} needs ${minTrain} training values, then ${horizon} actuals)`);
-  if (!isInt(firstOrigin) || firstOrigin < minTrain || firstOrigin > hi) return refuse('firstOrigin', `must be a whole number from ${minTrain} to ${hi} (${what} needs ${minTrain} training values; an origin above ${hi} leaves fewer than ${horizon} actuals)`);
+  if (hi < minTrain) return refuse('y', `has ${y.length} value${y.length === 1 ? '' : 's'}: a backtest with horizon ${horizon} needs at least ${minTrain + horizon} (${what} needs ${minTrain} training values, then ${horizon} actual${horizon === 1 ? '' : 's'})`);
+  if (!isInt(firstOrigin) || firstOrigin < minTrain || firstOrigin > hi) return refuse('firstOrigin', `must be a whole number from ${minTrain} to ${hi} (${what} needs ${minTrain} training values; an origin above ${hi} leaves ${horizon === 1 ? 'no actual' : `fewer than ${horizon} actuals`})`);
   const count = Math.floor((hi - firstOrigin) / step) + 1;
   if (count > DEFAULTS.MAX_ORIGINS) return refuse('step', `gives ${count} origins, above the ${DEFAULTS.MAX_ORIGINS} a backtest accepts: raise step or firstOrigin`);
   return null;
@@ -530,7 +530,7 @@ const backtestCore = (y, spec, firstOrigin, horizon, step, refit, m) => {
     const r = fitCore(train, sp, horizon);
     if (!refit && idx === 0) held = r.params;
     const actual = y.slice(o, o + horizon);
-    const sc = naiveScale(train, m, `the ${o} training values`);
+    const sc = naiveScale(train, m, 'the training window');
     const errors = actual.map((v, j) => v - r.forecast[j]);
     return {
       origin: o, trainN: o, params: r.params, converged: r.optimiser ? r.optimiser.converged : null,
@@ -563,7 +563,7 @@ export const backtest = ({ y, method, firstOrigin, horizon, step = 1, refit = tr
     ...pool(rows, horizon, m),
     basis: {
       method: methodBasis(method),
-      origins: `expanding window: origin o trains on y[0..o-1] and forecasts y[o..o+${horizon - 1}]; origins ${firstOrigin}, ${firstOrigin} + ${step}, ... while o + ${horizon} <= ${y.length}`,
+      origins: `expanding window: origin o trains on y[0..o-1] and forecasts ${horizon === 1 ? 'y[o]' : `y[o..o+${horizon - 1}]`}; origins ${firstOrigin}, ${firstOrigin} + ${step}, ... while o + ${horizon} <= ${y.length}`,
       refit: refit ? 'free parameters re-estimated at every origin' : 'free parameters estimated on the first window and held at every later origin',
       metrics: METRICS_BASIS,
       pooling: `overall metrics average over every origin and step; MASE scales each error by its own origin's lag-${m} naive in-sample MAE`,
@@ -576,14 +576,14 @@ export const backtest = ({ y, method, firstOrigin, horizon, step = 1, refit = tr
 /* ------------------------------------------------------------------ */
 /* Arps baseline (engines/dca/arps.js). */
 
-const arpsFit = (y, modelType, subject, plural) => {
+const arpsFit = (y, modelType, subject) => {
   const data = y.map((rate, k) => ({ date: new Date(ARPS_EPOCH + k * DAY_MS).toISOString(), rate }));
   const firstPos = y.findIndex((v) => v > 0);
   const nPos = y.filter((v) => v > 0).length;
-  if (nPos < 3) return { reason: `${subject} ${plural ? 'have' : 'has'} ${nPos} positive value${nPos === 1 ? '' : 's'}: fitArpsModel needs at least 3 (it drops zero and negative rates)` };
+  if (nPos < 3) return { reason: `${subject} has ${nPos} positive value${nPos === 1 ? '' : 's'}: fitArpsModel needs at least 3 (it drops zero and negative rates)` };
   const fit = fitArpsModel(data, modelType);
   const p = fit.parameters;
-  if (!p || p.modelType === 'None') return { reason: `${subject} ${plural ? 'give' : 'gives'} no Arps fit: fitArpsModel found no ${modelType === 'Auto-Select' ? 'exponential, harmonic or hyperbolic' : modelType.toLowerCase()} fit with finite qi > 0 and Di > 0 on the ${nPos} positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)` };
+  if (!p || p.modelType === 'None') return { reason: `${subject} gives no Arps fit: fitArpsModel found no ${modelType === 'Auto-Select' ? 'exponential, harmonic or hyperbolic' : modelType.toLowerCase()} fit with finite qi > 0 and Di > 0 on the ${nPos} positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)` };
   return { fit, p, t0: firstPos, nPos };
 };
 
@@ -597,7 +597,7 @@ export const arpsForecast = ({ y, h = 0, modelType = 'Auto-Select' } = {}) => {
   const bad = checkSeries('y', y, 3, 'fitArpsModel needs at least 3 positive values') || checkH(h, 0);
   if (bad) return bad;
   if (!ARPS_MODELS.includes(modelType)) return refuse('modelType', "must be 'Auto-Select', 'Exponential', 'Harmonic' or 'Hyperbolic'");
-  const a = arpsFit(y, modelType, 'y', false);
+  const a = arpsFit(y, modelType, 'y');
   if (a.reason) return { error: a.reason, field: 'y' };
   const { p, t0, fit } = a;
   const out = {
@@ -651,11 +651,11 @@ export const compareWithArps = ({ y, methods = ['ses', 'holt', 'damped'], firstO
   for (let i = 0; i < origins.length && !arpsError; i += 1) {
     const o = origins[i];
     const train = y.slice(0, o);
-    const a = arpsFit(train, arpsModel, `at origin ${o} the ${o} training values`, true);
+    const a = arpsFit(train, arpsModel, `at origin ${o} the training window`);
     if (a.reason) { arpsError = a.reason; break; }
     const forecast = Array.from({ length: horizon }, (_, j) => arpsAt(a.p, a.t0, o + j));
     const actual = y.slice(o, o + horizon);
-    const sc = naiveScale(train, m, `the ${o} training values`);
+    const sc = naiveScale(train, m, 'the training window');
     arpsRows.push({ origin: o, trainN: o, params: { qi: a.p.qi, Di: a.p.Di, b: a.p.b, modelType: a.p.modelType }, forecast, actual, errors: actual.map((v, j) => v - forecast[j]), maseScale: sc.reason ? null : sc.q, maseNote: sc.reason || null });
   }
   const arpsRow = arpsError
