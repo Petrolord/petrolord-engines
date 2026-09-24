@@ -216,8 +216,7 @@ const pick = (arr, idx) => idx.map((i) => arr[i]);
 
 /**
  * Householder QR of an m x p matrix A (array of rows, m >= p), in place on
- * a copy. Returns R (p x p upper), the reflectors, and a function applying
- * Q' to a vector.
+ * a copy. Returns R (p x p upper) and a function applying Q' to a vector.
  */
 const householderQR = (A) => {
   const m = A.length;
@@ -256,18 +255,7 @@ const householderQR = (A) => {
     }
     return b;
   };
-  const applyQ = (y) => {
-    const b = y.slice();
-    for (let k = p - 1; k >= 0; k -= 1) {
-      const v = vs[k];
-      let s = 0;
-      for (let i = k; i < m; i += 1) s += v[i - k] * b[i];
-      s *= betas[k];
-      for (let i = k; i < m; i += 1) b[i] -= s * v[i - k];
-    }
-    return b;
-  };
-  return { R, applyQt, applyQ };
+  return { R, applyQt };
 };
 
 const backSolve = (R, c) => {
