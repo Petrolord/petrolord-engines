@@ -1,12 +1,12 @@
 # FINDINGS: forecast (oracle_forecast.py, Data & AI D4, production forecasting)
 
-Golden: `test-data/dataai/goldens/forecast_cases.json`, 139 cases (62 of
+Golden: `test-data/dataai/goldens/forecast_cases.json`, 140 cases (62 of
 them refusals, every refusal message pinned in full), written by
 `tools/validation/dataai/oracle_forecast.py`. Second witness:
 `test-data/dataai/pins/forecast_pins.json`, 224 pins and 8 recorded skips,
 written by `tools/validation/dataai/pin_forecast.py` (numpy 2.5.3, scipy
 1.18.1, statsmodels 0.15.0, scikit-learn 1.9.1 from `/root/daienv`).
-Gate: `__tests__/dataai.forecast.test.js` (452 tests) calls the engine on
+Gate: `__tests__/dataai.forecast.test.js` (453 tests) calls the engine on
 every golden, the published NIST figures and every pin, plus property
 tests, the Ekene scale run and the row cap. Negative control:
 `negcontrol_forecast.sh` (51/51 engine plants red, 5/5 oracle plants red

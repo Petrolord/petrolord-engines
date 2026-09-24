@@ -1082,6 +1082,8 @@ def build():
         note='every method forecasts the constant exactly: MAE 0 for all three ties, so the listed order stands; Arps cannot fit a flat series')
     CMP('cmp-arps-window-one-positive', [0.0, 50.0, 0.0, 0.0, 40.0, 30.0, 20.0, 10.0, 5.0], 4, 2, methods=['ses'],
         note='the first training window has 1 positive value: the Arps row carries the refusal, the window named once')
+    CMP('cmp-clean-m12-short-window', dec_clean, 12, 6, step=12, m=12,
+        note='the first window has 12 values at lag 12: every row, Arps included, has MASE null with the reason naming the training window once')
     Rc = lambda cid, args, field, msg: c.refuse(cid, 'compareWithArps', args, field, msg)
     Rc('cmp-h1-series-too-short', {'y': [5, 4, 3], 'firstOrigin': 3, 'horizon': 1}, 'y', 'y has 3 values: a backtest with horizon 1 needs at least 4 (the comparison needs 3 training values, then 1 actual)')
     Rc('cmp-h1-first-too-large', {'y': NIST_12, 'firstOrigin': 12, 'horizon': 1, 'methods': ['ses']}, 'firstOrigin', 'firstOrigin must be a whole number from 3 to 11 (the comparison needs 3 training values; an origin above 11 leaves no actual)')
