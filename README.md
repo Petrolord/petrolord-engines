@@ -654,6 +654,31 @@ and its consumers.
   statsmodels pins in `test-data/dataai/pins/ml_pins.json` (`pin_ml.py`);
   findings, decisions and the negative control in
   `tools/validation/dataai/FINDINGS-ml.md` and `negcontrol_ml.sh`.
+- `engines/dataai/cluster.js` (Data & AI D3, 2026-09-24): electrofacies for
+  the Electrofacies Studio and the `facies` course. PCA on the correlation
+  (sample-SD standardised) or covariance matrix by cyclic Jacobi with a
+  stated sign rule (largest absolute loading positive, ties within 1e-9 to
+  the first), explained variance, loadings and scores; seeded k-means++
+  (one mulberry32 stream, nInit runs) with Lloyd passes, a stated empty
+  cluster rule, inertia and an elbow table; silhouette (singletons 0,
+  seeded sampling above 10,000 rows); agglomerative Ward, complete and
+  average by Lance-Williams with a scipy-compatible linkage matrix and a
+  3,000-row cap; kNN and a CART classification tree (Gini, exact split
+  comparison on integer counts, stated split and leaf ties); cluster to
+  core-facies matching (Hungarian one-to-one or majority) scored by ml.js
+  classificationReport, and the adjusted Rand index. Distance and merge
+  ties are judged in a stated 1e-12 relative band so decimal log values
+  cannot let rounding pick the winner. Scaling and metrics are imported
+  from ml.js. Gate: `dataai.cluster.test.js` replays
+  `test-data/dataai/goldens/cluster_cases.json` (stdlib oracle
+  `tools/validation/dataai/oracle_cluster.py`: bisection eigenvalues,
+  linkage heights from their definitions, brute-force matching, pair-count
+  ARI) with Fisher's iris data (1936) as the published anchor, and the
+  scikit-learn/scipy pins in `test-data/dataai/pins/cluster_pins.json`
+  (`pin_cluster.py`, convention differences listed); findings, the
+  boundary table, the salvage review of the Suite's
+  logFaciesCalculations.js and the negative control in
+  `tools/validation/dataai/FINDINGS-cluster.md` and `negcontrol_cluster.sh`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
