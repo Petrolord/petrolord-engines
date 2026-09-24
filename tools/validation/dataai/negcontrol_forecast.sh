@@ -145,8 +145,8 @@ run_case ENGINE "refit false ignored" $E "if (!refit && idx > 0) sp = { ...spec,
 run_case ENGINE "training window leaks the first actual" $E "    const train = y.slice(0, o);
     let sp = spec;" "    const train = y.slice(0, o + 1);
     let sp = spec;"
-run_case ENGINE "MASE scaled on the whole series" $E "    const sc = naiveScale(train, m, \`the \${o} training values\`);
-    const errors" "    const sc = naiveScale(y, m, \`the \${o} training values\`);
+run_case ENGINE "MASE scaled on the whole series" $E "    const sc = naiveScale(train, m, 'the training window');
+    const errors" "    const sc = naiveScale(y, m, 'the training window');
     const errors"
 run_case ENGINE "firstOrigin upper bound off by one" $E "if (!isInt(firstOrigin) || firstOrigin < minTrain || firstOrigin > hi)" "if (!isInt(firstOrigin) || firstOrigin < minTrain || firstOrigin > hi + 1)"
 # Arps and the comparison
@@ -157,6 +157,24 @@ run_case ENGINE "Arps training window leaks the first actual" $E "    const trai
     const a = arpsFit("
 run_case ENGINE "ranking tie goes to the LATER method" $E "if (a < b - Math.abs(b) * DEFAULTS.RANK_TIE_REL) bi = k;" "if (a <= b) bi = k;"
 run_case ENGINE "ranking highest first" $E "if (a < b - Math.abs(b) * DEFAULTS.RANK_TIE_REL) bi = k;" "if (a > b + Math.abs(b) * DEFAULTS.RANK_TIE_REL) bi = k;"
+
+# message wordings replaced 2026-09-24 (each old wording must go red)
+run_case ENGINE "MASE reason names 'the N training values' (old backtest label)" $E "    const sc = naiveScale(train, m, 'the training window');
+    const errors" "    const sc = naiveScale(train, m, \`the \${o} training values\`);
+    const errors"
+run_case ENGINE "MASE reason names 'the N training values' (old comparison label)" $E "    const sc = naiveScale(train, m, 'the training window');
+    arpsRows" "    const sc = naiveScale(train, m, \`the \${o} training values\`);
+    arpsRows"
+run_case ENGINE "zero-scale reason with the doubled count (old wording)" $E "reason: \`MASE is undefined: \${label} has \${train.length} values and the lag-\${m} naive forecast has zero in-sample error on them (every" "reason: \`MASE is undefined: the lag-\${m} naive forecast has zero in-sample error on the \${train.length} values of \${label} (every"
+run_case ENGINE "backtest refusal 'then 1 actuals'" $E "then \${horizon} actual\${horizon === 1 ? '' : 's'})\`);" "then \${horizon} actuals)\`);"
+run_case ENGINE "backtest refusal 'leaves fewer than 1 actuals'" $E "leaves \${horizon === 1 ? 'no actual' : \`fewer than \${horizon} actuals\`})\`);" "leaves fewer than \${horizon} actuals)\`);"
+run_case ENGINE "backtest refusal 'y has 1 values'" $E "has \${y.length} value\${y.length === 1 ? '' : 's'}: a backtest" "has \${y.length} values: a backtest"
+run_case ENGINE "accuracy refusal 'must have 1 values'" $E "must have \${actual.length} value\${actual.length === 1 ? '' : 's'}, one per actual" "must have \${actual.length} values, one per actual"
+run_case ENGINE "bootstrap pool residual count without its singular" $E "scored residual\${pool.length === 1 ? '' : 's'}: the bootstrap" "scored residuals: the bootstrap"
+run_case ENGINE "Arps window reason 'the N training values' (old wording)" $E "arpsFit(train, arpsModel, \`at origin \${o} the training window\`);" "arpsFit(train, arpsModel, \`at origin \${o} the \${o} training values\`);"
+run_case ENGINE "bootstrap basis '1 paths'" $E "bootstrap: \`\${nSims} path\${nSims === 1 ? '' : 's'}; each step" "bootstrap: \`\${nSims} paths; each step"
+run_case ENGINE "bootstrap basis silent on uncentred residuals" $E "the simulated value updates the state; residuals are drawn as fitted without centring" "the simulated value updates the state. residuals are drawn as fitted without centring"
+run_case ENGINE "backtest basis 'y[o..o+0]' at horizon 1" $E "forecasts \${horizon === 1 ? 'y[o]' : \`y[o..o+\${horizon - 1}]\`}; origins" "forecasts y[o..o+\${horizon - 1}]; origins"
 
 echo "=== ORACLE plants (RED or STOP: the control on the controls) ==="
 O=$ORACLE
