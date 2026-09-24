@@ -626,6 +626,31 @@ and its consumers.
   6.3.2.2, 6.3.2.3, 6.3.2.4 and 7.2.6.2) and the numpy/scipy/statsmodels/
   pandas pins in `test-data/dataai/pins/` (`pin_quality.py`); findings,
   errata and the negative control in `tools/validation/dataai/`.
+- `engines/dataai/ml.js` (Data & AI D2, 2026-09-24): machine learning on
+  well data for the ML Workbench and the `mlcore` course. Standard and
+  min-max scalers fitted on training rows only (population SD, a constant
+  feature refused by name); seeded group split, group k-fold (round robin
+  after a mulberry32 shuffle) and a random row split that exists only to
+  show leakage; OLS by equilibrated Householder QR with two steps of
+  iterative refinement in double-double (coefficients, standard errors,
+  residual SE, R^2, adjusted R^2, raw and scaled condition numbers;
+  refused above a scaled condition number of 1e8); ridge in closed form on
+  standardised features with the intercept unpenalised (lambda =
+  scikit-learn alpha); binary logistic regression by Newton with a stated
+  stopping rule and separation detected by linear programming (lib/lp)
+  before fitting; RMSE, MAE, R^2, confusion matrix, per-class and
+  macro/weighted precision, recall and F1 with a stated zero division,
+  ROC with tied scores grouped, trapezoid AUC, clipped log loss; seeded
+  permutation importance, a learning curve by well count and a leakage
+  demo (random rows against whole wells). Gate: `dataai.ml.test.js`
+  replays `test-data/dataai/goldens/ml_cases.json` (stdlib oracle
+  `tools/validation/dataai/oracle_ml.py`, exact rational OLS) with the
+  NIST StRD linear regression certified values (Norris, Pontius, NoInt1/2,
+  Longley, Wampler1-5 and Filip, whose default refusal and 8-digit input
+  limit are recorded) as published anchors, and the numpy/scikit-learn/
+  statsmodels pins in `test-data/dataai/pins/ml_pins.json` (`pin_ml.py`);
+  findings, decisions and the negative control in
+  `tools/validation/dataai/FINDINGS-ml.md` and `negcontrol_ml.sh`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
