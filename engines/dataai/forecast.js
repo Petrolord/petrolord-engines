@@ -614,7 +614,6 @@ export const arpsForecast = ({ y, h = 0, modelType = 'Auto-Select' } = {}) => {
       dropped: 'fitArpsModel drops zero and negative values (shut-in months) before fitting',
     },
   };
-  if (p.modelType !== modelType && modelType !== 'Auto-Select') out.warning = `fitArpsModel found no ${modelType.toLowerCase()} fit with qi > 0 and Di > 0 and returned its ${p.modelType.toLowerCase()} fit instead`;
   return out;
 };
 
@@ -635,7 +634,7 @@ export const compareWithArps = ({ y, methods = ['ses', 'holt', 'damped'], firstO
   if (typeof refit !== 'boolean') return refuse('refit', 'must be true or false');
   if (!isInt(m) || m < 1) return refuse('m', 'must be a whole number, 1 or more (1 is the non-seasonal naive; 12 is a monthly seasonal naive)');
   const minTrain = Math.max(3, ...methods.map((mt) => layout({ method: mt }).minLen));
-  const bad = checkBacktest(y, minTrain, firstOrigin, horizon, step, 'the comparison (Arps and the trend methods)');
+  const bad = checkBacktest(y, minTrain, firstOrigin, horizon, step, 'the comparison');
   if (bad) return bad;
   const rows = methods.map((mt) => {
     const bt = backtestCore(y, { method: mt }, firstOrigin, horizon, step, refit, m);
