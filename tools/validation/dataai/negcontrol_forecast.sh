@@ -113,6 +113,9 @@ run_case ENGINE "atBounds not reported" $E "const atBounds = free.filter((nm, i)
 # parameter rules
 run_case ENGINE "alpha 0 refused" $E "(v === undefined || (isNum(v) && v >= 0 && v <= 1) ?" "(v === undefined || (isNum(v) && v > 0 && v <= 1) ?"
 run_case ENGINE "a fixed phi limited to the search range" $E "if (phi !== undefined && !(isNum(phi) && phi > 0 && phi <= 1))" "if (phi !== undefined && !(isNum(phi) && phi >= 0.8 && phi <= 1))"
+run_case ENGINE "phi on 'ses' names holt (the draft wording)" $E "refuse('phi', \"applies to 'damped' only: 'ses' has no trend to damp\")" "refuse('phi', \"applies to 'damped' only: 'holt' is the damped method with phi = 1\")"
+run_case ENGINE "Arps no-fit reason in the draft wording" $E "fit with finite qi > 0 and Di > 0 on the \${nPos} positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)" "fit with qi > 0 and Di > 0 on the \${nPos} positive values (a series that does not decline cannot be fitted)"
+run_case ENGINE "bootstrap 10th percentile taken at 0.11" $E "quantile(Array.from(paths[j]), [0.1, 0.5, 0.9]);" "quantile(Array.from(paths[j]), [0.11, 0.5, 0.9]);"
 run_case ENGINE "holt length rule in other words" $E "the third is the first scored forecast)\" };" "the third is scored)\" };"
 # metrics
 run_case ENGINE "error sign forecast - actual" $E "    const e = actual[i] - forecast[i];" "    const e = forecast[i] - actual[i];"
