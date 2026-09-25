@@ -386,6 +386,14 @@ describe('basis text: conventions the goldens do not carry', () => {
 });
 
 describe('scale: caps', () => {
+  test('1,000 queries accepted by retrieve, 1,001 refused; 10,000 bootstrap values accepted, 10,001 refused', () => {
+    const qs = Array.from({ length: 1001 }, (_, i) => ({ id: `q${i}`, text: 'oil' }));
+    expect(EV.retrieve({ documents: docs, queries: qs, method: 'bm25' }).error).toBe('queries has 1001 entries, above the 1000 this engine accepts');
+    expect(Object.keys(EV.retrieve({ documents: docs, queries: qs.slice(1), method: 'bm25' }).runs).length).toBe(1000);
+    const v = new Array(10001).fill(0.5);
+    expect(EV.bootstrapMean({ values: v, seed: 1 }).error).toBe('values has 10001 values, above the 10000 this engine accepts');
+    expect(EV.bootstrapMean({ values: v.slice(1), seed: 1, nBoot: 10 }).lower).toBe(0.5);
+  });
   test('5,000 documents accepted, 5,001 refused', () => {
     const many = Array.from({ length: 5000 }, (_, i) => ({ id: `d${String(i).padStart(4, '0')}`, text: `well ${i % 97} oil rate ${i % 13}` }));
     const r = EV.rankBm25({ documents: many, query: 'oil rate 12', k: 10 });

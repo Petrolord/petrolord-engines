@@ -1173,7 +1173,6 @@ def build():
     Rb('bm25-doc-id-repeat', {'documents': [SMALL[0], SMALL[1], {'id': 'd1', 'text': 'y'}], 'query': 'x'}, 'documents[2].id', 'documents[2].id repeats d1 (documents[0])')
     Rb('bm25-doc-text-null', {'documents': [{'id': 'a', 'text': None}], 'query': 'x'}, 'documents[0].text', 'documents[0].text must be a string')
     Rb('bm25-doc-text-long', {'documents': [{'id': 'a', 'text': 'b' * 20001}], 'query': 'x'}, 'documents[0].text', 'documents[0].text has 20001 characters, above the 20000 this engine accepts')
-    Rb('bm25-docs-too-many', {'documents': [{'id': f'x{i}', 'text': 'a'} for i in range(5001)], 'query': 'a'}, 'documents', 'documents has 5001 entries, above the 5000 this engine accepts')
     Rb('bm25-query-missing', {'documents': SMALL}, 'query', 'query must be a string')
     Rb('bm25-k-0', {'documents': SMALL, 'query': 'x', 'k': 0}, 'k', 'k must be a whole number from 1 to 1000')
     Rb('bm25-k-1001', {'documents': SMALL, 'query': 'x', 'k': 1001}, 'k', 'k must be a whole number from 1 to 1000')
@@ -1223,7 +1222,6 @@ def build():
     Rr('retrieve-k1-on-tfidf', {'documents': corpus[:3], 'queries': qlist[:1], 'method': 'tfidf', 'k1': 1.5}, 'k1', "k1 applies to 'bm25' only")
     Rr('retrieve-b-on-tfidf', {'documents': corpus[:3], 'queries': qlist[:1], 'method': 'tfidf', 'b': 0.5}, 'b', "b applies to 'bm25' only")
     Rr('retrieve-sublinear-on-bm25', {'documents': corpus[:3], 'queries': qlist[:1], 'method': 'bm25', 'sublinearTf': False}, 'sublinearTf', "sublinearTf applies to 'tfidf' only")
-    Rr('retrieve-too-many-queries', {'documents': corpus[:3], 'queries': [{'id': f'q{i}', 'text': 'x'} for i in range(1001)], 'method': 'bm25'}, 'queries', 'queries has 1001 entries, above the 1000 this engine accepts')
 
     # ---------------- retrieval metrics
     J = {'a': 3, 'b': 2, 'c': 0, 'd': 1, 'e': 2}
@@ -1431,7 +1429,6 @@ def build():
     Rbt('boot-values-one', 'bootstrapMean', {'values': [1], 'seed': 1}, 'values', 'values has 1 value: the bootstrap resamples at least 2')
     Rbt('boot-values-nan', 'bootstrapMean', {'values': [1, None], 'seed': 1}, 'values[1]', 'values[1] must be a finite number')
     Rbt('boot-values-not-array', 'bootstrapMean', {'values': 3, 'seed': 1}, 'values', 'values must be an array of numbers')
-    Rbt('boot-values-too-many', 'bootstrapMean', {'values': [0.5] * 10001, 'seed': 1}, 'values', 'values has 10001 values, above the 10000 this engine accepts')
     Rbt('boot-nboot-0', 'bootstrapMean', {'values': [1, 2], 'seed': 1, 'nBoot': 0}, 'nBoot', 'nBoot must be a whole number from 1 to 100000')
     Rbt('boot-nboot-big', 'bootstrapMean', {'values': [1, 2], 'seed': 1, 'nBoot': 100001}, 'nBoot', 'nBoot must be a whole number from 1 to 100000')
     Rbt('boot-seed-missing', 'bootstrapMean', {'values': [1, 2]}, 'seed', 'seed must be a whole number from 0 to 4294967295')
