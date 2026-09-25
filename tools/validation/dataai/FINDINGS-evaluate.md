@@ -8,7 +8,7 @@ skips, written by `tools/validation/dataai/pin_evaluate.py` (numpy 2.5.3,
 scikit-learn 1.9.1 from `/root/daienv`). Gate:
 `__tests__/dataai.evaluate.test.js` (2,707 tests) calls the engine on every
 golden and every pin, plus property tests, the fixture checks and the caps.
-Negative control: `negcontrol_evaluate.sh` (68/68 engine plants red, 6/6 oracle plants caught: 5 red and 1 stopped). Timing:
+Negative control: `negcontrol_evaluate.sh` (71/71 engine plants red, 8/8 oracle plants caught: 6 red and 2 stopped). Timing:
 `timing_evaluate.mjs` (table below). Fixtures:
 `test-data/dataai/ekene-docs/`, written by `make_evaluate_fixtures.py`.
 
@@ -73,7 +73,9 @@ replicates).
   12, 595-600; Stephenson, D. B., Coelho, C. A. S. and Jolliffe, I. T.
   (2008) Two extra components in the Brier score decomposition. Weather and
   Forecasting 23(4), 752-757 (the within-bin variance and covariance that
-  make the decomposition exact).
+  make the decomposition exact; eqs. 4 and 7 and the five-component line
+  after eq. 7 read on 2026-09-25 from the author copy at
+  empslocal.ex.ac.uk/people/staff/dbs202/publications/2008/stephenson-brier.pdf).
 - Guo, C., Pleiss, G., Sun, Y. and Weinberger, K. Q. (2017) On calibration
   of modern neural networks, ICML (ECE, MCE, reliability diagrams).
 - Efron, B. and Tibshirani, R. J. (1993) An Introduction to the Bootstrap,
@@ -207,6 +209,15 @@ The 20 skips, each a documented convention difference:
    retrieved ones, and the gain uses every grade (relevantGrade does not
    apply to nDCG). Unjudged documents count as grade 0 and are counted
    (`unjudgedRetrieved`): unjudged is not the same as irrelevant.
+   (refined 2026-09-25) The ideal DCG is 0, and nDCG undefined (null with
+   a note), in exactly two cases: the query has no judged documents, or
+   every judged document has grade 0 (both gains give grade 0 a gain of 0,
+   and the ideal list holds the top min(k, judged) grades, so any grade
+   above 0 gives the ideal DCG a positive value). The note names the case:
+   "the query has no judged documents", "the 1 judged document has grade 0"
+   or "the N judged documents all have grade 0". The earlier single note
+   ("every judged grade is 0") was only vacuously true for an empty
+   judgment set.
 7. **No relevant document.** Excluded from every mean by default and listed
    with the reason (trec_eval); `noRelevant: 'zero'` keeps the query with
    each undefined metric at 0. A query with no document at relevantGrade 2
@@ -277,8 +288,26 @@ The 20 skips, each a documented convention difference:
     2017). The Murphy decomposition carries the within-bin variance WBV and
     covariance WBC (Stephenson, Coelho and Jolliffe 2008), so Brier = REL -
     RES + UNC + WBV - WBC exactly; the engine reports `closure` (below
-    1e-15 on every case, exactly 0 in the oracle). Log loss is
-    `engines/dataai/ml.js` `logLoss`, imported; `eps` passes through.
+    1e-15 on every case, exactly 0 in the oracle).
+    (checked 2026-09-25 against the paper) WBC carries the factor 2, as the
+    paper names it. Eq. (4) expands the per-bin square into two
+    sum-of-squares terms and the cross term -(2 / n_k) sum_j (o_kj -
+    o_k)(f_kj - f_k); eq. (7) is the Brier score written out with
+    -(2/n) sum_k sum_j (o_kj - o_k)(f_kj - f_k) as its fifth term, and the
+    line directly after eq. (7) names the five components "BS = REL - RES +
+    UNC + WBV - WBC". WBC is therefore that whole fifth term, 2 sum (y -
+    observed_k)(p - mean p_k) / N, which is twice the pooled within-bin
+    covariance; the paper never writes "- 2 WBC". Section 2c agrees:
+    GRES = RES - WBV + WBC makes BS = REL - GRES + UNC close only with the
+    factor 2 inside WBC. A learner who computes the pooled covariance
+    (without the 2) gets half of `withinBinCovariance`; the basis string now
+    says "the fifth term of their eq. 7, so twice the pooled within-bin
+    covariance" and a hand-worked jest case (y = [0, 1], p = [0.1, 0.3],
+    one bin: WBC 0.1, pooled covariance 0.05) pins it. A proposed change to
+    "WBC without the 2 and - 2 WBC in the identity" was examined and not
+    made: it would contradict the source's own labelling. Both the doubled
+    and the halved WBC are negative-control plants (engine and oracle).
+    Log loss is `engines/dataai/ml.js` `logLoss`, imported; `eps` passes through.
 14. **Bootstrap.** One mulberry32(seed) stream, replicate by replicate,
     index floor(u n). Percentile interval by lib/stats quantile (the
     simple-statistics rule, as forecast.js). (refined) `level` is one of
@@ -395,11 +424,13 @@ Milliseconds. checkAnswers: 1000 answers over 5000 documents 1520 ms. calibratio
 | expected counts over n - 1 | RED | 19 failed |
 | numeric labels sorted as strings | RED | 2 failed |
 | edge value in the lower bin (scikit-learn rule) | RED | 30 failed |
-| last bin open at 1 | RED | 83 failed |
+| last bin open at 1 | RED | 84 failed |
 | ECE unweighted over bins | RED | 6 failed |
-| WBC without the factor 2 | RED | 7 failed |
+| WBC without the factor 2 | RED | 8 failed |
+| WBC doubled (4 wbc / N) | RED | 8 failed |
+| WBC halved and the identity rewritten as - 2 WBC | RED | 8 failed |
 | resolution about 0.5 | RED | 8 failed |
-| Brier over N - 1 | RED | 15 failed |
+| Brier over N - 1 | RED | 16 failed |
 | eps not passed to ml.js logLoss | RED | 2 failed |
 | bootstrap draw floor(u (n - 1)) | RED | 8 failed |
 | interval tails at 1 - level, not half | RED | 13 failed |
@@ -407,6 +438,7 @@ Milliseconds. checkAnswers: 1000 answers over 5000 documents 1520 ms. calibratio
 | standard error with divisor nBoot | RED | 10 failed |
 | share strictly below zero | RED | 2 failed |
 | a fresh stream per replicate | RED | 8 failed |
+| nDCG note: empty judgments worded as all grades 0 | RED | 1 failed |
 | k refusal in other words | RED | 4 failed |
 | kappa undefined note in other words | RED | 1 failed |
 | groundedness reason drops 'cited but not retrieved' | RED | 3 failed |
@@ -420,6 +452,8 @@ Milliseconds. checkAnswers: 1000 answers over 5000 documents 1520 ms. calibratio
 | oracle DCG discount log2(i + 2) | RED | 19 failed |
 | oracle linear kappa quadratic | RED | 2 failed |
 | oracle WBC without the factor 2 | STOP | the oracle refused to write (Murphy identity assert) |
+| oracle WBC doubled | STOP | the oracle refused to write (Murphy identity assert) |
+| oracle WBC halved and the identity as - 2 WBC | RED | 6 failed |
 | oracle bootstrap draws from n - 1 | RED | 7 failed |
 | oracle SQuAD keeps articles | RED | 9 failed |
 
