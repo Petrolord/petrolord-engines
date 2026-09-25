@@ -88,7 +88,11 @@
  *               bins of n_k / N x |observed_k - mean p_k|; MCE the largest
  *               such gap; empty bins skipped. Murphy decomposition with the
  *               within-bin terms (Stephenson, Coelho and Jolliffe 2008):
- *               Brier = REL - RES + UNC + WBV - WBC exactly. Log loss is
+ *               Brier = REL - RES + UNC + WBV - WBC exactly, their eq. (7)
+ *               and the line after it. WBC is the fifth term of eq. (7) as
+ *               the paper names it, so it carries the factor 2:
+ *               WBC = 2 sum (y - observed_k)(p - mean p_k) / N, twice the
+ *               pooled within-bin covariance. Log loss is
  *               engines/dataai/ml.js logLoss, imported.
  *   bootstrap   one mulberry32(seed) stream (lib/stats); replicate by
  *               replicate, each draws n indices floor(u x n) with
@@ -537,7 +541,11 @@ const metricsCore = (ranking, judgments, k, t, gain) => {
     notes.recall = `recall is undefined: ${why}`;
     notes.averagePrecision = `average precision is undefined: ${why}`;
   }
-  if (idcg === 0) notes.ndcg = 'nDCG is undefined: every judged grade is 0, so the ideal DCG is 0';
+  if (idcg === 0) {
+    notes.ndcg = nJudged === 0
+      ? 'nDCG is undefined: the query has no judged documents, so the ideal DCG is 0'
+      : `nDCG is undefined: ${nJudged === 1 ? 'the 1 judged document has' : `the ${nJudged} judged documents all have`} grade 0, so the ideal DCG is 0`;
+  }
   return {
     k, nJudged, nRelevant: nRel, retrieved: top.length, relevantRetrieved: hits, unjudgedRetrieved: unjudged,
     precision: hits / k,
@@ -1147,7 +1155,7 @@ export const calibration = ({ yTrue, probabilities, bins = DEFAULTS.BINS, eps } 
       brier: 'mean (p - y)^2',
       ece: 'sum over non-empty bins of n_k / N x |observed_k - mean p_k|',
       mce: 'the largest |observed_k - mean p_k| over non-empty bins',
-      murphy: 'Brier = REL - RES + UNC + WBV - WBC (Stephenson, Coelho and Jolliffe 2008): REL = sum n_k (mean p_k - observed_k)^2 / N, RES = sum n_k (observed_k - base rate)^2 / N, UNC = base rate (1 - base rate), WBV = sum (p - mean p_k)^2 / N, WBC = 2 sum (y - observed_k)(p - mean p_k) / N; closure = Brier - that sum (0 up to rounding)',
+      murphy: 'Brier = REL - RES + UNC + WBV - WBC (Stephenson, Coelho and Jolliffe 2008, eq. 7): REL = sum n_k (mean p_k - observed_k)^2 / N, RES = sum n_k (observed_k - base rate)^2 / N, UNC = base rate (1 - base rate), WBV = sum (p - mean p_k)^2 / N, WBC = 2 sum (y - observed_k)(p - mean p_k) / N (the fifth term of their eq. 7, so twice the pooled within-bin covariance); closure = Brier - that sum (0 up to rounding)',
       logLoss: `engines/dataai/ml.js logLoss: ${ll.basis.formula}; ${ll.basis.clipping}`,
     },
   };

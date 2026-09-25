@@ -319,6 +319,18 @@ describe('agreement and calibration: properties', () => {
     const rel = r.table.filter((t) => t.n).reduce((s, t) => s + t.n * t.gap * t.gap, 0) / r.n;
     expect(r.murphy.reliability).toBeCloseTo(rel, 15);
   });
+  test('WBC is the fifth term of Stephenson, Coelho and Jolliffe (2008) eq. (7), so it carries the factor 2', () => {
+    // one bin, y = [0, 1], p = [0.1, 0.3]: mean p 0.2, observed 0.5.
+    // sum (y - o)(p - pbar) = (-0.5)(-0.1) + (0.5)(0.1) = 0.1; eq. (7) term = 2 x 0.1 / 2 = 0.1.
+    // Brier 0.25 = REL 0.09 - RES 0 + UNC 0.25 + WBV 0.01 - WBC 0.1.
+    const r = EV.calibration({ yTrue: [0, 1], probabilities: [0.1, 0.3], bins: 1 });
+    expect(r.brier).toBeCloseTo(0.25, 15);
+    expect(r.murphy.reliability).toBeCloseTo(0.09, 15);
+    expect(r.murphy.resolution).toBe(0);
+    expect(r.murphy.uncertainty).toBe(0.25);
+    expect(r.murphy.withinBinVariance).toBeCloseTo(0.01, 15);
+    expect(r.murphy.withinBinCovariance).toBeCloseTo(0.1, 15);
+  });
   test('log loss is ml.js logLoss, imported, and the engine has no second implementation', () => {
     const y = CAL.rows.map((r) => r.relevant); const p = CAL.rows.map((r) => r.probability);
     expect(EV.calibration({ yTrue: y, probabilities: p }).logLoss).toBe(logLoss({ yTrue: y, probabilities: p }).logLoss);
@@ -375,6 +387,9 @@ describe('basis text: conventions the goldens do not carry', () => {
   });
   test('calibration bins state the edge rule', () => {
     expect(call(byId('cal-ekene-10')).basis.bins).toBe('10 equal-width bins: p is in bin i when i/10 <= p < (i+1)/10 (edges as computed in double precision), the last bin closed at 1; an empty bin has null means and is skipped');
+  });
+  test('the Murphy basis cites eq. (7) and states that WBC carries the factor 2', () => {
+    expect(call(byId('cal-ekene-10')).basis.murphy).toBe('Brier = REL - RES + UNC + WBV - WBC (Stephenson, Coelho and Jolliffe 2008, eq. 7): REL = sum n_k (mean p_k - observed_k)^2 / N, RES = sum n_k (observed_k - base rate)^2 / N, UNC = base rate (1 - base rate), WBV = sum (p - mean p_k)^2 / N, WBC = 2 sum (y - observed_k)(p - mean p_k) / N (the fifth term of their eq. 7, so twice the pooled within-bin covariance); closure = Brier - that sum (0 up to rounding)');
   });
   test('the no-relevant rule is stated for both modes', () => {
     expect(call(byId('eval-A-k5')).basis.noRelevant).toBe('a query with no judged document at grade 1 or more is excluded from every mean and listed in excluded');

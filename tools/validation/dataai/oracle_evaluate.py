@@ -320,7 +320,12 @@ def metrics(ranking, judg, k, t, gain):
         notes['recall'] = f'recall is undefined: {why}'
         notes['averagePrecision'] = f'average precision is undefined: {why}'
     if idcg == 0:
-        notes['ndcg'] = 'nDCG is undefined: every judged grade is 0, so the ideal DCG is 0'
+        if not grades:
+            notes['ndcg'] = 'nDCG is undefined: the query has no judged documents, so the ideal DCG is 0'
+        elif len(grades) == 1:
+            notes['ndcg'] = 'nDCG is undefined: the 1 judged document has grade 0, so the ideal DCG is 0'
+        else:
+            notes['ndcg'] = f'nDCG is undefined: the {len(grades)} judged documents all have grade 0, so the ideal DCG is 0'
     return {
         'k': k, 'nJudged': len(grades), 'nRelevant': n_rel, 'retrieved': len(top), 'relevantRetrieved': hits,
         'unjudgedRetrieved': unj,
@@ -652,6 +657,9 @@ def calibration(y, p, M, eps=1e-15):
     S = res / N
     U = obar * (1 - obar)
     V = wbv / N
+    # WBC as Stephenson, Coelho and Jolliffe (2008) name it: the fifth term of
+    # their eq. (7), -(2/n) sum_k sum_j (o_kj - o_k)(f_kj - f_k), then
+    # BS = REL - RES + UNC + WBV - WBC. The factor 2 belongs to WBC.
     C = 2 * wbc / N
     total = R - S + U + V - C
     assert total == brier, 'Murphy + within-bin identity must close exactly'
@@ -1247,9 +1255,9 @@ def build():
     M_('met-grade2', ['c', 'a', 'x', 'b', 'd'], J, k=5, relevantGrade=2)
     M_('met-exponential', ['c', 'a', 'x', 'b', 'd'], J, k=5, gain='exponential')
     M_('met-k-cut', ['c', 'x', 'y', 'a', 'b'], J, k=3, note='the relevant documents sit below the cutoff: RR 0')
-    M_('met-no-relevant', ['a', 'b'], {'a': 0, 'b': 0}, k=2, note='every judged grade is 0: recall, AP and nDCG undefined')
+    M_('met-no-relevant', ['a', 'b'], {'a': 0, 'b': 0}, k=2, note='both judged documents have grade 0: recall, AP and nDCG undefined')
     M_('met-grade1-only-t2', ['a', 'b'], {'a': 1, 'b': 0}, k=2, relevantGrade=2, note='no grade 2 or more, but a grade 1 gives nDCG a value')
-    M_('met-empty-judgments', ['a'], {}, k=1)
+    M_('met-empty-judgments', ['a'], {}, k=1, note='no judged documents: the ideal DCG is 0 because there is nothing to rank')
     Rm = lambda cid, args, field, msg: c.refuse(cid, 'retrievalMetrics', args, field, msg)
     Rm('met-ranking-dup', {'ranking': ['a', 'b', 'a'], 'judgments': J}, 'ranking[2]', 'ranking[2] repeats a (ranking[0]): a document is ranked once')
     Rm('met-ranking-not-array', {'ranking': 'a', 'judgments': J}, 'ranking', 'ranking must be an array of document ids, best first')
@@ -1285,6 +1293,8 @@ def build():
     for text in ('The Ekene-3 well!', '  A  well   test, the 12.4 ppg mud. ', 'An anticline', '45.0 percent', 'the', ''):
         c.add(f'norm-{len(c.cases)}', 'normalizeAnswer', {'text': text}, o_normalize(text))
     c.refuse('norm-text-null', 'normalizeAnswer', {'text': None}, 'text', 'text must be a string')
+    # added after the norm-<count> cases so their ids stay stable
+    M_('met-one-judged-zero', ['a', 'b'], {'a': 0}, k=2, note='one judged document, grade 0: nDCG undefined')
     refs = {q['id']: q['reference'] for q in Qs}
     for sid in ('A', 'B'):
         for a in systems[sid]['answers']:
