@@ -38407,6 +38407,75 @@
    "note": "quotes match by tokens: case and punctuation do not matter"
   },
   {
+   "id": "ground-small-partial-token-quote",
+   "fn": "checkGroundedness",
+   "args": {
+    "answer": "The note says \"il rate fel\" and \"rate 120 bopd\".",
+    "citations": [
+     "d1"
+    ],
+    "documents": [
+     {
+      "id": "d1",
+      "text": "Oil rate 120 bopd at Ekene-1. Oil rate fell."
+     },
+     {
+      "id": "d2",
+      "text": "Water injection at Ekene-2 started on 2023-01-01."
+     },
+     {
+      "id": "d3",
+      "text": "Oil and water rates were tested; the oil rate was 150 bopd."
+     },
+     {
+      "id": "d4",
+      "text": "Pressure survey: 2,096 psia."
+     },
+     {
+      "id": "d5",
+      "text": ""
+     }
+    ],
+    "retrieved": [
+     "d1"
+    ]
+   },
+   "expected": {
+    "claims": [
+     {
+      "kind": "quote",
+      "text": "il rate fel",
+      "value": "il rate fel",
+      "supported": false,
+      "foundIn": [],
+      "reason": "the quote \"il rate fel\" is not in the cited passage d1; it appears in no passage of the corpus"
+     },
+     {
+      "kind": "quote",
+      "text": "rate 120 bopd",
+      "value": "rate 120 bopd",
+      "supported": true,
+      "foundIn": [
+       "d1"
+      ]
+     }
+    ],
+    "nClaims": 2,
+    "nSupported": 1,
+    "supportedFraction": 0.5,
+    "citations": [
+     {
+      "id": "d1",
+      "status": "ok"
+     }
+    ],
+    "flags": [],
+    "numericRelTol": 0
+   },
+   "tol": 1e-10,
+   "note": "a quote matches whole tokens: \"il rate fel\" is not in \"oil rate fell\""
+  },
+  {
    "id": "ground-small-unbalanced-quote",
    "fn": "checkGroundedness",
    "args": {
@@ -46808,6 +46877,72 @@
    },
    "tol": 1e-10,
    "note": "a label nobody used still sets the weight positions"
+  },
+  {
+   "id": "kappa-numeric-sort",
+   "fn": "cohenKappa",
+   "args": {
+    "a": [
+     2,
+     10,
+     10,
+     2,
+     5,
+     5
+    ],
+    "b": [
+     2,
+     10,
+     5,
+     5,
+     5,
+     10
+    ],
+    "weights": "quadratic"
+   },
+   "expected": {
+    "n": 6,
+    "labels": [
+     2,
+     5,
+     10
+    ],
+    "weights": "quadratic",
+    "confusion": [
+     [
+      1,
+      1,
+      0
+     ],
+     [
+      0,
+      1,
+      1
+     ],
+     [
+      0,
+      1,
+      1
+     ]
+    ],
+    "rowTotals": [
+     2,
+     2,
+     2
+    ],
+    "columnTotals": [
+     1,
+     3,
+     2
+    ],
+    "observedAgreement": 0.5,
+    "expectedAgreement": 0.3333333333333333,
+    "observedDisagreement": 0.5,
+    "expectedDisagreement": 1.1666666666666667,
+    "kappa": 0.5714285714285714
+   },
+   "tol": 1e-10,
+   "note": "labels sorted as numbers: 2, 5, 10 (as strings 10 would come first)"
   },
   {
    "id": "kappa-negative",

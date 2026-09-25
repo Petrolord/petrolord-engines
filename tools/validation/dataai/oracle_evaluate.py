@@ -1320,6 +1320,7 @@ def build():
     G('ground-small-identifiers', 'EK1-P, Ekene-4, P01 and x/2 are identifiers; 2023-01-01x is not a date; 120.', ['d1'], SMALL, retrieved=['d1'],
       note='numbers glued to letters or joined by - _ / to an alphanumeric are identifiers; a date touching a letter is read as numbers')
     G('ground-small-curly-quote', 'The note says “oil rate fell” and "Oil Rate 120".', ['d1'], SMALL, retrieved=['d1'], note='quotes match by tokens: case and punctuation do not matter')
+    G('ground-small-partial-token-quote', 'The note says "il rate fel" and "rate 120 bopd".', ['d1'], SMALL, retrieved=['d1'], note='a quote matches whole tokens: "il rate fel" is not in "oil rate fell"')
     G('ground-small-unbalanced-quote', 'He wrote "oil rate and 120 bopd.', ['d1'], SMALL, retrieved=['d1'], note='an unclosed quote is plain text')
     G('ground-small-thousands', '12,1234 and 1,234,567.5 and 0.50', ['d1'], SMALL, retrieved=['d1'], note='a comma group needs exactly three digits: 12,1234 reads as 12 and 1234; 0.50 prints its value 0.5')
     G('ground-small-reltol', 'About 2,100 psia.', ['d4'], SMALL, retrieved=['d4'], numericRelTol=0.002, note='|2100 - 2096| = 4 <= 0.002 x 2096 = 4.192')
@@ -1366,6 +1367,7 @@ def build():
     K('kappa-perfect', [0, 1, 2, 2, 1], [0, 1, 2, 2, 1], note='identical ratings: kappa 1')
     K('kappa-undefined', [2, 2, 2], [2, 2, 2], note='one shared label: expected disagreement 0')
     K('kappa-unused-label', [0, 1, 1, 0], [0, 1, 0, 0], labels=[0, 1, 2], weights='quadratic', note='a label nobody used still sets the weight positions')
+    K('kappa-numeric-sort', [2, 10, 10, 2, 5, 5], [2, 10, 5, 5, 5, 10], weights='quadratic', note='labels sorted as numbers: 2, 5, 10 (as strings 10 would come first)')
     K('kappa-negative', [0, 1, 0, 1], [1, 0, 1, 0], note='systematic disagreement: kappa -1')
     Rk = lambda cid, args, field, msg: c.refuse(cid, 'cohenKappa', args, field, msg)
     Rk('kappa-a-empty', {'a': [], 'b': []}, 'a', 'a must be a non-empty array of ratings')
