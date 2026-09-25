@@ -1,0 +1,596 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (Petrolord, fictional block EK-11). No real company, person, well or incident.",
+ "generatedBy": "tools/validation/dataai/make_evaluate_fixtures.py",
+ "grades": {
+  "3": "answers the query",
+  "2": "relevant",
+  "1": "related",
+  "0": "judged not relevant"
+ },
+ "pooling": "every passage in the top 5 of either system (BM25 and TF-IDF, default settings) is judged, plus passages the assessor added; unjudged passages count as grade 0",
+ "secondAnnotator": "an independent second grading of every judged pair, for Cohen kappa (drawn: the primary grade moved one grade with probability 0.25 and two grades with probability 0.05, random.Random(20260925))",
+ "queries": [
+  {
+   "id": "Q01",
+   "text": "What was the reservoir pressure when the waterflood started?",
+   "reference": "2,096 psia",
+   "judgments": {
+    "EKD-002": 0,
+    "EKD-004": 0,
+    "EKD-013": 1,
+    "EKD-014": 1,
+    "EKD-016": 1,
+    "EKD-017": 1,
+    "EKD-018": 3,
+    "EKD-019": 1,
+    "EKD-023": 1,
+    "EKD-034": 1
+   },
+   "secondAnnotator": {
+    "EKD-002": 0,
+    "EKD-004": 1,
+    "EKD-013": 1,
+    "EKD-014": 1,
+    "EKD-016": 1,
+    "EKD-017": 1,
+    "EKD-018": 3,
+    "EKD-019": 1,
+    "EKD-023": 1,
+    "EKD-034": 1
+   }
+  },
+  {
+   "id": "Q02",
+   "text": "initial oil rate of Ekene-3",
+   "reference": "150 bopd",
+   "judgments": {
+    "EKD-001": 0,
+    "EKD-003": 3,
+    "EKD-008": 0,
+    "EKD-010": 0,
+    "EKD-013": 0,
+    "EKD-021": 1,
+    "EKD-027": 1,
+    "EKD-032": 1,
+    "EKD-039": 0,
+    "EKD-041": 0,
+    "EKD-043": 0,
+    "EKD-059": 1
+   },
+   "secondAnnotator": {
+    "EKD-001": 1,
+    "EKD-003": 1,
+    "EKD-008": 0,
+    "EKD-010": 0,
+    "EKD-013": 0,
+    "EKD-021": 1,
+    "EKD-027": 0,
+    "EKD-032": 3,
+    "EKD-039": 0,
+    "EKD-041": 0,
+    "EKD-043": 0,
+    "EKD-059": 1
+   }
+  },
+  {
+   "id": "Q03",
+   "text": "Which wells were converted to water injectors?",
+   "reference": "Ekene-2 and Ekene-4",
+   "judgments": {
+    "EKD-002": 3,
+    "EKD-004": 3,
+    "EKD-026": 0,
+    "EKD-034": 2,
+    "EKD-035": 1,
+    "EKD-036": 1,
+    "EKD-044": 0,
+    "EKD-047": 0,
+    "EKD-054": 1
+   },
+   "secondAnnotator": {
+    "EKD-002": 2,
+    "EKD-004": 2,
+    "EKD-026": 0,
+    "EKD-034": 2,
+    "EKD-035": 1,
+    "EKD-036": 1,
+    "EKD-044": 0,
+    "EKD-047": 2,
+    "EKD-054": 1
+   }
+  },
+  {
+   "id": "Q04",
+   "text": "bubble point pressure of the Ekene oil",
+   "reference": "2000 psia",
+   "judgments": {
+    "EKD-010": 3,
+    "EKD-011": 2,
+    "EKD-012": 0,
+    "EKD-018": 2,
+    "EKD-020": 1,
+    "EKD-057": 0
+   },
+   "secondAnnotator": {
+    "EKD-010": 3,
+    "EKD-011": 2,
+    "EKD-012": 1,
+    "EKD-018": 2,
+    "EKD-020": 1,
+    "EKD-057": 0
+   }
+  },
+  {
+   "id": "Q05",
+   "text": "When did water break through at Ekene-6?",
+   "reference": "2024-03-01",
+   "judgments": {
+    "EKD-024": 0,
+    "EKD-026": 3,
+    "EKD-027": 1,
+    "EKD-029": 1,
+    "EKD-030": 1,
+    "EKD-032": 0,
+    "EKD-055": 2
+   },
+   "secondAnnotator": {
+    "EKD-024": 0,
+    "EKD-026": 3,
+    "EKD-027": 1,
+    "EKD-029": 1,
+    "EKD-030": 1,
+    "EKD-032": 0,
+    "EKD-055": 2
+   }
+  },
+  {
+   "id": "Q06",
+   "text": "depth of the oil-water contact",
+   "reference": "1560 m TVD",
+   "judgments": {
+    "EKD-001": 2,
+    "EKD-002": 2,
+    "EKD-003": 1,
+    "EKD-004": 2,
+    "EKD-005": 1,
+    "EKD-006": 1,
+    "EKD-007": 3,
+    "EKD-013": 1
+   },
+   "secondAnnotator": {
+    "EKD-001": 0,
+    "EKD-002": 0,
+    "EKD-003": 1,
+    "EKD-004": 2,
+    "EKD-005": 1,
+    "EKD-006": 1,
+    "EKD-007": 1,
+    "EKD-013": 2
+   }
+  },
+  {
+   "id": "Q07",
+   "text": "volumetric STOIIP estimate for the Ekene Sand",
+   "reference": "12,139,208 stb",
+   "judgments": {
+    "EKD-001": 0,
+    "EKD-002": 0,
+    "EKD-004": 0,
+    "EKD-007": 1,
+    "EKD-008": 3,
+    "EKD-009": 0,
+    "EKD-057": 0
+   },
+   "secondAnnotator": {
+    "EKD-001": 0,
+    "EKD-002": 0,
+    "EKD-004": 0,
+    "EKD-007": 1,
+    "EKD-008": 2,
+    "EKD-009": 0,
+    "EKD-057": 0
+   }
+  },
+  {
+   "id": "Q08",
+   "text": "Ekene-4 injectivity decline and Hall plot",
+   "reference": "from 0.5 to 0.35 bbl/d/psi",
+   "judgments": {
+    "EKD-022": 0,
+    "EKD-023": 0,
+    "EKD-033": 0,
+    "EKD-034": 1,
+    "EKD-035": 1,
+    "EKD-036": 3,
+    "EKD-041": 0,
+    "EKD-054": 2,
+    "EKD-059": 0,
+    "EKD-060": 0
+   },
+   "secondAnnotator": {
+    "EKD-022": 0,
+    "EKD-023": 1,
+    "EKD-033": 0,
+    "EKD-034": 1,
+    "EKD-035": 1,
+    "EKD-036": 3,
+    "EKD-041": 0,
+    "EKD-054": 2,
+    "EKD-059": 0,
+    "EKD-060": 0
+   }
+  },
+  {
+   "id": "Q09",
+   "text": "dropped object near miss on the drill floor",
+   "reference": "a 2 kg wrench",
+   "judgments": {
+    "EKD-001": 0,
+    "EKD-019": 0,
+    "EKD-033": 0,
+    "EKD-044": 3,
+    "EKD-045": 0,
+    "EKD-047": 0,
+    "EKD-051": 0
+   },
+   "secondAnnotator": {
+    "EKD-001": 0,
+    "EKD-019": 0,
+    "EKD-033": 2,
+    "EKD-044": 3,
+    "EKD-045": 0,
+    "EKD-047": 0,
+    "EKD-051": 0
+   }
+  },
+  {
+   "id": "Q10",
+   "text": "diesel spill during bunkering",
+   "reference": "0.5 bbl",
+   "judgments": {
+    "EKD-046": 3,
+    "EKD-050": 0,
+    "EKD-058": 3
+   },
+   "secondAnnotator": {
+    "EKD-046": 2,
+    "EKD-050": 0,
+    "EKD-058": 3
+   }
+  },
+  {
+   "id": "Q11",
+   "text": "mud weight used to drill the Ekene Sand",
+   "reference": "12.4 ppg",
+   "judgments": {
+    "EKD-002": 0,
+    "EKD-004": 0,
+    "EKD-038": 2,
+    "EKD-039": 1,
+    "EKD-040": 2,
+    "EKD-041": 3,
+    "EKD-043": 1,
+    "EKD-044": 0,
+    "EKD-045": 0
+   },
+   "secondAnnotator": {
+    "EKD-002": 1,
+    "EKD-004": 0,
+    "EKD-038": 2,
+    "EKD-039": 1,
+    "EKD-040": 2,
+    "EKD-041": 3,
+    "EKD-043": 1,
+    "EKD-044": 1,
+    "EKD-045": 0
+   }
+  },
+  {
+   "id": "Q12",
+   "text": "setting depth of the 9.625 in casing shoe",
+   "reference": "1800 m MD",
+   "judgments": {
+    "EKD-021": 0,
+    "EKD-037": 0,
+    "EKD-038": 3,
+    "EKD-039": 1,
+    "EKD-042": 1,
+    "EKD-043": 0
+   },
+   "secondAnnotator": {
+    "EKD-021": 2,
+    "EKD-037": 0,
+    "EKD-038": 3,
+    "EKD-039": 1,
+    "EKD-042": 1,
+    "EKD-043": 1
+   }
+  },
+  {
+   "id": "Q13",
+   "text": "Ekene-6 water cut at the end of 2025",
+   "reference": "45.0 percent",
+   "judgments": {
+    "EKD-006": 0,
+    "EKD-026": 1,
+    "EKD-027": 1,
+    "EKD-028": 1,
+    "EKD-029": 1,
+    "EKD-030": 3,
+    "EKD-037": 0
+   },
+   "secondAnnotator": {
+    "EKD-006": 0,
+    "EKD-026": 1,
+    "EKD-027": 1,
+    "EKD-028": 1,
+    "EKD-029": 0,
+    "EKD-030": 2,
+    "EKD-037": 0
+   }
+  },
+  {
+   "id": "Q14",
+   "text": "Is Ekene-5 producing water?",
+   "reference": "water free",
+   "judgments": {
+    "EKD-007": 0,
+    "EKD-012": 0,
+    "EKD-020": 0,
+    "EKD-027": 0,
+    "EKD-028": 2,
+    "EKD-030": 2,
+    "EKD-031": 3,
+    "EKD-033": 0,
+    "EKD-042": 0,
+    "EKD-057": 0
+   },
+   "secondAnnotator": {
+    "EKD-007": 1,
+    "EKD-012": 0,
+    "EKD-020": 2,
+    "EKD-027": 0,
+    "EKD-028": 2,
+    "EKD-030": 2,
+    "EKD-031": 2,
+    "EKD-033": 0,
+    "EKD-042": 1,
+    "EKD-057": 1
+   }
+  },
+  {
+   "id": "Q15",
+   "text": "decline curve parameters for Ekene-1",
+   "reference": "exponential, Di 0.0012 per day",
+   "judgments": {
+    "EKD-011": 0,
+    "EKD-020": 1,
+    "EKD-022": 0,
+    "EKD-028": 0,
+    "EKD-033": 0,
+    "EKD-056": 0,
+    "EKD-059": 3,
+    "EKD-060": 1
+   },
+   "secondAnnotator": {
+    "EKD-011": 0,
+    "EKD-020": 1,
+    "EKD-022": 0,
+    "EKD-028": 1,
+    "EKD-033": 0,
+    "EKD-056": 0,
+    "EKD-059": 3,
+    "EKD-060": 1
+   }
+  },
+  {
+   "id": "Q16",
+   "text": "EUR of each producer at the economic limit",
+   "reference": "Ekene-1 91,667 stb, Ekene-3 111,270 stb, Ekene-5 153,506 stb, Ekene-6 105,267 stb",
+   "judgments": {
+    "EKD-001": 0,
+    "EKD-003": 0,
+    "EKD-005": 0,
+    "EKD-006": 0,
+    "EKD-059": 1,
+    "EKD-060": 3
+   },
+   "secondAnnotator": {
+    "EKD-001": 1,
+    "EKD-003": 0,
+    "EKD-005": 0,
+    "EKD-006": 1,
+    "EKD-059": 2,
+    "EKD-060": 2
+   }
+  },
+  {
+   "id": "Q17",
+   "text": "oil viscosity at initial reservoir pressure",
+   "reference": "2.05 cp",
+   "judgments": {
+    "EKD-010": 3,
+    "EKD-011": 0,
+    "EKD-013": 0,
+    "EKD-014": 0,
+    "EKD-015": 0,
+    "EKD-016": 0,
+    "EKD-017": 0,
+    "EKD-057": 1
+   },
+   "secondAnnotator": {
+    "EKD-010": 3,
+    "EKD-011": 0,
+    "EKD-013": 0,
+    "EKD-014": 0,
+    "EKD-015": 0,
+    "EKD-016": 0,
+    "EKD-017": 0,
+    "EKD-057": 1
+   }
+  },
+  {
+   "id": "Q18",
+   "text": "voidage replacement ratio target for the flood",
+   "reference": "0.85 rising to 1.05",
+   "judgments": {
+    "EKD-009": 0,
+    "EKD-019": 2,
+    "EKD-024": 0,
+    "EKD-025": 0,
+    "EKD-031": 0,
+    "EKD-034": 1,
+    "EKD-037": 3,
+    "EKD-057": 0
+   },
+   "secondAnnotator": {
+    "EKD-009": 1,
+    "EKD-019": 2,
+    "EKD-024": 0,
+    "EKD-025": 0,
+    "EKD-031": 0,
+    "EKD-034": 1,
+    "EKD-037": 2,
+    "EKD-057": 0
+   }
+  },
+  {
+   "id": "Q19",
+   "text": "core plug permeability from Ekene-1",
+   "reference": "420 md",
+   "judgments": {
+    "EKD-011": 0,
+    "EKD-025": 0,
+    "EKD-028": 0,
+    "EKD-037": 0,
+    "EKD-042": 0,
+    "EKD-056": 3,
+    "EKD-057": 1
+   },
+   "secondAnnotator": {
+    "EKD-011": 0,
+    "EKD-025": 0,
+    "EKD-028": 0,
+    "EKD-037": 1,
+    "EKD-042": 0,
+    "EKD-056": 3,
+    "EKD-057": 0
+   }
+  },
+  {
+   "id": "Q20",
+   "text": "oil in water limit for produced water discharge",
+   "reference": "40 mg/l",
+   "judgments": {
+    "EKD-002": 0,
+    "EKD-026": 0,
+    "EKD-031": 0,
+    "EKD-045": 0,
+    "EKD-046": 1,
+    "EKD-052": 0,
+    "EKD-053": 3,
+    "EKD-055": 0,
+    "EKD-058": 1
+   },
+   "secondAnnotator": {
+    "EKD-002": 0,
+    "EKD-026": 1,
+    "EKD-031": 0,
+    "EKD-045": 0,
+    "EKD-046": 3,
+    "EKD-052": 0,
+    "EKD-053": 2,
+    "EKD-055": 1,
+    "EKD-058": 1
+   }
+  },
+  {
+   "id": "Q21",
+   "text": "lost circulation while drilling Ekene-4",
+   "reference": "15 bbl/hr at 1612 m MD",
+   "judgments": {
+    "EKD-004": 0,
+    "EKD-038": 1,
+    "EKD-040": 3,
+    "EKD-041": 0,
+    "EKD-043": 0,
+    "EKD-048": 0
+   },
+   "secondAnnotator": {
+    "EKD-004": 0,
+    "EKD-038": 1,
+    "EKD-040": 2,
+    "EKD-041": 0,
+    "EKD-043": 0,
+    "EKD-048": 0
+   }
+  },
+  {
+   "id": "Q22",
+   "text": "gas-water contact of the Oboro Sand",
+   "reference": "1935 m MD",
+   "judgments": {
+    "EKD-001": 0,
+    "EKD-002": 0,
+    "EKD-003": 0,
+    "EKD-004": 0,
+    "EKD-009": 3,
+    "EKD-045": 1
+   },
+   "secondAnnotator": {
+    "EKD-001": 1,
+    "EKD-002": 0,
+    "EKD-003": 1,
+    "EKD-004": 0,
+    "EKD-009": 3,
+    "EKD-045": 1
+   }
+  },
+  {
+   "id": "Q23",
+   "text": "H2S concentration in the produced gas",
+   "reference": "0 ppm",
+   "judgments": {
+    "EKD-009": 0,
+    "EKD-031": 0,
+    "EKD-041": 0,
+    "EKD-045": 3,
+    "EKD-052": 1,
+    "EKD-053": 0
+   },
+   "secondAnnotator": {
+    "EKD-009": 0,
+    "EKD-031": 1,
+    "EKD-041": 1,
+    "EKD-045": 2,
+    "EKD-052": 1,
+    "EKD-053": 1
+   }
+  },
+  {
+   "id": "Q24",
+   "text": "subsea tree replacement on Ekene-5",
+   "reference": "",
+   "judgments": {
+    "EKD-005": 0,
+    "EKD-019": 0,
+    "EKD-023": 0,
+    "EKD-028": 0,
+    "EKD-031": 0,
+    "EKD-033": 0,
+    "EKD-037": 0,
+    "EKD-043": 0
+   },
+   "secondAnnotator": {
+    "EKD-005": 0,
+    "EKD-019": 0,
+    "EKD-023": 1,
+    "EKD-028": 0,
+    "EKD-031": 0,
+    "EKD-033": 2,
+    "EKD-037": 1,
+    "EKD-043": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,487 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (Petrolord, fictional block EK-11). No real company, person, well or incident.",
+ "generatedBy": "tools/validation/dataai/make_evaluate_fixtures.py",
+ "description": "Short Ekene field documents: end of well summaries, geology, PVT, pressure surveys, production and injection notes, daily drilling reports, HSE and facilities notes, core and decline notes. EKD-058 is an exact copy of EKD-046 (a shift handover copy), so rankings tie on it. The engine indexes `text` only.",
+ "passages": [
+  {
+   "id": "EKD-001",
+   "type": "well_report",
+   "well": "Ekene-1",
+   "date": "2020-01-01",
+   "title": "Ekene-1 end of well summary",
+   "text": "Ekene-1 end of well summary. Top of the Ekene Sand at 1548 m TVD and base at 1580 m TVD, 32 m of gross sand, with the top above the 1560 m TVD oil-water contact. The well was completed as an oil producer and came on stream on 2020-01-01 at 120 bopd."
+  },
+  {
+   "id": "EKD-002",
+   "type": "well_report",
+   "well": "Ekene-2",
+   "date": "2023-01-01",
+   "title": "Ekene-2 end of well summary",
+   "text": "Ekene-2 end of well summary. Top of the Ekene Sand at 1565 m TVD and base at 1601 m TVD. The sand was found below the 1560 m TVD oil-water contact and is water bearing, so the well was suspended. It was converted to a water injector for the waterflood that started on 2023-01-01."
+  },
+  {
+   "id": "EKD-003",
+   "type": "well_report",
+   "well": "Ekene-3",
+   "date": "2020-03-01",
+   "title": "Ekene-3 end of well summary",
+   "text": "Ekene-3 end of well summary. Top of the Ekene Sand at 1541 m TVD and base at 1570 m TVD, 29 m of gross sand, with the top above the 1560 m TVD oil-water contact. The well was completed as an oil producer and came on stream on 2020-03-01 at 150 bopd."
+  },
+  {
+   "id": "EKD-004",
+   "type": "well_report",
+   "well": "Ekene-4",
+   "date": "2023-01-01",
+   "title": "Ekene-4 end of well summary",
+   "text": "Ekene-4 end of well summary. Top of the Ekene Sand at 1590 m TVD and base at 1615 m TVD. The sand was found below the 1560 m TVD oil-water contact and is water bearing, so the well was suspended. It was converted to a water injector for the waterflood that started on 2023-01-01."
+  },
+  {
+   "id": "EKD-005",
+   "type": "well_report",
+   "well": "Ekene-5",
+   "date": "2020-06-01",
+   "title": "Ekene-5 end of well summary",
+   "text": "Ekene-5 end of well summary. Top of the Ekene Sand at 1552 m TVD and base at 1583 m TVD, 31 m of gross sand, with the top above the 1560 m TVD oil-water contact. The well was completed as an oil producer and came on stream on 2020-06-01 at 100 bopd."
+  },
+  {
+   "id": "EKD-006",
+   "type": "well_report",
+   "well": "Ekene-6",
+   "date": "2020-09-01",
+   "title": "Ekene-6 end of well summary",
+   "text": "Ekene-6 end of well summary. Top of the Ekene Sand at 1546 m TVD and base at 1580 m TVD, 34 m of gross sand, with the top above the 1560 m TVD oil-water contact. The well was completed as an oil producer and came on stream on 2020-09-01 at 90 bopd."
+  },
+  {
+   "id": "EKD-007",
+   "type": "geology_note",
+   "well": null,
+   "date": null,
+   "title": "Ekene Sand structure",
+   "text": "The Ekene Sand is a drape anticline over a deeper growth structure. The mapped oil-water contact is 1560 m TVD and the maximum oil column is 20.3 m. The Ekene Growth Fault dies out just below the sand base, so the base-case tank is unfaulted and the sealing-fault case is a what-if only."
+  },
+  {
+   "id": "EKD-008",
+   "type": "geology_note",
+   "well": null,
+   "date": null,
+   "title": "Ekene volumetrics",
+   "text": "Volumetric STOIIP for the Ekene Sand is 12,139,208 stb, from net to gross 0.8, porosity 0.2, initial water saturation 0.35 and Boi 1.2 rb/stb over 169 oil cells of 100 m. Material balance on the primary history returns the same 12,139,208 stb."
+  },
+  {
+   "id": "EKD-009",
+   "type": "geology_note",
+   "well": "Ekene-1",
+   "date": null,
+   "title": "Stratigraphy at Ekene-1",
+   "text": "Stratigraphic tops at Ekene-1 in m MD below KB: Benin Formation 350, Agbada Formation 1150, Ogbia Shale 1290, Ekene Sand 1548, Oboro Unconformity 1790, Oboro Sand 1845 and Akata Formation 2080. The Oboro Sand is the deeper gas target, with a gas-water contact at 1935 m MD at Ekene-1."
+  },
+  {
+   "id": "EKD-010",
+   "type": "pvt_report",
+   "well": null,
+   "date": null,
+   "title": "Ekene PVT summary",
+   "text": "Ekene reservoir fluid summary. Stock tank oil gravity 32 API, reservoir temperature 180 F, bubble point 2000 psia and solution gas oil ratio 400 scf/stb. Boi is 1.2 rb/stb at the initial pressure of 3200 psia, where the oil viscosity is 2.05 cp."
+  },
+  {
+   "id": "EKD-011",
+   "type": "pvt_report",
+   "well": null,
+   "date": null,
+   "title": "Ekene differential liberation table",
+   "text": "Laboratory oil formation volume factor: 1.19712 rb/stb at 3400 psia, 1.2 at 3200 psia, 1.20432 at 2900 psia, 1.20864 at 2600 psia and 1.21728 at 2000 psia, the bubble point. The solution gas oil ratio stays at 400 scf/stb above the bubble point."
+  },
+  {
+   "id": "EKD-012",
+   "type": "pvt_report",
+   "well": null,
+   "date": null,
+   "title": "Compressibility and water properties",
+   "text": "Compressibilities used for material balance: oil 0.000012 per psi, formation 0.000004 per psi and water 0.000003 per psi. Formation water salinity is 35,000 ppm and Bw is 1.02 rb/stb. Associated gas gravity is 0.75."
+  },
+  {
+   "id": "EKD-013",
+   "type": "pressure_survey",
+   "well": null,
+   "date": "2020-07-01",
+   "title": "Static pressure survey 2020-07-01",
+   "text": "Static pressure survey on 2020-07-01: average reservoir pressure 3,038 psia at the 1560 m TVD datum, down from 3200 psia initial. Cumulative field oil at the survey was 38,864 stb."
+  },
+  {
+   "id": "EKD-014",
+   "type": "pressure_survey",
+   "well": null,
+   "date": "2021-01-01",
+   "title": "Static pressure survey 2021-01-01",
+   "text": "Static pressure survey on 2021-01-01: average reservoir pressure 2,783 psia at the 1560 m TVD datum, down from 3200 psia initial. Cumulative field oil at the survey was 99,595 stb."
+  },
+  {
+   "id": "EKD-015",
+   "type": "pressure_survey",
+   "well": null,
+   "date": "2021-07-01",
+   "title": "Static pressure survey 2021-07-01",
+   "text": "Static pressure survey on 2021-07-01: average reservoir pressure 2,562 psia at the 1560 m TVD datum, down from 3200 psia initial. Cumulative field oil at the survey was 151,912 stb."
+  },
+  {
+   "id": "EKD-016",
+   "type": "pressure_survey",
+   "well": null,
+   "date": "2022-01-01",
+   "title": "Static pressure survey 2022-01-01",
+   "text": "Static pressure survey on 2022-01-01: average reservoir pressure 2,378 psia at the 1560 m TVD datum, down from 3200 psia initial. Cumulative field oil at the survey was 195,408 stb."
+  },
+  {
+   "id": "EKD-017",
+   "type": "pressure_survey",
+   "well": null,
+   "date": "2022-07-01",
+   "title": "Static pressure survey 2022-07-01",
+   "text": "Static pressure survey on 2022-07-01: average reservoir pressure 2,226 psia at the 1560 m TVD datum, down from 3200 psia initial. Cumulative field oil at the survey was 230,985 stb."
+  },
+  {
+   "id": "EKD-018",
+   "type": "pressure_survey",
+   "well": null,
+   "date": "2023-01-01",
+   "title": "Static pressure survey 2023-01-01",
+   "text": "Static pressure survey on 2023-01-01: average reservoir pressure 2,096 psia at the datum, close to the 2000 psia bubble point, with cumulative field oil of 261,475 stb. The waterflood started the same day to hold pressure above the bubble point."
+  },
+  {
+   "id": "EKD-019",
+   "type": "pressure_survey",
+   "well": null,
+   "date": "2025-08-01",
+   "title": "Flood pressure surveys",
+   "text": "Pressure surveys under the flood: 2,098 psia on 2024-02-01 and 2,119 psia on 2025-08-01. Pressure is recovering slowly with the voidage replacement ratio held at 1.05."
+  },
+  {
+   "id": "EKD-020",
+   "type": "production_note",
+   "well": "Ekene-1",
+   "date": "2020-04-01",
+   "title": "Ekene-1 production note 2020-04-01",
+   "text": "Morning report 2020-04-01. Ekene-1 flowing at 107.6 bopd with no water. Producing GOR steady at 400 scf/stb, as expected above the bubble point."
+  },
+  {
+   "id": "EKD-021",
+   "type": "production_note",
+   "well": null,
+   "date": "2021-01-01",
+   "title": "Field production 2021-01-01",
+   "text": "Field morning report 2021-01-01. Ekene-1 77.3 bopd, Ekene-3 87.9 bopd, Ekene-5 75.7 bopd and Ekene-6 79.9 bopd. All four producers are water free and declining as expected under primary depletion."
+  },
+  {
+   "id": "EKD-022",
+   "type": "production_note",
+   "well": "Ekene-6",
+   "date": "2022-10-01",
+   "title": "Ekene-6 production note 2022-10-01",
+   "text": "Ekene-6 production 2022-10-01: 45.9 bopd, water free. Decline continues on trend. The well will be watched for response once injection starts at Ekene-2 and Ekene-4."
+  },
+  {
+   "id": "EKD-023",
+   "type": "production_note",
+   "well": null,
+   "date": "2023-01-01",
+   "title": "Rates at flood start",
+   "text": "Rates on 2023-01-01, the first day of injection: Ekene-1 32.2 bopd, Ekene-3 36.2 bopd, Ekene-5 41.4 bopd and Ekene-6 42.7 bopd, no water."
+  },
+  {
+   "id": "EKD-024",
+   "type": "production_note",
+   "well": "Ekene-6",
+   "date": "2023-06-01",
+   "title": "Ekene-6 flood response",
+   "text": "Ekene-6 is the first producer to respond to injection: 47.7 bopd on 2023-06-01 against 42.7 bopd at flood start, about 3 months after injection began."
+  },
+  {
+   "id": "EKD-025",
+   "type": "production_note",
+   "well": "Ekene-1",
+   "date": "2023-10-01",
+   "title": "Ekene-1 flood response",
+   "text": "Ekene-1 responded to the flood 5 months after injection began. Rate on 2023-10-01 was 38.2 bopd, up from 32.2 bopd in June."
+  },
+  {
+   "id": "EKD-026",
+   "type": "production_note",
+   "well": "Ekene-6",
+   "date": "2024-03-01",
+   "title": "Ekene-6 water breakthrough",
+   "text": "Water breakthrough at Ekene-6 dated 2024-03-01, the first producer to see injected water. Oil rate 54.7 bopd. Water sampling started to confirm injection water chemistry."
+  },
+  {
+   "id": "EKD-027",
+   "type": "production_note",
+   "well": "Ekene-3",
+   "date": "2024-09-01",
+   "title": "Ekene-3 water breakthrough",
+   "text": "Water breakthrough at Ekene-3 dated 2024-09-01, with oil at 41.5 bopd. Ekene-6 water cut has reached 3.7 percent."
+  },
+  {
+   "id": "EKD-028",
+   "type": "production_note",
+   "well": null,
+   "date": "2025-01-01",
+   "title": "Field production 2025-01-01",
+   "text": "Field report 2025-01-01. Ekene-6 44.1 bopd with 5.0 bwpd, a water cut of 10.2 percent. Ekene-3 39.1 bopd with 0.7 bwpd. Ekene-1 35.9 bopd and Ekene-5 43.2 bopd, both water free."
+  },
+  {
+   "id": "EKD-029",
+   "type": "production_note",
+   "well": "Ekene-1",
+   "date": "2025-06-01",
+   "title": "Ekene-1 water breakthrough",
+   "text": "Water breakthrough at Ekene-1 dated 2025-06-01, the last of the three flooded producers. Oil 34.0 bopd. Ekene-6 water cut is now 23.0 percent."
+  },
+  {
+   "id": "EKD-030",
+   "type": "production_note",
+   "well": null,
+   "date": "2025-12-01",
+   "title": "Field production 2025-12-01",
+   "text": "Year end report 2025-12-01. Ekene-6 24.0 bopd at 45.0 percent water cut; Ekene-3 26.6 bopd at 25.0 percent; Ekene-1 29.4 bopd at 8.0 percent; Ekene-5 38.5 bopd, still water free."
+  },
+  {
+   "id": "EKD-031",
+   "type": "production_note",
+   "well": "Ekene-5",
+   "date": "2025-12-01",
+   "title": "Ekene-5 status",
+   "text": "Ekene-5 has produced no water to date. It responded late to the flood, about 9 months after injection began, and the oil rate on 2025-12-01 was 38.5 bopd."
+  },
+  {
+   "id": "EKD-032",
+   "type": "production_note",
+   "well": "Ekene-3",
+   "date": "2022-06-01",
+   "title": "Ekene-3 well test 2022-06-01",
+   "text": "Well test Ekene-3 on 2022-06-01: 45.2 bopd through the test separator over 12 hours, GOR 400 scf/stb, no water."
+  },
+  {
+   "id": "EKD-033",
+   "type": "production_note",
+   "well": "Ekene-5",
+   "date": "2021-06-01",
+   "title": "Ekene-5 well test 2021-06-01",
+   "text": "Well test Ekene-5 on 2021-06-01: 64.6 bopd over 12 hours, GOR 400 scf/stb, no water. The rate sits on the harmonic decline trend."
+  },
+  {
+   "id": "EKD-034",
+   "type": "injection_note",
+   "well": null,
+   "date": "2023-01-01",
+   "title": "Injection start-up",
+   "text": "Injection started on 2023-01-01. Ekene-2 took 92.7 bwpd at a wellhead pressure of 2,235 psi and Ekene-4 took 61.8 bwpd at 2,174 psi, a 60 to 40 split."
+  },
+  {
+   "id": "EKD-035",
+   "type": "injection_note",
+   "well": null,
+   "date": "2024-03-01",
+   "title": "Injection 2024-03-01",
+   "text": "Injection on 2024-03-01: Ekene-2 139.3 bwpd at 2,329 psi wellhead pressure and Ekene-4 92.8 bwpd at 2,236 psi."
+  },
+  {
+   "id": "EKD-036",
+   "type": "injection_note",
+   "well": "Ekene-4",
+   "date": "2025-01-01",
+   "title": "Ekene-4 injectivity decline",
+   "text": "Ekene-4 injectivity index fell from 0.5 to 0.35 bbl/d/psi from 2025-01-01, seen as a kink in the Hall plot slope. On 2025-01-01 it took 83.7 bwpd at 2,289 psi wellhead pressure."
+  },
+  {
+   "id": "EKD-037",
+   "type": "injection_note",
+   "well": null,
+   "date": "2025-12-01",
+   "title": "Voidage replacement",
+   "text": "Voidage replacement ratio target: 0.85 in the first month of injection, rising by 0.04 a month to 1.05 from the sixth month. Cumulative VRR at the end of 2025 is 1.035."
+  },
+  {
+   "id": "EKD-038",
+   "type": "drilling_report",
+   "well": "Ekene-6",
+   "date": "2020-07-18",
+   "title": "Ekene-6 daily drilling report",
+   "text": "Ekene-6 daily drilling report 2020-07-18. Drilled 12.25 in hole from 1450 m to 1800 m MD with 12.4 ppg mud. Ran and cemented 9.625 in casing with the shoe at 1800 m MD. No losses."
+  },
+  {
+   "id": "EKD-039",
+   "type": "drilling_report",
+   "well": "Ekene-3",
+   "date": "2019-11-02",
+   "title": "Ekene-3 daily drilling report",
+   "text": "Ekene-3 daily drilling report 2019-11-02. Drilled 17.5 in hole to 1450 m MD with 10.5 ppg mud and set 13.375 in casing at 1450 m MD, above the Ogbia Shale pressure ramp."
+  },
+  {
+   "id": "EKD-040",
+   "type": "drilling_report",
+   "well": "Ekene-4",
+   "date": "2020-10-09",
+   "title": "Ekene-4 daily drilling report",
+   "text": "Ekene-4 daily drilling report 2020-10-09. Partial losses of 15 bbl/hr at 1612 m MD while drilling with 12.6 ppg mud. Pumped a 40 bbl lost circulation material pill and losses stopped."
+  },
+  {
+   "id": "EKD-041",
+   "type": "drilling_report",
+   "well": "Ekene-3",
+   "date": "2019-11-20",
+   "title": "Ekene-3 gas readings",
+   "text": "Ekene-3 drilling report 2019-11-20. Background gas 0.4 percent and connection gas 1.2 percent while drilling the Ekene Sand at 1550 m MD. Mud weight held at 12.4 ppg; no influx."
+  },
+  {
+   "id": "EKD-042",
+   "type": "drilling_report",
+   "well": "Ekene-1",
+   "date": "2019-09-30",
+   "title": "Ekene-1 reached TD",
+   "text": "Ekene-1 daily drilling report 2019-09-30. Drilled 8.5 in hole to TD at 2250 m MD. Ran a 7 in liner from 1800 m to 2250 m MD. KB elevation is 25 m and water depth 35 m."
+  },
+  {
+   "id": "EKD-043",
+   "type": "drilling_report",
+   "well": "Ekene-5",
+   "date": "2020-04-11",
+   "title": "Ekene-5 bit run",
+   "text": "Ekene-5 daily drilling report 2020-04-11. Pulled the 12.25 in bit at 1760 m MD after 310 m at an average rate of penetration of 14 m/hr. Bit graded 2-3-WT. Mud weight 12.4 ppg."
+  },
+  {
+   "id": "EKD-044",
+   "type": "hse_note",
+   "well": null,
+   "date": "2021-03-14",
+   "title": "Dropped object near miss",
+   "text": "Near miss on 2021-03-14: a 2 kg wrench fell 6 m from the monkey board to the drill floor on the Ekene platform. Nobody was in the drop zone and there was no injury. Tool lanyards and the drop zone barrier rule were re-briefed at the next toolbox talk."
+  },
+  {
+   "id": "EKD-045",
+   "type": "hse_note",
+   "well": null,
+   "date": "2022-05-06",
+   "title": "H2S drill",
+   "text": "Monthly H2S drill on 2022-05-06. Full muster at the lifeboat station in 7 minutes. Ekene produced gas has tested at 0 ppm H2S; the drill keeps the crew ready for the deeper Oboro gas."
+  },
+  {
+   "id": "EKD-046",
+   "type": "hse_note",
+   "well": null,
+   "date": "2022-08-09",
+   "title": "Diesel spill during bunkering",
+   "text": "Minor diesel spill of 0.5 bbl on deck during bunkering on 2022-08-09. It was contained in the drip trays and cleaned up with absorbent pads, with no discharge to sea. The bunkering hose coupling was replaced."
+  },
+  {
+   "id": "EKD-047",
+   "type": "hse_note",
+   "well": null,
+   "date": "2023-03-22",
+   "title": "Permit to work audit",
+   "text": "Permit to work audit on 2023-03-22: 48 permits reviewed, 3 findings, all for missing gas test records on hot work permits. Supervisors were re-briefed and a gas test column was added to the permit form."
+  },
+  {
+   "id": "EKD-048",
+   "type": "hse_note",
+   "well": null,
+   "date": "2023-05-20",
+   "title": "Lost time injury free milestone",
+   "text": "The Ekene platform reached 1,000 days without a lost time injury on 2023-05-20."
+  },
+  {
+   "id": "EKD-049",
+   "type": "hse_note",
+   "well": null,
+   "date": "2024-06-12",
+   "title": "Hot work fire watch",
+   "text": "Hot work on the separator skid on 2024-06-12 ran under a fire watch with a charged hose and two extinguishers. Continuous gas monitoring read 0 percent LEL throughout."
+  },
+  {
+   "id": "EKD-050",
+   "type": "hse_note",
+   "well": null,
+   "date": "2025-02-17",
+   "title": "Chemical handling",
+   "text": "Chemical handling review on 2025-02-17 for the scale inhibitor now dosed at Ekene-6 and Ekene-3. Safety data sheets were posted at the injection skid and gloves and face shields issued."
+  },
+  {
+   "id": "EKD-051",
+   "type": "facilities_note",
+   "well": null,
+   "date": "2021-08-03",
+   "title": "Test separator",
+   "text": "The test separator on the Ekene platform operates at 150 psig and 120 F. It was recalibrated on 2021-08-03 and the oil meter factor set to 0.998."
+  },
+  {
+   "id": "EKD-052",
+   "type": "facilities_note",
+   "well": null,
+   "date": "2022-02-15",
+   "title": "Associated gas handling",
+   "text": "Associated gas at 400 scf/stb is used as fuel gas for the power generators. Gas beyond the fuel demand is flared under the platform flaring consent."
+  },
+  {
+   "id": "EKD-053",
+   "type": "facilities_note",
+   "well": null,
+   "date": "2025-04-08",
+   "title": "Produced water treatment",
+   "text": "Produced water from the flooded producers passes a hydrocyclone and a degasser. Oil in water measured 25 mg/l on 2025-04-08 against the 40 mg/l discharge limit."
+  },
+  {
+   "id": "EKD-054",
+   "type": "facilities_note",
+   "well": "Ekene-4",
+   "date": "2024-11-19",
+   "title": "Injection pump overhaul",
+   "text": "Injection pump A was overhauled on 2024-11-19 and returned to service. Injection filter change-out moved from monthly to fortnightly after solids were found upstream of the Ekene-4 wellhead."
+  },
+  {
+   "id": "EKD-055",
+   "type": "facilities_note",
+   "well": "Ekene-6",
+   "date": "2024-04-02",
+   "title": "Scale inhibitor at Ekene-6",
+   "text": "Scale inhibitor squeeze planned at Ekene-6 after water breakthrough. Continuous downhole dosing started on 2024-04-02 at 20 ppm based on produced water rate."
+  },
+  {
+   "id": "EKD-056",
+   "type": "core_report",
+   "well": "Ekene-1",
+   "date": null,
+   "title": "Ekene-1 core plug",
+   "text": "Core plug EK1-P from Ekene-1: permeability 420 md and porosity 0.23, with an air-brine capillary pressure test. The reservoir average permeability used for modelling is 250 md."
+  },
+  {
+   "id": "EKD-057",
+   "type": "core_report",
+   "well": null,
+   "date": null,
+   "title": "Relative permeability",
+   "text": "Corey relative permeability for the Ekene Sand: connate water saturation 0.35, residual oil 0.25, krw end point 0.3 and kro end point 0.9, water exponent 2.5 and oil exponent 2. With oil viscosity 1.8 cp and water viscosity 0.5 cp the end-point mobility ratio is 1.2."
+  },
+  {
+   "id": "EKD-058",
+   "type": "hse_note",
+   "well": null,
+   "date": "2022-08-09",
+   "title": "Diesel spill during bunkering (shift handover copy)",
+   "text": "Minor diesel spill of 0.5 bbl on deck during bunkering on 2022-08-09. It was contained in the drip trays and cleaned up with absorbent pads, with no discharge to sea. The bunkering hose coupling was replaced."
+  },
+  {
+   "id": "EKD-059",
+   "type": "dca_note",
+   "well": null,
+   "date": null,
+   "title": "Primary decline parameters",
+   "text": "Primary decline fits: Ekene-1 exponential with Di 0.0012 per day; Ekene-3 hyperbolic with b 0.5 and Di 0.002 per day; Ekene-5 harmonic with Di 0.0015 per day; Ekene-6 hyperbolic with b 0.35 and Di 0.001 per day."
+  },
+  {
+   "id": "EKD-060",
+   "type": "dca_note",
+   "well": null,
+   "date": null,
+   "title": "Primary EUR",
+   "text": "EUR at the 10 bopd economic limit on primary decline alone: Ekene-1 91,667 stb, Ekene-3 111,270 stb, Ekene-5 153,506 stb and Ekene-6 105,267 stb. The flood adds to these."
+  }
+ ]
+}

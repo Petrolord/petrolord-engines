@@ -1,0 +1,746 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (Petrolord, fictional block EK-11). No real company, person, well or incident.",
+ "generatedBy": "tools/validation/dataai/make_evaluate_fixtures.py",
+ "description": "Two fixed question-answering systems over the corpus. The answer text is hand-written fixture text; no language model is run. retrieved is the top 5 of the named retriever at the stated settings (the gate checks it against the engine).",
+ "systems": [
+  {
+   "id": "A",
+   "name": "System A",
+   "retriever": {
+    "method": "bm25",
+    "k": 5,
+    "k1": 1.2,
+    "b": 0.75,
+    "stopWords": false
+   },
+   "answers": [
+    {
+     "query": "Q01",
+     "retrieved": [
+      "EKD-018",
+      "EKD-002",
+      "EKD-004",
+      "EKD-013",
+      "EKD-014"
+     ],
+     "text": "Average reservoir pressure was 2,096 psia on 2023-01-01, the day the waterflood started.",
+     "citations": [
+      "EKD-018"
+     ],
+     "short": "2,096 psia"
+    },
+    {
+     "query": "Q02",
+     "retrieved": [
+      "EKD-043",
+      "EKD-010",
+      "EKD-013",
+      "EKD-003",
+      "EKD-008"
+     ],
+     "text": "Ekene-3 came on stream on 2020-03-01 at 150 bopd.",
+     "citations": [
+      "EKD-003"
+     ],
+     "short": "150 bopd"
+    },
+    {
+     "query": "Q03",
+     "retrieved": [
+      "EKD-002",
+      "EKD-004",
+      "EKD-054",
+      "EKD-047",
+      "EKD-044"
+     ],
+     "text": "Ekene-2 and Ekene-4 were converted to water injectors for the waterflood that started on 2023-01-01, because both found the sand below the 1560 m TVD contact.",
+     "citations": [
+      "EKD-002",
+      "EKD-004"
+     ],
+     "short": "Ekene-2 and Ekene-4"
+    },
+    {
+     "query": "Q04",
+     "retrieved": [
+      "EKD-018",
+      "EKD-010",
+      "EKD-011",
+      "EKD-020",
+      "EKD-057"
+     ],
+     "text": "The bubble point is 2000 psia (EKD-010).",
+     "citations": [
+      "EKD-010"
+     ],
+     "short": "2000 psia"
+    },
+    {
+     "query": "Q05",
+     "retrieved": [
+      "EKD-032",
+      "EKD-030",
+      "EKD-027",
+      "EKD-055",
+      "EKD-026"
+     ],
+     "text": "Water broke through at Ekene-6 on 2024-03-01, when the oil rate was 54.7 bopd.",
+     "citations": [
+      "EKD-026"
+     ],
+     "short": "2024-03-01"
+    },
+    {
+     "query": "Q06",
+     "retrieved": [
+      "EKD-001",
+      "EKD-003",
+      "EKD-005",
+      "EKD-006",
+      "EKD-002"
+     ],
+     "text": "The oil-water contact is at 1560 m TVD and the maximum oil column is 20.3 m.",
+     "citations": [
+      "EKD-001"
+     ],
+     "short": "1560 m TVD"
+    },
+    {
+     "query": "Q07",
+     "retrieved": [
+      "EKD-008",
+      "EKD-002",
+      "EKD-004",
+      "EKD-057",
+      "EKD-009"
+     ],
+     "text": "Volumetric STOIIP is 12,139,208 stb, and material balance agrees.",
+     "citations": [
+      "EKD-008"
+     ],
+     "short": "12,139,208 stb"
+    },
+    {
+     "query": "Q08",
+     "retrieved": [
+      "EKD-036",
+      "EKD-022",
+      "EKD-060",
+      "EKD-059",
+      "EKD-033"
+     ],
+     "text": "Ekene-4 injectivity index fell from 0.5 to 0.35 bbl/d/psi from 2025-01-01, a kink in the Hall plot.",
+     "citations": [
+      "EKD-036"
+     ],
+     "short": "0.5 to 0.35 bbl/d/psi"
+    },
+    {
+     "query": "Q09",
+     "retrieved": [
+      "EKD-044",
+      "EKD-045",
+      "EKD-051",
+      "EKD-033",
+      "EKD-019"
+     ],
+     "text": "On 2021-03-14 a 2 kg wrench fell 6 m from the monkey board; nobody was hurt.",
+     "citations": [
+      "EKD-044"
+     ],
+     "short": "a 2 kg wrench"
+    },
+    {
+     "query": "Q10",
+     "retrieved": [
+      "EKD-046",
+      "EKD-058"
+     ],
+     "text": "About 0.5 bbl of diesel spilled on deck during bunkering on 2022-08-09 and was contained in the drip trays.",
+     "citations": [
+      "EKD-046",
+      "EKD-058"
+     ],
+     "short": "0.5 bbl"
+    },
+    {
+     "query": "Q11",
+     "retrieved": [
+      "EKD-041",
+      "EKD-043",
+      "EKD-045",
+      "EKD-044",
+      "EKD-039"
+     ],
+     "text": "The Ekene Sand was drilled with 12.4 ppg mud at Ekene-3.",
+     "citations": [
+      "EKD-041"
+     ],
+     "short": "12.4 ppg"
+    },
+    {
+     "query": "Q12",
+     "retrieved": [
+      "EKD-038",
+      "EKD-042",
+      "EKD-039",
+      "EKD-037",
+      "EKD-043"
+     ],
+     "text": "The 9.625 in casing shoe was set at 1800 m MD.",
+     "citations": [
+      "EKD-038"
+     ],
+     "short": "1800 m MD"
+    },
+    {
+     "query": "Q13",
+     "retrieved": [
+      "EKD-029",
+      "EKD-030",
+      "EKD-028",
+      "EKD-027",
+      "EKD-037"
+     ],
+     "text": "Ekene-6 water cut was 45 percent at the end of 2025 (2025-12-01).",
+     "citations": [
+      "EKD-030"
+     ],
+     "short": "45 percent"
+    },
+    {
+     "query": "Q14",
+     "retrieved": [
+      "EKD-020",
+      "EKD-057",
+      "EKD-042",
+      "EKD-007",
+      "EKD-012"
+     ],
+     "text": "The retrieved passages do not say whether Ekene-5 produces water.",
+     "citations": [],
+     "short": ""
+    },
+    {
+     "query": "Q15",
+     "retrieved": [
+      "EKD-022",
+      "EKD-060",
+      "EKD-059",
+      "EKD-033",
+      "EKD-056"
+     ],
+     "text": "Ekene-1 follows an exponential decline with Di 0.0012 per day.",
+     "citations": [
+      "EKD-059"
+     ],
+     "short": "exponential, Di 0.0012 per day"
+    },
+    {
+     "query": "Q16",
+     "retrieved": [
+      "EKD-060",
+      "EKD-001",
+      "EKD-003",
+      "EKD-005",
+      "EKD-006"
+     ],
+     "text": "EUR at the 10 bopd limit: Ekene-1 91,667 stb, Ekene-3 111,270 stb, Ekene-5 153,506 stb and Ekene-6 105,267 stb.",
+     "citations": [
+      "EKD-060"
+     ],
+     "short": "Ekene-1 91,667 stb, Ekene-3 111,270 stb, Ekene-5 153,506 stb, Ekene-6 105,267 stb"
+    },
+    {
+     "query": "Q17",
+     "retrieved": [
+      "EKD-010",
+      "EKD-013",
+      "EKD-014",
+      "EKD-015",
+      "EKD-016"
+     ],
+     "text": "Oil viscosity is 2.05 cp at the initial 3200 psia.",
+     "citations": [
+      "EKD-010"
+     ],
+     "short": "2.05 cp"
+    },
+    {
+     "query": "Q18",
+     "retrieved": [
+      "EKD-037",
+      "EKD-019",
+      "EKD-057",
+      "EKD-009",
+      "EKD-025"
+     ],
+     "text": "The VRR target starts at 0.85 and rises by 0.04 a month to 1.05; cumulative VRR reached 1.035 at the end of 2025.",
+     "citations": [
+      "EKD-037"
+     ],
+     "short": "0.85 rising by 0.04 a month to 1.05"
+    },
+    {
+     "query": "Q19",
+     "retrieved": [
+      "EKD-056",
+      "EKD-057",
+      "EKD-025",
+      "EKD-037",
+      "EKD-042"
+     ],
+     "text": "Plug EK1-P from Ekene-1 measured 420 md.",
+     "citations": [
+      "EKD-056"
+     ],
+     "short": "420 md"
+    },
+    {
+     "query": "Q20",
+     "retrieved": [
+      "EKD-053",
+      "EKD-045",
+      "EKD-031",
+      "EKD-046",
+      "EKD-058"
+     ],
+     "text": "The discharge limit is 40 mg/l; the 2025-04-08 sample read 25 mg/l.",
+     "citations": [
+      "EKD-053"
+     ],
+     "short": "40 mg/l"
+    },
+    {
+     "query": "Q21",
+     "retrieved": [
+      "EKD-040",
+      "EKD-041",
+      "EKD-048",
+      "EKD-038",
+      "EKD-043"
+     ],
+     "text": "Ekene-4 had partial losses of 15 bbl/hr at 1612 m MD with 12.6 ppg mud, cured with a 40 bbl pill.",
+     "citations": [
+      "EKD-040"
+     ],
+     "short": "15 bbl/hr at 1612 m MD"
+    },
+    {
+     "query": "Q22",
+     "retrieved": [
+      "EKD-009",
+      "EKD-002",
+      "EKD-004",
+      "EKD-001",
+      "EKD-003"
+     ],
+     "text": "The Oboro Sand gas-water contact is at 1935 m MD at Ekene-1.",
+     "citations": [
+      "EKD-009"
+     ],
+     "short": "1935 m MD"
+    },
+    {
+     "query": "Q23",
+     "retrieved": [
+      "EKD-045",
+      "EKD-053",
+      "EKD-009",
+      "EKD-052",
+      "EKD-031"
+     ],
+     "text": "Produced gas tested at 0 ppm H2S.",
+     "citations": [
+      "EKD-045"
+     ],
+     "short": "0 ppm"
+    },
+    {
+     "query": "Q24",
+     "retrieved": [
+      "EKD-019",
+      "EKD-037",
+      "EKD-031",
+      "EKD-033",
+      "EKD-023"
+     ],
+     "text": "No retrieved passage mentions a subsea tree replacement.",
+     "citations": [],
+     "short": ""
+    }
+   ]
+  },
+  {
+   "id": "B",
+   "name": "System B",
+   "retriever": {
+    "method": "tfidf",
+    "k": 5,
+    "sublinearTf": false,
+    "stopWords": false
+   },
+   "answers": [
+    {
+     "query": "Q01",
+     "retrieved": [
+      "EKD-018",
+      "EKD-002",
+      "EKD-004",
+      "EKD-013",
+      "EKD-016"
+     ],
+     "text": "Reservoir pressure was about 2,100 psia when injection started on 2023-01-01.",
+     "citations": [
+      "EKD-018"
+     ],
+     "short": "about 2,100 psia"
+    },
+    {
+     "query": "Q02",
+     "retrieved": [
+      "EKD-003",
+      "EKD-027",
+      "EKD-043",
+      "EKD-010",
+      "EKD-001"
+     ],
+     "text": "Ekene-3 started at 150 bopd on 2020-03-01.",
+     "citations": [
+      "EKD-003"
+     ],
+     "short": "150 bopd"
+    },
+    {
+     "query": "Q03",
+     "retrieved": [
+      "EKD-002",
+      "EKD-004",
+      "EKD-026",
+      "EKD-054",
+      "EKD-047"
+     ],
+     "text": "Ekene-2 and Ekene-4 were converted to injectors, taking 92.7 and 61.8 bwpd at start-up.",
+     "citations": [
+      "EKD-002",
+      "EKD-004"
+     ],
+     "short": "Ekene 2 and Ekene 4"
+    },
+    {
+     "query": "Q04",
+     "retrieved": [
+      "EKD-018",
+      "EKD-010",
+      "EKD-011",
+      "EKD-020",
+      "EKD-057"
+     ],
+     "text": "The bubble point is 2000 psia and Boi is 1.2 rb/stb.",
+     "citations": [
+      "EKD-018"
+     ],
+     "short": "2,000 psia"
+    },
+    {
+     "query": "Q05",
+     "retrieved": [
+      "EKD-032",
+      "EKD-027",
+      "EKD-026",
+      "EKD-030",
+      "EKD-029"
+     ],
+     "text": "Water broke through at Ekene-6 on 2024-09-01.",
+     "citations": [
+      "EKD-027"
+     ],
+     "short": "2024-09-01"
+    },
+    {
+     "query": "Q06",
+     "retrieved": [
+      "EKD-001",
+      "EKD-003",
+      "EKD-006",
+      "EKD-005",
+      "EKD-002"
+     ],
+     "text": "The oil-water contact is at 1560 m TVD.",
+     "citations": [
+      "EKD-001"
+     ],
+     "short": "1560 m TVD"
+    },
+    {
+     "query": "Q07",
+     "retrieved": [
+      "EKD-008",
+      "EKD-002",
+      "EKD-004",
+      "EKD-009",
+      "EKD-001"
+     ],
+     "text": "STOIIP is 12.1 million stb.",
+     "citations": [
+      "EKD-008"
+     ],
+     "short": "12.1 million stb"
+    },
+    {
+     "query": "Q08",
+     "retrieved": [
+      "EKD-036",
+      "EKD-022",
+      "EKD-060",
+      "EKD-041",
+      "EKD-023"
+     ],
+     "text": "Ekene-4 injectivity index fell to 0.35 bbl/d/psi, seen as a \"kink in the Hall plot slope\".",
+     "citations": [
+      "EKD-036"
+     ],
+     "short": "0.35 bbl/d/psi"
+    },
+    {
+     "query": "Q09",
+     "retrieved": [
+      "EKD-044",
+      "EKD-045",
+      "EKD-051",
+      "EKD-033",
+      "EKD-001"
+     ],
+     "text": "A 2 kg wrench fell 6 m to the drill floor on 2021-03-14.",
+     "citations": [
+      "EKD-044"
+     ],
+     "short": "a wrench"
+    },
+    {
+     "query": "Q10",
+     "retrieved": [
+      "EKD-046",
+      "EKD-058"
+     ],
+     "text": "About 5 bbl of diesel was spilled during bunkering on 2022-08-09.",
+     "citations": [
+      "EKD-046"
+     ],
+     "short": "about 5 bbl"
+    },
+    {
+     "query": "Q11",
+     "retrieved": [
+      "EKD-041",
+      "EKD-045",
+      "EKD-043",
+      "EKD-002",
+      "EKD-004"
+     ],
+     "text": "Mud weight in the Ekene Sand was 12.6 ppg.",
+     "citations": [
+      "EKD-041"
+     ],
+     "short": "12.6 ppg"
+    },
+    {
+     "query": "Q12",
+     "retrieved": [
+      "EKD-038",
+      "EKD-039",
+      "EKD-042",
+      "EKD-021",
+      "EKD-037"
+     ],
+     "text": "The 9.625 in shoe is at 1800 m MD.",
+     "citations": [
+      "EKD-039"
+     ],
+     "short": "1800 m MD"
+    },
+    {
+     "query": "Q13",
+     "retrieved": [
+      "EKD-029",
+      "EKD-030",
+      "EKD-027",
+      "EKD-028",
+      "EKD-006"
+     ],
+     "text": "Ekene-6 water cut reached 45.0 percent on 2025-12-01.",
+     "citations": [
+      "EKD-030"
+     ],
+     "short": "45.0 percent"
+    },
+    {
+     "query": "Q14",
+     "retrieved": [
+      "EKD-020",
+      "EKD-007",
+      "EKD-027",
+      "EKD-028",
+      "EKD-030"
+     ],
+     "text": "Ekene-5 is still water free; on 2025-12-01 it made 38.5 bopd.",
+     "citations": [
+      "EKD-030"
+     ],
+     "short": "water free"
+    },
+    {
+     "query": "Q15",
+     "retrieved": [
+      "EKD-022",
+      "EKD-060",
+      "EKD-033",
+      "EKD-028",
+      "EKD-011"
+     ],
+     "text": "Ekene-1 declines exponentially with Di 0.0012 per day.",
+     "citations": [
+      "EKD-059"
+     ],
+     "short": "exponential, Di 0.0012 per day"
+    },
+    {
+     "query": "Q16",
+     "retrieved": [
+      "EKD-060",
+      "EKD-001",
+      "EKD-003",
+      "EKD-006",
+      "EKD-005"
+     ],
+     "text": "EUR at the economic limit is 91,667 stb for Ekene-1 and 153,506 stb for Ekene-5.",
+     "citations": [
+      "EKD-060"
+     ],
+     "short": "Ekene-1 91,667 stb, Ekene-5 153,506 stb"
+    },
+    {
+     "query": "Q17",
+     "retrieved": [
+      "EKD-010",
+      "EKD-013",
+      "EKD-016",
+      "EKD-014",
+      "EKD-017"
+     ],
+     "text": "Oil viscosity is 2.05 cp at 3,200 psia.",
+     "citations": [
+      "EKD-010"
+     ],
+     "short": "2.05 cp"
+    },
+    {
+     "query": "Q18",
+     "retrieved": [
+      "EKD-019",
+      "EKD-037",
+      "EKD-031",
+      "EKD-025",
+      "EKD-024"
+     ],
+     "text": "The VRR target is 1.05, reached from the sixth month.",
+     "citations": [
+      "EKD-019"
+     ],
+     "short": "1.05"
+    },
+    {
+     "query": "Q19",
+     "retrieved": [
+      "EKD-056",
+      "EKD-028",
+      "EKD-057",
+      "EKD-025",
+      "EKD-011"
+     ],
+     "text": "The Ekene-1 core plug measured 420 md and porosity 0.23.",
+     "citations": [
+      "EKD-056"
+     ],
+     "short": "420 md"
+    },
+    {
+     "query": "Q20",
+     "retrieved": [
+      "EKD-053",
+      "EKD-026",
+      "EKD-055",
+      "EKD-031",
+      "EKD-002"
+     ],
+     "text": "Oil in water must stay below 40 mg/l.",
+     "citations": [
+      "EKD-053"
+     ],
+     "short": "40 mg/l"
+    },
+    {
+     "query": "Q21",
+     "retrieved": [
+      "EKD-040",
+      "EKD-041",
+      "EKD-048",
+      "EKD-038",
+      "EKD-043"
+     ],
+     "text": "Losses of 15 bbl/hr at 1612 m MD were cured with a 40 bbl pill.",
+     "citations": [
+      "EKD-040",
+      "EKD-061"
+     ],
+     "short": "15 bbl/hr at 1612 m MD"
+    },
+    {
+     "query": "Q22",
+     "retrieved": [
+      "EKD-009",
+      "EKD-002",
+      "EKD-004",
+      "EKD-001",
+      "EKD-003"
+     ],
+     "text": "The Oboro gas-water contact is at 1935 m MD.",
+     "citations": [
+      "EKD-009"
+     ],
+     "short": "1935 m MD"
+    },
+    {
+     "query": "Q23",
+     "retrieved": [
+      "EKD-045",
+      "EKD-052",
+      "EKD-053",
+      "EKD-031",
+      "EKD-041"
+     ],
+     "text": "H2S in the produced gas is 0 ppm; the muster took 7 minutes.",
+     "citations": [
+      "EKD-045"
+     ],
+     "short": "0 ppm"
+    },
+    {
+     "query": "Q24",
+     "retrieved": [
+      "EKD-019",
+      "EKD-031",
+      "EKD-023",
+      "EKD-028",
+      "EKD-037"
+     ],
+     "text": "The Ekene-5 subsea tree was replaced on 2024-03-01.",
+     "citations": [
+      "EKD-031"
+     ],
+     "short": "2024-03-01"
+    }
+   ]
+  }
+ ]
+}

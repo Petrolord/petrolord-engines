@@ -1,0 +1,1407 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (Petrolord, fictional block EK-11). No real company, person, well or incident.",
+ "generatedBy": "tools/validation/dataai/make_evaluate_fixtures.py",
+ "description": "A relevance classifier on (query, passage) pairs: probability that the passage is relevant (judged grade 2 or 3). Every judged pair plus unjudged pairs (grade 0) drawn with random.Random(7) to make 200 rows. probability = 1 / (1 + exp(-(0.6 x bm25 - 3.0))) rounded to 2 dp, a curve fitted elsewhere, so it is not calibrated here.",
+ "rows": [
+  {
+   "query": "Q01",
+   "passage": "EKD-002",
+   "bm25": 6.17137,
+   "probability": 0.67,
+   "relevant": 0
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-004",
+   "bm25": 6.17137,
+   "probability": 0.67,
+   "relevant": 0
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-013",
+   "bm25": 5.699833,
+   "probability": 0.6,
+   "relevant": 0
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-014",
+   "bm25": 5.699833,
+   "probability": 0.6,
+   "relevant": 0
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-016",
+   "bm25": 5.699833,
+   "probability": 0.6,
+   "relevant": 0
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-017",
+   "bm25": 5.699833,
+   "probability": 0.6,
+   "relevant": 0
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-018",
+   "bm25": 9.323465,
+   "probability": 0.93,
+   "relevant": 1
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-019",
+   "bm25": 2.456872,
+   "probability": 0.18,
+   "relevant": 0
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-023",
+   "bm25": 0.221473,
+   "probability": 0.05,
+   "relevant": 0
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-034",
+   "bm25": 3.842291,
+   "probability": 0.33,
+   "relevant": 0
+  },
+  {
+   "query": "Q01",
+   "passage": "EKD-056",
+   "bm25": 4.000392,
+   "probability": 0.35,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-001",
+   "bm25": 3.124878,
+   "probability": 0.25,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-003",
+   "bm25": 4.084216,
+   "probability": 0.37,
+   "relevant": 1
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-008",
+   "bm25": 3.931617,
+   "probability": 0.35,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-010",
+   "bm25": 4.617541,
+   "probability": 0.44,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-013",
+   "bm25": 4.349067,
+   "probability": 0.4,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-021",
+   "bm25": 2.078693,
+   "probability": 0.15,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-027",
+   "bm25": 3.31364,
+   "probability": 0.27,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-032",
+   "bm25": 1.718526,
+   "probability": 0.12,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-034",
+   "bm25": 1.610539,
+   "probability": 0.12,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-039",
+   "bm25": 1.460783,
+   "probability": 0.11,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-041",
+   "bm25": 1.610539,
+   "probability": 0.12,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-043",
+   "bm25": 5.129851,
+   "probability": 0.52,
+   "relevant": 0
+  },
+  {
+   "query": "Q02",
+   "passage": "EKD-059",
+   "bm25": 1.557284,
+   "probability": 0.11,
+   "relevant": 0
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-002",
+   "bm25": 4.681778,
+   "probability": 0.45,
+   "relevant": 1
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-004",
+   "bm25": 4.681778,
+   "probability": 0.45,
+   "relevant": 1
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-026",
+   "bm25": 3.012045,
+   "probability": 0.23,
+   "relevant": 0
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-034",
+   "bm25": 1.069268,
+   "probability": 0.09,
+   "relevant": 1
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-035",
+   "bm25": 0.0,
+   "probability": 0.05,
+   "relevant": 0
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-036",
+   "bm25": 1.003363,
+   "probability": 0.08,
+   "relevant": 0
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-044",
+   "bm25": 3.184404,
+   "probability": 0.25,
+   "relevant": 0
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-047",
+   "bm25": 4.052859,
+   "probability": 0.36,
+   "relevant": 0
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-050",
+   "bm25": 2.732741,
+   "probability": 0.2,
+   "relevant": 0
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-052",
+   "bm25": 0.0,
+   "probability": 0.05,
+   "relevant": 0
+  },
+  {
+   "query": "Q03",
+   "passage": "EKD-054",
+   "bm25": 4.298907,
+   "probability": 0.4,
+   "relevant": 0
+  },
+  {
+   "query": "Q04",
+   "passage": "EKD-008",
+   "bm25": 2.392152,
+   "probability": 0.17,
+   "relevant": 0
+  },
+  {
+   "query": "Q04",
+   "passage": "EKD-010",
+   "bm25": 8.937264,
+   "probability": 0.91,
+   "relevant": 1
+  },
+  {
+   "query": "Q04",
+   "passage": "EKD-011",
+   "bm25": 7.811698,
+   "probability": 0.84,
+   "relevant": 1
+  },
+  {
+   "query": "Q04",
+   "passage": "EKD-012",
+   "bm25": 0.886795,
+   "probability": 0.08,
+   "relevant": 0
+  },
+  {
+   "query": "Q04",
+   "passage": "EKD-018",
+   "bm25": 11.211789,
+   "probability": 0.98,
+   "relevant": 1
+  },
+  {
+   "query": "Q04",
+   "passage": "EKD-020",
+   "bm25": 6.222608,
+   "probability": 0.68,
+   "relevant": 0
+  },
+  {
+   "query": "Q04",
+   "passage": "EKD-036",
+   "bm25": 1.955567,
+   "probability": 0.14,
+   "relevant": 0
+  },
+  {
+   "query": "Q04",
+   "passage": "EKD-040",
+   "bm25": 1.492766,
+   "probability": 0.11,
+   "relevant": 0
+  },
+  {
+   "query": "Q04",
+   "passage": "EKD-057",
+   "bm25": 5.293114,
+   "probability": 0.54,
+   "relevant": 0
+  },
+  {
+   "query": "Q05",
+   "passage": "EKD-024",
+   "bm25": 2.047194,
+   "probability": 0.15,
+   "relevant": 0
+  },
+  {
+   "query": "Q05",
+   "passage": "EKD-026",
+   "bm25": 3.544376,
+   "probability": 0.29,
+   "relevant": 1
+  },
+  {
+   "query": "Q05",
+   "passage": "EKD-027",
+   "bm25": 3.741096,
+   "probability": 0.32,
+   "relevant": 0
+  },
+  {
+   "query": "Q05",
+   "passage": "EKD-029",
+   "bm25": 3.417258,
+   "probability": 0.28,
+   "relevant": 0
+  },
+  {
+   "query": "Q05",
+   "passage": "EKD-030",
+   "bm25": 3.774152,
+   "probability": 0.32,
+   "relevant": 0
+  },
+  {
+   "query": "Q05",
+   "passage": "EKD-032",
+   "bm25": 5.730437,
+   "probability": 0.61,
+   "relevant": 0
+  },
+  {
+   "query": "Q05",
+   "passage": "EKD-055",
+   "bm25": 3.555727,
+   "probability": 0.3,
+   "relevant": 1
+  },
+  {
+   "query": "Q06",
+   "passage": "EKD-001",
+   "bm25": 5.427558,
+   "probability": 0.56,
+   "relevant": 1
+  },
+  {
+   "query": "Q06",
+   "passage": "EKD-002",
+   "bm25": 5.277665,
+   "probability": 0.54,
+   "relevant": 1
+  },
+  {
+   "query": "Q06",
+   "passage": "EKD-003",
+   "bm25": 5.427558,
+   "probability": 0.56,
+   "relevant": 0
+  },
+  {
+   "query": "Q06",
+   "passage": "EKD-004",
+   "bm25": 5.277665,
+   "probability": 0.54,
+   "relevant": 1
+  },
+  {
+   "query": "Q06",
+   "passage": "EKD-005",
+   "bm25": 5.427558,
+   "probability": 0.56,
+   "relevant": 0
+  },
+  {
+   "query": "Q06",
+   "passage": "EKD-006",
+   "bm25": 5.427558,
+   "probability": 0.56,
+   "relevant": 0
+  },
+  {
+   "query": "Q06",
+   "passage": "EKD-007",
+   "bm25": 3.784834,
+   "probability": 0.33,
+   "relevant": 1
+  },
+  {
+   "query": "Q06",
+   "passage": "EKD-013",
+   "bm25": 1.252911,
+   "probability": 0.1,
+   "relevant": 0
+  },
+  {
+   "query": "Q06",
+   "passage": "EKD-046",
+   "bm25": 1.418005,
+   "probability": 0.1,
+   "relevant": 0
+  },
+  {
+   "query": "Q07",
+   "passage": "EKD-001",
+   "bm25": 2.741858,
+   "probability": 0.21,
+   "relevant": 0
+  },
+  {
+   "query": "Q07",
+   "passage": "EKD-002",
+   "bm25": 4.107199,
+   "probability": 0.37,
+   "relevant": 0
+  },
+  {
+   "query": "Q07",
+   "passage": "EKD-004",
+   "bm25": 4.107199,
+   "probability": 0.37,
+   "relevant": 0
+  },
+  {
+   "query": "Q07",
+   "passage": "EKD-007",
+   "bm25": 2.754899,
+   "probability": 0.21,
+   "relevant": 0
+  },
+  {
+   "query": "Q07",
+   "passage": "EKD-008",
+   "bm25": 10.050333,
+   "probability": 0.95,
+   "relevant": 1
+  },
+  {
+   "query": "Q07",
+   "passage": "EKD-009",
+   "bm25": 3.156987,
+   "probability": 0.25,
+   "relevant": 0
+  },
+  {
+   "query": "Q07",
+   "passage": "EKD-057",
+   "bm25": 3.356126,
+   "probability": 0.27,
+   "relevant": 0
+  },
+  {
+   "query": "Q07",
+   "passage": "EKD-059",
+   "bm25": 0.513584,
+   "probability": 0.06,
+   "relevant": 0
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-022",
+   "bm25": 5.563113,
+   "probability": 0.58,
+   "relevant": 0
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-023",
+   "bm25": 2.715311,
+   "probability": 0.2,
+   "relevant": 0
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-033",
+   "bm25": 3.283891,
+   "probability": 0.26,
+   "relevant": 0
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-034",
+   "bm25": 2.53839,
+   "probability": 0.19,
+   "relevant": 0
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-035",
+   "bm25": 2.831805,
+   "probability": 0.21,
+   "relevant": 0
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-036",
+   "bm25": 12.524236,
+   "probability": 0.99,
+   "relevant": 1
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-041",
+   "bm25": 3.130322,
+   "probability": 0.25,
+   "relevant": 0
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-054",
+   "bm25": 2.531469,
+   "probability": 0.19,
+   "relevant": 1
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-059",
+   "bm25": 3.494093,
+   "probability": 0.29,
+   "relevant": 0
+  },
+  {
+   "query": "Q08",
+   "passage": "EKD-060",
+   "bm25": 3.647663,
+   "probability": 0.31,
+   "relevant": 0
+  },
+  {
+   "query": "Q09",
+   "passage": "EKD-001",
+   "bm25": 0.919502,
+   "probability": 0.08,
+   "relevant": 0
+  },
+  {
+   "query": "Q09",
+   "passage": "EKD-019",
+   "bm25": 0.995054,
+   "probability": 0.08,
+   "relevant": 0
+  },
+  {
+   "query": "Q09",
+   "passage": "EKD-033",
+   "bm25": 1.034565,
+   "probability": 0.08,
+   "relevant": 0
+  },
+  {
+   "query": "Q09",
+   "passage": "EKD-044",
+   "bm25": 13.461168,
+   "probability": 0.99,
+   "relevant": 1
+  },
+  {
+   "query": "Q09",
+   "passage": "EKD-045",
+   "bm25": 5.324674,
+   "probability": 0.55,
+   "relevant": 0
+  },
+  {
+   "query": "Q09",
+   "passage": "EKD-047",
+   "bm25": 0.880151,
+   "probability": 0.08,
+   "relevant": 0
+  },
+  {
+   "query": "Q09",
+   "passage": "EKD-051",
+   "bm25": 1.056763,
+   "probability": 0.09,
+   "relevant": 0
+  },
+  {
+   "query": "Q10",
+   "passage": "EKD-020",
+   "bm25": 0.0,
+   "probability": 0.05,
+   "relevant": 0
+  },
+  {
+   "query": "Q10",
+   "passage": "EKD-046",
+   "bm25": 13.884966,
+   "probability": 1.0,
+   "relevant": 1
+  },
+  {
+   "query": "Q10",
+   "passage": "EKD-050",
+   "bm25": 0.0,
+   "probability": 0.05,
+   "relevant": 0
+  },
+  {
+   "query": "Q10",
+   "passage": "EKD-058",
+   "bm25": 13.884966,
+   "probability": 1.0,
+   "relevant": 1
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-002",
+   "bm25": 3.590151,
+   "probability": 0.3,
+   "relevant": 0
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-004",
+   "bm25": 3.590151,
+   "probability": 0.3,
+   "relevant": 0
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-014",
+   "bm25": 0.296638,
+   "probability": 0.06,
+   "relevant": 0
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-038",
+   "bm25": 3.862574,
+   "probability": 0.34,
+   "relevant": 1
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-039",
+   "bm25": 3.986711,
+   "probability": 0.35,
+   "relevant": 0
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-040",
+   "bm25": 2.790532,
+   "probability": 0.21,
+   "relevant": 1
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-041",
+   "bm25": 8.108948,
+   "probability": 0.87,
+   "relevant": 1
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-043",
+   "bm25": 5.954408,
+   "probability": 0.64,
+   "relevant": 0
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-044",
+   "bm25": 4.339069,
+   "probability": 0.4,
+   "relevant": 0
+  },
+  {
+   "query": "Q11",
+   "passage": "EKD-045",
+   "bm25": 5.149185,
+   "probability": 0.52,
+   "relevant": 0
+  },
+  {
+   "query": "Q12",
+   "passage": "EKD-021",
+   "bm25": 3.041147,
+   "probability": 0.24,
+   "relevant": 0
+  },
+  {
+   "query": "Q12",
+   "passage": "EKD-037",
+   "bm25": 3.505288,
+   "probability": 0.29,
+   "relevant": 0
+  },
+  {
+   "query": "Q12",
+   "passage": "EKD-038",
+   "bm25": 14.723522,
+   "probability": 1.0,
+   "relevant": 1
+  },
+  {
+   "query": "Q12",
+   "passage": "EKD-039",
+   "bm25": 5.493615,
+   "probability": 0.57,
+   "relevant": 0
+  },
+  {
+   "query": "Q12",
+   "passage": "EKD-042",
+   "bm25": 5.635907,
+   "probability": 0.59,
+   "relevant": 0
+  },
+  {
+   "query": "Q12",
+   "passage": "EKD-043",
+   "bm25": 3.207105,
+   "probability": 0.25,
+   "relevant": 0
+  },
+  {
+   "query": "Q12",
+   "passage": "EKD-044",
+   "bm25": 1.682557,
+   "probability": 0.12,
+   "relevant": 0
+  },
+  {
+   "query": "Q13",
+   "passage": "EKD-006",
+   "bm25": 6.152683,
+   "probability": 0.67,
+   "relevant": 0
+  },
+  {
+   "query": "Q13",
+   "passage": "EKD-026",
+   "bm25": 3.776352,
+   "probability": 0.32,
+   "relevant": 0
+  },
+  {
+   "query": "Q13",
+   "passage": "EKD-027",
+   "bm25": 6.818244,
+   "probability": 0.75,
+   "relevant": 0
+  },
+  {
+   "query": "Q13",
+   "passage": "EKD-028",
+   "bm25": 7.982142,
+   "probability": 0.86,
+   "relevant": 0
+  },
+  {
+   "query": "Q13",
+   "passage": "EKD-029",
+   "bm25": 9.951737,
+   "probability": 0.95,
+   "relevant": 0
+  },
+  {
+   "query": "Q13",
+   "passage": "EKD-030",
+   "bm25": 9.798866,
+   "probability": 0.95,
+   "relevant": 1
+  },
+  {
+   "query": "Q13",
+   "passage": "EKD-037",
+   "bm25": 6.222042,
+   "probability": 0.68,
+   "relevant": 0
+  },
+  {
+   "query": "Q13",
+   "passage": "EKD-043",
+   "bm25": 2.59981,
+   "probability": 0.19,
+   "relevant": 0
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-007",
+   "bm25": 3.329883,
+   "probability": 0.27,
+   "relevant": 0
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-012",
+   "bm25": 3.245315,
+   "probability": 0.26,
+   "relevant": 0
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-020",
+   "bm25": 5.455419,
+   "probability": 0.57,
+   "relevant": 0
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-027",
+   "bm25": 3.173947,
+   "probability": 0.25,
+   "relevant": 0
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-028",
+   "bm25": 3.19566,
+   "probability": 0.25,
+   "relevant": 1
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-030",
+   "bm25": 3.216946,
+   "probability": 0.26,
+   "relevant": 1
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-031",
+   "bm25": 2.952493,
+   "probability": 0.23,
+   "relevant": 1
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-033",
+   "bm25": 2.632138,
+   "probability": 0.19,
+   "relevant": 0
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-042",
+   "bm25": 3.608861,
+   "probability": 0.3,
+   "relevant": 0
+  },
+  {
+   "query": "Q14",
+   "passage": "EKD-057",
+   "bm25": 4.090477,
+   "probability": 0.37,
+   "relevant": 0
+  },
+  {
+   "query": "Q15",
+   "passage": "EKD-011",
+   "bm25": 1.694505,
+   "probability": 0.12,
+   "relevant": 0
+  },
+  {
+   "query": "Q15",
+   "passage": "EKD-020",
+   "bm25": 1.475236,
+   "probability": 0.11,
+   "relevant": 0
+  },
+  {
+   "query": "Q15",
+   "passage": "EKD-022",
+   "bm25": 5.154347,
+   "probability": 0.52,
+   "relevant": 0
+  },
+  {
+   "query": "Q15",
+   "passage": "EKD-028",
+   "bm25": 2.039367,
+   "probability": 0.14,
+   "relevant": 0
+  },
+  {
+   "query": "Q15",
+   "passage": "EKD-033",
+   "bm25": 3.283891,
+   "probability": 0.26,
+   "relevant": 0
+  },
+  {
+   "query": "Q15",
+   "passage": "EKD-056",
+   "bm25": 3.233892,
+   "probability": 0.26,
+   "relevant": 0
+  },
+  {
+   "query": "Q15",
+   "passage": "EKD-059",
+   "bm25": 3.811953,
+   "probability": 0.33,
+   "relevant": 1
+  },
+  {
+   "query": "Q15",
+   "passage": "EKD-060",
+   "bm25": 4.192464,
+   "probability": 0.38,
+   "relevant": 0
+  },
+  {
+   "query": "Q16",
+   "passage": "EKD-001",
+   "bm25": 4.427411,
+   "probability": 0.41,
+   "relevant": 0
+  },
+  {
+   "query": "Q16",
+   "passage": "EKD-003",
+   "bm25": 4.427411,
+   "probability": 0.41,
+   "relevant": 0
+  },
+  {
+   "query": "Q16",
+   "passage": "EKD-005",
+   "bm25": 4.427411,
+   "probability": 0.41,
+   "relevant": 0
+  },
+  {
+   "query": "Q16",
+   "passage": "EKD-006",
+   "bm25": 4.427411,
+   "probability": 0.41,
+   "relevant": 0
+  },
+  {
+   "query": "Q16",
+   "passage": "EKD-059",
+   "bm25": 0.0,
+   "probability": 0.05,
+   "relevant": 0
+  },
+  {
+   "query": "Q16",
+   "passage": "EKD-060",
+   "bm25": 11.462065,
+   "probability": 0.98,
+   "relevant": 1
+  },
+  {
+   "query": "Q17",
+   "passage": "EKD-010",
+   "bm25": 10.5113,
+   "probability": 0.96,
+   "relevant": 1
+  },
+  {
+   "query": "Q17",
+   "passage": "EKD-011",
+   "bm25": 1.878522,
+   "probability": 0.13,
+   "relevant": 0
+  },
+  {
+   "query": "Q17",
+   "passage": "EKD-013",
+   "bm25": 7.942732,
+   "probability": 0.85,
+   "relevant": 0
+  },
+  {
+   "query": "Q17",
+   "passage": "EKD-014",
+   "bm25": 7.942732,
+   "probability": 0.85,
+   "relevant": 0
+  },
+  {
+   "query": "Q17",
+   "passage": "EKD-015",
+   "bm25": 7.942732,
+   "probability": 0.85,
+   "relevant": 0
+  },
+  {
+   "query": "Q17",
+   "passage": "EKD-016",
+   "bm25": 7.942732,
+   "probability": 0.85,
+   "relevant": 0
+  },
+  {
+   "query": "Q17",
+   "passage": "EKD-017",
+   "bm25": 7.942732,
+   "probability": 0.85,
+   "relevant": 0
+  },
+  {
+   "query": "Q17",
+   "passage": "EKD-057",
+   "bm25": 5.224461,
+   "probability": 0.53,
+   "relevant": 0
+  },
+  {
+   "query": "Q18",
+   "passage": "EKD-009",
+   "bm25": 3.048395,
+   "probability": 0.24,
+   "relevant": 0
+  },
+  {
+   "query": "Q18",
+   "passage": "EKD-019",
+   "bm25": 12.174421,
+   "probability": 0.99,
+   "relevant": 1
+  },
+  {
+   "query": "Q18",
+   "passage": "EKD-024",
+   "bm25": 2.869851,
+   "probability": 0.22,
+   "relevant": 0
+  },
+  {
+   "query": "Q18",
+   "passage": "EKD-025",
+   "bm25": 2.974404,
+   "probability": 0.23,
+   "relevant": 0
+  },
+  {
+   "query": "Q18",
+   "passage": "EKD-031",
+   "bm25": 2.881335,
+   "probability": 0.22,
+   "relevant": 0
+  },
+  {
+   "query": "Q18",
+   "passage": "EKD-034",
+   "bm25": 0.0,
+   "probability": 0.05,
+   "relevant": 0
+  },
+  {
+   "query": "Q18",
+   "passage": "EKD-037",
+   "bm25": 12.764508,
+   "probability": 0.99,
+   "relevant": 1
+  },
+  {
+   "query": "Q18",
+   "passage": "EKD-057",
+   "bm25": 3.714505,
+   "probability": 0.32,
+   "relevant": 0
+  },
+  {
+   "query": "Q19",
+   "passage": "EKD-011",
+   "bm25": 1.694505,
+   "probability": 0.12,
+   "relevant": 0
+  },
+  {
+   "query": "Q19",
+   "passage": "EKD-025",
+   "bm25": 3.051465,
+   "probability": 0.24,
+   "relevant": 0
+  },
+  {
+   "query": "Q19",
+   "passage": "EKD-028",
+   "bm25": 2.039367,
+   "probability": 0.14,
+   "relevant": 0
+  },
+  {
+   "query": "Q19",
+   "passage": "EKD-037",
+   "bm25": 2.825915,
+   "probability": 0.21,
+   "relevant": 0
+  },
+  {
+   "query": "Q19",
+   "passage": "EKD-042",
+   "bm25": 2.608059,
+   "probability": 0.19,
+   "relevant": 0
+  },
+  {
+   "query": "Q19",
+   "passage": "EKD-056",
+   "bm25": 15.590733,
+   "probability": 1.0,
+   "relevant": 1
+  },
+  {
+   "query": "Q19",
+   "passage": "EKD-057",
+   "bm25": 4.201048,
+   "probability": 0.38,
+   "relevant": 0
+  },
+  {
+   "query": "Q20",
+   "passage": "EKD-002",
+   "bm25": 3.312795,
+   "probability": 0.27,
+   "relevant": 0
+  },
+  {
+   "query": "Q20",
+   "passage": "EKD-026",
+   "bm25": 2.485872,
+   "probability": 0.18,
+   "relevant": 0
+  },
+  {
+   "query": "Q20",
+   "passage": "EKD-031",
+   "bm25": 4.667505,
+   "probability": 0.45,
+   "relevant": 0
+  },
+  {
+   "query": "Q20",
+   "passage": "EKD-045",
+   "bm25": 5.930185,
+   "probability": 0.64,
+   "relevant": 0
+  },
+  {
+   "query": "Q20",
+   "passage": "EKD-046",
+   "bm25": 4.334671,
+   "probability": 0.4,
+   "relevant": 0
+  },
+  {
+   "query": "Q20",
+   "passage": "EKD-052",
+   "bm25": 1.897829,
+   "probability": 0.13,
+   "relevant": 0
+  },
+  {
+   "query": "Q20",
+   "passage": "EKD-053",
+   "bm25": 13.380475,
+   "probability": 0.99,
+   "relevant": 1
+  },
+  {
+   "query": "Q20",
+   "passage": "EKD-055",
+   "bm25": 4.26181,
+   "probability": 0.39,
+   "relevant": 0
+  },
+  {
+   "query": "Q20",
+   "passage": "EKD-058",
+   "bm25": 4.334671,
+   "probability": 0.4,
+   "relevant": 0
+  },
+  {
+   "query": "Q21",
+   "passage": "EKD-004",
+   "bm25": 1.688784,
+   "probability": 0.12,
+   "relevant": 0
+  },
+  {
+   "query": "Q21",
+   "passage": "EKD-011",
+   "bm25": 0.0,
+   "probability": 0.05,
+   "relevant": 0
+  },
+  {
+   "query": "Q21",
+   "passage": "EKD-029",
+   "bm25": 0.465487,
+   "probability": 0.06,
+   "relevant": 0
+  },
+  {
+   "query": "Q21",
+   "passage": "EKD-038",
+   "bm25": 4.02431,
+   "probability": 0.36,
+   "relevant": 0
+  },
+  {
+   "query": "Q21",
+   "passage": "EKD-040",
+   "bm25": 15.431299,
+   "probability": 1.0,
+   "relevant": 1
+  },
+  {
+   "query": "Q21",
+   "passage": "EKD-041",
+   "bm25": 9.066018,
+   "probability": 0.92,
+   "relevant": 0
+  },
+  {
+   "query": "Q21",
+   "passage": "EKD-043",
+   "bm25": 4.02431,
+   "probability": 0.36,
+   "relevant": 0
+  },
+  {
+   "query": "Q21",
+   "passage": "EKD-048",
+   "bm25": 4.607863,
+   "probability": 0.44,
+   "relevant": 0
+  },
+  {
+   "query": "Q22",
+   "passage": "EKD-001",
+   "bm25": 6.34803,
+   "probability": 0.69,
+   "relevant": 0
+  },
+  {
+   "query": "Q22",
+   "passage": "EKD-002",
+   "bm25": 6.528476,
+   "probability": 0.71,
+   "relevant": 0
+  },
+  {
+   "query": "Q22",
+   "passage": "EKD-003",
+   "bm25": 6.34803,
+   "probability": 0.69,
+   "relevant": 0
+  },
+  {
+   "query": "Q22",
+   "passage": "EKD-004",
+   "bm25": 6.528476,
+   "probability": 0.71,
+   "relevant": 0
+  },
+  {
+   "query": "Q22",
+   "passage": "EKD-009",
+   "bm25": 12.130422,
+   "probability": 0.99,
+   "relevant": 1
+  },
+  {
+   "query": "Q22",
+   "passage": "EKD-045",
+   "bm25": 6.234023,
+   "probability": 0.68,
+   "relevant": 0
+  },
+  {
+   "query": "Q22",
+   "passage": "EKD-054",
+   "bm25": 1.446943,
+   "probability": 0.11,
+   "relevant": 0
+  },
+  {
+   "query": "Q23",
+   "passage": "EKD-009",
+   "bm25": 3.900513,
+   "probability": 0.34,
+   "relevant": 0
+  },
+  {
+   "query": "Q23",
+   "passage": "EKD-031",
+   "bm25": 3.096518,
+   "probability": 0.24,
+   "relevant": 0
+  },
+  {
+   "query": "Q23",
+   "passage": "EKD-041",
+   "bm25": 2.815356,
+   "probability": 0.21,
+   "relevant": 0
+  },
+  {
+   "query": "Q23",
+   "passage": "EKD-045",
+   "bm25": 12.360837,
+   "probability": 0.99,
+   "relevant": 1
+  },
+  {
+   "query": "Q23",
+   "passage": "EKD-052",
+   "bm25": 3.47009,
+   "probability": 0.29,
+   "relevant": 0
+  },
+  {
+   "query": "Q23",
+   "passage": "EKD-053",
+   "bm25": 4.821883,
+   "probability": 0.47,
+   "relevant": 0
+  },
+  {
+   "query": "Q24",
+   "passage": "EKD-005",
+   "bm25": 1.979581,
+   "probability": 0.14,
+   "relevant": 0
+  },
+  {
+   "query": "Q24",
+   "passage": "EKD-019",
+   "bm25": 4.082983,
+   "probability": 0.37,
+   "relevant": 0
+  },
+  {
+   "query": "Q24",
+   "passage": "EKD-023",
+   "bm25": 2.327577,
+   "probability": 0.17,
+   "relevant": 0
+  },
+  {
+   "query": "Q24",
+   "passage": "EKD-028",
+   "bm25": 2.09519,
+   "probability": 0.15,
+   "relevant": 0
+  },
+  {
+   "query": "Q24",
+   "passage": "EKD-031",
+   "bm25": 2.580188,
+   "probability": 0.19,
+   "relevant": 0
+  },
+  {
+   "query": "Q24",
+   "passage": "EKD-033",
+   "bm25": 2.419002,
+   "probability": 0.18,
+   "relevant": 0
+  },
+  {
+   "query": "Q24",
+   "passage": "EKD-037",
+   "bm25": 3.311858,
+   "probability": 0.27,
+   "relevant": 0
+  },
+  {
+   "query": "Q24",
+   "passage": "EKD-043",
+   "bm25": 1.466475,
+   "probability": 0.11,
+   "relevant": 0
+  },
+  {
+   "query": "Q24",
+   "passage": "EKD-046",
+   "bm25": 1.850106,
+   "probability": 0.13,
+   "relevant": 0
+  }
+ ]
+}
