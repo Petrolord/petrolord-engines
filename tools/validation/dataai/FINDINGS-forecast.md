@@ -1,15 +1,15 @@
 # FINDINGS: forecast (oracle_forecast.py, Data & AI D4, production forecasting)
 
-Golden: `test-data/dataai/goldens/forecast_cases.json`, 130 cases (56 of
+Golden: `test-data/dataai/goldens/forecast_cases.json`, 140 cases (62 of
 them refusals, every refusal message pinned in full), written by
 `tools/validation/dataai/oracle_forecast.py`. Second witness:
-`test-data/dataai/pins/forecast_pins.json`, 216 pins and 8 recorded skips,
+`test-data/dataai/pins/forecast_pins.json`, 224 pins and 8 recorded skips,
 written by `tools/validation/dataai/pin_forecast.py` (numpy 2.5.3, scipy
 1.18.1, statsmodels 0.15.0, scikit-learn 1.9.1 from `/root/daienv`).
-Gate: `__tests__/dataai.forecast.test.js` (432 tests) calls the engine on
+Gate: `__tests__/dataai.forecast.test.js` (453 tests) calls the engine on
 every golden, the published NIST figures and every pin, plus property
 tests, the Ekene scale run and the row cap. Negative control:
-`negcontrol_forecast.sh` (51/51 engine plants red, 5/5 oracle plants red
+`negcontrol_forecast.sh` (63/63 engine plants red, 5/5 oracle plants red
 and 1 stopped). Timing: `timing_forecast.mjs` (table below).
 
 The oracle is STDLIB ONLY (python 3.12: `fractions`, `decimal` at 60
@@ -151,7 +151,13 @@ The 8 skips, each a documented convention difference:
    (index floor(u x m)) to the one-step forecast, and the simulated value
    updates the state. One mulberry32(seed) stream (lib/stats), path by
    path, step by step; no Math.random in the engine. At least 2 scored
-   residuals are needed.
+   residuals are needed. Residuals are drawn as fitted, without centring
+   (their mean is not subtracted), as FPP3 5.5 and statsmodels simulate
+   do; the docstring and the result's `basis.bootstrap` say so. A method
+   whose residuals have a non-zero mean therefore drifts: on a declining
+   well a flat method's paths can fall below its own point forecast (the
+   gate shows it on arps-clean-auto with ses at alpha 0.3, where the mean
+   residual is negative and the step-12 P10 sits below the point forecast).
 8. **Quantile rule.** lib/stats `quantile` (simple-statistics 7.8.8) on
    the n sorted values, idx = n p: idx not whole gives the ceil(idx)-th
    smallest; idx whole with n even the mean of the idx-th and (idx+1)-th;
@@ -175,6 +181,18 @@ The 8 skips, each a documented convention difference:
     damp", previously named holt); the Arps no-fit reason now states
     fitArpsModel's test (finite qi > 0 and Di > 0) in place of "a series
     that does not decline cannot be fitted".
+    Changed 2026-09-24 (engine PR fix/dataai-forecast-foundation-findings,
+    no numeric field changed): backtest and comparison MASE reasons name
+    "the training window" once ("at origin 12 the training window has 12
+    values, so the lag-12 naive forecast has no in-sample error (it needs
+    more than 12)"; was "the 12 training values has 12 values"); the
+    zero-scale reason states the count once ("insample has 3 values and
+    the lag-1 naive forecast has zero in-sample error on them"; was "on the
+    3 values of the 3 training values"); the Arps window reasons read "at
+    origin 5 the training window has / gives" (was "the 5 training values
+    have / give"); singular forms at 1: "then 1 actual", "leaves no actual"
+    (was "fewer than 1 actuals"), "y has 1 value", "forecast must have 1
+    value", "1 scored residual(s)", basis "1 path" and "forecasts y[o]".
 
 ## Boundary table (per rule)
 
@@ -214,6 +232,18 @@ bootstrap draw, pool, state update, percentile labels and level, one
 stream per call, backtest origins, refit, window leakage, MASE scale
 window, Arps time base and window, ranking ties and direction.
 
+Re-run 2026-09-24 on `fix/dataai-forecast-foundation-findings` after the
+message repair: baseline 453 passed; **63/63 engine plants red** (the 51
+above, one retargeted to the new label, plus 12 that restore each replaced
+wording: the doubled training-window label in backtests and in the
+comparison, the doubled zero-scale count, "then 1 actuals", "leaves fewer
+than 1 actuals", "y has 1 values", "must have 1 values", the pool residual
+singular, the old Arps window subject, basis "1 paths", the missing
+uncentred-residual clause and "y[o..o+0]"); 5/5 oracle plants red and 1
+stopped; restored and re-verified 453 passed. The first run gave 62/63:
+the old comparison label stayed green because no golden had an Arps fit
+with a MASE-null window (fixed by `cmp-clean-m12-short-window`).
+
 ## Timings (Node v18.19.1, this host; `timing_forecast.mjs`)
 
 | points | method | fit ms | SSE evaluations | backtest refit ms (origins) | backtest held ms | intervals h 12 x 1,000 ms |
@@ -242,6 +272,11 @@ comparisons with progress shown or in a worker.
 4. Arps inherits fitArpsModel's linearised fits and day time base: qi and
    Di are per month when steps are months.
 5. Additive errors only (no multiplicative ETS forms).
+6. Bootstrap residuals are not centred (decision 7): when a method is
+   biased on the training series (a flat method on a decline) the
+   simulated paths inherit that bias, and the percentile band can sit
+   wholly on one side of the point forecast. Compare the band with the
+   point forecast and the backtest ME before reading it as uncertainty.
 
 ## Lead decisions (2026-09-24)
 
@@ -250,3 +285,6 @@ comparisons with progress shown or in a worker.
 2. The app leads with MASE (compareWithArps' default ranking) and shows
    MAPE only with its null reason when a shut-in month is in the actuals.
 3. Field-wide runs in the app go through a web worker with progress.
+4. Bootstrap residuals stay uncentred (FPP3 5.5, statsmodels); the
+   convention is stated in the docstring, `basis.bootstrap`, decision 7
+   and known limit 6.

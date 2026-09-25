@@ -692,7 +692,8 @@ and its consumers.
   rolling-origin expanding-window backtests with refit or held parameters;
   MAE, RMSE, ME, MAPE (null with the reason on a zero actual), sMAPE (0 to
   200) and MASE (in-sample lag-m naive scale); residual bootstrap
-  intervals from one lib/stats mulberry32 stream with the lib/stats
+  intervals (residuals drawn as fitted, uncentred, as FPP3 5.5) from one
+  lib/stats mulberry32 stream with the lib/stats
   quantile rule and P90/P50/P10 labels from `lib/conventions/percentile.js`;
   and an Arps baseline imported from `engines/dca/arps.js` (fitArpsModel,
   never re-implemented) compared on the same origins and ranked with a

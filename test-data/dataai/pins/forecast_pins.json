@@ -4228,6 +4228,106 @@
    "tol": 1e-10,
    "abs": 1e-09,
    "library": "statsmodels forecast on the training window"
+  },
+  {
+   "id": "bt-ses-window-short-m12:perOrigin.0.forecast",
+   "case": "bt-ses-window-short-m12",
+   "field": "perOrigin.0.forecast",
+   "value": [
+    642.4695701559389,
+    642.4695701559389,
+    642.4695701559389
+   ],
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "statsmodels forecast on the training window"
+  },
+  {
+   "id": "bt-ses-window-short-m12:perOrigin.1.forecast",
+   "case": "bt-ses-window-short-m12",
+   "field": "perOrigin.1.forecast",
+   "value": [
+    417.717390272282,
+    417.717390272282,
+    417.717390272282
+   ],
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "statsmodels forecast on the training window"
+  },
+  {
+   "id": "bt-ses-window-short-m12:perOrigin.2.forecast",
+   "case": "bt-ses-window-short-m12",
+   "field": "perOrigin.2.forecast",
+   "value": [
+    363.9435638579589,
+    363.9435638579589,
+    363.9435638579589
+   ],
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "statsmodels forecast on the training window"
+  },
+  {
+   "id": "bt-ses-window-short-m12:perOrigin.3.forecast",
+   "case": "bt-ses-window-short-m12",
+   "field": "perOrigin.3.forecast",
+   "value": [
+    290.4445949833217,
+    290.4445949833217,
+    290.4445949833217
+   ],
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "statsmodels forecast on the training window"
+  },
+  {
+   "id": "bt-ses-flat-six:perOrigin.0.forecast",
+   "case": "bt-ses-flat-six",
+   "field": "perOrigin.0.forecast",
+   "value": [
+    7.0,
+    7.0
+   ],
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "statsmodels forecast on the training window"
+  },
+  {
+   "id": "bt-ses-flat-six:perOrigin.1.forecast",
+   "case": "bt-ses-flat-six",
+   "field": "perOrigin.1.forecast",
+   "value": [
+    7.5,
+    7.5
+   ],
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "statsmodels forecast on the training window"
+  },
+  {
+   "id": "bt-ses-flat-six:perOrigin.2.forecast",
+   "case": "bt-ses-flat-six",
+   "field": "perOrigin.2.forecast",
+   "value": [
+    8.25,
+    8.25
+   ],
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "statsmodels forecast on the training window"
+  },
+  {
+   "id": "bt-ses-flat-six:perOrigin.3.forecast",
+   "case": "bt-ses-flat-six",
+   "field": "perOrigin.3.forecast",
+   "value": [
+    9.125,
+    9.125
+   ],
+   "tol": 1e-10,
+   "abs": 1e-09,
+   "library": "statsmodels forecast on the training window"
   }
  ],
  "skipped": [

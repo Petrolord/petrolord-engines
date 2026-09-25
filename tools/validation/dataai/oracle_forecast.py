@@ -399,7 +399,7 @@ def naive_scale(train, m, label):
         return None, f'MASE is undefined: {label} has {len(train)} value{"" if len(train) == 1 else "s"}, so the lag-{m} naive forecast has no in-sample error (it needs more than {m})'
     s = sum(abs(F(train[t]) - F(train[t - m])) for t in range(m, len(train)))
     if s == 0:
-        return None, f'MASE is undefined: the lag-{m} naive forecast has zero in-sample error on the {len(train)} values of {label} (every y[t] - y[t - {m}] is 0), so the scale is 0'
+        return None, f'MASE is undefined: {label} has {len(train)} values and the lag-{m} naive forecast has zero in-sample error on them (every y[t] - y[t - {m}] is 0), so the scale is 0'
     return s / (len(train) - m), None
 
 
@@ -539,7 +539,7 @@ def o_backtest_rows(y, method, first, horizon, step, refit, m, fixed):
             held = {k: st['p'][k] for k in ['alpha', 'beta', 'phi'] if k in fit['params']}
         fc = point_forecast(method, st['l'], st['tr'], st['p'].get('phi'), horizon)
         actual = y[o:o + horizon]
-        q, qnote = naive_scale(train, m, f'the {o} training values')
+        q, qnote = naive_scale(train, m, 'the training window')
         rows.append({'origin': o, 'trainN': o, 'params': fit['params'], 'fc': fc, 'actual': actual, 'q': q, 'qnote': qnote})
     return rows
 
@@ -665,18 +665,18 @@ def o_arps_fit(y, model):
     return best, len(pos)
 
 
-def arps_reason(y, model, subject, plural):
+def arps_reason(y, model, subject):
     res, npos = o_arps_fit(y, model)
     if res is None:
-        return None, f"{subject} {'have' if plural else 'has'} {npos} positive value{'' if npos == 1 else 's'}: fitArpsModel needs at least 3 (it drops zero and negative rates)"
+        return None, f"{subject} has {npos} positive value{'' if npos == 1 else 's'}: fitArpsModel needs at least 3 (it drops zero and negative rates)"
     if res == 'none':
         kind = 'exponential, harmonic or hyperbolic' if model == 'Auto-Select' else model.lower()
-        return None, f"{subject} {'give' if plural else 'gives'} no Arps fit: fitArpsModel found no {kind} fit with finite qi > 0 and Di > 0 on the {npos} positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)"
+        return None, f"{subject} gives no Arps fit: fitArpsModel found no {kind} fit with finite qi > 0 and Di > 0 on the {npos} positive values (a least-squares line through the rates on the log, reciprocal or q^-b scale that shows no decline gives Di <= 0)"
     return res, None
 
 
 def o_arps_forecast(y, h=0, model='Auto-Select'):
-    res, reason = arps_reason(y, model, 'y', False)
+    res, reason = arps_reason(y, model, 'y')
     if reason:
         return None, reason
     k0 = res['t0']
@@ -703,12 +703,12 @@ def o_compare(y, first, horizon, step=1, methods=('ses', 'holt', 'damped'), refi
     err = None
     for o in origins:
         train = y[:o]
-        res, reason = arps_reason(train, arps_model, f'at origin {o} the {o} training values', True)
+        res, reason = arps_reason(train, arps_model, f'at origin {o} the training window')
         if reason:
             err = reason
             break
         fc = [arps_rate(res['qi'], res['Di'], res['b'], D(o + j - res['t0'])) for j in range(horizon)]
-        q, qnote = naive_scale(train, m, f'the {o} training values')
+        q, qnote = naive_scale(train, m, 'the training window')
         arows.append({'origin': o, 'trainN': o,
                       'params': {'qi': fl(res['qi']), 'Di': fl(res['Di']), 'b': fl(res['b']), 'modelType': res['modelType']},
                       'fc': fc, 'actual': y[o:o + horizon], 'q': q, 'qnote': qnote})
@@ -968,6 +968,7 @@ def build():
     Ra = lambda cid, args, field, msg: c.refuse(cid, 'accuracy', args, field, msg)
     Ra('acc-actual-empty', {'actual': [], 'forecast': []}, 'actual', 'actual has 0 values: at least 1 actual is needed')
     Ra('acc-forecast-length', {'actual': [1, 2, 3], 'forecast': [1, 2]}, 'forecast', 'forecast must have 3 values, one per actual (it has 2)')
+    Ra('acc-forecast-length-one', {'actual': [1], 'forecast': [1, 2]}, 'forecast', 'forecast must have 1 value, one per actual (it has 2)')
     Ra('acc-forecast-nan', {'actual': [1, 2], 'forecast': [1, 'x']}, 'forecast[1]', 'forecast[1] must be a finite number: fill or drop missing values first')
     Ra('acc-m-zero', {'actual': [1], 'forecast': [1], 'm': 0}, 'm', 'm must be a whole number, 1 or more (1 is the non-seasonal naive; 12 is a monthly seasonal naive)')
     Ra('acc-insample-empty', {'actual': [1], 'forecast': [1], 'insample': []}, 'insample', 'insample has 0 values: at least 1 value is needed')
@@ -1021,7 +1022,14 @@ def build():
     B('bt-ses-shutin-actuals', shut, 'ses', 3, 2, alpha=0.5, note='zero actuals: MAPE null naming the first zero actual')
     flat = [7.0, 7.0, 7.0, 7.0, 7.0, 8.0, 9.0]
     B('bt-ses-flat-training', flat, 'ses', 3, 2, alpha=0.5, note='the first window is constant: MASE null naming the origin')
+    B('bt-ses-window-short-m12', w1, 'ses', 12, 3, step=12, m=12, alpha=0.3,
+      note='the first window has 12 values at lag 12: MASE null, the reason names the origin and the training window once')
+    B('bt-ses-flat-six', [7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0], 'ses', 6, 2, alpha=0.5,
+      note='the first window is 6 equal values: MASE null, the count printed once')
     Rb = lambda cid, args, field, msg: c.refuse(cid, 'backtest', args, field, msg)
+    Rb('bt-h1-series-too-short', {'y': [5, 4, 3], 'method': 'holt', 'firstOrigin': 3, 'horizon': 1}, 'y', "y has 3 values: a backtest with horizon 1 needs at least 4 ('holt' needs 3 training values, then 1 actual)")
+    Rb('bt-h1-first-too-large', {'y': NIST_12, 'method': 'ses', 'firstOrigin': 12, 'horizon': 1}, 'firstOrigin', "firstOrigin must be a whole number from 2 to 11 ('ses' needs 2 training values; an origin above 11 leaves no actual)")
+    Rb('bt-y-one-value', {'y': [5], 'method': 'ses', 'firstOrigin': 1, 'horizon': 1}, 'y', "y has 1 value: a backtest with horizon 1 needs at least 3 ('ses' needs 2 training values, then 1 actual)")
     Rb('bt-horizon-0', {'y': w1, 'method': 'ses', 'firstOrigin': 10, 'horizon': 0}, 'horizon', 'horizon must be a whole number, 1 or more')
     Rb('bt-step-0', {'y': w1, 'method': 'ses', 'firstOrigin': 10, 'horizon': 3, 'step': 0}, 'step', 'step must be a whole number, 1 or more')
     Rb('bt-first-too-small', {'y': w1, 'method': 'holt', 'firstOrigin': 2, 'horizon': 3}, 'firstOrigin', "firstOrigin must be a whole number from 3 to 57 ('holt' needs 3 training values; an origin above 57 leaves fewer than 3 actuals)")
@@ -1072,7 +1080,13 @@ def build():
         note='Arps cannot fit a rising series: its row carries the refusal and is unranked')
     CMP('cmp-constant-ties', [50.0] * 10, 5, 2, methods=['damped', 'ses', 'holt'], rankBy='mae',
         note='every method forecasts the constant exactly: MAE 0 for all three ties, so the listed order stands; Arps cannot fit a flat series')
+    CMP('cmp-arps-window-one-positive', [0.0, 50.0, 0.0, 0.0, 40.0, 30.0, 20.0, 10.0, 5.0], 4, 2, methods=['ses'],
+        note='the first training window has 1 positive value: the Arps row carries the refusal, the window named once')
+    CMP('cmp-clean-m12-short-window', dec_clean, 12, 6, step=12, m=12,
+        note='the first window has 12 values at lag 12: every row, Arps included, has MASE null with the reason naming the training window once')
     Rc = lambda cid, args, field, msg: c.refuse(cid, 'compareWithArps', args, field, msg)
+    Rc('cmp-h1-series-too-short', {'y': [5, 4, 3], 'firstOrigin': 3, 'horizon': 1}, 'y', 'y has 3 values: a backtest with horizon 1 needs at least 4 (the comparison needs 3 training values, then 1 actual)')
+    Rc('cmp-h1-first-too-large', {'y': NIST_12, 'firstOrigin': 12, 'horizon': 1, 'methods': ['ses']}, 'firstOrigin', 'firstOrigin must be a whole number from 3 to 11 (the comparison needs 3 training values; an origin above 11 leaves no actual)')
     Rc('cmp-methods-empty', {'y': w1, 'firstOrigin': 20, 'horizon': 3, 'methods': []}, 'methods', "methods must be a non-empty array of 'ses', 'holt' and 'damped'")
     Rc('cmp-methods-bad', {'y': w1, 'firstOrigin': 20, 'horizon': 3, 'methods': ['ses', 'naive']}, 'methods[1]', "methods[1] must be 'ses', 'holt' or 'damped'")
     Rc('cmp-methods-repeat', {'y': w1, 'firstOrigin': 20, 'horizon': 3, 'methods': ['ses', 'holt', 'ses']}, 'methods[2]', 'methods[2] repeats ses')

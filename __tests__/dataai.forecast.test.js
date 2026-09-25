@@ -205,6 +205,28 @@ describe('backtest, accuracy and comparison: properties', () => {
   });
 });
 
+describe('basis text: conventions the goldens do not carry', () => {
+  const NOT_CENTRED = "residuals are drawn as fitted without centring (their mean is not subtracted), so a method whose residuals have a non-zero mean drifts: on a declining well a flat method's paths can fall below its own point forecast";
+  test('the bootstrap basis states that residuals are not centred, and counts paths in the singular for one', () => {
+    const one = call(byId('pi-ses-nsims-1')).basis.bootstrap;
+    expect(one.startsWith('1 path; each step adds a residual')).toBe(true);
+    expect(one.endsWith(`the simulated value updates the state; ${NOT_CENTRED}`)).toBe(true);
+    expect(call(byId('pi-holt-ekene1')).basis.bootstrap.startsWith('1000 paths; each step adds a residual')).toBe(true);
+  });
+  test('the stated drift is real: a flat method on a declining well has negative mean residuals and paths below its point forecast', () => {
+    const y = args('arps-clean-auto').y;
+    const fit = FC.fitSmoothing({ y, method: 'ses', alpha: 0.3 });
+    const res = fit.residuals.slice(fit.scoredFrom);
+    expect(res.reduce((s, v) => s + v, 0) / res.length).toBeLessThan(0);
+    const r = FC.forecastIntervals({ y, method: 'ses', alpha: 0.3, h: 12, seed: 7 });
+    expect(r.P10[11]).toBeLessThan(r.forecast[11]);
+  });
+  test('the backtest basis names the forecast window, y[o] alone at horizon 1', () => {
+    expect(call(byId('bt-ses-fixed-step1-h1')).basis.origins).toBe('expanding window: origin o trains on y[0..o-1] and forecasts y[o]; origins 6, 6 + 1, ... while o + 1 <= 12');
+    expect(call(byId('bt-ses-last-origin-exact')).basis.origins).toBe('expanding window: origin o trains on y[0..o-1] and forecasts y[o..o+2]; origins 9, 9 + 1, ... while o + 3 <= 12');
+  });
+});
+
 describe('bootstrap: properties', () => {
   test('the same seed gives the same percentiles; another seed differs', () => {
     const a = args('pi-holt-ekene1');
