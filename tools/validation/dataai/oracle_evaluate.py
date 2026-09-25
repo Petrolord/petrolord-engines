@@ -749,3 +749,716 @@ def paired_reps(a, b, n_boot, seed, paired):
             sb = sum(fb[rng.draw(n)] for _ in range(n))
             reps.append(sa / n - sb / n)
     return reps
+
+
+def float_rep_sign(a, b, n_boot, seed, paired):
+    """The replicates as the engine's doubles, used ONLY for the sign of a
+    replicate whose exact value is within 1e-9 of 0 (the at-or-below-zero
+    share counts the double; FINDINGS-evaluate.md)."""
+    n = len(a)
+    d = [x - y for x, y in zip(a, b)]
+    rng = Mulberry32(seed)
+    out = []
+    for _ in range(n_boot):
+        if paired:
+            s = 0.0
+            for _ in range(n):
+                s += d[rng.draw(n)]
+            out.append(s / n)
+        else:
+            sa = 0.0
+            for _ in range(n):
+                sa += a[rng.draw(n)]
+            sb = 0.0
+            for _ in range(n):
+                sb += b[rng.draw(n)]
+            out.append(sa / n - sb / n)
+    return out
+
+
+# ------------------------------------------------------------------ result builders (engine layout, no basis)
+
+def num(x):
+    if x is None:
+        return None
+    if isinstance(x, (F, D)):
+        return float(x)
+    return x
+
+
+def deep(o):
+    if isinstance(o, dict):
+        return {k: deep(v) for k, v in o.items()}
+    if isinstance(o, list):
+        return [deep(v) for v in o]
+    if isinstance(o, (F, D)):
+        return float(o)
+    return o
+
+
+def plural(n, one, many=None):
+    return f'{n} {one if n == 1 else (many or one + "s")}'
+
+
+def o_tokenize(text, stop=False):
+    allt = tokens(text)
+    t = [w for w in allt if w not in STOP] if stop else allt
+    return {'tokens': t, 'count': len(t), 'removed': len(allt) - len(t)}
+
+
+def o_bm25(docs, query, k=10, k1=1.2, b=0.75, stop=False):
+    r = bm25_scores(docs, query, k1, b, stop)
+    ids = [d['id'] for d in docs]
+    top, matched, ties, cut = rank(ids, r['scores'], k)
+    out = {
+        'method': 'bm25', 'k': k, 'k1': k1, 'b': b, 'stopWords': stop, 'N': r['N'], 'avgdl': r['avgdl'],
+        'queryTerms': [{'term': w, 'df': r['df'][w], 'idf': r['idf'][w]} for w in r['terms']],
+        'ranking': [{'rank': j + 1, 'id': ids[i], 'score': r['scores'][i], 'length': r['lengths'][i], 'terms': r['explain'][i]} for j, i in enumerate(top)],
+        'matched': matched, 'ties': ties, 'tieAtCutoff': cut,
+    }
+    if not r['terms']:
+        out['note'] = 'the query has no token' + (' after the stop list' if stop else '') + ', so no document is ranked'
+    elif not matched:
+        out['note'] = 'no document contains a query term, so no document is ranked'
+    return deep(out)
+
+
+def o_tfidf_vectors(docs, stop=False, sub=False):
+    m = tfidf_model(docs, stop, sub)
+    return deep({'N': m['N'], 'vocabulary': m['vocab'], 'df': [m['df'][w] for w in m['vocab']], 'idf': [m['idf'][w] for w in m['vocab']],
+                 'vectors': [{'id': d['id'], 'length': m['lengths'][i], 'norm': m['norms'][i], 'weights': {w: m['vecs'][i][w] for w in sorted(m['vecs'][i], key=js_key)}} for i, d in enumerate(docs)]})
+
+
+def o_tfidf(docs, query, k=10, stop=False, sub=False):
+    m = tfidf_model(docs, stop, sub)
+    q = tfidf_query(m, query, stop)
+    sc = tfidf_scores(m, q)
+    ids = [d['id'] for d in docs]
+    top, matched, ties, cut = rank(ids, sc, k)
+    allq = distinct(tokens(query, stop))
+    qterms = sorted(q, key=js_key)
+    out = {
+        'method': 'tfidf', 'k': k, 'stopWords': stop, 'sublinearTf': sub, 'N': m['N'],
+        'queryVector': {w: q[w] for w in qterms},
+        'droppedTerms': [w for w in allq if w not in m['idf']],
+        'ranking': [{'rank': j + 1, 'id': ids[i], 'score': sc[i], 'terms': [{'term': w, 'query': q[w], 'document': m['vecs'][i][w]} for w in qterms if w in m['vecs'][i]]} for j, i in enumerate(top)],
+        'matched': matched, 'ties': ties, 'tieAtCutoff': cut,
+    }
+    if not allq:
+        out['note'] = 'the query has no token' + (' after the stop list' if stop else '') + ', so no document is ranked'
+    elif not q:
+        out['note'] = 'no query term is in the corpus vocabulary, so no document is ranked'
+    return deep(out)
+
+
+def o_retrieve(docs, queries, method, k=10, k1=1.2, b=0.75, stop=False, sub=False):
+    ids = [d['id'] for d in docs]
+    per = []
+    for q in queries:
+        if method == 'bm25':
+            sc = bm25_scores(docs, q['text'], k1, b, stop)['scores']
+        else:
+            m = tfidf_model(docs, stop, sub)
+            sc = tfidf_scores(m, tfidf_query(m, q['text'], stop))
+        top, matched, ties, cut = rank(ids, sc, k)
+        per.append({'id': q['id'], 'ranking': [{'rank': j + 1, 'id': ids[i], 'score': sc[i]} for j, i in enumerate(top)], 'matched': matched, 'ties': ties, 'tieAtCutoff': cut})
+    out = {'method': method, 'k': k, 'stopWords': stop, 'runs': {p['id']: [x['id'] for x in p['ranking']] for p in per}, 'perQuery': per}
+    if method == 'bm25':
+        out.update(k1=k1, b=b)
+    else:
+        out['sublinearTf'] = sub
+    return deep(out)
+
+
+def o_metrics(ranking, judg, k=10, t=1, gain='linear'):
+    r = metrics(ranking, judg, k, t, gain)
+    if not r['notes']:
+        del r['notes']
+    r.update(relevantGrade=t, gain=gain)
+    return deep(r)
+
+
+def o_evaluate(runs, judg, k=10, t=1, gain='linear', no_rel='exclude'):
+    qids = sorted(judg, key=js_key)
+    per = []
+    for q in qids:
+        r = metrics(runs[q], judg[q], k, t, gain)
+        if not r['notes']:
+            del r['notes']
+        per.append({'query': q, **r})
+    excl = [{'query': r['query'], 'reason': f'no judged document has grade {t} or more'} for r in per if r['nRelevant'] == 0]
+    used = [r for r in per if r['nRelevant'] > 0 or no_rel == 'zero']
+    z = lambda v: F(0) if v is None else v
+    keys = [('precision', 'precision'), ('recall', 'recall'), ('hitRate', 'hit'), ('mrr', 'reciprocalRank'), ('map', 'averagePrecision'), ('ndcg', 'ndcg')]
+    mean_ = {}
+    for name, key in keys:
+        if not used:
+            mean_[name] = None
+            continue
+        vals = [z(r[key]) for r in used]
+        mean_[name] = sum((dfrac(v) if isinstance(v, F) else D(v) if not isinstance(v, D) else v) for v in vals) / len(vals)
+    out = {'k': k, 'relevantGrade': t, 'gain': gain, 'noRelevant': no_rel, 'nQueries': len(qids), 'nIncluded': len(used),
+           'perQuery': per, 'mean': mean_, 'excluded': excl if no_rel == 'exclude' else [], 'zeroed': excl if no_rel == 'zero' else []}
+    if not used:
+        out['note'] = f'no query has a judged document at grade {t} or more, so every mean is null'
+    return deep(out)
+
+
+def o_normalize(text):
+    n = squad_normalize(text)
+    return {'normalized': n, 'tokens': ntok(n)}
+
+
+def o_answer(pred, truth):
+    a, b = squad_normalize(pred), squad_normalize(truth)
+    f = squad_f1(ntok(a), ntok(b))
+    return deep({'exactMatch': a == b, 'f1': f['f1'], 'precision': f['precision'], 'recall': f['recall'], 'commonTokens': f['common'],
+                 'normalizedPrediction': a, 'normalizedTruth': b})
+
+
+def empty(v):
+    return v is None or (isinstance(v, str) and v.strip() == '')
+
+
+def is_number_string(s):
+    s = s.strip()
+    if s.startswith('-'):
+        s = s[1:]
+    if '.' in s:
+        whole, _, fr = s.partition('.')
+        if not fr or not fr.isdigit() or not fr.isascii():
+            return False
+    else:
+        whole = s
+    groups = whole.split(',')
+    if not groups[0] or not groups[0].isdigit() or not groups[0].isascii():
+        return False
+    return all(len(g) == 3 and g.isdigit() and g.isascii() for g in groups[1:])
+
+
+def score_cell(f, label, pred):
+    le, pe = empty(label), empty(pred)
+    cell = {'label': None if le else label, 'prediction': None if pe else pred}
+    text = f['type'] == 'text'
+    if le and pe:
+        return {**cell, 'outcome': 'correct', 'empty': True, **({'f1': F(1)} if text else {})}
+    if pe:
+        return {**cell, 'outcome': 'missed', 'reason': 'the label has a value and the prediction is empty', **({'f1': F(0)} if text else {})}
+    if le:
+        return {**cell, 'outcome': 'unsupported', 'reason': 'the label is empty and the prediction has a value', **({'f1': F(0)} if text else {})}
+    if text:
+        a, b = squad_normalize(pred), squad_normalize(label)
+        f1 = squad_f1(ntok(a), ntok(b))['f1']
+        if a == b:
+            return {**cell, 'outcome': 'correct', 'f1': f1}
+        return {**cell, 'outcome': 'wrong', 'f1': f1, 'reason': f'normalised "{a}" differs from "{b}"'}
+    if isinstance(pred, str):
+        if not is_number_string(pred):
+            return {**cell, 'outcome': 'wrong', 'reason': f'"{pred}" is not a plain number (digits with optional comma thousands groups and a decimal part)'}
+        x = float(pred.strip().replace(',', ''))
+    else:
+        x = pred
+    tol = max(F(f.get('absTol', 0)), F(f.get('relTol', 0)) * abs(F(label)))
+    d = abs(F(x) - F(label))
+    dd = abs(x - label)  # the engine's printed difference is the double difference
+    if d <= tol:
+        return {**cell, 'outcome': 'correct', 'difference': dd}
+    return {**cell, 'outcome': 'wrong', 'difference': dd, 'reason': f'{js_num(x)} differs from {js_num(label)} by {js_num(dd)}, above the tolerance {js_num(float(tol))}'}
+
+
+def o_extraction(labels, preds, fields):
+    pm = {p['id']: p['fields'] for p in preds}
+    cells, per = [], []
+    for l in labels:
+        pf = pm.get(l['id'], {})
+        row = {'id': l['id'], 'predicted': l['id'] in pm, 'fields': {}}
+        for f in fields:
+            c = score_cell(f, l['fields'].get(f['name']), pf.get(f['name']))
+            row['fields'][f['name']] = c
+            cells.append({'field': f['name'], **c})
+        per.append(row)
+
+    def tally(cs):
+        t = {o: sum(1 for c in cs if c['outcome'] == o) for o in ('correct', 'wrong', 'missed', 'unsupported')}
+        cf = sum(1 for c in cs if c['outcome'] == 'correct' and not c.get('empty'))
+        pf_ = cf + t['wrong'] + t['unsupported']
+        lf = cf + t['wrong'] + t['missed']
+        return {'n': len(cs), **t, 'correctEmpty': t['correct'] - cf, 'accuracy': F(t['correct'], len(cs)),
+                'precision': F(cf, pf_) if pf_ else None, 'recall': F(cf, lf) if lf else None}
+    pfield = []
+    for f in fields:
+        cs = [c for c in cells if c['field'] == f['name']]
+        o = {'field': f['name'], 'type': f['type'], **tally(cs)}
+        if f['type'] == 'text':
+            o['meanF1'] = sum(c['f1'] for c in cs) / len(cs)
+        else:
+            o['absTol'] = f.get('absTol', 0)
+            o['relTol'] = f.get('relTol', 0)
+        pfield.append(o)
+    ov = tally(cells)
+    ov['microAccuracy'] = ov['accuracy']
+    ov['macroAccuracy'] = sum(f['accuracy'] for f in pfield) / len(pfield)
+    return deep({'nRecords': len(labels), 'nPredicted': len(preds), 'perRecord': per, 'perField': pfield, 'overall': ov})
+
+
+def claim_out(c):
+    o = dict(c)
+    if o['kind'] == 'number':
+        o['value'] = float(o['value'])
+    return o
+
+
+def o_ground(answer, citations, docs, retrieved=None, rel=0):
+    facts = {d['id']: passage_facts(d['text']) for d in docs}
+    r = ground(answer, citations, facts, None if retrieved is None else set(retrieved), rel)
+    r['claims'] = [claim_out(c) for c in r['claims']]
+    r['numericRelTol'] = rel
+    return deep(r)
+
+
+def o_answers(answers, docs, runs=None, rel=0):
+    facts = {d['id']: passage_facts(d['text']) for d in docs}
+    per = []
+    for a in answers:
+        g = ground(a['text'], a['citations'], facts, None if runs is None else set(runs[a['query']]), rel)
+        g['claims'] = [claim_out(c) for c in g['claims']]
+        per.append({'query': a['query'], **g})
+    nc = sum(p['nClaims'] for p in per)
+    ns = sum(p['nSupported'] for p in per)
+    wc = [p for p in per if p['nClaims']]
+    by = {kd: {'claims': sum(1 for p in per for c in p['claims'] if c['kind'] == kd),
+               'supported': sum(1 for p in per for c in p['claims'] if c['kind'] == kd and c['supported'])} for kd in ('number', 'date', 'quote')}
+    out = {
+        'nAnswers': len(answers), 'nClaims': nc, 'nSupported': ns, 'supportedFraction': F(ns, nc) if nc else None,
+        'meanAnswerSupportedFraction': sum(p['supportedFraction'] for p in wc) / len(wc) if wc else None,
+        'fullySupportedAnswers': sum(1 for p in wc if p['nSupported'] == p['nClaims']), 'answersWithClaims': len(wc),
+        'unknownCitations': sum(1 for p in per for c in p['citations'] if c['status'] == 'unknown'),
+        'notRetrievedCitations': sum(1 for p in per for c in p['citations'] if c['status'] == 'notRetrieved'),
+        'byKind': by, 'perAnswer': per, 'numericRelTol': rel,
+    }
+    if not nc:
+        out['note'] = 'no answer has a checkable claim, so the supported fractions are undefined'
+    return deep(out)
+
+
+def o_kappa(a, b, labels=None, weights='none'):
+    if labels is None:
+        vals = set(a) | set(b)
+        labels = sorted(vals) if isinstance(a[0], (int, float)) else sorted(vals, key=js_key)
+    r = kappa(a, b, labels, weights)
+    if r['kappa'] is None:
+        first = next(i for i, v in enumerate(r['rowTotals']) if v > 0)
+        r['note'] = f'kappa is undefined: both raters gave every item the same label ({labels[first]}), so the expected disagreement is 0'
+    return deep(r)
+
+
+def o_calibration(y, p, M=10, eps=None):
+    r = calibration(y, p, M, 1e-15 if eps is None else eps)
+    return deep(r)
+
+
+def o_boot(values, n_boot, seed, level):
+    reps = bootstrap_mean(values, n_boot, seed, level)
+    lo, hi, se, plo, phi = boot_interval(reps, level)
+    out = {'n': len(values), 'mean': sum(F(v) for v in values) / len(values), 'nBoot': n_boot, 'seed': seed, 'level': level,
+           'lower': lo, 'upper': hi, 'standardError': se,
+           'labels': {'lower': f'{plo}th percentile of the bootstrap mean', 'upper': f'{phi}th percentile of the bootstrap mean'}}
+    if n_boot == 1:
+        out['note'] = 'one replicate: the standard error is undefined'
+    return deep(out)
+
+
+def share_at_or_below(reps, a, b, n_boot, seed, paired):
+    near = [i for i, r in enumerate(reps) if abs(r) < F(1, 10 ** 9)]
+    fr = float_rep_sign(a, b, n_boot, seed, paired) if near else None
+    cnt = 0
+    for i, r in enumerate(reps):
+        cnt += 1 if (fr[i] <= 0 if i in near else r <= 0) else 0
+    return cnt
+
+
+def o_paired(a, b, n_boot, seed, level, paired=True):
+    reps = paired_reps(a, b, n_boot, seed, paired)
+    lo, hi, se, plo, phi = boot_interval(reps, level)
+    d = [F(float(x) - float(y)) for x, y in zip(a, b)]
+    out = {'n': len(a), 'meanA': sum(F(v) for v in a) / len(a), 'meanB': sum(F(v) for v in b) / len(b), 'difference': sum(d) / len(d),
+           'paired': paired, 'nBoot': n_boot, 'seed': seed, 'level': level, 'lower': lo, 'upper': hi, 'standardError': se,
+           'labels': {'lower': f'{plo}th percentile of the bootstrap difference', 'upper': f'{phi}th percentile of the bootstrap difference'},
+           'shareAtOrBelowZero': F(share_at_or_below(reps, a, b, n_boot, seed, paired), n_boot)}
+    if n_boot == 1:
+        out['note'] = 'one replicate: the standard error is undefined'
+    return deep(out)
+
+
+# ------------------------------------------------------------------ cases
+
+class Cases:
+    def __init__(self):
+        self.cases = []
+
+    def add(self, cid, fn, args, expected, tol=TOL, note=None, abs_floor=None):
+        assert cid not in {c['id'] for c in self.cases}, cid
+        c = {'id': cid, 'fn': fn, 'args': args, 'expected': expected, 'tol': tol}
+        if abs_floor is not None:
+            c['abs'] = abs_floor
+        if note:
+            c['note'] = note
+        self.cases.append(c)
+
+    def refuse(self, cid, fn, args, field, message, note=None):
+        self.add(cid, fn, args, {'error': True, 'field': field, 'message': message}, note=note)
+
+
+def load(name):
+    return json.load(open(os.path.join(FIX, name)))
+
+
+SMALL = [
+    {'id': 'd1', 'text': 'Oil rate 120 bopd at Ekene-1. Oil rate fell.'},
+    {'id': 'd2', 'text': 'Water injection at Ekene-2 started on 2023-01-01.'},
+    {'id': 'd3', 'text': 'Oil and water rates were tested; the oil rate was 150 bopd.'},
+    {'id': 'd4', 'text': 'Pressure survey: 2,096 psia.'},
+    {'id': 'd5', 'text': ''},
+]
+
+
+def build():
+    c = Cases()
+    corpus = [{'id': p['id'], 'text': p['text']} for p in load('corpus.json')['passages']]
+    Qs = load('queries.json')['queries']
+    qlist = [{'id': q['id'], 'text': q['text']} for q in Qs]
+    judg = {q['id']: q['judgments'] for q in Qs}
+    qtext = {q['id']: q['text'] for q in Qs}
+    systems = {s['id']: s for s in load('systems.json')['systems']}
+    X = load('extraction.json')
+    cal = load('calibration.json')['rows']
+
+    # ---------------- tokenize
+    T = lambda cid, text, stop=False, note=None: c.add(cid, 'tokenize', {'text': text, 'stopWords': stop}, o_tokenize(text, stop), note=note)
+    T('tok-basic', 'Ekene-3 flowed 1.25 MMscf/d; Top WELL at 1548 m TVD.', note='"1.25" gives 1 and 25; "Ekene-3" gives ekene and 3')
+    T('tok-stop', 'Ekene-3 flowed 1.25 MMscf/d; Top WELL at 1548 m TVD.', True, note="the stop list removes 'top' and 'well'")
+    T('tok-accents', 'Café déjà-vu ÉKENE — Ekene²', note='only ASCII A-Z is lowercased; every other character outside [a-z0-9] separates')
+    T('tok-empty', '')
+    T('tok-only-stop', 'the well is on top of the', True)
+    T('tok-underscore', 'EK1_P and EK1-P / x2', note='the underscore separates too')
+    Rt = lambda cid, args, field, msg: c.refuse(cid, 'tokenize', args, field, msg)
+    Rt('tok-text-number', {'text': 42}, 'text', 'text must be a string')
+    Rt('tok-text-long', {'text': 'a' * 20001}, 'text', 'text has 20001 characters, above the 20000 this engine accepts')
+    Rt('tok-stop-string', {'text': 'x', 'stopWords': 'yes'}, 'stopWords', 'stopWords must be true or false')
+
+    # ---------------- BM25
+    B = lambda cid, docs, query, note=None, **kw: c.add(cid, 'rankBm25', {'documents': docs, 'query': query, **kw},
+                                                      o_bm25(docs, query, kw.get('k', 10), kw.get('k1', 1.2), kw.get('b', 0.75), kw.get('stopWords', False)), note=note, abs_floor=1e-12)
+    B('bm25-small', SMALL, 'oil rate')
+    B('bm25-small-b0', SMALL, 'oil rate', b=0, note='b = 0: no length normalisation')
+    B('bm25-small-k1-0', SMALL, 'oil rate water', k1=0, note='k1 = 0: each matched term scores its idf')
+    B('bm25-small-repeated-query', SMALL, 'oil oil OIL rate', note='a repeated query word counts once')
+    B('bm25-small-no-token', SMALL, '!!! --', note='no token: nothing ranked, with the reason')
+    B('bm25-small-no-match', SMALL, 'helicopter', note='no document contains a query term')
+    B('bm25-small-k1', SMALL, 'oil rate', k=1)
+    for qid in ('Q01', 'Q02', 'Q05', 'Q10', 'Q14', 'Q24'):
+        B(f'bm25-ekene-{qid}', corpus, qtext[qid], k=10)
+    B('bm25-ekene-Q10-k1-tie-at-cutoff', corpus, qtext['Q10'], k=1, note='EKD-046 and EKD-058 are the same text: they tie, id ascending, and k = 1 cuts the tie')
+    B('bm25-ekene-Q11-stop', corpus, qtext['Q11'], k=10, stopWords=True)
+    B('bm25-ekene-Q06-b0', corpus, qtext['Q06'], k=10, b=0)
+    B('bm25-ekene-Q06-b1', corpus, qtext['Q06'], k=10, b=1)
+    B('bm25-ekene-Q13-k1-2', corpus, qtext['Q13'], k=10, k1=2.0)
+    B('bm25-ekene-Q12-k1-0', corpus, qtext['Q12'], k=10, k1=0)
+    Rb = lambda cid, args, field, msg: c.refuse(cid, 'rankBm25', args, field, msg)
+    Rb('bm25-docs-missing', {'query': 'x'}, 'documents', 'documents must be a non-empty array of { id, text }')
+    Rb('bm25-docs-empty', {'documents': [], 'query': 'x'}, 'documents', 'documents must be a non-empty array of { id, text }')
+    Rb('bm25-doc-not-object', {'documents': [SMALL[0], 'text'], 'query': 'x'}, 'documents[1]', 'documents[1] must be an object { id, text }')
+    Rb('bm25-doc-id-empty', {'documents': [{'id': '', 'text': 'x'}], 'query': 'x'}, 'documents[0].id', 'documents[0].id must be a non-empty string')
+    Rb('bm25-doc-id-number', {'documents': [{'id': 7, 'text': 'x'}], 'query': 'x'}, 'documents[0].id', 'documents[0].id must be a non-empty string')
+    Rb('bm25-doc-id-repeat', {'documents': [SMALL[0], SMALL[1], {'id': 'd1', 'text': 'y'}], 'query': 'x'}, 'documents[2].id', 'documents[2].id repeats d1 (documents[0])')
+    Rb('bm25-doc-text-null', {'documents': [{'id': 'a', 'text': None}], 'query': 'x'}, 'documents[0].text', 'documents[0].text must be a string')
+    Rb('bm25-doc-text-long', {'documents': [{'id': 'a', 'text': 'b' * 20001}], 'query': 'x'}, 'documents[0].text', 'documents[0].text has 20001 characters, above the 20000 this engine accepts')
+    Rb('bm25-docs-too-many', {'documents': [{'id': f'x{i}', 'text': 'a'} for i in range(5001)], 'query': 'a'}, 'documents', 'documents has 5001 entries, above the 5000 this engine accepts')
+    Rb('bm25-query-missing', {'documents': SMALL}, 'query', 'query must be a string')
+    Rb('bm25-k-0', {'documents': SMALL, 'query': 'x', 'k': 0}, 'k', 'k must be a whole number from 1 to 1000')
+    Rb('bm25-k-1001', {'documents': SMALL, 'query': 'x', 'k': 1001}, 'k', 'k must be a whole number from 1 to 1000')
+    Rb('bm25-k1-negative', {'documents': SMALL, 'query': 'x', 'k1': -0.1}, 'k1', 'k1 must be a finite number, 0 or more (0 scores each matched term at its idf)')
+    Rb('bm25-b-above-1', {'documents': SMALL, 'query': 'x', 'b': 1.5}, 'b', 'b must be a number from 0 to 1 (0 removes length normalisation)')
+    Rb('bm25-stop-string', {'documents': SMALL, 'query': 'x', 'stopWords': 1}, 'stopWords', 'stopWords must be true or false')
+    Rb('bm25-corpus-no-token', {'documents': [{'id': 'a', 'text': '!!'}, {'id': 'b', 'text': ''}], 'query': 'x'}, 'documents', 'documents has no token in any text: BM25 needs an average document length above 0')
+    Rb('bm25-corpus-only-stop', {'documents': [{'id': 'a', 'text': 'the well'}], 'query': 'x', 'stopWords': True}, 'documents', 'documents has no token in any text after the stop list: BM25 needs an average document length above 0')
+
+    # ---------------- TF-IDF
+    TV = lambda cid, docs, note=None, **kw: c.add(cid, 'tfidfVectors', {'documents': docs, **kw}, o_tfidf_vectors(docs, kw.get('stopWords', False), kw.get('sublinearTf', False)), note=note, abs_floor=1e-12)
+    TV('tfidf-vectors-small', SMALL, note='d5 has no token: a zero vector with norm 0')
+    TV('tfidf-vectors-small-sublinear', SMALL, sublinearTf=True)
+    TV('tfidf-vectors-ekene-first-12', corpus[:12])
+    c.refuse('tfidf-vectors-empty-vocab', 'tfidfVectors', {'documents': [{'id': 'a', 'text': '...'}]}, 'documents', 'documents has no token in any text: the vocabulary is empty')
+    c.refuse('tfidf-vectors-sublinear-string', 'tfidfVectors', {'documents': SMALL, 'sublinearTf': 'no'}, 'sublinearTf', 'sublinearTf must be true or false')
+    TF = lambda cid, docs, query, note=None, **kw: c.add(cid, 'rankTfidf', {'documents': docs, 'query': query, **kw},
+                                                        o_tfidf(docs, query, kw.get('k', 10), kw.get('stopWords', False), kw.get('sublinearTf', False)), note=note, abs_floor=1e-12)
+    TF('tfidf-small', SMALL, 'oil rate')
+    TF('tfidf-small-dropped', SMALL, 'oil rate helicopter', note='helicopter is outside the vocabulary and dropped')
+    TF('tfidf-small-no-vocab', SMALL, 'helicopter', note='no query term in the vocabulary')
+    TF('tfidf-small-no-token', SMALL, '  ')
+    for qid in ('Q01', 'Q02', 'Q05', 'Q10', 'Q14', 'Q24'):
+        TF(f'tfidf-ekene-{qid}', corpus, qtext[qid], k=10)
+    TF('tfidf-ekene-Q13-sublinear', corpus, qtext['Q13'], k=10, sublinearTf=True)
+    TF('tfidf-ekene-Q11-stop', corpus, qtext['Q11'], k=10, stopWords=True)
+    Rf = lambda cid, args, field, msg: c.refuse(cid, 'rankTfidf', args, field, msg)
+    Rf('tfidf-k-fraction', {'documents': SMALL, 'query': 'oil', 'k': 2.5}, 'k', 'k must be a whole number from 1 to 1000')
+    Rf('tfidf-query-null', {'documents': SMALL, 'query': None}, 'query', 'query must be a string')
+    Rf('tfidf-corpus-no-token', {'documents': [{'id': 'a', 'text': '--'}], 'query': 'x'}, 'documents', 'documents has no token in any text: the vocabulary is empty')
+
+    # ---------------- retrieve
+    R = lambda cid, method, note=None, **kw: c.add(cid, 'retrieve', {'documents': corpus, 'queries': qlist, 'method': method, **kw},
+                                                  o_retrieve(corpus, qlist, method, kw.get('k', 10), kw.get('k1', 1.2), kw.get('b', 0.75), kw.get('stopWords', False), kw.get('sublinearTf', False)), note=note, abs_floor=1e-12)
+    R('retrieve-bm25-k5', 'bm25', k=5, note="system A's retriever")
+    R('retrieve-tfidf-k5', 'tfidf', k=5, note="system B's retriever")
+    R('retrieve-bm25-k10', 'bm25', k=10)
+    R('retrieve-tfidf-k10', 'tfidf', k=10)
+    R('retrieve-bm25-b04-stop', 'bm25', k=10, b=0.4, stopWords=True)
+    R('retrieve-tfidf-sublinear', 'tfidf', k=10, sublinearTf=True)
+    Rr = lambda cid, args, field, msg: c.refuse(cid, 'retrieve', args, field, msg)
+    Rr('retrieve-method-bad', {'documents': corpus[:3], 'queries': qlist[:1], 'method': 'dense'}, 'method', "method must be 'bm25' or 'tfidf'")
+    Rr('retrieve-queries-empty', {'documents': corpus[:3], 'queries': [], 'method': 'bm25'}, 'queries', 'queries must be a non-empty array of { id, text }')
+    Rr('retrieve-query-id-repeat', {'documents': corpus[:3], 'queries': [qlist[0], qlist[1], qlist[0]], 'method': 'bm25'}, 'queries[2].id', 'queries[2].id repeats Q01 (queries[0])')
+    Rr('retrieve-query-text-number', {'documents': corpus[:3], 'queries': [{'id': 'q', 'text': 3}], 'method': 'tfidf'}, 'queries[0].text', 'queries[0].text must be a string')
+    Rr('retrieve-query-not-object', {'documents': corpus[:3], 'queries': ['oil'], 'method': 'tfidf'}, 'queries[0]', 'queries[0] must be an object { id, text }')
+    Rr('retrieve-k1-on-tfidf', {'documents': corpus[:3], 'queries': qlist[:1], 'method': 'tfidf', 'k1': 1.5}, 'k1', "k1 applies to 'bm25' only")
+    Rr('retrieve-b-on-tfidf', {'documents': corpus[:3], 'queries': qlist[:1], 'method': 'tfidf', 'b': 0.5}, 'b', "b applies to 'bm25' only")
+    Rr('retrieve-sublinear-on-bm25', {'documents': corpus[:3], 'queries': qlist[:1], 'method': 'bm25', 'sublinearTf': False}, 'sublinearTf', "sublinearTf applies to 'tfidf' only")
+    Rr('retrieve-too-many-queries', {'documents': corpus[:3], 'queries': [{'id': f'q{i}', 'text': 'x'} for i in range(1001)], 'method': 'bm25'}, 'queries', 'queries has 1001 entries, above the 1000 this engine accepts')
+
+    # ---------------- retrieval metrics
+    J = {'a': 3, 'b': 2, 'c': 0, 'd': 1, 'e': 2}
+    M_ = lambda cid, ranking, judgments, note=None, **kw: c.add(cid, 'retrievalMetrics', {'ranking': ranking, 'judgments': judgments, **kw},
+                                                               o_metrics(ranking, judgments, kw.get('k', 10), kw.get('relevantGrade', 1), kw.get('gain', 'linear')), note=note, abs_floor=1e-12)
+    M_('met-basic-k5', ['c', 'a', 'x', 'b', 'd'], J, k=5, note='x is unjudged (grade 0)')
+    M_('met-ideal', ['a', 'b', 'e', 'd', 'c'], J, k=5, note='the ideal order: nDCG 1')
+    M_('met-reversed', ['c', 'd', 'e', 'b', 'a'], J, k=5)
+    M_('met-short-ranking', ['b'], J, k=5, note='P@5 divides by 5 although one document is ranked')
+    M_('met-empty-ranking', [], J, k=3)
+    M_('met-grade2', ['c', 'a', 'x', 'b', 'd'], J, k=5, relevantGrade=2)
+    M_('met-exponential', ['c', 'a', 'x', 'b', 'd'], J, k=5, gain='exponential')
+    M_('met-k-cut', ['c', 'x', 'y', 'a', 'b'], J, k=3, note='the relevant documents sit below the cutoff: RR 0')
+    M_('met-no-relevant', ['a', 'b'], {'a': 0, 'b': 0}, k=2, note='every judged grade is 0: recall, AP and nDCG undefined')
+    M_('met-grade1-only-t2', ['a', 'b'], {'a': 1, 'b': 0}, k=2, relevantGrade=2, note='no grade 2 or more, but a grade 1 gives nDCG a value')
+    M_('met-empty-judgments', ['a'], {}, k=1)
+    Rm = lambda cid, args, field, msg: c.refuse(cid, 'retrievalMetrics', args, field, msg)
+    Rm('met-ranking-dup', {'ranking': ['a', 'b', 'a'], 'judgments': J}, 'ranking[2]', 'ranking[2] repeats a (ranking[0]): a document is ranked once')
+    Rm('met-ranking-not-array', {'ranking': 'a', 'judgments': J}, 'ranking', 'ranking must be an array of document ids, best first')
+    Rm('met-ranking-empty-id', {'ranking': ['a', ''], 'judgments': J}, 'ranking[1]', 'ranking[1] must be a non-empty string')
+    Rm('met-judgments-array', {'ranking': ['a'], 'judgments': [3]}, 'judgments', 'judgments must be an object mapping document id to grade')
+    Rm('met-grade-fraction', {'ranking': ['a'], 'judgments': {'a': 1.5}}, 'judgments.a', 'judgments.a must be a whole-number grade from 0 to 10')
+    Rm('met-grade-11', {'ranking': ['a'], 'judgments': {'a': 11}}, 'judgments.a', 'judgments.a must be a whole-number grade from 0 to 10')
+    Rm('met-grade-negative', {'ranking': ['a'], 'judgments': {'a': -1}}, 'judgments.a', 'judgments.a must be a whole-number grade from 0 to 10')
+    Rm('met-relevant-0', {'ranking': ['a'], 'judgments': J, 'relevantGrade': 0}, 'relevantGrade', 'relevantGrade must be a whole number from 1 to 10')
+    Rm('met-gain-bad', {'ranking': ['a'], 'judgments': J, 'gain': 'log'}, 'gain', "gain must be 'linear' or 'exponential'")
+    Rm('met-k-string', {'ranking': ['a'], 'judgments': J, 'k': '5'}, 'k', 'k must be a whole number from 1 to 1000')
+
+    runsA = {a['query']: a['retrieved'] for a in systems['A']['answers']}
+    runsB = {a['query']: a['retrieved'] for a in systems['B']['answers']}
+    EV = lambda cid, runs, judgments, note=None, **kw: c.add(cid, 'evaluateRetrieval', {'runs': runs, 'judgments': judgments, **kw},
+                                                            o_evaluate(runs, judgments, kw.get('k', 10), kw.get('relevantGrade', 1), kw.get('gain', 'linear'), kw.get('noRelevant', 'exclude')), note=note, abs_floor=1e-12)
+    EV('eval-A-k5', runsA, judg, k=5, note='system A; Q24 has no relevant passage and is excluded')
+    EV('eval-B-k5', runsB, judg, k=5)
+    EV('eval-A-k5-zero', runsA, judg, k=5, noRelevant='zero', note="Q24 kept with each undefined metric scored 0")
+    EV('eval-B-k3-grade2', runsB, judg, k=3, relevantGrade=2)
+    EV('eval-A-k5-exponential', runsA, judg, k=5, gain='exponential')
+    EV('eval-all-no-relevant', {'q1': ['a'], 'q2': []}, {'q2': {'a': 0}, 'q1': {'b': 0}}, k=2, note='no included query: every mean null; queries in id order')
+    Re = lambda cid, args, field, msg: c.refuse(cid, 'evaluateRetrieval', args, field, msg)
+    Re('eval-run-missing', {'runs': {'q1': ['a']}, 'judgments': {'q1': {'a': 1}, 'q2': {'a': 1}}}, 'runs', 'runs has no ranking for query q2 (every judged query needs one; an empty array is a ranking that retrieved nothing)')
+    Re('eval-run-extra', {'runs': {'q1': ['a'], 'q9': ['b']}, 'judgments': {'q1': {'a': 1}}}, 'runs.q9', 'runs.q9 has no judgments: every ranked query needs judgments')
+    Re('eval-run-dup', {'runs': {'q1': ['a', 'a']}, 'judgments': {'q1': {'a': 1}}}, 'runs.q1[1]', 'runs.q1[1] repeats a (runs.q1[0]): a document is ranked once')
+    Re('eval-judgments-empty', {'runs': {}, 'judgments': {}}, 'judgments', 'judgments must be a non-empty object mapping query id to { document id: grade }')
+    Re('eval-runs-array', {'runs': [], 'judgments': {'q1': {'a': 1}}}, 'runs', 'runs must be an object mapping query id to an array of document ids')
+    Re('eval-grade-bad', {'runs': {'q1': ['a']}, 'judgments': {'q1': {'a': 'high'}}}, 'judgments.q1.a', 'judgments.q1.a must be a whole-number grade from 0 to 10')
+    Re('eval-no-relevant-bad', {'runs': {'q1': ['a']}, 'judgments': {'q1': {'a': 1}}, 'noRelevant': 'skip'}, 'noRelevant', "noRelevant must be 'exclude' or 'zero'")
+
+    # ---------------- answers
+    for text in ('The Ekene-3 well!', '  A  well   test, the 12.4 ppg mud. ', 'An anticline', '45.0 percent', 'the', ''):
+        c.add(f'norm-{len(c.cases)}', 'normalizeAnswer', {'text': text}, o_normalize(text))
+    c.refuse('norm-text-null', 'normalizeAnswer', {'text': None}, 'text', 'text must be a string')
+    refs = {q['id']: q['reference'] for q in Qs}
+    for sid in ('A', 'B'):
+        for a in systems[sid]['answers']:
+            c.add(f'match-{sid}-{a["query"]}', 'answerMatch', {'prediction': a['short'], 'truth': refs[a['query']]}, o_answer(a['short'], refs[a['query']]))
+    c.add('match-repeated-tokens', 'answerMatch', {'prediction': 'oil oil oil water', 'truth': 'oil water water'}, o_answer('oil oil oil water', 'oil water water'), note='multiset overlap: common = 2')
+    c.add('match-article-only', 'answerMatch', {'prediction': 'the', 'truth': ''}, o_answer('the', ''), note='"the" normalises to empty: both empty, F1 1')
+    c.refuse('match-truth-number', 'answerMatch', {'prediction': 'x', 'truth': 5}, 'truth', 'truth must be a string')
+
+    # ---------------- extraction
+    EX = lambda cid, labels, preds, fields, note=None: c.add(cid, 'scoreExtraction', {'labels': labels, 'predictions': preds, 'fields': fields}, o_extraction(labels, preds, fields), note=note, abs_floor=1e-12)
+    EX('ext-A', X['labels'], X['predictions']['A'], X['fields'], note='system A')
+    EX('ext-B', X['labels'], X['predictions']['B'], X['fields'], note='system B (two records not returned)')
+    EX('ext-none-predicted', X['labels'], [], X['fields'], note='no prediction at all: every filled label missed')
+    F2 = [{'name': 'q', 'type': 'number', 'relTol': 0.01}, {'name': 'p', 'type': 'number', 'absTol': 2, 'relTol': 0.001}, {'name': 'w', 'type': 'text'}]
+    L2 = [{'id': 'r1', 'fields': {'q': 100, 'p': 3000, 'w': 'Ekene-1'}}, {'id': 'r2', 'fields': {'q': 50, 'p': 1000, 'w': ''}}, {'id': 'r3', 'fields': {'q': -4}}]
+    P2 = [{'id': 'r1', 'fields': {'q': '101', 'p': '3,003', 'w': ' ekene-1 '}}, {'id': 'r2', 'fields': {'q': 50.6, 'p': 1002.5, 'w': '   '}}, {'id': 'r3', 'fields': {'q': '-4.00', 'p': '1,00', 'w': 'The'}}]
+    EX('ext-tolerances', L2, P2, F2, note='relTol 1 percent of 100 is 1: 101 matches; max(2, 0.001 x 3000 = 3) = 3: 3,003 matches; 1002.5 is beyond max(2, 1); "1,00" is not a plain number; "The" normalises to empty but is not blank, so it is a value')
+    Rx = lambda cid, args, field, msg: c.refuse(cid, 'scoreExtraction', args, field, msg)
+    L1 = [{'id': 'r1', 'fields': {'q': 1}}]
+    FQ = [{'name': 'q', 'type': 'number'}]
+    Rx('ext-fields-empty', {'labels': L1, 'predictions': [], 'fields': []}, 'fields', 'fields must be a non-empty array of { name, type }')
+    Rx('ext-field-dup', {'labels': L1, 'predictions': [], 'fields': FQ + FQ}, 'fields[1].name', 'fields[1].name repeats q (fields[0])')
+    Rx('ext-field-type', {'labels': L1, 'predictions': [], 'fields': [{'name': 'q', 'type': 'date'}]}, 'fields[0].type', "fields[0].type must be 'text' or 'number'")
+    Rx('ext-abstol-text', {'labels': L1, 'predictions': [], 'fields': [{'name': 'q', 'type': 'text', 'absTol': 1}]}, 'fields[0].absTol', "fields[0].absTol applies to 'number' fields only")
+    Rx('ext-reltol-negative', {'labels': L1, 'predictions': [], 'fields': [{'name': 'q', 'type': 'number', 'relTol': -0.1}]}, 'fields[0].relTol', 'fields[0].relTol must be a finite number, 0 or more')
+    Rx('ext-labels-empty', {'labels': [], 'predictions': [], 'fields': FQ}, 'labels', 'labels must hold at least 1 labelled record')
+    Rx('ext-labels-not-array', {'labels': {}, 'predictions': [], 'fields': FQ}, 'labels', 'labels must be an array of { id, fields }')
+    Rx('ext-label-number-string', {'labels': [{'id': 'r1', 'fields': {'q': '12'}}], 'predictions': [], 'fields': FQ}, 'labels[0].fields.q', 'labels[0].fields.q must be a finite number or empty')
+    Rx('ext-label-text-number', {'labels': [{'id': 'r1', 'fields': {'w': 12}}], 'predictions': [], 'fields': [{'name': 'w', 'type': 'text'}]}, 'labels[0].fields.w', 'labels[0].fields.w must be a string or empty')
+    Rx('ext-label-dup', {'labels': L1 + L1, 'predictions': [], 'fields': FQ}, 'labels[1].id', 'labels[1].id repeats r1 (labels[0])')
+    Rx('ext-label-unknown-field', {'labels': [{'id': 'r1', 'fields': {'z': 1}}], 'predictions': [], 'fields': FQ}, 'labels[0].fields.z', 'labels[0].fields.z is not one of the fields')
+    Rx('ext-pred-unknown-id', {'labels': L1, 'predictions': [{'id': 'r9', 'fields': {}}], 'fields': FQ}, 'predictions[0].id', 'predictions[0].id is r9, which is not a labelled record')
+    Rx('ext-pred-bool', {'labels': L1, 'predictions': [{'id': 'r1', 'fields': {'q': True}}], 'fields': FQ}, 'predictions[0].fields.q', 'predictions[0].fields.q must be a number, a string or empty')
+    Rx('ext-pred-fields-missing', {'labels': L1, 'predictions': [{'id': 'r1'}], 'fields': FQ}, 'predictions[0].fields', 'predictions[0].fields must be an object mapping field name to value')
+
+    # ---------------- groundedness
+    G = lambda cid, answer, citations, docs, note=None, **kw: c.add(cid, 'checkGroundedness', {'answer': answer, 'citations': citations, 'documents': docs, **kw},
+                                                                   o_ground(answer, citations, docs, kw.get('retrieved'), kw.get('numericRelTol', 0)), note=note)
+    G('ground-small-mixed', 'Ekene-1 made 120 bopd; the survey read 2,096 psia on 2023-01-01, a "water injection" start, and 45% water, -2 skin.', ['d1', 'd4'], SMALL, retrieved=['d1', 'd2', 'd4'],
+      note='120 and 2,096 supported; the date and the quote are in d2, retrieved but not cited; 45 and -2 appear nowhere')
+    G('ground-small-no-retrieved', 'The oil rate was 150 bopd on 2023-01-01.', ['d3'], SMALL, note='no retrieved list: every cited passage of the corpus counts')
+    G('ground-small-cited-not-retrieved', 'The oil rate was 150 bopd.', ['d3', 'd9'], SMALL, retrieved=['d1'], note='d3 cited but not retrieved; d9 unknown')
+    G('ground-small-no-citation', 'It made 120 bopd.', [], SMALL, retrieved=['d1'])
+    G('ground-small-no-claim', 'The well flows naturally.', ['d1'], SMALL, retrieved=['d1'])
+    G('ground-small-identifiers', 'EK1-P, Ekene-4, P01 and x/2 are identifiers; 2023-01-01x is not a date; 120.', ['d1'], SMALL, retrieved=['d1'],
+      note='numbers glued to letters or joined by - _ / to an alphanumeric are identifiers; a date touching a letter is read as numbers')
+    G('ground-small-curly-quote', 'The note says “oil rate fell” and "Oil Rate 120".', ['d1'], SMALL, retrieved=['d1'], note='quotes match by tokens: case and punctuation do not matter')
+    G('ground-small-unbalanced-quote', 'He wrote "oil rate and 120 bopd.', ['d1'], SMALL, retrieved=['d1'], note='an unclosed quote is plain text')
+    G('ground-small-thousands', '12,1234 and 1,234,567.5 and 0.50', ['d1'], SMALL, retrieved=['d1'], note='a comma group needs exactly three digits: 12,1234 reads as 12 and 1234; 0.50 prints its value 0.5')
+    G('ground-small-reltol', 'About 2,100 psia.', ['d4'], SMALL, retrieved=['d4'], numericRelTol=0.002, note='|2100 - 2096| = 4 <= 0.002 x 2096 = 4.192')
+    G('ground-small-reltol-tight', 'About 2,100 psia.', ['d4'], SMALL, retrieved=['d4'], numericRelTol=0.001)
+    G('ground-small-duplicate-citation', 'It made 120 bopd.', ['d1', 'd1'], SMALL, retrieved=['d1'], note='a repeated citation counts once')
+    Rg = lambda cid, args, field, msg: c.refuse(cid, 'checkGroundedness', args, field, msg)
+    Rg('ground-answer-null', {'answer': None, 'citations': [], 'documents': SMALL}, 'answer', 'answer must be a string')
+    Rg('ground-citations-string', {'answer': 'x', 'citations': 'd1', 'documents': SMALL}, 'citations', 'citations must be an array of passage ids')
+    Rg('ground-citation-empty', {'answer': 'x', 'citations': ['d1', ''], 'documents': SMALL}, 'citations[1]', 'citations[1] must be a non-empty string')
+    Rg('ground-retrieved-dup', {'answer': 'x', 'citations': [], 'documents': SMALL, 'retrieved': ['d1', 'd1']}, 'retrieved[1]', 'retrieved[1] repeats d1 (retrieved[0]): a document is ranked once')
+    Rg('ground-reltol-1', {'answer': 'x', 'citations': [], 'documents': SMALL, 'numericRelTol': 1}, 'numericRelTol', 'numericRelTol must be a number from 0 (inclusive) to 1 (exclusive)')
+    Rg('ground-docs-empty', {'answer': 'x', 'citations': [], 'documents': []}, 'documents', 'documents must be a non-empty array of { id, text }')
+
+    ansA = [{'query': a['query'], 'text': a['text'], 'citations': a['citations']} for a in systems['A']['answers']]
+    ansB = [{'query': a['query'], 'text': a['text'], 'citations': a['citations']} for a in systems['B']['answers']]
+    GA = lambda cid, answers, runs, note=None, rel=0: c.add(cid, 'checkAnswers', {'answers': answers, 'documents': corpus, **({'runs': runs} if runs is not None else {}), **({'numericRelTol': rel} if rel else {})},
+                                                          o_answers(answers, corpus, runs, rel), note=note)
+    GA('answers-A', ansA, runsA, note='system A')
+    GA('answers-B', ansB, runsB, note='system B')
+    GA('answers-B-reltol', ansB, runsB, rel=0.002, note='system B with numbers matched within 0.2 percent: 2,100 psia is now supported')
+    GA('answers-B-no-runs', ansB, None, note='without the retrieved lists every cited passage counts')
+    GA('answers-no-claims', [{'query': 'q', 'text': 'Nothing to check.', 'citations': []}], None)
+    Ra = lambda cid, args, field, msg: c.refuse(cid, 'checkAnswers', args, field, msg)
+    Ra('answers-empty', {'answers': [], 'documents': SMALL}, 'answers', 'answers must be a non-empty array of { query, text, citations }')
+    Ra('answers-dup-query', {'answers': [{'query': 'q', 'text': 'x', 'citations': []}] * 2, 'documents': SMALL}, 'answers[1].query', 'answers[1].query repeats q (answers[0]): one answer per query')
+    Ra('answers-run-missing', {'answers': [{'query': 'q', 'text': 'x', 'citations': []}], 'documents': SMALL, 'runs': {}}, 'runs', 'runs has no retrieved list for query q (answers[0])')
+    Ra('answers-text-missing', {'answers': [{'query': 'q', 'citations': []}], 'documents': SMALL}, 'answers[0].text', 'answers[0].text must be a string')
+    Ra('answers-query-empty', {'answers': [{'query': '', 'text': 'x', 'citations': []}], 'documents': SMALL}, 'answers[0].query', 'answers[0].query must be a non-empty string')
+    Ra('answers-runs-array', {'answers': [{'query': 'q', 'text': 'x', 'citations': []}], 'documents': SMALL, 'runs': []}, 'runs', 'runs must be an object mapping query id to an array of document ids')
+
+    # ---------------- kappa
+    ra, rb = [], []
+    for q in Qs:
+        for d in sorted(q['judgments'], key=js_key):
+            ra.append(q['judgments'][d])
+            rb.append(q['secondAnnotator'][d])
+    K = lambda cid, a, b, note=None, **kw: c.add(cid, 'cohenKappa', {'a': a, 'b': b, **kw}, o_kappa(a, b, kw.get('labels'), kw.get('weights', 'none')), note=note)
+    K('kappa-ekene-none', ra, rb, labels=[0, 1, 2, 3], note='the two annotators on every judged pair')
+    K('kappa-ekene-linear', ra, rb, labels=[0, 1, 2, 3], weights='linear')
+    K('kappa-ekene-quadratic', ra, rb, labels=[0, 1, 2, 3], weights='quadratic')
+    K('kappa-ekene-quadratic-no-labels', ra, rb, weights='quadratic', note='labels from the ratings: 0, 1, 2, 3 all occur')
+    K('kappa-strings', ['rel', 'rel', 'non', 'non', 'rel', 'non', 'rel', 'rel'], ['rel', 'non', 'non', 'non', 'rel', 'rel', 'rel', 'rel'])
+    K('kappa-strings-ordered-linear', ['low', 'mid', 'high', 'mid', 'low'], ['mid', 'mid', 'high', 'low', 'low'], labels=['low', 'mid', 'high'], weights='linear')
+    K('kappa-perfect', [0, 1, 2, 2, 1], [0, 1, 2, 2, 1], note='identical ratings: kappa 1')
+    K('kappa-undefined', [2, 2, 2], [2, 2, 2], note='one shared label: expected disagreement 0')
+    K('kappa-unused-label', [0, 1, 1, 0], [0, 1, 0, 0], labels=[0, 1, 2], weights='quadratic', note='a label nobody used still sets the weight positions')
+    K('kappa-negative', [0, 1, 0, 1], [1, 0, 1, 0], note='systematic disagreement: kappa -1')
+    Rk = lambda cid, args, field, msg: c.refuse(cid, 'cohenKappa', args, field, msg)
+    Rk('kappa-a-empty', {'a': [], 'b': []}, 'a', 'a must be a non-empty array of ratings')
+    Rk('kappa-b-length', {'a': [1, 2], 'b': [1]}, 'b', 'b must be an array of 2 ratings, one per item of a')
+    Rk('kappa-b-length-one', {'a': [1], 'b': [1, 2]}, 'b', 'b must be an array of 1 rating, one per item of a')
+    Rk('kappa-weights-bad', {'a': [1], 'b': [1], 'weights': 'cubic'}, 'weights', "weights must be 'none', 'linear' or 'quadratic'")
+    Rk('kappa-mixed', {'a': [1, 'x'], 'b': [1, 1]}, 'a[1]', 'a[1] must be a finite number, like a[0]')
+    Rk('kappa-b-mixed', {'a': ['x', 'y'], 'b': ['x', 2]}, 'b[1]', 'b[1] must be a non-empty string, like a[0]')
+    Rk('kappa-a0-null', {'a': [None], 'b': [1]}, 'a[0]', 'a[0] must be a finite number or a non-empty string')
+    Rk('kappa-strings-weighted-no-labels', {'a': ['x', 'y'], 'b': ['y', 'y'], 'weights': 'linear'}, 'labels', 'labels must be given in order for linear weights on string ratings (the weights use the label positions)')
+    Rk('kappa-label-missing', {'a': [0, 1, 3], 'b': [0, 1, 1], 'labels': [0, 1, 2]}, 'a[2]', 'a[2] is 3, which is not one of labels')
+    Rk('kappa-label-dup', {'a': [0], 'b': [0], 'labels': [0, 1, 0]}, 'labels[2]', 'labels[2] repeats 0')
+
+    # ---------------- calibration
+    yv = [r['relevant'] for r in cal]
+    pv = [r['probability'] for r in cal]
+    CB = lambda cid, y, p, note=None, **kw: c.add(cid, 'calibration', {'yTrue': y, 'probabilities': p, **kw}, o_calibration(y, p, kw.get('bins', 10), kw.get('eps')), note=note, abs_floor=1e-12)
+    CB('cal-ekene-10', yv, pv, note='the relevance classifier, 10 bins; probabilities on the edges (0.3, 0.5, ...) go to the upper bin')
+    CB('cal-ekene-5', yv, pv, bins=5)
+    CB('cal-ekene-15', yv, pv, bins=15)
+    CB('cal-ekene-1', yv, pv, bins=1, note='one bin: REL is (mean p - base rate)^2 and RES is 0')
+    CB('cal-edges', [0, 1, 0, 1, 1, 0, 1], [0.0, 0.1, 0.2, 0.3, 0.7, 0.9, 1.0], bins=10, note='each probability sits on an edge: it opens its bin; 1.0 closes the last')
+    CB('cal-perfect', [0, 0, 1, 1], [0.0, 0.0, 1.0, 1.0], note='perfect and sharp: Brier 0, both log-loss terms clipped')
+    CB('cal-eps', [0, 1, 1], [0.2, 0.9999, 1.0], eps=0.001, note='eps passed to ml.js logLoss')
+    CB('cal-within-bin', [1, 0, 1, 0, 1, 1], [0.61, 0.62, 0.64, 0.66, 0.68, 0.69], bins=10, note='one bin with spread: the within-bin terms are non-zero')
+    Rc = lambda cid, args, field, msg: c.refuse(cid, 'calibration', args, field, msg)
+    Rc('cal-y-empty', {'yTrue': [], 'probabilities': []}, 'yTrue', 'yTrue must be a non-empty array of 0 and 1 outcomes')
+    Rc('cal-y-2', {'yTrue': [0, 2], 'probabilities': [0.1, 0.2]}, 'yTrue[1]', 'yTrue[1] must be 0 or 1')
+    Rc('cal-y-bool', {'yTrue': [True], 'probabilities': [0.1]}, 'yTrue[0]', 'yTrue[0] must be 0 or 1')
+    Rc('cal-p-length', {'yTrue': [0, 1], 'probabilities': [0.1]}, 'probabilities', 'probabilities must be an array of 2 numbers, one per outcome')
+    Rc('cal-p-length-one', {'yTrue': [0], 'probabilities': []}, 'probabilities', 'probabilities must be an array of 1 number, one per outcome')
+    Rc('cal-p-above-1', {'yTrue': [0, 1], 'probabilities': [0.1, 1.2]}, 'probabilities[1]', 'probabilities[1] must be a number from 0 to 1')
+    Rc('cal-bins-0', {'yTrue': [0], 'probabilities': [0.1], 'bins': 0}, 'bins', 'bins must be a whole number from 1 to 100')
+    Rc('cal-bins-101', {'yTrue': [0], 'probabilities': [0.1], 'bins': 101}, 'bins', 'bins must be a whole number from 1 to 100')
+    Rc('cal-eps-bad', {'yTrue': [0], 'probabilities': [0.1], 'eps': 0.5}, 'eps', 'eps must be a number above 0 and below 0.5')
+
+    # ---------------- bootstrap
+    evA = o_evaluate(runsA, judg, 5)
+    evB = o_evaluate(runsB, judg, 5)
+    inc = [r['query'] for r in evA['perQuery'] if r['nRelevant'] > 0]
+    nA = [r['ndcg'] for r in evA['perQuery'] if r['query'] in inc]
+    nB = [r['ndcg'] for r in evB['perQuery'] if r['query'] in inc]
+    aA = [r['averagePrecision'] for r in evA['perQuery'] if r['query'] in inc]
+    aB = [r['averagePrecision'] for r in evB['perQuery'] if r['query'] in inc]
+    BM = lambda cid, values, nb, seed, level=0.95, note=None: c.add(cid, 'bootstrapMean', {'values': values, 'nBoot': nb, 'seed': seed, 'level': level}, o_boot(values, nb, seed, level), note=note, abs_floor=1e-12)
+    BM('boot-A-ndcg5', nA, 2000, 20260925, note='system A per-query nDCG@5 on the 23 included queries')
+    BM('boot-B-ndcg5', nB, 2000, 20260925)
+    BM('boot-A-ndcg5-level-0.8', nA, 2000, 1, 0.8)
+    BM('boot-A-ndcg5-level-0.9-odd', nA, 1999, 1, 0.9, note='nBoot odd')
+    BM('boot-A-ndcg5-level-0.99', nA, 1000, 5, 0.99)
+    BM('boot-small', [0.2, 0.5, 0.9, 0.4], 1000, 1)
+    BM('boot-one-replicate', [0.2, 0.5, 0.9], 1, 3, note='one replicate: both ends are that replicate; standard error undefined')
+    BM('boot-constant', [0.5, 0.5, 0.5], 500, 1, note='constant values: every replicate equals the mean')
+    PB = lambda cid, a, b, nb, seed, level=0.95, paired=True, note=None: c.add(cid, 'pairedBootstrap', {'a': a, 'b': b, 'nBoot': nb, 'seed': seed, 'level': level, 'paired': paired}, o_paired(a, b, nb, seed, level, paired), note=note, abs_floor=1e-12)
+    PB('paired-ndcg5-A-B', nA, nB, 2000, 20260925, note='system A minus system B, nDCG@5, paired by query')
+    PB('unpaired-ndcg5-A-B', nA, nB, 2000, 20260925, paired=False, note='the same data resampled independently: a wider interval')
+    PB('paired-ap5-A-B', aA, aB, 2000, 11)
+    PB('paired-identical', nA, nA, 500, 2, note='a system against itself: every replicate 0, share at or below zero 1')
+    PB('paired-small', [0.2, 0.5, 0.9, 0.4], [0.1, 0.5, 0.7, 0.5], 1000, 1)
+    Rbt = lambda cid, fn, args, field, msg: c.refuse(cid, fn, args, field, msg)
+    Rbt('boot-values-one', 'bootstrapMean', {'values': [1], 'seed': 1}, 'values', 'values has 1 value: the bootstrap resamples at least 2')
+    Rbt('boot-values-nan', 'bootstrapMean', {'values': [1, None], 'seed': 1}, 'values[1]', 'values[1] must be a finite number')
+    Rbt('boot-values-not-array', 'bootstrapMean', {'values': 3, 'seed': 1}, 'values', 'values must be an array of numbers')
+    Rbt('boot-values-too-many', 'bootstrapMean', {'values': [0.5] * 10001, 'seed': 1}, 'values', 'values has 10001 values, above the 10000 this engine accepts')
+    Rbt('boot-nboot-0', 'bootstrapMean', {'values': [1, 2], 'seed': 1, 'nBoot': 0}, 'nBoot', 'nBoot must be a whole number from 1 to 100000')
+    Rbt('boot-nboot-big', 'bootstrapMean', {'values': [1, 2], 'seed': 1, 'nBoot': 100001}, 'nBoot', 'nBoot must be a whole number from 1 to 100000')
+    Rbt('boot-seed-missing', 'bootstrapMean', {'values': [1, 2]}, 'seed', 'seed must be a whole number from 0 to 4294967295')
+    Rbt('boot-seed-negative', 'bootstrapMean', {'values': [1, 2], 'seed': -1}, 'seed', 'seed must be a whole number from 0 to 4294967295')
+    Rbt('boot-level-bad', 'bootstrapMean', {'values': [1, 2], 'seed': 1, 'level': 0.975}, 'level', 'level must be 0.8, 0.9, 0.95 or 0.99')
+    Rbt('paired-b-length', 'pairedBootstrap', {'a': [1, 2, 3], 'b': [1, 2], 'seed': 1}, 'b', 'b must have 3 values, one per value of a (the same queries in the same order)')
+    Rbt('paired-a-short', 'pairedBootstrap', {'a': [1], 'b': [1], 'seed': 1}, 'a', 'a has 1 value: the bootstrap resamples at least 2')
+    Rbt('paired-paired-string', 'pairedBootstrap', {'a': [1, 2], 'b': [1, 2], 'seed': 1, 'paired': 'yes'}, 'paired', 'paired must be true or false')
+    return c
+
+
+def main():
+    c = build()
+    out = {
+        'module': 'evaluate',
+        'generatedBy': 'tools/validation/dataai/oracle_evaluate.py',
+        'tolerance': {'absoluteFloor': 1e-12, 'note': 'relative tolerance per case in `tol`; `abs` per case overrides the absolute floor; labels, counts, ids, messages and booleans exactly'},
+        'description': 'Applied AI evaluation: tokens, BM25, TF-IDF, rankings with the stated tie rule, P@k, R@k, hit, RR, AP, nDCG, SQuAD answer match, extraction scoring, claim groundedness, Cohen kappa, calibration with the Murphy decomposition, bootstrap intervals. The Ekene documents are synthetic (test-data/dataai/ekene-docs).',
+        'cases': c.cases,
+    }
+    os.makedirs(os.path.dirname(DEST), exist_ok=True)
+    with open(DEST, 'w') as fh:
+        json.dump(out, fh, indent=1, ensure_ascii=False, allow_nan=False)
+        fh.write('\n')
+    ref = sum(1 for x in c.cases if isinstance(x['expected'], dict) and x['expected'].get('error') is True)
+    print('wrote', os.path.relpath(DEST), len(c.cases), 'cases,', ref, 'refusals')
+
+
+if __name__ == '__main__':
+    main()
