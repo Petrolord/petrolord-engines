@@ -753,6 +753,12 @@ const scoreCell = (f, label, pred) => {
 };
 
 const OUTCOMES = ['correct', 'wrong', 'missed', 'unsupported'];
+const f1PR = (p, r) => {
+  if (p === null && r === null) return null;
+  const pp = p === null ? 0 : p; const rr = r === null ? 0 : r;
+  return pp + rr === 0 ? 0 : (2 * pp * rr) / (pp + rr);
+};
+const macroOf = (xs) => { const v = xs.filter((x) => x !== null); return v.length ? mean(v) : null; };
 
 /**
  * Scores extracted field values against labels. `fields` lists
@@ -785,11 +791,12 @@ export const scoreExtraction = ({ labels, predictions, fields } = {}) => {
     const correctFilled = cs.filter((c) => c.outcome === 'correct' && !c.empty).length;
     const predFilled = correctFilled + t.wrong + t.unsupported;
     const labFilled = correctFilled + t.wrong + t.missed;
+    const precision = predFilled ? correctFilled / predFilled : null;
+    const recall = labFilled ? correctFilled / labFilled : null;
     return {
       n: cs.length, ...t, correctEmpty: t.correct - correctFilled,
       accuracy: t.correct / cs.length,
-      precision: predFilled ? correctFilled / predFilled : null,
-      recall: labFilled ? correctFilled / labFilled : null,
+      precision, recall, f1: f1PR(precision, recall),
     };
   };
   const perField = fields.map((f) => {
@@ -805,12 +812,13 @@ export const scoreExtraction = ({ labels, predictions, fields } = {}) => {
     nPredicted: predictions.length,
     perRecord,
     perField,
-    overall: { ...overall, microAccuracy: overall.accuracy, macroAccuracy: mean(perField.map((f) => f.accuracy)) },
+    overall: { ...overall, microAccuracy: overall.accuracy, macroAccuracy: mean(perField.map((f) => f.accuracy)), microF1: overall.f1, macroF1: macroOf(perField.map((f) => f.f1)) },
     basis: {
       outcomes: 'correct: the values match, or both are empty; wrong: both have a value and they do not match; missed: the label has a value and the prediction is empty; unsupported: the label is empty and the prediction has a value. Empty is null, absent or a blank string',
       text: `${ANSWER_BASIS.normalize}; a match is exact equality of the normalised strings; f1 is SQuAD token F1`,
       number: 'the prediction is a number or a string of digits with optional comma thousands groups and a decimal part; it matches when |prediction - label| <= max(absTol, relTol x |label|)',
-      accuracy: 'correct / cells; microAccuracy pools every cell, macroAccuracy is the mean of the per-field accuracies',
+      accuracy: 'correct / cells; microAccuracy pools every cell, macroAccuracy is the mean of the per-field accuracies (every labelled record is scored on every field, so the two are equal)',
+      f1: 'f1 = 2 precision recall / (precision + recall) on filled cells, a missing precision or recall counting as 0, and 0 when both are 0; null when no cell of that field is filled on either side; microF1 pools every cell, macroF1 is the mean of the per-field f1 that are not null',
       precision: 'correct filled cells / cells with a predicted value (wrong, unsupported and correct filled)',
       recall: 'correct filled cells / cells with a label value (wrong, missed and correct filled)',
     },

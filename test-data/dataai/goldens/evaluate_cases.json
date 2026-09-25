@@ -791,6 +791,82 @@
    "abs": 1e-12
   },
   {
+   "id": "bm25-near-tie",
+   "fn": "rankBm25",
+   "args": {
+    "documents": [
+     {
+      "id": "n2",
+      "text": "oil water"
+     },
+     {
+      "id": "n1",
+      "text": "oil water gas"
+     },
+     {
+      "id": "n3",
+      "text": "gas"
+     }
+    ],
+    "query": "oil",
+    "b": 1e-07
+   },
+   "expected": {
+    "method": "bm25",
+    "k": 10,
+    "k1": 1.2,
+    "b": 1e-07,
+    "stopWords": false,
+    "N": 3,
+    "avgdl": 2.0,
+    "queryTerms": [
+     {
+      "term": "oil",
+      "df": 2,
+      "idf": 0.4700036292457356
+     }
+    ],
+    "ranking": [
+     {
+      "rank": 1,
+      "id": "n2",
+      "score": 0.4700036292457356,
+      "length": 2,
+      "terms": [
+       {
+        "term": "oil",
+        "tf": 1,
+        "df": 2,
+        "idf": 0.4700036292457356,
+        "contribution": 0.4700036292457356
+       }
+      ]
+     },
+     {
+      "rank": 2,
+      "id": "n1",
+      "score": 0.4700036164274551,
+      "length": 3,
+      "terms": [
+       {
+        "term": "oil",
+        "tf": 1,
+        "df": 2,
+        "idf": 0.4700036292457356,
+        "contribution": 0.4700036164274551
+       }
+      ]
+     }
+    ],
+    "matched": 2,
+    "ties": [],
+    "tieAtCutoff": false
+   },
+   "tol": 1e-10,
+   "abs": 1e-12,
+   "note": "the scores differ in the 8th significant digit: distinct at 12 digits, so the shorter n2 ranks first although n1 sorts first by id"
+  },
+  {
    "id": "bm25-ekene-Q01",
    "fn": "rankBm25",
    "args": {
@@ -30686,7 +30762,7 @@
    "tol": 1e-10
   },
   {
-   "id": "norm-112",
+   "id": "norm-113",
    "fn": "normalizeAnswer",
    "args": {
     "text": "The Ekene-3 well!"
@@ -30701,7 +30777,7 @@
    "tol": 1e-10
   },
   {
-   "id": "norm-113",
+   "id": "norm-114",
    "fn": "normalizeAnswer",
    "args": {
     "text": "  A  well   test, the 12.4 ppg mud. "
@@ -30719,7 +30795,7 @@
    "tol": 1e-10
   },
   {
-   "id": "norm-114",
+   "id": "norm-115",
    "fn": "normalizeAnswer",
    "args": {
     "text": "An anticline"
@@ -30733,7 +30809,7 @@
    "tol": 1e-10
   },
   {
-   "id": "norm-115",
+   "id": "norm-116",
    "fn": "normalizeAnswer",
    "args": {
     "text": "45.0 percent"
@@ -30748,7 +30824,7 @@
    "tol": 1e-10
   },
   {
-   "id": "norm-116",
+   "id": "norm-117",
    "fn": "normalizeAnswer",
    "args": {
     "text": "the"
@@ -30760,7 +30836,7 @@
    "tol": 1e-10
   },
   {
-   "id": "norm-117",
+   "id": "norm-118",
    "fn": "normalizeAnswer",
    "args": {
     "text": ""
@@ -33539,6 +33615,7 @@
       "accuracy": 1.0,
       "precision": 1.0,
       "recall": 1.0,
+      "f1": 1.0,
       "meanF1": 1.0
      },
      {
@@ -33553,6 +33630,7 @@
       "accuracy": 1.0,
       "precision": 1.0,
       "recall": 1.0,
+      "f1": 1.0,
       "meanF1": 1.0
      },
      {
@@ -33567,6 +33645,7 @@
       "accuracy": 0.9333333333333333,
       "precision": 0.9333333333333333,
       "recall": 0.9333333333333333,
+      "f1": 0.9333333333333333,
       "meanF1": 0.9555555555555556
      },
      {
@@ -33581,6 +33660,7 @@
       "accuracy": 1.0,
       "precision": 1.0,
       "recall": 1.0,
+      "f1": 1.0,
       "absTol": 0.05,
       "relTol": 0
      },
@@ -33596,6 +33676,7 @@
       "accuracy": 0.9333333333333333,
       "precision": 0.8,
       "recall": 0.8,
+      "f1": 0.8,
       "absTol": 0.05,
       "relTol": 0
      },
@@ -33611,6 +33692,7 @@
       "accuracy": 0.9666666666666667,
       "precision": 0.8571428571428571,
       "recall": 1.0,
+      "f1": 0.9230769230769231,
       "absTol": 0.5,
       "relTol": 0
      }
@@ -33625,8 +33707,11 @@
      "accuracy": 0.9722222222222222,
      "precision": 0.9622641509433962,
      "recall": 0.9714285714285714,
+     "f1": 0.966824644549763,
      "microAccuracy": 0.9722222222222222,
-     "macroAccuracy": 0.9722222222222222
+     "macroAccuracy": 0.9722222222222222,
+     "microF1": 0.966824644549763,
+     "macroF1": 0.9427350427350427
     }
    },
    "tol": 1e-10,
@@ -35469,6 +35554,7 @@
       "accuracy": 0.8666666666666667,
       "precision": 0.8571428571428571,
       "recall": 0.8571428571428571,
+      "f1": 0.8571428571428571,
       "meanF1": 0.8666666666666667
      },
      {
@@ -35483,6 +35569,7 @@
       "accuracy": 0.9333333333333333,
       "precision": 0.9642857142857143,
       "recall": 0.9310344827586207,
+      "f1": 0.9473684210526315,
       "meanF1": 0.9333333333333333
      },
      {
@@ -35497,6 +35584,7 @@
       "accuracy": 0.9,
       "precision": 0.9642857142857143,
       "recall": 0.9,
+      "f1": 0.9310344827586207,
       "meanF1": 0.9
      },
      {
@@ -35511,6 +35599,7 @@
       "accuracy": 0.9333333333333333,
       "precision": 0.8571428571428571,
       "recall": 0.8571428571428571,
+      "f1": 0.8571428571428571,
       "absTol": 0.05,
       "relTol": 0
      },
@@ -35526,6 +35615,7 @@
       "accuracy": 0.9,
       "precision": 0.625,
       "recall": 1.0,
+      "f1": 0.7692307692307693,
       "absTol": 0.05,
       "relTol": 0
      },
@@ -35541,6 +35631,7 @@
       "accuracy": 0.9666666666666667,
       "precision": 0.8333333333333334,
       "recall": 0.8333333333333334,
+      "f1": 0.8333333333333334,
       "absTol": 0.5,
       "relTol": 0
      }
@@ -35555,8 +35646,11 @@
      "accuracy": 0.9166666666666666,
      "precision": 0.8952380952380953,
      "recall": 0.8952380952380953,
+     "f1": 0.8952380952380953,
      "microAccuracy": 0.9166666666666666,
-     "macroAccuracy": 0.9166666666666666
+     "macroAccuracy": 0.9166666666666666,
+     "microF1": 0.8952380952380953,
+     "macroF1": 0.8658754534435115
     }
    },
    "tol": 1e-10,
@@ -37223,6 +37317,7 @@
       "accuracy": 0.3,
       "precision": null,
       "recall": 0.0,
+      "f1": 0.0,
       "meanF1": 0.3
      },
      {
@@ -37237,6 +37332,7 @@
       "accuracy": 0.03333333333333333,
       "precision": null,
       "recall": 0.0,
+      "f1": 0.0,
       "meanF1": 0.03333333333333333
      },
      {
@@ -37251,6 +37347,7 @@
       "accuracy": 0.0,
       "precision": null,
       "recall": 0.0,
+      "f1": 0.0,
       "meanF1": 0.0
      },
      {
@@ -37265,6 +37362,7 @@
       "accuracy": 0.5333333333333333,
       "precision": null,
       "recall": 0.0,
+      "f1": 0.0,
       "absTol": 0.05,
       "relTol": 0
      },
@@ -37280,6 +37378,7 @@
       "accuracy": 0.8333333333333334,
       "precision": null,
       "recall": 0.0,
+      "f1": 0.0,
       "absTol": 0.05,
       "relTol": 0
      },
@@ -37295,6 +37394,7 @@
       "accuracy": 0.8,
       "precision": null,
       "recall": 0.0,
+      "f1": 0.0,
       "absTol": 0.5,
       "relTol": 0
      }
@@ -37309,8 +37409,11 @@
      "accuracy": 0.4166666666666667,
      "precision": null,
      "recall": 0.0,
+     "f1": 0.0,
      "microAccuracy": 0.4166666666666667,
-     "macroAccuracy": 0.4166666666666667
+     "macroAccuracy": 0.4166666666666667,
+     "microF1": 0.0,
+     "macroF1": 0.0
     }
    },
    "tol": 1e-10,
@@ -37483,6 +37586,7 @@
       "accuracy": 0.6666666666666666,
       "precision": 0.6666666666666666,
       "recall": 0.6666666666666666,
+      "f1": 0.6666666666666666,
       "absTol": 0,
       "relTol": 0.01
      },
@@ -37498,6 +37602,7 @@
       "accuracy": 0.3333333333333333,
       "precision": 0.3333333333333333,
       "recall": 0.5,
+      "f1": 0.4,
       "absTol": 2,
       "relTol": 0.001
      },
@@ -37513,6 +37618,7 @@
       "accuracy": 0.6666666666666666,
       "precision": 0.5,
       "recall": 1.0,
+      "f1": 0.6666666666666666,
       "meanF1": 0.6666666666666666
      }
     ],
@@ -37526,13 +37632,158 @@
      "accuracy": 0.5555555555555556,
      "precision": 0.5,
      "recall": 0.6666666666666666,
+     "f1": 0.5714285714285714,
      "microAccuracy": 0.5555555555555556,
-     "macroAccuracy": 0.5555555555555556
+     "macroAccuracy": 0.5555555555555556,
+     "microF1": 0.5714285714285714,
+     "macroF1": 0.5777777777777777
     }
    },
    "tol": 1e-10,
    "abs": 1e-12,
    "note": "relTol 1 percent of 100 is 1: 101 matches; max(2, 0.001 x 3000 = 3) = 3: 3,003 matches; 1002.5 is beyond max(2, 1); \"1,00\" is not a plain number; \"The\" normalises to empty but is not blank, so it is a value"
+  },
+  {
+   "id": "ext-field-never-filled",
+   "fn": "scoreExtraction",
+   "args": {
+    "labels": [
+     {
+      "id": "r1",
+      "fields": {
+       "q": 10
+      }
+     },
+     {
+      "id": "r2",
+      "fields": {
+       "q": 20,
+       "w": ""
+      }
+     }
+    ],
+    "predictions": [
+     {
+      "id": "r1",
+      "fields": {
+       "q": 10
+      }
+     },
+     {
+      "id": "r2",
+      "fields": {
+       "q": 21
+      }
+     }
+    ],
+    "fields": [
+     {
+      "name": "q",
+      "type": "number"
+     },
+     {
+      "name": "w",
+      "type": "text"
+     }
+    ]
+   },
+   "expected": {
+    "nRecords": 2,
+    "nPredicted": 2,
+    "perRecord": [
+     {
+      "id": "r1",
+      "predicted": true,
+      "fields": {
+       "q": {
+        "label": 10,
+        "prediction": 10,
+        "outcome": "correct",
+        "difference": 0
+       },
+       "w": {
+        "label": null,
+        "prediction": null,
+        "outcome": "correct",
+        "empty": true,
+        "f1": 1.0
+       }
+      }
+     },
+     {
+      "id": "r2",
+      "predicted": true,
+      "fields": {
+       "q": {
+        "label": 20,
+        "prediction": 21,
+        "outcome": "wrong",
+        "difference": 1,
+        "reason": "21 differs from 20 by 1, above the tolerance 0"
+       },
+       "w": {
+        "label": null,
+        "prediction": null,
+        "outcome": "correct",
+        "empty": true,
+        "f1": 1.0
+       }
+      }
+     }
+    ],
+    "perField": [
+     {
+      "field": "q",
+      "type": "number",
+      "n": 2,
+      "correct": 1,
+      "wrong": 1,
+      "missed": 0,
+      "unsupported": 0,
+      "correctEmpty": 0,
+      "accuracy": 0.5,
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1": 0.5,
+      "absTol": 0,
+      "relTol": 0
+     },
+     {
+      "field": "w",
+      "type": "text",
+      "n": 2,
+      "correct": 2,
+      "wrong": 0,
+      "missed": 0,
+      "unsupported": 0,
+      "correctEmpty": 2,
+      "accuracy": 1.0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "meanF1": 1.0
+     }
+    ],
+    "overall": {
+     "n": 4,
+     "correct": 3,
+     "wrong": 1,
+     "missed": 0,
+     "unsupported": 0,
+     "correctEmpty": 2,
+     "accuracy": 0.75,
+     "precision": 0.5,
+     "recall": 0.5,
+     "f1": 0.5,
+     "microAccuracy": 0.75,
+     "macroAccuracy": 0.75,
+     "microF1": 0.5,
+     "macroF1": 0.5
+    }
+   },
+   "tol": 1e-10,
+   "abs": 1e-12,
+   "note": "w is empty on both sides in every record: its f1 is null and the macro F1 averages q alone"
   },
   {
    "id": "ext-fields-empty",

@@ -172,6 +172,33 @@
    "library": "CountVectorizer document lengths"
   },
   {
+   "id": "bm25-near-tie:ranking.0.score",
+   "case": "bm25-near-tie",
+   "field": "ranking.0.score",
+   "value": 0.47000362924573563,
+   "tol": 1e-10,
+   "abs": 1e-12,
+   "library": "CountVectorizer counts + numpy BM25"
+  },
+  {
+   "id": "bm25-near-tie:ranking.1.score",
+   "case": "bm25-near-tie",
+   "field": "ranking.1.score",
+   "value": 0.47000361642745525,
+   "tol": 1e-10,
+   "abs": 1e-12,
+   "library": "CountVectorizer counts + numpy BM25"
+  },
+  {
+   "id": "bm25-near-tie:avgdl",
+   "case": "bm25-near-tie",
+   "field": "avgdl",
+   "value": 2.0,
+   "tol": 1e-10,
+   "abs": 1e-12,
+   "library": "CountVectorizer document lengths"
+  },
+  {
    "id": "bm25-ekene-Q01:ranking.0.score",
    "case": "bm25-ekene-Q01",
    "field": "ranking.0.score",

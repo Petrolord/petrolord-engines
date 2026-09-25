@@ -125,7 +125,8 @@ run_case ENGINE "numeric tolerance exclusive" $E "if (d <= tol) return { ...cell
 run_case ENGINE "relTol on the prediction" $E "(f.relTol || 0) * Math.abs(label)" "(f.relTol || 0) * Math.abs(x)"
 run_case ENGINE "both empty scored missed" $E "if (le && pe) return { ...cell, outcome: 'correct', empty: true," "if (le && pe) return { ...cell, outcome: 'missed', empty: true,"
 run_case ENGINE "unsupported scored wrong" $E "if (le) return { ...cell, outcome: 'unsupported'" "if (le) return { ...cell, outcome: 'wrong'"
-run_case ENGINE "macro accuracy is the micro" $E "macroAccuracy: mean(perField.map((f) => f.accuracy))" "macroAccuracy: overall.accuracy"
+run_case ENGINE "macro F1 is the micro F1" $E "macroF1: macroOf(perField.map((f) => f.f1))" "macroF1: overall.f1"
+run_case ENGINE "extraction F1 null counted as 0 in the macro" $E "const macroOf = (xs) => { const v = xs.filter((x) => x !== null); return v.length ? mean(v) : null; };" "const macroOf = (xs) => mean(xs.map((x) => x || 0));"
 run_case ENGINE "numeric strings with thousands commas unread" $E "NUMBER_STRING.test(v.trim()) ? Number(v.trim().replace(/,/g, '')) : null" "NUMBER_STRING.test(v.trim()) ? Number(v.trim()) : null"
 # groundedness
 run_case ENGINE "identifier numbers counted as claims" $E "    if (isAlpha(p)) continue;" "    if (false) continue;"

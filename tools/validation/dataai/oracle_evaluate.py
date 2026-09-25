@@ -983,8 +983,15 @@ def o_extraction(labels, preds, fields):
         cf = sum(1 for c in cs if c['outcome'] == 'correct' and not c.get('empty'))
         pf_ = cf + t['wrong'] + t['unsupported']
         lf = cf + t['wrong'] + t['missed']
+        pr = F(cf, pf_) if pf_ else None
+        rc = F(cf, lf) if lf else None
+        if pr is None and rc is None:
+            f1 = None
+        else:
+            pp, rr = pr or F(0), rc or F(0)
+            f1 = F(0) if pp + rr == 0 else 2 * pp * rr / (pp + rr)
         return {'n': len(cs), **t, 'correctEmpty': t['correct'] - cf, 'accuracy': F(t['correct'], len(cs)),
-                'precision': F(cf, pf_) if pf_ else None, 'recall': F(cf, lf) if lf else None}
+                'precision': pr, 'recall': rc, 'f1': f1}
     pfield = []
     for f in fields:
         cs = [c for c in cells if c['field'] == f['name']]
@@ -998,6 +1005,9 @@ def o_extraction(labels, preds, fields):
     ov = tally(cells)
     ov['microAccuracy'] = ov['accuracy']
     ov['macroAccuracy'] = sum(f['accuracy'] for f in pfield) / len(pfield)
+    ov['microF1'] = ov['f1']
+    fs = [f['f1'] for f in pfield if f['f1'] is not None]
+    ov['macroF1'] = sum(fs) / len(fs) if fs else None
     return deep({'nRecords': len(labels), 'nPredicted': len(preds), 'perRecord': per, 'perField': pfield, 'overall': ov})
 
 
@@ -1156,6 +1166,8 @@ def build():
     B('bm25-small-no-token', SMALL, '!!! --', note='no token: nothing ranked, with the reason')
     B('bm25-small-no-match', SMALL, 'helicopter', note='no document contains a query term')
     B('bm25-small-k1', SMALL, 'oil rate', k=1)
+    B('bm25-near-tie', [{'id': 'n2', 'text': 'oil water'}, {'id': 'n1', 'text': 'oil water gas'}, {'id': 'n3', 'text': 'gas'}], 'oil', b=1e-7,
+      note='the scores differ in the 8th significant digit: distinct at 12 digits, so the shorter n2 ranks first although n1 sorts first by id')
     for qid in ('Q01', 'Q02', 'Q05', 'Q10', 'Q14', 'Q24'):
         B(f'bm25-ekene-{qid}', corpus, qtext[qid], k=10)
     B('bm25-ekene-Q10-k1-tie-at-cutoff', corpus, qtext['Q10'], k=1, note='EKD-046 and EKD-058 are the same text: they tie, id ascending, and k = 1 cuts the tie')
@@ -1290,6 +1302,9 @@ def build():
     L2 = [{'id': 'r1', 'fields': {'q': 100, 'p': 3000, 'w': 'Ekene-1'}}, {'id': 'r2', 'fields': {'q': 50, 'p': 1000, 'w': ''}}, {'id': 'r3', 'fields': {'q': -4}}]
     P2 = [{'id': 'r1', 'fields': {'q': '101', 'p': '3,003', 'w': ' ekene-1 '}}, {'id': 'r2', 'fields': {'q': 50.6, 'p': 1002.5, 'w': '   '}}, {'id': 'r3', 'fields': {'q': '-4.00', 'p': '1,00', 'w': 'The'}}]
     EX('ext-tolerances', L2, P2, F2, note='relTol 1 percent of 100 is 1: 101 matches; max(2, 0.001 x 3000 = 3) = 3: 3,003 matches; 1002.5 is beyond max(2, 1); "1,00" is not a plain number; "The" normalises to empty but is not blank, so it is a value')
+    EX('ext-field-never-filled', [{'id': 'r1', 'fields': {'q': 10}}, {'id': 'r2', 'fields': {'q': 20, 'w': ''}}],
+       [{'id': 'r1', 'fields': {'q': 10}}, {'id': 'r2', 'fields': {'q': 21}}], [{'name': 'q', 'type': 'number'}, {'name': 'w', 'type': 'text'}],
+       note='w is empty on both sides in every record: its f1 is null and the macro F1 averages q alone')
     Rx = lambda cid, args, field, msg: c.refuse(cid, 'scoreExtraction', args, field, msg)
     L1 = [{'id': 'r1', 'fields': {'q': 1}}]
     FQ = [{'name': 'q', 'type': 'number'}]
