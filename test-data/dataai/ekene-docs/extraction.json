@@ -1,0 +1,798 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (Petrolord, fictional block EK-11). No real company, person, well or incident.",
+ "generatedBy": "tools/validation/dataai/make_evaluate_fixtures.py",
+ "description": "One record per source passage (the record id is the passage id). A field is empty where the passage does not state it for that record. water_cut_pct 0 where the passage says the well makes no water. reservoir_pressure_psia is the static reservoir pressure, never a wellhead pressure.",
+ "fields": [
+  {
+   "name": "well",
+   "type": "text"
+  },
+  {
+   "name": "date",
+   "type": "text"
+  },
+  {
+   "name": "event",
+   "type": "text"
+  },
+  {
+   "name": "oil_rate_bopd",
+   "type": "number",
+   "absTol": 0.05
+  },
+  {
+   "name": "water_cut_pct",
+   "type": "number",
+   "absTol": 0.05
+  },
+  {
+   "name": "reservoir_pressure_psia",
+   "type": "number",
+   "absTol": 0.5
+  }
+ ],
+ "labels": [
+  {
+   "id": "EKD-001",
+   "fields": {
+    "well": "Ekene-1",
+    "date": "2020-01-01",
+    "event": "first oil",
+    "oil_rate_bopd": 120
+   }
+  },
+  {
+   "id": "EKD-002",
+   "fields": {
+    "well": "Ekene-2",
+    "date": "2023-01-01",
+    "event": "conversion to injector"
+   }
+  },
+  {
+   "id": "EKD-003",
+   "fields": {
+    "well": "Ekene-3",
+    "date": "2020-03-01",
+    "event": "first oil",
+    "oil_rate_bopd": 150
+   }
+  },
+  {
+   "id": "EKD-004",
+   "fields": {
+    "well": "Ekene-4",
+    "date": "2023-01-01",
+    "event": "conversion to injector"
+   }
+  },
+  {
+   "id": "EKD-005",
+   "fields": {
+    "well": "Ekene-5",
+    "date": "2020-06-01",
+    "event": "first oil",
+    "oil_rate_bopd": 100
+   }
+  },
+  {
+   "id": "EKD-006",
+   "fields": {
+    "well": "Ekene-6",
+    "date": "2020-09-01",
+    "event": "first oil",
+    "oil_rate_bopd": 90
+   }
+  },
+  {
+   "id": "EKD-013",
+   "fields": {
+    "date": "2020-07-01",
+    "event": "pressure survey",
+    "reservoir_pressure_psia": 3038
+   }
+  },
+  {
+   "id": "EKD-014",
+   "fields": {
+    "date": "2021-01-01",
+    "event": "pressure survey",
+    "reservoir_pressure_psia": 2783
+   }
+  },
+  {
+   "id": "EKD-015",
+   "fields": {
+    "date": "2021-07-01",
+    "event": "pressure survey",
+    "reservoir_pressure_psia": 2562
+   }
+  },
+  {
+   "id": "EKD-016",
+   "fields": {
+    "date": "2022-01-01",
+    "event": "pressure survey",
+    "reservoir_pressure_psia": 2378
+   }
+  },
+  {
+   "id": "EKD-017",
+   "fields": {
+    "date": "2022-07-01",
+    "event": "pressure survey",
+    "reservoir_pressure_psia": 2226
+   }
+  },
+  {
+   "id": "EKD-018",
+   "fields": {
+    "date": "2023-01-01",
+    "event": "pressure survey",
+    "reservoir_pressure_psia": 2096
+   }
+  },
+  {
+   "id": "EKD-020",
+   "fields": {
+    "well": "Ekene-1",
+    "date": "2020-04-01",
+    "event": "production",
+    "oil_rate_bopd": 107.6,
+    "water_cut_pct": 0
+   }
+  },
+  {
+   "id": "EKD-022",
+   "fields": {
+    "well": "Ekene-6",
+    "date": "2022-10-01",
+    "event": "production",
+    "oil_rate_bopd": 45.9,
+    "water_cut_pct": 0
+   }
+  },
+  {
+   "id": "EKD-024",
+   "fields": {
+    "well": "Ekene-6",
+    "date": "2023-06-01",
+    "event": "flood response",
+    "oil_rate_bopd": 47.7
+   }
+  },
+  {
+   "id": "EKD-025",
+   "fields": {
+    "well": "Ekene-1",
+    "date": "2023-10-01",
+    "event": "flood response",
+    "oil_rate_bopd": 38.2
+   }
+  },
+  {
+   "id": "EKD-026",
+   "fields": {
+    "well": "Ekene-6",
+    "date": "2024-03-01",
+    "event": "water breakthrough",
+    "oil_rate_bopd": 54.7
+   }
+  },
+  {
+   "id": "EKD-027",
+   "fields": {
+    "well": "Ekene-3",
+    "date": "2024-09-01",
+    "event": "water breakthrough",
+    "oil_rate_bopd": 41.5
+   }
+  },
+  {
+   "id": "EKD-029",
+   "fields": {
+    "well": "Ekene-1",
+    "date": "2025-06-01",
+    "event": "water breakthrough",
+    "oil_rate_bopd": 34.0
+   }
+  },
+  {
+   "id": "EKD-031",
+   "fields": {
+    "well": "Ekene-5",
+    "date": "2025-12-01",
+    "event": "production",
+    "oil_rate_bopd": 38.5,
+    "water_cut_pct": 0
+   }
+  },
+  {
+   "id": "EKD-032",
+   "fields": {
+    "well": "Ekene-3",
+    "date": "2022-06-01",
+    "event": "well test",
+    "oil_rate_bopd": 45.2,
+    "water_cut_pct": 0
+   }
+  },
+  {
+   "id": "EKD-033",
+   "fields": {
+    "well": "Ekene-5",
+    "date": "2021-06-01",
+    "event": "well test",
+    "oil_rate_bopd": 64.6,
+    "water_cut_pct": 0
+   }
+  },
+  {
+   "id": "EKD-036",
+   "fields": {
+    "well": "Ekene-4",
+    "date": "2025-01-01",
+    "event": "injectivity decline"
+   }
+  },
+  {
+   "id": "EKD-038",
+   "fields": {
+    "well": "Ekene-6",
+    "date": "2020-07-18",
+    "event": "casing"
+   }
+  },
+  {
+   "id": "EKD-040",
+   "fields": {
+    "well": "Ekene-4",
+    "date": "2020-10-09",
+    "event": "losses"
+   }
+  },
+  {
+   "id": "EKD-041",
+   "fields": {
+    "well": "Ekene-3",
+    "date": "2019-11-20",
+    "event": "gas reading"
+   }
+  },
+  {
+   "id": "EKD-044",
+   "fields": {
+    "date": "2021-03-14",
+    "event": "near miss"
+   }
+  },
+  {
+   "id": "EKD-046",
+   "fields": {
+    "date": "2022-08-09",
+    "event": "spill"
+   }
+  },
+  {
+   "id": "EKD-053",
+   "fields": {
+    "date": "2025-04-08",
+    "event": "water treatment"
+   }
+  },
+  {
+   "id": "EKD-056",
+   "fields": {
+    "well": "Ekene-1",
+    "event": "core plug"
+   }
+  }
+ ],
+ "predictions": {
+  "A": [
+   {
+    "id": "EKD-001",
+    "fields": {
+     "well": "Ekene-1",
+     "date": "2020-01-01",
+     "event": "first oil",
+     "oil_rate_bopd": 120
+    }
+   },
+   {
+    "id": "EKD-002",
+    "fields": {
+     "well": "Ekene-2",
+     "date": "2023-01-01",
+     "event": "conversion to injector"
+    }
+   },
+   {
+    "id": "EKD-003",
+    "fields": {
+     "well": "Ekene-3",
+     "date": "2020-03-01",
+     "event": "first oil",
+     "oil_rate_bopd": 150
+    }
+   },
+   {
+    "id": "EKD-004",
+    "fields": {
+     "well": "Ekene-4",
+     "date": "2023-01-01",
+     "event": "conversion to injector"
+    }
+   },
+   {
+    "id": "EKD-005",
+    "fields": {
+     "well": "Ekene-5",
+     "date": "2020-06-01",
+     "event": "first oil",
+     "oil_rate_bopd": 100
+    }
+   },
+   {
+    "id": "EKD-006",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2020-09-01",
+     "event": "first oil",
+     "oil_rate_bopd": 90
+    }
+   },
+   {
+    "id": "EKD-013",
+    "fields": {
+     "date": "2020-07-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": "3,038"
+    }
+   },
+   {
+    "id": "EKD-014",
+    "fields": {
+     "date": "2021-01-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2783
+    }
+   },
+   {
+    "id": "EKD-015",
+    "fields": {
+     "date": "2021-07-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2562
+    }
+   },
+   {
+    "id": "EKD-016",
+    "fields": {
+     "date": "2022-01-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2378
+    }
+   },
+   {
+    "id": "EKD-017",
+    "fields": {
+     "date": "2022-07-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2226
+    }
+   },
+   {
+    "id": "EKD-018",
+    "fields": {
+     "date": "2023-01-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2096
+    }
+   },
+   {
+    "id": "EKD-020",
+    "fields": {
+     "well": "Ekene-1",
+     "date": "2020-04-01",
+     "event": "production",
+     "oil_rate_bopd": 107.6
+    }
+   },
+   {
+    "id": "EKD-022",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2022-10-01",
+     "event": "production",
+     "oil_rate_bopd": 45.9,
+     "water_cut_pct": 0
+    }
+   },
+   {
+    "id": "EKD-024",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2023-06-01",
+     "event": "flood response",
+     "oil_rate_bopd": 47.7
+    }
+   },
+   {
+    "id": "EKD-025",
+    "fields": {
+     "well": "Ekene-1",
+     "date": "2023-10-01",
+     "event": "flood response",
+     "oil_rate_bopd": 38.2
+    }
+   },
+   {
+    "id": "EKD-026",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2024-03-01",
+     "event": "water breakthrough",
+     "oil_rate_bopd": 54.7
+    }
+   },
+   {
+    "id": "EKD-027",
+    "fields": {
+     "well": "Ekene-3",
+     "date": "2024-09-01",
+     "event": "water breakthrough",
+     "oil_rate_bopd": 41.5,
+     "water_cut_pct": 3.7
+    }
+   },
+   {
+    "id": "EKD-029",
+    "fields": {
+     "well": "Ekene-1",
+     "date": "2025-06-01",
+     "event": "water breakthrough",
+     "oil_rate_bopd": 34.0
+    }
+   },
+   {
+    "id": "EKD-031",
+    "fields": {
+     "well": "Ekene-5",
+     "date": "2025-12-01",
+     "event": "production",
+     "oil_rate_bopd": 38.5,
+     "water_cut_pct": 0
+    }
+   },
+   {
+    "id": "EKD-032",
+    "fields": {
+     "well": "Ekene-3",
+     "date": "2022-06-01",
+     "event": "well test",
+     "oil_rate_bopd": 45.2,
+     "water_cut_pct": 0
+    }
+   },
+   {
+    "id": "EKD-033",
+    "fields": {
+     "well": "Ekene-5",
+     "date": "2021-06-01",
+     "event": "well test",
+     "oil_rate_bopd": 64.6,
+     "water_cut_pct": 0
+    }
+   },
+   {
+    "id": "EKD-036",
+    "fields": {
+     "well": "Ekene-4",
+     "date": "2025-01-01",
+     "event": "injectivity decline",
+     "reservoir_pressure_psia": 2289
+    }
+   },
+   {
+    "id": "EKD-038",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2020-07-18",
+     "event": "casing run"
+    }
+   },
+   {
+    "id": "EKD-040",
+    "fields": {
+     "well": "Ekene-4",
+     "date": "2020-10-09",
+     "event": "losses"
+    }
+   },
+   {
+    "id": "EKD-041",
+    "fields": {
+     "well": "Ekene-3",
+     "date": "2019-11-20",
+     "event": "gas reading"
+    }
+   },
+   {
+    "id": "EKD-044",
+    "fields": {
+     "date": "2021-03-14",
+     "event": "near-miss"
+    }
+   },
+   {
+    "id": "EKD-046",
+    "fields": {
+     "date": "2022-08-09",
+     "event": "spill"
+    }
+   },
+   {
+    "id": "EKD-053",
+    "fields": {
+     "date": "2025-04-08",
+     "event": "water treatment"
+    }
+   },
+   {
+    "id": "EKD-056",
+    "fields": {
+     "well": "Ekene-1",
+     "event": "core plug"
+    }
+   }
+  ],
+  "B": [
+   {
+    "id": "EKD-001",
+    "fields": {
+     "well": "Ekene-1",
+     "date": "2020-01-01",
+     "event": "first oil",
+     "oil_rate_bopd": 120
+    }
+   },
+   {
+    "id": "EKD-002",
+    "fields": {
+     "well": "Ekene-2",
+     "date": "2023-01-01",
+     "event": "conversion to injector"
+    }
+   },
+   {
+    "id": "EKD-003",
+    "fields": {
+     "well": "Ekene 3",
+     "date": "2020-03-01",
+     "event": "first oil",
+     "oil_rate_bopd": "150 bopd"
+    }
+   },
+   {
+    "id": "EKD-004",
+    "fields": {
+     "well": "Ekene-4",
+     "date": "2023-01-01",
+     "event": "conversion to injector"
+    }
+   },
+   {
+    "id": "EKD-005",
+    "fields": {
+     "well": "Ekene 5",
+     "date": "2020-06-01",
+     "event": "first oil",
+     "oil_rate_bopd": 100
+    }
+   },
+   {
+    "id": "EKD-006",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2020-09-01",
+     "event": "first oil",
+     "oil_rate_bopd": 90
+    }
+   },
+   {
+    "id": "EKD-013",
+    "fields": {
+     "well": "Ekene-1",
+     "date": "2020-07-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 3038
+    }
+   },
+   {
+    "id": "EKD-014",
+    "fields": {
+     "date": "2021-01-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2783
+    }
+   },
+   {
+    "id": "EKD-015",
+    "fields": {
+     "date": "2021-07-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2562
+    }
+   },
+   {
+    "id": "EKD-016",
+    "fields": {
+     "date": "2022-01-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2378
+    }
+   },
+   {
+    "id": "EKD-017",
+    "fields": {
+     "date": "2022-07-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2230
+    }
+   },
+   {
+    "id": "EKD-018",
+    "fields": {
+     "date": "2023-01-01",
+     "event": "pressure survey",
+     "reservoir_pressure_psia": 2096
+    }
+   },
+   {
+    "id": "EKD-020",
+    "fields": {
+     "well": "Ekene-1",
+     "date": "2020-04-01",
+     "event": "production",
+     "oil_rate_bopd": 107.6,
+     "water_cut_pct": 0
+    }
+   },
+   {
+    "id": "EKD-022",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2022-10-01",
+     "event": "production",
+     "oil_rate_bopd": 45.9,
+     "water_cut_pct": 0
+    }
+   },
+   {
+    "id": "EKD-024",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2023-06-01",
+     "event": "flood response",
+     "oil_rate_bopd": 47.7
+    }
+   },
+   {
+    "id": "EKD-025",
+    "fields": {
+     "well": "Ekene-1",
+     "date": "2023-10-01",
+     "event": "flood response",
+     "oil_rate_bopd": 38.2
+    }
+   },
+   {
+    "id": "EKD-026",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2024-09-01",
+     "event": "water breakthrough",
+     "oil_rate_bopd": 54.7
+    }
+   },
+   {
+    "id": "EKD-027",
+    "fields": {
+     "well": "Ekene-3",
+     "date": "2024-09-01",
+     "event": "water breakthrough",
+     "oil_rate_bopd": 41.5,
+     "water_cut_pct": 3.7
+    }
+   },
+   {
+    "id": "EKD-029",
+    "fields": {
+     "well": "Ekene-1",
+     "date": "2025-06-01",
+     "event": "water breakthrough",
+     "oil_rate_bopd": 34.0,
+     "water_cut_pct": 23.0
+    }
+   },
+   {
+    "id": "EKD-031",
+    "fields": {
+     "well": "Ekene-5",
+     "date": "2025-12-01",
+     "event": "production",
+     "oil_rate_bopd": 38.5,
+     "water_cut_pct": 0
+    }
+   },
+   {
+    "id": "EKD-032",
+    "fields": {
+     "well": "Ekene-3",
+     "date": "2022-06-01",
+     "event": "well test",
+     "oil_rate_bopd": 45.25,
+     "water_cut_pct": 0
+    }
+   },
+   {
+    "id": "EKD-033",
+    "fields": {
+     "well": "Ekene-5",
+     "date": "2021-06-01",
+     "event": "well test",
+     "oil_rate_bopd": 64.7,
+     "water_cut_pct": 0
+    }
+   },
+   {
+    "id": "EKD-036",
+    "fields": {
+     "well": "Ekene-4",
+     "date": "2025-01-01",
+     "event": "injectivity decline"
+    }
+   },
+   {
+    "id": "EKD-038",
+    "fields": {
+     "well": "Ekene-6",
+     "date": "2020-07-18",
+     "event": "casing"
+    }
+   },
+   {
+    "id": "EKD-040",
+    "fields": {
+     "well": "Ekene-4",
+     "date": "2020-10-09",
+     "event": "lost circulation"
+    }
+   },
+   {
+    "id": "EKD-041",
+    "fields": {
+     "well": "Ekene-3",
+     "date": "2019-11-20",
+     "event": "gas reading",
+     "water_cut_pct": 0.4
+    }
+   },
+   {
+    "id": "EKD-044",
+    "fields": {
+     "date": "2021-03-14",
+     "event": "the near miss"
+    }
+   },
+   {
+    "id": "EKD-046",
+    "fields": {
+     "date": "2022-08-09",
+     "event": "spill"
+    }
+   }
+  ]
+ }
+}

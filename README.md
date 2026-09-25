@@ -707,6 +707,33 @@ and its consumers.
   convention differences listed); findings, the boundary table and the
   negative control in `tools/validation/dataai/FINDINGS-forecast.md` and
   `negcontrol_forecast.sh`.
+- `engines/dataai/evaluate.js` (Data & AI D5, 2026-09-25): applied AI
+  evaluation for the AI Evaluation Studio and the `appliedai` course, all
+  deterministic (no language model runs). A stated tokeniser (ASCII
+  lowercase, split outside [a-z0-9]) with scikit-learn's stop list off by
+  default; TF-IDF as scikit-learn's TfidfVectorizer and Okapi BM25 with the
+  Lucene idf, ranked with a 12-significant-digit tie key and the id
+  ascending; P@k, R@k, hit@k, RR/MRR, AP/MAP and nDCG@k (linear or 2^g - 1
+  gain, ideal DCG from every judged grade) with a stated no-relevant rule;
+  SQuAD exact match and token F1; extraction scoring (correct, wrong,
+  missed, unsupported; micro and macro accuracy); a claim groundedness
+  check of an answer's quotes, dates and numbers against the passages it
+  cites and retrieved; Cohen's kappa (unweighted, linear, quadratic);
+  Brier, reliability table, ECE, MCE and the Murphy decomposition with the
+  within-bin terms, log loss imported from `ml.js`; and percentile and
+  paired bootstrap intervals from one lib/stats mulberry32 stream,
+  labelled as parameter percentiles. Fixtures: the synthetic Ekene document
+  set in `test-data/dataai/ekene-docs/` (60 passages, 24 judged queries,
+  two answer systems, 30 extraction records, 200 calibration rows;
+  `make_evaluate_fixtures.py`). Gate: `dataai.evaluate.test.js` replays
+  `test-data/dataai/goldens/evaluate_cases.json` (stdlib oracle
+  `tools/validation/dataai/oracle_evaluate.py`: Decimal BM25 and TF-IDF,
+  exact metrics and calibration, integer mulberry32) and the scikit-learn
+  and numpy pins in `test-data/dataai/pins/evaluate_pins.json`
+  (`pin_evaluate.py`, convention differences listed); findings, the
+  boundary table and the negative control in
+  `tools/validation/dataai/FINDINGS-evaluate.md` and
+  `negcontrol_evaluate.sh`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
