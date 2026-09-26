@@ -87,7 +87,7 @@ def build():
         'default': {
             'callTotal': 12_000_000, 'dueDate': '2027-03-01', 'asOf': '2027-05-31',
             'defaulters': [{'id': 'PB', 'paid': 250_000, 'curedOn': '2027-04-15'}],
-            'interest': {'annualRatePct': 8.25, 'dayBasis': 360},
+            'interest': {'annualRatePct': 8.25, 'dayBasis': 360, 'interestMethod': 'simple', 'graceHours': 0},
             'suspension': {'after': 5, 'unit': 'working-days', 'from': '2027-03-01'},
             'forfeiture': {'after': 3, 'unit': 'months', 'from': '2027-03-10'},
         },

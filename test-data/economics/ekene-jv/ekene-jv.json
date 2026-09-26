@@ -207,7 +207,9 @@
   ],
   "interest": {
    "annualRatePct": 8.25,
-   "dayBasis": 360
+   "dayBasis": 360,
+   "interestMethod": "simple",
+   "graceHours": 0
   },
   "suspension": {
    "after": 5,

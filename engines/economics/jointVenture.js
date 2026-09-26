@@ -158,7 +158,7 @@ export const ACCEPTED_KEYS = Object.freeze({
   }),
   overhead: O(['costs', 'excluded', 'scale'], { costs: FREE, excluded: FREE, scale: FREE }),
   defaultCover: O(['parties', 'carries', 'callTotal', 'dueDate', 'asOf', 'defaulters', 'interest', 'suspension', 'forfeiture', 'holidays'], {
-    parties: L(PARTY), carries: L(CARRY), defaulters: L(O(['id', 'paid', 'curedOn'])), interest: O(['annualRatePct', 'dayBasis']),
+    parties: L(PARTY), carries: L(CARRY), defaulters: L(O(['id', 'paid', 'curedOn'])), interest: O(['annualRatePct', 'dayBasis', 'interestMethod', 'graceHours']),
     suspension: CONSEQ, forfeiture: CONSEQ,
   }),
   carryRecovery: O(['parties', 'carries', 'carried', 'years', 'uplift', 'recoverFromPct', 'cap', 'basis', 'discountRate', 'baseYear'], {
@@ -607,8 +607,10 @@ const defaultImpl = ({ parties, carries, callTotal, dueDate, asOf, defaulters, i
     listOf('defaulters', defaulters, DEFAULTS.MAX_PARTIES));
   if (e) return e;
   if (!(asOf >= dueDate)) return must('asOf', `on or after the due date ${dueDate}`, asOf);
-  if (!isObj(interest)) return must('interest', 'an object { annualRatePct, dayBasis } (no default rate)', interest);
-  e = first(nonNeg('interest.annualRatePct', interest.annualRatePct), [365, 360].includes(interest.dayBasis) ? null : must('interest.dayBasis', '365 or 360', interest.dayBasis));
+  if (!isObj(interest)) return must('interest', 'an object { annualRatePct, dayBasis, interestMethod, graceHours } (no default rate or method)', interest);
+  e = first(nonNeg('interest.annualRatePct', interest.annualRatePct), [365, 360].includes(interest.dayBasis) ? null : must('interest.dayBasis', '365 or 360', interest.dayBasis),
+    oneOf('interest.interestMethod', interest.interestMethod, ['simple', 'monthly-compound']),
+    fin(interest.graceHours) && interest.graceHours >= 0 ? null : must('interest.graceHours', 'a finite number of hours at or above 0, stated (0 when the contract gives no grace; the engine holds no default)', interest.graceHours));
   if (e) return e;
   if (!Array.isArray(holidays)) return must('holidays', "an array of dates 'YYYY-MM-DD' when given", holidays);
   for (let i = 0; i < holidays.length; i += 1) { e = realDate(`holidays[${i}]`, holidays[i]); if (e) return e; }
@@ -646,7 +648,19 @@ const defaultImpl = ({ parties, carries, callTotal, dueDate, asOf, defaulters, i
     const unpaid = shares[d.id] - d.paid;
     const end = d.curedOn ?? asOf;
     const days = dayNo(end) - dayNo(dueDate);
-    const amount = (unpaid * interest.annualRatePct * days) / (100 * interest.dayBasis);
+    const withinGrace = days * 24 <= interest.graceHours;
+    let wholeMonths = null;
+    let remainingDays = null;
+    let amount;
+    if (interest.interestMethod === 'simple') {
+      amount = withinGrace ? 0 : (unpaid * interest.annualRatePct * days) / (100 * interest.dayBasis);
+    } else {
+      wholeMonths = 0;
+      while (addMonths(dueDate, wholeMonths + 1) <= end) wholeMonths += 1;
+      remainingDays = dayNo(end) - dayNo(addMonths(dueDate, wholeMonths));
+      const growth = (1 + interest.annualRatePct / 1200) ** wholeMonths * (1 + (interest.annualRatePct * remainingDays) / (100 * interest.dayBasis));
+      amount = withinGrace ? 0 : unpaid * (growth - 1);
+    }
     const conseq = {};
     for (const [name, c] of [['suspension', suspension], ['forfeiture', forfeiture]]) {
       if (c === undefined) { conseq[name] = null; continue; }
@@ -654,14 +668,24 @@ const defaultImpl = ({ parties, carries, callTotal, dueDate, asOf, defaulters, i
       const applies = d.curedOn !== undefined ? d.curedOn > on : asOf > on;
       conseq[name] = { triggerDate: on, applies };
     }
-    reasons.push(`${d.id}: share of the call ${money(shares[d.id])}, paid ${money(d.paid)}, unpaid ${money(unpaid)}; interest ${money(unpaid)} x ${fmt(interest.annualRatePct)}% x ${unit(days, 'day')} / ${interest.dayBasis} = ${money(amount)} (from ${dueDate} to ${d.curedOn !== undefined ? `the cure on ${d.curedOn}` : `asOf ${asOf}, the default still open`}, the last date excluded)`);
+    const span = `from ${dueDate} to ${d.curedOn !== undefined ? `the cure on ${d.curedOn}` : `asOf ${asOf}, the default still open`}, the last date excluded`;
+    const head = `${d.id}: share of the call ${money(shares[d.id])}, paid ${money(d.paid)}, unpaid ${money(unpaid)}; `;
+    if (withinGrace && interest.graceHours > 0) {
+      reasons.push(`${head}no interest: ${unit(days, 'day')} (${fmt(days * 24)} hours, ${span}) are within the stated grace of ${fmt(interest.graceHours)} hours`);
+    } else {
+      const graceNote = interest.graceHours > 0 ? `; the stated grace of ${fmt(interest.graceHours)} hours is exceeded, so interest runs from the due date` : '';
+      const calc = interest.interestMethod === 'simple'
+        ? `${money(unpaid)} x ${fmt(interest.annualRatePct)}% x ${unit(days, 'day')} / ${interest.dayBasis}`
+        : `${money(unpaid)} x ((1 + ${fmt(interest.annualRatePct)}% / 12)^${wholeMonths} x (1 + ${fmt(interest.annualRatePct)}% x ${unit(remainingDays, 'day')} / ${interest.dayBasis}) - 1), ${unit(wholeMonths, 'whole month')} and ${unit(remainingDays, 'day')}`;
+      reasons.push(`${head}interest ${calc} = ${money(amount)} (${span})${graceNote}`);
+    }
     for (const [name, c] of [['suspension', suspension], ['forfeiture', forfeiture]]) {
       if (!conseq[name]) continue;
       const q = conseq[name];
       const what = name === 'suspension' ? 'the suspension of its rights (as the contract states) starts' : 'the right to demand the assignment of its interest (forfeiture, as the contract states) arises';
       reasons.push(`${d.id}: ${what} after ${unit(c.after, UNIT_WORD[c.unit])} from ${c.from}, that is after ${q.triggerDate}: ${q.applies ? `triggered, the default being open after ${q.triggerDate}` : `not triggered, the default ${d.curedOn !== undefined ? `being cured on ${d.curedOn}` : `being open only to asOf ${asOf}`}`}`);
     }
-    return { id: d.id, share: shares[d.id], paid: d.paid, unpaid, curedOn: d.curedOn ?? null, days, interest: amount, suspension: conseq.suspension, forfeiture: conseq.forfeiture };
+    return { id: d.id, share: shares[d.id], paid: d.paid, unpaid, curedOn: d.curedOn ?? null, days, withinGrace, wholeMonths, remainingDays, interest: amount, suspension: conseq.suspension, forfeiture: conseq.forfeiture };
   });
   const unpaidTotal = sum(defRows.map((d) => d.unpaid));
   const interestTotal = sum(defRows.map((d) => d.interest));
@@ -686,7 +710,8 @@ const defaultImpl = ({ parties, carries, callTotal, dueDate, asOf, defaulters, i
     reasons,
     basis: {
       cover: 'the non-defaulting parties advance the unpaid amounts in proportion to their paying interests among themselves (the parties that pay cost; a carried party pays none)',
-      interest: `simple interest at the stated ${fmt(interest.annualRatePct)}% a year on a ${interest.dayBasis}-day year, from and including the due date to, but excluding, the cure date (or asOf); distributed to the parties financing the default in proportion to their cover`,
+      interest: `${interest.interestMethod === 'simple' ? 'simple interest' : 'interest compounded monthly (rate / 12 for each whole month from the due date, the month end kept as for the triggers, then simple interest on the compounded amount for the remaining days)'} at the stated ${fmt(interest.annualRatePct)}% a year on a ${interest.dayBasis}-day year, from and including the due date to, but excluding, the cure date (or asOf); distributed to the parties financing the default in proportion to their cover`,
+      grace: `a stated grace of ${fmt(interest.graceHours)} hours (days x 24 from the due date): a default cured within it carries no interest; one cured later carries interest from the due date, as the Kenya Model PSC 2015 Participation Agreement Art. 6.7 prints (72 hours)`,
       consequences: 'reported only as stated: each applies when the default is open after the whole trigger date; working days are Monday to Friday less the stated holidays; months keep the day of the month (the last day when the month is shorter)',
       notComputed: 'the cover by acquiring the defaulting party\'s share of petroleum, and the compensation on an assignment, are reported only',
       source: `${CITE.joa} Art. 9.1 to 9.4; ${CITE.aa} Art. 1.2.2 (the reference rate plus three percentage points in that text; the rate is a stated input here)`,
@@ -1073,6 +1098,7 @@ const pscImpl = ({ years, royaltyPct, costOilLimitPct, costOilLimitBase, contrac
       order: 'royalty = royaltyPct % of gross; cost oil limit = costOilLimitPct % of revenue after royalty (or of gross, as stated); cost recovered = min(pool + capex + opex, limit); profit oil = revenue after royalty - cost recovered; contractor profit oil = its share; tax = taxRatePct % of the contractor\'s profit oil',
       limitBase: costOilLimitBase === 'gross' ? `the limit is stated on gross revenue and passed to applyPSC as the fraction ${fmt(costOilLimitPct)} / (100 - ${fmt(royaltyPct)}) of revenue after royalty` : 'the limit is stated on revenue after royalty',
       pia: 'PIA s.311(2)(a)(iii): a renegotiated production sharing contract features a cost oil limit of not more than 60% of the total oil production; the limit here is the contract\'s stated figure',
+      tax: 'income tax is charged on the contractor\'s profit oil share, as FARI TNM/16/01 and World Bank Note 8 assume (applyPSC in engines/economics/cashflow.ts)',
       split: 'the contractor entitlement and the costs are split by participating interest with calculatePartnerCosts from engines/economics/afe.js',
       source: `${CITE.pia} s.85(2)(a), s.311(2)(a)(iii); engines/economics/cashflow.ts applyPSC`,
     },

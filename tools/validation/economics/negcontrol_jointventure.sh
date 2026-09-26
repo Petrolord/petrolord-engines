@@ -129,6 +129,14 @@ run_case ENGINE "NPV discounted one year early" $E "npv: npv(flows[id], discount
     carried," "npv: npv(flows[id], discountRate, baseYear, years[0].year - 1) }));
   return {
     carried,"
+# default interest method and grace (lead decision)
+run_case ENGINE "monthly compounding computed as simple" $E "const growth = (1 + interest.annualRatePct / 1200) ** wholeMonths * (1 + (interest.annualRatePct * remainingDays) / (100 * interest.dayBasis));" "const growth = 1 + (interest.annualRatePct * (dayNo(end) - dayNo(dueDate))) / (100 * interest.dayBasis);"
+run_case ENGINE "monthly rate taken as the annual rate" $E "(1 + interest.annualRatePct / 1200) ** wholeMonths" "(1 + interest.annualRatePct / 100) ** wholeMonths"
+run_case ENGINE "remaining days after the whole months dropped" $E "* (1 + (interest.annualRatePct * remainingDays) / (100 * interest.dayBasis));" ";"
+run_case ENGINE "grace boundary strict (72 hours exceeds a 72-hour grace)" $E "const withinGrace = days * 24 <= interest.graceHours;" "const withinGrace = days * 24 < interest.graceHours;"
+run_case ENGINE "grace ignored" $E "const withinGrace = days * 24 <= interest.graceHours;" "const withinGrace = false;"
+run_case ENGINE "interest starts after the grace" $E "amount = withinGrace ? 0 : (unpaid * interest.annualRatePct * days) / (100 * interest.dayBasis);" "amount = withinGrace ? 0 : (unpaid * interest.annualRatePct * (days - interest.graceHours / 24)) / (100 * interest.dayBasis);"
+run_case ENGINE "graceHours defaults to 0" $E "fin(interest.graceHours) && interest.graceHours >= 0 ? null :" "interest.graceHours === undefined || (fin(interest.graceHours) && interest.graceHours >= 0) ? null :"
 # keys and messages
 run_case ENGINE "unknown keys ignored" $E "  for (const k of Object.keys(v)) if (v[k] !== undefined && !spec.keys.includes(k)) return unknownKey(path, k, spec.keys);" ""
 run_case ENGINE "message: money printed with float noise" $E "const money = (x) => fmt(Number(x.toFixed(2)));" "const money = (x) => fmt(x);"

@@ -240,7 +240,7 @@ SHAPES = {
     'overhead': OBJ(['costs', 'excluded', 'scale'], costs=FREE, excluded=FREE, scale=FREE),
     'defaultCover': OBJ(['parties', 'carries', 'callTotal', 'dueDate', 'asOf', 'defaulters', 'interest', 'suspension', 'forfeiture', 'holidays'],
                         parties=LST(PARTY), carries=LST(CARRY), defaulters=LST(OBJ(['id', 'paid', 'curedOn'])),
-                        interest=OBJ(['annualRatePct', 'dayBasis']), suspension=CONSEQ, forfeiture=CONSEQ),
+                        interest=OBJ(['annualRatePct', 'dayBasis', 'interestMethod', 'graceHours']), suspension=CONSEQ, forfeiture=CONSEQ),
     'carryRecovery': OBJ(['parties', 'carries', 'carried', 'years', 'uplift', 'recoverFromPct', 'cap', 'basis', 'discountRate', 'baseYear'],
                          parties=LST(PARTY), carries=LST(CARRY), years=LST(OBJ(['year', 'cost', 'entitlement'])),
                          uplift=OBJ(['type', 'ratePctPerYear', 'multiplePct'])),
@@ -693,10 +693,14 @@ def default_cover(a):
         must('asOf', f'on or after the due date {due}', asof)
     it = g(a, 'interest')
     if not isobj(it):
-        must('interest', 'an object { annualRatePct, dayBasis } (no default rate)', it)
+        must('interest', 'an object { annualRatePct, dayBasis, interestMethod, graceHours } (no default rate or method)', it)
     non_neg('interest.annualRatePct', g(it, 'annualRatePct'))
     if g(it, 'dayBasis') not in (365, 360) or isinstance(g(it, 'dayBasis'), bool):
         must('interest.dayBasis', '365 or 360', g(it, 'dayBasis'))
+    one_of('interest.interestMethod', g(it, 'interestMethod'), ['simple', 'monthly-compound'])
+    gh = g(it, 'graceHours')
+    if not (isnum(gh) and gh >= 0):
+        must('interest.graceHours', 'a finite number of hours at or above 0, stated (0 when the contract gives no grace; the engine holds no default)', gh)
     hol = g(a, 'holidays')
     hol = [] if hol is MISSING else hol
     if not isinstance(hol, list):
@@ -744,7 +748,26 @@ def default_cover(a):
         cured = g(d, 'curedOn')
         end = parse_day(asof if cured is MISSING else cured)
         days = (end - parse_day(due)).days
-        interest = unpaid * F(it['annualRatePct']) / 100 * days / it['dayBasis']
+        within = days * 24 <= it['graceHours']
+        whole = rem = None
+        if it['interestMethod'] == 'simple':
+            interest = F(0) if within else unpaid * F(it['annualRatePct']) / 100 * days / it['dayBasis']
+        else:
+            # step month anniversaries forward with datetime; compound each whole month
+            d0 = parse_day(due)
+            whole, bal = 0, unpaid
+            while True:
+                y, m = divmod(d0.year * 12 + d0.month - 1 + whole + 1, 12)
+                nxt = dt.date(y, m + 1, min(d0.day, calendar.monthrange(y, m + 1)[1]))
+                if nxt > end:
+                    break
+                whole += 1
+                bal = bal * (1 + F(it['annualRatePct']) / 1200)
+            y, m = divmod(d0.year * 12 + d0.month - 1 + whole, 12)
+            anchor = dt.date(y, m + 1, min(d0.day, calendar.monthrange(y, m + 1)[1]))
+            rem = (end - anchor).days
+            bal = bal * (1 + F(it['annualRatePct']) * rem / 100 / it['dayBasis'])
+            interest = F(0) if within else bal - unpaid
         conseq = {}
         for name in ('suspension', 'forfeiture'):
             c = cons[name]
@@ -755,7 +778,16 @@ def default_cover(a):
             applies = (cured > on) if cured is not MISSING else (asof > on)
             conseq[name] = {'triggerDate': on, 'applies': applies}
         till = f'the cure on {cured}' if cured is not MISSING else f'asOf {asof}, the default still open'
-        reasons.append(f'{d["id"]}: share of the call {money(share[d["id"]])}, paid {money(d["paid"])}, unpaid {money(unpaid)}; interest {money(unpaid)} x {js(it["annualRatePct"])}% x {unit(days, "day")} / {it["dayBasis"]} = {money(interest)} (from {due} to {till}, the last date excluded)')
+        span = f'from {due} to {till}, the last date excluded'
+        head = f'{d["id"]}: share of the call {money(share[d["id"]])}, paid {money(d["paid"])}, unpaid {money(unpaid)}; '
+        if within and it['graceHours'] > 0:
+            reasons.append(f'{head}no interest: {unit(days, "day")} ({js(days * 24)} hours, {span}) are within the stated grace of {js(it["graceHours"])} hours')
+        else:
+            note = f'; the stated grace of {js(it["graceHours"])} hours is exceeded, so interest runs from the due date' if it['graceHours'] > 0 else ''
+            r_ = js(it['annualRatePct'])
+            calc = (f'{money(unpaid)} x {r_}% x {unit(days, "day")} / {it["dayBasis"]}' if it['interestMethod'] == 'simple'
+                    else f'{money(unpaid)} x ((1 + {r_}% / 12)^{whole} x (1 + {r_}% x {unit(rem, "day")} / {it["dayBasis"]}) - 1), {unit(whole, "whole month")} and {unit(rem, "day")}')
+            reasons.append(f'{head}interest {calc} = {money(interest)} ({span}){note}')
         for name in ('suspension', 'forfeiture'):
             q = conseq[name]
             if q is None:
@@ -768,7 +800,7 @@ def default_cover(a):
                 tail = 'not triggered, the default ' + (f'being cured on {cured}' if cured is not MISSING else f'being open only to asOf {asof}')
             reasons.append(f'{d["id"]}: {what} after {unit(c["after"], UNIT_WORD[c["unit"]])} from {c["from"]}, that is after {q["triggerDate"]}: {tail}')
         drows.append({'id': d['id'], 'share': fl(share[d['id']]), 'paid': d['paid'], 'unpaid': fl(unpaid), 'curedOn': None if cured is MISSING else cured,
-                      'days': days, 'interest': fl(interest), 'suspension': conseq['suspension'], 'forfeiture': conseq['forfeiture'], '_u': unpaid, '_i': interest})
+                      'days': days, 'withinGrace': within, 'wholeMonths': whole, 'remainingDays': rem, 'interest': fl(interest), 'suspension': conseq['suspension'], 'forfeiture': conseq['forfeiture'], '_u': unpaid, '_i': interest})
     ut = sum((r['_u'] for r in drows), F(0))
     itot = sum((r['_i'] for r in drows), F(0))
     for r in drows:
@@ -1321,23 +1353,40 @@ def build():
     case('default-forfeiture-last-day', 'defaultCover', dict(dbase, defaulters=[{'id': 'PB', 'paid': 250_000}], asOf='2027-06-10'))
     case('default-forfeiture-day-after', 'defaultCover', dict(dbase, defaulters=[{'id': 'PB', 'paid': 250_000}], asOf='2027-06-11'))
     case('default-two-defaulters', 'defaultCover', dict(dbase, defaulters=[{'id': 'PB', 'paid': 0, 'curedOn': '2027-03-31'}, {'id': 'PA', 'paid': 750_000, 'curedOn': '2027-04-30'}]))
-    case('default-no-carry-365', 'defaultCover', {'parties': P2, 'callTotal': 1_000_000, 'dueDate': '2027-01-15', 'asOf': '2027-03-01', 'defaulters': [{'id': 'C', 'paid': 0}], 'interest': {'annualRatePct': 7.3, 'dayBasis': 365}})
-    case('default-working-days-holiday', 'defaultCover', {'parties': P2, 'callTotal': 1_000_000, 'dueDate': '2027-12-22', 'asOf': '2028-01-05', 'defaulters': [{'id': 'C', 'paid': 0}], 'interest': {'annualRatePct': 0, 'dayBasis': 365},
+    case('default-no-carry-365', 'defaultCover', {'parties': P2, 'callTotal': 1_000_000, 'dueDate': '2027-01-15', 'asOf': '2027-03-01', 'defaulters': [{'id': 'C', 'paid': 0}], 'interest': {'annualRatePct': 7.3, 'dayBasis': 365, 'interestMethod': 'simple', 'graceHours': 0}})
+    case('default-working-days-holiday', 'defaultCover', {'parties': P2, 'callTotal': 1_000_000, 'dueDate': '2027-12-22', 'asOf': '2028-01-05', 'defaulters': [{'id': 'C', 'paid': 0}], 'interest': {'annualRatePct': 0, 'dayBasis': 365, 'interestMethod': 'simple', 'graceHours': 0},
                                                           'suspension': {'after': 5, 'unit': 'working-days', 'from': '2027-12-22'}, 'holidays': ['2027-12-24', '2027-12-27', '2027-12-28', '2028-01-01']})
-    case('default-months-end-of-month', 'defaultCover', {'parties': P2, 'callTotal': 1_000_000, 'dueDate': '2027-01-31', 'asOf': '2027-05-01', 'defaulters': [{'id': 'C', 'paid': 0}], 'interest': {'annualRatePct': 0, 'dayBasis': 365},
+    case('default-months-end-of-month', 'defaultCover', {'parties': P2, 'callTotal': 1_000_000, 'dueDate': '2027-01-31', 'asOf': '2027-05-01', 'defaulters': [{'id': 'C', 'paid': 0}], 'interest': {'annualRatePct': 0, 'dayBasis': 365, 'interestMethod': 'simple', 'graceHours': 0},
                                                          'forfeiture': {'after': 3, 'unit': 'months', 'from': '2027-01-31'}})
-    case('default-calendar-days', 'defaultCover', {'parties': P2, 'callTotal': 1_000_000, 'dueDate': '2027-01-01', 'asOf': '2027-04-01', 'defaulters': [{'id': 'C', 'paid': 0}], 'interest': {'annualRatePct': 0, 'dayBasis': 365},
+    case('default-calendar-days', 'defaultCover', {'parties': P2, 'callTotal': 1_000_000, 'dueDate': '2027-01-01', 'asOf': '2027-04-01', 'defaulters': [{'id': 'C', 'paid': 0}], 'interest': {'annualRatePct': 0, 'dayBasis': 365, 'interestMethod': 'simple', 'graceHours': 0},
                                                    'forfeiture': {'after': 90, 'unit': 'calendar-days', 'from': '2027-01-01'}})
+    KI = {'annualRatePct': 8.25, 'dayBasis': 360, 'interestMethod': 'monthly-compound', 'graceHours': 72}
+    case('default-ekene-monthly-compound-kenya', 'defaultCover', dict(dbase, interest=KI),
+         note='Kenya Model PSC 2015 Participation Agreement Art. 6.7: compounded monthly from the due date; a payment not received within seventy-two (72) hours accrues interest from the due date (rate and grace stated here)')
+    case('default-monthly-compound-uncured', 'defaultCover', dict(dbase, interest=KI, defaulters=[{'id': 'PB', 'paid': 250_000}], asOf='2027-07-01'))
+    case('default-monthly-compound-whole-months', 'defaultCover', dict(dbase, interest=dict(KI, graceHours=0), defaulters=[{'id': 'PB', 'paid': 250_000, 'curedOn': '2027-05-01'}]))
+    case('default-monthly-compound-month-end', 'defaultCover', {'parties': P2, 'callTotal': 1_000_000, 'dueDate': '2027-01-31', 'asOf': '2027-04-15', 'defaulters': [{'id': 'C', 'paid': 0}],
+                                                               'interest': {'annualRatePct': 12, 'dayBasis': 365, 'interestMethod': 'monthly-compound', 'graceHours': 0}})
+    case('default-grace-last-hour', 'defaultCover', dict(dbase, interest=dict(KI, interestMethod='simple'), defaulters=[{'id': 'PB', 'paid': 250_000, 'curedOn': '2027-03-04'}]),
+         note='72 hours after the due date (3 days): within the grace, no interest')
+    case('default-grace-exceeded', 'defaultCover', dict(dbase, interest=dict(KI, interestMethod='simple'), defaulters=[{'id': 'PB', 'paid': 250_000, 'curedOn': '2027-03-05'}]),
+         note='96 hours: the grace is exceeded and interest runs from the due date (4 days)')
+    case('default-grace-compound-exceeded', 'defaultCover', dict(dbase, interest=KI, defaulters=[{'id': 'PB', 'paid': 250_000, 'curedOn': '2027-03-05'}]))
+    case('default-grace-fractional-hours', 'defaultCover', dict(dbase, interest=dict(KI, interestMethod='simple', graceHours=71.5), defaulters=[{'id': 'PB', 'paid': 250_000, 'curedOn': '2027-03-04'}]))
+    refused('default-refuse-no-method', 'defaultCover', dict(dbase, interest={'annualRatePct': 8, 'dayBasis': 360, 'graceHours': 0}), 'interest.interestMethod')
+    refused('default-refuse-method', 'defaultCover', dict(dbase, interest={'annualRatePct': 8, 'dayBasis': 360, 'interestMethod': 'compound', 'graceHours': 0}), 'interest.interestMethod')
+    refused('default-refuse-no-grace', 'defaultCover', dict(dbase, interest={'annualRatePct': 8, 'dayBasis': 360, 'interestMethod': 'simple'}), 'interest.graceHours')
+    refused('default-refuse-negative-grace', 'defaultCover', dict(dbase, interest={'annualRatePct': 8, 'dayBasis': 360, 'interestMethod': 'simple', 'graceHours': -1}), 'interest.graceHours')
     refused('default-refuse-paid-in-full', 'defaultCover', dict(dbase, defaulters=[{'id': 'PB', 'paid': 2_250_000}]), 'defaulters[0].paid')
-    refused('default-refuse-no-rate', 'defaultCover', dict(dbase, interest={'dayBasis': 360}), 'interest.annualRatePct')
-    refused('default-refuse-day-basis', 'defaultCover', dict(dbase, interest={'annualRatePct': 8, 'dayBasis': 366}), 'interest.dayBasis')
+    refused('default-refuse-no-rate', 'defaultCover', dict(dbase, interest={'dayBasis': 360, 'interestMethod': 'simple', 'graceHours': 0}), 'interest.annualRatePct')
+    refused('default-refuse-day-basis', 'defaultCover', dict(dbase, interest={'annualRatePct': 8, 'dayBasis': 366, 'interestMethod': 'simple', 'graceHours': 0}), 'interest.dayBasis')
     refused('default-refuse-no-interest', 'defaultCover', {k: v for k, v in dbase.items() if k != 'interest'}, 'interest')
     refused('default-refuse-cure-before-due', 'defaultCover', dict(dbase, defaulters=[{'id': 'PB', 'paid': 0, 'curedOn': '2027-02-28'}]), 'defaulters[0].curedOn')
     refused('default-refuse-asof-before-due', 'defaultCover', dict(dbase, asOf='2027-02-01'), 'asOf')
     refused('default-refuse-bad-date', 'defaultCover', dict(dbase, dueDate='2027-02-30'), 'dueDate')
     refused('default-refuse-all-default', 'defaultCover', dict(dbase, defaulters=[{'id': 'EKO', 'paid': 0}, {'id': 'PA', 'paid': 0}, {'id': 'PB', 'paid': 0}]), 'defaulters')
     refused('default-refuse-unit', 'defaultCover', dict(dbase, suspension={'after': 5, 'unit': 'business-days', 'from': '2027-03-01'}), 'suspension.unit')
-    refused('default-refuse-unknown-key', 'defaultCover', dict(dbase, interest={'annualRatePct': 8, 'dayBasis': 360, 'compounding': 'monthly'}), 'interest.compounding')
+    refused('default-refuse-unknown-key', 'defaultCover', dict(dbase, interest={'annualRatePct': 8, 'dayBasis': 360, 'interestMethod': 'simple', 'graceHours': 0, 'compounding': 'monthly'}), 'interest.compounding')
 
     # carry
     cy = fx['carry']

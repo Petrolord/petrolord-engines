@@ -8228,7 +8228,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -8272,6 +8274,9 @@
       "unpaid": 2000000.0,
       "curedOn": "2027-04-15",
       "days": 45,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 20625.0,
       "suspension": {
        "triggerDate": "2027-03-08",
@@ -8354,7 +8359,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -8398,6 +8405,9 @@
       "unpaid": 2000000.0,
       "curedOn": null,
       "days": 122,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 55916.666666666664,
       "suspension": {
        "triggerDate": "2027-03-08",
@@ -8495,7 +8505,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -8539,6 +8551,9 @@
       "unpaid": 2000000.0,
       "curedOn": "2027-03-08",
       "days": 7,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 3208.3333333333335,
       "suspension": {
        "triggerDate": "2027-03-08",
@@ -8622,7 +8637,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -8666,6 +8683,9 @@
       "unpaid": 2000000.0,
       "curedOn": "2027-03-09",
       "days": 8,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 3666.6666666666665,
       "suspension": {
        "triggerDate": "2027-03-08",
@@ -8749,7 +8769,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -8793,6 +8815,9 @@
       "unpaid": 2000000.0,
       "curedOn": "2027-03-01",
       "days": 0,
+      "withinGrace": true,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 0.0,
       "suspension": {
        "triggerDate": "2027-03-08",
@@ -8875,7 +8900,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -8919,6 +8946,9 @@
       "unpaid": 2000000.0,
       "curedOn": null,
       "days": 101,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 46291.666666666664,
       "suspension": {
        "triggerDate": "2027-03-08",
@@ -9001,7 +9031,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -9045,6 +9077,9 @@
       "unpaid": 2000000.0,
       "curedOn": null,
       "days": 102,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 46750.0,
       "suspension": {
        "triggerDate": "2027-03-08",
@@ -9147,7 +9182,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -9191,6 +9228,9 @@
       "unpaid": 2250000.0,
       "curedOn": "2027-03-31",
       "days": 30,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 15468.75,
       "suspension": {
        "triggerDate": "2027-03-08",
@@ -9208,6 +9248,9 @@
       "unpaid": 3000000.0,
       "curedOn": "2027-04-30",
       "days": 60,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 41250.0,
       "suspension": {
        "triggerDate": "2027-03-08",
@@ -9271,7 +9314,9 @@
     ],
     "interest": {
      "annualRatePct": 7.3,
-     "dayBasis": 365
+     "dayBasis": 365,
+     "interestMethod": "simple",
+     "graceHours": 0
     }
    },
    "tol": 1e-12,
@@ -9301,6 +9346,9 @@
       "unpaid": 200000.0,
       "curedOn": null,
       "days": 45,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 1800.0,
       "suspension": null,
       "forfeiture": null
@@ -9360,7 +9408,9 @@
     ],
     "interest": {
      "annualRatePct": 0,
-     "dayBasis": 365
+     "dayBasis": 365,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -9401,6 +9451,9 @@
       "unpaid": 200000.0,
       "curedOn": null,
       "days": 14,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 0.0,
       "suspension": {
        "triggerDate": "2028-01-03",
@@ -9464,7 +9517,9 @@
     ],
     "interest": {
      "annualRatePct": 0,
-     "dayBasis": 365
+     "dayBasis": 365,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "forfeiture": {
      "after": 3,
@@ -9499,6 +9554,9 @@
       "unpaid": 200000.0,
       "curedOn": null,
       "days": 90,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 0.0,
       "suspension": null,
       "forfeiture": {
@@ -9572,7 +9630,9 @@
     ],
     "interest": {
      "annualRatePct": 0,
-     "dayBasis": 365
+     "dayBasis": 365,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "forfeiture": {
      "after": 90,
@@ -9607,6 +9667,9 @@
       "unpaid": 200000.0,
       "curedOn": null,
       "days": 90,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
       "interest": 0.0,
       "suspension": null,
       "forfeiture": {
@@ -9639,6 +9702,1306 @@
      "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x 0% x 90 days / 365 = 0 (from 2027-01-01 to asOf 2027-04-01, the default still open, the last date excluded)",
      "C: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 90 calendar days from 2027-01-01, that is after 2027-04-01: not triggered, the default being open only to asOf 2027-04-01"
     ]
+   }
+  },
+  {
+   "id": "default-ekene-monthly-compound-kenya",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-04-15"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8.25,
+     "dayBasis": 360,
+     "interestMethod": "monthly-compound",
+     "graceHours": 72
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "shares": [
+     {
+      "id": "EKO",
+      "share": 6000000.0
+     },
+     {
+      "id": "PA",
+      "share": 3750000.0
+     },
+     {
+      "id": "PB",
+      "share": 2250000.0
+     },
+     {
+      "id": "NOC",
+      "share": 0.0
+     }
+    ],
+    "defaulters": [
+     {
+      "id": "PB",
+      "share": 2250000.0,
+      "paid": 250000,
+      "unpaid": 2000000.0,
+      "curedOn": "2027-04-15",
+      "days": 45,
+      "withinGrace": false,
+      "wholeMonths": 1,
+      "remainingDays": 14,
+      "interest": 20210.78125,
+      "suspension": {
+       "triggerDate": "2027-03-08",
+       "applies": true
+      },
+      "forfeiture": {
+       "triggerDate": "2027-06-10",
+       "applies": false
+      }
+     }
+    ],
+    "cover": [
+     {
+      "id": "EKO",
+      "payingPct": 50.0,
+      "coverPct": 61.53846153846154,
+      "cover": 1230769.2307692308,
+      "interestReceived": 12437.403846153846
+     },
+     {
+      "id": "PA",
+      "payingPct": 31.25,
+      "coverPct": 38.46153846153846,
+      "cover": 769230.7692307692,
+      "interestReceived": 7773.377403846154
+     }
+    ],
+    "unpaidTotal": 2000000.0,
+    "interestTotal": 20210.78125,
+    "interestsAfterForfeiture": null,
+    "reasons": [
+     "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x ((1 + 8.25% / 12)^1 x (1 + 8.25% x 14 days / 360) - 1), 1 whole month and 14 days = 20210.78 (from 2027-03-01 to the cure on 2027-04-15, the last date excluded); the stated grace of 72 hours is exceeded, so interest runs from the due date",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-04-15"
+    ]
+   },
+   "note": "Kenya Model PSC 2015 Participation Agreement Art. 6.7: compounded monthly from the due date; a payment not received within seventy-two (72) hours accrues interest from the due date (rate and grace stated here)"
+  },
+  {
+   "id": "default-monthly-compound-uncured",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-07-01",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8.25,
+     "dayBasis": 360,
+     "interestMethod": "monthly-compound",
+     "graceHours": 72
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-07-01",
+    "shares": [
+     {
+      "id": "EKO",
+      "share": 6000000.0
+     },
+     {
+      "id": "PA",
+      "share": 3750000.0
+     },
+     {
+      "id": "PB",
+      "share": 2250000.0
+     },
+     {
+      "id": "NOC",
+      "share": 0.0
+     }
+    ],
+    "defaulters": [
+     {
+      "id": "PB",
+      "share": 2250000.0,
+      "paid": 250000,
+      "unpaid": 2000000.0,
+      "curedOn": null,
+      "days": 122,
+      "withinGrace": false,
+      "wholeMonths": 4,
+      "remainingDays": 0,
+      "interest": 55569.791577453616,
+      "suspension": {
+       "triggerDate": "2027-03-08",
+       "applies": true
+      },
+      "forfeiture": {
+       "triggerDate": "2027-06-10",
+       "applies": true
+      }
+     }
+    ],
+    "cover": [
+     {
+      "id": "EKO",
+      "payingPct": 50.0,
+      "coverPct": 61.53846153846154,
+      "cover": 1230769.2307692308,
+      "interestReceived": 34196.79481689453
+     },
+     {
+      "id": "PA",
+      "payingPct": 31.25,
+      "coverPct": 38.46153846153846,
+      "cover": 769230.7692307692,
+      "interestReceived": 21372.996760559083
+     }
+    ],
+    "unpaidTotal": 2000000.0,
+    "interestTotal": 55569.791577453616,
+    "interestsAfterForfeiture": [
+     {
+      "id": "EKO",
+      "participatingPct": 47.05882352941177
+     },
+     {
+      "id": "PA",
+      "participatingPct": 29.41176470588235
+     },
+     {
+      "id": "NOC",
+      "participatingPct": 23.529411764705884
+     }
+    ],
+    "reasons": [
+     "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x ((1 + 8.25% / 12)^4 x (1 + 8.25% x 0 days / 360) - 1), 4 whole months and 0 days = 55569.79 (from 2027-03-01 to asOf 2027-07-01, the default still open, the last date excluded); the stated grace of 72 hours is exceeded, so interest runs from the due date",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: triggered, the default being open after 2027-06-10",
+     "if the assignment of PB is demanded, the interest is apportioned pro rata: EKO 47.05882352941177%, PA 29.41176470588235%, NOC 23.529411764705884%; the compensation (at most the book value less unpaid contributions) is not computed"
+    ]
+   }
+  },
+  {
+   "id": "default-monthly-compound-whole-months",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-05-01"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8.25,
+     "dayBasis": 360,
+     "interestMethod": "monthly-compound",
+     "graceHours": 0
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "shares": [
+     {
+      "id": "EKO",
+      "share": 6000000.0
+     },
+     {
+      "id": "PA",
+      "share": 3750000.0
+     },
+     {
+      "id": "PB",
+      "share": 2250000.0
+     },
+     {
+      "id": "NOC",
+      "share": 0.0
+     }
+    ],
+    "defaulters": [
+     {
+      "id": "PB",
+      "share": 2250000.0,
+      "paid": 250000,
+      "unpaid": 2000000.0,
+      "curedOn": "2027-05-01",
+      "days": 61,
+      "withinGrace": false,
+      "wholeMonths": 2,
+      "remainingDays": 0,
+      "interest": 27594.53125,
+      "suspension": {
+       "triggerDate": "2027-03-08",
+       "applies": true
+      },
+      "forfeiture": {
+       "triggerDate": "2027-06-10",
+       "applies": false
+      }
+     }
+    ],
+    "cover": [
+     {
+      "id": "EKO",
+      "payingPct": 50.0,
+      "coverPct": 61.53846153846154,
+      "cover": 1230769.2307692308,
+      "interestReceived": 16981.25
+     },
+     {
+      "id": "PA",
+      "payingPct": 31.25,
+      "coverPct": 38.46153846153846,
+      "cover": 769230.7692307692,
+      "interestReceived": 10613.28125
+     }
+    ],
+    "unpaidTotal": 2000000.0,
+    "interestTotal": 27594.53125,
+    "interestsAfterForfeiture": null,
+    "reasons": [
+     "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x ((1 + 8.25% / 12)^2 x (1 + 8.25% x 0 days / 360) - 1), 2 whole months and 0 days = 27594.53 (from 2027-03-01 to the cure on 2027-05-01, the last date excluded)",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-05-01"
+    ]
+   }
+  },
+  {
+   "id": "default-monthly-compound-month-end",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "A",
+      "participatingPct": 50
+     },
+     {
+      "id": "B",
+      "participatingPct": 30
+     },
+     {
+      "id": "C",
+      "participatingPct": 20
+     }
+    ],
+    "callTotal": 1000000,
+    "dueDate": "2027-01-31",
+    "asOf": "2027-04-15",
+    "defaulters": [
+     {
+      "id": "C",
+      "paid": 0
+     }
+    ],
+    "interest": {
+     "annualRatePct": 12,
+     "dayBasis": 365,
+     "interestMethod": "monthly-compound",
+     "graceHours": 0
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "callTotal": 1000000,
+    "dueDate": "2027-01-31",
+    "asOf": "2027-04-15",
+    "shares": [
+     {
+      "id": "A",
+      "share": 500000.0
+     },
+     {
+      "id": "B",
+      "share": 300000.0
+     },
+     {
+      "id": "C",
+      "share": 200000.0
+     }
+    ],
+    "defaulters": [
+     {
+      "id": "C",
+      "share": 200000.0,
+      "paid": 0,
+      "unpaid": 200000.0,
+      "curedOn": null,
+      "days": 74,
+      "withinGrace": false,
+      "wholeMonths": 2,
+      "remainingDays": 15,
+      "interest": 5026.12602739726,
+      "suspension": null,
+      "forfeiture": null
+     }
+    ],
+    "cover": [
+     {
+      "id": "A",
+      "payingPct": 50.0,
+      "coverPct": 62.5,
+      "cover": 125000.0,
+      "interestReceived": 3141.328767123288
+     },
+     {
+      "id": "B",
+      "payingPct": 30.0,
+      "coverPct": 37.5,
+      "cover": 75000.0,
+      "interestReceived": 1884.7972602739726
+     }
+    ],
+    "unpaidTotal": 200000.0,
+    "interestTotal": 5026.12602739726,
+    "interestsAfterForfeiture": null,
+    "reasons": [
+     "the unpaid 200000 is advanced by A 125000, B 75000, in proportion to their paying interests among the non-defaulting parties",
+     "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x ((1 + 12% / 12)^2 x (1 + 12% x 15 days / 365) - 1), 2 whole months and 15 days = 5026.13 (from 2027-01-31 to asOf 2027-04-15, the default still open, the last date excluded)"
+    ]
+   }
+  },
+  {
+   "id": "default-grace-last-hour",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-03-04"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8.25,
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 72
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "shares": [
+     {
+      "id": "EKO",
+      "share": 6000000.0
+     },
+     {
+      "id": "PA",
+      "share": 3750000.0
+     },
+     {
+      "id": "PB",
+      "share": 2250000.0
+     },
+     {
+      "id": "NOC",
+      "share": 0.0
+     }
+    ],
+    "defaulters": [
+     {
+      "id": "PB",
+      "share": 2250000.0,
+      "paid": 250000,
+      "unpaid": 2000000.0,
+      "curedOn": "2027-03-04",
+      "days": 3,
+      "withinGrace": true,
+      "wholeMonths": null,
+      "remainingDays": null,
+      "interest": 0.0,
+      "suspension": {
+       "triggerDate": "2027-03-08",
+       "applies": false
+      },
+      "forfeiture": {
+       "triggerDate": "2027-06-10",
+       "applies": false
+      }
+     }
+    ],
+    "cover": [
+     {
+      "id": "EKO",
+      "payingPct": 50.0,
+      "coverPct": 61.53846153846154,
+      "cover": 1230769.2307692308,
+      "interestReceived": 0.0
+     },
+     {
+      "id": "PA",
+      "payingPct": 31.25,
+      "coverPct": 38.46153846153846,
+      "cover": 769230.7692307692,
+      "interestReceived": 0.0
+     }
+    ],
+    "unpaidTotal": 2000000.0,
+    "interestTotal": 0.0,
+    "interestsAfterForfeiture": null,
+    "reasons": [
+     "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; no interest: 3 days (72 hours, from 2027-03-01 to the cure on 2027-03-04, the last date excluded) are within the stated grace of 72 hours",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: not triggered, the default being cured on 2027-03-04",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-04"
+    ]
+   },
+   "note": "72 hours after the due date (3 days): within the grace, no interest"
+  },
+  {
+   "id": "default-grace-exceeded",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-03-05"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8.25,
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 72
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "shares": [
+     {
+      "id": "EKO",
+      "share": 6000000.0
+     },
+     {
+      "id": "PA",
+      "share": 3750000.0
+     },
+     {
+      "id": "PB",
+      "share": 2250000.0
+     },
+     {
+      "id": "NOC",
+      "share": 0.0
+     }
+    ],
+    "defaulters": [
+     {
+      "id": "PB",
+      "share": 2250000.0,
+      "paid": 250000,
+      "unpaid": 2000000.0,
+      "curedOn": "2027-03-05",
+      "days": 4,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
+      "interest": 1833.3333333333333,
+      "suspension": {
+       "triggerDate": "2027-03-08",
+       "applies": false
+      },
+      "forfeiture": {
+       "triggerDate": "2027-06-10",
+       "applies": false
+      }
+     }
+    ],
+    "cover": [
+     {
+      "id": "EKO",
+      "payingPct": 50.0,
+      "coverPct": 61.53846153846154,
+      "cover": 1230769.2307692308,
+      "interestReceived": 1128.2051282051282
+     },
+     {
+      "id": "PA",
+      "payingPct": 31.25,
+      "coverPct": 38.46153846153846,
+      "cover": 769230.7692307692,
+      "interestReceived": 705.1282051282051
+     }
+    ],
+    "unpaidTotal": 2000000.0,
+    "interestTotal": 1833.3333333333333,
+    "interestsAfterForfeiture": null,
+    "reasons": [
+     "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 4 days / 360 = 1833.33 (from 2027-03-01 to the cure on 2027-03-05, the last date excluded); the stated grace of 72 hours is exceeded, so interest runs from the due date",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: not triggered, the default being cured on 2027-03-05",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-05"
+    ]
+   },
+   "note": "96 hours: the grace is exceeded and interest runs from the due date (4 days)"
+  },
+  {
+   "id": "default-grace-compound-exceeded",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-03-05"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8.25,
+     "dayBasis": 360,
+     "interestMethod": "monthly-compound",
+     "graceHours": 72
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "shares": [
+     {
+      "id": "EKO",
+      "share": 6000000.0
+     },
+     {
+      "id": "PA",
+      "share": 3750000.0
+     },
+     {
+      "id": "PB",
+      "share": 2250000.0
+     },
+     {
+      "id": "NOC",
+      "share": 0.0
+     }
+    ],
+    "defaulters": [
+     {
+      "id": "PB",
+      "share": 2250000.0,
+      "paid": 250000,
+      "unpaid": 2000000.0,
+      "curedOn": "2027-03-05",
+      "days": 4,
+      "withinGrace": false,
+      "wholeMonths": 0,
+      "remainingDays": 4,
+      "interest": 1833.3333333333333,
+      "suspension": {
+       "triggerDate": "2027-03-08",
+       "applies": false
+      },
+      "forfeiture": {
+       "triggerDate": "2027-06-10",
+       "applies": false
+      }
+     }
+    ],
+    "cover": [
+     {
+      "id": "EKO",
+      "payingPct": 50.0,
+      "coverPct": 61.53846153846154,
+      "cover": 1230769.2307692308,
+      "interestReceived": 1128.2051282051282
+     },
+     {
+      "id": "PA",
+      "payingPct": 31.25,
+      "coverPct": 38.46153846153846,
+      "cover": 769230.7692307692,
+      "interestReceived": 705.1282051282051
+     }
+    ],
+    "unpaidTotal": 2000000.0,
+    "interestTotal": 1833.3333333333333,
+    "interestsAfterForfeiture": null,
+    "reasons": [
+     "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x ((1 + 8.25% / 12)^0 x (1 + 8.25% x 4 days / 360) - 1), 0 whole months and 4 days = 1833.33 (from 2027-03-01 to the cure on 2027-03-05, the last date excluded); the stated grace of 72 hours is exceeded, so interest runs from the due date",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: not triggered, the default being cured on 2027-03-05",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-05"
+    ]
+   }
+  },
+  {
+   "id": "default-grace-fractional-hours",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-03-04"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8.25,
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 71.5
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "shares": [
+     {
+      "id": "EKO",
+      "share": 6000000.0
+     },
+     {
+      "id": "PA",
+      "share": 3750000.0
+     },
+     {
+      "id": "PB",
+      "share": 2250000.0
+     },
+     {
+      "id": "NOC",
+      "share": 0.0
+     }
+    ],
+    "defaulters": [
+     {
+      "id": "PB",
+      "share": 2250000.0,
+      "paid": 250000,
+      "unpaid": 2000000.0,
+      "curedOn": "2027-03-04",
+      "days": 3,
+      "withinGrace": false,
+      "wholeMonths": null,
+      "remainingDays": null,
+      "interest": 1375.0,
+      "suspension": {
+       "triggerDate": "2027-03-08",
+       "applies": false
+      },
+      "forfeiture": {
+       "triggerDate": "2027-06-10",
+       "applies": false
+      }
+     }
+    ],
+    "cover": [
+     {
+      "id": "EKO",
+      "payingPct": 50.0,
+      "coverPct": 61.53846153846154,
+      "cover": 1230769.2307692308,
+      "interestReceived": 846.1538461538462
+     },
+     {
+      "id": "PA",
+      "payingPct": 31.25,
+      "coverPct": 38.46153846153846,
+      "cover": 769230.7692307692,
+      "interestReceived": 528.8461538461538
+     }
+    ],
+    "unpaidTotal": 2000000.0,
+    "interestTotal": 1375.0,
+    "interestsAfterForfeiture": null,
+    "reasons": [
+     "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 3 days / 360 = 1375 (from 2027-03-01 to the cure on 2027-03-04, the last date excluded); the stated grace of 71.5 hours is exceeded, so interest runs from the due date",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: not triggered, the default being cured on 2027-03-04",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-04"
+    ]
+   }
+  },
+  {
+   "id": "default-refuse-no-method",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-04-15"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8,
+     "dayBasis": 360,
+     "graceHours": 0
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "error": true,
+    "field": "interest.interestMethod",
+    "message": "interest.interestMethod must be one of \"simple\", \"monthly-compound\"; got nothing"
+   }
+  },
+  {
+   "id": "default-refuse-method",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-04-15"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8,
+     "dayBasis": 360,
+     "interestMethod": "compound",
+     "graceHours": 0
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "error": true,
+    "field": "interest.interestMethod",
+    "message": "interest.interestMethod must be one of \"simple\", \"monthly-compound\"; got \"compound\""
+   }
+  },
+  {
+   "id": "default-refuse-no-grace",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-04-15"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8,
+     "dayBasis": 360,
+     "interestMethod": "simple"
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "error": true,
+    "field": "interest.graceHours",
+    "message": "interest.graceHours must be a finite number of hours at or above 0, stated (0 when the contract gives no grace; the engine holds no default); got nothing"
+   }
+  },
+  {
+   "id": "default-refuse-negative-grace",
+   "fn": "defaultCover",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "callTotal": 12000000,
+    "dueDate": "2027-03-01",
+    "asOf": "2027-05-31",
+    "defaulters": [
+     {
+      "id": "PB",
+      "paid": 250000,
+      "curedOn": "2027-04-15"
+     }
+    ],
+    "interest": {
+     "annualRatePct": 8,
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": -1
+    },
+    "suspension": {
+     "after": 5,
+     "unit": "working-days",
+     "from": "2027-03-01"
+    },
+    "forfeiture": {
+     "after": 3,
+     "unit": "months",
+     "from": "2027-03-10"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "error": true,
+    "field": "interest.graceHours",
+    "message": "interest.graceHours must be a finite number of hours at or above 0, stated (0 when the contract gives no grace; the engine holds no default); got -1"
    }
   },
   {
@@ -9685,7 +11048,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -9749,7 +11114,9 @@
      }
     ],
     "interest": {
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -9814,7 +11181,9 @@
     ],
     "interest": {
      "annualRatePct": 8,
-     "dayBasis": 366
+     "dayBasis": 366,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -9892,7 +11261,7 @@
    "expected": {
     "error": true,
     "field": "interest",
-    "message": "interest must be an object { annualRatePct, dayBasis } (no default rate); got nothing"
+    "message": "interest must be an object { annualRatePct, dayBasis, interestMethod, graceHours } (no default rate or method); got nothing"
    }
   },
   {
@@ -9940,7 +11309,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -10005,7 +11376,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -10070,7 +11443,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -10142,7 +11517,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -10207,7 +11584,9 @@
     ],
     "interest": {
      "annualRatePct": 8.25,
-     "dayBasis": 360
+     "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0
     },
     "suspension": {
      "after": 5,
@@ -10273,6 +11652,8 @@
     "interest": {
      "annualRatePct": 8,
      "dayBasis": 360,
+     "interestMethod": "simple",
+     "graceHours": 0,
      "compounding": "monthly"
     },
     "suspension": {
@@ -10290,7 +11671,7 @@
    "expected": {
     "error": true,
     "field": "interest.compounding",
-    "message": "interest.compounding is not an accepted key; the accepted keys of interest are annualRatePct, dayBasis"
+    "message": "interest.compounding is not an accepted key; the accepted keys of interest are annualRatePct, dayBasis, interestMethod, graceHours"
    }
   },
   {

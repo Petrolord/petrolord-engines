@@ -330,6 +330,35 @@ describe('boundaries (per rule)', () => {
   });
 });
 
+describe('lead decision: default interest method and grace are stated inputs', () => {
+  test('the grace boundary: cured at exactly the grace carries no interest; one day later interest runs from the due date', () => {
+    const a = run('default-grace-last-hour').defaulters[0];
+    expect([a.days, a.withinGrace, a.interest]).toEqual([3, true, 0]);
+    const b = run('default-grace-exceeded').defaulters[0];
+    expect([b.days, b.withinGrace]).toEqual([4, false]);
+    expect(b.interest).toBe(run('default-grace-exceeded').unpaidTotal * 8.25 * 4 / 36000);
+    expect(run('default-grace-fractional-hours').defaulters[0].withinGrace).toBe(false);
+    expect(run('default-grace-last-hour').reasons[1]).toBe('PB: share of the call 2250000, paid 250000, unpaid 2000000; no interest: 3 days (72 hours, from 2027-03-01 to the cure on 2027-03-04, the last date excluded) are within the stated grace of 72 hours');
+  });
+  test('monthly compounding: whole months from the due date compound, the rest is simple', () => {
+    const k = run('default-ekene-monthly-compound-kenya').defaulters[0];
+    expect([k.wholeMonths, k.remainingDays]).toEqual([1, 14]);
+    const w = run('default-monthly-compound-whole-months').defaulters[0];
+    expect([w.wholeMonths, w.remainingDays]).toEqual([2, 0]);
+    const e = run('default-monthly-compound-month-end').defaulters[0];
+    expect([e.wholeMonths, e.remainingDays]).toEqual([2, 15]);
+    expect(run('default-ekene-march').defaulters[0].wholeMonths).toBe(null);
+  });
+  test('method and grace are required, with exact refusals', () => {
+    expect(run('default-refuse-no-method').error).toBe('interest.interestMethod must be one of "simple", "monthly-compound"; got nothing');
+    expect(run('default-refuse-no-grace').error).toBe('interest.graceHours must be a finite number of hours at or above 0, stated (0 when the contract gives no grace; the engine holds no default); got nothing');
+    expect(run('default-refuse-negative-grace').error).toBe('interest.graceHours must be a finite number of hours at or above 0, stated (0 when the contract gives no grace; the engine holds no default); got -1');
+  });
+  test('the PSC basis states the tax reading', () => {
+    expect(run('psc-ekene').basis.tax).toBe("income tax is charged on the contractor's profit oil share, as FARI TNM/16/01 and World Bank Note 8 assume (applyPSC in engines/economics/cashflow.ts)");
+  });
+});
+
 describe('wording and keys', () => {
   test('unknown keys: every function refuses one at the top level', () => {
     expect(Object.keys(J.ACCEPTED_KEYS).sort()).toEqual(FNS);
