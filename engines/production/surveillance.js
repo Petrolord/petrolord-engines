@@ -777,10 +777,29 @@ export function fitWellDecline(points, {
   if (!fit || !fit.parameters || fit.parameters.modelType === 'None') {
     return { insufficient: true, fitSeries };
   }
+  // THE FORECAST STARTS WHERE THE HISTORY ENDS. It used to be generated
+  // from the fit's first date, so a 1,825 day "forecast volume" on a well
+  // with six months of history re-counted those six months as future
+  // oil (Suite senior test SURV-T1-001: 583,821 stb against about
+  // 409,000 from today). The same law is carried to the last fitted
+  // date: q there, and for b > 0 the decline rate there, Di / (1 + b Di t).
+  const { qi, Di, b = 0, modelType: fitted } = fit.parameters;
+  const lastDate = fitSeries[fitSeries.length - 1].date;
+  const tLast = Math.max(0, (new Date(lastDate).getTime() - new Date(fit.t0).getTime()) / 86400000);
+  const exponential = fitted === 'Exponential' || b === 0;
+  const harmonic = fitted === 'Harmonic' || b === 1;
+  let qLast;
+  if (exponential) qLast = qi * Math.exp(-Di * tLast);
+  else if (harmonic) qLast = qi / (1 + Di * tLast);
+  else qLast = qi / (1 + b * Di * tLast) ** (1 / b);
+  const DiLast = exponential ? Di : Di / (1 + (harmonic ? 1 : b) * Di * tLast);
   const forecast = generateForecast(
-    fit.parameters,
+    { ...fit.parameters, qi: qLast, Di: DiLast },
     { forecastDurationDays: forecastDays, economicLimit, stopAtLimit: economicLimit > 0 },
-    fit.t0,
+    lastDate,
   );
+  forecast.startDate = lastDate;
+  forecast.startDay = tLast;
+  forecast.startRate = qLast;
   return { fit, forecast, fitSeries };
 }

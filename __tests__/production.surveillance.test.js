@@ -441,24 +441,62 @@ describe('the decline overlay through the canonical Arps engine', () => {
     expect(rel(eff, G.syntheticDecline.effectivePct)).toBeLessThan(1e-4);
   });
 
-  test('the forecast continues the SAME law, day by day, from the fit', () => {
+  test('the forecast continues the SAME law, day by day, from the LAST fitted date', () => {
     const out = fitWellDecline(points, { stream: 'oil', forecastDays: 365 });
     expect(out.forecast.rates).toHaveLength(365);
     const { qi, Di } = out.fit.parameters;
-    // Day 1 of the forecast is q(1) of the law that was fitted, and the
-    // truth the data was made from says what that is.
+    const tLast = out.forecast.startDay;
+    // 90 daily rows from day 0, so the history ends on day 89.
+    expect(tLast).toBeCloseTo(89, 6);
+    // Day 1 of the forecast is q(tLast + 1) of the law that was fitted,
+    // and the truth the data was made from says what that is.
     const truth = G.syntheticDecline.truth;
-    expect(rel(out.forecast.rates[0].rate, truth.qi * Math.exp(-truth.Di * 1)))
+    expect(rel(out.forecast.rates[0].rate, truth.qi * Math.exp(-truth.Di * (tLast + 1))))
       .toBeLessThan(1e-5);
-    expect(rel(out.forecast.rates[364].rate, qi * Math.exp(-Di * 365))).toBeLessThan(1e-9);
+    expect(rel(out.forecast.rates[364].rate, qi * Math.exp(-Di * (tLast + 365)))).toBeLessThan(1e-9);
+  });
+
+  test('a hyperbolic law is carried to the last date with its decline rate re-based', () => {
+    // q = 1000 / (1 + 0.5 x 0.004 t)^2 for 120 days; day 1 of the forecast
+    // must be the SAME law at t = 120, however it is re-parameterised.
+    const hyp = [];
+    for (let t = 0; t < 121; t += 1) {
+      const d = new Date(Date.UTC(2026, 0, 1 + t)).toISOString().slice(0, 10);
+      hyp.push({ date: d, oil: 1000 / (1 + 0.5 * 0.004 * t) ** 2, water: 0, gas: 0, hoursOn: 24 });
+    }
+    const hRows = hyp.map((r) => ({
+      prod_date: r.date, oil_stb: r.oil, water_stb: 0, gas_mscf: 0, winj_stb: 0, ginj_mscf: 0,
+      hours_on: 24, well: { id: 'w-h', name: 'H-1' },
+    }));
+    const hPoints = buildWellSeries(hRows)[0].points;
+    const out = fitWellDecline(hPoints, { stream: 'oil', modelType: 'Hyperbolic', forecastDays: 30 });
+    const { qi, Di, b } = out.fit.parameters;
+    const tLast = out.forecast.startDay;
+    expect(tLast).toBeCloseTo(120, 6);
+    expect(rel(out.forecast.rates[0].rate, qi / (1 + b * Di * (tLast + 1)) ** (1 / b))).toBeLessThan(1e-9);
+    expect(rel(out.forecast.rates[29].rate, qi / (1 + b * Di * (tLast + 30)) ** (1 / b))).toBeLessThan(1e-9);
+  });
+
+  test('the forecast volume is FORWARD volume only, never the history again', () => {
+    const out = fitWellDecline(points, { stream: 'oil', forecastDays: 365 });
+    const { qi, Di } = out.fit.parameters;
+    const tLast = out.forecast.startDay;
+    let forward = 0;
+    for (let d = 1; d <= 365; d += 1) forward += qi * Math.exp(-Di * (tLast + d));
+    expect(rel(out.forecast.eur, forward)).toBeLessThan(1e-9);
+    let fromFirst = 0;
+    for (let d = 1; d <= 365; d += 1) fromFirst += qi * Math.exp(-Di * d);
+    expect(out.forecast.eur).toBeLessThan(fromFirst);
   });
 
   test('an economic limit STOPS the forecast rather than running past it', () => {
     const truth = G.syntheticDecline.truth;
-    // q(t) = 1200 exp(-0.0015 t) falls to 900 at t = ln(4/3)/0.0015 = 192 days.
+    // q(t) = 1200 exp(-0.0015 t) falls to 900 at t = ln(4/3)/0.0015 = 192
+    // days from the first date; the forecast starts at day 89, so the
+    // limit arrives about 103 days into it.
     const limited = fitWellDecline(points, { stream: 'oil', forecastDays: 1825, economicLimit: 900 });
     const open = fitWellDecline(points, { stream: 'oil', forecastDays: 1825 });
-    const expectedDay = Math.log(truth.qi / 900) / truth.Di;
+    const expectedDay = Math.log(truth.qi / 900) / truth.Di - limited.forecast.startDay;
     expect(limited.forecast.timeToLimit).toBeGreaterThan(expectedDay - 2);
     expect(limited.forecast.timeToLimit).toBeLessThan(expectedDay + 2);
     expect(limited.forecast.rates.length).toBeLessThan(open.forecast.rates.length);
