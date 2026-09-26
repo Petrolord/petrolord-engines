@@ -113,8 +113,8 @@ lead and for EPE.md:
    recovered in full. In a year where the cost limit binds, a regime that
    deducts all costs for income tax (the World Bank note says "there are no
    limits on deductible expenses") would tax less. No public text prints such
-   a year with its tax, so this is recorded as a reading, not a proven
-   defect.
+   a year with its tax, so this is recorded as a reading; no
+   defect is proven.
 
 Proposed EPE.md section 5 line (for the Suite, not changed by this PR): "PSC
 math: cost pool, limit, carry-forward and profit oil split traced to
@@ -287,7 +287,7 @@ RED   [ENGINE] uplift on the year's new cost too -- 8 failed -- goldens: the eng
 RED   [ENGINE] PIA uplift allowed -- 2 failed -- goldens: the engine agrees with the oracle › carry-refuse-pia-uplift
 RED   [ENGINE] PIA participation cap 65 -- 2 failed -- goldens: the engine agrees with the oracle › backin-refuse-pia-61
 RED   [ENGINE] PIA refund includes exploration -- 5 failed -- goldens: the engine agrees with the oracle › backin-ekene-pia
-RED   [ENGINE] back-in reduction equal, not pro rata -- 4 failed -- goldens: the engine agrees with the oracle › backin-ekene-pia
+RED   [ENGINE] back-in reduction in equal points -- 4 failed -- goldens: the engine agrees with the oracle › backin-ekene-pia
 RED   [ENGINE] back-in refund on the target interest -- 6 failed -- goldens: the engine agrees with the oracle › backin-ekene-pia
 RED   [ENGINE] non-consent: deductions not taken off -- 3 failed -- goldens: the engine agrees with the oracle › nc-ekene-sidetrack
 RED   [ENGINE] buy-in apportioned on the participating interest over 100 -- 2 failed -- goldens: the engine agrees with the oracle › nc-ekene-buy-in-norway-1000

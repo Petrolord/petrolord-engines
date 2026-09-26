@@ -116,7 +116,7 @@ run_case ENGINE "uplift on the year's new cost too" $E "(opening * uplift.ratePc
 run_case ENGINE "PIA uplift allowed" $E "if (basis === 'pia-s85-4' && uplift.type !== 'none') return" "if (false) return"
 run_case ENGINE "PIA participation cap 65" $E "maxGovernmentParticipationPct: 60," "maxGovernmentParticipationPct: 65,"
 run_case ENGINE "PIA refund includes exploration" $E "refundableKinds: Object.freeze(['development', 'production'])," "refundableKinds: Object.freeze(['exploration', 'development', 'production']),"
-run_case ENGINE "back-in reduction equal, not pro rata" $E "after: me ? targetPct : (p.participatingPct * (100 - targetPct)) / rest," "after: me ? targetPct : p.participatingPct - step / (parties.length - 1),"
+run_case ENGINE "back-in reduction in equal points" $E "after: me ? targetPct : (p.participatingPct * (100 - targetPct)) / rest," "after: me ? targetPct : p.participatingPct - step / (parties.length - 1),"
 run_case ENGINE "back-in refund on the target interest" $E "const refund = (step * refundable) / 100;" "const refund = (targetPct * refundable) / 100;"
 # non-consent
 run_case ENGINE "non-consent: deductions not taken off" $E "entitlement: Math.max(0, y.grossValue - y.deductions)" "entitlement: y.grossValue"
