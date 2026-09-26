@@ -317,7 +317,7 @@ def ledger(cfg, prod, capex_rows, opex_rows):
         tax = hct + cit + tet + levy
         topup = 0.0
         if cfg.get('pia_apply_minimum_etr') and fw == 'nta_2025':
-            floor = max(0.0, cit_ap * MIN_ETR)
+            floor = max(0.0, cit_ap * cfg.get('pia_minimum_etr_pct', MIN_ETR * 100) / 100.0)   # the case may state another rate
             if tax < floor:
                 topup = floor - tax
         tax += topup
