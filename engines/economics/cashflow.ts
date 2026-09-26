@@ -19,7 +19,34 @@
 //
 // supabase/functions/_shared/epe-engine.ts
 //
-// PETROLORD EPE CASH FLOW ENGINE — Shared compute library (v3.10, 2026-09-15)
+// PETROLORD EPE CASH FLOW ENGINE — Shared compute library (v3.12, 2026-09-26)
+//
+// v3.12 changes (EC7, owner decision D1 2026-09-26: CORRECT BY DEFAULT):
+//   - The PIA regime follows the gazetted texts by default (PIA 2021, NTA
+//     2025, Petroleum Royalty Regulations 2022, Finance Act 2023; see the
+//     COMPLIANCE banner below and tools/validation/economics/AUDIT-PIA-2021.md
+//     and the EC7 repair PR): weighted royalty tranches for every onshore,
+//     shallow water and deep offshore field on crude plus condensate; gas 5%
+//     (2.5% in-country); royalty by price at each stream's own price with the
+//     Regulations' benchmarks rounded to cents (the Act's 2020 base as the
+//     option pia_price_royalty_base 'act_2020'); production allowance 4
+//     USD/bbl after the new-lease cap and none for deep offshore / frontier
+//     in NTA years; the cost price ratio on crude and condensate revenue and
+//     on the hydrocarbon tax only, decommissioning contributions inside it;
+//     NDDC in the HCT base and on the total annual budget; the framework read
+//     per year of assessment; the CITA two-thirds limit only before 2026;
+//     capital allowance 20/20/20/20/19 in PIA years, 20% in NTA years; TET 3%
+//     from 2023; the NTA s.86 escrow condition and the two ambiguous
+//     hydrocarbon tax rates as stated inputs with no default; min-ETR top-up
+//     in NTA years only; kpis.pia_notes states every conflict and assumption.
+//   - cfg.pia_legacy_pre_audit === true reproduces every pre-audit (3.11.0)
+//     PIA result exactly (PIA_LEGACY_PRE_AUDIT exports the old helpers).
+//   - REGRESSION CONTRACT, re-frozen: the default path is pinned by
+//     test-data/economics/goldens/pia2021_cases.json from the independent
+//     oracle tools/validation/economics/oracle_pia2021.py (the worked example
+//     inputs give NPV 141,236,909.83); the legacy switch is pinned by the
+//     frozen fixture (NPV 135,185,570.34). The v3.2 contract below is kept
+//     for the legacy path only.
 //
 // v3.10 changes (EC1 owner decisions taken 2026-09-15; each one is recorded
 // in tools/validation/economics/FINDINGS-cashflow.md):
