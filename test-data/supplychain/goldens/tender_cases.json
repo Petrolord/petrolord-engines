@@ -6391,12 +6391,13 @@
     "source": "World Bank Evaluating Bids and Proposals (Feb 2025) Annex 2",
     "totals": {
      "A": 59,
-     "B": 82,
      "C": 91
     },
     "rejected": [
-     "A"
-    ]
+     "A",
+     "B"
+    ],
+    "erratum": "the Guidance prints Company B total 82, but its printed criterion scores 12 + 11 + 54 sum to 77, below the 80 threshold; the Guidance names only A as rejected"
    }
   },
   {
@@ -9882,8 +9883,8 @@
       "id": "AT-LOW",
       "evaluatedCost": 80000,
       "ratio": 0.8,
-      "flag": "below",
-      "reason": "bid-to-estimate ratio 0.8 is below the band's lower limit 0.8: examine it as a possibly abnormally low bid"
+      "flag": null,
+      "reason": null
      },
      {
       "id": "BELOW",

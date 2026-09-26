@@ -110,6 +110,11 @@ def fl(x):
     return float(x)
 
 
+def dec(x):
+    """a user-typed limit read as the decimal it was typed as (0.8 is 4/5)."""
+    return F(repr(float(x)))
+
+
 def dsum(xs):
     """left-to-right double sum (only for figures that are printed)."""
     s = 0.0
@@ -230,7 +235,7 @@ def correct_line(l, tol):
     computed = l['quantity'] * l['unitRate']      # the double the engine prints and keeps
     gap = abs(F(computed) - qa)
     base = {'id': l['id'], 'quantity': l['quantity'], 'unitRate': l['unitRate'], 'quotedAmount': l['quotedAmount']}
-    if not gap > F(tol):
+    if not gap > dec(tol):
         return dict(base, correctedUnitRate=l['unitRate'], correctedAmount=l['quotedAmount'], rule=None, reason=None)
     if l.get('decimalMisplaced') is True:
         rate = l['quotedAmount'] / l['quantity']
@@ -258,7 +263,7 @@ def correct_arithmetic(a):
     reasons = [l['reason'] for l in lines if l['reason']]
     if 'quotedTotal' in a:
         lt_double = dsum(l['quotedAmount'] for l in a['lines'])
-        if abs(F(a['quotedTotal']) - F(lt_double)) > F(tol):
+        if abs(F(a['quotedTotal']) - F(lt_double)) > dec(tol):
             reasons.append(f"the quoted total {js_num(a['quotedTotal'])} differs from the sum of the quoted lines {js_num(lt_double)} "
                            f'by more than {js_num(tol)}; the subtotals prevail')
     return {'lines': lines, 'quotedTotal': fl(qt), 'correctedTotal': fl(corrected_exact), 'correction': fl(corrected_exact - qt),
@@ -269,7 +274,7 @@ def correct_exact(l, tol=0.005):
     """exact corrected amount of one line (used for totals)."""
     q, r, qa = F(l['quantity']), F(l['unitRate']), F(l['quotedAmount'])
     computed = F(l['quantity'] * l['unitRate'])
-    if abs(computed - qa) > F(tol) and l.get('decimalMisplaced') is not True:
+    if abs(computed - qa) > dec(tol) and l.get('decimalMisplaced') is not True:
         return q * r
     return qa
 
@@ -485,7 +490,7 @@ def evaluated_costs(a):
 def fl_line(l, tol):
     """the corrected amount as the double the engine holds (q x r in doubles when the unit rate prevails)."""
     computed = l['quantity'] * l['unitRate']
-    if abs(F(computed) - F(l['quotedAmount'])) > F(tol) and l.get('decimalMisplaced') is not True:
+    if abs(F(computed) - F(l['quotedAmount'])) > dec(tol) and l.get('decimalMisplaced') is not True:
         return computed
     return l['quotedAmount']
 
@@ -949,7 +954,7 @@ def should_cost(a):
     rows = []
     for b in bids:
         ratio = F(b['evaluatedCost']) / est
-        flag = 'below' if ratio < F(band['low']) else 'above' if ratio > F(band['high']) else None
+        flag = 'below' if ratio < dec(band['low']) else 'above' if ratio > dec(band['high']) else None
         shown = b['evaluatedCost'] / est_double
         rows.append({'id': b['id'], 'evaluatedCost': b['evaluatedCost'], 'ratio': fl(ratio), 'flag': flag,
                      'reason': (f"bid-to-estimate ratio {js_num(shown)} is below the band's lower limit {js_num(band['low'])}: examine it as a possibly abnormally low bid" if flag == 'below' else
@@ -1218,7 +1223,8 @@ def build():
         {'id': 'works', 'weight': 15, 'maxScore': 15}, {'id': 'value', 'weight': 15, 'maxScore': 15}, {'id': 'approach', 'weight': 70, 'maxScore': 70}],
         'bids': [{'id': 'A', 'scores': {'works': 7, 'value': 4, 'approach': 48}}, {'id': 'B', 'scores': {'works': 12, 'value': 11, 'approach': 54}},
                  {'id': 'C', 'scores': {'works': 13, 'value': 11, 'approach': 67}}]},
-        published={'source': 'World Bank Evaluating Bids and Proposals (Feb 2025) Annex 2', 'totals': {'A': 59, 'B': 82, 'C': 91}, 'rejected': ['A']})
+        published={'source': 'World Bank Evaluating Bids and Proposals (Feb 2025) Annex 2', 'totals': {'A': 59, 'C': 91}, 'rejected': ['A', 'B'],
+                   'erratum': 'the Guidance prints Company B total 82, but its printed criterion scores 12 + 11 + 54 sum to 77, below the 80 threshold; the Guidance names only A as rejected'})
     a3t = case('wb-guidance-annex-3-technical', 'technicalEvaluation', {'passMark': 0, 'criteria': [
         {'id': 'effectiveness', 'weight': 50, 'maxScore': 4}, {'id': 'methodology', 'weight': 25, 'maxScore': 4},
         {'id': 'team', 'weight': 15, 'maxScore': 4}, {'id': 'sustainability', 'weight': 10, 'maxScore': 4}],
