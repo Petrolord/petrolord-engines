@@ -247,3 +247,39 @@ describe('notes: the conflicts and assumptions are stated', () => {
     expect(act.pia_notes).toContain(PIA_NOTES.priceRoyaltyBaseAct);
   });
 });
+
+describe('repair 12: the "Nigeria - PIA (2021)" sandbox template is re-based on the Act', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { fiscalTemplates, LEGACY_PRE_AUDIT_PIA_TEMPLATE } = require('../engines/economics/fiscalTemplates.js');
+  const { calculateCashFlowForRegime } = require('../engines/economics/fiscalRegime.js');
+  const FG = read('../test-data/economics/goldens/fiscal_cases.json');
+  const tpl = fiscalTemplates.find((t: any) => t.name === 'Nigeria - PIA (2021)').regime;
+  it('carries the Seventh Schedule para 14(4) cost limit and profit oil scale, CIT 30, no HCT', () => {
+    expect(tpl.costRecoveryLimit).toBe(70);
+    expect(tpl.costRecoveryBase).toBe('liquids_gross');
+    expect(tpl.profitSplit.tiers.map((t: any) => [t.upToMMbbl, t.governmentPct]))
+      .toEqual([[50, 5], [100, 10], [350, 15], [750, 25], [1500, 35], [null, 45]]);
+    expect(tpl.tax).toEqual({ cit: 30, rrt: 0, minTax: 0 });
+    expect(tpl.royalty).toMatchObject({ type: 'pia_2021', terrain: 'deep_offshore', firstCalendarYear: 2027 });
+  });
+  it('the sandbox ledger matches the fiscal oracle on both projects', () => {
+    for (const id of ['template_nigeria___pia__2021_default_project', 'template_nigeria___pia__2021_test_project']) {
+      const c = FG.cashflow.find((x: any) => x.id === id);
+      const rows = calculateCashFlowForRegime(c.regime, c.project, c.capexMultiplier, c.priceMultiplier);
+      rows.forEach((r: any, i: number) => {
+        for (const k of ['royalty', 'costRecovered', 'tax', 'contractorNCF', 'governmentTake']) {
+          expect(Math.abs(r[k] - c.expected.cashflow[i][k])).toBeLessThanOrEqual(1e-9 * Math.max(1, Math.abs(c.expected.cashflow[i][k])));
+        }
+      });
+    }
+  });
+  it('keeps the pre-audit template out of the list and exported for past comparisons', () => {
+    expect(fiscalTemplates.map((t: any) => t.name)).not.toContain(LEGACY_PRE_AUDIT_PIA_TEMPLATE.name);
+    expect(LEGACY_PRE_AUDIT_PIA_TEMPLATE.regime.costRecoveryLimit).toBe(80);
+  });
+  it('refuses a cumulative-production table whose last band is bounded', () => {
+    const bad = { ...tpl, name: 'Bad', profitSplit: { type: 'pia_cumulative_production', tiers: [{ upToMMbbl: 50, governmentPct: 5 }] } };
+    const c = FG.cashflow.find((x: any) => x.id === 'template_nigeria___pia__2021_default_project');
+    expect(() => calculateCashFlowForRegime(bad, c.project)).toThrow('Fiscal regime "Bad": a pia_cumulative_production table needs bands in ascending upToMMbbl with the last upToMMbbl null.');
+  });
+});

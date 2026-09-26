@@ -104,6 +104,7 @@ stdlib only. Regenerate:
     python3 tools/validation/economics/oracle_fiscal.py
 """
 import json
+import sys as _sys
 import math
 import os
 from decimal import Decimal, ROUND_HALF_UP
@@ -157,6 +158,29 @@ def check_tiers(regime, table, tiers):
         seen.add(t['threshold'])
 
 
+_sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import oracle_pia2021 as pia  # noqa: E402  (the text-derived PIA tables, EC7)
+
+
+def pia_royalty(roy, year, oil_bbl, oil_rev, gas_ngl_rev, p_oil):
+    """EC7 repair 12: PIA 7th Sch para 10(3) by daily rate (oil / 365, the
+    sandbox profile), para 11 by price in calendar year firstCalendarYear +
+    year - 1, para 10(6) on gas and NGL."""
+    cal = roy['firstCalendarYear'] + year - 1
+    prod = pia.production_royalty_rate(roy['terrain'], oil_bbl / 365.0)
+    price = pia.price_royalty_rate(p_oil, cal, roy['terrain'], roy.get('priceRoyaltyBase', 'regulations_2021'))
+    return oil_rev * (prod + price) + gas_ngl_rev * pia.gas_royalty_rate(roy.get('gasInCountrySharePct', 0))
+
+
+def pia_split(tiers, cum_oil_bbl):
+    """PIA 7th Sch para 14(4): government minimum by cumulative production, up to and including each bound."""
+    mm = cum_oil_bbl / 1e6
+    for t in tiers:
+        if t['upToMMbbl'] is None or mm <= t['upToMMbbl']:
+            return 1.0 - t['governmentPct'] / 100.0
+    raise AssertionError('no band')
+
+
 def tier_rate(x, tiers, field):
     """The tier with the largest threshold not above x; when x is below
     every threshold, the tier with the smallest threshold."""
@@ -184,10 +208,11 @@ def cash_flow(regime, project, capex_mult=1.0, price_mult=1.0):
     ngl = profile(project['production']['ngl']['initial'], project['production']['ngl']['decline'])
     cx = project['costs']['capex']
     total_capex = (cx['drilling'] + cx['facilities'] + cx['subsea']) * capex_mult
-    if regime['royalty']['type'] != 'flat':
+    if regime['royalty']['type'] not in ('flat', 'pia_2021'):
         check_tiers(regime, 'royalty', regime['royalty']['tiers'])
-    if regime['profitSplit']['type'] != 'flat':
+    if regime['profitSplit']['type'] not in ('flat', 'pia_cumulative_production'):
         check_tiers(regime, 'profit split', regime['profitSplit']['tiers'])
+    cum_oil = 0.0
     uplift = regime['tax'].get('rrtUpliftPct')
     if uplift is None:
         uplift = 20
@@ -205,15 +230,24 @@ def cash_flow(regime, project, capex_mult=1.0, price_mult=1.0):
         opex = project['costs']['opex']['fixed'] + boe * project['costs']['opex']['variable'] / 1e6
         capex = total_capex if y == 1 else 0.0
         cum_cost += capex + opex
-        royalty = gross * royalty_rate(p_oil, regime['royalty'])
+        if regime['royalty']['type'] == 'pia_2021':
+            royalty = pia_royalty(regime['royalty'], y, oil[y - 1], oil[y - 1] * p_oil / 1e6,
+                                  (gas[y - 1] * deck['gas'] + ngl[y - 1] * deck['ngl']) / 1e6, p_oil)
+        else:
+            royalty = gross * royalty_rate(p_oil, regime['royalty'])
         after_roy = gross - royalty
         avail = pool + capex + opex
-        allowed = after_roy * regime['costRecoveryLimit'] / 100.0
+        base_cr = (oil[y - 1] * p_oil + ngl[y - 1] * deck['ngl']) / 1e6 if regime.get('costRecoveryBase') == 'liquids_gross' else after_roy
+        allowed = base_cr * regime['costRecoveryLimit'] / 100.0
         recovered = min(avail, allowed)
         pool = avail - recovered
         profit_oil = max(0.0, after_roy - recovered)
         r_factor = cum_rev / cum_cost if cum_cost > 0 else 0.0
-        split = split_rate(r_factor, regime['profitSplit'])
+        if regime['profitSplit']['type'] == 'pia_cumulative_production':
+            split = pia_split(regime['profitSplit']['tiers'], cum_oil)
+        else:
+            split = split_rate(r_factor, regime['profitSplit'])
+        cum_oil += oil[y - 1]
         c_share = profit_oil * split
         g_share = profit_oil * (1.0 - split)
         cit = c_share * regime['tax']['cit'] / 100.0 if c_share > 0 else 0.0
@@ -229,7 +263,7 @@ def cash_flow(regime, project, capex_mult=1.0, price_mult=1.0):
             'year': y, 'grossRevenue': gross, 'royalty': royalty, 'costRecovered': recovered,
             'unrecoveredCostPool': pool, 'profitOil': profit_oil, 'tax': tax, 'opex': opex, 'capex': capex,
             'contractorNCF': ncf, 'governmentTake': gov, 'cumulativeNCF': cum_ncf, 'rFactor': r_factor,
-            'contractorSplit': split, 'royaltyRate': royalty_rate(p_oil, regime['royalty']),
+            'contractorSplit': split, 'royaltyRate': royalty / gross if regime['royalty']['type'] == 'pia_2021' and gross > 0 else (0.0 if regime['royalty']['type'] == 'pia_2021' else royalty_rate(p_oil, regime['royalty'])),
             # EC2-6, oracle-only columns: the relief drawn this year and the
             # pool left after it, beside the pool as opened.
             'rrtUpliftRelief': relief, 'rrtUpliftPoolRemaining': rrt_pool, 'rrtUpliftPoolOpened': rrt_pool_opened,
@@ -620,10 +654,14 @@ def comparison(regimes, project):
 # ---------------------------------------------------------------------
 
 TEMPLATES = [
+    # EC7 repair 12: re-based on PIA 2021 7th Sch paras 10(3), 10(6), 11, 14(4) and s.260(3).
     {'name': 'Nigeria - PIA (2021)', 'regime': {
-        'royalty': {'type': 'sliding_price', 'tiers': [{'threshold': 0, 'rate': 7.5}, {'threshold': 50, 'rate': 10}]},
-        'tax': {'cit': 30, 'rrt': 0, 'minTax': 0}, 'costRecoveryLimit': 80,
-        'profitSplit': {'type': 'tiered_r_factor', 'tiers': [{'threshold': 1.0, 'split': 60}, {'threshold': 1.6, 'split': 40}, {'threshold': 2.5, 'split': 30}]}}},
+        'royalty': {'type': 'pia_2021', 'terrain': 'deep_offshore', 'firstCalendarYear': 2027, 'gasInCountrySharePct': 0,
+                    'priceRoyaltyBase': 'regulations_2021'},
+        'tax': {'cit': 30, 'rrt': 0, 'minTax': 0}, 'costRecoveryLimit': 70, 'costRecoveryBase': 'liquids_gross',
+        'profitSplit': {'type': 'pia_cumulative_production', 'tiers': [
+            {'upToMMbbl': 50, 'governmentPct': 5}, {'upToMMbbl': 100, 'governmentPct': 10}, {'upToMMbbl': 350, 'governmentPct': 15},
+            {'upToMMbbl': 750, 'governmentPct': 25}, {'upToMMbbl': 1500, 'governmentPct': 35}, {'upToMMbbl': None, 'governmentPct': 45}]}}},
     {'name': 'Ghana - Deepwater', 'regime': {
         'royalty': {'type': 'flat', 'rate': 5}, 'tax': {'cit': 35, 'rrt': 0, 'minTax': 0}, 'costRecoveryLimit': 90,
         'profitSplit': {'type': 'tiered_r_factor', 'tiers': [{'threshold': 1.0, 'split': 70}, {'threshold': 1.25, 'split': 50}, {'threshold': 2.0, 'split': 35}]}}},
@@ -640,6 +678,16 @@ TEMPLATES = [
         'royalty': {'type': 'flat', 'rate': 12.5}, 'tax': {'cit': 30, 'rrt': 0, 'minTax': 0}, 'costRecoveryLimit': 100,
         'profitSplit': {'type': 'flat', 'split': 100}}},
 ]
+
+
+# The pre-audit template regime, kept for the tier-mechanics cases below
+# (their numbers are sandbox mechanics, not PIA terms) and exported by
+# fiscalTemplates.js as LEGACY_PRE_AUDIT_PIA_TEMPLATE.
+LEGACY_PIA_REGIME = {
+    'royalty': {'type': 'sliding_price', 'tiers': [{'threshold': 0, 'rate': 7.5}, {'threshold': 50, 'rate': 10}]},
+    'tax': {'cit': 30, 'rrt': 0, 'minTax': 0}, 'costRecoveryLimit': 80,
+    'profitSplit': {'type': 'tiered_r_factor', 'tiers': [{'threshold': 1.0, 'split': 60}, {'threshold': 1.6, 'split': 40}, {'threshold': 2.5, 'split': 30}]}}
+LEGACY_PIA_NAME = 'Nigeria - PIA (2021), pre-audit'
 
 
 def slug(name):
@@ -738,12 +786,12 @@ def build():
                 flat_regime(id='harsh', name='Harsh', profitSplit={'type': 'flat', 'split': 40}, royalty={'type': 'flat', 'rate': 20}), TEST_PROJECT),
         cf_case('rfactor_tranche_crossing', 'The Nigeria PIA tranches on a 10000 bopd project (capex 350, opex 20 + 1 $/boe) at $80: the R-factor walks '
                 'through 1.0 in year 2, 1.6 in year 3 and 2.5 in year 6. The 60 tranche applies from the start (below 1.0 the lowest tier applies), so `contractorSplit` steps 60 -> 40 when R reaches 1.6 in year 3 and 40 -> 30 when it reaches 2.5 in year 6.',
-                dict(template_regimes()[0], id='pia_walk', name='PIA tranche walk'),
+                dict(LEGACY_PIA_REGIME, id='pia_walk', name='PIA tranche walk'),
                 dict(TEST_PROJECT, production={'oil': {'initial': 10000, 'decline': 12}, 'gas': {'initial': 0, 'decline': 0}, 'ngl': {'initial': 0, 'decline': 0}},
                      costs={'capex': {'drilling': 350, 'facilities': 0, 'subsea': 0}, 'opex': {'fixed': 20, 'variable': 1}})),
         cf_case('rfactor_falls_back', 'The same regime with capex 320 and opex 25: the R-factor peaks at 2.972625 in year 11 and then FALLS as revenue declines '
                 'while opex keeps accruing, so the split steps back up from 30 to 40 in year 23. The R-factor is a ratio of cumulatives and is not monotone.',
-                dict(template_regimes()[0], id='pia_fallback', name='PIA fall back'),
+                dict(LEGACY_PIA_REGIME, id='pia_fallback', name='PIA fall back'),
                 dict(TEST_PROJECT, production={'oil': {'initial': 10000, 'decline': 12}, 'gas': {'initial': 0, 'decline': 0}, 'ngl': {'initial': 0, 'decline': 0}},
                      costs={'capex': {'drilling': 320, 'facilities': 0, 'subsea': 0}, 'opex': {'fixed': 25, 'variable': 1}})),
         cf_case('sliding_royalty_price_deck_crossing', 'The default project\'s three-point deck ($70, $75 from year 5, $80 from year 10) walks the Designer\'s default '
@@ -775,7 +823,7 @@ def build():
                 flat_regime(), dict(TEST_PROJECT, costs={'capex': {'drilling': 10000, 'facilities': 10000, 'subsea': 0}, 'opex': {'fixed': 60, 'variable': 4}})),
         cf_case('tiers_unsorted_selected_by_threshold', 'EC2-8: the Nigeria PIA tranches typed out of order (royalty 50 before 0, split 2.5, 1.0, 1.6) on the rfactor_tranche_crossing project. '
                 'Selection is by threshold, so every row equals the sorted case; the retired list-order rule would take 7.5 percent royalty at $80 and a 40 split once R passes 2.5.',
-                dict(template_regimes()[0], id='pia_unsorted', name='PIA typed out of order',
+                dict(LEGACY_PIA_REGIME, id='pia_unsorted', name='PIA typed out of order',
                      royalty={'type': 'sliding_price', 'tiers': [{'threshold': 50, 'rate': 10}, {'threshold': 0, 'rate': 7.5}]},
                      profitSplit={'type': 'tiered_r_factor', 'tiers': [{'threshold': 2.5, 'split': 30}, {'threshold': 1.0, 'split': 60}, {'threshold': 1.6, 'split': 40}]}),
                 dict(TEST_PROJECT, production={'oil': {'initial': 10000, 'decline': 12}, 'gas': {'initial': 0, 'decline': 0}, 'ngl': {'initial': 0, 'decline': 0}},
@@ -791,10 +839,10 @@ def build():
     G['tierRefusals'] = []
     for cid, note, reg in [
         ('tiers_duplicate_royalty_threshold', 'Two royalty tiers at 50 USD per bbl: refused.',
-         dict(template_regimes()[0], id='dup_roy', name='Duplicate royalty',
+         dict(LEGACY_PIA_REGIME, id='dup_roy', name='Duplicate royalty',
               royalty={'type': 'sliding_price', 'tiers': [{'threshold': 0, 'rate': 7.5}, {'threshold': 50, 'rate': 10}, {'threshold': 50, 'rate': 12}]})),
         ('tiers_duplicate_split_threshold', 'Two profit split tiers at R factor 1.6, typed apart: refused.',
-         dict(template_regimes()[0], id='dup_split', name='Duplicate split',
+         dict(LEGACY_PIA_REGIME, id='dup_split', name='Duplicate split',
               profitSplit={'type': 'tiered_r_factor', 'tiers': [{'threshold': 1.6, 'split': 40}, {'threshold': 1.0, 'split': 60}, {'threshold': 1.6, 'split': 30}]})),
     ]:
         try:
