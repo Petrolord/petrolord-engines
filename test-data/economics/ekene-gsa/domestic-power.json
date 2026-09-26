@@ -30,7 +30,7 @@
   "value": 2.18,
   "note": "reported 2026 domestic base price (effective 1 April 2026) held flat as a planning assumption; the Authority re-determines it each year (PIA s.167(1))"
  },
- "shortfallPricePct": 50,
+ "shortfallPriceNote": "seller shortfall liquidated damages at a stated 1.25 US$ per MMBtu not made available (synthetic contract term)",
  "years": [
   {
    "year": 2027,
@@ -41,7 +41,7 @@
    "makeUpPrice": 0,
    "forceMajeure": 42000,
    "sellerShortfall": 6300,
-   "shortfallPrice": 1.09
+   "shortfallPrice": 1.25
   },
   {
    "year": 2028,

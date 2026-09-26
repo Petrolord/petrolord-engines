@@ -759,7 +759,7 @@ const priceSeriesImpl = ({ months, formula, from, to, averagingMonths = 1, lagMo
       if (needsIndex) {
         const missing = [];
         for (let k = wStart; k <= wEnd; k += 1) if (!series.has(k)) missing.push(monthName(k));
-        if (missing.length) return refuse('months', `must cover the averaging window ${monthName(wStart)} to ${monthName(wEnd)} for the price of ${monthName(blockStart)}; missing ${missing.join(', ')}`);
+        if (missing.length) return refuse('months', `must cover the averaging window ${monthName(wStart)} to ${monthName(wEnd)} for the price of ${monthName(blockStart)}; got no value for ${missing.join(', ')}`);
         averages = {};
         for (const nm of names) {
           let s = 0;
@@ -800,7 +800,7 @@ const priceSeriesImpl = ({ months, formula, from, to, averagingMonths = 1, lagMo
         }
         price = formula.basePrice * s;
       }
-      if (price < 0) return refuse('formula', `must give a price at or above 0; the price for ${monthName(blockStart)} is ${fmt(price)}`);
+      if (price < 0) return refuse('formula', `must give a price at or above 0 in every month; got ${fmt(price)} for ${monthName(blockStart)}`);
       const unrounded = price;
       if (rounding === 'model-gsa-4dp') price = roundModel(price);
       block = { start: blockStart, window, averages, heldIndices, raw: raw ?? null, segment, clamped, unrounded, price };

@@ -833,7 +833,7 @@ def price_series(a):
             if uses:
                 miss = [mname(k) for k in range(ws_, we + 1) if k not in series]
                 if miss:
-                    refuse('months', f'must cover the averaging window {mname(ws_)} to {mname(we)} for the price of {mname(b0)}; missing {", ".join(miss)}')
+                    refuse('months', f'must cover the averaging window {mname(ws_)} to {mname(we)} for the price of {mname(b0)}; got no value for {", ".join(miss)}')
                 avg = {nm: sum(F(series[k][nm]) for k in range(ws_, we + 1)) / avgm for nm in names}
                 win = [mname(ws_), mname(we)]
             raw, seg, cl, held = None, None, None, None
@@ -861,7 +861,7 @@ def price_series(a):
                 # the message prints the double the engine holds: replayed in
                 # doubles in the formula's stated order (window sum left to
                 # right, then the formula left to right)
-                refuse('formula', f'must give a price at or above 0; the price for {mname(b0)} is {js_num(price_double(f, series, names, ws_, we, avgm))}')
+                refuse('formula', f'must give a price at or above 0 in every month; got {js_num(price_double(f, series, names, ws_, we, avgm))} for {mname(b0)}')
             unr = price
             if rnd == 'model-gsa-4dp':
                 price = round_model(price)

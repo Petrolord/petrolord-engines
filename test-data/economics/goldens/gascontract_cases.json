@@ -1896,7 +1896,7 @@
       "makeUpPrice": 0,
       "forceMajeure": 42000,
       "sellerShortfall": 6300,
-      "shortfallPrice": 1.09
+      "shortfallPrice": 1.25
      },
      {
       "year": 2028,
@@ -1992,11 +1992,11 @@
       "endOfTerm": null,
       "regularRevenue": 15794100.000000002,
       "makeUpRevenue": 0.0,
-      "shortfallPayment": 6867.000000000001,
+      "shortfallPayment": 7875.0,
       "refund": 0.0,
-      "netToSeller": 15787233.000000002,
+      "netToSeller": 15786225.000000002,
       "reasons": [
-       "2027: seller shortfall 6300 reduces the Adjusted ACQ and is paid to the buyer at 1.09: 6867.000000000001"
+       "2027: seller shortfall 6300 reduces the Adjusted ACQ and is paid to the buyer at 1.25: 7875"
       ]
      },
      {
@@ -2284,9 +2284,9 @@
      "endOfTermQuantity": 252000.0,
      "regularRevenue": 120529584.00000001,
      "makeUpRevenue": 0.0,
-     "shortfallPayment": 6867.000000000001,
+     "shortfallPayment": 7875.0,
      "refund": 0.0,
-     "netToSeller": 122802561.00000001
+     "netToSeller": 122801553.00000001
     }
    },
    "tol": 1e-12
@@ -5383,7 +5383,7 @@
      {
       "year": 2036,
       "acq": 23058000,
-      "taken": 23750000,
+      "taken": 21444000,
       "contractPrice": 8.0813,
       "topPrice": 8.0813,
       "makeUpPrice": 0.80813
@@ -5775,23 +5775,23 @@
       "permittedReduction": 0.0,
       "adjustedAcq": 23058000.0,
       "topQuantity": 20752200.0,
-      "taken": 23750000,
+      "taken": 21444000,
       "makeUpAvailable": 1149750.0,
-      "makeUpTaken": 1149750.0,
+      "makeUpTaken": 691800.0,
       "makeUpDrawn": [
        {
         "fromYear": 2035,
-        "quantity": 1149750.0
+        "quantity": 691800.0
        }
       ],
-      "counted": 22600250.0,
+      "counted": 20752200.0,
       "deficiency": 0.0,
       "carryForwardAvailable": 3102650.0,
       "carryForwardApplied": 0.0,
       "carryForwardDrawn": [],
       "deficiencyPaid": 0.0,
       "deficiencyPayment": 0.0,
-      "surplus": 1848050.0,
+      "surplus": 0.0,
       "makeUpExpired": [],
       "carryForwardExpired": [
        {
@@ -5800,37 +5800,42 @@
        }
       ],
       "makeUpOutstanding": 0.0,
-      "carryForwardOutstanding": 3917550.0,
+      "carryForwardOutstanding": 2069500.0,
       "endOfTerm": {
        "rule": "refund",
-       "quantity": 0.0,
-       "entries": [],
-       "refund": 0.0
+       "quantity": 457950.0,
+       "entries": [
+        {
+         "fromYear": 2035,
+         "quantity": 457950.0
+        }
+       ],
+       "refund": 3700831.3350000004
       },
-      "regularRevenue": 182639400.32500002,
-      "makeUpRevenue": 929147.4675,
+      "regularRevenue": 167704753.86,
+      "makeUpRevenue": 559064.334,
       "shortfallPayment": 0.0,
-      "refund": 0.0,
-      "netToSeller": 183568547.79250002,
+      "refund": 3700831.3350000004,
+      "netToSeller": 164562986.859,
       "reasons": [
-       "2036: make-up of 1149750 taken from the make-up aggregate 1149750 (make-up only after the take-or-pay quantity of the year is taken), first in first out: 1149750 from 2035",
-       "2036: 22600250 counted exceeds the take-or-pay quantity 20752200 by 1848050, carried forward to the end of 2039",
-       "2036: carry-forward of 1033150 from 2033 expired unused at the end of 2036"
+       "2036: make-up of 691800 taken from the make-up aggregate 1149750 (make-up only after the take-or-pay quantity of the year is taken), first in first out: 691800 from 2035",
+       "2036: carry-forward of 1033150 from 2033 expired unused at the end of 2036",
+       "2036: the delivery period ends with make-up of 457950 unrecovered; the seller refunds 457950 x 8.0813 = 3700831.3350000004"
       ]
      }
     ],
     "totals": {
-     "taken": 212883000.0,
-     "makeUpTaken": 4945600.0,
+     "taken": 210577000.0,
+     "makeUpTaken": 4487650.0,
      "deficiencyPaid": 4945600.0,
      "deficiencyPayment": 45129551.627500005,
      "makeUpExpired": 0.0,
-     "endOfTermQuantity": 0.0,
-     "regularRevenue": 1852487506.52,
-     "makeUpRevenue": 4612135.958,
+     "endOfTermQuantity": 457950.0,
+     "regularRevenue": 1837552860.055,
+     "makeUpRevenue": 4242052.8245,
      "shortfallPayment": 0.0,
-     "refund": 0.0,
-     "netToSeller": 1902229194.1055
+     "refund": 3700831.3350000004,
+     "netToSeller": 1883223633.172
     }
    },
    "tol": 1e-12
@@ -16869,7 +16874,7 @@
    "expected": {
     "error": true,
     "field": "months",
-    "message": "months must cover the averaging window 2024-09 to 2025-02 for the price of 2025-03; missing 2024-09, 2024-10, 2024-11, 2024-12"
+    "message": "months must cover the averaging window 2024-09 to 2025-02 for the price of 2025-03; got no value for 2024-09, 2024-10, 2024-11, 2024-12"
    },
    "tol": 1e-12
   },
@@ -18188,7 +18193,7 @@
    "expected": {
     "error": true,
     "field": "formula",
-    "message": "formula must give a price at or above 0; the price for 2025-08 is -13.3"
+    "message": "formula must give a price at or above 0 in every month; got -13.3 for 2025-08"
    },
    "tol": 1e-12
   },
@@ -19616,7 +19621,7 @@
        "makeUpPrice": 0,
        "forceMajeure": 42000,
        "sellerShortfall": 6300,
-       "shortfallPrice": 1.09
+       "shortfallPrice": 1.25
       },
       {
        "year": 2028,
@@ -19693,16 +19698,16 @@
     "years": [
      {
       "year": 2027,
-      "sellerRevenue": 15787233.000000002,
+      "sellerRevenue": 15786225.000000002,
       "deliveredValue": 15794100.000000002,
       "royaltyRate": 0.025,
       "royalty": 394852.5,
-      "netAfterRoyalty": 15392380.500000002,
+      "netAfterRoyalty": 15391372.500000002,
       "lines": {
        "regular": 15794100.000000002,
        "makeUp": 0.0,
        "deficiencyPayment": 0.0,
-       "shortfallPayment": -6867.000000000001,
+       "shortfallPayment": -7875.0,
        "refund": -0.0
       }
      },
@@ -19813,8 +19818,8 @@
      }
     ],
     "royaltyRate": 0.025,
-    "npvSellerRevenue": 81994035.45552577,
-    "npvNetAfterRoyalty": 79964672.58929923,
+    "npvSellerRevenue": 81993119.09188941,
+    "npvNetAfterRoyalty": 79963756.22566287,
     "takeOrPay": {
      "years": [
       {
@@ -19845,11 +19850,11 @@
        "endOfTerm": null,
        "regularRevenue": 15794100.000000002,
        "makeUpRevenue": 0.0,
-       "shortfallPayment": 6867.000000000001,
+       "shortfallPayment": 7875.0,
        "refund": 0.0,
-       "netToSeller": 15787233.000000002,
+       "netToSeller": 15786225.000000002,
        "reasons": [
-        "2027: seller shortfall 6300 reduces the Adjusted ACQ and is paid to the buyer at 1.09: 6867.000000000001"
+        "2027: seller shortfall 6300 reduces the Adjusted ACQ and is paid to the buyer at 1.25: 7875"
        ]
       },
       {
@@ -20137,9 +20142,9 @@
       "endOfTermQuantity": 252000.0,
       "regularRevenue": 120529584.00000001,
       "makeUpRevenue": 0.0,
-      "shortfallPayment": 6867.000000000001,
+      "shortfallPayment": 7875.0,
       "refund": 0.0,
-      "netToSeller": 122802561.00000001
+      "netToSeller": 122801553.00000001
      }
     }
    },
@@ -20227,7 +20232,7 @@
       {
        "year": 2036,
        "acq": 23058000,
-       "taken": 23750000,
+       "taken": 21444000,
        "contractPrice": 8.0813,
        "topPrice": 8.0813,
        "makeUpPrice": 0.80813
@@ -20391,23 +20396,23 @@
      },
      {
       "year": 2036,
-      "sellerRevenue": 183568547.79250002,
-      "deliveredValue": 191930875.0,
+      "sellerRevenue": 164562986.859,
+      "deliveredValue": 173295397.20000002,
       "royaltyRate": 0.05,
-      "royalty": 9596543.75,
-      "netAfterRoyalty": 173972004.04250002,
+      "royalty": 8664769.860000001,
+      "netAfterRoyalty": 155898216.999,
       "lines": {
-       "regular": 182639400.32500002,
-       "makeUp": 929147.4675,
+       "regular": 167704753.86,
+       "makeUp": 559064.334,
        "deficiencyPayment": 0.0,
        "shortfallPayment": -0.0,
-       "refund": -0.0
+       "refund": -3700831.3350000004
       }
      }
     ],
     "royaltyRate": 0.05,
-    "npvSellerRevenue": 1164695250.5962949,
-    "npvNetAfterRoyalty": 1106749486.7956893,
+    "npvSellerRevenue": 1157367784.1165397,
+    "npvNetAfterRoyalty": 1099781259.4864893,
     "takeOrPay": {
      "years": [
       {
@@ -20782,23 +20787,23 @@
        "permittedReduction": 0.0,
        "adjustedAcq": 23058000.0,
        "topQuantity": 20752200.0,
-       "taken": 23750000,
+       "taken": 21444000,
        "makeUpAvailable": 1149750.0,
-       "makeUpTaken": 1149750.0,
+       "makeUpTaken": 691800.0,
        "makeUpDrawn": [
         {
          "fromYear": 2035,
-         "quantity": 1149750.0
+         "quantity": 691800.0
         }
        ],
-       "counted": 22600250.0,
+       "counted": 20752200.0,
        "deficiency": 0.0,
        "carryForwardAvailable": 3102650.0,
        "carryForwardApplied": 0.0,
        "carryForwardDrawn": [],
        "deficiencyPaid": 0.0,
        "deficiencyPayment": 0.0,
-       "surplus": 1848050.0,
+       "surplus": 0.0,
        "makeUpExpired": [],
        "carryForwardExpired": [
         {
@@ -20807,37 +20812,42 @@
         }
        ],
        "makeUpOutstanding": 0.0,
-       "carryForwardOutstanding": 3917550.0,
+       "carryForwardOutstanding": 2069500.0,
        "endOfTerm": {
         "rule": "refund",
-        "quantity": 0.0,
-        "entries": [],
-        "refund": 0.0
+        "quantity": 457950.0,
+        "entries": [
+         {
+          "fromYear": 2035,
+          "quantity": 457950.0
+         }
+        ],
+        "refund": 3700831.3350000004
        },
-       "regularRevenue": 182639400.32500002,
-       "makeUpRevenue": 929147.4675,
+       "regularRevenue": 167704753.86,
+       "makeUpRevenue": 559064.334,
        "shortfallPayment": 0.0,
-       "refund": 0.0,
-       "netToSeller": 183568547.79250002,
+       "refund": 3700831.3350000004,
+       "netToSeller": 164562986.859,
        "reasons": [
-        "2036: make-up of 1149750 taken from the make-up aggregate 1149750 (make-up only after the take-or-pay quantity of the year is taken), first in first out: 1149750 from 2035",
-        "2036: 22600250 counted exceeds the take-or-pay quantity 20752200 by 1848050, carried forward to the end of 2039",
-        "2036: carry-forward of 1033150 from 2033 expired unused at the end of 2036"
+        "2036: make-up of 691800 taken from the make-up aggregate 1149750 (make-up only after the take-or-pay quantity of the year is taken), first in first out: 691800 from 2035",
+        "2036: carry-forward of 1033150 from 2033 expired unused at the end of 2036",
+        "2036: the delivery period ends with make-up of 457950 unrecovered; the seller refunds 457950 x 8.0813 = 3700831.3350000004"
        ]
       }
      ],
      "totals": {
-      "taken": 212883000.0,
-      "makeUpTaken": 4945600.0,
+      "taken": 210577000.0,
+      "makeUpTaken": 4487650.0,
       "deficiencyPaid": 4945600.0,
       "deficiencyPayment": 45129551.627500005,
       "makeUpExpired": 0.0,
-      "endOfTermQuantity": 0.0,
-      "regularRevenue": 1852487506.52,
-      "makeUpRevenue": 4612135.958,
+      "endOfTermQuantity": 457950.0,
+      "regularRevenue": 1837552860.055,
+      "makeUpRevenue": 4242052.8245,
       "shortfallPayment": 0.0,
-      "refund": 0.0,
-      "netToSeller": 1902229194.1055
+      "refund": 3700831.3350000004,
+      "netToSeller": 1883223633.172
      }
     }
    },

@@ -60,7 +60,7 @@ def power():
             r['forceMajeure'] = fm[y]
         if y in sfq:
             r['sellerShortfall'] = sfq[y]
-            r['shortfallPrice'] = round(dbp * 0.5, 2)
+            r['shortfallPrice'] = 1.25
         rows.append(r)
     # January 2027, day by day
     base = [20790, 21110, 20950, 21420, 0, 21630, 20690, 21210, 20900, 21320,
@@ -89,7 +89,7 @@ def power():
         'dcq': dcq, 'maxDcqPct': 110, 'topPct': 80,
         'makeUp': {'periodYears': 3, 'order': 'after-adjusted-acq', 'endOfTerm': 'forfeit'},
         'domesticBasePrice': {'value': dbp, 'note': 'reported 2026 domestic base price (effective 1 April 2026) held flat as a planning assumption; the Authority re-determines it each year (PIA s.167(1))'},
-        'shortfallPricePct': 50,
+        'shortfallPriceNote': 'seller shortfall liquidated damages at a stated 1.25 US$ per MMBtu not made available (synthetic contract term)',
         'years': rows,
         'january2027': {'dcq': dcq, 'maxDcqPct': 110, 'days': days},
         'dgdo': {'year': 2028, 'obligation': 6825000, 'delivered': 5460000, 'excused': {'purchaserCannotAccept': 688800}, 'note': 'synthetic allocation; the plant outage of 2028 is the purchaser\'s inability to accept (s.110(10)(b))'},
@@ -101,7 +101,7 @@ def power():
 def export():
     dcq = 63000
     years = list(range(2027, 2037))
-    taken_pct = {2027: 1.0, 2028: 0.97, 2029: 0.62, 2030: 0.93, 2031: 1.04, 2032: 0.85, 2033: 1.02, 2034: 0.99, 2035: 0.8, 2036: 1.03}
+    taken_pct = {2027: 1.0, 2028: 0.97, 2029: 0.62, 2030: 0.93, 2031: 1.04, 2032: 0.85, 2033: 1.02, 2034: 0.99, 2035: 0.8, 2036: 0.93}
     fm = {2030: 1260000}
     rows = []
     for y in years:
