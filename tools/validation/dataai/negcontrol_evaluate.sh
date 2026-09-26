@@ -150,6 +150,10 @@ run_case ENGINE "edge value in the lower bin (scikit-learn rule)" $E "  let i = 
 run_case ENGINE "last bin open at 1" $E "  let i = Math.min(M - 1, Math.floor(p * M));" "  let i = Math.floor(p * M);"
 run_case ENGINE "ECE unweighted over bins" $E "ece += (js.length / N) * gap;" "ece += gap / M;"
 run_case ENGINE "WBC without the factor 2" $E "const withinBinCovariance = (2 * wbc) / N;" "const withinBinCovariance = wbc / N;"
+run_case ENGINE "WBC doubled (4 wbc / N)" $E "const withinBinCovariance = (2 * wbc) / N;" "const withinBinCovariance = (4 * wbc) / N;"
+run_case ENGINE "WBC halved and the identity rewritten as - 2 WBC" $E "const withinBinVariance = wbv / N; const withinBinCovariance = (2 * wbc) / N;
+  const sum = reliability - resolution + uncertainty + withinBinVariance - withinBinCovariance;" "const withinBinVariance = wbv / N; const withinBinCovariance = wbc / N;
+  const sum = reliability - resolution + uncertainty + withinBinVariance - 2 * withinBinCovariance;"
 run_case ENGINE "resolution about 0.5" $E "res += js.length * (ok - obar) ** 2;" "res += js.length * (ok - 0.5) ** 2;"
 run_case ENGINE "Brier over N - 1" $E "  brier /= N;" "  brier /= N - 1 || 1;"
 run_case ENGINE "eps not passed to ml.js logLoss" $E "const ll = logLoss(eps === undefined ? { yTrue, probabilities } : { yTrue, probabilities, eps });" "const ll = logLoss({ yTrue, probabilities });"
@@ -167,6 +171,7 @@ run_case ENGINE "a fresh stream per replicate" $E "  const rng = mulberry32(seed
     const rng = mulberry32(seed + r);
     let s = 0;"
 # messages are course content: each changed wording must go red
+run_case ENGINE "nDCG note: empty judgments worded as all grades 0" $E "      ? 'nDCG is undefined: the query has no judged documents, so the ideal DCG is 0'" "      ? 'nDCG is undefined: every judged grade is 0, so the ideal DCG is 0'"
 run_case ENGINE "k refusal in other words" $E "refuse('k', \`must be a whole number from 1 to \${DEFAULTS.MAX_K}\`)" "refuse('k', \`must be between 1 and \${DEFAULTS.MAX_K}\`)"
 run_case ENGINE "kappa undefined note in other words" $E "so the expected disagreement is 0\`;" "so kappa cannot be computed\`;"
 run_case ENGINE "groundedness reason drops 'cited but not retrieved'" $E "reason += \`; it appears in \${listIds(cnr)}, cited but not retrieved\`;" "reason += \`; it appears in \${listIds(cnr)}\`;"
@@ -180,6 +185,10 @@ run_case ORACLE "oracle BM25 idf without the 1 +" $O "    idf = {w: (D(1) + dfra
 run_case ORACLE "oracle DCG discount log2(i + 2)" $O "        dcg += D(G(g)) / log2d(i + 1)" "        dcg += D(G(g)) / log2d(i + 2)"
 run_case ORACLE "oracle linear kappa quadratic" $O "        return abs(i - j) if weights == 'linear' else (i - j) ** 2" "        return (i - j) ** 2"
 run_case ORACLE "oracle WBC without the factor 2" $O "    C = 2 * wbc / N" "    C = wbc / N"
+run_case ORACLE "oracle WBC doubled" $O "    C = 2 * wbc / N" "    C = 4 * wbc / N"
+run_case ORACLE "oracle WBC halved and the identity as - 2 WBC" $O "    C = 2 * wbc / N
+    total = R - S + U + V - C" "    C = wbc / N
+    total = R - S + U + V - 2 * C"
 run_case ORACLE "oracle bootstrap draws from n - 1" $O "        reps.append(sum(fv[rng.draw(n)] for _ in range(n)) / n)" "        reps.append(sum(fv[rng.draw(n - 1)] for _ in range(n)) / n)"
 run_case ORACLE "oracle SQuAD keeps articles" $O "            out.append(' ' if w in ('a', 'an', 'the') else w)" "            out.append(w)"
 

@@ -714,13 +714,16 @@ and its consumers.
   default; TF-IDF as scikit-learn's TfidfVectorizer and Okapi BM25 with the
   Lucene idf, ranked with a 12-significant-digit tie key and the id
   ascending; P@k, R@k, hit@k, RR/MRR, AP/MAP and nDCG@k (linear or 2^g - 1
-  gain, ideal DCG from every judged grade) with a stated no-relevant rule;
+  gain, ideal DCG from every judged grade; nDCG null with a note naming
+  the case when the query has no judged documents or every judged grade
+  is 0) with a stated no-relevant rule;
   SQuAD exact match and token F1; extraction scoring (correct, wrong,
   missed, unsupported; micro and macro accuracy); a claim groundedness
   check of an answer's quotes, dates and numbers against the passages it
   cites and retrieved; Cohen's kappa (unweighted, linear, quadratic);
   Brier, reliability table, ECE, MCE and the Murphy decomposition with the
-  within-bin terms, log loss imported from `ml.js`; and percentile and
+  within-bin terms (Brier = REL - RES + UNC + WBV - WBC, Stephenson, Coelho
+  and Jolliffe 2008 eq. 7, where WBC carries the paper's factor 2), log loss imported from `ml.js`; and percentile and
   paired bootstrap intervals from one lib/stats mulberry32 stream,
   labelled as parameter percentiles. Fixtures: the synthetic Ekene document
   set in `test-data/dataai/ekene-docs/` (60 passages, 24 judged queries,

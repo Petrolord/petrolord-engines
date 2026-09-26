@@ -25855,14 +25855,14 @@
     "notes": {
      "recall": "recall is undefined: no judged document has grade 1 or more",
      "averagePrecision": "average precision is undefined: no judged document has grade 1 or more",
-     "ndcg": "nDCG is undefined: every judged grade is 0, so the ideal DCG is 0"
+     "ndcg": "nDCG is undefined: the 2 judged documents all have grade 0, so the ideal DCG is 0"
     },
     "relevantGrade": 1,
     "gain": "linear"
    },
    "tol": 1e-10,
    "abs": 1e-12,
-   "note": "every judged grade is 0: recall, AP and nDCG undefined"
+   "note": "both judged documents have grade 0: recall, AP and nDCG undefined"
   },
   {
    "id": "met-grade1-only-t2",
@@ -25935,13 +25935,14 @@
     "notes": {
      "recall": "recall is undefined: no judged document has grade 1 or more",
      "averagePrecision": "average precision is undefined: no judged document has grade 1 or more",
-     "ndcg": "nDCG is undefined: every judged grade is 0, so the ideal DCG is 0"
+     "ndcg": "nDCG is undefined: the query has no judged documents, so the ideal DCG is 0"
     },
     "relevantGrade": 1,
     "gain": "linear"
    },
    "tol": 1e-10,
-   "abs": 1e-12
+   "abs": 1e-12,
+   "note": "no judged documents: the ideal DCG is 0 because there is nothing to rank"
   },
   {
    "id": "met-ranking-dup",
@@ -26999,7 +27000,7 @@
       "notes": {
        "recall": "recall is undefined: no judged document has grade 1 or more",
        "averagePrecision": "average precision is undefined: no judged document has grade 1 or more",
-       "ndcg": "nDCG is undefined: every judged grade is 0, so the ideal DCG is 0"
+       "ndcg": "nDCG is undefined: the 8 judged documents all have grade 0, so the ideal DCG is 0"
       }
      }
     ],
@@ -27871,7 +27872,7 @@
       "notes": {
        "recall": "recall is undefined: no judged document has grade 1 or more",
        "averagePrecision": "average precision is undefined: no judged document has grade 1 or more",
-       "ndcg": "nDCG is undefined: every judged grade is 0, so the ideal DCG is 0"
+       "ndcg": "nDCG is undefined: the 8 judged documents all have grade 0, so the ideal DCG is 0"
       }
      }
     ],
@@ -28743,7 +28744,7 @@
       "notes": {
        "recall": "recall is undefined: no judged document has grade 1 or more",
        "averagePrecision": "average precision is undefined: no judged document has grade 1 or more",
-       "ndcg": "nDCG is undefined: every judged grade is 0, so the ideal DCG is 0"
+       "ndcg": "nDCG is undefined: the 8 judged documents all have grade 0, so the ideal DCG is 0"
       }
      }
     ],
@@ -29616,7 +29617,7 @@
       "notes": {
        "recall": "recall is undefined: no judged document has grade 2 or more",
        "averagePrecision": "average precision is undefined: no judged document has grade 2 or more",
-       "ndcg": "nDCG is undefined: every judged grade is 0, so the ideal DCG is 0"
+       "ndcg": "nDCG is undefined: the 8 judged documents all have grade 0, so the ideal DCG is 0"
       }
      }
     ],
@@ -30488,7 +30489,7 @@
       "notes": {
        "recall": "recall is undefined: no judged document has grade 1 or more",
        "averagePrecision": "average precision is undefined: no judged document has grade 1 or more",
-       "ndcg": "nDCG is undefined: every judged grade is 0, so the ideal DCG is 0"
+       "ndcg": "nDCG is undefined: the 8 judged documents all have grade 0, so the ideal DCG is 0"
       }
      }
     ],
@@ -30559,7 +30560,7 @@
       "notes": {
        "recall": "recall is undefined: no judged document has grade 1 or more",
        "averagePrecision": "average precision is undefined: no judged document has grade 1 or more",
-       "ndcg": "nDCG is undefined: every judged grade is 0, so the ideal DCG is 0"
+       "ndcg": "nDCG is undefined: the 1 judged document has grade 0, so the ideal DCG is 0"
       }
      },
      {
@@ -30582,7 +30583,7 @@
       "notes": {
        "recall": "recall is undefined: no judged document has grade 1 or more",
        "averagePrecision": "average precision is undefined: no judged document has grade 1 or more",
-       "ndcg": "nDCG is undefined: every judged grade is 0, so the ideal DCG is 0"
+       "ndcg": "nDCG is undefined: the 1 judged document has grade 0, so the ideal DCG is 0"
       }
      }
     ],
@@ -30859,6 +30860,47 @@
     "message": "text must be a string"
    },
    "tol": 1e-10
+  },
+  {
+   "id": "met-one-judged-zero",
+   "fn": "retrievalMetrics",
+   "args": {
+    "ranking": [
+     "a",
+     "b"
+    ],
+    "judgments": {
+     "a": 0
+    },
+    "k": 2
+   },
+   "expected": {
+    "k": 2,
+    "nJudged": 1,
+    "nRelevant": 0,
+    "retrieved": 2,
+    "relevantRetrieved": 0,
+    "unjudgedRetrieved": 1,
+    "precision": 0.0,
+    "recall": null,
+    "hit": 0,
+    "firstRelevantRank": null,
+    "reciprocalRank": 0.0,
+    "averagePrecision": null,
+    "dcg": 0.0,
+    "idcg": 0.0,
+    "ndcg": null,
+    "notes": {
+     "recall": "recall is undefined: no judged document has grade 1 or more",
+     "averagePrecision": "average precision is undefined: no judged document has grade 1 or more",
+     "ndcg": "nDCG is undefined: the 1 judged document has grade 0, so the ideal DCG is 0"
+    },
+    "relevantGrade": 1,
+    "gain": "linear"
+   },
+   "tol": 1e-10,
+   "abs": 1e-12,
+   "note": "one judged document, grade 0: nDCG undefined"
   },
   {
    "id": "match-A-Q01",
