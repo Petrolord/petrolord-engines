@@ -1,0 +1,751 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (Petrolord fictional teaching field, block EK-11). No real company, person, tender or price appears.",
+ "generatedBy": "tools/validation/supplychain/make_tender_fixtures.py",
+ "tender": "EK-11/WS/2027-01",
+ "title": "Ekene-3 and Ekene-5 coiled tubing cleanout and matrix acid stimulation (synthetic)",
+ "scope": "Two producers, Ekene-3 and Ekene-5, top of the Ekene Sand near 1,550 m TVD: rig up coiled tubing, clean out fill to the perforations, pump a 15% HCl matrix treatment with nitrogen lift, flow back, move to the second well. Two-envelope process with Rated Criteria.",
+ "criteria": [
+  {
+   "id": "methodology",
+   "weight": 30,
+   "maxScore": 4,
+   "label": "Method statement for the cleanout and the acid treatment"
+  },
+  {
+   "id": "personnel",
+   "weight": 25,
+   "maxScore": 4,
+   "label": "Key personnel: CT supervisor, pumping engineer, HSE lead"
+  },
+  {
+   "id": "equipment",
+   "weight": 20,
+   "maxScore": 4,
+   "label": "CT unit, pumps and N2 unit: age, certification, back-up"
+  },
+  {
+   "id": "hse",
+   "weight": 15,
+   "maxScore": 4,
+   "label": "HSE plan for live-well intervention and acid handling"
+  },
+  {
+   "id": "schedule",
+   "weight": 10,
+   "maxScore": 4,
+   "label": "Mobilisation and work programme"
+  }
+ ],
+ "passMark": 70,
+ "items": [
+  {
+   "id": "mob",
+   "unit": "lump sum",
+   "label": "Mobilisation to Ekene-3"
+  },
+  {
+   "id": "ct-spread",
+   "unit": "day",
+   "label": "Coiled tubing spread, 18 operating days"
+  },
+  {
+   "id": "pump-spread",
+   "unit": "day",
+   "label": "Pumping spread, 6 pumping days"
+  },
+  {
+   "id": "acid",
+   "unit": "m3",
+   "label": "15% HCl treating fluid with additives, 60 m3"
+  },
+  {
+   "id": "nitrogen",
+   "unit": "thousand scf",
+   "label": "Nitrogen for lift and displacement, 120 thousand scf"
+  },
+  {
+   "id": "demob",
+   "unit": "lump sum",
+   "label": "Demobilisation from Ekene-5"
+  }
+ ],
+ "schedule": {
+  "minWeeks": 6,
+  "maxWeeks": 10,
+  "ratePerWeek": 0.005
+ },
+ "award": {
+  "basis": "combined",
+  "technicalWeight": 0.7,
+  "priceMethod": "lowest-ratio",
+  "technicalMethod": "relative",
+  "risk": "high",
+  "estimatedCostUsd": 900000
+ },
+ "omissionRule": "average",
+ "nc": {
+  "items": [
+   {
+    "id": "coiled-tubing",
+    "scheduleLine": "coiled-tubing-services"
+   },
+   {
+    "id": "pumping",
+    "scheduleLine": "pumping-services"
+   },
+   {
+    "id": "stimulation",
+    "scheduleLine": "well-overhauling-stimulation-services"
+   }
+  ]
+ },
+ "bids": [
+  {
+   "id": "WS1",
+   "name": "Bidder WS1 (synthetic)",
+   "receivedAt": "2027-02-10T09:12:00Z",
+   "mandatory": [
+    {
+     "id": "bid-security",
+     "met": true
+    },
+    {
+     "id": "signed-bid-form",
+     "met": true
+    }
+   ],
+   "scores": {
+    "methodology": 4,
+    "personnel": 3,
+    "equipment": 3,
+    "hse": 3,
+    "schedule": 3
+   },
+   "lines": [
+    {
+     "id": "mob",
+     "quantity": 1,
+     "unitRate": 120000,
+     "quotedAmount": 120000
+    },
+    {
+     "id": "ct-spread",
+     "quantity": 18,
+     "unitRate": 28500,
+     "quotedAmount": 513000
+    },
+    {
+     "id": "pump-spread",
+     "quantity": 6,
+     "unitRate": 21000,
+     "quotedAmount": 126000
+    },
+    {
+     "id": "acid",
+     "quantity": 60,
+     "unitRate": 1450,
+     "quotedAmount": 87000
+    },
+    {
+     "id": "nitrogen",
+     "quantity": 120,
+     "unitRate": 310,
+     "quotedAmount": 37200
+    },
+    {
+     "id": "demob",
+     "quantity": 1,
+     "unitRate": 60000,
+     "quotedAmount": 60000
+    }
+   ],
+   "completionWeeks": 6,
+   "nc": {
+    "coiled-tubing": {
+     "measure": "man-hours",
+     "nigerian": 7800,
+     "total": 10000
+    },
+    "pumping": {
+     "measure": "man-hours",
+     "nigerian": 2850,
+     "total": 3000
+    },
+    "stimulation": {
+     "measure": "man-hours",
+     "nigerian": 3400,
+     "total": 4000
+    }
+   },
+   "indigenous": false,
+   "capacity": true,
+   "discount": 15000
+  },
+  {
+   "id": "WS2",
+   "name": "Bidder WS2 (synthetic)",
+   "receivedAt": "2027-02-10T11:40:00Z",
+   "mandatory": [
+    {
+     "id": "bid-security",
+     "met": true
+    },
+    {
+     "id": "signed-bid-form",
+     "met": true
+    }
+   ],
+   "scores": {
+    "methodology": 3,
+    "personnel": 3,
+    "equipment": 3,
+    "hse": 3,
+    "schedule": 3
+   },
+   "lines": [
+    {
+     "id": "mob",
+     "quantity": 1,
+     "unitRate": 95000,
+     "quotedAmount": 95000
+    },
+    {
+     "id": "ct-spread",
+     "quantity": 18,
+     "unitRate": 27000,
+     "quotedAmount": 468000
+    },
+    {
+     "id": "pump-spread",
+     "quantity": 6,
+     "unitRate": 19500,
+     "quotedAmount": 117000
+    },
+    {
+     "id": "acid",
+     "quantity": 60,
+     "unitRate": 1400,
+     "quotedAmount": 84000
+    },
+    {
+     "id": "nitrogen",
+     "quantity": 120,
+     "unitRate": 295,
+     "quotedAmount": 35400
+    },
+    {
+     "id": "demob",
+     "quantity": 1,
+     "unitRate": 50000,
+     "quotedAmount": 50000
+    }
+   ],
+   "completionWeeks": 8,
+   "nc": {
+    "coiled-tubing": {
+     "measure": "man-hours",
+     "nigerian": 7000,
+     "total": 10000
+    },
+    "pumping": {
+     "measure": "man-hours",
+     "nigerian": 2700,
+     "total": 3000
+    },
+    "stimulation": {
+     "measure": "man-hours",
+     "nigerian": 3500,
+     "total": 4000
+    }
+   },
+   "indigenous": true,
+   "capacity": true,
+   "deviations": [
+    {
+     "id": "payment-terms",
+     "amount": 9500,
+     "reason": "asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment"
+    }
+   ]
+  },
+  {
+   "id": "WS3",
+   "name": "Bidder WS3 (synthetic)",
+   "receivedAt": "2027-02-11T08:05:00Z",
+   "mandatory": [
+    {
+     "id": "bid-security",
+     "met": true
+    },
+    {
+     "id": "signed-bid-form",
+     "met": true
+    }
+   ],
+   "scores": {
+    "methodology": 3,
+    "personnel": 4,
+    "equipment": 3,
+    "hse": 4,
+    "schedule": 3
+   },
+   "lines": [
+    {
+     "id": "mob",
+     "quantity": 1,
+     "unitRate": 110000,
+     "quotedAmount": 110000
+    },
+    {
+     "id": "ct-spread",
+     "quantity": 18,
+     "unitRate": 29500,
+     "quotedAmount": 531000
+    },
+    {
+     "id": "pump-spread",
+     "quantity": 6,
+     "unitRate": 22000,
+     "quotedAmount": 132000
+    },
+    {
+     "id": "acid",
+     "quantity": 60,
+     "unitRate": 1500,
+     "quotedAmount": 90000
+    },
+    {
+     "id": "demob",
+     "quantity": 1,
+     "unitRate": 55000,
+     "quotedAmount": 55000
+    }
+   ],
+   "completionWeeks": 7,
+   "nc": {
+    "coiled-tubing": {
+     "measure": "man-hours",
+     "nigerian": 8200,
+     "total": 10000
+    },
+    "pumping": {
+     "measure": "man-hours",
+     "nigerian": 2910,
+     "total": 3000
+    },
+    "stimulation": {
+     "measure": "man-hours",
+     "nigerian": 3600,
+     "total": 4000
+    }
+   },
+   "indigenous": false,
+   "capacity": true,
+   "omitted": [
+    "nitrogen"
+   ]
+  },
+  {
+   "id": "WS4",
+   "name": "Bidder WS4 (synthetic)",
+   "receivedAt": "2027-02-11T10:30:00Z",
+   "mandatory": [
+    {
+     "id": "bid-security",
+     "met": true
+    },
+    {
+     "id": "signed-bid-form",
+     "met": true
+    }
+   ],
+   "scores": {
+    "methodology": 2,
+    "personnel": 3,
+    "equipment": 3,
+    "hse": 3,
+    "schedule": 2
+   },
+   "lines": [
+    {
+     "id": "mob",
+     "quantity": 1,
+     "unitRate": 80000,
+     "quotedAmount": 80000
+    },
+    {
+     "id": "ct-spread",
+     "quantity": 18,
+     "unitRate": 24000,
+     "quotedAmount": 432000
+    },
+    {
+     "id": "pump-spread",
+     "quantity": 6,
+     "unitRate": 17000,
+     "quotedAmount": 102000
+    },
+    {
+     "id": "acid",
+     "quantity": 60,
+     "unitRate": 1300,
+     "quotedAmount": 78000
+    },
+    {
+     "id": "nitrogen",
+     "quantity": 120,
+     "unitRate": 260,
+     "quotedAmount": 31200
+    },
+    {
+     "id": "demob",
+     "quantity": 1,
+     "unitRate": 40000,
+     "quotedAmount": 40000
+    }
+   ],
+   "completionWeeks": 7,
+   "nc": {
+    "coiled-tubing": {
+     "measure": "man-hours",
+     "nigerian": 6000,
+     "total": 10000
+    },
+    "pumping": {
+     "measure": "man-hours",
+     "nigerian": 2400,
+     "total": 3000
+    },
+    "stimulation": {
+     "measure": "man-hours",
+     "nigerian": 3000,
+     "total": 4000
+    }
+   },
+   "indigenous": false,
+   "capacity": true
+  },
+  {
+   "id": "WS5",
+   "name": "Bidder WS5 (synthetic)",
+   "receivedAt": "2027-02-11T15:55:00Z",
+   "mandatory": [
+    {
+     "id": "bid-security",
+     "met": true
+    },
+    {
+     "id": "signed-bid-form",
+     "met": true
+    }
+   ],
+   "scores": {
+    "methodology": 3,
+    "personnel": 3,
+    "equipment": 2,
+    "hse": 3,
+    "schedule": 3
+   },
+   "lines": [
+    {
+     "id": "mob",
+     "quantity": 1,
+     "unitRate": 100000,
+     "quotedAmount": 100000
+    },
+    {
+     "id": "ct-spread",
+     "quantity": 18,
+     "unitRate": 26000,
+     "quotedAmount": 468000
+    },
+    {
+     "id": "pump-spread",
+     "quantity": 6,
+     "unitRate": 20000,
+     "quotedAmount": 120000
+    },
+    {
+     "id": "acid",
+     "quantity": 60,
+     "unitRate": 13.8,
+     "quotedAmount": 82800,
+     "decimalMisplaced": true
+    },
+    {
+     "id": "nitrogen",
+     "quantity": 120,
+     "unitRate": 280,
+     "quotedAmount": 33600
+    },
+    {
+     "id": "demob",
+     "quantity": 1,
+     "unitRate": 45000,
+     "quotedAmount": 45000
+    }
+   ],
+   "completionWeeks": 9,
+   "nc": {
+    "coiled-tubing": {
+     "measure": "man-hours",
+     "nigerian": 6750,
+     "total": 9000
+    },
+    "pumping": {
+     "measure": "man-hours",
+     "nigerian": 2850,
+     "total": 3000
+    },
+    "stimulation": {
+     "measure": "man-hours",
+     "nigerian": 3000,
+     "total": 4000
+    }
+   },
+   "indigenous": true,
+   "capacity": true
+  },
+  {
+   "id": "WS6",
+   "name": "Bidder WS6 (synthetic)",
+   "receivedAt": "2027-02-12T16:59:00Z",
+   "mandatory": [
+    {
+     "id": "bid-security",
+     "met": true
+    },
+    {
+     "id": "signed-bid-form",
+     "met": false
+    }
+   ],
+   "scores": {
+    "methodology": 4,
+    "personnel": 4,
+    "equipment": 4,
+    "hse": 3,
+    "schedule": 4
+   },
+   "lines": [
+    {
+     "id": "mob",
+     "quantity": 1,
+     "unitRate": 130000,
+     "quotedAmount": 130000
+    },
+    {
+     "id": "ct-spread",
+     "quantity": 18,
+     "unitRate": 30000,
+     "quotedAmount": 540000
+    },
+    {
+     "id": "pump-spread",
+     "quantity": 6,
+     "unitRate": 23000,
+     "quotedAmount": 138000
+    },
+    {
+     "id": "acid",
+     "quantity": 60,
+     "unitRate": 1550,
+     "quotedAmount": 93000
+    },
+    {
+     "id": "nitrogen",
+     "quantity": 120,
+     "unitRate": 320,
+     "quotedAmount": 38400
+    },
+    {
+     "id": "demob",
+     "quantity": 1,
+     "unitRate": 65000,
+     "quotedAmount": 65000
+    }
+   ],
+   "completionWeeks": 6,
+   "nc": {
+    "coiled-tubing": {
+     "measure": "man-hours",
+     "nigerian": 8000,
+     "total": 10000
+    },
+    "pumping": {
+     "measure": "man-hours",
+     "nigerian": 2900,
+     "total": 3000
+    },
+    "stimulation": {
+     "measure": "man-hours",
+     "nigerian": 3500,
+     "total": 4000
+    }
+   },
+   "indigenous": false,
+   "capacity": true
+  }
+ ],
+ "contracting": {
+  "note": "The same two-well scope under three contract types. Contractor cost = fixed cost + days x daily cost.",
+  "duration": {
+   "program": [
+    {
+     "id": "e3-rigup",
+     "kind": "flat",
+     "label": "Mobilise and rig up on Ekene-3",
+     "durationHr": 48
+    },
+    {
+     "id": "e3-trip",
+     "kind": "trip",
+     "label": "Coiled tubing in and out, Ekene-3",
+     "mdM": 1600,
+     "tripSpeedMPerHr": 1200
+    },
+    {
+     "id": "e3-clean",
+     "kind": "flat",
+     "label": "Clean out fill, Ekene-3",
+     "durationHr": 30
+    },
+    {
+     "id": "e3-acid",
+     "kind": "flat",
+     "label": "Pump the acid treatment, Ekene-3",
+     "durationHr": 16
+    },
+    {
+     "id": "e3-flow",
+     "kind": "flat",
+     "label": "Nitrogen lift and flow back, Ekene-3",
+     "durationHr": 36
+    },
+    {
+     "id": "move",
+     "kind": "flat",
+     "label": "Rig down and move to Ekene-5",
+     "durationHr": 24
+    },
+    {
+     "id": "e5-trip",
+     "kind": "trip",
+     "label": "Coiled tubing in and out, Ekene-5",
+     "mdM": 1620,
+     "tripSpeedMPerHr": 1200
+    },
+    {
+     "id": "e5-clean",
+     "kind": "flat",
+     "label": "Clean out fill, Ekene-5",
+     "durationHr": 30
+    },
+    {
+     "id": "e5-acid",
+     "kind": "flat",
+     "label": "Pump the acid treatment, Ekene-5",
+     "durationHr": 16
+    },
+    {
+     "id": "e5-flow",
+     "kind": "flat",
+     "label": "Nitrogen lift and flow back, Ekene-5",
+     "durationHr": 36
+    },
+    {
+     "id": "demob",
+     "kind": "flat",
+     "label": "Rig down and demobilise",
+     "durationHr": 48
+    }
+   ],
+   "nptFrac": {
+    "min": 0.05,
+    "mode": 0.15,
+    "max": 0.6
+   }
+  },
+  "dailyCost": {
+   "min": 38000,
+   "mode": 42000,
+   "max": 55000
+  },
+  "fixedCost": 140000,
+  "lumpSum": {
+   "price": 900000
+  },
+  "dayRate": {
+   "rate": 50000,
+   "mobilisationFee": 160000
+  },
+  "reimbursable": {
+   "feeFraction": 0.12
+  },
+  "iterations": 20000,
+  "seed": 20270211
+ },
+ "shouldCost": {
+  "note": "The company estimate for the same two-well programme, built with engines/drilling/wellCost.js.",
+  "nptFrac": 0.15,
+  "items": [
+   {
+    "id": "ct-spread",
+    "label": "Coiled tubing spread",
+    "basis": "per-day",
+    "rate": 26500,
+    "category": "intangible"
+   },
+   {
+    "id": "supervision",
+    "label": "Company supervision",
+    "basis": "per-day",
+    "rate": 3500,
+    "category": "intangible"
+   },
+   {
+    "id": "pumping",
+    "label": "Pumping services",
+    "basis": "lump",
+    "value": 118000,
+    "category": "intangible"
+   },
+   {
+    "id": "acid",
+    "label": "Acid system",
+    "basis": "lump",
+    "value": 84000,
+    "category": "tangible"
+   },
+   {
+    "id": "nitrogen",
+    "label": "Nitrogen",
+    "basis": "lump",
+    "value": 36000,
+    "category": "tangible"
+   },
+   {
+    "id": "mob-demob",
+    "label": "Mobilisation and demobilisation",
+    "basis": "lump",
+    "value": 160000,
+    "category": "intangible"
+   }
+  ],
+  "contingencyFrac": 0.1,
+  "partners": [
+   {
+    "name": "Partner EK-B (synthetic)",
+    "working_interest": 40
+   },
+   {
+    "name": "Partner EK-C (synthetic)",
+    "working_interest": 15
+   }
+  ],
+  "band": {
+   "low": 0.8,
+   "high": 1.25
+  }
+ }
+}
