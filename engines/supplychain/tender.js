@@ -845,10 +845,10 @@ export const contractTypes = ({ duration, dailyCost, fixedCost = 0, lumpSum, day
   if (!isObj(reimbursable) || (reimbursable.feeFraction === undefined) === (reimbursable.fixedFee === undefined)) return refuse('reimbursable', 'must state exactly one of feeFraction (cost plus a percentage) or fixedFee (cost plus a fixed fee)');
   if (reimbursable.feeFraction !== undefined && (!fin(reimbursable.feeFraction) || reimbursable.feeFraction < 0 || reimbursable.feeFraction > 1)) return refuse('reimbursable.feeFraction', 'must be a fraction from 0 to 1');
   if (reimbursable.fixedFee !== undefined && (!fin(reimbursable.fixedFee) || reimbursable.fixedFee < 0)) return refuse('reimbursable.fixedFee', 'must be a finite number at or above 0');
-  const daysOf = (u) => {
-    if (!program) return u;
-    return evaluateProgram({ activities: program.activities, nptFrac: u }).totals.totalDays;
-  };
+  // wellCost stretches every activity by (1 + nptFrac), so the programme's
+  // days at any NPT are its productive days x (1 + nptFrac): one call.
+  const productiveDays = program ? evaluateProgram({ activities: program.activities, nptFrac: 0 }).totals.totalDays : null;
+  const daysOf = (u) => (program ? productiveDays * (1 + u) : u);
   const planDaysDefault = daysOf(program ? program.npt.mode : durTri.mode);
   if (plan !== undefined) {
     if (!isObj(plan) || !fin(plan.days) || plan.days < 0 || !fin(plan.dailyCost) || plan.dailyCost < 0) return refuse('plan', 'must be { days, dailyCost }, both at or above 0, when given');
@@ -916,7 +916,7 @@ export const contractTypes = ({ duration, dailyCost, fixedCost = 0, lumpSum, day
     types: out,
     percentileDefinition: EXCEEDANCE_DEFINITION,
     basis: {
-      sampling: `${plural(iterations, 'iteration')}, one mulberry32(${seed}) stream; per iteration a uniform for the ${program ? 'NPT fraction (days from engines/drilling/wellCost.js evaluateProgram)' : 'duration'}${varies(dur) ? '' : ' (constant: no draw)'} then one for the daily cost${varies(costTri) ? '' : ' (constant: no draw)'}; triangular inverse CDF (lib/stats triInvCDF)`,
+      sampling: `${plural(iterations, 'iteration')}, one mulberry32(${seed}) stream; per iteration a uniform for the ${program ? 'NPT fraction (days = wellCost evaluateProgram productive days x (1 + NPT fraction))' : 'duration'}${varies(dur) ? '' : ' (constant: no draw)'} then one for the daily cost${varies(costTri) ? '' : ' (constant: no draw)'}; triangular inverse CDF (lib/stats triInvCDF)`,
       percentiles: 'lib/stats basicStats on the sorted values: P90 = index floor(0.1 n), P50 = floor(0.5 n), P10 = floor(0.9 n); for a cost, P90 is the low value and P10 the high value',
       overrun: 'an iteration overruns when its contractor cost exceeds the planned cost; companyPays + contractorAbsorbs = expectedOverrun, each a mean over all iterations with 0 where there is no overrun',
       payments: `lump sum ${fmt(lumpSum.price)}; day rate ${fmt(dayRate.mobilisationFee)} + ${fmt(dayRate.rate)} x days; reimbursable ${reimbursable.feeFraction !== undefined ? `cost x ${fmt(1 + reimbursable.feeFraction)}` : `cost + ${fmt(reimbursable.fixedFee)}`}`,
