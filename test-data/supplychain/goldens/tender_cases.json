@@ -9711,7 +9711,7 @@
    "expected": {
     "error": true,
     "field": "duration",
-    "message": "duration must have min <= mode <= max"
+    "message": "duration must have min <= mode <= max; got min 5, mode 4, max 6"
    },
    "tol": 1e-12
   },
@@ -9741,7 +9741,7 @@
    "expected": {
     "error": true,
     "field": "duration.min",
-    "message": "duration.min must be at or above 0"
+    "message": "duration.min must be at or above 0; got -1"
    },
    "tol": 1e-12
   },
@@ -10885,6 +10885,1127 @@
     "error": true,
     "field": "bids[0].evaluatedCost",
     "message": "bids[0].evaluatedCost must be a finite number above 0"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "band-refuse-unknown-key",
+   "fn": "weightingBand",
+   "args": {
+    "risk": "low",
+    "estimatedCostUsd": 1,
+    "technicalweight": 0.3
+   },
+   "expected": {
+    "error": true,
+    "field": "technicalweight",
+    "message": "technicalweight is not an accepted key; the accepted keys at the top level are risk, estimatedCostUsd, technicalWeight"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "arith-refuse-unknown-line-key",
+   "fn": "correctArithmetic",
+   "args": {
+    "lines": [
+     {
+      "id": "a",
+      "quantity": 1,
+      "unitRate": 1,
+      "quotedAmount": 1,
+      "unitprice": 1
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "lines[0].unitprice",
+    "message": "lines[0].unitprice is not an accepted key; the accepted keys of lines[0] are id, quantity, unitRate, quotedAmount, decimalMisplaced"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "tech-refuse-unknown-criterion-key",
+   "fn": "technicalEvaluation",
+   "args": {
+    "criteria": [
+     {
+      "id": "a",
+      "weighting": 100,
+      "weight": 100,
+      "maxScore": 4
+     }
+    ],
+    "passMark": 50,
+    "bids": [
+     {
+      "id": "X",
+      "scores": {
+       "a": 2
+      }
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "criteria[0].weighting",
+    "message": "criteria[0].weighting is not an accepted key; the accepted keys of criteria[0] are id, label, weight, maxScore"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "tech-refuse-unknown-score-id",
+   "fn": "technicalEvaluation",
+   "args": {
+    "criteria": [
+     {
+      "id": "methodology",
+      "weight": 30,
+      "maxScore": 4
+     },
+     {
+      "id": "personnel",
+      "weight": 25,
+      "maxScore": 4
+     },
+     {
+      "id": "equipment",
+      "weight": 20,
+      "maxScore": 4
+     },
+     {
+      "id": "hse",
+      "weight": 15,
+      "maxScore": 4
+     },
+     {
+      "id": "schedule",
+      "weight": 10,
+      "maxScore": 4
+     }
+    ],
+    "passMark": 70,
+    "bids": [
+     {
+      "id": "X",
+      "scores": {
+       "methodology": 3,
+       "personnel": 3,
+       "equipment": 3,
+       "hse": 3,
+       "schedule": 3,
+       "methdology": 4
+      }
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].scores.methdology",
+    "message": "bids[0].scores.methdology is not a criterion id; the accepted keys of bids[0].scores are the criterion ids methodology, personnel, equipment, hse, schedule"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "tech-refuse-unknown-mandatory-key",
+   "fn": "technicalEvaluation",
+   "args": {
+    "criteria": [
+     {
+      "id": "methodology",
+      "weight": 30,
+      "maxScore": 4
+     },
+     {
+      "id": "personnel",
+      "weight": 25,
+      "maxScore": 4
+     },
+     {
+      "id": "equipment",
+      "weight": 20,
+      "maxScore": 4
+     },
+     {
+      "id": "hse",
+      "weight": 15,
+      "maxScore": 4
+     },
+     {
+      "id": "schedule",
+      "weight": 10,
+      "maxScore": 4
+     }
+    ],
+    "passMark": 70,
+    "bids": [
+     {
+      "id": "X",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true,
+        "note": "x"
+       }
+      ],
+      "scores": {
+       "methodology": 3,
+       "personnel": 3,
+       "equipment": 3,
+       "hse": 3,
+       "schedule": 3
+      }
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].mandatory[0].note",
+    "message": "bids[0].mandatory[0].note is not an accepted key; the accepted keys of bids[0].mandatory[0] are id, met"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ec-refuse-lifecycle-misspelt",
+   "fn": "evaluatedCosts",
+   "args": {
+    "bids": [
+     {
+      "id": "MS1",
+      "receivedAt": "2027-03-02T10:00:00Z",
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1650,
+        "quotedAmount": 297000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 4200,
+        "quotedAmount": 100800
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 310,
+        "quotedAmount": 46500
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 420,
+        "quotedAmount": 84000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 12000,
+        "quotedAmount": 12000
+       }
+      ],
+      "completionWeeks": 10,
+      "annualCosts": [
+       6000,
+       6000,
+       6000,
+       6000,
+       6000
+      ]
+     },
+     {
+      "id": "MS2",
+      "receivedAt": "2027-03-02T13:25:00Z",
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1600,
+        "quotedAmount": 288000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 4300,
+        "quotedAmount": 103200
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 300,
+        "quotedAmount": 45000
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 400,
+        "quotedAmount": 80000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 9500,
+        "quotedAmount": 9500
+       }
+      ],
+      "completionWeeks": 9,
+      "annualCosts": [
+       5500,
+       5500,
+       5500,
+       5500,
+       5500
+      ]
+     },
+     {
+      "id": "MS3",
+      "receivedAt": "2027-03-03T09:45:00Z",
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1700,
+        "quotedAmount": 306000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 4500,
+        "quotedAmount": 108000
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 320,
+        "quotedAmount": 48000
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 430,
+        "quotedAmount": 86000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 14500,
+        "quotedAmount": 14500
+       }
+      ],
+      "completionWeeks": 8,
+      "annualCosts": [
+       5000,
+       5000,
+       5000,
+       5000,
+       5000
+      ]
+     },
+     {
+      "id": "MS4",
+      "receivedAt": "2027-03-03T14:10:00Z",
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1580,
+        "quotedAmount": 284400
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 3970,
+        "quotedAmount": 95280
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 295,
+        "quotedAmount": 44250
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 400,
+        "quotedAmount": 80000
+       }
+      ],
+      "completionWeeks": 11,
+      "annualCosts": [
+       7000,
+       7000,
+       7000,
+       7000,
+       7000
+      ],
+      "omitted": [
+       "inspection"
+      ]
+     }
+    ],
+    "omissionRule": "average",
+    "schedule": {
+     "minWeeks": 8,
+     "maxWeeks": 14,
+     "ratePerWeek": 0.0025
+    },
+    "lifecycle": {
+     "years": 5,
+     "discountRate": 0.1
+    }
+   },
+   "expected": {
+    "error": true,
+    "field": "lifecycle",
+    "message": "lifecycle is not an accepted key; the accepted keys at the top level are bids, omissionRule, bestEstimates, schedule, lifeCycle, tolerance"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ec-refuse-unknown-bid-key",
+   "fn": "evaluatedCosts",
+   "args": {
+    "omissionRule": "average",
+    "bids": [
+     {
+      "id": "P",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "lines": [
+       {
+        "id": "a",
+        "quantity": 1,
+        "unitRate": 1,
+        "quotedAmount": 1
+       }
+      ],
+      "completionweeks": 3
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].completionweeks",
+    "message": "bids[0].completionweeks is not an accepted key; the accepted keys of bids[0] are id, name, receivedAt, lines, discount, deviations, omitted, rejected, completionWeeks, annualCosts, residualValue"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ec-refuse-unknown-schedule-key",
+   "fn": "evaluatedCosts",
+   "args": {
+    "omissionRule": "average",
+    "schedule": {
+     "minWeeks": 1,
+     "maxWeeks": 2,
+     "ratePerweek": 0.01
+    },
+    "bids": [
+     {
+      "id": "P",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "lines": [
+       {
+        "id": "a",
+        "quantity": 1,
+        "unitRate": 1,
+        "quotedAmount": 1
+       }
+      ],
+      "completionWeeks": 1
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "schedule.ratePerweek",
+    "message": "schedule.ratePerweek is not an accepted key; the accepted keys of schedule are minWeeks, maxWeeks, ratePerWeek"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ec-refuse-unknown-deviation-key",
+   "fn": "evaluatedCosts",
+   "args": {
+    "omissionRule": "average",
+    "bids": [
+     {
+      "id": "P",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "lines": [
+       {
+        "id": "a",
+        "quantity": 1,
+        "unitRate": 1,
+        "quotedAmount": 1
+       }
+      ],
+      "deviations": [
+       {
+        "id": "d",
+        "amount": 1,
+        "reason": "x",
+        "currency": "USD"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].deviations[0].currency",
+    "message": "bids[0].deviations[0].currency is not an accepted key; the accepted keys of bids[0].deviations[0] are id, amount, reason"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ec-refuse-best-estimate-not-omitted",
+   "fn": "evaluatedCosts",
+   "args": {
+    "omissionRule": "average",
+    "bestEstimates": {
+     "b": 250,
+     "nitrogen": 1
+    },
+    "bids": [
+     {
+      "id": "P",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "lines": [
+       {
+        "id": "a",
+        "quantity": 1,
+        "unitRate": 1000,
+        "quotedAmount": 1000
+       }
+      ],
+      "omitted": [
+       "b"
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bestEstimates.nitrogen",
+    "message": "bestEstimates.nitrogen is not an item any bid omits; the accepted keys of bestEstimates are the omitted item ids b"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ec-refuse-best-estimate-none-omitted",
+   "fn": "evaluatedCosts",
+   "args": {
+    "omissionRule": "average",
+    "bestEstimates": {
+     "b": 250
+    },
+    "bids": [
+     {
+      "id": "P",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "lines": [
+       {
+        "id": "a",
+        "quantity": 1,
+        "unitRate": 1000,
+        "quotedAmount": 1000
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bestEstimates.b",
+    "message": "bestEstimates.b is not an item any bid omits; the accepted keys of bestEstimates are none: there are no omitted item ids"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "rank-refuse-unknown-bid-key",
+   "fn": "rankTender",
+   "args": {
+    "technicalWeight": 0.5,
+    "priceMethod": "linear",
+    "technicalMethod": "relative",
+    "bids": [
+     {
+      "id": "A",
+      "technicalPercent": 50,
+      "evaluatedCost": 1,
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "price": 1
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].price",
+    "message": "bids[0].price is not an accepted key; the accepted keys of bids[0] are id, name, technicalPercent, evaluatedCost, receivedAt, rejected"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "nc-refuse-unknown-item-id-in-bid",
+   "fn": "nigerianContent",
+   "args": {
+    "items": [
+     {
+      "id": "coiled-tubing",
+      "scheduleLine": "coiled-tubing-services"
+     },
+     {
+      "id": "pumping",
+      "scheduleLine": "pumping-services"
+     },
+     {
+      "id": "stimulation",
+      "scheduleLine": "well-overhauling-stimulation-services"
+     }
+    ],
+    "bids": [
+     {
+      "id": "P",
+      "items": {
+       "coiled-tubing": {
+        "measure": "man-hours",
+        "nigerian": 7800,
+        "total": 10000
+       },
+       "pumping": {
+        "measure": "man-hours",
+        "nigerian": 2850,
+        "total": 3000
+       },
+       "stimulation": {
+        "measure": "man-hours",
+        "nigerian": 3400,
+        "total": 4000
+       },
+       "catering": {
+        "measure": "spend",
+        "nigerian": 1,
+        "total": 1
+       }
+      }
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].items.catering",
+    "message": "bids[0].items.catering is not an item id; the accepted keys of bids[0].items are the item ids coiled-tubing, pumping, stimulation"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "nc-refuse-unknown-weight-id",
+   "fn": "nigerianContent",
+   "args": {
+    "items": [
+     {
+      "id": "casing",
+      "scheduleLine": "steel-pipes"
+     },
+     {
+      "id": "valves",
+      "scheduleLine": "valves"
+     },
+     {
+      "id": "cement",
+      "scheduleLine": "cement-portland"
+     },
+     {
+      "id": "baryte",
+      "scheduleLine": "drilling-mud-baryte-bentonite"
+     }
+    ],
+    "bids": [
+     {
+      "id": "P",
+      "items": {
+       "casing": {
+        "measure": "tonnage",
+        "nigerian": 99,
+        "total": 180
+       },
+       "valves": {
+        "measure": "number",
+        "nigerian": 12,
+        "total": 24
+       },
+       "cement": {
+        "measure": "tonnage",
+        "nigerian": 120,
+        "total": 150
+       },
+       "baryte": {
+        "measure": "tonnage",
+        "nigerian": 110,
+        "total": 200
+       }
+      },
+      "weights": {
+       "casing": 297000,
+       "valves": 100800,
+       "cement": 46500,
+       "baryte": 84000,
+       "inspection": 1
+      }
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].weights.inspection",
+    "message": "bids[0].weights.inspection is not an item id; the accepted keys of bids[0].weights are the item ids casing, valves, cement, baryte"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "nc-refuse-unknown-content-key",
+   "fn": "nigerianContent",
+   "args": {
+    "items": [
+     {
+      "id": "ct",
+      "scheduleLine": "coiled-tubing-services"
+     }
+    ],
+    "bids": [
+     {
+      "id": "P",
+      "items": {
+       "ct": {
+        "measure": "man-hours",
+        "nigerian": 1,
+        "total": 2,
+        "foreign": 1
+       }
+      }
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].items.ct.foreign",
+    "message": "bids[0].items.ct.foreign is not an accepted key; the accepted keys of bids[0].items.ct are measure, nigerian, total"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "nc-refuse-unknown-item-key",
+   "fn": "nigerianContent",
+   "args": {
+    "items": [
+     {
+      "id": "ct",
+      "scheduleline": "coiled-tubing-services"
+     }
+    ],
+    "bids": [
+     {
+      "id": "P",
+      "items": {}
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "items[0].scheduleline",
+    "message": "items[0].scheduleline is not an accepted key; the accepted keys of items[0] are id, scheduleLine, targetPct, measure, source"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "pref-refuse-unknown-bid-key",
+   "fn": "contentPreference",
+   "args": {
+    "ncLeadBasis": "points",
+    "bids": [
+     {
+      "id": "A",
+      "evaluatedCost": 1,
+      "ncPct": 1,
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "indigenious": true
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].indigenious",
+    "message": "bids[0].indigenious is not an accepted key; the accepted keys of bids[0] are id, name, evaluatedCost, ncPct, receivedAt, indigenous, capacity"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ct-refuse-unknown-key",
+   "fn": "contractTypes",
+   "args": {
+    "duration": 10,
+    "dailyCost": 1000,
+    "lumpSum": {
+     "price": 1
+    },
+    "dayRate": {
+     "rate": 1,
+     "mobilisationFee": 0
+    },
+    "reimbursable": {
+     "feeFraction": 0.1
+    },
+    "iterations": 10,
+    "seed": 1,
+    "seeds": 2
+   },
+   "expected": {
+    "error": true,
+    "field": "seeds",
+    "message": "seeds is not an accepted key; the accepted keys at the top level are duration, dailyCost, fixedCost, lumpSum, dayRate, reimbursable, plan, iterations, seed"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ct-refuse-unknown-triangle-key",
+   "fn": "contractTypes",
+   "args": {
+    "duration": 10,
+    "dailyCost": {
+     "min": 1,
+     "mode": 2,
+     "max": 3,
+     "mean": 2
+    },
+    "lumpSum": {
+     "price": 1
+    },
+    "dayRate": {
+     "rate": 1,
+     "mobilisationFee": 0
+    },
+    "reimbursable": {
+     "feeFraction": 0.1
+    },
+    "iterations": 10,
+    "seed": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "dailyCost.mean",
+    "message": "dailyCost.mean is not an accepted key; the accepted keys of dailyCost are min, mode, max"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ct-refuse-unknown-activity-key",
+   "fn": "contractTypes",
+   "args": {
+    "duration": {
+     "program": [
+      {
+       "id": "f",
+       "kind": "flat",
+       "durationHrs": 5
+      }
+     ],
+     "nptFrac": 0.1
+    },
+    "dailyCost": 1000,
+    "lumpSum": {
+     "price": 1
+    },
+    "dayRate": {
+     "rate": 1,
+     "mobilisationFee": 0
+    },
+    "reimbursable": {
+     "feeFraction": 0.1
+    },
+    "iterations": 10,
+    "seed": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "duration.program[0].durationHrs",
+    "message": "duration.program[0].durationHrs is not an accepted key; the accepted keys of duration.program[0] are id, kind, label, fromMdM, toMdM, ropMPerHr, mdM, tripSpeedMPerHr, runSpeedMPerHr, flatHr, durationHr"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ct-refuse-unknown-program-duration-key",
+   "fn": "contractTypes",
+   "args": {
+    "duration": {
+     "program": [
+      {
+       "id": "f",
+       "kind": "flat",
+       "durationHr": 5
+      }
+     ],
+     "npt": 0.1
+    },
+    "dailyCost": 1000,
+    "lumpSum": {
+     "price": 1
+    },
+    "dayRate": {
+     "rate": 1,
+     "mobilisationFee": 0
+    },
+    "reimbursable": {
+     "feeFraction": 0.1
+    },
+    "iterations": 10,
+    "seed": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "duration.npt",
+    "message": "duration.npt is not an accepted key; the accepted keys of duration are program, nptFrac"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ct-refuse-nptfrac-min-above-mode",
+   "fn": "contractTypes",
+   "args": {
+    "duration": {
+     "program": [
+      {
+       "id": "f",
+       "kind": "flat",
+       "durationHr": 5
+      }
+     ],
+     "nptFrac": {
+      "min": 0.3,
+      "mode": 0.2,
+      "max": 0.5
+     }
+    },
+    "dailyCost": 1000,
+    "lumpSum": {
+     "price": 1
+    },
+    "dayRate": {
+     "rate": 1,
+     "mobilisationFee": 0
+    },
+    "reimbursable": {
+     "feeFraction": 0.1
+    },
+    "iterations": 10,
+    "seed": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "duration.nptFrac",
+    "message": "duration.nptFrac must have min <= mode <= max; got min 0.3, mode 0.2, max 0.5"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ct-refuse-nptfrac-negative-min",
+   "fn": "contractTypes",
+   "args": {
+    "duration": {
+     "program": [
+      {
+       "id": "f",
+       "kind": "flat",
+       "durationHr": 5
+      }
+     ],
+     "nptFrac": {
+      "min": -0.1,
+      "mode": 0.2,
+      "max": 0.5
+     }
+    },
+    "dailyCost": 1000,
+    "lumpSum": {
+     "price": 1
+    },
+    "dayRate": {
+     "rate": 1,
+     "mobilisationFee": 0
+    },
+    "reimbursable": {
+     "feeFraction": 0.1
+    },
+    "iterations": 10,
+    "seed": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "duration.nptFrac.min",
+    "message": "duration.nptFrac.min must be at or above 0; got -0.1"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ct-refuse-nptfrac-shape",
+   "fn": "contractTypes",
+   "args": {
+    "duration": {
+     "program": [
+      {
+       "id": "f",
+       "kind": "flat",
+       "durationHr": 5
+      }
+     ],
+     "nptFrac": {
+      "min": 0.1,
+      "mode": 0.2
+     }
+    },
+    "dailyCost": 1000,
+    "lumpSum": {
+     "price": 1
+    },
+    "dayRate": {
+     "rate": 1,
+     "mobilisationFee": 0
+    },
+    "reimbursable": {
+     "feeFraction": 0.1
+    },
+    "iterations": 10,
+    "seed": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "duration.nptFrac",
+    "message": "duration.nptFrac must be a number or a triangular distribution { min, mode, max } of finite numbers"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ct-refuse-daily-cost-negative",
+   "fn": "contractTypes",
+   "args": {
+    "duration": 10,
+    "dailyCost": -5,
+    "lumpSum": {
+     "price": 1
+    },
+    "dayRate": {
+     "rate": 1,
+     "mobilisationFee": 0
+    },
+    "reimbursable": {
+     "feeFraction": 0.1
+    },
+    "iterations": 10,
+    "seed": 1
+   },
+   "expected": {
+    "error": true,
+    "field": "dailyCost",
+    "message": "dailyCost must be at or above 0; got -5"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "should-cost-refuse-unknown-item-key",
+   "fn": "shouldCost",
+   "args": {
+    "program": [
+     {
+      "id": "f",
+      "kind": "flat",
+      "durationHr": 240
+     }
+    ],
+    "items": [
+     {
+      "id": "s",
+      "basis": "per-day",
+      "rates": 1,
+      "category": "intangible"
+     }
+    ],
+    "band": {
+     "low": 0.8,
+     "high": 1.2
+    },
+    "bids": [
+     {
+      "id": "X",
+      "evaluatedCost": 1
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "items[0].rates",
+    "message": "items[0].rates is not an accepted key; the accepted keys of items[0] are id, label, basis, rate, value, category, atActivityId"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "should-cost-refuse-unknown-partner-key",
+   "fn": "shouldCost",
+   "args": {
+    "program": [
+     {
+      "id": "f",
+      "kind": "flat",
+      "durationHr": 240
+     }
+    ],
+    "items": [
+     {
+      "id": "spread",
+      "basis": "per-day",
+      "rate": 10000,
+      "category": "intangible"
+     }
+    ],
+    "partners": [
+     {
+      "name": "P",
+      "workingInterest": 40
+     }
+    ],
+    "band": {
+     "low": 0.8,
+     "high": 1.2
+    },
+    "bids": [
+     {
+      "id": "X",
+      "evaluatedCost": 1
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "partners[0].workingInterest",
+    "message": "partners[0].workingInterest is not an accepted key; the accepted keys of partners[0] are name, working_interest"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "alb-refuse-unknown-key",
+   "fn": "abnormallyLow",
+   "args": {
+    "bids": [
+     {
+      "id": "A",
+      "evaluatedCost": 1
+     }
+    ],
+    "costEstimate": 5
+   },
+   "expected": {
+    "error": true,
+    "field": "costEstimate",
+    "message": "costEstimate is not an accepted key; the accepted keys at the top level are bids, estimate"
    },
    "tol": 1e-12
   },
@@ -15565,6 +16686,1749 @@
     "error": true,
     "field": "nigerianContent",
     "message": "nigerianContent applies s.14 at the commercial stage of a lowest-cost award; with award 'combined' state Nigerian content as a rated criterion with its weight instead"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "tender-refuse-lifecycle-misspelt",
+   "fn": "evaluateTender",
+   "args": {
+    "criteria": [
+     {
+      "id": "specification",
+      "weight": 60,
+      "maxScore": 4
+     },
+     {
+      "id": "delivery",
+      "weight": 25,
+      "maxScore": 4
+     },
+     {
+      "id": "after-sales",
+      "weight": 15,
+      "maxScore": 4
+     }
+    ],
+    "passMark": 60,
+    "bids": [
+     {
+      "id": "MS1",
+      "receivedAt": "2027-03-02T10:00:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 3,
+       "delivery": 3,
+       "after-sales": 3
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1650,
+        "quotedAmount": 297000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 4200,
+        "quotedAmount": 100800
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 310,
+        "quotedAmount": 46500
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 420,
+        "quotedAmount": 84000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 12000,
+        "quotedAmount": 12000
+       }
+      ],
+      "completionWeeks": 10,
+      "annualCosts": [
+       6000,
+       6000,
+       6000,
+       6000,
+       6000
+      ],
+      "indigenous": false,
+      "capacity": true
+     },
+     {
+      "id": "MS2",
+      "receivedAt": "2027-03-02T13:25:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 3,
+       "delivery": 3,
+       "after-sales": 2
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1600,
+        "quotedAmount": 288000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 4300,
+        "quotedAmount": 103200
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 300,
+        "quotedAmount": 45000
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 400,
+        "quotedAmount": 80000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 9500,
+        "quotedAmount": 9500
+       }
+      ],
+      "completionWeeks": 9,
+      "annualCosts": [
+       5500,
+       5500,
+       5500,
+       5500,
+       5500
+      ],
+      "indigenous": false,
+      "capacity": true
+     },
+     {
+      "id": "MS3",
+      "receivedAt": "2027-03-03T09:45:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 4,
+       "delivery": 3,
+       "after-sales": 3
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1700,
+        "quotedAmount": 306000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 4500,
+        "quotedAmount": 108000
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 320,
+        "quotedAmount": 48000
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 430,
+        "quotedAmount": 86000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 14500,
+        "quotedAmount": 14500
+       }
+      ],
+      "completionWeeks": 8,
+      "annualCosts": [
+       5000,
+       5000,
+       5000,
+       5000,
+       5000
+      ],
+      "indigenous": true,
+      "capacity": true
+     },
+     {
+      "id": "MS4",
+      "receivedAt": "2027-03-03T14:10:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 3,
+       "delivery": 2,
+       "after-sales": 3
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1580,
+        "quotedAmount": 284400
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 3970,
+        "quotedAmount": 95280
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 295,
+        "quotedAmount": 44250
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 400,
+        "quotedAmount": 80000
+       }
+      ],
+      "completionWeeks": 11,
+      "annualCosts": [
+       7000,
+       7000,
+       7000,
+       7000,
+       7000
+      ],
+      "indigenous": false,
+      "capacity": true,
+      "omitted": [
+       "inspection"
+      ]
+     },
+     {
+      "id": "MS5",
+      "receivedAt": "2027-03-04T08:30:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 2,
+       "delivery": 2,
+       "after-sales": 2
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1500,
+        "quotedAmount": 270000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 3800,
+        "quotedAmount": 91200
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 280,
+        "quotedAmount": 42000
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 380,
+        "quotedAmount": 76000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 8000,
+        "quotedAmount": 8000
+       }
+      ],
+      "completionWeeks": 9,
+      "annualCosts": [
+       6500,
+       6500,
+       6500,
+       6500,
+       6500
+      ],
+      "indigenous": false,
+      "capacity": true
+     }
+    ],
+    "omissionRule": "average",
+    "schedule": {
+     "minWeeks": 8,
+     "maxWeeks": 14,
+     "ratePerWeek": 0.0025
+    },
+    "award": "lowest-cost",
+    "lifecycle": {
+     "years": 5,
+     "discountRate": 0.1
+    }
+   },
+   "expected": {
+    "error": true,
+    "field": "lifecycle",
+    "message": "lifecycle is not an accepted key; the accepted keys at the top level are criteria, passMark, bids, omissionRule, bestEstimates, schedule, lifeCycle, award, technicalWeight, priceMethod, technicalMethod, nigerianContent"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "tender-refuse-unknown-content-key",
+   "fn": "evaluateTender",
+   "args": {
+    "criteria": [
+     {
+      "id": "specification",
+      "weight": 60,
+      "maxScore": 4
+     },
+     {
+      "id": "delivery",
+      "weight": 25,
+      "maxScore": 4
+     },
+     {
+      "id": "after-sales",
+      "weight": 15,
+      "maxScore": 4
+     }
+    ],
+    "passMark": 60,
+    "bids": [
+     {
+      "id": "MS1",
+      "receivedAt": "2027-03-02T10:00:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 3,
+       "delivery": 3,
+       "after-sales": 3
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1650,
+        "quotedAmount": 297000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 4200,
+        "quotedAmount": 100800
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 310,
+        "quotedAmount": 46500
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 420,
+        "quotedAmount": 84000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 12000,
+        "quotedAmount": 12000
+       }
+      ],
+      "completionWeeks": 10,
+      "annualCosts": [
+       6000,
+       6000,
+       6000,
+       6000,
+       6000
+      ],
+      "indigenous": false,
+      "capacity": true,
+      "ncPct": 56.24645088018171
+     },
+     {
+      "id": "MS2",
+      "receivedAt": "2027-03-02T13:25:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 3,
+       "delivery": 3,
+       "after-sales": 2
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1600,
+        "quotedAmount": 288000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 4300,
+        "quotedAmount": 103200
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 300,
+        "quotedAmount": 45000
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 400,
+        "quotedAmount": 80000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 9500,
+        "quotedAmount": 9500
+       }
+      ],
+      "completionWeeks": 9,
+      "annualCosts": [
+       5500,
+       5500,
+       5500,
+       5500,
+       5500
+      ],
+      "indigenous": false,
+      "capacity": true,
+      "ncPct": 61.584657109647424
+     },
+     {
+      "id": "MS3",
+      "receivedAt": "2027-03-03T09:45:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 4,
+       "delivery": 3,
+       "after-sales": 3
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1700,
+        "quotedAmount": 306000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 4500,
+        "quotedAmount": 108000
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 320,
+        "quotedAmount": 48000
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 430,
+        "quotedAmount": 86000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 14500,
+        "quotedAmount": 14500
+       }
+      ],
+      "completionWeeks": 8,
+      "annualCosts": [
+       5000,
+       5000,
+       5000,
+       5000,
+       5000
+      ],
+      "indigenous": true,
+      "capacity": true,
+      "ncPct": 86.24087591240875
+     },
+     {
+      "id": "MS4",
+      "receivedAt": "2027-03-03T14:10:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 3,
+       "delivery": 2,
+       "after-sales": 3
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1580,
+        "quotedAmount": 284400
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 3970,
+        "quotedAmount": 95280
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 295,
+        "quotedAmount": 44250
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 400,
+        "quotedAmount": 80000
+       }
+      ],
+      "completionWeeks": 11,
+      "annualCosts": [
+       7000,
+       7000,
+       7000,
+       7000,
+       7000
+      ],
+      "indigenous": false,
+      "capacity": true,
+      "omitted": [
+       "inspection"
+      ],
+      "ncPct": 57.043637013077216
+     },
+     {
+      "id": "MS5",
+      "receivedAt": "2027-03-04T08:30:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "manufacturer-authorisation",
+        "met": true
+       }
+      ],
+      "scores": {
+       "specification": 2,
+       "delivery": 2,
+       "after-sales": 2
+      },
+      "lines": [
+       {
+        "id": "casing",
+        "quantity": 180,
+        "unitRate": 1500,
+        "quotedAmount": 270000
+       },
+       {
+        "id": "valves",
+        "quantity": 24,
+        "unitRate": 3800,
+        "quotedAmount": 91200
+       },
+       {
+        "id": "cement",
+        "quantity": 150,
+        "unitRate": 280,
+        "quotedAmount": 42000
+       },
+       {
+        "id": "baryte",
+        "quantity": 200,
+        "unitRate": 380,
+        "quotedAmount": 76000
+       },
+       {
+        "id": "inspection",
+        "quantity": 1,
+        "unitRate": 8000,
+        "quotedAmount": 8000
+       }
+      ],
+      "completionWeeks": 9,
+      "annualCosts": [
+       6500,
+       6500,
+       6500,
+       6500,
+       6500
+      ],
+      "indigenous": false,
+      "capacity": true,
+      "ncPct": 49.87479131886477
+     }
+    ],
+    "omissionRule": "average",
+    "schedule": {
+     "minWeeks": 8,
+     "maxWeeks": 14,
+     "ratePerWeek": 0.0025
+    },
+    "lifeCycle": {
+     "years": 5,
+     "discountRate": 0.1
+    },
+    "award": "lowest-cost",
+    "nigerianContent": {
+     "ncLeadBasis": "points",
+     "margin": 1
+    }
+   },
+   "expected": {
+    "error": true,
+    "field": "nigerianContent.margin",
+    "message": "nigerianContent.margin is not an accepted key; the accepted keys of nigerianContent are ncLeadBasis"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "tender-refuse-best-estimate-not-omitted",
+   "fn": "evaluateTender",
+   "args": {
+    "criteria": [
+     {
+      "id": "methodology",
+      "weight": 30,
+      "maxScore": 4
+     },
+     {
+      "id": "personnel",
+      "weight": 25,
+      "maxScore": 4
+     },
+     {
+      "id": "equipment",
+      "weight": 20,
+      "maxScore": 4
+     },
+     {
+      "id": "hse",
+      "weight": 15,
+      "maxScore": 4
+     },
+     {
+      "id": "schedule",
+      "weight": 10,
+      "maxScore": 4
+     }
+    ],
+    "passMark": 70,
+    "bids": [
+     {
+      "id": "WS1",
+      "receivedAt": "2027-02-10T09:12:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 4,
+       "personnel": 3,
+       "equipment": 3,
+       "hse": 3,
+       "schedule": 3
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 120000,
+        "quotedAmount": 120000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 28500,
+        "quotedAmount": 513000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 21000,
+        "quotedAmount": 126000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1450,
+        "quotedAmount": 87000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 310,
+        "quotedAmount": 37200
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 60000,
+        "quotedAmount": 60000
+       }
+      ],
+      "completionWeeks": 6,
+      "indigenous": false,
+      "capacity": true,
+      "discount": 15000
+     },
+     {
+      "id": "WS2",
+      "receivedAt": "2027-02-10T11:40:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 3,
+       "personnel": 3,
+       "equipment": 3,
+       "hse": 3,
+       "schedule": 3
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 95000,
+        "quotedAmount": 95000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 27000,
+        "quotedAmount": 468000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 19500,
+        "quotedAmount": 117000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1400,
+        "quotedAmount": 84000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 295,
+        "quotedAmount": 35400
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 50000,
+        "quotedAmount": 50000
+       }
+      ],
+      "completionWeeks": 8,
+      "indigenous": true,
+      "capacity": true,
+      "deviations": [
+       {
+        "id": "payment-terms",
+        "amount": 9500,
+        "reason": "asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment"
+       }
+      ]
+     },
+     {
+      "id": "WS3",
+      "receivedAt": "2027-02-11T08:05:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 3,
+       "personnel": 4,
+       "equipment": 3,
+       "hse": 4,
+       "schedule": 3
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 110000,
+        "quotedAmount": 110000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 29500,
+        "quotedAmount": 531000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 22000,
+        "quotedAmount": 132000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1500,
+        "quotedAmount": 90000
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 55000,
+        "quotedAmount": 55000
+       }
+      ],
+      "completionWeeks": 7,
+      "indigenous": false,
+      "capacity": true,
+      "omitted": [
+       "nitrogen"
+      ]
+     },
+     {
+      "id": "WS4",
+      "receivedAt": "2027-02-11T10:30:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 2,
+       "personnel": 3,
+       "equipment": 3,
+       "hse": 3,
+       "schedule": 2
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 80000,
+        "quotedAmount": 80000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 24000,
+        "quotedAmount": 432000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 17000,
+        "quotedAmount": 102000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1300,
+        "quotedAmount": 78000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 260,
+        "quotedAmount": 31200
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 40000,
+        "quotedAmount": 40000
+       }
+      ],
+      "completionWeeks": 7,
+      "indigenous": false,
+      "capacity": true
+     },
+     {
+      "id": "WS5",
+      "receivedAt": "2027-02-11T15:55:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 3,
+       "personnel": 3,
+       "equipment": 2,
+       "hse": 3,
+       "schedule": 3
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 100000,
+        "quotedAmount": 100000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 26000,
+        "quotedAmount": 468000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 20000,
+        "quotedAmount": 120000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 13.8,
+        "quotedAmount": 82800,
+        "decimalMisplaced": true
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 280,
+        "quotedAmount": 33600
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 45000,
+        "quotedAmount": 45000
+       }
+      ],
+      "completionWeeks": 9,
+      "indigenous": true,
+      "capacity": true
+     },
+     {
+      "id": "WS6",
+      "receivedAt": "2027-02-12T16:59:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": false
+       }
+      ],
+      "scores": {
+       "methodology": 4,
+       "personnel": 4,
+       "equipment": 4,
+       "hse": 3,
+       "schedule": 4
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 130000,
+        "quotedAmount": 130000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 30000,
+        "quotedAmount": 540000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 23000,
+        "quotedAmount": 138000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1550,
+        "quotedAmount": 93000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 320,
+        "quotedAmount": 38400
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 65000,
+        "quotedAmount": 65000
+       }
+      ],
+      "completionWeeks": 6,
+      "indigenous": false,
+      "capacity": true
+     }
+    ],
+    "omissionRule": "average",
+    "schedule": {
+     "minWeeks": 6,
+     "maxWeeks": 10,
+     "ratePerWeek": 0.005
+    },
+    "award": "lowest-cost",
+    "bestEstimates": {
+     "acid": 1
+    }
+   },
+   "expected": {
+    "error": true,
+    "field": "bestEstimates.acid",
+    "message": "bestEstimates.acid is not an item any bid omits; the accepted keys of bestEstimates are the omitted item ids nitrogen"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ws-tender-best-estimate-kept-when-priced",
+   "fn": "evaluateTender",
+   "args": {
+    "criteria": [
+     {
+      "id": "methodology",
+      "weight": 30,
+      "maxScore": 4
+     },
+     {
+      "id": "personnel",
+      "weight": 25,
+      "maxScore": 4
+     },
+     {
+      "id": "equipment",
+      "weight": 20,
+      "maxScore": 4
+     },
+     {
+      "id": "hse",
+      "weight": 15,
+      "maxScore": 4
+     },
+     {
+      "id": "schedule",
+      "weight": 10,
+      "maxScore": 4
+     }
+    ],
+    "passMark": 70,
+    "bids": [
+     {
+      "id": "WS1",
+      "receivedAt": "2027-02-10T09:12:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 4,
+       "personnel": 3,
+       "equipment": 3,
+       "hse": 3,
+       "schedule": 3
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 120000,
+        "quotedAmount": 120000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 28500,
+        "quotedAmount": 513000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 21000,
+        "quotedAmount": 126000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1450,
+        "quotedAmount": 87000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 310,
+        "quotedAmount": 37200
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 60000,
+        "quotedAmount": 60000
+       }
+      ],
+      "completionWeeks": 6,
+      "indigenous": false,
+      "capacity": true,
+      "discount": 15000
+     },
+     {
+      "id": "WS2",
+      "receivedAt": "2027-02-10T11:40:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 3,
+       "personnel": 3,
+       "equipment": 3,
+       "hse": 3,
+       "schedule": 3
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 95000,
+        "quotedAmount": 95000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 27000,
+        "quotedAmount": 468000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 19500,
+        "quotedAmount": 117000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1400,
+        "quotedAmount": 84000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 295,
+        "quotedAmount": 35400
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 50000,
+        "quotedAmount": 50000
+       }
+      ],
+      "completionWeeks": 8,
+      "indigenous": true,
+      "capacity": true,
+      "deviations": [
+       {
+        "id": "payment-terms",
+        "amount": 9500,
+        "reason": "asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment"
+       }
+      ]
+     },
+     {
+      "id": "WS3",
+      "receivedAt": "2027-02-11T08:05:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 3,
+       "personnel": 4,
+       "equipment": 3,
+       "hse": 4,
+       "schedule": 3
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 110000,
+        "quotedAmount": 110000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 29500,
+        "quotedAmount": 531000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 22000,
+        "quotedAmount": 132000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1500,
+        "quotedAmount": 90000
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 55000,
+        "quotedAmount": 55000
+       }
+      ],
+      "completionWeeks": 7,
+      "indigenous": false,
+      "capacity": true,
+      "omitted": [
+       "nitrogen"
+      ]
+     },
+     {
+      "id": "WS4",
+      "receivedAt": "2027-02-11T10:30:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 2,
+       "personnel": 3,
+       "equipment": 3,
+       "hse": 3,
+       "schedule": 2
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 80000,
+        "quotedAmount": 80000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 24000,
+        "quotedAmount": 432000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 17000,
+        "quotedAmount": 102000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1300,
+        "quotedAmount": 78000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 260,
+        "quotedAmount": 31200
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 40000,
+        "quotedAmount": 40000
+       }
+      ],
+      "completionWeeks": 7,
+      "indigenous": false,
+      "capacity": true
+     },
+     {
+      "id": "WS5",
+      "receivedAt": "2027-02-11T15:55:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": true
+       }
+      ],
+      "scores": {
+       "methodology": 3,
+       "personnel": 3,
+       "equipment": 2,
+       "hse": 3,
+       "schedule": 3
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 100000,
+        "quotedAmount": 100000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 26000,
+        "quotedAmount": 468000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 20000,
+        "quotedAmount": 120000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 13.8,
+        "quotedAmount": 82800,
+        "decimalMisplaced": true
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 280,
+        "quotedAmount": 33600
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 45000,
+        "quotedAmount": 45000
+       }
+      ],
+      "completionWeeks": 9,
+      "indigenous": true,
+      "capacity": true
+     },
+     {
+      "id": "WS6",
+      "receivedAt": "2027-02-12T16:59:00Z",
+      "mandatory": [
+       {
+        "id": "bid-security",
+        "met": true
+       },
+       {
+        "id": "signed-bid-form",
+        "met": false
+       }
+      ],
+      "scores": {
+       "methodology": 4,
+       "personnel": 4,
+       "equipment": 4,
+       "hse": 3,
+       "schedule": 4
+      },
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 130000,
+        "quotedAmount": 130000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 30000,
+        "quotedAmount": 540000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 23000,
+        "quotedAmount": 138000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1550,
+        "quotedAmount": 93000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 320,
+        "quotedAmount": 38400
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 65000,
+        "quotedAmount": 65000
+       }
+      ],
+      "completionWeeks": 6,
+      "indigenous": false,
+      "capacity": true
+     }
+    ],
+    "omissionRule": "average",
+    "schedule": {
+     "minWeeks": 6,
+     "maxWeeks": 10,
+     "ratePerWeek": 0.005
+    },
+    "award": "lowest-cost",
+    "bestEstimates": {
+     "nitrogen": 36000
+    }
+   },
+   "expected": {
+    "technical": {
+     "bids": [
+      {
+       "id": "WS1",
+       "status": "pass",
+       "technicalPercent": 82.5,
+       "weightedPoints": 330.0,
+       "reason": null
+      },
+      {
+       "id": "WS2",
+       "status": "pass",
+       "technicalPercent": 75.0,
+       "weightedPoints": 300.0,
+       "reason": null
+      },
+      {
+       "id": "WS3",
+       "status": "pass",
+       "technicalPercent": 85.0,
+       "weightedPoints": 340.0,
+       "reason": null
+      },
+      {
+       "id": "WS4",
+       "status": "fail-pass-mark",
+       "technicalPercent": 65.0,
+       "weightedPoints": 260.0,
+       "reason": "technical score 65 is below the pass mark 70; the commercial envelope is not opened"
+      },
+      {
+       "id": "WS5",
+       "status": "pass",
+       "technicalPercent": 70.0,
+       "weightedPoints": 280.0,
+       "reason": null
+      },
+      {
+       "id": "WS6",
+       "status": "fail-mandatory",
+       "technicalPercent": null,
+       "weightedPoints": null,
+       "reason": "failed the mandatory requirement signed-bid-form; the bid is not scored and its commercial envelope is not opened"
+      }
+     ],
+     "passed": [
+      "WS1",
+      "WS2",
+      "WS3",
+      "WS5"
+     ],
+     "excluded": [
+      {
+       "id": "WS4",
+       "stage": "technical",
+       "reason": "technical score 65 is below the pass mark 70; the commercial envelope is not opened"
+      },
+      {
+       "id": "WS6",
+       "stage": "technical",
+       "reason": "failed the mandatory requirement signed-bid-form; the bid is not scored and its commercial envelope is not opened"
+      }
+     ]
+    },
+    "commercial": {
+     "bids": [
+      {
+       "id": "WS5",
+       "receivedAt": "2027-02-11T15:55:00Z",
+       "quotedTotal": 849400.0,
+       "correctedPrice": 849400.0,
+       "arithmeticCorrection": 0.0,
+       "discount": 0,
+       "deviations": [],
+       "deviationTotal": 0.0,
+       "omissions": [],
+       "omissionTotal": 0.0,
+       "scheduleAdjustment": 12741.0,
+       "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added",
+       "lifeCycleCost": 0.0,
+       "evaluatedCost": 862141.0,
+       "reasons": [
+        "line acid: quantity x unit rate = 828 differs from the quoted 82800 and the decimal point in the unit rate is obviously misplaced, so the quoted amount governs and the unit rate is corrected to 1380",
+        "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added"
+       ],
+       "rank": 1,
+       "tieBrokenBy": null
+      },
+      {
+       "id": "WS2",
+       "receivedAt": "2027-02-10T11:40:00Z",
+       "quotedTotal": 849400.0,
+       "correctedPrice": 867400.0,
+       "arithmeticCorrection": 18000.0,
+       "discount": 0,
+       "deviations": [
+        {
+         "id": "payment-terms",
+         "amount": 9500,
+         "reason": "asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment"
+        }
+       ],
+       "deviationTotal": 9500.0,
+       "omissions": [],
+       "omissionTotal": 0.0,
+       "scheduleAdjustment": 8674.0,
+       "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added",
+       "lifeCycleCost": 0.0,
+       "evaluatedCost": 885574.0,
+       "reasons": [
+        "line ct-spread: quantity x unit rate = 486000 differs from the quoted 468000 by more than 0.005, so the unit rate prevails and the amount is corrected to 486000",
+        "deviation payment-terms: asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment (9500)",
+        "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added"
+       ],
+       "rank": 2,
+       "tieBrokenBy": null
+      },
+      {
+       "id": "WS1",
+       "receivedAt": "2027-02-10T09:12:00Z",
+       "quotedTotal": 943200.0,
+       "correctedPrice": 943200.0,
+       "arithmeticCorrection": 0.0,
+       "discount": 15000,
+       "deviations": [],
+       "deviationTotal": 0.0,
+       "omissions": [],
+       "omissionTotal": 0.0,
+       "scheduleAdjustment": 0.0,
+       "scheduleReason": "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion",
+       "lifeCycleCost": 0.0,
+       "evaluatedCost": 928200.0,
+       "reasons": [
+        "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion"
+       ],
+       "rank": 3,
+       "tieBrokenBy": null
+      },
+      {
+       "id": "WS3",
+       "receivedAt": "2027-02-11T08:05:00Z",
+       "quotedTotal": 918000.0,
+       "correctedPrice": 918000.0,
+       "arithmeticCorrection": 0.0,
+       "discount": 0,
+       "deviations": [],
+       "deviationTotal": 0.0,
+       "omissions": [
+        {
+         "item": "nitrogen",
+         "amount": 35400.0,
+         "rule": "average",
+         "reason": "item nitrogen omitted; the average of the 3 prices quoted by the other responsive bids, 35400, is added"
+        }
+       ],
+       "omissionTotal": 35400.0,
+       "scheduleAdjustment": 4590.0,
+       "scheduleReason": "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added",
+       "lifeCycleCost": 0.0,
+       "evaluatedCost": 957990.0,
+       "reasons": [
+        "item nitrogen omitted; the average of the 3 prices quoted by the other responsive bids, 35400, is added",
+        "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added"
+       ],
+       "rank": 4,
+       "tieBrokenBy": null
+      }
+     ],
+     "lowestEvaluatedCost": "WS5",
+     "excluded": []
+    },
+    "ranking": null,
+    "contentPreference": null,
+    "award": "WS5",
+    "excluded": [
+     {
+      "id": "WS4",
+      "stage": "technical",
+      "reason": "technical score 65 is below the pass mark 70; the commercial envelope is not opened"
+     },
+     {
+      "id": "WS6",
+      "stage": "technical",
+      "reason": "failed the mandatory requirement signed-bid-form; the bid is not scored and its commercial envelope is not opened"
+     }
+    ],
+    "reason": "WS5 has the lowest evaluated cost"
    },
    "tol": 1e-12
   },

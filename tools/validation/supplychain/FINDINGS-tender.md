@@ -1,15 +1,15 @@
 # FINDINGS: tender (oracle_tender.py, Supply Chain SC2, procurement, tendering and contracting)
 
-Golden: `test-data/supplychain/goldens/tender_cases.json`, 145 cases (57 of
+Golden: `test-data/supplychain/goldens/tender_cases.json`, 177 cases (88 of
 them refusals, every refusal message pinned in full), written by
 `tools/validation/supplychain/oracle_tender.py`. Gate:
-`__tests__/supplychain.tender.test.js` (180 tests) calls the engine on every
+`__tests__/supplychain.tender.test.js` (214 tests) calls the engine on every
 golden, checks the published worked examples against their printed figures,
 checks the planted fixture situations and runs property tests. Negative
-control: `negcontrol_tender.sh` (58/58 engine plants red, 7/7 oracle plants
+control: `negcontrol_tender.sh` (63/63 engine plants red, 8/8 oracle plants
 caught). Timing: `timing_tender.js` (table below). Fixtures:
 `test-data/supplychain/ekene-tender/`, written by `make_tender_fixtures.py`.
-Full engines suite on the branch: 228 suites, 17,511 tests passed (on the foundation-findings branch).
+Full engines suite on the branch: 228 suites, 17,545 tests passed (on the unknown-keys branch).
 
 The oracle is STDLIB ONLY (python 3.12: `fractions`, `decimal`, `math`). It
 reads no JavaScript and takes a different road on every route (table in its
@@ -378,6 +378,47 @@ runner-up reason repeating itself, the highest option worded as a
 contrastive; the two plants whose targets moved were re-aimed and re-run red.
 Negative control on this branch: 58/58 engine plants red, 7/7 oracle plants
 caught.
+
+## Unknown input keys and the triangle wording (2026-09-26, branch fix/tender-unknown-keys)
+
+Every public function now refuses an input key it does not read, at every
+level it reads, so a misspelt optional key is never dropped silently (before
+this, `lifecycle` in place of `lifeCycle` removed the life-cycle cost without
+a word). The accepted keys are published as `ACCEPTED_KEYS` (one shape per
+function); the walk checks an object's own keys in their order, then its
+children in the listed order. A key whose value is undefined counts as
+absent. The message names the key, its path and the accepted keys:
+
+- `lifecycle is not an accepted key; the accepted keys at the top level are bids, omissionRule, bestEstimates, schedule, lifeCycle, tolerance`
+- `duration.program[0].durationHrs is not an accepted key; the accepted keys of duration.program[0] are id, kind, label, ...`
+
+Levels covered: top-level options; bids (per function); bill lines;
+deviations; mandatory entries; criteria (id, label, weight, maxScore); the
+schedule and life-cycle objects; triangles { min, mode, max } for days,
+nptFrac and daily cost; the { program, nptFrac } duration; wellCost activities
+and cost items; partners { name, working_interest }; the band; lumpSum,
+dayRate, reimbursable and plan; content items and each bid's content data;
+`nigerianContent` in evaluateTender. Keys that are ids are checked against the
+ids: a bid's scores against the criterion ids, a bid's content items and
+weights against the item ids, and bestEstimates against the items some bid
+omits (in evaluateTender, against every bid; only the opened bids' omissions
+reach the commercial stage). Accepted for display on every bid: `name`; on
+criteria, activities and cost items: `label`.
+
+The triangle refusals now share one wording for duration days,
+duration.nptFrac and dailyCost, each with its exact condition and the figures:
+`must be at or above 0; got x`, `must be a number or a triangular
+distribution { min, mode, max } of finite numbers`, `.min must be at or above
+0; got x`, `must have min <= mode <= max; got min a, mode b, max c`.
+
+No award or value moves: all 145 earlier goldens keep every value, and only
+the two duration-triangle refusal messages change text. The Ekene fixtures
+pass whole (with their bid names). New goldens: 32 (31 refusals, among them
+an unknown-key case for every function and nested ones at each level, plus
+`ws-tender-best-estimate-kept-when-priced`). New negative-control plants:
+unknown keys ignored everywhere, ignored inside lists, id-keyed objects
+unchecked, a misspelt `lifecycle` accepted, the triangle refusal without its
+figures, and the oracle's key check off. All go red.
 
 ## Open questions for the lead
 

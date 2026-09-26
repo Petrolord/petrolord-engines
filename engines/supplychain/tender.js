@@ -231,6 +231,84 @@ const rankRows = (rows, primary, descending) => {
   return sorted.map((r, i) => ({ row: r, rank: i + 1, tieBrokenBy: i === 0 ? null : chain(sorted[i - 1], r).by }));
 };
 
+// ---- accepted keys ---------------------------------------------------------
+//
+// Every public function refuses an input key it does not read, at every
+// level, so a misspelt optional key (lifecycle for lifeCycle) is never
+// dropped silently. The walk checks an object's own keys in their order, then
+// its children in the order listed here; a key whose value is undefined
+// counts as absent. Keys that are ids (scores, a bid's content items and
+// weights, bestEstimates) are checked by the function that reads them.
+const O = (keys, children = {}) => ({ t: 'obj', keys, children });
+const L = (of) => ({ t: 'list', of });
+const MAP = (of) => ({ t: 'map', of });
+const TRI = O(['min', 'mode', 'max']);
+const TRI_OR_NUMBER = { t: 'tri' };
+const LINE = O(['id', 'quantity', 'unitRate', 'quotedAmount', 'decimalMisplaced']);
+const DEVIATION = O(['id', 'amount', 'reason']);
+const ACTIVITY = O(['id', 'kind', 'label', 'fromMdM', 'toMdM', 'ropMPerHr', 'mdM', 'tripSpeedMPerHr', 'runSpeedMPerHr', 'flatHr', 'durationHr']);
+const COST_ITEM = O(['id', 'label', 'basis', 'rate', 'value', 'category', 'atActivityId']);
+const CRITERION = O(['id', 'label', 'weight', 'maxScore']);
+const MANDATORY = O(['id', 'met']);
+const SCHEDULE_KEYS = O(['minWeeks', 'maxWeeks', 'ratePerWeek']);
+const LIFE_CYCLE = O(['years', 'discountRate']);
+const COMMERCIAL_BID_KEYS = ['id', 'name', 'receivedAt', 'lines', 'discount', 'deviations', 'omitted', 'rejected', 'completionWeeks', 'annualCosts', 'residualValue'];
+const COMMERCIAL_CHILDREN = { lines: L(LINE), deviations: L(DEVIATION) };
+export const ACCEPTED_KEYS = Object.freeze({
+  weightingBand: O(['risk', 'estimatedCostUsd', 'technicalWeight']),
+  correctArithmetic: O(['lines', 'quotedTotal', 'tolerance'], { lines: L(LINE) }),
+  technicalEvaluation: O(['criteria', 'bids', 'passMark'], { criteria: L(CRITERION), bids: L(O(['id', 'name', 'mandatory', 'scores'], { mandatory: L(MANDATORY) })) }),
+  evaluatedCosts: O(['bids', 'omissionRule', 'bestEstimates', 'schedule', 'lifeCycle', 'tolerance'], { bids: L(O(COMMERCIAL_BID_KEYS, COMMERCIAL_CHILDREN)), schedule: SCHEDULE_KEYS, lifeCycle: LIFE_CYCLE }),
+  rankTender: O(['bids', 'technicalWeight', 'priceMethod', 'technicalMethod'], { bids: L(O(['id', 'name', 'technicalPercent', 'evaluatedCost', 'receivedAt', 'rejected'])) }),
+  nigerianContent: O(['items', 'bids'], { items: L(O(['id', 'scheduleLine', 'targetPct', 'measure', 'source'])), bids: L(O(['id', 'name', 'items', 'weights'], { items: MAP(O(['measure', 'nigerian', 'total'])) })) }),
+  contentPreference: O(['bids', 'ncLeadBasis'], { bids: L(O(['id', 'name', 'evaluatedCost', 'ncPct', 'receivedAt', 'indigenous', 'capacity'])) }),
+  contractTypes: O(['duration', 'dailyCost', 'fixedCost', 'lumpSum', 'dayRate', 'reimbursable', 'plan', 'iterations', 'seed'], {
+    duration: { t: 'duration' }, dailyCost: TRI_OR_NUMBER, lumpSum: O(['price']), dayRate: O(['rate', 'mobilisationFee']), reimbursable: O(['feeFraction', 'fixedFee']), plan: O(['days', 'dailyCost']),
+  }),
+  shouldCost: O(['program', 'nptFrac', 'items', 'contingencyFrac', 'partners', 'bids', 'band'], { program: L(ACTIVITY), items: L(COST_ITEM), partners: L(O(['name', 'working_interest'])), bids: L(O(['id', 'name', 'evaluatedCost'])), band: O(['low', 'high']) }),
+  abnormallyLow: O(['bids', 'estimate'], { bids: L(O(['id', 'name', 'evaluatedCost'])) }),
+  evaluateTender: O(['criteria', 'passMark', 'bids', 'omissionRule', 'bestEstimates', 'schedule', 'lifeCycle', 'award', 'technicalWeight', 'priceMethod', 'technicalMethod', 'nigerianContent'], {
+    criteria: L(CRITERION),
+    bids: L(O(['id', 'name', 'receivedAt', 'mandatory', 'scores', 'lines', 'discount', 'deviations', 'omitted', 'rejected', 'completionWeeks', 'annualCosts', 'residualValue', 'ncPct', 'indigenous', 'capacity'], { mandatory: L(MANDATORY), ...COMMERCIAL_CHILDREN })),
+    schedule: SCHEDULE_KEYS, lifeCycle: LIFE_CYCLE, nigerianContent: O(['ncLeadBasis']),
+  }),
+});
+const DURATION_PROGRAM = O(['program', 'nptFrac'], { program: L(ACTIVITY), nptFrac: TRI_OR_NUMBER });
+
+const unknownKey = (path, key, keys) => refuse(path ? `${path}.${key}` : key, `is not an accepted key; the accepted keys ${path ? `of ${path}` : 'at the top level'} are ${keys.join(', ')}`);
+const walkKeys = (v, spec, path) => {
+  if (spec.t === 'tri') return isObj(v) ? walkKeys(v, TRI, path) : null;
+  if (spec.t === 'duration') return isObj(v) ? walkKeys(v, own(v, 'program') ? DURATION_PROGRAM : TRI, path) : null;
+  if (spec.t === 'list') {
+    if (!Array.isArray(v)) return null;
+    for (let i = 0; i < v.length; i += 1) { const e = walkKeys(v[i], spec.of, `${path}[${i}]`); if (e) return e; }
+    return null;
+  }
+  if (spec.t === 'map') {
+    if (!isObj(v)) return null;
+    for (const k of Object.keys(v)) { const e = walkKeys(v[k], spec.of, `${path}.${k}`); if (e) return e; }
+    return null;
+  }
+  if (!isObj(v)) return null;
+  for (const k of Object.keys(v)) if (v[k] !== undefined && !spec.keys.includes(k)) return unknownKey(path, k, spec.keys);
+  for (const k of spec.keys) {
+    if (own(spec.children, k) && v[k] !== undefined) { const e = walkKeys(v[k], spec.children[k], path ? `${path}.${k}` : k); if (e) return e; }
+  }
+  return null;
+};
+const idKeys = (obj, ids, path, what) => {
+  if (!isObj(obj)) return null;
+  for (const k of Object.keys(obj)) {
+    if (obj[k] !== undefined && !ids.includes(k)) return refuse(`${path}.${k}`, `is not ${what.one}; the accepted keys of ${path} ${ids.length ? `are the ${what.many} ${ids.join(', ')}` : `are none: there are no ${what.many}`}`);
+  }
+  return null;
+};
+const guard = (name, impl) => (args = {}) => {
+  if (!isObj(args)) return refuse('options', 'must be an object of named inputs');
+  const e = walkKeys(args, ACCEPTED_KEYS[name], '');
+  return e || impl(args);
+};
+
 // ---- Rated Criteria weighting band -----------------------------------------
 
 /**
@@ -240,7 +318,7 @@ const rankRows = (rows, primary, descending) => {
  * fraction) it also says whether that weight is inside the range (both ends
  * inclusive).
  */
-export const weightingBand = ({ risk, estimatedCostUsd, technicalWeight } = {}) => {
+const weightingBandImpl = ({ risk, estimatedCostUsd, technicalWeight } = {}) => {
   if (risk !== 'high' && risk !== 'low') return refuse('risk', "must be 'high' (High/Substantial) or 'low' (Moderate/Low)");
   if (!fin(estimatedCostUsd) || estimatedCostUsd < 0) return refuse('estimatedCostUsd', 'must be a finite number at or above 0');
   if (technicalWeight !== undefined && (!fin(technicalWeight) || technicalWeight < 0 || technicalWeight > 1)) return refuse('technicalWeight', 'must be a number from 0 to 1');
@@ -310,7 +388,7 @@ const correctLines = (lines, tolerance) => lines.map((l) => {
  * and the unit rate is corrected. The corrected total is the sum of the
  * corrected lines (subtotals prevail over the total).
  */
-export const correctArithmetic = ({ lines, quotedTotal, tolerance = DEFAULTS.ARITHMETIC_TOLERANCE } = {}) => {
+const correctArithmeticImpl = ({ lines, quotedTotal, tolerance = DEFAULTS.ARITHMETIC_TOLERANCE } = {}) => {
   if (!fin(tolerance) || tolerance < 0) return refuse('tolerance', 'must be a finite number at or above 0');
   const e = checkLines(lines, 'lines');
   if (e) return e;
@@ -361,7 +439,7 @@ const checkCriteria = (criteria) => {
  * weightedPoints = sum of weight x score (the Guidance's Figure IX total).
  * A bid passes when technicalPercent >= passMark (at the pass mark passes).
  */
-export const technicalEvaluation = ({ criteria, bids, passMark } = {}) => {
+const technicalEvaluationImpl = ({ criteria, bids, passMark } = {}) => {
   let e = checkCriteria(criteria);
   if (e) return e;
   if (!fin(passMark) || passMark < 0 || passMark > 100) return refuse('passMark', 'must be a number from 0 to 100 (a percentage of the maximum technical score); there is no default');
@@ -377,6 +455,8 @@ export const technicalEvaluation = ({ criteria, bids, passMark } = {}) => {
       }
     }
     if (!isObj(b.scores)) return refuse(`bids[${i}].scores`, 'must be an object with one score per criterion id');
+    const ek = idKeys(b.scores, criteria.map((c) => c.id), `bids[${i}].scores`, { one: 'a criterion id', many: 'criterion ids' });
+    if (ek) return ek;
     for (const c of criteria) {
       const s = own(b.scores, c.id) ? b.scores[c.id] : undefined;
       if (!fin(s) || s < 0 || s > c.maxScore) return refuse(`bids[${i}].scores.${c.id}`, `must be a number from 0 to ${fmt(c.maxScore)} (the criterion's maxScore)`);
@@ -435,7 +515,7 @@ const lifeCycleCost = (annualCosts, residualValue, rate) => {
  * Ranking: evaluated cost ascending; ties at 12 significant digits go to the
  * earlier receipt, then the bidder id.
  */
-export const evaluatedCosts = ({ bids, omissionRule = 'average', bestEstimates = {}, schedule, lifeCycle, tolerance = DEFAULTS.ARITHMETIC_TOLERANCE } = {}) => {
+const evaluatedCostsImpl = ({ bids, omissionRule = 'average', bestEstimates = {}, schedule, lifeCycle, tolerance = DEFAULTS.ARITHMETIC_TOLERANCE } = {}) => {
   if (omissionRule !== 'average' && omissionRule !== 'highest') return refuse('omissionRule', "must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option the cited texts do not use)");
   if (!fin(tolerance) || tolerance < 0) return refuse('tolerance', 'must be a finite number at or above 0');
   if (!isObj(bestEstimates)) return refuse('bestEstimates', 'must be an object of item id to amount when given');
@@ -480,6 +560,10 @@ export const evaluatedCosts = ({ bids, omissionRule = 'average', bestEstimates =
       if (b.residualValue !== undefined && !fin(b.residualValue)) return refuse(`bids[${i}].residualValue`, 'must be a finite number when given');
     }
   }
+  const omittedIds = [];
+  bids.forEach((b) => (b.omitted || []).forEach((x) => { if (!omittedIds.includes(x)) omittedIds.push(x); }));
+  const eb = idKeys(bestEstimates, omittedIds, 'bestEstimates', { one: 'an item any bid omits', many: 'omitted item ids' });
+  if (eb) return eb;
   // responsiveness first: rejected bids and schedule overruns do not price anyone's omissions
   const corrected = bids.map((b) => ({ b, c: correctArithmetic({ lines: b.lines, tolerance }) }));
   const excluded = [];
@@ -566,7 +650,7 @@ const TECH_METHODS = ['relative', 'absolute'];
  * St: 'relative' 100 x T / Thigh (WB SPD); 'absolute' T (the technicalPercent).
  * Ties at 12 significant digits: lower evaluated cost, earlier receipt, id.
  */
-export const rankTender = ({ bids, technicalWeight, priceMethod, technicalMethod } = {}) => {
+const rankTenderImpl = ({ bids, technicalWeight, priceMethod, technicalMethod } = {}) => {
   if (!fin(technicalWeight) || technicalWeight < 0 || technicalWeight > 1) return refuse('technicalWeight', 'must be a number from 0 to 1 (the technical share of the combined score); there is no default');
   if (!PRICE_METHODS.includes(priceMethod)) return refuse('priceMethod', "must be 'lowest-ratio' or 'linear'; there is no default");
   if (!TECH_METHODS.includes(technicalMethod)) return refuse('technicalMethod', "must be 'relative' (100 x T / Thigh) or 'absolute' (T as scored); there is no default");
@@ -631,7 +715,7 @@ export const rankTender = ({ bids, technicalWeight, priceMethod, technicalMethod
  * contents with the bid's stated weights (the Act has no rule for adding
  * man-hours to tonnes).
  */
-export const nigerianContent = ({ items, bids } = {}) => {
+const nigerianContentImpl = ({ items, bids } = {}) => {
   let e = checkList(items, 'items', DEFAULTS.MAX_ITEMS);
   if (e) return e;
   const spec = [];
@@ -654,6 +738,10 @@ export const nigerianContent = ({ items, bids } = {}) => {
   for (let i = 0; i < bids.length; i += 1) {
     const b = bids[i];
     if (!isObj(b.items)) return refuse(`bids[${i}].items`, 'must be an object with one { measure, nigerian, total } per item id');
+    const ids = spec.map((x) => x.id);
+    let ek = idKeys(b.items, ids, `bids[${i}].items`, { one: 'an item id', many: 'item ids' });
+    if (!ek) ek = idKeys(b.weights, ids, `bids[${i}].weights`, { one: 'an item id', many: 'item ids' });
+    if (ek) return ek;
     for (const s of spec) {
       const r = own(b.items, s.id) ? b.items[s.id] : undefined;
       const f = `bids[${i}].items.${s.id}`;
@@ -714,7 +802,7 @@ export const nigerianContent = ({ items, bids } = {}) => {
  *   does not exceed the lowest by 10 percent, 100 x (C - Cmin) <= 10 x Cmin. This
  *   rule protects a bid from exclusion; it does not select it.
  */
-export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
+const contentPreferenceImpl = ({ bids, ncLeadBasis } = {}) => {
   if (ncLeadBasis !== 'points' && ncLeadBasis !== 'relative') return refuse('ncLeadBasis', "must be 'points' (at least 5 percentage points more) or 'relative' (at least 5 percent more than the runner-up's content); s.14 does not say which, so there is no default");
   const e = checkList(bids, 'bids', DEFAULTS.MAX_BIDS);
   if (e) return e;
@@ -791,11 +879,12 @@ export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
 
 // ---- contract type under uncertainty ---------------------------------------
 
+// One wording for every triangle (duration days, duration.nptFrac, dailyCost).
 const checkTri = (d, field, { min = 0 } = {}) => {
-  if (fin(d)) return d >= min ? null : refuse(field, `must be at or above ${fmt(min)}`);
-  if (!isObj(d) || !fin(d.min) || !fin(d.mode) || !fin(d.max)) return refuse(field, 'must be a number or { min, mode, max } (triangular)');
-  if (d.min < min) return refuse(`${field}.min`, `must be at or above ${fmt(min)}`);
-  if (!(d.min <= d.mode && d.mode <= d.max)) return refuse(field, 'must have min <= mode <= max');
+  if (fin(d)) return d >= min ? null : refuse(field, `must be at or above ${fmt(min)}; got ${fmt(d)}`);
+  if (!isObj(d) || !fin(d.min) || !fin(d.mode) || !fin(d.max)) return refuse(field, 'must be a number or a triangular distribution { min, mode, max } of finite numbers');
+  if (d.min < min) return refuse(`${field}.min`, `must be at or above ${fmt(min)}; got ${fmt(d.min)}`);
+  if (!(d.min <= d.mode && d.mode <= d.max)) return refuse(field, `must have min <= mode <= max; got min ${fmt(d.min)}, mode ${fmt(d.mode)}, max ${fmt(d.max)}`);
   return null;
 };
 const triOf = (d) => (fin(d) ? { min: d, mode: d, max: d } : d);
@@ -821,7 +910,7 @@ const draw = (d, rng) => (varies(d) ? triInvCDF(rng(), d.min, d.mode, d.max) : d
  * contractorAbsorbs = mean of (planned margin - margin) x [overrun], which add
  * to expectedOverrun = mean of (cost - planned cost) x [overrun] exactly.
  */
-export const contractTypes = ({ duration, dailyCost, fixedCost = 0, lumpSum, dayRate, reimbursable, plan, iterations, seed } = {}) => {
+const contractTypesImpl = ({ duration, dailyCost, fixedCost = 0, lumpSum, dayRate, reimbursable, plan, iterations, seed } = {}) => {
   if (!Number.isInteger(iterations) || iterations < 1 || iterations > DEFAULTS.MAX_ITERATIONS) return refuse('iterations', `must be a whole number from 1 to ${DEFAULTS.MAX_ITERATIONS}`);
   if (!Number.isInteger(seed) || seed < 0 || seed > 4294967295) return refuse('seed', 'must be a whole number from 0 to 4294967295; there is no default, so every run can be reproduced');
   let program = null;
@@ -940,7 +1029,7 @@ export const contractTypes = ({ duration, dailyCost, fixedCost = 0, lumpSum, day
  * included, no flag). The band is stated by the user: there is no published
  * threshold for an abnormally low or high bid.
  */
-export const shouldCost = ({ program, nptFrac = 0, items, contingencyFrac = 0, partners, bids, band } = {}) => {
+const shouldCostImpl = ({ program, nptFrac = 0, items, contingencyFrac = 0, partners, bids, band } = {}) => {
   if (!isObj(band) || !fin(band.low) || !fin(band.high) || band.low <= 0 || band.high < band.low) return refuse('band', 'must be { low, high } with 0 < low <= high (ratios of bid to estimate); there is no default');
   let est;
   try {
@@ -994,7 +1083,7 @@ export const shouldCost = ({ program, nptFrac = 0, items, contingencyFrac = 0, p
  * A potential ALB is clarified with the bidder; it is never rejected
  * automatically (the Guidance), and every reason says so.
  */
-export const abnormallyLow = ({ bids, estimate } = {}) => {
+const abnormallyLowImpl = ({ bids, estimate } = {}) => {
   const e = checkList(bids, 'bids', DEFAULTS.MAX_BIDS);
   if (e) return e;
   for (let i = 0; i < bids.length; i += 1) if (!fin(bids[i].evaluatedCost) || bids[i].evaluatedCost <= 0) return refuse(`bids[${i}].evaluatedCost`, 'must be a finite number above 0');
@@ -1040,11 +1129,15 @@ export const abnormallyLow = ({ bids, estimate } = {}) => {
  *   award 'combined'     rankTender on the combined score (WB Reg 5.69).
  * Every exclusion carries its stage and reason.
  */
-export const evaluateTender = ({ criteria, passMark, bids, omissionRule = 'average', bestEstimates, schedule, lifeCycle, award, technicalWeight, priceMethod, technicalMethod, nigerianContent: nc } = {}) => {
+const evaluateTenderImpl = ({ criteria, passMark, bids, omissionRule = 'average', bestEstimates, schedule, lifeCycle, award, technicalWeight, priceMethod, technicalMethod, nigerianContent: nc } = {}) => {
   if (award !== 'lowest-cost' && award !== 'combined') return refuse('award', "must be 'lowest-cost' or 'combined'; there is no default");
   if (nc !== undefined && award === 'combined') return refuse('nigerianContent', "applies s.14 at the commercial stage of a lowest-cost award; with award 'combined' state Nigerian content as a rated criterion with its weight instead");
   let e = checkList(bids, 'bids', DEFAULTS.MAX_BIDS);
   if (e) return e;
+  const allOmitted = [];
+  bids.forEach((b) => (Array.isArray(b.omitted) ? b.omitted : []).forEach((x) => { if (!allOmitted.includes(x)) allOmitted.push(x); }));
+  const eb = idKeys(bestEstimates, allOmitted, 'bestEstimates', { one: 'an item any bid omits', many: 'omitted item ids' });
+  if (eb) return eb;
   const tech = technicalEvaluation({ criteria, passMark, bids: bids.map((b) => ({ id: b.id, mandatory: b.mandatory, scores: b.scores })) });
   if (tech.error) return tech;
   const passed = new Set(tech.passed);
@@ -1053,7 +1146,9 @@ export const evaluateTender = ({ criteria, passMark, bids, omissionRule = 'avera
   if (open.length === 0) {
     return { technical: tech, commercial: null, ranking: null, contentPreference: null, award: null, excluded, reason: 'no bid passed the technical envelope; no commercial envelope is opened', basis: { source: CITE.twoEnvelope } };
   }
-  const commercial = evaluatedCosts({ bids: open.map((b) => { const { scores, mandatory, ncPct, indigenous, capacity, ...rest } = b; return rest; }), omissionRule, bestEstimates, schedule, lifeCycle });
+  const openOmitted = new Set(open.flatMap((b) => (Array.isArray(b.omitted) ? b.omitted : [])));
+  const openEstimates = isObj(bestEstimates) ? Object.fromEntries(Object.entries(bestEstimates).filter(([k]) => openOmitted.has(k))) : bestEstimates;
+  const commercial = evaluatedCosts({ bids: open.map((b) => { const { scores, mandatory, ncPct, indigenous, capacity, ...rest } = b; return rest; }), omissionRule, bestEstimates: openEstimates, schedule, lifeCycle });
   if (commercial.error) return commercial;
   excluded.push(...commercial.excluded);
   if (commercial.bids.length === 0) {
@@ -1096,3 +1191,17 @@ export const evaluateTender = ({ criteria, passMark, bids, omissionRule = 'avera
     },
   };
 };
+
+// ---- public entry points: every one checks its accepted keys first ------------
+
+export const weightingBand = guard('weightingBand', weightingBandImpl);
+export const correctArithmetic = guard('correctArithmetic', correctArithmeticImpl);
+export const technicalEvaluation = guard('technicalEvaluation', technicalEvaluationImpl);
+export const evaluatedCosts = guard('evaluatedCosts', evaluatedCostsImpl);
+export const rankTender = guard('rankTender', rankTenderImpl);
+export const nigerianContent = guard('nigerianContent', nigerianContentImpl);
+export const contentPreference = guard('contentPreference', contentPreferenceImpl);
+export const contractTypes = guard('contractTypes', contractTypesImpl);
+export const shouldCost = guard('shouldCost', shouldCostImpl);
+export const abnormallyLow = guard('abnormallyLow', abnormallyLowImpl);
+export const evaluateTender = guard('evaluateTender', evaluateTenderImpl);
