@@ -487,7 +487,7 @@ const drawFifo = (ledger, want) => {
  *     of the deficiency), drawn first in first out; the deficiency paid is
  *     the deficiency less the credit, at the year's topPrice.
  *   5 the deficiency paid becomes a make-up entry recoverable in years y+1
- *     to y+periodYears (none when periodYears is 0).
+ *     to y+periodYears (none when periodYears is 0, none in the last year).
  *   6 surplus (carry-forward only) = max(0, counted - base), base the
  *     Adjusted ACQ or TOPQ; recoverable in years y+1 to y+periodYears.
  *   7 entries whose last year is y expire at its end.
@@ -535,10 +535,11 @@ const takeOrPayCore = ({ years, topPct, makeUp, carryForward }) => {
       let r = `${y.year}: ${fmt(counted)} counted against the take-or-pay quantity ${fmt(topQuantity)} leaves a deficiency of ${fmt(deficiency)}`;
       if (cfApplied > 0) r += `; a carry-forward credit of ${fmt(cfApplied)} (at most ${fmt(carryForward.capPct)}% of the deficiency, first in first out: ${listText(cfDrawn)}) leaves ${fmt(deficiencyPaid)}`;
       r += `; the deficiency payment is ${fmt(deficiencyPaid)} x ${fmt(y.topPrice)} = ${fmt(deficiencyPayment)}`;
-      if (deficiencyPaid > 0) r += makeUp.periodYears > 0 ? `; the buyer may make up ${fmt(deficiencyPaid)} in the ${unit(makeUp.periodYears, 'contract year')} after ${y.year}, to the end of ${y.year + makeUp.periodYears}` : '; the make-up period is 0 years, so no make-up right arises';
+      if (deficiencyPaid > 0 && y.year === last) r += '; the delivery period ends with this year, so no make-up right arises';
+      else if (deficiencyPaid > 0) r += makeUp.periodYears > 0 ? `; the buyer may make up ${fmt(deficiencyPaid)} in the ${unit(makeUp.periodYears, 'contract year')} after ${y.year}, to the end of ${y.year + makeUp.periodYears}` : '; the make-up period is 0 years, so no make-up right arises';
       reasons.push(r);
     }
-    if (deficiencyPaid > 0 && makeUp.periodYears > 0) mu.push({ fromYear: y.year, lastYear: y.year + makeUp.periodYears, left: deficiencyPaid });
+    if (deficiencyPaid > 0 && makeUp.periodYears > 0 && y.year !== last) mu.push({ fromYear: y.year, lastYear: y.year + makeUp.periodYears, left: deficiencyPaid });
     let surplus = 0;
     if (cfOn) {
       const base = carryForward.base === 'adjusted-acq' ? adjustedAcq : topQuantity;
@@ -598,7 +599,7 @@ const takeOrPayCore = ({ years, topPct, makeUp, carryForward }) => {
       rule: 'Adjusted ACQ = ACQ - maintenance - force majeure - seller shortfall - permitted reduction; TOPQ = topPct % of Adjusted ACQ; deficiency = TOPQ - (taken - make-up taken) when positive; deficiency payment = (deficiency - carry-forward credit) x topPrice',
       makeUp: `make-up entries are the deficiency quantities paid, recoverable in the ${unit(makeUp.periodYears, 'contract year')} after the deficiency year, drawn first in first out, expiring at the end of their last year; at the end of the delivery period the rest is ${makeUp.endOfTerm === 'refund' ? 'refunded at the last year\'s topPrice' : 'forfeited'}`,
       carryForward: cfOn ? `surplus above the ${carryForward.base === 'adjusted-acq' ? 'Adjusted ACQ' : 'take-or-pay quantity'} is credited against later deficiencies, at most ${fmt(carryForward.capPct)}% of a year's deficiency, first in first out, for ${unit(carryForward.periodYears, 'contract year')}` : 'off (no carry-forward right stated)',
-      reading: 'the make-up entitlement is the deficiency quantity actually paid for (the deficiency less any carry-forward credit)',
+      reading: 'the make-up entitlement is the deficiency quantity actually paid for (the deficiency less any carry-forward credit); a deficiency of the last contract year gives no make-up right, and the end-of-term rule applies to the make-up aggregate of earlier years (the Make-Up Aggregate sums prior contract years only)',
       source: `${CITE.cw} definitions and Articles 12.5 to 12.8; ${CITE.esmap} paras 6.55 to 6.62; ${CITE.hmrcMakeUp}`,
     },
   };
