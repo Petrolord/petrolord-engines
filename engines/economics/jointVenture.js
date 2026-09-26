@@ -654,12 +654,12 @@ const defaultImpl = ({ parties, carries, callTotal, dueDate, asOf, defaulters, i
       const applies = d.curedOn !== undefined ? d.curedOn > on : asOf > on;
       conseq[name] = { triggerDate: on, applies };
     }
-    reasons.push(`${d.id}: share of the call ${money(shares[d.id])}, paid ${money(d.paid)}, unpaid ${money(unpaid)}; interest ${money(unpaid)} x ${fmt(interest.annualRatePct)}% x ${unit(days, 'day')} / ${interest.dayBasis} = ${money(amount)} (from ${dueDate} to ${d.curedOn !== undefined ? `the cure on ${d.curedOn}` : `asOf ${asOf}, not cured`}, the last date excluded)`);
+    reasons.push(`${d.id}: share of the call ${money(shares[d.id])}, paid ${money(d.paid)}, unpaid ${money(unpaid)}; interest ${money(unpaid)} x ${fmt(interest.annualRatePct)}% x ${unit(days, 'day')} / ${interest.dayBasis} = ${money(amount)} (from ${dueDate} to ${d.curedOn !== undefined ? `the cure on ${d.curedOn}` : `asOf ${asOf}, the default still open`}, the last date excluded)`);
     for (const [name, c] of [['suspension', suspension], ['forfeiture', forfeiture]]) {
       if (!conseq[name]) continue;
       const q = conseq[name];
-      const what = name === 'suspension' ? 'suspension of its rights (as the contract states)' : 'forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states)';
-      reasons.push(`${d.id}: ${what} applies after ${unit(c.after, UNIT_WORD[c.unit])} from ${c.from}, that is after ${q.triggerDate}: ${q.applies ? `it applies, the default being open after ${q.triggerDate}` : `it does not apply, the default ${d.curedOn !== undefined ? `being cured on ${d.curedOn}` : `being open only to asOf ${asOf}`}`}`);
+      const what = name === 'suspension' ? 'the suspension of its rights (as the contract states) starts' : 'the right to demand the assignment of its interest (forfeiture, as the contract states) arises';
+      reasons.push(`${d.id}: ${what} after ${unit(c.after, UNIT_WORD[c.unit])} from ${c.from}, that is after ${q.triggerDate}: ${q.applies ? `triggered, the default being open after ${q.triggerDate}` : `not triggered, the default ${d.curedOn !== undefined ? `being cured on ${d.curedOn}` : `being open only to asOf ${asOf}`}`}`);
     }
     return { id: d.id, share: shares[d.id], paid: d.paid, unpaid, curedOn: d.curedOn ?? null, days, interest: amount, suspension: conseq.suspension, forfeiture: conseq.forfeiture };
   });

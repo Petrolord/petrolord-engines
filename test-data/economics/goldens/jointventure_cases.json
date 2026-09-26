@@ -8305,8 +8305,8 @@
     "reasons": [
      "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
      "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 45 days / 360 = 20625 (from 2027-03-01 to the cure on 2027-04-15, the last date excluded)",
-     "PB: suspension of its rights (as the contract states) applies after 5 working days from 2027-03-01, that is after 2027-03-08: it applies, the default being open after 2027-03-08",
-     "PB: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-03-10, that is after 2027-06-10: it does not apply, the default being cured on 2027-04-15"
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-04-15"
     ]
    }
   },
@@ -8443,9 +8443,9 @@
     ],
     "reasons": [
      "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
-     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 122 days / 360 = 55916.67 (from 2027-03-01 to asOf 2027-07-01, not cured, the last date excluded)",
-     "PB: suspension of its rights (as the contract states) applies after 5 working days from 2027-03-01, that is after 2027-03-08: it applies, the default being open after 2027-03-08",
-     "PB: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-03-10, that is after 2027-06-10: it applies, the default being open after 2027-06-10",
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 122 days / 360 = 55916.67 (from 2027-03-01 to asOf 2027-07-01, the default still open, the last date excluded)",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: triggered, the default being open after 2027-06-10",
      "if the assignment of PB is demanded, the interest is apportioned pro rata: EKO 47.05882352941177%, PA 29.41176470588235%, NOC 23.529411764705884%; the compensation (at most the book value less unpaid contributions) is not computed"
     ]
    }
@@ -8572,8 +8572,8 @@
     "reasons": [
      "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
      "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 7 days / 360 = 3208.33 (from 2027-03-01 to the cure on 2027-03-08, the last date excluded)",
-     "PB: suspension of its rights (as the contract states) applies after 5 working days from 2027-03-01, that is after 2027-03-08: it does not apply, the default being cured on 2027-03-08",
-     "PB: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-03-10, that is after 2027-06-10: it does not apply, the default being cured on 2027-03-08"
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: not triggered, the default being cured on 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-08"
     ]
    }
   },
@@ -8699,8 +8699,8 @@
     "reasons": [
      "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
      "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 8 days / 360 = 3666.67 (from 2027-03-01 to the cure on 2027-03-09, the last date excluded)",
-     "PB: suspension of its rights (as the contract states) applies after 5 working days from 2027-03-01, that is after 2027-03-08: it applies, the default being open after 2027-03-08",
-     "PB: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-03-10, that is after 2027-06-10: it does not apply, the default being cured on 2027-03-09"
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-09"
     ]
    }
   },
@@ -8826,8 +8826,8 @@
     "reasons": [
      "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
      "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 0 days / 360 = 0 (from 2027-03-01 to the cure on 2027-03-01, the last date excluded)",
-     "PB: suspension of its rights (as the contract states) applies after 5 working days from 2027-03-01, that is after 2027-03-08: it does not apply, the default being cured on 2027-03-01",
-     "PB: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-03-10, that is after 2027-06-10: it does not apply, the default being cured on 2027-03-01"
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: not triggered, the default being cured on 2027-03-01",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-01"
     ]
    }
   },
@@ -8951,9 +8951,9 @@
     "interestsAfterForfeiture": null,
     "reasons": [
      "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
-     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 101 days / 360 = 46291.67 (from 2027-03-01 to asOf 2027-06-10, not cured, the last date excluded)",
-     "PB: suspension of its rights (as the contract states) applies after 5 working days from 2027-03-01, that is after 2027-03-08: it applies, the default being open after 2027-03-08",
-     "PB: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-03-10, that is after 2027-06-10: it does not apply, the default being open only to asOf 2027-06-10"
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 101 days / 360 = 46291.67 (from 2027-03-01 to asOf 2027-06-10, the default still open, the last date excluded)",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being open only to asOf 2027-06-10"
     ]
    }
   },
@@ -9090,9 +9090,9 @@
     ],
     "reasons": [
      "the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties",
-     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 102 days / 360 = 46750 (from 2027-03-01 to asOf 2027-06-11, not cured, the last date excluded)",
-     "PB: suspension of its rights (as the contract states) applies after 5 working days from 2027-03-01, that is after 2027-03-08: it applies, the default being open after 2027-03-08",
-     "PB: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-03-10, that is after 2027-06-10: it applies, the default being open after 2027-06-10",
+     "PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 102 days / 360 = 46750 (from 2027-03-01 to asOf 2027-06-11, the default still open, the last date excluded)",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: triggered, the default being open after 2027-06-10",
      "if the assignment of PB is demanded, the interest is apportioned pro rata: EKO 47.05882352941177%, PA 29.41176470588235%, NOC 23.529411764705884%; the compensation (at most the book value less unpaid contributions) is not computed"
     ]
    }
@@ -9234,11 +9234,11 @@
     "reasons": [
      "the unpaid 5250000 is advanced by EKO 5250000, in proportion to their paying interests among the non-defaulting parties",
      "PB: share of the call 2250000, paid 0, unpaid 2250000; interest 2250000 x 8.25% x 30 days / 360 = 15468.75 (from 2027-03-01 to the cure on 2027-03-31, the last date excluded)",
-     "PB: suspension of its rights (as the contract states) applies after 5 working days from 2027-03-01, that is after 2027-03-08: it applies, the default being open after 2027-03-08",
-     "PB: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-03-10, that is after 2027-06-10: it does not apply, the default being cured on 2027-03-31",
+     "PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-31",
      "PA: share of the call 3750000, paid 750000, unpaid 3000000; interest 3000000 x 8.25% x 60 days / 360 = 41250 (from 2027-03-01 to the cure on 2027-04-30, the last date excluded)",
-     "PA: suspension of its rights (as the contract states) applies after 5 working days from 2027-03-01, that is after 2027-03-08: it applies, the default being open after 2027-03-08",
-     "PA: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-03-10, that is after 2027-06-10: it does not apply, the default being cured on 2027-04-30"
+     "PA: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08",
+     "PA: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-04-30"
     ]
    }
   },
@@ -9327,7 +9327,7 @@
     "interestsAfterForfeiture": null,
     "reasons": [
      "the unpaid 200000 is advanced by A 125000, B 75000, in proportion to their paying interests among the non-defaulting parties",
-     "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x 7.3% x 45 days / 365 = 1800 (from 2027-01-15 to asOf 2027-03-01, not cured, the last date excluded)"
+     "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x 7.3% x 45 days / 365 = 1800 (from 2027-01-15 to asOf 2027-03-01, the default still open, the last date excluded)"
     ]
    }
   },
@@ -9430,8 +9430,8 @@
     "interestsAfterForfeiture": null,
     "reasons": [
      "the unpaid 200000 is advanced by A 125000, B 75000, in proportion to their paying interests among the non-defaulting parties",
-     "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x 0% x 14 days / 365 = 0 (from 2027-12-22 to asOf 2028-01-05, not cured, the last date excluded)",
-     "C: suspension of its rights (as the contract states) applies after 5 working days from 2027-12-22, that is after 2028-01-03: it applies, the default being open after 2028-01-03"
+     "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x 0% x 14 days / 365 = 0 (from 2027-12-22 to asOf 2028-01-05, the default still open, the last date excluded)",
+     "C: the suspension of its rights (as the contract states) starts after 5 working days from 2027-12-22, that is after 2028-01-03: triggered, the default being open after 2028-01-03"
     ]
    }
   },
@@ -9537,8 +9537,8 @@
     ],
     "reasons": [
      "the unpaid 200000 is advanced by A 125000, B 75000, in proportion to their paying interests among the non-defaulting parties",
-     "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x 0% x 90 days / 365 = 0 (from 2027-01-31 to asOf 2027-05-01, not cured, the last date excluded)",
-     "C: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 3 months from 2027-01-31, that is after 2027-04-30: it applies, the default being open after 2027-04-30",
+     "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x 0% x 90 days / 365 = 0 (from 2027-01-31 to asOf 2027-05-01, the default still open, the last date excluded)",
+     "C: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-01-31, that is after 2027-04-30: triggered, the default being open after 2027-04-30",
      "if the assignment of C is demanded, the interest is apportioned pro rata: A 62.5%, B 37.5%; the compensation (at most the book value less unpaid contributions) is not computed"
     ]
    }
@@ -9636,8 +9636,8 @@
     "interestsAfterForfeiture": null,
     "reasons": [
      "the unpaid 200000 is advanced by A 125000, B 75000, in proportion to their paying interests among the non-defaulting parties",
-     "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x 0% x 90 days / 365 = 0 (from 2027-01-01 to asOf 2027-04-01, not cured, the last date excluded)",
-     "C: forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states) applies after 90 calendar days from 2027-01-01, that is after 2027-04-01: it does not apply, the default being open only to asOf 2027-04-01"
+     "C: share of the call 200000, paid 0, unpaid 200000; interest 200000 x 0% x 90 days / 365 = 0 (from 2027-01-01 to asOf 2027-04-01, the default still open, the last date excluded)",
+     "C: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 90 calendar days from 2027-01-01, that is after 2027-04-01: not triggered, the default being open only to asOf 2027-04-01"
     ]
    }
   },
@@ -17311,7 +17311,7 @@
     ],
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "premiumMultiplePct": 400,
     "mode": "recover-from-production",
@@ -17352,7 +17352,7 @@
    "expected": {
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "mode": "recover-from-production",
     "premiumMultiplePct": 400,
@@ -17361,93 +17361,93 @@
       "id": "EKO",
       "participatingPct": 40,
       "projectPct": 47.05882352941177,
-      "cost": 11294117.647058824
+      "cost": 8470588.235294119
      },
      {
       "id": "PA",
       "participatingPct": 25,
       "projectPct": 29.41176470588235,
-      "cost": 7058823.529411765
+      "cost": 5294117.647058823
      },
      {
       "id": "NOC",
       "participatingPct": 20,
       "projectPct": 23.529411764705884,
-      "cost": 5647058.823529412
+      "cost": 4235294.117647059
      }
     ],
     "nonConsenting": [
      {
       "id": "PB",
       "participatingPct": 15,
-      "costShare": 3600000.0,
-      "premium": 14400000.0
+      "costShare": 2700000.0,
+      "premium": 10800000.0
      }
     ],
     "buyIn": null,
     "recovery": [
      {
       "id": "PB",
-      "premium": 14400000.0,
+      "premium": 10800000.0,
       "ledger": [
        {
         "year": 2031,
         "opening": 0.0,
-        "due": 14400000.0,
+        "due": 10800000.0,
         "share": 3000000.0,
         "recovered": 3000000.0,
-        "closing": 11400000.0,
+        "closing": 7800000.0,
         "nonConsentingReceives": 0.0
        },
        {
         "year": 2032,
-        "opening": 11400000.0,
-        "due": 11400000.0,
+        "opening": 7800000.0,
+        "due": 7800000.0,
         "share": 2550000.0,
         "recovered": 2550000.0,
-        "closing": 8850000.0,
+        "closing": 5250000.0,
         "nonConsentingReceives": 0.0
        },
        {
         "year": 2033,
-        "opening": 8850000.0,
-        "due": 8850000.0,
+        "opening": 5250000.0,
+        "due": 5250000.0,
         "share": 2100000.0,
         "recovered": 2100000.0,
-        "closing": 6750000.0,
+        "closing": 3150000.0,
         "nonConsentingReceives": 0.0
        },
        {
         "year": 2034,
-        "opening": 6750000.0,
-        "due": 6750000.0,
+        "opening": 3150000.0,
+        "due": 3150000.0,
         "share": 1800000.0,
         "recovered": 1800000.0,
-        "closing": 4950000.0,
+        "closing": 1350000.0,
         "nonConsentingReceives": 0.0
        },
        {
         "year": 2035,
-        "opening": 4950000.0,
-        "due": 4950000.0,
+        "opening": 1350000.0,
+        "due": 1350000.0,
         "share": 1500000.0,
-        "recovered": 1500000.0,
-        "closing": 3450000.0,
-        "nonConsentingReceives": 0.0
+        "recovered": 1350000.0,
+        "closing": 0.0,
+        "nonConsentingReceives": 150000.0
        },
        {
         "year": 2036,
-        "opening": 3450000.0,
-        "due": 3450000.0,
+        "opening": 0.0,
+        "due": 0.0,
         "share": 1200000.0,
-        "recovered": 1200000.0,
-        "closing": 2250000.0,
-        "nonConsentingReceives": 0.0
+        "recovered": 0.0,
+        "closing": 0.0,
+        "nonConsentingReceives": 1200000.0
        }
       ],
-      "recovered": 12150000.0,
-      "outstanding": 2250000.0,
-      "revertsInYear": null,
+      "recovered": 10800000.0,
+      "outstanding": 0.0,
+      "revertsInYear": 2035,
       "toParties": [
        {
         "year": 2031,
@@ -17522,15 +17522,15 @@
         "parties": [
          {
           "id": "EKO",
-          "amount": 705882.3529411765
+          "amount": 635294.1176470588
          },
          {
           "id": "PA",
-          "amount": 441176.4705882353
+          "amount": 397058.82352941175
          },
          {
           "id": "NOC",
-          "amount": 352941.17647058825
+          "amount": 317647.0588235294
          }
         ]
        },
@@ -17539,15 +17539,15 @@
         "parties": [
          {
           "id": "EKO",
-          "amount": 564705.8823529412
+          "amount": 0.0
          },
          {
           "id": "PA",
-          "amount": 352941.17647058825
+          "amount": 0.0
          },
          {
           "id": "NOC",
-          "amount": 282352.9411764706
+          "amount": 0.0
          }
         ]
        }
@@ -17555,14 +17555,12 @@
      }
     ],
     "reasons": [
-     "Ekene-4 sidetrack: cost 24000000 paid by the consenting parties EKO 47.05882352941177%, PA 29.41176470588235%, NOC 23.529411764705884% (in proportion to their participating interests)",
-     "PB 2031: 3000000 recovered of 14400000 due; 11400000 carried to 2032",
-     "PB 2032: 2550000 recovered of 11400000 due; 8850000 carried to 2033",
-     "PB 2033: 2100000 recovered of 8850000 due; 6750000 carried to 2034",
-     "PB 2034: 1800000 recovered of 6750000 due; 4950000 carried to 2035",
-     "PB 2035: 1500000 recovered of 4950000 due; 3450000 carried to 2036",
-     "PB 2036: 1200000 recovered of 3450000 due; 2250000 carried to 2037",
-     "PB 2036: 2250000 of the premium is not recovered by the last year"
+     "Ekene-4 sidetrack: cost 18000000 paid by the consenting parties EKO 47.05882352941177%, PA 29.41176470588235%, NOC 23.529411764705884% (in proportion to their participating interests)",
+     "PB 2031: 3000000 recovered of 10800000 due; 7800000 carried to 2032",
+     "PB 2032: 2550000 recovered of 7800000 due; 5250000 carried to 2033",
+     "PB 2033: 2100000 recovered of 5250000 due; 3150000 carried to 2034",
+     "PB 2034: 1800000 recovered of 3150000 due; 1350000 carried to 2035",
+     "PB 2035: the balance 1350000 is recovered with 1350000 of the 1500000 available; the non-consenting party receives 150000 of its share 1500000"
     ]
    }
   },
@@ -17599,7 +17597,7 @@
     ],
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "premiumMultiplePct": 1000,
     "mode": "buy-in"
@@ -17608,7 +17606,7 @@
    "expected": {
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "mode": "buy-in",
     "premiumMultiplePct": 1000,
@@ -17617,53 +17615,53 @@
       "id": "EKO",
       "participatingPct": 40,
       "projectPct": 47.05882352941177,
-      "cost": 11294117.647058824
+      "cost": 8470588.235294119
      },
      {
       "id": "PA",
       "participatingPct": 25,
       "projectPct": 29.41176470588235,
-      "cost": 7058823.529411765
+      "cost": 5294117.647058823
      },
      {
       "id": "NOC",
       "participatingPct": 20,
       "projectPct": 23.529411764705884,
-      "cost": 5647058.823529412
+      "cost": 4235294.117647059
      }
     ],
     "nonConsenting": [
      {
       "id": "PB",
       "participatingPct": 15,
-      "costShare": 3600000.0,
-      "premium": 36000000.0
+      "costShare": 2700000.0,
+      "premium": 27000000.0
      }
     ],
     "buyIn": [
      {
       "id": "PB",
-      "payment": 36000000.0,
+      "payment": 27000000.0,
       "toParties": [
        {
         "id": "EKO",
-        "amount": 16941176.470588237
+        "amount": 12705882.352941176
        },
        {
         "id": "PA",
-        "amount": 10588235.294117646
+        "amount": 7941176.470588235
        },
        {
         "id": "NOC",
-        "amount": 8470588.235294119
+        "amount": 6352941.176470588
        }
       ]
      }
     ],
     "recovery": null,
     "reasons": [
-     "Ekene-4 sidetrack: cost 24000000 paid by the consenting parties EKO 47.05882352941177%, PA 29.41176470588235%, NOC 23.529411764705884% (in proportion to their participating interests)",
-     "PB: to enter it pays 1000% of its share 3600000 = 36000000, apportioned to the consenting parties in their shares"
+     "Ekene-4 sidetrack: cost 18000000 paid by the consenting parties EKO 47.05882352941177%, PA 29.41176470588235%, NOC 23.529411764705884% (in proportion to their participating interests)",
+     "PB: to enter it pays 1000% of its share 2700000 = 27000000, apportioned to the consenting parties in their shares"
     ]
    },
    "note": "Norway JOA Art. 18.12: one thousand (1000) % of the proportionate share of the costs, apportioned to the initial participants by their interest in the project"
@@ -17704,7 +17702,7 @@
      },
      {
       "year": 2031,
-      "grossValue": 500,
+      "grossValue": 2000,
       "deductions": 0
      },
      {
@@ -17763,24 +17761,24 @@
         "year": 2031,
         "opening": 400.0,
         "due": 400.0,
-        "share": 100.0,
-        "recovered": 100.0,
-        "closing": 300.0,
+        "share": 400.0,
+        "recovered": 400.0,
+        "closing": 0.0,
         "nonConsentingReceives": 0.0
        },
        {
         "year": 2032,
-        "opening": 300.0,
-        "due": 300.0,
+        "opening": 0.0,
+        "due": 0.0,
         "share": 200.0,
-        "recovered": 200.0,
-        "closing": 100.0,
-        "nonConsentingReceives": 0.0
+        "recovered": 0.0,
+        "closing": 0.0,
+        "nonConsentingReceives": 200.0
        }
       ],
-      "recovered": 500.0,
-      "outstanding": 100.0,
-      "revertsInYear": null,
+      "recovered": 600.0,
+      "outstanding": 0.0,
+      "revertsInYear": 2031,
       "toParties": [
        {
         "year": 2030,
@@ -17800,11 +17798,11 @@
         "parties": [
          {
           "id": "A",
-          "amount": 62.5
+          "amount": 250.0
          },
          {
           "id": "B",
-          "amount": 37.5
+          "amount": 150.0
          }
         ]
        },
@@ -17813,11 +17811,11 @@
         "parties": [
          {
           "id": "A",
-          "amount": 125.0
+          "amount": 0.0
          },
          {
           "id": "B",
-          "amount": 75.0
+          "amount": 0.0
          }
         ]
        }
@@ -17827,9 +17825,7 @@
     "reasons": [
      "well: cost 1000 paid by the consenting parties A 62.5%, B 37.5% (in proportion to their participating interests)",
      "C 2030: 200 recovered of 600 due; 400 carried to 2031",
-     "C 2031: 100 recovered of 400 due; 300 carried to 2032",
-     "C 2032: 200 recovered of 300 due; 100 carried to 2033",
-     "C 2032: 100 of the premium is not recovered by the last year"
+     "C 2031: the balance 400 is recovered exactly by the 400 available; the non-consenting party receives 0 of its share 400"
     ]
    }
   },
@@ -17869,6 +17865,11 @@
      },
      {
       "year": 2031,
+      "grossValue": 3000,
+      "deductions": 0
+     },
+     {
+      "year": 2032,
       "grossValue": 1000,
       "deductions": 0
      }
@@ -17923,15 +17924,24 @@
         "year": 2031,
         "opening": 400.0,
         "due": 400.0,
+        "share": 600.0,
+        "recovered": 400.0,
+        "closing": 0.0,
+        "nonConsentingReceives": 200.0
+       },
+       {
+        "year": 2032,
+        "opening": 0.0,
+        "due": 0.0,
         "share": 200.0,
-        "recovered": 200.0,
-        "closing": 200.0,
-        "nonConsentingReceives": 0.0
+        "recovered": 0.0,
+        "closing": 0.0,
+        "nonConsentingReceives": 200.0
        }
       ],
-      "recovered": 400.0,
-      "outstanding": 200.0,
-      "revertsInYear": null,
+      "recovered": 600.0,
+      "outstanding": 0.0,
+      "revertsInYear": 2031,
       "toParties": [
        {
         "year": 2030,
@@ -17951,11 +17961,24 @@
         "parties": [
          {
           "id": "A",
-          "amount": 125.0
+          "amount": 250.0
          },
          {
           "id": "B",
-          "amount": 75.0
+          "amount": 150.0
+         }
+        ]
+       },
+       {
+        "year": 2032,
+        "parties": [
+         {
+          "id": "A",
+          "amount": 0.0
+         },
+         {
+          "id": "B",
+          "amount": 0.0
          }
         ]
        }
@@ -17965,8 +17988,7 @@
     "reasons": [
      "well: cost 1000 paid by the consenting parties A 62.5%, B 37.5% (in proportion to their participating interests)",
      "C 2030: 200 recovered of 600 due; 400 carried to 2031",
-     "C 2031: 200 recovered of 400 due; 200 carried to 2032",
-     "C 2031: 200 of the premium is not recovered by the last year"
+     "C 2031: the balance 400 is recovered with 400 of the 600 available; the non-consenting party receives 200 of its share 600"
     ]
    }
   },
@@ -18181,7 +18203,7 @@
     ],
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "premiumMultiplePct": 400,
     "mode": "recover-from-production",
@@ -18258,7 +18280,7 @@
     ],
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "premiumMultiplePct": 50,
     "mode": "recover-from-production",
@@ -18335,7 +18357,7 @@
     ],
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "mode": "recover-from-production",
     "years": [
@@ -18410,7 +18432,7 @@
     ],
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "premiumMultiplePct": 400,
     "mode": "recover-from-production",
@@ -18487,7 +18509,7 @@
     ],
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "premiumMultiplePct": 400,
     "mode": "buy-in",
@@ -18564,7 +18586,7 @@
     ],
     "operation": {
      "name": "Ekene-4 sidetrack",
-     "cost": 24000000
+     "cost": 18000000
     },
     "premiumMultiplePct": 400,
     "mode": "penalty",
@@ -18694,50 +18716,62 @@
      {
       "year": 2029,
       "grossRevenue": 0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0
      },
      {
       "year": 2030,
       "grossRevenue": 219000000,
-      "capex": 150000000,
-      "opex": 30000000
+      "capex": 90000000,
+      "opex": 20000000
      },
      {
       "year": 2031,
       "grossRevenue": 197100000,
-      "capex": 40000000,
-      "opex": 31000000
+      "capex": 10000000,
+      "opex": 21000000
      },
      {
       "year": 2032,
       "grossRevenue": 177390000,
       "capex": 0,
-      "opex": 32000000
+      "opex": 22000000
      },
      {
       "year": 2033,
       "grossRevenue": 159651000,
       "capex": 0,
-      "opex": 33000000
+      "opex": 23000000
      },
      {
       "year": 2034,
       "grossRevenue": 143686000,
       "capex": 0,
-      "opex": 34000000
+      "opex": 24000000
      },
      {
       "year": 2035,
       "grossRevenue": 129317000,
       "capex": 0,
-      "opex": 35000000
+      "opex": 25000000
      },
      {
       "year": 2036,
       "grossRevenue": 116386000,
       "capex": 0,
-      "opex": 36000000
+      "opex": 26000000
+     },
+     {
+      "year": 2037,
+      "grossRevenue": 104747000,
+      "capex": 0,
+      "opex": 27000000
+     },
+     {
+      "year": 2038,
+      "grossRevenue": 94272000,
+      "capex": 0,
+      "opex": 28000000
      }
     ],
     "royaltyPct": 12.5,
@@ -18781,17 +18815,17 @@
       "royalty": 0.0,
       "revenueAfterRoyalty": 0.0,
       "poolIn": 142000000.0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0,
       "costOilLimit": 0.0,
       "costRecovered": 0.0,
-      "poolOut": 592000000.0,
+      "poolOut": 422000000.0,
       "profitOil": 0.0,
       "contractorProfitOil": 0.0,
       "governmentProfitOil": 0.0,
       "tax": 0.0,
       "contractorEntitlement": 0.0,
-      "contractorNet": -450000000.0,
+      "contractorNet": -280000000.0,
       "governmentTake": 0.0
      },
      {
@@ -18800,18 +18834,18 @@
       "grossRevenue": 219000000,
       "royalty": 27375000.0,
       "revenueAfterRoyalty": 191625000.0,
-      "poolIn": 592000000.0,
-      "capex": 150000000,
-      "opex": 30000000,
+      "poolIn": 422000000.0,
+      "capex": 90000000,
+      "opex": 20000000,
       "costOilLimit": 131400000.0,
       "costRecovered": 131400000.0,
-      "poolOut": 640600000.0,
+      "poolOut": 400600000.0,
       "profitOil": 60225000.0,
       "contractorProfitOil": 36135000.0,
       "governmentProfitOil": 24090000.0,
       "tax": 10840500.0,
       "contractorEntitlement": 156694500.0,
-      "contractorNet": -23305500.0,
+      "contractorNet": 46694500.0,
       "governmentTake": 62305500.0
      },
      {
@@ -18820,18 +18854,18 @@
       "grossRevenue": 197100000,
       "royalty": 24637500.0,
       "revenueAfterRoyalty": 172462500.0,
-      "poolIn": 640600000.0,
-      "capex": 40000000,
-      "opex": 31000000,
+      "poolIn": 400600000.0,
+      "capex": 10000000,
+      "opex": 21000000,
       "costOilLimit": 118260000.0,
       "costRecovered": 118260000.0,
-      "poolOut": 593340000.0,
+      "poolOut": 313340000.0,
       "profitOil": 54202500.0,
       "contractorProfitOil": 32521500.0,
       "governmentProfitOil": 21681000.0,
       "tax": 9756450.0,
       "contractorEntitlement": 141025050.0,
-      "contractorNet": 70025050.0,
+      "contractorNet": 110025050.0,
       "governmentTake": 56074950.0
      },
      {
@@ -18840,18 +18874,18 @@
       "grossRevenue": 177390000,
       "royalty": 22173750.0,
       "revenueAfterRoyalty": 155216250.0,
-      "poolIn": 593340000.0,
+      "poolIn": 313340000.0,
       "capex": 0,
-      "opex": 32000000,
+      "opex": 22000000,
       "costOilLimit": 106434000.0,
       "costRecovered": 106434000.0,
-      "poolOut": 518906000.0,
+      "poolOut": 228906000.0,
       "profitOil": 48782250.0,
       "contractorProfitOil": 29269350.0,
       "governmentProfitOil": 19512900.0,
       "tax": 8780805.0,
       "contractorEntitlement": 126922545.0,
-      "contractorNet": 94922545.0,
+      "contractorNet": 104922545.0,
       "governmentTake": 50467455.0
      },
      {
@@ -18860,18 +18894,18 @@
       "grossRevenue": 159651000,
       "royalty": 19956375.0,
       "revenueAfterRoyalty": 139694625.0,
-      "poolIn": 518906000.0,
+      "poolIn": 228906000.0,
       "capex": 0,
-      "opex": 33000000,
+      "opex": 23000000,
       "costOilLimit": 95790600.0,
       "costRecovered": 95790600.0,
-      "poolOut": 456115400.0,
+      "poolOut": 156115400.0,
       "profitOil": 43904025.0,
       "contractorProfitOil": 26342415.0,
       "governmentProfitOil": 17561610.0,
       "tax": 7902724.5,
       "contractorEntitlement": 114230290.5,
-      "contractorNet": 81230290.5,
+      "contractorNet": 91230290.5,
       "governmentTake": 45420709.5
      },
      {
@@ -18880,18 +18914,18 @@
       "grossRevenue": 143686000,
       "royalty": 17960750.0,
       "revenueAfterRoyalty": 125725250.0,
-      "poolIn": 456115400.0,
+      "poolIn": 156115400.0,
       "capex": 0,
-      "opex": 34000000,
+      "opex": 24000000,
       "costOilLimit": 86211600.0,
       "costRecovered": 86211600.0,
-      "poolOut": 403903800.0,
+      "poolOut": 93903800.0,
       "profitOil": 39513650.0,
       "contractorProfitOil": 23708190.0,
       "governmentProfitOil": 15805460.0,
       "tax": 7112457.0,
       "contractorEntitlement": 102807333.0,
-      "contractorNet": 68807333.0,
+      "contractorNet": 78807333.0,
       "governmentTake": 40878667.0
      },
      {
@@ -18900,18 +18934,18 @@
       "grossRevenue": 129317000,
       "royalty": 16164625.0,
       "revenueAfterRoyalty": 113152375.0,
-      "poolIn": 403903800.0,
+      "poolIn": 93903800.0,
       "capex": 0,
-      "opex": 35000000,
+      "opex": 25000000,
       "costOilLimit": 77590200.0,
       "costRecovered": 77590200.0,
-      "poolOut": 361313600.0,
+      "poolOut": 41313600.0,
       "profitOil": 35562175.0,
       "contractorProfitOil": 21337305.0,
       "governmentProfitOil": 14224870.0,
       "tax": 6401191.5,
       "contractorEntitlement": 92526313.5,
-      "contractorNet": 57526313.5,
+      "contractorNet": 67526313.5,
       "governmentTake": 36790686.5
      },
      {
@@ -18920,34 +18954,74 @@
       "grossRevenue": 116386000,
       "royalty": 14548250.0,
       "revenueAfterRoyalty": 101837750.0,
-      "poolIn": 361313600.0,
+      "poolIn": 41313600.0,
       "capex": 0,
-      "opex": 36000000,
+      "opex": 26000000,
       "costOilLimit": 69831600.0,
-      "costRecovered": 69831600.0,
-      "poolOut": 327482000.0,
-      "profitOil": 32006150.0,
-      "contractorProfitOil": 19203690.0,
-      "governmentProfitOil": 12802460.0,
-      "tax": 5761107.0,
-      "contractorEntitlement": 83274183.0,
-      "contractorNet": 47274183.0,
-      "governmentTake": 33111817.0
+      "costRecovered": 67313600.0,
+      "poolOut": 0.0,
+      "profitOil": 34524150.0,
+      "contractorProfitOil": 20714490.0,
+      "governmentProfitOil": 13809660.0,
+      "tax": 6214347.0,
+      "contractorEntitlement": 81813743.0,
+      "contractorNet": 55813743.0,
+      "governmentTake": 34572257.0
+     },
+     {
+      "year": 2037,
+      "contractorProfitSharePct": 60,
+      "grossRevenue": 104747000,
+      "royalty": 13093375.0,
+      "revenueAfterRoyalty": 91653625.0,
+      "poolIn": 0.0,
+      "capex": 0,
+      "opex": 27000000,
+      "costOilLimit": 62848200.0,
+      "costRecovered": 27000000.0,
+      "poolOut": 0.0,
+      "profitOil": 64653625.0,
+      "contractorProfitOil": 38792175.0,
+      "governmentProfitOil": 25861450.0,
+      "tax": 11637652.5,
+      "contractorEntitlement": 54154522.5,
+      "contractorNet": 27154522.5,
+      "governmentTake": 50592477.5
+     },
+     {
+      "year": 2038,
+      "contractorProfitSharePct": 60,
+      "grossRevenue": 94272000,
+      "royalty": 11784000.0,
+      "revenueAfterRoyalty": 82488000.0,
+      "poolIn": 0.0,
+      "capex": 0,
+      "opex": 28000000,
+      "costOilLimit": 56563200.0,
+      "costRecovered": 28000000.0,
+      "poolOut": 0.0,
+      "profitOil": 54488000.0,
+      "contractorProfitOil": 32692800.0,
+      "governmentProfitOil": 21795200.0,
+      "tax": 9807840.0,
+      "contractorEntitlement": 50884960.0,
+      "contractorNet": 22884960.0,
+      "governmentTake": 43387040.0
      }
     ],
     "totals": {
-     "grossRevenue": 1142530000.0,
-     "royalty": 142816250.0,
-     "costRecovered": 685518000.0,
-     "profitOil": 314195750.0,
-     "contractorProfitOil": 188517450.0,
-     "governmentProfitOil": 125678300.0,
-     "tax": 56555235.0,
-     "contractorEntitlement": 817480215.0,
-     "contractorNet": -53519785.0,
-     "governmentTake": 325049785.0
+     "grossRevenue": 1341549000.0,
+     "royalty": 167693625.0,
+     "costRecovered": 738000000.0,
+     "profitOil": 435855375.0,
+     "contractorProfitOil": 261513225.0,
+     "governmentProfitOil": 174342150.0,
+     "tax": 78453967.5,
+     "contractorEntitlement": 921059257.5,
+     "contractorNet": 325059257.5,
+     "governmentTake": 420489742.5
     },
-    "unrecoveredAtEnd": 327482000.0,
+    "unrecoveredAtEnd": 0.0,
     "parties": [
      {
       "year": 2029,
@@ -18955,26 +19029,26 @@
        {
         "id": "EKO",
         "entitlement": 0.0,
-        "cost": 180000000.0,
-        "net": -180000000.0
+        "cost": 112000000.0,
+        "net": -112000000.0
        },
        {
         "id": "PA",
         "entitlement": 0.0,
-        "cost": 112500000.0,
-        "net": -112500000.0
+        "cost": 70000000.0,
+        "net": -70000000.0
        },
        {
         "id": "PB",
         "entitlement": 0.0,
-        "cost": 67500000.0,
-        "net": -67500000.0
+        "cost": 42000000.0,
+        "net": -42000000.0
        },
        {
         "id": "NOC",
         "entitlement": 0.0,
-        "cost": 90000000.0,
-        "net": -90000000.0
+        "cost": 56000000.0,
+        "net": -56000000.0
        }
       ]
      },
@@ -18984,26 +19058,26 @@
        {
         "id": "EKO",
         "entitlement": 62677800.0,
-        "cost": 72000000.0,
-        "net": -9322200.0
+        "cost": 44000000.0,
+        "net": 18677800.0
        },
        {
         "id": "PA",
         "entitlement": 39173625.0,
-        "cost": 45000000.0,
-        "net": -5826375.0
+        "cost": 27500000.0,
+        "net": 11673625.0
        },
        {
         "id": "PB",
         "entitlement": 23504175.0,
-        "cost": 27000000.0,
-        "net": -3495825.0
+        "cost": 16500000.0,
+        "net": 7004175.0
        },
        {
         "id": "NOC",
         "entitlement": 31338900.0,
-        "cost": 36000000.0,
-        "net": -4661100.0
+        "cost": 22000000.0,
+        "net": 9338900.0
        }
       ]
      },
@@ -19013,26 +19087,26 @@
        {
         "id": "EKO",
         "entitlement": 56410020.0,
-        "cost": 28400000.0,
-        "net": 28010020.0
+        "cost": 12400000.0,
+        "net": 44010020.0
        },
        {
         "id": "PA",
         "entitlement": 35256262.5,
-        "cost": 17750000.0,
-        "net": 17506262.5
+        "cost": 7750000.0,
+        "net": 27506262.5
        },
        {
         "id": "PB",
         "entitlement": 21153757.5,
-        "cost": 10650000.0,
-        "net": 10503757.5
+        "cost": 4650000.0,
+        "net": 16503757.5
        },
        {
         "id": "NOC",
         "entitlement": 28205010.0,
-        "cost": 14200000.0,
-        "net": 14005010.0
+        "cost": 6200000.0,
+        "net": 22005010.0
        }
       ]
      },
@@ -19042,26 +19116,26 @@
        {
         "id": "EKO",
         "entitlement": 50769018.0,
-        "cost": 12800000.0,
-        "net": 37969018.0
+        "cost": 8800000.0,
+        "net": 41969018.0
        },
        {
         "id": "PA",
         "entitlement": 31730636.25,
-        "cost": 8000000.0,
-        "net": 23730636.25
+        "cost": 5500000.0,
+        "net": 26230636.25
        },
        {
         "id": "PB",
         "entitlement": 19038381.75,
-        "cost": 4800000.0,
-        "net": 14238381.75
+        "cost": 3300000.0,
+        "net": 15738381.75
        },
        {
         "id": "NOC",
         "entitlement": 25384509.0,
-        "cost": 6400000.0,
-        "net": 18984509.0
+        "cost": 4400000.0,
+        "net": 20984509.0
        }
       ]
      },
@@ -19071,26 +19145,26 @@
        {
         "id": "EKO",
         "entitlement": 45692116.2,
-        "cost": 13200000.0,
-        "net": 32492116.2
+        "cost": 9200000.0,
+        "net": 36492116.2
        },
        {
         "id": "PA",
         "entitlement": 28557572.625,
-        "cost": 8250000.0,
-        "net": 20307572.625
+        "cost": 5750000.0,
+        "net": 22807572.625
        },
        {
         "id": "PB",
         "entitlement": 17134543.575,
-        "cost": 4950000.0,
-        "net": 12184543.575
+        "cost": 3450000.0,
+        "net": 13684543.575
        },
        {
         "id": "NOC",
         "entitlement": 22846058.1,
-        "cost": 6600000.0,
-        "net": 16246058.1
+        "cost": 4600000.0,
+        "net": 18246058.1
        }
       ]
      },
@@ -19100,26 +19174,26 @@
        {
         "id": "EKO",
         "entitlement": 41122933.2,
-        "cost": 13600000.0,
-        "net": 27522933.2
+        "cost": 9600000.0,
+        "net": 31522933.2
        },
        {
         "id": "PA",
         "entitlement": 25701833.25,
-        "cost": 8500000.0,
-        "net": 17201833.25
+        "cost": 6000000.0,
+        "net": 19701833.25
        },
        {
         "id": "PB",
         "entitlement": 15421099.95,
-        "cost": 5100000.0,
-        "net": 10321099.95
+        "cost": 3600000.0,
+        "net": 11821099.95
        },
        {
         "id": "NOC",
         "entitlement": 20561466.6,
-        "cost": 6800000.0,
-        "net": 13761466.6
+        "cost": 4800000.0,
+        "net": 15761466.6
        }
       ]
      },
@@ -19129,26 +19203,26 @@
        {
         "id": "EKO",
         "entitlement": 37010525.4,
-        "cost": 14000000.0,
-        "net": 23010525.4
+        "cost": 10000000.0,
+        "net": 27010525.4
        },
        {
         "id": "PA",
         "entitlement": 23131578.375,
-        "cost": 8750000.0,
-        "net": 14381578.375
+        "cost": 6250000.0,
+        "net": 16881578.375
        },
        {
         "id": "PB",
         "entitlement": 13878947.025,
-        "cost": 5250000.0,
-        "net": 8628947.025
+        "cost": 3750000.0,
+        "net": 10128947.025
        },
        {
         "id": "NOC",
         "entitlement": 18505262.7,
-        "cost": 7000000.0,
-        "net": 11505262.7
+        "cost": 5000000.0,
+        "net": 13505262.7
        }
       ]
      },
@@ -19157,27 +19231,85 @@
       "parties": [
        {
         "id": "EKO",
-        "entitlement": 33309673.2,
-        "cost": 14400000.0,
-        "net": 18909673.2
+        "entitlement": 32725497.2,
+        "cost": 10400000.0,
+        "net": 22325497.2
        },
        {
         "id": "PA",
-        "entitlement": 20818545.75,
-        "cost": 9000000.0,
-        "net": 11818545.75
+        "entitlement": 20453435.75,
+        "cost": 6500000.0,
+        "net": 13953435.75
        },
        {
         "id": "PB",
-        "entitlement": 12491127.45,
-        "cost": 5400000.0,
-        "net": 7091127.45
+        "entitlement": 12272061.45,
+        "cost": 3900000.0,
+        "net": 8372061.45
        },
        {
         "id": "NOC",
-        "entitlement": 16654836.6,
-        "cost": 7200000.0,
-        "net": 9454836.6
+        "entitlement": 16362748.6,
+        "cost": 5200000.0,
+        "net": 11162748.6
+       }
+      ]
+     },
+     {
+      "year": 2037,
+      "parties": [
+       {
+        "id": "EKO",
+        "entitlement": 21661809.0,
+        "cost": 10800000.0,
+        "net": 10861809.0
+       },
+       {
+        "id": "PA",
+        "entitlement": 13538630.625,
+        "cost": 6750000.0,
+        "net": 6788630.625
+       },
+       {
+        "id": "PB",
+        "entitlement": 8123178.375,
+        "cost": 4050000.0,
+        "net": 4073178.375
+       },
+       {
+        "id": "NOC",
+        "entitlement": 10830904.5,
+        "cost": 5400000.0,
+        "net": 5430904.5
+       }
+      ]
+     },
+     {
+      "year": 2038,
+      "parties": [
+       {
+        "id": "EKO",
+        "entitlement": 20353984.0,
+        "cost": 11200000.0,
+        "net": 9153984.0
+       },
+       {
+        "id": "PA",
+        "entitlement": 12721240.0,
+        "cost": 7000000.0,
+        "net": 5721240.0
+       },
+       {
+        "id": "PB",
+        "entitlement": 7632744.0,
+        "cost": 4200000.0,
+        "net": 3432744.0
+       },
+       {
+        "id": "NOC",
+        "entitlement": 10176992.0,
+        "cost": 5600000.0,
+        "net": 4576992.0
        }
       ]
      }
@@ -19185,30 +19317,29 @@
     "npv": [
      {
       "id": "EKO",
-      "npv": -74824642.53841668
+      "npv": 53034092.13951048
      },
      {
       "id": "PA",
-      "npv": -46765401.58651043
+      "npv": 33146307.58719405
      },
      {
       "id": "PB",
-      "npv": -28059240.951906256
+      "npv": 19887784.55231643
      },
      {
       "id": "NOC",
-      "npv": -37412321.26920834
+      "npv": 26517046.06975524
      }
     ],
     "reasons": [
-     "2029: recoverable 592000000 is above the cost oil limit 0; 592000000 carried to 2030",
-     "2030: recoverable 772000000 is above the cost oil limit 131400000; 640600000 carried to 2031",
-     "2031: recoverable 711600000 is above the cost oil limit 118260000; 593340000 carried to 2032",
-     "2032: recoverable 625340000 is above the cost oil limit 106434000; 518906000 carried to 2033",
-     "2033: recoverable 551906000 is above the cost oil limit 95790600; 456115400 carried to 2034",
-     "2034: recoverable 490115400 is above the cost oil limit 86211600; 403903800 carried to 2035",
-     "2035: recoverable 438903800 is above the cost oil limit 77590200; 361313600 carried to 2036",
-     "2036: recoverable 397313600 is above the cost oil limit 69831600; 327482000 carried to 2037"
+     "2029: recoverable 422000000 is above the cost oil limit 0; 422000000 carried to 2030",
+     "2030: recoverable 532000000 is above the cost oil limit 131400000; 400600000 carried to 2031",
+     "2031: recoverable 431600000 is above the cost oil limit 118260000; 313340000 carried to 2032",
+     "2032: recoverable 335340000 is above the cost oil limit 106434000; 228906000 carried to 2033",
+     "2033: recoverable 251906000 is above the cost oil limit 95790600; 156115400 carried to 2034",
+     "2034: recoverable 180115400 is above the cost oil limit 86211600; 93903800 carried to 2035",
+     "2035: recoverable 118903800 is above the cost oil limit 77590200; 41313600 carried to 2036"
     ]
    }
   },
@@ -19220,50 +19351,62 @@
      {
       "year": 2029,
       "grossRevenue": 0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0
      },
      {
       "year": 2030,
       "grossRevenue": 219000000,
-      "capex": 150000000,
-      "opex": 30000000
+      "capex": 90000000,
+      "opex": 20000000
      },
      {
       "year": 2031,
       "grossRevenue": 197100000,
-      "capex": 40000000,
-      "opex": 31000000
+      "capex": 10000000,
+      "opex": 21000000
      },
      {
       "year": 2032,
       "grossRevenue": 177390000,
       "capex": 0,
-      "opex": 32000000
+      "opex": 22000000
      },
      {
       "year": 2033,
       "grossRevenue": 159651000,
       "capex": 0,
-      "opex": 33000000
+      "opex": 23000000
      },
      {
       "year": 2034,
       "grossRevenue": 143686000,
       "capex": 0,
-      "opex": 34000000
+      "opex": 24000000
      },
      {
       "year": 2035,
       "grossRevenue": 129317000,
       "capex": 0,
-      "opex": 35000000
+      "opex": 25000000
      },
      {
       "year": 2036,
       "grossRevenue": 116386000,
       "capex": 0,
-      "opex": 36000000
+      "opex": 26000000
+     },
+     {
+      "year": 2037,
+      "grossRevenue": 104747000,
+      "capex": 0,
+      "opex": 27000000
+     },
+     {
+      "year": 2038,
+      "grossRevenue": 94272000,
+      "capex": 0,
+      "opex": 28000000
      }
     ],
     "royaltyPct": 12.5,
@@ -19307,17 +19450,17 @@
       "royalty": 0.0,
       "revenueAfterRoyalty": 0.0,
       "poolIn": 142000000.0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0,
       "costOilLimit": 0.0,
       "costRecovered": 0.0,
-      "poolOut": 592000000.0,
+      "poolOut": 422000000.0,
       "profitOil": 0.0,
       "contractorProfitOil": 0.0,
       "governmentProfitOil": 0.0,
       "tax": 0.0,
       "contractorEntitlement": 0.0,
-      "contractorNet": -450000000.0,
+      "contractorNet": -280000000.0,
       "governmentTake": 0.0
      },
      {
@@ -19326,18 +19469,18 @@
       "grossRevenue": 219000000,
       "royalty": 27375000.0,
       "revenueAfterRoyalty": 191625000.0,
-      "poolIn": 592000000.0,
-      "capex": 150000000,
-      "opex": 30000000,
+      "poolIn": 422000000.0,
+      "capex": 90000000,
+      "opex": 20000000,
       "costOilLimit": 114975000.0,
       "costRecovered": 114975000.0,
-      "poolOut": 657025000.0,
+      "poolOut": 417025000.0,
       "profitOil": 76650000.0,
       "contractorProfitOil": 45990000.0,
       "governmentProfitOil": 30660000.0,
       "tax": 13797000.0,
       "contractorEntitlement": 147168000.0,
-      "contractorNet": -32832000.0,
+      "contractorNet": 37168000.0,
       "governmentTake": 71832000.0
      },
      {
@@ -19346,18 +19489,18 @@
       "grossRevenue": 197100000,
       "royalty": 24637500.0,
       "revenueAfterRoyalty": 172462500.0,
-      "poolIn": 657025000.0,
-      "capex": 40000000,
-      "opex": 31000000,
+      "poolIn": 417025000.0,
+      "capex": 10000000,
+      "opex": 21000000,
       "costOilLimit": 103477500.0,
       "costRecovered": 103477500.0,
-      "poolOut": 624547500.0,
+      "poolOut": 344547500.0,
       "profitOil": 68985000.0,
       "contractorProfitOil": 41391000.0,
       "governmentProfitOil": 27594000.0,
       "tax": 12417300.0,
       "contractorEntitlement": 132451200.0,
-      "contractorNet": 61451200.0,
+      "contractorNet": 101451200.0,
       "governmentTake": 64648800.0
      },
      {
@@ -19366,18 +19509,18 @@
       "grossRevenue": 177390000,
       "royalty": 22173750.0,
       "revenueAfterRoyalty": 155216250.0,
-      "poolIn": 624547500.0,
+      "poolIn": 344547500.0,
       "capex": 0,
-      "opex": 32000000,
+      "opex": 22000000,
       "costOilLimit": 93129750.0,
       "costRecovered": 93129750.0,
-      "poolOut": 563417750.0,
+      "poolOut": 273417750.0,
       "profitOil": 62086500.0,
       "contractorProfitOil": 37251900.0,
       "governmentProfitOil": 24834600.0,
       "tax": 11175570.0,
       "contractorEntitlement": 119206080.0,
-      "contractorNet": 87206080.0,
+      "contractorNet": 97206080.0,
       "governmentTake": 58183920.0
      },
      {
@@ -19386,18 +19529,18 @@
       "grossRevenue": 159651000,
       "royalty": 19956375.0,
       "revenueAfterRoyalty": 139694625.0,
-      "poolIn": 563417750.0,
+      "poolIn": 273417750.0,
       "capex": 0,
-      "opex": 33000000,
+      "opex": 23000000,
       "costOilLimit": 83816775.0,
       "costRecovered": 83816775.0,
-      "poolOut": 512600975.0,
+      "poolOut": 212600975.0,
       "profitOil": 55877850.0,
       "contractorProfitOil": 33526710.0,
       "governmentProfitOil": 22351140.0,
       "tax": 10058013.0,
       "contractorEntitlement": 107285472.0,
-      "contractorNet": 74285472.0,
+      "contractorNet": 84285472.0,
       "governmentTake": 52365528.0
      },
      {
@@ -19406,18 +19549,18 @@
       "grossRevenue": 143686000,
       "royalty": 17960750.0,
       "revenueAfterRoyalty": 125725250.0,
-      "poolIn": 512600975.0,
+      "poolIn": 212600975.0,
       "capex": 0,
-      "opex": 34000000,
+      "opex": 24000000,
       "costOilLimit": 75435150.0,
       "costRecovered": 75435150.0,
-      "poolOut": 471165825.0,
+      "poolOut": 161165825.0,
       "profitOil": 50290100.0,
       "contractorProfitOil": 30174060.0,
       "governmentProfitOil": 20116040.0,
       "tax": 9052218.0,
       "contractorEntitlement": 96556992.0,
-      "contractorNet": 62556992.0,
+      "contractorNet": 72556992.0,
       "governmentTake": 47129008.0
      },
      {
@@ -19426,18 +19569,18 @@
       "grossRevenue": 129317000,
       "royalty": 16164625.0,
       "revenueAfterRoyalty": 113152375.0,
-      "poolIn": 471165825.0,
+      "poolIn": 161165825.0,
       "capex": 0,
-      "opex": 35000000,
+      "opex": 25000000,
       "costOilLimit": 67891425.0,
       "costRecovered": 67891425.0,
-      "poolOut": 438274400.0,
+      "poolOut": 118274400.0,
       "profitOil": 45260950.0,
       "contractorProfitOil": 27156570.0,
       "governmentProfitOil": 18104380.0,
       "tax": 8146971.0,
       "contractorEntitlement": 86901024.0,
-      "contractorNet": 51901024.0,
+      "contractorNet": 61901024.0,
       "governmentTake": 42415976.0
      },
      {
@@ -19446,34 +19589,74 @@
       "grossRevenue": 116386000,
       "royalty": 14548250.0,
       "revenueAfterRoyalty": 101837750.0,
-      "poolIn": 438274400.0,
+      "poolIn": 118274400.0,
       "capex": 0,
-      "opex": 36000000,
+      "opex": 26000000,
       "costOilLimit": 61102650.0,
       "costRecovered": 61102650.0,
-      "poolOut": 413171750.0,
+      "poolOut": 83171750.0,
       "profitOil": 40735100.0,
       "contractorProfitOil": 24441060.0,
       "governmentProfitOil": 16294040.0,
       "tax": 7332318.0,
       "contractorEntitlement": 78211392.0,
-      "contractorNet": 42211392.0,
+      "contractorNet": 52211392.0,
       "governmentTake": 38174608.0
+     },
+     {
+      "year": 2037,
+      "contractorProfitSharePct": 60,
+      "grossRevenue": 104747000,
+      "royalty": 13093375.0,
+      "revenueAfterRoyalty": 91653625.0,
+      "poolIn": 83171750.0,
+      "capex": 0,
+      "opex": 27000000,
+      "costOilLimit": 54992175.0,
+      "costRecovered": 54992175.0,
+      "poolOut": 55179575.0,
+      "profitOil": 36661450.0,
+      "contractorProfitOil": 21996870.0,
+      "governmentProfitOil": 14664580.0,
+      "tax": 6599061.0,
+      "contractorEntitlement": 70389984.0,
+      "contractorNet": 43389984.0,
+      "governmentTake": 34357016.0
+     },
+     {
+      "year": 2038,
+      "contractorProfitSharePct": 60,
+      "grossRevenue": 94272000,
+      "royalty": 11784000.0,
+      "revenueAfterRoyalty": 82488000.0,
+      "poolIn": 55179575.0,
+      "capex": 0,
+      "opex": 28000000,
+      "costOilLimit": 49492800.0,
+      "costRecovered": 49492800.0,
+      "poolOut": 33686775.0,
+      "profitOil": 32995200.0,
+      "contractorProfitOil": 19797120.0,
+      "governmentProfitOil": 13198080.0,
+      "tax": 5939136.0,
+      "contractorEntitlement": 63350784.0,
+      "contractorNet": 35350784.0,
+      "governmentTake": 30921216.0
      }
     ],
     "totals": {
-     "grossRevenue": 1142530000.0,
-     "royalty": 142816250.0,
-     "costRecovered": 599828250.0,
-     "profitOil": 399885500.0,
-     "contractorProfitOil": 239931300.0,
-     "governmentProfitOil": 159954200.0,
-     "tax": 71979390.0,
-     "contractorEntitlement": 767780160.0,
-     "contractorNet": -103219840.0,
-     "governmentTake": 374749840.0
+     "grossRevenue": 1341549000.0,
+     "royalty": 167693625.0,
+     "costRecovered": 704313225.0,
+     "profitOil": 469542150.0,
+     "contractorProfitOil": 281725290.0,
+     "governmentProfitOil": 187816860.0,
+     "tax": 84517587.0,
+     "contractorEntitlement": 901520928.0,
+     "contractorNet": 305520928.0,
+     "governmentTake": 440028072.0
     },
-    "unrecoveredAtEnd": 413171750.0,
+    "unrecoveredAtEnd": 33686775.0,
     "parties": [
      {
       "year": 2029,
@@ -19481,26 +19664,26 @@
        {
         "id": "EKO",
         "entitlement": 0.0,
-        "cost": 180000000.0,
-        "net": -180000000.0
+        "cost": 112000000.0,
+        "net": -112000000.0
        },
        {
         "id": "PA",
         "entitlement": 0.0,
-        "cost": 112500000.0,
-        "net": -112500000.0
+        "cost": 70000000.0,
+        "net": -70000000.0
        },
        {
         "id": "PB",
         "entitlement": 0.0,
-        "cost": 67500000.0,
-        "net": -67500000.0
+        "cost": 42000000.0,
+        "net": -42000000.0
        },
        {
         "id": "NOC",
         "entitlement": 0.0,
-        "cost": 90000000.0,
-        "net": -90000000.0
+        "cost": 56000000.0,
+        "net": -56000000.0
        }
       ]
      },
@@ -19510,26 +19693,26 @@
        {
         "id": "EKO",
         "entitlement": 58867200.0,
-        "cost": 72000000.0,
-        "net": -13132800.0
+        "cost": 44000000.0,
+        "net": 14867200.0
        },
        {
         "id": "PA",
         "entitlement": 36792000.0,
-        "cost": 45000000.0,
-        "net": -8208000.0
+        "cost": 27500000.0,
+        "net": 9292000.0
        },
        {
         "id": "PB",
         "entitlement": 22075200.0,
-        "cost": 27000000.0,
-        "net": -4924800.0
+        "cost": 16500000.0,
+        "net": 5575200.0
        },
        {
         "id": "NOC",
         "entitlement": 29433600.0,
-        "cost": 36000000.0,
-        "net": -6566400.0
+        "cost": 22000000.0,
+        "net": 7433600.0
        }
       ]
      },
@@ -19539,26 +19722,26 @@
        {
         "id": "EKO",
         "entitlement": 52980480.0,
-        "cost": 28400000.0,
-        "net": 24580480.0
+        "cost": 12400000.0,
+        "net": 40580480.0
        },
        {
         "id": "PA",
         "entitlement": 33112800.0,
-        "cost": 17750000.0,
-        "net": 15362800.0
+        "cost": 7750000.0,
+        "net": 25362800.0
        },
        {
         "id": "PB",
         "entitlement": 19867680.0,
-        "cost": 10650000.0,
-        "net": 9217680.0
+        "cost": 4650000.0,
+        "net": 15217680.0
        },
        {
         "id": "NOC",
         "entitlement": 26490240.0,
-        "cost": 14200000.0,
-        "net": 12290240.0
+        "cost": 6200000.0,
+        "net": 20290240.0
        }
       ]
      },
@@ -19568,26 +19751,26 @@
        {
         "id": "EKO",
         "entitlement": 47682432.0,
-        "cost": 12800000.0,
-        "net": 34882432.0
+        "cost": 8800000.0,
+        "net": 38882432.0
        },
        {
         "id": "PA",
         "entitlement": 29801520.0,
-        "cost": 8000000.0,
-        "net": 21801520.0
+        "cost": 5500000.0,
+        "net": 24301520.0
        },
        {
         "id": "PB",
         "entitlement": 17880912.0,
-        "cost": 4800000.0,
-        "net": 13080912.0
+        "cost": 3300000.0,
+        "net": 14580912.0
        },
        {
         "id": "NOC",
         "entitlement": 23841216.0,
-        "cost": 6400000.0,
-        "net": 17441216.0
+        "cost": 4400000.0,
+        "net": 19441216.0
        }
       ]
      },
@@ -19597,26 +19780,26 @@
        {
         "id": "EKO",
         "entitlement": 42914188.8,
-        "cost": 13200000.0,
-        "net": 29714188.8
+        "cost": 9200000.0,
+        "net": 33714188.8
        },
        {
         "id": "PA",
         "entitlement": 26821368.0,
-        "cost": 8250000.0,
-        "net": 18571368.0
+        "cost": 5750000.0,
+        "net": 21071368.0
        },
        {
         "id": "PB",
         "entitlement": 16092820.8,
-        "cost": 4950000.0,
-        "net": 11142820.8
+        "cost": 3450000.0,
+        "net": 12642820.8
        },
        {
         "id": "NOC",
         "entitlement": 21457094.4,
-        "cost": 6600000.0,
-        "net": 14857094.4
+        "cost": 4600000.0,
+        "net": 16857094.4
        }
       ]
      },
@@ -19626,26 +19809,26 @@
        {
         "id": "EKO",
         "entitlement": 38622796.8,
-        "cost": 13600000.0,
-        "net": 25022796.8
+        "cost": 9600000.0,
+        "net": 29022796.8
        },
        {
         "id": "PA",
         "entitlement": 24139248.0,
-        "cost": 8500000.0,
-        "net": 15639248.0
+        "cost": 6000000.0,
+        "net": 18139248.0
        },
        {
         "id": "PB",
         "entitlement": 14483548.8,
-        "cost": 5100000.0,
-        "net": 9383548.8
+        "cost": 3600000.0,
+        "net": 10883548.8
        },
        {
         "id": "NOC",
         "entitlement": 19311398.4,
-        "cost": 6800000.0,
-        "net": 12511398.4
+        "cost": 4800000.0,
+        "net": 14511398.4
        }
       ]
      },
@@ -19655,26 +19838,26 @@
        {
         "id": "EKO",
         "entitlement": 34760409.6,
-        "cost": 14000000.0,
-        "net": 20760409.6
+        "cost": 10000000.0,
+        "net": 24760409.6
        },
        {
         "id": "PA",
         "entitlement": 21725256.0,
-        "cost": 8750000.0,
-        "net": 12975256.0
+        "cost": 6250000.0,
+        "net": 15475256.0
        },
        {
         "id": "PB",
         "entitlement": 13035153.6,
-        "cost": 5250000.0,
-        "net": 7785153.6
+        "cost": 3750000.0,
+        "net": 9285153.6
        },
        {
         "id": "NOC",
         "entitlement": 17380204.8,
-        "cost": 7000000.0,
-        "net": 10380204.8
+        "cost": 5000000.0,
+        "net": 12380204.8
        }
       ]
      },
@@ -19684,26 +19867,84 @@
        {
         "id": "EKO",
         "entitlement": 31284556.8,
-        "cost": 14400000.0,
-        "net": 16884556.8
+        "cost": 10400000.0,
+        "net": 20884556.8
        },
        {
         "id": "PA",
         "entitlement": 19552848.0,
-        "cost": 9000000.0,
-        "net": 10552848.0
+        "cost": 6500000.0,
+        "net": 13052848.0
        },
        {
         "id": "PB",
         "entitlement": 11731708.8,
-        "cost": 5400000.0,
-        "net": 6331708.8
+        "cost": 3900000.0,
+        "net": 7831708.8
        },
        {
         "id": "NOC",
         "entitlement": 15642278.4,
-        "cost": 7200000.0,
-        "net": 8442278.4
+        "cost": 5200000.0,
+        "net": 10442278.4
+       }
+      ]
+     },
+     {
+      "year": 2037,
+      "parties": [
+       {
+        "id": "EKO",
+        "entitlement": 28155993.6,
+        "cost": 10800000.0,
+        "net": 17355993.6
+       },
+       {
+        "id": "PA",
+        "entitlement": 17597496.0,
+        "cost": 6750000.0,
+        "net": 10847496.0
+       },
+       {
+        "id": "PB",
+        "entitlement": 10558497.6,
+        "cost": 4050000.0,
+        "net": 6508497.6
+       },
+       {
+        "id": "NOC",
+        "entitlement": 14077996.8,
+        "cost": 5400000.0,
+        "net": 8677996.8
+       }
+      ]
+     },
+     {
+      "year": 2038,
+      "parties": [
+       {
+        "id": "EKO",
+        "entitlement": 25340313.6,
+        "cost": 11200000.0,
+        "net": 14140313.6
+       },
+       {
+        "id": "PA",
+        "entitlement": 15837696.0,
+        "cost": 7000000.0,
+        "net": 8837696.0
+       },
+       {
+        "id": "PB",
+        "entitlement": 9502617.6,
+        "cost": 4200000.0,
+        "net": 5302617.6
+       },
+       {
+        "id": "NOC",
+        "entitlement": 12670156.8,
+        "cost": 5600000.0,
+        "net": 7070156.8
        }
       ]
      }
@@ -19711,30 +19952,32 @@
     "npv": [
      {
       "id": "EKO",
-      "npv": -89201239.1044344
+      "npv": 44101545.78249293
      },
      {
       "id": "PA",
-      "npv": -55750774.440271504
+      "npv": 27563466.11405808
      },
      {
       "id": "PB",
-      "npv": -33450464.6641629
+      "npv": 16538079.668434849
      },
      {
       "id": "NOC",
-      "npv": -44600619.5522172
+      "npv": 22050772.891246464
      }
     ],
     "reasons": [
-     "2029: recoverable 592000000 is above the cost oil limit 0; 592000000 carried to 2030",
-     "2030: recoverable 772000000 is above the cost oil limit 114975000; 657025000 carried to 2031",
-     "2031: recoverable 728025000 is above the cost oil limit 103477500; 624547500 carried to 2032",
-     "2032: recoverable 656547500 is above the cost oil limit 93129750; 563417750 carried to 2033",
-     "2033: recoverable 596417750 is above the cost oil limit 83816775; 512600975 carried to 2034",
-     "2034: recoverable 546600975 is above the cost oil limit 75435150; 471165825 carried to 2035",
-     "2035: recoverable 506165825 is above the cost oil limit 67891425; 438274400 carried to 2036",
-     "2036: recoverable 474274400 is above the cost oil limit 61102650; 413171750 carried to 2037"
+     "2029: recoverable 422000000 is above the cost oil limit 0; 422000000 carried to 2030",
+     "2030: recoverable 532000000 is above the cost oil limit 114975000; 417025000 carried to 2031",
+     "2031: recoverable 448025000 is above the cost oil limit 103477500; 344547500 carried to 2032",
+     "2032: recoverable 366547500 is above the cost oil limit 93129750; 273417750 carried to 2033",
+     "2033: recoverable 296417750 is above the cost oil limit 83816775; 212600975 carried to 2034",
+     "2034: recoverable 236600975 is above the cost oil limit 75435150; 161165825 carried to 2035",
+     "2035: recoverable 186165825 is above the cost oil limit 67891425; 118274400 carried to 2036",
+     "2036: recoverable 144274400 is above the cost oil limit 61102650; 83171750 carried to 2037",
+     "2037: recoverable 110171750 is above the cost oil limit 54992175; 55179575 carried to 2038",
+     "2038: recoverable 83179575 is above the cost oil limit 49492800; 33686775 carried to 2039"
     ]
    }
   },
@@ -20404,50 +20647,62 @@
      {
       "year": 2029,
       "grossRevenue": 0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0
      },
      {
       "year": 2030,
       "grossRevenue": 219000000,
-      "capex": 150000000,
-      "opex": 30000000
+      "capex": 90000000,
+      "opex": 20000000
      },
      {
       "year": 2031,
       "grossRevenue": 197100000,
-      "capex": 40000000,
-      "opex": 31000000
+      "capex": 10000000,
+      "opex": 21000000
      },
      {
       "year": 2032,
       "grossRevenue": 177390000,
       "capex": 0,
-      "opex": 32000000
+      "opex": 22000000
      },
      {
       "year": 2033,
       "grossRevenue": 159651000,
       "capex": 0,
-      "opex": 33000000
+      "opex": 23000000
      },
      {
       "year": 2034,
       "grossRevenue": 143686000,
       "capex": 0,
-      "opex": 34000000
+      "opex": 24000000
      },
      {
       "year": 2035,
       "grossRevenue": 129317000,
       "capex": 0,
-      "opex": 35000000
+      "opex": 25000000
      },
      {
       "year": 2036,
       "grossRevenue": 116386000,
       "capex": 0,
-      "opex": 36000000
+      "opex": 26000000
+     },
+     {
+      "year": 2037,
+      "grossRevenue": 104747000,
+      "capex": 0,
+      "opex": 27000000
+     },
+     {
+      "year": 2038,
+      "grossRevenue": 94272000,
+      "capex": 0,
+      "opex": 28000000
      }
     ],
     "royaltyPct": 12.5,
@@ -20496,50 +20751,62 @@
      {
       "year": 2029,
       "grossRevenue": 0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0
      },
      {
       "year": 2030,
       "grossRevenue": 219000000,
-      "capex": 150000000,
-      "opex": 30000000
+      "capex": 90000000,
+      "opex": 20000000
      },
      {
       "year": 2031,
       "grossRevenue": 197100000,
-      "capex": 40000000,
-      "opex": 31000000
+      "capex": 10000000,
+      "opex": 21000000
      },
      {
       "year": 2032,
       "grossRevenue": 177390000,
       "capex": 0,
-      "opex": 32000000
+      "opex": 22000000
      },
      {
       "year": 2033,
       "grossRevenue": 159651000,
       "capex": 0,
-      "opex": 33000000
+      "opex": 23000000
      },
      {
       "year": 2034,
       "grossRevenue": 143686000,
       "capex": 0,
-      "opex": 34000000
+      "opex": 24000000
      },
      {
       "year": 2035,
       "grossRevenue": 129317000,
       "capex": 0,
-      "opex": 35000000
+      "opex": 25000000
      },
      {
       "year": 2036,
       "grossRevenue": 116386000,
       "capex": 0,
-      "opex": 36000000
+      "opex": 26000000
+     },
+     {
+      "year": 2037,
+      "grossRevenue": 104747000,
+      "capex": 0,
+      "opex": 27000000
+     },
+     {
+      "year": 2038,
+      "grossRevenue": 94272000,
+      "capex": 0,
+      "opex": 28000000
      }
     ],
     "royaltyPct": 100,
@@ -20588,50 +20855,62 @@
      {
       "year": 2029,
       "grossRevenue": 0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0
      },
      {
       "year": 2030,
       "grossRevenue": 219000000,
-      "capex": 150000000,
-      "opex": 30000000
+      "capex": 90000000,
+      "opex": 20000000
      },
      {
       "year": 2031,
       "grossRevenue": 197100000,
-      "capex": 40000000,
-      "opex": 31000000
+      "capex": 10000000,
+      "opex": 21000000
      },
      {
       "year": 2032,
       "grossRevenue": 177390000,
       "capex": 0,
-      "opex": 32000000
+      "opex": 22000000
      },
      {
       "year": 2033,
       "grossRevenue": 159651000,
       "capex": 0,
-      "opex": 33000000
+      "opex": 23000000
      },
      {
       "year": 2034,
       "grossRevenue": 143686000,
       "capex": 0,
-      "opex": 34000000
+      "opex": 24000000
      },
      {
       "year": 2035,
       "grossRevenue": 129317000,
       "capex": 0,
-      "opex": 35000000
+      "opex": 25000000
      },
      {
       "year": 2036,
       "grossRevenue": 116386000,
       "capex": 0,
-      "opex": 36000000
+      "opex": 26000000
+     },
+     {
+      "year": 2037,
+      "grossRevenue": 104747000,
+      "capex": 0,
+      "opex": 27000000
+     },
+     {
+      "year": 2038,
+      "grossRevenue": 94272000,
+      "capex": 0,
+      "opex": 28000000
      }
     ],
     "royaltyPct": 12.5,
@@ -20680,50 +20959,62 @@
      {
       "year": 2029,
       "grossRevenue": 0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0
      },
      {
       "year": 2030,
       "grossRevenue": 219000000,
-      "capex": 150000000,
-      "opex": 30000000
+      "capex": 90000000,
+      "opex": 20000000
      },
      {
       "year": 2031,
       "grossRevenue": 197100000,
-      "capex": 40000000,
-      "opex": 31000000
+      "capex": 10000000,
+      "opex": 21000000
      },
      {
       "year": 2032,
       "grossRevenue": 177390000,
       "capex": 0,
-      "opex": 32000000
+      "opex": 22000000
      },
      {
       "year": 2033,
       "grossRevenue": 159651000,
       "capex": 0,
-      "opex": 33000000
+      "opex": 23000000
      },
      {
       "year": 2034,
       "grossRevenue": 143686000,
       "capex": 0,
-      "opex": 34000000
+      "opex": 24000000
      },
      {
       "year": 2035,
       "grossRevenue": 129317000,
       "capex": 0,
-      "opex": 35000000
+      "opex": 25000000
      },
      {
       "year": 2036,
       "grossRevenue": 116386000,
       "capex": 0,
-      "opex": 36000000
+      "opex": 26000000
+     },
+     {
+      "year": 2037,
+      "grossRevenue": 104747000,
+      "capex": 0,
+      "opex": 27000000
+     },
+     {
+      "year": 2038,
+      "grossRevenue": 94272000,
+      "capex": 0,
+      "opex": 28000000
      }
     ],
     "royaltyPct": 12.5,
@@ -20771,7 +21062,7 @@
      {
       "year": 2029,
       "grossRevenue": 0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0,
       "contractorProfitSharePct": 120
      }
@@ -20822,50 +21113,62 @@
      {
       "year": 2029,
       "grossRevenue": 0,
-      "capex": 450000000,
+      "capex": 280000000,
       "opex": 0
      },
      {
       "year": 2030,
       "grossRevenue": 219000000,
-      "capex": 150000000,
-      "opex": 30000000
+      "capex": 90000000,
+      "opex": 20000000
      },
      {
       "year": 2031,
       "grossRevenue": 197100000,
-      "capex": 40000000,
-      "opex": 31000000
+      "capex": 10000000,
+      "opex": 21000000
      },
      {
       "year": 2032,
       "grossRevenue": 177390000,
       "capex": 0,
-      "opex": 32000000
+      "opex": 22000000
      },
      {
       "year": 2033,
       "grossRevenue": 159651000,
       "capex": 0,
-      "opex": 33000000
+      "opex": 23000000
      },
      {
       "year": 2034,
       "grossRevenue": 143686000,
       "capex": 0,
-      "opex": 34000000
+      "opex": 24000000
      },
      {
       "year": 2035,
       "grossRevenue": 129317000,
       "capex": 0,
-      "opex": 35000000
+      "opex": 25000000
      },
      {
       "year": 2036,
       "grossRevenue": 116386000,
       "capex": 0,
-      "opex": 36000000
+      "opex": 26000000
+     },
+     {
+      "year": 2037,
+      "grossRevenue": 104747000,
+      "capex": 0,
+      "opex": 27000000
+     },
+     {
+      "year": 2038,
+      "grossRevenue": 94272000,
+      "capex": 0,
+      "opex": 28000000
      }
     ],
     "royaltyPct": 12.5,

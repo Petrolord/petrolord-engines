@@ -357,7 +357,7 @@
   ],
   "operation": {
    "name": "Ekene-4 sidetrack",
-   "cost": 24000000
+   "cost": 18000000
   },
   "premiumMultiplePct": 400,
   "years": [
@@ -404,50 +404,62 @@
    {
     "year": 2029,
     "grossRevenue": 0,
-    "capex": 450000000,
+    "capex": 280000000,
     "opex": 0
    },
    {
     "year": 2030,
     "grossRevenue": 219000000,
-    "capex": 150000000,
-    "opex": 30000000
+    "capex": 90000000,
+    "opex": 20000000
    },
    {
     "year": 2031,
     "grossRevenue": 197100000,
-    "capex": 40000000,
-    "opex": 31000000
+    "capex": 10000000,
+    "opex": 21000000
    },
    {
     "year": 2032,
     "grossRevenue": 177390000,
     "capex": 0,
-    "opex": 32000000
+    "opex": 22000000
    },
    {
     "year": 2033,
     "grossRevenue": 159651000,
     "capex": 0,
-    "opex": 33000000
+    "opex": 23000000
    },
    {
     "year": 2034,
     "grossRevenue": 143686000,
     "capex": 0,
-    "opex": 34000000
+    "opex": 24000000
    },
    {
     "year": 2035,
     "grossRevenue": 129317000,
     "capex": 0,
-    "opex": 35000000
+    "opex": 25000000
    },
    {
     "year": 2036,
     "grossRevenue": 116386000,
     "capex": 0,
-    "opex": 36000000
+    "opex": 26000000
+   },
+   {
+    "year": 2037,
+    "grossRevenue": 104747000,
+    "capex": 0,
+    "opex": 27000000
+   },
+   {
+    "year": 2038,
+    "grossRevenue": 94272000,
+    "capex": 0,
+    "opex": 28000000
    }
   ],
   "discountRate": 0.1,

@@ -754,19 +754,19 @@ def default_cover(a):
             on = trigger(c, holset).isoformat()
             applies = (cured > on) if cured is not MISSING else (asof > on)
             conseq[name] = {'triggerDate': on, 'applies': applies}
-        till = f'the cure on {cured}' if cured is not MISSING else f'asOf {asof}, not cured'
+        till = f'the cure on {cured}' if cured is not MISSING else f'asOf {asof}, the default still open'
         reasons.append(f'{d["id"]}: share of the call {money(share[d["id"]])}, paid {money(d["paid"])}, unpaid {money(unpaid)}; interest {money(unpaid)} x {js(it["annualRatePct"])}% x {unit(days, "day")} / {it["dayBasis"]} = {money(interest)} (from {due} to {till}, the last date excluded)')
         for name in ('suspension', 'forfeiture'):
             q = conseq[name]
             if q is None:
                 continue
             c = cons[name]
-            what = 'suspension of its rights (as the contract states)' if name == 'suspension' else 'forfeiture: the non-defaulting parties may demand the assignment of its interest (as the contract states)'
+            what = 'the suspension of its rights (as the contract states) starts' if name == 'suspension' else 'the right to demand the assignment of its interest (forfeiture, as the contract states) arises'
             if q['applies']:
-                tail = f'it applies, the default being open after {q["triggerDate"]}'
+                tail = f'triggered, the default being open after {q["triggerDate"]}'
             else:
-                tail = 'it does not apply, the default ' + (f'being cured on {cured}' if cured is not MISSING else f'being open only to asOf {asof}')
-            reasons.append(f'{d["id"]}: {what} applies after {unit(c["after"], UNIT_WORD[c["unit"]])} from {c["from"]}, that is after {q["triggerDate"]}: {tail}')
+                tail = 'not triggered, the default ' + (f'being cured on {cured}' if cured is not MISSING else f'being open only to asOf {asof}')
+            reasons.append(f'{d["id"]}: {what} after {unit(c["after"], UNIT_WORD[c["unit"]])} from {c["from"]}, that is after {q["triggerDate"]}: {tail}')
         drows.append({'id': d['id'], 'share': fl(share[d['id']]), 'paid': d['paid'], 'unpaid': fl(unpaid), 'curedOn': None if cured is MISSING else cured,
                       'days': days, 'interest': fl(interest), 'suspension': conseq['suspension'], 'forfeiture': conseq['forfeiture'], '_u': unpaid, '_i': interest})
     ut = sum((r['_u'] for r in drows), F(0))
@@ -1391,9 +1391,9 @@ def build():
     case('nc-ekene-buy-in-norway-1000', 'nonConsent', {'parties': P, 'consenting': nc['consenting'], 'operation': nc['operation'], 'premiumMultiplePct': 1000, 'mode': 'buy-in'},
          note='Norway JOA Art. 18.12: one thousand (1000) % of the proportionate share of the costs, apportioned to the initial participants by their interest in the project')
     case('nc-premium-last-barrel', 'nonConsent', {'parties': P2, 'consenting': ['A', 'B'], 'operation': {'name': 'well', 'cost': 1000}, 'premiumMultiplePct': 300, 'mode': 'recover-from-production',
-                                                  'years': [{'year': 2030, 'grossValue': 1000, 'deductions': 0}, {'year': 2031, 'grossValue': 500, 'deductions': 0}, {'year': 2032, 'grossValue': 1000, 'deductions': 0}]})
+                                                  'years': [{'year': 2030, 'grossValue': 1000, 'deductions': 0}, {'year': 2031, 'grossValue': 2000, 'deductions': 0}, {'year': 2032, 'grossValue': 1000, 'deductions': 0}]})
     case('nc-premium-reverts-mid-year', 'nonConsent', {'parties': P2, 'consenting': ['A', 'B'], 'operation': {'name': 'well', 'cost': 1000}, 'premiumMultiplePct': 300, 'mode': 'recover-from-production',
-                                                       'years': [{'year': 2030, 'grossValue': 1000, 'deductions': 0}, {'year': 2031, 'grossValue': 1000, 'deductions': 0}]})
+                                                       'years': [{'year': 2030, 'grossValue': 1000, 'deductions': 0}, {'year': 2031, 'grossValue': 3000, 'deductions': 0}, {'year': 2032, 'grossValue': 1000, 'deductions': 0}]})
     case('nc-two-nonconsenting-deductions-exceed', 'nonConsent', {'parties': P2, 'consenting': ['A'], 'operation': {'name': 'well', 'cost': 1000}, 'premiumMultiplePct': 100, 'mode': 'recover-from-production',
                                                                   'years': [{'year': 2030, 'grossValue': 100, 'deductions': 150}, {'year': 2031, 'grossValue': 5000, 'deductions': 1000}]})
     refused('nc-refuse-all-consent', 'nonConsent', dict(nbase, consenting=['EKO', 'PA', 'PB', 'NOC']), 'consenting')
