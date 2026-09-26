@@ -7341,6 +7341,181 @@
    "tol": 1e-12
   },
   {
+   "id": "top-makeup-period-one",
+   "fn": "takeOrPay",
+   "args": {
+    "years": [
+     {
+      "year": 2027,
+      "acq": 1000,
+      "taken": 600,
+      "contractPrice": 3,
+      "topPrice": 3,
+      "makeUpPrice": 0
+     },
+     {
+      "year": 2028,
+      "acq": 1000,
+      "taken": 1050,
+      "contractPrice": 3,
+      "topPrice": 3,
+      "makeUpPrice": 0
+     },
+     {
+      "year": 2029,
+      "acq": 1000,
+      "taken": 800,
+      "contractPrice": 3,
+      "topPrice": 3,
+      "makeUpPrice": 0
+     }
+    ],
+    "topPct": 80,
+    "makeUp": {
+     "periodYears": 1,
+     "order": "after-adjusted-acq",
+     "endOfTerm": "forfeit"
+    }
+   },
+   "expected": {
+    "years": [
+     {
+      "year": 2027,
+      "acq": 1000,
+      "maintenance": 0.0,
+      "forceMajeure": 0.0,
+      "sellerShortfall": 0.0,
+      "permittedReduction": 0.0,
+      "adjustedAcq": 1000.0,
+      "topQuantity": 800.0,
+      "taken": 600,
+      "makeUpAvailable": 0.0,
+      "makeUpTaken": 0.0,
+      "makeUpDrawn": [],
+      "counted": 600.0,
+      "deficiency": 200.0,
+      "carryForwardAvailable": 0.0,
+      "carryForwardApplied": 0.0,
+      "carryForwardDrawn": [],
+      "deficiencyPaid": 200.0,
+      "deficiencyPayment": 600.0,
+      "surplus": 0.0,
+      "makeUpExpired": [],
+      "carryForwardExpired": [],
+      "makeUpOutstanding": 200.0,
+      "carryForwardOutstanding": 0.0,
+      "endOfTerm": null,
+      "regularRevenue": 1800.0,
+      "makeUpRevenue": 0.0,
+      "shortfallPayment": 0.0,
+      "refund": 0.0,
+      "netToSeller": 2400.0,
+      "reasons": [
+       "2027: 600 counted against the take-or-pay quantity 800 leaves a deficiency of 200; the deficiency payment is 200 x 3 = 600; the buyer may make up 200 in the 1 contract year after 2027, to the end of 2028"
+      ]
+     },
+     {
+      "year": 2028,
+      "acq": 1000,
+      "maintenance": 0.0,
+      "forceMajeure": 0.0,
+      "sellerShortfall": 0.0,
+      "permittedReduction": 0.0,
+      "adjustedAcq": 1000.0,
+      "topQuantity": 800.0,
+      "taken": 1050,
+      "makeUpAvailable": 200.0,
+      "makeUpTaken": 50.0,
+      "makeUpDrawn": [
+       {
+        "fromYear": 2027,
+        "quantity": 50.0
+       }
+      ],
+      "counted": 1000.0,
+      "deficiency": 0.0,
+      "carryForwardAvailable": 0.0,
+      "carryForwardApplied": 0.0,
+      "carryForwardDrawn": [],
+      "deficiencyPaid": 0.0,
+      "deficiencyPayment": 0.0,
+      "surplus": 0.0,
+      "makeUpExpired": [
+       {
+        "fromYear": 2027,
+        "quantity": 150.0
+       }
+      ],
+      "carryForwardExpired": [],
+      "makeUpOutstanding": 0.0,
+      "carryForwardOutstanding": 0.0,
+      "endOfTerm": null,
+      "regularRevenue": 3000.0,
+      "makeUpRevenue": 0.0,
+      "shortfallPayment": 0.0,
+      "refund": 0.0,
+      "netToSeller": 3000.0,
+      "reasons": [
+       "2028: make-up of 50 taken from the make-up aggregate 200 (make-up only after the Adjusted ACQ of the year is taken), first in first out: 50 from 2027",
+       "2028: make-up of 150 from 2027 expired unrecovered at the end of 2028, the last year of its make-up period"
+      ]
+     },
+     {
+      "year": 2029,
+      "acq": 1000,
+      "maintenance": 0.0,
+      "forceMajeure": 0.0,
+      "sellerShortfall": 0.0,
+      "permittedReduction": 0.0,
+      "adjustedAcq": 1000.0,
+      "topQuantity": 800.0,
+      "taken": 800,
+      "makeUpAvailable": 0.0,
+      "makeUpTaken": 0.0,
+      "makeUpDrawn": [],
+      "counted": 800.0,
+      "deficiency": 0.0,
+      "carryForwardAvailable": 0.0,
+      "carryForwardApplied": 0.0,
+      "carryForwardDrawn": [],
+      "deficiencyPaid": 0.0,
+      "deficiencyPayment": 0.0,
+      "surplus": 0.0,
+      "makeUpExpired": [],
+      "carryForwardExpired": [],
+      "makeUpOutstanding": 0.0,
+      "carryForwardOutstanding": 0.0,
+      "endOfTerm": {
+       "rule": "forfeit",
+       "quantity": 0.0,
+       "entries": [],
+       "refund": 0.0
+      },
+      "regularRevenue": 2400.0,
+      "makeUpRevenue": 0.0,
+      "shortfallPayment": 0.0,
+      "refund": 0.0,
+      "netToSeller": 2400.0,
+      "reasons": []
+     }
+    ],
+    "totals": {
+     "taken": 2450.0,
+     "makeUpTaken": 50.0,
+     "deficiencyPaid": 200.0,
+     "deficiencyPayment": 600.0,
+     "makeUpExpired": 150.0,
+     "endOfTermQuantity": 0.0,
+     "regularRevenue": 7200.0,
+     "makeUpRevenue": 0.0,
+     "shortfallPayment": 0.0,
+     "refund": 0.0,
+     "netToSeller": 7800.0
+    }
+   },
+   "tol": 1e-12
+  },
+  {
    "id": "top-makeup-period-zero",
    "fn": "takeOrPay",
    "args": {

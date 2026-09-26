@@ -1214,6 +1214,7 @@ def build():
     exp4 = [Y(2027, 1000, 600), Y(2028, 1000, 1000), Y(2029, 1000, 1100), Y(2030, 1000, 1000)]
     case('top-makeup-on-last-day-of-period', 'takeOrPay', {'years': exp4, 'topPct': 80, 'makeUp': mu})
     case('top-makeup-one-year-late', 'takeOrPay', {'years': [Y(2027, 1000, 600), Y(2028, 1000, 1000), Y(2029, 1000, 1000), Y(2030, 1000, 1100)], 'topPct': 80, 'makeUp': mu})
+    case('top-makeup-period-one', 'takeOrPay', {'years': [Y(2027, 1000, 600), Y(2028, 1000, 1050), Y(2029, 1000, 800)], 'topPct': 80, 'makeUp': dict(mu, periodYears=1)})
     case('top-makeup-period-zero', 'takeOrPay', {'years': [Y(2027, 1000, 600), Y(2028, 1000, 1100)], 'topPct': 80, 'makeUp': dict(mu, periodYears=0)})
     case('top-fifo-two-deficiencies', 'takeOrPay', {'years': [Y(2027, 1000, 700), Y(2028, 1000, 750), Y(2029, 1000, 1080), Y(2030, 1000, 1030), Y(2031, 1000, 1000)], 'topPct': 80, 'makeUp': dict(mu, periodYears=3)})
     case('top-force-majeure-and-shortfall', 'takeOrPay', {'years': [Y(2027, 1000, 600, forceMajeure=100, sellerShortfall=50, shortfallPrice=1.5, maintenance=20, permittedReduction=30), Y(2028, 1000, 800)], 'topPct': 80, 'makeUp': mu})
