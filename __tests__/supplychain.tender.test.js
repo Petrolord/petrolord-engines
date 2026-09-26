@@ -237,7 +237,7 @@ describe('caps', () => {
     expect(r.error).toBe(`bids has ${T.DEFAULTS.MAX_BIDS + 1} entries; the cap is ${T.DEFAULTS.MAX_BIDS}`);
   });
   test('iterations above the cap are refused', () => {
-    const a = clone(byId('ct-constant-everything').args);
+    const a = clone(byId('ct-constant-everything-zero-margin-is-not-a-loss').args);
     expect(T.contractTypes({ ...a, iterations: T.DEFAULTS.MAX_ITERATIONS + 1 }).field).toBe('iterations');
   });
 });

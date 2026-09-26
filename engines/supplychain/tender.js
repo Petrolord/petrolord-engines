@@ -711,7 +711,7 @@ export const nigerianContent = ({ items, bids } = {}) => {
  *   Otherwise the lowest evaluated cost stands.
  * s.16: a Nigerian indigenous company with capacity to execute the job is not
  *   disqualified solely because it is not the lowest bidder when its price
- *   does not exceed the lowest by 10 percent, 10 x (C - Cmin) <= Cmin. This
+ *   does not exceed the lowest by 10 percent, 100 x (C - Cmin) <= 10 x Cmin. This
  *   rule protects a bid from exclusion; it does not select it.
  */
 export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
@@ -728,7 +728,7 @@ export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
   const ranked = rankRows(bids.map((b) => ({ ...b })), (r) => r.evaluatedCost, false).map((x) => x.row);
   const lowest = ranked[0];
   const cMin = lowest.evaluatedCost;
-  const group = ranked.filter((b) => 100 * (b.evaluatedCost - cMin) <= cMin);
+  const group = ranked.filter((b) => 100 * (b.evaluatedCost - cMin) <= DEFAULTS.NC_PRICE_MARGIN_PCT * cMin);
   const s14 = { engaged: false, group: group.map((b) => b.id), leader: null, runnerUp: null, lead: null, leadBasis: ncLeadBasis, applied: false, reason: null };
   let selected = lowest.id;
   if (group.length < 2) {
@@ -762,7 +762,7 @@ export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
     }
   }
   const s16 = ranked.filter((b) => b.indigenous === true && b.capacity === true).map((b) => {
-    const within = 10 * (b.evaluatedCost - cMin) <= cMin;
+    const within = 100 * (b.evaluatedCost - cMin) <= DEFAULTS.INDIGENOUS_MARGIN_PCT * cMin;
     const abovePct = (100 * (b.evaluatedCost - cMin)) / cMin;
     return {
       id: b.id, abovePct, withinMargin: within,
@@ -777,8 +777,8 @@ export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
     section16: s16,
     selected,
     basis: {
-      section14: `group: 100 x (C - Cmin) <= Cmin; lead read as ${ncLeadBasis === 'points' ? 'top - runner-up >= 5 percentage points' : '100 x (top - runner-up) >= 5 x runner-up'}; the runner-up is the next-highest Nigerian content in the group (${CITE.s14})`,
-      section16: `10 x (C - Cmin) <= Cmin for a Nigerian indigenous company with capacity (${CITE.s16})`,
+      section14: `group: 100 x (C - Cmin) <= 1 x Cmin; lead read as ${ncLeadBasis === 'points' ? 'top - runner-up >= 5 percentage points' : '100 x (top - runner-up) >= 5 x runner-up'}; the runner-up is the next-highest Nigerian content in the group (${CITE.s14})`,
+      section16: `100 x (C - Cmin) <= 10 x Cmin for a Nigerian indigenous company with capacity (${CITE.s16})`,
     },
   };
 };

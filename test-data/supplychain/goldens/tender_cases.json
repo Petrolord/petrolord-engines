@@ -9278,13 +9278,13 @@
    "tol": 1e-09
   },
   {
-   "id": "ct-constant-everything",
+   "id": "ct-constant-everything-zero-margin-is-not-a-loss",
    "fn": "contractTypes",
    "args": {
     "duration": 10,
     "dailyCost": 1000,
     "lumpSum": {
-     "price": 12000
+     "price": 10000
     },
     "dayRate": {
      "rate": 1100,
@@ -9324,18 +9324,18 @@
     },
     "types": {
      "lumpSum": {
-      "plannedPayment": 12000.0,
+      "plannedPayment": 10000.0,
       "companyCost": {
-       "mean": 12000.0,
-       "p90": 12000.0,
-       "p50": 12000.0,
-       "p10": 12000.0,
-       "min": 12000.0,
-       "max": 12000.0
+       "mean": 10000.0,
+       "p90": 10000.0,
+       "p50": 10000.0,
+       "p10": 10000.0,
+       "min": 10000.0,
+       "max": 10000.0
       },
       "contractorMargin": {
-       "mean": 2000.0,
-       "planned": 2000.0,
+       "mean": 0.0,
+       "planned": 0.0,
        "probabilityOfLoss": 0.0
       },
       "overrun": {

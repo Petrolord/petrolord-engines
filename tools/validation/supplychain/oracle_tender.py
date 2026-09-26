@@ -1304,7 +1304,7 @@ def build():
                                                           'lumpSum': {'price': 700000}, 'dayRate': {'rate': 48000, 'mobilisationFee': 100000},
                                                           'reimbursable': {'fixedFee': 60000}, 'plan': {'days': 13, 'dailyCost': 40000},
                                                           'iterations': 4000, 'seed': 42}, tol=1e-9)
-    case('ct-constant-everything', 'contractTypes', {'duration': 10, 'dailyCost': 1000, 'lumpSum': {'price': 12000}, 'dayRate': {'rate': 1100, 'mobilisationFee': 0},
+    case('ct-constant-everything-zero-margin-is-not-a-loss', 'contractTypes', {'duration': 10, 'dailyCost': 1000, 'lumpSum': {'price': 10000}, 'dayRate': {'rate': 1100, 'mobilisationFee': 0},
                                                     'reimbursable': {'feeFraction': 0.1}, 'iterations': 10, 'seed': 1})
     base = {'duration': 10, 'dailyCost': 1000, 'lumpSum': {'price': 1}, 'dayRate': {'rate': 1, 'mobilisationFee': 0}, 'reimbursable': {'feeFraction': 0.1}, 'iterations': 10, 'seed': 1}
     for cid, patch in [
