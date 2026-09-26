@@ -796,6 +796,32 @@ and its consumers.
   Bank, Kiiver and Kodym 2015 and Chen 2008 worked examples); synthetic Ekene
   tenders in `test-data/supplychain/ekene-tender/`; negative control
   `negcontrol_tender.sh`; timing `timing_tender.js`.
+- `engines/economics/gasContract.js` (Economics EC8, 2026-09-26): gas sales
+  agreements. Volume to energy through a stated heating value (International
+  Table Btu), ACQ from DCQ and a stated day count, MaxDCQ and swing (effective
+  swing = swing / take-or-pay level, HMRC OT05402), the daily balance of
+  nominations against deliveries (properly nominated quantity, the seller's
+  Shortfall Quantity after force majeure and maintenance, the buyer's
+  shortfall), the annual take-or-pay reconciliation on the Commonwealth model
+  GSA (2025, CC BY 4.0) formulas (Adjusted ACQ, TOPQ, deficiency and payment,
+  a make-up ledger with three stated recovery orders, first in first out,
+  expiry and the end-of-term forfeit or refund, optional carry-forward with
+  its cap, seller shortfall damages), contract prices from a monthly index
+  series (fixed, escalated, oil-indexed with floor, ceiling and S-curve,
+  hub-indexed, the Article 15.1 basket; stated averaging, lag and reset; the
+  Article 15.4 4-decimal rule; reopeners reported), the Nigerian domestic gas
+  prices of PIA 2021 s.167, s.168 and the Fourth Schedule (the domestic base
+  price is a required input) and the Domestic Gas Delivery Obligation penalty
+  (s.110; DGDO Regulations 2022 r.6), and the GSA cash flows with the gas
+  royalty and NPV imported from `economics/cashflow.ts`. Gate:
+  `economics.gasContract.test.js` replays
+  `test-data/economics/goldens/gascontract_cases.json` (written by
+  `tools/validation/economics/oracle_gascontract.py`, stdlib, with the HMRC,
+  Energy Charter, OIES and PIA printed figures); synthetic Ekene GSAs in
+  `test-data/economics/ekene-gsa/`; findings, sources with dates, the boundary
+  table and the negative control in
+  `tools/validation/economics/FINDINGS-gasContract.md` and
+  `negcontrol_gascontract.sh`; timing `timing_gascontract.js`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,

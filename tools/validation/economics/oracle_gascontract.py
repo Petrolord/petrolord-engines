@@ -1272,8 +1272,8 @@ def build():
     case('price-escalated', 'priceSeries', {'months': mseries('2027-01', [0] * 30, 'none'), 'formula': {'type': 'escalated', 'basePrice': 2, 'baseMonth': '2027-04', 'ratePctPerYear': 2.5}, 'from': '2027-04', 'to': '2029-06'})
     case('price-fixed', 'priceSeries', {'months': mseries('2027-01', [1, 2], 'x'), 'formula': {'type': 'fixed', 'price': 2.18}, 'from': '2027-01', 'to': '2027-03', 'reopeners': ['2027-02']})
     # the 4-decimal rule: 1 + 0.1 x X at X chosen so the fifth decimal is exactly 5, 4, and 5 followed by 9s
-    rnd_vals = [11.2345, 11.2344, 11.23459, 11.23449, 100.00005, 0.00005]
-    case('price-round-model-4dp', 'priceSeries', {'months': mseries('2026-01', rnd_vals, 'x'), 'formula': {'type': 'oil-indexed', 'index': 'x', 'slope': 1, 'constant': 0}, 'from': '2026-01', 'to': '2026-06', 'rounding': 'model-gsa-4dp'})
+    rnd_vals = [11.2345, 11.2344, 11.23459, 11.23449, 100.00005, 0.00005, 11.234346]
+    case('price-round-model-4dp', 'priceSeries', {'months': mseries('2026-01', rnd_vals, 'x'), 'formula': {'type': 'oil-indexed', 'index': 'x', 'slope': 1, 'constant': 0}, 'from': '2026-01', 'to': '2026-07', 'rounding': 'model-gsa-4dp'})
     case('price-export-unrounded', 'priceSeries', dict(price_args(ex), rounding='none'))
     # refusals
     pb = {'months': six, 'formula': lin, 'from': '2025-08', 'to': '2026-06', 'averagingMonths': 6, 'lagMonths': 1, 'resetMonths': 3}
@@ -1297,7 +1297,9 @@ def build():
 
     # ---- energyParitySlope
     case('parity-ecs-0172', 'energyParitySlope', {'mmbtuPerBarrel': 5.8},
-         published={'source': 'Energy Charter Secretariat (2007) section 4.5.3.3', 'printed': {'slope': 0.172}, 'rule': 'the theoretical heat-equivalence slope printed as 0.172; 1 / 5.8 = 0.172413...; 5.8 MMBtu per barrel is the EIA crude oil heat content (Monthly Energy Review Table A2)'})
+         published={'source': 'Energy Charter Secretariat (2007) section 4.5.3.3', 'printed': {'slope': 0.172}, 'rule': 'the theoretical heat-equivalence slope printed as 0.172; 1 / 5.8 = 0.172413...; 5.8 MMBtu per barrel is the conventional crude heat content (1 / 0.172 = 5.814)'})
+    case('parity-eia-2026', 'energyParitySlope', {'mmbtuPerBarrel': 5.689},
+         published={'source': 'EIA energy conversion calculators, read 2026-09-26', 'printed': {'btuPerBarrel': 5689000}, 'rule': '1 barrel of crude oil = 5,689,000 Btu (2026 US production estimate)'})
     case('parity-6', 'energyParitySlope', {'mmbtuPerBarrel': 6})
     case('parity-refuse-zero', 'energyParitySlope', {'mmbtuPerBarrel': 0})
     case('parity-refuse-unknown-key', 'energyParitySlope', {'mmbtu': 5.8})

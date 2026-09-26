@@ -13605,6 +13605,12 @@
       "values": {
        "x": 5e-05
       }
+     },
+     {
+      "month": "2026-07",
+      "values": {
+       "x": 11.234346
+      }
      }
     ],
     "formula": {
@@ -13614,7 +13620,7 @@
      "constant": 0
     },
     "from": "2026-01",
-    "to": "2026-06",
+    "to": "2026-07",
     "rounding": "model-gsa-4dp"
    },
    "expected": {
@@ -13720,14 +13726,31 @@
       "unroundedPrice": 5e-05,
       "price": 0.0001,
       "reopener": false
+     },
+     {
+      "month": "2026-07",
+      "priceMonth": "2026-07",
+      "window": [
+       "2026-07",
+       "2026-07"
+      ],
+      "indexAverages": {
+       "x": 11.234346
+      },
+      "heldIndices": null,
+      "segment": null,
+      "clamped": null,
+      "unroundedPrice": 11.234346,
+      "price": 11.2343,
+      "reopener": false
      }
     ],
     "annual": [
      {
       "year": 2026,
-      "months": 6,
-      "averagePrice": 24.156366666666667,
-      "lastMonthPrice": 0.0001
+      "months": 7,
+      "averagePrice": 22.310357142857143,
+      "lastMonthPrice": 11.2343
      }
     ],
     "reopeners": []
@@ -18621,7 +18644,26 @@
     "printed": {
      "slope": 0.172
     },
-    "rule": "the theoretical heat-equivalence slope printed as 0.172; 1 / 5.8 = 0.172413...; 5.8 MMBtu per barrel is the EIA crude oil heat content (Monthly Energy Review Table A2)"
+    "rule": "the theoretical heat-equivalence slope printed as 0.172; 1 / 5.8 = 0.172413...; 5.8 MMBtu per barrel is the conventional crude heat content (1 / 0.172 = 5.814)"
+   }
+  },
+  {
+   "id": "parity-eia-2026",
+   "fn": "energyParitySlope",
+   "args": {
+    "mmbtuPerBarrel": 5.689
+   },
+   "expected": {
+    "mmbtuPerBarrel": 5.689,
+    "slope": 0.17577781683951485
+   },
+   "tol": 1e-12,
+   "published": {
+    "source": "EIA energy conversion calculators, read 2026-09-26",
+    "printed": {
+     "btuPerBarrel": 5689000
+    },
+    "rule": "1 barrel of crude oil = 5,689,000 Btu (2026 US production estimate)"
    }
   },
   {

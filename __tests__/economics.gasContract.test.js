@@ -266,8 +266,8 @@ describe('properties', () => {
     expect(r.months[0].price).toBe(r.months[2].price);
     expect(run('price-avg3-lag0-reset1').months[0].window).toEqual(['2025-01', '2025-03']);
   });
-  test('price series: the 4-decimal rule rounds half up on the fifth decimal', () => {
-    expect(run('price-round-model-4dp').months.map((m) => m.price)).toEqual([11.2345, 11.2344, 11.2346, 11.2345, 100.0001, 0.0001]);
+  test('price series: the 4-decimal rule rounds half up on the fifth decimal, with no rounding before it (11.234346 gives 11.2343)', () => {
+    expect(run('price-round-model-4dp').months.map((m) => m.price)).toEqual([11.2345, 11.2344, 11.2346, 11.2345, 100.0001, 0.0001, 11.2343]);
   });
   test('the NPV is the canonical cashflow.ts npv of the rows, and the royalty rate is the canonical gas rate', () => {
     ['cf-power', 'cf-export'].forEach((id) => {

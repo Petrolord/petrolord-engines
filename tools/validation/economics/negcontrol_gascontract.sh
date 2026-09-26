@@ -118,7 +118,7 @@ run_case ENGINE "S-curve kink: high segment not anchored at the kink" $E "return
 run_case ENGINE "S-curve kink: the low kink itself in the low segment" $E "if (x < s.lowKink) return" "if (x <= s.lowKink) return"
 run_case ENGINE "price floor ignored" $E "if (f.floor !== undefined && raw < f.floor)" "if (false && raw < f.floor)"
 run_case ENGINE "rounding: fifth decimal 5 rounds down" $E "return Number(fp[4]) >= 5 ?" "return Number(fp[4]) > 5 ?"
-run_case ENGINE "rounding: no 12-digit normalisation" $E "const s = Number(x.toPrecision(DEFAULTS.PRICE_DIGITS)).toFixed(DEFAULTS.PRICE_DIGITS);" "const s = x.toFixed(DEFAULTS.PRICE_DIGITS);"
+run_case ENGINE "rounding: rounded to 5 decimals before the 4-decimal rule" $E "const s = Number(x.toPrecision(DEFAULTS.PRICE_DIGITS)).toFixed(DEFAULTS.PRICE_DIGITS);" "const s = Number(x.toFixed(5)).toFixed(DEFAULTS.PRICE_DIGITS);"
 run_case ENGINE "basket index floor ignored" $E "if (lo !== undefined && x < lo) x = lo;" "if (false) x = lo;"
 run_case ENGINE "escalation steps monthly" $E "const k = Math.floor((blockStart - monthIndex(formula.baseMonth)) / 12);" "const k = (blockStart - monthIndex(formula.baseMonth)) / 12;"
 # quantities and energy
@@ -145,7 +145,7 @@ run_case ENGINE "NPV discounted one year early" $E "npvNetAfterRoyalty: npv(net,
 # accepted keys and messages
 run_case ENGINE "unknown keys ignored" $E "  for (const k of Object.keys(v)) if (v[k] !== undefined && !spec.keys.includes(k)) return unknownKey(path, k, spec.keys);" ""
 run_case ENGINE "message: make-up expiry wording" $E "expired unrecovered at the end of \${y.year}, the last year of its make-up period" "expired at the end of \${y.year}"
-run_case ENGINE "message: unit agreement dropped" $E "in the \${unit(makeUp.periodYears, 'contract year')} after" "in the \${fmt(makeUp.periodYears)} contract years after"
+run_case ENGINE "message: unit agreement dropped" $E "make up \${fmt(deficiencyPaid)} in the \${unit(makeUp.periodYears, 'contract year')} after" "make up \${fmt(deficiencyPaid)} in the \${fmt(makeUp.periodYears)} contract years after"
 run_case ENGINE "message: domestic base price refusal" $E "the Authority determines it each year (PIA s.167(1)) and the engine holds no default" "the Authority determines it each year"
 
 echo "=== ORACLE plants (RED or STOP: the control on the controls) ==="
