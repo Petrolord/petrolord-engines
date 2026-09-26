@@ -405,7 +405,7 @@ const dailyBalanceImpl = ({ dcq, maxDcqPct, deliveryTolerance = 0, days }) => {
     basis: {
       rule: 'PNQ = min(nominated, MaxDCQ); seller shortfall = (PNQ - tolerance) - available, less the force majeure and maintenance stated for the day, none on a buyer-caused day; adjusted DCQ = DCQ - force majeure - maintenance - seller shortfall; buyer shortfall = adjusted DCQ - taken when positive',
       identity: 'sum of buyer shortfall - sum of over-take = Adjusted ACQ - taken',
-      reading: 'the Shortfall Quantity is measured against the quantity the seller made available; the model formula subtracts the Daily Actual Quantity, which would count gas made available and not taken against the seller',
+      reading: "seller shortfall measured against the quantity the seller made available; the model formula subtracts the Daily Actual Quantity, which would count gas made available and not taken against the seller",
       source: `${CITE.cw} definitions of Shortfall Quantity, Adjusted ACQ and MaxDCQ, Article 12.5`,
     },
   };
@@ -595,11 +595,11 @@ const takeOrPayCore = ({ years, topPct, makeUp, carryForward }) => {
       regularRevenue: tot('regularRevenue'), makeUpRevenue: tot('makeUpRevenue'), shortfallPayment: tot('shortfallPayment'), refund: tot('refund'), netToSeller: tot('netToSeller'),
     },
     basis: {
-      order: `${makeUp.order}: ${ORDERS[makeUp.order].text} (${ORDERS[makeUp.order].source})`,
+      order: `${makeUp.order}: ${ORDERS[makeUp.order].text} (${ORDERS[makeUp.order].source}); a required input with no default. 'after-adjusted-acq' is the reference text's order (${CITE.cw} Article 12.7.1); 'after-top-quantity' and 'first' are variants the engine also computes`,
       rule: 'Adjusted ACQ = ACQ - maintenance - force majeure - seller shortfall - permitted reduction; TOPQ = topPct % of Adjusted ACQ; deficiency = TOPQ - (taken - make-up taken) when positive; deficiency payment = (deficiency - carry-forward credit) x topPrice',
       makeUp: `make-up entries are the deficiency quantities paid, recoverable in the ${unit(makeUp.periodYears, 'contract year')} after the deficiency year, drawn first in first out, expiring at the end of their last year; at the end of the delivery period the rest is ${makeUp.endOfTerm === 'refund' ? 'refunded at the last year\'s topPrice' : 'forfeited'}`,
       carryForward: cfOn ? `surplus above the ${carryForward.base === 'adjusted-acq' ? 'Adjusted ACQ' : 'take-or-pay quantity'} is credited against later deficiencies, at most ${fmt(carryForward.capPct)}% of a year's deficiency, first in first out, for ${unit(carryForward.periodYears, 'contract year')}` : 'off (no carry-forward right stated)',
-      reading: 'the make-up entitlement is the deficiency quantity actually paid for (the deficiency less any carry-forward credit); a deficiency of the last contract year gives no make-up right, and the end-of-term rule applies to the make-up aggregate of earlier years (the Make-Up Aggregate sums prior contract years only)',
+      reading: "make-up right equals the deficiency actually paid after any carry-forward credit; a last-contract-year deficiency creates no make-up right (forfeit/refund applies to earlier years' make-up only); the Make-Up Aggregate sums prior contract years only",
       source: `${CITE.cw} definitions and Articles 12.5 to 12.8; ${CITE.esmap} paras 6.55 to 6.62; ${CITE.hmrcMakeUp}`,
     },
   };
@@ -931,7 +931,7 @@ const domesticPriceImpl = ({ sector, domesticBasePrice, negotiatedPrice, product
   out.basis = {
     rule,
     point: `prices at the marketable natural gas delivery point${transportTariff !== undefined ? '; the stated transport tariff is added for the delivered price (s.167(8), s.168(4))' : ''}`,
-    domesticBasePrice: 'a required input: the Authority determines it each year under the Third Schedule (s.167(1)); the engine holds no value',
+    domesticBasePrice: 'a required input with no default: the Authority determines it each year under the Third Schedule (s.167(1)). US$2.18 per MMBtu (power) and US$2.68 (commercial), effective 1 April 2026, are reported by BusinessDay (31 March 2026) and by Advocaat Law Practice through Legal 500 (7 April 2026); the regulator\'s circular was not read',
     source: `${CITE.pia} ${source}`,
   };
   return out;
@@ -1059,7 +1059,7 @@ const gsaCashFlowsImpl = ({ contract, royalty, discountRate, baseYear }) => {
     npvNetAfterRoyalty: npv(net, discountRate, baseYear, firstYear),
     takeOrPay: top,
     basis: {
-      royalty: `gas royalty rate ${fmt(rate)} from engines/economics/cashflow.ts deriveGasRoyaltyRate (${royalty.terrain}, ${fmt(share)}% utilised in-country: 5%, 2.5% in-country, PIA Seventh Schedule para 10(6)) on the value of gas delivered (taken x contract price); deficiency payments carry no royalty here`,
+      royalty: `gas royalty rate ${fmt(rate)} from engines/economics/cashflow.ts deriveGasRoyaltyRate (${royalty.terrain}, ${fmt(share)}% utilised in-country: 5%, 2.5% in-country, PIA Seventh Schedule para 10(6)) on the value of gas delivered (taken x contract price): royalty is charged on delivered gas value and not on deficiency payments`,
       npv: `canonical npv from engines/economics/cashflow.ts, year-end flows discounted to ${baseYear} at ${fmt(discountRate)}`,
       source: `${CITE.pia} Seventh Schedule para 10(6); ${CITE.cw} Articles 12.5 to 12.8`,
     },

@@ -106,6 +106,35 @@ the gate checks:
 | `dp-power-2026`, `dp-commercial-2026` | reported 2026 (source 3) | 2.18 and 2.68 | 2.18 and 2.68 |
 | `dp-power-2025`, `dp-commercial-2025` | reported 2025 (source 3) | 2.13 and 2.63 | 2.13 and 2.63 |
 
+## Lead decisions (2026-09-26), applied
+
+1. **Domestic base price**: a REQUIRED input with no default. The figures are
+   stated only in this form: US$2.18 per MMBtu (power) and US$2.68 per MMBtu
+   (commercial), effective 1 April 2026, reported by BusinessDay (31 March
+   2026) and by Advocaat Law Practice through Legal 500 (7 April 2026); the
+   regulator's circular was not read. The lead also found only secondary
+   reports (TheCable, Leadership, Business Post). The course may quote them
+   only in this form and never grades them. The `domesticPrice` basis carries
+   the same sentence.
+2. **Flare penalty**: not implemented; concept only (no dated, numbered
+   public text).
+3. **Readings confirmed**, each verbatim in its basis string (pinned by the
+   gate):
+   - `dailyBalance` basis.reading: "seller shortfall measured against the quantity the seller made available"
+   - `takeOrPay` basis.reading: "make-up right equals the deficiency actually paid after any carry-forward credit" and "a last-contract-year deficiency creates no make-up right (forfeit/refund applies to earlier years' make-up only)"
+   - `gsaCashFlows` basis.royalty: "royalty is charged on delivered gas value and not on deficiency payments"
+4. **Recovery order**: a REQUIRED input with no default. The `takeOrPay`
+   basis names 'after-adjusted-acq' as the reference text's order
+   (Commonwealth model GSA Article 12.7.1); 'after-top-quantity' and 'first'
+   are variants the engine also computes.
+5. **Not computed** (concept only): excess gas; over-delivery;
+   off-specification gas; the index rate-of-change cap (model GSA Article 15.8
+   Alternative 2); the outcome of a price review (reopeners are reported only);
+   the DGDO Regulations' 90-day investigation rule (r.6(3) and (4)). Also not
+   computed: pre-start gas, the model GSA's extend-the-term alternative and
+   carry-forward Alternative 1, customer compensation (s.110(13)), the Third
+   Schedule tier allocation, the flare penalty.
+
 ## Decisions and refinements of the lead's scope
 
 1. **Function set.** `toEnergy`, `contractQuantities`, `dailyBalance`,
@@ -441,16 +470,4 @@ Every string below is pinned by a golden (the refusals in full). Figures print a
 
 ## Open questions for the lead
 
-1. **Domestic base price.** A required input. The regulator's circular was
-   not retrievable; the 2026 and 2025 figures are cited from press and a law
-   firm note. If the circular (or a gazetted domestic base price regulation)
-   is obtained, its edition and date should replace source 3.
-2. **Flare penalty.** Not implemented. The only current text found is an
-   undated, unnumbered copy on the NUPRC gazetted page (US$3.50 per 1,000 scf,
-   r.16(1)). Decide whether that copy counts as a current public text; if it
-   does, a `flarePenalty` with that cited rate is a small follow-on.
-3. **Readings 3, 4, 5 and 9** above are the engine's; the course should state
-   them. Confirm or override.
-4. **Recovery-order default.** None is set (all explicit). Confirm that the
-   course teaches the Model GSA order as the reference and the others as
-   variants.
+None open: the lead decided all four on 2026-09-26 (section above).

@@ -318,8 +318,13 @@ describe('properties', () => {
     expect(run('dp-refuse-no-dbp').error).toBe('domesticBasePrice must be stated in US$ per MMBtu: the Authority determines it each year (PIA s.167(1)) and the engine holds no default; got nothing');
   });
   test('stated readings are in the basis', () => {
-    expect(run('top-power').basis.reading).toMatch(/^the make-up entitlement is the deficiency quantity actually paid for/);
-    expect(run('daily-power-january-2027').basis.reading).toMatch(/measured against the quantity the seller made available/);
+    expect(run('daily-power-january-2027').basis.reading).toContain('seller shortfall measured against the quantity the seller made available');
+    expect(run('top-power').basis.reading).toContain('make-up right equals the deficiency actually paid after any carry-forward credit');
+    expect(run('top-power').basis.reading).toContain("a last-contract-year deficiency creates no make-up right (forfeit/refund applies to earlier years' make-up only)");
+    expect(run('cf-power').basis.royalty).toContain('royalty is charged on delivered gas value and not on deficiency payments');
+    expect(run('top-power').basis.order).toContain("'after-adjusted-acq' is the reference text's order");
+    expect(run('dp-power-2026').basis.domesticBasePrice).toMatch(/a required input with no default.*reported by BusinessDay \(31 March 2026\) and by Advocaat Law Practice through Legal 500 \(7 April 2026\); the regulator's circular was not read$/);
+    expect(run('top-refuse-no-makeup').field).toBe('makeUp');
     expect(run('dgdo-agreement-below').basis.rate).toBe("the agreement's rate 2 per MMBtu is below the US$3.50 minimum of r.6(2), so 3.5 applies");
     expect(run('price-export').reopeners[0].note).toBe('price reopener 2031-01: reported only; the engine does not model the outcome of a price review');
   });
