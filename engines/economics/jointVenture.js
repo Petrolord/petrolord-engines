@@ -101,6 +101,9 @@ const fmt = (x) => String(x);
 const show = (v) => (v === undefined ? 'nothing' : typeof v === 'number' ? fmt(v) : typeof v === 'string' ? `"${v}"` : JSON.stringify(v));
 const must = (field, cond, v) => refuse(field, `must be ${cond}; got ${show(v)}`);
 const unit = (x, one, many = `${one}s`) => `${fmt(x)} ${x === 1 ? one : many}`;
+// money in reasons prints rounded to the cent (half away from zero), trailing zeros dropped;
+// numeric fields keep full precision.
+const money = (x) => fmt(Number(x.toFixed(2)));
 const own = (o, k) => o !== null && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, k);
 const isObj = (o) => o !== null && typeof o === 'object' && !Array.isArray(o);
 const fin = (x) => typeof x === 'number' && Number.isFinite(x);
@@ -168,7 +171,7 @@ export const ACCEPTED_KEYS = Object.freeze({
     parties: L(PARTY), operation: O(['name', 'cost']), years: L(O(['year', 'grossValue', 'deductions'])),
   }),
   pscCostRecovery: O(['years', 'royaltyPct', 'costOilLimitPct', 'costOilLimitBase', 'contractorProfitSharePct', 'taxRatePct', 'openingCostPool', 'parties', 'discountRate', 'baseYear'], {
-    years: L(O(['year', 'grossRevenue', 'capex', 'opex'])), parties: L(PARTY),
+    years: L(O(['year', 'grossRevenue', 'capex', 'opex', 'contractorProfitSharePct'])), parties: L(PARTY),
   }),
 });
 
@@ -214,7 +217,7 @@ const checkParties = (parties, pre = 'parties') => {
 const ids = (parties) => parties.map((p) => p.id);
 
 const checkCarries = (carries, parties) => {
-  if (carries === undefined) return null;
+  if (carries === undefined || !Array.isArray(parties)) return null;
   if (!Array.isArray(carries)) return must('carries', 'an array of carries when given', carries);
   if (carries.length > DEFAULTS.MAX_PARTIES) return refuse('carries', `must have at most ${DEFAULTS.MAX_PARTIES} entries; got ${carries.length}`);
   const pid = ids(parties);
@@ -269,12 +272,11 @@ const interestsCore = (parties, carries = []) => {
     const amount = (cp * c.carriedPct) / 100;
     byId[c.carried].payingPct -= amount;
     byId[c.carried].carriedPct = c.carriedPct;
-    const shares = c.carriers === 'pro-rata'
-      ? payers.map((p) => ({ id: p.id, sharePct: (p.participatingPct * 100) / payerTotal }))
-      : Object.keys(c.carriers).filter((k) => c.carriers[k] !== undefined).map((k) => ({ id: k, sharePct: c.carriers[k] }));
-    const alloc = shares.map((s) => ({ id: s.id, sharePct: s.sharePct, pct: (amount * s.sharePct) / 100 }));
+    const alloc = c.carriers === 'pro-rata'
+      ? payers.map((p) => ({ id: p.id, sharePct: (p.participatingPct * 100) / payerTotal, pct: (amount * p.participatingPct) / payerTotal, num: p.participatingPct, den: payerTotal }))
+      : Object.keys(c.carriers).filter((k) => c.carriers[k] !== undefined).map((k) => ({ id: k, sharePct: c.carriers[k], pct: (amount * c.carriers[k]) / 100, num: c.carriers[k], den: 100 }));
     alloc.forEach((a) => { extra[a.id] += a.pct; byId[a.id].carryShares.push({ carried: c.carried, sharePct: a.sharePct, pct: a.pct }); });
-    carryRows.push({ carried: c.carried, carriedPct: c.carriedPct, carriedInterestPct: amount, rule: c.carriers === 'pro-rata' ? 'pro-rata' : 'stated', carriers: alloc });
+    carryRows.push({ carried: c.carried, carriedPct: c.carriedPct, carriedInterestPct: amount, rule: c.carriers === 'pro-rata' ? 'pro-rata' : 'stated', carriers: alloc.map(({ num: _n, den: _d, ...a }) => a), weights: alloc });
   }
   rows.forEach((r) => { r.payingPct += extra[r.id]; });
   return { rows, carries: carryRows };
@@ -283,7 +285,8 @@ const interestsCore = (parties, carries = []) => {
 const interestsImpl = ({ parties, carries }) => {
   const e = first(checkParties(parties), checkCarries(carries, parties));
   if (e) return e;
-  const { rows, carries: cr } = interestsCore(parties, carries);
+  const { rows, carries: raw } = interestsCore(parties, carries);
+  const cr = raw.map(({ weights: _w, ...c }) => c);
   const reasons = cr.map((c) => `${c.carried}: ${fmt(c.carriedPct)}% of its ${fmt(rows.find((r) => r.id === c.carried).beneficialPct)}% cost share is carried (${fmt(c.carriedInterestPct)} points), paid by ${c.carriers.map((a) => `${a.id} ${fmt(a.pct)}`).join(', ')} (${c.rule === 'pro-rata' ? 'pro rata to their participating interests' : 'in the stated shares'}); its share of production stays ${fmt(rows.find((r) => r.id === c.carried).beneficialPct)}%`);
   return {
     parties: rows,
@@ -371,17 +374,17 @@ const cashCallsImpl = ({ parties, carries, months, reconciliationLagMonths, nega
       const row = rows.find((r) => r.id === id);
       return { id, payingPct: row.payingPct, forecastShare: fs[id], adjustment: pending, call, arrearsBilling, paid: call + arrearsBilling, actualShare: as[id], difference: d, carried: carryOut, balance: balance[id] };
     });
-    if (arrears) reasons.push(`${m.month}: the actual of ${arrearsFrom.month}, ${fmt(arrearsFrom.actual)}, made without a cash call, is billed in arrears`);
-    if (!called) reasons.push(`${m.month}: no cash call: the forecast ${fmt(m.forecast)} is below the stated threshold ${fmt(noCallBelow)}; the actual is billed in arrears in the next month`);
+    if (arrears) reasons.push(`${m.month}: the actual of ${arrearsFrom.month}, ${money(arrearsFrom.actual)}, made without a cash call, is billed in arrears`);
+    if (!called) reasons.push(`${m.month}: no cash call: the forecast ${money(m.forecast)} is below the stated threshold ${money(noCallBelow)}; the actual is billed in arrears in the next month`);
     const where = called ? 'this cash call' : 'the next cash call (none is made this month)';
     if (due && dueTotal && (noCallBelow === undefined || dueTotal.forecast >= noCallBelow)) {
       const net = dueTotal.forecast - dueTotal.actual;
-      if (net > 0) reasons.push(`${m.month}: the over-call of ${fmt(net)} in ${dueTotal.month} (forecast ${fmt(dueTotal.forecast)}, actual ${fmt(dueTotal.actual)}) is credited against ${where}, ${unit(lag, 'month')} later`);
-      else if (net < 0) reasons.push(`${m.month}: the under-call of ${fmt(-net)} in ${dueTotal.month} (forecast ${fmt(dueTotal.forecast)}, actual ${fmt(dueTotal.actual)}) is added to ${where}, ${unit(lag, 'month')} later`);
-      else reasons.push(`${m.month}: ${dueTotal.month} was called exactly (forecast = actual = ${fmt(dueTotal.actual)}); no adjustment`);
+      if (net > 0) reasons.push(`${m.month}: the over-call of ${money(net)} in ${dueTotal.month} (forecast ${money(dueTotal.forecast)}, actual ${money(dueTotal.actual)}) is credited against ${where}, ${unit(lag, 'month')} later`);
+      else if (net < 0) reasons.push(`${m.month}: the under-call of ${money(-net)} in ${dueTotal.month} (forecast ${money(dueTotal.forecast)}, actual ${money(dueTotal.actual)}) is added to ${where}, ${unit(lag, 'month')} later`);
+      else reasons.push(`${m.month}: ${dueTotal.month} was called exactly (forecast = actual = ${money(dueTotal.actual)}); no adjustment`);
     }
-    if (carriedIn > 0) reasons.push(`${m.month}: a credit of ${fmt(carriedIn)} held from ${months[t - 1].month} is applied to ${where}`);
-    else if (carriedIn < 0) reasons.push(`${m.month}: ${fmt(-carriedIn)} owed from ${months[t - 1].month} is added to ${where}`);
+    if (carriedIn > 0) reasons.push(`${m.month}: a credit of ${money(carriedIn)} held from ${months[t - 1].month} is applied to ${where}`);
+    else if (carriedIn < 0) reasons.push(`${m.month}: ${money(-carriedIn)} owed from ${months[t - 1].month} is added to ${where}`);
     if (called && m.forecast === 0) reasons.push(`${m.month}: a forecast of 0: the cash call is the adjustment alone`);
     const neg = partyRows.filter((r) => r.call < 0);
     if (neg.length) reasons.push(`${m.month}: the adjustment exceeds the forecast share of ${neg.map((r) => r.id).join(', ')}: the excess is refunded (a negative call)`);
@@ -398,7 +401,6 @@ const cashCallsImpl = ({ parties, carries, months, reconciliationLagMonths, nega
       reasons,
     });
   });
-  const last = out[out.length - 1];
   const unadjusted = Object.fromEntries(pid.map((id) => [id, 0]));
   for (let t = Math.max(0, months.length - lag); t < months.length; t += 1) pid.forEach((id) => { unadjusted[id] += diffs[t][id]; });
   const closing = pid.map((id) => ({
@@ -456,10 +458,10 @@ const budgetImpl = ({ items, itemTolerancePct, budgetTolerance, unbudgetedAllowa
     let within;
     if (it.approved === 0) {
       within = it.actual === 0 || unbudgetedInside;
-      if (it.actual > 0) reasons.push(`${it.item}: ${fmt(it.actual)} spent with no approved budget${unbudgetedAllowance === undefined ? ': outside the approved budget' : unbudgetedInside ? `, inside the unbudgeted allowance ${fmt(unbudgetedAllowance)} with the other unbudgeted items (${fmt(unbudgetedTotal)} in all)` : `: the unbudgeted items total ${fmt(unbudgetedTotal)}, above the allowance ${fmt(unbudgetedAllowance)}`}`);
+      if (it.actual > 0) reasons.push(`${it.item}: ${money(it.actual)} spent with no approved budget${unbudgetedAllowance === undefined ? ': outside the approved budget' : unbudgetedInside ? `, inside the unbudgeted allowance ${money(unbudgetedAllowance)} with the other unbudgeted items (${money(unbudgetedTotal)} in all)` : `: the unbudgeted items total ${money(unbudgetedTotal)}, above the allowance ${money(unbudgetedAllowance)}`}`);
     } else {
       within = it.actual <= limit;
-      if (overrun > 0) reasons.push(`${it.item}: ${fmt(it.actual)} against ${fmt(it.approved)} approved is an overrun of ${fmt(overrun)}, ${within ? 'inside' : 'beyond'} the item tolerance of ${fmt(itemTolerancePct)}% (limit ${fmt(limit)})`);
+      if (overrun > 0) reasons.push(`${it.item}: ${money(it.actual)} against ${money(it.approved)} approved is an overrun of ${money(overrun)}, ${within ? 'inside' : 'beyond'} the item tolerance of ${fmt(itemTolerancePct)}% (limit ${money(limit)})`);
     }
     return { item: it.item, approved: it.approved, actual: it.actual, overrun, overrunPct: it.approved > 0 ? (overrun * 100) / it.approved : null, limit: it.approved > 0 ? limit : null, withinItemTolerance: within };
   });
@@ -470,7 +472,7 @@ const budgetImpl = ({ items, itemTolerancePct, budgetTolerance, unbudgetedAllowa
   const overrun = actual - approved;
   const withinBudget = overrun <= allowed;
   const heldBy = budgetTolerance.amount === undefined ? 'pct' : byPct <= budgetTolerance.amount ? 'pct' : 'amount';
-  reasons.push(`the budget: ${fmt(actual)} against ${fmt(approved)} approved, ${overrun > 0 ? `an overrun of ${fmt(overrun)}` : overrun < 0 ? `an underrun of ${fmt(-overrun)}` : 'on budget'}; the allowed overrun is ${budgetTolerance.amount === undefined ? `${fmt(budgetTolerance.pct)}% of the approved total, ${fmt(allowed)}` : `the lower of ${fmt(budgetTolerance.pct)}% of the approved total (${fmt(byPct)}) and ${fmt(budgetTolerance.amount)}: ${fmt(allowed)}`}; ${withinBudget ? 'inside' : 'beyond'} the budget tolerance`);
+  reasons.push(`the budget: ${money(actual)} against ${money(approved)} approved, ${overrun > 0 ? `an overrun of ${money(overrun)}` : overrun < 0 ? `an underrun of ${money(-overrun)}` : 'on budget'}; the allowed overrun is ${budgetTolerance.amount === undefined ? `${fmt(budgetTolerance.pct)}% of the approved total, ${money(allowed)}` : `the lower of ${fmt(budgetTolerance.pct)}% of the approved total (${money(byPct)}) and ${money(budgetTolerance.amount)}: ${money(allowed)}`}; ${withinBudget ? 'inside' : 'beyond'} the budget tolerance`);
   return {
     items: rows,
     total: { approved, actual, overrun, allowedOverrun: allowed, heldBy, withinBudgetTolerance: withinBudget },
@@ -545,9 +547,9 @@ const overheadImpl = ({ costs, excluded = {}, scale }) => {
     const aboveAmount = Math.max(0, base - lo);
     const above = { from: lo, amount: aboveAmount, pct: scale[k].abovePct, charge: (aboveAmount * scale[k].abovePct) / 100 };
     const charge = sum(bands.map((b) => b.charge)) + above.charge;
-    const parts = bands.filter((b) => b.amount > 0).map((b) => `${fmt(b.pct)}% of ${fmt(b.amount)}`);
-    if (above.amount > 0) parts.push(`${fmt(above.pct)}% of ${fmt(above.amount)}${bands.length ? ` above ${fmt(lo)}` : ''}`);
-    reasons.push(`${k}: base ${fmt(base)}${ex > 0 ? ` (cost ${fmt(costs[k])} less exclusions ${fmt(ex)})` : ''}; ${parts.length ? parts.join(' + ') : 'nothing to charge'} = ${fmt(charge)}`);
+    const parts = bands.filter((b) => b.amount > 0).map((b) => `${fmt(b.pct)}% of ${money(b.amount)}`);
+    if (above.amount > 0) parts.push(`${fmt(above.pct)}% of ${money(above.amount)}${bands.length ? ` above ${money(lo)}` : ''}`);
+    reasons.push(`${k}: base ${money(base)}${ex > 0 ? ` (cost ${money(costs[k])} less exclusions ${money(ex)})` : ''}; ${parts.length ? parts.join(' + ') : 'nothing to charge'} = ${money(charge)}`);
     return { category: k, cost: costs[k], excluded: ex, base, bands, above, charge };
   });
   return {
@@ -652,7 +654,7 @@ const defaultImpl = ({ parties, carries, callTotal, dueDate, asOf, defaulters, i
       const applies = d.curedOn !== undefined ? d.curedOn > on : asOf > on;
       conseq[name] = { triggerDate: on, applies };
     }
-    reasons.push(`${d.id}: share of the call ${fmt(shares[d.id])}, paid ${fmt(d.paid)}, unpaid ${fmt(unpaid)}; interest ${fmt(unpaid)} x ${fmt(interest.annualRatePct)}% x ${unit(days, 'day')} / ${interest.dayBasis} = ${fmt(amount)} (from ${dueDate} to ${d.curedOn !== undefined ? `the cure on ${d.curedOn}` : `asOf ${asOf}, not cured`}, the last date excluded)`);
+    reasons.push(`${d.id}: share of the call ${money(shares[d.id])}, paid ${money(d.paid)}, unpaid ${money(unpaid)}; interest ${money(unpaid)} x ${fmt(interest.annualRatePct)}% x ${unit(days, 'day')} / ${interest.dayBasis} = ${money(amount)} (from ${dueDate} to ${d.curedOn !== undefined ? `the cure on ${d.curedOn}` : `asOf ${asOf}, not cured`}, the last date excluded)`);
     for (const [name, c] of [['suspension', suspension], ['forfeiture', forfeiture]]) {
       if (!conseq[name]) continue;
       const q = conseq[name];
@@ -664,8 +666,8 @@ const defaultImpl = ({ parties, carries, callTotal, dueDate, asOf, defaulters, i
   const unpaidTotal = sum(defRows.map((d) => d.unpaid));
   const interestTotal = sum(defRows.map((d) => d.interest));
   const coverRows = coverers.map((r) => ({ id: r.id, payingPct: r.payingPct, coverPct: (r.payingPct * 100) / coverPayTotal }));
-  coverRows.forEach((c) => { c.cover = (unpaidTotal * c.coverPct) / 100; c.interestReceived = (interestTotal * c.coverPct) / 100; });
-  reasons.unshift(`the unpaid ${fmt(unpaidTotal)} is advanced by ${coverRows.map((c) => `${c.id} ${fmt(c.cover)}`).join(', ')}, in proportion to their paying interests among the non-defaulting parties`);
+  coverRows.forEach((c) => { c.cover = (unpaidTotal * c.payingPct) / coverPayTotal; c.interestReceived = (interestTotal * c.payingPct) / coverPayTotal; });
+  reasons.unshift(`the unpaid ${money(unpaidTotal)} is advanced by ${coverRows.map((c) => `${c.id} ${money(c.cover)}`).join(', ')}, in proportion to their paying interests among the non-defaulting parties`);
   let interestsAfterForfeiture = null;
   const forfeiting = defRows.filter((d) => d.forfeiture && d.forfeiture.applies).map((d) => d.id);
   if (forfeiting.length) {
@@ -745,15 +747,15 @@ const recoveryLedger = ({ years, added, sharePct, recoverFromPct, uplift, cap, l
     recoveredToDate += recovered;
     let closing = due - recovered;
     let writtenOff = 0;
-    if (upliftAmt > 0) reasons.push(uplift.type === 'compound' ? `${y.year}: ${fmt(uplift.ratePctPerYear)}% a year on the opening balance ${fmt(opening)} adds ${fmt(upliftAmt)}` : `${y.year}: the ${fmt(uplift.multiplePct)}% multiple on the ${label} of ${fmt(added[i])} adds ${fmt(upliftAmt)}`);
+    if (upliftAmt > 0) reasons.push(uplift.type === 'compound' ? `${y.year}: ${fmt(uplift.ratePctPerYear)}% a year on the opening balance ${money(opening)} adds ${money(upliftAmt)}` : `${y.year}: the ${fmt(uplift.multiplePct)}% multiple on the ${label} of ${money(added[i])} adds ${money(upliftAmt)}`);
     if (cap !== undefined && recoveredToDate >= cap && closing > 0) {
       writtenOff = closing;
       closing = 0;
-      reasons.push(`${y.year}: the stated cap ${fmt(cap)} is reached with ${fmt(recovered)} recovered this year; the rest, ${fmt(writtenOff)}, is written off`);
+      reasons.push(`${y.year}: the stated cap ${money(cap)} is reached with ${money(recovered)} recovered this year; the rest, ${money(writtenOff)}, is written off`);
     } else if (due > 0 && closing === 0) {
-      reasons.push(`${y.year}: the balance ${fmt(due)} is recovered${recovered === available ? ' exactly by' : ` with ${fmt(recovered)} of`} the ${fmt(available)} available; the ${debtor} receives ${fmt(share - recovered)} of its share ${fmt(share)}`);
+      reasons.push(`${y.year}: the balance ${money(due)} is recovered${recovered === available ? ' exactly by' : ` with ${money(recovered)} of`} the ${money(available)} available; the ${debtor} receives ${money(share - recovered)} of its share ${money(share)}`);
     } else if (due > 0) {
-      reasons.push(`${y.year}: ${fmt(recovered)} recovered of ${fmt(due)} due; ${fmt(closing)} carried to ${y.year + 1}`);
+      reasons.push(`${y.year}: ${money(recovered)} recovered of ${money(due)} due; ${money(closing)} carried to ${y.year + 1}`);
     }
     bal = closing;
     return { year: y.year, opening, uplift: upliftAmt, added: added[i], due, share, available, recovered, closing, writtenOff, debtorReceives: share - recovered, reasons };
@@ -806,8 +808,8 @@ const carryImpl = ({ parties, carries, carried, years, uplift, recoverFromPct, c
     const out = pid.map((id) => {
       let recovery = 0;
       if (id === carried) recovery = -r.recovered;
-      const cs = carryRow.carriers.find((a) => a.id === id);
-      if (cs) recovery += (r.recovered * cs.sharePct) / 100;
+      const w = carryRow.weights.find((a) => a.id === id);
+      if (w) recovery += (r.recovered * w.num) / w.den;
       const net = entSplit[id] + recovery - costSplit[id];
       flows[id].push(net);
       return { id, costPaid: costSplit[id], entitlementShare: entSplit[id], recovery, net };
@@ -815,7 +817,7 @@ const carryImpl = ({ parties, carries, carried, years, uplift, recoverFromPct, c
     return { year: y.year, cost: y.cost, entitlement: y.entitlement, carriedCost: added[i], parties: out };
   });
   const reasons = [...led.rows.flatMap((r) => r.reasons)];
-  if (led.outstanding > 0) reasons.push(`${years[years.length - 1].year}: ${fmt(led.outstanding)} of the carry is not recovered by the last year`);
+  if (led.outstanding > 0) reasons.push(`${years[years.length - 1].year}: ${money(led.outstanding)} of the carry is not recovered by the last year`);
   const npvs = discountRate === undefined ? null : pid.map((id) => ({ id, npv: npv(flows[id], discountRate, baseYear, years[0].year) }));
   return {
     carried, carriedPct: c.carriedPct, carriedInterestPct: carryRow.carriedInterestPct, carriers: carryRow.carriers.map((a) => ({ id: a.id, sharePct: a.sharePct })),
@@ -848,9 +850,11 @@ const COST_KINDS = ['exploration', 'development', 'production', 'bonus', 'penalt
  * to the interest each gives up. Under basis 'pia-s85-4' the target is at
  * most 60% (s.85(4)(a)) and only development and production costs are
  * refundable (s.85(4)(c)); under 'contract' the refundable kinds are stated.
- * refundForm 'cash' pays it at once; 'kind' recovers it with no uplift from
- * recoverFromPct % of the back-in party's new share of each year's
- * entitlement (s.85(4)(f)).
+ * refundForm 'upfront' pays it at once (refused under 'pia-s85-4', which
+ * allows no upfront payment by the Government, s.85(4)(d));
+ * 'from-future-entitlement' recovers it with no uplift from recoverFromPct %
+ * of the back-in party's new share of each year's entitlement, in cash or in
+ * kind (s.85(4)(f)).
  */
 const backInImpl = ({ parties, backInParty, targetPct, costs, basis, refundableKinds, refundForm, recoverFromPct, years }) => {
   let e = first(checkParties(parties), oneOf('backInParty', backInParty, ids(parties)), oneOf('basis', basis, ['pia-s85-4', 'contract']), listOf('costs', costs, DEFAULTS.MAX_ITEMS));
@@ -874,40 +878,46 @@ const backInImpl = ({ parties, backInParty, targetPct, costs, basis, refundableK
     e = first(text(`costs[${i}].item`, costs[i].item), nonNeg(`costs[${i}].amount`, costs[i].amount), oneOf(`costs[${i}].kind`, costs[i].kind, COST_KINDS));
     if (e) return e;
   }
-  e = oneOf('refundForm', refundForm, ['cash', 'kind']);
+  e = oneOf('refundForm', refundForm, ['upfront', 'from-future-entitlement']);
   if (e) return e;
-  if (refundForm === 'kind') {
+  if (basis === 'pia-s85-4' && refundForm === 'upfront') return must('refundForm', '"from-future-entitlement" under basis "pia-s85-4": no upfront payment by the Government (s.85(4)(d)); the refund is in cash or in kind from future production or entitlements (s.85(4)(f))', refundForm);
+  if (refundForm === 'from-future-entitlement') {
     e = first(pctPos('recoverFromPct', recoverFromPct), checkYears(years, ['entitlement']));
     if (e) return e;
   } else {
-    e = first(recoverFromPct !== undefined ? must('recoverFromPct', 'left out when refundForm is "cash"', recoverFromPct) : null, years !== undefined ? must('years', 'left out when refundForm is "cash"', years) : null);
+    e = first(recoverFromPct !== undefined ? must('recoverFromPct', 'left out when refundForm is "upfront"', recoverFromPct) : null, years !== undefined ? must('years', 'left out when refundForm is "upfront"', years) : null);
     if (e) return e;
   }
   const reasons = [];
   const lines = costs.map((c) => ({ item: c.item, amount: c.amount, kind: c.kind, refundable: kinds.includes(c.kind) }));
   const refundable = sum(lines.filter((l) => l.refundable).map((l) => l.amount));
   const excludedAmt = sum(lines.filter((l) => !l.refundable).map((l) => l.amount));
-  lines.filter((l) => !l.refundable && l.amount > 0).forEach((l) => reasons.push(`${l.item}: ${fmt(l.amount)} (${l.kind}) is not refundable${basis === 'pia-s85-4' ? ' (PIA s.85(4)(c): development and production costs only, no bonuses, penalties, interest, premium or markups)' : ' (not a stated refundable kind)'}`));
+  lines.filter((l) => !l.refundable && l.amount > 0).forEach((l) => reasons.push(`${l.item}: ${money(l.amount)} (${l.kind}) is not refundable${basis === 'pia-s85-4' ? ' (PIA s.85(4)(c): development and production costs only, no bonuses, penalties, interest, premium or markups)' : ' (not a stated refundable kind)'}`));
   const step = targetPct - current;
-  const factor = (100 - targetPct) / (100 - current);
+  const rest = 100 - current;
   const refund = (step * refundable) / 100;
   const rows = parties.map((p) => {
-    const after = p.id === backInParty ? targetPct : p.participatingPct * factor;
-    const ceded = p.id === backInParty ? 0 : p.participatingPct - after;
-    return { id: p.id, before: p.participatingPct, after, ceded, refundReceived: p.id === backInParty ? 0 : (refund * ceded) / step, refundPaid: p.id === backInParty ? refund : 0 };
+    const me = p.id === backInParty;
+    return {
+      id: p.id, before: p.participatingPct,
+      after: me ? targetPct : (p.participatingPct * (100 - targetPct)) / rest,
+      ceded: me ? 0 : (p.participatingPct * step) / rest,
+      refundReceived: me ? 0 : (refund * p.participatingPct) / rest,
+      refundPaid: me ? refund : 0,
+    };
   });
-  reasons.unshift(`${backInParty} backs in from ${fmt(current)}% to ${fmt(targetPct)}%: the others keep ${fmt(100 - targetPct)} / ${fmt(100 - current)} of their interests; refund ${fmt(step)}% x refundable costs ${fmt(refundable)} = ${fmt(refund)}${excludedAmt > 0 ? ` (${fmt(excludedAmt)} excluded)` : ''}`);
+  reasons.unshift(`${backInParty} backs in from ${fmt(current)}% to ${fmt(targetPct)}%: the others keep ${fmt(100 - targetPct)} / ${fmt(100 - current)} of their interests; refund ${fmt(step)}% x refundable costs ${money(refundable)} = ${money(refund)}${excludedAmt > 0 ? ` (${money(excludedAmt)} excluded)` : ''}`);
   let recovery = null;
-  if (refundForm === 'kind') {
+  if (refundForm === 'from-future-entitlement') {
     const added = years.map((_, i) => (i === 0 ? refund : 0));
     const led = recoveryLedger({ years, added, sharePct: targetPct, recoverFromPct, uplift: { type: 'none' }, cap: undefined, label: 'refund', debtor: 'back-in party' });
     recovery = {
       ledger: led.rows.map(({ reasons: _r, ...rest }) => rest),
       recovered: led.recoveredToDate, outstanding: led.outstanding, recoveredInYear: led.recoveredInYear,
-      toParties: led.rows.map((r) => ({ year: r.year, parties: rows.filter((x) => x.id !== backInParty).map((x) => ({ id: x.id, amount: (r.recovered * x.ceded) / step })) })),
+      toParties: led.rows.map((r) => ({ year: r.year, parties: rows.filter((x) => x.id !== backInParty).map((x) => ({ id: x.id, amount: (r.recovered * x.before) / rest })) })),
     };
     reasons.push(...led.rows.flatMap((r) => r.reasons));
-    if (led.outstanding > 0) reasons.push(`${years[years.length - 1].year}: ${fmt(led.outstanding)} of the refund is not recovered by the last year`);
+    if (led.outstanding > 0) reasons.push(`${years[years.length - 1].year}: ${money(led.outstanding)} of the refund is not recovered by the last year`);
   }
   return {
     backInParty, currentPct: current, targetPct, parties: rows, costs: lines, refundable, excluded: excludedAmt, refund, refundForm, recovery,
@@ -915,7 +925,7 @@ const backInImpl = ({ parties, backInParty, targetPct, costs, basis, refundableK
     basis: {
       rule: 'new interest of another party = old x (100 - target) / (100 - current); refund = (target - current) / 100 x refundable costs, received in proportion to the interest given up',
       refundable: basis === 'pia-s85-4' ? 'development and production costs only; bonuses, penalties, interest, premium and markups excluded (PIA s.85(4)(c)); exploration is not development or production' : `the stated kinds: ${kinds.join(', ')}`,
-      form: refundForm === 'cash' ? 'paid in cash, with no upfront payment required of the Government under the PIA (s.85(4)(d)) unless the contract says otherwise' : 'recovered in kind with no uplift from the back-in party\'s share of future entitlement (s.85(4)(f)), the whole refund owed from the first year',
+      form: refundForm === 'upfront' ? 'paid at once under the contract\'s stated terms (not available under PIA s.85(4), which requires no upfront payment by the Government, s.85(4)(d))' : 'recovered with no uplift from recoverFromPct % of the back-in party\'s share of future entitlement, in cash or in kind (s.85(4)(f)), the whole refund owed from the first year',
       notComputed: 'the expert determination of the unrecovered costs (s.85(4)(e)); the unrecovered cost figures are stated inputs',
       source: `${CITE.pia} s.85(4)`,
     },
@@ -963,7 +973,7 @@ const nonConsentImpl = ({ parties, consenting, operation, premiumMultiplePct, mo
   const shares = cons.map((p) => ({ id: p.id, participatingPct: p.participatingPct, projectPct: (p.participatingPct * 100) / consTotal }));
   const costSplit = splitBy(operation.cost, shares, 'projectPct');
   shares.forEach((s) => { s.cost = costSplit[s.id]; });
-  const reasons = [`${operation.name}: cost ${fmt(operation.cost)} paid by the consenting parties ${shares.map((s) => `${s.id} ${fmt(s.projectPct)}%`).join(', ')} (in proportion to their participating interests)`];
+  const reasons = [`${operation.name}: cost ${money(operation.cost)} paid by the consenting parties ${shares.map((s) => `${s.id} ${fmt(s.projectPct)}%`).join(', ')} (in proportion to their participating interests)`];
   const ncRows = nc.map((p) => ({ id: p.id, participatingPct: p.participatingPct, costShare: (operation.cost * p.participatingPct) / 100, premium: (operation.cost * p.participatingPct * premiumMultiplePct) / 10000 }));
   const basis = {
     rule: 'the consenting parties pay the cost in proportion to their participating interests among themselves; the premium of a non-consenting party = its proportionate share of the cost x premiumMultiplePct / 100',
@@ -971,8 +981,8 @@ const nonConsentImpl = ({ parties, consenting, operation, premiumMultiplePct, mo
     source: `${CITE.joa} Art. 18.6 and 18.12 (entry at one thousand (1000) % of the proportionate share of the costs, apportioned to the initial participants); premium recovery from production is a contract term taught by concept and stated here as inputs`,
   };
   if (mode === 'buy-in') {
-    const pay = ncRows.map((r) => ({ id: r.id, payment: r.premium, toParties: shares.map((s) => ({ id: s.id, amount: (r.premium * s.projectPct) / 100 })) }));
-    pay.forEach((p) => reasons.push(`${p.id}: to enter it pays ${fmt(premiumMultiplePct)}% of its share ${fmt(ncRows.find((r) => r.id === p.id).costShare)} = ${fmt(p.payment)}, apportioned to the consenting parties in their shares`));
+    const pay = ncRows.map((r) => ({ id: r.id, payment: r.premium, toParties: shares.map((s) => ({ id: s.id, amount: (r.premium * s.participatingPct) / consTotal })) }));
+    pay.forEach((p) => reasons.push(`${p.id}: to enter it pays ${fmt(premiumMultiplePct)}% of its share ${money(ncRows.find((r) => r.id === p.id).costShare)} = ${money(p.payment)}, apportioned to the consenting parties in their shares`));
     return { operation: { name: operation.name, cost: operation.cost }, mode, premiumMultiplePct, consenting: shares, nonConsenting: ncRows, buyIn: pay, recovery: null, reasons, basis };
   }
   const recovery = ncRows.map((r) => {
@@ -980,15 +990,15 @@ const nonConsentImpl = ({ parties, consenting, operation, premiumMultiplePct, mo
     const net = years.map((y) => ({ year: y.year, entitlement: Math.max(0, y.grossValue - y.deductions) }));
     const led = recoveryLedger({ years: net, added, sharePct: r.participatingPct, recoverFromPct: 100, uplift: { type: 'none' }, cap: undefined, label: 'premium', debtor: 'non-consenting party' });
     led.rows.forEach((row) => row.reasons.forEach((t) => reasons.push(`${r.id} ${t}`)));
-    if (led.outstanding > 0) reasons.push(`${r.id} ${years[years.length - 1].year}: ${fmt(led.outstanding)} of the premium is not recovered by the last year`);
+    if (led.outstanding > 0) reasons.push(`${r.id} ${years[years.length - 1].year}: ${money(led.outstanding)} of the premium is not recovered by the last year`);
     return {
       id: r.id, premium: r.premium,
       ledger: led.rows.map(({ reasons: _x, due, opening, closing, share, recovered, debtorReceives, year }) => ({ year, opening, due, share, recovered, closing, nonConsentingReceives: debtorReceives })),
       recovered: led.recoveredToDate, outstanding: led.outstanding, revertsInYear: led.recoveredInYear,
-      toParties: led.rows.map((row) => ({ year: row.year, parties: shares.map((s) => ({ id: s.id, amount: (row.recovered * s.projectPct) / 100 })) })),
+      toParties: led.rows.map((row) => ({ year: row.year, parties: shares.map((s) => ({ id: s.id, amount: (row.recovered * s.participatingPct) / consTotal })) })),
     };
   });
-  years.forEach((y) => { if (y.grossValue < y.deductions) reasons.push(`${y.year}: deductions ${fmt(y.deductions)} exceed the gross value ${fmt(y.grossValue)}: no net value, nothing recovered`); });
+  years.forEach((y) => { if (y.grossValue < y.deductions) reasons.push(`${y.year}: deductions ${money(y.deductions)} exceed the gross value ${money(y.grossValue)}: no net value, nothing recovered`); });
   basis.recovery = 'recovered each year from the non-consenting party\'s share of max(0, grossValue - deductions); in the year the premium is recovered the rest of that year\'s share is the non-consenting party\'s (reversion inside the period)';
   return { operation: { name: operation.name, cost: operation.cost }, mode, premiumMultiplePct, consenting: shares, nonConsenting: ncRows, buyIn: null, recovery, reasons, basis };
 };
@@ -1001,7 +1011,7 @@ const nonConsentImpl = ({ parties, consenting, operation, premiumMultiplePct, mo
  * percentage of revenue after royalty; unrecovered cost carried; profit oil
  * split; tax on the contractor's profit oil), threading the unrecovered pool.
  * costOilLimitBase 'gross' states the limit as a percentage of gross revenue:
- * it is passed to applyPSC as costOilLimitPct / (1 - royaltyPct / 100) of
+ * it is passed to applyPSC as the fraction costOilLimitPct / (100 - royaltyPct) of
  * revenue after royalty, the same amount. Cost recovered = pool in + capex +
  * opex - pool out; profit oil = revenue after royalty - cost recovered. The
  * contractor's entitlement (cost oil + its profit oil - tax) and the costs
@@ -1014,23 +1024,25 @@ const pscImpl = ({ years, royaltyPct, costOilLimitPct, costOilLimitBase, contrac
     pct('contractorProfitSharePct', contractorProfitSharePct), pct('taxRatePct', taxRatePct), nonNeg('openingCostPool', openingCostPool),
     parties !== undefined ? checkParties(parties) : null, checkNpvArgs(discountRate, baseYear));
   if (e) return e;
+  for (let i = 0; i < years.length; i += 1) if (years[i].contractorProfitSharePct !== undefined) { e = pct(`years[${i}].contractorProfitSharePct`, years[i].contractorProfitSharePct); if (e) return e; }
   if (costOilLimitBase === 'gross' && costOilLimitPct > 100 - royaltyPct) return must('costOilLimitPct', `at or below the revenue left after royalty, ${fmt(100 - royaltyPct)}% of gross, when costOilLimitBase is "gross"`, costOilLimitPct);
-  const capFraction = costOilLimitBase === 'gross' ? (costOilLimitPct / 100) / (1 - royaltyPct / 100) : costOilLimitPct / 100;
+  const capFraction = costOilLimitBase === 'gross' ? costOilLimitPct / (100 - royaltyPct) : costOilLimitPct / 100;
   let pool = openingCostPool;
   const reasons = [];
   const rows = years.map((y) => {
     const poolIn = pool;
-    const o = applyPSC({ gross_revenue: y.grossRevenue, capex: y.capex, opex: y.opex, depreciation: 0, cumulative_unrecovered_cost: poolIn }, royaltyPct / 100, capFraction, contractorProfitSharePct / 100, taxRatePct / 100, 0);
+    const share = y.contractorProfitSharePct ?? contractorProfitSharePct;
+    const o = applyPSC({ gross_revenue: y.grossRevenue, capex: y.capex, opex: y.opex, depreciation: 0, cumulative_unrecovered_cost: poolIn }, royaltyPct / 100, capFraction, share / 100, taxRatePct / 100, 0);
     const revenueAfterRoyalty = y.grossRevenue - o.royalty;
     const costRecovered = poolIn + y.capex + y.opex - o.cumulative_unrecovered_cost_after;
     const profitOil = revenueAfterRoyalty - costRecovered;
     const contractorProfitOil = o.taxable_income;
     const entitlement = costRecovered + contractorProfitOil - o.tax;
     pool = o.cumulative_unrecovered_cost_after;
-    const limit = revenueAfterRoyalty * capFraction;
-    if (poolIn + y.capex + y.opex > limit) reasons.push(`${y.year}: recoverable ${fmt(poolIn + y.capex + y.opex)} is above the cost oil limit ${fmt(limit)}; ${fmt(pool)} carried to ${y.year + 1}`);
+    const limit = costOilLimitBase === 'gross' ? (y.grossRevenue * costOilLimitPct) / 100 : (revenueAfterRoyalty * costOilLimitPct) / 100;
+    if (poolIn + y.capex + y.opex > limit) reasons.push(`${y.year}: recoverable ${money(poolIn + y.capex + y.opex)} is above the cost oil limit ${money(limit)}; ${money(pool)} carried to ${y.year + 1}`);
     return {
-      year: y.year, grossRevenue: y.grossRevenue, royalty: o.royalty, revenueAfterRoyalty, poolIn, capex: y.capex, opex: y.opex,
+      year: y.year, contractorProfitSharePct: share, grossRevenue: y.grossRevenue, royalty: o.royalty, revenueAfterRoyalty, poolIn, capex: y.capex, opex: y.opex,
       costOilLimit: limit, costRecovered, poolOut: pool, profitOil, contractorProfitOil, governmentProfitOil: profitOil - contractorProfitOil,
       tax: o.tax, contractorEntitlement: entitlement, contractorNet: o.net_cash_flow, governmentTake: o.royalty + (profitOil - contractorProfitOil) + o.tax,
     };
@@ -1057,8 +1069,9 @@ const pscImpl = ({ years, royaltyPct, costOilLimitPct, costOilLimitBase, contrac
     reasons,
     basis: {
       engine: 'applyPSC imported from engines/economics/cashflow.ts, called once a year with the unrecovered pool threaded; nothing here re-computes the cost pool',
+      share: 'contractorProfitSharePct applies to every year that does not state its own (a year\'s own figure carries a sliding scale, e.g. by daily rate or R-factor, computed outside)',
       order: 'royalty = royaltyPct % of gross; cost oil limit = costOilLimitPct % of revenue after royalty (or of gross, as stated); cost recovered = min(pool + capex + opex, limit); profit oil = revenue after royalty - cost recovered; contractor profit oil = its share; tax = taxRatePct % of the contractor\'s profit oil',
-      limitBase: costOilLimitBase === 'gross' ? `the limit is stated on gross revenue and passed as ${fmt(costOilLimitPct)} / (1 - ${fmt(royaltyPct)} / 100) % of revenue after royalty` : 'the limit is stated on revenue after royalty',
+      limitBase: costOilLimitBase === 'gross' ? `the limit is stated on gross revenue and passed to applyPSC as the fraction ${fmt(costOilLimitPct)} / (100 - ${fmt(royaltyPct)}) of revenue after royalty` : 'the limit is stated on revenue after royalty',
       pia: 'PIA s.311(2)(a)(iii): a renegotiated production sharing contract features a cost oil limit of not more than 60% of the total oil production; the limit here is the contract\'s stated figure',
       split: 'the contractor entitlement and the costs are split by participating interest with calculatePartnerCosts from engines/economics/afe.js',
       source: `${CITE.pia} s.85(2)(a), s.311(2)(a)(iii); engines/economics/cashflow.ts applyPSC`,
