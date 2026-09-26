@@ -9,7 +9,7 @@ every golden, checks the published figures against their printed values,
 checks the planted fixture situations and the wiring, and runs property tests.
 Negative control: `negcontrol_gascontract.sh` (56/56 engine plants red, 6/6 oracle plants caught). Timing:
 `timing_gascontract.js` (table below). Fixtures: `test-data/economics/ekene-gsa/`,
-written by `make_gsa_fixtures.py`. Full engines suite on the branch: 230 suites, 221 passed; the 9 that fail are the CRS and two downstream copy-rule suites, which cannot resolve `proj4` and `@babel/parser` from this worktree (environment only, unrelated to EC8); 17,726 tests passed.
+written by `make_gsa_fixtures.py`. Full engines suite on the branch: 230 suites passed, 17,774 tests passed (after `npm ci` in the worktree). Before `npm ci` the worktree had no node_modules and 9 suites (7 CRS, 2 downstream copy-rule) could not resolve `proj4` and `@babel/parser`; a clean checkout of origin/main run the same way failed the same 9 suites with the same messages (9 failed, 2 tests failed, 218 passed), so that was environment only. CI on the PR is green.
 
 The oracle is STDLIB ONLY (python 3: `fractions`, `decimal`, `math`,
 `datetime`). It reads no JavaScript and takes a different road: quantities
@@ -238,7 +238,7 @@ Caps (`DEFAULTS`): 100 contract years, 400 days in a daily balance, 1,200 index 
 
 ## Negative control
 
-Run on 2026-09-26 (`negcontrol_run2.txt` in the wave dir, then the one plant it missed rerun after a golden was added). Result: **56/56 engine plants red, 6/6 oracle plants caught.** The first run found two holes, both fixed before this run: the 12-digit normalisation of the 4-decimal rule is an equivalent mutation at realistic magnitudes (JavaScript `toFixed(12)` already absorbs the float noise), so that plant was replaced by the real defect of rounding to 5 decimals before the rule (golden 11.234346 gives 11.2343); and the singular 'contract year' had no golden with a one-year make-up period (added `top-makeup-period-one`).
+Run on 2026-09-26 (`negcontrol_run2.txt` in the wave dir, then the one plant it missed rerun after a golden was added). Result: **56/56 engine plants red, 6/6 oracle plants caught.** Re-run after the lead decisions (`negcontrol_run3.txt`): 56/56 red, 6/6 caught, none skipped. The first run found two holes, both fixed before this run: the 12-digit normalisation of the 4-decimal rule is an equivalent mutation at realistic magnitudes (JavaScript `toFixed(12)` already absorbs the float noise), so that plant was replaced by the real defect of rounding to 5 decimals before the rule (golden 11.234346 gives 11.2343); and the singular 'contract year' had no golden with a one-year make-up period (added `top-makeup-period-one`).
 
 ```
 RED   [ENGINE] TOP base: TOPQ on the ACQ (no adjustment) -- 7 failed -- goldens: the engine agrees with the oracle › top-power
