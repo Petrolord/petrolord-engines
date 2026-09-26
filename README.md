@@ -309,6 +309,14 @@ and its consumers.
   from Bo and Bg; a radial integral anchors the grid sums within 1%; gated
   by `__tests__/earthmodel.contacts.test.js`, `negcontrol_contacts.sh`
   7/7 red.
+  Risked Reserves Valuation T1 (2026-09-26) added `engines/prospect/`
+  (`valuation.js`): success-case lognormal through P90 and P10, Swanson's
+  mean, P(V >= MEFS) and commercial chance, EMV after the exploration well
+  from the lognormal partial expectation, break-even Pg, the risked
+  expectation curve and an independent-prospect portfolio; oracle
+  `prospect/oracle_valuation.py` (statistics.NormalDist and a numerical
+  integral), gated by `__tests__/prospect.valuation.test.js`,
+  `negcontrol_valuation.sh` 9/9 red.
 - `__tests__/` — smoke suite: every module imports cleanly and
   per-domain anchors match the goldens. The FULL acceptance suites
   currently run in the Suite's CI against the vendored copy
