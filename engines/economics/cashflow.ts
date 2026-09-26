@@ -205,7 +205,7 @@
 import { solveIrrInBand } from './irrContract.js';
 
 // Stamped into kpis.engine_version on every run (Wave A provenance).
-export const ENGINE_VERSION = '3.11.0';
+export const ENGINE_VERSION = '3.12.0';
 
 // ============================================================================
 // TYPES
@@ -680,11 +680,22 @@ export function pscTrancheShare(tranches: any[], cumLiquidsBbl: number): number 
 }
 
 // ============================================================================
-// PIA RATE DERIVATION
+// PIA LEGACY PRE-AUDIT PATH (v3.11.0 semantics, kept verbatim)
 // ============================================================================
+//
+// Everything from here to the next banner is the PIA / NTA computation as it
+// stood at engines 3.11.0, before the EC7 audit
+// (tools/validation/economics/AUDIT-PIA-2021.md). It runs ONLY when
+// cfg.pia_legacy_pre_audit === true, so a past run can be reproduced exactly,
+// and it is exported as PIA_LEGACY_PRE_AUDIT for the same purpose. It is NOT
+// the law: see the audit rows R05-R09, R13, R15, H13, H17, H22, H24, C02,
+// C06, T03, T04, T07 and D02 for where it departs from the gazetted texts.
+// The default path is the PIA 2021 / NTA 2025 COMPLIANCE block below.
+//
+// (legacy) PIA RATE DERIVATION
 
 // B2.5: extended for NTA-era deep offshore interpretation
-export function deriveHctRate(
+function legacyDeriveHctRate(
   terrain: string,
   licenseType: string,
   marginalPre2021: boolean,
@@ -721,7 +732,7 @@ export function deriveHctRate(
   return 0.30;
 }
 
-export function deriveOilRoyaltyRate(terrain: string, oilBopd: number): number {
+function legacyDeriveOilRoyaltyRate(terrain: string, oilBopd: number): number {
   switch (terrain) {
     case 'onshore':       return 0.150;
     case 'shallow_water': return 0.125;
@@ -737,12 +748,12 @@ export function deriveOilRoyaltyRate(terrain: string, oilBopd: number): number {
   }
 }
 
-export function deriveGasRoyaltyRate(terrain: string): number {
+function legacyDeriveGasRoyaltyRate(terrain: string): number {
   if (terrain === 'deep_offshore' || terrain === 'frontier') return 0.05;
   return 0.07;
 }
 
-export function derivePriceRoyaltyRate(fiscalPrice: number, year: number, terrain: string): number {
+function legacyDerivePriceRoyaltyRate(fiscalPrice: number, year: number, terrain: string): number {
   if (terrain === 'frontier') return 0;
   const yearsFrom2021 = year - 2021;
   const escFactor = Math.pow(1.02, yearsFrom2021);
@@ -765,7 +776,7 @@ export function derivePriceRoyaltyRate(fiscalPrice: number, year: number, terrai
 // is computed on the eligible bbl only (up to cap), zero on the rest.
 //
 // Returns: { allowance, eligible_bbl, cap_applied }
-export function computeProductionAllowance(
+function legacyComputeProductionAllowance(
   cfg: PIAConfig,
   oilAndCondBbl: number,
   fiscalPrice: number,
@@ -817,10 +828,10 @@ export function computeProductionAllowance(
 }
 
 // ============================================================================
-// PIA REGIME (B2.5 framework-aware)
+// (legacy) PIA REGIME (B2.5 framework-aware)
 // ============================================================================
 
-export function applyPIA(
+function legacyApplyPIA(
   inputs: PIAInputs,
   cfg: PIAConfig,
   state: PIAState,
@@ -833,11 +844,11 @@ export function applyPIA(
   const gasRevenue = grossRev - oilCondRevenue;
 
   // Royalties (unchanged between PIA and NTA — NTA preserved PIA Seventh Schedule)
-  const oilProdRoyaltyRate = deriveOilRoyaltyRate(cfg.pia_terrain, oilBopd);
-  const gasProdRoyaltyRate = deriveGasRoyaltyRate(cfg.pia_terrain);
+  const oilProdRoyaltyRate = legacyDeriveOilRoyaltyRate(cfg.pia_terrain, oilBopd);
+  const gasProdRoyaltyRate = legacyDeriveGasRoyaltyRate(cfg.pia_terrain);
   const productionRoyalty = oilCondRevenue * oilProdRoyaltyRate + gasRevenue * gasProdRoyaltyRate;
 
-  const priceRoyaltyRate = derivePriceRoyaltyRate(inputs.fiscal_oil_price_usd_bbl, inputs.year, cfg.pia_terrain);
+  const priceRoyaltyRate = legacyDerivePriceRoyaltyRate(inputs.fiscal_oil_price_usd_bbl, inputs.year, cfg.pia_terrain);
   const priceRoyalty = oilCondRevenue * priceRoyaltyRate;
 
   const totalRoyalties = productionRoyalty + priceRoyalty;
@@ -872,7 +883,7 @@ export function applyPIA(
   const hctAssessableProfit = hctRevenueBase - hctRoyalties - opexClaimed * oilShare - hcdt * oilShare;
 
   // B2.5: Production allowance now cap-aware (Item C)
-  const prodAlwResult = computeProductionAllowance(
+  const prodAlwResult = legacyComputeProductionAllowance(
     cfg,
     inputs.oil_bbl + inputs.condensate_bbl,
     inputs.fiscal_oil_price_usd_bbl,
@@ -883,7 +894,7 @@ export function applyPIA(
   const hctChargeableProfit = hctAssessableProfit - capAllowClaimed * oilShare - productionAllowance;
 
   // B2.5: HCT rate now framework-aware (deep offshore interpretation matters)
-  const hctRate = deriveHctRate(
+  const hctRate = legacyDeriveHctRate(
     cfg.pia_terrain,
     cfg.pia_license_type,
     cfg.pia_marginal_field_pre_2021,
@@ -1003,6 +1014,581 @@ export function applyPIA(
     },
   };
 }
+
+// ============================================================================
+// PIA 2021 / NTA 2025 COMPLIANCE (the default path since engines 3.12.0, EC7)
+// ============================================================================
+//
+// Every rate, band, threshold and cap below is read from a gazetted text,
+// cited at the line that uses it (read 2026-09-26; the audit that found the
+// pre-audit departures is tools/validation/economics/AUDIT-PIA-2021.md):
+//
+//   PIA   Petroleum Industry Act 2021 (Act No. 6), Official Gazette No. 142,
+//         Vol. 108, 27 August 2021.
+//   NTA   Nigeria Tax Act 2025 (Act No. 7), Official Gazette No. 117,
+//         Vol. 112, 26 June 2025, taken as effective 1 January 2026. The
+//         National Assembly ordered the Acts re-gazetted in December 2025; no
+//         Certified True Copy was read, and every NTA figure here is the June
+//         2025 gazette's.
+//   REGS  Petroleum Royalty Regulations 2022 (S.I. No. 73), Official Gazette
+//         No. 205, Vol. 109, 22 November 2022.
+//   FA23  Finance Act 2023, signed 28 May 2023, effective 1 May 2023 (s.30):
+//         s.26 (TET 3%) and s.9(b) (CITA Second Schedule para 24(7)).
+//
+// Where two texts disagree, or a text is silent, the engine does not pick a
+// hidden answer: it either takes a stated user input with no default (the
+// two ambiguous hydrocarbon tax rates, the NTA decommissioning escrow
+// condition) or keeps a stated default and says so in kpis.pia_notes (the
+// royalty-by-price base year, the pre-2026 capital allowance restriction).
+//
+// Annual-model approximations, stated once here and in kpis.pia_notes:
+//   - the royalty daily rate is the year's crude oil plus condensate divided
+//     by the calendar days of the year (REGS r.12(2) divides each MONTH's
+//     production by the days oil was produced);
+//   - costs shared between crude oil and gas (opex, levies, capital
+//     allowances, a decommissioning contribution) are apportioned to the
+//     hydrocarbon tax by the crude-plus-condensate share of gross revenue;
+//     the texts allocate associated-gas costs to crude oil (PIA s.260(2)) and
+//     the engine cannot tell associated from non-associated gas;
+//   - the realised oil and condensate prices stand in for the Commission's
+//     fiscal prices (Seventh Schedule para 8), so the additional tax at the
+//     fiscal price (PIA s.268; NTA s.73) is never triggered.
+
+export const PIA_TEXTS = Object.freeze({
+  pia: 'Petroleum Industry Act 2021 (Act No. 6), Official Gazette No. 142, Vol. 108, 27 August 2021',
+  nta: 'Nigeria Tax Act 2025 (Act No. 7), Official Gazette No. 117, Vol. 112, 26 June 2025, effective 1 January 2026; re-gazetting ordered December 2025, no Certified True Copy read',
+  regs: 'Petroleum Royalty Regulations 2022 (S.I. No. 73), Official Gazette No. 205, Vol. 109, 22 November 2022',
+  fa2023: 'Finance Act 2023, effective 1 May 2023 (s.30)',
+  read_on: '2026-09-26',
+});
+
+export const PIA_TERRAINS = Object.freeze(['onshore', 'shallow_water', 'deep_offshore', 'frontier']);
+export type PriceRoyaltyBase = 'regulations_2021' | 'act_2020';
+/** First year of assessment under the NTA 2025 (auto framework). */
+export const NTA_FIRST_YEAR = 2026;
+
+// The engine's statements, one place, printed into kpis.pia_notes. They are
+// course content: each states its exact condition.
+export const PIA_NOTES = Object.freeze({
+  priceRoyaltyBaseRegulations:
+    'Royalty by price uses the Petroleum Royalty Regulations 2022 Schedule: 50, 100 and 150 USD/bbl apply to 2021 and rise by 2% of the previous year\'s benchmark every 1 January from 2022, rounded to whole cents. The Act (PIA Seventh Schedule para 11(1), restated in NTA Seventh Schedule para 6(3)) applies the same levels to 2020 and escalates from 1 January 2021, one year earlier. Set pia_price_royalty_base to "act_2020" for the Act\'s reading.',
+  priceRoyaltyBaseAct:
+    'Royalty by price uses the Act\'s reading (PIA Seventh Schedule para 11(1)): 50, 100 and 150 USD/bbl apply to 2020 and rise by 2% of the previous year\'s benchmark every 1 January from 2021, rounded to whole cents. The Petroleum Royalty Regulations 2022 Schedule starts the same levels one year later, in 2021.',
+  priceRoyaltyMidColumn:
+    'The Regulations\' benchmark table prints the 100 USD level as 102.00, 104.00, 106.00, 108.00 and 110.00 for 2022 to 2026, which does not follow its own 2% rule; the engine applies the rule (104.04 in 2023).',
+  dailyRate:
+    'Royalty tranches read the year\'s crude oil plus condensate divided by the calendar days of the year; the Regulations (r.12(2)) divide each month\'s production by the days oil was produced in that month.',
+  sharedCosts:
+    'Opex, HCDT, NDDC, capital allowances and any decommissioning contribution enter the hydrocarbon tax at the crude-plus-condensate share of gross revenue. The Act allocates associated-gas costs to crude oil (s.260(2)) and excludes non-associated gas condensate from the tax (s.260(1)(b)(ii)); the engine cannot tell the two gases apart.',
+  citRestrictionPre2026:
+    'Before 2026 the companies income tax capital allowance is limited to two thirds of the assessable profit, with the excess carried forward (CITA Second Schedule para 24(7) as substituted by Finance Act 2023 s.9(b), effective 1 May 2023). The wording in force before 1 May 2023 was not read; the engine applies the same restriction to every year before 2026. Companies in upstream or midstream gas operations are exempt: set pia_cit_company_gas_operations to true.',
+  ntaVersion:
+    'Nigeria Tax Act 2025 figures follow Official Gazette No. 117, Vol. 112, of 26 June 2025. The National Assembly ordered the Acts re-gazetted in December 2025; no Certified True Copy was read.',
+  minEtrApproximation:
+    'The minimum effective tax rate top-up is a project-level approximation of NTA s.57: the Act tests the company (a member of a multinational group, or turnover of 20 billion naira or more) on audited profit before tax less 5% of depreciation and personnel cost, which a project model cannot see. The top-up is applied only to years under the NTA and is reported on its own line.',
+  fiscalPrice:
+    'The realised oil and condensate prices stand in for the Commission\'s fiscal prices (PIA Seventh Schedule para 8), so the additional tax at the fiscal price (PIA s.268; NTA s.73) is not computed.',
+});
+
+const refuse = (message: string): never => { throw new Error(message); };
+const cents = (x: number) => Math.round(x * 100) / 100;
+const isLeapYear = (y: number) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+/** Calendar days in a year (365 or 366). */
+export const calendarDays = (year: number) => (isLeapYear(year) ? 366 : 365);
+
+/** The framework that governs one year of assessment. */
+export function fiscalFrameworkForYear(cfg: any, year: number): FiscalFramework {
+  const override = cfg.pia_under_nta_2025_override ?? 'auto';
+  if (override === 'force_pia') return 'pia_only';
+  if (override === 'force_nta') return 'nta_2025';
+  if (override !== 'auto') {
+    refuse(`pia_under_nta_2025_override must be "auto", "force_pia" or "force_nta"; got "${override}".`);
+  }
+  return year >= NTA_FIRST_YEAR ? 'nta_2025' : 'pia_only';
+}
+
+function checkTerrain(terrain: string): void {
+  if (terrain === 'marginal_field') {
+    refuse('pia_terrain "marginal_field" is not a terrain under the Petroleum Industry Act 2021: a marginal field is onshore or in shallow water (PIA Seventh Schedule para 10(4); Petroleum Royalty Regulations 2022 r.13(2)). Set pia_terrain to "onshore" or "shallow_water", and set pia_marginal_field_pre_2021 to true for a producing marginal field converted under PIA s.94(1). Set pia_legacy_pre_audit to true to reproduce a pre-audit run.');
+  }
+  if (!PIA_TERRAINS.includes(terrain)) {
+    refuse(`pia_terrain must be "onshore", "shallow_water", "deep_offshore" or "frontier"; got "${terrain}".`);
+  }
+}
+
+/**
+ * Royalty based on production for crude oil and condensate, as a fraction of
+ * their value (PIA Seventh Schedule para 10(2)-(4); NTA Seventh Schedule
+ * para 6(2)(b)-(d); REGS r.13).
+ *   onshore / shallow water: the first 5,000 bopd at 5%, the next 5,000 bopd
+ *     at 7.5%, everything above 10,000 bopd at 15% onshore or 12.5% in
+ *     shallow water, as one weighted average (REGS r.13(2)(a)-(d)). At or
+ *     below 5,000 bopd the rate is exactly 5%; at 10,000 bopd exactly 6.25%.
+ *   deep offshore: 5% up to and including 50,000 bopd, 7.5% on the share
+ *     above, as one weighted average (REGS r.13(1)).
+ *   frontier: 7.5% at every rate, no sliding scale (REGS r.13(3)).
+ * @param liquidsBopd crude oil plus condensate, barrels per day
+ */
+export function deriveOilRoyaltyRate(terrain: string, liquidsBopd: number): number {
+  checkTerrain(terrain);
+  if (!Number.isFinite(liquidsBopd) || liquidsBopd < 0) {
+    refuse(`The crude oil and condensate daily rate must be a finite number of 0 or more; got ${liquidsBopd}.`);
+  }
+  if (terrain === 'frontier') return 0.075;
+  if (terrain === 'deep_offshore') {
+    if (liquidsBopd <= 50000) return 0.05;
+    return (50000 * 0.05 + (liquidsBopd - 50000) * 0.075) / liquidsBopd;
+  }
+  const upper = terrain === 'onshore' ? 0.15 : 0.125;
+  if (liquidsBopd <= 5000) return 0.05;
+  if (liquidsBopd <= 10000) return (5000 * 0.05 + (liquidsBopd - 5000) * 0.075) / liquidsBopd;
+  return (5000 * 0.05 + 5000 * 0.075 + (liquidsBopd - 10000) * upper) / liquidsBopd;
+}
+
+/**
+ * Royalty on natural gas and natural gas liquids: 5% of the chargeable
+ * volume, and 2.5% on gas produced and utilised in-country (PIA Seventh
+ * Schedule para 10(6); NTA Seventh Schedule para 6(2)(f); REGS r.16). NGL
+ * produced separately stay at 5% (REGS r.16(4)); the in-country share is the
+ * user's statement about the gas stream. Every terrain pays the same rate.
+ * @param inCountrySharePct percent of the gas revenue utilised in-country
+ */
+export function deriveGasRoyaltyRate(terrain: string, inCountrySharePct: number = 0): number {
+  checkTerrain(terrain);
+  const s = Number(inCountrySharePct);
+  if (!Number.isFinite(s) || s < 0 || s > 100) {
+    refuse(`pia_gas_in_country_share_pct must be a number from 0 to 100; got ${inCountrySharePct}.`);
+  }
+  return 0.05 * (1 - s / 100) + 0.025 * (s / 100);
+}
+
+/**
+ * The three royalty-by-price benchmarks for a calendar year, USD/bbl.
+ * 'regulations_2021' (default): REGS Schedule, 50 / 100 / 150 in 2021, each
+ * raised by 2% of the previous year's benchmark every 1 January from 2022 and
+ * rounded to whole cents. 'act_2020': PIA Seventh Schedule para 11(1), the
+ * same levels in 2020, raised from 1 January 2021. Years before the base
+ * year keep the base levels.
+ */
+export function priceRoyaltyBenchmarks(year: number, base: PriceRoyaltyBase = 'regulations_2021'): { low: number; mid: number; high: number } {
+  if (base !== 'regulations_2021' && base !== 'act_2020') {
+    refuse(`pia_price_royalty_base must be "regulations_2021" or "act_2020"; got "${base}".`);
+  }
+  const baseYear = base === 'regulations_2021' ? 2021 : 2020;
+  let low = 50;
+  let mid = 100;
+  let high = 150;
+  for (let y = baseYear + 1; y <= Math.floor(year); y++) {
+    low = cents(low * 1.02);
+    mid = cents(mid * 1.02);
+    high = cents(high * 1.02);
+  }
+  return { low, mid, high };
+}
+
+/**
+ * Royalty by price, a fraction of the value of the crude oil or condensate it
+ * is charged on (PIA Seventh Schedule para 11; NTA para 6(3); REGS r.15):
+ * 0 at or below the low benchmark, 5% at the middle one, 10% at or above the
+ * high one, linear between; none for frontier acreage (para 11(2)). The price
+ * is the stream's own price (REGS r.15(2): crude oil or condensate).
+ */
+export function derivePriceRoyaltyRate(fiscalPrice: number, year: number, terrain: string, base: PriceRoyaltyBase = 'regulations_2021'): number {
+  checkTerrain(terrain);
+  const { low, mid, high } = priceRoyaltyBenchmarks(year, base);
+  if (terrain === 'frontier') return 0;
+  if (fiscalPrice <= low) return 0;
+  if (fiscalPrice >= high) return 0.10;
+  if (fiscalPrice <= mid) return 0.05 * (fiscalPrice - low) / (mid - low);
+  return 0.05 + 0.05 * (fiscalPrice - mid) / (high - mid);
+}
+
+/**
+ * Hydrocarbon tax rate for one year.
+ *   frontier: none until reclassified (PIA s.260(3); NTA s.65(4)).
+ *   deep offshore under the PIA: none (PIA s.260(3)).
+ *   deep offshore under the NTA: NTA s.65(1) brings deep offshore into the
+ *     tax but s.72 prints rates only for onshore and shallow water, so the
+ *     user states the reading (pia_deep_offshore_hct_interpretation); there
+ *     is no default.
+ *   onshore / shallow water: 15% for a producing marginal field converted
+ *     under PIA s.94(1) and for a petroleum prospecting licence (s.267(b);
+ *     NTA s.72(b)); 30% for a converted petroleum mining lease (s.267(a) via
+ *     s.93(6)(b) and (7)(b); NTA s.72(a)); for a NEW-acreage petroleum mining
+ *     lease the text does not say which, so the user states 15 or 30
+ *     (pia_new_pml_hct_rate_pct); there is no default.
+ * `override` (pia_hct_rate_override_pct) replaces all of this when set.
+ */
+export function deriveHctRate(
+  terrain: string,
+  licenseType: string,
+  marginalPre2021: boolean,
+  override: number | null,
+  framework: FiscalFramework = 'pia_only',
+  deepOffshoreInterpretation?: DeepOffshoreInterpretation | null,
+  deepOffshoreCustomRatePct: number | null = null,
+  leaseStatus: string = 'converted',
+  newPmlHctRatePct: number | null = null,
+): number {
+  checkTerrain(terrain);
+  if (override !== null && override !== undefined) {
+    const o = Number(override);
+    if (!Number.isFinite(o) || o < 0 || o > 100) refuse(`pia_hct_rate_override_pct must be a number from 0 to 100; got ${override}.`);
+    return o / 100;
+  }
+  if (terrain === 'frontier') return 0;
+  if (terrain === 'deep_offshore') {
+    if (framework === 'pia_only') return 0;
+    switch (deepOffshoreInterpretation) {
+      case 'conservative_zero': return 0;
+      case 'aggressive_pml_30': return 0.30;
+      case 'custom': {
+        const c = Number(deepOffshoreCustomRatePct);
+        if (deepOffshoreCustomRatePct === null || deepOffshoreCustomRatePct === undefined || !Number.isFinite(c) || c < 0 || c > 100) {
+          refuse(`pia_deep_offshore_hct_interpretation "custom" needs pia_deep_offshore_hct_custom_rate_pct as a number from 0 to 100; got ${deepOffshoreCustomRatePct}.`);
+        }
+        return c / 100;
+      }
+      default:
+        return refuse('A deep offshore year under the Nigeria Tax Act 2025 needs pia_deep_offshore_hct_interpretation set to "conservative_zero", "aggressive_pml_30" or "custom": NTA s.65(1) applies hydrocarbon tax to deep offshore operations but s.72 states rates only for onshore and shallow water, so the rate is a stated user choice with no default.');
+    }
+  }
+  if (marginalPre2021 === true) return 0.15;
+  if (licenseType === 'PPL') return 0.15;
+  if (licenseType !== 'PML') refuse(`pia_license_type must be "PML" or "PPL"; got "${licenseType}".`);
+  if (leaseStatus === 'converted') return 0.30;
+  if (leaseStatus !== 'new') refuse(`pia_lease_status must be "converted" or "new"; got "${leaseStatus}".`);
+  const n = Number(newPmlHctRatePct);
+  if (newPmlHctRatePct === null || newPmlHctRatePct === undefined || (n !== 15 && n !== 30)) {
+    refuse(`A new-acreage petroleum mining lease onshore or in shallow water needs pia_new_pml_hct_rate_pct set to 15 or 30; got ${newPmlHctRatePct}. PIA s.267 (NTA s.72) gives 30% to leases selected under s.93(6)(b) and (7)(b) and 15% to onshore and shallow water and to petroleum prospecting licences, and does not say which applies to a lease granted after the Act out of new acreage, so the rate is a stated user choice with no default.`);
+  }
+  return n / 100;
+}
+
+/**
+ * Production allowance for one year (PIA Sixth Schedule para 1; NTA Sixth
+ * Schedule para 1). Crude oil and condensate barrels (para 1(4)).
+ *   converted lease: the lower of 2.50 USD/bbl and 20% of the fiscal oil
+ *     price on every barrel (para 1(1)).
+ *   new lease, per field: the lower of 8.00 USD/bbl and 20% up to the
+ *     cumulative cap (onshore 50, shallow water 100, deep offshore and
+ *     frontier 500 million bbl from commencement of production), then the
+ *     lower of 4.00 USD/bbl and 20% on every later barrel (para 1(2)). A
+ *     year that crosses the cap is split at the cap.
+ *   new lease in deep offshore or frontier in a year under the NTA: none,
+ *     because NTA Sixth Schedule para 1(2) re-enacts only (a) onshore and
+ *     (b) shallow water.
+ * The per-barrel figures, the 20% and the caps are the texts' values unless
+ * the config supplies others (pia_production_allowance_per_bbl_converted,
+ * _per_bbl_new, _per_bbl_new_after_cap, _pct_of_price and the three
+ * pia_new_lease_prod_alw_cap_*_bbl inputs).
+ */
+export function computeProductionAllowance(
+  cfg: any,
+  liquidsBbl: number,
+  fiscalPrice: number,
+  priorCumulativeLiquids: number = 0,
+  framework: FiscalFramework = 'pia_only',
+): { allowance: number; eligible_bbl: number; cap_applied: boolean; below_cap_bbl: number; after_cap_bbl: number } {
+  const none = { allowance: 0, eligible_bbl: 0, cap_applied: false, below_cap_bbl: 0, after_cap_bbl: 0 };
+  const pct = Number(cfg.pia_production_allowance_pct_of_price ?? 20) / 100;
+  const status = cfg.pia_lease_status ?? 'converted';
+  if (status !== 'converted' && status !== 'new') refuse(`pia_lease_status must be "converted" or "new"; got "${status}".`);
+  if (!(liquidsBbl > 0)) return none;
+  if (status === 'converted') {
+    const perBbl = Math.min(Number(cfg.pia_production_allowance_per_bbl_converted ?? 2.5), pct * fiscalPrice);
+    return { allowance: perBbl * liquidsBbl, eligible_bbl: liquidsBbl, cap_applied: false, below_cap_bbl: liquidsBbl, after_cap_bbl: 0 };
+  }
+  checkTerrain(cfg.pia_terrain);
+  const terrain = cfg.pia_terrain;
+  if ((terrain === 'deep_offshore' || terrain === 'frontier') && framework === 'nta_2025') return none;
+  const cap = terrain === 'onshore' ? Number(cfg.pia_new_lease_prod_alw_cap_onshore_bbl ?? 50_000_000)
+    : terrain === 'shallow_water' ? Number(cfg.pia_new_lease_prod_alw_cap_shallow_bbl ?? 100_000_000)
+      : Number(cfg.pia_new_lease_prod_alw_cap_deep_bbl ?? 500_000_000);
+  const below = Math.min(liquidsBbl, Math.max(0, cap - priorCumulativeLiquids));
+  const after = liquidsBbl - below;
+  const perBelow = Math.min(Number(cfg.pia_production_allowance_per_bbl_new ?? 8), pct * fiscalPrice);
+  const perAfter = Math.min(Number(cfg.pia_production_allowance_per_bbl_new_after_cap ?? 4), pct * fiscalPrice);
+  return {
+    allowance: perBelow * below + perAfter * after,
+    eligible_bbl: liquidsBbl,
+    cap_applied: after > 0,
+    below_cap_bbl: below,
+    after_cap_bbl: after,
+  };
+}
+
+/**
+ * Capital allowance fraction of a qualifying expenditure in the i-th year of
+ * assessment from the year it was incurred (i = 0, 1, ...).
+ *   PIA year: 20, 20, 20, 20, 19 percent, the last 1% retained until
+ *     disposal (PIA Fifth Schedule paras 5(2), 17(1)).
+ *   NTA year: 20 percent a year for five years, the 1% only a notional entry
+ *     (NTA First Schedule Part II paras 4(2), 14(1)). An asset part-way
+ *     through its life on 1 January 2026 takes the NTA rate for its remaining
+ *     years (applied by analogy with First Schedule Part I para 23, the only
+ *     transitional rule the NTA states for capital allowances).
+ */
+export function capitalAllowanceFraction(yearOfLife: number, framework: FiscalFramework): number {
+  if (!(yearOfLife >= 0) || yearOfLife > 4) return 0;
+  if (framework === 'nta_2025') return 0.20;
+  return [0.20, 0.20, 0.20, 0.20, 0.19][yearOfLife];
+}
+
+/**
+ * Tertiary education tax rate, percent of assessable profit, for a year under
+ * the PIA framework: 3% from 2023 (Tertiary Education Trust Fund Act s.1(2)
+ * as amended by Finance Act 2023 s.26, effective 1 May 2023; the annual model
+ * applies it to the whole of 2023), 2.5% before (Finance Act 2021, secondary
+ * source). The NTA deletes the tax from 2026 (NTA s.197(5)).
+ */
+export const statutoryTetRatePct = (year: number): number => (year >= 2023 ? 3 : 2.5);
+
+export interface PIAInputsV2 {
+  year: number;
+  oil_bbl: number;
+  gas_mscf: number;
+  condensate_bbl: number;
+  oil_price_usd_bbl: number;
+  condensate_price_usd_bbl: number;
+  oil_revenue: number;
+  condensate_revenue: number;
+  gas_revenue: number;
+  capex_inflated: number;
+  opex_inflated: number;
+  capital_allowance_this_year: number;
+  nddc_levy: number;
+  decom_contribution: number;
+}
+
+/**
+ * One year of the PIA / NTA fiscal ledger at 100% field level (the default
+ * path). `framework` is the year's own framework (fiscalFrameworkForYear).
+ * See the section banner for the texts and the stated approximations.
+ */
+export function applyPIA(
+  inputs: PIAInputsV2,
+  cfg: any,
+  state: PIAState,
+  framework: FiscalFramework = 'pia_only',
+): { output: any; newState: PIAState } {
+  const terrain = cfg.pia_terrain;
+  checkTerrain(terrain);
+  const oilRev = inputs.oil_revenue;
+  const condRev = inputs.condensate_revenue;
+  const gasRev = inputs.gas_revenue;
+  const liquidsRev = oilRev + condRev;
+  const grossRev = liquidsRev + gasRev;
+  const liquidsBbl = inputs.oil_bbl + inputs.condensate_bbl;
+
+  // Royalties (PIA Seventh Schedule paras 6, 10, 11; NTA Seventh Schedule
+  // para 6; REGS rr.12-16). Condensate is crude oil for royalty (para 6).
+  const liquidsBopd = liquidsBbl / calendarDays(inputs.year);
+  const liquidsRate = deriveOilRoyaltyRate(terrain, liquidsBopd);
+  const gasRate = deriveGasRoyaltyRate(terrain, cfg.pia_gas_in_country_share_pct ?? 0);
+  const base: PriceRoyaltyBase = cfg.pia_price_royalty_base ?? 'regulations_2021';
+  const priceRateOil = derivePriceRoyaltyRate(inputs.oil_price_usd_bbl, inputs.year, terrain, base);
+  const priceRateCond = derivePriceRoyaltyRate(inputs.condensate_price_usd_bbl, inputs.year, terrain, base);
+  const liquidsProductionRoyalty = liquidsRev * liquidsRate;
+  const gasRoyalty = gasRev * gasRate;
+  const priceRoyalty = oilRev * priceRateOil + condRev * priceRateCond;
+  const productionRoyalty = liquidsProductionRoyalty + gasRoyalty;
+  const totalRoyalties = productionRoyalty + priceRoyalty;
+
+  // HCDT: 3% of the preceding year's actual operating expenditure (PIA
+  // s.240(2)); NDDC is computed by the caller from its stated base.
+  const hcdt = state.prior_year_opex_usd > 0 ? 0.03 * state.prior_year_opex_usd : 0;
+  const nddc = inputs.nddc_levy;
+
+  // Decommissioning fund contribution: deductible for hydrocarbon tax and
+  // CIT under the PIA (s.263(1)(e), s.302(11)(b)(i)); under the NTA only
+  // when at least 30% of the fund sits in an escrow account with an
+  // accredited Nigerian bank (NTA s.86), a condition the user states.
+  const decomDeductible = inputs.decom_contribution > 0
+    && (framework === 'pia_only' || cfg.pia_decom_escrow_condition_met === true);
+  const decomDeduction = decomDeductible ? inputs.decom_contribution : 0;
+
+  // Hydrocarbon tax: crude oil and condensate only (PIA s.260(1); NTA
+  // s.65(2)); shared costs at the liquids share of revenue (banner).
+  const share = grossRev > 0 ? liquidsRev / grossRev : 0;
+
+  // Cost price ratio (PIA Sixth Schedule para 2; NTA Sixth Schedule para 2):
+  // every cost deductible for hydrocarbon tax except rents, royalties and
+  // the HCDT / NDDC / remediation contributions (s.263(1)(a), (b), (h)) is
+  // limited to 65% of the crude oil and condensate revenue at the measurement
+  // point; the excess carries forward within the same limit and is lost when
+  // crude oil operations end. It limits the HYDROCARBON TAX only.
+  const cprPct = Number(cfg.pia_cpr_limit_pct ?? 65);
+  const cprCap = Math.max(0, liquidsRev * cprPct / 100);
+  const hctOperatingCosts = share * (inputs.opex_inflated + decomDeduction);
+  const hctAllowanceCosts = share * inputs.capital_allowance_this_year;
+  const recoverable = state.cpr_carryforward + hctOperatingCosts + hctAllowanceCosts;
+  const cprClaimed = Math.min(recoverable, cprCap);
+  const cprDeferred = recoverable - cprClaimed;
+  // Claim order (engine rule): the carried pool and this year's operating
+  // costs first, then this year's capital allowance.
+  const operatingClaimed = Math.min(state.cpr_carryforward + hctOperatingCosts, cprClaimed);
+  const allowanceClaimed = cprClaimed - operatingClaimed;
+
+  // Assessable profit: liquids revenue less its royalties, the claimed costs
+  // and the liquids share of HCDT and NDDC (s.263(1)(b), (f), (h); NTA
+  // s.68(1)(b), (f), (h)). Gas royalty is outside (banner: the engine cannot
+  // tell associated from non-associated gas).
+  const hctAssessableProfit = liquidsRev - liquidsProductionRoyalty - priceRoyalty
+    - operatingClaimed - share * (hcdt + nddc);
+  const prodAlw = computeProductionAllowance(
+    cfg, liquidsBbl, inputs.oil_price_usd_bbl, state.cumulative_oil_bbl_lifetime, framework);
+  const hctChargeableProfit = hctAssessableProfit - allowanceClaimed - prodAlw.allowance;
+  const hctRate = deriveHctRate(
+    terrain,
+    cfg.pia_license_type,
+    cfg.pia_marginal_field_pre_2021 === true,
+    cfg.pia_hct_rate_override_pct ?? null,
+    framework,
+    cfg.pia_deep_offshore_hct_interpretation ?? null,
+    cfg.pia_deep_offshore_hct_custom_rate_pct ?? null,
+    cfg.pia_lease_status ?? 'converted',
+    cfg.pia_new_pml_hct_rate_pct ?? null,
+  );
+
+  // Loss relief: a loss is carried to the next period and so on until used,
+  // separately for each tax (PIA s.265; NTA s.70). Engine rule: a chargeable
+  // profit below zero (allowances larger than the assessable profit) is
+  // carried the same way.
+  const applyLossRelief = cfg.apply_loss_carryforward !== false;
+  let hctLossPool = applyLossRelief ? state.hct_loss_carryforward : 0;
+  let hctLossOffset = 0;
+  let hctTaxBase = hctChargeableProfit;
+  if (applyLossRelief) {
+    if (hctChargeableProfit < 0) {
+      hctLossPool += -hctChargeableProfit;
+      hctTaxBase = 0;
+    } else {
+      hctLossOffset = Math.min(hctLossPool, hctChargeableProfit);
+      hctLossPool -= hctLossOffset;
+      hctTaxBase = hctChargeableProfit - hctLossOffset;
+    }
+  }
+  const hctTax = Math.max(0, hctTaxBase * hctRate);
+
+  // Companies income tax on oil AND gas profits, no cost price ratio, HCT
+  // not deductible (PIA s.302(5); NTA s.78(3)(a)); royalties, HCDT and the
+  // decommissioning contribution deductible (s.302(11); NTA s.82(1)).
+  const citAssessableProfit = grossRev - totalRoyalties - inputs.opex_inflated - hcdt - nddc - decomDeduction;
+  // Capital allowance for CIT on the same Fifth Schedule / First Schedule
+  // Part II schedule (PIA s.302(10)(a); NTA s.81(2)(a)). Before 2026 the
+  // claim is limited to two thirds of the assessable profit, excess carried
+  // forward (CITA Second Schedule para 24(7) as substituted by FA23 s.9(b)),
+  // unless the company is in upstream or midstream gas operations. Under the
+  // NTA there is no such limit, and a carried amount is claimed in full.
+  const carryRestricted = cfg.cit_restricted_allowance_carryforward !== false;
+  const citAllowanceAvailable = inputs.capital_allowance_this_year
+    + (carryRestricted ? (state.cit_allowance_carryforward || 0) : 0);
+  const restricted = framework === 'pia_only' && cfg.pia_cit_company_gas_operations !== true;
+  const citAllowanceClaimed = restricted
+    ? Math.min(citAllowanceAvailable, Math.max(0, citAssessableProfit * 2 / 3))
+    : citAllowanceAvailable;
+  const citAllowanceCarry = carryRestricted ? citAllowanceAvailable - citAllowanceClaimed : 0;
+  const citChargeableProfit = citAssessableProfit - citAllowanceClaimed;
+  let citLossPool = applyLossRelief ? state.cit_loss_carryforward : 0;
+  let citLossOffset = 0;
+  let citTaxBase = citChargeableProfit;
+  if (applyLossRelief) {
+    if (citChargeableProfit < 0) {
+      citLossPool += -citChargeableProfit;
+      citTaxBase = 0;
+    } else {
+      citLossOffset = Math.min(citLossPool, citChargeableProfit);
+      citLossPool -= citLossOffset;
+      citTaxBase = citChargeableProfit - citLossOffset;
+    }
+  }
+  const citRatePct = Number(cfg.pia_cit_rate_pct ?? 30);
+  const citTax = Math.max(0, citTaxBase * citRatePct / 100);
+
+  // Tertiary education tax (PIA years) or the development levy (NTA years),
+  // both on the CIT assessable profit, never on the HCT base (NTA s.59(4)).
+  let tetRatePct = 0;
+  let tetTax = 0;
+  let devLevyTax = 0;
+  if (framework === 'pia_only') {
+    tetRatePct = cfg.pia_tet_rate_pct !== null && cfg.pia_tet_rate_pct !== undefined
+      ? Number(cfg.pia_tet_rate_pct) : statutoryTetRatePct(inputs.year);
+    tetTax = Math.max(0, citAssessableProfit * tetRatePct / 100);
+  } else {
+    // NTA s.59(1): 4% of assessable profits.
+    devLevyTax = Math.max(0, citAssessableProfit * Number(cfg.pia_development_levy_rate_pct ?? 4) / 100);
+  }
+
+  const totalTax = hctTax + citTax + tetTax + devLevyTax;
+  const netCashFlow = grossRev - totalRoyalties - inputs.opex_inflated - hcdt - nddc
+    - totalTax - inputs.capex_inflated - inputs.decom_contribution;
+
+  return {
+    output: {
+      production_royalty: productionRoyalty,
+      liquids_production_royalty: liquidsProductionRoyalty,
+      gas_royalty: gasRoyalty,
+      price_royalty: priceRoyalty,
+      total_royalties: totalRoyalties,
+      royalty_liquids_bopd: liquidsBopd,
+      royalty_rate_liquids: liquidsRate,
+      royalty_rate_gas: gasRate,
+      price_royalty_rate_oil: priceRateOil,
+      price_royalty_rate_condensate: priceRateCond,
+      hcdt,
+      nddc,
+      hct_assessable_profit: hctAssessableProfit,
+      production_allowance: prodAlw.allowance,
+      hct_chargeable_profit: hctChargeableProfit,
+      hct_rate: hctRate,
+      hct_tax: hctTax,
+      cit_assessable_profit: citAssessableProfit,
+      cit_chargeable_profit: citChargeableProfit,
+      cit_tax: citTax,
+      cit_allowance_claimed: citAllowanceClaimed,
+      cit_allowance_carryforward: citAllowanceCarry,
+      cit_allowance_restricted: restricted,
+      tet_rate_pct: tetRatePct,
+      tet_tax: tetTax,
+      dev_levy_tax: devLevyTax,
+      total_tax: totalTax,
+      cpr_cap: cprCap,
+      cpr_costs_claimed: cprClaimed,
+      cpr_deferred_to_next: cprDeferred,
+      decom_fund_deduction: decomDeduction,
+      net_cash_flow: netCashFlow,
+      fiscal_framework: framework,
+      prod_alw_cap_applied: prodAlw.cap_applied,
+      prod_alw_eligible_bbl: prodAlw.eligible_bbl,
+      prod_alw_below_cap_bbl: prodAlw.below_cap_bbl,
+      prod_alw_after_cap_bbl: prodAlw.after_cap_bbl,
+      hct_loss_offset_used: hctLossOffset,
+      cit_loss_offset_used: citLossOffset,
+      hct_loss_carryforward: hctLossPool,
+      cit_loss_carryforward: citLossPool,
+    },
+    newState: {
+      cpr_carryforward: cprDeferred,
+      prior_year_opex_usd: inputs.opex_inflated,
+      cumulative_oil_bbl_lifetime: state.cumulative_oil_bbl_lifetime + liquidsBbl,
+      hct_loss_carryforward: hctLossPool,
+      cit_loss_carryforward: citLossPool,
+      cit_allowance_carryforward: citAllowanceCarry,
+    },
+  };
+}
+
+/** The pre-audit (engines 3.11.0) PIA functions, for reproducing past runs. */
+export const PIA_LEGACY_PRE_AUDIT = Object.freeze({
+  determineFiscalFramework,
+  deriveHctRate: legacyDeriveHctRate,
+  deriveOilRoyaltyRate: legacyDeriveOilRoyaltyRate,
+  deriveGasRoyaltyRate: legacyDeriveGasRoyaltyRate,
+  derivePriceRoyaltyRate: legacyDerivePriceRoyaltyRate,
+  computeProductionAllowance: legacyComputeProductionAllowance,
+  applyPIA: legacyApplyPIA,
+});
 
 // ============================================================================
 // FINANCIAL METRICS (unchanged)
@@ -1176,6 +1762,21 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
   // B2.5: determine fiscal framework once per run
   const framework = determineFiscalFramework(cfg);
 
+  // v3.12 (EC7): the PIA regime follows the gazetted texts by default. The
+  // single documented input pia_legacy_pre_audit === true reproduces every
+  // pre-audit (3.11.0) PIA result exactly, through the legacy path above.
+  if (cfg.pia_legacy_pre_audit !== undefined && cfg.pia_legacy_pre_audit !== null
+    && typeof cfg.pia_legacy_pre_audit !== 'boolean') {
+    refuse(`pia_legacy_pre_audit must be true or false; got ${JSON.stringify(cfg.pia_legacy_pre_audit)}.`);
+  }
+  const legacyPIA = cfg.fiscal_regime === 'PIA' && cfg.pia_legacy_pre_audit === true;
+  const compliantPIA = cfg.fiscal_regime === 'PIA' && !legacyPIA;
+  // The framework of each year: per year on the default PIA path (NTA terms
+  // from 2026 under 'auto'), one per run on the legacy path.
+  const frameworkOf = (year: number): FiscalFramework => (compliantPIA ? fiscalFrameworkForYear(cfg, year) : framework);
+  const piaNotes = new Set<string>();
+  const tetOverrideYears: number[] = [];
+
   const baseYear = cfg.base_year || 2027;
   const inflationRate = Number(cfg.inflation_rate_pct ?? 0) / 100;
   const oilEscalator  = Number(cfg.oil_price_escalator_pct       ?? cfg.inflation_rate_pct ?? 0) / 100;
@@ -1271,11 +1872,19 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
         const oilCondRev = v.oil_bbl * oilP + v.condensate_bbl * condP;
         const gasRev = v.gas_mscf * gasP;
         rev = oilCondRev + gasRev;
-        if (cfg.fiscal_regime === 'PIA') {
-          const oilRoyRate = deriveOilRoyaltyRate(cfg.pia_terrain, v.oil_bbl / 365);
-          const gasRoyRate = deriveGasRoyaltyRate(cfg.pia_terrain);
-          const priceRoyRate = derivePriceRoyaltyRate(oilP, year, cfg.pia_terrain);
+        if (legacyPIA) {
+          const oilRoyRate = legacyDeriveOilRoyaltyRate(cfg.pia_terrain, v.oil_bbl / 365);
+          const gasRoyRate = legacyDeriveGasRoyaltyRate(cfg.pia_terrain);
+          const priceRoyRate = legacyDerivePriceRoyaltyRate(oilP, year, cfg.pia_terrain);
           royalty = oilCondRev * (oilRoyRate + priceRoyRate) + gasRev * gasRoyRate;
+        } else if (compliantPIA) {
+          // v3.12: the same royalty the fiscal year will charge.
+          const base = cfg.pia_price_royalty_base ?? 'regulations_2021';
+          const liquidsRate = deriveOilRoyaltyRate(cfg.pia_terrain, (v.oil_bbl + v.condensate_bbl) / calendarDays(year));
+          royalty = oilCondRev * liquidsRate
+            + v.oil_bbl * oilP * derivePriceRoyaltyRate(oilP, year, cfg.pia_terrain, base)
+            + v.condensate_bbl * condP * derivePriceRoyaltyRate(condP, year, cfg.pia_terrain, base)
+            + gasRev * deriveGasRoyaltyRate(cfg.pia_terrain, cfg.pia_gas_in_country_share_pct ?? 0);
         } else if (cfg.fiscal_regime === 'PSC') {
           royalty = rev * (Number(cfg.psc_royalty_pct) || 0) / 100;
         } else {
@@ -1341,6 +1950,10 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
   }
 
   const isPIA = cfg.fiscal_regime === 'PIA';
+  if (compliantPIA && cfg.pia_capex_recovery_years !== undefined && cfg.pia_capex_recovery_years !== null
+    && Number(cfg.pia_capex_recovery_years) !== 5) {
+    refuse(`pia_capex_recovery_years is ${cfg.pia_capex_recovery_years}, but the PIA Fifth Schedule para 17(1) and NTA First Schedule Part II para 14(1) fix the capital allowance at five years (20, 20, 20, 20, 19 percent under the PIA; 20 percent a year under the NTA). Leave it unset or 5, or set pia_legacy_pre_audit to true to reproduce a pre-audit run with a different recovery life.`);
+  }
   // v3.9 (Wave F): JV/PSC life is configurable; 'nigeria_ppt' applies the
   // statutory PPT-era schedule 20/20/20/20/19 with the 1% retention held
   // until disposal (deliberately never claimed in-model).
@@ -1356,7 +1969,14 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
     const t = capexYear - baseYear;
     const inflatedCapex = capexAmount * Math.pow(1 + capexEscalator, t);
     annualCapexInflated.set(capexYear, inflatedCapex);
-    if (deprMethod === 'nigeria_ppt') {
+    if (compliantPIA) {
+      // v3.12: PIA Fifth Schedule 20/20/20/20/19 in PIA years, NTA First
+      // Schedule Part II 20% in NTA years, read per year of assessment.
+      for (let i = 0; i < 5; i++) {
+        const y = capexYear + i;
+        annualDepr.set(y, (annualDepr.get(y) || 0) + inflatedCapex * capitalAllowanceFraction(i, frameworkOf(y)));
+      }
+    } else if (deprMethod === 'nigeria_ppt') {
       PPT_SCHEDULE.forEach((pct, i) => {
         const y = capexYear + i;
         annualDepr.set(y, (annualDepr.get(y) || 0) + inflatedCapex * pct);
@@ -1426,64 +2046,150 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
     };
 
     if (cfg.fiscal_regime === 'PIA') {
-      const nddcLevy = cfg.pia_nddc_levy_fixed_usd != null
-        ? Number(cfg.pia_nddc_levy_fixed_usd)
-        : opexInflated * (Number(cfg.pia_nddc_levy_pct_of_opex ?? 3) / 100);
-
-      const capAllowThisYear = annualDepr.get(year) || 0;
-
-      const piaInputs: PIAInputs = {
-        year,
-        oil_bbl: v.oil_bbl,
-        gas_mscf: v.gas_mscf,
-        condensate_bbl: v.condensate_bbl,
-        fiscal_oil_price_usd_bbl: oilPrice,
-        gross_revenue: grossRev,
-        oil_and_cond_revenue: oilAndCondRev,
-        capex_inflated: capexNominal,
-        opex_inflated: opexInflated,
-        capital_allowance_this_year: capAllowThisYear,
-        nddc_levy: nddcLevy,
-      };
-
-      // B2.5: pass framework to applyPIA
-      const { output: pia, newState } = applyPIA(piaInputs, cfg as unknown as PIAConfig, piaState, framework);
-      piaState = newState;
-
-      // v3.9 (Wave F): decommissioning fund contribution — deductible in the
-      // HCT (liquids share) and CIT bases outside the CPR machinery, cash
-      // out this year. Levy bases (HCDT/NDDC) deliberately unaffected.
+      let pia: any;
       const decomContribution = fundContribution.get(year) || 0;
-      if (decomContribution > 0) {
-        const oilShareForFund = pia.hct_assessable_profit !== 0 || grossRev > 0
-          ? (grossRev > 0 ? oilAndCondRev / grossRev : 0) : 0;
-        const hctRelief = decomContribution * oilShareForFund * (pia.hct_chargeable_profit > 0 ? 1 : 0);
-        const hctRateEff = pia.hct_chargeable_profit > 0 && pia.hct_tax > 0
-          ? pia.hct_tax / Math.max(1e-9, pia.hct_chargeable_profit) : 0;
-        const hctSaving = Math.min(pia.hct_tax, hctRelief * hctRateEff);
-        const citRateEff = (Number(cfg.pia_cit_rate_pct ?? 30) / 100);
-        const citSaving = Math.min(pia.cit_tax, decomContribution * citRateEff);
-        pia.hct_tax -= hctSaving;
-        pia.cit_tax -= citSaving;
-        pia.total_tax -= hctSaving + citSaving;
-        pia.net_cash_flow += hctSaving + citSaving - decomContribution;
-        baseRow.decom_fund_contribution = decomContribution;
-        baseRow.decom_fund_tax_relief = hctSaving + citSaving;
-      }
+      if (legacyPIA) {
+        const nddcLevy = cfg.pia_nddc_levy_fixed_usd != null
+          ? Number(cfg.pia_nddc_levy_fixed_usd)
+          : opexInflated * (Number(cfg.pia_nddc_levy_pct_of_opex ?? 3) / 100);
 
-      // v3.9 (Wave F): minimum effective tax rate top-up (config-gated,
-      // PROJECT-LEVEL APPROXIMATION of NTA 2025 s.57 — the statutory test is
-      // company-level with NGN turnover thresholds; reviewers can strip the
-      // reported top-up line).
-      if (cfg.pia_apply_minimum_etr === true) {
-        const etr = (Number(cfg.pia_minimum_etr_pct ?? 15) || 15) / 100;
-        const floor = Math.max(0, pia.cit_assessable_profit * etr);
-        const paid = pia.hct_tax + pia.cit_tax + pia.tet_tax + pia.dev_levy_tax;
-        if (paid < floor) {
-          const topup = floor - paid;
-          pia.total_tax += topup;
-          pia.net_cash_flow -= topup;
-          baseRow.min_etr_topup = topup;
+        const capAllowThisYear = annualDepr.get(year) || 0;
+
+        const piaInputs: PIAInputs = {
+          year,
+          oil_bbl: v.oil_bbl,
+          gas_mscf: v.gas_mscf,
+          condensate_bbl: v.condensate_bbl,
+          fiscal_oil_price_usd_bbl: oilPrice,
+          gross_revenue: grossRev,
+          oil_and_cond_revenue: oilAndCondRev,
+          capex_inflated: capexNominal,
+          opex_inflated: opexInflated,
+          capital_allowance_this_year: capAllowThisYear,
+          nddc_levy: nddcLevy,
+        };
+
+        // B2.5: pass framework to applyPIA
+        const legacyOut = legacyApplyPIA(piaInputs, cfg as unknown as PIAConfig, piaState, framework);
+        pia = legacyOut.output;
+        const newState = legacyOut.newState;
+        piaState = newState;
+
+        // v3.9 (Wave F): decommissioning fund contribution — deductible in the
+        // HCT (liquids share) and CIT bases outside the CPR machinery, cash
+        // out this year. Levy bases (HCDT/NDDC) deliberately unaffected.
+        if (decomContribution > 0) {
+          const oilShareForFund = pia.hct_assessable_profit !== 0 || grossRev > 0
+            ? (grossRev > 0 ? oilAndCondRev / grossRev : 0) : 0;
+          const hctRelief = decomContribution * oilShareForFund * (pia.hct_chargeable_profit > 0 ? 1 : 0);
+          const hctRateEff = pia.hct_chargeable_profit > 0 && pia.hct_tax > 0
+            ? pia.hct_tax / Math.max(1e-9, pia.hct_chargeable_profit) : 0;
+          const hctSaving = Math.min(pia.hct_tax, hctRelief * hctRateEff);
+          const citRateEff = (Number(cfg.pia_cit_rate_pct ?? 30) / 100);
+          const citSaving = Math.min(pia.cit_tax, decomContribution * citRateEff);
+          pia.hct_tax -= hctSaving;
+          pia.cit_tax -= citSaving;
+          pia.total_tax -= hctSaving + citSaving;
+          pia.net_cash_flow += hctSaving + citSaving - decomContribution;
+          baseRow.decom_fund_contribution = decomContribution;
+          baseRow.decom_fund_tax_relief = hctSaving + citSaving;
+        }
+
+        // v3.9 (Wave F): minimum effective tax rate top-up (config-gated,
+        // PROJECT-LEVEL APPROXIMATION of NTA 2025 s.57 — the statutory test is
+        // company-level with NGN turnover thresholds; reviewers can strip the
+        // reported top-up line).
+        if (cfg.pia_apply_minimum_etr === true) {
+          const etr = (Number(cfg.pia_minimum_etr_pct ?? 15) || 15) / 100;
+          const floor = Math.max(0, pia.cit_assessable_profit * etr);
+          const paid = pia.hct_tax + pia.cit_tax + pia.tet_tax + pia.dev_levy_tax;
+          if (paid < floor) {
+            const topup = floor - paid;
+            pia.total_tax += topup;
+            pia.net_cash_flow -= topup;
+            baseRow.min_etr_topup = topup;
+          }
+        }
+      } else {
+        const yearFramework = frameworkOf(year);
+        // NDDC levy: 3% of the company's total annual budget (NDDC
+        // (Establishment, etc.) Act 2000 s.14(2)(b), as amended 2017; read
+        // from secondary sources). The budget is this year's opex plus capex;
+        // pia_nddc_levy_base 'opex' keeps the pre-audit opex base as a stated
+        // choice, and a fixed sum replaces the percentage when set.
+        const nddcBase = cfg.pia_nddc_levy_base ?? 'total_budget';
+        if (nddcBase !== 'total_budget' && nddcBase !== 'opex') {
+          refuse(`pia_nddc_levy_base must be "total_budget" or "opex"; got "${nddcBase}".`);
+        }
+        const nddcPct = Number(cfg.pia_nddc_levy_pct ?? cfg.pia_nddc_levy_pct_of_opex ?? 3);
+        const nddcLevy = cfg.pia_nddc_levy_fixed_usd != null
+          ? Number(cfg.pia_nddc_levy_fixed_usd)
+          : (nddcBase === 'total_budget' ? opexInflated + capexNominal : opexInflated) * nddcPct / 100;
+        if (yearFramework === 'nta_2025' && decomContribution > 0 && typeof cfg.pia_decom_escrow_condition_met !== 'boolean') {
+          refuse(`${year} is a year under the Nigeria Tax Act 2025 and carries a decommissioning fund contribution, so pia_decom_escrow_condition_met must be true or false: NTA s.86 allows the deduction only when at least 30% of the fund is deposited in an escrow account with a Nigerian bank accredited under the Central Bank of Nigeria's criteria.`);
+        }
+        const out = applyPIA({
+          year,
+          oil_bbl: v.oil_bbl,
+          gas_mscf: v.gas_mscf,
+          condensate_bbl: v.condensate_bbl,
+          oil_price_usd_bbl: oilPrice,
+          condensate_price_usd_bbl: condPrice,
+          oil_revenue: oilRev,
+          condensate_revenue: condRev,
+          gas_revenue: gasRev,
+          capex_inflated: capexNominal,
+          opex_inflated: opexInflated,
+          capital_allowance_this_year: annualDepr.get(year) || 0,
+          nddc_levy: nddcLevy,
+          decom_contribution: decomContribution,
+        }, cfg, piaState, yearFramework);
+        pia = out.output;
+        piaState = out.newState;
+        if (decomContribution > 0) {
+          baseRow.decom_fund_contribution = decomContribution;
+          baseRow.decom_fund_deduction = pia.decom_fund_deduction;
+        }
+        // Minimum effective tax rate top-up: NTA s.57, so NTA years only;
+        // the project-level approximation is stated in kpis.pia_notes.
+        if (cfg.pia_apply_minimum_etr === true && yearFramework === 'nta_2025') {
+          const etr = (Number(cfg.pia_minimum_etr_pct ?? 15) || 15) / 100;
+          const floor = Math.max(0, pia.cit_assessable_profit * etr);
+          const paid = pia.hct_tax + pia.cit_tax + pia.tet_tax + pia.dev_levy_tax;
+          if (paid < floor) {
+            const topup = floor - paid;
+            pia.total_tax += topup;
+            pia.net_cash_flow -= topup;
+            baseRow.min_etr_topup = topup;
+          }
+        }
+        Object.assign(baseRow, {
+          liquids_production_royalty: pia.liquids_production_royalty,
+          gas_royalty: pia.gas_royalty,
+          royalty_liquids_bopd: pia.royalty_liquids_bopd,
+          royalty_rate_liquids: pia.royalty_rate_liquids,
+          royalty_rate_gas: pia.royalty_rate_gas,
+          price_royalty_rate_oil: pia.price_royalty_rate_oil,
+          price_royalty_rate_condensate: pia.price_royalty_rate_condensate,
+          hct_rate: pia.hct_rate,
+          tet_rate_pct: pia.tet_rate_pct,
+          cit_allowance_restricted: pia.cit_allowance_restricted,
+          prod_alw_below_cap_bbl: pia.prod_alw_below_cap_bbl,
+          prod_alw_after_cap_bbl: pia.prod_alw_after_cap_bbl,
+        });
+        // Notes (kpis.pia_notes), each stated once.
+        piaNotes.add((cfg.pia_price_royalty_base ?? 'regulations_2021') === 'act_2020'
+          ? PIA_NOTES.priceRoyaltyBaseAct : PIA_NOTES.priceRoyaltyBaseRegulations);
+        if (year >= 2023) piaNotes.add(PIA_NOTES.priceRoyaltyMidColumn);
+        piaNotes.add(PIA_NOTES.dailyRate);
+        if (v.gas_mscf > 0) piaNotes.add(PIA_NOTES.sharedCosts);
+        if (yearFramework === 'pia_only' && cfg.pia_cit_company_gas_operations !== true) piaNotes.add(PIA_NOTES.citRestrictionPre2026);
+        if (yearFramework === 'nta_2025') piaNotes.add(PIA_NOTES.ntaVersion);
+        if (cfg.pia_apply_minimum_etr === true) piaNotes.add(PIA_NOTES.minEtrApproximation);
+        piaNotes.add(PIA_NOTES.fiscalPrice);
+        if (yearFramework === 'pia_only' && cfg.pia_tet_rate_pct !== null && cfg.pia_tet_rate_pct !== undefined
+          && Number(cfg.pia_tet_rate_pct) !== statutoryTetRatePct(year)) {
+          tetOverrideYears.push(year);
         }
       }
 
@@ -1620,6 +2326,7 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
         'gross_revenue', 'revenue', 'opex', 'capex', 'depreciation',
         'oil_bbl', 'gas_mscf', 'condensate_bbl',
         'royalty', 'production_royalty', 'price_royalty', 'hcdt', 'nddc',
+        'liquids_production_royalty', 'gas_royalty', 'decom_fund_deduction',
         'hct_assessable_profit', 'production_allowance', 'hct_chargeable_profit', 'hct_tax',
         'cit_assessable_profit', 'cit_chargeable_profit', 'cit_tax',
         'tet_tax', 'dev_levy_tax', 'tax', 'taxable_income',
@@ -1714,7 +2421,7 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
     pv_basis: pvBasis,
     discount_rate_applied_pct: discountForNPV * 100,
     fiscal_regime: cfg.fiscal_regime,
-    fiscal_framework: framework,  // B2.5: surface to KPIs for UI
+    fiscal_framework: framework,  // B2.5: surface to KPIs for UI; v3.12 recomputed per year below
     discounting_convention: midYear ? 'mid_year' : 'end_year',  // v3.6
     total_revenue: evalRows.reduce((s, d) => s + d.gross_revenue, 0),
     total_capex: evalRows.reduce((s, d) => s + d.capex, 0),
@@ -1844,6 +2551,23 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
     kpis.psc_unrecovered_cost_at_cessation = pscCarryforward * wiRegime;
   }
 
+  if (compliantPIA) {
+    // v3.12: the framework is read per year. One framework across the
+    // evaluated years reports that framework; a ledger that crosses
+    // 1 January 2026 under 'auto' reports 'pia_only_then_nta_2025' and the
+    // first NTA year.
+    const fws = Array.from(new Set(cashFlowData.map(d => d.fiscal_framework).filter(Boolean)));
+    if (fws.length === 1) kpis.fiscal_framework = fws[0];
+    else if (fws.length > 1) {
+      kpis.fiscal_framework = 'pia_only_then_nta_2025';
+      kpis.nta_first_year = Math.min(...cashFlowData.filter(d => d.fiscal_framework === 'nta_2025').map(d => d.year));
+    }
+    if (tetOverrideYears.length > 0) {
+      piaNotes.add(`pia_tet_rate_pct ${cfg.pia_tet_rate_pct} was used for ${tetOverrideYears.join(', ')}. The statutory tertiary education tax is 3% from 2023 (Tertiary Education Trust Fund Act s.1(2) as amended by Finance Act 2023 s.26) and 2.5% before; leave pia_tet_rate_pct unset to apply it.`);
+    }
+    kpis.pia_notes = Array.from(piaNotes);
+  }
+  if (legacyPIA) kpis.pia_legacy_pre_audit = true;
   if (cfg.fiscal_regime === 'PIA') {
     // v3.10 (EC1-6): capital allowance the CITA restriction disallowed and
     // that cessation leaves unclaimed, at the working-interest share.
