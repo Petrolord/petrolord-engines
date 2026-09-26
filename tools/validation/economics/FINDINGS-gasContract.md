@@ -2,14 +2,14 @@
 
 Engine: `engines/economics/gasContract.js` (the brief allowed another name; it
 is `gasContract.js`). Golden: `test-data/economics/goldens/gascontract_cases.json`,
-@@CASES@@ cases (@@REFUSALS@@ of them refusals, every refusal message pinned in full),
+185 cases (84 of them refusals, every refusal message pinned in full),
 written by `tools/validation/economics/oracle_gascontract.py`. Gate:
-`__tests__/economics.gasContract.test.js` (@@TESTS@@ tests) calls the engine on
+`__tests__/economics.gasContract.test.js` (219 tests) calls the engine on
 every golden, checks the published figures against their printed values,
 checks the planted fixture situations and the wiring, and runs property tests.
-Negative control: `negcontrol_gascontract.sh` (@@NEG@@). Timing:
+Negative control: `negcontrol_gascontract.sh` (56/56 engine plants red, 6/6 oracle plants caught). Timing:
 `timing_gascontract.js` (table below). Fixtures: `test-data/economics/ekene-gsa/`,
-written by `make_gsa_fixtures.py`. Full engines suite on the branch: @@SUITE@@.
+written by `make_gsa_fixtures.py`. Full engines suite on the branch: 230 suites, 221 passed; the 9 that fail are the CRS and two downstream copy-rule suites, which cannot resolve `proj4` and `@babel/parser` from this worktree (environment only, unrelated to EC8); 17,726 tests passed.
 
 The oracle is STDLIB ONLY (python 3: `fractions`, `decimal`, `math`,
 `datetime`). It reads no JavaScript and takes a different road: quantities
@@ -192,15 +192,252 @@ the gate checks:
 
 ## Caps and timing
 
-@@TIMING@@
+`timing_gascontract.js`, one run on the build host, 2026-09-26 (ms per call):
+
+| case | size | ms |
+|---|---|---|
+| takeOrPay with carry-forward | 30 years | 3.66 |
+| gsaCashFlows | 30 years | 1.20 |
+| takeOrPay with carry-forward | 100 years | 11.38 |
+| gsaCashFlows | 100 years | 2.34 |
+| dailyBalance | 366 days | 5.12 |
+| priceSeries oil-indexed S-curve | 1,188 months priced | 22.18 |
+| priceSeries basket | 1,188 months priced | 29.13 |
+| takeOrPay power fixture | 8 years | 0.56 |
+
+Caps (`DEFAULTS`): 100 contract years, 400 days in a daily balance, 1,200 index months and 1,200 priced months, 10 basket indices. At every cap a call stays well under 100 ms.
 
 ## Negative control
 
-@@NEGCONTROL@@
+Run on 2026-09-26 (`negcontrol_run2.txt` in the wave dir, then the one plant it missed rerun after a golden was added). Result: **56/56 engine plants red, 6/6 oracle plants caught.** The first run found two holes, both fixed before this run: the 12-digit normalisation of the 4-decimal rule is an equivalent mutation at realistic magnitudes (JavaScript `toFixed(12)` already absorbs the float noise), so that plant was replaced by the real defect of rounding to 5 decimals before the rule (golden 11.234346 gives 11.2343); and the singular 'contract year' had no golden with a one-year make-up period (added `top-makeup-period-one`).
+
+```
+RED   [ENGINE] TOP base: TOPQ on the ACQ (no adjustment) -- 7 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] FM netting: force majeure not netted from the ACQ -- 7 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] seller shortfall not netted from the ACQ -- 4 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] permitted reduction not netted -- 2 failed -- goldens: the engine agrees with the oracle › top-force-majeure-and-shortfall
+RED   [ENGINE] make-up order: Adjusted ACQ and TOPQ thresholds swapped -- 21 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] make-up order: 'first' waits for the Adjusted ACQ -- 3 failed -- goldens: the engine agrees with the oracle › top-order-first
+RED   [ENGINE] make-up drawn last in first out -- 7 failed -- goldens: the engine agrees with the oracle › top-export
+RED   [ENGINE] expiry boundary: make-up period one year longer -- 12 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] expiry boundary: make-up period one year shorter -- 17 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] expiry test on a later year only -- 12 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] last-year deficiency opens a make-up entry -- 6 failed -- goldens: the engine agrees with the oracle › top-end-of-term-refund
+RED   [ENGINE] end-of-term refund at the contract price -- 1 failed -- goldens: the engine agrees with the oracle › top-end-of-term-refund
+RED   [ENGINE] deficiency paid at the contract price -- 2 failed -- goldens: the engine agrees with the oracle › top-end-of-term-refund
+RED   [ENGINE] make-up gas invoiced at the contract price -- 14 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] shortfall damages added to the seller -- 4 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] carry-forward cap ignored -- 5 failed -- goldens: the engine agrees with the oracle › top-export
+RED   [ENGINE] carry-forward base swapped -- 8 failed -- goldens: the engine agrees with the oracle › top-export
+RED   [ENGINE] carry-forward never expires -- 5 failed -- goldens: the engine agrees with the oracle › top-export
+RED   [ENGINE] seller shortfall measured against the quantity taken -- 1 failed -- goldens: the engine agrees with the oracle › daily-available-not-taken
+RED   [ENGINE] delivery tolerance ignored -- 2 failed -- goldens: the engine agrees with the oracle › daily-tolerance-covers-the-gap
+RED   [ENGINE] nomination not capped at MaxDCQ -- 3 failed -- goldens: the engine agrees with the oracle › daily-power-january-2027
+RED   [ENGINE] force majeure does not excuse the gap -- 2 failed -- goldens: the engine agrees with the oracle › daily-fm-part-day
+RED   [ENGINE] buyer-caused day counted against the seller -- 3 failed -- goldens: the engine agrees with the oracle › daily-power-january-2027
+RED   [ENGINE] price lag one month longer -- 22 failed -- goldens: the engine agrees with the oracle › price-export
+RED   [ENGINE] averaging divides by one month too many -- 20 failed -- goldens: the engine agrees with the oracle › price-export
+RED   [ENGINE] averaging window one month short -- 22 failed -- goldens: the engine agrees with the oracle › price-export
+RED   [ENGINE] reset ignored (priced monthly) -- 6 failed -- goldens: the engine agrees with the oracle › price-export
+RED   [ENGINE] S-curve kink: low segment keeps the mid slope -- 4 failed -- goldens: the engine agrees with the oracle › price-ecs-figure-51
+RED   [ENGINE] S-curve kink: high segment not anchored at the kink -- 4 failed -- goldens: the engine agrees with the oracle › price-ecs-figure-51
+RED   [ENGINE] S-curve kink: the low kink itself in the low segment -- 3 failed -- goldens: the engine agrees with the oracle › price-ecs-figure-51
+RED   [ENGINE] price floor ignored -- 1 failed -- goldens: the engine agrees with the oracle › price-oil-floor-ceiling
+RED   [ENGINE] rounding: fifth decimal 5 rounds down -- 2 failed -- goldens: the engine agrees with the oracle › price-round-model-4dp
+RED   [ENGINE] rounding: rounded to 5 decimals before the 4-decimal rule -- 2 failed -- goldens: the engine agrees with the oracle › price-round-model-4dp
+RED   [ENGINE] basket index floor ignored -- 1 failed -- goldens: the engine agrees with the oracle › price-cw-basket-index-floors
+RED   [ENGINE] escalation steps monthly -- 1 failed -- goldens: the engine agrees with the oracle › price-escalated
+RED   [ENGINE] day count: every year 365 days -- 3 failed -- goldens: the engine agrees with the oracle › cq-power-2028-leap
+RED   [ENGINE] period end date counted -- 2 failed -- goldens: the engine agrees with the oracle › cq-period-full-year
+RED   [ENGINE] effective swing inverted -- 4 failed -- goldens: the engine agrees with the oracle › cq-hmrc-ot05402-effective-swing
+RED   [ENGINE] Btu at 59 F in place of the International Table Btu -- 8 failed -- goldens: the engine agrees with the oracle › energy-power-dcq
+RED   [ENGINE] cubic foot rounded to 0.0283 -- 3 failed -- goldens: the engine agrees with the oracle › energy-mixed-sm3-btu
+RED   [ENGINE] commercial adder 0.6 -- 7 failed -- goldens: the engine agrees with the oracle › dp-commercial-2026
+RED   [ENGINE] gas based industries floor 0.95 -- 4 failed -- goldens: the engine agrees with the oracle › dp-gbi-urea-floor
+RED   [ENGINE] GTL PRP 250 -- 2 failed -- goldens: the engine agrees with the oracle › dp-gbi-gtl-diesel
+RED   [ENGINE] EPF over CMPP -- 9 failed -- goldens: the engine agrees with the oracle › dp-gbi-urea-inside
+RED   [ENGINE] GBI floor applied before the ceiling -- 2 failed -- goldens: the engine agrees with the oracle › dp-gbi-urea-ceiling
+RED   [ENGINE] DGDO penalty 3 -- 12 failed -- goldens: the engine agrees with the oracle › dgdo-power-2028
+RED   [ENGINE] DGDO agreement rate below 3.50 accepted -- 2 failed -- goldens: the engine agrees with the oracle › dgdo-agreement-below
+RED   [ENGINE] DGDO deemed fulfilment strictly above -- 2 failed -- goldens: the engine agrees with the oracle › dgdo-deemed-by-contracts
+RED   [ENGINE] DGDO excuses not capped at the undelivered quantity -- 1 failed -- goldens: the engine agrees with the oracle › dgdo-all-excused
+RED   [ENGINE] royalty ignores the in-country share -- 3 failed -- goldens: the engine agrees with the oracle › cf-power
+RED   [ENGINE] royalty charged on deficiency payments -- 3 failed -- goldens: the engine agrees with the oracle › cf-power
+RED   [ENGINE] NPV discounted one year early -- 3 failed -- goldens: the engine agrees with the oracle › cf-power
+RED   [ENGINE] unknown keys ignored -- 22 failed -- goldens: the engine agrees with the oracle › energy-refuse-unknown-key
+RED   [ENGINE] message: make-up expiry wording -- 10 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ENGINE] message: unit agreement dropped -- red after the golden top-makeup-period-one was added (rerun with the filter "unit agreement": 1/1 red)
+RED   [ENGINE] message: domestic base price refusal -- 2 failed -- goldens: the engine agrees with the oracle › dp-refuse-no-dbp
+RED   [ORACLE] oracle TOPQ on the ACQ -- 6 failed -- goldens: the engine agrees with the oracle › top-power
+RED   [ORACLE] oracle make-up drawn newest first -- 6 failed -- goldens: the engine agrees with the oracle › top-export
+RED   [ORACLE] oracle window ends at the priced month -- 10 failed -- goldens: the engine agrees with the oracle › price-export
+RED   [ORACLE] oracle DGDO rate 3 -- 8 failed -- goldens: the engine agrees with the oracle › dgdo-power-2028
+RED   [ORACLE] oracle royalty 5% in-country -- 2 failed -- goldens: the engine agrees with the oracle › cf-power
+RED   [ORACLE] oracle unknown keys ignored -- 23 failed -- goldens: the engine agrees with the oracle › energy-refuse-unknown-key
+```
 
 ## Refusal and reason strings (course content)
 
-@@STRINGS@@
+Every string below is pinned by a golden (the refusals in full). Figures print as the shortest round-trip decimal.
+
+### Refusals (84 distinct)
+
+- `carryForward.cap is not an accepted key; the accepted keys of carryForward are periodYears, base, capPct`
+- `carryForward.capPct must be a number from 0 to 100; got 120`
+- `carryForward.periodYears must be an integer at or above 1; got 0`
+- `cmpp must be stated: the average current month end product price in US$ per tonne (Fourth Schedule); got nothing`
+- `contract.extra is not an accepted key; the accepted keys of contract are years, topPct, makeUp, carryForward`
+- `contract.makeUp.order must be one of "after-adjusted-acq", "after-top-quantity", "first"; got "lifo"`
+- `days must be an array of at least 1 entry; got []`
+- `days must be an integer at or above 1; got 365.5`
+- `days must be stated, or replaced by year or by period; got nothing`
+- `days must be the only day count stated; got days and year`
+- `days[0].buyerCaused must be true or false when given; got "yes"`
+- `days[0].date must be a date 'YYYY-MM-DD'; got "2027-3-1"`
+- `days[0].forceMajeure must be a quantity that with maintenance 30 is at or below the DCQ 100; got 80`
+- `days[0].forcemajeure is not an accepted key; the accepted keys of days[0] are date, nominated, available, taken, forceMajeure, maintenance, buyerCaused`
+- `days[0].taken must be at or below the quantity made available 50; got 60`
+- `days[1].date must be after the previous day 2027-03-02; got "2027-03-02"`
+- `dbp is not an accepted key; the accepted keys at the top level are sector, domesticBasePrice, negotiatedPrice, product, cmpp, transportTariff, schedule`
+- `dcq must be a finite number above 0; got 0`
+- `discountRate must be a finite number above -1; got -1`
+- `domesticBasePrice must be at or above the gas based industries floor US$0.90 per MMBtu (s.168(2)) for a gas based industry price, which is capped at the domestic base price (s.168(3)); got 0.8`
+- `domesticBasePrice must be stated in US$ per MMBtu: the Authority determines it each year (PIA s.167(1)) and the engine holds no default; got nothing`
+- `excused.pipelineOutage is not an accepted key; the accepted keys of excused are forceMajeure, purchaserCannotAccept, transportUnavailable, purchaserNonPayment`
+- `formula must give a price at or above 0 in every month; got -13.3 for 2025-08`
+- `formula.baseValues.gdp is not a weighted index; the accepted keys of formula.baseValues are fo, cpi`
+- `formula.cap is not an accepted key; the accepted keys of formula are type, index, slope, constant, sCurve, floor, ceiling`
+- `formula.ceiling must be at or above formula.floor 9; got 8`
+- `formula.index must be the name of an index in months[].values (oil); got "brent"`
+- `formula.sCurve.highKink must be above formula.sCurve.lowKink 90; got 50`
+- `formula.sCurve.highkink is not an accepted key; the accepted keys of formula.sCurve are lowKink, highKink, lowSlope, highSlope`
+- `formula.type must be one of "fixed", "escalated", "oil-indexed", "hub-indexed", "basket"; got "jcc-linked"`
+- `formula.weights must sum to 1 (weights stated as decimals, CW GSA Article 15.1); got a sum of 1.1`
+- `from must be a month at or after formula.baseMonth 2027-04; got "2027-01"`
+- `heatingValue must be a finite number above 0; got 0`
+- `heatingValueBasis must be one of "gross", "net"; got "higher"`
+- `heatingvalue is not an accepted key; the accepted keys at the top level are quantity, quantityUnit, heatingValue, heatingValueUnit, heatingValueBasis, referenceConditions`
+- `lagMonths must be an integer at or above 0; got -1`
+- `makeUp must be an object { periodYears, order, endOfTerm } (no default); got nothing`
+- `makeUp.endOfTerm must be one of "forfeit", "refund"; got "extend"`
+- `makeUp.order must be one of "after-adjusted-acq", "after-top-quantity", "first"; got "fifo"`
+- `makeUp.periodYears must be an integer at or above 0; got 1.5`
+- `makeup is not an accepted key; the accepted keys at the top level are years, topPct, makeUp, carryForward`
+- `maxDcqPct must be a number at or above 100 when given; got 90`
+- `mmbtu is not an accepted key; the accepted keys at the top level are mmbtuPerBarrel`
+- `mmbtuPerBarrel must be a finite number above 0; got 0`
+- `months must cover the averaging window 2024-09 to 2025-02 for the price of 2025-03; got no value for 2024-09, 2024-10, 2024-11, 2024-12`
+- `months[1].month must be 2025-02, the month after 2025-01 (the series is consecutive); got "2025-03"`
+- `months[1].values must carry the same indices as months[0] (oil); got hh, oil`
+- `negotiatedPrice must be given only for sector 'gas-distributor'; got 2`
+- `negotiatedPrice must be stated for a gas distributor, which negotiates its price (PIA s.167(7)); got nothing`
+- `notAKey is not an accepted key; the accepted keys at the top level are contract, royalty, discountRate, baseYear`
+- `notAKey is not an accepted key; the accepted keys at the top level are dcq, days, year, period, maxDcqPct, topPct`
+- `notAKey is not an accepted key; the accepted keys at the top level are dcq, maxDcqPct, deliveryTolerance, days`
+- `notAKey is not an accepted key; the accepted keys at the top level are mmbtuPerBarrel`
+- `notAKey is not an accepted key; the accepted keys at the top level are months, formula, from, to, averagingMonths, lagMonths, resetMonths, rounding, reopeners`
+- `notAKey is not an accepted key; the accepted keys at the top level are obligation, delivered, voluntaryContracts, excused, agreementPenaltyRate, penaltyRate`
+- `notAKey is not an accepted key; the accepted keys at the top level are quantity, quantityUnit, heatingValue, heatingValueUnit, heatingValueBasis, referenceConditions`
+- `notAKey is not an accepted key; the accepted keys at the top level are sector, domesticBasePrice, negotiatedPrice, product, cmpp, transportTariff, schedule`
+- `notAKey is not an accepted key; the accepted keys at the top level are years, topPct, makeUp, carryForward`
+- `obligation must be a finite number at or above 0; got -1`
+- `options must be an object of named inputs; got [1,2]`
+- `penaltyRate must be left out when agreementPenaltyRate is stated (state one rate basis); got {"value":4,"source":"x"}`
+- `penaltyRate.source must be a non-empty string; got nothing`
+- `period.end must be a date after period.start 2028-01-01; got "2027-01-01"`
+- `period.finish is not an accepted key; the accepted keys of period are start, end`
+- `period.start must be a real date 'YYYY-MM-DD'; got "2027-02-30"`
+- `product must be given only for sector 'gas-based-industry'; got "urea"`
+- `product must be one of "ammonia", "urea", "methanol", "polypropylene", "low-sulphur-diesel-gtl"; got "fertiliser"`
+- `quantity must be a finite number at or above 0; got -1`
+- `quantityUnit must be one of "scf", "Mscf", "MMscf", "Sm3", "MSm3", "MMSm3"; got "bcf"`
+- `referenceConditions must be a non-empty string; got "  "`
+- `reopeners[0] must be a month 'YYYY-MM'; got "2031"`
+- `rounding must be one of "none", "model-gsa-4dp"; got "4dp"`
+- `royalty must be an object { terrain, inCountrySharePct } (no default terrain); got nothing`
+- `royalty.terrain must be one of "onshore", "shallow_water", "deep_offshore", "frontier"; got "marginal_field"`
+- `schedule.source must be a non-empty string; got ""`
+- `sector must be one of "power", "commercial", "gas-distributor", "gas-based-industry"; got "industrial"`
+- `to must be a month at or after from 2025-08; got "2025-07"`
+- `topPct must be a number from 0 to 100; got 101`
+- `topPct must be above 0 when maxDcqPct is stated (the effective swing divides by it); got 0`
+- `years[0].acq must be at or above the reductions it carries (maintenance + force majeure + seller shortfall + permitted reduction = 110); got 100`
+- `years[0].fm is not an accepted key; the accepted keys of years[0] are year, acq, maintenance, forceMajeure, sellerShortfall, permittedReduction, taken, contractPrice, topPrice, makeUpPrice, shortfallPrice`
+- `years[0].shortfallPrice must be stated when sellerShortfall is above 0 (5); the engine holds no default rate; got nothing`
+- `years[0].topPrice must be a finite number at or above 0; got nothing`
+- `years[1].year must be 2028, the year after 2027 (contract years are consecutive); got 2029`
+
+### Reasons (from the fixture and boundary goldens)
+
+- 2027: seller shortfall 6300 reduces the Adjusted ACQ and is paid to the buyer at 1.25: 7875
+- 2028: 5460000 counted against the take-or-pay quantity 6148800 leaves a deficiency of 688800; the deficiency payment is 688800 x 2.18 = 1501584; the buyer may make up 688800 in the 3 contract years after 2028, to the end of 2031
+- 2029: make-up of 210000 taken from the make-up aggregate 688800 (make-up only after the Adjusted ACQ of the year is taken), first in first out: 210000 from 2028
+- 2030: make-up aggregate 478800 available and none taken, because taken 7665000 does not exceed the Adjusted ACQ 7665000
+- 2031: make-up of 268800 taken from the make-up aggregate 478800 (make-up only after the Adjusted ACQ of the year is taken), first in first out: 268800 from 2028
+- 2031: make-up of 210000 from 2028 expired unrecovered at the end of 2031, the last year of its make-up period
+- 2033: 5775000 counted against the take-or-pay quantity 6132000 leaves a deficiency of 357000; the deficiency payment is 357000 x 2.18 = 778260; the buyer may make up 357000 in the 3 contract years after 2033, to the end of 2036
+- 2034: make-up of 105000 taken from the make-up aggregate 357000 (make-up only after the Adjusted ACQ of the year is taken), first in first out: 105000 from 2033
+- 2034: the delivery period ends with make-up of 252000 unrecovered; the buyer forfeits it
+- 2027: 22995000 counted exceeds the take-or-pay quantity 20695500 by 2299500, carried forward to the end of 2030
+- 2028: 22366000 counted exceeds the take-or-pay quantity 20752200 by 1613800, carried forward to the end of 2031
+- 2029: 14257000 counted against the take-or-pay quantity 20695500 leaves a deficiency of 6438500; a carry-forward credit of 3219250 (at most 50% of the deficiency, first in first out: 2299500 from 2027, 919750 from 2028) leaves 3219250; the deficiency payment is 3219250 x 9.80845 = 31575852.6625; the buyer may make up 3219250 in the 5 contract years after 2029, to the end of 2034
+- 2030: make-up of 1823500 taken from the make-up aggregate 3219250 (make-up only after the take-or-pay quantity of the year is taken), first in first out: 1823500 from 2029
+- 2031: make-up of 1395750 taken from the make-up aggregate 1395750 (make-up only after the take-or-pay quantity of the year is taken), first in first out: 1395750 from 2029
+- 2031: 22519250 counted exceeds the take-or-pay quantity 20695500 by 1823750, carried forward to the end of 2034
+- 2031: carry-forward of 694050 from 2028 expired unused at the end of 2031
+- 2032: 19599000 counted against the take-or-pay quantity 20752200 leaves a deficiency of 1153200; a carry-forward credit of 576600 (at most 50% of the deficiency, first in first out: 576600 from 2031) leaves 576600; the deficiency payment is 576600 x 7.7569 = 4472628.54; the buyer may make up 576600 in the 5 contract years after 2032, to the end of 2037
+- 2033: make-up of 576600 taken from the make-up aggregate 576600 (make-up only after the take-or-pay quantity of the year is taken), first in first out: 576600 from 2032
+- 2033: 22878400 counted exceeds the take-or-pay quantity 20695500 by 2182900, carried forward to the end of 2036
+- 2034: 22765000 counted exceeds the take-or-pay quantity 20695500 by 2069500, carried forward to the end of 2037
+- 2034: carry-forward of 1247150 from 2031 expired unused at the end of 2034
+- 2035: 18396000 counted against the take-or-pay quantity 20695500 leaves a deficiency of 2299500; a carry-forward credit of 1149750 (at most 50% of the deficiency, first in first out: 1149750 from 2033) leaves 1149750; the deficiency payment is 1149750 x 7.8983 = 9081070.425; the buyer may make up 1149750 in the 5 contract years after 2035, to the end of 2040
+- 2036: make-up of 691800 taken from the make-up aggregate 1149750 (make-up only after the take-or-pay quantity of the year is taken), first in first out: 691800 from 2035
+- 2036: carry-forward of 1033150 from 2033 expired unused at the end of 2036
+- 2036: the delivery period ends with make-up of 457950 unrecovered; the seller refunds 457950 x 8.0813 = 3700831.3350000004
+- 2027: 500 counted against the take-or-pay quantity 900 leaves a deficiency of 400; the deficiency payment is 400 x 3 = 1200; the delivery period ends with this year, so no make-up right arises
+- 2027: 600 counted against the take-or-pay quantity 800 leaves a deficiency of 200; the deficiency payment is 200 x 3 = 600; the make-up period is 0 years, so no make-up right arises
+- 2027: 600 counted against the take-or-pay quantity 800 leaves a deficiency of 200; the deficiency payment is 200 x 3 = 600; the buyer may make up 200 in the 2 contract years after 2027, to the end of 2029
+- 2028: make-up of 200 taken from the make-up aggregate 200 (make-up taken in priority, before the year's own quantity), first in first out: 200 from 2027
+- 2027: 1100 counted exceeds the Adjusted ACQ 1000 by 100, carried forward to the end of 2029
+- 2029: carry-forward of 100 from 2027 expired unused at the end of 2029
+- 2030: 700 counted against the take-or-pay quantity 800 leaves a deficiency of 100; the deficiency payment is 100 x 3 = 300; the delivery period ends with this year, so no make-up right arises
+- 2027-01-01: taken 20790 is below the adjusted DCQ 21000: buyer shortfall 210
+- 2027-01-03: taken 20950 is below the adjusted DCQ 21000: buyer shortfall 50
+- 2027-01-05: zero nomination; the whole adjusted DCQ 21000 is a buyer shortfall for the day
+- 2027-01-07: taken 20690 is below the adjusted DCQ 21000: buyer shortfall 310
+- 2027-01-09: taken 20900 is below the adjusted DCQ 21000: buyer shortfall 100
+- 2027-01-12: force majeure and maintenance cover the whole DCQ; no quantity is owed either way for the day
+- 2027-01-13: force majeure and maintenance cover the whole DCQ; no quantity is owed either way for the day
+- 2027-01-15: taken 20840 is below the adjusted DCQ 21000: buyer shortfall 160
+- 2027-01-17: taken 20580 is below the adjusted DCQ 21000: buyer shortfall 420
+- 2027-01-20: the seller made 15750 available against a properly nominated 22050: seller shortfall 6300
+- 2027-01-21: taken 20740 is below the adjusted DCQ 21000: buyer shortfall 260
+- 2027-01-23: taken 20900 is below the adjusted DCQ 21000: buyer shortfall 100
+- 2027-01-25: nominated 24150 is above the MaxDCQ 23100; 1050 is not properly nominated
+- 2027-01-27: taken 20790 is below the adjusted DCQ 21000: buyer shortfall 210
+- 2027-01-30: 8400 of the properly nominated quantity was not made available for a cause on the buyer's side, so it is not a seller shortfall
+- 2027-01-30: taken 12600 is below the adjusted DCQ 21000: buyer shortfall 8400
+- 2027-01-31: taken 20950 is below the adjusted DCQ 21000: buyer shortfall 50
+- 2027-03-01: 40 not made available is excused by the force majeure and maintenance quantities stated for the day
+- 2027-03-01: the seller made 40 available against a properly nominated 100: seller shortfall 20
+- 2027-03-01: nominated 150 is above the MaxDCQ 120; 30 is not properly nominated
+- 2027-03-01: the seller made 0 available against a properly nominated 120: seller shortfall 120
+- 2027-03-01: the seller made 94 available against a properly nominated 100 less the tolerance 5: seller shortfall 1
+- 2027-03-01: taken 94 is below the adjusted DCQ 99: buyer shortfall 5
+- delivered 5460000 against the obligation 6825000 leaves 1365000 undelivered
+- 688800 is excused: the purchaser could not accept the allocated volumes (s.110(10)(b))
+- 676200 is penalised at 3.5 per MMBtu: 2366700; the lessee may not supply new midstream gas export operations (s.110(14)(a)) and export supply approvals require prior compliance (s.110(15))
+- voluntary contracts of 1000 are at or above the obligation 1000: the lessee is deemed to have fulfilled its obligation (s.110(2)(a))
+- delivered 1000 meets the obligation 1000
+- delivered 600 against the obligation 1000 leaves 400 undelivered
+- 250 is excused: force majeure (s.110(10)(a))
+- 150 is excused: the allocated gas could not be transported for reasons beyond the lessee's control (s.110(10)(c))
+- the whole undelivered quantity is excused; no penalty
+- negotiated price 2.9 exceeds the commercial sector price 2.68, which s.167(7) sets as the ceiling for gas distributors
+- negotiated price 2.5 is at or below the commercial sector price 2.68
+- the formula gives 1.8, inside the floor 0.9 and the domestic base price 2.18
+- the formula gives 0.8, below the floor US$0.90 per MMBtu, so the price is held at 0.9 (s.168(2))
+- the formula gives 2.4, above the domestic base price 2.18, so the price is held at 2.18 (s.168(3))
 
 ## Open questions for the lead
 

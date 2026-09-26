@@ -955,7 +955,7 @@ const EXCUSES = Object.freeze({
  *   (s.110(8) proviso read with r.6(2)); a Commission adjustment under
  *   s.110(9) is a stated penaltyRate { value, source }.
  * A penalised quantity above 0 also bars new export supply (s.110(14)(a),
- * s.110(15)); reported, not priced.
+ * s.110(15)); reported only; it carries no price.
  */
 const domesticGasObligationImpl = ({ obligation, delivered, voluntaryContracts = 0, excused = {}, agreementPenaltyRate, penaltyRate }) => {
   let e = first(nonNeg('obligation', obligation), nonNeg('delivered', delivered), nonNeg('voluntaryContracts', voluntaryContracts),
