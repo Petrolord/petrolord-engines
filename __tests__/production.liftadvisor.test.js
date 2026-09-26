@@ -302,9 +302,12 @@ describe('walking the rod ladder', () => {
     });
     expect(out.ok).toBe(false);
     expect(out.shortfall.achievedBpd).toBe(1100);
-    // the ladder is walked against the OIL rate now (item 19)
-    expect(s.oilTargetBpd).toBeCloseTo(s.target * 0.6, 9);
-    expect(out.shortfall.achievedBpd / s.oilTargetBpd).toBeLessThan(RATE_TOLERANCE);
+    // displacement is LIQUID and is judged against the liquid target;
+    // the oil the chain was asked for rides along
+    expect(out.shortfall.targetBpd).toBe(s.target);
+    expect(out.shortfall.oilTargetBpd).toBeCloseTo(s.target * 0.6, 9);
+    expect(out.shortfall.achievedBpd / s.target).toBeLessThan(RATE_TOLERANCE);
+    expect(out.reason).toMatch(/lifts 1100 bbl\/d of liquid against a target of 2,400 bbl\/d \(1,440 stb\/d of oil at 40 per cent water\)/);
   });
 
   test('the smallest unit that MEETS the target wins, not the first that designs', () => {
@@ -313,13 +316,15 @@ describe('walking the rod ladder', () => {
       model: makeModel(), targetLiquidRateBpd: s.target, wctPct: s.wctPct,
       gorScfStb: 300, whp: 150, chain: ladderChain(s.outcomes),
     });
-    // ITEM 19. 300 bbl/d of LIQUID at 40 per cent water cut is 180 stb/d
-    // of oil, so the answer is the rung making 200, not the 290 that
-    // answered when the liquid rate was designed on as oil.
-    expect(out.rateStbd).toBe(200);
-    expect(s.result.index).toBe(2);
-    expect(s.resultAtLiquidTarget.producedBpd).toBe(290);
-    expect(out.rateStbd / s.oilTargetBpd).toBeGreaterThanOrEqual(RATE_TOLERANCE);
+    // A pump displaces LIQUID. 300 bbl/d of liquid needs a rung lifting
+    // at least 270, so the answer is the rung making 290. Read against
+    // the 180 stb/d of oil (item 19's selection, `resultAtOilTarget`) the
+    // rung making 200 answered, lifting 120 stb/d of oil: a success at 40
+    // per cent of the ask (Suite senior test AL-T1-001).
+    expect(out.rateStbd).toBe(290);
+    expect(s.result.index).toBe(4);
+    expect(s.resultAtOilTarget.producedBpd).toBe(200);
+    expect(out.rateStbd / s.target).toBeGreaterThanOrEqual(RATE_TOLERANCE);
   });
 
   test('ITEM 21: an unreadable rod loading is REFUSED, not accepted', () => {

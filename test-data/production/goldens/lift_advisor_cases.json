@@ -1071,29 +1071,6 @@
    ],
    "result": {
     "attempts": 0,
-    "index": 1,
-    "loadingKnown": true,
-    "loadingPct": 55.0,
-    "meetsIndices": [
-     1,
-     2,
-     3,
-     4,
-     5
-    ],
-    "ok": true,
-    "producedBpd": 210.0,
-    "workableIndices": [
-     0,
-     1,
-     2,
-     3,
-     4,
-     5
-    ]
-   },
-   "resultAtLiquidTarget": {
-    "attempts": 0,
     "index": 2,
     "loadingKnown": true,
     "loadingPct": 70.0,
@@ -1114,7 +1091,7 @@
      5
     ]
    },
-   "resultIfUnknownLoadingWereAFailure": {
+   "resultAtOilTarget": {
     "attempts": 0,
     "index": 1,
     "loadingKnown": true,
@@ -1128,6 +1105,28 @@
     ],
     "ok": true,
     "producedBpd": 210.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 0,
+    "index": 2,
+    "loadingKnown": true,
+    "loadingPct": 70.0,
+    "meetsIndices": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "ok": true,
+    "producedBpd": 340.0,
     "workableIndices": [
      0,
      1,
@@ -1172,28 +1171,6 @@
    ],
    "result": {
     "attempts": 0,
-    "index": 2,
-    "loadingKnown": true,
-    "loadingPct": 55.0,
-    "meetsIndices": [
-     2,
-     3,
-     4,
-     5
-    ],
-    "ok": true,
-    "producedBpd": 200.0,
-    "workableIndices": [
-     0,
-     1,
-     2,
-     3,
-     4,
-     5
-    ]
-   },
-   "resultAtLiquidTarget": {
-    "attempts": 0,
     "index": 4,
     "loadingKnown": true,
     "loadingPct": 74.0,
@@ -1212,7 +1189,7 @@
      5
     ]
    },
-   "resultIfUnknownLoadingWereAFailure": {
+   "resultAtOilTarget": {
     "attempts": 0,
     "index": 2,
     "loadingKnown": true,
@@ -1225,6 +1202,26 @@
     ],
     "ok": true,
     "producedBpd": 200.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 0,
+    "index": 4,
+    "loadingKnown": true,
+    "loadingPct": 74.0,
+    "meetsIndices": [
+     4,
+     5
+    ],
+    "ok": true,
+    "producedBpd": 290.0,
     "workableIndices": [
      0,
      1,
@@ -1269,28 +1266,6 @@
    ],
    "result": {
     "attempts": 0,
-    "index": 2,
-    "loadingKnown": true,
-    "loadingPct": 55.0,
-    "meetsIndices": [
-     2,
-     3,
-     4,
-     5
-    ],
-    "ok": true,
-    "producedBpd": 200.0,
-    "workableIndices": [
-     0,
-     1,
-     2,
-     3,
-     4,
-     5
-    ]
-   },
-   "resultAtLiquidTarget": {
-    "attempts": 0,
     "index": 5,
     "loadingKnown": true,
     "loadingPct": 90.0,
@@ -1308,7 +1283,7 @@
      5
     ]
    },
-   "resultIfUnknownLoadingWereAFailure": {
+   "resultAtOilTarget": {
     "attempts": 0,
     "index": 2,
     "loadingKnown": true,
@@ -1321,6 +1296,25 @@
     ],
     "ok": true,
     "producedBpd": 200.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 0,
+    "index": 5,
+    "loadingKnown": true,
+    "loadingPct": 90.0,
+    "meetsIndices": [
+     5
+    ],
+    "ok": true,
+    "producedBpd": 271.0,
     "workableIndices": [
      0,
      1,
@@ -1365,24 +1359,6 @@
    ],
    "result": {
     "attempts": 2,
-    "index": 2,
-    "loadingKnown": true,
-    "loadingPct": 70.0,
-    "meetsIndices": [
-     2,
-     4
-    ],
-    "ok": true,
-    "producedBpd": 340.0,
-    "workableIndices": [
-     0,
-     1,
-     2,
-     4
-    ]
-   },
-   "resultAtLiquidTarget": {
-    "attempts": 2,
     "index": 4,
     "loadingKnown": true,
     "loadingPct": 88.0,
@@ -1398,7 +1374,7 @@
      4
     ]
    },
-   "resultIfUnknownLoadingWereAFailure": {
+   "resultAtOilTarget": {
     "attempts": 2,
     "index": 2,
     "loadingKnown": true,
@@ -1409,6 +1385,23 @@
     ],
     "ok": true,
     "producedBpd": 340.0,
+    "workableIndices": [
+     0,
+     1,
+     2,
+     4
+    ]
+   },
+   "resultIfUnknownLoadingWereAFailure": {
+    "attempts": 2,
+    "index": 4,
+    "loadingKnown": true,
+    "loadingPct": 88.0,
+    "meetsIndices": [
+     4
+    ],
+    "ok": true,
+    "producedBpd": 700.0,
     "workableIndices": [
      0,
      1,
@@ -1456,7 +1449,7 @@
     "ok": false,
     "producedBpd": 1100.0,
     "shortfall": true,
-    "targetBpd": 1440.0,
+    "targetBpd": 2400.0,
     "workableIndices": [
      0,
      1,
@@ -1466,14 +1459,14 @@
      5
     ]
    },
-   "resultAtLiquidTarget": {
+   "resultAtOilTarget": {
     "attempts": 0,
     "index": 5,
     "meetsIndices": [],
     "ok": false,
     "producedBpd": 1100.0,
     "shortfall": true,
-    "targetBpd": 2400.0,
+    "targetBpd": 1440.0,
     "workableIndices": [
      0,
      1,
@@ -1490,7 +1483,7 @@
     "ok": false,
     "producedBpd": 1100.0,
     "shortfall": true,
-    "targetBpd": 1440.0,
+    "targetBpd": 2400.0,
     "workableIndices": [
      0,
      1,
@@ -1502,11 +1495,11 @@
    },
    "target": 2400.0,
    "wctPct": 40.0,
-   "why": "Rod pumping is rate-limited by the plunger it can swing at this depth, and this well is past it. The honest answer is the achieved rate, not a refusal with no number in it. The target is stated in LIQUID and the ladder is walked against the oil derived from it, so 2,400 bbl/d at 40 per cent water cut is 1,440 stb/d of oil against a best rung of 1,100."
+   "why": "Rod pumping is rate-limited by the plunger it can swing at this depth, and this well is past it. The honest answer is the achieved rate, not a refusal with no number in it. The target is 2,400 bbl/d of LIQUID and the best rung displaces 1,100 bbl/d of liquid, so the well is past what the ladder can lift."
   },
   {
    "id": "loadingUnknownFailsOpen",
-   "oilTargetBpd": 2040.0,
+   "oilTargetBpd": 1980.0,
    "outcomes": [
     {
      "loadingPct": 40.0,
@@ -1552,14 +1545,16 @@
      5
     ]
    },
-   "resultAtLiquidTarget": {
+   "resultAtOilTarget": {
     "attempts": 0,
     "index": 5,
-    "meetsIndices": [],
-    "ok": false,
+    "loadingKnown": false,
+    "loadingPct": null,
+    "meetsIndices": [
+     5
+    ],
+    "ok": true,
     "producedBpd": 3000.0,
-    "shortfall": true,
-    "targetBpd": 3400.0,
     "workableIndices": [
      0,
      1,
@@ -1576,7 +1571,7 @@
     "ok": false,
     "producedBpd": 1100.0,
     "shortfall": true,
-    "targetBpd": 2040.0,
+    "targetBpd": 3300.0,
     "workableIndices": [
      0,
      1,
@@ -1585,9 +1580,9 @@
      4
     ]
    },
-   "target": 3400.0,
+   "target": 3300.0,
    "wctPct": 40.0,
-   "why": "FINDING. One rung comes back with no worst rod section, so its loading is unknown. The guard compares an unknown against 100 and lets it through, so the rung becomes the ANSWER and its loading is reported as NaN. Had the unknown been treated as a failure the answer would have been a shortfall at 1100 bbl/d instead. The target is 3,400 bbl/d of liquid, which is 2,040 stb/d of oil at 40 per cent water cut."
+   "why": "FINDING. One rung comes back with no worst rod section, so its loading is unknown. The guard compares an unknown against 100 and lets it through, so the rung becomes the ANSWER and its loading is reported as NaN. Had the unknown been treated as a failure the answer would have been a shortfall at 1100 bbl/d instead, against a target of 3,300 bbl/d of liquid (the 3,000 rung is 91 per cent of it)."
   },
   {
    "id": "nothingDesigns",
@@ -1620,7 +1615,7 @@
     "shortfall": false,
     "workableIndices": []
    },
-   "resultAtLiquidTarget": {
+   "resultAtOilTarget": {
     "attempts": 6,
     "index": null,
     "meetsIndices": [],

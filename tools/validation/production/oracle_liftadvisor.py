@@ -290,9 +290,8 @@ LADDER_SCENARIOS = [
         'id': 'shortfall',
         'why': 'Rod pumping is rate-limited by the plunger it can swing at this depth, and '
                'this well is past it. The honest answer is the achieved rate, not a refusal '
-               'with no number in it. The target is stated in LIQUID and the ladder is '
-               'walked against the oil derived from it, so 2,400 bbl/d at 40 per cent water '
-               'cut is 1,440 stb/d of oil against a best rung of 1,100.',
+               'with no number in it. The target is 2,400 bbl/d of LIQUID and the best rung '
+               'displaces 1,100 bbl/d of liquid, so the well is past what the ladder can lift.',
         'target': 2400.0,
         'outcomes': [{'producedBpd': 120.0, 'loadingPct': 40.0},
                      {'producedBpd': 210.0, 'loadingPct': 55.0},
@@ -307,9 +306,9 @@ LADDER_SCENARIOS = [
                'unknown. The guard compares an unknown against 100 and lets it through, so '
                'the rung becomes the ANSWER and its loading is reported as NaN. Had the '
                'unknown been treated as a failure the answer would have been a shortfall '
-               'at 1100 bbl/d instead. The target is 3,400 bbl/d of liquid, which is 2,040 '
-               'stb/d of oil at 40 per cent water cut.',
-        'target': 3400.0,
+               'at 1100 bbl/d instead, against a target of 3,300 bbl/d of liquid (the 3,000 '
+               'rung is 91 per cent of it).',
+        'target': 3300.0,
         'outcomes': [{'producedBpd': 120.0, 'loadingPct': 40.0},
                      {'producedBpd': 210.0, 'loadingPct': 55.0},
                      {'producedBpd': 340.0, 'loadingPct': 70.0},
@@ -341,7 +340,7 @@ def ladder_alternative(scenario):
             strict.append({'refused': 'loading unknown'})
         else:
             strict.append(o)
-    return select_rung(strict, oil_design_rate(scenario['target'], LADDER_WCT_PCT))
+    return select_rung(strict, scenario['target'])
 
 
 # ---------------------------------------------------------------------
@@ -626,18 +625,20 @@ def emit():
                        'largestFrameHp': MOTOR_FRAMES[-1]['hp'],
                        'headroomLostAboveShaftHp': MOTOR_FRAMES[-1]['hp'] / HEADROOM,
                        'overloadedAboveShaftHp': MOTOR_FRAMES[-1]['hp']},
-        # Item 19, second half. The ladder is walked against the OIL
-        # rate now. `target` stays the liquid rate at the door, which is
-        # what the scenario states; `oilTargetBpd` is what the chains are
-        # asked for, and `resultAtLiquidTarget` is the selection as it
-        # was, so the golden carries the size of the move.
+        # The rung is judged LIQUID against LIQUID. `producedBpd` is the
+        # plunger's displacement, oil and water, so it is compared with
+        # the liquid at the door (`target`). The chains are still ASKED
+        # for the oil rate (item 19, `oilTargetBpd`), which sets the
+        # intake and the gas. `resultAtOilTarget` is the selection item 19
+        # made, displacement read against oil, kept so the golden carries
+        # the size of the correction (Suite senior test AL-T1-001).
         'rodLadder': [dict(
             s,
             wctPct=LADDER_WCT_PCT,
             oilTargetBpd=oil_design_rate(s['target'], LADDER_WCT_PCT),
-            result=select_rung(s['outcomes'], oil_design_rate(s['target'], LADDER_WCT_PCT)),
+            result=select_rung(s['outcomes'], s['target']),
             resultIfUnknownLoadingWereAFailure=ladder_alternative(s),
-            resultAtLiquidTarget=select_rung(s['outcomes'], s['target']),
+            resultAtOilTarget=select_rung(s['outcomes'], oil_design_rate(s['target'], LADDER_WCT_PCT)),
         ) for s in LADDER_SCENARIOS],
         'liquidGravity': [
             {'api': a, 'wct': w, 'sg': liquid_gravity(a, w)}

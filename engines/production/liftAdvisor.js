@@ -606,7 +606,15 @@ export const designRodPump = ({
   // The smallest workable unit that MEETS the target, or failing that
   // the one that gets closest to it. Taking the first that merely
   // designs would report a third of the asked-for rate as a success.
-  const meets = workable.filter((x) => x.design.producedBpd >= oilRateStbd * RATE_TOLERANCE);
+  //
+  // LIQUID AGAINST LIQUID. `producedBpd` is what the plunger displaces:
+  // oil AND water. The chain is asked for the oil rate (item 19), which
+  // is right for the intake and the gas it sees, but the rung is judged
+  // on the liquid it lifts against the liquid at the door. Judging it
+  // against the oil rate took a pump moving 173 bbl/d, 69 stb/d of oil at
+  // 60 per cent water, as meeting a 400 bbl/d target (Suite senior test
+  // AL-T1-001).
+  const meets = workable.filter((x) => x.design.producedBpd >= targetLiquidRateBpd * RATE_TOLERANCE);
   const best = meets.length
     ? meets[0]
     : workable.reduce(
@@ -621,7 +629,7 @@ export const designRodPump = ({
       rateStbd: d.producedBpd,
       equipment: `${trial.plungerDIn} in plunger, ${trial.strokeIn} in stroke at ${trial.spm} spm, ${liquidSg.toFixed(2)} gravity liquid`,
       figures: [
-        { label: 'Production', value: `${d.producedBpd.toFixed(0)} bbl/d` },
+        { label: 'Production', value: `${d.producedBpd.toFixed(0)} bbl/d liquid` },
         { label: 'Plunger stroke', value: `${d.plungerStrokeIn.toFixed(1)} in of ${trial.strokeIn}` },
         { label: 'Peak rod load', value: `${Math.round(d.pprlLb).toLocaleString()} lb` },
         { label: 'Peak torque', value: d.balance ? `${Math.round(d.balance.peakTorqueInLb).toLocaleString()} in-lb` : '--' },
@@ -640,8 +648,8 @@ export const designRodPump = ({
   if (best) {
     return outcome('rodPump', {
       ok: false,
-      reason: `The largest unit tried (${best.trial.plungerDIn} in plunger, ${best.trial.strokeIn} in stroke at ${best.trial.spm} spm) makes ${best.design.producedBpd.toFixed(0)} bbl/d against a target of ${Math.round(oilRateStbd).toLocaleString()}. Rod pumping is rate-limited by the plunger it can swing at this depth, and this well is past it.`,
-      shortfall: { achievedBpd: best.design.producedBpd, targetBpd: oilRateStbd },
+      reason: `The largest unit tried (${best.trial.plungerDIn} in plunger, ${best.trial.strokeIn} in stroke at ${best.trial.spm} spm) lifts ${best.design.producedBpd.toFixed(0)} bbl/d of liquid against a target of ${Math.round(targetLiquidRateBpd).toLocaleString()} bbl/d (${Math.round(oilRateStbd).toLocaleString()} stb/d of oil at ${Math.round(wctPct)} per cent water). Rod pumping is rate-limited by the plunger it can swing at this depth, and this well is past it.`,
+      shortfall: { achievedBpd: best.design.producedBpd, targetBpd: targetLiquidRateBpd, oilTargetBpd: oilRateStbd },
       design: best.design,
       attempts,
       triedCount: ROD_TRIALS.length,
