@@ -2,19 +2,19 @@
 
 Engine: `engines/economics/jointVenture.js` (the brief allowed another name; it
 is `jointVenture.js`). Golden: `test-data/economics/goldens/jointventure_cases.json`,
-141 cases (74 of them refusals, every refusal message pinned in full),
+153 cases (78 of them refusals, every refusal message pinned in full),
 written by `tools/validation/economics/oracle_jointventure.py`. Gate:
-`__tests__/economics.jointVenture.test.js` (171 tests) calls the engine on
+`__tests__/economics.jointVenture.test.js` (187 tests) calls the engine on
 every golden, checks the published figures against their printed values
 (World Bank Briefing Note 8, IMF FARI Figure 5 and Tables 12 and 13, the
 Norwegian Accounting Agreement scale and 0.65 %, the Norwegian JOA budget
 tolerances and 1000 % entry, PIA 2021 s.85(4)), checks the planted fixture
 situations and the wiring, runs property and boundary tests, and pins the
 reason strings the course will quote. Negative control:
-`negcontrol_jointventure.sh` (40/40 engine plants red, 7/7 oracle plants
+`negcontrol_jointventure.sh` (47/47 engine plants red, 7/7 oracle plants
 caught). Timing: `timing_jointventure.js` (table below). Fixtures:
 `test-data/economics/ekene-jv/`, written by `make_jv_fixtures.py`. Full
-engines suite on the branch after `npm ci`: 231 suites passed, 17,961 tests
+engines suite on the branch after `npm ci`: 231 suites passed, 17,977 tests
 passed (1 skipped and 1 todo, both outside this wave).
 
 The oracle is STDLIB ONLY (python 3: `fractions`, `decimal`, `datetime`,
@@ -59,12 +59,12 @@ premium recovery from production is taught by concept.
 
 | # | text | edition / date | URL | sha256 (first 16) | used for |
 |---|---|---|---|---|---|
-| 1 | Norway, Ministry of Petroleum and Energy, Agreement concerning petroleum activities: Special provisions, Attachment A Joint Operating Agreement, Attachment B Accounting Agreement | unofficial English translation; the PDF is dated 27 February 2007 (document properties); the live regjeringen.no copy returned a bot check (HTTP 403) on 2026-09-26, so the Wayback Machine capture of 26 May 2024 was read | https://www.regjeringen.no/globalassets/upload/oed/vedlegg/konsesjonsverk/k-verk-vedlegg-1-2-eng.pdf (read at https://web.archive.org/web/20240526033840/...) | 66b626cd3216a118 | JOA Art. 8.1 (contribution by Participating interest), Art. 9.1 to 9.5 (default: advance by the non-defaulting Parties in accordance with their Participating interest; penal interest; loss of vote and data after five (5) working days from the demand; assignment may be demanded after three (3) months; compensation at most book value less unpaid contributions; pro rata apportionment), Art. 12.5 (a budget item or AFE by up to 10%; a budget by no more than the lower of 5% or NOK 75 million; NOK 3 million outside the budgets), Art. 18.1 to 18.14 (sole risk; 18.6 participation in proportion to Participating interest; 18.12 entry at "one thousand (1000) % of their proportionate share of the costs", apportioned to the initial participants by their interest in the project), Art. 19.6 (no later entry into a sole risk development). Accounting Agreement Art. 1.2.1 (monthly advances; "The difference between the monthly cash advances and the actual payments ... shall be stated, and the next request for advances shall be adjusted accordingly"; excess refunded or transferred; no cash call below NOK 5 million a month; billing in arrears when no call), Art. 1.2.2 (interest from and including the due date to, but excluding, the value date, at the reference rate plus three percentage points; "proportionally distributed to the Parties financing the default"), Art. 2.2.2 (per cent rates and limits: exploration 0 to 300 MNOK 2.5%; operating 0 to 1000 MNOK 2.7%, 1000 to 2500 MNOK 1.0%; development 0 to 1000 MNOK 2.5%, 1000 to 2000 MNOK 1.0%, 2000 to 3500 MNOK 0.5%; stated exclusions; CPI indexed from 15 July 2004), Art. 2.2.3 (0.65 % of the annual costs for exploration, operation and development) |
+| 1 | Norway, Ministry of Petroleum and Energy, Agreement concerning petroleum activities: Special provisions, Attachment A Joint Operating Agreement, Attachment B Accounting Agreement | unofficial English translation; the PDF is dated 27 February 2007 (document properties); CITED FROM the Wayback Machine capture of 26 May 2024 (capture 20240526033840). The live regjeringen.no copy exists at the URL given but was not machine-readable on 2026-09-26 (a bot check answered HTTP 403) | cited copy: https://web.archive.org/web/20240526033840/https://www.regjeringen.no/globalassets/upload/oed/vedlegg/konsesjonsverk/k-verk-vedlegg-1-2-eng.pdf (live: https://www.regjeringen.no/globalassets/upload/oed/vedlegg/konsesjonsverk/k-verk-vedlegg-1-2-eng.pdf) | 66b626cd3216a118 | JOA Art. 8.1 (contribution by Participating interest), Art. 9.1 to 9.5 (default: advance by the non-defaulting Parties in accordance with their Participating interest; penal interest; loss of vote and data after five (5) working days from the demand; assignment may be demanded after three (3) months; compensation at most book value less unpaid contributions; pro rata apportionment), Art. 12.5 (a budget item or AFE by up to 10%; a budget by no more than the lower of 5% or NOK 75 million; NOK 3 million outside the budgets), Art. 18.1 to 18.14 (sole risk; 18.6 participation in proportion to Participating interest; 18.12 entry at "one thousand (1000) % of their proportionate share of the costs", apportioned to the initial participants by their interest in the project), Art. 19.6 (no later entry into a sole risk development). Accounting Agreement Art. 1.2.1 (monthly advances; "The difference between the monthly cash advances and the actual payments ... shall be stated, and the next request for advances shall be adjusted accordingly"; excess refunded or transferred; no cash call below NOK 5 million a month; billing in arrears when no call), Art. 1.2.2 (interest from and including the due date to, but excluding, the value date, at the reference rate plus three percentage points; "proportionally distributed to the Parties financing the default"), Art. 2.2.2 (per cent rates and limits: exploration 0 to 300 MNOK 2.5%; operating 0 to 1000 MNOK 2.7%, 1000 to 2500 MNOK 1.0%; development 0 to 1000 MNOK 2.5%, 1000 to 2000 MNOK 1.0%, 2000 to 3500 MNOK 0.5%; stated exclusions; CPI indexed from 15 July 2004), Art. 2.2.3 (0.65 % of the annual costs for exploration, operation and development) |
 | 2 | Petroleum Industry Act 2021 (Act No. 6) | Official Gazette No. 142, Vol. 108, 27 August 2021 (the EC7 copy, `/root/cat-wip-pia/sources/pia_nuprc.txt`) | https://ngfcp.nuprc.gov.ng/wp-content/uploads/2022/09/Petroleum-Industry-Act-2021-pdf-searchable.pdf | 5d158ca8a16f00b2 | s.85(2)(a) (the production sharing contract: the risk-bearing party recovers costs from a share of production), s.85(4)(a) to (g) (the carried interest provision: Government through NNPC Limited may participate up to 60%; from any time; refunds fully its proportionate share of the unrecovered proven costs from the date of its participation, relating to development and production and not including bonuses and penalties, interest, premium or markups on cost; no upfront payment by Government; expert determination; refund in cash or kind from future share of production or entitlements), s.54(8) (outstanding JV cash call debts; concept), s.65 (incorporated joint venture companies; concept), s.311(2)(a)(iii) (renegotiated PSCs: a cost oil limit of not more than 60% of the total oil production; a minimum 55% haircut on disputed amounts; concept) |
 | 3 | World Bank, Petroleum Sector Briefing Note No. 8, Contracts for Petroleum Development, Part 2 (Cambodia series; contacts Bun Veasna and Masami Kojima) | November 2007; Public Disclosure Authorized; World Bank copyright, free public document | https://documents1.worldbank.org/curated/en/385151468239358014/pdf/419580ENGLISH01d0Gas0Note801PUBLIC1.pdf | f481c64c02f38697 | the two-barrel illustration and Figure 2: gross 100, royalty 10% paid first, cost oil limit 60% of gross revenue (60), costs 25 recovered in full, profit oil 65 split 40 contractor / 60 government (26 / 39), income tax 30% on taxable income 100 - 10 - 25 - 39 = 26 (7.8); contractor 43, government 57 (Figure 2 prints 43.2 and 56.8) |
 | 4 | IMF, Oana Luca and Diego Mesa Puyo, Fiscal Analysis of Resource Industries (FARI) Methodology, Technical Notes and Manuals TNM/16/01 | February 2016; IMF publication, free access; the direct download returned 403, so the Wayback capture of 12 October 2025 was read | https://www.imf.org/external/pubs/ft/tnm/2016/tnm1601.pdf | dd87b60d5b2c4821 | Figure 5 (one USD100 barrel under a PSC: cost oil 50, profit oil 30 government / 20 contractor, income tax 6, government 36; the CIT base is cost petroleum + profit petroleum - allowable deductions, the deductions assumed equal to the cost recovery), Table 11 (PSC/DROP regime: royalty 0, cost recovery ceiling 80%, SOC participation 10% from development), Table 12 (cost petroleum by year, USD million), Table 13 (DROP profit petroleum sharing, the government share per year) |
 | 5 | IMF, Benninger, Devlin, Camero Godinez and Vernon-Lin, Cash Flow Analysis of Fiscal Regimes for Extractive Industries, WP/24/89 | April 2024; IMF copyright; read from the Wayback capture of 14 August 2025 | https://www.imf.org/-/media/files/publications/wp/2024/english/wpiea2024089-print-pdf.pdf | 7ba4578c323ec8ec | concept only: the cost oil limit is "as is more common" calculated after royalties; a carried interest is a loan repaid, usually with interest, from the state's share of production; no worked schedule |
-| 6 | Republic of Kenya, Model Production Sharing Contract (Participation Agreement schedule) | 2015 model (file name dated 21 January 2015) | https://nationaloil.co.ke/pdf/Model_PSC_2015_-_210115.pdf | 6bf199baf2b1fec3 | corroboration of the cash call and default design (Participation Agreement Art. 6): cash call on twenty (20) days' notice with a three-month estimate; an excess advance reduces "the next succeeding cash advance" or is refunded within fifteen (15) days on request; late payment interest at LIBOR plus a blank margin "compounded monthly and calculated from the due date", a payment not received within seventy-two (72) hours accruing from the due date; no vote after five (5) days of default; forfeiture may be declared after ninety (90) days, the share vesting rateably in the non-defaulting parties; sole risk re-entry after recovery of a blank per cent of the sole risk cost |
+| 6 | Republic of Kenya, Model Production Sharing Contract (Participation Agreement schedule) | 2015 model (file name dated 21 January 2015) | https://nationaloil.co.ke/pdf/Model_PSC_2015_-_210115.pdf | 6bf199baf2b1fec3 | corroboration of the cash call and default design (Participation Agreement Art. 6): cash call on twenty (20) days' notice with a three-month estimate; an excess advance reduces "the next succeeding cash advance" or is refunded within fifteen (15) days on request; Art. 6.7 late payment interest at LIBOR plus a blank margin "compounded monthly and calculated from the due date", and "A payment not received within seventy-two (72) hours of the due date shall accrue interest from the due date" (the source of `interestMethod: 'monthly-compound'` and `graceHours`); no vote after five (5) days of default; forfeiture may be declared after ninety (90) days, the share vesting rateably in the non-defaulting parties; sole risk re-entry after recovery of a blank per cent of the sole risk cost |
 | 7 | Tanzania, Model Production Sharing Agreement 2013 (TPDC) | 2013; resourcecontracts.org copy read from the Wayback capture of 23 May 2024 | resourcecontracts.org (Tanzania MPSA 2013) | b43aef492cdb19c9 | concept only: Art. 12 cost recovery at most 50% of production net of royalty, unlimited carry-forward; Art. 10(b)(iii) a contractor loan to TPDC of an unpaid amount at LIBOR plus 1%, recovered from TPDC's cost oil; Accounting Procedure 2.5(b) overhead at most 1% of Contract Expenses before the Development Licence |
 | 8 | OpenOil, Oil Contracts: How to read and understand them | version 1, November 2012, Creative Commons | openoil.net (read from the Wayback capture of 15 October 2016) | 4423b6851ce118ea | not used: no cost recovery schedule; its state participation example prints 0.25 x 49 = 11.75 (the product is 12.25), so it is not a gate |
 
@@ -107,7 +107,7 @@ lead and for EPE.md:
    costOilLimitPct / (100 - royaltyPct) of revenue after royalty, the same
    amount; the WB case proves it. The PIA s.311(2)(a)(iii) ceiling is worded
    on "total oil production".
-2. **Tax base.** `applyPSC` taxes the contractor's profit oil. That is the
+2. **Tax base (lead decision 2026-09-26: KEEP, stated).** The `pscCostRecovery` basis.tax reads "income tax is charged on the contractor's profit oil share, as FARI TNM/16/01 and World Bank Note 8 assume (applyPSC in engines/economics/cashflow.ts)". `applyPSC` taxes the contractor's profit oil. That is the
    FARI assumption printed under Figure 5 (deductions equal to the cost
    recovery) and it agrees with the World Bank example, where the costs are
    recovered in full. In a year where the cost limit binds, a regime that
@@ -138,6 +138,7 @@ example was found."
 | item and budget tolerances, unbudgeted allowance | REQUIRED inputs | JOA Art. 12.5 prints 10%, the lower of 5% or NOK 75 million, NOK 3 million |
 | overhead bands, rates, rate above the last band, exclusions | REQUIRED inputs | Accounting Agreement Art. 2.2.2 and 2.2.3 print the Norwegian scale and 0.65 % |
 | default interest rate and day basis (365 or 360) | REQUIRED inputs | Accounting Agreement Art. 1.2.2 prints the reference rate plus three percentage points |
+| default interest method (`simple` or `monthly-compound`) and `graceHours` (0 allowed) | REQUIRED inputs (lead decision 2026-09-26) | Kenya Model PSC 2015 Participation Agreement Art. 6.7 prints monthly compounding and 72 hours; the Norwegian text is read as simple with no grace |
 | suspension and forfeiture triggers | optional stated `{ after, unit, from }` | JOA Art. 9.2 and 9.3 print five working days and three months; Kenya Model PSC five days and ninety days |
 | premium multiple | REQUIRED, at or above 100 | JOA Art. 18.12 prints 1000% for entry; recovery multiples are licensed-form concepts |
 | PSC royalty, limit and its base, profit share (per year where stated), tax, opening pool | REQUIRED inputs | the contract states them |
@@ -173,7 +174,17 @@ each one. No real company, contract or regulator decision.
    is often issued before the month closes). A month below the threshold has
    no call; its actual share is billed in arrears the next month and any
    adjustment due waits for the next call.
-4. **Default.** Cover by paying interest among the non-defaulting parties
+4. **Default.** Interest method and grace are required (lead decision
+   2026-09-26). "simple": unpaid x rate x days / dayBasis. "monthly-compound":
+   unpaid x ((1 + rate / 12)^m x (1 + rate x d / dayBasis) - 1), m the whole
+   months from the due date (month ends kept as for the triggers), d the
+   remaining days. Grace: days x 24 hours from the due date; a default cured
+   at or within the grace carries no interest; one cured later carries
+   interest from the due date, as the Kenya text prints ("shall accrue
+   interest from the due date"). The lead wrote "applied before interest
+   starts": the engine follows the printed Kenya clause; a grace that also
+   delays the start of interest is a one-line change if the lead prefers it.
+   Cover by paying interest among the non-defaulting parties
    (a carried party pays none; the Norwegian text says "Participating
    interest", which is the same outside a carry). Simple interest from and
    including the due date to, but excluding, the cure (value) date.
@@ -196,8 +207,7 @@ each one. No real company, contract or regulator decision.
    year states one (a DROP or R-factor scale is computed outside), and splits
    the contractor entitlement and the costs by participating interest.
 
-Not computed (concept only): monthly compounding of default interest and the
-72-hour grace of the Kenya model; the cover by acquiring the defaulter's
+Not computed (concept only): the cover by acquiring the defaulter's
 petroleum; the assignment compensation; interest on cash balances
 (Accounting Agreement Art. 1.2.3); the CPI indexation of the Norwegian bands;
 the expert determination of s.85(4)(e); the s.311 haircut; sole risk
@@ -216,6 +226,8 @@ development under JOA Art. 19; the DROP and R-factor share computations.
 | unbudgeted allowance | total equal to the allowance | inside | `budget-ekene-2027` (inside), `budget-ekene-allowance-short` (1 below) |
 | overhead band | base exactly at a band's upTo | that band only; the next band and above get 0 | `overhead-band-edge-exact` |
 | default interest | cured on the due date | 0 days, 0 interest | `default-cured-on-due-date` |
+| grace | cured exactly graceHours after the due date (72 hours, 3 days) | inside: no interest; 96 hours: interest from the due date (4 days); a 71.5-hour grace with 72 elapsed: interest | `default-grace-last-hour`, `default-grace-exceeded`, `default-grace-fractional-hours` |
+| monthly compounding | cure on a month anniversary | whole months only, 0 remaining days | `default-monthly-compound-whole-months`; from 31 January: `default-monthly-compound-month-end` (2 months, then 15 days from 31 March) |
 | default consequence | cured on the trigger date | not triggered; a day later it is | `default-cured-on-trigger-day`, `default-cured-day-after-trigger` |
 | forfeiture (uncured) | asOf equal to the trigger date | not triggered; a day later it is | `default-forfeiture-last-day`, `default-forfeiture-day-after` |
 | working days | holidays and a weekend inside the count | Monday to Friday less the stated holidays | `default-working-days-holiday` (5 working days from 2027-12-22 end 2028-01-03) |
@@ -256,7 +268,8 @@ the branch (it edits the working tree and restores it; nothing was staged
 while it ran). The lead's named defects are the first eleven plants.
 
 ```
-Tests:       171 passed, 171 total
+=== baseline ===
+Tests:       187 passed, 187 total
 === ENGINE plants (all must be RED) ===
 RED   [ENGINE] paying and beneficial interest swapped (entitlement split by paying interest) -- 10 failed -- goldens: the engine agrees with the oracle › carry-ekene-compound
 RED   [ENGINE] paying and beneficial interest swapped (cash calls on beneficial interest) -- 6 failed -- goldens: the engine agrees with the oracle › cc-ekene-2027
@@ -264,23 +277,23 @@ RED   [ENGINE] carry recovered without the stated uplift -- 9 failed -- goldens:
 RED   [ENGINE] over/under-call not carried to a later call -- 10 failed -- goldens: the engine agrees with the oracle › cc-ekene-2027
 RED   [ENGINE] overhead base wrong (exclusions ignored) -- 3 failed -- goldens: the engine agrees with the oracle › overhead-ekene-2031
 RED   [ENGINE] overhead base wrong (whole base at each band rate) -- 7 failed -- goldens: the engine agrees with the oracle › overhead-ekene-2031
-RED   [ENGINE] default cover not pro rata (equal shares) -- 11 failed -- goldens: the engine agrees with the oracle › default-ekene-march
-RED   [ENGINE] default cover not pro rata (the defaulter left in the base) -- 13 failed -- goldens: the engine agrees with the oracle › default-ekene-march
+RED   [ENGINE] default cover not pro rata (equal shares) -- 19 failed -- goldens: the engine agrees with the oracle › default-ekene-march
+RED   [ENGINE] default cover not pro rata (the defaulter left in the base) -- 21 failed -- goldens: the engine agrees with the oracle › default-ekene-march
 RED   [ENGINE] premium multiple applied to the whole cost -- 8 failed -- goldens: the engine agrees with the oracle › nc-ekene-sidetrack
 RED   [ENGINE] premium multiple applied to the consenting parties' cost -- 8 failed -- goldens: the engine agrees with the oracle › nc-ekene-sidetrack
 RED   [ENGINE] reversion one period late (the whole share taken in the payout year) -- 13 failed -- goldens: the engine agrees with the oracle › carry-ekene-compound
-RED   [ENGINE] carry pro rata over every party (carried party included) -- 28 failed -- goldens: the engine agrees with the oracle › int-ekene
+RED   [ENGINE] carry pro rata over every party (carried party included) -- 36 failed -- goldens: the engine agrees with the oracle › int-ekene
 RED   [ENGINE] reconciliation one month early -- 12 failed -- goldens: the engine agrees with the oracle › cc-ekene-2027
 RED   [ENGINE] negative call refunded under 'carry' -- 6 failed -- goldens: the engine agrees with the oracle › cc-ekene-2027
 RED   [ENGINE] threshold strict (a forecast at the threshold not called) -- 2 failed -- goldens: the engine agrees with the oracle › cc-threshold-exactly
 RED   [ENGINE] budget item tolerance strict -- 6 failed -- goldens: the engine agrees with the oracle › budget-ekene-2027
 RED   [ENGINE] budget tolerance the higher of pct and amount -- 7 failed -- goldens: the engine agrees with the oracle › budget-ekene-2027
-RED   [ENGINE] default interest counts the value date -- 15 failed -- goldens: the engine agrees with the oracle › default-ekene-march
-RED   [ENGINE] working days count weekends -- 10 failed -- goldens: the engine agrees with the oracle › default-ekene-march
+RED   [ENGINE] default interest counts the value date -- 24 failed -- goldens: the engine agrees with the oracle › default-ekene-march
+RED   [ENGINE] working days count weekends -- 17 failed -- goldens: the engine agrees with the oracle › default-ekene-march
 RED   [ENGINE] working days ignore holidays -- 2 failed -- goldens: the engine agrees with the oracle › default-working-days-holiday
 RED   [ENGINE] months overflow past the month end -- 2 failed -- goldens: the engine agrees with the oracle › default-months-end-of-month
 RED   [ENGINE] consequence applies on the trigger date itself -- 4 failed -- goldens: the engine agrees with the oracle › default-cured-on-trigger-day
-RED   [ENGINE] forfeited interest apportioned over every party -- 3 failed -- goldens: the engine agrees with the oracle › default-ekene-uncured
+RED   [ENGINE] forfeited interest apportioned over every party -- 4 failed -- goldens: the engine agrees with the oracle › default-ekene-uncured
 RED   [ENGINE] carried cost on the paying interest -- 14 failed -- goldens: the engine agrees with the oracle › carry-ekene-compound
 RED   [ENGINE] recovery share ignores recoverFromPct -- 10 failed -- goldens: the engine agrees with the oracle › carry-ekene-compound
 RED   [ENGINE] uplift on the year's new cost too -- 8 failed -- goldens: the engine agrees with the oracle › carry-ekene-compound
@@ -294,9 +307,16 @@ RED   [ENGINE] buy-in apportioned on the participating interest over 100 -- 2 fa
 RED   [ENGINE] PSC gross limit passed on revenue after royalty -- 3 failed -- goldens: the engine agrees with the oracle › psc-ekene
 RED   [ENGINE] PSC entitlement split on 100 - share -- 5 failed -- goldens: the engine agrees with the oracle › psc-ekene
 RED   [ENGINE] NPV discounted one year early -- 6 failed -- goldens: the engine agrees with the oracle › carry-ekene-compound
+RED   [ENGINE] monthly compounding computed as simple -- 4 failed -- goldens: the engine agrees with the oracle › default-ekene-monthly-compound-kenya
+RED   [ENGINE] monthly rate taken as the annual rate -- 4 failed -- goldens: the engine agrees with the oracle › default-ekene-monthly-compound-kenya
+RED   [ENGINE] remaining days after the whole months dropped -- 3 failed -- goldens: the engine agrees with the oracle › default-ekene-monthly-compound-kenya
+RED   [ENGINE] grace boundary strict (72 hours exceeds a 72-hour grace) -- 3 failed -- goldens: the engine agrees with the oracle › default-cured-on-due-date
+RED   [ENGINE] grace ignored -- 3 failed -- goldens: the engine agrees with the oracle › default-cured-on-due-date
+RED   [ENGINE] interest starts after the grace -- 3 failed -- goldens: the engine agrees with the oracle › default-grace-exceeded
+RED   [ENGINE] graceHours defaults to 0 -- 2 failed -- goldens: the engine agrees with the oracle › default-refuse-no-grace
 RED   [ENGINE] unknown keys ignored -- 12 failed -- goldens: the engine agrees with the oracle › int-refuse-unknown-key
-RED   [ENGINE] message: money printed with float noise -- 14 failed -- goldens: the engine agrees with the oracle › default-ekene-march
-RED   [ENGINE] message: unit agreement dropped -- 5 failed -- goldens: the engine agrees with the oracle › cc-ekene-2027-lag1
+RED   [ENGINE] message: money printed with float noise -- 22 failed -- goldens: the engine agrees with the oracle › default-ekene-march
+RED   [ENGINE] message: unit agreement dropped -- 6 failed -- goldens: the engine agrees with the oracle › cc-ekene-2027-lag1
 RED   [ENGINE] message: PIA uplift refusal loses its section -- 2 failed -- goldens: the engine agrees with the oracle › carry-refuse-pia-uplift
 === ORACLE plants (RED or STOP: the control on the controls) ===
 RED   [ORACLE] oracle adjustment one month late -- 7 failed -- goldens: the engine agrees with the oracle › cc-ekene-2027
@@ -306,7 +326,7 @@ RED   [ORACLE] oracle premium on the whole cost -- 5 failed -- goldens: the engi
 STOP  [ORACLE] oracle carry pro rata over every party -- the oracle refused to write a golden
 STOP  [ORACLE] oracle interest counts the value date -- the oracle refused to write a golden
 STOP  [ORACLE] oracle unknown keys ignored -- the oracle refused to write a golden
-engine plants red: 40/40
+engine plants red: 47/47
 oracle plants caught: 7/7
 ```
 
@@ -314,7 +334,7 @@ oracle plants caught: 7/7
 
 Every string below is pinned by a golden (the refusals in full).
 
-### Refusals (74 distinct)
+### Refusals (78 distinct)
 
 - `asOf must be on or after the due date 2027-03-01; got "2027-02-01"`
 - `baseYear must be an integer at or above 1; got nothing`
@@ -342,10 +362,14 @@ Every string below is pinned by a golden (the refusals in full).
 - `dueDate must be a real date 'YYYY-MM-DD'; got "2027-02-30"`
 - `excluded.drilling is not a cost category; the categories are operating`
 - `excluded.operating must be at or below the cost of the category 10; got 11`
-- `interest must be an object { annualRatePct, dayBasis } (no default rate); got nothing`
+- `interest must be an object { annualRatePct, dayBasis, interestMethod, graceHours } (no default rate or method); got nothing`
 - `interest.annualRatePct must be a finite number at or above 0; got nothing`
-- `interest.compounding is not an accepted key; the accepted keys of interest are annualRatePct, dayBasis`
+- `interest.compounding is not an accepted key; the accepted keys of interest are annualRatePct, dayBasis, interestMethod, graceHours`
 - `interest.dayBasis must be 365 or 360; got 366`
+- `interest.graceHours must be a finite number of hours at or above 0, stated (0 when the contract gives no grace; the engine holds no default); got -1`
+- `interest.graceHours must be a finite number of hours at or above 0, stated (0 when the contract gives no grace; the engine holds no default); got nothing`
+- `interest.interestMethod must be one of "simple", "monthly-compound"; got "compound"`
+- `interest.interestMethod must be one of "simple", "monthly-compound"; got nothing`
 - `itemTolerancePct must be a finite number at or above 0; got nothing`
 - `items[1].item must be a name no other item has; got "x"`
 - `lag is not an accepted key; the accepted keys at the top level are parties, carries, months, reconciliationLagMonths, negativeCall, noCallBelow`
@@ -450,6 +474,27 @@ Every string below is pinned by a golden (the refusals in full).
 - `PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: triggered, the default being open after 2027-06-10`
 - `if the assignment of PB is demanded, the interest is apportioned pro rata: EKO 47.05882352941177%, PA 29.41176470588235%, NOC 23.529411764705884%; the compensation (at most the book value less unpaid contributions) is not computed`
 
+**default-ekene-monthly-compound-kenya**
+
+- `the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties`
+- `PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x ((1 + 8.25% / 12)^1 x (1 + 8.25% x 14 days / 360) - 1), 1 whole month and 14 days = 20210.78 (from 2027-03-01 to the cure on 2027-04-15, the last date excluded); the stated grace of 72 hours is exceeded, so interest runs from the due date`
+- `PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: triggered, the default being open after 2027-03-08`
+- `PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-04-15`
+
+**default-grace-last-hour**
+
+- `the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties`
+- `PB: share of the call 2250000, paid 250000, unpaid 2000000; no interest: 3 days (72 hours, from 2027-03-01 to the cure on 2027-03-04, the last date excluded) are within the stated grace of 72 hours`
+- `PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: not triggered, the default being cured on 2027-03-04`
+- `PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-04`
+
+**default-grace-exceeded**
+
+- `the unpaid 2000000 is advanced by EKO 1230769.23, PA 769230.77, in proportion to their paying interests among the non-defaulting parties`
+- `PB: share of the call 2250000, paid 250000, unpaid 2000000; interest 2000000 x 8.25% x 4 days / 360 = 1833.33 (from 2027-03-01 to the cure on 2027-03-05, the last date excluded); the stated grace of 72 hours is exceeded, so interest runs from the due date`
+- `PB: the suspension of its rights (as the contract states) starts after 5 working days from 2027-03-01, that is after 2027-03-08: not triggered, the default being cured on 2027-03-05`
+- `PB: the right to demand the assignment of its interest (forfeiture, as the contract states) arises after 3 months from 2027-03-10, that is after 2027-06-10: not triggered, the default being cured on 2027-03-05`
+
 **carry-ekene-compound**
 
 - `2027: 0 recovered of 16400000 due; 16400000 carried to 2028`
@@ -537,19 +582,23 @@ Every string below is pinned by a golden (the refusals in full).
 - `2034: recoverable 180115400 is above the cost oil limit 86211600; 93903800 carried to 2035`
 - `2035: recoverable 118903800 is above the cost oil limit 77590200; 41313600 carried to 2036`
 
-## Open questions for the lead
+## Lead decisions (2026-09-26), applied
 
-1. **Default interest compounding.** The engine computes simple interest (the
-   Norwegian "for each month or pro-rata portion thereof" read as simple).
-   The Kenya model prints monthly compounding and a 72-hour grace. Add a
-   stated `compounding: 'simple' | 'monthly'` and a grace in days, or teach
-   them as concept?
-2. **PSC tax base.** `applyPSC` taxes the contractor's profit oil (the FARI
-   assumption). A regime that deducts all costs for income tax differs in a
-   year where the cost limit binds. Keep as a stated reading, or open a
-   cashflow.ts change (repair first, with the EPE re-vendor)?
-3. **EPE.md section 5.** The proposed line in the PSC section above is ready
-   for a Suite docs PR; this engines PR does not touch the Suite.
-4. **Norwegian source copy.** The regjeringen.no copy sat behind a bot check
-   on 2026-09-26; the course may cite the Wayback copy of 26 May 2024 with
-   the 2007 document date, or the lead may fetch the live copy by hand.
+1. **Default interest.** `interest.interestMethod` ('simple' or
+   'monthly-compound') and `interest.graceHours` (0 allowed) are required,
+   with exact refusals; goldens for both methods and the grace boundary;
+   seven negative-control plants for them (all red).
+2. **PSC tax base.** Kept, and stated in the `pscCostRecovery` basis
+   (above). No cashflow.ts change.
+3. **EPE.md line.** Left in this file (the PSC section above); the lead takes
+   it to a Suite docs PR.
+4. **Norwegian agreement.** Cited from the Wayback capture with its date and
+   URL; the live regjeringen.no copy exists but was not machine-readable on
+   the date read (source 1).
+
+## Open question for the lead
+
+1. **Grace start.** The engine applies the Kenya clause as printed: within
+   the grace no interest, beyond it interest from the due date. If the course
+   should instead start interest only after the grace, say so (one line in
+   the engine, one in the oracle, a new golden).

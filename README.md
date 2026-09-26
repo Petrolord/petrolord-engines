@@ -830,8 +830,9 @@ and its consumers.
   negative call (Norwegian Accounting Agreement Art. 1.2.1); budget control
   against stated item and budget tolerances (Norwegian JOA Art. 12.5);
   operator overhead on a stated marginal scale (Accounting Agreement Art.
-  2.2.2 and 2.2.3); a default on a cash call (pro rata cover, simple default
-  interest from the due date to the value date, stated suspension and
+  2.2.2 and 2.2.3); a default on a cash call (pro rata cover, default interest
+  simple or compounded monthly with a stated grace, from the due date to the
+  value date, stated suspension and
   forfeiture triggers, JOA Art. 9 and Art. 1.2.2); carry recovery with a
   stated uplift, recovery share and cap; a back-in under PIA 2021 s.85(4)
   (up to 60%, development and production costs only, no uplift, from future
