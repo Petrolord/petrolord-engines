@@ -302,6 +302,13 @@ and its consumers.
   `engines/mapping/wellTie.js`, plus `mergeCloseControls` and
   `mask: 'none'` in `lib/gridding/gridding.js`. Decisions in
   `mapping/FINDINGS-t1.md`.
+  Earth Modeling T1 (2026-09-26) added `earthmodel/oracle_contacts.py`:
+  `zoneVolumesWithContacts` in `engines/earthmodeling/volumes.js` cuts each
+  node's zone interval by the GOC and OWC (one depth or one per block),
+  sums HCPV over the gas and oil columns only, and gives STOIIP and GIIP
+  from Bo and Bg; a radial integral anchors the grid sums within 1%; gated
+  by `__tests__/earthmodel.contacts.test.js`, `negcontrol_contacts.sh`
+  7/7 red.
 - `__tests__/` — smoke suite: every module imports cleanly and
   per-domain anchors match the goldens. The FULL acceptance suites
   currently run in the Suite's CI against the vendored copy
