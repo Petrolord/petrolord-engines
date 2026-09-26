@@ -25,7 +25,7 @@
 //   - The PIA regime follows the gazetted texts by default (PIA 2021, NTA
 //     2025, Petroleum Royalty Regulations 2022, Finance Act 2023; see the
 //     COMPLIANCE banner below and tools/validation/economics/AUDIT-PIA-2021.md
-//     and the EC7 repair PR): weighted royalty tranches for every onshore,
+//     and FINDINGS-pia2021.md): weighted royalty tranches for every onshore,
 //     shallow water and deep offshore field on crude plus condensate; gas 5%
 //     (2.5% in-country); royalty by price at each stream's own price with the
 //     Regulations' benchmarks rounded to cents (the Act's 2020 base as the

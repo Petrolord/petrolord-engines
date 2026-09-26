@@ -453,7 +453,8 @@ and its consumers.
   `oracle_pia2021.py`, `__tests__/economics.pia2021.test.ts` and
   `negcontrol_pia2021.sh`, with the single documented input
   `pia_legacy_pre_audit: true` reproducing every pre-audit result, see
-  `tools/validation/economics/AUDIT-PIA-2021.md` and the EC7 repair PR) and `montecarlo.ts` (the seeded Monte Carlo over it),
+  `tools/validation/economics/AUDIT-PIA-2021.md` and
+  `tools/validation/economics/FINDINGS-pia2021.md`) and `montecarlo.ts` (the seeded Monte Carlo over it),
   both TypeScript like `engines/mbal` because they are DEPLOYED AS
   SUPABASE EDGE FUNCTIONS and bundle through the Suite's shims;
   `screening.js` (the client screening economics: exponential decline,
