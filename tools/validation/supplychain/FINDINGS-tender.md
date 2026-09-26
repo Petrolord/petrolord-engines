@@ -1,15 +1,15 @@
 # FINDINGS: tender (oracle_tender.py, Supply Chain SC2, procurement, tendering and contracting)
 
-Golden: `test-data/supplychain/goldens/tender_cases.json`, 141 cases (57 of
+Golden: `test-data/supplychain/goldens/tender_cases.json`, 145 cases (57 of
 them refusals, every refusal message pinned in full), written by
 `tools/validation/supplychain/oracle_tender.py`. Gate:
-`__tests__/supplychain.tender.test.js` (175 tests) calls the engine on every
+`__tests__/supplychain.tender.test.js` (180 tests) calls the engine on every
 golden, checks the published worked examples against their printed figures,
 checks the planted fixture situations and runs property tests. Negative
-control: `negcontrol_tender.sh` (54/54 engine plants red, 7/7 oracle plants
+control: `negcontrol_tender.sh` (58/58 engine plants red, 7/7 oracle plants
 caught). Timing: `timing_tender.js` (table below). Fixtures:
 `test-data/supplychain/ekene-tender/`, written by `make_tender_fixtures.py`.
-Full engines suite on the branch: 225 suites, 16,851 tests passed.
+Full engines suite on the branch: 228 suites, 17,511 tests passed (on the foundation-findings branch).
 
 The oracle is STDLIB ONLY (python 3.12: `fractions`, `decimal`, `math`). It
 reads no JavaScript and takes a different road on every route (table in its
@@ -108,7 +108,7 @@ Wells and depths follow `test-data/ekene-dynamic/field.json`.
 
 1. Omission pricing: `omissionRule` defaults to 'average' (WB SPD ITB 34.1,
    cited). 'highest' stays available; its reason, basis and the refusal
-   message say it is not from the cited texts. The course teaches and grades
+   message say the cited texts do not use it. The course teaches and grades
    the cited rule only.
 2. Mean-deviation price scoring: DROPPED from the engine, oracle, goldens and
    tests (unsourced). `priceMethod` is 'lowest-ratio' or 'linear', both cited;
@@ -131,7 +131,7 @@ Wells and depths follow `test-data/ekene-dynamic/field.json`.
    substantially responsive Bidders", else the Employer's best estimate. No
    current text read uses the highest price. The engine has no default:
    `omissionRule` is 'average' (cited) or 'highest' (a stated alternative,
-   labelled as not from the cited texts). The materials fixture is built so
+   labelled as an option the cited texts do not use). The materials fixture is built so
    the rule decides the lowest evaluated cost (average: MS4; highest: MS2).
    Lead decision taken: default 'average'; 'highest' kept, labelled.
 2. **Which bids price an omission:** the other bids still substantially
@@ -348,6 +348,36 @@ RED   [ORACLE] oracle measure not checked -- 1 failed -- first: nc-refuse-measur
 RED   [ORACLE] oracle ALB sample standard deviation -- 2 failed -- first: wb-alb-annex-i-example-1-relative
 RED   [ORACLE] oracle s.14 group within 2% -- 1 failed -- first: s14-group-edge-just-out
 ```
+
+## Foundation findings repair (2026-09-26, branch fix/tender-foundation-findings)
+
+The SC2 course foundation found four wording and consistency defects; all
+repaired before lessons, with no award or graded value changing (all 141
+earlier goldens keep every non-message value; 16 change message text only).
+
+1. Counts agree with their units: weeks ("1 week", "2 weeks") in every
+   schedule reason, basis and exclusion, and percentage points in the s.14
+   lead. The gate scans every golden output for "1 weeks", "1 percentage
+   points", "1 bids", "1 prices", "1 iterations" and "1 years".
+2. The uncited omission option reads "the 'highest' option, which the cited
+   texts do not use" (it read as an "X, not Y" contrastive); the refusal says
+   "an option the cited texts do not use". The gate scans every output for
+   ", not " and for em and en dashes.
+3. The s.14 reason when the runner-up has no Nigerian content states the 5%
+   test once ("30% against 0% (LOW), a runner-up with no Nigerian content, at
+   least 5% higher, so ...").
+4. Shared highest content (and the runner-up) are decided on the engine's
+   12-significant-digit tie key, as every other ranking in tender.js: 65 and
+   65.00000000000001 share the highest content, so no single bid leads
+   (golden `s14-shared-highest-at-12-digits`).
+
+New goldens: `s14-shared-highest-at-12-digits`, `s14-lead-1-percentage-point`,
+`ec-one-week-late`, `ec-one-week-beyond-minimum`. New negative-control plants:
+exact-equality shared highest, week count without agreement, the zero
+runner-up reason repeating itself, the highest option worded as a
+contrastive; the two plants whose targets moved were re-aimed and re-run red.
+Negative control on this branch: 58/58 engine plants red, 7/7 oracle plants
+caught.
 
 ## Open questions for the lead
 
