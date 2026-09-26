@@ -1,0 +1,314 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (ours). No real company, plant, contract, price series or regulator allocation.",
+ "generatedBy": "tools/validation/economics/make_gsa_fixtures.py",
+ "title": "Ekene gas to the Ekene Power Plant (synthetic), a domestic power sector GSA 2027 to 2034",
+ "seller": "Ekene licence gas, onshore (synthetic)",
+ "buyer": {
+  "name": "Ekene Power Plant (synthetic)",
+  "sector": "power"
+ },
+ "units": {
+  "quantity": "MMBtu",
+  "price": "US$ per MMBtu"
+ },
+ "energy": {
+  "dcqMMscf": 20,
+  "heatingValue": 1050,
+  "heatingValueUnit": "Btu/scf",
+  "heatingValueBasis": "gross",
+  "referenceConditions": "60 F and 14.696 psia (synthetic statement)"
+ },
+ "dcq": 21000,
+ "maxDcqPct": 110,
+ "topPct": 80,
+ "makeUp": {
+  "periodYears": 3,
+  "order": "after-adjusted-acq",
+  "endOfTerm": "forfeit"
+ },
+ "domesticBasePrice": {
+  "value": 2.18,
+  "note": "reported 2026 domestic base price (effective 1 April 2026) held flat as a planning assumption; the Authority re-determines it each year (PIA s.167(1))"
+ },
+ "shortfallPriceNote": "seller shortfall liquidated damages at a stated 1.25 US$ per MMBtu not made available (synthetic contract term)",
+ "years": [
+  {
+   "year": 2027,
+   "acq": 7665000,
+   "taken": 7245000,
+   "contractPrice": 2.18,
+   "topPrice": 2.18,
+   "makeUpPrice": 0,
+   "forceMajeure": 42000,
+   "sellerShortfall": 6300,
+   "shortfallPrice": 1.25
+  },
+  {
+   "year": 2028,
+   "acq": 7686000,
+   "taken": 5460000,
+   "contractPrice": 2.18,
+   "topPrice": 2.18,
+   "makeUpPrice": 0
+  },
+  {
+   "year": 2029,
+   "acq": 7665000,
+   "taken": 7875000,
+   "contractPrice": 2.18,
+   "topPrice": 2.18,
+   "makeUpPrice": 0
+  },
+  {
+   "year": 2030,
+   "acq": 7665000,
+   "taken": 7665000,
+   "contractPrice": 2.18,
+   "topPrice": 2.18,
+   "makeUpPrice": 0
+  },
+  {
+   "year": 2031,
+   "acq": 7665000,
+   "taken": 7933800,
+   "contractPrice": 2.18,
+   "topPrice": 2.18,
+   "makeUpPrice": 0
+  },
+  {
+   "year": 2032,
+   "acq": 7686000,
+   "taken": 6148800,
+   "contractPrice": 2.18,
+   "topPrice": 2.18,
+   "makeUpPrice": 0
+  },
+  {
+   "year": 2033,
+   "acq": 7665000,
+   "taken": 5775000,
+   "contractPrice": 2.18,
+   "topPrice": 2.18,
+   "makeUpPrice": 0
+  },
+  {
+   "year": 2034,
+   "acq": 7665000,
+   "taken": 7770000,
+   "contractPrice": 2.18,
+   "topPrice": 2.18,
+   "makeUpPrice": 0
+  }
+ ],
+ "january2027": {
+  "dcq": 21000,
+  "maxDcqPct": 110,
+  "days": [
+   {
+    "date": "2027-01-01",
+    "nominated": 20790,
+    "available": 20790,
+    "taken": 20790
+   },
+   {
+    "date": "2027-01-02",
+    "nominated": 21110,
+    "available": 21110,
+    "taken": 21110
+   },
+   {
+    "date": "2027-01-03",
+    "nominated": 20950,
+    "available": 20950,
+    "taken": 20950
+   },
+   {
+    "date": "2027-01-04",
+    "nominated": 21420,
+    "available": 21420,
+    "taken": 21420
+   },
+   {
+    "date": "2027-01-05",
+    "nominated": 0,
+    "available": 0,
+    "taken": 0
+   },
+   {
+    "date": "2027-01-06",
+    "nominated": 21630,
+    "available": 21630,
+    "taken": 21630
+   },
+   {
+    "date": "2027-01-07",
+    "nominated": 20690,
+    "available": 20690,
+    "taken": 20690
+   },
+   {
+    "date": "2027-01-08",
+    "nominated": 21210,
+    "available": 21210,
+    "taken": 21210
+   },
+   {
+    "date": "2027-01-09",
+    "nominated": 20900,
+    "available": 20900,
+    "taken": 20900
+   },
+   {
+    "date": "2027-01-10",
+    "nominated": 21320,
+    "available": 21320,
+    "taken": 21320
+   },
+   {
+    "date": "2027-01-11",
+    "nominated": 21000,
+    "available": 21000,
+    "taken": 21000
+   },
+   {
+    "date": "2027-01-12",
+    "nominated": 0,
+    "available": 0,
+    "taken": 0,
+    "forceMajeure": 21000
+   },
+   {
+    "date": "2027-01-13",
+    "nominated": 0,
+    "available": 0,
+    "taken": 0,
+    "forceMajeure": 21000
+   },
+   {
+    "date": "2027-01-14",
+    "nominated": 21530,
+    "available": 21530,
+    "taken": 21530
+   },
+   {
+    "date": "2027-01-15",
+    "nominated": 20840,
+    "available": 20840,
+    "taken": 20840
+   },
+   {
+    "date": "2027-01-16",
+    "nominated": 21160,
+    "available": 21160,
+    "taken": 21160
+   },
+   {
+    "date": "2027-01-17",
+    "nominated": 20580,
+    "available": 20580,
+    "taken": 20580
+   },
+   {
+    "date": "2027-01-18",
+    "nominated": 21260,
+    "available": 21260,
+    "taken": 21260
+   },
+   {
+    "date": "2027-01-19",
+    "nominated": 21050,
+    "available": 21050,
+    "taken": 21050
+   },
+   {
+    "date": "2027-01-20",
+    "nominated": 22050,
+    "available": 15750,
+    "taken": 15750
+   },
+   {
+    "date": "2027-01-21",
+    "nominated": 20740,
+    "available": 20740,
+    "taken": 20740
+   },
+   {
+    "date": "2027-01-22",
+    "nominated": 21370,
+    "available": 21370,
+    "taken": 21370
+   },
+   {
+    "date": "2027-01-23",
+    "nominated": 20900,
+    "available": 20900,
+    "taken": 20900
+   },
+   {
+    "date": "2027-01-24",
+    "nominated": 21110,
+    "available": 21110,
+    "taken": 21110
+   },
+   {
+    "date": "2027-01-25",
+    "nominated": 24150,
+    "available": 23100,
+    "taken": 23100
+   },
+   {
+    "date": "2027-01-26",
+    "nominated": 21000,
+    "available": 21000,
+    "taken": 21000
+   },
+   {
+    "date": "2027-01-27",
+    "nominated": 20790,
+    "available": 20790,
+    "taken": 20790
+   },
+   {
+    "date": "2027-01-28",
+    "nominated": 10500,
+    "available": 10500,
+    "taken": 10500,
+    "maintenance": 10500
+   },
+   {
+    "date": "2027-01-29",
+    "nominated": 21210,
+    "available": 21210,
+    "taken": 21210
+   },
+   {
+    "date": "2027-01-30",
+    "nominated": 21000,
+    "available": 12600,
+    "taken": 12600,
+    "buyerCaused": true
+   },
+   {
+    "date": "2027-01-31",
+    "nominated": 20950,
+    "available": 20950,
+    "taken": 20950
+   }
+  ]
+ },
+ "dgdo": {
+  "year": 2028,
+  "obligation": 6825000,
+  "delivered": 5460000,
+  "excused": {
+   "purchaserCannotAccept": 688800
+  },
+  "note": "synthetic allocation; the plant outage of 2028 is the purchaser's inability to accept (s.110(10)(b))"
+ },
+ "royalty": {
+  "terrain": "onshore",
+  "inCountrySharePct": 100
+ },
+ "discountRate": 0.1,
+ "baseYear": 2026
+}
