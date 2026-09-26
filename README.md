@@ -291,6 +291,17 @@ and its consumers.
   wells) and a dipping plane that TPS gridding must reproduce; the
   elevation convention for every depth surface (negative below datum,
   m or ft per `z_unit`) is an owner decision recorded there.
+  Mapping T1 (2026-09-26, the Suite's senior test of the Mapping &
+  Surface Studio) added `mapping/oracle_closure.py` (closures above a
+  contact, spill to the map boundary by union-find, fill-spill merges),
+  `mapping/oracle_tension.py` (splines in tension: K0 by integration and
+  series, dense solve) and `mapping/oracle_welltie.py` (closed-form linear
+  velocity), gated by `__tests__/mapping.t1.test.js` with
+  `negcontrol_t1.sh` (30/30 engine plants red); modules
+  `lib/gridding/closure.js`, `lib/gridding/tensionSpline.js`,
+  `engines/mapping/wellTie.js`, plus `mergeCloseControls` and
+  `mask: 'none'` in `lib/gridding/gridding.js`. Decisions in
+  `mapping/FINDINGS-t1.md`.
 - `__tests__/` — smoke suite: every module imports cleanly and
   per-domain anchors match the goldens. The FULL acceptance suites
   currently run in the Suite's CI against the vendored copy
