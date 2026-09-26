@@ -28,8 +28,14 @@ import fs from 'fs';
 import path from 'path';
 import {
   computeCashFlow, computeBreakevenOilPrice, irr, irrResult, paybackYears, paybackPeriod, ENGINE_VERSION,
-  deriveOilRoyaltyRate, derivePriceRoyaltyRate, resolveStreamPrice,
+  resolveStreamPrice, PIA_LEGACY_PRE_AUDIT,
 } from '../engines/economics/cashflow.ts';
+
+// EC7 (engines 3.12.0): every PIA case in this file runs the PRE-AUDIT path
+// (the fixture and the goldens carry pia_legacy_pre_audit: true), so the
+// rate helpers asserted here are the legacy ones. The default, text-compliant
+// path is gated by __tests__/economics.pia2021.test.ts.
+const { deriveOilRoyaltyRate, derivePriceRoyaltyRate } = PIA_LEGACY_PRE_AUDIT;
 
 const read = (rel: string) => JSON.parse(fs.readFileSync(path.join(__dirname, rel), 'utf8'));
 const FIXTURE = read('../test-data/economics/fixtures/pia-worked-example.json');

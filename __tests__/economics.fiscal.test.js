@@ -951,12 +951,14 @@ describe('EC2 owner decisions, 2026-09-15', () => {
   });
 
   describe('EC2-10: payback names every regime at the winning year', () => {
-    test('cmp_all_templates_default_project: all four year-3 regimes are named; the retired reduce named one (negative control)', async () => {
+    // EC7 repair 12: the re-based "Nigeria - PIA (2021)" template also pays
+    // back in year 3 on this project, so five regimes tie there (four before).
+    test('cmp_all_templates_default_project: all five year-3 regimes are named; the retired reduce named one (negative control)', async () => {
       const c = golden('cmp_all_templates_default_project');
       const res = await run(c);
       const text = res.insights.find((i) => i.key === 'payback').text;
       const atThree = res.summary.filter((s) => s.paybackPeriod === 3);
-      expect(atThree).toHaveLength(4);
+      expect(atThree).toHaveLength(5);
       atThree.forEach((s) => expect(text).toContain(`"${s.name}"`));
       expect(text).toMatch(/ pay back in year 3, against year 4 for /);
       const retired = res.summary.reduce((a, b) => (b.paybackPeriod < a.paybackPeriod ? b : a));

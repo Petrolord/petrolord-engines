@@ -447,7 +447,14 @@ and its consumers.
   NTA 2025 framework switch, allowances with volume caps, CPR
   forfeiture, tax-loss carryforward, economic limit, abandonment,
   decision KPIs, breakeven price; year-end discounting on a real or
-  nominal basis) and `montecarlo.ts` (the seeded Monte Carlo over it),
+  nominal basis; since engines 3.12.0 (EC7) the PIA / NTA path follows
+  the gazetted PIA 2021, NTA 2025, Petroleum Royalty Regulations 2022 and
+  Finance Act 2023 by default, gated by the text-derived oracle
+  `oracle_pia2021.py`, `__tests__/economics.pia2021.test.ts` and
+  `negcontrol_pia2021.sh`, with the single documented input
+  `pia_legacy_pre_audit: true` reproducing every pre-audit result, see
+  `tools/validation/economics/AUDIT-PIA-2021.md` and
+  `tools/validation/economics/FINDINGS-pia2021.md`) and `montecarlo.ts` (the seeded Monte Carlo over it),
   both TypeScript like `engines/mbal` because they are DEPLOYED AS
   SUPABASE EDGE FUNCTIONS and bundle through the Suite's shims;
   `screening.js` (the client screening economics: exponential decline,

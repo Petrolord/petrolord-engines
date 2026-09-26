@@ -66,6 +66,7 @@
 
 import { formatMillionUSD } from './fiscalConventions.js';
 import { solveIrrInBand, IRR_BAND_LOWER_PCT, IRR_BAND_UPPER_PCT, IRR_STATUSES } from './irrContract.js';
+import { deriveOilRoyaltyRate, derivePriceRoyaltyRate, deriveGasRoyaltyRate } from './cashflow.ts';
 
 const PROJECT_LIFE = 25; // years
 
@@ -134,6 +135,51 @@ const getSlidingScaleRoyalty = (oilPrice, royaltyInfo, sortedTiers) => {
         return royaltyInfo.rate / 100;
     }
     return tierReached(oilPrice, sortedTiers).rate / 100;
+};
+
+/**
+ * PIA 2021 royalty for the sandbox (EC7 repair 12, engines 3.12.0), type
+ * 'pia_2021': the production royalty on crude oil by terrain and daily rate
+ * (PIA Seventh Schedule para 10; Petroleum Royalty Regulations 2022 r.13),
+ * the royalty by price on crude oil at the year's oil price (para 11), and
+ * the gas and NGL royalty (para 10(6)), each computed by the cash flow
+ * engine's own helpers so the two engines cannot disagree. Project year 1 is
+ * calendar year `royalty.firstCalendarYear`; the daily rate is the year's
+ * oil over 365 days, the sandbox's own profile convention.
+ */
+const piaRoyalty = (royaltyInfo, year, oilVol, oilRevMM, gasAndNglRevMM, oilPrice) => {
+    const terrain = royaltyInfo.terrain;
+    const calendarYear = Number(royaltyInfo.firstCalendarYear) + year - 1;
+    const production = deriveOilRoyaltyRate(terrain, oilVol / 365);
+    const byPrice = derivePriceRoyaltyRate(oilPrice, calendarYear, terrain, royaltyInfo.priceRoyaltyBase ?? 'regulations_2021');
+    const gas = deriveGasRoyaltyRate(terrain, royaltyInfo.gasInCountrySharePct ?? 0);
+    return oilRevMM * (production + byPrice) + gasAndNglRevMM * gas;
+};
+
+/**
+ * The PIA 2021 minimum government profit oil by cumulative production per
+ * field (PIA Seventh Schedule para 14(4): up to and including 50 million bbl
+ * 5%, to 100 million 10%, to 350 million 15%, to 750 million 25%, to 1,500
+ * million 35%, above 45%; the gazette prints "over 250 million" for the
+ * fourth band, read as 350). Type 'pia_cumulative_production', tiers
+ * [{upToMMbbl, governmentPct}] ascending with the last upToMMbbl null. The
+ * band is chosen by cumulative crude oil at the START of the year (annual
+ * model). Returns the contractor's split.
+ */
+const piaCumulativeSplit = (regime, tiers, cumulativeOilBbl) => {
+    const who = regime?.name ?? regime?.id ?? '(unnamed)';
+    if (!Array.isArray(tiers) || tiers.length === 0 || tiers[tiers.length - 1].upToMMbbl !== null) {
+        throw new RangeError(`Fiscal regime "${who}": a pia_cumulative_production table needs bands in ascending upToMMbbl with the last upToMMbbl null.`);
+    }
+    const mm = cumulativeOilBbl / 1e6;
+    for (let i = 0; i < tiers.length; i++) {
+        const t = tiers[i];
+        if (i > 0 && t.upToMMbbl !== null && !(t.upToMMbbl > tiers[i - 1].upToMMbbl)) {
+            throw new RangeError(`Fiscal regime "${who}": a pia_cumulative_production table needs bands in ascending upToMMbbl with the last upToMMbbl null.`);
+        }
+        if (t.upToMMbbl === null || mm <= t.upToMMbbl) return 1 - t.governmentPct / 100;
+    }
+    return 1 - tiers[tiers.length - 1].governmentPct / 100;
 };
 
 const getTieredSplit = (rFactor, splitInfo, sortedTiers) => {
@@ -212,8 +258,11 @@ export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1,
     const nglProd = generateProductionProfile(project.production.ngl.initial, project.production.ngl.decline);
 
     const totalCapex = (project.costs.capex.drilling + project.costs.capex.facilities + project.costs.capex.subsea) * capexMultiplier;
-    const royaltyTiers = regime.royalty.type === 'flat' ? null : orderedTierTable(regime, 'royalty', regime.royalty.tiers);
-    const splitTiers = regime.profitSplit.type === 'flat' ? null : orderedTierTable(regime, 'profit split', regime.profitSplit.tiers);
+    const piaRoyaltyType = regime.royalty.type === 'pia_2021';
+    const piaSplitType = regime.profitSplit.type === 'pia_cumulative_production';
+    const royaltyTiers = regime.royalty.type === 'flat' || piaRoyaltyType ? null : orderedTierTable(regime, 'royalty', regime.royalty.tiers);
+    const splitTiers = regime.profitSplit.type === 'flat' || piaSplitType ? null : orderedTierTable(regime, 'profit split', regime.profitSplit.tiers);
+    let cumulativeOilBbl = 0;
     // Unrecovered cost carried forward. Costs enter the pool in the year
     // they are incurred (capex AND opex), matching applyPSC.
     let cumulativeCostPool = 0;
@@ -247,20 +296,29 @@ export const calculateCashFlowForRegime = (regime, project, capexMultiplier = 1,
         const capex = (year === 1) ? totalCapex : 0;
         cumulativeCosts += capex + opex;
 
-        const royaltyRate = getSlidingScaleRoyalty(price.oil, regime.royalty, royaltyTiers);
-        const royalty = grossRevenue * royaltyRate;
+        const royalty = piaRoyaltyType
+            ? piaRoyalty(regime.royalty, year, oilVol, oilRev, gasRev + nglRev, price.oil)
+            : grossRevenue * getSlidingScaleRoyalty(price.oil, regime.royalty, royaltyTiers);
         
         const revenueAfterRoyalty = grossRevenue - royalty;
         
         const recoverablePool = cumulativeCostPool + capex + opex;
-        const costRecoveryAllowed = revenueAfterRoyalty * (regime.costRecoveryLimit / 100);
+        // costRecoveryBase 'liquids_gross' (EC7): the limit is a share of the
+        // gross value of crude oil and NGL (PIA Seventh Schedule para 14(4),
+        // "based on total oil production, and where applicable condensates
+        // and natural gas liquids"); the default stays revenue after royalty.
+        const costRecoveryAllowed = (regime.costRecoveryBase === 'liquids_gross' ? oilRev + nglRev : revenueAfterRoyalty)
+            * (regime.costRecoveryLimit / 100);
         const costRecovered = Math.min(recoverablePool, costRecoveryAllowed);
         cumulativeCostPool = recoverablePool - costRecovered;
 
         const profitOil = Math.max(0, revenueAfterRoyalty - costRecovered);
         
         const rFactor = cumulativeCosts > 0 ? cumulativeRevenue / cumulativeCosts : 0;
-        const contractorProfitSplit = getTieredSplit(rFactor, regime.profitSplit, splitTiers);
+        const contractorProfitSplit = piaSplitType
+            ? piaCumulativeSplit(regime, regime.profitSplit.tiers, cumulativeOilBbl)
+            : getTieredSplit(rFactor, regime.profitSplit, splitTiers);
+        cumulativeOilBbl += oilVol;
         
         const contractorProfitShare = profitOil * contractorProfitSplit;
         const governmentProfitShare = profitOil * (1 - contractorProfitSplit);

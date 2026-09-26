@@ -73,7 +73,7 @@ import math
 import os
 import re
 
-ENGINE_VERSION = '3.11.0'
+ENGINE_VERSION = '3.12.0'
 GAS_MSCF_PER_BOE = 6.0
 
 
@@ -637,6 +637,11 @@ def pct(cfg, key, default=0.0):
 
 
 def compute(cfg, prod_rows, capex_rows, opex_rows):
+    # EC7 (engines 3.12.0): this oracle implements the PRE-AUDIT PIA semantics
+    # only, which the engine now runs solely under pia_legacy_pre_audit. A
+    # PIA case without the switch belongs to oracle_pia2021.py.
+    if cfg.get('fiscal_regime') == 'PIA' and cfg.get('pia_legacy_pre_audit') is not True:
+        raise AssertionError('oracle_cashflow computes PIA cases only with pia_legacy_pre_audit true')
     if not prod_rows:
         raise ValueError('No production data found. Upload and process a CSV first.')
     framework = framework_of(cfg)
@@ -988,6 +993,8 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
         # EC1-5: the cost pool cessation leaves unrecovered, at the share.
         k['psc_unrecovered_cost_at_cessation'] = psc_carry * wi
     if regime == 'PIA':
+        # EC7: every PIA case here runs the pre-audit path and says so.
+        k['pia_legacy_pre_audit'] = True
         # EC1-6: allowance the CITA restriction disallowed that cessation
         # leaves unclaimed, at the share.
         cit_allow_left = pia_state['cit_allow'] * wi
