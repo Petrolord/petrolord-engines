@@ -330,9 +330,42 @@ describe('properties', () => {
   });
 });
 
+describe('repair fix/gas-domestic-ceiling: s.167(7) held, s.167(3)(b) stated, permitted reductions stated, TOP 0 stated', () => {
+  test('s.167(7): a distributor figure above the commercial price is held at it, as s.168(3) holds the formula', () => {
+    const r = run('dp-distributor-above');
+    expect([r.statedPrice, r.ceiling, r.withinCeiling, r.price, r.heldAt]).toEqual([2.9, 2.68, false, 2.68, 'ceiling']);
+    expect(r.reason).toBe('the negotiated price 2.9 exceeds the commercial sector price 2.68, so the price is held at 2.68 (s.167(7))');
+    const at = run('dp-distributor-at-ceiling');
+    expect([at.price, at.withinCeiling, at.heldAt]).toEqual([2.68, true, null]);
+    const g = run('dp-gbi-urea-ceiling');
+    expect([g.price, g.heldAt]).toEqual([g.domesticBasePrice, 'ceiling']);
+    expect(g.formulaPrice).toBeGreaterThan(g.price);
+  });
+  test('s.167(3)(b): without price control the negotiated price stands with no ceiling or floor', () => {
+    const r = run('dp-distributor-above-no-control');
+    expect([r.priceControlApplies, r.statedPrice, r.price, r.heldAt]).toEqual([false, 2.9, 2.9, null]);
+    expect(r.reason).toBe('price control does not apply: the negotiated price 2.9 stands, with no ceiling or floor, because s.167(4) to (7) and s.168 no longer apply once the free-market criteria are met (s.167(3)(b))');
+    expect(run('dp-gbi-no-control-below-floor').price).toBe(0.7);
+    expect(run('dp-power-no-control').deliveredPrice).toBeCloseTo(3.9, 12);
+    expect(r.basis.source).toContain('PIA s.167(3): "The price control and the corresponding role of the domestic gas aggregator shall not be required');
+  });
+  test('priceControlApplies is required, true or false, with no default', () => {
+    const msg = 'priceControlApplies must be true or false, stated: whether the price control of PIA s.167 applies, or the free-market criteria of s.167(3)(b) are met (no default); got ';
+    expect(run('dp-refuse-no-control-flag').error).toBe(`${msg}nothing`);
+    expect(run('dp-refuse-control-flag-text').error).toBe(`${msg}"yes"`);
+  });
+  test('permittedReduction is required for every contract year; a take-or-pay percentage of 0 is stated', () => {
+    expect(run('top-refuse-missing-permitted-reduction').error).toBe('years[0].permittedReduction must be stated for every contract year (0 when the contract permits none); the engine holds no default; got nothing');
+    const z = run('top-zero-percent');
+    z.years.forEach((y) => { expect(y.topQuantity).toBe(0); expect(y.deficiency).toBe(0); expect(y.reasons[0]).toBe(`${y.year}: a take-or-pay percentage of 0 sets no take-or-pay quantity`); });
+    expect(z.basis.topPct).toBe('a take-or-pay percentage of 0 sets no take-or-pay quantity');
+    [PW, EX].forEach((f) => f.years.forEach((y) => expect(y.permittedReduction).toBe(0)));
+  });
+});
+
 describe('caps', () => {
   test('years above the cap are refused with the cap in the message', () => {
-    const years = Array.from({ length: T.DEFAULTS.MAX_YEARS + 1 }, (_, i) => ({ year: 2000 + i, acq: 1, taken: 1, contractPrice: 1, topPrice: 1, makeUpPrice: 0 }));
+    const years = Array.from({ length: T.DEFAULTS.MAX_YEARS + 1 }, (_, i) => ({ year: 2000 + i, acq: 1, permittedReduction: 0, taken: 1, contractPrice: 1, topPrice: 1, makeUpPrice: 0 }));
     const r = T.takeOrPay({ years, topPct: 80, makeUp: { periodYears: 1, order: 'first', endOfTerm: 'forfeit' } });
     expect(r.error).toBe(`years must have at most ${T.DEFAULTS.MAX_YEARS} entries; got ${T.DEFAULTS.MAX_YEARS + 1}`);
   });

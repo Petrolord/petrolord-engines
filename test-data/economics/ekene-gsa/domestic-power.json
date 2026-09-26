@@ -35,6 +35,7 @@
   {
    "year": 2027,
    "acq": 7665000,
+   "permittedReduction": 0,
    "taken": 7245000,
    "contractPrice": 2.18,
    "topPrice": 2.18,
@@ -46,6 +47,7 @@
   {
    "year": 2028,
    "acq": 7686000,
+   "permittedReduction": 0,
    "taken": 5460000,
    "contractPrice": 2.18,
    "topPrice": 2.18,
@@ -54,6 +56,7 @@
   {
    "year": 2029,
    "acq": 7665000,
+   "permittedReduction": 0,
    "taken": 7875000,
    "contractPrice": 2.18,
    "topPrice": 2.18,
@@ -62,6 +65,7 @@
   {
    "year": 2030,
    "acq": 7665000,
+   "permittedReduction": 0,
    "taken": 7665000,
    "contractPrice": 2.18,
    "topPrice": 2.18,
@@ -70,6 +74,7 @@
   {
    "year": 2031,
    "acq": 7665000,
+   "permittedReduction": 0,
    "taken": 7933800,
    "contractPrice": 2.18,
    "topPrice": 2.18,
@@ -78,6 +83,7 @@
   {
    "year": 2032,
    "acq": 7686000,
+   "permittedReduction": 0,
    "taken": 6148800,
    "contractPrice": 2.18,
    "topPrice": 2.18,
@@ -86,6 +92,7 @@
   {
    "year": 2033,
    "acq": 7665000,
+   "permittedReduction": 0,
    "taken": 5775000,
    "contractPrice": 2.18,
    "topPrice": 2.18,
@@ -94,6 +101,7 @@
   {
    "year": 2034,
    "acq": 7665000,
+   "permittedReduction": 0,
    "taken": 7770000,
    "contractPrice": 2.18,
    "topPrice": 2.18,

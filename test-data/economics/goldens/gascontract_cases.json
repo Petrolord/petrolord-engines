@@ -1890,6 +1890,7 @@
      {
       "year": 2027,
       "acq": 7665000,
+      "permittedReduction": 0,
       "taken": 7245000,
       "contractPrice": 2.18,
       "topPrice": 2.18,
@@ -1901,6 +1902,7 @@
      {
       "year": 2028,
       "acq": 7686000,
+      "permittedReduction": 0,
       "taken": 5460000,
       "contractPrice": 2.18,
       "topPrice": 2.18,
@@ -1909,6 +1911,7 @@
      {
       "year": 2029,
       "acq": 7665000,
+      "permittedReduction": 0,
       "taken": 7875000,
       "contractPrice": 2.18,
       "topPrice": 2.18,
@@ -1917,6 +1920,7 @@
      {
       "year": 2030,
       "acq": 7665000,
+      "permittedReduction": 0,
       "taken": 7665000,
       "contractPrice": 2.18,
       "topPrice": 2.18,
@@ -1925,6 +1929,7 @@
      {
       "year": 2031,
       "acq": 7665000,
+      "permittedReduction": 0,
       "taken": 7933800,
       "contractPrice": 2.18,
       "topPrice": 2.18,
@@ -1933,6 +1938,7 @@
      {
       "year": 2032,
       "acq": 7686000,
+      "permittedReduction": 0,
       "taken": 6148800,
       "contractPrice": 2.18,
       "topPrice": 2.18,
@@ -1941,6 +1947,7 @@
      {
       "year": 2033,
       "acq": 7665000,
+      "permittedReduction": 0,
       "taken": 5775000,
       "contractPrice": 2.18,
       "topPrice": 2.18,
@@ -1949,6 +1956,7 @@
      {
       "year": 2034,
       "acq": 7665000,
+      "permittedReduction": 0,
       "taken": 7770000,
       "contractPrice": 2.18,
       "topPrice": 2.18,
@@ -5310,6 +5318,7 @@
      {
       "year": 2027,
       "acq": 22995000,
+      "permittedReduction": 0,
       "taken": 22995000,
       "contractPrice": 8.69445,
       "topPrice": 8.69445,
@@ -5318,6 +5327,7 @@
      {
       "year": 2028,
       "acq": 23058000,
+      "permittedReduction": 0,
       "taken": 22366000,
       "contractPrice": 7.54355,
       "topPrice": 7.54355,
@@ -5326,6 +5336,7 @@
      {
       "year": 2029,
       "acq": 22995000,
+      "permittedReduction": 0,
       "taken": 14257000,
       "contractPrice": 9.80845,
       "topPrice": 9.80845,
@@ -5334,6 +5345,7 @@
      {
       "year": 2030,
       "acq": 22995000,
+      "permittedReduction": 0,
       "taken": 21385000,
       "forceMajeure": 1260000,
       "contractPrice": 10.6451,
@@ -5343,6 +5355,7 @@
      {
       "year": 2031,
       "acq": 22995000,
+      "permittedReduction": 0,
       "taken": 23915000,
       "contractPrice": 8.2613,
       "topPrice": 8.2613,
@@ -5351,6 +5364,7 @@
      {
       "year": 2032,
       "acq": 23058000,
+      "permittedReduction": 0,
       "taken": 19599000,
       "contractPrice": 7.7569,
       "topPrice": 7.7569,
@@ -5359,6 +5373,7 @@
      {
       "year": 2033,
       "acq": 22995000,
+      "permittedReduction": 0,
       "taken": 23455000,
       "contractPrice": 10.2113,
       "topPrice": 10.2113,
@@ -5367,6 +5382,7 @@
      {
       "year": 2034,
       "acq": 22995000,
+      "permittedReduction": 0,
       "taken": 22765000,
       "contractPrice": 10.3732,
       "topPrice": 10.3732,
@@ -5375,6 +5391,7 @@
      {
       "year": 2035,
       "acq": 22995000,
+      "permittedReduction": 0,
       "taken": 18396000,
       "contractPrice": 7.8983,
       "topPrice": 7.8983,
@@ -5383,6 +5400,7 @@
      {
       "year": 2036,
       "acq": 23058000,
+      "permittedReduction": 0,
       "taken": 21444000,
       "contractPrice": 8.0813,
       "topPrice": 8.0813,
@@ -5848,6 +5866,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -5856,6 +5875,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -5864,6 +5884,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6025,6 +6046,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6033,6 +6055,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6041,6 +6064,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6194,6 +6218,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6202,6 +6227,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6210,6 +6236,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6363,6 +6390,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6371,6 +6399,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6379,6 +6408,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6540,6 +6570,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6548,6 +6579,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6659,6 +6691,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 799,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6667,6 +6700,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6788,6 +6822,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 0,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6796,6 +6831,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6917,6 +6953,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6925,6 +6962,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6933,6 +6971,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -6941,6 +6980,7 @@
      {
       "year": 2030,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7135,6 +7175,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7143,6 +7184,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7151,6 +7193,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7159,6 +7202,7 @@
      {
       "year": 2030,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7348,6 +7392,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7356,6 +7401,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1050,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7364,6 +7410,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7523,6 +7570,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7531,6 +7579,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7644,6 +7693,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 700,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7652,6 +7702,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 750,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7660,6 +7711,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1080,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7668,6 +7720,7 @@
      {
       "year": 2030,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1030,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7676,6 +7729,7 @@
      {
       "year": 2031,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7917,6 +7971,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 30,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -7924,12 +7979,12 @@
       "forceMajeure": 100,
       "sellerShortfall": 50,
       "shortfallPrice": 1.5,
-      "maintenance": 20,
-      "permittedReduction": 30
+      "maintenance": 20
      },
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -8052,6 +8107,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 0,
       "contractPrice": 3,
       "topPrice": 3,
@@ -8061,6 +8117,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -8172,6 +8229,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 2.5,
@@ -8180,6 +8238,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1050,
       "contractPrice": 3,
       "topPrice": 3.25,
@@ -8188,6 +8247,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 700,
       "contractPrice": 3,
       "topPrice": 4,
@@ -8350,6 +8410,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 2.5,
@@ -8358,6 +8419,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1050,
       "contractPrice": 3,
       "topPrice": 3.25,
@@ -8366,6 +8428,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 700,
       "contractPrice": 3,
       "topPrice": 4,
@@ -8528,6 +8591,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 500,
       "contractPrice": 3,
       "topPrice": 3,
@@ -8608,6 +8672,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 4,
       "topPrice": 4,
@@ -8616,6 +8681,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1150,
       "contractPrice": 5,
       "topPrice": 5,
@@ -8742,6 +8808,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -8750,6 +8817,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1050,
       "contractPrice": 3,
       "topPrice": 3,
@@ -8758,6 +8826,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 700,
       "contractPrice": 3,
       "topPrice": 3,
@@ -8766,6 +8835,7 @@
      {
       "year": 2030,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -8774,6 +8844,7 @@
      {
       "year": 2031,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9015,6 +9086,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9023,6 +9095,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1050,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9031,6 +9104,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 700,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9039,6 +9113,7 @@
      {
       "year": 2030,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9047,6 +9122,7 @@
      {
       "year": 2031,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9294,6 +9370,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9302,6 +9379,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1050,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9310,6 +9388,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 700,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9318,6 +9397,7 @@
      {
       "year": 2030,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9326,6 +9406,7 @@
      {
       "year": 2031,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9580,6 +9661,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9588,6 +9670,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9596,6 +9679,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9604,6 +9688,7 @@
      {
       "year": 2030,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 700,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9797,6 +9882,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9805,6 +9891,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1050,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9813,6 +9900,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 700,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9821,6 +9909,7 @@
      {
       "year": 2030,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -9829,6 +9918,7 @@
      {
       "year": 2031,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10058,6 +10148,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10066,6 +10157,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10074,6 +10166,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10097,6 +10190,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10105,6 +10199,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10113,6 +10208,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10141,6 +10237,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10149,6 +10246,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10157,6 +10255,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10185,6 +10284,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10193,6 +10293,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10221,6 +10322,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10250,6 +10352,7 @@
      {
       "year": 2027,
       "acq": 100,
+      "permittedReduction": 0,
       "taken": 80,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10280,6 +10383,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10288,6 +10392,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10296,6 +10401,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10329,6 +10435,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10337,6 +10444,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10345,6 +10453,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10378,6 +10487,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10386,6 +10496,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10394,6 +10505,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10415,6 +10527,188 @@
    "tol": 1e-12
   },
   {
+   "id": "top-refuse-missing-permitted-reduction",
+   "fn": "takeOrPay",
+   "args": {
+    "years": [
+     {
+      "year": 2027,
+      "acq": 1000,
+      "taken": 800,
+      "contractPrice": 3,
+      "topPrice": 3,
+      "makeUpPrice": 0
+     }
+    ],
+    "topPct": 80,
+    "makeUp": {
+     "periodYears": 2,
+     "order": "after-adjusted-acq",
+     "endOfTerm": "forfeit"
+    }
+   },
+   "expected": {
+    "error": true,
+    "field": "years[0].permittedReduction",
+    "message": "years[0].permittedReduction must be stated for every contract year (0 when the contract permits none); the engine holds no default; got nothing"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "top-refuse-permitted-reduction-negative",
+   "fn": "takeOrPay",
+   "args": {
+    "years": [
+     {
+      "year": 2027,
+      "acq": 1000,
+      "permittedReduction": -5,
+      "taken": 800,
+      "contractPrice": 3,
+      "topPrice": 3,
+      "makeUpPrice": 0
+     }
+    ],
+    "topPct": 80,
+    "makeUp": {
+     "periodYears": 2,
+     "order": "after-adjusted-acq",
+     "endOfTerm": "forfeit"
+    }
+   },
+   "expected": {
+    "error": true,
+    "field": "years[0].permittedReduction",
+    "message": "years[0].permittedReduction must be a finite number at or above 0; got -5"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "top-zero-percent",
+   "fn": "takeOrPay",
+   "args": {
+    "years": [
+     {
+      "year": 2027,
+      "acq": 1000,
+      "permittedReduction": 0,
+      "taken": 0,
+      "contractPrice": 3,
+      "topPrice": 3,
+      "makeUpPrice": 0
+     },
+     {
+      "year": 2028,
+      "acq": 1000,
+      "permittedReduction": 0,
+      "taken": 400,
+      "contractPrice": 3,
+      "topPrice": 3,
+      "makeUpPrice": 0
+     }
+    ],
+    "topPct": 0,
+    "makeUp": {
+     "periodYears": 2,
+     "order": "after-adjusted-acq",
+     "endOfTerm": "forfeit"
+    }
+   },
+   "expected": {
+    "years": [
+     {
+      "year": 2027,
+      "acq": 1000,
+      "maintenance": 0.0,
+      "forceMajeure": 0.0,
+      "sellerShortfall": 0.0,
+      "permittedReduction": 0.0,
+      "adjustedAcq": 1000.0,
+      "topQuantity": 0.0,
+      "taken": 0,
+      "makeUpAvailable": 0.0,
+      "makeUpTaken": 0.0,
+      "makeUpDrawn": [],
+      "counted": 0.0,
+      "deficiency": 0.0,
+      "carryForwardAvailable": 0.0,
+      "carryForwardApplied": 0.0,
+      "carryForwardDrawn": [],
+      "deficiencyPaid": 0.0,
+      "deficiencyPayment": 0.0,
+      "surplus": 0.0,
+      "makeUpExpired": [],
+      "carryForwardExpired": [],
+      "makeUpOutstanding": 0.0,
+      "carryForwardOutstanding": 0.0,
+      "endOfTerm": null,
+      "regularRevenue": 0.0,
+      "makeUpRevenue": 0.0,
+      "shortfallPayment": 0.0,
+      "refund": 0.0,
+      "netToSeller": 0.0,
+      "reasons": [
+       "2027: a take-or-pay percentage of 0 sets no take-or-pay quantity"
+      ]
+     },
+     {
+      "year": 2028,
+      "acq": 1000,
+      "maintenance": 0.0,
+      "forceMajeure": 0.0,
+      "sellerShortfall": 0.0,
+      "permittedReduction": 0.0,
+      "adjustedAcq": 1000.0,
+      "topQuantity": 0.0,
+      "taken": 400,
+      "makeUpAvailable": 0.0,
+      "makeUpTaken": 0.0,
+      "makeUpDrawn": [],
+      "counted": 400.0,
+      "deficiency": 0.0,
+      "carryForwardAvailable": 0.0,
+      "carryForwardApplied": 0.0,
+      "carryForwardDrawn": [],
+      "deficiencyPaid": 0.0,
+      "deficiencyPayment": 0.0,
+      "surplus": 0.0,
+      "makeUpExpired": [],
+      "carryForwardExpired": [],
+      "makeUpOutstanding": 0.0,
+      "carryForwardOutstanding": 0.0,
+      "endOfTerm": {
+       "rule": "forfeit",
+       "quantity": 0.0,
+       "entries": [],
+       "refund": 0.0
+      },
+      "regularRevenue": 1200.0,
+      "makeUpRevenue": 0.0,
+      "shortfallPayment": 0.0,
+      "refund": 0.0,
+      "netToSeller": 1200.0,
+      "reasons": [
+       "2028: a take-or-pay percentage of 0 sets no take-or-pay quantity"
+      ]
+     }
+    ],
+    "totals": {
+     "taken": 400.0,
+     "makeUpTaken": 0.0,
+     "deficiencyPaid": 0.0,
+     "deficiencyPayment": 0.0,
+     "makeUpExpired": 0.0,
+     "endOfTermQuantity": 0.0,
+     "regularRevenue": 1200.0,
+     "makeUpRevenue": 0.0,
+     "shortfallPayment": 0.0,
+     "refund": 0.0,
+     "netToSeller": 1200.0
+    }
+   },
+   "tol": 1e-12
+  },
+  {
    "id": "top-refuse-missing-top-price",
    "fn": "takeOrPay",
    "args": {
@@ -10422,6 +10716,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "makeUpPrice": 0
@@ -10449,6 +10744,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10457,6 +10753,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10465,6 +10762,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10493,6 +10791,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 800,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10522,6 +10821,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10530,6 +10830,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10538,6 +10839,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10572,6 +10874,7 @@
      {
       "year": 2027,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 600,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10580,6 +10883,7 @@
      {
       "year": 2028,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1100,
       "contractPrice": 3,
       "topPrice": 3,
@@ -10588,6 +10892,7 @@
      {
       "year": 2029,
       "acq": 1000,
+      "permittedReduction": 0,
       "taken": 1000,
       "contractPrice": 3,
       "topPrice": 3,
@@ -18883,11 +19188,13 @@
    "id": "dp-power-2026",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "power",
     "domesticBasePrice": 2.18
    },
    "expected": {
     "sector": "power",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "price": 2.18
    },
@@ -18903,11 +19210,13 @@
    "id": "dp-commercial-2026",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "commercial",
     "domesticBasePrice": 2.18
    },
    "expected": {
     "sector": "commercial",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "price": 2.68
    },
@@ -18924,11 +19233,13 @@
    "id": "dp-power-2025",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "power",
     "domesticBasePrice": 2.13
    },
    "expected": {
     "sector": "power",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.13,
     "price": 2.13
    },
@@ -18944,11 +19255,13 @@
    "id": "dp-commercial-2025",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "commercial",
     "domesticBasePrice": 2.13
    },
    "expected": {
     "sector": "commercial",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.13,
     "price": 2.63
    },
@@ -18965,17 +19278,21 @@
    "id": "dp-distributor-within",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-distributor",
     "domesticBasePrice": 2.18,
     "negotiatedPrice": 2.5
    },
    "expected": {
     "sector": "gas-distributor",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
+    "statedPrice": 2.5,
     "ceiling": 2.68,
-    "price": 2.5,
     "withinCeiling": true,
-    "reason": "negotiated price 2.5 is at or below the commercial sector price 2.68"
+    "price": 2.5,
+    "heldAt": null,
+    "reason": "the negotiated price 2.5 is at or below the commercial sector price 2.68, the ceiling for gas distributors (s.167(7))"
    },
    "tol": 1e-12
   },
@@ -18983,17 +19300,21 @@
    "id": "dp-distributor-at-ceiling",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-distributor",
     "domesticBasePrice": 2.18,
     "negotiatedPrice": 2.68
    },
    "expected": {
     "sector": "gas-distributor",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
+    "statedPrice": 2.68,
     "ceiling": 2.68,
-    "price": 2.68,
     "withinCeiling": true,
-    "reason": "negotiated price 2.68 is at or below the commercial sector price 2.68"
+    "price": 2.68,
+    "heldAt": null,
+    "reason": "the negotiated price 2.68 is at or below the commercial sector price 2.68, the ceiling for gas distributors (s.167(7))"
    },
    "tol": 1e-12
   },
@@ -19001,17 +19322,21 @@
    "id": "dp-distributor-above",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-distributor",
     "domesticBasePrice": 2.18,
     "negotiatedPrice": 2.9
    },
    "expected": {
     "sector": "gas-distributor",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
+    "statedPrice": 2.9,
     "ceiling": 2.68,
-    "price": 2.9,
     "withinCeiling": false,
-    "reason": "negotiated price 2.9 exceeds the commercial sector price 2.68, which s.167(7) sets as the ceiling for gas distributors"
+    "price": 2.68,
+    "heldAt": "ceiling",
+    "reason": "the negotiated price 2.9 exceeds the commercial sector price 2.68, so the price is held at 2.68 (s.167(7))"
    },
    "tol": 1e-12
   },
@@ -19019,6 +19344,7 @@
    "id": "dp-gbi-urea-inside",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "urea",
@@ -19026,6 +19352,7 @@
    },
    "expected": {
     "sector": "gas-based-industry",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "product": "urea",
     "cmpp": 450,
@@ -19043,6 +19370,7 @@
    "id": "dp-gbi-urea-floor",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "urea",
@@ -19050,6 +19378,7 @@
    },
    "expected": {
     "sector": "gas-based-industry",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "product": "urea",
     "cmpp": 200,
@@ -19067,6 +19396,7 @@
    "id": "dp-gbi-urea-ceiling",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "urea",
@@ -19074,6 +19404,7 @@
    },
    "expected": {
     "sector": "gas-based-industry",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "product": "urea",
     "cmpp": 600,
@@ -19091,6 +19422,7 @@
    "id": "dp-gbi-urea-at-prp",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "urea",
@@ -19098,6 +19430,7 @@
    },
    "expected": {
     "sector": "gas-based-industry",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "product": "urea",
     "cmpp": 250,
@@ -19115,6 +19448,7 @@
    "id": "dp-gbi-urea-zero-cmpp",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "urea",
@@ -19122,6 +19456,7 @@
    },
    "expected": {
     "sector": "gas-based-industry",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "product": "urea",
     "cmpp": 0,
@@ -19139,6 +19474,7 @@
    "id": "dp-gbi-gtl-diesel",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "low-sulphur-diesel-gtl",
@@ -19146,6 +19482,7 @@
    },
    "expected": {
     "sector": "gas-based-industry",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "product": "low-sulphur-diesel-gtl",
     "cmpp": 520,
@@ -19163,6 +19500,7 @@
    "id": "dp-gbi-exactly-dbp",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2,
     "product": "ammonia",
@@ -19170,6 +19508,7 @@
    },
    "expected": {
     "sector": "gas-based-industry",
+    "priceControlApplies": true,
     "domesticBasePrice": 2,
     "product": "ammonia",
     "cmpp": 500,
@@ -19187,6 +19526,7 @@
    "id": "dp-gbi-exactly-floor",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "methanol",
@@ -19194,6 +19534,7 @@
    },
    "expected": {
     "sector": "gas-based-industry",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "product": "methanol",
     "cmpp": 225,
@@ -19211,6 +19552,7 @@
    "id": "dp-gbi-schedule-override",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "ammonia",
@@ -19223,6 +19565,7 @@
    },
    "expected": {
     "sector": "gas-based-industry",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "product": "ammonia",
     "cmpp": 450,
@@ -19240,12 +19583,14 @@
    "id": "dp-power-transport",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "power",
     "domesticBasePrice": 2.18,
     "transportTariff": 0.8
    },
    "expected": {
     "sector": "power",
+    "priceControlApplies": true,
     "domesticBasePrice": 2.18,
     "price": 2.18,
     "deliveredPrice": 2.9800000000000004
@@ -19253,9 +19598,150 @@
    "tol": 1e-12
   },
   {
+   "id": "dp-distributor-above-no-control",
+   "fn": "domesticPrice",
+   "args": {
+    "priceControlApplies": false,
+    "sector": "gas-distributor",
+    "domesticBasePrice": 2.18,
+    "negotiatedPrice": 2.9
+   },
+   "expected": {
+    "sector": "gas-distributor",
+    "priceControlApplies": false,
+    "domesticBasePrice": 2.18,
+    "statedPrice": 2.9,
+    "price": 2.9,
+    "heldAt": null,
+    "reason": "price control does not apply: the negotiated price 2.9 stands, with no ceiling or floor, because s.167(4) to (7) and s.168 no longer apply once the free-market criteria are met (s.167(3)(b))"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "dp-distributor-at-ceiling-no-control",
+   "fn": "domesticPrice",
+   "args": {
+    "priceControlApplies": false,
+    "sector": "gas-distributor",
+    "negotiatedPrice": 2.68
+   },
+   "expected": {
+    "sector": "gas-distributor",
+    "priceControlApplies": false,
+    "domesticBasePrice": null,
+    "statedPrice": 2.68,
+    "price": 2.68,
+    "heldAt": null,
+    "reason": "price control does not apply: the negotiated price 2.68 stands, with no ceiling or floor, because s.167(4) to (7) and s.168 no longer apply once the free-market criteria are met (s.167(3)(b))"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "dp-power-no-control",
+   "fn": "domesticPrice",
+   "args": {
+    "priceControlApplies": false,
+    "sector": "power",
+    "negotiatedPrice": 3.1,
+    "transportTariff": 0.8
+   },
+   "expected": {
+    "sector": "power",
+    "priceControlApplies": false,
+    "domesticBasePrice": null,
+    "statedPrice": 3.1,
+    "price": 3.1,
+    "heldAt": null,
+    "reason": "price control does not apply: the negotiated price 3.1 stands, with no ceiling or floor, because s.167(4) to (7) and s.168 no longer apply once the free-market criteria are met (s.167(3)(b))",
+    "deliveredPrice": 3.9000000000000004
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "dp-gbi-no-control-below-floor",
+   "fn": "domesticPrice",
+   "args": {
+    "priceControlApplies": false,
+    "sector": "gas-based-industry",
+    "negotiatedPrice": 0.7
+   },
+   "expected": {
+    "sector": "gas-based-industry",
+    "priceControlApplies": false,
+    "domesticBasePrice": null,
+    "statedPrice": 0.7,
+    "price": 0.7,
+    "heldAt": null,
+    "reason": "price control does not apply: the negotiated price 0.7 stands, with no ceiling or floor, because s.167(4) to (7) and s.168 no longer apply once the free-market criteria are met (s.167(3)(b))"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "dp-refuse-no-control-flag",
+   "fn": "domesticPrice",
+   "args": {
+    "sector": "power",
+    "domesticBasePrice": 2.18
+   },
+   "expected": {
+    "error": true,
+    "field": "priceControlApplies",
+    "message": "priceControlApplies must be true or false, stated: whether the price control of PIA s.167 applies, or the free-market criteria of s.167(3)(b) are met (no default); got nothing"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "dp-refuse-control-flag-text",
+   "fn": "domesticPrice",
+   "args": {
+    "priceControlApplies": "yes",
+    "sector": "power",
+    "domesticBasePrice": 2.18
+   },
+   "expected": {
+    "error": true,
+    "field": "priceControlApplies",
+    "message": "priceControlApplies must be true or false, stated: whether the price control of PIA s.167 applies, or the free-market criteria of s.167(3)(b) are met (no default); got \"yes\""
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "dp-refuse-no-control-no-price",
+   "fn": "domesticPrice",
+   "args": {
+    "priceControlApplies": false,
+    "sector": "commercial",
+    "domesticBasePrice": 2.18
+   },
+   "expected": {
+    "error": true,
+    "field": "negotiatedPrice",
+    "message": "negotiatedPrice must be stated when priceControlApplies is false: every sector negotiates its price (PIA s.167(3)(b)); got nothing"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "dp-refuse-no-control-with-formula",
+   "fn": "domesticPrice",
+   "args": {
+    "priceControlApplies": false,
+    "sector": "gas-based-industry",
+    "negotiatedPrice": 1.5,
+    "product": "urea",
+    "cmpp": 400
+   },
+   "expected": {
+    "error": true,
+    "field": "product",
+    "message": "product must be given only when priceControlApplies is true (the Fourth Schedule formula is part of s.168); got \"urea\""
+   },
+   "tol": 1e-12
+  },
+  {
    "id": "dp-refuse-no-dbp",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "power"
    },
    "expected": {
@@ -19269,6 +19755,7 @@
    "id": "dp-refuse-sector",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "industrial",
     "domesticBasePrice": 2.18
    },
@@ -19283,6 +19770,7 @@
    "id": "dp-refuse-dbp-below-floor",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 0.8,
     "product": "urea",
@@ -19299,6 +19787,7 @@
    "id": "dp-refuse-negotiated-for-power",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "power",
     "domesticBasePrice": 2.18,
     "negotiatedPrice": 2
@@ -19306,7 +19795,7 @@
    "expected": {
     "error": true,
     "field": "negotiatedPrice",
-    "message": "negotiatedPrice must be given only for sector 'gas-distributor'; got 2"
+    "message": "negotiatedPrice must be given only for sector 'gas-distributor' while priceControlApplies is true; got 2"
    },
    "tol": 1e-12
   },
@@ -19314,6 +19803,7 @@
    "id": "dp-refuse-distributor-no-price",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-distributor",
     "domesticBasePrice": 2.18
    },
@@ -19328,6 +19818,7 @@
    "id": "dp-refuse-no-cmpp",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "urea"
@@ -19343,6 +19834,7 @@
    "id": "dp-refuse-product",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "fertiliser",
@@ -19359,6 +19851,7 @@
    "id": "dp-refuse-product-for-power",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "commercial",
     "domesticBasePrice": 2.18,
     "product": "urea"
@@ -19374,6 +19867,7 @@
    "id": "dp-refuse-schedule-source",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "gas-based-industry",
     "domesticBasePrice": 2.18,
     "product": "urea",
@@ -19395,6 +19889,7 @@
    "id": "dp-refuse-unknown-key",
    "fn": "domesticPrice",
    "args": {
+    "priceControlApplies": true,
     "sector": "power",
     "domesticBasePrice": 2.18,
     "dbp": 2
@@ -19402,7 +19897,7 @@
    "expected": {
     "error": true,
     "field": "dbp",
-    "message": "dbp is not an accepted key; the accepted keys at the top level are sector, domesticBasePrice, negotiatedPrice, product, cmpp, transportTariff, schedule"
+    "message": "dbp is not an accepted key; the accepted keys at the top level are sector, priceControlApplies, domesticBasePrice, negotiatedPrice, product, cmpp, transportTariff, schedule"
    },
    "tol": 1e-12
   },
@@ -19832,6 +20327,7 @@
       {
        "year": 2027,
        "acq": 7665000,
+       "permittedReduction": 0,
        "taken": 7245000,
        "contractPrice": 2.18,
        "topPrice": 2.18,
@@ -19843,6 +20339,7 @@
       {
        "year": 2028,
        "acq": 7686000,
+       "permittedReduction": 0,
        "taken": 5460000,
        "contractPrice": 2.18,
        "topPrice": 2.18,
@@ -19851,6 +20348,7 @@
       {
        "year": 2029,
        "acq": 7665000,
+       "permittedReduction": 0,
        "taken": 7875000,
        "contractPrice": 2.18,
        "topPrice": 2.18,
@@ -19859,6 +20357,7 @@
       {
        "year": 2030,
        "acq": 7665000,
+       "permittedReduction": 0,
        "taken": 7665000,
        "contractPrice": 2.18,
        "topPrice": 2.18,
@@ -19867,6 +20366,7 @@
       {
        "year": 2031,
        "acq": 7665000,
+       "permittedReduction": 0,
        "taken": 7933800,
        "contractPrice": 2.18,
        "topPrice": 2.18,
@@ -19875,6 +20375,7 @@
       {
        "year": 2032,
        "acq": 7686000,
+       "permittedReduction": 0,
        "taken": 6148800,
        "contractPrice": 2.18,
        "topPrice": 2.18,
@@ -19883,6 +20384,7 @@
       {
        "year": 2033,
        "acq": 7665000,
+       "permittedReduction": 0,
        "taken": 5775000,
        "contractPrice": 2.18,
        "topPrice": 2.18,
@@ -19891,6 +20393,7 @@
       {
        "year": 2034,
        "acq": 7665000,
+       "permittedReduction": 0,
        "taken": 7770000,
        "contractPrice": 2.18,
        "topPrice": 2.18,
@@ -20376,6 +20879,7 @@
       {
        "year": 2027,
        "acq": 22995000,
+       "permittedReduction": 0,
        "taken": 22995000,
        "contractPrice": 8.69445,
        "topPrice": 8.69445,
@@ -20384,6 +20888,7 @@
       {
        "year": 2028,
        "acq": 23058000,
+       "permittedReduction": 0,
        "taken": 22366000,
        "contractPrice": 7.54355,
        "topPrice": 7.54355,
@@ -20392,6 +20897,7 @@
       {
        "year": 2029,
        "acq": 22995000,
+       "permittedReduction": 0,
        "taken": 14257000,
        "contractPrice": 9.80845,
        "topPrice": 9.80845,
@@ -20400,6 +20906,7 @@
       {
        "year": 2030,
        "acq": 22995000,
+       "permittedReduction": 0,
        "taken": 21385000,
        "forceMajeure": 1260000,
        "contractPrice": 10.6451,
@@ -20409,6 +20916,7 @@
       {
        "year": 2031,
        "acq": 22995000,
+       "permittedReduction": 0,
        "taken": 23915000,
        "contractPrice": 8.2613,
        "topPrice": 8.2613,
@@ -20417,6 +20925,7 @@
       {
        "year": 2032,
        "acq": 23058000,
+       "permittedReduction": 0,
        "taken": 19599000,
        "contractPrice": 7.7569,
        "topPrice": 7.7569,
@@ -20425,6 +20934,7 @@
       {
        "year": 2033,
        "acq": 22995000,
+       "permittedReduction": 0,
        "taken": 23455000,
        "contractPrice": 10.2113,
        "topPrice": 10.2113,
@@ -20433,6 +20943,7 @@
       {
        "year": 2034,
        "acq": 22995000,
+       "permittedReduction": 0,
        "taken": 22765000,
        "contractPrice": 10.3732,
        "topPrice": 10.3732,
@@ -20441,6 +20952,7 @@
       {
        "year": 2035,
        "acq": 22995000,
+       "permittedReduction": 0,
        "taken": 18396000,
        "contractPrice": 7.8983,
        "topPrice": 7.8983,
@@ -20449,6 +20961,7 @@
       {
        "year": 2036,
        "acq": 23058000,
+       "permittedReduction": 0,
        "taken": 21444000,
        "contractPrice": 8.0813,
        "topPrice": 8.0813,
@@ -21079,6 +21592,7 @@
       {
        "year": 2027,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 600,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21087,6 +21601,7 @@
       {
        "year": 2028,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1100,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21095,6 +21610,7 @@
       {
        "year": 2029,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1000,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21316,6 +21832,7 @@
       {
        "year": 2027,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 600,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21324,6 +21841,7 @@
       {
        "year": 2028,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1100,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21332,6 +21850,7 @@
       {
        "year": 2029,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1000,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21364,6 +21883,7 @@
       {
        "year": 2027,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 600,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21372,6 +21892,7 @@
       {
        "year": 2028,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1100,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21380,6 +21901,7 @@
       {
        "year": 2029,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1000,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21415,6 +21937,7 @@
       {
        "year": 2027,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 600,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21423,6 +21946,7 @@
       {
        "year": 2028,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1100,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21431,6 +21955,7 @@
       {
        "year": 2029,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1000,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21466,6 +21991,7 @@
       {
        "year": 2027,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 600,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21474,6 +22000,7 @@
       {
        "year": 2028,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1100,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21482,6 +22009,7 @@
       {
        "year": 2029,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1000,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21517,6 +22045,7 @@
       {
        "year": 2027,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 600,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21525,6 +22054,7 @@
       {
        "year": 2028,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1100,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21533,6 +22063,7 @@
       {
        "year": 2029,
        "acq": 1000,
+       "permittedReduction": 0,
        "taken": 1000,
        "contractPrice": 3,
        "topPrice": 3,
@@ -21647,7 +22178,7 @@
    "expected": {
     "error": true,
     "field": "notAKey",
-    "message": "notAKey is not an accepted key; the accepted keys at the top level are sector, domesticBasePrice, negotiatedPrice, product, cmpp, transportTariff, schedule"
+    "message": "notAKey is not an accepted key; the accepted keys at the top level are sector, priceControlApplies, domesticBasePrice, negotiatedPrice, product, cmpp, transportTariff, schedule"
    },
    "tol": 1e-12
   },

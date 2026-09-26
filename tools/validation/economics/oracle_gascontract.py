@@ -224,7 +224,7 @@ SHAPES = {
     'takeOrPay': TOPA,
     'priceSeries': OBJ(['months', 'formula', 'from', 'to', 'averagingMonths', 'lagMonths', 'resetMonths', 'rounding', 'reopeners'], months=LST(OBJ(['month', 'values'])), formula=('formula',)),
     'energyParitySlope': OBJ(['mmbtuPerBarrel']),
-    'domesticPrice': OBJ(['sector', 'domesticBasePrice', 'negotiatedPrice', 'product', 'cmpp', 'transportTariff', 'schedule'], schedule=OBJ(['nrp', 'prp', 'source'])),
+    'domesticPrice': OBJ(['sector', 'priceControlApplies', 'domesticBasePrice', 'negotiatedPrice', 'product', 'cmpp', 'transportTariff', 'schedule'], schedule=OBJ(['nrp', 'prp', 'source'])),
     'domesticGasObligation': OBJ(['obligation', 'delivered', 'voluntaryContracts', 'excused', 'agreementPenaltyRate', 'penaltyRate'],
                                  excused=OBJ(['forceMajeure', 'purchaserCannotAccept', 'transportUnavailable', 'purchaserNonPayment']), penaltyRate=OBJ(['value', 'source'])),
     'gsaCashFlows': OBJ(['contract', 'royalty', 'discountRate', 'baseYear'], contract=TOPA, royalty=OBJ(['terrain', 'inCountrySharePct'])),
@@ -449,9 +449,12 @@ def check_top(a, pre=''):
             must(f'{f}.year', f'{p + 1}, the year after {p} (contract years are consecutive)', y['year'])
         non_neg(f'{f}.acq', g(y, 'acq'))
         non_neg(f'{f}.taken', g(y, 'taken'))
-        for k in ('maintenance', 'forceMajeure', 'sellerShortfall', 'permittedReduction'):
+        for k in ('maintenance', 'forceMajeure', 'sellerShortfall'):
             if g(y, k) is not MISSING:
                 non_neg(f'{f}.{k}', y[k])
+        if g(y, 'permittedReduction') is MISSING:
+            must(f'{f}.permittedReduction', 'stated for every contract year (0 when the contract permits none); the engine holds no default', MISSING)
+        non_neg(f'{f}.permittedReduction', y['permittedReduction'])
         for k in ('contractPrice', 'topPrice', 'makeUpPrice'):
             non_neg(f'{f}.{k}', g(y, k))
         if g(y, 'shortfallPrice') is not MISSING:
@@ -489,6 +492,8 @@ def top_core(a):
     for y in years:
         Y = int(y['year'])
         why = []
+        if top == 0:
+            why.append(f'{Y}: a take-or-pay percentage of 0 sets no take-or-pay quantity')
         m, fm, sf, pr = (F(y.get(k) or 0) for k in ('maintenance', 'forceMajeure', 'sellerShortfall', 'permittedReduction'))
         adj = F(y['acq']) - m - fm - sf - pr                       # AdjACQ, Model GSA Alternative 2 with OFC
         topq = top * adj / 100                                       # TOPQ
@@ -892,40 +897,59 @@ FLOOR = F(9, 10)     # s.168(2) US$0.90
 
 
 def domestic_price(a):
-    sector, dbp = g(a, 'sector'), g(a, 'domesticBasePrice')
+    """PIA s.167 and s.168 read as written. s.167(3)(b): once the free-market
+    criteria are met, s.167(4) to (7) and s.168 no longer apply, so every
+    sector's price is its negotiated price with no ceiling or floor. Under
+    price control, s.167(7) "shall not exceed" the commercial price: a
+    distributor figure above it is held at it, as s.168(3) holds the formula."""
+    sector, ctl = g(a, 'sector'), g(a, 'priceControlApplies')
     one_of('sector', sector, ['power', 'commercial', 'gas-distributor', 'gas-based-industry'])
-    if dbp is MISSING:
-        must('domesticBasePrice', 'stated in US$ per MMBtu: the Authority determines it each year (PIA s.167(1)) and the engine holds no default', MISSING)
-    positive('domesticBasePrice', dbp)
+    if not isinstance(ctl, bool):
+        must('priceControlApplies', 'true or false, stated: whether the price control of PIA s.167 applies, or the free-market criteria of s.167(3)(b) are met (no default)', ctl)
     tt = g(a, 'transportTariff')
     if tt is not MISSING:
         non_neg('transportTariff', tt)
-    neg = g(a, 'negotiatedPrice')
+    dbp, neg = g(a, 'domesticBasePrice'), g(a, 'negotiatedPrice')
+    out = {'sector': sector, 'priceControlApplies': ctl}
+    if not ctl:
+        for k in ('product', 'cmpp', 'schedule'):
+            if g(a, k) is not MISSING:
+                must(k, 'given only when priceControlApplies is true (the Fourth Schedule formula is part of s.168)', a[k])
+        if dbp is not MISSING:
+            positive('domesticBasePrice', dbp)
+        if neg is MISSING:
+            must('negotiatedPrice', 'stated when priceControlApplies is false: every sector negotiates its price (PIA s.167(3)(b))', MISSING)
+        non_neg('negotiatedPrice', neg)
+        out.update({'domesticBasePrice': None if dbp is MISSING else dbp, 'statedPrice': neg, 'price': neg, 'heldAt': None})
+        out['reason'] = (f'price control does not apply: the negotiated price {js(neg)} stands, with no ceiling or floor, because s.167(4) to (7) '
+                         'and s.168 no longer apply once the free-market criteria are met (s.167(3)(b))')
+        if tt is not MISSING:
+            out['deliveredPrice'] = fl(F(neg) + F(tt))
+        return out
+    if dbp is MISSING:
+        must('domesticBasePrice', 'stated in US$ per MMBtu: the Authority determines it each year (PIA s.167(1)) and the engine holds no default', MISSING)
+    positive('domesticBasePrice', dbp)
+    out['domesticBasePrice'] = dbp
     if sector != 'gas-distributor' and neg is not MISSING:
-        must('negotiatedPrice', "given only for sector 'gas-distributor'", neg)
+        must('negotiatedPrice', "given only for sector 'gas-distributor' while priceControlApplies is true", neg)
     if sector != 'gas-based-industry':
         for k in ('product', 'cmpp', 'schedule'):
             if g(a, k) is not MISSING:
                 must(k, "given only for sector 'gas-based-industry'", a[k])
     D = F(dbp)
-    out = {'sector': sector, 'domesticBasePrice': dbp}
     if sector == 'power':
         out['price'] = dbp                                    # s.167(5)
-        P = D
     elif sector == 'commercial':
-        P = D + ADDER                                         # s.167(6)
-        out['price'] = fl(P)
+        out['price'] = fl(D + ADDER)                          # s.167(6)
     elif sector == 'gas-distributor':
         if neg is MISSING:
             must('negotiatedPrice', 'stated for a gas distributor, which negotiates its price (PIA s.167(7))', MISSING)
         non_neg('negotiatedPrice', neg)
-        ceil = D + ADDER
-        out['ceiling'] = fl(ceil)
-        out['price'] = neg
-        out['withinCeiling'] = F(neg) <= ceil
-        out['reason'] = (f'negotiated price {js(neg)} is at or below the commercial sector price {js(ceil)}' if out['withinCeiling']
-                         else f'negotiated price {js(neg)} exceeds the commercial sector price {js(ceil)}, which s.167(7) sets as the ceiling for gas distributors')
-        P = F(neg)
+        ceil = D + ADDER                                      # s.167(7): shall not exceed the commercial price
+        within = F(neg) <= ceil
+        out.update({'statedPrice': neg, 'ceiling': fl(ceil), 'withinCeiling': within, 'price': neg if within else fl(ceil), 'heldAt': None if within else 'ceiling'})
+        out['reason'] = (f'the negotiated price {js(neg)} is at or below the commercial sector price {js(ceil)}, the ceiling for gas distributors (s.167(7))' if within
+                         else f'the negotiated price {js(neg)} exceeds the commercial sector price {js(ceil)}, so the price is held at {js(ceil)} (s.167(7))')
     else:
         one_of('product', g(a, 'product'), list(GBI))
         cm = g(a, 'cmpp')
@@ -943,15 +967,13 @@ def domestic_price(a):
             nrp, prp = sch['nrp'], sch['prp']
         if D < FLOOR:
             must('domesticBasePrice', 'at or above the gas based industries floor US$0.90 per MMBtu (s.168(2)) for a gas based industry price, which is capped at the domestic base price (s.168(3))', dbp)
-        epf = (F(cm) - F(prp)) / F(prp)                       # EPF = (CMPP - PRP) / PRP
-        cp = F(nrp) * (1 + epf)                               # CP = NRP x (1 + EPF)
-        held = None
-        P = cp
+        epf = (F(cm) - F(prp)) / F(prp)
+        cp = F(nrp) * (1 + epf)
+        held, P = None, cp
         if P > D:
-            P, held = D, 'ceiling'                            # <= EPP, s.168(3)
+            P, held = D, 'ceiling'
         if P < FLOOR:
-            P, held = FLOOR, 'floor'                          # s.168(2)
-        # the reason prints the double the engine holds for the formula price
+            P, held = FLOOR, 'floor'
         cp_double = float(nrp) * (1 + (float(cm) - float(prp)) / float(prp))
         out.update({'product': a['product'], 'cmpp': cm, 'nrp': nrp, 'prp': prp, 'epf': fl(epf), 'formulaPrice': fl(cp), 'price': fl(P), 'heldAt': held})
         out['reason'] = (f'the formula gives {js_num(cp_double)}, above the domestic base price {js(D)}, so the price is held at {js(D)} (s.168(3))' if held == 'ceiling'
@@ -1128,7 +1150,7 @@ def mseries(start, vals, name='oil'):
 
 
 def Y(year, acq, taken, **kw):
-    r = {'year': year, 'acq': acq, 'taken': taken, 'contractPrice': 3, 'topPrice': 3, 'makeUpPrice': 0}
+    r = {'year': year, 'acq': acq, 'permittedReduction': 0, 'taken': taken, 'contractPrice': 3, 'topPrice': 3, 'makeUpPrice': 0}
     r.update(kw)
     return r
 
@@ -1241,7 +1263,10 @@ def build():
     case('top-refuse-cap-above-100', 'takeOrPay', dict(tb, carryForward=dict(cf, capPct=120)))
     case('top-refuse-cf-period-zero', 'takeOrPay', dict(tb, carryForward=dict(cf, periodYears=0)))
     case('top-refuse-toppct', 'takeOrPay', dict(tb, topPct=101))
-    case('top-refuse-missing-top-price', 'takeOrPay', dict(tb, years=[{'year': 2027, 'acq': 1000, 'taken': 800, 'contractPrice': 3, 'makeUpPrice': 0}]))
+    case('top-refuse-missing-permitted-reduction', 'takeOrPay', dict(tb, years=[{k: v for k, v in Y(2027, 1000, 800).items() if k != 'permittedReduction'}]))
+    case('top-refuse-permitted-reduction-negative', 'takeOrPay', dict(tb, years=[Y(2027, 1000, 800, permittedReduction=-5)]))
+    case('top-zero-percent', 'takeOrPay', {'years': [Y(2027, 1000, 0), Y(2028, 1000, 400)], 'topPct': 0, 'makeUp': mu})
+    case('top-refuse-missing-top-price', 'takeOrPay', dict(tb, years=[{'year': 2027, 'acq': 1000, 'permittedReduction': 0, 'taken': 800, 'contractPrice': 3, 'makeUpPrice': 0}]))
     case('top-refuse-unknown-key-makeup', 'takeOrPay', {'years': three, 'topPct': 80, 'makeup': mu})
     case('top-refuse-unknown-year-key', 'takeOrPay', dict(tb, years=[dict(Y(2027, 1000, 800), fm=3)]))
     case('top-refuse-unknown-cf-key', 'takeOrPay', dict(tb, carryForward=dict(cf, cap=50)))
@@ -1307,30 +1332,39 @@ def build():
 
     # ---- domesticPrice
     for yr, dbp in ((2026, 2.18), (2025, 2.13)):
-        case(f'dp-power-{yr}', 'domesticPrice', {'sector': 'power', 'domesticBasePrice': dbp},
+        case(f'dp-power-{yr}', 'domesticPrice', {'priceControlApplies': True, 'sector': 'power', 'domesticBasePrice': dbp},
              published={'source': 'reported NMDPRA domestic base price', 'printed': {'price': dbp}})
-        case(f'dp-commercial-{yr}', 'domesticPrice', {'sector': 'commercial', 'domesticBasePrice': dbp},
+        case(f'dp-commercial-{yr}', 'domesticPrice', {'priceControlApplies': True, 'sector': 'commercial', 'domesticBasePrice': dbp},
              published={'source': 'reported NMDPRA wholesale price for the commercial sector', 'printed': {'price': {2026: 2.68, 2025: 2.63}[yr]}, 'rule': 's.167(6): domestic base price + US$0.50 per MMBtu'})
-    case('dp-distributor-within', 'domesticPrice', {'sector': 'gas-distributor', 'domesticBasePrice': 2.18, 'negotiatedPrice': 2.5})
-    case('dp-distributor-at-ceiling', 'domesticPrice', {'sector': 'gas-distributor', 'domesticBasePrice': 2.18, 'negotiatedPrice': 2.68})
-    case('dp-distributor-above', 'domesticPrice', {'sector': 'gas-distributor', 'domesticBasePrice': 2.18, 'negotiatedPrice': 2.9})
+    case('dp-distributor-within', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-distributor', 'domesticBasePrice': 2.18, 'negotiatedPrice': 2.5})
+    case('dp-distributor-at-ceiling', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-distributor', 'domesticBasePrice': 2.18, 'negotiatedPrice': 2.68})
+    case('dp-distributor-above', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-distributor', 'domesticBasePrice': 2.18, 'negotiatedPrice': 2.9})
     for cm, tag in ((450, 'inside'), (200, 'floor'), (600, 'ceiling'), (250, 'at-prp'), (0, 'zero-cmpp')):
-        case(f'dp-gbi-urea-{tag}', 'domesticPrice', {'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'urea', 'cmpp': cm})
-    case('dp-gbi-gtl-diesel', 'domesticPrice', {'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'low-sulphur-diesel-gtl', 'cmpp': 520})
-    case('dp-gbi-exactly-dbp', 'domesticPrice', {'sector': 'gas-based-industry', 'domesticBasePrice': 2, 'product': 'ammonia', 'cmpp': 500})
-    case('dp-gbi-exactly-floor', 'domesticPrice', {'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'methanol', 'cmpp': 225})
-    case('dp-gbi-schedule-override', 'domesticPrice', {'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'ammonia', 'cmpp': 450, 'schedule': {'nrp': 1.2, 'prp': 300, 'source': 'illustrative regulation (synthetic)'}})
-    case('dp-power-transport', 'domesticPrice', {'sector': 'power', 'domesticBasePrice': 2.18, 'transportTariff': 0.8})
-    case('dp-refuse-no-dbp', 'domesticPrice', {'sector': 'power'})
-    case('dp-refuse-sector', 'domesticPrice', {'sector': 'industrial', 'domesticBasePrice': 2.18})
-    case('dp-refuse-dbp-below-floor', 'domesticPrice', {'sector': 'gas-based-industry', 'domesticBasePrice': 0.8, 'product': 'urea', 'cmpp': 300})
-    case('dp-refuse-negotiated-for-power', 'domesticPrice', {'sector': 'power', 'domesticBasePrice': 2.18, 'negotiatedPrice': 2})
-    case('dp-refuse-distributor-no-price', 'domesticPrice', {'sector': 'gas-distributor', 'domesticBasePrice': 2.18})
-    case('dp-refuse-no-cmpp', 'domesticPrice', {'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'urea'})
-    case('dp-refuse-product', 'domesticPrice', {'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'fertiliser', 'cmpp': 300})
-    case('dp-refuse-product-for-power', 'domesticPrice', {'sector': 'commercial', 'domesticBasePrice': 2.18, 'product': 'urea'})
-    case('dp-refuse-schedule-source', 'domesticPrice', {'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'urea', 'cmpp': 300, 'schedule': {'nrp': 1, 'prp': 250, 'source': ''}})
-    case('dp-refuse-unknown-key', 'domesticPrice', {'sector': 'power', 'domesticBasePrice': 2.18, 'dbp': 2})
+        case(f'dp-gbi-urea-{tag}', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'urea', 'cmpp': cm})
+    case('dp-gbi-gtl-diesel', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'low-sulphur-diesel-gtl', 'cmpp': 520})
+    case('dp-gbi-exactly-dbp', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-based-industry', 'domesticBasePrice': 2, 'product': 'ammonia', 'cmpp': 500})
+    case('dp-gbi-exactly-floor', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'methanol', 'cmpp': 225})
+    case('dp-gbi-schedule-override', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'ammonia', 'cmpp': 450, 'schedule': {'nrp': 1.2, 'prp': 300, 'source': 'illustrative regulation (synthetic)'}})
+    case('dp-power-transport', 'domesticPrice', {'priceControlApplies': True, 'sector': 'power', 'domesticBasePrice': 2.18, 'transportTariff': 0.8})
+    # s.167(3)(b): without price control the negotiated price stands, no ceiling or floor
+    case('dp-distributor-above-no-control', 'domesticPrice', {'priceControlApplies': False, 'sector': 'gas-distributor', 'domesticBasePrice': 2.18, 'negotiatedPrice': 2.9})
+    case('dp-distributor-at-ceiling-no-control', 'domesticPrice', {'priceControlApplies': False, 'sector': 'gas-distributor', 'negotiatedPrice': 2.68})
+    case('dp-power-no-control', 'domesticPrice', {'priceControlApplies': False, 'sector': 'power', 'negotiatedPrice': 3.1, 'transportTariff': 0.8})
+    case('dp-gbi-no-control-below-floor', 'domesticPrice', {'priceControlApplies': False, 'sector': 'gas-based-industry', 'negotiatedPrice': 0.7})
+    case('dp-refuse-no-control-flag', 'domesticPrice', {'sector': 'power', 'domesticBasePrice': 2.18})
+    case('dp-refuse-control-flag-text', 'domesticPrice', {'priceControlApplies': 'yes', 'sector': 'power', 'domesticBasePrice': 2.18})
+    case('dp-refuse-no-control-no-price', 'domesticPrice', {'priceControlApplies': False, 'sector': 'commercial', 'domesticBasePrice': 2.18})
+    case('dp-refuse-no-control-with-formula', 'domesticPrice', {'priceControlApplies': False, 'sector': 'gas-based-industry', 'negotiatedPrice': 1.5, 'product': 'urea', 'cmpp': 400})
+    case('dp-refuse-no-dbp', 'domesticPrice', {'priceControlApplies': True, 'sector': 'power'})
+    case('dp-refuse-sector', 'domesticPrice', {'priceControlApplies': True, 'sector': 'industrial', 'domesticBasePrice': 2.18})
+    case('dp-refuse-dbp-below-floor', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-based-industry', 'domesticBasePrice': 0.8, 'product': 'urea', 'cmpp': 300})
+    case('dp-refuse-negotiated-for-power', 'domesticPrice', {'priceControlApplies': True, 'sector': 'power', 'domesticBasePrice': 2.18, 'negotiatedPrice': 2})
+    case('dp-refuse-distributor-no-price', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-distributor', 'domesticBasePrice': 2.18})
+    case('dp-refuse-no-cmpp', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'urea'})
+    case('dp-refuse-product', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'fertiliser', 'cmpp': 300})
+    case('dp-refuse-product-for-power', 'domesticPrice', {'priceControlApplies': True, 'sector': 'commercial', 'domesticBasePrice': 2.18, 'product': 'urea'})
+    case('dp-refuse-schedule-source', 'domesticPrice', {'priceControlApplies': True, 'sector': 'gas-based-industry', 'domesticBasePrice': 2.18, 'product': 'urea', 'cmpp': 300, 'schedule': {'nrp': 1, 'prp': 250, 'source': ''}})
+    case('dp-refuse-unknown-key', 'domesticPrice', {'priceControlApplies': True, 'sector': 'power', 'domesticBasePrice': 2.18, 'dbp': 2})
 
     # ---- domesticGasObligation
     dg = pw['dgdo']

@@ -928,52 +928,62 @@
   {
    "year": 2027,
    "acq": 22995000,
+   "permittedReduction": 0,
    "taken": 22995000
   },
   {
    "year": 2028,
    "acq": 23058000,
+   "permittedReduction": 0,
    "taken": 22366000
   },
   {
    "year": 2029,
    "acq": 22995000,
+   "permittedReduction": 0,
    "taken": 14257000
   },
   {
    "year": 2030,
    "acq": 22995000,
+   "permittedReduction": 0,
    "taken": 21385000,
    "forceMajeure": 1260000
   },
   {
    "year": 2031,
    "acq": 22995000,
+   "permittedReduction": 0,
    "taken": 23915000
   },
   {
    "year": 2032,
    "acq": 23058000,
+   "permittedReduction": 0,
    "taken": 19599000
   },
   {
    "year": 2033,
    "acq": 22995000,
+   "permittedReduction": 0,
    "taken": 23455000
   },
   {
    "year": 2034,
    "acq": 22995000,
+   "permittedReduction": 0,
    "taken": 22765000
   },
   {
    "year": 2035,
    "acq": 22995000,
+   "permittedReduction": 0,
    "taken": 18396000
   },
   {
    "year": 2036,
    "acq": 23058000,
+   "permittedReduction": 0,
    "taken": 21444000
   }
  ],

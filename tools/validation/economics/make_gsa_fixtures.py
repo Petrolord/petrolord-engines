@@ -55,7 +55,7 @@ def power():
     sfq = {2027: 6300}
     rows = []
     for y in years:
-        r = {'year': y, 'acq': dcq * days_in(y), 'taken': taken[y], 'contractPrice': dbp, 'topPrice': dbp, 'makeUpPrice': 0}
+        r = {'year': y, 'acq': dcq * days_in(y), 'permittedReduction': 0, 'taken': taken[y], 'contractPrice': dbp, 'topPrice': dbp, 'makeUpPrice': 0}
         if y in fm:
             r['forceMajeure'] = fm[y]
         if y in sfq:
@@ -106,7 +106,7 @@ def export():
     rows = []
     for y in years:
         acq = dcq * days_in(y)
-        r = {'year': y, 'acq': acq, 'taken': int(round(acq * taken_pct[y] / 1000.0)) * 1000}
+        r = {'year': y, 'acq': acq, 'permittedReduction': 0, 'taken': int(round(acq * taken_pct[y] / 1000.0)) * 1000}
         if y in fm:
             r['forceMajeure'] = fm[y]
         rows.append(r)
