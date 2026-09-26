@@ -1,0 +1,470 @@
+{
+ "title": "Ekene shallow water licence joint venture (synthetic)",
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (ours). No real company, contract, budget, price or regulator decision.",
+ "generatedBy": "tools/validation/economics/make_jv_fixtures.py",
+ "currency": "US$",
+ "parties": [
+  {
+   "id": "EKO",
+   "name": "Ekene Operator (synthetic)",
+   "participatingPct": 40
+  },
+  {
+   "id": "PA",
+   "name": "Partner A (synthetic)",
+   "participatingPct": 25
+  },
+  {
+   "id": "PB",
+   "name": "Partner B (synthetic)",
+   "participatingPct": 15
+  },
+  {
+   "id": "NOC",
+   "name": "State participant (synthetic)",
+   "participatingPct": 20
+  }
+ ],
+ "carries": [
+  {
+   "carried": "NOC",
+   "carriedPct": 100,
+   "carriers": "pro-rata"
+  }
+ ],
+ "cashCalls": {
+  "year": 2027,
+  "reconciliationLagMonths": 2,
+  "negativeCall": "carry",
+  "noCallBelow": 500000,
+  "months": [
+   {
+    "month": "2027-01",
+    "forecast": 4000000,
+    "actual": 3600000
+   },
+   {
+    "month": "2027-02",
+    "forecast": 6000000,
+    "actual": 6500000
+   },
+   {
+    "month": "2027-03",
+    "forecast": 12000000,
+    "actual": 11200000
+   },
+   {
+    "month": "2027-04",
+    "forecast": 0,
+    "actual": 0
+   },
+   {
+    "month": "2027-05",
+    "forecast": 400000,
+    "actual": 448000
+   },
+   {
+    "month": "2027-06",
+    "forecast": 9000000,
+    "actual": 9000000
+   },
+   {
+    "month": "2027-07",
+    "forecast": 15000000,
+    "actual": 13800000
+   },
+   {
+    "month": "2027-08",
+    "forecast": 3000000,
+    "actual": 3104000
+   },
+   {
+    "month": "2027-09",
+    "forecast": 1000000,
+    "actual": 1000000
+   },
+   {
+    "month": "2027-10",
+    "forecast": 8000000,
+    "actual": 8400000
+   },
+   {
+    "month": "2027-11",
+    "forecast": 7000000,
+    "actual": 6896000
+   },
+   {
+    "month": "2027-12",
+    "forecast": 5000000,
+    "actual": 5200000
+   }
+  ]
+ },
+ "budget": {
+  "year": 2027,
+  "itemTolerancePct": 10,
+  "budgetTolerance": {
+   "pct": 5,
+   "amount": 3000000
+  },
+  "unbudgetedAllowance": 500000,
+  "items": [
+   {
+    "item": "geology and geophysics",
+    "approved": 6000000,
+    "actual": 6600000
+   },
+   {
+    "item": "exploration drilling",
+    "approved": 48000000,
+    "actual": 53500000
+   },
+   {
+    "item": "facilities engineering",
+    "approved": 10000000,
+    "actual": 9200000
+   },
+   {
+    "item": "operations support",
+    "approved": 8000000,
+    "actual": 8300000
+   },
+   {
+    "item": "general and administration",
+    "approved": 4000000,
+    "actual": 4100000
+   },
+   {
+    "item": "environmental baseline survey",
+    "approved": 0,
+    "actual": 250000
+   }
+  ]
+ },
+ "overhead": {
+  "year": 2031,
+  "costs": {
+   "exploration": 5000000,
+   "operating": 60000000,
+   "development": 150000000
+  },
+  "excluded": {
+   "operating": 2000000
+  },
+  "scale": {
+   "exploration": {
+    "bands": [
+     {
+      "upTo": 30000000,
+      "pct": 2.5
+     }
+    ],
+    "abovePct": 0
+   },
+   "operating": {
+    "bands": [
+     {
+      "upTo": 50000000,
+      "pct": 2.75
+     },
+     {
+      "upTo": 125000000,
+      "pct": 1
+     }
+    ],
+    "abovePct": 0
+   },
+   "development": {
+    "bands": [
+     {
+      "upTo": 50000000,
+      "pct": 2.5
+     },
+     {
+      "upTo": 100000000,
+      "pct": 1
+     },
+     {
+      "upTo": 175000000,
+      "pct": 0.5
+     }
+    ],
+    "abovePct": 0
+   }
+  },
+  "corporatePct": 0.625
+ },
+ "default": {
+  "callTotal": 12000000,
+  "dueDate": "2027-03-01",
+  "asOf": "2027-05-31",
+  "defaulters": [
+   {
+    "id": "PB",
+    "paid": 250000,
+    "curedOn": "2027-04-15"
+   }
+  ],
+  "interest": {
+   "annualRatePct": 8.25,
+   "dayBasis": 360,
+   "interestMethod": "simple",
+   "graceHours": 0
+  },
+  "suspension": {
+   "after": 5,
+   "unit": "working-days",
+   "from": "2027-03-01"
+  },
+  "forfeiture": {
+   "after": 3,
+   "unit": "months",
+   "from": "2027-03-10"
+  }
+ },
+ "carry": {
+  "carried": "NOC",
+  "recoverFromPct": 50,
+  "uplift": {
+   "type": "compound",
+   "ratePctPerYear": 8
+  },
+  "years": [
+   {
+    "year": 2027,
+    "cost": 82000000,
+    "entitlement": 0
+   },
+   {
+    "year": 2028,
+    "cost": 60000000,
+    "entitlement": 0
+   },
+   {
+    "year": 2029,
+    "cost": 0,
+    "entitlement": 0
+   },
+   {
+    "year": 2030,
+    "cost": 0,
+    "entitlement": 96000000
+   },
+   {
+    "year": 2031,
+    "cost": 0,
+    "entitlement": 112000000
+   },
+   {
+    "year": 2032,
+    "cost": 0,
+    "entitlement": 104000000
+   },
+   {
+    "year": 2033,
+    "cost": 0,
+    "entitlement": 94000000
+   },
+   {
+    "year": 2034,
+    "cost": 0,
+    "entitlement": 86000000
+   },
+   {
+    "year": 2035,
+    "cost": 0,
+    "entitlement": 78000000
+   },
+   {
+    "year": 2036,
+    "cost": 0,
+    "entitlement": 70000000
+   }
+  ],
+  "discountRate": 0.1,
+  "baseYear": 2027
+ },
+ "backIn": {
+  "backInParty": "NOC",
+  "targetPct": 40,
+  "recoverFromPct": 50,
+  "costs": [
+   {
+    "item": "exploration wells Ekene-1 and Ekene-2",
+    "amount": 136000000,
+    "kind": "exploration"
+   },
+   {
+    "item": "front end engineering design",
+    "amount": 40000000,
+    "kind": "development"
+   },
+   {
+    "item": "development wells and facilities to date",
+    "amount": 450000000,
+    "kind": "development"
+   },
+   {
+    "item": "signature bonus",
+    "amount": 10000000,
+    "kind": "bonus"
+   },
+   {
+    "item": "interest on partner loans",
+    "amount": 8000000,
+    "kind": "interest"
+   },
+   {
+    "item": "operator markup on shared services",
+    "amount": 2000000,
+    "kind": "markup"
+   }
+  ],
+  "years": [
+   {
+    "year": 2030,
+    "entitlement": 96000000
+   },
+   {
+    "year": 2031,
+    "entitlement": 112000000
+   },
+   {
+    "year": 2032,
+    "entitlement": 104000000
+   },
+   {
+    "year": 2033,
+    "entitlement": 94000000
+   },
+   {
+    "year": 2034,
+    "entitlement": 86000000
+   },
+   {
+    "year": 2035,
+    "entitlement": 78000000
+   },
+   {
+    "year": 2036,
+    "entitlement": 70000000
+   }
+  ]
+ },
+ "nonConsent": {
+  "consenting": [
+   "EKO",
+   "PA",
+   "NOC"
+  ],
+  "operation": {
+   "name": "Ekene-4 sidetrack",
+   "cost": 18000000
+  },
+  "premiumMultiplePct": 400,
+  "years": [
+   {
+    "year": 2031,
+    "grossValue": 30000000,
+    "deductions": 10000000
+   },
+   {
+    "year": 2032,
+    "grossValue": 26000000,
+    "deductions": 9000000
+   },
+   {
+    "year": 2033,
+    "grossValue": 22000000,
+    "deductions": 8000000
+   },
+   {
+    "year": 2034,
+    "grossValue": 19000000,
+    "deductions": 7000000
+   },
+   {
+    "year": 2035,
+    "grossValue": 16000000,
+    "deductions": 6000000
+   },
+   {
+    "year": 2036,
+    "grossValue": 14000000,
+    "deductions": 6000000
+   }
+  ]
+ },
+ "psc": {
+  "royaltyPct": 12.5,
+  "costOilLimitPct": 60,
+  "costOilLimitBase": "gross",
+  "contractorProfitSharePct": 60,
+  "taxRatePct": 30,
+  "openingCostPool": 142000000,
+  "years": [
+   {
+    "year": 2029,
+    "grossRevenue": 0,
+    "capex": 280000000,
+    "opex": 0
+   },
+   {
+    "year": 2030,
+    "grossRevenue": 219000000,
+    "capex": 90000000,
+    "opex": 20000000
+   },
+   {
+    "year": 2031,
+    "grossRevenue": 197100000,
+    "capex": 10000000,
+    "opex": 21000000
+   },
+   {
+    "year": 2032,
+    "grossRevenue": 177390000,
+    "capex": 0,
+    "opex": 22000000
+   },
+   {
+    "year": 2033,
+    "grossRevenue": 159651000,
+    "capex": 0,
+    "opex": 23000000
+   },
+   {
+    "year": 2034,
+    "grossRevenue": 143686000,
+    "capex": 0,
+    "opex": 24000000
+   },
+   {
+    "year": 2035,
+    "grossRevenue": 129317000,
+    "capex": 0,
+    "opex": 25000000
+   },
+   {
+    "year": 2036,
+    "grossRevenue": 116386000,
+    "capex": 0,
+    "opex": 26000000
+   },
+   {
+    "year": 2037,
+    "grossRevenue": 104747000,
+    "capex": 0,
+    "opex": 27000000
+   },
+   {
+    "year": 2038,
+    "grossRevenue": 94272000,
+    "capex": 0,
+    "opex": 28000000
+   }
+  ],
+  "discountRate": 0.1,
+  "baseYear": 2029
+ }
+}

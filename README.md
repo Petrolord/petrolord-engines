@@ -822,6 +822,34 @@ and its consumers.
   table and the negative control in
   `tools/validation/economics/FINDINGS-gasContract.md` and
   `negcontrol_gascontract.sh`; timing `timing_gascontract.js`.
+- `engines/economics/jointVenture.js` (Economics EC9, 2026-09-26): joint
+  ventures, operating agreements and cost recovery. Participating
+  (beneficial) and paying interests under carries; monthly cash calls on the
+  paying interests with the over/under-call carried to a stated later call,
+  a stated no-call threshold billed in arrears and a stated rule for a
+  negative call (Norwegian Accounting Agreement Art. 1.2.1); budget control
+  against stated item and budget tolerances (Norwegian JOA Art. 12.5);
+  operator overhead on a stated marginal scale (Accounting Agreement Art.
+  2.2.2 and 2.2.3); a default on a cash call (pro rata cover, default interest
+  simple or compounded monthly with a stated grace, from the due date to the
+  value date, stated suspension and
+  forfeiture triggers, JOA Art. 9 and Art. 1.2.2); carry recovery with a
+  stated uplift, recovery share and cap; a back-in under PIA 2021 s.85(4)
+  (up to 60%, development and production costs only, no uplift, from future
+  entitlement); sole risk premium recovery from production with reversion
+  inside the period, or entry at a stated multiple (JOA Art. 18.12, 1000%);
+  and the PSC cost pool run year by year through `economics/cashflow.ts`
+  applyPSC with partner splits by `economics/afe.js` calculatePartnerCosts
+  and NPV by the canonical npv. Every contractual rate, percentage, multiple
+  and share is a required stated input. Gate: `economics.jointVenture.test.js`
+  replays `test-data/economics/goldens/jointventure_cases.json` (written by
+  `tools/validation/economics/oracle_jointventure.py`, stdlib, with the World
+  Bank Briefing Note 8 and IMF FARI worked PSC examples, which also validate
+  the cashflow.ts PSC path); synthetic Ekene JV in
+  `test-data/economics/ekene-jv/`; findings, sources with dates, the boundary
+  table and the negative control in
+  `tools/validation/economics/FINDINGS-jointVenture.md` and
+  `negcontrol_jointventure.sh`; timing `timing_jointventure.js`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
