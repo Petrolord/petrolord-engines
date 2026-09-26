@@ -2498,6 +2498,328 @@
    "tol": 1e-12
   },
   {
+   "id": "ws-evaluated-default-rule-is-average",
+   "fn": "evaluatedCosts",
+   "args": {
+    "bids": [
+     {
+      "id": "WS1",
+      "receivedAt": "2027-02-10T09:12:00Z",
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 120000,
+        "quotedAmount": 120000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 28500,
+        "quotedAmount": 513000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 21000,
+        "quotedAmount": 126000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1450,
+        "quotedAmount": 87000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 310,
+        "quotedAmount": 37200
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 60000,
+        "quotedAmount": 60000
+       }
+      ],
+      "completionWeeks": 6,
+      "discount": 15000
+     },
+     {
+      "id": "WS2",
+      "receivedAt": "2027-02-10T11:40:00Z",
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 95000,
+        "quotedAmount": 95000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 27000,
+        "quotedAmount": 468000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 19500,
+        "quotedAmount": 117000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1400,
+        "quotedAmount": 84000
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 295,
+        "quotedAmount": 35400
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 50000,
+        "quotedAmount": 50000
+       }
+      ],
+      "completionWeeks": 8,
+      "deviations": [
+       {
+        "id": "payment-terms",
+        "amount": 9500,
+        "reason": "asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment"
+       }
+      ]
+     },
+     {
+      "id": "WS3",
+      "receivedAt": "2027-02-11T08:05:00Z",
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 110000,
+        "quotedAmount": 110000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 29500,
+        "quotedAmount": 531000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 22000,
+        "quotedAmount": 132000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 1500,
+        "quotedAmount": 90000
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 55000,
+        "quotedAmount": 55000
+       }
+      ],
+      "completionWeeks": 7,
+      "omitted": [
+       "nitrogen"
+      ]
+     },
+     {
+      "id": "WS5",
+      "receivedAt": "2027-02-11T15:55:00Z",
+      "lines": [
+       {
+        "id": "mob",
+        "quantity": 1,
+        "unitRate": 100000,
+        "quotedAmount": 100000
+       },
+       {
+        "id": "ct-spread",
+        "quantity": 18,
+        "unitRate": 26000,
+        "quotedAmount": 468000
+       },
+       {
+        "id": "pump-spread",
+        "quantity": 6,
+        "unitRate": 20000,
+        "quotedAmount": 120000
+       },
+       {
+        "id": "acid",
+        "quantity": 60,
+        "unitRate": 13.8,
+        "quotedAmount": 82800,
+        "decimalMisplaced": true
+       },
+       {
+        "id": "nitrogen",
+        "quantity": 120,
+        "unitRate": 280,
+        "quotedAmount": 33600
+       },
+       {
+        "id": "demob",
+        "quantity": 1,
+        "unitRate": 45000,
+        "quotedAmount": 45000
+       }
+      ],
+      "completionWeeks": 9
+     }
+    ],
+    "schedule": {
+     "minWeeks": 6,
+     "maxWeeks": 10,
+     "ratePerWeek": 0.005
+    }
+   },
+   "expected": {
+    "bids": [
+     {
+      "id": "WS5",
+      "receivedAt": "2027-02-11T15:55:00Z",
+      "quotedTotal": 849400.0,
+      "correctedPrice": 849400.0,
+      "arithmeticCorrection": 0.0,
+      "discount": 0,
+      "deviations": [],
+      "deviationTotal": 0.0,
+      "omissions": [],
+      "omissionTotal": 0.0,
+      "scheduleAdjustment": 12741.0,
+      "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added",
+      "lifeCycleCost": 0.0,
+      "evaluatedCost": 862141.0,
+      "reasons": [
+       "line acid: quantity x unit rate = 828 differs from the quoted 82800 and the decimal point in the unit rate is obviously misplaced, so the quoted amount governs and the unit rate is corrected to 1380",
+       "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added"
+      ],
+      "rank": 1,
+      "tieBrokenBy": null
+     },
+     {
+      "id": "WS2",
+      "receivedAt": "2027-02-10T11:40:00Z",
+      "quotedTotal": 849400.0,
+      "correctedPrice": 867400.0,
+      "arithmeticCorrection": 18000.0,
+      "discount": 0,
+      "deviations": [
+       {
+        "id": "payment-terms",
+        "amount": 9500,
+        "reason": "asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment"
+       }
+      ],
+      "deviationTotal": 9500.0,
+      "omissions": [],
+      "omissionTotal": 0.0,
+      "scheduleAdjustment": 8674.0,
+      "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added",
+      "lifeCycleCost": 0.0,
+      "evaluatedCost": 885574.0,
+      "reasons": [
+       "line ct-spread: quantity x unit rate = 486000 differs from the quoted 468000 by more than 0.005, so the unit rate prevails and the amount is corrected to 486000",
+       "deviation payment-terms: asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment (9500)",
+       "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added"
+      ],
+      "rank": 2,
+      "tieBrokenBy": null
+     },
+     {
+      "id": "WS1",
+      "receivedAt": "2027-02-10T09:12:00Z",
+      "quotedTotal": 943200.0,
+      "correctedPrice": 943200.0,
+      "arithmeticCorrection": 0.0,
+      "discount": 15000,
+      "deviations": [],
+      "deviationTotal": 0.0,
+      "omissions": [],
+      "omissionTotal": 0.0,
+      "scheduleAdjustment": 0.0,
+      "scheduleReason": "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion",
+      "lifeCycleCost": 0.0,
+      "evaluatedCost": 928200.0,
+      "reasons": [
+       "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion"
+      ],
+      "rank": 3,
+      "tieBrokenBy": null
+     },
+     {
+      "id": "WS3",
+      "receivedAt": "2027-02-11T08:05:00Z",
+      "quotedTotal": 918000.0,
+      "correctedPrice": 918000.0,
+      "arithmeticCorrection": 0.0,
+      "discount": 0,
+      "deviations": [],
+      "deviationTotal": 0.0,
+      "omissions": [
+       {
+        "item": "nitrogen",
+        "amount": 35400.0,
+        "rule": "average",
+        "reason": "item nitrogen omitted; the average of the 3 prices quoted by the other responsive bids, 35400, is added"
+       }
+      ],
+      "omissionTotal": 35400.0,
+      "scheduleAdjustment": 4590.0,
+      "scheduleReason": "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added",
+      "lifeCycleCost": 0.0,
+      "evaluatedCost": 957990.0,
+      "reasons": [
+       "item nitrogen omitted; the average of the 3 prices quoted by the other responsive bids, 35400, is added",
+       "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added"
+      ],
+      "rank": 4,
+      "tieBrokenBy": null
+     }
+    ],
+    "lowestEvaluatedCost": "WS5",
+    "excluded": []
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "rank-refuse-mean-deviation-dropped",
+   "fn": "rankTender",
+   "args": {
+    "bids": [
+     {
+      "id": "A",
+      "technicalPercent": 50,
+      "evaluatedCost": 1,
+      "receivedAt": "2027-01-01T00:00:00Z"
+     }
+    ],
+    "technicalWeight": 0.5,
+    "priceMethod": "mean-deviation",
+    "technicalMethod": "relative"
+   },
+   "expected": {
+    "error": true,
+    "field": "priceMethod",
+    "message": "priceMethod must be 'lowest-ratio' or 'linear'; there is no default"
+   },
+   "tol": 1e-12
+  },
+  {
    "id": "ws-evaluated-highest",
    "fn": "evaluatedCosts",
    "args": {
@@ -2776,7 +3098,7 @@
         "item": "nitrogen",
         "amount": 37200.0,
         "rule": "highest",
-        "reason": "item nitrogen omitted; the highest of the 3 prices quoted by the other responsive bids, 37200, is added"
+        "reason": "item nitrogen omitted; the highest of the 3 prices quoted by the other responsive bids, 37200, is added (the 'highest' option, not from the cited texts)"
        }
       ],
       "omissionTotal": 37200.0,
@@ -2785,7 +3107,7 @@
       "lifeCycleCost": 0.0,
       "evaluatedCost": 959790.0,
       "reasons": [
-       "item nitrogen omitted; the highest of the 3 prices quoted by the other responsive bids, 37200, is added",
+       "item nitrogen omitted; the highest of the 3 prices quoted by the other responsive bids, 37200, is added (the 'highest' option, not from the cited texts)",
        "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added"
       ],
       "rank": 4,
@@ -3314,7 +3636,7 @@
         "item": "inspection",
         "amount": 14500.0,
         "rule": "highest",
-        "reason": "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added"
+        "reason": "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, not from the cited texts)"
        }
       ],
       "omissionTotal": 14500.0,
@@ -3323,7 +3645,7 @@
       "lifeCycleCost": 26535.50738585914,
       "evaluatedCost": 548744.9823858591,
       "reasons": [
-       "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added",
+       "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, not from the cited texts)",
        "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added"
       ],
       "rank": 2,
@@ -4005,7 +4327,7 @@
         "item": "b",
         "amount": 150.0,
         "rule": "highest",
-        "reason": "item b omitted; the highest of the 1 price quoted by the other responsive bids, 150, is added"
+        "reason": "item b omitted; the highest of the 1 price quoted by the other responsive bids, 150, is added (the 'highest' option, not from the cited texts)"
        }
       ],
       "omissionTotal": 150.0,
@@ -4014,7 +4336,7 @@
       "lifeCycleCost": 0.0,
       "evaluatedCost": 1150.0,
       "reasons": [
-       "item b omitted; the highest of the 1 price quoted by the other responsive bids, 150, is added"
+       "item b omitted; the highest of the 1 price quoted by the other responsive bids, 150, is added (the 'highest' option, not from the cited texts)"
       ],
       "rank": 2,
       "tieBrokenBy": null
@@ -4343,198 +4665,6 @@
    "tol": 1e-12
   },
   {
-   "id": "ec-refuse-no-omission-rule",
-   "fn": "evaluatedCosts",
-   "args": {
-    "bids": [
-     {
-      "id": "WS1",
-      "receivedAt": "2027-02-10T09:12:00Z",
-      "lines": [
-       {
-        "id": "mob",
-        "quantity": 1,
-        "unitRate": 120000,
-        "quotedAmount": 120000
-       },
-       {
-        "id": "ct-spread",
-        "quantity": 18,
-        "unitRate": 28500,
-        "quotedAmount": 513000
-       },
-       {
-        "id": "pump-spread",
-        "quantity": 6,
-        "unitRate": 21000,
-        "quotedAmount": 126000
-       },
-       {
-        "id": "acid",
-        "quantity": 60,
-        "unitRate": 1450,
-        "quotedAmount": 87000
-       },
-       {
-        "id": "nitrogen",
-        "quantity": 120,
-        "unitRate": 310,
-        "quotedAmount": 37200
-       },
-       {
-        "id": "demob",
-        "quantity": 1,
-        "unitRate": 60000,
-        "quotedAmount": 60000
-       }
-      ],
-      "completionWeeks": 6,
-      "discount": 15000
-     },
-     {
-      "id": "WS2",
-      "receivedAt": "2027-02-10T11:40:00Z",
-      "lines": [
-       {
-        "id": "mob",
-        "quantity": 1,
-        "unitRate": 95000,
-        "quotedAmount": 95000
-       },
-       {
-        "id": "ct-spread",
-        "quantity": 18,
-        "unitRate": 27000,
-        "quotedAmount": 468000
-       },
-       {
-        "id": "pump-spread",
-        "quantity": 6,
-        "unitRate": 19500,
-        "quotedAmount": 117000
-       },
-       {
-        "id": "acid",
-        "quantity": 60,
-        "unitRate": 1400,
-        "quotedAmount": 84000
-       },
-       {
-        "id": "nitrogen",
-        "quantity": 120,
-        "unitRate": 295,
-        "quotedAmount": 35400
-       },
-       {
-        "id": "demob",
-        "quantity": 1,
-        "unitRate": 50000,
-        "quotedAmount": 50000
-       }
-      ],
-      "completionWeeks": 8,
-      "deviations": [
-       {
-        "id": "payment-terms",
-        "amount": 9500,
-        "reason": "asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment"
-       }
-      ]
-     },
-     {
-      "id": "WS3",
-      "receivedAt": "2027-02-11T08:05:00Z",
-      "lines": [
-       {
-        "id": "mob",
-        "quantity": 1,
-        "unitRate": 110000,
-        "quotedAmount": 110000
-       },
-       {
-        "id": "ct-spread",
-        "quantity": 18,
-        "unitRate": 29500,
-        "quotedAmount": 531000
-       },
-       {
-        "id": "pump-spread",
-        "quantity": 6,
-        "unitRate": 22000,
-        "quotedAmount": 132000
-       },
-       {
-        "id": "acid",
-        "quantity": 60,
-        "unitRate": 1500,
-        "quotedAmount": 90000
-       },
-       {
-        "id": "demob",
-        "quantity": 1,
-        "unitRate": 55000,
-        "quotedAmount": 55000
-       }
-      ],
-      "completionWeeks": 7,
-      "omitted": [
-       "nitrogen"
-      ]
-     },
-     {
-      "id": "WS5",
-      "receivedAt": "2027-02-11T15:55:00Z",
-      "lines": [
-       {
-        "id": "mob",
-        "quantity": 1,
-        "unitRate": 100000,
-        "quotedAmount": 100000
-       },
-       {
-        "id": "ct-spread",
-        "quantity": 18,
-        "unitRate": 26000,
-        "quotedAmount": 468000
-       },
-       {
-        "id": "pump-spread",
-        "quantity": 6,
-        "unitRate": 20000,
-        "quotedAmount": 120000
-       },
-       {
-        "id": "acid",
-        "quantity": 60,
-        "unitRate": 13.8,
-        "quotedAmount": 82800,
-        "decimalMisplaced": true
-       },
-       {
-        "id": "nitrogen",
-        "quantity": 120,
-        "unitRate": 280,
-        "quotedAmount": 33600
-       },
-       {
-        "id": "demob",
-        "quantity": 1,
-        "unitRate": 45000,
-        "quotedAmount": 45000
-       }
-      ],
-      "completionWeeks": 9
-     }
-    ]
-   },
-   "expected": {
-    "error": true,
-    "field": "omissionRule",
-    "message": "omissionRule must be 'average' (World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, a stated alternative); there is no default"
-   },
-   "tol": 1e-12
-  },
-  {
    "id": "ec-refuse-omission-rule-lowest",
    "fn": "evaluatedCosts",
    "args": {
@@ -4723,7 +4853,7 @@
    "expected": {
     "error": true,
     "field": "omissionRule",
-    "message": "omissionRule must be 'average' (World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, a stated alternative); there is no default"
+    "message": "omissionRule must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option not from the cited texts)"
    },
    "tol": 1e-12
   },
@@ -5093,7 +5223,6 @@
     "excluded": [],
     "cMin": 862141.0,
     "cMax": 957990.0,
-    "cMean": 908476.25,
     "tHigh": 85.0
    },
    "tol": 1e-12
@@ -5183,97 +5312,6 @@
     "excluded": [],
     "cMin": 862141.0,
     "cMax": 957990.0,
-    "cMean": 908476.25,
-    "tHigh": 85.0
-   },
-   "tol": 1e-12
-  },
-  {
-   "id": "ws-rank-mean-deviation",
-   "fn": "rankTender",
-   "args": {
-    "bids": [
-     {
-      "id": "WS5",
-      "technicalPercent": 70.0,
-      "evaluatedCost": 862141.0,
-      "receivedAt": "2027-02-11T15:55:00Z"
-     },
-     {
-      "id": "WS2",
-      "technicalPercent": 75.0,
-      "evaluatedCost": 885574.0,
-      "receivedAt": "2027-02-10T11:40:00Z"
-     },
-     {
-      "id": "WS1",
-      "technicalPercent": 82.5,
-      "evaluatedCost": 928200.0,
-      "receivedAt": "2027-02-10T09:12:00Z"
-     },
-     {
-      "id": "WS3",
-      "technicalPercent": 85.0,
-      "evaluatedCost": 957990.0,
-      "receivedAt": "2027-02-11T08:05:00Z"
-     }
-    ],
-    "technicalWeight": 0.7,
-    "priceMethod": "mean-deviation",
-    "technicalMethod": "relative"
-   },
-   "expected": {
-    "bids": [
-     {
-      "id": "WS3",
-      "receivedAt": "2027-02-11T08:05:00Z",
-      "technicalPercent": 85.0,
-      "evaluatedCost": 957990.0,
-      "technicalScore": 100.0,
-      "commercialScore": 94.5498024852053,
-      "combinedScore": 98.3649407455616,
-      "rank": 1,
-      "tieBrokenBy": null
-     },
-     {
-      "id": "WS1",
-      "receivedAt": "2027-02-10T09:12:00Z",
-      "technicalPercent": 82.5,
-      "evaluatedCost": 928200.0,
-      "technicalScore": 97.05882352941177,
-      "commercialScore": 97.82891957824984,
-      "combinedScore": 97.28985234406319,
-      "rank": 2,
-      "tieBrokenBy": null
-     },
-     {
-      "id": "WS2",
-      "receivedAt": "2027-02-10T11:40:00Z",
-      "technicalPercent": 75.0,
-      "evaluatedCost": 885574.0,
-      "technicalScore": 88.23529411764706,
-      "commercialScore": 97.47904802134343,
-      "combinedScore": 91.00842028875597,
-      "rank": 3,
-      "tieBrokenBy": null
-     },
-     {
-      "id": "WS5",
-      "receivedAt": "2027-02-11T15:55:00Z",
-      "technicalPercent": 70.0,
-      "evaluatedCost": 862141.0,
-      "technicalScore": 82.3529411764706,
-      "commercialScore": 94.89967404211173,
-      "combinedScore": 86.11696103616293,
-      "rank": 4,
-      "tieBrokenBy": null
-     }
-    ],
-    "mostAdvantageous": "WS3",
-    "excluded": [],
-    "cMin": 862141.0,
-    "cMax": 957990.0,
-    "cMean": 908476.25,
     "tHigh": 85.0
    },
    "tol": 1e-12
@@ -5363,7 +5401,6 @@
     "excluded": [],
     "cMin": 862141.0,
     "cMax": 957990.0,
-    "cMean": 908476.25,
     "tHigh": 85.0
    },
    "tol": 1e-12
@@ -5453,7 +5490,6 @@
     "excluded": [],
     "cMin": 862141.0,
     "cMax": 957990.0,
-    "cMean": 908476.25,
     "tHigh": 85.0
    },
    "tol": 1e-12
@@ -5543,7 +5579,6 @@
     "excluded": [],
     "cMin": 862141.0,
     "cMax": 957990.0,
-    "cMean": 908476.25,
     "tHigh": 85.0
    },
    "tol": 1e-12
@@ -5633,7 +5668,6 @@
     "excluded": [],
     "cMin": 862141.0,
     "cMax": 957990.0,
-    "cMean": 908476.25,
     "tHigh": 85.0
    },
    "tol": 1e-12
@@ -5689,80 +5723,6 @@
     "excluded": [],
     "cMin": 500.0,
     "cMax": 500.0,
-    "cMean": 500.0,
-    "tHigh": 80.0
-   },
-   "tol": 1e-12
-  },
-  {
-   "id": "rank-mean-deviation-floor-0",
-   "fn": "rankTender",
-   "args": {
-    "technicalWeight": 0,
-    "priceMethod": "mean-deviation",
-    "technicalMethod": "absolute",
-    "bids": [
-     {
-      "id": "A",
-      "technicalPercent": 80,
-      "evaluatedCost": 100,
-      "receivedAt": "2027-01-01T00:00:00Z"
-     },
-     {
-      "id": "B",
-      "technicalPercent": 80,
-      "evaluatedCost": 110,
-      "receivedAt": "2027-01-01T00:00:00Z"
-     },
-     {
-      "id": "C",
-      "technicalPercent": 80,
-      "evaluatedCost": 1000,
-      "receivedAt": "2027-01-01T00:00:00Z"
-     }
-    ]
-   },
-   "expected": {
-    "bids": [
-     {
-      "id": "B",
-      "receivedAt": "2027-01-01T00:00:00Z",
-      "technicalPercent": 80,
-      "evaluatedCost": 110,
-      "technicalScore": 80.0,
-      "commercialScore": 27.272727272727273,
-      "combinedScore": 27.272727272727273,
-      "rank": 1,
-      "tieBrokenBy": null
-     },
-     {
-      "id": "A",
-      "receivedAt": "2027-01-01T00:00:00Z",
-      "technicalPercent": 80,
-      "evaluatedCost": 100,
-      "technicalScore": 80.0,
-      "commercialScore": 24.793388429752067,
-      "combinedScore": 24.793388429752067,
-      "rank": 2,
-      "tieBrokenBy": null
-     },
-     {
-      "id": "C",
-      "receivedAt": "2027-01-01T00:00:00Z",
-      "technicalPercent": 80,
-      "evaluatedCost": 1000,
-      "technicalScore": 80.0,
-      "commercialScore": 0.0,
-      "combinedScore": 0.0,
-      "rank": 3,
-      "tieBrokenBy": null
-     }
-    ],
-    "mostAdvantageous": "B",
-    "excluded": [],
-    "cMin": 100.0,
-    "cMax": 1000.0,
-    "cMean": 403.3333333333333,
     "tHigh": 80.0
    },
    "tol": 1e-12
@@ -5835,7 +5795,6 @@
     "excluded": [],
     "cMin": 500.0,
     "cMax": 2000.0,
-    "cMean": 1166.6666666666667,
     "tHigh": 100.0
    },
    "tol": 1e-12
@@ -5908,7 +5867,6 @@
     "excluded": [],
     "cMin": 1000.0,
     "cMax": 1000.0,
-    "cMean": 1000.0,
     "tHigh": 80.0
    },
    "tol": 1e-12
@@ -5990,7 +5948,7 @@
    "expected": {
     "error": true,
     "field": "priceMethod",
-    "message": "priceMethod must be 'lowest-ratio', 'linear' or 'mean-deviation'; there is no default"
+    "message": "priceMethod must be 'lowest-ratio' or 'linear'; there is no default"
    },
    "tol": 1e-12
   },
@@ -6264,7 +6222,6 @@
     ],
     "cMin": 4400000.0,
     "cMax": 5200000.0,
-    "cMean": 4849999.75,
     "tHigh": 60.0
    },
    "tol": 1e-12,
@@ -6531,7 +6488,6 @@
     "excluded": [],
     "cMin": 7250000.0,
     "cMax": 8000000.0,
-    "cMean": 7625000.0,
     "tHigh": 60.0
    },
    "tol": 1e-12,
@@ -6616,7 +6572,6 @@
     "excluded": [],
     "cMin": 50.0,
     "cMax": 100.0,
-    "cMean": 75.0,
     "tHigh": 50.0
    },
    "tol": 1e-12,
@@ -6698,7 +6653,6 @@
     "excluded": [],
     "cMin": 50.0,
     "cMax": 100.0,
-    "cMean": 75.0,
     "tHigh": 50.0
    },
    "tol": 1e-12
@@ -6771,7 +6725,6 @@
     "excluded": [],
     "cMin": 40.0,
     "cMax": 80.0,
-    "cMean": 56.666666666666664,
     "tHigh": 0.0
    },
    "tol": 1e-12,
@@ -6849,7 +6802,6 @@
     ],
     "cMin": 50.0,
     "cMax": 80.0,
-    "cMean": 65.0,
     "tHigh": 0.0
    },
    "tol": 1e-12,
@@ -7257,7 +7209,7 @@
       "measures": [
        "man-hours"
       ],
-      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule, WELL AND DRILLING SERVICES/PETROLEUM TECHNOLOGY: Coiled Tubing Services 75% by man-hours"
+      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included), WELL AND DRILLING SERVICES/PETROLEUM TECHNOLOGY: Coiled Tubing Services 75% by man-hours"
      },
      {
       "id": "pumping",
@@ -7265,7 +7217,7 @@
       "measures": [
        "man-hours"
       ],
-      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule, WELL AND DRILLING SERVICES/PETROLEUM TECHNOLOGY: Pumping Services 95% by man-hours"
+      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included), WELL AND DRILLING SERVICES/PETROLEUM TECHNOLOGY: Pumping Services 95% by man-hours"
      },
      {
       "id": "stimulation",
@@ -7273,7 +7225,7 @@
       "measures": [
        "man-hours"
       ],
-      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule, WELL AND DRILLING SERVICES/PETROLEUM TECHNOLOGY: Well Overhauling/Stimulation Services 85% by man-hours"
+      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included), WELL AND DRILLING SERVICES/PETROLEUM TECHNOLOGY: Well Overhauling/Stimulation Services 85% by man-hours"
      }
     ]
    },
@@ -7730,7 +7682,7 @@
       "measures": [
        "tonnage"
       ],
-      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule, MATERIALS AND PROCUREMENT: Steel Pipes 100% by tonnage"
+      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included), MATERIALS AND PROCUREMENT: Steel Pipes 100% by tonnage"
      },
      {
       "id": "valves",
@@ -7738,7 +7690,7 @@
       "measures": [
        "number"
       ],
-      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule, MATERIALS AND PROCUREMENT: Valves 60% by number"
+      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included), MATERIALS AND PROCUREMENT: Valves 60% by number"
      },
      {
       "id": "cement",
@@ -7746,7 +7698,7 @@
       "measures": [
        "tonnage"
       ],
-      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule, MATERIALS AND PROCUREMENT: Cement (Portland) 80% by tonnage"
+      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included), MATERIALS AND PROCUREMENT: Cement (Portland) 80% by tonnage"
      },
      {
       "id": "baryte",
@@ -7754,7 +7706,7 @@
       "measures": [
        "tonnage"
       ],
-      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule, MATERIALS AND PROCUREMENT: Drilling mud-Baryte, Bentonite 60% by tonnage"
+      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included), MATERIALS AND PROCUREMENT: Drilling mud-Baryte, Bentonite 60% by tonnage"
      }
     ]
    },
@@ -7881,7 +7833,7 @@
       "measures": [
        "man-hours"
       ],
-      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule, EXPLORATION, SUBSURFACE, PETROLEUM ENGINEERING AND SEISMIC: Drilling Rigs (Land) 70% by man-hours"
+      "source": "Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included), EXPLORATION, SUBSURFACE, PETROLEUM ENGINEERING AND SEISMIC: Drilling Rigs (Land) 70% by man-hours"
      },
      {
       "id": "catering",
@@ -8277,8 +8229,13 @@
      "runnerUp": "MS4",
      "lead": 4.541020096570207,
      "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
      "applied": false,
-     "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), a lead of 4.541020096570207 percentage points, less than 5% higher, so the lowest evaluated cost MS4 stands"
+     "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), a lead of 4.541020096570207 percentage points, less than 5% higher, so the lowest evaluated cost MS4 stands (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
     },
     "section16": [
      {
@@ -8344,8 +8301,13 @@
      "runnerUp": "MS4",
      "lead": 7.96060758806312,
      "leadBasis": "relative",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative)"
+     ],
      "applied": true,
-     "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), 7.96060758806312% higher, at least 5% higher, so s.14 selects MS2 over the lowest evaluated cost MS4"
+     "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), 7.96060758806312% higher, at least 5% higher, so s.14 selects MS2 over the lowest evaluated cost MS4 (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative))"
     },
     "section16": [
      {
@@ -8411,8 +8373,13 @@
      "runnerUp": "MS4",
      "lead": 4.541020096570207,
      "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
      "applied": false,
-     "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), a lead of 4.541020096570207 percentage points, less than 5% higher, so the lowest evaluated cost MS2 stands"
+     "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), a lead of 4.541020096570207 percentage points, less than 5% higher, so the lowest evaluated cost MS2 stands (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
     },
     "section16": [
      {
@@ -8478,8 +8445,13 @@
      "runnerUp": "MS4",
      "lead": 7.96060758806312,
      "leadBasis": "relative",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative)"
+     ],
      "applied": true,
-     "reason": "MS2 is the lowest evaluated cost and also leads on Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), 7.96060758806312% higher; s.14 confirms it"
+     "reason": "MS2 is the lowest evaluated cost and also leads on Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), 7.96060758806312% higher; s.14 confirms it (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative))"
     },
     "section16": [
      {
@@ -8525,8 +8497,13 @@
      "runnerUp": "LOW",
      "lead": 5.0,
      "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
      "applied": true,
-     "reason": "2 bids within 1% of the lowest evaluated cost; EDGE has the highest Nigerian content, 65% against 60% (LOW), a lead of 5 percentage points, at least 5% higher, so s.14 selects EDGE over the lowest evaluated cost LOW"
+     "reason": "2 bids within 1% of the lowest evaluated cost; EDGE has the highest Nigerian content, 65% against 60% (LOW), a lead of 5 percentage points, at least 5% higher, so s.14 selects EDGE over the lowest evaluated cost LOW (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
     },
     "section16": [],
     "selected": "EDGE"
@@ -8564,8 +8541,13 @@
      "runnerUp": null,
      "lead": null,
      "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
      "applied": false,
-     "reason": "only LOW is within 1% of the lowest evaluated cost 1000000; s.14 is not engaged"
+     "reason": "only LOW is within 1% of the lowest evaluated cost 1000000; s.14 is not engaged (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
     },
     "section16": [],
     "selected": "LOW"
@@ -8604,8 +8586,13 @@
      "runnerUp": "LOW",
      "lead": 5.0,
      "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
      "applied": true,
-     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 85% against 80% (LOW), a lead of 5 percentage points, at least 5% higher, so s.14 selects HI over the lowest evaluated cost LOW"
+     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 85% against 80% (LOW), a lead of 5 percentage points, at least 5% higher, so s.14 selects HI over the lowest evaluated cost LOW (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
     },
     "section16": [],
     "selected": "HI"
@@ -8644,8 +8631,13 @@
      "runnerUp": "LOW",
      "lead": 5.0,
      "leadBasis": "relative",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative)"
+     ],
      "applied": true,
-     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 84% against 80% (LOW), 5% higher, at least 5% higher, so s.14 selects HI over the lowest evaluated cost LOW"
+     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 84% against 80% (LOW), 5% higher, at least 5% higher, so s.14 selects HI over the lowest evaluated cost LOW (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative))"
     },
     "section16": [],
     "selected": "HI"
@@ -8684,8 +8676,13 @@
      "runnerUp": "LOW",
      "lead": 4.0,
      "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
      "applied": false,
-     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 84% against 80% (LOW), a lead of 4 percentage points, less than 5% higher, so the lowest evaluated cost LOW stands"
+     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 84% against 80% (LOW), a lead of 4 percentage points, less than 5% higher, so the lowest evaluated cost LOW stands (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
     },
     "section16": [],
     "selected": "LOW"
@@ -8731,8 +8728,13 @@
      "runnerUp": null,
      "lead": null,
      "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
      "applied": false,
-     "reason": "M and N share the highest Nigerian content 70%, so no single bid leads; the lowest evaluated cost LOW stands"
+     "reason": "M and N share the highest Nigerian content 70%, so no single bid leads; the lowest evaluated cost LOW stands (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
     },
     "section16": [],
     "selected": "LOW"
@@ -8771,8 +8773,13 @@
      "runnerUp": "LOW",
      "lead": null,
      "leadBasis": "relative",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative)"
+     ],
      "applied": true,
-     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 30% against 0% (LOW), more than 5% higher by any reading, at least 5% higher, so s.14 selects HI over the lowest evaluated cost LOW"
+     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 30% against 0% (LOW), more than 5% higher by any reading, at least 5% higher, so s.14 selects HI over the lowest evaluated cost LOW (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative))"
     },
     "section16": [],
     "selected": "HI"
@@ -8818,8 +8825,13 @@
      "runnerUp": "N",
      "lead": 18.0,
      "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
      "applied": true,
-     "reason": "LOW is the lowest evaluated cost and also leads on Nigerian content, 90% against 72% (N), a lead of 18 percentage points; s.14 confirms it"
+     "reason": "LOW is the lowest evaluated cost and also leads on Nigerian content, 90% against 72% (N), a lead of 18 percentage points; s.14 confirms it (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
     },
     "section16": [],
     "selected": "LOW"
@@ -8875,8 +8887,13 @@
      "runnerUp": null,
      "lead": null,
      "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
      "applied": false,
-     "reason": "only LOW is within 1% of the lowest evaluated cost 1000000; s.14 is not engaged"
+     "reason": "only LOW is within 1% of the lowest evaluated cost 1000000; s.14 is not engaged (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
     },
     "section16": [
      {
@@ -11291,7 +11308,6 @@
      "excluded": [],
      "cMin": 862141.0,
      "cMax": 957990.0,
-     "cMean": 908476.25,
      "tHigh": 85.0
     },
     "contentPreference": null,
@@ -12854,7 +12870,7 @@
          "item": "inspection",
          "amount": 14500.0,
          "rule": "highest",
-         "reason": "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added"
+         "reason": "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, not from the cited texts)"
         }
        ],
        "omissionTotal": 14500.0,
@@ -12863,7 +12879,7 @@
        "lifeCycleCost": 26535.50738585914,
        "evaluatedCost": 548744.9823858591,
        "reasons": [
-        "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added",
+        "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, not from the cited texts)",
         "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added"
        ],
        "rank": 2,
@@ -13439,8 +13455,13 @@
       "runnerUp": "MS4",
       "lead": 4.541020096570207,
       "leadBasis": "points",
+      "readings": [
+       "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+       "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+       "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+      ],
       "applied": false,
-      "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), a lead of 4.541020096570207 percentage points, less than 5% higher, so the lowest evaluated cost MS4 stands"
+      "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), a lead of 4.541020096570207 percentage points, less than 5% higher, so the lowest evaluated cost MS4 stands (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
      },
      "section16": [
       {
@@ -13974,8 +13995,13 @@
       "runnerUp": "MS4",
       "lead": 7.96060758806312,
       "leadBasis": "relative",
+      "readings": [
+       "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+       "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+       "\"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative)"
+      ],
       "applied": true,
-      "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), 7.96060758806312% higher, at least 5% higher, so s.14 selects MS2 over the lowest evaluated cost MS4"
+      "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), 7.96060758806312% higher, at least 5% higher, so s.14 selects MS2 over the lowest evaluated cost MS4 (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative))"
      },
      "section16": [
       {
@@ -13995,7 +14021,7 @@
       "reason": "technical score 50 is below the pass mark 60; the commercial envelope is not opened"
      }
     ],
-    "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), 7.96060758806312% higher, at least 5% higher, so s.14 selects MS2 over the lowest evaluated cost MS4"
+    "reason": "2 bids within 1% of the lowest evaluated cost; MS2 has the highest Nigerian content, 61.584657109647424% against 57.043637013077216% (MS4), 7.96060758806312% higher, at least 5% higher, so s.14 selects MS2 over the lowest evaluated cost MS4 (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative))"
    },
    "tol": 1e-12
   },

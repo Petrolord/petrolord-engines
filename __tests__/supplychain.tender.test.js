@@ -207,6 +207,21 @@ describe('properties', () => {
     });
     expect(r.percentileDefinition).toMatch(/^P90 means a 90% probability/);
   });
+  test('lead decisions: the omission rule defaults to the cited average, and the highest option says it is not from the cited texts', () => {
+    expect(run('ws-evaluated-default-rule-is-average').bids).toEqual(run('ws-evaluated-average').bids);
+    const h = run('ws-evaluated-highest').bids.flatMap((b) => b.omissions);
+    expect(h.length).toBeGreaterThan(0);
+    h.forEach((o) => expect(o.reason).toMatch(/not from the cited texts/));
+  });
+  test('lead decisions: every s.14 reason states the readings, and the cost P-label reversal is in the basis', () => {
+    ['ms-preference-average-points', 'ms-preference-average-relative', 's14-group-edge-just-out'].forEach((id) => {
+      const r = run(id).section14;
+      expect(r.reason).toContain('(readings of s.14: "within 1 % of each other at commercial stage" is read as within 1% of the lowest evaluated cost; "its closest competitor" is read as the bid with the next-highest Nigerian content in that group;');
+      expect(r.readings.length).toBe(3);
+    });
+    expect(run('ws-contract-types').basis.percentiles).toMatch(/for a cost P90 is the LOW cost/);
+    expect(run('ws-nigerian-content').basis.source).toMatch(/commenced 22 April 2010/);
+  });
   test('contract types: seeded, so the same seed gives the same answer and another seed does not', () => {
     const args = clone(byId('ct-triangular-fixed-fee-plan').args);
     expect(T.contractTypes(args)).toEqual(T.contractTypes(clone(args)));

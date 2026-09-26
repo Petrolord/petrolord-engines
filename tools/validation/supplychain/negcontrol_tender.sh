@@ -109,7 +109,6 @@ run_case ENGINE "ties compared exactly (no 12-digit key)" $E "const key12 = (x) 
 # scoring
 run_case ENGINE "lowest-ratio inverted" $E "if (priceMethod === 'lowest-ratio') return (100 * cMin) / c;" "if (priceMethod === 'lowest-ratio') return (100 * c) / cMax;"
 run_case ENGINE "linear over Cmax" $E "(100 * (cMax - c)) / (cMax - cMin)" "(100 * (cMax - c)) / cMax"
-run_case ENGINE "mean deviation signed" $E "return Math.max(0, 100 * (1 - Math.abs(c - cMean) / cMean));" "return Math.max(0, 100 * (1 - (c - cMean) / cMean));"
 run_case ENGINE "relative technical score not normalised" $E "(100 * b.technicalPercent) / tHigh" "b.technicalPercent"
 run_case ENGINE "technical and commercial weights swapped" $E "const combinedScore = technicalWeight * technicalScore + (1 - technicalWeight) * commercialScore;" "const combinedScore = (1 - technicalWeight) * technicalScore + technicalWeight * commercialScore;"
 run_case ENGINE "high value strictly above 10 million" $E "const highValue = estimatedCostUsd >= DEFAULTS.HIGH_VALUE_USD;" "const highValue = estimatedCostUsd > DEFAULTS.HIGH_VALUE_USD;"
@@ -146,7 +145,10 @@ run_case ENGINE "ALB reason drops 'never rejected automatically'" $E "before any
 # messages are course content: each changed wording must go red
 run_case ENGINE "s.14 reason in other words" $E "at least 5% higher, so s.14 selects" "5% or more higher, so s.14 selects"
 run_case ENGINE "pass-mark reason in other words" $E "is below the pass mark" "is under the pass mark"
-run_case ENGINE "omission refusal drops 'there is no default'" $E "a stated alternative); there is no default\");" "a stated alternative)\");"
+run_case ENGINE "omission refusal drops 'not from the cited texts'" $E "an option not from the cited texts)\");" "an option)\");"
+run_case ENGINE "omission default is the highest" $E "export const evaluatedCosts = ({ bids, omissionRule = 'average'," "export const evaluatedCosts = ({ bids, omissionRule = 'highest',"
+run_case ENGINE "s.14 readings dropped from the reason" $E "  s14.reason = \`\${s14.reason} (readings of s.14: \${readings.join('; ')})\`;" ""
+run_case ENGINE "cost P-label reversal dropped from the basis" $E "so for a cost P90 is the LOW cost (10th percentile) and P10 the HIGH cost (90th percentile)" "P90 is the high cost"
 
 echo "=== ORACLE plants (RED or STOP: the control on the controls) ==="
 O=$ORACLE

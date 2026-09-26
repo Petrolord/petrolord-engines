@@ -174,7 +174,7 @@ const CITE = Object.freeze({
   lowestCost: 'World Bank Procurement Regulations (7th ed.) para 5.70; Nigeria Public Procurement Act 2007 s.24(3) and s.33(1)',
   s14: 'Nigerian Oil and Gas Industry Content Development Act 2010 s.14',
   s16: 'Nigerian Oil and Gas Industry Content Development Act 2010 s.16',
-  schedule2010: 'Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule',
+  schedule2010: 'Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included)',
 });
 
 // ---- helpers ---------------------------------------------------------------
@@ -417,7 +417,8 @@ const lifeCycleCost = (annualCosts, residualValue, rate) => {
  *                   + omissions + schedule adjustment + life-cycle cost.
  * corrected price  correctArithmetic on the bid's lines (tolerance as there).
  * omissions        an item a bid leaves out is priced at the AVERAGE (WB SPD
- *                  ITB 34.1) or the HIGHEST (a stated alternative rule)
+ *                  ITB 34.1, the default) or the HIGHEST (an option not from the
+ *                  cited texts)
  *                  corrected amount for that item among the other responsive
  *                  bids that priced it; when none did, bestEstimates[item]
  *                  (the Employer's best estimate) is required.
@@ -432,8 +433,8 @@ const lifeCycleCost = (annualCosts, residualValue, rate) => {
  * Ranking: evaluated cost ascending; ties at 12 significant digits go to the
  * earlier receipt, then the bidder id.
  */
-export const evaluatedCosts = ({ bids, omissionRule, bestEstimates = {}, schedule, lifeCycle, tolerance = DEFAULTS.ARITHMETIC_TOLERANCE } = {}) => {
-  if (omissionRule !== 'average' && omissionRule !== 'highest') return refuse('omissionRule', "must be 'average' (World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, a stated alternative); there is no default");
+export const evaluatedCosts = ({ bids, omissionRule = 'average', bestEstimates = {}, schedule, lifeCycle, tolerance = DEFAULTS.ARITHMETIC_TOLERANCE } = {}) => {
+  if (omissionRule !== 'average' && omissionRule !== 'highest') return refuse('omissionRule', "must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option not from the cited texts)");
   if (!fin(tolerance) || tolerance < 0) return refuse('tolerance', 'must be a finite number at or above 0');
   if (!isObj(bestEstimates)) return refuse('bestEstimates', 'must be an object of item id to amount when given');
   for (const k of Object.keys(bestEstimates)) if (!fin(bestEstimates[k]) || bestEstimates[k] < 0) return refuse(`bestEstimates.${k}`, 'must be a finite number at or above 0');
@@ -503,7 +504,7 @@ export const evaluatedCosts = ({ bids, omissionRule, bestEstimates = {}, schedul
         omissions.push({ item, amount: a, rule: 'average', reason: `item ${item} omitted; the average of the ${plural(prices.length, 'price')} quoted by the other responsive bids, ${fmt(a)}, is added` });
       } else {
         const h = Math.max(...prices);
-        omissions.push({ item, amount: h, rule: 'highest', reason: `item ${item} omitted; the highest of the ${plural(prices.length, 'price')} quoted by the other responsive bids, ${fmt(h)}, is added` });
+        omissions.push({ item, amount: h, rule: 'highest', reason: `item ${item} omitted; the highest of the ${plural(prices.length, 'price')} quoted by the other responsive bids, ${fmt(h)}, is added (the 'highest' option, not from the cited texts)` });
       }
     }
     const discount = b.discount || 0;
@@ -538,7 +539,7 @@ export const evaluatedCosts = ({ bids, omissionRule, bestEstimates = {}, schedul
       evaluatedCost: 'corrected price - discount + priced deviations + omissions + schedule adjustment + life-cycle cost',
       omission: omissionRule === 'average'
         ? `an omitted item is priced at the average of the corrected amounts quoted for it by the other responsive bids, else the Employer's best estimate (${CITE.omission})`
-        : "an omitted item is priced at the highest corrected amount quoted for it by the other responsive bids, else the Employer's best estimate (a stated alternative to the average rule of World Bank SPD ITB 34.1)",
+        : "an omitted item is priced at the highest corrected amount quoted for it by the other responsive bids, else the Employer's best estimate (the 'highest' option, not from the cited texts; the cited rule is the average of World Bank SPD ITB 34.1)",
       schedule: schedule === undefined ? null : `ratePerWeek ${fmt(schedule.ratePerWeek)} of (corrected price - discount) for each week beyond ${fmt(schedule.minWeeks)}; beyond ${fmt(schedule.maxWeeks)} weeks the bid is rejected (${CITE.schedule})`,
       lifeCycle: lifeCycle === undefined ? null : `net present cost of ${plural(lifeCycle.years, 'year')} of annual costs at ${fmt(lifeCycle.discountRate)} a year, end-of-year discounting, residual value credited in the last year, through engines/economics/cashflow.ts npv (${CITE.lifeCycle})`,
       ranking: 'evaluated cost ascending; ties at 12 significant digits go to the earlier receipt, then the bidder id',
@@ -549,7 +550,7 @@ export const evaluatedCosts = ({ bids, omissionRule, bestEstimates = {}, schedul
 
 // ---- combined technical and commercial score -------------------------------
 
-const PRICE_METHODS = ['lowest-ratio', 'linear', 'mean-deviation'];
+const PRICE_METHODS = ['lowest-ratio', 'linear'];
 const TECH_METHODS = ['relative', 'absolute'];
 
 /**
@@ -560,14 +561,12 @@ const TECH_METHODS = ['relative', 'absolute'];
  *                   Annex X 3.9 "inversely proportional").
  *   linear          100 x (Cmax - C) / (Cmax - Cmin); every bid 100 when
  *                   Cmax = Cmin.
- *   mean-deviation  max(0, 100 x (1 - |C - Cmean| / Cmean)); the highest score
- *                   goes to the price nearest the mean.
  * St: 'relative' 100 x T / Thigh (WB SPD); 'absolute' T (the technicalPercent).
  * Ties at 12 significant digits: lower evaluated cost, earlier receipt, id.
  */
 export const rankTender = ({ bids, technicalWeight, priceMethod, technicalMethod } = {}) => {
   if (!fin(technicalWeight) || technicalWeight < 0 || technicalWeight > 1) return refuse('technicalWeight', 'must be a number from 0 to 1 (the technical share of the combined score); there is no default');
-  if (!PRICE_METHODS.includes(priceMethod)) return refuse('priceMethod', "must be 'lowest-ratio', 'linear' or 'mean-deviation'; there is no default");
+  if (!PRICE_METHODS.includes(priceMethod)) return refuse('priceMethod', "must be 'lowest-ratio' or 'linear'; there is no default");
   if (!TECH_METHODS.includes(technicalMethod)) return refuse('technicalMethod', "must be 'relative' (100 x T / Thigh) or 'absolute' (T as scored); there is no default");
   const e = checkList(bids, 'bids', DEFAULTS.MAX_BIDS);
   if (e) return e;
@@ -585,12 +584,10 @@ export const rankTender = ({ bids, technicalWeight, priceMethod, technicalMethod
   const costs = live.map((b) => b.evaluatedCost);
   const cMin = Math.min(...costs);
   const cMax = Math.max(...costs);
-  const cMean = sum(costs) / costs.length;
   const tHigh = Math.max(...live.map((b) => b.technicalPercent));
   const priceScore = (c) => {
     if (priceMethod === 'lowest-ratio') return (100 * cMin) / c;
-    if (priceMethod === 'linear') return cMax === cMin ? 100 : (100 * (cMax - c)) / (cMax - cMin);
-    return Math.max(0, 100 * (1 - Math.abs(c - cMean) / cMean));
+    return cMax === cMin ? 100 : (100 * (cMax - c)) / (cMax - cMin);
   };
   const rows = live.map((b) => {
     const technicalScore = technicalMethod === 'relative' ? (100 * b.technicalPercent) / tHigh : b.technicalPercent;
@@ -602,19 +599,18 @@ export const rankTender = ({ bids, technicalWeight, priceMethod, technicalMethod
   const priceRule = {
     'lowest-ratio': `Sc = 100 x Cmin / C with Cmin = ${fmt(cMin)}`,
     linear: cMax === cMin ? `Sc = 100 for every bid (Cmax = Cmin = ${fmt(cMin)})` : `Sc = 100 x (Cmax - C) / (Cmax - Cmin) with Cmin = ${fmt(cMin)}, Cmax = ${fmt(cMax)}`,
-    'mean-deviation': `Sc = max(0, 100 x (1 - |C - Cmean| / Cmean)) with Cmean = ${fmt(cMean)}`,
   }[priceMethod];
   return {
     bids: ranked.map(({ row, rank, tieBrokenBy }) => ({ ...row, rank, tieBrokenBy })),
     mostAdvantageous: ranked[0].row.id,
     excluded,
-    cMin, cMax, cMean, tHigh,
+    cMin, cMax, tHigh,
     basis: {
       combined: `B = ${fmt(technicalWeight)} x St + ${fmt(1 - technicalWeight)} x Sc`,
       technical: technicalMethod === 'relative' ? `St = 100 x T / Thigh with Thigh = ${fmt(tHigh)}` : 'St = T, the technical percentage as scored',
       commercial: priceRule,
       ranking: 'combined score descending; ties at 12 significant digits go to the lower evaluated cost, then the earlier receipt, then the bidder id',
-      source: priceMethod === 'lowest-ratio' && technicalMethod === 'relative' ? CITE.combined : `${CITE.combined} (this call varies the method: FINDINGS-tender.md records the source of each)`,
+      source: priceMethod === 'lowest-ratio' && technicalMethod === 'relative' ? CITE.combined : `${CITE.combined} (this call varies the method: 'linear' is the family Kiiver and Kodym 2015 describe; 'absolute' uses T as scored)`,
     },
   };
 };
@@ -731,7 +727,12 @@ export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
   const lowest = ranked[0];
   const cMin = lowest.evaluatedCost;
   const group = ranked.filter((b) => 100 * (b.evaluatedCost - cMin) <= DEFAULTS.NC_PRICE_MARGIN_PCT * cMin);
-  const s14 = { engaged: false, group: group.map((b) => b.id), leader: null, runnerUp: null, lead: null, leadBasis: ncLeadBasis, applied: false, reason: null };
+  const readings = [
+    '"within 1 % of each other at commercial stage" is read as within 1% of the lowest evaluated cost',
+    '"its closest competitor" is read as the bid with the next-highest Nigerian content in that group',
+    ncLeadBasis === 'points' ? '"at least 5% higher" is read as at least 5 percentage points higher (the Act does not say points or relative)' : '"at least 5% higher" is read as at least 5 percent of the runner-up\'s content higher (the Act does not say points or relative)',
+  ];
+  const s14 = { engaged: false, group: group.map((b) => b.id), leader: null, runnerUp: null, lead: null, leadBasis: ncLeadBasis, readings, applied: false, reason: null };
   let selected = lowest.id;
   if (group.length < 2) {
     s14.reason = `only ${lowest.id} is within 1% of the lowest evaluated cost ${fmt(cMin)}; s.14 is not engaged`;
@@ -763,6 +764,7 @@ export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
       }
     }
   }
+  s14.reason = `${s14.reason} (readings of s.14: ${readings.join('; ')})`;
   const s16 = ranked.filter((b) => b.indigenous === true && b.capacity === true).map((b) => {
     const within = 100 * (b.evaluatedCost - cMin) <= DEFAULTS.INDIGENOUS_MARGIN_PCT * cMin;
     const abovePct = (100 * (b.evaluatedCost - cMin)) / cMin;
@@ -917,7 +919,7 @@ export const contractTypes = ({ duration, dailyCost, fixedCost = 0, lumpSum, day
     percentileDefinition: EXCEEDANCE_DEFINITION,
     basis: {
       sampling: `${plural(iterations, 'iteration')}, one mulberry32(${seed}) stream; per iteration a uniform for the ${program ? 'NPT fraction (days = wellCost evaluateProgram productive days x (1 + NPT fraction))' : 'duration'}${varies(dur) ? '' : ' (constant: no draw)'} then one for the daily cost${varies(costTri) ? '' : ' (constant: no draw)'}; triangular inverse CDF (lib/stats triInvCDF)`,
-      percentiles: 'lib/stats basicStats on the sorted values: P90 = index floor(0.1 n), P50 = floor(0.5 n), P10 = floor(0.9 n); for a cost, P90 is the low value and P10 the high value',
+      percentiles: 'lib/stats basicStats on the sorted values: P90 = index floor(0.1 n), P50 = floor(0.5 n), P10 = floor(0.9 n). P-labels per lib/conventions/percentile.js: P90 means a 90% probability the actual quantity meets or exceeds the value, so for a cost P90 is the LOW cost (10th percentile) and P10 the HIGH cost (90th percentile)',
       overrun: 'an iteration overruns when its contractor cost exceeds the planned cost; companyPays + contractorAbsorbs = expectedOverrun, each a mean over all iterations with 0 where there is no overrun',
       payments: `lump sum ${fmt(lumpSum.price)}; day rate ${fmt(dayRate.mobilisationFee)} + ${fmt(dayRate.rate)} x days; reimbursable ${reimbursable.feeFraction !== undefined ? `cost x ${fmt(1 + reimbursable.feeFraction)}` : `cost + ${fmt(reimbursable.fixedFee)}`}`,
     },
@@ -1036,7 +1038,7 @@ export const abnormallyLow = ({ bids, estimate } = {}) => {
  *   award 'combined'     rankTender on the combined score (WB Reg 5.69).
  * Every exclusion carries its stage and reason.
  */
-export const evaluateTender = ({ criteria, passMark, bids, omissionRule, bestEstimates, schedule, lifeCycle, award, technicalWeight, priceMethod, technicalMethod, nigerianContent: nc } = {}) => {
+export const evaluateTender = ({ criteria, passMark, bids, omissionRule = 'average', bestEstimates, schedule, lifeCycle, award, technicalWeight, priceMethod, technicalMethod, nigerianContent: nc } = {}) => {
   if (award !== 'lowest-cost' && award !== 'combined') return refuse('award', "must be 'lowest-cost' or 'combined'; there is no default");
   if (nc !== undefined && award === 'combined') return refuse('nigerianContent', "applies s.14 at the commercial stage of a lowest-cost award; with award 'combined' state Nigerian content as a rated criterion with its weight instead");
   let e = checkList(bids, 'bids', DEFAULTS.MAX_BIDS);

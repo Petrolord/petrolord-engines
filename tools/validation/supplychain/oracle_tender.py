@@ -346,9 +346,9 @@ def npc(annual, residual, rate):
 
 
 def evaluated_costs(a):
-    rule = a.get('omissionRule')
+    rule = a.get('omissionRule', 'average')   # the cited rule is the default
     if rule not in ('average', 'highest'):
-        return refuse('omissionRule', "must be 'average' (World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, a stated alternative); there is no default")
+        return refuse('omissionRule', "must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option not from the cited texts)")
     tol = a.get('tolerance', 0.005)
     if not isnum(tol) or tol < 0:
         return refuse('tolerance', 'must be a finite number at or above 0')
@@ -450,7 +450,7 @@ def evaluated_costs(a):
             else:
                 ex = max(g[0] for g in got)
                 omissions.append({'item': item, 'exact': ex, 'amount': fl(ex), 'rule': 'highest',
-                                  'reason': f'item {item} omitted; the highest of the {plural(len(got), "price")} quoted by the other responsive bids, {js_num(max(g[1] for g in got))}, is added'})
+                                  'reason': f'item {item} omitted; the highest of the {plural(len(got), "price")} quoted by the other responsive bids, {js_num(max(g[1] for g in got))}, is added (the \'highest\' option, not from the cited texts)'})
         corrected = sum((correct_exact(l, tol) for l in b['lines']), F(0))
         quoted = sum((F(l['quotedAmount']) for l in b['lines']), F(0))
         disc = F(b.get('discount', 0))
@@ -500,8 +500,8 @@ def rank_tender(a):
     tw, pmeth, tmeth = a.get('technicalWeight'), a.get('priceMethod'), a.get('technicalMethod')
     if not isnum(tw) or tw < 0 or tw > 1:
         return refuse('technicalWeight', 'must be a number from 0 to 1 (the technical share of the combined score); there is no default')
-    if pmeth not in ('lowest-ratio', 'linear', 'mean-deviation'):
-        return refuse('priceMethod', "must be 'lowest-ratio', 'linear' or 'mean-deviation'; there is no default")
+    if pmeth not in ('lowest-ratio', 'linear'):
+        return refuse('priceMethod', "must be 'lowest-ratio' or 'linear'; there is no default")
     if tmeth not in ('relative', 'absolute'):
         return refuse('technicalMethod', "must be 'relative' (100 x T / Thigh) or 'absolute' (T as scored); there is no default")
     bids = a.get('bids')
@@ -526,7 +526,6 @@ def rank_tender(a):
         return refuse('bids', "all score 0 technically, so Thigh is 0 and the 'relative' technical score is undefined")
     costs = [F(b['evaluatedCost']) for b in live]
     cmin, cmax = min(costs), max(costs)
-    cmean = sum(costs, F(0)) / len(costs)
     W = F(tw)
     rows = []
     for b in live:
@@ -534,10 +533,8 @@ def rank_tender(a):
         st = 100 * F(b['technicalPercent']) / t_high if tmeth == 'relative' else F(b['technicalPercent'])
         if pmeth == 'lowest-ratio':
             sc = 100 * cmin / c
-        elif pmeth == 'linear':
-            sc = F(100) if cmax == cmin else 100 * (cmax - c) / (cmax - cmin)
         else:
-            sc = max(F(0), 100 * (1 - abs(c - cmean) / cmean))
+            sc = F(100) if cmax == cmin else 100 * (cmax - c) / (cmax - cmin)
         bsc = W * st + (1 - W) * sc
         rows.append({'id': b['id'], 'receivedAt': b['receivedAt'], 'technicalPercent': b['technicalPercent'], 'evaluatedCost': b['evaluatedCost'],
                      'technicalScore': fl(st), 'commercialScore': fl(sc), 'combinedScore': fl(bsc), '_b': bsc})
@@ -548,7 +545,7 @@ def rank_tender(a):
         d['rank'], d['tieBrokenBy'] = k, by
         out.append(d)
     return {'bids': out, 'mostAdvantageous': out[0]['id'], 'excluded': excluded,
-            'cMin': fl(cmin), 'cMax': fl(cmax), 'cMean': fl(cmean), 'tHigh': fl(t_high)}
+            'cMin': fl(cmin), 'cMax': fl(cmax), 'tHigh': fl(t_high)}
 
 
 # ------------------------------------------------------------------ Nigerian content
@@ -594,7 +591,7 @@ def nigerian_content(a, descriptions):
             if it['scheduleLine'] not in SCHEDULE:
                 return refuse(f'items[{i}].scheduleLine', f"'{it['scheduleLine']}' is not a line of NC_SCHEDULE; state targetPct, measure and source instead")
             pct, ms = SCHEDULE[it['scheduleLine']]
-            src = (f"Nigerian Oil and Gas Industry Content Development Act 2010 s.11 and the Schedule, {SECTION[it['scheduleLine']]}: "
+            src = (f"Nigerian Oil and Gas Industry Content Development Act 2010 (Act No. 2, commenced 22 April 2010) s.11 and the Schedule as enacted in 2010 (later Board targets are not included), {SECTION[it['scheduleLine']]}: "
                    f"{descriptions[it['scheduleLine']]} {pct}% by {' or '.join(ms)}")
             spec.append({'id': it['id'], 'targetPct': pct, 'measures': ms, 'source': src})
         else:
@@ -684,7 +681,12 @@ def content_preference(a):
     # s.14: "within 1 % of each other at commercial stage" read as within 1% of the lowest
     group = [b for b in ordered if (F(b['evaluatedCost']) - cmin) * 100 <= cmin]
     s14 = {'engaged': False, 'group': [b['id'] for b in group], 'leader': None, 'runnerUp': None, 'lead': None,
-           'leadBasis': basis, 'applied': False, 'reason': None}
+           'leadBasis': basis, 'readings': [
+               '"within 1 % of each other at commercial stage" is read as within 1% of the lowest evaluated cost',
+               '"its closest competitor" is read as the bid with the next-highest Nigerian content in that group',
+               '"at least 5% higher" is read as at least 5 percentage points higher (the Act does not say points or relative)' if basis == 'points'
+               else '"at least 5% higher" is read as at least 5 percent of the runner-up\'s content higher (the Act does not say points or relative)'],
+           'applied': False, 'reason': None}
     selected = low['id']
     if len(group) < 2:
         s14['reason'] = f"only {low['id']} is within 1% of the lowest evaluated cost {js_num(low['evaluatedCost'])}; s.14 is not engaged"
@@ -728,6 +730,7 @@ def content_preference(a):
             else:
                 s14['reason'] = (f"{n} within 1% of the lowest evaluated cost; {top['id']} has the highest Nigerian content, {lead_text}, "
                                  f"less than 5% higher, so the lowest evaluated cost {low['id']} stands")
+    s14['reason'] += ' (readings of s.14: ' + '; '.join(s14['readings']) + ')'
     s16 = []
     for b in ordered:
         if b.get('indigenous') is True and b.get('capacity') is True:
@@ -1030,7 +1033,7 @@ def evaluate_tender(a, descriptions):
         return {'technical': tech, 'commercial': None, 'ranking': None, 'contentPreference': None, 'award': None, 'excluded': excluded,
                 'reason': 'no bid passed the technical envelope; no commercial envelope is opened'}
     ec_args = {'bids': [{k: v for k, v in b.items() if k not in ('scores', 'mandatory', 'ncPct', 'indigenous', 'capacity')} for b in opened],
-               'omissionRule': a.get('omissionRule')}
+               'omissionRule': a.get('omissionRule', 'average')}
     for k in ('bestEstimates', 'schedule', 'lifeCycle'):
         if k in a:
             ec_args[k] = a[k]
@@ -1177,6 +1180,8 @@ def build():
         return [strip(b, ('name', 'nc', 'ncWeights', 'scores', 'mandatory', 'indigenous', 'capacity')) for b in t['bids'] if b['id'] in passed]
     ws_ec = {'bids': ec_bids(ws, ws_tech['passed']), 'omissionRule': 'average', 'schedule': ws['schedule']}
     ws_ev = case('ws-evaluated-average', 'evaluatedCosts', ws_ec)
+    case('ws-evaluated-default-rule-is-average', 'evaluatedCosts', {k: v for k, v in ws_ec.items() if k != 'omissionRule'})
+    case('rank-refuse-mean-deviation-dropped', 'rankTender', {'bids': [{'id': 'A', 'technicalPercent': 50, 'evaluatedCost': 1, 'receivedAt': R}], 'technicalWeight': 0.5, 'priceMethod': 'mean-deviation', 'technicalMethod': 'relative'})
     case('ws-evaluated-highest', 'evaluatedCosts', dict(ws_ec, omissionRule='highest'))
     ms_ec = {'bids': ec_bids(ms, ms_tech['passed']), 'omissionRule': 'average', 'schedule': ms['schedule'], 'lifeCycle': ms['lifeCycle']}
     ms_ev = case('ms-evaluated-average', 'evaluatedCosts', ms_ec)
@@ -1208,7 +1213,6 @@ def build():
         {'id': 'B', 'receivedAt': R, 'lines': [L('a', 1, 1000000.0000001)]},
         {'id': 'A', 'receivedAt': R, 'lines': [L('a', 1, 1000000)]}]})
     for cid, args in [
-        ('ec-refuse-no-omission-rule', {'bids': ws_ec['bids']}),
         ('ec-refuse-omission-rule-lowest', {'bids': ws_ec['bids'], 'omissionRule': 'lowest'}),
         ('ec-refuse-no-best-estimate', {'omissionRule': 'average', 'bids': [{'id': 'P', 'receivedAt': R, 'lines': [L('a', 1, 1)], 'omitted': ['z']}]}),
         ('ec-refuse-omitted-and-priced', {'omissionRule': 'average', 'bids': [{'id': 'P', 'receivedAt': R, 'lines': [L('a', 1, 1)], 'omitted': ['a']}]}),
@@ -1227,7 +1231,7 @@ def build():
     rb = [{'id': r['id'], 'technicalPercent': tp[r['id']], 'evaluatedCost': r['evaluatedCost'], 'receivedAt': r['receivedAt']} for r in ws_ev['bids']]
     aw = ws['award']
     case('ws-rank-combined', 'rankTender', {'bids': rb, 'technicalWeight': aw['technicalWeight'], 'priceMethod': aw['priceMethod'], 'technicalMethod': aw['technicalMethod']})
-    for pm in ('linear', 'mean-deviation'):
+    for pm in ('linear',):
         case(f'ws-rank-{pm}', 'rankTender', {'bids': rb, 'technicalWeight': 0.7, 'priceMethod': pm, 'technicalMethod': 'relative'})
     case('ws-rank-absolute', 'rankTender', {'bids': rb, 'technicalWeight': 0.7, 'priceMethod': 'lowest-ratio', 'technicalMethod': 'absolute'})
     case('ws-rank-price-only', 'rankTender', {'bids': rb, 'technicalWeight': 0, 'priceMethod': 'lowest-ratio', 'technicalMethod': 'relative'})
@@ -1235,9 +1239,6 @@ def build():
     case('ws-rank-in-band-weight-0.6', 'rankTender', {'bids': rb, 'technicalWeight': 0.6, 'priceMethod': 'lowest-ratio', 'technicalMethod': 'relative'})
     case('rank-linear-all-equal', 'rankTender', {'technicalWeight': 0.5, 'priceMethod': 'linear', 'technicalMethod': 'relative', 'bids': [
         {'id': 'A', 'technicalPercent': 80, 'evaluatedCost': 500, 'receivedAt': R}, {'id': 'B', 'technicalPercent': 60, 'evaluatedCost': 500, 'receivedAt': R}]})
-    case('rank-mean-deviation-floor-0', 'rankTender', {'technicalWeight': 0, 'priceMethod': 'mean-deviation', 'technicalMethod': 'absolute', 'bids': [
-        {'id': 'A', 'technicalPercent': 80, 'evaluatedCost': 100, 'receivedAt': R}, {'id': 'B', 'technicalPercent': 80, 'evaluatedCost': 110, 'receivedAt': R},
-        {'id': 'C', 'technicalPercent': 80, 'evaluatedCost': 1000, 'receivedAt': R}]})
     case('rank-tie-broken-by-lower-cost', 'rankTender', {'technicalWeight': 0.5, 'priceMethod': 'lowest-ratio', 'technicalMethod': 'absolute', 'bids': [
         {'id': 'A', 'technicalPercent': 100, 'evaluatedCost': 2000, 'receivedAt': R}, {'id': 'B', 'technicalPercent': 50, 'evaluatedCost': 1000, 'receivedAt': R},
         {'id': 'C', 'technicalPercent': 0, 'evaluatedCost': 500, 'receivedAt': R}]})
