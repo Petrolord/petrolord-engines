@@ -182,6 +182,8 @@ const CITE = Object.freeze({
 const refuse = (field, message) => ({ error: `${field} ${message}`, field });
 const fmt = (x) => String(x);
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+// a measured count printed with its unit in agreement: 1 week, 1.5 weeks, 0 weeks
+const unit = (x, one, many = `${one}s`) => `${fmt(x)} ${x === 1 ? one : many}`;
 const own = (o, k) => o !== null && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, k);
 const isObj = (o) => o !== null && typeof o === 'object' && !Array.isArray(o);
 const fin = (x) => typeof x === 'number' && Number.isFinite(x);
@@ -434,7 +436,7 @@ const lifeCycleCost = (annualCosts, residualValue, rate) => {
  * earlier receipt, then the bidder id.
  */
 export const evaluatedCosts = ({ bids, omissionRule = 'average', bestEstimates = {}, schedule, lifeCycle, tolerance = DEFAULTS.ARITHMETIC_TOLERANCE } = {}) => {
-  if (omissionRule !== 'average' && omissionRule !== 'highest') return refuse('omissionRule', "must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option not from the cited texts)");
+  if (omissionRule !== 'average' && omissionRule !== 'highest') return refuse('omissionRule', "must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option the cited texts do not use)");
   if (!fin(tolerance) || tolerance < 0) return refuse('tolerance', 'must be a finite number at or above 0');
   if (!isObj(bestEstimates)) return refuse('bestEstimates', 'must be an object of item id to amount when given');
   for (const k of Object.keys(bestEstimates)) if (!fin(bestEstimates[k]) || bestEstimates[k] < 0) return refuse(`bestEstimates.${k}`, 'must be a finite number at or above 0');
@@ -485,7 +487,7 @@ export const evaluatedCosts = ({ bids, omissionRule = 'average', bestEstimates =
   corrected.forEach(({ b, c }) => {
     if (b.rejected) { excluded.push({ id: b.id, stage: 'commercial', reason: b.rejected }); return; }
     if (schedule !== undefined && b.completionWeeks > schedule.maxWeeks) {
-      excluded.push({ id: b.id, stage: 'commercial', reason: `offers completion in ${fmt(b.completionWeeks)} weeks, beyond the maximum ${fmt(schedule.maxWeeks)}; the bid is nonresponsive` });
+      excluded.push({ id: b.id, stage: 'commercial', reason: `offers completion in ${unit(b.completionWeeks, 'week')}, beyond the maximum ${unit(schedule.maxWeeks, 'week')}; the bid is nonresponsive` });
       return;
     }
     live.push({ b, c });
@@ -504,7 +506,7 @@ export const evaluatedCosts = ({ bids, omissionRule = 'average', bestEstimates =
         omissions.push({ item, amount: a, rule: 'average', reason: `item ${item} omitted; the average of the ${plural(prices.length, 'price')} quoted by the other responsive bids, ${fmt(a)}, is added` });
       } else {
         const h = Math.max(...prices);
-        omissions.push({ item, amount: h, rule: 'highest', reason: `item ${item} omitted; the highest of the ${plural(prices.length, 'price')} quoted by the other responsive bids, ${fmt(h)}, is added (the 'highest' option, not from the cited texts)` });
+        omissions.push({ item, amount: h, rule: 'highest', reason: `item ${item} omitted; the highest of the ${plural(prices.length, 'price')} quoted by the other responsive bids, ${fmt(h)}, is added (the 'highest' option, which the cited texts do not use)` });
       }
     }
     const discount = b.discount || 0;
@@ -516,8 +518,8 @@ export const evaluatedCosts = ({ bids, omissionRule = 'average', bestEstimates =
       const late = Math.max(0, b.completionWeeks - schedule.minWeeks);
       scheduleAdjustment = schedule.ratePerWeek * late * net;
       scheduleReason = late > 0
-        ? `completion in ${fmt(b.completionWeeks)} weeks is ${fmt(late)} weeks beyond the minimum ${fmt(schedule.minWeeks)}; ${fmt(schedule.ratePerWeek)} x ${fmt(late)} x ${fmt(net)} = ${fmt(scheduleAdjustment)} is added`
-        : `completion in ${fmt(b.completionWeeks)} weeks is not beyond the minimum ${fmt(schedule.minWeeks)}; no adjustment and no credit for earlier completion`;
+        ? `completion in ${unit(b.completionWeeks, 'week')} is ${unit(late, 'week')} beyond the minimum ${unit(schedule.minWeeks, 'week')}; ${fmt(schedule.ratePerWeek)} x ${fmt(late)} x ${fmt(net)} = ${fmt(scheduleAdjustment)} is added`
+        : `completion in ${unit(b.completionWeeks, 'week')} is not beyond the minimum ${unit(schedule.minWeeks, 'week')}; no adjustment and no credit for earlier completion`;
     }
     const residual = b.residualValue || 0;
     const lifeCycleNpc = lifeCycle === undefined ? 0 : lifeCycleCost(b.annualCosts, residual, lifeCycle.discountRate);
@@ -539,8 +541,8 @@ export const evaluatedCosts = ({ bids, omissionRule = 'average', bestEstimates =
       evaluatedCost: 'corrected price - discount + priced deviations + omissions + schedule adjustment + life-cycle cost',
       omission: omissionRule === 'average'
         ? `an omitted item is priced at the average of the corrected amounts quoted for it by the other responsive bids, else the Employer's best estimate (${CITE.omission})`
-        : "an omitted item is priced at the highest corrected amount quoted for it by the other responsive bids, else the Employer's best estimate (the 'highest' option, not from the cited texts; the cited rule is the average of World Bank SPD ITB 34.1)",
-      schedule: schedule === undefined ? null : `ratePerWeek ${fmt(schedule.ratePerWeek)} of (corrected price - discount) for each week beyond ${fmt(schedule.minWeeks)}; beyond ${fmt(schedule.maxWeeks)} weeks the bid is rejected (${CITE.schedule})`,
+        : "an omitted item is priced at the highest corrected amount quoted for it by the other responsive bids, else the Employer's best estimate (the 'highest' option, which the cited texts do not use; the cited rule is the average of World Bank SPD ITB 34.1)",
+      schedule: schedule === undefined ? null : `ratePerWeek ${fmt(schedule.ratePerWeek)} of (corrected price - discount) for each week beyond ${fmt(schedule.minWeeks)}; beyond ${unit(schedule.maxWeeks, 'week')} the bid is rejected (${CITE.schedule})`,
       lifeCycle: lifeCycle === undefined ? null : `net present cost of ${plural(lifeCycle.years, 'year')} of annual costs at ${fmt(lifeCycle.discountRate)} a year, end-of-year discounting, residual value credited in the last year, through engines/economics/cashflow.ts npv (${CITE.lifeCycle})`,
       ranking: 'evaluated cost ascending; ties at 12 significant digits go to the earlier receipt, then the bidder id',
       source: `${CITE.adjusted}; ${CITE.lowestCost}`,
@@ -738,10 +740,10 @@ export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
     s14.reason = `only ${lowest.id} is within 1% of the lowest evaluated cost ${fmt(cMin)}; s.14 is not engaged`;
   } else {
     s14.engaged = true;
-    const byNc = group.slice().sort((a, b) => (b.ncPct - a.ncPct) || 0);
+    const byNc = group.slice().sort((a, b) => key12(b.ncPct) - key12(a.ncPct));
     const [top, second] = byNc;
     // equal highest content: no single bid "contains the highest level"
-    const tiedTop = byNc.filter((b) => b.ncPct === top.ncPct);
+    const tiedTop = byNc.filter((b) => key12(b.ncPct) === key12(top.ncPct));
     if (tiedTop.length > 1) {
       s14.reason = `${tiedTop.map((b) => b.id).join(' and ')} share the highest Nigerian content ${fmt(top.ncPct)}%, so no single bid leads; the lowest evaluated cost ${lowest.id} stands`;
     } else {
@@ -751,8 +753,8 @@ export const contentPreference = ({ bids, ncLeadBasis } = {}) => {
       s14.lead = second.ncPct === 0 && ncLeadBasis === 'relative' ? null : lead;
       const ok = ncLeadBasis === 'points' ? top.ncPct - second.ncPct >= DEFAULTS.NC_LEAD_PCT : 100 * (top.ncPct - second.ncPct) >= DEFAULTS.NC_LEAD_PCT * second.ncPct;
       const leadText = ncLeadBasis === 'points'
-        ? `${fmt(top.ncPct)}% against ${fmt(second.ncPct)}% (${second.id}), a lead of ${fmt(top.ncPct - second.ncPct)} percentage points`
-        : second.ncPct === 0 ? `${fmt(top.ncPct)}% against 0% (${second.id}), more than 5% higher by any reading` : `${fmt(top.ncPct)}% against ${fmt(second.ncPct)}% (${second.id}), ${fmt(lead)}% higher`;
+        ? `${fmt(top.ncPct)}% against ${fmt(second.ncPct)}% (${second.id}), a lead of ${unit(top.ncPct - second.ncPct, 'percentage point')}`
+        : second.ncPct === 0 ? `${fmt(top.ncPct)}% against 0% (${second.id}), a runner-up with no Nigerian content` : `${fmt(top.ncPct)}% against ${fmt(second.ncPct)}% (${second.id}), ${fmt(lead)}% higher`;
       if (ok) {
         s14.applied = true;
         selected = top.id;

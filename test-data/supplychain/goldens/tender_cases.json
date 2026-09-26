@@ -2402,12 +2402,12 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 12741.0,
-      "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added",
+      "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 862141.0,
       "reasons": [
        "line acid: quantity x unit rate = 828 differs from the quoted 82800 and the decimal point in the unit rate is obviously misplaced, so the quoted amount governs and the unit rate is corrected to 1380",
-       "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added"
+       "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added"
       ],
       "rank": 1,
       "tieBrokenBy": null
@@ -2430,13 +2430,13 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 8674.0,
-      "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added",
+      "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 885574.0,
       "reasons": [
        "line ct-spread: quantity x unit rate = 486000 differs from the quoted 468000 by more than 0.005, so the unit rate prevails and the amount is corrected to 486000",
        "deviation payment-terms: asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment (9500)",
-       "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added"
+       "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added"
       ],
       "rank": 2,
       "tieBrokenBy": null
@@ -2453,11 +2453,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 0.0,
-      "scheduleReason": "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion",
+      "scheduleReason": "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 928200.0,
       "reasons": [
-       "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion"
+       "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion"
       ],
       "rank": 3,
       "tieBrokenBy": null
@@ -2481,12 +2481,12 @@
       ],
       "omissionTotal": 35400.0,
       "scheduleAdjustment": 4590.0,
-      "scheduleReason": "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added",
+      "scheduleReason": "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 957990.0,
       "reasons": [
        "item nitrogen omitted; the average of the 3 prices quoted by the other responsive bids, 35400, is added",
-       "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added"
+       "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added"
       ],
       "rank": 4,
       "tieBrokenBy": null
@@ -2701,12 +2701,12 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 12741.0,
-      "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added",
+      "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 862141.0,
       "reasons": [
        "line acid: quantity x unit rate = 828 differs from the quoted 82800 and the decimal point in the unit rate is obviously misplaced, so the quoted amount governs and the unit rate is corrected to 1380",
-       "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added"
+       "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added"
       ],
       "rank": 1,
       "tieBrokenBy": null
@@ -2729,13 +2729,13 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 8674.0,
-      "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added",
+      "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 885574.0,
       "reasons": [
        "line ct-spread: quantity x unit rate = 486000 differs from the quoted 468000 by more than 0.005, so the unit rate prevails and the amount is corrected to 486000",
        "deviation payment-terms: asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment (9500)",
-       "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added"
+       "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added"
       ],
       "rank": 2,
       "tieBrokenBy": null
@@ -2752,11 +2752,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 0.0,
-      "scheduleReason": "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion",
+      "scheduleReason": "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 928200.0,
       "reasons": [
-       "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion"
+       "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion"
       ],
       "rank": 3,
       "tieBrokenBy": null
@@ -2780,12 +2780,12 @@
       ],
       "omissionTotal": 35400.0,
       "scheduleAdjustment": 4590.0,
-      "scheduleReason": "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added",
+      "scheduleReason": "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 957990.0,
       "reasons": [
        "item nitrogen omitted; the average of the 3 prices quoted by the other responsive bids, 35400, is added",
-       "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added"
+       "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added"
       ],
       "rank": 4,
       "tieBrokenBy": null
@@ -3024,12 +3024,12 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 12741.0,
-      "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added",
+      "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 862141.0,
       "reasons": [
        "line acid: quantity x unit rate = 828 differs from the quoted 82800 and the decimal point in the unit rate is obviously misplaced, so the quoted amount governs and the unit rate is corrected to 1380",
-       "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added"
+       "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added"
       ],
       "rank": 1,
       "tieBrokenBy": null
@@ -3052,13 +3052,13 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 8674.0,
-      "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added",
+      "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 885574.0,
       "reasons": [
        "line ct-spread: quantity x unit rate = 486000 differs from the quoted 468000 by more than 0.005, so the unit rate prevails and the amount is corrected to 486000",
        "deviation payment-terms: asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment (9500)",
-       "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added"
+       "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added"
       ],
       "rank": 2,
       "tieBrokenBy": null
@@ -3075,11 +3075,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 0.0,
-      "scheduleReason": "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion",
+      "scheduleReason": "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 928200.0,
       "reasons": [
-       "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion"
+       "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion"
       ],
       "rank": 3,
       "tieBrokenBy": null
@@ -3098,17 +3098,17 @@
         "item": "nitrogen",
         "amount": 37200.0,
         "rule": "highest",
-        "reason": "item nitrogen omitted; the highest of the 3 prices quoted by the other responsive bids, 37200, is added (the 'highest' option, not from the cited texts)"
+        "reason": "item nitrogen omitted; the highest of the 3 prices quoted by the other responsive bids, 37200, is added (the 'highest' option, which the cited texts do not use)"
        }
       ],
       "omissionTotal": 37200.0,
       "scheduleAdjustment": 4590.0,
-      "scheduleReason": "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added",
+      "scheduleReason": "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 959790.0,
       "reasons": [
-       "item nitrogen omitted; the highest of the 3 prices quoted by the other responsive bids, 37200, is added (the 'highest' option, not from the cited texts)",
-       "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added"
+       "item nitrogen omitted; the highest of the 3 prices quoted by the other responsive bids, 37200, is added (the 'highest' option, which the cited texts do not use)",
+       "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added"
       ],
       "rank": 4,
       "tieBrokenBy": null
@@ -3330,12 +3330,12 @@
       ],
       "omissionTotal": 12000.0,
       "scheduleAdjustment": 3779.475,
-      "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added",
+      "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added",
       "lifeCycleCost": 26535.50738585914,
       "evaluatedCost": 546244.9823858591,
       "reasons": [
        "item inspection omitted; the average of the 3 prices quoted by the other responsive bids, 12000, is added",
-       "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added"
+       "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added"
       ],
       "rank": 1,
       "tieBrokenBy": null
@@ -3352,11 +3352,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 1314.25,
-      "scheduleReason": "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added",
+      "scheduleReason": "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added",
       "lifeCycleCost": 20849.327231746465,
       "evaluatedCost": 547863.5772317465,
       "reasons": [
-       "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added"
+       "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added"
       ],
       "rank": 2,
       "tieBrokenBy": null
@@ -3373,11 +3373,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 2701.5,
-      "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added",
+      "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added",
       "lifeCycleCost": 22744.72061645069,
       "evaluatedCost": 565746.2206164506,
       "reasons": [
-       "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added"
+       "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added"
       ],
       "rank": 3,
       "tieBrokenBy": null
@@ -3394,11 +3394,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 0.0,
-      "scheduleReason": "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion",
+      "scheduleReason": "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion",
       "lifeCycleCost": 18953.93384704224,
       "evaluatedCost": 581453.9338470423,
       "reasons": [
-       "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion"
+       "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion"
       ],
       "rank": 4,
       "tieBrokenBy": null
@@ -3613,11 +3613,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 1314.25,
-      "scheduleReason": "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added",
+      "scheduleReason": "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added",
       "lifeCycleCost": 20849.327231746465,
       "evaluatedCost": 547863.5772317465,
       "reasons": [
-       "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added"
+       "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added"
       ],
       "rank": 1,
       "tieBrokenBy": null
@@ -3636,17 +3636,17 @@
         "item": "inspection",
         "amount": 14500.0,
         "rule": "highest",
-        "reason": "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, not from the cited texts)"
+        "reason": "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, which the cited texts do not use)"
        }
       ],
       "omissionTotal": 14500.0,
       "scheduleAdjustment": 3779.475,
-      "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added",
+      "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added",
       "lifeCycleCost": 26535.50738585914,
       "evaluatedCost": 548744.9823858591,
       "reasons": [
-       "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, not from the cited texts)",
-       "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added"
+       "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, which the cited texts do not use)",
+       "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added"
       ],
       "rank": 2,
       "tieBrokenBy": null
@@ -3663,11 +3663,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 2701.5,
-      "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added",
+      "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added",
       "lifeCycleCost": 22744.72061645069,
       "evaluatedCost": 565746.2206164506,
       "reasons": [
-       "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added"
+       "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added"
       ],
       "rank": 3,
       "tieBrokenBy": null
@@ -3684,11 +3684,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 0.0,
-      "scheduleReason": "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion",
+      "scheduleReason": "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion",
       "lifeCycleCost": 18953.93384704224,
       "evaluatedCost": 581453.9338470423,
       "reasons": [
-       "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion"
+       "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion"
       ],
       "rank": 4,
       "tieBrokenBy": null
@@ -3906,12 +3906,12 @@
       ],
       "omissionTotal": 12000.0,
       "scheduleAdjustment": 3779.475,
-      "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added",
+      "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 519709.475,
       "reasons": [
        "item inspection omitted; the average of the 3 prices quoted by the other responsive bids, 12000, is added",
-       "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added"
+       "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added"
       ],
       "rank": 1,
       "tieBrokenBy": null
@@ -3928,11 +3928,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 1314.25,
-      "scheduleReason": "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added",
+      "scheduleReason": "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 527014.25,
       "reasons": [
-       "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added"
+       "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added"
       ],
       "rank": 2,
       "tieBrokenBy": null
@@ -3949,11 +3949,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 2701.5,
-      "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added",
+      "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 543001.5,
       "reasons": [
-       "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added"
+       "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added"
       ],
       "rank": 3,
       "tieBrokenBy": null
@@ -3970,11 +3970,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 0.0,
-      "scheduleReason": "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion",
+      "scheduleReason": "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 562500.0,
       "reasons": [
-       "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion"
+       "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion"
       ],
       "rank": 4,
       "tieBrokenBy": null
@@ -4064,11 +4064,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 40.0,
-      "scheduleReason": "completion in 8 weeks is 4 weeks beyond the minimum 4; 0.01 x 4 x 1000 = 40 is added",
+      "scheduleReason": "completion in 8 weeks is 4 weeks beyond the minimum 4 weeks; 0.01 x 4 x 1000 = 40 is added",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 1040.0,
       "reasons": [
-       "completion in 8 weeks is 4 weeks beyond the minimum 4; 0.01 x 4 x 1000 = 40 is added"
+       "completion in 8 weeks is 4 weeks beyond the minimum 4 weeks; 0.01 x 4 x 1000 = 40 is added"
       ],
       "rank": 1,
       "tieBrokenBy": null
@@ -4085,11 +4085,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 0.0,
-      "scheduleReason": "completion in 4 weeks is not beyond the minimum 4; no adjustment and no credit for earlier completion",
+      "scheduleReason": "completion in 4 weeks is not beyond the minimum 4 weeks; no adjustment and no credit for earlier completion",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 1040.0,
       "reasons": [
-       "completion in 4 weeks is not beyond the minimum 4; no adjustment and no credit for earlier completion"
+       "completion in 4 weeks is not beyond the minimum 4 weeks; no adjustment and no credit for earlier completion"
       ],
       "rank": 2,
       "tieBrokenBy": "bidder id"
@@ -4106,11 +4106,11 @@
       "omissions": [],
       "omissionTotal": 0.0,
       "scheduleAdjustment": 0.0,
-      "scheduleReason": "completion in 3 weeks is not beyond the minimum 4; no adjustment and no credit for earlier completion",
+      "scheduleReason": "completion in 3 weeks is not beyond the minimum 4 weeks; no adjustment and no credit for earlier completion",
       "lifeCycleCost": 0.0,
       "evaluatedCost": 1050.0,
       "reasons": [
-       "completion in 3 weeks is not beyond the minimum 4; no adjustment and no credit for earlier completion"
+       "completion in 3 weeks is not beyond the minimum 4 weeks; no adjustment and no credit for earlier completion"
       ],
       "rank": 3,
       "tieBrokenBy": null
@@ -4121,7 +4121,7 @@
      {
       "id": "BEYOND",
       "stage": "commercial",
-      "reason": "offers completion in 8.5 weeks, beyond the maximum 8; the bid is nonresponsive"
+      "reason": "offers completion in 8.5 weeks, beyond the maximum 8 weeks; the bid is nonresponsive"
      }
     ]
    },
@@ -4327,7 +4327,7 @@
         "item": "b",
         "amount": 150.0,
         "rule": "highest",
-        "reason": "item b omitted; the highest of the 1 price quoted by the other responsive bids, 150, is added (the 'highest' option, not from the cited texts)"
+        "reason": "item b omitted; the highest of the 1 price quoted by the other responsive bids, 150, is added (the 'highest' option, which the cited texts do not use)"
        }
       ],
       "omissionTotal": 150.0,
@@ -4336,7 +4336,7 @@
       "lifeCycleCost": 0.0,
       "evaluatedCost": 1150.0,
       "reasons": [
-       "item b omitted; the highest of the 1 price quoted by the other responsive bids, 150, is added (the 'highest' option, not from the cited texts)"
+       "item b omitted; the highest of the 1 price quoted by the other responsive bids, 150, is added (the 'highest' option, which the cited texts do not use)"
       ],
       "rank": 2,
       "tieBrokenBy": null
@@ -4853,7 +4853,7 @@
    "expected": {
     "error": true,
     "field": "omissionRule",
-    "message": "omissionRule must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option not from the cited texts)"
+    "message": "omissionRule must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option the cited texts do not use)"
    },
    "tol": 1e-12
   },
@@ -8742,6 +8742,232 @@
    "tol": 1e-12
   },
   {
+   "id": "s14-shared-highest-at-12-digits",
+   "fn": "contentPreference",
+   "args": {
+    "ncLeadBasis": "points",
+    "bids": [
+     {
+      "id": "LOW",
+      "evaluatedCost": 1000000,
+      "ncPct": 50,
+      "receivedAt": "2027-01-01T00:00:00Z"
+     },
+     {
+      "id": "M",
+      "evaluatedCost": 1004000,
+      "ncPct": 65,
+      "receivedAt": "2027-01-01T00:00:00Z"
+     },
+     {
+      "id": "N",
+      "evaluatedCost": 1008000,
+      "ncPct": 65.00000000000001,
+      "receivedAt": "2027-01-01T00:00:00Z"
+     }
+    ]
+   },
+   "expected": {
+    "lowestEvaluatedCost": "LOW",
+    "section14": {
+     "engaged": true,
+     "group": [
+      "LOW",
+      "M",
+      "N"
+     ],
+     "leader": null,
+     "runnerUp": null,
+     "lead": null,
+     "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
+     "applied": false,
+     "reason": "M and N share the highest Nigerian content 65%, so no single bid leads; the lowest evaluated cost LOW stands (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
+    },
+    "section16": [],
+    "selected": "LOW"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "s14-lead-1-percentage-point",
+   "fn": "contentPreference",
+   "args": {
+    "ncLeadBasis": "points",
+    "bids": [
+     {
+      "id": "LOW",
+      "evaluatedCost": 1000000,
+      "ncPct": 80,
+      "receivedAt": "2027-01-01T00:00:00Z"
+     },
+     {
+      "id": "HI",
+      "evaluatedCost": 1005000,
+      "ncPct": 81,
+      "receivedAt": "2027-01-01T00:00:00Z"
+     }
+    ]
+   },
+   "expected": {
+    "lowestEvaluatedCost": "LOW",
+    "section14": {
+     "engaged": true,
+     "group": [
+      "LOW",
+      "HI"
+     ],
+     "leader": "HI",
+     "runnerUp": "LOW",
+     "lead": 1.0,
+     "leadBasis": "points",
+     "readings": [
+      "\"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost",
+      "\"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group",
+      "\"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative)"
+     ],
+     "applied": false,
+     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 81% against 80% (LOW), a lead of 1 percentage point, less than 5% higher, so the lowest evaluated cost LOW stands (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percentage points higher (the Act does not say points or relative))"
+    },
+    "section16": [],
+    "selected": "LOW"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ec-one-week-late",
+   "fn": "evaluatedCosts",
+   "args": {
+    "omissionRule": "average",
+    "schedule": {
+     "minWeeks": 1,
+     "maxWeeks": 1,
+     "ratePerWeek": 0.01
+    },
+    "bids": [
+     {
+      "id": "ONE",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "lines": [
+       {
+        "id": "a",
+        "quantity": 1,
+        "unitRate": 1000,
+        "quotedAmount": 1000
+       }
+      ],
+      "completionWeeks": 1
+     },
+     {
+      "id": "LATE",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "lines": [
+       {
+        "id": "a",
+        "quantity": 1,
+        "unitRate": 1000,
+        "quotedAmount": 1000
+       }
+      ],
+      "completionWeeks": 2
+     }
+    ]
+   },
+   "expected": {
+    "bids": [
+     {
+      "id": "ONE",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "quotedTotal": 1000.0,
+      "correctedPrice": 1000.0,
+      "arithmeticCorrection": 0.0,
+      "discount": 0,
+      "deviations": [],
+      "deviationTotal": 0.0,
+      "omissions": [],
+      "omissionTotal": 0.0,
+      "scheduleAdjustment": 0.0,
+      "scheduleReason": "completion in 1 week is not beyond the minimum 1 week; no adjustment and no credit for earlier completion",
+      "lifeCycleCost": 0.0,
+      "evaluatedCost": 1000.0,
+      "reasons": [
+       "completion in 1 week is not beyond the minimum 1 week; no adjustment and no credit for earlier completion"
+      ],
+      "rank": 1,
+      "tieBrokenBy": null
+     }
+    ],
+    "lowestEvaluatedCost": "ONE",
+    "excluded": [
+     {
+      "id": "LATE",
+      "stage": "commercial",
+      "reason": "offers completion in 2 weeks, beyond the maximum 1 week; the bid is nonresponsive"
+     }
+    ]
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ec-one-week-beyond-minimum",
+   "fn": "evaluatedCosts",
+   "args": {
+    "omissionRule": "average",
+    "schedule": {
+     "minWeeks": 1,
+     "maxWeeks": 3,
+     "ratePerWeek": 0.01
+    },
+    "bids": [
+     {
+      "id": "P",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "lines": [
+       {
+        "id": "a",
+        "quantity": 1,
+        "unitRate": 1000,
+        "quotedAmount": 1000
+       }
+      ],
+      "completionWeeks": 2
+     }
+    ]
+   },
+   "expected": {
+    "bids": [
+     {
+      "id": "P",
+      "receivedAt": "2027-01-01T00:00:00Z",
+      "quotedTotal": 1000.0,
+      "correctedPrice": 1000.0,
+      "arithmeticCorrection": 0.0,
+      "discount": 0,
+      "deviations": [],
+      "deviationTotal": 0.0,
+      "omissions": [],
+      "omissionTotal": 0.0,
+      "scheduleAdjustment": 10.0,
+      "scheduleReason": "completion in 2 weeks is 1 week beyond the minimum 1 week; 0.01 x 1 x 1000 = 10 is added",
+      "lifeCycleCost": 0.0,
+      "evaluatedCost": 1010.0,
+      "reasons": [
+       "completion in 2 weeks is 1 week beyond the minimum 1 week; 0.01 x 1 x 1000 = 10 is added"
+      ],
+      "rank": 1,
+      "tieBrokenBy": null
+     }
+    ],
+    "lowestEvaluatedCost": "P",
+    "excluded": []
+   },
+   "tol": 1e-12
+  },
+  {
    "id": "s14-runner-up-zero-relative",
    "fn": "contentPreference",
    "args": {
@@ -8779,7 +9005,7 @@
       "\"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative)"
      ],
      "applied": true,
-     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 30% against 0% (LOW), more than 5% higher by any reading, at least 5% higher, so s.14 selects HI over the lowest evaluated cost LOW (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative))"
+     "reason": "2 bids within 1% of the lowest evaluated cost; HI has the highest Nigerian content, 30% against 0% (LOW), a runner-up with no Nigerian content, at least 5% higher, so s.14 selects HI over the lowest evaluated cost LOW (readings of s.14: \"within 1 % of each other at commercial stage\" is read as within 1% of the lowest evaluated cost; \"its closest competitor\" is read as the bid with the next-highest Nigerian content in that group; \"at least 5% higher\" is read as at least 5 percent of the runner-up's content higher (the Act does not say points or relative))"
     },
     "section16": [],
     "selected": "HI"
@@ -11164,12 +11390,12 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 12741.0,
-       "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added",
+       "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added",
        "lifeCycleCost": 0.0,
        "evaluatedCost": 862141.0,
        "reasons": [
         "line acid: quantity x unit rate = 828 differs from the quoted 82800 and the decimal point in the unit rate is obviously misplaced, so the quoted amount governs and the unit rate is corrected to 1380",
-        "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added"
+        "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added"
        ],
        "rank": 1,
        "tieBrokenBy": null
@@ -11192,13 +11418,13 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 8674.0,
-       "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added",
+       "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added",
        "lifeCycleCost": 0.0,
        "evaluatedCost": 885574.0,
        "reasons": [
         "line ct-spread: quantity x unit rate = 486000 differs from the quoted 468000 by more than 0.005, so the unit rate prevails and the amount is corrected to 486000",
         "deviation payment-terms: asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment (9500)",
-        "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added"
+        "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added"
        ],
        "rank": 2,
        "tieBrokenBy": null
@@ -11215,11 +11441,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 0.0,
-       "scheduleReason": "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion",
+       "scheduleReason": "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion",
        "lifeCycleCost": 0.0,
        "evaluatedCost": 928200.0,
        "reasons": [
-        "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion"
+        "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion"
        ],
        "rank": 3,
        "tieBrokenBy": null
@@ -11243,12 +11469,12 @@
        ],
        "omissionTotal": 35400.0,
        "scheduleAdjustment": 4590.0,
-       "scheduleReason": "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added",
+       "scheduleReason": "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added",
        "lifeCycleCost": 0.0,
        "evaluatedCost": 957990.0,
        "reasons": [
         "item nitrogen omitted; the average of the 3 prices quoted by the other responsive bids, 35400, is added",
-        "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added"
+        "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added"
        ],
        "rank": 4,
        "tieBrokenBy": null
@@ -11827,12 +12053,12 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 12741.0,
-       "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added",
+       "scheduleReason": "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added",
        "lifeCycleCost": 0.0,
        "evaluatedCost": 862141.0,
        "reasons": [
         "line acid: quantity x unit rate = 828 differs from the quoted 82800 and the decimal point in the unit rate is obviously misplaced, so the quoted amount governs and the unit rate is corrected to 1380",
-        "completion in 9 weeks is 3 weeks beyond the minimum 6; 0.005 x 3 x 849400 = 12741 is added"
+        "completion in 9 weeks is 3 weeks beyond the minimum 6 weeks; 0.005 x 3 x 849400 = 12741 is added"
        ],
        "rank": 1,
        "tieBrokenBy": null
@@ -11855,13 +12081,13 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 8674.0,
-       "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added",
+       "scheduleReason": "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added",
        "lifeCycleCost": 0.0,
        "evaluatedCost": 885574.0,
        "reasons": [
         "line ct-spread: quantity x unit rate = 486000 differs from the quoted 468000 by more than 0.005, so the unit rate prevails and the amount is corrected to 486000",
         "deviation payment-terms: asks for payment in 30 days where the conditions give 60; priced at the interest on the earlier payment (9500)",
-        "completion in 8 weeks is 2 weeks beyond the minimum 6; 0.005 x 2 x 867400 = 8674 is added"
+        "completion in 8 weeks is 2 weeks beyond the minimum 6 weeks; 0.005 x 2 x 867400 = 8674 is added"
        ],
        "rank": 2,
        "tieBrokenBy": null
@@ -11878,11 +12104,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 0.0,
-       "scheduleReason": "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion",
+       "scheduleReason": "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion",
        "lifeCycleCost": 0.0,
        "evaluatedCost": 928200.0,
        "reasons": [
-        "completion in 6 weeks is not beyond the minimum 6; no adjustment and no credit for earlier completion"
+        "completion in 6 weeks is not beyond the minimum 6 weeks; no adjustment and no credit for earlier completion"
        ],
        "rank": 3,
        "tieBrokenBy": null
@@ -11906,12 +12132,12 @@
        ],
        "omissionTotal": 35400.0,
        "scheduleAdjustment": 4590.0,
-       "scheduleReason": "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added",
+       "scheduleReason": "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added",
        "lifeCycleCost": 0.0,
        "evaluatedCost": 957990.0,
        "reasons": [
         "item nitrogen omitted; the average of the 3 prices quoted by the other responsive bids, 35400, is added",
-        "completion in 7 weeks is 1 weeks beyond the minimum 6; 0.005 x 1 x 918000 = 4590 is added"
+        "completion in 7 weeks is 1 week beyond the minimum 6 weeks; 0.005 x 1 x 918000 = 4590 is added"
        ],
        "rank": 4,
        "tieBrokenBy": null
@@ -12351,12 +12577,12 @@
        ],
        "omissionTotal": 12000.0,
        "scheduleAdjustment": 3779.475,
-       "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added",
+       "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added",
        "lifeCycleCost": 26535.50738585914,
        "evaluatedCost": 546244.9823858591,
        "reasons": [
         "item inspection omitted; the average of the 3 prices quoted by the other responsive bids, 12000, is added",
-        "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added"
+        "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added"
        ],
        "rank": 1,
        "tieBrokenBy": null
@@ -12373,11 +12599,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 1314.25,
-       "scheduleReason": "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added",
+       "scheduleReason": "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added",
        "lifeCycleCost": 20849.327231746465,
        "evaluatedCost": 547863.5772317465,
        "reasons": [
-        "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added"
+        "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added"
        ],
        "rank": 2,
        "tieBrokenBy": null
@@ -12394,11 +12620,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 2701.5,
-       "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added",
+       "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added",
        "lifeCycleCost": 22744.72061645069,
        "evaluatedCost": 565746.2206164506,
        "reasons": [
-        "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added"
+        "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added"
        ],
        "rank": 3,
        "tieBrokenBy": null
@@ -12415,11 +12641,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 0.0,
-       "scheduleReason": "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion",
+       "scheduleReason": "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion",
        "lifeCycleCost": 18953.93384704224,
        "evaluatedCost": 581453.9338470423,
        "reasons": [
-        "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion"
+        "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion"
        ],
        "rank": 4,
        "tieBrokenBy": null
@@ -12847,11 +13073,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 1314.25,
-       "scheduleReason": "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added",
+       "scheduleReason": "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added",
        "lifeCycleCost": 20849.327231746465,
        "evaluatedCost": 547863.5772317465,
        "reasons": [
-        "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added"
+        "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added"
        ],
        "rank": 1,
        "tieBrokenBy": null
@@ -12870,17 +13096,17 @@
          "item": "inspection",
          "amount": 14500.0,
          "rule": "highest",
-         "reason": "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, not from the cited texts)"
+         "reason": "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, which the cited texts do not use)"
         }
        ],
        "omissionTotal": 14500.0,
        "scheduleAdjustment": 3779.475,
-       "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added",
+       "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added",
        "lifeCycleCost": 26535.50738585914,
        "evaluatedCost": 548744.9823858591,
        "reasons": [
-        "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, not from the cited texts)",
-        "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added"
+        "item inspection omitted; the highest of the 3 prices quoted by the other responsive bids, 14500, is added (the 'highest' option, which the cited texts do not use)",
+        "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added"
        ],
        "rank": 2,
        "tieBrokenBy": null
@@ -12897,11 +13123,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 2701.5,
-       "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added",
+       "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added",
        "lifeCycleCost": 22744.72061645069,
        "evaluatedCost": 565746.2206164506,
        "reasons": [
-        "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added"
+        "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added"
        ],
        "rank": 3,
        "tieBrokenBy": null
@@ -12918,11 +13144,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 0.0,
-       "scheduleReason": "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion",
+       "scheduleReason": "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion",
        "lifeCycleCost": 18953.93384704224,
        "evaluatedCost": 581453.9338470423,
        "reasons": [
-        "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion"
+        "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion"
        ],
        "rank": 4,
        "tieBrokenBy": null
@@ -13365,12 +13591,12 @@
        ],
        "omissionTotal": 12000.0,
        "scheduleAdjustment": 3779.475,
-       "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added",
+       "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added",
        "lifeCycleCost": 26535.50738585914,
        "evaluatedCost": 546244.9823858591,
        "reasons": [
         "item inspection omitted; the average of the 3 prices quoted by the other responsive bids, 12000, is added",
-        "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added"
+        "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added"
        ],
        "rank": 1,
        "tieBrokenBy": null
@@ -13387,11 +13613,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 1314.25,
-       "scheduleReason": "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added",
+       "scheduleReason": "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added",
        "lifeCycleCost": 20849.327231746465,
        "evaluatedCost": 547863.5772317465,
        "reasons": [
-        "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added"
+        "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added"
        ],
        "rank": 2,
        "tieBrokenBy": null
@@ -13408,11 +13634,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 2701.5,
-       "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added",
+       "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added",
        "lifeCycleCost": 22744.72061645069,
        "evaluatedCost": 565746.2206164506,
        "reasons": [
-        "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added"
+        "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added"
        ],
        "rank": 3,
        "tieBrokenBy": null
@@ -13429,11 +13655,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 0.0,
-       "scheduleReason": "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion",
+       "scheduleReason": "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion",
        "lifeCycleCost": 18953.93384704224,
        "evaluatedCost": 581453.9338470423,
        "reasons": [
-        "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion"
+        "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion"
        ],
        "rank": 4,
        "tieBrokenBy": null
@@ -13905,12 +14131,12 @@
        ],
        "omissionTotal": 12000.0,
        "scheduleAdjustment": 3779.475,
-       "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added",
+       "scheduleReason": "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added",
        "lifeCycleCost": 26535.50738585914,
        "evaluatedCost": 546244.9823858591,
        "reasons": [
         "item inspection omitted; the average of the 3 prices quoted by the other responsive bids, 12000, is added",
-        "completion in 11 weeks is 3 weeks beyond the minimum 8; 0.0025 x 3 x 503930 = 3779.475 is added"
+        "completion in 11 weeks is 3 weeks beyond the minimum 8 weeks; 0.0025 x 3 x 503930 = 3779.475 is added"
        ],
        "rank": 1,
        "tieBrokenBy": null
@@ -13927,11 +14153,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 1314.25,
-       "scheduleReason": "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added",
+       "scheduleReason": "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added",
        "lifeCycleCost": 20849.327231746465,
        "evaluatedCost": 547863.5772317465,
        "reasons": [
-        "completion in 9 weeks is 1 weeks beyond the minimum 8; 0.0025 x 1 x 525700 = 1314.25 is added"
+        "completion in 9 weeks is 1 week beyond the minimum 8 weeks; 0.0025 x 1 x 525700 = 1314.25 is added"
        ],
        "rank": 2,
        "tieBrokenBy": null
@@ -13948,11 +14174,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 2701.5,
-       "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added",
+       "scheduleReason": "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added",
        "lifeCycleCost": 22744.72061645069,
        "evaluatedCost": 565746.2206164506,
        "reasons": [
-        "completion in 10 weeks is 2 weeks beyond the minimum 8; 0.0025 x 2 x 540300 = 2701.5 is added"
+        "completion in 10 weeks is 2 weeks beyond the minimum 8 weeks; 0.0025 x 2 x 540300 = 2701.5 is added"
        ],
        "rank": 3,
        "tieBrokenBy": null
@@ -13969,11 +14195,11 @@
        "omissions": [],
        "omissionTotal": 0.0,
        "scheduleAdjustment": 0.0,
-       "scheduleReason": "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion",
+       "scheduleReason": "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion",
        "lifeCycleCost": 18953.93384704224,
        "evaluatedCost": 581453.9338470423,
        "reasons": [
-        "completion in 8 weeks is not beyond the minimum 8; no adjustment and no credit for earlier completion"
+        "completion in 8 weeks is not beyond the minimum 8 weeks; no adjustment and no credit for earlier completion"
        ],
        "rank": 4,
        "tieBrokenBy": null

@@ -123,6 +123,15 @@ def dsum(xs):
     return s
 
 
+def unit_text(x, one):
+    """a count with its unit in agreement: 1 week, 1.5 weeks."""
+    return f'{js_num(x)} {one if float(x) == 1 else one + "s"}'
+
+
+def wk(x):
+    return unit_text(x, 'week')
+
+
 def refuse(field, msg):
     return {'error': True, 'field': field, 'message': f'{field} {msg}'}
 
@@ -348,7 +357,7 @@ def npc(annual, residual, rate):
 def evaluated_costs(a):
     rule = a.get('omissionRule', 'average')   # the cited rule is the default
     if rule not in ('average', 'highest'):
-        return refuse('omissionRule', "must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option not from the cited texts)")
+        return refuse('omissionRule', "must be 'average' (the default, World Bank SPD ITB 34.1: the average price quoted by the substantially responsive bidders) or 'highest' (the highest price quoted by them, an option the cited texts do not use)")
     tol = a.get('tolerance', 0.005)
     if not isnum(tol) or tol < 0:
         return refuse('tolerance', 'must be a finite number at or above 0')
@@ -420,7 +429,7 @@ def evaluated_costs(a):
             excluded.append({'id': b['id'], 'stage': 'commercial', 'reason': b['rejected']})
         elif sch is not None and F(b['completionWeeks']) > F(sch['maxWeeks']):
             excluded.append({'id': b['id'], 'stage': 'commercial',
-                             'reason': f"offers completion in {js_num(b['completionWeeks'])} weeks, beyond the maximum {js_num(sch['maxWeeks'])}; the bid is nonresponsive"})
+                             'reason': f"offers completion in {wk(b['completionWeeks'])}, beyond the maximum {wk(sch['maxWeeks'])}; the bid is nonresponsive"})
         else:
             live.append(b)
 
@@ -450,7 +459,7 @@ def evaluated_costs(a):
             else:
                 ex = max(g[0] for g in got)
                 omissions.append({'item': item, 'exact': ex, 'amount': fl(ex), 'rule': 'highest',
-                                  'reason': f'item {item} omitted; the highest of the {plural(len(got), "price")} quoted by the other responsive bids, {js_num(max(g[1] for g in got))}, is added (the \'highest\' option, not from the cited texts)'})
+                                  'reason': f'item {item} omitted; the highest of the {plural(len(got), "price")} quoted by the other responsive bids, {js_num(max(g[1] for g in got))}, is added (the \'highest\' option, which the cited texts do not use)'})
         corrected = sum((correct_exact(l, tol) for l in b['lines']), F(0))
         quoted = sum((F(l['quotedAmount']) for l in b['lines']), F(0))
         disc = F(b.get('discount', 0))
@@ -463,10 +472,10 @@ def evaluated_costs(a):
             sadj = F(sch['ratePerWeek']) * late * net
             late_shown = max(0, b['completionWeeks'] - sch['minWeeks'])
             if late > 0:
-                sreason = (f"completion in {js_num(b['completionWeeks'])} weeks is {js_num(late_shown)} weeks beyond the minimum {js_num(sch['minWeeks'])}; "
+                sreason = (f"completion in {wk(b['completionWeeks'])} is {wk(late_shown)} beyond the minimum {wk(sch['minWeeks'])}; "
                            f"{js_num(sch['ratePerWeek'])} x {js_num(late_shown)} x {js_num(net_shown)} = {js_num(sch['ratePerWeek'] * late_shown * net_shown)} is added")
             else:
-                sreason = (f"completion in {js_num(b['completionWeeks'])} weeks is not beyond the minimum {js_num(sch['minWeeks'])}; "
+                sreason = (f"completion in {wk(b['completionWeeks'])} is not beyond the minimum {wk(sch['minWeeks'])}; "
                            'no adjustment and no credit for earlier completion')
         life = npc(b['annualCosts'], b.get('residualValue', 0), lc['discountRate']) if lc is not None else F(0)
         om_total = sum((o['exact'] for o in omissions), F(0))
@@ -693,27 +702,28 @@ def content_preference(a):
     else:
         s14['engaged'] = True
         hi = max(F(b['ncPct']) for b in group)
-        tops = [b for b in group if F(b['ncPct']) == hi]
+        hi_key = key12(float(hi))   # shared highest: equal to 12 significant digits (the stated tie rule)
+        tops = [b for b in group if key12(b['ncPct']) == hi_key]
         if len(tops) > 1:
             s14['reason'] = (f"{' and '.join(b['id'] for b in tops)} share the highest Nigerian content {js_num(tops[0]['ncPct'])}%, "
                              f"so no single bid leads; the lowest evaluated cost {low['id']} stands")
         else:
             top = tops[0]
             rest = [b for b in group if b is not top]
-            nxt = max(F(b['ncPct']) for b in rest)
-            second = [b for b in group if b is not top and F(b['ncPct']) == nxt][0]  # first in cost order
+            nxt = max(key12(b['ncPct']) for b in rest)
+            second = [b for b in group if b is not top and key12(b['ncPct']) == nxt][0]  # first in cost order
             s14['leader'], s14['runnerUp'] = top['id'], second['id']
             t, s = F(top['ncPct']), F(second['ncPct'])
             if basis == 'points':
                 lead = t - s
                 ok = lead >= 5
                 s14['lead'] = fl(lead)
-                lead_text = f"{js_num(top['ncPct'])}% against {js_num(second['ncPct'])}% ({second['id']}), a lead of {js_num(top['ncPct'] - second['ncPct'])} percentage points"
+                lead_text = f"{js_num(top['ncPct'])}% against {js_num(second['ncPct'])}% ({second['id']}), a lead of {unit_text(top['ncPct'] - second['ncPct'], 'percentage point')}"
             else:
                 ok = 100 * (t - s) >= 5 * s
                 if s == 0:
                     s14['lead'] = None
-                    lead_text = f"{js_num(top['ncPct'])}% against 0% ({second['id']}), more than 5% higher by any reading"
+                    lead_text = f"{js_num(top['ncPct'])}% against 0% ({second['id']}), a runner-up with no Nigerian content"
                 else:
                     s14['lead'] = fl(100 * (t - s) / s)
                     shown = (100 * (top['ncPct'] - second['ncPct'])) / second['ncPct']
@@ -1336,6 +1346,13 @@ def build():
     case('s14-lead-4-points-relative-exactly-5pct', 'contentPreference', {'ncLeadBasis': 'relative', 'bids': [P('LOW', 1000000, 80), P('HI', 1005000, 84)]})
     case('s14-lead-4-points-read-as-points', 'contentPreference', {'ncLeadBasis': 'points', 'bids': [P('LOW', 1000000, 80), P('HI', 1005000, 84)]})
     case('s14-tied-highest-content', 'contentPreference', {'ncLeadBasis': 'points', 'bids': [P('LOW', 1000000, 50), P('M', 1004000, 70), P('N', 1008000, 70)]})
+    case('s14-shared-highest-at-12-digits', 'contentPreference', {'ncLeadBasis': 'points', 'bids': [P('LOW', 1000000, 50), P('M', 1004000, 65), P('N', 1008000, 65.00000000000001)]})
+    case('s14-lead-1-percentage-point', 'contentPreference', {'ncLeadBasis': 'points', 'bids': [P('LOW', 1000000, 80), P('HI', 1005000, 81)]})
+    case('ec-one-week-late', 'evaluatedCosts', {'omissionRule': 'average', 'schedule': {'minWeeks': 1, 'maxWeeks': 1, 'ratePerWeek': 0.01}, 'bids': [
+        {'id': 'ONE', 'receivedAt': R, 'lines': [L('a', 1, 1000)], 'completionWeeks': 1},
+        {'id': 'LATE', 'receivedAt': R, 'lines': [L('a', 1, 1000)], 'completionWeeks': 2}]})
+    case('ec-one-week-beyond-minimum', 'evaluatedCosts', {'omissionRule': 'average', 'schedule': {'minWeeks': 1, 'maxWeeks': 3, 'ratePerWeek': 0.01}, 'bids': [
+        {'id': 'P', 'receivedAt': R, 'lines': [L('a', 1, 1000)], 'completionWeeks': 2}]})
     case('s14-runner-up-zero-relative', 'contentPreference', {'ncLeadBasis': 'relative', 'bids': [P('LOW', 1000000, 0), P('HI', 1002000, 30)]})
     case('s14-lowest-also-leads', 'contentPreference', {'ncLeadBasis': 'points', 'bids': [P('LOW', 1000000, 90), P('M', 1003000, 70), P('N', 1009000, 72)]})
     case('s16-exactly-10pct', 'contentPreference', {'ncLeadBasis': 'points', 'bids': [P('LOW', 1000000, 40), P('IND', 1100000, 95, indigenous=True, capacity=True),

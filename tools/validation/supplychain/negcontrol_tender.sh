@@ -124,6 +124,10 @@ run_case ENGINE "s.14 group within 2%" $E "NC_PRICE_MARGIN_PCT: 1," "NC_PRICE_MA
 run_case ENGINE "s.16 margin 15 percent" $E "INDIGENOUS_MARGIN_PCT: 10," "INDIGENOUS_MARGIN_PCT: 15,"
 run_case ENGINE "s.14 relative lead over the leader" $E "100 * (top.ncPct - second.ncPct) >= DEFAULTS.NC_LEAD_PCT * second.ncPct" "100 * (top.ncPct - second.ncPct) >= DEFAULTS.NC_LEAD_PCT * top.ncPct"
 run_case ENGINE "s.14 shared top content ignored" $E "const tiedTop = byNc.filter((b) => b.ncPct === top.ncPct);" "const tiedTop = [top];"
+run_case ENGINE "s.14 shared highest by exact equality" $E "const tiedTop = byNc.filter((b) => key12(b.ncPct) === key12(top.ncPct));" "const tiedTop = byNc.filter((b) => b.ncPct === top.ncPct);"
+run_case ENGINE "week count without agreement" $E "const unit = (x, one, many = \`\${one}s\`) => \`\${fmt(x)} \${x === 1 ? one : many}\`;" "const unit = (x, one, many = \`\${one}s\`) => \`\${fmt(x)} \${many}\`;"
+run_case ENGINE "zero runner-up reason repeats itself" $E "a runner-up with no Nigerian content\`" "more than 5% higher by any reading\`"
+run_case ENGINE "highest option worded as X, not Y" $E "is added (the 'highest' option, which the cited texts do not use)\`" "is added (the 'highest' option, not from the cited texts)\`"
 # contract types
 run_case ENGINE "draw order swapped" $E "const days = daysOf(draw(dur, rng));
     const rate = draw(costTri, rng);" "const rate = draw(costTri, rng);
