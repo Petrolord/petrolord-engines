@@ -237,6 +237,24 @@ describe('properties', () => {
     const zero = run('s14-runner-up-zero-relative').section14.reason.split(' (readings of s.14:')[0];
     expect(zero.match(/5% higher/g).length).toBe(1);
   });
+  test('unknown keys: every function refuses one at the top level, and the fixtures pass whole', () => {
+    const fns = Object.keys(T).filter((k) => typeof T[k] === 'function');
+    expect(Object.keys(T.ACCEPTED_KEYS).sort()).toEqual(fns.sort());
+    fns.forEach((f) => {
+      const r = T[f]({ notAKey: 1 });
+      expect(r.field).toBe('notAKey');
+      expect(r.error).toMatch(/^notAKey is not an accepted key; the accepted keys at the top level are /);
+    });
+    const ws = T.evaluateTender({ criteria: WS.criteria, passMark: WS.passMark, bids: WS.bids.map(({ nc, ...b }) => b), schedule: WS.schedule, award: 'combined', technicalWeight: 0.7, priceMethod: 'lowest-ratio', technicalMethod: 'relative' });
+    expect(ws.award).toBe(run('ws-tender-combined').award);
+    expect(run('ws-tender-best-estimate-kept-when-priced').commercial.bids).toEqual(run('ws-tender-lowest-cost').commercial.bids);
+  });
+  test('the triangle refusals share one wording for days, nptFrac and daily cost', () => {
+    expect(run('ct-refuse-duration-order').message || run('ct-refuse-duration-order').error).toMatch(/^duration must have min <= mode <= max; got min /);
+    expect(run('ct-refuse-nptfrac-min-above-mode').error).toBe('duration.nptFrac must have min <= mode <= max; got min 0.3, mode 0.2, max 0.5');
+    expect(run('ct-refuse-nptfrac-negative-min').error).toBe('duration.nptFrac.min must be at or above 0; got -0.1');
+    expect(run('ct-refuse-daily-cost-negative').error).toBe('dailyCost must be at or above 0; got -5');
+  });
   test('contract types: seeded, so the same seed gives the same answer and another seed does not', () => {
     const args = clone(byId('ct-triangular-fixed-fee-plan').args);
     expect(T.contractTypes(args)).toEqual(T.contractTypes(clone(args)));

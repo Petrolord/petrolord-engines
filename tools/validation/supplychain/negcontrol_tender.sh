@@ -128,6 +128,12 @@ run_case ENGINE "s.14 shared highest by exact equality" $E "const tiedTop = byNc
 run_case ENGINE "week count without agreement" $E "const unit = (x, one, many = \`\${one}s\`) => \`\${fmt(x)} \${x === 1 ? one : many}\`;" "const unit = (x, one, many = \`\${one}s\`) => \`\${fmt(x)} \${many}\`;"
 run_case ENGINE "zero runner-up reason repeats itself" $E "a runner-up with no Nigerian content\`" "more than 5% higher by any reading\`"
 run_case ENGINE "highest option worded as X, not Y" $E "is added (the 'highest' option, which the cited texts do not use)\`" "is added (the 'highest' option, not from the cited texts)\`"
+# accepted keys: a function that ignores an unknown key must go red
+run_case ENGINE "unknown keys ignored everywhere" $E "const e = walkKeys(args, ACCEPTED_KEYS[name], '');" "const e = null;"
+run_case ENGINE "unknown keys ignored inside lists" $E "    if (!Array.isArray(v)) return null;" "    return null;"
+run_case ENGINE "id-keyed objects unchecked (scores, content items, weights, bestEstimates)" $E "  if (!isObj(obj)) return null;" "  return null;"
+run_case ENGINE "a misspelt lifecycle accepted" $E "evaluatedCosts: O(['bids', 'omissionRule', 'bestEstimates', 'schedule', 'lifeCycle', 'tolerance']" "evaluatedCosts: O(['bids', 'omissionRule', 'bestEstimates', 'schedule', 'lifeCycle', 'lifecycle', 'tolerance']"
+run_case ENGINE "triangle order refusal without its figures" $E "must have min <= mode <= max; got min" "must have min <= mode <= max; got"
 # contract types
 run_case ENGINE "draw order swapped" $E "const days = daysOf(draw(dur, rng));
     const rate = draw(costTri, rng);" "const rate = draw(costTri, rng);
@@ -162,6 +168,7 @@ run_case ORACLE "oracle s.14 lead 6 points" $O "ok = lead >= 5" "ok = lead >= 6"
 run_case ORACLE "oracle id tie-break reversed" $O "return (-1 if a['id'] < b['id'] else 1), 'bidder id'" "return (-1 if a['id'] > b['id'] else 1), 'bidder id'"
 run_case ORACLE "oracle measure not checked" $O "if r.get('measure') not in s['measures']:" "if False:"
 run_case ORACLE "oracle ALB sample standard deviation" $O "        var = sum(((x - m) ** 2 for x in xs), F(0)) / n          # population variance" "        var = sum(((x - m) ** 2 for x in xs), F(0)) / (n - 1)"
+run_case ORACLE "oracle unknown keys ignored" $O "        e = check_keys(a, SHAPES[name], '')" "        e = None"
 run_case ORACLE "oracle s.14 group within 2%" $O "group = [b for b in ordered if (F(b['evaluatedCost']) - cmin) * 100 <= cmin]" "group = [b for b in ordered if (F(b['evaluatedCost']) - cmin) * 100 <= 2 * cmin]"
 
 restore
