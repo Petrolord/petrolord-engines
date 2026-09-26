@@ -137,6 +137,12 @@ run_case ENGINE "a zero margin counted as a loss" $E "if (m < 0) acc[t].losses +
 # should-cost
 run_case ENGINE "band limits outside the band" $E "const flag = ratio < band.low ? 'below' : ratio > band.high ? 'above' : null;" "const flag = ratio <= band.low ? 'below' : ratio >= band.high ? 'above' : null;"
 run_case ENGINE "contingency dropped from the estimate" $E "estimate: c.totalUsd };" "estimate: c.baseUsd };"
+# abnormally low bids
+run_case ENGINE "ALB absolute strictly more than 20%" $E "const flag = 100 * (estimate - c) >= DEFAULTS.ALB_ABSOLUTE_PCT * estimate;" "const flag = 100 * (estimate - c) > DEFAULTS.ALB_ABSOLUTE_PCT * estimate;"
+run_case ENGINE "ALB relative at the limit flagged" $E "    const flag = c < limit;" "    const flag = c <= limit;"
+run_case ENGINE "ALB relative from 4 bids" $E "ALB_RELATIVE_MIN_BIDS: 5," "ALB_RELATIVE_MIN_BIDS: 4,"
+run_case ENGINE "ALB limit two standard deviations" $E "const limit = approach === 'relative' ? avg - sd : null;" "const limit = approach === 'relative' ? avg - 2 * sd : null;"
+run_case ENGINE "ALB reason drops 'never rejected automatically'" $E "before any decision; it is never rejected automatically';" "before any decision';"
 # messages are course content: each changed wording must go red
 run_case ENGINE "s.14 reason in other words" $E "at least 5% higher, so s.14 selects" "5% or more higher, so s.14 selects"
 run_case ENGINE "pass-mark reason in other words" $E "is below the pass mark" "is under the pass mark"
@@ -149,6 +155,7 @@ run_case ORACLE "oracle average rule as the highest" $O "ex = sum((g[0] for g in
 run_case ORACLE "oracle s.14 lead 6 points" $O "ok = lead >= 5" "ok = lead >= 6"
 run_case ORACLE "oracle id tie-break reversed" $O "return (-1 if a['id'] < b['id'] else 1), 'bidder id'" "return (-1 if a['id'] > b['id'] else 1), 'bidder id'"
 run_case ORACLE "oracle measure not checked" $O "if r.get('measure') not in s['measures']:" "if False:"
+run_case ORACLE "oracle ALB sample standard deviation" $O "        var = sum(((x - m) ** 2 for x in xs), F(0)) / n          # population variance" "        var = sum(((x - m) ** 2 for x in xs), F(0)) / (n - 1)"
 run_case ORACLE "oracle s.14 group within 2%" $O "group = [b for b in ordered if (F(b['evaluatedCost']) - cmin) * 100 <= cmin]" "group = [b for b in ordered if (F(b['evaluatedCost']) - cmin) * 100 <= 2 * cmin]"
 
 restore

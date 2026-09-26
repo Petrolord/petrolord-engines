@@ -10085,6 +10085,567 @@
    "tol": 1e-12
   },
   {
+   "id": "wb-alb-annex-i-example-1-relative",
+   "fn": "abnormallyLow",
+   "args": {
+    "estimate": 2938140000,
+    "bids": [
+     {
+      "id": "Bid 1",
+      "evaluatedCost": 1145142
+     },
+     {
+      "id": "Bid 2",
+      "evaluatedCost": 1330191
+     },
+     {
+      "id": "Bid 3",
+      "evaluatedCost": 1342106
+     },
+     {
+      "id": "Bid 4",
+      "evaluatedCost": 1378232
+     },
+     {
+      "id": "Bid 5",
+      "evaluatedCost": 1462176
+     },
+     {
+      "id": "Bid 6",
+      "evaluatedCost": 1476269
+     },
+     {
+      "id": "Bid 7",
+      "evaluatedCost": 1486226
+     },
+     {
+      "id": "Bid 8",
+      "evaluatedCost": 1579100
+     },
+     {
+      "id": "Bid 9",
+      "evaluatedCost": 1613371
+     },
+     {
+      "id": "Bid 10",
+      "evaluatedCost": 1657703
+     },
+     {
+      "id": "Bid 11",
+      "evaluatedCost": 1856166
+     },
+     {
+      "id": "Bid 12",
+      "evaluatedCost": 1900885
+     },
+     {
+      "id": "Bid 13",
+      "evaluatedCost": 1912355
+     },
+     {
+      "id": "Bid 14",
+      "evaluatedCost": 2099006
+     },
+     {
+      "id": "Bid 15",
+      "evaluatedCost": 2149893
+     },
+     {
+      "id": "Bid 16",
+      "evaluatedCost": 2242001
+     }
+    ]
+   },
+   "expected": {
+    "approach": "relative",
+    "count": 16,
+    "mean": 1664426.375,
+    "standardDeviation": 315974.5374956808,
+    "limit": 1348451.8375043191,
+    "bids": [
+     {
+      "id": "Bid 1",
+      "evaluatedCost": 1145142,
+      "belowEstimatePct": 99.961024934142,
+      "flag": true,
+      "reason": "Bid 1: evaluated cost 1145142 is below the average 1664426.375 less one standard deviation 315974.5374956808, that is below 1348451.8375043191: a potential abnormally low bid: clarify the price with the bidder before any decision; it is never rejected automatically"
+     },
+     {
+      "id": "Bid 2",
+      "evaluatedCost": 1330191,
+      "belowEstimatePct": 99.95472676591312,
+      "flag": true,
+      "reason": "Bid 2: evaluated cost 1330191 is below the average 1664426.375 less one standard deviation 315974.5374956808, that is below 1348451.8375043191: a potential abnormally low bid: clarify the price with the bidder before any decision; it is never rejected automatically"
+     },
+     {
+      "id": "Bid 3",
+      "evaluatedCost": 1342106,
+      "belowEstimatePct": 99.95432123724534,
+      "flag": true,
+      "reason": "Bid 3: evaluated cost 1342106 is below the average 1664426.375 less one standard deviation 315974.5374956808, that is below 1348451.8375043191: a potential abnormally low bid: clarify the price with the bidder before any decision; it is never rejected automatically"
+     },
+     {
+      "id": "Bid 4",
+      "evaluatedCost": 1378232,
+      "belowEstimatePct": 99.95309168385441,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 5",
+      "evaluatedCost": 1462176,
+      "belowEstimatePct": 99.95023463824052,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 6",
+      "evaluatedCost": 1476269,
+      "belowEstimatePct": 99.94975498104243,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 7",
+      "evaluatedCost": 1486226,
+      "belowEstimatePct": 99.94941609317459,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 8",
+      "evaluatedCost": 1579100,
+      "belowEstimatePct": 99.94625511377947,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 9",
+      "evaluatedCost": 1613371,
+      "belowEstimatePct": 99.94508869556931,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 10",
+      "evaluatedCost": 1657703,
+      "belowEstimatePct": 99.94357984983696,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 11",
+      "evaluatedCost": 1856166,
+      "belowEstimatePct": 99.93682513426862,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 12",
+      "evaluatedCost": 1900885,
+      "belowEstimatePct": 99.93530311693793,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 13",
+      "evaluatedCost": 1912355,
+      "belowEstimatePct": 99.93491273390649,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 14",
+      "evaluatedCost": 2099006,
+      "belowEstimatePct": 99.92856004138673,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 15",
+      "evaluatedCost": 2149893,
+      "belowEstimatePct": 99.92682809532562,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 16",
+      "evaluatedCost": 2242001,
+      "belowEstimatePct": 99.9236931868461,
+      "flag": false,
+      "reason": null
+     }
+    ],
+    "flagged": [
+     "Bid 1",
+     "Bid 2",
+     "Bid 3"
+    ]
+   },
+   "tol": 1e-12,
+   "published": {
+    "source": "World Bank ALB Guidance (2016) Annex I Example 1",
+    "printedTolerance": 0.5,
+    "mean": 1664426,
+    "standardDeviation": 315975,
+    "limit": 1348452,
+    "flagged": [
+     "Bid 1",
+     "Bid 2",
+     "Bid 3"
+    ]
+   }
+  },
+  {
+   "id": "wb-alb-annex-i-example-2-absolute",
+   "fn": "abnormallyLow",
+   "args": {
+    "estimate": 150003863,
+    "bids": [
+     {
+      "id": "Bid 1",
+      "evaluatedCost": 85862863
+     },
+     {
+      "id": "Bid 2",
+      "evaluatedCost": 115494160
+     },
+     {
+      "id": "Bid 3",
+      "evaluatedCost": 158012899
+     },
+     {
+      "id": "Bid 4",
+      "evaluatedCost": 165385533
+     }
+    ]
+   },
+   "expected": {
+    "approach": "absolute",
+    "count": 4,
+    "mean": null,
+    "standardDeviation": null,
+    "limit": null,
+    "bids": [
+     {
+      "id": "Bid 1",
+      "evaluatedCost": 85862863,
+      "belowEstimatePct": 42.75956546532405,
+      "flag": true,
+      "reason": "Bid 1: evaluated cost 85862863 is 42.75956546532405% below the cost estimate 150003863, 20% or more below: a potential abnormally low bid: clarify the price with the bidder before any decision; it is never rejected automatically"
+     },
+     {
+      "id": "Bid 2",
+      "evaluatedCost": 115494160,
+      "belowEstimatePct": 23.005876188668555,
+      "flag": true,
+      "reason": "Bid 2: evaluated cost 115494160 is 23.005876188668555% below the cost estimate 150003863, 20% or more below: a potential abnormally low bid: clarify the price with the bidder before any decision; it is never rejected automatically"
+     },
+     {
+      "id": "Bid 3",
+      "evaluatedCost": 158012899,
+      "belowEstimatePct": -5.339219830625296,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "Bid 4",
+      "evaluatedCost": 165385533,
+      "belowEstimatePct": -10.254182587284436,
+      "flag": false,
+      "reason": null
+     }
+    ],
+    "flagged": [
+     "Bid 1",
+     "Bid 2"
+    ]
+   },
+   "tol": 1e-12,
+   "published": {
+    "source": "World Bank ALB Guidance (2016) Annex I Example 2",
+    "flagged": [
+     "Bid 1",
+     "Bid 2"
+    ],
+    "note": "the Guidance names Bid 1, the preferred lowest bid; Bid 2 (23.0% below the estimate) is also 20% or more below by the same rule, and Example 1 puts every bid below the limit in the risk zone"
+   }
+  },
+  {
+   "id": "alb-absolute-exactly-20pct",
+   "fn": "abnormallyLow",
+   "args": {
+    "estimate": 1000000,
+    "bids": [
+     {
+      "id": "AT",
+      "evaluatedCost": 800000
+     },
+     {
+      "id": "ABOVE",
+      "evaluatedCost": 800001
+     }
+    ]
+   },
+   "expected": {
+    "approach": "absolute",
+    "count": 2,
+    "mean": null,
+    "standardDeviation": null,
+    "limit": null,
+    "bids": [
+     {
+      "id": "AT",
+      "evaluatedCost": 800000,
+      "belowEstimatePct": 20.0,
+      "flag": true,
+      "reason": "AT: evaluated cost 800000 is 20% below the cost estimate 1000000, 20% or more below: a potential abnormally low bid: clarify the price with the bidder before any decision; it is never rejected automatically"
+     },
+     {
+      "id": "ABOVE",
+      "evaluatedCost": 800001,
+      "belowEstimatePct": 19.9999,
+      "flag": false,
+      "reason": null
+     }
+    ],
+    "flagged": [
+     "AT"
+    ]
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "alb-relative-at-the-limit-not-flagged",
+   "fn": "abnormallyLow",
+   "args": {
+    "bids": [
+     {
+      "id": "L0",
+      "evaluatedCost": 90
+     },
+     {
+      "id": "L1",
+      "evaluatedCost": 90
+     },
+     {
+      "id": "L2",
+      "evaluatedCost": 90
+     },
+     {
+      "id": "L3",
+      "evaluatedCost": 90
+     },
+     {
+      "id": "L4",
+      "evaluatedCost": 90
+     },
+     {
+      "id": "H0",
+      "evaluatedCost": 110
+     },
+     {
+      "id": "H1",
+      "evaluatedCost": 110
+     },
+     {
+      "id": "H2",
+      "evaluatedCost": 110
+     },
+     {
+      "id": "H3",
+      "evaluatedCost": 110
+     },
+     {
+      "id": "H4",
+      "evaluatedCost": 110
+     }
+    ]
+   },
+   "expected": {
+    "approach": "relative",
+    "count": 10,
+    "mean": 100.0,
+    "standardDeviation": 10.0,
+    "limit": 90.0,
+    "bids": [
+     {
+      "id": "L0",
+      "evaluatedCost": 90,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "L1",
+      "evaluatedCost": 90,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "L2",
+      "evaluatedCost": 90,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "L3",
+      "evaluatedCost": 90,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "L4",
+      "evaluatedCost": 90,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "H0",
+      "evaluatedCost": 110,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "H1",
+      "evaluatedCost": 110,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "H2",
+      "evaluatedCost": 110,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "H3",
+      "evaluatedCost": 110,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "H4",
+      "evaluatedCost": 110,
+      "belowEstimatePct": null,
+      "flag": false,
+      "reason": null
+     }
+    ],
+    "flagged": []
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "ws-alb-absolute-against-should-cost",
+   "fn": "abnormallyLow",
+   "args": {
+    "estimate": 895361.0416666666,
+    "bids": [
+     {
+      "id": "WS5",
+      "evaluatedCost": 862141.0
+     },
+     {
+      "id": "WS2",
+      "evaluatedCost": 885574.0
+     },
+     {
+      "id": "WS1",
+      "evaluatedCost": 928200.0
+     },
+     {
+      "id": "WS3",
+      "evaluatedCost": 957990.0
+     }
+    ]
+   },
+   "expected": {
+    "approach": "absolute",
+    "count": 4,
+    "mean": null,
+    "standardDeviation": null,
+    "limit": null,
+    "bids": [
+     {
+      "id": "WS5",
+      "evaluatedCost": 862141.0,
+      "belowEstimatePct": 3.7102397938634115,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "WS2",
+      "evaluatedCost": 885574.0,
+      "belowEstimatePct": 1.0930832604072849,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "WS1",
+      "evaluatedCost": 928200.0,
+      "belowEstimatePct": -3.6676778199111064,
+      "flag": false,
+      "reason": null
+     },
+     {
+      "id": "WS3",
+      "evaluatedCost": 957990.0,
+      "belowEstimatePct": -6.994827272890154,
+      "flag": false,
+      "reason": null
+     }
+    ],
+    "flagged": []
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "alb-refuse-no-estimate-under-five",
+   "fn": "abnormallyLow",
+   "args": {
+    "bids": [
+     {
+      "id": "A",
+      "evaluatedCost": 1
+     }
+    ]
+   },
+   "expected": {
+    "error": true,
+    "field": "estimate",
+    "message": "estimate is required: with 1 substantially responsive bid (fewer than 5) the absolute approach compares each bid with the Borrower's cost estimate"
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "alb-refuse-cost",
+   "fn": "abnormallyLow",
+   "args": {
+    "bids": [
+     {
+      "id": "A",
+      "evaluatedCost": 0
+     }
+    ],
+    "estimate": 5
+   },
+   "expected": {
+    "error": true,
+    "field": "bids[0].evaluatedCost",
+    "message": "bids[0].evaluatedCost must be a finite number above 0"
+   },
+   "tol": 1e-12
+  },
+  {
    "id": "ws-tender-combined",
    "fn": "evaluateTender",
    "args": {

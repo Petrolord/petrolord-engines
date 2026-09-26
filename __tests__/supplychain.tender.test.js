@@ -61,7 +61,7 @@ describe('goldens: the engine agrees with the oracle', () => {
 
   test('every exported function is exercised by at least one golden, and refused at least once', () => {
     const fns = Object.keys(T).filter((k) => typeof T[k] === 'function');
-    expect(fns.sort()).toEqual(['contentPreference', 'contractTypes', 'correctArithmetic', 'evaluateTender', 'evaluatedCosts',
+    expect(fns.sort()).toEqual(['abnormallyLow', 'contentPreference', 'contractTypes', 'correctArithmetic', 'evaluateTender', 'evaluatedCosts',
       'nigerianContent', 'rankTender', 'shouldCost', 'technicalEvaluation', 'weightingBand']);
     const used = new Set(G.cases.map((c) => c.fn));
     expect(fns.filter((f) => !used.has(f))).toEqual([]);
@@ -85,8 +85,8 @@ describe('goldens: the engine agrees with the oracle', () => {
 
 describe('published worked examples: the engine against the printed figures', () => {
   const printed = G.cases.filter((c) => c.published);
-  test('five sources are carried', () => {
-    expect(printed.length).toBeGreaterThanOrEqual(7);
+  test('six sources are carried', () => {
+    expect(printed.length).toBeGreaterThanOrEqual(9);
   });
   test.each(printed.map((c) => [c.id, c]))('%s', (id, c) => {
     const r = run(id);
@@ -101,6 +101,8 @@ describe('published worked examples: the engine against the printed figures', ()
     if (p.combined) Object.entries(p.combined).forEach(([k, v]) => near(row(k).combinedScore, v));
     if (p.commercial) Object.entries(p.commercial).forEach(([k, v]) => near(row(k).commercialScore, v));
     if (p.technicalWeighted) Object.entries(p.technicalWeighted).forEach(([k, v]) => near(0.8 * row(k).technicalScore, v));
+    if (p.flagged) expect(r.flagged).toEqual(p.flagged);
+    ['mean', 'standardDeviation', 'limit'].forEach((k) => { if (p[k] !== undefined) near(r[k], p[k]); });
     if (p.financialComparative) Object.entries(p.financialComparative).forEach(([k, v]) => expect(Math.abs(row(k).commercialScore - v)).toBeLessThanOrEqual(0.05));
   });
   test('the Guidance prints truncated or rounded figures that are not the exact ones (printed alike is not equal)', () => {

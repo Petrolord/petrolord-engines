@@ -78,7 +78,7 @@
  * (synthetic Ekene tenders): test-data/supplychain/ekene-tender/.
  */
 
-import { mulberry32, triInvCDF, basicStats } from '../../lib/stats/stats.js';
+import { mulberry32, triInvCDF, basicStats, mean as statMean, standardDeviation } from '../../lib/stats/stats.js';
 import { EXCEEDANCE_DEFINITION } from '../../lib/conventions/percentile.js';
 import { npv } from '../economics/cashflow.ts';
 import { evaluateProgram, afeCosts } from '../drilling/wellCost.js';
@@ -99,6 +99,8 @@ export const DEFAULTS = Object.freeze({
   NC_PRICE_MARGIN_PCT: 1,
   NC_LEAD_PCT: 5,
   INDIGENOUS_MARGIN_PCT: 10,
+  ALB_ABSOLUTE_PCT: 20,
+  ALB_RELATIVE_MIN_BIDS: 5,
 });
 
 /**
@@ -971,6 +973,53 @@ export const shouldCost = ({ program, nptFrac = 0, items, contingencyFrac = 0, p
       estimate: 'engines/drilling/wellCost.js evaluateProgram then afeCosts: per-day items x total days, per-meter items x drilled metres, lump items as valued, contingency as a fraction of the base',
       split: split ? 'engines/economics/afe.js calculatePartnerCosts: each partner pays its working interest; the operator carries 100 less the partner total' : null,
       band: `flag when ratio < ${fmt(band.low)} or ratio > ${fmt(band.high)}; both limits are inside the band`,
+    },
+  };
+};
+
+// ---- abnormally low bids (World Bank ALB Guidance) -------------------------
+
+/**
+ * Stage 1 of the World Bank's ALB Guidance (2016), on the evaluated costs of
+ * the substantially responsive bids. Fewer than five bids: the 'absolute'
+ * approach, a bid 20% or more below the Borrower's cost estimate
+ * (100 x (E - C) >= 20 x E) is a potential ALB, so the estimate is required.
+ * Five or more: the 'relative' approach, a bid more than one standard
+ * deviation below the average (C < mean - SD, the POPULATION standard
+ * deviation, lib/stats, as the Guidance's Annex I Example 1 computes it).
+ * A potential ALB is clarified with the bidder; it is never rejected
+ * automatically (the Guidance), and every reason says so.
+ */
+export const abnormallyLow = ({ bids, estimate } = {}) => {
+  const e = checkList(bids, 'bids', DEFAULTS.MAX_BIDS);
+  if (e) return e;
+  for (let i = 0; i < bids.length; i += 1) if (!fin(bids[i].evaluatedCost) || bids[i].evaluatedCost <= 0) return refuse(`bids[${i}].evaluatedCost`, 'must be a finite number above 0');
+  const n = bids.length;
+  const approach = n < DEFAULTS.ALB_RELATIVE_MIN_BIDS ? 'absolute' : 'relative';
+  if (approach === 'absolute' && (!fin(estimate) || estimate <= 0)) return refuse('estimate', `is required: with ${plural(n, 'substantially responsive bid')} (fewer than 5) the absolute approach compares each bid with the Borrower's cost estimate`);
+  if (estimate !== undefined && (!fin(estimate) || estimate <= 0)) return refuse('estimate', 'must be a finite number above 0 when given');
+  const costs = bids.map((b) => b.evaluatedCost);
+  const avg = approach === 'relative' ? statMean(costs) : null;
+  const sd = approach === 'relative' ? standardDeviation(costs) : null;
+  const limit = approach === 'relative' ? avg - sd : null;
+  const clarify = 'a potential abnormally low bid: clarify the price with the bidder before any decision; it is never rejected automatically';
+  const rows = bids.map((b) => {
+    const c = b.evaluatedCost;
+    if (approach === 'absolute') {
+      const belowPct = (100 * (estimate - c)) / estimate;
+      const flag = 100 * (estimate - c) >= DEFAULTS.ALB_ABSOLUTE_PCT * estimate;
+      return { id: b.id, evaluatedCost: c, belowEstimatePct: belowPct, flag, reason: flag ? `${b.id}: evaluated cost ${fmt(c)} is ${fmt(belowPct)}% below the cost estimate ${fmt(estimate)}, 20% or more below: ${clarify}` : null };
+    }
+    const flag = c < limit;
+    return { id: b.id, evaluatedCost: c, belowEstimatePct: estimate === undefined ? null : (100 * (estimate - c)) / estimate, flag, reason: flag ? `${b.id}: evaluated cost ${fmt(c)} is below the average ${fmt(avg)} less one standard deviation ${fmt(sd)}, that is below ${fmt(limit)}: ${clarify}` : null };
+  });
+  return {
+    approach, count: n, mean: avg, standardDeviation: sd, limit,
+    bids: rows,
+    flagged: rows.filter((r) => r.flag).map((r) => r.id),
+    basis: {
+      rule: approach === 'absolute' ? 'fewer than 5 substantially responsive bids: flag when 100 x (estimate - C) >= 20 x estimate (20% or more below)' : '5 or more substantially responsive bids: flag when C < mean - SD, the population standard deviation (more than one standard deviation below the average)',
+      source: 'World Bank Procurement Guidance, Abnormally Low Bids and Proposals (2nd ed., July 2016), Stage 1 and Annex I',
     },
   };
 };

@@ -963,6 +963,55 @@ def should_cost(a):
     return out
 
 
+# ------------------------------------------------------------------ abnormally low bids
+def abnormally_low(a):
+    bids = a.get('bids')
+    e = check_list(bids, 'bids', 100)
+    if e:
+        return e
+    for i, b in enumerate(bids):
+        if not isnum(b.get('evaluatedCost')) or b['evaluatedCost'] <= 0:
+            return refuse(f'bids[{i}].evaluatedCost', 'must be a finite number above 0')
+    n = len(bids)
+    est = a.get('estimate')
+    approach = 'absolute' if n < 5 else 'relative'
+    if approach == 'absolute' and (not isnum(est) or est <= 0):
+        return refuse('estimate', f"is required: with {plural(n, 'substantially responsive bid')} (fewer than 5) the absolute approach compares each bid with the Borrower's cost estimate")
+    if 'estimate' in a and (not isnum(est) or est <= 0):
+        return refuse('estimate', 'must be a finite number above 0 when given')
+    clarify = 'a potential abnormally low bid: clarify the price with the bidder before any decision; it is never rejected automatically'
+    rows = []
+    mean = sd = limit = None
+    if approach == 'relative':
+        xs = [F(b['evaluatedCost']) for b in bids]
+        m = sum(xs, F(0)) / n
+        var = sum(((x - m) ** 2 for x in xs), F(0)) / n          # population variance
+        getcontext_prec = Decimal(var.numerator) / Decimal(var.denominator)
+        sdd = getcontext_prec.sqrt()
+        mean, sd = fl(m), float(sdd)
+        lim = m - F(sdd)
+        limit = fl(lim)
+        # printed figures: the doubles in the engine's order (lib/stats mean, then population SD about it)
+        md = math.fsum(float(x) for x in xs) / n
+        vd = 0.0
+        for x in xs:
+            vd = vd + (float(x) - md) * (float(x) - md)
+        sdd_print = math.sqrt(vd / n)
+    for b in bids:
+        c = b['evaluatedCost']
+        if approach == 'absolute':
+            flag = 100 * (F(est) - F(c)) >= 20 * F(est)
+            shown = (100 * (est - c)) / est
+            rows.append({'id': b['id'], 'evaluatedCost': c, 'belowEstimatePct': fl(100 * (F(est) - F(c)) / F(est)), 'flag': flag,
+                         'reason': f"{b['id']}: evaluated cost {js_num(c)} is {js_num(shown)}% below the cost estimate {js_num(est)}, 20% or more below: {clarify}" if flag else None})
+        else:
+            flag = F(c) < lim
+            rows.append({'id': b['id'], 'evaluatedCost': c, 'belowEstimatePct': None if est is None else fl(100 * (F(est) - F(c)) / F(est)), 'flag': flag,
+                         'reason': f"{b['id']}: evaluated cost {js_num(c)} is below the average {js_num(md)} less one standard deviation {js_num(sdd_print)}, that is below {js_num(md - sdd_print)}: {clarify}" if flag else None})
+    return {'approach': approach, 'count': n, 'mean': mean, 'standardDeviation': sd, 'limit': limit, 'bids': rows,
+            'flagged': [r['id'] for r in rows if r['flag']]}
+
+
 # ------------------------------------------------------------------ whole tender
 def evaluate_tender(a, descriptions):
     award = a.get('award')
@@ -1061,6 +1110,7 @@ FNS = {
     'contentPreference': content_preference,
     'contractTypes': contract_types,
     'shouldCost': should_cost,
+    'abnormallyLow': abnormally_low,
     'evaluateTender': lambda a: evaluate_tender(a, DESCRIPTIONS),
 }
 
@@ -1340,6 +1390,21 @@ def build():
     case('should-cost-refuse-no-band', 'shouldCost', {'program': flat, 'items': items, 'bids': [{'id': 'X', 'evaluatedCost': 1}]})
     case('should-cost-refuse-band-order', 'shouldCost', {'program': flat, 'items': items, 'band': {'low': 1.2, 'high': 1.1}, 'bids': [{'id': 'X', 'evaluatedCost': 1}]})
     case('should-cost-refuse-empty-program', 'shouldCost', {'program': [], 'items': items, 'band': {'low': 0.8, 'high': 1.2}, 'bids': [{'id': 'X', 'evaluatedCost': 1}]})
+
+    # ---- abnormally low bids (WB ALB Guidance 2016)
+    ex1 = [1145142, 1330191, 1342106, 1378232, 1462176, 1476269, 1486226, 1579100, 1613371, 1657703, 1856166, 1900885, 1912355, 2099006, 2149893, 2242001]
+    case('wb-alb-annex-i-example-1-relative', 'abnormallyLow', {'estimate': 2938140000, 'bids': [{'id': f'Bid {i + 1}', 'evaluatedCost': c} for i, c in enumerate(ex1)]},
+         published={'source': 'World Bank ALB Guidance (2016) Annex I Example 1', 'printedTolerance': 0.5, 'mean': 1664426, 'standardDeviation': 315975, 'limit': 1348452,
+                    'flagged': ['Bid 1', 'Bid 2', 'Bid 3']})
+    case('wb-alb-annex-i-example-2-absolute', 'abnormallyLow', {'estimate': 150003863, 'bids': [{'id': f'Bid {i + 1}', 'evaluatedCost': c} for i, c in enumerate([85862863, 115494160, 158012899, 165385533])]},
+         published={'source': 'World Bank ALB Guidance (2016) Annex I Example 2', 'flagged': ['Bid 1', 'Bid 2'],
+                    'note': 'the Guidance names Bid 1, the preferred lowest bid; Bid 2 (23.0% below the estimate) is also 20% or more below by the same rule, and Example 1 puts every bid below the limit in the risk zone'})
+    case('alb-absolute-exactly-20pct', 'abnormallyLow', {'estimate': 1000000, 'bids': [{'id': 'AT', 'evaluatedCost': 800000}, {'id': 'ABOVE', 'evaluatedCost': 800001}]})
+    case('alb-relative-at-the-limit-not-flagged', 'abnormallyLow', {'bids': [{'id': k, 'evaluatedCost': c} for k, c in [(f'L{i}', 90) for i in range(5)] + [(f'H{i}', 110) for i in range(5)]]})
+    ws_sc = FNS['shouldCost']({'program': prog, 'nptFrac': sc['nptFrac'], 'items': sc['items'], 'contingencyFrac': sc['contingencyFrac'], 'band': sc['band'], 'bids': sc_bids})
+    case('ws-alb-absolute-against-should-cost', 'abnormallyLow', {'estimate': ws_sc['estimate'], 'bids': [{'id': r['id'], 'evaluatedCost': r['evaluatedCost']} for r in ws_ev['bids']]})
+    case('alb-refuse-no-estimate-under-five', 'abnormallyLow', {'bids': [{'id': 'A', 'evaluatedCost': 1}]})
+    case('alb-refuse-cost', 'abnormallyLow', {'bids': [{'id': 'A', 'evaluatedCost': 0}], 'estimate': 5})
 
     # ---- whole tenders
     def tender_args(t, **over):
