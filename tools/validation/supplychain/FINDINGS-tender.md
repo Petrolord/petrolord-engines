@@ -1,15 +1,15 @@
 # FINDINGS: tender (oracle_tender.py, Supply Chain SC2, procurement, tendering and contracting)
 
-Golden: `test-data/supplychain/goldens/tender_cases.json`, 142 cases (57 of
+Golden: `test-data/supplychain/goldens/tender_cases.json`, 141 cases (57 of
 them refusals, every refusal message pinned in full), written by
 `tools/validation/supplychain/oracle_tender.py`. Gate:
-`__tests__/supplychain.tender.test.js` (174 tests) calls the engine on every
+`__tests__/supplychain.tender.test.js` (175 tests) calls the engine on every
 golden, checks the published worked examples against their printed figures,
 checks the planted fixture situations and runs property tests. Negative
-control: `negcontrol_tender.sh` (52/52 engine plants red, 7/7 oracle plants
+control: `negcontrol_tender.sh` (54/54 engine plants red, 7/7 oracle plants
 caught). Timing: `timing_tender.js` (table below). Fixtures:
 `test-data/supplychain/ekene-tender/`, written by `make_tender_fixtures.py`.
-Full engines suite on the branch: 225 suites, 16,850 tests passed.
+Full engines suite on the branch: 225 suites, 16,851 tests passed.
 
 The oracle is STDLIB ONLY (python 3.12: `fractions`, `decimal`, `math`). It
 reads no JavaScript and takes a different road on every route (table in its
@@ -104,7 +104,26 @@ Wells and depths follow `test-data/ekene-dynamic/field.json`.
 | Kiiver and Kodym (2015) Table 1 | 100, 67, 50 | 100, 66.6667, 50 | 67 is rounded. Their "under linear conditions it would receive 75 points" draws the line between A's 100 and C's 50; the engine's 'linear' method gives the highest bid 0 (the family their text describes), so B scores 50 on it. |
 | Chen (2008) p. 409 | 50 x L / P: A 50, B 40, C 25; A declared invalid: B 50, C 31.25 (gap 15 to 18.75) | identical | the ranking paradox of relative price scores, exactly |
 
-## Decisions and refinements of the lead's scope
+## Lead decisions (2026-09-26), applied in 20988b0
+
+1. Omission pricing: `omissionRule` defaults to 'average' (WB SPD ITB 34.1,
+   cited). 'highest' stays available; its reason, basis and the refusal
+   message say it is not from the cited texts. The course teaches and grades
+   the cited rule only.
+2. Mean-deviation price scoring: DROPPED from the engine, oracle, goldens and
+   tests (unsourced). `priceMethod` is 'lowest-ratio' or 'linear', both cited;
+   'mean-deviation' is now refused (golden `rank-refuse-mean-deviation-dropped`).
+3. s.14: the readings are stated verbatim in every s.14 reason and in
+   `section14.readings`; `ncLeadBasis` stays a required input with no default.
+   The course presents both readings side by side as an open question of the
+   Act, and any graded field states its basis.
+4. P-labels follow lib/conventions/percentile.js; the contractTypes basis
+   states that for a cost P90 is the LOW cost and P10 the HIGH cost.
+5. The 2010 Schedule only, stated with its date in every Nigerian content
+   target source and basis ("Act No. 2, commenced 22 April 2010 ... as
+   enacted in 2010 (later Board targets are not included)").
+
+## Decisions and refinements of the lead's scope (as first reported)
 
 1. **Omission pricing: the current texts say AVERAGE; the lead's scope said
    HIGHEST.** WB SPD ITB 34.1 (Works Sep 2025, Goods Feb 2025) prices a
@@ -114,7 +133,7 @@ Wells and depths follow `test-data/ekene-dynamic/field.json`.
    `omissionRule` is 'average' (cited) or 'highest' (a stated alternative,
    labelled as not from the cited texts). The materials fixture is built so
    the rule decides the lowest evaluated cost (average: MS4; highest: MS2).
-   Lead decision: keep 'highest' as a taught alternative, or drop it.
+   Lead decision taken: default 'average'; 'highest' kept, labelled.
 2. **Which bids price an omission:** the other bids still substantially
    responsive at that point (bids rejected at the commercial stage and bids
    beyond the maximum completion time are removed first). A bid never prices
@@ -133,8 +152,7 @@ Wells and depths follow `test-data/ekene-dynamic/field.json`.
    Cmean))) has no published formula I could read**: Kiiver and Kodym and
    Chen describe average-price methods and warn against them, neither prints
    a formula, and the survey that does was not accessible. The formula is
-   ours and labelled so. Lead decision: keep it as the taught anti-pattern
-   (it can score the cheapest bid below a dearer one), or drop it.
+   ours. Lead decision taken: dropped.
 6. **Technical score:** 'relative' is the SPD's T/Thigh x 100 (the Guidance's
    comparative scoring); 'absolute' uses the percentage as scored. The
    technical percentage is sum of weight x score / maxScore with weights
@@ -161,7 +179,8 @@ Wells and depths follow `test-data/ekene-dynamic/field.json`.
    commercial stage of a lowest-evaluated-cost award; with a combined award
    the engine refuses and says to state content as a rated criterion.
    Lead decision: confirm (a) and (b), and which reading of (c) the course
-   presents first (no NCDMB text read settles it).
+   presents first (no NCDMB text read settles it). Lead decision taken:
+   both readings side by side, basis stated on every graded field.
 10. **s.16** protects an indigenous company with capacity from exclusion
     solely on price within 10 percent (100 x (C - Cmin) <= 10 x Cmin,
     inclusive); it never selects a bid. "Indigenous" and "capacity" are
@@ -194,8 +213,8 @@ Wells and depths follow `test-data/ekene-dynamic/field.json`.
     so for a COST the engine's P90 is the LOW cost (10th percentile) and P10
     the high cost, the reverse of the habit of many cost engineers. The engine
     follows the Suite convention and prints the definition
-    (`percentileDefinition`). Lead decision: keep (and teach the reversal) or
-    report cost percentiles as q10/q50/q90 without P-labels.
+    (`percentileDefinition`). Lead decision taken: keep, state it in the
+    basis, teach the reversal.
 15. **Should-cost** is built entirely by the imported engines
     (`drilling/wellCost.js` evaluateProgram and afeCosts, contingency
     included; `economics/afe.js` calculatePartnerCosts for the net share). Its
@@ -261,8 +280,8 @@ comfortable at 20,000 iterations and 100 bids of 100 lines.
 
 ## Negative control
 
-`tools/validation/supplychain/negcontrol_tender.sh`, run on d3b5fa7
-(baseline 174 passed): **52/52 engine plants red, 7/7 oracle plants caught
+`tools/validation/supplychain/negcontrol_tender.sh`, run on 20988b0
+(baseline 175 passed): **54/54 engine plants red, 7/7 oracle plants caught
 (all red), 0 skipped.** Each line: the plant, the failures, the first
 failing test.
 
@@ -272,14 +291,14 @@ RED   [ENGINE] weights ignored (every criterion 20) -- 16 failed -- first: ws-te
 RED   [ENGINE] score not divided by its maxScore (fixed scale 4) -- 2 failed -- first: wb-guidance-annex-2
 RED   [ENGINE] pass mark exclusive -- 5 failed -- first: ws-technical
 RED   [ENGINE] every commercial envelope opened -- 10 failed -- first: ws-tender-combined
-RED   [ENGINE] quoted total always governs -- 7 failed -- first: ws-arith-WS2
+RED   [ENGINE] quoted total always governs -- 8 failed -- first: ws-arith-WS2
 RED   [ENGINE] arithmetic tolerance inclusive -- 1 failed -- first: arith-gap-equal-to-tolerance-not-corrected
-RED   [ENGINE] average rule priced at the highest -- 9 failed -- first: ws-evaluated-average
+RED   [ENGINE] average rule priced at the highest -- 10 failed -- first: ws-evaluated-average
 RED   [ENGINE] highest rule priced at the lowest -- 5 failed -- first: ws-evaluated-highest
 RED   [ENGINE] rejected bids price omissions -- 1 failed -- first: ec-rejected-bid-prices-no-omission
 RED   [ENGINE] credit for early completion -- 1 failed -- first: ec-schedule-boundaries
 RED   [ENGINE] maxWeeks exclusive -- 1 failed -- first: ec-schedule-boundaries
-RED   [ENGINE] discount not deducted -- 4 failed -- first: ws-evaluated-average
+RED   [ENGINE] discount not deducted -- 5 failed -- first: ws-evaluated-average
 RED   [ENGINE] residual value not credited -- 1 failed -- first: ec-life-cycle-residual
 RED   [ENGINE] life cycle discounted from year 0 -- 7 failed -- first: ms-evaluated-average
 RED   [ENGINE] cost tie-break reversed -- 1 failed -- first: rank-tie-broken-by-lower-cost
@@ -288,9 +307,8 @@ RED   [ENGINE] id tie-break reversed -- 4 failed -- first: ec-schedule-boundarie
 RED   [ENGINE] ties compared exactly (no 12-digit key) -- 1 failed -- first: ec-tie-at-12-digits
 RED   [ENGINE] lowest-ratio inverted -- 19 failed -- first: ws-rank-combined
 RED   [ENGINE] linear over Cmax -- 2 failed -- first: ws-rank-linear
-RED   [ENGINE] mean deviation signed -- 2 failed -- first: ws-rank-mean-deviation
-RED   [ENGINE] relative technical score not normalised -- 13 failed -- first: ws-rank-combined
-RED   [ENGINE] technical and commercial weights swapped -- 17 failed -- first: ws-rank-combined
+RED   [ENGINE] relative technical score not normalised -- 12 failed -- first: ws-rank-combined
+RED   [ENGINE] technical and commercial weights swapped -- 15 failed -- first: ws-rank-combined
 RED   [ENGINE] high value strictly above 10 million -- 1 failed -- first: band-c-low-risk-high-value-at-10m
 RED   [ENGINE] content measure not checked -- 1 failed -- first: nc-refuse-measure-mismatch
 RED   [ENGINE] content share of Nigerian over foreign -- 3 failed -- first: ws-nigerian-content
@@ -318,9 +336,12 @@ RED   [ENGINE] ALB limit two standard deviations -- 3 failed -- first: wb-alb-an
 RED   [ENGINE] ALB reason drops 'never rejected automatically' -- 3 failed -- first: wb-alb-annex-i-example-1-relative
 RED   [ENGINE] s.14 reason in other words -- 6 failed -- first: ms-preference-average-relative
 RED   [ENGINE] pass-mark reason in other words -- 11 failed -- first: ws-technical
-RED   [ENGINE] omission refusal drops 'there is no default' -- 2 failed -- first: ec-refuse-no-omission-rule
+RED   [ENGINE] omission refusal drops 'not from the cited texts' -- 1 failed -- first: ec-refuse-omission-rule-lowest
+RED   [ENGINE] omission default is the highest -- 2 failed -- first: ws-evaluated-default-rule-is-average
+RED   [ENGINE] s.14 readings dropped from the reason -- 16 failed -- first: ms-preference-average-points
+RED   [ENGINE] cost P-label reversal dropped from the basis -- 1 failed -- first: lead decisions: every s.14 reason states the readings, and the cost P-label reversal is in the basis
 RED   [ORACLE] oracle pass mark exclusive -- 4 failed -- first: ws-technical
-RED   [ORACLE] oracle average rule as the highest -- 8 failed -- first: ws-evaluated-average
+RED   [ORACLE] oracle average rule as the highest -- 9 failed -- first: ws-evaluated-average
 RED   [ORACLE] oracle s.14 lead 6 points -- 2 failed -- first: s14-group-edge-1pct-in
 RED   [ORACLE] oracle id tie-break reversed -- 4 failed -- first: ec-schedule-boundaries
 RED   [ORACLE] oracle measure not checked -- 1 failed -- first: nc-refuse-measure-mismatch
@@ -330,11 +351,5 @@ RED   [ORACLE] oracle s.14 group within 2% -- 1 failed -- first: s14-group-edge-
 
 ## Open questions for the lead
 
-1. Omission rule 'highest': keep as a stated alternative or drop (decision 1).
-2. 'mean-deviation' price scoring: keep as the taught anti-pattern with our
-   formula, or drop until a published formula is read (decision 5).
-3. s.14 readings (decision 9), especially which reading of "5% higher" the
-   course presents first.
-4. P-labels on a cost distribution (decision 14).
-5. Later NCDMB targets: the engine carries the 2010 Schedule only; any
+1. Later NCDMB targets: the engine carries the 2010 Schedule only; any
    Board-revised target must be read and cited first.

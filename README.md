@@ -743,14 +743,16 @@ and its consumers.
   their price opened), arithmetic correction (World Bank SPD ITB 35.1: the
   unit rate prevails), lowest evaluated cost (discounts, priced deviations,
   omissions at the average price of the other responsive bids per SPD ITB
-  34.1 or a stated highest-price alternative, schedule adjustment, life-cycle
+  34.1 (the default; a highest-price option is labelled as not from the cited
+  texts), schedule adjustment, life-cycle
   cost through the canonical `economics/cashflow.ts` npv), the combined score
-  B = Clow/C x X x 100 + T/Thigh x (1 - X) x 100 with lowest-ratio, linear and
-  mean-deviation price methods, the World Bank Rated Criteria weighting
+  B = Clow/C x X x 100 + T/Thigh x (1 - X) x 100 with lowest-ratio and linear
+  price methods, the World Bank Rated Criteria weighting
   matrix, abnormally low bid identification (World Bank ALB Guidance,
   absolute below five bids, relative from five), Nigerian content against the
   Schedule of the Nigerian Oil and Gas Industry Content Development Act 2010
-  with its s.14 (1% / 5%, the lead reading a required input) and s.16 (10
+  with its s.14 (1% / 5%, the readings stated in every reason, the lead
+  reading a required input) and s.16 (10
   percent) rules, lump sum against day rate against reimbursable under
   duration uncertainty (lib/stats mulberry32 and triInvCDF, days from
   `drilling/wellCost.js`), and a should-cost estimate built by
