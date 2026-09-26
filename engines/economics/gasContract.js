@@ -179,7 +179,7 @@ export const ACCEPTED_KEYS = Object.freeze({
   takeOrPay: TOP_ARGS,
   priceSeries: O(['months', 'formula', 'from', 'to', 'averagingMonths', 'lagMonths', 'resetMonths', 'rounding', 'reopeners'], { months: L(O(['month', 'values'])), formula: FORMULA }),
   energyParitySlope: O(['mmbtuPerBarrel']),
-  domesticPrice: O(['sector', 'domesticBasePrice', 'negotiatedPrice', 'product', 'cmpp', 'transportTariff', 'schedule'], { schedule: O(['nrp', 'prp', 'source']) }),
+  domesticPrice: O(['sector', 'priceControlApplies', 'domesticBasePrice', 'negotiatedPrice', 'product', 'cmpp', 'transportTariff', 'schedule'], { schedule: O(['nrp', 'prp', 'source']) }),
   domesticGasObligation: O(['obligation', 'delivered', 'voluntaryContracts', 'excused', 'agreementPenaltyRate', 'penaltyRate'], {
     excused: O(['forceMajeure', 'purchaserCannotAccept', 'transportUnavailable', 'purchaserNonPayment']), penaltyRate: O(['value', 'source']),
   }),
@@ -446,7 +446,8 @@ const checkTopArgs = ({ years, topPct, makeUp, carryForward }, pre = '') => {
     if (i > 0 && y.year !== years[i - 1].year + 1) return must(`${f}.year`, `${years[i - 1].year + 1}, the year after ${years[i - 1].year} (contract years are consecutive)`, y.year);
     e = first(
       nonNeg(`${f}.acq`, y.acq), nonNeg(`${f}.taken`, y.taken),
-      ...['maintenance', 'forceMajeure', 'sellerShortfall', 'permittedReduction'].map((k) => (y[k] !== undefined ? nonNeg(`${f}.${k}`, y[k]) : null)),
+      ...['maintenance', 'forceMajeure', 'sellerShortfall'].map((k) => (y[k] !== undefined ? nonNeg(`${f}.${k}`, y[k]) : null)),
+      y.permittedReduction === undefined ? must(`${f}.permittedReduction`, 'stated for every contract year (0 when the contract permits none); the engine holds no default', undefined) : nonNeg(`${f}.permittedReduction`, y.permittedReduction),
       nonNeg(`${f}.contractPrice`, y.contractPrice), nonNeg(`${f}.topPrice`, y.topPrice), nonNeg(`${f}.makeUpPrice`, y.makeUpPrice),
       y.shortfallPrice !== undefined ? nonNeg(`${f}.shortfallPrice`, y.shortfallPrice) : null,
     );
@@ -504,10 +505,11 @@ const takeOrPayCore = ({ years, topPct, makeUp, carryForward }) => {
   const last = years[years.length - 1].year;
   for (const y of years) {
     const reasons = [];
+    if (topPct === 0) reasons.push(`${y.year}: a take-or-pay percentage of 0 sets no take-or-pay quantity`);
     const maint = y.maintenance ?? 0;
     const fm = y.forceMajeure ?? 0;
     const sfq = y.sellerShortfall ?? 0;
-    const perm = y.permittedReduction ?? 0;
+    const perm = y.permittedReduction;
     const adjustedAcq = y.acq - maint - fm - sfq - perm;
     const topQuantity = (topPct * adjustedAcq) / 100;
     const muAvail = sum(mu.map((m) => m.left));
@@ -598,6 +600,8 @@ const takeOrPayCore = ({ years, topPct, makeUp, carryForward }) => {
       order: `${makeUp.order}: ${ORDERS[makeUp.order].text} (${ORDERS[makeUp.order].source}); a required input with no default. 'after-adjusted-acq' is the reference text's order (${CITE.cw} Article 12.7.1); 'after-top-quantity' and 'first' are variants the engine also computes`,
       rule: 'Adjusted ACQ = ACQ - maintenance - force majeure - seller shortfall - permitted reduction; TOPQ = topPct % of Adjusted ACQ; deficiency = TOPQ - (taken - make-up taken) when positive; deficiency payment = (deficiency - carry-forward credit) x topPrice',
       makeUp: `make-up entries are the deficiency quantities paid, recoverable in the ${unit(makeUp.periodYears, 'contract year')} after the deficiency year, drawn first in first out, expiring at the end of their last year; at the end of the delivery period the rest is ${makeUp.endOfTerm === 'refund' ? 'refunded at the last year\'s topPrice' : 'forfeited'}`,
+      topPct: topPct === 0 ? 'a take-or-pay percentage of 0 sets no take-or-pay quantity' : `take-or-pay percentage ${fmt(topPct)} of the Adjusted ACQ`,
+      permittedReduction: 'stated for every contract year (0 when the contract permits none); the engine holds no default',
       carryForward: cfOn ? `surplus above the ${carryForward.base === 'adjusted-acq' ? 'Adjusted ACQ' : 'take-or-pay quantity'} is credited against later deficiencies, at most ${fmt(carryForward.capPct)}% of a year's deficiency, first in first out, for ${unit(carryForward.periodYears, 'contract year')}` : 'off (no carry-forward right stated)',
       reading: "make-up right equals the deficiency actually paid after any carry-forward credit; a last-contract-year deficiency creates no make-up right (forfeit/refund applies to earlier years' make-up only); the Make-Up Aggregate sums prior contract years only",
       source: `${CITE.cw} definitions and Articles 12.5 to 12.8; ${CITE.esmap} paras 6.55 to 6.62; ${CITE.hmrcMakeUp}`,
@@ -845,94 +849,127 @@ const energyParitySlopeImpl = ({ mmbtuPerBarrel }) => {
 
 const SECTORS = ['power', 'commercial', 'gas-distributor', 'gas-based-industry'];
 
+const S167_3 = 'PIA s.167(3): "The price control and the corresponding role of the domestic gas aggregator shall not be required, where the (a) entire domestic gas demand requirement under section 173 (2) is covered by contracts under sections 110 (2) and 173 (3) of this Act; or (b) domestic market for natural gas is largely characterised by free market based contracting for natural gas between willing buyers and willing sellers, based on criteria established by the Authority in consultation with the stakeholders and at such time the provisions of subsections (4), (5), (6) and (7) and section 168 shall no longer be applicable"';
+
 /**
- * Domestic gas prices at the marketable gas delivery point under the PIA:
+ * Domestic gas prices at the marketable gas delivery point under the PIA.
+ * priceControlApplies is a REQUIRED statement (no default): whether the
+ * price control of s.167 still applies, or the free-market criteria of
+ * s.167(3)(b) are met, after which s.167(4) to (7) and s.168 no longer apply.
+ * While price control applies:
  *   power              the domestic base price (s.167(5))
  *   commercial         the domestic base price + US$0.50 per MMBtu (s.167(6))
- *   gas-distributor    the negotiated price, reported against its ceiling,
- *                      the commercial price (s.167(7))
+ *   gas-distributor    the negotiated price, which "shall not exceed" the
+ *                      commercial price (s.167(7)): above it, the lawful
+ *                      price is held at that ceiling; the stated figure is
+ *                      returned as statedPrice
  *   gas-based-industry CP = NRP x (1 + EPF), EPF = (CMPP - PRP) / PRP, held
  *                      at or below the domestic base price (Fourth Schedule;
  *                      s.168(3)) and at or above US$0.90 per MMBtu (s.168(2))
- * The domestic base price is a REQUIRED input: the Authority determines it
- * each year (s.167(1), Third Schedule); the engine holds no default. The
+ * Both ceilings are applied the same way: `price` is the lawful figure,
+ * `heldAt` names the bound that held it, the reason cites the section.
+ * Without price control every sector's price is the negotiated price, with
+ * no s.167 or s.168 ceiling or floor.
+ * The domestic base price is a REQUIRED input under price control: the
+ * Authority determines it each year (s.167(1), Third Schedule). The
  * transport tariff (s.167(8), s.168(4)) is added when stated.
  */
-const domesticPriceImpl = ({ sector, domesticBasePrice, negotiatedPrice, product, cmpp, transportTariff, schedule }) => {
+const domesticPriceImpl = ({ sector, priceControlApplies, domesticBasePrice, negotiatedPrice, product, cmpp, transportTariff, schedule }) => {
   let e = first(
     oneOf('sector', sector, SECTORS),
-    domesticBasePrice === undefined ? must('domesticBasePrice', 'stated in US$ per MMBtu: the Authority determines it each year (PIA s.167(1)) and the engine holds no default', undefined) : positive('domesticBasePrice', domesticBasePrice),
+    typeof priceControlApplies === 'boolean' ? null : must('priceControlApplies', 'true or false, stated: whether the price control of PIA s.167 applies, or the free-market criteria of s.167(3)(b) are met (no default)', priceControlApplies),
     transportTariff !== undefined ? nonNeg('transportTariff', transportTariff) : null,
   );
   if (e) return e;
-  const dbp = domesticBasePrice;
-  const out = { sector, domesticBasePrice: dbp };
+  const out = { sector, priceControlApplies };
   let rule;
   let source;
-  if (sector !== 'gas-distributor' && negotiatedPrice !== undefined) return must('negotiatedPrice', "given only for sector 'gas-distributor'", negotiatedPrice);
-  if (sector !== 'gas-based-industry') {
+  if (!priceControlApplies) {
     for (const k of ['product', 'cmpp', 'schedule']) {
       const v = { product, cmpp, schedule }[k];
-      if (v !== undefined) return must(k, "given only for sector 'gas-based-industry'", v);
+      if (v !== undefined) return must(k, 'given only when priceControlApplies is true (the Fourth Schedule formula is part of s.168)', v);
     }
-  }
-  if (sector === 'power') {
-    out.price = dbp;
-    rule = 'power sector price = domestic base price';
-    source = 's.167(5)';
-  } else if (sector === 'commercial') {
-    out.price = dbp + PIA_GAS.commercialAdderUsdPerMmbtu;
-    rule = 'commercial sector price = domestic base price + US$0.50 per MMBtu';
-    source = 's.167(6)';
-  } else if (sector === 'gas-distributor') {
-    e = negotiatedPrice === undefined ? must('negotiatedPrice', 'stated for a gas distributor, which negotiates its price (PIA s.167(7))', undefined) : nonNeg('negotiatedPrice', negotiatedPrice);
+    e = first(
+      domesticBasePrice !== undefined ? positive('domesticBasePrice', domesticBasePrice) : null,
+      negotiatedPrice === undefined ? must('negotiatedPrice', 'stated when priceControlApplies is false: every sector negotiates its price (PIA s.167(3)(b))', undefined) : nonNeg('negotiatedPrice', negotiatedPrice),
+    );
     if (e) return e;
-    out.ceiling = dbp + PIA_GAS.commercialAdderUsdPerMmbtu;
-    out.price = negotiatedPrice;
-    out.withinCeiling = negotiatedPrice <= out.ceiling;
-    out.reason = out.withinCeiling
-      ? `negotiated price ${fmt(negotiatedPrice)} is at or below the commercial sector price ${fmt(out.ceiling)}`
-      : `negotiated price ${fmt(negotiatedPrice)} exceeds the commercial sector price ${fmt(out.ceiling)}, which s.167(7) sets as the ceiling for gas distributors`;
-    rule = 'gas distributors negotiate; the price shall not exceed the commercial sector price';
-    source = 's.167(7)';
+    Object.assign(out, { domesticBasePrice: domesticBasePrice ?? null, statedPrice: negotiatedPrice, price: negotiatedPrice, heldAt: null });
+    out.reason = `price control does not apply: the negotiated price ${fmt(negotiatedPrice)} stands, with no ceiling or floor, because s.167(4) to (7) and s.168 no longer apply once the free-market criteria are met (s.167(3)(b))`;
+    rule = 'without price control the negotiated price stands; no s.167 or s.168 ceiling or floor applies';
+    source = 's.167(3)(b)';
   } else {
-    e = oneOf('product', product, Object.keys(PIA_GAS.gbiProducts));
+    e = domesticBasePrice === undefined ? must('domesticBasePrice', 'stated in US$ per MMBtu: the Authority determines it each year (PIA s.167(1)) and the engine holds no default', undefined) : positive('domesticBasePrice', domesticBasePrice);
     if (e) return e;
-    e = cmpp === undefined ? must('cmpp', 'stated: the average current month end product price in US$ per tonne (Fourth Schedule)', undefined) : nonNeg('cmpp', cmpp);
-    if (e) return e;
-    let nrp = PIA_GAS.gbiProducts[product].nrp;
-    let prp = PIA_GAS.gbiProducts[product].prp;
-    let valuesFrom = 'Fourth Schedule table';
-    if (schedule !== undefined) {
-      if (!isObj(schedule)) return must('schedule', 'an object { nrp, prp, source } when given', schedule);
-      e = first(positive('schedule.nrp', schedule.nrp), positive('schedule.prp', schedule.prp), text('schedule.source', schedule.source));
-      if (e) return e;
-      nrp = schedule.nrp;
-      prp = schedule.prp;
-      valuesFrom = `stated by the caller: ${schedule.source} (the Authority may change NRP and PRP by regulation, Fourth Schedule)`;
+    const dbp = domesticBasePrice;
+    out.domesticBasePrice = dbp;
+    if (sector !== 'gas-distributor' && negotiatedPrice !== undefined) return must('negotiatedPrice', "given only for sector 'gas-distributor' while priceControlApplies is true", negotiatedPrice);
+    if (sector !== 'gas-based-industry') {
+      for (const k of ['product', 'cmpp', 'schedule']) {
+        const v = { product, cmpp, schedule }[k];
+        if (v !== undefined) return must(k, "given only for sector 'gas-based-industry'", v);
+      }
     }
-    if (dbp < PIA_GAS.gbiFloorUsdPerMmbtu) return must('domesticBasePrice', `at or above the gas based industries floor US$0.90 per MMBtu (s.168(2)) for a gas based industry price, which is capped at the domestic base price (s.168(3))`, dbp);
-    const epf = (cmpp - prp) / prp;
-    const formulaPrice = nrp * (1 + epf);
-    let price = formulaPrice;
-    let held = null;
-    if (price > dbp) { price = dbp; held = 'ceiling'; }
-    if (price < PIA_GAS.gbiFloorUsdPerMmbtu) { price = PIA_GAS.gbiFloorUsdPerMmbtu; held = 'floor'; }
-    Object.assign(out, { product, cmpp, nrp, prp, epf, formulaPrice, price, heldAt: held });
-    out.reason = held === 'ceiling'
-      ? `the formula gives ${fmt(formulaPrice)}, above the domestic base price ${fmt(dbp)}, so the price is held at ${fmt(dbp)} (s.168(3))`
-      : held === 'floor'
-        ? `the formula gives ${fmt(formulaPrice)}, below the floor US$0.90 per MMBtu, so the price is held at 0.9 (s.168(2))`
-        : `the formula gives ${fmt(formulaPrice)}, inside the floor 0.9 and the domestic base price ${fmt(dbp)}`;
-    rule = `CP = NRP x (1 + EPF), EPF = (CMPP - PRP) / PRP, CP <= domestic base price, floor US$0.90 per MMBtu; NRP ${fmt(nrp)} and PRP ${fmt(prp)} from the ${valuesFrom}`;
-    source = 's.168 and the Fourth Schedule';
+    if (sector === 'power') {
+      out.price = dbp;
+      rule = 'power sector price = domestic base price';
+      source = 's.167(5)';
+    } else if (sector === 'commercial') {
+      out.price = dbp + PIA_GAS.commercialAdderUsdPerMmbtu;
+      rule = 'commercial sector price = domestic base price + US$0.50 per MMBtu';
+      source = 's.167(6)';
+    } else if (sector === 'gas-distributor') {
+      e = negotiatedPrice === undefined ? must('negotiatedPrice', 'stated for a gas distributor, which negotiates its price (PIA s.167(7))', undefined) : nonNeg('negotiatedPrice', negotiatedPrice);
+      if (e) return e;
+      const ceiling = dbp + PIA_GAS.commercialAdderUsdPerMmbtu;
+      const within = negotiatedPrice <= ceiling;
+      Object.assign(out, { statedPrice: negotiatedPrice, ceiling, withinCeiling: within, price: within ? negotiatedPrice : ceiling, heldAt: within ? null : 'ceiling' });
+      out.reason = within
+        ? `the negotiated price ${fmt(negotiatedPrice)} is at or below the commercial sector price ${fmt(ceiling)}, the ceiling for gas distributors (s.167(7))`
+        : `the negotiated price ${fmt(negotiatedPrice)} exceeds the commercial sector price ${fmt(ceiling)}, so the price is held at ${fmt(ceiling)} (s.167(7))`;
+      rule = 'gas distributors negotiate; the price shall not exceed the commercial sector price, and a figure above it is held at that ceiling';
+      source = 's.167(7)';
+    } else {
+      e = oneOf('product', product, Object.keys(PIA_GAS.gbiProducts));
+      if (e) return e;
+      e = cmpp === undefined ? must('cmpp', 'stated: the average current month end product price in US$ per tonne (Fourth Schedule)', undefined) : nonNeg('cmpp', cmpp);
+      if (e) return e;
+      let nrp = PIA_GAS.gbiProducts[product].nrp;
+      let prp = PIA_GAS.gbiProducts[product].prp;
+      let valuesFrom = 'Fourth Schedule table';
+      if (schedule !== undefined) {
+        if (!isObj(schedule)) return must('schedule', 'an object { nrp, prp, source } when given', schedule);
+        e = first(positive('schedule.nrp', schedule.nrp), positive('schedule.prp', schedule.prp), text('schedule.source', schedule.source));
+        if (e) return e;
+        nrp = schedule.nrp;
+        prp = schedule.prp;
+        valuesFrom = `stated by the caller: ${schedule.source} (the Authority may change NRP and PRP by regulation, Fourth Schedule)`;
+      }
+      if (dbp < PIA_GAS.gbiFloorUsdPerMmbtu) return must('domesticBasePrice', `at or above the gas based industries floor US$0.90 per MMBtu (s.168(2)) for a gas based industry price, which is capped at the domestic base price (s.168(3))`, dbp);
+      const epf = (cmpp - prp) / prp;
+      const formulaPrice = nrp * (1 + epf);
+      let price = formulaPrice;
+      let held = null;
+      if (price > dbp) { price = dbp; held = 'ceiling'; }
+      if (price < PIA_GAS.gbiFloorUsdPerMmbtu) { price = PIA_GAS.gbiFloorUsdPerMmbtu; held = 'floor'; }
+      Object.assign(out, { product, cmpp, nrp, prp, epf, formulaPrice, price, heldAt: held });
+      out.reason = held === 'ceiling'
+        ? `the formula gives ${fmt(formulaPrice)}, above the domestic base price ${fmt(dbp)}, so the price is held at ${fmt(dbp)} (s.168(3))`
+        : held === 'floor'
+          ? `the formula gives ${fmt(formulaPrice)}, below the floor US$0.90 per MMBtu, so the price is held at 0.9 (s.168(2))`
+          : `the formula gives ${fmt(formulaPrice)}, inside the floor 0.9 and the domestic base price ${fmt(dbp)}`;
+      rule = `CP = NRP x (1 + EPF), EPF = (CMPP - PRP) / PRP, CP <= domestic base price, floor US$0.90 per MMBtu; NRP ${fmt(nrp)} and PRP ${fmt(prp)} from the ${valuesFrom}`;
+      source = 's.168 and the Fourth Schedule';
+    }
   }
   if (transportTariff !== undefined) out.deliveredPrice = out.price + transportTariff;
   out.basis = {
     rule,
+    ceilings: 'both ceilings are applied alike: price is the lawful figure, heldAt names the bound that held it (s.167(7) for gas distributors, s.168(3) and (2) for gas based industries), and the stated or formula figure is returned beside it',
+    priceControl: `a required statement with no default; ${S167_3}`,
     point: `prices at the marketable natural gas delivery point${transportTariff !== undefined ? '; the stated transport tariff is added for the delivered price (s.167(8), s.168(4))' : ''}`,
-    domesticBasePrice: 'a required input with no default: the Authority determines it each year under the Third Schedule (s.167(1)). US$2.18 per MMBtu (power) and US$2.68 (commercial), effective 1 April 2026, are reported by BusinessDay (31 March 2026) and by Advocaat Law Practice through Legal 500 (7 April 2026); the regulator\'s circular was not read',
-    source: `${CITE.pia} ${source}`,
+    domesticBasePrice: 'a required input with no default under price control: the Authority determines it each year under the Third Schedule (s.167(1)). US$2.18 per MMBtu (power) and US$2.68 (commercial), effective 1 April 2026, are reported by BusinessDay (31 March 2026) and by Advocaat Law Practice through Legal 500 (7 April 2026); the regulator\'s circular was not read',
+    source: `${CITE.pia} ${source}; ${S167_3}`,
   };
   return out;
 };

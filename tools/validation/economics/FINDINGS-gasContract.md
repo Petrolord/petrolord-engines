@@ -2,14 +2,14 @@
 
 Engine: `engines/economics/gasContract.js` (the brief allowed another name; it
 is `gasContract.js`). Golden: `test-data/economics/goldens/gascontract_cases.json`,
-185 cases (84 of them refusals, every refusal message pinned in full),
+196 cases (90 of them refusals, every refusal message pinned in full),
 written by `tools/validation/economics/oracle_gascontract.py`. Gate:
-`__tests__/economics.gasContract.test.js` (219 tests) calls the engine on
+`__tests__/economics.gasContract.test.js` (234 tests) calls the engine on
 every golden, checks the published figures against their printed values,
 checks the planted fixture situations and the wiring, and runs property tests.
-Negative control: `negcontrol_gascontract.sh` (56/56 engine plants red, 6/6 oracle plants caught). Timing:
+Negative control: `negcontrol_gascontract.sh` (63/63 engine plants red, 7/7 oracle plants caught, after the domestic-ceiling repair). Timing:
 `timing_gascontract.js` (table below). Fixtures: `test-data/economics/ekene-gsa/`,
-written by `make_gsa_fixtures.py`. Full engines suite on the branch: 230 suites passed, 17,774 tests passed (after `npm ci` in the worktree). Before `npm ci` the worktree had no node_modules and 9 suites (7 CRS, 2 downstream copy-rule) could not resolve `proj4` and `@babel/parser`; a clean checkout of origin/main run the same way failed the same 9 suites with the same messages (9 failed, 2 tests failed, 218 passed), so that was environment only. CI on the PR is green.
+written by `make_gsa_fixtures.py`. Full engines suite on the branch: 230 suites passed, 17,789 tests passed on fix/gas-domestic-ceiling (17,774 on the first PR, after `npm ci` in the worktree). Before `npm ci` the worktree had no node_modules and 9 suites (7 CRS, 2 downstream copy-rule) could not resolve `proj4` and `@babel/parser`; a clean checkout of origin/main run the same way failed the same 9 suites with the same messages (9 failed, 2 tests failed, 218 passed), so that was environment only. CI on the PR is green.
 
 The oracle is STDLIB ONLY (python 3: `fractions`, `decimal`, `math`,
 `datetime`). It reads no JavaScript and takes a different road: quantities
@@ -211,13 +211,74 @@ the gate checks:
 | basket index floor or ceiling | index = floor or ceiling | unchanged (strict) |
 | 4-decimal rounding | fifth decimal 5 | rounds up |
 | escalation | each anniversary of baseMonth | steps (whole years) |
-| gas distributor | negotiated = the commercial price | within the ceiling (inclusive) |
+| gas distributor, price control | negotiated = the commercial price | within the ceiling (inclusive), price = negotiated |
+| gas distributor, price control | negotiated above the commercial price | price held at the ceiling (s.167(7)); statedPrice keeps the figure |
+| any sector, no price control | negotiated above the commercial price or below 0.90 | stands as stated (s.167(3)(b)) |
+| take-or-pay percentage | 0 | allowed; no take-or-pay quantity, stated in the reasons and basis |
 | gas based industries | formula = the base price, or = 0.90 | not held (strict); the ceiling applies before the floor |
 | DGDO deemed fulfilment | voluntary contracts = obligation | deemed fulfilled (inclusive: s.110(2) "equal to or higher") |
 | DGDO agreement rate | = 3.50 | the agreement's rate |
 | DGDO excuses | stated above the undelivered quantity | applied only up to it, in the order (a) to (d) |
 | period day count | the end date | excluded (a contract year that finishes on the following 1 January) |
 | maxDcqPct | = 100 | allowed |
+
+## Repair fix/gas-domestic-ceiling (2026-09-26): key-truth audit EF-1/EF-2 and the Associate audit
+
+Read again from the gazetted text (`/root/cat-wip-pia/sources/pia_nuprc.txt`): s.167(7) says the distributor
+price "shall not exceed that of the commercial sector"; s.167(3) says "The price control and the corresponding
+role of the domestic gas aggregator shall not be required, where the (a) entire domestic gas demand requirement
+under section 173 (2) is covered by contracts under sections 110 (2) and 173 (3) of this Act; or (b) domestic
+market for natural gas is largely characterised by free market based contracting ... and at such time the
+provisions of subsections (4), (5), (6) and (7) and section 168 shall no longer be applicable". The
+`domesticPrice` basis source now quotes s.167(3).
+
+1. **EF-1, s.167(7) held like s.168(3).** Under price control a distributor figure above the commercial price
+   is held at it: `price` is the lawful figure, `statedPrice` the negotiated figure, `withinCeiling: false`,
+   `heldAt: 'ceiling'`, and the reason cites s.167(7) and says the figure was held. The gas based industries
+   formula already worked this way (`formulaPrice` beside `price`, `heldAt`). Both ceilings now share the
+   `heldAt` field and the "so the price is held at ... (section)" reason. Before the repair `dp-distributor-above`
+   returned price 2.9 with `withinCeiling: false` and no clamp; it now returns 2.68.
+2. **EF-2, s.167(3)(b).** `priceControlApplies` is a REQUIRED true or false with no default. When false, every
+   sector's price is its negotiated price (required), no s.167 or s.168 ceiling or floor applies, the Fourth
+   Schedule inputs are refused, and the reason cites s.167(3)(b). The domestic base price is required only under
+   price control.
+3. **permittedReduction required** (Associate audit). Every takeOrPay and gsaCashFlows contract year must state
+   it (0 when the contract permits none). Every golden and both fixtures now state it. The cases that relied on
+   the silent 0: every takeOrPay and gsaCashFlows golden except `top-force-majeure-and-shortfall` (which stated
+   30); all now state 0 and their expected values are unchanged.
+4. **A take-or-pay percentage of 0** is still accepted; each year's reasons and the basis say "a take-or-pay
+   percentage of 0 sets no take-or-pay quantity" (golden `top-zero-percent`).
+
+**Which goldens moved.** Compared against the golden file of the first PR (d745b88):
+- values: only `dp-distributor-above` (price 2.9 to 2.68, new `statedPrice` and `heldAt`, new reason);
+- wording or new keys in domesticPrice only: every other domesticPrice golden gains `priceControlApplies: true`
+  in its input and output; the distributor goldens gain `statedPrice` and `heldAt` and a reason citing s.167(7);
+  `dp-refuse-negotiated-for-power` reads "... while priceControlApplies is true"; the two unknown-key refusals
+  list `priceControlApplies` among the accepted keys;
+- no expected value of any other function moved: the 47 takeOrPay and gsaCashFlows cases whose inputs gained
+  `permittedReduction: 0` have byte-identical expected outputs;
+- added (11): `dp-distributor-above-no-control`, `dp-distributor-at-ceiling-no-control`, `dp-power-no-control`,
+  `dp-gbi-no-control-below-floor`, `dp-refuse-no-control-flag`, `dp-refuse-control-flag-text`,
+  `dp-refuse-no-control-no-price`, `dp-refuse-no-control-with-formula`, `top-refuse-missing-permitted-reduction`,
+  `top-refuse-permitted-reduction-negative`, `top-zero-percent`.
+
+New refusal strings (course content):
+- `years[0].permittedReduction must be stated for every contract year (0 when the contract permits none); the engine holds no default; got nothing`
+- `priceControlApplies must be true or false, stated: whether the price control of PIA s.167 applies, or the free-market criteria of s.167(3)(b) are met (no default); got nothing`
+- `priceControlApplies must be true or false, stated: whether the price control of PIA s.167 applies, or the free-market criteria of s.167(3)(b) are met (no default); got "yes"`
+- `negotiatedPrice must be stated when priceControlApplies is false: every sector negotiates its price (PIA s.167(3)(b)); got nothing`
+- `product must be given only when priceControlApplies is true (the Fourth Schedule formula is part of s.168); got "urea"`
+
+New reasons:
+- `the negotiated price 2.9 exceeds the commercial sector price 2.68, so the price is held at 2.68 (s.167(7))`
+- `the negotiated price 2.5 is at or below the commercial sector price 2.68, the ceiling for gas distributors (s.167(7))`
+- `price control does not apply: the negotiated price 2.9 stands, with no ceiling or floor, because s.167(4) to (7) and s.168 no longer apply once the free-market criteria are met (s.167(3)(b))`
+- `2027: a take-or-pay percentage of 0 sets no take-or-pay quantity`
+
+Negative control after the repair (`negcontrol_fix.txt`): 63/63 engine plants red, 7/7 oracle plants caught. New
+plants: s.167(7) clamp removed; s.167(3) flag ignored; s.167 vs s.168 inconsistency (distributor held at the base
+price); s.168(3) ceiling dropped; priceControlApplies defaulting to true; permittedReduction silently 0; TOP 0 not
+stated; oracle s.167(7) not held.
 
 ## Caps and timing
 

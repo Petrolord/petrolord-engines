@@ -21,7 +21,7 @@ test('timing', () => {
   const rng = mulberry32(20270101);
   const rows = [['case', 'size', 'ms']];
   [30, 100].forEach((n) => {
-    const years = Array.from({ length: n }, (_, i) => ({ year: 2027 + i, acq: 7665000, taken: Math.round(7665000 * (0.6 + 0.5 * rng())), contractPrice: 2.18, topPrice: 2.18, makeUpPrice: 0 }));
+    const years = Array.from({ length: n }, (_, i) => ({ year: 2027 + i, acq: 7665000, permittedReduction: 0, taken: Math.round(7665000 * (0.6 + 0.5 * rng())), contractPrice: 2.18, topPrice: 2.18, makeUpPrice: 0 }));
     rows.push(['takeOrPay with carry-forward', `${n} years`, time(() => T.takeOrPay({ years, topPct: 80, makeUp: { periodYears: 5, order: 'after-top-quantity', endOfTerm: 'refund' }, carryForward: { periodYears: 3, base: 'top-quantity', capPct: 50 } })).toFixed(2)]);
     rows.push(['gsaCashFlows', `${n} years`, time(() => T.gsaCashFlows({ contract: { years, topPct: 80, makeUp: { periodYears: 5, order: 'first', endOfTerm: 'forfeit' } }, royalty: { terrain: 'onshore' }, discountRate: 0.1, baseYear: 2026 })).toFixed(2)]);
   });

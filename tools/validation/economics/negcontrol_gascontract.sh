@@ -132,8 +132,17 @@ run_case ENGINE "commercial adder 0.6" $E "commercialAdderUsdPerMmbtu: 0.5," "co
 run_case ENGINE "gas based industries floor 0.95" $E "gbiFloorUsdPerMmbtu: 0.9," "gbiFloorUsdPerMmbtu: 0.95,"
 run_case ENGINE "GTL PRP 250" $E "nrp: 1, prp: 325 })," "nrp: 1, prp: 250 }),"
 run_case ENGINE "EPF over CMPP" $E "const epf = (cmpp - prp) / prp;" "const epf = (cmpp - prp) / cmpp;"
-run_case ENGINE "GBI floor applied before the ceiling" $E "    if (price > dbp) { price = dbp; held = 'ceiling'; }
-    if (price < PIA_GAS.gbiFloorUsdPerMmbtu) { price = PIA_GAS.gbiFloorUsdPerMmbtu; held = 'floor'; }" "    if (price < PIA_GAS.gbiFloorUsdPerMmbtu) { price = PIA_GAS.gbiFloorUsdPerMmbtu; held = 'floor'; }"
+run_case ENGINE "GBI floor applied before the ceiling" $E "      if (price > dbp) { price = dbp; held = 'ceiling'; }
+      if (price < PIA_GAS.gbiFloorUsdPerMmbtu) { price = PIA_GAS.gbiFloorUsdPerMmbtu; held = 'floor'; }" "      if (price < PIA_GAS.gbiFloorUsdPerMmbtu) { price = PIA_GAS.gbiFloorUsdPerMmbtu; held = 'floor'; }"
+run_case ENGINE "s.167(7) clamp removed" $E "price: within ? negotiatedPrice : ceiling, heldAt: within ? null : 'ceiling' });" "price: negotiatedPrice, heldAt: within ? null : 'ceiling' });"
+run_case ENGINE "s.167(3) flag ignored (control always applies)" $E "  if (!priceControlApplies) {" "  if (false) {"
+run_case ENGINE "s.167 vs s.168 inconsistency: distributor held at the base price" $E "      const ceiling = dbp + PIA_GAS.commercialAdderUsdPerMmbtu;
+      const within" "      const ceiling = dbp;
+      const within"
+run_case ENGINE "s.168(3) ceiling dropped" $E "if (price > dbp) { price = dbp; held = 'ceiling'; }" ""
+run_case ENGINE "priceControlApplies defaults to true" $E "typeof priceControlApplies === 'boolean' ? null :" "priceControlApplies === undefined || typeof priceControlApplies === 'boolean' ? null :"
+run_case ENGINE "permittedReduction silently 0" $E "y.permittedReduction === undefined ? must(" "false ? must("
+run_case ENGINE "TOP 0 not stated" $E "    if (topPct === 0) reasons.push(" "    if (false) reasons.push("
 run_case ENGINE "DGDO penalty 3" $E "dgdoPenaltyUsdPerMmbtu: 3.5," "dgdoPenaltyUsdPerMmbtu: 3,"
 run_case ENGINE "DGDO agreement rate below 3.50 accepted" $E "rate = Math.max(agreementPenaltyRate, PIA_GAS.dgdoPenaltyUsdPerMmbtu);" "rate = agreementPenaltyRate;"
 run_case ENGINE "DGDO deemed fulfilment strictly above" $E "const deemedFulfilled = voluntaryContracts >= obligation;" "const deemedFulfilled = voluntaryContracts > obligation;"
@@ -155,6 +164,7 @@ run_case ORACLE "oracle make-up drawn newest first" $O "    for e in ledger:" " 
 run_case ORACLE "oracle window ends at the priced month" $O "            we, ws_ = b0 - lag, b0 - lag - avgm + 1" "            we, ws_ = b0, b0 - avgm + 1"
 run_case ORACLE "oracle DGDO rate 3" $O "DGDO_RATE = F(7, 2)" "DGDO_RATE = F(3)"
 run_case ORACLE "oracle royalty 5% in-country" $O "    rate = F(5, 100) * (1 - s / 100) + F(25, 1000) * (s / 100)" "    rate = F(5, 100)"
+run_case ORACLE "oracle s.167(7) not held" $O "'price': neg if within else fl(ceil)" "'price': neg"
 run_case ORACLE "oracle unknown keys ignored" $O "        check_keys(args, SHAPES[fn], '')" "        pass"
 
 restore
