@@ -156,7 +156,7 @@ run_case ENGINE "ALB reason drops 'never rejected automatically'" $E "before any
 run_case ENGINE "s.14 reason in other words" $E "at least 5% higher, so s.14 selects" "5% or more higher, so s.14 selects"
 run_case ENGINE "pass-mark reason in other words" $E "is below the pass mark" "is under the pass mark"
 run_case ENGINE "omission refusal drops 'which the cited texts do not use'" $E "an option the cited texts do not use)\");" "an option)\");"
-run_case ENGINE "omission default is the highest" $E "export const evaluatedCosts = ({ bids, omissionRule = 'average'," "export const evaluatedCosts = ({ bids, omissionRule = 'highest',"
+run_case ENGINE "omission default is the highest" $E "const evaluatedCostsImpl = ({ bids, omissionRule = 'average'," "const evaluatedCostsImpl = ({ bids, omissionRule = 'highest',"
 run_case ENGINE "s.14 readings dropped from the reason" $E "  s14.reason = \`\${s14.reason} (readings of s.14: \${readings.join('; ')})\`;" ""
 run_case ENGINE "cost P-label reversal dropped from the basis" $E "so for a cost P90 is the LOW cost (10th percentile) and P10 the HIGH cost (90th percentile)" "P90 is the high cost"
 
