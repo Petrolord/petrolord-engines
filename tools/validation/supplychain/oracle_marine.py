@@ -1207,7 +1207,8 @@ def build():
     at_cap = dict(fone({'deckAreaM2': 400, 'deckWeightT': 0}, portHours=62), demandFactor=1, plannedVessels=2, iterations=20, seed=4)
     case('variability-at-capacity-is-not-short', 'fleetVariability', at_cap, tol=1e-9)
     case('variability-one-vessel-short-always', 'fleetVariability', dict(at_cap, plannedVessels=1), tol=1e-9)
-    case('variability-refuse-draws-cap', 'fleetVariability', dict(base_mc, installations=finst_d, route={'mode': 'dedicated'}, iterations=500001))
+    eleven = [dict(finst_d[i % 4], id=f'I{i + 1:02d}') for i in range(11)]
+    case('variability-refuse-draws-cap', 'fleetVariability', dict(base_mc, installations=eleven, route={'mode': 'dedicated'}, iterations=181819))
     case('variability-refuse-seed-missing', 'fleetVariability', {k: v for k, v in base_mc.items() if k != 'seed'})
     case('variability-refuse-seed-negative', 'fleetVariability', dict(base_mc, seed=-1))
     case('variability-refuse-iterations-cap', 'fleetVariability', dict(base_mc, iterations=200001))

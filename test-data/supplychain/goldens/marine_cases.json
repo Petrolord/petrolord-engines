@@ -17230,7 +17230,7 @@
     ],
     "installations": [
      {
-      "id": "EKA",
+      "id": "I01",
       "name": "Ekene-A production platform (synthetic)",
       "fieldHours": 6,
       "minVisits": 2,
@@ -17245,7 +17245,7 @@
       "distanceFromBaseNm": 62
      },
      {
-      "id": "EKJ",
+      "id": "I02",
       "name": "Ekene jack-up drilling unit (synthetic)",
       "fieldHours": 8,
       "minVisits": 3,
@@ -17264,7 +17264,7 @@
       "distanceFromBaseNm": 68
      },
      {
-      "id": "EKB",
+      "id": "I03",
       "name": "Ekene-B wellhead platform (synthetic)",
       "fieldHours": 4,
       "minVisits": 1,
@@ -17279,7 +17279,7 @@
       "distanceFromBaseNm": 74
      },
      {
-      "id": "EKF",
+      "id": "I04",
       "name": "Ekene FPSO (synthetic)",
       "fieldHours": 5,
       "minVisits": 2,
@@ -17292,6 +17292,119 @@
        }
       },
       "distanceFromBaseNm": 95
+     },
+     {
+      "id": "I05",
+      "name": "Ekene-A production platform (synthetic)",
+      "fieldHours": 6,
+      "minVisits": 2,
+      "demand": {
+       "deckAreaM2": 520,
+       "deckWeightT": 610,
+       "bulk": {
+        "diesel": 450,
+        "water": 900
+       }
+      },
+      "distanceFromBaseNm": 62
+     },
+     {
+      "id": "I06",
+      "name": "Ekene jack-up drilling unit (synthetic)",
+      "fieldHours": 8,
+      "minVisits": 3,
+      "demand": {
+       "deckAreaM2": 900,
+       "deckWeightT": 1100,
+       "bulk": {
+        "diesel": 500,
+        "water": 700,
+        "mud": 600,
+        "brine": 250,
+        "cement": 180,
+        "barite": 200
+       }
+      },
+      "distanceFromBaseNm": 68
+     },
+     {
+      "id": "I07",
+      "name": "Ekene-B wellhead platform (synthetic)",
+      "fieldHours": 4,
+      "minVisits": 1,
+      "demand": {
+       "deckAreaM2": 180,
+       "deckWeightT": 150,
+       "bulk": {
+        "diesel": 120,
+        "water": 200
+       }
+      },
+      "distanceFromBaseNm": 74
+     },
+     {
+      "id": "I08",
+      "name": "Ekene FPSO (synthetic)",
+      "fieldHours": 5,
+      "minVisits": 2,
+      "demand": {
+       "deckAreaM2": 260,
+       "deckWeightT": 240,
+       "bulk": {
+        "diesel": 300,
+        "water": 400
+       }
+      },
+      "distanceFromBaseNm": 95
+     },
+     {
+      "id": "I09",
+      "name": "Ekene-A production platform (synthetic)",
+      "fieldHours": 6,
+      "minVisits": 2,
+      "demand": {
+       "deckAreaM2": 520,
+       "deckWeightT": 610,
+       "bulk": {
+        "diesel": 450,
+        "water": 900
+       }
+      },
+      "distanceFromBaseNm": 62
+     },
+     {
+      "id": "I10",
+      "name": "Ekene jack-up drilling unit (synthetic)",
+      "fieldHours": 8,
+      "minVisits": 3,
+      "demand": {
+       "deckAreaM2": 900,
+       "deckWeightT": 1100,
+       "bulk": {
+        "diesel": 500,
+        "water": 700,
+        "mud": 600,
+        "brine": 250,
+        "cement": 180,
+        "barite": 200
+       }
+      },
+      "distanceFromBaseNm": 68
+     },
+     {
+      "id": "I11",
+      "name": "Ekene-B wellhead platform (synthetic)",
+      "fieldHours": 4,
+      "minVisits": 1,
+      "demand": {
+       "deckAreaM2": 180,
+       "deckWeightT": 150,
+       "bulk": {
+        "diesel": 120,
+        "water": 200
+       }
+      },
+      "distanceFromBaseNm": 74
      }
     ],
     "route": {
@@ -17320,13 +17433,13 @@
      "max": 1.3
     },
     "plannedVessels": 2,
-    "iterations": 500001,
+    "iterations": 181819,
     "seed": 20260927
    },
    "expected": {
     "error": true,
     "field": "iterations",
-    "message": "iterations must be a whole number from 1 to 200000; got 500001"
+    "message": "iterations must be at most 181818 with 11 voyage sets (iterations x voyage sets is capped at 2000000); got 181819"
    },
    "tol": 1e-12
   },

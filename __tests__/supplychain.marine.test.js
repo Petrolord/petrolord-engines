@@ -338,6 +338,13 @@ describe('caps', () => {
     a.installations = Array.from({ length: M.DEFAULTS.MAX_INSTALLATIONS + 1 }, (_, i) => ({ ...a.installations[0], id: `I${i}` }));
     expect(M.fleetSize(a).error).toBe(`installations has ${M.DEFAULTS.MAX_INSTALLATIONS + 1} entries; the cap is ${M.DEFAULTS.MAX_INSTALLATIONS}`);
   });
+  test('iterations x voyage sets: the printed limit is accepted and one more is refused', () => {
+    const a = clone(byId('variability-refuse-draws-cap').args);
+    expect(run('variability-refuse-draws-cap').error).toBe('iterations must be at most 181818 with 11 voyage sets (iterations x voyage sets is capped at 2000000); got 181819');
+    const r = M.fleetVariability({ ...a, iterations: 181818 });
+    expect(r.error).toBeUndefined();
+    expect(outcomeOrderViolation(r.vesselDays, 'at the cap')).toBeNull();
+  });
   test('berths above the cap and iterations above the cap are refused', () => {
     expect(run('base-refuse-berths-cap').field).toBe('berths');
     expect(run('variability-refuse-iterations-cap').field).toBe('iterations');
