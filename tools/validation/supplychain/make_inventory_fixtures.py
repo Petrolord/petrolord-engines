@@ -94,7 +94,7 @@ CASES = {
                         'unitCost': 185000, 'holdingRate': 0.2, 'downtimeCostPerDay': 18000, 'maxSpares': 6,
                         'note': 'downtime cost per day: one well off production (synthetic figure)'},
     'leadTimeRisk': {'item': 'MECH-SEAL', 'demandPerDay': {'min': 0.01, 'mode': 0.016, 'max': 0.03},
-                     'leadTimeDays': {'min': 70, 'mode': 90, 'max': 160}, 'reorderPoint': 2, 'serviceLevel': 0.95,
+                     'leadTimeDays': {'min': 70, 'mode': 90, 'max': 160}, 'reorderPoint': 3, 'serviceLevel': 0.95,
                      'iterations': 20000, 'seed': 20270301},
 }
 

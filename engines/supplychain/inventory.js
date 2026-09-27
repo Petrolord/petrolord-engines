@@ -105,6 +105,8 @@ const fmt = (x) => String(x);
 const money = (x) => fmt(Number(x.toFixed(2)));
 const dec = (x) => fmt(Number(x.toFixed(6)));
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+// a measured figure printed with its unit in agreement: 1 month, 1.5 months
+const unit = (text, x, one, many = `${one}s`) => `${text} ${x === 1 ? one : many}`;
 const own = (o, k) => o !== null && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, k);
 const isObj = (o) => o !== null && typeof o === 'object' && !Array.isArray(o);
 const fin = (x) => typeof x === 'number' && Number.isFinite(x);
@@ -673,11 +675,10 @@ const safetyStockImpl = ({ demandMean, demandSd, leadTime, leadTimeSd, reviewPer
 
 // ---- Poisson demand (slow movers and spares) -------------------------------
 
-const poissonMeanCheck = (demandRate, P, rateField, periodField, reviewPeriod) => {
-  const m = demandRate * P;
-  if (m <= DEFAULTS.MAX_POISSON_MEAN) return null;
-  const other = reviewPeriod || 0;
-  return refuse(periodField, `must be at most ${boundMax(DEFAULTS.MAX_POISSON_MEAN / demandRate - other, (v) => demandRate * (v + other) <= DEFAULTS.MAX_POISSON_MEAN)} so that the mean demand ${rateField} x ${other ? '(leadTime + reviewPeriod)' : periodField} is at most ${DEFAULTS.MAX_POISSON_MEAN}; above that the normal safetyStock serves; got ${fmt(P - other)}`);
+const poissonMeanCheck = (demandRate, leadTime, reviewPeriod) => {
+  if (demandRate * (leadTime + reviewPeriod) <= DEFAULTS.MAX_POISSON_MEAN) return null;
+  const at = boundMax(DEFAULTS.MAX_POISSON_MEAN / demandRate - reviewPeriod, (v) => demandRate * (v + reviewPeriod) <= DEFAULTS.MAX_POISSON_MEAN);
+  return refuse('leadTime', `must be at most ${at} so that the mean demand demandRate x ${reviewPeriod > 0 ? '(leadTime + reviewPeriod)' : 'leadTime'} is at most ${DEFAULTS.MAX_POISSON_MEAN}; above that the normal safetyStock serves; got ${fmt(leadTime)}`);
 };
 
 /**
@@ -691,7 +692,7 @@ const poissonStockImpl = ({ demandRate, leadTime, reviewPeriod, serviceMeasure, 
   let e = first(positive('demandRate', demandRate), nonNeg('leadTime', leadTime), nonNeg('reviewPeriod', reviewPeriod));
   if (e) return e;
   if (!(leadTime + reviewPeriod > 0)) return refuse('leadTime', 'and reviewPeriod add to 0; the protection period must be above 0');
-  e = poissonMeanCheck(demandRate, leadTime + reviewPeriod, 'demandRate', 'leadTime', reviewPeriod);
+  e = poissonMeanCheck(demandRate, leadTime, reviewPeriod);
   if (e) return e;
   if (!MEASURES.includes(serviceMeasure)) return refuse('serviceMeasure', "must be 'cycle-service' (probability of no stockout over the protection period) or 'fill-rate' (fraction of demand met from stock)");
   e = fraction01('serviceLevel', serviceLevel);
@@ -899,10 +900,10 @@ const slowMovingImpl = ({ items, bands, excessCoverMonths } = {}) => {
     const cover = it.monthlyUsage > 0 ? it.onHand / it.monthlyUsage : null;
     const excess = cover === null ? it.onHand > 0 : key12(cover) > key12(excessCoverMonths);
     const excessQuantity = it.monthlyUsage > 0 ? Math.max(0, it.onHand - excessCoverMonths * it.monthlyUsage) : it.onHand;
-    let reason = `${it.id}: ${fmt(it.monthsSinceLastIssue)} months since the last issue is at or above ${fmt(b.minMonths)}, band ${b.label}${bi + 1 < bands.length ? ` (below ${fmt(bands[bi + 1].minMonths)})` : ''}, written down ${fmt(b.writeDownPct)}% of ${money(stockValue)} = ${money(writeDown)}`;
+    let reason = `${it.id}: ${unit(fmt(it.monthsSinceLastIssue), it.monthsSinceLastIssue, 'month')} since the last issue is at or above ${fmt(b.minMonths)}, band ${b.label}${bi + 1 < bands.length ? ` (below ${fmt(bands[bi + 1].minMonths)})` : ''}, written down ${fmt(b.writeDownPct)}% of ${money(stockValue)} = ${money(writeDown)}`;
     reason += cover === null
       ? (it.onHand > 0 ? '; no usage, so all stock on hand is excess' : '; no usage and no stock')
-      : `; cover ${dec(cover)} months ${excess ? `is above ${fmt(excessCoverMonths)}, excess ${dec(excessQuantity)} units` : `is at or below ${fmt(excessCoverMonths)}`}`;
+      : `; cover ${unit(dec(cover), Number(dec(cover)), 'month')} ${excess ? `is above ${fmt(excessCoverMonths)}, excess ${unit(dec(excessQuantity), Number(dec(excessQuantity)), 'unit')}` : `is at or below ${fmt(excessCoverMonths)}`}`;
     return { id: it.id, band: b.label, stockValue, writeDownPct: b.writeDownPct, writeDown, coverMonths: cover, excess, excessQuantity, reason };
   });
   const byBand = Object.fromEntries(bands.map((b) => {
@@ -916,7 +917,7 @@ const slowMovingImpl = ({ items, bands, excessCoverMonths } = {}) => {
     totalWriteDown: out.reduce((s, r) => s + r.writeDown, 0),
     excessCount: out.filter((r) => r.excess).length,
     basis: {
-      rule: `bands ${bands.map((b) => `${b.label} from ${fmt(b.minMonths)} months (${fmt(b.writeDownPct)}%)`).join(', ')}, a band reached at or above its minimum; cover = onHand / monthlyUsage, excess above ${fmt(excessCoverMonths)} months; compared at 12 significant digits`,
+      rule: `bands ${bands.map((x) => `${x.label} from ${unit(fmt(x.minMonths), x.minMonths, 'month')} (${fmt(x.writeDownPct)}%)`).join(', ')}, a band reached at or above its minimum; cover = onHand / monthlyUsage, excess above ${unit(fmt(excessCoverMonths), excessCoverMonths, 'month')}; compared at 12 significant digits`,
       source: 'the bands, write-down percentages and cover limit are the caller\'s stated policy; Caplice, MIT ESD.260J (2006) lecture 13 slide 12 (days of supply IOH / D to find dead stock)',
     },
   };
