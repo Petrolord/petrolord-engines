@@ -19188,44 +19188,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
-     },
-     {
-      "id": "cont-20",
-      "name": "20 ft offshore container (synthetic)",
-      "lengthM": 6.06,
-      "widthM": 2.44,
-      "weightT": 12,
-      "quantity": 16
-     },
-     {
-      "id": "basket-6m",
-      "name": "6 m cargo basket (synthetic)",
-      "lengthM": 6,
-      "widthM": 2.5,
-      "weightT": 6,
-      "quantity": 8
-     },
-     {
-      "id": "cont-10",
-      "name": "10 ft offshore container (synthetic)",
-      "lengthM": 2.99,
-      "widthM": 2.44,
-      "weightT": 8,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 12
-     },
-     {
-      "id": "mud-tank",
-      "name": "Portable mud tank (synthetic)",
-      "lengthM": 5,
-      "widthM": 2.4,
-      "weightT": 14,
-      "quantity": 5
      },
      {
       "id": "skip",
@@ -19236,12 +19204,44 @@
       "quantity": 6
      },
      {
-      "id": "chem-ibc",
-      "name": "Chemical IBC in a frame (synthetic)",
-      "lengthM": 1.2,
-      "widthM": 1,
-      "weightT": 1.3,
+      "id": "cont-10",
+      "name": "10 ft offshore container (synthetic)",
+      "lengthM": 2.99,
+      "widthM": 2.44,
+      "weightT": 8,
       "quantity": 12
+     },
+     {
+      "id": "basket-6m",
+      "name": "6 m cargo basket (synthetic)",
+      "lengthM": 6,
+      "widthM": 2.5,
+      "weightT": 6,
+      "quantity": 8
+     },
+     {
+      "id": "mud-tank",
+      "name": "Portable mud tank (synthetic)",
+      "lengthM": 5,
+      "widthM": 2.4,
+      "weightT": 14,
+      "quantity": 5
+     },
+     {
+      "id": "cont-20",
+      "name": "20 ft offshore container (synthetic)",
+      "lengthM": 6.06,
+      "widthM": 2.44,
+      "weightT": 12,
+      "quantity": 16
+     },
+     {
+      "id": "pipe-bundle",
+      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
+      "lengthM": 13.5,
+      "widthM": 2.6,
+      "weightT": 38,
+      "quantity": 2
      }
     ],
     "voyages": 1,
@@ -19471,44 +19471,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
-     },
-     {
-      "id": "cont-20",
-      "name": "20 ft offshore container (synthetic)",
-      "lengthM": 6.06,
-      "widthM": 2.44,
-      "weightT": 12,
-      "quantity": 16
-     },
-     {
-      "id": "basket-6m",
-      "name": "6 m cargo basket (synthetic)",
-      "lengthM": 6,
-      "widthM": 2.5,
-      "weightT": 6,
-      "quantity": 8
-     },
-     {
-      "id": "cont-10",
-      "name": "10 ft offshore container (synthetic)",
-      "lengthM": 2.99,
-      "widthM": 2.44,
-      "weightT": 8,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 12
-     },
-     {
-      "id": "mud-tank",
-      "name": "Portable mud tank (synthetic)",
-      "lengthM": 5,
-      "widthM": 2.4,
-      "weightT": 14,
-      "quantity": 5
      },
      {
       "id": "skip",
@@ -19519,12 +19487,44 @@
       "quantity": 6
      },
      {
-      "id": "chem-ibc",
-      "name": "Chemical IBC in a frame (synthetic)",
-      "lengthM": 1.2,
-      "widthM": 1,
-      "weightT": 1.3,
+      "id": "cont-10",
+      "name": "10 ft offshore container (synthetic)",
+      "lengthM": 2.99,
+      "widthM": 2.44,
+      "weightT": 8,
       "quantity": 12
+     },
+     {
+      "id": "basket-6m",
+      "name": "6 m cargo basket (synthetic)",
+      "lengthM": 6,
+      "widthM": 2.5,
+      "weightT": 6,
+      "quantity": 8
+     },
+     {
+      "id": "mud-tank",
+      "name": "Portable mud tank (synthetic)",
+      "lengthM": 5,
+      "widthM": 2.4,
+      "weightT": 14,
+      "quantity": 5
+     },
+     {
+      "id": "cont-20",
+      "name": "20 ft offshore container (synthetic)",
+      "lengthM": 6.06,
+      "widthM": 2.44,
+      "weightT": 12,
+      "quantity": 16
+     },
+     {
+      "id": "pipe-bundle",
+      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
+      "lengthM": 13.5,
+      "widthM": 2.6,
+      "weightT": 38,
+      "quantity": 2
      }
     ],
     "voyages": 1,
@@ -19532,8 +19532,49 @@
    },
    "expected": {
     "packingOrder": [
-     "pipe-bundle#1",
-     "pipe-bundle#2",
+     "chem-ibc#1",
+     "chem-ibc#2",
+     "chem-ibc#3",
+     "chem-ibc#4",
+     "chem-ibc#5",
+     "chem-ibc#6",
+     "chem-ibc#7",
+     "chem-ibc#8",
+     "chem-ibc#9",
+     "chem-ibc#10",
+     "chem-ibc#11",
+     "chem-ibc#12",
+     "skip#1",
+     "skip#2",
+     "skip#3",
+     "skip#4",
+     "skip#5",
+     "skip#6",
+     "cont-10#1",
+     "cont-10#2",
+     "cont-10#3",
+     "cont-10#4",
+     "cont-10#5",
+     "cont-10#6",
+     "cont-10#7",
+     "cont-10#8",
+     "cont-10#9",
+     "cont-10#10",
+     "cont-10#11",
+     "cont-10#12",
+     "basket-6m#1",
+     "basket-6m#2",
+     "basket-6m#3",
+     "basket-6m#4",
+     "basket-6m#5",
+     "basket-6m#6",
+     "basket-6m#7",
+     "basket-6m#8",
+     "mud-tank#1",
+     "mud-tank#2",
+     "mud-tank#3",
+     "mud-tank#4",
+     "mud-tank#5",
      "cont-20#1",
      "cont-20#2",
      "cont-20#3",
@@ -19550,57 +19591,57 @@
      "cont-20#14",
      "cont-20#15",
      "cont-20#16",
-     "basket-6m#1",
-     "basket-6m#2",
-     "basket-6m#3",
-     "basket-6m#4",
-     "basket-6m#5",
-     "basket-6m#6",
-     "basket-6m#7",
-     "basket-6m#8",
-     "cont-10#1",
-     "cont-10#2",
-     "cont-10#3",
-     "cont-10#4",
-     "cont-10#5",
-     "cont-10#6",
-     "cont-10#7",
-     "cont-10#8",
-     "cont-10#9",
-     "cont-10#10",
-     "cont-10#11",
-     "cont-10#12",
-     "mud-tank#1",
-     "mud-tank#2",
-     "mud-tank#3",
-     "mud-tank#4",
-     "mud-tank#5",
-     "skip#1",
-     "skip#2",
-     "skip#3",
-     "skip#4",
-     "skip#5",
-     "skip#6",
-     "chem-ibc#1",
-     "chem-ibc#2",
-     "chem-ibc#3",
-     "chem-ibc#4",
-     "chem-ibc#5",
-     "chem-ibc#6",
-     "chem-ibc#7",
-     "chem-ibc#8",
-     "chem-ibc#9",
-     "chem-ibc#10",
-     "chem-ibc#11",
-     "chem-ibc#12"
+     "pipe-bundle#1",
+     "pipe-bundle#2"
     ],
     "usableAreaM2": 600.0,
     "voyages": [
      {
       "voyage": 1,
       "units": [
-       "pipe-bundle#1",
-       "pipe-bundle#2",
+       "chem-ibc#1",
+       "chem-ibc#2",
+       "chem-ibc#3",
+       "chem-ibc#4",
+       "chem-ibc#5",
+       "chem-ibc#6",
+       "chem-ibc#7",
+       "chem-ibc#8",
+       "chem-ibc#9",
+       "chem-ibc#10",
+       "chem-ibc#11",
+       "chem-ibc#12",
+       "skip#1",
+       "skip#2",
+       "skip#3",
+       "skip#4",
+       "skip#5",
+       "skip#6",
+       "cont-10#1",
+       "cont-10#2",
+       "cont-10#3",
+       "cont-10#4",
+       "cont-10#5",
+       "cont-10#6",
+       "cont-10#7",
+       "cont-10#8",
+       "cont-10#9",
+       "cont-10#10",
+       "cont-10#11",
+       "cont-10#12",
+       "basket-6m#1",
+       "basket-6m#2",
+       "basket-6m#3",
+       "basket-6m#4",
+       "basket-6m#5",
+       "basket-6m#6",
+       "basket-6m#7",
+       "basket-6m#8",
+       "mud-tank#1",
+       "mud-tank#2",
+       "mud-tank#3",
+       "mud-tank#4",
+       "mud-tank#5",
        "cont-20#1",
        "cont-20#2",
        "cont-20#3",
@@ -19617,123 +19658,22 @@
        "cont-20#14",
        "cont-20#15",
        "cont-20#16",
-       "basket-6m#1",
-       "basket-6m#2",
-       "basket-6m#3",
-       "basket-6m#4",
-       "basket-6m#5",
-       "basket-6m#6",
-       "basket-6m#7",
-       "basket-6m#8",
-       "cont-10#1",
-       "cont-10#2",
-       "cont-10#3",
-       "cont-10#4",
-       "cont-10#5",
-       "cont-10#6",
-       "cont-10#7",
-       "cont-10#8",
-       "cont-10#9",
-       "cont-10#10",
-       "cont-10#11",
-       "cont-10#12",
-       "mud-tank#1",
-       "mud-tank#2",
-       "mud-tank#3",
-       "mud-tank#4",
-       "mud-tank#5",
-       "skip#1",
-       "skip#2",
-       "skip#3",
-       "skip#4",
-       "skip#5",
-       "chem-ibc#1",
-       "chem-ibc#2"
+       "pipe-bundle#1"
       ],
-      "areaM2": 599.2296,
-      "weightT": 499.6,
-      "areaUtilisation": 0.998716,
-      "loadUtilisation": 0.2498
+      "areaM2": 580.6296,
+      "weightT": 477.6,
+      "areaUtilisation": 0.967716,
+      "loadUtilisation": 0.2388
      }
     ],
     "voyagesUsed": 1,
     "overflow": [
      {
-      "unit": "skip#6",
-      "itemId": "skip",
-      "areaM2": 4.5,
-      "weightT": 3.0,
-      "reason": "skip#6 is overflow: no voyage has 4.5 m2 of usable area and 3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#3",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#3 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#4",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#4 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#5",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#5 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#6",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#6 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#7",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#7 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#8",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#8 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#9",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#9 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#10",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#10 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#11",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#11 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
-     },
-     {
-      "unit": "chem-ibc#12",
-      "itemId": "chem-ibc",
-      "areaM2": 1.2,
-      "weightT": 1.3,
-      "reason": "chem-ibc#12 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "unit": "pipe-bundle#2",
+      "itemId": "pipe-bundle",
+      "areaM2": 35.1,
+      "weightT": 38.0,
+      "reason": "pipe-bundle#2 is overflow: no voyage has 35.1 m2 of usable area and 38 t of deck load left"
      }
     ],
     "totalAreaM2": 615.7296,
@@ -19754,44 +19694,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
-     },
-     {
-      "id": "cont-20",
-      "name": "20 ft offshore container (synthetic)",
-      "lengthM": 6.06,
-      "widthM": 2.44,
-      "weightT": 12,
-      "quantity": 16
-     },
-     {
-      "id": "basket-6m",
-      "name": "6 m cargo basket (synthetic)",
-      "lengthM": 6,
-      "widthM": 2.5,
-      "weightT": 6,
-      "quantity": 8
-     },
-     {
-      "id": "cont-10",
-      "name": "10 ft offshore container (synthetic)",
-      "lengthM": 2.99,
-      "widthM": 2.44,
-      "weightT": 8,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 12
-     },
-     {
-      "id": "mud-tank",
-      "name": "Portable mud tank (synthetic)",
-      "lengthM": 5,
-      "widthM": 2.4,
-      "weightT": 14,
-      "quantity": 5
      },
      {
       "id": "skip",
@@ -19802,12 +19710,44 @@
       "quantity": 6
      },
      {
-      "id": "chem-ibc",
-      "name": "Chemical IBC in a frame (synthetic)",
-      "lengthM": 1.2,
-      "widthM": 1,
-      "weightT": 1.3,
+      "id": "cont-10",
+      "name": "10 ft offshore container (synthetic)",
+      "lengthM": 2.99,
+      "widthM": 2.44,
+      "weightT": 8,
       "quantity": 12
+     },
+     {
+      "id": "basket-6m",
+      "name": "6 m cargo basket (synthetic)",
+      "lengthM": 6,
+      "widthM": 2.5,
+      "weightT": 6,
+      "quantity": 8
+     },
+     {
+      "id": "mud-tank",
+      "name": "Portable mud tank (synthetic)",
+      "lengthM": 5,
+      "widthM": 2.4,
+      "weightT": 14,
+      "quantity": 5
+     },
+     {
+      "id": "cont-20",
+      "name": "20 ft offshore container (synthetic)",
+      "lengthM": 6.06,
+      "widthM": 2.44,
+      "weightT": 12,
+      "quantity": 16
+     },
+     {
+      "id": "pipe-bundle",
+      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
+      "lengthM": 13.5,
+      "widthM": 2.6,
+      "weightT": 38,
+      "quantity": 2
      }
     ],
     "voyages": 2,
@@ -19979,44 +19919,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
-     },
-     {
-      "id": "cont-20",
-      "name": "20 ft offshore container (synthetic)",
-      "lengthM": 6.06,
-      "widthM": 2.44,
-      "weightT": 12,
-      "quantity": 16
-     },
-     {
-      "id": "basket-6m",
-      "name": "6 m cargo basket (synthetic)",
-      "lengthM": 6,
-      "widthM": 2.5,
-      "weightT": 6,
-      "quantity": 8
-     },
-     {
-      "id": "cont-10",
-      "name": "10 ft offshore container (synthetic)",
-      "lengthM": 2.99,
-      "widthM": 2.44,
-      "weightT": 8,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 12
-     },
-     {
-      "id": "mud-tank",
-      "name": "Portable mud tank (synthetic)",
-      "lengthM": 5,
-      "widthM": 2.4,
-      "weightT": 14,
-      "quantity": 5
      },
      {
       "id": "skip",
@@ -20027,12 +19935,44 @@
       "quantity": 6
      },
      {
-      "id": "chem-ibc",
-      "name": "Chemical IBC in a frame (synthetic)",
-      "lengthM": 1.2,
-      "widthM": 1,
-      "weightT": 1.3,
+      "id": "cont-10",
+      "name": "10 ft offshore container (synthetic)",
+      "lengthM": 2.99,
+      "widthM": 2.44,
+      "weightT": 8,
       "quantity": 12
+     },
+     {
+      "id": "basket-6m",
+      "name": "6 m cargo basket (synthetic)",
+      "lengthM": 6,
+      "widthM": 2.5,
+      "weightT": 6,
+      "quantity": 8
+     },
+     {
+      "id": "mud-tank",
+      "name": "Portable mud tank (synthetic)",
+      "lengthM": 5,
+      "widthM": 2.4,
+      "weightT": 14,
+      "quantity": 5
+     },
+     {
+      "id": "cont-20",
+      "name": "20 ft offshore container (synthetic)",
+      "lengthM": 6.06,
+      "widthM": 2.44,
+      "weightT": 12,
+      "quantity": 16
+     },
+     {
+      "id": "pipe-bundle",
+      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
+      "lengthM": 13.5,
+      "widthM": 2.6,
+      "weightT": 38,
+      "quantity": 2
      }
     ],
     "voyages": 2,
@@ -20715,44 +20655,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
-     },
-     {
-      "id": "cont-20",
-      "name": "20 ft offshore container (synthetic)",
-      "lengthM": 6.06,
-      "widthM": 2.44,
-      "weightT": 12,
-      "quantity": 16
-     },
-     {
-      "id": "basket-6m",
-      "name": "6 m cargo basket (synthetic)",
-      "lengthM": 6,
-      "widthM": 2.5,
-      "weightT": 6,
-      "quantity": 8
-     },
-     {
-      "id": "cont-10",
-      "name": "10 ft offshore container (synthetic)",
-      "lengthM": 2.99,
-      "widthM": 2.44,
-      "weightT": 8,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 12
-     },
-     {
-      "id": "mud-tank",
-      "name": "Portable mud tank (synthetic)",
-      "lengthM": 5,
-      "widthM": 2.4,
-      "weightT": 14,
-      "quantity": 5
      },
      {
       "id": "skip",
@@ -20763,12 +20671,44 @@
       "quantity": 6
      },
      {
-      "id": "chem-ibc",
-      "name": "Chemical IBC in a frame (synthetic)",
-      "lengthM": 1.2,
-      "widthM": 1,
-      "weightT": 1.3,
+      "id": "cont-10",
+      "name": "10 ft offshore container (synthetic)",
+      "lengthM": 2.99,
+      "widthM": 2.44,
+      "weightT": 8,
       "quantity": 12
+     },
+     {
+      "id": "basket-6m",
+      "name": "6 m cargo basket (synthetic)",
+      "lengthM": 6,
+      "widthM": 2.5,
+      "weightT": 6,
+      "quantity": 8
+     },
+     {
+      "id": "mud-tank",
+      "name": "Portable mud tank (synthetic)",
+      "lengthM": 5,
+      "widthM": 2.4,
+      "weightT": 14,
+      "quantity": 5
+     },
+     {
+      "id": "cont-20",
+      "name": "20 ft offshore container (synthetic)",
+      "lengthM": 6.06,
+      "widthM": 2.44,
+      "weightT": 12,
+      "quantity": 16
+     },
+     {
+      "id": "pipe-bundle",
+      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
+      "lengthM": 13.5,
+      "widthM": 2.6,
+      "weightT": 38,
+      "quantity": 2
      }
     ],
     "voyages": 1,
@@ -20793,44 +20733,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
-     },
-     {
-      "id": "cont-20",
-      "name": "20 ft offshore container (synthetic)",
-      "lengthM": 6.06,
-      "widthM": 2.44,
-      "weightT": 12,
-      "quantity": 16
-     },
-     {
-      "id": "basket-6m",
-      "name": "6 m cargo basket (synthetic)",
-      "lengthM": 6,
-      "widthM": 2.5,
-      "weightT": 6,
-      "quantity": 8
-     },
-     {
-      "id": "cont-10",
-      "name": "10 ft offshore container (synthetic)",
-      "lengthM": 2.99,
-      "widthM": 2.44,
-      "weightT": 8,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 12
-     },
-     {
-      "id": "mud-tank",
-      "name": "Portable mud tank (synthetic)",
-      "lengthM": 5,
-      "widthM": 2.4,
-      "weightT": 14,
-      "quantity": 5
      },
      {
       "id": "skip",
@@ -20841,12 +20749,44 @@
       "quantity": 6
      },
      {
-      "id": "chem-ibc",
-      "name": "Chemical IBC in a frame (synthetic)",
-      "lengthM": 1.2,
-      "widthM": 1,
-      "weightT": 1.3,
+      "id": "cont-10",
+      "name": "10 ft offshore container (synthetic)",
+      "lengthM": 2.99,
+      "widthM": 2.44,
+      "weightT": 8,
       "quantity": 12
+     },
+     {
+      "id": "basket-6m",
+      "name": "6 m cargo basket (synthetic)",
+      "lengthM": 6,
+      "widthM": 2.5,
+      "weightT": 6,
+      "quantity": 8
+     },
+     {
+      "id": "mud-tank",
+      "name": "Portable mud tank (synthetic)",
+      "lengthM": 5,
+      "widthM": 2.4,
+      "weightT": 14,
+      "quantity": 5
+     },
+     {
+      "id": "cont-20",
+      "name": "20 ft offshore container (synthetic)",
+      "lengthM": 6.06,
+      "widthM": 2.44,
+      "weightT": 12,
+      "quantity": 16
+     },
+     {
+      "id": "pipe-bundle",
+      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
+      "lengthM": 13.5,
+      "widthM": 2.6,
+      "weightT": 38,
+      "quantity": 2
      }
     ],
     "voyages": 0,
@@ -20871,11 +20811,11 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 1.5
      }
     ],
@@ -20901,12 +20841,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
       "widthM": 0,
-      "weightT": 38,
-      "quantity": 2
+      "weightT": 1.3,
+      "quantity": 12
      }
     ],
     "voyages": 1,
@@ -20929,44 +20869,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
-     },
-     {
-      "id": "cont-20",
-      "name": "20 ft offshore container (synthetic)",
-      "lengthM": 6.06,
-      "widthM": 2.44,
-      "weightT": 12,
-      "quantity": 16
-     },
-     {
-      "id": "basket-6m",
-      "name": "6 m cargo basket (synthetic)",
-      "lengthM": 6,
-      "widthM": 2.5,
-      "weightT": 6,
-      "quantity": 8
-     },
-     {
-      "id": "cont-10",
-      "name": "10 ft offshore container (synthetic)",
-      "lengthM": 2.99,
-      "widthM": 2.44,
-      "weightT": 8,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 12
-     },
-     {
-      "id": "mud-tank",
-      "name": "Portable mud tank (synthetic)",
-      "lengthM": 5,
-      "widthM": 2.4,
-      "weightT": 14,
-      "quantity": 5
      },
      {
       "id": "skip",
@@ -20977,12 +20885,44 @@
       "quantity": 6
      },
      {
-      "id": "chem-ibc",
-      "name": "Chemical IBC in a frame (synthetic)",
-      "lengthM": 1.2,
-      "widthM": 1,
-      "weightT": 1.3,
+      "id": "cont-10",
+      "name": "10 ft offshore container (synthetic)",
+      "lengthM": 2.99,
+      "widthM": 2.44,
+      "weightT": 8,
       "quantity": 12
+     },
+     {
+      "id": "basket-6m",
+      "name": "6 m cargo basket (synthetic)",
+      "lengthM": 6,
+      "widthM": 2.5,
+      "weightT": 6,
+      "quantity": 8
+     },
+     {
+      "id": "mud-tank",
+      "name": "Portable mud tank (synthetic)",
+      "lengthM": 5,
+      "widthM": 2.4,
+      "weightT": 14,
+      "quantity": 5
+     },
+     {
+      "id": "cont-20",
+      "name": "20 ft offshore container (synthetic)",
+      "lengthM": 6.06,
+      "widthM": 2.44,
+      "weightT": 12,
+      "quantity": 16
+     },
+     {
+      "id": "pipe-bundle",
+      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
+      "lengthM": 13.5,
+      "widthM": 2.6,
+      "weightT": 38,
+      "quantity": 2
      }
     ],
     "voyages": 1,
@@ -21007,27 +20947,27 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 1000
      },
      {
-      "id": "cont-20",
-      "name": "20 ft offshore container (synthetic)",
-      "lengthM": 6.06,
+      "id": "skip",
+      "name": "Waste skip (synthetic)",
+      "lengthM": 2.5,
+      "widthM": 1.8,
+      "weightT": 3,
+      "quantity": 1000
+     },
+     {
+      "id": "cont-10",
+      "name": "10 ft offshore container (synthetic)",
+      "lengthM": 2.99,
       "widthM": 2.44,
-      "weightT": 12,
-      "quantity": 1000
-     },
-     {
-      "id": "basket-6m",
-      "name": "6 m cargo basket (synthetic)",
-      "lengthM": 6,
-      "widthM": 2.5,
-      "weightT": 6,
+      "weightT": 8,
       "quantity": 1
      }
     ],
@@ -21053,12 +20993,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
+      "quantity": 12,
       "heightM": 2
      }
     ],
@@ -21085,44 +21025,12 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
-     },
-     {
-      "id": "cont-20",
-      "name": "20 ft offshore container (synthetic)",
-      "lengthM": 6.06,
-      "widthM": 2.44,
-      "weightT": 12,
-      "quantity": 16
-     },
-     {
-      "id": "basket-6m",
-      "name": "6 m cargo basket (synthetic)",
-      "lengthM": 6,
-      "widthM": 2.5,
-      "weightT": 6,
-      "quantity": 8
-     },
-     {
-      "id": "cont-10",
-      "name": "10 ft offshore container (synthetic)",
-      "lengthM": 2.99,
-      "widthM": 2.44,
-      "weightT": 8,
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
       "quantity": 12
-     },
-     {
-      "id": "mud-tank",
-      "name": "Portable mud tank (synthetic)",
-      "lengthM": 5,
-      "widthM": 2.4,
-      "weightT": 14,
-      "quantity": 5
      },
      {
       "id": "skip",
@@ -21133,12 +21041,44 @@
       "quantity": 6
      },
      {
-      "id": "chem-ibc",
-      "name": "Chemical IBC in a frame (synthetic)",
-      "lengthM": 1.2,
-      "widthM": 1,
-      "weightT": 1.3,
+      "id": "cont-10",
+      "name": "10 ft offshore container (synthetic)",
+      "lengthM": 2.99,
+      "widthM": 2.44,
+      "weightT": 8,
       "quantity": 12
+     },
+     {
+      "id": "basket-6m",
+      "name": "6 m cargo basket (synthetic)",
+      "lengthM": 6,
+      "widthM": 2.5,
+      "weightT": 6,
+      "quantity": 8
+     },
+     {
+      "id": "mud-tank",
+      "name": "Portable mud tank (synthetic)",
+      "lengthM": 5,
+      "widthM": 2.4,
+      "weightT": 14,
+      "quantity": 5
+     },
+     {
+      "id": "cont-20",
+      "name": "20 ft offshore container (synthetic)",
+      "lengthM": 6.06,
+      "widthM": 2.44,
+      "weightT": 12,
+      "quantity": 16
+     },
+     {
+      "id": "pipe-bundle",
+      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
+      "lengthM": 13.5,
+      "widthM": 2.6,
+      "weightT": 38,
+      "quantity": 2
      }
     ],
     "voyages": 1,
@@ -21163,20 +21103,20 @@
     },
     "items": [
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
+      "quantity": 12
      },
      {
-      "id": "pipe-bundle",
-      "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
-      "lengthM": 13.5,
-      "widthM": 2.6,
-      "weightT": 38,
-      "quantity": 2
+      "id": "chem-ibc",
+      "name": "Chemical IBC in a frame (synthetic)",
+      "lengthM": 1.2,
+      "widthM": 1,
+      "weightT": 1.3,
+      "quantity": 12
      }
     ],
     "voyages": 1,
@@ -21185,7 +21125,7 @@
    "expected": {
     "error": true,
     "field": "items[1].id",
-    "message": "items[1].id repeats the id \"pipe-bundle\""
+    "message": "items[1].id repeats the id \"chem-ibc\""
    },
    "tol": 1e-12
   },

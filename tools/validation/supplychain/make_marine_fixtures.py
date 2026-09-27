@@ -73,16 +73,17 @@ INSTALLATIONS = [
 
 MILK_RUN = {'mode': 'milk-run', 'stops': ['EKA', 'EKJ', 'EKB', 'EKF'], 'legsNm': [62, 9, 12, 28, 95]}
 
-# deck cargo for one voyage of the PSV: offshore containers, baskets, a pipe
-# bundle and skips (footprints length x width in metres, weights in tonnes)
+# deck cargo for one voyage of the PSV in the order it was booked (smallest
+# first): chemical IBCs, skips, containers, baskets, mud tanks and casing
+# bundles (footprints length x width in metres, weights in tonnes)
 DECK_ITEMS = [
-    {'id': 'pipe-bundle', 'name': 'Casing joints, 13-3/8 in, bundled (synthetic)', 'lengthM': 13.5, 'widthM': 2.6, 'weightT': 38, 'quantity': 2},
-    {'id': 'cont-20', 'name': '20 ft offshore container (synthetic)', 'lengthM': 6.06, 'widthM': 2.44, 'weightT': 12, 'quantity': 16},
-    {'id': 'basket-6m', 'name': '6 m cargo basket (synthetic)', 'lengthM': 6, 'widthM': 2.5, 'weightT': 6, 'quantity': 8},
-    {'id': 'cont-10', 'name': '10 ft offshore container (synthetic)', 'lengthM': 2.99, 'widthM': 2.44, 'weightT': 8, 'quantity': 12},
-    {'id': 'mud-tank', 'name': 'Portable mud tank (synthetic)', 'lengthM': 5, 'widthM': 2.4, 'weightT': 14, 'quantity': 5},
-    {'id': 'skip', 'name': 'Waste skip (synthetic)', 'lengthM': 2.5, 'widthM': 1.8, 'weightT': 3, 'quantity': 6},
     {'id': 'chem-ibc', 'name': 'Chemical IBC in a frame (synthetic)', 'lengthM': 1.2, 'widthM': 1, 'weightT': 1.3, 'quantity': 12},
+    {'id': 'skip', 'name': 'Waste skip (synthetic)', 'lengthM': 2.5, 'widthM': 1.8, 'weightT': 3, 'quantity': 6},
+    {'id': 'cont-10', 'name': '10 ft offshore container (synthetic)', 'lengthM': 2.99, 'widthM': 2.44, 'weightT': 8, 'quantity': 12},
+    {'id': 'basket-6m', 'name': '6 m cargo basket (synthetic)', 'lengthM': 6, 'widthM': 2.5, 'weightT': 6, 'quantity': 8},
+    {'id': 'mud-tank', 'name': 'Portable mud tank (synthetic)', 'lengthM': 5, 'widthM': 2.4, 'weightT': 14, 'quantity': 5},
+    {'id': 'cont-20', 'name': '20 ft offshore container (synthetic)', 'lengthM': 6.06, 'widthM': 2.44, 'weightT': 12, 'quantity': 16},
+    {'id': 'pipe-bundle', 'name': 'Casing joints, 13-3/8 in, bundled (synthetic)', 'lengthM': 13.5, 'widthM': 2.6, 'weightT': 38, 'quantity': 2},
 ]
 
 SHORE_BASE = {
