@@ -834,7 +834,8 @@ and its consumers.
   simple or compounded monthly with a stated grace, from the due date to the
   value date, stated suspension and
   forfeiture triggers, JOA Art. 9 and Art. 1.2.2); carry recovery with a
-  stated uplift, recovery share and cap; a back-in under PIA 2021 s.85(4)
+  stated uplift (none, simple interest as HMRC OT18360 describes, compound,
+  or a multiple), recovery share and cap; a back-in under PIA 2021 s.85(4)
   (up to 60%, development and production costs only, no uplift, from future
   entitlement); sole risk premium recovery from production with reversion
   inside the period, or entry at a stated multiple (JOA Art. 18.12, 1000%);

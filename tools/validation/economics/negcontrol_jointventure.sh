@@ -85,7 +85,7 @@ run_case ENGINE "paying and beneficial interest swapped (entitlement split by pa
 run_case ENGINE "paying and beneficial interest swapped (cash calls on beneficial interest)" $E "const fs = splitBy(m.forecast, rows, 'payingPct');
     const as = splitBy(m.actual, rows, 'payingPct');" "const fs = splitBy(m.forecast, rows, 'beneficialPct');
     const as = splitBy(m.actual, rows, 'beneficialPct');"
-run_case ENGINE "carry recovered without the stated uplift" $E "const upliftAmt = uplift.type === 'compound' ? (opening * uplift.ratePctPerYear) / 100 :" "const upliftAmt = uplift.type === 'compound' ? 0 :"
+run_case ENGINE "carry recovered without the stated uplift" $E "      upliftAmt = uplift.type === 'compound' ? (opening * uplift.ratePctPerYear) / 100 :" "      upliftAmt = uplift.type === 'compound' ? 0 :"
 run_case ENGINE "over/under-call not carried to a later call" $E "const pending = (due ? due[id] : 0) + carried[id];" "const pending = carried[id];"
 run_case ENGINE "overhead base wrong (exclusions ignored)" $E "const base = costs[k] - ex;" "const base = costs[k];"
 run_case ENGINE "overhead base wrong (whole base at each band rate)" $E "const amount = Math.max(0, Math.min(base, b.upTo) - lo);" "const amount = base <= b.upTo && base > lo ? base : 0;"
