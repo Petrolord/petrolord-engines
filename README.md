@@ -850,6 +850,32 @@ and its consumers.
   table and the negative control in
   `tools/validation/economics/FINDINGS-jointVenture.md` and
   `negcontrol_jointventure.sh`; timing `timing_jointventure.js`.
+- `engines/economics/farmout.js` (Economics EC10, 2026-09-27): farm-ins,
+  farm-outs and asset valuation. The earning obligation event by event (the
+  farminee pays a stated share of each event's gross cost to earn a stated
+  interest; a gross-cost cap with a stated overrun rule or a carry-amount
+  cap; per-event or all-events vesting, HMRC OT30021's farm in and earn in),
+  the promote and its ratio, the carry, cash bonus and past-cost
+  reimbursement, the equivalent working interest; the value of the deal to
+  each side on a stated risked prospect (the farmor's drill alone, farm out or
+  walk away and the farminee's farm in or decline, rolled back by
+  `economics/decisionTree.js`, with the transfer identity), the exact
+  break-even promote and break-even chance of success; the value of
+  information to either side (`evpi` and `evii`); each side's risk through
+  `economics/portfolio.js` portfolioRiskMetrics (seeded); value per percent of
+  working interest (risked or success case, stated) and transaction ratios of
+  stated inputs; the Nigerian assignment consent fee (AOI Regulations 2024
+  reg. 19: 2% processing and 5% premium, intra group 2%, the 90 + 30 day
+  payment rule and the 0.01% a day surcharge; PIA 2021 s.95); and a
+  development carry or back-in after the farm-in through
+  `economics/jointVenture.js`. Working-interest scaling and NPV are
+  `economics/cashflow.ts` applyJV and npv. Every deal term is a required stated
+  input. Gate: `economics.farmout.test.js` replays
+  `test-data/economics/goldens/farmout_cases.json` (written by
+  `tools/validation/economics/oracle_farmout.py`, stdlib, with the Penn State
+  EME 801 farm-out EMV example); synthetic Ekene Deep farm-out in
+  `test-data/economics/ekene-farmout/`; negative control
+  `negcontrol_farmout.sh`; timing `timing_farmout.js`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,
