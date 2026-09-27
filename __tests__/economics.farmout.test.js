@@ -360,6 +360,7 @@ describe('caps', () => {
     expect(X.earningObligation({ parties, farmor: 'P0', farminee: { id: 'N' } }).error).toBe(`parties must have at most ${X.DEFAULTS.MAX_PARTIES} entries; got ${X.DEFAULTS.MAX_PARTIES + 1}`);
     const events = Array.from({ length: X.DEFAULTS.MAX_EVENTS + 1 }, (_, i) => ({ name: `e${i}`, grossCost: 1, farmineePaysPct: 1, earnedPct: 1, cap: { on: 'none' } }));
     expect(X.earningObligation({ parties: FX.parties, farmor: 'EKO', farminee: FX.farminee, events }).error).toBe(`events must have at most ${X.DEFAULTS.MAX_EVENTS} entries; got ${X.DEFAULTS.MAX_EVENTS + 1}`);
+    expect(run('risk-refuse-work').error).toBe('iterations must be at most 166666 for 3 holdings in all (iterations x holdings at most 500000); got 200000');
     expect(run('risk-refuse-iterations').error).toBe(`iterations must be an integer from 1 to ${X.DEFAULTS.MAX_ITERATIONS} (stated; no default); got ${X.DEFAULTS.MAX_ITERATIONS + 1}`);
   });
 });

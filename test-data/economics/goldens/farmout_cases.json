@@ -10098,6 +10098,54 @@
    }
   },
   {
+   "id": "risk-refuse-work",
+   "fn": "riskSharing",
+   "args": {
+    "correlation": 0,
+    "seed": 1,
+    "iterations": 200000,
+    "positions": [
+     {
+      "name": "EKO drills Ekene Deep alone (70%)",
+      "holdings": [
+       {
+        "id": "Ekene Deep 70%",
+        "chanceOfSuccessPct": 25,
+        "successValue": 157675235.92926538,
+        "failCost": 28000000.0,
+        "successStdDev": 0
+       }
+      ]
+     },
+     {
+      "name": "EKO after the farm-out (40% and the cash)",
+      "holdings": [
+       {
+        "id": "Ekene Deep 40%",
+        "chanceOfSuccessPct": 25,
+        "successValue": 94500134.81672308,
+        "failCost": 12000000.0,
+        "successStdDev": 0
+       },
+       {
+        "id": "cash received",
+        "chanceOfSuccessPct": 100,
+        "successValue": 5208000.0,
+        "failCost": 0,
+        "successStdDev": 0
+       }
+      ]
+     }
+    ]
+   },
+   "tol": 1e-09,
+   "expected": {
+    "error": true,
+    "field": "iterations",
+    "message": "iterations must be at most 166666 for 3 holdings in all (iterations x holdings at most 500000); got 200000"
+   }
+  },
+  {
    "id": "risk-refuse-correlation",
    "fn": "riskSharing",
    "args": {

@@ -107,6 +107,7 @@ run_case ENGINE "break-even chance on the wrong side" $E "return { status: 'solv
 # information, risk, fee
 run_case ENGINE "VOI likelihoods swapped" $E "likelihoods: [s.likelihoodsPct[0] / 100, s.likelihoodsPct[1] / 100]" "likelihoods: [s.likelihoodsPct[1] / 100, s.likelihoodsPct[0] / 100]"
 run_case ENGINE "Monte Carlo seed ignored" $E "correlation, { seed, iterations });" "correlation, { iterations });"
+run_case ENGINE "Monte Carlo work cap ignored" $E "  if (iterations * holdings > DEFAULTS.MAX_DRAW_WORK) return" "  if (false) return"
 run_case ENGINE "intra group transfer pays the premium" $E "prem = intraGroup ? 0 : NIGERIA_ASSIGNMENT.premiumPct;" "prem = NIGERIA_ASSIGNMENT.premiumPct;"
 run_case ENGINE "day 90 counted late" $E "if (days <= N.payWithinDays) status = 'on-time';" "if (days < N.payWithinDays) status = 'on-time';"
 run_case ENGINE "surcharge 0.1% a day" $E "surchargePctPerDay: 0.01," "surchargePctPerDay: 0.1,"

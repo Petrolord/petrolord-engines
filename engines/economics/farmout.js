@@ -89,6 +89,7 @@ export const DEFAULTS = Object.freeze({
   MAX_POSITIONS: 10,
   MAX_HOLDINGS: 50,
   MAX_ITERATIONS: 200000,
+  MAX_DRAW_WORK: 500000, // iterations x holdings over all positions (about 2.5 s at 5 microseconds a holding draw)
   MAX_RESERVES: 10,
   SUM_TOLERANCE: 1e-9,
 });
@@ -834,6 +835,8 @@ const riskImpl = ({ positions, correlation, seed, iterations }) => {
       seen.add(h.id);
     }
   }
+  const holdings = sum(positions.map((ps) => ps.holdings.length));
+  if (iterations * holdings > DEFAULTS.MAX_DRAW_WORK) return must('iterations', `at most ${Math.floor(DEFAULTS.MAX_DRAW_WORK / holdings)} for ${unit(holdings, 'holding')} in all (iterations x holdings at most ${DEFAULTS.MAX_DRAW_WORK})`, iterations);
   const reasons = [];
   const rows = positions.map((ps) => {
     const r = portfolioRiskMetrics(ps.holdings.map((h) => ({ name: h.id, pos: h.chanceOfSuccessPct / 100, npv_p50: h.successValue, fail_cost: h.failCost, npv_stddev: h.successStdDev })), correlation, { seed, iterations });

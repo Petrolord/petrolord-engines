@@ -56,7 +56,7 @@ js, js_num, isnum, show, unit = OJ.js, OJ.js_num, OJ.isnum, OJ.show, OJ.unit
 Refusal, refuse, must = OJ.Refusal, OJ.refuse, OJ.must
 isobj, isint, fl = OJ.isobj, OJ.isint, OJ.fl
 
-CAPS = {'parties': 20, 'events': 20, 'years': 100, 'signals': 10, 'positions': 10, 'holdings': 50, 'iterations': 200000, 'reserves': 10}
+CAPS = {'work': 500000, 'parties': 20, 'events': 20, 'years': 100, 'signals': 10, 'positions': 10, 'holdings': 50, 'iterations': 200000, 'reserves': 10}
 SUM_TOL = F(1, 10 ** 9)
 
 # AOI Regulations 2024 reg. 19(2), (7), (8), (9)
@@ -737,6 +737,9 @@ def risk(a):
             if h['id'] in seen:
                 must(f'{gg}.id', 'an id no other holding in the position has', h['id'])
             seen.add(h['id'])
+    nh = sum(len(ps['holdings']) for ps in pos)
+    if it * nh > CAPS['work']:
+        must('iterations', f'at most {CAPS["work"] // nh} for {unit(nh, "holding")} in all (iterations x holdings at most {CAPS["work"]})', it)
     rows, exact = [], []
     for ps in pos:
         mean, vsum, sdsum = F(0), F(0), 0.0
@@ -1089,6 +1092,7 @@ def build():
         {'name': 'four prospects at 25%, correlated', 'holdings': [{'id': k, 'chanceOfSuccessPct': 25, 'successValue': 50000000, 'failCost': 10000000, 'successStdDev': 0} for k in 'ABCD']}]})
     refused('risk-refuse-no-seed', 'riskSharing', {'correlation': 0, 'iterations': 10, 'positions': positions}, 'seed')
     refused('risk-refuse-iterations', 'riskSharing', {'correlation': 0, 'seed': 1, 'iterations': 200001, 'positions': positions}, 'iterations')
+    refused('risk-refuse-work', 'riskSharing', {'correlation': 0, 'seed': 1, 'iterations': 200000, 'positions': positions}, 'iterations')
     refused('risk-refuse-correlation', 'riskSharing', {'correlation': -0.1, 'seed': 1, 'iterations': 10, 'positions': positions}, 'correlation')
     refused('risk-refuse-no-sd', 'riskSharing', {'correlation': 0, 'seed': 1, 'iterations': 10, 'positions': [{'name': 'x', 'holdings': [{'id': 'a', 'chanceOfSuccessPct': 1, 'successValue': 1, 'failCost': 1}]}]},
             'positions[0].holdings[0].successStdDev')
