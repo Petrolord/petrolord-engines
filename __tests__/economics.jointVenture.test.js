@@ -359,6 +359,40 @@ describe('lead decision: default interest method and grace are stated inputs', (
   });
 });
 
+describe('simple interest uplift (HMRC OT18360)', () => {
+  test('one period of interest: simple equals compound; from the second period they diverge', () => {
+    const si = run('carry-simple-vs-compound-simple').ledger;
+    const co = run('carry-simple-vs-compound-compound').ledger;
+    expect(si[1].uplift).toBe(co[1].uplift);
+    expect(si[1].due).toBe(co[1].due);
+    expect(si[2].uplift).toBeLessThan(co[2].uplift);
+    expect(si[3].uplift).toBe(si[2].uplift);
+    expect(co[3].uplift).toBeGreaterThan(co[2].uplift);
+  });
+  test('interest accrues on the outstanding principal only; a recovery pays the accrued interest first', () => {
+    const r = run('carry-simple-interest-first').ledger;
+    expect([r[1].interestPaid, r[1].principalPaid, r[1].principalAfter, r[1].accruedInterestAfter]).toEqual([30, 0, 200, 20]);
+    expect(r[2].openingPrincipal).toBe(200);
+    r.forEach((y) => expect(y.principalAfter + y.accruedInterestAfter).toBeCloseTo(y.closing, 9));
+  });
+  test('the day basis: a leap year counts 366 days on actual/365; annual-period ignores the calendar', () => {
+    const l = run('carry-simple-leap-year').ledger;
+    expect([l[1].yearDays, l[2].yearDays]).toEqual([366, 365]);
+    expect(l[1].uplift).toBeGreaterThan(l[2].uplift);
+    expect(run('carry-ekene-simple').ledger[1].yearDays).toBe(null);
+  });
+  test('the rate, the day basis and the PIA refusal are stated; OT18360 is cited in the basis', () => {
+    expect(run('carry-refuse-simple-no-basis').error).toBe('uplift.dayBasis must be one of "annual-period", "actual/365", "actual/360"; got nothing');
+    expect(run('carry-refuse-simple-no-rate').field).toBe('uplift.ratePctPerYear');
+    expect(run('carry-refuse-compound-basis').error).toBe('uplift.dayBasis must be left out when type is "compound"; got "actual/365"');
+    expect(run('carry-refuse-pia-simple').field).toBe('uplift.type');
+    expect(run('carry-ekene-simple').basis.uplift).toMatch(/HMRC Oil Taxation Manual OT18360: costs recovered "usually including an addition representing simple interest"\)$/);
+  });
+  test('no existing uplift value moved: the compound, none and multiple rows carry no simple-interest fields', () => {
+    ['carry-ekene-compound', 'carry-ekene-pia', 'carry-ekene-multiple'].forEach((id) => expect(run(id).ledger[0].openingPrincipal).toBeUndefined());
+  });
+});
+
 describe('wording and keys', () => {
   test('unknown keys: every function refuses one at the top level', () => {
     expect(Object.keys(J.ACCEPTED_KEYS).sort()).toEqual(FNS);

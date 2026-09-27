@@ -15705,6 +15705,4402 @@
    }
   },
   {
+   "id": "carry-ekene-simple",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "NOC",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000
+     }
+    ],
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 8,
+     "dayBasis": "annual-period"
+    },
+    "recoverFromPct": 50,
+    "basis": "contract",
+    "discountRate": 0.1,
+    "baseYear": 2027
+   },
+   "tol": 1e-12,
+   "expected": {
+    "carried": "NOC",
+    "carriedPct": 100,
+    "carriedInterestPct": 20.0,
+    "carriers": [
+     {
+      "id": "EKO",
+      "sharePct": 50.0
+     },
+     {
+      "id": "PA",
+      "sharePct": 31.25
+     },
+     {
+      "id": "PB",
+      "sharePct": 18.75
+     }
+    ],
+    "ledger": [
+     {
+      "year": 2027,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 16400000.0,
+      "due": 16400000.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 16400000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 16400000.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2028,
+      "opening": 16400000.0,
+      "uplift": 1312000.0,
+      "added": 12000000.0,
+      "due": 29712000.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 29712000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 16400000.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 28400000.0,
+      "accruedInterestAfter": 1312000.0
+     },
+     {
+      "year": 2029,
+      "opening": 29712000.0,
+      "uplift": 2272000.0,
+      "added": 0.0,
+      "due": 31984000.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 31984000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 28400000.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 28400000.0,
+      "accruedInterestAfter": 3584000.0
+     },
+     {
+      "year": 2030,
+      "opening": 31984000.0,
+      "uplift": 2272000.0,
+      "added": 0.0,
+      "due": 34256000.0,
+      "share": 19200000.0,
+      "available": 9600000.0,
+      "recovered": 9600000.0,
+      "closing": 24656000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 9600000.0,
+      "openingPrincipal": 28400000.0,
+      "yearDays": null,
+      "interestPaid": 5856000.0,
+      "principalPaid": 3744000.0,
+      "principalAfter": 24656000.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2031,
+      "opening": 24656000.0,
+      "uplift": 1972480.0,
+      "added": 0.0,
+      "due": 26628480.0,
+      "share": 22400000.0,
+      "available": 11200000.0,
+      "recovered": 11200000.0,
+      "closing": 15428480.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 11200000.0,
+      "openingPrincipal": 24656000.0,
+      "yearDays": null,
+      "interestPaid": 1972480.0,
+      "principalPaid": 9227520.0,
+      "principalAfter": 15428480.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2032,
+      "opening": 15428480.0,
+      "uplift": 1234278.4,
+      "added": 0.0,
+      "due": 16662758.4,
+      "share": 20800000.0,
+      "available": 10400000.0,
+      "recovered": 10400000.0,
+      "closing": 6262758.4,
+      "writtenOff": 0.0,
+      "debtorReceives": 10400000.0,
+      "openingPrincipal": 15428480.0,
+      "yearDays": null,
+      "interestPaid": 1234278.4,
+      "principalPaid": 9165721.6,
+      "principalAfter": 6262758.4,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2033,
+      "opening": 6262758.4,
+      "uplift": 501020.672,
+      "added": 0.0,
+      "due": 6763779.072,
+      "share": 18800000.0,
+      "available": 9400000.0,
+      "recovered": 6763779.072,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 12036220.928,
+      "openingPrincipal": 6262758.4,
+      "yearDays": null,
+      "interestPaid": 501020.672,
+      "principalPaid": 6262758.4,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2034,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 17200000.0,
+      "available": 8600000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 17200000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2035,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 15600000.0,
+      "available": 7800000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 15600000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2036,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 14000000.0,
+      "available": 7000000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 14000000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     }
+    ],
+    "parties": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0,
+      "carriedCost": 16400000.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 41000000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -41000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 25625000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -25625000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 15375000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -15375000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0,
+      "carriedCost": 12000000.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 30000000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -30000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 18750000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -18750000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 11250000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -11250000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 38400000.0,
+        "recovery": 4800000.0,
+        "net": 43200000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 24000000.0,
+        "recovery": 3000000.0,
+        "net": 27000000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 14400000.0,
+        "recovery": 1800000.0,
+        "net": 16200000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 19200000.0,
+        "recovery": -9600000.0,
+        "net": 9600000.0
+       }
+      ]
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 44800000.0,
+        "recovery": 5600000.0,
+        "net": 50400000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 28000000.0,
+        "recovery": 3500000.0,
+        "net": 31500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 16800000.0,
+        "recovery": 2100000.0,
+        "net": 18900000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 22400000.0,
+        "recovery": -11200000.0,
+        "net": 11200000.0
+       }
+      ]
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 41600000.0,
+        "recovery": 5200000.0,
+        "net": 46800000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 26000000.0,
+        "recovery": 3250000.0,
+        "net": 29250000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 15600000.0,
+        "recovery": 1950000.0,
+        "net": 17550000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 20800000.0,
+        "recovery": -10400000.0,
+        "net": 10400000.0
+       }
+      ]
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 37600000.0,
+        "recovery": 3381889.536,
+        "net": 40981889.536
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 23500000.0,
+        "recovery": 2113680.96,
+        "net": 25613680.96
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 14100000.0,
+        "recovery": 1268208.576,
+        "net": 15368208.576
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 18800000.0,
+        "recovery": -6763779.072,
+        "net": 12036220.928
+       }
+      ]
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 34400000.0,
+        "recovery": 0.0,
+        "net": 34400000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 21500000.0,
+        "recovery": 0.0,
+        "net": 21500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 12900000.0,
+        "recovery": 0.0,
+        "net": 12900000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 17200000.0,
+        "recovery": 0.0,
+        "net": 17200000.0
+       }
+      ]
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 31200000.0,
+        "recovery": 0.0,
+        "net": 31200000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 19500000.0,
+        "recovery": 0.0,
+        "net": 19500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 11700000.0,
+        "recovery": 0.0,
+        "net": 11700000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 15600000.0,
+        "recovery": 0.0,
+        "net": 15600000.0
+       }
+      ]
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 28000000.0,
+        "recovery": 0.0,
+        "net": 28000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 17500000.0,
+        "recovery": 0.0,
+        "net": 17500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 10500000.0,
+        "recovery": 0.0,
+        "net": 10500000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 14000000.0,
+        "recovery": 0.0,
+        "net": 14000000.0
+       }
+      ]
+     }
+    ],
+    "totals": {
+     "carriedCost": 28400000.0,
+     "uplift": 9563779.072,
+     "recovered": 37963779.072,
+     "writtenOff": 0.0,
+     "outstanding": 0.0
+    },
+    "recoveredInYear": 2033,
+    "npv": [
+     {
+      "id": "EKO",
+      "npv": 94882679.28731418
+     },
+     {
+      "id": "PA",
+      "npv": 59301674.55457136
+     },
+     {
+      "id": "PB",
+      "npv": 35581004.732742816
+     },
+     {
+      "id": "NOC",
+      "npv": 50155288.90083762
+     }
+    ],
+    "reasons": [
+     "2027: 0 recovered of 16400000 due; 16400000 carried to 2028",
+     "2028: 8% a year simple interest on the outstanding principal 16400000 for the year adds 1312000 (the accrued interest earns none)",
+     "2028: 0 recovered of 29712000 due; 29712000 carried to 2029",
+     "2029: 8% a year simple interest on the outstanding principal 28400000 for the year adds 2272000 (the accrued interest earns none)",
+     "2029: 0 recovered of 31984000 due; 31984000 carried to 2030",
+     "2030: 8% a year simple interest on the outstanding principal 28400000 for the year adds 2272000 (the accrued interest earns none)",
+     "2030: 9600000 recovered of 34256000 due; 24656000 carried to 2031",
+     "2030: the 9600000 recovered pays the accrued interest 5856000 first, then 3744000 of principal",
+     "2031: 8% a year simple interest on the outstanding principal 24656000 for the year adds 1972480 (the accrued interest earns none)",
+     "2031: 11200000 recovered of 26628480 due; 15428480 carried to 2032",
+     "2031: the 11200000 recovered pays the accrued interest 1972480 first, then 9227520 of principal",
+     "2032: 8% a year simple interest on the outstanding principal 15428480 for the year adds 1234278.4 (the accrued interest earns none)",
+     "2032: 10400000 recovered of 16662758.4 due; 6262758.4 carried to 2033",
+     "2032: the 10400000 recovered pays the accrued interest 1234278.4 first, then 9165721.6 of principal",
+     "2033: 8% a year simple interest on the outstanding principal 6262758.4 for the year adds 501020.67 (the accrued interest earns none)",
+     "2033: the balance 6763779.07 is recovered with 6763779.07 of the 9400000 available; the carried party receives 12036220.93 of its share 18800000",
+     "2033: the 6763779.07 recovered pays the accrued interest 501020.67 first, then 6262758.4 of principal"
+    ]
+   },
+   "note": "HMRC Oil Taxation Manual OT18360 (updated 23 January 2019, OGL v3.0): development carry costs recovered from the carried party's production, usually with an addition representing simple interest; the 8% rate is the Ekene fixture's stated term"
+  },
+  {
+   "id": "carry-ekene-simple-actual365",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "NOC",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000
+     }
+    ],
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 8,
+     "dayBasis": "actual/365"
+    },
+    "recoverFromPct": 50,
+    "basis": "contract",
+    "discountRate": 0.1,
+    "baseYear": 2027
+   },
+   "tol": 1e-12,
+   "expected": {
+    "carried": "NOC",
+    "carriedPct": 100,
+    "carriedInterestPct": 20.0,
+    "carriers": [
+     {
+      "id": "EKO",
+      "sharePct": 50.0
+     },
+     {
+      "id": "PA",
+      "sharePct": 31.25
+     },
+     {
+      "id": "PB",
+      "sharePct": 18.75
+     }
+    ],
+    "ledger": [
+     {
+      "year": 2027,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 16400000.0,
+      "due": 16400000.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 16400000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 0.0,
+      "yearDays": 365,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 16400000.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2028,
+      "opening": 16400000.0,
+      "uplift": 1315594.5205479453,
+      "added": 12000000.0,
+      "due": 29715594.520547945,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 29715594.520547945,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 16400000.0,
+      "yearDays": 366,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 28400000.0,
+      "accruedInterestAfter": 1315594.5205479453
+     },
+     {
+      "year": 2029,
+      "opening": 29715594.520547945,
+      "uplift": 2272000.0,
+      "added": 0.0,
+      "due": 31987594.520547945,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 31987594.520547945,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 28400000.0,
+      "yearDays": 365,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 28400000.0,
+      "accruedInterestAfter": 3587594.520547945
+     },
+     {
+      "year": 2030,
+      "opening": 31987594.520547945,
+      "uplift": 2272000.0,
+      "added": 0.0,
+      "due": 34259594.52054795,
+      "share": 19200000.0,
+      "available": 9600000.0,
+      "recovered": 9600000.0,
+      "closing": 24659594.520547945,
+      "writtenOff": 0.0,
+      "debtorReceives": 9600000.0,
+      "openingPrincipal": 28400000.0,
+      "yearDays": 365,
+      "interestPaid": 5859594.520547945,
+      "principalPaid": 3740405.479452055,
+      "principalAfter": 24659594.520547945,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2031,
+      "opening": 24659594.520547945,
+      "uplift": 1972767.5616438356,
+      "added": 0.0,
+      "due": 26632362.08219178,
+      "share": 22400000.0,
+      "available": 11200000.0,
+      "recovered": 11200000.0,
+      "closing": 15432362.08219178,
+      "writtenOff": 0.0,
+      "debtorReceives": 11200000.0,
+      "openingPrincipal": 24659594.520547945,
+      "yearDays": 365,
+      "interestPaid": 1972767.5616438356,
+      "principalPaid": 9227232.438356165,
+      "principalAfter": 15432362.08219178,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2032,
+      "opening": 15432362.08219178,
+      "uplift": 1237971.4021002064,
+      "added": 0.0,
+      "due": 16670333.484291987,
+      "share": 20800000.0,
+      "available": 10400000.0,
+      "recovered": 10400000.0,
+      "closing": 6270333.4842919875,
+      "writtenOff": 0.0,
+      "debtorReceives": 10400000.0,
+      "openingPrincipal": 15432362.08219178,
+      "yearDays": 366,
+      "interestPaid": 1237971.4021002064,
+      "principalPaid": 9162028.597899793,
+      "principalAfter": 6270333.4842919875,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2033,
+      "opening": 6270333.4842919875,
+      "uplift": 501626.678743359,
+      "added": 0.0,
+      "due": 6771960.163035346,
+      "share": 18800000.0,
+      "available": 9400000.0,
+      "recovered": 6771960.163035346,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 12028039.836964654,
+      "openingPrincipal": 6270333.4842919875,
+      "yearDays": 365,
+      "interestPaid": 501626.678743359,
+      "principalPaid": 6270333.4842919875,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2034,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 17200000.0,
+      "available": 8600000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 17200000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": 365,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2035,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 15600000.0,
+      "available": 7800000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 15600000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": 365,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2036,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 14000000.0,
+      "available": 7000000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 14000000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": 366,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     }
+    ],
+    "parties": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0,
+      "carriedCost": 16400000.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 41000000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -41000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 25625000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -25625000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 15375000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -15375000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0,
+      "carriedCost": 12000000.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 30000000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -30000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 18750000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -18750000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 11250000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -11250000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 38400000.0,
+        "recovery": 4800000.0,
+        "net": 43200000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 24000000.0,
+        "recovery": 3000000.0,
+        "net": 27000000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 14400000.0,
+        "recovery": 1800000.0,
+        "net": 16200000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 19200000.0,
+        "recovery": -9600000.0,
+        "net": 9600000.0
+       }
+      ]
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 44800000.0,
+        "recovery": 5600000.0,
+        "net": 50400000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 28000000.0,
+        "recovery": 3500000.0,
+        "net": 31500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 16800000.0,
+        "recovery": 2100000.0,
+        "net": 18900000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 22400000.0,
+        "recovery": -11200000.0,
+        "net": 11200000.0
+       }
+      ]
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 41600000.0,
+        "recovery": 5200000.0,
+        "net": 46800000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 26000000.0,
+        "recovery": 3250000.0,
+        "net": 29250000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 15600000.0,
+        "recovery": 1950000.0,
+        "net": 17550000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 20800000.0,
+        "recovery": -10400000.0,
+        "net": 10400000.0
+       }
+      ]
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 37600000.0,
+        "recovery": 3385980.081517673,
+        "net": 40985980.081517674
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 23500000.0,
+        "recovery": 2116237.550948546,
+        "net": 25616237.550948545
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 14100000.0,
+        "recovery": 1269742.5305691275,
+        "net": 15369742.530569127
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 18800000.0,
+        "recovery": -6771960.163035346,
+        "net": 12028039.836964654
+       }
+      ]
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 34400000.0,
+        "recovery": 0.0,
+        "net": 34400000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 21500000.0,
+        "recovery": 0.0,
+        "net": 21500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 12900000.0,
+        "recovery": 0.0,
+        "net": 12900000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 17200000.0,
+        "recovery": 0.0,
+        "net": 17200000.0
+       }
+      ]
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 31200000.0,
+        "recovery": 0.0,
+        "net": 31200000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 19500000.0,
+        "recovery": 0.0,
+        "net": 19500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 11700000.0,
+        "recovery": 0.0,
+        "net": 11700000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 15600000.0,
+        "recovery": 0.0,
+        "net": 15600000.0
+       }
+      ]
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 28000000.0,
+        "recovery": 0.0,
+        "net": 28000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 17500000.0,
+        "recovery": 0.0,
+        "net": 17500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 10500000.0,
+        "recovery": 0.0,
+        "net": 10500000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 14000000.0,
+        "recovery": 0.0,
+        "net": 14000000.0
+       }
+      ]
+     }
+    ],
+    "totals": {
+     "carriedCost": 28400000.0,
+     "uplift": 9571960.163035346,
+     "recovered": 37971960.16303535,
+     "writtenOff": 0.0,
+     "outstanding": 0.0
+    },
+    "recoveredInYear": 2033,
+    "npv": [
+     {
+      "id": "EKO",
+      "npv": 94884988.2936186
+     },
+     {
+      "id": "PA",
+      "npv": 59303117.68351163
+     },
+     {
+      "id": "PB",
+      "npv": 35581870.610106975
+     },
+     {
+      "id": "NOC",
+      "npv": 50150670.888228774
+     }
+    ],
+    "reasons": [
+     "2027: 0 recovered of 16400000 due; 16400000 carried to 2028",
+     "2028: 8% a year simple interest on the outstanding principal 16400000 for 366 days / 365 adds 1315594.52 (the accrued interest earns none)",
+     "2028: 0 recovered of 29715594.52 due; 29715594.52 carried to 2029",
+     "2029: 8% a year simple interest on the outstanding principal 28400000 for 365 days / 365 adds 2272000 (the accrued interest earns none)",
+     "2029: 0 recovered of 31987594.52 due; 31987594.52 carried to 2030",
+     "2030: 8% a year simple interest on the outstanding principal 28400000 for 365 days / 365 adds 2272000 (the accrued interest earns none)",
+     "2030: 9600000 recovered of 34259594.52 due; 24659594.52 carried to 2031",
+     "2030: the 9600000 recovered pays the accrued interest 5859594.52 first, then 3740405.48 of principal",
+     "2031: 8% a year simple interest on the outstanding principal 24659594.52 for 365 days / 365 adds 1972767.56 (the accrued interest earns none)",
+     "2031: 11200000 recovered of 26632362.08 due; 15432362.08 carried to 2032",
+     "2031: the 11200000 recovered pays the accrued interest 1972767.56 first, then 9227232.44 of principal",
+     "2032: 8% a year simple interest on the outstanding principal 15432362.08 for 366 days / 365 adds 1237971.4 (the accrued interest earns none)",
+     "2032: 10400000 recovered of 16670333.48 due; 6270333.48 carried to 2033",
+     "2032: the 10400000 recovered pays the accrued interest 1237971.4 first, then 9162028.6 of principal",
+     "2033: 8% a year simple interest on the outstanding principal 6270333.48 for 365 days / 365 adds 501626.68 (the accrued interest earns none)",
+     "2033: the balance 6771960.16 is recovered with 6771960.16 of the 9400000 available; the carried party receives 12028039.84 of its share 18800000",
+     "2033: the 6771960.16 recovered pays the accrued interest 501626.68 first, then 6270333.48 of principal"
+    ]
+   }
+  },
+  {
+   "id": "carry-ekene-simple-actual360",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "NOC",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000
+     }
+    ],
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 8,
+     "dayBasis": "actual/360"
+    },
+    "recoverFromPct": 50,
+    "basis": "contract",
+    "discountRate": 0.1,
+    "baseYear": 2027
+   },
+   "tol": 1e-12,
+   "expected": {
+    "carried": "NOC",
+    "carriedPct": 100,
+    "carriedInterestPct": 20.0,
+    "carriers": [
+     {
+      "id": "EKO",
+      "sharePct": 50.0
+     },
+     {
+      "id": "PA",
+      "sharePct": 31.25
+     },
+     {
+      "id": "PB",
+      "sharePct": 18.75
+     }
+    ],
+    "ledger": [
+     {
+      "year": 2027,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 16400000.0,
+      "due": 16400000.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 16400000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 0.0,
+      "yearDays": 365,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 16400000.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2028,
+      "opening": 16400000.0,
+      "uplift": 1333866.6666666667,
+      "added": 12000000.0,
+      "due": 29733866.666666668,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 29733866.666666668,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 16400000.0,
+      "yearDays": 366,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 28400000.0,
+      "accruedInterestAfter": 1333866.6666666667
+     },
+     {
+      "year": 2029,
+      "opening": 29733866.666666668,
+      "uplift": 2303555.5555555555,
+      "added": 0.0,
+      "due": 32037422.222222224,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 32037422.222222224,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 28400000.0,
+      "yearDays": 365,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 28400000.0,
+      "accruedInterestAfter": 3637422.222222222
+     },
+     {
+      "year": 2030,
+      "opening": 32037422.222222224,
+      "uplift": 2303555.5555555555,
+      "added": 0.0,
+      "due": 34340977.777777776,
+      "share": 19200000.0,
+      "available": 9600000.0,
+      "recovered": 9600000.0,
+      "closing": 24740977.777777776,
+      "writtenOff": 0.0,
+      "debtorReceives": 9600000.0,
+      "openingPrincipal": 28400000.0,
+      "yearDays": 365,
+      "interestPaid": 5940977.777777778,
+      "principalPaid": 3659022.222222222,
+      "principalAfter": 24740977.777777776,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2031,
+      "opening": 24740977.777777776,
+      "uplift": 2006768.1975308643,
+      "added": 0.0,
+      "due": 26747745.97530864,
+      "share": 22400000.0,
+      "available": 11200000.0,
+      "recovered": 11200000.0,
+      "closing": 15547745.975308642,
+      "writtenOff": 0.0,
+      "debtorReceives": 11200000.0,
+      "openingPrincipal": 24740977.777777776,
+      "yearDays": 365,
+      "interestPaid": 2006768.1975308643,
+      "principalPaid": 9193231.802469136,
+      "principalAfter": 15547745.975308642,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2032,
+      "opening": 15547745.975308642,
+      "uplift": 1264550.0059917695,
+      "added": 0.0,
+      "due": 16812295.98130041,
+      "share": 20800000.0,
+      "available": 10400000.0,
+      "recovered": 10400000.0,
+      "closing": 6412295.981300412,
+      "writtenOff": 0.0,
+      "debtorReceives": 10400000.0,
+      "openingPrincipal": 15547745.975308642,
+      "yearDays": 366,
+      "interestPaid": 1264550.0059917695,
+      "principalPaid": 9135449.99400823,
+      "principalAfter": 6412295.981300412,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2033,
+      "opening": 6412295.981300412,
+      "uplift": 520108.45181658893,
+      "added": 0.0,
+      "due": 6932404.433117,
+      "share": 18800000.0,
+      "available": 9400000.0,
+      "recovered": 6932404.433117,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 11867595.566883,
+      "openingPrincipal": 6412295.981300412,
+      "yearDays": 365,
+      "interestPaid": 520108.45181658893,
+      "principalPaid": 6412295.981300412,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2034,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 17200000.0,
+      "available": 8600000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 17200000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": 365,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2035,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 15600000.0,
+      "available": 7800000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 15600000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": 365,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2036,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 14000000.0,
+      "available": 7000000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 14000000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": 366,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     }
+    ],
+    "parties": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0,
+      "carriedCost": 16400000.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 41000000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -41000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 25625000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -25625000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 15375000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -15375000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0,
+      "carriedCost": 12000000.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 30000000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -30000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 18750000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -18750000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 11250000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -11250000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 38400000.0,
+        "recovery": 4800000.0,
+        "net": 43200000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 24000000.0,
+        "recovery": 3000000.0,
+        "net": 27000000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 14400000.0,
+        "recovery": 1800000.0,
+        "net": 16200000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 19200000.0,
+        "recovery": -9600000.0,
+        "net": 9600000.0
+       }
+      ]
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 44800000.0,
+        "recovery": 5600000.0,
+        "net": 50400000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 28000000.0,
+        "recovery": 3500000.0,
+        "net": 31500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 16800000.0,
+        "recovery": 2100000.0,
+        "net": 18900000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 22400000.0,
+        "recovery": -11200000.0,
+        "net": 11200000.0
+       }
+      ]
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 41600000.0,
+        "recovery": 5200000.0,
+        "net": 46800000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 26000000.0,
+        "recovery": 3250000.0,
+        "net": 29250000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 15600000.0,
+        "recovery": 1950000.0,
+        "net": 17550000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 20800000.0,
+        "recovery": -10400000.0,
+        "net": 10400000.0
+       }
+      ]
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 37600000.0,
+        "recovery": 3466202.2165585,
+        "net": 41066202.2165585
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 23500000.0,
+        "recovery": 2166376.3853490627,
+        "net": 25666376.38534906
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 14100000.0,
+        "recovery": 1299825.8312094377,
+        "net": 15399825.831209438
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 18800000.0,
+        "recovery": -6932404.433117,
+        "net": 11867595.566883
+       }
+      ]
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 34400000.0,
+        "recovery": 0.0,
+        "net": 34400000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 21500000.0,
+        "recovery": 0.0,
+        "net": 21500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 12900000.0,
+        "recovery": 0.0,
+        "net": 12900000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 17200000.0,
+        "recovery": 0.0,
+        "net": 17200000.0
+       }
+      ]
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 31200000.0,
+        "recovery": 0.0,
+        "net": 31200000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 19500000.0,
+        "recovery": 0.0,
+        "net": 19500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 11700000.0,
+        "recovery": 0.0,
+        "net": 11700000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 15600000.0,
+        "recovery": 0.0,
+        "net": 15600000.0
+       }
+      ]
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 28000000.0,
+        "recovery": 0.0,
+        "net": 28000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 17500000.0,
+        "recovery": 0.0,
+        "net": 17500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 10500000.0,
+        "recovery": 0.0,
+        "net": 10500000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 14000000.0,
+        "recovery": 0.0,
+        "net": 14000000.0
+       }
+      ]
+     }
+    ],
+    "totals": {
+     "carriedCost": 28400000.0,
+     "uplift": 9732404.433117,
+     "recovered": 38132404.433117,
+     "writtenOff": 0.0,
+     "outstanding": 0.0
+    },
+    "recoveredInYear": 2033,
+    "npv": [
+     {
+      "id": "EKO",
+      "npv": 94930271.5974624
+     },
+     {
+      "id": "PA",
+      "npv": 59331419.748414
+     },
+     {
+      "id": "PB",
+      "npv": 35598851.8490484
+     },
+     {
+      "id": "NOC",
+      "npv": 50060104.28054117
+     }
+    ],
+    "reasons": [
+     "2027: 0 recovered of 16400000 due; 16400000 carried to 2028",
+     "2028: 8% a year simple interest on the outstanding principal 16400000 for 366 days / 360 adds 1333866.67 (the accrued interest earns none)",
+     "2028: 0 recovered of 29733866.67 due; 29733866.67 carried to 2029",
+     "2029: 8% a year simple interest on the outstanding principal 28400000 for 365 days / 360 adds 2303555.56 (the accrued interest earns none)",
+     "2029: 0 recovered of 32037422.22 due; 32037422.22 carried to 2030",
+     "2030: 8% a year simple interest on the outstanding principal 28400000 for 365 days / 360 adds 2303555.56 (the accrued interest earns none)",
+     "2030: 9600000 recovered of 34340977.78 due; 24740977.78 carried to 2031",
+     "2030: the 9600000 recovered pays the accrued interest 5940977.78 first, then 3659022.22 of principal",
+     "2031: 8% a year simple interest on the outstanding principal 24740977.78 for 365 days / 360 adds 2006768.2 (the accrued interest earns none)",
+     "2031: 11200000 recovered of 26747745.98 due; 15547745.98 carried to 2032",
+     "2031: the 11200000 recovered pays the accrued interest 2006768.2 first, then 9193231.8 of principal",
+     "2032: 8% a year simple interest on the outstanding principal 15547745.98 for 366 days / 360 adds 1264550.01 (the accrued interest earns none)",
+     "2032: 10400000 recovered of 16812295.98 due; 6412295.98 carried to 2033",
+     "2032: the 10400000 recovered pays the accrued interest 1264550.01 first, then 9135449.99 of principal",
+     "2033: 8% a year simple interest on the outstanding principal 6412295.98 for 365 days / 360 adds 520108.45 (the accrued interest earns none)",
+     "2033: the balance 6932404.43 is recovered with 6932404.43 of the 9400000 available; the carried party receives 11867595.57 of its share 18800000",
+     "2033: the 6932404.43 recovered pays the accrued interest 520108.45 first, then 6412295.98 of principal"
+    ]
+   }
+  },
+  {
+   "id": "carry-ekene-simple-capped",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "NOC",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000
+     }
+    ],
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 8,
+     "dayBasis": "annual-period"
+    },
+    "recoverFromPct": 50,
+    "basis": "contract",
+    "discountRate": 0.1,
+    "baseYear": 2027,
+    "cap": 25000000
+   },
+   "tol": 1e-12,
+   "expected": {
+    "carried": "NOC",
+    "carriedPct": 100,
+    "carriedInterestPct": 20.0,
+    "carriers": [
+     {
+      "id": "EKO",
+      "sharePct": 50.0
+     },
+     {
+      "id": "PA",
+      "sharePct": 31.25
+     },
+     {
+      "id": "PB",
+      "sharePct": 18.75
+     }
+    ],
+    "ledger": [
+     {
+      "year": 2027,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 16400000.0,
+      "due": 16400000.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 16400000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 16400000.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2028,
+      "opening": 16400000.0,
+      "uplift": 1312000.0,
+      "added": 12000000.0,
+      "due": 29712000.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 29712000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 16400000.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 28400000.0,
+      "accruedInterestAfter": 1312000.0
+     },
+     {
+      "year": 2029,
+      "opening": 29712000.0,
+      "uplift": 2272000.0,
+      "added": 0.0,
+      "due": 31984000.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 31984000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 28400000.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 28400000.0,
+      "accruedInterestAfter": 3584000.0
+     },
+     {
+      "year": 2030,
+      "opening": 31984000.0,
+      "uplift": 2272000.0,
+      "added": 0.0,
+      "due": 34256000.0,
+      "share": 19200000.0,
+      "available": 9600000.0,
+      "recovered": 9600000.0,
+      "closing": 24656000.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 9600000.0,
+      "openingPrincipal": 28400000.0,
+      "yearDays": null,
+      "interestPaid": 5856000.0,
+      "principalPaid": 3744000.0,
+      "principalAfter": 24656000.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2031,
+      "opening": 24656000.0,
+      "uplift": 1972480.0,
+      "added": 0.0,
+      "due": 26628480.0,
+      "share": 22400000.0,
+      "available": 11200000.0,
+      "recovered": 11200000.0,
+      "closing": 15428480.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 11200000.0,
+      "openingPrincipal": 24656000.0,
+      "yearDays": null,
+      "interestPaid": 1972480.0,
+      "principalPaid": 9227520.0,
+      "principalAfter": 15428480.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2032,
+      "opening": 15428480.0,
+      "uplift": 1234278.4,
+      "added": 0.0,
+      "due": 16662758.4,
+      "share": 20800000.0,
+      "available": 10400000.0,
+      "recovered": 4200000.0,
+      "closing": 0.0,
+      "writtenOff": 12462758.4,
+      "debtorReceives": 16600000.0,
+      "openingPrincipal": 15428480.0,
+      "yearDays": null,
+      "interestPaid": 1234278.4,
+      "principalPaid": 2965721.6,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2033,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 18800000.0,
+      "available": 9400000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 18800000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2034,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 17200000.0,
+      "available": 8600000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 17200000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2035,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 15600000.0,
+      "available": 7800000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 15600000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2036,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 0.0,
+      "due": 0.0,
+      "share": 14000000.0,
+      "available": 7000000.0,
+      "recovered": 0.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 14000000.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     }
+    ],
+    "parties": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0,
+      "carriedCost": 16400000.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 41000000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -41000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 25625000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -25625000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 15375000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -15375000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0,
+      "carriedCost": 12000000.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 30000000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -30000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 18750000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -18750000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 11250000.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -11250000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 38400000.0,
+        "recovery": 4800000.0,
+        "net": 43200000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 24000000.0,
+        "recovery": 3000000.0,
+        "net": 27000000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 14400000.0,
+        "recovery": 1800000.0,
+        "net": 16200000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 19200000.0,
+        "recovery": -9600000.0,
+        "net": 9600000.0
+       }
+      ]
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 44800000.0,
+        "recovery": 5600000.0,
+        "net": 50400000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 28000000.0,
+        "recovery": 3500000.0,
+        "net": 31500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 16800000.0,
+        "recovery": 2100000.0,
+        "net": 18900000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 22400000.0,
+        "recovery": -11200000.0,
+        "net": 11200000.0
+       }
+      ]
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 41600000.0,
+        "recovery": 2100000.0,
+        "net": 43700000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 26000000.0,
+        "recovery": 1312500.0,
+        "net": 27312500.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 15600000.0,
+        "recovery": 787500.0,
+        "net": 16387500.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 20800000.0,
+        "recovery": -4200000.0,
+        "net": 16600000.0
+       }
+      ]
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 37600000.0,
+        "recovery": 0.0,
+        "net": 37600000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 23500000.0,
+        "recovery": 0.0,
+        "net": 23500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 14100000.0,
+        "recovery": 0.0,
+        "net": 14100000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 18800000.0,
+        "recovery": 0.0,
+        "net": 18800000.0
+       }
+      ]
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 34400000.0,
+        "recovery": 0.0,
+        "net": 34400000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 21500000.0,
+        "recovery": 0.0,
+        "net": 21500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 12900000.0,
+        "recovery": 0.0,
+        "net": 12900000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 17200000.0,
+        "recovery": 0.0,
+        "net": 17200000.0
+       }
+      ]
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 31200000.0,
+        "recovery": 0.0,
+        "net": 31200000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 19500000.0,
+        "recovery": 0.0,
+        "net": 19500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 11700000.0,
+        "recovery": 0.0,
+        "net": 11700000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 15600000.0,
+        "recovery": 0.0,
+        "net": 15600000.0
+       }
+      ]
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "EKO",
+        "costPaid": 0.0,
+        "entitlementShare": 28000000.0,
+        "recovery": 0.0,
+        "net": 28000000.0
+       },
+       {
+        "id": "PA",
+        "costPaid": 0.0,
+        "entitlementShare": 17500000.0,
+        "recovery": 0.0,
+        "net": 17500000.0
+       },
+       {
+        "id": "PB",
+        "costPaid": 0.0,
+        "entitlementShare": 10500000.0,
+        "recovery": 0.0,
+        "net": 10500000.0
+       },
+       {
+        "id": "NOC",
+        "costPaid": 0.0,
+        "entitlementShare": 14000000.0,
+        "recovery": 0.0,
+        "net": 14000000.0
+       }
+      ]
+     }
+    ],
+    "totals": {
+     "carriedCost": 28400000.0,
+     "uplift": 9062758.4,
+     "recovered": 25000000.0,
+     "writtenOff": 12462758.4,
+     "outstanding": 0.0
+    },
+    "recoveredInYear": null,
+    "npv": [
+     {
+      "id": "EKO",
+      "npv": 91048834.70843713
+     },
+     {
+      "id": "PA",
+      "npv": 56905521.69277321
+     },
+     {
+      "id": "PB",
+      "npv": 34143313.01566392
+     },
+     {
+      "id": "NOC",
+      "npv": 57822978.058591716
+     }
+    ],
+    "reasons": [
+     "2027: 0 recovered of 16400000 due; 16400000 carried to 2028",
+     "2028: 8% a year simple interest on the outstanding principal 16400000 for the year adds 1312000 (the accrued interest earns none)",
+     "2028: 0 recovered of 29712000 due; 29712000 carried to 2029",
+     "2029: 8% a year simple interest on the outstanding principal 28400000 for the year adds 2272000 (the accrued interest earns none)",
+     "2029: 0 recovered of 31984000 due; 31984000 carried to 2030",
+     "2030: 8% a year simple interest on the outstanding principal 28400000 for the year adds 2272000 (the accrued interest earns none)",
+     "2030: 9600000 recovered of 34256000 due; 24656000 carried to 2031",
+     "2030: the 9600000 recovered pays the accrued interest 5856000 first, then 3744000 of principal",
+     "2031: 8% a year simple interest on the outstanding principal 24656000 for the year adds 1972480 (the accrued interest earns none)",
+     "2031: 11200000 recovered of 26628480 due; 15428480 carried to 2032",
+     "2031: the 11200000 recovered pays the accrued interest 1972480 first, then 9227520 of principal",
+     "2032: 8% a year simple interest on the outstanding principal 15428480 for the year adds 1234278.4 (the accrued interest earns none)",
+     "2032: the stated cap 25000000 is reached with 4200000 recovered this year; the rest, 12462758.4, is written off",
+     "2032: the 4200000 recovered pays the accrued interest 1234278.4 first, then 2965721.6 of principal"
+    ]
+   }
+  },
+  {
+   "id": "carry-simple-vs-compound-simple",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "A",
+      "participatingPct": 60
+     },
+     {
+      "id": "B",
+      "participatingPct": 20
+     },
+     {
+      "id": "N",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "N",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "N",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 1000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 5000
+     }
+    ],
+    "recoverFromPct": 100,
+    "basis": "contract",
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 10,
+     "dayBasis": "annual-period"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "carried": "N",
+    "carriedPct": 100,
+    "carriedInterestPct": 20.0,
+    "carriers": [
+     {
+      "id": "A",
+      "sharePct": 75.0
+     },
+     {
+      "id": "B",
+      "sharePct": 25.0
+     }
+    ],
+    "ledger": [
+     {
+      "year": 2027,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 200.0,
+      "due": 200.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 200.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 200.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2028,
+      "opening": 200.0,
+      "uplift": 20.0,
+      "added": 0.0,
+      "due": 220.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 220.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 200.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 200.0,
+      "accruedInterestAfter": 20.0
+     },
+     {
+      "year": 2029,
+      "opening": 220.0,
+      "uplift": 20.0,
+      "added": 0.0,
+      "due": 240.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 240.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 200.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 200.0,
+      "accruedInterestAfter": 40.0
+     },
+     {
+      "year": 2030,
+      "opening": 240.0,
+      "uplift": 20.0,
+      "added": 0.0,
+      "due": 260.0,
+      "share": 1000.0,
+      "available": 1000.0,
+      "recovered": 260.0,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 740.0,
+      "openingPrincipal": 200.0,
+      "yearDays": null,
+      "interestPaid": 60.0,
+      "principalPaid": 200.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     }
+    ],
+    "parties": [
+     {
+      "year": 2027,
+      "cost": 1000,
+      "entitlement": 0,
+      "carriedCost": 200.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 750.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -750.0
+       },
+       {
+        "id": "B",
+        "costPaid": 250.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -250.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2028,
+      "cost": 0,
+      "entitlement": 0,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 5000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 3000.0,
+        "recovery": 195.0,
+        "net": 3195.0
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 1000.0,
+        "recovery": 65.0,
+        "net": 1065.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 1000.0,
+        "recovery": -260.0,
+        "net": 740.0
+       }
+      ]
+     }
+    ],
+    "totals": {
+     "carriedCost": 200.0,
+     "uplift": 60.0,
+     "recovered": 260.0,
+     "writtenOff": 0.0,
+     "outstanding": 0.0
+    },
+    "recoveredInYear": 2030,
+    "npv": null,
+    "reasons": [
+     "2027: 0 recovered of 200 due; 200 carried to 2028",
+     "2028: 10% a year simple interest on the outstanding principal 200 for the year adds 20 (the accrued interest earns none)",
+     "2028: 0 recovered of 220 due; 220 carried to 2029",
+     "2029: 10% a year simple interest on the outstanding principal 200 for the year adds 20 (the accrued interest earns none)",
+     "2029: 0 recovered of 240 due; 240 carried to 2030",
+     "2030: 10% a year simple interest on the outstanding principal 200 for the year adds 20 (the accrued interest earns none)",
+     "2030: the balance 260 is recovered with 260 of the 1000 available; the carried party receives 740 of its share 1000",
+     "2030: the 260 recovered pays the accrued interest 60 first, then 200 of principal"
+    ]
+   },
+   "note": "one period of interest: simple equals compound (20 on 200); from the second period simple stays on the principal (20) while compound grows (22, 24.2)"
+  },
+  {
+   "id": "carry-simple-vs-compound-compound",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "A",
+      "participatingPct": 60
+     },
+     {
+      "id": "B",
+      "participatingPct": 20
+     },
+     {
+      "id": "N",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "N",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "N",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 1000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 5000
+     }
+    ],
+    "recoverFromPct": 100,
+    "basis": "contract",
+    "uplift": {
+     "type": "compound",
+     "ratePctPerYear": 10
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "carried": "N",
+    "carriedPct": 100,
+    "carriedInterestPct": 20.0,
+    "carriers": [
+     {
+      "id": "A",
+      "sharePct": 75.0
+     },
+     {
+      "id": "B",
+      "sharePct": 25.0
+     }
+    ],
+    "ledger": [
+     {
+      "year": 2027,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 200.0,
+      "due": 200.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 200.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0
+     },
+     {
+      "year": 2028,
+      "opening": 200.0,
+      "uplift": 20.0,
+      "added": 0.0,
+      "due": 220.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 220.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0
+     },
+     {
+      "year": 2029,
+      "opening": 220.0,
+      "uplift": 22.0,
+      "added": 0.0,
+      "due": 242.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 242.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0
+     },
+     {
+      "year": 2030,
+      "opening": 242.0,
+      "uplift": 24.2,
+      "added": 0.0,
+      "due": 266.2,
+      "share": 1000.0,
+      "available": 1000.0,
+      "recovered": 266.2,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 733.8
+     }
+    ],
+    "parties": [
+     {
+      "year": 2027,
+      "cost": 1000,
+      "entitlement": 0,
+      "carriedCost": 200.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 750.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -750.0
+       },
+       {
+        "id": "B",
+        "costPaid": 250.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -250.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2028,
+      "cost": 0,
+      "entitlement": 0,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 5000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 3000.0,
+        "recovery": 199.65,
+        "net": 3199.65
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 1000.0,
+        "recovery": 66.55,
+        "net": 1066.55
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 1000.0,
+        "recovery": -266.2,
+        "net": 733.8
+       }
+      ]
+     }
+    ],
+    "totals": {
+     "carriedCost": 200.0,
+     "uplift": 66.2,
+     "recovered": 266.2,
+     "writtenOff": 0.0,
+     "outstanding": 0.0
+    },
+    "recoveredInYear": 2030,
+    "npv": null,
+    "reasons": [
+     "2027: 0 recovered of 200 due; 200 carried to 2028",
+     "2028: 10% a year on the opening balance 200 adds 20",
+     "2028: 0 recovered of 220 due; 220 carried to 2029",
+     "2029: 10% a year on the opening balance 220 adds 22",
+     "2029: 0 recovered of 242 due; 242 carried to 2030",
+     "2030: 10% a year on the opening balance 242 adds 24.2",
+     "2030: the balance 266.2 is recovered with 266.2 of the 1000 available; the carried party receives 733.8 of its share 1000"
+    ]
+   }
+  },
+  {
+   "id": "carry-simple-interest-first",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "A",
+      "participatingPct": 60
+     },
+     {
+      "id": "B",
+      "participatingPct": 20
+     },
+     {
+      "id": "N",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "N",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "N",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 1000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 0,
+      "entitlement": 150
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 1000
+     }
+    ],
+    "recoverFromPct": 100,
+    "basis": "contract",
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 25,
+     "dayBasis": "annual-period"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "carried": "N",
+    "carriedPct": 100,
+    "carriedInterestPct": 20.0,
+    "carriers": [
+     {
+      "id": "A",
+      "sharePct": 75.0
+     },
+     {
+      "id": "B",
+      "sharePct": 25.0
+     }
+    ],
+    "ledger": [
+     {
+      "year": 2027,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 200.0,
+      "due": 200.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 200.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 0.0,
+      "yearDays": null,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 200.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2028,
+      "opening": 200.0,
+      "uplift": 50.0,
+      "added": 0.0,
+      "due": 250.0,
+      "share": 30.0,
+      "available": 30.0,
+      "recovered": 30.0,
+      "closing": 220.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 200.0,
+      "yearDays": null,
+      "interestPaid": 30.0,
+      "principalPaid": 0.0,
+      "principalAfter": 200.0,
+      "accruedInterestAfter": 20.0
+     },
+     {
+      "year": 2029,
+      "opening": 220.0,
+      "uplift": 50.0,
+      "added": 0.0,
+      "due": 270.0,
+      "share": 200.0,
+      "available": 200.0,
+      "recovered": 200.0,
+      "closing": 70.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 200.0,
+      "yearDays": null,
+      "interestPaid": 70.0,
+      "principalPaid": 130.0,
+      "principalAfter": 70.0,
+      "accruedInterestAfter": 0.0
+     }
+    ],
+    "parties": [
+     {
+      "year": 2027,
+      "cost": 1000,
+      "entitlement": 0,
+      "carriedCost": 200.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 750.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -750.0
+       },
+       {
+        "id": "B",
+        "costPaid": 250.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -250.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2028,
+      "cost": 0,
+      "entitlement": 150,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 90.0,
+        "recovery": 22.5,
+        "net": 112.5
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 30.0,
+        "recovery": 7.5,
+        "net": 37.5
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 30.0,
+        "recovery": -30.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 1000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 600.0,
+        "recovery": 150.0,
+        "net": 750.0
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 200.0,
+        "recovery": 50.0,
+        "net": 250.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 200.0,
+        "recovery": -200.0,
+        "net": 0.0
+       }
+      ]
+     }
+    ],
+    "totals": {
+     "carriedCost": 200.0,
+     "uplift": 100.0,
+     "recovered": 230.0,
+     "writtenOff": 0.0,
+     "outstanding": 70.0
+    },
+    "recoveredInYear": null,
+    "npv": null,
+    "reasons": [
+     "2027: 0 recovered of 200 due; 200 carried to 2028",
+     "2028: 25% a year simple interest on the outstanding principal 200 for the year adds 50 (the accrued interest earns none)",
+     "2028: 30 recovered of 250 due; 220 carried to 2029",
+     "2028: the 30 recovered pays the accrued interest 30 first, then 0 of principal",
+     "2029: 25% a year simple interest on the outstanding principal 200 for the year adds 50 (the accrued interest earns none)",
+     "2029: 200 recovered of 270 due; 70 carried to 2030",
+     "2029: the 200 recovered pays the accrued interest 70 first, then 130 of principal",
+     "2029: 70 of the carry is not recovered by the last year"
+    ]
+   },
+   "note": "the 30 recovered in 2028 pays the 50 of interest only in part (30), so no principal is repaid and 2029 interest is again on the whole principal 200"
+  },
+  {
+   "id": "carry-simple-leap-year",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "A",
+      "participatingPct": 60
+     },
+     {
+      "id": "B",
+      "participatingPct": 20
+     },
+     {
+      "id": "N",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "N",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "N",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 1000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 5000
+     }
+    ],
+    "recoverFromPct": 100,
+    "basis": "contract",
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 7.3,
+     "dayBasis": "actual/365"
+    }
+   },
+   "tol": 1e-12,
+   "expected": {
+    "carried": "N",
+    "carriedPct": 100,
+    "carriedInterestPct": 20.0,
+    "carriers": [
+     {
+      "id": "A",
+      "sharePct": 75.0
+     },
+     {
+      "id": "B",
+      "sharePct": 25.0
+     }
+    ],
+    "ledger": [
+     {
+      "year": 2027,
+      "opening": 0.0,
+      "uplift": 0.0,
+      "added": 200.0,
+      "due": 200.0,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 200.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 0.0,
+      "yearDays": 365,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 200.0,
+      "accruedInterestAfter": 0.0
+     },
+     {
+      "year": 2028,
+      "opening": 200.0,
+      "uplift": 14.639999999999999,
+      "added": 0.0,
+      "due": 214.64,
+      "share": 0.0,
+      "available": 0.0,
+      "recovered": 0.0,
+      "closing": 214.64,
+      "writtenOff": 0.0,
+      "debtorReceives": 0.0,
+      "openingPrincipal": 200.0,
+      "yearDays": 366,
+      "interestPaid": 0.0,
+      "principalPaid": 0.0,
+      "principalAfter": 200.0,
+      "accruedInterestAfter": 14.639999999999999
+     },
+     {
+      "year": 2029,
+      "opening": 214.64,
+      "uplift": 14.6,
+      "added": 0.0,
+      "due": 229.24,
+      "share": 1000.0,
+      "available": 1000.0,
+      "recovered": 229.24,
+      "closing": 0.0,
+      "writtenOff": 0.0,
+      "debtorReceives": 770.76,
+      "openingPrincipal": 200.0,
+      "yearDays": 365,
+      "interestPaid": 29.24,
+      "principalPaid": 200.0,
+      "principalAfter": 0.0,
+      "accruedInterestAfter": 0.0
+     }
+    ],
+    "parties": [
+     {
+      "year": 2027,
+      "cost": 1000,
+      "entitlement": 0,
+      "carriedCost": 200.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 750.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -750.0
+       },
+       {
+        "id": "B",
+        "costPaid": 250.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": -250.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2028,
+      "cost": 0,
+      "entitlement": 0,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 0.0,
+        "recovery": 0.0,
+        "net": 0.0
+       }
+      ]
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 5000,
+      "carriedCost": 0.0,
+      "parties": [
+       {
+        "id": "A",
+        "costPaid": 0.0,
+        "entitlementShare": 3000.0,
+        "recovery": 171.93,
+        "net": 3171.93
+       },
+       {
+        "id": "B",
+        "costPaid": 0.0,
+        "entitlementShare": 1000.0,
+        "recovery": 57.31,
+        "net": 1057.31
+       },
+       {
+        "id": "N",
+        "costPaid": 0.0,
+        "entitlementShare": 1000.0,
+        "recovery": -229.24,
+        "net": 770.76
+       }
+      ]
+     }
+    ],
+    "totals": {
+     "carriedCost": 200.0,
+     "uplift": 29.24,
+     "recovered": 229.24,
+     "writtenOff": 0.0,
+     "outstanding": 0.0
+    },
+    "recoveredInYear": 2029,
+    "npv": null,
+    "reasons": [
+     "2027: 0 recovered of 200 due; 200 carried to 2028",
+     "2028: 7.3% a year simple interest on the outstanding principal 200 for 366 days / 365 adds 14.64 (the accrued interest earns none)",
+     "2028: 0 recovered of 214.64 due; 214.64 carried to 2029",
+     "2029: 7.3% a year simple interest on the outstanding principal 200 for 365 days / 365 adds 14.6 (the accrued interest earns none)",
+     "2029: the balance 229.24 is recovered with 229.24 of the 1000 available; the carried party receives 770.76 of its share 1000",
+     "2029: the 229.24 recovered pays the accrued interest 29.24 first, then 200 of principal"
+    ]
+   }
+  },
+  {
+   "id": "carry-refuse-simple-no-basis",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "NOC",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000
+     }
+    ],
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 8
+    },
+    "recoverFromPct": 50,
+    "basis": "contract",
+    "discountRate": 0.1,
+    "baseYear": 2027
+   },
+   "tol": 1e-12,
+   "expected": {
+    "error": true,
+    "field": "uplift.dayBasis",
+    "message": "uplift.dayBasis must be one of \"annual-period\", \"actual/365\", \"actual/360\"; got nothing"
+   }
+  },
+  {
+   "id": "carry-refuse-simple-no-rate",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "NOC",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000
+     }
+    ],
+    "uplift": {
+     "type": "simple",
+     "dayBasis": "annual-period"
+    },
+    "recoverFromPct": 50,
+    "basis": "contract",
+    "discountRate": 0.1,
+    "baseYear": 2027
+   },
+   "tol": 1e-12,
+   "expected": {
+    "error": true,
+    "field": "uplift.ratePctPerYear",
+    "message": "uplift.ratePctPerYear must be a finite number at or above 0; got nothing"
+   }
+  },
+  {
+   "id": "carry-refuse-simple-bad-basis",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "NOC",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000
+     }
+    ],
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 8,
+     "dayBasis": "30/360"
+    },
+    "recoverFromPct": 50,
+    "basis": "contract",
+    "discountRate": 0.1,
+    "baseYear": 2027
+   },
+   "tol": 1e-12,
+   "expected": {
+    "error": true,
+    "field": "uplift.dayBasis",
+    "message": "uplift.dayBasis must be one of \"annual-period\", \"actual/365\", \"actual/360\"; got \"30/360\""
+   }
+  },
+  {
+   "id": "carry-refuse-compound-basis",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "NOC",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000
+     }
+    ],
+    "uplift": {
+     "type": "compound",
+     "ratePctPerYear": 8,
+     "dayBasis": "actual/365"
+    },
+    "recoverFromPct": 50,
+    "basis": "contract",
+    "discountRate": 0.1,
+    "baseYear": 2027
+   },
+   "tol": 1e-12,
+   "expected": {
+    "error": true,
+    "field": "uplift.dayBasis",
+    "message": "uplift.dayBasis must be left out when type is \"compound\"; got \"actual/365\""
+   }
+  },
+  {
+   "id": "carry-refuse-pia-simple",
+   "fn": "carryRecovery",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 40
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 25
+     },
+     {
+      "id": "PB",
+      "name": "Partner B (synthetic)",
+      "participatingPct": 15
+     },
+     {
+      "id": "NOC",
+      "name": "State participant (synthetic)",
+      "participatingPct": 20
+     }
+    ],
+    "carries": [
+     {
+      "carried": "NOC",
+      "carriedPct": 100,
+      "carriers": "pro-rata"
+     }
+    ],
+    "carried": "NOC",
+    "years": [
+     {
+      "year": 2027,
+      "cost": 82000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2028,
+      "cost": 60000000,
+      "entitlement": 0
+     },
+     {
+      "year": 2029,
+      "cost": 0,
+      "entitlement": 0
+     },
+     {
+      "year": 2030,
+      "cost": 0,
+      "entitlement": 96000000
+     },
+     {
+      "year": 2031,
+      "cost": 0,
+      "entitlement": 112000000
+     },
+     {
+      "year": 2032,
+      "cost": 0,
+      "entitlement": 104000000
+     },
+     {
+      "year": 2033,
+      "cost": 0,
+      "entitlement": 94000000
+     },
+     {
+      "year": 2034,
+      "cost": 0,
+      "entitlement": 86000000
+     },
+     {
+      "year": 2035,
+      "cost": 0,
+      "entitlement": 78000000
+     },
+     {
+      "year": 2036,
+      "cost": 0,
+      "entitlement": 70000000
+     }
+    ],
+    "uplift": {
+     "type": "simple",
+     "ratePctPerYear": 8,
+     "dayBasis": "annual-period"
+    },
+    "recoverFromPct": 50,
+    "basis": "pia-s85-4",
+    "discountRate": 0.1,
+    "baseYear": 2027
+   },
+   "tol": 1e-12,
+   "expected": {
+    "error": true,
+    "field": "uplift.type",
+    "message": "uplift.type must be \"none\" under basis \"pia-s85-4\": the refund excludes interest, premium or markups on cost (PIA s.85(4)(c)); got \"simple\""
+   }
+  },
+  {
    "id": "carry-refuse-pia-uplift",
    "fn": "carryRecovery",
    "args": {
@@ -15901,7 +20297,7 @@
    "expected": {
     "error": true,
     "field": "uplift",
-    "message": "uplift must be an object { type } with type \"none\", \"compound\" or \"multiple\" (no default); got nothing"
+    "message": "uplift must be an object { type } with type \"none\", \"simple\", \"compound\" or \"multiple\" (no default); got nothing"
    }
   },
   {
@@ -16770,7 +21166,7 @@
    "expected": {
     "error": true,
     "field": "uplift.rate",
-    "message": "uplift.rate is not an accepted key; the accepted keys of uplift are type, ratePctPerYear, multiplePct"
+    "message": "uplift.rate is not an accepted key; the accepted keys of uplift are type, ratePctPerYear, multiplePct, dayBasis"
    }
   },
   {

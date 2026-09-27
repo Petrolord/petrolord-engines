@@ -243,7 +243,7 @@ SHAPES = {
                         interest=OBJ(['annualRatePct', 'dayBasis', 'interestMethod', 'graceHours']), suspension=CONSEQ, forfeiture=CONSEQ),
     'carryRecovery': OBJ(['parties', 'carries', 'carried', 'years', 'uplift', 'recoverFromPct', 'cap', 'basis', 'discountRate', 'baseYear'],
                          parties=LST(PARTY), carries=LST(CARRY), years=LST(OBJ(['year', 'cost', 'entitlement'])),
-                         uplift=OBJ(['type', 'ratePctPerYear', 'multiplePct'])),
+                         uplift=OBJ(['type', 'ratePctPerYear', 'multiplePct', 'dayBasis'])),
     'backIn': OBJ(['parties', 'backInParty', 'targetPct', 'costs', 'basis', 'refundableKinds', 'refundForm', 'recoverFromPct', 'years'],
                   parties=LST(PARTY), costs=LST(OBJ(['item', 'amount', 'kind'])), years=LST(OBJ(['year', 'entitlement']))),
     'nonConsent': OBJ(['parties', 'consenting', 'operation', 'premiumMultiplePct', 'mode', 'years'],
@@ -835,11 +835,24 @@ def ledger(years, owed, share_pct, from_pct, uplift, cap, label, debtor):
     makes available, what is recovered. Exact Fractions."""
     bal, got = F(0), F(0)
     rows = []
+    simple = uplift['type'] == 'simple'
+    cum_added = cum_int = cum_int_paid = cum_prin_paid = F(0)   # cumulative road for simple interest
     for i, y in enumerate(years):
         rs = []
         opening = bal
         add = F(owed[i])
-        if uplift['type'] == 'compound':
+        days = None
+        if simple:
+            # outstanding principal = every cost added before this year less every principal repayment so far
+            prin_open = cum_added - cum_prin_paid
+            if uplift['dayBasis'] == 'annual-period':
+                frac = F(1)
+            else:
+                yy = y['year']
+                days = 366 if (yy % 4 == 0 and yy % 100 != 0) or yy % 400 == 0 else 365
+                frac = F(days, 365 if uplift['dayBasis'] == 'actual/365' else 360)
+            up = prin_open * F(uplift['ratePctPerYear']) / 100 * frac
+        elif uplift['type'] == 'compound':
             up = opening * F(uplift['ratePctPerYear']) / 100
         elif uplift['type'] == 'multiple':
             up = add * (F(uplift['multiplePct']) - 100) / 100
@@ -852,7 +865,17 @@ def ledger(years, owed, share_pct, from_pct, uplift, cap, label, debtor):
         got += rec
         closing = due - rec
         wo = F(0)
-        if up > 0:
+        if simple:
+            cum_int += up
+            cum_added += add
+            ip = min(rec, cum_int - cum_int_paid)
+            pp = rec - ip
+            cum_int_paid += ip
+            cum_prin_paid += pp
+            if up > 0:
+                per = ' for the year' if days is None else f' for {days} days / {365 if uplift["dayBasis"] == "actual/365" else 360}'
+                rs.append(f'{y["year"]}: {js(uplift["ratePctPerYear"])}% a year simple interest on the outstanding principal {money(prin_open)}{per} adds {money(up)} (the accrued interest earns none)')
+        elif up > 0:
             rs.append(f'{y["year"]}: {js(uplift["ratePctPerYear"])}% a year on the opening balance {money(opening)} adds {money(up)}' if uplift['type'] == 'compound'
                       else f'{y["year"]}: the {js(uplift["multiplePct"])}% multiple on the {label} of {money(add)} adds {money(up)}')
         if cap is not None and got >= F(cap) and closing > 0:
@@ -863,9 +886,19 @@ def ledger(years, owed, share_pct, from_pct, uplift, cap, label, debtor):
             rs.append(f'{y["year"]}: the balance {money(due)} is recovered{how} the {money(avail)} available; the {debtor} receives {money(share - rec)} of its share {money(share)}')
         elif due > 0:
             rs.append(f'{y["year"]}: {money(rec)} recovered of {money(due)} due; {money(closing)} carried to {y["year"] + 1}')
+        if simple and rec > 0:
+            rs.append(f'{y["year"]}: the {money(rec)} recovered pays the accrued interest {money(ip)} first, then {money(pp)} of principal')
         bal = closing
-        rows.append({'year': y['year'], 'opening': opening, 'uplift': up, 'added': add, 'due': due, 'share': share, 'available': avail,
-                     'recovered': rec, 'closing': closing, 'writtenOff': wo, 'debtorReceives': share - rec, 'reasons': rs})
+        row = {'year': y['year'], 'opening': opening, 'uplift': up, 'added': add, 'due': due, 'share': share, 'available': avail,
+               'recovered': rec, 'closing': closing, 'writtenOff': wo, 'debtorReceives': share - rec, 'reasons': rs}
+        if simple:
+            if wo > 0:
+                cum_int_paid, cum_prin_paid = cum_int, cum_added
+            row.update({'openingPrincipal': prin_open, 'yearDays': days, 'interestPaid': ip, 'principalPaid': pp,
+                        'principalAfter': cum_added - cum_prin_paid, 'accruedInterestAfter': cum_int - cum_int_paid})
+            if abs((row['principalAfter'] + row['accruedInterestAfter']) - closing) > 0:
+                sys.exit(f'simple interest ledger does not close in {y["year"]}')
+        rows.append(row)
     owed_rows = [r for r in rows if r['due'] > 0]
     payout = None
     if owed_rows and owed_rows[-1]['closing'] == 0 and all(r['writtenOff'] == 0 for r in rows):
@@ -896,24 +929,31 @@ def npv_exact(flows, rate, base, first):
 
 def check_uplift(u):
     if not isobj(u):
-        must('uplift', 'an object { type } with type "none", "compound" or "multiple" (no default)', u)
-    one_of('uplift.type', g(u, 'type'), ['none', 'compound', 'multiple'])
+        must('uplift', 'an object { type } with type "none", "simple", "compound" or "multiple" (no default)', u)
+    one_of('uplift.type', g(u, 'type'), ['none', 'simple', 'compound', 'multiple'])
     t = u['type']
-    if t == 'compound':
+
+    def out(k):
+        if g(u, k) is not MISSING:
+            must(f'uplift.{k}', f'left out when type is "{t}"', u[k])
+    if t == 'simple':
         non_neg('uplift.ratePctPerYear', g(u, 'ratePctPerYear'))
-        if g(u, 'multiplePct') is not MISSING:
-            must('uplift.multiplePct', 'left out when type is "compound"', u['multiplePct'])
+        one_of('uplift.dayBasis', g(u, 'dayBasis'), ['annual-period', 'actual/365', 'actual/360'])
+        out('multiplePct')
+    elif t == 'compound':
+        non_neg('uplift.ratePctPerYear', g(u, 'ratePctPerYear'))
+        out('multiplePct')
+        out('dayBasis')
     elif t == 'multiple':
         mp = g(u, 'multiplePct')
         if not (isnum(mp) and mp >= 100):
             must('uplift.multiplePct', 'a number at or above 100 (100 recovers the cost alone)', mp)
-        if g(u, 'ratePctPerYear') is not MISSING:
-            must('uplift.ratePctPerYear', 'left out when type is "multiple"', u['ratePctPerYear'])
+        out('ratePctPerYear')
+        out('dayBasis')
     else:
-        if g(u, 'ratePctPerYear') is not MISSING:
-            must('uplift.ratePctPerYear', 'left out when type is "none"', u['ratePctPerYear'])
-        if g(u, 'multiplePct') is not MISSING:
-            must('uplift.multiplePct', 'left out when type is "none"', u['multiplePct'])
+        out('ratePctPerYear')
+        out('multiplePct')
+        out('dayBasis')
 
 
 def check_npv(rate, base):
@@ -972,6 +1012,8 @@ def carry(a):
     if out_bal > 0:
         reasons.append(f'{years[-1]["year"]}: {money(out_bal)} of the carry is not recovered by the last year')
     keys = ['year', 'opening', 'uplift', 'added', 'due', 'share', 'available', 'recovered', 'closing', 'writtenOff', 'debtorReceives']
+    if up['type'] == 'simple':
+        keys += ['openingPrincipal', 'yearDays', 'interestPaid', 'principalPaid', 'principalAfter', 'accruedInterestAfter']
     nv = [{'id': k, 'npv': fl(npv_exact(flows[k], a['discountRate'], a['baseYear'], years[0]['year']))} for k in pid] if want_npv else None
     return {'carried': cid, 'carriedPct': c['carriedPct'], 'carriedInterestPct': fl(ci['moved']),
             'carriers': [{'id': k, 'sharePct': fl(s * 100)} for k, s in ci['weights']],
@@ -1404,6 +1446,28 @@ def build():
     case('carry-cap-exactly-cost', 'carryRecovery', {'parties': P3, 'carries': C3, 'carried': 'N', 'years': cyrs, 'uplift': {'type': 'compound', 'ratePctPerYear': 10}, 'recoverFromPct': 100, 'basis': 'contract', 'cap': 200})
     case('carry-partial-stated', 'carryRecovery', {'parties': P3, 'carries': [{'carried': 'N', 'carriedPct': 50, 'carriers': {'A': 50, 'B': 50}}], 'carried': 'N', 'years': cyrs, 'uplift': {'type': 'compound', 'ratePctPerYear': 12.5}, 'recoverFromPct': 50, 'basis': 'contract'})
     case('carry-cost-while-recovering', 'carryRecovery', {'parties': P3, 'carries': C3, 'carried': 'N', 'years': [{'year': 2027, 'cost': 500, 'entitlement': 0}, {'year': 2028, 'cost': 500, 'entitlement': 250}, {'year': 2029, 'cost': 250, 'entitlement': 1000}], 'uplift': {'type': 'compound', 'ratePctPerYear': 25}, 'recoverFromPct': 100, 'basis': 'contract'})
+    # simple interest (HMRC OT18360: "usually including an addition representing simple interest")
+    SIMPLE = {'type': 'simple', 'ratePctPerYear': 8, 'dayBasis': 'annual-period'}
+    case('carry-ekene-simple', 'carryRecovery', dict(cbase, uplift=SIMPLE),
+         note='HMRC Oil Taxation Manual OT18360 (updated 23 January 2019, OGL v3.0): development carry costs recovered from the carried party\'s production, usually with an addition representing simple interest; the 8% rate is the Ekene fixture\'s stated term')
+    case('carry-ekene-simple-actual365', 'carryRecovery', dict(cbase, uplift=dict(SIMPLE, dayBasis='actual/365')))
+    case('carry-ekene-simple-actual360', 'carryRecovery', dict(cbase, uplift=dict(SIMPLE, dayBasis='actual/360')))
+    case('carry-ekene-simple-capped', 'carryRecovery', dict(cbase, uplift=SIMPLE, cap=25_000_000))
+    one = [{'year': 2027, 'cost': 1000, 'entitlement': 0}, {'year': 2028, 'cost': 0, 'entitlement': 0}, {'year': 2029, 'cost': 0, 'entitlement': 0}, {'year': 2030, 'cost': 0, 'entitlement': 5000}]
+    c3 = {'parties': P3, 'carries': C3, 'carried': 'N', 'years': one, 'recoverFromPct': 100, 'basis': 'contract'}
+    case('carry-simple-vs-compound-simple', 'carryRecovery', dict(c3, uplift={'type': 'simple', 'ratePctPerYear': 10, 'dayBasis': 'annual-period'}),
+         note='one period of interest: simple equals compound (20 on 200); from the second period simple stays on the principal (20) while compound grows (22, 24.2)')
+    case('carry-simple-vs-compound-compound', 'carryRecovery', dict(c3, uplift={'type': 'compound', 'ratePctPerYear': 10}))
+    case('carry-simple-interest-first', 'carryRecovery', dict(c3, years=[{'year': 2027, 'cost': 1000, 'entitlement': 0}, {'year': 2028, 'cost': 0, 'entitlement': 150}, {'year': 2029, 'cost': 0, 'entitlement': 1000}],
+                                                            uplift={'type': 'simple', 'ratePctPerYear': 25, 'dayBasis': 'annual-period'}),
+         note='the 30 recovered in 2028 pays the 50 of interest only in part (30), so no principal is repaid and 2029 interest is again on the whole principal 200')
+    case('carry-simple-leap-year', 'carryRecovery', dict(c3, years=[{'year': 2027, 'cost': 1000, 'entitlement': 0}, {'year': 2028, 'cost': 0, 'entitlement': 0}, {'year': 2029, 'cost': 0, 'entitlement': 5000}],
+                                                        uplift={'type': 'simple', 'ratePctPerYear': 7.3, 'dayBasis': 'actual/365'}))
+    refused('carry-refuse-simple-no-basis', 'carryRecovery', dict(cbase, uplift={'type': 'simple', 'ratePctPerYear': 8}), 'uplift.dayBasis')
+    refused('carry-refuse-simple-no-rate', 'carryRecovery', dict(cbase, uplift={'type': 'simple', 'dayBasis': 'annual-period'}), 'uplift.ratePctPerYear')
+    refused('carry-refuse-simple-bad-basis', 'carryRecovery', dict(cbase, uplift={'type': 'simple', 'ratePctPerYear': 8, 'dayBasis': '30/360'}), 'uplift.dayBasis')
+    refused('carry-refuse-compound-basis', 'carryRecovery', dict(cbase, uplift={'type': 'compound', 'ratePctPerYear': 8, 'dayBasis': 'actual/365'}), 'uplift.dayBasis')
+    refused('carry-refuse-pia-simple', 'carryRecovery', dict(cbase, uplift=SIMPLE, basis='pia-s85-4'), 'uplift.type')
     refused('carry-refuse-pia-uplift', 'carryRecovery', dict(cbase, basis='pia-s85-4'), 'uplift.type')
     refused('carry-refuse-no-uplift', 'carryRecovery', {k: v for k, v in cbase.items() if k != 'uplift'}, 'uplift')
     refused('carry-refuse-uplift-extra', 'carryRecovery', dict(cbase, uplift={'type': 'none', 'ratePctPerYear': 5}), 'uplift.ratePctPerYear')
