@@ -99,6 +99,8 @@ run_case ENGINE "WI scaling applied twice (stated success NPV)" $E "  : scaleWI(
 run_case ENGINE "WI scaling applied twice (cash flows)" $E "scaleWI(y.net, wiPct)), pr.flows.discountRate" "scaleWI(scaleWI(y.net, wiPct), wiPct)), pr.flows.discountRate"
 run_case ENGINE "WI scaling applied twice (the priced interest)" $E "const interestValue = scaleWI(baseValue, interestPct);" "const interestValue = scaleWI(scaleWI(baseValue, interestPct), interestPct);"
 # earning
+run_case ENGINE "printed minimum rounded to nearest" $E "  return must(field, \`at or above \${bound((Y * C) / base, 'min', (v) => !(v * base < Y * C))}," "  return must(field, \`at or above \${dec((Y * C) / base)},"
+run_case ENGINE "printed bound only rounded, never checked against the rule" $E "  while (!ok(k / 1e6)) k -= toward;" ""
 run_case ENGINE "negative carry accepted" $E "  if (!(X * base < Y * C)) return null;" "  return null;"
 run_case ENGINE "a carry of exactly 0 refused" $E "  if (!(X * base < Y * C)) return null;" "  if (!(X * base <= Y * C)) return null;"
 run_case ENGINE "overrun rules swapped" $E "const post = cap.overrunRule === 'post-deal-interests';" "const post = cap.overrunRule === 'farmor-side';"

@@ -293,7 +293,7 @@ describe('boundaries (per rule)', () => {
     expect(run('earn-refuse-negative-carry-probe').error).toBe('events[0].farmineePaysPct must be at or above 36, the share at which the carry is 0 when the farmor side pays the excess: paying 30% of the promoted 40000000 (12000000) against its held 30% of the gross cost 48000000 (14400000) leaves a carry of -2400000; got 30');
     expect(run('earn-refuse-negative-carry-one-below').field).toBe('events[0].farmineePaysPct');
     expect(run('earn-refuse-negative-carry-second-event').field).toBe('events[1].farmineePaysPct');
-    expect(run('deal-refuse-negative-carry-ekene').error).toMatch(/^deal\.farmineePaysPct must be at or above 31\.363636, .* the success well cost 46000000 \(13800000\) leaves a carry of -160000; got 31$/);
+    expect(run('deal-refuse-negative-carry-ekene').error).toMatch(/^deal\.farmineePaysPct must be at or above 31\.363637 \(rounded up at the sixth decimal so that it is accepted\), .* the success well cost 46000000 \(13800000\) leaves a carry of -160000; got 31$/);
     expect(run('info-refuse-negative-carry').field).toBe('deal.farmineePaysPct');
     // no carry anywhere in the goldens is below 0
     G.cases.filter((c) => c.fn === 'earningObligation' && !c.expected.error).forEach((c) => run(c.id).events.forEach((e) => expect(e.carry).toBeGreaterThanOrEqual(0)));
@@ -301,6 +301,31 @@ describe('boundaries (per rule)', () => {
       const w = run(c.id).wellCostSplit;
       expect([w.success.carry >= 0, w.dry.carry >= 0]).toEqual([true, true]);
     });
+  });
+  test('a printed minimum or maximum is itself accepted: stating the figure a refusal prints back passes that rule', () => {
+    const setAt = (obj, field, v) => {
+      const parts = field.replace(/\[(\d+)\]/g, '.$1').split('.');
+      let o = obj;
+      parts.slice(0, -1).forEach((k) => { o = o[k]; });
+      o[parts[parts.length - 1]] = v;
+      return obj;
+    };
+    let n = 0;
+    G.cases.filter((c) => c.expected.error === true && /(farmineePaysPct|earnedPct)$/.test(c.expected.field)).forEach((c) => {
+      const m = c.expected.message.match(/ must be (at or above|at most) (-?\d+(?:\.\d+)?)[ ,]/);
+      if (!m) return;
+      const r = X[c.fn](setAt(clone(c.args), c.expected.field, Number(m[2])));
+      expect([c.id, r.error && r.field === c.expected.field ? r.error : null]).toEqual([c.id, null]);
+      n += 1;
+    });
+    expect(n).toBeGreaterThanOrEqual(8);
+    expect(run('deal-refuse-negative-carry-ekene').error).toMatch(/^deal\.farmineePaysPct must be at or above 31\.363637 \(rounded up at the sixth decimal so that it is accepted\), /);
+    expect(run('deal-negative-carry-printed-minimum-accepted').wellCostSplit.success.carry).toBeGreaterThan(0);
+    expect(run('deal-refuse-negative-carry-one-print-step-below').error).toMatch(/leaves a carry of -0\.16; got 31\.363636$/);
+    expect(run('earn-refuse-promote-below-inexact-held').error).toBe('events[1].farmineePaysPct must be at or above 30.3 (rounded up at the sixth decimal so that it is accepted), the interest the farminee holds after the event (a promote of 0 or more); got 30.299999');
+    expect(run('earn-refuse-earned-above-inexact-rest').error).toBe("events[1].earnedPct must be at most 19.9, the farmor's interest 70 less 50.1 already earned; got 19.95");
+    expect(run('earn-earned-printed-maximum-accepted').vestedPct).toBeCloseTo(70, 9);
+    expect(run('earn-refuse-promote-ceiling-refused').error).toBe('events[1].farmineePaysPct must be at or above 1.130001 (rounded up at the sixth decimal so that it is accepted), the interest the farminee holds after the event (a promote of 0 or more); got 1.13');
   });
   test('dry hole (chance 0): every EMV is its dry-hole position; certain success: its success position', () => {
     const d = run('deal-ekene-dry-hole');

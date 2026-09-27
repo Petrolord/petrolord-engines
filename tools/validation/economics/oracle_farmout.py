@@ -85,6 +85,22 @@ def dec(x):
     return rounded(x, 6, 'decimal')
 
 
+def bound(x, direction, ok):
+    """A printed minimum (maximum): the smallest (largest) 6-decimal figure
+    whose double the refusal's own rule, applied exactly, accepts."""
+    x = F(x)
+    k = math.ceil(x * 10 ** 6) if direction == 'min' else math.floor(x * 10 ** 6)
+    step = 1 if direction == 'min' else -1
+    while ok(F(float(F(k - step, 10 ** 6)))):   # a figure nearer still may be accepted (its double equals the bound's)
+        k -= step
+    while not ok(F(float(F(k, 10 ** 6)))):
+        k += step
+    v = float(F(k, 10 ** 6))
+    if F(v) == x:
+        return js_num(v)
+    return f'{js_num(v)} (rounded {"up" if direction == "min" else "down"} at the sixth decimal so that it is accepted)'
+
+
 # ----------------------------------------------------------------- checkers
 def finite(f, v):
     if not isnum(v):
@@ -238,10 +254,10 @@ def check_pays_earned(pre, X, Yinc, Yprev, Fp):
     pct_pos(f'{pre}.earnedPct', Yinc)
     Y = F(Yprev) + F(Yinc)
     if Y > F(Fp) + SUM_TOL:
-        must(f'{pre}.earnedPct', f"at most {dec(F(Fp) - F(Yprev))}, the farmor's interest {js(Fp)} less {dec(Yprev)} already earned", Yinc)
+        must(f'{pre}.earnedPct', f"at most {bound(F(Fp) - F(Yprev), 'max', lambda v: not (F(Yprev) + v > F(Fp) + SUM_TOL))}, the farmor's interest {js(Fp)} less {dec(Yprev)} already earned", Yinc)
     pct(f'{pre}.farmineePaysPct', X)
     if F(X) < Y:
-        must(f'{pre}.farmineePaysPct', f'at or above {dec(Y)}, the interest the farminee holds after the event (a promote of 0 or more)', X)
+        must(f'{pre}.farmineePaysPct', f'at or above {bound(Y, "min", lambda v: v >= Y)}, the interest the farminee holds after the event (a promote of 0 or more)', X)
     if X > Fp:
         must(f'{pre}.farmineePaysPct', f"at most {js(Fp)}, the farmor's interest before the deal (the farminee pays no other party's share)", X)
 
@@ -292,7 +308,7 @@ def check_carry(field, C, X, Y, cap, what):
         return
     base = s['base']
     paid, held = F(X) * base / 100, F(Y) * F(C) / 100
-    must(field, f'at or above {dec(F(Y) * F(C) / base)}, the share at which the carry is 0 when the farmor side pays the excess: paying {js(X)}% of the promoted {money(base)} '
+    must(field, f'at or above {bound(F(Y) * F(C) / base, "min", lambda v: v * base >= F(Y) * F(C))}, the share at which the carry is 0 when the farmor side pays the excess: paying {js(X)}% of the promoted {money(base)} '
          f'({money(paid)}) against its held {dec(Y)}% of {what} {money(C)} ({money(held)}) leaves a carry of {money(paid - held)}', X)
 
 
@@ -1064,6 +1080,31 @@ def build():
     ok('deal-carry-zero-farmor-side', 'dealValue', fsd)
     refused('deal-refuse-negative-carry-one-below', 'dealValue', dict(fsd, deal=dict(fsd['deal'], farmineePaysPct=35)), 'deal.farmineePaysPct')
     refused('deal-refuse-negative-carry-ekene', 'dealValue', dict(dbase, deal=dict(DEAL, farmineePaysPct=31, cap={'on': 'gross-cost', 'amount': 44000000, 'overrunRule': 'farmor-side'})), 'deal.farmineePaysPct')
+    # the printed minimum is itself accepted; one print step below is refused
+    fse = dict(dbase, deal=dict(DEAL, cap={'on': 'gross-cost', 'amount': 44000000, 'overrunRule': 'farmor-side'}))
+    ok('deal-negative-carry-printed-minimum-accepted', 'dealValue', dict(fse, deal=dict(fse['deal'], farmineePaysPct=31.363637)))
+    refused('deal-refuse-negative-carry-one-print-step-below', 'dealValue', dict(fse, deal=dict(fse['deal'], farmineePaysPct=31.363636)), 'deal.farmineePaysPct')
+    ok('earn-promote-printed-minimum-accepted', 'earningObligation', dict(base, events=[
+        {'name': 'a', 'grossCost': 1000000, 'farmineePaysPct': 10.1, 'earnedPct': 10.1, 'cap': NONE},
+        {'name': 'b', 'grossCost': 1000000, 'farmineePaysPct': 30.3, 'earnedPct': 20.2, 'cap': NONE}],
+        vesting='per-event', eventsCompleted=2, cashBonus=0, pastCosts=PAST0))
+    refused('earn-refuse-promote-below-inexact-held', 'earningObligation', dict(base, events=[
+        {'name': 'a', 'grossCost': 1000000, 'farmineePaysPct': 10.1, 'earnedPct': 10.1, 'cap': NONE},
+        {'name': 'b', 'grossCost': 1000000, 'farmineePaysPct': 30.299999, 'earnedPct': 20.2, 'cap': NONE}],
+        vesting='per-event', eventsCompleted=2, cashBonus=0, pastCosts=PAST0), 'events[1].farmineePaysPct')
+    refused('earn-refuse-earned-above-inexact-rest', 'earningObligation', dict(base, events=[
+        {'name': 'a', 'grossCost': 1000000, 'farmineePaysPct': 50.1, 'earnedPct': 50.1, 'cap': NONE},
+        {'name': 'b', 'grossCost': 1000000, 'farmineePaysPct': 70, 'earnedPct': 19.95, 'cap': NONE}],
+        vesting='per-event', eventsCompleted=2, cashBonus=0, pastCosts=PAST0), 'events[1].earnedPct')
+    ok('earn-earned-printed-maximum-accepted', 'earningObligation', dict(base, events=[
+        {'name': 'a', 'grossCost': 1000000, 'farmineePaysPct': 50.1, 'earnedPct': 50.1, 'cap': NONE},
+        {'name': 'b', 'grossCost': 1000000, 'farmineePaysPct': 70, 'earnedPct': 19.9, 'cap': NONE}],
+        vesting='per-event', eventsCompleted=2, cashBonus=0, pastCosts=PAST0))
+    # held 0.1 + 1.03: its double is above 1.13, whose double is refused: the printed minimum is 1.130001
+    refused('earn-refuse-promote-ceiling-refused', 'earningObligation', dict(base, events=[
+        {'name': 'a', 'grossCost': 1000000, 'farmineePaysPct': 0.1, 'earnedPct': 0.1, 'cap': NONE},
+        {'name': 'b', 'grossCost': 1000000, 'farmineePaysPct': 1.13, 'earnedPct': 1.03, 'cap': NONE}],
+        vesting='per-event', eventsCompleted=2, cashBonus=0, pastCosts=PAST0), 'events[1].farmineePaysPct')
     refused('info-refuse-negative-carry', 'informationValue', dict(dbase, deal=dict(DEAL, farmineePaysPct=31, cap={'on': 'gross-cost', 'amount': 44000000, 'overrunRule': 'farmor-side'}),
                                                                 side='farminee', information=fx['information']), 'deal.farmineePaysPct')
     refused('deal-refuse-no-fees', 'dealValue', dict(dbase, deal=without(DEAL, 'assignorFees')), 'deal.assignorFees')
