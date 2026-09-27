@@ -32,7 +32,7 @@ test('timing', () => {
   rows.push(['economicLimit, the year cap', '3 cases x 100 years', time(() => X.economicLimit(long)).toFixed(2)]);
   rows.push(['aggregate, Ekene reserves', '3 projects x 20000 iterations', time(() => X.aggregate(FX.aggregation.reserves)).toFixed(2)]);
   const many = Array.from({ length: 50 }, (_, i) => ({ id: `p${i}`, distribution: { type: 'lognormal', mean: 5 + 10 * rng(), stdDev: 1 + 2 * rng() } }));
-  rows.push(['aggregate at the work cap', '50 projects x 40000 iterations, uniform 0.3', time(() => X.aggregate({ resourceClass: 'reserves', level: 'field', unit: 'MMbbl', seed: 1, iterations: 40000, correlation: { type: 'uniform', rho: 0.3 }, projects: many })).toFixed(2)]);
+  rows.push(['aggregate at the work cap', '50 projects x 10000 iterations, uniform 0.3', time(() => X.aggregate({ resourceClass: 'reserves', level: 'field', unit: 'MMbbl', seed: 1, iterations: 10000, correlation: { type: 'uniform', rho: 0.3 }, projects: many })).toFixed(2)]);
   const two = many.slice(0, 2);
   rows.push(['aggregate at the iteration cap', '2 projects x 200000 iterations', time(() => X.aggregate({ resourceClass: 'reserves', level: 'field', unit: 'MMbbl', seed: 1, iterations: 200000, correlation: { type: 'uniform', rho: 0 }, projects: two })).toFixed(2)]);
   const moves = Array.from({ length: 50 }, (_, i) => ({ type: 'revisions', low: 0.01 * i, best: 0.02 * i, high: 0.03 * i }));

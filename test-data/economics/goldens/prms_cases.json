@@ -17436,7 +17436,7 @@
    "expected": {
     "error": true,
     "field": "iterations",
-    "message": "iterations must be at most 181818 for 11 projects (iterations x projects at most 2000000); got 200000"
+    "message": "iterations must be at most 45454 for 11 projects (iterations x projects at most 500000); got 200000"
    }
   },
   {

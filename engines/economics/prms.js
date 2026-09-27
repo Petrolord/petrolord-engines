@@ -86,7 +86,7 @@ export const DEFAULTS = Object.freeze({
   MAX_YEARS: 100,
   MAX_PROJECTS: 50,
   MAX_ITERATIONS: 200000,
-  MAX_DRAW_WORK: 2000000, // iterations x projects
+  MAX_DRAW_WORK: 500000, // iterations x projects (about 3 s at 50 projects, the Cholesky draw is quadratic in projects)
   MAX_MOVEMENTS: 50,
   PSD_TOLERANCE: 1e-9,
 });

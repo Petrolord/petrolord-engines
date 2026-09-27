@@ -363,7 +363,7 @@ describe('caps', () => {
     const p = { id: 'x', distribution: { type: 'lognormal', mean: 1, stdDev: 0.1 } };
     const many = Array.from({ length: X.DEFAULTS.MAX_PROJECTS + 1 }, (_, i) => ({ ...p, id: `p${i}` }));
     expect(X.aggregate({ ...clone(FX.aggregation.reserves), projects: many }).error).toBe(`projects must have at most ${X.DEFAULTS.MAX_PROJECTS} entries; got ${X.DEFAULTS.MAX_PROJECTS + 1}`);
-    expect(run('agg-refuse-work').error).toBe('iterations must be at most 181818 for 11 projects (iterations x projects at most 2000000); got 200000');
+    expect(run('agg-refuse-work').error).toBe('iterations must be at most 45454 for 11 projects (iterations x projects at most 500000); got 200000');
     const long = Array.from({ length: X.DEFAULTS.MAX_YEARS + 1 }, (_, i) => ({ year: 2027 + i, oil: 1, gas: 0 }));
     expect(X.economicLimit({ ...clone(FX.economicLimit), forecasts: { ...clone(FX.economicLimit.forecasts), low: long } }).field).toBe('forecasts.low');
   });

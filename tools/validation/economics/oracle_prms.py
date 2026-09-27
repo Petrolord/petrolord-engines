@@ -53,7 +53,7 @@ js, js_num, isnum, show, unit = OJ.js, OJ.js_num, OJ.isnum, OJ.show, OJ.unit
 Refusal, refuse, must = OJ.Refusal, OJ.refuse, OJ.must
 OBJ, LST, check_keys = OJ.OBJ, OJ.LST, OJ.check_keys
 
-CAPS = {'years': 100, 'projects': 50, 'iterations': 200000, 'work': 2000000, 'movements': 50}
+CAPS = {'years': 100, 'projects': 50, 'iterations': 200000, 'work': 500000, 'movements': 50}
 PSD_TOL = 1e-9
 T_YEARS = 5          # PRMS 2.1.2.3
 RETENTION_MAX = 10   # PIA 2021 s.78(9)
