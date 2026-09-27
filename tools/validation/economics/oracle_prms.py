@@ -254,7 +254,7 @@ def classify(a):
             else:
                 what = 'significant gas discovery' if d == 'significant-gas-discovery' else 'significant crude oil discovery'
                 note = (f'{what} declared (PIA 2021 s.78(8)(b)): substantial and potentially commercial but not declarable as commercial (s.318); '
-                        f'the licensee may retain the area for a period the Commission determines, at most {RETENTION_MAX} years from the declaration (s.78(9)); '
+                        f'the licensee may retain the area for a period the Commission determines, at most {RETENTION_MAX} years from the declaration (s.78(9)), an approval being for at least 5 years onshore and in shallow water and 8 in deep water (Significant Crude Oil and Gas Discovery Regulations, 2023, reg. 6(3)); '
                         f'{unit(yrs, "year")} since the declaration'
                         + (': the retention period has ended, so the area is relinquished unless a commercial discovery was declared (s.78(13))' if yrs > RETENTION_MAX else ''))
             r['nigeria'] = {'declaration': d, 'yearsSinceDeclaration': yrs, 'notes': [note]}

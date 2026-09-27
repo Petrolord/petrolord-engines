@@ -342,7 +342,7 @@ describe('wording and keys', () => {
       'sub-class: development-on-hold (stated) (PRMS 2.1.3.5.6, Table 1)',
       'economic status: undetermined (PRMS 2.1.3.7)',
       'chance of commerciality: Pc = Pd = 50% (PRMS 2.1.3.3)',
-      'Nigeria: significant gas discovery declared (PIA 2021 s.78(8)(b)): substantial and potentially commercial but not declarable as commercial (s.318); the licensee may retain the area for a period the Commission determines, at most 10 years from the declaration (s.78(9)); 3 years since the declaration',
+      'Nigeria: significant gas discovery declared (PIA 2021 s.78(8)(b)): substantial and potentially commercial but not declarable as commercial (s.318); the licensee may retain the area for a period the Commission determines, at most 10 years from the declaration (s.78(9)), an approval being for at least 5 years onshore and in shallow water and 8 in deep water (Significant Crude Oil and Gas Discovery Regulations, 2023, reg. 6(3)); 3 years since the declaration',
     ]);
     expect(run('class-ekn-6').reasons[4]).toBe('chance of commerciality: Pc = Pg x Pd = 25% x 80% = 20% (PRMS 2.1.3.3)');
     expect(run('econ-faq33-low-fails').reasons).toContain('the low case is not economic: 1P = 0 and the 2P and 3P estimates stand (PRMS 3.1.2.8; FAQ 3.3); the low case quantities sit inside 2P, never in 1C (FAQ 3.4, no split classification)');

@@ -877,6 +877,36 @@ and its consumers.
   EME 801 farm-out EMV example); synthetic Ekene Deep farm-out in
   `test-data/economics/ekene-farmout/`; negative control
   `negcontrol_farmout.sh`; timing `timing_farmout.js`.
+- `engines/economics/prms.js` (Economics EC11, 2026-09-27): reserves and
+  resources under SPE-PRMS 2018. The class of a project (Reserves,
+  Contingent Resources, Prospective Resources, Discovered or Undiscovered
+  Unrecoverable) from its stated discovery status, recovery project, the
+  seven commerciality criteria and commitment of PRMS 2.1.2.1 (the five-year
+  benchmark of 2.1.2.3), with the sub-class checked against the facts
+  (on production, approved or justified for development from the stated
+  investment decision; the Contingent and Prospective sub-classes stated),
+  the reserves status, the economic status and Pc (Pd, or Pg x Pd), and the
+  PIA 2021 s.78 and s.79 declaration notes; the categories of a set of
+  estimates in the cumulative (1P/2P/3P, 1C/2C/3C, 1U/2U/3U) and incremental
+  (P1/P2/P3, C1/C2/C3) forms with the P90/P50/P10 exceedance meaning of
+  `lib/conventions/percentile.js`; the economic limit and entitlement of a
+  low, best and high technical forecast through `economics/cashflow.ts`
+  (computeCashFlow with apply_economic_limit, cross-checked against the PRMS
+  3.1.3.1 peak of cumulative net cash flow; the undiscounted economic test;
+  1P = 0 when the low case fails; the licence cut; working-interest and
+  royalty-interest scaling through applyJV; gross, working-interest or net
+  entitlement basis; BOE at a stated factor); arithmetic and statistical
+  aggregation (the canonical `lib/stats` correlated sampler, seeded, with a
+  stated correlation, the portfolio effect, the risked mean, and the
+  arithmetic sums as the reportable figures above the field level per SEC
+  S-K Item 1202(a)(3)); and a year-to-year reconciliation with a closing
+  check. Every classification fact, chance, correlation, seed, price, cost,
+  royalty and tax is a required stated input. Gate:
+  `economics.prms.test.js` replays `test-data/economics/goldens/prms_cases.json`
+  (written by `tools/validation/economics/oracle_prms.py`, stdlib, with the
+  AG 2011 Table 6.2 aggregation and PRMS FAQ 3.3 examples); synthetic Ekene
+  field in `test-data/economics/ekene-prms/`; negative control
+  `negcontrol_prms.sh`; timing `timing_prms.js`.
 - `lib/stats/` — the canonical Monte Carlo sampling primitives and
   descriptive statistics (the Suite's src/lib/monteCarlo.js with
   simple-statistics 7.8.8 vendored bit-identically: Kahan sum,

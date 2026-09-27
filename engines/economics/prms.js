@@ -39,9 +39,13 @@
  *             summation beyond the field or property level) and 17 CFR
  *             210.4-10(a) (Regulation S-X Rule 4-10 definitions). US federal
  *             text, public domain.
+ *   SI 37     Significant Crude Oil and Gas Discovery Regulations, 2023
+ *             (S.I. No. 37 of 2023, Gazette No. 111 Vol. 110, 20 June 2023):
+ *             reg. 6(3) (retention approved for at least 5 years onshore and
+ *             in shallow water, 8 in deep water).
  *   PIA       Petroleum Industry Act 2021 (Act No. 6): s.78(8), (9), (13),
  *             (15) (commercial, significant and no-interest declarations,
- *             retention not more than 10 years), s.79(1) (field development
+ *             retention at most 10 years), s.79(1) (field development
  *             plan within two years), s.318 (significant crude oil and gas
  *             discovery: potentially commercial but cannot be declared
  *             commercial).
@@ -91,6 +95,8 @@ export const DEFAULTS = Object.freeze({
 export const PRMS_FIGURES = Object.freeze({
   reasonableTimeFrameYears: 5, // PRMS 2.1.2.3 and 2.1.3.6.4: five years recommended as a benchmark
   significantDiscoveryRetentionMaxYears: 10, // PIA 2021 s.78(9)
+  retentionMinOnshoreShallowYears: 5, // S.I. No. 37 of 2023, reg. 6(3)
+  retentionMinDeepWaterYears: 8, // S.I. No. 37 of 2023, reg. 6(3)
   fieldDevelopmentPlanYears: 2, // PIA 2021 s.79(1)
 });
 
@@ -297,7 +303,7 @@ const classifyImpl = (a) => {
         notes.push('discovery declared of no interest (PIA 2021 s.78(8)(c)); the Commission may require relinquishment of the parcels over the structure (s.78(15))');
       } else {
         const what = n.declaration === 'significant-gas-discovery' ? 'significant gas discovery' : 'significant crude oil discovery';
-        notes.push(`${what} declared (PIA 2021 s.78(8)(b)): substantial and potentially commercial but not declarable as commercial (s.318); the licensee may retain the area for a period the Commission determines, at most ${PRMS_FIGURES.significantDiscoveryRetentionMaxYears} years from the declaration (s.78(9)); ${unit(yrs, 'year')} since the declaration${yrs > PRMS_FIGURES.significantDiscoveryRetentionMaxYears ? ': the retention period has ended, so the area is relinquished unless a commercial discovery was declared (s.78(13))' : ''}`);
+        notes.push(`${what} declared (PIA 2021 s.78(8)(b)): substantial and potentially commercial but not declarable as commercial (s.318); the licensee may retain the area for a period the Commission determines, at most ${PRMS_FIGURES.significantDiscoveryRetentionMaxYears} years from the declaration (s.78(9)), an approval being for at least ${PRMS_FIGURES.retentionMinOnshoreShallowYears} years onshore and in shallow water and ${PRMS_FIGURES.retentionMinDeepWaterYears} in deep water (Significant Crude Oil and Gas Discovery Regulations, 2023, reg. 6(3)); ${unit(yrs, 'year')} since the declaration${yrs > PRMS_FIGURES.significantDiscoveryRetentionMaxYears ? ': the retention period has ended, so the area is relinquished unless a commercial discovery was declared (s.78(13))' : ''}`);
       }
       r.nigeria = { declaration: n.declaration, yearsSinceDeclaration: yrs, notes };
       notes.forEach((x) => reasons.push(`Nigeria: ${x}`));
