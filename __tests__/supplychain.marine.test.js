@@ -244,7 +244,7 @@ describe('properties (engine against engine)', () => {
     const ffd = run('ekene-deck-one-voyage-ffd');
     const ff = run('ekene-deck-one-voyage-first-fit');
     const out = (r) => r.overflow.reduce((s, o) => s + o.areaM2, 0);
-    expect(out(ffd)).toBeLessThanOrEqual(out(ff));
+    expect(out(ffd)).toBeLessThan(out(ff));
     expect(ffd.overflow.length).toBeGreaterThan(0);
     ffd.overflow.forEach((o) => expect(o.reason).toMatch(new RegExp(`^${o.unit.replace('#', '\\#')} is overflow: `)));
     expect(run('ekene-deck-two-voyages-ffd').overflow).toEqual([]);
@@ -260,6 +260,8 @@ describe('properties (engine against engine)', () => {
     expect([f.voyageSets[0].voyages, f.voyageSets[0].drivenBy, f.vessels]).toEqual([4, 'deck area', 2]);
     const d = run('ekene-fleet-psv-dedicated');
     expect(d.voyageSets.every((s) => s.drivenBy === 'minimum visits')).toBe(true);
+    expect(run('ekene-deck-one-voyage-first-fit').overflow.map((o) => o.unit)).toEqual(['pipe-bundle#2']);
+    expect(run('ekene-deck-one-voyage-ffd').overflow.length).toBe(11);
     expect(run('ekene-base-mmc').berthUtilisation).toBeLessThan(1);
     expect(run('base-refuse-ekene-one-berth-overloaded').field).toBe('arrivalsPerDay');
   });
