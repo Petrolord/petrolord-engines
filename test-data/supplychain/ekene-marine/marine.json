@@ -1,0 +1,313 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (Petrolord fictional teaching field, block EK-11), given a fictional offshore cluster. No real company, vessel, port, installation or contract appears.",
+ "generatedBy": "tools/validation/supplychain/make_marine_fixtures.py",
+ "title": "Ekene offshore cluster supply (synthetic): one PSV and one AHTS from the Ekene supply base",
+ "products": [
+  {
+   "id": "diesel",
+   "name": "Marine gas oil for the installations",
+   "kind": "liquid",
+   "densityTPerM3": 0.85
+  },
+  {
+   "id": "water",
+   "name": "Potable and drill water",
+   "kind": "liquid",
+   "densityTPerM3": 1
+  },
+  {
+   "id": "mud",
+   "name": "Pre-mixed water-based mud",
+   "kind": "liquid",
+   "densityTPerM3": 1.4
+  },
+  {
+   "id": "brine",
+   "name": "Completion brine",
+   "kind": "liquid",
+   "densityTPerM3": 1.2
+  },
+  {
+   "id": "cement",
+   "name": "Oilwell cement (dry bulk)",
+   "kind": "dry",
+   "densityTPerM3": 1.5
+  },
+  {
+   "id": "barite",
+   "name": "Barite (dry bulk)",
+   "kind": "dry",
+   "densityTPerM3": 2.1
+  }
+ ],
+ "vessels": {
+  "psv": {
+   "name": "PSV Ekene Star (synthetic)",
+   "speedKnots": 11,
+   "deckAreaM2": 800,
+   "deckUsableFraction": 0.75,
+   "deckLoadT": 2000,
+   "deadweightT": 3500,
+   "tanks": {
+    "diesel": 800,
+    "water": 1200,
+    "mud": 600,
+    "brine": 400,
+    "cement": 250,
+    "barite": 250
+   },
+   "fuelTPerHour": {
+    "sailing": 0.5,
+    "port": 0.03,
+    "field": 0.3
+   }
+  },
+  "ahts": {
+   "name": "AHTS Ekene Tide (synthetic)",
+   "speedKnots": 12,
+   "deckAreaM2": 550,
+   "deckUsableFraction": 0.75,
+   "deckLoadT": 1200,
+   "deadweightT": 2200,
+   "tanks": {
+    "diesel": 700,
+    "water": 600,
+    "mud": 300,
+    "brine": 200,
+    "cement": 150,
+    "barite": 150
+   },
+   "fuelTPerHour": {
+    "sailing": 0.6,
+    "port": 0.04,
+    "field": 0.4
+   }
+  }
+ },
+ "installations": [
+  {
+   "id": "EKA",
+   "name": "Ekene-A production platform (synthetic)",
+   "distanceFromBaseNm": 62,
+   "fieldHours": 6,
+   "minVisits": 2,
+   "demand": {
+    "deckAreaM2": 520,
+    "deckWeightT": 610,
+    "bulk": {
+     "diesel": 450,
+     "water": 900
+    }
+   },
+   "voyageCargo": {
+    "deckAreaM2": 175,
+    "deckWeightT": 205,
+    "bulk": {
+     "diesel": 150,
+     "water": 300
+    }
+   }
+  },
+  {
+   "id": "EKJ",
+   "name": "Ekene jack-up drilling unit (synthetic)",
+   "distanceFromBaseNm": 68,
+   "fieldHours": 8,
+   "minVisits": 3,
+   "demand": {
+    "deckAreaM2": 900,
+    "deckWeightT": 1100,
+    "bulk": {
+     "diesel": 500,
+     "water": 700,
+     "mud": 600,
+     "brine": 250,
+     "cement": 180,
+     "barite": 200
+    }
+   },
+   "voyageCargo": {
+    "deckAreaM2": 215,
+    "deckWeightT": 300,
+    "bulk": {
+     "diesel": 170,
+     "water": 240,
+     "mud": 200,
+     "brine": 85,
+     "cement": 60,
+     "barite": 70
+    }
+   }
+  },
+  {
+   "id": "EKB",
+   "name": "Ekene-B wellhead platform (synthetic)",
+   "distanceFromBaseNm": 74,
+   "fieldHours": 4,
+   "minVisits": 1,
+   "demand": {
+    "deckAreaM2": 180,
+    "deckWeightT": 150,
+    "bulk": {
+     "diesel": 120,
+     "water": 200
+    }
+   },
+   "voyageCargo": {
+    "deckAreaM2": 60,
+    "deckWeightT": 50,
+    "bulk": {
+     "diesel": 40,
+     "water": 70
+    }
+   }
+  },
+  {
+   "id": "EKF",
+   "name": "Ekene FPSO (synthetic)",
+   "distanceFromBaseNm": 95,
+   "fieldHours": 5,
+   "minVisits": 2,
+   "demand": {
+    "deckAreaM2": 260,
+    "deckWeightT": 240,
+    "bulk": {
+     "diesel": 300,
+     "water": 400
+    }
+   },
+   "voyageCargo": {
+    "deckAreaM2": 90,
+    "deckWeightT": 80,
+    "bulk": {
+     "diesel": 100,
+     "water": 135
+    }
+   }
+  }
+ ],
+ "milkRun": {
+  "mode": "milk-run",
+  "stops": [
+   "EKA",
+   "EKJ",
+   "EKB",
+   "EKF"
+  ],
+  "legsNm": [
+   62,
+   9,
+   12,
+   28,
+   95
+  ]
+ },
+ "portHours": 12,
+ "weather": {
+  "factor": 1.2,
+  "appliesTo": [
+   "sailing",
+   "field"
+  ],
+  "note": "rainy-season allowance, a stated planning factor"
+ },
+ "fuelPricePerT": 870,
+ "period": {
+  "periodDays": 7,
+  "vesselAvailableDays": 6.5,
+  "note": "one week; half a day a week held for crew change and maintenance"
+ },
+ "variability": {
+  "weatherFactor": {
+   "min": 1,
+   "mode": 1.2,
+   "max": 1.6
+  },
+  "demandFactor": {
+   "min": 0.85,
+   "mode": 1,
+   "max": 1.3
+  },
+  "plannedVessels": 2,
+  "iterations": 20000,
+  "seed": 20260927
+ },
+ "deck": {
+  "name": "PSV Ekene Star clear deck (synthetic)",
+  "areaM2": 800,
+  "usableFraction": 0.75,
+  "loadT": 2000
+ },
+ "deckItems": [
+  {
+   "id": "chem-ibc",
+   "name": "Chemical IBC in a frame (synthetic)",
+   "lengthM": 1.2,
+   "widthM": 1,
+   "weightT": 1.3,
+   "quantity": 12
+  },
+  {
+   "id": "skip",
+   "name": "Waste skip (synthetic)",
+   "lengthM": 2.5,
+   "widthM": 1.8,
+   "weightT": 3,
+   "quantity": 6
+  },
+  {
+   "id": "cont-10",
+   "name": "10 ft offshore container (synthetic)",
+   "lengthM": 2.99,
+   "widthM": 2.44,
+   "weightT": 8,
+   "quantity": 12
+  },
+  {
+   "id": "basket-6m",
+   "name": "6 m cargo basket (synthetic)",
+   "lengthM": 6,
+   "widthM": 2.5,
+   "weightT": 6,
+   "quantity": 8
+  },
+  {
+   "id": "mud-tank",
+   "name": "Portable mud tank (synthetic)",
+   "lengthM": 5,
+   "widthM": 2.4,
+   "weightT": 14,
+   "quantity": 5
+  },
+  {
+   "id": "cont-20",
+   "name": "20 ft offshore container (synthetic)",
+   "lengthM": 6.06,
+   "widthM": 2.44,
+   "weightT": 12,
+   "quantity": 16
+  },
+  {
+   "id": "pipe-bundle",
+   "name": "Casing joints, 13-3/8 in, bundled (synthetic)",
+   "lengthM": 13.5,
+   "widthM": 2.6,
+   "weightT": 38,
+   "quantity": 2
+  }
+ ],
+ "shoreBase": {
+  "name": "Ekene supply base (synthetic)",
+  "berths": 2,
+  "arrivalsPerDay": 3.2,
+  "workingHoursPerDay": 24,
+  "service": {
+   "fixedHours": 2,
+   "lifts": 60,
+   "liftsPerHour": 12,
+   "bulkM3": 900,
+   "bulkM3PerHour": 150,
+   "concurrent": true
+  }
+ }
+}
