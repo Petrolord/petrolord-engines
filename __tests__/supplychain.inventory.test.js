@@ -243,6 +243,8 @@ describe('properties (engine against itself)', () => {
     });
     expect(run('ins-search-limit').atSearchLimit).toBe(true);
     expect(run('ins-cheap-downtime-holds-none').spares).toBe(0);
+    const tie = run('ins-tie-takes-fewer');
+    expect([tie.spares, tie.options[0].totalCost.toPrecision(12)]).toEqual([0, tie.options[1].totalCost.toPrecision(12)]);
   });
   test('slow-moving: the write-downs add to the total and every band edge is inclusive', () => {
     const r = run('sm-ekene');

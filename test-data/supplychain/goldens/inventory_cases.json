@@ -861,6 +861,71 @@
    }
   },
   {
+   "id": "crit-override-one-below-max",
+   "fn": "criticality",
+   "args": {
+    "criteria": [
+     {
+      "id": "s",
+      "weight": 50
+     },
+     {
+      "id": "p",
+      "weight": 50
+     }
+    ],
+    "scoreMax": 10,
+    "classes": [
+     {
+      "label": "V",
+      "minScore": 70
+     },
+     {
+      "label": "E",
+      "minScore": 40
+     },
+     {
+      "label": "D",
+      "minScore": 0
+     }
+    ],
+    "topClassOnMaxScore": [
+     "s"
+    ],
+    "items": [
+     {
+      "id": "X",
+      "scores": {
+       "s": 9,
+       "p": 0
+      }
+     }
+    ]
+   },
+   "tol": 1e-12,
+   "note": "9 of 10 on the override criterion is below the maximum: the class comes from the score alone (45, E)",
+   "expected": {
+    "items": [
+     {
+      "id": "X",
+      "weightedScore": 45.0,
+      "contributions": {
+       "s": 45.0,
+       "p": 0.0
+      },
+      "class": "E",
+      "forcedBy": [],
+      "reason": "X: weighted score 45 is at or above 40, the minimum for class E, and below 70 for class V"
+     }
+    ],
+    "counts": {
+     "V": 0,
+     "E": 1,
+     "D": 0
+    }
+   }
+  },
+  {
    "id": "crit-12-digit-key",
    "fn": "criticality",
    "args": {
@@ -12615,6 +12680,57 @@
      }
     ],
     "reason": "3 spares: holding 0 a year against expected downtime 77347.41, total 77347.41, the lowest for 0 to 3; the search stopped at maxSpares 3, so a larger stock may cost less"
+   }
+  },
+  {
+   "id": "ins-tie-takes-fewer",
+   "fn": "insuranceSpares",
+   "args": {
+    "failuresPerYear": 365,
+    "leadTimeDays": 1,
+    "daysPerYear": 365,
+    "unitCost": 230724.00397242355,
+    "holdingRate": 1,
+    "downtimeCostPerDay": 1000,
+    "maxSpares": 2
+   },
+   "tol": 1e-09,
+   "note": "mean 1: the first spare costs (1 - exp(-1)) x 365,000 a year, exactly the downtime it saves; tied at 12 digits, so the fewer spares (0)",
+   "expected": {
+    "meanOutstanding": 1.0,
+    "spares": 0,
+    "totalCost": 365000.0,
+    "atSearchLimit": false,
+    "options": [
+     {
+      "spares": 0,
+      "probabilityNoShortage": 0.36787944117144233,
+      "fillRate": 0.0,
+      "expectedUnitsDown": 1.0,
+      "holdingCost": 0.0,
+      "downtimeCost": 365000.0,
+      "totalCost": 365000.0
+     },
+     {
+      "spares": 1,
+      "probabilityNoShortage": 0.7357588823428847,
+      "fillRate": 0.36787944117144233,
+      "expectedUnitsDown": 0.36787944117144233,
+      "holdingCost": 230724.00397242355,
+      "downtimeCost": 134275.99602757645,
+      "totalCost": 365000.0
+     },
+     {
+      "spares": 2,
+      "probabilityNoShortage": 0.9196986029286058,
+      "fillRate": 0.7357588823428847,
+      "expectedUnitsDown": 0.10363832351432696,
+      "holdingCost": 461448.0079448471,
+      "downtimeCost": 37827.988082729345,
+      "totalCost": 499275.99602757645
+     }
+    ],
+    "reason": "0 spares: holding 0 a year against expected downtime 365000, total 365000, the lowest for 0 to 2; one more spare adds 230724 of holding and saves 230724 of downtime"
    }
   },
   {

@@ -1100,6 +1100,8 @@ def build_cases():
     case('crit-override-forces-top', 'criticality', dict(base, topClassOnMaxScore=['s'], items=[{'id': 'X', 'scores': {'s': 10, 'p': 0}}]))
     case('crit-override-already-top', 'criticality', dict(base, topClassOnMaxScore=['s', 'p'], items=[{'id': 'X', 'scores': {'s': 10, 'p': 10}}]))
     case('crit-override-two-criteria', 'criticality', dict(base, topClassOnMaxScore=['s', 'p'], items=[{'id': 'X', 'scores': {'s': 10, 'p': 0}}, {'id': 'W', 'scores': {'s': 0, 'p': 10}}]))
+    case('crit-override-one-below-max', 'criticality', dict(base, topClassOnMaxScore=['s'], items=[{'id': 'X', 'scores': {'s': 9, 'p': 0}}]),
+         note='9 of 10 on the override criterion is below the maximum: the class comes from the score alone (45, E)')
     thirds = {'criteria': [{'id': 'a', 'weight': 33.3}, {'id': 'b', 'weight': 33.3}, {'id': 'c', 'weight': 33.4}], 'scoreMax': 10,
               'classes': [{'label': 'V', 'minScore': 70}, {'label': 'D', 'minScore': 0}], 'topClassOnMaxScore': []}
     case('crit-12-digit-key', 'criticality', dict(thirds, items=[{'id': 'T', 'scores': {'a': 7, 'b': 7, 'c': 7}}]),
@@ -1328,6 +1330,10 @@ def build_cases():
     case('ins-max-zero', 'insuranceSpares', dict(ia, maxSpares=0), tol=1e-9)
     case('ins-free-holding', 'insuranceSpares', dict(ia, holdingRate=0, maxSpares=3), tol=1e-9,
          note='no holding cost: every spare lowers the cost, so the search limit is reached')
+    tie_cost = float((1 - Decimal(-1).exp()) * 365000)
+    case('ins-tie-takes-fewer', 'insuranceSpares', {'failuresPerYear': 365, 'leadTimeDays': 1, 'daysPerYear': 365, 'unitCost': tie_cost, 'holdingRate': 1,
+                                                    'downtimeCostPerDay': 1000, 'maxSpares': 2}, tol=1e-9,
+         note='mean 1: the first spare costs (1 - exp(-1)) x 365,000 a year, exactly the downtime it saves; tied at 12 digits, so the fewer spares (0)')
     case('ins-refuse-failures-zero', 'insuranceSpares', dict(ia, failuresPerYear=0))
     case('ins-refuse-lead-time-zero', 'insuranceSpares', dict(ia, leadTimeDays=0))
     case('ins-refuse-days-missing', 'insuranceSpares', {k: v for k, v in ia.items() if k != 'daysPerYear'})
